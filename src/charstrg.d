@@ -1926,7 +1926,7 @@ LISPFUNNF(code_char,1)
     pushSTACK(codeobj); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(codeobj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: the code argument should be an integer, not ~S"));
   }
   /* codeobj is now an integer. */
@@ -1948,7 +1948,7 @@ LISPFUNNR(character,1)
     pushSTACK(O(type_designator_character)); /* TYPE-ERROR slot EXPECTED-TYPE*/
     pushSTACK(STACK_1);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: cannot coerce ~S to a character"));
+    error(type_error,GETTEXT("~S: cannot coerce ~S to a character"));
   } else {
     VALUES1(trial); skipSTACK(1);
   }
@@ -1980,7 +1980,7 @@ LISPFUN(digit_char,seclass_foldable,1,1,norest,nokey,0,NIL)
     pushSTACK(weightobj); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(weightobj); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: the weight argument should be an integer, not ~S"));
   }
   /* weightobj is now an integer. */
@@ -2017,7 +2017,7 @@ LISPFUNNF(int_char,1)
     pushSTACK(arg); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: argument should be an integer, not ~S"));
+    error(type_error,GETTEXT("~S: argument should be an integer, not ~S"));
   }
 }
 
@@ -2164,10 +2164,10 @@ nonreturning_function(local, fehler_int, (object kw, object obj)) {
   pushSTACK(obj);
   if (eq(kw,nullobj)) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: index should be an integer, not ~S"));
+    error(type_error,GETTEXT("~S: index should be an integer, not ~S"));
   } else {
     pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S-index should be an integer, not ~S"));
+    error(type_error,GETTEXT("~S: ~S-index should be an integer, not ~S"));
   }
 }
 
@@ -2178,10 +2178,10 @@ nonreturning_function(local, fehler_int_null, (object kw, object obj)) {
   pushSTACK(obj);
   if (eq(kw,nullobj)) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: index should be NIL or an integer, not ~S"));
+    error(type_error,GETTEXT("~S: index should be NIL or an integer, not ~S"));
   } else {
     pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S-index should be NIL or an integer, not ~S"));
+    error(type_error,GETTEXT("~S: ~S-index should be NIL or an integer, not ~S"));
   }
 }
 
@@ -2192,10 +2192,10 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   pushSTACK(obj);
   if (eq(kw,nullobj)) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: index should not be negative: ~S"));
+    error(type_error,GETTEXT("~S: index should not be negative: ~S"));
   } else {
     pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S-index should not be negative: ~S"));
+    error(type_error,GETTEXT("~S: ~S-index should not be negative: ~S"));
   }
 }
 
@@ -2213,10 +2213,10 @@ nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj,
   }
   if (eq(kw,nullobj)) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: index ~S should not be greater than the length of the string"));
+    error(type_error,GETTEXT("~S: index ~S should not be greater than the length of the string"));
   } else {
     pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S-index ~S should not be greater than the length of the string"));
+    error(type_error,GETTEXT("~S: ~S-index ~S should not be greater than the length of the string"));
   }
 }
 
@@ -2234,11 +2234,11 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
   }
   if (eq(kw,nullobj)) {
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: index ~S should be less than the length of the string"));
   } else {
     pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S-index ~S should be less than the length of the string"));
+    error(type_error,GETTEXT("~S: ~S-index ~S should be less than the length of the string"));
   }
 }
 
@@ -2397,7 +2397,7 @@ global void test_vector_limits (stringarg* arg) {
     pushSTACK(STACK_0); /* :END index */
     pushSTACK(STACK_(1+1)); /* :START index */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: :START-index ~S must not be greater than :END-index ~S"));
+    error(error_condition,GETTEXT("~S: :START-index ~S must not be greater than :END-index ~S"));
   }
   skipSTACK(2);
   /* fill results: */
@@ -2501,7 +2501,7 @@ local maygc void test_1_stringsym_limits (bool invert, object* string_,
     pushSTACK(STACK_0); /* :END-Index */
     pushSTACK(STACK_2); /* :START-Index */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
+    error(error_condition,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
   }
   skipSTACK(3);
   /* copy string and issue results: */
@@ -2551,7 +2551,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
       pushSTACK(STACK_2); /* :END1-Index */
       pushSTACK(STACK_4); /* :START1-Index */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: :start1-index ~S must not be greater than :end1-index ~S"));
+      error(error_condition,GETTEXT("~S: :start1-index ~S must not be greater than :end1-index ~S"));
     }
     /* issue the results for string1: */
     arg1->index = start1; arg1->len = end1-start1;
@@ -2574,7 +2574,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
       pushSTACK(STACK_0); /* :END2-Index */
       pushSTACK(STACK_2); /* :START2-Index */
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: :start2-index ~S must not be greater than :end2-index ~S"));
+      error(error_condition,GETTEXT("~S: :start2-index ~S must not be greater than :end2-index ~S"));
     }
     /* issue the results for string2: */
     arg2->index = start2; arg2->len = end2-start2;
@@ -3189,7 +3189,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
     pushSTACK(STACK_2); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(2+2)); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: the string length ~S should be nonnegative fixnum"));
   }
   size = posfixnum_to_V(STACK_2);
@@ -3205,7 +3205,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
         pushSTACK(S(character)); /* CHARACTER */
         pushSTACK(S(Kelement_type)); /* :ELEMENT-TYPE */
         pushSTACK(S(make_string));
-        fehler(error,GETTEXT("~S: ~S argument must be a subtype of ~S, not ~S"));
+        error(error_condition,GETTEXT("~S: ~S argument must be a subtype of ~S, not ~S"));
       }
     }
   }
@@ -3222,7 +3222,7 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
       pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(S(character)); pushSTACK(initial_element);
       pushSTACK(S(Kinitial_element)); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: ~S argument ~S should be of type ~S"));
+      error(type_error,GETTEXT("~S: ~S argument ~S should be of type ~S"));
     } else {
       var chart ch = char_code(initial_element);
      #ifdef HAVE_SMALL_SSTRING
@@ -3707,7 +3707,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
     pushSTACK(STACK_0); /* :END-Index */
     pushSTACK(STACK_2); /* :START-Index */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
+    error(error_condition,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
   }
   skipSTACK(3);
   /* extract substring: */

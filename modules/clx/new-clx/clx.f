@@ -11,6 +11,9 @@ Sam Steingold 2001-2007
 
 ----------------------------------------------------------------------------
 
+Revision 1.25  2007-11-24 15:48:45 rurban
+- rename fehler to error
+
 Revision 1.24  1999-10-17  bruno
 - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
   indirection.
@@ -199,7 +202,7 @@ Initial revision
      (It is even  not guaranteed to be available.)
 
 - go thru' the whole source and find all error messages and check that they
-  are given right. [fehler wants its arguments backwards!]
+  are given right. [error wants its arguments backwards!]
 
 - since some make_xxx functions use value1, I should generally push the
   return values onto the stack before actually returning.
@@ -500,7 +503,7 @@ nonreturning_function(static,my_type_error,(object type, object datum))
   pushSTACK(datum);             /* TYPE-ERROR slot DATUM */
   pushSTACK(type);              /* TYPE-ERROR slot TYPE */
   pushSTACK(type); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  fehler (type_error, ("~S: ~S is not of type ~S"));
+  error (type_error, ("~S: ~S is not of type ~S"));
 }
 nonreturning_function (static, error_closed_display,
                        (object caller, object dpy)) {
@@ -1025,7 +1028,7 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
 
     if (!info) {
       pushSTACK(STACK_1); pushSTACK(TheSubr (subr_self)->name);
-      fehler (error, "~S: Nonexistent font: ~S");
+      error(error_condition,"~S: Font ~S does not exist");
     }
 
     if (dpyf) *dpyf = dpy;
@@ -1147,11 +1150,11 @@ static Font get_font (object self)
         return font;            /* all done */
       } else { /* We could not open the font, so emit an error message */
         pushSTACK(TheSubr(subr_self)->name);    /* function name */
-        fehler (error, "~S: Cannot open pseudo font ~S");
+        error(error_condition,"~S: Cannot open pseudo font ~S");
       }
     } else {                 /* We have no name, tell that the luser. */
       pushSTACK(TheSubr(subr_self)->name);     /* function name */
-      fehler (error, "~S: Cannot open pseudo font ~S, since it has no name associated with it.");
+      error(error_condition,"~S: Cannot open pseudo font ~S, since it has no name associated with it.");
     }
   }
 }
@@ -1736,7 +1739,7 @@ static Display *x_open_display (char* display_name, int display_number) {
 
   if (!display_name) { /* Which display should we open?! */
     pushSTACK(TheSubr(subr_self)->name); /* function name */
-    fehler (error, ("~S: Do not know which display to open."));
+    error(error_condition,("~S: Do not know which display to open."));
   }
 
   {
@@ -1757,7 +1760,7 @@ static Display *x_open_display (char* display_name, int display_number) {
     if (!dpy) {
       pushSTACK(asciz_to_string(cname,GLO(misc_encoding))); /* display name */
       pushSTACK(TheSubr(subr_self)->name); /* function name */
-      fehler (error, ("~S: Cannot open display ~S.")); /* raise error */
+      error(error_condition,("~S: Cannot open display ~S.")); /* raise error */
     }
 
     FREE_DYNAMIC_ARRAY (cname);
@@ -2080,7 +2083,7 @@ DEFUN(XLIB::SET-GCONTEXT-DISPLAY, display gcontext) { /* used by CLUE */
     pushSTACK(allocate_fpointer(dpy_new));
     pushSTACK(STACK_3)/*gc*/; pushSTACK(STACK_3)/* dpy */;
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,"~S: cannot change dpy of ~S to ~S (~S is not ~S)");
+    error(error_condition,"~S: cannot change dpy of ~S to ~S (~S is not ~S)");
   }
   pushSTACK(STACK_0);           /* GC */
   pushSTACK(`XLIB::DISPLAY`);   /* slot */
@@ -2183,7 +2186,7 @@ DEFUN(XLIB::SET-DISPLAY-DEFAULT-SCREEN, display screen)
     if (s < 0 || s >= ns) {
       pushSTACK(fixnum(s)); pushSTACK(fixnum(ns));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,"~S: ~S out of range [0;~S)");
+      error(error_condition,"~S: ~S out of range [0;~S)");
     }
   } else {
     Display *dpy1;
@@ -2193,14 +2196,14 @@ DEFUN(XLIB::SET-DISPLAY-DEFAULT-SCREEN, display screen)
       pushSTACK(find_display(dpy1));
       pushSTACK(STACK_2); /*scr*/
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,"~S: ~S belongs to ~S, not to ~S");
+      error(error_condition,"~S: ~S belongs to ~S, not to ~S");
     }
     s = XScreenNo(dpy,scr);
     if (s == -1) {
       pushSTACK(STACK_1); /*dpy*/
       pushSTACK(STACK_1); /*scr*/
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,"~S: ~S is not found in ~S");
+      error(error_condition,"~S: ~S is not found in ~S");
     }
   }
   DefaultScreen(dpy) = s;
@@ -2393,7 +2396,7 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
   } else {
     pushSTACK(STACK_1); /* display argument */
     pushSTACK(STACK_1); /* visual id argument */
-    fehler (error, ("Visual info not found for id #~S in display ~S."));
+    error(error_condition,"Visual info not found for id #~S in display ~S.");
   }
 }
 
@@ -2406,7 +2409,7 @@ DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
 
 nonreturning_function(static, error_required_keywords, (object list)) {
   pushSTACK(list); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,"~S: At least ~S must be specified");
+  error(error_condition,"~S: At least ~S must be specified");
 }
 
 /* 4.1 Drawables */
@@ -2677,7 +2680,7 @@ DEF_WIN_ATTR_READER (VISUAL-INFO,          visual_info, visual)/* NIM */
 DEFUN(XLIB:WINDOW-CURSOR, window)
 {
   pushSTACK(`XLIB::WINDOW-CURSOR`);
-  fehler (error, ("~S can only be set"));
+  error(error_condition,"~S can only be set");
 }
 
 DEFUN(XLIB:SET-WINDOW-BORDER, arg1 arg2)
@@ -3069,7 +3072,7 @@ DEFUN(XLIB:CREATE-GCONTEXT, &key DRAWABLE FUNCTION PLANE-MASK FOREGROUND \
     }
   } else {
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~S: At least :DRAWABLE should be specifed.");
+    error(error_condition,"~S: At least :DRAWABLE should be specifed.");
   }
   skipSTACK(26);
 }
@@ -3171,7 +3174,7 @@ DEFUN(XLIB:SET-GCONTEXT-CACHE-P, arg1 arg2)
   unused get_gcontext_and_display (STACK_1, &dpy);
   if (nullp(STACK_0)) {
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~S: This CLX implemenation does not allow uncached graphics contexts.");
+    error(error_condition,"~S: This CLX implemenation does not allow uncached graphics contexts.");
   }
   VALUES1(STACK_0);
   skipSTACK(2);
@@ -3212,7 +3215,7 @@ DEFUN(XLIB::SET-GCONTEXT-DASHES, gcontext dashes)
     uintC n = get_fixnum(funcall1(L(length),STACK_0));
     if (n < 1) {
       pushSTACK(TheSubr(subr_self)->name);
-      fehler (error, "~S: The dash list should be non-empty.");
+      error(error_condition,"~S: The dash list should be non-empty.");
     }
     /* FIXME: For efficiency reasons, we should look
               if user gave already a byte vector.
@@ -3260,7 +3263,7 @@ static int get_seq_len (gcv_object_t *seq, gcv_object_t *type, int size) {
   if (num % size) {
     pushSTACK(fixnum(size)); pushSTACK(fixnum(num)); pushSTACK(*type);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,"~S: Argument is not a proper ~S; length of sequence, ~S, is not a multiple of ~S.");
+    error(error_condition,"~S: Argument is not a proper ~S; length of sequence, ~S, is not a multiple of ~S.");
   }
   return num/size;
 }
@@ -4129,7 +4132,7 @@ static void ensure_valid_put_image_args (int src_x, int src_y, int w, int h,
     return;
   } else {
     /* TODO: Be more verbose here. */
-    fehler (error, ":SRC-X, :SRC-Y, :WIDTH, :HEIGHT are bad");
+    error(error_condition,":SRC-X, :SRC-Y, :WIDTH, :HEIGHT are bad");
   }
 }
 
@@ -4161,7 +4164,7 @@ static XImage* create_image (Display *dpy, unsigned int depth, int bitmap_p,
   if (im == 0) {
     free (data);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler (error, "~S: XCreateImage call failed.");
+    error(error_condition,"~S: XCreateImage call failed.");
   }
   dprintf (("im.bytes_per_line = %d (vs. %d)",
             im->bytes_per_line, bytes_per_line));
@@ -4197,7 +4200,7 @@ static void handle_image_z (int src_x, int src_y, int x, int y, int w, int h,
     default:
       pushSTACK(sfixnum(depth));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error, "~S: depth=~S is not supported");
+      error(error_condition,"~S: depth=~S is not supported");
   }
 
   /* Actually create the image */
@@ -4314,7 +4317,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
       pushSTACK(`(ARRAY XLIB::CARD8 (*))`);
       pushSTACK(STACK_8);
       pushSTACK(TheSubr (subr_self)->name);
-      fehler (error, "~S: Slot :DATA of IMAGE-X ~S is not of type ~S.");
+      error(error_condition,"~S: Slot :DATA of IMAGE-X ~S is not of type ~S.");
     }
 
     dprintf(("\n;; put-image: IMAGE-X -> %dx%d+%d+%d",w,h,x,y));
@@ -4917,7 +4920,7 @@ nonreturning_function(static, error_no_such_color,
   pushSTACK(color); /* color argument */
   pushSTACK(TheSubr(subr_self)->name);
   STACK_2 = get_display_obj(STACK_2); /* display argument */
-  fehler(error,"~S: Color ~S is unknown to display ~S.");
+  error(error_condition,"~S: Color ~S is unknown to display ~S.");
 }
 
 DEFUN(XLIB:ALLOC-COLOR, arg1 arg2)
@@ -5416,7 +5419,8 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   if (len < 0) {
     pushSTACK(make_sint32 (len));
     pushSTACK(TheSubr (subr_self)->name);
-    fehler (error, "~S: How bogus! The effective length (~S) is negative.");
+    error(error_condition,
+          "~S: How bogus! The effective length (~S) is negative.");
   }
 
   {
@@ -7190,7 +7194,7 @@ DEFUN(XLIB:KEYSYM, keysym &rest bytes) { /* see mit-clx/translate.lisp */
   } else {
     object tmp = listof(argcount+1); pushSTACK(tmp);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,("~S: invalid arguments ~S"));
+    error(error_condition,"~S: invalid arguments ~S");
   }
 }
 
@@ -7230,7 +7234,7 @@ DEFUN(XLIB:CLOSE-DOWN-MODE, display)
          server, but you could store it in the display structure. (Like
          MIT-CLX does it.) */
   pushSTACK(`XLIB::CLOSE-DOWN-MODE`);
-  fehler (error, ("~S can only be set"));
+  error(error_condition,"~S can only be set");
 }
 
 DEFUN(XLIB:SET-CLOSE-DOWN-MODE, mode display)
@@ -7374,7 +7378,7 @@ static void lisp_to_XHostAddress (object host, XHostAddress *xha) {
 #  endif
     default: pushSTACK(fixnum(he->h_addrtype));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: unknown address family ~S"));
+      error(error_condition,GETTEXT("~S: unknown address family ~S"));
   }
   xha->address = he->h_addr_list[0];
 }
@@ -7616,7 +7620,7 @@ int xlib_io_error_handler (Display *display)
   begin_callback ();
 
   pushSTACK(find_display (display));
-  fehler (error, "IO Error on display ~S.");
+  error(error_condition,"IO Error on display ~S.");
 }
 
 int xlib_after_function (Display *display)
@@ -7656,7 +7660,8 @@ static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
     if (error_p) {                              /* raise an error */
       pushSTACK(dpy_obj);                       /* the display */
       pushSTACK(TheSubr(subr_self)->name);      /* function name */
-      fehler (error, ("~S: Shape extension is not available on display ~S."));
+      error(error_condition,
+            "~S: Shape extension is not available on display ~S.");
     } else
       return False;
   }
@@ -8095,7 +8100,7 @@ DEFUN(XPM:READ-FILE-TO-PIXMAP, drawable filename &key SHAPE-MASK-P PIXMAP-P)
     }
     pushSTACK(STACK_4);         /* pathname */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,"~S: Cannot read ~S: ~S");
+    error(error_condition,"~S: Cannot read ~S: ~S");
   }
 
   if (pixmap)     pushSTACK(make_pixmap (STACK_0, pixmap));

@@ -46,7 +46,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
     pushSTACK(NIL); pushSTACK(pattern);
     STACK_1 = asciz_to_string(buf,GLO(misc_encoding));
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,"~S (~S): ~S");
+    check_value(error_condition,"~S (~S): ~S");
     pattern = value1;
     goto restart_regcomp;
   }
@@ -88,7 +88,7 @@ DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
     if (re != NULL) break;
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_(1+1)); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: NULL pattern ~S"));
+    check_value(error_condition,GETTEXT("~S: NULL pattern ~S"));
     STACK_1 = value1;
   }
   string = STACK_0;

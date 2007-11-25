@@ -50,7 +50,7 @@ local void begin_error (void)
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* delete error count */
     /* bind *PRINT-PRETTY* to NIL (in order to save memory): */
     dynamic_bind(S(print_pretty),NIL);
-    fehler(serious_condition,
+    error(serious_condition,
            /* Note: All translations of this error message should be in
               pure ASCII, to avoid endless recursion if *terminal-encoding*
               supports only ASCII characters. */
@@ -179,7 +179,7 @@ local gcv_object_t* write_errorstring (const char* errorstring)
         continue;
       }
       pushSTACK(asciz_to_string(errorstring,Symbol_value(S(utf_8))));
-      fehler(error,
+      error(error_condition,
              GETTEXT("internal error or error in message catalog: invalid low-level format string ~S"));
     }
     /* output all characters until the next special character */
@@ -319,10 +319,10 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   }
 }
 
-/* helper -- see doc for fehler() */
+/* helper -- see doc for error() */
 local void prepare_error (condition_t errortype, const char* errorstring,
                           bool start_driver_p)
-{ /* the common part of fehler(), check_value() &c */
+{ /* the common part of error(), check_value() &c */
   begin_error(); /* start error message */
   if (!nullp(STACK_3)) { /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
     /* choose error-type-symbol for errortype: */
@@ -337,14 +337,14 @@ local void prepare_error (condition_t errortype, const char* errorstring,
 }
 
 /* Error message with Errorstring. Does not return.
- fehler(errortype,errorstring);
+ error(errortype,errorstring);
  > errortype: condition type
  > errorstring: Constant ASCIZ-string, in UTF-8 Encoding.
    At each tilde-S a LISP-object is taken from STACK and printed instead of
    the tilde-S.
  > on the STACK: initialization values for the condition,
                  according to errortype */
-nonreturning_function(global, fehler, (condition_t errortype,
+nonreturning_function(global, error, (condition_t errortype,
                                        const char* errorstring)) {
   prepare_error(errortype,errorstring,true); /* finish error message */
   /* there is no point in using the condition system here:
@@ -815,7 +815,7 @@ global maygc object check_fpointer_replacement (object obj, bool restart_p) {
       if (restart_p)
         check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
       else
-        fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+        error(type_error,GETTEXT("~S: ~S is not a ~S"));
       obj = value1;
       continue;
     }
@@ -823,9 +823,9 @@ global maygc object check_fpointer_replacement (object obj, bool restart_p) {
       pushSTACK(NIL);                /* no PLACE */
       pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
       if (restart_p)
-        check_value(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
+        check_value(error_condition,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
       else
-        fehler(error,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
+        error(error_condition,GETTEXT("~S: ~S comes from a previous Lisp session and is invalid"));
       obj = value1;
       continue;
     }
@@ -842,7 +842,7 @@ nonreturning_function(global, fehler_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not a list"));
+  error(type_error,GETTEXT("~S: ~S is not a list"));
 }
 
 /* check_list_replacement(obj)
@@ -870,7 +870,7 @@ nonreturning_function(global, fehler_proper_list_dotted, (object caller, object 
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~S: A proper list must not end with ~S"));
+  error(type_error,GETTEXT("~S: A proper list must not end with ~S"));
 }
 
 /* Error message, if an object isn't a proper list because it is circular.
@@ -883,7 +883,7 @@ nonreturning_function(global, fehler_proper_list_circular, (object caller, objec
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~S: A proper list must not be circular: ~S"));
+  error(type_error,GETTEXT("~S: A proper list must not be circular: ~S"));
 }
 
 /* check_symbol_replacement(obj)
@@ -981,7 +981,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
   symbol = check_symbol(symbol);
   if (keywordp(symbol)) {
     pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
-    fehler(program_error,
+    error(program_error,
            GETTEXT("~S: the symbol ~S names a global special variable"));
   }
   if (special_var_p(TheSymbol(symbol))) {
@@ -1014,7 +1014,7 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+  error(type_error,GETTEXT("~S: ~S is not a ~S"));
 }
 
 /* error-message, if an object is not a vector.
@@ -1024,7 +1024,7 @@ nonreturning_function(global, fehler_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not a vector"));
+  error(type_error,GETTEXT("~S: ~S is not a vector"));
 }
 
 /* check_array_replacement(obj)
@@ -1084,7 +1084,7 @@ nonreturning_function(global, fehler_environment, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_svector5)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S may not be used as an environment"));
+  error(type_error,GETTEXT("~S: ~S may not be used as an environment"));
 }
 
 /* error-message, if an argument is not a Fixnum >=0 :
@@ -1094,7 +1094,7 @@ nonreturning_function(global, fehler_posfixnum, (object obj)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
+  error(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
 }
 
 /* check_posfixnum_replacement(obj)
@@ -1155,7 +1155,7 @@ nonreturning_function(global, fehler_char, (object obj)) {
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a character"));
+  error(type_error,GETTEXT("~S: argument ~S is not a character"));
 }
 
 /* check_char_replacement(obj)
@@ -1198,7 +1198,7 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_string)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a ~S"));
+  error(type_error,GETTEXT("~S: argument ~S is not a ~S"));
 }
 
 /* error-message, if a Simple-String is immutable:
@@ -1206,7 +1206,7 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
  > obj: the String */
 nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
   pushSTACK(obj);
-  fehler(error,GETTEXT("Attempt to modify a read-only string: ~S"));
+  error(error_condition,GETTEXT("Attempt to modify a read-only string: ~S"));
 }
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
@@ -1215,7 +1215,7 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
   pushSTACK(obj);                    /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
+  error(type_error,
          GETTEXT("~S: argument ~S is neither a string nor an integer"));
 }
 
@@ -1227,7 +1227,7 @@ nonreturning_function(global, fehler_stringsize, (uintV size)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
-  fehler(type_error,
+  error(type_error,
          GETTEXT("string too long: desired length ~S exceeds the supported maximum length"));
 }
 
@@ -1239,7 +1239,7 @@ nonreturning_function(global, fehler_class, (object obj)) {
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
-  fehler(type_error,GETTEXT("~S: ~S is not a class"));
+  error(type_error,GETTEXT("~S: ~S is not a class"));
 }
 
 /* error-message, if an argument is not a Stream:
@@ -1322,7 +1322,7 @@ nonreturning_function(global, fehler_plist_odd, (object plist)) {
   pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: the property list ~S has an odd length"));
+  error(type_error,GETTEXT("~S: the property list ~S has an odd length"));
 }
 
 /* error-message for non-paired keyword-arguments
@@ -1338,7 +1338,7 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
   var object arglist = listof(argcount);
   STACK_1 = arglist;
   /* ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here. */
-  fehler(program_error,
+  error(program_error,
          GETTEXT("~S: keyword arguments in ~S should occur pairwise"));
 }
 
@@ -1350,7 +1350,7 @@ nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
   pushSTACK(kw);        /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
-  fehler(keyword_error,
+  error(keyword_error,
          GETTEXT("~S: ~S marker ~S is not a symbol"));
 }
 
@@ -1373,7 +1373,7 @@ nonreturning_function(global, fehler_key_badkw,
     Car(type) = S(member); Cdr(type) = STACK_4;
     STACK_4 = type;
   }
-  fehler(keyword_error,
+  error(keyword_error,
          GETTEXT("~S: illegal keyword/value pair ~S, ~S in argument list.\n"
                  "The allowed keywords are ~S"));
 }
@@ -1496,7 +1496,7 @@ nonreturning_function(global, fehler_lambda_expression,
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
-  fehler(type_error,
+  error(type_error,
          GETTEXT("~S: argument ~S is not a function.\n"
                  "To get a function in the current environment, write (FUNCTION ...).\n"
                  "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
@@ -1514,10 +1514,10 @@ nonreturning_function(global, fehler_too_many_args,
   pushSTACK(fixnum(ngiven));
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   if (!boundp(caller))
-    fehler(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~S instead of at most ~S) given to ~S"));
+    error(program_error,GETTEXT("EVAL/APPLY: Too many arguments (~S instead of at most ~S) given to ~S"));
   else {
     pushSTACK(caller);
-    fehler(program_error,GETTEXT("~S: Too many arguments (~S instead of at most ~S) given to ~S"));
+    error(program_error,GETTEXT("~S: Too many arguments (~S instead of at most ~S) given to ~S"));
   }
 }
 
@@ -1533,10 +1533,10 @@ nonreturning_function(global, fehler_too_few_args,
   pushSTACK(fixnum(ngiven));
   /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
   if (!boundp(caller))
-    fehler(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~S instead of at least ~S) given to ~S"));
+    error(program_error,GETTEXT("EVAL/APPLY: Too few arguments (~S instead of at least ~S) given to ~S"));
   else {
     pushSTACK(caller);
-    fehler(program_error,GETTEXT("~S: Too few arguments (~S instead of at least ~S) given to ~S"));
+    error(program_error,GETTEXT("~S: Too few arguments (~S instead of at least ~S) given to ~S"));
   }
 }
 
@@ -1548,56 +1548,56 @@ nonreturning_function(global, fehler_uint8, (object obj)) {
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(8)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
 nonreturning_function(global, fehler_sint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(8)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
 nonreturning_function(global, fehler_uint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(16)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
 nonreturning_function(global, fehler_sint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(16)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
 nonreturning_function(global, fehler_uint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(32)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
 nonreturning_function(global, fehler_sint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(32)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
 nonreturning_function(global, fehler_uint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(64)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
 nonreturning_function(global, fehler_sint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(64)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
 
 /* error, if argument is not an integer in the range of the C type 'uint8'.

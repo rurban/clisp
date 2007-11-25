@@ -1790,7 +1790,7 @@ LISPFUNNR(type_of,1)
     default:
     unknown: /* unknown type */
       pushSTACK(S(type_of));
-      fehler(serious_condition,GETTEXT("~S: unidentifiable type!!!"));
+      error(serious_condition,GETTEXT("~S: unidentifiable type!!!"));
   }
   mv_count=1;
 }
@@ -2028,12 +2028,12 @@ LISPFUNNR(class_of,1)
     default:
     unknown: /* unknown type */
       pushSTACK(S(class_of));
-      fehler(serious_condition,GETTEXT("~S: unidentifiable type!!!"));
+      error(serious_condition,GETTEXT("~S: unidentifiable type!!!"));
   }
   if_defined_class_p(value1, ; , {
     pushSTACK(value1);
     pushSTACK(S(class_of));
-    fehler(error,GETTEXT("~S: type ~S does not correspond to a class"));
+    error(error_condition,GETTEXT("~S: type ~S does not correspond to a class"));
   });
  fertig:
   mv_count=1;
@@ -2061,7 +2061,7 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
     if (!nullp(STACK_1)) {
       pushSTACK(STACK_2);
       pushSTACK(S(find_class));
-      fehler(error,GETTEXT("~S: ~S does not name a class"));
+      error(error_condition,GETTEXT("~S: ~S does not name a class"));
     }
     value1 = NIL;
   });
@@ -2180,7 +2180,7 @@ global maygc object expand_deftype (object type_spec, bool once_p) {
   else { /* too many nested DEFTYPEs */
     /* type_spec is already on the stack */
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: type definition for ~S exceeds depth limit, maybe recursive"));
+    error(error_condition,GETTEXT("~S: type definition for ~S exceeds depth limit, maybe recursive"));
   }
   if (symbolp(type_spec)) { /* (GET type-spec 'DEFTYPE-EXPANDER) */
     var object expander = get(type_spec,S(deftype_expander));
@@ -2497,14 +2497,14 @@ LISPFUNNR(coerce,2)
   /* due to the TYPEP call which checks result-type this should never happen
      result-type in STACK_0 */
   pushSTACK(S(coerce));
-  fehler(error,GETTEXT("~S: invalid type specification ~S"));
+  error(error_condition,GETTEXT("~S: invalid type specification ~S"));
  fehler_object:
   /* stack layout: object, result-type, type-error-datum,
      type-error-expected-type. */
   pushSTACK(STACK_2); /* result-type */
   pushSTACK(STACK_(3+1)); /* object */
   pushSTACK(S(coerce));
-  fehler(type_error,GETTEXT("~S: ~S cannot be coerced to type ~S"));
+  error(type_error,GETTEXT("~S: ~S cannot be coerced to type ~S"));
 }
 
 /* =========================================================================

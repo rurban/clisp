@@ -10,7 +10,7 @@ nonreturning_function(local, fehler_sym_plist_odd, (object symbol)) {
   pushSTACK(Symbol_plist(symbol)); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(symbol); pushSTACK(S(get));
-  fehler(type_error,GETTEXT("~S: the property list of ~S has an odd length"));
+  error(type_error,GETTEXT("~S: the property list of ~S has an odd length"));
 }
 
 /* UP: find the key in the property list
@@ -84,7 +84,7 @@ LISPFUNN(find_subr,1)
     if (!subrp(result)) {
       pushSTACK(symbol);
       pushSTACK(S(find_subr));
-      fehler(error,GETTEXT("~S: ~S is not a system function"));
+      error(error_condition,GETTEXT("~S: ~S is not a system function"));
     }
     VALUES1(result);
   }
@@ -354,7 +354,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
           pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(x);
           pushSTACK(S(gensym));
-          fehler(type_error,
+          error(type_error,
                  GETTEXT("~S: index ~S is negative")
                 );
         }
@@ -365,7 +365,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
         pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(x);
         pushSTACK(S(gensym));
-        fehler(type_error,
+        error(type_error,
                GETTEXT("~S: invalid argument ~S")
               );
       }
@@ -379,7 +379,7 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
         pushSTACK(counter);            # TYPE-ERROR slot DATUM
         pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(new_value); pushSTACK(counter);
-        fehler(type_error,
+        error(type_error,
                GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S.")
               );
       }

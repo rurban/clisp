@@ -38,7 +38,7 @@ LISPFUNN(set_current_language,1) {
   if (!eq(STACK_0,O(current_language))) {
     pushSTACK(STACK_0);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: cannot set language to ~S"));
+    error(error_condition,GETTEXT("~S: cannot set language to ~S"));
   }
  #endif
   VALUES1(O(current_language)); skipSTACK(1);

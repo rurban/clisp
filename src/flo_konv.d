@@ -432,7 +432,7 @@
 # Fehlermeldung wegen NaN
 # fehler_nan();
   nonreturning_function(local, fehler_nan, (void)) {
-    fehler(arithmetic_error,
+    error(arithmetic_error,
            GETTEXT("floating point NaN occurred")
           );
   }

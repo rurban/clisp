@@ -421,7 +421,7 @@ local maygc object OP_I_I_boole_I (object op, object x, object y) {
       pushSTACK(op); /* TYPE-ERROR slot DATUM */
       pushSTACK(O(type_boole)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(op); pushSTACK(S(boole));
-      fehler(type_error,GETTEXT("~S: ~S is not a valid boolean operation"));
+      error(type_error,GETTEXT("~S: ~S is not a valid boolean operation"));
   }
 }
 
@@ -530,7 +530,7 @@ local bool I_I_logbitp (object x, object y)
     pushSTACK(x); /* TYPE-ERROR slot DATUM */
     pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(x); pushSTACK(S(logbitp));
-    fehler(type_error,GETTEXT("~S: index ~S is negative"));
+    error(type_error,GETTEXT("~S: index ~S is negative"));
   }
 }
 
@@ -652,7 +652,7 @@ global maygc object I_I_ash_I (object x, object y)
    badamount:
     RESTORE_NUM_STACK /* restore num_stack */
       pushSTACK(y); pushSTACK(S(ash));
-    fehler(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));
+    error(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));
   }
 }
 
