@@ -348,7 +348,7 @@
 
 # Fehlermeldung wegen Division durch Null
   nonreturning_function(local, divide_0, (void)) {
-    fehler(division_by_zero,
+    error(division_by_zero,
            GETTEXT("division by zero")
           );
   }
@@ -356,7 +356,7 @@
 # Fehlermeldung wegen Floating-Point-Überlauf
 # fehler_overflow();
   nonreturning_function(local, fehler_overflow, (void)) {
-    fehler(floating_point_overflow,
+    error(floating_point_overflow,
            GETTEXT("floating point overflow")
           );
   }
@@ -364,7 +364,7 @@
 # Fehlermeldung wegen Floating-Point-Unterlauf
 # fehler_underflow();
   nonreturning_function(local, fehler_underflow, (void)) {
-    fehler(floating_point_underflow,
+    error(floating_point_underflow,
            GETTEXT("floating point underflow")
           );
   }

@@ -14232,7 +14232,7 @@ global maygc object safe_to_string (const char *asciz);
 typedef enum {
   condition, # all kinds of conditions
     serious_condition, # conditions that require interactive intervention
-      error, # serious conditions that occur deterministically
+      error_condition, # serious conditions that occur deterministically
         program_error, # mostly statically detectable errors of a program
           source_program_error, # statically detectable errors of a program,
                                 # source available
@@ -14265,18 +14265,18 @@ typedef enum {
   # junk
   condition_for_broken_compilers_that_dont_like_trailing_commas
 } condition_t;
-%% printf("typedef enum { condition=%d, serious_condition=%d, error=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d } condition_t;\n",condition, serious_condition, error, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
+%% printf("typedef enum { condition=%d, serious_condition=%d, error_condition=%d, program_error=%d, source_program_error=%d, control_error=%d, arithmetic_error=%d, division_by_zero=%d, floating_point_overflow=%d, floating_point_underflow=%d, cell_error=%d, unbound_variable=%d, undefined_function=%d, unbound_slot=%d, type_error=%d, keyword_error=%d, charset_type_error=%d, package_error=%d, print_not_readable=%d, parse_error=%d, stream_error=%d, end_of_file=%d, reader_error=%d, file_error=%d, os_error=%d, storage_condition=%d, interrupt_condition=%d, warning=%d } condition_t;\n",condition, serious_condition, error_condition, program_error, source_program_error, control_error, arithmetic_error, division_by_zero, floating_point_overflow, floating_point_underflow, cell_error, unbound_variable, undefined_function, unbound_slot, type_error, keyword_error, charset_type_error, package_error, print_not_readable, parse_error, stream_error, end_of_file, reader_error, file_error, os_error, storage_condition, interrupt_condition, warning);
 
 /* Error with error-string. Does not return.
- fehler(errortype,errorstring);
+ error(errortype,errorstring);
  > errortype: condition-type
  > errorstring: constant ASCIZ-String, in UTF-8 Encoding.
    At every tilde-S, a LISP-object is taken from the STACK and printed
    instead of the tilde-S.
  > on the STACK: initial values for the Condition, depending on error-type */
-nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));
+nonreturning_function(extern, error, (condition_t errortype, const char * errorstring));
 /* used by all modules */
-%% puts("nonreturning_function(extern, fehler, (condition_t errortype, const char * errorstring));");
+%% puts("nonreturning_function(extern, error, (condition_t errortype, const char * errorstring));");
 
 /* Report an error and try to recover by asking the user to supply a value.
  check_value(errortype,errorstring);

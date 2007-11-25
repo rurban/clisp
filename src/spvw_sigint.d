@@ -65,8 +65,8 @@ local void react_on_sigint (int sig) { # sig = SIGINT or SIGALRM
   # set STACK to a meaningful value:
   if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
   #endif
-  # jump into a break-loop via 'fehler':
-  fehler(interrupt_condition,GETTEXT("Ctrl-C: User break"));
+  # jump into a break-loop via 'error':
+  error(interrupt_condition,GETTEXT("Ctrl-C: User break"));
  #endif # NO_ASYNC_INTERRUPTS
 }
 
@@ -128,8 +128,8 @@ global void interrupt_handler (void) {
   # set STACK to a meaningful value:
   if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
  #endif
-  # jump into a break-loop via 'fehler':
-  fehler(interrupt_condition,GETTEXT("Ctrl-C: User break"));
+  # jump into a break-loop via 'error':
+  error(interrupt_condition,GETTEXT("Ctrl-C: User break"));
 }
 
 # install_sigint_handler(); is defined in win32aux.d.

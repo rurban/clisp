@@ -272,7 +272,7 @@ nonreturning_function(global, fehler_illegal_streamop,
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
   pushSTACK(caller);
-  fehler(stream_error,GETTEXT("~S on ~S is illegal"));
+  error(stream_error,GETTEXT("~S on ~S is illegal"));
 }
 
 # Dummy-Pseudo-Functions, that signal errors:
@@ -610,7 +610,7 @@ global maygc uintL read_byte_array (const gcv_object_t* stream_,
       pushSTACK(fixnum(start));
       pushSTACK(S(stream_read_byte_sequence));
       pushSTACK(value1);
-      fehler(error,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
+      error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
     }
     return result-start;
   }
@@ -666,7 +666,7 @@ global maygc uintL write_byte_array (const gcv_object_t* stream_,
         pushSTACK(fixnum(start));
         pushSTACK(S(stream_write_byte_sequence));
         pushSTACK(value2);
-        fehler(error,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
+        error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
       }
       return result-start;
     }
@@ -759,13 +759,13 @@ global maygc void unread_char (const gcv_object_t* stream_, object ch) {
         pushSTACK(ch);
         pushSTACK(stream);
         pushSTACK(S(unread_char));
-        fehler(stream_error,GETTEXT("~S: the last character read from ~S was not ~S"));
+        error(stream_error,GETTEXT("~S: the last character read from ~S was not ~S"));
       } else {
         pushSTACK(stream); # STREAM-ERROR slot STREAM
         pushSTACK(S(read_char));
         pushSTACK(stream);
         pushSTACK(S(unread_char));
-        fehler(stream_error,GETTEXT("~S from ~S without ~S before it"));
+        error(stream_error,GETTEXT("~S from ~S without ~S before it"));
       }
     }
   } else {
@@ -860,7 +860,7 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
       pushSTACK(fixnum(start));
       pushSTACK(S(stream_read_char_sequence));
       pushSTACK(value1);
-      fehler(error,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
+      error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
     }
     # Set the stream's $lastchar := last char or #<EOF>:
     var object lastchar;
@@ -1123,7 +1123,7 @@ nonreturning_function(local, fehler_unwritable, (object caller, object stream))
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   pushSTACK(caller);
-  fehler(file_error,GETTEXT("~S: cannot output to ~S"));
+  error(file_error,GETTEXT("~S: cannot output to ~S"));
 }
 
 /* signal an error if an Object is not the needed type:
@@ -1134,7 +1134,7 @@ nonreturning_function(local, fehler_write, (object stream, object obj,
   pushSTACK(type);              /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(type); pushSTACK(stream); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: cannot output ~S into ~S, not of type ~S"));
+  error(type_error,GETTEXT("~S: cannot output ~S into ~S, not of type ~S"));
 }
 
 /* WRITE-CHAR pseudo-function for output streams of element type NIL */
@@ -1160,7 +1160,7 @@ local maygc void wr_ch_array_forbidden (const gcv_object_t* stream_,
 nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream); pushSTACK(obj);
-  fehler(stream_error,GETTEXT("integer ~S is out of range, cannot be output onto ~S"));
+  error(stream_error,GETTEXT("integer ~S is out of range, cannot be output onto ~S"));
 }
 
 /* Error message and get a replacement for an argument
@@ -1232,7 +1232,7 @@ nonreturning_function(local, fehler_input_stream, (object stream)) {
   pushSTACK(stream);               # TYPE-ERROR slot DATUM
   pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S should be an input stream"));
+  error(type_error,GETTEXT("~S: argument ~S should be an input stream"));
 }
 
 # UP: checks an Output-Stream.
@@ -1244,7 +1244,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
   pushSTACK(stream);                # TYPE-ERROR slot DATUM
   pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S should be an output stream"));
+  error(type_error,GETTEXT("~S: argument ~S should be an output stream"));
 }
 
 # UP: checks, if Arguments are Input-Streams.
@@ -1535,7 +1535,7 @@ LISPFUNNR(make_synonym_stream,1)
     pushSTACK(arg);       # TYPE-ERROR slot DATUM
     pushSTACK(S(symbol)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: argument should be a symbol, not ~S"));
+    error(type_error,GETTEXT("~S: argument should be a symbol, not ~S"));
   }
   VALUES1(make_synonym_stream(arg));
 }
@@ -2377,7 +2377,7 @@ nonreturning_function(local, fehler_str_in_adjusted, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(TheStream(stream)->strm_str_in_string);
   pushSTACK(stream);
-  fehler(stream_error,GETTEXT("~S is beyond the end because the string ~S has been adjusted"));
+  error(stream_error,GETTEXT("~S is beyond the end because the string ~S has been adjusted"));
 }
 
 # READ-CHAR - Pseudo-Function for String-Input-Streams:
@@ -2484,7 +2484,7 @@ LISPFUNNR(string_input_stream_index,1)
     pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S is not a string input stream"));
+    error(type_error,GETTEXT("~S: ~S is not a string input stream"));
   }
   var object index = TheStream(stream)->strm_str_in_index;
   /* if a Character was pushed back with UNREAD-CHAR,
@@ -2616,7 +2616,7 @@ LISPFUNN(get_output_stream_string,1)
     pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(string_stream)); pushSTACK(STACK_2);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S is not a string output stream"));
+    error(type_error,GETTEXT("~S: ~S is not a string output stream"));
   }
   /* the collected stuff is the value */
   VALUES1(get_output_stream_string(&STACK_0));
@@ -2650,7 +2650,7 @@ LISPFUNNR(make_string_push_stream,1) {
       pushSTACK(arg);                              # TYPE-ERROR slot DATUM
       pushSTACK(O(type_string_with_fill_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(arg); pushSTACK(S(with_output_to_string));
-      fehler(type_error,
+      error(type_error,
              GETTEXT("~S: argument ~S should be a string with fill pointer"));
     }
   }
@@ -2842,7 +2842,7 @@ local maygc object rd_ch_buff_in (const gcv_object_t* stream_) {
     pushSTACK(stream); # STREAM-ERROR slot STREAM
     pushSTACK(TheStream(stream)->strm_buff_in_string);
     pushSTACK(stream);
-    fehler(stream_error,GETTEXT("~S is beyond the end because the string ~S has been adjusted"));
+    error(stream_error,GETTEXT("~S is beyond the end because the string ~S has been adjusted"));
   }
   /* fetch character from String */
   var object ch = code_char(schar(string,offset+index));
@@ -2933,7 +2933,7 @@ LISPFUNNR(buffered_input_stream_index,1)
         && (TheStream(stream)->strmtype == strmtype_buff_in))) {
     pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: ~S is not a buffered input stream"));
+    error(error_condition,GETTEXT("~S: ~S is not a buffered input stream"));
   }
   var object index = TheStream(stream)->strm_buff_in_index;
   # if a Character was pushed back with UNREAD-CHAR,
@@ -3270,7 +3270,7 @@ local signean test_buffered_arg (object arg) {
     return 1;
   pushSTACK(arg); pushSTACK(S(Kbuffered));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: illegal ~S argument ~S"));
+  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
 }
 
 # Classification of possible :ELEMENT-TYPEs.
@@ -3376,7 +3376,7 @@ local maygc void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded) 
  bad_eltype:
   pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: illegal ~S argument ~S"));
+  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
 }
 
 # evaluate the appropriate forms
@@ -3901,7 +3901,7 @@ typedef struct strm_unbuffered_extrafields_t {
 # fehler_interrupt();
 nonreturning_function(local, fehler_interrupt, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(interrupt_condition,GETTEXT("~S: Ctrl-C: User break"));
+  error(interrupt_condition,GETTEXT("~S: Ctrl-C: User break"));
 }
 
 # General Subroutines
@@ -3981,7 +3981,7 @@ local iconv_t open_iconv (const char * to_code, const char * from_code,
     if (errno == EINVAL) {
       end_system_call();
       pushSTACK(charset);
-      fehler(error,GETTEXT("unknown character set ~S"));
+      error(error_condition,GETTEXT("unknown character set ~S"));
     }
     ANSIC_error();
   }
@@ -5752,7 +5752,7 @@ local void check_unbuffered_eltype (const decoded_el_t* eltype) {
   if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0))) {
     pushSTACK(canon_eltype(eltype));
     pushSTACK(S(Kelement_type));
-    fehler(error,GETTEXT("Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"));
+    error(error_condition,GETTEXT("Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"));
   }
 }
 
@@ -6107,7 +6107,7 @@ local void low_flush_buffered_handle (object stream, uintL bufflen) {
     # Report the error.
     pushSTACK(Truename_or_Self(STACK_0)); # FILE-ERROR slot PATHNAME
     pushSTACK(STACK_(0+1)); # stream
-    fehler(file_error,GETTEXT("Closed ~S because disk is full."));
+    error(file_error,GETTEXT("Closed ~S because disk is full."));
   }
 }
 
@@ -6225,7 +6225,7 @@ local void buffered_writebyte (object stream, uintB b) {
 nonreturning_function(local, fehler_position_beyond_EOF, (object stream)) {
   pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
-  fehler(file_error,GETTEXT("cannot position ~S beyond EOF"));
+  error(file_error,GETTEXT("cannot position ~S beyond EOF"));
 }
 
 # UP: Positions an (open) Byte-based File-Stream to a
@@ -7765,7 +7765,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
       pushSTACK(STACK_(1+2));
       pushSTACK(S(Kelement_type));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(file_error,GETTEXT("~S: argument ~S ~S was specified, but ~S is not a regular file."));
+      error(file_error,GETTEXT("~S: argument ~S ~S was specified, but ~S is not a regular file."));
     }
     var bool handle_tty = false;
     if (READ_P(direction)) # only needed for input handles
@@ -7799,7 +7799,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
       pushSTACK(S(Kio));
       pushSTACK(S(Kdirection));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(file_error,GETTEXT("~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."));
+      error(file_error,GETTEXT("~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."));
     }
     # Positioning the buffer on block boundaries is possible only if
     # 1. the handle refers to a regular file (otherwise read() and
@@ -7855,7 +7855,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
         pushSTACK(stream);
         builtin_stream_close(&STACK_0,0);
         pushSTACK(Truename_or_Self(STACK_0)); # STREAM-ERROR slot STREAM
-        fehler(stream_error,GETTEXT("file ~S is not an integer file"));
+        error(stream_error,GETTEXT("file ~S is not an integer file"));
       }
       # We rely on the read EOF-Position now!
       BufferedStream_eofposition(stream) = eofposition;
@@ -8983,7 +8983,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
     pushSTACK(S(list)); # slot EXPECTED-TYPE of TYPE-ERROR
     pushSTACK(S(completion));
     pushSTACK(mlist);
-    fehler(type_error,GETTEXT("Return value ~S of call to ~S is not a list."));
+    error(type_error,GETTEXT("Return value ~S of call to ~S is not a list."));
   }
   begin_system_call();
   var char** array = (char**) malloc((llength(mlist)+1)*sizeof(char*));
@@ -9004,7 +9004,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
         pushSTACK(m);
         pushSTACK(S(completion));
         pushSTACK(mlist);
-        fehler(type_error,GETTEXT("Return value ~S of call to ~S contains ~S which is not a ~S."));
+        error(type_error,GETTEXT("Return value ~S of call to ~S contains ~S which is not a ~S."));
       }
       sstring_un_realloc(m);
       var uintL charcount = Sstring_length(m);
@@ -10085,7 +10085,7 @@ local object check_window_stream (object stream) {
         && (TheStream(stream)->strmtype == strmtype_window))) {
     pushSTACK(stream);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: argument ~S should be a window stream"));
+    error(error_condition,GETTEXT("~S: argument ~S should be a window stream"));
   }
   return stream;
 }
@@ -10631,7 +10631,7 @@ local void out_char (uintB c) {
   }
   if (result==0) { # not successful?
     pushSTACK(var_stream(S(terminal_io),0)); # FILE-ERROR slot PATHNAME
-    fehler(file_error,GETTEXT("cannot output to standard output"));
+    error(file_error,GETTEXT("cannot output to standard output"));
   }
  }
 }
@@ -12201,7 +12201,7 @@ LISPFUNN(make_window,0) {
   {
     var const char * result = init_term();
     if (!(result==NULL))
-      fehler(error,result);
+      error(error_condition,result);
   }
   start_term();
   init_curr();
@@ -13354,13 +13354,13 @@ LISPFUNN(make_x11socket_stream,2) {
     pushSTACK(STACK_1);   # TYPE-ERROR slot DATUM
     pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_(1+2));
-    fehler(type_error,GETTEXT("host should be string, not ~S"));
+    error(type_error,GETTEXT("host should be string, not ~S"));
   }
   if (!uint16_p(STACK_0)) {
     pushSTACK(STACK_0);        # TYPE-ERROR slot DATUM
     pushSTACK(O(type_uint16)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(STACK_(0+2));
-    fehler(type_error,
+    error(type_error,
            GETTEXT("display should be a small nonnegative integer, not ~S"));
   }
   var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
@@ -13436,7 +13436,7 @@ LISPFUNN(read_n_bytes,4) {
       pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(1+1)); # Stream
       pushSTACK(S(read_n_bytes));
-      fehler(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+      error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
     }
   }
   skipSTACK(2);
@@ -13619,12 +13619,12 @@ local void test_socket_server (object obj, bool check_open) {
     pushSTACK(S(socket_server)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(socket_server)); pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+    error(type_error,GETTEXT("~S: ~S is not a ~S"));
   }
   if (check_open && nullp(TheSocketServer(obj)->socket_handle)) {
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S on ~S is illegal"));
+    error(error_condition,GETTEXT("~S on ~S is illegal"));
   }
 }
 
@@ -13661,7 +13661,7 @@ local object test_socket_stream (object obj, bool check_open) {
           pushSTACK(S(stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
           pushSTACK(obj);
           pushSTACK(TheSubr(subr_self)->name);
-          fehler(type_error,
+          error(type_error,
                  GETTEXT("~S: argument ~S is not an open SOCKET-STREAM"));
         }
         return obj;
@@ -13673,7 +13673,7 @@ local object test_socket_stream (object obj, bool check_open) {
   pushSTACK(S(stream));         /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not a SOCKET-STREAM"));
+  error(type_error,GETTEXT("~S: argument ~S is not a SOCKET-STREAM"));
 }
 
 /* (SOCKET-SERVER &optional port &key backlog interface)
@@ -13943,7 +13943,7 @@ global void stream_handles (object obj, bool check_open, bool* char_p,
     pushSTACK(S(stream));       /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: argument ~S is not an open stream"));
+    error(type_error,GETTEXT("~S: argument ~S is not an open stream"));
   }
  restart_stream_handles:
   switch (TheStream(obj)->strmtype) {
@@ -14163,7 +14163,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
           pushSTACK(fixnum(FD_SETSIZE));
           pushSTACK(all);
           pushSTACK(S(socket_status));
-          fehler(error,GETTEXT("~S: list ~S is too long (~S maximum)"));
+          error(error_condition,GETTEXT("~S: list ~S is too long (~S maximum)"));
         }
       }
     } else
@@ -14390,7 +14390,7 @@ LISPFUN(socket_options,seclass_default,1,0,rest,nokey,0,NIL) {
       pushSTACK(O(type_socket_option)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(O(type_socket_option));
       pushSTACK(kwd); pushSTACK(S(socket_options));
-      fehler(type_error,GETTEXT("~S: argument ~S should be of type ~S."));
+      error(type_error,GETTEXT("~S: argument ~S should be of type ~S."));
     }
     end_system_call();
   }
@@ -14602,7 +14602,7 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
         || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY))) {
       pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
       pushSTACK(STACK_0); pushSTACK(direction);
-      fehler(file_error,GETTEXT("Invalid direction ~S for accessing ~S"));
+      error(file_error,GETTEXT("Invalid direction ~S for accessing ~S"));
     }
   }
  #endif
@@ -14632,7 +14632,7 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(S(Kerror)); pushSTACK(S(Koutput)); pushSTACK(S(Kinput));
     pushSTACK(STACK_(4+4)); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"));
+    check_value(error_condition,GETTEXT("~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"));
     STACK_4 = value1;
     goto restart_make_stream;
   }
@@ -14917,9 +14917,9 @@ local void fehler_value_stream (object sym) {
     pushSTACK(Symbol_value(sym)); # variable value
     pushSTACK(sym); # variable
     if (!streamp(Symbol_value(sym))) {
-      fehler(type_error,GETTEXT("The value of ~S is not a stream: ~S"));
+      error(type_error,GETTEXT("The value of ~S is not a stream: ~S"));
     } else {
-      fehler(type_error,GETTEXT("The value of ~S is not an appropriate stream: ~S"));
+      error(type_error,GETTEXT("The value of ~S is not an appropriate stream: ~S"));
     }
   }
   sym = popSTACK();
@@ -14931,7 +14931,7 @@ local void fehler_value_stream (object sym) {
   pushSTACK(stream); # new variable value
   pushSTACK(oldvalue); # old variable value
   pushSTACK(sym); # Variable
-  fehler(type_error,GETTEXT("The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."));
+  error(type_error,GETTEXT("The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."));
 }
 
 #ifdef GNU_READLINE
@@ -14944,7 +14944,7 @@ nonreturning_function(local, rl_memory_abort, (void)) {
   begin_callback(); # reset STACK to a reasonable value
   rl_gnu_readline_p = false;
   Symbol_value(S(terminal_io)) = make_terminal_stream();
-  fehler(storage_condition,GETTEXT("readline library: out of memory."));
+  error(storage_condition,GETTEXT("readline library: out of memory."));
 }
 
 local char* xmalloc (int count) {
@@ -15247,7 +15247,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
           pushSTACK(stream);
           pushSTACK(S(Kelement_type));
           pushSTACK(O(setf_stream_element_type));
-          fehler(error,
+          error(error_condition,
                  GETTEXT("~S: The ~S of ~S cannot be changed from ~S to ~S."));
         }
         # Transform the lastchar back, if possible.
@@ -15842,7 +15842,7 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
       pushSTACK(S(string)); # TYPE-ERROR slot EXPECTED-TYPE
       pushSTACK(S(stream_read_line));
       pushSTACK(value1);
-      fehler(type_error,GETTEXT("Return value ~S of call to ~S is not a string."));
+      error(type_error,GETTEXT("Return value ~S of call to ~S is not a string."));
     }
     var bool eofp = (mv_count >= 2 && !nullp(value2));
     # Add the line to the buffer:
@@ -16353,7 +16353,7 @@ global maygc object get_line_position (object stream) {
       if (!(posfixnump(value1) || nullp(value1))) {
         pushSTACK(S(stream_line_column));
         pushSTACK(value1);
-        fehler(error,GETTEXT("Return value ~S of call to ~S is not a fixnum >= 0 or NIL."));
+        error(error_condition,GETTEXT("Return value ~S of call to ~S is not a fixnum >= 0 or NIL."));
       }
       return value1;
     }
@@ -16516,7 +16516,7 @@ local void check_multiple8_eltype (const decoded_el_t* eltype) {
     pushSTACK(canon_eltype(eltype));
     pushSTACK(S(Kelement_type));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S needs an ~S with a bit size being a multiple of 8, not ~S"));
+    error(error_condition,GETTEXT("~S needs an ~S with a bit size being a multiple of 8, not ~S"));
   }
 }
 
@@ -16549,7 +16549,7 @@ local uintL check_float_eltype (gcv_object_t* eltype_) {
   }
   pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: illegal ~S argument ~S"));
+  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
 }
 
 /* UP: Check an endianness argument.
@@ -16697,7 +16697,7 @@ LISPFUN(read_byte,seclass_default,1,2,norest,nokey,0,NIL) {
       pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
       pushSTACK(STACK_(2+1)); # Stream
       pushSTACK(S(read_byte));
-      fehler(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+      error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
     } else { # handle EOF:
       var object eofval = STACK_0;
       if (!boundp(eofval))
@@ -16755,7 +16755,7 @@ LISPFUN(read_byte_no_hang,seclass_default,1,2,norest,nokey,0,NIL) {
     pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
     pushSTACK(STACK_(2+1)); # Stream
     pushSTACK(S(read_byte_no_hang));
-    fehler(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
   } else {
     # handle EOF:
     var object eofval = STACK_0;
@@ -16808,7 +16808,7 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
     pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
     pushSTACK(STACK_(5+1)); # Stream
     pushSTACK(S(read_integer));
-    fehler(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
   } else { # handle EOF:
     var object eofval = STACK_1;
     if (!boundp(eofval))
@@ -16867,7 +16867,7 @@ LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
     pushSTACK(STACK_5); # STREAM-ERROR slot STREAM
     pushSTACK(STACK_(5+1)); # Stream
     pushSTACK(S(read_float));
-    fehler(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
   } else {
     # handle EOF:
     var object eofval = STACK_1;
@@ -16941,7 +16941,7 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
         pushSTACK(STACK_(2+2));
         pushSTACK(S(single_float));
         pushSTACK(obj);
-        fehler(type_error,GETTEXT("~S is not a ~S, cannot be output onto ~S"));
+        error(type_error,GETTEXT("~S is not a ~S, cannot be output onto ~S"));
       }
       break;
     case sizeof(dfloatjanus):
@@ -16951,7 +16951,7 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
         pushSTACK(STACK_(2+2));
         pushSTACK(S(double_float));
         pushSTACK(obj);
-        fehler(type_error,GETTEXT("~S is not a ~S, cannot be output onto ~S"));
+        error(type_error,GETTEXT("~S is not a ~S, cannot be output onto ~S"));
       }
       break;
     default: NOTREACHED;
@@ -17023,7 +17023,7 @@ local object check_open_file_stream (object obj, bool strict_p) {
   pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: argument ~S is not an open file stream"));
+  error(type_error,GETTEXT("~S: argument ~S is not an open file stream"));
 }
 
 /* extract the OS file handle from the file stream
@@ -17077,7 +17077,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
       pushSTACK(O(type_position)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(position); pushSTACK(S(Kend)); pushSTACK(S(Kstart));
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,GETTEXT("~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"));
+      error(type_error,GETTEXT("~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"));
     }
   }
  restart_file_position:

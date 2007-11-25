@@ -380,7 +380,7 @@
     { var object tmp = listof(2); pushSTACK(tmp); } # Wert für Slot OPERANDS von ARITHMETIC-ERROR
     pushSTACK(STACK_(1+2)); # x
     pushSTACK(STACK_(0+3)); # y
-    fehler(arithmetic_error,
+    error(arithmetic_error,
            GETTEXT("quotient ~S / ~S is not an integer")
           );
   }

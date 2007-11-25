@@ -2,7 +2,7 @@
 
 /* error-message for too long Long-FLoat */
 nonreturning_function(local, fehler_LF_toolong, (void)) {
-  fehler(arithmetic_error,GETTEXT("long float too long"));
+  error(arithmetic_error,GETTEXT("long float too long"));
 }
 
 /* Decoding a Long-Float:

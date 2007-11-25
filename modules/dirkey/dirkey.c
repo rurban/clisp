@@ -128,7 +128,7 @@ static object test_dir_key (object obj, bool check_open) {
     if (check_open && nullp(slots[DK_OPEN])) {
       pushSTACK(obj);
       pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,GETTEXT("~S on ~S is illegal"));
+      check_value(error_condition,GETTEXT("~S on ~S is illegal"));
       obj = value1; goto start;
     }
     XOUT(obj,"directory key");
@@ -358,7 +358,7 @@ nonreturning_function(static, error_ldap,
   pushSTACK(NIL); pushSTACK(path); pushSTACK(dk);
   pushSTACK(TheSubr(subr_self)->name);
   STACK_3 = CLSTEXT(errmsg);
-  fehler(error,"~S(~S ~S): ~S");
+  error(error_condition,"~S(~S ~S): ~S");
 }
 #define LDAP_ERR2STR(d,p,status) error_ldap(d,p,ldap_err2string(status))
 #define LDAP_RES2STR(d,p,ld,res) LDAP_ERR2STR(d,p,ldap_result2error(ld,res,1))
@@ -425,7 +425,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
         end_system_call();
         pushSTACK(path);
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~S: ~S is not an LDAP URL"));
+        error(error_condition,GETTEXT("~S: ~S is not an LDAP URL"));
       }
       ret_handle = (void*)ldap_open(ldap_url->lud_host,ldap_url->lud_port);
       if (ret_handle == NULL) OS_error();
@@ -452,7 +452,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     pushSTACK(`LDAP::DIR-KEY`);
     pushSTACK(type);
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+    error(type_error,GETTEXT("~S: ~S is not a ~S"));
   }
   /* create the DIR-KEY */
   pushSTACK(type);
@@ -592,7 +592,7 @@ static scope_t parse_scope (object scope) {
   pushSTACK(`:SCOPE`);
   pushSTACK(scope);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+  error(type_error,GETTEXT("~S: ~S is not a ~S"));
 }
 
 /* return a simple vector with the iteration state
@@ -749,7 +749,7 @@ DEFUN(LDAP::DKEY-SEARCH-NEXT-ATT,state)
     pushSTACK(`LDAP::DKEY-SEARCH-NEXT-KEY`);
     pushSTACK(state);
     pushSTACK(`LDAP::DKEY-SEARCH-NEXT-ATT`);
-    fehler(error,GETTEXT("~S from ~S without ~S before it"));
+    error(error_condition,GETTEXT("~S from ~S without ~S before it"));
   }
  {object node = Car(stack);
   Fpointer fp = TheFpointer(NODE_HANDLE(node));
@@ -855,7 +855,7 @@ DEFUN(LDAP::SET-DKEY-VALUE, key name value)
     } else {
       pushSTACK(value);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S on ~S is illegal"));
+      error(error_condition,GETTEXT("~S on ~S is illegal"));
     }
   });
   VALUES1(value);

@@ -101,7 +101,7 @@ DEFMODULE(rawsock,"RAWSOCK")
 static object my_check_argument (object name, object datum) {
   pushSTACK(NIL);               /* no PLACE */
   pushSTACK(name); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  check_value(error,GETTEXT("~S: ~S is not a valid ~S argument"));
+  check_value(error_condition,GETTEXT("~S: ~S is not a valid ~S argument"));
   return value1;
 }
 /* DANGER: the return value is invalidated by GC!
@@ -411,7 +411,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
     pushSTACK(STACK_1);         /* domain */
     pushSTACK(STACK_1);         /* address */
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: invalid address ~S for family ~S"));
+    check_value(error_condition,GETTEXT("~S: invalid address ~S for family ~S"));
     STACK_0 = value1;
     goto convert_address_restart;
   }
@@ -544,7 +544,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
     VALUES1(asciz_to_string(name,GLO(misc_encoding)));
 #  else
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: no if_indextoname() at configure time"));
+    error(error_condition,GETTEXT("~S: no if_indextoname() at configure time"));
 #  endif
   } else if (stringp(STACK_0)) {
 #  if defined(HAVE_IF_INDEXTONAME)
@@ -557,7 +557,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
     VALUES1(uint_to_I(idx));
 #  else
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(error,GETTEXT("~S: no if_nametoindex() at configure time"));
+    error(error_condition,GETTEXT("~S: no if_nametoindex() at configure time"));
 #  endif
   } else fehler_string_integer(STACK_0);
   skipSTACK(1);
@@ -582,7 +582,7 @@ DEFUN(RAWSOCK:IFADDRS,) {
     if (ifap->ifa_flags & IFF_BROADCAST)
       if (ifap->ifa_flags & IFF_POINTOPOINT) {
         pushSTACK(TheSubr(subr_self)->name);
-        fehler(error,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set"));
+        error(error_condition,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set"));
       } else pushSTACK(ifap->ifa_broadaddr
                        ? sockaddr_to_lisp1(ifap->ifa_broadaddr) : NIL);
     else if (ifap->ifa_flags & IFF_POINTOPOINT)
@@ -636,7 +636,7 @@ static int get_socket_protocol (object proto) {
     if (pe) return pe->p_proto;
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(TheSubr(subr_self)->name); pushSTACK(proto);
-    check_value(error,GETTEXT("~S: invalid protocol name ~S"));
+    check_value(error_condition,GETTEXT("~S: invalid protocol name ~S"));
     proto = value1;
     goto get_socket_protocol_restart;
   } else
@@ -772,7 +772,7 @@ DEFUN(RAWSOCK:SOCK-LISTEN,socket &optional backlog) {
 #if defined(WIN32_NATIVE)
 nonreturning_function(static, error_missing, (object function)) {
   pushSTACK(function); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: your ws2_32.dll does not implement ~S"));
+  error(error_condition,GETTEXT("~S: your ws2_32.dll does not implement ~S"));
 }
 #endif
 

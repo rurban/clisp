@@ -102,7 +102,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
     pushSTACK(safe_to_string(error_message));
     pushSTACK(fixnum(error_offset));
     pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S(~S) at ~S: ~S"));
+    check_value(error_condition,GETTEXT("~S(~S) at ~S: ~S"));
     *string = value1;
     goto pcre_compile_restart;
   }
@@ -117,7 +117,7 @@ DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
       STACK_0 = NIL;           /* no PLACE - discard compiled_pattern */
       pushSTACK(asciz_to_string(error_message,GLO(misc_encoding)));
       pushSTACK(*string); pushSTACK(TheSubr(subr_self)->name);
-      check_value(error,"~S(~S): ~S");
+      check_value(error_condition,"~S(~S): ~S");
       *string = value1;
       goto pcre_compile_restart;
     }
@@ -149,7 +149,7 @@ DEFCHECKER(error_pcre_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
 nonreturning_function(static, error_pcre, (int status)) {
   pushSTACK(error_pcre_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,"~S/~S=~S: ~S ~S");
+  error(error_condition,"~S/~S=~S: ~S ~S");
 }
 
 
@@ -324,14 +324,14 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1);         /* name */
     pushSTACK(TheSubr(subr_self)->name);
-    check_value(error,GETTEXT("~S: ~S is not a valid pattern name"));
+    check_value(error_condition,GETTEXT("~S: ~S is not a valid pattern name"));
     STACK_0 = value1;
     goto restart_pcre_get_stringnumber;
   }
   skipSTACK(2);
 #else /* PCRE versions before 4.0 did not have pcre_get_stringnumber() */
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S (~S ~S): PCRE library lacks pcre_get_stringnumber()"));
+  error(error_condition,GETTEXT("~S (~S ~S): PCRE library lacks pcre_get_stringnumber()"));
 #endif
 }
 

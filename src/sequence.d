@@ -268,7 +268,7 @@ local maygc object valid_type (gcv_object_t* type_) {
   pushSTACK(*type_);                             # TYPE-ERROR slot DATUM
   pushSTACK(O(type_recognizable_sequence_type)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(*type_);
-  fehler(type_error,GETTEXT("There are no sequences of type ~S"));
+  error(type_error,GETTEXT("There are no sequences of type ~S"));
 }
 
 # UP: liefert den Typdescriptor einer Sequence
@@ -327,7 +327,7 @@ nonreturning_function(local, fehler_sequence, (object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(sequence)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S is not a ~S"));
+  error(type_error,GETTEXT("~S: ~S is not a ~S"));
 }
 /* UP: return the type descriptor for the sequence, or report an error
  get_valid_seq_type(seq)
@@ -356,7 +356,7 @@ nonreturning_function(local, fehler_seqtype_length,
     { var object type = listof(2); STACK_2 = type; } /* EXPECTED-TYPE */
   }
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,
+  error(type_error,
          GETTEXT("~S: sequence type forces length ~S, but result has length ~S"));
 }
 /* check whether the computed_length CL matches seqtype_length STL */
@@ -369,7 +369,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
-  fehler(type_error,GETTEXT("~S: ~S should be an integer >=0, not ~S"));
+  error(type_error,GETTEXT("~S: ~S should be an integer >=0, not ~S"));
 }
 
 # Macro: Trägt NIL als Defaultwert eines Parameters in den Stack ein:
@@ -413,7 +413,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
       pushSTACK(end); pushSTACK(kwptr[1]);
       pushSTACK(start); pushSTACK(kwptr[0]);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
+      error(error_condition,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
     }
   }
 
@@ -440,7 +440,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
       pushSTACK(end); pushSTACK(kwptr[1]);
       pushSTACK(start); pushSTACK(kwptr[0]);
       pushSTACK(TheSubr(subr_self)->name);
-      fehler(error,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
+      error(error_condition,GETTEXT("~S: ~S = ~S should not be greater than ~S = ~S"));
     }
   }
 
@@ -586,7 +586,7 @@ local void seq_check_index (object seq, object index) {
     pushSTACK(index);             # TYPE-ERROR slot DATUM
     pushSTACK(O(type_posfixnum)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(index); pushSTACK(S(elt));
-    fehler(type_error,GETTEXT("~S: the index should be a fixnum >=0, not ~S"));
+    error(type_error,GETTEXT("~S: the index should be a fixnum >=0, not ~S"));
   }
   if (vectorp(seq)) { # vector ==>
     # check index against active length (may be smaller than total size)
@@ -867,7 +867,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
       pushSTACK(seq); funcall(seq_length(typdescr),1); # (SEQ-LENGTH seq)
       if (!(posfixnump(value1))) { # sollte ein Fixnum >=0 sein
         pushSTACK(value1); pushSTACK(S(nreverse));
-        fehler(error,GETTEXT("~S: bad length ~S"));
+        error(error_condition,GETTEXT("~S: bad length ~S"));
       }
       {
         var uintV len = posfixnum_to_V(value1); # len
@@ -981,13 +981,13 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         pushSTACK(size);               # TYPE-ERROR slot DATUM
         pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(size); pushSTACK(S(make_sequence));
-        fehler(type_error,GETTEXT("~S: size should be an integer >=0, not ~S"));
+        error(type_error,GETTEXT("~S: size should be an integer >=0, not ~S"));
       }
       # initial-element bei Strings defaultmäßig ergänzen:
       if (!boundp(STACK_2)) { /* :initial-element not supplied? */
         if (boundp(STACK_1)) { /* :update without :initial-element -> Error */
           pushSTACK(S(make_sequence));
-          fehler(error,
+          error(error_condition,
                  GETTEXT("~S: :update must not be specified without :initial-element"));
         }
         else if (posfixnump(seq_type(typdescr))) { /* type name integer? (means byte-vector) */
@@ -1039,7 +1039,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         # STACK_0 = result = TYPE-ERROR slot DATUM
         pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(make_sequence));
-        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
       }
       value1 = popSTACK();
     }
@@ -1106,7 +1106,7 @@ global maygc Values coerce_sequence (object sequence, object result_type,
           pushSTACK(STACK_2);     # TYPE-ERROR slot DATUM
           pushSTACK(STACK_(0+1)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(coerce));
-          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+          error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
         }
       }
       skipSTACK(2); VALUES1(popSTACK()); /* return seq1 */
@@ -1162,7 +1162,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
               pushSTACK(STACK_6);     # TYPE-ERROR slot DATUM
               pushSTACK(STACK_(1+1)); # TYPE-ERROR slot EXPECTED-TYPE
               pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
-              fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+              error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
             }
           }
           skipSTACK(6); VALUES1(popSTACK()); /* return sequence */
@@ -1192,7 +1192,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
         pushSTACK(STACK_2);     # TYPE-ERROR slot DATUM
         pushSTACK(STACK_(1+1)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
-        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
       }
     }
     skipSTACK(2); VALUES1(popSTACK()); /* return result */
@@ -1242,7 +1242,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
           var object len = NEXT(ptr); # nächste Länge
           if (!(posfixnump(len))) {
             pushSTACK(len); pushSTACK(S(concatenate));
-            fehler(error,GETTEXT("~S: bad length ~S"));
+            error(error_condition,GETTEXT("~S: bad length ~S"));
           }
           total_length = I_I_plus_I(total_length,len); # total_length = total_length + len
         });
@@ -1302,7 +1302,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
           pushSTACK(STACK_4);                     # TYPE-ERROR slot DATUM
           pushSTACK(Before(behind_args_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(Before(behind_args_pointer)); pushSTACK(STACK_2); pushSTACK(S(concatenate));
-          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+          error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
         }
       }
     }
@@ -1564,7 +1564,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
           pushSTACK(STACK_1);                  # TYPE-ERROR slot DATUM
           pushSTACK(Before(typdescr_pointer)); # TYPE-ERROR slot EXPECTED-TYPE
           pushSTACK(Before(typdescr_pointer)); pushSTACK(STACK_2); pushSTACK(S(map));
-          fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+          error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
         }
       }
       VALUES1(STACK_1); /* return seq2 */
@@ -2125,7 +2125,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # fehler_both_tests();
 nonreturning_function(global, fehler_both_tests, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,
+  error(error_condition,
          GETTEXT("~S: Must not specify both arguments to :TEST and :TEST-NOT"));
 }
 
@@ -2232,7 +2232,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
   if (posfixnump(bvsize)) return posfixnum_to_V(bvsize);
   pushSTACK(bvsize); pushSTACK(*seq);
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error,GETTEXT("~S: sequence ~S is too long: ~S is not a FIXNUM"));
+  error(error_condition,GETTEXT("~S: sequence ~S is too long: ~S is not a FIXNUM"));
 }
 
 # UP: Executes a sequence filtering operation.
@@ -4978,7 +4978,7 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
         pushSTACK(STACK_(1+5));     # TYPE-ERROR slot DATUM
         pushSTACK(STACK_(0+6+5+1)); # TYPE-ERROR slot EXPECTED-TYPE
         pushSTACK(STACK_(0+6+5+2)); pushSTACK(STACK_2); pushSTACK(S(merge));
-        fehler(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+        error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
       }
     }
     VALUES1(STACK_(1+5)); /* return sequence3 */

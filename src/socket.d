@@ -317,7 +317,7 @@ global int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen) {
 
 #if defined(TCPCONN)
 
-#ifndef WIN32
+#if !defined(WIN32) && !defined(__CYGWIN__)
   extern_C RET_INET_ADDR_TYPE inet_addr (INET_ADDR_CONST char* host);
 #endif
 
@@ -470,7 +470,7 @@ global struct hostent* resolve_host (object arg) {
      #endif
       pushSTACK(fixnum(sizeof(struct in_addr)));
       pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
-      fehler(type_error,
+      error(type_error,
             #ifdef HAVE_IPV6
              GETTEXT("~S: IP address ~S must have length ~S or ~S")
             #else

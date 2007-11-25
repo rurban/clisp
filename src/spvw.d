@@ -420,7 +420,7 @@ local uintL make_symvalue_perthread (object value) {
   return symbol_index;
  failed:
   xmutex_unlock(&allthreads_lock);
-  fehler(error,GETTEXT("could not make symbol value per-thread"));
+  error(error_condition,GETTEXT("could not make symbol value per-thread"));
 }
 
   #define for_all_threadobjs(statement)  \
@@ -617,7 +617,7 @@ global void* my_malloc (size_t size)
   if (ptr)
     return ptr;
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(storage_condition,GETTEXT("~S: malloc() failed"));
+  error(storage_condition,GETTEXT("~S: malloc() failed"));
 }
 /* realloc() with error check. */
 global void* my_realloc (void* ptr, size_t size)
@@ -628,7 +628,7 @@ global void* my_realloc (void* ptr, size_t size)
   if (ptr)
     return ptr;
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(storage_condition,GETTEXT("~S: realloc() failed"));
+  error(storage_condition,GETTEXT("~S: realloc() failed"));
 }
 
 #if (int_bitsize < long_bitsize)
@@ -657,7 +657,7 @@ nonreturning_function(global, fehler_notreached,
   end_system_call(); # just in case
   pushSTACK(fixnum(line));
   pushSTACK(ascii_to_string(file));
-  fehler(serious_condition,
+  error(serious_condition,
          GETTEXT("Internal error: statement in file ~S, line ~S has been reached!!\n"
                  "Please see <http://clisp.cons.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."));
 }
@@ -3540,7 +3540,7 @@ nonreturning_function(local, fehler_dlerror,
     pushSTACK(asciz_to_string(symbol,O(internal_encoding)));
   pushSTACK(asciz_to_string(func,O(internal_encoding)));
   pushSTACK(TheSubr(subr_self)->name);
-  fehler(error, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
+  error(error_condition, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
 
 #if !defined(HAVE_DLERROR)

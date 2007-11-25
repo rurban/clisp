@@ -810,7 +810,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
  macrolet_error:
   pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(macrolet)); pushSTACK(sym);
-  fehler(program_error,
+  error(program_error,
          GETTEXT("Invalid access to the value of the lexical variable ~S from within a ~S definition"));
 }
 
@@ -996,7 +996,7 @@ global maygc object setq (object sym, object value)
    macrolet_error:
     pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(S(macrolet)); pushSTACK(sym);
-    fehler(source_program_error,
+    error(source_program_error,
            GETTEXT("Invalid access to the local function definition of ~S from within a ~S definition"));
   }
 
@@ -1485,7 +1485,7 @@ global maygc bool parse_dd (object formlist)
         /* yes -> more than one Doc-String is too much: */
         pushSTACK(STACK_2);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(STACK_0);
-        fehler(source_program_error,
+        error(source_program_error,
                GETTEXT("Too many documentation strings in ~S"));
       }
       STACK_1 = form; /* new Doc-String */
@@ -1688,14 +1688,14 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   if (atomp(lambdabody)) {
     pushSTACK(lambdabody);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(name);
-    fehler(source_program_error,GETTEXT("~S: lambda-list for ~S is missing"));
+    error(source_program_error,GETTEXT("~S: lambda-list for ~S is missing"));
   }
   { /* and the CAR must be a List: */
     var object lambdalist = Car(lambdabody);
     if (!listp(lambdalist)) {
       pushSTACK(lambdalist);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(lambdalist); pushSTACK(name); pushSTACK(S(function));
-      fehler(source_program_error,
+      error(source_program_error,
              GETTEXT("~S: lambda-list for ~S should be a list, not ~S"));
     }
   }
@@ -1820,7 +1820,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
       if (atomp(declspec)) {
         pushSTACK(declspec);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(declspec); pushSTACK(S(function));
-        fehler(source_program_error,
+        error(source_program_error,
                GETTEXT("~S: illegal declaration ~S"));
       }
       /* process SPECIAL-declaration: */
@@ -1914,7 +1914,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
             pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
             pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
             pushSTACK(S(LLoptional)); pushSTACK(S(function));
-            fehler(source_program_error,
+            error(source_program_error,
                    GETTEXT("~S: variable specification after ~S too long: ~S"));
           }
           /* third list-element: svar */
@@ -1953,13 +1953,13 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(S(LLaux)); pushSTACK(S(LLkey));
   pushSTACK(S(LLrest)); pushSTACK(S(function));
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("~S: ~S var must be followed by ~S or ~S or end of list: ~S"));
  badrest:
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLrest)); pushSTACK(S(function));
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("~S: ~S must be followed by a variable: ~S"));
  key: /* process &KEY-Parameter, push on STACK
          and put Init-Forms in the Closure: */
@@ -2053,7 +2053,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLkey)); pushSTACK(S(function));
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("~S: incorrect variable specification after ~S: ~S"));
  allow: /* process &ALLOW-OTHER-KEYS: */
   TheIclosure(*closure_)->clos_allow_flag = T; /* set Flag to T */
@@ -2062,7 +2062,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(LLaux)); pushSTACK(S(LLallow_other_keys));
   pushSTACK(S(function));
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("~S: ~S must be followed by ~S or end of list: ~S"));
  aux: /* process &AUX-Parameter, push on STACK and
          put Init-Forms in the Closure: */
@@ -2093,7 +2093,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
           pushSTACK(item_rest);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
           pushSTACK(S(LLaux)); pushSTACK(S(function));
-          fehler(source_program_error,
+          error(source_program_error,
                  GETTEXT("~S: variable specification after ~S too long: ~S"));
         }
       } else
@@ -2114,7 +2114,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
   pushSTACK(item); pushSTACK(S(function));
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("~S: badly placed lambda-list keyword ~S: ~S"));
  ende: /* reached list-end */
 #undef NEXT_ITEM
@@ -2123,7 +2123,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
     pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(S(function));
-    fehler(source_program_error,
+    error(source_program_error,
            GETTEXT("~S: too many parameters in the lambda-list ~S"));
   }
   /* var_count <= lp_limit_1, therefore all counts fit in an uintC. */
@@ -2131,7 +2131,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
     pushSTACK(*lalist_);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
     pushSTACK(S(function));
-    fehler(source_program_error,
+    error(source_program_error,
            GETTEXT("~S: a dot in a lambda-list is allowed only for macros, not here: ~S"));
   }
   /* Collect variables into a vector and put it into the Closure,
@@ -2202,7 +2202,7 @@ nonreturning_function(local, fehler_specialform, (object caller, object funname)
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
-  fehler(undefined_function,
+  error(undefined_function,
          GETTEXT("~S: ~S is a special operator, not a function"));
 }
 
@@ -2214,7 +2214,7 @@ nonreturning_function(local, fehler_macro, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
-  fehler(undefined_function,GETTEXT("~S: ~S is a macro, not a function"));
+  error(undefined_function,GETTEXT("~S: ~S is a macro, not a function"));
 }
 
 /* UP: Alters argument to a function.
@@ -2489,7 +2489,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         if (argcount < count) {
           pushSTACK(TheIclosure(closure)->clos_name);
           /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
-          fehler(program_error,
+          error(program_error,
                  GETTEXT("EVAL/APPLY: too few arguments given to ~S"));
         }
         argcount -= count;
@@ -2572,7 +2572,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       if (argcount>0) { /* still arguments there? -> Error */
         pushSTACK(TheIclosure(closure)->clos_name);
         /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-        fehler(program_error,
+        error(program_error,
                GETTEXT("EVAL/APPLY: too many arguments given to ~S"));
       }
     } else { /* &KEY or &REST present. */
@@ -3151,7 +3151,7 @@ local maygc Values eval1 (object form)
           var object form = STACK_(frame_form); # Form from EVAL-Frame
           pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
-          fehler(source_program_error,
+          error(source_program_error,
                  GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
         }
       fehler_zuviel: # argument-list args is not NIL at the tail
@@ -3164,7 +3164,7 @@ local maygc Values eval1 (object form)
           var object form = STACK_(frame_form); # Form from EVAL-Frame
           pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
-          fehler(source_program_error,
+          error(source_program_error,
                  GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
         }
       fehler_dotted: # argument-list args ends with Atom /= NIL
@@ -3176,7 +3176,7 @@ local maygc Values eval1 (object form)
           var object form = STACK_(frame_form); # Form from EVAL-Frame
           pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(form); pushSTACK(Car(form));
-          fehler(source_program_error,
+          error(source_program_error,
                  GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
         }
       #undef REQ_PAR
@@ -3239,7 +3239,7 @@ nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("EVAL: too few arguments given to ~S: ~S"));
 }
 
@@ -3249,7 +3249,7 @@ nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("EVAL: too many arguments given to ~S: ~S"));
 }
 
@@ -3258,7 +3258,7 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
-  fehler(source_program_error,
+  error(source_program_error,
          GETTEXT("EVAL: argument list given to ~S is dotted: ~S"));
 }
 
@@ -4094,7 +4094,7 @@ nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
   pushSTACK(end);
   pushSTACK(name);
   pushSTACK(S(apply));
-  fehler(program_error,GETTEXT("~S: argument list given to ~S is dotted (terminated by ~S)"));
+  error(program_error,GETTEXT("~S: argument list given to ~S is dotted (terminated by ~S)"));
 }
 
 # Error because of too many arguments
@@ -4102,7 +4102,7 @@ nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
 nonreturning_function(local, fehler_apply_zuviel, (object name)) {
   pushSTACK(name);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-  fehler(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
+  error(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
 }
 
 # Error because of too few arguments
@@ -4112,12 +4112,12 @@ nonreturning_function(local, fehler_apply_zuwenig, (object name, object tail)) {
   if (!nullp(tail)) {
     pushSTACK(tail); /* ARGUMENT-LIST-DOTTED slot DATUM */
     pushSTACK(tail); pushSTACK(name);
-    fehler(argument_list_dotted,
+    error(argument_list_dotted,
            GETTEXT("APPLY: dotted argument list given to ~S : ~S"));
   } else {
     pushSTACK(name);
     /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
-    fehler(program_error,GETTEXT("APPLY: too few arguments given to ~S"));
+    error(program_error,GETTEXT("APPLY: too few arguments given to ~S"));
   }
 }
 
@@ -6588,7 +6588,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           if (!boundp(Symbol_value(symbol))) {
             pushSTACK(symbol); # CELL-ERROR slot NAME
             pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            fehler(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+            error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
           }
           VALUES1(Symbol_value(symbol));
         }
@@ -6602,7 +6602,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           if (!boundp(Symbol_value(symbol))) {
             pushSTACK(symbol); # CELL-ERROR slot NAME
             pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            fehler(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+            error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
           }
           pushSTACK(Symbol_value(symbol));
         }
@@ -6615,7 +6615,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           # The Compiler has already checked, that it's a Symbol.
           if (constant_var_p(TheSymbol(symbol))) {
             pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            fehler(error,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
+            error(error_condition,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
           }
           Symbol_value(symbol) = value1; mv_count=1;
         }
@@ -7246,7 +7246,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
               pushSTACK(fun);
               pushSTACK(S(multiple_value_call));
               /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-              fehler(program_error,
+              error(program_error,
                      GETTEXT("~S: too many arguments given to ~S"));
             }
             # apply Function, lift Stack until below the Function:
@@ -7425,7 +7425,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(tag_vector);
             pushSTACK(TheSvector(tag_vector)->data[l]); # label l
             pushSTACK(S(go));
-            fehler(control_error,
+            error(control_error,
                    GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
           }
           # value passed to the Tagbody:
@@ -7459,7 +7459,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(tag_vector);
             pushSTACK(TheSvector(tag_vector)->data[l]); # label l
             pushSTACK(S(go));
-            fehler(control_error,
+            error(control_error,
                    GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
           }
           # value passed to Tagbody:
@@ -7523,7 +7523,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           throw_to(tag);
           pushSTACK(tag);
           pushSTACK(S(throw));
-          fehler(control_error,
+          error(control_error,
                  GETTEXT("~S: there is no CATCHer for tag ~S"));
         }
       # ------------------- (13) UNWIND-PROTECT -----------------------
@@ -7547,7 +7547,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # unwind_protect_to_save is to be saved and jumped to at the end.
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info)) {
-          fehler(serious_condition,GETTEXT("STACK corrupted"));
+          error(serious_condition,GETTEXT("STACK corrupted"));
         }
         #endif
         # unwind Frame:
@@ -7928,7 +7928,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         pushSTACK(STACK_(1+2)); # vec
         pushSTACK(STACK_(0+3)); # index
         pushSTACK(S(svref));
-        fehler(type_error,GETTEXT("~S: ~S is not a correct index into ~S"));
+        error(type_error,GETTEXT("~S: ~S is not a correct index into ~S"));
       }
       CASE cod_list:                   # (LIST n)
         {
@@ -8550,7 +8550,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         #endif
         pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); /* bad byte number */
         pushSTACK(closure); # Closure
-        fehler(serious_condition,
+        error(serious_condition,
                GETTEXT("undefined bytecode in ~S at byte ~S"));
       #undef L_operand
       #undef S_operand
@@ -8565,16 +8565,16 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     pushSTACK(fixnum(byteptr - codeptr->data));
     pushSTACK(sfixnum(byteptr_bad_jump));
     pushSTACK(closure);
-    fehler(error,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
+    error(error_condition,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
    #endif
    fehler_zuviele_werte:
     pushSTACK(closure);
-    fehler(error,GETTEXT("~S: too many return values"));
+    error(error_condition,GETTEXT("~S: too many return values"));
    #if STACKCHECKC
    fehler_STACK_putt:
     pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
     pushSTACK(closure);                       /* FUNC */
-    fehler(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));
+    error(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));
    #endif
    finished:
     #undef FREE_JMPBUF_on_SP

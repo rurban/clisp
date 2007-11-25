@@ -1755,7 +1755,7 @@ local maygc object resize (object ht, object maxcount) {
       if (count==0) {           /* is the new vector already full? */
         /* There is not enough room!! */
         pushSTACK(ht);          /* hash-table */
-        fehler(serious_condition,
+        error(serious_condition,
                GETTEXT("internal error occured while resizing ~S"));
       }
       count--;
@@ -1869,7 +1869,7 @@ local object get_eq_hashfunction (void) {
     pushSTACK(S(stablehash_eq)); pushSTACK(S(fasthash_eq));
     pushSTACK(S(eq_hashfunction));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
                    "It has been reset to ~S."));
   }
@@ -1889,7 +1889,7 @@ local object get_eql_hashfunction (void) {
     pushSTACK(S(stablehash_eql)); pushSTACK(S(fasthash_eql));
     pushSTACK(S(eql_hashfunction));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
                    "It has been reset to ~S."));
   }
@@ -1909,7 +1909,7 @@ local object get_equal_hashfunction (void) {
     pushSTACK(S(stablehash_equal)); pushSTACK(S(fasthash_equal));
     pushSTACK(S(equal_hashfunction));
     pushSTACK(TheSubr(subr_self)->name);
-    fehler(type_error,
+    error(type_error,
            GETTEXT("~S: The value of ~S should be ~S or ~S, not ~S.\n"
                    "It has been reset to ~S."));
   }
@@ -2208,7 +2208,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
           if (eq(freelist,nix)) { /* empty "list" ? */
             pushSTACK(STACK_0); /* hash-table */
             pushSTACK(S(make_hash_table));
-            fehler(serious_condition,
+            error(serious_condition,
                    GETTEXT("~S: internal error while building ~S"));
           }
           ht = STACK_0; /* restore ht */

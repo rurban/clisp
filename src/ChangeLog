@@ -1,3 +1,30 @@
+2007-11-24  Reini Urban  <rurban@x-ray.at>
+
+	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
+	* modules/dirkey/dirkey.c, modules/pari/cpari.c:
+	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
+	* modules/syscalls/calls.c, src/affi.d, src/aridecl.d:
+	* src/array.d, src/charstrg.d, src/control.d:
+	* src/debug.d, src/encoding.d, src/error.d, src/eval.d:
+	* src/flo_konv.d, src/foreign.d, src/hashtabl.d, src/i18n.d:
+	* src/intbyte.d, src/intdiv.d, src/intelem.d, src/intlog.d:
+	* src/intmal.d, src/io.d, src/lfloat.d, src/lisparit.d:
+	* src/lispbibl.d, src/list.d, src/misc.d, src/package.d:
+	* src/pathname.d, src/predtype.d, src/record.d, src/sequence.d:
+	* src/socket.d, src/spvw.d, src/spvw_allocate.d:
+	* src/spvw_memfile.d, src/spvw_sigint.d, src/stream.d:
+	* src/symbol.d, src/time.d, src/weak.d, utils/modprep.lisp:
+	rename fehler() to error()
+	* modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c:
+	* modules/pari/cpari.c, modules/pcre/cpcre.c:
+	* modules/rawsock/rawsock.c, modules/regexp/regexi.c:
+	* modules/syscalls/calls.c, src/affi.d, src/array.d, src/charstrg.d:
+	* src/control.d, src/debug.d, src/encoding.d, src/error.d:
+	* src/eval.d, src/foreign.d, src/i18n.d, src/io.d, src/lispbibl.d:
+	* src/list.d, src/misc.d, src/package.d, src/pathname.d, src/predtype.d:
+	* src/record.d, src/sequence.d, src/spvw.d, src/stream.d:
+	* src/symbol.d: rename error (enum condition_t) to error_condition
+
 2007-11-23  Sam Steingold  <sds@gnu.org>
 
 	Implemented RFE #[ 1834184 ]: handle CLOS warnings in a CLOSy way
