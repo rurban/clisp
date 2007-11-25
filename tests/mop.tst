@@ -3289,9 +3289,33 @@ ERROR
   t)
 T
 
+;; http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn
+(let ((book-counter 0) (sale-stats (make-hash-table :test 'equal))
+       (already-called 0) (replacing-method 0))
+  (defmethod initialize-instance :after ((o clos:gf-already-called-warning) &rest opts) (incf already-called))
+  (defmethod initialize-instance :after ((o clos:gf-replacing-method-warning) &rest opts) (incf replacing-method))
+  (defclass ware () ((title :initarg :title :accessor title)))
+  (defclass book (ware) ())
+  (defclass compact-disk (ware) ())
+  (defclass dvd (ware) ())
+  (defgeneric add-to-inventory (object))
+  (defmethod add-to-inventory ((object ware)) nil)
+  (add-to-inventory (make-instance 'book :title "CLtL1"))
+  (defmethod add-to-inventory ((object book)) (incf book-counter))
+  (add-to-inventory (make-instance 'book :title "CLtL2"))
+  (defmethod add-to-inventory ((object book))
+    (setf (gethash (title object) sale-stats) (cons 0 0)))
+  (add-to-inventory (make-instance 'book :title "AMOP"))
+  (list book-counter (hash-table-count sale-stats)
+        already-called replacing-method))
+(1 1 2 1)
 
 ;; cleanup
 (setf (find-class 'class-bad-slot) nil
+      (find-class 'ware) nil
+      (find-class 'book) nil
+      (find-class 'compact-disk) nil
+      (find-class 'dvd) nil
       (find-class 'constructor) nil
       (find-class 'person) nil
       (find-class 'counted1-class) nil
