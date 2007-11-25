@@ -1,3 +1,8 @@
+2007-11-25  Sam Steingold  <sds@gnu.org>
+
+	* mop.tst: add a test for
+	http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn
+
 2007-11-21  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: add a test for bug #[ 1835520 ]:
