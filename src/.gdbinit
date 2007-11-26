@@ -149,7 +149,7 @@ break fehler_notreached
 break SP_ueber
 break STACK_ueber
 
-break fehler
+break error
 break prepare_error
 break OS_error
 break OS_file_error
