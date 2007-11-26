@@ -354,16 +354,16 @@
   }
 
 # Fehlermeldung wegen Floating-Point-Überlauf
-# fehler_overflow();
-  nonreturning_function(local, fehler_overflow, (void)) {
+# error_overflow();
+  nonreturning_function(local, error_overflow, (void)) {
     error(floating_point_overflow,
            GETTEXT("floating point overflow")
           );
   }
 
 # Fehlermeldung wegen Floating-Point-Unterlauf
-# fehler_underflow();
-  nonreturning_function(local, fehler_underflow, (void)) {
+# error_underflow();
+  nonreturning_function(local, error_underflow, (void)) {
     error(floating_point_underflow,
            GETTEXT("floating point underflow")
           );

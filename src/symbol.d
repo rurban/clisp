@@ -4,9 +4,9 @@
 #include "lispbibl.c"
 
 /* Error when the symbol's property list has odd length.
- fehler_sym_plist_odd(symbol);
+ error_sym_plist_odd(symbol);
  > symbol: Symbol */
-nonreturning_function(local, fehler_sym_plist_odd, (object symbol)) {
+nonreturning_function(local, error_sym_plist_odd, (object symbol)) {
   pushSTACK(Symbol_plist(symbol)); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(symbol); pushSTACK(S(get));
@@ -40,14 +40,14 @@ local inline gcv_object_t* plist_find (gcv_object_t *plist_, object key) {
 global object get (object symbol, object key) {
   var gcv_object_t* plistr_ = plist_find(&(Symbol_plist(symbol)),key);
   if (plistr_ == NULL) /* property list has odd length */
-    fehler_sym_plist_odd(symbol);
+    error_sym_plist_odd(symbol);
   var object plistr = *plistr_;
   if (endp(plistr)) /* not found */
     return unbound;
   /* key found */
   plistr = Cdr(plistr);
   if (atomp(plistr))
-    fehler_sym_plist_odd(symbol);
+    error_sym_plist_odd(symbol);
   return Car(plistr);
 }
 
@@ -62,7 +62,7 @@ LISPFUNN(putd,2)
   else if (macrop(fun)) /* #<MACRO expander> is ok */
     goto ok;
   else if (consp(fun) && eq(Car(fun),S(lambda))) { /* Lambda-Expression? */
-    fehler_lambda_expression(S(putd),fun);
+    error_lambda_expression(S(putd),fun);
   }
   fun = check_function(fun);
  ok: /* fun is correct, store in the function slot: */
@@ -126,7 +126,7 @@ LISPFUN(getf,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GETF place key [not-found]), CLTL p. 166 */
   var gcv_object_t *plistr_ = plist_find(&STACK_2,STACK_1);
   if (plistr_ == NULL) /* property list has odd length */
-    fehler_plist_odd(STACK_2);
+    error_plist_odd(STACK_2);
   var object plistr = *plistr_;
   if (endp(plistr)) { /* key not found */
     if (eq( value1 = STACK_0, unbound)) /* default value is not-found */
@@ -136,7 +136,7 @@ LISPFUN(getf,seclass_read,2,1,norest,nokey,0,NIL)
   /* found key */
   plistr = Cdr(plistr);
   if (atomp(plistr))
-    fehler_plist_odd(STACK_2);
+    error_plist_odd(STACK_2);
   VALUES1(Car(plistr)); skipSTACK(3);
 }
 
@@ -146,7 +146,7 @@ LISPFUNN(putf,3)
   see places.lisp: this will return NIL if place was a CONS, i.e.,
   if the list was modified "in place" and the PLACE does not have to be set */
   var gcv_object_t *tail = plist_find(&STACK_2,STACK_1);
-  if (tail == NULL) fehler_plist_odd(STACK_2);
+  if (tail == NULL) error_plist_odd(STACK_2);
   var object plistr = *tail;
   if (endp(plistr)) { /* key not found => extend plist with 2 conses */
     pushSTACK(allocate_cons());
@@ -168,7 +168,7 @@ LISPFUNN(putf,3)
     }
   } else {
     plistr = Cdr(plistr);
-    if (atomp(plistr)) fehler_plist_odd(STACK_2);
+    if (atomp(plistr)) error_plist_odd(STACK_2);
     Car(plistr) = STACK_0; /* value */
     VALUES1(NIL);
   }
@@ -181,12 +181,12 @@ LISPFUNN(remf,2)
        (when (and removed (null new-place)) (setf place new-place)) removed-p)
   see places.lisp: PLACE has to be modified only if the new value is ATOM */
   var gcv_object_t *tail = plist_find(&STACK_1,STACK_0);
-  if (tail == NULL) fehler_plist_odd(STACK_1);
+  if (tail == NULL) error_plist_odd(STACK_1);
   var object plistr = *tail;
   if (endp(plistr)) value2 = NIL; /* key not found => not removed */
   else {
     plistr = Cdr(plistr);
-    if (atomp(plistr)) fehler_plist_odd(STACK_1);
+    if (atomp(plistr)) error_plist_odd(STACK_1);
     plistr = Cdr(plistr);
     if (atomp(plistr)) *tail = plistr;
     else { /* shorten the property list by 2 elements */
@@ -223,7 +223,7 @@ LISPFUNNR(get_properties,2)
   value2 = Car(plistr); /* 2nd value = value for key */
   mv_count=3; return; /* 2 values */
  odd: /* property list has odd length */
-  fehler_plist_odd(plist);
+  error_plist_odd(plist);
  notfound: /* key not found */
   VALUES3(NIL,NIL,NIL); return; /* all 3 values */
 }
@@ -241,7 +241,7 @@ LISPFUNN(put,3)
   var object symbol = check_symbol(STACK_2);
   var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),STACK_1);
   if (tail == NULL) /* property list has odd length */
-    fehler_sym_plist_odd(symbol);
+    error_sym_plist_odd(symbol);
   var object plistr = *tail;
   if (endp(plistr)) { /* key not found => extend plist with 2 conses */
     pushSTACK(allocate_cons());
@@ -254,7 +254,7 @@ LISPFUNN(put,3)
     Symbol_plist(STACK_2) = cons1;
   } else {
     plistr = Cdr(plistr);
-    if (atomp(plistr)) fehler_sym_plist_odd(symbol); /* odd length --> error */
+    if (atomp(plistr)) error_sym_plist_odd(symbol); /* odd length --> error */
     Car(plistr) = STACK_0;
   }
   VALUES1(STACK_0);
@@ -266,12 +266,12 @@ LISPFUNN(remprop,2)
   var object symbol = check_symbol(STACK_1);
   var object key = STACK_0; skipSTACK(2);
   var gcv_object_t *tail = plist_find(&Symbol_plist(symbol),key);
-  if (tail == NULL) fehler_sym_plist_odd(symbol);
+  if (tail == NULL) error_sym_plist_odd(symbol);
   var object plistr = *tail;
   if (endp(plistr)) value1 = NIL; /* key not found */
   else { /* key found */
     plistr = Cdr(plistr);
-    if (atomp(plistr)) fehler_sym_plist_odd(symbol);
+    if (atomp(plistr)) error_sym_plist_odd(symbol);
     *tail = Cdr(plistr); /* shorten the property list by 2 elements */
     value1 = T;
   }

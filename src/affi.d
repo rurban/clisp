@@ -71,8 +71,8 @@
 #endif # MC680X0
 
 
-# stattdessen fehler_funspec verwenden?
-nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
+# stattdessen error_funspec verwenden?
+nonreturning_function(local, error_ffi_nocall, (object ffinfo))
   {
     pushSTACK(ffinfo); pushSTACK(TheSubr(subr_self)->name);
     error(error_condition,
@@ -80,7 +80,7 @@ nonreturning_function(local, fehler_ffi_nocall, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
+nonreturning_function(local, error_ffi_proto, (object ffinfo))
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -89,7 +89,7 @@ nonreturning_function(local, fehler_ffi_proto, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
+nonreturning_function(local, error_ffi_argcount, (object ffinfo))
   {
     pushSTACK(ffinfo);
     pushSTACK(TheSubr(subr_self)->name);
@@ -98,7 +98,7 @@ nonreturning_function(local, fehler_ffi_argcount, (object ffinfo))
           );
   }
 
-nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, object ffinfo))
+nonreturning_function(local, error_ffi_argtype, (object obj, object type, object ffinfo))
   {
     pushSTACK(obj); # TYPE-ERROR slot DATUM
     pushSTACK(fixnump(type) ? S(integer) : T); # TYPE-ERROR slot EXPECTED-TYPE
@@ -108,8 +108,8 @@ nonreturning_function(local, fehler_ffi_argtype, (object obj, object type, objec
           );
   }
 
-#define fehler_ffi_type  fehler_ffi_arg
-nonreturning_function(local, fehler_ffi_arg, (object obj))
+#define error_ffi_type  error_ffi_arg
+nonreturning_function(local, error_ffi_arg, (object obj))
   {
     pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
     error(control_error,
@@ -217,9 +217,9 @@ local void affi_callit(address, ffinfo, args)
       #endif
     } else {
      bad_proto:
-      fehler_ffi_proto(ffinfo);
+      error_ffi_proto(ffinfo);
       bad_call:
-      fehler_ffi_nocall(ffinfo);
+      error_ffi_nocall(ffinfo);
     }
     # Aufruf erfolgreich, Werte setzen
     # Ergebnis kann bei GC (wegen String oder Bignum) und RESET verloren gehen
@@ -268,12 +268,12 @@ local void affi_call_argsa(address, ffinfo, args, count)
   var const gcv_object_t* args;
   var uintC count;
   {
-    # if (!simple_vector_p(ffinfo)) goto bad_proto; # oder fehler_kein_svector();
+    # if (!simple_vector_p(ffinfo)) goto bad_proto; # oder error_no_svector();
     # Zahl der Argumente überprüfen
     {
       var uintL vlen = Svector_length(ffinfo);
       if (vlen != count+2)
-        fehler_ffi_argcount(ffinfo);
+        error_ffi_argcount(ffinfo);
     }
     # Return-Type schon vor dem Aufruf überprüfen
     {
@@ -346,7 +346,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
               }
             } else {
              bad_arg:
-              fehler_ffi_argtype(arg,type,ffinfo);
+              error_ffi_argtype(arg,type,ffinfo);
             }
           } else {
             # !fixnump(type)
@@ -458,7 +458,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
     }
     return;
    bad_proto:
-    fehler_ffi_proto(ffinfo);
+    error_ffi_proto(ffinfo);
   }
 
 # (SYSTEM::%LIBCALL base ff-description &rest args)
@@ -468,7 +468,7 @@ LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
     var object ffinfo = Before(rest_args_pointer); # #((offset . mask) return-type . arg-types*))
     var aint address = convert_address(Before(rest_args_pointer STACKop 1),unbound);
     if (!simple_vector_p(ffinfo))
-      fehler_kein_svector(TheSubr(subr_self)->name,ffinfo);
+      error_no_svector(TheSubr(subr_self)->name,ffinfo);
     affi_call_argsa(address,ffinfo,rest_args_pointer,argcount);
     # value1 und mv_count wurden darin gesetzt
     set_args_end_pointer(rest_args_pointer STACKop 2);
@@ -594,7 +594,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
       value1 = into;
     } else {
      fehler_type:
-      fehler_ffi_type(into);
+      error_ffi_type(into);
     }
     mv_count=1;
   }
@@ -652,9 +652,9 @@ LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
       }
     } else {
      bad_type:
-      fehler_ffi_type(type);
+      error_ffi_type(type);
      bad_arg:
-      fehler_ffi_arg(wert);
+      error_ffi_arg(wert);
     }
     VALUES0;
   }
@@ -700,7 +700,7 @@ LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
       }
     } else {
      fehler_type:
-      fehler_ffi_type(from);
+      error_ffi_type(from);
     }
     VALUES0;
   }
@@ -744,7 +744,7 @@ LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
             # fall through
           #endif
           default:
-            fehler_ffi_arg(arg);
+            error_ffi_arg(arg);
         }
         break;
       case_symbol:
@@ -754,7 +754,7 @@ LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
         }
         # fall through
       default:
-        fehler_ffi_arg(arg);
+        error_ffi_arg(arg);
     }
    #endif
     mv_count=1;

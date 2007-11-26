@@ -45,13 +45,13 @@
     {                                                 \
       if ((exp) < (sintWL)(SF_exp_low-SF_exp_mid)) {  \
         if (underflow_allowed()) {                    \
-          fehler_underflow();                         \
+          error_underflow();                         \
         } else {                                      \
           erg_zuweisung SF_0;                         \
         }                                             \
       } else                                          \
       if ((exp) > (sintWL)(SF_exp_high-SF_exp_mid)) { \
-        fehler_overflow();                            \
+        error_overflow();                            \
       } else                                          \
       erg_zuweisung as_object                         \
         (   ((oint)SF_type << oint_type_shift)        \
@@ -685,10 +685,10 @@ local maygc object I_to_SF (object x, bool signal_overflow)
         mant = mant>>1; exp = exp+1;
       }
     }
-    #define fehler_overflow() \
-      if (signal_overflow) (fehler_overflow)(); else return nullobj;
+    #define error_overflow() \
+      if (signal_overflow) (error_overflow)(); else return nullobj;
     encode_SF(sign,(sintL)exp,mant, return);
-    #undef fehler_overflow
+    #undef error_overflow
   }
 }
 
@@ -714,8 +714,8 @@ local maygc object I_to_SF (object x, bool signal_overflow)
     if (RA_integerp(x))
       return I_to_SF(x,signal_overflow);
     # x Ratio
-    #define fehler_overflow() \
-      if (signal_overflow) (fehler_overflow)(); else return nullobj;
+    #define error_overflow() \
+      if (signal_overflow) (error_overflow)(); else return nullobj;
     pushSTACK(TheRatio(x)->rt_den); # b
     var signean sign = RT_sign(x); # Vorzeichen
     x = TheRatio(x)->rt_num; # +/- a
@@ -726,11 +726,11 @@ local maygc object I_to_SF (object x, bool signal_overflow)
     var sintL lendiff = I_integer_length(x) # (integer-length a)
                         - I_integer_length(STACK_1); # (integer-length b)
     if (lendiff > SF_exp_high-SF_exp_mid) { # Exponent >= n-m > Obergrenze ?
-      fehler_overflow(); # -> Overflow
+      error_overflow(); # -> Overflow
     }
     if (lendiff < SF_exp_low-SF_exp_mid-2) { # Exponent <= n-m+2 < Untergrenze ?
       if (underflow_allowed()) {
-        fehler_underflow(); # -> Underflow
+        error_underflow(); # -> Underflow
       } else {
         skipSTACK(2); return SF_0;
       }
@@ -788,6 +788,6 @@ local maygc object I_to_SF (object x, bool signal_overflow)
     skipSTACK(2);
     # Fertig.
     encode_SF(sign,lendiff,mant, return);
-    #undef fehler_overflow
+    #undef error_overflow
   }
 

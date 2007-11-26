@@ -840,12 +840,12 @@ local uintC lf_len_extend (uintC n)
  #define TEST(i)  FITS(n_max,1UL<<i) || FITS(n,1UL<<i) ? 1UL<<i :
     TEST(0) TEST(1) TEST(2) TEST(3) TEST(4) TEST(5) TEST(6) TEST(7)
     TEST(8) TEST(9) TEST(10) TEST(11) TEST(12) TEST(13)
-    (fehler_LF_toolong(),0);
+    (error_LF_toolong(),0);
  #undef TEST
  #undef n_max
  #undef FITS
   if ((uintWC)(n = n+inc) < (uintWC)inc)
-    fehler_LF_toolong();
+    error_LF_toolong();
   return n;
 }
 
@@ -997,7 +997,7 @@ local object SF_I_scale_float_SF (object x, object delta)
       exp = exp+udelta;
       encode_SF(sign,exp,mant, return);
     } else {
-      fehler_overflow();
+      error_overflow();
     }
   } else { /* delta<0 */
     var uintV udelta;
@@ -1009,7 +1009,7 @@ local object SF_I_scale_float_SF (object x, object delta)
       encode_SF(sign,exp,mant, return);
     } else {
       if (underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return SF_0;
     }
@@ -1036,7 +1036,7 @@ local maygc object FF_I_scale_float_FF (object x, object delta)
       exp = exp+udelta;
       encode_FF(sign,exp,mant, return);
     } else {
-      fehler_overflow();
+      error_overflow();
     }
   } else { /* delta<0 */
     var uintV udelta;
@@ -1048,7 +1048,7 @@ local maygc object FF_I_scale_float_FF (object x, object delta)
       encode_FF(sign,exp,mant, return);
     } else {
       if (underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return FF_0;
     }
@@ -1085,7 +1085,7 @@ local maygc object DF_I_scale_float_DF (object x, object delta)
       encode2_DF(sign,exp,manthi,mantlo, return);
      #endif
     } else {
-      fehler_overflow();
+      error_overflow();
     }
   } else { /* delta<0 */
     var uintV udelta;
@@ -1101,7 +1101,7 @@ local maygc object DF_I_scale_float_DF (object x, object delta)
      #endif
     } else {
       if (underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return DF_0;
     }
@@ -1182,7 +1182,7 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
          || (uexp > LF_exp_high) /* or exponent too large? */
        #endif
         )
-      fehler_overflow(); /* yes -> overflow */
+      error_overflow(); /* yes -> overflow */
     break; /* else OK */
     neg: /* delta <0, udelta = 2^32+delta */
     if (((uexp = uexp+udelta) >= udelta) /* or exponent-underflow? */
@@ -1191,11 +1191,11 @@ local maygc object LF_I_scale_float_LF (object x, object delta)
     break; /* else OK */
     default: /* unfitting Integer */
       if (!R_minusp(delta)) {
-       overflow: fehler_overflow(); /* delta too large */
+       overflow: error_overflow(); /* delta too large */
       } else {
        underflow: /* delta too small */
         if (underflow_allowed()) {
-          fehler_underflow();
+          error_underflow();
         } else {
           skipSTACK(1);
           encode_LF0(Lfloat_length(x),return);
@@ -1358,7 +1358,7 @@ local maygc void F_integer_decode_float_I_I_I (object x)
     pushSTACK(x); /* save x */
     var uintC len = Lfloat_length(x); /* number of mantissa digits */
     var uintC len1 = len+1; /* need one more digit */
-    if (uintWCoverflow(len1)) { fehler_LF_toolong(); }
+    if (uintWCoverflow(len1)) { error_LF_toolong(); }
     /* intDsize*len >= 53 implies intDsize*len >= 64 >= oint_data_len+1,
        hence len >= bn_minlength. */
     {

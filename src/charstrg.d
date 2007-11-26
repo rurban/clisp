@@ -581,7 +581,7 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
 global object unpack_string_rw (object string, uintL* len, uintL* offset) {
   var object unpacked = unpack_string_ro(string,len,offset);
   if (*len > 0) {
-    if (simple_nilarray_p(unpacked)) fehler_nilarray_access();
+    if (simple_nilarray_p(unpacked)) error_nilarray_access();
     check_sstring_mutable(unpacked);
   }
   return unpacked;
@@ -863,12 +863,12 @@ global maygc object copy_string_normal (object string) {
                                    &TheS32string(new_string)->data[0],len); },
                 { copy_32bit_32bit(&TheS32string(string)->data[offset],
                                    &TheS32string(new_string)->data[0],len); },
-                { fehler_nilarray_retrieve(); });
+                { error_nilarray_retrieve(); });
    #else
     SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
                 { copy_8bit_8bit(&TheS8string(string)->data[offset],
                                  &TheS8string(new_string)->data[0],len); },
-                { fehler_nilarray_retrieve(); });
+                { error_nilarray_retrieve(); });
    #endif
   }
   return new_string;
@@ -911,7 +911,7 @@ global maygc object copy_string (object string) {
                                     &TheS8string(new_string)->data[0],len); },
                   { copy_32bit_8bit(&TheS32string(string)->data[offset],
                                     &TheS8string(new_string)->data[0],len); },
-                  { fehler_nilarray_retrieve(); });
+                  { error_nilarray_retrieve(); });
     } else if (flavour == Sstringtype_16Bit) {
       SstringCase(string,
                   { copy_8bit_16bit(&TheS8string(string)->data[offset],
@@ -1000,7 +1000,7 @@ global maygc object coerce_imm_ss (object obj)
           var uintL offset;
           var object string = unpack_string_ro(obj,&len,&offset);
           if (simple_nilarray_p(string)) {
-            if (len > 0) fehler_nilarray_retrieve();
+            if (len > 0) error_nilarray_retrieve();
             return allocate_imm_string(0);
           }
           #ifdef UNICODE
@@ -1189,7 +1189,7 @@ global maygc object coerce_imm_normal_ss (object obj)
                                  &TheS32string(new_string)->data[0],len); },
               { copy_32bit_32bit(&TheS32string(string)->data[offset],
                                  &TheS32string(new_string)->data[0],len); },
-              { fehler_nilarray_retrieve(); });
+              { error_nilarray_retrieve(); });
           }
           return new_string;
         }
@@ -2139,7 +2139,7 @@ local maygc void nstring_invertcase (object dv, uintL offset, uintL len) {
       do { *charptr = as_cint(invert_case(as_chart(*charptr))); charptr++;
       } while (--len);
     },{
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
     });
 }
 
@@ -2158,7 +2158,7 @@ global maygc object string_invertcase (object string) {
 }
 
 /* error, if index-argument is not an integer. */
-nonreturning_function(local, fehler_int, (object kw, object obj)) {
+nonreturning_function(local, error_int, (object kw, object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(S(integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2172,7 +2172,7 @@ nonreturning_function(local, fehler_int, (object kw, object obj)) {
 }
 
 /* error, if index-argument is not an integer or NIL. */
-nonreturning_function(local, fehler_int_null, (object kw, object obj)) {
+nonreturning_function(local, error_int_null, (object kw, object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_end_index)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2186,7 +2186,7 @@ nonreturning_function(local, fehler_int_null, (object kw, object obj)) {
 }
 
 /* error, if index-argument is negative. */
-nonreturning_function(local, fehler_posint, (object kw, object obj)) {
+nonreturning_function(local, error_posint, (object kw, object obj)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -2200,7 +2200,7 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
 }
 
 /* error, if index-argument is not <= limit. */
-nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj,
+nonreturning_function(local, error_cmp_inclusive, (object kw, object obj,
                                                     uintL grenze)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL);
@@ -2221,7 +2221,7 @@ nonreturning_function(local, fehler_cmp_inclusive, (object kw, object obj,
 }
 
 /* error, if index-argument is not < limit. */
-nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
+nonreturning_function(local, error_cmp_exclusive, (object kw, object obj,
                                                     uintL grenze)) {
   pushSTACK(obj); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL);
@@ -2259,19 +2259,19 @@ nonreturning_function(local, fehler_cmp_exclusive, (object kw, object obj,
       { wohin_zuweisung default; }                                      \
     else { /* must be an integer: */                                    \
       if (!integerp(index))                                             \
-        { if (def==2) fehler_int_null(kw,index); else fehler_int(kw,index); } \
+        { if (def==2) error_int_null(kw,index); else error_int(kw,index); } \
       /* index is an integer. */                                        \
       if (!(positivep(index)))                                          \
-        { fehler_posint(kw,index); }                                    \
+        { error_posint(kw,index); }                                    \
       /* index is >=0. */                                               \
       if (!((posfixnump(index)) &&                                      \
             ((wohin_zuweisung posfixnum_to_V(index)) vergleich grenze))) { \
         if (0 vergleich 0)                                              \
           /* "<= grenze" - comparison not satisfied (grenze == limit) */ \
-          { fehler_cmp_inclusive(kw,index,grenze); }                    \
+          { error_cmp_inclusive(kw,index,grenze); }                    \
         else                                                            \
           /* "< grenze" - comparison not satisfied (grenze == limit) */ \
-          { fehler_cmp_exclusive(kw,index,grenze); }                    \
+          { error_cmp_exclusive(kw,index,grenze); }                    \
       }                                                                 \
     }}
 
@@ -2312,9 +2312,9 @@ LISPFUNNR(schar,2)
   if (!simple_string_p(string)) { /* must be a simple-string */
     if (stringp(string)
         && (Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL)
-      fehler_nilarray_store();
+      error_nilarray_store();
     else
-      fehler_sstring(string);
+      error_sstring(string);
   }
   sstring_un_realloc(string);
   var uintL index = test_index_arg(Sstring_length(string));
@@ -2338,7 +2338,7 @@ LISPFUNN(store_char,3)
   } else {
     len = TheIarray(string)->totalsize;
     string = iarray_displace_check(string,len,&offset);
-    if (simple_nilarray_p(string)) fehler_nilarray_store();
+    if (simple_nilarray_p(string)) error_nilarray_store();
   }
   check_sstring_mutable(string);
   offset += test_index_arg(len); /* go to the element addressed by index */
@@ -2355,9 +2355,9 @@ LISPFUNN(store_schar,3)
   if (!simple_string_p(string)) { /* must be a simple-string */
     if (stringp(string)
         && (Iarray_flags(string) & arrayflags_atype_mask) == Atype_NIL)
-      fehler_nilarray_store();
+      error_nilarray_store();
     else
-      fehler_sstring(string);
+      error_sstring(string);
   }
   sstring_un_realloc(string);
   check_sstring_mutable(string);
@@ -2380,7 +2380,7 @@ LISPFUNN(store_schar,3)
  removes 2 elements from STACK */
 global void test_vector_limits (stringarg* arg) {
   if (arg->len > 0 && simple_nilarray_p(arg->string))
-    fehler_nilarray_retrieve();
+    error_nilarray_retrieve();
   var uintV start;
   var uintV end;
   /* arg->len is the length (<2^oint_data_len).
@@ -2433,7 +2433,7 @@ global maygc object test_string_limits_ro (stringarg* arg) {
 local maygc object test_string_limits_rw (stringarg* arg) {
   var object string = test_string_limits_ro(arg);
   if (arg->len > 0) {
-    if (simple_nilarray_p(arg->string)) fehler_nilarray_access();
+    if (simple_nilarray_p(arg->string)) error_nilarray_access();
     check_sstring_mutable(arg->string);
   }
   return string;
@@ -2556,7 +2556,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
     /* issue the results for string1: */
     arg1->index = start1; arg1->len = end1-start1;
     if (arg1->len > 0 && simple_nilarray_p(arg1->string))
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
   }
   { /* check :START2 and :END2: */
     var uintV start2;
@@ -2579,7 +2579,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
     /* issue the results for string2: */
     arg2->index = start2; arg2->len = end2-start2;
     if (arg2->len > 0 && simple_nilarray_p(arg2->string))
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
   }
   /* done. */
   skipSTACK(6);
@@ -2719,7 +2719,7 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2) {
     /* one of the strings empty ? */
     if (len1==0) goto D_string1_end;
     if (len2==0) goto D_string2_end;
-    fehler_nilarray_retrieve();
+    error_nilarray_retrieve();
   D_string1_end: /* string1 finished */
     arg1->index = 0;
     if (len2==0)
@@ -3025,7 +3025,7 @@ local signean string_comp_ci (stringarg* arg1, const stringarg* arg2)
     /* one of the strings empty ? */
     if (len1==0) goto D_string1_end;
     if (len2==0) goto D_string2_end;
-    fehler_nilarray_retrieve();
+    error_nilarray_retrieve();
   D_string1_end: /* string1 finished */
     arg1->index = 0;
     if (len2==0)
@@ -3369,7 +3369,7 @@ global maygc void nstring_upcase (object dv, uintL offset, uintL len) {
       do { *charptr = as_cint(up_case(as_chart(*charptr))); charptr++;
       } while (--len);
     },{
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
     });
 }
 
@@ -3443,7 +3443,7 @@ global maygc void nstring_downcase (object dv, uintL offset, uintL len) {
       do { *charptr = as_cint(down_case(as_chart(*charptr))); charptr++;
       } while (--len);
     },{
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
     });
 }
 
@@ -3578,7 +3578,7 @@ global maygc void nstring_capitalize (object dv, uintL offset, uintL len) {
       }
       return; /* len = 0 -> string terminated */
     },{
-      fehler_nilarray_retrieve();
+      error_nilarray_retrieve();
     });
   }
 }
@@ -3671,12 +3671,12 @@ global maygc object subsstring (object string, uintL start, uintL end) {
                          &TheS32string(new_string)->data[0],count); },
       { copy_32bit_32bit(&TheS32string(string)->data[start],
                          &TheS32string(new_string)->data[0],count); },
-      { fehler_nilarray_retrieve(); });
+      { error_nilarray_retrieve(); });
    #else
     SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
       { copy_8bit_8bit(&TheS8string(string)->data[start],
                        &TheS8string(new_string)->data[0],count); },
-      { fehler_nilarray_retrieve(); });
+      { error_nilarray_retrieve(); });
    #endif
   }
   DBGREALLOC(new_string);
@@ -3727,12 +3727,12 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
                          &TheS32string(new_string)->data[0],count); },
       { copy_32bit_32bit(&TheS32string(string)->data[offset+start],
                          &TheS32string(new_string)->data[0],count); },
-      { fehler_nilarray_retrieve(); });
+      { error_nilarray_retrieve(); });
    #else
     SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
       { copy_8bit_8bit(&TheS8string(string)->data[offset+start],
                        &TheS8string(new_string)->data[0],count); },
-      { fehler_nilarray_retrieve(); });
+      { error_nilarray_retrieve(); });
    #endif
   }
   DBGREALLOC(new_string);
@@ -3780,11 +3780,11 @@ global maygc object string_concat (uintC argcount) {
                              charptr2,len); },
           { copy_32bit_32bit(&TheS32string(string)->data[offset],
                              charptr2,len); },
-          { fehler_nilarray_retrieve(); });
+          { error_nilarray_retrieve(); });
        #else
         SstringCase(string, { NOTREACHED; }, { NOTREACHED; },
           { copy_8bit_8bit(&TheS8string(string)->data[offset],charptr2,len); },
-          { fehler_nilarray_retrieve(); });
+          { error_nilarray_retrieve(); });
        #endif
         charptr2 += len;
       }

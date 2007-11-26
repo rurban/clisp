@@ -26,7 +26,7 @@
   }
 
 # Fehler, wenn Argument kein Byte.
-  nonreturning_function(local, fehler_byte, (object bad)) {
+  nonreturning_function(local, error_byte, (object bad)) {
     pushSTACK(bad); # TYPE-ERROR slot DATUM
     pushSTACK(S(byte)); # TYPE-ERROR slot EXPECTED-TYPE
     pushSTACK(bad);
@@ -43,7 +43,7 @@
     if (bytep(obj))
       return TheByte(obj)->byte_size;
     else
-      fehler_byte(obj);
+      error_byte(obj);
   }
 
 # Liefert (BYTE-POSITION byte). Das Argument wird überprüft.
@@ -52,7 +52,7 @@
     if (bytep(obj))
       return TheByte(obj)->byte_position;
     else
-      fehler_byte(obj);
+      error_byte(obj);
   }
 
 # Byte_to_V_V(byte, size=,position=); wandelt das Byte byte (eine Variable)
@@ -63,7 +63,7 @@
         size_zuweisung posfixnum_to_V(TheByte(byte)->byte_size);         \
         position_zuweisung posfixnum_to_V(TheByte(byte)->byte_position); \
       } else                                                             \
-        fehler_byte(byte);                                               \
+        error_byte(byte);                                               \
     }
 
 # fullbyte_I(p,q) liefert zu p,q die Zahl 2^q-2^p als Integer,

@@ -45,7 +45,7 @@
     #   (/ (expt a 2) t)
     # )
     var uintC len = newlen + 1; # Arbeite mit Long-Floats mit len Digits
-    if (uintWCoverflow(len)) { fehler_LF_toolong(); }
+    if (uintWCoverflow(len)) { error_LF_toolong(); }
     var uintL uexp_limit = LF_exp_mid - intDsize*(uintL)newlen; # LF_exp_mid - n
     # Ein Long-Float ist genau dann betragsmäßig <2^-n, wenn
     # sein Exponent < LF_exp_mid-n = uexp_limit ist.
@@ -752,11 +752,11 @@ local maygc object R_tan_R (object x)
       #define TEST(i)  FITS(n_max,1UL<<i) || FITS(n,1UL<<i) ? 1UL<<i :
       TEST(0) TEST(1) TEST(2) TEST(3) TEST(4) TEST(5) TEST(6) TEST(7)
       TEST(8) TEST(9) TEST(10) TEST(11) TEST(12) TEST(13)
-      (fehler_LF_toolong(),0);
+      (error_LF_toolong(),0);
       #undef TEST
       #undef n_max
       #undef FITS
-    if ((uintWC)(n = n+inc) < (uintWC)inc) fehler_LF_toolong();
+    if ((uintWC)(n = n+inc) < (uintWC)inc) error_LF_toolong();
     return n;
   }
 

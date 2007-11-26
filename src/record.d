@@ -18,7 +18,7 @@
  > STACK_1: record
  > STACK_0: (bad) index
  > limit: exclusive upper bound on the index */
-nonreturning_function(local, fehler_index, (uintL limit)) {
+nonreturning_function(local, error_index, (uintL limit)) {
   pushSTACK(STACK_0); /* TYPE-ERROR slot DATUM */
   {
     var object tmp;
@@ -34,7 +34,7 @@ nonreturning_function(local, fehler_index, (uintL limit)) {
 
 /* Error message
  > STACK_0: (bad) record */
-nonreturning_function(local, fehler_record, (void)) {
+nonreturning_function(local, error_record, (void)) {
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
          GETTEXT("~S: ~S is not a record"));
@@ -47,13 +47,13 @@ nonreturning_function(local, fehler_record, (void)) {
  < returns: the address of the referred record item */
 local gcv_object_t* record_up (void) {
   /* the record must be a Closure/Structure/Stream/OtherRecord: */
-  if_recordp(STACK_1, ; , { skipSTACK(1); fehler_record(); } );
+  if_recordp(STACK_1, ; , { skipSTACK(1); error_record(); } );
   var object record = STACK_1;
   var uintL length = Record_length(record);
   var uintV index;
   if (!(posfixnump(STACK_0) && ((index = posfixnum_to_V(STACK_0)) < length)))
     /* extract and check index */
-    fehler_index(length);
+    error_index(length);
   skipSTACK(2); /* clear up stack */
   return &TheRecord(record)->recdata[index]; /* record element address */
 }
@@ -76,7 +76,7 @@ LISPFUNN(record_store,3)
 LISPFUNNR(record_length,1)
 {
   /* the record must be a Closure/Structure/Stream/OtherRecord: */
-  if_recordp(STACK_0, ; , { fehler_record(); } );
+  if_recordp(STACK_0, ; , { error_record(); } );
   var object record = popSTACK();
   var uintL length = Record_length(record);
   VALUES1(fixnum(length)); /* length as Fixnum */
@@ -89,8 +89,8 @@ LISPFUNNR(record_length,1)
   if (!(posfixnump(STACK_0)                                                   \
         && ((length = posfixnum_to_V(STACK_0)) <= (uintV)(vbitm(intWsize)-1)) \
         && (length>0)))                                                       \
-    fehler_record_length()
-nonreturning_function(local, fehler_record_length, (void)) {
+    error_record_length()
+nonreturning_function(local, error_record_length, (void)) {
   /* STACK_0 = length, TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_posint16)); /* type */
@@ -142,7 +142,7 @@ local gcv_object_t* structure_up (void) {
     var uintV index;
     /* fetch index and check */
     if (!(posfixnump(STACK_0) && ((index = posfixnum_to_V(STACK_0)) < length)))
-      fehler_index(length);
+      error_index(length);
     /* address of the structure-component */
     return &TheStructure(structure)->recdata[index];
   }
@@ -310,7 +310,7 @@ LISPFUNN(set_closure_name,2) {
 }
 
 /* error, if argument is not a compiled closure */
-nonreturning_function(local, fehler_cclosure, (object obj)) {
+nonreturning_function(local, error_cclosure, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
@@ -321,7 +321,7 @@ nonreturning_function(local, fehler_cclosure, (object obj)) {
    closure, as an array of fixnums >=0, <256. */
 LISPFUNNR(closure_codevec,1) {
   var object closure = popSTACK();
-  if (!(cclosurep(closure))) fehler_cclosure(closure);
+  if (!(cclosurep(closure))) error_cclosure(closure);
   var object codevec = TheCclosure(closure)->clos_codevec;
   VALUES1(codevec);
 }
@@ -330,7 +330,7 @@ LISPFUNNR(closure_codevec,1) {
    compiled closure. */
 LISPFUNNR(closure_consts,1) {
   var object closure = popSTACK();
-  if (!(cclosurep(closure))) fehler_cclosure(closure);
+  if (!(cclosurep(closure))) error_cclosure(closure);
   /* put elements 2,3,... to a list: */
   var uintB ccv_flags =
     TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
@@ -465,7 +465,7 @@ LISPFUNN(closure_set_seclass,2)
 { /* (CLOSURE-SET-SECLASS closure new-seclass)
  - for adding methods to generic functions; return the old seclass */
   var object closure = STACK_1;
-  if (!cclosurep(closure)) fehler_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   var seclass_t new_seclass = parse_seclass(STACK_0,closure);
   VALUES1(seclass_object((seclass_t)Cclosure_seclass(closure)));
   Cclosure_set_seclass(closure,new_seclass);
@@ -475,7 +475,7 @@ LISPFUNN(closure_set_seclass,2)
 LISPFUNNR(closure_documentation,1)
 { /* return the doc string, if any */
   var object closure = popSTACK();
-  if (!cclosurep(closure)) fehler_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   VALUES1(TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2)
           ? (object)TheCclosure(closure)->clos_consts
              [Cclosure_last_const(closure)]
@@ -485,7 +485,7 @@ LISPFUNN(closure_set_documentation,2)
 { /* set the doc string, if possible*/
   if (!nullp(STACK_0)) STACK_0 = check_string(STACK_0);
   var object closure = STACK_1;
-  if (!cclosurep(closure)) fehler_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   if (TheCodevec(TheClosure(closure)->clos_codevec)->ccv_flags & bit(2))
     TheCclosure(closure)->clos_consts[Cclosure_last_const(closure)] = STACK_0;
   VALUES1(STACK_0); skipSTACK(2);
@@ -493,7 +493,7 @@ LISPFUNN(closure_set_documentation,2)
 LISPFUNNR(closure_lambda_list,1)
 { /* return the lambda list, if any */
   var object closure = popSTACK();
-  if (!cclosurep(closure)) fehler_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   var uintB ccv_flags =
     TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
   /* depending on bit(2), the ultimate or the penultimate constant */
@@ -943,7 +943,7 @@ LISPFUNN(allocate_std_instance,2) {
   { /* Fetch the class-version now, before any possible GC, at which the
        user could redefine the class of which we are creating an instance. */
     var object clas = STACK_0;
-    if_defined_class_p(clas, ; , fehler_class(clas); );
+    if_defined_class_p(clas, ; , error_class(clas); );
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }
@@ -965,12 +965,12 @@ LISPFUNN(allocate_funcallable_instance,2) {
   /* check length, should be a fixnum >3 that fits into a uintW: */
   var uintV length;
   test_record_length(length);
-  if (!(length>3)) fehler_record_length();
+  if (!(length>3)) error_record_length();
   skipSTACK(1);
   { /* Fetch the class-version now, before any possible GC, at which the
        user could redefine the class of which we are creating an instance. */
     var object clas = STACK_0;
-    if_defined_class_p(clas, ; , fehler_class(clas); );
+    if_defined_class_p(clas, ; , error_class(clas); );
     TheClass(clas)->instantiated = T;
     STACK_0 = TheClass(clas)->current_version;
   }
@@ -998,7 +998,7 @@ LISPFUNN(allocate_funcallable_instance,2) {
    "initialization argument list". */
 local inline void check_initialization_argument_list (uintL argcount, object caller) {
   if (argcount%2 != 0)
-    fehler_key_odd(argcount,caller);
+    error_key_odd(argcount,caller);
   if (argcount > 0) {
     var gcv_object_t* argptr = STACK STACKop argcount;
     do {
@@ -1321,7 +1321,7 @@ local gcv_object_t* slot_access_up (void) {
       if (posfixnump(slotinfo) && ((index = posfixnum_to_V(slotinfo)) < length)) {
         return &((Srecord)TheInstance(obj_forwarded))->recdata[index];
       } else {
-        fehler_index(length);
+        error_index(length);
       }
     } else if (consp(slotinfo)) {
       /* shared slot, slotinfo is (class-version . index) */
@@ -1561,10 +1561,10 @@ local void keyword_test (object caller, gcv_object_t* rest_args_pointer,
       var object key = NEXT(ptr);
       var object val = NEXT(ptr);
       if (!symbolp(key))
-        fehler_key_notkw(key,caller);
+        error_key_notkw(key,caller);
       if (!eq(key,S(Kallow_other_keys))
           && nullp(memq(key,valid_keywords))) /* not found */
-        fehler_key_badkw(caller,key,val,valid_keywords);
+        error_key_badkw(caller,key,val,valid_keywords);
     } while(--count);
   }
 }

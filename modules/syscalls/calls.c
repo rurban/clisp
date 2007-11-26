@@ -428,7 +428,7 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
         VALUES1(n_char_to_string(buf,retval,GLO(misc_encoding)));
       });
     skipSTACK(1);
-  } else fehler_string_integer(STACK_1);
+  } else error_string_integer(STACK_1);
 }
 #endif  /* strftime strptime mktime */
 
@@ -1398,7 +1398,7 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol)
     se = getservbyport(htons(port),proto);
     end_system_call();
   } else
-    fehler_string_integer(serv);
+    error_string_integer(serv);
   if (se == NULL) OS_error();
   servent_to_lisp(se);
 }
@@ -1453,7 +1453,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
   } else if (stringp(group)) { group_info_string:
     with_string_0(group,GLO(misc_encoding),groupz, { gr = getgrnam(groupz); });
   } else {
-    end_system_call(); fehler_string_integer(group);
+    end_system_call(); error_string_integer(group);
   }
   end_system_call();
 
@@ -1528,7 +1528,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
   } else if (stringp(user)) { user_info_string:
     with_string_0(user,GLO(misc_encoding),userz, { pwd = getpwnam(userz); });
   } else {
-    end_system_call(); fehler_string_integer(user);
+    end_system_call(); error_string_integer(user);
   }
   end_system_call();
 
@@ -3900,7 +3900,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   }
   /* count the number of r/rw props, checking arglist sanity */
   if (argcount % 2)
-    fehler_key_odd(argcount,TheSubr(subr_self)->name);
+    error_key_odd(argcount,TheSubr(subr_self)->name);
   for(i=argcount-1;i>=0;i--) {
     if (i % 2) { /* specifier */
       if (!symbolp(STACK_(i)) && !stringp(STACK_(i))

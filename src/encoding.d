@@ -265,8 +265,8 @@ global object base64_range (object encoding, uintL start, uintL end,
 local char const hex_table[] = "0123456789ABCDEF";
 
 /* Error, when a character cannot be converted to an encoding.
- fehler_unencodable(encoding,ch); */
-nonreturning_function(global, fehler_unencodable,
+ error_unencodable(encoding,ch); */
+nonreturning_function(global, error_unencodable,
                       (object encoding, chart ch)) {
   pushSTACK(code_char(ch)); /* CHARSET-TYPE-ERROR slot DATUM */
   pushSTACK(encoding); /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
@@ -289,7 +289,7 @@ nonreturning_function(global, fehler_unencodable,
 #endif  /* UNICODE */
 /* used in CONVERT-STRING-FROM-BYTES, so must not depend on UNICODE */
 /* missing bytes at the end */
-nonreturning_function(local, fehler_incomplete, (object encoding)) {
+nonreturning_function(local, error_incomplete, (object encoding)) {
 #ifdef UNICODE
   pushSTACK(TheEncoding(encoding)->enc_charset);
 #else
@@ -302,7 +302,7 @@ local void handle_incomplete (object encoding, chart* *destp) {
   var object action = TheEncoding(encoding)->enc_towcs_error;
   if (eq(action,S(Kignore))) {
   } else if (eq(action,S(Kerror))) {
-    fehler_incomplete(encoding);
+    error_incomplete(encoding);
   } else
     *(*destp)++ = char_code(action);
 }
@@ -432,7 +432,7 @@ global uintL uni16_wcslen (object encoding, const chart* src,
         if (as_cint(c) < 0x10000)
           result += 2;
       } else
-        fehler_unencodable(encoding,ch);
+        error_unencodable(encoding,ch);
     }
   }
   return result;
@@ -464,9 +464,9 @@ global void uni16be_wcstombs (object encoding, object stream,
             dest[0] = (uintB)(c>>8); dest[1] = (uintB)c;
             dest += 2; dcount -= 2;
           } else
-            fehler_unencodable(encoding,as_chart(ch));
+            error_unencodable(encoding,as_chart(ch));
         } else
-          fehler_unencodable(encoding,as_chart(ch));
+          error_unencodable(encoding,as_chart(ch));
       }
     } while (scount > 0 && dcount > 0);
     *srcp = src;
@@ -500,9 +500,9 @@ global void uni16le_wcstombs (object encoding, object stream,
             dest[0] = (uintB)c; dest[1] = (uintB)(c>>8);
             dest += 2; dcount -= 2;
           } else
-            fehler_unencodable(encoding,as_chart(ch));
+            error_unencodable(encoding,as_chart(ch));
         } else
-          fehler_unencodable(encoding,as_chart(ch));
+          error_unencodable(encoding,as_chart(ch));
       }
     } while (scount > 0 && dcount > 0);
     *srcp = src;
@@ -542,8 +542,8 @@ global void uni32le_wcstombs (object encoding, object stream,
 /* Bytes to characters. */
 
 /* Error when an invalid character was encountered.
- fehler_uni32_invalid(encoding,code); */
-nonreturning_function(local, fehler_uni32_invalid,
+ error_uni32_invalid(encoding,code); */
+nonreturning_function(local, error_uni32_invalid,
                       (object encoding, uint32 code)) {
   var uintC count;
   pushSTACK(TheEncoding(encoding)->enc_charset);
@@ -617,7 +617,7 @@ global void uni32be_mbstowcs (object encoding, object stream,
         var object action = TheEncoding(encoding)->enc_towcs_error;
         if (eq(action,S(Kignore))) {
         } else if (eq(action,S(Kerror))) {
-          fehler_uni32_invalid(encoding,ch);
+          error_uni32_invalid(encoding,ch);
         } else {
           *dest++ = char_code(action); dcount--;
         }
@@ -650,7 +650,7 @@ global void uni32le_mbstowcs (object encoding, object stream,
         var object action = TheEncoding(encoding)->enc_towcs_error;
         if (eq(action,S(Kignore))) {
         } else if (eq(action,S(Kerror))) {
-          fehler_uni32_invalid(encoding,ch);
+          error_uni32_invalid(encoding,ch);
         } else {
           *dest++ = char_code(action); dcount--;
         }
@@ -743,8 +743,8 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
 /* Bytes to characters. */
 
 /* Error when an invalid 1-byte sequence was encountered.
- fehler_utf8_invalid1(encoding,b1); */
-nonreturning_function(local, fehler_utf8_invalid1,
+ error_utf8_invalid1(encoding,b1); */
+nonreturning_function(local, error_utf8_invalid1,
                       (object encoding, uintB b1)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
@@ -753,8 +753,8 @@ nonreturning_function(local, fehler_utf8_invalid1,
 }
 
 /* Error when an invalid 2-byte sequence was encountered.
- fehler_utf8_invalid2(encoding,b1,b2); */
-nonreturning_function(local, fehler_utf8_invalid2,
+ error_utf8_invalid2(encoding,b1,b2); */
+nonreturning_function(local, error_utf8_invalid2,
                       (object encoding, uintB b1, uintB b2)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b2&0x0F]));
@@ -765,8 +765,8 @@ nonreturning_function(local, fehler_utf8_invalid2,
 }
 
 /* Error when an invalid 3-byte sequence was encountered.
- fehler_utf8_invalid3(encoding,b1,b2,b3); */
-nonreturning_function(local, fehler_utf8_invalid3,
+ error_utf8_invalid3(encoding,b1,b2,b3); */
+nonreturning_function(local, error_utf8_invalid3,
                       (object encoding, uintB b1, uintB b2, uintB b3)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b3&0x0F]));
@@ -780,8 +780,8 @@ nonreturning_function(local, fehler_utf8_invalid3,
 }
 
 /* Error when an invalid 4-byte sequence was encountered.
- fehler_utf8_invalid4(encoding,b1,b2,b3,b4); */
-nonreturning_function(local, fehler_utf8_invalid4,
+ error_utf8_invalid4(encoding,b1,b2,b3,b4); */
+nonreturning_function(local, error_utf8_invalid4,
                       (object encoding, uintB b1, uintB b2, uintB b3, uintB b4)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b4&0x0F]));
@@ -822,7 +822,7 @@ global uintL utf8_mblen (object encoding, const uintB* src,
         if (eq(action,S(Kignore))) {
           src += 2; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid2(encoding,c,src[1]);
+          error_utf8_invalid2(encoding,c,src[1]);
         } else {
           src += 2; count++; continue;
         }
@@ -842,7 +842,7 @@ global uintL utf8_mblen (object encoding, const uintB* src,
         if (eq(action,S(Kignore))) {
           src += 3; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid3(encoding,c,src[1],src[2]);
+          error_utf8_invalid3(encoding,c,src[1],src[2]);
         } else {
           src += 3; count++; continue;
         }
@@ -862,7 +862,7 @@ global uintL utf8_mblen (object encoding, const uintB* src,
         if (eq(action,S(Kignore))) {
           src += 4; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
+          error_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
         } else {
           src += 4; count++; continue;
         }
@@ -873,7 +873,7 @@ global uintL utf8_mblen (object encoding, const uintB* src,
       if (eq(action,S(Kignore))) {
         src += 1; continue;
       } else if (eq(action,S(Kerror))) {
-        fehler_utf8_invalid1(encoding,c);
+        error_utf8_invalid1(encoding,c);
       } else {
         src += 1; count++; continue;
       }
@@ -912,7 +912,7 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
         if (eq(action,S(Kignore))) {
           src += 2; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid2(encoding,c,src[1]);
+          error_utf8_invalid2(encoding,c,src[1]);
         } else {
           src += 2; *dest++ = char_code(action); continue;
         }
@@ -934,7 +934,7 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
         if (eq(action,S(Kignore))) {
           src += 3; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid3(encoding,c,src[1],src[2]);
+          error_utf8_invalid3(encoding,c,src[1],src[2]);
         } else {
           src += 3; *dest++ = char_code(action); continue;
         }
@@ -960,7 +960,7 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
         if (eq(action,S(Kignore))) {
           src += 4; continue;
         } else if (eq(action,S(Kerror))) {
-          fehler_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
+          error_utf8_invalid4(encoding,c,src[1],src[2],src[3]);
         } else {
           src += 4; *dest++ = char_code(action); continue;
         }
@@ -971,7 +971,7 @@ global void utf8_mbstowcs (object encoding, object stream, const uintB* *srcp,
       if (eq(action,S(Kignore))) {
         src += 1; continue;
       } else if (eq(action,S(Kerror))) {
-        fehler_utf8_invalid1(encoding,c);
+        error_utf8_invalid1(encoding,c);
       } else {
         src += 1; *dest++ = char_code(action); continue;
       }
@@ -1593,8 +1593,8 @@ global object nls_range (object encoding, uintL start, uintL end, uintL maxinter
 /* Bytes to characters. */
 
 /* Error when an invalid byte was encountered.
- fehler_nls_invalid(encoding,b); */
-nonreturning_function(local, fehler_nls_invalid, (object encoding, uintB b)) {
+ error_nls_invalid(encoding,b); */
+nonreturning_function(local, error_nls_invalid, (object encoding, uintB b)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b&0x0F]));
   pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
@@ -1641,7 +1641,7 @@ global void nls_mbstowcs (object encoding, object stream, const uintB* *srcp,
         var object action = TheEncoding(encoding)->enc_towcs_error;
         if (eq(action,S(Kignore))) {
         } else if (eq(action,S(Kerror))) {
-          fehler_nls_invalid(encoding,b);
+          error_nls_invalid(encoding,b);
         } else {
           *dest++ = char_code(action);
         }
@@ -1699,7 +1699,7 @@ global void nls_asciiext_mbstowcs (object encoding, object stream,
           var object action = TheEncoding(encoding)->enc_towcs_error;
           if (eq(action,S(Kignore))) {
           } else if (eq(action,S(Kerror))) {
-            fehler_nls_invalid(encoding,b);
+            error_nls_invalid(encoding,b);
           } else {
             *dest++ = char_code(action);
           }
@@ -1739,7 +1739,7 @@ global uintL nls_wcslen (object encoding, const chart* src,
                   || chareq(c,ascii(0))))
             result++;
         } else
-          fehler_unencodable(encoding,ch);
+          error_unencodable(encoding,ch);
       }
      });
   }
@@ -1776,9 +1776,9 @@ global void nls_wcstombs (object encoding, object stream,
                   b != 0 || chareq(c,ascii(0)))) {
             *dest++ = b; dcount--;
           } else
-            fehler_unencodable(encoding,ch);
+            error_unencodable(encoding,ch);
         } else
-          fehler_unencodable(encoding,ch);
+          error_unencodable(encoding,ch);
       }
     } while (scount > 0 && dcount > 0);
     *srcp = src;
@@ -1814,7 +1814,7 @@ global uintL nls_asciiext_wcslen (object encoding, const chart* src,
                   || chareq(c,ascii(0))))
             result++;
         } else
-          fehler_unencodable(encoding,ch);
+          error_unencodable(encoding,ch);
       }
     });
   }
@@ -1855,9 +1855,9 @@ global void nls_asciiext_wcstombs (object encoding, object stream,
                     b != 0 || chareq(c,ascii(0)))) {
               *dest++ = b; dcount--;
             } else
-              fehler_unencodable(encoding,ch);
+              error_unencodable(encoding,ch);
           } else
-            fehler_unencodable(encoding,ch);
+            error_unencodable(encoding,ch);
         }
       }
     } while (scount > 0 && dcount > 0);
@@ -2154,7 +2154,7 @@ LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
   else if (uint32_p(STACK_0))
     maxintervals = I_to_uint32(STACK_0);
   else
-    fehler_uint32(STACK_0);
+    error_uint32(STACK_0);
   VALUES1(i1 <= i2 ?
           Encoding_range(encoding)(encoding,i1,i2,maxintervals) :
           (object)O(empty_string));
@@ -2768,12 +2768,12 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     ASSERT(cptr == cendptr);
     if ((bptr != bendptr)       /* some bytes were unused! */
         && eq(TheEncoding(STACK_1)->enc_towcs_error,S(Kerror)))
-      fehler_incomplete(STACK_1);
+      error_incomplete(STACK_1);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
   } else if (end != start) /* string is empty, but the vector is not! */
-    fehler_incomplete(STACK_1);
+    error_incomplete(STACK_1);
   VALUES1(string); skipSTACK(2);
 }
 

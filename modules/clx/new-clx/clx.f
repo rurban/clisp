@@ -1774,7 +1774,7 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
   Display *dpy;
   gcv_object_t *display_arg = NULL;
 
-  if (argcount % 2 != 1) fehler_key_odd(argcount,TheSubr(subr_self)->name);
+  if (argcount % 2 != 1) error_key_odd(argcount,TheSubr(subr_self)->name);
 
   if (argcount > 0) {
     pushSTACK(STACK_(argcount-1)); /* the first argument */

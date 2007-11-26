@@ -374,7 +374,7 @@
 # Fehler, wenn Quotient keine ganze Zahl ist
 # > STACK_1: Zähler x
 # > STACK_0: Nenner y
-  nonreturning_function(local, fehler_exquo, (void)) {
+  nonreturning_function(local, error_exquo, (void)) {
     pushSTACK(S(exquo)); # Wert für Slot OPERATION von ARITHMETIC-ERROR
     pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
     { var object tmp = listof(2); pushSTACK(tmp); } # Wert für Slot OPERANDS von ARITHMETIC-ERROR
@@ -405,7 +405,7 @@
     I_I_divide_I_I(x,y); # q,r auf den Stack
     # Stackaufbau: y, x, q, r.
     if (!eq(STACK_0,Fixnum_0)) {
-      skipSTACK(2); fehler_exquo();
+      skipSTACK(2); error_exquo();
     }
     var object q = STACK_1;
     skipSTACK(4); return q;
@@ -433,7 +433,7 @@
     I_I_divide_I_I(x,STACK_0); # q,r auf den Stack
     # Stackaufbau: y, x, (abs y), q, r.
     if (!eq(STACK_0,Fixnum_0)) {
-      skipSTACK(3); fehler_exquo();
+      skipSTACK(3); error_exquo();
     }
     var object q = STACK_1;
     if (!same_sign_p(STACK_3,STACK_4)) {

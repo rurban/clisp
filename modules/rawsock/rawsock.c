@@ -405,7 +405,7 @@ DEFUN(RAWSOCK:CONVERT-ADDRESS, family address) {
       } break;
       default: value1 = NIL;
     }
-  } else fehler_string_integer(STACK_0);
+  } else error_string_integer(STACK_0);
   if (nullp(value1)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1);         /* domain */
@@ -461,7 +461,7 @@ DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
         end_system_call();
       });
 #  endif
-  } else fehler_string_integer(proto);
+  } else error_string_integer(proto);
   if (pe) protoent_to_protocol(pe);
   else VALUES1(NIL);
 }
@@ -511,7 +511,7 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
         end_system_call();
       });
 #  endif
-  } else fehler_string_integer(net);
+  } else error_string_integer(net);
   if (ne) netent_to_network(ne);
   else VALUES1(NIL);
 }
@@ -559,7 +559,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
     pushSTACK(TheSubr(subr_self)->name);
     error(error_condition,GETTEXT("~S: no if_nametoindex() at configure time"));
 #  endif
-  } else fehler_string_integer(STACK_0);
+  } else error_string_integer(STACK_0);
   skipSTACK(1);
 }
 #endif  /* net/if.h */
@@ -1365,7 +1365,7 @@ static void set_sock_opt_many (rawsock_t sock, int level, int name,
     while (!endp(STACK_0)) {
       int name = sockopt_name(Car(STACK_0));
       STACK_0 = Cdr(STACK_0);
-      if (!consp(STACK_0)) fehler_plist_odd(STACK_1);
+      if (!consp(STACK_0)) error_plist_odd(STACK_1);
       set_sock_opt(sock,level,name,Car(STACK_0));
       STACK_0 = Cdr(STACK_0);
     }
@@ -1385,7 +1385,7 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
     while (!endp(STACK_0)) {
       int level = sockopt_level(Car(STACK_0));
       STACK_0 = Cdr(STACK_0);
-      if (!consp(STACK_0)) fehler_plist_odd(STACK_1);
+      if (!consp(STACK_0)) error_plist_odd(STACK_1);
       set_sock_opt_many(sock,level,name,Car(STACK_0));
       STACK_0 = Cdr(STACK_0);
     }

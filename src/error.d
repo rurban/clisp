@@ -836,9 +836,9 @@ global maygc object check_fpointer_replacement (object obj, bool restart_p) {
 #endif
 
 /* error-message, if an object is not a list.
- fehler_list(obj);
+ error_list(obj);
  > obj: non-list */
-nonreturning_function(global, fehler_list, (object obj)) {
+nonreturning_function(global, error_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -862,10 +862,10 @@ global maygc object check_list_replacement (object obj) {
 }
 
 /* Error message, if an object isn't a proper list because it is dotted.
- fehler_proper_list_dotted(caller,obj);
+ error_proper_list_dotted(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
-nonreturning_function(global, fehler_proper_list_dotted, (object caller, object obj))
+nonreturning_function(global, error_proper_list_dotted, (object caller, object obj))
 {
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -874,10 +874,10 @@ nonreturning_function(global, fehler_proper_list_dotted, (object caller, object 
 }
 
 /* Error message, if an object isn't a proper list because it is circular.
- fehler_proper_list_circular(caller,obj);
+ error_proper_list_circular(caller,obj);
  > caller: the caller (a symbol)
  > obj: circular list */
-nonreturning_function(global, fehler_proper_list_circular, (object caller, object obj))
+nonreturning_function(global, error_proper_list_circular, (object caller, object obj))
 {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
@@ -1006,10 +1006,10 @@ global maygc object check_symbol_not_global_special (object symbol) {
 }
 
 /* error-message, if an object is not a simple-vector.
- fehler_kein_svector(caller,obj);
+ error_no_svector(caller,obj);
  > caller: caller (a symbol)
  > obj: non-Svector */
-nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
+nonreturning_function(global, error_no_svector, (object caller, object obj))
 {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1018,9 +1018,9 @@ nonreturning_function(global, fehler_kein_svector, (object caller, object obj))
 }
 
 /* error-message, if an object is not a vector.
- fehler_vector(obj);
+ error_vector(obj);
  > obj: non-vector */
-nonreturning_function(global, fehler_vector, (object obj)) {
+nonreturning_function(global, error_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1078,9 +1078,9 @@ global maygc object check_byte_vector_replacement (object obj) {
 
 
 /* error-message, if an object is not an environment.
- fehler_environment(obj);
+ error_environment(obj);
  > obj: non-vector */
-nonreturning_function(global, fehler_environment, (object obj)) {
+nonreturning_function(global, error_environment, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_svector5)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1088,9 +1088,9 @@ nonreturning_function(global, fehler_environment, (object obj)) {
 }
 
 /* error-message, if an argument is not a Fixnum >=0 :
- fehler_posfixnum(obj);
+ error_posfixnum(obj);
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_posfixnum, (object obj)) {
+nonreturning_function(global, error_posfixnum, (object obj)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1148,9 +1148,9 @@ global maygc object check_pos_integer_replacement (object obj) {
 }
 
 /* error-message, if an argument is not a Character:
- fehler_char(obj);
+ error_char(obj);
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_char, (object obj)) {
+nonreturning_function(global, error_char, (object obj)) {
   pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
   pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -1193,7 +1193,7 @@ global maygc object check_string_replacement (object obj) {
 
 /* error-message, if an argument is not a Simple-String:
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_sstring, (object obj)) {
+nonreturning_function(global, error_sstring, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_string)); pushSTACK(obj);
@@ -1202,16 +1202,16 @@ nonreturning_function(global, fehler_sstring, (object obj)) {
 }
 
 /* error-message, if a Simple-String is immutable:
- fehler_sstring_immutable(obj);
+ error_sstring_immutable(obj);
  > obj: the String */
-nonreturning_function(global, fehler_sstring_immutable, (object obj)) {
+nonreturning_function(global, error_sstring_immutable, (object obj)) {
   pushSTACK(obj);
   error(error_condition,GETTEXT("Attempt to modify a read-only string: ~S"));
 }
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
- fehler_string_integer(obj)  */
-nonreturning_function(global, fehler_string_integer, (object obj)) {
+ error_string_integer(obj)  */
+nonreturning_function(global, error_string_integer, (object obj)) {
   pushSTACK(obj);                    /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1220,9 +1220,9 @@ nonreturning_function(global, fehler_string_integer, (object obj)) {
 }
 
 /* Error message, if a string size is too big.
- fehler_stringsize(size);
+ error_stringsize(size);
  > size: the desired string length  */
-nonreturning_function(global, fehler_stringsize, (uintV size)) {
+nonreturning_function(global, error_stringsize, (uintV size)) {
   var object obj = UV_to_I(size);
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1232,9 +1232,9 @@ nonreturning_function(global, fehler_stringsize, (uintV size)) {
 }
 
 /* error message if an argument is not a class.
- fehler_class(caller,obj);
+ error_class(caller,obj);
  > obj: the erroneous argument */
-nonreturning_function(global, fehler_class, (object obj)) {
+nonreturning_function(global, error_class, (object obj)) {
   pushSTACK(obj);      /* TYPE-ERROR slot DATUM */
   pushSTACK(S(class)); /* CLOS:CLASS, TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -1316,9 +1316,9 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
 }
 
 /* Error when the property list has odd length
- fehler_plist_odd(caller,plist);
+ error_plist_odd(caller,plist);
  > plist: bad plist */
-nonreturning_function(global, fehler_plist_odd, (object plist)) {
+nonreturning_function(global, error_plist_odd, (object plist)) {
   pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(TheSubr(subr_self)->name);
@@ -1326,10 +1326,10 @@ nonreturning_function(global, fehler_plist_odd, (object plist)) {
 }
 
 /* error-message for non-paired keyword-arguments
- fehler_key_odd(argcount,caller);
+ error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
+nonreturning_function(global, error_key_odd, (uintC argcount, object caller))
 {
   var uintC count;
   pushSTACK(NIL); pushSTACK(NIL);
@@ -1343,10 +1343,10 @@ nonreturning_function(global, fehler_key_odd, (uintC argcount, object caller))
 }
 
 /* error-message for flawed keyword
- fehler_key_notkw(kw);
+ error_key_notkw(kw);
  > kw: Non-Symbol
  > caller: function */
-nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
+nonreturning_function(global, error_key_notkw, (object kw, object caller)) {
   pushSTACK(kw);        /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
@@ -1355,12 +1355,12 @@ nonreturning_function(global, fehler_key_notkw, (object kw, object caller)) {
 }
 
 /* error-message for flawed keyword
- fehler_key_badkw(fun,kw,kwlist);
+ error_key_badkw(fun,kw,kwlist);
  > fun: function
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(global, fehler_key_badkw,
+nonreturning_function(global, error_key_badkw,
                       (object fun, object key, object val, object kwlist)) {
   pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
   pushSTACK(kwlist);
@@ -1491,7 +1491,7 @@ global maygc object check_funname_replacement (condition_t errtype, object calle
 /* error-message, if an argument is a lambda-expression instead of a function:
  caller: caller (a symbol)
  obj: the erroneous argument */
-nonreturning_function(global, fehler_lambda_expression,
+nonreturning_function(global, error_lambda_expression,
                       (object caller, object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1507,7 +1507,7 @@ nonreturning_function(global, fehler_lambda_expression,
  > func   : the function being incorrectly called
  > ngiven : the number of arguments given
  < nmax   : the maximum number of arguments accepted */
-nonreturning_function(global, fehler_too_many_args,
+nonreturning_function(global, error_too_many_args,
                       (object caller, object func, uintL ngiven, uintL nmax)) {
   pushSTACK(func);
   pushSTACK(fixnum(nmax));
@@ -1526,7 +1526,7 @@ nonreturning_function(global, fehler_too_many_args,
  > func   : the function being incorrectly called
  > ngiven : the number of arguments given
  < nmin   : the minimum number of arguments required */
-nonreturning_function(global, fehler_too_few_args,
+nonreturning_function(global, error_too_few_args,
                       (object caller, object func, uintL ngiven, uintL nmin)) {
   pushSTACK(func);
   pushSTACK(fixnum(nmin));
@@ -1541,58 +1541,58 @@ nonreturning_function(global, fehler_too_few_args,
 }
 
 # Error message, if an argument isn't of a given elementary C type.
-# fehler_<ctype>(obj);
+# error_<ctype>(obj);
 # > obj: the faulty argument
-nonreturning_function(global, fehler_uint8, (object obj)) {
+nonreturning_function(global, error_uint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(8)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
-nonreturning_function(global, fehler_sint8, (object obj)) {
+nonreturning_function(global, error_sint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(8)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
-nonreturning_function(global, fehler_uint16, (object obj)) {
+nonreturning_function(global, error_uint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(16)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
-nonreturning_function(global, fehler_sint16, (object obj)) {
+nonreturning_function(global, error_sint16, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(16)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
-nonreturning_function(global, fehler_uint32, (object obj)) {
+nonreturning_function(global, error_uint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(32)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
-nonreturning_function(global, fehler_sint32, (object obj)) {
+nonreturning_function(global, error_sint32, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(32)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
 }
-nonreturning_function(global, fehler_uint64, (object obj)) {
+nonreturning_function(global, error_uint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(64)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
 }
-nonreturning_function(global, fehler_sint64, (object obj)) {
+nonreturning_function(global, error_sint64, (object obj)) {
   pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(fixnum(64)); pushSTACK(obj);
