@@ -34,13 +34,13 @@
     {                                                               \
       if ((exp) < (sintWL)(FF_exp_low-FF_exp_mid)) {                \
         if (underflow_allowed()) {                                  \
-          fehler_underflow();                                       \
+          error_underflow();                                       \
         } else {                                                    \
           erg_zuweisung FF_0;                                       \
         }                                                           \
       } else                                                        \
       if ((exp) > (sintWL)(FF_exp_high-FF_exp_mid)) {               \
-        fehler_overflow();                                          \
+        error_overflow();                                          \
       } else                                                        \
       erg_zuweisung allocate_ffloat                                 \
         (  ((sint32)(sign) & bit(31))                  # Vorzeichen \
@@ -83,7 +83,7 @@
             )                                                            \
             && underflow_allowed()                                       \
            ) {                                                           \
-          fehler_underflow(); # subnormal oder noch kleiner-> Underflow  \
+          error_underflow(); # subnormal oder noch kleiner-> Underflow  \
         } else {                                                         \
           ergebnis_zuweisung FF_0; # +/- 0.0 -> 0.0                      \
         }                                                                \
@@ -98,7 +98,7 @@
           if (!maybe_overflow || maybe_divide_0)                         \
             divide_0(); # Infinity, Division durch 0                     \
           else                                                           \
-            fehler_overflow(); # Infinity, Overflow                      \
+            error_overflow(); # Infinity, Overflow                      \
         }                                                                \
       } else {                                                           \
         ergebnis_zuweisung allocate_ffloat(_erg.eksplicit);              \
@@ -792,10 +792,10 @@ local maygc object I_to_FF (object x, bool signal_overflow)
         mant = mant>>1; exp = exp+1;
       }
     }
-    #define fehler_overflow() \
-      if (signal_overflow) (fehler_overflow)(); else return nullobj;
+    #define error_overflow() \
+      if (signal_overflow) (error_overflow)(); else return nullobj;
     encode_FF(sign,(sintL)exp,mant, return);
-    #undef fehler_overflow
+    #undef error_overflow
   }
 }
 
@@ -821,8 +821,8 @@ local maygc object I_to_FF (object x, bool signal_overflow)
     if (RA_integerp(x))
       return I_to_FF(x,signal_overflow);
     # x Ratio
-    #define fehler_overflow() \
-      if (signal_overflow) (fehler_overflow)(); else return nullobj;
+    #define error_overflow() \
+      if (signal_overflow) (error_overflow)(); else return nullobj;
     pushSTACK(TheRatio(x)->rt_den); # b
     var signean sign = RT_sign(x); # Vorzeichen
     x = TheRatio(x)->rt_num; # +/- a
@@ -833,11 +833,11 @@ local maygc object I_to_FF (object x, bool signal_overflow)
     var sintL lendiff = I_integer_length(x) # (integer-length a)
                         - I_integer_length(STACK_1); # (integer-length b)
     if (lendiff > FF_exp_high-FF_exp_mid) { # Exponent >= n-m > Obergrenze ?
-      fehler_overflow(); # -> Overflow
+      error_overflow(); # -> Overflow
     }
     if (lendiff < FF_exp_low-FF_exp_mid-2) { # Exponent <= n-m+2 < Untergrenze ?
       if (underflow_allowed()) {
-        fehler_underflow(); # -> Underflow
+        error_underflow(); # -> Underflow
       } else {
         skipSTACK(2); return FF_0;
       }
@@ -898,6 +898,6 @@ local maygc object I_to_FF (object x, bool signal_overflow)
     skipSTACK(2);
     # Fertig.
     encode_FF(sign,lendiff,mant, return);
-    #undef fehler_overflow
+    #undef error_overflow
   }
 

@@ -264,10 +264,10 @@
 # Additionally a list of all open File-Streams is maintained (for safety).
 
 # error-message, if a Stream-Operation on a Stream is not allowed.
-# fehler_illegal_streamop(caller,stream);
+# error_illegal_streamop(caller,stream);
 # > caller: Caller (a Symbol)
 # > stream: Stream
-nonreturning_function(global, fehler_illegal_streamop,
+nonreturning_function(global, error_illegal_streamop,
                       (object caller, object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream);
@@ -277,13 +277,13 @@ nonreturning_function(global, fehler_illegal_streamop,
 
 # Dummy-Pseudo-Functions, that signal errors:
 local object rd_by_error (object stream) {
-  fehler_illegal_streamop(S(read_byte),stream);
+  error_illegal_streamop(S(read_byte),stream);
 }
 
 local uintL rd_by_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
                                uintL start, uintL len, perseverance_t persev) {
-  fehler_illegal_streamop(S(read_byte),*stream_);
+  error_illegal_streamop(S(read_byte),*stream_);
 }
 
 local uintL rd_by_array_dummy (const gcv_object_t* stream_,
@@ -310,13 +310,13 @@ local uintL rd_by_array_dummy (const gcv_object_t* stream_,
 }
 
 local void wr_by_error (object stream, object obj) {
-  fehler_illegal_streamop(S(write_byte),stream);
+  error_illegal_streamop(S(write_byte),stream);
 }
 
 local void wr_by_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
                               uintL start, uintL len, perseverance_t persev) {
-  fehler_illegal_streamop(S(write_byte),*stream_);
+  error_illegal_streamop(S(write_byte),*stream_);
 }
 
 local uintL wr_by_array_dummy (const gcv_object_t* stream_,
@@ -325,7 +325,7 @@ local uintL wr_by_array_dummy (const gcv_object_t* stream_,
   var uintL end = start + len;
   var uintL index = start;
   if (persev != persev_full) /* FIXME: need write_byte_will_hang_p() */
-    fehler_illegal_streamop(S(write_byte_sequence),*stream_);
+    error_illegal_streamop(S(write_byte_sequence),*stream_);
   do {
     var object stream = *stream_;
     wr_by(stream)(stream,fixnum(TheSbvector(*bytearray_)->data[index]));
@@ -335,7 +335,7 @@ local uintL wr_by_array_dummy (const gcv_object_t* stream_,
 }
 
 local object rd_ch_error (const gcv_object_t* stream_) {
-  fehler_illegal_streamop(S(read_char),*stream_);
+  error_illegal_streamop(S(read_char),*stream_);
 }
 
 local object pk_ch_dummy (const gcv_object_t* stream_) {
@@ -349,7 +349,7 @@ local object pk_ch_dummy (const gcv_object_t* stream_) {
 local uintL rd_ch_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* chararray_,
                                uintL start, uintL len) {
-  fehler_illegal_streamop(S(read_char),*stream_);
+  error_illegal_streamop(S(read_char),*stream_);
 }
 
 local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
@@ -362,7 +362,7 @@ local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
     if (eq(obj,eof_value))
       break;
     if (!charp(obj))
-      fehler_char(obj);
+      error_char(obj);
     sstring_store(*chararray_,index,char_code(obj));
     index++;
   } while (index < end);
@@ -370,13 +370,13 @@ local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
 }
 
 local void wr_ch_error (const gcv_object_t* stream_, object obj) {
-  fehler_illegal_streamop(S(write_char),*stream_);
+  error_illegal_streamop(S(write_char),*stream_);
 }
 
 local void wr_ch_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* chararray_,
                               uintL start, uintL len) {
-  fehler_illegal_streamop(S(write_char),*stream_);
+  error_illegal_streamop(S(write_char),*stream_);
 }
 
 local maygc void wr_ch_array_dummy (const gcv_object_t* stream_,
@@ -824,7 +824,7 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
     var uintL index = start;
     if (TheStream(stream)->strmflags & strmflags_unread_B) {
       if (!charp(lastchar))
-        fehler_char(lastchar);
+        error_char(lastchar);
       sstring_store(*chararray_,index++,char_code(lastchar));
       stream = *stream_;
       len--;
@@ -1070,7 +1070,7 @@ local void stream_dummy_fill (object stream) {
 }
 
 # returns error-message, if the value of the Symbol sym is not a Stream.
-nonreturning_function(local, fehler_value_stream, (object sym));
+nonreturning_function(local, error_value_stream, (object sym));
 # see below
 
 # UP: Returns the Stream, that is the value of a Variable.
@@ -1084,7 +1084,7 @@ global object var_stream (object sym, uintB strmflags) {
   stream = Symbol_value(sym);
   if (builtin_stream_p(stream)) {
     if ((strmflags | strmflags_open_B) & ~ TheStream(stream)->strmflags)
-      fehler_value_stream(sym);
+      error_value_stream(sym);
     if (TheStream(stream)->strmtype == strmtype_synonym) {
       sym = TheStream(stream)->strm_synonym_symbol;
       goto recurse;
@@ -1097,9 +1097,9 @@ global object var_stream (object sym, uintB strmflags) {
          && !instanceof(stream,O(class_fundamental_input_stream)))
         || ((strmflags & strmflags_wr_B)
             && !instanceof(stream,O(class_fundamental_output_stream))))
-      fehler_value_stream(sym);
+      error_value_stream(sym);
   } else
-    fehler_value_stream(sym);
+    error_value_stream(sym);
   return stream;
 }
 
@@ -1118,7 +1118,7 @@ LISPFUN(symbol_stream,seclass_read,1,1,norest,nokey,0,NIL) {
 }
 
 # signal an error if for some obscure reason a WRITE should not work:
-nonreturning_function(local, fehler_unwritable, (object caller, object stream))
+nonreturning_function(local, error_unwritable, (object caller, object stream))
 {
   pushSTACK(stream); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
@@ -1127,8 +1127,8 @@ nonreturning_function(local, fehler_unwritable, (object caller, object stream))
 }
 
 /* signal an error if an Object is not the needed type:
- fehler_write(stream,obj,type); */
-nonreturning_function(local, fehler_write, (object stream, object obj,
+ error_write(stream,obj,type); */
+nonreturning_function(local, error_write, (object stream, object obj,
                                             object type)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(type);              /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1140,7 +1140,7 @@ nonreturning_function(local, fehler_write, (object stream, object obj,
 /* WRITE-CHAR pseudo-function for output streams of element type NIL */
 local maygc void wr_ch_forbidden (const gcv_object_t* stream_, object ch)
 {
-  fehler_write(*stream_,ch,NIL);
+  error_write(*stream_,ch,NIL);
 }
 
 /* WRITE-CHAR-ARRAY pseudo-function for output streams of element type NIL */
@@ -1150,14 +1150,14 @@ local maygc void wr_ch_array_forbidden (const gcv_object_t* stream_,
 {
   unused start;
   unused len;
-  fehler_write(*stream_,*chararray_,NIL);
+  error_write(*stream_,*chararray_,NIL);
 }
 
-#define check_wr_char(s,c)  if(!charp(c)) fehler_write(s,c,S(character))
+#define check_wr_char(s,c)  if(!charp(c)) error_write(s,c,S(character))
 
 # signal an error if an Integer is out of range:
-# fehler_bad_integer(stream,obj);
-nonreturning_function(local, fehler_bad_integer, (object stream, object obj)) {
+# error_bad_integer(stream,obj);
+nonreturning_function(local, error_bad_integer, (object stream, object obj)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream); pushSTACK(obj);
   error(stream_error,GETTEXT("integer ~S is out of range, cannot be output onto ~S"));
@@ -1186,7 +1186,7 @@ local maygc object get_streamtype_replacement (object obj, object type) {
   CHECK_streamtype(obj,O(type_builtin_stream),(builtin_stream_p(obj)))
 /* barf of the object is not an integer */
 #define ASSERT_wr_int(stream,obj)                               \
-  if (!integerp(obj)) fehler_write(stream,obj,S(integer))
+  if (!integerp(obj)) error_write(stream,obj,S(integer))
 
 /* UP: checks, if Arguments are Streams.
  check_stream_args(args_pointer,argcount);
@@ -1227,8 +1227,8 @@ local bool output_stream_p (object stream) {
 # test_input_stream(stream);
 # > stream: Stream
 #define test_input_stream(stream)  \
-    if (!input_stream_p(stream)) fehler_input_stream(stream);
-nonreturning_function(local, fehler_input_stream, (object stream)) {
+    if (!input_stream_p(stream)) error_input_stream(stream);
+nonreturning_function(local, error_input_stream, (object stream)) {
   pushSTACK(stream);               # TYPE-ERROR slot DATUM
   pushSTACK(O(type_input_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -1239,8 +1239,8 @@ nonreturning_function(local, fehler_input_stream, (object stream)) {
 # test_output_stream(stream);
 # > stream: Stream
 #define test_output_stream(stream)  \
-    if (!output_stream_p(stream)) fehler_output_stream(stream);
-nonreturning_function(local, fehler_output_stream, (object stream)) {
+    if (!output_stream_p(stream)) error_output_stream(stream);
+nonreturning_function(local, error_output_stream, (object stream)) {
   pushSTACK(stream);                # TYPE-ERROR slot DATUM
   pushSTACK(O(type_output_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
@@ -1290,7 +1290,7 @@ nonreturning_function(local, fehler_output_stream, (object stream)) {
 # < result: its value, a Stream
 #define get_synonym_stream(sym)                 \
     (!streamp(Symbol_value(sym))                \
-     ? (fehler_value_stream(sym), unbound)      \
+     ? (error_value_stream(sym), unbound)      \
      : (object)Symbol_value(sym))
 
 # Macro: resolve the synonym stream
@@ -1585,7 +1585,7 @@ local maygc uintL wr_by_array_broad (const gcv_object_t* stream_, const gcv_obje
   /* what happens if different streams write different amounts?
      Only persev_full is supported for broadcast streams. */
   if (persev != persev_full) {
-    fehler_illegal_streamop(S(write_byte_sequence),*stream_);
+    error_illegal_streamop(S(write_byte_sequence),*stream_);
   }
   check_SP(); check_STACK();
   pushSTACK(TheStream(*stream_)->strm_broad_list); # list of streams
@@ -2371,9 +2371,9 @@ LISPFUNNR(echo_stream_output_stream,1)
 #define strm_str_in_endindex strm_other[3] /* Endindex (Fixnum >= index >=0) */
 
 # error-message, if index >= length(string):
-# fehler_str_in_adjusted(stream);
+# error_str_in_adjusted(stream);
 # > stream: problematic String-Input-Stream
-nonreturning_function(local, fehler_str_in_adjusted, (object stream)) {
+nonreturning_function(local, error_str_in_adjusted, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(TheStream(stream)->strm_str_in_string);
   pushSTACK(stream);
@@ -2392,7 +2392,7 @@ local maygc object rd_ch_str_in (const gcv_object_t* stream_) {
     var uintL offset;
     var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&len,&offset);
     if (index >= len) # Index too big?
-      fehler_str_in_adjusted(stream);
+      error_str_in_adjusted(stream);
     /* fetch character from String */
     var object ch = code_char(schar(string,offset+index));
     # increase Index:
@@ -2414,7 +2414,7 @@ local maygc uintL rd_ch_array_str_in (const gcv_object_t* stream_,
     var uintL srcoffset;
     var object string = unpack_string_ro(TheStream(stream)->strm_str_in_string,&srclen,&srcoffset);
     if (srclen < endindex)
-      fehler_str_in_adjusted(stream);
+      error_str_in_adjusted(stream);
     var uintL count = endindex - index;
     if (count > len)
       count = len;
@@ -3022,7 +3022,7 @@ LISPFUN(make_buffered_output_stream,seclass_read,1,1,norest,nokey,0,NIL) {
     STACK_0 = Fixnum_0; # default value 0
   } else { # line-position specified, should be a Fixnum >=0 :
     if (!posfixnump(STACK_0))
-      fehler_posfixnum(STACK_0);
+      error_posfixnum(STACK_0);
   }
   # allocate small Semi-Simple-String of Length 50 :
   pushSTACK(make_ssstring(SEMI_SIMPLE_DEFAULT_SIZE));
@@ -3898,8 +3898,8 @@ typedef struct strm_unbuffered_extrafields_t {
 #define UnbufferedStreamLow_clear_output(stream)  ((strm_unbuffered_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->low_clear_output
 
 # Error message after user interrupt.
-# fehler_interrupt();
-nonreturning_function(local, fehler_interrupt, (void)) {
+# error_interrupt();
+nonreturning_function(local, error_interrupt, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(interrupt_condition,GETTEXT("~S: Ctrl-C: User break"));
 }
@@ -3957,8 +3957,8 @@ global void iconv_wcstombs (object encoding, object stream, const chart* *srcp, 
 global object iconv_range (object encoding, uintL start, uintL end, uintL maxintervals);
 
 # Error, when a character cannot be converted to an encoding.
-# fehler_unencodable(encoding);
-nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
+# error_unencodable(encoding);
+nonreturning_function(extern, error_unencodable, (object encoding, chart ch));
 
 # Avoid annoying warning caused by a wrongly standardized iconv() prototype.
 #ifdef GNU_LIBICONV
@@ -4181,12 +4181,12 @@ global uintL iconv_wcslen (object encoding, const chart* src,
                   ANSIC_error();
                 } else {
                   end_system_call();
-                  fehler_unencodable(encoding,*(const chart*)inptr);
+                  error_unencodable(encoding,*(const chart*)inptr);
                 }
               }
             } else {
               end_system_call();
-              fehler_unencodable(encoding,*(const chart*)inptr);
+              error_unencodable(encoding,*(const chart*)inptr);
             }
           } else if (errno == EINVAL) { /* incomplete input? */
             NOTREACHED;
@@ -4259,12 +4259,12 @@ global void iconv_wcstombs (object encoding, object stream,
                   ANSIC_error();
                 } else {
                   end_system_call();
-                  fehler_unencodable(encoding,*(const chart*)inptr);
+                  error_unencodable(encoding,*(const chart*)inptr);
                 }
               }
             } else {
               end_system_call();
-              fehler_unencodable(encoding,*(const chart*)inptr);
+              error_unencodable(encoding,*(const chart*)inptr);
             }
           } else if (errno == EINVAL) { /* incomplete input? */
             NOTREACHED;
@@ -4328,14 +4328,14 @@ global void iconv_wcstombs (object encoding, object stream,
                 if (inptr > (char*)*srcp)
                   break;
                 end_system_call();
-                fehler_unencodable(encoding,*(const chart*)inptr);
+                error_unencodable(encoding,*(const chart*)inptr);
               }
             }
           } else {
             if (inptr > (char*)*srcp)
               break;
             end_system_call();
-            fehler_unencodable(encoding,*(const chart*)inptr);
+            error_unencodable(encoding,*(const chart*)inptr);
           }
         } else if (errno == EINVAL) { # incomplete input?
           NOTREACHED;
@@ -4579,7 +4579,7 @@ typedef void wr_by_aux_ix (object stream, uintL bitsize, uintL bytesize);
 local inline void bitbuff_ixu_sub (object stream, object bitbuffer,
                                    uintL bitsize, object obj) {
   if (UI_to_LEbytes(obj,bitsize,TheSbvector(bitbuffer)->data))
-    fehler_bad_integer(stream,obj);
+    error_bad_integer(stream,obj);
 }
 
 # UP for WRITE-BYTE on File-Streams of Integers, Type u :
@@ -4598,7 +4598,7 @@ local maygc void wr_by_ixu_sub (object stream, object obj, wr_by_aux_ix* finishe
 local inline void bitbuff_ixs_sub (object stream, object bitbuffer,
                                    uintL bitsize, object obj) {
   if (I_to_LEbytes(obj,bitsize,TheSbvector(bitbuffer)->data))
-    fehler_bad_integer(stream,obj);
+    error_bad_integer(stream,obj);
 }
 
 # UP for WRITE-BYTE on File-Streams of Integers, Type s :
@@ -4722,7 +4722,7 @@ local sintL low_read_unbuffered_handle (object stream) {
     begin_system_call();
     if (GetLastError()==ERROR_SIGINT) { # Interrupt by Ctrl-C ?
       end_system_call();
-      fehler_interrupt();
+      error_interrupt();
     }
     #endif
     OS_error();
@@ -4993,12 +4993,12 @@ local uintB* low_read_array_unbuffered_handle (object stream, uintB* byteptr,
    #if !defined(WIN32_NATIVE)
     begin_system_call();
     if (errno==EINTR) /* Interrupt (poss. by Ctrl-C) ? */
-      interruptp({ end_system_call(); fehler_interrupt(); });
+      interruptp({ end_system_call(); error_interrupt(); });
    #endif
    #ifdef WIN32_NATIVE
     begin_system_call();
     if (GetLastError()==ERROR_SIGINT) { /* Interrupt by Ctrl-C ? */
-      end_system_call(); fehler_interrupt();
+      end_system_call(); error_interrupt();
     }
    #endif
     OS_error();
@@ -5364,7 +5364,7 @@ local void low_write_unbuffered_handle (object stream, uintB b) {
   if (result<0) { OS_error(); }
   end_system_call();
   if (result==0) # not successful?
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
 }
 
 local const uintB* low_write_array_unbuffered_handle (object stream,
@@ -5386,7 +5386,7 @@ local const uintB* low_write_array_unbuffered_handle (object stream,
   /* Safety check whether persev argument was respected or EOWF was reached: */
   if ((persev == persev_full && !(result==(sintL)len))
       || (persev == persev_partial && !(result>0)))
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
 
@@ -5428,7 +5428,7 @@ local maygc void wr_by_ias_unbuffered (object stream, object obj) {
 local maygc void wr_by_iau8_unbuffered (object stream, object obj) {
   ASSERT_wr_int(stream,obj);
   if (!(posfixnump(obj) && (posfixnum_to_V(obj) < bit(8))))
-    fehler_bad_integer(stream,obj);
+    error_bad_integer(stream,obj);
   UnbufferedStreamLow_write(stream)(stream,(uintB)posfixnum_to_V(obj));
 }
 
@@ -6221,8 +6221,8 @@ local void buffered_writebyte (object stream, uintB b) {
 # ===========  ==========
 
 # error-message because of positioning behind EOF.
-# fehler_position_beyond_EOF(stream);
-nonreturning_function(local, fehler_position_beyond_EOF, (object stream)) {
+# error_position_beyond_EOF(stream);
+nonreturning_function(local, error_position_beyond_EOF, (object stream)) {
   pushSTACK(Truename_or_Self(stream)); # FILE-ERROR slot PATHNAME
   pushSTACK(stream);
   error(file_error,GETTEXT("cannot position ~S beyond EOF"));
@@ -6284,7 +6284,7 @@ local void position_file_buffered (object stream, uoff_t position) {
         # Error. But first position back to the old Position:
         check_SP();
         position_file_buffered(stream,oldposition); # position back
-        fehler_position_beyond_EOF(stream);
+        error_position_beyond_EOF(stream);
       }
       BufferedStream_index(stream) = newindex;
     }
@@ -7017,7 +7017,7 @@ local void position_file_i_buffered (object stream, uoff_t position) {
     var uoff_t oldposition = BufferedStream_position(stream);
     check_SP();
     position_file_i_buffered(stream,oldposition); # positioning back
-    fehler_position_beyond_EOF(stream);
+    error_position_beyond_EOF(stream);
   }
   BufferedStream_bitindex(stream) = position_bits%8;
 }
@@ -7379,7 +7379,7 @@ local maygc void wr_by_ics_buffered (object stream, object obj) {
 local maygc void wr_by_iau8_buffered (object stream, object obj) {
   ASSERT_wr_int(stream,obj);
   if (!(posfixnump(obj) && (posfixnum_to_V(obj) < bit(8))))
-    fehler_bad_integer(stream,obj);
+    error_bad_integer(stream,obj);
   write_byte_buffered(stream,(uintB)posfixnum_to_V(obj));
 }
 
@@ -10405,7 +10405,7 @@ LISPFUNN(make_window,0) {
                                        CONSOLE_TEXTMODE_BUFFER,
                                        NULL);
     if (handle == INVALID_HANDLE_VALUE)
-      fehler_unwritable(S(make_window),stream);
+      error_unwritable(S(make_window),stream);
     SetConsoleActiveScreenBuffer(handle);
     handle_reused = 0;
   }
@@ -12507,7 +12507,7 @@ local void low_flush_buffered_pipe (object stream, uintL bufflen) {
       end_system_call(); OS_filestream_error(stream);
     }
     end_system_call();
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
   }
 }
 
@@ -12701,14 +12701,14 @@ local void low_write_unbuffered_pipe (object stream, uintB b) {
   if (result<0) {
     if (errno==EINTR) { # Break (poss. by Ctrl-C) ?
       end_system_call();
-      interruptp({ fehler_interrupt(); });
+      interruptp({ error_interrupt(); });
       goto restart_it;
     }
     OS_error();
   }
   end_system_call();
   if (result==0) # not successful?
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
 }
 
 local const uintB* low_write_array_unbuffered_pipe (object stream,
@@ -12725,7 +12725,7 @@ local const uintB* low_write_array_unbuffered_pipe (object stream,
   /* Safety check whether persev argument was respected or EOWF was reached: */
   if ((persev == persev_full && !(result==(sintL)len))
       || (persev == persev_partial && !(result>0)))
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
 
@@ -13156,7 +13156,7 @@ local void low_close_socket (object stream, object handle, uintB abort) {
 #ifdef WIN32_NATIVE
   #define CHECK_INTERRUPT                                        \
     if (WSAGetLastError()==WSAEINTR) /* Break by Ctrl-C ?*/      \
-      { end_system_call(); fehler_interrupt(); }
+      { end_system_call(); error_interrupt(); }
 #else
   #define CHECK_INTERRUPT
 #endif
@@ -13286,7 +13286,7 @@ local void low_write_unbuffered_socket (object stream, uintB b) {
   var ssize_t result;
   SYSCALL(result,sock_write(handle,&b,1,persev_full)); # Try to output the byte.
   if (result==0) # not successful?
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
 }
 
 local const uintB* low_write_array_unbuffered_socket (object stream, const uintB* byteptr, uintL len, perseverance_t persev) {
@@ -13296,7 +13296,7 @@ local const uintB* low_write_array_unbuffered_socket (object stream, const uintB
   /* Safety check whether persev argument was respected or EOWF was reached: */
   if ((persev == persev_full && !(result==(sintL)len))
       || (persev == persev_partial && !(result>0)))
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
   return byteptr+result;
 }
 
@@ -13516,7 +13516,7 @@ local void low_flush_buffered_socket (object stream, uintL bufflen) {
       SOCK_error();
     }
     end_system_call();
-    fehler_unwritable(TheSubr(subr_self)->name,stream);
+    error_unwritable(TheSubr(subr_self)->name,stream);
   }
 }
 
@@ -14005,7 +14005,7 @@ global void stream_handles (object obj, bool check_open, bool* char_p,
       if (char_p) *char_p = eq(TheStream(obj)->strm_eltype,S(character));
       return;
     }
-    default: fehler_illegal_streamop(TheSubr(subr_self)->name,obj);
+    default: error_illegal_streamop(TheSubr(subr_self)->name,obj);
   }
 }
 
@@ -14156,7 +14156,7 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
       var object list = all;
       var int index = 0;
       for(; !nullp(list); list = Cdr(list)) {
-        if (!listp(list)) fehler_list(list);
+        if (!listp(list)) error_list(list);
         index += handle_set(Car(list),&readfds,&writefds,&errorfds,
                             &need_new_list,&non_empty_buffers_p);
         if (index > FD_SETSIZE) {
@@ -14886,7 +14886,7 @@ global maygc void init_streamvars (bool batch_p) {
 }
 
 # Returns error-message, if the value of the symbol sym is not a stream.
-local void fehler_value_stream (object sym) {
+local void error_value_stream (object sym) {
   # Possibly repair before the error-message
   # (initialized as in init_streamvars resp. init_pathnames):
   var object stream;
@@ -15318,7 +15318,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
       break;
    #endif
     default:
-      fehler_illegal_streamop(O(setf_stream_element_type),stream);
+      error_illegal_streamop(O(setf_stream_element_type),stream);
   }
   VALUES1(STACK_1);
   skipSTACK(3);
@@ -15504,7 +15504,7 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
             goto done;
     unchangeable_external_format:
         if (!eq(encoding,S(Kdefault)))
-          fehler_illegal_streamop(S(set_stream_external_format),stream);
+          error_illegal_streamop(S(set_stream_external_format),stream);
     done:
         VALUES1(encoding); break;
     }
@@ -15516,7 +15516,7 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
       if (!instanceof(stream,O(class_fundamental_output_stream)))
         goto done2;
     if (!eq(encoding,S(Kdefault)))
-      fehler_illegal_streamop(S(set_stream_external_format),stream);
+      error_illegal_streamop(S(set_stream_external_format),stream);
   done2:
     VALUES1(encoding);
   }
@@ -15783,10 +15783,10 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
       var object ch = TheStream(stream)->strm_rd_ch_last;
       if (!charp(ch)) {
         if (eq(subr_self,L(read_line)))
-          fehler_char(ch);
+          error_char(ch);
         else
           with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
-            fehler_char(ch); );
+            error_char(ch); );
       }
       if (eq(ch,ascii_char(NL)))
         return false;
@@ -15816,10 +15816,10 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
           # else check for Character:
           if (!charp(ch)) {
             if (eq(subr_self,L(read_line)))
-              fehler_char(ch);
+              error_char(ch);
             else
               with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
-                fehler_char(ch); );
+                error_char(ch); );
           }
           if (eq(ch,ascii_char(NL))) { # NL -> End of Line
             eofp = false; break;
@@ -15850,7 +15850,7 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
     var uintL offset;
     var object srcstring = unpack_string_ro(value1,&len,&offset);
     if (len > 0) {
-      if (simple_nilarray_p(srcstring)) fehler_nilarray_retrieve();
+      if (simple_nilarray_p(srcstring)) error_nilarray_retrieve();
       ssstring_append_extend(*buffer_,srcstring,offset,len);
     }
     # Set the stream's $lastchar := #\Newline or #<EOF>:
@@ -17148,7 +17148,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
               TheIarray(ssstring)->dims[1] = pos_off;
             } else {
               pushSTACK(fixnum(pos_off));
-              fehler_index_range(ssstring,TheIarray(ssstring)->dims[1]);
+              error_index_range(ssstring,TheIarray(ssstring)->dims[1]);
             }
             break;
           case POS_QUERY:
@@ -17280,7 +17280,7 @@ LISPFUNN(file_string_length,2)
     VALUES1(Fixnum_1); return;
   }
   if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
-    fehler_illegal_streamop(S(file_string_length),stream);
+    error_illegal_streamop(S(file_string_length),stream);
   var object encoding = TheStream(stream)->strm_encoding;
  #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
   if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
@@ -17291,7 +17291,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       VALUES1(NIL);
     } else
-      fehler_write(stream,obj,S(character));
+      error_write(stream,obj,S(character));
     return;
   }
  #endif
@@ -17309,7 +17309,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       auxch = char_code(obj); charptr = &auxch; len = 1;
     } else
-      fehler_write(stream,obj,S(character));
+      error_write(stream,obj,S(character));
     if (eq(TheEncoding(encoding)->enc_eol,S(Kunix))) {
       # Treat all the characters all at once.
       var uintL result = cslen(encoding,charptr,len);
@@ -17364,7 +17364,7 @@ LISPFUNN(file_string_length,2)
     } else if (charp(obj)) {
       VALUES1(fixnum(bytes_per_char)); return;
     } else
-      fehler_write(stream,obj,S(character));
+      error_write(stream,obj,S(character));
   }
   if (eq(TheEncoding(encoding)->enc_eol,S(Kdos))) {
     # Take into account the NL -> CR/LF translation.
@@ -17390,7 +17390,7 @@ LISPFUNN(file_string_length,2)
         result++;
       VALUES1(fixnum(result*bytes_per_char)); return;
     } else
-      fehler_write(stream,obj,S(character));
+      error_write(stream,obj,S(character));
   }
   NOTREACHED;
   #undef bytes_per_char

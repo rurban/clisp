@@ -1068,8 +1068,8 @@
   } while(0)
 
 # Marking a program line that may not be reached: NOTREACHED;
-#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)
-%% puts("#define NOTREACHED  fehler_notreached(__FILE__,__LINE__)");
+#define NOTREACHED  error_notreached(__FILE__,__LINE__)
+%% puts("#define NOTREACHED  error_notreached(__FILE__,__LINE__)");
 
 # Asserting an arithmetic expression: ASSERT(expr);
 #define ASSERT(expr)  do { if (!(expr)) NOTREACHED; } while(0)
@@ -9461,12 +9461,12 @@ extern int final_exitcode;
 
 # Error message if an unreachable program part has been reached.
 # Does not return.
-# fehler_notreached(file,line);
+# error_notreached(file,line);
 # > file: Filename (with quotation marks) as constant ASCIZ-String
 # > line: line number
-nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));
+nonreturning_function(extern, error_notreached, (const char * file, uintL line));
 # used by all modules
-%% puts("nonreturning_function(extern, fehler_notreached, (const char * file, uintL line));");
+%% puts("nonreturning_function(extern, error_notreached, (const char * file, uintL line));");
 
 # Language that's used to communicate with the user:
 #ifdef LANGUAGE_STATIC
@@ -9774,7 +9774,7 @@ extern maygc object allocate_imm_s32string (uintL len);
     O(dynamic_string) = NIL;                  \
     if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) { \
       if (objvar##_len > stringsize_limit_1)  \
-        fehler_stringsize(objvar##_len);      \
+        error_stringsize(objvar##_len);      \
       objvar = allocate_string(objvar##_len); \
     }                                         \
     GCTRIGGER1(objvar)
@@ -11594,11 +11594,11 @@ re-enters the corresponding top-level loop.
 # is used by EVAL, CONTROL
 
 # Returns the elements of a list as multiple values.
-# list_to_mv(list,fehler_statement)
+# list_to_mv(list,error_statement)
 # fehler_statement: if there's an error (too many values).
 #define NEXT_MV  *mvp++ = Car(l); l = Cdr(l); count++
 #if !defined(VALUE1_EXTRA)
-  #define list_to_mv(lst,fehler_statement)                              \
+  #define list_to_mv(lst,error_statement)                              \
     do { var object l = (lst);                                          \
      var uintC count = 0;                                               \
      if (atomp(l)) value1 = NIL;                                        \
@@ -11607,15 +11607,15 @@ re-enters the corresponding top-level loop.
        NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
        NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
        NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
-       do { if (count==mv_limit-1) { fehler_statement; } NEXT_MV;       \
+       do { if (count==mv_limit-1) { error_statement; } NEXT_MV;       \
        } while (consp(l));                                              \
      }                                                                  \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list_dotted(S(values_list),l);        \
+     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);        \
      mv_count = count;                                                  \
     } while(0)
 #else
-  #define list_to_mv(lst,fehler_statement)                              \
+  #define list_to_mv(lst,error_statement)                              \
     do { var object l = (lst);                                          \
      var uintC count = 0;                                               \
      if (atomp(l)) value1 = NIL;                                        \
@@ -11624,11 +11624,11 @@ re-enters the corresponding top-level loop.
        {var object* mvp = &mv_space[1];                                 \
         NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
         NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
-        do { if (count==mv_limit-1) { fehler_statement; } NEXT_MV;      \
+        do { if (count==mv_limit-1) { error_statement; } NEXT_MV;      \
         } while (consp(l));                                             \
      }}                                                                 \
      mv_fertig:                                                         \
-     if (!nullp(l)) fehler_proper_list_dotted(S(values_list),l);        \
+     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);        \
      mv_count = count;                                                  \
     } while(0)
 #endif
@@ -11653,12 +11653,12 @@ re-enters the corresponding top-level loop.
 # is used by EVAL, CONTROL, DEBUG
 
 # Error message if there are too many values
-# fehler_mv_zuviel(caller);
+# error_mv_toomany(caller);
 # > caller: caller, a Symbol
-nonreturning_function(extern, fehler_mv_zuviel, (object caller));
+nonreturning_function(extern, error_mv_toomany, (object caller));
 # is used by EVAL, CONTROL, LISPARIT
 %% #if notused
-%% puts("nonreturning_function(extern, fehler_mv_zuviel, (object caller));");
+%% puts("nonreturning_function(extern, error_mv_toomany, (object caller));");
 %% #endif
 
 #if !defined(back_trace_register)
@@ -12677,9 +12677,9 @@ extern void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count);
 /* used by CONTROL, EVAL */
 
 # Error if a block has already been left.
-# fehler_block_left(name);
+# error_block_left(name);
 # > name: Block-name
-nonreturning_function(extern, fehler_block_left, (object name));
+nonreturning_function(extern, error_block_left, (object name));
 # is used by EVAL
 
 /* convert the numeric side-effect class as stored in subr_t or cclosure_t
@@ -12886,8 +12886,8 @@ extern maygc object ascii_to_string (const char * asciz);
 # is used by PATHNAME
 
 /* Error, when a character cannot be converted to an encoding.
- fehler_unencodable(encoding,ch); */
-nonreturning_function(extern, fehler_unencodable, (object encoding, chart ch));
+ error_unencodable(encoding,ch); */
+nonreturning_function(extern, error_unencodable, (object encoding, chart ch));
 # is used by STREAM
 
 # ####################### ARRBIBL for ARRAY.D ############################## #
@@ -13013,19 +13013,19 @@ extern object array_displace_check (object array, uintV size, uintL* index);
 # error-message
 # > array: array (usually a Vector)
 # > STACK_0: (erroneous) Index
-nonreturning_function(extern, fehler_index_range, (object array, uintL bound));
+nonreturning_function(extern, error_index_range, (object array, uintL bound));
 # used by SEQUENCE
 
 # error message: attempt to retrieve a value from (ARRAY NIL)
-nonreturning_function(extern, fehler_nilarray_retrieve, (void));
+nonreturning_function(extern, error_nilarray_retrieve, (void));
 # used by PREDTYPE
-%% puts("nonreturning_function(extern, fehler_nilarray_retrieve, (void));");
+%% puts("nonreturning_function(extern, error_nilarray_retrieve, (void));");
 
 # error message: attempt to store a value in (ARRAY NIL)
-nonreturning_function(extern, fehler_nilarray_store, (void));
+nonreturning_function(extern, error_nilarray_store, (void));
 
 # error message: attempt to access a value from (ARRAY NIL)
-nonreturning_function(extern, fehler_nilarray_access, (void));
+nonreturning_function(extern, error_nilarray_access, (void));
 
 # Function: Performs an AREF access.
 # storagevector_aref(storagevector,index)
@@ -13037,8 +13037,8 @@ extern /*maygc*/ object storagevector_aref (object storagevector, uintL index);
 # used by IO
 
 # Error when attempting to store an invalid value in an array.
-# fehler_store(array,value);
-nonreturning_function(extern, fehler_store, (object array, object value));
+# error_store(array,value);
+nonreturning_function(extern, error_store, (object array, object value));
 # used by SEQUENCE
 
 # Macro: Tests a bit in a simple-bit-vector.
@@ -13536,7 +13536,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
     { typedef cint32 cint##suffix; typedef S32string Sstring##suffix; \
       statement                                                       \
     },                                                                \
-    { fehler_nilarray_access();                                       \
+    { error_nilarray_access();                                       \
     })
 # is used by CHARSTRG, ARRAY, HASHTABL, PACKAGE, PATHNAME, PREDTYPE, STREAM
 
@@ -13560,7 +13560,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 #ifdef HAVE_SMALL_SSTRING
   #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
     if (simple_nilarray_p(string)) {                                           \
-      if ((len) > 0) fehler_nilarray_retrieve();                               \
+      if ((len) > 0) error_nilarray_retrieve();                               \
       charptr_assignment NULL;                                                 \
     } else if (sstring_eltype(TheSstring(string)) == Sstringtype_32Bit) {      \
       charptr_assignment (const chart*) &TheS32string(string)->data[offset];   \
@@ -13579,7 +13579,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
 #else
   #define unpack_sstring_alloca_help_(string,len,offset,charptr_assignment,u) \
     if (simple_nilarray_p(string)) {                                           \
-      if ((len) > 0) fehler_nilarray_retrieve();                               \
+      if ((len) > 0) error_nilarray_retrieve();                               \
       charptr_assignment NULL;                                                 \
     } else {                                                                   \
       charptr_assignment (const chart*) &TheSnstring(string)->data[offset];    \
@@ -14392,12 +14392,12 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 %% #endif
 
 # Error message, if an object isn't a list.
-# fehler_list(obj);
+# error_list(obj);
 # > obj: non-list
-nonreturning_function(extern, fehler_list, (object obj));
+nonreturning_function(extern, error_list, (object obj));
 /* used by LIST, EVAL, STREAM */
 %% #if notused
-%% puts("nonreturning_function(extern, fehler_list, (object obj));");
+%% puts("nonreturning_function(extern, error_list, (object obj));");
 %% #endif
 
 /* check_list(obj)
@@ -14426,18 +14426,18 @@ MAKE_CHECK(list)
 %% puts("#endif");
 
 # Error message, if an object isn't a proper list because it is dotted.
-# fehler_proper_list_dotted(caller,obj);
+# error_proper_list_dotted(caller,obj);
 # > caller: caller (a symbol)
 # > obj: End of list, non-list
-nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));
+nonreturning_function(extern, error_proper_list_dotted, (object caller, object obj));
 # is used by LIST
-%% puts("nonreturning_function(extern, fehler_proper_list_dotted, (object caller, object obj));");
+%% puts("nonreturning_function(extern, error_proper_list_dotted, (object caller, object obj));");
 
 # Error message, if an object isn't a proper list because it is circular.
-# fehler_proper_list_circular(caller,obj);
+# error_proper_list_circular(caller,obj);
 # > caller: caller (a symbol)
 # > obj: circular list
-nonreturning_function(extern, fehler_proper_list_circular, (object caller, object obj));
+nonreturning_function(extern, error_proper_list_circular, (object caller, object obj));
 # is used by LIST
 
 /* check_symbol(obj)
@@ -14488,22 +14488,22 @@ global maygc object check_symbol_not_global_special (object symbol);
 /* used by SYMBOL */
 
 /* Error message, if an object isn't a Simple-Vector.
- fehler_kein_svector(caller,obj);
+ error_no_svector(caller,obj);
  > caller: caller (a Symbol)
  > obj: non-Svector */
-nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));
+nonreturning_function(extern, error_no_svector, (object caller, object obj));
 /* is used by ARRAY, EVAL */
 %% #if notused
-%% puts("nonreturning_function(extern, fehler_kein_svector, (object caller, object obj));");
+%% puts("nonreturning_function(extern, error_no_svector, (object caller, object obj));");
 %% #endif
 
 /* Error message, if an object isn't a vector.
- fehler_vector(obj);
+ error_vector(obj);
  > obj: non-vector */
-nonreturning_function(extern, fehler_vector, (object obj));
+nonreturning_function(extern, error_vector, (object obj));
 /* is used by ARRAY */
 %% #if notused
-%% puts("nonreturning_function(extern, fehler_vector, (object obj));");
+%% puts("nonreturning_function(extern, error_vector, (object obj));");
 %% #endif
 
 /* check_array(obj)
@@ -14550,14 +14550,14 @@ MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj))
 
 
 /* error-message, if an object is not an environment.
- fehler_environment(obj);
+ error_environment(obj);
  > obj: non-vector */
-nonreturning_function(extern, fehler_environment, (object obj));
+nonreturning_function(extern, error_environment, (object obj));
 /* used by EVAL, CONTROL */
 
 /* Error message, if an argument isn't a Fixnum >=0:
  > obj: the faulty argument */
-nonreturning_function(extern, fehler_posfixnum, (object obj));
+nonreturning_function(extern, error_posfixnum, (object obj));
 /* used by DEBUG, ENCODING, FOREIGN, IO, STREAM, TIME */
 
 /* check_posfixnum(obj)
@@ -14599,9 +14599,9 @@ MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj)))
 %% puts("#endif");
 
 # Error message, if an argument isn't a Character:
-# fehler_char(obj);
+# error_char(obj);
 # > obj: the faulty argument
-nonreturning_function(extern, fehler_char, (object obj));
+nonreturning_function(extern, error_char, (object obj));
 /* used by IO, STREAM */
 
 /* check_char(obj)
@@ -14635,44 +14635,44 @@ MAKE_CHECK(string)
 %% puts("#endif");
 
 # Error message, if an argument isn't a Simple-String:
-# fehler_sstring(obj);
+# error_sstring(obj);
 # > obj: the faulty argument
-nonreturning_function(extern, fehler_sstring, (object obj));
+nonreturning_function(extern, error_sstring, (object obj));
 # is used by CHARSTRG
 %% #if notused
-%% puts("nonreturning_function(extern, fehler_sstring, (object obj));");
+%% puts("nonreturning_function(extern, error_sstring, (object obj));");
 %% #endif
 
 # Checks a simple-string for being mutable.
 # check_sstring_mutable(string);
   #define check_sstring_mutable(obj)  \
     if (sstring_immutable(TheSstring(obj))) \
-      fehler_sstring_immutable(obj);
+      error_sstring_immutable(obj);
   # Error message, if a Simple-String is immutable:
-  # fehler_sstring_immutable(obj);
+  # error_sstring_immutable(obj);
   # > obj: der String
-  nonreturning_function(extern, fehler_sstring_immutable, (object obj));
+  nonreturning_function(extern, error_sstring_immutable, (object obj));
   # is used by Macro check_sstring_mutable
 
 # Error message, if an argument is not of type (OR STRING INTEGER).
-# fehler_string_integer(obj);
-nonreturning_function(extern, fehler_string_integer, (object obj));
-%% puts("nonreturning_function(extern, fehler_string_integer, (object obj));");
+# error_string_integer(obj);
+nonreturning_function(extern, error_string_integer, (object obj));
+%% puts("nonreturning_function(extern, error_string_integer, (object obj));");
 
 # Error message, if a string size is too big.
-# fehler_stringsize(size);
+# error_stringsize(size);
 # > size: the desired string length
-nonreturning_function(extern, fehler_stringsize, (uintV size));
+nonreturning_function(extern, error_stringsize, (uintV size));
 
 # Check a string size, reporting an error when it's too big.
 #define check_stringsize(size)  \
   if ((size) > stringsize_limit_1) \
-    fehler_stringsize(size)/*;*/
+    error_stringsize(size)/*;*/
 
 /* error message if an argument is not a class.
- fehler_class(caller,obj);
+ error_class(caller,obj);
  > obj: the erroneous argument */
-nonreturning_function(extern, fehler_class, (object obj));
+nonreturning_function(extern, error_class, (object obj));
 
 /* Report an error when the argument is not an encoding:
  check_encoding(obj,&default,keyword_p)
@@ -14686,33 +14686,33 @@ extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
 /* used by ENCODING, FOREIGN */
 
 /* Error when the property list has odd length
- fehler_plist_odd(caller,plist);
+ error_plist_odd(caller,plist);
  > plist: bad plist */
-nonreturning_function(extern, fehler_plist_odd, (object plist));
-%% puts("nonreturning_function(extern, fehler_plist_odd, (object plist));");
+nonreturning_function(extern, error_plist_odd, (object plist));
+%% puts("nonreturning_function(extern, error_plist_odd, (object plist));");
 
 /* error-message for non-paired keyword-arguments
- fehler_key_odd(argcount,caller);
+ error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));
-%% puts("nonreturning_function(extern, fehler_key_odd, (uintC argcount, object caller));");
+nonreturning_function(extern, error_key_odd, (uintC argcount, object caller));
+%% puts("nonreturning_function(extern, error_key_odd, (uintC argcount, object caller));");
 
 /* error-message for flawed keyword
- fehler_key_notkw(kw);
+ error_key_notkw(kw);
  > key: Non-Symbol
  > caller: function */
-nonreturning_function(extern, fehler_key_notkw, (object key, object caller));
+nonreturning_function(extern, error_key_notkw, (object key, object caller));
 
 /* error-message for flawed keyword
- fehler_key_badkw(fun,kw,kwlist);
+ error_key_badkw(fun,kw,kwlist);
  > fun: function
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(extern, fehler_key_badkw,
+nonreturning_function(extern, error_key_badkw,
                       (object fun, object key, object val, object kwlist));
-%% puts("nonreturning_function(extern, fehler_key_badkw, (object fun, object key, object val, object kwlist));");
+%% puts("nonreturning_function(extern, error_key_badkw, (object fun, object key, object val, object kwlist));");
 
 /* check_function(obj)
  > obj: an object
@@ -14751,10 +14751,10 @@ static inline maygc object check_funname (condition_t errtype, object caller, ob
 /* used by EVAL, CONTROL */
 
 # Error message, if an argument is a lambda-expression instead of a function:
-# fehler_lambda_expression(caller,obj);
+# error_lambda_expression(caller,obj);
 # caller: caller (a symbol)
 # obj: the faulty argument
-nonreturning_function(extern, fehler_lambda_expression, (object caller, object obj));
+nonreturning_function(extern, error_lambda_expression, (object caller, object obj));
 # is used by EVAL, SYMBOL
 
 # too many/few arguments in a function call
@@ -14763,64 +14763,64 @@ nonreturning_function(extern, fehler_lambda_expression, (object caller, object o
 # > ngiven : the number of arguments given
 # < nmax   : the maximum number of arguments accepted
 # < nmin   : the minimum number of arguments required
-nonreturning_function(extern, fehler_too_many_args,
+nonreturning_function(extern, error_too_many_args,
                       (object caller, object func, uintL ngiven, uintL nmax));
-nonreturning_function(extern, fehler_too_few_args,
+nonreturning_function(extern, error_too_few_args,
                       (object caller, object func, uintL ngiven, uintL nmin));
 
 # used by EVAL, FOREIGN
 
 # Error message, if an argument isn't of a given elementary C type.
-# fehler_<ctype>(obj);
+# error_<ctype>(obj);
 # > obj: the faulty argument
-nonreturning_function(extern, fehler_uint8, (object obj));
-nonreturning_function(extern, fehler_sint8, (object obj));
-nonreturning_function(extern, fehler_uint16, (object obj));
-nonreturning_function(extern, fehler_sint16, (object obj));
-nonreturning_function(extern, fehler_uint32, (object obj));
-nonreturning_function(extern, fehler_sint32, (object obj));
-nonreturning_function(extern, fehler_uint64, (object obj));
-nonreturning_function(extern, fehler_sint64, (object obj));
-# nonreturning_function(extern, fehler_uint, (object obj));
-# nonreturning_function(extern, fehler_sint, (object obj));
+nonreturning_function(extern, error_uint8, (object obj));
+nonreturning_function(extern, error_sint8, (object obj));
+nonreturning_function(extern, error_uint16, (object obj));
+nonreturning_function(extern, error_sint16, (object obj));
+nonreturning_function(extern, error_uint32, (object obj));
+nonreturning_function(extern, error_sint32, (object obj));
+nonreturning_function(extern, error_uint64, (object obj));
+nonreturning_function(extern, error_sint64, (object obj));
+# nonreturning_function(extern, error_uint, (object obj));
+# nonreturning_function(extern, error_sint, (object obj));
 #if (int_bitsize==16)
-  #define fehler_uint  fehler_uint16
-  #define fehler_sint  fehler_sint16
+  #define error_uint  error_uint16
+  #define error_sint  error_sint16
 #else # (int_bitsize==32)
-  #define fehler_uint  fehler_uint32
-  #define fehler_sint  fehler_sint32
+  #define error_uint  error_uint32
+  #define error_sint  error_sint32
 #endif
-# nonreturning_function(extern, fehler_ulong, (object obj));
-# nonreturning_function(extern, fehler_slong, (object obj));
+# nonreturning_function(extern, error_ulong, (object obj));
+# nonreturning_function(extern, error_slong, (object obj));
 #if (long_bitsize==32)
-  #define fehler_ulong  fehler_uint32
-  #define fehler_slong  fehler_sint32
+  #define error_ulong  error_uint32
+  #define error_slong  error_sint32
 #else # (long_bitsize==64)
-  #define fehler_ulong  fehler_uint64
-  #define fehler_slong  fehler_sint64
+  #define error_ulong  error_uint64
+  #define error_slong  error_sint64
 #endif
 /* used by STREAM, ENCODING, modules */
-%% puts("nonreturning_function(extern, fehler_uint8, (object obj));");
-%% puts("nonreturning_function(extern, fehler_sint8, (object obj));");
-%% puts("nonreturning_function(extern, fehler_uint16, (object obj));");
-%% puts("nonreturning_function(extern, fehler_sint16, (object obj));");
-%% puts("nonreturning_function(extern, fehler_uint32, (object obj));");
-%% puts("nonreturning_function(extern, fehler_sint32, (object obj));");
-%% puts("nonreturning_function(extern, fehler_uint64, (object obj));");
-%% puts("nonreturning_function(extern, fehler_sint64, (object obj));");
+%% puts("nonreturning_function(extern, error_uint8, (object obj));");
+%% puts("nonreturning_function(extern, error_sint8, (object obj));");
+%% puts("nonreturning_function(extern, error_uint16, (object obj));");
+%% puts("nonreturning_function(extern, error_sint16, (object obj));");
+%% puts("nonreturning_function(extern, error_uint32, (object obj));");
+%% puts("nonreturning_function(extern, error_sint32, (object obj));");
+%% puts("nonreturning_function(extern, error_uint64, (object obj));");
+%% puts("nonreturning_function(extern, error_sint64, (object obj));");
 %% #if (int_bitsize==16)
-%%   emit_define("fehler_uint","fehler_uint16");
-%%   emit_define("fehler_sint","fehler_sint16");
+%%   emit_define("error_uint","error_uint16");
+%%   emit_define("error_sint","error_sint16");
 %% #else
-%%   emit_define("fehler_uint","fehler_uint32");
-%%   emit_define("fehler_sint","fehler_sint32");
+%%   emit_define("error_uint","error_uint32");
+%%   emit_define("error_sint","error_sint32");
 %% #endif
 %% #if (long_bitsize==32)
-%%   emit_define("fehler_ulong","fehler_uint32");
-%%   emit_define("fehler_slong","fehler_sint32");
+%%   emit_define("error_ulong","error_uint32");
+%%   emit_define("error_slong","error_sint32");
 %% #else
-%%   emit_define("fehler_ulong","fehler_uint64");
-%%   emit_define("fehler_slong","fehler_sint64");
+%%   emit_define("error_ulong","error_uint64");
+%%   emit_define("error_slong","error_sint64");
 %% #endif
 
 /* Check whether an object can be converted to an elementary C type.
@@ -15360,8 +15360,8 @@ extern maygc void map_sequence (object obj, map_sequence_function_t* fun, void* 
 %% puts("extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);");
 
 # Error, if both :TEST, :TEST-NOT - argumente have been given.
-# fehler_both_tests();
-nonreturning_function(extern, fehler_both_tests, (void));
+# error_both_tests();
+nonreturning_function(extern, error_both_tests, (void));
 # is used by LIST, SEQUENCE, WEAK
 
 # ###################### STRMBIBL for STREAM.D ############################# #
@@ -15412,10 +15412,10 @@ extern maygc void init_streamvars (bool batch_p);
 /* used by SPVW */
 
 # Error-message, if a stream-operation is not permitted on a stream.
-# fehler_illegal_streamop(caller,stream);
+# error_illegal_streamop(caller,stream);
 # > caller: Caller (a symbol)
 # > stream: Stream
-nonreturning_function(extern, fehler_illegal_streamop, (object caller, object stream));
+nonreturning_function(extern, error_illegal_streamop, (object caller, object stream));
 # is used by IO
 
 # Reads a byte from a stream.

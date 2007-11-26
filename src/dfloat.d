@@ -59,13 +59,13 @@
  #define encode_DF(sign,exp,mant, erg_zuweisung) do {                   \
    if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
      if (underflow_allowed()) {                                         \
-       fehler_underflow();                                              \
+       error_underflow();                                              \
      } else {                                                           \
        erg_zuweisung DF_0;                                              \
      }                                                                  \
    } else                                                               \
      if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
-       fehler_overflow();                                               \
+       error_overflow();                                               \
      } else                                                             \
        erg_zuweisung allocate_dfloat                                    \
          (  ((sint64)(sign) & bit(63))                  /* Sign */      \
@@ -85,13 +85,13 @@
  #define encode2_DF(sign,exp,manthi,mantlo, erg_zuweisung)  do {         \
    if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
      if (underflow_allowed()) {                                         \
-       fehler_underflow();                                              \
+       error_underflow();                                              \
      } else {                                                           \
        erg_zuweisung DF_0;                                              \
      }                                                                  \
    } else                                                               \
      if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
-       fehler_overflow();                                               \
+       error_overflow();                                               \
      } else                                                             \
        erg_zuweisung allocate_dfloat                                    \
          (  ((sint32)(sign) & bit(31))                       /* Sign */ \
@@ -125,7 +125,7 @@
      if ((maybe_underflow                                               \
           || (maybe_subnormal && ((_erg.eksplicit << 1) != 0)))         \
          && underflow_allowed()) {                                      \
-       fehler_underflow(); /* subnormal or even smaller -> Underflow */ \
+       error_underflow(); /* subnormal or even smaller -> Underflow */ \
      } else {                                                           \
        ergebnis_zuweisung DF_0; /* +/- 0.0 -> 0.0 */                    \
      }                                                                  \
@@ -138,7 +138,7 @@
        if (!maybe_overflow || maybe_divide_0)                           \
          divide_0(); /* Infinity, Division by 0 */                      \
        else                                                             \
-         fehler_overflow(); /* Infinity, Overflow */                    \
+         error_overflow(); /* Infinity, Overflow */                    \
      }                                                                  \
    } else {                                                             \
      ergebnis_zuweisung allocate_dfloat(_erg.eksplicit);                \
@@ -152,7 +152,7 @@
           || (maybe_subnormal                                           \
               && !(((_erg.eksplicit.semhi << 1) == 0) && (_erg.eksplicit.mlo == 0)))) \
          && underflow_allowed()) {                                      \
-       fehler_underflow(); /* subnormal or even smaller -> Underflow */ \
+       error_underflow(); /* subnormal or even smaller -> Underflow */ \
      } else {                                                           \
        ergebnis_zuweisung DF_0; /* +/- 0.0 -> 0.0 */                    \
      }                                                                  \
@@ -165,7 +165,7 @@
        if (!maybe_overflow || maybe_divide_0)                           \
          divide_0(); /* Infinity, Division by 0 */                      \
        else                                                             \
-         fehler_overflow(); /* Infinity, Overflow */                    \
+         error_overflow(); /* Infinity, Overflow */                    \
      }                                                                  \
    } else {                                                             \
      ergebnis_zuweisung allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
@@ -1415,8 +1415,8 @@ local maygc object I_to_DF (object x, bool signal_overflow) {
        the highest set bit in 2^64*msd+2^32*msdd+msddf is bit number
        63 + (exp mod intDsize). */
     var uintL shiftcount = exp % intDsize;
-    #define fehler_overflow() \
-      if (signal_overflow) (fehler_overflow)(); else return nullobj;
+    #define error_overflow() \
+      if (signal_overflow) (error_overflow)(); else return nullobj;
    #ifdef intQsize
     var uint64 mant = /* leading 64 bits */
       (shiftcount==0
@@ -1470,7 +1470,7 @@ local maygc object I_to_DF (object x, bool signal_overflow) {
     }
     encode2_DF(sign,(sintL)exp,manthi,mantlo, return);
    #endif
-    #undef fehler_overflow
+    #undef error_overflow
   }
 }
 
@@ -1495,8 +1495,8 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   if (RA_integerp(x))
     return I_to_DF(x,signal_overflow);
   /* x ratio */
-  #define fehler_overflow() \
-    if (signal_overflow) (fehler_overflow)(); else return nullobj;
+  #define error_overflow() \
+    if (signal_overflow) (error_overflow)(); else return nullobj;
   pushSTACK(TheRatio(x)->rt_den); /* b */
   var signean sign = RT_sign(x); /* sign */
   x = TheRatio(x)->rt_num; /* +/- a */
@@ -1507,10 +1507,10 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   var sintL lendiff = I_integer_length(x) /* (integer-length a) */
     - I_integer_length(STACK_1); /* (integer-length b) */
   if (lendiff > DF_exp_high-DF_exp_mid) /* exponent >= n-m > upper limit ? */
-    fehler_overflow(); /* -> Overflow */
+    error_overflow(); /* -> Overflow */
   if (lendiff < DF_exp_low-DF_exp_mid-2) { /* Exponent <= n-m+2 < lower limit ? */
     if (underflow_allowed()) {
-      fehler_underflow(); /* -> Underflow */
+      error_underflow(); /* -> Underflow */
     } else {
       skipSTACK(2); return DF_0;
     }
@@ -1608,5 +1608,5 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   /* done. */
   encode2_DF(sign,lendiff,manthi,mantlo, return);
  #endif
-  #undef fehler_overflow
+  #undef error_overflow
 }

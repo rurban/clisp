@@ -649,10 +649,10 @@ global void* SP_anchor;
 
 # error-message when a location of the program is reached that is (should be)
 # unreachable. Does not return.
-# fehler_notreached(file,line);
+# error_notreached(file,line);
 # > file: filename (with quotation marks) as constant ASCIZ-string
 # > line: line number
-nonreturning_function(global, fehler_notreached,
+nonreturning_function(global, error_notreached,
                       (const char* file, uintL line)) {
   end_system_call(); # just in case
   pushSTACK(fixnum(line));
@@ -848,8 +848,8 @@ local inline void module_set_argtypes (module_t *module)
 #else
   #define verify_code_alignment(ptr,symbol)  \
     if ((uintP)(void*)(ptr) & (C_CODE_ALIGNMENT-1))     \
-      fehler_code_alignment((uintP)(void*)(ptr),symbol)
-nonreturning_function(local, fehler_code_alignment,
+      error_code_alignment((uintP)(void*)(ptr),symbol)
+nonreturning_function(local, error_code_alignment,
                       (uintP address, object symbol)) {
   fprintf(stderr,"C_CODE_ALIGNMENT is wrong. &%s = 0x%lx.\n",
           TheAsciz(string_to_asciz(Symbol_name(symbol),O(terminal_encoding))),
@@ -3530,7 +3530,7 @@ global void* find_name (void *handle, const char *name)
 
 # Attaches a shared library to this process' memory, and attempts to load
 # a number of clisp modules from it.
-nonreturning_function(local, fehler_dlerror,
+nonreturning_function(local, error_dlerror,
                       (const char* func, const char* symbol,
                        const char* errstring)) {
   end_system_call();
@@ -3557,7 +3557,7 @@ local void* get_module_symbol (const char* format, const char* modname,
   var char * symbolbuf = alloca(strlen(format)+strlen(modname));
   sprintf(symbolbuf,format,modname);
   var void * ret = find_name(libhandle,symbolbuf);
-  if (ret == NULL) fehler_dlerror("dlsym",symbolbuf,dlerror());
+  if (ret == NULL) error_dlerror("dlsym",symbolbuf,dlerror());
   return ret;
 }
 
@@ -3567,7 +3567,7 @@ global void dynload_modules (const char * library, uintC modcount,
   begin_system_call();
   # Open the library.
   libhandle = libopen(library);
-  if (libhandle == NULL) fehler_dlerror("dlopen",NULL,dlerror());
+  if (libhandle == NULL) error_dlerror("dlopen",NULL,dlerror());
   end_system_call();
   if (modcount > 0) {
     # What's the longest module name? What's their total size?
@@ -3634,7 +3634,7 @@ global void dynload_modules (const char * library, uintC modcount,
                 var uintM new_map_len = round_up(varobjects_misaligned+(total_subr_anz+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
-                    fehler_dlerror("zeromap",NULL,"out of memory for subr_tab");
+                    error_dlerror("zeromap",NULL,"out of memory for subr_tab");
                 }
               }
               {
@@ -3661,7 +3661,7 @@ global void dynload_modules (const char * library, uintC modcount,
             multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
             if (false)
              no_mem:
-              fehler_dlerror("multimap",NULL,"out of memory for subr_tab");
+              error_dlerror("multimap",NULL,"out of memory for subr_tab");
           }
          #endif
           # main initialization.

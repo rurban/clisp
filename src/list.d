@@ -239,7 +239,7 @@ local object car (object obj) {
   else if (nullp(obj))
     return obj;
   else
-    fehler_list(obj);
+    error_list(obj);
 }
 
 # UP: Liefert (cdr obj), mit Typprüfung
@@ -249,7 +249,7 @@ local object cdr (object obj) {
   else if (nullp(obj))
     return obj;
   else
-    fehler_list(obj);
+    error_list(obj);
 }
 
 LISPFUNNR(car,1)
@@ -470,7 +470,7 @@ local up2_function_t test_test2_args (gcv_object_t* stackptr) {
     if (nullp(test_arg))
       return &up2_test_not;
     else
-      fehler_both_tests();
+      error_both_tests();
   }
 }
 
@@ -529,7 +529,7 @@ global bool endp (object obj) {
   else if (nullp(obj))
     return true;
   else
-    fehler_proper_list_dotted(TheSubr(subr_self)->name,obj);
+    error_proper_list_dotted(TheSubr(subr_self)->name,obj);
 }
 
 LISPFUNNF(endp,1)
@@ -579,7 +579,7 @@ LISPFUNNR(list_length,1)
   if (nullp(tail))
     VALUES1(len);
   else
-    fehler_proper_list_dotted(S(list_length),tail);
+    error_proper_list_dotted(S(list_length),tail);
 }
 
 LISPFUNNR(list_length_dotted,1)
@@ -603,8 +603,8 @@ LISPFUNNR(list_length_proper,1)
        (error ...))) */
   var object tail = NIL;
   var object len = list_length(STACK_0,&tail);
-  if (!nullp(tail)) fehler_proper_list_dotted(S(list_length_proper),tail);
-  if (nullp(len)) fehler_proper_list_circular(S(list_length_proper),STACK_0);
+  if (!nullp(tail)) error_proper_list_dotted(S(list_length_proper),tail);
+  if (nullp(len)) error_proper_list_circular(S(list_length_proper),STACK_0);
   VALUES1(len); skipSTACK(1);
 }
 
@@ -613,8 +613,8 @@ LISPFUNNR(list_length_in_bounds_p,4)
      starts with at least n conses and is either a proper list with < m conses
      or (if restp) has at least m conses or (if not restp) is a proper list with
      exactly m conses. */
-  if (!posfixnump(STACK_2)) fehler_posfixnum(STACK_2);
-  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  if (!posfixnump(STACK_2)) error_posfixnum(STACK_2);
+  if (!posfixnump(STACK_1)) error_posfixnum(STACK_1);
   var object obj = STACK_3;
   var uintV n = posfixnum_to_V(STACK_2);
   var uintV i;
@@ -646,8 +646,8 @@ LISPFUN(proper_list_length_in_bounds_p,seclass_read,2,1,norest,nokey,0,NIL)
      proper-list with at least n conses.
      (sys::proper-list-length-in-bounds-p obj n m) tests whether obj is a
      proper-list with at least n and at most m conses. */
-  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
-  if (boundp(STACK_0) && !posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
+  if (!posfixnump(STACK_1)) error_posfixnum(STACK_1);
+  if (boundp(STACK_0) && !posfixnump(STACK_0)) error_posfixnum(STACK_0);
   var object tail = NIL;
   var object len = list_length(STACK_2,&tail);
   if (nullp(tail) && !nullp(len)) {
@@ -778,7 +778,7 @@ LISPFUNNR(nthcdr,2)
       /* End of list reached. */
       break;
     else
-      fehler_list(list);
+      error_list(list);
   });
   VALUES1(list);
   skipSTACK(2);
@@ -957,7 +957,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
           if (nullp(list1))
             ; # falls list1=NIL: (append nil x) = x, nichts tun
           else
-            fehler_list(list1);
+            error_list(list1);
         else {
           # (append list1 STACK_0), wobei list1 ein Cons ist:
           # Kopiere list1 und halte das letzte Cons fest:
@@ -986,7 +986,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
           lauf = popSTACK(); # Ende der Kopie
           list1 = popSTACK(); # ganze Kopie
           /*if (!nullp(Cdr(lauf))) ????
-            fehler_proper_list_dotted(TheSubr(subr_self)->name,Cdr(lauf));*/
+            error_proper_list_dotted(TheSubr(subr_self)->name,Cdr(lauf));*/
           Cdr(lauf) = STACK_0; # bisherige Gesamtkopie einhängen
           STACK_0 = list1; # und die Kopie ist die neue Gesamtliste
         }
@@ -1079,7 +1079,7 @@ LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 26
           if (nullp(STACK_1)) {
             STACK_1 = STACK_0; skipSTACK(1); # Gesamtliste bleibt, Argument vergessen
           } else
-            fehler_list(STACK_1);
+            error_list(STACK_1);
         else {
           # Gesamtliste in (cdr (last STACK_1)) einhängen:
           var object list1 = STACK_1;
@@ -1183,7 +1183,7 @@ LISPFUNNR(ldiff,2)
       }
       #else
       if (!listp(listr))
-        fehler_list(listr);
+        error_list(listr);
       until ((found_p = eql(listr,sublist)) || atomp(listr)) {
         listr = Cdr(listr); new_len++;
       }
@@ -1386,7 +1386,7 @@ local up_function_t test_test_args (void) {
     if (nullp(test_arg))
       return &up_test_not;
     else
-      fehler_both_tests();
+      error_both_tests();
   }
 }
 
@@ -1568,7 +1568,7 @@ local maygc object sublis_assoc (gcv_object_t* stackptr)
         return Car(popSTACK());
       /* test failed */
     } else if (!nullp(head))
-      fehler_list(head);
+      error_list(head);
     STACK_0 = Cdr(STACK_0); /* tail recursion */
   }
   skipSTACK(1); /* forget alist */
@@ -1706,7 +1706,7 @@ global object memq (const object obj, const object lis) {
     l = Cdr(l);
   }
   if (!nullp(l))
-    fehler_proper_list_dotted(TheSubr(subr_self)->name,l);
+    error_proper_list_dotted(TheSubr(subr_self)->name,l);
   return NIL;
 }
 
@@ -1913,7 +1913,7 @@ local maygc object assoc (object alist, gcv_object_t* stackptr, up_function_t up
         return Car(alist);
       # Test nicht erfüllt
     } else if (!nullp(head))
-      fehler_list(head);
+      error_list(head);
     # tail-end-rekursiv (assoc ... (cdr alist)) aufrufen:
     alist = Cdr(alist); goto start;
   }
@@ -1972,7 +1972,7 @@ local maygc object rassoc (object alist, gcv_object_t* stackptr,
         return Car(alist);
       # Test nicht erfüllt
     } else if (!nullp(head))
-      fehler_list(head);
+      error_list(head);
     # tail-end-rekursiv (rassoc ... (cdr alist)) aufrufen:
     alist = Cdr(alist); goto start;
   }

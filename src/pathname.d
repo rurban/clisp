@@ -882,9 +882,9 @@ local maygc object merge_defaults (object pathname) {
 }
 
 /* error-message because of illegal pathname-argument.
- fehler_pathname_designator(thing); ( fehler_... = error_... )
+ error_pathname_designator(thing); ( error_... )
  > thing: (erroneous) argument */
-nonreturning_function(local, fehler_pathname_designator, (object thing)) {
+nonreturning_function(local, error_pathname_designator, (object thing)) {
   pushSTACK(thing);                       /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_designator_pathname)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(O(type_designator_pathname));
@@ -910,7 +910,7 @@ local object as_file_stream (object stream) {
     if (!builtin_stream_p(s))
       break;
   }
-  fehler_pathname_designator(stream);
+  error_pathname_designator(stream);
 }
 
 /* Signal an error if a file-stream does not have
@@ -919,9 +919,9 @@ local object as_file_stream (object stream) {
  > stream: File-Stream */
 #define test_file_stream_named(stream)  \
   do { if (nullp(TheStream(stream)->strm_file_truename)) \
-         fehler_file_stream_unnamed(stream);             \
+         error_file_stream_unnamed(stream);             \
   } while(0)
-nonreturning_function(local, fehler_file_stream_unnamed, (object stream)) {
+nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
   pushSTACK(stream);
   pushSTACK(TheSubr(subr_self)->name);
@@ -1522,7 +1522,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
   var bool thing_symbol = false;
   if (!stringp(thing)) {
     if (!symbolp(thing) || !nullpSv(parse_namestring_ansi))
-      fehler_pathname_designator(thing);
+      error_pathname_designator(thing);
     thing = Symbol_name(thing); /* Symbol -> use symbol name */
     thing_symbol = true;
     STACK_4 = thing; /* and write back into the Stack */
@@ -4997,7 +4997,7 @@ global maygc object physical_namestring (object thing) {
 
 /* error, if directory does not exist
  > obj: pathname or (better) erroneous component */
-nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
+nonreturning_function(local, error_dir_not_exists, (object obj)) {
   pushSTACK(obj); /* FILE-ERROR slot PATHNAME */
   pushSTACK(obj);
   error(file_error,GETTEXT("nonexistent directory: ~S"));
@@ -5005,7 +5005,7 @@ nonreturning_function(local, fehler_dir_not_exists, (object obj)) {
 
 /* error, if a file already exits
  > STACK_0: pathname */
-nonreturning_function(local, fehler_file_exists, (void)) {
+nonreturning_function(local, error_file_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
@@ -5464,7 +5464,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       pushSTACK(copy_pathname(STACK_0));
       ThePathname(STACK_0)->pathname_name = NIL;
       ThePathname(STACK_0)->pathname_type = NIL;
-      fehler_dir_not_exists(popSTACK());
+      error_dir_not_exists(popSTACK());
     }
     if (substitute) {
       var object resolved_string =
@@ -5599,7 +5599,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
             if (errno!=ENOENT) { end_system_call(); OS_file_error(STACK_0); }
             end_system_call();
             if (!tolerantp)
-              fehler_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding))); /* erroneous component */
+              error_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding))); /* erroneous component */
             end_system_call();
             FREE_DYNAMIC_ARRAY(string_asciz);
             return nullobj;
@@ -5785,20 +5785,20 @@ LISPFUNNR(namestring,1) { /* (NAMESTRING pathname), CLTL p. 417 */
 }
 
 /* error-message because of missing file name
- fehler_noname(pathname);
+ error_noname(pathname);
  > pathname: pathname */
-nonreturning_function(local, fehler_noname, (object pathname)) {
+nonreturning_function(local, error_noname, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
   error(file_error,GETTEXT("no file name given: ~S"));
 }
 #define check_noname(pathname)                                          \
-  do { if (namenullp(pathname)) { fehler_noname(pathname); } } while(0)
+  do { if (namenullp(pathname)) { error_noname(pathname); } } while(0)
 
 /* error-message because of illegal Name/Type-specification
- fehler_notdir(pathname);
+ error_notdir(pathname);
  > pathname: pathname */
-nonreturning_function(local, fehler_notdir, (object pathname)) {
+nonreturning_function(local, error_notdir, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
   error(file_error,GETTEXT("not a directory: ~S"));
@@ -5806,7 +5806,7 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
 #define check_notdir(pathname)                                  \
   do { if (!(nullp(ThePathname(pathname)->pathname_name)        \
              && nullp(ThePathname(pathname)->pathname_type)))   \
-         fehler_notdir(pathname); } while(0)
+         error_notdir(pathname); } while(0)
 
 /* test, if a file exists:
  file_exists(namestring)
@@ -5840,9 +5840,9 @@ nonreturning_function(local, fehler_notdir, (object pathname)) {
 #endif
 
 /* error-message because of non-existent file
- fehler_file_not_exists();
+ error_file_not_exists();
  > STACK_0: pathname */
-nonreturning_function(local, fehler_file_not_exists, (void)) {
+nonreturning_function(local, error_file_not_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
@@ -5886,7 +5886,7 @@ LISPFUNNR(truename,1)
     } else {
       /* name specified.
        check, if the file exists: */
-      if (!file_exists(namestring)) { fehler_file_not_exists(); }
+      if (!file_exists(namestring)) { error_file_not_exists(); }
       /* file exists -> pathname as value */
     }
     VALUES1(popSTACK());
@@ -6045,15 +6045,15 @@ local bool openp (object pathname) {
 }
 
 /* error-message because of deletion attempt on opened file
- fehler_delete_open(pathname);
+ error_delete_open(pathname);
  > pathname: truename of the file */
-nonreturning_function(local, fehler_delete_open, (object pathname)) {
+nonreturning_function(local, error_delete_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
   error(file_error,GETTEXT("cannot delete file ~S since there is a file stream open to it"));
 }
 #define check_delete_open(pathname)                                     \
- do { if (openp(pathname)) { fehler_delete_open(pathname); } } while(0)
+ do { if (openp(pathname)) { error_delete_open(pathname); } } while(0)
 
 /* (DELETE-FILE filename), CLTL p. 424 */
 LISPFUNN(delete_file,1) {
@@ -6095,9 +6095,9 @@ LISPFUNN(delete_file,1) {
 }
 
 /* error-message because of renaming attempt of an opened file
- fehler_rename_open(pathname);
+ error_rename_open(pathname);
  > pathname: truename of the file */
-nonreturning_function(local, fehler_rename_open, (object pathname)) {
+nonreturning_function(local, error_rename_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
   pushSTACK(pathname);
   error(file_error,GETTEXT("cannot rename file ~S since there is a file stream open to it"));
@@ -6120,9 +6120,9 @@ local void rename_file (void) {
     var object oldpathname = STACK_1;
     var object old_namestring = true_namestring(oldpathname,true,false);
     if (openp(STACK_0)) /* do not rename open files! */
-      { fehler_rename_open(STACK_0); }
+      { error_rename_open(STACK_0); }
     if (!file_exists(old_namestring))
-      fehler_file_not_exists();
+      error_file_not_exists();
     pushSTACK(old_namestring);
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
@@ -6135,7 +6135,7 @@ local void rename_file (void) {
      4. rename file: */
     if (file_exists(new_namestring)) {
       /* file already exists -> do not delete without forewarn */
-      fehler_file_exists();
+      error_file_exists();
     }
     pushSTACK(new_namestring);
   }
@@ -6334,7 +6334,7 @@ local inline maygc void create_backup_file (char* pathstring,
                                             bool delete_backup_file) {
   var object filename = STACK_0;
   if (openp(filename))
-    fehler_rename_open(filename); /* do not rename open files! */
+    error_rename_open(filename); /* do not rename open files! */
   var object new_namestring;
  #if defined(UNIX) || defined(WIN32_NATIVE)
   /* extend truename with "%" resp. ".bak" resp. "~" :
@@ -6634,9 +6634,9 @@ local maygc object open_file (object filename, direction_t direction,
     default: NOTREACHED;
       /* STACK_0 = Truename, FILE-ERROR slot PATHNAME */
   fehler_notfound: /* error: file not found */
-      fehler_file_not_exists();
+      error_file_not_exists();
   fehler_exists: /* error: file already exists */
-      fehler_file_exists();
+      error_file_exists();
  }}
  handle_ok:
   /* handle and append_flag are done with.
@@ -7045,7 +7045,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
                   case DIR_IF_NONE_ERROR:
                     pushSTACK(namestring);
-                    fehler_file_not_exists();
+                    error_file_not_exists();
                   case DIR_IF_NONE_KEEP:
                     goto push_matching_file;
                   default: NOTREACHED;
@@ -7061,7 +7061,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
                   case DIR_IF_NONE_ERROR:
                     pushSTACK(namestring);
-                    fehler_file_not_exists();
+                    error_file_not_exists();
                   case DIR_IF_NONE_KEEP:
                     goto push_matching_file;
                   default: NOTREACHED;
@@ -7157,7 +7157,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
               case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
               case DIR_IF_NONE_ERROR:
                 pushSTACK(namestring);
-                fehler_file_not_exists();
+                error_file_not_exists();
               case DIR_IF_NONE_KEEP:
                 goto push_matching_file;
               default: NOTREACHED;
@@ -7267,7 +7267,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
 
             if (rresolved == shell_shortcut_notexists
                 && dsp->if_none == DIR_IF_NONE_ERROR)
-                  fehler_file_not_exists();
+                  error_file_not_exists();
 
             if (rresolved != shell_shortcut_notexists
                 || (dsp->if_none != DIR_IF_NONE_DISCARD
@@ -8028,7 +8028,7 @@ LISPFUNNR(file_write_date,1)
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
      #ifdef UNIX
-      if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
+      if (!file_exists(namestring)) { error_file_not_exists(); } /* file must exist */
       file_datetime = filestatus->st_mtime;
      #endif
      #ifdef WIN32_NATIVE
@@ -8039,7 +8039,7 @@ LISPFUNNR(file_write_date,1)
         search_handle = FindFirstFile(namestring_asciz,&filedata);
         if (search_handle==INVALID_HANDLE_VALUE) {
           if (WIN32_ERROR_NOT_FOUND) {
-            end_system_call(); fehler_file_not_exists();
+            end_system_call(); error_file_not_exists();
           }
           end_system_call(); OS_file_error(STACK_0);
         } else if (!FindClose(search_handle)) {
@@ -8083,7 +8083,7 @@ LISPFUNNR(file_author,1)
    is_pathname: { /* pathname is now really a pathname */
       var object namestring = true_namestring(pathname,true,false);
      #if defined(UNIX) || defined(WIN32_NATIVE)
-      if (!file_exists(namestring)) { fehler_file_not_exists(); } /* file must exist */
+      if (!file_exists(namestring)) { error_file_not_exists(); } /* file must exist */
      #endif
       skipSTACK(1);
     }
@@ -8104,7 +8104,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       var object namestring = true_namestring(coerce_pathname(*file_),
                                               true,false);
       /* check, if the file exists: */
-      if (!file_exists(namestring)) { fehler_file_not_exists(); }
+      if (!file_exists(namestring)) { error_file_not_exists(); }
       *file_ = string_to_asciz(namestring,O(pathname_encoding)); /* save */
       skipSTACK(1);
     }

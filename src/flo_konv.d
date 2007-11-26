@@ -430,8 +430,8 @@
 # Konversionen zu IEEE-Floats.
 
 # Fehlermeldung wegen NaN
-# fehler_nan();
-  nonreturning_function(local, fehler_nan, (void)) {
+# error_nan();
+  nonreturning_function(local, error_nan, (void)) {
     error(arithmetic_error,
            GETTEXT("floating point NaN occurred")
           );
@@ -456,18 +456,18 @@
     if (exp == 0) { # e=0 ?
       # vorzeichenbehaftete 0.0 oder subnormale Zahl
       if (!((val << 1) == 0) && underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return FF_0; # +/- 0.0 -> 0.0
     } elif (exp == 255) { # e=255 ?
       if (!((val << (32-FF_mant_len)) == 0))
-        fehler_nan(); # NaN
+        error_nan(); # NaN
       else
-        fehler_overflow(); # Infinity, Overflow
+        error_overflow(); # Infinity, Overflow
     } else {
       # Der Exponent muss um FF_exp_mid-126 erhöht werden.
       if ((FF_exp_mid>126) && (exp > FF_exp_high-FF_exp_mid+126))
-        fehler_overflow(); # Overflow
+        error_overflow(); # Overflow
       val += (FF_exp_mid - 126) << FF_mant_len;
       return allocate_ffloat(val);
     }
@@ -517,18 +517,18 @@
     if (exp == 0) { # e=0 ?
       # vorzeichenbehaftete 0.0 oder subnormale Zahl
       if (!((val << 1) == 0) && underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return DF_0; # +/- 0.0 -> 0.0
     } elif (exp == 2047) { # e=2047 ?
       if (!((val << (64-DF_mant_len)) == 0))
-        fehler_nan(); # NaN
+        error_nan(); # NaN
       else
-        fehler_overflow(); # Infinity, Overflow
+        error_overflow(); # Infinity, Overflow
     } else {
       # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
       if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-        fehler_overflow(); # Overflow
+        error_overflow(); # Overflow
       val += (sint64)(DF_exp_mid - 1022) << DF_mant_len;
       return allocate_dfloat(val);
     }
@@ -537,18 +537,18 @@
     if (exp == 0) { # e=0 ?
       # vorzeichenbehaftete 0.0 oder subnormale Zahl
       if (!(((val.semhi << 1) == 0) && (val.mlo == 0)) && underflow_allowed())
-        fehler_underflow();
+        error_underflow();
       else
         return DF_0; # +/- 0.0 -> 0.0
     } elif (exp == 2047) { # e=2047 ?
       if (!(((val.semhi << (64-DF_mant_len)) == 0) && (val.mlo == 0)))
-        fehler_nan(); # NaN
+        error_nan(); # NaN
       else
-        fehler_overflow(); # Infinity, Overflow
+        error_overflow(); # Infinity, Overflow
     } else {
       # Der Exponent muss um DF_exp_mid-1022 erhöht werden.
       if ((DF_exp_mid>1022) && (exp > DF_exp_high-DF_exp_mid+1022))
-        fehler_overflow(); # Overflow
+        error_overflow(); # Overflow
       val.semhi += (sint32)(DF_exp_mid - 1022) << (DF_mant_len-32);
       return allocate_dfloat(val.semhi,val.mlo);
     }

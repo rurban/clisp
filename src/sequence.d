@@ -323,7 +323,7 @@ local object get_seq_type (object seq) {
 }
 
 /* signal a "not a SEQUENCE" type-error */
-nonreturning_function(local, fehler_sequence, (object obj)) {
+nonreturning_function(local, error_sequence, (object obj)) {
   pushSTACK(obj);         /* TYPE-ERROR slot DATUM */
   pushSTACK(S(sequence)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(sequence)); pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -337,12 +337,12 @@ local object get_valid_seq_type (object seq)
 {
   var object typdescr = get_seq_type(seq); /* find type descriptor */
   if (!(nullp(typdescr))) { return typdescr; } /* found -> OK */
-  fehler_sequence(seq);
+  error_sequence(seq);
 }
 
 # Fehler, wenn der Sequence-Typ eine andere Länge vorgibt als die, die
 # herauskommt.
-nonreturning_function(local, fehler_seqtype_length,
+nonreturning_function(local, error_seqtype_length,
                       (object seqtype_length, object computed_length)) {
   pushSTACK(computed_length); /* TYPE-ERROR slot DATUM */
   pushSTACK(NIL); /* TYPE-ERROR slot EXPECTED-TYPE - filled later */
@@ -365,7 +365,7 @@ nonreturning_function(local, fehler_seqtype_length,
 
 /* error when the argument is not an integer >=0
    YES, we _CAN_ create lists longer than MOST-POSITIVE-FIXNUM! */
-nonreturning_function(local, fehler_posint, (object kw, object obj)) {
+nonreturning_function(local, error_posint, (object kw, object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(kw); pushSTACK(TheSubr(subr_self)->name);
@@ -402,11 +402,11 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
     # START-Argument muss ein Integer >= 0 sein:
     var object start = *(argptr STACKop 1);
     if (!(integerp(start) && positivep(start)))
-      fehler_posint(kwptr[0],start);
+      error_posint(kwptr[0],start);
     # END-Argument muss ein Integer >= 0 sein:
     var object end = *(argptr STACKop 0);
     if (!(integerp(end) && positivep(end)))
-      fehler_posint(kwptr[1],end);
+      error_posint(kwptr[1],end);
     # Argumente vergleichen:
     if (!(I_I_comp(end,start)>=0)) { # end >= start ?
       # nein -> Fehler melden:
@@ -427,13 +427,13 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
     # START-Argument muss ein Integer >= 0 sein:
     var object start = *(argptr STACKop 1);
     if (!(integerp(start) && positivep(start)))
-      fehler_posint(kwptr[0],start);
+      error_posint(kwptr[0],start);
     # END-Argument muss NIL oder ein Integer >= 0 sein:
     var object end = *(argptr STACKop 0);
     if (nullp(end)) # end=NIL -> OK, fertig
       return;
     if (!(integerp(end) && positivep(end)))
-      fehler_posint(kwptr[1],end);
+      error_posint(kwptr[1],end);
     # Argumente vergleichen:
     if (!(I_I_comp(end,start)>=0)) { # end >= start ?
       # nein -> Fehler melden:
@@ -486,10 +486,10 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
 
 # Error message when trying to access past the end of a vector.
 # > vector: the vector
-  nonreturning_function(local, fehler_vector_index_range, (object vector)) {
+  nonreturning_function(local, error_vector_index_range, (object vector)) {
     var uintL len = vector_length(vector);
     pushSTACK(UL_to_I(len));
-    fehler_index_range(vector,len);
+    error_index_range(vector,len);
   }
 
 # UP: kopiert einen Teil einer Sequence in eine andere Sequence.
@@ -513,10 +513,10 @@ nonreturning_function(local, fehler_posint, (object kw, object obj)) {
         var uintV index2v = posfixnum_to_V(STACK_0);
         if (index1v+count > vector_length(STACK_6))
           with_saved_back_trace_subr(L(aref),STACK STACKop -2,-1,
-            fehler_vector_index_range(STACK_6); );
+            error_vector_index_range(STACK_6); );
         if (index2v+count > vector_length(STACK_4))
           with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
-            fehler_vector_index_range(STACK_4); );
+            error_vector_index_range(STACK_4); );
         var uintL index1 = index1v;
         var uintL index2 = index2v;
         var object dv1 = array_displace_check(STACK_6,count,&index1);
@@ -593,7 +593,7 @@ local void seq_check_index (object seq, object index) {
     var uintL len = vector_length(seq);
     if (posfixnum_to_V(index) >= len) {
       pushSTACK(index);
-      fehler_index_range(seq,len);
+      error_index_range(seq,len);
     }
   }
 }
@@ -722,9 +722,9 @@ LISPFUNNR(length,1)
     var object tail = NIL;
     var object len = list_length(arg,&tail);
     if (nullp(len))
-      fehler_proper_list_circular(S(length),arg);
+      error_proper_list_circular(S(length),arg);
     if (!nullp(tail))
-      fehler_proper_list_dotted(S(length),tail);
+      error_proper_list_dotted(S(length),tail);
     VALUES1(len);
     return;
   } else if (symbolp(arg)) { /* arg is a symbol */
@@ -742,7 +742,7 @@ LISPFUNNR(length,1)
     return;
   }
   /* arg is not a sequence */
-  fehler_sequence(arg);
+  error_sequence(arg);
 }
 
 LISPFUNNR(reverse,1) # (REVERSE sequence), CLTL S. 248
@@ -995,7 +995,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         }
       }
       if (integerp(STACK_0) && !SEQTYPE_LENGTH_MATCH(STACK_0,size))
-        fehler_seqtype_length(STACK_0,size);
+        error_seqtype_length(STACK_0,size);
       pushSTACK(size); funcall(seq_make(typdescr),1); # (SEQ-MAKE size)
       # Stackaufbau: typdescr, size, initial-element, updatefun, type-len.
     }
@@ -1006,7 +1006,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
             && vectorp(value1) && array_simplep(value1)
             && posfixnump(STACK_(3+1)) && uint32_p(STACK_(3+1))) {
           if (elt_fill(value1,0,posfixnum_to_V(STACK_(3+1)),STACK_(2+1)))
-            fehler_store(STACK_0,STACK_(2+1));
+            error_store(STACK_0,STACK_(2+1));
         } else {
           # Stackaufbau: typdescr, count, element, updatefun, type-len, seq.
           pushSTACK(STACK_0); funcall(seq_init(STACK_(5+1)),1); # (SEQ-INIT seq)
@@ -1075,7 +1075,7 @@ global maygc Values coerce_sequence (object sequence, object result_type,
         if (integerp(STACK_0)) {
           pushSTACK(STACK_2); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
           if (!SEQTYPE_LENGTH_MATCH(STACK_0,value1))
-            fehler_seqtype_length(STACK_0,value1);
+            error_seqtype_length(STACK_0,value1);
         }
       } else {
         pushSTACK(typdescr1);
@@ -1086,7 +1086,7 @@ global maygc Values coerce_sequence (object sequence, object result_type,
         #              seq1, typdescr1, nil, typdescr2.
         pushSTACK(STACK_3); funcall(seq_length(typdescr1),1); # (SEQ1-LENGTH seq1)
         if (integerp(STACK_4) && !SEQTYPE_LENGTH_MATCH(STACK_4,value1))
-          fehler_seqtype_length(STACK_4,value1);
+          error_seqtype_length(STACK_4,value1);
         pushSTACK(value1);
         # Stackaufbau: seq1, result-type, typdescr2-len,
         #              seq1, typdescr1, nil, typdescr2, len.
@@ -1143,7 +1143,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
     STACK_3 = I_I_minus_I(STACK_3,STACK_4); # count := (- end start)
     # Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2.
     if (integerp(STACK_1) && !SEQTYPE_LENGTH_MATCH(STACK_1,STACK_3))
-      fehler_seqtype_length(STACK_1,STACK_3);
+      error_seqtype_length(STACK_1,STACK_3);
     if (eq(seq_type(STACK_2),seq_type(STACK_0))) {
       # Same types of sequences.
       if (eq(STACK_4,Fixnum_0)) {
@@ -1251,7 +1251,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
         var object result_type_len = Before(behind_args_pointer);
         if (integerp(result_type_len)
             && !SEQTYPE_LENGTH_MATCH(result_type_len,total_length))
-          fehler_seqtype_length(result_type_len,total_length);
+          error_seqtype_length(result_type_len,total_length);
       }
       pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); # Dummies
       # neue Sequence allozieren:
@@ -1514,7 +1514,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         var object result_type_len = Before(typdescr_pointer);
         if (integerp(result_type_len)
             && !SEQTYPE_LENGTH_MATCH(result_type_len,STACK_0))
-          fehler_seqtype_length(result_type_len,STACK_0);
+          error_seqtype_length(result_type_len,STACK_0);
       }
       # Neue Sequence der Länge size allozieren:
       pushSTACK(STACK_0); funcall(seq_make(*result_type_),1); # (SEQ2-MAKE size)
@@ -1926,11 +1926,11 @@ LISPFUN(fill,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
         var uintV indexv = posfixnum_to_V(STACK_2);
         if (indexv+count > vector_length(STACK_4))
           with_saved_back_trace_subr(L(store),STACK STACKop -3,-1,
-            fehler_vector_index_range(STACK_4); );
+            error_vector_index_range(STACK_4); );
         var uintL index = indexv;
         var object dv = array_displace_check(STACK_4,count,&index);
         if (elt_fill(dv,index,count,STACK_3))
-          fehler_store(STACK_4,STACK_3);
+          error_store(STACK_4,STACK_3);
       }
     } else {
       until (eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
@@ -2118,12 +2118,12 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
         STACK_1 = Fixnum_0; return; # treat negative integers as 0
       }
     }
-    fehler_posint(S(Kcount),count);
+    error_posint(S(Kcount),count);
   }
 
 # Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
-# fehler_both_tests();
-nonreturning_function(global, fehler_both_tests, (void)) {
+# error_both_tests();
+nonreturning_function(global, error_both_tests, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
          GETTEXT("~S: Must not specify both arguments to :TEST and :TEST-NOT"));
@@ -2163,7 +2163,7 @@ nonreturning_function(global, fehler_both_tests, (void)) {
     if (nullp(test_arg))
       return &up_test_not;
     else
-      fehler_both_tests();
+      error_both_tests();
   }
 
 # UP: bereitet eine Sequence-Operation mit Test vor.
@@ -2845,7 +2845,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     if (nullp(test_arg))
       return(&up2_test_not);
     else
-      fehler_both_tests();
+      error_both_tests();
   }
 
 # UP: Executes a REMOVE-DUPLICATES operation on a list.
@@ -4946,7 +4946,7 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
     {
       pushSTACK(I_I_plus_I(STACK_1,STACK_0)); # (+ len1 len2)
       if (integerp(STACK_(1+3)) && !SEQTYPE_LENGTH_MATCH(STACK_(1+3),STACK_0))
-        fehler_seqtype_length(STACK_(1+3),STACK_0);
+        error_seqtype_length(STACK_(1+3),STACK_0);
       funcall(seq_make(STACK_(0+2+1)),1); # (SEQ-MAKE (+ len1 len2))
       STACK_(1+2) = value1; # ersetzt result-type-len im Stack
     }
@@ -5008,7 +5008,7 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
       }
       var uintL index = 0;
       STACK_0 = array_displace_check(STACK_4,end,&index);
-      if (simple_nilarray_p(STACK_0)) fehler_nilarray_store();
+      if (simple_nilarray_p(STACK_0)) error_nilarray_store();
       check_sstring_mutable(STACK_0);
       var uintL result = read_char_array(&STACK_3,&STACK_0,index+start,end-start);
       VALUES1(fixnum(start+result));
@@ -5057,7 +5057,7 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
       if (len > 0) {
         var uintL index = 0;
         STACK_0 = array_displace_check(STACK_4,end,&index);
-        if (simple_nilarray_p(STACK_0)) fehler_nilarray_retrieve();
+        if (simple_nilarray_p(STACK_0)) error_nilarray_retrieve();
         write_char_array(&STACK_3,&STACK_0,index+start,len);
       }
     } else {
@@ -5173,7 +5173,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
     STACK_2 = value1; /* =: pointer */
     /* stack layout: sequence, stream, pointer, count, typdescr. */
     if (no_hang || interactive) /* FIXME: need write_byte_will_hang_p() */
-      fehler_illegal_streamop(S(write_byte_sequence),STACK_3);
+      error_illegal_streamop(S(write_byte_sequence),STACK_3);
     while (!eq(STACK_1,Fixnum_0)) { /* count (an integer) = 0 -> done */
       pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
       funcall(seq_access(STACK_(0+2)),2); /* (SEQ-ACCESS sequence pointer) */

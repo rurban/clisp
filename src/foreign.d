@@ -14,7 +14,7 @@
 #include "callback.h"      /* Low level support for call-in */
 
 /* complain about non-foreign object */
-nonreturning_function(local, fehler_foreign_object, (object arg)) {
+nonreturning_function(local, error_foreign_object, (object arg)) {
   pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: argument is not a foreign object: ~S"));
 }
@@ -56,7 +56,7 @@ local /*maygc*/ object foreign_address (object obj, bool allocate_p)
         return TheFfunction(obj)->ff_address;
     }
   }
-  fehler_foreign_object(obj);
+  error_foreign_object(obj);
 }
 
 /* return the foreign pointer of the foreign object
@@ -84,7 +84,7 @@ local object foreign_pointer (object obj)
 local object foreign_pointer_strict (object obj)
 {
   var object fp = foreign_pointer(obj);
-  if (eq(fp,nullobj)) fehler_foreign_object(obj);
+  if (eq(fp,nullobj)) error_foreign_object(obj);
   return fp;
 }
 
@@ -100,7 +100,7 @@ LISPFUNN(set_validp,2)
   var object arg = popSTACK();
   var object fp = foreign_pointer(arg);
   if (eq(fp,nullobj)) /* permit new_value=true ? */
-    fehler_foreign_object(arg);
+    error_foreign_object(arg);
   if (fp_validp(TheFpointer(fp))) {
     if (!new_value) {
       if (eq(fp,O(fp_zero))) {
@@ -160,7 +160,7 @@ LISPFUNNR(foreign_address_unsigned,1) {
   /* address --> integer */
   if (faddressp(arg)) value1 = ulong_to_I((uintP)Faddress_value(arg));
   else if (fpointerp(arg)) value1 = ulong_to_I((uintP)Fpointer_value(arg));
-  else fehler_foreign_object(arg);
+  else error_foreign_object(arg);
   mv_count = 1;
 }
 
@@ -295,14 +295,14 @@ global maygc void register_foreign_inttype (const char * name_asciz,
 #define C_UNION_C_TYPE_START   (C_UNION_ALT+1)
 
 /* Error message. */
-nonreturning_function(local, fehler_foreign_type, (object fvd)) {
+nonreturning_function(local, error_foreign_type, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: Illegal foreign data type ~S"));
 }
 
 /* Error message. */
-nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
+nonreturning_function(local, error_convert, (object fvd, object obj)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
@@ -311,7 +311,7 @@ nonreturning_function(local, fehler_convert, (object fvd, object obj)) {
 
 #if !defined(HAVE_LONG_LONG_INT)
 /* Error message. */
-nonreturning_function(local, fehler_64bit, (object fvd)) {
+nonreturning_function(local, error_64bit, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"));
@@ -870,7 +870,7 @@ local void foreign_layout (object fvd, struct foreign_layout *data)
         for (i = 2; i < fvdlen; i++) {
           var object dim = TheSvector(fvd)->data[i];
           if (!uint32_p(dim))
-            fehler_foreign_type(fvd);
+            error_foreign_type(fvd);
           data->size = data->size * I_to_uint32(dim);
         }
         data->splittable = (data->size <= sizeof(long));
@@ -892,7 +892,7 @@ local void foreign_layout (object fvd, struct foreign_layout *data)
       return;
     }
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
 }
 
 /* compute the size of the foreign data
@@ -1080,7 +1080,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
   return array;
 }
 /* Error message */
-nonreturning_function (local, fehler_eltype_zero_size, (object fvd)) {
+nonreturning_function (local, error_eltype_zero_size, (object fvd)) {
   pushSTACK(fvd);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: element type has size 0: ~S"));
@@ -1284,7 +1284,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
         var uintL eltype_size = foreign_size(eltype);
-        if (eltype_size == 0) fehler_eltype_zero_size(fvd);
+        if (eltype_size == 0) error_eltype_zero_size(fvd);
         /* Determine length of array: */
         var uintL len = 0;
         {
@@ -1382,7 +1382,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         else {
           var object eltype = TheSvector(fvd)->data[1];
           var uintL eltype_size = foreign_size(eltype);
-          if (eltype_size == 0) fehler_eltype_zero_size(fvd);
+          if (eltype_size == 0) error_eltype_zero_size(fvd);
           /* Determine length of array: */
           var uintL len = 0;
           {
@@ -1443,7 +1443,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
     if (!eq(inttype,nullobj))
       return convert_from_foreign(inttype,data);
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
 }
 
 /* Test whether a foreign type contained C-PTRs (recursively). */
@@ -1484,7 +1484,7 @@ local bool foreign_with_pointers_p (object fvd)
       }
     }
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
 }
 
 struct walk_foreign {
@@ -1551,7 +1551,7 @@ local void walk_foreign_pointers (object fvd, void* data,
           for (i = 2; i < fvdlen; i++) {
             var object dim = TheSvector(fvd)->data[i];
             if (!uint32_p(dim))
-              fehler_foreign_type(fvd);
+              error_foreign_type(fvd);
             size *= I_to_uint32(dim);
           }
         }
@@ -1567,7 +1567,7 @@ local void walk_foreign_pointers (object fvd, void* data,
       } else if (eq(fvdtype,S(c_array_max)) && (fvdlen == 3)) {
         var object eltype = TheSvector(fvd)->data[1];
         var uintL eltype_size = foreign_size(eltype);
-        if (eltype_size == 0) fehler_eltype_zero_size(fvd);
+        if (eltype_size == 0) error_eltype_zero_size(fvd);
         {
           var uintL maxdim = I_to_UL(TheSvector(fvd)->data[2]);
           var uintL len = 0;
@@ -1609,7 +1609,7 @@ local void walk_foreign_pointers (object fvd, void* data,
         (*walk->pre_hook)(elfvd,(void**)data,walk);
         {
           var uintL eltype_size = foreign_size(elfvd);
-          if (eltype_size == 0) fehler_eltype_zero_size(fvd);
+          if (eltype_size == 0) error_eltype_zero_size(fvd);
           var void* ptr = *(void**)data;
           while (!blockzerop(ptr,eltype_size)) {
             walk_foreign_pointers(elfvd,ptr,walk);
@@ -1621,7 +1621,7 @@ local void walk_foreign_pointers (object fvd, void* data,
       }
     }
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
 }
 
 /* Free the storage used by foreign data. */
@@ -1688,7 +1688,7 @@ local maygc void walk_lisp_pointers (object fvd, object obj,
         var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
         if (!(simple_vector_p(slots)
               && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
-          fehler_foreign_type(fvd);
+          error_foreign_type(fvd);
         if (eq(constructor,L(vector))) {
           if (!(simple_vector_p(obj)
                 && (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
@@ -1749,7 +1749,7 @@ local maygc void walk_lisp_pointers (object fvd, object obj,
           for (i = 2; i < fvdlen; i++) {
             var object dim = TheSvector(fvd)->data[i];
             if (!uint32_p(dim))
-              fehler_foreign_type(fvd);
+              error_foreign_type(fvd);
             size *= I_to_uint32(dim);
           }
         }
@@ -1832,9 +1832,9 @@ local maygc void walk_lisp_pointers (object fvd, object obj,
       }
     }
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
  bad_obj:
-  fehler_convert(fvd,obj);
+  error_convert(fvd,obj);
 }
 
 /* Determine amount of additional storage needed
@@ -1993,7 +1993,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
     }
    #else
     else if (eq(fvd,S(sint64)) || eq(fvd,S(uint64))) {
-      fehler_64bit(fvd);
+      error_64bit(fvd);
     }
    #endif
     else if (eq(fvd,S(int))) {
@@ -2058,7 +2058,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
         var object constructor = TheSvector(fvd)->data[C_STRUCT_CONSTRUCTOR];
         if (!(simple_vector_p(slots)
               && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
-          fehler_foreign_type(fvd);
+          error_foreign_type(fvd);
         if (eq(constructor,L(vector))) {
           if (!(simple_vector_p(obj)
                 && (Svector_length(obj)==fvdlen-C_STRUCT_C_TYPE_START)))
@@ -2132,7 +2132,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
           for (i = 2; i < fvdlen; i++) {
             var object dim = TheSvector(fvd)->data[i];
             if (!uint32_p(dim))
-              fehler_foreign_type(fvd);
+              error_foreign_type(fvd);
             size *= I_to_uint32(dim);
           }
         }
@@ -2364,9 +2364,9 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
     if (!eq(inttype,nullobj))
       return convert_to_foreign(inttype,obj,data,converter_malloc);
   }
-  fehler_foreign_type(fvd);
+  error_foreign_type(fvd);
  bad_obj:
-  fehler_convert(fvd,obj);
+  error_convert(fvd,obj);
 }
 
 /* Convert Lisp data to foreign data.
@@ -2403,7 +2403,7 @@ global void* nomalloc (void* old_data, uintL size, uintL alignment)
 { return old_data; }
 
 /* Error messages. */
-nonreturning_function(local, fehler_foreign_variable, (object obj)) {
+nonreturning_function(local, error_foreign_variable, (object obj)) {
   pushSTACK(NIL);                 /* no PLACE */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(S(foreign_variable)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -2411,7 +2411,7 @@ nonreturning_function(local, fehler_foreign_variable, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
-nonreturning_function(local, fehler_variable_no_fvd, (object obj)) {
+nonreturning_function(local, error_variable_no_fvd, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"));
@@ -2550,12 +2550,12 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
 LISPFUNN(foreign_value,1)
 {
   var object fvar = STACK_0;
-  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
+  if (!fvariablep(fvar)) error_foreign_variable(fvar);
   var object fa = TheFvariable(fvar)->fv_address;
   fa = check_faddress_valid(fa); fvar = STACK_0;
   var void* address = Faddress_value(fa);
   var object fvd = TheFvariable(fvar)->fv_type;
-  if (nullp(fvd)) fehler_variable_no_fvd(fvar);
+  if (nullp(fvd)) error_variable_no_fvd(fvar);
   VALUES1(convert_from_foreign(fvd,address)); skipSTACK(1);
 }
 
@@ -2564,12 +2564,12 @@ LISPFUNN(foreign_value,1)
 LISPFUNN(set_foreign_value,2)
 {
   var object fvar = STACK_1;
-  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
+  if (!fvariablep(fvar)) error_foreign_variable(fvar);
   var object fa = TheFvariable(fvar)->fv_address;
   fa = check_faddress_valid(fa); fvar = STACK_1;
   var void* address = Faddress_value(fa);
   var object fvd = TheFvariable(fvar)->fv_type;
-  if (nullp(fvd)) fehler_variable_no_fvd(fvar);
+  if (nullp(fvd)) error_variable_no_fvd(fvar);
   if (record_flags(TheFvariable(fvar)) & fv_readonly) {
     pushSTACK(fvar);
     pushSTACK(TheSubr(subr_self)->name);
@@ -2594,9 +2594,9 @@ LISPFUNN(foreign_type,1)
 { /* (FFI::FOREIGN-TYPE foreign-variable) */
   var object fvar = popSTACK();
   if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+    error_foreign_variable(fvar);
   if (nullp((value1 = TheFvariable(fvar)->fv_type)))
-    fehler_variable_no_fvd(fvar);
+    error_variable_no_fvd(fvar);
   mv_count=1;
 }
 
@@ -2607,7 +2607,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
   var object fvar = Before(rest_args_pointer);
   /* Check that fvar is a foreign variable: */
   if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+    error_foreign_variable(fvar);
   /* Check that fvar is a foreign array: */
   var object fvd = TheFvariable(fvar)->fv_type;
   var uintL fvdlen;
@@ -2683,7 +2683,7 @@ LISPFUNN(deref,1)
 {
   var object fvar = STACK_0;
   /* Check that fvar is a foreign variable: */
-  if (!fvariablep(fvar)) fehler_foreign_variable(fvar);
+  if (!fvariablep(fvar)) error_foreign_variable(fvar);
   /* Check that fvar is a foreign pointer: */
   var object fvd = TheFvariable(fvar)->fv_type;
   if (!(simple_vector_p(fvd)
@@ -2731,7 +2731,7 @@ LISPFUNN(slot,2)
   var object slot = STACK_0;
   /* Check that fvar is a foreign variable: */
   if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+    error_foreign_variable(fvar);
   /* Check that fvar is a foreign struct or a foreign union: */
   var object fvd = TheFvariable(fvar)->fv_type;
   var uintL fvdlen;
@@ -2742,7 +2742,7 @@ LISPFUNN(slot,2)
       var object slots = TheSvector(fvd)->data[C_STRUCT_SLOTS];
       if (!(simple_vector_p(slots)
             && (Svector_length(slots)==fvdlen-C_STRUCT_C_TYPE_START)))
-        fehler_foreign_type(fvd);
+        error_foreign_type(fvd);
       var uintL cumul_size = 0;
       var uintL i;
       for (i = C_STRUCT_C_TYPE_START; i < fvdlen; i++) {
@@ -2776,7 +2776,7 @@ LISPFUNN(slot,2)
     if (eq(TheSvector(fvd)->data[0],S(c_union)) && (fvdlen > 1)) {
       var object slots = TheSvector(fvd)->data[1];
       if (!(simple_vector_p(slots) && (Svector_length(slots)==fvdlen-2)))
-        fehler_foreign_type(fvd);
+        error_foreign_type(fvd);
       var uintL i;
       for (i = 2; i < fvdlen; i++) {
         if (eq(TheSvector(slots)->data[i-2],slot))
@@ -2820,13 +2820,13 @@ LISPFUNN(cast,2)
 {
   var object fvar = STACK_1;
   if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+    error_foreign_variable(fvar);
   var object fvd = TheFvariable(fvar)->fv_type;
   if (nullp(fvd))
-    fehler_variable_no_fvd(fvar);
+    error_variable_no_fvd(fvar);
   /* The old and the new type must have the same size. */
   if (!eq(TheFvariable(fvar)->fv_size,fixnum(foreign_size(STACK_0))))
-    fehler_convert(STACK_0,fvar);
+    error_convert(STACK_0,fvar);
   /* Allocate a new foreign variable. */
   var object new_fvar = allocate_fvariable();
   fvar = STACK_1;
@@ -2849,11 +2849,11 @@ LISPFUNN(cast,2)
 LISPFUNN(offset,3) {
   var object fvar = STACK_2;
   if (!fvariablep(fvar))
-    fehler_foreign_variable(fvar);
+    error_foreign_variable(fvar);
   {
     var object fvd = TheFvariable(fvar)->fv_type;
     if (nullp(fvd))
-      fehler_variable_no_fvd(fvar);
+      error_variable_no_fvd(fvar);
   }
   STACK_1 = check_sint32(STACK_1);
   var struct foreign_layout sas;
@@ -3075,7 +3075,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
   foreign_layout(arg_fvd,&sas);
   var uintL arg_size = sas.size;
   var uintL arg_alignment = sas.alignment;
-  if (arg_size == 0) { fehler_eltype_zero_size(arg_fvd); }
+  if (arg_size == 0) { error_eltype_zero_size(arg_fvd); }
   /* Perform top-level allocation of sizeof(fvd), sublevel allocations follow */
   var void* arg_address = my_malloc(arg_size);
   blockzero(arg_address,arg_size);
@@ -3165,11 +3165,11 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
         return;
     }
   }
-  fehler_foreign_object(obj);
+  error_foreign_object(obj);
 }
 
 /* Error messages. */
-nonreturning_function(local, fehler_foreign_function, (object obj)) {
+nonreturning_function(local, error_foreign_function, (object obj)) {
   pushSTACK(NIL);                 /* no PLACE */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(S(foreign_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -3177,7 +3177,7 @@ nonreturning_function(local, fehler_foreign_function, (object obj)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(type_error,GETTEXT("~S: ~S is not of type ~S"));
 }
-nonreturning_function(local, fehler_function_no_fvd,
+nonreturning_function(local, error_function_no_fvd,
                       (object obj, object caller)) {
   pushSTACK(obj);
   pushSTACK(caller);
@@ -3339,7 +3339,7 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
     } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
       av_start_ptr(*alist,address,void*,result_address);
     } else {
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
     }
   } else if (simple_vector_p(result_fvd)) {
     var object result_fvdtype = TheSvector(result_fvd)->data[0];
@@ -3354,14 +3354,14 @@ local void do_av_start (uintWL flags, object result_fvd, av_alist * alist,
                || eq(result_fvdtype,S(c_array_ptr))) {
       av_start_ptr(*alist,address,void*,result_address);
     } else {
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
     }
   } else {
     object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_av_start (flags, inttype, alist, address, result_address,
                    result_size, result_splittable);
-    else fehler_foreign_type(result_fvd);
+    else error_foreign_type(result_fvd);
   }
   if (flags & ff_lang_stdcall)
     alist->flags |= __AV_STDCALL_CLEANUP;
@@ -3459,7 +3459,7 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
     } else if (eq(arg_fvd,S(c_string))) {
       av_ptr(*alist,char*,*(char**)arg_address);
     } else {
-      fehler_foreign_type(arg_fvd);
+      error_foreign_type(arg_fvd);
     }
   } else if (simple_vector_p(arg_fvd)) {
     var object arg_fvdtype = TheSvector(arg_fvd)->data[0];
@@ -3473,13 +3473,13 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
                || eq(arg_fvdtype,S(c_array_ptr))) {
       av_ptr(*alist,void*,*(void**)arg_address);
     } else {
-      fehler_foreign_type(arg_fvd);
+      error_foreign_type(arg_fvd);
     }
   } else {
     object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_av_arg (flags, inttype, alist, arg_address, arg_size, arg_alignment);
-    else fehler_foreign_type(arg_fvd);
+    else error_foreign_type(arg_fvd);
   }
 }
 
@@ -3489,10 +3489,10 @@ local void do_av_arg (uintWL flags, object arg_fvd, av_alist * alist,
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
   var object ffun = Before(rest_args_pointer);
   if (!ffunctionp(ffun))
-    fehler_foreign_function(ffun);
+    error_foreign_function(ffun);
   var object argfvds_top = TheFfunction(ffun)->ff_argtypes;
   if (!simple_vector_p(argfvds_top))
-    fehler_function_no_fvd(ffun,S(foreign_call_out));
+    error_function_no_fvd(ffun,S(foreign_call_out));
   var uintWL flags = posfixnum_to_V(TheFfunction(ffun)->ff_flags);
   switch (flags & 0x7F00) {
     /* For the moment, the only supported languages are "C" and "ANSI C". */
@@ -3500,7 +3500,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     case ff_lang_ansi_c:
       break;
     default:
-      fehler_function_no_fvd(ffun,S(foreign_call_out));
+      error_function_no_fvd(ffun,S(foreign_call_out));
   }
   {
     var av_alist alist;
@@ -3531,7 +3531,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         if (!(arg_flags & ff_out)) {
           inargcount++;
           if (inargcount > argcount)
-            fehler_too_few_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
+            error_too_few_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
         }
         if (arg_flags & (ff_out | ff_inout)) {
           if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
@@ -3579,7 +3579,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         }
       }
       if (argcount != inargcount)
-        fehler_too_many_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
+        error_too_many_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
     }
     var uintL result_count = 0;
     typedef struct { void* address; } result_descr; /* fvd is pushed onto the STACK */
@@ -3683,7 +3683,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     if (av_overflown(alist))
       /* avcall has limited buffer space
        __AV_ALIST_WORDS is only an approximation in number of arguments */
-      fehler_too_many_args(S(foreign_call_out),Before(rest_args_pointer),allargcount,
+      error_too_many_args(S(foreign_call_out),Before(rest_args_pointer),allargcount,
                            __AV_ALIST_WORDS);
     /* Finally call the function. */
     begin_call();
@@ -3699,7 +3699,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     }
     /* Return them as multiple values. */
     if (result_count >= mv_limit)
-      fehler_mv_zuviel(S(foreign_call_out));
+      error_mv_toomany(S(foreign_call_out));
     STACK_to_mv(result_count);
     if (flags & ff_alloca) {
       /* The C functions we passed also have dynamic extent. Free them.
@@ -3809,7 +3809,7 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
     } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
       va_start_ptr(alist,void*);
     } else {
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
     }
   } else if (simple_vector_p(result_fvd)) {
     var object result_fvdtype = TheSvector(result_fvd)->data[0];
@@ -3823,14 +3823,14 @@ local void do_va_start (uintWL flags, object result_fvd, va_alist alist,
                || eq(result_fvdtype,S(c_array_ptr))) {
       va_start_ptr(alist,void*);
     } else {
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
     }
   } else {
     object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_va_start (flags, inttype, alist, result_size, result_alignment,
                    result_splittable);
-    else fehler_foreign_type(result_fvd);
+    else error_foreign_type(result_fvd);
   }
   if (flags & ff_lang_stdcall)
     alist->flags |= __VA_STDCALL_CLEANUP;
@@ -3939,7 +3939,7 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
       alist->tmp._ptr = va_arg_ptr(alist,void*);
       return &alist->tmp._ptr;
     } else {
-      fehler_foreign_type(arg_fvd);
+      error_foreign_type(arg_fvd);
     }
   } else if (simple_vector_p(arg_fvd)) {
     var object arg_fvdtype = TheSvector(arg_fvd)->data[0];
@@ -3958,13 +3958,13 @@ local void* do_va_arg (uintWL flags, object arg_fvd, va_alist alist)
       alist->tmp._ptr = va_arg_ptr(alist,void*);
       return &alist->tmp._ptr;
     } else {
-      fehler_foreign_type(arg_fvd);
+      error_foreign_type(arg_fvd);
     }
   } else {
     object inttype = gethash(arg_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       return do_va_arg (flags, inttype, alist);
-    else fehler_foreign_type(arg_fvd);
+    else error_foreign_type(arg_fvd);
   }
 }
 
@@ -4057,7 +4057,7 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
     } else if (eq(result_fvd,S(c_pointer)) || eq(result_fvd,S(c_string))) {
       va_return_ptr(alist,void*,*(void**)result_address);
     } else {
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
     }
   } else if (simple_vector_p(result_fvd)) {
     var object result_fvdtype = TheSvector(result_fvd)->data[0];
@@ -4073,13 +4073,13 @@ local void do_va_return (uintWL flags, object result_fvd, va_alist alist, void* 
                || eq(result_fvdtype,S(c_array_ptr))) {
       va_return_ptr(alist,void*,*(void**)result_address);
     } else
-      fehler_foreign_type(result_fvd);
+      error_foreign_type(result_fvd);
   } else {
     object inttype = gethash(result_fvd,O(foreign_inttype_table),false);
     if (!eq(inttype,nullobj))
       do_va_return (flags, inttype, alist, result_address,
                     result_size, result_alignment);
-    else fehler_foreign_type(result_fvd);
+    else error_foreign_type(result_fvd);
   }
 }
 
@@ -4103,7 +4103,7 @@ local void callback (void* data, va_alist alist)
     case ff_lang_ansi_c:
       break;
     default:
-      fehler_function_no_fvd(ffun,S(foreign_call_in));
+      error_function_no_fvd(ffun,S(foreign_call_in));
   }
   var struct foreign_layout sas;
   foreign_layout(result_fvd,&sas);
@@ -4525,7 +4525,7 @@ local inline void validate_fpointer (object obj)
 }
 
 /* error-message about lack of dlsym */
-nonreturning_function(local,fehler_no_dlsym,(object name, object library)) {
+nonreturning_function(local,error_no_dlsym,(object name, object library)) {
   pushSTACK(library); pushSTACK(name);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot find ~S in ~S due to lack of dlsym() on this platform"));
@@ -4535,11 +4535,11 @@ nonreturning_function(local,fehler_no_dlsym,(object name, object library)) {
 local maygc object foreign_library_function
 (gcv_object_t* name, gcv_object_t* fvd, gcv_object_t* properties,
  gcv_object_t* library, gcv_object_t* offset)
-{ fehler_no_dlsym(*name,*library); }
+{ error_no_dlsym(*name,*library); }
 local maygc object foreign_library_variable
 (gcv_object_t *name, gcv_object_t* fvd,
  gcv_object_t *library, gcv_object_t *offset)
-{ fehler_no_dlsym(*name,*library); }
+{ error_no_dlsym(*name,*library); }
 
 #endif
 

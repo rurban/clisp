@@ -493,7 +493,7 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
           (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); error(source_program_error,GETTEXT(\"EVAL/APPLY: too many arguments given to ~~S\")); } " max-arg))
           (unless (zerop (signature-opt sig)) (format out "for (;argcount < ~D; argcount++) pushSTACK(unbound); " req+opt))
           (when (signature-key-p sig)
-            (format out "if ((argcount-~D)%2) fehler_key_odd(argcount,TheSubr(subr_self)->name); " req+opt)
+            (format out "if ((argcount-~D)%2) error_key_odd(argcount,TheSubr(subr_self)->name); " req+opt)
             (when (zerop n-kwds) (warn "~A: &key without any keywords" fname))
             (format out "{ uintC i; skipSTACK((-~D)); ~
   for (i = 0; i<argcount-~D; i++) STACK_(i) = STACK_(i+~D); "
@@ -505,7 +505,7 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
               (format out "~[~:;else ~]if (eq (STACK_(i-1),O(~A))) ~
  STACK_(argcount-~D+~D) = STACK_(i-2); "
                       i (objdef-tag k) req+opt (- n-kwds i 1)))
-            (format out "else fehler_key_badkw(TheSubr(subr_self)->name,STACK_(i-1),STACK_(i-2),O(~A)); skipSTACK(argcount-~D); }"
+            (format out "else error_key_badkw(TheSubr(subr_self)->name,STACK_(i-1),STACK_(i-2),O(~A)); skipSTACK(argcount-~D); }"
                     (objdef-tag (init-to-objdef kwd-list)) req+opt))
           (setq *must-close-next-defun* t))))))
 

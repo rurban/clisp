@@ -847,7 +847,7 @@ LISPSPECFORM(progv, 2,0,body)
 /* error-message at FLET/LABELS, if there is no function specification.
  > caller: Caller, a symbol
  > obj: erroneous function specification */
-nonreturning_function(local, fehler_funspec, (object caller, object obj)) {
+nonreturning_function(local, error_funspec, (object caller, object obj)) {
   pushSTACK(obj);               /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(obj); pushSTACK(caller);
   error(source_program_error,GETTEXT("~S: ~S is not a function specification"));
@@ -908,7 +908,7 @@ LISPSPECFORM(flet, 1,0,body)
     /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
     if (!consp(funspecs)) {
      fehler_spec:
-      fehler_funspec(S(flet),funspecs);
+      error_funspec(S(flet),funspecs);
     }
     var object name = Car(funspecs);
     if (!funnamep(name)) {
@@ -948,7 +948,7 @@ LISPSPECFORM(labels, 1,0,body)
       /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
       if (!consp(funspec)) {
        fehler_spec:
-        fehler_funspec(S(labels),funspec);
+        error_funspec(S(labels),funspec);
       }
       var object name = Car(funspec);
       if (!funnamep(name)) {
@@ -1297,9 +1297,9 @@ LISPSPECFORM(block, 1,0,body)
 }
 
 /* error-message, if a block has already been left.
- fehler_block_left(name);
+ error_block_left(name);
  > name: block-name */
-nonreturning_function(global, fehler_block_left, (object name)) {
+nonreturning_function(global, error_block_left, (object name)) {
   pushSTACK(name);
   pushSTACK(S(return_from));
   error(control_error,
@@ -1329,7 +1329,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
     if (eq(Car(block_cons),name)) {
       env = Cdr(block_cons);
       if (eq(env,disabled)) /* block still active? */
-        fehler_block_left(name);
+        error_block_left(name);
       goto found;
       }
     env = Cdr(env);
@@ -1700,9 +1700,9 @@ LISPSPECFORM(go, 1,0,nobody)
 }
 
 /* error-message, when there are too many values
- fehler_mv_zuviel(caller);
+ error_mv_toomany(caller);
  > caller: Caller, a symbol */
-nonreturning_function(global, fehler_mv_zuviel, (object caller)) {
+nonreturning_function(global, error_mv_toomany, (object caller)) {
   pushSTACK(caller);
   error(error_condition,GETTEXT("~S: too many values"));
 }
@@ -1711,13 +1711,13 @@ LISPFUN(values,seclass_no_se,0,0,rest,nokey,0,NIL)
 { /* (VALUES {arg}), CLTL p. 134
      [not foldable, in order to avoid infinite loop!]*/
   if (argcount >= mv_limit)
-    fehler_mv_zuviel(S(values));
+    error_mv_toomany(S(values));
   STACK_to_mv(argcount);
 }
 
 LISPFUNNR(values_list,1)
 { /* (VALUES-LIST list), CLTL p. 135 */
-  list_to_mv(popSTACK(), fehler_mv_zuviel(S(values_list)); );
+  list_to_mv(popSTACK(), error_mv_toomany(S(values_list)); );
 }
 
 LISPSPECFORM(multiple_value_list, 1,0,nobody)
@@ -2084,7 +2084,7 @@ LISPSPECFORM(the, 2,0,nobody)
            GETTEXT("~S: ~S evaluated to the values ~S, not of type ~S"));
   }
   /* type-check OK -> return values: */
-  list_to_mv(popSTACK(), { fehler_mv_zuviel(S(the)); } );
+  list_to_mv(popSTACK(), { error_mv_toomany(S(the)); } );
   skipSTACK(2);
 }
 
@@ -2185,7 +2185,7 @@ local void test_optional_env_arg (environment_t* env5) {
     env5->go_env    = TheSvector(env)->data[3];
     env5->decl_env  = TheSvector(env)->data[4];
   } else
-    fehler_environment(env);
+    error_environment(env);
 }
 
 LISPFUN(evalhook,seclass_default,3,1,norest,nokey,0,NIL)

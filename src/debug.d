@@ -1044,9 +1044,9 @@ LISPFUNN(driver_frame_p,1)
 }
 
 /* error-message, if there is no EVAL/APPLY-frame-pointer.
- fehler_evalframe(obj);
+ error_evalframe(obj);
  > obj: not an EVAL/APPLY-frame-pointer */
-nonreturning_function(local, fehler_evalframe, (object obj)) {
+nonreturning_function(local, error_evalframe, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: ~S is not a pointer to an EVAL/APPLY frame"));
@@ -1058,10 +1058,10 @@ LISPFUNN(trap_eval_frame,2)
   var object flag = popSTACK();
   var object frame = popSTACK();
   if (!framepointerp(frame))
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   var gcv_object_t* FRAME = uTheFramepointer(frame);
   if (!evalapply_frame_p())
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   /* FRAME points to the EVAL/APPLY-frame. */
   if (!nullp(flag)) {
     /* switch on breakpoint */
@@ -1078,10 +1078,10 @@ LISPFUNN(redo_eval_frame,1)
      EVAL/APPLY-frame and restarts to execute it. */
   var object frame = popSTACK();
   if (!framepointerp(frame))
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   var gcv_object_t* FRAME = uTheFramepointer(frame);
   if (!evalapply_frame_p())
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   /* FRAME points to the EVAL/APPLY-frame. */
   VALUES0;
   /* unwind everything up to the EVAL/APPLY-frame, then jump there */
@@ -1095,10 +1095,10 @@ LISPFUNN(return_from_eval_frame,2)
   var object form = popSTACK();
   var object frame = popSTACK();
   if (!framepointerp(frame))
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   var gcv_object_t* FRAME = uTheFramepointer(frame);
   if (!evalapply_frame_p())
-    fehler_evalframe(frame);
+    error_evalframe(frame);
   /* FRAME points to the EVAL/APPLY-frame. */
   VALUES1(form);
   /* unwind everything up to the EVAL/APPLY-frame, jump there */
@@ -1533,7 +1533,7 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
                                    : test_framepointer_arg());
   var uintL frame_limit = (missingp(STACK_0) ? (skipSTACK(1), 0) :
                            uint32_p(STACK_0) ? I_to_uint32(popSTACK())
-                           : (fehler_uint32(popSTACK()), 0));
+                           : (error_uint32(popSTACK()), 0));
   var climb_fun_t frame_up_x = (missingp(STACK_0)
                                 ? (skipSTACK(1), (climb_fun_t) NULL)
                                 : test_mode_arg(&frame_up_table[0]));

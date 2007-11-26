@@ -315,7 +315,7 @@ global maygc void print_float (object z, const gcv_object_t* stream_) {
 
 /* error-message because of illegal digits-argument obj.
  > obj: object */
-nonreturning_function(local, fehler_digits, (object obj)) {
+nonreturning_function(local, error_digits, (object obj)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum1)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -875,7 +875,7 @@ LISPFUN(xgcd,seclass_foldable,0,0,rest,nokey,0,NIL)
       var object* mvp = &value2;
       var gcv_object_t* arg_i_ptr = rest_args_pointer;
       if (argcount >= mv_limit-2)
-        fehler_mv_zuviel(S(xgcd));
+        error_mv_toomany(S(xgcd));
       mv_count = argcount+2;
       dotimespC(argcount,argcount+1, { *mvp++ = NEXT(arg_i_ptr); } );
     }
@@ -1301,17 +1301,17 @@ LISPFUN(float_digits,seclass_foldable,1,1,norest,nokey,0,NIL)
     VALUES1(F_float_digits_I(STACK_1));
   } else { /* 2 arguments: (FLOAT-DIGITS number digits) */
     if (!posfixnump(STACK_0)) /* not a fixnum!?? */
-      fehler_digits(STACK_0);
+      error_digits(STACK_0);
     var uintV d = posfixnum_to_V(STACK_0); /* = I_to_UL(STACK_0); ?? */
     if (d==0) /* should be >0 */
-      fehler_digits(STACK_0);
+      error_digits(STACK_0);
     STACK_1 = check_real(STACK_1);
     /* convert STACK_1 into a float with at least d bits: */
     if (d > DF_mant_len+1) { /* -> long-float */
       d = ceiling(d,intDsize);
      #if (intWCsize<intVsize)
       if (d >= vbit(intWCsize))
-        fehler_LF_toolong();
+        error_LF_toolong();
      #endif
       VALUES1(R_to_LF(STACK_1,d));
     } else if (d > FF_mant_len+1) /* a double-float is sufficient */
@@ -1784,14 +1784,14 @@ LISPFUNN(set_long_float_digits,1)
 { /* ((SETF LONG-FLOAT-DIGITS) digits) */
   var object arg = STACK_0;
   if (!posfixnump(arg)) /* not necessarily Fixnum!?? */
-    fehler_digits(arg);
+    error_digits(arg);
   var uintV d = posfixnum_to_V(arg); /* = I_to_UL(arg); ?? */
   if (d==0) /* should be >0 */
-    fehler_digits(arg);
+    error_digits(arg);
   d = ceiling(d,intDsize);
  #if (intWCsize<intVsize)
   if (d >= vbit(intWCsize))
-    fehler_LF_toolong();
+    error_LF_toolong();
  #endif
   if (d < LF_minlen)
     d = LF_minlen; /* coerce d>=LF_minlen */
@@ -1804,10 +1804,10 @@ LISPFUNN(set_long_float_digits,1)
 local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
   /* check digits-argument: */
   if (!posfixnump(digits)) /* not necessarily Fixnum!?? */
-    fehler_digits(digits);
+    error_digits(digits);
   var uintV d = posfixnum_to_V(digits); /* = I_to_UL(digits); ?? */
   if (d==0) /* should be >0 */
-    fehler_digits(digits);
+    error_digits(digits);
   /* fetch known value: */
   var object ln_x = *objptr;
   /* convert ln_x into a float with at least d bits: */
@@ -1815,7 +1815,7 @@ local maygc object log_digits (object x, object digits, gcv_object_t* objptr) {
     d = ceiling(d,intDsize);
    #if (intWCsize<intVsize)
     if (d >= vbit(intWCsize))
-      fehler_LF_toolong();
+      error_LF_toolong();
    #endif
     var uintC oldlen = Lfloat_length(ln_x); /* existing length */
     if (d < oldlen)

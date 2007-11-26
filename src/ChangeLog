@@ -1,5 +1,32 @@
+2007-11-25  Reini Urban <rurban@x-ray.at>
+
+	<02_fehler__fun>
+	* src/eval.d: rename fehler_(eval|closure|apply|subr)_zuviel to
+	error_*_toomany
+	* src/control.d, src/eval.d, src/foreign.d, src/lisparit.d:
+	* src/lispbibl.d: rename fehler_mv_zuviel to error_mv_toomany
+	* src/array.d: rename fehler_subscript_anz to error_subscript_count
+	* src/io.d: rename fehler_dispatch_zahl to error_dispatch_number,
+	fehler_eof_aussen to error_eof_outside,
+	fehler_eof_innen to error_eof_inside
+	* src/spvw_allocate.d: fehler_speicher_voll to error_memory_full
+	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
+	* modules/syscalls/calls.c, src/affi.d, src/aridecl.d:
+	* src/array.d, src/charstrg.d, src/control.d:
+	* src/debug.d, src/dfloat.d, src/encoding.d, src/error.d:
+	* src/eval.d, src/ffloat.d, src/flo_konv.d, src/flo_rest.d:
+	* src/foreign.d, src/intbyte.d, src/intdiv.d, src/io.d:
+	* src/lfloat.d, src/lisparit.d, src/lispbibl.d, src/list.d:
+	* src/pathname.d, src/predtype.d, src/realtran.d, src/record.d:
+	* src/sequence.d, src/sfloat.d, src/socket.d, src/spvw.d:
+	* src/spvw_allocate.d, src/stream.d, src/symbol.d, src/time.d:
+	* src/weak.d, utils/modprep.lisp: rename fehler_ to error_
+	* src/.gdbinit: rename fehler to error
+	* src/CodingStyle: add Reini Urban for the upcoming translations
+
 2007-11-24  Reini Urban  <rurban@x-ray.at>
 
+	<01_fehler_fun>
 	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
 	* modules/dirkey/dirkey.c, modules/pari/cpari.c:
 	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
@@ -518,7 +545,7 @@
 2007-10-22  Sam Steingold  <sds@gnu.org>
 
 	* m4/glibc2.m4, m4/lcmessage.m4, m4/progtest.m4, m4/uintmax_t.m4:
-        * m4/wchar_t.m4, m4/xsize.m4: remove files, they are now in glm4
+	* m4/wchar_t.m4, m4/xsize.m4: remove files, they are now in glm4
 
 2007-10-22  Sam Steingold  <sds@gnu.org>
 

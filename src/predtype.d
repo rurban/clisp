@@ -701,7 +701,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -726,7 +726,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -751,7 +751,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -776,7 +776,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -801,7 +801,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -826,7 +826,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -851,7 +851,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -871,7 +871,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         default: NOTREACHED;
       }
@@ -887,7 +887,7 @@ local bool elt_compare (object dv1, uintL index1,
         case Array_type_sstring: /* Simple-String */
           /* One can argue that comparing nonexistent elements should yield
              an error, not false. */
-          /*fehler_nilarray_retrieve();*/
+          /*error_nilarray_retrieve();*/
           return false;
         case Array_type_snilvector: /* (VECTOR NIL) */
           /* One can argue that comparing nonexistent elements should yield
@@ -2112,7 +2112,7 @@ global bool typep_class (object obj, object clas) {
 LISPFUNN(typep_class,2)
 {
   var object clas = popSTACK();
-  if_defined_class_p(clas, ; , fehler_class(clas); );
+  if_defined_class_p(clas, ; , error_class(clas); );
   VALUES_IF(typep_class(popSTACK(),clas));
 }
 

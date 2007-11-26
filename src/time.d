@@ -850,15 +850,15 @@ LISPFUNNR(time,0)
  the difference must be positive
  all numbers must be fixnums < 2^32; the result is (UNSIGNED-BYTE 64) */
 LISPFUNNF(delta4,5) {
-  if (!posfixnump(STACK_0)) fehler_posfixnum(STACK_0);
+  if (!posfixnump(STACK_0)) error_posfixnum(STACK_0);
   var uintV shift = posfixnum_to_V(STACK_0);
-  if (!posfixnump(STACK_1)) fehler_posfixnum(STACK_1);
+  if (!posfixnump(STACK_1)) error_posfixnum(STACK_1);
   var uintV o2 = posfixnum_to_V(STACK_1);
-  if (!posfixnump(STACK_2)) fehler_posfixnum(STACK_2);
+  if (!posfixnump(STACK_2)) error_posfixnum(STACK_2);
   var uintV o1 = posfixnum_to_V(STACK_2);
-  if (!posfixnump(STACK_3)) fehler_posfixnum(STACK_3);
+  if (!posfixnump(STACK_3)) error_posfixnum(STACK_3);
   var uintV n2 = posfixnum_to_V(STACK_3);
-  if (!posfixnump(STACK_4)) fehler_posfixnum(STACK_4);
+  if (!posfixnump(STACK_4)) error_posfixnum(STACK_4);
   var uintV n1 = posfixnum_to_V(STACK_4);
   if ((o1 > n1) || ((o1 == n1) && (o2 > n2))) {
     pushSTACK(STACK_3);     /* n2 */
