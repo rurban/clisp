@@ -1,7 +1,7 @@
 /* Basic functions for Long-Floats */
 
 /* error-message for too long Long-FLoat */
-nonreturning_function(local, fehler_LF_toolong, (void)) {
+nonreturning_function(local, error_LF_toolong, (void)) {
   error(arithmetic_error,GETTEXT("long float too long"));
 }
 
@@ -567,7 +567,7 @@ local maygc object LF_shorten_LF (object x, uintC len)
       TheLfloat(y)->data[0] = bit(intDsize-1); /* mantissa := 10...0 */
       /* increase exponent: */
       if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
-        fehler_overflow();
+        error_overflow();
     }
   }
   return y;
@@ -722,7 +722,7 @@ local maygc object LF_LF_plus_LF (object x1, object x2)
         if ( inc_loop_down(ptr,i) ) { /* carry beyond the first digit */
           /* increment exponent of y : */
           if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
-            fehler_overflow();
+            error_overflow();
           /* normalize by shifting by 1 bit to the right: */
           var uintD carry_rechts =
             shift1right_loop_up(y_mantMSDptr,len,(uintD)(-1));
@@ -801,7 +801,7 @@ local maygc object LF_LF_plus_LF (object x1, object x2)
             end_arith_call();
             RESTORE_NUM_STACK /* restore num_stack */
             if (underflow_allowed()) {
-              fehler_underflow();
+              error_underflow();
             } else {
               encode_LF0(len, return); /* result 0.0 */
             }
@@ -838,7 +838,7 @@ local maygc object LF_LF_plus_LF (object x1, object x2)
             end_arith_call();
             RESTORE_NUM_STACK /* restore num_stack */
             if (underflow_allowed()) {
-              fehler_underflow();
+              error_underflow();
             } else {
               encode_LF0(len, return); /* result 0.0 */
             }
@@ -863,7 +863,7 @@ local maygc object LF_LF_plus_LF (object x1, object x2)
       y_mantMSDptr[0] = bit(intDsize-1); /* mantissa := 10...0 */
       /* increase exponent: */
       if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1)) {
-        end_arith_call(); RESTORE_NUM_STACK; fehler_overflow();
+        end_arith_call(); RESTORE_NUM_STACK; error_overflow();
       }
     }
    ab: /* round off */
@@ -921,7 +921,7 @@ local maygc object LF_square_LF (object x)
     uexp = 2*uexp;
     if (uexp < LF_exp_mid+LF_exp_low) {
       if (underflow_allowed()) {
-        fehler_underflow();
+        error_underflow();
       } else {
         encode_LF0(Lfloat_length(x), return); /* result 0.0 */
       }
@@ -929,7 +929,7 @@ local maygc object LF_square_LF (object x)
   } else { /* Carry */
     uexp = 2*uexp;
     if (uexp > (uintL)(LF_exp_mid+LF_exp_high+1))
-      fehler_overflow();
+      error_overflow();
   }
   uexp = uexp - LF_exp_mid;
   /* now, LF_exp_low <= uexp <= LF_exp_high+1.
@@ -953,7 +953,7 @@ local maygc object LF_square_LF (object x)
         end_arith_call();
         RESTORE_NUM_STACK /* restore num_stack */
           if (underflow_allowed()) {
-            fehler_underflow();
+            error_underflow();
           } else {
             encode_LF0(len, return); /* result 0.0 */
           }
@@ -982,7 +982,7 @@ local maygc object LF_square_LF (object x)
     }
     /* assure LF_exp_low <= exp <= LF_exp_high : */
     if (TheLfloat(y)->expo == (uint32)(LF_exp_high+1)) {
-      RESTORE_NUM_STACK; fehler_overflow();
+      RESTORE_NUM_STACK; error_overflow();
     }
   }
   RESTORE_NUM_STACK /* restore num_stack */
@@ -1016,14 +1016,14 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
   if (uexp1 >= uexp2) { /* no Carry */
     if (uexp1 < LF_exp_mid+LF_exp_low) {
       if (underflow_allowed()) {
-        fehler_underflow();
+        error_underflow();
       } else {
         encode_LF0(Lfloat_length(x1), return); /* result 0.0 */
       }
     }
   } else { /* Carry */
     if (uexp1 > (uintL)(LF_exp_mid+LF_exp_high+1))
-      fehler_overflow();
+      error_overflow();
   }
   uexp1 = uexp1 - LF_exp_mid;
   /* now, LF_exp_low <= uexp1 <= LF_exp_high+1. */
@@ -1053,7 +1053,7 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
         end_arith_call();
         RESTORE_NUM_STACK /* restore num_stack */
         if (underflow_allowed()) {
-          fehler_underflow();
+          error_underflow();
         } else {
           encode_LF0(len, return); /* result 0.0 */
         }
@@ -1080,7 +1080,7 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
     }
     /* assure LF_exp_low <= exp <= LF_exp_high : */
     if (TheLfloat(y)->expo == (uint32)(LF_exp_high+1)) {
-      RESTORE_NUM_STACK; fehler_overflow();
+      RESTORE_NUM_STACK; error_overflow();
     }
   }
   RESTORE_NUM_STACK /* restore num_stack */
@@ -1130,14 +1130,14 @@ local maygc object LF_LF_durch_LF (object x1, object x2)
     uexp1 = uexp1 - uexp2; /* no carry */
     workaround_gcc270_bug();
     if (uexp1 > LF_exp_high-LF_exp_mid)
-      fehler_overflow();
+      error_overflow();
     uexp1 = uexp1 + LF_exp_mid;
   } else {
     uexp1 = uexp1 - uexp2; /* carry */
     workaround_gcc270_bug();
     if (uexp1 < (uintL)(LF_exp_low-1-LF_exp_mid)) {
       if (underflow_allowed()) {
-        fehler_underflow();
+        error_underflow();
       } else {
         encode_LF0(Lfloat_length(x1), return); /* result 0.0 */
       }
@@ -1161,7 +1161,7 @@ local maygc object LF_LF_durch_LF (object x1, object x2)
     var uintD* z_LSDptr;
     z_len = 2*(uintL)len + 1;
     if ((intWCsize < 32) && (z_len > (uintL)(bitc(intWCsize)-1)))
-      fehler_LF_toolong();
+      error_LF_toolong();
     {
       SAVE_NUM_STACK /* save num_stack */
       num_stack_need(z_len, z_MSDptr=,z_LSDptr=);
@@ -1189,7 +1189,7 @@ local maygc object LF_LF_durch_LF (object x1, object x2)
                                  /* carry left = q.MSDptr[0] = 1 */ 1 );
         /* increment exponent: */
         if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
-          fehler_overflow();
+          error_overflow();
         /* round: */
         if ((carry_rechts == 0) /* shifted out bit =0 -> round off */
             || ((q.LSDptr[-1]==0) /* =1 and further bits >0 or rest >0 -> round up */
@@ -1218,7 +1218,7 @@ local maygc object LF_LF_durch_LF (object x1, object x2)
             y_mantMSDptr[0] = bit(intDsize-1); /* mantissa := 10...0 */
             /* increment exponents: */
             if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1))
-              fehler_overflow();
+              error_overflow();
           }
         }
       }
@@ -1228,7 +1228,7 @@ local maygc object LF_LF_durch_LF (object x1, object x2)
     /* assure LF_exp_low <= exp <= LF_exp_high : */
     if (TheLfloat(y)->expo == LF_exp_low-1) {
       if (underflow_allowed()) {
-        fehler_underflow();
+        error_underflow();
       } else {
         encode_LF0(len, return); /* result 0.0 */
       }
@@ -1267,7 +1267,7 @@ local maygc object LF_sqrt_LF (object x)
   var uintD* r_LSDptr;
   var uintL r_len = 2*(uintL)len+2; /* length of the radicand */
   if ((intWCsize < 32) && (r_len > (uintL)(bitc(intWCsize)-1)))
-    fehler_LF_toolong();
+    error_LF_toolong();
   {
     SAVE_NUM_STACK /* save num_stack */
     num_stack_need(r_len, r_MSDptr=,r_LSDptr=);
@@ -1333,7 +1333,7 @@ local maygc object LF_to_I (object x)
   var uintC len = Lfloat_length(x);
   var uintC len1 = len+1; /* need 1 Digit more */
   if (uintWCoverflow(len1))
-    fehler_LF_toolong();
+    error_LF_toolong();
   {
     SAVE_NUM_STACK /* save num_stack */
     num_stack_need(len1, MSDptr=,LSDptr=);
@@ -1387,7 +1387,7 @@ local maygc object I_to_LF (object x, uintC len, bool signal_overflow)
     /* guarantees exp <= intDsize*2^intWCsize-1 <= LF_exp_high-LF_exp_mid */
   } else {
     if (!(exp <= (uintL)(LF_exp_high-LF_exp_mid))) {
-      if (signal_overflow) fehler_overflow(); else return nullobj;
+      if (signal_overflow) error_overflow(); else return nullobj;
     }
   }
   /* build Long-Float: */
@@ -1442,7 +1442,7 @@ local maygc object I_to_LF (object x, uintC len, bool signal_overflow)
         (TheLfloat(y)->expo)++; /* now, exp <= LF_exp_high-LF_exp_mid */
       } else {
         if (++(TheLfloat(y)->expo) == (uint32)(LF_exp_high+1)) {
-          if (signal_overflow) fehler_overflow(); else return nullobj;
+          if (signal_overflow) error_overflow(); else return nullobj;
         }
       }
     }

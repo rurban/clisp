@@ -491,7 +491,7 @@ global struct hostent* resolve_host (object arg) {
     end_system_call();
   }
  #endif
-  else fehler_string_integer(arg);
+  else error_string_integer(arg);
   return he;
 }
 

@@ -23,7 +23,7 @@
 # ------------------------------ Implementation -------------------------------
 
 # error-message because of full memory
-nonreturning_function(local, fehler_speicher_voll, (void)) {
+nonreturning_function(local, error_speicher_voll, (void)) {
   dynamic_bind(S(use_clcs),NIL); # bind SYS::*USE-CLCS* to NIL
   if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
      # bind SYS::*GC-STATISTICS* to 0
@@ -43,7 +43,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       # half reserve
       move_conses(round_down(floor(reserve,2),varobject_alignment));
       # halved reserve, aligned: shift up the conses by that amount
-      fehler_speicher_voll();
+      error_speicher_voll();
     } else {
       # yes -> hard error-message
       fputs("\n",stderr);
@@ -76,7 +76,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
 
 #else
 
-#define error_speicher_voll()  fehler_speicher_voll()
+#define error_speicher_voll()  error_speicher_voll()
 #define relax_reserve(need)
 
 #endif
@@ -404,7 +404,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
           gar_col(); goto doing_gc;
         }
         #endif
-        fehler_speicher_voll();
+        error_speicher_voll();
        sufficient:
         heapptr->heap_limit = needed_limit;
       }
@@ -535,7 +535,7 @@ nonreturning_function(local, fehler_speicher_voll, (void)) {
       if (page==EMPTY) {
         # now try it at the operating system, after all:
         make_space_using_malloc();
-        fehler_speicher_voll();
+        error_speicher_voll();
       }
     }
     # treat .reserve??

@@ -466,8 +466,8 @@ local maygc object copy_readtable (object from_readtable) {
 }
 
 # error at wrong value of *READTABLE*
-# fehler_bad_readtable(); english: error_bad_readtable();
-nonreturning_function(local, fehler_bad_readtable, (void)) {
+# error_bad_readtable(); english: error_bad_readtable();
+nonreturning_function(local, error_bad_readtable, (void)) {
   # correct *READTABLE*:
   var object sym = S(readtablestern); # Symbol *READTABLE*
   var object oldvalue = Symbol_value(sym);
@@ -485,14 +485,14 @@ nonreturning_function(local, fehler_bad_readtable, (void)) {
 # < readtable : the current readtable
   #if 0
     #define get_readtable(assignment)  \
-      { if (!readtablep(Symbol_value(S(readtablestern)))) { fehler_bad_readtable(); }  \
+      { if (!readtablep(Symbol_value(S(readtablestern)))) { error_bad_readtable(); }  \
         assignment Symbol_value(S(readtablestern));                                    \
       }
   #else # or (optimized):
     #define get_readtable(assignment)  \
       { if (!(orecordp(Symbol_value(S(readtablestern)))                                             \
               && (Record_type( assignment Symbol_value(S(readtablestern)) ) == Rectype_Readtable))) \
-          { fehler_bad_readtable(); }                                                               \
+          { error_bad_readtable(); }                                                               \
       }
   #endif
 
@@ -905,8 +905,8 @@ local uintL get_base (object symbol) {
 # ------------------------ READ on character-level ---------------------------
 
 # error, if read object is not a character:
-# fehler_charread(ch,&stream);  english: error_charread(ch,&stream);
-nonreturning_function(local, fehler_charread, (object ch, const gcv_object_t* stream_)) {
+# error_charread(ch,&stream);  english: error_charread(ch,&stream);
+nonreturning_function(local, error_charread, (object ch, const gcv_object_t* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(ch); # Character
   pushSTACK(*stream_); # Stream
@@ -929,7 +929,7 @@ nonreturning_function(local, fehler_charread, (object ch, const gcv_object_t* st
         { scode_assignment syntax_eof; }                               \
         else                                                           \
         { # check for character:                                       \
-          if (!charp(ch0)) { fehler_charread(ch0,stream_); }           \
+          if (!charp(ch0)) { error_charread(ch0,stream_); }           \
          {var object readtable;                                        \
           get_readtable(readtable = );                                 \
           scode_assignment # fetch syntaxcode from table               \
@@ -938,9 +938,9 @@ nonreturning_function(local, fehler_charread, (object ch, const gcv_object_t* st
     }
 
 # error-message at EOF outside of objects
-# fehler_eof_aussen(&stream); english: error_eof_outside(&stream);
+# error_eof_outside(&stream);
 # > stream: Stream
-nonreturning_function(local, fehler_eof_aussen, (const gcv_object_t* stream_)) {
+nonreturning_function(local, error_eof_outside, (const gcv_object_t* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(*stream_); # Stream
   pushSTACK(S(read));
@@ -948,9 +948,9 @@ nonreturning_function(local, fehler_eof_aussen, (const gcv_object_t* stream_)) {
 }
 
 # error-message at EOF inside of objects
-# fehler_eof_innen(&stream);  english: error_eof_inside(&stream)
+# error_eof_inside(&stream);
 # > stream: Stream
-nonreturning_function(local, fehler_eof_innen, (const gcv_object_t* stream_)) {
+nonreturning_function(local, error_eof_inside, (const gcv_object_t* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   if (posfixnump(Symbol_value(S(read_line_number)))) { # check SYS::*READ-LINE-NUMBER*
     pushSTACK(Symbol_value(S(read_line_number))); # line-number
@@ -966,13 +966,13 @@ nonreturning_function(local, fehler_eof_innen, (const gcv_object_t* stream_)) {
 }
 
 # error-message at EOF, according to *READ-RECURSIVE-P*
-# fehler_eof(&stream); english: error_eof(&stream)
+# error_eof(&stream); english: error_eof(&stream)
 # > stream: Stream
-nonreturning_function(local, fehler_eof, (const gcv_object_t* stream_)) {
+nonreturning_function(local, error_eof, (const gcv_object_t* stream_)) {
   if (!nullpSv(read_recursive_p)) # *READ-RECURSIVE-P* /= NIL ?
-    fehler_eof_innen(stream_);
+    error_eof_inside(stream_);
   else
-    fehler_eof_aussen(stream_);
+    error_eof_outside(stream_);
 }
 
 # UP: read up to the next non-whitespace-character, without consuming it
@@ -986,9 +986,9 @@ nonreturning_function(local, fehler_eof, (const gcv_object_t* stream_)) {
 #define wpeek_char_syntax(ch_assignment,scode_assignment,stream_)  \
     { loop                                                                 \
         { var object ch0 = read_char(stream_); # read Character            \
-          if (eq(ch0,eof_value)) { fehler_eof(stream_); } # EOF -> Error   \
+          if (eq(ch0,eof_value)) { error_eof(stream_); } # EOF -> Error   \
           # check for Character:                                           \
-          if (!charp(ch0)) { fehler_charread(ch0,stream_); }               \
+          if (!charp(ch0)) { error_charread(ch0,stream_); }               \
           {var object readtable;                                           \
            get_readtable(readtable = );                                    \
            if (!((scode_assignment # fetch Syntaxcode from table           \
@@ -1012,7 +1012,7 @@ local maygc object wpeek_char_eof (const gcv_object_t* stream_) {
       return ch;
     # check for Character:
     if (!charp(ch))
-      fehler_charread(ch,stream_);
+      error_charread(ch,stream_);
     var object readtable;
     get_readtable(readtable = );
     if (!(( # fetch Syntaxcode from table
@@ -1858,7 +1858,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
         }
         # otherwise check for character.
         if (!charp(nextch))
-          fehler_charread(nextch,stream_);
+          error_charread(nextch,stream_);
         var chart ch = char_code(nextch);
         var cint c = as_cint(ch);
         if (!((c>='0') && (c<='9'))) { # no digit -> loop finished
@@ -1937,7 +1937,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       case syntax_eof: # EOF at start of Token
         if (!nullpSv(read_recursive_p)) /* *READ-RECURSIVE-P* /= NIL ? */
           # yes -> EOF within an object -> error
-          fehler_eof_innen(stream_);
+          error_eof_inside(stream_);
         # otherwise eof_value as value:
         clear_input(*stream_); # clear the EOF char from the stream
         return eof_value;
@@ -2187,9 +2187,9 @@ local maygc object read_recursive (const gcv_object_t* stream_) {
 }
 
 # error-message because of out-of-place Dot
-# fehler_dot(stream); english: error_dot(stream);
+# error_dot(stream); english: error_dot(stream);
 # > stream: Stream
-nonreturning_function(local, fehler_dot, (object stream)) {
+nonreturning_function(local, error_dot, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
   pushSTACK(stream); # Stream
   pushSTACK(S(read));
@@ -2211,12 +2211,12 @@ local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
   var object ergebnis = read_recursive(stream_);
   # and report Error at ".":
   if (eq(ergebnis,dot_value))
-    fehler_dot(*stream_);
+    error_dot(*stream_);
   return ergebnis;
 }
 
 /* error-message due to an invalid value of an internal variable */
-nonreturning_function(local, fehler_invalid_value, (object symbol)) {
+nonreturning_function(local, error_invalid_value, (object symbol)) {
   pushSTACK(Symbol_value(symbol)); pushSTACK(symbol);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
@@ -2251,7 +2251,7 @@ local object make_references (object obj) {
         alistr = Cdr(alistr);
       }
       if (!nullp(alistr)) fehler_badtable:
-        fehler_invalid_value(S(read_reference_table));
+        error_invalid_value(S(read_reference_table));
     }
     /* Alist alist is OK */
     pushSTACK(obj);
@@ -2460,7 +2460,7 @@ local maygc object read_delimited_list_recursive (const gcv_object_t* stream_,
   }
  dot: # Dot has been read
   if (!eq(ifdotted,dot_value)) # none was allowed?
-    fehler_dot(*stream_);
+    error_dot(*stream_);
   {
     var object object1; # last List-element
     loop { # loop, in order to read last List-element
@@ -2702,10 +2702,10 @@ LISPFUNN(line_comment_reader,2) { # reads ;
 # ------------------------- READ-Dispatch-Macros ------------------------------
 
 # error-message due to forbidden number at Dispatch-Macros
-# fehler_dispatch_zahl(); english: error_dispatch_number();
+# error_dispatch_number()
 # > STACK_1: Stream
 # > STACK_0: sub-char
-nonreturning_function(local, fehler_dispatch_zahl, (void)) {
+nonreturning_function(local, error_dispatch_number, (void)) {
   pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # sub-char
   pushSTACK(STACK_(1+2)); # Stream
@@ -2726,7 +2726,7 @@ local maygc gcv_object_t* test_no_infix (void) {
   var object n = popSTACK();
   if ((!nullp(n)) && nullpSv(read_suppress))
     # if n/=NIL and *READ-SUPPRESS*=NIL : report error
-    fehler_dispatch_zahl();
+    error_dispatch_number();
   return stream_;
 }
 
@@ -3028,7 +3028,7 @@ local maygc Values radix_1 (uintWL base) {
     return;
   }
   if (!nullp(popSTACK())) # n/=NIL -> Error
-    fehler_dispatch_zahl();
+    error_dispatch_number();
   pushSTACK(fixnum(base)); # base as Fixnum
   return_Values radix_2(base);
 }
@@ -3162,7 +3162,7 @@ LISPFUNN(uninterned_reader,3) { # reads #:
     var uintWL scode;
     read_char_syntax(ch = ,scode = ,stream_);
     if (scode == syntax_eof) # EOF -> Error
-      fehler_eof_innen(stream_);
+      error_eof_inside(stream_);
     if (scode > syntax_constituent) {
       # no character, that is allowed at beginning of Token -> Error
       pushSTACK(*stream_); # STREAM-ERROR slot STREAM
@@ -3175,7 +3175,7 @@ LISPFUNN(uninterned_reader,3) { # reads #:
     case_convert_token_1();
   }
   if (!nullp(popSTACK())) # n/=NIL -> Error
-    fehler_dispatch_zahl();
+    error_dispatch_number();
   # copy Token and convert into Simple-String:
   var object string = coerce_imm_ss(O(token_buff_1));
   { # test for Package-Marker:
@@ -3502,10 +3502,10 @@ LISPFUNN(array_reader,3) { # reads #A
 }
 
 # Errormessage for #. and #, because of *READ-EVAL*.
-# fehler_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
+# error_read_eval_forbidden(&stream,obj); english: erro_read_eval_forbidden(&stream,obj);
 # > stream: Stream
 # > obj: Object, whose Evaluation was examined
-nonreturning_function(local, fehler_read_eval_forbidden, (const gcv_object_t* stream_, object obj)) {
+nonreturning_function(local, error_read_eval_forbidden, (const gcv_object_t* stream_, object obj)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(obj); # Object
   pushSTACK(NIL); # NIL
@@ -3536,7 +3536,7 @@ LISPFUNN(read_eval_reader,3) { # reads #.
     return;
   }
   if (!nullp(popSTACK())) # n/=NIL -> Error
-    fehler_dispatch_zahl();
+    error_dispatch_number();
   obj = make_references(obj); # unentangle references
   # either *READ-EVAL* or the Stream must allow the Evaluation.
   if (nullpSv(read_eval)) {
@@ -3544,7 +3544,7 @@ LISPFUNN(read_eval_reader,3) { # reads #.
     var bool allowed = stream_get_read_eval(*stream_);
     obj = popSTACK();
     if (!allowed)
-      fehler_read_eval_forbidden(stream_,obj);
+      error_read_eval_forbidden(stream_,obj);
   }
   eval_noenv(obj); # evaluate Form
   mv_count=1; skipSTACK(2); # only 1 value back
@@ -3570,7 +3570,7 @@ LISPFUNN(load_eval_reader,3) { # reads #,
     return;
   }
   if (!nullp(popSTACK())) # n/=NIL -> Error
-    fehler_dispatch_zahl();
+    error_dispatch_number();
   obj = make_references(obj); # unentangle references
   if (!nullpSv(compiling)) {
     # In Compiler:
@@ -3586,7 +3586,7 @@ LISPFUNN(load_eval_reader,3) { # reads #,
       var bool allowed = stream_get_read_eval(*stream_);
       obj = popSTACK();
       if (!allowed)
-        fehler_read_eval_forbidden(stream_,obj);
+        error_read_eval_forbidden(stream_,obj);
     }
     eval_noenv(obj); # evaluate Form
   }
@@ -3669,7 +3669,7 @@ local maygc object lookup_label (void) {
     }
   }
  bad_reftab:      /* value of SYS::*READ-REFERENCE-TABLE* is no Alist */
-  fehler_invalid_value(S(read_reference_table));
+  error_invalid_value(S(read_reference_table));
 }
 
 LISPFUNN(label_definition_reader,3) { # reads #=
@@ -4225,9 +4225,9 @@ LISPFUNN(structure_reader,3) { # reads #S
 # )   ) ) ) )
 
   # error-message because of wrong Syntax of a Code-Vector
-  # fehler_closure_badchar(); english: error_closure_badchar();
+  # error_closure_badchar(); english: error_closure_badchar();
   # > stack layout: stream, sub-char, arg.
-nonreturning_function(local, fehler_closure_badchar, (void)) {
+nonreturning_function(local, error_closure_badchar, (void)) {
   pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # n
   pushSTACK(STACK_(2+2)); # Stream
@@ -4244,13 +4244,13 @@ nonreturning_function(local, fehler_closure_badchar, (void)) {
   # < Result: value (>=0, <16) of Hexdigit
 local uintB hexziffer (object ch, uintWL scode) {
   if (scode == syntax_eof)
-    fehler_eof_innen(&STACK_2);
+    error_eof_inside(&STACK_2);
   # ch is a Character
   var cint c = as_cint(char_code(ch));
   if (c<'0') goto badchar; if (c<='9') { return (c-'0'); } # '0'..'9'
   if (c<'A') goto badchar; if (c<='F') { return (c-'A'+10); } # 'A'..'F'
   if (c<'a') goto badchar; if (c<='f') { return (c-'a'+10); } # 'a'..'f'
- badchar: fehler_closure_badchar();
+ badchar: error_closure_badchar();
 }
 
 LISPFUNN(closure_reader,3) { # read #Y
@@ -4258,7 +4258,7 @@ LISPFUNN(closure_reader,3) { # read #Y
   # when n=0 read an Encoding:
   if (eq(STACK_0,Fixnum_0)) {
     var object ch = read_char(stream_);
-    if (eq(ch,eof_value)) { fehler_eof(stream_); } # EOF -> Error
+    if (eq(ch,eof_value)) { error_eof(stream_); } # EOF -> Error
     if (eq(ch,ascii_char('"'))) {
       # Read a string with explicit newlines.
       if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
@@ -4395,7 +4395,7 @@ LISPFUNN(closure_reader,3) { # read #Y
     } while (scode == syntax_whitespace);
     # '(' must follow:
     if (!eq(ch,ascii_char('(')))
-      fehler_closure_badchar();
+      error_closure_badchar();
     {
       var uintL index = 0;
       for (; index < n; index++) {
@@ -4407,7 +4407,7 @@ LISPFUNN(closure_reader,3) { # read #Y
         # read next Character:
         read_char_syntax(ch = ,scode = ,stream_);
         if (scode == syntax_eof) # EOF -> Error
-          fehler_eof_innen(stream_);
+          error_eof_inside(stream_);
         if ((scode == syntax_whitespace) || eq(ch,ascii_char(')'))) {
           # Whitespace or closing parenthese
           # will be pushed back to Stream:
@@ -4426,7 +4426,7 @@ LISPFUNN(closure_reader,3) { # read #Y
     } while (scode == syntax_whitespace);
     # ')' must follow:
     if (!eq(ch,ascii_char(')')))
-      fehler_closure_badchar();
+      error_closure_badchar();
    #if BIG_ENDIAN_P
     # convert Header from Little-Endian to Big-Endian:
     {
@@ -4562,9 +4562,9 @@ local Values eof_handling (int mvc) {
     # report Error:
     var object recursive_p = STACK_0;
     if (missingp(recursive_p))
-      fehler_eof_aussen(&STACK_3); # report EOF
+      error_eof_outside(&STACK_3); # report EOF
     else
-      fehler_eof_innen(&STACK_3); # report EOF within Objekt
+      error_eof_inside(&STACK_3); # report EOF within Objekt
   } else { # handle EOF:
     var object eofval = STACK_1;
     if (!boundp(eofval))
@@ -4587,7 +4587,7 @@ local maygc Values read_w (object whitespace_p) {
   if (missingp(recursive_p)) { /* non-recursive call */
     var object obj = read_top(&STACK_3,whitespace_p);
     if (eq(obj,dot_value))
-      fehler_dot(STACK_3); # Dot -> Error
+      error_dot(STACK_3); # Dot -> Error
     if (eq(obj,eof_value)) {
       return_Values eof_handling(1); # EOF-treatment
     } else {
@@ -4762,7 +4762,7 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL) {
   if (builtin_stream_p(stream)
       ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
       : !instanceof(stream,O(class_fundamental_input_stream)))
-    fehler_illegal_streamop(S(read_char_no_hang),stream);
+    error_illegal_streamop(S(read_char_no_hang),stream);
   var signean status = listen_char(stream);
   if (ls_eof_p(status)) { # EOF ?
     return_Values eof_handling(1);
@@ -5111,8 +5111,8 @@ local maygc void pr_hex8 (const gcv_object_t* stream_, uintP x) {
 # *PRINT-GENSYM* = T, *PRINT-ARRAY* = T, *PRINT-CLOSURE* = T.
 
 /* error-message when *PRINT-READABLY* /= NIL.
- fehler_print_readably(obj); english: error_print_readably(obj); */
-nonreturning_function(local, fehler_print_readably, (object obj)) {
+ error_print_readably(obj); english: error_print_readably(obj); */
+nonreturning_function(local, error_print_readably, (object obj)) {
   /* (error-of-type 'print-not-readable
           "~S: Despite ~S, ~S cannot be printed readably."
           'print '*print-readably* obj) */
@@ -5126,11 +5126,11 @@ nonreturning_function(local, fehler_print_readably, (object obj)) {
 }
 #define CHECK_PRINT_READABLY(obj)               \
   if (!nullpSv(print_readably))                 \
-    fehler_print_readably(obj);
+    error_print_readably(obj);
 
 # error message for inadmissible value of *PRINT-CASE*.
-# fehler_print_case(); english: error_print_case();
-nonreturning_function(local, fehler_print_case, (void)) {
+# error_print_case(); english: error_print_case();
+nonreturning_function(local, error_print_case, (void)) {
   # (error "~S: the value ~S of ~S is neither ~S nor ~S nor ~S.
   #         it is reset to ~S."
   #        'print *print-case* '*print-case* ':upcase ':downcase ':capitalize
@@ -5163,7 +5163,7 @@ nonreturning_function(local, fehler_print_case, (void)) {
      else if (eq(print_case,S(Kcapitalize))) # = :CAPITALIZE ? \
        { capitalize_statement }                                \
      else # none of the three -> Error                         \
-       { fehler_print_case(); }                                \
+       { error_print_case(); }                                \
     }
 
 # UP: prints a part of a simple-string elementwise to stream.
@@ -5207,7 +5207,7 @@ global maygc void write_string (const gcv_object_t* stream_, object string) {
     var uintL len = vector_length(string); # length
     var uintL offset = 0; # offset of string in the data-vector
     var object sstring = iarray_displace_check(string,len,&offset); # data-vector
-    if (len > 0 && simple_nilarray_p(sstring)) fehler_nilarray_retrieve();
+    if (len > 0 && simple_nilarray_p(sstring)) error_nilarray_retrieve();
     write_sstring_ab(stream_,sstring,offset,len);
   }
 }
@@ -5654,11 +5654,11 @@ local uintL format_tab (object stream, object colon_p, object atsig_p,
   var uintL col_num_i;
   if (nullp(col_num)) col_num_i = 1;
   else if (posfixnump(col_num)) col_num_i = posfixnum_to_V(col_num);
-  else NOTREACHED; # fehler_posfixnum(col_num);
+  else NOTREACHED; # error_posfixnum(col_num);
   var uintL col_inc_i;
   if (nullp(col_inc)) col_inc_i = 1;
   else if (posfixnump(col_inc)) col_inc_i = posfixnum_to_V(col_inc);
-  else NOTREACHED; # fehler_posfixnum(col_inc);
+  else NOTREACHED; # error_posfixnum(col_inc);
   var uintL new_col_i = col_num_i +
     (!nullp(colon_p) && boundp(Symbol_value(S(prin_indentation)))
      ? posfixnum_to_V(Symbol_value(S(prin_indentation))) : 0);
@@ -5762,7 +5762,7 @@ local uintL pphelp_string_width (object string) {
 #define LINES_INC                                     \
   do {                                                \
     var object pl = Symbol_value(S(prin_lines));      \
-    if (!posfixnump(pl)) fehler_posfixnum(pl);        \
+    if (!posfixnump(pl)) error_posfixnum(pl);        \
     if (!nullpSv(print_lines))                        \
       Symbol_value(S(prin_lines)) = fixnum_inc(pl,1); \
   } while(0)
@@ -6431,7 +6431,7 @@ local bool circle_p (object obj,circle_info_t* ci) {
     if (!simple_vector_p(table)) { /* should be a simple-vector! */
      bad_table:
       dynamic_bind(S(print_circle),NIL); /* bind *PRINT-CIRCLE* to NIL */
-      fehler_invalid_value(S(print_circle_table));
+      error_invalid_value(S(print_circle_table));
     }
     # loop through the vector table = #(i ...) with m+1 (0<=i<=m) elements:
     # if obj is among the elements 1,...,i  -> case false, n:=Index.
@@ -8672,7 +8672,7 @@ local maygc void pr_system (const gcv_object_t* stream_, object obj) {
     if (!boundp(obj))
       write_sstring_case(stream_,O(printstring_unbound_readably));
     else
-      fehler_print_readably(obj);
+      error_print_readably(obj);
   }
 }
 
@@ -9007,9 +9007,9 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           UNREADABLE_END;
         } else {
           if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
-            fehler_print_readably(*obj_);
+            error_print_readably(*obj_);
           if (pack_deletedp(*obj_))
-            fehler_print_readably(*obj_);
+            error_print_readably(*obj_);
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
           KLAMMER_AUF; # '('
           INDENT_START(3); # indent by 3 characters, because of '#.('
@@ -9072,7 +9072,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_END_FILL; JUSTIFY_END_FILL;
       } else {                  /* readably ANSI */
         if (!namestring_correctly_parseable_p(&STACK_1))
-          fehler_print_readably(STACK_1);
+          error_print_readably(STACK_1);
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
         pr_string(stream_,STACK_0); /* #P"string" */
       }
@@ -9150,7 +9150,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           var bool allowed = stream_get_read_eval(*stream_);
           obj = popSTACK();
           if (!allowed)
-            fehler_print_readably(obj);
+            error_print_readably(obj);
         }
       pr_sharp_dot(stream_,TheLoadtimeeval(obj)->loadtimeeval_form);
       break;
@@ -9647,7 +9647,7 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
       var bool allowed = stream_get_read_eval(*stream_);
       obj = popSTACK();
       if (!allowed)
-        fehler_print_readably(obj);
+        error_print_readably(obj);
     }
     pushSTACK(obj); # save obj
     var gcv_object_t* obj_ = &STACK_0; # and memorize, where it is

@@ -934,7 +934,7 @@ local up_function_t test_test_args (gcv_object_t* stackptr) {
     if (nullp(test_arg))
       return &up_test_not;
     else
-      fehler_both_tests();
+      error_both_tests();
   }
 }
 

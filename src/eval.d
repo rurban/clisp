@@ -409,7 +409,7 @@ global /*maygc*/ void unwind (void)
               dynamic_bind(S(trace_values),values); /* bind *TRACE-VALUES* */
               break_driver(true); /* call break-driver */
               list_to_mv(Symbol_value(S(trace_values)), /* build values again */
-                         fehler_mv_zuviel(framecode(STACK_(0+3))==
+                         error_mv_toomany(framecode(STACK_(0+3))==
                                           TRAPPED_EVAL_frame_info
                                           ? S(eval)
                                           : S(apply)););
@@ -831,7 +831,7 @@ LISPFUN(special_variable_p,seclass_read,1,1,norest,nokey,0,NIL)
       if (len == 2 || len == 5)
         env = TheSvector(env)->data[0]; /* venv */
       else
-        fehler_environment(env);
+        error_environment(env);
     }
     var gcv_object_t *binding = symbol_env_search(symbol,env);
     if ((binding != NULL) && eq(*binding,specdecl))
@@ -2195,10 +2195,10 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
 }
 
 # error, if symbol to be called is a special form.
-# fehler_specialform(caller,funname);  (transl.: error_specialfor(...);)
+# error_specialform(caller,funname);  (transl.: error_specialfor(...);)
 # > caller: caller (a symbol)
 # > funname: a symbol
-nonreturning_function(local, fehler_specialform, (object caller, object funname)) {
+nonreturning_function(local, error_specialform, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2207,10 +2207,10 @@ nonreturning_function(local, fehler_specialform, (object caller, object funname)
 }
 
 # error, if symbol to be called is a macro.
-# fehler_macro(caller,funname);
+# error_macro(caller,funname);
 # > caller: caller (a symbol)
 # > funname: a symbol
-nonreturning_function(local, fehler_macro, (object caller, object funname)) {
+nonreturning_function(local, error_macro, (object caller, object funname)) {
   pushSTACK(funname); # CELL-ERROR slot NAME
   pushSTACK(funname);
   pushSTACK(caller);
@@ -2234,9 +2234,9 @@ global maygc object coerce_function (object obj)
     else if (orecordp(fdef)) {
       switch (Record_type(fdef)) {
         case Rectype_Fsubr:
-          fehler_specialform(TheSubr(subr_self)->name,obj);
+          error_specialform(TheSubr(subr_self)->name,obj);
         case Rectype_Macro:
-          fehler_macro(TheSubr(subr_self)->name,obj);
+          error_macro(TheSubr(subr_self)->name,obj);
         default: NOTREACHED;
       }
     } else
@@ -2254,7 +2254,7 @@ global maygc object coerce_function (object obj)
     else
       return check_fdefinition(obj,TheSubr(subr_self)->name);
   } else if (consp(obj) && eq(Car(obj),S(lambda))) { /* (LAMBDA . ...) ? */
-    fehler_lambda_expression(TheSubr(subr_self)->name,obj);
+    error_lambda_expression(TheSubr(subr_self)->name,obj);
   } else
     return check_function(obj);
 }
@@ -2307,14 +2307,14 @@ local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
 #endif
 
 # Test for illegal keywords
-# check_for_illegal_keywords(allow_flag,fehler_statement);
+# check_for_illegal_keywords(allow_flag,error_statement);
 # > uintC argcount: Number of Keyword/Value-pairs
 # > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining arguments
 # > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
 # > for_every_keyword: Macro, which loops over all Keywords and assigns
 #                      them to 'keyword'.
 # > fehler_statement: Statement, that reports, that bad_keyword is illegal.
-#define check_for_illegal_keywords(allow_flag_expr,caller,fehler_statement)   \
+#define check_for_illegal_keywords(allow_flag_expr,caller,error_statement)   \
     { var gcv_object_t* argptr = rest_args_pointer; # Pointer to the arguments \
       var object bad_keyword = nullobj; # first illegal keyword or nullobj  \
       var object bad_value = nullobj; /* its value */                       \
@@ -2329,7 +2329,7 @@ local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
         var object kw = NEXT(argptr); # next Argument                       \
         var object val = NEXT(argptr); # and value for it                   \
         # must be a symbol, should be a keyword:                            \
-        if (!symbolp(kw)) fehler_key_notkw(kw,caller);                      \
+        if (!symbolp(kw)) error_key_notkw(kw,caller);                      \
         if (!allow_flag) { # other keywords allowed? yes -> ok              \
           if (eq(kw,S(Kallow_other_keys))) {                                \
             if (!allow_hidden) {                                            \
@@ -2354,7 +2354,7 @@ local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
       if (!allow_flag)                                                      \
         if (!eq(bad_keyword,nullobj)) {                                     \
           # wrong keyword occurred                                          \
-          fehler_statement                                                  \
+          error_statement                                                  \
         }                                                                   \
     }
 
@@ -2603,7 +2603,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         if (argcount%2) { /* number was odd -> not paired: */
           var uintC count = 0;
           while (count<argcount) pushSTACK(rest_args_pointer[count++]);
-          fehler_key_odd(argcount,TheIclosure(closure)->clos_name);
+          error_key_odd(argcount,TheIclosure(closure)->clos_name);
         }
         argcount = argcount/2;
         { /* test for illegal keywords: */
@@ -2618,7 +2618,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           check_for_illegal_keywords
             (!nullp(TheIclosure(closure)->clos_allow_flag),
              TheIclosure(closure)->clos_name,
-             { fehler_key_badkw(TheIclosure(closure)->clos_name,
+             { error_key_badkw(TheIclosure(closure)->clos_name,
                                 bad_keyword,bad_value,
                                 TheIclosure(closure)->clos_keywords);});
          #undef for_every_keyword
@@ -2693,9 +2693,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
    {
     /* halve argcount --> the number of pairs Key.Value: */
     if (argcount%2) /* number was odd -> not paired: */
-      fehler_key_odd(argcount,TheSubr(fun)->name);
+      error_key_odd(argcount,TheSubr(fun)->name);
     if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-      fehler_too_many_args(unbound,fun,argcount,ca_limit_1);
+      error_too_many_args(unbound,fun,argcount,ca_limit_1);
     # Due to argcount <= ca_limit_1, all count's fit in a uintC.
     argcount = argcount/2;
     # test for illegal Keywords:
@@ -2721,7 +2721,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
            coerce_sequence(TheSubr(fun)->keywords,S(list),true);
            fun = popSTACK(); bad_value = popSTACK();
            bad_keyword = popSTACK();
-           fehler_key_badkw(TheSubr(fun)->name,bad_keyword,
+           error_key_badkw(TheSubr(fun)->name,bad_keyword,
                             bad_value,value1);
          });
       #undef for_every_keyword
@@ -2767,9 +2767,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   {
     /* halve argcount --> the number of pairs Key.Value: */
     if (argcount%2) /* number was odd -> not paired: */
-      fehler_key_odd(argcount,Closure_name(closure));
+      error_key_odd(argcount,Closure_name(closure));
     if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-      fehler_too_many_args(unbound,closure,argcount,ca_limit_1);
+      error_too_many_args(unbound,closure,argcount,ca_limit_1);
     # Due to argcount <= ca_limit_1, all count's fit in a uintC.
     argcount = argcount/2;
     var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
@@ -2802,7 +2802,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           {var object kwlist = listof(key_anz);
            closure = popSTACK(); bad_value = popSTACK();
            bad_keyword = popSTACK(); /* report errors: */
-           fehler_key_badkw(Closure_name(closure),
+           error_key_badkw(Closure_name(closure),
                             bad_keyword,bad_value,kwlist);}});
       #undef for_every_keyword
     # now assign Arguments and Parameters:
@@ -3234,7 +3234,7 @@ local maygc Values eval_applyhook(object fun) {
 }
 
 # In EVAL: error, if too few arguments
-nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
+nonreturning_function(local, error_eval_toofew, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
@@ -3244,7 +3244,7 @@ nonreturning_function(local, fehler_eval_zuwenig, (object fun)) {
 }
 
 # In EVAL: error, if too many arguments
-nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
+nonreturning_function(local, error_eval_toomany, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
@@ -3254,7 +3254,7 @@ nonreturning_function(local, fehler_eval_zuviel, (object fun)) {
 }
 
 # In EVAL: error, if dotted argument-list
-nonreturning_function(local, fehler_eval_dotted, (object fun)) {
+nonreturning_function(local, error_eval_dotted, (object fun)) {
   var object form = STACK_(frame_form); # Form
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
@@ -3565,14 +3565,14 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
    fehler_zuwenig: # Argument-List args is prematurely an Atom
     if (!nullp(args)) goto fehler_dotted;
     set_args_end_pointer(args_pointer); # clean up STACK
-    fehler_eval_zuwenig(TheSubr(fun)->name);
+    error_eval_toofew(TheSubr(fun)->name);
    fehler_zuviel: # Argument-List args is not NIL at the end
     if (atomp(args)) goto fehler_dotted;
     set_args_end_pointer(args_pointer); # clean up STACK
-    fehler_eval_zuviel(TheSubr(fun)->name);
+    error_eval_toomany(TheSubr(fun)->name);
    fehler_dotted: # Argument-List args ends with Atom /= NIL
     set_args_end_pointer(args_pointer); # clean up STACK
-    fehler_eval_dotted(TheSubr(fun)->name);
+    error_eval_dotted(TheSubr(fun)->name);
   }
 
 # In EVAL: Applies a Closure to an argument-list, cleans up the STACK
@@ -3941,16 +3941,16 @@ nonreturning_function(local, fehler_eval_dotted, (object fun)) {
     if (!nullp(args)) goto fehler_dotted;
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_zuwenig(Closure_name(closure));
+    error_eval_toofew(Closure_name(closure));
    fehler_zuviel: # Argument-list args is not NIL at the end
     if (atomp(args)) goto fehler_dotted;
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_zuviel(Closure_name(closure));
+    error_eval_toomany(Closure_name(closure));
    fehler_dotted: # Argument-list args ends with Atom /= NIL
     setSTACK(STACK = STACKbefore); # clean up STACK
     closure = popSTACK();
-    fehler_eval_dotted(Closure_name(closure));
+    error_eval_dotted(Closure_name(closure));
   }
 
 #ifdef DYNAMIC_FFI
@@ -3980,7 +3980,7 @@ local maygc Values eval_ffunction(object ffun) {
       args_on_stack += 1;
       if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
         set_args_end_pointer(args_pointer);
-        fehler_eval_zuviel(popSTACK());
+        error_eval_toomany(popSTACK());
       }
     }
     funcall(L(foreign_call_out),args_on_stack);
@@ -4028,9 +4028,9 @@ global maygc Values apply (object fun, uintC args_on_stack, object other_args)
      #endif
       switch (Record_type(fdef)) {
         case Rectype_Fsubr:
-          fehler_specialform(S(apply),fun);
+          error_specialform(S(apply),fun);
         case Rectype_Macro:
-          fehler_macro(S(apply),fun);
+          error_macro(S(apply),fun);
         default: NOTREACHED;
       }
     } else
@@ -4073,7 +4073,7 @@ global maygc Values apply (object fun, uintC args_on_stack, object other_args)
   }
  #endif
   else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
-    fehler_lambda_expression(S(apply),fun);
+    error_lambda_expression(S(apply),fun);
   else {
     pushSTACK(other_args);
     fun = check_funname_replacement(type_error,S(apply),fun);
@@ -4090,7 +4090,7 @@ global maygc Values apply (object fun, uintC args_on_stack, object other_args)
 
 # Error because of dotted argument-list
 # > name: name of function
-nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
+nonreturning_function(local, error_apply_dotted, (object name, object end)) {
   pushSTACK(end);
   pushSTACK(name);
   pushSTACK(S(apply));
@@ -4099,7 +4099,7 @@ nonreturning_function(local, fehler_apply_dotted, (object name, object end)) {
 
 # Error because of too many arguments
 # > name: name of function
-nonreturning_function(local, fehler_apply_zuviel, (object name)) {
+nonreturning_function(local, error_apply_toomany, (object name)) {
   pushSTACK(name);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   error(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
@@ -4108,7 +4108,7 @@ nonreturning_function(local, fehler_apply_zuviel, (object name)) {
 # Error because of too few arguments
 # > name: name of function
 # > tail: atom at the end of the argument list
-nonreturning_function(local, fehler_apply_zuwenig, (object name, object tail)) {
+nonreturning_function(local, error_apply_toofew, (object name, object tail)) {
   if (!nullp(tail)) {
     pushSTACK(tail); /* ARGUMENT-LIST-DOTTED slot DATUM */
     pushSTACK(tail); pushSTACK(name);
@@ -4123,15 +4123,15 @@ nonreturning_function(local, fehler_apply_zuwenig, (object name, object tail)) {
 
 # Error because of too many arguments for a SUBR
 # > fun: function, a SUBR
-nonreturning_function(local, fehler_subr_zuviel, (object fun));
-#define fehler_subr_zuviel(fun)  fehler_apply_zuviel(TheSubr(fun)->name)
+nonreturning_function(local, error_subr_toomany, (object fun));
+#define error_subr_toomany(fun)  error_apply_toomany(TheSubr(fun)->name)
 
 # Error because of too few arguments for a SUBR
 # > fun: function, a SUBR
 # > tail: atom at the end of the argument list
-nonreturning_function(local, fehler_subr_zuwenig, (object fun, object tail));
-#define fehler_subr_zuwenig(fun,tail)  \
-  fehler_apply_zuwenig(TheSubr(fun)->name,tail)
+nonreturning_function(local, error_subr_toofew, (object fun, object tail));
+#define error_subr_toofew(fun,tail)  \
+  error_apply_toofew(TheSubr(fun)->name,tail)
 
 # In APPLY: Applies a SUBR to an argument-list, cleans up STACK
 # and returns the values.
@@ -4373,7 +4373,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun, object tail));
             # SUBR without KEY
             if (TheSubr(fun)->rest_flag == subr_norest)
               # SUBR without REST or KEY
-              fehler_subr_zuviel(fun); # too many Arguments
+              error_subr_toomany(fun); # too many Arguments
             else
               # SUBR with only REST, without KEY
               goto apply_subr_rest_onlylist;
@@ -4395,7 +4395,7 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun, object tail));
           if (TheSubr(fun)->rest_flag == subr_norest) {
             # SUBR without REST or KEY
             if ((args_on_stack>0) || consp(args)) # still Arguments?
-              fehler_subr_zuviel(fun);
+              error_subr_toomany(fun);
             goto apply_subr_norest;
           } else
             # SUBR with only REST, without KEY
@@ -4470,21 +4470,21 @@ nonreturning_function(local, fehler_subr_zuwenig, (object fun, object tail));
     #endif
     return; # finished
     # gathered error messages:
-   fehler_zuwenig: fehler_subr_zuwenig(fun,args);
-   fehler_zuviel: fehler_subr_zuviel(fun);
-   fehler_dotted: fehler_apply_dotted(TheSubr(fun)->name,args);
+   fehler_zuwenig: error_subr_toofew(fun,args);
+   fehler_zuviel: error_subr_toomany(fun);
+   fehler_dotted: error_apply_dotted(TheSubr(fun)->name,args);
   }
 
 # Error because of too many arguments for a Closure
 # > closure: function, a Closure
-nonreturning_function(local, fehler_closure_zuviel, (object closure));
-#define fehler_closure_zuviel(closure)  fehler_apply_zuviel(closure)
+nonreturning_function(local, error_closure_toomany, (object closure));
+#define error_closure_toomany(closure)  error_apply_toomany(closure)
 
 # Error because of too few arguments for a Closure
 # > closure: function, a Closure
 # > tail: atom at the end of the argument list
-nonreturning_function(local, fehler_closure_zuwenig, (object closure, object tail));
-#define fehler_closure_zuwenig(closure,tail)  fehler_apply_zuwenig(closure,tail)
+nonreturning_function(local, error_closure_toofew, (object closure, object tail));
+#define error_closure_toofew(closure,tail)  error_apply_toofew(closure,tail)
 
 # In APPLY: Applies a Closure to an argument-list, cleans up STACK
 # and returns the values.
@@ -4903,9 +4903,9 @@ nonreturning_function(local, fehler_closure_zuwenig, (object closure, object tai
       return; # finished
     }
     # Gathered error-messages:
-   fehler_zuwenig: fehler_closure_zuwenig(closure,args);
-   fehler_zuviel: fehler_closure_zuviel(closure);
-   fehler_dotted: fehler_apply_dotted(closure,args);
+   fehler_zuwenig: error_closure_toofew(closure,args);
+   fehler_zuviel: error_closure_toomany(closure);
+   fehler_dotted: error_apply_dotted(closure,args);
   }
 
 
@@ -4945,9 +4945,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
      #endif
       switch (Record_type(fdef)) {
         case Rectype_Fsubr:
-          fehler_specialform(S(funcall),fun);
+          error_specialform(S(funcall),fun);
         case Rectype_Macro:
-          fehler_macro(S(funcall),fun);
+          error_macro(S(funcall),fun);
         default: NOTREACHED;
       }
     } else
@@ -4990,7 +4990,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
   }
  #endif
   else if (consp(fun) && eq(Car(fun),S(lambda))) /* Cons (LAMBDA ...) ? */
-    fehler_lambda_expression(S(funcall),fun);
+    error_lambda_expression(S(funcall),fun);
   else {
     fun = check_funname_replacement(type_error,S(funcall),fun);
     goto funcall_restart;
@@ -5341,8 +5341,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       goto fehler_zuwenig; # too few Arguments
     else
       goto fehler_zuviel; # too many Arguments
-   fehler_zuwenig: fehler_subr_zuwenig(fun,NIL);
-   fehler_zuviel: fehler_subr_zuviel(fun);
+   fehler_zuwenig: error_subr_toofew(fun,NIL);
+   fehler_zuviel: error_subr_toomany(fun);
   }
 
 # In FUNCALL: Applies a Closure to Arguments, cleans up STACK
@@ -5781,8 +5781,8 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto fehler_zuwenig; # too few arguments
       else
         goto fehler_zuviel; # too many arguments
-     fehler_zuwenig: fehler_closure_zuwenig(closure,NIL);
-     fehler_zuviel: fehler_closure_zuviel(closure);
+     fehler_zuwenig: error_closure_toofew(closure,NIL);
+     fehler_zuviel: error_closure_toomany(closure);
     } else {
       /* closure is an interpreted Closure */
       var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
@@ -6630,7 +6630,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       CASE cod_unbind1:                # (UNBIND1)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == DYNBIND_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         # unwind variable-binding-frame:
         {
@@ -6655,7 +6655,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           do {
             #if STACKCHECKC
             if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
-              GOTO_ERROR(fehler_STACK_putt);
+              GOTO_ERROR(error_STACK_putt);
             #endif
             # unwind variable-binding-frame:
             var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
@@ -7128,9 +7128,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           if (atomp(l))
             goto next_byte;
           else
-            fehler_apply_zuviel(S(lambda));
+            error_apply_toomany(S(lambda));
          unlist_unbound:
-          if (n > m) fehler_apply_zuwenig(S(lambda),l);
+          if (n > m) error_apply_toofew(S(lambda),l);
           do { pushSTACK(unbound); } until (--n == 0);
           goto next_byte;
         }
@@ -7148,7 +7148,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           pushSTACK(l);
           goto next_byte;
          unliststern_unbound:
-          if (n > m) fehler_apply_zuwenig(S(lambda),l);
+          if (n > m) error_apply_toofew(S(lambda),l);
           do { pushSTACK(unbound); } until (--n == 0);
           pushSTACK(NIL);
           goto next_byte;
@@ -7303,7 +7303,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # unwind CBLOCK-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CBLOCK_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7318,7 +7318,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           U_operand(n);
           var object block_cons = TheCclosure(closure)->clos_consts[n];
           if (eq(Cdr(block_cons),disabled))
-            fehler_block_left(Car(block_cons));
+            error_block_left(Car(block_cons));
           # unwind upto Block-Frame, then jump to its routine for freeing:
           #ifndef FAST_SP
           FREE_DYNAMIC_ARRAY(private_SP_space);
@@ -7336,7 +7336,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
           var object block_cons = FRAME_(n);
           if (eq(Cdr(block_cons),disabled))
-            fehler_block_left(Car(block_cons));
+            error_block_left(Car(block_cons));
           # unwind upto Block-Frame, then jump to its routine for freeing:
           #ifndef FAST_SP
           FREE_DYNAMIC_ARRAY(private_SP_space);
@@ -7402,7 +7402,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # unwind CTAGBODY-Frame:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CTAGBODY_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         {
           FREE_JMPBUF_on_SP();
@@ -7508,12 +7508,12 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # a CATCH-Frame has to come:
         #if STACKCHECKC
         if (!(framecode(STACK_0) == CATCH_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         FREE_JMPBUF_on_SP();
         #if STACKCHECKC
         if (!(closureptr == (gcv_object_t*)SP_(0))) # that Closureptr must be the current one
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         skipSP(2); skipSTACK(3); # unwind CATCH-Frame
         goto next_byte;
@@ -7574,9 +7574,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         # unwind Frame:
         # nothing to do, because closure and byteptr stay unmodified.
@@ -7628,9 +7628,9 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         # of the Cleanup-Code is necessary.
         #if STACKCHECKC
         if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          GOTO_ERROR(fehler_STACK_putt);
+          GOTO_ERROR(error_STACK_putt);
         #endif
         # closure remains, byteptr:=label_byteptr :
         {
@@ -7694,7 +7694,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             # (CAR NIL) = NIL: value1 remains NIL
           } else
             with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7707,7 +7707,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(arg); # (CAR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
         }
         goto next_byte;
       CASE cod_load_car_push:          # (LOAD&CAR&PUSH n)
@@ -7721,7 +7721,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(arg); # (CAR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
         }
         goto next_byte;
       CASE cod_load_car_store:         # (LOAD&CAR&STORE m n)
@@ -7737,7 +7737,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             STACK_(n) = value1 = arg; # (CAR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7750,7 +7750,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             # (CDR NIL) = NIL: value1 remains NIL
           } else
             with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7763,7 +7763,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(arg); # (CDR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
         }
         goto next_byte;
       CASE cod_load_cdr_push:          # (LOAD&CDR&PUSH n)
@@ -7777,7 +7777,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             pushSTACK(arg); # (CDR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
         }
         goto next_byte;
       CASE cod_load_cdr_store:         # (LOAD&CDR&STORE n)
@@ -7792,7 +7792,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             value1 = arg; # (CDR NIL) = NIL
           } else
             with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              fehler_list(arg); );
+              error_list(arg); );
           mv_count=1;
         }
         goto next_byte;
@@ -7914,7 +7914,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         }
         goto next_byte;
       svref_kein_svector: # Non-Simple-Vector in STACK_0
-        fehler_kein_svector(S(svref),STACK_0);
+        error_no_svector(S(svref),STACK_0);
       svref_kein_index: # unsuitable Index in index, for Vector vec
         pushSTACK(vec);
         pushSTACK(index);
@@ -8571,7 +8571,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     pushSTACK(closure);
     error(error_condition,GETTEXT("~S: too many return values"));
    #if STACKCHECKC
-   fehler_STACK_putt:
+   error_STACK_putt:
     pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
     pushSTACK(closure);                       /* FUNC */
     error(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));

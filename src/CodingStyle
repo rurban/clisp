@@ -163,8 +163,9 @@ When CLISP was written, it was not anticipated to have wide distribution.
 We are sorry about the German comments. If you are a native German
 speaker, you are welcome to faithfully translate them to English.
 If not, please leave them alone and wait for someone to translate them
-to English.  Many files have been already translated by Stefan Kain;
-you may ask him (on <clisp-list>) to translate the file you need.
+to English.  Many files have been already translated by Stefan Kain
+and Reini Urban; you may ask them (on <clisp-list>) to translate
+the file you need.
 
 German variable and function names are probably even more disturbing
 than the comments, and much harder to handle.  Use babelfish.
