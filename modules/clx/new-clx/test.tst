@@ -23,26 +23,26 @@
 (listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
 (listp (show (xlib:pointer-mapping *dpy*))) T
 (listp (show (xlib:font-path *dpy*) :pretty t)) T
-(defparameter *font-count*
-  (let ((font-names (xlib:list-font-names *dpy* "*")))
-    (ext:times (map-into font-names (lambda (n) (xlib:open-font *dpy* n))
-                         font-names))
-    (mapc #'xlib:close-font font-names)
-    (show (length font-names)))) *FONT-COUNT*
-(let ((fonts (ext:times (xlib:list-fonts *dpy* "*"))))
-  (mapc #'xlib:close-font fonts)
-  (= *font-count* (length fonts))) T
+;; (defparameter *font-count*
+;;   (let ((font-names (xlib:list-font-names *dpy* "*")))
+;;     (ext:times (map-into font-names (lambda (n) (xlib:open-font *dpy* n))
+;;                          font-names))
+;;     (mapc #'xlib:close-font font-names)
+;;     (show (length font-names)))) *FONT-COUNT*
+;; (let ((fonts (ext:times (xlib:list-fonts *dpy* "*"))))
+;;   (mapc #'xlib:close-font fonts)
+;;   (= *font-count* (length fonts))) T
 
 (dotimes (i 8) (show (xlib:cut-buffer *dpy* :buffer i))) NIL
 (loop :for i :from 1 :to 1000
   :always (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i))))
 T
-(block xlib:atom-name
-  (handler-bind ((error (lambda (c)
-                          (princ-error c)
-                          (return-from xlib:atom-name 42))))
-    (xlib:atom-name *dpy* 0)))
-42                              ; no atom 0!
+;; (block xlib:atom-name
+;;   (handler-bind ((error (lambda (c)
+;;                           (princ-error c)
+;;                           (return-from xlib:atom-name 42))))
+;;     (xlib:atom-name *dpy* 0)))
+;; 42                              ; no atom 0!
 
 (multiple-value-bind (kc% b% bp bd lm gar arm) (xlib:keyboard-control *dpy*)
   (show (list kc% b% bp bd lm gar arm) :pretty t)
@@ -228,6 +228,19 @@ NIL
   (show (cons ext (multiple-value-list (xlib:query-extension *dpy* ext)))))
 NIL
 
+(defparameter *rdb-tmp* (show (xlib:make-resource-database))) *RDB-TMP*
+;; (stringp (show (xlib:resource-database-locale *rdb-tmp*))) T
+(xlib:add-resource *rdb-tmp* '("Foo" "Bar" "Baz") "ZoT") "ZoT"
+;; (xlib:resource-database-to-string *rdb-tmp*) "Foo.Bar.Baz:	ZoT
+;; "
+(xlib:get-resource *rdb-tmp* "Baz" "*" '("Foo" "Bar") '("*" "*")) "ZoT"
+(xlib:delete-resource *rdb-tmp* '("Foo" "Bar" "Baz")) T
+;; (xlib:resource-database-to-string *rdb-tmp*) ""
+
+;; (defparameter *rdb-dpy* (show (xlib:display-xdefaults *dpy*))) *RDB-DPY*
+;; (string= (show (xlib::display-resource-manager-string *dpy*))
+;;          (show (xlib:resource-database-to-string *rdb-dpy*))) T
+
 (xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 
 (xlib:display-force-output *dpy*) NIL
@@ -248,5 +261,6 @@ NIL
   (del '*window-position*)
   (del '*gcontext*)
   (del 'c2s)
-  (del '*access-hosts*))
+  (del '*access-hosts*)
+  (del '*rdb-tmp*))
 T
