@@ -2,7 +2,7 @@
  * Input/Output for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 11.3.1997
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2001-06-12
  */
 
@@ -3184,12 +3184,12 @@ LISPFUNN(uninterned_reader,3) { # reads #:
     if (len > 0) {
       var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
       # Test, if one of the len Attribut-Codes starting at attrptr and afterwards is an a_pack_m:
-      dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto error_doubl; } );
+      dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto error_colon; } );
     }
   }
   # build uninterned Symbol with this Name:
   VALUES1(make_symbol(string)); skipSTACK(2); return;
- error_doubl:
+ error_colon:
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(string); # Token
   pushSTACK(*stream_); # Stream

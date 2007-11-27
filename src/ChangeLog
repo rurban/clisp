@@ -2,7 +2,7 @@
 
 	<03_fehler_label>
 	* io.d: rename labels fehler_nur01 to error_nur01,
-	fehler_dopp to error_doubl,
+	fehler_dopp to error_colon,
 	remove english function translations in comments.
 	* eval.d: rename labels fehler_zuwenig to error_toofew,
 	fehler_zuviele_werte to error_toomany_values,
