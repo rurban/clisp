@@ -17004,21 +17004,21 @@ local object check_open_file_stream (object obj, bool strict_p) {
   if (streamp(obj) && TheStream(obj)->strmtype == strmtype_broad) {
     var object last_stream = broadcast_stream_last(obj);
     if (eq(last_stream,nullobj)) {
-      if (strict_p) goto fehler_bad_obj;
+      if (strict_p) goto error_bad_obj;
       else return last_stream;
     } else obj = last_stream;
     goto check_open_file_stream_restart;
   }
   if (!builtin_stream_p(obj)) # Stream ?
-    goto fehler_bad_obj;
+    goto error_bad_obj;
   if (!(TheStream(obj)->strmtype == strmtype_file)) # Streamtyp File-Stream ?
-    goto fehler_bad_obj;
+    goto error_bad_obj;
   if ((TheStream(obj)->strmflags & strmflags_open_B) == 0) # Stream open ?
-    goto fehler_bad_obj;
+    goto error_bad_obj;
   if (nullp(BufferedStream_channel(obj))) # and Handle /= NIL ?
-    goto fehler_bad_obj;
+    goto error_bad_obj;
   return obj; # yes -> OK
- fehler_bad_obj:
+ error_bad_obj:
   pushSTACK(obj);                      # TYPE-ERROR slot DATUM
   pushSTACK(O(type_open_file_stream)); # TYPE-ERROR slot EXPECTED-TYPE
   pushSTACK(obj);

@@ -123,7 +123,7 @@ nonreturning_function(local, error_record_length, (void)) {
 local gcv_object_t* structure_up (void) {
   /* structure must be of Type structure: */
   if (!structurep(STACK_1)) {
-   fehler_bad_structure: /* STACK_2 = type, STACK_1 = structure */
+   error_bad_structure: /* STACK_2 = type, STACK_1 = structure */
     pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
     pushSTACK(STACK_(2+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(STACK_(2+2));
@@ -136,7 +136,7 @@ local gcv_object_t* structure_up (void) {
   if (!nullp(memq(STACK_2,TheStructure(structure)->structure_types)))
     goto yes;
   /* type did not occur -> Error: */
-  goto fehler_bad_structure;
+  goto error_bad_structure;
  yes: { /* type did occur: */
     var uintL length = (uintL)Structure_length(structure);
     var uintV index;
