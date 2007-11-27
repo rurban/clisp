@@ -171,6 +171,8 @@
    closed-display-p
    ;; extensions
    open-default-display display-noop
+   ;; display-xdefaults resource-database-to-string resource-database-of-string
+   ;; resource-database-locale
    ;; not implemented
    describe-error describe-trace))
 
@@ -344,9 +346,27 @@
   error-handler
   display)
 
+;; (defstruct (resource-database (:constructor %make-rdb (foreign-pointer)))
+;;   (foreign-pointer nil :read-only t))
+;; (defstruct (search-table (:constructor %make-search-table (foreign-pointer)))
+;;   (foreign-pointer nil :read-only t))
+
 ;; ***************************************************************************
 ;; ... CAUTION ending here (resume careless coding)
 ;; ***************************************************************************
+
+;; (eval-when (:compile-toplevel)
+;;   (defpackage #:posix (:export #:mkstemp)))
+;; (defun resource-database-to-string (rdb)
+;;   (let ((tmp-file (posix:mkstemp "/tmp/rdb")))
+;;     (close tmp-file)
+;;     (write-resources rdb tmp-file)
+;;     (unwind-protect
+;;         (with-open-file (in tmp-file)
+;;           (let ((st (make-string (file-length in))))
+;;             (read-sequence st in)
+;;             st))
+;;       (delete-file tmp-file))))
 
 (defun make-color (&key (red 1.0s0) (green 1.0s0) (blue 1.0s0)
                    &allow-other-keys)
@@ -386,6 +406,7 @@
 (defsetf DISPLAY-ERROR-HANDLER        SET-DISPLAY-ERROR-HANDLER)
 (defsetf DISPLAY-PLIST                SET-DISPLAY-PLIST)
 (defsetf DISPLAY-DEFAULT-SCREEN       SET-DISPLAY-DEFAULT-SCREEN)
+(defsetf DISPLAY-XDEFAULTS            SET-DISPLAY-XDEFAULTS)
 (defsetf DRAWABLE-BORDER-WIDTH        SET-DRAWABLE-BORDER-WIDTH)
 (defsetf DRAWABLE-HEIGHT              SET-DRAWABLE-HEIGHT)
 (defsetf DRAWABLE-PLIST               SET-DRAWABLE-PLIST)

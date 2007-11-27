@@ -1,3 +1,9 @@
+2007-11-26  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f, modules/clx/new-clx/clx.lisp:
+	implemented most of Chapter 13 Resources in C,
+	but commented it out because there is no way to remove a resource
+
 2007-11-25  Reini Urban <rurban@x-ray.at>
 
 	<02_fehler__fun>
