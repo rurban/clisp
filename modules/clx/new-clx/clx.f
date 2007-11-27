@@ -11,9 +11,6 @@ Sam Steingold 2001-2007
 
 ----------------------------------------------------------------------------
 
-Revision 1.25  2007-11-24 15:48:45 rurban
-- rename fehler to error
-
 Revision 1.24  1999-10-17  bruno
 - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
   indirection.
@@ -409,6 +406,7 @@ For further for grepability I use the following tags in comments:
 #include <X11/Xutil.h>          /* XGetVisualInfo */
 #include <X11/Xcms.h>   /* forXcmsCCCOfColormap() & XcmsVisualOfCCC() */
 #include <X11/Xauth.h>
+/* #include <X11/Xresource.h> */
 #include <stdio.h>              /* sprintf() */
 #include <string.h>             /* memcpy(), strchr(), strcpy() */
 #include "config.h"
@@ -6633,29 +6631,189 @@ DEFUN(XLIB:ALLOW-EVENTS, display mode &optional time)
  *  Chapter 13  Resources
  * ----------------------------------------------------------------------- */
 
-/* Maybe we want simply to drop in the LISP code here?
-   -- I did (sds) */
+/* Resources are done in Lisp (code from MIT-CLX).
+   This is not an ideal solution because it reduces interoperability with
+   other X applications, but the Xlib Xresource.h is a mess:
+   -- no facilities to remove a resource
+   -- memory allocation complications (who allocates and releases strings?) */
+##if 0
+/* helpers */
+/* can trigger GC */
+static XrmDatabase check_rdb (gcv_object_t *rdb) {
+  *rdb = check_classname(*rdb, `XLIB::RESOURCE-DATABASE`);
+  return nullp(TheStructure(*rdb)->recdata[1]) ? NULL
+    : (XrmDatabase)TheFpointer(TheStructure(*rdb)->recdata[1])->fp_pointer;
+}
+
+DEFUN(XLIB::DESTROY-RESOURCE-DATABASE, rdb) {
+  XrmDatabase rdb = check_rdb(&STACK_0);
+  if (rdb) {
+    X_CALL(XrmDestroyDatabase(rdb));
+    TheStructure(STACK_0)->recdata[1] = NIL;
+  }
+  VALUES0; skipSTACK(1);
+}
+
+#define SET_RDB(o,db)                                                   \
+  TheFpointer(TheStructure(o)->recdata[1])->fp_pointer=(void*)db
+
+static Values mk_rdb (XrmDatabase rdb) {
+  pushSTACK(allocate_fpointer(rdb));
+  funcall(`XLIB::%MAKE-RDB`,1);
+}
+
+static object mk_rdb_fin (XrmDatabase rdb) {
+  mk_rdb(rdb); pushSTACK(value1); pushSTACK(value1);
+  pushSTACK(``XLIB::DESTROY-RESOURCE-DATABASE``); funcall(L(finalize),2);
+  return popSTACK();
+}
+
+DEFUN(XLIB:DISPLAY-XDEFAULTS, dpy) {
+  Display *dpy = pop_display();
+  XrmDatabase rdb;
+  X_CALL(rdb = XrmGetDatabase(dpy));
+  mk_rdb(rdb); /* do not finalize! */
+}
+
+DEFUN(XLIB::SET-DISPLAY-XDEFAULTS, dpy rdb)
+{ /* (setf (display-defaults dpy) rdb) */
+  XrmDatabase rdb = check_rdb(&STACK_0);
+  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  X_CALL(XrmSetDatabase(dpy,rdb));
+  VALUES1(STACK_0); skipSTACK(2);
+}
+
+DEFUN(XLIB:RESOURCE-DATABASE-LOCALE, rdb) {
+  XrmDatabase rdb = check_rdb(&STACK_0);
+  const char *locale;
+  X_CALL(locale = XrmLocaleOfDatabase(rdb));
+  VALUES1(safe_to_string(locale)); skipSTACK(1);
+}
+
+DEFUN(XLIB:RESOURCE-DATABASE-OF-STRING, string) {
+  XrmDatabase rdb;
+  with_string_0(check_string(popSTACK()),GLO(misc_encoding),rdbz, {
+      X_CALL(rdb = XrmGetStringDatabase(rdbz));
+    });
+  VALUES1(mk_rdb_fin(rdb));
+}
 
 /* 13.3  Basic Resource Database Functions */
-##if 0
-DEFUN(XLIB:MAKE-RESOURCE-DATABASE,) {UN DEFINED}
-DEFUN(XLIB:ADD-RESOURCE, arg1 arg2 arg3) {UN DEFINED}
-DEFUN(XLIB:DELETE-RESOURCE, arg1 arg2) {UN DEFINED}
-DEFUN(XLIB:MAP-RESOURCE, arg1 arg2 &rest rest) {UN DEFINED}
-DEFUN(XLIB:MERGE-RESOURCES, arg1 arg2) {UN DEFINED}
+
+DEFUN(XLIB:MAKE-RESOURCE-DATABASE,) {
+  XrmDatabase rdb;
+  X_CALL(rdb=XrmGetStringDatabase(""));
+  VALUES1(mk_rdb_fin(rdb));
+}
+
+/* can trigger GC */
+static void push_as_string (object o) {
+  pushSTACK(o);
+  if (!stringp(o)) { funcall(L(princ_to_string),1); pushSTACK(value1); }
+}
+/* can trigger GC */
+static object name_concat (object name_list, object last) {
+  uintL count = 0;
+  gcv_object_t *tail, *plast;
+  pushSTACK(last); plast = &STACK_0;
+  pushSTACK(name_list); tail = &STACK_0;
+  for (; consp(*tail); *tail = Cdr(*tail), count++) {
+    push_as_string(Car(*tail));
+    pushSTACK(`"."`);
+  }
+  if (!nullp(*tail)) error_proper_list_dotted(TheSubr(subr_self)->name,*tail);
+  if (eq(*plast,nullobj)) skipSTACK(1); /* drop last "." */
+  else { push_as_string(*plast); count++; }
+  value1 = string_concat(2*count-1);
+  skipSTACK(2);                 /* drop tail & last */
+  return value1;
+}
+
+DEFUN(XLIB:ADD-RESOURCE, database name-list value) {
+  XrmDatabase rdb = check_rdb(&STACK_2);
+  object name_string = name_concat(STACK_1,nullobj); STACK_1 = name_string;
+  with_string_0(check_string(STACK_0),GLO(misc_encoding),valuez,{
+      with_string_0(STACK_1,GLO(misc_encoding),name_stringz,{
+          X_CALL(XrmPutStringResource(&rdb,name_stringz,valuez));
+        });
+    });
+  SET_RDB(STACK_2,rdb); VALUES0; skipSTACK(3);
+}
+DEFUN(XLIB:DELETE-RESOURCE, database name-list) {
+  XrmDatabase rdb = check_rdb(&STACK_1);
+  object name_string = name_concat(STACK_0,nullobj);
+  with_string_0(name_string,GLO(misc_encoding),name_stringz,{
+      X_CALL(XrmPutStringResource(&rdb,name_stringz,NULL)); /* FIXME:SIGSEGV */
+    });
+  SET_RDB(STACK_1,rdb); VALUES0; skipSTACK(2);
+}
+DEFUN(XLIB:MAP-RESOURCE, database function &rest args) {
+  NOTREACHED;
+}
+DEFUN(XLIB:MERGE-RESOURCES, from-database to-database &key OVERRIDE) {
+  bool override = nullp(STACK_0); /* default=true */
+  XrmDatabase source_db = check_rdb(&STACK_2);
+  XrmDatabase target_db = check_rdb(&STACK_1);
+  X_CALL(XrmCombineDatabase(source_db,&target_db,override));
+  SET_RDB(STACK_1,target_db);
+  VALUES1(STACK_1); skipSTACK(3);
+}
 
 /* 13.4  Accessing Resource Values */
-DEFUN(XLIB:GET-RESOURCE, a1 a2 a3 a4 a5) {UN DEFINED}
-DEFUN(XLIB:GET-SEARCH-TABLE, arg1 arg2 arg3) {UN DEFINED}
-DEFUN(XLIB:GET-SEARCH-RESOURCE, arg1 arg2 arg3) {UN DEFINED}
+DEFUN(XLIB:GET-RESOURCE, database attribute-name attribute-class \
+                         path-name path-class) {
+  XrmDatabase rdb = check_rdb(&STACK_4);
+  char *type;
+  XrmValue value;
+  bool foundp;
+  object cat = name_concat(STACK_1,STACK_3); pushSTACK(cat); /* name */
+  cat = name_concat(STACK_1,STACK_3); pushSTACK(cat);        /* class */
+  with_string_0(STACK_0,GLO(misc_encoding),classz,{
+      with_string_0(STACK_1,GLO(misc_encoding),namez,{
+          X_CALL(foundp = XrmGetResource(rdb,namez,classz,&type,&value));
+        });
+    });
+  if (asciz_equal(type,"String")) /* 1 extra byte for Nul */
+    VALUES1(n_char_to_string(value.addr,value.size-1,GLO(misc_encoding)));
+  else                          /* FIXME: return value, not type! */
+    VALUES2(n_char_to_string(value.addr,value.size,GLO(misc_encoding)),
+            safe_to_string(type));
+  skipSTACK(5+2);                /* drop 5 arguments and 2 strings */
+}
+DEFUN(XLIB:GET-SEARCH-TABLE, database path-name path-class) {
+  /* manual wants the return type to be a list, we return a SEARCH-TABLE */
+  NOTREACHED;
+}
+DEFUN(XLIB:GET-SEARCH-RESOURCE, table attribute-name attribute-class) {
+  NOTREACHED;
+}
 
 /* 13.5  Resource Database Files */
-DEFUN(XLIB:READ-RESOURCES, a1 a2 *key KEY TEST TEST-NOT)
-{UN DEFINED}
-DEFUN(XLIB:WRITE-RESOURCES, a1 a2 &key WRITE TEST TEST-NOT)
-{UN DEFINED}
+DEFUN(XLIB:READ-RESOURCES, rdb path &key KEY TEST TEST-NOT OVERRIDE)
+{ /* FIXME: KEY, TEST, TEST-NOT are ignored */
+  XrmDatabase rdb = nullp(STACK_5) ? NULL : check_rdb(&STACK_5);
+  bool override = nullp(STACK_0); /* default=true */
+  Status status;
+  with_string_0(physical_namestring(STACK_4),GLO(pathname_encoding),pathz,{
+      X_CALL(status = XrmCombineFileDatabase(pathz,&rdb,override));
+    });
+  if (status != Success) {
+    pushSTACK(STACK_4); pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,GETTEXT("~S: Cannot read ~S"));
+  }
+  if (nullp(STACK_5)) mk_rdb(rdb);
+  else { SET_RDB(STACK_5,rdb); VALUES1(STACK_5); }
+  skipSTACK(6);
+}
+DEFUN(XLIB:WRITE-RESOURCES, rdb path &key WRITE TEST TEST-NOT)
+{ /* FIXME: WRITE, TEST, TEST-NOT are ignored */
+  XrmDatabase rdb = check_rdb(&STACK_4);
+  with_string_0(physical_namestring(STACK_3),GLO(pathname_encoding),pathz,{
+      X_CALL(XrmPutFileDatabase(rdb,pathz));
+    });
+  VALUES0; skipSTACK(5);
+}
 ##endif
-
 
 /* -----------------------------------------------------------------------
  *  Chapter 14  Control Functions
@@ -8128,6 +8286,7 @@ void module__clx__init_function_2 (module_t *module)
 # if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
   disable_sigpipe();
 # endif
+  X_CALL(XrmInitialize()); /* FIXME: XrmParseCommand */
 }
 
 #include <X11/Xlibint.h>
