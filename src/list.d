@@ -1857,10 +1857,10 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
       if (endp(STACK_1)) /* keys is over? */
         goto end;
       else
-        goto fehler_lengths;
+        goto error_lengths;
     else
       if (endp(STACK_1)) /* keys is over? */
-        goto fehler_lengths;
+        goto error_lengths;
       else {
         var object new_cons = allocate_cons();
         Car(new_cons) = Car(STACK_1); # nächstes key als CAR
@@ -1874,7 +1874,7 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
         STACK_2 = new_cons; # ergibt neues alist
       }
   }
- fehler_lengths:
+ error_lengths:
   skipSTACK(3);
   {
     var object data_list = popSTACK();

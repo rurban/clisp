@@ -184,7 +184,7 @@ local maygc bool check_setq_body (object caller) {
     STACK_0 = Cdr(STACK_0);
     if (atomp(STACK_0)) {
       if (!nullp(STACK_0))
-        goto fehler_dotted;
+        goto error_dotted;
       /* STACK_0 == SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
       error(source_program_error,
@@ -194,7 +194,7 @@ local maygc bool check_setq_body (object caller) {
   }
   /* body is finished. */
   if (!nullp(STACK_0)) {
-   fehler_dotted: /* The whole body is still in STACK_0. */
+   error_dotted: /* The whole body is still in STACK_0. */
     /* STACK_0 == SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
     error(source_program_error,GETTEXT("dotted list given to ~S : ~S"));
@@ -907,7 +907,7 @@ LISPSPECFORM(flet, 1,0,body)
     funspecs = Car(funspecs); /* next funspec = (name . lambdabody) */
     /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
     if (!consp(funspecs)) {
-     fehler_spec:
+     error_spec:
       error_funspec(S(flet),funspecs);
     }
     var object name = Car(funspecs);
@@ -918,7 +918,7 @@ LISPSPECFORM(flet, 1,0,body)
     }
     var object lambdabody = Cdr(funspecs);
     if (!consp(lambdabody))
-      goto fehler_spec;
+      goto error_spec;
     pushSTACK(name); /* save name */
     /* turn lambdabody into a closure: */
     var object fun = get_closure(lambdabody,name,true,&aktenv);
@@ -947,7 +947,7 @@ LISPSPECFORM(labels, 1,0,body)
       var object funspec = Car(STACK_0);
       /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
       if (!consp(funspec)) {
-       fehler_spec:
+       error_spec:
         error_funspec(S(labels),funspec);
       }
       var object name = Car(funspec);
@@ -958,7 +958,7 @@ LISPSPECFORM(labels, 1,0,body)
       }
       var object lambdabody = Cdr(funspec);
       if (!consp(lambdabody))
-        goto fehler_spec;
+        goto error_spec;
       STACK_0 = Cdr(STACK_0);
       veclength += 2;
     }
@@ -1021,7 +1021,7 @@ LISPSPECFORM(macrolet, 1,0,body)
     macrodefs = Car(macrodefs); /* next macrodef = (name . lambdabody) */
     /* should be a cons, whose CAR is a symbol and whose CDR is a cons: */
     if (!consp(macrodefs)) {
-     fehler_spec:
+     error_spec:
       pushSTACK(macrodefs);     /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(macrodefs); pushSTACK(S(macrolet));
       error(source_program_error,
@@ -1035,7 +1035,7 @@ LISPSPECFORM(macrolet, 1,0,body)
              GETTEXT("~S: macro name ~S should be a symbol"));
     }
     if (!mconsp(Cdr(macrodefs)))
-      goto fehler_spec;
+      goto error_spec;
     pushSTACK(name); /* save */
     /* build macro-expander: (SYSTEM::MAKE-MACRO-EXPANDER macrodef nil env) */
     pushSTACK(macrodefs);
@@ -1083,7 +1083,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
        a list of length 3, whose CAR is a symbol
        and whose further list elements are conses: */
     if (!consp(funmacspecs)) {
-     fehler_spec:
+     error_spec:
       pushSTACK(funmacspecs);   /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(funmacspecs); pushSTACK(S(function_macro_let));
       error(source_program_error,
@@ -1100,7 +1100,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
           && mconsp(Cdr(Cdr(funmacspecs)))
           && mconsp(Car(Cdr(Cdr(funmacspecs))))
           && nullp(Cdr(Cdr(Cdr(funmacspecs))))))
-      goto fehler_spec;
+      goto error_spec;
     pushSTACK(name); /* save name */
     pushSTACK(Car(Cdr(funmacspecs))); /* fun-lambdabody */
     pushSTACK(Car(Cdr(Cdr(funmacspecs)))); /* macro-full-lambdabody */

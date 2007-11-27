@@ -1,3 +1,16 @@
+2007-11-25  Reini Urban <rurban@x-ray.at>
+
+	<03_fehler_label>
+	* io.d: rename labels fehler_nur01 to error_nur01,
+	fehler_dopp to error_doubl,
+	remove english function translations in comments.
+	* eval.d: rename labels fehler_zuwenig to error_toofew,
+	fehler_zuviele_werte to error_toomany_values,
+	fehler_zuviel to error_toomany
+	* affi.d, array.d, control.d, eval.d, intmal.d, io.d, lispbibl.d:
+	* list.d, pathname.d, predtype.d, record.d, stream.d:
+	rename labels fehler* to error*
+
 2007-11-27  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/posix.lisp (make-xterm-io-stream): use

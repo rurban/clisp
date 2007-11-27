@@ -523,7 +523,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
         case 4L:
           content = *(ULONG *)address; break;
         default:
-          goto fehler_type;
+          goto error_type;
       }
       value1 = UL_to_I(content);
     } elif (fixnump(into)) {
@@ -536,7 +536,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
         case -4L:
           content = *(SLONG *)address; break;
         default:
-          goto fehler_type;
+          goto error_type;
       }
       value1 = L_to_I(content);
     } elif (eq(into,S(string))) { # make a LISP string
@@ -593,7 +593,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
       }
       value1 = into;
     } else {
-     fehler_type:
+     error_type:
       error_ffi_type(into);
     }
     mv_count=1;
@@ -699,7 +699,7 @@ LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
         bytecopy((void*)address,&TheSbvector(dv)->data[index],length,32);
       }
     } else {
-     fehler_type:
+     error_type:
       error_ffi_type(from);
     }
     VALUES0;

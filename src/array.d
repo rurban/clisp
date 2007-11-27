@@ -210,7 +210,7 @@ LISPFUN(vector,seclass_no_se,0,0,rest,nokey,0,NIL)
 local object iarray_displace (object array, uintL* index) {
   loop {
     if (*index >= TheIarray(array)->totalsize)
-      goto fehler_bad_index;
+      goto error_bad_index;
     if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
       goto notdisplaced;
     /* array is displaced */
@@ -228,14 +228,14 @@ local object iarray_displace (object array, uintL* index) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index >= Sstring_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     } else {
       if (*index >= Sarray_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     }
   }
   return array;
- fehler_bad_index:
+ error_bad_index:
   error(error_condition,GETTEXT("index too large")); /* more details?? */
 }
 
@@ -254,7 +254,7 @@ nonreturning_function(local, error_displaced_inconsistent, (void)) {
 global object iarray_displace_check (object array, uintL size, uintL* index) {
   loop {
     if (*index+size > TheIarray(array)->totalsize)
-      goto fehler_bad_index;
+      goto error_bad_index;
     if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
       goto notdisplaced;
     /* array is displaced */
@@ -272,14 +272,14 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index+size > Sstring_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     } else {
       if (*index+size > Sarray_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     }
   }
   return array;
- fehler_bad_index:
+ error_bad_index:
   error_displaced_inconsistent();
 }
 
@@ -295,7 +295,7 @@ global object array_displace_check (object array, uintV size, uintL* index) {
     goto simple;
   loop {
     if (*index+size > TheIarray(array)->totalsize)
-      goto fehler_bad_index;
+      goto error_bad_index;
     if (!(Iarray_flags(array) & bit(arrayflags_displaced_bit)))
       goto notdisplaced;
     /* array is displaced */
@@ -313,14 +313,14 @@ global object array_displace_check (object array, uintV size, uintL* index) {
     if (simple_string_p(array)) {
       sstring_un_realloc(array);
       if (*index+size > Sstring_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     } else {
       if (*index+size > Sarray_length(array))
-        goto fehler_bad_index;
+        goto error_bad_index;
     }
   }
   return array;
- fehler_bad_index:
+ error_bad_index:
   error_displaced_inconsistent();
 }
 
@@ -910,7 +910,7 @@ LISPFUNNR(array_dimension,2)
       }
       return;
     } else
-      goto fehler_axis;
+      goto error_axis;
   } else { /* non-simple array */
     if (posfixnump(axis_number)) { /* axis-number must be a fixnum >=0, */
       var uintV axis = posfixnum_to_V(axis_number);
@@ -920,11 +920,11 @@ LISPFUNNR(array_dimension,2)
           dimptr++; /* poss. skip displaced-offset */
         VALUES1(fixnum(dimptr[axis])); return;
       } else
-        goto fehler_axis;
+        goto error_axis;
     } else
-      goto fehler_axis;
+      goto error_axis;
   }
- fehler_axis:
+ error_axis:
   pushSTACK(array);
   pushSTACK(axis_number); /* TYPE-ERROR slot DATUM */
   { /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1769,7 +1769,7 @@ local Values bit_up (bit_op_fun_t* op)
   /* examine type of bit-array1 and branch accordingly: */
  #ifndef TYPECODES
   if (!orecordp(STACK_2))
-    goto fehler2;
+    goto error2;
  #endif
   switch (Array_type(STACK_2)) {
     case Array_type_sbvector:
@@ -1780,7 +1780,7 @@ local Values bit_up (bit_op_fun_t* op)
       var Iarray array1 = TheIarray(STACK_2);
       /* bit-array1 must have the element type BIT : */
       if ((iarray_flags(array1) & arrayflags_atype_mask) != Atype_Bit)
-        goto fehler2;
+        goto error2;
       /* store rank: */
       rank = iarray_rank(array1);
       /* store dimensions: */
@@ -1792,26 +1792,26 @@ local Values bit_up (bit_op_fun_t* op)
       goto array;
     }
     default:
-      goto fehler2;
+      goto error2;
   }
  vector: /* The first argument is a  bit-vector, with length len. */
   /* test, if this also applies to the other(s) : */
   /* check bit-array2: */
  #ifndef TYPECODES
   if (!orecordp(STACK_1))
-    goto fehler2;
+    goto error2;
  #endif
   switch (Array_type(STACK_1)) {
     case Array_type_sbvector:
       if (len != Sbvector_length(STACK_1))
-        goto fehler2;
+        goto error2;
       break;
     case Array_type_bvector:
       if (len != TheIarray(STACK_1)->totalsize)
-        goto fehler2;
+        goto error2;
       break;
     default:
-      goto fehler2;
+      goto error2;
   }
   { /* check bit-array3: */
     var object array3 = STACK_0;
@@ -1823,19 +1823,19 @@ local Values bit_up (bit_op_fun_t* op)
     } else {
      #ifndef TYPECODES
       if (!orecordp(STACK_0))
-        goto fehler3;
+        goto error3;
      #endif
       switch (Array_type(STACK_0)) {
         case Array_type_sbvector:
           if (len != Sbvector_length(array3))
-            goto fehler3;
+            goto error3;
           break;
         case Array_type_bvector:
           if (len != TheIarray(array3)->totalsize)
-            goto fehler3;
+            goto error3;
               break;
         default:
-          goto fehler3;
+          goto error3;
       }
     }
   }
@@ -1845,17 +1845,17 @@ local Values bit_up (bit_op_fun_t* op)
   /* check bit-array2: */
  #ifndef TYPECODES
   if (!orecordp(STACK_1))
-    goto fehler2;
+    goto error2;
  #endif
   switch (Array_type(STACK_1)) {
     case Array_type_mdarray: {
       var Iarray array2 = TheIarray(STACK_1);
       /* bit-array2 must have the element type BIT : */
       if ((iarray_flags(array2) & arrayflags_atype_mask) != Atype_Bit)
-        goto fehler2;
+        goto error2;
       /* compare rank: */
       if (rank != iarray_rank(array2))
-        goto fehler2;
+        goto error2;
       /* compare dimensions: */
       if (rank > 0) {
         var uintC count;
@@ -1865,13 +1865,13 @@ local Values bit_up (bit_op_fun_t* op)
           dimptr2++;
         dotimespC(count,rank, {
           if (*dimptr1++ != *dimptr2++)
-            goto fehler2;
+            goto error2;
         });
       }
     }
       break;
     default:
-      goto fehler2;
+      goto error2;
   }
   { /* check bit-array3: */
     var object array3 = STACK_0;
@@ -1899,17 +1899,17 @@ local Values bit_up (bit_op_fun_t* op)
     } else {
      #ifndef TYPECODES
       if (!orecordp(STACK_0))
-        goto fehler3;
+        goto error3;
      #endif
       switch (Array_type(STACK_0)) {
         case Array_type_mdarray: {
           var Iarray iarr3 = TheIarray(STACK_0);
           /* bit-array3 must have the element type BIT : */
           if ((iarray_flags(iarr3) & arrayflags_atype_mask) != Atype_Bit)
-            goto fehler3;
+            goto error3;
           /* compare rank: */
           if (rank != iarray_rank(iarr3))
-            goto fehler3;
+            goto error3;
           /* compare dimensions: */
           if (rank > 0) {
             var uintC count;
@@ -1919,13 +1919,13 @@ local Values bit_up (bit_op_fun_t* op)
               dimptr2++;
             dotimespC(count,rank, {
               if (*dimptr1++ != *dimptr2++)
-                goto fehler3;
+                goto error3;
             });
           }
         }
           break;
         default:
-          goto fehler3;
+          goto error3;
       }
     }
   }
@@ -1955,7 +1955,7 @@ local Values bit_up (bit_op_fun_t* op)
   VALUES1(popSTACK()); /* bit-array3 is the value */
   skipSTACK(2);
   return;
- fehler2: { /* error-message for (at least) 2 arguments */
+ error2: { /* error-message for (at least) 2 arguments */
     var object array1 = STACK_2;
     var object array2 = STACK_1;
     pushSTACK(array2); pushSTACK(array1);
@@ -1963,7 +1963,7 @@ local Values bit_up (bit_op_fun_t* op)
     error(error_condition,
            GETTEXT("~S: The arguments ~S and ~S should be arrays of bits with the same dimensions"));
   }
- fehler3: { /* error-message for 3 arguments */
+ error3: { /* error-message for 3 arguments */
     var object array1 = STACK_2;
     var object array2 = STACK_1;
     /* array3 already in STACK_0 */
@@ -3912,7 +3912,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         }
         /* then append new_element: */
         if (!charp(STACK_1))
-          goto fehler_type;
+          goto error_type;
         TheSnstring(neuer_datenvektor)->data[len] = char_code(STACK_1);
         break;
       case Atype_Bit: /* array is a bit-vector */
@@ -3945,9 +3945,9 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
         /* store new-element: */
         storagevector_store(neuer_datenvektor,len,STACK_1,false);
         break;
-      case Atype_NIL: goto fehler_type;
+      case Atype_NIL: goto error_type;
       default: NOTREACHED;
-      fehler_type: {
+      error_type: {
         /* stack layout: new-element, vector. */
         pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
         pushSTACK(array_element_type(STACK_(0+1))); /* TYPE-ERROR slot EXPECTED-TYPE */
