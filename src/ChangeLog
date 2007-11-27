@@ -1,3 +1,8 @@
+2007-11-27  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/posix.lisp (make-xterm-io-stream): use
+	*ENABLE-CLOS-WARNINGS* instead of *WARN-IF-GF-ALREADY-CALLED*
+
 2007-11-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f, modules/clx/new-clx/clx.lisp:

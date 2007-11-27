@@ -359,7 +359,7 @@
   (let* ((tmps (mkstemp "/tmp/clisp-x-io-XXXXXX"))
          (pipe (namestring tmps))
          xio
-         (clos::*warn-if-gf-already-called* nil))
+         (clos::*enable-clos-warnings* nil))
     (close tmps) (delete-file tmps)
     (mknod tmps :FIFO :RWXU)
     (setq title (string title))
@@ -381,7 +381,7 @@
       (with-open-file (s pipe :direction :output)
         (write-line (SYS::TEXT "Bye.") s))
       (delete-file pipe)
-      (let ((clos::*warn-if-gf-already-called* nil))
+      (let ((clos::*enable-clos-warnings* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
 
