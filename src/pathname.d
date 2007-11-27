@@ -3412,7 +3412,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
         goto device_ok;
       }
       /* None of the desired cases -> error: */
-      pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
+      pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto error_arg;
        device_ok: ;
      #ifdef PATHNAME_WIN32
       if (!nullp(STACK_5) && !nullp(STACK_4)) {
@@ -3432,7 +3432,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       if (!(nullp(device) || eq(device,S(Kunspecific))
             || xpathnamep(device))) { /* NIL or :UNSPECIFIC or Pathname -> OK */
         /* None of the desired cases -> error: */
-        pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto fehler_arg;
+        pushSTACK(STACK_4); pushSTACK(S(Kdevice)); goto error_arg;
       }
     }
   }
@@ -3480,7 +3480,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     }
     /* None of the desired cases -> error: */
   directory_bad:
-    pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto fehler_arg;
+    pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto error_arg;
   directory_ok: ;
   }
   { /* 4. check name: */
@@ -3503,7 +3503,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       } else if (logpathnamep(name)) { /* Pathname -> its Name */
         STACK_2 = TheLogpathname(name)->pathname_name;
       } else { /* None of the desired cases -> error: */
-        pushSTACK(STACK_2); pushSTACK(S(Kname)); goto fehler_arg;
+        pushSTACK(STACK_2); pushSTACK(S(Kname)); goto error_arg;
       }
     }
    #endif
@@ -3516,7 +3516,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     } else if (xpathnamep(name)) { /* Pathname -> its Name */
       COERCE_PATHNAME_SLOT(name,name,STACK_2);
     } else { /* None of the desired cases -> error: */
-      pushSTACK(STACK_2); pushSTACK(S(Kname)); goto fehler_arg;
+      pushSTACK(STACK_2); pushSTACK(S(Kname)); goto error_arg;
     }
   }
   { /* 5. check type: */
@@ -3537,7 +3537,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
       } else if (logpathnamep(type)) { /* Pathname -> its Type */
         STACK_1 = TheLogpathname(type)->pathname_type;
       } else { /* None of the desired cases -> error: */
-        pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto fehler_arg;
+        pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto error_arg;
       }
     }
    #endif
@@ -3549,7 +3549,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     } else if (xpathnamep(type)) { /* Pathname -> its Type */
       COERCE_PATHNAME_SLOT(type,type,STACK_1);
     } else { /* None of the desired cases -> error: */
-      pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto fehler_arg;
+      pushSTACK(STACK_1); pushSTACK(S(Ktype)); goto error_arg;
     }
   }
   /* 6. check version: */
@@ -3604,7 +3604,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     DOUT("make-pathname:[ret]",value1);
     return;
   }
- fehler_arg: /* error-message: */
+ error_arg: /* error-message: */
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
 }
@@ -6547,7 +6547,7 @@ local maygc object open_file (object filename, direction_t direction,
       if (!file_exists(namestring)) { /* file does not exist */
         /* :IF-DOES-NOT-EXIST decides: */
         if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
-          goto fehler_notfound;
+          goto error_notfound;
         if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
             || if_not_exists==IF_DOES_NOT_EXIST_NIL)
           goto ergebnis_NIL;
@@ -6571,7 +6571,7 @@ local maygc object open_file (object filename, direction_t direction,
         if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
           goto ergebnis_NIL;
         else /* UNBOUND or :ERROR -> Error */
-          goto fehler_notfound;
+          goto error_notfound;
       }
       handle = allocate_handle(handl);
     }
@@ -6596,7 +6596,7 @@ local maygc object open_file (object filename, direction_t direction,
            :IF-EXISTS decides: */
           switch (if_exists) {
             case IF_EXISTS_ERROR:
-              goto fehler_exists;
+              goto error_exists;
             case IF_EXISTS_NIL:
               goto ergebnis_NIL;
             case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
@@ -6614,7 +6614,7 @@ local maygc object open_file (object filename, direction_t direction,
            :IF-DOES-NOT-EXIST decides: */
           if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
               || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
-            goto fehler_notfound;
+            goto error_notfound;
           if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
             goto ergebnis_NIL;
           /* :CREATE */
@@ -6633,9 +6633,9 @@ local maygc object open_file (object filename, direction_t direction,
       break;
     default: NOTREACHED;
       /* STACK_0 = Truename, FILE-ERROR slot PATHNAME */
-  fehler_notfound: /* error: file not found */
+  error_notfound: /* error: file not found */
       error_file_not_exists();
-  fehler_exists: /* error: file already exists */
+  error_exists: /* error: file already exists */
       error_file_exists();
  }}
  handle_ok:

@@ -466,7 +466,7 @@ local maygc object copy_readtable (object from_readtable) {
 }
 
 # error at wrong value of *READTABLE*
-# error_bad_readtable(); english: error_bad_readtable();
+# error_bad_readtable();
 nonreturning_function(local, error_bad_readtable, (void)) {
   # correct *READTABLE*:
   var object sym = S(readtablestern); # Symbol *READTABLE*
@@ -905,7 +905,7 @@ local uintL get_base (object symbol) {
 # ------------------------ READ on character-level ---------------------------
 
 # error, if read object is not a character:
-# error_charread(ch,&stream);  english: error_charread(ch,&stream);
+# error_charread(ch,&stream);
 nonreturning_function(local, error_charread, (object ch, const gcv_object_t* stream_)) {
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(ch); # Character
@@ -966,7 +966,7 @@ nonreturning_function(local, error_eof_inside, (const gcv_object_t* stream_)) {
 }
 
 # error-message at EOF, according to *READ-RECURSIVE-P*
-# error_eof(&stream); english: error_eof(&stream)
+# error_eof(&stream);
 # > stream: Stream
 nonreturning_function(local, error_eof, (const gcv_object_t* stream_)) {
   if (!nullpSv(read_recursive_p)) # *READ-RECURSIVE-P* /= NIL ?
@@ -2187,7 +2187,7 @@ local maygc object read_recursive (const gcv_object_t* stream_) {
 }
 
 # error-message because of out-of-place Dot
-# error_dot(stream); english: error_dot(stream);
+# error_dot(stream);
 # > stream: Stream
 nonreturning_function(local, error_dot, (object stream)) {
   pushSTACK(stream); # STREAM-ERROR slot STREAM
@@ -2247,10 +2247,10 @@ local object make_references (object obj) {
       var object alistr = alist; /* run through list */
       while (consp(alistr)) {    /* each List-Element must be a Cons: */
         if (!mconsp(Car(alistr)))
-          goto fehler_badtable;
+          goto error_badtable;
         alistr = Cdr(alistr);
       }
-      if (!nullp(alistr)) fehler_badtable:
+      if (!nullp(alistr)) error_badtable:
         error_invalid_value(S(read_reference_table));
     }
     /* Alist alist is OK */
@@ -2470,7 +2470,7 @@ local maygc object read_delimited_list_recursive (const gcv_object_t* stream_,
       wpeek_char_syntax(ch = ,scode = ,stream_);
       if (eq(ch,endch)) { # is it the expected ending-character?
         # yes -> error
-      fehler_dot:
+      error_dot:
         pushSTACK(*stream_); # STREAM-ERROR slot STREAM
         pushSTACK(*stream_); # Stream
         pushSTACK(S(read_delimited_list));
@@ -2503,12 +2503,12 @@ local maygc object read_delimited_list_recursive (const gcv_object_t* stream_,
       goto finish_list; # yes -> List finished
     if (scode < syntax_t_macro) # Macro-Character?
       # no -> Dot was there too early, error
-      goto fehler_dot;
+      goto error_dot;
     else { # yes -> read belonging character and execute Macro-Funktion:
       ch = read_char(stream_);
       read_macro(ch,stream_);
       if (!(mv_count==0)) # value back?
-        goto fehler_dot; # yes -> Dot came to early, error
+        goto error_dot; # yes -> Dot came to early, error
       # no -> skip
     }
   }
@@ -2586,14 +2586,14 @@ LISPFUNN(string_reader,2) { # reads "
       var uintWL scode;
       read_char_syntax(ch = ,scode = ,stream_);
       if (scode == syntax_eof) # EOF -> error
-        goto fehler_eof;
+        goto error_eof;
       if (eq(ch,STACK_0)) # same character as char -> finished
         break;
       if (scode == syntax_single_esc) { # Single-Escape-Character?
         # yes -> read another character:
         read_char_syntax(ch = ,scode = ,stream_);
         if (scode == syntax_eof) # EOF -> error
-          goto fehler_eof;
+          goto error_eof;
       }
     }
     VALUES1(NIL);
@@ -2607,14 +2607,14 @@ LISPFUNN(string_reader,2) { # reads "
       var uintWL scode;
       read_char_syntax(ch = ,scode = ,stream_);
       if (scode == syntax_eof) # EOF -> error
-        goto fehler_eof;
+        goto error_eof;
       if (eq(ch,STACK_2)) # same character as char -> finished
         break;
       if (scode == syntax_single_esc) { # Single-Escape-Character?
         # yes -> read another character:
         read_char_syntax(ch = ,scode = ,stream_);
         if (scode == syntax_eof) # EOF -> error
-          goto fehler_eof;
+          goto error_eof;
       }
       # push character ch into Buffer:
       ssstring_push_extend(STACK_1,char_code(ch));
@@ -2639,7 +2639,7 @@ LISPFUNN(string_reader,2) { # reads "
   }
   skipSTACK(2);
   return;
- fehler_eof:
+ error_eof:
   if (terminal_stream_p(*stream_)) {
     skipSTACK(2);
     dynamic_unbind(S(terminal_read_open_object));
@@ -2771,12 +2771,12 @@ LISPFUNN(comment_reader,3) { # reads #|
   ch = read_char(stream_);
  loop2:
   if (eq(ch,eof_value)) # EOF -> Error
-    goto fehler_eof;
+    goto error_eof;
   else if (eq(ch,STACK_0)) {
     # sub-char has been read
     ch = read_char(stream_); # next character
     if (eq(ch,eof_value)) # EOF -> Error
-      goto fehler_eof;
+      goto error_eof;
     else if (eq(ch,ascii_char('#'))) {
       # sub-char and '#' has been read -> decrease depth:
       if (depth==0)
@@ -2789,7 +2789,7 @@ LISPFUNN(comment_reader,3) { # reads #|
     # '#' has been read
     ch = read_char(stream_); # next character
     if (eq(ch,eof_value)) # EOF -> Error
-      goto fehler_eof;
+      goto error_eof;
     else if (eq(ch,STACK_0)) {
       # '#' and sub-char has been read -> increase depth:
       depth++;
@@ -2798,7 +2798,7 @@ LISPFUNN(comment_reader,3) { # reads #|
       goto loop2;
   } else
     goto loop1;
- fehler_eof:
+ error_eof:
   pushSTACK(STACK_1); # STREAM-ERROR slot STREAM
   pushSTACK(STACK_(0+1)); # sub-char
   pushSTACK(STACK_(0+2)); # sub-char
@@ -3184,12 +3184,12 @@ LISPFUNN(uninterned_reader,3) { # reads #:
     if (len > 0) {
       var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
       # Test, if one of the len Attribut-Codes starting at attrptr and afterwards is an a_pack_m:
-      dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto fehler_dopp; } );
+      dotimespL(len,len, { if (*attrptr++ == a_pack_m) goto error_doubl; } );
     }
   }
   # build uninterned Symbol with this Name:
   VALUES1(make_symbol(string)); skipSTACK(2); return;
- fehler_dopp:
+ error_doubl:
   pushSTACK(*stream_); # STREAM-ERROR slot STREAM
   pushSTACK(string); # Token
   pushSTACK(*stream_); # Stream
@@ -3289,7 +3289,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
   }
   # Test, if no Escape-character and only 0s and 1s are used:
   if (token_escape_flag) {
-  fehler_nur01:
+  error_only01:
     pushSTACK(*stream_); # STREAM-ERROR slot STREAM
     pushSTACK(*stream_); # Stream
     pushSTACK(S(read));
@@ -3304,7 +3304,7 @@ LISPFUNN(bit_vector_reader,3) { # reads #*
     dotimespL(count,len, {
       var chart c = *charptr++; # next Character
       if (!(chareq(c,ascii('0')) || chareq(c,ascii('1')))) # only '0' and '1' are OK
-        goto fehler_nur01;
+        goto error_only01;
     });
   }
   /* check n (the length of the bit-vector): */
@@ -4225,7 +4225,7 @@ LISPFUNN(structure_reader,3) { # reads #S
 # )   ) ) ) )
 
   # error-message because of wrong Syntax of a Code-Vector
-  # error_closure_badchar(); english: error_closure_badchar();
+  # error_closure_badchar();
   # > stack layout: stream, sub-char, arg.
 nonreturning_function(local, error_closure_badchar, (void)) {
   pushSTACK(STACK_2); # STREAM-ERROR slot STREAM
@@ -5111,7 +5111,7 @@ local maygc void pr_hex8 (const gcv_object_t* stream_, uintP x) {
 # *PRINT-GENSYM* = T, *PRINT-ARRAY* = T, *PRINT-CLOSURE* = T.
 
 /* error-message when *PRINT-READABLY* /= NIL.
- error_print_readably(obj); english: error_print_readably(obj); */
+ error_print_readably(obj); */
 nonreturning_function(local, error_print_readably, (object obj)) {
   /* (error-of-type 'print-not-readable
           "~S: Despite ~S, ~S cannot be printed readably."
@@ -5129,7 +5129,7 @@ nonreturning_function(local, error_print_readably, (object obj)) {
     error_print_readably(obj);
 
 # error message for inadmissible value of *PRINT-CASE*.
-# error_print_case(); english: error_print_case();
+# error_print_case();
 nonreturning_function(local, error_print_case, (void)) {
   # (error "~S: the value ~S of ~S is neither ~S nor ~S nor ~S.
   #         it is reset to ~S."

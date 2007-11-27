@@ -2280,7 +2280,7 @@ LISPFUNNR(coerce,2)
   if_defined_class_p(STACK_0, { STACK_0 = TheClass(STACK_0)->classname; },);
   /* stack layout: object, result-type. */
   if (matomp(STACK_0)) {
-    if (!symbolp(STACK_0)) goto fehler_type;
+    if (!symbolp(STACK_0)) goto error_type;
     /* result-type is a symbol */
     var object result_type = STACK_0;
     if (eq(result_type,T)) /* result-type = T ? */
@@ -2295,7 +2295,7 @@ LISPFUNNR(coerce,2)
       if (nullp(as_char)) {
         pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_designator_character)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       }
       VALUES1(as_char); skipSTACK(2); return;
     }
@@ -2306,7 +2306,7 @@ LISPFUNNR(coerce,2)
       if (!base_char_p(as_char)) {
         pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_designator_base_char)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       }
       VALUES1(as_char); skipSTACK(2); return;
     }
@@ -2324,7 +2324,7 @@ LISPFUNNR(coerce,2)
       if (!numberp(STACK_1)) { /* object must be a number */
         pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
         pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       }
       if (!N_floatp(STACK_1))
         goto return_object;
@@ -2347,7 +2347,7 @@ LISPFUNNR(coerce,2)
       if (!(consp(fun) && eq(Car(fun),S(lambda)))) { /* object must be a lambda expression */
         pushSTACK(fun); /* TYPE-ERROR slot DATUM */
         pushSTACK(O(type_designator_function)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       }
       /* empty environment for get_closure: */
       var gcv_environment_t* env;
@@ -2388,14 +2388,14 @@ LISPFUNNR(coerce,2)
     if (eq(value1,nullobj)) { /* failed! */
       pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM (object) */
       pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE (result-type) */
-      goto fehler_object;
+      goto error_object;
     }
     skipSTACK(2); return;
   } else {
     /* result-type is a cons */
     var object result_type = STACK_0;
     var object type = Car(result_type);
-    if (!symbolp(type)) goto fehler_type; /* must be a symbol */
+    if (!symbolp(type)) goto error_type; /* must be a symbol */
     if (eq(type,S(and))) { /* (AND ...) ? */
       if (matomp(Cdr(result_type))) /* (AND) */
         goto return_object; /* treat like T */
@@ -2409,7 +2409,7 @@ LISPFUNNR(coerce,2)
       if (nullp(value1)) {
         /* STACK_0 = new-object, TYPE-ERROR slot DATUM */
         pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       } else {
         VALUES1(STACK_0); skipSTACK(3); return; /* new-object */
       }
@@ -2427,9 +2427,9 @@ LISPFUNNR(coerce,2)
       if (!numberp(STACK_1)) { /* object must be a number */
         pushSTACK(STACK_1); /* TYPE-ERROR slot DATUM */
         pushSTACK(S(number)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        goto fehler_object;
+        goto error_object;
       }
-      if (!mconsp(Cdr(result_type))) goto fehler_type; /* (rest result-type) must be a cons */
+      if (!mconsp(Cdr(result_type))) goto error_type; /* (rest result-type) must be a cons */
       result_type = Cdr(result_type);
       var object rtype = Car(result_type); /* type of Re */
       var object itype = /* type of Im, defaults to rtype */
@@ -2463,7 +2463,7 @@ LISPFUNNR(coerce,2)
         var object type2 = Cdr(result_type);
         if (nullp(type2))
           goto adjust_eltype;
-        if (!consp(type2)) goto fehler_type;
+        if (!consp(type2)) goto error_type;
         if (eq(Car(type2),S(mal))) { /* element-type = * (unspecified) ? */
           type2 = Cdr(type2);
          adjust_eltype: /* here type2 = (cddr result-type) */
@@ -2489,16 +2489,16 @@ LISPFUNNR(coerce,2)
          and we cannot do the coersion. */
       pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM (object) */
       pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE (result-type) */
-      goto fehler_object;
+      goto error_object;
     }
     skipSTACK(2); return;
   }
- fehler_type:
+ error_type:
   /* due to the TYPEP call which checks result-type this should never happen
      result-type in STACK_0 */
   pushSTACK(S(coerce));
   error(error_condition,GETTEXT("~S: invalid type specification ~S"));
- fehler_object:
+ error_object:
   /* stack layout: object, result-type, type-error-datum,
      type-error-expected-type. */
   pushSTACK(STACK_2); /* result-type */

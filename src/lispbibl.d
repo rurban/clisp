@@ -11595,7 +11595,7 @@ re-enters the corresponding top-level loop.
 
 # Returns the elements of a list as multiple values.
 # list_to_mv(list,error_statement)
-# fehler_statement: if there's an error (too many values).
+# error_statement: if there's an error (too many values).
 #define NEXT_MV  *mvp++ = Car(l); l = Cdr(l); count++
 #if !defined(VALUE1_EXTRA)
   #define list_to_mv(lst,error_statement)                              \
