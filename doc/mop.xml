@@ -5440,9 +5440,9 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
 *book-counter*
 <computeroutput>1</computeroutput>
 </programlisting>
- Since the <literal>bible</literal> and the <literal>harry-potter</literal>
-books were already added to the inventory, the programmer might have
- expected that <varname>*book-counter*</varname> is 2.</para>
+ Since &cltl1; and &cltl2; were already added to the inventory, the
+ programmer might have expected that <varname>*book-counter*</varname>
+ is 2.</para>
 
 <note><title>No warning for standard generic functions.</title>
  <para>A few functions, such as &print-object;, are listed in the
