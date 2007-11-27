@@ -1,5 +1,8 @@
-# Funktionen betr. Symbole für CLISP
-# Bruno Haible 1990-2005
+/*
+ * CLISP Symbol functions
+ * Bruno Haible 1990-2005
+ * Sam Steingold 2001-2006
+ */
 
 #include "lispbibl.c"
 

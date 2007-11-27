@@ -1,7 +1,7 @@
 /*
  * Time measuring functions for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  */
 
 #include "lispbibl.c"
