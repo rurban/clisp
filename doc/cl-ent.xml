@@ -65,7 +65,7 @@
    <publisher><publishername>Digital Press</publishername></publisher>
   </biblioentry>'>
 
-<!ENTITY amop '<xref linkend="amop"/>'>
+<!ENTITY amop '<citation><link linkend="amop">AMOP</link></citation>'>
 <!ENTITY amop-bib
   '<biblioentry id="amop">
    <abbrev>AMOP</abbrev>
