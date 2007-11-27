@@ -7,56 +7,47 @@
 2007-11-25  Reini Urban <rurban@x-ray.at>
 
 	<02_fehler__fun>
-	* src/eval.d: rename fehler_(eval|closure|apply|subr)_zuviel to
+	* eval.d: rename fehler_(eval|closure|apply|subr)_zuviel to
 	error_*_toomany
-	* src/control.d, src/eval.d, src/foreign.d, src/lisparit.d:
-	* src/lispbibl.d: rename fehler_mv_zuviel to error_mv_toomany
-	* src/array.d: rename fehler_subscript_anz to error_subscript_count
-	* src/io.d: rename fehler_dispatch_zahl to error_dispatch_number,
+	* control.d, eval.d, foreign.d, lisparit.d, lispbibl.d:
+	rename fehler_mv_zuviel to error_mv_toomany
+	* array.d: rename fehler_subscript_anz to error_subscript_count
+	* io.d: rename fehler_dispatch_zahl to error_dispatch_number,
 	fehler_eof_aussen to error_eof_outside,
 	fehler_eof_innen to error_eof_inside
-	* src/spvw_allocate.d: fehler_speicher_voll to error_memory_full
+	* spvw_allocate.d: fehler_speicher_voll to error_memory_full
 	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
-	* modules/syscalls/calls.c, src/affi.d, src/aridecl.d:
-	* src/array.d, src/charstrg.d, src/control.d:
-	* src/debug.d, src/dfloat.d, src/encoding.d, src/error.d:
-	* src/eval.d, src/ffloat.d, src/flo_konv.d, src/flo_rest.d:
-	* src/foreign.d, src/intbyte.d, src/intdiv.d, src/io.d:
-	* src/lfloat.d, src/lisparit.d, src/lispbibl.d, src/list.d:
-	* src/pathname.d, src/predtype.d, src/realtran.d, src/record.d:
-	* src/sequence.d, src/sfloat.d, src/socket.d, src/spvw.d:
-	* src/spvw_allocate.d, src/stream.d, src/symbol.d, src/time.d:
-	* src/weak.d, utils/modprep.lisp: rename fehler_ to error_
-	* src/.gdbinit: rename fehler to error
-	* src/CodingStyle: add Reini Urban for the upcoming translations
+	* modules/syscalls/calls.c, utils/modprep.lisp:
+	* affi.d, aridecl.d, array.d, charstrg.d, control.d, debug.d:
+	* dfloat.d, encoding.d, error.d, eval.d, ffloat.d, flo_konv.d:
+	* flo_rest.d, foreign.d, intbyte.d, intdiv.d, io.d, lfloat.d:
+	* lisparit.d, lispbibl.d, list.d, pathname.d, predtype.d:
+	* realtran.d, record.d, sequence.d, sfloat.d, socket.d, spvw.d:
+	* spvw_allocate.d, stream.d, symbol.d, time.d, weak.d:
+	rename fehler_ to error_
+	* .gdbinit: rename fehler to error
+	* CodingStyle: add Reini Urban for the upcoming translations
 
 2007-11-24  Reini Urban  <rurban@x-ray.at>
 
 	<01_fehler_fun>
 	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
-	* modules/dirkey/dirkey.c, modules/pari/cpari.c:
-	* modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
-	* modules/syscalls/calls.c, src/affi.d, src/aridecl.d:
-	* src/array.d, src/charstrg.d, src/control.d:
-	* src/debug.d, src/encoding.d, src/error.d, src/eval.d:
-	* src/flo_konv.d, src/foreign.d, src/hashtabl.d, src/i18n.d:
-	* src/intbyte.d, src/intdiv.d, src/intelem.d, src/intlog.d:
-	* src/intmal.d, src/io.d, src/lfloat.d, src/lisparit.d:
-	* src/lispbibl.d, src/list.d, src/misc.d, src/package.d:
-	* src/pathname.d, src/predtype.d, src/record.d, src/sequence.d:
-	* src/socket.d, src/spvw.d, src/spvw_allocate.d:
-	* src/spvw_memfile.d, src/spvw_sigint.d, src/stream.d:
-	* src/symbol.d, src/time.d, src/weak.d, utils/modprep.lisp:
-	rename fehler() to error()
+	* modules/dirkey/dirkey.c, modules/pari/cpari.c, modules/pcre/cpcre.c:
+	* modules/rawsock/rawsock.c, modules/syscalls/calls.c:
+	* affi.d, aridecl.d, array.d, charstrg.d, control.d, debug.d:
+	* encoding.d, error.d, eval.d, flo_konv.d, foreign.d, hashtabl.d:
+	* i18n.d, intbyte.d, intdiv.d, intelem.d, intlog.d, intmal.d, io.d:
+	* lfloat.d, lisparit.d, lispbibl.d, list.d, misc.d, package.d:
+	* pathname.d, predtype.d, record.d, sequence.d, socket.d, spvw.d:
+	* spvw_allocate.d, spvw_memfile.d, spvw_sigint.d, stream.d, symbol.d:
+	* time.d, weak.d, utils/modprep.lisp: rename fehler() to error()
 	* modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c:
-	* modules/pari/cpari.c, modules/pcre/cpcre.c:
-	* modules/rawsock/rawsock.c, modules/regexp/regexi.c:
-	* modules/syscalls/calls.c, src/affi.d, src/array.d, src/charstrg.d:
-	* src/control.d, src/debug.d, src/encoding.d, src/error.d:
-	* src/eval.d, src/foreign.d, src/i18n.d, src/io.d, src/lispbibl.d:
-	* src/list.d, src/misc.d, src/package.d, src/pathname.d, src/predtype.d:
-	* src/record.d, src/sequence.d, src/spvw.d, src/stream.d:
-	* src/symbol.d: rename error (enum condition_t) to error_condition
+	* modules/pari/cpari.c, modules/pcre/cpcre.c, modules/rawsock/rawsock.c:
+	* modules/regexp/regexi.c, modules/syscalls/calls.c:
+	* affi.d, array.d, charstrg.d, control.d, debug.d, encoding.d, error.d:
+	* eval.d, foreign.d, i18n.d, io.d, lispbibl.d, list.d, misc.d:
+	* package.d, pathname.d, predtype.d, record.d, sequence.d, spvw.d:
+	* stream.d, symbol.d: rename error (enum condition_t) to error_condition
 
 2007-11-23  Sam Steingold  <sds@gnu.org>
 
@@ -98,7 +89,7 @@
 2007-11-21  Jack Unrue  <jdunrue@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 
-	* src/makemake.in (install.nsi): copy from win32msvc/nsis and
+	* makemake.in (install.nsi): copy from win32msvc/nsis and
 	substitute @NAME@, @VERSION@, @BASE_MODULES@, and @MODULES@
 	(add_to_path.nsh, is_user_admin.nsh): copy from win32msvc/nsis
 	(COPYRIGHT.rtf): create from COPYRIGHT using text_to_rtf.lisp
@@ -122,12 +113,11 @@
 
 2007-11-19  Sam Steingold  <sds@gnu.org>
 
-	* src/gllib/config.charset, src/glm4/gettext.m4:
-	* src/glm4/gnulib-comp.m4, src/glm4/iconv.m4:
-	* src/glm4/intdiv0.m4, src/glm4/intl.m4, src/glm4/intlmacosx.m4:
-	* src/glm4/lib-link.m4, src/glm4/link-follow.m4, src/glm4/lock.m4:
-	* src/glm4/longlong.m4, src/glm4/po.m4, src/glm4/printf-posix.m4:
-	* src/glm4/wint_t.m4, src/glm4/ulonglong.m4: sync with gnulib
+	* gllib/config.charset, glm4/gettext.m4, glm4/gnulib-comp.m4:
+	* glm4/iconv.m4, glm4/intdiv0.m4, glm4/intl.m4, glm4/intlmacosx.m4:
+	* glm4/lib-link.m4, glm4/link-follow.m4, glm4/lock.m4:
+	* glm4/longlong.m4, glm4/po.m4, glm4/printf-posix.m4:
+	* glm4/wint_t.m4, glm4/ulonglong.m4: sync with gnulib
 
 2007-11-18  Sam Steingold  <sds@gnu.org>
 
@@ -136,7 +126,7 @@
 2007-11-18  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (all): remove src/uninames.h
-	(src/uninames.h): remove (it comes from gnulib now)
+	(uninames.h): remove (it comes from gnulib now)
 
 2007-11-16  Sam Steingold  <sds@gnu.org>
 
@@ -567,7 +557,7 @@
 
 2007-10-20  Sam Steingold  <sds@gnu.org>
 
-	* src/lispbibl.d (malloc) [UNIX | __MINGW32__]: undef after
+	* lispbibl.d (malloc) [UNIX | __MINGW32__]: undef after
 	#include "config.h" because it could be defined as rpl_malloc by gnulib
 
 2007-10-20  Sam Steingold  <sds@gnu.org>
@@ -638,10 +628,10 @@
 	* ffcall/callback/vacall_r/configure.in:
 	use AC_PROG_INSTALL instead of CL_PROG_INSTALL and
 	AC_CONFIG_AUX_DIR instead of CL_CANONICAL_HOST
-	* src/m4/general.m4: drop CL_CANONICAL_HOST, use AC_CANONICAL_HOST
+	* m4/general.m4: drop CL_CANONICAL_HOST, use AC_CANONICAL_HOST
 	instead; we have build-aux/install-sh anyway, so no need for the trick
-	* src/m4/install.m4, src/m4/lib-ld.m4, src/m4/libtool.m4: drop unused
-	* src/configure.in: use AC_CANONICAL_HOST & CL_CANONICAL_HOST_CPU
+	* m4/install.m4, m4/lib-ld.m4, m4/libtool.m4: drop unused
+	* configure.in: use AC_CANONICAL_HOST & CL_CANONICAL_HOST_CPU
 	instead of CL_CANONICAL_HOST;
 	and AC_PROG_INSTALL instead of CL_PROG_INSTALL
 
@@ -1199,7 +1189,7 @@
 	* makemake.in (XCC_CREATESHARED): treat DragonFly like all the
 	other BSDs
 	* ffcall/avcall/asmi386.h, ffcall/callback/vacall_r/asmi386.h:
-	* ffcall/vacall/asmi386.h, src/asmi386.h, src/asmi386.hh:
+	* ffcall/vacall/asmi386.h, asmi386.h, asmi386.hh:
 	DragonFly defines __DragonFly__, not __DragonFly
 
 2007-07-08  Sam Steingold  <sds@gnu.org>
@@ -1650,8 +1640,8 @@
 2006-12-27  Sam Steingold  <sds@podval.org>
 
 	ARGLIST now works for macros too
-	* src/constsym.d (macro_lambda_list): added
-	* src/defmacro.lisp (make-macro-expander, make-funmacro-expander):
+	* constsym.d (macro_lambda_list): added
+	* defmacro.lisp (make-macro-expander, make-funmacro-expander):
 	pass lambdalist to MAKE-MACRO
 	* init.lisp (defun, in-package, the-environment, do, dotimes)
 	(defmacro): ditto
@@ -2036,9 +2026,9 @@
 	* libcharset/build-aux/config.guess, libcharset/build-aux/config.sub:
 	* libcharset/build-aux/install-sh, libcharset/build-aux/ltmain.sh:
 	* ffcall/build-aux/config.guess, ffcall/build-aux/config.sub:
-	* ffcall/build-aux/ltmain.sh, src/m4/libtool.m4: updated
-	* src/build-aux/config.dynamic: replaced with ...
-	* src/build-aux/ltmain.sh: added
+	* ffcall/build-aux/ltmain.sh, m4/libtool.m4: updated
+	* build-aux/config.dynamic: replaced with ...
+	* build-aux/ltmain.sh: added
 
 2006-10-11  Sam Steingold  <sds@podval.org>
 
@@ -5428,7 +5418,7 @@
 
 2005-08-12  Arseny Slobodyuk  <ampy@users.sourceforge.net>
 
-	* src/w32shell.c (real_path): fixed a bug with root directory
+	* w32shell.c (real_path): fixed a bug with root directory
 	checking on Win32 (bug #[ 1252861 ]).
 
 2005-08-11  Sam Steingold  <sds@gnu.org>
@@ -5472,7 +5462,7 @@
 	* Makefile.devel (MODULES, MOD_CONFIGURES, MOD_CONFIG_H_IN)
 	(CLISP_CONFIGURES, FFCALL, FFCALL_CONFIGURES): new variables
 	(CONFIGURES, CONFIG_H_IN): use them
-	(src/autoconf/aclocal.m4): depend only on CLISP_CONFIGURES
+	(autoconf/aclocal.m4): depend only on CLISP_CONFIGURES
 
 2005-08-04  Sam Steingold  <sds@gnu.org>
 
@@ -6071,8 +6061,8 @@
 	* modules/regexp/regex.c: Undo 2005-03-18 patch.
 	* modules/regexp/alloca_.h: New file, from gnulib.
 	* modules/regexp/alloca.c: New file, from gnulib.
-	* src/m4/alloca.m4: New file, from gnulib.
-	* src/m4/restrict.m4: New file, from gnulib.
+	* m4/alloca.m4: New file, from gnulib.
+	* m4/restrict.m4: New file, from gnulib.
 	* modules/regexp/configure.in: Invoke 'restrict' and 'alloca'
 	requisites. Set ALLOCA to empty if we don't need it.
 	* modules/regexp/Makefile.in (ALLOCA_H): New variable.
@@ -7887,7 +7877,7 @@
 
 2005-03-29  Sam Steingold  <sds@gnu.org>
 
-	* src/m4/alloca.m4: removed
+	* m4/alloca.m4: removed
 	* configure.in: use AC_FUNC_ALLOCA instead of CL_ALLOCA
 
 2005-03-29  Sam Steingold  <sds@gnu.org>
@@ -23986,7 +23976,7 @@
 2003-09-24  John Hinsdale  <hin@alma.com>
 
 	* modules/oracle/oracle.lisp: connection retry logic
-	* src/makemake.in: syntax error in variable definition
+	* makemake.in: syntax error in variable definition
 
 2003-09-24  Sam Steingold  <sds@gnu.org>
 
@@ -26367,7 +26357,7 @@
 
 2003-02-15  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* src/makemake.in (CFLAGS) [win32msvc]: do not use optimization
+	* makemake.in (CFLAGS) [win32msvc]: do not use optimization
 	when debugging. Use enviroinment variable MSVCDIR to avoid manual
 	editing.
 	* win32msvc/makefile.msvc5d - new file - MSVC debug makefile.
@@ -26591,7 +26581,7 @@
 
 2003-01-28  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* src/m4/as-underscore.m4, ffcall/m4/as-underscore.m4
+	* m4/as-underscore.m4, ffcall/m4/as-underscore.m4
 	(CL_AS_UNDERSCORE) [__cplusplus]: declare test function
 	as extern "C".
 
@@ -26774,7 +26764,7 @@
 
 2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
 
-	* src/makemake.in (init): do not include floatparam.h and
+	* makemake.in (init): do not include floatparam.h and
 	intparam.h in the init rule for win32.
 
 2003-01-03  Arseny Slobodjuck  <ampy@ich.dvo.ru>
@@ -27008,9 +26998,9 @@
 	* utils/unicode/UnicodeDataFull.txt: Renamed from
 	utils/unicode/ftp.unicode.org/UnicodeData.txt.
 	* Makefile.devel (src/uninames.h): Update.
-	* src/makemake.in: Use UnicodeDataFull.txt instead of UnicodeData.txt.
-	* src/describe.lisp (unicode-attributes-line): Likewise.
-	* src/_README.en: Update.
+	* makemake.in: Use UnicodeDataFull.txt instead of UnicodeData.txt.
+	* describe.lisp (unicode-attributes-line): Likewise.
+	* _README.en: Update.
 
 2002-12-17  Sam Steingold  <sds@gnu.org>
 
@@ -28370,7 +28360,7 @@
 2002-09-11  John  Hinsdale <hin@alma.com>
 
 	* modules/oracle/*: new add-in module for Oracle interface
-	* src/Makefile.devel: build autoconf script for modules/oracle
+	* Makefile.devel: build autoconf script for modules/oracle
 
 2002-09-11  Marco Baringer  <empb@bese.it>
 	    Sam Steingold  <sds@gnu.org>
@@ -29445,7 +29435,7 @@
 	(*/configure): use $(AUTOCONF)
 	* ffcall/autoconf/autoconf, ffcall/autoconf/autoconf.m4f,
 	* sigsegv/autoconf/autoconf, sigsegv/autoconf/autoconf.m4f,
-	* src/autoconf/autoconf, src/autoconf/autoconf.m4f: removed
+	* autoconf/autoconf, autoconf/autoconf.m4f: removed
 
 2002-06-06  Peter Burwood  <clisp@peterb.org.uk>
 
@@ -35933,7 +35923,7 @@
 
 2000-01-22  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
-	* src/asmi386.sh: Terminate the here documents with EOF, not \EOF.
+	* asmi386.sh: Terminate the here documents with EOF, not \EOF.
 
 2000-01-15  Bruno Haible  <bruno@linuix.math.u-bordeaux.fr>
 
