@@ -5398,14 +5398,11 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   Window    win = get_window_and_display (STACK_8, &dpy);
   Atom property = get_xatom (dpy, STACK_7);
   Atom     type = get_xatom (dpy, STACK_5);
-  int    format = get_uint8 (STACK_4);
+  int    format = get_client_message_format (STACK_4);
   int      mode = check_propmode(STACK_3);
   int     start = get_uint32_0 (STACK_2);
   int       end;
   int       len;
-
-  if (format != 8 && format != 16 && format != 32)
-    my_type_error(`(MEMBER 8 16 32)`,STACK_4);
 
   if (missingp(STACK_1)) /* data argument */
     end = get_uint32(funcall1(L(length),STACK_6));
