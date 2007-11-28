@@ -15,6 +15,7 @@
 	(CHANGE-PROPERTY): use get_client_message_format()
 	(check_mapping_request): add DEFCHECKER
 	(MAPPING-NOTIFY): use it, return no values
+	(XLIB:ACCESS-HOSTS): check for FamilyServerInterpreted (bug 1840594)
 
 007-11-27  Reini Urban  <rurban@x-ray.at>
 
