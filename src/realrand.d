@@ -120,7 +120,7 @@
         mant = F_I_scale_float_F(mant,minus_d);
       }
       # Multipliziere es mit n :
-      mant = F_F_mal_F(mant,STACK_0);
+      mant = F_F_mult_F(mant,STACK_0);
       # mant ist ein Zufalls-Float >=0, <=n.
       if (eql(mant,popSTACK())) # mit n vergleichen
         # falls (durch Rundung) mant=n, durch 0 ersetzen:

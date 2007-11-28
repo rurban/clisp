@@ -1866,7 +1866,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
           break;
         }
         # multiply Integer by 10 and add digit:
-        STACK_0 = mal_10_plus_x(STACK_0,(uintB)(c-'0'));
+        STACK_0 = mult_10_plus_x(STACK_0,(uintB)(c-'0'));
         flag = true;
       }
       # argument in STACK_0 finished (only if flag=true).

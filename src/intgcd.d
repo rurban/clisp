@@ -428,12 +428,12 @@
         skipSTACK(3); return;
       }
       {
-        var object x = I_I_mal_I(STACK_1,STACK_(3+2)); # q*ub
+        var object x = I_I_mult_I(STACK_1,STACK_(3+2)); # q*ub
         x = I_I_minus_I(STACK_(5+2),x); # ua-q*ub
         STACK_(5+2) = STACK_(3+2); STACK_(3+2) = x; # ua := ub, ub := x
       }
       {
-        var object x = I_I_mal_I(STACK_1,STACK_(2+2)); # q*vb
+        var object x = I_I_mult_I(STACK_1,STACK_(2+2)); # q*vb
         x = I_I_minus_I(STACK_(4+2),x); # va-q*vb
         STACK_(4+2) = STACK_(2+2); STACK_(2+2) = x; # va := vb, vb := x
       }
@@ -1294,6 +1294,6 @@
     var object g = I_I_gcd_I(STACK_0,b); # g = (gcd a b)
     a = popSTACK();
     if (!eq(g,Fixnum_1)) { a = I_I_exquopos_I(a,g); } # a durch g (beide >0) dividieren
-    return I_I_mal_I(a,popSTACK()); # mit b multiplizieren
+    return I_I_mult_I(a,popSTACK()); # mit b multiplizieren
   }
 

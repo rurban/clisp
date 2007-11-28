@@ -379,8 +379,8 @@
   }
 
 # Liefert zu zwei Short-Float x und y : (* x y), ein SF.
-# SF_SF_mal_SF(x,y)
-  local object SF_SF_mal_SF (object x, object y);
+# SF_SF_mult_SF(x,y)
+  local object SF_SF_mult_SF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
 # Sonst: Ergebnis-Vorzeichen = VZ von x1 xor VZ von x2.
@@ -397,7 +397,7 @@
 #            Bits 14..0 alle Null, round-to-even; sonst aufrunden. Nach
 #            Aufrunden: Falls =2^17, um 1 Bit nach rechts schieben. Sonst
 #            Exponenten um 1 erniedrigen.
-  local object SF_SF_mal_SF (object x1, object x2)
+  local object SF_SF_mult_SF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
@@ -466,8 +466,8 @@
   }
 
 # Liefert zu zwei Short-Float x und y : (/ x y), ein SF.
-# SF_SF_durch_SF(x,y)
-  local object SF_SF_durch_SF (object x, object y);
+# SF_SF_div_SF(x,y)
+  local object SF_SF_div_SF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
 # x1 = 0.0 -> Ergebnis 0.0
@@ -486,7 +486,7 @@
 #     erhöhe den Exponenten um 1.
 #   Falls der Quotient <2^18 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
-  local object SF_SF_durch_SF (object x1, object x2)
+  local object SF_SF_div_SF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;

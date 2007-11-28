@@ -463,9 +463,9 @@ local maygc object R_R_minus_R (object x, object y)
 local maygc object R_square_R (object x)
 { return (R_rationalp(x) ? RA_square_RA(x) : F_square_F(x)); }
 
-/* R_R_mal_R(x,y) => (* x y), with x and y being real numbers.
+/* R_R_mult_R(x,y) => (* x y), with x and y being real numbers.
  can trigger GC */
-local maygc object R_R_mal_R (object x, object y)
+local maygc object R_R_mult_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) {
     /* 0 * y = exact 0 */
@@ -480,17 +480,17 @@ local maygc object R_R_mal_R (object x, object y)
     else
       return y;
   } else
-    GEN_R_op21(x,y,mal,return);
+    GEN_R_op21(x,y,mult,return);
 }
 
-/* R_durch_R(x) => (/ x), with x being a real number.
+/* R_div_R(x) => (/ x), with x being a real number.
  can trigger GC */
-local maygc object R_durch_R (object x)
-{ return (R_rationalp(x) ? RA_durch_RA(x) : F_durch_F(x)); }
+local maygc object R_div_R (object x)
+{ return (R_rationalp(x) ? RA_div_RA(x) : F_div_F(x)); }
 
-/* R_R_durch_R(x,y) => (/ x y), with x and y being real numbers.
+/* R_R_div_R(x,y) => (/ x y), with x and y being real numbers.
  can trigger GC */
-local maygc object R_R_durch_R (object x, object y)
+local maygc object R_R_div_R (object x, object y)
 {
   if (eq(x,Fixnum_0)) { /* 0 / y = exact 0, except if y=0 */
     if (R_zerop(y)) { divide_0(); }
@@ -499,7 +499,7 @@ local maygc object R_R_durch_R (object x, object y)
     else
       return x;
   } else
-    GEN_R_op21(x,y,durch,return);
+    GEN_R_op21(x,y,div,return);
 }
 
 /* Generates a function like R_R_floor_I_R
@@ -523,10 +523,10 @@ local maygc object R_R_durch_R (object x, object y)
     } else {                                                            \
       pushSTACK(y);                                                     \
       /* form whole-numbered part of the quotient: */                   \
-      CONCAT3(R_,rounding,_I_R) (R_R_durch_R(x,y));                     \
+      CONCAT3(R_,rounding,_I_R) (R_R_div_R(x,y));                     \
       y = STACK_2; STACK_2 = STACK_1;                                   \
       /* multiply part behind decimal point with y: */                  \
-      STACK_1 = R_R_mal_R(y,STACK_0);                                   \
+      STACK_1 = R_R_mult_R(y,STACK_0);                                   \
       skipSTACK(1);                                                     \
     }                                                                   \
   }
@@ -574,9 +574,9 @@ GEN_R_R_round(round)
     } else {                                                            \
       pushSTACK(y);                                                     \
       /* form whole-numbered part of the quotient: */                   \
-      CONCAT3(R_,rounding,_I_R) (R_R_durch_R(x,y));                     \
+      CONCAT3(R_,rounding,_I_R) (R_R_div_R(x,y));                     \
       y = STACK_2; x = STACK_0; skipSTACK(3);                           \
-      return R_R_mal_R(y,x); /* multiply part behind decimal point with y */ \
+      return R_R_mult_R(y,x); /* multiply part behind decimal point with y */ \
     }                                                                   \
   }
 
@@ -614,10 +614,10 @@ GEN_R_R_mod(rem,truncate)
     } else {                                                            \
       pushSTACK(y);                                                     \
       /* form whole-numbered part of the quotient: */                   \
-      CONCAT3(R_f,rounding,_F_R) (R_R_durch_R(x,y));                    \
+      CONCAT3(R_f,rounding,_F_R) (R_R_div_R(x,y));                    \
       y = STACK_2; STACK_2 = STACK_1;                                   \
       /* multiply part behind decimal point with y: */                  \
-      STACK_1 = R_R_mal_R(y,STACK_0);                                   \
+      STACK_1 = R_R_mult_R(y,STACK_0);                                   \
       skipSTACK(1);                                                     \
     }                                                                   \
   }
@@ -677,7 +677,7 @@ local maygc object F_rational_RA (object x)
   } else {
     pushSTACK(n);
     e = I_I_ash_I(Fixnum_1,I_minus_I(e)); /* (ash 1 (- e)) */
-    return I_posI_durch_RA(popSTACK(),e); /* fraction (/ n (ash 1 (- e))) */
+    return I_posI_div_RA(popSTACK(),e); /* fraction (/ n (ash 1 (- e))) */
   }
 }}}
 
@@ -1156,12 +1156,12 @@ local maygc object R_I_expt_R (object x, object y)
     while (!eq(y=STACK_1,Fixnum_1)) { /* as long as b/=1 */
       STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
      {var object a = STACK_2 = R_square_R(STACK_2); /* a:=a*a */
-      if (I_oddp(STACK_1)) STACK_0 = R_R_mal_R(a,STACK_0); /* poss. c:=a*c */
+      if (I_oddp(STACK_1)) STACK_0 = R_R_mult_R(a,STACK_0); /* poss. c:=a*c */
     }}
     x = STACK_0; skipSTACK(3);
   }
   /* (expt x (abs y)) is now in x. */
-  return (y_negative ? R_durch_R(x) : x); /* poss. take reciprocal value */
+  return (y_negative ? R_div_R(x) : x); /* poss. take reciprocal value */
 }}
 
 /* R_rationalize_RA(x) => (rationalize x), with x being a real number.
@@ -1251,26 +1251,26 @@ local maygc object R_rationalize_RA (object x)
     skipSTACK(2);
     /* "digit" k : */
     STACK_7 = k; /* save k */
-    k = I_I_mal_I(k,STACK_2); /* multiply with p[i] */
+    k = I_I_mult_I(k,STACK_2); /* multiply with p[i] */
     k = I_I_plus_I(k,STACK_3); /* and add p[i-1] */
     STACK_3 = STACK_2; STACK_2 = k; /* store as p[i+1] */
     k = STACK_7;
-    k = I_I_mal_I(k,STACK_0); /* multiply with q[i] */
+    k = I_I_mult_I(k,STACK_0); /* multiply with q[i] */
     k = I_I_plus_I(k,STACK_1); /* and add q[i-1] */
     STACK_1 = STACK_0; STACK_0 = k; /* store as q[i+1] */
    }/* calculate new b: b := (/ (- a k)) */
-   {var object new_b = RA_durch_RA(RA_RA_minus_RA(STACK_4,STACK_7));
+   {var object new_b = RA_div_RA(RA_RA_minus_RA(STACK_4,STACK_7));
     var object old_b = STACK_5;
     STACK_5 = new_b;
     /* calculate new a: a := (/ (- b k)) */
-    STACK_4 = RA_durch_RA(RA_RA_minus_RA(old_b,STACK_7));
+    STACK_4 = RA_div_RA(RA_RA_minus_RA(old_b,STACK_7));
   }}
   /* last "digit" k=c : */
- {var object q = I_I_mal_I(STACK_1,STACK_(0+2)); /* multiply c with q[i] */
+ {var object q = I_I_mult_I(STACK_1,STACK_(0+2)); /* multiply c with q[i] */
   q = I_I_plus_I(q,STACK_(1+2)); /* and add q[i-1] */
   STACK_(0+2) = q; /* store as last q[i] */
  }
- {var object p = I_I_mal_I(STACK_1,STACK_(2+2)); /* multiply c with p[i] */
+ {var object p = I_I_mult_I(STACK_1,STACK_(2+2)); /* multiply c with p[i] */
   p = I_I_plus_I(p,STACK_(3+2)); /* and add p[i-1], yields last p[i] */
   /* result is (s*p[i])/q[i]: */
   if (R_minusp(STACK_(6+2))) /* with s<0: (- p[i]) instead of p[i] */

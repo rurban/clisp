@@ -702,7 +702,7 @@ local maygc object I_I_I_mod_expt_I (object base, object exponent, object modulu
       a = STACK_3 = I_I_mod_I(a,STACK_1); /* base := base mod modulus */
       if (I_oddp(STACK_2))
         /* we do not take MOD here because this will not grow too much anyway */
-        STACK_0 = I_I_mal_I(a,STACK_0); /* result *= base */
+        STACK_0 = I_I_mult_I(a,STACK_0); /* result *= base */
     }
   }
   var object result = I_I_mod_I(STACK_0,STACK_1);

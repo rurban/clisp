@@ -830,9 +830,9 @@ local maygc object DF_DF_minus_DF (object x1, object x2) {
 #endif
 
 /* Returns for two Double-Float x and y : (* x y), a DF.
- DF_DF_mal_DF(x,y)
+ DF_DF_mult_DF(x,y)
  can trigger GC */
-local maygc object DF_DF_mal_DF (object x, object y);
+local maygc object DF_DF_mult_DF (object x, object y);
 /* method:
  If x1=0.0 or x2=0.0 -> result 0.0
  Else: result-sign = sign of x1 xor sign of x2.
@@ -849,7 +849,7 @@ local maygc object DF_DF_mal_DF (object x, object y);
             rounding up: If =2^53, shift by 1 bit to the right. Else,
             decrement exponent by 1. */
 #ifdef FAST_DOUBLE
-local maygc object DF_DF_mal_DF (object x1, object x2) {
+local maygc object DF_DF_mult_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) * DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                !(DF_zerop(x1) || DF_zerop(x2)), /* a result +/- 0.0 */
@@ -857,7 +857,7 @@ local maygc object DF_DF_mal_DF (object x1, object x2) {
                false, false); /* no singularity, no NaN possible as result */
 }
 #else
-local maygc object DF_DF_mal_DF (object x1, object x2) {
+local maygc object DF_DF_mult_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;
@@ -1007,9 +1007,9 @@ local maygc object DF_DF_mal_DF (object x1, object x2) {
 #endif
 
 /* Return for two Double-Float x and y : (/ x y), a DF.
- DF_DF_durch_DF(x,y)
+ DF_DF_div_DF(x,y)
  can trigger GC */
-  local maygc object DF_DF_durch_DF (object x, object y);
+  local maygc object DF_DF_div_DF (object x, object y);
 /* method:
  x2 = 0.0 -> Error
  x1 = 0.0 -> result 0.0
@@ -1029,7 +1029,7 @@ local maygc object DF_DF_mal_DF (object x1, object x2) {
    if the quotient is <2^54 , round the last bit away. On rounding
      overflow, shift by one further bit to the right, increment exponent. */
 #if defined(FAST_DOUBLE) && !defined(DOUBLE_DIV0_EXCEPTION) && !defined(I80386)
-local maygc object DF_DF_durch_DF (object x1, object x2) {
+local maygc object DF_DF_div_DF (object x1, object x2) {
   double_to_DF(DF_to_double(x1) / DF_to_double(x2), return ,
                true, true, /* catch Overflow and subnormal number */
                !DF_zerop(x1), /* a result +/- 0.0 */
@@ -1038,7 +1038,7 @@ local maygc object DF_DF_durch_DF (object x1, object x2) {
                false); /* no NaN possible as result */
 }
 #else
-local maygc object DF_DF_durch_DF (object x1, object x2) {
+local maygc object DF_DF_div_DF (object x1, object x2) {
   /* unpack x1,x2: */
   var signean sign1;
   var sintWL exp1;

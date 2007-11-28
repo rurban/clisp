@@ -466,9 +466,9 @@
  #endif
 
 # Liefert zu zwei Single-Float x und y : (* x y), ein FF.
-# FF_FF_mal_FF(x,y)
+# FF_FF_mult_FF(x,y)
 # can trigger GC
-  local maygc object FF_FF_mal_FF (object x, object y);
+  local maygc object FF_FF_mult_FF (object x, object y);
 # Methode:
 # Falls x1=0.0 oder x2=0.0 -> Ergebnis 0.0
 # Sonst: Ergebnis-Vorzeichen = VZ von x1 xor VZ von x2.
@@ -485,7 +485,7 @@
 #            Aufrunden: Falls =2^24, um 1 Bit nach rechts schieben. Sonst
 #            Exponenten um 1 erniedrigen.
  #ifdef FAST_FLOAT
-  local maygc object FF_FF_mal_FF (object x1, object x2)
+  local maygc object FF_FF_mult_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) * FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -495,7 +495,7 @@
                );
   }
  #else
-  local maygc object FF_FF_mal_FF (object x1, object x2)
+  local maygc object FF_FF_mult_FF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
@@ -555,9 +555,9 @@
  #endif
 
 # Liefert zu zwei Single-Float x und y : (/ x y), ein FF.
-# FF_FF_durch_FF(x,y)
+# FF_FF_div_FF(x,y)
 # can trigger GC
-  local maygc object FF_FF_durch_FF (object x, object y);
+  local maygc object FF_FF_div_FF (object x, object y);
 # Methode:
 # x2 = 0.0 -> Error
 # x1 = 0.0 -> Ergebnis 0.0
@@ -577,7 +577,7 @@
 #   Falls der Quotient <2^25 ist, runde das letzte Bit weg. Bei rounding
 #     overflow schiebe um ein weiteres Bit nach rechts, incr. Exponenten.
 #if defined(FAST_FLOAT) && !defined(FLOAT_DIV0_EXCEPTION) && !defined(I80386)
-  local maygc object FF_FF_durch_FF (object x1, object x2)
+  local maygc object FF_FF_div_FF (object x1, object x2)
   {
     float_to_FF(FF_to_float(x1) / FF_to_float(x2), return ,
                 true, true, # Overflow und subnormale Zahl abfangen
@@ -588,7 +588,7 @@
                );
   }
  #else
-  local maygc object FF_FF_durch_FF (object x1, object x2)
+  local maygc object FF_FF_div_FF (object x1, object x2)
   {
     # x1,x2 entpacken:
     var signean sign1;
