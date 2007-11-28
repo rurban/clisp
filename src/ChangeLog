@@ -13,6 +13,8 @@
 	(SET-ACCESS-CONTROL, ACCESS-HOSTS, LIST-EXTENSIONS, QUERY-EXTENSION)
 	(SHAPE-VERSION): use it
 	(CHANGE-PROPERTY): use get_client_message_format()
+	(check_mapping_request): add DEFCHECKER
+	(MAPPING-NOTIFY): use it, return no values
 
 007-11-27  Reini Urban  <rurban@x-ray.at>
 
