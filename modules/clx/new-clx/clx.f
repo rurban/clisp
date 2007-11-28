@@ -8014,32 +8014,26 @@ DEFUN(XLIB:DEFAULT-KEYSYM-INDEX, display keycode state)
   VALUES1(Fixnum_0);
 }
 
+DEFCHECKER(check_mapping_request,default=, KEYBOARD=MappingKeyboard \
+           MODIFIER=MappingModifier POINTER=MappingPointer)
 DEFUN(XLIB:MAPPING-NOTIFY, display request start count)
 {
   int count = get_sint32 (popSTACK());
   int first_keycode = get_sint32 (popSTACK());
-  object request_sym = popSTACK();
+  int request = check_mapping_request(popSTACK());
   Display *dpy = pop_display();
   XEvent ev;
 
   ev.xmapping.type = MappingNotify;
-  /* No idea how to find out ev.serial. */
+  /* No idea how to find out ev.xmapping.serial. */
   ev.xmapping.serial = 0;
   ev.xmapping.send_event = False;
   ev.xmapping.display = dpy;
-
-  if (eq (`:KEYBOARD`, request_sym))
-    ev.xmapping.request = MappingKeyboard;
-  else if (eq (`:MODIFIER`, request_sym))
-    ev.xmapping.request = MappingModifier;
-  else if (eq (`:POINTER`, request_sym))
-    ev.xmapping.request = MappingPointer;
-  else
-    my_type_error (`(MEMBER :KEYBOARD :MODIFIER :POINTER)`, request_sym);
-
+  ev.xmapping.request = request;
   ev.xmapping.first_keycode = first_keycode;
   ev.xmapping.count = count;
   X_CALL (XRefreshKeyboardMapping (&ev.xmapping));
+  VALUES0;
 }
 
 ##if 0
