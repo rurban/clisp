@@ -6225,8 +6225,8 @@ DEFUN(XLIB:SEND-EVENT, &rest args)
   if (argcount < 3) goto too_few;
   {
     XEvent event;
-    Display             *dpy;
-    Window            window = get_window_and_display (STACK_(argcount-1), &dpy);
+    Display *dpy;
+    Window window = get_window_and_display (STACK_(argcount-1), &dpy);
     unsigned long event_mask = get_event_mask (STACK_(argcount-3));
     int propagate_p = 0;
     uintC i;
@@ -6467,16 +6467,9 @@ static void ungrab_X (int (*X)(Display *dpy, Time time))
   VALUES1(NIL);
 }
 
-static inline object grab_to_object (int gr) {
-  switch (gr) {
-    case AlreadyGrabbed:  return `:ALREADY-GRABBED`;
-    case GrabFrozen:      return `:FROZEN`;
-    case GrabInvalidTime: return `:INVALID-TIME`;
-    case GrabNotViewable: return `:NOT-VIEWABLE`; /* NIM */
-    default:              return `:SUCCESS`;
-  }
-}
-
+DEFCHECKER(check_grab,default=GrabSuccess, SUCCESS=GrabSuccess \
+           ALREADY-GRABBED=AlreadyGrabbed INVALID-TIME=GrabInvalidTime \
+           NOT-VIEWABLE=GrabNotViewable FROZEN=GrabFrozen)
 DEFUN(XLIB:GRAB-POINTER, window event-mask &key OWNER-P SYNC-POINTER-P \
       SYNC-KEYBOARD-P CONFINE-TO CURSOR TIME)
 {
@@ -6494,7 +6487,7 @@ DEFUN(XLIB:GRAB-POINTER, window event-mask &key OWNER-P SYNC-POINTER-P \
   X_CALL(r = XGrabPointer (dpy, win, owner_p, event_mask, sync_pointer,
                            sync_keyboard, confine_to, cursor, time));
 
-  VALUES1(grab_to_object(r));
+  VALUES1(check_grab_reverse(r));
   skipSTACK(8);
 }
 
@@ -6565,7 +6558,7 @@ DEFUN(XLIB:GRAB-KEYBOARD, window \
 
   X_CALL(r = XGrabKeyboard (dpy, win, owner_p, sync_pointer_p, sync_keyboard_p,
                             time));
-  VALUES1(grab_to_object(r));
+  VALUES1(check_grab_reverse(r));
   skipSTACK(5);
 }
 
@@ -7493,6 +7486,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
             }
             pushSTACK(value1);
             break;
+#        if defined(FamilyServerInterpreted)
           case FamilyServerInterpreted: {
             XServerInterpretedAddress *sia =
               (XServerInterpretedAddress*)ho->address;
@@ -7503,6 +7497,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
                                        GLO(misc_encoding)));
             value1 = listof(3); pushSTACK(value1);
           } break;
+#        endif
           default:
             pushSTACK(fixnum(ho->family));
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
