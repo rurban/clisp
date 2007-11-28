@@ -72,9 +72,9 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
     /* Bind variables, to avoid unjustified contagion warnings. */
     maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
     dynamic_bind(S(floating_point_contagion_ansi),NIL);
-    temp = R_R_mal_R(STACK_(2+6),STACK_(0+6)); /* (* (exp a) (sin b)) != Fixnum_0 */
+    temp = R_R_mult_R(STACK_(2+6),STACK_(0+6)); /* (* (exp a) (sin b)) != Fixnum_0 */
     STACK_(0+6) = F_R_float_F(temp,*end_p);
-    temp = R_R_mal_R(STACK_(2+6),STACK_(1+6)); /* (* (exp a) (cos b)) */
+    temp = R_R_mult_R(STACK_(2+6),STACK_(1+6)); /* (* (exp a) (cos b)) */
     temp = F_R_float_F(temp,*end_p);
     dynamic_unbind(S(floating_point_contagion_ansi));
     dynamic_unbind(S(warn_on_floating_point_contagion));
@@ -162,7 +162,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
           b = STACK_1;
           if (R_rationalp(b))
             b = RA_F_float_F(b,angle,true);
-          b = F_ln_F(b,&STACK_1); STACK_0 = F_F_durch_F(STACK_0,b);
+          b = F_ln_F(b,&STACK_1); STACK_0 = F_F_div_F(STACK_0,b);
         }
         /* Stackaufbau: a, b, Imaginärteil.
            Realteil (/ (log (abs a)) (log b)) errechnen: */
@@ -182,12 +182,12 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
                Betragsquadrat a1^2+a2^2 errechnen: */
             pushSTACK(TheComplex(a)->c_imag);
             var object a1 = TheComplex(a)->c_real;
-            a1 = RA_RA_mal_RA(a1,a1); /* a1*a1 */
+            a1 = RA_RA_mult_RA(a1,a1); /* a1*a1 */
             var object a2 = STACK_0; STACK_0 = a1;
-            a1 = RA_RA_mal_RA(a2,a2); /* a2*a2 */
+            a1 = RA_RA_mult_RA(a2,a2); /* a2*a2 */
             a = RA_RA_plus_RA(STACK_0,a1);
             /* davon der Logarithmus zur Basis b, durch 2: */
-            STACK_0 = R_R_durch_R(R_R_log_R(a,STACK_2),fixnum(2));
+            STACK_0 = R_R_div_R(R_R_log_R(a,STACK_2),fixnum(2));
             goto real_ok;
           }
         }
@@ -197,7 +197,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
         b = STACK_2;
         if (R_rationalp(b))
           b = RA_F_float_F(b,STACK_0,true);
-        b = F_ln_F(b,&STACK_2); STACK_0 = F_F_durch_F(STACK_0,b);
+        b = F_ln_F(b,&STACK_2); STACK_0 = F_F_div_F(STACK_0,b);
        real_ok:
         /* stack layout: a, b, imagpart, realpart. */
         {
@@ -209,7 +209,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
       pushSTACK(a); pushSTACK(b);
       STACK_1 = N_log_N(STACK_1,&STACK_1); /* (log a) */
       STACK_0 = N_log_N(STACK_0,&STACK_0); /* (log b) */
-      a = N_N_durch_N(STACK_1,STACK_0); /* divide */
+      a = N_N_div_N(STACK_1,STACK_0); /* divide */
       skipSTACK(2); return a;
     }
   }
@@ -265,11 +265,11 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
       STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
       var object a = STACK_2 = N_square_N(STACK_2); /* a:=a*a */
       if (I_oddp(STACK_1))
-        STACK_0 = N_N_mal_N(a,STACK_0); /* evtl. c:=a*c */
+        STACK_0 = N_N_mult_N(a,STACK_0); /* evtl. c:=a*c */
     }
     x = STACK_0; skipSTACK(3);
     /* (expt x (abs y)) ist jetzt in x. */
-    return (y_negative ? N_durch_N(x) : x); /* evtl. noch Kehrwert nehmen */
+    return (y_negative ? N_div_N(x) : x); /* evtl. noch Kehrwert nehmen */
   }
 
 /* N_N_expt_N(x,y) = (expt x y), wo x und y Zahlen sind.
@@ -467,7 +467,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
     STACK_2 = N_log_N(STACK_2,NULL); /* (log x) */
     STACK_2 = N_N_float_N(STACK_2,STACK_0); /* rounded (log x) */
     STACK_4 = N_N_float_N(STACK_4,STACK_0); /* rounded y */
-    var object temp = N_N_mal_N(STACK_2,STACK_4); /* (* (log x) y) */
+    var object temp = N_N_mult_N(STACK_2,STACK_4); /* (* (log x) y) */
     /* No need to re-extend the precision inside N_exp_N, because we have
        already chosen the needed precision. */
     var object result = N_exp_N(temp,false,&STACK_1); /* exp */
@@ -507,8 +507,8 @@ local maygc object N_sin_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b), != Fixnum_0 */
-      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b), != Fixnum_0 */
+      STACK_(1+6) = R_R_mult_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b), != Fixnum_0 */
+      STACK_(2+6) = R_R_mult_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b), != Fixnum_0 */
       STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
       STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
       dynamic_unbind(S(floating_point_contagion_ansi));
@@ -550,8 +550,8 @@ local maygc object N_cos_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(1+6) = R_minus_R(R_R_mal_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b), != Fixnum_0 */
-      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b), != Fixnum_0 */
+      STACK_(1+6) = R_minus_R(R_R_mult_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b), != Fixnum_0 */
+      STACK_(2+6) = R_R_mult_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b), != Fixnum_0 */
       STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
       STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
       dynamic_unbind(S(floating_point_contagion_ansi));
@@ -595,14 +595,14 @@ local maygc object N_tan_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b) */
-      var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b) /= 0 */
+      STACK_(6+6) = R_R_mult_R(STACK_(1+6),STACK_(4+6)); /* sin(a)*cosh(b) */
+      var object temp = R_R_mult_R(STACK_(2+6),STACK_(3+6)); /* cos(a)*sinh(b) /= 0 */
       STACK_(6+6) = R_R_complex_C(STACK_(6+6),temp); /* numerator */
       /* stack layout: numerator, b, cosh(b), sinh(b), cos(a), sin(a), resfloat, [2 bindings]. */
-      STACK_(5+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b) */
-      temp = R_minus_R(R_R_mal_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b) */
+      STACK_(5+6) = R_R_mult_R(STACK_(2+6),STACK_(4+6)); /* cos(a)*cosh(b) */
+      temp = R_minus_R(R_R_mult_R(STACK_(1+6),STACK_(3+6))); /* -sin(a)*sinh(b) */
       temp = R_R_complex_N(STACK_(5+6),temp); /* denominator */
-      temp = N_N_durch_N(STACK_(6+6),temp); /* numerator/denominator */
+      temp = N_N_div_N(STACK_(6+6),temp); /* numerator/denominator */
       dynamic_unbind(S(floating_point_contagion_ansi));
       dynamic_unbind(S(warn_on_floating_point_contagion));
       var object result = C_R_float_C(temp,STACK_0);
@@ -646,8 +646,8 @@ local maygc object N_cis_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(3+6) = R_R_mal_R(STACK_(3+6),STACK_(1+6)); /* (* (exp (- b)) (cos a)) */
-      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(1+6)); /* (* (exp (- b)) (sin a)) */
+      STACK_(3+6) = R_R_mult_R(STACK_(3+6),STACK_(1+6)); /* (* (exp (- b)) (cos a)) */
+      STACK_(2+6) = R_R_mult_R(STACK_(2+6),STACK_(1+6)); /* (* (exp (- b)) (sin a)) */
       STACK_(3+6) = F_F_float_F(STACK_(3+6),STACK_(0+6));
       STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
       dynamic_unbind(S(floating_point_contagion_ansi));
@@ -691,8 +691,8 @@ local maygc object N_sinh_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
-      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b), != Fixnum_0 */
+      STACK_(1+6) = R_R_mult_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
+      STACK_(2+6) = R_R_mult_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b), != Fixnum_0 */
       STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
       STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
       dynamic_unbind(S(floating_point_contagion_ansi));
@@ -734,8 +734,8 @@ local maygc object N_cosh_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(1+6) = R_R_mal_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
-      STACK_(2+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
+      STACK_(1+6) = R_R_mult_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
+      STACK_(2+6) = R_R_mult_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
       STACK_(1+6) = F_F_float_F(STACK_(1+6),STACK_(0+6));
       STACK_(2+6) = F_F_float_F(STACK_(2+6),STACK_(0+6));
       dynamic_unbind(S(floating_point_contagion_ansi));
@@ -779,14 +779,14 @@ local maygc object N_tanh_N (object x)
       /* Bind variables, to avoid unjustified contagion warnings. */
       maybe_rebind(S(warn_on_floating_point_contagion), same_precision);
       dynamic_bind(S(floating_point_contagion_ansi),NIL);
-      STACK_(6+6) = R_R_mal_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
-      var object temp = R_R_mal_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b) /= Fixnum 0 */
+      STACK_(6+6) = R_R_mult_R(STACK_(1+6),STACK_(4+6)); /* sinh(a)*cos(b) */
+      var object temp = R_R_mult_R(STACK_(2+6),STACK_(3+6)); /* cosh(a)*sin(b) /= Fixnum 0 */
       STACK_(6+6) = R_R_complex_C(STACK_(6+6),temp); /* numerator */
       /* stack layout: numerator, b, cos(b), sin(b), cosh(a), sinh(a), resfloat, [2 bindings]. */
-      STACK_(5+6) = R_R_mal_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
-      temp = R_R_mal_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
+      STACK_(5+6) = R_R_mult_R(STACK_(2+6),STACK_(4+6)); /* cosh(a)*cos(b) */
+      temp = R_R_mult_R(STACK_(1+6),STACK_(3+6)); /* sinh(a)*sin(b) */
       temp = R_R_complex_N(STACK_(5+6),temp); /* denominator */
-      temp = N_N_durch_N(STACK_(6+6),temp); /* numerator/denominator */
+      temp = N_N_div_N(STACK_(6+6),temp); /* numerator/denominator */
       dynamic_unbind(S(floating_point_contagion_ansi));
       dynamic_unbind(S(warn_on_floating_point_contagion));
       var object result = C_R_float_C(temp,STACK_0);
@@ -859,7 +859,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
     /* stack layout: x, 1-x. */
     var object temp;
     temp = R_R_plus_R(Fixnum_1,STACK_1); /* 1+x */
-    temp = F_F_durch_F(temp,STACK_0); /* (1+x)/(1-x) */
+    temp = F_F_div_F(temp,STACK_0); /* (1+x)/(1-x) */
     if (!R_minusp(temp)) {
       STACK_1 = temp; STACK_0 = Fixnum_0; /* imag part :=0 */
       if (R_zerop(temp)) /* x = -1 -> Error */
@@ -897,7 +897,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
   { var object temp = F_abs_F(F_I_scale_float_F(STACK_6,fixnum(2))); /* |4x| */
     if (F_F_comp(temp,STACK_0) < 0) { /* |4x| < 1+x^2+y^2 ? */
       temp = F_I_scale_float_F(STACK_6,Fixnum_1); /* 2x */
-      temp = F_F_durch_F(temp,STACK_0); /* 2x/(1+x^2+y^2) */
+      temp = F_F_div_F(temp,STACK_0); /* 2x/(1+x^2+y^2) */
       temp = F_atanhx_F(temp); /* atanh */
       STACK_6 = F_I_scale_float_F(temp,Fixnum_minus1); /* .../2 =: u */
     } else {
@@ -905,7 +905,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
       STACK_0 = R_R_plus_R(temp,STACK_1); /* (1+x)^2+y^2, a float >=0 */
       temp = R_square_R(STACK_2); /* (1-x)^2 */
       temp = R_R_plus_R(temp,STACK_1); /* (1-x)^2+y^2, a float >=0 */
-      temp = F_F_durch_F(STACK_0,temp); /* ((1+x)^2+y^2)/((1-x)^2+y^2), a float >=0 */
+      temp = F_F_div_F(STACK_0,temp); /* ((1+x)^2+y^2)/((1-x)^2+y^2), a float >=0 */
       if (R_zerop(temp)) /* should be >0 */
         divide_0();
       temp = R_ln_R(temp,NULL); /* ln(temp), a float */
@@ -913,7 +913,7 @@ local maygc void R_R_atanh_R_R (object x, object y)
     }
   }
   { var signean x_sign = R_sign(STACK_5);
-    var object temp = R_R_mal_R(STACK_3,STACK_2); /* (1+x)(1-x) */
+    var object temp = R_R_mult_R(STACK_3,STACK_2); /* (1+x)(1-x) */
     /* stack layout: u, y, contagion, 1+x, 1-x, y^2, -. */
     STACK_0 = R_R_minus_R(temp,STACK_1); /* (1+x)(1-x)-y^2, a float */
     temp = F_I_scale_float_F(STACK_5,Fixnum_1); /* 2y, a float */
@@ -1038,10 +1038,10 @@ local maygc object N_atan_N (object z)
           if (eq(TheRatio(y)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
             var object temp = TheRatio(y)->rt_num; /* Zähler */
             if (eq(temp,Fixnum_1)) { /* x=0, y=1/2 -> v = pi/6 */
-              STACK_0 = R_R_durch_R(pi(y),fixnum(6)); return;
+              STACK_0 = R_R_div_R(pi(y),fixnum(6)); return;
             }
             if (eq(temp,Fixnum_minus1)) { /* x=0, y=-1/2 -> v = -pi/6 */
-              STACK_0 = F_minus_F(R_R_durch_R(pi(y),fixnum(6))); return;
+              STACK_0 = F_minus_F(R_R_div_R(pi(y),fixnum(6))); return;
             }
           }
           STACK_0 = y = RA_float_F(y); /* y in Float umwandeln */
@@ -1091,7 +1091,7 @@ local maygc object N_atan_N (object z)
       x = STACK_1;
       if (F_exponent_L(x) < 0) { /* Exponent e (von x/=0) <0 ? */
         /* |x|<1/2 */
-        STACK_1 = F_atanhx_F(F_F_durch_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
+        STACK_1 = F_atanhx_F(F_F_div_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
       } else { /* |x| >= 1/2 */
         if (!R_minusp(x)) /* x >= 1/2 */
           STACK_1 = R_ln_R(F_F_plus_F(temp,x),&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
@@ -1103,7 +1103,7 @@ local maygc object N_atan_N (object z)
     var object z = R_R_complex_C(x,y); /* z=x+iy */
     pushSTACK(z);
     z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_square_N(z)))); /* 1+sqrt(1+z^2) */
-    z = N_N_durch_N(popSTACK(),z); /* z/(1+sqrt(1+z^2)) */
+    z = N_N_div_N(popSTACK(),z); /* z/(1+sqrt(1+z^2)) */
     /* Da z=x+iy weder reell noch rein imaginär ist, ist auch
        w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
        (Beweis: Sollte sqrt(1+z^2) rationalen Real- und Imaginärteil haben,
@@ -1181,9 +1181,9 @@ local maygc object N_atan_N (object z)
           if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
             var object temp = TheRatio(z)->rt_num; /* Zähler */
             if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 */
-              return R_R_durch_R(pi(Fixnum_0),fixnum(3));
+              return R_R_div_R(pi(Fixnum_0),fixnum(3));
             if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 */
-              return R_R_durch_R(F_I_scale_float_F(pi(Fixnum_0),Fixnum_1),fixnum(3));
+              return R_R_div_R(F_I_scale_float_F(pi(Fixnum_0),Fixnum_1),fixnum(3));
           }
           z = RA_float_F(z); /* z in Float umwandeln */
         }
@@ -1251,9 +1251,9 @@ local maygc object N_atan_N (object z)
           if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
             var object temp = TheRatio(z)->rt_num; /* Zähler */
             if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 i */
-              return R_R_complex_C(Fixnum_0,R_R_durch_R(pi(z),fixnum(3)));
+              return R_R_complex_C(Fixnum_0,R_R_div_R(pi(z),fixnum(3)));
             if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 i */
-              return R_R_complex_C(Fixnum_0,R_R_durch_R(F_I_scale_float_F(pi(z),Fixnum_1),fixnum(3)));
+              return R_R_complex_C(Fixnum_0,R_R_div_R(F_I_scale_float_F(pi(z),Fixnum_1),fixnum(3)));
           }
         }
       }
@@ -1272,9 +1272,9 @@ local maygc object N_atan_N (object z)
     }
     pushSTACK(z);
     var object temp;
-    temp = N_sqrt_N(N_N_durch_N(N_minus1_plus_N(z),fixnum(2))); /* Zähler */
+    temp = N_sqrt_N(N_N_div_N(N_minus1_plus_N(z),fixnum(2))); /* Zähler */
     z = STACK_0; STACK_0 = temp;
-    temp = N_1_plus_N(N_sqrt_N(N_N_durch_N(N_1_plus_N(z),fixnum(2)))); /* Nenner */
-    return N_N_mal_N(fixnum(4),N_atanh_N(N_N_durch_N(popSTACK(),temp)));
+    temp = N_1_plus_N(N_sqrt_N(N_N_div_N(N_1_plus_N(z),fixnum(2)))); /* Nenner */
+    return N_N_mult_N(fixnum(4),N_atanh_N(N_N_div_N(popSTACK(),temp)));
   }
 

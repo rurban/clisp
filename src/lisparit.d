@@ -62,12 +62,12 @@ global bool number_gleich (object x, object y);
  *                 input routines for numbers */
 
 /* UP: multiplies an integer with 10 and adds a second digit.
- mal_10_plus_x(y,x)
+ mult_10_plus_x(y,x)
  > y: integer Y (>=0)
  > x: digit value X (>=0,<10)
  < result: integer Y*10+X (>=0)
  can trigger GC */
-global maygc object mal_10_plus_x (object y, uintB x) {
+global maygc object mult_10_plus_x (object y, uintB x) {
   SAVE_NUM_STACK
   var uintD* MSDptr;
   var uintC len;
@@ -139,7 +139,7 @@ global maygc object read_rational (uintWL base, signean sign, object string,
       DIGITS_to_I(&TheSnstring(string)->data[index1],index3-index1,(uintD)base);
     if (!(sign==0))
       x = I_minus_I(x); /* incl. sign */
-    return I_posI_durch_RA(x,popSTACK()); /* numerator/denominator */
+    return I_posI_div_RA(x,popSTACK()); /* numerator/denominator */
   }
 }
 
@@ -199,7 +199,7 @@ global maygc object read_float (uintWL base, signean sign, object string,
   exponent = popSTACK();
   /* mantissa (integer) and exponent (rational >0) inelegant to multiply: */
   if (RA_integerp(exponent)) {
-    mantisse = I_I_mal_I(mantisse,exponent);
+    mantisse = I_I_mult_I(mantisse,exponent);
   } else {
     /* if mantissa/=0, replace in exponent=1/10^i the numerator by mantissa
        (returns unshortened fraction, caution!) */
@@ -748,7 +748,7 @@ LISPFUN(mal,seclass_foldable,0,0,rest,nokey,0,NIL)
   var object x = NEXT(arg_i_ptr); /* product so far */
   dotimesC(argcount,argcount, {
     var object arg = NEXT(arg_i_ptr);
-    x = (eq(x,arg) ? N_square_N(x) : N_N_mal_N(x,arg));
+    x = (eq(x,arg) ? N_square_N(x) : N_N_mult_N(x,arg));
   });
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
@@ -762,14 +762,14 @@ LISPFUN(durch,seclass_foldable,1,0,rest,nokey,0,NIL)
   test_number_args(argcount,args_pointer); /* all arguments numbers? */
   if (argcount==0) {
     /* unary division */
-    value1 = N_durch_N(Next(args_pointer));
+    value1 = N_div_N(Next(args_pointer));
   } else {
     /* method:
        n+1 arguments Arg[0..n].
        x:=Arg[0], for i:=1 to n do ( x := x/Arg[i] ), return(x). */
     var gcv_object_t* arg_i_ptr = args_pointer;
     var object x = NEXT(arg_i_ptr); /* difference so far */
-    dotimespC(argcount,argcount, { x = N_N_durch_N(x,NEXT(arg_i_ptr)); } );
+    dotimespC(argcount,argcount, { x = N_N_div_N(x,NEXT(arg_i_ptr)); } );
     value1 = x;
   }
   mv_count=1; set_args_end_pointer(args_pointer);
@@ -867,7 +867,7 @@ LISPFUN(xgcd,seclass_foldable,0,0,rest,nokey,0,NIL)
       var gcv_object_t* arg_j_ptr = arg_i_ptr;
       do {
         var object arg_j = Before(arg_j_ptr);
-        BEFORE(arg_j_ptr) = I_I_mal_I(STACK_2,arg_j);
+        BEFORE(arg_j_ptr) = I_I_mult_I(STACK_2,arg_j);
       } while (arg_j_ptr != rest_args_pointer);
     }
     value1 = g; /* g as 1. value */
