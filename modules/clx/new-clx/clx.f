@@ -455,6 +455,8 @@ static int XScreenNo (Display *dpy, Screen *screen);
 
 /* our own forward declaration */
 static Display *pop_display (void);
+static inline Display *get_display (object dpy)
+{ pushSTACK(dpy); return pop_display(); }
 
 /* Some fix-ups: */
 
@@ -646,9 +648,8 @@ static object find_display (Display *display)
  Used by the error handler, the only callback code here. */
   pushSTACK(Symbol_value (`XLIB::*DISPLAYS*`));
   for (;consp (STACK_0); STACK_0 = Cdr (STACK_0)) {
-    pushSTACK(Car(STACK_0));
-    if (pop_display() == display)
-      return Car (popSTACK());
+    if (get_display(Car(STACK_0)) == display)
+      return Car(popSTACK());
   }
   skipSTACK(1);
   return NIL;
@@ -1137,7 +1138,7 @@ static Font get_font (object self)
   } else { /* No font id => lookup the name & open that font */
     object name = get_font_name(STACK_0/*self*/);
     if (boundp(name)) { /* Ok there is a name ... so try to open the font */
-      Font font; Display *dpy = (pushSTACK(STACK_0),pop_display ());
+      Font font; Display *dpy = get_display(STACK_0);
       with_string_0 (name, GLO(misc_encoding), namez, { /* XXX */
           X_CALL(font = XLoadFont(dpy,namez));
         });
@@ -2073,9 +2074,9 @@ DEFUN(XLIB::DEALLOCATE-RESOURCE-ID, display id type) { /* used by CLUE */
 }
 
 DEFUN(XLIB::SET-GCONTEXT-DISPLAY, display gcontext) { /* used by CLUE */
-  Display *dpy_orig, *dpy_new;
+  Display *dpy_orig;
   GC gcon = get_gcontext_and_display(STACK_0,&dpy_orig);
-  pushSTACK(STACK_1); dpy_new = pop_display();
+  Display *dpy_new = get_display(STACK_1);
   if (dpy_orig != dpy_new) {
     pushSTACK(allocate_fpointer(dpy_orig));
     pushSTACK(allocate_fpointer(dpy_new));
@@ -2102,7 +2103,7 @@ DEFUN(XLIB:SET-DISPLAY-AFTER-FUNCTION, display after-function) /* OK */
 { /* TODO - check for function type [Not very important since the
    xlib_after_function should get this error.] */
   object display = STACK_1;
-  Display *dpy = (pushSTACK(display),pop_display());
+  Display *dpy = get_display(display);
   TheStructure (display)->recdata[slot_DISPLAY_AFTER_FUNCTION] = STACK_0;
   if (nullp (STACK_0)) {
     X_CALL(XSetAfterFunction (dpy, NULL)); /* Q: Is that right?! */
@@ -2139,8 +2140,7 @@ DEFUN(XLIB:CLOSE-DISPLAY, display &key ABORT) /* OK */
 
   Display *dpy;
   skipSTACK(1);                                 /* the :abort option */
-  pushSTACK(STACK_0);                           /* the display */
-  dpy = pop_display ();
+  dpy = get_display(STACK_0);
   X_CALL(XCloseDisplay (dpy));
 
   /* Now remove the display from the XLIB:*DISPLAYS* variable
@@ -2170,14 +2170,14 @@ DEFUN(XLIB:SET-DISPLAY-PLIST, display plist) /* OK */
 
 DEFUN(XLIB:DISPLAY-DEFAULT-SCREEN, display) /* NIM / OK */
 {
-  Display *dpy = (pushSTACK(STACK_0),pop_display());
+  Display *dpy = get_display(STACK_0);
   VALUES1(make_screen(STACK_0,DefaultScreenOfDisplay(dpy)));
   skipSTACK(1);
 }
 
 DEFUN(XLIB::SET-DISPLAY-DEFAULT-SCREEN, display screen)
 { /* accept integer (index) as well as object as screen */
-  Display *dpy = (pushSTACK(STACK_1),pop_display());
+  Display *dpy = get_display(STACK_1);
   int ns = ScreenCount(dpy), s=-1;
   if (posfixnump(STACK_0)) { /* index */
     s = fixnum_to_V(STACK_0);
@@ -2382,7 +2382,7 @@ DEFUN(XLIB::SCREEN-RESOURCE-STRING, screen) {
 DEFUN(XLIB:VISUAL-INFO, display visual-id)      /* NIM / OK */
 {
   VisualID vid;
-  Display *dpy = (pushSTACK(STACK_1),pop_display());
+  Display *dpy = get_display(STACK_1);
   Visual *visual;
 
   vid = get_uint29 (STACK_0);
@@ -4403,7 +4403,7 @@ DEFUN(XLIB:PUT-IMAGE, drawable gcontext image \
 /* 8.2  Opening Fonts */
 DEFUN(XLIB:OPEN-FONT, display font)
 {
-  Display *dpy = (pushSTACK(STACK_1),pop_display());
+  Display *dpy = get_display(STACK_1);
   Font font;
   /* XXX Maybe a symbol should be o.k. here too? */
   with_string_0 (check_string(STACK_0), GLO(misc_encoding), font_name, {
@@ -4439,7 +4439,7 @@ DEFUN(XLIB:DISCARD-FONT-INFO, font)
 /* 8.3  Listing Fonts */
 DEFUN(XLIB:FONT-PATH, display &key RESULT-TYPE) /* [OK] */
 {
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   int npathen, i;
   char **pathen;
   gcv_object_t *res_type = &STACK_0;
@@ -4481,7 +4481,7 @@ void coerce_into_path (void *arg, object element) {
           entirely different architecture than the client. */
 DEFUN(XLIB:SET-FONT-PATH, display new-path)
 {
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   int npathen = get_uint32(funcall1(L(length),STACK_0)) , i;
   struct seq_path sp;
   DYNAMIC_ARRAY (pathen, char*, npathen);
@@ -4504,7 +4504,7 @@ DEFUN(XLIB:SET-FONT-PATH, display new-path)
   -> sequence of string. */
 DEFUN(XLIB:LIST-FONT-NAMES, display pattern &key MAX-FONTS RESULT-TYPE)
 { /* OK */
-  Display *dpy  = (pushSTACK(STACK_3), pop_display ());
+  Display *dpy  = get_display(STACK_3);
   int max_fonts = check_uint_defaulted(STACK_1, 65535);
   int count = 0, i;
   char **names;
@@ -4527,7 +4527,7 @@ DEFUN(XLIB:LIST-FONT-NAMES, display pattern &key MAX-FONTS RESULT-TYPE)
   returns a sequence of pseudo fonts. */
 DEFUN(XLIB:LIST-FONTS, display pattern &key MAX-FONTS RESULT-TYPE)
 {
-  Display *dpy  = (pushSTACK(STACK_3), pop_display ());
+  Display *dpy  = get_display(STACK_3);
   gcv_object_t *dpyf  = &(STACK_3);
   int max_fonts = check_uint_defaulted(STACK_1, 65535);
   int count = 0, i;
@@ -5351,7 +5351,7 @@ DEFUN(XLIB:ATOM-NAME, display atom) /* OK */
 
 DEFUN(XLIB:FIND-ATOM, display atom) /* OK */
 {
-  Display *dpy  = (pushSTACK(STACK_1), pop_display ());
+  Display *dpy  = get_display(STACK_1);
   Atom atom     = get_xatom_nointern (dpy, STACK_0);
   skipSTACK(2);
   VALUES1((atom != None) ? make_uint32 (atom) : NIL);
@@ -5359,7 +5359,7 @@ DEFUN(XLIB:FIND-ATOM, display atom) /* OK */
 
 DEFUN(XLIB:INTERN-ATOM, display atom) /* OK */
 {
-  Display *dpy  = (pushSTACK(STACK_1), pop_display ());
+  Display *dpy  = get_display(STACK_1);
   Atom atom     = get_xatom (dpy, STACK_0);
   skipSTACK(2);
   VALUES1((atom != None) ? make_uint32 (atom) : NIL);
@@ -5606,7 +5606,7 @@ DEFUN(XLIB:CONVERT-SELECTION, selection type requestor &optional property time)
 
 DEFUN(XLIB:SELECTION-OWNER, display selection)
 {
-  Display *dpy = (pushSTACK(STACK_1), pop_display ());
+  Display *dpy = get_display(STACK_1);
   Atom selection = get_xatom (dpy, STACK_0);
   Window owner;
 
@@ -5620,7 +5620,7 @@ DEFUN(XLIB:SELECTION-OWNER, display selection)
     == (XLIB:SET-SELECTION-OWNER display selection owner &optional time) */
 DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
 {
-  Display *dpy = (pushSTACK(STACK_3), pop_display ());
+  Display *dpy = get_display(STACK_3);
   Atom selection = get_xatom (dpy, STACK_2);
   Window owner = get_window (STACK_1);
   Time time = get_timestamp (STACK_0);
@@ -5914,7 +5914,7 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 #define ESLOT4(lispname,type,cslot)                                     \
         pushSTACK((lispname));                                          \
         {                                                               \
-          Display *dpy = (pushSTACK(*dpy_objf), pop_display());         \
+          Display *dpy = get_display(*dpy_objf);                        \
           pushSTACK(make_##type (dpy, container->cslot));               \
         }                                                               \
         cnt += 2;
@@ -6039,7 +6039,7 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
 DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
       FORCE-OUTPUT-P)
 {
-  Display *dpy = (pushSTACK(STACK_5), pop_display());
+  Display *dpy = get_display(STACK_5);
   int force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
   int discard_p = !missingp(STACK_1), peek_p = !missingp(STACK_2);
   struct timeval tv;
@@ -6301,7 +6301,7 @@ DEFUN(XLIB:QUERY-POINTER, window)
       [3] root */
 DEFUN(XLIB:GLOBAL-POINTER-POSITION, display)
 {
-  Display *dpy = (pushSTACK(STACK_0), pop_display());
+  Display *dpy = get_display(STACK_0);
 
   Window root, child;
   int root_x, root_y;
@@ -6443,7 +6443,7 @@ DEFUN(XLIB:SET-INPUT-FOCUS , dpy focus revert-to &optional time1)
  the libX11 function just returns a state ?! */
 DEFUN(XLIB:INPUT-FOCUS, display)
 {
-  Display *dpy = (pushSTACK(STACK_0), pop_display());
+  Display *dpy = get_display(STACK_0);
   Window focus;
   int revert;
 
@@ -6506,7 +6506,7 @@ DEFUN(XLIB:UNGRAB-POINTER, window &key TIME)
 
 DEFUN(XLIB:CHANGE-ACTIVE-POINTER-GRAB, dpy event-mask &optional cursor time)
 {
-  Display *dpy = (pushSTACK(STACK_3), pop_display ());
+  Display *dpy = get_display(STACK_3);
   unsigned long event_mask = get_event_mask (STACK_2);
   Cursor            cursor = boundp(STACK_1) ? get_cursor(STACK_1) : None;
   Time                time = get_timestamp (STACK_0);
@@ -6678,7 +6678,7 @@ DEFUN(XLIB:DISPLAY-XDEFAULTS, dpy) {
 DEFUN(XLIB::SET-DISPLAY-XDEFAULTS, dpy rdb)
 { /* (setf (display-defaults dpy) rdb) */
   XrmDatabase rdb = check_rdb(&STACK_0);
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   X_CALL(XrmSetDatabase(dpy,rdb));
   VALUES1(STACK_0); skipSTACK(2);
 }
@@ -6951,7 +6951,7 @@ DEFUN(XLIB:POINTER-MAPPING, display &key RESULT-TYPE)
      pointing devices with more than five buttons? */
   unsigned char map [5];
   unsigned int nmap, i;
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   gcv_object_t *res_type = &STACK_0;
 
   X_CALL(nmap = XGetPointerMapping (dpy, map, sizeof (map)/sizeof (map[0])));
@@ -6970,7 +6970,7 @@ void coerce_into_uint8 (void *arg, object element)
 
 DEFUN(XLIB:SET-POINTER-MAPPING, display mapping)
 { /* (SETF (XLIB:POINTER-MAPPING display) mapping) */
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   int nmap = get_uint32(funcall1(L(length),STACK_0));
   int result;
   struct seq_uint8 su;
@@ -7085,7 +7085,7 @@ DEFUN(XLIB:MODIFIER-MAPPING, display)
    The manual does not specify the optional argument. */
 DEFUN(XLIB:QUERY-KEYMAP, display &optional bit-vector)
 {
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
 
   if (boundp(STACK_0)) {
     check_bitvec_256(STACK_0);
@@ -7170,7 +7170,7 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
   int start = check_uint_defaulted(popSTACK(),0), end;
   int first_keycode = check_uint_defaulted(popSTACK(),start);
   uintL offset = 0, dims[KBD_MAP_RANK];
-  Display *dpy = (pushSTACK(STACK_2), pop_display());
+  Display *dpy = get_display(STACK_2);
   KeySym* data_ptr;
   STACK_1 = check_kbdmap_mx(STACK_1);
   get_array_dimensions(STACK_1,KBD_MAP_RANK,dims);
@@ -7183,7 +7183,7 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
 
 DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
 { /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
-  Display *dpy = (pushSTACK(STACK_4), pop_display());
+  Display *dpy = get_display(STACK_4);
   int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
   KeySym *map;
   int start, end, num_codes, keycode_count;
@@ -7359,7 +7359,7 @@ DEFUN(XLIB:KEYSYM, keysym &rest bytes) { /* see mit-clx/translate.lisp */
 DEFUN(XLIB:KEYCODE->CHARACTER, display keycode state \
       &key KEYSYM-INDEX KEYSYM-INDEX-FUNCTION) {
   KeyCode keycode = get_uint8(STACK_3);
-  Display *dpy = (pushSTACK(STACK_4), pop_display());
+  Display *dpy = get_display(STACK_4);
   int index;
   if (missingp(STACK_1)) { /* no KEYSYM-INDEX => use KEYSYM-INDEX-FUNCTION */
     object func = missingp(STACK_0) ? ``XLIB::DEFAULT-KEYSYM-INDEX``
@@ -7454,7 +7454,7 @@ DEFUN(XLIB:ACCESS-CONTROL, display)
 DEFUN(XLIB::SET-ACCESS-CONTROL, dpy state)
 {/* (SETF (XLIB:ACCESS-CONTROL dpy) state) */
   Bool state = get_bool(STACK_0);
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
 
   X_CALL(XSetAccessControl (dpy, state));
 
@@ -7466,7 +7466,7 @@ DEFUN(XLIB::SET-ACCESS-CONTROL, dpy state)
 extern Values hostent_to_lisp (struct hostent *he);
 DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
 { /* http://www.linuxmanpages.com/man3/XListHosts.3x.php */
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   gcv_object_t *res_type = &STACK_0;
   XHostAddress *hosts;
   Bool state;
@@ -7625,7 +7625,7 @@ DEFUN(XLIB:LIST-EXTENSIONS, display &key RESULT-TYPE)
 {
   int n = 0;
   char **extlist;
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   gcv_object_t *res_type = &STACK_0;
 
   X_CALL(extlist = XListExtensions (dpy, &n));
@@ -7644,7 +7644,7 @@ DEFUN(XLIB:LIST-EXTENSIONS, display &key RESULT-TYPE)
 DEFUN(XLIB:QUERY-EXTENSION, display extension)
 {
   int opcode, event, error;
-  Display *dpy = (pushSTACK(STACK_1), pop_display());
+  Display *dpy = get_display(STACK_1);
   Status r;
 
   with_stringable_0_tc (STACK_0, GLO(misc_encoding), name, {
@@ -7831,7 +7831,7 @@ static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
       minor */
 DEFUN(XLIB:SHAPE-VERSION, display)
 {
-  Display *dpy = (pushSTACK(STACK_0), pop_display());
+  Display *dpy = get_display(STACK_0);
   int major_version, minor_version, status;
   if (ensure_shape_extension (dpy, STACK_0, 0)) { /* Is it there? */
     X_CALL(status = XShapeQueryVersion(dpy,&major_version,&minor_version));
