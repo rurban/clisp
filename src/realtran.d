@@ -72,7 +72,7 @@
         temp = LF_I_scale_float_LF(temp,Fixnum_minus1); # (a+b)/2
         pushSTACK(temp); # neues a
       }
-      STACK_(2+1) = LF_sqrt_LF(LF_LF_mal_LF(STACK_(3+1),STACK_(2+1))); # b := sqrt(a*b)
+      STACK_(2+1) = LF_sqrt_LF(LF_LF_mult_LF(STACK_(3+1),STACK_(2+1))); # b := sqrt(a*b)
       {
         var object temp;
         temp = STACK_(3+1); # altes a
@@ -87,7 +87,7 @@
     {
       var object temp;
       temp = LF_square_LF(STACK_3); # a quadieren
-      temp = LF_LF_durch_LF(temp,STACK_0); # durch t dividieren
+      temp = LF_LF_div_LF(temp,STACK_0); # durch t dividieren
       skipSTACK(4);
       # temp = Pi ist fertig.
       temp = O(LF_pi) = LF_shorten_LF(temp,newlen); # wieder verkürzen, als LF_pi abspeichern
@@ -166,7 +166,7 @@ local maygc object pi (object x) {
          if (e >= (sintL)(-sqrt_d)) {                                               \
            # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                         \
            var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                         \
-           pushSTACK(x = F_durch_F(F_abs_F(x))); # 1/|x|                            \
+           pushSTACK(x = F_div_F(F_abs_F(x))); # 1/|x|                            \
            # Stackaufbau: originales x, neues x.                                    \
            loop {                                                                   \
              # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:          \
@@ -179,7 +179,7 @@ local maygc object pi (object x) {
            # Schleifenende mit Exponent(x) > 1+floor(sqrt(d)), also                 \
            # x >= 2^(1+floor(sqrt(d))), also 1/x <= 2^(-1-floor(sqrt(d))).          \
            # Nun kann die Potenzreihe auf 1/x angewandt werden.                     \
-           {var object x = F_durch_F(popSTACK());                                   \
+           {var object x = F_div_F(popSTACK());                                   \
             if (R_minusp(STACK_0)) { x = F_minus_F(x); } # Vorzeichen wieder rein   \
             STACK_0 = x; # neues x ersetzt altes x                                  \
          } }                                                                        \
@@ -192,16 +192,16 @@ local maygc object pi (object x) {
           # Stackaufbau: x, a, b, sum.                                              \
           loop {                                                                    \
             var object temp;                                                        \
-            temp = R_R_durch_R(STACK_1,i); # (/ b i)                                \
+            temp = R_R_div_R(STACK_1,i); # (/ b i)                                \
             temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))                      \
             if (eql(STACK_0,temp)) # = sum ?                                        \
               break; # ja -> Potenzreihe abbrechen                                  \
             STACK_0 = temp;                                                         \
-            STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                        \
+            STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                        \
             i = fixnum_inc(i,2); # i := i+2                                         \
           }                                                                         \
          }                                                                          \
-         {var object erg = F_F_mal_F(STACK_0,STACK_3); # sum*x als Ergebnis         \
+         {var object erg = F_F_mult_F(STACK_0,STACK_3); # sum*x als Ergebnis         \
           skipSTACK(4);                                                             \
           return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k           \
       }}}}
@@ -259,7 +259,7 @@ local maygc object pi (object x) {
     pushSTACK(R_abs_R(STACK_1)); y = R_abs_R(STACK_(0+1)); x = popSTACK();
     if (R_R_comp(x,y) >= 0) { # (abs x) und (abs y) vergleichen
       # |x| >= |y|
-      var object z = F_atanx_F(R_R_durch_R(STACK_0,STACK_1)); # atan(y/x)
+      var object z = F_atanx_F(R_R_div_R(STACK_0,STACK_1)); # atan(y/x)
       # Division war erfolgreich, also x/=0.
       if (R_minusp(STACK_1)) {
         # x<0 -> pi bzw. -pi addieren:
@@ -274,7 +274,7 @@ local maygc object pi (object x) {
       return z;
     } else {
       # |x| < |y|
-      var object z = F_atanx_F(R_R_durch_R(STACK_1,STACK_0)); # atan(x/y)
+      var object z = F_atanx_F(R_R_div_R(STACK_1,STACK_0)); # atan(x/y)
       # von pi/2 bzw. -pi/2 subtrahieren:
       STACK_1 = z; # atan(x/y) retten
       z = pi_F_float_F(z); # pi im selben Float-Format
@@ -383,10 +383,10 @@ local maygc object pi (object x) {
             if (eql(STACK_0,temp)) # = sum ?                                   \
               break; # ja -> Potenzreihe abbrechen                             \
             STACK_0 = temp;                                                    \
-            STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a                   \
-            temp = I_I_mal_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2)   \
+            STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                   \
+            temp = I_I_mult_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2)   \
             i = fixnum_inc(i,2); # i := i+2                                    \
-            STACK_1 = R_R_durch_R(STACK_1,temp); # b := b/((i+1)*(i+2))        \
+            STACK_1 = R_R_div_R(STACK_1,temp); # b := b/((i+1)*(i+2))        \
           }                                                                    \
          }                                                                     \
          {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis             \
@@ -395,8 +395,8 @@ local maygc object pi (object x) {
           if (e > e_limit) {                                                   \
             STACK_4 = z; # z retten                                            \
             do {                                                               \
-              z = R_R_plusminus_R(Fixnum_1,F_F_mal_F(STACK_3,z)); # 1 +- x^2*z \
-              STACK_4 = F_F_mal_F(STACK_4,z); # mit z multiplizieren           \
+              z = R_R_plusminus_R(Fixnum_1,F_F_mult_F(STACK_3,z)); # 1 +- x^2*z \
+              STACK_4 = F_F_mult_F(STACK_4,z); # mit z multiplizieren           \
               STACK_3 = F_I_scale_float_F(STACK_3,fixnum(2)); # x^2 := x^2*4   \
               z = STACK_4;                                                     \
               e_limit++;                                                       \
@@ -434,7 +434,7 @@ local maygc void F_pi2_round_I_F (object x)
 local maygc object sin_stack (void)
 {
   var object x = F_sqrt_F(F_sinx_F(STACK_0)); /* sin(r)/r */
-  x = F_F_mal_F(x,STACK_0); /* sin(r) = (sin(r)/r) * r */
+  x = F_F_mult_F(x,STACK_0); /* sin(r) = (sin(r)/r) * r */
   return F_F_float_F(x,STACK_2); /* round */
 }
 
@@ -444,8 +444,8 @@ local maygc object cos_stack (void)
   var object s = F_I_scale_float_F(STACK_0,Fixnum_minus1); /* s := r/2 */
   pushSTACK(s);
   s = F_sinx_F(s); /* (sin(s)/s)^2 */
-  s = F_F_mal_F(popSTACK(),s); /* (sin(s)/s)^2 * s = sin(s)^2/s */
-  s = F_F_mal_F(STACK_0,s); /* sin(s)^2/s * r = 2*sin(s)^2 */
+  s = F_F_mult_F(popSTACK(),s); /* (sin(s)/s)^2 * s = sin(s)^2/s */
+  s = F_F_mult_F(STACK_0,s); /* sin(s)^2/s * r = 2*sin(s)^2 */
   s = R_R_minus_R(Fixnum_1,s); /* 1 - 2*sin(s)^2 = cos(r) */
   return F_F_float_F(s,STACK_2); /* round */
 }
@@ -592,16 +592,16 @@ local maygc void R_cos_sin_R_R (object x, bool start_p, gcv_object_t *end_p)
     pushSTACK(F_I_scale_float_F(STACK_0,Fixnum_minus1)); /* s := r/2 */
     pushSTACK(F_sinx_F(STACK_0)); /* y := (sin(s)/s)^2 */
     /* Stack layout: Argument, q mod 4, r, s, y. */
-    x = F_F_mal_F(STACK_0,STACK_1); /* y*s */
-    x = F_F_mal_F(STACK_2,x); /* y*s*r */
+    x = F_F_mult_F(STACK_0,STACK_1); /* y*s */
+    x = F_F_mult_F(STACK_2,x); /* y*s*r */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*r */
     pushSTACK(end_p != NULL ? F_R_float_F(x,*end_p) : x); /* round and save cos(r) */
-    x = F_F_mal_F(STACK_1,STACK_2); /* y*s */
-    x = F_F_mal_F(x,STACK_2); /* y*s*s */
+    x = F_F_mult_F(STACK_1,STACK_2); /* y*s */
+    x = F_F_mult_F(x,STACK_2); /* y*s*s */
     x = R_R_minus_R(Fixnum_1,x); /* 1-y*s*s = cos(s)^2 */
-    x = F_F_mal_F(x,STACK_1); /* cos(s)^2*(sin(s)/s)^2 */
+    x = F_F_mult_F(x,STACK_1); /* cos(s)^2*(sin(s)/s)^2 */
     x = F_sqrt_F(x); /* cos(s)*sin(s)/s */
-    x = F_F_mal_F(x,STACK_2); /* cos(s)*sin(s) */
+    x = F_F_mult_F(x,STACK_2); /* cos(s)*sin(s) */
     x = F_I_scale_float_F(x,Fixnum_1); /* 2*cos(s)*sin(s) = sin(r) */
     if (end_p != NULL) /* round sin(r) */
       x = F_R_float_F(x,*end_p);
@@ -636,7 +636,7 @@ local maygc object R_tan_R (object x)
   pushSTACK(x);
   R_cos_sin_R_R(x,true,NULL);
   /* stack layout: x, cos(x), sin(x). */
-  var object result = R_R_durch_R(STACK_0,STACK_1);
+  var object result = R_R_div_R(STACK_0,STACK_1);
   if (floatp(STACK_0) || floatp(STACK_1))
     result = F_R_float_F(result,STACK_2); /* reduce precision */
   skipSTACK(3); return result;
@@ -693,12 +693,12 @@ local maygc object R_tan_R (object x)
       # Stackaufbau: a, b, sum.
       loop {
         var object temp;
-        temp = R_R_durch_R(STACK_1,i); # (/ b i)
+        temp = R_R_div_R(STACK_1,i); # (/ b i)
         temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))
         if (eql(STACK_0,temp)) # = sum ?
           break; # ja -> Potenzreihe abbrechen
         STACK_0 = temp;
-        STACK_1 = F_F_mal_F(STACK_1,STACK_2); # b := b*a
+        STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a
         i = fixnum_inc(i,1); # i := i+1
       }
     }
@@ -809,7 +809,7 @@ local maygc object R_ln_R (object x, gcv_object_t* end_p)
   { var object temp;
     if (!eq(STACK_1,Fixnum_0)) {
       temp = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
-      temp = R_R_mal_R(STACK_1,temp); /* e*ln(2) */
+      temp = R_R_mult_R(STACK_1,temp); /* e*ln(2) */
       temp = R_R_plus_R(STACK_2,temp); /* ln(m)+e*ln(2) */
     } else {
       /* Avoid computing 0*ln(2) since it triggers a
@@ -1007,7 +1007,7 @@ local maygc object R_ln_R (object x, gcv_object_t* end_p)
     # Nun a,b beide Floats.
     pushSTACK(R_ln_R(STACK_1,NULL)); /* (ln a) */
     pushSTACK(R_ln_R(STACK_1,NULL)); /* (ln b) */
-    STACK_0 = F_F_durch_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
+    STACK_0 = F_F_div_F(STACK_1,STACK_0); /* (/ (ln a) (ln b)) */
     STACK_1 = R_R_contagion_R(STACK_2,STACK_3);
     var object ret = F_R_float_F(STACK_0,STACK_1);
     skipSTACK(4);
@@ -1063,9 +1063,9 @@ local maygc object R_ln_R (object x, gcv_object_t* end_p)
         if (eql(STACK_0,temp)) # = sum ?
           break; # ja -> Potenzreihe abbrechen
         STACK_0 = temp;
-        temp = F_F_mal_F(STACK_1,STACK_2); # b*x
+        temp = F_F_mult_F(STACK_1,STACK_2); # b*x
         i = fixnum_inc(i,1); # i := i+1
-        STACK_1 = R_R_durch_R(temp,i); # b := b*x/i
+        STACK_1 = R_R_div_R(temp,i); # b := b*x/i
       }
     }
     var object z = STACK_0; # sum als Ergebnis
@@ -1138,7 +1138,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
       pushSTACK(x);
       pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
       temp = F_sqrt_F(F_sinhx_F(temp)); # Wurzel aus (sinh(x)/x)^2
-      temp = F_F_mal_F(temp,STACK_0); # mit genauerem x multiplizieren
+      temp = F_F_mult_F(temp,STACK_0); # mit genauerem x multiplizieren
       temp = F_F_float_F(temp,STACK_1); # und wieder runden
       skipSTACK(2);
       return temp;
@@ -1147,7 +1147,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
       var object temp;
       pushSTACK(x);
       pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
-      temp = F_durch_F(temp); # (/ y)
+      temp = F_div_F(temp); # (/ y)
       temp = F_F_minus_F(popSTACK(),temp); # von y subtrahieren
       temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
       return F_F_float_F(temp,popSTACK());
@@ -1183,7 +1183,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
       var object temp;
       pushSTACK(x);
       pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
-      temp = F_durch_F(temp); # (/ y)
+      temp = F_div_F(temp); # (/ y)
       temp = F_F_plus_F(popSTACK(),temp); # zu y addieren
       temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
       return F_F_float_F(temp,popSTACK());
@@ -1202,8 +1202,8 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
         pushSTACK(temp = F_extend_F(x)); # Rechengenauigkeit erhöhen
         pushSTACK(temp = F_I_scale_float_F(temp,Fixnum_minus1)); # y=(scale-float x -1)
         temp = F_sinhx_F(temp); # (sinh(y)/y)^2
-        temp = F_F_mal_F(STACK_0,temp); # mit y multiplizieren
-        temp = F_F_mal_F(STACK_1,temp); # mit x multiplizieren
+        temp = F_F_mult_F(STACK_0,temp); # mit y multiplizieren
+        temp = F_F_mult_F(STACK_1,temp); # mit x multiplizieren
         temp = R_R_plus_R(Fixnum_1,temp); # 1 addieren
         temp = F_F_float_F(temp,STACK_2); # und wieder runden
         skipSTACK(3);
@@ -1242,7 +1242,7 @@ local maygc void R_cosh_sinh_R_R (object x, gcv_object_t* end_p)
       var object temp;
       pushSTACK(x);
       pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
-      pushSTACK(temp = F_durch_F(temp)); /* (/ y) */
+      pushSTACK(temp = F_div_F(temp)); /* (/ y) */
       /* stack layout: x, exp(x), exp(-x). */
       temp = F_F_plus_F(STACK_1,temp); /* + y */
       temp = F_I_scale_float_F(temp,Fixnum_minus1); /* /2 */
@@ -1271,9 +1271,9 @@ local maygc void R_cosh_sinh_R_R (object x, gcv_object_t* end_p)
         pushSTACK(temp = F_sinhx_F(STACK_1)); /* y:=(sinh(x)/x)^2 */
         /* stack layout: original x, x, x^2, y. */
         temp = F_sqrt_F(temp); /* sqrt(y) = sinh(x)/x */
-        temp = F_F_mal_F(STACK_2,temp); /* x*sqrt(y) = sinh(x) */
+        temp = F_F_mult_F(STACK_2,temp); /* x*sqrt(y) = sinh(x) */
         STACK_2 = (end_p != NULL ? F_F_float_F(temp,STACK_3) : temp); /* restore the precision */
-        temp = F_F_mal_F(STACK_1,STACK_0); /* x^2*y */
+        temp = F_F_mult_F(STACK_1,STACK_0); /* x^2*y */
         temp = F_sqrt_F(R_R_plus_R(Fixnum_1,temp)); /* sqrt(1+x^2*y) */
         STACK_3 = (end_p != NULL ? F_F_float_F(temp,STACK_3) : temp); /* restore the precision */
         skipSTACK(2); return;
@@ -1291,7 +1291,7 @@ local maygc object R_tanh_R (object x)
   pushSTACK(x);
   R_cosh_sinh_R_R(x,NULL);
   /* stack layout: x, cosh(x), sinh(x). */
-  var object result = R_R_durch_R(STACK_0,STACK_1);
+  var object result = R_R_div_R(STACK_0,STACK_1);
   if (floatp(STACK_0) || floatp(STACK_1))
     result = F_R_float_F(result,STACK_2); /* reduce precision */
   skipSTACK(3); return result;

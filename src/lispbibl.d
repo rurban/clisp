@@ -16528,12 +16528,12 @@ extern maygc void print_float (object z, const gcv_object_t* stream_);
 # is used by IO
 
 # UP: Multiply an Integer by 10 and add another digit
-# mal_10_plus_x(y,x)
+# mult_10_plus_x(y,x)
 # > y: Integer Y (>=0)
 # > x: digit value X (>=0,<10)
 # < result: Integer Y*10+X (>=0)
 # can trigger GC
-extern maygc object mal_10_plus_x (object y, uintB x);
+extern maygc object mult_10_plus_x (object y, uintB x);
 # is used by IO
 
 # UP: decides whether two numbers are equal

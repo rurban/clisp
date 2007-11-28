@@ -48,7 +48,7 @@ local maygc void warn_floating_point_contagion (void) {
 }
 
 
-/* generates a Float-operation F_op_F like F_minus_F or F_durch_F */
+/* generates a Float-operation F_op_F like F_minus_F or F_div_F */
 #define GEN_F_op1(op)                                \
     local maygc object CONCAT3(F_,op,_F) (object x)  \
     {                                                \
@@ -73,45 +73,45 @@ local maygc object F_abs_F (object x) {
 }
 
 /* SF_square_SF(x) returns (* x x), with x being a SF. */
-#define SF_square_SF(x)  SF_SF_mal_SF(x,x)
+#define SF_square_SF(x)  SF_SF_mult_SF(x,x)
 
 /* FF_square_FF(x) returns (* x x), with x being a FF.
  can trigger GC */
-#define FF_square_FF(x)  FF_FF_mal_FF(x,x)
+#define FF_square_FF(x)  FF_FF_mult_FF(x,x)
 
 /* DF_square_DF(x) returns (* x x), with x being a DF.
  can trigger GC */
-#define DF_square_DF(x)  DF_DF_mal_DF(x,x)
+#define DF_square_DF(x)  DF_DF_mult_DF(x,x)
 
 /* F_square_F(x) returns (* x x), with x being a Float.
  can trigger GC */
 local maygc object F_square_F (object x);
 GEN_F_op1(square)
 
-/* SF_durch_SF(x) returns (/ x), with x being a SF. */
-#define SF_durch_SF(x)  SF_SF_durch_SF(SF_1,x)
+/* SF_div_SF(x) returns (/ x), with x being a SF. */
+#define SF_div_SF(x)  SF_SF_div_SF(SF_1,x)
 
-/* FF_durch_FF(x) returns (/ x), with x being a FF.
+/* FF_div_FF(x) returns (/ x), with x being a FF.
  can trigger GC */
-#define FF_durch_FF(x)  FF_FF_durch_FF(FF_1,x)
+#define FF_div_FF(x)  FF_FF_div_FF(FF_1,x)
 
-/* DF_durch_DF(x) returns (/ x), with x being a DF.
+/* DF_div_DF(x) returns (/ x), with x being a DF.
  can trigger GC */
-#define DF_durch_DF(x)  DF_DF_durch_DF(DF_1,x)
+#define DF_div_DF(x)  DF_DF_div_DF(DF_1,x)
 
-/* LF_durch_LF(x) returns (/ x), with x being a LF.
+/* LF_div_LF(x) returns (/ x), with x being a LF.
  can trigger GC */
-local maygc object LF_durch_LF (object x)
+local maygc object LF_div_LF (object x)
 {
   pushSTACK(x);
   encode_LF1(Lfloat_length(x), x=);
-  return LF_LF_durch_LF(x,popSTACK());
+  return LF_LF_div_LF(x,popSTACK());
 }
 
-/* F_durch_F(x) returns (/ x), with x being a Float.
+/* F_div_F(x) returns (/ x), with x being a Float.
  can trigger GC */
-local maygc object F_durch_F (object x);
-GEN_F_op1(durch)
+local maygc object F_div_F (object x);
+GEN_F_op1(div)
 
 /* F_sqrt_F(x) returns (sqrt x), with x being a Float >=0.
  can trigger GC */
@@ -347,18 +347,18 @@ local maygc object F_F_minus_F (object x, object y)
             1,0,return)
 }
 
-/* F_F_mal_F(x,y) returns (* x y), with x and y being Floats.
+/* F_F_mult_F(x,y) returns (* x y), with x and y being Floats.
  can trigger GC */
-local maygc object F_F_mal_F (object x, object y)
+local maygc object F_F_mult_F (object x, object y)
 {
-  GEN_F_op2(x,y,SF_SF_mal_SF,FF_FF_mal_FF,DF_DF_mal_DF,LF_LF_mal_LF,1,0,return)
+  GEN_F_op2(x,y,SF_SF_mult_SF,FF_FF_mult_FF,DF_DF_mult_DF,LF_LF_mult_LF,1,0,return)
 }
 
-/* F_F_durch_F(x,y) returns (/ x y), with x and y being Floats.
+/* F_F_div_F(x,y) returns (/ x y), with x and y being Floats.
  can trigger GC */
-local maygc object F_F_durch_F (object x, object y)
+local maygc object F_F_div_F (object x, object y)
 {
-  GEN_F_op2(x,y,SF_SF_durch_SF,FF_FF_durch_FF,DF_DF_durch_DF,LF_LF_durch_LF,
+  GEN_F_op2(x,y,SF_SF_div_SF,FF_FF_div_FF,DF_DF_div_DF,LF_LF_div_LF,
             1,0,return)
 }
 
@@ -722,9 +722,9 @@ GEN_F_round(round)
   local maygc void CONCAT3(F_F_,rounding,_I_F) (object x, object y) {   \
     GCTRIGGER2(x,y);                                                    \
     pushSTACK(y);                                                       \
-    CONCAT3(F_,rounding,_I_F) (F_F_durch_F(x,y)); /* form whole-numbered part of the quotient */ \
+    CONCAT3(F_,rounding,_I_F) (F_F_div_F(x,y)); /* form whole-numbered part of the quotient */ \
     y = STACK_2; STACK_2 = STACK_1;                                     \
-    STACK_1 = F_F_mal_F(y,STACK_0); /* multiply fractional part with y */ \
+    STACK_1 = F_F_mult_F(y,STACK_0); /* multiply fractional part with y */ \
     skipSTACK(1);                                                       \
   }
 

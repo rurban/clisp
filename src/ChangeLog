@@ -1,9 +1,19 @@
-2007-11-25  Reini Urban <rurban@x-ray.at>
+007-11-27  Reini Urban  <rurban@x-ray.at>
+
+	<04_divmult>
+	* compelem.d, comptran.d, dfloat.d, ffloat.d, flo_rest.d, intdiv.d:
+	* intmal.d, intgcd.d, intsqrt.d, lfloat.d, lisparit.d, rational.d:
+	* realelem.d, realrand.d, realtran.d, sfloat.d:
+	rename *_durch_* to *_div_*, rename *_mal_* to *_mult_*,
+	rename GEN_*_op*(durch) to GEN_*_op*(div)
+	* lisparit.d, lispbibl.d, io.d (mal_10_plus_x): rename to mult_10_plus_x
+
+2007-11-26  Reini Urban  <rurban@x-ray.at>
 
 	<03_fehler_label>
 	* io.d: rename labels fehler_nur01 to error_nur01,
 	fehler_dopp to error_colon,
-	remove english function translations in comments.
+	remove english function translations in comments
 	* eval.d: rename labels fehler_zuwenig to error_toofew,
 	fehler_zuviele_werte to error_toomany_values,
 	fehler_zuviel to error_toomany

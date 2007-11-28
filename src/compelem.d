@@ -213,7 +213,7 @@ global maygc object F_complex_C (object x) {
       var object b = TheComplex(x)->c_imag;
       pushSTACK(a);
       pushSTACK(b);
-      var object temp = R_R_mal_R(a,b); # a*b
+      var object temp = R_R_mult_R(a,b); # a*b
       temp = R_R_plus_R(temp,temp); # 2*a*b
       a = STACK_1; STACK_1 = temp;
       temp = R_square_R(a); # a*a
@@ -224,26 +224,26 @@ global maygc object F_complex_C (object x) {
     }
   }
 
-# N_N_mal_N(x) liefert (* x y), wo x und y Zahlen sind.
+# N_N_mult_N(x) liefert (* x y), wo x und y Zahlen sind.
 # can trigger GC
-  local maygc object N_N_mal_N (object x, object y);
+  local maygc object N_N_mult_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a, y=b+ci -> (a*b)+(a*c)i
 # x=a+bi, y=c -> (a*c)+(b*c)i
 # x=a+bi, y=c+di -> (a*c-b*d)+(a*d+b*c)i
-  local maygc object N_N_mal_N (object x, object y)
+  local maygc object N_N_mult_N (object x, object y)
   {
     if (N_realp(x)) {
       if (N_realp(y)) {
-        return R_R_mal_R(x,y);
+        return R_R_mult_R(x,y);
       } else {
         # x=a, y=b+ci
         pushSTACK(x); # a
         pushSTACK(TheComplex(y)->c_real); # b
-        var object temp = R_R_mal_R(x,TheComplex(y)->c_imag); # a*c
+        var object temp = R_R_mult_R(x,TheComplex(y)->c_imag); # a*c
         y = popSTACK(); x = STACK_0; STACK_0 = temp;
-        y = R_R_mal_R(x,y); # a*b
+        y = R_R_mult_R(x,y); # a*b
         return R_R_complex_N(y,popSTACK());
       }
     } else {
@@ -251,9 +251,9 @@ global maygc object F_complex_C (object x) {
         # x=a+bi, y=c
         pushSTACK(y); # c
         pushSTACK(TheComplex(x)->c_real); # a
-        var object temp = R_R_mal_R(TheComplex(x)->c_imag,y); # b*c
+        var object temp = R_R_mult_R(TheComplex(x)->c_imag,y); # b*c
         x = popSTACK(); y = STACK_0; STACK_0 = temp;
-        x = R_R_mal_R(x,y); # a*c
+        x = R_R_mult_R(x,y); # a*c
         return R_R_complex_N(x,popSTACK());
       } else {
         # x=a+bi, y=c+di -> (a*c-b*d)+(a*d+b*c)i
@@ -262,16 +262,16 @@ global maygc object F_complex_C (object x) {
         pushSTACK(TheComplex(x)->c_imag); # b
         pushSTACK(y = TheComplex(y)->c_imag); # d
         # Stackaufbau: a, c, b, d.
-        y = R_R_mal_R(STACK_3,y); # a*d
+        y = R_R_mult_R(STACK_3,y); # a*d
         x = STACK_3; STACK_3 = y;
         # Stackaufbau: a*d, c, b, d.
-        x = R_R_mal_R(x,STACK_2); # a*c
+        x = R_R_mult_R(x,STACK_2); # a*c
         y = STACK_2; STACK_2 = x;
         # Stackaufbau: a*d, a*c, b, d.
-        y = R_R_mal_R(STACK_1,y); # b*c
+        y = R_R_mult_R(STACK_1,y); # b*c
         STACK_3 = R_R_plus_R(STACK_3,y); # a*d+b*c
         # Stackaufbau: a*d+b*c, a*c, b, d.
-        y = R_R_mal_R(STACK_1,STACK_0); # b*d
+        y = R_R_mult_R(STACK_1,STACK_0); # b*d
         y = R_R_minus_R(STACK_2,y); # a*c-b*d
         x = STACK_3; # a*d+b*c
         skipSTACK(4);
@@ -290,9 +290,9 @@ global maygc object F_complex_C (object x) {
       return (R_zerop(TheComplex(x)->c_real) && R_zerop(TheComplex(x)->c_imag));
   }
 
-# N_durch_N(x) liefert (/ x), wo x eine Zahl ist.
+# N_div_N(x) liefert (/ x), wo x eine Zahl ist.
 # can trigger GC
-  local maygc object N_durch_N (object x);
+  local maygc object N_div_N (object x);
 # Methode:
 # Falls x reell, klar.
 # Falls x=a+bi:
@@ -317,25 +317,25 @@ global maygc object F_complex_C (object x) {
 #      d.h. exponent(a)-exponent(b)>floor((exp_mid-exp_low-1)/2) ).
 #  c':=a'*a'+b'*b',
 #  liefere die beiden Komponenten 2^(-e)*a'/c' und -2^(-e)*b'/c'.
-  local maygc void SFC_durch_SFC (object a, object b);
-  local maygc void FFC_durch_FFC (object a, object b);
-  local maygc void DFC_durch_DFC (object a, object b);
-  local maygc void LFC_durch_LFC (object a, object b);
-  local maygc void SFC_durch_SFC (object a, object b)
+  local maygc void SFC_div_SFC (object a, object b);
+  local maygc void FFC_div_FFC (object a, object b);
+  local maygc void DFC_div_DFC (object a, object b);
+  local maygc void LFC_div_LFC (object a, object b);
+  local maygc void SFC_div_SFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
     { # Exponenten von a holen:
       var uintBWL uexp = SF_uexp(a);
       if (uexp==0) { # a=0.0 -> liefere (complex a (- (/ b))) :
-        pushSTACK(a); pushSTACK(SF_minus_SF(SF_durch_SF(b))); return;
+        pushSTACK(a); pushSTACK(SF_minus_SF(SF_div_SF(b))); return;
       }
       a_exp = (sintWL)((uintWL)uexp - SF_exp_mid);
     }
     { # Exponenten von b holen:
       var uintBWL uexp = SF_uexp(b);
       if (uexp==0) { # b=0.0 -> liefere (complex (/ a) b) :
-        pushSTACK(SF_durch_SF(a)); pushSTACK(b); return;
+        pushSTACK(SF_div_SF(a)); pushSTACK(b); return;
       }
       b_exp = (sintWL)((uintWL)uexp - SF_exp_mid);
     }
@@ -347,25 +347,25 @@ global maygc object F_complex_C (object x) {
     b = (a_exp-b_exp > floor(SF_exp_mid-SF_exp_low-1,2) ? SF_0 : SF_I_scale_float_SF(b,delta));
     # c' := a'*a'+b'*b' berechnen:
     var object c = SF_SF_plus_SF(SF_square_SF(a),SF_square_SF(b));
-    a = SF_I_scale_float_SF(SF_SF_durch_SF(a,c),delta); # 2^(-e)*a'/c'
-    b = SF_I_scale_float_SF(SF_minus_SF(SF_SF_durch_SF(b,c)),delta); # -2^(-e)*b'/c'
+    a = SF_I_scale_float_SF(SF_SF_div_SF(a,c),delta); # 2^(-e)*a'/c'
+    b = SF_I_scale_float_SF(SF_minus_SF(SF_SF_div_SF(b,c)),delta); # -2^(-e)*b'/c'
     pushSTACK(a); pushSTACK(b); return;
   }
-  local maygc void FFC_durch_FFC (object a, object b)
+  local maygc void FFC_div_FFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
     { # Exponenten von a holen:
       var uintBWL uexp = FF_uexp(ffloat_value(a));
       if (uexp==0) { # a=0.0 -> liefere (complex a (- (/ b))) :
-        pushSTACK(a); pushSTACK(FF_minus_FF(FF_durch_FF(b))); return;
+        pushSTACK(a); pushSTACK(FF_minus_FF(FF_div_FF(b))); return;
       }
       a_exp = (sintWL)((uintWL)uexp - FF_exp_mid);
     }
     { # Exponenten von b holen:
       var uintBWL uexp = FF_uexp(ffloat_value(b));
       if (uexp==0) { # b=0.0 -> liefere (complex (/ a) b) :
-        pushSTACK(FF_durch_FF(a)); pushSTACK(FF_0); return;
+        pushSTACK(FF_div_FF(a)); pushSTACK(FF_0); return;
       }
       b_exp = (sintWL)((uintWL)uexp - FF_exp_mid);
     }
@@ -383,25 +383,25 @@ global maygc object F_complex_C (object x) {
     temp = STACK_1; pushSTACK(FF_square_FF(temp)); # a'*a'
     temp = STACK_1; temp = FF_square_FF(temp); # b'*b'
     STACK_0 = temp = FF_FF_plus_FF(STACK_0,temp); # c' = a'*a'+b'*b'
-    STACK_2 = FF_I_scale_float_FF(FF_FF_durch_FF(STACK_2,temp),delta); # 2^(-e)*a'/c'
-    STACK_1 = FF_I_scale_float_FF(FF_minus_FF(FF_FF_durch_FF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
+    STACK_2 = FF_I_scale_float_FF(FF_FF_div_FF(STACK_2,temp),delta); # 2^(-e)*a'/c'
+    STACK_1 = FF_I_scale_float_FF(FF_minus_FF(FF_FF_div_FF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
     skipSTACK(1); return;
   }
-  local maygc void DFC_durch_DFC (object a, object b)
+  local maygc void DFC_div_DFC (object a, object b)
   {
     var sintWL a_exp;
     var sintWL b_exp;
     { # Exponenten von a holen:
       var uintWL uexp = DF_uexp(TheDfloat(a)->float_value_semhi);
       if (uexp==0) { # a=0.0 -> liefere (complex a (- (/ b))) :
-        pushSTACK(a); pushSTACK(DF_minus_DF(DF_durch_DF(b))); return;
+        pushSTACK(a); pushSTACK(DF_minus_DF(DF_div_DF(b))); return;
       }
       a_exp = (sintWL)(uexp - DF_exp_mid);
     }
     { # Exponenten von b holen:
       var uintWL uexp = DF_uexp(TheDfloat(b)->float_value_semhi);
       if (uexp==0) { # b=0.0 -> liefere (complex (/ a) b) :
-        pushSTACK(DF_durch_DF(a)); pushSTACK(DF_0); return;
+        pushSTACK(DF_div_DF(a)); pushSTACK(DF_0); return;
       }
       b_exp = (sintWL)(uexp - DF_exp_mid);
     }
@@ -419,24 +419,24 @@ global maygc object F_complex_C (object x) {
     temp = STACK_1; pushSTACK(DF_square_DF(temp)); # a'*a'
     temp = STACK_1; temp = DF_square_DF(temp); # b'*b'
     STACK_0 = temp = DF_DF_plus_DF(STACK_0,temp); # c' = a'*a'+b'*b'
-    STACK_2 = DF_I_scale_float_DF(DF_DF_durch_DF(STACK_2,temp),delta); # 2^(-e)*a'/c'
-    STACK_1 = DF_I_scale_float_DF(DF_minus_DF(DF_DF_durch_DF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
+    STACK_2 = DF_I_scale_float_DF(DF_DF_div_DF(STACK_2,temp),delta); # 2^(-e)*a'/c'
+    STACK_1 = DF_I_scale_float_DF(DF_minus_DF(DF_DF_div_DF(STACK_1,STACK_0)),delta); # -2^(-e)*b'/c'
     skipSTACK(1); return;
   }
-  local maygc void LFC_durch_LFC (object a, object b)
+  local maygc void LFC_div_LFC (object a, object b)
   {
     var uintL a_exp;
     var uintL b_exp;
     { # Exponenten von a holen:
       a_exp = TheLfloat(a)->expo;
       if (a_exp==0) { # a=0.0 -> liefere (complex a (- (/ b))) :
-        pushSTACK(a); pushSTACK(LF_minus_LF(LF_durch_LF(b))); return;
+        pushSTACK(a); pushSTACK(LF_minus_LF(LF_div_LF(b))); return;
       }
     }
     { # Exponenten von b holen:
       b_exp = TheLfloat(b)->expo;
       if (b_exp==0) { # b=0.0 -> liefere (complex (/ a) b) :
-        pushSTACK(b); pushSTACK(b); STACK_1 = LF_durch_LF(a); return;
+        pushSTACK(b); pushSTACK(b); STACK_1 = LF_div_LF(a); return;
       }
     }
     pushSTACK(a); pushSTACK(b);
@@ -463,21 +463,21 @@ global maygc object F_complex_C (object x) {
     temp = LF_square_LF(STACK_2); pushSTACK(temp); # a'*a'
     temp = LF_square_LF(STACK_2); # b'*b'
     STACK_0 = temp = LF_LF_plus_LF(STACK_0,temp); # c' = a'*a'+b'*b'
-    temp = LF_LF_durch_LF(STACK_3,temp); STACK_3 = LF_I_scale_float_LF(temp,STACK_1); # 2^(-e)*a'/c'
-    temp = LF_minus_LF(LF_LF_durch_LF(STACK_2,STACK_0)); STACK_2 = LF_I_scale_float_LF(temp,STACK_1); # -2^(-e)*b'/c'
+    temp = LF_LF_div_LF(STACK_3,temp); STACK_3 = LF_I_scale_float_LF(temp,STACK_1); # 2^(-e)*a'/c'
+    temp = LF_minus_LF(LF_LF_div_LF(STACK_2,STACK_0)); STACK_2 = LF_I_scale_float_LF(temp,STACK_1); # -2^(-e)*b'/c'
     skipSTACK(2); return;
   }
-  local maygc object N_durch_N (object x)
+  local maygc object N_div_N (object x)
   {
     if (N_realp(x))
-      return R_durch_R(x);
+      return R_div_R(x);
     else {
       var object a = TheComplex(x)->c_real;
       var object b = TheComplex(x)->c_imag;
       # x = a+bi
       if (R_rationalp(a)) {
         if (eq(a,Fixnum_0))
-          return R_R_complex_C(Fixnum_0,R_minus_R(R_durch_R(b))); # (complex 0 (- (/ b)))
+          return R_R_complex_C(Fixnum_0,R_minus_R(R_div_R(b))); # (complex 0 (- (/ b)))
         if (R_rationalp(b)) {
           # a,b beide rational
           var object temp;
@@ -485,9 +485,9 @@ global maygc object F_complex_C (object x) {
           temp = RA_square_RA(a); pushSTACK(temp); # a*a
           temp = RA_square_RA(STACK_1); # b*b
           temp = RA_RA_plus_RA(STACK_0,temp); # a*a+b*b = c
-          STACK_0 = temp = RA_durch_RA(temp); # c:=1/c
-          STACK_2 = RA_RA_mal_RA(STACK_2,temp); # a*c
-          STACK_1 = RA_minus_RA(RA_RA_mal_RA(STACK_1,STACK_0)); # -b*c
+          STACK_0 = temp = RA_div_RA(temp); # c:=1/c
+          STACK_2 = RA_RA_mult_RA(STACK_2,temp); # a*c
+          STACK_1 = RA_minus_RA(RA_RA_mult_RA(STACK_1,STACK_0)); # -b*c
           temp = R_R_complex_C(STACK_2,STACK_1); # (a*c) + (-b*c) i
           skipSTACK(3);
           return temp;
@@ -495,10 +495,10 @@ global maygc object F_complex_C (object x) {
           # a rational, b Float
           pushSTACK(b);
           floatcase(b,
-                    { a = RA_to_SF(a,true); SFC_durch_SFC(a,popSTACK()); },
-                    { a = RA_to_FF(a,true); FFC_durch_FFC(a,popSTACK()); },
-                    { a = RA_to_DF(a,true); DFC_durch_DFC(a,popSTACK()); },
-                    { a = RA_to_LF(a,Lfloat_length(b),true); LFC_durch_LFC(a,popSTACK()); }
+                    { a = RA_to_SF(a,true); SFC_div_SFC(a,popSTACK()); },
+                    { a = RA_to_FF(a,true); FFC_div_FFC(a,popSTACK()); },
+                    { a = RA_to_DF(a,true); DFC_div_DFC(a,popSTACK()); },
+                    { a = RA_to_LF(a,Lfloat_length(b),true); LFC_div_LFC(a,popSTACK()); }
                    );
         }
       } else {
@@ -506,14 +506,14 @@ global maygc object F_complex_C (object x) {
           # a Float, b rational
           pushSTACK(a);
           floatcase(a,
-                    { b = RA_to_SF(b,true); SFC_durch_SFC(popSTACK(),b); },
-                    { b = RA_to_FF(b,true); FFC_durch_FFC(popSTACK(),b); },
-                    { b = RA_to_DF(b,true); DFC_durch_DFC(popSTACK(),b); },
-                    { b = RA_to_LF(b,Lfloat_length(a),true); LFC_durch_LFC(popSTACK(),b); }
+                    { b = RA_to_SF(b,true); SFC_div_SFC(popSTACK(),b); },
+                    { b = RA_to_FF(b,true); FFC_div_FFC(popSTACK(),b); },
+                    { b = RA_to_DF(b,true); DFC_div_DFC(popSTACK(),b); },
+                    { b = RA_to_LF(b,Lfloat_length(a),true); LFC_div_LFC(popSTACK(),b); }
                    );
         } else {
           # a,b Floats
-          GEN_F_op2(a,b,SFC_durch_SFC,FFC_durch_FFC,DFC_durch_DFC,LFC_durch_LFC,2,0,)
+          GEN_F_op2(a,b,SFC_div_SFC,FFC_div_FFC,DFC_div_DFC,LFC_div_LFC,2,0,)
         }
       }
       # beide Komponenten zu einer komplexen Zahl zusammenfügen:
@@ -521,35 +521,35 @@ global maygc object F_complex_C (object x) {
       return R_R_complex_C(a,b);
     }
   }
-  #define C_durch_C  N_durch_N
+  #define C_div_C  N_div_N
 
-# N_N_durch_N(x,y) liefert (/ x y), wo x und y Zahlen sind.
+# N_N_div_N(x,y) liefert (/ x y), wo x und y Zahlen sind.
 # can trigger GC
-  local maygc object N_N_durch_N (object x, object y);
+  local maygc object N_N_div_N (object x, object y);
 # Methode:
 # x,y beide reell -> klar.
 # x=a+bi, y=c reell -> (a/c)+(b/c)i
 # y komplex -> (* x (/ y))
-  local maygc object N_N_durch_N (object x, object y)
+  local maygc object N_N_div_N (object x, object y)
   {
     if (N_realp(y)) {
       # y reell
       if (N_realp(x)) {
         # x,y beide reell
-        return R_R_durch_R(x,y);
+        return R_R_div_R(x,y);
       } else {
         # x komplex: x=a+bi, y=c
         pushSTACK(y); # c
         pushSTACK(TheComplex(x)->c_real); # a
-        var object temp = R_R_durch_R(TheComplex(x)->c_imag,y); # b/c
+        var object temp = R_R_div_R(TheComplex(x)->c_imag,y); # b/c
         x = popSTACK(); y = STACK_0; STACK_0 = temp;
-        x = R_R_durch_R(x,y); # a/c
+        x = R_R_div_R(x,y); # a/c
         return R_R_complex_N(x,popSTACK());
       }
     } else {
       # y komplex
-      pushSTACK(x); y = C_durch_C(y); # mit dem Kehrwert von y
-      return N_N_mal_N(popSTACK(),y); # multiplizieren
+      pushSTACK(x); y = C_div_C(y); # mit dem Kehrwert von y
+      return N_N_mult_N(popSTACK(),y); # multiplizieren
     }
   }
 
@@ -795,7 +795,7 @@ global maygc object F_complex_C (object x) {
       if (N_zerop(x))
         return x;
       pushSTACK(x); x = C_abs_R(x); # (abs x) errechnen
-      return N_N_durch_N(popSTACK(),x); # (/ x (abs x))
+      return N_N_div_N(popSTACK(),x); # (/ x (abs x))
     }
   }
 
@@ -827,22 +827,22 @@ global maygc object F_complex_C (object x) {
       a = STACK_0;
       if (!R_minusp(a)) { /* a>=0 */
         var object c = # sqrt((r+a)/2)
-          R_sqrt_R(R_R_durch_R(R_R_plus_R(r,a),fixnum(2)));
+          R_sqrt_R(R_R_div_R(R_R_plus_R(r,a),fixnum(2)));
         STACK_0 = c;
         if (!R_zerop(c)) {
-          c = R_R_mal_R(fixnum(2),c); # 2*c
-          c = R_R_durch_R(STACK_1,c); # d:=b/(2*c)
+          c = R_R_mult_R(fixnum(2),c); # 2*c
+          c = R_R_div_R(STACK_1,c); # d:=b/(2*c)
         }
         c = R_R_complex_C(STACK_0,c); # c+di
         skipSTACK(2); return c; # als Ergebnis
       } else { /* a<0 */
         var object d = # sqrt((r-a)/2)
-          R_sqrt_R(R_R_durch_R(R_R_minus_R(r,a),fixnum(2)));
+          R_sqrt_R(R_R_div_R(R_R_minus_R(r,a),fixnum(2)));
         if (R_minusp(STACK_1)) # bei b<0 Vorzeichenwechsel
           d = R_minus_R(d);
         STACK_0 = d;
-        d = R_R_mal_R(fixnum(2),d); # 2*d
-        d = R_R_durch_R(STACK_1,d); # c:=b/(2*d)
+        d = R_R_mult_R(fixnum(2),d); # 2*d
+        d = R_R_div_R(STACK_1,d); # c:=b/(2*d)
         d = R_R_complex_C(d,STACK_0); # c+di
         skipSTACK(2); return d; # als Ergebnis
       }

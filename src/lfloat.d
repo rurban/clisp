@@ -990,7 +990,7 @@ local maygc object LF_square_LF (object x)
 }
 
 /* returns for two equal-length Long-Float x and y : (* x y), a LF.
- LF_LF_mal_LF(x,y)
+ LF_LF_mult_LF(x,y)
  can trigger GC
  method:
  If x1=0.0 or x2=0.0 -> result 0.0
@@ -1001,7 +1001,7 @@ local maygc object LF_square_LF (object x)
           the left (the front n+1 digits are enough)
           and decrement exponent.
         Rounding to n digits yields the result-mantissa. */
-local maygc object LF_LF_mal_LF (object x1, object x2)
+local maygc object LF_LF_mult_LF (object x1, object x2)
 {
   var uintL uexp1 = TheLfloat(x1)->expo;
   if (uexp1==0)
@@ -1041,7 +1041,7 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
   { /* form product: */
     var uintD* MSDptr;
     begin_arith_call();
-    UDS_UDS_mal_UDS(len,&TheLfloat(x1)->data[(uintP)len],
+    UDS_UDS_mult_UDS(len,&TheLfloat(x1)->data[(uintP)len],
                     len,&TheLfloat(x2)->data[(uintP)len],
                     MSDptr=,_EMA_,);
     var uintD* midptr = &MSDptr[(uintP)len]; /* pointer into the middle of the 2n digits */
@@ -1088,7 +1088,7 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
 }
 
 /* returns for two equal-length Long-Float x and y : (/ x y), a LF.
- LF_LF_durch_LF(x,y)
+ LF_LF_div_LF(x,y)
  can trigger GC
  method:
  x2 = 0.0 -> Error
@@ -1115,7 +1115,7 @@ local maygc object LF_LF_mal_LF (object x1, object x2)
 #else
   #define workaround_gcc270_bug()
 #endif
-local maygc object LF_LF_durch_LF (object x1, object x2)
+local maygc object LF_LF_div_LF (object x1, object x2)
 {
   var uintL uexp2 = TheLfloat(x2)->expo;
   if (uexp2==0)
