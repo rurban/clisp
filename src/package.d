@@ -224,7 +224,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
     /* first string and printname of the found symbol are equal ? */
-    if ((invert ? string_gleich_inverted : string_gleich)
+    if ((invert ? string_gleich_inverted : string_eq)
         (string,Symbol_name(entry))) {
       if (sym_) { *sym_ = entry; }
       return true;
@@ -234,7 +234,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
   } else { /* entry is a symbol-list */
     while (consp(entry)) {
       /* first string and printname of the symbol are equal ? */
-      if ((invert ? string_gleich_inverted : string_gleich)
+      if ((invert ? string_gleich_inverted : string_eq)
           (string,Symbol_name(Car(entry))))
         goto found;
       entry = Cdr(entry);
@@ -492,7 +492,7 @@ local bool shadowing_lookup (object string, bool invert, object pack, object* sy
   var object list = ThePackage(pack)->pack_shadowing_symbols;
   /* traverse shadowing-list: */
   while (consp(list)) {
-    if ((invert ? string_gleich_inverted : string_gleich)
+    if ((invert ? string_gleich_inverted : string_eq)
         (string,Symbol_name(Car(list))))
       goto found;
     list = Cdr(list);
@@ -538,7 +538,7 @@ local void shadowing_delete (object string, bool invert, object pack) {
   var object list = *listptr;
   /* list = *listptr traverses the shadowing-list */
   while (consp(list)) {
-    if ((invert ? string_gleich_inverted : string_gleich)
+    if ((invert ? string_gleich_inverted : string_eq)
         (string,Symbol_name(Car(list))))
       goto found;
     listptr = &Cdr(list); list = *listptr;
@@ -626,13 +626,13 @@ global object find_package (object string) {
   while (consp(packlistr)) {
     pack = Car(packlistr); /* Package to be tested */
     /* test name: */
-    if (string_gleich(string,ThePackage(pack)->pack_name))
+    if (string_eq(string,ThePackage(pack)->pack_name))
       goto found;
     { /* test nickname: */
       /* traverse nickname-list */
       var object nicknamelistr = ThePackage(pack)->pack_nicknames;
       while (consp(nicknamelistr)) {
-        if (string_gleich(string,Car(nicknamelistr)))
+        if (string_eq(string,Car(nicknamelistr)))
           goto found;
         nicknamelistr = Cdr(nicknamelistr);
       }
@@ -1558,7 +1558,7 @@ local maygc void use_package_aux (void* data, object sym) {
          (car (car conflictsr)) = its first cons,
          (cdr (car (car conflictsr))) = the symbol therein,
          is its printname = string ? */
-      if (string_gleich(Symbol_name(Cdr(Car(Car(conflictsr)))),string))
+      if (string_eq(Symbol_name(Cdr(Car(Car(conflictsr)))),string))
         goto ok;
       conflictsr = Cdr(conflictsr);
     }
@@ -2364,7 +2364,7 @@ local maygc void in_make_package (bool case_inverted) {
   skipSTACK(1);
   STACK_3 = deleteq(STACK_3,NIL);
   /* (DELETE-DUPLICATES NICKNAMES :TEST (FUNCTION STRING=)) */
-  pushSTACK(STACK_3); pushSTACK(S(Ktest)); pushSTACK(L(string_gleich));
+  pushSTACK(STACK_3); pushSTACK(S(Ktest)); pushSTACK(L(string_eq));
   funcall(L(delete_duplicates),3);
   STACK_3 = value1;
   /* create package: */
