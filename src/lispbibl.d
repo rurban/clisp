@@ -13626,11 +13626,11 @@ extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 %% puts("extern object unpack_string_ro (object string, uintL* len, uintL* offset);");
 
 # UP: tests two Strings for equality
-# string_gleich(string1,string2)
+# string_eq(string1,string2)
 # > string1: String
 # > string2: simple-string
 # < result: /=0, if equal
-extern bool string_gleich (object string1, object string2);
+extern bool string_eq (object string1, object string2);
 # is used by PACKAGE, STREAM, IO
 
 # UP: tests two Strings for equality, case-insensitive

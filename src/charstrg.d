@@ -588,11 +588,11 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
 }
 
 /* UP: compares two strings for equality
- string_gleich(string1,string2)
+ string_eq(string1,string2)
  > string1: string
  > string2: simple-string
  < result: /=0, if equal */
-global bool string_gleich (object string1, object string2) {
+global bool string_eq (object string1, object string2) {
   var uintL len1;
   var uintL offset1;
   string1 = unpack_string_ro(string1,&len1,&offset1);
@@ -2733,7 +2733,7 @@ local signean string_comp (stringarg* arg1, const stringarg* arg2) {
 }
 
 /* (STRING= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 300 */
-LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -2749,7 +2749,7 @@ LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
 }
 
 /* (CS-COMMON-LISP:STRING= string1 string2 :start1 :end1 :start2 :end2) */
-LISPFUN(cs_string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;

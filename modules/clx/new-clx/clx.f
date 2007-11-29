@@ -6876,7 +6876,7 @@ DEFUN(XLIB:CHANGE-POINTER-CONTROL, display &key ACCELERATION THRESHOLD)
      L21:                      /* 21 L21 */
       pushSTACK(STACK_1);      /* 21 (LOAD&PUSH 1) */
       pushSTACK(Fixnum_1);     /* 22 (CONST&PUSH 0) ; 1 */
-      funcall (L(gleich), 2);  /* 23 (CALLSR&JMPIF 1 45 L41) ; = */
+      funcall(L(numequal),2);  /* 23 (CALLSR&JMPIF 1 45 L41) ; = */
       if(!nullp(value1)) goto L41;
       pushSTACK(STACK_1);      /* 27 (LOAD&PUSH 1) */
       funcall (L(abs), 1);     /* 28 (CALLS2&PUSH 159) ; ABS */

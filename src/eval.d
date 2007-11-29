@@ -32,7 +32,7 @@ local const Subr FUNTAB[] = {
   _(upper_case_p), _(lower_case_p), _(both_case_p), _(digit_char_p),
   _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
   _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
-  _(char), _(schar), _(store_char), _(store_schar), _(string_gleich),
+  _(char), _(schar), _(store_char), _(store_schar), _(string_eq),
   _(string_ungleich), _(string_kleiner), _(string_groesser),
   _(string_klgleich), _(string_grgleich), _(string_equal),
   _(string_not_equal), _(string_lessp), _(string_greaterp),
@@ -200,7 +200,7 @@ local const Subr FUNTABR[] = {
   _(make_broadcast_stream), _(make_concatenated_stream),
   /* SYMBOL : 0 SUBRs */
   /* LISPARIT : 18 SUBRs */
-  _(gleich), _(ungleich), _(kleiner), _(groesser), _(klgleich),
+  _(numequal), _(ungleich), _(kleiner), _(groesser), _(klgleich),
   _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
   _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
 }; /* That were 63 SUBRs. */
