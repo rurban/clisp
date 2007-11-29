@@ -298,9 +298,9 @@ LISPFUNNR(char,2)
 LISPFUNNR(schar,2)
 LISPFUNN(store_char,3)
 LISPFUNN(store_schar,3)
-LISPFUN(string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(cs_string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
@@ -1263,7 +1263,7 @@ LISPFUNNF(plusp,1)
 LISPFUNNF(minusp,1)
 LISPFUNNF(oddp,1)
 LISPFUNNF(evenp,1)
-LISPFUN(gleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(numequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 LISPFUN(ungleich,seclass_foldable,1,0,rest,nokey,0,NIL)
 LISPFUN(kleiner,seclass_foldable,1,0,rest,nokey,0,NIL)
 LISPFUN(groesser,seclass_foldable,1,0,rest,nokey,0,NIL)

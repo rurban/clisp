@@ -1,3 +1,13 @@
+2007-11-28  Reini Urban  <rurban@x-ray.at>
+
+	<05_gleich>
+	* constsym.d, eval.d, lisparit.d, subr.d, modules/clx/new-clx/clx.f:
+	(gleich): rename to numequal
+	* charstrg.d, constsym.d, eval.d, lispbibl.d, package.d, io.d:
+	* subr.d, subrkw.d (string_gleich): rename to string_eq
+	* charstrg.d, constsym.d, subr.d, subrkw.d (cs_string_gleich):
+	rename to cs_string_eq
+
 2007-11-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (get_display): add

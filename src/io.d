@@ -3806,9 +3806,9 @@ local uintWL interpret_feature (object expr) {
   } else if (consp(expr) && symbolp(Car(expr))) {
     var object opname = Symbol_name(Car(expr));
     var uintWL and_or_flag;
-    if (string_gleich(opname,Symbol_name(S(and)))) { # expr = (AND ...)
+    if (string_eq(opname,Symbol_name(S(and)))) { # expr = (AND ...)
       and_or_flag = 0; goto and_or;
-    } else if (string_gleich(opname,Symbol_name(S(or)))) { # expr = (OR ...)
+    } else if (string_eq(opname,Symbol_name(S(or)))) { # expr = (OR ...)
       and_or_flag = ~0;
      and_or: {
         # interprete the list-elements of expr, until there is a
@@ -3824,7 +3824,7 @@ local uintWL interpret_feature (object expr) {
           return and_or_flag;
         # expr was a Dotted List -> error
       }
-    } else if (string_gleich(opname,Symbol_name(S(not)))) {
+    } else if (string_eq(opname,Symbol_name(S(not)))) {
       # expr = (NOT ...) is to be of the shape (NOT obj):
       var object opargs = Cdr(expr);
       if (consp(opargs) && nullp(Cdr(opargs)))

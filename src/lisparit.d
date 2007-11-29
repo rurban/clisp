@@ -524,7 +524,7 @@ local maygc void test_integer_args (uintC argcount, gcv_object_t* args_pointer) 
   } while (argcount--); /* sic: not --argcount! */
 }
 
-LISPFUN(gleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(numequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (= number {number}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_number_args(argcount,args_pointer); /* all arguments numbers? */
