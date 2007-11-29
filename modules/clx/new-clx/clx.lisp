@@ -170,7 +170,7 @@
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
    closed-display-p
    ;; extensions
-   open-default-display display-noop
+   open-default-display
    ;; display-xdefaults resource-database-to-string resource-database-of-string
    ;; resource-database-locale
    ;; not implemented

@@ -1864,7 +1864,7 @@ DEFUN(XLIB:DISPLAY-BITMAP-FORMAT, display) /* OK */
   VALUES1(popSTACK());
 }
 
-DEFUN(XLIB:DISPLAY-NOOP, display) {
+DEFUN(XLIB:NO-OPERATION, display) {
   Display *dpy = pop_display ();
   int ret;
   X_CALL(ret = XNoOp(dpy));
@@ -6153,7 +6153,7 @@ DEFUN(XLIB:QUEUE-EVENT, &rest args)
    inside even-case, event-cond or process-event when :peek-p is T and
    :discard-p is NIL. */
 DEFUN(XLIB:DISCARD-CURRENT-EVENT, display)
-{ /* FIXME -- here the manual is bit unpreciese
+{ /* FIXME -- here the manual is a bit imprecise
       - Should we hang?
       - Should we return T/NIL before discarding? properly not. */
   Display *dpy = pop_display ();
@@ -8067,7 +8067,6 @@ DEFUN(XLIB:TRACE-DISPLAY, display) {UNDEFINED;}
 
 /*  Somewhat bogus ... */
 DEFUN(XLIB:SET-WM-RESOURCES, a1 a2 &key WRITE TEST TEST-NOT) {UNDEFINED;}
-DEFUN(XLIB:NO-OPERATION, display) {UNDEFINED;}
 
 /* [ MOVED TO LISP */
 ##if 0
