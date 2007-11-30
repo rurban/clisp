@@ -6624,7 +6624,7 @@ DEFUN(XLIB:ALLOW-EVENTS, display mode &optional time)
 /* Resources are done in Lisp (code from MIT-CLX).
    This is not an ideal solution because it reduces interoperability with
    other X applications, but the Xlib Xresource.h is a mess:
-   -- no facilities to remove a resource
+   -- no facilities to remove a resource (http://groups.google.com/group/comp.windows.x/browse_thread/thread/564dc7a3ad8ea211)
    -- memory allocation complications (who allocates and releases strings?) */
 ##if 0
 /* helpers */
