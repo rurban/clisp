@@ -1,7 +1,15 @@
+2007-11-29  Reini Urban <rurban@x-ray.at>
+
+	<06_gleich2>
+	* charstrg.d, lispbibl.d, package.d (string_gleich_inverted):
+	rename to string_eq_inverted
+	* lisparit.d, lispbibl.d, predtype.d (number_gleich):
+	rename to number_equal
+
 2007-11-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f, modules/clx/new-clx/clx.lisp:
-	rename DISPLAY-NOOP to the standatd NO-OPERATION
+	rename DISPLAY-NOOP to the standard NO-OPERATION
 
 2007-11-28  Reini Urban  <rurban@x-ray.at>
 
