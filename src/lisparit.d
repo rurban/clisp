@@ -15,11 +15,11 @@
 
 
 /* UP: decides over number equality
- number_gleich(x,y)
+ number_equal(x,y)
  > x,y: two numbers
  < result: true, if (= x y)  */
-global bool number_gleich (object x, object y);
-#define N_N_gleich  number_gleich  /* N_N_gleich is defined later */
+global bool number_equal (object x, object y);
+#define N_N_gleich  number_equal  /* N_N_gleich is defined later */
 
 
 /* arithmetics in general: */

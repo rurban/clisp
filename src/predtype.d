@@ -972,7 +972,7 @@ global bool equalp (object obj1, object obj2)
   } else if (numberp(obj1)) {
     if (!numberp(obj2)) return false;
     /* compare numbers via = */
-    return number_gleich(obj1,obj2);
+    return number_equal(obj1,obj2);
   } else {
    #ifdef TYPECODES
     switch (typecode(obj1))

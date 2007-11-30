@@ -2073,11 +2073,11 @@ local bool string_eqcomp_inverted (object string1, uintL offset1, object string2
 }
 
 /* UP: compares two strings for equality modulo case-invert
- string_gleich_inverted(string1,string2)
+ string_eq_inverted(string1,string2)
  > string1: string
  > string2: simple-string
  < result: /=0, if equal modulo case-invert */
-global bool string_gleich_inverted (object string1, object string2) {
+global bool string_eq_inverted (object string1, object string2) {
   var uintL len1;
   var uintL offset1;
   string1 = unpack_string_ro(string1,&len1,&offset1);

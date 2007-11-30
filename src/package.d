@@ -224,7 +224,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
   var object entry = TheSvector(Symtab_table(symtab))->data[index];
   if (!listp(entry)) { /* entry is a single symbol */
     /* first string and printname of the found symbol are equal ? */
-    if ((invert ? string_gleich_inverted : string_eq)
+    if ((invert ? string_eq_inverted : string_eq)
         (string,Symbol_name(entry))) {
       if (sym_) { *sym_ = entry; }
       return true;
@@ -234,7 +234,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
   } else { /* entry is a symbol-list */
     while (consp(entry)) {
       /* first string and printname of the symbol are equal ? */
-      if ((invert ? string_gleich_inverted : string_eq)
+      if ((invert ? string_eq_inverted : string_eq)
           (string,Symbol_name(Car(entry))))
         goto found;
       entry = Cdr(entry);
@@ -492,7 +492,7 @@ local bool shadowing_lookup (object string, bool invert, object pack, object* sy
   var object list = ThePackage(pack)->pack_shadowing_symbols;
   /* traverse shadowing-list: */
   while (consp(list)) {
-    if ((invert ? string_gleich_inverted : string_eq)
+    if ((invert ? string_eq_inverted : string_eq)
         (string,Symbol_name(Car(list))))
       goto found;
     list = Cdr(list);
@@ -538,7 +538,7 @@ local void shadowing_delete (object string, bool invert, object pack) {
   var object list = *listptr;
   /* list = *listptr traverses the shadowing-list */
   while (consp(list)) {
-    if ((invert ? string_gleich_inverted : string_eq)
+    if ((invert ? string_eq_inverted : string_eq)
         (string,Symbol_name(Car(list))))
       goto found;
     listptr = &Cdr(list); list = *listptr;

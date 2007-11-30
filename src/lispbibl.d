@@ -13766,11 +13766,11 @@ extern chart invert_case (chart ch);
 /* is used by PACKAGE */
 
 /* UP: compares two strings for equality modulo case-invert
- string_gleich_inverted(string1,string2)
+ string_eq_inverted(string1,string2)
  > string1: string
  > string2: simple-string
  < result: /=0, if equal modulo case-invert */
-extern bool string_gleich_inverted (object string1, object string2);
+extern bool string_eq_inverted (object string1, object string2);
 /* is used by PACKAGE */
 
 /* UP: converts a string to opposite case
@@ -16537,10 +16537,10 @@ extern maygc object mult_10_plus_x (object y, uintB x);
 # is used by IO
 
 # UP: decides whether two numbers are equal
-# number_gleich(x,y)
+# number_equal(x,y)
 # > x,y: two numbers
 # < result: true, if (= x y) holds
-extern bool number_gleich (object x, object y);
+extern bool number_equal (object x, object y);
 # is used by PREDTYPE
 
 # UP: Converts an object into a float of a given type
