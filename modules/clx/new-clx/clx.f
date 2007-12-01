@@ -1439,10 +1439,10 @@ static sint32 get_angle (object ang)
    in sixty-fourth of degree: (round (* (/ ang pi) (* 180 64))) */
   pushSTACK(ang);
   pushSTACK(GLO(FF_pi));
-  funcall (L(durch), 2);
+  funcall (L(slash), 2);
   pushSTACK(value1);
   pushSTACK(fixnum(180*64));
-  funcall (L(mal), 2);
+  funcall (L(star), 2);
   return get_sint32(funcall1(L(round),value1));
 }
 
@@ -1578,7 +1578,7 @@ static object make_rgb_val (unsigned short value)
    FIXME -- should find more clever way to do this ... */
   pushSTACK(fixnum(value));
   pushSTACK(fixnum(65535));
-  funcall (L(durch), 2);
+  funcall (L(slash), 2);
   return value1;
 }
 
@@ -1588,7 +1588,7 @@ static unsigned short get_rgb_val (object value)
          -- maybe we check the actual type here?! */
   pushSTACK(value);
   pushSTACK(fixnum(0xFFFF));
-  funcall (L(mal), 2);
+  funcall (L(star), 2);
   return get_uint16(funcall1(L(round),value1));
 }
 
@@ -6930,7 +6930,7 @@ DEFUN(XLIB:POINTER-CONTROL, display)
   pushSTACK(make_sint32 (threshold));
   pushSTACK(make_sint32 (accel_numerator));
   pushSTACK(make_sint32 (accel_denominator));
-  funcall (L(durch), 2);
+  funcall (L(slash), 2);
   value2 = popSTACK();
   mv_count = 2;
 }

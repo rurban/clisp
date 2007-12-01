@@ -13763,7 +13763,7 @@ global maygc struct timeval * sec_usec (object sec, object usec,
     pushSTACK(sec); funcall(L(floor),1);
     sec = value1;
     if (!boundp(usec)) { /* usec = round(sec*1000000) */
-      pushSTACK(value2); pushSTACK(fixnum(1000000)); funcall(L(mal),2);
+      pushSTACK(value2); pushSTACK(fixnum(1000000)); funcall(L(star),2);
       pushSTACK(value1); funcall(L(round),1);
       usec = value1;
     }
@@ -13792,7 +13792,7 @@ global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p)
 {
   pushSTACK(TO_INT((abs_p ? UNIX_LISP_TIME_DIFF : 0) + sec));
   if (usec) {
-    pushSTACK(TO_INT(usec)); pushSTACK(fixnum(1000000)); funcall(L(durch),2);
+    pushSTACK(TO_INT(usec)); pushSTACK(fixnum(1000000)); funcall(L(star),2);
     pushSTACK(value1); funcall(L(plus),2);
     return value1;
   } else

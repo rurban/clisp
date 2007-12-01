@@ -1235,12 +1235,12 @@ local void init_symbol_values (void) {
   define_variable(S(plus2),NIL);                  # ++
   define_variable(S(plus3),NIL);                  # +++
   define_variable(S(minus),NIL);                  # -
-  define_variable(S(mal),NIL);                    # *
-  define_variable(S(mal2),NIL);                   # **
-  define_variable(S(mal3),NIL);                   # ***
-  define_variable(S(durch),NIL);                  # /
-  define_variable(S(durch2),NIL);                 # //
-  define_variable(S(durch3),NIL);                 # ///
+  define_variable(S(star),NIL);                   # *
+  define_variable(S(star2),NIL);                  # **
+  define_variable(S(star3),NIL);                  # ***
+  define_variable(S(slash),NIL);                  # /
+  define_variable(S(slash2),NIL);                 # //
+  define_variable(S(slash3),NIL);                 # ///
   define_variable(S(driverstern),NIL);            # *DRIVER* := NIL
   define_variable(S(break_driver),NIL);           # *BREAK-DRIVER* := NIL
   define_variable(S(break_count),Fixnum_0);       # SYS::*BREAK-COUNT* := 0

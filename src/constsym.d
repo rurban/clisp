@@ -1063,8 +1063,8 @@ LISPSYM(max,"MAX",lisp)
 LISPSYM(min,"MIN",lisp)
 LISPSYM(plus,"+",lisp)
 LISPSYM(minus,"-",lisp)
-LISPSYM(mal,"*",lisp)
-LISPSYM(durch,"/",lisp)
+LISPSYM(star,"*",lisp)
+LISPSYM(slash,"/",lisp)
 LISPSYM(einsplus,"1+",lisp)
 LISPSYM(einsminus,"1-",lisp)
 LISPSYM(conjugate,"CONJUGATE",lisp)
@@ -1683,10 +1683,10 @@ LISPSYM(Klambda,"LAMBDA",keyword) /* marker in EVAL */
 LISPSYM(keyword,"KEYWORD",lisp) /* type for EVAL */
 LISPSYM(plus2,"++",lisp) /* variable in DEBUG */
 LISPSYM(plus3,"+++",lisp) /* variable in DEBUG */
-LISPSYM(mal2,"**",lisp) /* variable in DEBUG */
-LISPSYM(mal3,"***",lisp) /* variable in DEBUG */
-LISPSYM(durch2,"//",lisp) /* variable in DEBUG */
-LISPSYM(durch3,"///",lisp) /* variable in DEBUG */
+LISPSYM(star2,"**",lisp) /* variable in DEBUG */
+LISPSYM(star3,"***",lisp) /* variable in DEBUG */
+LISPSYM(slash2,"//",lisp) /* variable in DEBUG */
+LISPSYM(slash3,"///",lisp) /* variable in DEBUG */
 LISPSYM(driverstern,"*DRIVER*",ext) /* variable in DEBUG */
 LISPSYM(break_driver,"*BREAK-DRIVER*",ext) /* variable in DEBUG */
 LISPSYM(break_count,"*BREAK-COUNT*",system) /* variable in DEBUG */

@@ -242,7 +242,7 @@ local void affi_callit(address, ffinfo, args)
           }
         } elif (eq(rtype,S(string))) {   # string
           value1 = (thing == 0 ? NIL : asciz_to_string((const char*)thing,O(foreign_encoding)));
-        } elif (eq(rtype,S(mal))) {      # *
+        } elif (eq(rtype,S(star))) {      # *
           value1 = UL_to_I(thing);
         } elif (eq(rtype,S(Kexternal))) { # :external
           value1 = (thing == 0 ? NIL : allocate_fpointer((FOREIGN)thing));
@@ -284,7 +284,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
           size = -size;
         if (size > 4 || size == 3)
           goto bad_proto;
-      } elif (!( nullp(rtype) || eq(rtype,S(mal)) || eq(rtype,S(Kexternal)) || eq(rtype,S(string)) ))
+      } elif (!( nullp(rtype) || eq(rtype,S(star)) || eq(rtype,S(Kexternal)) || eq(rtype,S(string)) ))
         goto bad_proto;
     }
     # Typprüfung und Speicherung (auf Stack SP) der Argumente
@@ -351,7 +351,7 @@ local void affi_call_argsa(address, ffinfo, args, count)
           } else {
             # !fixnump(type)
             var uintBWL accept;
-            if (eq(type,S(mal))) # Zeiger
+            if (eq(type,S(star))) # Zeiger
               accept = ACCEPT_ADDR_ARG | ACCEPT_UBVECTOR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG;
             elif (eq(type,S(string)))
               accept = ACCEPT_ADDR_ARG | ACCEPT_STRING_ARG | ACCEPT_MAKE_ASCIZ | ACCEPT_NIL_ARG;
@@ -511,7 +511,7 @@ LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
     # TODO? address could be a LISP string or vector. Better not
     var object into = STACK_1; # Größe in Byte, '*, 'STRING, string oder vector
     skipSTACK(3);
-    if (eq(into,S(mal))) { # pointer dereference
+    if (eq(into,S(star))) { # pointer dereference
       value1 = UL_to_I(*(aint*)address);
     } elif (posfixnump(into)) {
       var uintL content;
@@ -607,7 +607,7 @@ LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
     var object wert = STACK_1;
     var object type = STACK_2; # Größe in Byte oder *
     skipSTACK(4);
-    if (eq(type,S(mal))) { # pointer dereference
+    if (eq(type,S(star))) { # pointer dereference
       if (integerp(wert)) {
         *(aint*)address = I_to_UL(wert);
       } elif (fpointerp(wert)) {
