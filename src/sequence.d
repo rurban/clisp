@@ -187,10 +187,10 @@ local maygc object valid_type1 (gcv_object_t* type_) {
       }
       {
         var object name3;
-        if (nullp(name2)) { name2 = S(mal); name3 = S(mal); goto try_vector; }
+        if (nullp(name2)) { name2 = S(star); name3 = S(star); goto try_vector; }
         if (consp(name2))
           { name3=Cdr(name2); name2 = Car(name2);
-          if (nullp(name3)) { name3 = S(mal); goto try_vector; }
+          if (nullp(name3)) { name3 = S(star); goto try_vector; }
           if (consp(name3) && nullp(Cdr(name3)))
             { name3 = Car(name3); goto try_vector; }
           }
@@ -198,7 +198,7 @@ local maygc object valid_type1 (gcv_object_t* type_) {
          try_vector: # Hier ist name2 = (second name), name3 = (third name), Defaults: *
           if (eq(name1,S(vector))
               || (   (eq(name1,S(array)) || eq(name1,S(simple_array)))
-                  && (eq(name3,S(mal)) || eq(name3,Fixnum_1)
+                  && (eq(name3,S(star)) || eq(name3,Fixnum_1)
                       || (consp(name3) && nullp(Cdr(name3)))))) {
             if (eq(name1,S(vector))) {
               if (integerp(name3)) pushSTACK(name3); else pushSTACK(unbound);
@@ -206,7 +206,7 @@ local maygc object valid_type1 (gcv_object_t* type_) {
               if (consp(name3) && integerp(Car(name3))) pushSTACK(Car(name3));
               else pushSTACK(unbound);
             }
-            var uintB atype = (eq(name2,S(mal)) ? Atype_T : eltype_code(name2));
+            var uintB atype = (eq(name2,S(star)) ? Atype_T : eltype_code(name2));
             if (atype==Atype_T) { # (VECTOR T)
               name = S(vector); goto expanded;
             } else if (atype==Atype_Char) { # (VECTOR CHARACTER)

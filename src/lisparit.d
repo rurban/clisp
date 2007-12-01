@@ -731,7 +731,7 @@ LISPFUN(minus,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(mal,seclass_foldable,0,0,rest,nokey,0,NIL)
+LISPFUN(star,seclass_foldable,0,0,rest,nokey,0,NIL)
 { /* (* {number}), CLTL p. 199
      method:
      (*) = 1
@@ -753,7 +753,7 @@ LISPFUN(mal,seclass_foldable,0,0,rest,nokey,0,NIL)
   VALUES1(x); set_args_end_pointer(rest_args_pointer);
 }
 
-LISPFUN(durch,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(slash,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (/ number {number}), CLTL p. 200
      method:
      (/ x) extra.

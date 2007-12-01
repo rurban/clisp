@@ -1693,7 +1693,7 @@ local maygc uintL prepare_resize (object maxcount, object mincount_threshold,
     pushSTACK(maxcount);        /* MAXCOUNT */
     pushSTACK(fixnum(sizeV));   /* SIZE */
     /* MINCOUNT := (floor (* maxcount mincount-threshold)) */
-    pushSTACK(maxcount); pushSTACK(mincount_threshold); funcall(L(mal),2);
+    pushSTACK(maxcount); pushSTACK(mincount_threshold); funcall(L(star),2);
     pushSTACK(value1); funcall(L(floor),1);
     pushSTACK(value1);
     /* stack-layout: MAXCOUNT, SIZE, MINCOUNT.
@@ -1803,7 +1803,7 @@ local maygc object resize (object ht, object maxcount) {
         /* calculate new maxcount: */                                   \
         pushSTACK(TheHashtable(ht)->ht_maxcount);                       \
         pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */ \
-        funcall(L(mal),2); /* (* maxcount rehash-size), is > maxcount */ \
+        funcall(L(star),2); /* (* maxcount rehash-size), is > maxcount */ \
         pushSTACK(value1);                                              \
         funcall(L(ceiling),1); /* (ceiling ...), integer > maxcount */  \
         ht = resize(STACK_(hash_pos),value1); /* enlarge table */       \
@@ -2080,7 +2080,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
            rehash-size := min(1 + rehash-size/size , 2.0) . */
         pushSTACK(STACK_1); /* rehash-size */
         pushSTACK(STACK_(2+1)); /* size */
-        funcall(L(durch),2); /* (/ rehash-size size) */
+        funcall(L(slash),2); /* (/ rehash-size size) */
         pushSTACK(value1);
         funcall(L(einsplus),1); /* (1+ ...) */
         pushSTACK(value1);
@@ -2140,9 +2140,9 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
     var object rehash_size = STACK_1;
     pushSTACK(rehash_size);
     pushSTACK(rehash_size);
-    funcall(L(mal),2); /* (* rehash-size rehash-size) */
+    funcall(L(star),2); /* (* rehash-size rehash-size) */
     pushSTACK(value1);
-    funcall(L(durch),1); /* (/ ...) */
+    funcall(L(slash),1); /* (/ ...) */
     STACK_0 = value1;
   }
   /* STACK layout:
@@ -2355,7 +2355,7 @@ LISPFUNN(remhash,2)
       pushSTACK(ht);            /* save hashtable */
       pushSTACK(TheHashtable(ht)->ht_maxcount);
       pushSTACK(TheHashtable(ht)->ht_rehash_size); /* REHASH-SIZE (>1) */
-      funcall(L(durch),2); /* (/ maxcount rehash-size), is < maxcount */
+      funcall(L(slash),2); /* (/ maxcount rehash-size), is < maxcount */
       pushSTACK(value1);
       funcall(L(floor),1); /* (floor ...), an integer >=0, < maxcount */
       var object maxcount = value1;

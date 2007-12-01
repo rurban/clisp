@@ -201,7 +201,7 @@ local const Subr FUNTABR[] = {
   /* SYMBOL : 0 SUBRs */
   /* LISPARIT : 18 SUBRs */
   _(numequal), _(ungleich), _(kleiner), _(groesser), _(klgleich),
-  _(grgleich), _(max), _(min), _(plus), _(minus), _(mal), _(durch), _(gcd),
+  _(grgleich), _(max), _(min), _(plus), _(minus), _(star), _(slash), _(gcd),
   _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
 }; /* That were 63 SUBRs. */
 #undef _

@@ -409,12 +409,12 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
   pushSTACK(value1);          /* save a value */
   mv_to_list();               /* pack values into list */
   /* stack layout: ..., val1, vals. */
-  Symbol_value(S(durch3)) = Symbol_value(S(durch2)); /* (SETQ /// //) */
-  Symbol_value(S(durch2)) = Symbol_value(S(durch));  /* (SETQ // /) */
-  Symbol_value(S(durch)) = STACK_0;                  /* (SETQ / vals) */
-  Symbol_value(S(mal3)) = Symbol_value(S(mal2));     /* (SETQ *** **) */
-  Symbol_value(S(mal2)) = Symbol_value(S(mal));      /* (SETQ ** *) */
-  Symbol_value(S(mal)) = STACK_1;                    /* (SETQ * val1) */
+  Symbol_value(S(slash3)) = Symbol_value(S(slash2)); /* (SETQ /// //) */
+  Symbol_value(S(slash2)) = Symbol_value(S(slash));  /* (SETQ // /) */
+  Symbol_value(S(slash)) = STACK_0;                  /* (SETQ / vals) */
+  Symbol_value(S(star3)) = Symbol_value(S(star2));   /* (SETQ *** **) */
+  Symbol_value(S(star2)) = Symbol_value(S(star));    /* (SETQ ** *) */
+  Symbol_value(S(star)) = STACK_1;                   /* (SETQ * val1) */
   /* print values to ostream := value from *STANDARD-OUTPUT**/
   STACK_(1+2) = var_stream(S(standard_output),strmflags_wr_ch_B);
  #if 0

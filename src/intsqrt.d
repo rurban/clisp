@@ -550,11 +550,11 @@
       #        = y_lsd + (x_lsd-y_lsd^n) / (n*y_lsd^(n-1))
       doconsttimes(log2_intDsize, { # log2(intDsize) Iterationen reichen aus
         var uintD y_lsd_n1 = D_UL_expt_D(y_lsd,n-1); # y_lsd^(n-1)
-        var uintD y_lsd_n = D_D_mal2adic_D(y_lsd_n1,y_lsd); # y_lsd^n
+        var uintD y_lsd_n = D_D_mult2adic_D(y_lsd_n1,y_lsd); # y_lsd^n
         var uintD delta = x_lsd-y_lsd_n; # x_lsd - y_lsd^n
         if (delta==0)
           goto y_lsd_ok;
-        y_lsd = y_lsd + D_D_durch2adic_D(delta,D_D_mal2adic_D((uintD)n,y_lsd_n1));
+        y_lsd = y_lsd + D_D_div2adic_D(delta,D_D_mult2adic_D((uintD)n,y_lsd_n1));
       });
      y_lsd_ok:
       ASSERT(D_UL_expt_D(y_lsd,n)==x_lsd);
@@ -622,7 +622,7 @@
           ASSERT(!test_loop_up(&zz_LSDptr[-(uintP)k],k)); # zz == 0 mod beta^k
           mulu_2loop_down(z_LSDptr,k2-k,n_LSDptr,n_len,free_LSDptr); # n*y^(n-1)
           # Quotienten mod beta^(k2-k) bilden und an y mod beta^k ankleben:
-          UDS_UDS_durch2adic_UDS(k2-k,&zz_LSDptr[-(uintP)k],free_LSDptr,&y_LSDptr[-(uintP)k]);
+          UDS_UDS_div2adic_UDS(k2-k,&zz_LSDptr[-(uintP)k],free_LSDptr,&y_LSDptr[-(uintP)k]);
           k = k2; # jetzt gilt y^n == x sogar mod beta^k2.
         }
         end_arith_call();
