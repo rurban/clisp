@@ -2464,7 +2464,7 @@ LISPFUNNR(coerce,2)
         if (nullp(type2))
           goto adjust_eltype;
         if (!consp(type2)) goto error_type;
-        if (eq(Car(type2),S(mal))) { /* element-type = * (unspecified) ? */
+        if (eq(Car(type2),S(star))) { /* element-type = * (unspecified) ? */
           type2 = Cdr(type2);
          adjust_eltype: /* here type2 = (cddr result-type) */
           /* replace with a suitable element type: */

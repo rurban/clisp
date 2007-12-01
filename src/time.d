@@ -670,7 +670,7 @@ LISPFUNNR(default_time_zone,2)
   /* TZ in hours = (TZ in seconds / 3600) : */
   pushSTACK(L_to_I(secondswest));
   pushSTACK(fixnum(3600));
-  funcall(L(durch),2);
+  funcall(L(slash),2);
   /* tm_isdst < 0 = "unknown"; assume no DST */
   VALUES2(value1, isdst > 0 ? T : NIL);
 }
