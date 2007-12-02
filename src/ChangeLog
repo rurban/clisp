@@ -1,5 +1,8 @@
 2007-12-01  Reini Urban  <rurban@x-ray.at>
 
+	<09_einsplus_minus>
+	* array.d, constsym.d, eval.d, hashtabl.d, lisparit.d, subr.d:
+	(einsplus, einsminus): rename to plus_one, minus_one
 	<08_morearit>
         * constsym.d, debug.d, spvw.d (driverstern): rename to driverstar
         * constsym.d, eval.d, lisparit.d, subr.d (fakultaet): -> factorial

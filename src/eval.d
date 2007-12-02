@@ -149,7 +149,7 @@ local const Subr FUNTAB[] = {
   _(symbol_name), _(keywordp), _(gensym), _(gensym),
   /* LISPARIT : 84 SUBRs */
   _(decimal_string), _(zerop), _(plusp), _(minusp), _(oddp), _(evenp),
-  _(einsplus), _(einsminus), _(conjugate), _(exp), _(expt), _(log),
+  _(plus_one), _(minus_one), _(conjugate), _(exp), _(expt), _(log),
   _(sqrt), _(isqrt), _(abs), _(phase), _(signum), _(sin), _(cos), _(tan),
   _(cis), _(asin), _(acos), _(atan), _(sinh), _(cosh), _(tanh), _(asinh),
   _(acosh), _(atanh), _(float), _(rational), _(rationalize), _(numerator),
@@ -8006,10 +8006,10 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             arg = fixnum_inc(arg,1); statement;                          \
           } else {                                                       \
             with_saved_context(                                          \
-              /* funcall(L(einsplus),1): */                              \
+              /* funcall(L(plus_one),1): */                              \
               pushSTACK(arg);                                            \
-              with_saved_back_trace_subr(L(einsplus),STACK,1,            \
-                { C_einsplus(); });                                      \
+              with_saved_back_trace_subr(L(plus_one),STACK,1,            \
+                { C_plus_one(); });                                      \
             );                                                           \
             arg = value1;                                                \
           }                                                              \
@@ -8020,10 +8020,10 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             arg = fixnum_inc(arg,-1); statement;                     \
           } else {                                                   \
             with_saved_context(                                      \
-              /* funcall(L(einsminus),1): */                         \
+              /* funcall(L(minus_one),1): */                         \
               pushSTACK(arg);                                        \
-              with_saved_back_trace_subr(L(einsminus),STACK,1,       \
-                { C_einsminus(); });                                 \
+              with_saved_back_trace_subr(L(minus_one),STACK,1,       \
+                { C_minus_one(); });                                 \
             );                                                       \
             arg = value1;                                            \
           }                                                          \

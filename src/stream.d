@@ -3318,7 +3318,7 @@ local maygc void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded) 
       if (!(integerp(h) && positivep(h) && !eq(h,Fixnum_0)))
         goto bad_eltype;
       # build eltype_size := (integer-length (1- n)) :
-      pushSTACK(h); funcall(L(einsminus),1); # (1- n)
+      pushSTACK(h); funcall(L(minus_one),1); # (1- n)
       pushSTACK(value1); funcall(L(integer_length),1); # (integer-length (1- n))
       eltype_size = value1;
       goto eltype_integer;

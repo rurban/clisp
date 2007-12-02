@@ -5076,7 +5076,7 @@ LISPFUNN(vector_upd,2)
     }
   }
   /* pointer is before or after the increment not a Fixnum >=0 */
-  funcall(L(einsplus),1); /* (1+ pointer) as value */
+  funcall(L(plus_one),1); /* (1+ pointer) as value */
   skipSTACK(1);
 }
 
@@ -5104,7 +5104,7 @@ LISPFUNN(vector_fe_upd,2)
             : fixnum_inc(pointer,-1)); /* Fixnum >0 decrement by 1 */
   } else {
     /* pointer is before or after the decrement not a Fixnum >=0 */
-    funcall(L(einsminus),1); /* (1- pointer) as value */
+    funcall(L(minus_one),1); /* (1- pointer) as value */
   }
   skipSTACK(1);
 }
