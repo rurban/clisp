@@ -775,13 +775,13 @@ LISPFUN(slash,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUNNF(einsplus,1)
+LISPFUNNF(plus_one,1)
 { /* (1+ number), CLTL p. 200 */
   var object x = check_number(popSTACK());
   VALUES1(N_1_plus_N(x));
 }
 
-LISPFUNNF(einsminus,1)
+LISPFUNNF(minus_one,1)
 { /* (1- number), CLTL p. 200 */
   var object x = check_number(popSTACK());
   VALUES1(N_minus1_plus_N(x));
