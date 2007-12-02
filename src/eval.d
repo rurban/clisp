@@ -161,7 +161,7 @@ local const Subr FUNTAB[] = {
   _(logorc2), _(boole), _(lognot), _(logtest), _(logbitp), _(ash),
   _(logcount), _(integer_length), _(byte), _(bytesize), _(byteposition),
   _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
-  _(make_random_state), _(fakultaet), _(exquo), _(long_float_digits),
+  _(make_random_state), _(factorial), _(exquo), _(long_float_digits),
   _(set_long_float_digits), _(log2), _(log10),
   /* other: */
 }; /* that were 529-43 SUBRs. */
