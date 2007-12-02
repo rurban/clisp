@@ -1241,7 +1241,7 @@ local void init_symbol_values (void) {
   define_variable(S(slash),NIL);                  # /
   define_variable(S(slash2),NIL);                 # //
   define_variable(S(slash3),NIL);                 # ///
-  define_variable(S(driverstern),NIL);            # *DRIVER* := NIL
+  define_variable(S(driverstar),NIL);            # *DRIVER* := NIL
   define_variable(S(break_driver),NIL);           # *BREAK-DRIVER* := NIL
   define_variable(S(break_count),Fixnum_0);       # SYS::*BREAK-COUNT* := 0
   define_variable(S(recurse_count_standard_output),Fixnum_0); # SYS::*RECURSE-COUNT-STANDARD-OUTPUT* := 0

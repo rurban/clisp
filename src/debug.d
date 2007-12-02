@@ -471,7 +471,7 @@ global void driver (void)
   bt_here.bt_num_arg = -1;
   back_trace = &bt_here;
   loop {
-    var object driverfun = Symbol_value(S(driverstern)); /* value of *DRIVER* */
+    var object driverfun = Symbol_value(S(driverstar)); /* value of *DRIVER* */
     if (nullp(driverfun))
       break;
     funcall(driverfun,0);       /* call with 0 arguments */
