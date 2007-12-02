@@ -2091,7 +2091,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
       /* check (> rehash-size 1) : */
       pushSTACK(STACK_1); /* rehash-size */
       pushSTACK(Fixnum_1); /* 1 */
-      funcall(L(groesser),2); /* (> rehash-size 1) */
+      funcall(L(greater),2); /* (> rehash-size 1) */
       if (nullp(value1)) goto bad_rehash_size;
       /* convert rehash-size into a short-float: */
       pushSTACK(STACK_1); /* rehash-size */
