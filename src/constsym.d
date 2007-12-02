@@ -1145,7 +1145,7 @@ LISPSYM(deposit_field,"DEPOSIT-FIELD",lisp)
 LISPSYM(random,"RANDOM",lisp)
 LISPSYM(random_posfixnum,"RANDOM-POSFIXNUM",system)
 LISPSYM(make_random_state,"MAKE-RANDOM-STATE",lisp)
-LISPSYM(fakultaet,"!",ext)
+LISPSYM(factorial,"!",ext)
 LISPSYM(exquo,"EXQUO",ext)
 LISPSYM(mod_expt,"MOD-EXPT",ext)
 LISPSYM(long_float_digits,"LONG-FLOAT-DIGITS",ext)
@@ -1687,7 +1687,7 @@ LISPSYM(star2,"**",lisp) /* variable in DEBUG */
 LISPSYM(star3,"***",lisp) /* variable in DEBUG */
 LISPSYM(slash2,"//",lisp) /* variable in DEBUG */
 LISPSYM(slash3,"///",lisp) /* variable in DEBUG */
-LISPSYM(driverstern,"*DRIVER*",ext) /* variable in DEBUG */
+LISPSYM(driverstar,"*DRIVER*",ext) /* variable in DEBUG */
 LISPSYM(break_driver,"*BREAK-DRIVER*",ext) /* variable in DEBUG */
 LISPSYM(break_count,"*BREAK-COUNT*",system) /* variable in DEBUG */
 LISPSYM(recurse_count_standard_output,"*RECURSE-COUNT-STANDARD-OUTPUT*",system) /* variable in DEBUG */

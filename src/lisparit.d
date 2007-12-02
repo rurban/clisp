@@ -1706,7 +1706,7 @@ LISPFUN(make_random_state,seclass_default,0,1,norest,nokey,0,NIL)
   VALUES1(make_random_state(popSTACK()));
 }
 
-LISPFUNNF(fakultaet,1)
+LISPFUNNF(factorial,1)
 { /* (! integer) */
   var object x = check_posfixnum(popSTACK()); /* x is a fixnum >=0. */
   VALUES1(FN_fak_I(x));

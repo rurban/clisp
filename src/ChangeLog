@@ -1,3 +1,9 @@
+2007-12-01  Reini Urban  <rurban@x-ray.at>
+
+	<08_morearit>
+        * constsym.d, debug.d, spvw.d (driverstern): rename to driverstar
+        * constsym.d, eval.d, lisparit.d, subr.d (fakultaet): -> factorial
+
 2007-11-30  Reini Urban  <rurban@x-ray.at>
 
 	<07_mal_durch>
