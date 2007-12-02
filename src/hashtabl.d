@@ -2082,7 +2082,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
         pushSTACK(STACK_(2+1)); /* size */
         funcall(L(slash),2); /* (/ rehash-size size) */
         pushSTACK(value1);
-        funcall(L(einsplus),1); /* (1+ ...) */
+        funcall(L(plus_one),1); /* (1+ ...) */
         pushSTACK(value1);
         pushSTACK(make_SF(0,SF_exp_mid+2,bit(SF_mant_len))); /* 2.0s0 */
         funcall(L(min),2); /* (MIN ... 2.0s0) */
