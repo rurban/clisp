@@ -19,7 +19,7 @@
  > x,y: two numbers
  < result: true, if (= x y)  */
 global bool number_equal (object x, object y);
-#define N_N_gleich  number_equal  /* N_N_gleich is defined later */
+#define N_N_equal  number_equal  /* N_N_equal is defined later */
 
 
 /* arithmetics in general: */
@@ -535,7 +535,7 @@ LISPFUN(numequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     var const gcv_object_t* arg_i_ptr = args_pointer;
     dotimespC(argcount,argcount, {
       var object arg_i = NEXT(arg_i_ptr);
-      if (!N_N_gleich(arg_i,Next(arg_i_ptr))) goto no;
+      if (!N_N_equal(arg_i,Next(arg_i_ptr))) goto no;
     });
   }
  yes:
@@ -560,7 +560,7 @@ LISPFUN(numunequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     var const gcv_object_t* arg_j_ptr = rest_args_pointer;
     dotimespC(argcount,argcount, {
       var const gcv_object_t* arg_i_ptr = args_pointer;
-      do { if (N_N_gleich(NEXT(arg_i_ptr),Next(arg_j_ptr))) goto no; }
+      do { if (N_N_equal(NEXT(arg_i_ptr),Next(arg_j_ptr))) goto no; }
       while (arg_i_ptr != arg_j_ptr);
       arg_j_ptr skipSTACKop -1;
     });
@@ -617,7 +617,7 @@ LISPFUN(greater,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(klgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(ltequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (<= real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -639,7 +639,7 @@ LISPFUN(klgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(grgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(gtequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (>= real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */

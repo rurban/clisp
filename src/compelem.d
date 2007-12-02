@@ -849,15 +849,15 @@ global maygc object F_complex_C (object x) {
     }
   }
 
-# N_N_gleich(x,y) vergleicht zwei reelle Zahlen x und y.
-# Ergebnis: true falls x=y, false sonst.
-  global /* local */ bool N_N_gleich (object x, object y);
+/* N_N_equal(x,y) compares two real numbers x and y.
+   Returns: true if x=y, false otherwise. */
+global /* local */ bool N_N_equal (object x, object y);
 # Methode:
 # Falls beide reell, klar.
 # Falls x reell, y komplex: (= x (realpart y)) und (zerop (imagpart y)).
 # Falls x komplex, y reell: analog
 # Falls beide komplex: Realteile und Imaginärteile jeweils gleich?
-  global /* local */ bool N_N_gleich (object x, object y)
+global /* local */ bool N_N_equal (object x, object y)
   {
     if (N_realp(x)) {
       # x reell
