@@ -200,8 +200,8 @@ local const Subr FUNTABR[] = {
   _(make_broadcast_stream), _(make_concatenated_stream),
   /* SYMBOL : 0 SUBRs */
   /* LISPARIT : 18 SUBRs */
-  _(numequal), _(numunequal), _(smaller), _(greater), _(klgleich),
-  _(grgleich), _(max), _(min), _(plus), _(minus), _(star), _(slash), _(gcd),
+  _(numequal), _(numunequal), _(smaller), _(greater), _(ltequal),
+  _(gtequal), _(max), _(min), _(plus), _(minus), _(star), _(slash), _(gcd),
   _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
 }; /* That were 63 SUBRs. */
 #undef _

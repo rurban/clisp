@@ -1,17 +1,21 @@
 2007-12-01  Reini Urban  <rurban@x-ray.at>
 
+	<11_aritcmp2>
+	* compelem.d, lisparit.d (N_N_gleich): rename to N_N_equal
+	* constsym.d, eval.d, subr.d (klgleich): rename to ltequal
+	(grgleich): rename to gtequal
 	<10_aritcmp>
 	* constsym.d, eval.d, lisparit.d, subr.d (ungleich): -> numunequal
 	* constsym.d, eval.d, lisparit.d, subr.d, modules/clx/new-clx/clx.f:
-        (kleiner): rename to smaller
-        * constsym.d, eval.d, lisparit.d, subr.d, hashtabl.d:
+	(kleiner): rename to smaller
+	* constsym.d, eval.d, lisparit.d, subr.d, hashtabl.d:
 	(groesser): rename to greater
 	<09_einsplus_minus>
 	* array.d, constsym.d, eval.d, hashtabl.d, lisparit.d, subr.d:
 	(einsplus, einsminus): rename to plus_one, minus_one
 	<08_morearit>
-        * constsym.d, debug.d, spvw.d (driverstern): rename to driverstar
-        * constsym.d, eval.d, lisparit.d, subr.d (fakultaet): -> factorial
+	* constsym.d, debug.d, spvw.d (driverstern): rename to driverstar
+	* constsym.d, eval.d, lisparit.d, subr.d (fakultaet): -> factorial
 
 2007-11-30  Reini Urban  <rurban@x-ray.at>
 
