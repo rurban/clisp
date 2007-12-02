@@ -546,7 +546,7 @@ LISPFUN(numequal,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(ungleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(numunequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (/= number {number}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_number_args(argcount,args_pointer); /* all arguments numbers? */
@@ -573,7 +573,7 @@ LISPFUN(ungleich,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(kleiner,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(smaller,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (< real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */
@@ -595,7 +595,7 @@ LISPFUN(kleiner,seclass_foldable,1,0,rest,nokey,0,NIL)
   mv_count=1; set_args_end_pointer(args_pointer);
 }
 
-LISPFUN(groesser,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(greater,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (> real {real}), CLTL p. 196 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_real_args(argcount,args_pointer); /* all arguments real numbers? */

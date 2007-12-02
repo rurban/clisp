@@ -6882,11 +6882,11 @@ DEFUN(XLIB:CHANGE-POINTER-CONTROL, display &key ACCELERATION THRESHOLD)
       funcall (L(abs), 1);     /* 28 (CALLS2&PUSH 159) ; ABS */
       pushSTACK(value1);
       pushSTACK(fixnum(0x8000)); /* 30 (CONST&PUSH 1) ; 32768 */
-      funcall (L(kleiner), 2);   /* 31 (CALLSR&JMPIFNOT 1 47 L11) ; < */
+      funcall (L(smaller), 2);   /* 31 (CALLSR&JMPIFNOT 1 47 L11) ; < */
       if(nullp(value1)) goto L11;
       pushSTACK(STACK_0);        /* 35 (LOAD&PUSH 0) */
       pushSTACK(fixnum(0x8000)); /* 36 (CONST&PUSH 1) ; 32768 */
-      funcall (L(kleiner), 2);   /* 37 (CALLSR&JMPIFNOT 1 47 L11) ; < */
+      funcall (L(smaller), 2);   /* 37 (CALLSR&JMPIFNOT 1 47 L11) ; < */
       if(nullp(value1)) goto L11;
      L41:                        /* 41    L41 */
       /* rest done in C ... */
