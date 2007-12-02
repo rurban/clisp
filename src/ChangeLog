@@ -1,5 +1,11 @@
 2007-12-01  Reini Urban  <rurban@x-ray.at>
 
+	<10_aritcmp>
+	* constsym.d, eval.d, lisparit.d, subr.d (ungleich): -> numunequal
+	* constsym.d, eval.d, lisparit.d, subr.d, modules/clx/new-clx/clx.f:
+        (kleiner): rename to smaller
+        * constsym.d, eval.d, lisparit.d, subr.d, hashtabl.d:
+	(groesser): rename to greater
 	<09_einsplus_minus>
 	* array.d, constsym.d, eval.d, hashtabl.d, lisparit.d, subr.d:
 	(einsplus, einsminus): rename to plus_one, minus_one
