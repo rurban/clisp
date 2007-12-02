@@ -2122,7 +2122,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
       pushSTACK(Fixnum_1);
       pushSTACK(rehash_threshold);
       pushSTACK(Fixnum_0);
-      funcall(L(grgleich),3); /* (>= 1 rehash-threshold 0) */
+      funcall(L(gtequal),3); /* (>= 1 rehash-threshold 0) */
       if (nullp(value1)) goto bad_rehash_threshold;
     }
   }
