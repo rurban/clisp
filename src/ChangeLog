@@ -1,7 +1,12 @@
 2007-12-01  Reini Urban  <rurban@x-ray.at>
 
+	<13_charcmp2>
+	* constsym.d, eval.d, charstrg.d, subr.d:
+	(char_groesser): rename to char_greater
+	(char_klgleich): rename to char_ltequal
+	(char_grgleich): rename to char_gtequal
 	<12_charcmp1>
-	* constsym.d, eval.d, charstrg.d, subr.d, sequence.d
+	* constsym.d, eval.d, charstrg.d, subr.d, sequence.d:
 	(char_gleich): rename to char_eq
 	* constsym.d, eval.d, charstrg.d, subr.d:
 	(char_ungleich): rename to char_noteq
