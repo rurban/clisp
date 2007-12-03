@@ -318,9 +318,9 @@ LISPFUN(string_ltequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(cs_string_ltequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_gtequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(cs_string_grgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_gtequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
@@ -334,7 +334,7 @@ LISPFUN(string_not_greaterp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_not_lessp,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(search_string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(search_string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(search_string_equal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )

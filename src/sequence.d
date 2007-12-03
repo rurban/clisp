@@ -4448,7 +4448,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
       var object test = STACK_3;
       if (eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal)) || eq(test,L(char_eq))) {
         skipSTACK(6);
-        C_search_string_gleich(); # SUBR sys::search-string= mit denselben Argumenten
+        C_search_string_eq(); # SUBR sys::search-string= mit denselben Argumenten
         return;
       }
       if (eq(test,L(equalp)) || eq(test,L(char_equal))) {

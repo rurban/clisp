@@ -2861,7 +2861,7 @@ LISPFUN(cs_string_ltequal,seclass_read,2,0,norest,key,4,
 }
 
 /* (STRING>= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
-LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_gtequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -2873,7 +2873,7 @@ LISPFUN(string_grgleich,seclass_read,2,0,norest,key,4,
 }
 
 /* (CS-COMMON-LISP:STRING>= string1 string2 :start1 :end1 :start2 :end2) */
-LISPFUN(cs_string_grgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_gtequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -3156,7 +3156,7 @@ local object string_search (const stringarg* arg1, const stringarg* arg2,
  notfound: return NIL;
 }
 
-LISPFUN(search_string_gleich,seclass_read,2,0,norest,key,4,
+LISPFUN(search_string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 { /* (SYS::SEARCH-STRING= string1 string2 [:start1] [:end1] [:start2] [:end2])
    = (search string1 string2 :test #'char= [:start1] [:end1] [:start2] [:end2]) */
