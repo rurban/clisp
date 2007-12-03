@@ -4446,7 +4446,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
         && (up2_fun == &up2_test) # und test-not nicht angegeben ?
        ) {
       var object test = STACK_3;
-      if (eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal)) || eq(test,L(char_gleich))) {
+      if (eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal)) || eq(test,L(char_eq))) {
         skipSTACK(6);
         C_search_string_gleich(); # SUBR sys::search-string= mit denselben Argumenten
         return;
