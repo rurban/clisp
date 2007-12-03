@@ -1,6 +1,6 @@
 2007-12-03  Sam Steingold  <sds@gnu.org>
 
-	* configure: support spaces in the build directory name
+	* configure, makemake.in: support spaces in the build directory name
 
 2007-12-02  Reini Urban  <rurban@x-ray.at>
 
