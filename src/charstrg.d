@@ -2813,7 +2813,7 @@ LISPFUN(cs_string_less,seclass_read,2,0,norest,key,4,
 }
 
 /* (STRING> string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
-LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
+LISPFUN(string_greater,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -2825,7 +2825,7 @@ LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
 }
 
 /* (CS-COMMON-LISP:STRING> string1 string2 :start1 :end1 :start2 :end2) */
-LISPFUN(cs_string_groesser,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_greater,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -2837,7 +2837,7 @@ LISPFUN(cs_string_groesser,seclass_read,2,0,norest,key,4,
 }
 
 /* (STRING<= string1 string2 :start1 :end1 :start2 :end2), CLTL p. 301 */
-LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_ltequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;
@@ -2849,7 +2849,7 @@ LISPFUN(string_klgleich,seclass_read,2,0,norest,key,4,
 }
 
 /* (CS-COMMON-LISP:STRING<= string1 string2 :start1 :end1 :start2 :end2) */
-LISPFUN(cs_string_klgleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_ltequal,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 {
   var stringarg arg1;

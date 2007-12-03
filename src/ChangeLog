@@ -1,5 +1,11 @@
 2007-12-02  Reini Urban  <rurban@x-ray.at>
 
+	<15_strcmp2>
+	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
+	(string_groesser): rename to string_greater
+	(cs_string_groesser): rename to cs_string_greater
+	(string_klgleich): rename to string_ltequal
+	(cs_string_klgleich): rename to cs_string_ltequal
 	<14_strcmp1>
 	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
 	(string_ungleich): rename to string_noteq
@@ -7,7 +13,7 @@
 	(string_kleiner): rename to string_less
 	(cs_string_kleiner): rename to cs_string_less
 
-2007-12-01  Reini Urban  <rurban@x-ray.at>
+2007-12-01  Reini Urban	 <rurban@x-ray.at>
 
 	<13_charcmp2>
 	* constsym.d, eval.d, charstrg.d, subr.d:
