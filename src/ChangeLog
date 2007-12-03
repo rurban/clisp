@@ -1,5 +1,11 @@
 2007-12-02  Reini Urban  <rurban@x-ray.at>
 
+	<16_strcmp3>
+	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
+        (string_grgleich): rename to string_gtequal
+	(cs_string_grgleich): rename to cs_string_gtequal
+        * charstrg.d, constsym.d, eval.d, sequence.d, subr.d, subrkw.d:
+        (search_string_gleich): rename to search_string_eq
 	<15_strcmp2>
 	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
 	(string_groesser): rename to string_greater
