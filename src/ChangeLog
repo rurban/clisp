@@ -1,3 +1,12 @@
+2007-12-02  Reini Urban  <rurban@x-ray.at>
+
+	<14_strcmp1>
+	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
+	(string_ungleich): rename to string_noteq
+	(cs_string_ungleich): rename to cs_string_noteq
+	(string_kleiner): rename to string_less
+	(cs_string_kleiner): rename to cs_string_less
+
 2007-12-01  Reini Urban  <rurban@x-ray.at>
 
 	<13_charcmp2>
@@ -31,15 +40,15 @@
 2007-11-30  Reini Urban  <rurban@x-ray.at>
 
 	<07_mal_durch>
-        * eval.d, lisparit.d, subr.d, hashtabl.d, time.d, affi.d:
+	* eval.d, lisparit.d, subr.d, hashtabl.d, time.d, affi.d:
 	* constsym.d, debug.d, predtype.d, sequence.d, spvw.d:
 	* modules/clx/new-clx/clx.f (mal): renamed to star
 	(durch): renamed to slash
-        * constsym.d, debug.d, spvw.d (mal2): renamed to star2
-        (mal3): renamed to star3
+	* constsym.d, debug.d, spvw.d (mal2): renamed to star2
+	(mal3): renamed to star3
 	(durch2): renamed to slash2
 	(durch3): renamed to slash3
-        * int2adic.d, intsqrt.d (D_D_mal2adic_D) renamed to D_D_mult2adic_D
+	* int2adic.d, intsqrt.d (D_D_mal2adic_D) renamed to D_D_mult2adic_D
 	(D_D_durch2adic_D, UDS_UDS_durch2adic_UDS): renamed to *_div2adic_*
 
 2007-11-29  Reini Urban <rurban@x-ray.at>
