@@ -33,7 +33,7 @@ local const Subr FUNTAB[] = {
   _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
   _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
   _(char), _(schar), _(store_char), _(store_schar), _(string_eq),
-  _(string_ungleich), _(string_kleiner), _(string_groesser),
+  _(string_noteq), _(string_less), _(string_groesser),
   _(string_klgleich), _(string_grgleich), _(string_equal),
   _(string_not_equal), _(string_lessp), _(string_greaterp),
   _(string_not_greaterp), _(string_not_lessp), _(search_string_gleich),

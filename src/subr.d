@@ -302,13 +302,13 @@ LISPFUN(string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(cs_string_eq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(string_ungleich,seclass_read,2,0,norest,key,4,
+LISPFUN(string_noteq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(cs_string_ungleich,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_noteq,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(string_kleiner,seclass_read,2,0,norest,key,4,
+LISPFUN(string_less,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
-LISPFUN(cs_string_kleiner,seclass_read,2,0,norest,key,4,
+LISPFUN(cs_string_less,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
 LISPFUN(string_groesser,seclass_read,2,0,norest,key,4,
         (kw(start1),kw(end1),kw(start2),kw(end2)) )
