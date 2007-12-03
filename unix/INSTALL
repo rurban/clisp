@@ -115,6 +115,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
          make init                prepares all symbolic links and utilities
          make allc                makes all *.c files
          make lisp.run            makes the executable
+           (cygwin & mingw: use "make lisp.exe" instead)
          make interpreted.mem     a memory image with everything uncompiled
          make halfcompiled.mem    a memory image with compiler.fas and
                                   the rest uncompiled
