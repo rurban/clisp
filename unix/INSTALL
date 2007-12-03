@@ -85,6 +85,13 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
 
          ./configure /tmp/with-gcc-wall
 
+   Note that you should not use a directory name with spaces in it.
+   This is especially relevant to woe32-based systems, such as mingw and cygwin.
+   Specifically, if your source distribution is in
+     "C:\Documents and Settings\username\...\clisp\"
+   then your best bet is "./configure /tmp/build-clisp",
+   not "./configure build".
+
 4. The previous step printed a recommendation how to continue.
    Follow the recommendation: go to this directory
 
