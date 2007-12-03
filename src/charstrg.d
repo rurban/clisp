@@ -1778,7 +1778,7 @@ local Values char_less (uintC argcount, gcv_object_t* args_pointer)
 }
 
 /* UP: (CHAR> char {char}) for checked arguments */
-local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
+local Values char_greater (uintC argcount, gcv_object_t* args_pointer)
 { /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1795,7 +1795,7 @@ local Values char_groesser (uintC argcount, gcv_object_t* args_pointer)
 }
 
 /* UP: (CHAR<= char {char}) for checked arguments */
-local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
+local Values char_ltequal (uintC argcount, gcv_object_t* args_pointer)
 { /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1812,7 +1812,7 @@ local Values char_klgleich (uintC argcount, gcv_object_t* args_pointer)
 }
 
 /* UP: (CHAR>= char {char}) for checked arguments */
-local Values char_grgleich (uintC argcount, gcv_object_t* args_pointer)
+local Values char_gtequal (uintC argcount, gcv_object_t* args_pointer)
 { /* method:
  n+1 arguments Arg[0..n].
  for i:=n to 1 step -1 do
@@ -1849,25 +1849,25 @@ LISPFUN(char_less,seclass_foldable,1,0,rest,nokey,0,NIL)
   return_Values char_less(argcount,args_pointer);
 }
 
-LISPFUN(char_groesser,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(char_greater,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR> char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
-  return_Values char_groesser(argcount,args_pointer);
+  return_Values char_greater(argcount,args_pointer);
 }
 
-LISPFUN(char_klgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(char_ltequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR<= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
-  return_Values char_klgleich(argcount,args_pointer);
+  return_Values char_ltequal(argcount,args_pointer);
 }
 
-LISPFUN(char_grgleich,seclass_foldable,1,0,rest,nokey,0,NIL)
+LISPFUN(char_gtequal,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR>= char {char}), CLTL p. 237 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args(argcount,args_pointer);
-  return_Values char_grgleich(argcount,args_pointer);
+  return_Values char_gtequal(argcount,args_pointer);
 }
 
 LISPFUN(char_equal,seclass_foldable,1,0,rest,nokey,0,NIL)
@@ -1895,21 +1895,21 @@ LISPFUN(char_greaterp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-GREATERP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
-  return_Values char_groesser(argcount,args_pointer);
+  return_Values char_greater(argcount,args_pointer);
 }
 
 LISPFUN(char_not_greaterp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-GREATERP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
-  return_Values char_klgleich(argcount,args_pointer);
+  return_Values char_ltequal(argcount,args_pointer);
 }
 
 LISPFUN(char_not_lessp,seclass_foldable,1,0,rest,nokey,0,NIL)
 { /* (CHAR-NOT-LESSP char {char}), CLTL p. 239 */
   var gcv_object_t* args_pointer = rest_args_pointer STACKop 1;
   test_char_args_upcase(argcount,args_pointer);
-  return_Values char_grgleich(argcount,args_pointer);
+  return_Values char_gtequal(argcount,args_pointer);
 }
 
 LISPFUNNF(char_code,1)

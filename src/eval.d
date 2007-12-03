@@ -173,8 +173,8 @@ local const Subr FUNTABR[] = {
   _(vector), _(aref), _(store), _(array_in_bounds_p),
   _(array_row_major_index), _(bit), _(sbit),
   /* CHARSTRG : 13 SUBRs */
-  _(char_eq), _(char_noteq), _(char_less), _(char_groesser),
-  _(char_klgleich), _(char_grgleich), _(char_equal), _(char_not_equal),
+  _(char_eq), _(char_noteq), _(char_less), _(char_greater),
+  _(char_ltequal), _(char_gtequal), _(char_equal), _(char_not_equal),
   _(char_lessp), _(char_greaterp), _(char_not_greaterp), _(char_not_lessp),
   _(string_concat),
   /* CONTROL : 9 SUBRs */
