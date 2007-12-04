@@ -2243,35 +2243,35 @@ nonreturning_function(local, error_cmp_exclusive, (object kw, object obj,
 }
 
 /* Macro: checks an index-argument
- test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,ucname,lcname)
- woher : expression, where the index (as object) comes from.
- wohin_zuweisung : assigns the result (as uintV) .
+ test_index(from,to_setter,def,default,uplimit_cmp,upper_limit,ucname,lcname)
+ from : expression, where the index (as object) comes from.
+ to_setter : assigns the result (as uintV) .
  def : 0 if we do not have to test for default values,
        1 if the default is set in on unbound,
        2 if the default is set in on unbound or NIL.
  default : expression, that serves as default value in this case.
- grenze : upper limit
- vergleich : comparison with upper limit
+ upper_limit : upper limit
+ uplimit_cmp : comparison with upper limit
  kw : keyword, that identifies the index, or nullobj */
-#define test_index(woher,wohin_zuweisung,def,default,vergleich,grenze,kw) \
-  { var object index = woher; /* index-argument */                      \
+#define test_index(from,to_setter,def,default,uplimit_cmp,upper_limit,kw) \
+  { var object index = from; /* index-argument */                       \
     if (def && (!boundp(index) || (def == 2 && nullp(index))))          \
-      { wohin_zuweisung default; }                                      \
+      { to_setter default; }                                            \
     else { /* must be an integer: */                                    \
       if (!integerp(index))                                             \
         { if (def==2) error_int_null(kw,index); else error_int(kw,index); } \
       /* index is an integer. */                                        \
       if (!(positivep(index)))                                          \
-        { error_posint(kw,index); }                                    \
+        { error_posint(kw,index); }                                     \
       /* index is >=0. */                                               \
       if (!((posfixnump(index)) &&                                      \
-            ((wohin_zuweisung posfixnum_to_V(index)) vergleich grenze))) { \
-        if (0 vergleich 0)                                              \
-          /* "<= grenze" - comparison not satisfied (grenze == limit) */ \
-          { error_cmp_inclusive(kw,index,grenze); }                    \
+            ((to_setter posfixnum_to_V(index)) uplimit_cmp upper_limit))) { \
+        if (0 uplimit_cmp 0)                                            \
+          /* "<= upper_limit" - comparison not satisfied (upper_limit == limit) */ \
+          { error_cmp_inclusive(kw,index,upper_limit); }                \
         else                                                            \
-          /* "< grenze" - comparison not satisfied (grenze == limit) */ \
-          { error_cmp_exclusive(kw,index,grenze); }                    \
+          /* "< upper_limit" - comparison not satisfied (upper_limit == limit) */ \
+          { error_cmp_exclusive(kw,index,upper_limit); }                \
       }                                                                 \
     }}
 
