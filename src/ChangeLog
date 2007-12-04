@@ -1,13 +1,24 @@
-2007-12-03  Reini Urban <rurban@x-ray.at>
+2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
+	<19_gcmark_vars>
+	* spvw_gcmark.d: translate local variables:
+	(dies): curr
+	(dies_): curr_
+	(nachf): succ
+	(vorg): pred
+	(vorvorg): prepred
 	<18_test_index_macro>
-	* charstrg.d (test_index): englishify the macro arguments
+	* charstrg.d (test_index): translate the macro arguments:
+	(woher): from
+	(wohin_zuweisung): to_setter
+	(grenze): upper_limit
+	(vergleich): uplimit_cmp
 	<17_liststern>
-        * bytecode.d, constsym.d, eval.d, foreign.d, list.d, stream.d, subr.d:
+	* bytecode.d, constsym.d, eval.d, foreign.d, list.d, stream.d, subr.d:
 	(liststern): rename to liststar
-        * bytecode.d, eval.d (cod_unliststern): rename to cod_unliststar
+	* bytecode.d, eval.d (cod_unliststern): rename to cod_unliststar
 	(cod_liststern_push): rename bytecode to cod_liststar_push (LIST*&PUSH)
-        * eval.d: rename label unliststern_unbound to unliststar_unbound
+	* eval.d: rename label unliststern_unbound to unliststar_unbound
 
 2007-12-03  Sam Steingold  <sds@gnu.org>
 
