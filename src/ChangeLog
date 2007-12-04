@@ -1,5 +1,10 @@
 2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
+	<24_more_anz>
+	* control.d, lispbibl.d (specdecled_, make_variable_frame): rename
+        arg and local spec_anz to spec_count
+        * control.d (make_variable_frame): rename local var_anz to var_count
+        * eval.d, lispbibl.d (frame_anz): rename to frame_count
 	<23_clos_reqoptkey_anz>
         * eval.d, lispbibl.d: rename global members
 	(clos_spec_anz): -> clos_spec_count

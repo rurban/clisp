@@ -418,12 +418,12 @@ local maygc object check_varspec (object varspec, object caller) {
    and the actual value (added when processing bindings).
  here we activate the SPECDECL bindings:
  Find the SPECDECL binding for the symbol
- > spec_pointer & spec_anz are returned by make_variable_frame()
+ > spec_pointer & spec_count are returned by make_variable_frame()
  < return the pointer to the flags (or symbol+flags)
  i.e., something suitable to SET_BIT,
  or NULL if no such binding is found */
 global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
-                                  uintL spec_anz) {
+                                  uintL spec_count) {
   do {
     NEXT(spec_pointer);
    #ifdef NO_symbolflags
@@ -437,7 +437,7 @@ global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
     if (eq(NEXT(spec_pointer),symbol))
       return &Before(spec_pointer);
    #endif
-  } while (--spec_anz);
+  } while (--spec_count);
   return NULL;
 }
 
@@ -467,7 +467,7 @@ local /*maygc*/ void make_variable_frame
     /* first store the special-declared variables from
        declarations in the stack: */
     var gcv_object_t* spec_pointer = args_end_pointer;
-    var uintL spec_anz = 0; /* number of SPECIAL-references */
+    var uintL spec_count = 0; /* number of SPECIAL-references */
     {
       var object declspecs = declarations;
       while (consp(declspecs)) {
@@ -490,18 +490,18 @@ local /*maygc*/ void make_variable_frame
             pushSTACK(specdecl); /* SPECDECL as "value" */
             pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
             check_STACK();
-            spec_anz++;
+            spec_count++;
           }
         }
         declspecs = Cdr(declspecs);
       }
-      *spec_count_ = spec_anz;
+      *spec_count_ = spec_count;
       *spec_ptr_ = spec_pointer;
     }
     *bind_ptr_ = args_end_pointer; /* pointer to first "genuine" binding */
     { /* Then store the "genuine" variable bindings (the variable
          and its unevaluated init at a time) in the stack: */
-      var uintL var_anz = 0; /* number of variable bindings */
+      var uintL var_count = 0; /* number of variable bindings */
       {
         while (consp(varspecs)) {
           var object varspec = Car(varspecs); /* next varspec */
@@ -538,7 +538,7 @@ local /*maygc*/ void make_variable_frame
           check_STACK();
           /* determine, if static or dynamic binding: */
           var bool specdecled = /* variable is declared special? */
-            (specdecled_p(symbol,spec_pointer,spec_anz) != NULL);
+            (specdecled_p(symbol,spec_pointer,spec_count) != NULL);
           if (eq(caller,S(symbol_macrolet))) {
             if (special_var_p(TheSymbol(symbol))) {
               pushSTACK(symbol);
@@ -577,13 +577,13 @@ local /*maygc*/ void make_variable_frame
             }
           }
           varspecs = Cdr(varspecs);
-          var_anz++;
+          var_count++;
         }
       }
-      *bind_count_ = var_anz;
-      var_anz += spec_anz; /* total number of symbol/value pairs */
+      *bind_count_ = var_count;
+      var_count += spec_count; /* total number of symbol/value pairs */
      #ifndef UNIX_DEC_ULTRIX_GCCBUG
-      if (var_anz > (uintC)(~(uintC)0)) { /* does it fit into a uintC ? */
+      if (var_count > (uintC)(~(uintC)0)) { /* does it fit into a uintC ? */
         pushSTACK(unbound);     /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(caller);
         error(source_program_error,
@@ -591,7 +591,7 @@ local /*maygc*/ void make_variable_frame
       }
      #endif
       pushSTACK(aktenv.var_env); /* current VAR_ENV as NEXT_ENV */
-      pushSTACK(fake_gcv_object(var_anz)); /* number of bindings */
+      pushSTACK(fake_gcv_object(var_count)); /* number of bindings */
       finish_frame(VAR);
     }
   }

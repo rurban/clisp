@@ -766,7 +766,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
   if (framepointerp(venv)) {
     /* Environment is a Pointer to a variable-binding-frame */
     var gcv_object_t* FRAME = TheFramepointer(venv);
-    var uintL count = as_oint(FRAME_(frame_anz)); /* number of bindings */
+    var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
     if (count > 0) {
       var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* 1st binding */
       do {
@@ -938,7 +938,7 @@ global maygc object setq (object sym, object value)
       if (framepointerp(env)) {
         # Environment is a Pointer to a function-binding-frame
         var gcv_object_t* FRAME = TheFramepointer(env);
-        var uintL count = as_oint(FRAME_(frame_anz)); # number of bindings
+        var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
         if (count > 0) {
           var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
           dotimespL(count,count, {
@@ -1061,7 +1061,7 @@ global maygc Values eval_noenv (object form) {
       {
         var gcv_object_t* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
         STACK_0 = env; # bisher genestetes Environment
-        var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet netsted bindings
+        var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet netsted bindings */
         if (anzahl == 0) {
           # no bindings -> unnecessary, to create a vector.
           env = popSTACK();
@@ -1081,7 +1081,7 @@ global maygc Values eval_noenv (object form) {
             *ptr++ = popSTACK(); # put nested NEXT_ENV into vector
           }
           FRAME_(frame_next_env) = env; # Vector as NEXT_ENV into the Frame
-          FRAME_(frame_anz) = as_object(0); # new number of not yet nested bindings
+          FRAME_(frame_count) = as_object(0); /* new number of not yet nested bindings */
         }
       }
     }
@@ -1118,7 +1118,7 @@ global maygc Values eval_noenv (object form) {
         STACK_0 = env; # formerly nested Environment
         # Search (from bottom) the first active among the not yet
         # nested bindings:
-        var uintL anzahl = as_oint(FRAME_(frame_anz)); # number of not yet nested bindings
+        var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
         var uintL count = 0;
         var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
         until ((count>=anzahl) # all unnested bindings through?
@@ -1158,7 +1158,7 @@ global maygc Values eval_noenv (object form) {
             *ptr++ = popSTACK(); # put nested NEXT_ENV in the vector
           }
           FRAME_(frame_next_env) = env; # vector as NEXT_ENV in the Frame
-          FRAME_(frame_anz) = fake_gcv_object(count); # new number of not yet nested bindings
+          FRAME_(frame_count) = fake_gcv_object(count); /* new number of not yet nested bindings */
         }
       }
     }

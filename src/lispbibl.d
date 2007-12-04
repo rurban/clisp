@@ -12027,7 +12027,7 @@ typedef struct {
 # Offsets for data in Frames, to be addressed via STACK_(Offset)
 #define frame_form      2  # EVAL
 #define frame_closure   2  # APPLY, HANDLER
-#define frame_anz       1  # VAR, FUN
+#define frame_count     1  # VAR, FUN
 #define frame_SP        1  # IBLOCK, CBLOCK, ITAGBODY, CTAGBODY,
                            # EVAL, CATCH, UNWIND-PROTECT, HANDLER, DRIVER
 #define frame_next_env  2  # VAR, FUN, IBLOCK, ITAGBODY
@@ -12657,12 +12657,12 @@ extern maygc void init_cclosures (void);
  here we activate the SPECDECL bindings */
 #define specdecled_p(sym,ptr,nn) (nn>0 ? specdecled_(sym,ptr,nn) : NULL)
 /* Find the SPECDECL binding for the symbol
- > spec_pointer & spec_anz are returned by make_variable_frame()
+ > spec_pointer & spec_count are returned by make_variable_frame()
  < return the pointer to the flags (or symbol+flags)
  i.e., something suitable to SET_BIT,
  or NULL if no such binding is found */
 extern gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
-                                  uintL spec_anz);
+                                  uintL spec_count);
 /* used by CONTROL, EVAL */
 
 /* activate the SPECDECL binding if found */
