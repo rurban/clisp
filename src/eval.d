@@ -319,8 +319,8 @@ LISPFUNNF(funtabref,1)
    (or a Symbol with a SUBR as global function definition),
  6 values:
    name              Name,
-   req-anz           number of required parameters,
-   opt-anz           number of optional parameters,
+   req-count         number of required parameters,
+   opt-count         number of optional parameters,
    rest-p            flag, if &rest is specified,
    keywords          list of admissible keywords (empty: no &key specified),
    allow-other-keys  flag, if additional keywords are allowed,
@@ -336,8 +336,8 @@ LISPFUNNR(subr_info,1)
   }
   /* obj is a SUBR */
   pushSTACK(TheSubr(obj)->name); /* Name */
-  pushSTACK(fixnum(TheSubr(obj)->req_anz)); /* req-anz (req-nr) */
-  pushSTACK(fixnum(TheSubr(obj)->opt_anz)); /* opt-anz (opt-nr) */
+  pushSTACK(fixnum(TheSubr(obj)->req_count)); /* req-count (req-nr) */
+  pushSTACK(fixnum(TheSubr(obj)->opt_count)); /* opt-count (opt-nr) */
   pushSTACK(TheSubr(obj)->rest_flag == subr_norest ? NIL : T); /* rest-p */
   /* during bootstrap, before defseq.lisp is loaded, this may fail: */
   coerce_sequence(TheSubr(obj)->keywords,S(list),false);
@@ -2701,11 +2701,11 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     # test for illegal Keywords:
     {
       var gcv_object_t* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
-      var uintC key_anz = TheSubr(fun)->key_anz;
+      var uintC key_count = TheSubr(fun)->key_count;
       #define for_every_keyword(statement)                    \
-        if (key_anz > 0) {                                    \
+        if (key_count > 0) {                                  \
           var gcv_object_t* keywordptr = keywords_pointer;    \
-          var uintC count = key_anz;                          \
+          var uintC count = key_count;                        \
           do {                                                \
             var object keyword = *keywordptr++;               \
             statement;                                        \
@@ -2726,11 +2726,11 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
          });
       #undef for_every_keyword
     # now assign Arguments and Parameters:
-      if (key_anz > 0) {
+      if (key_count > 0) {
         var gcv_object_t* keywordptr = keywords_pointer;
         var gcv_object_t* key_args_ptr = key_args_pointer;
         var uintC count;
-        dotimespC(count,key_anz, {
+        dotimespC(count,key_count, {
           var object keyword = *keywordptr++; # Keyword
           # find the pair Key.Value for this Keyword:
           find_keyword_value(
@@ -2774,7 +2774,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     argcount = argcount/2;
     var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
     {
-      var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keywords
+      var uintC key_count = TheCodevec(codevec)->ccv_numkey; # number of Keywords
       var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; # Offset of Keywords in FUNC
       var gcv_object_t* keywords_pointer = # points to the first Keyword
         (TheCodevec(codevec)->ccv_flags & bit(4) # generic function?
@@ -2783,9 +2783,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         );
     # test for illegal Keywords:
       #define for_every_keyword(statement)                    \
-        if (key_anz > 0) {                                    \
+        if (key_count > 0) {                                  \
           var gcv_object_t* keywordptr = keywords_pointer;    \
-          var uintC count = key_anz;                          \
+          var uintC count = key_count;                        \
           do {                                                \
             var object keyword = *keywordptr++;               \
             statement;                                        \
@@ -2799,18 +2799,18 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
            pushSTACK(closure); /* save the closure */
            /* build list of legal Keywords: */
            for_every_keyword( { pushSTACK(keyword); } );
-          {var object kwlist = listof(key_anz);
+          {var object kwlist = listof(key_count);
            closure = popSTACK(); bad_value = popSTACK();
            bad_keyword = popSTACK(); /* report errors: */
            error_key_badkw(Closure_name(closure),
                             bad_keyword,bad_value,kwlist);}});
       #undef for_every_keyword
     # now assign Arguments and Parameters:
-      if (key_anz > 0) {
+      if (key_count > 0) {
         var gcv_object_t* keywordptr = keywords_pointer;
         var gcv_object_t* key_args_ptr = key_args_pointer;
         var uintC count;
-        dotimespC(count,key_anz, {
+        dotimespC(count,key_count, {
           var object keyword = *keywordptr++; # Keyword
           # find the pair Key.value for this keyword:
           find_keyword_value(
@@ -3446,7 +3446,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       unbound_optional_key_0: # Before the keywords is atomp(args)
         {
           var uintC count;
-          dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
+          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
         }
         if (!nullp(args)) goto error_dotted;
         goto apply_subr_norest;
@@ -3457,13 +3457,13 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
     # Now the general Version:
     # reserve space on the STACK:
     get_space_on_STACK(sizeof(gcv_object_t) *
-                       (uintL)(TheSubr(fun)->req_anz +
-                               TheSubr(fun)->opt_anz +
-                               TheSubr(fun)->key_anz));
+                       (uintL)(TheSubr(fun)->req_count +
+                               TheSubr(fun)->opt_count +
+                               TheSubr(fun)->key_count));
     # evaluate required parameters and push into Stack:
     {
       var uintC count;
-      dotimesC(count,TheSubr(fun)->req_anz, {
+      dotimesC(count,TheSubr(fun)->req_count, {
         if (atomp(args)) goto error_toofew; # at the end of argument-list?
         pushSTACK(Cdr(args)); # remaining argument-list
         eval(Car(args)); # evaluate next argument
@@ -3471,7 +3471,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       });
     }
     { /* evaluate optional parameters and push into Stack: */
-      var uintC count = TheSubr(fun)->opt_anz;
+      var uintC count = TheSubr(fun)->opt_count;
       while (!atomp(args)) { /* argument-list not finished? */
         if (count==0) # all optional parameters supplied with?
           goto optionals_ok;
@@ -3483,7 +3483,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       # argument-list finished.
       # All further count optional parameters get the "value"
       # #<UNBOUND>, the same for the Keyword-parameters:
-      dotimesC(count,count + TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
+      dotimesC(count,count + TheSubr(fun)->key_count, { pushSTACK(unbound); } );
       if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
         # yes -> 0 additional arguments:
         argcount = 0; rest_args_pointer = args_end_pointer;
@@ -3523,7 +3523,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       # initialize all Keyword-parameters with  #<UNBOUND> :
       {
         var uintC count;
-        dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
+        dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
       }
       rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
       # evaluate all further arguments and into Stack:
@@ -3552,7 +3552,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       # SUBR with &REST-Flag:
      apply_subr_rest:
       with_saved_back_trace_subr(fun,STACK,
-                                 TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+                                 TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
         (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     }
     #if STACKCHECKS
@@ -3792,15 +3792,15 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
       }
       # Now the general Version:
       {
-        var uintL req_anz = TheCodevec(codevec)->ccv_numreq; # number of required parameters
-        var uintL opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional parameters
-        var uintB flags = TheCodevec(codevec)->ccv_flags; # Flags
+        var uintL req_count = TheCodevec(codevec)->ccv_numreq; /* number of required parameters */
+        var uintL opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional parameters */
+        var uintB flags = TheCodevec(codevec)->ccv_flags; /* Flags */
         # reserve space on STACK:
-        get_space_on_STACK(sizeof(gcv_object_t) * (req_anz+opt_anz));
+        get_space_on_STACK(sizeof(gcv_object_t) * (req_count+opt_count));
         # evaluate required parameters and push into Stack:
         {
           var uintC count;
-          dotimesC(count,req_anz, {
+          dotimesC(count,req_count, {
             if (atomp(args)) goto error_toofew; # argument-list finished?
             pushSTACK(Cdr(args)); # remaining argument-list
             eval(Car(args)); # evaluate nnext argument
@@ -3808,7 +3808,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
           });
         }
         { /* evaluate optional parameters and push into Stack: */
-          var uintC count = opt_anz;
+          var uintC count = opt_count;
           while (!atomp(args)) { /* argument-list not finished? */
             if (count==0) # all optional parameters supplied with?
               goto optionals_ok;
@@ -4308,7 +4308,7 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
       unbound_optional_key_0: # Before the Keywords is args_on_stack=0 and atomp(args)
         {
           var uintC count;
-          dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
+          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
         }
         goto apply_subr_norest;
       default: NOTREACHED;
@@ -4317,48 +4317,48 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
     }
     # Now the general Version:
     {
-      var uintC key_anz;
+      var uintC key_count;
       {
-        var uintC req_anz = TheSubr(fun)->req_anz;
-        var uintC opt_anz = TheSubr(fun)->opt_anz;
-        key_anz = TheSubr(fun)->key_anz;
-        if (args_on_stack < req_anz) {
-          # fewer Arguments there than demanded
-          req_anz = req_anz - args_on_stack; # as many as these must go on STACK
-          # reserve space on STACK:
-          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_anz + opt_anz + key_anz));
-          # store required Parameter in Stack:
+        var uintC req_count = TheSubr(fun)->req_count;
+        var uintC opt_count = TheSubr(fun)->opt_count;
+        key_count = TheSubr(fun)->key_count;
+        if (args_on_stack < req_count) {
+          /* fewer Arguments there than required */
+          req_count = req_count - args_on_stack; /* as many as these must go on STACK */
+          /* reserve space on STACK: */
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count + key_count));
+          /* store required Parameter in Stack: */
           {
             var uintC count;
-            dotimespC(count,req_anz, {
+            dotimespC(count,req_count, {
               if (atomp(args))
                 goto error_toofew;
-              pushSTACK(Car(args)); # store next Argument
+              pushSTACK(Car(args)); /* store next Argument */
               args = Cdr(args);
             });
           }
           goto optionals_from_list;
         }
-        args_on_stack -= req_anz; # remaining number
-        if (args_on_stack < opt_anz) {
-          # Arguments in Stack don't last for the optional ones
-          opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
-          # reserve space on STACK:
-          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_anz + key_anz));
+        args_on_stack -= req_count; /* remaining number */
+        if (args_on_stack < opt_count) {
+          /* Arguments in Stack don't last for the optional ones */
+          opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+          /* reserve space on STACK: */
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
          optionals_from_list:
           { /* store optional Parameters on Stack: */
-            var uintC count = opt_anz;
+            var uintC count = opt_count;
             while (!atomp(args)) { /* argument-list not finished? */
-              if (count==0) # all optional Parameters supplied with?
+              if (count==0) /* all optional Parameters supplied with? */
                 goto optionals_ok;
               count--;
-              pushSTACK(Car(args)); # store next Argument
+              pushSTACK(Car(args)); /* store next Argument */
               args = Cdr(args);
             }
             # Argument-list finished.
             # All further count optional Parameters receive the "value"
             # #<UNBOUND>, including the Keyword-Parameters:
-            dotimesC(count,count + key_anz, { pushSTACK(unbound); } );
+            dotimesC(count,count + key_count, { pushSTACK(unbound); } );
             if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
               # yes -> 0 additional Arguments:
               argcount = 0; rest_args_pointer = args_end_pointer;
@@ -4382,14 +4382,14 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
             key_args_pointer = args_end_pointer;
             {
               var uintC count;
-              dotimesC(count,key_anz, { pushSTACK(unbound); } );
+              dotimesC(count,key_count, { pushSTACK(unbound); } );
             }
             rest_args_pointer = args_end_pointer;
             argcount = 0;
             goto key_from_list;
           }
         }
-        args_on_stack -= opt_anz; # remaining number
+        args_on_stack -= opt_count; /* remaining number */
         if (TheSubr(fun)->key_flag == subr_nokey) {
           # SUBR without KEY
           if (TheSubr(fun)->rest_flag == subr_norest) {
@@ -4405,21 +4405,21 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
           goto apply_subr_key_;
       }
      apply_subr_key:
-      key_anz = TheSubr(fun)->key_anz;
+      key_count = TheSubr(fun)->key_count;
      apply_subr_key_:
       # shift down remaining Arguments on STACK and thus
       # create room for the Keyword-Parameters:
       argcount = args_on_stack;
-      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
+      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
       {
-        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
+        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
         var gcv_object_t* ptr1 = args_end_pointer;
         var gcv_object_t* ptr2 = new_args_end_pointer;
         var uintC count;
         dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
         key_args_pointer = ptr1;
         rest_args_pointer = ptr2;
-        dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
+        dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
         set_args_end_pointer(new_args_end_pointer);
       }
      key_from_list: # take remaining Arguments for Keywords from list
@@ -4455,7 +4455,7 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
     if (!nullp(args))
       goto error_dotted;
     with_saved_back_trace_subr(fun,STACK,
-                               TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+                               TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
       (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     goto done;
    apply_subr_norest:
@@ -4706,18 +4706,18 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
       {
         var uintB flags;
         {
-          var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # number of required Parameters
-          var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional Parameters
-          flags = TheCodevec(codevec)->ccv_flags; # Flags
-          if (args_on_stack < req_anz) {
+          var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
+          var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
+          flags = TheCodevec(codevec)->ccv_flags; /* Flags */
+          if (args_on_stack < req_count) {
             # fewer Arguments than demanded
-            req_anz = req_anz - args_on_stack; # as many as these must on STACK
+            req_count = req_count - args_on_stack; # as many as these must on STACK
             # reserve space on STACK:
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_anz + opt_anz));
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count));
             # store required Parameters on Stack:
             {
               var uintC count;
-              dotimespC(count,req_anz, {
+              dotimespC(count,req_count, {
                 if (atomp(args))
                   goto error_toofew;
                 pushSTACK(Car(args)); # store next argument
@@ -4726,15 +4726,15 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
             }
             goto optionals_from_list;
           }
-          args_on_stack -= req_anz; # remaining number
-          if (args_on_stack < opt_anz) {
-            # Argumente in Stack don't last for the optional ones
-            opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
-            # reserve space on STACK:
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_anz);
+          args_on_stack -= req_count; /* remaining number */
+          if (args_on_stack < opt_count) {
+            /* Arguments in Stack don't last for the optional ones */
+            opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+            /* reserve space on STACK: */
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
             optionals_from_list:
             { /* store optional parameters on Stack: */
-              var uintC count = opt_anz;
+              var uintC count = opt_count;
               while (!atomp(args)) { /* argument-list not finished? */
                 if (count==0) # all optional parameters supplied with?
                   goto optionals_ok;
@@ -4783,7 +4783,7 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
               # Closure with only REST, without KEY:
               goto apply_cclosure_nokey;
           }
-          args_on_stack -= opt_anz; # remaining number
+          args_on_stack -= opt_count; /* remaining number */
           if (flags & bit(7)) # Key-Flag?
             goto apply_cclosure_key_withlist_;
           elif (flags & bit(0))
@@ -4797,11 +4797,11 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
         }
        apply_cclosure_key_noargs:
         {
-          var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
-          if (key_anz > 0) {
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
+          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
+          if (key_count > 0) {
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
             var uintC count;
-            dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
+            dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
           }
           goto apply_cclosure_key;
         }
@@ -4810,11 +4810,11 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
        apply_cclosure_key_withlist_:
         # Closure with Keywords
         {
-          var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
+          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
           # shift down remaining arguments in STACK and thus
           # create room for the Keyword-parameters
           # (and poss. Rest-parameters):
-          var uintL shift = key_anz;
+          var uintL shift = key_count;
           if (flags & bit(0))
             shift++; # poss. 1 more for Rest-Parameter
           argcount = args_on_stack;
@@ -4828,7 +4828,7 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
             NEXT(ptr1) = args; # Rest-Parameter (preliminary)
           key_args_pointer = ptr1;
           rest_args_pointer = ptr2;
-          dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
+          dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
           set_args_end_pointer(new_args_end_pointer);
           if (flags & bit(0))
             # fill Rest-Parameter, less effort than with match_cclosure_key:
@@ -5240,7 +5240,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       unbound_optional_key_0: # Before the Keywords is args_on_stack=0
         {
           var uintC count;
-          dotimesC(count,TheSubr(fun)->key_anz, { pushSTACK(unbound); } );
+          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
         }
         goto apply_subr_norest;
       default: NOTREACHED;
@@ -5249,25 +5249,25 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     }
     # Now the general Version:
     {
-      var uintC key_anz;
+      var uintC key_count;
       {
-        var uintC req_anz = TheSubr(fun)->req_anz;
-        var uintC opt_anz = TheSubr(fun)->opt_anz;
-        key_anz = TheSubr(fun)->key_anz;
-        if (args_on_stack < req_anz)
+        var uintC req_count = TheSubr(fun)->req_count;
+        var uintC opt_count = TheSubr(fun)->opt_count;
+        key_count = TheSubr(fun)->key_count;
+        if (args_on_stack < req_count)
           # fewer Arguments than demanded
           goto error_toofew;
-        args_on_stack -= req_anz; # remaining number
-        if (args_on_stack <= opt_anz) {
-          # Arguments in Stack don't last for the optional ones
-          opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
-          if (opt_anz + key_anz > 0) {
-            # reserve space on STACK:
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_anz + key_anz));
+        args_on_stack -= req_count; /* remaining number */
+        if (args_on_stack <= opt_count) {
+          /* Arguments in Stack don't last for the optional ones */
+          opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+          if (opt_count + key_count > 0) {
+            /* reserve space on STACK: */
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
             # All further count optional parameters receive the "value"
             # #<UNBOUND>, including the Keyword-parameters:
             var uintC count;
-            dotimespC(count,opt_anz + key_anz, { pushSTACK(unbound); } );
+            dotimespC(count,opt_count + key_count, { pushSTACK(unbound); } );
           }
           if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
             # yes -> 0 additional Arguments:
@@ -5278,7 +5278,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             goto apply_subr_norest;
           }
         }
-        args_on_stack -= opt_anz; # remaining number (> 0)
+        args_on_stack -= opt_count; /* remaining number (> 0) */
         if (TheSubr(fun)->key_flag == subr_nokey) {
           # SUBR without KEY
           if (TheSubr(fun)->rest_flag == subr_norest)
@@ -5292,21 +5292,21 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           goto apply_subr_key_;
       }
      apply_subr_key:
-      key_anz = TheSubr(fun)->key_anz;
+      key_count = TheSubr(fun)->key_count;
      apply_subr_key_:
       # shift down remaining arguments in STACK and thus
       # create room for the Keyword-parameters:
       argcount = args_on_stack; # (> 0)
-      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
+      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
       {
-        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_anz;
+        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
         var gcv_object_t* ptr1 = args_end_pointer;
         var gcv_object_t* ptr2 = new_args_end_pointer;
         var uintC count;
         dotimespC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
         key_args_pointer = ptr1;
         rest_args_pointer = ptr2;
-        dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
+        dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
         set_args_end_pointer(new_args_end_pointer);
       }
       # assign Keywords and poss. discard remaining Arguments:
@@ -5323,7 +5323,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     rest_args_pointer = args_end_pointer STACKop argcount;
    apply_subr_rest:
     with_saved_back_trace_subr(fun,STACK,
-                               TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz + argcount,
+                               TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
       (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
     goto done;
    apply_subr_norest:
@@ -5337,7 +5337,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     return; # finished
     # Gathered error-messages:
    error_anzahl:
-    if (args_on_stack < TheSubr(fun)->req_anz)
+    if (args_on_stack < TheSubr(fun)->req_count)
       goto error_toofew; # too few Arguments
     else
       goto error_toomany; # too many Arguments
@@ -5670,24 +5670,24 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       {
         var uintB flags;
         {
-          var uintC req_anz = TheCodevec(codevec)->ccv_numreq; # number of required Parameters
-          var uintC opt_anz = TheCodevec(codevec)->ccv_numopt; # number of optional Parameters
-          flags = TheCodevec(codevec)->ccv_flags; # Flags
-          if (args_on_stack < req_anz)
-            # fewer Arguments than demanded
+          var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
+          var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
+          flags = TheCodevec(codevec)->ccv_flags; /* Flags */
+          if (args_on_stack < req_count)
+            /* fewer Arguments than demanded */
             goto error_toofew;
-          args_on_stack -= req_anz; # remaining number
-          if (args_on_stack <= opt_anz) {
-            # Arguments in Stack don't last for the optional ones
-            opt_anz = opt_anz - args_on_stack; # as many as these must go on STACK
-            if (opt_anz > 0) {
+          args_on_stack -= req_count; /* remaining number */
+          if (args_on_stack <= opt_count) {
+            /* Arguments in Stack don't last for the optional ones */
+            opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+            if (opt_count > 0) {
               # reserve space on STACK:
-              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_anz);
+              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
               # All further count optional parameters receive the "value"
               # #<UNBOUND>, the &REST-parameter receives NIL,
               # the Keyword-parameters receive the value #<UNBOUND> :
               var uintC count;
-              dotimespC(count,opt_anz, { pushSTACK(unbound); } );
+              dotimespC(count,opt_count, { pushSTACK(unbound); } );
             }
             if (flags & bit(0)) # &REST-Flag?
               pushSTACK(NIL); # yes -> initialize with NIL
@@ -5696,7 +5696,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             else
               goto apply_cclosure_nokey;
           }
-          args_on_stack -= opt_anz; # remaining number
+          args_on_stack -= opt_count; /* remaining number */
           if (flags & bit(7)) # Key-Flag?
             goto apply_cclosure_key_withargs_;
           elif (flags & bit(0))
@@ -5710,24 +5710,24 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         }
        apply_cclosure_key_noargs:
         {
-          var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-Parameters
-          if (key_anz > 0) {
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_anz);
+          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
+          if (key_count > 0) {
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
             var uintC count;
-            dotimespC(count,key_anz, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
+            dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
           }
           goto apply_cclosure_key;
         }
        apply_cclosure_key_withargs:
-        flags = TheCodevec(codevec)->ccv_flags; # initialize Flags!
+        flags = TheCodevec(codevec)->ccv_flags; /* initialize Flags! */
        apply_cclosure_key_withargs_:
-        # Closure with Keywords
+        /* Closure with Keywords */
         {
-          var uintC key_anz = TheCodevec(codevec)->ccv_numkey; # number of Keyword-Parameters
+          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
           # shift down remaining arguments in STACK and thus
           # create room for the Keyword-parameters
           # (and poss. Rest-parameters):
-          var uintL shift = key_anz;
+          var uintL shift = key_count;
           if (flags & bit(0))
             shift++; # poss. 1 more for Rest-Parameter
           argcount = args_on_stack;
@@ -5741,7 +5741,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             NEXT(ptr1) = unbound; # Rest-Parameter
           key_args_pointer = ptr1;
           rest_args_pointer = ptr2;
-          dotimesC(count,key_anz, { NEXT(ptr1) = unbound; } );
+          dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
           set_args_end_pointer(new_args_end_pointer);
         }
         # assign Keywords, build Rest-Parameter
