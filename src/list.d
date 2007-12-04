@@ -916,7 +916,7 @@ LISPFUN(list,seclass_no_se,0,0,rest,nokey,0,NIL)
   VALUES1(listof(argcount));
 }
 
-LISPFUN(liststern,seclass_no_se,1,0,rest,nokey,0,NIL)
+LISPFUN(liststar,seclass_no_se,1,0,rest,nokey,0,NIL)
 { /* (LIST* obj1 {object}), CLTL p. 267 */
   /* bisherige Gesamtliste bereits im Stack */
   /* die argcount restlichen Argumente vor diese Liste consen: */
