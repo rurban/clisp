@@ -1599,8 +1599,8 @@ for-value   NIL or T
   Keyword-Offset  ; number of local constants so far
                   ; = start offset of the Keywords in FUNC
                   ; (equal to=0 if and only if the function is autonomously)
-  (req-count 0)   ; number of required parameters
-  (opt-count 0)   ; number of optional parameters
+  (req-num 0)     ; number of required parameters
+  (opt-num 0)     ; number of optional parameters
   (rest-flag nil) ; Flag, if &REST - Parameter is specified.
   (keyword-flag nil) ; Flag, if &KEY - Parameter is specified.
   (keywords nil)  ; List of Keyword-Constants (in the right order)
@@ -2711,7 +2711,7 @@ for-value   NIL or T
       (values-list (cddr fdescr)))
     ;; defined with FLET or IN-DEFUN: from the fnode
     (let ((fnode (car fdescr)))
-      (values (fnode-req-count fnode) (fnode-opt-count fnode)
+      (values (fnode-req-num fnode) (fnode-opt-num fnode)
               (fnode-rest-flag fnode) (fnode-keyword-flag fnode)
               (fnode-keywords fnode) (fnode-allow-other-keys-flag fnode)))))
 
@@ -3989,8 +3989,8 @@ for-value   NIL or T
                 (sys::specialized-lambda-list-to-ordinary
                  lalist 'compile)))
             (c-analyze-lambdalist lalist)))
-      (setf (fnode-req-count *func*) (length reqvar)
-            (fnode-opt-count *func*) (length optvar)
+      (setf (fnode-req-num *func*) (length reqvar)
+            (fnode-opt-num *func*) (length optvar)
             (fnode-rest-flag *func*) (not (eql restvar 0))
             (fnode-keyword-flag *func*) keyflag
             (fnode-keywords *func*) keyword
@@ -4098,11 +4098,11 @@ for-value   NIL or T
     )))
     (setf (fnode-code *func*) anode)
     (when reqoptimflags
-      (decf (fnode-req-count *func*) (count 'GONE reqoptimflags)))
+      (decf (fnode-req-num *func*) (count 'GONE reqoptimflags)))
     (when (eq (anode-type anode) 'ERROR)
       ;; turn it into a correct function, that does nothing
-      (setf (fnode-req-count *func*) 0
-            (fnode-opt-count *func*) 0
+      (setf (fnode-req-num *func*) 0
+            (fnode-opt-num *func*) 0
             (fnode-rest-flag *func*) t
             (fnode-keyword-flag *func*) nil
             (fnode-keywords *func*) '()
@@ -6491,8 +6491,8 @@ for-value   NIL or T
               (let ((fnode (car f3)))
                 (if fnode       ; valid entry
                   (setq name fun
-                        req (fnode-req-count fnode)
-                        opt (fnode-opt-count fnode)
+                        req (fnode-req-num fnode)
+                        opt (fnode-opt-num fnode)
                         rest-p (fnode-rest-flag fnode)
                         key-p (fnode-keyword-flag fnode)
                         keylist (fnode-keywords fnode)
@@ -10617,24 +10617,24 @@ The function make-closure is required.
           (multiple-value-call #'list*
             (as-word (car SPdepth))
             (as-word (cdr SPdepth))
-            (as-word (fnode-req-count fnode))
-            (as-word (fnode-opt-count fnode))
+            (as-word (fnode-req-num fnode))
+            (as-word (fnode-opt-num fnode))
             (+ (if (fnode-rest-flag fnode) 1 0)
                (if (fnode-gf-p fnode) 16 0)
                (if (fnode-keyword-flag fnode)
                  (+ 128 (if (fnode-allow-other-keys-flag fnode) 64 0))
                  0))
             (values ; argument-type-shortcut
-              (let ((req-count (fnode-req-count fnode))
-                    (opt-count (fnode-opt-count fnode))
+              (let ((req-num (fnode-req-num fnode))
+                    (opt-num (fnode-opt-num fnode))
                     (rest (fnode-rest-flag fnode))
                     (key (fnode-keyword-flag fnode)))
-                (cond ((and (not rest) (not key) (< (+ req-count opt-count) 6))
-                       (+ (svref '#(1 7 12 16 19 21) opt-count) req-count))
-                      ((and rest (not key) (zerop opt-count) (< req-count 5))
-                       (+ 22 req-count))
-                      ((and (not rest) key (< (+ req-count opt-count) 5))
-                       (+ (svref '#(27 32 36 39 41) opt-count) req-count))
+                (cond ((and (not rest) (not key) (< (+ req-num opt-num) 6))
+                       (+ (svref '#(1 7 12 16 19 21) opt-num) req-num))
+                      ((and rest (not key) (zerop opt-num) (< req-num 5))
+                       (+ 22 req-num))
+                      ((and (not rest) key (< (+ req-num opt-num) 5))
+                       (+ (svref '#(27 32 36 39 41) opt-num) req-num))
                       (t 0))))
             (if (fnode-keyword-flag fnode)
               (multiple-value-call #'values
@@ -10667,8 +10667,8 @@ The function make-closure is required.
 
 ;; Return the signature of the byte-compiled function object
 ;; values:
-;; 1. req-count
-;; 2. opt-count
+;; 1. req-num
+;; 2. opt-num
 ;; 3. rest-p
 ;; 4. key-p
 ;; 5. keyword-list
@@ -10687,14 +10687,14 @@ The function make-closure is required.
                    `(+ (pop ,listvar) (* 256 (pop ,listvar))))))
       (pop byte-list) (pop byte-list)
       (pop byte-list) (pop byte-list)
-      (let* ((req-count (pop2 byte-list))
-             (opt-count (pop2 byte-list))
+      (let* ((req-num (pop2 byte-list))
+             (opt-num (pop2 byte-list))
              (h (pop byte-list))
              (key-p (logbitp 7 h)))
         (pop byte-list)
         (values
-          req-count
-          opt-count
+          req-num
+          opt-num
           (logbitp 0 h)
           key-p
           (when key-p
@@ -11366,7 +11366,7 @@ The function make-closure is required.
   (fresh-line stream)
   (terpri stream)
   (format stream (TEXT "Disassembly of function ~S") (closure-name closure))
-  (multiple-value-bind (req-count opt-count rest-p
+  (multiple-value-bind (req-num opt-num rest-p
                         key-p keyword-list allow-other-keys-p
                         byte-list const-list)
       (signature closure)
@@ -11375,9 +11375,9 @@ The function make-closure is required.
         ((null L))
       (format stream "~%(CONST ~S) = ~S" i (car L)))
     (terpri stream)
-    (format stream (TEXT "~S required argument~:P") req-count)
+    (format stream (TEXT "~S required argument~:P") req-num)
     (terpri stream)
-    (format stream (TEXT "~S optional argument~:P") opt-count)
+    (format stream (TEXT "~S optional argument~:P") opt-num)
     (terpri stream)
     (if rest-p
       (write-string (TEXT "Rest parameter") stream)
@@ -11463,8 +11463,8 @@ The function make-closure is required.
       (setq opt-num 0 rest-p t))
     (let ((fnode
             (make-fnode :name 'trampoline
-                        :req-count req-num
-                        :opt-count opt-num
+                        :req-num req-num
+                        :opt-num opt-num
                         :rest-flag (or rest-p key-p)
                         :code (let ((*form* nil) (*stackz* nil))
                                 (make-anode :seclass *seclass-dirty*))
