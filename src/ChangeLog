@@ -1,5 +1,7 @@
 2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
+	<21-xcharin-fehler>
+	* xcharin.lisp (FEHLER-CHAR-ARG): rename to ERROR-CHAR-ARG
 	<20_subr_anz>
 	* affi.d, spvw.d, spvw_memfile.d, spvw_space.d:
         translate local variables *subr_anz => *subr_count:
