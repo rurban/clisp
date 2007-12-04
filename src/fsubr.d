@@ -2,42 +2,42 @@
 # Bruno Haible 1990-2000
 
 # Eine Special-Form wird definiert durch eine Deklaration
-#   LISPSPECFORM(name,req_anz,opt_anz,body_flag)
+#   LISPSPECFORM(name,req_count,opt_count,body_flag)
 # in diesem File.
 # Zusätzlich muss in CONTROL.D dieselbe Deklaration samt C-Body stehen.
 
-# name ist der Funktionsname (ein C-Identifier), req_anz die Anzahl der
-# required-Parameter (eine Zahl), opt_anz die Anzahl der optional-Parameter
+# name ist der Funktionsname (ein C-Identifier), req_count die Anzahl der
+# required-Parameter (eine Zahl), opt_count die Anzahl der optional-Parameter
 # (eine Zahl), body_flag entweder nobody oder body.
 
 
 # Expander für die Konstruktion der extern-Deklarationen:
-  #define LISPSPECFORM_A(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_A(name,req_count,opt_count,body_flag)      \
     extern fsubr_function_t C_##name;
 
 # Expander für die Konstruktion der Deklaration der C-Funktion:
-  #define LISPSPECFORM_B(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_B(name,req_count,opt_count,body_flag)      \
     global Values C_##name (void)
 
 # Expander für die Deklaration der FSUBR-Tabelle:
-  #define LISPSPECFORM_C(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_C(name,req_count,opt_count,body_flag)      \
     fsubr_t D_##name;
 
 # Expander für die Initialisierung der FSUBR-Tabelle:
-  #define LISPSPECFORM_D(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_D(name,req_count,opt_count,body_flag)      \
     &C_##name,
 
 # Expander für die Initialisierung der FSUBR-Symbole:
-  #define LISPSPECFORM_E(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_E(name,req_count,opt_count,body_flag)      \
     { offsetof(struct symbol_tab_,S_##name), \
-      req_anz,                  \
-      opt_anz,                  \
+      req_count,                  \
+      opt_count,                  \
       (uintW)fsubr_##body_flag, \
     },
-  #define LISPSPECFORM_F(name,req_anz,opt_anz,body_flag)  \
+#define LISPSPECFORM_F(name,req_count,opt_count,body_flag)      \
     { S(name),                  \
-      req_anz,                  \
-      opt_anz,                  \
+      req_count,                  \
+      opt_count,                  \
       (uintW)fsubr_##body_flag, \
     },
 

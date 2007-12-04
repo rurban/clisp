@@ -1153,11 +1153,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           var subr_t* ptr2 = (*old_module)->stab;
           var uintC counter = old_subr_count;
           do {
-            if (!(   (ptr1->req_anz == ptr2->req_anz)
-                  && (ptr1->opt_anz == ptr2->opt_anz)
+            if (!(   (ptr1->req_count == ptr2->req_count)
+                  && (ptr1->opt_count == ptr2->opt_count)
                   && (ptr1->rest_flag == ptr2->rest_flag)
                   && (ptr1->key_flag == ptr2->key_flag)
-                  && (ptr1->key_anz == ptr2->key_anz)))
+                  && (ptr1->key_count == ptr2->key_count)))
               ABORT_INI;
             ptr2->name = ptr1->name; ptr2->keywords = ptr1->keywords;
             ptr2->argtype = ptr1->argtype;
