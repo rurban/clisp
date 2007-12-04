@@ -26,7 +26,7 @@ global uintM static_space (void) {
   sum += symbol_anz * sizeof(symbol_);
   # space of subr_tab: cf. macro for_all_subrs
  #ifdef MAP_MEMORY_TABLES
-  sum += total_subr_anz * sizeof(subr_t);
+  sum += total_subr_count * sizeof(subr_t);
  #else
   {
     var module_t* module; # traverse modules

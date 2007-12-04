@@ -1,5 +1,12 @@
 2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
+	<20_subr_anz>
+	* affi.d, spvw.d, spvw_memfile.d, spvw_space.d:
+        translate local variables *subr_anz => *subr_count:
+	(subr_anz): subr_count
+	(fsubr_anz): fsubr_count
+	(total_subr_anz): total_subr_count
+	(old_subr_a): old_subr_count
 	<19_gcmark_vars>
 	* spvw_gcmark.d: translate local variables:
 	(dies): curr

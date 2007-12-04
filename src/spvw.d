@@ -37,11 +37,11 @@
 
 # table of all SUBRs: out-sourced to SPVWTABF
 # size of this table:
-#define subr_anz  ((sizeof(subr_tab)-varobjects_misaligned)/sizeof(subr_t))
+#define subr_count  ((sizeof(subr_tab)-varobjects_misaligned)/sizeof(subr_t))
 
 # table of all FSUBRs: moved to CONTROL
 # size of this table:
-#define fsubr_anz  (sizeof(fsubr_tab)/sizeof(fsubr_t))
+#define fsubr_count  (sizeof(fsubr_tab)/sizeof(fsubr_t))
 
 # tables of all relocatable pointers: moved to STREAM
 # size of these tables:
@@ -67,12 +67,12 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
 # (NB: subr_tab_ptr_as_object(ptr) turns a traversing pointer
 # into a genuine lisp-object.)
 #ifdef MAP_MEMORY_TABLES
-  local uintC total_subr_anz;
+  local uintC total_subr_count;
   #define for_all_subrs(statement)                                   \
     do {                                                             \
       var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); /* traverse subr_tab */  \
       var uintC count;                                               \
-      dotimesC(count,total_subr_anz, { statement; ptr++; } );        \
+      dotimesC(count,total_subr_count, { statement; ptr++; } );      \
     } while(0)
 #else
   #define for_all_subrs(statement)                   \
@@ -889,7 +889,7 @@ local void init_subr_tab_1 (void) {
   }
   { # and initialize the GCself and keywords-slot temporarily:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count = subr_anz;
+    var uintC count = subr_count;
     while (count--) {
       ptr->GCself = subr_tab_ptr_as_object(ptr);
       ptr->keywords = NIL;
@@ -901,7 +901,7 @@ local void init_subr_tab_1 (void) {
   # are already initialized.
   { # now initialize the argtype-slot:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count = subr_anz;
+    var uintC count = subr_count;
     while (count--) { SUBR_SET_ARGTYPE(ptr,NULL); ptr++; }
   }
  #else
@@ -922,7 +922,7 @@ local void init_subr_tab_1 (void) {
   { # ditto, copy other tables tino the mapped region:
     var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned);
     var module_t* module;
-    main_module.stab = newptr; newptr += subr_anz;
+    main_module.stab = newptr; newptr += subr_count;
     for_modules(all_other_modules,{
       if (*module->stab_size > 0) {
         var subr_t* oldptr = module->stab;
@@ -931,7 +931,7 @@ local void init_subr_tab_1 (void) {
         do { *newptr++ = *oldptr++; } while (--count);
       }
     });
-    ASSERT(newptr == (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_anz);
+    ASSERT(newptr == (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_count);
   }
  #endif
 }
@@ -1127,7 +1127,7 @@ local void init_symbol_functions (void) {
     #undef LISPSPECFORM
     var const fsubr_t* ptr1 = (const fsubr_t *)&fsubr_tab; # traverse fsubr_tab
     var const fsubr_data_t * ptr2 = &fsubr_data_tab[0]; # traverse fsubr_data_tab
-    var uintC count = fsubr_anz;
+    var uintC count = fsubr_count;
     while (count--) {
       var object sym = fsubr_name(ptr2);
       var object obj = allocate_fsubr();
@@ -1143,7 +1143,7 @@ local void init_symbol_functions (void) {
   }
   { # enter SUBRs:
     var subr_t* ptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned); # traverse subr_tab
-    var uintC count = subr_anz;
+    var uintC count = subr_count;
     while (count--) {
       Symbol_function(ptr->name) = subr_tab_ptr_as_object(ptr);
       verify_code_alignment(ptr->function,ptr->name);
@@ -2504,11 +2504,11 @@ local inline int init_memory (struct argv_initparams *p) {
  #endif
   end_system_call();
  #ifdef MAP_MEMORY_TABLES
-  { # calculate total_subr_anz:
+  { # calculate total_subr_count:
     var uintC total = 0;
     var module_t* module;
     for_modules(all_modules, { total += *module->stab_size; } );
-    total_subr_anz = total;
+    total_subr_count = total;
   }
  #endif
   { # partitioning of the total memory:
@@ -2604,7 +2604,7 @@ local inline int init_memory (struct argv_initparams *p) {
       multimap(case_symbolflagged: , 0, memneed, false);
     }
     # set subr_tab to address 0:
-    if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),pagesize)) <0)
+    if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_count*sizeof(subr_t),pagesize)) <0)
       return -1;
     #else
     # multimap symbol_tab and subr_tab:
@@ -2656,7 +2656,7 @@ local inline int init_memory (struct argv_initparams *p) {
            mem.heaps[typecode(as_object((oint)&tab))].heap_limit += map_len; \
       } while(0)
     map_tab(symbol_tab,sizeof(symbol_tab));
-    map_tab(subr_tab,varobjects_misaligned+total_subr_anz*sizeof(subr_t));
+    map_tab(subr_tab,varobjects_misaligned+total_subr_count*sizeof(subr_t));
     #endif
     #ifdef TRIVIALMAP_MEMORY
     # initialize all heaps as empty.
@@ -3626,12 +3626,12 @@ global void dynload_modules (const char * library, uintC modcount,
           if (*module->stab_size > 0) module_set_argtypes(module);
          #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
           {
-            var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_anz;
+            var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_count;
             var uintC count = *module->stab_size;
             if (count > 0) {
               {
-                var uintM old_map_len = round_up(varobjects_misaligned+total_subr_anz*sizeof(subr_t),map_pagesize);
-                var uintM new_map_len = round_up(varobjects_misaligned+(total_subr_anz+count)*sizeof(subr_t),map_pagesize);
+                var uintM old_map_len = round_up(varobjects_misaligned+total_subr_count*sizeof(subr_t),map_pagesize);
+                var uintM new_map_len = round_up(varobjects_misaligned+(total_subr_count+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
                     error_dlerror("zeromap",NULL,"out of memory for subr_tab");
@@ -3647,7 +3647,7 @@ global void dynload_modules (const char * library, uintC modcount,
                   newptr++;
                 } while (--count);
               }
-              total_subr_anz += *module->stab_size;
+              total_subr_count += *module->stab_size;
             }
           }
          #elif defined(MULTIMAP_MEMORY)
