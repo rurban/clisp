@@ -108,7 +108,7 @@ typedef struct {
   uintC _intDsize;
   uintC _module_count;
   uintL _module_names_size;
-  uintC _fsubr_anz;
+  uintC _fsubr_count;
   uintC _pseudofun_anz;
   uintC _symbol_anz;
   uintL _page_alignment;
@@ -128,7 +128,7 @@ typedef struct {
 } memdump_header_t;
 /* then the module names,
  then fsubr_tab, pseudofun_tab, symbol_tab,
- and for each module subr_addr, subr_anz, object_anz, subr_tab, object_tab, */
+ and for each module subr_addr, subr_count, object_anz, subr_tab, object_tab, */
 #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
 /* then the objects of variable length
  (between mem.varobjects.heap_start and mem.varobjects.heap_end),
@@ -330,7 +330,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
     module_names_size = round_up(module_names_size,varobject_alignment);
   }
   header->_module_names_size = module_names_size;
-  header->_fsubr_anz     = fsubr_anz;
+  header->_fsubr_count     = fsubr_count;
   header->_pseudofun_anz = pseudofun_anz;
   header->_symbol_anz    = symbol_anz;
   header->_page_alignment = page_alignment;
@@ -407,7 +407,7 @@ global maygc void savemem (object stream, bool exec_p)
   WRITE(&fsubr_tab,sizeof(fsubr_tab));
   WRITE(&pseudofun_tab,sizeof(pseudofun_tab));
   WRITE(&symbol_tab,sizeof(symbol_tab));
-  { /* write for each module subr_addr, subr_anz, object_anz,
+  { /* write for each module subr_addr, subr_count, object_anz,
        subr_tab, object_tab: */
     var module_t* module;
     for_modules(all_modules, {
@@ -857,8 +857,8 @@ local void loadmem_update (gcv_object_t* objptr)
 local void loadmem_update_fsubr (Fsubr fsubrptr)
 {
   var void* addr = fsubrptr->function;
-  var uintC i = fsubr_anz;
-  var fsubr_t* p = &((fsubr_t*)(&old_fsubr_tab))[fsubr_anz];
+  var uintC i = fsubr_count;
+  var fsubr_t* p = &((fsubr_t*)(&old_fsubr_tab))[fsubr_count];
   while (i!=0) {
     i--;
     if ((void*) *--p == addr) {
@@ -1044,7 +1044,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (header._hashtable_length != hashtable_length) ABORT_INI;
     if (header._pathname_length != pathname_length) ABORT_INI;
     if (header._intDsize != intDsize) ABORT_INI;
-    if (header._fsubr_anz != fsubr_anz) ABORT_INI;
+    if (header._fsubr_count != fsubr_count) ABORT_INI;
     if (header._pseudofun_anz != pseudofun_anz) ABORT_INI;
     if (header._symbol_anz != symbol_anz) ABORT_INI;
     if (header._page_alignment != page_alignment) ABORT_INI;
@@ -1129,29 +1129,29 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     READ(&old_fsubr_tab,sizeof(fsubr_tab));
     READ(&old_pseudofun_tab,sizeof(pseudofun_tab));
     READ(&symbol_tab,sizeof(symbol_tab));
-    { /* for each module read subr_addr, subr_anz, object_anz, subr_tab,
+    { /* for each module read subr_addr, subr_count, object_anz, subr_tab,
          object_tab : */
       var module_t* * old_module = &old_modules[0];
       var offset_subrs_t* offset_subrs_ptr = &offset_subrs[0];
       var uintC count = 1+header._module_count;
       do {
         var subr_t* old_subr_addr;
-        var uintC old_subr_anz;
+        var uintC old_subr_count;
         var uintC old_object_anz;
         READ(&old_subr_addr,sizeof(subr_t*));
-        READ(&old_subr_anz,sizeof(uintC));
+        READ(&old_subr_count,sizeof(uintC));
         READ(&old_object_anz,sizeof(uintC));
-        if (old_subr_anz != *(*old_module)->stab_size) ABORT_INI;
+        if (old_subr_count != *(*old_module)->stab_size) ABORT_INI;
         if (old_object_anz != *(*old_module)->otab_size) ABORT_INI;
         offset_subrs_ptr->low_o = as_oint(subr_tab_ptr_as_object(old_subr_addr));
-        offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_anz));
+        offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_count));
         offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
-        if (old_subr_anz > 0) {
-          var DYNAMIC_ARRAY(old_subr_tab,subr_t,old_subr_anz);
-          READ(old_subr_tab,old_subr_anz*sizeof(subr_t));
+        if (old_subr_count > 0) {
+          var DYNAMIC_ARRAY(old_subr_tab,subr_t,old_subr_count);
+          READ(old_subr_tab,old_subr_count*sizeof(subr_t));
           var subr_t* ptr1 = old_subr_tab;
           var subr_t* ptr2 = (*old_module)->stab;
-          var uintC counter = old_subr_anz;
+          var uintC counter = old_subr_count;
           do {
             if (!(   (ptr1->req_anz == ptr2->req_anz)
                   && (ptr1->opt_anz == ptr2->opt_anz)

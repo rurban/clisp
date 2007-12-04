@@ -775,13 +775,13 @@ object_initdata_t module__affi__object_tab_initdata[1];
 #define LISPSYM(name,printname,package)  { package, printname },
 #define system  "SYSTEM"
 
-#define subr_anz  5
+#define subr_count  5
 
-uintC module__affi__subr_tab_size = subr_anz;
+uintC module__affi__subr_tab_size = subr_count;
 
 struct {
   VAROBJECTS_ALIGNMENT_DUMMY_DECL
-  subr_t subrs[subr_anz];
+  subr_t subrs[subr_count];
 } module__affi__subr_tab
   #if defined(HEAPCODES) && (alignment_long < varobject_alignment) && defined(GNU)
     __attribute__ ((aligned (varobject_alignment)))
@@ -799,7 +799,7 @@ struct {
   }
 };
 
-subr_initdata_t module__affi__subr_tab_initdata[subr_anz] = {
+subr_initdata_t module__affi__subr_tab_initdata[subr_count] = {
   LISPSYM(affi_libcall,"%LIBCALL",system)
   LISPSYM(mem_read,"MEM-READ",system)
   LISPSYM(mem_write,"MEM-WRITE",system)
