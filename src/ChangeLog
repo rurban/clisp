@@ -1,5 +1,7 @@
 2007-12-03  Reini Urban <rurban@x-ray.at>
 
+	<18_test_index_macro>
+	* charstrg.d (test_index): englishify the macro arguments
 	<17_liststern>
         * bytecode.d, constsym.d, eval.d, foreign.d, list.d, stream.d, subr.d:
 	(liststern): rename to liststar
