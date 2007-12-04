@@ -2155,11 +2155,11 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   TheIclosure(closure)->clos_vars     = vars;
   TheIclosure(closure)->clos_varflags = varflags;
   /* write counts in the Closure: */
-  TheIclosure(closure)->clos_spec_anz = fixnum(spec_count);
-  TheIclosure(closure)->clos_req_anz  = fixnum(req_count);
-  TheIclosure(closure)->clos_opt_anz  = fixnum(opt_count);
-  TheIclosure(closure)->clos_key_anz  = fixnum(key_count);
-  TheIclosure(closure)->clos_aux_anz  = fixnum(aux_count);
+  TheIclosure(closure)->clos_spec_count = fixnum(spec_count);
+  TheIclosure(closure)->clos_req_count  = fixnum(req_count);
+  TheIclosure(closure)->clos_opt_count  = fixnum(opt_count);
+  TheIclosure(closure)->clos_key_count  = fixnum(key_count);
+  TheIclosure(closure)->clos_aux_count  = fixnum(aux_count);
   /* In the Variable-Vector the first spec_count variables are the
      SPECIAL-declared ones. In each remaining variable the DYNAM_BIT is
      set, if it occurs among the SPECIAL-declared one. */
@@ -2412,7 +2412,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   }
   var gcv_object_t* closure_ = &STACK_(frame_closure); /* &closure */
   var gcv_object_t* frame_pointer; /* pointer to the frame */
-  var uintC spec_count = posfixnum_to_V(TheIclosure(closure)->clos_spec_anz);
+  var uintC spec_count = posfixnum_to_V(TheIclosure(closure)->clos_spec_count);
   var gcv_object_t *spec_ptr;
   { /* 2nd step: build variable-binding-frame: */
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
@@ -2484,7 +2484,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       *markptr = SET_BIT(*markptr,active_bit_o);/* activate binding */  \
      }}
     { /* process required parameters: fetch next argument and bind in stack */
-      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_req_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_req_count);
       if (count>0) {
         if (argcount < count) {
           pushSTACK(TheIclosure(closure)->clos_name);
@@ -2502,7 +2502,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     { /* process optional parameters:
          fetch next argument; if there is none,
          execute an Init-form; then bind in stack. */
-      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_opt_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_opt_count);
       if (count==0)
         goto optional_ende;
       {
@@ -2544,7 +2544,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       if (!nullp(TheIclosure(closure)->clos_rest_flag)) /* Rest-Flag? */
         bind_next_var(NIL,); /* yes -> bind to NIL */
       /* initialize &KEY-parameters without arguments : */
-      count = posfixnum_to_V(TheIclosure(closure)->clos_key_anz); /* number of Keyword-parameters */
+      count = posfixnum_to_V(TheIclosure(closure)->clos_key_count); /* number of Keyword-parameters */
       if (count>0) {
         STACK_0 = TheIclosure(closure)->clos_key_inits; /* their Init-forms */
         dotimespC(count,count, {
@@ -2623,7 +2623,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
                                 TheIclosure(closure)->clos_keywords);});
          #undef for_every_keyword
           /* Now assign the Key-values and evaluate the Key-Inits: */
-          var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_key_anz);
+          var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_key_count);
           if (count > 0) {
             var object key_inits = TheIclosure(closure)->clos_key_inits;
             dotimespC(count,count, {
@@ -2657,7 +2657,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
       }
     }
    aux: { /* process &AUX-parameter: */
-      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_aux_anz);
+      var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_aux_count);
       if (count>0) {
         pushSTACK(TheIclosure(closure)->clos_aux_inits); /* Init-forms for &AUX-variables */
         dotimespC(count,count, {
