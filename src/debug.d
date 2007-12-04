@@ -1131,8 +1131,8 @@ global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
   }
   if (subrp(fun))
     /* SUBR */
-    return stack STACKop (TheSubr(fun)->req_anz + TheSubr(fun)->opt_anz
-                          + TheSubr(fun)->key_anz);
+    return stack STACKop (TheSubr(fun)->req_count + TheSubr(fun)->opt_count
+                          + TheSubr(fun)->key_count);
   if (closurep(fun)) {
     if (simple_bit_vector_p(Atype_8Bit,TheClosure(fun)->clos_codevec)) {
       /* Compiled-Closure */

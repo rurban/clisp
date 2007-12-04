@@ -231,19 +231,19 @@ int main(int argc, char* argv[])
   /* The definitions are extracted from lispbibl.d. */
 #include "gen.lispbibl.c"
 
-   printf("#define LISPFUNN(name,req_anz)  LISPFUN(name,sec,req_anz,0,norest,nokey,0,NIL)\n");
+   printf("#define LISPFUNN(name,req_count)  LISPFUN(name,sec,req_count,0,norest,nokey,0,NIL)\n");
    /* In LISPFUN_B, emit the decl first, to avoid "gcc -missing-declarations" warnings. */
-   printf("#define LISPFUN_B(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  Values C_##name subr_##rest_flag##_function_args; Values C_##name subr_##rest_flag##_function_args\n");
+   printf("#define LISPFUN_B(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  Values C_##name subr_##rest_flag##_function_args; Values C_##name subr_##rest_flag##_function_args\n");
    printf("#define subr_norest_function_args  (void)\n");
    printf("#define subr_rest_function_args  (uintC argcount, object* rest_args_pointer)\n");
  #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
-   printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+   printf4("#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  { gcv_nullobj, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_count, opt_count, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_count, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
   #else
-   printf4("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { { gcv_nullobj }, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
+   printf4("#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  { { gcv_nullobj }, %d,%d,%d,%d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_count, opt_count, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_count, sec},\n", Rectype_Subr, 0, subr_length, subr_xlength);
   #endif
  #else
-   printf1("#define LISPFUN_F(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_anz, opt_anz, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_anz, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
+   printf1("#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords)  { gcv_nullobj, %d, gcv_nullobj, gcv_nullobj, (lisp_function_t)(&C_##name), 0, req_count, opt_count, (uintB)subr_##rest_flag, (uintB)subr_##key_flag, key_count, sec},\n", xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength));
  #endif
    printf("#define LISPFUN  LISPFUN_B\n");
 

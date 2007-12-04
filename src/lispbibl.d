@@ -6692,113 +6692,113 @@ typedef struct {
 %% puts("typedef void Values;"); /* emit_typedef useless: no sizeof(void) */
 %% emit_typedef_f("Values (*%s)()","lisp_function_t");
 
-# FSUBRs
-# As C-functions: of type fsubr_function_t (no arguments, no value):
-  typedef Values fsubr_function_t (void);
-# The addesses of these C-functions are jumped to directly
-# For SAVEMEM/LOADMEM there is a table containing all FSUBRs.
-  typedef fsubr_function_t * fsubr_t;
-# Signature of FSUBRs in the Lisp-way:
-#         argtype          short for the argument type     fsubr_argtype_t
-#         req_anz          number of required parameters   uintW
-#         opt_anz          number of optional parameters   uintW
-#         body_flag        Body-Flag                       fsubr_body_t
-# The component body_flag contains one uintW, but we mean:
-  typedef enum {
-    fsubr_nobody,
-    fsubr_body
-  } fsubr_body_t;
-# The component argtype contains a Fixnum, but it's supposed to be:
-  typedef enum {
-    fsubr_argtype_1_0_nobody,
-    fsubr_argtype_2_0_nobody,
-    fsubr_argtype_1_1_nobody,
-    fsubr_argtype_2_1_nobody,
-    fsubr_argtype_0_body,
-    fsubr_argtype_1_body,
-    fsubr_argtype_2_body
-  } fsubr_argtype_t;
-# conversion: see SPVW:
-# extern fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz, fsubr_body_t body_flag);
+/* FSUBRs
+ As C-functions: of type fsubr_function_t (no arguments, no value): */
+typedef Values fsubr_function_t (void);
+/* The addesses of these C-functions are jumped to directly
+ For SAVEMEM/LOADMEM there is a table containing all FSUBRs. */
+typedef fsubr_function_t * fsubr_t;
+/* Signature of FSUBRs in the Lisp-way:
+         argtype          short for the argument type     fsubr_argtype_t
+         req_count        number of required parameters   uintW
+         opt_count        number of optional parameters   uintW
+         body_flag        Body-Flag                       fsubr_body_t
+ The component body_flag contains one uintW, but we mean: */
+typedef enum {
+  fsubr_nobody,
+  fsubr_body
+} fsubr_body_t;
+/* The component argtype contains a Fixnum, but it's supposed to be: */
+typedef enum {
+  fsubr_argtype_1_0_nobody,
+  fsubr_argtype_2_0_nobody,
+  fsubr_argtype_1_1_nobody,
+  fsubr_argtype_2_1_nobody,
+  fsubr_argtype_0_body,
+  fsubr_argtype_1_body,
+  fsubr_argtype_2_body
+} fsubr_argtype_t;
+/* conversion: see SPVW: */
+/* extern fsubr_argtype_t fsubr_argtype (uintW req_count, uintW opt_count, fsubr_body_t body_flag); */
 
-# SUBRs
-# SUBR table entry:
-  typedef struct {
-    XRECORD_HEADER
-    gcv_object_t name     _attribute_aligned_object_; # name
-    gcv_object_t keywords _attribute_aligned_object_; # NIL or vector with the keywords
-    lisp_function_t function; # function
-    uintW argtype;          # short for the argument-type
-    uintW req_anz;          # number of required parameters
-    uintW opt_anz;          # number of optional parameters
-    uintB rest_flag;        # flag for arbitrary number of arguments
-    uintB key_flag;         # flag for keywords
-    uintW key_anz;          # number of keyword parameter
-    uintW seclass;          /* side-effect class */
-    # If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
-    # varobject_alignment.
-  } subr_t
-    #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
-      # Force all Subrs to be allocated with a 4-byte alignment. GC needs this.
-      __attribute__ ((aligned (4)))
-    #endif
-    ;
-  typedef subr_t *  Subr;
-  # Compile-time check: sizeof(subr_t) is a multiple of varobject_alignment.
-  typedef int subr_size_check[1 - 2 * (int)(sizeof(subr_t) % varobject_alignment)];
-# GC needs information where objects are in here:
-  #define subr_length  2
-  #define subr_xlength  (sizeof(*(Subr)0)-offsetofa(record_,recdata)-subr_length*sizeof(gcv_object_t))
-# the rest_flag component is a uintB, while we really mean:
-  typedef enum {
-    subr_norest,
-    subr_rest
-  } subr_rest_t;
-# the key_flag component is a uintB, while we really mean:
-  typedef enum {
-    subr_nokey,
-    subr_key,
-    subr_key_allow
-  } subr_key_t;
-# the argtype component is a uintW, while we really mean:
-  typedef enum {
-    subr_argtype_0_0,
-    subr_argtype_1_0,
-    subr_argtype_2_0,
-    subr_argtype_3_0,
-    subr_argtype_4_0,
-    subr_argtype_5_0,
-    subr_argtype_6_0,
-    subr_argtype_0_1,
-    subr_argtype_1_1,
-    subr_argtype_2_1,
-    subr_argtype_3_1,
-    subr_argtype_4_1,
-    subr_argtype_0_2,
-    subr_argtype_1_2,
-    subr_argtype_2_2,
-    subr_argtype_3_2,
-    subr_argtype_0_3,
-    subr_argtype_1_3,
-    subr_argtype_2_3,
-    subr_argtype_0_4,
-    subr_argtype_0_5,
-    subr_argtype_0_0_rest,
-    subr_argtype_1_0_rest,
-    subr_argtype_2_0_rest,
-    subr_argtype_3_0_rest,
-    subr_argtype_0_0_key,
-    subr_argtype_1_0_key,
-    subr_argtype_2_0_key,
-    subr_argtype_3_0_key,
-    subr_argtype_4_0_key,
-    subr_argtype_0_1_key,
-    subr_argtype_1_1_key,
-    subr_argtype_1_2_key
-  } subr_argtype_t;
-# Conversion: see SPVW:
-# extern subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz, subr_rest_t rest_flag, subr_key_t key_flag);
-%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_anz; uintW opt_anz; uintB rest_flag; uintB key_flag; uintW key_anz; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
+/* SUBRs
+ SUBR table entry: */
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t name     _attribute_aligned_object_; /* name */
+  gcv_object_t keywords _attribute_aligned_object_; /* NIL or vector with the keywords */
+  lisp_function_t function;     /* function */
+  uintW argtype;                /* short for the argument-type */
+  uintW req_count;              /* number of required parameters */
+  uintW opt_count;              /* number of optional parameters */
+  uintB rest_flag;              /* flag for arbitrary number of arguments */
+  uintB key_flag;               /* flag for keywords */
+  uintW key_count;              /* number of keyword parameter */
+  uintW seclass;                /* side-effect class */
+  /* If necessary, add fillers here to ensure sizeof(subr_t)
+     is a multiple of varobject_alignment. */
+} subr_t
+#if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
+/* Force all Subrs to be allocated with a 4-byte alignment. GC needs this. */
+  __attribute__ ((aligned (4)))
+#endif
+;
+typedef subr_t *  Subr;
+/* Compile-time check: sizeof(subr_t) is a multiple of varobject_alignment. */
+typedef int subr_size_check[1 - 2 * (int)(sizeof(subr_t) % varobject_alignment)];
+/* GC needs information where objects are in here: */
+#define subr_length  2
+#define subr_xlength  (sizeof(*(Subr)0)-offsetofa(record_,recdata)-subr_length*sizeof(gcv_object_t))
+/* the rest_flag component is a uintB, while we really mean: */
+typedef enum {
+  subr_norest,
+  subr_rest
+} subr_rest_t;
+/* the key_flag component is a uintB, while we really mean: */
+typedef enum {
+  subr_nokey,
+  subr_key,
+  subr_key_allow
+} subr_key_t;
+/* the argtype component is a uintW, while we really mean: */
+typedef enum {
+  subr_argtype_0_0,
+  subr_argtype_1_0,
+  subr_argtype_2_0,
+  subr_argtype_3_0,
+  subr_argtype_4_0,
+  subr_argtype_5_0,
+  subr_argtype_6_0,
+  subr_argtype_0_1,
+  subr_argtype_1_1,
+  subr_argtype_2_1,
+  subr_argtype_3_1,
+  subr_argtype_4_1,
+  subr_argtype_0_2,
+  subr_argtype_1_2,
+  subr_argtype_2_2,
+  subr_argtype_3_2,
+  subr_argtype_0_3,
+  subr_argtype_1_3,
+  subr_argtype_2_3,
+  subr_argtype_0_4,
+  subr_argtype_0_5,
+  subr_argtype_0_0_rest,
+  subr_argtype_1_0_rest,
+  subr_argtype_2_0_rest,
+  subr_argtype_3_0_rest,
+  subr_argtype_0_0_key,
+  subr_argtype_1_0_key,
+  subr_argtype_2_0_key,
+  subr_argtype_3_0_key,
+  subr_argtype_4_0_key,
+  subr_argtype_0_1_key,
+  subr_argtype_1_1_key,
+  subr_argtype_1_2_key
+} subr_argtype_t;
+/* Conversion: see SPVW: */
+/* extern subr_argtype_t subr_argtype (uintW req_count, uintW opt_count, subr_rest_t rest_flag, subr_key_t key_flag); */
+%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_count; uintW opt_count; uintB rest_flag; uintB key_flag; uintW key_count; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
 %% #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
 %%   strcat(buf," __attribute__ ((aligned (4)))");
 %% #endif
@@ -10530,7 +10530,7 @@ extern struct subr_tab_ {
 %% puts("extern struct subr_tab_ {");
 %% puts("  VAROBJECTS_ALIGNMENT_DUMMY_DECL");
 %% #undef LISPFUN
-%% #define LISPFUN(name,sec,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords) \
+%% #define LISPFUN(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
 %%   printf("  subr_t %s;\n",STRING(D_##name));
 %% #include "subr.c"
 %% #undef LISPFUN
@@ -10863,7 +10863,7 @@ They're constructed through
   LISPFUN             for general LISP-functions,
   LISPFUNN            for normal  LISP-functions (only required parameters),
   LISPSPECFORM        for special forms (FSUBRs).
-Note that SUBRs with KEY_ANZ=0 will be seen as SUBRs without keyword-
+Note that SUBRs with KEY_COUNT=0 will be seen as SUBRs without keyword-
 parameters by the evaluator (which in consequence means that in this case the
 ALLOW_FLAG is meaningless and no keyword, not even :ALLOW-OTHER-KEYS,
 will be accepted)!
@@ -12609,25 +12609,25 @@ extern maygc object coerce_function (object obj);
 #define ca_limit_1  lp_limit_1
 
 # The macro LISPSPECFORM initiates the declaration of a LISP-Special-Form.
-# LISPSPECFORM(name,req_anz,opt_anz,body_flag)
+# LISPSPECFORM(name,req_count,opt_count,body_flag)
 # > name: C-name of the function and the Symbol
-# > req_anz: number of required parameters
-# > opt_anz: number of optional parameters
+# > req_count: number of required parameters
+# > opt_count: number of optional parameters
 # > body_flag: body or nobody, depending on whether &BODY exists or not
 # See FSUBR.D
 #define LISPSPECFORM  LISPSPECFORM_B
 # is used by CONTROL
 
 /* The macro LISPFUN initiates a declaration of a LISP functions.
- LISPFUN(name,seclass,req_anz,opt_anz,rest_flag,key_flag,key_anz,keywords)
+LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
  > name: the name of the function (a C-Identifier)
  > seclass: the side-effect class (seclass_t, see above)
- > req_anz: number of required parameters (a number)
- > opt_anz: number of optional parameters (a number)
+ > req_count: number of required parameters (a number)
+ > opt_count: number of optional parameters (a number)
  > rest_flag: either norest or rest, depending on whether &REST exists or not
  > key_flag: either nokey or key or key_allow, depending on whether &KEY
              exists or not and whether &ALLOW-OTHER-KEYS is present
- > key_anz: number of keyword-parameters, a number (0 if nokey)
+ > key_count: number of keyword-parameters, a number (0 if nokey)
  > keywords: either NIL or an expression of the form
              v(kw(keyword1),...,kw(keywordn))   (NIL if nokey)
  See SUBR.D */
@@ -12635,9 +12635,9 @@ extern maygc object coerce_function (object obj);
 /* is used by all modules */
 
 /* The macro LISPFUNN initiates a simple declaration of a LISP-function.
- LISPFUNN(name,req_anz)
+LISPFUNN(name,req_count)
  > name: the function-name (a C-Identifier)
- > req_anz: the (fixed) number of arguments (a number)
+ > req_count: the (fixed) number of arguments (a number)
  LISPFUNNF - ditto, but seclass_foldable instead of seclass_default
  LISPFUNNR - ditto, but seclass_read instead of seclass_default
  See SUBR.D

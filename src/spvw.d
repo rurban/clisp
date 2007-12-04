@@ -439,7 +439,7 @@ local uintL make_symvalue_perthread (object value) {
 
   #define for_all_back_traces(statement)   \
     for_all_threads({ var p_backtrace_t bt = thread->_back_trace; \
-      { statement; }                                                  \
+      { statement; }                                              \
     })
 
 #endif
@@ -675,20 +675,20 @@ local const char* program_name;
 # flag, if SYS::READ-FORM should behave ILISP-compatible:
 global bool ilisp_mode = false;
 
-local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
+local fsubr_argtype_t fsubr_argtype (uintW req_count, uintW opt_count,
                                      fsubr_body_t body_flag)
 { /* conversion of the argument types of a FSUBR into a code: */
   switch (body_flag) {
     case fsubr_nobody:
-      switch (opt_anz) {
+      switch (opt_count) {
         case 0:
-          switch (req_anz) {
+          switch (req_count) {
             case 1: return(fsubr_argtype_1_0_nobody);
             case 2: return(fsubr_argtype_2_0_nobody);
             default: goto illegal;
           }
         case 1:
-          switch (req_anz) {
+          switch (req_count) {
             case 1: return(fsubr_argtype_1_1_nobody);
             case 2: return(fsubr_argtype_2_1_nobody);
             default: goto illegal;
@@ -696,9 +696,9 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
         default: goto illegal;
       }
     case fsubr_body:
-      switch (opt_anz) {
+      switch (opt_count) {
         case 0:
-          switch (req_anz) {
+          switch (req_count) {
             case 0: return(fsubr_argtype_0_body);
             case 1: return(fsubr_argtype_1_body);
             case 2: return(fsubr_argtype_2_body);
@@ -710,11 +710,11 @@ local fsubr_argtype_t fsubr_argtype (uintW req_anz, uintW opt_anz,
   }
  illegal:
   fprintf(stderr,GETTEXTL("Unknown FSUBR signature: %d %d %d\n"),
-          req_anz,opt_anz,body_flag);
+          req_count,opt_count,body_flag);
   quit_sofort(1);
 }
 
-local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
+local subr_argtype_t subr_argtype (uintW req_count, uintW opt_count,
                                    subr_rest_t rest_flag, subr_key_t key_flag,
                                    const subr_initdata_t *sid)
 { /* conversion of the argument types of a FSUBR into a code: */
@@ -722,9 +722,9 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
     case subr_nokey:
       switch (rest_flag) {
         case subr_norest:
-          switch (opt_anz) {
+          switch (opt_count) {
             case 0:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_0);
                 case 1: return(subr_argtype_1_0);
                 case 2: return(subr_argtype_2_0);
@@ -735,7 +735,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                 default: goto illegal;
               }
             case 1:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_1);
                 case 1: return(subr_argtype_1_1);
                 case 2: return(subr_argtype_2_1);
@@ -744,7 +744,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                 default: goto illegal;
               }
             case 2:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_2);
                 case 1: return(subr_argtype_1_2);
                 case 2: return(subr_argtype_2_2);
@@ -752,28 +752,28 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                 default: goto illegal;
               }
             case 3:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_3);
                 case 1: return(subr_argtype_1_3);
                 case 2: return(subr_argtype_2_3);
                 default: goto illegal;
               }
             case 4:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_4);
                 default: goto illegal;
               }
             case 5:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_5);
                 default: goto illegal;
               }
             default: goto illegal;
           }
         case subr_rest:
-          switch (opt_anz) {
+          switch (opt_count) {
             case 0:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_0_rest);
                 case 1: return(subr_argtype_1_0_rest);
                 case 2: return(subr_argtype_2_0_rest);
@@ -787,9 +787,9 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
     case subr_key:
       switch (rest_flag) {
         case subr_norest:
-          switch (opt_anz) {
+          switch (opt_count) {
             case 0:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_0_key);
                 case 1: return(subr_argtype_1_0_key);
                 case 2: return(subr_argtype_2_0_key);
@@ -798,13 +798,13 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
                 default: goto illegal;
               }
             case 1:
-              switch (req_anz) {
+              switch (req_count) {
                 case 0: return(subr_argtype_0_1_key);
                 case 1: return(subr_argtype_1_1_key);
                 default: goto illegal;
               }
             case 2:
-              switch (req_anz) {
+              switch (req_count) {
                 case 1: return(subr_argtype_1_2_key);
                 default: goto illegal;
               }
@@ -818,7 +818,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
   }
  illegal:
   fprintf(stderr,GETTEXTL("Unknown SUBR signature: %d %d %d %d"),
-          req_anz,opt_anz,rest_flag,key_flag);
+          req_count,opt_count,rest_flag,key_flag);
   if (sid)
     fprintf(stderr," (%s::%s)\n",sid->packname,sid->symname);
   else fputs("\n",stderr);
@@ -826,7 +826,7 @@ local subr_argtype_t subr_argtype (uintW req_anz, uintW opt_anz,
 }
 # set the argtype of a subr_t *ptr
 #define SUBR_SET_ARGTYPE(ptr,sid)                                       \
-  ptr->argtype = (uintW)subr_argtype(ptr->req_anz,ptr->opt_anz,         \
+  ptr->argtype = (uintW)subr_argtype(ptr->req_count,ptr->opt_count,     \
                                      (subr_rest_t)(ptr->rest_flag),     \
                                      (subr_key_t)(ptr->key_flag),sid)
 
@@ -1026,8 +1026,8 @@ local void init_subr_tab_2 (void) {
   # fills another single keyword into the vector:
   #define kw(name)  *vecptr++ = S(K##name)
   # creates vector with given keywords:
-  #define v(key_anz,keywords)                   \
-     vec = allocate_vector(key_anz);            \
+  #define v(key_count,keywords)                 \
+     vec = allocate_vector(key_count);          \
      vecptr = &TheSvector(vec)->data[0];        \
      keywords;
   # sets the vector as keyword-vector for SUBR name:
@@ -1117,8 +1117,8 @@ local void init_symbol_functions (void) {
         uintL name_offset;
         #define fsubr_name(p)  symbol_tab_ptr_as_object((char*)&symbol_tab+(p)->name_offset)
       #endif
-      uintW req_anz;
-      uintW opt_anz;
+      uintW req_count;
+      uintW opt_count;
       uintW body_flag;
     } fsubr_data_t;
     local const fsubr_data_t fsubr_data_tab[] = {
@@ -1133,7 +1133,7 @@ local void init_symbol_functions (void) {
       var object obj = allocate_fsubr();
       TheFsubr(obj)->name = sym;
       TheFsubr(obj)->argtype =
-        fixnum((uintW)fsubr_argtype(ptr2->req_anz,ptr2->opt_anz,
+        fixnum((uintW)fsubr_argtype(ptr2->req_count,ptr2->opt_count,
                                     (fsubr_body_t)(ptr2->body_flag)));
       TheFsubr(obj)->function = (void*)(*ptr1);
       Symbol_function(sym) = obj;
