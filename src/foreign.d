@@ -546,7 +546,7 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
       TheFfunction(obj)->ff_flags = STACK_0;
       STACK_3 = obj;
     }
-    pushSTACK(fixnum(f_index)); funcall(L(liststern),4); pushSTACK(value1);
+    pushSTACK(fixnum(f_index)); funcall(L(liststar),4); pushSTACK(value1);
     /* Stack layout: fun, obj, acons. */
     { /* Put it into the hash table. */
       var object new_cons = allocate_cons();

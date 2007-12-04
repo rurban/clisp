@@ -187,7 +187,7 @@ local const Subr FUNTABR[] = {
   _(class_tuple_gethash),
   /* IO : 0 SUBRs */
   /* LIST : 4 SUBRs */
-  _(list), _(liststern), _(append), _(nconc),
+  _(list), _(liststar), _(append), _(nconc),
   /* MISC : 0 SUBRs */
   /* PACKAGE : 0 SUBRs */
   /* PATHNAME : 0 SUBRs */
@@ -7134,7 +7134,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           do { pushSTACK(unbound); } until (--n == 0);
           goto next_byte;
         }
-      CASE cod_unliststern:            # (UNLIST* n m)
+      CASE cod_unliststar:      /* (UNLIST* n m) */
         {
           var uintC n;
           var uintC m;
@@ -7142,12 +7142,12 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           U_operand(m);
           var object l = value1;
           do {
-            if (atomp(l)) goto unliststern_unbound;
+            if (atomp(l)) goto unliststar_unbound;
             pushSTACK(Car(l)); l = Cdr(l);
           } until (--n == 0);
           pushSTACK(l);
           goto next_byte;
-         unliststern_unbound:
+         unliststar_unbound:
           if (n > m) error_apply_toofew(S(lambda),l);
           do { pushSTACK(unbound); } until (--n == 0);
           pushSTACK(NIL);
@@ -7944,7 +7944,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           with_saved_context( { object res = listof(n); pushSTACK(res); } );
         }
         goto next_byte;
-      CASE cod_liststern:              # (LIST* n)
+      CASE cod_liststar:        /* (LIST* n) */
         {
           var uintC n;
           U_operand(n);
@@ -7960,7 +7960,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           });
         }
         goto next_byte;
-      CASE cod_liststern_push:         # (LIST*&PUSH n)
+      CASE cod_liststar_push:   /* (LIST*&PUSH n) */
         {
           var uintC n;
           U_operand(n);
