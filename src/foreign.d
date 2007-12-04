@@ -4162,9 +4162,9 @@ local void callback (void* data, va_alist alist)
 /* return the string object for dlerror() value */
 local object dlerror_string (void)
 {
-  var const char* error;
-  begin_system_call(); error = dlerror(); end_system_call();
-  return error == NULL ? NIL : asciz_to_string(error_condition,O(misc_encoding));
+  var const char* errmesg;
+  begin_system_call(); errmesg = dlerror(); end_system_call();
+  return error == NULL ? NIL : asciz_to_string(errmesg,O(misc_encoding));
 }
 #endif
 
