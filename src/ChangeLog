@@ -20,10 +20,8 @@
 	(key_anz): -> key_count
 	* clos-genfun2b.lisp (COMPUTE-DISPATCH): remove REQ-ANZ
 	* compiler.lisp (struct fnode): rename
-	(REQ-ANZ): -> REQ-COUNT
-	(OPT-ANZ): -> OPT-COUNT
-	(FNODE-REQ-ANZ): -> FNODE-REQ-COUNT
-	(FNODE-OPT-ANZ): -> FNODE-OPT-COUNT
+	(REQ-ANZ): -> REQ-NUM
+	(OPT-ANZ): -> OPT-NUM
 	* subr.d: rename macro args req_anz_, opt_anz_, key_anz_ to *_count_
 	<21-xcharin-fehler>
 	* xcharin.lisp (FEHLER-CHAR-ARG): rename to ERROR-CHAR-ARG
