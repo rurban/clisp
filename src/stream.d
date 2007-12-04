@@ -8669,7 +8669,7 @@ local maygc void add_keybinding (const char* cap, const key_event_t* event) {
       pushSTACK(code_char(as_chart(*ptr))); ptr++; count++;
     } until (*ptr=='\0');
     pushSTACK(make_key_event(event)); count++;
-    funcall(L(liststern),count);
+    funcall(L(liststar),count);
   }
   # and push on STACK_0:
   {

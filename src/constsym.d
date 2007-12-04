@@ -484,7 +484,7 @@ LISPSYM(nthcdr,"NTHCDR",lisp)
 LISPSYM(conses_p,"CONSES-P",system) /* ABI */
 LISPSYM(last,"LAST",lisp)
 LISPSYM(list,"LIST",lisp)
-LISPSYM(liststern,"LIST*",lisp)
+LISPSYM(liststar,"LIST*",lisp)
 LISPSYM(make_list,"MAKE-LIST",lisp)
 LISPSYM(append,"APPEND",lisp)
 LISPSYM(copy_list,"COPY-LIST",lisp)
