@@ -1,5 +1,12 @@
 2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
+	<23_clos_reqoptkey_anz>
+        * eval.d, lispbibl.d: rename global members
+	(clos_spec_anz): -> clos_spec_count
+	(clos_req_anz): -> clos_req_count
+	(clos_opt_anz): -> clos_opt_count
+	(clos_key_anz): -> clos_key_count
+	(clos_aux_anz): -> clos_aux_count
 	<22_reqoptkey_anz>
 	* debug.d, eval.d, fsubr.d, genclisph.d, lispbibl.d, spvw.d:
 	* spvw_memfile.d, subr.d: rename global members and macro args

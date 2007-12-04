@@ -6590,16 +6590,16 @@ typedef struct {
   gcv_object_t clos_decl_env   _attribute_aligned_object_;
   gcv_object_t clos_vars       _attribute_aligned_object_;
   gcv_object_t clos_varflags   _attribute_aligned_object_;
-  gcv_object_t clos_spec_anz   _attribute_aligned_object_;
-  gcv_object_t clos_req_anz    _attribute_aligned_object_;
-  gcv_object_t clos_opt_anz    _attribute_aligned_object_;
+  gcv_object_t clos_spec_count _attribute_aligned_object_;
+  gcv_object_t clos_req_count  _attribute_aligned_object_;
+  gcv_object_t clos_opt_count  _attribute_aligned_object_;
   gcv_object_t clos_opt_inits  _attribute_aligned_object_;
-  gcv_object_t clos_key_anz    _attribute_aligned_object_;
+  gcv_object_t clos_key_count  _attribute_aligned_object_;
   gcv_object_t clos_keywords   _attribute_aligned_object_;
   gcv_object_t clos_key_inits  _attribute_aligned_object_;
   gcv_object_t clos_allow_flag _attribute_aligned_object_;
   gcv_object_t clos_rest_flag  _attribute_aligned_object_;
-  gcv_object_t clos_aux_anz    _attribute_aligned_object_;
+  gcv_object_t clos_aux_count  _attribute_aligned_object_;
   gcv_object_t clos_aux_inits  _attribute_aligned_object_;
 } *  Iclosure;
 #define iclos_length  ((sizeof(*(Iclosure)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
