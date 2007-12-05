@@ -16741,7 +16741,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     (offsetofa(clisp_thread_t,_symvalues)+nsymvalues*sizeof(gcv_object_t))
   #define thread_objects_offset(nsymvalues)  \
     (offsetof(clisp_thread_t,_lthread))
-  #define thread_objects_anz(nsymvalues)  \
+  #define thread_objects_count(nsymvalues)  \
     ((offsetofa(clisp_thread_t,_symvalues)-offsetof(clisp_thread_t,_lthread))/sizeof(gcv_object_t)+(nsymvalues))
 
 # Size of a single thread's stack region. Must be a power of 2.
