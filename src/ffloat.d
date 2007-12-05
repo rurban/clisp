@@ -8,16 +8,16 @@
 #        sintWL exp = Exponent (vorzeichenbehaftet),
 #        uintL mant = Mantisse (>= 2^FF_mant_len, < 2^(FF_mant_len+1))
   #define FF_uexp(x)  (((x) >> FF_mant_len) & (bit(FF_exp_len)-1))
-  #define FF_decode(obj, zero_statement, sign_zuweisung,exp_zuweisung,mant_zuweisung)  \
+  #define FF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment)  \
     {                                                                      \
       var ffloat _x = ffloat_value(obj);                                   \
       var uintBWL uexp = FF_uexp(_x);                                      \
       if (uexp==0) {                                                       \
         zero_statement # e=0 -> Zahl 0.0                                   \
       } else {                                                             \
-        exp_zuweisung (sintWL)((uintWL)uexp - FF_exp_mid); # Exponent      \
-        unused (sign_zuweisung sign_of_sint32((sint32)(_x))); # Vorzeichen \
-        mant_zuweisung (bit(FF_mant_len) | (_x & (bit(FF_mant_len)-1)));   \
+        exp_assignment (sintWL)((uintWL)uexp - FF_exp_mid); # Exponent     \
+        unused (sign_assignment sign_of_sint32((sint32)(_x))); # Vorzeichen \
+        mant_assignment (bit(FF_mant_len) | (_x & (bit(FF_mant_len)-1)));  \
       }                                                                    \
     }
 
@@ -30,19 +30,19 @@
 # < object ergebnis: ein Single-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
 # can trigger GC
-  #define encode_FF(sign,exp,mant, erg_zuweisung)  \
+  #define encode_FF(sign,exp,mant, res_assignment)  \
     {                                                               \
       if ((exp) < (sintWL)(FF_exp_low-FF_exp_mid)) {                \
         if (underflow_allowed()) {                                  \
           error_underflow();                                       \
         } else {                                                    \
-          erg_zuweisung FF_0;                                       \
+          res_assignment FF_0;                                       \
         }                                                           \
       } else                                                        \
       if ((exp) > (sintWL)(FF_exp_high-FF_exp_mid)) {               \
         error_overflow();                                          \
       } else                                                        \
-      erg_zuweisung allocate_ffloat                                 \
+      res_assignment allocate_ffloat                                 \
         (  ((sint32)(sign) & bit(31))                  # Vorzeichen \
          | ((uint32)((exp)+FF_exp_mid) << FF_mant_len) # Exponent   \
          | ((uint32)(mant) & (bit(FF_mant_len)-1))     # Mantisse   \
@@ -74,7 +74,7 @@
 #   maybe_underflow: Ergebnis sehr klein und /=0, liefert IEEE-Null
 #   maybe_divide_0: Ergebnis unbestimmt, liefert IEEE-Infinity
 #   maybe_nan: Ergebnis unbestimmt, liefert IEEE-NaN
-  #define float_to_FF(expr,ergebnis_zuweisung,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  \
+  #define float_to_FF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  \
     {                                                                    \
       var ffloatjanus _erg; _erg.machine_float = (expr);                 \
       if ((_erg.eksplicit & ((uint32)bit(FF_exp_len+FF_mant_len)-bit(FF_mant_len))) == 0) { # e=0 ? \
@@ -85,7 +85,7 @@
            ) {                                                           \
           error_underflow(); # subnormal oder noch kleiner-> Underflow  \
         } else {                                                         \
-          ergebnis_zuweisung FF_0; # +/- 0.0 -> 0.0                      \
+          ergebnis_assignment FF_0; # +/- 0.0 -> 0.0                      \
         }                                                                \
       } elif ((maybe_overflow || maybe_divide_0)                         \
               && (((~_erg.eksplicit) & ((uint32)bit(FF_exp_len+FF_mant_len)-bit(FF_mant_len))) == 0) # e=255 ? \
@@ -101,7 +101,7 @@
             error_overflow(); # Infinity, Overflow                      \
         }                                                                \
       } else {                                                           \
-        ergebnis_zuweisung allocate_ffloat(_erg.eksplicit);              \
+        ergebnis_assignment allocate_ffloat(_erg.eksplicit);              \
       }                                                                  \
     }
 #endif
