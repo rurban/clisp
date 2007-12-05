@@ -5,9 +5,9 @@
 	use plain "mkdir -p" instead
 	* ffcall/callback/Makefile.in, ffcall/callback/trampoline_r/Makefile.in:
 	* ffcall/callback/vacall_r/Makefile.in, ffcall/trampoline/Makefile.in:
-	* ffcall/vacall/Makefile.in: use "mkdir -p" instead
-	of "if [ ! -d % ]; then mkdir %; fi" because the latter breaks
-	down with non-trivial DESTDIR
+	* ffcall/vacall/Makefile.in, ffcall/avcall/Makefile.in:
+	use "mkdir -p" instead of "if [ ! -d % ]; then mkdir %; fi"
+	because the latter breaks down with non-trivial DESTDIR
 
 2007-12-05  Sam Steingold  <sds@gnu.org>
 
