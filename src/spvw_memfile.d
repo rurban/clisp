@@ -109,8 +109,8 @@ typedef struct {
   uintC _module_count;
   uintL _module_names_size;
   uintC _fsubr_count;
-  uintC _pseudofun_anz;
-  uintC _symbol_anz;
+  uintC _pseudofun_count;
+  uintC _symbol_count;
   uintL _page_alignment;
   aint _subr_tab_addr;
   aint _symbol_tab_addr;
@@ -128,7 +128,7 @@ typedef struct {
 } memdump_header_t;
 /* then the module names,
  then fsubr_tab, pseudofun_tab, symbol_tab,
- and for each module subr_addr, subr_count, object_anz, subr_tab, object_tab, */
+ and for each module subr_addr, subr_count, object_count, subr_tab, object_tab, */
 #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
 /* then the objects of variable length
  (between mem.varobjects.heap_start and mem.varobjects.heap_end),
@@ -331,8 +331,8 @@ local uintL fill_memdump_header (memdump_header_t *header) {
   }
   header->_module_names_size = module_names_size;
   header->_fsubr_count     = fsubr_count;
-  header->_pseudofun_anz = pseudofun_anz;
-  header->_symbol_anz    = symbol_anz;
+  header->_pseudofun_count = pseudofun_count;
+  header->_symbol_count    = symbol_count;
   header->_page_alignment = page_alignment;
   header->_subr_tab_addr   = (aint)(&subr_tab);
   header->_symbol_tab_addr = (aint)(&symbol_tab);
@@ -407,7 +407,7 @@ global maygc void savemem (object stream, bool exec_p)
   WRITE(&fsubr_tab,sizeof(fsubr_tab));
   WRITE(&pseudofun_tab,sizeof(pseudofun_tab));
   WRITE(&symbol_tab,sizeof(symbol_tab));
-  { /* write for each module subr_addr, subr_count, object_anz,
+  { /* write for each module subr_addr, subr_count, object_count,
        subr_tab, object_tab: */
     var module_t* module;
     for_modules(all_modules, {
@@ -825,8 +825,8 @@ local void loadmem_update (gcv_object_t* objptr)
         /* conversion old_pseudofun_tab -> pseudofun_tab : */
         var object addr = *objptr;
         {
-          var uintC i = pseudofun_anz;
-          var const object* ptr = &old_pseudofun_tab.pointer[pseudofun_anz];
+          var uintC i = pseudofun_count;
+          var const object* ptr = &old_pseudofun_tab.pointer[pseudofun_count];
           while (i!=0) {
             i--;
             if (eq(*--ptr,addr)) {
@@ -1045,8 +1045,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (header._pathname_length != pathname_length) ABORT_INI;
     if (header._intDsize != intDsize) ABORT_INI;
     if (header._fsubr_count != fsubr_count) ABORT_INI;
-    if (header._pseudofun_anz != pseudofun_anz) ABORT_INI;
-    if (header._symbol_anz != symbol_anz) ABORT_INI;
+    if (header._pseudofun_count != pseudofun_count) ABORT_INI;
+    if (header._symbol_count != symbol_count) ABORT_INI;
     if (header._page_alignment != page_alignment) ABORT_INI;
    #ifndef SPVW_MIXED_BLOCKS_OPPOSITE
     if (header._heapcount != heapcount) ABORT_INI;
@@ -1129,7 +1129,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     READ(&old_fsubr_tab,sizeof(fsubr_tab));
     READ(&old_pseudofun_tab,sizeof(pseudofun_tab));
     READ(&symbol_tab,sizeof(symbol_tab));
-    { /* for each module read subr_addr, subr_count, object_anz, subr_tab,
+    { /* for each module read subr_addr, subr_count, object_count, subr_tab,
          object_tab : */
       var module_t* * old_module = &old_modules[0];
       var offset_subrs_t* offset_subrs_ptr = &offset_subrs[0];
@@ -1137,12 +1137,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       do {
         var subr_t* old_subr_addr;
         var uintC old_subr_count;
-        var uintC old_object_anz;
+        var uintC old_object_count;
         READ(&old_subr_addr,sizeof(subr_t*));
         READ(&old_subr_count,sizeof(uintC));
-        READ(&old_object_anz,sizeof(uintC));
+        READ(&old_object_count,sizeof(uintC));
         if (old_subr_count != *(*old_module)->stab_size) ABORT_INI;
-        if (old_object_anz != *(*old_module)->otab_size) ABORT_INI;
+        if (old_object_count != *(*old_module)->otab_size) ABORT_INI;
         offset_subrs_ptr->low_o = as_oint(subr_tab_ptr_as_object(old_subr_addr));
         offset_subrs_ptr->high_o = as_oint(subr_tab_ptr_as_object(old_subr_addr+old_subr_count));
         offset_subrs_ptr->offset_o = as_oint(subr_tab_ptr_as_object((*old_module)->stab)) - offset_subrs_ptr->low_o;
@@ -1165,8 +1165,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
           } while (--counter);
           FREE_DYNAMIC_ARRAY(old_subr_tab);
         }
-        if (old_object_anz > 0) {
-          READ((*old_module)->otab,old_object_anz*sizeof(gcv_object_t));
+        if (old_object_count > 0) {
+          READ((*old_module)->otab,old_object_count*sizeof(gcv_object_t));
         }
         old_module++; offset_subrs_ptr++;
       } while (--count);

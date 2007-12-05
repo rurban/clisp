@@ -23,7 +23,7 @@
 global uintM static_space (void) {
   var uintM sum = 0;
   # space of symbol_tab: cf. macro for_all_constsyms
-  sum += symbol_anz * sizeof(symbol_);
+  sum += symbol_count * sizeof(symbol_);
   # space of subr_tab: cf. macro for_all_subrs
  #ifdef MAP_MEMORY_TABLES
   sum += total_subr_count * sizeof(subr_t);
