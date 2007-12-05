@@ -8,29 +8,29 @@
  */
 
 #include "lispbibl.c"
-#include "arilev0.c" # for R_sign
+#include "arilev0.c"            /* for R_sign */
 
 #ifdef GNU_READLINE
   #include <readline/readline.h>
   #include <readline/history.h>
 #endif
 #ifdef STDC_HEADERS
-  #include <string.h>  # declares strcpy(), strcat()
+  #include <string.h>           /* declares strcpy(), strcat() */
 #endif
 
-# off_t is a signed type, defined in <sys/types.h> and <fcntl.h>, denoting
-# the a file descriptor's position. Here we also need the unsigned equivalent.
+/* off_t is a signed type, defined in <sys/types.h> and <fcntl.h>, denoting
+ a file descriptor's position. Here we also need the unsigned equivalent. */
 #if SIZEOF_OFF_T > 4
   typedef uint64 uoff_t;
 #else
   typedef uint32 uoff_t;
 #endif
 
-# Converts an uoff_t value into an Integer >=0.
-# uoff_t_to_I(wert)
-# > wert: value in the range of uoff_t
-# < result: Integer with that value.
-# can trigger GC
+/* Converts an uoff_t value into an Integer >=0.
+ uoff_t_to_I(value)
+ > value: value in the range of uoff_t
+ < result: Integer with that value.
+ can trigger GC */
 #if SIZEOF_OFF_T > 4
   #define uoff_to_I UQ_to_I
 #else
