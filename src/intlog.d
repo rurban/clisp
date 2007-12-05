@@ -25,15 +25,15 @@ local uintD* I_to_DS_n_ (object obj, uintC n, uintD* destptr) {
   /* Now there is room for n digits below destptr.
      fill upper part of the DS from obj, decrease destptr: */
   if (I_fixnump(obj)) { /* fixnum: */
-    var uintV wert = FN_to_V(obj);
+    var uintV value = FN_to_V(obj);
     #define FN_maxlength_a  (intVsize/intDsize)
     #define FN_maxlength_b  (FN_maxlength<=FN_maxlength_a ? FN_maxlength : FN_maxlength_a)
-    /* store FN_maxlength. FN_maxlength_b digits can be taken from wert. */
+    /* store FN_maxlength. FN_maxlength_b digits can be taken from value. */
    #if (FN_maxlength_b > 1)
     doconsttimes(FN_maxlength_b-1,
-                 *--destptr = (uintD)wert; wert = wert >> intDsize;);
+                 *--destptr = (uintD)value; value = value >> intDsize;);
    #endif
-    *--destptr = (uintD)wert;
+    *--destptr = (uintD)value;
    #if (FN_maxlength > FN_maxlength_b)
     /* oint_data_len = intVsize, we still need
        FN_maxlength-FN_maxlength_b = 1 digit. */

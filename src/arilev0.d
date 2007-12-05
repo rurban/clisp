@@ -2,84 +2,84 @@
 # operiert auf einzelnen 16-Bit-Wörtern und 32-Bit-Wörtern (unsigned).
 
 # Vorzeichen einer 32-Bit-Zahl bestimmen
-# sign_of_sint32(wert)
-# > wert: eine 32-Bit-Zahl
-# < sint16 ergebnis: 0 falls wert>=0, -1 falls wert<0.
-  extern sint16 sign_of_sint32 (sint32 wert);
+# sign_of_sint32(value)
+# > value: eine 32-Bit-Zahl
+# < sint16 ergebnis: 0 falls value>=0, -1 falls value<0.
+  extern sint16 sign_of_sint32 (sint32 value);
 # im 68000-Assembler (Input D0.L, Output D0.W):
 #   SWAP D0  # Vorzeichen nach Bit 15 schieben
 #   EXT.L D0 # nach Bit 31..16 kopieren
 #   SWAP D0  # nach Bit 15..0 schieben
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-    #define sign_of_sint32(wert)  \
-      ({var sint32 __wert = (wert);  \
+    #define sign_of_sint32(value)  \
+      ({var sint32 __value = (value);  \
         var sint16 __ergebnis;        \
         __asm__ ("\
           swap %0;  \
           extl %0;  \
           swap %0   \
-          " : "=d" (__ergebnis) : "0" (__wert));  \
+          " : "=d" (__ergebnis) : "0" (__value));  \
         __ergebnis;                               \
        })
   #elif defined(SPARC64)
-    #define sign_of_sint32(wert)  (((sint64)(sint32)(wert)) >> 63)
+    #define sign_of_sint32(value)  (((sint64)(sint32)(value)) >> 63)
   #elif defined(SPARC) || defined(ARM)
-    #define sign_of_sint32(wert)  (((sint32)(wert)) >> 31)
+    #define sign_of_sint32(value)  (((sint32)(value)) >> 31)
   #else
-    #define sign_of_sint32(wert)  ((sint32)(wert) >= 0 ? 0 : -1)
+    #define sign_of_sint32(value)  ((sint32)(value) >= 0 ? 0 : -1)
   #endif
 
 # Vorzeichen einer 16-Bit-Zahl bestimmen
-# sign_of_sint16(wert)
-# > wert: eine 16-Bit-Zahl
-# < sint16 ergebnis: 0 falls wert>=0, -1 falls wert<0.
-  extern sint16 sign_of_sint16 (sint16 wert);
+# sign_of_sint16(value)
+# > value: eine 16-Bit-Zahl
+# < sint16 ergebnis: 0 falls value>=0, -1 falls value<0.
+  extern sint16 sign_of_sint16 (sint16 value);
 # im 68000-Assembler (Input D0.W, Output D0.W):
 #   EXT.L D0 # Vorzeichen nach Bit 31..16 kopieren
 #   SWAP D0  # nach Bit 15..0 schieben
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-    #define sign_of_sint16(wert)  \
-      ({var sint16 __wert = (wert);  \
+    #define sign_of_sint16(value)  \
+      ({var sint16 __value = (value);  \
         var sint16 __ergebnis;        \
         __asm__ ("\
           extl %0;  \
           swap %0   \
-          " : "=d" (__ergebnis) : "0" (__wert));  \
+          " : "=d" (__ergebnis) : "0" (__value));  \
         __ergebnis;                               \
        })
   #elif defined(SPARC64)
-    #define sign_of_sint16(wert)  (((sint64)(sint16)(wert)) >> 63)
+    #define sign_of_sint16(value)  (((sint64)(sint16)(value)) >> 63)
   #elif defined(SPARC) || defined(ARM)
-    #define sign_of_sint16(wert)  (((sint32)(sint16)(wert)) >> 31)
+    #define sign_of_sint16(value)  (((sint32)(sint16)(value)) >> 31)
   #else
-    #define sign_of_sint16(wert)  ((sint16)(wert) >= 0 ? 0 : -1)
+    #define sign_of_sint16(value)  ((sint16)(value) >= 0 ? 0 : -1)
   #endif
 
 # High-Word einer 32-Bit-Zahl bestimmen
-# high16(wert)
-  extern uint16 high16 (uint32 wert);
+# high16(value)
+  extern uint16 high16 (uint32 value);
 # im 68000-Assembler (Input D0.L, Output D0.W):
 #   SWAP D0
   #ifdef GNU
     #if defined(MC680X0) && !defined(NO_ASM)
-      #define high16(wert)  \
-        ({var uint32 __wert = (wert);  \
+      #define high16(value)  \
+        ({var uint32 __value = (value);  \
           var uint16 __ergebnis;        \
           __asm__ ("\
             swap %0   \
-            " : "=d" (__ergebnis) : "0" (__wert));  \
+            " : "=d" (__ergebnis) : "0" (__value));  \
           __ergebnis;                               \
          })
     #endif
   #endif
   #ifndef high16
-    #define high16(wert)  ((uint16)((uint32)(wert)>>16))
+    #define high16(value)  ((uint16)((uint32)(value)>>16))
   #endif
 
 # Low-Word einer 32-Bit-Zahl bestimmen
-# low16(wert)
-  extern uint16 low16 (uint32 wert);
-  #define low16(wert)  ((uint16)(uint32)(wert))
+# low16(value)
+  extern uint16 low16 (uint32 value);
+  #define low16(value)  ((uint16)(uint32)(value))
 
 # Eine 32-Bit-Zahl aus ihrem High-Word und ihrem Low-Word bestimmen:
 # highlow32(uint16 high, uint16 low)
@@ -133,14 +133,14 @@
 #if (intVsize>32)
 
 # High-Word einer 64-Bit-Zahl bestimmen
-# high32(wert)
-  extern uint32 high32 (uint64 wert);
-  #define high32(wert)  ((uint32)((uint64)(wert)>>32))
+# high32(value)
+  extern uint32 high32 (uint64 value);
+  #define high32(value)  ((uint32)((uint64)(value)>>32))
 
 # Low-Word einer 64-Bit-Zahl bestimmen
-# low32(wert)
-  extern uint32 low32 (uint64 wert);
-  #define low32(wert)  ((uint32)(uint64)(wert))
+# low32(value)
+  extern uint32 low32 (uint64 value);
+  #define low32(value)  ((uint32)(uint64)(value))
 
 # Eine 64-Bit-Zahl aus ihrem High-Word und ihrem Low-Word bestimmen:
 # highlow64(uint32 high, uint32 low)

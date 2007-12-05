@@ -594,35 +594,35 @@ local /*maygc*/ object storagevector_store (object datenvektor, uintL index,
     }
       break;
     case Array_type_sb2vector: {
-      var uintV wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(2))) {
+      var uintV value;
+      if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(2))) {
         var uintB* ptr = &TheSbvector(datenvektor)->data[index/4];
-        *ptr ^= (*ptr ^ (wert<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
+        *ptr ^= (*ptr ^ (value<<(2*((~index)%4)))) & ((bit(2)-1)<<(2*((~index)%4)));
         return datenvektor;
       }
     }
       break;
     case Array_type_sb4vector: {
-      var uintV wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(4))) {
+      var uintV value;
+      if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(4))) {
         var uintB* ptr = &TheSbvector(datenvektor)->data[index/2];
-        *ptr ^= (*ptr ^ (wert<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
+        *ptr ^= (*ptr ^ (value<<(4*((~index)%2)))) & ((bit(4)-1)<<(4*((~index)%2)));
         return datenvektor;
       }
     }
       break;
     case Array_type_sb8vector: {
-      var uintV wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(8))) {
-        TheSbvector(datenvektor)->data[index] = wert;
+      var uintV value;
+      if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(8))) {
+        TheSbvector(datenvektor)->data[index] = value;
         return datenvektor;
       }
     }
       break;
     case Array_type_sb16vector: {
-      var uintV wert;
-      if (posfixnump(element) && ((wert = posfixnum_to_V(element)) < bit(16))) {
-        ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = wert;
+      var uintV value;
+      if (posfixnump(element) && ((value = posfixnum_to_V(element)) < bit(16))) {
+        ((uint16*)&TheSbvector(datenvektor)->data[0])[index] = value;
         return datenvektor;
       }
     }
