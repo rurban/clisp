@@ -939,7 +939,7 @@ global maygc object copy_string (object string) {
 /* UP: converts a string into a Simple-String.
  coerce_ss(obj)
  > obj: Lisp-object, should be a string.
- < ergebnis: Simple-String with the same characters
+ < result: Simple-String with the same characters
  can trigger GC */
 global maygc object coerce_ss (object obj) {
  start:
@@ -2610,7 +2610,7 @@ global bool string_eqcomp (object string1, uintL offset1, object string2,
  > arg1: here are the addressed characters in string1
  > arg2: here are the addressed characters in string2
  < arg1.index: location of the first difference i string1
- < ergebnis: 0 if equal,
+ < result: 0 if equal,
              -1 if string1 is genuinely lesser than string2,
              +1 if string1 is genuinely bigger than string2. */
 local signean string_comp (stringarg* arg1, const stringarg* arg2) {
@@ -3376,7 +3376,7 @@ global maygc void nstring_upcase (object dv, uintL offset, uintL len) {
 /* UP: converts a string into uppercase letters
  string_upcase(string)
  > string: string
- < ergebnis: new normal-simple-string, in uppercase letters
+ < result: new normal-simple-string, in uppercase letters
  can trigger GC */
 global maygc object string_upcase (object string) {
   string = copy_string_normal(string); /* copy and turn into a normal-simple-string */

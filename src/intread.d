@@ -5,7 +5,7 @@
 # > base: Stellenwertsystem-Basis, >=2, <=36
 # > MSBptr/len/..: Ziffernfolge, bestehend aus Punkten (werden überlesen)
 #     und Ziffern/Buchstaben mit Wert < base.
-# < ergebnis: der dargestellte Integer >=0
+# < result: der dargestellte Integer >=0
 # can trigger GC
   local maygc object DIGITS_to_I (const chart* MSBptr, uintL len, uintD base)
   {

@@ -2244,7 +2244,7 @@ global maygc object ascii_to_string (const char * asciz) {
  > object obj: String
  > object encoding: Encoding
  < return: simple-bit-vector with the bytes<==characters and a NULL at the end
- < TheAsciz(ergebnis): address of the byte sequence contain therein
+ < TheAsciz(result): address of the byte sequence contain therein
  can trigger GC */
 #ifdef UNICODE
 global maygc object string_to_asciz (object obj, object encoding) {

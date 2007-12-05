@@ -274,7 +274,7 @@ local maygc object valid_type (gcv_object_t* type_) {
 # UP: liefert den Typdescriptor einer Sequence
 # get_seq_type(seq)
 # > seq: eine Sequence
-# < ergebnis: Typdescriptor oder NIL
+# < result: Typdescriptor oder NIL
 local object get_seq_type (object seq) {
   var object name;
   if (listp(seq)) name = S(list); # Typ LIST
@@ -332,7 +332,7 @@ nonreturning_function(local, error_sequence, (object obj)) {
 /* UP: return the type descriptor for the sequence, or report an error
  get_valid_seq_type(seq)
  > seq: a Sequence
- < ergebnis: Typdescriptor */
+ < result: Typdescriptor */
 local object get_valid_seq_type (object seq)
 {
   var object typdescr = get_seq_type(seq); /* find type descriptor */
@@ -448,7 +448,7 @@ nonreturning_function(local, error_posint, (object kw, object obj)) {
 # increment(var)
 # > var: alter Wert
 # < var: neuer Wert
-# < ergebnis: neuer Wert
+# < result: neuer Wert
 # can trigger GC
   #define increment(var)  (var = I_1_plus_I(var)) # var := (1+ var)
 
@@ -456,7 +456,7 @@ nonreturning_function(local, error_posint, (object kw, object obj)) {
 # decrement(var)
 # > var: alter Wert
 # < var: neuer Wert
-# < ergebnis: neuer Wert
+# < result: neuer Wert
 # can trigger GC
   #define decrement(var)  (var = I_minus1_plus_I(var)) # var := (1- var)
 
@@ -1352,7 +1352,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
 # < 1 Wert: wie von fun beim Hinausspringen vorgegeben, oder default.
 # < STACK: aufgeräumt (= args_pointer beim Einsprung)
 # can trigger GC
-  typedef bool seq_boolop_fun (object pred_ergebnis);
+  typedef bool seq_boolop_fun (object pred_result);
   local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
                                  gcv_object_t* args_pointer,
                                  gcv_object_t* rest_args_pointer,
@@ -1434,7 +1434,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
   }
 
 # Hilfsfunktion für MAP:
-  local bool boolop_nothing (object pred_ergebnis)
+  local bool boolop_nothing (object pred_result)
   {
     return false; # nie vorzeitig zurückkehren
   }
@@ -1692,12 +1692,12 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
   }
 
 # Hilfsfunktion für SOME:
-  local bool boolop_some (object pred_ergebnis)
+  local bool boolop_some (object pred_result)
   {
-    if (nullp(pred_ergebnis)) # Funktionsergebnis abtesten
+    if (nullp(pred_result)) # Funktionsergebnis abtesten
       return false; # =NIL -> weitersuchen
     else {
-      value1 = pred_ergebnis; # /=NIL -> dies als Wert
+      value1 = pred_result; # /=NIL -> dies als Wert
       return true;
     }
   }
@@ -1709,11 +1709,11 @@ LISPFUN(some,seclass_default,2,0,rest,nokey,0,NIL)
   }
 
 # Hilfsfunktion für EVERY:
-local bool boolop_every (object pred_ergebnis) {
-  if (!(nullp(pred_ergebnis))) { /* chech function return value */
+local bool boolop_every (object pred_result) {
+  if (!(nullp(pred_result))) { /* chech function return value */
     return false; /* /=NIL -> proceed with search */
   } else {
-    value1 = pred_ergebnis; /* =NIL -> return this (= NIL) */
+    value1 = pred_result; /* =NIL -> return this (= NIL) */
     return true;
   }
 }
@@ -1725,8 +1725,8 @@ LISPFUN(every,seclass_default,2,0,rest,nokey,0,NIL)
   }
 
 # Hilfsfunktion für NOTANY:
-local bool boolop_notany (object pred_ergebnis) {
-  if (nullp(pred_ergebnis)) { /* chech function return value */
+local bool boolop_notany (object pred_result) {
+  if (nullp(pred_result)) { /* chech function return value */
     return false; /* =NIL -> proceed with search */
   } else {
     value1 = NIL; /* /=NIL -> return NIL */
@@ -1741,8 +1741,8 @@ LISPFUN(notany,seclass_default,2,0,rest,nokey,0,NIL)
   }
 
 # Hilfsfunktion für NOTEVERY:
-local bool boolop_notevery (object pred_ergebnis) {
-  if (!(nullp(pred_ergebnis))) { /* chech function return value */
+local bool boolop_notevery (object pred_result) {
+  if (!(nullp(pred_result))) { /* chech function return value */
     return false; /* /=NIL -> proceed with search */
   } else {
     value1 = T; /* =NIL -> return T */
@@ -2046,7 +2046,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > *(stackptr-5): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up_test (const gcv_object_t* stackptr, object x)
   {
@@ -2062,7 +2062,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # > *(stackptr-6): die Testfunktion
 # > *(stackptr+1): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up_test_not (const gcv_object_t* stackptr, object x)
   {
@@ -2077,7 +2077,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # up_if(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up_if (const gcv_object_t* stackptr, object x)
   {
@@ -2090,7 +2090,7 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
 # up_if_not(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up_if_not (const gcv_object_t* stackptr, object x)
   {
@@ -2353,7 +2353,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # > STACK_0: Bit-Vektor bv,
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-# < ergebnis: Ergebnis
+# < result: Ergebnis
 # can trigger GC
   local maygc object remove_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
@@ -2469,7 +2469,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # > STACK_0: Bit-Vektor bv,
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-# < ergebnis: Ergebnis
+# < result: Ergebnis
 # can trigger GC
   local maygc object delete_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
@@ -2785,7 +2785,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # up2_test(stackptr,x,y)
 # > *(stackptr-5): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up2_test (const gcv_object_t* stackptr, object x, object y)
     {
@@ -2800,7 +2800,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # up2_test_not(stackptr,x,y)
 # > *(stackptr-6): die Testfunktion
 # > x,y: Argumente
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
   local maygc bool up2_test_not (const gcv_object_t* stackptr, object x, object y)
     {
@@ -3463,7 +3463,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
 # > STACK_0: Bit-Vektor bv,
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-# < ergebnis: Ergebnis
+# < result: Ergebnis
 # can trigger GC
   local maygc object substitute_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
@@ -3702,7 +3702,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 # > STACK_0: Bit-Vektor bv,
 # > bvl: Länge des Bit-Vektors (= end - start),
 # > dl: Anzahl der im Bit-Vektor gesetzten Bits,
-# < ergebnis: Ergebnis
+# < result: Ergebnis
 # can trigger GC
   local maygc object nsubstitute_fe_help (gcv_object_t* stackptr, uintV bvl, uintV dl)
   {
@@ -4772,7 +4772,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
 # > k
 # > stackptr: Pointer in den Stack:
 #       sequence, predicate [stackptr], key, start, end, typdescr, seq2
-# < ergebnis: Pointer nach den k Elementen
+# < result: Pointer nach den k Elementen
 # can trigger GC
   local maygc object sort_part (object pointer_left, object k, gcv_object_t* stackptr)
   {

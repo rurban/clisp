@@ -20,7 +20,7 @@ local inline maygc object cons_from_stack (void)
 # UP: Kopiert eine Liste
 # copy_list(list)
 # > list: Liste
-# < ergebnis: Kopie der Liste
+# < result: Kopie der Liste
 # can trigger GC
 global maygc object copy_list (object old_list) {
   # Methode: (copy-list l) = (mapcar #'identity l), mapcar vorwärts
@@ -55,7 +55,7 @@ global maygc object copy_list (object old_list) {
 # UP: Dreht eine Liste konstruktiv um.
 # reverse(list)
 # > list: Liste (x1 ... xm)
-# < ergebnis: umgedrehte Liste (xm ... x1)
+# < result: umgedrehte Liste (xm ... x1)
 # can trigger GC
 global maygc object reverse (object list) {
   pushSTACK(list); pushSTACK(NIL);
@@ -109,7 +109,7 @@ global uintL llength1 (object list, object* last) {
 # make_list(len)
 # > STACK_0: Initialisierungswert für die Elemente
 # > uintL len: gewünschte Listenlänge
-# < ergebnis: Liste mit len Elementen
+# < result: Liste mit len Elementen
 # can trigger GC
 global maygc object make_list (uintL len) {
   pushSTACK(NIL);
@@ -125,7 +125,7 @@ global maygc object make_list (uintL len) {
 # UP: Dreht eine Liste destruktiv um.
 # nreverse(list)
 # > list: Liste (x1 ... xm)
-# < ergebnis: Liste (xm ... x1), EQ zur alten
+# < result: Liste (xm ... x1), EQ zur alten
 global object nreverse (object list) {
   # Algorithm:
   # (lambda (L)
@@ -171,7 +171,7 @@ global object nreverse (object list) {
 # nreconc(list,obj)
 # > list: Liste
 # > obj: Objekt
-# < ergebnis: (nreconc A0 A1)
+# < result: (nreconc A0 A1)
 global object nreconc (object list, object obj) {
   if (!endp(list)) { # (atom L) -> L
     var object list3 = Cdr(list); # L3 := (cdr L)
@@ -209,7 +209,7 @@ global object nreconc (object list, object obj) {
 # Entferne aus der Liste list alle Elemente, die EQ zu obj sind.
 # > obj: zu streichendes Element
 # > list: Liste
-# < ergebnis: modifizierte Liste
+# < result: modifizierte Liste
 global object deleteq (object list, object obj) {
   var object list1 = list;
   var object list2 = list;
@@ -412,7 +412,7 @@ LISPFUN(cons,seclass_no_se,2,0,norest,nokey,0,NIL)
 # up2_test(stackptr,arg1,arg2)
 # > *(stackptr+1): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
   var object fun = *(stackptr STACKop 1);
@@ -431,7 +431,7 @@ local maygc bool up2_test (const gcv_object_t* stackptr, object arg1, object arg
 # up2_test_not(stackptr,arg1,arg2)
 # > *(stackptr+0): die Testfunktion
 # > arg1,arg2: Argumente
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up2_test_not (const gcv_object_t* stackptr, object arg1, object arg2) {
   pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
@@ -481,7 +481,7 @@ local up2_function_t test_test2_args (gcv_object_t* stackptr) {
 # > A5: Adresse einer Testfunktion, die arg1 und arg2 vergleicht und dabei auf
 #       die :TEST/:TEST-NOT-Argumente in *(stackptr+1).L bzw.
 #       *(stackprt+0).L zugreifen kann.
-# < ergebnis: true, falls gleich, false sonst
+# < result: true, falls gleich, false sonst
 # can trigger GC
 local maygc bool tree_equal (const gcv_object_t* stackptr, up2_function_t up2_fun,
                              object arg1, object arg2) {
@@ -896,7 +896,7 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
 # listof(len)
 # > uintC len: gewünschte Listenlänge
 # > auf STACK: len Objekte, erstes zuoberst
-# < ergebnis: Liste dieser Objekte
+# < result: Liste dieser Objekte
 # Erhöht STACK
 # changes STACK, can trigger GC
 global maygc object listof (uintC len) {
@@ -1003,7 +1003,7 @@ LISPFUNNR(copy_list,1)
 # UP: Kopiert eine Aliste
 # copy_alist(alist)
 # > alist: Aliste
-# < ergebnis: Kopie der Aliste
+# < result: Kopie der Aliste
 # can trigger GC
 local maygc object copy_alist (object alist) {
   # Algorithm:
@@ -1268,7 +1268,7 @@ LISPFUNN(prplacd,2)             /* (SYS::%RPLACD cons object) */
 # > *(stackptr+1): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_test (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
@@ -1292,7 +1292,7 @@ local maygc bool up_test (const gcv_object_t* stackptr, object x) {
 # > *(stackptr+0): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
@@ -1306,7 +1306,7 @@ local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
 # up_if(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_if (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall predicate x) ausführen:
@@ -1318,7 +1318,7 @@ local maygc bool up_if (const gcv_object_t* stackptr, object x) {
 # up_if_not(stackptr,x)
 # > *(stackptr+1): das Testprädikat
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_if_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
@@ -1398,7 +1398,7 @@ local up_function_t test_test_args (void) {
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: (evtl. neuer) Baum
+# < result: (evtl. neuer) Baum
 # can trigger GC
 local maygc object subst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
@@ -1468,7 +1468,7 @@ LISPFUN(subst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: Baum
+# < result: Baum
 # can trigger GC
 local maygc object nsubst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
@@ -1583,7 +1583,7 @@ local maygc object sublis_assoc (gcv_object_t* stackptr)
 # > tree: Baum
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
 #             *(stackptr-2) ist frei für (KEY x)
-# < ergebnis: (evtl. neuer) Baum
+# < result: (evtl. neuer) Baum
 # can trigger GC
 local maygc object sublis (object tree, gcv_object_t* stackptr) {
   # erst (KEY tree) berechnen und ASSOC aufrufen:
@@ -1646,7 +1646,7 @@ LISPFUN(sublis,seclass_default,2,0,norest,key,3,
 # > tree: Baum
 # > stackptr: *(stackptr-1) = KEY, *(stackptr+3) = ALIST,
 #             *(stackptr-2) ist frei für (KEY x)
-# < ergebnis: Baum
+# < result: Baum
 # can trigger GC
 local maygc object nsublis (object tree, gcv_object_t* stackptr) {
   # erst (KEY tree) berechnen und ASSOC aufrufen:
@@ -1725,7 +1725,7 @@ LISPFUNNR(memq,2) {
 # > up_fun: TESTFUN = Adresse der Testfunktion,
 #       wird selbem stackptr und mit (KEY x) als Argument angesprungen.
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: Listenrest
+# < result: Listenrest
 # can trigger GC
 local maygc object member (object list, gcv_object_t* stackptr, up_function_t up_fun) {
   while (!endp(list)) {
@@ -1894,7 +1894,7 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
 # > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY u) als Argument angesprungen.
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: Listenelement (ein Cons) oder NIL
+# < result: Listenelement (ein Cons) oder NIL
 # can trigger GC
 local maygc object assoc (object alist, gcv_object_t* stackptr, up_function_t up_fun)
 {
@@ -1952,7 +1952,7 @@ LISPFUN(assoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
 # > up_fun: TESTFUN = Adresse der Testfunktion, wird für alle Listenelemente
 #       (u . v) mit selbem stackptr und mit (KEY v) als Argument angesprungen.
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
-# < ergebnis: Listenelement (ein Cons) oder NIL
+# < result: Listenelement (ein Cons) oder NIL
 # can trigger GC
 local maygc object rassoc (object alist, gcv_object_t* stackptr,
                            up_function_t up_fun)
@@ -2038,7 +2038,7 @@ LISPFUNN(list_access_set,3)
  elt_up(seq,index)
  > seq
  > index
- < ergebnis: list element at this index */
+ < result: list element at this index */
 local object elt_up (object seq, object index) {
   var object l = seq;
   var object n = Fixnum_0;

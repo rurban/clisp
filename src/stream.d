@@ -1352,9 +1352,9 @@ local maygc object rd_ch_synonym (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var object symbol = TheStream(stream)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
-  var object ergebnis = read_char(&STACK_0);
+  var object result = read_char(&STACK_0);
   skipSTACK(1);
-  return ergebnis;
+  return result;
 }
 
 # PEEK-CHAR - Pseudo-Function for Synonym-Streams:
@@ -1363,9 +1363,9 @@ local maygc object pk_ch_synonym (const gcv_object_t* stream_) {
   var object stream = *stream_;
   var object symbol = TheStream(stream)->strm_synonym_symbol;
   pushSTACK(get_synonym_stream(symbol));
-  var object ergebnis = peek_char(&STACK_0);
+  var object result = peek_char(&STACK_0);
   skipSTACK(1);
-  return ergebnis;
+  return result;
 }
 
 # READ-CHAR-ARRAY - Pseudo-Function for Synonym-Streams:
