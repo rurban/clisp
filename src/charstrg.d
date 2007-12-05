@@ -572,6 +572,7 @@ global object unpack_string_ro (object string, uintL* len, uintL* offset) {
   }
 }
 
+#if 0                           /* not used */
 /* UP: unpack a string
  unpack_string_rw(string,&len,&offset)  [for read-write access]
  > object string: a string
@@ -586,6 +587,7 @@ global object unpack_string_rw (object string, uintL* len, uintL* offset) {
   }
   return unpacked;
 }
+#endif
 
 /* UP: compares two strings for equality
  string_eq(string1,string2)

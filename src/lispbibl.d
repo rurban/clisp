@@ -2193,9 +2193,6 @@ typedef enum {
 #if (defined(UNIX) && !defined(UNIX_BINARY_DISTRIB)) || defined(DYNAMIC_FFI)
   #define HAVE_FFI
 #endif
-#if 0
-  #define HAVE_AFFI # Amiga-minded FFI
-#endif
 # When changed: ??
 
 # Now the ones that are only relevant internally:
@@ -12992,7 +12989,7 @@ extern maygc object vectorof (uintC len);
 # < result: storage vector
 # < index: is incremented by the offset into the storage vector
 extern object iarray_displace_check (object array, uintL size, uintL* index);
-# used by IO, CHARSTRG, HASHTABL, PREDTYPE, STREAM, SEQUENCE, AFFI
+# used by IO, CHARSTRG, HASHTABL, PREDTYPE, STREAM, SEQUENCE
 
 # Function: For an array, returns the storage vector and the offset.
 # Also verifies that all elements of the array are physically present.
@@ -13607,15 +13604,6 @@ static inline chart schar (object string, uintL index) {
 # is used by PATHNAME, STREAM
 
 # UP: unpacks a String.
-# unpack_string_rw(string,&len,&offset)  [for read-write access]
-# > object string: a String.
-# < uintL len: number of characters of the String.
-# < uintL offset: offset in the datastorage vector
-# < object result: datastorage vector, a simple-string or NIL
-extern object unpack_string_rw (object string, uintL* len, uintL* offset);
-# is used by AFFI
-
-# UP: unpacks a String.
 # unpack_string_ro(string,&len,&offset)  [for read-only access]
 # > object string: a String.
 # < uintL len: number of characters of the String.
@@ -13659,7 +13647,7 @@ extern bool string_equal (object string1, object string2);
 # can trigger GC
   extern maygc object sstring_store_array (object string, uintL offset,
                                            const chart *charptr, uintL len);
-# is used by AFFI
+# is used by FFI
 
 #ifdef UNICODE
 # UP: Creates a Simple-String with given elements.
@@ -16277,7 +16265,7 @@ extern sintL I_to_L (object obj);
   #define I_to_uint  I_to_uint32
   #define I_to_sint  I_to_sint32
 #endif
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+#if defined(HAVE_FFI)
   #if (long_bitsize==32)
     #define I_to_ulong  I_to_uint32
     #define I_to_slong  I_to_sint32
