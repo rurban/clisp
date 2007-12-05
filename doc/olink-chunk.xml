@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE targetset
           SYSTEM "http://docbook.sourceforge.net/release/xsl/current/common/targetdatabase.dtd" [
-  <!ENTITY man-targets SYSTEM "tdb-man.xml">
-  <!ENTITY imp-targets SYSTEM "tdb-chunk.xml">
+  <!ENTITY man-targets SYSTEM "man.tdb">
+  <!ENTITY imp-targets SYSTEM "chunk.tdb">
 ]>
 <targetset>
  <targetsetinfo>
