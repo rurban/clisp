@@ -439,7 +439,7 @@ LISPFUNNR(pathname_encoding,0)
 LISPFUNN(set_pathname_encoding,1)
 LISPFUNNR(terminal_encoding,0)
 LISPFUNN(set_terminal_encoding,1)
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+#if defined(HAVE_FFI)
 LISPFUNNR(foreign_encoding,0)
 LISPFUNN(set_foreign_encoding,1)
 #endif
@@ -1402,13 +1402,6 @@ LISPFUNN(foreign_library_variable,4)
 LISPFUNN(foreign_library_function,5)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #endif  /* DYNAMIC_FFI */
-#ifdef HAVE_AFFI
-LISPFUN(affi_libcall,seclass_default,2,0,rest,nokey,0,NIL)
-LISPFUN(mem_read,seclass_default,2,1,norest,nokey,0,NIL)
-LISPFUN(mem_write,seclass_default,3,1,norest,nokey,0,NIL)
-LISPFUN(mem_write_vector,seclass_default,2,1,norest,nokey,0,NIL)
-LISPFUN(affi_nonzerop,seclass_default,1,0,norest,nokey,0,NIL)
-#endif
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPFUN(make_process,seclass_default,2,0,rest,nokey,0,NIL)

@@ -50,7 +50,7 @@
     LISPOBJ(internal_encoding,".")
     # The encoding of pathnames on the file system.
     LISPOBJ(pathname_encoding,".")
-    #if defined(HAVE_FFI) || defined(HAVE_AFFI)
+    #if defined(HAVE_FFI)
       # The encoding of strings passed through the FFI.
       LISPOBJ(foreign_encoding,".")
       # The encoding of characters passed through the FFI.

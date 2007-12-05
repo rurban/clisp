@@ -2,7 +2,10 @@ User visible changes
 --------------------
 
 * CLOS now issues warnings of type CLOS:CLOS-WARNING.
-  See <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn> for details.
+  See <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn>
+  for details.
+
+* The AFFI (simple ffi, originally for Amiga) code has been removed.
 
 * Bug fixes:
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]

@@ -1,3 +1,16 @@
+2007-12-05  Sam Steingold  <sds@gnu.org>
+
+	remove AFFI
+	* affi.d, affi1.lisp: remove
+	* charstrg.d (unpack_string_rw): unused now, surround with #if 0
+	* lispbibl.d (unpack_string_rw): remove prototype
+	* encoding.d, constobj.d: remove AFFI CPP conditions
+	* clhs.lisp: do not set AFFI package documentation
+	* defs1.lisp (*system-package-list*): remove "AFFI"
+	* foreign1.lisp, exporting.lisp (def-lib-call-out): remove
+	* constsym.d, subr.d: remove AFFI functions
+	* type.lisp (foreign-pointer): remove affi read conditional
+
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
 	<31_ergebnis>

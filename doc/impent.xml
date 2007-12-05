@@ -150,7 +150,6 @@
 <!ENTITY tab-c '<keycode>TAB</keycode>'>
 
 <!-- *** packages *** -->
-<!ENTITY affi-pac '<link linkend="affi"><quote role="package">AFFI</quote></link>'>
 <!ENTITY charset-pac '<link linkend="encoding"><quote role="package">CHARSET</quote></link>'>
 <!ENTITY clos-pac '<link linkend="classes"><quote role="package">CLOS</quote></link>'>
 <!ENTITY cs-cl '<olink targetdoc="impnotes" targetptr="package-case"><quote role="package">CS-COMMON-LISP</quote></olink>'>

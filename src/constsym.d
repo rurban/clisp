@@ -306,7 +306,7 @@ LISPSYM(pathname_encoding,"PATHNAME-ENCODING",system) /* ABI */
 LISPSYM(set_pathname_encoding,"SET-PATHNAME-ENCODING",system) /* ABI */
 LISPSYM(terminal_encoding,"TERMINAL-ENCODING",system) /* ABI */
 LISPSYM(set_terminal_encoding,"SET-TERMINAL-ENCODING",system) /* ABI */
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+#if defined(HAVE_FFI)
 LISPSYM(foreign_encoding,"FOREIGN-ENCODING",system) /* ABI */
 LISPSYM(set_foreign_encoding,"SET-FOREIGN-ENCODING",system) /* ABI */
 #endif
@@ -2054,11 +2054,4 @@ LISPSYM(ff_language_c,"FF-LANGUAGE-C",ffi) /* constant in FFI */
 LISPSYM(ff_language_ansi_c,"FF-LANGUAGE-ANSI-C",ffi) /* constant in FFI */
 LISPSYM(ff_language_stdcall,"FF-LANGUAGE-STDCALL",ffi) /* constant in FFI */
 LISPSYM(foreign_call_in,"FOREIGN-CALL-IN",ffi) /* error message in FFI */
-#endif
-#ifdef HAVE_AFFI
-LISPSYM(affi_libcall,"%LIBCALL",system)
-LISPSYM(mem_read,"MEM-READ",system)
-LISPSYM(mem_write,"MEM-WRITE",system)
-LISPSYM(mem_write_vector,"MEM-WRITE-VECTOR",system)
-LISPSYM(affi_nonzerop,"NZERO-POINTER-P",system)
 #endif

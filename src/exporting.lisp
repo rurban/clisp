@@ -12,8 +12,7 @@
                  define-method-combination
                  #+FFI def-c-type #+FFI def-c-enum #+FFI def-c-struct
                  #+FFI def-c-var #+FFI def-c-const
-                 #+FFI def-c-call-out #+FFI def-call-out
-                 #+AFFI def-lib-call-out))
+                 #+FFI def-c-call-out #+FFI def-call-out))
   (:export . #1#))
 
 (in-package "EXPORTING")
@@ -190,12 +189,6 @@
   `(PROGN
      (EXPORT ',(or name '(NIL)))
      (FFI:DEF-CALL-OUT ,name ,@options)))
-
-#+AFFI
-(cl:defmacro def-lib-call-out (name library &rest options)
-  `(PROGN
-     (EXPORT ',(or name '(NIL)))
-     (FFI:DEF-LIB-CALL-OUT ,name ,library ,@options)))
 
 #| ;; def-c-call-in and def-call-in don't actually define anything;
    ;; they are more like declarations.

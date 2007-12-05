@@ -2610,7 +2610,7 @@ global void init_dependent_encodings(void) {
     (argv_encoding_terminal == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_terminal,"*TERMINAL-ENCODING*"));
  #endif
- #if defined(HAVE_FFI) || defined(HAVE_AFFI)
+ #if defined(HAVE_FFI)
   O(foreign_encoding) =
     (argv_encoding_foreign == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_foreign,"*FOREIGN-ENCODING*"));
@@ -2674,7 +2674,7 @@ LISPFUNN(set_terminal_encoding,1) {
   VALUES1(O(terminal_encoding) = popSTACK());
 }
 
-#if defined(HAVE_FFI) || defined(HAVE_AFFI)
+#if defined(HAVE_FFI)
 
 /* (SYSTEM::FOREIGN-ENCODING) */
 LISPFUNNR(foreign_encoding,0) {
@@ -2692,7 +2692,7 @@ LISPFUNN(set_foreign_encoding,1) {
   VALUES1(encoding);
 }
 
-#endif /* HAVE_FFI || HAVE_AFFI */
+#endif /* HAVE_FFI */
 
 /* (SYSTEM::MISC-ENCODING) */
 LISPFUNNR(misc_encoding,0) {

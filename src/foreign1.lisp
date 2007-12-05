@@ -12,7 +12,7 @@
 (in-package "FFI")
 
 (export '(def-c-type def-c-var def-c-const parse-c-type deparse-c-type
-          def-c-call-out def-call-out #+AFFI def-lib-call-out
+          def-c-call-out def-call-out
           def-c-call-in def-call-in default-foreign-language
           c-lines *output-c-functions* *output-c-variables* *foreign-guard*
           nil boolean character char uchar short ushort int uint long ulong
@@ -373,7 +373,7 @@
     (coerce (mapcap (lambda (argspec)
                       (unless (and (listp argspec)
                                    (symbolp (first argspec))
-                                   (<= 2 (length argspec) #-AFFI 4 #+AFFI 5))
+                                   (<= 2 (length argspec) 4))
                         (error (TEXT "Invalid parameter specification in ~S: ~S")
                                whole argspec))
                       (let* ((argtype (parse-c-type (second argspec)))
@@ -398,11 +398,7 @@
                                  (ecase argalloc
                                    (:NONE 0)
                                    (:ALLOCA ff-flag-alloca)
-                                   (:MALLOC-FREE ff-flag-malloc-free))
-                                 #+AFFI
-                                 (if (cddddr argspec)
-                                   (ash (1+ (position (fifth argspec) *registers*)) 8)
-                                   0)))))
+                                   (:MALLOC-FREE ff-flag-malloc-free))))))
                     (or (rest (assoc ':arguments alist)) '()))
             'simple-vector)
     (+ (let ((rettype (assoc ':return-type alist)))
@@ -504,12 +500,7 @@
                                                                (t ':IN))
                                                         ,(cond ((flag-set-p argflags ff-flag-alloca) ':ALLOCA)
                                                                ((flag-set-p argflags ff-flag-malloc-free) ':MALLOC-FREE)
-                                                               (t ':NONE))
-                                                        #+AFFI
-                                                        ,@(let ((h (logand (ash argflags -8) #xF)))
-                                                            (if (not (zerop h))
-                                                              (list (svref *registers* (- h 1)))
-                                                              '())))
+                                                               (t ':NONE)))
                                                       argspecs))))
                                       (list ':return-type
                                             (deparse (svref ctype 1))
@@ -1076,27 +1067,6 @@
     (prepare-module)
     (push (list c-name ctype built-in)
           *function-list*)))
-
-#+AFFI
-(defmacro DEF-LIB-CALL-OUT (&whole whole-form name library &rest options)
-  (setq name (check-symbol name (first whole-form)))
-  (let* ((alist (parse-options options
-                               '(:name :offset :arguments :return-type)
-                               whole-form))
-         (properties (and (>= 1 (compiler::declared-optimize
-                                 'space (and (boundp 'system::*denv*)
-                                             system::*denv*)))
-                          (assoc ':documentation alist)))
-         (c-name (foreign-name name (assoc ':name alist)))
-         (offset (second (assoc ':offset alist)))
-         (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
-    `(LET ()
-       (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
-       (COMPILER::EVAL-WHEN-COMPILE
-         (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype)))
-       (SYSTEM::%PUTD ',name (FIND-FOREIGN-FUNCTION
-                              ',c-name ,ctype ',properties ',library ',offset))
-       ',name)))
 
 (defun count-inarguments (arg-vector)
   (do* ((l (length arg-vector))
