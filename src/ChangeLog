@@ -1,3 +1,7 @@
+2007-12-05  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (dlerror_string): use safe_to_string
+
 2007-12-03  Reini Urban	 <rurban@x-ray.at>
 
 	<24_more_anz>
