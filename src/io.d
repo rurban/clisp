@@ -10336,44 +10336,43 @@ LISPFUN(format_tabulate,seclass_default,3,2,norest,nokey,0,NIL) {
   VALUES1(NIL); skipSTACK(5);
 }
 
-# ----------------------- LISP-functions of the Printer ----------------------
-
-# Print-Variables (ref. CONSTSYM.D):
-#   *PRINT-CASE*        ----+
-#   *PRINT-LEVEL*           |
-#   *PRINT-LENGTH*          |
-#   *PRINT-GENSYM*          |
-#   *PRINT-ESCAPE*          | order fixed!
-#   *PRINT-RADIX*           | the same order as in CONSTSYM.D
-#   *PRINT-BASE*            | also for the SUBRs WRITE, WRITE-TO-STRING
-#   *PRINT-ARRAY*           |
-#   *PRINT-CIRCLE*          |
-#   *PRINT-PRETTY*          |
-#   *PRINT-CLOSURE*         |
-#   *PRINT-READABLY*        |
-#   *PRINT-LINES*           |
-#   *PRINT-MISER-WIDTH*     |
-#   *PRINT-PPRINT-DISPATCH* |
-#   *PRINT-RIGHT-MARGIN* ---+
-# first Print-Variable:
+/* ----------------------- LISP-functions of the Printer -------------------
+  Print-Variables (ref. CONSTSYM.D):
+   *PRINT-CASE*        ----+
+   *PRINT-LEVEL*           |
+   *PRINT-LENGTH*          |
+   *PRINT-GENSYM*          |
+   *PRINT-ESCAPE*          | order fixed!
+   *PRINT-RADIX*           | the same order as in CONSTSYM.D
+   *PRINT-BASE*            | also for the SUBRs WRITE, WRITE-TO-STRING
+   *PRINT-ARRAY*           |
+   *PRINT-CIRCLE*          |
+   *PRINT-PRETTY*          |
+   *PRINT-CLOSURE*         |
+   *PRINT-READABLY*        |
+   *PRINT-LINES*           |
+   *PRINT-MISER-WIDTH*     |
+   *PRINT-PPRINT-DISPATCH* |
+   *PRINT-RIGHT-MARGIN* ---+
+ first Print-Variable: */
 #define first_print_var  S(print_case)
-# number of Print-Variables:
-#define print_vars_anz  16
+/* number of Print-Variables: */
+#define print_vars_count  16
 
-# UP: for WRITE and WRITE-TO-STRING
-# > STACK_(print_vars_anz+1): Object
-# > STACK_(print_vars_anz)..STACK_(1): Arguments to the Print-Variables
-# > STACK_0: Stream
+/* UP: for WRITE and WRITE-TO-STRING
+ > STACK_(print_vars_count+1): Object
+ > STACK_(print_vars_count)..STACK_(1): Arguments to the Print-Variables
+ > STACK_0: Stream */
 local void write_up (void) {
   # Pointer over the Keyword-Arguments
-  var gcv_object_t* argptr = args_end_pointer STACKop (1+print_vars_anz+1);
+  var gcv_object_t* argptr = args_end_pointer STACKop (1+print_vars_count+1);
   var object obj = NEXT(argptr); # first Argument = Object
   # bind the specified Variable:
   var uintC bindcount = 0; # number of bindings
   {
     var object sym = first_print_var; # loops over the Symbols
     var uintC count;
-    dotimesC(count,print_vars_anz, {
+    dotimesC(count,print_vars_count, {
       var object arg = NEXT(argptr); # next Keyword-Argument
       if (boundp(arg)) { /* specified? */
         dynamic_bind(sym,arg); bindcount++; # yes -> pind Variable to it
@@ -10402,7 +10401,7 @@ LISPFUN(write,seclass_default,1,0,norest,key,17,
   # stack layout: object, Print-Variablen-Arguments, Stream-Argument.
   check_ostream(&STACK_0);       /* check Output-Stream */
   write_up(); # execute WRITE
-  skipSTACK(print_vars_anz+1);
+  skipSTACK(print_vars_count+1);
   VALUES1(popSTACK()); /* object as value */
 }
 
@@ -10525,7 +10524,7 @@ LISPFUN(write_to_string,seclass_default,1,0,norest,key,16,
   pushSTACK(make_string_output_stream()); # String-Output-Stream
   write_up(); # execute WRITE
   VALUES1(get_output_stream_string(&STACK_0)); /* Result-String as value */
-  skipSTACK(1+print_vars_anz+1);
+  skipSTACK(1+print_vars_count+1);
 }
 
 # (defun prin1-to-string (object)
