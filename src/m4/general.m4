@@ -109,7 +109,7 @@ AC_DEFUN([CL_CC_WORKS],
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
 AC_LANG_SAVE()
 AC_LANG_C()
-AC_TRY_RUN([int main() { exit(0); }],
+AC_TRY_RUN([int main() { return 0; }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
 AC_LANG_RESTORE()
