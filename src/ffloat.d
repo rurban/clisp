@@ -22,12 +22,12 @@
     }
 
 # Einpacken eines Single-Float:
-# encode_FF(sign,exp,mant, ergebnis=);
+# encode_FF(sign,exp,mant, result=);
 # liefert ein Single-Float.
 # > signean sign: Vorzeichen, 0 für +, -1 für negativ.
 # > sintWL exp: Exponent
 # > uintL mant: Mantisse, sollte >= 2^FF_mant_len und < 2^(FF_mant_len+1) sein.
-# < object ergebnis: ein Single-Float
+# < object result: ein Single-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
 # can trigger GC
   #define encode_FF(sign,exp,mant, res_assignment)  \
@@ -74,7 +74,7 @@
 #   maybe_underflow: Ergebnis sehr klein und /=0, liefert IEEE-Null
 #   maybe_divide_0: Ergebnis unbestimmt, liefert IEEE-Infinity
 #   maybe_nan: Ergebnis unbestimmt, liefert IEEE-NaN
-  #define float_to_FF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  \
+  #define float_to_FF(expr,result_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  \
     {                                                                    \
       var ffloatjanus _erg; _erg.machine_float = (expr);                 \
       if ((_erg.eksplicit & ((uint32)bit(FF_exp_len+FF_mant_len)-bit(FF_mant_len))) == 0) { # e=0 ? \
@@ -85,7 +85,7 @@
            ) {                                                           \
           error_underflow(); # subnormal oder noch kleiner-> Underflow  \
         } else {                                                         \
-          ergebnis_assignment FF_0; # +/- 0.0 -> 0.0                      \
+          result_assignment FF_0; # +/- 0.0 -> 0.0                      \
         }                                                                \
       } elif ((maybe_overflow || maybe_divide_0)                         \
               && (((~_erg.eksplicit) & ((uint32)bit(FF_exp_len+FF_mant_len)-bit(FF_mant_len))) == 0) # e=255 ? \
@@ -101,7 +101,7 @@
             error_overflow(); # Infinity, Overflow                      \
         }                                                                \
       } else {                                                           \
-        ergebnis_assignment allocate_ffloat(_erg.eksplicit);              \
+        result_assignment allocate_ffloat(_erg.eksplicit);              \
       }                                                                  \
     }
 #endif

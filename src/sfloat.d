@@ -34,12 +34,12 @@
     }
 
 # Einpacken eines Short-Float:
-# encode_SF(sign,exp,mant, ergebnis=);
+# encode_SF(sign,exp,mant, result=);
 # liefert ein Short-Float.
 # > signean sign: Vorzeichen, 0 für +, -1 für negativ.
 # > sintWL exp: Exponent
 # > uintL mant: Mantisse, sollte >= 2^SF_mant_len und < 2^(SF_mant_len+1) sein.
-# < object ergebnis: ein Short-Float
+# < object result: ein Short-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
   #define encode_SF(sign,exp,mant, res_assignment)    \
     {                                                 \

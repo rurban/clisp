@@ -4,7 +4,7 @@
 # Vorzeichen einer 32-Bit-Zahl bestimmen
 # sign_of_sint32(value)
 # > value: eine 32-Bit-Zahl
-# < sint16 ergebnis: 0 falls value>=0, -1 falls value<0.
+# < sint16 result: 0 falls value>=0, -1 falls value<0.
   extern sint16 sign_of_sint32 (sint32 value);
 # im 68000-Assembler (Input D0.L, Output D0.W):
 #   SWAP D0  # Vorzeichen nach Bit 15 schieben
@@ -13,13 +13,13 @@
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
     #define sign_of_sint32(value)  \
       ({var sint32 __value = (value);  \
-        var sint16 __ergebnis;        \
+        var sint16 __result;        \
         __asm__ ("\
           swap %0;  \
           extl %0;  \
           swap %0   \
-          " : "=d" (__ergebnis) : "0" (__value));  \
-        __ergebnis;                               \
+          " : "=d" (__result) : "0" (__value));  \
+        __result;                               \
        })
   #elif defined(SPARC64)
     #define sign_of_sint32(value)  (((sint64)(sint32)(value)) >> 63)
@@ -32,7 +32,7 @@
 # Vorzeichen einer 16-Bit-Zahl bestimmen
 # sign_of_sint16(value)
 # > value: eine 16-Bit-Zahl
-# < sint16 ergebnis: 0 falls value>=0, -1 falls value<0.
+# < sint16 result: 0 falls value>=0, -1 falls value<0.
   extern sint16 sign_of_sint16 (sint16 value);
 # im 68000-Assembler (Input D0.W, Output D0.W):
 #   EXT.L D0 # Vorzeichen nach Bit 31..16 kopieren
@@ -40,12 +40,12 @@
   #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
     #define sign_of_sint16(value)  \
       ({var sint16 __value = (value);  \
-        var sint16 __ergebnis;        \
+        var sint16 __result;        \
         __asm__ ("\
           extl %0;  \
           swap %0   \
-          " : "=d" (__ergebnis) : "0" (__value));  \
-        __ergebnis;                               \
+          " : "=d" (__result) : "0" (__value));  \
+        __result;                               \
        })
   #elif defined(SPARC64)
     #define sign_of_sint16(value)  (((sint64)(sint16)(value)) >> 63)
@@ -64,11 +64,11 @@
     #if defined(MC680X0) && !defined(NO_ASM)
       #define high16(value)  \
         ({var uint32 __value = (value);  \
-          var uint16 __ergebnis;        \
+          var uint16 __result;        \
           __asm__ ("\
             swap %0   \
-            " : "=d" (__ergebnis) : "0" (__value));  \
-          __ergebnis;                               \
+            " : "=d" (__result) : "0" (__value));  \
+          __result;                               \
          })
     #endif
   #endif
@@ -92,12 +92,12 @@
       #define highlow32(high,low)  \
         ({var uint16 __high = (high);  \
           var uint16 __low = (low);    \
-          var uint32 __ergebnis;       \
+          var uint32 __result;       \
           __asm__ __volatile__ ("\
             swap %0;     \
             movew %2,%0  \
-            " : "=&d" (__ergebnis) : "0" (__high), "g" (__low));  \
-          __ergebnis;                                             \
+            " : "=&d" (__result) : "0" (__high), "g" (__low));  \
+          __result;                                             \
          })
     #endif
   #endif
@@ -117,12 +117,12 @@
     #if defined(MC680X0) && !defined(NO_ASM)
       #define highlow32_0(high)  \
         ({var uint16 __high = (high);  \
-          var uint32 __ergebnis;       \
+          var uint32 __result;       \
           __asm__ __volatile__ ("\
             swap %0;     \
             clrw %0      \
-            " : "=d" (__ergebnis) : "0" (__high));  \
-          __ergebnis;                               \
+            " : "=d" (__result) : "0" (__high));  \
+          __result;                               \
          })
     #endif
   #endif
@@ -158,7 +158,7 @@
 # Multipliziert zwei 16-Bit-Zahlen miteinander und liefert eine 32-Bit-Zahl:
 # mulu16(arg1,arg2)
 # > arg1, arg2 : zwei 16-Bit-Zahlen
-# < ergebnis: eine 32-Bit-Zahl
+# < result: eine 32-Bit-Zahl
   extern uint32 mulu16 (uint16 arg1, uint16 arg2);
 # in 68000-Assembler (Input D0.W, D1.W, Output D0.L):
 #   MULU D1,D0
@@ -390,7 +390,7 @@
 # Multipliziert zwei 32-Bit-Zahlen miteinander und liefert eine 32-Bit-Zahl:
 # mulu32_unchecked(arg1,arg2)
 # > arg1, arg2 : zwei 32-Bit-Zahlen
-# < ergebnis : eine 32-Bit-Zahl
+# < result : eine 32-Bit-Zahl
 # Es wird vorausgesetzt, dass arg1*arg2 < 2^32.
   #if (defined(GNU) && defined(MC680X0) && !defined(MC680Y0))
     extern uint32 mulu32_unchecked (uint32 x, uint32 y);
@@ -435,7 +435,7 @@
 # Multipliziert zwei 32-Bit-Zahlen miteinander und liefert eine 64-Bit-Zahl:
 # mulu32_64(arg1,arg2)
 # > arg1, arg2 : zwei 32-Bit-Zahlen
-# < ergebnis : eine 64-Bit-Zahl
+# < result : eine 64-Bit-Zahl
   extern_C uint64 mulu32_64 (uint32 arg1, uint32 arg2);
   #if defined(GNU) || defined(INTEL)
     #if defined(I80386) && !defined(NO_ASM)

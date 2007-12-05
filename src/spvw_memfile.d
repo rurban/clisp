@@ -215,15 +215,15 @@ typedef struct {
 #define WRITE(buf,len)                                                  \
   do {                                                                  \
     begin_system_call();                                                \
-    { var ssize_t ergebnis = full_write(handle,(void*)buf,len);         \
-      if (ergebnis != (ssize_t)(len)) {                                 \
+    { var ssize_t result = full_write(handle,(void*)buf,len);           \
+      if (result != (ssize_t)(len)) {                                   \
         end_system_call();                                              \
         builtin_stream_close(&STACK_0,0);                               \
-        if (ergebnis<0) /* error occurred? */                           \
+        if (result<0) /* error occurred? */                             \
           { OS_file_error(TheStream(STACK_0)->strm_file_truename); }    \
         /* FILE-ERROR slot PATHNAME */                                  \
         pushSTACK(TheStream(STACK_0)->strm_file_truename);              \
-        error(file_error,GETTEXT("disk full"));                        \
+        error(file_error,GETTEXT("disk full"));                         \
       }                                                                 \
     }                                                                   \
     end_system_call();                                                  \
@@ -492,10 +492,10 @@ global maygc void savemem (object stream, bool exec_p)
    #if defined(HAVE_MMAP) /* else, page_alignment is = 1, anyway */
   { /* put alignment into practice: */
     begin_system_call();
-    var off_t ergebnis = lseek(handle,0,SEEK_CUR); /* fetch file-position */
+    var off_t result = lseek(handle,0,SEEK_CUR); /* fetch file-position */
     end_system_call();
-    if (ergebnis<0) { builtin_stream_close(&STACK_0,0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } /* error? */
-    WRITE_page_alignment(ergebnis);
+    if (result<0) { builtin_stream_close(&STACK_0,0); OS_file_error(TheStream(STACK_0)->strm_file_truename); } /* error? */
+    WRITE_page_alignment(result);
   }
    #endif
   #endif
@@ -961,10 +961,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #define READ(buf,len)                                               \
       do {                                                              \
         begin_system_call();                                            \
-        { var ssize_t ergebnis = full_read(handle,(void*)buf,len);      \
+        { var ssize_t result = full_read(handle,(void*)buf,len);        \
           end_system_call();                                            \
-          if (ergebnis<0) ABORT_SYS;                                       \
-          if (ergebnis != (ssize_t)(len)) ABORT_INI;                       \
+          if (result<0) ABORT_SYS;                                      \
+          if (result != (ssize_t)(len)) ABORT_INI;                      \
           inc_file_offset(len);                                         \
         }                                                               \
       } while(0)

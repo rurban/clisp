@@ -2760,7 +2760,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
 #                      which is #<UNBOUND>, if it is still to be supplied with)
 # > rest_args_pointer: Pointer to the remaining Arguments in the STACK
 # < STACK: set correctly
-# < ergebnis: closure
+# < result: closure
 # changes STACK
 # can trigger GC
   local maygc object match_cclosure_key (object closure, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer)

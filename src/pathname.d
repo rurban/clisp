@@ -6533,7 +6533,7 @@ local maygc object open_file (object filename, direction_t direction,
   if (eq(namestring,nullobj))
     /* path to the file does not exist,
      and :IF-DOES-NOT-EXIST = unbound or NIL */
-    goto ergebnis_NIL;
+    goto result_NIL;
   /* stack layout: Pathname, Truename.
    check filename and get the handle: */
   pushSTACK(namestring);        /* save */
@@ -6550,7 +6550,7 @@ local maygc object open_file (object filename, direction_t direction,
           goto error_notfound;
         if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
             || if_not_exists==IF_DOES_NOT_EXIST_NIL)
-          goto ergebnis_NIL;
+          goto result_NIL;
         /* :CREATE -> create the file using open and close: */
         with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
           create_new_file(namestring_asciz);
@@ -6569,7 +6569,7 @@ local maygc object open_file (object filename, direction_t direction,
       if (!result) {
         /* :IF-DOES-NOT-EXIST decides: */
         if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
-          goto ergebnis_NIL;
+          goto result_NIL;
         else /* UNBOUND or :ERROR -> Error */
           goto error_notfound;
       }
@@ -6598,7 +6598,7 @@ local maygc object open_file (object filename, direction_t direction,
             case IF_EXISTS_ERROR:
               goto error_exists;
             case IF_EXISTS_NIL:
-              goto ergebnis_NIL;
+              goto result_NIL;
             case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
               create_backup_file(namestring_asciz,
                                  if_exists==IF_EXISTS_RENAME_AND_DELETE);
@@ -6616,7 +6616,7 @@ local maygc object open_file (object filename, direction_t direction,
               || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
             goto error_notfound;
           if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
-            goto ergebnis_NIL;
+            goto result_NIL;
           /* :CREATE */
         }
         /* open file:
@@ -6649,7 +6649,7 @@ local maygc object open_file (object filename, direction_t direction,
    skipSTACK(4);
    return stream;
  }}
- ergebnis_NIL: /* return NIL */
+ result_NIL: /* return NIL */
   skipSTACK(6); /* forget both Pathnames and three arguments */
   return NIL;
 }
