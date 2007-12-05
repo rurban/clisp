@@ -163,32 +163,32 @@ libvacall.la : $(OBJECTS)
 # Installs the library and include files only. Typically called with only
 # $(libdir) and $(includedir) - don't use $(prefix) and $(exec_prefix) here.
 install-lib : all force
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	mkdir -p $(includedir)
 	$(INSTALL_DATA) vacall_r.h $(includedir)/vacall_r.h
 
 install : all force
-	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
-#	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
-#	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	mkdir -p $(DESTDIR)$(prefix)
+#	mkdir -p $(DESTDIR)$(exec_prefix)
+#	mkdir -p $(DESTDIR)$(libdir)
 #	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libvacall.la $(DESTDIR)$(libdir)/libvacall.la
-	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	mkdir -p $(DESTDIR)$(includedir)
 	$(INSTALL_DATA) vacall_r.h $(DESTDIR)$(includedir)/vacall_r.h
-#	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
-#	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+#	mkdir -p $(DESTDIR)$(mandir)
+#	mkdir -p $(DESTDIR)$(mandir)/man3
 #	$(INSTALL_DATA) $(srcdir)/vacall_r.3 $(DESTDIR)$(mandir)/man3/vacall_r.3
-#	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
-#	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+#	mkdir -p $(DESTDIR)$(datadir)
+#	mkdir -p $(DESTDIR)$(htmldir)
 #	$(INSTALL_DATA) $(srcdir)/vacall_r.html $(DESTDIR)$(htmldir)/vacall_r.html
 
 installdirs : force
-	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
-#	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
-#	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
-	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
-#	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
-#	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
-#	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
-#	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	mkdir -p $(DESTDIR)$(prefix)
+#	mkdir -p $(DESTDIR)$(exec_prefix)
+#	mkdir -p $(DESTDIR)$(libdir)
+	mkdir -p $(DESTDIR)$(includedir)
+#	mkdir -p $(DESTDIR)$(mandir)
+#	mkdir -p $(DESTDIR)$(mandir)/man3
+#	mkdir -p $(DESTDIR)$(datadir)
+#	mkdir -p $(DESTDIR)$(htmldir)
 
 uninstall : force
 #	$(LIBTOOL_UNINSTALL) $(RM) $(DESTDIR)$(libdir)/libvacall.la
