@@ -683,7 +683,7 @@ local var oint old_symbol_tab_o;
 #endif
 typedef struct { oint low_o; oint high_o; oint offset_o; } offset_subrs_t;
 local var offset_subrs_t* offset_subrs;
-local var uintC offset_subrs_anz;
+local var uintC offset_subrs_count;
 local var struct fsubr_tab_ old_fsubr_tab;
 local var struct pseudofun_tab_ old_pseudofun_tab;
 local void loadmem_update (gcv_object_t* objptr)
@@ -737,7 +737,7 @@ local void loadmem_update (gcv_object_t* objptr)
         var oint addr = as_oint(*objptr);
         var offset_subrs_t* ptr = offset_subrs;
         var uintC count;
-        dotimespC(count,offset_subrs_anz, {
+        dotimespC(count,offset_subrs_count, {
           if ((ptr->low_o <= addr) && (addr < ptr->high_o)) {
             *objptr = as_object(as_oint(*objptr) + ptr->offset_o);
             goto found_subr;
@@ -798,7 +798,7 @@ local void loadmem_update (gcv_object_t* objptr)
         var oint addr = as_oint(*objptr);
         var offset_subrs_t* ptr = offset_subrs;
         var uintC count;
-        dotimespC(count,offset_subrs_anz, {
+        dotimespC(count,offset_subrs_count, {
           if ((ptr->low_o <= addr) && (addr < ptr->high_o)) {
             *objptr = as_object(as_oint(*objptr) + ptr->offset_o);
             goto found_subr;
@@ -1094,9 +1094,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #endif  /* MULTIMAP_MEMORY_SYMBOL_TAB */
    #endif  /* SPVW_PURE_BLOCKS */
     /* initialize offset-of-SUBRs-table: */
-    offset_subrs_anz = 1+header._module_count;
+    offset_subrs_count = 1+header._module_count;
     begin_system_call();
-    offset_subrs = MALLOC(offset_subrs_anz,offset_subrs_t);
+    offset_subrs = MALLOC(offset_subrs_count,offset_subrs_t);
     end_system_call();
     if (offset_subrs==NULL) ABORT_MEM;
     /* read module names and compare with the existing modules: */
