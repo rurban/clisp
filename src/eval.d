@@ -5027,27 +5027,27 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         goto apply_subr_norest;
       case (uintW)subr_argtype_1_0:
         # SUBR with 1 required-Argument
-        if (!(args_on_stack==1)) goto error_anzahl;
+        if (!(args_on_stack==1)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_2_0:
         # SUBR with 2 required-Arguments
-        if (!(args_on_stack==2)) goto error_anzahl;
+        if (!(args_on_stack==2)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_3_0:
         # SUBR with 3 required-Arguments
-        if (!(args_on_stack==3)) goto error_anzahl;
+        if (!(args_on_stack==3)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_4_0:
         # SUBR with 4 required-Arguments
-        if (!(args_on_stack==4)) goto error_anzahl;
+        if (!(args_on_stack==4)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_5_0:
         # SUBR with 5 required-Arguments
-        if (!(args_on_stack==5)) goto error_anzahl;
+        if (!(args_on_stack==5)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_6_0:
         # SUBR with 6 required-Arguments
-        if (!(args_on_stack==6)) goto error_anzahl;
+        if (!(args_on_stack==6)) goto error_count;
         goto apply_subr_norest;
       case (uintW)subr_argtype_0_1:
         # SUBR with 1 optional-Argument
@@ -5336,7 +5336,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
     #endif
     return; # finished
     # Gathered error-messages:
-   error_anzahl:
+   error_count:
     if (args_on_stack < TheSubr(fun)->req_count)
       goto error_toofew; # too few Arguments
     else
@@ -5375,23 +5375,23 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_1_0:
           # 1 required-Argument
-          if (!(args_on_stack==1)) goto error_anzahl;
+          if (!(args_on_stack==1)) goto error_count;
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_2_0:
           # 2 required-Arguments
-          if (!(args_on_stack==2)) goto error_anzahl;
+          if (!(args_on_stack==2)) goto error_count;
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_3_0:
           # 3 required-Arguments
-          if (!(args_on_stack==3)) goto error_anzahl;
+          if (!(args_on_stack==3)) goto error_count;
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_4_0:
           # 4 required-Arguments
-          if (!(args_on_stack==4)) goto error_anzahl;
+          if (!(args_on_stack==4)) goto error_count;
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_5_0:
           # 5 required-Arguments
-          if (!(args_on_stack==5)) goto error_anzahl;
+          if (!(args_on_stack==5)) goto error_count;
           goto apply_cclosure_nokey;
         case (uintB)cclos_argtype_0_1:
           # 1 optional-Argument
@@ -5775,12 +5775,11 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         abort(); # no -> go to Debugger
       #endif
       return; # finished
-      # Gathered error-messages:
-     error_anzahl:
+     error_count:               /* collected error-messages: */
       if (args_on_stack < TheCodevec(codevec)->ccv_numreq)
-        goto error_toofew; # too few arguments
+        goto error_toofew;      /* too few arguments */
       else
-        goto error_toomany; # too many arguments
+        goto error_toomany;     /* too many arguments */
      error_toofew: error_closure_toofew(closure,NIL);
      error_toomany: error_closure_toomany(closure);
     } else {
