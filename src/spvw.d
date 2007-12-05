@@ -375,7 +375,7 @@ local clisp_thread_t* create_thread (void* sp) {
     var gcv_object_t* objptr =
       (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues));
     var uintC count;
-    dotimespC(count,thread_objects_anz(num_symvalues),
+    dotimespC(count,thread_objects_count(num_symvalues),
       { *objptr++ = NIL; objptr++; });
   }
   allthreads[nthreads] = thread;
@@ -424,11 +424,11 @@ local uintL make_symvalue_perthread (object value) {
 }
 
   #define for_all_threadobjs(statement)  \
-    for_all_threads({                                    \
+    for_all_threads({                                     \
       var gcv_object_t* objptr = (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues)); \
-      var uintC count;                                   \
-      dotimespC(count,thread_objects_anz(num_symvalues), \
-        { statement; objptr++; });                       \
+      var uintC count;                                     \
+      dotimespC(count,thread_objects_count(num_symvalues), \
+        { statement; objptr++; });                         \
     })
 
   #define for_all_STACKs(statement)  \
@@ -1060,7 +1060,7 @@ local void init_symbol_tab_2 (void) {
     #undef LISPPACK
     enum_dummy_index
   };
-  #define package_anz  ((uintL)enum_dummy_index)
+  #define package_count  ((uintL)enum_dummy_index)
   local const uintB package_index_table[symbol_count] = {
     #define LISPSYM  LISPSYM_D
     #include "constsym.c"
@@ -1070,7 +1070,7 @@ local void init_symbol_tab_2 (void) {
     var object list = O(all_packages); # list of packages
     # shortly after the initialization:
     # (#<PACKAGE LISP> #<PACKAGE SYSTEM> #<PACKAGE KEYWORD> #<PACKAGE CHARSET> ...)
-    var uintC count = package_anz;
+    var uintC count = package_count;
     do { pushSTACK(Car(list)); list = Cdr(list); } while (--count);
   }
   {
@@ -1087,7 +1087,7 @@ local void init_symbol_tab_2 (void) {
       pname_ptr++;
       var uintB this_index = *index_ptr++;
       var gcv_object_t* package_ = /* pointer to the package */
-        &STACK_(package_anz-1) STACKop -(uintP)this_index;
+        &STACK_(package_count-1) STACKop -(uintP)this_index;
       pushSTACK(symbol_tab_ptr_as_object(ptr)); /* Symbol */
       import(&STACK_0,package_);                /* import normally */
       switch (this_index) {
@@ -1101,7 +1101,7 @@ local void init_symbol_tab_2 (void) {
       Symbol_package(popSTACK()) = *package_; /* set the home-package */
       ptr++;
     } while (--count != 0);
-    skipSTACK(package_anz);
+    skipSTACK(package_count);
   }
 }
 # enter FSUBRs/SUBRs into their symbols:
