@@ -257,7 +257,7 @@ global sint32 I_to_L (object obj)
    case_posbignum: { /* bignum >0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-    #define IF_LENGTH(i)                                                 \
+    #define IF_LENGTH(i)                                                  \
       if (bn_minlength <= i) /* exactly i digits possible at all? */      \
         if (len == i) /* exactly i digits? */                             \
           /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */            \
@@ -289,7 +289,7 @@ global sint32 I_to_L (object obj)
    case_negbignum: { /* bignum <0 */
     var Bignum bn = TheBignum(obj);
     var uintC len = bignum_length(bn);
-    #define IF_LENGTH(i)                                                    \
+    #define IF_LENGTH(i)                                                  \
       if (bn_minlength <= i) /* exactly i digits possible at all? */      \
         if (len == i) /* exactly i digits? */                             \
           /* - 2^(i*intDsize-1) <= obj < - 2^((i-1)*intDsize-1) */        \
@@ -342,7 +342,7 @@ global uint64 I_to_UQ (object obj)
    case_posbignum: { /* bignum >0 */
       var Bignum bn = TheBignum(obj);
       var uintC len = bignum_length(bn);
-      #define IF_LENGTH(i)                                               \
+      #define IF_LENGTH(i)                                                \
         if (bn_minlength <= i) /* exactly i digits possible at all? */    \
           if (len == i) /* exactly i digits? */                           \
             /* 2^((i-1)*intDsize-1) <= obj < 2^(i*intDsize-1) */          \
@@ -549,15 +549,15 @@ global sint64 I_to_Q (object obj)
  < result: fixnum with this value.
  wert should be a variable. */
 #if (oint_data_shift <= sign_bit_o)
-  #define L_to_FN(wert)                                                   \
+  #define L_to_FN(wert)                                                     \
     as_object((( (soint)(sint32)(wert)                                      \
                  & (FN_value_vz_mask>>oint_data_shift) /* mask the unneeded */ \
-                 ) << oint_data_shift)                                  \
+                 ) << oint_data_shift)                                      \
               | ((oint)fixnum_type<<oint_type_shift)) /* store typeinfo instead */
 #else /* (oint_data_shift > sign_bit_o) */
-  #define L_to_FN(wert)                                                   \
+  #define L_to_FN(wert)                                                     \
     as_object((( (soint)(sint32)(wert) << oint_data_shift )                 \
-               & FN_value_mask /* mask the unneeded */)                 \
+               & FN_value_mask /* mask the unneeded */)                     \
               | ((soint)(sint32)sign_of_sint32((sint32)(wert)) & bit(sign_bit_o)) \
               | ((oint)fixnum_type<<oint_type_shift)) /* store typeinfo instead */
 #endif
@@ -1500,17 +1500,17 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  { FN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=); ... }
  > obj: a fixnum
  < MSDptr/len/LSDptr: normalized digit sequence, in machine stack */
-#define FN_to_NDS_nocopy(obj,MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define FN_to_NDS_nocopy(obj,MSDptr_assignment,len_assignment,LSDptr_assignment) \
   var uintD CONCAT(FN_to_NDS_room_,__LINE__)[FN_maxlength];             \
-  FN_to_NDS_nocopy_(obj,CONCAT(FN_to_NDS_room_,__LINE__),_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung)
+  FN_to_NDS_nocopy_(obj,CONCAT(FN_to_NDS_room_,__LINE__),_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment)
 
 /* Fixnum to Normalized Digit sequence
  FN_to_NDS(obj, MSDptr=,len=,LSDptr=);
  > obj: a fixnum
  < MSDptr/len/LSDptr: normalized digit sequence, may be modified.
  num_stack is decreased. */
-#define FN_to_NDS(obj,MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
-  FN_to_NDS_(copy,obj,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung)
+#define FN_to_NDS(obj,MSDptr_assignment,len_assignment,LSDptr_assignment)  \
+  FN_to_NDS_(copy,obj,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment)
 #define alloc_FNDS_copy  num_stack_need
 
 /* Fixnum to Normalized Digit sequence
@@ -1519,8 +1519,8 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  < MSDptr/len/LSDptr: normalized digit sequence, may be modified.
  below MSDptr, there is still room for one 1 digit.
  num_stack is decreased. */
-#define FN_to_NDS_1(obj,MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
-  FN_to_NDS_(copy_1,obj,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung)
+#define FN_to_NDS_1(obj,MSDptr_assignment,len_assignment,LSDptr_assignment) \
+  FN_to_NDS_(copy_1,obj,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment)
 #define alloc_FNDS_copy_1  num_stack_need_1
 
 /* only needed, when FN_maxlength >= 2, i.e. intDsize-1 < oint_data_len */
@@ -1535,7 +1535,7 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
 /* only needed, when FN_maxlength >= 5, i.e. 4*intDsize-1 < oint_data_len */
 #define FN_MSD4_mask                                                    \
   (FN_value_vz_mask & ~((oint)(bitc(4*intDsize-1)-1)<<oint_data_shift))
-#define FN_to_NDS_(option, obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define FN_to_NDS_(option, obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   do { var oint fix_from_FN_to_NDS = as_oint(obj);                      \
     var uintC len_from_FN_to_NDS;                                       \
     var uintD* ptr_from_FN_to_NDS;                                      \
@@ -1564,10 +1564,10 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
         len_from_FN_to_NDS=5; /* five digits to store */                \
       }                                                                 \
     }                                                                   \
-    len_zuweisung len_from_FN_to_NDS;                                   \
+    len_assignment len_from_FN_to_NDS;                                  \
     /* allocate space: */                                               \
     CONCAT(alloc_FNDS_,option)                                          \
-      (len_from_FN_to_NDS, MSDptr_zuweisung ptr_from_FN_to_NDS =,_EMA_ LSDptr_zuweisung); \
+      (len_from_FN_to_NDS, MSDptr_assignment ptr_from_FN_to_NDS =,_EMA_ LSDptr_assignment); \
     /* fill space: */                                                   \
     if (len_from_FN_to_NDS > 0) {                                       \
       if ((FN_maxlength>1) && (len_from_FN_to_NDS > 1)) {               \
@@ -1590,7 +1590,7 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
       *ptr_from_FN_to_NDS = FN_LSD0(as_object(fix_from_FN_to_NDS));     \
     }                                                                   \
   } while(0)
-#define FN_to_NDS_nocopy_(obj, room, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define FN_to_NDS_nocopy_(obj, room, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   do { var oint fix_from_FN_to_NDS = as_oint(obj);                      \
     var uintC len_from_FN_to_NDS;                                       \
     /* determine the length of the NDS and fill space: */               \
@@ -1630,19 +1630,19 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
       }                                                                 \
       *ptr_from_FN_to_NDS = FN_LSD0(as_object(fix_from_FN_to_NDS));     \
     }                                                                   \
-    len_zuweisung len_from_FN_to_NDS;                                   \
-    unused (LSDptr_zuweisung (MSDptr_zuweisung room) + len_from_FN_to_NDS); \
+    len_assignment len_from_FN_to_NDS;                                  \
+    unused (LSDptr_assignment (MSDptr_assignment room) + len_from_FN_to_NDS); \
   } while(0)
 
 /* Bignum to Normalized Digit sequence, copying unnecessary
  BN_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=);
  > obj: a Bignum
  < MSDptr/len/LSDptr: Normalized Digit sequence */
-#define BN_to_NDS_nocopy(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
-  do { var Bignum bn_from_BN_to_NDS_nocopy = TheBignum(obj);            \
-    unused (MSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[0]);       \
-    unused (LSDptr_zuweisung &bn_from_BN_to_NDS_nocopy->data[(uintP)(   \
-            len_zuweisung bignum_length(bn_from_BN_to_NDS_nocopy) )]);  \
+#define BN_to_NDS_nocopy(obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
+  do { var Bignum bn_from_BN_to_NDS_nocopy = TheBignum(obj);             \
+    unused (MSDptr_assignment &bn_from_BN_to_NDS_nocopy->data[0]);       \
+    unused (LSDptr_assignment &bn_from_BN_to_NDS_nocopy->data[(uintP)(   \
+            len_assignment bignum_length(bn_from_BN_to_NDS_nocopy) )]);  \
   } while(0)
 
 /* Bignum to Normalized Digit sequence
@@ -1650,12 +1650,12 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  > obj: a Bignum
  < MSDptr/len/LSDptr: Normalized Digit sequence, may be modified.
  num_stack is decreased. */
-#define BN_to_NDS(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define BN_to_NDS(obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   do { var object obj_from_BN_to_NDS = (obj);                           \
     var uintD* MSDptr_from_BN_to_NDS;                                   \
     var uintC len_from_BN_to_NDS;                                       \
-    len_zuweisung len_from_BN_to_NDS = Bignum_length(obj_from_BN_to_NDS); \
-    num_stack_need(len_from_BN_to_NDS, MSDptr_zuweisung MSDptr_from_BN_to_NDS = ,_EMA_ LSDptr_zuweisung); \
+    len_assignment len_from_BN_to_NDS = Bignum_length(obj_from_BN_to_NDS); \
+    num_stack_need(len_from_BN_to_NDS, MSDptr_assignment MSDptr_from_BN_to_NDS = ,_EMA_ LSDptr_assignment); \
     copy_loop_up(&TheBignum(obj_from_BN_to_NDS)->data[0],MSDptr_from_BN_to_NDS,len_from_BN_to_NDS); \
   } while(0)
 
@@ -1665,12 +1665,12 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  < MSDptr/len/LSDptr: Normalized Digit sequence, may be modified.
  below MSDptr, there is still room for one 1 digit.
  num_stack is decreased. */
-#define BN_to_NDS_1(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define BN_to_NDS_1(obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   do { var object obj_from_BN_to_NDS = (obj);                           \
     var uintD* MSDptr_from_BN_to_NDS;                                   \
     var uintC len_from_BN_to_NDS;                                       \
-    len_zuweisung len_from_BN_to_NDS = Bignum_length(obj_from_BN_to_NDS); \
-    num_stack_need_1(len_from_BN_to_NDS, MSDptr_zuweisung MSDptr_from_BN_to_NDS = ,_EMA_ LSDptr_zuweisung); \
+    len_assignment len_from_BN_to_NDS = Bignum_length(obj_from_BN_to_NDS); \
+    num_stack_need_1(len_from_BN_to_NDS, MSDptr_assignment MSDptr_from_BN_to_NDS = ,_EMA_ LSDptr_assignment); \
     copy_loop_up(&TheBignum(obj_from_BN_to_NDS)->data[0],MSDptr_from_BN_to_NDS,len_from_BN_to_NDS); \
   } while(0)
 
@@ -1678,13 +1678,13 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  { I_to_NDS_nocopy(obj, MSDptr=,len=,LSDptr=); ... }
  > obj: an Integer
  < MSDptr/len/LSDptr: Normalized Digit sequence */
-#define I_to_NDS_nocopy(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define I_to_NDS_nocopy(obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   var uintD CONCAT(I_to_NDS_room_,__LINE__)[FN_maxlength]; do {         \
     var object obj_from_I_to_NDS_nocopy = (obj);                        \
     if (I_fixnump(obj_from_I_to_NDS_nocopy))                            \
-      FN_to_NDS_nocopy_(obj_from_I_to_NDS_nocopy,CONCAT(I_to_NDS_room_,__LINE__),_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      FN_to_NDS_nocopy_(obj_from_I_to_NDS_nocopy,CONCAT(I_to_NDS_room_,__LINE__),_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
     else                                                                \
-      BN_to_NDS_nocopy(obj_from_I_to_NDS_nocopy,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      BN_to_NDS_nocopy(obj_from_I_to_NDS_nocopy,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
   } while(0)
 
 /* Integer to Normalized Digit sequence
@@ -1692,12 +1692,12 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  > obj: an Integer
  < MSDptr/len/LSDptr: Normalized Digit sequence, may be modified.
  num_stack is decreased. */
-#define I_to_NDS(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+#define I_to_NDS(obj, MSDptr_assignment,len_assignment,LSDptr_assignment)  \
   do { var object obj_from_I_to_NDS = (obj);                            \
     if (I_fixnump(obj_from_I_to_NDS))                                   \
-      FN_to_NDS(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      FN_to_NDS(obj_from_I_to_NDS,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
     else                                                                \
-      BN_to_NDS(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      BN_to_NDS(obj_from_I_to_NDS,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
   } while(0)
 
 /* Integer to Normalized Digit sequence
@@ -1706,12 +1706,12 @@ global maygc object DS_to_I (const uintD* MSDptr, uintC len)
  < MSDptr/len/LSDptr: Normalized Digit sequence, may be modified.
  below MSDptr, there is still room for one 1 digit.
  num_stack is decreased. */
-#define I_to_NDS_1(obj, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung) \
+#define I_to_NDS_1(obj, MSDptr_assignment,len_assignment,LSDptr_assignment) \
   do { var object obj_from_I_to_NDS = (obj);                            \
     if (I_fixnump(obj_from_I_to_NDS))                                   \
-      FN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      FN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
     else                                                                \
-      BN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_zuweisung,len_zuweisung,_EMA_ LSDptr_zuweisung); \
+      BN_to_NDS_1(obj_from_I_to_NDS,_EMA_ MSDptr_assignment,len_assignment,_EMA_ LSDptr_assignment); \
   } while(0)
 
 /* Fetches the next pFN_maxlength digits into a uintV:

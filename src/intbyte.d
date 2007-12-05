@@ -57,11 +57,11 @@
 
 # Byte_to_V_V(byte, size=,position=); wandelt das Byte byte (eine Variable)
 # um in size und position, beides uintL >=0, <2^oint_data_len.
-  #define Byte_to_V_V(byte, size_zuweisung,position_zuweisung)           \
+  #define Byte_to_V_V(byte, size_assignment,position_assignment)           \
     {                                                                    \
       if (bytep(byte)) {                                                 \
-        size_zuweisung posfixnum_to_V(TheByte(byte)->byte_size);         \
-        position_zuweisung posfixnum_to_V(TheByte(byte)->byte_position); \
+        size_assignment posfixnum_to_V(TheByte(byte)->byte_size);         \
+        position_assignment posfixnum_to_V(TheByte(byte)->byte_position); \
       } else                                                             \
         error_byte(byte);                                               \
     }

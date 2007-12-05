@@ -1,10 +1,14 @@
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
+	<29_zuweisung>
+	* aridecl.d, arilev0.d, arilev1.d, dfloat.d, eval.d, ffloat.d:
+	* intbyte.d, intelem.d, intlog.d, intmal.d, intsqrt.d, lfloat.d:
+	* rational.d, sfloat.d: rename macro args *_zuweisung to *_assignment
 	<28_more_anz>
 	* io.d (print_vars_anz): rename to print_vars_count
-        * lispbibl.d, spvw.d (thread_objects_anz): -> thread_objects_count
-        * spvw.d (package_anz): rename to package_count
-        * spvw_memfile.d (offset_subrs_anz): rename to offset_subrs_count
+	* lispbibl.d, spvw.d (thread_objects_anz): -> thread_objects_count
+	* spvw.d (package_anz): rename to package_count
+	* spvw_memfile.d (offset_subrs_anz): rename to offset_subrs_count
 	<27_error_anzahl>
 	* eval.d (funcall_subr, funcall_closure): rename label
         error_anzahl to error_count

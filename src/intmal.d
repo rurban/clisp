@@ -53,7 +53,7 @@
 # Dabei sollte len1>0 sein.
 # Ergebnis ist die UDS MSDptr/len/LSDptr, mit len=2*len1, im Stack.
 # Dabei wird num_stack erniedrigt.
-  #define UDS_square_UDS(len1,LSDptr1, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+  #define UDS_square_UDS(len1,LSDptr1, MSDptr_assignment,len_assignment,LSDptr_assignment)    \
     {                                                                                         \
       var uintL len_from_UDSmal = 2*(uintL)(len1);                                            \
       var uintD* LSDptr_from_UDSmal;                                                          \
@@ -61,8 +61,8 @@
         RESTORE_NUM_STACK;                                                                    \
         mal_ueberlauf();                                                                      \
       }                                                                                       \
-      unused (len_zuweisung len_from_UDSmal);                                                 \
-      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =); \
+      unused (len_assignment len_from_UDSmal);                                                \
+      num_stack_need(len_from_UDSmal,MSDptr_assignment,LSDptr_assignment LSDptr_from_UDSmal =); \
       square_2loop_down((LSDptr1),(len1),LSDptr_from_UDSmal);                                 \
     }
 
@@ -310,7 +310,7 @@
 # Dabei sollte len1>0 und len2>0 sein.
 # Ergebnis ist die UDS MSDptr/len/LSDptr, mit len=len1+len2, im Stack.
 # Dabei wird num_stack erniedrigt.
-  #define UDS_UDS_mult_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+  #define UDS_UDS_mult_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_assignment,len_assignment,LSDptr_assignment)  \
     {                                                                                         \
       var uintL len_from_UDSmal = (uintL)(len1) + (uintL)(len2);                              \
       var uintD* LSDptr_from_UDSmal;                                                          \
@@ -318,8 +318,8 @@
         RESTORE_NUM_STACK;                                                                    \
         mal_ueberlauf();                                                                      \
       }                                                                                       \
-      unused (len_zuweisung len_from_UDSmal);                                                 \
-      num_stack_need(len_from_UDSmal,MSDptr_zuweisung,LSDptr_zuweisung LSDptr_from_UDSmal =); \
+      unused (len_assignment len_from_UDSmal);                                                \
+      num_stack_need(len_from_UDSmal,MSDptr_assignment,LSDptr_assignment LSDptr_from_UDSmal =); \
       mulu_2loop_down((LSDptr1),(len1),(LSDptr2),(len2),LSDptr_from_UDSmal);                  \
     }
 
@@ -699,10 +699,10 @@
   # n>0, m<0: p = n*(m+b^l),       n*m + b^(k+l) = p - b^l * n (mod b^(k+l)).
   # n<0, m<0: p = (n+b^k)*(m+b^l),
   #           n*m = p - b^k * (m+b^l) - b^l * (n+b^k) (mod b^(k+l)).
-  #define DS_DS_mult_DS(MSDptr1,len1,LSDptr1,MSDptr2,len2,LSDptr2, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung)  \
+  #define DS_DS_mult_DS(MSDptr1,len1,LSDptr1,MSDptr2,len2,LSDptr2, MSDptr_assignment,len_assignment,LSDptr_assignment)  \
     {                                                             \
       var uintD* LSDptr0;                                         \
-      UDS_UDS_mult_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_zuweisung,len_zuweisung,LSDptr_zuweisung LSDptr0 = ); \
+      UDS_UDS_mult_UDS(len1,LSDptr1,len2,LSDptr2, MSDptr_assignment,len_assignment,LSDptr_assignment LSDptr0 = ); \
       if ((sintD)(MSDptr1[0]) < 0) # n<0 ?                        \
         # muss m bzw. m+b^l subtrahieren, um k Digits verschoben: \
         subfrom_loop_down(LSDptr2,&LSDptr0[-(uintP)len1],len2);   \

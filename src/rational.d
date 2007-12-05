@@ -70,12 +70,12 @@
 # > r: rationale Zahl
 # < num: (numerator r)
 # < den: (denominator r)
-  #define RA_numden_I_I(r,num_zuweisung,den_zuweisung)  \
+  #define RA_numden_I_I(r,num_assignment,den_assignment)  \
     {                                                                         \
       if (RA_integerp(r)) {                                                   \
-        num_zuweisung r; den_zuweisung Fixnum_1; # Zähler = r, Nenner = 1     \
+        num_assignment r; den_assignment Fixnum_1; # Zähler = r, Nenner = 1  \
       } else {                                                                \
-        num_zuweisung TheRatio(r)->rt_num; den_zuweisung TheRatio(r)->rt_den; \
+        num_assignment TheRatio(r)->rt_num; den_assignment TheRatio(r)->rt_den; \
       }                                                                       \
     }
 

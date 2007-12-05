@@ -14,81 +14,81 @@ nonreturning_function(local, error_LF_toolong, (void)) {
         UDS mantMSDptr/mantlen/mantLSDptr = mantissa
           (>= 2^(intDsize*mantlen-1), < 2^(intDsize*mantlen)),
           with mantlen>=LF_minlen. */
-#define LF_decode(obj,zero_statement,sign_zuweisung,exp_zuweisung,mantMSDptr_zuweisung,mantlen_zuweisung,mantLSDptr_zuweisung)   do { \
+#define LF_decode(obj,zero_statement,sign_assignment,exp_assignment,mantMSDptr_assignment,mantlen_assignment,mantLSDptr_assignment)   do { \
   var object _obj = (obj);                                              \
   var Lfloat _x = TheLfloat(_obj);                                      \
   var uintL uexp = _x->expo;                                            \
   if (uexp==0) {                                                        \
-    unused (mantlen_zuweisung lfloat_length(_x));                       \
+    unused (mantlen_assignment lfloat_length(_x));                      \
     zero_statement; /* e=0 -> number 0.0 */                             \
   } else {                                                              \
-    exp_zuweisung (sintL)(uexp - LF_exp_mid);     /* exponent */        \
-    sign_zuweisung LF_sign(_obj);                 /* sign */            \
-    unused (mantMSDptr_zuweisung &(_x->data[0])); /* mantissa-UDS */    \
-    unused (mantLSDptr_zuweisung &(_x->data[(uintP)( mantlen_zuweisung lfloat_length(_x) )])); \
+    exp_assignment (sintL)(uexp - LF_exp_mid);     /* exponent */       \
+    sign_assignment LF_sign(_obj);                 /* sign */           \
+    unused (mantMSDptr_assignment &(_x->data[0])); /* mantissa-UDS */   \
+    unused (mantLSDptr_assignment &(_x->data[(uintP)( mantlen_assignment lfloat_length(_x) )])); \
   }                                                                     \
  } while(0)
 
 /* encoding a Long-Float:
- encode_LF0(len,erg_zuweisung) returns a Long-Float 0.0 with len digits.
+ encode_LF0(len,res_assignment) returns a Long-Float 0.0 with len digits.
  > uintC len: number of digits
- < object erg: new Long-Float 0.0 with len digits
+ < object res: new Long-Float 0.0 with len digits
  can trigger GC */
-#define encode_LF0(len,erg_zuweisung)   do {                            \
+#define encode_LF0(len,res_assignment)   do {                           \
   var uintC _len = (len);                                               \
-  var object _erg = allocate_lfloat(_len,0,0); /* exponent 0, sign + */ \
-  clear_loop_up(&TheLfloat(_erg)->data[0],_len); /* mantissa := 0 */    \
-  erg_zuweisung _erg;                                                   \
+  var object _res = allocate_lfloat(_len,0,0); /* exponent 0, sign + */ \
+  clear_loop_up(&TheLfloat(_res)->data[0],_len); /* mantissa := 0 */    \
+  res_assignment _res;                                                  \
  } while(0)
 
 /* encoding a Long-Float:
- encode_LF1s(sign,len,erg_zuweisung) returns a Long-Float +-1.0 with len digits.
+ encode_LF1s(sign,len,res_assignment) returns a Long-Float +-1.0 with len digits.
  > signean sign: sign
  > uintC len: number of digits
- < object erg: new Long-Float +1.0 or -1.0 with len digits
+ < object res: new Long-Float +1.0 or -1.0 with len digits
  can trigger GC */
-#define encode_LF1s(sign,len,erg_zuweisung)    do {                     \
+#define encode_LF1s(sign,len,res_assignment)    do {                    \
   var uintC _len = (len);                                               \
-  var object _erg = allocate_lfloat(_len,LF_exp_mid+1,(sign)); /* exponent 1 */ \
-  TheLfloat(_erg)->data[0] = bit(intDsize-1); /* mantissa := 2^(intDsize*len-1) */ \
-  clear_loop_up(&TheLfloat(_erg)->data[1],_len-1);                      \
-  erg_zuweisung _erg;                                                   \
+  var object _res = allocate_lfloat(_len,LF_exp_mid+1,(sign)); /* exponent 1 */ \
+  TheLfloat(_res)->data[0] = bit(intDsize-1); /* mantissa := 2^(intDsize*len-1) */ \
+  clear_loop_up(&TheLfloat(_res)->data[1],_len-1);                      \
+  res_assignment _res;                                                  \
  } while(0)
 
 /* encoding a Long-Float:
- encode_LF1(len,erg_zuweisung) returns a Long-Float 1.0 with len digits.
+ encode_LF1(len,res_assignment) returns a Long-Float 1.0 with len digits.
  > uintC len: number of digits
- < object erg: new Long-Float 1.0 with len digits
+ < object res: new Long-Float 1.0 with len digits
  can trigger GC */
-#define encode_LF1(len,erg_zuweisung)  encode_LF1s(0,len,erg_zuweisung)
+#define encode_LF1(len,res_assignment)  encode_LF1s(0,len,res_assignment)
 
 /* encoding a Long-Float:
- encode_LFu(sign,uexp,mantMSDptr,mantlen, erg_zuweisung) returns a Long-Float
+ encode_LFu(sign,uexp,mantMSDptr,mantlen, res_assignment) returns a Long-Float
  > signean sign: sign
  > uintL exp: exponent + LF_exp_mid
  > uintD* mantMSDptr: pointer to a NUDS with set highest bit
  > uintC mantlen: number of digits, >= LF_minlen
- < object erg: new Long-Float with the UDS mantMSDptr/mantlen/.. as mantissa
+ < object res: new Long-Float with the UDS mantMSDptr/mantlen/.. as mantissa
  the exponent is not tested for overflow/underflow.
  can trigger GC */
-#define encode_LFu(sign,uexp,mantMSDptr,mantlen,erg_zuweisung)        do { \
+#define encode_LFu(sign,uexp,mantMSDptr,mantlen,res_assignment)        do { \
   var uintC _len = (mantlen);                                           \
-  var object _erg = allocate_lfloat(_len,uexp,(sign)); /* exponent */   \
-  copy_loop_up((mantMSDptr),&TheLfloat(_erg)->data[0],_len); /* mantissa copied */ \
-  erg_zuweisung _erg;                                                   \
+  var object _res = allocate_lfloat(_len,uexp,(sign)); /* exponent */   \
+  copy_loop_up((mantMSDptr),&TheLfloat(_res)->data[0],_len); /* mantissa copied */ \
+  res_assignment _res;                                                   \
  } while(0)
 
 /* encoding a Long-Float:
- encode_LF(sign,exp,mantMSDptr,mantlen, erg_zuweisung) returns a Long-Float
+ encode_LF(sign,exp,mantMSDptr,mantlen, res_assignment) returns a Long-Float
  > signean sign: sign
  > sintL exp: exponent
  > uintD* mantMSDptr: pointer to a NUDS with set highest bit
  > uintC mantlen: number of digits, >= LF_minlen
- < object erg: new Long-Float with the UDS mantMSDptr/mantlen/.. as mantissa
+ < object res: new Long-Float with the UDS mantMSDptr/mantlen/.. as mantissa
  the exponent is not tested for overflow/underflow.
  can trigger GC */
-#define encode_LF(sign,exp,mantMSDptr,mantlen,erg_zuweisung)            \
-  encode_LFu(sign,LF_exp_mid+(uintL)(exp),mantMSDptr,mantlen,_EMA_ erg_zuweisung)
+#define encode_LF(sign,exp,mantMSDptr,mantlen,res_assignment)            \
+  encode_LFu(sign,LF_exp_mid+(uintL)(exp),mantMSDptr,mantlen,_EMA_ res_assignment)
 
 /* hash-code of a Long-Float: mixture of exponent, length, first 32 bits */
 global uint32 hashcode_lfloat (object obj) {

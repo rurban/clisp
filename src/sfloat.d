@@ -17,16 +17,16 @@
   #else
     #define SF_uexp(x)  ((as_oint(x) >> SF_exp_shift) & (bit(SF_exp_len)-1))
   #endif
-  #define SF_decode(obj, zero_statement, sign_zuweisung,exp_zuweisung,mant_zuweisung)  \
+  #define SF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment)  \
     {                                                                   \
       var object _x = (obj);                                            \
       var uintBWL uexp = SF_uexp(_x);                                   \
       if (uexp==0) {                                                    \
         zero_statement # e=0 -> Zahl 0.0                                \
       } else {                                                          \
-        exp_zuweisung (sintWL)((uintWL)uexp - SF_exp_mid); # Exponent   \
-        unused (sign_zuweisung SF_sign(_x));               # Vorzeichen \
-        mant_zuweisung (SF_mant_len == 16                  # Mantisse   \
+        exp_assignment (sintWL)((uintWL)uexp - SF_exp_mid); # Exponent  \
+        unused (sign_assignment SF_sign(_x));               # Vorzeichen \
+        mant_assignment (SF_mant_len == 16                  # Mantisse  \
                         ? highlow32( bit(SF_mant_len-16), (as_oint(_x) >> SF_mant_shift) & (bit(SF_mant_len)-1) ) \
                         : (bit(SF_mant_len) | ((uint32)(as_oint(_x) >> SF_mant_shift) & (bit(SF_mant_len)-1)) ) \
                        );                                               \
@@ -41,19 +41,19 @@
 # > uintL mant: Mantisse, sollte >= 2^SF_mant_len und < 2^(SF_mant_len+1) sein.
 # < object ergebnis: ein Short-Float
 # Der Exponent wird auf Überlauf/Unterlauf getestet.
-  #define encode_SF(sign,exp,mant, erg_zuweisung)  \
+  #define encode_SF(sign,exp,mant, res_assignment)    \
     {                                                 \
       if ((exp) < (sintWL)(SF_exp_low-SF_exp_mid)) {  \
         if (underflow_allowed()) {                    \
-          error_underflow();                         \
+          error_underflow();                          \
         } else {                                      \
-          erg_zuweisung SF_0;                         \
+          res_assignment SF_0;                        \
         }                                             \
       } else                                          \
       if ((exp) > (sintWL)(SF_exp_high-SF_exp_mid)) { \
-        error_overflow();                            \
+        error_overflow();                             \
       } else                                          \
-      erg_zuweisung as_object                         \
+      res_assignment as_object                        \
         (   ((oint)SF_type << oint_type_shift)        \
           | ((soint)(sign) & wbit(sign_bit_o))        \
           | ((oint)((uint8)((exp)+SF_exp_mid) & (bit(SF_exp_len)-1)) << SF_exp_shift) \

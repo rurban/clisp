@@ -16,10 +16,10 @@ local uintC I_to_DS_need (object obj) {
  The new digit sequence may be modified.
  < ptr: MSDptr of the new DS
  num_stack is decreased. */
-#define I_to_DS_n(obj,n,ptr_zuweisung)          \
+#define I_to_DS_n(obj,n,ptr_assignment)         \
   do { var uintD* destptr;                      \
        num_stack_need(n,_EMA_,destptr=);        \
-       ptr_zuweisung I_to_DS_n_(obj,n,destptr); \
+       ptr_assignment I_to_DS_n_(obj,n,destptr); \
   } while(0)
 local uintD* I_to_DS_n_ (object obj, uintC n, uintD* destptr) {
   /* Now there is room for n digits below destptr.
@@ -782,20 +782,20 @@ local maygc object I_logcount_I (object x)
  > digit: a uintD >0
  < size: >0, <=intDsize, with 2^(size-1) <= digit < 2^size */
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
-  #define integerlength8(digit,size_zuweisung)                          \
+  #define integerlength8(digit,size_assignment)                         \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("bfffo %1{#0:#8},%0" : "=d" (zero_counter) : "dm" ((uint8)(digit)) ); \
-      size_zuweisung (8-zero_counter);                                  \
+      size_assignment (8-zero_counter);                                 \
     }
 #elif defined(SPARC) && !defined(SPARC64)
-  #define integerlength8(digit,size_zuweisung)  \
-    integerlength32((uint32)(digit),size_zuweisung) /* see below */
+  #define integerlength8(digit,size_assignment)  \
+    integerlength32((uint32)(digit),size_assignment) /* see below */
 #elif defined(GNU) && defined(I80386) && !defined(NO_ASM)
-  #define integerlength8(digit,size_zuweisung)  \
-    integerlength16((uint16)(digit),size_zuweisung)
+  #define integerlength8(digit,size_assignment)  \
+    integerlength16((uint16)(digit),size_assignment)
 #else
-  #define integerlength8(digit,size_zuweisung)                  \
+  #define integerlength8(digit,size_assignment)                 \
     {                                                           \
       var uintC bitsize = 1;                                    \
       var uintBWL x8 = (uint8)(digit);                          \
@@ -806,36 +806,36 @@ local maygc object I_logcount_I (object x)
       /* x8 has at most 2 bits. */                              \
       if (x8 >= bit(1)) { /* x8 = x8>>1; */ bitsize += 1; }     \
       /* x8 has at most 1 bit. This bit must be set. */         \
-      size_zuweisung bitsize;                                   \
+      size_assignment bitsize;                                  \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
-  #define integerlength16(digit,size_zuweisung)                         \
-    {                                                                   \
+  #define integerlength16(digit,size_assignment)                         \
+    {                                                                    \
       var uintL zero_counter; /* counts the leading nullbits in digit */ \
       __asm__("bfffo %1{#0:#16},%0" : "=d" (zero_counter) : "dm" ((uint16)(digit)) ); \
-      size_zuweisung (16-zero_counter);                                 \
+      size_assignment (16-zero_counter);                                 \
     }
 #elif defined(SPARC) && !defined(SPARC64)
-  #define integerlength16(digit,size_zuweisung)  \
-    integerlength32((uint32)(digit),size_zuweisung) /* see below */
+  #define integerlength16(digit,size_assignment)  \
+    integerlength32((uint32)(digit),size_assignment) /* see below */
 #elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-  #define integerlength16(digit,size_zuweisung)                         \
+  #define integerlength16(digit,size_assignment)                        \
     {                                                                   \
       var uintW one_position; /* position of the leading 1 */           \
       __asm__("bsrw %1,%0" : "=r" (one_position) : "r" ((uint16)(digit)) ); \
-      size_zuweisung (1+one_position);                                  \
+      size_assignment (1+one_position);                                 \
     }
 /* The others are in gcc/longlong.h : */
 #elif defined(GNU) && defined(__ibm032__) && !defined(NO_ASM) /* RT/ROMP */
-  #define integerlength16(digit,size_zuweisung)                         \
+  #define integerlength16(digit,size_assignment)                        \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("clz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
-      size_zuweisung (16-zero_counter);                                 \
+      size_assignment (16-zero_counter);                                \
     }
 #else
-  #define integerlength16(digit,size_zuweisung)                 \
+  #define integerlength16(digit,size_assignment)                \
     {                                                           \
       var uintC bitsize = 1;                                    \
       var uintWL x16 = (uint16)(digit);                         \
@@ -848,18 +848,18 @@ local maygc object I_logcount_I (object x)
       /* x16 has at most 2 bits. */                             \
       if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; }  \
       /* x16 has at most 1 bit. This bit must be set. */        \
-      size_zuweisung bitsize;                                   \
+      size_assignment bitsize;                                  \
     }
 #endif
 #if defined(GNU) && defined(MC680Y0) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)  \
-    {                                                                                 \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+  #define integerlength32(digit,size_assignment)  \
+    {                                                                   \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("bfffo %1{#0:#32},%0" : "=d" (zero_counter) : "dm" ((uint32)(digit)) ); \
-      size_zuweisung (32-zero_counter);                                               \
+      size_assignment (32-zero_counter);                                \
     }
 #elif defined(SPARC) && !defined(SPARC64) && defined(FAST_DOUBLE)
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
       var union { double f; uint32 i[2]; } __fi;                        \
       /* form 2^52 + digit: */                                          \
@@ -868,72 +868,72 @@ local maygc object I_logcount_I (object x)
       /* subtract 2^52: */                                              \
       __fi.f = __fi.f - (double)(4503599627370496.0L);                  \
       /* fetch the exponent: */                                         \
-      size_zuweisung ((__fi.i[0] >> (DF_mant_len-32)) - DF_exp_mid);    \
+      size_assignment ((__fi.i[0] >> (DF_mant_len-32)) - DF_exp_mid);   \
     }
 #elif (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
       var uintL one_position; /* position of the leading 1 */           \
       __asm__("bsrl %1,%0" : "=r" (one_position) : "rm" ((uint32)(digit)) ); \
-      size_zuweisung (1+one_position);                                  \
+      size_assignment (1+one_position);                                 \
     }
 #elif defined(HPPA) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)  \
-    size_zuweisung length32(digit);
+  #define integerlength32(digit,size_assignment)  \
+    size_assignment length32(digit);
   extern_C uintL length32 (uintL digit); /* extern in assembler */
 /* The others are in gcc/longlong.h : */
 #elif defined(GNU) && (defined(__a29k__) || defined(___AM29K__)) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("clz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
-      size_zuweisung (32-zero_counter);                                 \
+      size_assignment (32-zero_counter);                                 \
     }
 #elif defined(GNU) && defined(__gmicro__) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("bsch/1 %1,%0" : "=g" (zero_counter) : "g" ((uint32)(digit)) ); \
-      size_zuweisung (32-zero_counter);                                 \
+      size_assignment (32-zero_counter);                                \
     }
 #elif defined(GNU) && defined(POWERPC) && !defined(NO_ASM)
  #ifdef _AIX
   /* old assembler syntax */
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("cntlz %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
-      size_zuweisung (32-zero_counter);                                 \
+      size_assignment (32-zero_counter);                                \
     }
  #else
   /* new assembler syntax */
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
-      var uintL zero_counter; /* counts the leading nullbits in digit */ \
+      var uintL zero_counter; /* counts the leading nullbits in digit */\
       __asm__("cntlzw %0,%1" : "=r" (zero_counter) : "r" ((uint32)(digit)) ); \
-      size_zuweisung (32-zero_counter);                                 \
+      size_assignment (32-zero_counter);                                \
     }
  #endif
 #elif defined(GNU) && defined(M88000) && !defined(NO_ASM)
-  #define integerlength32(digit,size_zuweisung)                         \
+  #define integerlength32(digit,size_assignment)                        \
     {                                                                   \
       var uintL one_position; /* position of the leading 1 */           \
       __asm__("ff1 %0,%1" : "=r" (one_position) : "r" ((uint32)(digit)) ); \
-      size_zuweisung (1+one_position);                                  \
+      size_assignment (1+one_position);                                 \
     }
 #elif defined(GNU) && defined(__ibm032__) && !defined(NO_ASM) /* RT/ROMP */
-  #define integerlength32(digit,size_zuweisung)         \
+  #define integerlength32(digit,size_assignment)        \
     {                                                   \
       var uintL x32 = (uint32)(digit);                  \
       if (x32 >= bit(16)) {                             \
-        integerlength16(x32>>16,size_zuweisung 16 + );  \
+        integerlength16(x32>>16,size_assignment 16 + ); \
       } else {                                          \
-        integerlength16(x32,size_zuweisung);            \
+        integerlength16(x32,size_assignment);           \
       }                                                 \
     }
 #else
   #if (intWLsize==intLsize)
-    #define integerlength32(digit,size_zuweisung)                       \
+    #define integerlength32(digit,size_assignment)                      \
       {                                                                 \
         var uintC bitsize = 1;                                          \
         var uintL x32 = (uint32)(digit);                                \
@@ -948,10 +948,10 @@ local maygc object I_logcount_I (object x)
         /* x32 has at most 2 bits. */                                   \
         if (x32 >= bit(1)) { /* x32 = x32>>1; */ bitsize += 1; }        \
         /* x32 has at most 1 bit. This bit must be set. */              \
-        size_zuweisung bitsize;                                         \
+        size_assignment bitsize;                                        \
       }
   #else
-    #define integerlength32(digit,size_zuweisung)                       \
+    #define integerlength32(digit,size_assignment)                      \
       {                                                                 \
         var uintC bitsize = 1;                                          \
         var uintL x32 = (digit);                                        \
@@ -967,11 +967,11 @@ local maygc object I_logcount_I (object x)
         /* x16 has at most 2 bits. */                                   \
         if (x16 >= bit(1)) { /* x16 = x16>>1; */ bitsize += 1; }        \
         /* x16 has at most 1 bit. This bit must be set. */              \
-        size_zuweisung bitsize;                                         \
+        size_assignment bitsize;                                        \
       }
   #endif
 #endif
-#define integerlength64(digit,size_zuweisung)                               \
+#define integerlength64(digit,size_assignment)                              \
   {                                                                         \
     var uint64 x64 = (digit);                                               \
     var uintC bitsize64 = 0;                                                \
@@ -981,7 +981,7 @@ local maygc object I_logcount_I (object x)
     } else {                                                                \
       x32_from_integerlength64 = x64;                                       \
     }                                                                       \
-    integerlength32(x32_from_integerlength64, size_zuweisung bitsize64 + ); \
+    integerlength32(x32_from_integerlength64, size_assignment bitsize64 + ); \
   }
 #if (intDsize==8)
   #define integerlengthD  integerlength8
@@ -1075,23 +1075,23 @@ local maygc object I_integer_length_I (object x) {
  > digit: a uint32 >0
  < count: >=0, <32, with 2^count | digit, digit/2^count being odd */
 #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-  #define ord2_32(digit,count_zuweisung)                                \
+  #define ord2_32(digit,count_assignment)                               \
     {                                                                   \
       var uintL one_position; /* position of the last 1 */              \
       __asm__("bsfl %1,%0" : "=r" (one_position) : "rm" ((uint32)(digit)) ); \
-      count_zuweisung one_position;                                     \
+      count_assignment one_position;                                    \
     }
 #elif defined(SPARC) && !defined(SPARC64)
-  #define ord2_32(digit,count_zuweisung)                                \
+  #define ord2_32(digit,count_assignment)                               \
     {                                                                   \
       /* static const char ord2_tab [64] = {-1,0,1,12,2,6,-1,13,3,-1,7,-1,-1,-1,-1,14,10,4,-1,-1,8,-1,-1,25,-1,-1,-1,-1,-1,21,27,15,31,11,5,-1,-1,-1,-1,-1,9,-1,-1,24,-1,-1,20,26,30,-1,-1,-1,-1,23,-1,19,29,-1,22,18,28,17,16,-1}; */ \
       var uint32 n = (digit);                                           \
       n = n | -n;                                                       \
       n = (n<<4) + n;                                                   \
       n = (n<<6) + n;                                                   \
-      n = n - (n<<16); /* or  n = n ^ (n<<16);  or  n = n &~ (n<<16); */ \
-      /* count_zuweisung ord2_tab[n>>26]; */                            \
-      count_zuweisung "\377\000\001\014\002\006\377\015\003\377\007\377\377\377\377\016\012\004\377\377\010\377\377\031\377\377\377\377\377\025\033\017\037\013\005\377\377\377\377\377\011\377\377\030\377\377\024\032\036\377\377\377\377\027\377\023\035\377\026\022\034\021\020"[n>>26]; \
+      n = n - (n<<16); /* or  n = n ^ (n<<16);  or  n = n &~ (n<<16); */\
+      /* count_assignment ord2_tab[n>>26]; */                           \
+      count_assignment "\377\000\001\014\002\006\377\015\003\377\007\377\377\377\377\016\012\004\377\377\010\377\377\031\377\377\377\377\377\025\033\017\037\013\005\377\377\377\377\377\011\377\377\030\377\377\024\032\036\377\377\377\377\027\377\023\035\377\026\022\034\021\020"[n>>26]; \
     }
 #endif
 
@@ -1101,8 +1101,8 @@ local maygc object I_integer_length_I (object x) {
  > digit: a uintD >0
  < count: >=0, <intDsize, with 2^count | digit, digit/2^count being odd */
 #ifdef ord2_32
-  #define ord2_D(digit,count_zuweisung)           \
-    ord2_32((uint32)(digit),count_zuweisung)
+  #define ord2_D(digit,count_assignment)           \
+    ord2_32((uint32)(digit),count_assignment)
 #endif
 
 /* (ORD2 x) = max{n>=0: 2^n | x }, with x being an integer /=0 . result uintL.
@@ -1123,21 +1123,21 @@ local maygc object I_integer_length_I (object x) {
 local uintL I_ord2 (object x);
 #ifndef ord2_32
 /* Here, digit must be a variable. Digit is modified! */
-  #define ord2_32(digit,count_zuweisung)                \
+  #define ord2_32(digit,count_assignment)               \
     digit = digit ^ (digit - 1); /* method 1a */        \
-    integerlength32(digit,count_zuweisung -1 + )
+    integerlength32(digit,count_assignment -1 + )
 #endif
 #ifndef ord2_64
 /* Here, digit must be a variable. Digit is modified! */
-  #define ord2_64(digit,count_zuweisung)                \
+  #define ord2_64(digit,count_assignment)               \
     digit = digit ^ (digit - 1); /* method 1a */        \
-    integerlength64(digit,count_zuweisung -1 + )
+    integerlength64(digit,count_assignment -1 + )
 #endif
 #ifndef ord2_D
 /* Here, digit must be a variable. Digit is modified! */
-  #define ord2_D(digit,count_zuweisung)                 \
+  #define ord2_D(digit,count_assignment)                \
     digit = digit ^ (digit - 1); /* method 1a */        \
-    integerlengthD(digit,count_zuweisung -1 + )
+    integerlengthD(digit,count_assignment -1 + )
 #endif
 local uintL I_ord2 (object x)
 {
