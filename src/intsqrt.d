@@ -118,12 +118,12 @@
 # a wird nicht modifiziert.
 # Vorzeichenerweiterung von b ist erlaubt.
 # num_stack wird erniedrigt.
-  #define UDS_sqrt(a_MSDptr,a_len,a_LSDptr,b_,squarep_zuweisung)  \
-    {                                                           \
+  #define UDS_sqrt(a_MSDptr,a_len,a_LSDptr,b_,squarep_assignment)\
+    {                                                            \
       # ceiling(a_len,2) Digits Platz fürs Ergebnis machen:     \
-      var uintC _a_len = (a_len);                               \
-      num_stack_need_1(ceiling(_a_len,2),(b_)->MSDptr=,);       \
-      squarep_zuweisung UDS_sqrt_(a_MSDptr,_a_len,a_LSDptr,b_); \
+      var uintC _a_len = (a_len);                                \
+      num_stack_need_1(ceiling(_a_len,2),(b_)->MSDptr=,);        \
+      squarep_assignment UDS_sqrt_(a_MSDptr,_a_len,a_LSDptr,b_); \
     }
   local bool UDS_sqrt_ (uintD* a_MSDptr, uintC a_len, uintD* a_LSDptr, DS* b_);
 # Methode:

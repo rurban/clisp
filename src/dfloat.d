@@ -10,15 +10,15 @@
          uintQ mant = Mantissa (>= 2^DF_mant_len, < 2^(DF_mant_len+1)) */
   #define float_value_semhi  float_value
   #define DF_uexp(x)  (((x) >> DF_mant_len) & (bit(DF_exp_len)-1))
-  #define DF_decode(obj, zero_statement, sign_zuweisung,exp_zuweisung,mant_zuweisung) do { \
+  #define DF_decode(obj, zero_statement, sign_assignment,exp_assignment,mant_assignment) do { \
     var dfloat _x = TheDfloat(obj)->float_value;                        \
     var uintWL uexp = DF_uexp(_x);                                      \
     if (uexp==0) {                                                      \
       zero_statement; /* e=0 -> number 0.0 */                           \
     } else {                                                            \
-      exp_zuweisung (sintWL)(uexp - DF_exp_mid); /* exponent */         \
-      unused (sign_zuweisung ((sint64)_x >> 63));  /* sign */           \
-      mant_zuweisung (bit(DF_mant_len) | (_x & (bit(DF_mant_len)-1)));  \
+      exp_assignment (sintWL)(uexp - DF_exp_mid); /* exponent */        \
+      unused (sign_assignment ((sint64)_x >> 63));  /* sign */          \
+      mant_assignment (bit(DF_mant_len) | (_x & (bit(DF_mant_len)-1))); \
     }                                                                   \
   } while(0)
 #else
@@ -31,17 +31,17 @@
                               (>= 2^DF_mant_len, < 2^(DF_mant_len+1)) */
   #define float_value_semhi  float_value.semhi
   #define DF_uexp(semhi)  (((semhi) >> (DF_mant_len-32)) & (bit(DF_exp_len)-1))
-  #define DF_decode2(obj,zero_statement,sign_zuweisung,exp_zuweisung,manthi_zuweisung,mantlo_zuweisung) do { \
+  #define DF_decode2(obj,zero_statement,sign_assignment,exp_assignment,manthi_assignment,mantlo_assignment) do { \
     var uint32 semhi = TheDfloat(obj)->float_value.semhi;               \
     var uint32 mlo = TheDfloat(obj)->float_value.mlo;                   \
     var uintWL uexp = DF_uexp(semhi);                                   \
     if (uexp==0) {                                                      \
       zero_statement; /* e=0 -> number 0.0 */                           \
     } else {                                                            \
-      exp_zuweisung (sintWL)(uexp - DF_exp_mid);             /* exponent */ \
-      unused (sign_zuweisung sign_of_sint32((sint32)(semhi))); /* sign */ \
-      manthi_zuweisung (bit(DF_mant_len-32) | (semhi & (bit(DF_mant_len-32)-1))); \
-      mantlo_zuweisung mlo;                                             \
+      exp_assignment (sintWL)(uexp - DF_exp_mid);             /* exponent */ \
+      unused (sign_assignment sign_of_sint32((sint32)(semhi))); /* sign */ \
+      manthi_assignment (bit(DF_mant_len-32) | (semhi & (bit(DF_mant_len-32)-1))); \
+      mantlo_assignment mlo;                                             \
     }                                                                   \
   } while(0)
 #endif
@@ -56,18 +56,18 @@
  < object result: a Double-Float
  the Exponent is tested for Overflow/Underflow.
  can trigger GC */
- #define encode_DF(sign,exp,mant, erg_zuweisung) do {                   \
+ #define encode_DF(sign,exp,mant, res_assignment) do {                   \
    if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
      if (underflow_allowed()) {                                         \
        error_underflow();                                              \
      } else {                                                           \
-       erg_zuweisung DF_0;                                              \
+       res_assignment DF_0;                                              \
      }                                                                  \
    } else                                                               \
      if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
        error_overflow();                                               \
      } else                                                             \
-       erg_zuweisung allocate_dfloat                                    \
+       res_assignment allocate_dfloat                                    \
          (  ((sint64)(sign) & bit(63))                  /* Sign */      \
           | ((uint64)((exp)+DF_exp_mid) << DF_mant_len) /* Exponent */  \
           | ((uint64)(mant) & (bit(DF_mant_len)-1)));     /* Mantissa */ \
@@ -82,18 +82,18 @@
  < object result: a Double-Float
  the Exponent is tested for Overflow/Underflow.
  can trigger GC */
- #define encode2_DF(sign,exp,manthi,mantlo, erg_zuweisung)  do {         \
+ #define encode2_DF(sign,exp,manthi,mantlo, res_assignment)  do {         \
    if ((exp) < (sintWL)(DF_exp_low-DF_exp_mid)) {                       \
      if (underflow_allowed()) {                                         \
        error_underflow();                                              \
      } else {                                                           \
-       erg_zuweisung DF_0;                                              \
+       res_assignment DF_0;                                              \
      }                                                                  \
    } else                                                               \
      if ((exp) > (sintWL)(DF_exp_high-DF_exp_mid)) {                    \
        error_overflow();                                               \
      } else                                                             \
-       erg_zuweisung allocate_dfloat                                    \
+       res_assignment allocate_dfloat                                    \
          (  ((sint32)(sign) & bit(31))                       /* Sign */ \
           | ((uint32)((exp)+DF_exp_mid) << (DF_mant_len-32)) /* Exponent */ \
           | ((uint32)(manthi) & (bit(DF_mant_len-32)-1))     /* Mantissa */ \
@@ -119,7 +119,7 @@
    maybe_divide_0: result undetermined, returns IEEE-Infinity
    maybe_nan: result undetermined, returns IEEE-NaN */
 #ifdef intQsize
- #define double_to_DF(expr,ergebnis_zuweisung,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  do { \
+ #define double_to_DF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan)  do { \
    var dfloatjanus _erg; _erg.machine_double = (expr);                  \
    if ((_erg.eksplicit & ((uint64)bit(DF_exp_len+DF_mant_len)-bit(DF_mant_len))) == 0) { /* e=0 ? */ \
      if ((maybe_underflow                                               \
@@ -127,7 +127,7 @@
          && underflow_allowed()) {                                      \
        error_underflow(); /* subnormal or even smaller -> Underflow */ \
      } else {                                                           \
-       ergebnis_zuweisung DF_0; /* +/- 0.0 -> 0.0 */                    \
+       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                    \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
               && (((~_erg.eksplicit) & ((uint64)bit(DF_exp_len+DF_mant_len)-bit(DF_mant_len))) == 0)) { /* e=2047 ? */ \
@@ -141,11 +141,11 @@
          error_overflow(); /* Infinity, Overflow */                    \
      }                                                                  \
    } else {                                                             \
-     ergebnis_zuweisung allocate_dfloat(_erg.eksplicit);                \
+     ergebnis_assignment allocate_dfloat(_erg.eksplicit);                \
    }                                                                    \
  } while(0)
 #else
- #define double_to_DF(expr,ergebnis_zuweisung,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan) do { \
+ #define double_to_DF(expr,ergebnis_assignment,maybe_overflow,maybe_subnormal,maybe_underflow,maybe_divide_0,maybe_nan) do { \
    var dfloatjanus _erg; _erg.machine_double = (expr);                  \
    if ((_erg.eksplicit.semhi & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0) { /* e=0 ? */ \
      if ((maybe_underflow                                               \
@@ -154,7 +154,7 @@
          && underflow_allowed()) {                                      \
        error_underflow(); /* subnormal or even smaller -> Underflow */ \
      } else {                                                           \
-       ergebnis_zuweisung DF_0; /* +/- 0.0 -> 0.0 */                    \
+       ergebnis_assignment DF_0; /* +/- 0.0 -> 0.0 */                    \
      }                                                                  \
    } else if ((maybe_overflow || maybe_divide_0)                        \
               && (((~_erg.eksplicit.semhi) & ((uint32)bit(DF_exp_len+DF_mant_len-32)-bit(DF_mant_len-32))) == 0)) { /* e=2047 ? */ \
@@ -168,7 +168,7 @@
          error_overflow(); /* Infinity, Overflow */                    \
      }                                                                  \
    } else {                                                             \
-     ergebnis_zuweisung allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
+     ergebnis_assignment allocate_dfloat(_erg.eksplicit.semhi,_erg.eksplicit.mlo); \
    }                                                                    \
  } while(0)
 #endif

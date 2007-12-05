@@ -284,31 +284,31 @@
 #ifdef GNU
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
-  #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need);                                             \
      var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
      check_SP_notUNIX();                                                           \
-     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[0]); unused (high_assignment &__array[__need]); \
     }
-  #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need_1(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need)+1;                                           \
      var uintD* __array = (uintD*)__builtin_alloca(__need*sizeof(uintD));          \
      check_SP_notUNIX();                                                           \
-     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[1]); unused (high_assignment &__array[__need]); \
     }
 #elif (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)
   # Platz im Maschinenstack reservieren.
   #define SAVE_NUM_STACK
   #define RESTORE_NUM_STACK  ;
-  #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need);                                             \
      var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));                    \
-     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[0]); unused (high_assignment &__array[__need]); \
     }
-  #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need_1(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need)+1;                                           \
      var uintD* __array = (uintD*)alloca(__need*sizeof(uintD));                    \
-     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[1]); unused (high_assignment &__array[__need]); \
     }
 #else
   # Use malloca/freea.
@@ -316,17 +316,17 @@
   # all more recently allocated blocks.
   #define SAVE_NUM_STACK  var void* num_stack = NULL;
   #define RESTORE_NUM_STACK  if (num_stack) freea(num_stack);
-  #define num_stack_need(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need);                                             \
      var uintD* __array = (uintD*)malloca(__need*sizeof(uintD));                   \
      if (!num_stack) { num_stack = __array; }                                      \
-     unused (low_zuweisung &__array[0]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[0]); unused (high_assignment &__array[__need]); \
     }
-  #define num_stack_need_1(need,low_zuweisung,high_zuweisung)  \
+  #define num_stack_need_1(need,low_assignment,high_assignment)  \
     {var uintL __need = (uintL)(need)+1;                                           \
      var uintD* __array = (uintD*)malloca(__need*sizeof(uintD));                   \
      if (!num_stack) { num_stack = __array; }                                      \
-     unused (low_zuweisung &__array[1]); unused (high_zuweisung &__array[__need]); \
+     unused (low_assignment &__array[1]); unused (high_assignment &__array[__need]); \
     }
 #endif
 

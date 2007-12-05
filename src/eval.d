@@ -2466,9 +2466,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     /* Macro for binding of variables in variable-frame:
        binds the next variable to value, decreases frame_pointer by 2 resp. 3.
        (takes advantage of varframe_binding_mark = 0 !) */
-   #define bind_next_var(value,markptr_zuweisung)                       \
+   #define bind_next_var(value,markptr_assignment)                       \
     { frame_pointer skipSTACKop -varframe_binding_size;                 \
-     {var gcv_object_t* markptr = markptr_zuweisung &Before(frame_pointer); \
+     {var gcv_object_t* markptr = markptr_assignment &Before(frame_pointer); \
       if (as_oint(*markptr) & wbit(dynam_bit_o)) {                      \
         /* activate dynamic Binding: */                                 \
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
@@ -5930,7 +5930,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       #define _SP_(n)  &SP_(n)
       #define skipSP(n)  (private_SP += (n))
       #define pushSP(item)  (*--private_SP = (item))
-      #define popSP(item_zuweisung)  (item_zuweisung *private_SP++)
+      #define popSP(item_assignment)  (item_assignment *private_SP++)
     #endif
     # var JMPBUF_on_SP(name);  allocates a sp_jmp_buf in SP.
     # FREE_JMPBUF_on_SP();  deallocates it.
