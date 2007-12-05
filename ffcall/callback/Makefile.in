@@ -67,36 +67,36 @@ libcallback.la : vacall_r/libvacall.la trampoline_r/libtrampoline.la
 # $(libdir) and $(includedir) - don't use $(prefix) and $(exec_prefix) here.
 install-lib : all force
 	cd @subdir@; $(MAKE) install-lib libdir='$(libdir)' includedir='$(includedir)'
-	if [ ! -d $(libdir) ] ; then mkdir $(libdir) ; fi
+	mkdir -p $(libdir)
 	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(libdir)/libcallback.la
-	if [ ! -d $(includedir) ] ; then mkdir $(includedir) ; fi
+	mkdir -p $(includedir)
 	$(INSTALL_DATA) callback.h $(includedir)/callback.h
 
 install : force
 	cd @subdir@; $(MAKE) install
-	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
-	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
-	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
+	mkdir -p $(DESTDIR)$(prefix)
+	mkdir -p $(DESTDIR)$(exec_prefix)
+	mkdir -p $(DESTDIR)$(libdir)
 	$(LIBTOOL_INSTALL) $(INSTALL_DATA) libcallback.la $(DESTDIR)$(libdir)/libcallback.la
-	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
+	mkdir -p $(DESTDIR)$(includedir)
 	$(INSTALL_DATA) callback.h $(DESTDIR)$(includedir)/callback.h
-	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
-	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
+	mkdir -p $(DESTDIR)$(mandir)
+	mkdir -p $(DESTDIR)$(mandir)/man3
 	$(INSTALL_DATA) $(srcdir)/callback.3 $(DESTDIR)$(mandir)/man3/callback.3
-	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
-	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	mkdir -p $(DESTDIR)$(datadir)
+	mkdir -p $(DESTDIR)$(htmldir)
 	$(INSTALL_DATA) $(srcdir)/callback.html $(DESTDIR)$(htmldir)/callback.html
 
 installdirs : force
 	cd @subdir@; $(MAKE) installdirs
-	if [ ! -d $(DESTDIR)$(prefix) ] ; then mkdir $(DESTDIR)$(prefix) ; fi
-	if [ ! -d $(DESTDIR)$(exec_prefix) ] ; then mkdir $(DESTDIR)$(exec_prefix) ; fi
-	if [ ! -d $(DESTDIR)$(libdir) ] ; then mkdir $(DESTDIR)$(libdir) ; fi
-	if [ ! -d $(DESTDIR)$(includedir) ] ; then mkdir $(DESTDIR)$(includedir) ; fi
-	if [ ! -d $(DESTDIR)$(mandir) ] ; then mkdir $(DESTDIR)$(mandir) ; fi
-	if [ ! -d $(DESTDIR)$(mandir)/man3 ] ; then mkdir $(DESTDIR)$(mandir)/man3 ; fi
-	if [ ! -d $(DESTDIR)$(datadir) ] ; then mkdir $(DESTDIR)$(datadir) ; fi
-	if [ ! -d $(DESTDIR)$(htmldir) ] ; then mkdir $(DESTDIR)$(htmldir) ; fi
+	mkdir -p $(DESTDIR)$(prefix)
+	mkdir -p $(DESTDIR)$(exec_prefix)
+	mkdir -p $(DESTDIR)$(libdir)
+	mkdir -p $(DESTDIR)$(includedir)
+	mkdir -p $(DESTDIR)$(mandir)
+	mkdir -p $(DESTDIR)$(mandir)/man3
+	mkdir -p $(DESTDIR)$(datadir)
+	mkdir -p $(DESTDIR)$(htmldir)
 
 uninstall : force
 	cd @subdir@; $(MAKE) uninstall
