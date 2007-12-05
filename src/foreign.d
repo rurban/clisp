@@ -4164,7 +4164,7 @@ local object dlerror_string (void)
 {
   var const char* errmesg;
   begin_system_call(); errmesg = dlerror(); end_system_call();
-  return error == NULL ? NIL : asciz_to_string(errmesg,O(misc_encoding));
+  return safe_to_string(errmesg);
 }
 #endif
 
