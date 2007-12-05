@@ -45,23 +45,23 @@
 
 # tables of all relocatable pointers: moved to STREAM
 # size of these tables:
-#define pseudocode_anz  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
+#define pseudocode_count  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
 #if defined(MICROSOFT) && !defined(UNICODE)
-  #define pseudodata_anz 0
+  #define pseudodata_count 0
 #else
-  #define pseudodata_anz  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
+  #define pseudodata_count  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
 #endif
 # total table:
-#define pseudofun_anz  (pseudocode_anz+pseudodata_anz)
-local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
+#define pseudofun_count  (pseudocode_count+pseudodata_count)
+local struct pseudofun_tab_ { object pointer[pseudofun_count]; } pseudofun_tab;
 
 # table of all fixed symbols: moved to SPVWTABS
 # size of these tables:
-#define symbol_anz  ((sizeof(symbol_tab)-varobjects_misaligned)/sizeof(symbol_))
+#define symbol_count  ((sizeof(symbol_tab)-varobjects_misaligned)/sizeof(symbol_))
 
 # table of all other fixed objects: moved to SPVWTABO
 # size of these tables:
-#define object_anz  (sizeof(object_tab)/sizeof(gcv_object_t))
+#define object_count  (sizeof(object_tab)/sizeof(gcv_object_t))
 
 # looping over subr_tab:
 # (NB: subr_tab_ptr_as_object(ptr) turns a traversing pointer
@@ -105,11 +105,11 @@ local struct pseudofun_tab_ { object pointer[pseudofun_anz]; } pseudofun_tab;
     #endif
   #endif
 #endif
-# traversal of symbol_tab:
-#define for_all_constsyms(statement)                                       \
-  do { var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # pass through symbol_tab \
-       var uintC count;                                                    \
-       dotimesC(count,symbol_anz, { statement; ptr++; } );                 \
+/* traversal of symbol_tab: */
+#define for_all_constsyms(statement)                                    \
+  do { var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); /* pass through symbol_tab */ \
+    var uintC count;                                                    \
+    dotimesC(count,symbol_count, { statement; ptr++; } );               \
   } while(0)
 
 # Traverse object_tab:
@@ -946,7 +946,7 @@ local void init_symbol_tab_1 (void) {
   {
     var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # traverse symbol_tab
     var uintC count;
-    for (count = symbol_anz; count > 0; count--) {
+    for (count = symbol_count; count > 0; count--) {
       ptr->GCself = symbol_tab_ptr_as_object(ptr);
      #ifndef TYPECODES
       ptr->tfl = xrecord_tfl(Rectype_Symbol,0,5,0);
@@ -1041,7 +1041,7 @@ local void init_subr_tab_2 (void) {
 # finish initialization of symbol_tab: enter printnames and home-package.
 local void init_symbol_tab_2 (void) {
   # table of printnames:
-  local const char * const pname_table[symbol_anz] = {
+  local const char * const pname_table[symbol_count] = {
     #define LISPSYM  LISPSYM_C
     #include "constsym.c"
     #undef LISPSYM
@@ -1061,7 +1061,7 @@ local void init_symbol_tab_2 (void) {
     enum_dummy_index
   };
   #define package_anz  ((uintL)enum_dummy_index)
-  local const uintB package_index_table[symbol_anz] = {
+  local const uintB package_index_table[symbol_count] = {
     #define LISPSYM  LISPSYM_D
     #include "constsym.c"
     #undef LISPSYM
@@ -1077,7 +1077,7 @@ local void init_symbol_tab_2 (void) {
     var symbol_* ptr = (symbol_*)((char*)&symbol_tab+varobjects_misaligned); # traverse symbol_tab
     var const char * const * pname_ptr = &pname_table[0]; # traverse pname_table
     var const uintB* index_ptr = &package_index_table[0]; # traverse package_index_table
-    var uintC count = symbol_anz;
+    var uintC count = symbol_count;
     do {
       ptr->pname =
         coerce_imm_ss(' ' == **pname_ptr # non-ASCII
@@ -1458,7 +1458,7 @@ local void init_object_tab (void) {
   { # read objects from the strings:
     var gcv_object_t* objptr = (gcv_object_t*)&object_tab; # traverse object_tab
     var const char * const * stringptr = &object_initstring_tab[0]; # traverse string table
-    var uintC count = object_anz;
+    var uintC count = object_count;
     while (count--) {
       var const char * string = *stringptr++;
       if (*string == '@') {
@@ -2468,11 +2468,11 @@ local inline int init_memory (struct argv_initparams *p) {
   { # Initialize the table of relocatable pointers:
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
-      var uintC count = pseudocode_anz;
+      var uintC count = pseudocode_count;
       while (count--) { *ptr2++ = make_machine_code(*ptr1); ptr1++; }
     }
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudodata_tab;
-      var uintC count = pseudodata_anz;
+      var uintC count = pseudodata_count;
       while(count--) { *ptr2++ = make_machine(*ptr1); ptr1++; }
     }
   }
