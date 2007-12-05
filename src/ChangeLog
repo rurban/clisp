@@ -1,15 +1,18 @@
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
+	<27_error_anzahl>
+	* eval.d (funcall_subr, funcall_closure): rename label
+        error_anzahl to error_count
 	<26_spvw_anz>
-        * spvw.d, spvw_space.d, spvw_memfile.d:
+	* spvw.d, spvw_space.d, spvw_memfile.d:
 	(symbol_anz): rename to symbol_count
-        (pseudocode_anz): rename to pseudocode_count
+	(pseudocode_anz): rename to pseudocode_count
 	(pseudodata_anz): rename to pseudodata_count
 	(pseudofun_anz): rename to pseudofun_count
-        (object_anz): rename to object_count
-        * spvw_memfile.d (loadmem_from_handle): rename local var
+	(object_anz): rename to object_count
+	* spvw_memfile.d (loadmem_from_handle): rename local var
 	old_object_anz to old_object_count
-        * spvw_memfile.d (struct memdump_header_t): rename members
+	* spvw_memfile.d (struct memdump_header_t): rename members
 	_pseudofun_anz to _pseudofun_count; _symbol_anz to _symbol_count
 
 2007-12-05  Sam Steingold  <sds@gnu.org>
