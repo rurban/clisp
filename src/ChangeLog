@@ -1,5 +1,10 @@
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
+	<28_more_anz>
+	* io.d (print_vars_anz): rename to print_vars_count
+        * lispbibl.d, spvw.d (thread_objects_anz): -> thread_objects_count
+        * spvw.d (package_anz): rename to package_count
+        * spvw_memfile.d (offset_subrs_anz): rename to offset_subrs_count
 	<27_error_anzahl>
 	* eval.d (funcall_subr, funcall_closure): rename label
         error_anzahl to error_count
