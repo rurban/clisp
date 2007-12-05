@@ -1,5 +1,12 @@
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
+	<31_ergebnis>
+	* arilev0.d, arisparc.d, arisparc64.d, charstrg.d, encoding.d:
+	* eval.d, ffloat.d, int2adic.d, intdiv.d, intgcd.d, intprint.d:
+	* intread.d, intsqrt.d, io.d, list.d, package.d, pathname.d:
+	* rational.d, realrand.d, record.d, sequence.d, sfloat.d:
+	* spvw_allocate.d, spvw_memfile.d, stream.d, time.d, unixaux.d:
+	* weak.d: ergebnis -> result
 	<30_wert>
 	* intelem.d: rename local var and arg wert,_wert,wert_*
 	to value,_value,value_*

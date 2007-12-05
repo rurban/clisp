@@ -3,7 +3,7 @@
 # Liefert den ggT zweier Integers.
 # I_I_gcd_I(a,b)
 # > a,b: zwei Integers
-# < ergebnis: (gcd a b), ein Integer >=0
+# < result: (gcd a b), ein Integer >=0
 # can trigger GC
   local maygc object I_I_gcd_I (object a, object b);
   #define GCD_ALGO 3  # 1: binär, 2: Schulmethode, 3: Lehmer
@@ -48,7 +48,7 @@
 # Liefert den ggT zweier Langworte.
 # UV_UV_gcd_UV(a,b)
 # > uintV a,b: zwei Langworte >0
-# < ergebnis: (gcd a b), ein Langwort >0
+# < result: (gcd a b), ein Langwort >0
 #if GCD_ALGO==2 # nur dann brauchen wir's
   local uintV UV_UV_gcd_UV (uintV a, uintV b);
 # binäre Methode:
@@ -1275,7 +1275,7 @@
 # Liefert das kgV zweier Integers.
 # I_I_lcm_I(a,b)
 # > a,b: zwei Integers
-# < ergebnis: (lcm a b), ein Integer >=0
+# < result: (lcm a b), ein Integer >=0
 # can trigger GC
   local maygc object I_I_lcm_I (object a, object b)
   {

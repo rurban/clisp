@@ -276,7 +276,7 @@ LISPFUNNR(structure_type_p,2) {
  (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
    returns a function, which delivers the effective methods, so that
    (APPLY generic-function arguments)
-   == (APPLY (APPLY ergebnis arguments) arguments) .
+   == (APPLY (APPLY result arguments) arguments) .
 */
 
 /* (SYS::CLOSURE-NAME closure) returns the name of a closure. */
@@ -599,7 +599,7 @@ LISPFUNN(copy_generic_function,2) {
 /* (SYS::GENERIC-FUNCTION-EFFECTIVE-METHOD-FUNCTION generic-function)
    returns a function, which delivers the effective methods, so that
    (APPLY generic-function arguments)
-   == (APPLY (APPLY ergebnis arguments) arguments) .
+   == (APPLY (APPLY result arguments) arguments) .
    is used for CALL-NEXT-METHOD; can assume that the
    generic-function has already been called, i.e. that the dispatch has
    already been installed. */

@@ -389,7 +389,7 @@
 # Bei y=0 Error. Die Division muss aufgehen, sonst Error.
 # I_I_exquopos_I(x,y)
 # > x,y: Integers >=0
-# < ergebnis: Quotient x/y, ein Integer >=0
+# < result: Quotient x/y, ein Integer >=0
 # can trigger GC
   local object I_I_exquopos_I (object x, object y);
 # Methode:
@@ -415,7 +415,7 @@
 # Bei y=0 Error. Die Division muss aufgehen, sonst Error.
 # I_I_exquo_I(x,y)
 # > x,y: Integers
-# < ergebnis: Quotient x/y, ein Integer
+# < result: Quotient x/y, ein Integer
 # can trigger GC
   local object I_I_exquo_I (object x, object y);
 # Methode:

@@ -244,9 +244,9 @@ nonreturning_function(local, error_speicher_voll, (void)) {
           mapstart &= -map_pagesize;
           #endif
           begin_system_call();
-          var int ergebnis = zeromap((void*)mapstart,needed_limit - mapstart);
+          var int result = zeromap((void*)mapstart,needed_limit - mapstart);
           end_system_call();
-          if (ergebnis >= 0)
+          if (result >= 0)
             goto sufficient;
           fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
           fputs("\n",stderr);
@@ -304,9 +304,9 @@ nonreturning_function(local, error_speicher_voll, (void)) {
         # allocate new memory:
         if (needed_limit >= mem.varobjects.heap_limit) { # avoid crossover
           begin_system_call();
-          var int ergebnis = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
+          var int result = zeromap((void*)needed_limit,heapptr->heap_limit - needed_limit);
           end_system_call();
-          if (ergebnis >= 0)
+          if (result >= 0)
             goto sufficient;
           fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
           fputs("\n",stderr);
@@ -389,9 +389,9 @@ nonreturning_function(local, error_speicher_voll, (void)) {
           mapstart &= -map_pagesize;
           #endif
           begin_system_call();
-          var int ergebnis = zeromap((void*)mapstart,needed_limit - mapstart);
+          var int result = zeromap((void*)mapstart,needed_limit - mapstart);
           end_system_call();
-          if (ergebnis >= 0)
+          if (result >= 0)
             goto sufficient;
           fprintf(stderr,GETTEXTL("Trying to make room through a GC..."));
           fputs("\n",stderr);

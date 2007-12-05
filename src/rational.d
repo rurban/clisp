@@ -754,7 +754,7 @@
 # ist.
 # RA_sqrtp(x)
 # > x: eine rationale Zahl >=0
-# < ergebnis: exakte Wurzel (sqrt x) falls x Quadrat, nullobj sonst
+# < result: exakte Wurzel (sqrt x) falls x Quadrat, nullobj sonst
 # can trigger GC
   local maygc object RA_sqrtp (object x);
 # Methode:
@@ -788,7 +788,7 @@
 # RA_rootp(x,n)
 # > x: eine rationale Zahl >=0
 # > n: ein Integer >0
-# < ergebnis: exakte n-te Wurzel (expt x (/ n)) falls eine n-te Potenz, nullobj sonst
+# < result: exakte n-te Wurzel (expt x (/ n)) falls eine n-te Potenz, nullobj sonst
 # can trigger GC
   local maygc object RA_rootp (object x, object n);
 # Methode:

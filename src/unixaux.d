@@ -707,9 +707,9 @@ global int wait2 (PID_T child) {
      WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
      WEXITSTATUS(status)  == ((status & 0xFF00) >> 8) */
   loop {
-    var int ergebnis = waitpid(child,&status,0);
-    if (ergebnis != child) {
-      if (ergebnis<0) {
+    var int result = waitpid(child,&status,0);
+    if (result != child) {
+      if (result<0) {
         if (errno==EINTR)
           continue;
        #ifdef ECHILD

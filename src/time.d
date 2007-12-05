@@ -204,7 +204,7 @@ global void get_run_time (internal_time_t* runtime)
 
 /* Returns the real time counter.
  get_real_time()
- < internal_time_t* ergebnis: absolute time */
+ < internal_time_t* result: absolute time */
 global void get_real_time (internal_time_t* it)
 { GetSystemTimeAsFileTime(it); }
 
@@ -708,9 +708,9 @@ LISPFUNN(sleep,2)
     { /* select erlaubt eine wunderschöne Implementation von usleep(): */
       var struct timeval timeout; /* Zeitintervall */
       timeout.tv_sec = seconds; timeout.tv_usec = useconds;
-      var int ergebnis;
-      ergebnis = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
-      if ((ergebnis<0) && !(errno==EINTR)) { OS_error(); }
+      var int result;
+      result = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
+      if ((result<0) && !(errno==EINTR)) { OS_error(); }
     }
    #else
     if (seconds>0) { sleep(seconds); }

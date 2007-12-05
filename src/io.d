@@ -879,7 +879,7 @@ local uintL get_base (object symbol) {
 
 # UP: fetches the value of *READ-BASE*
 # get_read_base()
-# < uintL ergebnis: >=2, <=36
+# < uintL result: >=2, <=36
 #define get_read_base()  get_base(S(read_base))
 
 
@@ -2179,10 +2179,10 @@ local maygc object read_recursive (const gcv_object_t* stream_) {
     # and bind SYS::*READ-PRESERVE-WHITESPACE* to NIL:
     dynamic_bind(S(read_preserve_whitespace),NIL);
     # and read Objekt:
-    var object ergebnis = read_internal(stream_);
+    var object result = read_internal(stream_);
     dynamic_unbind(S(read_preserve_whitespace));
     dynamic_unbind(S(read_recursive_p));
-    return ergebnis;
+    return result;
   }
 }
 
@@ -2208,11 +2208,11 @@ nonreturning_function(local, error_dot, (object stream)) {
 # can trigger GC
 local maygc object read_recursive_no_dot (const gcv_object_t* stream_) {
   # call READ recursively:
-  var object ergebnis = read_recursive(stream_);
+  var object result = read_recursive(stream_);
   # and report Error at ".":
-  if (eq(ergebnis,dot_value))
+  if (eq(result,dot_value))
     error_dot(*stream_);
-  return ergebnis;
+  return result;
 }
 
 /* error-message due to an invalid value of an internal variable */
@@ -2358,19 +2358,19 @@ local maygc object read_delimited_list(const gcv_object_t* stream_, object endch
   dynamic_bind(S(read_line_number),lineno);
   if (terminal_read_open_object_bind)
     dynamic_bind(S(terminal_read_open_object),S(list));
-  var object ergebnis;
+  var object result;
   # possibly bind SYS::*READ-RECURSIVE-P* to T, first:
   if (!nullpSv(read_recursive_p)) { /* recursive? */
-    ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
+    result = read_delimited_list_recursive(stream_,endch,ifdotted);
   } else { # no -> bind SYS::*READ-RECURSIVE-P* to T:
     dynamic_bind(S(read_recursive_p),T);
-    ergebnis = read_delimited_list_recursive(stream_,endch,ifdotted);
+    result = read_delimited_list_recursive(stream_,endch,ifdotted);
     dynamic_unbind(S(read_recursive_p));
   }
   # ANSI CL spec of *READ-SUPPRESS* says that if *READ-SUPPRESS* is true,
   # READ-DELIMITED-LIST must return NIL.
   if (!nullpSv(read_suppress)) /* *READ-SUPPRESS* /= NIL ? */
-    ergebnis = NIL;
+    result = NIL;
   if (terminal_read_open_object_bind)
     dynamic_unbind(S(terminal_read_open_object));
   dynamic_unbind(S(read_line_number));
@@ -2378,7 +2378,7 @@ local maygc object read_delimited_list(const gcv_object_t* stream_, object endch
   if (STACK != STACKbefore) /* verify if Stack is cleaned up */
     abort(); /* if not --> go to Debugger */
  #endif
-  return ergebnis;
+  return result;
 }
 # then the more special Function:
 local maygc object read_delimited_list_recursive (const gcv_object_t* stream_,
@@ -4060,9 +4060,9 @@ LISPFUNN(structure_reader,3) { # reads #S
         error(reader_error,GETTEXT("~S from ~S: bad ~S"));
       }
       STACK_0 = Car(args); # save Simple-Bit-Vector
-      var object ergebnis = allocate_random_state(); # new Random-State
-      The_Random_state(ergebnis)->random_state_seed = popSTACK(); # fill
-      VALUES1(ergebnis); skipSTACK(2); return;
+      var object result = allocate_random_state(); # new Random-State
+      The_Random_state(result)->random_state_seed = popSTACK(); # fill
+      VALUES1(result); skipSTACK(2); return;
     }
     if (eq(name,S(pathname))) { # Symbol PATHNAME ?
       # yes -> treat specially, no Structure:

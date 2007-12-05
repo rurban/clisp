@@ -4,7 +4,7 @@
 # liefert eine 16-Bit-Wurzel.
 # UL_sqrt_UW(x)
 # > uintL x : Radikand, >=0, <2^32
-# < uintWL ergebnis : Wurzel, >=0, <2^16
+# < uintWL result : Wurzel, >=0, <2^16
   local uintWL UL_sqrt_UW (uintL x);
   # Methode:
   # x=0 -> y=0, fertig.
@@ -60,7 +60,7 @@
 # liefert eine 32-Bit-Wurzel.
 # UL2_sqrt_UL(x1,x0)
 # > uintL2 x = x1*2^32+x0 : Radikand, >=0, <2^64
-# < uintL ergebnis : Wurzel, >=0, <2^32
+# < uintL result : Wurzel, >=0, <2^32
   local uintL UL2_sqrt_UL (uintL x1, uintL x0);
   # Methode:
   # x=0 -> y=0, fertig.
@@ -399,7 +399,7 @@
 # I_isqrt_I(x)
 # > x: an Integer >=0
 # < STACK_0: (isqrt x)
-# < ergebnis: true falls x Quadratzahl, false sonst
+# < result: true falls x Quadratzahl, false sonst
 # erniedrigt STACK um 1
 # can trigger GC
   local maygc bool I_isqrt_I (object x)
@@ -422,7 +422,7 @@
 # Stellt fest, ob ein Integer >=0 eine Quadratzahl ist.
 # I_sqrtp(x)
 # > x: ein Integer >=0
-# < ergebnis: Integer (sqrt x) falls x Quadratzahl, nullobj sonst
+# < result: Integer (sqrt x) falls x Quadratzahl, nullobj sonst
 # can trigger GC
   local maygc object I_sqrtp (object x);
 # Methode:
@@ -451,7 +451,7 @@
 # I_rootp(x,n)
 # > x: ein Integer >=0
 # > n: ein Integer >0
-# < ergebnis: Integer (expt x (/ n)) falls x eine n-te Potenz, nullobj sonst
+# < result: Integer (expt x (/ n)) falls x eine n-te Potenz, nullobj sonst
 # can trigger GC
   local maygc object I_rootp (object x, object n1);
 # Methode:

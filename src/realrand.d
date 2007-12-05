@@ -7,7 +7,7 @@
 
 # random_L(randomstate) liefert eine neue Zufallszahl.
 # > randomstate: ein Random-State, wird verändert
-# < ergebnis: eine 32-Bit-Zufallszahl
+# < result: eine 32-Bit-Zufallszahl
   local uint32 random_L (object randomstate)
   {
     var object seed = # letzte Zahl, ein Simple-Bit-Vektor mit 64 Bits

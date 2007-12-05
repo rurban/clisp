@@ -861,7 +861,7 @@ local void test_key_arg (void) {
 # > *(stackptr+1): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_test (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
@@ -888,7 +888,7 @@ local maygc bool up_test (const gcv_object_t* stackptr, object x) {
 # > *(stackptr+0): die Testfunktion
 # > *(stackptr+3): das zu vergleichende Item
 # > x: Argument
-# < ergebnis: true falls der Test erfüllt ist, false sonst
+# < result: true falls der Test erfüllt ist, false sonst
 # can trigger GC
 local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
   # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:

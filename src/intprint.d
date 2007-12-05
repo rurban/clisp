@@ -170,11 +170,11 @@
   }
 
 # Wandelt eine UDS in ein Stellensystem um.
-# UDS_to_DIGITS(MSDptr,len,base, &ergebnis);
+# UDS_to_DIGITS(MSDptr,len,base, &result);
 # > MSDptr/len/..: eine UDS
 # > base: Stellensystem-Basis, 2 <= base <= 36.
-# > ergebnis.LSBptr: darunter ist mindestens digits_need(len) Zeichen Platz
-# < ergebnis: fertige Folge MSBptr/len/LSBptr von Ziffern
+# > result.LSBptr: darunter ist mindestens digits_need(len) Zeichen Platz
+# < result: fertige Folge MSBptr/len/LSBptr von Ziffern
 # Die UDS MSDptr/len/.. wird zerstört.
   typedef struct { chart* MSBptr; uintL len; chart* LSBptr; } DIGITS;
   local void UDS_to_DIGITS (uintD* MSDptr, uintC len, uintD base, DIGITS* erg);

@@ -3,7 +3,7 @@
 # Multipliziert zwei Zahlen mod 2^intDsize.
 # D_D_mult2adic_D(a,b)
 # > uintD a,b: Zahlen mod 2^intDsize
-# < ergebnis: Zahl c mod 2^intDsize mit c == a*b mod 2^intDsize
+# < result: Zahl c mod 2^intDsize mit c == a*b mod 2^intDsize
   local uintD D_D_mult2adic_D (uintD a, uintD b);
 #if HAVE_DD
   #define D_D_mult2adic_D(a,b)  lowD(muluD((uintD)(a),(uintD)(b)))
@@ -30,7 +30,7 @@
 # D_UL_expt_D(x,y)
 # > uintD x: Zahl mod 2^intDsize
 # > uintL y: Exponent >0
-# < uintD ergebnis: x^y mod 2^intDsize
+# < uintD result: x^y mod 2^intDsize
   local uintD D_UL_expt_D (uintD x, uintL y);
 # Methode:
 #   a:=x, b:=y, c:=1. [a^b*c bleibt invariant, = x^y.]
@@ -65,7 +65,7 @@
 # D_D_div2adic_D(a,b)
 # > uintD a: Zahl mod 2^intDsize
 # > uintD b: ungerade Zahl mod 2^intDsize
-# < ergebnis: Zahl c mod 2^intDsize mit b*c == a mod 2^intDsize
+# < result: Zahl c mod 2^intDsize mit b*c == a mod 2^intDsize
   local uintD D_D_div2adic_D (uintD a, uintD b);
 # Methode:
 # Konstruiere c Bit für Bit.

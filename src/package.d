@@ -754,9 +754,9 @@ local maygc void make_present (object sym, object pack) {
  can trigger GC */
 global maygc uintBWL intern (object string, bool invert, object pack, object* sym_) {
   {
-    var sintBWL ergebnis = find_symbol(string,invert,pack,sym_); /* search */
-    if (!(ergebnis==0))
-      return ergebnis & 3; /* found -> finished */
+    var sintBWL result = find_symbol(string,invert,pack,sym_); /* search */
+    if (!(result==0))
+      return result & 3; /* found -> finished */
   }
   pushSTACK(pack); /* save package */
   if (pack_locked_p(pack)) {
