@@ -2283,10 +2283,6 @@
 #+FFI ; when (find-package "FFI")
 (LOAD "foreign1")               ; foreign function interface, optional
 
-#+AFFI
-(when (find-symbol "%LIBCALL" "SYSTEM")
-  (LOAD "affi1"))               ; simple FFI, optional
-
 (LOAD "exporting")              ; auto-exporting defining macros
 
 #+(and GETTEXT UNICODE) (LOAD "danish")  ; Danish messages
