@@ -1,5 +1,18 @@
 2007-12-04  Reini Urban  <rurban@x-ray.at>
 
+	<30_wert>
+	* intelem.d: rename local var and arg wert,_wert,wert_*
+	to value,_value,value_*
+	* arilev0.d: rename macro arg wert,__wert to
+	tvalue,__value
+	* array.d (storagevector_store): rename local var wert to value
+	* intlog.d (I_to_DS_n): rename local var wert to value
+	* intserial.d (LESbvector_to_UI): rename local var wert to value
+	* io.d (get_base): rename local var wert to intvalue,
+	(test_number_syntax): rename local var wert to value,
+	(feature): rename arg sollwert to demandvalue
+	* lispbibl.d: rename local var wert to val (analog to the other
+	intconv argnames)
 	<29_zuweisung>
 	* aridecl.d, arilev0.d, arilev1.d, dfloat.d, eval.d, ffloat.d:
 	* intbyte.d, intelem.d, intlog.d, intmal.d, intsqrt.d, lfloat.d:
@@ -11,7 +24,7 @@
 	* spvw_memfile.d (offset_subrs_anz): rename to offset_subrs_count
 	<27_error_anzahl>
 	* eval.d (funcall_subr, funcall_closure): rename label
-        error_anzahl to error_count
+	error_anzahl to error_count
 	<26_spvw_anz>
 	* spvw.d, spvw_space.d, spvw_memfile.d:
 	(symbol_anz): rename to symbol_count

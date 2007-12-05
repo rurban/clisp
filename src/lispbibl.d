@@ -16011,136 +16011,136 @@ extern maygc void init_arith (void);
 # is used by SPVW
 
 # Converts a longword into an Integer.
-# L_to_I(wert)
-# > wert: value of the Integer, a signed 32-Bit-Integer.
+# L_to_I(val)
+# > val: value of the Integer, a signed 32-Bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
-extern maygc object L_to_I (sint32 wert);
+extern maygc object L_to_I (sint32 val);
 /* used by TIME */
-%% puts("extern object L_to_I (sint32 wert);");
+%% puts("extern object L_to_I (sint32 val);");
 
 # Converts an unsigned longword into an Integer >=0.
-# UL_to_I(wert)
-# > wert: value of the Integer, an unsigned 32-bit-Integer.
+# UL_to_I(val)
+# > val: value of the Integer, an unsigned 32-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
 #if (intLsize<=oint_data_len)
   #ifdef DEBUG_GCSAFETY
-    static inline maygc object UL_to_I (uintL wert) {
-      return fixnum(wert);
+    static inline maygc object UL_to_I (uintL val) {
+      return fixnum(val);
     }
   #else
-    #define UL_to_I(wert)  fixnum((uintL)(wert))
+    #define UL_to_I(val)  fixnum((uintL)(val))
   #endif
 #else
-  extern maygc object UL_to_I (uintL wert);
+  extern maygc object UL_to_I (uintL val);
 #endif
 # is used by MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY
 %% #if (intLsize<=oint_data_len)
-%%   export_def(UL_to_I(wert));
+%%   export_def(UL_to_I(val));
 %% #else
-%%   puts("extern object UL_to_I (uintL wert);");
+%%   puts("extern object UL_to_I (uintL val);");
 %% #endif
 
 # converts a double-longword into an Integer.
-# L2_to_I(wert_hi,wert_lo)
-# > wert_hi|wert_lo: value of the Integer, an signed 64-bit-Integer.
+# L2_to_I(val_hi,val_lo)
+# > val_hi|val_lo: value of the Integer, an signed 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
 #if (intVsize>32)
-  #define L2_to_I(wert_hi,wert_lo)  \
-    Q_to_I(((sint64)(sint32)(wert_hi)<<32)|(sint64)(uint32)(wert_lo))
+  #define L2_to_I(val_hi,val_lo)  \
+    Q_to_I(((sint64)(sint32)(val_hi)<<32)|(sint64)(uint32)(val_lo))
 #else
-  extern maygc object L2_to_I (sint32 wert_hi, uint32 wert_lo);
+  extern maygc object L2_to_I (sint32 val_hi, uint32 val_lo);
 #endif
 # is used by TIME, FOREIGN
 %% #if (intVsize>32)
-%%   export_def(L2_to_I(wert_hi,wert_lo));
+%%   export_def(L2_to_I(val_hi,val_lo));
 %% #else
-%%   puts("extern object L2_to_I (sint32 wert_hi, uint32 wert_lo);");
+%%   puts("extern object L2_to_I (sint32 val_hi, uint32 val_lo);");
 %% #endif
 
 # Converts an unsigned double-longword into an Integer.
-# UL2_to_I(wert_hi,wert_lo)
-# > wert_hi|wert_lo: value of the Integer, an unsigned 64-bit-Integer.
+# UL2_to_I(val_hi,val_lo)
+# > val_hi|val_lo: value of the Integer, an unsigned 64-bit-Integer.
 # < result: Integer with that value.
 # can trigger GC
 #if (intVsize>32)
-  #define UL2_to_I(wert_hi,wert_lo)  \
-    UQ_to_I(((uint64)(uint32)(wert_hi)<<32)|(uint64)(uint32)(wert_lo))
+  #define UL2_to_I(val_hi,val_lo)  \
+    UQ_to_I(((uint64)(uint32)(val_hi)<<32)|(uint64)(uint32)(val_lo))
 #else
-  extern maygc object UL2_to_I (uint32 wert_hi, uint32 wert_lo);
+  extern maygc object UL2_to_I (uint32 val_hi, uint32 val_lo);
 #endif
 # is used by TIME, FOREIGN, and by the FFI
 %% #if (intVsize>32)
-%%   export_def(UL2_to_I(wert_hi,wert_lo));
+%%   export_def(UL2_to_I(val_hi,val_lo));
 %% #else
-%%   puts("extern object UL2_to_I (uint32 wert_hi, uint32 wert_lo);");
+%%   puts("extern object UL2_to_I (uint32 val_hi, uint32 val_lo);");
 %% #endif
 
 #if defined(intQsize) || (intVsize>32)
   # Converts a quadword into an Integer.
-  # Q_to_I(wert)
-  # > wert: value of the Integer, a signed 64-bit-Integer.
+  # Q_to_I(val)
+  # > val: value of the Integer, a signed 64-bit-Integer.
   # < result: Integer with that value
   # can trigger GC
-  extern maygc object Q_to_I (sint64 wert);
+  extern maygc object Q_to_I (sint64 val);
   # is used by the FFI
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   puts("extern object Q_to_I (sint64 wert);");
+%%   puts("extern object Q_to_I (sint64 val);");
 %% #endif
 
 #if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
   # Converts an unsigned quadword into an Integer >=0.
-  # UQ_to_I(wert)
-  # > wert: value of the Integer, an unsigned 64-bit-Integer.
+  # UQ_to_I(val)
+  # > val: value of the Integer, an unsigned 64-bit-Integer.
   # < result: Integer with that value
   # can trigger GC
-  extern maygc object UQ_to_I (uint64 wert);
+  extern maygc object UQ_to_I (uint64 val);
   # is used by MISC, TIME, FFI
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   puts("extern object UQ_to_I (uint64 wert);");
+%%   puts("extern object UQ_to_I (uint64 val);");
 %% #endif
 
 # Converts a sintV into an Integer.
-# V_to_I(wert)
-# > wert: value of the Integer, a signed intVsize-bit-Integer.
+# V_to_I(val)
+# > val: value of the Integer, a signed intVsize-bit-Integer.
 # < result: Integer with that value
 # can trigger GC
-# extern maygc object V_to_I (uintV wert);
+# extern maygc object V_to_I (uintV val);
 #if (intVsize<=32)
-  #define V_to_I(wert)  L_to_I(wert)
+  #define V_to_I(val)  L_to_I(val)
 #else
-  #define V_to_I(wert)  Q_to_I(wert)
+  #define V_to_I(val)  Q_to_I(val)
 #endif
 # is used by LISPARIT
 %% #if notused
 %% #if (intVsize<=32)
-%%   emit_define("V_to_I(wert)","L_to_I(wert)");
+%%   emit_define("V_to_I(val)","L_to_I(val)");
 %% #else
-%%   emit_define("V_to_I(wert)","Q_to_I(wert)");
+%%   emit_define("V_to_I(val)","Q_to_I(val)");
 %% #endif
 %% #endif
 
 # Converts an uintV into an Integer >=0.
-# UV_to_I(wert)
-# > wert: value of the Integer, an unsigned intVsize-bit-Integer.
+# UV_to_I(val)
+# > val: value of the Integer, an unsigned intVsize-bit-Integer.
 # < result: Integer with that value
 # can trigger GC
-# extern maygc object UV_to_I (uintV wert);
+# extern maygc object UV_to_I (uintV val);
 #if (intVsize<=32)
-  #define UV_to_I(wert)  UL_to_I(wert)
+  #define UV_to_I(val)  UL_to_I(val)
 #else
-  #define UV_to_I(wert)  UQ_to_I(wert)
+  #define UV_to_I(val)  UQ_to_I(val)
 #endif
 # is used by LISPARIT
 %% #if notused
 %% #if (intVsize<=32)
-%%   emit_define("UV_to_I(wert)","UL_to_I(wert)");
+%%   emit_define("UV_to_I(val)","UL_to_I(val)");
 %% #else
-%%   emit_define("UV_to_I(wert)","UQ_to_I(wert)");
+%%   emit_define("UV_to_I(val)","UQ_to_I(val)");
 %% #endif
 %% #endif
 
