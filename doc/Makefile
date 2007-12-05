@@ -35,7 +35,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/wildcard/wildcard.xml	\
 	../modules/zlib/zlib.xml
 # targets for <olink> resolution
-OLINK=tdb-man.xml tdb-pile.xml tdb-chunk.xml olink-pile.xml olink-chunk.xml
+OLINK=man.tdb pile.tdb chunk.tdb olink-pile.xml olink-chunk.xml
 
 RM=/bin/rm -f
 
@@ -130,13 +130,13 @@ GOOGLEADS=0
 MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
-tdb-man.xml: clisp.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
+man.tdb: clisp.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-pile.xml: impnotes.xml $(IMPNOTES) pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
+pile.tdb: impnotes.xml $(IMPNOTES) pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
-tdb-chunk.xml: impnotes.xml $(IMPNOTES) chunk.xsl $(GEN_DEPS) $(CATALOG_FILE)
+chunk.tdb: impnotes.xml $(IMPNOTES) chunk.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" chunk.xsl $<
 
 clisp.xml: clisp.xml.in ../version.sh Makefile
@@ -194,7 +194,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd html && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
-	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl tdb-chunk.xml
+	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl chunk.tdb
 	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
 	cd ../build; make clisp-1.html;
@@ -213,7 +213,7 @@ regexp.html: ../modules/regexp/regexp.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-	  clisp.xml clisp.html clisp.1 tdb-*.xml $(CATALOG_FILE) impnotes.fo
+	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo
 
 count: $(IMPNOTES)
 	wc $^
