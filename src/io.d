@@ -855,10 +855,10 @@ LISPFUNN(set_readtable_case,2)
 # < result: value of the Symbols, >=2, <=36.
 local uintL get_base (object symbol) {
   var object value = Symbol_value(symbol);
-  var uintV wert;
+  var uintV intvalue;
   if (posfixnump(value)
-      && (wert = posfixnum_to_V(value), ((wert >= 2) && (wert <= 36)))) {
-    return wert;
+      && (intvalue = posfixnum_to_V(value), ((intvalue >= 2) && (intvalue <= 36)))) {
+    return intvalue;
   } else {
     Symbol_value(symbol) = fixnum(10);
     pushSTACK(value);         # TYPE-ERROR slot DATUM
@@ -1564,9 +1564,9 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       var uintB attr = *attrptr++; # its attributcode
       if (attr>=a_digit && attr<=a_expodigit) {
         var cint c = as_cint(*charptr++); # character (Digit, namely '0'-'9','A'-'Z','a'-'z')
-        # determine value (== wert):
-        var uintB wert = (c<'A' ? c-'0' : c<'a' ? c-'A'+10 : c-'a'+10);
-        if (wert >= *base_) # Digit with value >=base ?
+        # determine value:
+        var uintB value = (c<'A' ? c-'0' : c<'a' ? c-'A'+10 : c-'a'+10);
+        if (value >= *base_) # Digit with value >=base ?
           goto schritt4; # yes -> no rational number
         # Digit with value <base
         flags |= bit(0); # set bit 0
@@ -3861,13 +3861,13 @@ LISPFUNNR(featurep,1) {
 }
 
 # UP: for #+ und #-
-# feature(sollwert)
+# feature(demandvalue)
 # > expected value: exprected truth value of Feature-Expression
 # > Stack Structure: Stream, sub-char, n.
 # < STACK: increased by 3
 # < mv_space/mv_count: values
 # can trigger GC
-local maygc Values feature (uintWL sollwert) {
+local maygc Values feature (uintWL demandvalue) {
   var gcv_object_t* stream_ = test_no_infix(); # n must be NIL
   dynamic_bind(S(read_suppress),NIL); # bind *READ-SUPPRESS* to NIL
   dynamic_bind(S(packagestern),O(keyword_package)); # bind *PACKAGE* to #<PACKAGE KEYWORD>
@@ -3876,7 +3876,7 @@ local maygc Values feature (uintWL sollwert) {
   dynamic_unbind(S(read_suppress));
   # interpret Feature-Expression:
   expr = make_references(expr); # first unentangle references
-  if (interpret_feature(expr) == sollwert) { # truth value "true"
+  if (interpret_feature(expr) == demandvalue) { # truth value "true"
     # read next Objekt and set for value:
     VALUES1(read_recursive_no_dot(stream_));
   } else { # truth value "false"

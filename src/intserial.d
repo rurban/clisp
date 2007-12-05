@@ -29,9 +29,9 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
      || ((count == floor(oint_data_len,8)+1)
          && (*bufferptr < bit(oint_data_len%8)))) {
     # yes -> build Fixnum >=0 :
-    var uintV wert = 0;
-    until (count==0) { wert = (wert<<8) | *bufferptr--; count--; }
-    return fixnum(wert);
+    var uintV value = 0;
+    until (count==0) { value = (value<<8) | *bufferptr--; count--; }
+    return fixnum(value);
   }
   # no -> build Bignum >0 :
   var uintL digitcount = floor(count,(intDsize/8));
