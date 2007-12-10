@@ -1,32 +1,29 @@
-# Program for adding GCTRIGGER statements at the head of function bodies.
-# Bruno Haible 2004-12-07
+/*
+ * Program for adding GCTRIGGER statements at the head of function bodies.
+ * Bruno Haible 2004-12-07
 
-# Goal:
-# Convert declarations
-#     ... maygc ... funname (type1 vname1, ..., typek vnamek)
-#     {
-#       ...
-#     }
-# to
-#     ... maygc ... funname (type1 vname1, ..., typek vnamek)
-#     { GCTRIGGERj(vname...); {
-#       ...
-#     }}
-# where those vnamei are passed to GCTRIGGER whose types are 'object'.
-# All comments, preprocessor commands etc. are preserved.
 
-# Method:
-# Knowing about preprocessor commands, comments, tokens, we look for the
-# opening brace '{' at the outermost level, which is immediately preceded
-# by a closing parenthesis ')'. The contents of the parentheses is analysed.
-# The GCTRIGGER statement is inserted. At the corresponding closing brace '}'
-# an additional brace is inserted.
+ Goal:
+ Convert declarations
+     ... maygc ... funname (type1 vname1, ..., typek vnamek)
+     {
+       ...
+     }
+ to
+     ... maygc ... funname (type1 vname1, ..., typek vnamek)
+     { GCTRIGGERj(vname...); {
+       ...
+     }}
+ where those vnamei are passed to GCTRIGGER whose types are 'object'.
+ All comments, preprocessor commands etc. are preserved.
 
-#define local static
-#define global
-#define var
-#define loop  while (1)
-#define until(exp)  while (!(exp))
+ Method:
+ Knowing about preprocessor commands, comments, tokens, we look for the
+ opening brace '{' at the outermost level, which is immediately preceded
+ by a closing parenthesis ')'. The contents of the parentheses is analysed.
+ The GCTRIGGER statement is inserted. At the corresponding closing brace '}'
+ an additional brace is inserted. */
+
 typedef unsigned char  uintB;
 typedef unsigned short  uintW;
 typedef unsigned long  uintL;
@@ -43,11 +40,11 @@ typedef int  boolean;
 #endif
 
 
-# ============================= Memory utilities =============================
+/* ========================= Memory utilities ========================= */
 
-local char* xmalloc (uintL count)
+static char* xmalloc (uintL count)
 {
-  var char* tmp = (char*)malloc(count);
+  char* tmp = (char*)malloc(count);
   if (!tmp) {
     fprintf(stderr,"Virtual memory exhausted.\n");
     exit(1);
@@ -55,9 +52,9 @@ local char* xmalloc (uintL count)
   return tmp;
 }
 
-local char* xrealloc (void* data, uintL count)
+static char* xrealloc (void* data, uintL count)
 {
-  var char* tmp = (char*)realloc(data,count);
+  char* tmp = (char*)realloc(data,count);
   if (!tmp) {
     fprintf(stderr,"Virtual memory exhausted.\n");
     exit(1);
@@ -66,50 +63,50 @@ local char* xrealloc (void* data, uintL count)
 }
 
 #ifdef unused
-local inline void xfree (void* ptr)
+static inline void xfree (void* ptr)
 {
   free((char*)ptr);
 }
 #endif
 
 
-# ============================ Character utilities ============================
+/* ======================== Character utilities ======================== */
 
 #ifdef unused
-# Determine whether a character (not newline) is whitespace.
-local inline boolean is_whitespace (char c)
+/* Determine whether a character (not newline) is whitespace. */
+static inline boolean is_whitespace (char c)
 {
   return (c == ' ') || (c == '\t');
 }
 #endif
 
 #ifdef unused
-# Determine whether a character is a digit (locale independent).
-local inline boolean is_digit (char c)
+/* Determine whether a character is a digit (locale independent). */
+static inline boolean is_digit (char c)
 {
   return (c >= '0') && (c <= '9');
 }
 #endif
 
 
-# ============================= String utilities =============================
+/* ========================= String utilities ========================= */
 
-# Returns the freshly allocated copy of a strings.
-local char* concat1 (const char* str1)
+/* Returns the freshly allocated copy of a strings. */
+static char* concat1 (const char* str1)
 {
-  var uintL len1 = strlen(str1);
-  var char* result = xmalloc(len1+1);
+  uintL len1 = strlen(str1);
+  char* result = xmalloc(len1+1);
   memcpy(result+0,str1,len1+1);
   return result;
 }
 
 #ifdef unused
-# Returns the freshly allocated contenation of 2 strings.
-local char* concat2 (const char* str1, const char* str2)
+/* Returns the freshly allocated contenation of 2 strings. */
+static char* concat2 (const char* str1, const char* str2)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var char* result = xmalloc(len1+len2+1);
+  uintL len1 = strlen(str1);
+  uintL len2 = strlen(str2);
+  char* result = xmalloc(len1+len2+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2+1);
   return result;
@@ -117,13 +114,13 @@ local char* concat2 (const char* str1, const char* str2)
 #endif
 
 #ifdef unused
-# Returns the freshly allocated contenation of 3 strings.
-local char* concat3 (const char* str1, const char* str2, const char* str3)
+/* Returns the freshly allocated contenation of 3 strings. */
+static char* concat3 (const char* str1, const char* str2, const char* str3)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var uintL len3 = strlen(str3);
-  var char* result = xmalloc(len1+len2+len3+1);
+  uintL len1 = strlen(str1);
+  uintL len2 = strlen(str2);
+  uintL len3 = strlen(str3);
+  char* result = xmalloc(len1+len2+len3+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2);
   memcpy(result+len1+len2,str3,len3+1);
@@ -132,14 +129,14 @@ local char* concat3 (const char* str1, const char* str2, const char* str3)
 #endif
 
 #ifdef unused
-# Returns the freshly allocated contenation of 4 strings.
-local char* concat4 (const char* str1, const char* str2, const char* str3, const char* str4)
+/* Returns the freshly allocated contenation of 4 strings. */
+static char* concat4 (const char* str1, const char* str2, const char* str3, const char* str4)
 {
-  var uintL len1 = strlen(str1);
-  var uintL len2 = strlen(str2);
-  var uintL len3 = strlen(str3);
-  var uintL len4 = strlen(str4);
-  var char* result = xmalloc(len1+len2+len3+len4+1);
+  uintL len1 = strlen(str1);
+  uintL len2 = strlen(str2);
+  uintL len3 = strlen(str3);
+  uintL len4 = strlen(str4);
+  char* result = xmalloc(len1+len2+len3+len4+1);
   memcpy(result+0,str1,len1);
   memcpy(result+len1,str2,len2);
   memcpy(result+len1+len2,str3,len3);
@@ -149,13 +146,13 @@ local char* concat4 (const char* str1, const char* str2, const char* str3, const
 #endif
 
 #ifdef unused
-# Returns a freshly allocated substring.
-local char* substring (const char* str, uintL index1, uintL index2)
+/* Returns a freshly allocated substring. */
+static char* substring (const char* str, uintL index1, uintL index2)
 {
   if (!(index1 <= index2)) abort();
   if (!(index2 <= strlen(str))) abort();
-  { var uintL len = index2-index1;
-    var char* result = xmalloc(len+1);
+  { uintL len = index2-index1;
+    char* result = xmalloc(len+1);
     if (len > 0) memcpy(result,str+index1,len);
     result[len] = '\0';
     return result;
@@ -163,30 +160,30 @@ local char* substring (const char* str, uintL index1, uintL index2)
 #endif
 
 #ifdef unused
-# Returns a freshly allocated substring.
-local char* substring_from_to (const char* p1, const char* p2)
+/* Returns a freshly allocated substring. */
+static char* substring_from_to (const char* p1, const char* p2)
 {
-  var uintL length = p2 - p1;
-  var char* result = (char*) xmalloc(length+1);
+  uintL length = p2 - p1;
+  char* result = (char*) xmalloc(length+1);
   memcpy(result,p1,length);
   result[length] = '\0';
   return result;
 }
 #endif
 
-# Compares two strings for equality.
-local inline boolean String_equals (const char* str1, const char* str2)
+/* Compares two strings for equality. */
+static inline boolean String_equals (const char* str1, const char* str2)
 {
   return !strcmp(str1,str2);
 }
 
 #ifdef unused
-# Compares two strings for case-insensitive equality.
-local boolean String_equalsIgnoreCase (const char* str1, const char* str2)
+/* Compares two strings for case-insensitive equality. */
+static boolean String_equalsIgnoreCase (const char* str1, const char* str2)
 {
   while (*str1 != '\0' && *str2 != '\0') {
-    var unsigned char c1 = (unsigned char)(*str1++);
-    var unsigned char c2 = (unsigned char)(*str2++);
+    unsigned char c1 = (unsigned char)(*str1++);
+    unsigned char c2 = (unsigned char)(*str2++);
     if (c1 < 0x80) /* isascii(c1) */
       c1 = toupper(c1);
     if (c2 < 0x80) /* isascii(c2) */
@@ -194,13 +191,13 @@ local boolean String_equalsIgnoreCase (const char* str1, const char* str2)
     if (c1 != c2)
       return FALSE;
   }
-  # Now *str1 == '\0' || *str2 == '\0'.
+  /* Now *str1 == '\0' || *str2 == '\0'. */
   return (*str1 == *str2);
 }
 #endif
 
 
-# ========================= Extensible string buffers =========================
+/* ===================== Extensible string buffers ===================== */
 
 typedef struct {
   uintL index;
@@ -208,7 +205,7 @@ typedef struct {
   char* data;
 } StringBuffer;
 
-local inline void StringBuffer_init (StringBuffer* sb)
+static inline void StringBuffer_init (StringBuffer* sb)
 {
   sb->size = 10;
   sb->data = (char*) xmalloc(sb->size);
@@ -216,13 +213,13 @@ local inline void StringBuffer_init (StringBuffer* sb)
 }
 
 #ifdef unused
-local inline uintL StringBuffer_length (const StringBuffer* sb)
+static inline uintL StringBuffer_length (const StringBuffer* sb)
 {
   return sb->index;
 }
 #endif
 
-local void StringBuffer_append1 (StringBuffer* sb, char c)
+static void StringBuffer_append1 (StringBuffer* sb, char c)
 {
   if (sb->index == sb->size) {
     sb->size = 2 * sb->size;
@@ -232,11 +229,11 @@ local void StringBuffer_append1 (StringBuffer* sb, char c)
 }
 
 #ifdef unused
-local void StringBuffer_append (StringBuffer* sb, const char* s)
+static void StringBuffer_append (StringBuffer* sb, const char* s)
 {
-  var uintL s_len = strlen(s);
+  uintL s_len = strlen(s);
   if (s_len > 0) {
-    var uintL needed = sb->index + s_len;
+    uintL needed = sb->index + s_len;
     if (needed > sb->size) {
       sb->size = 2 * sb->size;
       if (sb->size < needed)
@@ -249,22 +246,22 @@ local void StringBuffer_append (StringBuffer* sb, const char* s)
 }
 #endif
 
-local char* StringBuffer_toString (const StringBuffer* sb)
+static char* StringBuffer_toString (const StringBuffer* sb)
 {
-  var uintL s_len = sb->index;
-  var char* s = (char*) xmalloc(s_len+1);
+  uintL s_len = sb->index;
+  char* s = (char*) xmalloc(s_len+1);
   memcpy(s,sb->data,s_len);
   s[s_len] = '\0';
   return s;
 }
 
-local inline void StringBuffer_delete (StringBuffer* sb)
+static inline void StringBuffer_delete (StringBuffer* sb)
 {
   free(sb->data);
 }
 
 
-# ============================ Extensible vectors ============================
+/* ======================== Extensible vectors ======================== */
 
 typedef struct {
   uintL index;
@@ -272,19 +269,19 @@ typedef struct {
   const void* * data;
 } Vector;
 
-local inline void Vector_init (Vector* v)
+static inline void Vector_init (Vector* v)
 {
   v->size = 5;
   v->data = (const void* *) xmalloc(v->size * sizeof(const void*));
   v->index = 0;
 }
 
-local inline uintL Vector_length (const Vector* v)
+static inline uintL Vector_length (const Vector* v)
 {
   return v->index;
 }
 
-local void Vector_add (Vector* v, const void* elt)
+static void Vector_add (Vector* v, const void* elt)
 {
   if (v->index >= v->size) {
     v->size = 2 * v->size;
@@ -293,7 +290,7 @@ local void Vector_add (Vector* v, const void* elt)
   v->data[v->index++] = elt;
 }
 
-local const void * Vector_element (const Vector* v, uintL i)
+static const void * Vector_element (const Vector* v, uintL i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -303,7 +300,7 @@ local const void * Vector_element (const Vector* v, uintL i)
 }
 
 #ifdef unused
-local void Vector_set_element (Vector* v, uintL i, const void* elt)
+static void Vector_set_element (Vector* v, uintL i, const void* elt)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -314,7 +311,7 @@ local void Vector_set_element (Vector* v, uintL i, const void* elt)
 #endif
 
 #ifdef unused
-local void Vector_remove_element (Vector* v, uintL i)
+static void Vector_remove_element (Vector* v, uintL i)
 {
   if (!(i < v->index)) {
     fprintf(stderr,"vector index out of bounds");
@@ -327,7 +324,7 @@ local void Vector_remove_element (Vector* v, uintL i)
 #endif
 
 #ifdef unused
-local void Vector_init_clone (Vector* w, const Vector* v)
+static void Vector_init_clone (Vector* w, const Vector* v)
 {
   w->size = (v->size < 5 ? 5 : v->size);
   w->data = (const void* *) xmalloc(w->size * sizeof(const void*));
@@ -337,90 +334,90 @@ local void Vector_init_clone (Vector* w, const Vector* v)
 #endif
 
 #ifdef unused
-local Vector* Vector_clone (const Vector* v)
+static Vector* Vector_clone (const Vector* v)
 {
-  var Vector* w = (Vector*) xmalloc(sizeof(Vector));
+  Vector* w = (Vector*) xmalloc(sizeof(Vector));
   Vector_init_clone(w,v);
   return w;
 }
 #endif
 
-local inline void Vector_delete (Vector* v)
+static inline void Vector_delete (Vector* v)
 {
   free(v->data);
 }
 
 
-# A vector of strings.
+/* A vector of strings. */
 
 typedef struct {
   Vector rep;
 } VectorString;
 
-local inline void VectorString_init (VectorString* v)
+static inline void VectorString_init (VectorString* v)
 {
   Vector_init(&v->rep);
 }
 
 #ifdef unused
-local VectorString* make_VectorString ()
+static VectorString* make_VectorString ()
 {
-  var VectorString* v = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString* v = (VectorString*) xmalloc(sizeof(VectorString));
   VectorString_init(v);
   return v;
 }
 #endif
 
-local inline uintL VectorString_length (const VectorString* v)
+static inline uintL VectorString_length (const VectorString* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorString_add (VectorString* v, const char* elt)
+static inline void VectorString_add (VectorString* v, const char* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline const char* VectorString_element (const VectorString* v, uintL i)
+static inline const char* VectorString_element (const VectorString* v, uintL i)
 {
   return (const char*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorString_set_element (VectorString* v, uintL i, const char* elt)
+static inline void VectorString_set_element (VectorString* v, uintL i, const char* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 #ifdef unused
-local inline void VectorString_init_clone (VectorString* w, const VectorString* v)
+static inline void VectorString_init_clone (VectorString* w, const VectorString* v)
 {
   Vector_init_clone(&w->rep,&v->rep);
 }
 #endif
 
 #ifdef unused
-local VectorString* VectorString_clone (const VectorString* v)
+static VectorString* VectorString_clone (const VectorString* v)
 {
-  var VectorString* w = (VectorString*) xmalloc(sizeof(VectorString));
+  VectorString* w = (VectorString*) xmalloc(sizeof(VectorString));
   VectorString_init_clone(w,v);
   return w;
 }
 #endif
 
-local inline void VectorString_delete (VectorString* v)
+static inline void VectorString_delete (VectorString* v)
 {
   Vector_delete(&v->rep);
 }
 
 #ifdef unused
-# Tests whether v equals w.
-local boolean VectorString_equals (const VectorString* v, const VectorString* w)
+/* Tests whether v equals w. */
+static boolean VectorString_equals (const VectorString* v, const VectorString* w)
 {
-  var uintL n = VectorString_length(v);
+  uintL n = VectorString_length(v);
   if (VectorString_length(w) == n) {
-    var uintL i;
+    uintL i;
     for (i = 0; i < n; i++)
       if (!String_equals(VectorString_element(v,i),VectorString_element(w,i)))
         return FALSE;
@@ -431,12 +428,12 @@ local boolean VectorString_equals (const VectorString* v, const VectorString* w)
 #endif
 
 #ifdef unused
-# Tests whether v starts with w.
-local boolean VectorString_startsWith (const VectorString* v, const VectorString* w)
+/* Tests whether v starts with w. */
+static boolean VectorString_startsWith (const VectorString* v, const VectorString* w)
 {
-  var uintL n = VectorString_length(w);
+  uintL n = VectorString_length(w);
   if (VectorString_length(v) >= n) {
-    var uintL i;
+    uintL i;
     for (i = 0; i < n; i++)
       if (!String_equals(VectorString_element(v,i),VectorString_element(w,i)))
         return FALSE;
@@ -447,61 +444,61 @@ local boolean VectorString_startsWith (const VectorString* v, const VectorString
 #endif
 
 
-# =================================== Input ===================================
+/* =============================== Input =============================== */
 
-local FILE* infile;
+static FILE* infile;
 
-local uintL input_line;
+static uintL input_line;
 
-local int in_char (void)
+static int in_char (void)
 {
-  var int c = getc(infile);
+  int c = getc(infile);
   if (c=='\n')
     input_line++;
   return c;
 }
 
-local int peek_char (void)
+static int peek_char (void)
 {
-  var int c = getc(infile);
+  int c = getc(infile);
   if (!(c==EOF))
     ungetc(c,infile);
   return c;
 }
 
-local uintL last_good_input_line;
+static uintL last_good_input_line;
 
 
-# ================================== Output ==================================
+/* ============================== Output ============================== */
 
-local FILE* outfile;
+static FILE* outfile;
 
-local void out_char (uintB ch)
+static void out_char (uintB ch)
 {
   putc(ch,outfile);
 }
 
 
-# ============================= Lexical Analysis =============================
+/* ========================= Lexical Analysis ========================= */
 
-# Fetches the next character.
-local int next_char (void)
+/* Fetches the next character. */
+static int next_char (void)
 {
-  var int c = in_char();
+  int c = in_char();
   if (!(c==EOF))
-    out_char(c); # output c
+    out_char(c);                /* output c */
   return c;
 }
 
-# For our purpose, ++ -> != etc. don't need to be recognized as tokens of their
-# own. Therefore we distinguish only:
-#   - EOF
-#   - identifier
-#   - number literals
-#   - character literals
-#   - string literals
-#   - operator/separator
-# Generalized tokens can be expressions, with balanced parentheses.
+/* For our purpose, ++ -> != etc. don't need to be recognized
+ as tokens of their own. Therefore we distinguish only:
+   - EOF
+   - identifier
+   - number literals
+   - character literals
+   - string literals
+   - operator/separator
+ Generalized tokens can be expressions, with balanced parentheses. */
 enum token_type {
   eof,
   eol,
@@ -514,120 +511,120 @@ enum token_type {
 };
 typedef struct {
   enum token_type type;
-  char* string; # for identifier
-  uintB ch; # for operator/separator
+  char* string;                 /* for identifier */
+  uintB ch;                     /* for operator/separator */
 } Token;
 
-local Token* Token_dup (const Token* token)
+static Token* Token_dup (const Token* token)
 {
   Token* duplicate = (Token*) xmalloc(sizeof(Token));
   *duplicate = *token;
   return duplicate;
 }
 
-local inline void Token_delete (Token* token)
+static inline void Token_delete (Token* token)
 {
   if (token->type == ident)
     free(token->string);
 }
 
 
-# A vector of tokens.
+/* A vector of tokens. */
 
 typedef struct {
   Vector rep;
 } VectorToken;
 
-local inline void VectorToken_init (VectorToken* v)
+static inline void VectorToken_init (VectorToken* v)
 {
   Vector_init(&v->rep);
 }
 
 #ifdef unused
-local VectorToken* make_VectorToken ()
+static VectorToken* make_VectorToken ()
 {
-  var VectorToken* v = (VectorToken*) xmalloc(sizeof(VectorToken));
+  VectorToken* v = (VectorToken*) xmalloc(sizeof(VectorToken));
   VectorToken_init(v);
   return v;
 }
 #endif
 
-local inline uintL VectorToken_length (const VectorToken* v)
+static inline uintL VectorToken_length (const VectorToken* v)
 {
   return Vector_length(&v->rep);
 }
 
-local inline void VectorToken_add (VectorToken* v, Token* elt)
+static inline void VectorToken_add (VectorToken* v, Token* elt)
 {
   Vector_add(&v->rep,elt);
 }
 
-local inline Token* VectorToken_element (const VectorToken* v, uintL i)
+static inline Token* VectorToken_element (const VectorToken* v, uintL i)
 {
   return (Token*) Vector_element(&v->rep,i);
 }
 
 #ifdef unused
-local inline void VectorToken_set_element (VectorToken* v, uintL i, Token* elt)
+static inline void VectorToken_set_element (VectorToken* v, uintL i, Token* elt)
 {
   Vector_set_element(&v->rep,i,elt);
 }
 #endif
 
 #ifdef unused
-local inline void VectorToken_init_clone (VectorToken* w, const VectorToken* v)
+static inline void VectorToken_init_clone (VectorToken* w, const VectorToken* v)
 {
   Vector_init_clone(&w->rep,&v->rep);
 }
 #endif
 
 #ifdef unused
-local VectorToken* VectorToken_clone (const VectorToken* v)
+static VectorToken* VectorToken_clone (const VectorToken* v)
 {
-  var VectorToken* w = (VectorToken*) xmalloc(sizeof(VectorToken));
+  VectorToken* w = (VectorToken*) xmalloc(sizeof(VectorToken));
   VectorToken_init_clone(w,v);
   return w;
 }
 #endif
 
-local inline void VectorToken_delete (VectorToken* v)
+static inline void VectorToken_delete (VectorToken* v)
 {
   Vector_delete(&v->rep);
 }
 
 
-# Fetches the next token.
-# (Inside preprocessor directives, newline counts as token of its own, and '#'
-# doesn't introduce a nested preprocessor directive.)
-local Token nexttoken (boolean within_prep_directive)
+/* Fetches the next token.
+ (Inside preprocessor directives, newline counts as token of its own, and '#'
+ doesn't introduce a nested preprocessor directive.) */
+static Token nexttoken (boolean within_prep_directive)
 {
   Token token;
  restart:
-  { var int c = next_char();
+  { int c = next_char();
     switch (c) {
       case EOF:
         token.type = eof; return token;
       case ' ': case '\v': case '\t':
-        # Ignore whitespace.
+        /* Ignore whitespace. */
         goto restart;
       case '\n':
-        # End of line.
+        /* End of line. */
         if (within_prep_directive) {
           token.type = eol; return token;
         } else
-          # Ignore whitespace.
+          /* Ignore whitespace. */
           goto restart;
       case '\\':
         if (peek_char()=='\n') {
-          # Ignore backslash-newline sequence.
+          /* Ignore backslash-newline sequence. */
           next_char(); goto restart;
         } else
           goto separator;
       case '/':
         if (peek_char() == '*') {
-          # Comment.
+          /* Comment. */
           next_char();
-          loop {
+          while (1) {
             c = next_char();
             if (c==EOF) {
               fprintf(stderr,"Unfinished comment\n"); break;
@@ -641,21 +638,21 @@ local Token nexttoken (boolean within_prep_directive)
           goto separator;
       case '*':
         if (peek_char() == '/')
-          # Invalid end of comment.
+          /* Invalid end of comment. */
           fprintf(stderr,"Comment end outside of comment in line %lu\n",input_line);
         goto separator;
       case '#':
         if (within_prep_directive)
           goto separator;
         else {
-          # Preprocessor directive. Read until end of line or EOF.
-          loop {
-            var Token subtoken = nexttoken(TRUE);
+          /* Preprocessor directive. Read until end of line or EOF. */
+          while (1) {
+            Token subtoken = nexttoken(TRUE);
             if (subtoken.type == eof || subtoken.type == eol)
               break;
             Token_delete(&subtoken);
           }
-          # Ignore it.
+          /* Ignore it. */
           goto restart;
         }
       case '.':
@@ -664,8 +661,8 @@ local Token nexttoken (boolean within_prep_directive)
           goto separator;
       case '0': case '1': case '2': case '3': case '4':
       case '5': case '6': case '7': case '8': case '9':
-        # Number. Continue reading while alphanumeric character or '.':
-        loop {
+        /* Number. Continue reading while alphanumeric character or '.': */
+        while (1) {
           c = peek_char();
           if (((c>='0') && (c<='9'))
               || ((c>='A') && (c<='Z')) || ((c>='a') && (c<='z'))
@@ -676,8 +673,8 @@ local Token nexttoken (boolean within_prep_directive)
         }
         token.type = number; return token;
       case '\'':
-        # Character literal.
-        loop {
+        /* Character literal. */
+        while (1) {
           c = next_char();
           if (c==EOF) {
             fprintf(stderr,"unterminated character constant\n"); break;
@@ -689,8 +686,8 @@ local Token nexttoken (boolean within_prep_directive)
         }
         token.type = charliteral; return token;
       case '\"':
-        # String literal.
-        loop {
+        /* String literal. */
+        while (1) {
           c = next_char();
           if (c==EOF) {
             fprintf(stderr,"unterminated string constant\n"); break;
@@ -712,11 +709,11 @@ local Token nexttoken (boolean within_prep_directive)
       case 's': case 't': case 'u': case 'v': case 'w': case 'x':
       case 'y': case 'z':
       case '_':
-        # Identifier.
+        /* Identifier. */
         {
           StringBuffer accumulator;
           StringBuffer_init(&accumulator);
-          loop {
+          while (1) {
             StringBuffer_append1(&accumulator,c);
             c = peek_char();
             if (   ((c>='0') && (c<='9'))
@@ -737,19 +734,19 @@ local Token nexttoken (boolean within_prep_directive)
   }
 }
 
-local inline Token next_token (void)
+static inline Token next_token (void)
 {
   return nexttoken(FALSE);
 }
 
-# Counting parentheses and braces.
-#define MAXBRACES 1000 # maximal nesting depth of parentheses and braces
-local struct {
+/* Counting parentheses and braces. */
+#define MAXBRACES 1000 /* maximal nesting depth of parentheses and braces */
+static struct {
   uintL count;
   struct { uintB brace_type; uintL input_line; } opening[MAXBRACES];
 } open_braces;
 
-local void handle_opening_token (const Token* token)
+static void handle_opening_token (const Token* token)
 {
   if (open_braces.count < MAXBRACES) {
     open_braces.opening[open_braces.count].brace_type = token->ch;
@@ -758,20 +755,20 @@ local void handle_opening_token (const Token* token)
   open_braces.count++;
 }
 
-local inline void handle_closing_token (const Token* token)
+static inline void handle_closing_token (const Token* token)
 {
   open_braces.count--;
 }
 
-# Read the next expression with balanced parentheses and braces '()', '{}',
-# '[]'. It reads until open_braces.count==open_braces_start. Upon entry,
-# open_braces.count may already be > open_braces_start.
-local Token next_balanced_token (Token* start_token, uintL open_braces_start)
+/* Read the next expression with balanced parentheses and braces '()', '{}',
+ '[]'. It reads until open_braces.count==open_braces_start. Upon entry,
+ open_braces.count may already be > open_braces_start. */
+static Token next_balanced_token (Token* start_token, uintL open_braces_start)
 {
-  var Token token = (start_token==NULL ? next_token() : *start_token);
-  var enum token_type final_type = token.type;
-  loop {
-    # Here always  open_braces.count >= open_braces_start .
+  Token token = (start_token==NULL ? next_token() : *start_token);
+  enum token_type final_type = token.type;
+  while (1) {
+    /* Here always  open_braces.count >= open_braces_start . */
     switch (token.type) {
       case eof:
         if (open_braces.count > open_braces_start) {
@@ -782,7 +779,7 @@ local Token next_balanced_token (Token* start_token, uintL open_braces_start)
           else
             fprintf(stderr,"unclosed '(' or '{' or '['\n");
         }
-        return token; # return the EOF token
+        return token;           /* return the EOF token */
       case sep:
         switch (token.ch) {
           case '(': case '{': case '[':
@@ -792,8 +789,8 @@ local Token next_balanced_token (Token* start_token, uintL open_braces_start)
             if (open_braces.count > open_braces_start) {
               handle_closing_token(&token);
               if (open_braces.count < MAXBRACES) {
-                var uintB opening_ch = open_braces.opening[open_braces.count].brace_type;
-                var uintB closing_ch = token.ch;
+                uintB opening_ch = open_braces.opening[open_braces.count].brace_type;
+                uintB closing_ch = token.ch;
                 if (!(   ((opening_ch == '(') && (closing_ch == ')'))
                       || ((opening_ch == '{') && (closing_ch == '}'))
                       || ((opening_ch == '[') && (closing_ch == ']')))) {
@@ -815,11 +812,11 @@ local Token next_balanced_token (Token* start_token, uintL open_braces_start)
             break;
         }
       default: ;
-        # Everything else is balanced.
+        /* Everything else is balanced. */
     }
-    if (open_braces.count == open_braces_start) # done with balanced token?
+    if (open_braces.count == open_braces_start) /* done with balanced token? */
       break;
-    # no -> read next token:
+    /* no -> read next token: */
     Token_delete(&token);
     token = next_token();
     final_type = expr;
@@ -830,29 +827,29 @@ local Token next_balanced_token (Token* start_token, uintL open_braces_start)
   return token;
 }
 
-# Convert the function definitions in an entire file.
-local void convert (void)
+/* Convert the function definitions in an entire file. */
+static void convert (void)
 {
-  var boolean seen_maygc = FALSE;
+  boolean seen_maygc = FALSE;
   input_line = 1; last_good_input_line = 1;
   open_braces.count = 0;
-  loop {
-    var Token token = next_token();
+  while (1) {
+    Token token = next_token();
    restart:
     if (token.type == sep && token.ch == ';')
       seen_maygc = FALSE;
     else if (token.type == ident && String_equals(token.string,"maygc"))
       seen_maygc = TRUE;
     else if (seen_maygc && token.type == sep && token.ch == '(') {
-      var VectorString parameters_of_type_object;
+      VectorString parameters_of_type_object;
       handle_opening_token(&token);
-      # Remember the variable names from the parameter list.
+      /* Remember the variable names from the parameter list. */
       VectorString_init(&parameters_of_type_object);
-      loop {
-        # Parse a single parameter declaration.
+      while (1) {
+        /* Parse a single parameter declaration. */
         VectorToken parameter_declaration;
         VectorToken_init(&parameter_declaration);
-        loop {
+        while (1) {
           token = next_balanced_token(NULL,open_braces.count);
           if (token.type == eof)
             break;
@@ -868,9 +865,9 @@ local void convert (void)
             concat1(VectorToken_element(&parameter_declaration,1)->string);
           VectorString_add(&parameters_of_type_object,varname);
         }
-        # Free memory.
+        /* Free memory. */
         {
-          var uintL i;
+          uintL i;
           for (i = 0; i < VectorToken_length(&parameter_declaration); i++) {
             Token_delete(VectorToken_element(&parameter_declaration,i));
             free(VectorToken_element(&parameter_declaration,i));
@@ -887,13 +884,13 @@ local void convert (void)
       if (token.type != eof) {
         token = next_token();
         if (token.type == sep && token.ch == '{') {
-          # Here's the point where we insert the GCTRIGGER statement.
+          /* Here's the point where we insert the GCTRIGGER statement. */
           fputs(" GCTRIGGER",outfile);
           if (VectorString_length(&parameters_of_type_object) > 0) {
             fprintf(outfile,"%u",(unsigned int)VectorString_length(&parameters_of_type_object));
             out_char('(');
             {
-              var uintL i;
+              uintL i;
               for (i = 0; i < VectorString_length(&parameters_of_type_object); i++) {
                 if (i > 0)
                   out_char(',');
@@ -906,19 +903,19 @@ local void convert (void)
           }
           fputs("; {",outfile);
           token = next_balanced_token(&token,0);
-          # Here's the point where we insert the closing brace.
+          /* Here's the point where we insert the closing brace. */
           out_char('}');
           seen_maygc = FALSE;
         }
       }
-      # Free memory.
+      /* Free memory. */
       {
-        var uintL i;
+        uintL i;
         for (i = 0; i < VectorString_length(&parameters_of_type_object); i++)
           free((char*)VectorString_element(&parameters_of_type_object,i));
       }
       VectorString_delete(&parameters_of_type_object);
-      # Continue the loop with the new token (as it might be a semicolon).
+      /* Continue the loop with the new token (as it might be a semicolon). */
       goto restart;
     }
     if (token.type == eof)
@@ -937,5 +934,5 @@ int main ()
   exit(0);
 }
 
-# This program has been tested with valgrind-2.2.0, using the command line
-# valgrind --tool=memcheck --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes gctrigger
+/* This program has been tested with valgrind-2.2.0, using the command line
+ valgrind --tool=memcheck --num-callers=20 --leak-check=yes --leak-resolution=high --show-reachable=yes gctrigger */
