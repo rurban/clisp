@@ -1984,7 +1984,6 @@ additionally binds &cont-r; to the content length.</para>
 
 <para>&clisp-link; needs a directory containing:
 <itemizedlist>
-  <listitem><simpara><filename>"modules.d"</filename></simpara></listitem>
   <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
   <listitem><simpara>&clisp-h;</simpara></listitem>
 </itemizedlist>

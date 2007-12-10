@@ -105,7 +105,6 @@ lispbibl.c
 gen.lispbibl.c
 list.c
 misc.c
-modules.c
 noreadline.c
 package.c
 pathname.c
