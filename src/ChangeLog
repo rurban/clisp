@@ -1,5 +1,14 @@
 2007-12-10  Sam Steingold  <sds@gnu.org>
 
+	do not link over D files into the build directory
+	* makemake.in (DFILES): remove modules; remove Makefile variable;
+	(init): do not depend on DFILES
+	(LINKKIT): remove modules.d
+	(clean5): do not delete DFILES
+	* modules.d: rename to modules.c
+
+2007-12-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (UTILS): treat gctrigger & varbrace just like the
 	other C utilities
 	* gctrigger.d, varbrace.d: convert to ANSI C and rename to *.c
