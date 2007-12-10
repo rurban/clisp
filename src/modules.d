@@ -1,5 +1,5 @@
 /*
- * Module für CLISP
+ * modules for CLISP
  * Bruno Haible 1994-2004
  * Sam Steingold 2002-2005
  */
@@ -19,7 +19,7 @@ uintC module_count =
  #undef MODULE
   0;
 
-/* Tabelle der Module: */
+/* module table: */
 extern uintC subr_tab_data_size;
 extern uintC object_tab_size;
 #define MODULE(module_name)                                             \
