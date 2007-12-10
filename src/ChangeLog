@@ -1,3 +1,9 @@
+2007-12-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (UTILS): treat gctrigger & varbrace just like the
+	other C utilities
+	* gctrigger.d, varbrace.d: convert to ANSI C and rename to *.c
+
 2007-12-05  Sam Steingold  <sds@gnu.org>
 
 	* m4/general.m4 (CL_CC_WORKS): use "return 0" instead of "exit(0)"

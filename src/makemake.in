@@ -2461,10 +2461,6 @@ fi
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
   case ${util} in
-    ccpaux | deema | txt2c | ccmp2c )
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
-      echol ;;
     comment5 )
       if [ $CC_NEED_CCPAUX = true ] ; then
         echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
@@ -2479,13 +2475,10 @@ for util in ${UTILS} ; do
         echol
       fi
       ;;
-    gctrigger | varbrace )
-      echol "${util}${HEXE} : ${UTILDIR_M}${util}.d comment5${HEXE}"
-      echotabpipe "\$(COMMENT5) ${UTILDIR_CC}${util}.d > ${util}.c"
-      echotab_to_HEXE "${UTILCOMPILE}" "${util}.c" "${util}"
-      echotab "\$(RM) ${util}.c"
-      echol
-      OBSOLETE=$OBSOLETE" ${util}.c" ;;
+    * )
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
+      echol ;;
   esac
 done
 
