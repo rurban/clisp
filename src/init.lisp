@@ -1513,7 +1513,7 @@
 (PROGN
 
 (proclaim '(special *load-paths*))
-(setq *load-paths* nil)
+(or (boundp '*load-paths*) (setq *load-paths* nil))
 (proclaim '(special *source-file-types*))
 (setq *source-file-types* '("lisp" "lsp" "cl"))
 (proclaim '(special *compiled-file-types*))
@@ -1523,11 +1523,16 @@
 (sys::%putd 'search-file
  (sys::make-preliminary
   (function search-file (lambda (filename extensions)
-    (mapcan #'(lambda (extension)
-                (let ((filename (merge-pathnames filename
-                                       (make-pathname :type extension))))
-                  (if (probe-file filename) (list filename) '())))
-            extensions)))))
+    (mapcan #'(lambda (directory)
+                (let ((directory (pathname-directory directory)))
+                  (mapcan #'(lambda (extension)
+                              (let ((filename (merge-pathnames filename
+                                                (make-pathname
+                                                 :directory directory
+                                                 :type extension))))
+                                (if (probe-file filename) (list filename) '())))
+                          extensions)))
+            (cons #"" *load-paths*))))))
 
 (proclaim '(special *compile-verbose*))
 (setq *compile-verbose* t)         ; defined in spvw.d
