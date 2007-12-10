@@ -1,5 +1,16 @@
 2007-12-10  Sam Steingold  <sds@gnu.org>
 
+	do not link over LISP files into the build directory
+	* makemake.in (LPARTS): remove config
+	(LISPFILES): prefix with ${SRCDIR}
+	(alllisp): remove target
+	(*.fas): pass "-o" to clisp
+	(images): set *load-paths* before load init
+	* init.lisp (*load-paths*): reset only is not yet set
+	(search-file): respect it even in the first definition
+
+2007-12-10  Sam Steingold  <sds@gnu.org>
+
 	do not link over D files into the build directory
 	* makemake.in (DFILES): remove modules; remove Makefile variable;
 	(init): do not depend on DFILES
