@@ -186,7 +186,7 @@ else
   linkkitdir=./linkkit
 fi
 
-test -r "$linkkitdir"/modules.d -a -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
+test -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
   fail "No link kit found in $CLISP_LINKKIT"
 absolute_linkkitdir=`cd "$linkkitdir" ; /bin/pwd`
 
