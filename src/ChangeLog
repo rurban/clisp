@@ -6,6 +6,7 @@
 	(LINKKIT): remove modules.d
 	(clean5): do not delete DFILES
 	* modules.d: rename to modules.c
+	* clisp-link.in: do not require modules.d for linkkitdir
 
 2007-12-10  Sam Steingold  <sds@gnu.org>
 
