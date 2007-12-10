@@ -1675,7 +1675,7 @@ LISPARIT_INCLUDES=$LISPARIT_SUBFILES' arilev1c arilev1e arilev1i'
 
 EXTRA_CPARTS='noreadline'
 
-DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
+DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph $EXTRA_CPARTS"
 
 ARI_ASMD=''
 ARI_ASMC=''
@@ -2244,9 +2244,6 @@ fi
 
 echol
 
-echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
-echol
-
 echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
@@ -2416,7 +2413,7 @@ if [ $CROSS = true ] ; then
   line=$line" config.h"
 fi
 for util in ${UTILS} ; do line=$line" ${util}${HEXE}"; done
-line=$line" \$(DFILES) modules.h"
+line=$line" modules.h"
 if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES ; do
     line=$line" ${f}.c"
@@ -2486,10 +2483,7 @@ echol
 
 if [ -n "${SRCDIR}" ] ; then
   if [ ${HOS} = unix -o ${HSYS} = win32gcc ] ; then
-    for f in $DFILES $ARI_ASMD $SP_ASMD ; do
-      link_dep "${f}.d" "${SRCDIR}${f}.d"
-    done
-    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname; do
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname modules; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     link_dep modules.h "${SRCDIR}modules.h"
@@ -2520,18 +2514,18 @@ echodummyrule allc
 echol
 
 for f in $DFILES ; do
-  echol "${f}.c : ${f}.d comment5${HEXE}${XDECL_DEPENDENCIES}"
+  echol "${f}.c : ${SRCDIR}${f}.d comment5${HEXE}${XDECL_DEPENDENCIES}"
   gen_filter=
   case "${f}" in
     lispbibl) gen_filter=" | sed -e 's/^\\(%% .*\\)//'" ;;
   esac
-  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER}${gen_filter} ${XDECL_FILTER} > ${f}.c"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${CHSCONVERT_FILTER}${gen_filter} ${XDECL_FILTER} > ${f}.c"
   echol
 done
 
 for f in $ARI_ASMD $SP_ASMD ; do
-  echol "${f}.c : ${f}.d comment5${HEXE} ${XCCPAUX}"
-  echotabpipe "\$(COMMENT5) ${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
+  echol "${f}.c : ${SRCDIR}${f}.d comment5${HEXE} ${XCCPAUX}"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
   echol
 done
 
@@ -2587,8 +2581,8 @@ if [ $TSYS != win32msvc ] ; then
 fi
 
 for f in lispbibl; do
-  echol "gen.${f}.c : ${f}.d comment5${HEXE}"
-  echotabpipe "\$(COMMENT5) ${f}.d${CHSCONVERT_FILTER} | sed -e '/^%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
+  echol "gen.${f}.c : ${SRCDIR}${f}.d comment5${HEXE}"
+  echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${CHSCONVERT_FILTER} | sed -e '/^%% /{s///p;d;}' -e '/^#line /!s/.*//' > gen.${f}.c"
   echol
 done
 
@@ -3349,7 +3343,7 @@ echotab "if grep lispbibl.d clisp.h; then false; else true; fi"
 echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 OBSOLETE="$OBSOLETE clisp-test.c"
 echol
-LINKKIT="modules.d modules.c clisp.h modprep.lisp"
+LINKKIT="modules.c clisp.h modprep.lisp"
 echol "linkkit : ${LINKKIT}"
 echotab "-\$(RMRF) linkkit"
 echotab "mkdir linkkit"
@@ -4067,7 +4061,6 @@ echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
   line="-\$(RM)"
-  line="$line \$(DFILES)"
   for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ; do
     line="$line ${f}.c"
   done
