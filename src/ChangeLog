@@ -6,6 +6,8 @@
 	(alllisp): remove target
 	(*.fas): pass "-o" to clisp
 	(images): set *load-paths* before load init
+	(TESTLISPFILES): remove make variable
+	(check-recompile): do not link lisp sources over to stage
 	* init.lisp (*load-paths*): reset only is not yet set
 	(search-file): respect it even in the first definition
 
