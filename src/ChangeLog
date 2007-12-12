@@ -1,3 +1,8 @@
+2007-12-06  Sam Steingold  <sds@gnu.org>
+
+	* configure (--localedir, --docdir, --htmldir, --dvidir, --psdir)
+	(--pdfdir, --elispdir, --vimdir): enable (autoconf-2.60 is here)
+
 2007-12-10  Sam Steingold  <sds@gnu.org>
 
 	do not link over LISP files into the build directory
