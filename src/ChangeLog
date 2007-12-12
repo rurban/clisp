@@ -3,6 +3,8 @@
 	* stream.d: convert comments from "# " to "/**/"
 	(ELTYPE_FLAFS): new macro
 	(make_unbuffered_stream, make_buffered_stream): use it
+	(NON_WHOLE_BYTE_P): new macro
+	(check_unbuffered_eltype, make_buffered_stream): use it
 
 2007-12-06  Sam Steingold  <sds@gnu.org>
 
