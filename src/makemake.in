@@ -550,6 +550,7 @@ case $# in
      LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
      X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
      X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
+     FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
      host='@host@'                       # something like 'sparc-sun-sunos4'
      host_cpu='@host_cpu@'               # something like 'sparc'
      host_vendor='@host_vendor@'         # something like 'sun'
@@ -601,6 +602,7 @@ case $# in
        CC_NEED_CCPAUX=false
        AS_UNDERSCORE=false
        CC_NEED_DEEMA=true
+       FFCALL_LIBS='avcall.lib callback.lib'
      else
        if [ $COMPILER = gcc ] ; then
          CC=gcc
@@ -619,6 +621,7 @@ case $# in
          AS_UNDERSCORE=false
        fi
        CC_NEED_DEEMA=false
+       FFCALL_LIBS=''
      fi
      GROFF='groff'
      DVIPDF='dvipdf'
@@ -1512,15 +1515,7 @@ fi
 
 if [ "${with_dynamic_ffi}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
-  if [ ${LIB_TYPE} = "win32" ] ; then
-    XCL_FFILIBS='avcall.lib callback.lib'
-  else
-    XCL_FFILIBS='libavcall.a libcallback.a'
-  fi
-  LIBS=$XCL_FFILIBS' '$LIBS
-  FILES=$XCL_FFILIBS' '$FILES
-else
-  XCL_FFILIBS=''
+  LIBS="${FFCALL_LIBS} ${LIBS}"
 fi
 
 if [ "${with_dynamic_modules}" != no ]; then
@@ -2656,9 +2651,6 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = encoding ] ; then
     dependsc=$dependsc' localcharset.h'
   fi
-  if [ $f = foreign ] ; then
-    dependsc=$dependsc' avcall.h callback.h'
-  fi
   if [ $f = pathname ] ; then
     dependsc=$dependsc' execname.c'
     if [ ${TOS} = win32 ]; then
@@ -2811,29 +2803,6 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   echol
 fi
 
-if [ "${with_dynamic_ffi}" != no ] ; then
-  for f in avcall callback; do
-    if [ ${LIB_TYPE} = "unix" ] ; then
-      echol "$f.h lib$f.a :"
-      echotab "builddir=\"'\`pwd\`'\"; cd $f && \$(MAKE) && \$(MAKE) check && \$(MAKE) install-lib libdir=\"\$\$builddir\" includedir=\"\$\$builddir\""
-      echol
-    fi
-    if [ ${LIB_TYPE} = "win32" ] ; then
-      echol "$f.h : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.h"
-      echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.h $f.h"
-      if [ $f = callback ] ; then
-        for g in vacall_r trampoline_r; do
-          echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$g.h $g.h"
-        done
-      fi
-      echol
-      echol "$f.lib : ${SRCTOPDIR_M}ffcall${NEXT_M}$f${NEXT_M}$f.lib"
-      echotab "-\$(LN_S) ${SRCTOPDIR_}ffcall${NEXT_}$f${NEXT_}$f.lib $f.lib"
-      echol
-    fi
-  done
-fi
-
 if [ -n "$USE_GETTEXT" ] ; then
 
   echol "LN_HARD=${LN_HARD}"
@@ -2901,7 +2870,7 @@ finish_runtime () {
 }
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_FFILIBS} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
@@ -3994,15 +3963,6 @@ clean1 : clean0
 	-\$(RMRF) ${SACLATESTSDIR}
 	-\$(RMRF) boot base full
 !!
-if [ ${LIB_TYPE} = "win32" ] ; then
-cat <<!!
-	-\$(RM) charset.lib avcall.lib callback.lib
-!!
-else
-cat <<!!
-	-\$(RM) libavcall.* libcallback.*
-!!
-fi
 cat <<!!
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
@@ -4029,11 +3989,6 @@ clean4 : clean3
 	-\$(RM) cflags.h cflags.h.stamp
 	-\$(RM) \$(CFILES)
 !!
-if [ "${with_dynamic_ffi}" != no ] ; then
-cat <<!!
-	-\$(RM) avcall.h callback.h vacall_r.h trampoline_r.h
-!!
-fi
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd po && \$(MAKE) clean
@@ -4089,10 +4044,6 @@ cat <<!!
 	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
 !!
 fi
-cat <<!!
-	-\$(RMRF) avcall
-	-\$(RMRF) callback
-!!
 if [ -n "${SRCDIR}" ] ; then
 cat <<!!
 	-\$(RMRF) po
