@@ -1,3 +1,16 @@
+2007-12-12  Sam Steingold  <sds@gnu.org>
+
+	expect FFCALL to be installed externally
+	* configure: accept --with-ffcall and --with-libffcall-prefix
+	* Makefile.devel (SOURCES): remove ffcall (not distributed with CLISP)
+	* m4/ffcall.m4: add
+	* configure.in: call CL_FFCALL
+	* makemake.in (FFCALL_LIBS): init from '@LIBAVCALL@ @LIBCALLBACK@'
+	(LIBS): add FFCALL_LIBS when --with-dynamic-ffi was supplied
+	(avcall, callback): remove targets
+	* glm4/lib-link.m4 (AC_LIB_LINKFLAGS_BODY): split into
+	AC_LIB_LINKFLAGS_ADD and AC_LIB_LINKFLAGS_SEARCH (used by CL_FFCALL)
+
 2007-12-11  Sam Steingold  <sds@gnu.org>
 
 	* stream.d: convert comments from "# " to "/**/"

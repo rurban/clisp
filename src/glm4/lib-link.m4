@@ -1,4 +1,5 @@
 # lib-link.m4 serial 13 (gettext-0.17)
+dnl -*- Autoconf -*-
 dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -136,13 +137,8 @@ AC_DEFUN([AC_LIB_RPATH],
     :, enable_rpath=yes)
 ])
 
-dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
-dnl the libraries corresponding to explicit and implicit dependencies.
-dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
-dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
-dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
-[
+dnl AC_LIB_LINKFLAGS_ADD(name) adds -with-libname-prefix command line switch
+AC_DEFUN([AC_LIB_LINKFLAGS_ADD],[dnl
   AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
@@ -171,9 +167,18 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
         additional_libdir="$withval/$acl_libdirstem"
       fi
     fi
-])
+])])
+
+dnl AC_LIB_LINKFLAGS_SEARCH(name [, dependencies]) searches for libname and
+dnl the libraries corresponding to explicit and implicit dependencies.
+dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
+dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
+dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
+AC_DEFUN([AC_LIB_LINKFLAGS_SEARCH],[dnl
   dnl Search the library and its dependencies in $additional_libdir and
   dnl $LDFLAGS. Using breadth-first-seach.
+  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   LIB[]NAME=
   LTLIB[]NAME=
   INC[]NAME=
@@ -609,6 +614,16 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
       LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-R$found_dir"
     done
   fi
+])
+
+dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
+dnl the libraries corresponding to explicit and implicit dependencies.
+dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
+dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
+dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
+AC_DEFUN([AC_LIB_LINKFLAGS_BODY],[
+AC_LIB_LINKFLAGS_ADD($1)
+AC_LIB_LINKFLAGS_SEARCH($1,$2)
 ])
 
 dnl AC_LIB_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
