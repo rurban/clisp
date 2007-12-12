@@ -3,8 +3,7 @@
 ;; ./clisp -E utf-8 -norc -i tests/tests -x '(run-test "tests/ffi")'
 
 ;; This file must stay encoded with UTF-8 for the tests to succeed!
-#+unicode
-(ext:encoding-charset *default-file-encoding*)
+#+unicode (ext:encoding-charset *default-file-encoding*)
 #+unicode charset:utf-8
 
 (progn (defpackage "FTEST" (:use "FFI" "COMMON-LISP")) (in-package "FTEST") T)
@@ -866,24 +865,27 @@ NIL
 
 (with-foreign-object (p 'opaque)
   (equalp (set-foreign-pointer
-	   (unsigned-foreign-address
-	    (foreign-address-unsigned p))
-	   p) (foreign-address p)))
+           (unsigned-foreign-address
+            (foreign-address-unsigned p))
+           p)
+          (foreign-address p)))
 T
 
 (equalp (set-foreign-pointer
-	 (unsigned-foreign-address
-	  (foreign-address-unsigned #'c-self))
-	 #'c-self) (foreign-address #'c-self))
+         (unsigned-foreign-address
+          (foreign-address-unsigned #'c-self))
+         #'c-self)
+        (foreign-address #'c-self))
 T
 
 (progn (setq fm (allocate-deep 'character "abc" :count 5)) (type-of fm))
 FOREIGN-VARIABLE
 
 (equalp (set-foreign-pointer
-	 (unsigned-foreign-address
-	  (foreign-address-unsigned fm))
-	 fm) (foreign-address fm))
+         (unsigned-foreign-address
+          (foreign-address-unsigned fm))
+         fm)
+        (foreign-address fm))
 T
 
 (with-c-place (x fm) (identity (typeof x)))
