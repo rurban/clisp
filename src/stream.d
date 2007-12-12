@@ -5743,13 +5743,18 @@ local void close_ochannel (object stream, uintB abort) {
 
 
 /* Unbuffered File-Stream
-   ======================
+   ====================== */
 
- UP: Checks an Element-Type for an Unbuffered-Stream
+/* check if the eltype specifies a binary stream which element size which is
+   not a whole multiple of a byte, i.e., a stream which must be buffered */
+#define NON_WHOLE_BYTE_P(eltype)                                \
+  ((eltype->kind != eltype_ch) && ((eltype->size % 8) != 0))
+
+/* UP: Checks an Element-Type for an Unbuffered-Stream
  check_unbuffered_eltype(&eltype);
  > eltype: Element-Type in decoded form */
 local void check_unbuffered_eltype (const decoded_el_t* eltype) {
-  if (!((eltype->kind == eltype_ch) || ((eltype->size % 8) == 0))) {
+  if (NON_WHOLE_BYTE_P(eltype)) {
     pushSTACK(canon_eltype(eltype));
     pushSTACK(S(Kelement_type));
     error(error_condition,GETTEXT("Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"));
@@ -7614,9 +7619,9 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
                                          bool handle_regular,
                                          bool handle_blockpositioning) {
   var uintB flags = DIRECTION_FLAGS(direction) & ELTYPE_FLAFS(eltype);
-  var uintC xlen = sizeof(strm_buffered_extrafields_t); /* all File-Streams have that */
-  if (eltype->kind != eltype_ch && ((eltype->size % 8) != 0))
-    xlen = sizeof(strm_i_buffered_extrafields_t); /* File-Streams have that for Integers at most */
+  var uintC xlen = NON_WHOLE_BYTE_P(eltype)
+    ? sizeof(strm_i_buffered_extrafields_t) /* integer file-streams */
+    : sizeof(strm_buffered_extrafields_t); /* all other file-streams */
   /* allocate Stream: */
   var object stream = allocate_stream(flags,type,strm_channel_len,xlen);
   /* and fill: */
