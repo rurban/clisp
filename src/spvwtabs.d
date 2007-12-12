@@ -24,7 +24,7 @@
 /* Table of all fixed symbols: */
 global struct symbol_tab_ symbol_tab_data
   #if defined(HEAPCODES) && (alignment_long < varobject_alignment)
-    # Force all symbols to be allocated with a 4/8-byte alignment. GC needs this.
+/* Force all symbols to be allocated with a 4/8-byte alignment. GC needs this. */
     #if defined(GNU)
       __attribute__ ((aligned (varobject_alignment)))
     #endif
