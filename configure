@@ -303,22 +303,22 @@ do
         passnextm=yes ;;
 
       --localedir=* | --localedi=* | --localed=* | --locale=* | --local=* | --loca=* | --loc=* | --lo=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --localedir="`getarg "$arg"` ;;
 
       --localedir | --localedi | --localed | --locale | --local | --loca | --loc | --lo)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --localedir="
         prev=localedir
         passnext=yes
         passnextm=yes ;;
 
       --docdir=* | --docdi=* | --docd=* | --doc=* | --do=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --docdir="`getarg "$arg"` ;;
 
       --docdir | --docdi | --docd | --doc | --do)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --docdir="
         prev=docdir
         passnext=yes
@@ -336,66 +336,66 @@ do
         passnextm=yes ;;
 
       --htmldir=* | --htmldi=* | --htmld=* | --html=* | --htm=* | --ht=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --htmldir="`getarg "$arg"` ;;
 
       --htmldir | --htmldi | --htmld | --html | --htm | --ht)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --htmldir="
         prev=htmldir
         passnext=yes
         passnextm=yes ;;
 
       --dvidir=* | --dvidi=* | --dvid=* | --dvi=* | --dv=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --dvidir="`getarg "$arg"` ;;
 
       --dvidir | --dvidi | --dvid | --dvi | --dv)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --dvidir="
         prev=dvidir
         passnext=yes
         passnextm=yes ;;
 
       --psdir=* | --psdi=* | --psd=* | --ps=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --psdir="`getarg "$arg"` ;;
 
       --psdir | --psdi | --psd | --ps)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --psdir="
         prev=psdir
         passnext=yes
         passnextm=yes ;;
 
       --pdfdir=* | --pdfdi=* | --pdfd=* | --pdf=* | --pd=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --pdfdir="`getarg "$arg"` ;;
 
       --pdfdir | --pdfdi | --pdfd | --pdf | --pd)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --pdfdir="
         prev=pdfdir
         passnext=yes
         passnextm=yes ;;
 
       --elispdir=* | --elispdi=* | --elispd=* | --elisp=* | --elis=* | --eli=* | --el=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --elispdir="`getarg "$arg"` ;;
 
       --elispdir | --elispdi | --elispd | --elisp | --elis | --eli | --el)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --elispdir="
         prev=elispdir
         passnext=yes
         passnextm=yes ;;
 
       --vimdir=* | --vimdi=* | --vimd=* | --vim=* | --vi=*)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --vimdir="`getarg "$arg"` ;;
 
       --vimdir | --vimdi | --vimd | --vim | --vi)
-        #subdir_configure_args="$subdir_configure_args $arg" # waiting for autoconf-2.60
+        subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --vimdir="
         prev=vimdir
         passnext=yes
