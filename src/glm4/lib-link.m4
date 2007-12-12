@@ -622,8 +622,8 @@ dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
 dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
 dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
 AC_DEFUN([AC_LIB_LINKFLAGS_BODY],[
-AC_LIB_LINKFLAGS_ADD($1)
-AC_LIB_LINKFLAGS_SEARCH($1,$2)
+AC_LIB_LINKFLAGS_ADD($1)dnl
+AC_LIB_LINKFLAGS_SEARCH($1,$2)dnl
 ])
 
 dnl AC_LIB_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
