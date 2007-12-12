@@ -1,6 +1,12 @@
 User visible changes
 --------------------
 
+* CLISP does not come with GNU libffcall anymore.
+  This is now a separate package and should be installed separately.
+  Pass --with-libffcall-prefix to the top-level configure if it is not
+  installed in a standard place.
+  Option --with-dynamic-ffi is now replaced with --with-ffcall.
+
 * CLOS now issues warnings of type CLOS:CLOS-WARNING.
   See <http://clisp.cons.org/impnotes/mop-clisp.html#mop-clisp-warn>
   for details.

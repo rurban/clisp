@@ -5,10 +5,6 @@
 *.pdb
 *.sbr
 autom4te.cache
-avcall
-avcall.h
-callback
-callback.h
 localcharset.h
 config.h
 makefile*
