@@ -1,5 +1,11 @@
 2007-12-12  Sam Steingold  <sds@gnu.org>
 
+	* spvw_typealloc.d (NIL_FILL): add
+	(allocate_vector, allocate_lrecord, allocate_lrecord_)
+	(allocate_srecord_): use it
+
+2007-12-12  Sam Steingold  <sds@gnu.org>
+
 	expect FFCALL to be installed externally
 	* configure: accept --with-ffcall and --with-libffcall-prefix
 	* Makefile.devel (SOURCES): remove ffcall (not distributed with CLISP)
