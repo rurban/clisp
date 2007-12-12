@@ -24,7 +24,7 @@ local void quit_on_signal (int sig) {
 /* install error handlers for as many signals as possible */
 local void install_sigterm_handler (void) {
 #ifdef SIGHUP
-  /* maybe ignore? - use nohup instead */
+  /* maybe ignore? No, use nohup instead */
   SIGNAL(SIGHUP,&quit_on_signal);
 #endif
 #ifdef SIGQUIT
