@@ -1,3 +1,9 @@
+2007-12-11  Sam Steingold  <sds@gnu.org>
+
+	* stream.d: convert comments from "# " to "/**/"
+	(ELTYPE_FLAFS): new macro
+	(make_unbuffered_stream, make_buffered_stream): use it
+
 2007-12-06  Sam Steingold  <sds@gnu.org>
 
 	* configure (--localedir, --docdir, --htmldir, --dvidir, --psdir)
