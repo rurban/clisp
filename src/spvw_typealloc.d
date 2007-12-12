@@ -74,6 +74,12 @@ global maygc object make_symbol (object string) {
 #undef FILL
 }
 
+/* initialize elements with NIL */
+#define NIL_FILL(len,data) if (len > 0) {                               \
+  gcv_object_t* p = data;                                               \
+  do { *p++ = NIL; } while (--len);                                     \
+ }
+
 /* UP, provides vector
  allocate_vector(len)
  > len: length of the vector
@@ -88,10 +94,7 @@ global maygc object allocate_vector (uintL len) {
  #endif
   allocate(svector_type,true,need,Svector,ptr,{
     SETTFL;
-    if (len > 0) {
-      var gcv_object_t* p = &ptr->data[0];
-      dotimespL(len,len, { *p++ = NIL; } ); /* write NIL to the elements */
-    }
+    NIL_FILL(len,ptr->data);
   });
  #undef SETTFL
 }
@@ -325,10 +328,7 @@ global maygc object allocate_lrecord (uintB rectype, uintL reclen, tint type)
   var uintL need = size_lrecord(reclen);
   allocate(type,true,need,Lrecord,ptr,{
     ptr->tfl = lrecord_tfl(rectype,reclen); /* store type and length */
-    if (reclen > 0) {
-      var gcv_object_t* p = &ptr->recdata[0];
-      dotimespL(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
-    }
+    NIL_FILL(reclen,ptr->recdata);
   });
 }
 #else
@@ -338,10 +338,7 @@ global maygc object allocate_lrecord_ (uintB rectype, uintL reclen)
   var uintL need = size_lrecord(reclen);
   allocate(type,true,need,Lrecord,ptr,{
     ptr->tfl = lrecord_tfl(rectype,reclen); /* store type and length */
-    if (reclen > 0) {
-      var gcv_object_t* p = &ptr->recdata[0];
-      dotimespL(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
-    }
+    NIL_FILL(reclen,ptr->recdata);
   });
 }
 #endif
@@ -362,8 +359,7 @@ global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen, tint t
     /* store flags, type: */
     *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) = flags_rectype;
     ptr->reclength = reclen;    /* store length */
-    var gcv_object_t* p = &ptr->recdata[0];
-    dotimespC(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
+    NIL_FILL(reclen,ptr->recdata);
   });
 }
 #else
@@ -371,8 +367,7 @@ global maygc object allocate_srecord_ (uintW flags_rectype, uintC reclen) {
   var uintL need = size_srecord(reclen);
   allocate(type,true,need,Srecord,ptr,{
     ptr->tfl = (uintL)flags_rectype + ((uintL)reclen << 16);
-    var gcv_object_t* p = &ptr->recdata[0];
-    dotimespC(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
+    NIL_FILL(reclen,ptr->recdata);
   });
 }
 #endif
@@ -396,7 +391,7 @@ global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
     *(uintW*)pointerplus(ptr,offsetof(record_,rectype)) = flags_rectype;
     ptr->reclength = reclen; ptr->recxlength = recxlen; /* store lengths */
     var gcv_object_t* p = &ptr->recdata[0];
-    dotimesC(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
+    dotimesC(reclen,reclen, { *p++ = NIL; } ); /*initialize elements with NIL*/
     if (recxlen > 0) {
       var uintB* q = (uintB*)p;
       /* initialize extra-elements with 0: */
@@ -412,7 +407,7 @@ global maygc object allocate_xrecord_ (uintW flags_rectype, uintC reclen,
     ptr->tfl =                  /* store flags, type, lengths */
       (uintL)flags_rectype + ((uintL)reclen << 16) + ((uintL)recxlen << 24);
     var gcv_object_t* p = &ptr->recdata[0];
-    dotimesC(reclen,reclen, { *p++ = NIL; } ); /* initialize elements with NIL */
+    dotimesC(reclen,reclen, { *p++ = NIL; } ); /*initialize elements with NIL*/
     if (recxlen > 0) {
       var uintB* q = (uintB*)p;
       /* initialize extra-elements with 0: */
