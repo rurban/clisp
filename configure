@@ -655,7 +655,7 @@ Configure findings:
   libsigsegv: ${cl_cv_lib_sigsegv}
 EOF
 if [ ${do_ffi} != no -a ${cl_cv_have_ffcall} = yes ]; then
-  makemake_args="${makemake_args} --with-dynamic-ffi"
+  makemake_args="--with-dynamic-ffi ${makemake_args}"
 fi
 if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
   if [ "${ignore_absence_of_libsigsegv}" = "yes" ]; then
