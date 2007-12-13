@@ -79,7 +79,7 @@
   {
     #ifdef DUMMER_GGT # so macht's ein Mathematiker:
     var uintV bit_j = bit(0);
-    loop {
+    while (1) {
       # a,b >0
       if (!((a & bit_j) ==0)) {
         if (!((b & bit_j) ==0))
@@ -104,7 +104,7 @@
     if (!((b & bit_j) ==0))
       goto even_odd;
     #endif
-    loop {
+    while (1) {
      odd_odd: # a,b >0, beide ungerade
       # Vergleiche a und b:
       if (a == b) # a=b>0 -> fertig
@@ -347,7 +347,7 @@
         STACK_0 = a; a = b;
       }
     }
-    loop { # Hier a > STACK_0 > 0
+    while (1) { # Hier a > STACK_0 > 0
       if (eq(STACK_0,Fixnum_1)) # b=1 -> Ergebnis 1
         return popSTACK();
       I_I_divide_I_I(a,STACK_0); b = STACK_0; skipSTACK(2); # b := Rest der Division a / STACK_0
@@ -416,7 +416,7 @@
         swap(STACK_5,STACK_3); swap(STACK_4,STACK_2);
       }
     }
-    loop { # Hier a>b>0
+    while (1) { # Hier a>b>0
       if (eq(b,Fixnum_1)) { # b=1 -> g=b, (u,v) = (ub,vb)
         STACK_5 = STACK_3; STACK_4 = STACK_2; STACK_3 = b;
         skipSTACK(3); return;
@@ -624,7 +624,7 @@
         # Jetzt ist ../c_len/c_LSDptr, ../c_len/d_LSDptr frei.
       }
       begin_arith_call();
-      loop {
+      while (1) {
         # Hier a,b>0, beides NUDS.
         # Vergleiche a und b:
         if (a_len > b_len) # a>b ?
@@ -1029,7 +1029,7 @@
         # Jetzt ist ../c_len/c_LSDptr, ../c_len/d_LSDptr frei.
       }
       begin_arith_call();
-      loop {
+      while (1) {
         # Hier a,b>0, beides NUDS.
         # Vergleiche a und b:
         if (a_len > b_len) # a>b ?

@@ -2523,7 +2523,7 @@ LISPFUNN(hash_table_iterate,1) {
   var object state = popSTACK(); /* internal state */
   if (consp(state)) {            /* hopefully a cons */
     var object table = Car(state); /* key-value-vector */
-    loop {
+    while (1) {
       var uintL index = posfixnum_to_V(Cdr(state));
       if (index==0)             /* index=0 -> no more elements */
         break;

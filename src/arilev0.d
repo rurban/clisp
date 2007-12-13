@@ -1229,17 +1229,17 @@
     { var uint32 _x = (x);                                               \
       var uint16 _x1 = high16(_x);                                       \
       var uint16 _y = floor(_x1,2) | bit(16-1);                          \
-      loop                                                               \
-        { var uint16 _z;                                                 \
-          var uint16 _r;                                                 \
-          if (_x1 >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y     \
-            { unused (sqrtp_assignment false); break; }                   \
-          divu_3216_1616(_x,_y, _z=,_r=); # Dividiere _x/_y              \
-          if (_z >= _y)                                                  \
-            { unused (sqrtp_assignment (_z == _y) && (_r == 0)); break; } \
-          _y = floor((uint16)(_z+_y),2) | bit(16-1); # _y muss >= 2^15 bleiben \
-        }                                                                \
-      y_assignment _y;                                                    \
+      while (1) {                                                       \
+        var uint16 _z;                                                  \
+        var uint16 _r;                                                  \
+        if (_x1 >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y      \
+          { unused (sqrtp_assignment false); break; }                   \
+        divu_3216_1616(_x,_y, _z=,_r=); # Dividiere _x/_y               \
+        if (_z >= _y)                                                   \
+          { unused (sqrtp_assignment (_z == _y) && (_r == 0)); break; } \
+        _y = floor((uint16)(_z+_y),2) | bit(16-1); # _y muss >= 2^15 bleiben \
+      }                                                                 \
+      y_assignment _y;                                                  \
     }
 
 # Zieht die Ganzzahl-Wurzel aus einer 64-Bit-Zahl und
@@ -1265,17 +1265,17 @@
       { var uint32 _xhi = (xhi);                                        \
         var uint32 _xlo = (xlo);                                        \
         var uint32 _y = floor(_xhi,2) | bit(32-1);                      \
-        loop                                                            \
-          { var uint32 _z;                                              \
-            var uint32 _rest;                                           \
-            if (_xhi >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y \
-              { sqrtp_assignment false; break; }                         \
-            divu_6432_3232(_xhi,_xlo,_y, _z=,_rest=); # Dividiere _x/_y \
-            if (_z >= _y)                                               \
-              { sqrtp_assignment (_z == _y) && (_rest == 0); break; }    \
-            _y = floor(_z+_y,2) | bit(32-1); # _y muss >= 2^31 bleiben  \
-          }                                                             \
-        y_assignment _y;                                                 \
+        while (1) {                                                     \
+          var uint32 _z;                                                \
+          var uint32 _rest;                                             \
+          if (_xhi >= _y) # Division _x/_y ergäbe Überlauf -> _z > _y   \
+            { sqrtp_assignment false; break; }                          \
+          divu_6432_3232(_xhi,_xlo,_y, _z=,_rest=); # Dividiere _x/_y   \
+          if (_z >= _y)                                                 \
+            { sqrtp_assignment (_z == _y) && (_rest == 0); break; }     \
+          _y = floor(_z+_y,2) | bit(32-1); # _y muss >= 2^31 bleiben    \
+        }                                                               \
+        y_assignment _y;                                                \
       }
   #else
     # Methode:

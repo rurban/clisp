@@ -855,7 +855,7 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
       var object list2;
       var object slow = list;
       if (consp(list)) {
-        loop {
+        while (1) {
           /* list is a Cons. */
           list2 = Cdr(list); if (atomp(list2)) break; list = list2;
           if (eq(list,slow)) {
@@ -1084,7 +1084,7 @@ LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL) # (NCONC {list}), CLTL S. 26
           # Gesamtliste in (cdr (last STACK_1)) einhängen:
           var object list1 = STACK_1;
           var object list2;
-          loop {
+          while (1) {
             # Hier ist list1 ein Cons.
             list2 = Cdr(list1);
             if (atomp(list2))
@@ -1194,7 +1194,7 @@ LISPFUNNR(ldiff,2)
     # Listenelemente einzeln kopieren, bis new_list voll ist:
     var object new_lauf = new_list; # läuft durch die neue Liste
     var object old_lauf = popSTACK(); # läuft durch die alte Liste
-    if (consp(new_lauf)) loop { # loop!
+    if (consp(new_lauf)) while (1) {  /* loop! */
       Car(new_lauf) = Car(old_lauf);
       if (atomp(Cdr(new_lauf))) {
         if (!found_p)
@@ -1796,7 +1796,7 @@ LISPFUNNR(tailp,2) # (TAILP sublist list), CLTL S. 275
     if (nullp(sublist))
       goto yes;
     #else
-    loop {
+    while (1) {
       if (eql(list,sublist))
         goto yes;
       if (atomp(list))
@@ -1852,7 +1852,7 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
     STACK_0=NIL; /* ALIST defaults to NIL */
   pushSTACK(STACK_2);     /* keys */
   pushSTACK(STACK_(1+1)); /* data */
-  loop { /* stack layout: keys, data, alist, keysr, datar. */
+  while (1) { /* stack layout: keys, data, alist, keysr, datar. */
     if (endp(STACK_0)) /* data is over? */
       if (endp(STACK_1)) /* keys is over? */
         goto end;
@@ -2042,7 +2042,7 @@ LISPFUNN(list_access_set,3)
 local object elt_up (object seq, object index) {
   var object l = seq;
   var object n = Fixnum_0;
-  loop {
+  while (1) {
     if (atomp(l))
       goto index_too_large;
     if (eq(n,index))
@@ -2130,7 +2130,7 @@ LISPFUNN(list_fe_init_end,2)
   pushSTACK(NIL);                               /* L1 := nil */
   { var object seq = STACK_2; pushSTACK(seq); } /* L2 := seq */
   pushSTACK(Fixnum_0);                          /* i := 0 */
-  loop {
+  while (1) {
     /* stack layout: seq, index, L1, L2, i */
     if (eq(STACK_0,STACK_3))    /* i=index ? */
       goto end;

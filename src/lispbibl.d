@@ -1043,10 +1043,6 @@
  used by utils/varbrace to allow declarations mixed with other statements */
 #define var
 
-/* Infinite loop, can only be left with break;  or  return...;:
- _deprecated_, please use standard C */
-#define loop  while (1)
-
 /* Reverted stop condition in loops:
  Allows   until (expression) statement
  and      do statement until (expression);
@@ -13957,7 +13953,7 @@ extern maygc object hash_table_test (object ht);
     var uintL index_from_map_hashtable =                                \
       3*posfixnum_to_V(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     pushSTACK(TheHashtable(ht_from_map_hashtable)->ht_kvtable);         \
-    loop {                                                              \
+    while (1) {                                                         \
       if (index_from_map_hashtable==0) break;                           \
       index_from_map_hashtable -= 3;                                    \
       {var gcv_object_t* KVptr_from_map_hashtable =                     \
@@ -13976,7 +13972,7 @@ extern maygc object hash_table_test (object ht);
       posfixnum_to_V(TheHashtable(ht_from_map_hashtable)->ht_maxcount); \
     var gcv_object_t* KVptr_from_map_hashtable =                        \
       &TheHashedAlist(TheHashtable(ht_from_map_hashtable)->ht_kvtable)->hal_data[3*index_from_map_hashtable]; \
-    loop {                                                              \
+    while (1) {                                                         \
       if (index_from_map_hashtable==0) break;                           \
       index_from_map_hashtable--; KVptr_from_map_hashtable -= 3;        \
       { var object key = KVptr_from_map_hashtable[0];                   \

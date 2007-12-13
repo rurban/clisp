@@ -858,7 +858,7 @@ LISPFUN(xgcd,seclass_foldable,0,0,rest,nokey,0,NIL)
       I_I_xgcd_I_I_I(arg_0,arg_1);
       Before(arg_i_ptr) = STACK_2;
     }
-    loop {
+    while (1) {
       NEXT(arg_i_ptr) = STACK_1;
       g = STACK_0; skipSTACK(3);
       if (arg_i_ptr == args_end_pointer)

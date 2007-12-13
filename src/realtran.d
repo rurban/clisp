@@ -59,7 +59,7 @@
       pushSTACK(temp); # =: t
     }
     # Stackaufbau: a, b, x, t.
-    loop {
+    while (1) {
       {
         var object temp;
         temp = LF_LF_minus_LF(STACK_3,STACK_2); # (- a b)
@@ -149,62 +149,61 @@ local maygc object pi (object x) {
 # Aufwand: asymptotisch d^2.5 .
 
 # Generiert eine Funktion wie F_atanx_F
-  #define GEN_F_atanx(name,Fixnum_plusminus1,F_plusminus_F)                         \
-    local maygc object CONCAT3(F_,name,_F) (object x)                               \
-      { GCTRIGGER1(x);                                                              \
-        if (R_zerop(x))                                                             \
-          return x;                                                                 \
-       {var uintL d = F_float_digits(x);                                            \
-        var sintL e = F_exponent_L(x);                                              \
-        if (e <= (sintL)(-d)>>1) # e <= -d/2 <==> e <= -ceiling(d/2)                \
-          return x; # ja -> x als Ergebnis                                          \
-        pushSTACK(x);                                                               \
-        # Stackaufbau: x.                                                           \
-        {var object k = Fixnum_0; # Rekursionszähler k:=0                           \
-         var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                         \
-         # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.        \
-         if (e >= (sintL)(-sqrt_d)) {                                               \
-           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                         \
-           var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                         \
-           pushSTACK(x = F_div_F(F_abs_F(x))); # 1/|x|                            \
-           # Stackaufbau: originales x, neues x.                                    \
-           loop {                                                                   \
-             # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:          \
-             x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));             \
-             STACK_0 = x = F_F_plus_F(STACK_0,x);                                   \
-             k = fixnum_inc(k,1); # k:=k+1                                          \
-             if (F_exponent_L(x) > e_limit)                                         \
-               break;                                                               \
-           }                                                                        \
-           # Schleifenende mit Exponent(x) > 1+floor(sqrt(d)), also                 \
-           # x >= 2^(1+floor(sqrt(d))), also 1/x <= 2^(-1-floor(sqrt(d))).          \
-           # Nun kann die Potenzreihe auf 1/x angewandt werden.                     \
-           {var object x = F_div_F(popSTACK());                                   \
-            if (R_minusp(STACK_0)) { x = F_minus_F(x); } # Vorzeichen wieder rein   \
-            STACK_0 = x; # neues x ersetzt altes x                                  \
-         } }                                                                        \
-         # Stackaufbau: neues x.                                                    \
-         # Potenzreihe anwenden:                                                    \
-         {var object i = Fixnum_1;                                                  \
-          pushSTACK(F_plusminus_F(F_square_F(STACK_0))); # a := -x^2 bzw. x^2       \
-          pushSTACK(I_F_float_F(Fixnum_1,STACK_1)); # b := (float 1 x)              \
-          pushSTACK(I_F_float_F(Fixnum_0,STACK_2)); # sum := (float 0 x)            \
-          # Stackaufbau: x, a, b, sum.                                              \
-          loop {                                                                    \
-            var object temp;                                                        \
-            temp = R_R_div_R(STACK_1,i); # (/ b i)                                \
-            temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))                      \
-            if (eql(STACK_0,temp)) # = sum ?                                        \
-              break; # ja -> Potenzreihe abbrechen                                  \
-            STACK_0 = temp;                                                         \
-            STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                        \
-            i = fixnum_inc(i,2); # i := i+2                                         \
-          }                                                                         \
-         }                                                                          \
-         {var object erg = F_F_mult_F(STACK_0,STACK_3); # sum*x als Ergebnis         \
-          skipSTACK(4);                                                             \
-          return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k           \
-      }}}}
+#define GEN_F_atanx(name,Fixnum_plusminus1,F_plusminus_F)               \
+  local maygc object CONCAT3(F_,name,_F) (object x)                     \
+  { GCTRIGGER1(x);                                                      \
+    if (R_zerop(x))                                                     \
+      return x;                                                         \
+   {var uintL d = F_float_digits(x);                                   \
+    var sintL e = F_exponent_L(x);                                     \
+    if (e <= (sintL)(-d)>>1) # e <= -d/2 <==> e <= -ceiling(d/2)        \
+      return x; # ja -> x als Ergebnis                                  \
+    pushSTACK(x);                                                       \
+    # Stackaufbau: x.                                                   \
+   {var object k = Fixnum_0; # Rekursionszähler k:=0                   \
+    var uintL sqrt_d = UL_sqrt_UW(d); # floor(sqrt(d))                \
+    # Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden. \
+    if (e >= (sintL)(-sqrt_d)) {                                        \
+      # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                  \
+      var sintL e_limit = 1+sqrt_d; # 1+floor(sqrt(d))                  \
+      pushSTACK(x = F_div_F(F_abs_F(x))); # 1/|x|                       \
+      # Stackaufbau: originales x, neues x.                             \
+      while (1) {                                                       \
+        # nächstes x nach der Formel x := x+sqrt(x^2 +- 1) berechnen:   \
+        x = F_sqrt_F(R_R_plus_R(F_square_F(x),Fixnum_plusminus1));      \
+        STACK_0 = x = F_F_plus_F(STACK_0,x);                            \
+        k = fixnum_inc(k,1); # k:=k+1                                   \
+        if (F_exponent_L(x) > e_limit)                                  \
+          break;                                                        \
+      }                                                                 \
+      # Schleifenende mit Exponent(x) > 1+floor(sqrt(d)), also          \
+      # x >= 2^(1+floor(sqrt(d))), also 1/x <= 2^(-1-floor(sqrt(d))).   \
+      # Nun kann die Potenzreihe auf 1/x angewandt werden.              \
+     {var object x = F_div_F(popSTACK());                              \
+      if (R_minusp(STACK_0)) { x = F_minus_F(x); } # Vorzeichen wieder rein \
+      STACK_0 = x; # neues x ersetzt altes x                            \
+    }}                                                                 \
+    # Stackaufbau: neues x.                                             \
+    # Potenzreihe anwenden:                                             \
+   {var object i = Fixnum_1;                                           \
+    pushSTACK(F_plusminus_F(F_square_F(STACK_0))); # a := -x^2 bzw. x^2 \
+    pushSTACK(I_F_float_F(Fixnum_1,STACK_1)); # b := (float 1 x)        \
+    pushSTACK(I_F_float_F(Fixnum_0,STACK_2)); # sum := (float 0 x)      \
+    # Stackaufbau: x, a, b, sum.                                        \
+    while (1) {                                                         \
+      var object temp;                                                  \
+      temp = R_R_div_R(STACK_1,i); # (/ b i)                            \
+      temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))                \
+      if (eql(STACK_0,temp)) # = sum ?                                  \
+        break; # ja -> Potenzreihe abbrechen                            \
+      STACK_0 = temp;                                                   \
+      STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                 \
+      i = fixnum_inc(i,2); # i := i+2                                   \
+    }}                                                                    \
+   {var object erg = F_F_mult_F(STACK_0,STACK_3); # sum*x als Ergebnis  \
+    skipSTACK(4);                                                      \
+    return F_I_scale_float_F(erg,k); # wegen Rekursion noch mal 2^k    \
+   }}}}
 # F_atanx_F : mit x -> x+sqrt(x^2-1), a = -x^2
   GEN_F_atanx(atanx,Fixnum_1,F_minus_F)
 # F_atanhx_F : mit x -> x+sqrt(x^2+1), a = x^2
@@ -351,60 +350,59 @@ local maygc object pi (object x) {
 # Aufwand: asymptotisch d^2.5 .
 
 # Generiert eine Funktion wie F_sinx_F
-  #define GEN_F_sinx(name,f,flag,R_R_plusminus_R)                              \
-    local maygc object CONCAT3(F_,name,_F) (object x)                          \
-      { GCTRIGGER1(x);                                                         \
-        if (R_zerop(x))                                                        \
-          return I_F_float_F(Fixnum_1,x);                                      \
-       {var uintL d = F_float_digits(x);                                       \
-        var sintL e = F_exponent_L(x);                                         \
-        if (e <= (sintL)(f-d)>>1) # e <= (f-d)/2 <==> e <= -ceiling((d-f)/2) ? \
-          return I_F_float_F(Fixnum_1,x); # ja -> 1.0 als Ergebnis             \
-        pushSTACK(x);                                                          \
-        {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden.   \
-         var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))             \
-         if (e > e_limit) {                                                    \
-           # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                    \
-           x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                        \
-           STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)      \
-         }                                                                     \
-         x = STACK_0; pushSTACK(F_square_F(x));                                \
-         # Stackaufbau: x, x^2.                                                \
-         # Potenzreihe anwenden:                                               \
-         pushSTACK(STACK_0);                                                   \
-         if (flag) { STACK_0 = F_minus_F(STACK_0); } # a := -x^2 bzw. x^2      \
-         {var object i = Fixnum_1;                                             \
-          pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); # b := (float 1 x)         \
-          pushSTACK(I_F_float_F(Fixnum_0,STACK_3)); # sum := (float 0 x)       \
-          # Stackaufbau: x, x^2, a, b, sum.                                    \
-          loop {                                                               \
-            var object temp;                                                   \
-            temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)                    \
-            if (eql(STACK_0,temp)) # = sum ?                                   \
-              break; # ja -> Potenzreihe abbrechen                             \
-            STACK_0 = temp;                                                    \
-            STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                   \
-            temp = I_I_mult_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2)   \
-            i = fixnum_inc(i,2); # i := i+2                                    \
-            STACK_1 = R_R_div_R(STACK_1,temp); # b := b/((i+1)*(i+2))        \
-          }                                                                    \
-         }                                                                     \
-         {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis             \
-          # Stackaufbau: x, x^2, -, -, -.                                      \
-          # Wegen Rekursion noch max(e-e_limit,0) mal z verändern:             \
-          if (e > e_limit) {                                                   \
-            STACK_4 = z; # z retten                                            \
-            do {                                                               \
-              z = R_R_plusminus_R(Fixnum_1,F_F_mult_F(STACK_3,z)); # 1 +- x^2*z \
-              STACK_4 = F_F_mult_F(STACK_4,z); # mit z multiplizieren           \
-              STACK_3 = F_I_scale_float_F(STACK_3,fixnum(2)); # x^2 := x^2*4   \
-              z = STACK_4;                                                     \
-              e_limit++;                                                       \
-            } while (e > e_limit);                                             \
-          }                                                                    \
-          skipSTACK(5);                                                        \
-          return z;                                                            \
-      }}}}
+#define GEN_F_sinx(name,f,flag,R_R_plusminus_R)                         \
+  local maygc object CONCAT3(F_,name,_F) (object x)                     \
+  { GCTRIGGER1(x);                                                      \
+    if (R_zerop(x))                                                     \
+      return I_F_float_F(Fixnum_1,x);                                   \
+   {var uintL d = F_float_digits(x);                                   \
+    var sintL e = F_exponent_L(x);                                         \
+    if (e <= (sintL)(f-d)>>1) # e <= (f-d)/2 <==> e <= -ceiling((d-f)/2) ? \
+      return I_F_float_F(Fixnum_1,x); # ja -> 1.0 als Ergebnis          \
+    pushSTACK(x);                                                       \
+   {# Bei e <= -1-floor(sqrt(d)) kann die Potenzreihe angewandt werden. \
+    var sintL e_limit = -1-UL_sqrt_UW(d); # -1-floor(sqrt(d))             \
+    if (e > e_limit) {                                                  \
+      # e > -1-floor(sqrt(d)) -> muss |x| verkleinern.                  \
+      x = I_I_minus_I(L_to_FN(e_limit),L_to_I(e));                      \
+      STACK_0 = F_I_scale_float_F(STACK_0,x); # x := x*2^(e_limit-e)    \
+    }                                                                   \
+    x = STACK_0; pushSTACK(F_square_F(x));                              \
+    # Stackaufbau: x, x^2.                                              \
+    # Potenzreihe anwenden:                                             \
+    pushSTACK(STACK_0);                                                 \
+    if (flag) { STACK_0 = F_minus_F(STACK_0); } # a := -x^2 bzw. x^2    \
+   {var object i = Fixnum_1;                                           \
+    pushSTACK(I_F_float_F(Fixnum_1,STACK_2)); # b := (float 1 x)      \
+    pushSTACK(I_F_float_F(Fixnum_0,STACK_3)); # sum := (float 0 x)      \
+    # Stackaufbau: x, x^2, a, b, sum.                                   \
+    while (1) {                                                         \
+      var object temp;                                                  \
+      temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)                   \
+      if (eql(STACK_0,temp)) # = sum ?                                  \
+        break; # ja -> Potenzreihe abbrechen                            \
+      STACK_0 = temp;                                                   \
+      STACK_1 = F_F_mult_F(STACK_1,STACK_2); # b := b*a                 \
+      temp = I_I_mult_I(fixnum_inc(i,1),fixnum_inc(i,2)); # (i+1)*(i+2) \
+      i = fixnum_inc(i,2); # i := i+2                                   \
+      STACK_1 = R_R_div_R(STACK_1,temp); # b := b/((i+1)*(i+2))         \
+    }}                                                                    \
+   {var object z = F_square_F(STACK_0); # sum^2 als Ergebnis            \
+    # Stackaufbau: x, x^2, -, -, -.                                      \
+    # Wegen Rekursion noch max(e-e_limit,0) mal z verändern:           \
+    if (e > e_limit) {                                                   \
+      STACK_4 = z; # z retten                                           \
+      do {                                                              \
+        z = R_R_plusminus_R(Fixnum_1,F_F_mult_F(STACK_3,z)); # 1 +- x^2*z \
+        STACK_4 = F_F_mult_F(STACK_4,z); # mit z multiplizieren         \
+        STACK_3 = F_I_scale_float_F(STACK_3,fixnum(2)); # x^2 := x^2*4  \
+        z = STACK_4;                                                    \
+        e_limit++;                                                      \
+      } while (e > e_limit);                                            \
+    }                                                                   \
+    skipSTACK(5);                                                       \
+    return z;                                                           \
+   }}}}
 # F_sinx_F : mit z -> z*(1-y^2*z), a = -x^2, -d/2
   GEN_F_sinx(sinx,0,true,R_R_minus_R)
 # F_sinhx_F : mit z -> z*(1+y^2*z), a = x^2, (1-d)/2
@@ -691,7 +689,7 @@ local maygc object R_tan_R (object x)
       pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
       STACK_2 = F_minus_F(STACK_1); # a := -y, b := y
       # Stackaufbau: a, b, sum.
-      loop {
+      while (1) {
         var object temp;
         temp = R_R_div_R(STACK_1,i); # (/ b i)
         temp = F_F_plus_F(STACK_0,temp); # (+ sum (/ b i))
@@ -863,7 +861,7 @@ local maygc object R_ln_R (object x, gcv_object_t* end_p)
     var uintL ud = 0;
     var uintL vc = 0;
     var uintL vd = 1;
-    loop {
+    while (1) {
       if (eq(a,Fixnum_1)) # a=1 -> Rekursion zu Ende
         break;
       if (I_I_comp(a,b) >=0) {
@@ -1057,7 +1055,7 @@ local maygc object R_ln_R (object x, gcv_object_t* end_p)
       pushSTACK(I_F_float_F(Fixnum_1,STACK_0)); # b := (float 1 x)
       pushSTACK(I_F_float_F(Fixnum_0,STACK_1)); # sum := (float 0 x)
       # Stackaufbau: x, b, sum.
-      loop {
+      while (1) {
         var object temp;
         temp = F_F_plus_F(STACK_0,STACK_1); # (+ sum b)
         if (eql(STACK_0,temp)) # = sum ?
