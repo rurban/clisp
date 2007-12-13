@@ -5032,7 +5032,7 @@ local maygc void pr_uint (const gcv_object_t* stream_, uintL x) {
     var uintB zif;
     divu_3216_3216(x,10,x=,zif=); # x := floor(x/10), zif := Rest
     *ziffptr++ = zif; ziffcount++; # save digit
-  } until (x==0);
+  } while (x != 0);
   # ouput digits in reversed order:
   dotimespC(ziffcount,ziffcount, {
     write_ascii_char(stream_,'0' + *--ziffptr);

@@ -653,7 +653,7 @@ local bool framep (gcv_object_t* FRAME)
 }
 
 /* Macro: decreases FRAME down to the next frame. */
-#define next_frame_down()  do { FRAME skipSTACKop -1; } until (frame_p());
+#define next_frame_down()  do { FRAME skipSTACKop -1; } while (!frame_p());
 
 /* Macro: Tests, if the frame at FRAME is a lexical frame. */
 #ifdef entrypoint_bit_t
