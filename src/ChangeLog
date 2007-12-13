@@ -1,8 +1,9 @@
 2007-12-13  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (elif, loop, until): drop; update all D files
-	* compelem.d, realelem.d (I_I_equal, R_R_equal): renamed from _gleich
+	* compelem.d, realelem.d (I_I_equal, R_R_equal): renamed from *_gleich
 	* compelem.d (N_N_equal): rewrote as a single return
+	* spvw_circ.d (abort_context, abort_STACK): renamed from abbruch_*
 
 2007-12-12  Sam Steingold  <sds@gnu.org>
 
