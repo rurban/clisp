@@ -390,8 +390,8 @@ typedef struct {
   bool pr_array;
   bool pr_closure;
   uintL counter;
-  jmp_buf abbruch_context;
-  gcv_object_t* abbruch_STACK;
+  jmp_buf abort_context;
+  gcv_object_t* abort_STACK;
 } get_circ_global;
 
 /* UP: marks the object obj, pushes occurring circularities on the STACK
@@ -418,9 +418,9 @@ local void get_circ_mark (object obj, get_circ_global* env)
       {
         var object obj_cdr = Cdr(obj); /* components */
         var object obj_car = Car(obj);
-        if (SP_overflow())                    /* check SP-depth */
-          longjmp(env->abbruch_context,true); /* abort */
-        get_circ_mark(obj_car,env);           /* mark CAR (recursive) */
+        if (SP_overflow())                  /* check SP-depth */
+          longjmp(env->abort_context,true); /* abort */
+        get_circ_mark(obj_car,env);         /* mark CAR (recursive) */
         obj = obj_cdr; goto entry; /* mark CDR (tail-end-recursive) */
       }
     case_symbol:
@@ -458,8 +458,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
         if (!(count==0)) {
           /* mark count>0 components */
           var gcv_object_t* ptr = &TheSvector(obj)->data[0];
-          if (SP_overflow())                    /* check SP-depth */
-            longjmp(env->abbruch_context,true); /* abort */
+          if (SP_overflow())                  /* check SP-depth */
+            longjmp(env->abort_context,true); /* abort */
           dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
         }
       }
@@ -564,8 +564,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
             var uintL count = Lrecord_length(obj)-2;
             if (count > 0) {
               var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
-              if (SP_overflow())                    /* check SP-depth */
-                longjmp(env->abbruch_context,true); /* abort */
+              if (SP_overflow())                  /* check SP-depth */
+                longjmp(env->abort_context,true); /* abort */
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark elements (recursive) */
             }
           }
@@ -596,8 +596,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
             var uintL count = Lrecord_length(obj)-1; /* don't mark wp_cdr */
             /* mark count>0 components, starting from recdata[1] */
             var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
-            if (SP_overflow())                    /* check SP-depth */
-              longjmp(env->abbruch_context,true); /* abort */
+            if (SP_overflow())                  /* check SP-depth */
+              longjmp(env->abort_context,true); /* abort */
             dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
           }
           goto m_end;
@@ -612,8 +612,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
         if (!(count==0)) {
           /* mark count>0 components */
           var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
-          if (SP_overflow())                    /* check SP-depth */
-            longjmp(env->abbruch_context,true); /* abort */
+          if (SP_overflow())                  /* check SP-depth */
+            longjmp(env->abort_context,true); /* abort */
           dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
         }
       }
@@ -622,7 +622,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
       /* object was marked, but has already been marked.
        It is a circularity. */
       if (STACK_overflow())  /* check STACK-depth */
-        longjmp(env->abbruch_context,true); /* abort */
+        longjmp(env->abort_context,true); /* abort */
       /* store object in STACK: */
       pushSTACK(obj);
       env->counter++;           /* and count */
@@ -650,13 +650,13 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* for the case of an abort */
   set_break_sem_1();             /* make Break impossible */
-  if (!setjmp(my_global.abbruch_context)) { /* save context */
-    bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
+  if (!setjmp(my_global.abort_context)) { /* save context */
+    bcopy(my_global.abort_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
     mlb_alloc(&my_global.bitmap); /* allocate bitmap */
     my_global.pr_array = pr_array;
     my_global.pr_closure = pr_closure;
     my_global.counter = 0;      /* counter := 0 */
-    my_global.abbruch_STACK = STACK;
+    my_global.abort_STACK = STACK;
     /* the context-backup my_global is now ready. */
     get_circ_mark(obj,&my_global);   /* mark object, push multiple */
              /* structures on the STACK count in my_global.counter */
@@ -676,7 +676,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     }
   } else {
     /* after abort because of SP- or STACK-overflow */
-    setSTACK(STACK = my_global.abbruch_STACK); /* reset STACK again */
+    setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* the context is now reestablished. */
     mlb_free(&my_global.bitmap); /* free Bitmap */
     clr_break_sem_1();           /* Break again possible */
@@ -696,8 +696,8 @@ typedef struct {
   bool pr_array;
   bool pr_closure;
   uintL counter;
-  jmp_buf abbruch_context;
-  gcv_object_t* abbruch_STACK;
+  jmp_buf abort_context;
+  gcv_object_t* abort_STACK;
 } get_circ_global;
 /* It has to be accessed from within the two local routines. */
 local void get_circ_mark (object obj, get_circ_global* env);
@@ -707,11 +707,11 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* in case of an abort */
   set_break_sem_1();             /* make Break impossible */
-  if (!setjmp(my_global.abbruch_context)) { /* save context */
+  if (!setjmp(my_global.abort_context)) { /* save context */
     my_global.pr_array = pr_array;
     my_global.pr_closure = pr_closure;
     my_global.counter = 0;      /* counter := 0 */
-    my_global.abbruch_STACK = STACK;
+    my_global.abort_STACK = STACK;
     /* the context-backup my_global is now ready. */
     get_circ_mark(obj,&my_global);   /* mark object, push multiple */
              /* structures on the STACK count in my_global.counter */
@@ -731,7 +731,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     }
   } else {
     /* after abort because of SP- or STACK-overflow */
-    setSTACK(STACK = my_global.abbruch_STACK); /* reset STACK again */
+    setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* the context is now reestablished. */
     get_circ_unmark(obj,&my_global); /* delete marks again */
     clr_break_sem_1();               /* Break is possible again */
@@ -762,10 +762,10 @@ local void get_circ_mark (object obj, get_circ_global* env)
       {
         var object obj_cdr = Cdr(obj); /* components (without mark bit) */
         var object obj_car = Car(obj);
-        mark(TheCons(obj));                   /* mark */
-        if (SP_overflow())                    /* check SP-depth */
-          longjmp(env->abbruch_context,true); /* abort */
-        get_circ_mark(obj_car,env);           /* mark CAR (recursive) */
+        mark(TheCons(obj));                 /* mark */
+        if (SP_overflow())                  /* check SP-depth */
+          longjmp(env->abort_context,true); /* abort */
+        get_circ_mark(obj_car,env);         /* mark CAR (recursive) */
         obj = obj_cdr; goto entry; /* mark CDR (tail-end-recursive) */
       }
     case_symbol:
@@ -810,8 +810,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
         if (!(count==0)) {
           /* mark count>0 components */
           var gcv_object_t* ptr = &TheSvector(obj)->data[0];
-          if (SP_overflow())                    /* check SP-depth */
-            longjmp(env->abbruch_context,true); /* abort */
+          if (SP_overflow())                  /* check SP-depth */
+            longjmp(env->abort_context,true); /* abort */
           dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
         }
       }
@@ -923,8 +923,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
             var uintL count = Lrecord_length(obj)-2;
             if (count > 0) {
               var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
-              if (SP_overflow())                    /* check SP-depth */
-                longjmp(env->abbruch_context,true); /* abort */
+              if (SP_overflow())                  /* check SP-depth */
+                longjmp(env->abort_context,true); /* abort */
               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark elements (recursive) */
             }
           }
@@ -955,8 +955,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
             var uintL count = Lrecord_length(obj)-1; /* don't mark wp_cdr */
             /* mark count>0 components, starting from recdata[1] */
             var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
-            if (SP_overflow())                    /* check SP-depth */
-              longjmp(env->abbruch_context,true); /* abort */
+            if (SP_overflow())                  /* check SP-depth */
+              longjmp(env->abort_context,true); /* abort */
             dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
           }
           goto m_end;
@@ -971,8 +971,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
         if (!(count==0)) {
           /* mark count>0 components */
           var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
-          if (SP_overflow())                    /* check SP-depth */
-            longjmp(env->abbruch_context,true); /* abort */
+          if (SP_overflow())                  /* check SP-depth */
+            longjmp(env->abort_context,true); /* abort */
           dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
         }
       }
@@ -981,7 +981,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
       /* Object has been marked, but was already marked.
        It is a circularity. */
       if (STACK_overflow())  /* check STACK-depth */
-        longjmp(env->abbruch_context,true); /* abort */
+        longjmp(env->abort_context,true); /* abort */
       /* store object with deleted garcol_bit in STACK: */
       pushSTACK(without_mark_bit(obj));
       env->counter++;           /* and count */
@@ -1232,7 +1232,7 @@ local void get_circ_unmark (object obj, get_circ_global* env)
 typedef struct {
   mlbitmap bitmap;
   object alist;
-  jmp_buf abbruch_context;
+  jmp_buf abort_context;
   object bad;
 } subst_circ_global;
 
@@ -1240,7 +1240,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
 {
   #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
   if (SP_overflow()) {        /* check SP-depth */
-    env->bad = nullobj; longjmp(env->abbruch_context,true); /* abort */
+    env->bad = nullobj; longjmp(env->abort_context,true); /* abort */
   }
   #endif
  enter_subst:
@@ -1330,7 +1330,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
           }
           /* not found -> abort */
           env->bad = obj;
-          longjmp(env->abbruch_context,true);
+          longjmp(env->abort_context,true);
         }
         if (mlb_add(&env->bitmap,obj)) /* object already marked? */
           return;
@@ -1374,7 +1374,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
             }
             /* not found -> abort */
             env->bad = obj;
-            longjmp(env->abbruch_context,true);
+            longjmp(env->abort_context,true);
           }
         return;
       case_cons:                       /* Cons */
@@ -1408,8 +1408,8 @@ global object subst_circ (gcv_object_t* ptr, object alist)
   var subst_circ_global my_global;
   my_global.alist = alist;
   set_break_sem_1();            /* disable Break */
-  if (!setjmp(my_global.abbruch_context)) {
-    bcopy(my_global.abbruch_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
+  if (!setjmp(my_global.abort_context)) {
+    bcopy(my_global.abort_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
     mlb_alloc(&my_global.bitmap);
     subst_circ_mark(ptr,&my_global); /* mark and substitute */
     mlb_free(&my_global.bitmap);
