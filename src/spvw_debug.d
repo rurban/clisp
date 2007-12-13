@@ -105,7 +105,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputc(')',out);
   } else if (consp(obj)) {
     fputc('(',out);
-    loop {
+    while (1) {
       XOUT(Car(obj));
       obj = Cdr(obj);
       if (atomp(obj)) break;

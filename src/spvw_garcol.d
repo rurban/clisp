@@ -229,7 +229,7 @@ local void unmark_fixed_varobjects (void)
 local void gc_compact_cons_page (Page* page)
 {
   /* the pointer p1 moves from below and the pointer p2 from
-   above through the memory region, until they collide.
+   above through the memory region, while (!)they collide.
    Marked structures are moved above unmarked. */
   var aint p1 = page->page_start;               /* lower bound */
   var aint p2 = page->page_end;                 /* upper bound */
@@ -272,7 +272,7 @@ local void gc_compact_cons_page (Page* page)
 local void gc_compact_cons_page (Page* page)
 {
   /* the pointer p1 moves from below and the pointer p2 from
-   above through the memory region, until they collide.
+   above through the memory region, while (!)they collide.
    Marked structures are moved above unmarked. */
   var aint p1 = page->page_start;               /* lower bound */
   var aint p2 = page->page_end;                 /* upper bound */
@@ -361,7 +361,7 @@ local void gc_morris2 (Page* page)
       /* p1 is moved to p2. */
      #ifdef TYPECODES
       /* the so far registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = upointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -387,7 +387,7 @@ local void gc_morris2 (Page* page)
       }
      #else  /* no TYPECODES */
       /* the so far registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = (aint)ThePointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -413,7 +413,7 @@ local void gc_morris2 (Page* page)
     }
     p1 += sizeof(gcv_object_t);
   }
-  if (!(p2==p1limit))
+  if (p2!=p1limit)
     abort();
 }
 local void gc_morris3 (Page* page)
@@ -428,23 +428,22 @@ local void gc_morris3 (Page* page)
   var aint p1 = page->page_end;              /* upper bound */
   var aint p2 = p1;                          /* upper bound */
   #ifdef DEBUG_SPVW
-  until (p1==p1limit) {
+  while (p1!=p1limit) {
     p1 -= 2*sizeof(gcv_object_t);
     if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
       abort();
   }
   p1 = page->page_end;
   #endif
-  until (p1==p1limit) {         /* always: p1limit <= p1 <= p2 */
+  while (p1!=p1limit) {         /* always: p1limit <= p1 <= p2 */
     /* both cells of a cons are treated exactly the same. */
     p1 -= sizeof(gcv_object_t);
     #ifdef DEBUG_SPVW
     if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
       abort();
-    if (!((p1 % (2*sizeof(gcv_object_t))) == 0)) {
-      if (!((p2 % (2*sizeof(gcv_object_t))) == 0))
-        abort();
-    }
+    if (((p1 % (2*sizeof(gcv_object_t))) != 0)
+        && ((p2 % (2*sizeof(gcv_object_t))) != 0))
+      abort();
     #endif
     var object obj = *(gcv_object_t*)p1;
     if (!eq(obj,nullobj)) {
@@ -452,7 +451,7 @@ local void gc_morris3 (Page* page)
       /* p1 is moved to p2. */
      #ifdef TYPECODES
       /* The newly registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = upointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -490,7 +489,7 @@ local void gc_morris3 (Page* page)
       }
      #else  /* no TYPECODES */
       /* The newly registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = (aint)ThePointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -526,7 +525,7 @@ local void gc_morris3 (Page* page)
     }
   }
   /* p2 = new lower bound of the Cons-region */
-  if (!(p2 == page->page_start + page->page_gcpriv.d))
+  if (p2 != page->page_start + page->page_gcpriv.d)
     abort();
   page->page_start = p2;
 }
@@ -546,14 +545,14 @@ local void gc_morris2 (Page* page)
   var aint p2 = p1 - page->page_gcpriv.d; /* later upper bound */
   var aint p1limit = page->page_start;    /* lower bound */
   #ifdef DEBUG_SPVW
-  until (p1==p1limit) {
+  while (p1!=p1limit) {
     p1 -= 2*sizeof(gcv_object_t);
     if (eq(*(gcv_object_t*)p1,nullobj)+eq(*(gcv_object_t*)(p1^sizeof(gcv_object_t)),nullobj)==1)
       abort();
   }
   p1 = page->page_end;
   #endif
-  until (p1==p1limit) {         /* always: p1limit <= p2 <= p1 */
+  while (p1!=p1limit) {         /* always: p1limit <= p2 <= p1 */
     /* both cells of a cons are treated exactly the same. */
     p1 -= sizeof(gcv_object_t);
     #ifdef DEBUG_SPVW
@@ -566,7 +565,7 @@ local void gc_morris2 (Page* page)
       /* p1 is moved to p2. */
      #ifdef TYPECODES
       /* the so far registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = upointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -597,7 +596,7 @@ local void gc_morris2 (Page* page)
       }
      #else
       /* the so far registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = (aint)ThePointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -625,7 +624,7 @@ local void gc_morris2 (Page* page)
      #endif
     }
   }
-  if (!(p2==p1limit))
+  if (p2!=p1limit)
     abort();
 }
 local void gc_morris3 (Page* page)
@@ -639,14 +638,14 @@ local void gc_morris3 (Page* page)
   var aint p1limit = page->page_end;        /* obere Grenze */
   var aint p1 = page->page_start;           /* lower bound */
   var aint p2 = p1;                         /* lower bound */
-  until (p1==p1limit) {         /* always: p1limit <= p1 <= p2 */
+  while (p1!=p1limit) {         /* always: p1limit <= p1 <= p2 */
     /* both cells of a cons are treated exactly the same. */
     var object obj = *(gcv_object_t*)p1;
     if (!eq(obj,nullobj)) {
       /* p1 is moved to p2. */
      #ifdef TYPECODES
       /* The newly registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = upointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -668,7 +667,7 @@ local void gc_morris3 (Page* page)
              #endif
               *(gcv_object_t*)p2 = *(gcv_object_t*)p;
               *(gcv_object_t*)p = with_mark_bit(type_pointer_object(type,p2));
-            } elif (p == p1) {  /* Pointer to itself? */
+            } else if (p == p1) {  /* Pointer to itself? */
               *(gcv_object_t*)p2 = type_pointer_object(type,p2);
             } else {
               *(gcv_object_t*)p2 = obj;
@@ -688,7 +687,7 @@ local void gc_morris3 (Page* page)
       }
      #else
       /* The newly registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var aint p = (aint)ThePointer(obj);
         var object next_obj = *(gcv_object_t*)p;
@@ -729,7 +728,7 @@ local void gc_morris3 (Page* page)
     p1 += sizeof(gcv_object_t);
   }
   /* p2 = new upper bound of the Cons-region */
-  if (!(p2 == page->page_end - page->page_gcpriv.d))
+  if (p2 != page->page_end - page->page_gcpriv.d)
     abort();
   page->page_end = p2;
 }
@@ -751,7 +750,7 @@ local void gc_morris2 (Page* page)
   var aint p1 = page->page_end;           /* upper bound */
   var aint p2 = p1 - page->page_gcpriv.d; /* later upper bound */
   var aint p1limit = page->page_start;    /* lower bound */
-  until (p1==p1limit) {         /* always: p1limit <= p2 <= p1 */
+  while (p1!=p1limit) {         /* always: p1limit <= p2 <= p1 */
     /* both cells of a cons are treated exactly the same. */
     p1 -= sizeof(gcv_object_t);
     var object obj = *(gcv_object_t*)p1;
@@ -759,7 +758,7 @@ local void gc_morris2 (Page* page)
       p2 -= sizeof(gcv_object_t);
       /* p1 is moved to p2.
        the so far registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var object next_obj = *(gcv_object_t*)pointable(obj);
         *(gcv_object_t*)pointable(obj) = as_object(p2);
@@ -780,7 +779,7 @@ local void gc_morris2 (Page* page)
       }
     }
   }
-  if (!(p2==p1limit))
+  if (p2!=p1limit)
     abort();
 }
 local void gc_morris3 (Page* page)
@@ -794,13 +793,13 @@ local void gc_morris3 (Page* page)
   var aint p1limit = page->page_end;        /* upper bound */
   var aint p1 = page->page_start;           /* lower bound */
   var aint p2 = p1;                         /* lower bound */
-  until (p1==p1limit) {         /* always: p1limit <= p1 <= p2 */
+  while (p1!=p1limit) {         /* always: p1limit <= p1 <= p2 */
     /* both cells of a cons are treated exactly the same. */
     var object obj = *(gcv_object_t*)p1;
     if (!eq(obj,nullobj)) {
       /* p1 is moved to p2.
        The newly registered pointers to this cell are updated: */
-      until ((as_oint(obj) & wbit(garcol_bit_o)) == 0) { /* process list */
+      while ((as_oint(obj) & wbit(garcol_bit_o)) != 0) { /* process list */
         obj = without_mark_bit(obj);
         var object next_obj = *(gcv_object_t*)pointable(obj);
         *(gcv_object_t*)pointable(obj) = as_object(p2);
@@ -817,7 +816,7 @@ local void gc_morris3 (Page* page)
                p2 into the list of pointers to obj: */
               *(gcv_object_t*)p2 = *(gcv_object_t*)pointable(obj);
               *(gcv_object_t*)pointable(obj) = with_mark_bit(as_object(p2));
-            } elif ((aint)pointable(obj) == p1) { /* pointer to itself? */
+            } else if ((aint)pointable(obj) == p1) { /* pointer to itself? */
               *(gcv_object_t*)p2 = as_object(p2);
             } else {
               *(gcv_object_t*)p2 = obj;
@@ -837,7 +836,7 @@ local void gc_morris3 (Page* page)
     p1 += sizeof(gcv_object_t);
   }
   /* p2 = new upper bound of the Cons-region */
-  if (!(p2 == page->page_end - page->page_gcpriv.d))
+  if (p2 != page->page_end - page->page_gcpriv.d)
     abort();
   page->page_end = p2;
 }
@@ -1344,7 +1343,7 @@ local void gc_sweep1_varobject_page (Page* page)
       dotimespL(count,count/varobject_alignment, *((uintVLA*)p2)++ = *((uintVLA*)p1)++; )
   #else
     #define move_aligned_p1_p2(count)  \
-      do { *((uintVLA*)p2)++ = *((uintVLA*)p1)++; count -= varobject_alignment; } until (count==0)
+      do { *((uintVLA*)p2)++ = *((uintVLA*)p1)++; count -= varobject_alignment; } while (count!=0)
   #endif
 #else  /* other compilers do not accept ((type*)p)++ . */
   /* how efficient is this here?? */
@@ -1353,7 +1352,7 @@ local void gc_sweep1_varobject_page (Page* page)
       *(uintVLA*)p2 = *(uintVLA*)p1;                        \
       p1 += varobject_alignment; p2 += varobject_alignment; \
       count -= varobject_alignment;                         \
-    } until (count==0)
+    } while (count!=0)
 #endif
 /* the objects of variable length are moved into the preordained
  new places. */
@@ -1368,13 +1367,13 @@ local void gc_sweep2_varobject_page (Page* page)
   var aint p1end = page->page_end;
   var aint p2 = page->page_start; /* destination-pointer */
   var_prepare_objsize;
-  until (p1==p1end) {           /* upper bound reached -> finished */
+  while (p1!=p1end) {           /* upper bound reached -> finished */
     /* next object has address p1 */
     if (marked(p1)) {           /* marked? */
       unmark(p1);               /* delete mark */
       /* keep object and relocate: */
       var uintM count = objsize((Varobject)p1); /* length (divisible by varobject_alignment , >0) */
-      if (!(p1==p2)) {             /* if relocation is necessary */
+      if (p1!=p2) {             /* if relocation is necessary */
         move_aligned_p1_p2(count); /* relocate and advance */
       } else {                     /* else only advance: */
         p1 += count; p2 += count;
@@ -1426,7 +1425,7 @@ local void gc_unmarkcheck (void) {
 local void nullobjcheck (bool in_gc);
 local void nullobjcheck_range (aint p1, aint p1end, bool in_gc)
 {
-  until (p1==p1end) {         /* upper bound reached -> finished */
+  while (p1!=p1end) {         /* upper bound reached -> finished */
     /* next object has address p1 */
     if (eq(((Cons)p1)->cdr,nullobj) || eq(((Cons)p1)->car,nullobj))
       if (!(in_gc && eq(((Cons)p1)->cdr,nullobj) && eq(((Cons)p1)->car,nullobj)))
@@ -1470,7 +1469,7 @@ local void free_some_unused_pages (void)
   var uintM accu_space = 0;
   var Pages* pageptr = &mem.free_pages;
   var Pages page = *pageptr;
-  until (page==NULL) {
+  while (page!=NULL) {
     var Pages nextpage = (Pages) page->page_gcpriv.next;
     if (accu_space < needed_space) {
       /* retain page */
@@ -1547,10 +1546,10 @@ local void gar_col_normal (void)
     var object Lu = all_finalizers;
     var gcv_object_t* L1 = &O(all_finalizers);
     var gcv_object_t* L2 = &O(pending_finalizers);
-    until (eq(*L2,Fixnum_0)) {
+    while (!(eq(*L2,Fixnum_0))) {
       L2 = &TheFinalizer(*L2)->fin_cdr;
     }
-    until (eq(Lu,Fixnum_0)) {
+    while (!(eq(Lu,Fixnum_0))) {
       /* if fin_alive is dead, the finalizer is thrown away,
        without being executed: */
       if (!alive(TheFinalizer(Lu)->fin_alive)) {
@@ -1701,7 +1700,7 @@ local void gar_col_normal (void)
     { var aint ptr = (aint)pointer_was_object(page->page_gcpriv.firstmarked); \
       var aint ptrend = page->page_end;                                 \
       /* peruse all objects with address >=ptr, <ptrend : */            \
-      until (ptr==ptrend) {        /* until ptr has reached the end */  \
+      while (ptr!=ptrend) {        /* until ptr has reached the end */  \
         /* peruse next object with address ptr (< ptrend) : */          \
         if (marked(ptr)) {                 /* marked? */                \
           /* take typeinfo without mark bit! */                         \
@@ -1981,7 +1980,7 @@ local maygc void gar_col_done (void)
   O(files_to_close) = NIL;
   #endif
   /* perform finalizer-functions: */
-  until (eq(O(pending_finalizers),Fixnum_0)) {
+  while (!(eq(O(pending_finalizers),Fixnum_0))) {
     var object obj = O(pending_finalizers);
     O(pending_finalizers) = TheFinalizer(obj)->fin_cdr;
     pushSTACK(TheFinalizer(obj)->fin_trigger);
@@ -2020,7 +2019,7 @@ local var Page* delayed_pages = NULL;
 /* release of all pages in the list: */
 #define free_delayed_pages()                            \
   { var Page* page = delayed_pages;                     \
-    until (page==NULL) {                                \
+    while (page!=NULL) {                                \
       var Page* next = (Page*)page->page_gcpriv.next;   \
       free_page(page);                                  \
       page = next;                                      \
@@ -2044,13 +2043,13 @@ local void gc_compact_from_varobject_page (Heap* heapptr, Page* page)
     var aint p2;                /* cache of new_page->page_end */
     var uintM l2;               /* cache of new_page->page_room */
     /* try to copy all objects between p1 and p1end : */
-    loop {
+    while (1) {
       if (p1==p1end)            /* upper bound reached -> finished */
         break;
       var uintM laenge = objsize((Varobject)p1); /* determine byte-length */
       /* search a page, that has still 'laenge' free bytes: */
       if ((new_page == EMPTY) || (l2 < laenge)) {
-        if (!(new_page == EMPTY)) { /* empty cache? */
+        if (new_page != EMPTY) { /* empty cache? */
           new_page->page_end = p2;
           new_page->page_room = l2;
           AVL(AVLID,move)(&stack);
@@ -2070,7 +2069,7 @@ local void gc_compact_from_varobject_page (Heap* heapptr, Page* page)
       *(gcv_object_t*)old_p1 = with_mark_bit(pointer_as_object(old_p2));
       /* p1 = source address for the next object */
     }
-    if (!(new_page == EMPTY)) { /* empty cache? */
+    if (new_page != EMPTY) { /* empty cache? */
       new_page->page_end = p2;
       new_page->page_room = l2;
       AVL(AVLID,move)(&stack);
@@ -2081,8 +2080,8 @@ local void gc_compact_from_varobject_page (Heap* heapptr, Page* page)
     var aint p2 = page->page_start;
     page->page_gcpriv.d = p1 - p2; /* shift */
     page->page_start = p1;         /* current start of the page */
-    if (!(p1==p2))                 /* if shift is necessary */
-      until (p1==p1end) {          /* upper bound reached -> finished */
+    if (p1!=p2)                    /* if shift is necessary */
+      while (p1!=p1end) {          /* upper bound reached -> finished */
         var uintM laenge = objsize((Varobject)p1); /* calculate byte-length */
        #ifdef TYPECODES
         var tint flags = mtypecode(((Varobject)p1)->GCself); /* save typeinfo (and flags for symbols) retten */
@@ -2103,12 +2102,12 @@ local void gc_compact_from_cons_page (Heap* heapptr, Page* page)
     var aint p2;                /* cache of new_page->page_end */
     var uintM l2;               /* cache of new_page->page_room */
     /* try to copy all objects between p1start and p1: */
-    loop {
+    while (1) {
       if (p1==p1start)          /* lower bound reached -> finished */
         break;
       /* search a page, that has at least sizeof(cons_) bytes free: */
       if ((new_page == EMPTY) || (l2 == 0)) { /* l2 < sizeof(cons_) means l2 = 0 */
-        if (!(new_page == EMPTY)) {           /* empty cache? */
+        if (new_page != EMPTY) {              /* empty cache? */
           new_page->page_end = p2;
           new_page->page_room = l2;
           AVL(AVLID,move)(&stack);
@@ -2128,7 +2127,7 @@ local void gc_compact_from_cons_page (Heap* heapptr, Page* page)
       *(gcv_object_t*)p1 = with_mark_bit(pointer_as_object(p2));
       p2 += sizeof(cons_); l2 -= sizeof(cons_);
     }
-    if (!(new_page == EMPTY)) { /* empty cache? */
+    if (new_page != EMPTY) { /* empty cache? */
       new_page->page_end = p2;
       new_page->page_room = l2;
       AVL(AVLID,move)(&stack);
@@ -2194,7 +2193,7 @@ local void gc_compact_heap (Heap* heapptr, sintB heaptype)
     var uintL index;
     for (index=0; index<pagecount; index++) { /* peruse all pages */
       var Pages page = pages_sorted[index];   /* next page */
-      if (!(page->page_gcpriv.d == -1L)) {    /* a page to be emptied */
+      if (page->page_gcpriv.d != -1L) {       /* a page to be emptied */
         page->page_room += page->page_gcpriv.d; /* room, we have created now */
         if (page->page_start == page->page_end) {
           /* page completely emptied
@@ -2275,7 +2274,7 @@ local maygc void gar_col_compact (void)
   { var aint ptr = page->page_start;                                    \
     var aint ptrend = page->page_end;                                   \
     /* peruse all objects with address >=ptr, <ptrend : */              \
-    until (ptr==ptrend) {  /* until ptr has reached the end */          \
+    while (ptr!=ptrend) {  /* until ptr has reached the end */          \
       /* peruse next object with address ptr (< ptrend) : */            \
       updater(typecode_at(ptr) & ~bit(garcol_bit_t)); /* and advance */ \
     }                                                                   \
@@ -2306,14 +2305,14 @@ local maygc void gar_col_compact (void)
   #undef update_page
   /* execution of the relocations in the not entirely emptied pages: */
   for_each_varobject_page(page, {
-    if (!(page->page_gcpriv.d == -1L)) {
+    if (page->page_gcpriv.d != -1L) {
       var aint p1 = page->page_start;
       var aint p1end = page->page_end;
       var aint p2 = p1 - page->page_gcpriv.d;
-      if (!(p1==p2)) {          /* if relocation is necessary */
+      if (p1!=p2) {          /* if relocation is necessary */
         var_prepare_objsize;
         page->page_start = p2;
-        until (p1==p1end) {     /* upper bound reached -> finished */
+        while (p1!=p1end) {     /* upper bound reached -> finished */
           /* next object has address p1, is marked */
           unmark(p1);           /* delete mark */
           /* retain object and relocate: */
@@ -2437,7 +2436,7 @@ local void move_conses (sintM delta)
     var gcv_object_t* dest = (mem.conses.heap_end += delta, (gcv_object_t*)mem.conses.heap_end);
    #endif
     mem.conses.heap_start += delta;
-    until (source==source_end) {
+    while (source!=source_end) {
       *--dest = *--source;      /* copy an entire cons upwards */
       *--dest = *--source;
     }
@@ -2451,7 +2450,7 @@ local void move_conses (sintM delta)
     var gcv_object_t* dest = (mem.conses.heap_start += delta, (gcv_object_t*)mem.conses.heap_start);
     #endif
     mem.conses.heap_end += delta;
-    until (source==source_end) {
+    while (source!=source_end) {
       *dest++ = *source++;      /* copy an entire cons downwards */
       *dest++ = *source++;
     }
