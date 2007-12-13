@@ -863,12 +863,12 @@ global /* local */ bool N_N_equal (object x, object y)
       # x reell
       if (N_realp(y)) {
         # x,y beide reell
-        return R_R_gleich(x,y);
+        return R_R_equal(x,y);
       } else {
         # x reell, y komplex
         if (!R_zerop(TheComplex(y)->c_imag))
           return false;
-        return R_R_gleich(x,TheComplex(y)->c_real);
+        return R_R_equal(x,TheComplex(y)->c_real);
       }
     } else {
       # x komplex
@@ -876,12 +876,12 @@ global /* local */ bool N_N_equal (object x, object y)
         # x komplex, y reell
         if (!R_zerop(TheComplex(x)->c_imag))
           return false;
-        return R_R_gleich(TheComplex(x)->c_real,y);
+        return R_R_equal(TheComplex(x)->c_real,y);
       } else {
         # x,y beide komplex
-        if (!R_R_gleich(TheComplex(x)->c_real,TheComplex(y)->c_real)) # Realteile vergleichen
+        if (!R_R_equal(TheComplex(x)->c_real,TheComplex(y)->c_real)) # Realteile vergleichen
           return false;
-        if (!R_R_gleich(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # Imaginärteile vergleichen
+        if (!R_R_equal(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # Imaginärteile vergleichen
           return false;
         return true;
       }

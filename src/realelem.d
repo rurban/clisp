@@ -727,7 +727,7 @@ local maygc signean R_R_comp (object x, object y)
   }
 }
 
-/* R_R_gleich(x,y) compares two real numbers x and y.
+/* R_R_equal(x,y) compares two real numbers x and y.
  result: true if x=y, else false.
  method:
  When are x and y equal? According to CLTL, 2nd ed., p. 290 the
@@ -745,9 +745,9 @@ local maygc signean R_R_comp (object x, object y)
  test for equality of two integers: either both are EQ or both
  are Bignums of same length and same digits (including sign).
  returns wit false_statement, if not equal.
- #define I_I_gleich(x,y) (eq(x,y) || (I_bignump(x) && I_bignump(y) && (x_len==y_len) && (compare_loop_up(x_data,y_data)==0)))
+ #define I_I_equal(x,y) (eq(x,y) || (I_bignump(x) && I_bignump(y) && (x_len==y_len) && (compare_loop_up(x_data,y_data)==0)))
 */
-#define I_I_gleich(x_,y_,false_statement)                       \
+#define I_I_equal(x_,y_,false_statement)                        \
   { var object _x = (x_);                                       \
     var object _y = (y_);                                       \
     if (!eq(_x,_y)) {                                           \
@@ -759,22 +759,22 @@ local maygc signean R_R_comp (object x, object y)
                           &TheBignum(_y)->data[0],xlen)!=0)     \
         { false_statement }                                     \
   }}}
-local bool R_R_gleich (object x, object y)
+local bool R_R_equal (object x, object y)
 {
   if (R_rationalp(x)) { /* x rational */
     if (R_rationalp(y)) { /* x,y both rational */
       if (RA_integerp(x)) {
         if (!RA_integerp(y)) return false;
         /* x,y both integers */
-        I_I_gleich(x,y, { return false; } );
+        I_I_equal(x,y, { return false; } );
         return true;
       } else {
         if (RA_integerp(y)) return false;
         /* x,y both ratio */
         /* compare denominators: */
-        I_I_gleich(TheRatio(x)->rt_den,TheRatio(y)->rt_den, {return false;} );
+        I_I_equal(TheRatio(x)->rt_den,TheRatio(y)->rt_den, {return false;} );
         /* compare numerators: */
-        I_I_gleich(TheRatio(x)->rt_num,TheRatio(y)->rt_num, {return false;} );
+        I_I_equal(TheRatio(x)->rt_num,TheRatio(y)->rt_num, {return false;} );
         return true;
       }
     } else /* x rational, y float */
