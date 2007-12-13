@@ -104,12 +104,6 @@ Writing 'var' not only makes it easier for a human reader to understand
 the code; it also allows you to mix declarations and statements freely,
 without the need for additional braces.
 
-We have a few macros defined in lispbibl.d: 'elif' means 'else if',
-'until' means 'while not' (both are now deprecated).
-'loop' introduces a loop which can be exited only via 'break'; it's
-equivalent to 'for(;;)'.  It is deprecated as well.  Use 'for (;;)',
-not 'while (1)', instead.
-
                              C indentation
                              -------------
 
