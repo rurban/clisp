@@ -3969,7 +3969,7 @@ if test "${with_libpq_prefix+set}" = set; then
 
 fi
 
-      LIBPQ=
+  LIBPQ=
   LTLIBPQ=
   INCPQ=
   LIBPQ_PREFIX=

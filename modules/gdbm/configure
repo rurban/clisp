@@ -3969,7 +3969,7 @@ if test "${with_libgdbm_prefix+set}" = set; then
 
 fi
 
-      LIBGDBM=
+  LIBGDBM=
   LTLIBGDBM=
   INCGDBM=
   LIBGDBM_PREFIX=

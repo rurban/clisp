@@ -3969,7 +3969,7 @@ if test "${with_libpcre_prefix+set}" = set; then
 
 fi
 
-      LIBPCRE=
+  LIBPCRE=
   LTLIBPCRE=
   INCPCRE=
   LIBPCRE_PREFIX=

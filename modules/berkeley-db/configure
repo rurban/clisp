@@ -3969,7 +3969,7 @@ if test "${with_libdb_prefix+set}" = set; then
 
 fi
 
-      LIBDB=
+  LIBDB=
   LTLIBDB=
   INCDB=
   LIBDB_PREFIX=
