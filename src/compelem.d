@@ -852,39 +852,22 @@ global maygc object F_complex_C (object x) {
 /* N_N_equal(x,y) compares two real numbers x and y.
    Returns: true if x=y, false otherwise. */
 global /* local */ bool N_N_equal (object x, object y);
-# Methode:
-# Falls beide reell, klar.
-# Falls x reell, y komplex: (= x (realpart y)) und (zerop (imagpart y)).
-# Falls x komplex, y reell: analog
-# Falls beide komplex: Realteile und Imaginärteile jeweils gleich?
+/* Method:
+ both real => R_R_equal
+ x real, y complex => (= x (realpart y)) && (zerop (imagpart y))
+ x complex, y real => (= y (realpart x)) && (zerop (imagpart x))
+ both complex: realpart & imagpart both equal */
 global /* local */ bool N_N_equal (object x, object y)
-  {
-    if (N_realp(x)) {
-      # x reell
-      if (N_realp(y)) {
-        # x,y beide reell
-        return R_R_equal(x,y);
-      } else {
-        # x reell, y komplex
-        if (!R_zerop(TheComplex(y)->c_imag))
-          return false;
-        return R_R_equal(x,TheComplex(y)->c_real);
-      }
-    } else {
-      # x komplex
-      if (N_realp(y)) {
-        # x komplex, y reell
-        if (!R_zerop(TheComplex(x)->c_imag))
-          return false;
-        return R_R_equal(TheComplex(x)->c_real,y);
-      } else {
-        # x,y beide komplex
-        if (!R_R_equal(TheComplex(x)->c_real,TheComplex(y)->c_real)) # Realteile vergleichen
-          return false;
-        if (!R_R_equal(TheComplex(x)->c_imag,TheComplex(y)->c_imag)) # Imaginärteile vergleichen
-          return false;
-        return true;
-      }
-    }
-  }
-
+{
+  return N_realp(x)
+    ? (N_realp(y)
+       ? /* x,y both real */ R_R_equal(x,y)
+       : /* x real, y complex */ (R_zerop(TheComplex(y)->c_imag)
+                                  ? R_R_equal(x,TheComplex(y)->c_real) : false))
+    : (N_realp(y)
+       ? /* x complex, y real */ (R_zerop(TheComplex(x)->c_imag)
+                                  ? R_R_equal(TheComplex(x)->c_real,y) : false)
+       : /* x,y both complex */
+         (R_R_equal(TheComplex(x)->c_real,TheComplex(y)->c_real)
+          ? R_R_equal(TheComplex(x)->c_imag,TheComplex(y)->c_imag) : false));
+}
