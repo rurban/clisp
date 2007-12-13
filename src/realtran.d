@@ -240,7 +240,7 @@ local maygc object pi (object x) {
         else
           return Fixnum_0;
       }
-    } elif (eq(x,Fixnum_0)) {
+    } else if (eq(x,Fixnum_0)) {
       # x=0 (exakt)
       if (R_zerop(y)) # y=0 -> Error
         divide_0();

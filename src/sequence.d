@@ -806,7 +806,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
       # seq ist eine Liste
       VALUES1(nreverse(seq));
       skipSTACK(1);
-    } elif (vectorp(seq)) {
+    } else if (vectorp(seq)) {
       if (true) {
         var uintL count = vector_length(seq);
         if (count > 0) {
@@ -2513,7 +2513,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       } else
         goto other;
     }
-    elif (eq(type,S(vector)) || eq(type,S(string)) || posfixnump(type)) {
+    else if (eq(type,S(vector)) || eq(type,S(string)) || posfixnump(type)) {
       # Typ [GENERAL-]VECTOR, STRING, (UNSIGNED-BYTE n)-VECTOR
       # Noch überprüfen, ob sequence wirklich ein Vektor ist.
       var object sequence = *(stackptr STACKop 0);

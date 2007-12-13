@@ -1043,11 +1043,6 @@
  used by utils/varbrace to allow declarations mixed with other statements */
 #define var
 
-/* Generalized if-statement:
- if (cond1) ... {elif (condi) ...} [else ...]
- _deprecated_, please use standard C */
-#define elif  else if
-
 /* Infinite loop, can only be left with break;  or  return...;:
  _deprecated_, please use standard C */
 #define loop  while (1)

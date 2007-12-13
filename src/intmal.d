@@ -87,7 +87,7 @@
       #else
       muluD(digit,digit, destptr[-2] =, destptr[-1] =);
       #endif
-    } elif (len < karatsuba_threshold) {
+    } else if (len < karatsuba_threshold) {
       # Multiplikation nach Schulmethode
       # Gemischte Produkte:
       # 2*(  x[n-1..1] * x[0] * b^1
@@ -354,7 +354,7 @@
     if (len1==1) {
       # nur eine Einfachschleife
       mulu_loop_down(*--sourceptr1,sourceptr2,destptr,len2);
-    } elif (len1 < karatsuba_threshold) {
+    } else if (len1 < karatsuba_threshold) {
       # Multiplikation nach Schulmethode
       # len2 Digits auf 0 setzen:
       var uintD* destptr2 = clear_loop_down(destptr,len2);
