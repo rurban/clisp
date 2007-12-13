@@ -77,7 +77,7 @@
       a_MSDptr++; a_len--;
     }
     # b normalisieren (b_MSDptr erhöhen, b_len erniedrigen):
-    loop {
+    while (1) {
       if (b_len==0)
         divide_0();
       if (b_MSDptr[0]==0) {

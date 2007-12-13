@@ -80,7 +80,7 @@
     ASSERT(!((b % 2) ==0));
     var uintD c = 0;
     var uintD bit_j = 1; # 2^j
-    loop { # Verwende a als Variable d
+    while (1) { # Verwende a als Variable d
       if (a & bit(0)) {
         c = c+bit_j; a = a-b;
       }
@@ -97,7 +97,7 @@
     ASSERT(!((b % 2) ==0));
     var uintD bit_j = 1; # 2^j
     var uintD b_j = b-1; # (b-1)*2^j
-    loop { # Verwende a als Variable d*2^j+c
+    while (1) { # Verwende a als Variable d*2^j+c
       if (a & bit_j)
         a = a - b_j;
       b_j = b_j << 1; bit_j = bit_j << 1;

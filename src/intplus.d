@@ -8,7 +8,7 @@
     {                                                                      \
       var uintD* ptr_from_DS_1_plus = (ptr);                               \
       var uintC count_from_DS_1_plus = (count);                            \
-      loop {                                                               \
+      while (1) {                                                          \
         if (--count_from_DS_1_plus==0) { # Zähler erniedrigen              \
           # Beim Most Significant Digit angelangt                          \
           *(--ptr_from_DS_1_plus) += 1;                                    \
@@ -36,7 +36,7 @@
     {                                                                 \
       var uintD* ptr_from_DS_minus1_plus = (ptr);                     \
       var uintC count_from_DS_minus1_plus = (count);                  \
-      loop {                                                          \
+      while (1) {                                                     \
         if (--count_from_DS_minus1_plus==0) { # Zähler erniedrigen    \
           # Beim Most Significant Digit angelangt                     \
           *(--ptr_from_DS_minus1_plus) -= 1;                          \

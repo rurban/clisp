@@ -161,7 +161,7 @@ local void write_errorasciz (const char* asciz) {
 local gcv_object_t* write_errorstring (const char* errorstring)
 {
   var gcv_object_t* argptr = args_end_pointer STACKop 7; /* pointer above stream and frame */
-  loop {
+  while (1) {
     var char ch = *errorstring; /* next character */
     if (ch==0) /* string finished? */
       break;
@@ -184,7 +184,7 @@ local gcv_object_t* write_errorstring (const char* errorstring)
     }
     /* output all characters until the next special character */
     var const char* ptr = errorstring;
-    loop {
+    while (1) {
       ptr++;
       ch = *ptr;
       if (ch==0 || ch=='~')

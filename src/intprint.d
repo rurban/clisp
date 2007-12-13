@@ -208,7 +208,7 @@
     begin_arith_call();
     #define next_digit(d)  { *--erg_ptr = ascii(d<10 ? '0'+d : 'A'-10+d); }
     # normalisiere zu einer NUDS:
-    loop {
+    while (1) {
       if (len==0) { # 0 -> eine Ziffer '0'
         next_digit(0); goto fertig;
       }
@@ -217,7 +217,7 @@
       } else
         break;
     }
-    loop {
+    while (1) {
       # Noch die NUDS MSDptr/len/.. mit len>0 abzuarbeiten.
       # Single-Precision-Division durch b^k:
       var uintD rest = divu_loop_up(b_hoch_k,MSDptr,len);

@@ -419,7 +419,7 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
   STACK_(1+2) = var_stream(S(standard_output),strmflags_wr_ch_B);
  #if 0
   if (mconsp(STACK_0)) {
-    loop {
+    while (1) {
       var object valsr = STACK_0;
       STACK_0 = Cdr(valsr);
       terpri(&STACK_(1+2));
@@ -441,7 +441,7 @@ LISPFUN(read_eval_print,seclass_default,1,1,norest,nokey,0,NIL)
    automatically, this new line really cannot be avoided.) */
   fresh_line(&STACK_(1+2));     /* (fresh-line ostream) */
   if (mconsp(STACK_0)) {
-    loop {
+    while (1) {
       var object valsr = STACK_0;
       STACK_0 = Cdr(valsr);
       prin1(&STACK_(1+2),Car(valsr)); /* print next value */
@@ -470,7 +470,7 @@ global void driver (void)
   bt_here.bt_stack = STACK STACKop -1;
   bt_here.bt_num_arg = -1;
   back_trace = &bt_here;
-  loop {
+  while (1) {
     var object driverfun = Symbol_value(S(driverstar)); /* value of *DRIVER* */
     if (nullp(driverfun))
       break;
@@ -483,7 +483,7 @@ global void driver (void)
     var sp_jmp_buf returner;                /* memorize return point */
     finish_entry_frame(DRIVER,returner,,;);
     /* this is the entry point. */
-    loop {
+    while (1) {
       /* execute (SYS::READ-EVAL-PRINT "> "): */
       pushSTACK(O(prompt_string)); /* Prompt "> " */
       funcall(L(read_eval_print),1);
@@ -550,7 +550,7 @@ global maygc void break_driver (bool continuable_p) {
       var sp_jmp_buf returner; /* return point */
       finish_entry_frame(DRIVER,returner,,;);
       /* re-entry point is here */
-      loop {
+      while (1) {
         /* (SYS::READ-EVAL-PRINT Prompt) */
         pushSTACK(STACK_(0+2)); /* Prompt "nnn. Break> " */
         funcall(L(read_eval_print),1);
@@ -593,7 +593,7 @@ LISPFUNN(load,1)
 {
   funcall(L(open),1);           /* (OPEN filename) */
   pushSTACK(value1);            /* save stream */
-  loop {
+  while (1) {
     var object obj = stream_read(&STACK_0,NIL,NIL); /* read object */
     if (eq(obj,eof_value))                          /* EOF -> done */
       break;
@@ -707,7 +707,7 @@ local gcv_object_t* frame_up_2 (gcv_object_t* stackptr)
     FRAME = topofframe(FRAME_(0)); /* pointer top of frame */
   else
     FRAME skipSTACKop 1;        /* pointer to next object */
-  loop {
+  while (1) {
     if (stack_upend_p())
       return stackptr;
     if (as_oint(FRAME_(0)) & wbit(frame_bit_o))
@@ -732,7 +732,7 @@ local gcv_object_t* frame_up_3 (gcv_object_t* stackptr)
     FRAME = topofframe(FRAME_(0)); /* pointer top of frame */
   else
     FRAME skipSTACKop 1;      /* pointer to next object */
-  loop {
+  while (1) {
     if (stack_upend_p())
       return stackptr;
     if (frame_p()) {
@@ -749,7 +749,7 @@ local gcv_object_t* frame_up_3 (gcv_object_t* stackptr)
 local gcv_object_t* frame_down_3 (gcv_object_t* stackptr)
 {
   var gcv_object_t* FRAME = stackptr;
-  loop {
+  while (1) {
     next_frame_down();        /* search next frame below */
     if (stack_downend_p())
       return stackptr;
@@ -767,7 +767,7 @@ local gcv_object_t* frame_up_4 (gcv_object_t* stackptr)
     FRAME = topofframe(FRAME_(0)); /* pointer top of frame */
   else
     FRAME skipSTACKop 1;      /* pointer to next object */
-  loop {
+  while (1) {
     if (stack_upend_p())
       return stackptr;
     if (frame_p()) {
@@ -784,7 +784,7 @@ local gcv_object_t* frame_up_4 (gcv_object_t* stackptr)
 local gcv_object_t* frame_down_4 (gcv_object_t* stackptr)
 {
   var gcv_object_t* FRAME = stackptr;
-  loop {
+  while (1) {
     next_frame_down();        /* search next frame below */
     if (stack_downend_p())
       return stackptr;
@@ -802,7 +802,7 @@ local gcv_object_t* frame_up_5 (gcv_object_t* stackptr)
     FRAME = topofframe(FRAME_(0)); /* pointer top of frame */
   else
     FRAME skipSTACKop 1;      /* pointer to next object */
-  loop {
+  while (1) {
     if (stack_upend_p())
       return stackptr;
     if (frame_p()) {
@@ -819,7 +819,7 @@ local gcv_object_t* frame_up_5 (gcv_object_t* stackptr)
 local gcv_object_t* frame_down_5 (gcv_object_t* stackptr)
 {
   var gcv_object_t* FRAME = stackptr;
-  loop {
+  while (1) {
     next_frame_down();        /* search next frame below */
     if (stack_downend_p())
       return stackptr;
@@ -888,7 +888,7 @@ LISPFUNN(frame_up,2)
   var climb_fun_t frame_up_x = test_mode_arg(&frame_up_table[0]);
   var gcv_object_t* stackptr = test_framepointer_arg();
   /* climb up as high as possible: */
-  loop {
+  while (1) {
     var gcv_object_t* next_stackptr = (*frame_up_x)(stackptr);
     if (next_stackptr == stackptr)
       break;
@@ -912,7 +912,7 @@ LISPFUNN(frame_down,2)
   var climb_fun_t frame_down_x = test_mode_arg(&frame_down_table[0]);
   var gcv_object_t* stackptr = test_framepointer_arg();
   /* climb down as low as possible: */
-  loop {
+  while (1) {
     var gcv_object_t* next_stackptr = (*frame_down_x)(stackptr);
     if (next_stackptr == stackptr)
       break;
@@ -942,9 +942,9 @@ local void same_env_as (void)
   var object found_go_env = nullobj;
   var object found_decl_env = nullobj;
   /* and fill: */
-  loop {
+  while (1) {
     /* search at FRAME downwards for ENV-frames: */
-    loop {
+    while (1) {
       FRAME skipSTACKop -1;
       if (FRAME==STACK)       /* done? */
         goto end;

@@ -51,7 +51,7 @@
     #   Zeitaufwand: max. O(log(s)).
       #define adjust(r,s)  \
         { var uintL i = r;                                                    \
-          loop { # w[i] ist im Teilbaum unterhalb von i unterzubringen        \
+          while (1) { # w[i] ist im Teilbaum unterhalb von i unterzubringen \
             var uintL j = 2*i; # ein Sohn von i                               \
             if (j > s) # 2*i und 2*i+1 nicht mehr vorhanden -> fertig         \
               break;                                                          \
