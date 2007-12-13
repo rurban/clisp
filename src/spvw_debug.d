@@ -29,11 +29,11 @@ local void mem_hex_out (const void* buf, uintL count) {
  can trigger GC */
 global maygc object object_out (object obj) {
   pushSTACK(obj);
-  pushSTACK(var_stream(S(terminal_io),strmflags_wr_ch_B)); # *TERMINAL-IO*
-  prin1(&STACK_0,STACK_1); # output the object
-  terpri(&STACK_0); # output a newline
+  pushSTACK(var_stream(S(terminal_io),strmflags_wr_ch_B)); /* *TERMINAL-IO* */
+  prin1(&STACK_0,STACK_1);      /* output the object */
+  terpri(&STACK_0);             /* output a newline */
   skipSTACK(1);
-  return popSTACK(); # return the same object
+  return popSTACK();            /* return the same object */
 }
 
 #ifdef UNICODE
