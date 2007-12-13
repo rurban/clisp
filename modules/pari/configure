@@ -3969,7 +3969,7 @@ if test "${with_libpari_prefix+set}" = set; then
 
 fi
 
-      LIBPARI=
+  LIBPARI=
   LTLIBPARI=
   INCPARI=
   LIBPARI_PREFIX=

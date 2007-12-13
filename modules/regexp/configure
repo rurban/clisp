@@ -4590,7 +4590,7 @@ if test "${with_libiconv_prefix+set}" = set; then
 
 fi
 
-      LIBICONV=
+  LIBICONV=
   LTLIBICONV=
   INCICONV=
   LIBICONV_PREFIX=
@@ -5558,7 +5558,7 @@ if test "${with_libintl_prefix+set}" = set; then
 
 fi
 
-      LIBINTL=
+  LIBINTL=
   LTLIBINTL=
   INCINTL=
   LIBINTL_PREFIX=

@@ -9265,6 +9265,7 @@ AC_LIB_PROG_LD_GNU
 ])
 
 # lib-link.m4 serial 13 (gettext-0.17)
+dnl -*- Autoconf -*-
 dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -9402,13 +9403,8 @@ AC_DEFUN([AC_LIB_RPATH],
     :, enable_rpath=yes)
 ])
 
-dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
-dnl the libraries corresponding to explicit and implicit dependencies.
-dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
-dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
-dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
-[
+dnl AC_LIB_LINKFLAGS_ADD(name) adds -with-libname-prefix command line switch
+AC_DEFUN([AC_LIB_LINKFLAGS_ADD],[dnl
   AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
   define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
@@ -9437,9 +9433,18 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
         additional_libdir="$withval/$acl_libdirstem"
       fi
     fi
-])
+])])
+
+dnl AC_LIB_LINKFLAGS_SEARCH(name [, dependencies]) searches for libname and
+dnl the libraries corresponding to explicit and implicit dependencies.
+dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
+dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
+dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
+AC_DEFUN([AC_LIB_LINKFLAGS_SEARCH],[dnl
   dnl Search the library and its dependencies in $additional_libdir and
   dnl $LDFLAGS. Using breadth-first-seach.
+  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   LIB[]NAME=
   LTLIB[]NAME=
   INC[]NAME=
@@ -9875,6 +9880,16 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
       LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-R$found_dir"
     done
   fi
+])
+
+dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
+dnl the libraries corresponding to explicit and implicit dependencies.
+dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
+dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
+dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
+AC_DEFUN([AC_LIB_LINKFLAGS_BODY],[
+AC_LIB_LINKFLAGS_ADD($1)dnl
+AC_LIB_LINKFLAGS_SEARCH($1,$2)dnl
 ])
 
 dnl AC_LIB_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
@@ -13155,6 +13170,60 @@ int main ()
 fi
 ])
 
+# -*- Autoconf -*-
+# Copyright (C) 2007 Sam Steingold (GNU GPL2+)
+
+AC_PREREQ(2.61)
+
+AC_DEFUN([CL_FFCALL],[dnl
+AC_ARG_WITH([ffcall],
+[AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
+[cl_use_ffcall=$withval],[cl_use_ffcall=default])
+AC_REQUIRE([AC_LIB_PREPARE_PREFIX])dnl prerequisite of AC_LIB_LINKFLAGS_BODY
+AC_REQUIRE([AC_LIB_RPATH])dnl prerequisite of AC_LIB_LINKFLAGS_BODY
+AC_LIB_LINKFLAGS_ADD([ffcall])dnl accept --with-libffcall-prefix
+if test $cl_use_ffcall != no; then
+ AC_CACHE_CHECK([whether ffcall is present],[cl_cv_have_ffcall],[dnl
+  cl_cv_have_ffcall=no
+  cl_save_CPPFLAGS="$CPPFLAGS"
+  cl_save_LIBS="$LIBS"
+  AC_LIB_LINKFLAGS_SEARCH(avcall)
+  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCAVCALL])
+  AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
+  AC_LIB_LINKFLAGS_SEARCH(callback)
+  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCCALLBACK])
+  AC_LIB_APPENDTOVAR([LIBS], [$LIBCALLBACK])
+  AC_CHECK_HEADERS(avcall.h callback.h)
+  AC_SEARCH_LIBS(__builtin_avcall,avcall)
+  AC_SEARCH_LIBS(trampoline_r_data0,callback)
+  if test $ac_cv_header_avcall_h = yes \
+       -a $ac_cv_header_callback_h = yes \
+       -a "$ac_cv_search___builtin_avcall" != no \
+       -a "$ac_cv_search_trampoline_r_data0" != no
+  then cl_cv_have_ffcall=yes
+  else
+    CPPFLAGS="$cl_save_CPPFLAGS"
+    LIBS="$cl_save_LIBS"
+    LIBAVCALL=
+    LIBCALLBACK=
+  fi
+ ])
+ AC_SUBST(LIBAVCALL)
+ AC_SUBST(LIBCALLBACK)
+ if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
+   FFCALL=ffcall-1.8
+   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
+ Either call configure without --with-ffcall or do
+  mkdir tools; cd tools; prefix=`pwd`/${ac_cv_host}
+  wget http://ftp.gnu.org/pub/gnu/ffcall/${FFCALL}.tar.gz
+  tar xfz ${FFCALL}.tar.gz
+  cd ${FFCALL}
+  ./configure --prefix=\${prefix} && make && make check && make install
+  cd ../..
+  ./configure --with-libffcall-prefix=\${prefix} [$]*])
+ fi
+fi;])
+
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
@@ -13590,7 +13659,7 @@ AC_DEFUN([CL_CC_WORKS],
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
 AC_LANG_SAVE()
 AC_LANG_C()
-AC_TRY_RUN([int main() { exit(0); }],
+AC_TRY_RUN([int main() { return 0; }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
 AC_LANG_RESTORE()

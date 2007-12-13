@@ -3969,7 +3969,7 @@ if test "${with_libz_prefix+set}" = set; then
 
 fi
 
-      LIBZ=
+  LIBZ=
   LTLIBZ=
   INCZ=
   LIBZ_PREFIX=
