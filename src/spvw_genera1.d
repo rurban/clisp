@@ -489,7 +489,7 @@ local void build_old_generation_cache (uintL heapnr)
                   }
                   /* At most one page boundary has been crossed.
                    Then, there are no more pointers (until nextptr). */
-                  loop {
+                  while (1) {
                     physpage->firstobject = nextptr;
                     gen0_start += physpagesize; physpage++;
                     if (nextptr < gen0_start)
@@ -529,7 +529,7 @@ local void build_old_generation_cache (uintL heapnr)
                   }
                   /* At most one page boundary has been crossed.
                    Then, there are no more pointers (until nextptr). */
-                  loop {
+                  while (1) {
                     physpage->firstobject = nextptr;
                     gen0_start += physpagesize; physpage++;
                     if (nextptr < gen0_start)
@@ -578,7 +578,7 @@ local void build_old_generation_cache (uintL heapnr)
                     physpage->firstobject = nextptr;
                     physpage++;
                     ptr = gen0_start;
-                  } until (nextptr < gen0_start);
+                  } while (nextptr >= gen0_start);
                 }
                 objptr = nextptr;
               }
@@ -628,7 +628,7 @@ local void build_old_generation_cache (uintL heapnr)
                     physpage->firstobject = nextptr;
                     physpage++;
                     ptr = gen0_start;
-                  } until (nextptr < gen0_start);
+                  } while (nextptr >= gen0_start);
                 }
                 objptr = nextptr;
               }
@@ -691,7 +691,7 @@ local void build_old_generation_cache (uintL heapnr)
                     }
                     /* At most one page boundary has been crossed.
                      Then, there are no more pointers (until nextptr). */
-                    loop {
+                    while (1) {
                       physpage->firstobject = nextptr;
                       gen0_start += physpagesize; physpage++;
                       if (nextptr < gen0_start)
@@ -725,7 +725,7 @@ local void build_old_generation_cache (uintL heapnr)
                     }
                     /* At most one page boundary has been crossed.
                      Then, there are no more pointers (until nextptr). */
-                    loop {
+                    while (1) {
                       physpage->firstobject = nextptr;
                       gen0_start += physpagesize; physpage++;
                       if (nextptr < gen0_start)
@@ -768,7 +768,7 @@ local void build_old_generation_cache (uintL heapnr)
                       physpage->firstobject = nextptr;
                       physpage++;
                       ptr = gen0_start;
-                    } until (nextptr < gen0_start);
+                    } while (nextptr >= gen0_start);
                   }
                   objptr = nextptr;
                 }
@@ -843,7 +843,7 @@ local void build_old_generation_cache (uintL heapnr)
                       physpage->firstobject = nextptr;
                       physpage++;
                       ptr = gen0_start;
-                    } until (nextptr < gen0_start);
+                    } while (nextptr >= gen0_start);
                   }
                   objptr = nextptr;
                 }
