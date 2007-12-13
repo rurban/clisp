@@ -1,6 +1,7 @@
 2007-12-13  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (elif, loop, until): drop; update all D files
+	* compelem.d, realelem.d (I_I_equal, R_R_equal): renamed from _gleich
 
 2007-12-12  Sam Steingold  <sds@gnu.org>
 
