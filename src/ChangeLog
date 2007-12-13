@@ -1,3 +1,7 @@
+2007-12-13  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (elif, loop, until): drop; update all D files
+
 2007-12-12  Sam Steingold  <sds@gnu.org>
 
 	* spvw_typealloc.d (NIL_FILL): add
