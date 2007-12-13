@@ -1623,7 +1623,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
  #ifdef GENERATIONAL_GC
   O(gc_count) = Fixnum_0;  /* so far no GCs: */
  #endif
-  { # Initialize markwatchset:
+  {                             /* Initialize markwatchset: */
     var uintM need = 0;
     var object L;
     for (L = O(all_weakpointers);
