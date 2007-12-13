@@ -103,11 +103,17 @@
 /* Define to 1 if you have the <arpa/inet.h> header file. */
 #undef HAVE_ARPA_INET_H
 
+/* Define to 1 if you have the <avcall.h> header file. */
+#undef HAVE_AVCALL_H
+
 /* Define to 1 if you have the `btowc' function. */
 #undef HAVE_BTOWC
 
 /* __builtin_strlen() is compiled inline (not a call to strlen()) */
 #undef HAVE_BUILTIN_STRLEN
+
+/* Define to 1 if you have the <callback.h> header file. */
+#undef HAVE_CALLBACK_H
 
 /* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
