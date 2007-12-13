@@ -1,41 +1,41 @@
-# Choice of user interface language, and internationalization.
+/* Choice of user interface language, and internationalization. */
 
-# ------------------------------ Specification --------------------------------
+/* -------------------------- Specification ---------------------------- */
 
 #ifndef LANGUAGE_STATIC
 
-  # The current user interface language.
-    extern uintL language;
+/* The current user interface language. */
+extern uintL language;
 
-  # Initializes the current interface language, according to the given
-  # arguments, getting the defaults from environment variables.
-    global void init_language (const char* argv_language, const char* argv_localedir);
+/* Initializes the current interface language, according to the given
+   arguments, getting the defaults from environment variables. */
+global void init_language (const char* argv_language, const char* argv_localedir);
 
-  # Returns the translation of msgid according to the current interface
-  # language.
-    global const char * clgettext (const char * msgid);
+/* Returns the translation of msgid according to the current interface
+   language. */
+global const char * clgettext (const char * msgid);
 
 #endif
 
-# Returns the translation of string according to the current interface
-# language. A string is returned.
-# can trigger GC
+/* Returns the translation of string according to the current interface
+ language. A string is returned.
+ can trigger GC */
 global object CLSTEXT (const char*);
 
-# Returns the translated value of obj. obj is translated, then
-# READ-FROM-STRING is applied to the result.
-# can trigger GC
+/* Returns the translated value of obj. obj is translated,
+ then READ-FROM-STRING is applied to the result.
+ can trigger GC */
 global object CLOTEXT (const char*);
 
 
-# ------------------------------ Implementation -------------------------------
+/* -------------------------- Implementation --------------------------- */
 
 #ifndef LANGUAGE_STATIC
 
-# language, that is used for communication with the user:
+/* language, that is used for communication with the user: */
 global uintL language;
 
-# Initializes the language, given the language name.
+/* Initializes the language, given the language name. */
 local bool init_language_from (const char* langname);
 #ifdef GNU_GETTEXT
   #define language_deutsch   1
@@ -72,16 +72,16 @@ local bool init_language_from (const char* langname) {
   }
   if (asciz_equal(langname,"FRANCAIS") || asciz_equal(langname,"francais")
      #ifndef ASCII_CHS
-      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") # FRENCH
-      || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") # french
+      || asciz_equal(langname,"FRAN\307AIS") || asciz_equal(langname,"FRAN\303\207AIS") /* FRENCH */
+      || asciz_equal(langname,"fran\347ais") || asciz_equal(langname,"fran\303\247ais") /* french */
      #endif
       || asciz_equal(langname,"FRENCH") || asciz_equal(langname,"french")) {
     language = language_francais; return true;
   }
   if (asciz_equal(langname,"ESPANOL") || asciz_equal(langname,"espanol")
      #ifndef ASCII_CHS
-      || asciz_equal(langname,"ESPA\321OL") || asciz_equal(langname,"ESPA\303\221OL") # SPANISH
-      || asciz_equal(langname,"espa\361ol") || asciz_equal(langname,"espa\303\261ol") # spanish
+      || asciz_equal(langname,"ESPA\321OL") || asciz_equal(langname,"ESPA\303\221OL") /* SPANISH */
+      || asciz_equal(langname,"espa\361ol") || asciz_equal(langname,"espa\303\261ol") /* spanish */
      #endif
       || asciz_equal(langname,"SPANISH") || asciz_equal(langname,"spanish")) {
     language = language_spanish; return true;
@@ -108,15 +108,15 @@ local bool init_language_from (const char* langname) {
   return false;
 }
 
-# Initializes the language.
+/* Initializes the language. */
 global void init_language (const char* argv_language,
                            const char* argv_localedir) {
-  # language is set with priorities in this order:
-  #   1. built in fix, LANGUAGE_STATIC
-  #   2. -L command line argument
-  #   3. environment-variable CLISP_LANGUAGE
-  #   4. environment-variable LANG
-  #   5. default: English
+  /* language is set with priorities in this order:
+     1. built in fix, LANGUAGE_STATIC
+     2. -L command line argument
+     3. environment-variable CLISP_LANGUAGE
+     4. environment-variable LANG
+     5. default: English */
   if (argv_language) {
     if (init_language_from(argv_language))
       goto chosen1;
@@ -131,9 +131,9 @@ global void init_language (const char* argv_language,
   }
  #endif
  #ifdef GNU_GETTEXT
-  # The analysis of getenv("LANG") below will be done - in more detail -
-  # by bindtextdomain() and textdomain(). No need to do it ourselves.
-  # Do we need to call setlocale(LC_MESSAGES,"") or not??
+  /* The analysis of getenv("LANG") below will be done - in more detail -
+   by bindtextdomain() and textdomain(). No need to do it ourselves.
+   Do we need to call setlocale(LC_MESSAGES,"") or not?? */
   goto chosen2;
  #else
   #ifdef HAVE_ENVIRONMENT
@@ -142,28 +142,28 @@ global void init_language (const char* argv_language,
   {
     var const char* lang = getenv("LANG");
     if (lang) {
-      # LANG has in general the syntax language[_country][.charset]
+      /* LANG has in general the syntax language[_country][.charset] */
       if (lang[0]=='e' && lang[1]=='n'
-          && !ascii_alphanumericp(lang[2])) { # "en"
+          && !ascii_alphanumericp(lang[2])) { /* "en" */
         language = language_english; goto chosen2;
       }
     }
   }
   #endif
-  # Default: english
+  /* Default: english */
   language = language_english; goto chosen2;
  #endif
  chosen1:
-  # At this point we have chosen the language based upon the
-  # command-line option or the clisp-specific environment variables.
+  /* At this point we have chosen the language based upon the
+   command-line option or the clisp-specific environment variables. */
  #ifdef GNU_GETTEXT
-  # GNU gettext chooses the message catalog based upon:
-  # 1. environment variable LANGUAGE [only if dcgettext.c, not with
-  #    cat-compat.c],
-  # 2. environment variable LC_ALL,
-  # 3. environment variable LC_MESSAGES,
-  # 4. environment variable LANG.
-  # We clobber LC_MESSAGES and unset the earlier two variables.
+  /* GNU gettext chooses the message catalog based upon:
+   1. environment variable LANGUAGE [only if dcgettext.c, not with
+      cat-compat.c],
+   2. environment variable LC_ALL,
+   3. environment variable LC_MESSAGES,
+   4. environment variable LANG.
+   We clobber LC_MESSAGES and unset the earlier two variables. */
   {
     var const char * locale;
     switch (language) {
@@ -179,23 +179,23 @@ global void init_language (const char* argv_language,
     if (getenv("LANGUAGE")) clisp_setenv("LANGUAGE",NULL);
     if (getenv("LC_ALL")) clisp_setenv("LC_ALL",NULL);
     clisp_setenv("LC_MESSAGES",locale);
-    # Given the above, the following line is only needed for those
-    # platforms for which gettext is compiled with HAVE_LOCALE_NULL
-    # defined.
+    /* Given the above, the following line is only needed for those
+     platforms for which gettext is compiled with HAVE_LOCALE_NULL
+     defined. */
     setlocale(LC_MESSAGES,locale);
-    # Invalidate the gettext internal caches.
+    /* Invalidate the gettext internal caches. */
     textdomain(textdomain(NULL));
   }
  #endif
  chosen2: ;
-  # At this point we have chosen the language based upon an
-  # environment variable GNU gettext knows about.
+  /* At this point we have chosen the language based upon an
+   environment variable GNU gettext knows about. */
  #ifdef GNU_GETTEXT
   {
-    # We apparently don't need to check whether argv_localedir is
-    # not NULL and a valid directory. But since we may call chdir()
-    # before the gettext library opens the catalog file, we have to
-    # convert argv_localedir to be an absolute pathname, if possible.
+    /* We apparently don't need to check whether argv_localedir is
+     not NULL and a valid directory. But since we may call chdir()
+     before the gettext library opens the catalog file, we have to
+     convert argv_localedir to be an absolute pathname, if possible. */
     var bool must_free_argv_localedir = false;
     #ifdef UNIX
     if (argv_localedir != NULL)
@@ -208,7 +208,7 @@ global void init_language (const char* argv_language,
             var char* abs_localedir = (char*)malloc(len*sizeof(char));
             if (!(abs_localedir == NULL)) {
               must_free_argv_localedir = true;
-              # Append currdir, maybe '/', and argv_localedir into abs_localedir:
+              /* Append currdir, maybe '/', and argv_localedir into abs_localedir: */
               var char* ptr = abs_localedir;
               {
                 var const char * srcptr = currdir;
@@ -227,9 +227,9 @@ global void init_language (const char* argv_language,
         }
       }
     #endif
-    # If argv_localedir is NULL, the user is not interested in localized
-    # messages. Therefore use a directory that doesn't contain message
-    # catalogs.
+    /* If argv_localedir is NULL, the user is not interested in localized
+     messages. Therefore use a directory that doesn't contain message
+     catalogs. */
     if (argv_localedir == NULL)
       argv_localedir = "/nonexistent";
     bindtextdomain("clisp",argv_localedir);
@@ -242,45 +242,45 @@ global void init_language (const char* argv_language,
  #endif
 }
 
- #ifdef GNU_GETTEXT
+  #ifdef GNU_GETTEXT
 
-  global const char * clgettext (const char * msgid) {
-    var const char * translated_msg;
-    if (msgid[0] == '\0') {
-      # If you ask gettext to translate the empty string, it returns
-      # the catalog's header (containing meta information)!
-      translated_msg = msgid;
-    } else {
-      begin_system_call();
-      translated_msg = dgettext("clisp",msgid);
-      end_system_call();
-    }
-    return translated_msg;
+global const char * clgettext (const char * msgid) {
+  var const char * translated_msg;
+  if (msgid[0] == '\0') {
+    /* If you ask gettext to translate the empty string, it returns
+       the catalog's header (containing meta information)! */
+    translated_msg = msgid;
+  } else {
+    begin_system_call();
+    translated_msg = dgettext("clisp",msgid);
+    end_system_call();
   }
+  return translated_msg;
+}
 
-  # Low-level messages, which are output through fprintf(3), are
-  # stored in a separate catalog and returned in locale encoding.
-  global const char * clgettextl (const char * msgid) {
-    var const char * translated_msg;
-    if (msgid[0] == '\0') {
-      # If you ask gettext to translate the empty string, it returns
-      # the catalog's header (containing meta information)!
-      translated_msg = msgid;
-    } else {
-      begin_system_call();
-      translated_msg = dgettext("clisplow",msgid);
-      end_system_call();
-    }
-    return translated_msg;
+/* Low-level messages, which are output through fprintf(3), are
+   stored in a separate catalog and returned in locale encoding. */
+global const char * clgettextl (const char * msgid) {
+  var const char * translated_msg;
+  if (msgid[0] == '\0') {
+    /* If you ask gettext to translate the empty string, it returns
+       the catalog's header (containing meta information)! */
+    translated_msg = msgid;
+  } else {
+    begin_system_call();
+    translated_msg = dgettext("clisplow",msgid);
+    end_system_call();
   }
+  return translated_msg;
+}
 
   #endif
 
 #endif
 
-# FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
-# given by the "Content-Type:" line in the meta information.
-# in anticipation of this fix, CLSTEXT is a function, not a macro
+/* FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
+ given by the "Content-Type:" line in the meta information.
+ in anticipation of this fix, CLSTEXT is a function, not a macro */
 
 global maygc object CLSTEXT (const char* asciz) {
  #ifdef GNU_GETTEXT
@@ -291,7 +291,7 @@ global maygc object CLSTEXT (const char* asciz) {
 }
 
 global maygc object CLOTEXT (const char* asciz) {
-  dynamic_bind(S(packagestern),O(default_package)); # bind *PACKAGE*
+  dynamic_bind(S(packagestern),O(default_package)); /* bind *PACKAGE* */
   pushSTACK(CLSTEXT(asciz)); funcall(L(read_from_string),1);
   dynamic_unbind(S(packagestern));
   return value1;
