@@ -537,7 +537,7 @@ nonreturning_function(local, error_posint, (object kw, object obj)) {
       #   (setq pointer2 (SEQ2-UPD pointer2))
       #   (decf count)
       # )
-      until (eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
+      while (!eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
         # (SEQ1-ACCESS seq1 pointer1) bilden:
         pushSTACK(STACK_(6+0)); # seq1
         pushSTACK(STACK_(1+1)); # pointer1
@@ -778,7 +778,7 @@ LISPFUNNR(reverse,1) # (REVERSE sequence), CLTL S. 248
         pushSTACK(STACK_1); funcall(seq_init(STACK_(3+1)),1); # (SEQ-INIT seq2)
         pushSTACK(value1);
         # Stackaufbau: seq1, typdescr, count, seq2, pointer1, pointer2.
-        until (eq(STACK_3,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
+        while (!eq(STACK_3,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
           # (SEQ-ACCESS seq1 pointer1) bilden:
           pushSTACK(STACK_5); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS seq1 pointer1)
@@ -832,7 +832,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         pushSTACK(STACK_3); funcall(seq_fe_init(STACK_(2+1)),1); # (SEQ-FE-INIT seq)
         pushSTACK(value1);
         # Stackaufbau: seq, typdescr, count, pointer1, pointer2.
-        until (eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
+        while (!eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> Ende
           # (SEQ-ACCESS seq pointer1) bilden:
           pushSTACK(STACK_4); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS seq pointer1)
@@ -882,7 +882,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
         var uintV k = len; # k = floor(len/2^j) := len
         var uintV k2; # k2 = floor(k/2)
         var uintV k1; # k1 = ceiling(k/2)
-        until ((k2 = floor(k,2)) == 0) { # k halbiert =0 -> Schleifenende
+        while ((k2 = floor(k,2)) != 0) { # k halbiert =0 -> Schleifenende
           k1 = k - k2; # k1 = (altes k) - (neues k) = ceiling((altes k)/2)
           {
             var uintV pstack = 0; # ein Pseudo-Stack
@@ -922,7 +922,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                   # pointer2 := (SEQ-FE-UPD seq pointer2) :
                   pointer_fe_update(STACK_0,STACK_3,STACK_2);
                   --i; # i:=i-1
-                } until (i==0); # bei i=0 Schleifenende
+                } while (i != 0); # bei i=0 Schleifenende
               }
               pstack = pstack+1; # stack:=stack+1
               if (pstack == vbit(j)) # stack=2^j geworden -> Schleifenabbruch
@@ -950,7 +950,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
                   # pointer2 := (SEQ-FE-UPD seq pointer2) :
                   pointer_fe_update(STACK_0,STACK_3,STACK_2);
                   --skipcount;
-                } until (skipcount==0);
+                } while (skipcount != 0);
               }
             }
             skipSTACK(2); # pointer1 und pointer2 vergessen
@@ -1527,7 +1527,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       #         [typdescr_pointer] {typdescr, pointer, pointer},
       #         size, seq2, pointer2 [STACK].
       # size mal die Funktion aufrufen, Ergebnis in seq2 eintragen:
-      until (eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+      while (!eq(STACK_2,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
         var gcv_object_t* ptr1 = rest_args_pointer;
         var gcv_object_t* ptr2 = typdescr_pointer;
         # ptr1 läuft von oben durch die Sequences durch,
@@ -1856,7 +1856,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         pointer_fe_update(STACK_1,STACK_(5+4),STACK_3);
         # count := (1- count) :
         decrement(STACK_2);
-      } until (eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
+      } while (!eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
       VALUES1(popSTACK()); /* return value */
       skipSTACK(7+3);
     } else {
@@ -1894,7 +1894,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         pointer_update(STACK_1,STACK_(5+4),STACK_3);
         # count := (1- count) :
         decrement(STACK_2);
-      } until (eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
+      } while (!eq(STACK_2,Fixnum_0)); # count (ein Integer) = 0 ?
       VALUES1(popSTACK()); /* return value */
       skipSTACK(7+3);
     }
@@ -1933,7 +1933,7 @@ LISPFUN(fill,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
           error_store(STACK_4,STACK_3);
       }
     } else {
-      until (eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+      while (!eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
         pushSTACK(STACK_4); pushSTACK(STACK_(2+1)); pushSTACK(STACK_(3+2));
         funcall(seq_access_set(STACK_(0+3)),3); # (SEQ-ACCESS-SET sequence pointer item)
         # pointer := (SEQ-UPD sequence pointer) :
@@ -2280,7 +2280,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       #              l, sequence, key, bv,
       #              pointer, countdown [STACK].
       var uintV bvi = bvl; # Schleife bvl mal durchlaufen
-      until (bvi==0) {
+      while (bvi != 0) {
         bvi--;
         if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
           # count/=NIL und countdown=0 -> Schleife kann abgebrochen werden
@@ -2312,7 +2312,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       #              l, sequence, key, bv,
       #              pointer, countdown [STACK].
       var uintV bvi = 0; # Schleife bvl mal durchlaufen
-      until (bvi==bvl) {
+      while (bvi != bvl) {
         if (!(nullp(STACK_(1+4+2))) && eq(STACK_0,Fixnum_0))
           # count/=NIL und countdown=0 -> Schleife kann abgebrochen werden
           break;
@@ -2432,7 +2432,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       {
         # Mittleres Teilstück: sieben.
         var uintV bvi = 0;
-        until (bvi==bvl) {
+        while (bvi != bvl) {
           if (!(sbvector_btst(STACK_(1+5+2),bvi))) { # (sbit bv bvi) abfragen
             # Bit ist nicht gesetzt, also Element übernehmen
             pushSTACK(STACK_(4+2)); pushSTACK(STACK_(1+1));
@@ -2498,7 +2498,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
         # bvl mal ein Bit abfragen und evtl. ein Cons streichen:
         {
           var uintV bvi = 0;
-          until (bvi==bvl) {
+          while (bvi != bvl) {
             if (sbvector_btst(STACK_0,bvi)) { # (sbit bv bvi) abfragen
               # Bit ist =1 -> Cons bei list herausnehmen:
               *list_ = list = Cdr(list);
@@ -2532,7 +2532,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       # Mittleres Teilstück:
       {
         var uintV bvi = 0;
-        until (bvi==bvl) {
+        while (bvi != bvl) {
           if (!(sbvector_btst(STACK_3,bvi))) { # (sbit bv bvi) abfragen
             # Bit gelöscht -> Element übertragen:
             # (setf (aref sequence i) (aref sequence j)) :
@@ -2550,7 +2550,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       }
       # Hinteres Teilstück:
       {
-        until (eq(STACK_0,STACK_4)) { # solange bis j = l (beides Fixnums)
+        while (!eq(STACK_0,STACK_4)) { # solange bis j = l (beides Fixnums)
           # Element übertragen:
           # (setf (aref sequence i) (aref sequence j)) :
           pushSTACK(STACK_2); pushSTACK(STACK_(0+1));
@@ -3192,7 +3192,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         # pointer1 läuft von links nach rechts (von start bis end).
         {
           var uintV bvi1 = 0; # Schleife bvl mal durchlaufen
-          until (bvi1==bvl) {
+          while (bvi1 != bvl) {
             if (!(sbvector_btst(STACK_(0+1),bvi1))) { # (sbit bv bvi1) abfragen
               # falls Bit=0: dieses Element ist noch nicht gestrichen ->
               # teste, ob es weiter rechts vorkommt:
@@ -3221,7 +3221,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
               # pointer2 läuft von pointer1 nach rechts.
               {
                 var uintV bvi2 = bvi1+1; # bvi2 := bvi1+1
-                until (bvi2==bvl) {
+                while (bvi2 != bvl) {
                   if (!(sbvector_btst(STACK_(0+3),bvi2))) { # (sbit bv bvi2) abfragen
                     # falls Bit=0: dieses Element ist auch noch nicht gestrichen.
                     # vergleiche beide Elemente:
@@ -3291,7 +3291,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         # pointer2 läuft von links nach rechts (von start bis end).
         {
           var uintV bvi2 = 0; # Schleife bvl mal durchlaufen
-          until (bvi2==bvl) {
+          while (bvi2 != bvl) {
             if (!(sbvector_btst(STACK_(0+2),bvi2))) { # (sbit bv bvi2) abfragen
               # falls Bit=0: dieses Element ist noch nicht gestrichen ->
               # teste, ob es weiter links vorkommt:
@@ -3318,7 +3318,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
               # pointer1 läuft von links bis pointer2.
               {
                 var uintV bvi1 = 0; # bvi1 := 0
-                until (bvi1==bvi2) {
+                while (bvi1 != bvi2) {
                   if (!(sbvector_btst(STACK_(0+4),bvi1))) { # (sbit bv bvi1) abfragen
                     # falls Bit=0: dieses Element ist auch noch nicht gestrichen.
                     # vergleiche beide Elemente:
@@ -3380,7 +3380,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         # from-end ist angegeben
         # pointer läuft von links nach rechts (von start bis end).
         var uintV bvi = 0; # Schleife bvl mal durchlaufen
-        until (bvi==bvl) {
+        while (bvi != bvl) {
           {
             pushSTACK(STACK_(6+3+2)); # sequence
             pushSTACK(STACK_(0+1)); # pointer
@@ -3405,7 +3405,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         # from-end ist nicht angegeben
         # pointer läuft von links nach rechts (von start bis end).
         var uintV bvi = 0; # Schleife bvl mal durchlaufen
-        until (bvi==bvl) {
+        while (bvi != bvl) {
           {
             pushSTACK(STACK_(6+3+2)); # sequence
             pushSTACK(STACK_(0+1)); # pointer
@@ -3505,7 +3505,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         # Teilabschnitt kopieren bzw. mit newitem füllen:
         {
           var uintV bvi = 0; # bvi := 0
-          until (bvi==bvl) { # Schleife bvl mal durchlaufen
+          while (bvi != bvl) { # Schleife bvl mal durchlaufen
             if (sbvector_btst(STACK_(0+2),bvi)) { # (sbit bv bvi) abfragen
               # Bit =1 -> newitem nehmen
               pushSTACK(*(stackptr STACKop 2)); # newitem
@@ -3557,7 +3557,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
     {
       # Mittleres Teilstück:
       var uintV bvi = 0;
-      until (bvi==bvl) {
+      while (bvi != bvl) {
         var object item; # zu übernehmendes Element
         if (sbvector_btst(STACK_(1+5+2),bvi)) { # (sbit bv bvi) abfragen
           # Bit =1 -> newitem nehmen:
@@ -3716,7 +3716,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
     #                   pointer.
     {
       var uintV bvi = 0; # bvi := 0
-      until (bvi==bvl) { # Schleife bvl mal durchlaufen
+      while (bvi != bvl) { # Schleife bvl mal durchlaufen
         if (sbvector_btst(STACK_(0+1),bvi)) { # (sbit bv bvi) abfragen
           # Bit =1 -> ersetze Element durch newitem:
           pushSTACK(*(stackptr STACKop 0)); # sequence
@@ -3790,7 +3790,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
       #              sequence, key, endvar, countdown, pointer.
       # endvar und countdown sind jeweils entweder =NIL oder ein Integer >=0.
       {
-        until (eq(STACK_2,Fixnum_0)) { # endvar = 0 ?
+        while (!eq(STACK_2,Fixnum_0)) { # endvar = 0 ?
           # (also end angegeben und (- end start) Elemente durchlaufen ?)
           # ja -> fertig
           pushSTACK(STACK_4); pushSTACK(STACK_(0+1));
@@ -3892,7 +3892,7 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
       }
       # Stackaufbau: ..., typdescr, sequence, pointer, count.
       {
-        until (eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+        while (!eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
           # item herausgreifen:
           pushSTACK(STACK_2); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS sequence pointer)
@@ -3919,7 +3919,7 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
       }
       # Stackaufbau: ... typdescr, sequence, endvar, pointer
       {
-        until (eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
+        while (!eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
           # (also end angegeben und (- end start) Elemente durchlaufen ?)
           # ja -> fertig
           pushSTACK(STACK_2); pushSTACK(STACK_(0+1));
@@ -4017,7 +4017,7 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
       }
       # Stackaufbau: ..., typdescr, sequence, index, pointer, count.
       {
-        until (eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+        while (!eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
           # index decrementieren:
           decrement(STACK_2);
           # item herausgreifen:
@@ -4045,7 +4045,7 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
       }
       # Stackaufbau: ... typdescr, sequence, index, endvar, pointer
       {
-        until (eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
+        while (!eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
           # (also end angegeben und (- end start) Elemente durchlaufen ?)
           # ja -> fertig
           pushSTACK(STACK_3); pushSTACK(STACK_(0+1));
@@ -4143,7 +4143,7 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
       }
       # Stackaufbau: ..., typdescr, sequence, total, pointer, count.
       {
-        until (eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+        while (!eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
           # item herausgreifen:
           pushSTACK(STACK_3); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
@@ -4169,7 +4169,7 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
       }
       # Stackaufbau: ... typdescr, sequence, total, endvar, pointer
       {
-        until (eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
+        while (!eq(STACK_1,Fixnum_0)) { # endvar = 0 ?
           # (also end angegeben und (- end start) Elemente durchlaufen ?)
           # ja -> fertig
           pushSTACK(STACK_3); pushSTACK(STACK_(0+1));
@@ -4290,7 +4290,7 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
       # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
       #              key, test, test-not, typdescr1, typdescr2,
       #              pointer1, pointer2, index, len1, len2, count.
-      until (eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 ?
+      while (!eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 ?
         pushSTACK(STACK_(6+5+6)); pushSTACK(STACK_(5+1));
         funcall(seq_access(STACK_(1+6+2)),2); # (SEQ-ACCESS seq1 pointer1)
         funcall_key(STACK_(4+6)); # (FUNCALL key (SEQ-ACCESS seq1 pointer1))
@@ -4734,7 +4734,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
     # mehr kopiert zu werden:
     if (eq(STACK_8,STACK_6)) # sequence2 = sequence3 ?
       return;
-    until (eq(STACK_3,Fixnum_0)) { # count2 = 0 ?
+    while (!eq(STACK_3,Fixnum_0)) { # count2 = 0 ?
       pushSTACK(STACK_(8)); pushSTACK(STACK_(1+1));
       funcall(seq_access(STACK_(7+2)),2); # (SEQ-ACCESS sequence2 pointer2)
       pushSTACK(STACK_6); pushSTACK(STACK_(0+1)); pushSTACK(value1);
@@ -4760,7 +4760,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
       decrement(STACK_4);
       # pointer3 := (SEQ-UPD sequence3 pointer3) :
       pointer_update(STACK_0,STACK_6,STACK_5);
-    } until (eq(STACK_4,Fixnum_0)); # count1 = 0 ?
+    } while (!eq(STACK_4,Fixnum_0)); # count1 = 0 ?
     return;
   }
 
@@ -5019,7 +5019,7 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
       funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
       pushSTACK(value1); # =: pointer
       # Stackaufbau: sequence, stream, index, end, typdescr, pointer.
-      until (eql(STACK_3,STACK_2)) { # index = end (beides Integers) -> fertig
+      while (!eql(STACK_3,STACK_2)) { # index = end (beides Integers) -> fertig
         var object item = read_char(&STACK_4); # ein Element lesen
         if (eq(item,eof_value)) # EOF -> fertig
           break;
@@ -5069,7 +5069,7 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
       funcall(seq_init_start(STACK_(0+2)),2); # (SEQ-INIT-START sequence start)
       STACK_2 = value1; # =: pointer
       # Stackaufbau: sequence, stream, pointer, count, typdescr.
-      until (eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
+      while (!eq(STACK_1,Fixnum_0)) { # count (ein Integer) = 0 -> fertig
         pushSTACK(STACK_4); pushSTACK(STACK_(2+1));
         funcall(seq_access(STACK_(0+2)),2); # (SEQ-ACCESS sequence pointer)
         write_char(&STACK_3,value1); # ein Element ausgeben

@@ -785,7 +785,7 @@
     #if 0 # unoptimiert
       pushSTACK(x); pushSTACK(Fixnum_1); pushSTACK(y);
       # Stackaufbau: a, c, b.
-      until (eq(STACK_0,Fixnum_1)) { # solange bis b=1
+      while (!eq(STACK_0,Fixnum_1)) { # solange bis b=1
         if (I_oddp(STACK_0)) # b ungerade?
           STACK_1 = I_I_mult_I(STACK_2,STACK_1); # c:=a*c
         STACK_0 = I_I_ash_I(STACK_0,Fixnum_minus1); # b := (ash b -1) = (floor b 2)
@@ -804,7 +804,7 @@
       }
       pushSTACK(STACK_1); # c:=a
       # Stackaufbau: a, b, c.
-      until (eq(y=STACK_1,Fixnum_1)) { # Solange b/=1
+      while (!eq(y=STACK_1,Fixnum_1)) { # Solange b/=1
         STACK_1 = I_I_ash_I(y,Fixnum_minus1); # b := (ash b -1)
         var object a = STACK_2 = I_square_I(STACK_2); # a:=a*a
         if (I_oddp(STACK_1))

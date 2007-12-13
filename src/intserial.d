@@ -30,7 +30,7 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
          && (*bufferptr < bit(oint_data_len%8)))) {
     # yes -> build Fixnum >=0 :
     var uintV value = 0;
-    until (count==0) { value = (value<<8) | *bufferptr--; count--; }
+    while (count != 0) { value = (value<<8) | *bufferptr--; count--; }
     return fixnum(value);
   }
   # no -> build Bignum >0 :
@@ -114,7 +114,7 @@ global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
            && (*bufferptr < bit(oint_data_len%8)))) {
       # yes -> build Fixnum >=0:
       var uintV value = 0;
-      until (count==0) { value = (value<<8) | *bufferptr--; count--; }
+      while (count != 0) { value = (value<<8) | *bufferptr--; count--; }
       return posfixnum(value);
     }
   } else {
@@ -131,7 +131,7 @@ global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
            && (*bufferptr >= (uintB)(-bit(oint_data_len%8))))) {
       # yes -> build Fixnum <0:
       var uintV value = (uintV)(sintV)(-1);
-      until (count==0) { value = (value<<8) | *bufferptr--; count--; }
+      while (count != 0) { value = (value<<8) | *bufferptr--; count--; }
       return negfixnum(-wbitm(intVsize)+(oint)value);
     }
   }
@@ -198,7 +198,7 @@ global bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
       if (!((bitsize>=oint_data_len) || (value < vbit(bitsize))))
         return true;
       # store value in Bitbuffer:
-      until (value==0) {
+      while (value != 0) {
         *bufferptr++ = (uint8)value; value = value>>8; count--;
       }
     } else { # obj is a Bignum >0
@@ -274,7 +274,7 @@ global bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
       if (!((bitsize>oint_data_len) || (value < bit(bitsize-1))))
         return true;
       # store value^sign in Bitbuffer:
-      until (value == 0) {
+      while (value != 0) {
         *bufferptr++ = (uint8)(value^sign); value = value>>8; count--;
       }
       if (count > 0) {

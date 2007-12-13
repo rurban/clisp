@@ -272,7 +272,7 @@
       var uintD* a_lptr = &a_MSDptr[2];
       var uintD* b_ptr = &b_MSDptr[2];
       # Wurzel-Hauptschleife
-      until (++j == n) { # j=1,...,n
+      while (++j != n) {        /* j=1,...,n */
         # b_MSDptr = Pointer auf b[n], b_ptr = Pointer hinter b[n-j].
         # a_mptr = Pointer auf a[2n-j], a_lptr = Pointer hinter a[2n-2j].
         # Bestimme b* :
@@ -575,7 +575,7 @@
         begin_arith_call();
         var uintL k = 1; # y ist bisher mod beta^k bekannt
         y_LSDptr[-1] = y_lsd; # Startwert von y
-        until (k==m) {
+        while (k != m) {
           var uintL k2 = 2*k; if (k2>m) { k2=m; } # k2 = min(2*k,m) > k
           # bisheriges y mod beta^k2 mit n-1 potenzieren:
           # Methode für z := y^(n-1) :
@@ -601,7 +601,7 @@
           # (zz nicht kopieren; ab der nächsten Veränderung von zz wird
           # {zz_LSDptr,z_LSDptr,free_LSDptr} = {z1_LSDptr,z2_LSDptr,z3_LSDptr}
           # gelten.)
-          until ((e = e>>1) == 0) {
+          while ((e = e>>1) != 0) {
             {
               var uintD* new_zz_LSDptr = free_LSDptr;
               mulu_2loop_down(zz_LSDptr,k2,zz_LSDptr,k2,new_zz_LSDptr); # zz:=zz*zz
@@ -640,7 +640,7 @@
       pushSTACK(y);
       pushSTACK(y);
     } # Stackaufbau: x, y, c, a.
-    until ((n = n>>1) == 0) {
+    while ((n = n>>1) != 0) {
       var object a = STACK_0 = I_square_I(STACK_0);
       if (!((n & bit(0)) == 0))
         STACK_1 = I_I_mult_I(a,STACK_1);

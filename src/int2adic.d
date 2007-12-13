@@ -49,11 +49,11 @@
 #   Liefere c.
   local uintD D_UL_expt_D (uintD a, uintL b)
   {
-    while ((b & bit(0)) ==0) {
+    while ((b & bit(0)) == 0) {
       a = D_D_mult2adic_D(a,a); b = b>>1;
     }
     var uintD c = a;
-    until ((b = b>>1) == 0) {
+    while ((b = b>>1) != 0) {
       a = D_D_mult2adic_D(a,a);
       if (b & bit(0))
         c = D_D_mult2adic_D(a,c);
@@ -137,6 +137,6 @@
       mulusub_loop_down(digit,b_LSDptr,dest_LSDptr,len); # d := d - b * c[j] * beta^j
       # Nun ist dest_LSDptr[-1] = 0.
       *--dest_LSDptr = digit; len--; # c[j] ablegen, nächstes j
-    } until (len==0);
+    } while (len != 0);
   }
 

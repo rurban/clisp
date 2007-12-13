@@ -234,7 +234,7 @@
             divuD(0,rest,base,rest=,d=);
           #endif
           next_digit(d);
-        } until (--count == 0);
+        } while (--count != 0);
       next_digit(rest); # letzte der k Ziffern ablegen
       # Quotienten normalisieren (max. 1 Digit streichen):
       if (MSDptr[0]==0) {

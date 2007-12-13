@@ -5176,7 +5176,7 @@ local signean listen_char_unbuffered (object stream) {
       if (!(bptr == &buf[0])) {
         var const uintB* ptr1 = bptr;
         var uintB* ptr2 = &buf[0];
-        until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+        while (ptr1 != &buf[buflen]) { *ptr2++ = *ptr1++; }
         buflen = ptr2 - &buf[0];
       }
     } else {
@@ -6504,7 +6504,7 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
           if (!(bptr == &buf[0])) {
             var const uintB* ptr1 = bptr;
             var uintB* ptr2 = &buf[0];
-            until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+            while (ptr1 != &buf[buflen]) { *ptr2++ = *ptr1++; }
             buflen = ptr2 - &buf[0];
           }
         } else {
@@ -6611,7 +6611,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
             if (!(bptr == &buf[0])) {
               var const uintB* ptr1 = bptr;
               var uintB* ptr2 = &buf[0];
-              until (ptr1 == &buf[buflen]) { *ptr2++ = *ptr1++; }
+              while (ptr1 != &buf[buflen]) { *ptr2++ = *ptr1++; }
               buflen = ptr2 - &buf[0];
             }
           } else { /* Read a complete character. */
@@ -6666,7 +6666,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
             ChannelStream_lineno(stream) += 1;
           }
           *ptr2++ = c;
-        } until (ptr1 == currptr);
+        } while (ptr1 != currptr);
         currindex = ptr2 - &((SstringX)TheVarobject(chararray))->data[0];
       });
     }
@@ -6764,7 +6764,7 @@ local maygc void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
       /* increment position */
       BufferedStream_position(stream) += tmptmpbuflen;
     }
-  } until (charptr == endptr);
+  } while (charptr != endptr);
   #undef tmpbufsize
  #else
   write_byte_array_buffered(stream,(const uintB*)charptr,len,persev_full);
@@ -6849,7 +6849,7 @@ local maygc void wr_ch_array_buffered_mac (const gcv_object_t* stream_,
       c = ascii(CR);
     write_byte_buffered(stream,as_cint(c));
     remaining--;
-  } until (remaining == 0);
+  } while (remaining != 0);
  #endif
   wr_ss_lpos(stream,charptr,len); /* update Line-Position */
 }
@@ -6943,7 +6943,7 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
       write_byte_buffered(stream,as_cint(c));
     }
     remaining--;
-  } until (remaining == 0);
+  } while (remaining != 0);
  #endif
   wr_ss_lpos(stream,charptr,len); /* update Line-Position */
 }
@@ -8671,9 +8671,8 @@ local maygc void add_keybinding (const char* cap, const key_event_t* event) {
   /* create List (char1 ... charn . key) : */
   {
     var uintC count = 0;
-    do {
-      pushSTACK(code_char(as_chart(*ptr))); ptr++; count++;
-    } until (*ptr=='\0');
+    do { pushSTACK(code_char(as_chart(*ptr))); ptr++; count++;
+    } while (*ptr != '\0');
     pushSTACK(make_key_event(event)); count++;
     funcall(L(liststar),count);
   }
@@ -9030,7 +9029,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
         begin_system_call();
         var char* ptr2 = (char*) malloc((bytecount+1)*sizeof(char));
         if (ptr2==NULL) { /* malloc fails -> return everything */
-          until (ptr==array) { free(*--ptr); }
+          while (ptr != array) { free(*--ptr); }
           free(array);
           end_system_call();
           unwind_HANDLER_frame();
@@ -9446,7 +9445,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
      #else
       {
         var const uintB* ptr = (uintB*)line;
-        until (*ptr == '\0') {
+        while (*ptr != '\0') {
           ssstring_push_extend(TheStream(*stream_)->strm_terminal_inbuff,
                                as_chart(*ptr++));
         }
@@ -10994,7 +10993,7 @@ local void gofromto (int y1, int x1, int y2, int x2) {
       }
       do {
         out_capstring(s);
-      } until (--dx == 0);
+      } while (--dx != 0);
     } else {
       if (mx==MX_CR) {
         out_capstring(CRcap); x1=0;
@@ -11026,7 +11025,7 @@ local void gofromto (int y1, int x1, int y2, int x2) {
     }
     do {
       out_capstring(s);
-    } until (--dy == 0);
+    } while (--dy != 0);
   }
 }
 
