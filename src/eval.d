@@ -3838,7 +3838,7 @@ nonreturning_function(local, error_eval_dotted, (object fun)) {
         if (flags == 0)
           # Closure without REST or KEY -> argument-list should be finished
           goto error_toomany;
-        elif (flags & bit(7)) { # Key-Flag?
+        else if (flags & bit(7)) { # Key-Flag?
           # Closure with Keywords.
           # args = remaining argument-list (not yet finished)
           # First initialize the Keyword-parameters with #<UNBOUND> , then
@@ -4156,14 +4156,14 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
     switch (TheSubr(fun)->argtype) {
       # Macro for a required-Argument:
       #define REQ_ARG()  \
-        { if (args_on_stack>0) { args_on_stack--; }                      \
-          elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
-          else goto error_toofew;                                      \
+        { if (args_on_stack>0) { args_on_stack--; }                     \
+          else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+          else goto error_toofew;                                       \
         }
       # Macro for the n-last optional-Argument:
       #define OPT_ARG(n)  \
         { if (args_on_stack>0) { args_on_stack--; }                      \
-          elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+          else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
           else goto unbound_optional_##n;                                \
         }
       case (uintW)subr_argtype_6_0:
@@ -4514,13 +4514,13 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
         # Macro for a required-argument:
         #define REQ_ARG()  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
-            elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+            else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
             else goto error_toofew;                                      \
           }
         # Macro for the n-last optional-argument:
         #define OPT_ARG(n)  \
           { if (args_on_stack>0) { args_on_stack--; }                      \
-            elif (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+            else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
             else goto unbound_optional_##n;                                \
           }
         case (uintB)cclos_argtype_5_0:
@@ -4786,7 +4786,7 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
           args_on_stack -= opt_count; /* remaining number */
           if (flags & bit(7)) # Key-Flag?
             goto apply_cclosure_key_withlist_;
-          elif (flags & bit(0))
+          else if (flags & bit(0))
             goto apply_cclosure_rest_nokey;
           else {
             # Closure without REST or KEY
@@ -5052,31 +5052,31 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       case (uintW)subr_argtype_0_1:
         # SUBR with 1 optional-Argument
         if (args_on_stack==1) goto apply_subr_norest;
-        elif (args_on_stack>1) goto error_toomany;
+        else if (args_on_stack>1) goto error_toomany;
         else { pushSTACK(unbound); goto apply_subr_norest; }
       case (uintW)subr_argtype_1_1:
         # SUBR with 1 required-Argument and 1 optional-Argument
         if (args_on_stack==2) goto apply_subr_norest;
-        elif (args_on_stack>2) goto error_toomany;
-        elif (args_on_stack==0) goto error_toofew;
+        else if (args_on_stack>2) goto error_toomany;
+        else if (args_on_stack==0) goto error_toofew;
         else { pushSTACK(unbound); goto apply_subr_norest; }
       case (uintW)subr_argtype_2_1:
         # SUBR with 2 required-Arguments and 1 optional-Argument
         if (args_on_stack==3) goto apply_subr_norest;
-        elif (args_on_stack>3) goto error_toomany;
-        elif (args_on_stack<2) goto error_toofew;
+        else if (args_on_stack>3) goto error_toomany;
+        else if (args_on_stack<2) goto error_toofew;
         else { pushSTACK(unbound); goto apply_subr_norest; }
       case (uintW)subr_argtype_3_1:
         # SUBR with 3 required-Arguments and 1 optional-Argument
         if (args_on_stack==4) goto apply_subr_norest;
-        elif (args_on_stack>4) goto error_toomany;
-        elif (args_on_stack<3) goto error_toofew;
+        else if (args_on_stack>4) goto error_toomany;
+        else if (args_on_stack<3) goto error_toofew;
         else { pushSTACK(unbound); goto apply_subr_norest; }
       case (uintW)subr_argtype_4_1:
         # SUBR with 4 required-Arguments and 1 optional-Argument
         if (args_on_stack==5) goto apply_subr_norest;
-        elif (args_on_stack>5) goto error_toomany;
-        elif (args_on_stack<4) goto error_toofew;
+        else if (args_on_stack>5) goto error_toomany;
+        else if (args_on_stack<4) goto error_toofew;
         else { pushSTACK(unbound); goto apply_subr_norest; }
       case (uintW)subr_argtype_0_2:
         # SUBR with 2 optional-Arguments
@@ -5192,22 +5192,22 @@ global maygc Values funcall (object fun, uintC args_on_stack)
       case (uintW)subr_argtype_1_0_key:
         # SUBR with 1 required-Argument and Keyword-Arguments
         if (args_on_stack==1) goto unbound_optional_key_0;
-        elif (args_on_stack<1) goto error_toofew;
+        else if (args_on_stack<1) goto error_toofew;
         else { args_on_stack -= 1; goto apply_subr_key; }
       case (uintW)subr_argtype_2_0_key:
         # SUBR with 2 required-Arguments and Keyword-Arguments
         if (args_on_stack==2) goto unbound_optional_key_0;
-        elif (args_on_stack<2) goto error_toofew;
+        else if (args_on_stack<2) goto error_toofew;
         else { args_on_stack -= 2; goto apply_subr_key; }
       case (uintW)subr_argtype_3_0_key:
         # SUBR with 3 required-Arguments and Keyword-Arguments
         if (args_on_stack==3) goto unbound_optional_key_0;
-        elif (args_on_stack<3) goto error_toofew;
+        else if (args_on_stack<3) goto error_toofew;
         else { args_on_stack -= 3; goto apply_subr_key; }
       case (uintW)subr_argtype_4_0_key:
         # SUBR with 4 required-Arguments and Keyword-Arguments
         if (args_on_stack==4) goto unbound_optional_key_0;
-        elif (args_on_stack<4) goto error_toofew;
+        else if (args_on_stack<4) goto error_toofew;
         else { args_on_stack -= 4; goto apply_subr_key; }
       case (uintW)subr_argtype_0_1_key:
         # SUBR with 1 optional-Argument and Keyword-Arguments
@@ -5396,31 +5396,31 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         case (uintB)cclos_argtype_0_1:
           # 1 optional-Argument
           if (args_on_stack==1) goto apply_cclosure_nokey;
-          elif (args_on_stack>1) goto error_toomany;
+          else if (args_on_stack>1) goto error_toomany;
           else { pushSTACK(unbound); goto apply_cclosure_nokey; }
         case (uintB)cclos_argtype_1_1:
           # 1 required-Argument and 1 optional-Argument
           if (args_on_stack==2) goto apply_cclosure_nokey;
-          elif (args_on_stack>2) goto error_toomany;
-          elif (args_on_stack==0) goto error_toofew;
+          else if (args_on_stack>2) goto error_toomany;
+          else if (args_on_stack==0) goto error_toofew;
           else { pushSTACK(unbound); goto apply_cclosure_nokey; }
         case (uintB)cclos_argtype_2_1:
           # 2 required-Arguments and 1 optional-Argument
           if (args_on_stack==3) goto apply_cclosure_nokey;
-          elif (args_on_stack>3) goto error_toomany;
-          elif (args_on_stack<2) goto error_toofew;
+          else if (args_on_stack>3) goto error_toomany;
+          else if (args_on_stack<2) goto error_toofew;
           else { pushSTACK(unbound); goto apply_cclosure_nokey; }
         case (uintB)cclos_argtype_3_1:
           # 3 required-Arguments and 1 optional-Argument
           if (args_on_stack==4) goto apply_cclosure_nokey;
-          elif (args_on_stack>4) goto error_toomany;
-          elif (args_on_stack<3) goto error_toofew;
+          else if (args_on_stack>4) goto error_toomany;
+          else if (args_on_stack<3) goto error_toofew;
           else { pushSTACK(unbound); goto apply_cclosure_nokey; }
         case (uintB)cclos_argtype_4_1:
           # 4 required-Arguments and 1 optional-Argument
           if (args_on_stack==5) goto apply_cclosure_nokey;
-          elif (args_on_stack>5) goto error_toomany;
-          elif (args_on_stack<4) goto error_toofew;
+          else if (args_on_stack>5) goto error_toomany;
+          else if (args_on_stack<4) goto error_toofew;
           else { pushSTACK(unbound); goto apply_cclosure_nokey; }
         case (uintB)cclos_argtype_0_2:
           # 2 optional-Arguments
@@ -5548,22 +5548,22 @@ global maygc Values funcall (object fun, uintC args_on_stack)
         case (uintB)cclos_argtype_1_0_key:
           # 1 required-Argument, Keyword-Arguments
           if (args_on_stack==1) goto unbound_optional_key_0;
-          elif (args_on_stack<1) goto error_toofew;
+          else if (args_on_stack<1) goto error_toofew;
           else { args_on_stack -= 1; goto apply_cclosure_key_withargs; }
         case (uintB)cclos_argtype_2_0_key:
           # 2 required-Arguments, Keyword-Arguments
           if (args_on_stack==2) goto unbound_optional_key_0;
-          elif (args_on_stack<2) goto error_toofew;
+          else if (args_on_stack<2) goto error_toofew;
           else { args_on_stack -= 2; goto apply_cclosure_key_withargs; }
         case (uintB)cclos_argtype_3_0_key:
           # 3 required-Arguments, Keyword-Arguments
           if (args_on_stack==3) goto unbound_optional_key_0;
-          elif (args_on_stack<3) goto error_toofew;
+          else if (args_on_stack<3) goto error_toofew;
           else { args_on_stack -= 3; goto apply_cclosure_key_withargs; }
         case (uintB)cclos_argtype_4_0_key:
           # 4 required-Arguments, Keyword-Arguments
           if (args_on_stack==4) goto unbound_optional_key_0;
-          elif (args_on_stack<4) goto error_toofew;
+          else if (args_on_stack<4) goto error_toofew;
           else { args_on_stack -= 4; goto apply_cclosure_key_withargs; }
         case (uintB)cclos_argtype_0_1_key:
           # 1 optional-Argument, Keyword-Arguments
@@ -5699,7 +5699,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           args_on_stack -= opt_count; /* remaining number */
           if (flags & bit(7)) # Key-Flag?
             goto apply_cclosure_key_withargs_;
-          elif (flags & bit(0))
+          else if (flags & bit(0))
             goto apply_cclosure_rest_nokey;
           else {
             # Closure without REST or KEY

@@ -12,7 +12,7 @@
       error(type_error,
              GETTEXT("The arguments to BYTE must be fixnums >=0: ~S, ~S")
             );
-    } elif (!(I_fixnump(position) && !R_minusp(position))) {
+    } else if (!(I_fixnump(position) && !R_minusp(position))) {
       pushSTACK(position); # TYPE-ERROR slot DATUM
       goto bad_args;
     } else {

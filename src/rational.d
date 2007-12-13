@@ -427,7 +427,7 @@
       pushSTACK(TheRatio(s)->rt_num); # b
       r = I_I_mult_I(r,TheRatio(s)->rt_den); # a*c
       return I_I_comp(r,popSTACK()); # mit b vergleichen
-    } elif (RA_integerp(s)) {
+    } else if (RA_integerp(s)) {
       # r Ratio, s Integer: r=a/b, s=c. Vergleiche a und b*c.
       pushSTACK(TheRatio(r)->rt_num); # a
       s = I_I_mult_I(TheRatio(r)->rt_den,s); # b*c
