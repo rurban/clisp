@@ -2741,7 +2741,7 @@ local maygc void wr_ch_array_pphelp (const gcv_object_t* stream_,
   var uintL beg = start;
   /* if (start) sstring_printf(*chararray_,start+len,0);
    sstring_printf(*chararray_,start+len,start); */
-  loop {
+  while (1) {
     var uintL end = beg;
     var object nl_type = NIL;
     /* printf(" [%d/",beg); */
@@ -5084,7 +5084,7 @@ local object rd_ch_unbuffered (const gcv_object_t* stream_) {
     var object encoding = TheStream(stream)->strm_encoding;
     var uintB buf[max_bytes_per_chart];
     var uintL buflen = 0;
-    loop {
+    while (1) {
       var sintL b = UnbufferedStreamLow_read(stream)(stream);
       if (b < 0)
         return eof_value;
@@ -5150,7 +5150,7 @@ local signean listen_char_unbuffered (object stream) {
   var object encoding = TheStream(stream)->strm_encoding;
   var uintB buf[max_bytes_per_chart];
   var uintL buflen = 0;
-  loop {
+  while (1) {
     result = UnbufferedStreamLow_listen(stream)(stream);
     if (ls_eof_p(result))
       break;
@@ -5242,7 +5242,7 @@ local uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
   var object stream = *stream_;
   var uintL end = start+len;
   var uintL currindex = start;
-  loop {
+  while (1) {
     var uintL remaining = end - currindex;
     if (remaining == 0)
       break;
@@ -6489,7 +6489,7 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
     } else {
       var uintB buf[max_bytes_per_chart];
       var uintL buflen = 0;
-      loop {
+      while (1) {
         ASSERT(buflen < max_bytes_per_chart);
         buf[buflen++] = *bufferptr;
         /* increment index and position */
@@ -6571,7 +6571,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
   var uintL end = start+len;
   var uintL currindex = start;
   var object encoding = TheStream(stream)->strm_encoding;
-  loop {
+  while (1) {
     var uintL startindex = currindex;
     var uintB* bufferptr = buffered_nextbyte(stream,persev_partial);
     if (bufferptr == (uintB*)NULL) /* EOF -> finished */
@@ -6597,7 +6597,7 @@ local uintL rd_ch_array_buffered (const gcv_object_t* stream_,
       } else {
         var uintB buf[max_bytes_per_chart];
         var uintL buflen = 0;
-        loop {
+        while (1) {
           ASSERT(buflen < max_bytes_per_chart);
           buf[buflen++] = *bufferptr;
           /* increment index and position */
@@ -7136,7 +7136,7 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
   if (ptr != (uintB*)NULL) {
     if (bitshift==0) {
       /* Optimized loop, without shifting. */
-      loop {
+      while (1) {
         *bitbufferptr++ = *ptr; /* store 8 bits */
         /* After digesting *ptr, increment index: */
         BufferedStream_index(stream) += 1;
@@ -7155,7 +7155,7 @@ local object rd_by_aux_icx_buffered (object stream, rd_by_ix_I* finisher) {
       var uint16 bit_akku = (*ptr)>>bitshift;
       bitshift = 8-bitshift; /* bitshift := 8-bitindex (>0, <8) */
       count -= bitshift;
-      loop {
+      while (1) {
         BufferedStream_index(stream) += 1;
         /* bit_akku: bits (bitshift-1)..0 are valid.
          have to get count (>0) bits. */
@@ -7338,7 +7338,7 @@ local void wr_by_aux_ic_buffered (object stream, uintL bitsize, uintL bytesize) 
   bit_akku = (ptr==(uintB*)NULL ? 0 : (*ptr)&(bit(bitshift)-1) );
   count += bitshift;
   /* write individual bytes: */
-  loop {
+  while (1) {
     bit_akku |= (uint16)(*bitbufferptr++)<<bitshift;
     if (count<8)
       break;
@@ -8207,7 +8207,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
  restart_it:
   handle = TheHandle(TheStream(*stream_)->strm_keyboard_handle);
   begin_system_call();
-  loop {
+  while (1) {
     if (!ReadConsoleInput1(handle,&event,&nevents_read)) {
       if (GetLastError()==ERROR_SIGINT) { /* Break by Ctrl-C ? */
         end_system_call();
@@ -9209,7 +9209,7 @@ local maygc object rd_ch_terminal2 (const gcv_object_t* stream_) {
     /* index=count -> must read a whole line from the keyboard: */
     TheStream(stream)->strm_terminal_index = Fixnum_0; /* index := 0 */
     TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
-    loop {
+    while (1) {
       var object ch = rd_ch_unbuffered(stream_);
       if (eq(ch,eof_value)) {
         if (TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] > 0)
@@ -15813,7 +15813,7 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
         /* No special-casing of strmtype_echo, because the echo-stream may
          be interactive, and delaying the echo in this case is undesirable. */
       default:
-        loop {
+        while (1) {
           var object ch = rd_ch(*stream_)(stream_); /* read next character */
           if (eq(ch,eof_value)) { /* EOF ? */
             eofp = true; break;

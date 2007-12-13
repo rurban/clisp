@@ -28,7 +28,7 @@
     if (k1 < 16-1) {
       # k < 16
       var uintWL y = (x >> (k1+2)) | bit(k1); # stets 2^(k-1) <= y < 2^k
-      loop {
+      while (1) {
         var uintWL z;
         divu_3216_1616(x,y, z=,); # Dividiere x/y (geht, da x/y < 2^(2k)/2^(k-1) = 2^(k+1) <= 2^16)
         if (z >= y)
@@ -40,7 +40,7 @@
       # k = 16, Vorsicht!
       var uintWL x1 = high16(x);
       var uintWL y = (x >> (16+1)) | bit(16-1); # stets 2^(k-1) <= y < 2^k
-      loop {
+      while (1) {
         var uintWL z;
         if (x1 >= y) # Division x/y ergäbe Überlauf -> z > y
           break;
@@ -84,7 +84,7 @@
     if (k < 32) {
       # k < 32
       var uintL y = ((x1 << (32-k)) | (x0 >> k) | bit(k)) >> 1; # stets 2^(k-1) <= y < 2^k
-      loop {
+      while (1) {
         var uintL z;
         divu_6432_3232(x1,x0,y, z=,); # Dividiere x/y (geht, da x/y < 2^(2k)/2^(k-1) = 2^(k+1) <= 2^32)
         if (z >= y)
@@ -95,7 +95,7 @@
     } else {
       # k = 32, Vorsicht!
       var uintL y = (x1 >> 1) | bit(32-1); # stets 2^(k-1) <= y < 2^k
-      loop {
+      while (1) {
         var uintL z;
         if (x1 >= y) # Division x/y ergäbe Überlauf -> z > y
           break;
@@ -226,7 +226,7 @@
         #endif
         # Anfangswert: x := floor((beta + a[2n-1])/2)
         var uintD x = floor(a_msd,2) | bit(intDsize-1);
-        loop { # Heron-Iterationsschleife
+        while (1) { # Heron-Iterationsschleife
           var uintD d;
           # Dividiere d := floor((a[2n-1]*beta+a[2n-2])/x) :
           if (a_msd>=x) # Überlauf -> d>=beta -> fertig
@@ -309,7 +309,7 @@
           } else {
             a_mptr[0] -= carry; # a[2n-j] wird <0
             # negativer Übertrag -> b* nach unten korrigieren:
-            loop {
+            while (1) {
               b_stern = b_stern-1; # b* := b* - 1
               # erhöhe [a[2n-j],...,a[2n-2j-1]] um [b[n],...,b[n-j]]:
               if (!(( addto_loop_down(b_ptr,a_lptr,j+1) ==0)))

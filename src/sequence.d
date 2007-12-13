@@ -896,7 +896,7 @@ LISPFUNN(nreverse,1) # (NREVERSE sequence), CLTL S. 248
             # Stackaufbau: seq, typdescr, pointer1, pointer2.
             # pointer1 und pointer2 laufen gemeinsam durch seq, dabei hat
             # pointer2 einen Vorsprung von k1.
-            loop {
+            while (1) {
               # Zwei Blöcke der Länge k2 = floor(len/2^(j+1)) vertauschen:
               {
                 var uintV i = k2; # i:=k2 >0
@@ -1012,7 +1012,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
           pushSTACK(STACK_0); funcall(seq_init(STACK_(5+1)),1); # (SEQ-INIT seq)
           pushSTACK(value1);
           # Stackaufbau: typdescr, count, element, updatefun, type-len, seq, pointer.
-          loop {
+          while (1) {
             pushSTACK(STACK_(1+0)); pushSTACK(STACK_(0+1)); pushSTACK(STACK_(4+2));
             funcall(seq_access_set(STACK_(6+3)),3); # (SEQ-ACCESS-SET seq pointer element)
             # pointer := (SEQ-UPD seq pointer) :
@@ -1325,7 +1325,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     pushSTACK(obj); funcall(seq_init(typdescr),1); # (SEQ-INIT obj)
     pushSTACK(value1);
     # Stackaufbau: typdescr, sequence, pointer.
-    loop {
+    while (1) {
       # (SEQ-ENDTEST sequence pointer) :
       pushSTACK(STACK_1); pushSTACK(STACK_1); funcall(seq_endtest(STACK_4),2);
       if (!nullp(value1))
@@ -1389,7 +1389,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     #         [rest_args_pointer] {sequence}, default,
     #         [typdescr_pointer] {typdescr, pointer}, [STACK].
     # Schleife: die Funktion aufrufen:
-    loop {
+    while (1) {
       var gcv_object_t* ptr1 = rest_args_pointer;
       var gcv_object_t* ptr2 = typdescr_pointer;
       # ptr1 läuft von oben durch die Sequences durch,
@@ -1480,7 +1480,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       # Minimale Länge aller Sequences bestimmen, indem jeweils mit dem
       # zweiten Pointer durchgelaufen wird:
       pushSTACK(Fixnum_0); # minlength:=0
-      loop {
+      while (1) {
         var gcv_object_t* ptr1 = rest_args_pointer;
         var gcv_object_t* ptr2 = typdescr_pointer;
         # ptr1 läuft von oben durch die Sequences durch,
@@ -1608,7 +1608,7 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
     #         [typdescr_pointer] {typdescr, pointer},
     #         result-typdescr, result-pointer, [STACK].
     # Sooft wie nötig, die Funktion aufrufen, Ergebnis in result-sequence eintragen:
-    loop {
+    while (1) {
       # Test, ob eine weitere Iteration nötig:
       {
         var gcv_object_t* ptr1 = rest_args_pointer;
@@ -3495,7 +3495,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         # (Es gibt Einsen, da dl>0.)
         {
           var object bv = STACK_(0+2);
-          loop {
+          while (1) {
             var uintV bvl_1 = bvl-1;
             if (sbvector_btst(bv,bvl_1)) # Bit bvl-1 abfragen
               break;
@@ -4350,7 +4350,7 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
       {
         var bool seq1_ended; # Flag, ob seq1-Teilstück zu Ende
         var bool seq2_ended; # Flag, ob seq2-Teilstück zu Ende
-        loop {
+        while (1) {
           # Teste, ob seq1-Teilstück zu Ende:
           if (eq(STACK_1,Fixnum_0)) # endvar1 = 0 (und damit end1 /= nil) ?
             seq1_ended = true;
@@ -4497,7 +4497,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
       # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
       #              key, test, test-not, typdescr1, typdescr2,
       #              pointer10, pointer20, len1, len2, index.
-      loop {
+      while (1) {
         # pointer1 und pointer2 ab pointer10 bzw. pointer20 laufen lassen:
         {
           pushSTACK(STACK_4); funcall(seq_copy(STACK_(1+5+1)),1); # (SEQ-COPY pointer10)
@@ -4513,7 +4513,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
         #              key, test, test-not, typdescr1, typdescr2,
         #              pointer10, pointer20, len1, len2, index,
         #              pointer1, pointer2, count1, count2.
-        loop {
+        while (1) {
           if (eq(STACK_1,Fixnum_0)) # count1 (ein Integer) = 0 ?
             goto found; # ja -> seq1 zu Ende, gefunden
           if (eq(STACK_0,Fixnum_0)) # count2 (ein Integer) = 0 ?
@@ -4571,7 +4571,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
       # Stackaufbau: seq1, seq2, start1, end1, start2, end2, from-end,
       #              key, test, test-not, typdescr1, typdescr2,
       #              pointer10, pointer20, endvar10, endvar20, index.
-      loop {
+      while (1) {
         # pointer1 und pointer2 ab pointer10 bzw. pointer20 laufen lassen:
         {
           pushSTACK(STACK_4); funcall(seq_copy(STACK_(1+5+1)),1); # (SEQ-COPY pointer10)
@@ -4587,7 +4587,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
         #              key, test, test-not, typdescr1, typdescr2,
         #              pointer10, pointer20, endvar10, endvar20, index,
         #              pointer1, pointer2, endvar1, endvar2.
-        loop {
+        while (1) {
           # Teste, ob seq1-Teilstück zu Ende. Wenn ja: gefunden.
           if (eq(STACK_1,Fixnum_0)) # endvar1 = 0 (und damit end1 /= nil) ?
             goto found;
@@ -4678,7 +4678,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
 # can trigger GC
   local maygc void merge (gcv_object_t* stackptr)
   {
-    loop {
+    while (1) {
       if (eq(STACK_4,Fixnum_0)) # count1 = 0 -> seq1 zu Ende
         goto seq1_end;
       if (eq(STACK_3,Fixnum_0)) # count1 = 0 -> seq2 zu Ende

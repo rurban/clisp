@@ -706,7 +706,7 @@ global int wait2 (PID_T child) {
   /* WAIT(2V) and #include <sys/wait.h> :
      WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
      WEXITSTATUS(status)  == ((status & 0xFF00) >> 8) */
-  loop {
+  while (1) {
     var int result = waitpid(child,&status,0);
     if (result != child) {
       if (result<0) {

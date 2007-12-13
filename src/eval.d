@@ -511,7 +511,7 @@ nonreturning_function(global, reset, (uintL count)) {
   bool top_p = (count==0);
   VALUES0;
   unwind_protect_to_save.fun = (restartf_t)&reset;
-  loop {
+  while (1) {
     /* does STACK end here? */
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
       driver(); quit(); /* STACK completely gone -> restart */
@@ -618,7 +618,7 @@ nonreturning_function(global /*maygc*/, unwind_upto, (gcv_object_t* upto_frame))
 global void throw_to (object tag) {
   /* search for Catch-Frame with Tag = tag: */
   var gcv_object_t* FRAME = STACK;
-  loop { /* search in the Stack starting at FRAME
+  while (1) { /* search in the Stack starting at FRAME
             for a CATCH-Frame with the same Tag: */
     if (eq(FRAME_(0),nullobj)) /* end of Stack? */
       return; /* yes -> no suitable Catch there -> jump back */
@@ -650,7 +650,8 @@ global maygc void invoke_handlers (object cond) {
   var stack_range_t new_range;
   /* Search for Handler-Frame, that handles a Type with (TYPEP cond type): */
   var gcv_object_t* FRAME = STACK;
-  loop { /* search in Stack starting at FRAME for a suitable HANDLER-Frame: */
+  while (1) {
+    /* search in Stack starting at FRAME for a suitable HANDLER-Frame: */
     if (!(other_ranges == NULL) && (FRAME == other_ranges->low_limit)) {
       FRAME = other_ranges->high_limit;
       other_ranges = other_ranges->next;
@@ -7209,7 +7210,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           # at least 2 values desired and present
           {
             var object* mvp = &mv_space[1];
-            loop {
+            while (1) {
               pushSTACK(*mvp++);
               n--; if (n==0) goto nv_to_stack_end; # no further value desired -> finished
               count--; if (count==0) goto nv_to_stack_fill; # no further value present -> fill with NILs
