@@ -41,7 +41,7 @@ local void xmmprotect (Heap* heap, aint addr, uintM len, int prot);
 #define init_physpageshift()                      \
   { var uintL x = physpagesize;                   \
     var uintL i = 0;                              \
-    until ((x >>= 1) == 0) { i++; }               \
+    while ((x >>= 1) != 0) { i++; }               \
     if (!((1UL << i) == physpagesize)) abort();   \
     physpageshift = i;                            \
   }

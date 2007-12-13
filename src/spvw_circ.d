@@ -404,7 +404,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
   #else
   if (orecordp(obj)) {
     goto case_orecord;
-  } elif (consp(obj)) {
+  } else if (consp(obj)) {
     goto case_cons;
   } else {
     goto m_end;
@@ -748,7 +748,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
   #else
   if (orecordp(obj)) {
     goto case_orecord;
-  } elif (consp(obj)) {
+  } else if (consp(obj)) {
     goto case_cons;
   } else {
     goto m_end;
@@ -1012,7 +1012,7 @@ local void get_circ_unmark (object obj, get_circ_global* env)
   #else
   if (orecordp(obj)) {
     goto case_orecord;
-  } elif (consp(obj)) {
+  } else if (consp(obj)) {
     goto case_cons;
   } else {
     goto u_end;
@@ -1259,19 +1259,19 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
     #else
     if (orecordp(obj)) {
       goto case_orecord;
-    } elif (consp(obj)) {
+    } else if (consp(obj)) {
       goto case_cons;
-    } elif (immediate_number_p(obj)) {
+    } else if (immediate_number_p(obj)) {
       goto case_number;
-    } elif (charp(obj)) {
+    } else if (charp(obj)) {
       goto case_char;
-    } elif (subrp(obj)) {
+    } else if (subrp(obj)) {
       goto case_subr;
-    } elif (machinep(obj)) {
+    } else if (machinep(obj)) {
       goto case_machine;
-    } elif (small_read_label_p(obj)) {
+    } else if (small_read_label_p(obj)) {
       goto case_small_read_label;
-    } elif (systemp(obj)) {
+    } else if (systemp(obj)) {
       return;
     } else switch (0)
     #endif
@@ -1466,19 +1466,19 @@ global object subst_circ (gcv_object_t* ptr, object alist)
       #else
       if (orecordp(obj)) {
         goto case_orecord;
-      } elif (consp(obj)) {
+      } else if (consp(obj)) {
         goto case_cons;
-      } elif (immediate_number_p(obj)) {
+      } else if (immediate_number_p(obj)) {
         goto case_number;
-      } elif (charp(obj)) {
+      } else if (charp(obj)) {
         goto case_char;
-      } elif (subrp(obj)) {
+      } else if (subrp(obj)) {
         goto case_subr;
-      } elif (machinep(obj)) {
+      } else if (machinep(obj)) {
         goto case_machine;
-      } elif (small_read_label_p(obj)) {
+      } else if (small_read_label_p(obj)) {
         goto case_small_read_label;
-      } elif (systemp(obj)) {
+      } else if (systemp(obj)) {
         return;
       } else switch (0)
       #endif
@@ -1652,19 +1652,19 @@ local void subst_circ_mark (gcv_object_t* ptr)
     #else
     if (orecordp(obj)) {
       goto case_orecord;
-    } elif (consp(obj)) {
+    } else if (consp(obj)) {
       goto case_cons;
-    } elif (immediate_number_p(obj)) {
+    } else if (immediate_number_p(obj)) {
       goto case_number;
-    } elif (charp(obj)) {
+    } else if (charp(obj)) {
       goto case_char;
-    } elif (subrp(obj)) {
+    } else if (subrp(obj)) {
       goto case_subr;
-    } elif (machinep(obj)) {
+    } else if (machinep(obj)) {
       goto case_machine;
-    } elif (small_read_label_p(obj)) {
+    } else if (small_read_label_p(obj)) {
       goto case_small_read_label;
-    } elif (systemp(obj)) {
+    } else if (systemp(obj)) {
       return;
     } else switch (0)
     #endif
@@ -1809,17 +1809,17 @@ local void subst_circ_unmark (gcv_object_t* ptr)
     #else
     if (orecordp(obj)) {
       goto case_orecord;
-    } elif (consp(obj)) {
+    } else if (consp(obj)) {
       goto case_cons;
-    } elif (immediate_number_p(obj)) {
+    } else if (immediate_number_p(obj)) {
       goto case_number;
-    } elif (charp(obj)) {
+    } else if (charp(obj)) {
       goto case_char;
-    } elif (subrp(obj)) {
+    } else if (subrp(obj)) {
       goto case_subr;
-    } elif (machinep(obj)) {
+    } else if (machinep(obj)) {
       goto case_machine;
-    } elif (small_read_label_p(obj) || systemp(obj)) {
+    } else if (small_read_label_p(obj) || systemp(obj)) {
       goto case_system;
     } else switch (0)
     #endif

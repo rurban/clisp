@@ -595,7 +595,7 @@ global uintL asciz_length (const char * asciz) {
  < result: true if both sequences are equal */
 global bool asciz_equal (const char * asciz1, const char * asciz2) {
   /* compare bytes until the first nullbyte: */
-  loop {
+  while (1) {
     var char ch1 = *asciz1++;
     if (ch1 != *asciz2++) goto no;
     if (ch1 == '\0') goto yes;
@@ -2554,7 +2554,7 @@ local inline int init_memory (struct argv_initparams *p) {
       memblock = round_down(bit(oint_addr_len) - memneed,SHMLBA);
     }
    #else
-    loop {
+    while (1) {
       memblock = (aint)mymalloc(memneed); /* try to allocate memory */
       if (!((void*)memblock == NULL)) break; /* successful -> OK */
       memneed = floor(memneed,8)*7; /* else try again with 7/8 thereof */
@@ -3596,7 +3596,7 @@ global void dynload_modules (const char * library, uintC modcount,
           module->name = modnamebuf;
           {
             var const char * ptr = modname;
-            until ((*modnamebuf++ = *ptr++) == '\0') {}
+            while ((*modnamebuf++ = *ptr++) != '\0') {}
           }
           /* Find the addresses of some C data in the shared library: */
           module->stab = (subr_t*) ((char*) get_module_symbol("module__%s__subr_tab",modname,libhandle) + varobjects_misaligned);
