@@ -2493,7 +2493,7 @@ local inline int init_memory (struct argv_initparams *p) {
   init_mem_heaptypes();
   init_objsize_table();
  #endif
- #if defined(SPVW_MIXED_BLOCKS) && defined(TYPECODES) && defined(GENERATIONAL_GC)
+ #if defined(HAVE_HEAPNR_FROM_TYPE)
   init_mem_heapnr_from_type();
  #endif
   init_modules_0();             /* assemble the list of modules */
