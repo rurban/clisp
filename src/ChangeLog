@@ -3,6 +3,7 @@
 	* spvw_typealloc.d (NIL_FILL): add
 	(allocate_vector, allocate_lrecord, allocate_lrecord_)
 	(allocate_srecord_): use it
+	* spvw*.d: convert comments from "# " to "/**/"
 
 2007-12-12  Sam Steingold  <sds@gnu.org>
 
