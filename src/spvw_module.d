@@ -77,7 +77,7 @@ global void add_module (module_t * module)
 #else
 
 #define for_modules(which,statement)                                    \
-  module = (which); until (module->name==NULL) { statement; module++; }
+  module = (which); while (module->name != NULL) { statement; module++; }
 #define all_modules  &modules[0]
 #define all_other_modules  &modules[1]
 
