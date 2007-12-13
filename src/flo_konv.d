@@ -169,7 +169,7 @@
       if (mant >= bit(SF_mant_len+1)) {
         # Überlauf durchs Runden
         mant = mant>>1; exp = exp+1; # Mantisse rechts schieben
-      } 
+      }
     }
     #undef shiftcount
     encode_SF(sign,exp,mant, return);
@@ -459,7 +459,7 @@
         error_underflow();
       else
         return FF_0; # +/- 0.0 -> 0.0
-    } elif (exp == 255) { # e=255 ?
+    } else if (exp == 255) { # e=255 ?
       if (!((val << (32-FF_mant_len)) == 0))
         error_nan(); # NaN
       else
@@ -520,7 +520,7 @@
         error_underflow();
       else
         return DF_0; # +/- 0.0 -> 0.0
-    } elif (exp == 2047) { # e=2047 ?
+    } else if (exp == 2047) { # e=2047 ?
       if (!((val << (64-DF_mant_len)) == 0))
         error_nan(); # NaN
       else
@@ -540,7 +540,7 @@
         error_underflow();
       else
         return DF_0; # +/- 0.0 -> 0.0
-    } elif (exp == 2047) { # e=2047 ?
+    } else if (exp == 2047) { # e=2047 ?
       if (!(((val.semhi << (64-DF_mant_len)) == 0) && (val.mlo == 0)))
         error_nan(); # NaN
       else

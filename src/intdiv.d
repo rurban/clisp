@@ -96,7 +96,7 @@
       q_->MSDptr = r_MSDptr; q_->len = 0; q_->LSDptr = r_MSDptr; # q = 0, eine NUDS
       r_->MSDptr = r_MSDptr; r_->len = a_len; r_->LSDptr = r_LSDptr; # r = Kopie von a, eine NUDS
       return;
-    } elif (b_len==1) {
+    } else if (b_len==1) {
       # n=1: Single-Precision-Division
       # beta^(m-1) <= a < beta^m  ==>  beta^(m-2) <= a/b < beta^m
       var uintD* q_MSDptr = roomptr;
@@ -292,7 +292,7 @@
         var uintV y_ = posfixnum_to_V(y);
         if (y_==0) {
           divide_0();
-        } elif (x_ < y_) {
+        } else if (x_ < y_) {
           # Trivialfall: q=0, r=x
           goto trivial;
         } else {

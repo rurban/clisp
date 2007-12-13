@@ -228,9 +228,9 @@ LISPFUNN(machine_version,0)
             else {
               if (info.dwProcessorType == PROCESSOR_INTEL_386)
                 TheS8string(erg)->data[3] = '3';
-              elif (info.dwProcessorType == PROCESSOR_INTEL_486)
+              else if (info.dwProcessorType == PROCESSOR_INTEL_486)
                 TheS8string(erg)->data[3] = '4';
-              elif (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
+              else if (info.dwProcessorType == PROCESSOR_INTEL_PENTIUM)
                 TheS8string(erg)->data[3] = '5';
             }
           }

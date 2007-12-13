@@ -148,7 +148,7 @@
     } else {
       if (uexp > SF_exp_mid+SF_mant_len) { # e > 16 ?
         return x;
-      } elif (uexp > SF_exp_mid+1) { # e>1 ?
+      } else if (uexp > SF_exp_mid+1) { # e>1 ?
         var oint bitmask = # Bitmaske: Bit 16-e gesetzt, alle anderen gelöscht
           wbit(SF_mant_len+SF_mant_shift + SF_exp_mid-uexp);
         var oint mask = # Bitmaske: Bits 15-e..0 gesetzt, alle anderen gelöscht
@@ -168,7 +168,7 @@
                   + wbit(SF_mant_shift) # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
                  );
         }
-      } elif (uexp == SF_exp_mid+1) { # e=1 ?
+      } else if (uexp == SF_exp_mid+1) { # e=1 ?
         # Wie bei 1 < e <= 16, nur dass Bit 17-e stets gesetzt ist.
         if ((as_oint(x) & wbit(SF_mant_len+SF_mant_shift-1)) ==0) # Bit 16-e =0 -> abrunden
           # abrunden

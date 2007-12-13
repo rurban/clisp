@@ -87,7 +87,7 @@
         } else {                                                         \
           result_assignment FF_0; # +/- 0.0 -> 0.0                      \
         }                                                                \
-      } elif ((maybe_overflow || maybe_divide_0)                         \
+      } else if ((maybe_overflow || maybe_divide_0)                     \
               && (((~_erg.eksplicit) & ((uint32)bit(FF_exp_len+FF_mant_len)-bit(FF_mant_len))) == 0) # e=255 ? \
              ) {                                                         \
         if (maybe_nan && !((_erg.eksplicit << (32-FF_mant_len)) == 0)) { \
@@ -196,7 +196,7 @@
     } else {
       if (uexp > FF_exp_mid+FF_mant_len) { # e > 23 ?
         return x;
-      } elif (uexp > FF_exp_mid+1) { # e>1 ?
+      } else if (uexp > FF_exp_mid+1) { # e>1 ?
         var uint32 bitmask = # Bitmaske: Bit 23-e gesetzt, alle anderen gelöscht
           bit(FF_mant_len+FF_exp_mid-uexp);
         var uint32 mask = # Bitmaske: Bits 22-e..0 gesetzt, alle anderen gelöscht
@@ -216,7 +216,7 @@
              + 1 # letzte Stelle erhöhen, dabei evtl. Exponenten incrementieren
             );
         }
-      } elif (uexp == FF_exp_mid+1) { # e=1 ?
+      } else if (uexp == FF_exp_mid+1) { # e=1 ?
         # Wie bei 1 < e <= 23, nur dass Bit 24-e stets gesetzt ist.
         if ((x_ & bit(FF_mant_len-1)) ==0) # Bit 23-e =0 -> abrunden
           # abrunden
