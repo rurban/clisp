@@ -50,4 +50,4 @@ if test $cl_use_ffcall != no; then
   cd ../..
   ./configure --with-libffcall-prefix=\${prefix} [$]*])
  fi
-fi])
+fi;])
