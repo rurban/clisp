@@ -5616,7 +5616,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
       /* possibly add a '/' at the end: */
       var char* pathptr = &path_buffer[0];
       var uintL len = 0; /* string-length */
-      until (*pathptr == 0) { pathptr++; len++; } /* search ASCIZ-string-end */
+      while (*pathptr != 0) { pathptr++; len++; } /* search ASCIZ-string-end */
       if (!((len>0) && (pathptr[-1]=='/'))) {
         *pathptr = '/'; len++; /* add a '/' */
       }

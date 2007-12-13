@@ -1043,12 +1043,6 @@
  used by utils/varbrace to allow declarations mixed with other statements */
 #define var
 
-/* Reverted stop condition in loops:
- Allows   until (expression) statement
- and      do statement until (expression);
- _deprecated_, please use standard C */
-#define until(expression)  while(!(expression))
-
 # Ignore C++ keyword.
 #define export export_sym
 
@@ -1665,11 +1659,11 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
         if (!(countvar_from_dotimesW==0))                   \
           { countvar_from_dotimesW--;                       \
             do {statement_from_dotimesW}                    \
-               until ((sintW)--countvar_from_dotimesW==-1); \
+            while ((sintW)--countvar_from_dotimesW != -1);  \
       }   }
     #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
       { countvar_from_dotimespW = (count_from_dotimespW)-1;                         \
-        do {statement_from_dotimespW} until ((sintW)--countvar_from_dotimespW==-1); \
+        do {statement_from_dotimespW} while ((sintW)--countvar_from_dotimespW != -1); \
       }
   #else
     #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
@@ -1677,22 +1671,22 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
         if (!(countvar_from_dotimesW==0))                      \
           { countvar_from_dotimesW--;                          \
             do {statement_from_dotimesW}                       \
-               until ((sintW)(--countvar_from_dotimesW)+1==0); \
+            while ((sintW)(--countvar_from_dotimesW)+1 != 0);  \
       }   }
     #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
       { countvar_from_dotimespW = (count_from_dotimespW)-1;                            \
-        do {statement_from_dotimespW} until ((sintW)(--countvar_from_dotimespW)+1==0); \
+        do {statement_from_dotimespW} while ((sintW)(--countvar_from_dotimespW)+1 != 0); \
       }
   #endif
 #else
   #define dotimesW_(countvar_from_dotimesW,count_from_dotimesW,statement_from_dotimesW)  \
     { countvar_from_dotimesW = (count_from_dotimesW);         \
-      until (countvar_from_dotimesW==0)                       \
+      while (countvar_from_dotimesW != 0)                       \
         {statement_from_dotimesW; countvar_from_dotimesW--; } \
     }
   #define dotimespW_(countvar_from_dotimespW,count_from_dotimespW,statement_from_dotimespW)  \
     { countvar_from_dotimespW = (count_from_dotimespW);                   \
-      do {statement_from_dotimespW} until (--countvar_from_dotimespW==0); \
+      do {statement_from_dotimespW} while (--countvar_from_dotimespW != 0); \
     }
 #endif
 #if defined(GNU) && defined(MC680X0) && !defined(HPUX_ASSEMBLER)
@@ -1704,22 +1698,22 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
       if (!(countvar_from_dotimesL==0))                         \
         { countvar_from_dotimesL--;                             \
           do {statement_from_dotimesL}                          \
-             until ((sintL)(--countvar_from_dotimesL) == -1);   \
+          while ((sintL)(--countvar_from_dotimesL)  !=  -1);    \
     }   }
   #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
     { countvar_from_dotimespL = (count_from_dotimespL)-1;                             \
-      do {statement_from_dotimespL} until ((sintL)(--countvar_from_dotimespL) == -1); \
+      do {statement_from_dotimespL} while ((sintL)(--countvar_from_dotimespL)  !=  -1); \
     }
 #endif
 #ifndef dotimesL_
   #define dotimesL_(countvar_from_dotimesL,count_from_dotimesL,statement_from_dotimesL)  \
     { countvar_from_dotimesL = (count_from_dotimesL);         \
-      until (countvar_from_dotimesL==0)                       \
+      while (countvar_from_dotimesL != 0)                       \
         {statement_from_dotimesL; countvar_from_dotimesL--; } \
     }
   #define dotimespL_(countvar_from_dotimespL,count_from_dotimespL,statement_from_dotimespL)  \
     { countvar_from_dotimespL = (count_from_dotimespL);                   \
-      do {statement_from_dotimespL} until (--countvar_from_dotimespL==0); \
+      do {statement_from_dotimespL} while (--countvar_from_dotimespL != 0); \
     }
 #endif
 #if defined(GNU) && defined(__OPTIMIZE__)
@@ -11682,17 +11676,17 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
 #                                       Pointer above the first argument
 #   Typical Loop-Processing:
 #     from the front:
-#       until (argcount==0) {
+#       while (argcount != 0) {
 #         var object arg = NEXT(rest_args_pointer); ...; argcount--;
 #       }
-#       until (rest_args_pointer==args_end_pointer) {
+#       while (rest_args_pointer != args_end_pointer) {
 #         var object arg = NEXT(rest_args_pointer); ...;
 #       }
 #     from the back:
-#       until (argcount==0) {
+#       while (argcount != 0) {
 #         var object arg = BEFORE(args_end_pointer); ...; argcount--;
 #       }
-#       until (rest_args_pointer==args_end_pointer) {
+#       while (rest_args_pointer != args_end_pointer) {
 #         var object arg = BEFORE(args_end_pointer); ...;
 #       }
 #   The macros NEXT and BEFORE modify their arguments!

@@ -252,7 +252,7 @@
         # Berechnung von q* ist fertig.
         *r_MSDptr++ = q_stern; # als q[j] ablegen
         r_ptr++;
-      } until (--j == 0);
+      } while (--j != 0);
       # Nun ist q = [q[m-n],..,q[0]] = q_MSDptr/q_len/r_MSDptr
       # und r = [r[n-1],...,r[0]] = r_MSDptr/b_len/r_LSDptr.
       # q normalisieren und ablegen:

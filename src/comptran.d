@@ -261,7 +261,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
     }
     pushSTACK(STACK_1); /* c:=a */
     /* Stackaufbau: a, b, c. */
-    until (eq(y=STACK_1,Fixnum_1)) { /* Solange b/=1 */
+    while (!eq(y=STACK_1,Fixnum_1)) { /* Solange b/=1 */
       STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
       var object a = STACK_2 = N_square_N(STACK_2); /* a:=a*a */
       if (I_oddp(STACK_1))
@@ -389,7 +389,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
           var uintV n = posfixnum_to_V(TheRatio(y)->rt_den);
           if ((n & (n-1)) == 0) { /* n Zweierpotenz? */
             pushSTACK(TheRatio(y)->rt_num); /* m retten */
-            until ((n = n>>1) ==0) { x = N_sqrt_N(x); } /* n-te Wurzel ziehen */
+            while ((n = n>>1)) { x = N_sqrt_N(x); } /* n-te Wurzel ziehen */
             return N_I_expt_N(x,popSTACK()); /* dann hoch m */
           }
         }

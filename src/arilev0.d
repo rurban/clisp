@@ -781,42 +781,42 @@
     # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
     # x-floor(x/y)*y  der Division zu bekommen.
     #define divu_3232_3232(x,y,q_assignment,r_assignment)  \
-      { var uint32 _x = (x);                                                    \
-        var uint32 _y = (y);                                                    \
-        if (_y <= (uint32)(bit(16)-1))                                          \
-          { var uint16 _q1;                                                     \
-            var uint16 _q0;                                                     \
-            var uint16 _r1;                                                     \
-            divu_3216_1616(high16(_x),_y, _q1 = , _r1 = );                      \
+      { var uint32 _x = (x);                                            \
+        var uint32 _y = (y);                                            \
+        if (_y <= (uint32)(bit(16)-1))                                  \
+          { var uint16 _q1;                                             \
+            var uint16 _q0;                                             \
+            var uint16 _r1;                                             \
+            divu_3216_1616(high16(_x),_y, _q1 = , _r1 = );              \
             divu_3216_1616(highlow32(_r1,low16(_x)),_y, _q0 = , _EMA_ r_assignment); \
-            q_assignment highlow32(_q1,_q0);                                     \
-          }                                                                     \
-          else                                                                  \
-          { var uint32 _x1 = _x; # x1 := x                                      \
-            var uint32 _y1 = _y; # y1 := y                                      \
-            var uint16 _q;                                                      \
-            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen          \
-               until (_y1 <= (uint32)(bit(16)-1)); # bis y1 < beta              \
-            { var uint16 _y2 = low16(_y1)+1; # y1+1 bilden                      \
-              if (_y2==0)                                                       \
-                { _q = high16(_x1); } # y1+1=beta -> ein Shift                  \
-                else                                                            \
-                { divu_3216_1616(_x1,_y2,_q=,); } # Division von x1 durch y1+1  \
-            }                                                                   \
-            # _q = q = floor(x1/(y1+1))                                         \
-            # x-q*y bilden (eine 16-mal-32-Bit-Multiplikation ohne Überlauf):   \
-            _x -= highlow32_0(mulu16(_q,high16(_y))); # q * high16(y) * beta    \
-            # gefahrlos, da q*high16(y) <= q*y/beta <= x/beta < beta            \
-            _x -= mulu16(_q,low16(_y)); # q * low16(y)                          \
-            # gefahrlos, da q*high16(y)*beta + q*low16(y) = q*y <= x            \
-            # Noch höchstens 2 mal y abziehen:                                  \
-            if (_x >= _y)                                                       \
-              { _q += 1; _x -= _y;                                              \
-                if (_x >= _y)                                                   \
-                  { _q += 1; _x -= _y;                                          \
-              }   }                                                             \
-            r_assignment _x;                                                     \
-            q_assignment (uint32)(_q);                                           \
+            q_assignment highlow32(_q1,_q0);                            \
+          }                                                             \
+          else                                                          \
+          { var uint32 _x1 = _x; # x1 := x                              \
+            var uint32 _y1 = _y; # y1 := y                              \
+            var uint16 _q;                                              \
+            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen  \
+            while (_y1 > (uint32)(bit(16)-1)); # bis y1 < beta          \
+            { var uint16 _y2 = low16(_y1)+1; # y1+1 bilden              \
+              if (_y2==0)                                               \
+                { _q = high16(_x1); } # y1+1=beta -> ein Shift          \
+                else                                                    \
+                { divu_3216_1616(_x1,_y2,_q=,); } # Division von x1 durch y1+1 \
+            }                                                           \
+            # _q = q = floor(x1/(y1+1))                                 \
+            # x-q*y bilden (eine 16-mal-32-Bit-Multiplikation ohne Überlauf): \
+            _x -= highlow32_0(mulu16(_q,high16(_y))); # q * high16(y) * beta \
+            # gefahrlos, da q*high16(y) <= q*y/beta <= x/beta < beta    \
+            _x -= mulu16(_q,low16(_y)); # q * low16(y)                  \
+            # gefahrlos, da q*high16(y)*beta + q*low16(y) = q*y <= x    \
+            # Noch höchstens 2 mal y abziehen:                          \
+            if (_x >= _y)                                               \
+              { _q += 1; _x -= _y;                                      \
+                if (_x >= _y)                                           \
+                  { _q += 1; _x -= _y;                                  \
+              }   }                                                     \
+            r_assignment _x;                                            \
+            q_assignment (uint32)(_q);                                  \
       }   }
     #ifdef LISPARIT
     # Dies dient nur noch als Hilfsfunktion für arilev1.d.
@@ -1152,42 +1152,42 @@
     # incrementieren, um den Quotienten  q = floor(x/y)  und den Rest
     # x-floor(x/y)*y  der Division zu bekommen.
     #define divu_6464_6464(x,y,q_assignment,r_assignment)  \
-      { var uint64 _x = (x);                                                    \
-        var uint64 _y = (y);                                                    \
-        if (_y <= (uint64)(((uint64)1<<32)-1))                                  \
-          { var uint32 _q1;                                                     \
-            var uint32 _q0;                                                     \
-            var uint32 _r1;                                                     \
-            divu_6432_3232(0,high32(_x),_y, _q1 = , _r1 = );                    \
-            divu_6432_3232(_r1,low32(_x),_y, _q0 = , _EMA_ r_assignment);        \
-            q_assignment highlow64(_q1,_q0);                                     \
-          }                                                                     \
-          else                                                                  \
-          { var uint64 _x1 = _x; # x1 := x                                      \
-            var uint64 _y1 = _y; # y1 := y                                      \
-            var uint32 _q;                                                      \
-            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen          \
-               until (_y1 <= (uint64)(((uint64)1<<32)-1)); # bis y1 < beta      \
-            { var uint32 _y2 = low32(_y1)+1; # y1+1 bilden                      \
-              if (_y2==0)                                                       \
-                { _q = high32(_x1); } # y1+1=beta -> ein Shift                  \
-                else                                                            \
+      { var uint64 _x = (x);                                            \
+        var uint64 _y = (y);                                            \
+        if (_y <= (uint64)(((uint64)1<<32)-1))                          \
+          { var uint32 _q1;                                             \
+            var uint32 _q0;                                             \
+            var uint32 _r1;                                             \
+            divu_6432_3232(0,high32(_x),_y, _q1 = , _r1 = );            \
+            divu_6432_3232(_r1,low32(_x),_y, _q0 = , _EMA_ r_assignment); \
+            q_assignment highlow64(_q1,_q0);                            \
+          }                                                             \
+          else                                                          \
+          { var uint64 _x1 = _x; # x1 := x                              \
+            var uint64 _y1 = _y; # y1 := y                              \
+            var uint32 _q;                                              \
+            do { _x1 = floor(_x1,2); _y1 = floor(_y1,2); } # k erhöhen  \
+            while (_y1 > (uint64)(((uint64)1<<32)-1)); # bis y1 < beta  \
+            { var uint32 _y2 = low32(_y1)+1; # y1+1 bilden              \
+              if (_y2==0)                                               \
+                { _q = high32(_x1); } # y1+1=beta -> ein Shift          \
+                else                                                    \
                 { divu_6432_3232(high32(_x1),low32(_x1),_y2,_q=,); } # Division von x1 durch y1+1 \
-            }                                                                   \
-            # _q = q = floor(x1/(y1+1))                                         \
-            # x-q*y bilden (eine 32-mal-64-Bit-Multiplikation ohne Überlauf):   \
+            }                                                           \
+            # _q = q = floor(x1/(y1+1))                                 \
+            # x-q*y bilden (eine 32-mal-64-Bit-Multiplikation ohne Überlauf): \
             _x -= highlow64_0(mulu32_64(_q,high32(_y))); # q * high32(y) * beta \
-            # gefahrlos, da q*high32(y) <= q*y/beta <= x/beta < beta            \
-            _x -= mulu32_64(_q,low32(_y)); # q * low32(y)                       \
-            # gefahrlos, da q*high32(y)*beta + q*low32(y) = q*y <= x            \
-            # Noch höchstens 2 mal y abziehen:                                  \
-            if (_x >= _y)                                                       \
-              { _q += 1; _x -= _y;                                              \
-                if (_x >= _y)                                                   \
-                  { _q += 1; _x -= _y;                                          \
-              }   }                                                             \
-            r_assignment _x;                                                     \
-            q_assignment (uint64)(_q);                                           \
+            # gefahrlos, da q*high32(y) <= q*y/beta <= x/beta < beta    \
+            _x -= mulu32_64(_q,low32(_y)); # q * low32(y)               \
+            # gefahrlos, da q*high32(y)*beta + q*low32(y) = q*y <= x    \
+            # Noch höchstens 2 mal y abziehen:                          \
+            if (_x >= _y)                                               \
+              { _q += 1; _x -= _y;                                      \
+                if (_x >= _y)                                           \
+                  { _q += 1; _x -= _y;                                  \
+              }   }                                                     \
+            r_assignment _x;                                            \
+            q_assignment (uint64)(_q);                                  \
       }   }
   #else
     #define divu_6464_6464(x,y,q_assignment,r_assignment)  \

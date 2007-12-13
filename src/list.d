@@ -1171,39 +1171,39 @@ LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
 
 LISPFUNNR(ldiff,2)
 { /* (LDIFF list sublist), CLTL p. 272 */
-    var object sublist = popSTACK();
-    # Suche, wo sublist in list beginnt:
-    var uintL new_len = 0;
-    var bool found_p = false;
-    {
-      var object listr = STACK_0;
-      #ifndef X3J13_175
-      until ((found_p = eql(listr,sublist)) || endp(listr)) {
-        listr = Cdr(listr); new_len++;
-      }
-      #else
-      if (!listp(listr))
-        error_list(listr);
-      until ((found_p = eql(listr,sublist)) || atomp(listr)) {
-        listr = Cdr(listr); new_len++;
-      }
-      #endif
+  var object sublist = popSTACK();
+  # Suche, wo sublist in list beginnt:
+  var uintL new_len = 0;
+  var bool found_p = false;
+  {
+    var object listr = STACK_0;
+   #ifndef X3J13_175
+    while (!((found_p = eql(listr,sublist)) || endp(listr))) {
+      listr = Cdr(listr); new_len++;
     }
-    # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
-    var object new_list = make_list(new_len); # neue Liste allozieren
-    # Listenelemente einzeln kopieren, bis new_list voll ist:
-    var object new_lauf = new_list; # läuft durch die neue Liste
-    var object old_lauf = popSTACK(); # läuft durch die alte Liste
-    if (consp(new_lauf)) while (1) {  /* loop! */
-      Car(new_lauf) = Car(old_lauf);
-      if (atomp(Cdr(new_lauf))) {
-        if (!found_p)
-          Cdr(new_lauf) = Cdr(old_lauf);
-        break;
-      }
-      old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
+   #else
+    if (!listp(listr))
+      error_list(listr);
+    while (!((found_p = eql(listr,sublist)) || atomp(listr))) {
+      listr = Cdr(listr); new_len++;
     }
-    VALUES1(new_list);
+   #endif
+  }
+  # Liefere eine Kopie der ersten new_len Conses der Liste STACK_0:
+  var object new_list = make_list(new_len); # neue Liste allozieren
+  # Listenelemente einzeln kopieren, bis new_list voll ist:
+  var object new_lauf = new_list; # läuft durch die neue Liste
+  var object old_lauf = popSTACK(); # läuft durch die alte Liste
+  if (consp(new_lauf)) while (1) {  /* loop! */
+    Car(new_lauf) = Car(old_lauf);
+    if (atomp(Cdr(new_lauf))) {
+      if (!found_p)
+        Cdr(new_lauf) = Cdr(old_lauf);
+      break;
+    }
+    old_lauf = Cdr(old_lauf); new_lauf = Cdr(new_lauf);
+  }
+  VALUES1(new_list);
 }
 
 /* check_cons(obj)

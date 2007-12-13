@@ -488,7 +488,7 @@ global /*maygc*/ void unwind (void)
           var gcv_object_t* frame_end = STACKpointable(new_STACK);
           var gcv_object_t* bindingptr = &STACK_1; /* start of the bindings */
           /* bindingptr iterates through the bindings */
-          until (bindingptr == frame_end) {
+          while (bindingptr != frame_end) {
             Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
             bindingptr skipSTACKop 2; /* next binding */
           }
@@ -599,7 +599,7 @@ nonreturning_function(global /*maygc*/, unwind_upto, (gcv_object_t* upto_frame))
   GCTRIGGER1(mv_space);
   unwind_protect_to_save.fun        = &unwind_upto;
   unwind_protect_to_save.upto_frame = upto_frame;
-  until (STACK == upto_frame) { /* arrived at target-frame? */
+  while (STACK != upto_frame) { /* arrived at target-frame? */
     if (framecode(STACK_0) & bit(frame_bit_t)) { /* is it a frame? */
       unwind(); /* yes -> unwind */
       /* (if this is a Unwind-Protect-Frame, then
@@ -1122,8 +1122,8 @@ global maygc Values eval_noenv (object form) {
         var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
         var uintL count = 0;
         var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
-        until ((count>=anzahl) # all unnested bindings through?
-               || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o))) { # discovered active binding?
+        while (!((count>=anzahl) # all unnested bindings through?
+                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o)))) { # discovered active binding?
           # no -> continue search:
           bindingsptr skipSTACKop varframe_binding_size;
           count++;
@@ -2831,7 +2831,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         # must still be filed: handicraft list
         *rest_arg_ = closure; # save Closure
         var object rest_arg = NIL;
-        until (args_end_pointer == rest_args_pointer) {
+        while (args_end_pointer != rest_args_pointer) {
           pushSTACK(rest_arg);
           rest_arg = allocate_cons();
           Cdr(rest_arg) = popSTACK();
@@ -3145,7 +3145,7 @@ local maygc Values eval1 (object form)
       error_toofew: # argument-list args is an atom, prematurely
         if (!nullp(args)) goto error_dotted;
         # clean up STACK up to the calling EVAL-Frame:
-        until (framecode(STACK_0) & bit(frame_bit_t)) {
+        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
           skipSTACK(1);
         }
         {
@@ -3158,7 +3158,7 @@ local maygc Values eval1 (object form)
       error_toomany: # argument-list args is not NIL at the tail
         if (atomp(args)) goto error_dotted;
         # clean up STACK up to the calling EVAL-Frame:
-        until (framecode(STACK_0) & bit(frame_bit_t)) {
+        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
           skipSTACK(1);
         }
         {
@@ -3170,7 +3170,7 @@ local maygc Values eval1 (object form)
         }
       error_dotted: # argument-list args ends with Atom /= NIL
         # clean up STACK up to the calling EVAL-Frame:
-        until (framecode(STACK_0) & bit(frame_bit_t)) {
+        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
           skipSTACK(1);
         }
         {
@@ -6638,7 +6638,7 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           var gcv_object_t* frame_end = STACKpointable(new_STACK);
           var gcv_object_t* bindingptr = &STACK_1; # begin of bindings
           # bindingptr loops upwards through the bindings
-          until (bindingptr == frame_end) {
+          while (bindingptr != frame_end) {
             # write back old value:
             Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
             bindingptr skipSTACKop 2; # next binding
@@ -6662,13 +6662,13 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             var gcv_object_t* frame_end = STACKpointable(new_FRAME);
             var gcv_object_t* bindingptr = &FRAME_(1); # begin of the bindings
             # bindingptr loops upwards through the bindings
-            until (bindingptr == frame_end) {
+            while (bindingptr != frame_end) {
               # write back old value:
               Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
               bindingptr skipSTACKop 2; # next binding
             }
             FRAME = new_FRAME;
-          } until (--n == 0);
+          } while (--n != 0);
           setSTACK(STACK = FRAME); # set STACK newly
         }
         goto next_byte;
@@ -7124,14 +7124,14 @@ global maygc Values funcall (object fun, uintC args_on_stack)
             do {
               if (atomp(l)) goto unlist_unbound;
               pushSTACK(Car(l)); l = Cdr(l);
-            } until (--n == 0);
+            } while (--n != 0);
           if (atomp(l))
             goto next_byte;
           else
             error_apply_toomany(S(lambda));
          unlist_unbound:
           if (n > m) error_apply_toofew(S(lambda),l);
-          do { pushSTACK(unbound); } until (--n == 0);
+          do { pushSTACK(unbound); } while (--n != 0);
           goto next_byte;
         }
       CASE cod_unliststar:      /* (UNLIST* n m) */
@@ -7144,12 +7144,12 @@ global maygc Values funcall (object fun, uintC args_on_stack)
           do {
             if (atomp(l)) goto unliststar_unbound;
             pushSTACK(Car(l)); l = Cdr(l);
-          } until (--n == 0);
+          } while (--n != 0);
           pushSTACK(l);
           goto next_byte;
          unliststar_unbound:
           if (n > m) error_apply_toofew(S(lambda),l);
-          do { pushSTACK(unbound); } until (--n == 0);
+          do { pushSTACK(unbound); } while (--n != 0);
           pushSTACK(NIL);
           goto next_byte;
         }
