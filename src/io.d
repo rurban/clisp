@@ -2779,7 +2779,7 @@ LISPFUNN(comment_reader,3) { # reads #|
     else if (eq(ch,ascii_char('#'))) {
       # sub-char and '#' has been read -> decrease depth:
       if (depth==0)
-        goto fertig;
+        goto done;
       depth--;
       goto loop1;
     } else
@@ -2805,7 +2805,7 @@ LISPFUNN(comment_reader,3) { # reads #|
   pushSTACK(S(read));
   error(end_of_file,
          GETTEXT("~S: input stream ~S ends within a comment #~C ... ~C#"));
- fertig:
+ done:
   VALUES0; skipSTACK(2); /* return no values */
 }
 
@@ -6153,7 +6153,7 @@ local maygc void justify_end_linear (const gcv_object_t* stream_) {
         break;
       write_ascii_char(stream_,' '); # print #\Space
     }
-    goto fertig;
+    goto done;
   gesamt_mehrzeiler: # a multi-liner, altogether.
     # print blocks apartly, separated by Newline, to the stream:
     pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); # (nreverse SYS::*PRIN-JBLOCKS*)
@@ -6177,8 +6177,8 @@ local maygc void justify_end_linear (const gcv_object_t* stream_) {
     TheStream(stream)->strm_pphelp_lpos = STACK_1;
     # GesamtModus := multi-liner:
     TheStream(stream)->strm_pphelp_modus = mehrzeiler;
-    goto fertig;
-  fertig: # line-position is now correct.
+    goto done;
+   done:          /* line-position is now correct. */
     skipSTACK(2); # forget empty remaining list and the old line-position
     # unbind bindings of JUSTIFY_START:
     dynamic_unbind(S(prin_jblocks));

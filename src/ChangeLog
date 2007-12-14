@@ -1,3 +1,8 @@
+2007-12-14  Sam Steingold  <sds@gnu.org>
+
+	* avl.d, control.d, debug.d, eval.d, hashtabl.d, intprint.d, io.d:
+	* lispbibl.d, pathname.d, predtype.d: rename label fertig to done
+
 2007-12-13  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (elif, loop, until): drop; update all D files

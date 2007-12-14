@@ -210,7 +210,7 @@
     # normalisiere zu einer NUDS:
     while (1) {
       if (len==0) { # 0 -> eine Ziffer '0'
-        next_digit(0); goto fertig;
+        next_digit(0); goto done;
       }
       if (MSDptr[0]==0) {
         MSDptr++; len--;
@@ -248,7 +248,7 @@
     while (chareq(*erg_ptr,ascii('0'))) {
       erg_ptr++;
     }
-   fertig:
+   done:
     erg->MSBptr = erg_ptr;
     erg->len = erg->LSBptr - erg_ptr;
     end_arith_call();

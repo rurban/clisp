@@ -1507,8 +1507,8 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
   var object thing = STACK_4;
   if (xpathnamep(thing)) { /* Pathname? */
     value1 = thing; /* 1. value thing */
-  fertig:
-    DOUT("parse-namestring:[fertig]",value1);
+  done:
+    DOUT("parse-namestring:[done]",value1);
     value2 = STACK_1; mv_count=2; /* 2. value start */
     skipSTACK(5); return;
   }
@@ -1516,7 +1516,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     thing = as_file_stream(thing);
     test_file_stream_named(thing);
     value1 = TheStream(thing)->strm_file_name; /* 1. value: Filename */
-    goto fertig; /* 2. value like above */
+    goto done; /* 2. value like above */
   }
   /* thing should now be at least a String or a Symbol: */
   var bool thing_symbol = false;
