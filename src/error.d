@@ -1540,9 +1540,9 @@ nonreturning_function(global, error_too_few_args,
   }
 }
 
-# Error message, if an argument isn't of a given elementary C type.
-# error_<ctype>(obj);
-# > obj: the faulty argument
+/* Error message, if an argument isn't of a given elementary C type.
+ error_<ctype>(obj);
+ > obj: the faulty argument */
 nonreturning_function(global, error_uint8, (object obj)) {
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */

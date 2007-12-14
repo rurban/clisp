@@ -1588,8 +1588,8 @@ LISPSYM(read_reference_table,"*READ-REFERENCE-TABLE*",system) /* IO variable */
 LISPSYM(backquote_level,"*BACKQUOTE-LEVEL*",system) /* IO variable */
 LISPSYM(backquote_reader,"BACKQUOTE-READER",system) /* function for IO */
 LISPSYM(comma_reader,"COMMA-READER",system) /* function for IO */
-LISPSYM(reading_array,"*READING-ARRAY*",system) # IO variable
-LISPSYM(reading_struct,"*READING-STRUCT*",system) # IO variable
+LISPSYM(reading_array,"*READING-ARRAY*",system)   /* IO variable */
+LISPSYM(reading_struct,"*READING-STRUCT*",system) /* IO variable */
 LISPSYM(compiling,"*COMPILING*",system) /* IO variable */
 LISPSYM(make_init_form,"MAKE-INIT-FORM",clos) /* a function for io.d */
 LISPSYM(make_byte,"MAKE-BYTE",system) /* function for IO */
