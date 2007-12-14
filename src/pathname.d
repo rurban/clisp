@@ -786,7 +786,7 @@ local object test_optional_host (object host) {
  > uintB: byte
  < return: true if valid, else false */
 local inline bool legal_namebyte (uintB ch) {
-  #ifdef VALID_FILENAME_CHAR # defined in config.h
+  #ifdef VALID_FILENAME_CHAR    /* defined in config.h */
     return VALID_FILENAME_CHAR || (ch=='*') || (ch=='?');
   #else
     #ifdef PATHNAME_UNIX
@@ -811,7 +811,7 @@ local inline bool legal_namebyte (uintB ch) {
  < return: true if valid, else false */
 local bool legal_namechar (chart ch) {
   #ifdef UNICODE
-    var uintB buf[4]; # are there characters longer than 4 bytes?!
+    var uintB buf[4];   /* are there characters longer than 4 bytes?! */
     var uintL char_len = cslen(O(pathname_encoding),&ch,1);
     cstombs(O(pathname_encoding),&ch,1,buf,char_len);
     while (char_len > 0) {
