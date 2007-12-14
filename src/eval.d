@@ -6,7 +6,6 @@
  */
 #include "lispbibl.c"
 
-
 /* function-table:
  In this table only SUBRS are listed, which may be inlined by the compiler.
  In FUNTAB1 and FUNTAB2 SUBRs without Rest-Parameter (i.e. with
@@ -619,7 +618,7 @@ global void throw_to (object tag) {
   /* search for Catch-Frame with Tag = tag: */
   var gcv_object_t* FRAME = STACK;
   while (1) { /* search in the Stack starting at FRAME
-            for a CATCH-Frame with the same Tag: */
+                 for a CATCH-Frame with the same Tag: */
     if (eq(FRAME_(0),nullobj)) /* end of Stack? */
       return; /* yes -> no suitable Catch there -> jump back */
     if (framecode(FRAME_(0)) & bit(frame_bit_t)) {
@@ -925,249 +924,247 @@ global maygc object setq (object sym, object value)
   return popSTACK();
 }
 
-# UP: returns for a Symbol its function definition in an Environment
-# sym_function(sym,fenv)
-# > sym: function name (e.g. Symbol)
-# > fenv: a function- and macro-bindung-environment
-# < result: function definition, either unbound (if undefined function)
-#             or Closure/SUBR/FSUBR/Macro/FunctionMacro.
-  global object sym_function (object sym, object env)
-  {
-    var object value;
-    {
-     next_env:
-      if (framepointerp(env)) {
-        # Environment is a Pointer to a function-binding-frame
-        var gcv_object_t* FRAME = TheFramepointer(env);
-        var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
-        if (count > 0) {
-          var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # pointer to the first binding
-          dotimespL(count,count, {
-            if (equal(*(bindingsptr STACKop 0),sym)) { # right Symbol?
-              value = *(bindingsptr STACKop 1); goto fertig;
-            }
-            bindingsptr skipSTACKop 2; # no: next binding
-          });
-        }
-        env = FRAME_(frame_next_env);
-        goto next_env;
+/* UP: returns for a Symbol its function definition in an Environment
+ sym_function(sym,fenv)
+ > sym: function name (e.g. Symbol)
+ > fenv: a function- and macro-bindung-environment
+ < result: function definition, either unbound (if undefined function)
+             or Closure/SUBR/FSUBR/Macro/FunctionMacro. */
+global object sym_function (object sym, object env)
+{
+  var object value;
+  { next_env:
+    if (framepointerp(env)) {
+      /* Environment is a Pointer to a function-binding-frame */
+      var gcv_object_t* FRAME = TheFramepointer(env);
+      var uintL count = as_oint(FRAME_(frame_count)); /* number of bindings */
+      if (count > 0) {
+        var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* pointer to the first binding */
+        dotimespL(count,count, {
+          if (equal(*(bindingsptr STACKop 0),sym)) { /* right Symbol? */
+            value = *(bindingsptr STACKop 1); goto fertig;
+          }
+          bindingsptr skipSTACKop 2; /* no: next binding */
+        });
       }
-      var bool from_inside_macrolet = false;
-      for (;;) {
-        if (simple_vector_p(env)) {
-          # Environment is a Simple-Vector
-          var uintL count = floor(Svector_length(env),2); # number of bindings
-          var gcv_object_t* ptr = &TheSvector(env)->data[0];
-          dotimesL(count,count, {
-            if (equal(*ptr,sym)) { # right Symbol?
-              value = *(ptr+1);
-              if (from_inside_macrolet && !macrop(value))
-                goto macrolet_error;
-              goto fertig;
-            }
-            ptr += 2; # next binding
-          });
-          env = *ptr; # next Environment
-          continue;
-        } else if (consp(env)) {
-          /* environment is a MACROLET capsule */
-          ASSERT(eq(Car(env),S(macrolet)));
-          from_inside_macrolet = true;
-          env = Cdr(env);
-          continue;
-        } else
-          # Environment is NIL
-          goto global_value;
-      }
+      env = FRAME_(frame_next_env);
+      goto next_env;
     }
-   global_value: # global function-definition
-    if (!symbolp(sym)) {
-      sym = get(Car(Cdr(sym)),S(setf_function)); # (get ... 'SYS::SETF-FUNCTION)
-      if (!symbolp(sym)) # should be (uninterned) Symbol
-        return unbound; # else undefined
+    var bool from_inside_macrolet = false;
+    for (;;) {
+      if (simple_vector_p(env)) {
+        /* Environment is a Simple-Vector */
+        var uintL count = floor(Svector_length(env),2); /* number of bindings */
+        var gcv_object_t* ptr = &TheSvector(env)->data[0];
+        dotimesL(count,count, {
+          if (equal(*ptr,sym)) { /* right Symbol? */
+            value = *(ptr+1);
+            if (from_inside_macrolet && !macrop(value))
+              goto macrolet_error;
+            goto fertig;
+          }
+          ptr += 2;             /* next binding */
+        });
+        env = *ptr;             /* next Environment */
+        continue;
+      } else if (consp(env)) {
+        /* environment is a MACROLET capsule */
+        ASSERT(eq(Car(env),S(macrolet)));
+        from_inside_macrolet = true;
+        env = Cdr(env);
+        continue;
+      } else                    /* Environment is NIL */
+        goto global_value;
     }
-    return Symbol_function(sym);
-   fertig: # Symbol found active in Environment, "Value" value
-    # (a Closure or Macro or FunctionMacro or NIL)
-    # if Definition = NIL (during LABELS), the function is passed for
-    # as undefined:
-    if (nullp(value))
-      value = unbound;
-    return value;
-   macrolet_error:
-    pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-    pushSTACK(S(macrolet)); pushSTACK(sym);
-    error(source_program_error,
-           GETTEXT("Invalid access to the local function definition of ~S from within a ~S definition"));
   }
+ global_value:                  /* global function-definition */
+  if (!symbolp(sym)) {
+    sym = get(Car(Cdr(sym)),S(setf_function)); /* (get s 'SYS::SETF-FUNCTION) */
+    if (!symbolp(sym))          /* should be (uninterned) Symbol */
+      return unbound;           /* else undefined */
+  }
+  return Symbol_function(sym);
+ fertig:
+  /* Symbol found active in Environment, "Value" value (a Closure or Macro
+     or FunctionMacro or NIL) if Definition = NIL (during LABELS),
+     the function is passed for as undefined: */
+  if (nullp(value))
+    value = unbound;
+  return value;
+ macrolet_error:
+  pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+  pushSTACK(S(macrolet)); pushSTACK(sym);
+  error(source_program_error,
+        GETTEXT("Invalid access to the local function definition of ~S from within a ~S definition"));
+}
 
-# UP: evaluates a Form in a given Environment.
-# eval_5env(form,var,fun,block,go,decl);
-# > var_env: value for VAR_ENV
-# > fun_env: value for FUN_ENV
-# > block_env: value for BLOCK_ENV
-# > go_env: value for GO_ENV
-# > decl_env: value for DECL_ENV
-# > form: Form
-# < mv_count/mv_space: values
-# can trigger GC
+/* UP: evaluates a Form in a given Environment.
+ eval_5env(form,var,fun,block,go,decl);
+ > var_env: value for VAR_ENV
+ > fun_env: value for FUN_ENV
+ > block_env: value for BLOCK_ENV
+ > go_env: value for GO_ENV
+ > decl_env: value for DECL_ENV
+ > form: Form
+ < mv_count/mv_space: values
+ can trigger GC */
 global maygc Values eval_5env (object form, object var_env, object fun_env,
-                               object block_env, object go_env, object decl_env) {
-  # bind Environments:
+                               object block_env, object go_env, object decl_env)
+{
+  /* bind Environments: */
   make_ENV5_frame();
-  # set current Environments:
+  /* set current Environments: */
   aktenv.var_env = var_env;
   aktenv.fun_env = fun_env;
   aktenv.block_env = block_env;
   aktenv.go_env = go_env;
   aktenv.decl_env = decl_env;
-  # evaluate Form:
+  /* evaluate Form: */
   eval(form);
-  # unwind Environment-Frame:
+  /* unwind Environment-Frame: */
   unwind();
-  return; # finished
+  return;                       /* finished */
 }
 
-# UP: evaluates a form in an empty environment.
-# eval_noenv(form);
-# > form: Form
-# < mv_count/mv_space: values
-# can trigger GC
+/* UP: evaluates a form in an empty environment.
+ eval_noenv(form);
+ > form: Form
+ < mv_count/mv_space: values
+ can trigger GC */
 global maygc Values eval_noenv (object form) {
   return_Values eval_5env(form,NIL,NIL,NIL,NIL,O(top_decl_env));
 }
 
-# UP: "nests" a FUN-Environment, i.e. writes all active bindings
-# from the Stack into freshly allocated vectors.
-# nest_fun(env)
-# > env: FUN-Env
-# < result: same environment, no Pointer into the Stack
-# can trigger GC
-  global maygc object nest_fun (object env)
-  {
-    var uintL depth = 0; # recursion counter := 0
-    # Pseudorecursion with Input env, Output env.
-   nest_start: # start of recursion
-    if (framepointerp(env)) {
-      # env is a pointer to a STACK-Frame.
-      check_STACK();
-      pushSTACK(env); # save env
-      # execute nest_fun(NEXT_ENV(env)) "disrecursified" :-) :
-      {
-        var gcv_object_t* FRAME = TheFramepointer(env);
-        env = FRAME_(frame_next_env); depth++; goto nest_start;
-      }
-     nest_reentry: depth--;
-      # NEXT_ENV is now nested.
-      {
-        var gcv_object_t* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
-        STACK_0 = env; # bisher genestetes Environment
-        var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet netsted bindings */
-        if (anzahl == 0) {
-          # no bindings -> unnecessary, to create a vector.
-          env = popSTACK();
-        } else {
-          # create vector for anzahl bindings:
-          env = allocate_vector(2*anzahl+1);
-          # and fill:
-          {
-            var gcv_object_t* ptr = &TheSvector(env)->data[0];
-            var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
-            # put anzahl bindings starting at bindingsptr into the vector at ptr:
-            dotimespL(anzahl,anzahl, {
-              *ptr++ = *(bindingsptr STACKop 0); # copy binding into the vector
-              *ptr++ = *(bindingsptr STACKop 1);
-              bindingsptr skipSTACKop 2;
-            });
-            *ptr++ = popSTACK(); # put nested NEXT_ENV into vector
-          }
-          FRAME_(frame_next_env) = env; # Vector as NEXT_ENV into the Frame
-          FRAME_(frame_count) = as_object(0); /* new number of not yet nested bindings */
+/* UP: "nests" a FUN-Environment, i.e. writes all active bindings
+ from the Stack into freshly allocated vectors.
+ nest_fun(env)
+ > env: FUN-Env
+ < result: same environment, no Pointer into the Stack
+ can trigger GC */
+global maygc object nest_fun (object env)
+{
+  var uintL depth = 0;     /* recursion counter := 0 */
+  /* Pseudorecursion with Input env, Output env. */
+ nest_start:                    /* start of recursion */
+  if (framepointerp(env)) {
+    /* env is a pointer to a STACK-Frame. */
+    check_STACK();
+    pushSTACK(env);             /* save env */
+    /* execute nest_fun(NEXT_ENV(env)) "disrecursified" :-) : */
+    {
+      var gcv_object_t* FRAME = TheFramepointer(env);
+      env = FRAME_(frame_next_env); depth++; goto nest_start;
+    }
+   nest_reentry: depth--;
+    {                           /* NEXT_ENV is now nested. */
+      var gcv_object_t* FRAME = TheFramepointer(STACK_0); /* next STACK-Frame to be nested */
+      STACK_0 = env;            /* bisher genestetes Environment */
+      var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet netsted bindings */
+      if (anzahl == 0) {
+        /* no bindings -> unnecessary, to create a vector. */
+        env = popSTACK();
+      } else {
+        /* create vector for anzahl bindings: */
+        env = allocate_vector(2*anzahl+1);
+        /* and fill: */
+        {
+          var gcv_object_t* ptr = &TheSvector(env)->data[0];
+          var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* Pointer to the first binding */
+          /* put anzahl bindings starting at bindingsptr into the vector at ptr: */
+          dotimespL(anzahl,anzahl, {
+            *ptr++ = *(bindingsptr STACKop 0); /* copy binding into the vector */
+            *ptr++ = *(bindingsptr STACKop 1);
+            bindingsptr skipSTACKop 2;
+          });
+          *ptr++ = popSTACK();  /* put nested NEXT_ENV into vector */
         }
+        FRAME_(frame_next_env) = env; /* Vector as NEXT_ENV into the Frame */
+        FRAME_(frame_count) = as_object(0); /* new number of not yet nested bindings */
       }
     }
-    # finished with this Nest-substep.
-    if (depth>0) # end of recursion
-      goto nest_reentry;
-    return env;
   }
+  /* finished with this Nest-substep. */
+  if (depth>0)                  /* end of recursion */
+    goto nest_reentry;
+  return env;
+}
 
-# UP: "nests" a VAR-Environment, i.e. writes all active bindings
-# from the Stack in freshly allocated vectors.
-# nest_var(env)
-# > env: VAR-Env
-# < result: same Environment, no Pointer in the Stack
-# can trigger GC
-  local maygc object nest_var (object env)
-  {
-    var uintL depth = 0; # Recursion counter := 0
-    # Pseudorecursion with Input env, Output env.
-   nest_start: # start of Recursion
-    if (framepointerp(env)) {
-      # env is a Pointer to a STACK-Frame.
-      check_STACK();
-      pushSTACK(env); # save env
-      # execute nest_var(NEXT_ENV(env)) "disrecursified" :-) :
-      {
-        var gcv_object_t* FRAME = TheFramepointer(env);
-        env = FRAME_(frame_next_env); depth++; goto nest_start;
+/* UP: "nests" a VAR-Environment, i.e. writes all active bindings
+ from the Stack in freshly allocated vectors.
+ nest_var(env)
+ > env: VAR-Env
+ < result: same Environment, no Pointer in the Stack
+ can trigger GC */
+local maygc object nest_var (object env)
+{
+  var uintL depth = 0;     /* Recursion counter := 0 */
+  /* Pseudorecursion with Input env, Output env. */
+ nest_start:                    /* start of Recursion */
+  if (framepointerp(env)) {
+    /* env is a Pointer to a STACK-Frame. */
+    check_STACK();
+    pushSTACK(env);             /* save env */
+    /* execute nest_var(NEXT_ENV(env)) "disrecursified" :-) : */
+    {
+      var gcv_object_t* FRAME = TheFramepointer(env);
+      env = FRAME_(frame_next_env); depth++; goto nest_start;
+    }
+   nest_reentry: depth--;
+    /* NEXT_ENV is now nested. */
+    {
+      var gcv_object_t* FRAME = TheFramepointer(STACK_0); /* next STACK-Frame to be nested */
+      STACK_0 = env;            /* formerly nested Environment */
+      /* Search (from bottom) the first active among the not yet
+       nested bindings: */
+      var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
+      var uintL count = 0;
+      var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* Pointer to the first binding */
+      while (!((count>=anzahl)  /* all unnested bindings through? */
+               || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o)))) { /* discovered active binding? */
+        /* no -> continue search: */
+        bindingsptr skipSTACKop varframe_binding_size;
+        count++;
       }
-     nest_reentry: depth--;
-      # NEXT_ENV is now nested.
-      {
-        var gcv_object_t* FRAME = TheFramepointer(STACK_0); # next STACK-Frame to be nested
-        STACK_0 = env; # formerly nested Environment
-        # Search (from bottom) the first active among the not yet
-        # nested bindings:
-        var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
-        var uintL count = 0;
-        var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); # Pointer to the first binding
-        while (!((count>=anzahl) # all unnested bindings through?
-                 || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o)))) { # discovered active binding?
-          # no -> continue search:
-          bindingsptr skipSTACKop varframe_binding_size;
-          count++;
+      /* Below bindingsptr are count inactive bindings.
+       From bindingsptr on there are anzahl-count active, to be nested bindings. */
+      anzahl = anzahl-count;    /* number of bindings to be nested */
+      if (anzahl == 0) {
+        /* no bindings -> creating a vector is unnecessary. */
+        env = popSTACK();
+      } else {
+        /* create vector for anzahl bindings: */
+        env = allocate_vector(2*anzahl+1);
+        /* and fill: */
+        {
+          var gcv_object_t* ptr = &TheSvector(env)->data[0];
+          /* put bindungs starting at bindingsptr in the vector at ptr: */
+          dotimespL(anzahl,anzahl, {
+            if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { /* binding dynamic? */
+              /* dynamic binding, lexical scope */
+              *ptr++ = symbol_without_flags(*(bindingsptr STACKop varframe_binding_sym)); /* put Symbol without Flag-Bits in the Vector */
+              *ptr++ = specdecl; /* mark as special reference */
+              /* binding stays active in the Frame */
+            } else {
+              /* static binding, lexical scope */
+              *(bindingsptr STACKop varframe_binding_mark) =
+                CLR_BIT(*(bindingsptr STACKop varframe_binding_mark),active_bit_o); /* deactivate binding */
+              *ptr++ = *(bindingsptr STACKop varframe_binding_sym); /* copy binding in the vector */
+              *ptr++ = *(bindingsptr STACKop varframe_binding_value);
+            }
+            bindingsptr skipSTACKop varframe_binding_size;
+          });
+          *ptr++ = popSTACK();  /* put nested NEXT_ENV in the vector */
         }
-        # Below bindingsptr are count inactive bindings.
-        # From bindingsptr on there are anzahl-count active, to be nested bindings.
-        anzahl = anzahl-count; # number of bindings to be nested
-        if (anzahl == 0) {
-          # no bindings -> creating a vector is unnecessary.
-          env = popSTACK();
-        } else {
-          # create vector for anzahl bindings:
-          env = allocate_vector(2*anzahl+1);
-          # and fill:
-          {
-            var gcv_object_t* ptr = &TheSvector(env)->data[0];
-            # put bindungs starting at bindingsptr in the vector at ptr:
-            dotimespL(anzahl,anzahl, {
-              if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { # binding dynamic?
-                # dynamic binding, lexical scope
-                *ptr++ = symbol_without_flags(*(bindingsptr STACKop varframe_binding_sym)); # put Symbol without Flag-Bits in the Vector
-                *ptr++ = specdecl; # mark as special reference
-                # binding stays active in the Frame
-              } else {
-                # static binding, lexical scope
-                *(bindingsptr STACKop varframe_binding_mark) =
-                  CLR_BIT(*(bindingsptr STACKop varframe_binding_mark),active_bit_o); /* deactivate binding */
-                *ptr++ = *(bindingsptr STACKop varframe_binding_sym); # copy binding in the vector
-                *ptr++ = *(bindingsptr STACKop varframe_binding_value);
-              }
-              bindingsptr skipSTACKop varframe_binding_size;
-            });
-            *ptr++ = popSTACK(); # put nested NEXT_ENV in the vector
-          }
-          FRAME_(frame_next_env) = env; # vector as NEXT_ENV in the Frame
-          FRAME_(frame_count) = fake_gcv_object(count); /* new number of not yet nested bindings */
-        }
+        FRAME_(frame_next_env) = env; /* vector as NEXT_ENV in the Frame */
+        FRAME_(frame_count) = fake_gcv_object(count); /* new number of not yet nested bindings */
       }
     }
-    # finished with this Nest-substep.
-    if (depth>0) # end of recursion
-      goto nest_reentry;
-    return env;
   }
+  /* finished with this Nest-substep. */
+  if (depth>0)                  /* end of recursion */
+    goto nest_reentry;
+  return env;
+}
 
 /* UP: Nests the Environments in *env (i.e. writes all information in
  Stack-independent structures) and pushes them onto the STACK.
@@ -1296,168 +1293,168 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
   return env5;
 }
 
-# UP: Nests the current environments (i.e. writes all Information in
-# Stack-independent Structures) and pushes them onto the STACK.
-# (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV are not
-# modified, because inactive bindings might poss. still sit in the Frames.
-# It has to be feasible, to activate these bindings without change of VAR_ENV.)
-# nest_aktenv()
-# < gcv_environment* result: Pointer to the Environments in the STACK
-# changes STACK, can trigger GC
+/* UP: Nests the current environments (i.e. writes all Information in
+ Stack-independent Structures) and pushes them onto the STACK.
+ (The values VAR_ENV, FUN_ENV, BLOCK_ENV, GO_ENV, DECL_ENV are not
+ modified, because inactive bindings might poss. still sit in the Frames.
+ It has to be feasible, to activate these bindings without change of VAR_ENV.)
+ nest_aktenv()
+ < gcv_environment* result: Pointer to the Environments in the STACK
+ changes STACK, can trigger GC */
 #define nest_aktenv()  nest_env(&aktenv)
 
-# UP: augments a Declaration-Environment with a decl-spec.
-# augment_decl_env(declspec,env)
-# > declspec: Declaration-Specifier, a Cons
-# > env: Declaration-Environment
-# < result: new (poss. augmented) Declaration-Environment
-# can trigger GC
-  global maygc object augment_decl_env (object new_declspec, object env)
-  {
-    var object decltype = Car(new_declspec); # Declaration-Type
-    # Is this a declaration type to be payed attention to?
-    # Is there a Decl-Spec of the form (DECLARATION ... decltype ...) in env?
-    # Aside: The List O(declaration_types) is the last Decl-Spec in env.
-    if (symbolp(decltype)) {
-      # loop over all local to be respected Declaration-Types:
-      var object declspecs = env;
-      while (consp(declspecs)) { # loop over all declspecs from env
-        var object declspec = Car(declspecs);
-        if (eq(Car(declspec),S(declaration)) # (DECLARATION ...) ?
-            && !nullp(memq(decltype,Cdr(declspec))))
-          goto beachten;
-        declspecs = Cdr(declspecs);
-      }
+/* UP: augments a Declaration-Environment with a decl-spec.
+ augment_decl_env(declspec,env)
+ > declspec: Declaration-Specifier, a Cons
+ > env: Declaration-Environment
+ < result: new (poss. augmented) Declaration-Environment
+ can trigger GC */
+global maygc object augment_decl_env (object new_declspec, object env)
+{
+  var object decltype = Car(new_declspec); /* Declaration-Type */
+  /* Is this a declaration type to be payed attention to?
+   Is there a Decl-Spec of the form (DECLARATION ... decltype ...) in env?
+   Aside: The List O(declaration_types) is the last Decl-Spec in env. */
+  if (symbolp(decltype)) {
+    /* loop over all local to be respected Declaration-Types: */
+    var object declspecs = env;
+    while (consp(declspecs)) {  /* loop over all declspecs from env */
+      var object declspec = Car(declspecs);
+      if (eq(Car(declspec),S(declaration)) /* (DECLARATION ...) ? */
+          && !nullp(memq(decltype,Cdr(declspec))))
+        goto beachten;
+      declspecs = Cdr(declspecs);
     }
-    # not to be respected Declaration.
-    return env; # leave env unchanged
-   beachten:
-    # a to be respected Declaration -> env := (cons new_declspec env)
-    pushSTACK(env); pushSTACK(new_declspec);
-    env = allocate_cons();
-    Car(env) = popSTACK(); Cdr(env) = popSTACK();
-    return env;
   }
+  /* not to be respected Declaration. */
+  return env;                   /* leave env unchanged */
+ beachten:
+  /* a to be respected Declaration -> env := (cons new_declspec env) */
+  pushSTACK(env); pushSTACK(new_declspec);
+  env = allocate_cons();
+  Car(env) = popSTACK(); Cdr(env) = popSTACK();
+  return env;
+}
 
-# UP: expands a form, if possible, (however it doesn't, if FSUBR-Call
-# or Symbol or FunctionMacro-Call) in an Environment
-# macroexp(form,venv,fenv);
-# > form: Form
-# > venv: a Variable- and Symbolmacro-Environment
-# > fenv: a Function- and Macrobinding-Environment
-# < value1: the expansion
-# < value2: NIL, if not expanded,
-#           T, if expansion has taken place
-# can trigger GC
-  global maygc void macroexp (object form, object venv, object fenv)
-  {
-    if (consp(form)) { # only lists can be a macro-call
-      var object funname = Car(form); # function name
-      if (symbolp(funname)) {
-        var object fdef = sym_function(funname,fenv); # fetch function definition
-        # is it a #<MACRO expander> ?
-        if (macrop(fdef)) {
-          # yes -> expand:
-          # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
-          pushSTACK(TheMacro(fdef)->macro_expander); # expander as first argument
-          pushSTACK(form); # form as second argument
-          pushSTACK(fenv);
-          pushSTACK(nest_var(venv)); # nested Variable- and Symbolmacro-Environment
-          STACK_1 = nest_fun(STACK_1); # nested Functions- and Macrobinding-Environment
-          var object env = allocate_vector(2); # Environment for both
-          TheSvector(env)->data[0] = popSTACK(); # venv as 1. component
-          TheSvector(env)->data[1] = STACK_0;    # fenv as 2. component
-          STACK_0 = env; # Environment as third Argument
-          funcall(Symbol_value(S(macroexpand_hook)),3);
-          value2 = T; # expanded Form as 1. value, T as 2. value
-          return;
-        }
-      }
-    }
-    # else, don't expand:
-    value1 = form; value2 = NIL;
-  }
-
-# UP: expands a form, if possible, (also, when FSUBR-Call or
-# Symbol, however not, when FunctionMacro-Call) in an Environment
-# macroexp0(form,env);
-# > form: Form
-# > env: a Macroexpansion-Environment
-# < value1: the Expansion
-# < value2: NIL, if not expanded,
-#           T, if expansion has taken place
-# can trigger GC
-  global maygc void macroexp0 (object form, object env)
-  {
-    if (consp(form)) { # only lists can be a macro-call
-      var object funname = Car(form); # function name
-      if (symbolp(funname)) {
-        var object fdef = sym_function(funname,TheSvector(env)->data[1]); # fetch function definition
-        if (fsubrp(fdef)) {
-          # fdef is a FSUBR, so the global function definition was valid.
-          # loop up, if the property list contains a macro definition:
-          var object expander = get(funname,S(macro)); # search for Property SYS::MACRO
-          if (boundp(expander)) {
-            # found. Expand with th Expander from the property list:
-            # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
-            pushSTACK(expander); # expander as first argument
-            pushSTACK(form); # form as second Argument
-            pushSTACK(env); # environment as third argument
-            funcall(Symbol_value(S(macroexpand_hook)),3);
-            value2 = T; # expanded form as 1. value, t as 2. value
-            return;
-          }
-        } else {
-          # 4 possibilities:
-          # #UNBOUND/SUBR/Closure (global or lexical function def.)
-          #   -> don't expand
-          # #<MACRO expander> (lexical macro definition)
-          #   -> expand (call expander)
-          # #<FUNCTION-MACRO function expander> (lexical FunctionMacro-
-          #   Definition) -> don't expand, because
-          #   (MACRO-FUNCTION funname) => NIL
-          # Symbol (lexical function definition during SYS::%EXPAND)
-          # expand: (list* 'FUNCALL Symbol (cdr form))
-          if (macrop(fdef)) {
-            # #<MACRO expander> -> expand:
-            # execute (FUNCALL *MACROEXPAND-HOOK* expander form env) :
-            pushSTACK(TheMacro(fdef)->macro_expander); # Expander as first Argument
-            pushSTACK(form); # Form as second Argument
-            pushSTACK(env); # Environment as third Argument
-            funcall(Symbol_value(S(macroexpand_hook)),3);
-            value2 = T; # expanded Form as 1. value, T as 2. value
-            return;
-          } else if (symbolp(fdef)) {
-            # fdef a Symbol
-            # Must be expanded to (FUNCALL fdef ...) :
-            pushSTACK(Cdr(form)); # (cdr form)
-            pushSTACK(fdef); # Symbol
-            {
-              var object new_cons = allocate_cons();
-              Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;
-              STACK_0 = new_cons; # (cons Symbol (cdr form))
-            }
-            {
-              var object new_cons = allocate_cons();
-              Car(new_cons) = S(funcall); Cdr(new_cons) = popSTACK();
-              value1 = new_cons; # (cons 'FUNCALL (cons Symbol (cdr form)))
-            }
-            value2 = T; return; # expansion has taken place.
-          }
-        }
-      }
-    } else if (symbolp(form)) {
-      var object symbolmacro;
-      var object val = sym_value(form,TheSvector(env)->data[0],&symbolmacro);
-      if (!eq(symbolmacro,nullobj)) { # found Symbol-Macro?
-        # yes -> expand
-        value1 = TheSymbolmacro(symbolmacro)->symbolmacro_expansion; value2 = T;
+/* UP: expands a form, if possible, (however it doesn't, if FSUBR-Call
+ or Symbol or FunctionMacro-Call) in an Environment
+ macroexp(form,venv,fenv);
+ > form: Form
+ > venv: a Variable- and Symbolmacro-Environment
+ > fenv: a Function- and Macrobinding-Environment
+ < value1: the expansion
+ < value2: NIL, if not expanded,
+           T, if expansion has taken place
+ can trigger GC */
+global maygc void macroexp (object form, object venv, object fenv)
+{
+  if (consp(form)) {                /* only lists can be a macro-call */
+    var object funname = Car(form); /* function name */
+    if (symbolp(funname)) {
+      var object fdef = sym_function(funname,fenv); /* fetch function definition */
+      /* is it a #<MACRO expander> ? */
+      if (macrop(fdef)) {
+        /* yes -> expand:
+         execute (FUNCALL *MACROEXPAND-HOOK* expander form env) : */
+        pushSTACK(TheMacro(fdef)->macro_expander); /* expander as first argument */
+        pushSTACK(form);        /* form as second argument */
+        pushSTACK(fenv);
+        pushSTACK(nest_var(venv)); /* nested Variable- and Symbolmacro-Environment */
+        STACK_1 = nest_fun(STACK_1); /* nested Functions- and Macrobinding-Environment */
+        var object env = allocate_vector(2); /* Environment for both */
+        TheSvector(env)->data[0] = popSTACK(); /* venv as 1st component */
+        TheSvector(env)->data[1] = STACK_0; /* fenv as 2nd component */
+        STACK_0 = env;          /* Environment as third Argument */
+        funcall(Symbol_value(S(macroexpand_hook)),3);
+        value2 = T;       /* expanded Form as 1st value, T as 2nd value */
         return;
       }
     }
-    # else, don't expand:
-    value1 = form; value2 = NIL;
   }
+  /* else, don't expand: */
+  value1 = form; value2 = NIL;
+}
+
+/* UP: expands a form, if possible, (also, when FSUBR-Call or
+ Symbol, however not, when FunctionMacro-Call) in an Environment
+ macroexp0(form,env);
+ > form: Form
+ > env: a Macroexpansion-Environment
+ < value1: the Expansion
+ < value2: NIL, if not expanded,
+           T, if expansion has taken place
+ can trigger GC */
+global maygc void macroexp0 (object form, object env)
+{
+  if (consp(form)) {                /* only lists can be a macro-call */
+    var object funname = Car(form); /* function name */
+    if (symbolp(funname)) {
+      var object fdef = sym_function(funname,TheSvector(env)->data[1]); /* fetch function definition */
+      if (fsubrp(fdef)) {
+        /* fdef is a FSUBR, so the global function definition was valid.
+         loop up, if the property list contains a macro definition: */
+        var object expander = get(funname,S(macro)); /* search for Property SYS::MACRO */
+        if (boundp(expander)) {
+          /* found. Expand with th Expander from the property list:
+           execute (FUNCALL *MACROEXPAND-HOOK* expander form env) : */
+          pushSTACK(expander);  /* expander as first argument */
+          pushSTACK(form);      /* form as second Argument */
+          pushSTACK(env);       /* environment as third argument */
+          funcall(Symbol_value(S(macroexpand_hook)),3);
+          value2 = T;     /* expanded form as 1st value, t as 2nd value */
+          return;
+        }
+      } else {
+        /* 4 possibilities:
+         #UNBOUND/SUBR/Closure (global or lexical function def.)
+           -> don't expand
+         #<MACRO expander> (lexical macro definition)
+           -> expand (call expander)
+         #<FUNCTION-MACRO function expander> (lexical FunctionMacro-
+           Definition) -> don't expand, because
+           (MACRO-FUNCTION funname) => NIL
+         Symbol (lexical function definition during SYS::%EXPAND)
+         expand: (list* 'FUNCALL Symbol (cdr form)) */
+        if (macrop(fdef)) {
+          /* #<MACRO expander> -> expand:
+           execute (FUNCALL *MACROEXPAND-HOOK* expander form env) : */
+          pushSTACK(TheMacro(fdef)->macro_expander); /* Expander as first Argument */
+          pushSTACK(form);      /* Form as second Argument */
+          pushSTACK(env);       /* Environment as third Argument */
+          funcall(Symbol_value(S(macroexpand_hook)),3);
+          value2 = T;     /* expanded Form as 1st value, T as 2nd value */
+          return;
+        } else if (symbolp(fdef)) {
+          /* fdef a Symbol
+           Must be expanded to (FUNCALL fdef ...) : */
+          pushSTACK(Cdr(form));                      /* (cdr form) */
+          pushSTACK(fdef);                           /* Symbol */
+          {
+            var object new_cons = allocate_cons();
+            Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;
+            STACK_0 = new_cons; /* (cons Symbol (cdr form)) */
+          }
+          {
+            var object new_cons = allocate_cons();
+            Car(new_cons) = S(funcall); Cdr(new_cons) = popSTACK();
+            value1 = new_cons; /* (cons 'FUNCALL (cons Symbol (cdr form))) */
+          }
+          value2 = T; return;   /* expansion has taken place. */
+        }
+      }
+    }
+  } else if (symbolp(form)) {
+    var object symbolmacro;
+    var object val = sym_value(form,TheSvector(env)->data[0],&symbolmacro);
+    if (!eq(symbolmacro,nullobj)) { /* found Symbol-Macro? */
+      /* yes -> expand */
+      value1 = TheSymbolmacro(symbolmacro)->symbolmacro_expansion; value2 = T;
+      return;
+    }
+  }
+  /* else, don't expand: */
+  value1 = form; value2 = NIL;
+}
 
 /* UP: Parse-Declarations-Docstring. Detaches those from a list of forms,
  that have to be viewed as declarations resp. documentation string.
@@ -1528,51 +1525,51 @@ global maygc bool parse_dd (object formlist)
   return compile_decl;
 }
 
-# UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the specified values.
-# bindhooks(evalhook_value,applyhook_value);
-# > evalhook_value: value for *EVALHOOK*
-# > applyhook_value: value for *APPLYHOOK*
-# changes STACK
+/* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the specified values.
+ bindhooks(evalhook_value,applyhook_value);
+ > evalhook_value: value for *EVALHOOK*
+ > applyhook_value: value for *APPLYHOOK*
+ changes STACK */
 global void bindhooks (object evalhook_value, object applyhook_value) {
-  # build frame:
+  /* build frame: */
   {
-    var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
-    pushSTACK(Symbol_value(S(evalhookstern)));  # old value of *EVALHOOK*
-    pushSTACK(S(evalhookstern));                # *EVALHOOK*
-    pushSTACK(Symbol_value(S(applyhookstern))); # old value of *APPLYHOOK*
-    pushSTACK(S(applyhookstern));               # *APPLYHOOK*
+    var gcv_object_t* top_of_frame = STACK;    /* Pointer to Frame */
+    pushSTACK(Symbol_value(S(evalhookstern))); /* old value of *EVALHOOK* */
+    pushSTACK(S(evalhookstern));               /* *EVALHOOK* */
+    pushSTACK(Symbol_value(S(applyhookstern))); /* old value of *APPLYHOOK* */
+    pushSTACK(S(applyhookstern));               /* *APPLYHOOK* */
     finish_frame(DYNBIND);
   }
-  # Frame got ready, now change the values of the variables:
-  Symbol_value(S(evalhookstern)) = evalhook_value; # (SETQ *EVALHOOK* evalhook_value)
-  Symbol_value(S(applyhookstern)) = applyhook_value; # (SETQ *APPLYHOOK* applyhook_value)
+  /* Frame got ready, now change the values of the variables: */
+  Symbol_value(S(evalhookstern)) = evalhook_value; /* (SETQ *EVALHOOK* evalhook_value) */
+  Symbol_value(S(applyhookstern)) = applyhook_value; /* (SETQ *APPLYHOOK* applyhook_value) */
 }
 
-# UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to NIL.
-# bindhooks_NIL();
-# changes STACK
+/* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to NIL.
+ bindhooks_NIL();
+ changes STACK */
 #define bindhooks_NIL()  bindhooks(NIL,NIL)
 
-# UP: Determines the source-lambdabody of a lambda body.
-# lambdabody_source(lambdabody)
-# > lambdabody: Lambdabody (a Cons)
-# < result: Source-Lambdabody (unbound if no source specified)
+/* UP: Determines the source-lambdabody of a lambda body.
+ lambdabody_source(lambdabody)
+ > lambdabody: Lambdabody (a Cons)
+ < result: Source-Lambdabody (unbound if no source specified) */
 local object lambdabody_source (object lambdabody) {
   var object body = Cdr(lambdabody);
-  # body = ((DECLARE (SOURCE ...) ...) ...) ?
+  /* body = ((DECLARE (SOURCE ...) ...) ...) ? */
   if (consp(body)) {
-    var object form = Car(body); # first Form
-    # form = (DECLARE (SOURCE ...) ...) ?
+    var object form = Car(body); /* first Form */
+    /* form = (DECLARE (SOURCE ...) ...) ? */
     if (consp(form) && eq(Car(form),S(declare))) {
       var object declspecs = Cdr(form);
-      # declspecs = ((SOURCE ...) ...) ?
+      /* declspecs = ((SOURCE ...) ...) ? */
       if (consp(declspecs)) {
         var object declspec = Car(declspecs);
-        # declspec = (SOURCE ...) ?
+        /* declspec = (SOURCE ...) ? */
         if (consp(declspec) && eq(Car(declspec),S(source))) {
           var object declspecr = Cdr(declspec);
           if (consp(declspecr))
-            # found Source
+            /* found Source */
             return Car(declspecr);
         }
       }
@@ -2195,24 +2192,24 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   return closure;
 }
 
-# error, if symbol to be called is a special form.
-# error_specialform(caller,funname);
-# > caller: caller (a symbol)
-# > funname: a symbol
+/* error, if symbol to be called is a special form.
+ error_specialform(caller,funname);
+ > caller: caller (a symbol)
+ > funname: a symbol */
 nonreturning_function(local, error_specialform, (object caller, object funname)) {
-  pushSTACK(funname); # CELL-ERROR slot NAME
+  pushSTACK(funname);           /* CELL-ERROR slot NAME */
   pushSTACK(funname);
   pushSTACK(caller);
   error(undefined_function,
          GETTEXT("~S: ~S is a special operator, not a function"));
 }
 
-# error, if symbol to be called is a macro.
-# error_macro(caller,funname);
-# > caller: caller (a symbol)
-# > funname: a symbol
+/* error, if symbol to be called is a macro.
+ error_macro(caller,funname);
+ > caller: caller (a symbol)
+ > funname: a symbol */
 nonreturning_function(local, error_macro, (object caller, object funname)) {
-  pushSTACK(funname); # CELL-ERROR slot NAME
+  pushSTACK(funname);           /* CELL-ERROR slot NAME */
   pushSTACK(funname);
   pushSTACK(caller);
   error(undefined_function,GETTEXT("~S: ~S is a macro, not a function"));
@@ -2307,81 +2304,81 @@ local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
 #define TRACE_CALL(fu,tc,ct)
 #endif
 
-# Test for illegal keywords
-# check_for_illegal_keywords(allow_flag,error_statement);
-# > uintC argcount: Number of Keyword/Value-pairs
-# > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining arguments
-# > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
-# > for_every_keyword: Macro, which loops over all Keywords and assigns
-#                      them to 'keyword'.
-# > error_statement: Statement, that reports, that bad_keyword is illegal.
-#define check_for_illegal_keywords(allow_flag_expr,caller,error_statement)   \
-    { var gcv_object_t* argptr = rest_args_pointer; # Pointer to the arguments \
-      var object bad_keyword = nullobj; # first illegal keyword or nullobj  \
-      var object bad_value = nullobj; /* its value */                       \
-      var bool allow_flag = # Flag for allow-other-keys (if                 \
-        # &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) \
-        (allow_flag_expr);                                                  \
-      # But ':ALLOW-OTHER-KEYS NIL' hides a subsequent ':ALLOW-OTHER-KEYS T' \
-      # (see CLHS 3.4.1.4.1.1).                                             \
-      var bool allow_hidden = false; # true if seen ':ALLOW-OTHER-KEYS NIL' \
-      var uintC check_count=argcount;                                       \
-      while (check_count--) {                                               \
-        var object kw = NEXT(argptr); # next Argument                       \
-        var object val = NEXT(argptr); # and value for it                   \
-        # must be a symbol, should be a keyword:                            \
-        if (!symbolp(kw)) error_key_notkw(kw,caller);                      \
-        if (!allow_flag) { # other keywords allowed? yes -> ok              \
-          if (eq(kw,S(Kallow_other_keys))) {                                \
-            if (!allow_hidden) {                                            \
-              if (!nullp(val))                                              \
-                allow_flag = true;                                          \
-              else                                                          \
-                allow_hidden = true;                                        \
-            }                                                               \
-          } else {                                                          \
-            # up to now :ALLOW-OTHER-KEYS was not there, and NOALLOW        \
-            if (eq(bad_keyword,nullobj)) { # all Keywords ok so far?        \
-              # must test, if the keyword kw is allowed.                    \
-              for_every_keyword({ if (eq(keyword,kw)) goto kw_ok; });       \
-              # keyword kw was not allowed.                                 \
-              bad_keyword = kw;                                             \
-              bad_value = val;                                              \
-              kw_ok: ;                                                      \
-            }                                                               \
-          }                                                                 \
-        }                                                                   \
-      };                                                                    \
-      if (!allow_flag)                                                      \
-        if (!eq(bad_keyword,nullobj)) {                                     \
-          # wrong keyword occurred                                          \
-          error_statement                                                  \
-        }                                                                   \
-    }
+/* Test for illegal keywords
+ check_for_illegal_keywords(allow_flag,error_statement);
+ > uintC argcount: Number of Keyword/Value-pairs
+ > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining arguments
+ > bool allow_flag: Flag, if &ALLOW-OTHER-KEYS was specified
+ > for_every_keyword: Macro, which loops over all Keywords and assigns
+                      them to 'keyword'.
+ > error_statement: Statement, that reports, that bad_keyword is illegal. */
+#define check_for_illegal_keywords(allow_flag_expr,caller,error_statement) \
+  { var gcv_object_t* argptr = rest_args_pointer; /* Pointer to the arguments */ \
+    var object bad_keyword = nullobj; /* first illegal keyword or nullobj */ \
+    var object bad_value = nullobj; /* its value */                     \
+    var bool allow_flag =          /* Flag for allow-other-keys (if */  \
+      /* &ALLOW-OTHER-KEYS was specified or ':ALLOW-OTHER-KEY T' occurred) */ \
+      (allow_flag_expr);                                                \
+    /* But ':ALLOW-OTHER-KEYS NIL' hides a subsequent ':ALLOW-OTHER-KEYS T' \
+     (see CLHS 3.4.1.4.1.1). */                                         \
+    var bool allow_hidden = false; /* true if seen ':ALLOW-OTHER-KEYS NIL' */ \
+    var uintC check_count=argcount;                                     \
+    while (check_count--) {                                             \
+      var object kw = NEXT(argptr);                /* next Argument */  \
+      var object val = NEXT(argptr);            /* and value for it */  \
+      /* must be a symbol, should be a keyword: */                      \
+      if (!symbolp(kw)) error_key_notkw(kw,caller);                     \
+      if (!allow_flag) {       /* other keywords allowed? yes -> ok */  \
+        if (eq(kw,S(Kallow_other_keys))) {                              \
+          if (!allow_hidden) {                                          \
+            if (!nullp(val))                                            \
+              allow_flag = true;                                        \
+            else                                                        \
+              allow_hidden = true;                                      \
+          }                                                             \
+        } else {                                                        \
+          /* up to now :ALLOW-OTHER-KEYS was not there, and NOALLOW */  \
+          if (eq(bad_keyword,nullobj)) { /* all Keywords ok so far? */  \
+            /* must test, if the keyword kw is allowed. */              \
+            for_every_keyword({ if (eq(keyword,kw)) goto kw_ok; });     \
+            /* keyword kw was not allowed. */                           \
+            bad_keyword = kw;                                           \
+            bad_value = val;                                            \
+            kw_ok: ;                                                    \
+          }                                                             \
+        }                                                               \
+      }                                                                 \
+    };                                                                  \
+    if (!allow_flag)                                                    \
+      if (!eq(bad_keyword,nullobj)) {                                   \
+        /* wrong keyword occurred */                                    \
+        error_statement                                                 \
+      }                                                                 \
+  }
 
-# For a Keyword 'keyword' search the pair Key.Value:
-# find_keyword_value( notfound_statement, found_statement );
-# > keyword: Keyword
-# > uintC argcount: Number of Keyword/Value-Pairs
-# > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining Arguments
-# > notfound_statement: what is to be done, if not found
-# > found_statement: what is to be done, if value found
-  #define find_keyword_value(notfound_statement,found_statement)  \
-    { var gcv_object_t* argptr = rest_args_pointer;                       \
-      var uintC find_count;                                               \
-      dotimesC(find_count,argcount, {                                     \
-        if (eq(NEXT(argptr),keyword)) goto kw_found; # right keyword?     \
-        NEXT(argptr);                                                     \
-      });                                                                 \
-      if (true) {                                                         \
-        # not found                                                       \
-        notfound_statement                                                \
-      } else {                                                            \
-       kw_found: # found                                                  \
-       {var object value = NEXT(argptr);                                  \
-        found_statement                                                   \
-      }}                                                                  \
-    }
+/* For a Keyword 'keyword' search the pair Key.Value:
+ find_keyword_value( notfound_statement, found_statement );
+ > keyword: Keyword
+ > uintC argcount: Number of Keyword/Value-Pairs
+ > gcv_object_t* rest_args_pointer: Pointer to the 2*argcount remaining Arguments
+ > notfound_statement: what is to be done, if not found
+ > found_statement: what is to be done, if value found */
+#define find_keyword_value(notfound_statement,found_statement)          \
+  { var gcv_object_t* argptr = rest_args_pointer;                       \
+    var uintC find_count;                                               \
+    dotimesC(find_count,argcount, {                                     \
+      if (eq(NEXT(argptr),keyword)) goto kw_found; /* right keyword? */ \
+      NEXT(argptr);                                                     \
+    });                                                                 \
+    if (true) {                                                         \
+      /* not found */                                                   \
+      notfound_statement                                                \
+        } else {                                                        \
+     kw_found:                  /* found */                             \
+      {var object value = NEXT(argptr);                                 \
+      found_statement                                                   \
+        }}                                                              \
+  }
 
 /* UP: Applies an interpreted closure to arguments.
  funcall_iclosure(closure,args_pointer,argcount);
@@ -2681,179 +2678,181 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
   unwind(); /* unwind APPLY-frame */
 }
 
-# UP: provides the assignment of the Key-arguments for SUBRs.
-# call only, if key_flag /= subr_nokey.
-# > fun: function, a SUBR
-# > argcount: number of arguments after optional ones
-# > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
-# > key_args_pointer: Pointer to the Key-parameters in the STACK
-# > rest_args_pointer: Pointer to the remaining arguments in the STACK
-# < STACK: set correctly
-# changes STACK
-  local void match_subr_key (object fun, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer)
-   {
-    /* halve argcount --> the number of pairs Key.Value: */
-    if (argcount%2) /* number was odd -> not paired: */
-      error_key_odd(argcount,TheSubr(fun)->name);
-    if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-      error_too_many_args(unbound,fun,argcount,ca_limit_1);
-    # Due to argcount <= ca_limit_1, all count's fit in a uintC.
-    argcount = argcount/2;
-    # test for illegal Keywords:
-    {
-      var gcv_object_t* keywords_pointer = &TheSvector(TheSubr(fun)->keywords)->data[0];
-      var uintC key_count = TheSubr(fun)->key_count;
-      #define for_every_keyword(statement)                    \
-        if (key_count > 0) {                                  \
-          var gcv_object_t* keywordptr = keywords_pointer;    \
-          var uintC count = key_count;                        \
-          do {                                                \
-            var object keyword = *keywordptr++;               \
-            statement;                                        \
-          } while (--count);                                  \
-        }
-      check_for_illegal_keywords
-        (TheSubr(fun)->key_flag == subr_key_allow,TheSubr(fun)->name,
-         { pushSTACK(bad_keyword); /* save bad keyword */
-           pushSTACK(bad_value);  /* save bad value */
-           pushSTACK(fun); /* save the function */
-           # convert Keyword-Vector to a List:
-           # (SYS::COERCE-SEQUENCE kwvec 'LIST)
-           coerce_sequence(TheSubr(fun)->keywords,S(list),true);
-           fun = popSTACK(); bad_value = popSTACK();
-           bad_keyword = popSTACK();
-           error_key_badkw(TheSubr(fun)->name,bad_keyword,
-                            bad_value,value1);
-         });
-      #undef for_every_keyword
-    # now assign Arguments and Parameters:
-      if (key_count > 0) {
-        var gcv_object_t* keywordptr = keywords_pointer;
-        var gcv_object_t* key_args_ptr = key_args_pointer;
-        var uintC count;
-        dotimespC(count,key_count, {
-          var object keyword = *keywordptr++; # Keyword
-          # find the pair Key.Value for this Keyword:
-          find_keyword_value(
-            # not found -> value remains #<UNBOUND> :
-            { NEXT(key_args_ptr); },
-            # found -> save value:
-            { NEXT(key_args_ptr) = value; }
-            );
-        });
+/* UP: provides the assignment of the Key-arguments for SUBRs.
+ call only, if key_flag /= subr_nokey.
+ > fun: function, a SUBR
+ > argcount: number of arguments after optional ones
+ > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
+ > key_args_pointer: Pointer to the Key-parameters in the STACK
+ > rest_args_pointer: Pointer to the remaining arguments in the STACK
+ < STACK: set correctly
+ changes STACK */
+local void match_subr_key (object fun, uintL argcount,
+                           gcv_object_t* key_args_pointer,
+                           gcv_object_t* rest_args_pointer) {
+  /* halve argcount --> the number of pairs Key.Value: */
+  if (argcount%2) /* number was odd -> not paired: */
+    error_key_odd(argcount,TheSubr(fun)->name);
+  if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
+    error_too_many_args(unbound,fun,argcount,ca_limit_1);
+  /* Due to argcount <= ca_limit_1, all count's fit in a uintC. */
+  argcount = argcount/2;
+  { /* test for illegal Keywords: */
+    var gcv_object_t* keywords_pointer =
+      &TheSvector(TheSubr(fun)->keywords)->data[0];
+    var uintC key_count = TheSubr(fun)->key_count;
+    #define for_every_keyword(statement)                    \
+      if (key_count > 0) {                                  \
+        var gcv_object_t* keywordptr = keywords_pointer;    \
+        var uintC count = key_count;                        \
+        do {                                                \
+          var object keyword = *keywordptr++;               \
+          statement;                                        \
+        } while (--count);                                  \
       }
+    check_for_illegal_keywords
+      (TheSubr(fun)->key_flag == subr_key_allow,TheSubr(fun)->name,
+       { pushSTACK(bad_keyword); /* save bad keyword */
+         pushSTACK(bad_value);  /* save bad value */
+         pushSTACK(fun); /* save the function */
+         /* convert Keyword-Vector to a List:
+          (SYS::COERCE-SEQUENCE kwvec 'LIST) */
+         coerce_sequence(TheSubr(fun)->keywords,S(list),true);
+         fun = popSTACK(); bad_value = popSTACK();
+         bad_keyword = popSTACK();
+         error_key_badkw(TheSubr(fun)->name,bad_keyword,
+                          bad_value,value1);
+       });
+    #undef for_every_keyword
+    /* now assign Arguments and Parameters: */
+    if (key_count > 0) {
+      var gcv_object_t* keywordptr = keywords_pointer;
+      var gcv_object_t* key_args_ptr = key_args_pointer;
+      var uintC count;
+      dotimespC(count,key_count, {
+        var object keyword = *keywordptr++; /* Keyword */
+        /* find the pair Key.Value for this Keyword: */
+        find_keyword_value(
+          /* not found -> value remains #<UNBOUND> : */
+          { NEXT(key_args_ptr); },
+          /* found -> save value: */
+          { NEXT(key_args_ptr) = value; }
+          );
+      });
     }
-    # poss. process Rest-Parameters:
-    if (TheSubr(fun)->rest_flag == subr_norest) {
-      # SUBR without &REST-Flag: forget remaining Arguments:
-      set_args_end_pointer(rest_args_pointer);
-    }
-    # SUBR with &REST-Flag: leave remaining Arguments in Stack
   }
+  /* poss. process Rest-Parameters: */
+  if (TheSubr(fun)->rest_flag == subr_norest) {
+    /* SUBR without &REST-Flag: forget remaining Arguments: */
+    set_args_end_pointer(rest_args_pointer);
+  }
+  /* SUBR with &REST-Flag: leave remaining Arguments in Stack */
+}
 
-# UP: provides the assignment between Argument-list and Keyword-parameters
-# and poss. Rest-parameters of a compiled Closure.
-# > closure: compiled Closure with &KEY-parameters
-# > argcount: number of arguments after optional ones
-# > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
-# > key_args_pointer: Pointer to the Key-parameters in the STACK
-#                     (poss. also Pointer beneath the Rest-parameters in the STACK,
-#                      which is #<UNBOUND>, if it is still to be supplied with)
-# > rest_args_pointer: Pointer to the remaining Arguments in the STACK
-# < STACK: set correctly
-# < result: closure
-# changes STACK
-# can trigger GC
-  local maygc object match_cclosure_key (object closure, uintL argcount, gcv_object_t* key_args_pointer, gcv_object_t* rest_args_pointer)
+/* UP: provides the assignment between Argument-list and Keyword-parameters
+ and poss. Rest-parameters of a compiled Closure.
+ > closure: compiled Closure with &KEY-parameters
+ > argcount: number of arguments after optional ones
+ > STACK_(argcount-1),...,STACK_0: the argcount arguments after the optional ones
+ > key_args_pointer: Pointer to the Key-parameters in the STACK
+                 (poss. also Pointer beneath the Rest-parameters in the STACK,
+                  which is #<UNBOUND>, if it is still to be supplied with)
+ > rest_args_pointer: Pointer to the remaining Arguments in the STACK
+ < STACK: set correctly
+ < result: closure
+ changes STACK
+ can trigger GC */
+local maygc object match_cclosure_key (object closure, uintL argcount,
+                                       gcv_object_t* key_args_pointer,
+                                       gcv_object_t* rest_args_pointer) {
+  /* half argcount --> the number of pairs Key.Value: */
+  if (argcount%2) /* number was odd -> not paired: */
+    error_key_odd(argcount,Closure_name(closure));
+  if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
+    error_too_many_args(unbound,closure,argcount,ca_limit_1);
+  /* Due to argcount <= ca_limit_1, all count's fit in a uintC. */
+  argcount = argcount/2;
+  var object codevec = TheCclosure(closure)->clos_codevec; /* Code-Vector */
   {
-    /* halve argcount --> the number of pairs Key.Value: */
-    if (argcount%2) /* number was odd -> not paired: */
-      error_key_odd(argcount,Closure_name(closure));
-    if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-      error_too_many_args(unbound,closure,argcount,ca_limit_1);
-    # Due to argcount <= ca_limit_1, all count's fit in a uintC.
-    argcount = argcount/2;
-    var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-    {
-      var uintC key_count = TheCodevec(codevec)->ccv_numkey; # number of Keywords
-      var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; # Offset of Keywords in FUNC
-      var gcv_object_t* keywords_pointer = # points to the first Keyword
-        (TheCodevec(codevec)->ccv_flags & bit(4) # generic function?
-         ? &TheSvector(TheCclosure(closure)->clos_consts[0])->data[keywords_offset]
-         : &TheCclosure(closure)->clos_consts[keywords_offset]
-        );
-    # test for illegal Keywords:
-      #define for_every_keyword(statement)                    \
-        if (key_count > 0) {                                  \
-          var gcv_object_t* keywordptr = keywords_pointer;    \
-          var uintC count = key_count;                        \
-          do {                                                \
-            var object keyword = *keywordptr++;               \
-            statement;                                        \
-          } while (--count);                                  \
-        }
-      check_for_illegal_keywords
-        (!((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
-         Closure_name(closure),
-         { pushSTACK(bad_keyword); /* save */
-           pushSTACK(bad_value);  /* save */
-           pushSTACK(closure); /* save the closure */
-           /* build list of legal Keywords: */
-           for_every_keyword( { pushSTACK(keyword); } );
-          {var object kwlist = listof(key_count);
-           closure = popSTACK(); bad_value = popSTACK();
-           bad_keyword = popSTACK(); /* report errors: */
-           error_key_badkw(Closure_name(closure),
-                            bad_keyword,bad_value,kwlist);}});
-      #undef for_every_keyword
-    # now assign Arguments and Parameters:
-      if (key_count > 0) {
-        var gcv_object_t* keywordptr = keywords_pointer;
-        var gcv_object_t* key_args_ptr = key_args_pointer;
-        var uintC count;
-        dotimespC(count,key_count, {
-          var object keyword = *keywordptr++; # Keyword
-          # find the pair Key.value for this keyword:
-          find_keyword_value(
-            # not found -> Wert remains #<UNBOUND> :
-            { NEXT(key_args_ptr); },
-            # found -> save value:
-            { NEXT(key_args_ptr) = value; }
-            );
-        });
+    var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keywords */
+    var uintL keywords_offset = TheCodevec(codevec)->ccv_keyconsts; /* Offset of Keywords in FUNC */
+    var gcv_object_t* keywords_pointer = /* points to the first Keyword */
+      (TheCodevec(codevec)->ccv_flags & bit(4) /* generic function? */
+       ? &TheSvector(TheCclosure(closure)->clos_consts[0])->data[keywords_offset]
+       : &TheCclosure(closure)->clos_consts[keywords_offset]
+      );
+    /* test for illegal Keywords: */
+    #define for_every_keyword(statement)                    \
+      if (key_count > 0) {                                  \
+        var gcv_object_t* keywordptr = keywords_pointer;    \
+        var uintC count = key_count;                        \
+        do {                                                \
+          var object keyword = *keywordptr++;               \
+          statement;                                        \
+        } while (--count);                                  \
       }
+    check_for_illegal_keywords
+      (!((TheCodevec(codevec)->ccv_flags & bit(6)) == 0),
+       Closure_name(closure),
+       { pushSTACK(bad_keyword); /* save */
+         pushSTACK(bad_value);  /* save */
+         pushSTACK(closure); /* save the closure */
+         /* build list of legal Keywords: */
+         for_every_keyword( { pushSTACK(keyword); } );
+        {var object kwlist = listof(key_count);
+         closure = popSTACK(); bad_value = popSTACK();
+         bad_keyword = popSTACK(); /* report errors: */
+         error_key_badkw(Closure_name(closure),
+                          bad_keyword,bad_value,kwlist);}});
+    #undef for_every_keyword
+    /* now assign Arguments and Parameters: */
+    if (key_count > 0) {
+      var gcv_object_t* keywordptr = keywords_pointer;
+      var gcv_object_t* key_args_ptr = key_args_pointer;
+      var uintC count;
+      dotimespC(count,key_count, {
+        var object keyword = *keywordptr++; /* Keyword */
+        /* find the pair Key.value for this keyword: */
+        find_keyword_value(
+          /* not found -> Wert remains #<UNBOUND> : */
+          { NEXT(key_args_ptr); },
+          /* found -> save value: */
+          { NEXT(key_args_ptr) = value; }
+          );
+      });
     }
-    # poss. process Rest-parameters:
-    if (TheCodevec(codevec)->ccv_flags & bit(0)) { # Rest-Flag?
-      # Closure with Keywords and &REST-Flag:
-      var gcv_object_t* rest_arg_ = &BEFORE(key_args_pointer); # Pointer to the REST-Parameter
-      if (!boundp(*rest_arg_)) {
-        # must still be filed: handicraft list
-        *rest_arg_ = closure; # save Closure
-        var object rest_arg = NIL;
-        while (args_end_pointer != rest_args_pointer) {
-          pushSTACK(rest_arg);
-          rest_arg = allocate_cons();
-          Cdr(rest_arg) = popSTACK();
-          Car(rest_arg) = popSTACK();
-        }
-        closure = *rest_arg_; # return Closure
-        *rest_arg_ = rest_arg;
-      } else {
-        # forget remaining arguments:
-        set_args_end_pointer(rest_args_pointer);
+  }
+  /* poss. process Rest-parameters: */
+  if (TheCodevec(codevec)->ccv_flags & bit(0)) { /* Rest-Flag? */
+    /* Closure with Keywords and &REST-Flag: */
+    var gcv_object_t* rest_arg_ = &BEFORE(key_args_pointer); /* Pointer to the REST-Parameter */
+    if (!boundp(*rest_arg_)) {
+      /* must still be filed: handicraft list */
+      *rest_arg_ = closure;     /* save Closure */
+      var object rest_arg = NIL;
+      while (args_end_pointer != rest_args_pointer) {
+        pushSTACK(rest_arg);
+        rest_arg = allocate_cons();
+        Cdr(rest_arg) = popSTACK();
+        Car(rest_arg) = popSTACK();
       }
+      closure = *rest_arg_;     /* return Closure */
+      *rest_arg_ = rest_arg;
     } else {
-      # Closure without &REST-Flag: forget remaining arguments:
+      /* forget remaining arguments: */
       set_args_end_pointer(rest_args_pointer);
     }
-    return closure;
+  } else {
+    /* Closure without &REST-Flag: forget remaining arguments: */
+    set_args_end_pointer(rest_args_pointer);
   }
+  return closure;
+}
 
 
-#           ----------------------- E V A L -----------------------
+/* ----------------------- E V A L ----------------------- */
 
-# later:
+/* later: */
 local Values eval1 (object form);
 local Values eval_fsubr (object fun, object args);
 local Values eval_applyhook (object fun);
@@ -2863,90 +2862,90 @@ local Values eval_closure (object fun);
 local Values eval_ffunction (object fun);
 #endif
 
-# UP: evaluates a form in the current environment.
-# eval(form);
-# > form: form
-# < mv_count/mv_space: values
-# can trigger GC
-  global maygc Values eval (object form)
+/* UP: evaluates a form in the current environment.
+ eval(form);
+ > form: form
+ < mv_count/mv_space: values
+ can trigger GC */
+global maygc Values eval (object form)
+{
+ start:
+  /* Test for Keyboard-Interrupt: */
+  interruptp({
+    pushSTACK(form);                  /* save form */
+    pushSTACK(S(eval)); tast_break(); /* call break-loop */
+    form = popSTACK();
+    goto start;
+  });
+  var sp_jmp_buf my_jmp_buf;
+  /* build EVAL-frame: */
   {
-   start:
-    # Test for Keyboard-Interrupt:
-    interruptp({
-      pushSTACK(form); # save form
-      pushSTACK(S(eval)); tast_break(); # call break-loop
-      form = popSTACK();
-      goto start;
-    });
-    var sp_jmp_buf my_jmp_buf;
-    # build EVAL-frame:
-    {
-      var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
-      pushSTACK(form); # Form
-      finish_entry_frame(EVAL,my_jmp_buf,,
-        {
-          if (mv_count==0) { # after reentry: Form passed over?
-            form = STACK_(frame_form); # evaluate the same form again
-          } else {
-            form = STACK_(frame_form) = value1; # evaluate form passed over
-          }
-        });
-    }
-    # Test for *EVALHOOK*:
-    {
-      var object evalhook_value = Symbol_value(S(evalhookstern)); # *EVALHOOK*
-      if (nullp(evalhook_value)) { # *EVALHOOK* = NIL ?
-        # yes -> continue evaluation normally
-        pushSTACK(Symbol_value(S(applyhookstern))); eval1(form);
-      } else {
-        # bind *EVALHOOK*, *APPLYHOOK* to NIL:
-        bindhooks_NIL();
-        # execute (FUNCALL *EVALHOOK* form env) :
-        pushSTACK(form); # Form as 1. Argument
-        pushSTACK(evalhook_value); # save Function
-        var gcv_environment_t* stack_env = nest_aktenv(); # Environments in the Stack,
-        var object env = allocate_vector(5); # in newly allocated Vector
-        *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
-        skipSTACK(5);
-        evalhook_value = popSTACK(); # return Function
-        pushSTACK(env); # entire Environment as 2. Argument
-        funcall(evalhook_value,2);
-        # restore old values of *EVALHOOK*, *APPLYHOOK* :
-        unwind();
-        # unwind EVAL-Frame:
-        unwind();
-      }
+    var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
+    pushSTACK(form);                        /* Form */
+    finish_entry_frame(EVAL,my_jmp_buf,,
+      {
+        if (mv_count==0) {      /* after reentry: Form passed over? */
+          form = STACK_(frame_form); /* evaluate the same form again */
+        } else {
+          form = STACK_(frame_form) = value1; /* evaluate form passed over */
+        }
+      });
+  }
+  /* Test for *EVALHOOK*: */
+  {
+    var object evalhook_value = Symbol_value(S(evalhookstern)); /* *EVALHOOK* */
+    if (nullp(evalhook_value)) { /* *EVALHOOK* = NIL ? */
+      /* yes -> continue evaluation normally */
+      pushSTACK(Symbol_value(S(applyhookstern))); eval1(form);
+    } else {
+      /* bind *EVALHOOK*, *APPLYHOOK* to NIL: */
+      bindhooks_NIL();
+      /* execute (FUNCALL *EVALHOOK* form env) : */
+      pushSTACK(form);           /* Form as 1st Argument */
+      pushSTACK(evalhook_value); /* save Function */
+      var gcv_environment_t* stack_env = nest_aktenv(); /* Environments in the Stack, */
+      var object env = allocate_vector(5); /* in newly allocated Vector */
+      *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; /* push in */
+      skipSTACK(5);
+      evalhook_value = popSTACK(); /* return Function */
+      pushSTACK(env);           /* entire Environment as 2nd Argument */
+      funcall(evalhook_value,2);
+      /* restore old values of *EVALHOOK*, *APPLYHOOK* : */
+      unwind();
+      /* unwind EVAL-Frame: */
+      unwind();
     }
   }
+}
 
-# UP: evaluates a form in the current Environment. Does not take
-# *EVALHOOK* and *APPLYHOOK* into consideration.
-# eval_no_hooks(form);
-# > form: Form
-# < mv_count/mv_space: values
-# can trigger GC
+/* UP: evaluates a form in the current Environment. Does not take
+ *EVALHOOK* and *APPLYHOOK* into consideration.
+ eval_no_hooks(form);
+ > form: Form
+ < mv_count/mv_space: values
+ can trigger GC */
 global maygc Values eval_no_hooks (object form) {
   var sp_jmp_buf my_jmp_buf;
-  # build EVAL-Frame:
+  /* build EVAL-Frame: */
   {
-    var gcv_object_t* top_of_frame = STACK; # Pointer to Frame
-    pushSTACK(form); # Form
+    var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
+    pushSTACK(form);                        /* Form */
     finish_entry_frame(EVAL,my_jmp_buf,,
     {
-      if (mv_count==0) { # after reentry: Form passed over?
-        form = STACK_(frame_form); # evaluate the same form again
+      if (mv_count==0) {        /* after reentry: Form passed over? */
+        form = STACK_(frame_form); /* evaluate the same form again */
       } else {
-        form = STACK_(frame_form) = value1; # evaluate form passed over
+        form = STACK_(frame_form) = value1; /* evaluate form passed over */
       }
     });
   }
-  # continue evaluation, consider *APPLYHOOK* as being NIL:
+  /* continue evaluation, consider *APPLYHOOK* as being NIL: */
   pushSTACK(NIL); eval1(form);
 }
 
 /* UP: evaluates a form in the current environment.
- Does not take the value of *EVALHOOK* into consideration and expects the value of
- *APPLYHOOK*.
+ Does not take the value of *EVALHOOK* into consideration
+ and expects the value of *APPLYHOOK*.
  the EVAL-frame must already have been built; it will then be unwound.
  eval1(form);
  > form: form
@@ -3083,160 +3082,160 @@ local maygc Values eval1 (object form)
   }
 }
 
-# In EVAL: Applies a FSUBR to an argument-list, cleans up STACK
-# and returns the values.
-# eval_fsubr(fun,args);
-# > fun: a FSUBR
-# > args: argument-list
-# > STACK-layout: EVAL-Frame, *APPLYHOOK*.
-# < STACK: cleaned up
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
-  local maygc Values eval_fsubr (object fun, object args)
-  {
-    skipSTACK(1); # forget value of *APPLYHOOK*
-    check_SP(); check_STACK();
-    #if STACKCHECKS
-    var gcv_object_t* STACKbefore = STACK;
-    #endif
-    # put arguments in the STACK:
-    switch ((uintW)posfixnum_to_V(TheFsubr(fun)->argtype)) {
-      # Macro for 1 required-Parameter:
-      #define REQ_PAR()  \
-        { if (atomp(args)) goto error_toofew;                   \
-          pushSTACK(Car(args)); # next parameter in the STACK \
-          args = Cdr(args);                                       \
-        }
-      case (uintW)fsubr_argtype_2_0_nobody:
-        # FSUBR with 2 required-Parameters
-        REQ_PAR();
-      case (uintW)fsubr_argtype_1_0_nobody:
-        # FSUBR with 1 required-Parameter
-        REQ_PAR();
+/* In EVAL: Applies a FSUBR to an argument-list, cleans up STACK
+ and returns the values.
+ eval_fsubr(fun,args);
+ > fun: a FSUBR
+ > args: argument-list
+ > STACK-layout: EVAL-Frame, *APPLYHOOK*.
+ < STACK: cleaned up
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
+local maygc Values eval_fsubr (object fun, object args)
+{
+  skipSTACK(1);                 /* forget value of *APPLYHOOK* */
+  check_SP(); check_STACK();
+  #if STACKCHECKS
+  var gcv_object_t* STACKbefore = STACK;
+  #endif
+  /* put arguments in the STACK: */
+  switch ((uintW)posfixnum_to_V(TheFsubr(fun)->argtype)) {
+    /* Macro for 1 required-Parameter: */
+    #define REQ_PAR()                                                   \
+      { if (atomp(args)) goto error_toofew;                             \
+        pushSTACK(Car(args));        /* next parameter in the STACK */  \
+        args = Cdr(args);                                               \
+      }
+    case (uintW)fsubr_argtype_2_0_nobody:
+      /* FSUBR with 2 required-Parameters */
+      REQ_PAR();
+    case (uintW)fsubr_argtype_1_0_nobody:
+      /* FSUBR with 1 required-Parameter */
+      REQ_PAR();
+      if (!nullp(args)) goto error_toomany;
+      break;
+    case (uintW)fsubr_argtype_2_1_nobody:
+      /* FSUBR with 2 required-Parameters and 1 optional-Parameter */
+      REQ_PAR();
+    case (uintW)fsubr_argtype_1_1_nobody:
+      /* FSUBR with 1 required-Parameter and 1 optional-Parameter */
+      REQ_PAR();
+      if (consp(args)) {
+        pushSTACK(Car(args));   /* optional parameter into STACK */
+        args = Cdr(args);
         if (!nullp(args)) goto error_toomany;
-        break;
-      case (uintW)fsubr_argtype_2_1_nobody:
-        # FSUBR with 2 required-Parameters and 1 optional-Parameter
-        REQ_PAR();
-      case (uintW)fsubr_argtype_1_1_nobody:
-        # FSUBR with 1 required-Parameter and 1 optional-Parameter
-        REQ_PAR();
-        if (consp(args)) {
-          pushSTACK(Car(args)); # optional parameter into STACK
-          args = Cdr(args);
-          if (!nullp(args)) goto error_toomany;
-        } else {
-          pushSTACK(unbound); # unbound into STACK instead
-          if (!nullp(args)) goto error_dotted;
-        }
-        break;
-      case (uintW)fsubr_argtype_2_body:
-        # FSUBR with 2 required-Parameters and Body-Parameter
-        REQ_PAR();
-      case (uintW)fsubr_argtype_1_body:
-        # FSUBR with 1 required-Parameter and Body-Parameter
-        REQ_PAR();
-      case (uintW)fsubr_argtype_0_body:
-        # FSUBR with 0 required-Parameters and Body-Parameter
-        pushSTACK(args); # remaining body into STACK
-        break;
-      default: NOTREACHED;
-      error_toofew: # argument-list args is an atom, prematurely
+      } else {
+        pushSTACK(unbound);     /* unbound into STACK instead */
         if (!nullp(args)) goto error_dotted;
-        # clean up STACK up to the calling EVAL-Frame:
-        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
-          skipSTACK(1);
-        }
-        {
-          var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-          pushSTACK(form); pushSTACK(Car(form));
-          error(source_program_error,
-                 GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
-        }
-      error_toomany: # argument-list args is not NIL at the tail
-        if (atomp(args)) goto error_dotted;
-        # clean up STACK up to the calling EVAL-Frame:
-        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
-          skipSTACK(1);
-        }
-        {
-          var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-          pushSTACK(form); pushSTACK(Car(form));
-          error(source_program_error,
-                 GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
-        }
-      error_dotted: # argument-list args ends with Atom /= NIL
-        # clean up STACK up to the calling EVAL-Frame:
-        while (!(framecode(STACK_0) & bit(frame_bit_t))) {
-          skipSTACK(1);
-        }
-        {
-          var object form = STACK_(frame_form); # Form from EVAL-Frame
-          pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
-          pushSTACK(form); pushSTACK(Car(form));
-          error(source_program_error,
-                 GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
-        }
-      #undef REQ_PAR
-    }
-    # Now STACK = STACKbefore STACKop - (req + opt + (body-flag ? 1 : 0)).
-    # Call FSUBR:
-    with_saved_back_trace_fsubr(fun,
-      (*(fsubr_function_t*)(TheFsubr(fun)->function))(); );
-    #if STACKCHECKS
-     if (!(STACK == STACKbefore)) # STACK as before?
-       abort(); # no -> go to Debugger
-    #endif
-    unwind(); # unwind EVAL-Frame
+      }
+      break;
+    case (uintW)fsubr_argtype_2_body:
+      /* FSUBR with 2 required-Parameters and Body-Parameter */
+      REQ_PAR();
+    case (uintW)fsubr_argtype_1_body:
+      /* FSUBR with 1 required-Parameter and Body-Parameter */
+      REQ_PAR();
+    case (uintW)fsubr_argtype_0_body:
+      /* FSUBR with 0 required-Parameters and Body-Parameter */
+      pushSTACK(args);          /* remaining body into STACK */
+      break;
+    default: NOTREACHED;
+    error_toofew:       /* argument-list args is an atom, prematurely */
+      if (!nullp(args)) goto error_dotted;
+      /* clean up STACK up to the calling EVAL-Frame: */
+      while (!(framecode(STACK_0) & bit(frame_bit_t))) {
+        skipSTACK(1);
+      }
+      {
+        var object form = STACK_(frame_form); /* Form from EVAL-Frame */
+        pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+        pushSTACK(form); pushSTACK(Car(form));
+        error(source_program_error,
+               GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
+      }
+    error_toomany:       /* argument-list args is not NIL at the tail */
+      if (atomp(args)) goto error_dotted;
+      /* clean up STACK up to the calling EVAL-Frame: */
+      while (!(framecode(STACK_0) & bit(frame_bit_t))) {
+        skipSTACK(1);
+      }
+      {
+        var object form = STACK_(frame_form); /* Form from EVAL-Frame */
+        pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+        pushSTACK(form); pushSTACK(Car(form));
+        error(source_program_error,
+               GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
+      }
+    error_dotted:         /* argument-list args ends with Atom /= NIL */
+      /* clean up STACK up to the calling EVAL-Frame: */
+      while (!(framecode(STACK_0) & bit(frame_bit_t))) {
+        skipSTACK(1);
+      }
+      {
+        var object form = STACK_(frame_form); /* Form from EVAL-Frame */
+        pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
+        pushSTACK(form); pushSTACK(Car(form));
+        error(source_program_error,
+               GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
+      }
+    #undef REQ_PAR
   }
+  /* Now STACK = STACKbefore STACKop - (req + opt + (body-flag ? 1 : 0)).
+   Call FSUBR: */
+  with_saved_back_trace_fsubr(fun,
+    (*(fsubr_function_t*)(TheFsubr(fun)->function))(); );
+  #if STACKCHECKS
+   if (!(STACK == STACKbefore)) /* STACK as before? */
+     abort();                   /* no -> go to Debugger */
+  #endif
+  unwind();                     /* unwind EVAL-Frame */
+}
 
-# In EVAL: Applies *APPLYHOOK* to a function (SUBR or Closure) and
-# an argument-list, cleans up the STACK and returns the values.
-# eval_applyhook(fun);
-# > fun: function, a SUBR or a closure
-# > STACK-layout: EVAL-Frame, *APPLYHOOK* (/= NIL), argument-list.
-# < STACK: cleaned up
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
+/* In EVAL: Applies *APPLYHOOK* to a function (SUBR or Closure) and
+ an argument-list, cleans up the STACK and returns the values.
+ eval_applyhook(fun);
+ > fun: function, a SUBR or a closure
+ > STACK-layout: EVAL-Frame, *APPLYHOOK* (/= NIL), argument-list.
+ < STACK: cleaned up
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
 local maygc Values eval_applyhook(object fun) {
-  var object args = popSTACK(); # argument-list
-  var object applyhook_value = popSTACK(); # value of *APPLYHOOK*
+  var object args = popSTACK();            /* argument-list */
+  var object applyhook_value = popSTACK(); /* value of *APPLYHOOK* */
   check_SP();
-  # bind *EVALHOOK*, *APPLYHOOK* to NIL:
+  /* bind *EVALHOOK*, *APPLYHOOK* to NIL: */
   bindhooks_NIL();
   #ifndef X3J13_005
-  # execute (FUNCALL *APPLYHOOK* fun args env) :
-  pushSTACK(fun); # Funktion as 1. Argument
-  pushSTACK(args); # argument-list as 2. Argument
-  pushSTACK(applyhook_value); # save function
+  /* execute (FUNCALL *APPLYHOOK* fun args env) : */
+  pushSTACK(fun);               /* Funktion as 1st Argument */
+  pushSTACK(args);              /* argument-list as 2nd Argument */
+  pushSTACK(applyhook_value);   /* save function */
   {
-    var gcv_environment_t* stack_env = nest_aktenv(); # Environments into Stack,
-    var object env = allocate_vector(5); # in newly allocated Vector
-    *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; # push in
+    var gcv_environment_t* stack_env = nest_aktenv(); /* Environments into Stack, */
+    var object env = allocate_vector(5); /* in newly allocated Vector */
+    *(gcv_environment_t*)(&TheSvector(env)->data[0]) = *stack_env; /* push in */
     skipSTACK(5);
   }
-  applyhook_value = popSTACK(); # function back
-  pushSTACK(env); # entire Environment as 3. Argument
+  applyhook_value = popSTACK(); /* function back */
+  pushSTACK(env);               /* entire Environment as 3rd Argument */
   funcall(applyhook_value,3);
   #else
-  # execute (FUNCALL *APPLYHOOK* fun args) :
-  pushSTACK(fun); # function as 1. Argument
-  pushSTACK(args); # argument-list as 2. Argument
+  /* execute (FUNCALL *APPLYHOOK* fun args) : */
+  pushSTACK(fun);               /* function as 1st Argument */
+  pushSTACK(args);              /* argument-list as 2nd Argument */
   funcall(applyhook_value,2);
   #endif
-  # old values of *EVALHOOK*, *APPLYHOOK* back:
+  /* old values of *EVALHOOK*, *APPLYHOOK* back: */
   unwind();
-  # unwind EVAL-Frame:
+  /* unwind EVAL-Frame: */
   unwind();
 }
 
-# In EVAL: error, if too few arguments
+/* In EVAL: error, if too few arguments */
 nonreturning_function(local, error_eval_toofew, (object fun)) {
-  var object form = STACK_(frame_form); # Form
+  var object form = STACK_(frame_form); /* Form */
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
@@ -3244,9 +3243,9 @@ nonreturning_function(local, error_eval_toofew, (object fun)) {
          GETTEXT("EVAL: too few arguments given to ~S: ~S"));
 }
 
-# In EVAL: error, if too many arguments
+/* In EVAL: error, if too many arguments */
 nonreturning_function(local, error_eval_toomany, (object fun)) {
-  var object form = STACK_(frame_form); # Form
+  var object form = STACK_(frame_form); /* Form */
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
@@ -3254,730 +3253,663 @@ nonreturning_function(local, error_eval_toomany, (object fun)) {
          GETTEXT("EVAL: too many arguments given to ~S: ~S"));
 }
 
-# In EVAL: error, if dotted argument-list
+/* In EVAL: error, if dotted argument-list */
 nonreturning_function(local, error_eval_dotted, (object fun)) {
-  var object form = STACK_(frame_form); # Form
+  var object form = STACK_(frame_form); /* Form */
   pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(form); pushSTACK(fun);
   error(source_program_error,
          GETTEXT("EVAL: argument list given to ~S is dotted: ~S"));
 }
 
-# In EVAL: Applies an SUBR to an argument-list, cleans up STACK
-# and returns the values.
-# eval_subr(fun);
-# > fun: function, a SUBR
-# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
-# < STACK: cleaned up
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
-  local maygc Values eval_subr (object fun)
-  {
-    var object args = popSTACK(); # argument-list
-    skipSTACK(1); # forget value of *APPLYHOOK*
-    check_SP(); check_STACK();
-    var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
-    var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
-    var uintL argcount; # number of remaining arguments
-    # push arguments evaluated in the STACK:
-    # first a Dispatch for most important cases:
-    switch (TheSubr(fun)->argtype) {
-      # Macro for a required-argument:
-      #define REQ_ARG()  \
-        { if (atomp(args)) goto error_toofew;                \
-          pushSTACK(Cdr(args)); # remaining arguments          \
-          eval(Car(args)); # evaluate next argument            \
-          args = STACK_0; STACK_0 = value1; # and into STACK   \
-        }
-      # Macro for the n-th last optional-argument:
-      #define OPT_ARG(n)  \
-        { if (atomp(args)) goto unbound_optional_##n ;         \
-          pushSTACK(Cdr(args)); # remaining arguments          \
-          eval(Car(args)); # evaluate next argument            \
-          args = STACK_0; STACK_0 = value1; # and into STACK   \
-        }
-      case (uintW)subr_argtype_6_0:
-        # SUBR with 6 required-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_5_0:
-        # SUBR with 5 required-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_4_0:
-        # SUBR with 4 required-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_3_0:
-        # SUBR with 3 required-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_0:
-        # SUBR with 2 required-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_0:
-        # SUBR with 1 required-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0:
-        # SUBR without Arguments
-        if (!nullp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_4_1:
-        # SUBR with 4 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_3_1:
-        # SUBR with 3 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_2_1:
-        # SUBR with 2 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_1_1:
-        # SUBR with 1 required-Argument and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_0_1:
-        # SUBR with 1 optional-Argument
-        OPT_ARG(1);
-        if (!nullp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_3_2:
-        # SUBR with 3 required-Arguments and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_2:
-        # SUBR with 2 required-Arguments and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_2:
-        # SUBR with 1 required-Argument and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_2:
-        # SUBR with 2 optional-Arguments
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if (!nullp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_2_3:
-        # SUBR with 2 required-Arguments and 3 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_3:
-        # SUBR with 1 required-Argument and 3 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_3:
-        # SUBR with 3 optional-Arguments
-        OPT_ARG(3);
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if (!nullp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_0_5:
-        # SUBR with 5 optional-Arguments
-        OPT_ARG(5);
-      case (uintW)subr_argtype_0_4:
-        # SUBR with 4 optional-Arguments
-        OPT_ARG(4);
-        OPT_ARG(3);
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if (!nullp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      unbound_optional_5: # Still 5 optional Arguments, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_4: # Still 4 optional Arguments, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_3: # Still 3 optional Arguments, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_2: # Still 2 optional Arguments, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_1: # Still 1 optional Argument, but atomp(args)
-        pushSTACK(unbound);
-        if (!nullp(args)) goto error_dotted;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_3_0_rest:
-        # SUBR with 3 required-Arguments and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_0_rest:
-        # SUBR with 2 required-Arguments and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_0_rest:
-        # SUBR with 1 required-Argument and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0_rest:
-        # SUBR with further Arguments
-        rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
-        # evaluate all further arguments and into Stack:
-        argcount = 0; # counter for the remaining arguments
-        while (consp(args)) {
-          check_STACK();
-          pushSTACK(Cdr(args)); # remaining arguments
-          eval(Car(args)); # evaluate next argument
-          args = STACK_0; STACK_0 = value1; # and into STACK
-          argcount++;
-        }
-        goto apply_subr_rest;
-      case (uintW)subr_argtype_4_0_key:
-        # SUBR with 4 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_3_0_key:
-        # SUBR with 3 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_0_key:
-        # SUBR with 2 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_0_key:
-        # SUBR with 1 required-Argument and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0_key:
-        # SUBR with Keyword-Arguments
-        if (atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      case (uintW)subr_argtype_1_1_key:
-        # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_1_key:
-        # SUBR with 1 optional-Argument and Keyword-Arguments
-        OPT_ARG(key_1);
-        if (atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      case (uintW)subr_argtype_1_2_key:
-        # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
-        REQ_ARG();
-        OPT_ARG(key_2);
-        OPT_ARG(key_1);
-        if (atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      unbound_optional_key_2: # Silll 2 optional Arguments, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_key_1: # Still 1 optional Argument, but atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_key_0: # Before the keywords is atomp(args)
-        {
-          var uintC count;
-          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
-        }
-        if (!nullp(args)) goto error_dotted;
-        goto apply_subr_norest;
-      default: NOTREACHED;
-      #undef OPT_ARG
-      #undef REQ_ARG
-    }
-    # Now the general Version:
-    # reserve space on the STACK:
-    get_space_on_STACK(sizeof(gcv_object_t) *
-                       (uintL)(TheSubr(fun)->req_count +
-                               TheSubr(fun)->opt_count +
-                               TheSubr(fun)->key_count));
-    # evaluate required parameters and push into Stack:
-    {
-      var uintC count;
-      dotimesC(count,TheSubr(fun)->req_count, {
-        if (atomp(args)) goto error_toofew; # at the end of argument-list?
-        pushSTACK(Cdr(args)); # remaining argument-list
-        eval(Car(args)); # evaluate next argument
-        args = STACK_0; STACK_0 = value1; # and into Stack
-      });
-    }
-    { /* evaluate optional parameters and push into Stack: */
-      var uintC count = TheSubr(fun)->opt_count;
-      while (!atomp(args)) { /* argument-list not finished? */
-        if (count==0) # all optional parameters supplied with?
-          goto optionals_ok;
-        count--;
-        pushSTACK(Cdr(args)); # remaining argument-list
-        eval(Car(args)); # evaluate next argument
-        args = STACK_0; STACK_0 = value1; # and into Stack
+/* In EVAL: Applies an SUBR to an argument-list, cleans up STACK
+ and returns the values.
+ eval_subr(fun);
+ > fun: function, a SUBR
+ > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+ < STACK: cleaned up
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
+local maygc Values eval_subr (object fun)
+{
+  var object args = popSTACK(); /* argument-list */
+  skipSTACK(1);                 /* forget value of *APPLYHOOK* */
+  check_SP(); check_STACK();
+  var gcv_object_t* args_pointer = args_end_pointer; /* Pointer to the arguments */
+  var gcv_object_t* rest_args_pointer; /* Pointer to the remaining arguments */
+  var uintL argcount;       /* number of remaining arguments */
+  /* push arguments evaluated in the STACK:
+   first a Dispatch for most important cases: */
+  switch (TheSubr(fun)->argtype) {
+    /* Macro for a required-argument: */
+    #define REQ_ARG()                                                   \
+      { if (atomp(args)) goto error_toofew;                             \
+        pushSTACK(Cdr(args));      /* remaining arguments */            \
+        eval(Car(args));           /* evaluate next argument */         \
+        args = STACK_0; STACK_0 = value1;         /* and into STACK */  \
       }
-      # argument-list finished.
-      # All further count optional parameters get the "value"
-      # #<UNBOUND>, the same for the Keyword-parameters:
-      dotimesC(count,count + TheSubr(fun)->key_count, { pushSTACK(unbound); } );
-      if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-        # yes -> 0 additional arguments:
-        argcount = 0; rest_args_pointer = args_end_pointer;
+    /* Macro for the n-th last optional-argument: */
+    #define OPT_ARG(n)                                                  \
+      { if (atomp(args)) goto unbound_optional_##n ;                    \
+        pushSTACK(Cdr(args));      /* remaining arguments */            \
+        eval(Car(args));           /* evaluate next argument */         \
+        args = STACK_0; STACK_0 = value1;         /* and into STACK */  \
       }
-      # no -> nothing to do
-      goto los;
-    }
-   optionals_ok:
-    # process Rest- and Keyword-parameters.
-    # args = remaining argument-list (not yet finished)
-    if (TheSubr(fun)->key_flag == subr_nokey) {
-      # SUBR without KEY
-      if (TheSubr(fun)->rest_flag == subr_norest) {
-        # SUBR without REST or KEY -> argument-list should be finished
-        goto error_toomany;
-      } else {
-        # SUBR with only REST, without KEY: treatment of remaining arguments
-        rest_args_pointer = args_end_pointer;
-        argcount = 0; # counter for the remaining arguments
-        do {
-          check_STACK();
-          pushSTACK(Cdr(args)); # remaining argument-list
-          eval(Car(args)); # evaluate next argument
-          args = STACK_0; STACK_0 = value1; # and into Stack
-          argcount++;
-        } while (consp(args));
-        if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
-          goto error_toomany;
+    case (uintW)subr_argtype_6_0: /* SUBR with 6 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_5_0: /* SUBR with 5 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_4_0: /* SUBR with 4 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_0: /* SUBR with 3 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0: /* SUBR with 2 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0: /* SUBR with 1 required argument */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0: /* SUBR without Arguments */
+      if (!nullp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_4_1: /* SUBR with 4 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_1: /* SUBR with 3 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_1: /* SUBR with 2 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_1: /* SUBR with 1 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_1: /* SUBR with 1 optional argument */
+      OPT_ARG(1);
+      if (!nullp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_3_2: /* SUBR with 3 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_2: /* SUBR with 2 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_2: /* SUBR with 1 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_2: /* SUBR with 2 optional arguments */
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if (!nullp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_2_3: /* SUBR with 2 required and 3 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_3: /* SUBR with 1 required and 3 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_3: /* SUBR with 3 optional arguments */
+      OPT_ARG(3);
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if (!nullp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_0_5: /* SUBR with 5 optional arguments */
+      OPT_ARG(5);
+    case (uintW)subr_argtype_0_4: /* SUBR with 4 optional arguments */
+      OPT_ARG(4);
+      OPT_ARG(3);
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if (!nullp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    unbound_optional_5: /* Still 5 optional Arguments, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_4: /* Still 4 optional Arguments, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_3: /* Still 3 optional Arguments, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_2: /* Still 2 optional Arguments, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_1: /* Still 1 optional Argument, but atomp(args) */
+      pushSTACK(unbound);
+      if (!nullp(args)) goto error_dotted;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_3_0_rest: /* SUBR with 3 required and rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0_rest: /* SUBR with 2 required and rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0_rest: /* SUBR with 1 required and rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0_rest: /* SUBR with &rest Arguments */
+      rest_args_pointer = args_end_pointer; /* Pointer to the remaining arguments */
+      /* evaluate all further arguments and into Stack: */
+      argcount = 0;            /* counter for the remaining arguments */
+      while (consp(args)) {
+        check_STACK();
+        pushSTACK(Cdr(args));             /* remaining arguments */
+        eval(Car(args));                  /* evaluate next argument */
+        args = STACK_0; STACK_0 = value1; /* and into STACK */
+        argcount++;
       }
-    } else
-    apply_subr_key: { /* SUBR with Keywords. */
-      # args = remaining argument-list (not yet finished)
-      # First initialize the Keyword-parameters with #<UNBOUND> , then
-      # evaluate the remaining arguments and push into Stack, then
-      # assign the Keywords:
-      var gcv_object_t* key_args_pointer = args_end_pointer; # Pointer to Keyword-parameters
-      # initialize all Keyword-parameters with  #<UNBOUND> :
+      goto apply_subr_rest;
+    case (uintW)subr_argtype_4_0_key: /* SUBR with 4 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_0_key: /* SUBR with 3 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0_key: /* SUBR with 2 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0_key: /* SUBR with 1 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0_key: /* SUBR with &key */
+      if (atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    case (uintW)subr_argtype_1_1_key:
+      /* SUBR with 1 required argument, 1 optional argument and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_1_key: /* SUBR with 1 optional and &key */
+      OPT_ARG(key_1);
+      if (atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    case (uintW)subr_argtype_1_2_key:
+      /* SUBR with 1 required argument, 2 optional arguments and &key */
+      REQ_ARG();
+      OPT_ARG(key_2);
+      OPT_ARG(key_1);
+      if (atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    unbound_optional_key_2: /* Silll 2 optional Arguments, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_key_1: /* Still 1 optional Argument, but atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_key_0:     /* Before the keywords is atomp(args) */
       {
         var uintC count;
         dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
       }
-      rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
-      # evaluate all further arguments and into Stack:
-      argcount = 0; # counter for the remaining arguments
+      if (!nullp(args)) goto error_dotted;
+      goto apply_subr_norest;
+    default: NOTREACHED;
+    #undef OPT_ARG
+    #undef REQ_ARG
+  }
+  /* Now the general Version:
+   reserve space on the STACK: */
+  get_space_on_STACK(sizeof(gcv_object_t) *
+                     (uintL)(TheSubr(fun)->req_count +
+                             TheSubr(fun)->opt_count +
+                             TheSubr(fun)->key_count));
+  /* evaluate required parameters and push into Stack: */
+  {
+    var uintC count;
+    dotimesC(count,TheSubr(fun)->req_count, {
+      if (atomp(args)) goto error_toofew; /* at the end of argument-list? */
+      pushSTACK(Cdr(args));               /* remaining argument-list */
+      eval(Car(args));                    /* evaluate next argument */
+      args = STACK_0; STACK_0 = value1;   /* and into Stack */
+    });
+  }
+  { /* evaluate optional parameters and push into Stack: */
+    var uintC count = TheSubr(fun)->opt_count;
+    while (!atomp(args)) { /* argument-list not finished? */
+      if (count==0)        /* all optional parameters supplied with? */
+        goto optionals_ok;
+      count--;
+      pushSTACK(Cdr(args));             /* remaining argument-list */
+      eval(Car(args));                  /* evaluate next argument */
+      args = STACK_0; STACK_0 = value1; /* and into Stack */
+    }
+    /* argument-list finished.
+     All further count optional parameters get the "value"
+     #<UNBOUND>, the same for the Keyword-parameters: */
+    dotimesC(count,count + TheSubr(fun)->key_count, { pushSTACK(unbound); } );
+    if (TheSubr(fun)->rest_flag == subr_rest) { /* &REST-Flag? */
+      /* yes -> 0 additional arguments: */
+      argcount = 0; rest_args_pointer = args_end_pointer;
+    }
+    /* no -> nothing to do */
+    goto los;
+  }
+ optionals_ok:
+  /* process Rest- and Keyword-parameters.
+   args = remaining argument-list (not yet finished) */
+  if (TheSubr(fun)->key_flag == subr_nokey) {
+    /* SUBR without KEY */
+    if (TheSubr(fun)->rest_flag == subr_norest) {
+      /* SUBR without REST or KEY -> argument-list should be finished */
+      goto error_toomany;
+    } else {
+      /* SUBR with only REST, without KEY: treatment of remaining arguments */
+      rest_args_pointer = args_end_pointer;
+      argcount = 0;            /* counter for the remaining arguments */
       do {
         check_STACK();
-        pushSTACK(Cdr(args)); # remaining argument-list
-        eval(Car(args)); # evaluate next argument
-        args = STACK_0; STACK_0 = value1; # and into Stack
+        pushSTACK(Cdr(args));             /* remaining argument-list */
+        eval(Car(args));                  /* evaluate next argument */
+        args = STACK_0; STACK_0 = value1; /* and into Stack */
         argcount++;
       } while (consp(args));
       if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
         goto error_toomany;
-      # assign Keywords and poss. discard remaining arguments:
-      match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
     }
-   los: # call function
-    # remaining argument-list must be NIL :
-    if (!nullp(args)) goto error_dotted;
-    if (TheSubr(fun)->rest_flag == subr_norest) {
-      # SUBR without &REST-Flag:
-     apply_subr_norest:
-      with_saved_back_trace_subr(fun,STACK,-1,
-        (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
-    } else {
-      # SUBR with &REST-Flag:
-     apply_subr_rest:
-      with_saved_back_trace_subr(fun,STACK,
-                                 TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
-        (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
+  } else
+  apply_subr_key: { /* SUBR with Keywords. */
+    /* args = remaining argument-list (not yet finished)
+     First initialize the Keyword-parameters with #<UNBOUND> , then
+     evaluate the remaining arguments and push into Stack, then
+     assign the Keywords: */
+    var gcv_object_t* key_args_pointer = args_end_pointer; /* Pointer to Keyword-parameters */
+    /* initialize all Keyword-parameters with  #<UNBOUND> : */
+    {
+      var uintC count;
+      dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
     }
-    #if STACKCHECKS
-    if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
-      abort(); # no -> leave to Debugger
-    #endif
-    unwind(); # unwind EVAL-Frame
-    return; # finished
-    # Gathered error-messages:
-   error_toofew: # Argument-List args is prematurely an Atom
-    if (!nullp(args)) goto error_dotted;
-    set_args_end_pointer(args_pointer); # clean up STACK
-    error_eval_toofew(TheSubr(fun)->name);
-   error_toomany: # Argument-List args is not NIL at the end
-    if (atomp(args)) goto error_dotted;
-    set_args_end_pointer(args_pointer); # clean up STACK
-    error_eval_toomany(TheSubr(fun)->name);
-   error_dotted: # Argument-List args ends with Atom /= NIL
-    set_args_end_pointer(args_pointer); # clean up STACK
-    error_eval_dotted(TheSubr(fun)->name);
+    rest_args_pointer = args_end_pointer; /* Pointer to the remaining arguments */
+    /* evaluate all further arguments and into Stack: */
+    argcount = 0;              /* counter for the remaining arguments */
+    do {
+      check_STACK();
+      pushSTACK(Cdr(args));             /* remaining argument-list */
+      eval(Car(args));                  /* evaluate next argument */
+      args = STACK_0; STACK_0 = value1; /* and into Stack */
+      argcount++;
+    } while (consp(args));
+    if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
+      goto error_toomany;
+    /* assign Keywords and poss. discard remaining arguments: */
+    match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
   }
+ los:                           /* call function */
+  /* remaining argument-list must be NIL : */
+  if (!nullp(args)) goto error_dotted;
+  if (TheSubr(fun)->rest_flag == subr_norest) {
+    /* SUBR without &REST-Flag: */
+   apply_subr_norest:
+    with_saved_back_trace_subr(fun,STACK,-1,
+      (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
+  } else {
+    /* SUBR with &REST-Flag: */
+   apply_subr_rest:
+    with_saved_back_trace_subr(fun,STACK,
+                               TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
+      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
+  }
+  #if STACKCHECKS
+  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
+    abort();                               /* no -> leave to Debugger */
+  #endif
+  unwind();                  /* unwind EVAL-Frame */
+  return;                    /* finished */
+  /* Gathered error-messages: */
+ error_toofew:           /* Argument-List args is prematurely an Atom */
+  if (!nullp(args)) goto error_dotted;
+  set_args_end_pointer(args_pointer); /* clean up STACK */
+  error_eval_toofew(TheSubr(fun)->name);
+ error_toomany:           /* Argument-List args is not NIL at the end */
+  if (atomp(args)) goto error_dotted;
+  set_args_end_pointer(args_pointer); /* clean up STACK */
+  error_eval_toomany(TheSubr(fun)->name);
+ error_dotted:            /* Argument-List args ends with Atom /= NIL */
+  set_args_end_pointer(args_pointer); /* clean up STACK */
+  error_eval_dotted(TheSubr(fun)->name);
+}
 
-# In EVAL: Applies a Closure to an argument-list, cleans up the STACK
-# and returns the values.
-# eval_closure(fun);
-# > fun: function, a Closure
-# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
-# < STACK: cleaned up
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
-  local maygc Values eval_closure (object closure)
-  {
-    var object args = popSTACK(); # argument-list
-    skipSTACK(1); # forget value of *APPLYHOOK*
-    # STACK-layout: EVAL-Frame.
-    check_SP(); check_STACK();
-    pushSTACK(closure); # save Closure
-    var gcv_object_t* closure_ = &STACK_0; # and memorize, where it is
-    var gcv_object_t* STACKbefore = STACK;
-    if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-      # closure is a compiled Closure
-      var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-      # push arguments evaluated into STACK:
-      # first a dispatch for the most important cases:
-      switch (TheCodevec(codevec)->ccv_signature) {
-        # Macro for a required-argument:
-        #define REQ_ARG()  \
-          { if (atomp(args)) goto error_toofew;                \
-            pushSTACK(Cdr(args)); # remaining arguments          \
-            eval(Car(args)); # evaluate next argument            \
-            args = STACK_0; STACK_0 = value1; # and into STACK   \
-          }
-        # Macro for the n-last optional-argument:
-        #define OPT_ARG(n)  \
-          { if (atomp(args)) goto unbound_optional_##n ;         \
-            pushSTACK(Cdr(args)); # remaining arguments          \
-            eval(Car(args)); # evaluate next argument            \
-            args = STACK_0; STACK_0 = value1; # and into STACK   \
-          }
-        case (uintB)cclos_argtype_5_0:
-          # 5 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_4_0:
-          # 4 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0:
-          # 3 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0:
-          # 2 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0:
-          # 1 required-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_0:
-          # no Arguments
-        noch_0_opt_args:
-          if (!nullp(args)) goto error_toomany;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_1:
-          # 4 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_1:
-          # 3 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_1:
-          # 2 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_1:
-          # 1 required-Argument and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_1:
-          # 1 optional-Argument
-        noch_1_opt_args:
-          OPT_ARG(1);
-          goto noch_0_opt_args;
-        case (uintB)cclos_argtype_3_2:
-          # 3 required-Arguments and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_2:
-          # 2 required-Arguments and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_2:
-          # 1 required-Argument and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_2:
-          # 2 optional-Arguments
-        noch_2_opt_args:
-          OPT_ARG(2);
-          goto noch_1_opt_args;
-        case (uintB)cclos_argtype_2_3:
-          # 2 required-Arguments and 3 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_3:
-          # 1 required-Argument and 3 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_3:
-          # 3 optional-Arguments
-        noch_3_opt_args:
-          OPT_ARG(3);
-          goto noch_2_opt_args;
-        case (uintB)cclos_argtype_1_4:
-          # 1 required-Argument and 4 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_4:
-          # 4 optional-Arguments
-        noch_4_opt_args:
-          OPT_ARG(4);
-          goto noch_3_opt_args;
-        case (uintB)cclos_argtype_0_5:
-          # 5 optional-Arguments
-          OPT_ARG(5);
-          goto noch_4_opt_args;
-        unbound_optional_5: # Still 5 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_4: # Still 4 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_3: # Still 3 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_2: # Still 2 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_1: # Still 1 optional Argument, but atomp(args)
-          pushSTACK(unbound);
-          if (!nullp(args)) goto error_dotted;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_0_rest:
-          # 4 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0_rest:
-          # 3 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0_rest:
-          # 2 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0_rest:
-          # 1 required-Argument, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_0_rest:
-          # no Arguments, Rest-Parameter
-          if (consp(args)) goto apply_cclosure_rest_nokey;
-          if (!nullp(args)) goto error_dotted;
-          pushSTACK(NIL); # Rest-Parameter := NIL
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_0_key:
-          # 4 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0_key:
-          # 3 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0_key:
-          # 2 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0_key:
-          # 1 required-Argument, Keyword-Arguments
-          REQ_ARG();
-        noch_0_opt_args_key:
-          closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
-        case (uintB)cclos_argtype_0_0_key:
-          # only Keyword-Arguments
-          if (atomp(args)) goto unbound_optional_key_0;
-          goto apply_cclosure_key;
-        case (uintB)cclos_argtype_3_1_key:
-          # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_1_key:
-          # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_1_key:
-          # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_1_key:
-          # 1 optional-Argument, Keyword-Arguments
-        noch_1_opt_args_key:
-          OPT_ARG(key_1);
-          goto noch_0_opt_args_key;
-        case (uintB)cclos_argtype_2_2_key:
-          # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_2_key:
-          # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_2_key:
-          # 2 optional-Arguments, Keyword-Arguments
-        noch_2_opt_args_key:
-          OPT_ARG(key_2);
-          goto noch_1_opt_args_key;
-        case (uintB)cclos_argtype_1_3_key:
-          # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_3_key:
-          # 3 optional-Arguments, Keyword-Arguments
-        noch_3_opt_args_key:
-          OPT_ARG(key_3);
-          goto noch_2_opt_args_key;
-        case (uintB)cclos_argtype_0_4_key:
-          # 4 optional-Arguments, Keyword-Arguments
-          OPT_ARG(key_4);
-          goto noch_3_opt_args_key;
-        unbound_optional_key_4: # Still 4 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_3: # Still 3 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_2: # Still 2 optional Arguments, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_1: # Still 1 optional Argument, but atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_0: # Before the Keywords is atomp(args)
-          if (!nullp(args)) goto error_dotted;
-          goto apply_cclosure_key_noargs;
-        case (uintB)cclos_argtype_default:
-          # General Version
-          break;
-        default: NOTREACHED;
-        #undef OPT_ARG
-        #undef REQ_ARG
-      }
-      # Now the general Version:
-      {
-        var uintL req_count = TheCodevec(codevec)->ccv_numreq; /* number of required parameters */
-        var uintL opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional parameters */
-        var uintB flags = TheCodevec(codevec)->ccv_flags; /* Flags */
-        # reserve space on STACK:
-        get_space_on_STACK(sizeof(gcv_object_t) * (req_count+opt_count));
-        # evaluate required parameters and push into Stack:
-        {
-          var uintC count;
-          dotimesC(count,req_count, {
-            if (atomp(args)) goto error_toofew; # argument-list finished?
-            pushSTACK(Cdr(args)); # remaining argument-list
-            eval(Car(args)); # evaluate nnext argument
-            args = STACK_0; STACK_0 = value1; # and into Stack
-          });
+/* In EVAL: Applies a Closure to an argument-list, cleans up the STACK
+ and returns the values.
+ eval_closure(fun);
+ > fun: function, a Closure
+ > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+ < STACK: cleaned up
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
+local maygc Values eval_closure (object closure)
+{
+  var object args = popSTACK(); /* argument-list */
+  skipSTACK(1);                 /* forget value of *APPLYHOOK* */
+  /* STACK-layout: EVAL-Frame. */
+  check_SP(); check_STACK();
+  pushSTACK(closure);                    /* save Closure */
+  var gcv_object_t* closure_ = &STACK_0; /* and memorize, where it is */
+  var gcv_object_t* STACKbefore = STACK;
+  if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
+    /* closure is a compiled Closure */
+    var object codevec = TheCclosure(closure)->clos_codevec; /* Code-Vector */
+    /* push arguments evaluated into STACK:
+     first a dispatch for the most important cases: */
+    switch (TheCodevec(codevec)->ccv_signature) {
+      /* Macro for a required-argument: */
+      #define REQ_ARG()                                                 \
+        { if (atomp(args)) goto error_toofew;                           \
+          pushSTACK(Cdr(args));    /* remaining arguments */            \
+          eval(Car(args));         /* evaluate next argument */         \
+          args = STACK_0; STACK_0 = value1;       /* and into STACK */  \
         }
-        { /* evaluate optional parameters and push into Stack: */
-          var uintC count = opt_count;
-          while (!atomp(args)) { /* argument-list not finished? */
-            if (count==0) # all optional parameters supplied with?
-              goto optionals_ok;
-            count--;
-            pushSTACK(Cdr(args)); # remaining argument-list
-            eval(Car(args)); # evaluate next argument
-            args = STACK_0; STACK_0 = value1; # and into Stack
-          }
-          # argument-list finished.
-          if (!nullp(args)) goto error_dotted;
-          # All further count optional parameters get the "value"
-          # #<UNBOUND>, the &REST-parameter gets the value NIL,
-          # the Keyword-parameter gets the value #<UNBOUND> :
-          dotimesC(count,count, { pushSTACK(unbound); } );
+      /* Macro for the n-last optional-argument: */
+      #define OPT_ARG(n)                                                \
+        { if (atomp(args)) goto unbound_optional_##n ;                  \
+          pushSTACK(Cdr(args));    /* remaining arguments */            \
+          eval(Car(args));         /* evaluate next argument */         \
+          args = STACK_0; STACK_0 = value1;       /* and into STACK */  \
         }
-        closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
-        if (flags & bit(0)) # &REST-Flag?
-          pushSTACK(NIL); # yes -> initialize with NIL
-        if (flags & bit(7)) # &KEY-Flag?
-          goto apply_cclosure_key_noargs;
-        else
-          goto apply_cclosure_nokey_;
-       optionals_ok:
-        # process Rest- and Keyword-parameters.
-        # args = remaining argument-list (not yet finished)
-        closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
-        if (flags == 0)
-          # Closure without REST or KEY -> argument-list should be finished
-          goto error_toomany;
-        else if (flags & bit(7)) { # Key-Flag?
-          # Closure with Keywords.
-          # args = remaining argument-list (not yet finished)
-          # First initialize the Keyword-parameters with #<UNBOUND> , then
-          # evaluate the remaining arguments and push into Stack, then
-          # assign the Keywords:
-          # poss. initialize the Rest-Parameter:
-          if (flags & bit(0))
-            pushSTACK(unbound);
-          goto apply_cclosure_key;
-        } else
-            goto apply_cclosure_rest_nokey;
-      }
-     apply_cclosure_key_noargs:
-      {
-        var uintC count = TheCodevec(codevec)->ccv_numkey; # number of Keyword-parameters
-        dotimesC(count,count, { pushSTACK(unbound); } ); # initialize with #<UNBOUND>
-        interpret_bytecode(closure,codevec,CCV_START_KEY); # interprete bytecode starting at Byte 12
-      }
-      goto done;
-     apply_cclosure_key: # jump to Closure only with &KEY:
-      {
-        var gcv_object_t* key_args_pointer = args_end_pointer; # Pointer to Keyword-Parameter
-        # initialize all Keyword-parameters with #<UNBOUND> :
-        {
-          var uintC count = TheCodevec(codevec)->ccv_numkey;
-          dotimesC(count,count, { pushSTACK(unbound); } );
-        }
-        var gcv_object_t* rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
-        # evaluate all further arguments and push into Stack:
-        var uintL argcount = 0; # counter for the remaining arguments
-        do {
-          check_STACK();
-          pushSTACK(Cdr(args)); # remaining argument-list
-          eval(Car(args)); # evaluate next argument
-          args = STACK_0; STACK_0 = value1; # and into Stack
-          argcount++;
-        } while (consp(args));
-        # argument-list finished.
+      case (uintB)cclos_argtype_5_0: /* 5 required arguments */
+        REQ_ARG();
+      case (uintB)cclos_argtype_4_0: /* 4 required arguments */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_0: /* 3 required arguments */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_0: /* 2 required arguments */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_0: /* 1 required argument */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_0: /* no Arguments */
+      noch_0_opt_args:
+        if (!nullp(args)) goto error_toomany;
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_1: /* 4 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_1: /* 3 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_1: /* 2 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_1: /* 1 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_1: /* 1 optional argument */
+      noch_1_opt_args:
+        OPT_ARG(1);
+        goto noch_0_opt_args;
+      case (uintB)cclos_argtype_3_2: /* 3 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_2: /* 2 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_2: /* 1 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_2: /* 2 optional arguments */
+      noch_2_opt_args:
+        OPT_ARG(2);
+        goto noch_1_opt_args;
+      case (uintB)cclos_argtype_2_3: /* 2 required and 3 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_3: /* 1 required and 3 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_3: /* 3 optional arguments */
+      noch_3_opt_args:
+        OPT_ARG(3);
+        goto noch_2_opt_args;
+      case (uintB)cclos_argtype_1_4: /* 1 required and 4 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_4: /* 4 optional arguments */
+      noch_4_opt_args:
+        OPT_ARG(4);
+        goto noch_3_opt_args;
+      case (uintB)cclos_argtype_0_5: /* 5 optional arguments */
+        OPT_ARG(5);
+        goto noch_4_opt_args;
+      unbound_optional_5: /* Still 5 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_4: /* Still 4 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_3: /* Still 3 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_2: /* Still 2 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_1: /* Still 1 optional Argument, but atomp(args) */
+        pushSTACK(unbound);
         if (!nullp(args)) goto error_dotted;
-        # assign Keywords, build Rest-Parameter
-        # and poss. discard remaining arguments:
-        closure = match_cclosure_key(*closure_,argcount,key_args_pointer,rest_args_pointer);
-        codevec = TheCclosure(closure)->clos_codevec;
-        interpret_bytecode(closure,codevec,CCV_START_KEY); # interprete bytecode starting at Byte 12
-      }
-      goto done;
-     apply_cclosure_rest_nokey:
-      # Closure with only REST, without KEY:
-      # evaluate remaining arguments one by on, put into list
-      # args = remaining argument-list (not yet finished)
-      pushSTACK(NIL); # so far evaluated remaining arguments
-      pushSTACK(args); # remaining arguments, unevaluated
-      do {
-        args = STACK_0; STACK_0 = Cdr(args);
-        eval(Car(args)); # evaluate next argument
-        pushSTACK(value1);
-        # and cons onto the list:
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK();
-        Cdr(new_cons) = STACK_1;
-        STACK_1 = new_cons;
-      } while (mconsp(STACK_0));
-      args = popSTACK();
-      # reverse list STACK_0 and use as REST-parameter:
-      nreverse(STACK_0);
-      # argument-list finished.
-      if (!nullp(args)) goto error_dotted;
-     apply_cclosure_nokey: # jump to Closure without &KEY :
-      closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
-     apply_cclosure_nokey_:
-      interpret_bytecode(closure,codevec,CCV_START_NONKEY); # interprete bytecode starting at Byte 8
-     done:
-      #if STACKCHECKC
-      if (!(STACK == STACKbefore)) # STACK as before?
-        abort(); # no -> go to Debugger
-      #endif
-      skipSTACK(1); # discard Closure
-      unwind(); # unwind EVAL-Frame
-      return; # finished
-    } else {
-      # closure is an interpreted Closure
-      var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
-      var uintC args_on_stack = 0; # Anzahl der Argumente
-      while (consp(args)) {
-        pushSTACK(Cdr(args)); # save rest of list
-        eval(Car(args)); # evaluate next element
-        args = STACK_0; STACK_0 = value1; # result into STACK
-        args_on_stack += 1;
-        if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
-          goto error_toomany;
-      }
-      with_saved_back_trace_iclosure(*closure_,args_pointer,args_on_stack,
-        funcall_iclosure(*closure_,args_pointer,args_on_stack); );
-      skipSTACK(1); # discard Closure
-      unwind(); # unwind EVAL-Frame
-      return; # finished
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_0_rest: /* 4 required  + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_0_rest: /* 3 required  + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_0_rest: /* 2 required  + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_0_rest: /* 1 required  + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_0_rest: /* no Arguments, Rest-Parameter */
+        if (consp(args)) goto apply_cclosure_rest_nokey;
+        if (!nullp(args)) goto error_dotted;
+        pushSTACK(NIL);         /* Rest-Parameter := NIL */
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_0_key: /* 4 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_0_key: /* 3 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_0_key: /* 2 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_0_key: /* 1 required argument, &key */
+        REQ_ARG();
+      noch_0_opt_args_key:
+        closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
+      case (uintB)cclos_argtype_0_0_key:
+        /* only &key */
+        if (atomp(args)) goto unbound_optional_key_0;
+        goto apply_cclosure_key;
+      case (uintB)cclos_argtype_3_1_key:
+        /* 3 required arguments and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_1_key:
+        /* 2 required arguments and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_1_key:
+        /* 1 required argument and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_1_key:
+        /* 1 optional argument, &key */
+      noch_1_opt_args_key:
+        OPT_ARG(key_1);
+        goto noch_0_opt_args_key;
+      case (uintB)cclos_argtype_2_2_key: /* 2 required and 2 optional, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_2_key: /* 1 required and 2 optional, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_2_key: /* 2 optional arguments, &key */
+      noch_2_opt_args_key:
+        OPT_ARG(key_2);
+        goto noch_1_opt_args_key;
+      case (uintB)cclos_argtype_1_3_key: /* 1 required and 3 optional, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_3_key: /* 3 optional arguments, &key */
+      noch_3_opt_args_key:
+        OPT_ARG(key_3);
+        goto noch_2_opt_args_key;
+      case (uintB)cclos_argtype_0_4_key: /* 4 optional arguments, &key */
+        OPT_ARG(key_4);
+        goto noch_3_opt_args_key;
+      unbound_optional_key_4: /* Still 4 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_3: /* Still 3 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_2: /* Still 2 optional Arguments, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_1: /* Still 1 optional Argument, but atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_0:   /* Before the Keywords is atomp(args) */
+        if (!nullp(args)) goto error_dotted;
+        goto apply_cclosure_key_noargs;
+      case (uintB)cclos_argtype_default:
+        /* General Version */
+        break;
+      default: NOTREACHED;
+      #undef OPT_ARG
+      #undef REQ_ARG
     }
-    # Gathered errormessages:
-   error_toofew: # Argument-list args is prematurely an Atom
+    /* Now the general Version: */
+    {
+      var uintL req_count = TheCodevec(codevec)->ccv_numreq; /* number of required parameters */
+      var uintL opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional parameters */
+      var uintB flags = TheCodevec(codevec)->ccv_flags; /* Flags */
+      /* reserve space on STACK: */
+      get_space_on_STACK(sizeof(gcv_object_t) * (req_count+opt_count));
+      /* evaluate required parameters and push into Stack: */
+      {
+        var uintC count;
+        dotimesC(count,req_count, {
+          if (atomp(args)) goto error_toofew; /* argument-list finished? */
+          pushSTACK(Cdr(args)); /* remaining argument-list */
+          eval(Car(args));      /* evaluate nnext argument */
+          args = STACK_0; STACK_0 = value1; /* and into Stack */
+        });
+      }
+      { /* evaluate optional parameters and push into Stack: */
+        var uintC count = opt_count;
+        while (!atomp(args)) { /* argument-list not finished? */
+          if (count==0)     /* all optional parameters supplied with? */
+            goto optionals_ok;
+          count--;
+          pushSTACK(Cdr(args)); /* remaining argument-list */
+          eval(Car(args));      /* evaluate next argument */
+          args = STACK_0; STACK_0 = value1; /* and into Stack */
+        }
+        /* argument-list finished. */
+        if (!nullp(args)) goto error_dotted;
+        /* All further count optional parameters get the "value"
+         #<UNBOUND>, the &REST-parameter gets the value NIL,
+         the Keyword-parameter gets the value #<UNBOUND> : */
+        dotimesC(count,count, { pushSTACK(unbound); } );
+      }
+      closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
+      if (flags & bit(0))       /* &REST-Flag? */
+        pushSTACK(NIL);         /* yes -> initialize with NIL */
+      if (flags & bit(7))       /* &KEY-Flag? */
+        goto apply_cclosure_key_noargs;
+      else
+        goto apply_cclosure_nokey_;
+     optionals_ok:
+      /* process Rest- and Keyword-parameters.
+       args = remaining argument-list (not yet finished) */
+      closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
+      if (flags == 0)
+        /* Closure without REST or KEY -> argument-list should be finished */
+        goto error_toomany;
+      else if (flags & bit(7)) { /* Key-Flag? */
+        /* Closure with Keywords.
+         args = remaining argument-list (not yet finished)
+         First initialize the Keyword-parameters with #<UNBOUND> , then
+         evaluate the remaining arguments and push into Stack, then
+         assign the Keywords:
+         poss. initialize the Rest-Parameter: */
+        if (flags & bit(0))
+          pushSTACK(unbound);
+        goto apply_cclosure_key;
+      } else
+          goto apply_cclosure_rest_nokey;
+    }
+   apply_cclosure_key_noargs:
+    {
+      var uintC count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
+      dotimesC(count,count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interprete bytecode starting at Byte 12 */
+    }
+    goto done;
+   apply_cclosure_key:          /* jump to Closure only with &KEY: */
+    {
+      var gcv_object_t* key_args_pointer = args_end_pointer; /* Pointer to Keyword-Parameter */
+      /* initialize all Keyword-parameters with #<UNBOUND> : */
+      {
+        var uintC count = TheCodevec(codevec)->ccv_numkey;
+        dotimesC(count,count, { pushSTACK(unbound); } );
+      }
+      var gcv_object_t* rest_args_pointer = args_end_pointer; /* Pointer to the remaining arguments */
+      /* evaluate all further arguments and push into Stack: */
+      var uintL argcount = 0;  /* counter for the remaining arguments */
+      do {
+        check_STACK();
+        pushSTACK(Cdr(args));             /* remaining argument-list */
+        eval(Car(args));                  /* evaluate next argument */
+        args = STACK_0; STACK_0 = value1; /* and into Stack */
+        argcount++;
+      } while (consp(args));
+      /* argument-list finished. */
+      if (!nullp(args)) goto error_dotted;
+      /* assign Keywords, build Rest-Parameter
+       and poss. discard remaining arguments: */
+      closure = match_cclosure_key(*closure_,argcount,key_args_pointer,rest_args_pointer);
+      codevec = TheCclosure(closure)->clos_codevec;
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interprete bytecode starting at Byte 12 */
+    }
+    goto done;
+   apply_cclosure_rest_nokey:
+    /* Closure with only REST, without KEY:
+     evaluate remaining arguments one by on, put into list
+     args = remaining argument-list (not yet finished) */
+    pushSTACK(NIL);           /* so far evaluated remaining arguments */
+    pushSTACK(args);          /* remaining arguments, unevaluated */
+    do {
+      args = STACK_0; STACK_0 = Cdr(args);
+      eval(Car(args));          /* evaluate next argument */
+      pushSTACK(value1);
+      /* and cons onto the list: */
+      var object new_cons = allocate_cons();
+      Car(new_cons) = popSTACK();
+      Cdr(new_cons) = STACK_1;
+      STACK_1 = new_cons;
+    } while (mconsp(STACK_0));
+    args = popSTACK();
+    /* reverse list STACK_0 and use as REST-parameter: */
+    nreverse(STACK_0);
+    /* argument-list finished. */
     if (!nullp(args)) goto error_dotted;
-    setSTACK(STACK = STACKbefore); # clean up STACK
-    closure = popSTACK();
-    error_eval_toofew(Closure_name(closure));
-   error_toomany: # Argument-list args is not NIL at the end
-    if (atomp(args)) goto error_dotted;
-    setSTACK(STACK = STACKbefore); # clean up STACK
-    closure = popSTACK();
-    error_eval_toomany(Closure_name(closure));
-   error_dotted: # Argument-list args ends with Atom /= NIL
-    setSTACK(STACK = STACKbefore); # clean up STACK
-    closure = popSTACK();
-    error_eval_dotted(Closure_name(closure));
+   apply_cclosure_nokey:        /* jump to Closure without &KEY : */
+    closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
+   apply_cclosure_nokey_:
+    interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* interprete bytecode starting at Byte 8 */
+   done:
+    #if STACKCHECKC
+    if (!(STACK == STACKbefore)) /* STACK as before? */
+      abort();                   /* no -> go to Debugger */
+    #endif
+    skipSTACK(1);               /* discard Closure */
+    unwind();                   /* unwind EVAL-Frame */
+    return;                     /* finished */
+  } else {
+    /* closure is an interpreted Closure */
+    var gcv_object_t* args_pointer = args_end_pointer; /* Pointer to the arguments */
+    var uintC args_on_stack = 0; /* Anzahl der Argumente */
+    while (consp(args)) {
+      pushSTACK(Cdr(args));             /* save rest of list */
+      eval(Car(args));                  /* evaluate next element */
+      args = STACK_0; STACK_0 = value1; /* result into STACK */
+      args_on_stack += 1;
+      if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
+        goto error_toomany;
+    }
+    with_saved_back_trace_iclosure(*closure_,args_pointer,args_on_stack,
+      funcall_iclosure(*closure_,args_pointer,args_on_stack); );
+    skipSTACK(1);               /* discard Closure */
+    unwind();                   /* unwind EVAL-Frame */
+    return;                     /* finished */
   }
+  /* Gathered errormessages: */
+ error_toofew:           /* Argument-list args is prematurely an Atom */
+  if (!nullp(args)) goto error_dotted;
+  setSTACK(STACK = STACKbefore); /* clean up STACK */
+  closure = popSTACK();
+  error_eval_toofew(Closure_name(closure));
+ error_toomany:           /* Argument-list args is not NIL at the end */
+  if (atomp(args)) goto error_dotted;
+  setSTACK(STACK = STACKbefore); /* clean up STACK */
+  closure = popSTACK();
+  error_eval_toomany(Closure_name(closure));
+ error_dotted:            /* Argument-list args ends with Atom /= NIL */
+  setSTACK(STACK = STACKbefore); /* clean up STACK */
+  closure = popSTACK();
+  error_eval_dotted(Closure_name(closure));
+}
 
 #ifdef DYNAMIC_FFI
-# In EVAL: Applies a Foreign-Function to an argument-list,
-# cleans up STACK and returns the values.
-# eval_ffunction(fun);
-# > fun: function, a Foreign-Function
-# > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
-# < STACK: cleaned up
-# < mv_count/mv_space: values
-# changes STACK
-# can trigger GC
+/* In EVAL: Applies a Foreign-Function to an argument-list,
+ cleans up STACK and returns the values.
+ eval_ffunction(fun);
+ > fun: function, a Foreign-Function
+ > STACK-layout: EVAL-Frame, *APPLYHOOK*, argument-list.
+ < STACK: cleaned up
+ < mv_count/mv_space: values
+ changes STACK
+ can trigger GC */
 local maygc Values eval_ffunction(object ffun) {
-  var object args = popSTACK(); # Argument-list
-  skipSTACK(1); # skip value of *APPLYHOOK*
-  # STACK-layout: EVAL-Frame.
-  # (ffun arg ...) --> (FFI::FOREIGN-CALL-OUT ffun arg ...)
+  var object args = popSTACK(); /* Argument-list */
+  skipSTACK(1);                 /* skip value of *APPLYHOOK* */
+  /* STACK-layout: EVAL-Frame.
+   (ffun arg ...) --> (FFI::FOREIGN-CALL-OUT ffun arg ...) */
   check_SP(); check_STACK();
-  pushSTACK(ffun); # Foreign-Function as 1. Argument
+  pushSTACK(ffun);              /* Foreign-Function as 1st Argument */
   {
-    var gcv_object_t* args_pointer = args_end_pointer; # Pointer to the arguments
-    var uintC args_on_stack = 1; # number of arguments
+    var gcv_object_t* args_pointer = args_end_pointer; /* Pointer to the arguments */
+    var uintC args_on_stack = 1; /* number of arguments */
     while (consp(args)) {
-      pushSTACK(Cdr(args)); # save list-rest
-      eval(Car(args)); # evaluate next element
-      args = STACK_0; STACK_0 = value1; # result into STACK
+      pushSTACK(Cdr(args));             /* save list-rest */
+      eval(Car(args));                  /* evaluate next element */
+      args = STACK_0; STACK_0 = value1; /* result into STACK */
       args_on_stack += 1;
       if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1)) {
         set_args_end_pointer(args_pointer);
@@ -3986,15 +3918,15 @@ local maygc Values eval_ffunction(object ffun) {
     }
     funcall(L(foreign_call_out),args_on_stack);
   }
-  unwind(); # unwind EVAL-Frame
-  return; # finished
+  unwind();                     /* unwind EVAL-Frame */
+  return;                       /* finished */
 }
 #endif
 
 
-#          ----------------------- A P P L Y -----------------------
+/* ----------------------- A P P L Y ----------------------- */
 
-# later:
+/* later: */
 local Values apply_subr (object fun, uintC args_on_stack, object other_args);
 local Values apply_closure(object fun, uintC args_on_stack, object other_args);
 
@@ -4089,8 +4021,8 @@ global maygc Values apply (object fun, uintC args_on_stack, object other_args)
   goto apply_restart;
 }
 
-# Error because of dotted argument-list
-# > name: name of function
+/* Error because of dotted argument-list
+ > name: name of function */
 nonreturning_function(local, error_apply_dotted, (object name, object end)) {
   pushSTACK(end);
   pushSTACK(name);
@@ -4098,23 +4030,23 @@ nonreturning_function(local, error_apply_dotted, (object name, object end)) {
   error(program_error,GETTEXT("~S: argument list given to ~S is dotted (terminated by ~S)"));
 }
 
-# Error because of too many arguments
-# > name: name of function
+/* Error because of too many arguments
+ > name: name of function */
 nonreturning_function(local, error_apply_toomany, (object name)) {
   pushSTACK(name);
   /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
   error(program_error,GETTEXT("APPLY: too many arguments given to ~S"));
 }
 
-# Error because of too few arguments
-# > name: name of function
-# > tail: atom at the end of the argument list
+/* Error because of too few arguments
+ > name: name of function
+ > tail: atom at the end of the argument list */
 nonreturning_function(local, error_apply_toofew, (object name, object tail)) {
   if (!nullp(tail)) {
     pushSTACK(tail); /* ARGUMENT-LIST-DOTTED slot DATUM */
     pushSTACK(tail); pushSTACK(name);
     error(argument_list_dotted,
-           GETTEXT("APPLY: dotted argument list given to ~S : ~S"));
+          GETTEXT("APPLY: dotted argument list given to ~S : ~S"));
   } else {
     pushSTACK(name);
     /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
@@ -4122,219 +4054,546 @@ nonreturning_function(local, error_apply_toofew, (object name, object tail)) {
   }
 }
 
-# Error because of too many arguments for a SUBR
-# > fun: function, a SUBR
+/* Error because of too many arguments for a SUBR
+ > fun: function, a SUBR */
 nonreturning_function(local, error_subr_toomany, (object fun));
 #define error_subr_toomany(fun)  error_apply_toomany(TheSubr(fun)->name)
 
-# Error because of too few arguments for a SUBR
-# > fun: function, a SUBR
-# > tail: atom at the end of the argument list
+/* Error because of too few arguments for a SUBR
+ > fun: function, a SUBR
+ > tail: atom at the end of the argument list */
 nonreturning_function(local, error_subr_toofew, (object fun, object tail));
 #define error_subr_toofew(fun,tail)  \
   error_apply_toofew(TheSubr(fun)->name,tail)
 
-# In APPLY: Applies a SUBR to an argument-list, cleans up STACK
-# and returns the values.
-# apply_subr(fun,args_on_stack,other_args);
-# > fun: function, a SUBR
-# > Arguments: args_on_stack Arguments on STACK,
-#              remaining argument-list in other_args
-# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
+/* In APPLY: Applies a SUBR to an argument-list, cleans up STACK
+ and returns the values.
+ apply_subr(fun,args_on_stack,other_args);
+ > fun: function, a SUBR
+ > Arguments: args_on_stack Arguments on STACK,
+              remaining argument-list in other_args
+ < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
+{
+  #if STACKCHECKS
+  var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; /* Pointer to the arguments */
+  #endif
+  var gcv_object_t* key_args_pointer; /* Pointer to the &key */
+  var gcv_object_t* rest_args_pointer; /* Pointer to the remaining Arguments */
+  var uintL argcount;           /* number of remaining Arguments */
+  TRACE_CALL(fun,'A','S');
+  /* push Arguments on STACK:
+   first a Dispatch for the most important cases: */
+  switch (TheSubr(fun)->argtype) {
+    /* Macro for a required argument: */
+    #define REQ_ARG()  \
+      { if (args_on_stack>0) { args_on_stack--; }                     \
+        else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+        else goto error_toofew;                                       \
+      }
+    /* Macro for the n-last optional argument: */
+    #define OPT_ARG(n)  \
+      { if (args_on_stack>0) { args_on_stack--; }                      \
+        else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+        else goto unbound_optional_##n;                                \
+      }
+    case (uintW)subr_argtype_6_0: /* SUBR with 6 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_5_0: /* SUBR with 5 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_4_0: /* SUBR with 4 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_0: /* SUBR with 3 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0: /* SUBR with 2 required arguments */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0: /* SUBR with 1 required argument */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0: /* SUBR without Arguments */
+      if ((args_on_stack>0) || consp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_4_1: /* SUBR with 4 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_1: /* SUBR with 3 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_1: /* SUBR with 2 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_1: /* SUBR with 1 required and 1 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_1: /* SUBR with 1 optional argument */
+      OPT_ARG(1);
+      if ((args_on_stack>0) || consp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_3_2: /* SUBR with 3 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_2: /* SUBR with 2 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_2: /* SUBR with 1 required and 2 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_2: /* SUBR with 2 optional arguments */
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if ((args_on_stack>0) || consp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_2_3: /* SUBR with 2 required and 3 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_3: /* SUBR with 1 required and 3 optional */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_3: /* SUBR with 3 optional arguments */
+      OPT_ARG(3);
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if ((args_on_stack>0) || consp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_0_5: /* SUBR with 5 optional arguments */
+      OPT_ARG(5);
+    case (uintW)subr_argtype_0_4: /* SUBR with 4 optional arguments */
+      OPT_ARG(4);
+      OPT_ARG(3);
+      OPT_ARG(2);
+      OPT_ARG(1);
+      if ((args_on_stack>0) || consp(args)) goto error_toomany;
+      goto apply_subr_norest;
+    unbound_optional_5: /* Still 5 optionals Arguments, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_4: /* Still 4 optional Arguments, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_3: /* Still 3 optional Arguments, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_2: /* Still 2 optional Arguments, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_1: /* Still 1 optionals Argument, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_3_0_rest: /* SUBR with 3 required and &rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0_rest: /* SUBR with 2 required and &rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0_rest: /* SUBR with 1 required and &rest */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0_rest: /* SUBR with rest arguments */
+      if (args_on_stack==0)
+        goto apply_subr_rest_onlylist;
+      else
+        goto apply_subr_rest_withlist;
+    case (uintW)subr_argtype_4_0_key: /* SUBR with 4 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_3_0_key: /* SUBR with 3 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_2_0_key: /* SUBR with 2 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_1_0_key: /* SUBR with 1 required and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_0_key: /* SUBR with &key */
+      if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    case (uintW)subr_argtype_1_1_key:
+      /* SUBR with 1 required argument, 1 optional argument and &key */
+      REQ_ARG();
+    case (uintW)subr_argtype_0_1_key:
+      /* SUBR with 1 optional argument and &key */
+      OPT_ARG(key_1);
+      if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    case (uintW)subr_argtype_1_2_key:
+      /* SUBR with 1 required argument, 2 optional arguments and &key */
+      REQ_ARG();
+      OPT_ARG(key_2);
+      OPT_ARG(key_1);
+      if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
+      goto apply_subr_key;
+    unbound_optional_key_2: /* Still 2 optional Arguments, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_key_1: /* Still 1 optional Argument, but args_on_stack=0 and atomp(args) */
+      pushSTACK(unbound);
+    unbound_optional_key_0: /* Before the Keywords is args_on_stack=0 and atomp(args) */
+      {
+        var uintC count;
+        dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
+      }
+      goto apply_subr_norest;
+    default: NOTREACHED;
+    #undef OPT_ARG
+    #undef REQ_ARG
+  }
+  /* Now the general Version: */
   {
-    #if STACKCHECKS
-    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
-    #endif
-    var gcv_object_t* key_args_pointer; # Pointer to the Keyword-Arguments
-    var gcv_object_t* rest_args_pointer; # Pointer to the remaining Arguments
-    var uintL argcount; # number of remaining Arguments
-    TRACE_CALL(fun,'A','S');
-    # push Arguments on STACK:
-    # first a Dispatch for the most important cases:
-    switch (TheSubr(fun)->argtype) {
-      # Macro for a required-Argument:
-      #define REQ_ARG()  \
-        { if (args_on_stack>0) { args_on_stack--; }                     \
-          else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
-          else goto error_toofew;                                       \
+    var uintC key_count;
+    {
+      var uintC req_count = TheSubr(fun)->req_count;
+      var uintC opt_count = TheSubr(fun)->opt_count;
+      key_count = TheSubr(fun)->key_count;
+      if (args_on_stack < req_count) {
+        /* fewer Arguments there than required */
+        req_count = req_count - args_on_stack; /* as many as these must go on STACK */
+        /* reserve space on STACK: */
+        get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count + key_count));
+        /* store required Parameter in Stack: */
+        {
+          var uintC count;
+          dotimespC(count,req_count, {
+            if (atomp(args))
+              goto error_toofew;
+            pushSTACK(Car(args)); /* store next Argument */
+            args = Cdr(args);
+          });
         }
-      # Macro for the n-last optional-Argument:
+        goto optionals_from_list;
+      }
+      args_on_stack -= req_count; /* remaining number */
+      if (args_on_stack < opt_count) {
+        /* Arguments in Stack don't last for the optional ones */
+        opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+        /* reserve space on STACK: */
+        get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
+       optionals_from_list:
+        { /* store optional Parameters on Stack: */
+          var uintC count = opt_count;
+          while (!atomp(args)) { /* argument-list not finished? */
+            if (count==0) /* all optional Parameters supplied with? */
+              goto optionals_ok;
+            count--;
+            pushSTACK(Car(args)); /* store next Argument */
+            args = Cdr(args);
+          }
+          /* Argument-list finished.
+           All further count optional Parameters receive the "value"
+           #<UNBOUND>, including the Keyword-Parameters: */
+          dotimesC(count,count + key_count, { pushSTACK(unbound); } );
+          if (TheSubr(fun)->rest_flag == subr_rest) { /* &REST-Flag? */
+            /* yes -> 0 additional Arguments: */
+            argcount = 0; rest_args_pointer = args_end_pointer;
+            goto apply_subr_rest;
+          } else {
+            /* no -> nothing to do */
+            goto apply_subr_norest;
+          }
+        }
+       optionals_ok: /* optional Argument OK, continue processing (non-empty) list */
+        if (TheSubr(fun)->key_flag == subr_nokey) {
+          /* SUBR without KEY */
+          if (TheSubr(fun)->rest_flag == subr_norest)
+            /* SUBR without REST or KEY */
+            error_subr_toomany(fun); /* too many Arguments */
+          else
+            /* SUBR with only REST, without KEY */
+            goto apply_subr_rest_onlylist;
+        } else {
+          /* SUBR with KEY */
+          key_args_pointer = args_end_pointer;
+          {
+            var uintC count;
+            dotimesC(count,key_count, { pushSTACK(unbound); } );
+          }
+          rest_args_pointer = args_end_pointer;
+          argcount = 0;
+          goto key_from_list;
+        }
+      }
+      args_on_stack -= opt_count; /* remaining number */
+      if (TheSubr(fun)->key_flag == subr_nokey) {
+        /* SUBR without KEY */
+        if (TheSubr(fun)->rest_flag == subr_norest) {
+          /* SUBR without REST or KEY */
+          if ((args_on_stack>0) || consp(args)) /* still Arguments? */
+            error_subr_toomany(fun);
+          goto apply_subr_norest;
+        } else
+          /* SUBR with only REST, without KEY */
+          goto apply_subr_rest_withlist;
+      } else
+        /* SUBR with Keywords. */
+        goto apply_subr_key_;
+    }
+   apply_subr_key:
+    key_count = TheSubr(fun)->key_count;
+   apply_subr_key_:
+    /* shift down remaining Arguments on STACK and thus
+     create room for the Keyword-Parameters: */
+    argcount = args_on_stack;
+    get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+    {
+      var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
+      var gcv_object_t* ptr1 = args_end_pointer;
+      var gcv_object_t* ptr2 = new_args_end_pointer;
+      var uintC count;
+      dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
+      key_args_pointer = ptr1;
+      rest_args_pointer = ptr2;
+      dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
+      set_args_end_pointer(new_args_end_pointer);
+    }
+   key_from_list:  /* take remaining Arguments for Keywords from list */
+    while (consp(args)) {
+      check_STACK(); pushSTACK(Car(args)); /* push next argument onto Stack */
+      args = Cdr(args);
+      argcount++;
+    }
+    /* assign Keywords and poss. discard remaining arguments: */
+    match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
+    if (TheSubr(fun)->rest_flag != subr_norest)
+      /* SUBR with &REST-Flag: */
+      goto apply_subr_rest;
+    else
+      /* SUBR without &REST-Flag: */
+      goto apply_subr_norest;
+  }
+ apply_subr_rest_onlylist:
+  argcount = 0; rest_args_pointer = args_end_pointer;
+  goto rest_from_list;
+ apply_subr_rest_withlist:
+  argcount = args_on_stack;
+  rest_args_pointer = args_end_pointer STACKop argcount;
+ rest_from_list:                /* take remaining Arguments from list */
+  while (consp(args)) {
+    check_STACK(); pushSTACK(Car(args)); /* next argument onto Stack */
+    args = Cdr(args);
+    argcount++;
+  }
+  if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) /* too many arguments? */
+    goto error_toomany;
+ apply_subr_rest:
+  if (!nullp(args))
+    goto error_dotted;
+  with_saved_back_trace_subr(fun,STACK,
+                             TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
+    (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
+  goto done;
+ apply_subr_norest:
+  if (!nullp(args))
+    goto error_dotted;
+  with_saved_back_trace_subr(fun,STACK,-1,
+    (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
+ done:
+  #if STACKCHECKS
+  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
+    abort();                               /* no -> go to Debugger */
+  #endif
+  return;                       /* finished */
+  /* gathered error messages: */
+ error_toofew: error_subr_toofew(fun,args);
+ error_toomany: error_subr_toomany(fun);
+ error_dotted: error_apply_dotted(TheSubr(fun)->name,args);
+}
+
+/* Error because of too many arguments for a Closure
+ > closure: function, a Closure */
+nonreturning_function(local, error_closure_toomany, (object closure));
+#define error_closure_toomany(closure)  error_apply_toomany(closure)
+
+/* Error because of too few arguments for a Closure
+ > closure: function, a Closure
+ > tail: atom at the end of the argument list */
+nonreturning_function(local, error_closure_toofew, (object closure, object tail));
+#define error_closure_toofew(closure,tail)  error_apply_toofew(closure,tail)
+
+/* In APPLY: Applies a Closure to an argument-list, cleans up STACK
+ and returns the values.
+ apply_closure(fun,args_on_stack,other_args);
+ > fun: function, a Closure
+ > Argumente: args_on_stack arguments on STACK,
+              remaining argument-list in other_args
+ < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+local maygc Values apply_closure (object closure, uintC args_on_stack, object args)
+{
+  TRACE_CALL(closure,'A','C');
+  if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
+    /* closure is a compiled Closure */
+    #if STACKCHECKC
+    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; /* Pointer to the arguments */
+    #endif
+    var object codevec = TheCclosure(closure)->clos_codevec; /* Code-Vector */
+    var gcv_object_t* key_args_pointer; /* Pointer to the Keyword-arguments */
+    var gcv_object_t* rest_args_pointer; /* Pointer to the remaining arguments */
+    var uintL argcount;         /* number of remaining arguments */
+    check_SP(); check_STACK();
+    /* put argumente in STACK:
+     first a Dispatch for the most important cases: */
+    switch (TheCodevec(codevec)->ccv_signature) {
+      /* Macro for a required-argument: */
+      #define REQ_ARG()  \
+        { if (args_on_stack>0) { args_on_stack--; }                      \
+          else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
+          else goto error_toofew;                                      \
+        }
+      /* Macro for the n-last optional-argument: */
       #define OPT_ARG(n)  \
         { if (args_on_stack>0) { args_on_stack--; }                      \
           else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
           else goto unbound_optional_##n;                                \
         }
-      case (uintW)subr_argtype_6_0:
-        # SUBR with 6 required-Arguments
+      case (uintB)cclos_argtype_5_0: /* 5 required arguments */
         REQ_ARG();
-      case (uintW)subr_argtype_5_0:
-        # SUBR with 5 required-Arguments
+      case (uintB)cclos_argtype_4_0: /* 4 required arguments */
         REQ_ARG();
-      case (uintW)subr_argtype_4_0:
-        # SUBR with 4 required-Arguments
+      case (uintB)cclos_argtype_3_0: /* 3 required arguments */
         REQ_ARG();
-      case (uintW)subr_argtype_3_0:
-        # SUBR with 3 required-Arguments
+      case (uintB)cclos_argtype_2_0: /* 2 required arguments */
         REQ_ARG();
-      case (uintW)subr_argtype_2_0:
-        # SUBR with 2 required-Arguments
+      case (uintB)cclos_argtype_1_0: /* 1 required argument */
         REQ_ARG();
-      case (uintW)subr_argtype_1_0:
-        # SUBR with 1 required-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0:
-        # SUBR without Arguments
-        if ((args_on_stack>0) || consp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_4_1:
-        # SUBR with 4 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_3_1:
-        # SUBR with 3 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_2_1:
-        # SUBR with 2 required-Arguments and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_1_1:
-        # SUBR with 1 required-Argument and 1 optional-Argument
-        REQ_ARG();
-      case (uintW)subr_argtype_0_1:
-        # SUBR with 1 optional-Argument
-        OPT_ARG(1);
-        if ((args_on_stack>0) || consp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_3_2:
-        # SUBR with 3 required-Arguments and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_2:
-        # SUBR with 2 required-Arguments and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_2:
-        # SUBR with 1 required-Argument and 2 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_2:
-        # SUBR with 2 optional-Arguments
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if ((args_on_stack>0) || consp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_2_3:
-        # SUBR with 2 required-Arguments and 3 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_3:
-        # SUBR with 1 required-Argument and 3 optional-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_3:
-        # SUBR with 3 optional-Arguments
-        OPT_ARG(3);
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if ((args_on_stack>0) || consp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_0_5:
-        # SUBR with 5 optional-Arguments
-        OPT_ARG(5);
-      case (uintW)subr_argtype_0_4:
-        # SUBR with 4 optional-Arguments
-        OPT_ARG(4);
-        OPT_ARG(3);
-        OPT_ARG(2);
-        OPT_ARG(1);
-        if ((args_on_stack>0) || consp(args)) goto error_toomany;
-        goto apply_subr_norest;
-      unbound_optional_5: # Still 5 optional Arguments, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_1: # Still 1 optionals Argument, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_3_0_rest:
-        # SUBR with 3 required-Arguments and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_0_rest:
-        # SUBR with 2 required-Arguments and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_0_rest:
-        # SUBR with 1 required-Argument and further Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0_rest:
-        # SUBR with further Arguments
-        if (args_on_stack==0)
-          goto apply_subr_rest_onlylist;
-        else
-          goto apply_subr_rest_withlist;
-      case (uintW)subr_argtype_4_0_key:
-        # SUBR with 4 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_3_0_key:
-        # SUBR with 3 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_2_0_key:
-        # SUBR with 2 required-Arguments and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_1_0_key:
-        # SUBR with 1 required-Argument and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_0_key:
-        # SUBR with Keyword-Arguments
-        if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      case (uintW)subr_argtype_1_1_key:
-        # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
-        REQ_ARG();
-      case (uintW)subr_argtype_0_1_key:
-        # SUBR with 1 optional-Argument and Keyword-Arguments
-        OPT_ARG(key_1);
-        if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      case (uintW)subr_argtype_1_2_key:
-        # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
-        REQ_ARG();
-        OPT_ARG(key_2);
-        OPT_ARG(key_1);
-        if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
-        goto apply_subr_key;
-      unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
-        pushSTACK(unbound);
-      unbound_optional_key_0: # Before the Keywords is args_on_stack=0 and atomp(args)
-        {
-          var uintC count;
-          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
+      case (uintB)cclos_argtype_0_0: /* no Arguments */
+        noch_0_opt_args:
+        if (args_on_stack>0) goto error_toomany;
+        if (!nullp(args)) {
+          if (consp(args))
+            goto error_toomany;
+          else
+            goto error_dotted;
         }
-        goto apply_subr_norest;
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_1: /* 4 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_1: /* 3 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_1: /* 2 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_1: /* 1 required and 1 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_1: /* 1 optional argument */
+        noch_1_opt_args:
+        OPT_ARG(1);
+        goto noch_0_opt_args;
+      case (uintB)cclos_argtype_3_2: /* 3 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_2: /* 2 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_2: /* 1 required and 2 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_2: /* 2 optional arguments */
+        noch_2_opt_args:
+        OPT_ARG(2);
+        goto noch_1_opt_args;
+      case (uintB)cclos_argtype_2_3: /* 2 required and 3 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_3: /* 1 required and 3 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_3: /* 3 optional arguments */
+        noch_3_opt_args:
+        OPT_ARG(3);
+        goto noch_2_opt_args;
+      case (uintB)cclos_argtype_1_4: /* 1 required and 4 optional */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_4: /* 4 optional arguments */
+        noch_4_opt_args:
+        OPT_ARG(4);
+        goto noch_3_opt_args;
+      case (uintB)cclos_argtype_0_5: /* 5 optional arguments */
+        OPT_ARG(5);
+        goto noch_4_opt_args;
+      unbound_optional_5: /* Still 5 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_4: /* Still 4 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_3: /* Still 3 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_2: /* Still 2 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_1: /* Still 1 optional Argument, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+        if (!nullp(args)) goto error_dotted;
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_0_rest: /* 4 required + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_0_rest: /* 3 required + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_0_rest: /* 2 required + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_0_rest: /* 1 required + &rest */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_0_rest: /* no Arguments, Rest-Parameter */
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_4_0_key: /* 4 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_3_0_key: /* 3 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_0_key: /* 2 required arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_0_key: /* 1 required argument, &key */
+        REQ_ARG();
+        noch_0_opt_args_key:
+      case (uintB)cclos_argtype_0_0_key:
+        /* only &key */
+        if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
+        goto apply_cclosure_key_withlist;
+      case (uintB)cclos_argtype_3_1_key:
+        /* 3 required arguments and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_2_1_key:
+        /* 2 required arguments and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_1_key:
+        /* 1 required argument and 1 optional argument, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_1_key:
+        /* 1 optional argument, &key */
+        noch_1_opt_args_key:
+        OPT_ARG(key_1);
+        goto noch_0_opt_args_key;
+      case (uintB)cclos_argtype_2_2_key:
+        /* 2 required arguments and 2 optional arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_1_2_key:
+        /* 1 required argument and 2 optional arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_2_key:
+        /* 2 optional arguments, &key */
+        noch_2_opt_args_key:
+        OPT_ARG(key_2);
+        goto noch_1_opt_args_key;
+      case (uintB)cclos_argtype_1_3_key:
+        /* 1 required argument and 3 optional arguments, &key */
+        REQ_ARG();
+      case (uintB)cclos_argtype_0_3_key:
+        /* 3 optional arguments, &key */
+        noch_3_opt_args_key:
+        OPT_ARG(key_3);
+        goto noch_2_opt_args_key;
+      case (uintB)cclos_argtype_0_4_key:
+        /* 4 optional arguments, &key */
+        OPT_ARG(key_4);
+        goto noch_3_opt_args_key;
+      unbound_optional_key_4: /* Still 4 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_3: /* Still 3 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_2: /* Still 2 optional Arguments, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_1: /* Still 1 optional Argument, but args_on_stack=0 and atomp(args) */
+        pushSTACK(unbound);
+      unbound_optional_key_0: /* Before the Keywords is args_on_stack=0 and atomp(args) */
+        if (!nullp(args)) goto error_dotted;
+        goto apply_cclosure_key_noargs;
+      case (uintB)cclos_argtype_default:
+        /* General Version */
+        break;
       default: NOTREACHED;
       #undef OPT_ARG
       #undef REQ_ARG
     }
-    # Now the general Version:
+    /* Now the general Version: */
     {
-      var uintC key_count;
+      var uintB flags;
       {
-        var uintC req_count = TheSubr(fun)->req_count;
-        var uintC opt_count = TheSubr(fun)->opt_count;
-        key_count = TheSubr(fun)->key_count;
+        var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
+        var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
+        flags = TheCodevec(codevec)->ccv_flags; /* Flags */
         if (args_on_stack < req_count) {
-          /* fewer Arguments there than required */
-          req_count = req_count - args_on_stack; /* as many as these must go on STACK */
+          /* fewer Arguments than demanded */
+          req_count = req_count - args_on_stack; /* as many as these must on STACK */
           /* reserve space on STACK: */
-          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count + key_count));
-          /* store required Parameter in Stack: */
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count));
+          /* store required Parameters on Stack: */
           {
             var uintC count;
             dotimespC(count,req_count, {
               if (atomp(args))
                 goto error_toofew;
-              pushSTACK(Car(args)); /* store next Argument */
+              pushSTACK(Car(args)); /* store next argument */
               args = Cdr(args);
             });
           }
@@ -4345,574 +4604,187 @@ nonreturning_function(local, error_subr_toofew, (object fun, object tail));
           /* Arguments in Stack don't last for the optional ones */
           opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
           /* reserve space on STACK: */
-          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
-         optionals_from_list:
-          { /* store optional Parameters on Stack: */
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
+          optionals_from_list:
+          { /* store optional parameters on Stack: */
             var uintC count = opt_count;
             while (!atomp(args)) { /* argument-list not finished? */
-              if (count==0) /* all optional Parameters supplied with? */
+              if (count==0) /* all optional parameters supplied with? */
                 goto optionals_ok;
               count--;
-              pushSTACK(Car(args)); /* store next Argument */
+              pushSTACK(Car(args)); /* store next argument */
               args = Cdr(args);
             }
-            # Argument-list finished.
-            # All further count optional Parameters receive the "value"
-            # #<UNBOUND>, including the Keyword-Parameters:
-            dotimesC(count,count + key_count, { pushSTACK(unbound); } );
-            if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-              # yes -> 0 additional Arguments:
-              argcount = 0; rest_args_pointer = args_end_pointer;
-              goto apply_subr_rest;
-            } else {
-              # no -> nothing to do
-              goto apply_subr_norest;
-            }
+            /* argument-list finished. */
+            if (!nullp(args)) goto error_dotted;
+            /* All further count optional parameters receive the "value"
+             #<UNBOUND>, the &REST-parameter receives NIL,
+             the Keyword-parameters receive the value #<UNBOUND> : */
+            dotimesC(count,count, { pushSTACK(unbound); } );
           }
-         optionals_ok: # optional Argument OK, continue processing (non-empty) list
-          if (TheSubr(fun)->key_flag == subr_nokey) {
-            # SUBR without KEY
-            if (TheSubr(fun)->rest_flag == subr_norest)
-              # SUBR without REST or KEY
-              error_subr_toomany(fun); # too many Arguments
-            else
-              # SUBR with only REST, without KEY
-              goto apply_subr_rest_onlylist;
-          } else {
-            # SUBR with KEY
-            key_args_pointer = args_end_pointer;
+          if (flags & bit(0))   /* &REST-Flag? */
+            pushSTACK(NIL);     /* yes -> initialize with NIL */
+          if (flags & bit(7))   /* &KEY-Flag? */
+            goto apply_cclosure_key_noargs;
+          else
+            goto apply_cclosure_nokey;
+         optionals_ok:
+          /* process Rest- and Keyword-parameters.
+           args = remaining argument-list (not yet finished) */
+          if (flags == 0)
+            /* Closure without REST or KEY -> argument-list should be finished */
+            goto error_toomany;
+          /* poss. fill the Rest-parameter: */
+          if (flags & bit(0))
+            pushSTACK(args);
+          if (flags & bit(7)) { /* Key-Flag? */
+            /* Closure with Keywords.
+             args = remaining argument-list (not yet finished)
+             First initialize the Keyword-parameters with #<UNBOUND> ,
+             the store the remaining arguments in Stack,
+             then assign the Keywords: */
+            key_args_pointer = args_end_pointer; /* Pointer to the Keyword-parameters */
+            /* initialize all Keyword-parameters with #<UNBOUND> : */
             {
-              var uintC count;
-              dotimesC(count,key_count, { pushSTACK(unbound); } );
+              var uintC count = TheCodevec(codevec)->ccv_numkey;
+              dotimesC(count,count, { pushSTACK(unbound); } );
             }
-            rest_args_pointer = args_end_pointer;
-            argcount = 0;
+            rest_args_pointer = args_end_pointer; /* Pointer to the remaining arguments */
+            argcount = 0;      /* counter for the remaining arguments */
             goto key_from_list;
-          }
+          } else
+            /* Closure with only REST, without KEY: */
+            goto apply_cclosure_nokey;
         }
         args_on_stack -= opt_count; /* remaining number */
-        if (TheSubr(fun)->key_flag == subr_nokey) {
-          # SUBR without KEY
-          if (TheSubr(fun)->rest_flag == subr_norest) {
-            # SUBR without REST or KEY
-            if ((args_on_stack>0) || consp(args)) # still Arguments?
-              error_subr_toomany(fun);
-            goto apply_subr_norest;
-          } else
-            # SUBR with only REST, without KEY
-            goto apply_subr_rest_withlist;
-        } else
-          # SUBR with Keywords.
-          goto apply_subr_key_;
+        if (flags & bit(7))         /* Key-Flag? */
+          goto apply_cclosure_key_withlist_;
+        else if (flags & bit(0))
+          goto apply_cclosure_rest_nokey;
+        else {
+          /* Closure without REST or KEY */
+          if ((args_on_stack>0) || consp(args)) /* still arguments? */
+            goto error_toomany;
+          goto apply_cclosure_nokey;
+        }
       }
-     apply_subr_key:
-      key_count = TheSubr(fun)->key_count;
-     apply_subr_key_:
-      # shift down remaining Arguments on STACK and thus
-      # create room for the Keyword-Parameters:
-      argcount = args_on_stack;
-      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+     apply_cclosure_key_noargs:
       {
-        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
+        var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
+        if (key_count > 0) {
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+          var uintC count;
+          dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
+        }
+        goto apply_cclosure_key;
+      }
+     apply_cclosure_key_withlist:
+      flags = TheCodevec(codevec)->ccv_flags; /* initialize flags! */
+     apply_cclosure_key_withlist_:
+      /* Closure with Keywords */
+      {
+        var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
+        /* shift down remaining arguments in STACK and thus
+         create room for the Keyword-parameters
+         (and poss. Rest-parameters): */
+        var uintL shift = key_count;
+        if (flags & bit(0))
+          shift++;              /* poss. 1 more for Rest-Parameter */
+        argcount = args_on_stack;
+        get_space_on_STACK(sizeof(gcv_object_t) * shift);
+        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
         var gcv_object_t* ptr1 = args_end_pointer;
         var gcv_object_t* ptr2 = new_args_end_pointer;
         var uintC count;
         dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
+        if (flags & bit(0))
+          NEXT(ptr1) = args;    /* Rest-Parameter (preliminary) */
         key_args_pointer = ptr1;
         rest_args_pointer = ptr2;
         dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
         set_args_end_pointer(new_args_end_pointer);
+        if (flags & bit(0))
+          /* fill Rest-Parameter, less effort than with match_cclosure_key: */
+          if (args_on_stack > 0) {
+            var gcv_object_t* ptr3 = new_args_end_pointer;
+            pushSTACK(closure); /* save Closure */
+            pushSTACK(args);    /* save args */
+            dotimespC(count,args_on_stack, {
+              var object new_cons = allocate_cons();
+              Car(new_cons) = BEFORE(ptr3);
+              Cdr(new_cons) = Before(key_args_pointer);
+              Before(key_args_pointer) = new_cons;
+            });
+            args = popSTACK();
+            closure = popSTACK();
+          }
       }
-     key_from_list: # take remaining Arguments for Keywords from list
+     key_from_list: /* remove remaining arguments for Keywords from list */
       while (consp(args)) {
-        check_STACK(); pushSTACK(Car(args)); # push next argument onto Stack
+        check_STACK(); pushSTACK(Car(args)); /* store next argument in Stack */
         args = Cdr(args);
         argcount++;
       }
-      # assign Keywords and poss. discard remaining arguments:
-      match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
-      if (TheSubr(fun)->rest_flag != subr_norest)
-        # SUBR with &REST-Flag:
-        goto apply_subr_rest;
-      else
-        # SUBR without &REST-Flag:
-        goto apply_subr_norest;
+      /* argument-list finished. */
+      if (!nullp(args)) goto error_dotted;
+      /* assign Keywords, build Rest-parameter
+       and poss. discard remaining arguments: */
+      closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
+      codevec = TheCclosure(closure)->clos_codevec;
+     apply_cclosure_key:
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* process Bytecode starting at Byte 12 */
+      goto done;
     }
-   apply_subr_rest_onlylist:
-    argcount = 0; rest_args_pointer = args_end_pointer;
-    goto rest_from_list;
-   apply_subr_rest_withlist:
-    argcount = args_on_stack;
-    rest_args_pointer = args_end_pointer STACKop argcount;
-   rest_from_list: # take remaining Arguments from list
-    while (consp(args)) {
-      check_STACK(); pushSTACK(Car(args)); # next argument onto Stack
-      args = Cdr(args);
-      argcount++;
+   apply_cclosure_rest_nokey:
+    /* Closure with only REST, without KEY:
+     still has to cons args_on_stack Arguments from Stack to args: */
+    pushSTACK(args);
+    if (args_on_stack > 0) {
+      pushSTACK(closure);       /* Closure must be saved */
+      dotimespC(args_on_stack,args_on_stack, {
+        var object new_cons = allocate_cons();
+        Cdr(new_cons) = STACK_1;
+        Car(new_cons) = STACK_2; /* cons next argument to it */
+        STACK_2 = new_cons;
+        STACK_1 = STACK_0; skipSTACK(1);
+      });
+      closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
     }
-    if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) # too many arguments?
-      goto error_toomany;
-   apply_subr_rest:
-    if (!nullp(args))
-      goto error_dotted;
-    with_saved_back_trace_subr(fun,STACK,
-                               TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
-      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
-    goto done;
-   apply_subr_norest:
-    if (!nullp(args))
-      goto error_dotted;
-    with_saved_back_trace_subr(fun,STACK,-1,
-      (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
+    goto apply_cclosure_nokey;
+   apply_cclosure_nokey:        /* jump to Closure without &KEY: */
+    interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* process Bytecode starting at Byte 8 */
    done:
-    #if STACKCHECKS
-    if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
-      abort(); # no -> go to Debugger
+    #if STACKCHECKC
+    if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
+      abort();                               /* no -> go to Debugger */
     #endif
-    return; # finished
-    # gathered error messages:
-   error_toofew: error_subr_toofew(fun,args);
-   error_toomany: error_subr_toomany(fun);
-   error_dotted: error_apply_dotted(TheSubr(fun)->name,args);
-  }
-
-# Error because of too many arguments for a Closure
-# > closure: function, a Closure
-nonreturning_function(local, error_closure_toomany, (object closure));
-#define error_closure_toomany(closure)  error_apply_toomany(closure)
-
-# Error because of too few arguments for a Closure
-# > closure: function, a Closure
-# > tail: atom at the end of the argument list
-nonreturning_function(local, error_closure_toofew, (object closure, object tail));
-#define error_closure_toofew(closure,tail)  error_apply_toofew(closure,tail)
-
-# In APPLY: Applies a Closure to an argument-list, cleans up STACK
-# and returns the values.
-# apply_closure(fun,args_on_stack,other_args);
-# > fun: function, a Closure
-# > Argumente: args_on_stack arguments on STACK,
-#              remaining argument-list in other_args
-# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  local maygc Values apply_closure (object closure, uintC args_on_stack, object args)
-  {
-    TRACE_CALL(closure,'A','C');
-    if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-      # closure is a compiled Closure
-      #if STACKCHECKC
-      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
-      #endif
-      var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-      var gcv_object_t* key_args_pointer; # Pointer to the Keyword-arguments
-      var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
-      var uintL argcount; # number of remaining arguments
-      check_SP(); check_STACK();
-      # put argumente in STACK:
-      # first a Dispatch for the most important cases:
-      switch (TheCodevec(codevec)->ccv_signature) {
-        # Macro for a required-argument:
-        #define REQ_ARG()  \
-          { if (args_on_stack>0) { args_on_stack--; }                      \
-            else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
-            else goto error_toofew;                                      \
-          }
-        # Macro for the n-last optional-argument:
-        #define OPT_ARG(n)  \
-          { if (args_on_stack>0) { args_on_stack--; }                      \
-            else if (consp(args)) { pushSTACK(Car(args)); args = Cdr(args); } \
-            else goto unbound_optional_##n;                                \
-          }
-        case (uintB)cclos_argtype_5_0:
-          # 5 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_4_0:
-          # 4 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0:
-          # 3 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0:
-          # 2 required-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0:
-          # 1 required-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_0:
-          # no Arguments
-          noch_0_opt_args:
-          if (args_on_stack>0) goto error_toomany;
-          if (!nullp(args)) {
-            if (consp(args))
-              goto error_toomany;
-            else
-              goto error_dotted;
-          }
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_1:
-          # 4 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_1:
-          # 3 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_1:
-          # 2 required-Arguments and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_1:
-          # 1 required-Argument and 1 optional-Argument
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_1:
-          # 1 optional-Argument
-          noch_1_opt_args:
-          OPT_ARG(1);
-          goto noch_0_opt_args;
-        case (uintB)cclos_argtype_3_2:
-          # 3 required-Arguments and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_2:
-          # 2 required-Arguments and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_2:
-          # 1 required-Argument and 2 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_2:
-          # 2 optional-Arguments
-          noch_2_opt_args:
-          OPT_ARG(2);
-          goto noch_1_opt_args;
-        case (uintB)cclos_argtype_2_3:
-          # 2 required-Arguments and 3 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_3:
-          # 1 required-Argument and 3 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_3:
-          # 3 optional-Arguments
-          noch_3_opt_args:
-          OPT_ARG(3);
-          goto noch_2_opt_args;
-        case (uintB)cclos_argtype_1_4:
-          # 1 required-Argument and 4 optional-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_4:
-          # 4 optional-Arguments
-          noch_4_opt_args:
-          OPT_ARG(4);
-          goto noch_3_opt_args;
-        case (uintB)cclos_argtype_0_5:
-          # 5 optional-Arguments
-          OPT_ARG(5);
-          goto noch_4_opt_args;
-        unbound_optional_5: # Still 5 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-          if (!nullp(args)) goto error_dotted;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_0_rest:
-          # 4 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0_rest:
-          # 3 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0_rest:
-          # 2 required-Arguments, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0_rest:
-          # 1 required-Argument, Rest-Parameter
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_0_rest:
-          # no Arguments, Rest-Parameter
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_4_0_key:
-          # 4 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_3_0_key:
-          # 3 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_0_key:
-          # 2 required-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_0_key:
-          # 1 required-Argument, Keyword-Arguments
-          REQ_ARG();
-          noch_0_opt_args_key:
-        case (uintB)cclos_argtype_0_0_key:
-          # only Keyword-Arguments
-          if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
-          goto apply_cclosure_key_withlist;
-        case (uintB)cclos_argtype_3_1_key:
-          # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_2_1_key:
-          # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_1_key:
-          # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_1_key:
-          # 1 optional-Argument, Keyword-Arguments
-          noch_1_opt_args_key:
-          OPT_ARG(key_1);
-          goto noch_0_opt_args_key;
-        case (uintB)cclos_argtype_2_2_key:
-          # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_1_2_key:
-          # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_2_key:
-          # 2 optional-Arguments, Keyword-Arguments
-          noch_2_opt_args_key:
-          OPT_ARG(key_2);
-          goto noch_1_opt_args_key;
-        case (uintB)cclos_argtype_1_3_key:
-          # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
-          REQ_ARG();
-        case (uintB)cclos_argtype_0_3_key:
-          # 3 optional-Arguments, Keyword-Arguments
-          noch_3_opt_args_key:
-          OPT_ARG(key_3);
-          goto noch_2_opt_args_key;
-        case (uintB)cclos_argtype_0_4_key:
-          # 4 optional-Arguments, Keyword-Arguments
-          OPT_ARG(key_4);
-          goto noch_3_opt_args_key;
-        unbound_optional_key_4: # Still 4 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_3: # Still 3 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0 and atomp(args)
-          pushSTACK(unbound);
-        unbound_optional_key_0: # Before the Keywords is args_on_stack=0 and atomp(args)
-          if (!nullp(args)) goto error_dotted;
-          goto apply_cclosure_key_noargs;
-        case (uintB)cclos_argtype_default:
-          # General Version
-          break;
-        default: NOTREACHED;
-        #undef OPT_ARG
-        #undef REQ_ARG
-      }
-      # Now the general Version:
-      {
-        var uintB flags;
-        {
-          var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
-          var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
-          flags = TheCodevec(codevec)->ccv_flags; /* Flags */
-          if (args_on_stack < req_count) {
-            # fewer Arguments than demanded
-            req_count = req_count - args_on_stack; # as many as these must on STACK
-            # reserve space on STACK:
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(req_count + opt_count));
-            # store required Parameters on Stack:
-            {
-              var uintC count;
-              dotimespC(count,req_count, {
-                if (atomp(args))
-                  goto error_toofew;
-                pushSTACK(Car(args)); # store next argument
-                args = Cdr(args);
-              });
-            }
-            goto optionals_from_list;
-          }
-          args_on_stack -= req_count; /* remaining number */
-          if (args_on_stack < opt_count) {
-            /* Arguments in Stack don't last for the optional ones */
-            opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
-            /* reserve space on STACK: */
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
-            optionals_from_list:
-            { /* store optional parameters on Stack: */
-              var uintC count = opt_count;
-              while (!atomp(args)) { /* argument-list not finished? */
-                if (count==0) # all optional parameters supplied with?
-                  goto optionals_ok;
-                count--;
-                pushSTACK(Car(args)); # store next argument
-                args = Cdr(args);
-              }
-              # argument-list finished.
-              if (!nullp(args)) goto error_dotted;
-              # All further count optional parameters receive the "value"
-              # #<UNBOUND>, the &REST-parameter receives NIL,
-              # the Keyword-parameters receive the value #<UNBOUND> :
-              dotimesC(count,count, { pushSTACK(unbound); } );
-            }
-            if (flags & bit(0)) # &REST-Flag?
-              pushSTACK(NIL); # yes -> initialize with NIL
-            if (flags & bit(7)) # &KEY-Flag?
-              goto apply_cclosure_key_noargs;
-            else
-              goto apply_cclosure_nokey;
-           optionals_ok:
-            # process Rest- and Keyword-parameters.
-            # args = remaining argument-list (not yet finished)
-            if (flags == 0)
-              # Closure without REST or KEY -> argument-list should be finished
-              goto error_toomany;
-            # poss. fill the Rest-parameter:
-            if (flags & bit(0))
-              pushSTACK(args);
-            if (flags & bit(7)) { # Key-Flag?
-              # Closure with Keywords.
-              # args = remaining argument-list (not yet finished)
-              # First initialize the Keyword-parameters with #<UNBOUND> ,
-              # the store the remaining arguments in Stack,
-              # then assign the Keywords:
-              key_args_pointer = args_end_pointer; # Pointer to the Keyword-parameters
-              # initialize all Keyword-parameters with #<UNBOUND> :
-              {
-                var uintC count = TheCodevec(codevec)->ccv_numkey;
-                dotimesC(count,count, { pushSTACK(unbound); } );
-              }
-              rest_args_pointer = args_end_pointer; # Pointer to the remaining arguments
-              argcount = 0; # counter for the remaining arguments
-              goto key_from_list;
-            } else
-              # Closure with only REST, without KEY:
-              goto apply_cclosure_nokey;
-          }
-          args_on_stack -= opt_count; /* remaining number */
-          if (flags & bit(7)) # Key-Flag?
-            goto apply_cclosure_key_withlist_;
-          else if (flags & bit(0))
-            goto apply_cclosure_rest_nokey;
-          else {
-            # Closure without REST or KEY
-            if ((args_on_stack>0) || consp(args)) # still arguments?
-              goto error_toomany;
-            goto apply_cclosure_nokey;
-          }
-        }
-       apply_cclosure_key_noargs:
-        {
-          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
-          if (key_count > 0) {
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
-            var uintC count;
-            dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
-          }
-          goto apply_cclosure_key;
-        }
-       apply_cclosure_key_withlist:
-        flags = TheCodevec(codevec)->ccv_flags; # initialize flags!
-       apply_cclosure_key_withlist_:
-        # Closure with Keywords
-        {
-          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
-          # shift down remaining arguments in STACK and thus
-          # create room for the Keyword-parameters
-          # (and poss. Rest-parameters):
-          var uintL shift = key_count;
-          if (flags & bit(0))
-            shift++; # poss. 1 more for Rest-Parameter
-          argcount = args_on_stack;
-          get_space_on_STACK(sizeof(gcv_object_t) * shift);
-          var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
-          var gcv_object_t* ptr1 = args_end_pointer;
-          var gcv_object_t* ptr2 = new_args_end_pointer;
-          var uintC count;
-          dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
-          if (flags & bit(0))
-            NEXT(ptr1) = args; # Rest-Parameter (preliminary)
-          key_args_pointer = ptr1;
-          rest_args_pointer = ptr2;
-          dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
-          set_args_end_pointer(new_args_end_pointer);
-          if (flags & bit(0))
-            # fill Rest-Parameter, less effort than with match_cclosure_key:
-            if (args_on_stack > 0) {
-              var gcv_object_t* ptr3 = new_args_end_pointer;
-              pushSTACK(closure); # save Closure
-              pushSTACK(args); # save args
-              dotimespC(count,args_on_stack, {
-                var object new_cons = allocate_cons();
-                Car(new_cons) = BEFORE(ptr3);
-                Cdr(new_cons) = Before(key_args_pointer);
-                Before(key_args_pointer) = new_cons;
-              });
-              args = popSTACK();
-              closure = popSTACK();
-            }
-        }
-       key_from_list: # remove remaining arguments for Keywords from list
-        while (consp(args)) {
-          check_STACK(); pushSTACK(Car(args)); # store next argument in Stack
-          args = Cdr(args);
-          argcount++;
-        }
-        # argument-list finished.
-        if (!nullp(args)) goto error_dotted;
-        # assign Keywords, build Rest-parameter
-        # and poss. discard remaining arguments:
-        closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
-        codevec = TheCclosure(closure)->clos_codevec;
-       apply_cclosure_key:
-        interpret_bytecode(closure,codevec,CCV_START_KEY); # process Bytecode starting at Byte 12
-        goto done;
-      }
-     apply_cclosure_rest_nokey:
-      # Closure with only REST, without KEY:
-      # still has to cons args_on_stack Arguments from Stack to args:
-      pushSTACK(args);
-      if (args_on_stack > 0) {
-        pushSTACK(closure); # Closure must be saved
-        dotimespC(args_on_stack,args_on_stack, {
-          var object new_cons = allocate_cons();
-          Cdr(new_cons) = STACK_1;
-          Car(new_cons) = STACK_2; # cons next argument to it
-          STACK_2 = new_cons;
-          STACK_1 = STACK_0; skipSTACK(1);
-        });
-        closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
-      }
-      goto apply_cclosure_nokey;
-     apply_cclosure_nokey: # jump to Closure without &KEY:
-      interpret_bytecode(closure,codevec,CCV_START_NONKEY); # process Bytecode starting at Byte 8
-     done:
-      #if STACKCHECKC
-      if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
-        abort(); # no -> go to Debugger
-      #endif
-      return; # finished
-    } else {
-      # closure is an interpreted Closure
-      # reserve space on STACK:
-      get_space_on_STACK(sizeof(gcv_object_t) * llength(args));
-      while (consp(args)) { # Still Arguments in list?
-        pushSTACK(Car(args)); # push next Element in STACK
-        args = Cdr(args);
-        args_on_stack += 1;
-        if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
-          goto error_toomany;
-      }
-      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
-      with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
-        funcall_iclosure(closure,args_pointer,args_on_stack); );
-      return; # finished
+    return;                     /* finished */
+  } else {
+    /* closure is an interpreted Closure
+     reserve space on STACK: */
+    get_space_on_STACK(sizeof(gcv_object_t) * llength(args));
+    while (consp(args)) {       /* Still Arguments in list? */
+      pushSTACK(Car(args));     /* push next Element in STACK */
+      args = Cdr(args);
+      args_on_stack += 1;
+      if (((uintL)~(uintL)0 > ca_limit_1) && (args_on_stack > ca_limit_1))
+        goto error_toomany;
     }
-    # Gathered error-messages:
-   error_toofew: error_closure_toofew(closure,args);
-   error_toomany: error_closure_toomany(closure);
-   error_dotted: error_apply_dotted(closure,args);
+    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
+    with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
+      funcall_iclosure(closure,args_pointer,args_on_stack); );
+    return;                     /* finished */
   }
+  /* Gathered error-messages: */
+ error_toofew: error_closure_toofew(closure,args);
+ error_toomany: error_closure_toomany(closure);
+ error_dotted: error_apply_dotted(closure,args);
+}
 
 
-#        ----------------------- F U N C A L L -----------------------
+/*        ----------------------- F U N C A L L ----------------------- */
 
-# later:
+/* later: */
 local Values funcall_subr (object fun, uintC args_on_stack);
 local Values funcall_closure (object fun, uintC args_on_stack);
 
@@ -5002,3595 +4874,3318 @@ global maygc Values funcall (object fun, uintC args_on_stack)
   goto funcall_restart;
 }
 
-# In FUNCALL: Applies a SUBR to arguments, cleans up STACK
-# and returns the values.
-# funcall_subr(fun,args_on_stack);
-# > fun: function, a SUBR
-# > Arguments: args_on_stack arguments on STACK
-# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  local maygc Values funcall_subr (object fun, uintC args_on_stack)
+/* In FUNCALL: Applies a SUBR to arguments, cleans up STACK
+ and returns the values.
+ funcall_subr(fun,args_on_stack);
+ > fun: function, a SUBR
+ > Arguments: args_on_stack arguments on STACK
+ < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+local maygc Values funcall_subr (object fun, uintC args_on_stack)
+{
+  #if STACKCHECKS
+  var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; /* Pointer to the arguments */
+  #endif
+  var gcv_object_t* key_args_pointer; /* Pointer to the Keyword-arguments */
+  var gcv_object_t* rest_args_pointer; /* Pointer to the remaining arguments */
+  var uintL argcount;           /* number of remaining arguments */
+  TRACE_CALL(fun,'F','S');
+  /* store arguments in STACK:
+   First a Dispatch for the most important cases: */
+  switch (TheSubr(fun)->argtype) {
+    case (uintW)subr_argtype_0_0: /* SUBR without Arguments */
+      if (!(args_on_stack==0)) goto error_toomany;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_1_0: /* SUBR with 1 required argument */
+      if (!(args_on_stack==1)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_2_0: /* SUBR with 2 required arguments */
+      if (!(args_on_stack==2)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_3_0: /* SUBR with 3 required arguments */
+      if (!(args_on_stack==3)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_4_0: /* SUBR with 4 required arguments */
+      if (!(args_on_stack==4)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_5_0: /* SUBR with 5 required arguments */
+      if (!(args_on_stack==5)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_6_0: /* SUBR with 6 required arguments */
+      if (!(args_on_stack==6)) goto error_count;
+      goto apply_subr_norest;
+    case (uintW)subr_argtype_0_1: /* SUBR with 1 optional argument */
+      if (args_on_stack==1) goto apply_subr_norest;
+      else if (args_on_stack>1) goto error_toomany;
+      else { pushSTACK(unbound); goto apply_subr_norest; }
+    case (uintW)subr_argtype_1_1: /* SUBR with 1 required and 1 optional */
+      if (args_on_stack==2) goto apply_subr_norest;
+      else if (args_on_stack>2) goto error_toomany;
+      else if (args_on_stack==0) goto error_toofew;
+      else { pushSTACK(unbound); goto apply_subr_norest; }
+    case (uintW)subr_argtype_2_1: /* SUBR with 2 required and 1 optional */
+      if (args_on_stack==3) goto apply_subr_norest;
+      else if (args_on_stack>3) goto error_toomany;
+      else if (args_on_stack<2) goto error_toofew;
+      else { pushSTACK(unbound); goto apply_subr_norest; }
+    case (uintW)subr_argtype_3_1: /* SUBR with 3 required and 1 optional */
+      if (args_on_stack==4) goto apply_subr_norest;
+      else if (args_on_stack>4) goto error_toomany;
+      else if (args_on_stack<3) goto error_toofew;
+      else { pushSTACK(unbound); goto apply_subr_norest; }
+    case (uintW)subr_argtype_4_1: /* SUBR with 4 required and 1 optional */
+      if (args_on_stack==5) goto apply_subr_norest;
+      else if (args_on_stack>5) goto error_toomany;
+      else if (args_on_stack<4) goto error_toofew;
+      else { pushSTACK(unbound); goto apply_subr_norest; }
+    case (uintW)subr_argtype_0_2: /* SUBR with 2 optional arguments */
+      switch (args_on_stack) {
+        case 0: pushSTACK(unbound);
+        case 1: pushSTACK(unbound);
+        case 2: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_1_2: /* SUBR with 1 required and 2 optional */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: pushSTACK(unbound);
+        case 2: pushSTACK(unbound);
+        case 3: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_2_2: /* SUBR with 2 required and 2 optional */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: goto error_toofew;
+        case 2: pushSTACK(unbound);
+        case 3: pushSTACK(unbound);
+        case 4: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_3_2: /* SUBR with 3 required and 2 optional */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: goto error_toofew;
+        case 2: goto error_toofew;
+        case 3: pushSTACK(unbound);
+        case 4: pushSTACK(unbound);
+        case 5: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_0_3: /* SUBR with 3 optional arguments */
+      switch (args_on_stack) {
+        case 0: pushSTACK(unbound);
+        case 1: pushSTACK(unbound);
+        case 2: pushSTACK(unbound);
+        case 3: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_1_3: /* SUBR with 1 required and 3 optional */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: pushSTACK(unbound);
+        case 2: pushSTACK(unbound);
+        case 3: pushSTACK(unbound);
+        case 4: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_2_3: /* SUBR with 2 required and 3 optional */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: goto error_toofew;
+        case 2: pushSTACK(unbound);
+        case 3: pushSTACK(unbound);
+        case 4: pushSTACK(unbound);
+        case 5: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_0_4: /* SUBR with 4 optional arguments */
+      switch (args_on_stack) {
+        case 0: pushSTACK(unbound);
+        case 1: pushSTACK(unbound);
+        case 2: pushSTACK(unbound);
+        case 3: pushSTACK(unbound);
+        case 4: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_0_5: /* SUBR with 5 optional arguments */
+      switch (args_on_stack) {
+        case 0: pushSTACK(unbound);
+        case 1: pushSTACK(unbound);
+        case 2: pushSTACK(unbound);
+        case 3: pushSTACK(unbound);
+        case 4: pushSTACK(unbound);
+        case 5: goto apply_subr_norest;
+        default: goto error_toomany;
+      }
+    case (uintW)subr_argtype_0_0_rest: /* SUBR with &rest arguments */
+      goto apply_subr_rest_ok;
+    case (uintW)subr_argtype_1_0_rest: /* SUBR with 1 required and &rest */
+      if (args_on_stack==0) goto error_toofew;
+      args_on_stack -= 1;
+      goto apply_subr_rest_ok;
+    case (uintW)subr_argtype_2_0_rest: /* SUBR with 2 requireden and &rest */
+      if (args_on_stack<2) goto error_toofew;
+      args_on_stack -= 2;
+      goto apply_subr_rest_ok;
+    case (uintW)subr_argtype_3_0_rest: /* SUBR with 3 requireden and &rest */
+      if (args_on_stack<3) goto error_toofew;
+      args_on_stack -= 3;
+      goto apply_subr_rest_ok;
+    case (uintW)subr_argtype_0_0_key: /* SUBR with &key */
+      if (args_on_stack==0) goto unbound_optional_key_0;
+      else goto apply_subr_key;
+    case (uintW)subr_argtype_1_0_key: /* SUBR with 1 required and &key */
+      if (args_on_stack==1) goto unbound_optional_key_0;
+      else if (args_on_stack<1) goto error_toofew;
+      else { args_on_stack -= 1; goto apply_subr_key; }
+    case (uintW)subr_argtype_2_0_key: /* SUBR with 2 required and &key */
+      if (args_on_stack==2) goto unbound_optional_key_0;
+      else if (args_on_stack<2) goto error_toofew;
+      else { args_on_stack -= 2; goto apply_subr_key; }
+    case (uintW)subr_argtype_3_0_key: /* SUBR with 3 required and &key */
+      if (args_on_stack==3) goto unbound_optional_key_0;
+      else if (args_on_stack<3) goto error_toofew;
+      else { args_on_stack -= 3; goto apply_subr_key; }
+    case (uintW)subr_argtype_4_0_key: /* SUBR with 4 required and &key */
+      if (args_on_stack==4) goto unbound_optional_key_0;
+      else if (args_on_stack<4) goto error_toofew;
+      else { args_on_stack -= 4; goto apply_subr_key; }
+    case (uintW)subr_argtype_0_1_key: /* SUBR with 1 optional and &key */
+      switch (args_on_stack) {
+        case 0: goto unbound_optional_key_1;
+        case 1: goto unbound_optional_key_0;
+        default: args_on_stack -= 1; goto apply_subr_key;
+      }
+    case (uintW)subr_argtype_1_1_key:
+      /* SUBR with 1 required argument, 1 optional argument and &key */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: goto unbound_optional_key_1;
+        case 2: goto unbound_optional_key_0;
+        default: args_on_stack -= 2; goto apply_subr_key;
+      }
+    case (uintW)subr_argtype_1_2_key:
+      /* SUBR with 1 required argument, 2 optional arguments and &key */
+      switch (args_on_stack) {
+        case 0: goto error_toofew;
+        case 1: goto unbound_optional_key_2;
+        case 2: goto unbound_optional_key_1;
+        case 3: goto unbound_optional_key_0;
+        default: args_on_stack -= 3; goto apply_subr_key;
+      }
+    unbound_optional_key_2: /* Still 2 optional Arguments, but args_on_stack=0 */
+      pushSTACK(unbound);
+    unbound_optional_key_1: /* Still 1 optional Argument, but args_on_stack=0 */
+      pushSTACK(unbound);
+    unbound_optional_key_0: /* Before the Keywords is args_on_stack=0 */
+      {
+        var uintC count;
+        dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
+      }
+      goto apply_subr_norest;
+    default: NOTREACHED;
+    #undef OPT_ARG
+    #undef REQ_ARG
+  }
+  /* Now the general Version: */
   {
-    #if STACKCHECKS
-    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the arguments
+    var uintC key_count;
+    {
+      var uintC req_count = TheSubr(fun)->req_count;
+      var uintC opt_count = TheSubr(fun)->opt_count;
+      key_count = TheSubr(fun)->key_count;
+      if (args_on_stack < req_count)
+        /* fewer Arguments than demanded */
+        goto error_toofew;
+      args_on_stack -= req_count; /* remaining number */
+      if (args_on_stack <= opt_count) {
+        /* Arguments in Stack don't last for the optional ones */
+        opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
+        if (opt_count + key_count > 0) {
+          /* reserve space on STACK: */
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
+          /* All further count optional parameters receive the "value"
+           #<UNBOUND>, including the Keyword-parameters: */
+          var uintC count;
+          dotimespC(count,opt_count + key_count, { pushSTACK(unbound); } );
+        }
+        if (TheSubr(fun)->rest_flag == subr_rest) { /* &REST-Flag? */
+          /* yes -> 0 additional Arguments: */
+          argcount = 0; rest_args_pointer = args_end_pointer;
+          goto apply_subr_rest;
+        } else {
+          /* no -> nothing to do */
+          goto apply_subr_norest;
+        }
+      }
+      args_on_stack -= opt_count; /* remaining number (> 0) */
+      if (TheSubr(fun)->key_flag == subr_nokey) {
+        /* SUBR without KEY */
+        if (TheSubr(fun)->rest_flag == subr_norest)
+          /* SUBR without REST or KEY */
+          goto error_toomany;   /* still Arguments! */
+        else
+          /* SUBR with only REST, without KEY */
+          goto apply_subr_rest_ok;
+      } else
+        /* SUBR with Keywords. */
+        goto apply_subr_key_;
+    }
+   apply_subr_key:
+    key_count = TheSubr(fun)->key_count;
+   apply_subr_key_:
+    /* shift down remaining arguments in STACK and thus
+     create room for the Keyword-parameters: */
+    argcount = args_on_stack;                 /* (> 0) */
+    get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+    {
+      var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
+      var gcv_object_t* ptr1 = args_end_pointer;
+      var gcv_object_t* ptr2 = new_args_end_pointer;
+      var uintC count;
+      dotimespC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
+      key_args_pointer = ptr1;
+      rest_args_pointer = ptr2;
+      dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
+      set_args_end_pointer(new_args_end_pointer);
+    }
+    /* assign Keywords and poss. discard remaining Arguments: */
+    match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
+    if (TheSubr(fun)->rest_flag != subr_norest)
+      /* SUBR with &REST-Flag: */
+      goto apply_subr_rest;
+    else
+      /* SUBR without &REST-Flag: */
+      goto apply_subr_norest;
+  }
+ apply_subr_rest_ok:
+  argcount = args_on_stack;
+  rest_args_pointer = args_end_pointer STACKop argcount;
+ apply_subr_rest:
+  with_saved_back_trace_subr(fun,STACK,
+                             TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
+    (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
+  goto done;
+ apply_subr_norest:
+  with_saved_back_trace_subr(fun,STACK,args_on_stack,
+    (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
+ done:
+  #if STACKCHECKS
+  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
+    abort();                               /* no -> go to Debugger */
+  #endif
+  return;                       /* finished */
+  /* Gathered error-messages: */
+ error_count:
+  if (args_on_stack < TheSubr(fun)->req_count)
+    goto error_toofew;          /* too few Arguments */
+  else
+    goto error_toomany;         /* too many Arguments */
+ error_toofew: error_subr_toofew(fun,NIL);
+ error_toomany: error_subr_toomany(fun);
+}
+
+/* In FUNCALL: Applies a Closure to Arguments, cleans up STACK
+ and returns the values.
+ funcall_closure(fun,args_on_stack);
+ > fun: function, a Closure
+ > Argumente: args_on_stack Arguments on STACK
+ < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC */
+local maygc Values funcall_closure (object closure, uintC args_on_stack)
+{
+  TRACE_CALL(closure,'F','C');
+  if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
+    /* closure is a compiled Closure */
+    #if STACKCHECKC
+    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; /* Pointer to the Arguments */
     #endif
-    var gcv_object_t* key_args_pointer; # Pointer to the Keyword-arguments
-    var gcv_object_t* rest_args_pointer; # Pointer to the remaining arguments
-    var uintL argcount; # number of remaining arguments
-    TRACE_CALL(fun,'F','S');
-    # store arguments in STACK:
-    # First a Dispatch for the most important cases:
-    switch (TheSubr(fun)->argtype) {
-      case (uintW)subr_argtype_0_0:
-        # SUBR without Arguments
+    var object codevec = TheCclosure(closure)->clos_codevec; /* Code-Vector */
+    var gcv_object_t* key_args_pointer; /* Pointer to the &key */
+    var gcv_object_t* rest_args_pointer; /* Pointer to the remaining Arguments */
+    var uintL argcount;         /* number of remaining Arguments */
+    check_SP(); check_STACK();
+    /* store arguments in STACK:
+     First a Dispatch for the most important cases: */
+    switch (TheCodevec(codevec)->ccv_signature) {
+      case (uintB)cclos_argtype_0_0: /* no Arguments */
         if (!(args_on_stack==0)) goto error_toomany;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_1_0:
-        # SUBR with 1 required-Argument
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_1_0: /* 1 required argument */
         if (!(args_on_stack==1)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_2_0:
-        # SUBR with 2 required-Arguments
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_2_0: /* 2 required arguments */
         if (!(args_on_stack==2)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_3_0:
-        # SUBR with 3 required-Arguments
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_3_0: /* 3 required arguments */
         if (!(args_on_stack==3)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_4_0:
-        # SUBR with 4 required-Arguments
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_4_0: /* 4 required arguments */
         if (!(args_on_stack==4)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_5_0:
-        # SUBR with 5 required-Arguments
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_5_0: /* 5 required arguments */
         if (!(args_on_stack==5)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_6_0:
-        # SUBR with 6 required-Arguments
-        if (!(args_on_stack==6)) goto error_count;
-        goto apply_subr_norest;
-      case (uintW)subr_argtype_0_1:
-        # SUBR with 1 optional-Argument
-        if (args_on_stack==1) goto apply_subr_norest;
+        goto apply_cclosure_nokey;
+      case (uintB)cclos_argtype_0_1: /* 1 optional argument */
+        if (args_on_stack==1) goto apply_cclosure_nokey;
         else if (args_on_stack>1) goto error_toomany;
-        else { pushSTACK(unbound); goto apply_subr_norest; }
-      case (uintW)subr_argtype_1_1:
-        # SUBR with 1 required-Argument and 1 optional-Argument
-        if (args_on_stack==2) goto apply_subr_norest;
+        else { pushSTACK(unbound); goto apply_cclosure_nokey; }
+      case (uintB)cclos_argtype_1_1: /* 1 required and 1 optional */
+        if (args_on_stack==2) goto apply_cclosure_nokey;
         else if (args_on_stack>2) goto error_toomany;
         else if (args_on_stack==0) goto error_toofew;
-        else { pushSTACK(unbound); goto apply_subr_norest; }
-      case (uintW)subr_argtype_2_1:
-        # SUBR with 2 required-Arguments and 1 optional-Argument
-        if (args_on_stack==3) goto apply_subr_norest;
+        else { pushSTACK(unbound); goto apply_cclosure_nokey; }
+      case (uintB)cclos_argtype_2_1: /* 2 required and 1 optional */
+        if (args_on_stack==3) goto apply_cclosure_nokey;
         else if (args_on_stack>3) goto error_toomany;
         else if (args_on_stack<2) goto error_toofew;
-        else { pushSTACK(unbound); goto apply_subr_norest; }
-      case (uintW)subr_argtype_3_1:
-        # SUBR with 3 required-Arguments and 1 optional-Argument
-        if (args_on_stack==4) goto apply_subr_norest;
+        else { pushSTACK(unbound); goto apply_cclosure_nokey; }
+      case (uintB)cclos_argtype_3_1: /* 3 required and 1 optional */
+        if (args_on_stack==4) goto apply_cclosure_nokey;
         else if (args_on_stack>4) goto error_toomany;
         else if (args_on_stack<3) goto error_toofew;
-        else { pushSTACK(unbound); goto apply_subr_norest; }
-      case (uintW)subr_argtype_4_1:
-        # SUBR with 4 required-Arguments and 1 optional-Argument
-        if (args_on_stack==5) goto apply_subr_norest;
+        else { pushSTACK(unbound); goto apply_cclosure_nokey; }
+      case (uintB)cclos_argtype_4_1: /* 4 required and 1 optional */
+        if (args_on_stack==5) goto apply_cclosure_nokey;
         else if (args_on_stack>5) goto error_toomany;
         else if (args_on_stack<4) goto error_toofew;
-        else { pushSTACK(unbound); goto apply_subr_norest; }
-      case (uintW)subr_argtype_0_2:
-        # SUBR with 2 optional-Arguments
+        else { pushSTACK(unbound); goto apply_cclosure_nokey; }
+      case (uintB)cclos_argtype_0_2: /* 2 optional arguments */
         switch (args_on_stack) {
           case 0: pushSTACK(unbound);
           case 1: pushSTACK(unbound);
-          case 2: goto apply_subr_norest;
+          case 2: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_1_2:
-        # SUBR with 1 required-Argument and 2 optional-Arguments
+      case (uintB)cclos_argtype_1_2: /* 1 required and 2 optional */
         switch (args_on_stack) {
           case 0: goto error_toofew;
           case 1: pushSTACK(unbound);
           case 2: pushSTACK(unbound);
-          case 3: goto apply_subr_norest;
+          case 3: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_2_2:
-        # SUBR with 2 required-Arguments and 2 optional-Arguments
+      case (uintB)cclos_argtype_2_2: /* 2 required and 2 optional */
         switch (args_on_stack) {
-          case 0: goto error_toofew;
-          case 1: goto error_toofew;
+          case 0: case 1: goto error_toofew;
           case 2: pushSTACK(unbound);
           case 3: pushSTACK(unbound);
-          case 4: goto apply_subr_norest;
+          case 4: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_3_2:
-        # SUBR with 3 required-Arguments and 2 optional-Arguments
+      case (uintB)cclos_argtype_3_2: /* 3 required and 2 optional */
         switch (args_on_stack) {
-          case 0: goto error_toofew;
-          case 1: goto error_toofew;
-          case 2: goto error_toofew;
+          case 0: case 1: case 2: goto error_toofew;
           case 3: pushSTACK(unbound);
           case 4: pushSTACK(unbound);
-          case 5: goto apply_subr_norest;
+          case 5: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_0_3:
-        # SUBR with 3 optional-Arguments
+      case (uintB)cclos_argtype_0_3: /* 3 optional arguments */
         switch (args_on_stack) {
           case 0: pushSTACK(unbound);
           case 1: pushSTACK(unbound);
           case 2: pushSTACK(unbound);
-          case 3: goto apply_subr_norest;
+          case 3: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_1_3:
-        # SUBR with 1 required-Argument and 3 optional-Arguments
+      case (uintB)cclos_argtype_1_3: /* 1 required and 3 optional */
         switch (args_on_stack) {
           case 0: goto error_toofew;
           case 1: pushSTACK(unbound);
           case 2: pushSTACK(unbound);
           case 3: pushSTACK(unbound);
-          case 4: goto apply_subr_norest;
+          case 4: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_2_3:
-        # SUBR with 2 required-Arguments and 3 optional-Arguments
+      case (uintB)cclos_argtype_2_3: /* 2 required and 3 optional */
         switch (args_on_stack) {
-          case 0: goto error_toofew;
-          case 1: goto error_toofew;
+          case 0: case 1: goto error_toofew;
           case 2: pushSTACK(unbound);
           case 3: pushSTACK(unbound);
           case 4: pushSTACK(unbound);
-          case 5: goto apply_subr_norest;
+          case 5: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_0_4:
-        # SUBR with 4 optional-Arguments
+      case (uintB)cclos_argtype_0_4: /* 4 optional arguments */
         switch (args_on_stack) {
           case 0: pushSTACK(unbound);
           case 1: pushSTACK(unbound);
           case 2: pushSTACK(unbound);
           case 3: pushSTACK(unbound);
-          case 4: goto apply_subr_norest;
+          case 4: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_0_5:
-        # SUBR with 5 optional-Arguments
+      case (uintB)cclos_argtype_1_4: /* 1 required and 4 optional */
+        switch (args_on_stack) {
+          case 0: goto error_toofew;
+          case 1: pushSTACK(unbound);
+          case 2: pushSTACK(unbound);
+          case 3: pushSTACK(unbound);
+          case 4: pushSTACK(unbound);
+          case 5: goto apply_cclosure_nokey;
+          default: goto error_toomany;
+        }
+      case (uintB)cclos_argtype_0_5: /* 5 optional arguments */
         switch (args_on_stack) {
           case 0: pushSTACK(unbound);
           case 1: pushSTACK(unbound);
           case 2: pushSTACK(unbound);
           case 3: pushSTACK(unbound);
           case 4: pushSTACK(unbound);
-          case 5: goto apply_subr_norest;
+          case 5: goto apply_cclosure_nokey;
           default: goto error_toomany;
         }
-      case (uintW)subr_argtype_0_0_rest:
-        # SUBR with further Arguments
-        goto apply_subr_rest_ok;
-      case (uintW)subr_argtype_1_0_rest:
-        # SUBR with 1 required-Argument and further Arguments
+      case (uintB)cclos_argtype_0_0_rest: /* no Arguments, &rest */
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_1_0_rest: /* 1 required + &rest */
         if (args_on_stack==0) goto error_toofew;
         args_on_stack -= 1;
-        goto apply_subr_rest_ok;
-      case (uintW)subr_argtype_2_0_rest:
-        # SUBR with 2 required-Argumenten and further Arguments
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_2_0_rest: /* 2 required + &rest */
         if (args_on_stack<2) goto error_toofew;
         args_on_stack -= 2;
-        goto apply_subr_rest_ok;
-      case (uintW)subr_argtype_3_0_rest:
-        # SUBR with 3 required-Argumenten and further Arguments
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_3_0_rest: /* 3 required + &rest */
         if (args_on_stack<3) goto error_toofew;
         args_on_stack -= 3;
-        goto apply_subr_rest_ok;
-      case (uintW)subr_argtype_0_0_key:
-        # SUBR with Keyword-Arguments
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_4_0_rest: /* 4 required + &rest */
+        if (args_on_stack<4) goto error_toofew;
+        args_on_stack -= 4;
+        goto apply_cclosure_rest_nokey;
+      case (uintB)cclos_argtype_0_0_key: /* only &key */
         if (args_on_stack==0) goto unbound_optional_key_0;
-        else goto apply_subr_key;
-      case (uintW)subr_argtype_1_0_key:
-        # SUBR with 1 required-Argument and Keyword-Arguments
+        else goto apply_cclosure_key_withargs;
+      case (uintB)cclos_argtype_1_0_key: /* 1 required argument, &key */
         if (args_on_stack==1) goto unbound_optional_key_0;
         else if (args_on_stack<1) goto error_toofew;
-        else { args_on_stack -= 1; goto apply_subr_key; }
-      case (uintW)subr_argtype_2_0_key:
-        # SUBR with 2 required-Arguments and Keyword-Arguments
+        else { args_on_stack -= 1; goto apply_cclosure_key_withargs; }
+      case (uintB)cclos_argtype_2_0_key: /* 2 required arguments, &key */
         if (args_on_stack==2) goto unbound_optional_key_0;
         else if (args_on_stack<2) goto error_toofew;
-        else { args_on_stack -= 2; goto apply_subr_key; }
-      case (uintW)subr_argtype_3_0_key:
-        # SUBR with 3 required-Arguments and Keyword-Arguments
+        else { args_on_stack -= 2; goto apply_cclosure_key_withargs; }
+      case (uintB)cclos_argtype_3_0_key: /* 3 required arguments, &key */
         if (args_on_stack==3) goto unbound_optional_key_0;
         else if (args_on_stack<3) goto error_toofew;
-        else { args_on_stack -= 3; goto apply_subr_key; }
-      case (uintW)subr_argtype_4_0_key:
-        # SUBR with 4 required-Arguments and Keyword-Arguments
+        else { args_on_stack -= 3; goto apply_cclosure_key_withargs; }
+      case (uintB)cclos_argtype_4_0_key: /* 4 required arguments, &key */
         if (args_on_stack==4) goto unbound_optional_key_0;
         else if (args_on_stack<4) goto error_toofew;
-        else { args_on_stack -= 4; goto apply_subr_key; }
-      case (uintW)subr_argtype_0_1_key:
-        # SUBR with 1 optional-Argument and Keyword-Arguments
+        else { args_on_stack -= 4; goto apply_cclosure_key_withargs; }
+      case (uintB)cclos_argtype_0_1_key: /* 1 optional argument, &key */
         switch (args_on_stack) {
           case 0: goto unbound_optional_key_1;
           case 1: goto unbound_optional_key_0;
-          default: args_on_stack -= 1; goto apply_subr_key;
+          default: args_on_stack -= 1; goto apply_cclosure_key_withargs;
         }
-      case (uintW)subr_argtype_1_1_key:
-        # SUBR with 1 required-Argument, 1 optional-Argument and Keyword-Arguments
+      case (uintB)cclos_argtype_1_1_key:
+        /* 1 required argument and 1 optional argument, &key */
         switch (args_on_stack) {
           case 0: goto error_toofew;
           case 1: goto unbound_optional_key_1;
           case 2: goto unbound_optional_key_0;
-          default: args_on_stack -= 2; goto apply_subr_key;
+          default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
         }
-      case (uintW)subr_argtype_1_2_key:
-        # SUBR with 1 required-Argument, 2 optional-Arguments and Keyword-Arguments
+      case (uintB)cclos_argtype_2_1_key:
+        /* 2 required arguments and 1 optional argument, &key */
+        switch (args_on_stack) {
+          case 0: case 1: goto error_toofew;
+          case 2: goto unbound_optional_key_1;
+          case 3: goto unbound_optional_key_0;
+          default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
+        }
+      case (uintB)cclos_argtype_3_1_key:
+        /* 3 required arguments and 1 optional argument, &key */
+        switch (args_on_stack) {
+          case 0: case 1: case 2: goto error_toofew;
+          case 3: goto unbound_optional_key_1;
+          case 4: goto unbound_optional_key_0;
+          default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
+        }
+      case (uintB)cclos_argtype_0_2_key: /* 2 optional arguments, &key */
+        switch (args_on_stack) {
+          case 0: goto unbound_optional_key_2;
+          case 1: goto unbound_optional_key_1;
+          case 2: goto unbound_optional_key_0;
+          default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
+        }
+      case (uintB)cclos_argtype_1_2_key:
+        /* 1 required argument and 2 optional arguments, &key */
         switch (args_on_stack) {
           case 0: goto error_toofew;
           case 1: goto unbound_optional_key_2;
           case 2: goto unbound_optional_key_1;
           case 3: goto unbound_optional_key_0;
-          default: args_on_stack -= 3; goto apply_subr_key;
+          default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
         }
-      unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0
-        pushSTACK(unbound);
-      unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0
-        pushSTACK(unbound);
-      unbound_optional_key_0: # Before the Keywords is args_on_stack=0
-        {
-          var uintC count;
-          dotimesC(count,TheSubr(fun)->key_count, { pushSTACK(unbound); } );
+      case (uintB)cclos_argtype_2_2_key:
+        /* 2 required arguments and 2 optional arguments, &key */
+        switch (args_on_stack) {
+          case 0: case 1: goto error_toofew;
+          case 2: goto unbound_optional_key_2;
+          case 3: goto unbound_optional_key_1;
+          case 4: goto unbound_optional_key_0;
+          default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
         }
-        goto apply_subr_norest;
+      case (uintB)cclos_argtype_0_3_key: /* 3 optional arguments, &key */
+        switch (args_on_stack) {
+          case 0: goto unbound_optional_key_3;
+          case 1: goto unbound_optional_key_2;
+          case 2: goto unbound_optional_key_1;
+          case 3: goto unbound_optional_key_0;
+          default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
+        }
+      case (uintB)cclos_argtype_1_3_key:
+        /* 1 required argument and 3 optional arguments, &key */
+        switch (args_on_stack) {
+          case 0: goto error_toofew;
+          case 1: goto unbound_optional_key_3;
+          case 2: goto unbound_optional_key_2;
+          case 3: goto unbound_optional_key_1;
+          case 4: goto unbound_optional_key_0;
+          default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
+        }
+      case (uintB)cclos_argtype_0_4_key: /* 4 optional arguments, &key */
+        switch (args_on_stack) {
+          case 0: goto unbound_optional_key_4;
+          case 1: goto unbound_optional_key_3;
+          case 2: goto unbound_optional_key_2;
+          case 3: goto unbound_optional_key_1;
+          case 4: goto unbound_optional_key_0;
+          default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
+        }
+      unbound_optional_key_4: /* Still 4 optionals, but args_on_stack=0 */
+        pushSTACK(unbound);
+      unbound_optional_key_3: /* Still 3 optionals, but args_on_stack=0 */
+        pushSTACK(unbound);
+      unbound_optional_key_2: /* Still 2 optionals, but args_on_stack=0 */
+        pushSTACK(unbound);
+      unbound_optional_key_1: /* Still 1 optional, but args_on_stack=0 */
+        pushSTACK(unbound);
+      unbound_optional_key_0: /* Before the Keywords is args_on_stack=0 */
+        goto apply_cclosure_key_noargs;
+      case (uintB)cclos_argtype_default:
+        /* General Version */
+        break;
       default: NOTREACHED;
-      #undef OPT_ARG
-      #undef REQ_ARG
     }
-    # Now the general Version:
+    /* Now the general version: */
     {
-      var uintC key_count;
+      var uintB flags;
       {
-        var uintC req_count = TheSubr(fun)->req_count;
-        var uintC opt_count = TheSubr(fun)->opt_count;
-        key_count = TheSubr(fun)->key_count;
+        var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
+        var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
+        flags = TheCodevec(codevec)->ccv_flags; /* Flags */
         if (args_on_stack < req_count)
-          # fewer Arguments than demanded
+          /* fewer Arguments than demanded */
           goto error_toofew;
         args_on_stack -= req_count; /* remaining number */
         if (args_on_stack <= opt_count) {
           /* Arguments in Stack don't last for the optional ones */
           opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
-          if (opt_count + key_count > 0) {
+          if (opt_count > 0) {
             /* reserve space on STACK: */
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)(opt_count + key_count));
-            # All further count optional parameters receive the "value"
-            # #<UNBOUND>, including the Keyword-parameters:
+            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
+            /* All further count optional parameters receive the "value"
+             #<UNBOUND>, the &REST-parameter receives NIL,
+             the Keyword-parameters receive the value #<UNBOUND> : */
             var uintC count;
-            dotimespC(count,opt_count + key_count, { pushSTACK(unbound); } );
+            dotimespC(count,opt_count, { pushSTACK(unbound); } );
           }
-          if (TheSubr(fun)->rest_flag == subr_rest) { # &REST-Flag?
-            # yes -> 0 additional Arguments:
-            argcount = 0; rest_args_pointer = args_end_pointer;
-            goto apply_subr_rest;
-          } else {
-            # no -> nothing to do
-            goto apply_subr_norest;
-          }
-        }
-        args_on_stack -= opt_count; /* remaining number (> 0) */
-        if (TheSubr(fun)->key_flag == subr_nokey) {
-          # SUBR without KEY
-          if (TheSubr(fun)->rest_flag == subr_norest)
-            # SUBR without REST or KEY
-            goto error_toomany; # still Arguments!
+          if (flags & bit(0))   /* &REST-Flag? */
+            pushSTACK(NIL);     /* yes -> initialize with NIL */
+          if (flags & bit(7))   /* &KEY-Flag? */
+            goto apply_cclosure_key_noargs;
           else
-            # SUBR with only REST, without KEY
-            goto apply_subr_rest_ok;
-        } else
-          # SUBR with Keywords.
-          goto apply_subr_key_;
+            goto apply_cclosure_nokey;
+        }
+        args_on_stack -= opt_count; /* remaining number */
+        if (flags & bit(7))         /* Key-Flag? */
+          goto apply_cclosure_key_withargs_;
+        else if (flags & bit(0))
+          goto apply_cclosure_rest_nokey;
+        else {
+          /* Closure without REST or KEY */
+          if (args_on_stack>0)  /* still arguments? */
+            goto error_toomany;
+          goto apply_cclosure_nokey;
+        }
       }
-     apply_subr_key:
-      key_count = TheSubr(fun)->key_count;
-     apply_subr_key_:
-      # shift down remaining arguments in STACK and thus
-      # create room for the Keyword-parameters:
-      argcount = args_on_stack; # (> 0)
-      get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+     apply_cclosure_key_noargs:
       {
-        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)key_count;
+        var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
+        if (key_count > 0) {
+          get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
+          var uintC count;
+          dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
+        }
+        goto apply_cclosure_key;
+      }
+     apply_cclosure_key_withargs:
+      flags = TheCodevec(codevec)->ccv_flags; /* initialize Flags! */
+     apply_cclosure_key_withargs_:
+      /* Closure with Keywords */
+      {
+        var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
+        /* shift down remaining arguments in STACK and thus
+         create room for the Keyword-parameters
+         (and poss. Rest-parameters): */
+        var uintL shift = key_count;
+        if (flags & bit(0))
+          shift++;              /* poss. 1 more for Rest-Parameter */
+        argcount = args_on_stack;
+        get_space_on_STACK(sizeof(gcv_object_t) * shift);
+        var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
         var gcv_object_t* ptr1 = args_end_pointer;
         var gcv_object_t* ptr2 = new_args_end_pointer;
         var uintC count;
-        dotimespC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
+        dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
+        if (flags & bit(0))
+          NEXT(ptr1) = unbound; /* Rest-Parameter */
         key_args_pointer = ptr1;
         rest_args_pointer = ptr2;
         dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
         set_args_end_pointer(new_args_end_pointer);
       }
-      # assign Keywords and poss. discard remaining Arguments:
-      match_subr_key(fun,argcount,key_args_pointer,rest_args_pointer);
-      if (TheSubr(fun)->rest_flag != subr_norest)
-        # SUBR with &REST-Flag:
-        goto apply_subr_rest;
-      else
-        # SUBR without &REST-Flag:
-        goto apply_subr_norest;
+      /* assign Keywords, build Rest-Parameter
+       and poss. discard remaining arguments: */
+      closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
+      codevec = TheCclosure(closure)->clos_codevec;
+     apply_cclosure_key:
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* process Bytecode starting at Byte 12 */
+      goto done;
     }
-   apply_subr_rest_ok:
-    argcount = args_on_stack;
-    rest_args_pointer = args_end_pointer STACKop argcount;
-   apply_subr_rest:
-    with_saved_back_trace_subr(fun,STACK,
-                               TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
-      (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
-    goto done;
-   apply_subr_norest:
-    with_saved_back_trace_subr(fun,STACK,args_on_stack,
-      (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
+   apply_cclosure_rest_nokey:
+    /* Closure with only REST, without KEY:
+     still must cons args_on_stack arguments from stack Stack: */
+    pushSTACK(NIL);
+    if (args_on_stack > 0) {
+      pushSTACK(closure);       /* Closure must be saved */
+      dotimesC(args_on_stack,args_on_stack, {
+        var object new_cons = allocate_cons();
+        Cdr(new_cons) = STACK_1;
+        Car(new_cons) = STACK_2; /* cons next argument to it */
+        STACK_2 = new_cons;
+        STACK_1 = STACK_0; skipSTACK(1);
+      });
+      closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
+    }
+   apply_cclosure_nokey:        /* jump to Closure without &KEY: */
+    interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* process Bytecode starting at Byte 8 */
    done:
-    #if STACKCHECKS
-    if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
-      abort(); # no -> go to Debugger
+    #if STACKCHECKC
+    if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
+      abort();                               /* no -> go to Debugger */
     #endif
-    return; # finished
-    # Gathered error-messages:
-   error_count:
-    if (args_on_stack < TheSubr(fun)->req_count)
-      goto error_toofew; # too few Arguments
+    return;                     /* finished */
+   error_count:               /* collected error-messages: */
+    if (args_on_stack < TheCodevec(codevec)->ccv_numreq)
+      goto error_toofew;      /* too few arguments */
     else
-      goto error_toomany; # too many Arguments
-   error_toofew: error_subr_toofew(fun,NIL);
-   error_toomany: error_subr_toomany(fun);
+      goto error_toomany;     /* too many arguments */
+   error_toofew: error_closure_toofew(closure,NIL);
+   error_toomany: error_closure_toomany(closure);
+  } else {
+    /* closure is an interpreted Closure */
+    var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
+    with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
+      funcall_iclosure(closure,args_pointer,args_on_stack); );
   }
-
-# In FUNCALL: Applies a Closure to Arguments, cleans up STACK
-# and returns the values.
-# funcall_closure(fun,args_on_stack);
-# > fun: function, a Closure
-# > Argumente: args_on_stack Arguments on STACK
-# < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  local maygc Values funcall_closure (object closure, uintC args_on_stack)
-  {
-    TRACE_CALL(closure,'F','C');
-    if (simple_bit_vector_p(Atype_8Bit,TheClosure(closure)->clos_codevec)) {
-      # closure is a compiled Closure
-      #if STACKCHECKC
-      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack; # Pointer to the Arguments
-      #endif
-      var object codevec = TheCclosure(closure)->clos_codevec; # Code-Vector
-      var gcv_object_t* key_args_pointer; # Pointer to the Keyword-Arguments
-      var gcv_object_t* rest_args_pointer; # Pointer to the remaining Arguments
-      var uintL argcount; # number of remaining Arguments
-      check_SP(); check_STACK();
-      # store arguments in STACK:
-      # First a Dispatch for the most important cases:
-      switch (TheCodevec(codevec)->ccv_signature) {
-        case (uintB)cclos_argtype_0_0:
-          # no Arguments
-          if (!(args_on_stack==0)) goto error_toomany;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_1_0:
-          # 1 required-Argument
-          if (!(args_on_stack==1)) goto error_count;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_2_0:
-          # 2 required-Arguments
-          if (!(args_on_stack==2)) goto error_count;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_3_0:
-          # 3 required-Arguments
-          if (!(args_on_stack==3)) goto error_count;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_4_0:
-          # 4 required-Arguments
-          if (!(args_on_stack==4)) goto error_count;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_5_0:
-          # 5 required-Arguments
-          if (!(args_on_stack==5)) goto error_count;
-          goto apply_cclosure_nokey;
-        case (uintB)cclos_argtype_0_1:
-          # 1 optional-Argument
-          if (args_on_stack==1) goto apply_cclosure_nokey;
-          else if (args_on_stack>1) goto error_toomany;
-          else { pushSTACK(unbound); goto apply_cclosure_nokey; }
-        case (uintB)cclos_argtype_1_1:
-          # 1 required-Argument and 1 optional-Argument
-          if (args_on_stack==2) goto apply_cclosure_nokey;
-          else if (args_on_stack>2) goto error_toomany;
-          else if (args_on_stack==0) goto error_toofew;
-          else { pushSTACK(unbound); goto apply_cclosure_nokey; }
-        case (uintB)cclos_argtype_2_1:
-          # 2 required-Arguments and 1 optional-Argument
-          if (args_on_stack==3) goto apply_cclosure_nokey;
-          else if (args_on_stack>3) goto error_toomany;
-          else if (args_on_stack<2) goto error_toofew;
-          else { pushSTACK(unbound); goto apply_cclosure_nokey; }
-        case (uintB)cclos_argtype_3_1:
-          # 3 required-Arguments and 1 optional-Argument
-          if (args_on_stack==4) goto apply_cclosure_nokey;
-          else if (args_on_stack>4) goto error_toomany;
-          else if (args_on_stack<3) goto error_toofew;
-          else { pushSTACK(unbound); goto apply_cclosure_nokey; }
-        case (uintB)cclos_argtype_4_1:
-          # 4 required-Arguments and 1 optional-Argument
-          if (args_on_stack==5) goto apply_cclosure_nokey;
-          else if (args_on_stack>5) goto error_toomany;
-          else if (args_on_stack<4) goto error_toofew;
-          else { pushSTACK(unbound); goto apply_cclosure_nokey; }
-        case (uintB)cclos_argtype_0_2:
-          # 2 optional-Arguments
-          switch (args_on_stack) {
-            case 0: pushSTACK(unbound);
-            case 1: pushSTACK(unbound);
-            case 2: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_1_2:
-          # 1 required-Argument and 2 optional-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_2_2:
-          # 2 required-Arguments and 2 optional-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: goto error_toofew;
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_3_2:
-          # 3 required-Arguments and 2 optional-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: case 2: goto error_toofew;
-            case 3: pushSTACK(unbound);
-            case 4: pushSTACK(unbound);
-            case 5: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_0_3:
-          # 3 optional-Arguments
-          switch (args_on_stack) {
-            case 0: pushSTACK(unbound);
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_1_3:
-          # 1 required-Argument and 3 optional-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_2_3:
-          # 2 required-Arguments and 3 optional-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: goto error_toofew;
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: pushSTACK(unbound);
-            case 5: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_0_4:
-          # 4 optional-Arguments
-          switch (args_on_stack) {
-            case 0: pushSTACK(unbound);
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_1_4:
-          # 1 required-Argument and 4 optional-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: pushSTACK(unbound);
-            case 5: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_0_5:
-          # 5 optional-Arguments
-          switch (args_on_stack) {
-            case 0: pushSTACK(unbound);
-            case 1: pushSTACK(unbound);
-            case 2: pushSTACK(unbound);
-            case 3: pushSTACK(unbound);
-            case 4: pushSTACK(unbound);
-            case 5: goto apply_cclosure_nokey;
-            default: goto error_toomany;
-          }
-        case (uintB)cclos_argtype_0_0_rest:
-          # no Arguments, Rest-Parameter
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_1_0_rest:
-          # 1 required-Argument, Rest-Parameter
-          if (args_on_stack==0) goto error_toofew;
-          args_on_stack -= 1;
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_2_0_rest:
-          # 2 required-Arguments, Rest-Parameter
-          if (args_on_stack<2) goto error_toofew;
-          args_on_stack -= 2;
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_3_0_rest:
-          # 3 required-Arguments, Rest-Parameter
-          if (args_on_stack<3) goto error_toofew;
-          args_on_stack -= 3;
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_4_0_rest:
-          # 4 required-Arguments, Rest-Parameter
-          if (args_on_stack<4) goto error_toofew;
-          args_on_stack -= 4;
-          goto apply_cclosure_rest_nokey;
-        case (uintB)cclos_argtype_0_0_key:
-          # only Keyword-Arguments
-          if (args_on_stack==0) goto unbound_optional_key_0;
-          else goto apply_cclosure_key_withargs;
-        case (uintB)cclos_argtype_1_0_key:
-          # 1 required-Argument, Keyword-Arguments
-          if (args_on_stack==1) goto unbound_optional_key_0;
-          else if (args_on_stack<1) goto error_toofew;
-          else { args_on_stack -= 1; goto apply_cclosure_key_withargs; }
-        case (uintB)cclos_argtype_2_0_key:
-          # 2 required-Arguments, Keyword-Arguments
-          if (args_on_stack==2) goto unbound_optional_key_0;
-          else if (args_on_stack<2) goto error_toofew;
-          else { args_on_stack -= 2; goto apply_cclosure_key_withargs; }
-        case (uintB)cclos_argtype_3_0_key:
-          # 3 required-Arguments, Keyword-Arguments
-          if (args_on_stack==3) goto unbound_optional_key_0;
-          else if (args_on_stack<3) goto error_toofew;
-          else { args_on_stack -= 3; goto apply_cclosure_key_withargs; }
-        case (uintB)cclos_argtype_4_0_key:
-          # 4 required-Arguments, Keyword-Arguments
-          if (args_on_stack==4) goto unbound_optional_key_0;
-          else if (args_on_stack<4) goto error_toofew;
-          else { args_on_stack -= 4; goto apply_cclosure_key_withargs; }
-        case (uintB)cclos_argtype_0_1_key:
-          # 1 optional-Argument, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto unbound_optional_key_1;
-            case 1: goto unbound_optional_key_0;
-            default: args_on_stack -= 1; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_1_1_key:
-          # 1 required-Argument and 1 optional-Argument, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: goto unbound_optional_key_1;
-            case 2: goto unbound_optional_key_0;
-            default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_2_1_key:
-          # 2 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: goto error_toofew;
-            case 2: goto unbound_optional_key_1;
-            case 3: goto unbound_optional_key_0;
-            default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_3_1_key:
-          # 3 required-Arguments and 1 optional-Argument, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: case 2: goto error_toofew;
-            case 3: goto unbound_optional_key_1;
-            case 4: goto unbound_optional_key_0;
-            default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_0_2_key:
-          # 2 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto unbound_optional_key_2;
-            case 1: goto unbound_optional_key_1;
-            case 2: goto unbound_optional_key_0;
-            default: args_on_stack -= 2; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_1_2_key:
-          # 1 required-Argument and 2 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: goto unbound_optional_key_2;
-            case 2: goto unbound_optional_key_1;
-            case 3: goto unbound_optional_key_0;
-            default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_2_2_key:
-          # 2 required-Arguments and 2 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: case 1: goto error_toofew;
-            case 2: goto unbound_optional_key_2;
-            case 3: goto unbound_optional_key_1;
-            case 4: goto unbound_optional_key_0;
-            default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_0_3_key:
-          # 3 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto unbound_optional_key_3;
-            case 1: goto unbound_optional_key_2;
-            case 2: goto unbound_optional_key_1;
-            case 3: goto unbound_optional_key_0;
-            default: args_on_stack -= 3; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_1_3_key:
-          # 1 required-Argument and 3 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto error_toofew;
-            case 1: goto unbound_optional_key_3;
-            case 2: goto unbound_optional_key_2;
-            case 3: goto unbound_optional_key_1;
-            case 4: goto unbound_optional_key_0;
-            default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
-          }
-        case (uintB)cclos_argtype_0_4_key:
-          # 4 optional-Arguments, Keyword-Arguments
-          switch (args_on_stack) {
-            case 0: goto unbound_optional_key_4;
-            case 1: goto unbound_optional_key_3;
-            case 2: goto unbound_optional_key_2;
-            case 3: goto unbound_optional_key_1;
-            case 4: goto unbound_optional_key_0;
-            default: args_on_stack -= 4; goto apply_cclosure_key_withargs;
-          }
-        unbound_optional_key_4: # Still 4 optional Arguments, but args_on_stack=0
-          pushSTACK(unbound);
-        unbound_optional_key_3: # Still 3 optional Arguments, but args_on_stack=0
-          pushSTACK(unbound);
-        unbound_optional_key_2: # Still 2 optional Arguments, but args_on_stack=0
-          pushSTACK(unbound);
-        unbound_optional_key_1: # Still 1 optional Argument, but args_on_stack=0
-          pushSTACK(unbound);
-        unbound_optional_key_0: # Before the Keywords is args_on_stack=0
-          goto apply_cclosure_key_noargs;
-        case (uintB)cclos_argtype_default:
-          # General Version
-          break;
-        default: NOTREACHED;
-      }
-      # Now the general version:
-      {
-        var uintB flags;
-        {
-          var uintC req_count = TheCodevec(codevec)->ccv_numreq; /* number of required Parameters */
-          var uintC opt_count = TheCodevec(codevec)->ccv_numopt; /* number of optional Parameters */
-          flags = TheCodevec(codevec)->ccv_flags; /* Flags */
-          if (args_on_stack < req_count)
-            /* fewer Arguments than demanded */
-            goto error_toofew;
-          args_on_stack -= req_count; /* remaining number */
-          if (args_on_stack <= opt_count) {
-            /* Arguments in Stack don't last for the optional ones */
-            opt_count = opt_count - args_on_stack; /* as many as these must go on STACK */
-            if (opt_count > 0) {
-              # reserve space on STACK:
-              get_space_on_STACK(sizeof(gcv_object_t) * (uintL)opt_count);
-              # All further count optional parameters receive the "value"
-              # #<UNBOUND>, the &REST-parameter receives NIL,
-              # the Keyword-parameters receive the value #<UNBOUND> :
-              var uintC count;
-              dotimespC(count,opt_count, { pushSTACK(unbound); } );
-            }
-            if (flags & bit(0)) # &REST-Flag?
-              pushSTACK(NIL); # yes -> initialize with NIL
-            if (flags & bit(7)) # &KEY-Flag?
-              goto apply_cclosure_key_noargs;
-            else
-              goto apply_cclosure_nokey;
-          }
-          args_on_stack -= opt_count; /* remaining number */
-          if (flags & bit(7)) # Key-Flag?
-            goto apply_cclosure_key_withargs_;
-          else if (flags & bit(0))
-            goto apply_cclosure_rest_nokey;
-          else {
-            # Closure without REST or KEY
-            if (args_on_stack>0) # still arguments?
-              goto error_toomany;
-            goto apply_cclosure_nokey;
-          }
-        }
-       apply_cclosure_key_noargs:
-        {
-          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
-          if (key_count > 0) {
-            get_space_on_STACK(sizeof(gcv_object_t) * (uintL)key_count);
-            var uintC count;
-            dotimespC(count,key_count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
-          }
-          goto apply_cclosure_key;
-        }
-       apply_cclosure_key_withargs:
-        flags = TheCodevec(codevec)->ccv_flags; /* initialize Flags! */
-       apply_cclosure_key_withargs_:
-        /* Closure with Keywords */
-        {
-          var uintC key_count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-Parameters */
-          # shift down remaining arguments in STACK and thus
-          # create room for the Keyword-parameters
-          # (and poss. Rest-parameters):
-          var uintL shift = key_count;
-          if (flags & bit(0))
-            shift++; # poss. 1 more for Rest-Parameter
-          argcount = args_on_stack;
-          get_space_on_STACK(sizeof(gcv_object_t) * shift);
-          var gcv_object_t* new_args_end_pointer = args_end_pointer STACKop -(uintP)shift;
-          var gcv_object_t* ptr1 = args_end_pointer;
-          var gcv_object_t* ptr2 = new_args_end_pointer;
-          var uintC count;
-          dotimesC(count,args_on_stack, { BEFORE(ptr2) = BEFORE(ptr1); } );
-          if (flags & bit(0))
-            NEXT(ptr1) = unbound; # Rest-Parameter
-          key_args_pointer = ptr1;
-          rest_args_pointer = ptr2;
-          dotimesC(count,key_count, { NEXT(ptr1) = unbound; } );
-          set_args_end_pointer(new_args_end_pointer);
-        }
-        # assign Keywords, build Rest-Parameter
-        # and poss. discard remaining arguments:
-        closure = match_cclosure_key(closure,argcount,key_args_pointer,rest_args_pointer);
-        codevec = TheCclosure(closure)->clos_codevec;
-       apply_cclosure_key:
-        interpret_bytecode(closure,codevec,CCV_START_KEY); # process Bytecode starting at Byte 12
-        goto done;
-      }
-     apply_cclosure_rest_nokey:
-      # Closure with only REST, without KEY:
-      # still must cons args_on_stack arguments from stack Stack:
-      pushSTACK(NIL);
-      if (args_on_stack > 0) {
-        pushSTACK(closure); # Closure must be saved
-        dotimesC(args_on_stack,args_on_stack, {
-          var object new_cons = allocate_cons();
-          Cdr(new_cons) = STACK_1;
-          Car(new_cons) = STACK_2; # cons next argument to it
-          STACK_2 = new_cons;
-          STACK_1 = STACK_0; skipSTACK(1);
-        });
-        closure = popSTACK(); codevec = TheCclosure(closure)->clos_codevec;
-      }
-     apply_cclosure_nokey: # jump to Closure without &KEY:
-      interpret_bytecode(closure,codevec,CCV_START_NONKEY); # process Bytecode starting at Byte 8
-     done:
-      #if STACKCHECKC
-      if (!(args_pointer == args_end_pointer)) # Stack cleaned up?
-        abort(); # no -> go to Debugger
-      #endif
-      return; # finished
-     error_count:               /* collected error-messages: */
-      if (args_on_stack < TheCodevec(codevec)->ccv_numreq)
-        goto error_toofew;      /* too few arguments */
-      else
-        goto error_toomany;     /* too many arguments */
-     error_toofew: error_closure_toofew(closure,NIL);
-     error_toomany: error_closure_toomany(closure);
-    } else {
-      /* closure is an interpreted Closure */
-      var gcv_object_t* args_pointer = args_end_pointer STACKop args_on_stack;
-      with_saved_back_trace_iclosure(closure,args_pointer,args_on_stack,
-        funcall_iclosure(closure,args_pointer,args_on_stack); );
-    }
-  }
+}
 
 
-#      ---------------------- BYTECODE-INTERPRETER ----------------------
+/* ---------------------- BYTECODE-INTERPRETER ---------------------- */
 
-# Interpretes the bytecode of a compiled Closure.
-# interpret_bytecode_(closure,codeptr,byteptr);
-# > closure: compiled closure
-# > codeptr: its Codevector, a Simple-Bit-Vector, pointable
-# > byteptr: Start-Bytecodepointer
-# < mv_count/mv_space: values
-# changes STACK, can trigger GC
-  # Syntax of local labels in GNU-C assembler-statements:
-  #if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
-    # LD(x) defines Label with number x
-    # LR(x,f) references label with number x forwards
-    # LR(x,b) references label with number x backwards
-    # The scope of the labels is only one assembler-statement.
-    #if defined(I80386) && !defined(UNIX_NEXTSTEP)
-      #ifdef ASM_UNDERSCORE
-        #define LD(nr)  "LASM%=X" STRING(nr)
-        #define LR(nr,fb)  "LASM%=X" STRING(nr)
-      #else
-        #define LD(nr)  ".LASM%=X" STRING(nr)
-        #define LR(nr,fb)  ".LASM%=X" STRING(nr)
-      #endif
-    #elif defined(ARM)
+/* Interpretes the bytecode of a compiled Closure.
+ interpret_bytecode_(closure,codeptr,byteptr);
+ > closure: compiled closure
+ > codeptr: its Codevector, a Simple-Bit-Vector, pointable
+ > byteptr: Start-Bytecodepointer
+ < mv_count/mv_space: values
+ changes STACK, can trigger GC
+   Syntax of local labels in GNU-C assembler-statements: */
+#if (defined(GNU) || defined(INTEL)) && !defined(NO_ASM)
+  /* LD(x) defines Label with number x
+   LR(x,f) references label with number x forwards
+   LR(x,b) references label with number x backwards
+   The scope of the labels is only one assembler-statement. */
+  #if defined(I80386) && !defined(UNIX_NEXTSTEP)
+    #ifdef ASM_UNDERSCORE
       #define LD(nr)  "LASM%=X" STRING(nr)
       #define LR(nr,fb)  "LASM%=X" STRING(nr)
     #else
-      #define LD(nr)  STRING(nr)
-      #define LR(nr,fb)  STRING(nr) STRING(fb)
+      #define LD(nr)  ".LASM%=X" STRING(nr)
+      #define LR(nr,fb)  ".LASM%=X" STRING(nr)
     #endif
-  #endif
-  # Persuade GNU-C, to keep closure and byteptr in registers:
-  #ifdef GNU
-    #ifdef MC680X0
-      #define closure_register  "a2"
-      #define byteptr_register  "a3"
-    #endif
-    #ifdef SPARC
-      #define closure_register  "%l0"
-      #define byteptr_register  "%l1"
-    #endif
-    #ifdef I80386
-      #if (__GNUC__ >= 2) # The register-names have changed
-        #define byteptr_register  "%edi"
-      #else
-        #define byteptr_register  "di"
-      #endif
-    #endif
-    #ifdef ARM
-      # Code is better without defining registers for closure and byteptr,
-      # says Peter Burwood.
-      # not define closure_register  "%r6"
-      # not define byteptr_register  "%r7"
-      # We have assembler macros below, but if they are used with gcc-2.7.2.1,
-      # (setf cdddr) is miscompiled. So here we temporarily disable them.
-      #ifndef NO_ASM
-        #define NO_ASM
-      #endif
-    #endif
-    #ifdef DECALPHA
-      #define byteptr_register  "$14"
-    #endif
-    #if defined(WIDE) && !defined(WIDE_HARD)
-      # An `object' does not fit into a single register, GCC is overcharged.
-      #undef closure_register
-    #endif
-  #endif
-  #ifndef closure_register
-    #define closure_in  closure
-  #endif
-  #ifndef byteptr_register
-    #define byteptr_in  byteptr
-  #endif
-  #ifdef DEBUG_BYTECODE
-    #define GOTO_ERROR(label)  \
-      do {                                              \
-        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
-        goto label;                                     \
-      } while(0)
-    #define DEBUG_CHECK_BYTEPTR(nb) do {                                \
-      var const uintL b = nb - codeptr->data;                           \
-      if ((b < byteptr_min) || (b > byteptr_max)) {                     \
-        var uintL bp = byteptr - codeptr->data;                         \
-        fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__);                 \
-        byteptr_bad_jump = b - bp;                                      \
-        /*nobject_out(stderr,closure);*/                                \
-        /*fprintf(stderr," jump by %d takes %d outside [%d;%d]",byteptr_bad_jump,bp,byteptr_min,byteptr_max);*/ \
-        goto error_byteptr;                                            \
-      }} while(0)
+  #elif defined(ARM)
+    #define LD(nr)  "LASM%=X" STRING(nr)
+    #define LR(nr,fb)  "LASM%=X" STRING(nr)
   #else
-    #define GOTO_ERROR(label)  goto label
-    #define DEBUG_CHECK_BYTEPTR(b)     do{}while(0)
+    #define LD(nr)  STRING(nr)
+    #define LR(nr,fb)  STRING(nr) STRING(fb)
   #endif
-  local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr, const uintB* byteptr_in)
-  {
-   GCTRIGGER_IF(true, {
-     if (*byteptr_in == cod_handler_begin_push)
-       GCTRIGGER3(closure_in,handler_args.condition,handler_args.spdepth);
-     else
-       GCTRIGGER1(closure_in);
-   });
-   #if STACKCHECKC || defined(DEBUG_BYTECODE)
-    var const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
-      ? CCV_START_KEY : CCV_START_NONKEY;
-   #endif
-   #ifdef DEBUG_BYTECODE
-    var const uintL byteptr_max = sbvector_length(codeptr)-1;
-    var sintL byteptr_bad_jump;
-   #endif
-    # situate argument closure in register:
-    #ifdef closure_register
-    var object closure __asm__(closure_register);
-    closure = closure_in;
-    #endif
-    # situate argument byteptr in register:
-    #ifdef byteptr_register
-    var register const uintB* byteptr __asm__(byteptr_register);
-    byteptr = byteptr_in;
-    #endif
-    TRACE_CALL(closure,'B','C');
-    # situate closure in STACK, below the arguments:
-    var gcv_object_t* closureptr = (pushSTACK(closure), &STACK_0);
-    #ifndef FAST_SP
-      # If there is no fast SP-Access, one has to introduce
-      # an extra pointer:
-      var uintL private_SP_length =
-        (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
-        + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
-      var DYNAMIC_ARRAY(private_SP_space,SPint,private_SP_length);
-      var SPint* private_SP = &private_SP_space[private_SP_length];
-      #undef SP_
-      #undef _SP_
-      #undef skipSP
-      #undef pushSP
-      #undef popSP
-      #define SP_(n)  (private_SP[n])
-      #define _SP_(n)  &SP_(n)
-      #define skipSP(n)  (private_SP += (n))
-      #define pushSP(item)  (*--private_SP = (item))
-      #define popSP(item_assignment)  (item_assignment *private_SP++)
-    #endif
-    # var JMPBUF_on_SP(name);  allocates a sp_jmp_buf in SP.
-    # FREE_JMPBUF_on_SP();  deallocates it.
-    # finish_entry_frame_1(frametype,returner,reentry_statement);  is like
-    # finish_entry_frame(frametype,returner,,reentry_statement);  but
-    # also private_SP is saved.
-    #ifndef FAST_SP
-      #define JMPBUF_on_SP(name)  \
-        sp_jmp_buf* name = (sp_jmp_buf*)(private_SP -= jmpbufsize);
-      #define FREE_JMPBUF_on_SP()  \
-        private_SP += jmpbufsize;
-      #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
-        finish_entry_frame(frametype,*returner, # On entry: returner = private_SP      \
-          returner = (sp_jmp_buf*) , # returner is set again on return           \
-          { private_SP = (SPint*)returner; reentry_statement } # and private_SP is reconstructed \
-          )
+#endif
+/* Persuade GNU-C, to keep closure and byteptr in registers: */
+#ifdef GNU
+  #ifdef MC680X0
+    #define closure_register  "a2"
+    #define byteptr_register  "a3"
+  #endif
+  #ifdef SPARC
+    #define closure_register  "%l0"
+    #define byteptr_register  "%l1"
+  #endif
+  #ifdef I80386
+    #if (__GNUC__ >= 2)         /* The register-names have changed */
+      #define byteptr_register  "%edi"
     #else
-      #ifdef SP_DOWN
-        #define JMPBUF_on_SP(name)  \
-          sp_jmp_buf* name;                   \
-          {var SPint* sp = (SPint*)SP();      \
-           sp -= jmpbufsize;                  \
-           setSP(sp);                         \
-           name = (sp_jmp_buf*)&sp[SPoffset]; \
-          }
-      #endif
-      #ifdef SP_UP
-        #define JMPBUF_on_SP(name)  \
-          sp_jmp_buf* name;                     \
-          {var SPint* sp = (SPint*)SP();        \
-           name = (sp_jmp_buf*)&sp[SPoffset+1]; \
-           sp += jmpbufsize;                    \
-           setSP(sp);                           \
-          }
-      #endif
-      #define FREE_JMPBUF_on_SP()  \
-        skipSP(jmpbufsize);
-      #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
-        finish_entry_frame(frametype,*returner,,reentry_statement)
+      #define byteptr_register  "di"
     #endif
-    #
-    #ifdef FAST_DISPATCH
-      static void* const cod_labels[] = {
-                                          #define BYTECODE(code)  &&code,
-                                          #include "bytecode.c"
-                                          #undef BYTECODE
-                                        };
+  #endif
+  #ifdef ARM
+    /* Code is better without defining registers for closure and byteptr,
+     says Peter Burwood.
+     not define closure_register  "%r6"
+     not define byteptr_register  "%r7"
+     We have assembler macros below, but if they are used with gcc-2.7.2.1,
+     (setf cdddr) is miscompiled. So here we temporarily disable them. */
+    #ifndef NO_ASM
+      #define NO_ASM
     #endif
-    #
-    # next Byte to be interpreted
-    # > mv_count/mv_space: current values
-    # > closureptr: pointer to the compiled closure on Stack
-    # > closure: compiled closure
-    # > codeptr: its codevector, a Simple-Bit-Vektor, pointable
-    #            (no LISP-object, but nevertheless endangered by GC!)
-    # > byteptr: pointer to the next byte in code
-    #            (no LISP-object, but nevertheless endangered by GC!)
-   next_byte:
-    # definition by cases, according to byte to be interpreted byte
-    #ifndef FAST_DISPATCH
-     switch (*byteptr++)
-     #define CASE  case (uintB)
-    #else # FAST_DISPATCH
-     # This is faster by about 2%, because the index-check is dropped.
-     goto *cod_labels[*byteptr++];
-     #define CASE
-     #ifdef FAST_DISPATCH_THREADED
-      # The jump-statement  goto next_byte;  can be omitted:
-      #define next_byte  *cod_labels[*byteptr++]
-     #endif
+  #endif
+  #ifdef DECALPHA
+    #define byteptr_register  "$14"
+  #endif
+  #if defined(WIDE) && !defined(WIDE_HARD)
+    /* An `object' does not fit into a single register, GCC is overcharged. */
+    #undef closure_register
+  #endif
+#endif
+#ifndef closure_register
+  #define closure_in  closure
+#endif
+#ifndef byteptr_register
+  #define byteptr_in  byteptr
+#endif
+#ifdef DEBUG_BYTECODE
+  #define GOTO_ERROR(label)  \
+    do {                                              \
+      fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
+      goto label;                                     \
+    } while(0)
+  #define DEBUG_CHECK_BYTEPTR(nb) do {                                \
+    var const uintL b = nb - codeptr->data;                           \
+    if ((b < byteptr_min) || (b > byteptr_max)) {                     \
+      var uintL bp = byteptr - codeptr->data;                         \
+      fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__);                 \
+      byteptr_bad_jump = b - bp;                                      \
+      /*nobject_out(stderr,closure);*/                                \
+      /*fprintf(stderr," jump by %d takes %d outside [%d;%d]",byteptr_bad_jump,bp,byteptr_min,byteptr_max);*/ \
+      goto error_byteptr;                                            \
+    }} while(0)
+#else
+  #define GOTO_ERROR(label)  goto label
+  #define DEBUG_CHECK_BYTEPTR(b)     do{}while(0)
+#endif
+local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
+                                            const uintB* byteptr_in)
+{
+  GCTRIGGER_IF(true, {
+    if (*byteptr_in == cod_handler_begin_push)
+      GCTRIGGER3(closure_in,handler_args.condition,handler_args.spdepth);
+    else
+      GCTRIGGER1(closure_in);
+  });
+ #if STACKCHECKC || defined(DEBUG_BYTECODE)
+  var const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
+    ? CCV_START_KEY : CCV_START_NONKEY;
+ #endif
+ #ifdef DEBUG_BYTECODE
+  var const uintL byteptr_max = sbvector_length(codeptr)-1;
+  var sintL byteptr_bad_jump;
+ #endif
+  /* situate argument closure in register: */
+ #ifdef closure_register
+  var object closure __asm__(closure_register);
+  closure = closure_in;
+ #endif
+  /* situate argument byteptr in register: */
+ #ifdef byteptr_register
+  var register const uintB* byteptr __asm__(byteptr_register);
+  byteptr = byteptr_in;
+ #endif
+  TRACE_CALL(closure,'B','C');
+  /* situate closure in STACK, below the arguments: */
+  var gcv_object_t* closureptr = (pushSTACK(closure), &STACK_0);
+ #ifndef FAST_SP
+  /* If there is no fast SP-Access, one has to introduce
+   an extra pointer: */
+  var uintL private_SP_length =
+    (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
+    + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
+  var DYNAMIC_ARRAY(private_SP_space,SPint,private_SP_length);
+  var SPint* private_SP = &private_SP_space[private_SP_length];
+  #undef SP_
+  #undef _SP_
+  #undef skipSP
+  #undef pushSP
+  #undef popSP
+  #define SP_(n)  (private_SP[n])
+  #define _SP_(n)  &SP_(n)
+  #define skipSP(n)  (private_SP += (n))
+  #define pushSP(item)  (*--private_SP = (item))
+  #define popSP(item_assignment)  (item_assignment *private_SP++)
+ #endif
+  /* var JMPBUF_on_SP(name);  allocates a sp_jmp_buf in SP.
+   FREE_JMPBUF_on_SP();  deallocates it.
+   finish_entry_frame_1(frametype,returner,reentry_statement);  is like
+   finish_entry_frame(frametype,returner,,reentry_statement);  but
+   also private_SP is saved. */
+ #ifndef FAST_SP
+  #define JMPBUF_on_SP(name)  \
+    sp_jmp_buf* name = (sp_jmp_buf*)(private_SP -= jmpbufsize);
+  #define FREE_JMPBUF_on_SP()  \
+    private_SP += jmpbufsize;
+  #define finish_entry_frame_1(frametype,returner,reentry_statement)  \
+    finish_entry_frame(frametype,*returner, /* On entry: returner = private_SP */ \
+                       returner = (sp_jmp_buf*) , /* returner is set again on return */ \
+        { private_SP = (SPint*)returner; reentry_statement }) /* and private_SP is reconstructed */
+ #else
+  #ifdef SP_DOWN
+   #define JMPBUF_on_SP(name)  \
+     sp_jmp_buf* name;                         \
+    {var SPint* sp = (SPint*)SP();      \
+     sp -= jmpbufsize;                  \
+     setSP(sp);                         \
+     name = (sp_jmp_buf*)&sp[SPoffset];}
+  #endif
+  #ifdef SP_UP
+   #define JMPBUF_on_SP(name)  \
+     sp_jmp_buf* name;                     \
+    {var SPint* sp = (SPint*)SP();        \
+     name = (sp_jmp_buf*)&sp[SPoffset+1]; \
+     sp += jmpbufsize;                    \
+     setSP(sp);}
+  #endif
+  #define FREE_JMPBUF_on_SP()                     \
+    skipSP(jmpbufsize);
+  #define finish_entry_frame_1(frametype,returner,reentry_statement)      \
+    finish_entry_frame(frametype,*returner,,reentry_statement)
+ #endif
+ #ifdef FAST_DISPATCH
+  static void* const cod_labels[] = {
+   #define BYTECODE(code)  &&code,
+     #include "bytecode.c"
+   #undef BYTECODE
+  };
+ #endif
+  /* next Byte to be interpreted
+   > mv_count/mv_space: current values
+   > closureptr: pointer to the compiled closure on Stack
+   > closure: compiled closure
+   > codeptr: its codevector, a Simple-Bit-Vektor, pointable
+              (no LISP-object, but nevertheless endangered by GC!)
+   > byteptr: pointer to the next byte in code
+              (no LISP-object, but nevertheless endangered by GC!) */
+ next_byte:
+  /* definition by cases, according to byte to be interpreted byte */
+ #ifndef FAST_DISPATCH
+  switch (*byteptr++)
+  #define CASE  case (uintB)
+ #else  /* FAST_DISPATCH */
+    /* This is faster by about 2%, because the index-check is dropped. */
+  goto *cod_labels[*byteptr++];
+  #define CASE
+  #ifdef FAST_DISPATCH_THREADED
+  /* The jump-statement  goto next_byte;  can be omitted: */
+   #define next_byte  *cod_labels[*byteptr++]
+  #endif
+ #endif
+  {
+    /* Operand-Fetch:
+       next Byte:
+         Bit 7 = 0 --> Bits 6..0 are the Operand (7 Bits).
+         Bit 7 = 1 --> Bits 6..0 and next Byte form the
+                       Operand (15 Bits).
+                       For jump-distances: Should this be =0, the next
+                       4 Bytes form the Operand
+                       (32 Bits).
+
+       Macro B_operand(where);
+       moves the next Operand (a Byte as Unsigned Integer)
+       to (uintL)where and advances  bytecodepointer. */
+      #define B_operand(where)  \
+        { where = *byteptr++; }
+
+    /* Macro U_operand(where);
+     moves the next Operand (an Unsigned Integer)
+     to (uintL)where or (uintC)where
+     and advances the Bytecodepointer. */
+      #define U_operand(where)  \
+        { where = *byteptr++;           /* read first Byte */ \
+          if ((uintB)where & bit(7))    /* Bit 7 set? */ \
+            { where &= ~bit(7);         /* yes -> delete */ \
+              where = where << 8;                            \
+              where |= *byteptr++;          /* and read next Byte */ \
+        }   }
+    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+      #undef U_operand
+      #define U_operand(where)  \
+        __asm__(                 \
+          "moveq #0,%0"   "\n\t" \
+          "moveb %1@+,%0" "\n\t" \
+          "bpl 1f"        "\n\t" \
+          "addb %0,%0"    "\n\t" \
+          "lslw #7,%0"    "\n\t" \
+          "moveb %1@+,%0" "\n"   \
+          "1:"                   \
+          : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
     #endif
-    {
-      # Operand-Fetch:
-      #   next Byte:
-      #     Bit 7 = 0 --> Bits 6..0 are the Operand (7 Bits).
-      #     Bit 7 = 1 --> Bits 6..0 and next Byte form the
-      #                   Operand (15 Bits).
-      #                   For jump-distances: Should this be =0, the next
-      #                   4 Bytes form the Operand
-      #                   (32 Bits).
-      #
-      # Macro B_operand(where);
-      # moves the next Operand (a Byte as Unsigned Integer)
-      # to (uintL)where and advances  bytecodepointer.
-        #define B_operand(where)  \
-          { where = *byteptr++; }
-      #
-      # Macro U_operand(where);
-      # moves the next Operand (an Unsigned Integer)
-      # to (uintL)where or (uintC)where
-      # and advances the Bytecodepointer.
-        #define U_operand(where)  \
-          { where = *byteptr++; # read first Byte              \
-            if ((uintB)where & bit(7)) # Bit 7 set?            \
-              { where &= ~bit(7); # yes -> delete              \
-                where = where << 8;                            \
-                where |= *byteptr++; # and read next Byte      \
-          }   }
-      #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-        #undef U_operand
-        #define U_operand(where)  \
-          __asm__(                 \
-            "moveq #0,%0"   "\n\t" \
-            "moveb %1@+,%0" "\n\t" \
-            "bpl 1f"        "\n\t" \
-            "addb %0,%0"    "\n\t" \
-            "lslw #7,%0"    "\n\t" \
-            "moveb %1@+,%0" "\n"   \
-            "1:"                   \
-            : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
+    #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
+      #undef U_operand
+      #define U_operand(where)  \
+        { var uintL dummy;              \
+          __asm__(                      \
+            "ldub [%1],%0"       "\n\t" \
+            "andcc %0,0x80,%%g0" "\n\t" \
+            "be 1f"              "\n\t" \
+            " add %1,1,%1"       "\n\t" \
+            "sll %0,25,%2"       "\n\t" \
+            "ldub [%1],%0"       "\n\t" \
+            "srl %2,17,%2"       "\n\t" \
+            "add %1,1,%1"        "\n\t" \
+            "or %0,%2,%0"        "\n"   \
+            "1:"                        \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+        }
+    #endif
+    #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+      #if 0
+        /* In earlier times, the GNU assembler assembled
+         "testb %edx,%edx" as "testb %dl,%dl". This made possible to
+         produce the output in any register. */
+        #define OUT_EAX  "=q"
+        #define EAX      "%0"
+        #define AL       "%0"
+      #else
+        /* Now "testb %edx,%edx" is invalid everywhere. The macros must
+         put their result in %eax. */
+        #define OUT_EAX  "=a"
+        #define EAX      "%%eax"
+        #define AL       "%%al"
       #endif
-      #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
-        #undef U_operand
-        #define U_operand(where)  \
-          { var uintL dummy;              \
-            __asm__(                      \
-              "ldub [%1],%0"       "\n\t" \
-              "andcc %0,0x80,%%g0" "\n\t" \
-              "be 1f"              "\n\t" \
-              " add %1,1,%1"       "\n\t" \
-              "sll %0,25,%2"       "\n\t" \
-              "ldub [%1],%0"       "\n\t" \
-              "srl %2,17,%2"       "\n\t" \
-              "add %1,1,%1"        "\n\t" \
-              "or %0,%2,%0"        "\n"   \
-              "1:"                        \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
-          }
+      #undef U_operand
+      #define U_operand(where)  \
+        __asm__(                   \
+          "movzbl (%1),"EAX "\n\t" \
+          "incl %1"         "\n\t" \
+          "testb "AL","AL   "\n\t" \
+          "jge "LR(1,f)     "\n\t" \
+          "andb $127,"AL    "\n\t" \
+          "sall $8,"EAX     "\n\t" \
+          "movb (%1),"AL    "\n\t" \
+          "incl %1"         "\n"   \
+          LD(1)":"                 \
+          : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
+    /* Caution: 1. The Sun Assembler doesn't know this Syntax for local labels.
+                   That's why we generate our local labels ourselves.
+       Caution: 2. ccr is changed. How is this to be declared?? */
+    #endif
+    #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
+      /* Macros written by Peter Burwood.
+       Two versions. Which one to choose?
+              instructions      short case        long case
+       v1:          5           2 + 3 skipped     5
+       v2:          5           3 + 2 skipped     4 + 1 skipped
+       Let's choose the first one. 1-byte operands are most frequent. */
+      #undef U_operand
+      #define U_operand(where)               /* (v1) */ \
+        { var uintL dummy;                 \
+          __asm__(                         \
+            "ldrb   %0,[%1],#1"     "\n\t" \
+            "tst    %0,#0x80"       "\n\t" \
+            "bicne  %0,%0,#0x80"    "\n\t" \
+            "ldrneb %2,[%1],#1"     "\n\t" \
+            "orrne  %0,%2,%0,LSL#8"        \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+        }
+      #if 0
+      #undef U_operand
+      #define U_operand(where)               /* (v2) */ \
+        { var uintL dummy;                 \
+          __asm__(                         \
+            "ldrb   %0,[%1],#1"     "\n\t" \
+            "movs   %0,%0,LSL#25"   "\n\t" \
+            "movcc  %0,%0,LSR#25"   "\n\t" \
+            "ldrcsb %2,[%1],#1"     "\n\t" \
+            "orrcs  %0,%2,%0,LSR#17"       \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+        }
       #endif
-      #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-        #if 0
-          # In earlier times, the GNU assembler assembled
-          # "testb %edx,%edx" as "testb %dl,%dl". This made possible to
-          # produce the output in any register.
-          #define OUT_EAX  "=q"
-          #define EAX      "%0"
-          #define AL       "%0"
-        #else
-          # Now "testb %edx,%edx" is invalid everywhere. The macros must
-          # put their result in %eax.
-          #define OUT_EAX  "=a"
-          #define EAX      "%%eax"
-          #define AL       "%%al"
-        #endif
-        #undef U_operand
-        #define U_operand(where)  \
-          __asm__(                   \
-            "movzbl (%1),"EAX "\n\t" \
-            "incl %1"         "\n\t" \
-            "testb "AL","AL   "\n\t" \
-            "jge "LR(1,f)     "\n\t" \
-            "andb $127,"AL    "\n\t" \
-            "sall $8,"EAX     "\n\t" \
-            "movb (%1),"AL    "\n\t" \
-            "incl %1"         "\n"   \
-            LD(1)":"                 \
-            : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
-        # Caution: 1. Der Sun-Assembler doesn't know this Syntax for local labels.
-        #              That's why we generate our local labels ourselves.
-        # Caution: 2. ccr is changed. How is this to be declared??
-      #endif
-      #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
-        # Macros written by Peter Burwood.
-        # Two versions. Which one to choose?
-        #        instructions      short case        long case
-        # v1:          5           2 + 3 skipped     5
-        # v2:          5           3 + 2 skipped     4 + 1 skipped
-        # Let's choose the first one. 1-byte operands are most frequent.
-        #undef U_operand
-        #define U_operand(where)  # (v1) \
-          { var uintL dummy;                 \
-            __asm__(                         \
-              "ldrb   %0,[%1],#1"     "\n\t" \
-              "tst    %0,#0x80"       "\n\t" \
-              "bicne  %0,%0,#0x80"    "\n\t" \
-              "ldrneb %2,[%1],#1"     "\n\t" \
-              "orrne  %0,%2,%0,LSL#8"        \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
-          }
-        #if 0
-        #undef U_operand
-        #define U_operand(where)  # (v2) \
-          { var uintL dummy;                 \
-            __asm__(                         \
-              "ldrb   %0,[%1],#1"     "\n\t" \
-              "movs   %0,%0,LSL#25"   "\n\t" \
-              "movcc  %0,%0,LSR#25"   "\n\t" \
-              "ldrcsb %2,[%1],#1"     "\n\t" \
-              "orrcs  %0,%2,%0,LSR#17"       \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
-          }
-        #endif
-      #endif
-      #
-      # Macro S_operand(where);
-      # moves the next Operand (a Signed Integer)
-      # to (uintL)where and advances the bytecodepointer.
-        #define S_operand(where)  \
-          { where = *byteptr++; # read first byte                \
-            if ((uintB)where & bit(7))                           \
-              # Bit 7 was set                                    \
-              { where = where << 8;                              \
-                where |= *byteptr++; # subjoin next Byte         \
-                # Sign-Extend from 15 to 32 Bits:                \
-                where = (sintL)((sintL)(sintWL)((sintWL)where << (intWLsize-15)) >> (intWLsize-15)); \
-                if (where == 0)                                  \
-                  # special case: 2-Byte-Operand = 0 -> 6-Byte-Operand \
-                  { where = (uintL)( ((uintWL)(byteptr[0]) << 8) \
-                                    | (uintWL)(byteptr[1])       \
-                                   ) << 16                       \
-                          | (uintL)( ((uintWL)(byteptr[2]) << 8) \
-                                    | (uintWL)(byteptr[3])       \
-                                   );                            \
-                    byteptr += 4;                                \
-              }   }                                              \
-              else                                               \
-              # Bit 7 was deleted                                \
-              { # Sign-Extend from 7 to 32 Bits:                 \
-                where = (sintL)((sintL)(sintBWL)((sintBWL)where << (intBWLsize-7)) >> (intBWLsize-7)); \
-              }                                                  \
-          }
-      #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-        #undef S_operand
-        #define S_operand(where)  \
+    #endif
+
+    /* Macro S_operand(where);
+     moves the next Operand (a Signed Integer)
+     to (uintL)where and advances the bytecodepointer. */
+      #define S_operand(where)                                          \
+        { where = *byteptr++;                    /* read first byte */  \
+          if ((uintB)where & bit(7))                                    \
+            /* Bit 7 was set */                                         \
+            { where = where << 8;                                       \
+              where |= *byteptr++;             /* subjoin next Byte */  \
+              /* Sign-Extend from 15 to 32 Bits: */                     \
+              where = (sintL)((sintL)(sintWL)((sintWL)where << (intWLsize-15)) >> (intWLsize-15)); \
+              if (where == 0)                                           \
+                /* special case: 2-Byte-Operand = 0 -> 6-Byte-Operand */ \
+                { where = (uintL)( ((uintWL)(byteptr[0]) << 8)          \
+                                  | (uintWL)(byteptr[1])                \
+                                 ) << 16                                \
+                        | (uintL)( ((uintWL)(byteptr[2]) << 8)          \
+                                  | (uintWL)(byteptr[3])                \
+                                 );                                     \
+                  byteptr += 4;                                         \
+            }   }                                                       \
+            else                                                        \
+            /* Bit 7 was deleted */                                     \
+            {                     /* Sign-Extend from 7 to 32 Bits: */  \
+              where = (sintL)((sintL)(sintBWL)((sintBWL)where << (intBWLsize-7)) >> (intBWLsize-7)); \
+            }                                                           \
+        }
+    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+      #undef S_operand
+      #define S_operand(where)  \
+        __asm__(                   \
+          "moveb %1@+,%0"   "\n\t" \
+          "bpl 1f"          "\n\t" \
+          "lslw #8,%0"      "\n\t" \
+          "moveb %1@+,%0"   "\n\t" \
+          "addw %0,%0"      "\n\t" \
+          "asrw #1,%0"      "\n\t" \
+          "bne 2f"          "\n\t" \
+          "moveb %1@(2),%0" "\n\t" \
+          "swap %0"         "\n\t" \
+          "moveb %1@+,%0"   "\n\t" \
+          "lsll #8,%0"      "\n\t" \
+          "moveb %1@,%0"    "\n\t" \
+          "swap %0"         "\n\t" \
+          "addql #2,%0"     "\n\t" \
+          "moveb %1@+,%0"   "\n\t" \
+          "jra 3f"          "\n"   \
+          "1:"                "\t" \
+          "addb %0,%0"      "\n\t" \
+          "asrb #1,%0"      "\n\t" \
+          "extw %0"         "\n"   \
+          "2:"                "\t" \
+          "extl %0"         "\n"   \
+          "3:"                     \
+          : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
+    #endif
+    #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
+      #undef S_operand
+      #define S_operand(where)  \
+        { var uintL dummy;              \
+          __asm__(                      \
+            "ldub [%1],%0"       "\n\t" \
+            "andcc %0,0x80,%%g0" "\n\t" \
+            "be 2f"              "\n\t" \
+            " add %1,1,%1"       "\n\t" \
+            "sll %0,25,%2"       "\n\t" \
+            "ldub [%1],%0"       "\n\t" \
+            "sra %2,17,%2"       "\n\t" \
+            "orcc %2,%0,%0"      "\n\t" \
+            "bne 3f"             "\n\t" \
+            " add %1,1,%1"       "\n\t" \
+            "ldub [%1],%0"       "\n\t" \
+            "sll %0,24,%2"       "\n\t" \
+            "ldub [%1+1],%0"     "\n\t" \
+            "sll %0,16,%0"       "\n\t" \
+            "or %2,%0,%2"        "\n\t" \
+            "ldub [%1+2],%0"     "\n\t" \
+            "sll %0,8,%0"        "\n\t" \
+            "or %2,%0,%2"        "\n\t" \
+            "ldub [%1+3],%0"     "\n\t" \
+            "or %2,%0,%0"        "\n\t" \
+            "b 3f"               "\n\t" \
+            " add %1,4,%1"       "\n"   \
+            "2:"                   "\t" \
+            "sll %0,25,%0"       "\n\t" \
+            "sra %0,25,%0"       "\n"   \
+            "3:"                   "\t" \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+        }
+    #endif
+    #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
+      #undef S_operand
+      #define S_operand(where)  \
+        __asm__(                   \
+          "movzbl (%1),"EAX "\n\t" \
+          "incl %1"         "\n\t" \
+          "testb "AL","AL   "\n\t" \
+          "jge "LR(1,f)     "\n\t" \
+          "sall $8,"EAX     "\n\t" \
+          "movb (%1),"AL    "\n\t" \
+          "incl %1"         "\n\t" \
+          "sall $17,"EAX    "\n\t" \
+          "sarl $17,"EAX    "\n\t" \
+          "jne "LR(2,f)     "\n\t" \
+          "movb (%1),"AL    "\n\t" \
+          "sall $8,"EAX     "\n\t" \
+          "movb 1(%1),"AL   "\n\t" \
+          "sall $8,"EAX     "\n\t" \
+          "movb 2(%1),"AL   "\n\t" \
+          "sall $8,"EAX     "\n\t" \
+          "movb 3(%1),"AL   "\n\t" \
+          "addl $4,"EAX     "\n\t" \
+          "jmp "LR(2,f)     "\n"   \
+          LD(1)":"            "\t" \
+          "sall $25,"EAX    "\n\t" \
+          "sarl $25,"EAX    "\n"   \
+          LD(2)":"                 \
+          : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
+    #endif
+    #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
+      /* Macro written by Peter Burwood. */
+      #undef S_operand
+      #define S_operand(where)  \
+        { var uintL dummy;                  \
+          __asm__(                          \
+            "ldrb   %0,[%1],#1"      "\n\t" \
+            "movs   %0,%0,LSL#25"    "\n\t" \
+            "movcc  %0,%0,ASR#25"    "\n\t" \
+            "bcc    "LR(1,f)         "\n\t" \
+            "ldrb   %2,[%1],#1"      "\n\t" \
+            "orr    %0,%0,%2,LSL#17" "\n\t" \
+            "movs   %0,%0,ASR#17"    "\n\t" \
+            "bne    "LR(1,f)         "\n\t" \
+            "ldrb   %0,[%1],#1"      "\n\t" \
+            "ldrb   %2,[%1],#1"      "\n\t" \
+            "orr    %0,%2,%0,LSL#8"  "\n\t" \
+            "ldrb   %2,[%1],#1"      "\n\t" \
+            "orr    %0,%2,%0,LSL#8"  "\n\t" \
+            "ldrb   %2,[%1],#1"      "\n\t" \
+            "orr    %0,%2,%0,LSL#8"  "\n"   \
+            LD(1)":"                        \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+        }
+    #endif
+
+    /* Macro S_operand_ignore();
+     skips the next Operand (a Signed Integer)
+     and advances the bytecodepointer. */
+      #define S_operand_ignore()                                        \
+        { var uintB where = *byteptr++;          /* read first byte */  \
+          if ((uintB)where & bit(7))                                    \
+            /* Bit 7 was set */                                         \
+            { if ((uintB)((where<<1) | *byteptr++) == 0) /* next Byte */ \
+                /* special case: 2-Byte-Operand = 0 -> 6-Byte-Operand */ \
+                { byteptr += 4; }                                       \
+        }   }
+    #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
+      #undef S_operand_ignore
+      #define S_operand_ignore()  \
+        { var uintB where;           \
           __asm__(                   \
             "moveb %1@+,%0"   "\n\t" \
             "bpl 1f"          "\n\t" \
-            "lslw #8,%0"      "\n\t" \
-            "moveb %1@+,%0"   "\n\t" \
-            "addw %0,%0"      "\n\t" \
-            "asrw #1,%0"      "\n\t" \
-            "bne 2f"          "\n\t" \
-            "moveb %1@(2),%0" "\n\t" \
-            "swap %0"         "\n\t" \
-            "moveb %1@+,%0"   "\n\t" \
-            "lsll #8,%0"      "\n\t" \
-            "moveb %1@,%0"    "\n\t" \
-            "swap %0"         "\n\t" \
-            "addql #2,%0"     "\n\t" \
-            "moveb %1@+,%0"   "\n\t" \
-            "jra 3f"          "\n"   \
-            "1:"                "\t" \
             "addb %0,%0"      "\n\t" \
-            "asrb #1,%0"      "\n\t" \
-            "extw %0"         "\n"   \
-            "2:"                "\t" \
-            "extl %0"         "\n"   \
-            "3:"                     \
-            : "=d" (where), "=a" (byteptr) : "1" (byteptr) )
+            "orb %1@+,%0"     "\n\t" \
+            "bne 1f"          "\n\t" \
+            "addql #4,%1"     "\n"   \
+            "1:"                     \
+            : "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
+        }
+    #endif
+    #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
+      #undef S_operand_ignore
+      #define S_operand_ignore()  \
+        { var uintL where;              \
+          var uintL dummy;              \
+          __asm__(                      \
+            "ldub [%1],%0"       "\n\t" \
+            "andcc %0,0x80,%%g0" "\n\t" \
+            "be 1f"              "\n\t" \
+            " add %1,1,%1"       "\n\t" \
+            "sll %0,1,%2"        "\n\t" \
+            "ldub [%1],%0"       "\n\t" \
+            "orcc %2,%0,%0"      "\n\t" \
+            "bne 1f"             "\n\t" \
+            " add %1,1,%1"       "\n\t" \
+            "add %1,4,%1"        "\n"   \
+            "1:"                        \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
+        }
+    #endif
+    #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
+      /* Macro written by Peter Burwood. */
+      #undef S_operand_ignore
+      #define S_operand_ignore()  \
+        { var uintL where;                  \
+          var uintL dummy;                  \
+          __asm__(                          \
+            "ldrb   %0,[%1],#1"      "\n\t" \
+            "movs   %0,%0,LSL#25"    "\n\t" \
+            "bcc    "LR(1,f)         "\n\t" \
+            "ldrb   %2,[%1],#1"      "\n\t" \
+            "orrs   %0,%2,%0,LSR#24" "\n\t" \
+            "addeq  %1,%1,#4"        "\n"   \
+            LD(1)":"                        \
+            : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
+        }
+    #endif
+
+    /* Macro L_operand(where);
+     moves the next Operand (a Label)
+     to (uintB*)where and advances the bytecodepointer. */
+      #define L_operand(Lwhere)                                         \
+        { var uintL where;         /* variable for the displacement */  \
+          S_operand(where);        /* Displacement */                   \
+          Lwhere = byteptr + (sintL)where;             /* add */        \
+        }
+
+    /* Macro L_operand_ignore();
+     skips the next Operand (a Label)
+     and advances the Bytecodepointer. */
+      #define L_operand_ignore()  S_operand_ignore()
+    /* Each of the bytecodes is interpreted:
+     for the most part: mv_count/mv_space = values,
+     closureptr = pointer to the compiled closure in Stack,
+     closure = compiled closure,
+     codeptr = pointer to its codevector,
+     byteptr = pointer to the next Byte in code.
+     (byteptr is no LISP-object, but nevertheless endangered by GC!
+      To make it GC-invariant, substract CODEPTR from it.
+      If one then adds Fixnum_0 to it,
+      one receives the bytenumber as Fixnum.) */
+    #if 0
+      #define CODEPTR  (&codeptr->data[0])
+    #else  /* returns more efficient Code */
+      #define CODEPTR  (uintB*)(codeptr)
+    #endif
+
+    /* store context-information:
+     If sth. is called, that can trigger a GC, this must be framed within
+     with_saved_context( ... ) . */
+      #define with_saved_context(statement)  \
+        { var uintL index = byteptr - CODEPTR;                       \
+          statement;                                                 \
+          closure = *closureptr;        /* fetch Closure from Stack */ \
+          codeptr = TheSbvector(TheCclosure(closure)->clos_codevec); \
+          byteptr = CODEPTR + index;                                 \
+        }
+
+    /* ------------------- (1) Constants ----------------------- */
+    CASE cod_nil:               /* (NIL) */
+      code_nil:
+      VALUES1(NIL);
+      goto next_byte;
+    CASE cod_nil_push:          /* (NIL&PUSH) */
+      pushSTACK(NIL);
+      goto next_byte;
+    CASE cod_push_nil: {        /* (PUSH-NIL n) */
+      var uintC n;
+      U_operand(n);
+      dotimesC(n,n, { pushSTACK(NIL); } );
+    } goto next_byte;
+    CASE cod_t:                 /* (T) */
+      code_t:
+      VALUES1(T);
+      goto next_byte;
+    CASE cod_t_push:            /* (T&PUSH) */
+      pushSTACK(T);
+      goto next_byte;
+    CASE cod_const: {           /* (CONST n) */
+      var uintL n;
+      U_operand(n);
+      VALUES1(TheCclosure(closure)->clos_consts[n]);
+    } goto next_byte;
+    CASE cod_const_push: {      /* (CONST&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      pushSTACK(TheCclosure(closure)->clos_consts[n]);
+    } goto next_byte;
+    /* ------------------- (2) static Variables ----------------------- */
+    CASE cod_load: {            /* (LOAD n) */
+      var uintL n;
+      U_operand(n);
+      VALUES1(STACK_(n));
+    } goto next_byte;
+    CASE cod_load_push: {       /* (LOAD&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      pushSTACK(STACK_(n));
+    } goto next_byte;
+    CASE cod_loadi: {           /* (LOADI k1 k2 n) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      VALUES1(FRAME_(n));
+    } goto next_byte;
+    CASE cod_loadi_push: {      /* (LOADI&PUSH k1 k2 n) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      pushSTACK(FRAME_(n));
+    } goto next_byte;
+    CASE cod_loadc: {           /* (LOADC n m) */
+      var uintL n;
+      var uintL m;
+      U_operand(n);
+      U_operand(m);
+      VALUES1(TheSvector(STACK_(n))->data[1+m]);
+    } goto next_byte;
+    CASE cod_loadc_push: {      /* (LOADC&PUSH n m) */
+      var uintL n;
+      var uintL m;
+      U_operand(n);
+      U_operand(m);
+      pushSTACK(TheSvector(STACK_(n))->data[1+m]);
+    } goto next_byte;
+    CASE cod_loadv: {           /* (LOADV k m) */
+      var uintC k;
+      var uintL m;
+      U_operand(k);
+      U_operand(m);
+      var object venv = TheCclosure(closure)->clos_venv; /* VenvConst */
+      /* take (svref ... 0) k times: */
+      dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
+      /* fetch (svref ... m) : */
+      VALUES1(TheSvector(venv)->data[m]);
+    } goto next_byte;
+    CASE cod_loadv_push: {      /* (LOADV&PUSH k m) */
+      var uintC k;
+      var uintL m;
+      U_operand(k);
+      U_operand(m);
+      var object venv = TheCclosure(closure)->clos_venv; /* VenvConst */
+      /* take (svref ... 0) k times: */
+      dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
+      /* fetch (svref ... m) : */
+      pushSTACK(TheSvector(venv)->data[m]);
+    } goto next_byte;
+    CASE cod_loadic: {          /* (LOADIC k1 k2 n m) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      var uintL m;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      U_operand(m);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      VALUES1(TheSvector(FRAME_(n))->data[1+m]);
+    } goto next_byte;
+    CASE cod_store: store: {    /* (STORE n) */
+      var uintL n;
+      U_operand(n);
+      VALUES1(STACK_(n) = value1);
+    } goto next_byte;
+    CASE cod_pop_store: {       /* (POP&STORE n) */
+      var uintL n;
+      U_operand(n);
+      var object obj = popSTACK();
+      VALUES1(STACK_(n) = obj);
+    } goto next_byte;
+    CASE cod_storei: {          /* (STOREI k1 k2 n) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      VALUES1(FRAME_(n) = value1);
+    } goto next_byte;
+    CASE cod_load_storec: {     /* (LOAD&STOREC k m n) */
+      var uintL k;
+      U_operand(k);
+      value1 = STACK_(k);
+    } /* FALLTHROUGH */
+    CASE cod_storec: {          /* (STOREC n m) */
+      var uintL n;
+      var uintL m;
+      U_operand(n);
+      U_operand(m);
+      TheSvector(STACK_(n))->data[1+m] = value1; mv_count=1;
+    } goto next_byte;
+    CASE cod_storev: {          /* (STOREV k m) */
+      var uintC k;
+      var uintL m;
+      U_operand(k);
+      U_operand(m);
+      var object venv = TheCclosure(closure)->clos_venv; /* VenvConst */
+      /* take (svref ... 0) k times: */
+      dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
+      /* save (svref ... m) : */
+      TheSvector(venv)->data[m] = value1; mv_count=1;
+    } goto next_byte;
+    CASE cod_storeic: {         /* (STOREIC k1 k2 n m) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      var uintL m;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      U_operand(m);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      TheSvector(FRAME_(n))->data[1+m] = value1; mv_count=1;
+    } goto next_byte;
+    /* ------------------- (3) dynamic Variables ----------------------- */
+    CASE cod_getvalue: {        /* (GETVALUE n) */
+      var uintL n;
+      U_operand(n);
+      var object symbol = TheCclosure(closure)->clos_consts[n];
+      /* The Compiler has already checked, that it's a Symbol. */
+      if (!boundp(Symbol_value(symbol))) {
+        pushSTACK(symbol); # CELL-ERROR slot NAME
+        pushSTACK(symbol); pushSTACK(Closure_name(closure));
+        error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+      }
+      VALUES1(Symbol_value(symbol));
+    } goto next_byte;
+    CASE cod_getvalue_push: {   /* (GETVALUE&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object symbol = TheCclosure(closure)->clos_consts[n];
+      /* The Compiler has already checked, that it's a Symbol. */
+      if (!boundp(Symbol_value(symbol))) {
+        pushSTACK(symbol);    /* CELL-ERROR slot NAME */
+        pushSTACK(symbol); pushSTACK(Closure_name(closure));
+        error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+      }
+      pushSTACK(Symbol_value(symbol));
+    } goto next_byte;
+    CASE cod_setvalue: {        /* (SETVALUE n) */
+      var uintL n;
+      U_operand(n);
+      var object symbol = TheCclosure(closure)->clos_consts[n];
+      /* The Compiler has already checked, that it's a Symbol. */
+      if (constant_var_p(TheSymbol(symbol))) {
+        pushSTACK(symbol); pushSTACK(Closure_name(closure));
+        error(error_condition,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
+      }
+      Symbol_value(symbol) = value1; mv_count=1;
+    } goto next_byte;
+    CASE cod_bind: {            /* (BIND n) */
+      var uintL n;
+      U_operand(n);
+      dynamic_bind(TheCclosure(closure)->clos_consts[n],value1);
+    } goto next_byte;
+    CASE cod_unbind1:           /* (UNBIND1) */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == DYNBIND_frame_info))
+        GOTO_ERROR(error_STACK_putt);
       #endif
-      #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
-        #undef S_operand
-        #define S_operand(where)  \
-          { var uintL dummy;              \
-            __asm__(                      \
-              "ldub [%1],%0"       "\n\t" \
-              "andcc %0,0x80,%%g0" "\n\t" \
-              "be 2f"              "\n\t" \
-              " add %1,1,%1"       "\n\t" \
-              "sll %0,25,%2"       "\n\t" \
-              "ldub [%1],%0"       "\n\t" \
-              "sra %2,17,%2"       "\n\t" \
-              "orcc %2,%0,%0"      "\n\t" \
-              "bne 3f"             "\n\t" \
-              " add %1,1,%1"       "\n\t" \
-              "ldub [%1],%0"       "\n\t" \
-              "sll %0,24,%2"       "\n\t" \
-              "ldub [%1+1],%0"     "\n\t" \
-              "sll %0,16,%0"       "\n\t" \
-              "or %2,%0,%2"        "\n\t" \
-              "ldub [%1+2],%0"     "\n\t" \
-              "sll %0,8,%0"        "\n\t" \
-              "or %2,%0,%2"        "\n\t" \
-              "ldub [%1+3],%0"     "\n\t" \
-              "or %2,%0,%0"        "\n\t" \
-              "b 3f"               "\n\t" \
-              " add %1,4,%1"       "\n"   \
-              "2:"                   "\t" \
-              "sll %0,25,%0"       "\n\t" \
-              "sra %0,25,%0"       "\n"   \
-              "3:"                   "\t" \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
-          }
-      #endif
-      #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
-        #undef S_operand
-        #define S_operand(where)  \
-          __asm__(                   \
-            "movzbl (%1),"EAX "\n\t" \
-            "incl %1"         "\n\t" \
-            "testb "AL","AL   "\n\t" \
-            "jge "LR(1,f)     "\n\t" \
-            "sall $8,"EAX     "\n\t" \
-            "movb (%1),"AL    "\n\t" \
-            "incl %1"         "\n\t" \
-            "sall $17,"EAX    "\n\t" \
-            "sarl $17,"EAX    "\n\t" \
-            "jne "LR(2,f)     "\n\t" \
-            "movb (%1),"AL    "\n\t" \
-            "sall $8,"EAX     "\n\t" \
-            "movb 1(%1),"AL   "\n\t" \
-            "sall $8,"EAX     "\n\t" \
-            "movb 2(%1),"AL   "\n\t" \
-            "sall $8,"EAX     "\n\t" \
-            "movb 3(%1),"AL   "\n\t" \
-            "addl $4,"EAX     "\n\t" \
-            "jmp "LR(2,f)     "\n"   \
-            LD(1)":"            "\t" \
-            "sall $25,"EAX    "\n\t" \
-            "sarl $25,"EAX    "\n"   \
-            LD(2)":"                 \
-            : OUT_EAX (where), "=r" (byteptr) : "1" (byteptr) );
-      #endif
-      #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
-        # Macro written by Peter Burwood.
-        #undef S_operand
-        #define S_operand(where)  \
-          { var uintL dummy;                  \
-            __asm__(                          \
-              "ldrb   %0,[%1],#1"      "\n\t" \
-              "movs   %0,%0,LSL#25"    "\n\t" \
-              "movcc  %0,%0,ASR#25"    "\n\t" \
-              "bcc    "LR(1,f)         "\n\t" \
-              "ldrb   %2,[%1],#1"      "\n\t" \
-              "orr    %0,%0,%2,LSL#17" "\n\t" \
-              "movs   %0,%0,ASR#17"    "\n\t" \
-              "bne    "LR(1,f)         "\n\t" \
-              "ldrb   %0,[%1],#1"      "\n\t" \
-              "ldrb   %2,[%1],#1"      "\n\t" \
-              "orr    %0,%2,%0,LSL#8"  "\n\t" \
-              "ldrb   %2,[%1],#1"      "\n\t" \
-              "orr    %0,%2,%0,LSL#8"  "\n\t" \
-              "ldrb   %2,[%1],#1"      "\n\t" \
-              "orr    %0,%2,%0,LSL#8"  "\n"   \
-              LD(1)":"                        \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
-          }
-      #endif
-      #
-      # Macro S_operand_ignore();
-      # skips the next Operand (a Signed Integer)
-      # and advances the bytecodepointer.
-        #define S_operand_ignore()  \
-          { var uintB where = *byteptr++; # read first byte          \
-            if ((uintB)where & bit(7))                               \
-              # Bit 7 war gesetzt                                    \
-              { if ((uintB)((where<<1) | *byteptr++) == 0) # next Byte \
-                  # special case: 2-Byte-Operand = 0 -> 6-Byte-Operand \
-                  { byteptr += 4; }                                  \
-          }   }
-      #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
-        #undef S_operand_ignore
-        #define S_operand_ignore()  \
-          { var uintB where;           \
-            __asm__(                   \
-              "moveb %1@+,%0"   "\n\t" \
-              "bpl 1f"          "\n\t" \
-              "addb %0,%0"      "\n\t" \
-              "orb %1@+,%0"     "\n\t" \
-              "bne 1f"          "\n\t" \
-              "addql #4,%1"     "\n"   \
-              "1:"                     \
-              : "=d" (where), "=a" (byteptr) : "1" (byteptr) ); \
-          }
-      #endif
-      #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
-        #undef S_operand_ignore
-        #define S_operand_ignore()  \
-          { var uintL where;              \
-            var uintL dummy;              \
-            __asm__(                      \
-              "ldub [%1],%0"       "\n\t" \
-              "andcc %0,0x80,%%g0" "\n\t" \
-              "be 1f"              "\n\t" \
-              " add %1,1,%1"       "\n\t" \
-              "sll %0,1,%2"        "\n\t" \
-              "ldub [%1],%0"       "\n\t" \
-              "orcc %2,%0,%0"      "\n\t" \
-              "bne 1f"             "\n\t" \
-              " add %1,1,%1"       "\n\t" \
-              "add %1,4,%1"        "\n"   \
-              "1:"                        \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "ccr" ); \
-          }
-      #endif
-      #if defined(GNU) && defined(ARM) && !defined(NO_ASM)
-        # Macro written by Peter Burwood.
-        #undef S_operand_ignore
-        #define S_operand_ignore()  \
-          { var uintL where;                  \
-            var uintL dummy;                  \
-            __asm__(                          \
-              "ldrb   %0,[%1],#1"      "\n\t" \
-              "movs   %0,%0,LSL#25"    "\n\t" \
-              "bcc    "LR(1,f)         "\n\t" \
-              "ldrb   %2,[%1],#1"      "\n\t" \
-              "orrs   %0,%2,%0,LSR#24" "\n\t" \
-              "addeq  %1,%1,#4"        "\n"   \
-              LD(1)":"                        \
-              : "=r" (where), "=r" (byteptr), "=r" (dummy) : "1" (byteptr) : "cc" ); \
-          }
-      #endif
-      #
-      # Macro L_operand(where);
-      # moves the next Operand (a Label)
-      # to (uintB*)where and advances the bytecodepointer.
-        #define L_operand(Lwhere)  \
-          { var uintL where; # variable for the displacement \
-            S_operand(where); # Displacement                 \
-            Lwhere = byteptr + (sintL)where; # add           \
-          }
-      #
-      # Macro L_operand_ignore();
-      # skips the next Operand (a Label)
-      # and advances the Bytecodepointer.
-        #define L_operand_ignore()  S_operand_ignore()
-      #
-      # Each of the bytecodes is interpreted:
-      # for the most part: mv_count/mv_space = values,
-      # closureptr = pointer to the compiled closure in Stack,
-      # closure = compiled closure,
-      # codeptr = pointer to its codevector,
-      # byteptr = pointer to the next Byte in code.
-      # (byteptr is no LISP-object, but nevertheless endangered by GC!
-      #  To make it GC-invariant, substract CODEPTR from it.
-      #  If one then adds Fixnum_0 to it,
-      #  one receives the bytenumber as Fixnum.)
-      #if 0
-        #define CODEPTR  (&codeptr->data[0])
-      #else # returns more efficient Code
-        #define CODEPTR  (uintB*)(codeptr)
-      #endif
-      #
-      # store context-information:
-      # If sth. is called, that can trigger a GC, this must be framed within
-      # with_saved_context( ... ) .
-        #define with_saved_context(statement)  \
-          { var uintL index = byteptr - CODEPTR;                       \
-            statement;                                                 \
-            closure = *closureptr; # fetch Closure from Stack          \
-            codeptr = TheSbvector(TheCclosure(closure)->clos_codevec); \
-            byteptr = CODEPTR + index;                                 \
-          }
-      #
-      # ------------------- (1) Constants -----------------------
-      CASE cod_nil:                    # (NIL)
-        code_nil:
-        VALUES1(NIL);
-        goto next_byte;
-      CASE cod_nil_push:               # (NIL&PUSH)
-        pushSTACK(NIL);
-        goto next_byte;
-      CASE cod_push_nil:               # (PUSH-NIL n)
-        {
-          var uintC n;
-          U_operand(n);
-          dotimesC(n,n, { pushSTACK(NIL); } );
+      { /* unwind variable-binding-frame: */
+        var gcv_object_t* new_STACK = topofframe(STACK_0); /* pointer above frame */
+        var gcv_object_t* frame_end = STACKpointable(new_STACK);
+        var gcv_object_t* bindingptr = &STACK_1; /* begin of bindings */
+        /* bindingptr loops upwards through the bindings */
+        while (bindingptr != frame_end) {
+          /* write back old value: */
+          Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
+          bindingptr skipSTACKop 2; /* next binding */
         }
-        goto next_byte;
-      CASE cod_t:                      # (T)
-        code_t:
-        VALUES1(T);
-        goto next_byte;
-      CASE cod_t_push:                 # (T&PUSH)
-        pushSTACK(T);
-        goto next_byte;
-      CASE cod_const:                  # (CONST n)
-        {
-          var uintL n;
-          U_operand(n);
-          VALUES1(TheCclosure(closure)->clos_consts[n]);
-        }
-        goto next_byte;
-      CASE cod_const_push:             # (CONST&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          pushSTACK(TheCclosure(closure)->clos_consts[n]);
-        }
-        goto next_byte;
-      # ------------------- (2) static Variables -----------------------
-      CASE cod_load:                   # (LOAD n)
-        {
-          var uintL n;
-          U_operand(n);
-          VALUES1(STACK_(n));
-        }
-        goto next_byte;
-      CASE cod_load_push:              # (LOAD&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          pushSTACK(STACK_(n));
-        }
-        goto next_byte;
-      CASE cod_loadi:                  # (LOADI k1 k2 n)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          VALUES1(FRAME_(n));
-        }
-        goto next_byte;
-      CASE cod_loadi_push:             # (LOADI&PUSH k1 k2 n)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          pushSTACK(FRAME_(n));
-        }
-        goto next_byte;
-      CASE cod_loadc:                  # (LOADC n m)
-        {
-          var uintL n;
-          var uintL m;
-          U_operand(n);
-          U_operand(m);
-          VALUES1(TheSvector(STACK_(n))->data[1+m]);
-        }
-        goto next_byte;
-      CASE cod_loadc_push:             # (LOADC&PUSH n m)
-        {
-          var uintL n;
-          var uintL m;
-          U_operand(n);
-          U_operand(m);
-          pushSTACK(TheSvector(STACK_(n))->data[1+m]);
-        }
-        goto next_byte;
-      CASE cod_loadv:                  # (LOADV k m)
-        {
-          var uintC k;
-          var uintL m;
-          U_operand(k);
-          U_operand(m);
-          var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-          # take (svref ... 0) k times:
-          dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-          # fetch (svref ... m) :
-          VALUES1(TheSvector(venv)->data[m]);
-        }
-        goto next_byte;
-      CASE cod_loadv_push:             # (LOADV&PUSH k m)
-        {
-          var uintC k;
-          var uintL m;
-          U_operand(k);
-          U_operand(m);
-          var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-          # take (svref ... 0) k times:
-          dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-          # fetch (svref ... m) :
-          pushSTACK(TheSvector(venv)->data[m]);
-        }
-        goto next_byte;
-      CASE cod_loadic:                 # (LOADIC k1 k2 n m)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          var uintL m;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          U_operand(m);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          VALUES1(TheSvector(FRAME_(n))->data[1+m]);
-        }
-        goto next_byte;
-      CASE cod_store: store:           # (STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          VALUES1(STACK_(n) = value1);
-        }
-        goto next_byte;
-      CASE cod_pop_store:              # (POP&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object obj = popSTACK();
-          VALUES1(STACK_(n) = obj);
-        }
-        goto next_byte;
-      CASE cod_storei:                 # (STOREI k1 k2 n)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          VALUES1(FRAME_(n) = value1);
-        }
-        goto next_byte;
-      CASE cod_load_storec:            # (LOAD&STOREC k m n)
-        {
-          var uintL k;
-          U_operand(k);
-          value1 = STACK_(k);
-        }
-      CASE cod_storec:                 # (STOREC n m)
-        {
-          var uintL n;
-          var uintL m;
-          U_operand(n);
-          U_operand(m);
-          TheSvector(STACK_(n))->data[1+m] = value1; mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_storev:                 # (STOREV k m)
-        {
-          var uintC k;
-          var uintL m;
-          U_operand(k);
-          U_operand(m);
-          var object venv = TheCclosure(closure)->clos_venv; # VenvConst
-          # take (svref ... 0) k times:
-          dotimesC(k,k, { venv = TheSvector(venv)->data[0]; } );
-          # save (svref ... m) :
-          TheSvector(venv)->data[m] = value1; mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_storeic:                # (STOREIC k1 k2 n m)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          var uintL m;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          U_operand(m);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          TheSvector(FRAME_(n))->data[1+m] = value1; mv_count=1;
-        }
-        goto next_byte;
-      # ------------------- (3) dynamic Variables -----------------------
-      CASE cod_getvalue:               # (GETVALUE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object symbol = TheCclosure(closure)->clos_consts[n];
-          # The Compiler has already checked, that it's a Symbol.
-          if (!boundp(Symbol_value(symbol))) {
-            pushSTACK(symbol); # CELL-ERROR slot NAME
-            pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
-          }
-          VALUES1(Symbol_value(symbol));
-        }
-        goto next_byte;
-      CASE cod_getvalue_push:          # (GETVALUE&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object symbol = TheCclosure(closure)->clos_consts[n];
-          # The Compiler has already checked, that it's a Symbol.
-          if (!boundp(Symbol_value(symbol))) {
-            pushSTACK(symbol); # CELL-ERROR slot NAME
-            pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
-          }
-          pushSTACK(Symbol_value(symbol));
-        }
-        goto next_byte;
-      CASE cod_setvalue:               # (SETVALUE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object symbol = TheCclosure(closure)->clos_consts[n];
-          # The Compiler has already checked, that it's a Symbol.
-          if (constant_var_p(TheSymbol(symbol))) {
-            pushSTACK(symbol); pushSTACK(Closure_name(closure));
-            error(error_condition,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
-          }
-          Symbol_value(symbol) = value1; mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_bind:                   # (BIND n)
-        {
-          var uintL n;
-          U_operand(n);
-          dynamic_bind(TheCclosure(closure)->clos_consts[n],value1);
-        }
-        goto next_byte;
-      CASE cod_unbind1:                # (UNBIND1)
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == DYNBIND_frame_info))
+        /* set STACK newly, thus unwind frame: */
+        setSTACK(STACK = new_STACK);
+      } goto next_byte;
+    CASE cod_unbind: {          /* (UNBIND n) */
+      var uintC n;
+      U_operand(n);           /* n>0 */
+      var gcv_object_t* FRAME = STACK;
+      do {
+       #if STACKCHECKC
+        if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
           GOTO_ERROR(error_STACK_putt);
-        #endif
-        # unwind variable-binding-frame:
-        {
-          var gcv_object_t* new_STACK = topofframe(STACK_0); # pointer above frame
-          var gcv_object_t* frame_end = STACKpointable(new_STACK);
-          var gcv_object_t* bindingptr = &STACK_1; # begin of bindings
-          # bindingptr loops upwards through the bindings
-          while (bindingptr != frame_end) {
-            # write back old value:
-            Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-            bindingptr skipSTACKop 2; # next binding
-          }
-          # set STACK newly, thus unwind frame:
-          setSTACK(STACK = new_STACK);
+       #endif
+        /* unwind variable-binding-frame: */
+        var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); /* pointer above frame */
+        var gcv_object_t* frame_end = STACKpointable(new_FRAME);
+        var gcv_object_t* bindingptr = &FRAME_(1); /* begin of the bindings */
+        /* bindingptr loops upwards through the bindings */
+        while (bindingptr != frame_end) {
+          /* write back old value: */
+          Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
+          bindingptr skipSTACKop 2; /* next binding */
         }
+        FRAME = new_FRAME;
+      } while (--n != 0);
+      setSTACK(STACK = FRAME); /* set STACK newly */
+    } goto next_byte;
+    CASE cod_progv: {                  /* (PROGV) */
+      var object vallist = value1;     /* value-list */
+      var object symlist = popSTACK(); /* symbol-list */
+      pushSP((aint)STACK);             /* push STACK into SP */
+      with_saved_context( progv(symlist,vallist); ); /* build frame */
+    } goto next_byte;
+    /* ------------------- (4) Stackoperations ----------------------- */
+    CASE cod_push:              /* (PUSH) */
+      pushSTACK(value1);
+      goto next_byte;
+    CASE cod_pop:               /* (POP) */
+      VALUES1(popSTACK());
+      goto next_byte;
+    CASE cod_skip: {            /* (SKIP n) */
+      var uintL n;
+      U_operand(n);
+      skipSTACK(n);
+    } goto next_byte;
+    CASE cod_skipi: {           /* (SKIPI k1 k2 n) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      skipSP(k1+jmpbufsize*k2);
+      var gcv_object_t* newSTACK;
+      popSP( newSTACK = (gcv_object_t*) );
+      setSTACK(STACK = newSTACK STACKop n);
+    } goto next_byte;
+    CASE cod_skipsp: {          /* (SKIPSP k1 k2) */
+      var uintL k1;
+      var uintL k2;
+      U_operand(k1);
+      U_operand(k2);
+      skipSP(k1+jmpbufsize*k2);
+    } goto next_byte;
+    /* ------------------- (5) Control Flow and Jumps --------------------- */
+    CASE cod_skip_ret: {        /* (SKIP&RET n) */
+      var uintL n;
+      U_operand(n);
+      skipSTACK(n);
+    } goto finished;            /* return (jump) to caller */
+    CASE cod_skip_retgf: {      /* (SKIP&RETGF n) */
+      var uintL n;
+      U_operand(n);
+      if (((Codevec)codeptr)->ccv_flags & bit(3)) { /* call inhibition? */
+        skipSTACK(n);
+        mv_count=1;
+        goto finished;          /* return (jump) to caller */
+      }
+      /* It is known (refer to clos.lisp), that this function
+       has no optional parameters, but poss. Rest-parameters.
+       If there's no Rest-parameter: (FUNCALL value1 arg1 ... argr)
+       If there's a  Rest-Parameter: (APPLY value1 arg1 ... argr restarg) */
+      var uintL r = ((Codevec)codeptr)->ccv_numreq;
+      n -= r;
+      if (((Codevec)codeptr)->ccv_flags & bit(0)) {
+        skipSTACK(n-1); apply(value1,r,popSTACK());
+      } else {
+        skipSTACK(n); funcall(value1,r);
+      } goto finished;          /* return (jump) to caller */
+    }
+    #define JMP()                             \
+      { var const uintB* label_byteptr;       \
+        L_operand(label_byteptr);             \
+        DEBUG_CHECK_BYTEPTR(label_byteptr);   \
+        byteptr = label_byteptr;              \
+        goto next_byte;                       \
+      }
+    #define NOTJMP()  \
+      { L_operand_ignore(); goto next_byte; }
+    jmp1: mv_count=1;
+    CASE cod_jmp: jmp:          /* (JMP label) */
+      JMP();
+    CASE cod_jmpif:             /* (JMPIF label) */
+      if (!nullp(value1)) goto jmp;
+      notjmp:
+      NOTJMP();
+    CASE cod_jmpifnot:          /* (JMPIFNOT label) */
+      if (nullp(value1)) goto jmp;
+      NOTJMP();
+    CASE cod_jmpif1:            /* (JMPIF1 label) */
+      if (!nullp(value1)) goto jmp1;
+      NOTJMP();
+    CASE cod_jmpifnot1:         /* (JMPIFNOT1 label) */
+      if (nullp(value1)) goto jmp1;
+      NOTJMP();
+    CASE cod_jmpifatom:         /* (JMPIFATOM label) */
+      if (atomp(value1)) goto jmp;
+      NOTJMP();
+    CASE cod_jmpifconsp:        /* (JMPIFCONSP label) */
+      if (consp(value1)) goto jmp;
+      NOTJMP();
+    CASE cod_jmpifeq:           /* (JMPIFEQ label) */
+      if (eq(popSTACK(),value1)) goto jmp;
+      NOTJMP();
+    CASE cod_jmpifnoteq:        /* (JMPIFNOTEQ label) */
+      if (!eq(popSTACK(),value1)) goto jmp;
+      NOTJMP();
+    CASE cod_jmpifeqto: {       /* (JMPIFEQTO n label) */
+      var uintL n;
+      U_operand(n);
+      if (eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
+    } NOTJMP();
+    CASE cod_jmpifnoteqto: {    /* (JMPIFNOTEQTO n label) */
+      var uintL n;
+      U_operand(n);
+      if (!eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
+    } NOTJMP();
+    CASE cod_jmphash: {         /* (JMPHASH n label) */
+      var uintL n;
+      U_operand(n);
+      var object hashvalue =  /* search value1 in the Hash-table */
+        gethash(value1,TheCclosure(closure)->clos_consts[n],false);
+      if (eq(hashvalue,nullobj))
+        goto jmp;             /* not found -> jump to label */
+      else { /* interpret found Fixnum as label: */
+        DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
+        byteptr += fixnum_to_V(hashvalue);
+      }
+    } goto next_byte;
+    CASE cod_jmphashv: {        /* (JMPHASHV n label) */
+      var uintL n;
+      U_operand(n);
+      var object hashvalue =  /* search value1 in the Hash-table */
+        gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n],false);
+      if (eq(hashvalue,nullobj))
+        goto jmp;             /* not found -> jump to label */
+      else { /* interpret found Fixnum as label: */
+        DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
+        byteptr += fixnum_to_V(hashvalue);
+      }
+    } goto next_byte;
+    /* executes a (JSR label)-command. */
+    #define JSR()  \
+      check_STACK(); check_SP();                                \
+      { var const uintB* label_byteptr;                         \
+        L_operand(label_byteptr);                               \
+        with_saved_context(                                     \
+          with_saved_back_trace_cclosure(closure,               \
+            interpret_bytecode_(closure,codeptr,label_byteptr); \
+        ));                                                     \
+      }
+    CASE cod_jsr:               /* (JSR label) */
+      JSR();
+      goto next_byte;
+    CASE cod_jsr_push:          /* (JSR&PUSH label) */
+      JSR(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_jmptail: {         /* (JMPTAIL m n label) */
+      var uintL m;
+      var uintL n;
+      U_operand(m);
+      U_operand(n);
+      /* It is n>=m. Copy m stack-entries upwards by n-m : */
+      var gcv_object_t* ptr1 = STACK STACKop m;
+      var gcv_object_t* ptr2 = STACK STACKop n;
+      var uintC count;
+      dotimesC(count,m, { NEXT(ptr2) = NEXT(ptr1); } );
+      /* Now ptr1 = STACK and ptr2 = STACK STACKop (n-m). */
+      *(closureptr = &NEXT(ptr2)) = closure; /* store closure in stack */
+      setSTACK(STACK = ptr2);                /* shorten STACK */
+    } JMP();                                 /* jump to label */
+    /* ------------------- (6) Environments and Closures -------------------- */
+    CASE cod_venv:              /* (VENV) */
+      /* fetch VenvConst from the closure: */
+      VALUES1(TheCclosure(closure)->clos_venv);
+      goto next_byte;
+    CASE cod_make_vector1_push: { /* (MAKE-VECTOR1&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      pushSTACK(value1);
+      /* create vector: */
+      var object vec;
+      with_saved_context( { vec = allocate_vector(n+1); } );
+      /* fill first element: */
+      TheSvector(vec)->data[0] = STACK_0;
+      STACK_0 = vec;
+    } goto next_byte;
+    CASE cod_copy_closure: {    /* (COPY-CLOSURE m n) */
+      var object oldclos;
+      { /* fetch closure to be copied: */
+        var uintL m;
+        U_operand(m);
+        oldclos = TheCclosure(closure)->clos_consts[m];
+      }
+      /* allocate closure of equal length: */
+      var object newclos;
+      pushSTACK(oldclos);
+      with_saved_context(newclos = allocate_cclosure_copy(oldclos););
+      oldclos = popSTACK();
+      /* copy contents of the old closure into the new one: */
+      do_cclosure_copy(newclos,oldclos);
+      {                   /* copy stack content into the new closure: */
+        var uintL n;
+        U_operand(n);
+        var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
+        dotimespL(n,n, { *--newptr = popSTACK(); } );
+      }
+      VALUES1(newclos);
+    } goto next_byte;
+    CASE cod_copy_closure_push: { /* (COPY-CLOSURE&PUSH m n) */
+      var object oldclos;
+      { /* fetch closure to be copied: */
+        var uintL m;
+        U_operand(m);
+        oldclos = TheCclosure(closure)->clos_consts[m];
+      }
+      /* allocate closure of equal length: */
+      var object newclos;
+      pushSTACK(oldclos);
+      with_saved_context(newclos = allocate_cclosure_copy(oldclos););
+      oldclos = popSTACK();
+      /* copy contents of the old closure into the new one: */
+      do_cclosure_copy(newclos,oldclos);
+      { /* copy stack content into the new closure: */
+        var uintL n;
+        U_operand(n);
+        var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
+        dotimespL(n,n, { *--newptr = popSTACK(); } );
+      }
+      pushSTACK(newclos);
+    } goto next_byte;
+    /* ------------------- (7) Function Calls -----------------------
+     executes (CALL k n)-command. */
+    #define CALL()  \
+      { var uintC k;             /* number of arguments */ \
+        var uintL n;                                       \
+        U_operand(k);                                      \
+        U_operand(n);                                      \
+        with_saved_context(                                \
+          funcall(TheCclosure(closure)->clos_consts[n],k); \
+        );                                                 \
+      }
+    /* executes (CALL0 n)-command. */
+    #define CALL0()  \
+      { var uintL n;                                       \
+        U_operand(n);                                      \
+        with_saved_context(                                \
+          funcall(TheCclosure(closure)->clos_consts[n],0); \
+        );                                                 \
+      }
+    /* executes (CALL1 n)-command. */
+    #define CALL1()  \
+      { var uintL n;                                       \
+        U_operand(n);                                      \
+        with_saved_context(                                \
+          funcall(TheCclosure(closure)->clos_consts[n],1); \
+        );                                                 \
+      }
+    /* executes (CALL2 n)-command. */
+    #define CALL2()  \
+      { var uintL n;                                       \
+        U_operand(n);                                      \
+        with_saved_context(                                \
+          funcall(TheCclosure(closure)->clos_consts[n],2); \
+        );                                                 \
+      }
+    /* executes (CALLS1 n)-command. */
+    #define CALLS1()                                                    \
+      { var uintL n;                                                    \
+        B_operand(n);                                                   \
+        /* The compiler has already done the argument-check. */         \
+       {var Subr fun = FUNTAB1[n];                                      \
+        with_saved_context(                                             \
+          with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
+            (*(subr_norest_function_t*)(fun->function))();              \
+          ));                                                           \
+      }}
+    /* executes (CALLS2 n)-command. */
+    #define CALLS2()                                                    \
+      { var uintL n;                                                    \
+        B_operand(n);                                                   \
+        /* The compiler has already done the argument-check. */         \
+       {var Subr fun = FUNTAB2[n];                                      \
+        with_saved_context(                                             \
+          with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
+            (*(subr_norest_function_t*)(fun->function))();              \
+          ));                                                           \
+      }}                                                                \
+    /* executes (CALLSR m n)-command. */
+    #define CALLSR()                                                    \
+      { var uintL m;                                                    \
+        var uintL n;                                                    \
+        U_operand(m);                                                   \
+        B_operand(n);                                                   \
+        /* The compiler has already done the argument-check. */         \
+       {var Subr fun = FUNTABR[n];                                      \
+        with_saved_context(                                             \
+          with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
+            (*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m); \
+          ));                                                           \
+      }}
+    CASE cod_call:              /* (CALL k n) */
+      CALL();
+      goto next_byte;
+    CASE cod_call_push:         /* (CALL&PUSH k n) */
+      CALL(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_call0:             /* (CALL0 n) */
+      CALL0();
+      goto next_byte;
+    CASE cod_call1:             /* (CALL1 n) */
+      CALL1();
+      goto next_byte;
+    CASE cod_call1_push:        /* (CALL1&PUSH n) */
+      CALL1(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_call2:             /* (CALL2 n) */
+      CALL2();
+      goto next_byte;
+    CASE cod_call2_push:        /* (CALL2&PUSH n) */
+      CALL2(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_calls1:            /* (CALLS1 n) */
+      CALLS1();
+      goto next_byte;
+    CASE cod_calls1_push:       /* (CALLS1&PUSH n) */
+      CALLS1(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_calls2:            /* (CALLS2 n) */
+      CALLS2();
+      goto next_byte;
+    CASE cod_calls2_push:       /* (CALLS2&PUSH n) */
+      CALLS2(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_callsr:            /* (CALLSR m n) */
+      CALLSR();
+      goto next_byte;
+    CASE cod_callsr_push:       /* (CALLSR&PUSH m n) */
+      CALLSR(); pushSTACK(value1);
+      goto next_byte;
+    /* executes a (CALLC)-command. */
+    #define CALLC()  \
+      { check_STACK(); check_SP();            /* check STACK and SP */ \
+        with_saved_context(                                  \
+          /* interprete compiled closure starting at Byte 8 */ \
+          interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_NONKEY); \
+        );                                                   \
+      }
+    /* executes a (CALLCKEY)-command. */
+    #define CALLCKEY()  \
+      { check_STACK(); check_SP();            /* check STACK and SP */ \
+        with_saved_context(                                  \
+          /* interprete compiled closure starting at Byte 12: */ \
+          interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_KEY); \
+        );                                                   \
+      }
+    CASE cod_callc:             /* (CALLC) */
+      CALLC();
+      goto next_byte;
+    CASE cod_callc_push:        /* (CALLC&PUSH) */
+      CALLC(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_callckey:          /* (CALLCKEY) */
+      CALLCKEY();
+      goto next_byte;
+    CASE cod_callckey_push:     /* (CALLCKEY&PUSH) */
+      CALLCKEY(); pushSTACK(value1);
+      goto next_byte;
+    CASE cod_funcall: {         /* (FUNCALL n) */
+      var uintL n;
+      U_operand(n);
+      var object fun = STACK_(n);            /* Function */
+      with_saved_context( funcall(fun,n); ); /* call Function */
+      skipSTACK(1);           /* discard function from Stack */
+    } goto next_byte;
+    CASE cod_funcall_push: {    /* (FUNCALL&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object fun = STACK_(n);            /* Function */
+      with_saved_context( funcall(fun,n); ); /* call Function */
+      STACK_0 = value1;       /* replace Function in Stack by value */
+    } goto next_byte;
+    CASE cod_apply: {           /* (APPLY n) */
+      var uintL n;
+      U_operand(n);
+      var object fun = STACK_(n);                 /* Function */
+      with_saved_context( apply(fun,n,value1); ); /* call Function */
+      skipSTACK(1);           /* discard Function from Stack */
+    } goto next_byte;
+    CASE cod_apply_push: {      /* (APPLY&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object fun = STACK_(n);                 /* Function */
+      with_saved_context( apply(fun,n,value1); ); /* call Function */
+      STACK_0 = value1;       /* replace Function in Stack by value */
+    } goto next_byte;
+    /* ---------------- (8) optional and Keyword-arguments ---------------- */
+    CASE cod_push_unbound: {    /* (PUSH-UNBOUND n) */
+      var uintC n;
+      U_operand(n);
+      dotimesC(n,n, { pushSTACK(unbound); } );
+    } goto next_byte;
+    CASE cod_unlist: {          /* (UNLIST n m) */
+      var uintC n;
+      var uintC m;
+      U_operand(n);
+      U_operand(m);
+      var object l = value1;
+      if (n > 0)
+        do {
+          if (atomp(l)) goto unlist_unbound;
+          pushSTACK(Car(l)); l = Cdr(l);
+        } while (--n != 0);
+      if (atomp(l))
         goto next_byte;
-      CASE cod_unbind:                 # (UNBIND n)
-        {
-          var uintC n;
-          U_operand(n); # n>0
-          var gcv_object_t* FRAME = STACK;
-          do {
-            #if STACKCHECKC
-            if (!(framecode(FRAME_(0)) == DYNBIND_frame_info))
-              GOTO_ERROR(error_STACK_putt);
-            #endif
-            # unwind variable-binding-frame:
-            var gcv_object_t* new_FRAME = topofframe(FRAME_(0)); # pointer above frame
-            var gcv_object_t* frame_end = STACKpointable(new_FRAME);
-            var gcv_object_t* bindingptr = &FRAME_(1); # begin of the bindings
-            # bindingptr loops upwards through the bindings
-            while (bindingptr != frame_end) {
-              # write back old value:
-              Symbol_value(*(bindingptr STACKop 0)) = *(bindingptr STACKop 1);
-              bindingptr skipSTACKop 2; # next binding
-            }
-            FRAME = new_FRAME;
-          } while (--n != 0);
-          setSTACK(STACK = FRAME); # set STACK newly
+      else
+        error_apply_toomany(S(lambda));
+     unlist_unbound:
+      if (n > m) error_apply_toofew(S(lambda),l);
+      do { pushSTACK(unbound); } while (--n != 0);
+    } goto next_byte;
+    CASE cod_unliststar: {      /* (UNLIST* n m) */
+      var uintC n;
+      var uintC m;
+      U_operand(n);
+      U_operand(m);
+      var object l = value1;
+      do {
+        if (atomp(l)) goto unliststar_unbound;
+        pushSTACK(Car(l)); l = Cdr(l);
+      } while (--n != 0);
+      pushSTACK(l);
+      goto next_byte;
+     unliststar_unbound:
+      if (n > m) error_apply_toofew(S(lambda),l);
+      do { pushSTACK(unbound); } while (--n != 0);
+      pushSTACK(NIL);
+    } goto next_byte;
+    CASE cod_jmpifboundp: {     /* (JMPIFBOUNDP n label) */
+      var uintL n;
+      U_operand(n);
+      var object obj = STACK_(n);
+      if (!boundp(obj)) goto notjmp;
+      VALUES1(obj);
+    } JMP();
+    CASE cod_boundp: {          /* (BOUNDP n) */
+      var uintL n;
+      U_operand(n);
+      var object obj = STACK_(n);
+      if (!boundp(obj)) goto code_nil; else goto code_t;
+    }
+    CASE cod_unbound_nil: {     /* (UNBOUND->NIL n) */
+      var uintL n;
+      U_operand(n);
+      if (!boundp(STACK_(n))) { STACK_(n) = NIL; }
+    } goto next_byte;
+    /* ------------------- (9) Treatment of multiple values -------------- */
+    CASE cod_values0:           /* (VALUES0) */
+      VALUES0;
+      goto next_byte;
+    CASE cod_values1:           /* (VALUES1) */
+      mv_count = 1;
+      goto next_byte;
+    CASE cod_stack_to_mv: {     /* (STACK-TO-MV n) */
+      var uintL n;
+      U_operand(n);
+      if (n >= mv_limit) GOTO_ERROR(error_toomany_values);
+      STACK_to_mv(n);
+    } goto next_byte;
+    CASE cod_mv_to_stack:       /* (MV-TO-STACK) */
+      mv_to_STACK();            /* push values on Stack */
+      goto next_byte;
+    CASE cod_nv_to_stack: {     /* (NV-TO-STACK n) */
+      var uintL n;
+      U_operand(n);
+      /* test for Stack-Overflow: */
+      get_space_on_STACK(n*sizeof(gcv_object_t));
+      /* push n values in the Stack: */
+      var uintC count = mv_count;
+      if (n==0) goto nv_to_stack_end; /* no value desired -> finished */
+      /* at least 1 value desired */
+      pushSTACK(value1);
+      n--; if (n==0) goto nv_to_stack_end; /* only 1 value desired -> finished */
+      if (count<=1) goto nv_to_stack_fill; /* only 1 value present -> fill with NILs */
+      count--;
+      { /* at least 2 values desired and present */
+        var object* mvp = &mv_space[1];
+        while (1) {
+          pushSTACK(*mvp++);
+          n--; if (n==0) goto nv_to_stack_end; /* no further value desired -> finished */
+          count--; if (count==0) goto nv_to_stack_fill; /* no further value present -> fill with NILs */
         }
-        goto next_byte;
-      CASE cod_progv:                  # (PROGV)
-        {
-          var object vallist = value1; # value-list
-          var object symlist = popSTACK(); # symbol-list
-          pushSP((aint)STACK); # push STACK into SP
-          with_saved_context( progv(symlist,vallist); ); # build frame
+      }
+     nv_to_stack_fill: /* fill up with n>0 NILs as additional values: */
+      dotimespL(n,n, { pushSTACK(NIL); } );
+       nv_to_stack_end: ;
+    } goto next_byte;
+    CASE cod_mv_to_list:        /* (MV-TO-LIST) */
+      with_saved_context(
+        /* push values on Stack and handicraft list out of it: */
+        mv_to_list();
+      );
+      VALUES1(popSTACK());
+      goto next_byte;
+    CASE cod_list_to_mv:        /* (LIST-TO-MV) */
+      list_to_mv(value1, GOTO_ERROR(error_toomany_values));
+      goto next_byte;
+    CASE cod_mvcallp:           /* (MVCALLP) */
+      pushSP((aint)STACK);      /* save STACK */
+      pushSTACK(value1);        /* save function to be executed */
+      goto next_byte;
+    CASE cod_mvcall: {          /* (MVCALL) */
+      var gcv_object_t* FRAME; popSP( FRAME = (gcv_object_t*) ); /* Pointer to Arguments and Function */
+      var object fun = NEXT(FRAME); /* Function */
+      with_saved_context({
+        var uintL argcount =  /* number of arguments on stack */
+          STACK_item_count(STACK,FRAME);
+        if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
+          pushSTACK(fun);
+          pushSTACK(S(multiple_value_call));
+          /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
+          error(program_error,
+                GETTEXT("~S: too many arguments given to ~S"));
         }
-        goto next_byte;
-      # ------------------- (4) Stackoperations -----------------------
-      CASE cod_push:                   # (PUSH)
-        pushSTACK(value1);
-        goto next_byte;
-      CASE cod_pop:                    # (POP)
-        VALUES1(popSTACK());
-        goto next_byte;
-      CASE cod_skip:                   # (SKIP n)
-        {
-          var uintL n;
-          U_operand(n);
-          skipSTACK(n);
-        }
-        goto next_byte;
-      CASE cod_skipi:                  # (SKIPI k1 k2 n)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          skipSP(k1+jmpbufsize*k2);
-          var gcv_object_t* newSTACK;
-          popSP( newSTACK = (gcv_object_t*) );
-          setSTACK(STACK = newSTACK STACKop n);
-        }
-        goto next_byte;
-      CASE cod_skipsp:                 # (SKIPSP k1 k2)
-        {
-          var uintL k1;
-          var uintL k2;
-          U_operand(k1);
-          U_operand(k2);
-          skipSP(k1+jmpbufsize*k2);
-        }
-        goto next_byte;
-      # ------------------- (5) Control Flow and Jumps -----------------------
-      CASE cod_skip_ret:               # (SKIP&RET n)
-        {
-          var uintL n;
-          U_operand(n);
-          skipSTACK(n);
-          goto finished; # return (jump) to caller
-        }
-      CASE cod_skip_retgf:             # (SKIP&RETGF n)
-        {
-          var uintL n;
-          U_operand(n);
-          if (((Codevec)codeptr)->ccv_flags & bit(3)) { # call inhibition?
-            skipSTACK(n);
-            mv_count=1;
-            goto finished; # return (jump) to caller
-          }
-          # It is known (refer to clos.lisp), that this function
-          # has no optional parameters, but poss. Rest-parameters.
-          # If there's no Rest-parameter: (FUNCALL value1 arg1 ... argr)
-          # If there's a  Rest-Parameter: (APPLY value1 arg1 ... argr restarg)
-          var uintL r = ((Codevec)codeptr)->ccv_numreq;
-          n -= r;
-          if (((Codevec)codeptr)->ccv_flags & bit(0)) {
-            skipSTACK(n-1); apply(value1,r,popSTACK());
-          } else {
-            skipSTACK(n); funcall(value1,r);
-          }
-          goto finished; # return (jump) to caller
-        }
-      #define JMP()                             \
-        { var const uintB* label_byteptr;       \
-          L_operand(label_byteptr);             \
-          DEBUG_CHECK_BYTEPTR(label_byteptr);   \
-          byteptr = label_byteptr;              \
-          goto next_byte;                       \
-        }
-      #define NOTJMP()  \
-        { L_operand_ignore(); goto next_byte; }
-      jmp1: mv_count=1;
-      CASE cod_jmp: jmp:               # (JMP label)
-        JMP();
-      CASE cod_jmpif:                  # (JMPIF label)
-        if (!nullp(value1)) goto jmp;
-        notjmp:
-        NOTJMP();
-      CASE cod_jmpifnot:               # (JMPIFNOT label)
-        if (nullp(value1)) goto jmp;
-        NOTJMP();
-      CASE cod_jmpif1:                 # (JMPIF1 label)
-        if (!nullp(value1)) goto jmp1;
-        NOTJMP();
-      CASE cod_jmpifnot1:              # (JMPIFNOT1 label)
-        if (nullp(value1)) goto jmp1;
-        NOTJMP();
-      CASE cod_jmpifatom:              # (JMPIFATOM label)
-        if (atomp(value1)) goto jmp;
-        NOTJMP();
-      CASE cod_jmpifconsp:             # (JMPIFCONSP label)
-        if (consp(value1)) goto jmp;
-        NOTJMP();
-      CASE cod_jmpifeq:                # (JMPIFEQ label)
-        if (eq(popSTACK(),value1)) goto jmp;
-        NOTJMP();
-      CASE cod_jmpifnoteq:             # (JMPIFNOTEQ label)
-        if (!eq(popSTACK(),value1)) goto jmp;
-        NOTJMP();
-      CASE cod_jmpifeqto:              # (JMPIFEQTO n label)
-        {
-          var uintL n;
-          U_operand(n);
-          if (eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
-        }
-        NOTJMP();
-      CASE cod_jmpifnoteqto:           # (JMPIFNOTEQTO n label)
-        {
-          var uintL n;
-          U_operand(n);
-          if (!eq(popSTACK(),TheCclosure(closure)->clos_consts[n])) goto jmp;
-        }
-        NOTJMP();
-      CASE cod_jmphash:                # (JMPHASH n label)
-        {
-          var uintL n;
-          U_operand(n);
-          var object hashvalue = # search value1 in the Hash-table
-            gethash(value1,TheCclosure(closure)->clos_consts[n],false);
-          if (eq(hashvalue,nullobj))
-            goto jmp; # not found -> jump to label
-          else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
-            byteptr += fixnum_to_V(hashvalue);
-          }
-        }
-        goto next_byte;
-      CASE cod_jmphashv:               # (JMPHASHV n label)
-        {
-          var uintL n;
-          U_operand(n);
-          var object hashvalue = # search value1 in the Hash-table
-            gethash(value1,TheSvector(TheCclosure(closure)->clos_consts[0])->data[n],false);
-          if (eq(hashvalue,nullobj))
-            goto jmp; # not found -> jump to label
-          else { /* interpret found Fixnum as label: */
-            DEBUG_CHECK_BYTEPTR(byteptr + fixnum_to_V(hashvalue));
-            byteptr += fixnum_to_V(hashvalue);
-          }
-        }
-        goto next_byte;
-      # executes a (JSR label)-command.
-      #define JSR()  \
-        check_STACK(); check_SP();                                \
-        { var const uintB* label_byteptr;                         \
-          L_operand(label_byteptr);                               \
-          with_saved_context(                                     \
-            with_saved_back_trace_cclosure(closure,               \
-              interpret_bytecode_(closure,codeptr,label_byteptr); \
-          ));                                                     \
-        }
-      CASE cod_jsr:                    # (JSR label)
-        JSR();
-        goto next_byte;
-      CASE cod_jsr_push:               # (JSR&PUSH label)
-        JSR(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_jmptail:                # (JMPTAIL m n label)
-        {
-          var uintL m;
-          var uintL n;
-          U_operand(m);
-          U_operand(n);
-          # It is n>=m. Copy m stack-entries upwards by n-m :
-          var gcv_object_t* ptr1 = STACK STACKop m;
-          var gcv_object_t* ptr2 = STACK STACKop n;
-          var uintC count;
-          dotimesC(count,m, { NEXT(ptr2) = NEXT(ptr1); } );
-          # Now ptr1 = STACK and ptr2 = STACK STACKop (n-m).
-          *(closureptr = &NEXT(ptr2)) = closure; # store closure in stack
-          setSTACK(STACK = ptr2); # shorten STACK
-        }
-        JMP(); # jump to label
-      # ------------------- (6) Environments and Closures -----------------------
-      CASE cod_venv:                   # (VENV)
-        # fetch VenvConst from the closure:
-        VALUES1(TheCclosure(closure)->clos_venv);
-        goto next_byte;
-      CASE cod_make_vector1_push:      # (MAKE-VECTOR1&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          pushSTACK(value1);
-          # create vector:
-          var object vec;
-          with_saved_context( { vec = allocate_vector(n+1); } );
-          # fill first element:
-          TheSvector(vec)->data[0] = STACK_0;
-          STACK_0 = vec;
-        }
-        goto next_byte;
-      CASE cod_copy_closure:           # (COPY-CLOSURE m n)
-        {
-          var object oldclos;
-          # fetch closure to be copied:
-          {
-            var uintL m;
-            U_operand(m);
-            oldclos = TheCclosure(closure)->clos_consts[m];
-          }
-          # allocate closure of equal length:
-          var object newclos;
-          pushSTACK(oldclos);
-          with_saved_context(
-            newclos = allocate_cclosure_copy(oldclos);
-          );
-          oldclos = popSTACK();
-          # copy contents of the old closure into the new one:
-          do_cclosure_copy(newclos,oldclos);
-          # copy stack content into the new closure:
-          {
-            var uintL n;
-            U_operand(n);
-            var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
-            dotimespL(n,n, { *--newptr = popSTACK(); } );
-          }
-          VALUES1(newclos);
-        }
-        goto next_byte;
-      CASE cod_copy_closure_push:      # (COPY-CLOSURE&PUSH m n)
-        {
-          var object oldclos;
-          # fetch closure to be copied:
-          {
-            var uintL m;
-            U_operand(m);
-            oldclos = TheCclosure(closure)->clos_consts[m];
-          }
-          # allocate closure of equal length:
-          var object newclos;
-          pushSTACK(oldclos);
-          with_saved_context(
-            newclos = allocate_cclosure_copy(oldclos);
-          );
-          oldclos = popSTACK();
-          # copy contents of the old closure into the new one:
-          do_cclosure_copy(newclos,oldclos);
-          # copy stack content into the new closure:
-          {
-            var uintL n;
-            U_operand(n);
-            var gcv_object_t* newptr = &TheCclosure(newclos)->clos_consts[n];
-            dotimespL(n,n, { *--newptr = popSTACK(); } );
-          }
-          pushSTACK(newclos);
-        }
-        goto next_byte;
-      # ------------------- (7) Function Calls -----------------------
-      # executes (CALL k n)-command.
-      #define CALL()  \
-        { var uintC k; # number of arguments                 \
-          var uintL n;                                       \
-          U_operand(k);                                      \
-          U_operand(n);                                      \
-          with_saved_context(                                \
-            funcall(TheCclosure(closure)->clos_consts[n],k); \
-          );                                                 \
-        }
-      # executes (CALL0 n)-command.
-      #define CALL0()  \
-        { var uintL n;                                       \
-          U_operand(n);                                      \
-          with_saved_context(                                \
-            funcall(TheCclosure(closure)->clos_consts[n],0); \
-          );                                                 \
-        }
-      # executes (CALL1 n)-command.
-      #define CALL1()  \
-        { var uintL n;                                       \
-          U_operand(n);                                      \
-          with_saved_context(                                \
-            funcall(TheCclosure(closure)->clos_consts[n],1); \
-          );                                                 \
-        }
-      # executes (CALL2 n)-command.
-      #define CALL2()  \
-        { var uintL n;                                       \
-          U_operand(n);                                      \
-          with_saved_context(                                \
-            funcall(TheCclosure(closure)->clos_consts[n],2); \
-          );                                                 \
-        }
-      # executes (CALLS1 n)-command.
-      #define CALLS1()  \
-        { var uintL n;                                                       \
-          B_operand(n);                                                      \
-          # The compiler has already done the argument-check.                \
-         {var Subr fun = FUNTAB1[n];                                         \
-          with_saved_context(                                                \
-            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
-              (*(subr_norest_function_t*)(fun->function))();                 \
-            ));                                                              \
-        }}
-      # executes (CALLS2 n)-command.
-      #define CALLS2()  \
-        { var uintL n;                                                       \
-          B_operand(n);                                                      \
-          # The compiler has already done the argument-check.                \
-         {var Subr fun = FUNTAB2[n];                                         \
-          with_saved_context(                                                \
-            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
-              (*(subr_norest_function_t*)(fun->function))();                 \
-            ));                                                              \
-        }}
-      # executes (CALLSR m n)-command.
-      #define CALLSR()  \
-        { var uintL m;                                                       \
-          var uintL n;                                                       \
-          U_operand(m);                                                      \
-          B_operand(n);                                                      \
-          # The compiler has already done the argument-check.                \
-         {var Subr fun = FUNTABR[n];                                         \
-          with_saved_context(                                                \
-            with_saved_back_trace_subr(subr_tab_ptr_as_object(fun),STACK,-1, \
-              (*(subr_rest_function_t*)(fun->function))(m,args_end_pointer STACKop m); \
-            ));                                                              \
-        }}
-      CASE cod_call:                   # (CALL k n)
-        CALL();
-        goto next_byte;
-      CASE cod_call_push:              # (CALL&PUSH k n)
-        CALL(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_call0:                  # (CALL0 n)
-        CALL0();
-        goto next_byte;
-      CASE cod_call1:                  # (CALL1 n)
-        CALL1();
-        goto next_byte;
-      CASE cod_call1_push:             # (CALL1&PUSH n)
-        CALL1(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_call2:                  # (CALL2 n)
-        CALL2();
-        goto next_byte;
-      CASE cod_call2_push:             # (CALL2&PUSH n)
-        CALL2(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_calls1:                 # (CALLS1 n)
-        CALLS1();
-        goto next_byte;
-      CASE cod_calls1_push:            # (CALLS1&PUSH n)
-        CALLS1(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_calls2:                 # (CALLS2 n)
-        CALLS2();
-        goto next_byte;
-      CASE cod_calls2_push:            # (CALLS2&PUSH n)
-        CALLS2(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_callsr:                 # (CALLSR m n)
-        CALLSR();
-        goto next_byte;
-      CASE cod_callsr_push:            # (CALLSR&PUSH m n)
-        CALLSR(); pushSTACK(value1);
-        goto next_byte;
-      # executes a (CALLC)-command.
-      #define CALLC()  \
-        { check_STACK(); check_SP(); # check STACK and SP      \
-          with_saved_context(                                  \
-            # interprete compiled closure starting at Byte 8   \
-            interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_NONKEY); \
-          );                                                   \
-        }
-      # executes a (CALLCKEY)-command.
-      #define CALLCKEY()  \
-        { check_STACK(); check_SP(); # check STACK and SP      \
-          with_saved_context(                                  \
-            # interprete compiled closure starting at Byte 12: \
-            interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_KEY); \
-          );                                                   \
-        }
-      CASE cod_callc:                  # (CALLC)
-        CALLC();
-        goto next_byte;
-      CASE cod_callc_push:             # (CALLC&PUSH)
-        CALLC(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_callckey:               # (CALLCKEY)
-        CALLCKEY();
-        goto next_byte;
-      CASE cod_callckey_push:          # (CALLCKEY&PUSH)
-        CALLCKEY(); pushSTACK(value1);
-        goto next_byte;
-      CASE cod_funcall:                # (FUNCALL n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object fun = STACK_(n); # Function
-          with_saved_context( funcall(fun,n); ); # call Function
-          skipSTACK(1); # discard function from Stack
-        }
-        goto next_byte;
-      CASE cod_funcall_push:           # (FUNCALL&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object fun = STACK_(n); # Function
-          with_saved_context( funcall(fun,n); ); # call Function
-          STACK_0 = value1; # replace Function in Stack by value
-        }
-        goto next_byte;
-      CASE cod_apply:                  # (APPLY n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object fun = STACK_(n); # Function
-          with_saved_context( apply(fun,n,value1); ); # call Function
-          skipSTACK(1); # discard Function from Stack
-        }
-        goto next_byte;
-      CASE cod_apply_push:             # (APPLY&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object fun = STACK_(n); # Function
-          with_saved_context( apply(fun,n,value1); ); # call Function
-          STACK_0 = value1; # replace Function in Stack by value
-        }
-        goto next_byte;
-      # ------------------- (8) optional and Keyword-arguments -----------------------
-      CASE cod_push_unbound:           # (PUSH-UNBOUND n)
-        {
-          var uintC n;
-          U_operand(n);
-          dotimesC(n,n, { pushSTACK(unbound); } );
-        }
-        goto next_byte;
-      CASE cod_unlist:                 # (UNLIST n m)
-        {
-          var uintC n;
-          var uintC m;
-          U_operand(n);
-          U_operand(m);
-          var object l = value1;
-          if (n > 0)
-            do {
-              if (atomp(l)) goto unlist_unbound;
-              pushSTACK(Car(l)); l = Cdr(l);
-            } while (--n != 0);
-          if (atomp(l))
-            goto next_byte;
-          else
-            error_apply_toomany(S(lambda));
-         unlist_unbound:
-          if (n > m) error_apply_toofew(S(lambda),l);
-          do { pushSTACK(unbound); } while (--n != 0);
-          goto next_byte;
-        }
-      CASE cod_unliststar:      /* (UNLIST* n m) */
-        {
-          var uintC n;
-          var uintC m;
-          U_operand(n);
-          U_operand(m);
-          var object l = value1;
-          do {
-            if (atomp(l)) goto unliststar_unbound;
-            pushSTACK(Car(l)); l = Cdr(l);
-          } while (--n != 0);
-          pushSTACK(l);
-          goto next_byte;
-         unliststar_unbound:
-          if (n > m) error_apply_toofew(S(lambda),l);
-          do { pushSTACK(unbound); } while (--n != 0);
-          pushSTACK(NIL);
-          goto next_byte;
-        }
-      CASE cod_jmpifboundp:            # (JMPIFBOUNDP n label)
-        {
-          var uintL n;
-          U_operand(n);
-          var object obj = STACK_(n);
-          if (!boundp(obj)) goto notjmp;
-          VALUES1(obj); JMP();
-        }
-      CASE cod_boundp:                 # (BOUNDP n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object obj = STACK_(n);
-          if (!boundp(obj)) goto code_nil; else goto code_t;
-        }
-      CASE cod_unbound_nil:            # (UNBOUND->NIL n)
-        {
-          var uintL n;
-          U_operand(n);
-          if (!boundp(STACK_(n))) { STACK_(n) = NIL; }
-        }
-        goto next_byte;
-      # ------------------- (9) Treatment of multiple values -----------------------
-      CASE cod_values0:                # (VALUES0)
-        VALUES0;
-        goto next_byte;
-      CASE cod_values1:                # (VALUES1)
-        mv_count = 1;
-        goto next_byte;
-      CASE cod_stack_to_mv:            # (STACK-TO-MV n)
-        {
-          var uintL n;
-          U_operand(n);
-          if (n >= mv_limit) GOTO_ERROR(error_toomany_values);
-          STACK_to_mv(n);
-        }
-        goto next_byte;
-      CASE cod_mv_to_stack:            # (MV-TO-STACK)
-        mv_to_STACK(); # push values on Stack
-        goto next_byte;
-      CASE cod_nv_to_stack:            # (NV-TO-STACK n)
-        {
-          var uintL n;
-          U_operand(n);
-          # test for Stack-Overflow:
-          get_space_on_STACK(n*sizeof(gcv_object_t));
-          # push n values in the Stack:
-          var uintC count = mv_count;
-          if (n==0) goto nv_to_stack_end; # no value desired -> finished
-          # at least 1 value desired
-          pushSTACK(value1);
-          n--; if (n==0) goto nv_to_stack_end; # only 1 value desired -> finished
-          if (count<=1) goto nv_to_stack_fill; # only 1 value present -> fill with NILs
-          count--;
-          # at least 2 values desired and present
-          {
-            var object* mvp = &mv_space[1];
-            while (1) {
-              pushSTACK(*mvp++);
-              n--; if (n==0) goto nv_to_stack_end; # no further value desired -> finished
-              count--; if (count==0) goto nv_to_stack_fill; # no further value present -> fill with NILs
-            }
-          }
-          nv_to_stack_fill: # fill up with n>0 NILs as additional values:
-          dotimespL(n,n, { pushSTACK(NIL); } );
-          nv_to_stack_end: ;
-        }
-        goto next_byte;
-      CASE cod_mv_to_list:             # (MV-TO-LIST)
-        with_saved_context(
-          # push values on Stack and handicraft list out of it:
-          mv_to_list();
-        );
-        VALUES1(popSTACK());
-        goto next_byte;
-      CASE cod_list_to_mv:             # (LIST-TO-MV)
-        list_to_mv(value1, GOTO_ERROR(error_toomany_values));
-        goto next_byte;
-      CASE cod_mvcallp:                # (MVCALLP)
-        pushSP((aint)STACK); # save STACK
-        pushSTACK(value1); # save function to be executed
-        goto next_byte;
-      CASE cod_mvcall:                 # (MVCALL)
-        {
-          var gcv_object_t* FRAME; popSP( FRAME = (gcv_object_t*) ); # Pointer to Arguments and Function
-          var object fun = NEXT(FRAME); # Function
-          with_saved_context({
-            var uintL argcount = # number of arguments on stack
-              STACK_item_count(STACK,FRAME);
-            if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
-              pushSTACK(fun);
-              pushSTACK(S(multiple_value_call));
-              /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-              error(program_error,
-                     GETTEXT("~S: too many arguments given to ~S"));
-            }
-            # apply Function, lift Stack until below the Function:
-            funcall(fun,argcount);
-            skipSTACK(1); # discard Function from STACK
-          });
-        }
-        goto next_byte;
-      # ------------------- (10) BLOCK -----------------------
-      CASE cod_block_open:             # (BLOCK-OPEN n label)
-        # occupies 3 STACK-entries and 1 SP-jmp_buf-entry and 2 SP-entries
-        {
-          var uintL n;
-          var sintL label_dist;
-          U_operand(n);
-          S_operand(label_dist);
-          # create Block_Cons:
-          var object block_cons;
-          with_saved_context(
-            block_cons = allocate_cons();
-            label_dist += index; # CODEPTR+label_dist is the jump destination
-          );
-          # fill Block-Cons: (CONST n) as CAR
-          Car(block_cons) = TheCclosure(closure)->clos_consts[n];
-          # jump destination into SP:
-          pushSP(label_dist); pushSP((aint)closureptr);
-          # build up CBLOCK-Frame:
-          {
-            var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
-            pushSTACK(block_cons); # Cons ( (CONST n) . ...)
-            var JMPBUF_on_SP(returner); # memorize return-point
-            finish_entry_frame_1(CBLOCK,returner, goto block_return; );
-          }
-          # store Framepointer in Block-Cons:
-          Cdr(block_cons) = make_framepointer(STACK);
-        }
-        goto next_byte;
-       block_return: # jump to this label takes place, if the previously
-                     # built CBLOCK-Frame has catched a RETURN-FROM.
-        {
-          FREE_JMPBUF_on_SP();
-          skipSTACK(2); # unwind CBLOCK-Frame and mark
-          Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
-          var uintL index;
-          # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
-          closure = *closureptr; # fetch Closure from Stack
-          codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
-          byteptr = CODEPTR + index;
-        }
-        goto next_byte; # continue interpretation at Label
-      CASE cod_block_close:            # (BLOCK-CLOSE)
-        # unwind CBLOCK-Frame:
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == CBLOCK_frame_info))
-          GOTO_ERROR(error_STACK_putt);
-        #endif
-        {
-          FREE_JMPBUF_on_SP();
-          skipSTACK(2); # unwind CBLOCK-Frame and mark
-          Cdr(popSTACK()) = disabled; # Block-Cons as Disabled
-          skipSP(2); # we know Destination-Closureptr and Destination-Label
-        }
-        goto next_byte; # at Label continue interpretation
-      CASE cod_return_from:            # (RETURN-FROM n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object block_cons = TheCclosure(closure)->clos_consts[n];
-          if (eq(Cdr(block_cons),disabled))
-            error_block_left(Car(block_cons));
-          # unwind upto Block-Frame, then jump to its routine for freeing:
-          #ifndef FAST_SP
-          FREE_DYNAMIC_ARRAY(private_SP_space);
-          #endif
-          unwind_upto(uTheFramepointer(Cdr(block_cons)));
-        }
-      CASE cod_return_from_i:          # (RETURN-FROM-I k1 k2 n)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          var object block_cons = FRAME_(n);
-          if (eq(Cdr(block_cons),disabled))
-            error_block_left(Car(block_cons));
-          # unwind upto Block-Frame, then jump to its routine for freeing:
-          #ifndef FAST_SP
-          FREE_DYNAMIC_ARRAY(private_SP_space);
-          #endif
-          unwind_upto(uTheFramepointer(Cdr(block_cons)));
-        }
-      # ------------------- (11) TAGBODY -----------------------
-      CASE cod_tagbody_open:           # (TAGBODY-OPEN n label1 ... labelm)
-        # occupies 3+m STACK-Entries and 1 SP-jmp_buf-Entry and 1 SP-Entry
-        {
-          var uintL n;
-          U_operand(n);
-          # create Tagbody-Cons:
-          var object tagbody_cons;
-          with_saved_context(
-            tagbody_cons = allocate_cons();
-          );
-          # fill Tagbody-Cons: Tag-Vector (CONST n) as CAR
-          {
-            var object tag_vector = TheCclosure(closure)->clos_consts[n];
-            var uintL m = Svector_length(tag_vector);
-            Car(tagbody_cons) = tag_vector;
-            get_space_on_STACK(m*sizeof(gcv_object_t)); # allocate space
-          # push all labeli as Fixnums on the STACK:
-            var uintL count;
-            dotimespL(count,m, {
-              var const uintB* label_byteptr;
-              L_operand(label_byteptr);
-              pushSTACK(fixnum(label_byteptr - CODEPTR));
-            });
-          }
-          # jump destination in the SP:
-          pushSP((aint)closureptr);
-          # build upCTAGBODY-Frame:
-          {
-            var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
-            pushSTACK(tagbody_cons); # Cons ( (CONST n) . ...)
-            var JMPBUF_on_SP(returner); # memorize return-point
-            finish_entry_frame_1(CTAGBODY,returner, goto tagbody_go; );
-          }
-          # store Framepointer in Tagbody-Cons:
-          Cdr(tagbody_cons) = make_framepointer(STACK);
-        }
-        goto next_byte;
-       tagbody_go: # jump to this label takes place, if the previously
-                   # built CTAGBODY-Frame has catched a GO to Label nr. i.
-        {
-          var uintL m = Svector_length(Car(STACK_2)); # Number of Labels
-          # (I could also declare the m above as 'auto' and use it here.)
-          var uintL i = posfixnum_to_V(value1); # Number of Labels
-          var uintL index = posfixnum_to_V(STACK_((m-i)+3)); # labeli
-          # get closure back, byteptr:=labeli_byteptr :
-          closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
-          closure = *closureptr; # fetch Closure from Stack
-          codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
-          byteptr = CODEPTR + index;
-        }
-        goto next_byte; # continue interpretation at Label i
-      CASE cod_tagbody_close_nil:      # (TAGBODY-CLOSE-NIL)
-        VALUES1(NIL); /* value of Tagbody is NIL */
-      CASE cod_tagbody_close:          # (TAGBODY-CLOSE)
-        # unwind CTAGBODY-Frame:
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == CTAGBODY_frame_info))
-          GOTO_ERROR(error_STACK_putt);
-        #endif
-        {
-          FREE_JMPBUF_on_SP();
-          var object tagbody_cons = STACK_2; # Tagbody-Cons
-          Cdr(tagbody_cons) = disabled; # mark as Disabled
-          skipSTACK(3+Svector_length(Car(tagbody_cons)));
-          skipSP(1);
-        }
-        goto next_byte;
-      CASE cod_go:                     # (GO n l)
-        {
-          var uintL n;
-          var uintL l;
-          U_operand(n);
-          U_operand(l);
-          var object tagbody_cons = # (CONST n)
-            TheCclosure(closure)->clos_consts[n];
-          if (eq(Cdr(tagbody_cons),disabled)) {
-            var object tag_vector = Car(tagbody_cons);
-            pushSTACK(tag_vector);
-            pushSTACK(TheSvector(tag_vector)->data[l]); # label l
-            pushSTACK(S(go));
-            error(control_error,
-                   GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
-          }
-          # value passed to the Tagbody:
-          # For CTAGBODY-Frames: 1+l as Fixnum,
-          # For ITAGBODY-Frames: the form-list for Tag nr. l.
-          var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
-          VALUES1(framecode(FRAME_(0)) == CTAGBODY_frame_info
-                 ? fixnum(1+l)
-                 : (object)FRAME_(frame_bindings+2*l+1));
-          # unwind upto Tagbody-Frame, then jump to its Routine,
-          # which then jumps to Label l:
-          #ifndef FAST_SP
-          FREE_DYNAMIC_ARRAY(private_SP_space);
-          #endif
-          unwind_upto(FRAME);
-        }
-      CASE cod_go_i:                   # (GO-I k1 k2 n l)
-        {
-          var uintL k1;
-          var uintL k2;
-          var uintL n;
-          var uintL l;
-          U_operand(k1);
-          U_operand(k2);
-          U_operand(n);
-          U_operand(l);
-          var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
-          var object tagbody_cons = FRAME_(n);
-          if (eq(Cdr(tagbody_cons),disabled)) {
-            var object tag_vector = Car(tagbody_cons);
-            pushSTACK(tag_vector);
-            pushSTACK(TheSvector(tag_vector)->data[l]); # label l
-            pushSTACK(S(go));
-            error(control_error,
-                   GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
-          }
-          # value passed to Tagbody:
-          # For CTAGBODY-Frames 1+l as Fixnum.
-          FRAME = uTheFramepointer(Cdr(tagbody_cons));
-          VALUES1(fixnum(1+l));
-          # unwind upto Tagbody-Frame, then jump to its Routine,
-          # which then jumps to Label l:
-          #ifndef FAST_SP
-          FREE_DYNAMIC_ARRAY(private_SP_space);
-          #endif
-          unwind_upto(FRAME);
-        }
-      # ------------------- (12) CATCH and THROW -----------------------
-      CASE cod_catch_open:             # (CATCH-OPEN label)
-        # occupies 3 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries
-        {
+        /* apply Function, lift Stack until below the Function: */
+        funcall(fun,argcount);
+        skipSTACK(1);         /* discard Function from STACK */
+      });
+    } goto next_byte;
+    /* ------------------- (10) BLOCK ----------------------- */
+    CASE cod_block_open: {      /* (BLOCK-OPEN n label) */
+      /* occupies 3 STACK-entries and 1 SP-jmp_buf-entry and 2 SP-entries */
+      var uintL n;
+      var sintL label_dist;
+      U_operand(n);
+      S_operand(label_dist);
+      /* create Block_Cons: */
+      var object block_cons;
+      with_saved_context(
+        block_cons = allocate_cons();
+        label_dist += index; /* CODEPTR+label_dist is the jump destination */
+      );
+      /* fill Block-Cons: (CONST n) as CAR */
+      Car(block_cons) = TheCclosure(closure)->clos_consts[n];
+      /* jump destination into SP: */
+      pushSP(label_dist); pushSP((aint)closureptr);
+      { /* build up CBLOCK-Frame: */
+        var gcv_object_t* top_of_frame = STACK; /* Pointer above Frame */
+        pushSTACK(block_cons);      /* Cons ( (CONST n) . ...) */
+        var JMPBUF_on_SP(returner); /* memorize return-point */
+        finish_entry_frame_1(CBLOCK,returner, goto block_return; );
+      }
+      /* store Framepointer in Block-Cons: */
+      Cdr(block_cons) = make_framepointer(STACK);
+    } goto next_byte;
+   block_return: { /* jump to this label takes place, if the previously
+                      built CBLOCK-Frame has catched a RETURN-FROM. */
+      FREE_JMPBUF_on_SP();
+      skipSTACK(2);               /* unwind CBLOCK-Frame and mark */
+      Cdr(popSTACK()) = disabled; /* Block-Cons as Disabled */
+      var uintL index;
+      /* get closure back, byteptr:=label_byteptr : */
+      popSP(closureptr = (gcv_object_t*) ); popSP(index = );
+      closure = *closureptr;  /* fetch Closure from Stack */
+      codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
+      DEBUG_CHECK_BYTEPTR(CODEPTR + index);
+      byteptr = CODEPTR + index;
+    } goto next_byte;           /* continue interpretation at Label */
+    CASE cod_block_close:       /* (BLOCK-CLOSE) */
+      /* unwind CBLOCK-Frame: */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == CBLOCK_frame_info))
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      {
+        FREE_JMPBUF_on_SP();
+        skipSTACK(2);               /* unwind CBLOCK-Frame and mark */
+        Cdr(popSTACK()) = disabled; /* Block-Cons as Disabled */
+        skipSP(2); /* we know Destination-Closureptr and Destination-Label */
+    } goto next_byte;           /* at Label continue interpretation */
+    CASE cod_return_from: {     /* (RETURN-FROM n) */
+      var uintL n;
+      U_operand(n);
+      var object block_cons = TheCclosure(closure)->clos_consts[n];
+      if (eq(Cdr(block_cons),disabled))
+        error_block_left(Car(block_cons));
+      /* unwind upto Block-Frame, then jump to its routine for freeing: */
+     #ifndef FAST_SP
+      FREE_DYNAMIC_ARRAY(private_SP_space);
+     #endif
+      unwind_upto(uTheFramepointer(Cdr(block_cons)));
+    }
+    CASE cod_return_from_i: {   /* (RETURN-FROM-I k1 k2 n) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      var object block_cons = FRAME_(n);
+      if (eq(Cdr(block_cons),disabled))
+        error_block_left(Car(block_cons));
+      /* unwind upto Block-Frame, then jump to its routine for freeing: */
+     #ifndef FAST_SP
+      FREE_DYNAMIC_ARRAY(private_SP_space);
+     #endif
+      unwind_upto(uTheFramepointer(Cdr(block_cons)));
+    }
+    /* ------------------- (11) TAGBODY ----------------------- */
+    CASE cod_tagbody_open: {    /* (TAGBODY-OPEN n label1 ... labelm) */
+      /* occupies 3+m STACK-Entries and 1 SP-jmp_buf-Entry and 1 SP-Entry */
+      var uintL n;
+      U_operand(n);
+      /* create Tagbody-Cons: */
+      var object tagbody_cons;
+      with_saved_context(tagbody_cons = allocate_cons(););
+      { /* fill Tagbody-Cons: Tag-Vector (CONST n) as CAR */
+        var object tag_vector = TheCclosure(closure)->clos_consts[n];
+        var uintL m = Svector_length(tag_vector);
+        Car(tagbody_cons) = tag_vector;
+        get_space_on_STACK(m*sizeof(gcv_object_t)); /* allocate space */
+        /* push all labeli as Fixnums on the STACK: */
+        var uintL count;
+        dotimespL(count,m, {
           var const uintB* label_byteptr;
           L_operand(label_byteptr);
-          # save closureptr, label_byteptr:
-          pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
-        }
-        # build up Frame:
-        {
-          var gcv_object_t* top_of_frame = STACK;
-          pushSTACK(value1); # Tag
-          var JMPBUF_on_SP(returner); # memorize return-point
-          finish_entry_frame_1(CATCH,returner, goto catch_return; );
-        }
-        goto next_byte;
-       catch_return: # jump to this label takes place, if the previoulsy
-                     # built Catch-Frame has catched a Throw.
-        {
-          FREE_JMPBUF_on_SP();
-          skipSTACK(3); # unwind CATCH-Frame
-          var uintL index;
-          # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) ); popSP(index = );
-          closure = *closureptr; # fetch Closure from Stack
-          codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
-          byteptr = CODEPTR + index;
-        }
-        goto next_byte; # continue interpretation at Label
-      CASE cod_catch_close:            # (CATCH-CLOSE)
-        # a CATCH-Frame has to come:
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == CATCH_frame_info))
-          GOTO_ERROR(error_STACK_putt);
-        #endif
+          pushSTACK(fixnum(label_byteptr - CODEPTR));
+        });
+      }
+      /* jump destination in the SP: */
+      pushSP((aint)closureptr);
+      { /* build upCTAGBODY-Frame: */
+        var gcv_object_t* top_of_frame = STACK; /* Pointer above Frame */
+        pushSTACK(tagbody_cons);    /* Cons ( (CONST n) . ...) */
+        var JMPBUF_on_SP(returner); /* memorize return-point */
+        finish_entry_frame_1(CTAGBODY,returner, goto tagbody_go; );
+      }
+      /* store Framepointer in Tagbody-Cons: */
+      Cdr(tagbody_cons) = make_framepointer(STACK);
+    } goto next_byte;
+   tagbody_go: { /* jump to this label takes place, if the previously
+                    built CTAGBODY-Frame has catched a GO to Label nr. i. */
+      var uintL m = Svector_length(Car(STACK_2)); /* Number of Labels */
+      /* (I could also declare the m above as 'auto' and use it here.) */
+      var uintL i = posfixnum_to_V(value1); /* Number of Labels */
+      var uintL index = posfixnum_to_V(STACK_((m-i)+3)); /* labeli */
+      /* get closure back, byteptr:=labeli_byteptr : */
+      closureptr = (gcv_object_t*) SP_(jmpbufsize+0);
+      closure = *closureptr;  /* fetch Closure from Stack */
+      codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
+      DEBUG_CHECK_BYTEPTR(CODEPTR + index);
+      byteptr = CODEPTR + index;
+    } goto next_byte;           /* continue interpretation at Label i */
+    CASE cod_tagbody_close_nil: /* (TAGBODY-CLOSE-NIL) */
+      VALUES1(NIL); /* value of Tagbody is NIL */
+    CASE cod_tagbody_close:     /* (TAGBODY-CLOSE) */
+      /* unwind CTAGBODY-Frame: */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == CTAGBODY_frame_info))
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      {
         FREE_JMPBUF_on_SP();
-        #if STACKCHECKC
-        if (!(closureptr == (gcv_object_t*)SP_(0))) # that Closureptr must be the current one
-          GOTO_ERROR(error_STACK_putt);
-        #endif
-        skipSP(2); skipSTACK(3); # unwind CATCH-Frame
-        goto next_byte;
-      CASE cod_throw:                  # (THROW)
-        {
-          var object tag = popSTACK();
-          throw_to(tag);
-          pushSTACK(tag);
-          pushSTACK(S(throw));
-          error(control_error,
-                 GETTEXT("~S: there is no CATCHer for tag ~S"));
+        var object tagbody_cons = STACK_2; /* Tagbody-Cons */
+        Cdr(tagbody_cons) = disabled;      /* mark as Disabled */
+        skipSTACK(3+Svector_length(Car(tagbody_cons)));
+        skipSP(1);
+    } goto next_byte;
+    CASE cod_go: {              /* (GO n l) */
+      var uintL n;
+      var uintL l;
+      U_operand(n);
+      U_operand(l);
+      var object tagbody_cons = /* (CONST n) */
+        TheCclosure(closure)->clos_consts[n];
+      if (eq(Cdr(tagbody_cons),disabled)) {
+        var object tag_vector = Car(tagbody_cons);
+        pushSTACK(tag_vector);
+        pushSTACK(TheSvector(tag_vector)->data[l]); /* label l */
+        pushSTACK(S(go));
+        error(control_error,GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
+      }
+      /* value passed to the Tagbody:
+         For CTAGBODY-Frames: 1+l as Fixnum,
+         For ITAGBODY-Frames: the form-list for Tag nr. l. */
+      var gcv_object_t* FRAME = uTheFramepointer(Cdr(tagbody_cons));
+      VALUES1(framecode(FRAME_(0)) == CTAGBODY_frame_info
+              ? fixnum(1+l)
+              : (object)FRAME_(frame_bindings+2*l+1));
+      /* unwind upto Tagbody-Frame, then jump to its Routine,
+         which then jumps to Label l: */
+     #ifndef FAST_SP
+      FREE_DYNAMIC_ARRAY(private_SP_space);
+     #endif
+      unwind_upto(FRAME);
+    }
+    CASE cod_go_i: {            /* (GO-I k1 k2 n l) */
+      var uintL k1;
+      var uintL k2;
+      var uintL n;
+      var uintL l;
+      U_operand(k1);
+      U_operand(k2);
+      U_operand(n);
+      U_operand(l);
+      var gcv_object_t* FRAME = (gcv_object_t*) SP_(k1+jmpbufsize*k2);
+      var object tagbody_cons = FRAME_(n);
+      if (eq(Cdr(tagbody_cons),disabled)) {
+        var object tag_vector = Car(tagbody_cons);
+        pushSTACK(tag_vector);
+        pushSTACK(TheSvector(tag_vector)->data[l]); /* label l */
+        pushSTACK(S(go));
+        error(control_error,GETTEXT("(~S ~S): the tagbody of the tags ~S has already been left"));
+      }
+      /* value passed to Tagbody:
+         For CTAGBODY-Frames 1+l as Fixnum. */
+      FRAME = uTheFramepointer(Cdr(tagbody_cons));
+      VALUES1(fixnum(1+l));
+      /* unwind upto Tagbody-Frame, then jump to its Routine,
+         which then jumps to Label l: */
+     #ifndef FAST_SP
+      FREE_DYNAMIC_ARRAY(private_SP_space);
+     #endif
+      unwind_upto(FRAME);
+    }
+    /* ------------------- (12) CATCH and THROW ----------------------- */
+    CASE cod_catch_open:        /* (CATCH-OPEN label) */
+      { /* occupies 3 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries */
+        var const uintB* label_byteptr;
+        L_operand(label_byteptr);
+        /* save closureptr, label_byteptr: */
+        pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
+      }
+      { /* build up Frame: */
+        var gcv_object_t* top_of_frame = STACK;
+        pushSTACK(value1);          /* Tag */
+        var JMPBUF_on_SP(returner); /* memorize return-point */
+        finish_entry_frame_1(CATCH,returner, goto catch_return; );
+    } goto next_byte;
+   catch_return: { /* jump to this label takes place, if the previoulsy
+                      built Catch-Frame has catched a Throw. */
+      FREE_JMPBUF_on_SP();
+      skipSTACK(3);           /* unwind CATCH-Frame */
+      var uintL index;
+      /* get closure back, byteptr:=label_byteptr : */
+      popSP(closureptr = (gcv_object_t*) ); popSP(index = );
+      closure = *closureptr;  /* fetch Closure from Stack */
+      codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
+      DEBUG_CHECK_BYTEPTR(CODEPTR + index);
+      byteptr = CODEPTR + index;
+    } goto next_byte;           /* continue interpretation at Label */
+    CASE cod_catch_close:       /* (CATCH-CLOSE) */
+      /* a CATCH-Frame has to come: */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == CATCH_frame_info))
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      FREE_JMPBUF_on_SP();
+      #if STACKCHECKC
+      if (!(closureptr == (gcv_object_t*)SP_(0))) /* that Closureptr must be the current one */
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      skipSP(2); skipSTACK(3);  /* unwind CATCH-Frame */
+      goto next_byte;
+    CASE cod_throw: {           /* (THROW) */
+      var object tag = popSTACK();
+      throw_to(tag);
+      pushSTACK(tag);
+      pushSTACK(S(throw));
+      error(control_error,GETTEXT("~S: there is no CATCHer for tag ~S"));
+    }
+    /* ------------------- (13) UNWIND-PROTECT ----------------------- */
+    CASE cod_uwp_open:          /* (UNWIND-PROTECT-OPEN label) */
+      { /* occupies 2 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries */
+        var const uintB* label_byteptr;
+        L_operand(label_byteptr);
+        /* save closureptr, label_byteptr: */
+        pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
+      }
+      { /* build Frame: */
+        var gcv_object_t* top_of_frame = STACK;
+        var JMPBUF_on_SP(returner); /* memorize return-point */
+        finish_entry_frame_1(UNWIND_PROTECT,returner, goto throw_save; );
+    } goto next_byte;
+   throw_save: /* jump to this label takes place, if the previously
+                  built Unwind-Protect-Frame has stopped a Throw.
+       unwind_protect_to_save is to be saved and jumped to at the end. */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info)) {
+        error(serious_condition,GETTEXT("STACK corrupted"));
+      }
+      #endif
+      /* unwind Frame: */
+      FREE_JMPBUF_on_SP();
+      skipSTACK(2);
+      {
+        var uintL index;
+        /* get closure back, byteptr:=label_byteptr : */
+        popSP(closureptr = (gcv_object_t*) );
+        popSP(index = );
+        /* save unwind_protect_to_save: */
+        pushSP((aint)unwind_protect_to_save.fun);
+        pushSP((aint)unwind_protect_to_save.upto_frame);
+        pushSP((aint)STACK); /* push Pointer above Frame additionally on the SP */
+        /* move all values to the Stack: */
+        mv_to_STACK();
+        /* execute Cleanup-Forms: */
+        closure = *closureptr;  /* fetch Closure from Stack */
+        codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
+        DEBUG_CHECK_BYTEPTR(CODEPTR + index);
+        byteptr = CODEPTR + index;
+    } goto next_byte;
+    CASE cod_uwp_normal_exit:   /* (UNWIND-PROTECT-NORMAL-EXIT) */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
+        GOTO_ERROR(error_STACK_putt);
+      if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) /* that Closureptr must be the current one */
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      /* unwind Frame:
+       nothing to do, because closure and byteptr stay unmodified. */
+      FREE_JMPBUF_on_SP(); skipSP(2);
+      skipSTACK(2);
+      /* dummy value for 'unwind_protect_to_save': */
+      pushSP((aint)NULL); pushSP((aint)NULL); /* NULL,NULL -> uwp_continue */
+      pushSP((aint)STACK); /* push Pointer above Frame additionally on the SP */
+      /* move all values to the Stack: */
+      mv_to_STACK();
+      /* execute Cleanup-Forms: */
+      goto next_byte;
+    CASE cod_uwp_close:         /* (UNWIND-PROTECT-CLOSE) */
+      { /* jump to this label takes place at the end of the Cleanup-Forms. */
+        var gcv_object_t* oldSTACK; /* value of STACK before saveing the values */
+        popSP( oldSTACK = (gcv_object_t*) );
+        var uintL mvcount =     /* number of saved values on Stack */
+          STACK_item_count(STACK,oldSTACK);
+        if (mvcount >= mv_limit) GOTO_ERROR(error_toomany_values);
+        STACK_to_mv(mvcount);
+      }
+      { /* return to the saved unwind_protect_to_save.fun : */
+        var restartf_t fun;
+        var gcv_object_t* arg;
+        popSP( arg = (gcv_object_t*) ); popSP( fun = (restartf_t) );
+        /* return to uwp_continue or uwp_jmpback or unwind_upto: */
+        if (fun != NULL) {
+          (*fun)(arg);          /* return to unwind_upto or similar. */
+          NOTREACHED;
         }
-      # ------------------- (13) UNWIND-PROTECT -----------------------
-      CASE cod_uwp_open:               # (UNWIND-PROTECT-OPEN label)
-        # occupies 2 STACK-Entries and 1 SP-jmp_buf-Entry and 2 SP-Entries
-        {
-          var const uintB* label_byteptr;
-          L_operand(label_byteptr);
-          # save closureptr, label_byteptr:
-          pushSP(label_byteptr - CODEPTR); pushSP((aint)closureptr);
+        if (arg == (gcv_object_t*)NULL) {
+          /* uwp_continue:
+           jump to this label takes place, if after the execution of
+           the Cleanup-Forms simply interpretation shall continue. */
+          goto next_byte;
+        } else {
+          /* uwp_jmpback:
+           jump to this label takes place, if after the execution of
+           the Cleanup-Forms interpretation shall continue at the old
+           location in the same Closure. */
+          DEBUG_CHECK_BYTEPTR(CODEPTR + (uintP)arg);
+          byteptr = CODEPTR + (uintP)arg;
+          goto next_byte;
         }
-        # build Frame:
-        {
-          var gcv_object_t* top_of_frame = STACK;
-          var JMPBUF_on_SP(returner); # memorize return-point
-          finish_entry_frame_1(UNWIND_PROTECT,returner, goto throw_save; );
-        }
-        goto next_byte;
-       throw_save: # jump to this label takes place, if the previously
-                   # built Unwind-Protect-Frame has stopped a Throw.
-        # unwind_protect_to_save is to be saved and jumped to at the end.
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info)) {
-          error(serious_condition,GETTEXT("STACK corrupted"));
-        }
-        #endif
-        # unwind Frame:
-        FREE_JMPBUF_on_SP();
-        skipSTACK(2);
-        {
-          var uintL index;
-          # get closure back, byteptr:=label_byteptr :
-          popSP(closureptr = (gcv_object_t*) );
-          popSP(index = );
-          # save unwind_protect_to_save:
-          pushSP((aint)unwind_protect_to_save.fun);
-          pushSP((aint)unwind_protect_to_save.upto_frame);
-          pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
-          # move all values to the Stack:
-          mv_to_STACK();
-          # execute Cleanup-Forms:
-          closure = *closureptr; # fetch Closure from Stack
-          codeptr = TheSbvector(TheCclosure(closure)->clos_codevec);
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
-          byteptr = CODEPTR + index;
-        }
-        goto next_byte;
-      CASE cod_uwp_normal_exit:        # (UNWIND-PROTECT-NORMAL-EXIT)
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          GOTO_ERROR(error_STACK_putt);
-        if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          GOTO_ERROR(error_STACK_putt);
-        #endif
-        # unwind Frame:
-        # nothing to do, because closure and byteptr stay unmodified.
+      }
+    CASE cod_uwp_cleanup:       /* (UNWIND-PROTECT-CLEANUP) */
+      /* this is executed, if within the same Closure an execution
+       of the Cleanup-Code is necessary. */
+      #if STACKCHECKC
+      if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
+        GOTO_ERROR(error_STACK_putt);
+      if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) /* that Closureptr must be the current one */
+        GOTO_ERROR(error_STACK_putt);
+      #endif
+      { /* closure remains, byteptr:=label_byteptr : */
+        var uintL index = SP_(jmpbufsize+1);
+        /* unwind Frame: */
         FREE_JMPBUF_on_SP(); skipSP(2);
         skipSTACK(2);
-        # dummy value for 'unwind_protect_to_save':
-        pushSP((aint)NULL); pushSP((aint)NULL); # NULL,NULL -> uwp_continue
-        pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
-        # move all values to the Stack:
+        /* Dummy-values for 'unwind_protect_to_save': */
+        pushSP((aint)NULL);     /* NULL -> uwp_jmpback */
+        pushSP(byteptr - CODEPTR);
+        pushSP((aint)STACK); /* push Pointer above Frame additionally on the SP */
+        /* move all values to the Stack: */
         mv_to_STACK();
-        # execute Cleanup-Forms:
-        goto next_byte;
-      CASE cod_uwp_close:              # (UNWIND-PROTECT-CLOSE)
-        # jump to this label takes place at the end of the Cleanup-Forms.
-        {
-          var gcv_object_t* oldSTACK; # value of STACK before saveing the values
-          popSP( oldSTACK = (gcv_object_t*) );
-          var uintL mvcount = # number of saved values on Stack
-            STACK_item_count(STACK,oldSTACK);
-          if (mvcount >= mv_limit) GOTO_ERROR(error_toomany_values);
-          STACK_to_mv(mvcount);
+        /* execute Cleanup-Forms: */
+        DEBUG_CHECK_BYTEPTR(CODEPTR + index);
+        byteptr = CODEPTR + index;
+    } goto next_byte;
+    /* ------------------- (14) HANDLER-BIND ----------------------- */
+    CASE cod_handler_open: {    /* (HANDLER-OPEN n) */
+      /* occupies 4 STACK-Entries */
+      var uintL n;
+      U_operand(n);
+      /* build up Frame: */
+      var gcv_object_t* top_of_frame = STACK; /* Pointer above Frame */
+      pushSTACK(TheCclosure(closure)->clos_consts[n]);
+      pushSTACK(closure);
+      pushSTACK(fake_gcv_object((aint)(_SP_(0))));
+      finish_frame(HANDLER);
+    } goto next_byte;
+    CASE cod_handler_begin_push: /* (HANDLER-BEGIN&PUSH) */
+      /* builds up SP newly, occupies 1 SP-Entry and
+         starts a new STACK-Region. */
+      {
+        var uintL count = (uintL)posfixnum_to_V(Car(handler_args.spdepth))
+          + jmpbufsize * (uintL)posfixnum_to_V(Cdr(handler_args.spdepth));
+        if (count > 0) {
+          var SPint* oldsp = handler_args.sp; /* was formerly &SP_(0) */
+          /* copy oldsp[0..count-1] to the current SP: */
+          oldsp skipSPop count;
+          dotimespL(count,count, { oldsp skipSPop -1; pushSP(*oldsp); } );
         }
-        { /* return to the saved unwind_protect_to_save.fun : */
-          var restartf_t fun;
-          var gcv_object_t* arg;
-          popSP( arg = (gcv_object_t*) ); popSP( fun = (restartf_t) );
-          # return to uwp_continue or uwp_jmpback or unwind_upto:
-          if (fun != NULL) {
-            (*fun)(arg); # return to unwind_upto or similar.
-            NOTREACHED;
-          }
-          if (arg == (gcv_object_t*)NULL) {
-            # uwp_continue:
-            # jump to this label takes place, if after the execution of
-            # the Cleanup-Forms simply interpretation shall continue.
-            goto next_byte;
-          } else {
-            # uwp_jmpback:
-            # jump to this label takes place, if after the execution of
-            # the Cleanup-Forms interpretation shall continue at the old
-            # location in the same Closure.
-            DEBUG_CHECK_BYTEPTR(CODEPTR + (uintP)arg);
-            byteptr = CODEPTR + (uintP)arg;
-            goto next_byte;
-          }
-        }
-      CASE cod_uwp_cleanup:            # (UNWIND-PROTECT-CLEANUP)
-        # this is executed, if within the same Closure an execution
-        # of the Cleanup-Code is necessary.
-        #if STACKCHECKC
-        if (!(framecode(STACK_0) == UNWIND_PROTECT_frame_info))
-          GOTO_ERROR(error_STACK_putt);
-        if (!(closureptr == (gcv_object_t*)SP_(jmpbufsize+0))) # that Closureptr must be the current one
-          GOTO_ERROR(error_STACK_putt);
-        #endif
-        # closure remains, byteptr:=label_byteptr :
-        {
-          var uintL index = SP_(jmpbufsize+1);
-          # unwind Frame:
-          FREE_JMPBUF_on_SP(); skipSP(2);
-          skipSTACK(2);
-          # Dummy-values for 'unwind_protect_to_save':
-          pushSP((aint)NULL); # NULL -> uwp_jmpback
-          pushSP(byteptr - CODEPTR);
-          pushSP((aint)STACK); # push Pointer above Frame additionally on the SP
-          # move all values to the Stack:
-          mv_to_STACK();
-          # execute Cleanup-Forms:
-          DEBUG_CHECK_BYTEPTR(CODEPTR + index);
-          byteptr = CODEPTR + index;
-        }
-        goto next_byte;
-      # ------------------- (14) HANDLER-BIND -----------------------
-      CASE cod_handler_open:           # (HANDLER-OPEN n)
-        # occupies 4 STACK-Entries
-        {
-          var uintL n;
-          U_operand(n);
-          # build up Frame:
-          var gcv_object_t* top_of_frame = STACK; # Pointer above Frame
-          pushSTACK(TheCclosure(closure)->clos_consts[n]);
-          pushSTACK(closure);
-          pushSTACK(fake_gcv_object((aint)(_SP_(0))));
-          finish_frame(HANDLER);
-        }
-        goto next_byte;
-      CASE cod_handler_begin_push:     # (HANDLER-BEGIN&PUSH)
-        # builds up SP newly, occupies 1 SP-Entry and
-        # starts a new STACK-Region.
-        {
-          var uintL count = (uintL)posfixnum_to_V(Car(handler_args.spdepth))
-                            + jmpbufsize * (uintL)posfixnum_to_V(Cdr(handler_args.spdepth));
-          if (count > 0) {
-            var SPint* oldsp = handler_args.sp; # was formerly &SP_(0)
-            # copy oldsp[0..count-1] to the current SP:
-            oldsp skipSPop count;
-            dotimespL(count,count, { oldsp skipSPop -1; pushSP(*oldsp); } );
-          }
-        }
-        pushSP((aint)handler_args.stack); # Pointer above Handler-Frame
-        VALUES1(handler_args.condition);
+      }
+      pushSP((aint)handler_args.stack); /* Pointer above Handler-Frame */
+      VALUES1(handler_args.condition);
+      pushSTACK(value1);
+      goto next_byte;
+    /* ------------------- (15) a few Functions ----------------------- */
+    CASE cod_not:               /* (NOT) */
+      if (nullp(value1)) goto code_t; else goto code_nil;
+    CASE cod_eq:                /* (EQ) */
+      if (!eq(value1,popSTACK())) goto code_nil; else goto code_t;
+    CASE cod_car: {             /* (CAR) */
+      var object arg = value1;
+      if (consp(arg)) {
+        value1 = Car(arg);    /* CAR of a Cons */
+      } else if (nullp(arg)) {
+        /* (CAR NIL) = NIL: value1 remains NIL */
+      } else
+        with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+                                   error_list(arg); );
+      mv_count=1;
+    } goto next_byte;
+    CASE cod_car_push: {        /* (CAR&PUSH) */
+      var object arg = value1;
+      if (consp(arg)) {
+        pushSTACK(Car(arg));  /* CAR of a Cons */
+      } else if (nullp(arg)) {
+        pushSTACK(arg);       /* (CAR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+                                   error_list(arg); );
+    } goto next_byte;
+    CASE cod_load_car_push: {   /* (LOAD&CAR&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object arg = STACK_(n);
+      if (consp(arg)) {
+        pushSTACK(Car(arg));  /* CAR of a Cons */
+      } else if (nullp(arg)) {
+        pushSTACK(arg);       /* (CAR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+                                   error_list(arg); );
+    } goto next_byte;
+    CASE cod_load_car_store: {  /* (LOAD&CAR&STORE m n) */
+      var uintL m;
+      var uintL n;
+      U_operand(m);
+      U_operand(n);
+      var object arg = STACK_(m);
+      if (consp(arg)) {
+        STACK_(n) = value1 = Car(arg); /* CAR of a Cons */
+      } else if (nullp(arg)) {
+        STACK_(n) = value1 = arg; /* (CAR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
+                                   error_list(arg); );
+      mv_count=1;
+    } goto next_byte;
+    CASE cod_cdr: {             /* (CDR) */
+      var object arg = value1;
+      if (consp(arg)) {
+        value1 = Cdr(arg);    /* CDR of a Cons */
+      } else if (nullp(arg)) {
+        /* (CDR NIL) = NIL: value1 remains NIL */
+      } else
+        with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+                                   error_list(arg); );
+      mv_count=1;
+    } goto next_byte;
+    CASE cod_cdr_push: {        /* (CDR&PUSH) */
+      var object arg = value1;
+      if (consp(arg)) {
+        pushSTACK(Cdr(arg));  /* CDR of a Cons */
+      } else if (nullp(arg)) {
+        pushSTACK(arg);       /* (CDR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+                                   error_list(arg); );
+    } goto next_byte;
+    CASE cod_load_cdr_push: {   /* (LOAD&CDR&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object arg = STACK_(n);
+      if (consp(arg)) {
+        pushSTACK(Cdr(arg));  /* CDR of a Cons */
+      } else if (nullp(arg)) {
+        pushSTACK(arg);       /* (CDR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+                                   error_list(arg); );
+    } goto next_byte;
+    CASE cod_load_cdr_store: {  /* (LOAD&CDR&STORE n) */
+      var uintL n;
+      U_operand(n);
+      var gcv_object_t* arg_ = &STACK_(n);
+      var object arg = *arg_;
+      if (consp(arg)) {
+        *arg_ = value1 = Cdr(arg); /* CDR of a Cons */
+      } else if (nullp(arg)) {
+        value1 = arg;         /* (CDR NIL) = NIL */
+      } else
+        with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
+                                   error_list(arg); );
+      mv_count=1;
+    } goto next_byte;
+    CASE cod_cons: {            /* (CONS) */
+      pushSTACK(value1);
+      /* request Cons: */
+      var object new_cons;
+      with_saved_context( { new_cons = allocate_cons(); } );
+      /* fill Cons: */
+      Cdr(new_cons) = popSTACK();
+      Car(new_cons) = popSTACK();
+      VALUES1(new_cons);
+    } goto next_byte;
+    CASE cod_cons_push: {       /* (CONS&PUSH) */
+      pushSTACK(value1);
+      /* request Cons: */
+      var object new_cons;
+      with_saved_context( { new_cons = allocate_cons(); } );
+      /* fill Cons: */
+      Cdr(new_cons) = popSTACK();
+      Car(new_cons) = STACK_0;
+      STACK_0 = new_cons;
+    } goto next_byte;
+    CASE cod_load_cons_store: { /* (LOAD&CONS&STORE n) */
+      var uintL n;
+      U_operand(n);
+      /* request Cons: */
+      var object new_cons;
+      with_saved_context( { new_cons = allocate_cons(); } );
+      /* fill Cons: */
+      Car(new_cons) = popSTACK();
+      var gcv_object_t* arg_ = &STACK_(n);
+      Cdr(new_cons) = *arg_;
+      VALUES1(*arg_ = new_cons);
+    } goto next_byte;
+    {var object symbol;
+     var object fdef;
+     #define CHECK_FDEF()                                                   \
+       if (!symbolp(symbol))                                                \
+         with_saved_back_trace_subr(L(symbol_function),STACK STACKop -1,-1, \
+           symbol = check_symbol(symbol); );                                \
+       fdef = Symbol_function(symbol);                                      \
+       if (!boundp(fdef))                                                   \
+         /* (symbol may be not the actual function-name, for e.g.           \
+            (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
+            but that should be enough for the error message.) */            \
+         fdef = check_fdefinition(symbol,S(symbol_function))
+    CASE cod_symbol_function:   /* (SYMBOL-FUNCTION) */
+      symbol = value1;
+      CHECK_FDEF();
+      VALUES1(fdef);
+      goto next_byte;
+    CASE cod_const_symbol_function: { /* (CONST&SYMBOL-FUNCTION n) */
+      var uintL n;
+      U_operand(n);
+      symbol = TheCclosure(closure)->clos_consts[n];
+    } CHECK_FDEF();
+      VALUES1(fdef);
+      goto next_byte;
+    CASE cod_const_symbol_function_push: { /* (CONST&SYMBOL-FUNCTION&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      symbol = TheCclosure(closure)->clos_consts[n];
+    } CHECK_FDEF();
+      pushSTACK(fdef);
+      goto next_byte;
+    CASE cod_const_symbol_function_store: { /* (CONST&SYMBOL-FUNCTION&STORE n k) */
+      var uintL n;
+      U_operand(n);
+      symbol = TheCclosure(closure)->clos_consts[n];
+    } CHECK_FDEF(); {
+      var uintL k;
+      U_operand(k);
+      STACK_(k) = value1 = fdef; mv_count=1;
+    } goto next_byte;
+    }
+    {var object vec; var object index;
+    CASE cod_svref:             /* (SVREF) */
+      /* STACK_0 must be a Simple-Vector: */
+      if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
+      vec = popSTACK();         /* Simple-Vector */
+      index = value1;
+      { /* and the Index must be Fixnum >= 0, < length(vec) : */
+        var uintV i;
+        if (!(posfixnump(index)
+              && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
+          goto svref_kein_index;
+        VALUES1(TheSvector(vec)->data[i]); /* indexed Element as value */
+    } goto next_byte;
+    CASE cod_svset:             /* (SVSET) */
+      /* STACK_0 must be a Simple-Vector: */
+      if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
+      vec = popSTACK();         /* Simple-Vector */
+      index = value1;
+      { /* and the Index must be a Fixnum >=0, <Length(vec) : */
+        var uintV i;
+        if (!(posfixnump(index)
+              && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
+          goto svref_kein_index;
+        value1 = TheSvector(vec)->data[i] = popSTACK(); /* put in new element */
+        mv_count = 1;
+    } goto next_byte;
+    svref_kein_svector:         /* Non-Simple-Vector in STACK_0 */
+      error_no_svector(S(svref),STACK_0);
+    svref_kein_index:    /* unsuitable Index in index, for Vector vec */
+      pushSTACK(vec);
+      pushSTACK(index);
+      pushSTACK(index);         /* TYPE-ERROR slot DATUM */
+      {
+        var object tmp;
+        pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
+        tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
+        pushSTACK(tmp);         /* TYPE-ERROR slot EXPECTED-TYPE */
+      }
+      pushSTACK(STACK_(1+2));   /* vec */
+      pushSTACK(STACK_(0+3));   /* index */
+      pushSTACK(S(svref));
+      error(type_error,GETTEXT("~S: ~S is not a correct index into ~S"));
+    }
+    CASE cod_list: {            /* (LIST n) */
+      var uintC n;
+      U_operand(n);
+      with_saved_context( { value1 = listof(n); mv_count=1; } );
+    } goto next_byte;
+    CASE cod_list_push: {       /* (LIST&PUSH n) */
+      var uintC n;
+      U_operand(n);
+      with_saved_context( { object res = listof(n); pushSTACK(res); } );
+    } goto next_byte;
+    CASE cod_liststar: { /* (LIST* n) */
+      var uintC n;
+      U_operand(n);
+      with_saved_context({
         pushSTACK(value1);
-        goto next_byte;
-      # ------------------- (15) a few Functions -----------------------
-      CASE cod_not:                    # (NOT)
-        if (nullp(value1)) goto code_t; else goto code_nil;
-      CASE cod_eq:                     # (EQ)
-        if (!eq(value1,popSTACK())) goto code_nil; else goto code_t;
-      CASE cod_car:                    # (CAR)
-        {
-          var object arg = value1;
-          if (consp(arg)) {
-            value1 = Car(arg); # CAR of a Cons
-          } else if (nullp(arg)) {
-            # (CAR NIL) = NIL: value1 remains NIL
-          } else
-            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              error_list(arg); );
-          mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_car_push:               # (CAR&PUSH)
-        {
-          var object arg = value1;
-          if (consp(arg)) {
-            pushSTACK(Car(arg)); # CAR of a Cons
-          } else if (nullp(arg)) {
-            pushSTACK(arg); # (CAR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              error_list(arg); );
-        }
-        goto next_byte;
-      CASE cod_load_car_push:          # (LOAD&CAR&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object arg = STACK_(n);
-          if (consp(arg)) {
-            pushSTACK(Car(arg)); # CAR of a Cons
-          } else if (nullp(arg)) {
-            pushSTACK(arg); # (CAR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              error_list(arg); );
-        }
-        goto next_byte;
-      CASE cod_load_car_store:         # (LOAD&CAR&STORE m n)
-        {
-          var uintL m;
-          var uintL n;
-          U_operand(m);
-          U_operand(n);
-          var object arg = STACK_(m);
-          if (consp(arg)) {
-            STACK_(n) = value1 = Car(arg); # CAR of a Cons
-          } else if (nullp(arg)) {
-            STACK_(n) = value1 = arg; # (CAR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(car),STACK STACKop -1,-1,
-              error_list(arg); );
-          mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_cdr:                    # (CDR)
-        {
-          var object arg = value1;
-          if (consp(arg)) {
-            value1 = Cdr(arg); # CDR of a Cons
-          } else if (nullp(arg)) {
-            # (CDR NIL) = NIL: value1 remains NIL
-          } else
-            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              error_list(arg); );
-          mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_cdr_push:               # (CDR&PUSH)
-        {
-          var object arg = value1;
-          if (consp(arg)) {
-            pushSTACK(Cdr(arg)); # CDR of a Cons
-          } else if (nullp(arg)) {
-            pushSTACK(arg); # (CDR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              error_list(arg); );
-        }
-        goto next_byte;
-      CASE cod_load_cdr_push:          # (LOAD&CDR&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object arg = STACK_(n);
-          if (consp(arg)) {
-            pushSTACK(Cdr(arg)); # CDR of a Cons
-          } else if (nullp(arg)) {
-            pushSTACK(arg); # (CDR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              error_list(arg); );
-        }
-        goto next_byte;
-      CASE cod_load_cdr_store:         # (LOAD&CDR&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var gcv_object_t* arg_ = &STACK_(n);
-          var object arg = *arg_;
-          if (consp(arg)) {
-            *arg_ = value1 = Cdr(arg); # CDR of a Cons
-          } else if (nullp(arg)) {
-            value1 = arg; # (CDR NIL) = NIL
-          } else
-            with_saved_back_trace_subr(L(cdr),STACK STACKop -1,-1,
-              error_list(arg); );
-          mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_cons:                   # (CONS)
-        {
-          pushSTACK(value1);
-          # request Cons:
-          var object new_cons;
-          with_saved_context( { new_cons = allocate_cons(); } );
-          # fill Cons:
-          Cdr(new_cons) = popSTACK();
-          Car(new_cons) = popSTACK();
-          VALUES1(new_cons);
-        }
-        goto next_byte;
-      CASE cod_cons_push:              # (CONS&PUSH)
-        {
-          pushSTACK(value1);
-          # request Cons:
-          var object new_cons;
-          with_saved_context( { new_cons = allocate_cons(); } );
-          # fill Cons:
+        dotimespC(n,n, {
+          var object new_cons = allocate_cons();
           Cdr(new_cons) = popSTACK();
           Car(new_cons) = STACK_0;
           STACK_0 = new_cons;
-        }
-        goto next_byte;
-      CASE cod_load_cons_store:        # (LOAD&CONS&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          # request Cons:
-          var object new_cons;
-          with_saved_context( { new_cons = allocate_cons(); } );
-          # fill Cons:
-          Car(new_cons) = popSTACK();
-          var gcv_object_t* arg_ = &STACK_(n);
-          Cdr(new_cons) = *arg_;
-          VALUES1(*arg_ = new_cons);
-        }
-        goto next_byte;
-      {var object symbol;
-       var object fdef;
-       #define CHECK_FDEF()                                                   \
-         if (!symbolp(symbol))                                                \
-           with_saved_back_trace_subr(L(symbol_function),STACK STACKop -1,-1, \
-             symbol = check_symbol(symbol); );                                \
-         fdef = Symbol_function(symbol);                                      \
-         if (!boundp(fdef))                                                   \
-           /* (symbol may be not the actual function-name, for e.g.           \
-              (FUNCTION (SETF FOO)) shows as (SYMBOL-FUNCTION '#:|(SETF FOO)|),\
-              but that should be enough for the error message.) */            \
-           fdef = check_fdefinition(symbol,S(symbol_function))
-      CASE cod_symbol_function:        # (SYMBOL-FUNCTION)
-        symbol = value1;
-        CHECK_FDEF();
-        VALUES1(fdef);
-        goto next_byte;
-      CASE cod_const_symbol_function:  # (CONST&SYMBOL-FUNCTION n)
-        {
-          var uintL n;
-          U_operand(n);
-          symbol = TheCclosure(closure)->clos_consts[n];
-        }
-        CHECK_FDEF();
-        VALUES1(fdef);
-        goto next_byte;
-      CASE cod_const_symbol_function_push: # (CONST&SYMBOL-FUNCTION&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          symbol = TheCclosure(closure)->clos_consts[n];
-        }
-        CHECK_FDEF();
-        pushSTACK(fdef);
-        goto next_byte;
-      CASE cod_const_symbol_function_store: # (CONST&SYMBOL-FUNCTION&STORE n k)
-        {
-          var uintL n;
-          U_operand(n);
-          symbol = TheCclosure(closure)->clos_consts[n];
-        }
-        CHECK_FDEF();
-        {
-          var uintL k;
-          U_operand(k);
-          STACK_(k) = value1 = fdef; mv_count=1;
-        }
-        goto next_byte;
+        });
+        value1 = popSTACK(); mv_count=1;
+      });
+    } goto next_byte;
+    CASE cod_liststar_push: {   /* (LIST*&PUSH n) */
+      var uintC n;
+      U_operand(n);
+      with_saved_context({
+        pushSTACK(value1);
+        dotimespC(n,n, {
+          var object new_cons = allocate_cons();
+          Cdr(new_cons) = popSTACK();
+          Car(new_cons) = STACK_0;
+          STACK_0 = new_cons;
+        });
+      });
+    } goto next_byte;
+    /* ------------------- (16) combined Operations ----------------------- */
+    CASE cod_nil_store: {       /* (NIL&STORE n) */
+      var uintL n;
+      U_operand(n);
+      STACK_(n) = value1 = NIL; mv_count=1;
+    } goto next_byte;
+    CASE cod_t_store: {         /* (T&STORE n) */
+      var uintL n;
+      U_operand(n);
+      STACK_(n) = value1 = T; mv_count=1;
+    } goto next_byte;
+    CASE cod_calls1_store:      /* (CALLS1&STORE n k) */
+      CALLS1();
+      goto store;
+    CASE cod_calls2_store:      /* (CALLS2&STORE n k) */
+      CALLS2();
+      goto store;
+    CASE cod_callsr_store:      /* (CALLSR&STORE m n k) */
+      CALLSR();
+      goto store;
+    /* Increment. Optimized specifically for Fixnums >=0. */
+    #define INC(arg,statement)  \
+      { if (posfixnump(arg) /* Fixnum >= 0 and < most-positive-fixnum ? */ \
+            && !eq(arg,fixnum(vbitm(oint_data_len)-1))) {              \
+          arg = fixnum_inc(arg,1); statement;                          \
+        } else {                                                       \
+          with_saved_context(                                          \
+            /* funcall(L(plus_one),1): */                              \
+            pushSTACK(arg);                                            \
+            with_saved_back_trace_subr(L(plus_one),STACK,1,            \
+              { C_plus_one(); });                                      \
+          );                                                           \
+          arg = value1;                                                \
+        }                                                              \
       }
-      {var object vec; var object index;
-      CASE cod_svref:                  # (SVREF)
-        # STACK_0 must be a Simple-Vector:
-        if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
-        vec = popSTACK(); # Simple-Vector
-        index = value1;
-        # and the Index must be Fixnum >= 0, < length(vec) :
-        {
-          var uintV i;
-          if (!(posfixnump(index)
-                && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
-            goto svref_kein_index;
-          VALUES1(TheSvector(vec)->data[i]); # indexed Element as value
-        }
-        goto next_byte;
-      CASE cod_svset:                  # (SVSET)
-        # STACK_0 must be a Simple-Vector:
-        if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
-        vec = popSTACK(); # Simple-Vector
-        index = value1;
-        # and the Index must be a Fixnum >=0, <Length(vec) :
-        {
-          var uintV i;
-          if (!(posfixnump(index)
-                && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
-            goto svref_kein_index;
-          value1 = TheSvector(vec)->data[i] = popSTACK(); # put in new element
-          mv_count = 1;
-        }
-        goto next_byte;
-      svref_kein_svector: # Non-Simple-Vector in STACK_0
-        error_no_svector(S(svref),STACK_0);
-      svref_kein_index: # unsuitable Index in index, for Vector vec
-        pushSTACK(vec);
-        pushSTACK(index);
-        pushSTACK(index); # TYPE-ERROR slot DATUM
-        {
-          var object tmp;
-          pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(UL_to_I(Svector_length(vec)));
-          tmp = listof(1); pushSTACK(tmp); tmp = listof(3);
-          pushSTACK(tmp); # TYPE-ERROR slot EXPECTED-TYPE
-        }
-        pushSTACK(STACK_(1+2)); # vec
-        pushSTACK(STACK_(0+3)); # index
-        pushSTACK(S(svref));
-        error(type_error,GETTEXT("~S: ~S is not a correct index into ~S"));
+    /* Decrement. Optimized specifically for Fixnums >=0. */
+    #define DEC(arg,statement)  \
+      { if (posfixnump(arg) && !eq(arg,Fixnum_0)) { /* Fixnum > 0 ? */ \
+          arg = fixnum_inc(arg,-1); statement;                     \
+        } else {                                                   \
+          with_saved_context(                                      \
+            /* funcall(L(minus_one),1): */                         \
+            pushSTACK(arg);                                        \
+            with_saved_back_trace_subr(L(minus_one),STACK,1,       \
+              { C_minus_one(); });                                 \
+          );                                                       \
+          arg = value1;                                            \
+        }                                                          \
       }
-      CASE cod_list:                   # (LIST n)
-        {
-          var uintC n;
-          U_operand(n);
-          with_saved_context( { value1 = listof(n); mv_count=1; } );
-        }
-        goto next_byte;
-      CASE cod_list_push:              # (LIST&PUSH n)
-        {
-          var uintC n;
-          U_operand(n);
-          with_saved_context( { object res = listof(n); pushSTACK(res); } );
-        }
-        goto next_byte;
-      CASE cod_liststar:        /* (LIST* n) */
-        {
-          var uintC n;
-          U_operand(n);
-          with_saved_context({
-            pushSTACK(value1);
-            dotimespC(n,n, {
-              var object new_cons = allocate_cons();
-              Cdr(new_cons) = popSTACK();
-              Car(new_cons) = STACK_0;
-              STACK_0 = new_cons;
-            });
-            value1 = popSTACK(); mv_count=1;
-          });
-        }
-        goto next_byte;
-      CASE cod_liststar_push:   /* (LIST*&PUSH n) */
-        {
-          var uintC n;
-          U_operand(n);
-          with_saved_context({
-            pushSTACK(value1);
-            dotimespC(n,n, {
-              var object new_cons = allocate_cons();
-              Cdr(new_cons) = popSTACK();
-              Car(new_cons) = STACK_0;
-              STACK_0 = new_cons;
-            });
-          });
-        }
-        goto next_byte;
-      # ------------------- (16) combined Operations -----------------------
-      CASE cod_nil_store:              # (NIL&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          STACK_(n) = value1 = NIL; mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_t_store:                # (T&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          STACK_(n) = value1 = T; mv_count=1;
-        }
-        goto next_byte;
-      CASE cod_calls1_store:           # (CALLS1&STORE n k)
-        CALLS1();
-        goto store;
-      CASE cod_calls2_store:           # (CALLS2&STORE n k)
-        CALLS2();
-        goto store;
-      CASE cod_callsr_store:           # (CALLSR&STORE m n k)
-        CALLSR();
-        goto store;
-      # Increment. Optimized specifically for Fixnums >=0.
-      #define INC(arg,statement)  \
-        { if (posfixnump(arg) # Fixnum >= 0 and < most-positive-fixnum ? \
-              && !eq(arg,fixnum(vbitm(oint_data_len)-1))) {              \
-            arg = fixnum_inc(arg,1); statement;                          \
-          } else {                                                       \
-            with_saved_context(                                          \
-              /* funcall(L(plus_one),1): */                              \
-              pushSTACK(arg);                                            \
-              with_saved_back_trace_subr(L(plus_one),STACK,1,            \
-                { C_plus_one(); });                                      \
-            );                                                           \
-            arg = value1;                                                \
-          }                                                              \
-        }
-      # Decrement. Optimized specifically for Fixnums >=0.
-      #define DEC(arg,statement)  \
-        { if (posfixnump(arg) && !eq(arg,Fixnum_0)) { # Fixnum > 0 ? \
-            arg = fixnum_inc(arg,-1); statement;                     \
-          } else {                                                   \
-            with_saved_context(                                      \
-              /* funcall(L(minus_one),1): */                         \
-              pushSTACK(arg);                                        \
-              with_saved_back_trace_subr(L(minus_one),STACK,1,       \
-                { C_minus_one(); });                                 \
-            );                                                       \
-            arg = value1;                                            \
-          }                                                          \
-        }
-      CASE cod_load_inc_push:          # (LOAD&INC&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object arg = STACK_(n);
-          INC(arg,); # increment
-          pushSTACK(arg);
-        }
-        goto next_byte;
-      CASE cod_load_inc_store:         # (LOAD&INC&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var gcv_object_t* arg_ = &STACK_(n);
-          var object arg = *arg_;
-          INC(arg,mv_count=1); # increment, one value
-          value1 = *arg_ = arg;
-        }
-        goto next_byte;
-      CASE cod_load_dec_push:          # (LOAD&DEC&PUSH n)
-        {
-          var uintL n;
-          U_operand(n);
-          var object arg = STACK_(n);
-          DEC(arg,); # decrement
-          pushSTACK(arg);
-        }
-        goto next_byte;
-      CASE cod_load_dec_store:         # (LOAD&DEC&STORE n)
-        {
-          var uintL n;
-          U_operand(n);
-          var gcv_object_t* arg_ = &STACK_(n);
-          var object arg = *arg_;
-          DEC(arg,mv_count=1); # decrement, one value
-          value1 = *arg_ = arg;
-        }
-        goto next_byte;
-      CASE cod_call1_jmpif:            # (CALL1&JMPIF n label)
-        CALL1();
-        if (!nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_call1_jmpifnot:         # (CALL1&JMPIFNOT n label)
-        CALL1();
-        if (nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_call2_jmpif:            # (CALL2&JMPIF n label)
-        CALL2();
-        if (!nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_call2_jmpifnot:         # (CALL2&JMPIFNOT n label)
-        CALL2();
-        if (nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_calls1_jmpif:           # (CALLS1&JMPIF n label)
-        CALLS1();
-        if (!nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_calls1_jmpifnot:        # (CALLS1&JMPIFNOT n label)
-        CALLS1();
-        if (nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_calls2_jmpif:           # (CALLS2&JMPIF n label)
-        CALLS2();
-        if (!nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_calls2_jmpifnot:        # (CALLS2&JMPIFNOT n label)
-        CALLS2();
-        if (nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_callsr_jmpif:           # (CALLSR&JMPIF m n label)
-        CALLSR();
-        if (!nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_callsr_jmpifnot:        # (CALLSR&JMPIFNOT m n label)
-        CALLSR();
-        if (nullp(value1)) goto jmp; else goto notjmp;
-      CASE cod_load_jmpif:             # (LOAD&JMPIF n label)
-        {
-          var uintL n;
-          U_operand(n);
-          mv_count=1;
-          if (!nullp(value1 = STACK_(n))) goto jmp; else goto notjmp;
-        }
-      CASE cod_load_jmpifnot:          # (LOAD&JMPIFNOT n label)
-        {
-          var uintL n;
-          U_operand(n);
-          mv_count=1;
-          if (nullp(value1 = STACK_(n))) goto jmp; else goto notjmp;
-        }
-      CASE cod_apply_skip_ret:         # (APPLY&SKIP&RET n k)
-        {
-          var uintL n;
-          var uintL k;
-          U_operand(n);
-          U_operand(k);
-          var object fun = STACK_(n); # Function
-          with_saved_context({
-            apply(fun,n,value1); # call Function
-            skipSTACK(k+1); # discard Function and others from Stack
-            goto finished; # return (jump) to caller
-          }); # the context is not restored
-        }
-      CASE cod_funcall_skip_retgf:     # (FUNCALL&SKIP&RETGF n k)
-        {
-          var uintL n;
-          var uintL k;
-          U_operand(n);
-          U_operand(k);
-          var object fun = STACK_(n); # Function
-          var uintL r = ((Codevec)codeptr)->ccv_numreq;
-          var uintB flags = ((Codevec)codeptr)->ccv_flags;
-          with_saved_context({
-            funcall(fun,n); # call Function
-            if (flags & bit(3)) { # call inhibition?
-              skipSTACK(k+1);
-              mv_count=1;
-              goto finished; # return (jump) to caller
-            }
-            k -= r;
-            if (flags & bit(0)) {
-              skipSTACK(k); apply(value1,r,popSTACK());
-            } else {
-              skipSTACK(k+1); funcall(value1,r);
-            }
-            goto finished; # return (jump) to caller
-          }); # the context is not restored
-        }
-      # ------------------- (17) short codes -----------------------
-      CASE cod_load0:                  # (LOAD.S 0)
-        VALUES1(STACK_(0));
-        goto next_byte;
-      CASE cod_load1:                  # (LOAD.S 1)
-        VALUES1(STACK_(1));
-        goto next_byte;
-      CASE cod_load2:                  # (LOAD.S 2)
-        VALUES1(STACK_(2));
-        goto next_byte;
-      CASE cod_load3:                  # (LOAD.S 3)
-        VALUES1(STACK_(3));
-        goto next_byte;
-      CASE cod_load4:                  # (LOAD.S 4)
-        VALUES1(STACK_(4));
-        goto next_byte;
-      CASE cod_load5:                  # (LOAD.S 5)
-        VALUES1(STACK_(5));
-        goto next_byte;
-      CASE cod_load6:                  # (LOAD.S 6)
-        VALUES1(STACK_(6));
-        goto next_byte;
-      CASE cod_load7:                  # (LOAD.S 7)
-        VALUES1(STACK_(7));
-        goto next_byte;
-      CASE cod_load8:                  # (LOAD.S 8)
-        VALUES1(STACK_(8));
-        goto next_byte;
-      CASE cod_load9:                  # (LOAD.S 9)
-        VALUES1(STACK_(9));
-        goto next_byte;
-      CASE cod_load10:                 # (LOAD.S 10)
-        VALUES1(STACK_(10));
-        goto next_byte;
-      CASE cod_load11:                 # (LOAD.S 11)
-        VALUES1(STACK_(11));
-        goto next_byte;
-      CASE cod_load12:                 # (LOAD.S 12)
-        VALUES1(STACK_(12));
-        goto next_byte;
-      CASE cod_load13:                 # (LOAD.S 13)
-        VALUES1(STACK_(13));
-        goto next_byte;
-      CASE cod_load14:                 # (LOAD.S 14)
-        VALUES1(STACK_(14));
-        goto next_byte;
-      #if 0
-      CASE cod_load15:                 # (LOAD.S 15)
-        VALUES1(STACK_(15));
-        goto next_byte;
-      CASE cod_load16:                 # (LOAD.S 16)
-        VALUES1(STACK_(16));
-        goto next_byte;
-      CASE cod_load17:                 # (LOAD.S 17)
-        VALUES1(STACK_(17));
-        goto next_byte;
-      CASE cod_load18:                 # (LOAD.S 18)
-        VALUES1(STACK_(18));
-        goto next_byte;
-      CASE cod_load19:                 # (LOAD.S 19)
-        VALUES1(STACK_(19));
-        goto next_byte;
-      CASE cod_load20:                 # (LOAD.S 20)
-        VALUES1(STACK_(20));
-        goto next_byte;
-      CASE cod_load21:                 # (LOAD.S 21)
-        VALUES1(STACK_(21));
-        goto next_byte;
-      #endif
-      CASE cod_load_push0:             # (LOAD&PUSH.S 0)
-        pushSTACK(STACK_(0));
-        goto next_byte;
-      CASE cod_load_push1:             # (LOAD&PUSH.S 1)
-        pushSTACK(STACK_(1));
-        goto next_byte;
-      CASE cod_load_push2:             # (LOAD&PUSH.S 2)
-        pushSTACK(STACK_(2));
-        goto next_byte;
-      CASE cod_load_push3:             # (LOAD&PUSH.S 3)
-        pushSTACK(STACK_(3));
-        goto next_byte;
-      CASE cod_load_push4:             # (LOAD&PUSH.S 4)
-        pushSTACK(STACK_(4));
-        goto next_byte;
-      CASE cod_load_push5:             # (LOAD&PUSH.S 5)
-        pushSTACK(STACK_(5));
-        goto next_byte;
-      CASE cod_load_push6:             # (LOAD&PUSH.S 6)
-        pushSTACK(STACK_(6));
-        goto next_byte;
-      CASE cod_load_push7:             # (LOAD&PUSH.S 7)
-        pushSTACK(STACK_(7));
-        goto next_byte;
-      CASE cod_load_push8:             # (LOAD&PUSH.S 8)
-        pushSTACK(STACK_(8));
-        goto next_byte;
-      CASE cod_load_push9:             # (LOAD&PUSH.S 9)
-        pushSTACK(STACK_(9));
-        goto next_byte;
-      CASE cod_load_push10:            # (LOAD&PUSH.S 10)
-        pushSTACK(STACK_(10));
-        goto next_byte;
-      CASE cod_load_push11:            # (LOAD&PUSH.S 11)
-        pushSTACK(STACK_(11));
-        goto next_byte;
-      CASE cod_load_push12:            # (LOAD&PUSH.S 12)
-        pushSTACK(STACK_(12));
-        goto next_byte;
-      CASE cod_load_push13:            # (LOAD&PUSH.S 13)
-        pushSTACK(STACK_(13));
-        goto next_byte;
-      CASE cod_load_push14:            # (LOAD&PUSH.S 14)
-        pushSTACK(STACK_(14));
-        goto next_byte;
-      CASE cod_load_push15:            # (LOAD&PUSH.S 15)
-        pushSTACK(STACK_(15));
-        goto next_byte;
-      CASE cod_load_push16:            # (LOAD&PUSH.S 16)
-        pushSTACK(STACK_(16));
-        goto next_byte;
-      CASE cod_load_push17:            # (LOAD&PUSH.S 17)
-        pushSTACK(STACK_(17));
-        goto next_byte;
-      CASE cod_load_push18:            # (LOAD&PUSH.S 18)
-        pushSTACK(STACK_(18));
-        goto next_byte;
-      CASE cod_load_push19:            # (LOAD&PUSH.S 19)
-        pushSTACK(STACK_(19));
-        goto next_byte;
-      CASE cod_load_push20:            # (LOAD&PUSH.S 20)
-        pushSTACK(STACK_(20));
-        goto next_byte;
-      CASE cod_load_push21:            # (LOAD&PUSH.S 21)
-        pushSTACK(STACK_(21));
-        goto next_byte;
-      CASE cod_load_push22:            # (LOAD&PUSH.S 22)
-        pushSTACK(STACK_(22));
-        goto next_byte;
-      CASE cod_load_push23:            # (LOAD&PUSH.S 23)
-        pushSTACK(STACK_(23));
-        goto next_byte;
-      CASE cod_load_push24:            # (LOAD&PUSH.S 24)
-        pushSTACK(STACK_(24));
-        goto next_byte;
-      CASE cod_const0:                 # (CONST.S 0)
-        VALUES1(TheCclosure(closure)->clos_consts[0]);
-        goto next_byte;
-      CASE cod_const1:                 # (CONST.S 1)
-        VALUES1(TheCclosure(closure)->clos_consts[1]);
-        goto next_byte;
-      CASE cod_const2:                 # (CONST.S 2)
-        VALUES1(TheCclosure(closure)->clos_consts[2]);
-        goto next_byte;
-      CASE cod_const3:                 # (CONST.S 3)
-        VALUES1(TheCclosure(closure)->clos_consts[3]);
-        goto next_byte;
-      CASE cod_const4:                 # (CONST.S 4)
-        VALUES1(TheCclosure(closure)->clos_consts[4]);
-        goto next_byte;
-      CASE cod_const5:                 # (CONST.S 5)
-        VALUES1(TheCclosure(closure)->clos_consts[5]);
-        goto next_byte;
-      CASE cod_const6:                 # (CONST.S 6)
-        VALUES1(TheCclosure(closure)->clos_consts[6]);
-        goto next_byte;
-      CASE cod_const7:                 # (CONST.S 7)
-        VALUES1(TheCclosure(closure)->clos_consts[7]);
-        goto next_byte;
-      CASE cod_const8:                 # (CONST.S 8)
-        VALUES1(TheCclosure(closure)->clos_consts[8]);
-        goto next_byte;
-      CASE cod_const9:                 # (CONST.S 9)
-        VALUES1(TheCclosure(closure)->clos_consts[9]);
-        goto next_byte;
-      CASE cod_const10:                # (CONST.S 10)
-        VALUES1(TheCclosure(closure)->clos_consts[10]);
-        goto next_byte;
-      CASE cod_const11:                # (CONST.S 11)
-        VALUES1(TheCclosure(closure)->clos_consts[11]);
-        goto next_byte;
-      CASE cod_const12:                # (CONST.S 12)
-        VALUES1(TheCclosure(closure)->clos_consts[12]);
-        goto next_byte;
-      CASE cod_const13:                # (CONST.S 13)
-        VALUES1(TheCclosure(closure)->clos_consts[13]);
-        goto next_byte;
-      CASE cod_const14:                # (CONST.S 14)
-        VALUES1(TheCclosure(closure)->clos_consts[14]);
-        goto next_byte;
-      CASE cod_const15:                # (CONST.S 15)
-        VALUES1(TheCclosure(closure)->clos_consts[15]);
-        goto next_byte;
-      CASE cod_const16:                # (CONST.S 16)
-        VALUES1(TheCclosure(closure)->clos_consts[16]);
-        goto next_byte;
-      CASE cod_const17:                # (CONST.S 17)
-        VALUES1(TheCclosure(closure)->clos_consts[17]);
-        goto next_byte;
-      CASE cod_const18:                # (CONST.S 18)
-        VALUES1(TheCclosure(closure)->clos_consts[18]);
-        goto next_byte;
-      CASE cod_const19:                # (CONST.S 19)
-        VALUES1(TheCclosure(closure)->clos_consts[19]);
-        goto next_byte;
-      CASE cod_const20:                # (CONST.S 20)
-        VALUES1(TheCclosure(closure)->clos_consts[20]);
-        goto next_byte;
-      #if 0
-      CASE cod_const21:                # (CONST.S 21)
-        VALUES1(TheCclosure(closure)->clos_consts[21]);
-        goto next_byte;
-      CASE cod_const22:                # (CONST.S 22)
-        VALUES1(TheCclosure(closure)->clos_consts[22]);
-        goto next_byte;
-      CASE cod_const23:                # (CONST.S 23)
-        VALUES1(TheCclosure(closure)->clos_consts[23]);
-        goto next_byte;
-      CASE cod_const24:                # (CONST.S 24)
-        VALUES1(TheCclosure(closure)->clos_consts[24]);
-        goto next_byte;
-      #endif
-      CASE cod_const_push0:            # (CONST&PUSH.S 0)
-        pushSTACK(TheCclosure(closure)->clos_consts[0]);
-        goto next_byte;
-      CASE cod_const_push1:            # (CONST&PUSH.S 1)
-        pushSTACK(TheCclosure(closure)->clos_consts[1]);
-        goto next_byte;
-      CASE cod_const_push2:            # (CONST&PUSH.S 2)
-        pushSTACK(TheCclosure(closure)->clos_consts[2]);
-        goto next_byte;
-      CASE cod_const_push3:            # (CONST&PUSH.S 3)
-        pushSTACK(TheCclosure(closure)->clos_consts[3]);
-        goto next_byte;
-      CASE cod_const_push4:            # (CONST&PUSH.S 4)
-        pushSTACK(TheCclosure(closure)->clos_consts[4]);
-        goto next_byte;
-      CASE cod_const_push5:            # (CONST&PUSH.S 5)
-        pushSTACK(TheCclosure(closure)->clos_consts[5]);
-        goto next_byte;
-      CASE cod_const_push6:            # (CONST&PUSH.S 6)
-        pushSTACK(TheCclosure(closure)->clos_consts[6]);
-        goto next_byte;
-      CASE cod_const_push7:            # (CONST&PUSH.S 7)
-        pushSTACK(TheCclosure(closure)->clos_consts[7]);
-        goto next_byte;
-      CASE cod_const_push8:            # (CONST&PUSH.S 8)
-        pushSTACK(TheCclosure(closure)->clos_consts[8]);
-        goto next_byte;
-      CASE cod_const_push9:            # (CONST&PUSH.S 9)
-        pushSTACK(TheCclosure(closure)->clos_consts[9]);
-        goto next_byte;
-      CASE cod_const_push10:           # (CONST&PUSH.S 10)
-        pushSTACK(TheCclosure(closure)->clos_consts[10]);
-        goto next_byte;
-      CASE cod_const_push11:           # (CONST&PUSH.S 11)
-        pushSTACK(TheCclosure(closure)->clos_consts[11]);
-        goto next_byte;
-      CASE cod_const_push12:           # (CONST&PUSH.S 12)
-        pushSTACK(TheCclosure(closure)->clos_consts[12]);
-        goto next_byte;
-      CASE cod_const_push13:           # (CONST&PUSH.S 13)
-        pushSTACK(TheCclosure(closure)->clos_consts[13]);
-        goto next_byte;
-      CASE cod_const_push14:           # (CONST&PUSH.S 14)
-        pushSTACK(TheCclosure(closure)->clos_consts[14]);
-        goto next_byte;
-      CASE cod_const_push15:           # (CONST&PUSH.S 15)
-        pushSTACK(TheCclosure(closure)->clos_consts[15]);
-        goto next_byte;
-      CASE cod_const_push16:           # (CONST&PUSH.S 16)
-        pushSTACK(TheCclosure(closure)->clos_consts[16]);
-        goto next_byte;
-      CASE cod_const_push17:           # (CONST&PUSH.S 17)
-        pushSTACK(TheCclosure(closure)->clos_consts[17]);
-        goto next_byte;
-      CASE cod_const_push18:           # (CONST&PUSH.S 18)
-        pushSTACK(TheCclosure(closure)->clos_consts[18]);
-        goto next_byte;
-      CASE cod_const_push19:           # (CONST&PUSH.S 19)
-        pushSTACK(TheCclosure(closure)->clos_consts[19]);
-        goto next_byte;
-      CASE cod_const_push20:           # (CONST&PUSH.S 20)
-        pushSTACK(TheCclosure(closure)->clos_consts[20]);
-        goto next_byte;
-      CASE cod_const_push21:           # (CONST&PUSH.S 21)
-        pushSTACK(TheCclosure(closure)->clos_consts[21]);
-        goto next_byte;
-      CASE cod_const_push22:           # (CONST&PUSH.S 22)
-        pushSTACK(TheCclosure(closure)->clos_consts[22]);
-        goto next_byte;
-      CASE cod_const_push23:           # (CONST&PUSH.S 23)
-        pushSTACK(TheCclosure(closure)->clos_consts[23]);
-        goto next_byte;
-      CASE cod_const_push24:           # (CONST&PUSH.S 24)
-        pushSTACK(TheCclosure(closure)->clos_consts[24]);
-        goto next_byte;
-      CASE cod_const_push25:           # (CONST&PUSH.S 25)
-        pushSTACK(TheCclosure(closure)->clos_consts[25]);
-        goto next_byte;
-      CASE cod_const_push26:           # (CONST&PUSH.S 26)
-        pushSTACK(TheCclosure(closure)->clos_consts[26]);
-        goto next_byte;
-      CASE cod_const_push27:           # (CONST&PUSH.S 27)
-        pushSTACK(TheCclosure(closure)->clos_consts[27]);
-        goto next_byte;
-      CASE cod_const_push28:           # (CONST&PUSH.S 28)
-        pushSTACK(TheCclosure(closure)->clos_consts[28]);
-        goto next_byte;
-      CASE cod_const_push29:           # (CONST&PUSH.S 29)
-        pushSTACK(TheCclosure(closure)->clos_consts[29]);
-        goto next_byte;
-      #if 0
-      CASE cod_const_push30:           # (CONST&PUSH.S 30)
-        pushSTACK(TheCclosure(closure)->clos_consts[30]);
-        goto next_byte;
-      CASE cod_const_push31:           # (CONST&PUSH.S 31)
-        pushSTACK(TheCclosure(closure)->clos_consts[31]);
-        goto next_byte;
-      CASE cod_const_push32:           # (CONST&PUSH.S 32)
-        pushSTACK(TheCclosure(closure)->clos_consts[32]);
-        goto next_byte;
-      #endif
-      CASE cod_store0:                 # (STORE.S 0)
-        STACK_(0) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store1:                 # (STORE.S 1)
-        STACK_(1) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store2:                 # (STORE.S 2)
-        STACK_(2) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store3:                 # (STORE.S 3)
-        STACK_(3) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store4:                 # (STORE.S 4)
-        STACK_(4) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store5:                 # (STORE.S 5)
-        STACK_(5) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store6:                 # (STORE.S 6)
-        STACK_(6) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store7:                 # (STORE.S 7)
-        STACK_(7) = value1; mv_count=1;
-        goto next_byte;
-      #if 0
-      CASE cod_store8:                 # (STORE.S 8)
-        STACK_(8) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store9:                 # (STORE.S 9)
-        STACK_(9) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store10:                # (STORE.S 10)
-        STACK_(10) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store11:                # (STORE.S 11)
-        STACK_(11) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store12:                # (STORE.S 12)
-        STACK_(12) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store13:                # (STORE.S 13)
-        STACK_(13) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store14:                # (STORE.S 14)
-        STACK_(14) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store15:                # (STORE.S 15)
-        STACK_(15) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store16:                # (STORE.S 16)
-        STACK_(16) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store17:                # (STORE.S 17)
-        STACK_(17) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store18:                # (STORE.S 18)
-        STACK_(18) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store19:                # (STORE.S 19)
-        STACK_(19) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store20:                # (STORE.S 20)
-        STACK_(20) = value1; mv_count=1;
-        goto next_byte;
-      CASE cod_store21:                # (STORE.S 21)
-        STACK_(21) = value1; mv_count=1;
-        goto next_byte;
-      #endif
-      # ------------------- miscellaneous -----------------------
-      #ifndef FAST_DISPATCH
-      default:
-      #endif
-        /* undefined Code */
-        #if defined(GNU) && defined(FAST_SP)
-          /* Undo the effect of -fomit-frame-pointer for this function,
-             hereby allowing utilization of %sp resp. %esp as private_SP: */
-          alloca(1);
-        #endif
-        pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); /* bad byte number */
-        pushSTACK(closure); # Closure
-        error(serious_condition,
-               GETTEXT("undefined bytecode in ~S at byte ~S"));
-      #undef L_operand
-      #undef S_operand
-      #undef U_operand
-      #undef B_operand
-      #undef CASE
+    CASE cod_load_inc_push: {   /* (LOAD&INC&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object arg = STACK_(n);
+      INC(arg,);              /* increment */
+      pushSTACK(arg);
+    } goto next_byte;
+    CASE cod_load_inc_store: {  /* (LOAD&INC&STORE n) */
+      var uintL n;
+      U_operand(n);
+      var gcv_object_t* arg_ = &STACK_(n);
+      var object arg = *arg_;
+      INC(arg,mv_count=1);    /* increment, one value */
+      value1 = *arg_ = arg;
+    } goto next_byte;
+    CASE cod_load_dec_push: {   /* (LOAD&DEC&PUSH n) */
+      var uintL n;
+      U_operand(n);
+      var object arg = STACK_(n);
+      DEC(arg,);              /* decrement */
+      pushSTACK(arg);
+    } goto next_byte;
+    CASE cod_load_dec_store: {  /* (LOAD&DEC&STORE n) */
+      var uintL n;
+      U_operand(n);
+      var gcv_object_t* arg_ = &STACK_(n);
+      var object arg = *arg_;
+      DEC(arg,mv_count=1);    /* decrement, one value */
+      value1 = *arg_ = arg;
+    } goto next_byte;
+    CASE cod_call1_jmpif:       /* (CALL1&JMPIF n label) */
+      CALL1();
+      if (!nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_call1_jmpifnot:    /* (CALL1&JMPIFNOT n label) */
+      CALL1();
+      if (nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_call2_jmpif:       /* (CALL2&JMPIF n label) */
+      CALL2();
+      if (!nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_call2_jmpifnot:    /* (CALL2&JMPIFNOT n label) */
+      CALL2();
+      if (nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_calls1_jmpif:      /* (CALLS1&JMPIF n label) */
+      CALLS1();
+      if (!nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_calls1_jmpifnot:   /* (CALLS1&JMPIFNOT n label) */
+      CALLS1();
+      if (nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_calls2_jmpif:      /* (CALLS2&JMPIF n label) */
+      CALLS2();
+      if (!nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_calls2_jmpifnot:   /* (CALLS2&JMPIFNOT n label) */
+      CALLS2();
+      if (nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_callsr_jmpif:      /* (CALLSR&JMPIF m n label) */
+      CALLSR();
+      if (!nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_callsr_jmpifnot:   /* (CALLSR&JMPIFNOT m n label) */
+      CALLSR();
+      if (nullp(value1)) goto jmp; else goto notjmp;
+    CASE cod_load_jmpif: {      /* (LOAD&JMPIF n label) */
+      var uintL n;
+      U_operand(n);
+      mv_count=1;
+      if (!nullp(value1 = STACK_(n))) goto jmp; else goto notjmp;
     }
-   #if DEBUG_BYTECODE
-   error_byteptr:
-    pushSTACK(fixnum(byteptr_max));
-    pushSTACK(fixnum(byteptr_min));
-    pushSTACK(fixnum(byteptr - codeptr->data));
-    pushSTACK(sfixnum(byteptr_bad_jump));
-    pushSTACK(closure);
-    error(error_condition,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
+    CASE cod_load_jmpifnot: {   /* (LOAD&JMPIFNOT n label) */
+      var uintL n;
+      U_operand(n);
+      mv_count=1;
+      if (nullp(value1 = STACK_(n))) goto jmp; else goto notjmp;
+    }
+    CASE cod_apply_skip_ret: {  /* (APPLY&SKIP&RET n k) */
+      var uintL n;
+      var uintL k;
+      U_operand(n);
+      U_operand(k);
+      var object fun = STACK_(n); /* Function */
+      with_saved_context({
+        apply(fun,n,value1);  /* call Function */
+        skipSTACK(k+1);   /* discard Function and others from Stack */
+        goto finished;    /* return (jump) to caller */
+      });                 /* the context is not restored */
+    }
+    CASE cod_funcall_skip_retgf: { /* (FUNCALL&SKIP&RETGF n k) */
+      var uintL n;
+      var uintL k;
+      U_operand(n);
+      U_operand(k);
+      var object fun = STACK_(n); /* Function */
+      var uintL r = ((Codevec)codeptr)->ccv_numreq;
+      var uintB flags = ((Codevec)codeptr)->ccv_flags;
+      with_saved_context({
+        funcall(fun,n);       /* call Function */
+        if (flags & bit(3)) { /* call inhibition? */
+          skipSTACK(k+1);
+          mv_count=1;
+          goto finished;      /* return (jump) to caller */
+        }
+        k -= r;
+        if (flags & bit(0)) {
+          skipSTACK(k); apply(value1,r,popSTACK());
+        } else {
+          skipSTACK(k+1); funcall(value1,r);
+        }
+        goto finished;        /* return (jump) to caller */
+      });                     /* the context is not restored */
+    }
+    /* ------------------- (17) short codes ----------------------- */
+    CASE cod_load0:             /* (LOAD.S 0) */
+      VALUES1(STACK_(0));
+      goto next_byte;
+    CASE cod_load1:             /* (LOAD.S 1) */
+      VALUES1(STACK_(1));
+      goto next_byte;
+    CASE cod_load2:             /* (LOAD.S 2) */
+      VALUES1(STACK_(2));
+      goto next_byte;
+    CASE cod_load3:             /* (LOAD.S 3) */
+      VALUES1(STACK_(3));
+      goto next_byte;
+    CASE cod_load4:             /* (LOAD.S 4) */
+      VALUES1(STACK_(4));
+      goto next_byte;
+    CASE cod_load5:             /* (LOAD.S 5) */
+      VALUES1(STACK_(5));
+      goto next_byte;
+    CASE cod_load6:             /* (LOAD.S 6) */
+      VALUES1(STACK_(6));
+      goto next_byte;
+    CASE cod_load7:             /* (LOAD.S 7) */
+      VALUES1(STACK_(7));
+      goto next_byte;
+    CASE cod_load8:             /* (LOAD.S 8) */
+      VALUES1(STACK_(8));
+      goto next_byte;
+    CASE cod_load9:             /* (LOAD.S 9) */
+      VALUES1(STACK_(9));
+      goto next_byte;
+    CASE cod_load10:            /* (LOAD.S 10) */
+      VALUES1(STACK_(10));
+      goto next_byte;
+    CASE cod_load11:            /* (LOAD.S 11) */
+      VALUES1(STACK_(11));
+      goto next_byte;
+    CASE cod_load12:            /* (LOAD.S 12) */
+      VALUES1(STACK_(12));
+      goto next_byte;
+    CASE cod_load13:            /* (LOAD.S 13) */
+      VALUES1(STACK_(13));
+      goto next_byte;
+    CASE cod_load14:            /* (LOAD.S 14) */
+      VALUES1(STACK_(14));
+      goto next_byte;
+   #if 0
+    CASE cod_load15:            /* (LOAD.S 15) */
+      VALUES1(STACK_(15));
+      goto next_byte;
+    CASE cod_load16:            /* (LOAD.S 16) */
+      VALUES1(STACK_(16));
+      goto next_byte;
+    CASE cod_load17:            /* (LOAD.S 17) */
+      VALUES1(STACK_(17));
+      goto next_byte;
+    CASE cod_load18:            /* (LOAD.S 18) */
+      VALUES1(STACK_(18));
+      goto next_byte;
+    CASE cod_load19:            /* (LOAD.S 19) */
+      VALUES1(STACK_(19));
+      goto next_byte;
+    CASE cod_load20:            /* (LOAD.S 20) */
+      VALUES1(STACK_(20));
+      goto next_byte;
+    CASE cod_load21:            /* (LOAD.S 21) */
+      VALUES1(STACK_(21));
+      goto next_byte;
    #endif
-   error_toomany_values:
-    pushSTACK(closure);
-    error(error_condition,GETTEXT("~S: too many return values"));
-   #if STACKCHECKC
-   error_STACK_putt:
-    pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
-    pushSTACK(closure);                       /* FUNC */
-    error(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));
+    CASE cod_load_push0:        /* (LOAD&PUSH.S 0) */
+      pushSTACK(STACK_(0));
+      goto next_byte;
+    CASE cod_load_push1:        /* (LOAD&PUSH.S 1) */
+      pushSTACK(STACK_(1));
+      goto next_byte;
+    CASE cod_load_push2:        /* (LOAD&PUSH.S 2) */
+      pushSTACK(STACK_(2));
+      goto next_byte;
+    CASE cod_load_push3:        /* (LOAD&PUSH.S 3) */
+      pushSTACK(STACK_(3));
+      goto next_byte;
+    CASE cod_load_push4:        /* (LOAD&PUSH.S 4) */
+      pushSTACK(STACK_(4));
+      goto next_byte;
+    CASE cod_load_push5:        /* (LOAD&PUSH.S 5) */
+      pushSTACK(STACK_(5));
+      goto next_byte;
+    CASE cod_load_push6:        /* (LOAD&PUSH.S 6) */
+      pushSTACK(STACK_(6));
+      goto next_byte;
+    CASE cod_load_push7:        /* (LOAD&PUSH.S 7) */
+      pushSTACK(STACK_(7));
+      goto next_byte;
+    CASE cod_load_push8:        /* (LOAD&PUSH.S 8) */
+      pushSTACK(STACK_(8));
+      goto next_byte;
+    CASE cod_load_push9:        /* (LOAD&PUSH.S 9) */
+      pushSTACK(STACK_(9));
+      goto next_byte;
+    CASE cod_load_push10:       /* (LOAD&PUSH.S 10) */
+      pushSTACK(STACK_(10));
+      goto next_byte;
+    CASE cod_load_push11:       /* (LOAD&PUSH.S 11) */
+      pushSTACK(STACK_(11));
+      goto next_byte;
+    CASE cod_load_push12:       /* (LOAD&PUSH.S 12) */
+      pushSTACK(STACK_(12));
+      goto next_byte;
+    CASE cod_load_push13:       /* (LOAD&PUSH.S 13) */
+      pushSTACK(STACK_(13));
+      goto next_byte;
+    CASE cod_load_push14:       /* (LOAD&PUSH.S 14) */
+      pushSTACK(STACK_(14));
+      goto next_byte;
+    CASE cod_load_push15:       /* (LOAD&PUSH.S 15) */
+      pushSTACK(STACK_(15));
+      goto next_byte;
+    CASE cod_load_push16:       /* (LOAD&PUSH.S 16) */
+      pushSTACK(STACK_(16));
+      goto next_byte;
+    CASE cod_load_push17:       /* (LOAD&PUSH.S 17) */
+      pushSTACK(STACK_(17));
+      goto next_byte;
+    CASE cod_load_push18:       /* (LOAD&PUSH.S 18) */
+      pushSTACK(STACK_(18));
+      goto next_byte;
+    CASE cod_load_push19:       /* (LOAD&PUSH.S 19) */
+      pushSTACK(STACK_(19));
+      goto next_byte;
+    CASE cod_load_push20:       /* (LOAD&PUSH.S 20) */
+      pushSTACK(STACK_(20));
+      goto next_byte;
+    CASE cod_load_push21:       /* (LOAD&PUSH.S 21) */
+      pushSTACK(STACK_(21));
+      goto next_byte;
+    CASE cod_load_push22:       /* (LOAD&PUSH.S 22) */
+      pushSTACK(STACK_(22));
+      goto next_byte;
+    CASE cod_load_push23:       /* (LOAD&PUSH.S 23) */
+      pushSTACK(STACK_(23));
+      goto next_byte;
+    CASE cod_load_push24:       /* (LOAD&PUSH.S 24) */
+      pushSTACK(STACK_(24));
+      goto next_byte;
+    CASE cod_const0:            /* (CONST.S 0) */
+      VALUES1(TheCclosure(closure)->clos_consts[0]);
+      goto next_byte;
+    CASE cod_const1:            /* (CONST.S 1) */
+      VALUES1(TheCclosure(closure)->clos_consts[1]);
+      goto next_byte;
+    CASE cod_const2:            /* (CONST.S 2) */
+      VALUES1(TheCclosure(closure)->clos_consts[2]);
+      goto next_byte;
+    CASE cod_const3:            /* (CONST.S 3) */
+      VALUES1(TheCclosure(closure)->clos_consts[3]);
+      goto next_byte;
+    CASE cod_const4:            /* (CONST.S 4) */
+      VALUES1(TheCclosure(closure)->clos_consts[4]);
+      goto next_byte;
+    CASE cod_const5:            /* (CONST.S 5) */
+      VALUES1(TheCclosure(closure)->clos_consts[5]);
+      goto next_byte;
+    CASE cod_const6:            /* (CONST.S 6) */
+      VALUES1(TheCclosure(closure)->clos_consts[6]);
+      goto next_byte;
+    CASE cod_const7:            /* (CONST.S 7) */
+      VALUES1(TheCclosure(closure)->clos_consts[7]);
+      goto next_byte;
+    CASE cod_const8:            /* (CONST.S 8) */
+      VALUES1(TheCclosure(closure)->clos_consts[8]);
+      goto next_byte;
+    CASE cod_const9:            /* (CONST.S 9) */
+      VALUES1(TheCclosure(closure)->clos_consts[9]);
+      goto next_byte;
+    CASE cod_const10:           /* (CONST.S 10) */
+      VALUES1(TheCclosure(closure)->clos_consts[10]);
+      goto next_byte;
+    CASE cod_const11:           /* (CONST.S 11) */
+      VALUES1(TheCclosure(closure)->clos_consts[11]);
+      goto next_byte;
+    CASE cod_const12:           /* (CONST.S 12) */
+      VALUES1(TheCclosure(closure)->clos_consts[12]);
+      goto next_byte;
+    CASE cod_const13:           /* (CONST.S 13) */
+      VALUES1(TheCclosure(closure)->clos_consts[13]);
+      goto next_byte;
+    CASE cod_const14:           /* (CONST.S 14) */
+      VALUES1(TheCclosure(closure)->clos_consts[14]);
+      goto next_byte;
+    CASE cod_const15:           /* (CONST.S 15) */
+      VALUES1(TheCclosure(closure)->clos_consts[15]);
+      goto next_byte;
+    CASE cod_const16:           /* (CONST.S 16) */
+      VALUES1(TheCclosure(closure)->clos_consts[16]);
+      goto next_byte;
+    CASE cod_const17:           /* (CONST.S 17) */
+      VALUES1(TheCclosure(closure)->clos_consts[17]);
+      goto next_byte;
+    CASE cod_const18:           /* (CONST.S 18) */
+      VALUES1(TheCclosure(closure)->clos_consts[18]);
+      goto next_byte;
+    CASE cod_const19:           /* (CONST.S 19) */
+      VALUES1(TheCclosure(closure)->clos_consts[19]);
+      goto next_byte;
+    CASE cod_const20:           /* (CONST.S 20) */
+      VALUES1(TheCclosure(closure)->clos_consts[20]);
+      goto next_byte;
+   #if 0
+    CASE cod_const21:           /* (CONST.S 21) */
+      VALUES1(TheCclosure(closure)->clos_consts[21]);
+      goto next_byte;
+    CASE cod_const22:           /* (CONST.S 22) */
+      VALUES1(TheCclosure(closure)->clos_consts[22]);
+      goto next_byte;
+    CASE cod_const23:           /* (CONST.S 23) */
+      VALUES1(TheCclosure(closure)->clos_consts[23]);
+      goto next_byte;
+    CASE cod_const24:           /* (CONST.S 24) */
+      VALUES1(TheCclosure(closure)->clos_consts[24]);
+      goto next_byte;
    #endif
-   finished:
-    #undef FREE_JMPBUF_on_SP
-    #undef JMPBUF_on_SP
-    #ifndef FAST_SP
-    FREE_DYNAMIC_ARRAY(private_SP_space);
-    #endif
-    return;
+    CASE cod_const_push0:       /* (CONST&PUSH.S 0) */
+      pushSTACK(TheCclosure(closure)->clos_consts[0]);
+      goto next_byte;
+    CASE cod_const_push1:       /* (CONST&PUSH.S 1) */
+      pushSTACK(TheCclosure(closure)->clos_consts[1]);
+      goto next_byte;
+    CASE cod_const_push2:       /* (CONST&PUSH.S 2) */
+      pushSTACK(TheCclosure(closure)->clos_consts[2]);
+      goto next_byte;
+    CASE cod_const_push3:       /* (CONST&PUSH.S 3) */
+      pushSTACK(TheCclosure(closure)->clos_consts[3]);
+      goto next_byte;
+    CASE cod_const_push4:       /* (CONST&PUSH.S 4) */
+      pushSTACK(TheCclosure(closure)->clos_consts[4]);
+      goto next_byte;
+    CASE cod_const_push5:       /* (CONST&PUSH.S 5) */
+      pushSTACK(TheCclosure(closure)->clos_consts[5]);
+      goto next_byte;
+    CASE cod_const_push6:       /* (CONST&PUSH.S 6) */
+      pushSTACK(TheCclosure(closure)->clos_consts[6]);
+      goto next_byte;
+    CASE cod_const_push7:       /* (CONST&PUSH.S 7) */
+      pushSTACK(TheCclosure(closure)->clos_consts[7]);
+      goto next_byte;
+    CASE cod_const_push8:       /* (CONST&PUSH.S 8) */
+      pushSTACK(TheCclosure(closure)->clos_consts[8]);
+      goto next_byte;
+    CASE cod_const_push9:       /* (CONST&PUSH.S 9) */
+      pushSTACK(TheCclosure(closure)->clos_consts[9]);
+      goto next_byte;
+    CASE cod_const_push10:      /* (CONST&PUSH.S 10) */
+      pushSTACK(TheCclosure(closure)->clos_consts[10]);
+      goto next_byte;
+    CASE cod_const_push11:      /* (CONST&PUSH.S 11) */
+      pushSTACK(TheCclosure(closure)->clos_consts[11]);
+      goto next_byte;
+    CASE cod_const_push12:      /* (CONST&PUSH.S 12) */
+      pushSTACK(TheCclosure(closure)->clos_consts[12]);
+      goto next_byte;
+    CASE cod_const_push13:      /* (CONST&PUSH.S 13) */
+      pushSTACK(TheCclosure(closure)->clos_consts[13]);
+      goto next_byte;
+    CASE cod_const_push14:      /* (CONST&PUSH.S 14) */
+      pushSTACK(TheCclosure(closure)->clos_consts[14]);
+      goto next_byte;
+    CASE cod_const_push15:      /* (CONST&PUSH.S 15) */
+      pushSTACK(TheCclosure(closure)->clos_consts[15]);
+      goto next_byte;
+    CASE cod_const_push16:      /* (CONST&PUSH.S 16) */
+      pushSTACK(TheCclosure(closure)->clos_consts[16]);
+      goto next_byte;
+    CASE cod_const_push17:      /* (CONST&PUSH.S 17) */
+      pushSTACK(TheCclosure(closure)->clos_consts[17]);
+      goto next_byte;
+    CASE cod_const_push18:      /* (CONST&PUSH.S 18) */
+      pushSTACK(TheCclosure(closure)->clos_consts[18]);
+      goto next_byte;
+    CASE cod_const_push19:      /* (CONST&PUSH.S 19) */
+      pushSTACK(TheCclosure(closure)->clos_consts[19]);
+      goto next_byte;
+    CASE cod_const_push20:      /* (CONST&PUSH.S 20) */
+      pushSTACK(TheCclosure(closure)->clos_consts[20]);
+      goto next_byte;
+    CASE cod_const_push21:      /* (CONST&PUSH.S 21) */
+      pushSTACK(TheCclosure(closure)->clos_consts[21]);
+      goto next_byte;
+    CASE cod_const_push22:      /* (CONST&PUSH.S 22) */
+      pushSTACK(TheCclosure(closure)->clos_consts[22]);
+      goto next_byte;
+    CASE cod_const_push23:      /* (CONST&PUSH.S 23) */
+      pushSTACK(TheCclosure(closure)->clos_consts[23]);
+      goto next_byte;
+    CASE cod_const_push24:      /* (CONST&PUSH.S 24) */
+      pushSTACK(TheCclosure(closure)->clos_consts[24]);
+      goto next_byte;
+    CASE cod_const_push25:      /* (CONST&PUSH.S 25) */
+      pushSTACK(TheCclosure(closure)->clos_consts[25]);
+      goto next_byte;
+    CASE cod_const_push26:      /* (CONST&PUSH.S 26) */
+      pushSTACK(TheCclosure(closure)->clos_consts[26]);
+      goto next_byte;
+    CASE cod_const_push27:      /* (CONST&PUSH.S 27) */
+      pushSTACK(TheCclosure(closure)->clos_consts[27]);
+      goto next_byte;
+    CASE cod_const_push28:      /* (CONST&PUSH.S 28) */
+      pushSTACK(TheCclosure(closure)->clos_consts[28]);
+      goto next_byte;
+    CASE cod_const_push29:      /* (CONST&PUSH.S 29) */
+      pushSTACK(TheCclosure(closure)->clos_consts[29]);
+      goto next_byte;
+   #if 0
+    CASE cod_const_push30:      /* (CONST&PUSH.S 30) */
+      pushSTACK(TheCclosure(closure)->clos_consts[30]);
+      goto next_byte;
+    CASE cod_const_push31:      /* (CONST&PUSH.S 31) */
+      pushSTACK(TheCclosure(closure)->clos_consts[31]);
+      goto next_byte;
+    CASE cod_const_push32:      /* (CONST&PUSH.S 32) */
+      pushSTACK(TheCclosure(closure)->clos_consts[32]);
+      goto next_byte;
+   #endif
+    CASE cod_store0:            /* (STORE.S 0) */
+      STACK_(0) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store1:            /* (STORE.S 1) */
+      STACK_(1) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store2:            /* (STORE.S 2) */
+      STACK_(2) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store3:            /* (STORE.S 3) */
+      STACK_(3) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store4:            /* (STORE.S 4) */
+      STACK_(4) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store5:            /* (STORE.S 5) */
+      STACK_(5) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store6:            /* (STORE.S 6) */
+      STACK_(6) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store7:            /* (STORE.S 7) */
+      STACK_(7) = value1; mv_count=1;
+      goto next_byte;
+   #if 0
+    CASE cod_store8:            /* (STORE.S 8) */
+      STACK_(8) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store9:            /* (STORE.S 9) */
+      STACK_(9) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store10:           /* (STORE.S 10) */
+      STACK_(10) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store11:           /* (STORE.S 11) */
+      STACK_(11) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store12:           /* (STORE.S 12) */
+      STACK_(12) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store13:           /* (STORE.S 13) */
+      STACK_(13) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store14:           /* (STORE.S 14) */
+      STACK_(14) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store15:           /* (STORE.S 15) */
+      STACK_(15) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store16:           /* (STORE.S 16) */
+      STACK_(16) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store17:           /* (STORE.S 17) */
+      STACK_(17) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store18:           /* (STORE.S 18) */
+      STACK_(18) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store19:           /* (STORE.S 19) */
+      STACK_(19) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store20:           /* (STORE.S 20) */
+      STACK_(20) = value1; mv_count=1;
+      goto next_byte;
+    CASE cod_store21:           /* (STORE.S 21) */
+      STACK_(21) = value1; mv_count=1;
+      goto next_byte;
+   #endif
+    /* ------------------- miscellaneous ----------------------- */
+   #ifndef FAST_DISPATCH
+    default:
+   #endif
+      /* undefined Code */
+      #if defined(GNU) && defined(FAST_SP)
+        /* Undo the effect of -fomit-frame-pointer for this function,
+           hereby allowing utilization of %sp resp. %esp as private_SP: */
+        alloca(1);
+      #endif
+      pushSTACK(fixnum(byteptr-&codeptr->data[0]-1)); /* bad byte number */
+      pushSTACK(closure);                             /* Closure */
+      error(serious_condition,GETTEXT("undefined bytecode in ~S at byte ~S"));
+    #undef L_operand
+    #undef S_operand
+    #undef U_operand
+    #undef B_operand
+    #undef CASE
   }
+ #if DEBUG_BYTECODE
+ error_byteptr:
+  pushSTACK(fixnum(byteptr_max));
+  pushSTACK(fixnum(byteptr_min));
+  pushSTACK(fixnum(byteptr - codeptr->data));
+  pushSTACK(sfixnum(byteptr_bad_jump));
+  pushSTACK(closure);
+  error(error_condition,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
+ #endif
+ error_toomany_values:
+  pushSTACK(closure);
+  error(error_condition,GETTEXT("~S: too many return values"));
+ #if STACKCHECKC
+ error_STACK_putt:
+  pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
+  pushSTACK(closure);                       /* FUNC */
+  error(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));
+ #endif
+ finished:
+  #undef FREE_JMPBUF_on_SP
+  #undef JMPBUF_on_SP
+  #ifndef FAST_SP
+  FREE_DYNAMIC_ARRAY(private_SP_space);
+  #endif
+  return;
+}
 
 
 /* UP: initialize hand-made compiled closures
  init_cclosures();
  can trigger GC */
 global maygc void init_cclosures (void) {
-  # Build #13Y(00 00 00 00 00 00 00 00 00 01 C5 19 01) ; (CONST 0) (SKIP&RET 1)
+  /* Build #13Y(00 00 00 00 00 00 00 00 00 01 C5 19 01) ; (CONST 0) (SKIP&RET 1) */
   {
     var object codevec = allocate_bit_vector(Atype_8Bit,CCV_START_NONKEY+3);
     TheCodevec(codevec)->ccv_spdepth_1 = 0;
@@ -8604,7 +8199,7 @@ global maygc void init_cclosures (void) {
     TheSbvector(codevec)->data[CCV_START_NONKEY+2] = 1;
     O(constant_initfunction_code) = codevec;
   }
-  # Build #12Y(00 00 00 00 00 00 00 00 11 16 1B 7E) ; L0 (JMP L0)
+  /* Build #12Y(00 00 00 00 00 00 00 00 11 16 1B 7E) ; L0 (JMP L0) */
   {
     var object codevec = allocate_bit_vector(Atype_8Bit,CCV_START_NONKEY+2);
     TheCodevec(codevec)->ccv_spdepth_1 = 0;
@@ -8620,8 +8215,8 @@ global maygc void init_cclosures (void) {
 }
 
 
-# where is check_SP() or check_STACK() to be inserted??
-# is nest_env supposed to receive its target-environment as parameter??
-# register-allocation in eval_subr and eval_cclosure etc.??
-# eliminate subr_self??
+/* where is check_SP() or check_STACK() to be inserted??
+ is nest_env supposed to receive its target-environment as parameter??
+ register-allocation in eval_subr and eval_cclosure etc.??
+ eliminate subr_self?? */
 
