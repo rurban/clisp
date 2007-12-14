@@ -1,7 +1,8 @@
 2007-12-14  Sam Steingold  <sds@gnu.org>
 
 	* avl.d, control.d, debug.d, eval.d, hashtabl.d, intprint.d, io.d:
-	* lispbibl.d, pathname.d, predtype.d: rename label fertig to done
+	* lispbibl.d, pathname.d, predtype.d: rename label fertig to done;
+	convert comments from "# " to "/**/"
 
 2007-12-13  Sam Steingold  <sds@gnu.org>
 

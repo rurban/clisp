@@ -928,7 +928,7 @@ local bool hash_table_equalp (object ht1, object ht2)
   if (!eq(hash_table_weak_type(ht1),hash_table_weak_type(ht2)))
     return false;
   /* have to traverse keys */
-  { # Look whether ht1 is contained in ht2.
+  { /* Look whether ht1 is contained in ht2. */
     var uintL index = posfixnum_to_V(TheHashtable(ht1)->ht_maxcount);
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht1)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
@@ -938,7 +938,7 @@ local bool hash_table_equalp (object ht1, object ht2)
           return false;
       }
   }
-  { # Look whether ht2 is contained in ht1.
+  { /* Look whether ht2 is contained in ht1. */
     var uintL index = posfixnum_to_V(TheHashtable(ht2)->ht_maxcount);
     var gcv_object_t* KVptr = TheHashedAlist(TheHashtable(ht2)->ht_kvtable)->hal_data;
     for (; index > 0; KVptr += 3, index--)
@@ -1574,10 +1574,10 @@ LISPFUNNR(type_of,1)
       if (Closure_instancep(arg))
         goto instances;
       if (simple_bit_vector_p(Atype_8Bit,TheClosure(arg)->clos_codevec)) {
-        # compiled Closure
+        /* compiled Closure */
         value1 = S(compiled_function);
       } else {
-        # interpreted Closure
+        /* interpreted Closure */
         value1 = S(function);
       }
       break;
@@ -2108,8 +2108,8 @@ global bool typep_class (object obj, object clas) {
   #endif
 }
 
-# (CLOS::TYPEP-CLASS object class)
-# == (TYPEP object class) == (CLOS::SUBCLASSP (CLASS-OF object) class)
+/* (CLOS::TYPEP-CLASS object class)
+ == (TYPEP object class) == (CLOS::SUBCLASSP (CLASS-OF object) class) */
 LISPFUNN(typep_class,2)
 {
   var object clas = popSTACK();

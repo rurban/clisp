@@ -1184,63 +1184,62 @@ local uint32 hashcode_raw_user (object fun, object obj) {
 
 /* =========================== Hash table record =========================== */
 
-# Specification of the flags in a hash-table:
-  #define htflags_test_builtin_B  (bit(1)|bit(0)) # for distinguishing builtin tests
-  #define htflags_test_eq_B       (    0 |    0 ) # test is EQ
-  #define htflags_test_eql_B      (    0 |bit(0)) # test is EQL
-  #define htflags_test_equal_B    (bit(1)|    0 ) # test is EQUAL
-  #define htflags_test_equalp_B   (bit(1)|bit(0)) # test is EQUALP
-  #define htflags_test_user_B     bit(2) # set for user-defined test
-  #define htflags_stablehash_B    bit(3) # hash code of instances of
-                                         # STANDARD-STABLEHASH, STRUCTURE-STABLEHASH
-                                         # is GC-invariant
-  #define htflags_pending_warn_forced_gc_rehash bit(4) # Must call
-                                         # warn_forced_gc_rehash at the next
-                                         # opportunity
-  # define htflags_warn_gc_rehash_B bit(5) # Warn when a key is being added
-                                         # whose hash code is not GC-invariant.
-  # define htflags_gc_rehash_B    bit(6) # Set after a key has been added
-                                         # whose hash code is not GC-invariant.
-  # define htflags_invalid_B      bit(7) # Set when the list structure is
-                                         # invalid and the table needs a rehash.
+/* Specification of the flags in a hash-table: */
+#define htflags_test_builtin_B  (bit(1)|bit(0)) /* for distinguishing builtin tests */
+#define htflags_test_eq_B       (    0 |    0 ) /* test is EQ */
+#define htflags_test_eql_B      (    0 |bit(0)) /* test is EQL */
+#define htflags_test_equal_B    (bit(1)|    0 ) /* test is EQUAL */
+#define htflags_test_equalp_B   (bit(1)|bit(0)) /* test is EQUALP */
+#define htflags_test_user_B     bit(2) /* set for user-defined test */
+/* hash code of instances of STANDARD-STABLEHASH, STRUCTURE-STABLEHASH
+   is GC-invariant */
+#define htflags_stablehash_B    bit(3)
+/* Must call warn_forced_gc_rehash at the next opportunity */
+#define htflags_pending_warn_forced_gc_rehash bit(4)
+/* Warn when a key is being added whose hash code is not GC-invariant.
+ - define htflags_warn_gc_rehash_B bit(5)
+   Set after a key has been added whose hash code is not GC-invariant.
+ - define htflags_gc_rehash_B    bit(6)
+   Set when the list structure is invalid and the table needs a rehash.
+ - define htflags_invalid_B      bit(7)
 
-# Specification of the two types of Pseudo-Functions:
+ Specification of the two types of Pseudo-Functions:
 
-  # Specification for LOOKUP - Pseudo-Function:
-  # lookup(ht,obj,allowgc,&KVptr,&Iptr)
-  # > ht: hash-table
-  # > obj: object
-  # > allowgc: whether GC is allowed during hash lookup
-  # < if found: result=true,
-  #     KVptr[0], KVptr[1] : key, value in key-value-vector,
-  #     KVptr[2] : index of next entry,
-  #     *Iptr : previous index pointing to KVptr[0..2]
-  # < if not found: result=false,
-  #     *Iptr : entry belonging to key in index-vector
-  #             or an arbitrary element of the "list" starting there
-  # can trigger GC - if allowgc is true
-    typedef maygc bool (* lookup_Pseudofun) (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
+ Specification for LOOKUP - Pseudo-Function:
+ lookup(ht,obj,allowgc,&KVptr,&Iptr)
+ > ht: hash-table
+ > obj: object
+ > allowgc: whether GC is allowed during hash lookup
+ < if found: result=true,
+     KVptr[0], KVptr[1] : key, value in key-value-vector,
+     KVptr[2] : index of next entry,
+     *Iptr : previous index pointing to KVptr[0..2]
+ < if not found: result=false,
+     *Iptr : entry belonging to key in index-vector
+             or an arbitrary element of the "list" starting there
+ can trigger GC - if allowgc is true */
+typedef maygc bool (* lookup_Pseudofun) (object ht, object obj, bool allowgc, gcv_object_t** KVptr_, gcv_object_t** Iptr_);
 
-  # Specification for HASHCODE - Pseudo-Function:
-  # hashcode(obj)
-  # > obj: object
-  # < result: its hash code
-    typedef uint32 (* hashcode_Pseudofun) (object obj);
+/* Specification for HASHCODE - Pseudo-Function:
+ hashcode(obj)
+ > obj: object
+ < result: its hash code */
+typedef uint32 (* hashcode_Pseudofun) (object obj);
 
-  # Specification for TEST - Pseudo-Function:
-  # test(obj1,obj2)
-  # > obj1: object
-  # > obj2: object
-  # < result: true if they are considered equal
-    typedef bool (* test_Pseudofun) (object obj1, object obj2);
+/* Specification for TEST - Pseudo-Function:
+ test(obj1,obj2)
+ > obj1: object
+ > obj2: object
+ < result: true if they are considered equal */
+typedef bool (* test_Pseudofun) (object obj1, object obj2);
 
-  # Specification for GCINVARIANT - Pseudo-Function:
-  # gcinvariant(obj)
-  # > obj: object
-  # < result: true if its hash code is guaranteed to be GC-invariant
-    typedef bool (* gcinvariant_Pseudofun) (object obj);
+/* Specification for GCINVARIANT - Pseudo-Function:
+ gcinvariant(obj)
+ > obj: object
+ < result: true if its hash code is guaranteed to be GC-invariant */
+typedef bool (* gcinvariant_Pseudofun) (object obj);
 
-# Extract Pseudo-Functions of a hash-table:
+/* Extract Pseudo-Functions of a hash-table: */
 #define lookupfn(ht)  \
   (*(lookup_Pseudofun)ThePseudofun(TheHashtable(ht)->ht_lookupfn))
 #define hashcodefn(ht)  \
@@ -1389,13 +1388,14 @@ local maygc void warn_forced_gc_rehash (object ht) {
              or an arbitrary element of the "list" starting there
  can trigger GC - if allowgc is true */
 global /*maygc*/ bool hash_lookup_builtin (object ht, object obj, bool allowgc,
-                                           gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+                                           gcv_object_t** KVptr_,
+                                           gcv_object_t** Iptr_) {
   GCTRIGGER_IF(allowgc, GCTRIGGER2(ht,obj));
   #ifdef GENERATIONAL_GC
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
-    # Rehash it before the warning, otherwise we risk an endless recursion.
+    /* Rehash it before the warning, otherwise we risk an endless recursion. */
     ht = rehash(ht);
-    # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
+    /* Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true: */
     if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
       if (allowgc) {
         record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
@@ -1405,8 +1405,8 @@ global /*maygc*/ bool hash_lookup_builtin (object ht, object obj, bool allowgc,
         if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
           ht = rehash(ht);
       } else {
-        # We cannot warn now, because in this call we are not allowed to
-        # trigger GC, therefore we delay the call until the next opportunity.
+        /* We cannot warn now, because in this call we are not allowed to
+         trigger GC, therefore we delay the call until the next opportunity. */
         record_flags_set(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
       }
     }
@@ -1414,7 +1414,7 @@ global /*maygc*/ bool hash_lookup_builtin (object ht, object obj, bool allowgc,
   #endif
   if (allowgc
       && (record_flags(TheHashtable(ht)) & htflags_pending_warn_forced_gc_rehash)) {
-    # Now is an opportunity to get rid of the pending warn_forced_gc_rehash task.
+    /* Now is an opportunity to get rid of the pending warn_forced_gc_rehash task. */
     record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
     pushSTACK(ht); pushSTACK(obj);
     warn_forced_gc_rehash(ht);
@@ -1453,9 +1453,9 @@ global /*maygc*/ bool hash_lookup_builtin_with_rehash (object ht, object obj, bo
                                                        gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
   GCTRIGGER_IF(allowgc, GCTRIGGER2(ht,obj));
   if (!ht_validp(TheHashtable(ht))) { /* hash-table must be reorganized? */
-    # Rehash it before the warning, otherwise we risk an endless recursion.
+    /* Rehash it before the warning, otherwise we risk an endless recursion. */
     ht = rehash(ht);
-    # Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true:
+    /* Warn if *WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* is true: */
     if (!nullpSv(warn_on_hashtable_needing_rehash_after_gc)) {
       if (allowgc) {
         record_flags_clr(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
@@ -1465,8 +1465,8 @@ global /*maygc*/ bool hash_lookup_builtin_with_rehash (object ht, object obj, bo
         if (!ht_validp(TheHashtable(ht))) /* must be reorganized again? */
           ht = rehash(ht);
       } else {
-        # We cannot warn now, because in this call we are not allowed to
-        # trigger GC, therefore we delay the call until the next opportunity.
+        /* We cannot warn now, because in this call we are not allowed to
+         trigger GC, therefore we delay the call until the next opportunity. */
         record_flags_set(TheHashtable(ht),htflags_pending_warn_forced_gc_rehash);
       }
     }
@@ -1638,13 +1638,13 @@ local inline maygc object allocate_kvt (object weak, uintL maxcount) {
     return kvt;
   } else {
     var sintB rectype;
-    if (eq(weak,S(Kkey))) # :KEY
+    if (eq(weak,S(Kkey)))       /* :KEY */
       rectype = Rectype_WeakHashedAlist_Key;
-    else if (eq(weak,S(Kvalue))) # :VALUE
+    else if (eq(weak,S(Kvalue))) /* :VALUE */
       rectype = Rectype_WeakHashedAlist_Value;
-    else if (eq(weak,S(Kkey_and_value))) # :KEY-AND-VALUE
+    else if (eq(weak,S(Kkey_and_value))) /* :KEY-AND-VALUE */
       rectype = Rectype_WeakHashedAlist_Either;
-    else if (eq(weak,S(Kkey_or_value))) # :KEY-OR-VALUE
+    else if (eq(weak,S(Kkey_or_value))) /* :KEY-OR-VALUE */
       rectype = Rectype_WeakHashedAlist_Both;
     else
       NOTREACHED;
@@ -1862,8 +1862,8 @@ local object get_eq_hashfunction (void) {
     return value;
   else {
     Symbol_value(S(eq_hashfunction)) = S(fasthash_eq);
-    pushSTACK(value);                   # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_eq_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(value);                   /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_eq_hashfunction)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(fasthash_eq));
     pushSTACK(value);
     pushSTACK(S(stablehash_eq)); pushSTACK(S(fasthash_eq));
@@ -1882,8 +1882,8 @@ local object get_eql_hashfunction (void) {
     return value;
   else {
     Symbol_value(S(eql_hashfunction)) = S(fasthash_eql);
-    pushSTACK(value);                    # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_eql_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(value);                    /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_eql_hashfunction)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(fasthash_eql));
     pushSTACK(value);
     pushSTACK(S(stablehash_eql)); pushSTACK(S(fasthash_eql));
@@ -1902,8 +1902,8 @@ local object get_equal_hashfunction (void) {
     return value;
   else {
     Symbol_value(S(equal_hashfunction)) = S(fasthash_equal);
-    pushSTACK(value);                      # TYPE-ERROR slot DATUM
-    pushSTACK(O(type_equal_hashfunction)); # TYPE-ERROR slot EXPECTED-TYPE
+    pushSTACK(value);                      /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_equal_hashfunction)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(S(fasthash_equal));
     pushSTACK(value);
     pushSTACK(S(stablehash_equal)); pushSTACK(S(fasthash_equal));
