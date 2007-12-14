@@ -175,7 +175,7 @@
 #endif
 
 /* DF_zerop(x) determines, if a Double-Float x is  = 0.0 . */
-  # define DF_zerop(x)  (DF_uexp(TheDfloat(x)->float_value_semhi) == 0)
+/* define DF_zerop(x)  (DF_uexp(TheDfloat(x)->float_value_semhi) == 0) */
   #define DF_zerop(x)  (TheDfloat(x)->float_value_semhi == 0)
 
 /* Returns for a Double-Float x : (ftruncate x), a DF.
