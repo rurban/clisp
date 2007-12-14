@@ -1,44 +1,43 @@
 /*
- *  Transzendente Funktionen für komplexe Zahlen
+ *  Transcendental functions for complex numbers
  */
 
 /* N_phase_R(x,want_exact) liefert (phase x), wo x eine Zahl ist.
  Ergebnis rational nur wenn (= x 0) oder wenn x reell und >0.
  can trigger GC */
-  local maygc object N_phase_R (object x, bool want_exact);
+local maygc object N_phase_R (object x, bool want_exact);
 /* Methode:
  (= x 0) -> willkürliches Ergebnis 0
  x reell -> Winkel von (x,0) in Polarkoordinaten
  x komplex -> Winkel von ((realpart x),(imagpart x)) in Polarkoordinaten */
-  local maygc object N_phase_R (object x, bool want_exact)
-  {
-    if (N_realp(x)) {
-      /* For nonnegative real numbers, the natural mathematical result is the
-         exact 0. But ANSI CL wants a floating-point 0 result. If x is a non-
-         negative float, *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* achieves this.
-         If x is a nonnegative rational number, we look at *PHASE-ANSI*. */
-      if (!R_minusp(x)) {
-        if (want_exact)
-          return Fixnum_0;
-        else if (R_rationalp(x))
-          return (nullpSv(phase_ansi) ? Fixnum_0 : I_float_F(Fixnum_0));
-        else
-          return RA_F_exact_contagion_R(Fixnum_0,x);
-      } else
-        return R_R_atan_R(x,Fixnum_0);
-    } else {
-      /* Handle (= x 0) specially. */
-      if (N_zerop(x)) {
-        if (want_exact)
-          return Fixnum_0;
-        else {
-          var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-          return RA_F_exact_contagion_R(Fixnum_0,fx);
-        }
-      } else
-        return R_R_atan_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-    }
+local maygc object N_phase_R (object x, bool want_exact)
+{
+  if (N_realp(x)) {
+    /* For nonnegative real numbers, the natural mathematical result is the
+       exact 0. But ANSI CL wants a floating-point 0 result. If x is a non-
+       negative float, *FLOATING-POINT-RATIONAL-CONTAGION-ANSI* achieves this.
+       If x is a nonnegative rational number, we look at *PHASE-ANSI*. */
+    if (!R_minusp(x)) {
+      if (want_exact)
+        return Fixnum_0;
+      else if (R_rationalp(x))
+        return (nullpSv(phase_ansi) ? Fixnum_0 : I_float_F(Fixnum_0));
+      else
+        return RA_F_exact_contagion_R(Fixnum_0,x);
+    } else
+      return R_R_atan_R(x,Fixnum_0);
+  } else { /* Handle (= x 0) specially. */
+    if (N_zerop(x)) {
+      if (want_exact)
+        return Fixnum_0;
+      else {
+        var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+        return RA_F_exact_contagion_R(Fixnum_0,fx);
+      }
+    } else
+      return R_R_atan_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
   }
+}
 
 /* bind S to NIL or itself, depending on v */
 #define maybe_rebind(s,v)  dynamic_bind(s,v ? NIL : (object)Symbol_value(s))
@@ -121,7 +120,7 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
 
 /* N_N_log_N(a,b) liefert (log a b), wo a und b Zahlen sind.
  can trigger GC */
-  local maygc object N_N_log_N (object a, object b);
+local maygc object N_N_log_N (object a, object b);
 /* Methode:
  (log a b) =
    falls b reell, >0:
@@ -142,337 +141,335 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
               wandle b (falls rational) ins selbe Float-Format um,
               setze  Realteil := (/ (log (abs a)) (log dieses_b)).
    sonst: (/ (log a) (log b)) */
-  local maygc object N_N_log_N (object a, object b)
-  {
-    if (N_realp(b) && R_plusp(b)) {
-      /* b ist reell und >0 */
-      if (N_realp(a) && R_plusp(a)) {
-        /* a und b sind beide reell und >0 */
-        return R_R_log_R(a,b);
-      } else {
-        /* b ist reell und >0, a aber nicht */
-        pushSTACK(a); pushSTACK(b); /* a,b retten */
-        /* Imaginärteil (/ (phase a) (log b)) errechnen: */
-        {
-          var object angle = N_phase_R(a,true); /* (phase a) */
-          if (eq(angle,Fixnum_0)) /* = Fixnum 0 <==> (= a 0) -> Error */
-            divide_0();
-          /* durch (log b) dividieren, liefert den Imaginärteil: */
-          pushSTACK(angle);
-          b = STACK_1;
-          if (R_rationalp(b))
-            b = RA_F_float_F(b,angle,true);
-          b = F_ln_F(b,&STACK_1); STACK_0 = F_F_div_F(STACK_0,b);
-        }
-        /* Stackaufbau: a, b, Imaginärteil.
-           Realteil (/ (log (abs a)) (log b)) errechnen: */
-        a = STACK_2;
-        if (N_realp(a)) {
-          if (R_rationalp(a)) {
-            /* a rational -> (log (abs a) b) errechnen: */
-            a = R_abs_R(a); /* Betrag (>0) */
-            pushSTACK(R_R_log_R(a,STACK_1));
-            goto real_ok;
-          }
-        } else {
-          if (R_rationalp(TheComplex(a)->c_real)
-              && R_rationalp(TheComplex(a)->c_imag)
-             ) {
-            /* a komplex mit rationalem Real- und Imaginärteil a1,a2
-               Betragsquadrat a1^2+a2^2 errechnen: */
-            pushSTACK(TheComplex(a)->c_imag);
-            var object a1 = TheComplex(a)->c_real;
-            a1 = RA_RA_mult_RA(a1,a1); /* a1*a1 */
-            var object a2 = STACK_0; STACK_0 = a1;
-            a1 = RA_RA_mult_RA(a2,a2); /* a2*a2 */
-            a = RA_RA_plus_RA(STACK_0,a1);
-            /* davon der Logarithmus zur Basis b, durch 2: */
-            STACK_0 = R_R_div_R(R_R_log_R(a,STACK_2),fixnum(2));
-            goto real_ok;
-          }
-        }
-        /* Keine Chance für rationalen Realteil */
-        pushSTACK(F_ln_F(N_abs_R(a),&STACK_3)); /* (log (abs a)), a float */
-        /* durch (log b) dividieren, liefert den Realteil: */
-        b = STACK_2;
+local maygc object N_N_log_N (object a, object b)
+{
+  if (N_realp(b) && R_plusp(b)) {
+    /* b ist reell und >0 */
+    if (N_realp(a) && R_plusp(a)) {
+      /* a und b sind beide reell und >0 */
+      return R_R_log_R(a,b);
+    } else {
+      /* b ist reell und >0, a aber nicht */
+      pushSTACK(a); pushSTACK(b); /* a,b retten */
+      /* Imaginärteil (/ (phase a) (log b)) errechnen: */
+      {
+        var object angle = N_phase_R(a,true); /* (phase a) */
+        if (eq(angle,Fixnum_0)) /* = Fixnum 0 <==> (= a 0) -> Error */
+          divide_0();
+        /* durch (log b) dividieren, liefert den Imaginärteil: */
+        pushSTACK(angle);
+        b = STACK_1;
         if (R_rationalp(b))
-          b = RA_F_float_F(b,STACK_0,true);
-        b = F_ln_F(b,&STACK_2); STACK_0 = F_F_div_F(STACK_0,b);
-       real_ok:
-        /* stack layout: a, b, imagpart, realpart. */
-        {
-          var object erg = R_R_complex_C(STACK_0,STACK_1);
-          skipSTACK(4); return erg;
+          b = RA_F_float_F(b,angle,true);
+        b = F_ln_F(b,&STACK_1); STACK_0 = F_F_div_F(STACK_0,b);
+      }
+      /* Stackaufbau: a, b, Imaginärteil.
+         Realteil (/ (log (abs a)) (log b)) errechnen: */
+      a = STACK_2;
+      if (N_realp(a)) {
+        if (R_rationalp(a)) {
+          /* a rational -> (log (abs a) b) errechnen: */
+          a = R_abs_R(a); /* Betrag (>0) */
+          pushSTACK(R_R_log_R(a,STACK_1));
+          goto real_ok;
+        }
+      } else {
+        if (R_rationalp(TheComplex(a)->c_real)
+            && R_rationalp(TheComplex(a)->c_imag)) {
+          /* a komplex mit rationalem Real- und Imaginärteil a1,a2
+             Betragsquadrat a1^2+a2^2 errechnen: */
+          pushSTACK(TheComplex(a)->c_imag);
+          var object a1 = TheComplex(a)->c_real;
+          a1 = RA_RA_mult_RA(a1,a1); /* a1*a1 */
+          var object a2 = STACK_0; STACK_0 = a1;
+          a1 = RA_RA_mult_RA(a2,a2); /* a2*a2 */
+          a = RA_RA_plus_RA(STACK_0,a1);
+          /* davon der Logarithmus zur Basis b, durch 2: */
+          STACK_0 = R_R_div_R(R_R_log_R(a,STACK_2),fixnum(2));
+          goto real_ok;
         }
       }
-    } else { /* normal complex case */
-      pushSTACK(a); pushSTACK(b);
-      STACK_1 = N_log_N(STACK_1,&STACK_1); /* (log a) */
-      STACK_0 = N_log_N(STACK_0,&STACK_0); /* (log b) */
-      a = N_N_div_N(STACK_1,STACK_0); /* divide */
-      skipSTACK(2); return a;
+      /* Keine Chance für rationalen Realteil */
+      pushSTACK(F_ln_F(N_abs_R(a),&STACK_3)); /* (log (abs a)), a float */
+      /* durch (log b) dividieren, liefert den Realteil: */
+      b = STACK_2;
+      if (R_rationalp(b))
+        b = RA_F_float_F(b,STACK_0,true);
+      b = F_ln_F(b,&STACK_2); STACK_0 = F_F_div_F(STACK_0,b);
+     real_ok:
+      /* stack layout: a, b, imagpart, realpart. */
+      {
+        var object erg = R_R_complex_C(STACK_0,STACK_1);
+        skipSTACK(4); return erg;
+      }
     }
+  } else { /* normal complex case */
+    pushSTACK(a); pushSTACK(b);
+    STACK_1 = N_log_N(STACK_1,&STACK_1); /* (log a) */
+    STACK_0 = N_log_N(STACK_0,&STACK_0); /* (log b) */
+    a = N_N_div_N(STACK_1,STACK_0); /* divide */
+    skipSTACK(2); return a;
   }
+}
 
 /* N_I_expt_N(x,y) = (expt x y), wo x eine Zahl und y ein Integer ist.
  can trigger GC */
-  local maygc object N_I_expt_N (object x, object y);
-  /* Methode:
-   Für y>0:
-     a:=x, b:=y.
-     Solange b gerade, setze a:=a*a, b:=b/2. [a^b bleibt invariant, = x^y.]
-     c:=a.
-     Solange b:=floor(b/2) >0 ist,
-       setze a:=a*a, und falls b ungerade, setze c:=a*c.
-     Ergebnis c.
-   Für y=0: Ergebnis 1.
-   Für y<0: (/ (expt x (- y))). */
-  local maygc object N_I_expt_N (object x, object y)
-  {
-    if (N_realp(x)) /* x reell -> schnellere Routine */
-      return R_I_expt_R(x,y);
-    if (eq(y,Fixnum_0)) {
-      /* y=0 -> Ergebnis 1 */
-      if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
-        return Fixnum_1;
-      } else {
-        var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-        pushSTACK(fx);
-        pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
-        fx = STACK_1;
-        STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
-        var object z = R_R_complex_N(STACK_1,STACK_0);
-        skipSTACK(2);
-        return z;
-      }
+local maygc object N_I_expt_N (object x, object y);
+/* Methode:
+ Für y>0:
+   a:=x, b:=y.
+   Solange b gerade, setze a:=a*a, b:=b/2. [a^b bleibt invariant, = x^y.]
+   c:=a.
+   Solange b:=floor(b/2) >0 ist,
+     setze a:=a*a, und falls b ungerade, setze c:=a*c.
+   Ergebnis c.
+ Für y=0: Ergebnis 1.
+ Für y<0: (/ (expt x (- y))). */
+local maygc object N_I_expt_N (object x, object y)
+{
+  if (N_realp(x)) /* x reell -> schnellere Routine */
+    return R_I_expt_R(x,y);
+  if (eq(y,Fixnum_0)) {
+    /* y=0 -> Ergebnis 1 */
+    if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
+      return Fixnum_1;
+    } else {
+      var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+      pushSTACK(fx);
+      pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
+      fx = STACK_1;
+      STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
+      var object z = R_R_complex_N(STACK_1,STACK_0);
+      skipSTACK(2);
+      return z;
     }
-    pushSTACK(x);
-    /* Betrag von y nehmen: */
-    var bool y_negative = false;
-    if (R_minusp(y)) {
-      y = I_minus_I(y); y_negative = true;
-    }
-    /* Nun ist y>0. */
-    pushSTACK(y);
-    /* Stackaufbau: a, b. */
-    while (!I_oddp(y)) {
-      STACK_1 = N_square_N(STACK_1); /* a:=a*a */
-      STACK_0 = y = I_I_ash_I(STACK_0,Fixnum_minus1); /* b := (ash b -1) */
-    }
-    pushSTACK(STACK_1); /* c:=a */
-    /* Stackaufbau: a, b, c. */
-    while (!eq(y=STACK_1,Fixnum_1)) { /* Solange b/=1 */
-      STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
-      var object a = STACK_2 = N_square_N(STACK_2); /* a:=a*a */
-      if (I_oddp(STACK_1))
-        STACK_0 = N_N_mult_N(a,STACK_0); /* evtl. c:=a*c */
-    }
-    x = STACK_0; skipSTACK(3);
-    /* (expt x (abs y)) ist jetzt in x. */
-    return (y_negative ? N_div_N(x) : x); /* evtl. noch Kehrwert nehmen */
   }
+  pushSTACK(x);
+  /* Betrag von y nehmen: */
+  var bool y_negative = false;
+  if (R_minusp(y)) {
+    y = I_minus_I(y); y_negative = true;
+  }
+  /* Nun ist y>0. */
+  pushSTACK(y);
+  /* Stackaufbau: a, b. */
+  while (!I_oddp(y)) {
+    STACK_1 = N_square_N(STACK_1); /* a:=a*a */
+    STACK_0 = y = I_I_ash_I(STACK_0,Fixnum_minus1); /* b := (ash b -1) */
+  }
+  pushSTACK(STACK_1); /* c:=a */
+  /* Stackaufbau: a, b, c. */
+  while (!eq(y=STACK_1,Fixnum_1)) { /* Solange b/=1 */
+    STACK_1 = I_I_ash_I(y,Fixnum_minus1); /* b := (ash b -1) */
+    var object a = STACK_2 = N_square_N(STACK_2); /* a:=a*a */
+    if (I_oddp(STACK_1))
+      STACK_0 = N_N_mult_N(a,STACK_0); /* evtl. c:=a*c */
+  }
+  x = STACK_0; skipSTACK(3);
+  /* (expt x (abs y)) ist jetzt in x. */
+  return (y_negative ? N_div_N(x) : x); /* evtl. noch Kehrwert nehmen */
+}
 
 /* N_N_expt_N(x,y) = (expt x y), wo x und y Zahlen sind.
  can trigger GC */
-  local maygc object N_N_expt_N (object x, object y);
-  /* Methode:
-   Falls y rational:
-     Falls y Integer:
-       Falls y=0: Ergebnis 1,
-         [Nach CLTL folgendermaßen:
-           x reell:
-             x rational -> Fixnum 1
-             x Float -> (float 1 x)
-           x komplex:
-             x komplex rational -> Fixnum 1
-             sonst: #C(1.0 0.0) im Float-Format des Real- bzw. Imaginärteils von x
-         ]
-       Falls x rational oder komplex rational oder |y| klein:
-         x^|y| durch wiederholtes Quadrieren und Multiplizieren und evtl.
-         Kehrwert-Bilden ermitteln.
-       Sonst wie bei 'y Float'.
-     Falls y Ratio m/n:
-       Es gilt (expt x m/n) = (expt (expt x 1/n) m).
-       Falls x in Q(i) liegt (also rational oder komplex rational ist):
-         Sollte x^(m/n) in Q(i) liegen, so auch eine n-te Wurzel x^(1/n)
-         (und bei n=2 oder n=4 damit auch alle n-ten Wurzeln x^(1/n) ).
-         Falls x rational >=0: n-te Wurzel aus x nehmen. Ist sie rational,
-           deren m-te Potenz als Ergebnis.
-         Falls x rational <=0 oder komplex rational und n Zweierpotenz:
-           n-te Wurzel aus x nehmen (mehrfaches sqrt). Ist sie rational oder
-           komplex rational, deren m-te Potenz als Ergebnis.
-           [Beliebige n betrachten!??]
-       Falls n Zweierpotenz und |m|,n klein: n-te Wurzel aus x nehmen
-         (mehrfaches sqrt), davon die m-te Potenz durch wiederholtes
-         Quadrieren und Multiplizieren und evtl. Kehrwert-Bilden.
-       Sonst wie bei 'y Float'.
-   Falls y Float oder komplex:
-     Falls (zerop x):
-       Falls Realteil von y >0 :
-         liefere 0.0 falls x und y reell, #C(0.0 0.0) sonst.
-       Sonst Error.
-     Falls y=0.0:
-       liefere 1.0 falls x und y reell, #C(1.0 0.0) sonst.
-     Sonst: (exp (* (log x) y))
-   Das Ergebnis liegt in Q(i), falls x in Q(i) liegt und 4y ein Integer ist.??
-   Genauigkeit erhöhen, log2(|y|) Bits mehr??
-   Bei x oder y rational und der andere Long-Float: bitte kein Single-Float!?? */
-  local maygc object N_N_expt_N (object x, object y)
-  {
-    if (N_realp(y) && R_rationalp(y)) {
-      /* y rational */
-      if (RA_integerp(y)) {
-        /* y Integer */
-        if (eq(y,Fixnum_0)) {
-          /* y=0 -> 1 im Format von x. */
-          if (N_realp(x)) {
-            if (R_rationalp(x))
-              return Fixnum_1;
-            else
-              return RA_F_exact_contagion_R(Fixnum_1,x);
-          } else {
-            if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
-              return Fixnum_1;
-            } else {
-              var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-              pushSTACK(fx);
-              pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
-              fx = STACK_1;
-              STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
-              var object z = R_R_complex_N(STACK_1,STACK_0);
-              skipSTACK(2);
-              return z;
-            }
-          }
-        }
-        if (I_fixnump(y)) /* |y| klein ? */
-          return N_I_expt_N(x,y);
+local maygc object N_N_expt_N (object x, object y);
+/* Methode:
+ Falls y rational:
+   Falls y Integer:
+     Falls y=0: Ergebnis 1,
+       [Nach CLTL folgendermaßen:
+         x reell:
+           x rational -> Fixnum 1
+           x Float -> (float 1 x)
+         x komplex:
+           x komplex rational -> Fixnum 1
+           sonst: #C(1.0 0.0) im Float-Format des Real- bzw. Imaginärteils von x
+       ]
+     Falls x rational oder komplex rational oder |y| klein:
+       x^|y| durch wiederholtes Quadrieren und Multiplizieren und evtl.
+       Kehrwert-Bilden ermitteln.
+     Sonst wie bei 'y Float'.
+   Falls y Ratio m/n:
+     Es gilt (expt x m/n) = (expt (expt x 1/n) m).
+     Falls x in Q(i) liegt (also rational oder komplex rational ist):
+       Sollte x^(m/n) in Q(i) liegen, so auch eine n-te Wurzel x^(1/n)
+       (und bei n=2 oder n=4 damit auch alle n-ten Wurzeln x^(1/n) ).
+       Falls x rational >=0: n-te Wurzel aus x nehmen. Ist sie rational,
+         deren m-te Potenz als Ergebnis.
+       Falls x rational <=0 oder komplex rational und n Zweierpotenz:
+         n-te Wurzel aus x nehmen (mehrfaches sqrt). Ist sie rational oder
+         komplex rational, deren m-te Potenz als Ergebnis.
+         [Beliebige n betrachten!??]
+     Falls n Zweierpotenz und |m|,n klein: n-te Wurzel aus x nehmen
+       (mehrfaches sqrt), davon die m-te Potenz durch wiederholtes
+       Quadrieren und Multiplizieren und evtl. Kehrwert-Bilden.
+     Sonst wie bei 'y Float'.
+ Falls y Float oder komplex:
+   Falls (zerop x):
+     Falls Realteil von y >0 :
+       liefere 0.0 falls x und y reell, #C(0.0 0.0) sonst.
+     Sonst Error.
+   Falls y=0.0:
+     liefere 1.0 falls x und y reell, #C(1.0 0.0) sonst.
+   Sonst: (exp (* (log x) y))
+ Das Ergebnis liegt in Q(i), falls x in Q(i) liegt und 4y ein Integer ist.??
+ Genauigkeit erhöhen, log2(|y|) Bits mehr??
+ Bei x oder y rational und der andere Long-Float: bitte kein Single-Float!?? */
+local maygc object N_N_expt_N (object x, object y)
+{
+  if (N_realp(y) && R_rationalp(y)) {
+    /* y rational */
+    if (RA_integerp(y)) {
+      /* y Integer */
+      if (eq(y,Fixnum_0)) {
+        /* y=0 -> 1 im Format von x. */
         if (N_realp(x)) {
           if (R_rationalp(x))
-            return R_I_expt_R(x,y);
+            return Fixnum_1;
+          else
+            return RA_F_exact_contagion_R(Fixnum_1,x);
         } else {
-          if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag))
-            return N_I_expt_N(x,y);
+          if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag)) {
+            return Fixnum_1;
+          } else {
+            var object fx = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+            pushSTACK(fx);
+            pushSTACK(RA_F_exact_contagion_R(Fixnum_0,fx));
+            fx = STACK_1;
+            STACK_1 = RA_F_exact_contagion_R(Fixnum_1,fx);
+            var object z = R_R_complex_N(STACK_1,STACK_0);
+            skipSTACK(2);
+            return z;
+          }
+        }
+      }
+      if (I_fixnump(y)) /* |y| klein ? */
+        return N_I_expt_N(x,y);
+      if (N_realp(x)) {
+        if (R_rationalp(x))
+          return R_I_expt_R(x,y);
+      } else {
+        if (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag))
+          return N_I_expt_N(x,y);
+      }
+    } else {
+      /* y Ratio */
+      if (N_realp(x)) {
+        if (R_rationalp(x)) {
+          if (R_minusp(x))
+            goto complex_rational;
+          /* x rational >=0 */
+          pushSTACK(x); pushSTACK(y);
+          var object temp = RA_rootp(x,TheRatio(y)->rt_den); /* n-te Wurzel versuchen */
+          if (!eq(temp,nullobj)) { /* Wurzel rational? */
+            var object m = TheRatio(STACK_0)->rt_num;
+            skipSTACK(2);
+            return R_I_expt_R(temp,m); /* (x^(1/n))^m */
+          }
+          y = popSTACK(); x = popSTACK();
         }
       } else {
-        /* y Ratio */
-        if (N_realp(x)) {
-          if (R_rationalp(x)) {
-            if (R_minusp(x))
-              goto complex_rational;
-            /* x rational >=0 */
-            pushSTACK(x); pushSTACK(y);
-            var object temp = RA_rootp(x,TheRatio(y)->rt_den); /* n-te Wurzel versuchen */
-            if (!eq(temp,nullobj)) { /* Wurzel rational? */
-              var object m = TheRatio(STACK_0)->rt_num;
-              skipSTACK(2);
-              return R_I_expt_R(temp,m); /* (x^(1/n))^m */
-            }
-            y = popSTACK(); x = popSTACK();
-          }
-        } else {
-          if (R_rationalp(TheComplex(x)->c_real)
-              && R_rationalp(TheComplex(x)->c_imag)) {
-           complex_rational: /* x in Q(i) */
-            var uintL k = I_power2p(TheRatio(y)->rt_den);
-            if (!(k==0)) {
-              /* n Zweierpotenz = 2^(k-1). n>1, also k>1 */
-              pushSTACK(TheRatio(y)->rt_num); /* m retten */
-              dotimespL(k,k-1, { x = N_sqrt_N(x); } ); /* k-1 mal Quadratwurzel */
-              return N_I_expt_N(x,popSTACK()); /* dann hoch m */
-            }
-          }
-        }
-        if (I_fixnump(TheRatio(y)->rt_num) /* |m| klein */
-            && I_fixnump(TheRatio(y)->rt_den) /* n klein */
-           ) {
-          var uintV n = posfixnum_to_V(TheRatio(y)->rt_den);
-          if ((n & (n-1)) == 0) { /* n Zweierpotenz? */
+        if (R_rationalp(TheComplex(x)->c_real)
+            && R_rationalp(TheComplex(x)->c_imag)) {
+         complex_rational: /* x in Q(i) */
+          var uintL k = I_power2p(TheRatio(y)->rt_den);
+          if (!(k==0)) {
+            /* n Zweierpotenz = 2^(k-1). n>1, also k>1 */
             pushSTACK(TheRatio(y)->rt_num); /* m retten */
-            while ((n = n>>1)) { x = N_sqrt_N(x); } /* n-te Wurzel ziehen */
+            dotimespL(k,k-1, { x = N_sqrt_N(x); } ); /* k-1 mal Quadratwurzel */
             return N_I_expt_N(x,popSTACK()); /* dann hoch m */
           }
         }
       }
-    }
-    /* allgemeiner Fall (z.B. y Float oder komplex): */
-    if (N_zerop(x)) { /* x=0.0 ? */
-      if (!R_plusp(N_realpart_R(y))) /* Realteil von y <=0 ? */
-        divide_0(); /* ja -> Error */
-      if (N_realp(x) && N_realp(y)) {
-        x = R_R_contagion_R(x,y); /* ein Float, da sonst x = Fixnum 0 gewesen wäre */
-        return I_F_float_F(Fixnum_0,x); /* 0.0 */
-      } else {
-        if (!N_realp(x))
-          x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-        if (!N_realp(y))
-          y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
-        x = R_R_contagion_R(x,y); /* ein Float, da sonst x = Fixnum 0 gewesen wäre */
-        x = I_F_float_F(Fixnum_0,x); /* 0.0 */
-        return R_R_complex_C(x,x); /* #C(0.0 0.0) */
+      if (I_fixnump(TheRatio(y)->rt_num) /* |m| klein */
+          && I_fixnump(TheRatio(y)->rt_den)) { /* n klein */
+        var uintV n = posfixnum_to_V(TheRatio(y)->rt_den);
+        if ((n & (n-1)) == 0) { /* n Zweierpotenz? */
+          pushSTACK(TheRatio(y)->rt_num); /* m retten */
+          while ((n = n>>1)) { x = N_sqrt_N(x); } /* n-te Wurzel ziehen */
+          return N_I_expt_N(x,popSTACK()); /* dann hoch m */
+        }
       }
     }
-    if (N_zerop(y)) { /* y=0.0 ? */
-      if (N_realp(x) && N_realp(y)) {
-        x = R_R_contagion_R(x,y); /* ein Float, da sonst y = Fixnum 0 gewesen wäre */
-        return I_F_float_F(Fixnum_1,x); /* 1.0 */
-      } else {
-        if (!N_realp(x))
-          x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
-        if (!N_realp(y))
-          y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
-        x = R_R_contagion_R(x,y); /* ein Float, da sonst y = Fixnum 0 gewesen wäre */
-        x = I_F_float_F(Fixnum_0,x); /* 0.0 */
-        pushSTACK(x);
-        x = I_F_float_F(Fixnum_1,x); /* 1.0 */
-        return R_R_complex_C(x,popSTACK()); /* #C(1.0 0.0) */
-      }
-    }
-    pushSTACK(y);
-    pushSTACK(x);
-    pushSTACK(N_N_contagion_R(x,y));
-    /* The number of precision bits needed is:
-       the number d of mantissa bits  of this result
-       + (sqrt(d)+2) as in F_extend_F
-       + the exponent length of y. */
-    var uintL prec = R_float_digits(STACK_0);
-    {
-      var uintL d = prec;
-      var uintL s;
-      integerlength32(d,s=);
-      s = floor(32-s,2);
-      d = d << (2*s);
-      var uintL sqrtd;
-      isqrt_32_16(d, sqrtd =, );
-      sqrtd = sqrtd >> s;
-      prec += sqrtd;
-    }
-    prec += 2;
-    defaultfloatcase(S(default_float_format),STACK_2,
-                     { prec += SF_exp_len-1; },
-                     { prec += FF_exp_len-1; },
-                     { prec += DF_exp_len-1; },
-                     { prec += 31; },
-                     ,);
-    var object tempfloat;
-    if (prec < 53)
-      tempfloat = DF_0;
-    else
-      encode_LF0(ceiling(prec,intDsize),tempfloat=);
-    pushSTACK(tempfloat);
-    /* stack layout: y, x, resfloat, tempfloat. */
-    var uintL x_prec = R_float_digits(STACK_2/*x*/);
-    if (x_prec < F_float_digits(STACK_0))
-      STACK_2 = N_N_float_N(STACK_2,STACK_0); /* extend precision of x */
-    STACK_2 = N_log_N(STACK_2,NULL); /* (log x) */
-    STACK_2 = N_N_float_N(STACK_2,STACK_0); /* rounded (log x) */
-    STACK_4 = N_N_float_N(STACK_4,STACK_0); /* rounded y */
-    var object temp = N_N_mult_N(STACK_2,STACK_4); /* (* (log x) y) */
-    /* No need to re-extend the precision inside N_exp_N, because we have
-       already chosen the needed precision. */
-    var object result = N_exp_N(temp,false,&STACK_1); /* exp */
-    skipSTACK(4); return result;
   }
+  /* allgemeiner Fall (z.B. y Float oder komplex): */
+  if (N_zerop(x)) { /* x=0.0 ? */
+    if (!R_plusp(N_realpart_R(y))) /* Realteil von y <=0 ? */
+      divide_0(); /* ja -> Error */
+    if (N_realp(x) && N_realp(y)) {
+      x = R_R_contagion_R(x,y); /* ein Float, da sonst x = Fixnum 0 gewesen wäre */
+      return I_F_float_F(Fixnum_0,x); /* 0.0 */
+    } else {
+      if (!N_realp(x))
+        x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+      if (!N_realp(y))
+        y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
+      x = R_R_contagion_R(x,y); /* ein Float, da sonst x = Fixnum 0 gewesen wäre */
+      x = I_F_float_F(Fixnum_0,x); /* 0.0 */
+      return R_R_complex_C(x,x); /* #C(0.0 0.0) */
+    }
+  }
+  if (N_zerop(y)) { /* y=0.0 ? */
+    if (N_realp(x) && N_realp(y)) {
+      x = R_R_contagion_R(x,y); /* ein Float, da sonst y = Fixnum 0 gewesen wäre */
+      return I_F_float_F(Fixnum_1,x); /* 1.0 */
+    } else {
+      if (!N_realp(x))
+        x = R_R_contagion_R(TheComplex(x)->c_real,TheComplex(x)->c_imag);
+      if (!N_realp(y))
+        y = R_R_contagion_R(TheComplex(y)->c_real,TheComplex(y)->c_imag);
+      x = R_R_contagion_R(x,y); /* ein Float, da sonst y = Fixnum 0 gewesen wäre */
+      x = I_F_float_F(Fixnum_0,x); /* 0.0 */
+      pushSTACK(x);
+      x = I_F_float_F(Fixnum_1,x); /* 1.0 */
+      return R_R_complex_C(x,popSTACK()); /* #C(1.0 0.0) */
+    }
+  }
+  pushSTACK(y);
+  pushSTACK(x);
+  pushSTACK(N_N_contagion_R(x,y));
+  /* The number of precision bits needed is:
+     the number d of mantissa bits  of this result
+     + (sqrt(d)+2) as in F_extend_F
+     + the exponent length of y. */
+  var uintL prec = R_float_digits(STACK_0);
+  {
+    var uintL d = prec;
+    var uintL s;
+    integerlength32(d,s=);
+    s = floor(32-s,2);
+    d = d << (2*s);
+    var uintL sqrtd;
+    isqrt_32_16(d, sqrtd =, );
+    sqrtd = sqrtd >> s;
+    prec += sqrtd;
+  }
+  prec += 2;
+  defaultfloatcase(S(default_float_format),STACK_2,
+                   { prec += SF_exp_len-1; },
+                   { prec += FF_exp_len-1; },
+                   { prec += DF_exp_len-1; },
+                   { prec += 31; },
+                   ,);
+  var object tempfloat;
+  if (prec < 53)
+    tempfloat = DF_0;
+  else
+    encode_LF0(ceiling(prec,intDsize),tempfloat=);
+  pushSTACK(tempfloat);
+  /* stack layout: y, x, resfloat, tempfloat. */
+  var uintL x_prec = R_float_digits(STACK_2/*x*/);
+  if (x_prec < F_float_digits(STACK_0))
+    STACK_2 = N_N_float_N(STACK_2,STACK_0); /* extend precision of x */
+  STACK_2 = N_log_N(STACK_2,NULL); /* (log x) */
+  STACK_2 = N_N_float_N(STACK_2,STACK_0); /* rounded (log x) */
+  STACK_4 = N_N_float_N(STACK_4,STACK_0); /* rounded y */
+  var object temp = N_N_mult_N(STACK_2,STACK_4); /* (* (log x) y) */
+  /* No need to re-extend the precision inside N_exp_N, because we have
+     already chosen the needed precision. */
+  var object result = N_exp_N(temp,false,&STACK_1); /* exp */
+  skipSTACK(4); return result;
+}
 
 /* N_sin_N(x) liefert (sin x), wo x eine Zahl ist.
  can trigger GC
@@ -797,7 +794,7 @@ local maygc object N_tanh_N (object x)
 
 /* N_atanh_N(z) liefert den Artanh einer Zahl z.
  can trigger GC */
-  local maygc object N_atanh_N (object z);
+local maygc object N_atanh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 315:
    artanh(z) = (log(1+z)-log(1-z)) / 2
@@ -828,7 +825,7 @@ local maygc object N_tanh_N (object x)
 
 /* N_atan_N(z) liefert den Arctan einer Zahl z.
  can trigger GC */
-  local maygc object N_atan_N (object z);
+local maygc object N_atan_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 307/312/313:
    arctan(z) = (log(1+iz)-log(1-iz)) / 2i
@@ -964,7 +961,7 @@ local maygc object N_atan_N (object z)
 
 /* N_asinh_N(z) liefert den Arsinh einer Zahl z.
  can trigger GC */
-  local maygc object N_asinh_N (object z);
+local maygc object N_asinh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 313:
    arsinh(z) = log(z+sqrt(1+z^2))
@@ -1007,7 +1004,7 @@ local maygc object N_atan_N (object z)
 
 /* N_asin_N(z) liefert den Arcsin einer Zahl z.
  can trigger GC */
-  local maygc object N_asin_N (object z);
+local maygc object N_asin_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 311:
    arcsin(z) = log(iz+sqrt(1-z^2))/i
@@ -1016,208 +1013,207 @@ local maygc object N_atan_N (object z)
  rein imaginär ist. */
 
 /* Hilfsfunktion für beide: u+iv := arsinh(x+iy), u,v beide auf den Stack. */
-  local maygc void R_R_asinh_R_R (object x, object y)
-  {
-    if (eq(x,Fixnum_0)) { /* x=0 ? */
-      pushSTACK(x); pushSTACK(y);
-      if (R_rationalp(y)) {
-        /* y rational */
-        if (eq(y,Fixnum_0)) /* x=0, y=0 -> u=0, v=0 bereits im Stack */
-          return;
-        if (RA_integerp(y)) {
-          /* y Integer */
-          if (eq(y,Fixnum_1)) { /* x=0, y=1 -> v = pi/2 */
-            STACK_0 = F_I_scale_float_F(pi(y),Fixnum_minus1); return;
-          }
-          if (eq(y,Fixnum_minus1)) { /* x=0, y=-1 -> v = -pi/2 */
-            STACK_0 = F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1)); return;
-          }
-          STACK_0 = y = I_float_F(y); /* y in Float umwandeln */
-        } else {
-          /* y Ratio */
-          if (eq(TheRatio(y)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
-            var object temp = TheRatio(y)->rt_num; /* Zähler */
-            if (eq(temp,Fixnum_1)) { /* x=0, y=1/2 -> v = pi/6 */
-              STACK_0 = R_R_div_R(pi(y),fixnum(6)); return;
-            }
-            if (eq(temp,Fixnum_minus1)) { /* x=0, y=-1/2 -> v = -pi/6 */
-              STACK_0 = F_minus_F(R_R_div_R(pi(y),fixnum(6))); return;
-            }
-          }
-          STACK_0 = y = RA_float_F(y); /* y in Float umwandeln */
-        }
-      }
-      /* y Float */
-      if (R_zerop(y) /* y=0.0 -> arcsin(y) = y als Ergebnis */
-          || (F_exponent_L(y) <= (sintL)(-F_float_digits(y))>>1) /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
-         )
-        return; /* u=0, v=y bereits im Stack */
-      /* stack layout: 0, y. */
-      var object temp = R_R_minus_R(Fixnum_1,F_square_F(y)); /* 1-y*y */
-      if (!R_minusp(temp)) {
-        /* 1-y*y>=0, also |y|<=1 */
-        temp = F_sqrt_F(temp); /* sqrt(1-y*y) */
-        STACK_0 = R_R_atan_R(temp,STACK_0); /* v = atan(X=sqrt(1-y*y),Y=y) */
-      } else {
-        /* 1-y*y<0, also |y|>1 */
-        temp = F_sqrt_F(F_minus_F(temp)); /* sqrt(y*y-1) */
-        y = STACK_0; /* |y| zu temp addieren: */
-        if (R_minusp(y))
-          temp = F_F_minus_F(temp,y);
-        else
-          temp = F_F_plus_F(temp,y);
-        /* temp = sqrt(y^2-1)+|y|, ein Float >1 */
-        STACK_1 = R_ln_R(temp,&STACK_0); /* ln(|y|+sqrt(y^2-1)), Float >0 */
-        temp = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); /* (scale-float pi -1) = pi/2 */
-        if (!R_minusp(STACK_0)) { /* Vorzeichen von y */
-          /* y>1 -> v = pi/2 */
-          STACK_0 = temp;
-        } else {
-          /* y<-1 -> v = -pi/2, u = -ln(...) */
-          STACK_0 = F_minus_F(temp); STACK_1 = F_minus_F(STACK_1);
-        }
-      }
-      return;
-    }
-    if (eq(y,Fixnum_0)) { /* y=0 ? */
-      if (R_rationalp(x))
-        x = RA_float_F(x); /* x in Float umwandeln */
-      /* x Float */
-      pushSTACK(x); pushSTACK(Fixnum_0); /* x retten, v = 0 */
-      if (R_zerop(x)) /* x=0.0 -> u=x, v=0. */
+local maygc void R_R_asinh_R_R (object x, object y)
+{
+  if (eq(x,Fixnum_0)) { /* x=0 ? */
+    pushSTACK(x); pushSTACK(y);
+    if (R_rationalp(y)) {
+      /* y rational */
+      if (eq(y,Fixnum_0)) /* x=0, y=0 -> u=0, v=0 bereits im Stack */
         return;
-      var object temp = /* sqrt(1+x^2) */
-        F_sqrt_F(R_R_plus_R(Fixnum_1,F_square_F(x)));
-      x = STACK_1;
-      if (F_exponent_L(x) < 0) { /* Exponent e (von x/=0) <0 ? */
-        /* |x|<1/2 */
-        STACK_1 = F_atanhx_F(F_F_div_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
-      } else { /* |x| >= 1/2 */
-        if (!R_minusp(x)) /* x >= 1/2 */
-          STACK_1 = R_ln_R(F_F_plus_F(temp,x),&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
-        else /* x <= -1/2 */
-          STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),&STACK_1)); /* u = -ln(-x+sqrt(1+x^2)) */
+      if (RA_integerp(y)) {
+        /* y Integer */
+        if (eq(y,Fixnum_1)) { /* x=0, y=1 -> v = pi/2 */
+          STACK_0 = F_I_scale_float_F(pi(y),Fixnum_minus1); return;
+        }
+        if (eq(y,Fixnum_minus1)) { /* x=0, y=-1 -> v = -pi/2 */
+          STACK_0 = F_minus_F(F_I_scale_float_F(pi(y),Fixnum_minus1)); return;
+        }
+        STACK_0 = y = I_float_F(y); /* y in Float umwandeln */
+      } else {
+        /* y Ratio */
+        if (eq(TheRatio(y)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
+          var object temp = TheRatio(y)->rt_num; /* Zähler */
+          if (eq(temp,Fixnum_1)) { /* x=0, y=1/2 -> v = pi/6 */
+            STACK_0 = R_R_div_R(pi(y),fixnum(6)); return;
+          }
+          if (eq(temp,Fixnum_minus1)) { /* x=0, y=-1/2 -> v = -pi/6 */
+            STACK_0 = F_minus_F(R_R_div_R(pi(y),fixnum(6))); return;
+          }
+        }
+        STACK_0 = y = RA_float_F(y); /* y in Float umwandeln */
       }
-      return;
     }
-    var object z = R_R_complex_C(x,y); /* z=x+iy */
-    pushSTACK(z);
-    z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_square_N(z)))); /* 1+sqrt(1+z^2) */
-    z = N_N_div_N(popSTACK(),z); /* z/(1+sqrt(1+z^2)) */
-    /* Da z=x+iy weder reell noch rein imaginär ist, ist auch
-       w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
-       (Beweis: Sollte sqrt(1+z^2) rationalen Real- und Imaginärteil haben,
-       so auch z, also auch w, und die Formel z = 2w/(1-w^2) zeigt, dass dann
-       z reell oder rein imaginär sein müsste. Also hat sqrt(1+z^2) ein
-       Float als Real- oder Imaginärteil, das Betragsquadrat des Nenners
-       ist also ein Float, und da Real- und Imaginärteil von z /=0 sind,
-       sind Real- und Imaginärteil von w Floats.)
-       Daher hat dann atanh(...) Floats als Realteil u und Imaginärteil v. */
-    R_R_atanh_R_R(TheComplex(z)->c_real,TheComplex(z)->c_imag); /* atanh nehmen */
-    /* u und v mit 2 multiplizieren: */
-    STACK_1 = F_I_scale_float_F(STACK_1,Fixnum_1); /* u:=2*u */
-    STACK_0 = F_I_scale_float_F(STACK_0,Fixnum_1); /* v:=2*v */
+    /* y Float */
+    if (R_zerop(y) /* y=0.0 -> arcsin(y) = y als Ergebnis */
+        || (F_exponent_L(y) <= (sintL)(-F_float_digits(y))>>1)) /* e <= -d/2 <==> e <= -ceiling(d/2) ? */
+      return; /* u=0, v=y bereits im Stack */
+    /* stack layout: 0, y. */
+    var object temp = R_R_minus_R(Fixnum_1,F_square_F(y)); /* 1-y*y */
+    if (!R_minusp(temp)) {
+      /* 1-y*y>=0, also |y|<=1 */
+      temp = F_sqrt_F(temp); /* sqrt(1-y*y) */
+      STACK_0 = R_R_atan_R(temp,STACK_0); /* v = atan(X=sqrt(1-y*y),Y=y) */
+    } else {
+      /* 1-y*y<0, also |y|>1 */
+      temp = F_sqrt_F(F_minus_F(temp)); /* sqrt(y*y-1) */
+      y = STACK_0; /* |y| zu temp addieren: */
+      if (R_minusp(y))
+        temp = F_F_minus_F(temp,y);
+      else
+        temp = F_F_plus_F(temp,y);
+      /* temp = sqrt(y^2-1)+|y|, ein Float >1 */
+      STACK_1 = R_ln_R(temp,&STACK_0); /* ln(|y|+sqrt(y^2-1)), Float >0 */
+      temp = F_I_scale_float_F(pi(STACK_1),Fixnum_minus1); /* (scale-float pi -1) = pi/2 */
+      if (!R_minusp(STACK_0)) { /* Vorzeichen von y */
+        /* y>1 -> v = pi/2 */
+        STACK_0 = temp;
+      } else {
+        /* y<-1 -> v = -pi/2, u = -ln(...) */
+        STACK_0 = F_minus_F(temp); STACK_1 = F_minus_F(STACK_1);
+      }
+    }
     return;
   }
-
-  local maygc object N_asinh_N (object z)
-  {
-    if (N_realp(z))
-      R_R_asinh_R_R(z,Fixnum_0);
-    else
-      R_R_asinh_R_R(TheComplex(z)->c_real,TheComplex(z)->c_imag);
-    /* stack layout: u, v. */
-    z = R_R_complex_N(STACK_1,STACK_0); skipSTACK(2); return z;
-  }
-
-  local maygc object N_asin_N (object z)
-  {
-    /* asinh(iz) errechnen: */
-    if (N_realp(z))
-      R_R_asinh_R_R(Fixnum_0,z);
-    else {
-      pushSTACK(TheComplex(z)->c_real);
-      z = R_minus_R(TheComplex(z)->c_imag);
-      R_R_asinh_R_R(z,popSTACK());
+  if (eq(y,Fixnum_0)) { /* y=0 ? */
+    if (R_rationalp(x))
+      x = RA_float_F(x); /* x in Float umwandeln */
+    /* x Float */
+    pushSTACK(x); pushSTACK(Fixnum_0); /* x retten, v = 0 */
+    if (R_zerop(x)) /* x=0.0 -> u=x, v=0. */
+      return;
+    var object temp = /* sqrt(1+x^2) */
+      F_sqrt_F(R_R_plus_R(Fixnum_1,F_square_F(x)));
+    x = STACK_1;
+    if (F_exponent_L(x) < 0) { /* Exponent e (von x/=0) <0 ? */
+      /* |x|<1/2 */
+      STACK_1 = F_atanhx_F(F_F_div_F(x,temp)); /* u = atanh(x/sqrt(1+x^2)) */
+    } else { /* |x| >= 1/2 */
+      if (!R_minusp(x)) /* x >= 1/2 */
+        STACK_1 = R_ln_R(F_F_plus_F(temp,x),&STACK_1); /* u = ln(x+sqrt(1+x^2)) */
+      else /* x <= -1/2 */
+        STACK_1 = F_minus_F(R_ln_R(F_F_minus_F(temp,x),&STACK_1)); /* u = -ln(-x+sqrt(1+x^2)) */
     }
-    /* stack layout: u, v. */
-    z = R_minus_R(STACK_1); z = R_R_complex_N(STACK_0,z); /* z := v-iu */
-    skipSTACK(2); return z;
+    return;
   }
+  var object z = R_R_complex_C(x,y); /* z=x+iy */
+  pushSTACK(z);
+  z = N_1_plus_N(N_sqrt_N(N_1_plus_N(N_square_N(z)))); /* 1+sqrt(1+z^2) */
+  z = N_N_div_N(popSTACK(),z); /* z/(1+sqrt(1+z^2)) */
+  /* Da z=x+iy weder reell noch rein imaginär ist, ist auch
+     w := z/(1+sqrt(1+z^2)) weder reell noch rein imaginär.
+     (Beweis: Sollte sqrt(1+z^2) rationalen Real- und Imaginärteil haben,
+     so auch z, also auch w, und die Formel z = 2w/(1-w^2) zeigt, dass dann
+     z reell oder rein imaginär sein müsste. Also hat sqrt(1+z^2) ein
+     Float als Real- oder Imaginärteil, das Betragsquadrat des Nenners
+     ist also ein Float, und da Real- und Imaginärteil von z /=0 sind,
+     sind Real- und Imaginärteil von w Floats.)
+     Daher hat dann atanh(...) Floats als Realteil u und Imaginärteil v. */
+  R_R_atanh_R_R(TheComplex(z)->c_real,TheComplex(z)->c_imag); /* atanh nehmen */
+  /* u und v mit 2 multiplizieren: */
+  STACK_1 = F_I_scale_float_F(STACK_1,Fixnum_1); /* u:=2*u */
+  STACK_0 = F_I_scale_float_F(STACK_0,Fixnum_1); /* v:=2*v */
+  return;
+}
+
+local maygc object N_asinh_N (object z)
+{
+  if (N_realp(z))
+    R_R_asinh_R_R(z,Fixnum_0);
+  else
+    R_R_asinh_R_R(TheComplex(z)->c_real,TheComplex(z)->c_imag);
+  /* stack layout: u, v. */
+  z = R_R_complex_N(STACK_1,STACK_0); skipSTACK(2); return z;
+}
+
+local maygc object N_asin_N (object z)
+{
+  /* asinh(iz) errechnen: */
+  if (N_realp(z))
+    R_R_asinh_R_R(Fixnum_0,z);
+  else {
+    pushSTACK(TheComplex(z)->c_real);
+    z = R_minus_R(TheComplex(z)->c_imag);
+    R_R_asinh_R_R(z,popSTACK());
+  }
+  /* stack layout: u, v. */
+  z = R_minus_R(STACK_1); z = R_R_complex_N(STACK_0,z); /* z := v-iu */
+  skipSTACK(2); return z;
+}
 
 /* N_acos_N(z) liefert den Arccos einer Zahl z.
  can trigger GC */
-  local maygc object N_acos_N (object z);
+local maygc object N_acos_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 312:
-   arccos(z) = log(z+i*sqrt(1-z^2))/i = pi/2 - arcsin(z)
+ arccos(z) = log(z+i*sqrt(1-z^2))/i = pi/2 - arcsin(z)
  Sei z=x+iy.
  Falls y=0:
-   Falls x rational:
-     Bei x=1: Ergebnis 0.
-     Bei x=1/2: Ergebnis pi/3.
-     Bei x=0: Ergebnis pi/2.
-     Bei x=-1/2: Ergebnis 2pi/3.
-     Bei x=-1: Ergebnis pi.
-     Sonst x in Float umwandeln.
-   Falls x>1: Ergebnis i ln(x+sqrt(x^2-1)).
+ Falls x rational:
+   Bei x=1: Ergebnis 0.
+   Bei x=1/2: Ergebnis pi/3.
+   Bei x=0: Ergebnis pi/2.
+   Bei x=-1/2: Ergebnis 2pi/3.
+   Bei x=-1: Ergebnis pi.
+   Sonst x in Float umwandeln.
+ Falls x>1: Ergebnis i ln(x+sqrt(x^2-1)).
  Sonst errechne u+iv = arsinh(-y+ix) wie oben, Ergebnis (pi/2-v)+iu. */
-  local maygc object N_acos_N (object z)
-  {
-    if (N_realp(z)) { /* y=0 ? */
-      if (R_rationalp(z)) {
-        /* z rational */
-        if (RA_integerp(z)) {
-          /* z Integer */
-          if (eq(z,Fixnum_0)) /* x=0 -> Ergebnis pi/2 */
-            return F_I_scale_float_F(pi(Fixnum_0),Fixnum_minus1);
-          if (eq(z,Fixnum_1)) /* x=1 -> Ergebnis 0 */
-            return Fixnum_0;
-          if (eq(z,Fixnum_minus1)) /* x=-1 -> Ergebnis pi */
-            return pi(Fixnum_0);
-          z = I_float_F(z); /* z in Float umwandeln */
-        } else {
-          /* z Ratio */
-          if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
-            var object temp = TheRatio(z)->rt_num; /* Zähler */
-            if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 */
-              return R_R_div_R(pi(Fixnum_0),fixnum(3));
-            if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 */
-              return R_R_div_R(F_I_scale_float_F(pi(Fixnum_0),Fixnum_1),fixnum(3));
-          }
-          z = RA_float_F(z); /* z in Float umwandeln */
+local maygc object N_acos_N (object z)
+{
+  if (N_realp(z)) { /* y=0 ? */
+    if (R_rationalp(z)) {
+      /* z rational */
+      if (RA_integerp(z)) {
+        /* z Integer */
+        if (eq(z,Fixnum_0)) /* x=0 -> Ergebnis pi/2 */
+          return F_I_scale_float_F(pi(Fixnum_0),Fixnum_minus1);
+        if (eq(z,Fixnum_1)) /* x=1 -> Ergebnis 0 */
+          return Fixnum_0;
+        if (eq(z,Fixnum_minus1)) /* x=-1 -> Ergebnis pi */
+          return pi(Fixnum_0);
+        z = I_float_F(z); /* z in Float umwandeln */
+      } else {
+        /* z Ratio */
+        if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
+          var object temp = TheRatio(z)->rt_num; /* Zähler */
+          if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 */
+            return R_R_div_R(pi(Fixnum_0),fixnum(3));
+          if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 */
+            return R_R_div_R(F_I_scale_float_F(pi(Fixnum_0),Fixnum_1),fixnum(3));
         }
+        z = RA_float_F(z); /* z in Float umwandeln */
       }
-      /* z Float */
-      pushSTACK(z);
-      if (R_R_comp(Fixnum_1,z)<0) { /* 1<z ? */
-        var object temp = STACK_0; /* z */
-        temp = R_R_minus_R(F_square_F(temp),Fixnum_1); /* z^2-1, ein Float >=0 */
-        temp = F_sqrt_F(temp); /* sqrt(z^2-1), ein Float >=0 */
-        temp = F_F_plus_F(STACK_0,temp); /* z+sqrt(z^2-1), float >1 */
-        temp = R_ln_R(temp,&STACK_0); /* ln(z+sqrt(z^2-1)), float >=0 */
-        skipSTACK(1);
-        return R_R_complex_C(Fixnum_0,temp);
-      }
-      R_R_asinh_R_R(Fixnum_0,popSTACK());
-    } else {
-      pushSTACK(TheComplex(z)->c_real);
-      z = R_minus_R(TheComplex(z)->c_imag);
-      R_R_asinh_R_R(z,popSTACK());
     }
-    /* stack layout: u, v.
-       Bilde pi/2-v : */
-    z = STACK_0;
-    z = (R_rationalp(z) ? pi(z) : pi_F_float_F(z)); /* pi im Float-Format von v */
-    z = F_I_scale_float_F(z,Fixnum_minus1); /* pi/2 */
-    z = R_R_minus_R(z,STACK_0); /* pi/2-v */
-    z = R_R_complex_N(z,STACK_1); /* (pi/2-v)+iu */
-    skipSTACK(2); return z;
+    /* z Float */
+    pushSTACK(z);
+    if (R_R_comp(Fixnum_1,z)<0) { /* 1<z ? */
+      var object temp = STACK_0; /* z */
+      temp = R_R_minus_R(F_square_F(temp),Fixnum_1); /* z^2-1, ein Float >=0 */
+      temp = F_sqrt_F(temp); /* sqrt(z^2-1), ein Float >=0 */
+      temp = F_F_plus_F(STACK_0,temp); /* z+sqrt(z^2-1), float >1 */
+      temp = R_ln_R(temp,&STACK_0); /* ln(z+sqrt(z^2-1)), float >=0 */
+      skipSTACK(1);
+      return R_R_complex_C(Fixnum_0,temp);
+    }
+    R_R_asinh_R_R(Fixnum_0,popSTACK());
+  } else {
+    pushSTACK(TheComplex(z)->c_real);
+    z = R_minus_R(TheComplex(z)->c_imag);
+    R_R_asinh_R_R(z,popSTACK());
   }
+  /* stack layout: u, v.
+     Bilde pi/2-v : */
+  z = STACK_0;
+  z = (R_rationalp(z) ? pi(z) : pi_F_float_F(z)); /* pi im Float-Format von v */
+  z = F_I_scale_float_F(z,Fixnum_minus1); /* pi/2 */
+  z = R_R_minus_R(z,STACK_0); /* pi/2-v */
+  z = R_R_complex_N(z,STACK_1); /* (pi/2-v)+iu */
+  skipSTACK(2); return z;
+}
 
 /* N_acosh_N(z) liefert den Arcosh einer Zahl z.
  can trigger GC */
-  local maygc object N_acosh_N (object z);
+local maygc object N_acosh_N (object z);
 /* Methode:
  Wert und Branch Cuts nach der Formel CLTL2, S. 314:
    arcosh(z) = 2 log(sqrt((z+1)/2)+sqrt((z-1)/2))
@@ -1233,48 +1229,47 @@ local maygc object N_atan_N (object z)
      x in Float umwandeln, Ergebnis log(sqrt(x^2-1)-x) + i pi.
  Sonst nach (!) mit u = sqrt((z+1)/2) und v = sqrt((z-1)/2) :
  arcosh(z) = 4 artanh(v/(u+1)) = 4 artanh(sqrt((z-1)/2)/(1+sqrt((z+1)/2))) */
-  local maygc object N_acosh_N (object z)
-  {
-    if (N_realp(z)) { /* y=0 ? */
-      if (R_rationalp(z)) {
-        /* z rational */
-        if (RA_integerp(z)) {
-          /* z Integer */
-          if (eq(z,Fixnum_0)) /* x=0 -> Ergebnis pi/2 i */
-            return R_R_complex_C(Fixnum_0,F_I_scale_float_F(pi(z),Fixnum_minus1));
-          if (eq(z,Fixnum_1)) /* x=1 -> Ergebnis 0 */
-            return Fixnum_0;
-          if (eq(z,Fixnum_minus1)) /* x=-1 -> Ergebnis pi i */
-            return R_R_complex_C(Fixnum_0,pi(z));
-        } else {
-          /* z Ratio */
-          if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
-            var object temp = TheRatio(z)->rt_num; /* Zähler */
-            if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 i */
-              return R_R_complex_C(Fixnum_0,R_R_div_R(pi(z),fixnum(3)));
-            if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 i */
-              return R_R_complex_C(Fixnum_0,R_R_div_R(F_I_scale_float_F(pi(z),Fixnum_1),fixnum(3)));
-          }
+local maygc object N_acosh_N (object z)
+{
+  if (N_realp(z)) { /* y=0 ? */
+    if (R_rationalp(z)) {
+      /* z rational */
+      if (RA_integerp(z)) {
+        /* z Integer */
+        if (eq(z,Fixnum_0)) /* x=0 -> Ergebnis pi/2 i */
+          return R_R_complex_C(Fixnum_0,F_I_scale_float_F(pi(z),Fixnum_minus1));
+        if (eq(z,Fixnum_1)) /* x=1 -> Ergebnis 0 */
+          return Fixnum_0;
+        if (eq(z,Fixnum_minus1)) /* x=-1 -> Ergebnis pi i */
+          return R_R_complex_C(Fixnum_0,pi(z));
+      } else {
+        /* z Ratio */
+        if (eq(TheRatio(z)->rt_den,fixnum(2))) { /* Nenner = 2 ? */
+          var object temp = TheRatio(z)->rt_num; /* Zähler */
+          if (eq(temp,Fixnum_1)) /* x=1/2 -> Ergebnis pi/3 i */
+            return R_R_complex_C(Fixnum_0,R_R_div_R(pi(z),fixnum(3)));
+          if (eq(temp,Fixnum_minus1)) /* x=-1/2 -> Ergebnis 2pi/3 i */
+            return R_R_complex_C(Fixnum_0,R_R_div_R(F_I_scale_float_F(pi(z),Fixnum_1),fixnum(3)));
         }
       }
-      pushSTACK(z);
-      if (R_R_comp(z,Fixnum_minus1)<0) { /* z<-1 ? */
-        z = STACK_0;
-        if (R_rationalp(z))
-          STACK_0 = z = RA_float_F(z);
-        /* z Float <= -1 */
-        z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); /* sqrt(z^2-1), ein Float >=0 */
-        STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0),&STACK_0); /* log(sqrt(z^2-1)-z), ein Float >=0 */
-        z = pi(STACK_0); /* and imaginary part == pi */
-        return R_R_complex_C(popSTACK(),z);
-      }
-      z = popSTACK();
     }
     pushSTACK(z);
-    var object temp;
-    temp = N_sqrt_N(N_N_div_N(N_minus1_plus_N(z),fixnum(2))); /* Zähler */
-    z = STACK_0; STACK_0 = temp;
-    temp = N_1_plus_N(N_sqrt_N(N_N_div_N(N_1_plus_N(z),fixnum(2)))); /* Nenner */
-    return N_N_mult_N(fixnum(4),N_atanh_N(N_N_div_N(popSTACK(),temp)));
+    if (R_R_comp(z,Fixnum_minus1)<0) { /* z<-1 ? */
+      z = STACK_0;
+      if (R_rationalp(z))
+        STACK_0 = z = RA_float_F(z);
+      /* z Float <= -1 */
+      z = F_sqrt_F(R_R_minus_R(F_square_F(z),Fixnum_1)); /* sqrt(z^2-1), ein Float >=0 */
+      STACK_0 = R_ln_R(F_F_minus_F(z,STACK_0),&STACK_0); /* log(sqrt(z^2-1)-z), ein Float >=0 */
+      z = pi(STACK_0); /* and imaginary part == pi */
+      return R_R_complex_C(popSTACK(),z);
+    }
+    z = popSTACK();
   }
-
+  pushSTACK(z);
+  var object temp;
+  temp = N_sqrt_N(N_N_div_N(N_minus1_plus_N(z),fixnum(2))); /* Zähler */
+  z = STACK_0; STACK_0 = temp;
+  temp = N_1_plus_N(N_sqrt_N(N_N_div_N(N_1_plus_N(z),fixnum(2)))); /* Nenner */
+  return N_N_mult_N(fixnum(4),N_atanh_N(N_N_div_N(popSTACK(),temp)));
+}
