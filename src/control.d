@@ -1421,7 +1421,7 @@ local inline maygc void set_last_copy (object list) {
       do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
-        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
+        if (endp(next_list)) goto done; /* a list ended -> done */      \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       } while (--count);                                                \
@@ -1431,7 +1431,7 @@ local inline maygc void set_last_copy (object list) {
       Car(new_cons) = popSTACK(); Cdr(new_cons) = STACK_0;              \
       STACK_0 = new_cons; /* lengthen the result list */                \
      }}                                                                 \
-    fertig:                                                             \
+    done:                                                               \
     VALUES1(nreverse(*ergptr)); /* reverse result list */               \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
@@ -1455,7 +1455,7 @@ local inline maygc void set_last_copy (object list) {
       do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
-        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
+        if (endp(next_list)) goto done; /* a list ended -> done */      \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       } while (--count);                                                \
@@ -1466,7 +1466,7 @@ local inline maygc void set_last_copy (object list) {
       if (nullp(STACK_1)) STACK_1 = STACK_0 = new_cons; /* init */      \
       else { Cdr(STACK_0) = new_cons; STACK_0 = new_cons; } /* append */ \
     }}                                                                  \
-   fertig:                                                              \
+   done:                                                                \
     VALUES1(*ret); /* result list-cons */                               \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
@@ -1488,13 +1488,13 @@ local inline maygc void set_last_copy (object list) {
       do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
-        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
+        if (endp(next_list)) goto done; /* a list ended -> done */      \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
     }                                                                   \
-    fertig:                                                             \
+   done:                                                                \
     VALUES1(*ergptr); /* first list as value */                         \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
@@ -1520,14 +1520,14 @@ local inline maygc void set_last_copy (object list) {
       do {                                                              \
         var gcv_object_t* next_list_ = &NEXT(argptr);                   \
         var object next_list = *next_list_;                             \
-        if (endp(next_list)) goto fertig; /* a list ended -> done */    \
+        if (endp(next_list)) goto done; /* a list ended -> done */      \
         pushSTACK(listaccess(next_list)); /* as argument on the stack */ \
         *next_list_ = Cdr(next_list); /* shorten list */                \
       } while (--count);                                                \
       funcall(fun,argcount); /* call function */                        \
       append_function(value1);                                          \
     }                                                                   \
-    fertig:                                                             \
+   done:                                                                \
     VALUES1(*ret); /* result list */                                    \
     set_args_end_pointer(args_pointer); /* clean up STACK */            \
    }}
@@ -2397,7 +2397,7 @@ LISPFUNN(keyword_test,2)
     var object arglistr = arglist;
     while (consp(arglistr)) {
       if (eq(Car(arglistr),S(Kallow_other_keys)) && !nullp(Car(Cdr(arglistr))))
-        goto fertig;
+        goto done;
       arglistr = Cdr(Cdr(arglistr));
     }
   }
@@ -2408,7 +2408,7 @@ LISPFUNN(keyword_test,2)
       var object val = Car(arglistr); arglistr = Cdr(arglistr);
       if (eq(key,S(Kallow_other_keys))) {
         if (nullp(val)) break;  /* need check */
-        else goto fertig;       /* no check */
+        else goto done;         /* no check */
       }
     }
     for (arglistr = arglist; consp(arglistr); ) {
@@ -2432,7 +2432,7 @@ LISPFUNN(keyword_test,2)
       }
     }
   }
- fertig:
+ done:
   skipSTACK(2);
   VALUES1(NIL);
 }

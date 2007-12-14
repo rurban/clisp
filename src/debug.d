@@ -991,7 +991,7 @@ local void same_env_as (void)
         && (!eq(found_block_env,nullobj))
         && (!eq(found_go_env,nullobj))
         && (!eq(found_decl_env,nullobj)))
-      goto fertig;
+      goto done;
   }
  end:                         /* end of stack is reached. */
   /* fetch the remaining environment-components from the current environment: */
@@ -1000,7 +1000,7 @@ local void same_env_as (void)
   if (eq(found_block_env,nullobj)) { found_block_env = aktenv.block_env; }
   if (eq(found_go_env,nullobj)) { found_go_env = aktenv.go_env; }
   if (eq(found_decl_env,nullobj)) { found_decl_env = aktenv.decl_env; }
- fertig:
+ done:
   /* construct environment-frame: */
   make_ENV5_frame();
   /* set current environments: */

@@ -11580,37 +11580,37 @@ re-enters the corresponding top-level loop.
 # error_statement: if there's an error (too many values).
 #define NEXT_MV  *mvp++ = Car(l); l = Cdr(l); count++
 #if !defined(VALUE1_EXTRA)
-  #define list_to_mv(lst,error_statement)                              \
+  #define list_to_mv(lst,error_statement)                               \
     do { var object l = (lst);                                          \
      var uintC count = 0;                                               \
      if (atomp(l)) value1 = NIL;                                        \
      else {                                                             \
        var object* mvp = &mv_space[0];                                  \
-       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
-       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
-       NEXT_MV; if (atomp(l)) goto mv_fertig;                           \
-       do { if (count==mv_limit-1) { error_statement; } NEXT_MV;       \
+       NEXT_MV; if (atomp(l)) goto mv_done;                             \
+       NEXT_MV; if (atomp(l)) goto mv_done;                             \
+       NEXT_MV; if (atomp(l)) goto mv_done;                             \
+       do { if (count==mv_limit-1) { error_statement; } NEXT_MV;        \
        } while (consp(l));                                              \
      }                                                                  \
-     mv_fertig:                                                         \
-     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);        \
+     mv_done:                                                           \
+     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);         \
      mv_count = count;                                                  \
     } while(0)
 #else
-  #define list_to_mv(lst,error_statement)                              \
+  #define list_to_mv(lst,error_statement)                               \
     do { var object l = (lst);                                          \
      var uintC count = 0;                                               \
      if (atomp(l)) value1 = NIL;                                        \
      else {                                                             \
-       value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_fertig; \
+       value1 = Car(l); l = Cdr(l); count++; if (atomp(l)) goto mv_done; \
        {var object* mvp = &mv_space[1];                                 \
-        NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
-        NEXT_MV; if (atomp(l)) goto mv_fertig;                          \
-        do { if (count==mv_limit-1) { error_statement; } NEXT_MV;      \
+        NEXT_MV; if (atomp(l)) goto mv_done;                            \
+        NEXT_MV; if (atomp(l)) goto mv_done;                            \
+        do { if (count==mv_limit-1) { error_statement; } NEXT_MV;       \
         } while (consp(l));                                             \
      }}                                                                 \
-     mv_fertig:                                                         \
-     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);        \
+     mv_done:                                                           \
+     if (!nullp(l)) error_proper_list_dotted(S(values_list),l);         \
      mv_count = count;                                                  \
     } while(0)
 #endif

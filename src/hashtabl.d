@@ -2730,14 +2730,14 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
         kvt_data + 3*index;
       if (equal_tuple(KVptr[0],argcount,rest_args_pointer)) { /* compare key */
         /* found */
-        VALUES1(KVptr[1]); goto fertig; /* Value as value */
+        VALUES1(KVptr[1]); goto done; /* Value as value */
       }
       Nptr = &KVptr[2];         /* pointer to index of next entry */
     }
   }
   /* not found */
   VALUES1(NIL);
- fertig:
+ done:
   set_args_end_pointer(rest_args_pointer STACKop 1); /* clean up STACK */
 }
 

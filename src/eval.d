@@ -424,7 +424,7 @@ global /*maygc*/ void unwind (void)
             callback_saved_registers = (struct registers *)(aint)as_oint(STACK_1);
             /* set STACK, thus unwind frame: */
             setSTACK(STACK = new_STACK);
-            goto fertig;
+            goto done;
           } else
          #endif
           {
@@ -449,7 +449,7 @@ global /*maygc*/ void unwind (void)
             }
             /* set STACK, thus unwind frame: */
             setSTACK(STACK = new_STACK);
-            goto fertig;
+            goto done;
           }
         }
       } else {
@@ -493,13 +493,13 @@ global /*maygc*/ void unwind (void)
           }
           /* set STACK, thus unwind frame: */
           setSTACK(STACK = new_STACK);
-          goto fertig;
+          goto done;
         }
       }
     }
   /* set STACK, thus unwind frame: */
   setSTACK(STACK = topofframe(STACK_0));
- fertig: ;
+ done: ;
 }
 
 /* UP: "unwinds" the STACK up to the next DRIVER_FRAME and
@@ -942,7 +942,7 @@ global object sym_function (object sym, object env)
         var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* pointer to the first binding */
         dotimespL(count,count, {
           if (equal(*(bindingsptr STACKop 0),sym)) { /* right Symbol? */
-            value = *(bindingsptr STACKop 1); goto fertig;
+            value = *(bindingsptr STACKop 1); goto done;
           }
           bindingsptr skipSTACKop 2; /* no: next binding */
         });
@@ -961,7 +961,7 @@ global object sym_function (object sym, object env)
             value = *(ptr+1);
             if (from_inside_macrolet && !macrop(value))
               goto macrolet_error;
-            goto fertig;
+            goto done;
           }
           ptr += 2;             /* next binding */
         });
@@ -984,7 +984,7 @@ global object sym_function (object sym, object env)
       return unbound;           /* else undefined */
   }
   return Symbol_function(sym);
- fertig:
+ done:
   /* Symbol found active in Environment, "Value" value (a Closure or Macro
      or FunctionMacro or NIL) if Definition = NIL (during LABELS),
      the function is passed for as undefined: */
@@ -1478,13 +1478,13 @@ global maygc bool parse_dd (object formlist)
     var object body_rest = Cdr(body); /* shorten body */
     if (stringp(form)) { /* found Doc-String? */
       if (atomp(body_rest)) /* at the last position of the form list? */
-        goto fertig; /* yes -> last form can't be a Doc-String! */
+        goto done; /* yes -> last form can't be a Doc-String! */
       if (!nullp(STACK_1)) { /* preceding Doc-String? */
         /* yes -> more than one Doc-String is too much: */
         pushSTACK(STACK_2);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(STACK_0);
         error(source_program_error,
-               GETTEXT("Too many documentation strings in ~S"));
+              GETTEXT("Too many documentation strings in ~S"));
       }
       STACK_1 = form; /* new Doc-String */
       body = body_rest;
@@ -1514,7 +1514,7 @@ global maygc bool parse_dd (object formlist)
       skipSTACK(1);
       body = popSTACK(); /* body := old body_rest */
     } else {
-     fertig: /* finished with loop over the form list */
+     done: /* finished with loop over the form list */
       break;
     }
   }

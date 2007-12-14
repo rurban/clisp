@@ -1877,7 +1877,7 @@ LISPFUNNR(class_of,1)
       while (consp(type)) {
         var object name = Car(type);
         var object clas = get(name,S(closclass)); /* (GET name 'CLOS::CLOSCLASS) */
-        if_defined_class_p(clas, { value1 = clas; goto fertig; }, ; );
+        if_defined_class_p(clas, { value1 = clas; goto done; }, ; );
         type = Cdr(type);
       }
     }
@@ -2033,9 +2033,10 @@ LISPFUNNR(class_of,1)
   if_defined_class_p(value1, ; , {
     pushSTACK(value1);
     pushSTACK(S(class_of));
-    error(error_condition,GETTEXT("~S: type ~S does not correspond to a class"));
+    error(error_condition,
+          GETTEXT("~S: type ~S does not correspond to a class"));
   });
- fertig:
+ done:
   mv_count=1;
 }
 
