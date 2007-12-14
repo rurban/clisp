@@ -311,14 +311,14 @@ local NODE* AVL(AVLID,delete) (ELEMENT value, NODE* tree) {
   while (1) {
     var NODE* node = *nodeplace;
     if (node == EMPTY)
-      goto fertig; /* element not found */
+      goto done; /* element not found */
     *stack_ptr++ = nodeplace; stack_count++;
     var SIGNED_INT sign = COMPARE(key,KEYOF(node->nodedata.value));
     if (sign == 0) {
       if (EQUAL(value,node->nodedata.value)) { /* found? */
         node_to_delete = node; break;
       } else
-        goto fertig;
+        goto done;
     }
     if (sign < 0)
       /* key < KEYOF(node->nodedata.value)  --> remove in left subtree: */
@@ -358,7 +358,7 @@ local NODE* AVL(AVLID,delete) (ELEMENT value, NODE* tree) {
   }
   FREE(node_to_delete);
   AVL(AVLID,rebalance)(stack_ptr,stack_count);
- fertig:
+ done:
   return tree;
 }
 #endif
@@ -408,7 +408,7 @@ local NODE* AVL(AVLID,delete1) (NODE* node_to_delete, NODE* tree) {
   while (1) {
     var NODE* node = *nodeplace;
     if (node == EMPTY)
-      goto fertig; /* element not found */
+      goto done; /* element not found */
     *stack_ptr++ = nodeplace; stack_count++;
     var SIGNED_INT sign = COMPARE(key,KEYOF(node->nodedata.value));
     if (sign == 0) {
@@ -420,7 +420,7 @@ local NODE* AVL(AVLID,delete1) (NODE* node_to_delete, NODE* tree) {
         nodeplace = stack_ptr[-1];
         break;
       } else
-        goto fertig; /* not found */
+        goto done; /* not found */
     }
     if (sign < 0)
       /* key < KEYOF(node->nodedata.value)  --> remove in left subtree: */
@@ -462,7 +462,7 @@ local NODE* AVL(AVLID,delete1) (NODE* node_to_delete, NODE* tree) {
     }
   }
   AVL(AVLID,rebalance)(stack_ptr,stack_count);
- fertig:
+ done:
   return tree;
 }
 #endif
