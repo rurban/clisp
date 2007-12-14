@@ -494,12 +494,12 @@ global void copy_32bit_32bit (const uint32* src, uint32* dest, uintL len) {
 
 #ifdef HAVE_SMALL_SSTRING
 
-# Determines the smallest string element type capable of holding a
-# set of 16-bit characters.
-# smallest_string_flavour16(src,len)
-# > uint16* src: source
-# > uintL len: number of characters at src
-# < result: Sstringtype_8Bit or Sstringtype_16Bit
+/* Determines the smallest string element type capable of holding a
+ set of 16-bit characters.
+ smallest_string_flavour16(src,len)
+ > uint16* src: source
+ > uintL len: number of characters at src
+ < result: Sstringtype_8Bit or Sstringtype_16Bit */
 global uintBWL smallest_string_flavour16 (const uint16* src, uintL len) {
   var uintBWL result = Sstringtype_8Bit;
   if (len > 0) {
@@ -515,12 +515,12 @@ global uintBWL smallest_string_flavour16 (const uint16* src, uintL len) {
   return result;
 }
 
-# Determines the smallest string element type capable of holding a
-# set of 32-bit characters.
-# smallest_string_flavour32(src,len)
-# > uint32* src: source
-# > uintL len: number of characters at src
-# < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit
+/* Determines the smallest string element type capable of holding a
+ set of 32-bit characters.
+ smallest_string_flavour32(src,len)
+ > uint32* src: source
+ > uintL len: number of characters at src
+ < result: Sstringtype_8Bit or Sstringtype_16Bit or Sstringtype_32Bit */
 global uintBWL smallest_string_flavour32 (const uint32* src, uintL len) {
   var uintBWL result = Sstringtype_8Bit;
   if (len > 0) {
@@ -819,8 +819,8 @@ global maygc object stringof (uintL len) {
     dotimespL(count,len, { *ptr++ = char_code(NEXT(argptr)); });
     set_args_end_pointer(topargptr);
     #ifdef HAVE_SMALL_SSTRING
-    # We use alloca for small-simple-strings, therefore their length
-    # should not be too large, or we risk an SP overflow and core dump.
+    /* We use alloca for small-simple-strings, therefore their length
+     should not be too large, or we risk an SP overflow and core dump. */
     if (len < 0x10000) {
       var uintBWL flavour = smallest_string_flavour(&TheSnstring(new_string)->data[0],len);
       if (flavour == Sstringtype_8Bit) {
@@ -887,8 +887,8 @@ global maygc object copy_string (object string) {
   var uintL offset;
   string = unpack_string_ro(string,&len,&offset);
   var uintBWL flavour;
-  # We use alloca for small-simple-strings, therefore their length
-  # should not be too large, or we risk an SP overflow and core dump.
+  /* We use alloca for small-simple-strings, therefore their length
+   should not be too large, or we risk an SP overflow and core dump. */
   if (len < 0x10000) {
     SstringCase(string,
       { flavour = smallest_string_flavour8(&TheS8string(string)->data[offset],len); },
@@ -3215,8 +3215,8 @@ LISPFUN(make_string,seclass_no_se,1,0,norest,key,2,
   /* maybe fill with initial-element: */
   var object initial_element = STACK_1;
   if (!boundp(initial_element)) {
-    # Allocate a small-sstring, to save memory in the most frequent case.
-    # It will become wider as needed automatically.
+    /* Allocate a small-sstring, to save memory in the most frequent case.
+     It will become wider as needed automatically. */
     new_string = allocate_s8string(size);
   } else {
     if (!charp(initial_element)) { /* must be a character */
