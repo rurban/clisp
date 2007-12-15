@@ -1,3 +1,30 @@
+2007-12-15  Sam Steingold  <sds@gnu.org>
+
+	* error.d (MAKE_CHECK_REPLACEMENT): new macro
+	(check_list_replacement, check_array_replacement)
+	(check_vector_replacement, check_posfixnum_replacement)
+	(check_integer_replacement, check_char_replacement)
+	(check_string_replacement, check_stream_replacement)
+	(check_uint_replacement, check_sint_replacement)
+	(check_ulong_replacement, check_slong_replacement)
+	(check_ffloat_replacement, check_dfloat_replacement): use it
+	(error_uint8, error_sint8, error_uint16, error_sint16, error_uint32)
+	(error_sint32, error_uint64, error_sint64): remove
+	(error_c_integer): add
+	(check_uint8_replacement, check_sint8_replacement)
+	(check_uint16_replacement, check_sint16_replacement)
+	(check_uint32_replacement, check_sint32_replacement)
+	(check_uint64_replacement, check_sint64_replacement): remove
+	(check_c_integer_replacement): add
+	* lispbibl.d (error_uint8, error_sint8, error_uint16, error_sint16)
+	(error_uint32, error_sint32, error_uint64, error_sint64): define
+	as macros, expanding to error_c_integer()
+	(check_uint8_replacement, check_sint8_replacement)
+	(check_uint16_replacement, check_sint16_replacement)
+	(check_uint32_replacement, check_sint32_replacement)
+	(check_uint64_replacement, check_sint64_replacement): define
+	as macros, expanding to check_c_integer_replacement()
+
 2007-12-14  Sam Steingold  <sds@gnu.org>
 
 	* avl.d, control.d, debug.d, eval.d, hashtabl.d, intprint.d, io.d:

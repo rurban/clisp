@@ -14743,17 +14743,19 @@ nonreturning_function(extern, error_too_few_args,
 
 # used by EVAL, FOREIGN
 
-# Error message, if an argument isn't of a given elementary C type.
-# error_<ctype>(obj);
-# > obj: the faulty argument
-nonreturning_function(extern, error_uint8, (object obj));
-nonreturning_function(extern, error_sint8, (object obj));
-nonreturning_function(extern, error_uint16, (object obj));
-nonreturning_function(extern, error_sint16, (object obj));
-nonreturning_function(extern, error_uint32, (object obj));
-nonreturning_function(extern, error_sint32, (object obj));
-nonreturning_function(extern, error_uint64, (object obj));
-nonreturning_function(extern, error_sint64, (object obj));
+/* Error message, if an argument isn't of a given elementary C type.
+ error_<ctype>(obj);
+ > obj: the faulty argument */
+nonreturning_function(global, error_c_integer,
+                      (object obj, int tcode, bool signedp));
+#define error_uint8(obj)   error_c_integer(obj,0,true)
+#define error_sint8(obj)   error_c_integer(obj,0,true)
+#define error_uint16(obj)  error_c_integer(obj,1,false)
+#define error_sint16(obj)  error_c_integer(obj,1,true)
+#define error_uint32(obj)  error_c_integer(obj,2,false)
+#define error_sint32(obj)  error_c_integer(obj,2,true)
+#define error_uint64(obj)  error_c_integer(obj,3,false)
+#define error_sint64(obj)  error_c_integer(obj,3,true)
 # nonreturning_function(extern, error_uint, (object obj));
 # nonreturning_function(extern, error_sint, (object obj));
 #if (int_bitsize==16)
@@ -14773,14 +14775,14 @@ nonreturning_function(extern, error_sint64, (object obj));
   #define error_slong  error_sint64
 #endif
 /* used by STREAM, ENCODING, modules */
-%% puts("nonreturning_function(extern, error_uint8, (object obj));");
-%% puts("nonreturning_function(extern, error_sint8, (object obj));");
-%% puts("nonreturning_function(extern, error_uint16, (object obj));");
-%% puts("nonreturning_function(extern, error_sint16, (object obj));");
-%% puts("nonreturning_function(extern, error_uint32, (object obj));");
-%% puts("nonreturning_function(extern, error_sint32, (object obj));");
-%% puts("nonreturning_function(extern, error_uint64, (object obj));");
-%% puts("nonreturning_function(extern, error_sint64, (object obj));");
+%% export_def(error_uint8(obj));
+%% export_def(error_sint8(obj));
+%% export_def(error_uint16(obj));
+%% export_def(error_sint16(obj));
+%% export_def(error_uint32(obj));
+%% export_def(error_sint32(obj));
+%% export_def(error_uint64(obj));
+%% export_def(error_sint64(obj));
 %% #if (int_bitsize==16)
 %%   emit_define("error_uint","error_uint16");
 %%   emit_define("error_sint","error_sint16");
@@ -14802,35 +14804,36 @@ nonreturning_function(extern, error_sint64, (object obj));
  < result: an object that can be converted to the C type, either the same
            as obj or a replacement
  can trigger GC */
-extern maygc object check_uint8_replacement (object obj);
+extern maygc object check_c_integer_replacement (object obj, int tcode, bool signedp);
+#define check_uint8_replacement(obj)  check_c_integer_replacement(obj,0,false)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(uint8)
 #endif
-extern maygc object check_sint8_replacement (object obj);
+#define check_sint8_replacement(obj)  check_c_integer_replacement(obj,0,true)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(sint8)
 #endif
-extern maygc object check_uint16_replacement (object obj);
+#define check_uint16_replacement(obj)  check_c_integer_replacement(obj,1,false)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(uint16)
 #endif
-extern maygc object check_sint16_replacement (object obj);
+#define check_sint16_replacement(obj)  check_c_integer_replacement(obj,1,true)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(sint16)
 #endif
-extern maygc object check_uint32_replacement (object obj);
+#define check_uint32_replacement(obj)  check_c_integer_replacement(obj,2,false)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(uint32)
 #endif
-extern maygc object check_sint32_replacement (object obj);
+#define check_sint32_replacement(obj)  check_c_integer_replacement(obj,2,true)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(sint32)
 #endif
-extern maygc object check_uint64_replacement (object obj);
+#define check_uint64_replacement(obj)  check_c_integer_replacement(obj,3,false)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(uint64)
 #endif
-extern maygc object check_sint64_replacement (object obj);
+#define check_sint64_replacement(obj)  check_c_integer_replacement(obj,3,true)
 #ifndef COMPILE_STANDALONE
 MAKE_CHECK_(sint64)
 #endif
@@ -14859,35 +14862,36 @@ extern maygc object check_dfloat_replacement (object obj);
 MAKE_CHECK_LOW(dfloat,double_float_p(obj))
 #endif
 # is used by STREAM, FFI
-%% puts("extern object check_uint8_replacement (object obj);");
+%% puts("extern object check_c_integer_replacement (object obj, int tcode, bool signedp);");
+%% export_def(check_uint8_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint8));
 %% puts("#endif");
-%% puts("extern object check_sint8_replacement (object obj);");
+%% export_def(check_sint8_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint8));
 %% puts("#endif");
-%% puts("extern object check_uint16_replacement (object obj);");
+%% export_def(check_uint16_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint16));
 %% puts("#endif");
-%% puts("extern object check_sint16_replacement (object obj);");
+%% export_def(check_sint16_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint16));
 %% puts("#endif");
-%% puts("extern object check_uint32_replacement (object obj);");
+%% export_def(check_uint32_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint32));
 %% puts("#endif");
-%% puts("extern object check_sint32_replacement (object obj);");
+%% export_def(check_sint32_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint32));
 %% puts("#endif");
-%% puts("extern object check_uint64_replacement (object obj);");
+%% export_def(check_uint64_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint64));
 %% puts("#endif");
-%% puts("extern object check_sint64_replacement (object obj);");
+%% export_def(check_sint64_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint64));
 %% puts("#endif");

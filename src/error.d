@@ -845,21 +845,29 @@ nonreturning_function(global, error_list, (object obj)) {
   error(type_error,GETTEXT("~S: ~S is not a list"));
 }
 
+/* define a global check_TYPE_replacement function
+ > name: type name
+ > expected_type: object O(...)
+ > test: test for the acceptability of the replacement value
+ > error_message: C string GETTEXT(...) */
+#define MAKE_CHECK_REPLACEMENT(typename,expected_type,test,error_message) \
+  global maygc object check_##typename##_replacement (object obj) {     \
+    do {                                                                \
+      pushSTACK(NIL); /* no PLACE */                                    \
+      pushSTACK(obj); /* TYPE-ERROR slot DATUM */                       \
+      pushSTACK(expected_type); /* TYPE-ERROR slot EXPECTED-TYPE */     \
+      pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);              \
+      check_value(type_error,error_message);                            \
+      obj = value1;                                                     \
+    } while (!test(obj));                                               \
+    return obj;                                                         \
+  }
+
 /* check_list_replacement(obj)
  > obj: not a list
  < result: a list, a replacement
  can trigger GC */
-global maygc object check_list_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a list"));
-    obj = value1;
-  } while (!listp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(list,S(list),listp,GETTEXT("~S: ~S is not a list"))
 
 /* Error message, if an object isn't a proper list because it is dotted.
  error_proper_list_dotted(caller,obj);
@@ -1031,33 +1039,15 @@ nonreturning_function(global, error_vector, (object obj)) {
  > obj: not an array
  < result: an array, a replacement
  can trigger GC */
-global maygc object check_array_replacement (object obj) {
-  do {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(array));        /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S is not an array"));
-    obj = value1;
-  } while (!arrayp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(array,S(array),arrayp,
+                       GETTEXT("~S: argument ~S is not an array"))
 
 /* check_vector_replacement(obj)
  > obj: not an vector
  < result: an vector, a replacement
  can trigger GC */
-global maygc object check_vector_replacement (object obj) {
-  do {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(vector));       /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S is not a vector"));
-    obj = value1;
-  } while (!vectorp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(vector,S(vector),vectorp,
+                       GETTEXT("~S: argument ~S is not a vector"))
 
 /* check_byte_vector_replacement(obj)
  > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
@@ -1094,41 +1084,22 @@ nonreturning_function(global, error_posfixnum, (object obj)) {
   pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
+  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative fixnum"));
 }
 
 /* check_posfixnum_replacement(obj)
  > obj: not a fixnum >= 0
  < result: a fixnum >= 0, a replacement
  can trigger GC */
-global maygc object check_posfixnum_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);               /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_posfixnum)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S should be a nonnegative fixnum"));
-    obj = value1;
-  } while (!posfixnump(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(posfixnum,O(type_posfixnum),posfixnump,
+                       GETTEXT("~S: argument ~S is not a nonnegative fixnum"))
 
 /* check_integer_replacement(obj)
  > obj: not an integer
  < result: an integer, a replacement
  can trigger GC */
-global maygc object check_integer_replacement (object obj) {
-  do {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(integer));      /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an integer"));
-    obj = value1;
-  } while (!integerp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(integer,S(integer),integerp,
+                       GETTEXT("~S: ~S is not an integer"))
 
 /* check_pos_integer_replacement(obj)
  > obj: not an integer >= 0
@@ -1162,34 +1133,15 @@ nonreturning_function(global, error_char, (object obj)) {
  > obj: not a character
  < result: a character, a replacement
  can trigger GC */
-global maygc object check_char_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);          /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(character)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj);
-    pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S is not a character"));
-    obj = value1;
-  } while (!charp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(char,S(character),charp,
+                       GETTEXT("~S: argument ~S is not a character"))
 
 /* check_string_replacement(obj)
  > obj: not a string
  < result: a string, a replacement
  can trigger GC */
-global maygc object check_string_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(string)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S is not a string"));
-    obj = value1;
-  } while (!stringp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(string,S(string),stringp,
+                       GETTEXT("~S: argument ~S is not a string"))
 
 /* error-message, if an argument is not a Simple-String:
  > obj: the erroneous argument */
@@ -1216,7 +1168,7 @@ nonreturning_function(global, error_string_integer, (object obj)) {
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
   error(type_error,
-         GETTEXT("~S: argument ~S is neither a string nor an integer"));
+        GETTEXT("~S: argument ~S is neither a string nor an integer"));
 }
 
 /* Error message, if a string size is too big.
@@ -1227,8 +1179,7 @@ nonreturning_function(global, error_stringsize, (uintV size)) {
   pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_stringsize)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
-  error(type_error,
-         GETTEXT("string too long: desired length ~S exceeds the supported maximum length"));
+  error(type_error,GETTEXT("string too long: desired length ~S exceeds the supported maximum length"));
 }
 
 /* error message if an argument is not a class.
@@ -1247,17 +1198,8 @@ nonreturning_function(global, error_class, (object obj)) {
  > obj: not a stream
  < obj: a stream
  can trigger GC */
-global maygc object check_stream_replacement (object obj) {
-  do {
-    pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(stream));       /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: argument ~S is not a stream"));
-    obj = value1;
-  } while (!streamp(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(stream,S(stream),streamp,
+                       GETTEXT("~S: argument ~S is not a stream"))
 
 /* Report an error when the argument is not an encoding:
  > obj: the (possibly) bad argument
@@ -1339,7 +1281,7 @@ nonreturning_function(global, error_key_odd, (uintC argcount, object caller))
   STACK_1 = arglist;
   /* ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here. */
   error(program_error,
-         GETTEXT("~S: keyword arguments in ~S should occur pairwise"));
+        GETTEXT("~S: keyword arguments in ~S should occur pairwise"));
 }
 
 /* error-message for flawed keyword
@@ -1350,8 +1292,7 @@ nonreturning_function(global, error_key_notkw, (object kw, object caller)) {
   pushSTACK(kw);        /* KEYWORD-ERROR slot DATUM */
   pushSTACK(S(symbol)); /* KEYWORD-ERROR slot EXPECTED-TYPE */
   pushSTACK(kw); pushSTACK(S(LLkey)); pushSTACK(caller);
-  error(keyword_error,
-         GETTEXT("~S: ~S marker ~S is not a symbol"));
+  error(keyword_error,GETTEXT("~S: ~S marker ~S is not a symbol"));
 }
 
 /* error-message for flawed keyword
@@ -1374,8 +1315,8 @@ nonreturning_function(global, error_key_badkw,
     STACK_4 = type;
   }
   error(keyword_error,
-         GETTEXT("~S: illegal keyword/value pair ~S, ~S in argument list.\n"
-                 "The allowed keywords are ~S"));
+        GETTEXT("~S: illegal keyword/value pair ~S, ~S in argument list.\n"
+                "The allowed keywords are ~S"));
 }
 
 /* check_function_replacement(obj)
@@ -1540,199 +1481,38 @@ nonreturning_function(global, error_too_few_args,
   }
 }
 
-/* Error message, if an argument isn't of a given elementary C type.
- error_<ctype>(obj);
- > obj: the faulty argument */
-nonreturning_function(global, error_uint8, (object obj)) {
+/* error if an argument is not of a given elementary integer C type.
+ error_c_integer(obj);
+ > obj: the faulty argument
+ > tcode: type code: 0 for int8, 1 for int16, 2 for int32, 3 for int64
+ > signedp: sint or uint */
+local const char* prepare_c_integer_signal (object obj, int tcode, bool signedp)
+{
   pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(8)); pushSTACK(obj);
+  pushSTACK((signedp?&O(type_sint8):&O(type_uint8))[tcode]); /*EXPECTED-TYPE*/
+  pushSTACK(fixnum(8<<tcode)); pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
+  return signedp
+    ? GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)")
+    : GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits");
 }
-nonreturning_function(global, error_sint8, (object obj)) {
-  pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(8)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
-}
-nonreturning_function(global, error_uint16, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(16)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
-}
-nonreturning_function(global, error_sint16, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(16)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
-}
-nonreturning_function(global, error_uint32, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(32)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
-}
-nonreturning_function(global, error_sint32, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(32)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
-}
-nonreturning_function(global, error_uint64, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(64)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits"));
-}
-nonreturning_function(global, error_sint64, (object obj)) {
-  pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(fixnum(64)); pushSTACK(obj);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"));
+nonreturning_function(global, error_c_integer,
+                      (object obj, int tcode, bool signedp)) {
+  error(type_error,prepare_c_integer_signal(obj,tcode,signedp));
 }
 
-/* error, if argument is not an integer in the range of the C type 'uint8'.
- check_uint8_replacement(obj)
- > obj: not an integer in the range of uint8
- < obj: an integer in the range of uint8
+/* get a replacement of a given elementary integer C type.
+ check_c_integer_replacement(obj)
+ > obj: not an integer in the range specified by tcode and signedp (see above)
+ < obj: an integer in the range specified by tcode and signedp
  can trigger GC */
-global maygc object check_uint8_replacement (object obj) {
+global maygc object check_c_integer_replacement (object obj, int tcode,
+                                                 bool signedp) {
   do {
     pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
+    check_value(type_error,prepare_c_integer_signal(obj,tcode,signedp));
     obj = value1;
   } while (!uint8_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'sint8'.
- check_sint8_replacement(obj)
- > obj: not an integer in the range of sint8
- < obj: an integer in the range of sint8
- can trigger GC */
-global maygc object check_sint8_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);           /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_sint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an 8-bit number"));
-    obj = value1;
-  } while (!sint8_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'uint16'.
- check_uint16_replacement(obj)
- > obj: not an integer in the range of uint16
- < obj: an integer in the range of uint16
- can trigger GC */
-global maygc object check_uint16_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
-    obj = value1;
-  } while (!uint16_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'sint16'.
- check_sint16_replacement(obj)
- > obj: not an integer in the range of sint16
- < obj: an integer in the range of sint16
- can trigger GC */
-global maygc object check_sint16_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 16-bit number"));
-    obj = value1;
-  } while (!sint16_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'uint32'.
- check_uint32_replacement(obj)
- > obj: not an integer in the range of uint32
- < obj: an integer in the range of uint32
- can trigger GC */
-global maygc object check_uint32_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 32-bit number"));
-    obj = value1;
-  } while (!uint32_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'sint32'.
- check_sint32_replacement(obj)
- > obj: not an integer in the range of sint32
- < obj: an integer in the range of sint32
- can trigger GC */
-global maygc object check_sint32_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 32-bit number"));
-    obj = value1;
-  } while (!sint32_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'uint64'.
- check_uint64_replacement(obj)
- > obj: not an integer in the range of uint64
- < obj: an integer in the range of uint64
- can trigger GC */
-global maygc object check_uint64_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 64-bit number"));
-    obj = value1;
-  } while (!uint64_p(obj));
-  return obj;
-}
-
-/* error, if argument is not an integer in the range of the C type 'sint64'.
- check_sint64_replacement(obj)
- > obj: not an integer in the range of sint64
- < obj: an integer in the range of sint64
- can trigger GC */
-global maygc object check_sint64_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a 64-bit number"));
-    obj = value1;
-  } while (!sint64_p(obj));
   return obj;
 }
 
@@ -1741,115 +1521,66 @@ global maygc object check_sint64_replacement (object obj) {
  > obj: not an integer in the range of uint
  < obj: an integer in the range of uint
  can trigger GC */
-global maygc object check_uint_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-   #if (int_bitsize==16)
-    pushSTACK(O(type_uint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #else /* (int_bitsize==32) */
-    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #endif
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an `unsigned int' number"));
-    obj = value1;
-  } while (!uint_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(uint,
+#if (int_bitsize==16)
+                       O(type_uint16),
+#else /* (int_bitsize==32) */
+                       O(type_uint32),
+#endif
+                       uint_p,GETTEXT("~S: ~S is not an `unsigned int' number"))
 
 /* error, if argument is not an integer in the range of the C type 'sint'.
  check_sint_replacement(obj)
  > obj: not an integer in the range of sint
  < obj: an integer in the range of sint
  can trigger GC */
-global maygc object check_sint_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-   #if (int_bitsize==16)
-    pushSTACK(O(type_sint16)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #else /* (int_bitsize==32) */
-    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #endif
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not an `int' number"));
-    obj = value1;
-  } while (!sint_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(sint,
+#if (int_bitsize==16)
+                       O(type_sint16),
+#else /* (int_bitsize==32) */
+                       O(type_sint32),
+#endif
+                       sint_p,GETTEXT("~S: ~S is not an `int' number"))
 
 /* error, if argument is not an integer in the range of the C type 'ulong'.
  check_ulong_replacement(obj)
  > obj: not an integer in the range of ulong
  < obj: an integer in the range of ulong
  can trigger GC */
-global maygc object check_ulong_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-   #if (long_bitsize==32)
-    pushSTACK(O(type_uint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #else /* (long_bitsize==64) */
-    pushSTACK(O(type_uint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #endif
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a `unsigned long' number"));
-    obj = value1;
-  } while (!ulong_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(ulong,
+#if (long_bitsize==32)
+                       O(type_uint32),
+#else /* (long_bitsize==64) */
+                       O(type_uint64),
+#endif
+                       ulong_p,
+                       GETTEXT("~S: ~S is not a `unsigned long' number"))
 
 /* error, if argument is not an integer in the range of the C type 'slong'.
  check_slong_replacement(obj)
  > obj: not an integer in the range of slong
  < obj: an integer in the range of slong
  can trigger GC */
-global maygc object check_slong_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);            /* TYPE-ERROR slot DATUM */
-   #if (long_bitsize==32)
-    pushSTACK(O(type_sint32)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #else /* (long_bitsize==64) */
-    pushSTACK(O(type_sint64)); /* TYPE-ERROR slot EXPECTED-TYPE */
-   #endif
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a `long' number"));
-    obj = value1;
-  } while (!slong_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(slong,
+#if (long_bitsize==32)
+                       O(type_sint32),
+#else /* (long_bitsize==64) */
+                       O(type_sint64),
+#endif
+                       slong_p,GETTEXT("~S: ~S is not a `long' number"))
 
 /* error, if argument is not a Single-Float.
  check_ffloat_replacement(obj)
  > obj: not a single-float
  < obj: a single-float
  can trigger GC */
-global maygc object check_ffloat_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(single_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a single-float"));
-    obj = value1;
-  } while (!single_float_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(ffloat,S(single_float),single_float_p,
+                       GETTEXT("~S: ~S is not a single-float"))
 
 /* error, if argument is not a Double-Float.
  check_dfloat_replacement(obj)
  > obj: not a double-float
  < obj: a double-float
  can trigger GC */
-global maygc object check_dfloat_replacement (object obj) {
-  do {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(double_float)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-    check_value(type_error,GETTEXT("~S: ~S is not a double-float"));
-    obj = value1;
-  } while (!double_float_p(obj));
-  return obj;
-}
+MAKE_CHECK_REPLACEMENT(dfloat,S(double_float),double_float_p,
+                       GETTEXT("~S: ~S is not a double-float"))
