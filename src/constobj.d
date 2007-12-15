@@ -358,6 +358,7 @@
   LISPOBJ(error_types,"#()")
   /* for errors of type TYPE-ERROR: */
   LISPOBJ(type_function_name,"(OR SYMBOL (CONS (EQL SETF) (CONS SYMBOL NULL)))")
+  /* the following 8 object order should be in sync with error.d:prepare_c_integer_signal() */
   LISPOBJ(type_uint8,"(INTEGER 0 255)")    /* or "(UNSIGNED-BYTE 8)" */
   LISPOBJ(type_sint8,"(INTEGER -128 127)") /* or "(SIGNED-BYTE 8)" */
   LISPOBJ(type_uint16,"(INTEGER 0 65535)") /* or "(UNSIGNED-BYTE 16)" */
