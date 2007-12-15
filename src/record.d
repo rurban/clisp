@@ -13,8 +13,8 @@
  (SYS::%RECORD-STORE record index value) store value as the index'th
    entry in the record and return value.
  (SYS::%RECORD-LENGTH record) return the length of the record.
-*/
-/* Error message
+
+ Error message
  > STACK_1: record
  > STACK_0: (bad) index
  > limit: exclusive upper bound on the index */
@@ -37,7 +37,7 @@ nonreturning_function(local, error_index, (uintL limit)) {
 nonreturning_function(local, error_record, (void)) {
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
-         GETTEXT("~S: ~S is not a record"));
+        GETTEXT("~S: ~S is not a record"));
 }
 
 /* Subroutine for record access functions
@@ -286,7 +286,7 @@ LISPFUNNR(closure_name,1) {
     pushSTACK(closure);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     error(error_condition, /* type_error ?? */
-           GETTEXT("~S: ~S is not a closure"));
+          GETTEXT("~S: ~S is not a closure"));
   }
   VALUES1(Closure_name(closure));
 }
@@ -299,7 +299,7 @@ LISPFUNN(set_closure_name,2) {
     pushSTACK(closure);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     error(error_condition, /* type_error ?? */
-           GETTEXT("~S: ~S is not a closure"));
+          GETTEXT("~S: ~S is not a closure"));
   }
   var object new_name = popSTACK();
   if (Closure_instancep(closure))
@@ -314,7 +314,7 @@ nonreturning_function(local, error_cclosure, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
-         GETTEXT("~S: This is not a compiled closure: ~S"));
+        GETTEXT("~S: This is not a compiled closure: ~S"));
 }
 
 /* (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
@@ -511,7 +511,7 @@ LISPFUNN(set_funcallable_instance_function,2)
   if (!funcallable_instance_p(closure)) {
     pushSTACK(closure); pushSTACK(TheSubr(subr_self)->name);
     error(error_condition, /* type_error ?? */
-           GETTEXT("~S: argument is not a funcallable instance: ~S"));
+          GETTEXT("~S: argument is not a funcallable instance: ~S"));
   }
   var object function = STACK_0;
   if (!(subrp(function) || closurep(function) || ffunctionp(function))) {
@@ -581,7 +581,7 @@ LISPFUNN(copy_generic_function,2) {
     pushSTACK(oldclos);
     pushSTACK(TheSubr(subr_self)->name); /* function name */
     error(error_condition,
-           GETTEXT("~S: This is not a prototype of a generic function: ~S"));
+          GETTEXT("~S: This is not a prototype of a generic function: ~S"));
   }
   vector = copy_svector(vector); /* copy the vector */
   TheSvector(vector)->data[0] = STACK_1; /* put in venv */
@@ -1019,9 +1019,9 @@ local Values do_allocate_instance (object clas);
   class must be an instance of <standard-class> or <structure-class>. */
 LISPFUN(pallocate_instance,seclass_read,1,0,rest,nokey,0,NIL) {
   check_initialization_argument_list(argcount,S(allocate_instance));
-  # No need to check the validity of the initargs, because ANSI CL says
-  # "The caller of allocate-instance is expected to have already checked
-  #  the initialization arguments."
+  /* No need to check the validity of the initargs, because ANSI CL says
+   "The caller of allocate-instance is expected to have already checked
+    the initialization arguments." */
   set_args_end_pointer(rest_args_pointer); /* clean up STACK */
   return_Values do_allocate_instance(popSTACK());
 }
@@ -1163,7 +1163,7 @@ LISPFUNN(slot_value,2) {
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_svuc,L(pslot_value_using_class))) {
-        # Call the effective method of CLOS:SLOT-VALUE-USING-CLASS.
+        /* Call the effective method of CLOS:SLOT-VALUE-USING-CLASS. */
         var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_svuc;
         pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
         funcall(efm,3);
@@ -1200,13 +1200,13 @@ LISPFUNN(set_slot_value,3) {
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
-        # Call the effective method of (SETF CLOS:SLOT-VALUE-USING-CLASS).
+        /* Call the effective method of (SETF CLOS:SLOT-VALUE-USING-CLASS). */
         var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
         pushSTACK(STACK_0); pushSTACK(clas); pushSTACK(STACK_(2+2));
         pushSTACK(slotinfo);
         funcall(efm,4);
-        # It must return the new-value. But anyway, just for safety
-        # (don't trust user-defined methods):
+        /* It must return the new-value. But anyway, just for safety
+         (don't trust user-defined methods): */
         value1 = STACK_0;
         goto done;
       }
@@ -1235,7 +1235,7 @@ LISPFUNN(slot_boundp,2) {
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
-        # Call the effective method of CLOS:SLOT-BOUNDP-USING-CLASS.
+        /* Call the effective method of CLOS:SLOT-BOUNDP-USING-CLASS. */
         var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
         pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
         funcall(efm,3);
@@ -1265,7 +1265,7 @@ LISPFUNN(slot_makunbound,2) {
   if (!eq(slotinfo,nullobj)) { /* found? */
     if (regular_instance_p(slotinfo)) {
       if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_smuc,L(pslot_makunbound_using_class))) {
-        # Call the effective method of CLOS:SLOT-MAKUNBOUND-USING-CLASS.
+        /* Call the effective method of CLOS:SLOT-MAKUNBOUND-USING-CLASS. */
         var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_smuc;
         pushSTACK(clas); pushSTACK(STACK_(1+1)); pushSTACK(slotinfo);
         funcall(efm,3);
@@ -1403,16 +1403,16 @@ global maygc object update_instance (object user_obj, object obj) {
   do {
     pushSTACK(obj);
     var object cv = TheInstance(obj)->inst_class_version;
-    # We know that the next class is already finalized before
-    # TheInstance(obj)->inst_class_version is filled.
+    /* We know that the next class is already finalized before
+     TheInstance(obj)->inst_class_version is filled. */
     {
       var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
       if (!eq(TheClass(newclass)->initialized,fixnum(6)))
         NOTREACHED;
     }
-    # Compute the information needed for the update, if not already done.
+    /* Compute the information needed for the update, if not already done. */
     if (nullp(TheClassVersion(cv)->cv_slotlists_valid_p)) {
-      # Invoke (CLOS::CLASS-VERSION-COMPUTE-SLOTLISTS cv):
+      /* Invoke (CLOS::CLASS-VERSION-COMPUTE-SLOTLISTS cv): */
       pushSTACK(cv); funcall(S(class_version_compute_slotlists),1);
       obj = STACK_0;
       cv = TheInstance(obj)->inst_class_version;
@@ -1420,7 +1420,7 @@ global maygc object update_instance (object user_obj, object obj) {
     }
     pushSTACK(TheClassVersion(cv)->cv_added_slots);
     pushSTACK(TheClassVersion(cv)->cv_discarded_slots);
-    # Fetch the values of the local slots that are discarded.
+    /* Fetch the values of the local slots that are discarded. */
     {
       var uintV max_local_slots = posfixnum_to_V(TheClass(TheClassVersion(cv)->cv_class)->instance_size);
       get_space_on_STACK(2*max_local_slots);
@@ -1444,8 +1444,8 @@ global maygc object update_instance (object user_obj, object obj) {
     }
     obj = STACK_3;
     cv = TheInstance(obj)->inst_class_version;
-    # Fetch the values of the slots that remain local or were shared and
-    # become local. These values are retained.
+    /* Fetch the values of the slots that remain local or were shared and
+     become local. These values are retained. */
     var uintL kept_slots;
     {
       var object oldclass = TheClassVersion(cv)->cv_class;
@@ -1474,10 +1474,10 @@ global maygc object update_instance (object user_obj, object obj) {
       }
       kept_slots = count;
     }
-    # STACK layout: user-obj, UNWIND-PROTECT frame,
-    #               obj, added-slots, discarded-slots, propertylist,
-    #               {old-value, new-slotinfo}*kept_slots.
-    # ANSI CL 4.3.6.1. Modifying the Structure of Instances
+    /* STACK layout: user-obj, UNWIND-PROTECT frame,
+                   obj, added-slots, discarded-slots, propertylist,
+                   {old-value, new-slotinfo}*kept_slots.
+     ANSI CL 4.3.6.1. Modifying the Structure of Instances */
     {
       var object newclass = TheClassVersion(TheClassVersion(cv)->cv_next)->cv_class;
       /* (CLOS::ALLOCATE-STD-INSTANCE newclass (class-instance-size newclass)) or
@@ -1505,11 +1505,11 @@ global maygc object update_instance (object user_obj, object obj) {
       TheSrecord(obj)->recdata[posfixnum_to_V(new_slotinfo)] = popSTACK();
     });
     STACK_3 = STACK_(2+4);
-    # STACK layout: user-obj, UNWIND-PROTECT frame,
-    #               user-obj, added-slots, discarded-slots, propertylist.
-    # ANSI CL 4.3.6.2. Initializing Newly Added Local Slots
+    /* STACK layout: user-obj, UNWIND-PROTECT frame,
+                   user-obj, added-slots, discarded-slots, propertylist.
+     ANSI CL 4.3.6.2. Initializing Newly Added Local Slots */
     funcall(S(update_instance_frc),4);
-    # STACK layout: user-obj, UNWIND-PROTECT frame.
+    /* STACK layout: user-obj, UNWIND-PROTECT frame. */
     obj = STACK_2;
     instance_un_realloc(obj);
   } while (!instance_valid_p(obj));
@@ -1631,7 +1631,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
         var object slotinfo = slot;
         if (regular_instance_p(slotinfo)) {
           if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
-            # Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot):
+            /* Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot): */
             var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
             pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
             pushSTACK(clas); pushSTACK(Before(rest_args_pointer STACKop 1)); pushSTACK(slot);
@@ -1678,7 +1678,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
         var object slotinfo = slot;
         if (regular_instance_p(slotinfo)) {
           if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
-            # Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot):
+            /* Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot): */
             var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
             pushSTACK(clas); pushSTACK(slots);
             pushSTACK(value1); pushSTACK(clas); pushSTACK(Before(rest_args_pointer STACKop 1)); pushSTACK(slot);
@@ -1780,7 +1780,7 @@ LISPFUN(preinitialize_instance,seclass_default,1,0,rest,nokey,0,NIL) {
           var object slotinfo = slot;
           if (regular_instance_p(slotinfo)) {
             if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
-              # Call (eff-SET-SLOT-VALUE-USING-CLASS value clas instance slot):
+              /* Call (eff-SET-SLOT-VALUE-USING-CLASS value clas instance slot): */
               var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
               pushSTACK(clas); pushSTACK(slots);
               pushSTACK(value); pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
@@ -1877,7 +1877,7 @@ local Values do_initialize_instance (object info,
         var object slotinfo = slot;
         if (regular_instance_p(slotinfo)) {
           if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_sbuc,L(pslot_boundp_using_class))) {
-            # Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot):
+            /* Call (eff-SLOT-BOUNDP-USING-CLASS clas instance slot): */
             var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_sbuc;
             pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
             pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
@@ -1912,7 +1912,7 @@ local Values do_initialize_instance (object info,
         var object slotinfo = slot;
         if (regular_instance_p(slotinfo)) {
           if (!eq(TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc,L(pset_slot_value_using_class))) {
-            # Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot):
+            /* Call (eff-SET-SLOT-VALUE-USING-CLASS value1 clas instance slot): */
             var object efm = TheSlotDefinition(slotinfo)->slotdef_efm_ssvuc;
             pushSTACK(clas); pushSTACK(slots);
             pushSTACK(value1); pushSTACK(clas); pushSTACK(Before(rest_args_pointer)); pushSTACK(slot);
