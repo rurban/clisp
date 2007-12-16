@@ -1,5 +1,10 @@
 2007-12-15  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d: #include <avcall.h> & <callback.h> as "<>" and not '""'
+	and wrap then in extern "C" to restore C++ compilation
+
+2007-12-15  Sam Steingold  <sds@gnu.org>
+
 	* error.d (MAKE_CHECK_REPLACEMENT): new macro
 	(check_list_replacement, check_array_replacement)
 	(check_vector_replacement, check_posfixnum_replacement)
