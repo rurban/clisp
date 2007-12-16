@@ -1059,19 +1059,19 @@ global maygc object nest_fun (object env)
     {                           /* NEXT_ENV is now nested. */
       var gcv_object_t* FRAME = TheFramepointer(STACK_0); /* next STACK-Frame to be nested */
       STACK_0 = env;            /* bisher genestetes Environment */
-      var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet netsted bindings */
-      if (anzahl == 0) {
+      var uintL bcount = as_oint(FRAME_(frame_count)); /* number of not yet netsted bindings */
+      if (bcount == 0) {
         /* no bindings -> unnecessary, to create a vector. */
         env = popSTACK();
       } else {
-        /* create vector for anzahl bindings: */
-        env = allocate_vector(2*anzahl+1);
+        /* create vector for bcount bindings: */
+        env = allocate_vector(2*bcount+1);
         /* and fill: */
         {
           var gcv_object_t* ptr = &TheSvector(env)->data[0];
           var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* Pointer to the first binding */
-          /* put anzahl bindings starting at bindingsptr into the vector at ptr: */
-          dotimespL(anzahl,anzahl, {
+          /* put bcount bindings starting at bindingsptr into the vector at ptr: */
+          dotimespL(bcount,bcount, {
             *ptr++ = *(bindingsptr STACKop 0); /* copy binding into the vector */
             *ptr++ = *(bindingsptr STACKop 1);
             bindingsptr skipSTACKop 2;
@@ -1116,29 +1116,29 @@ local maygc object nest_var (object env)
       STACK_0 = env;            /* formerly nested Environment */
       /* Search (from bottom) the first active among the not yet
        nested bindings: */
-      var uintL anzahl = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
+      var uintL bcount = as_oint(FRAME_(frame_count)); /* number of not yet nested bindings */
       var uintL count = 0;
       var gcv_object_t* bindingsptr = &FRAME_(frame_bindings); /* Pointer to the first binding */
-      while (!((count>=anzahl)  /* all unnested bindings through? */
+      while (!((count>=bcount)  /* all unnested bindings through? */
                || (as_oint(*(bindingsptr STACKop 0)) & wbit(active_bit_o)))) { /* discovered active binding? */
         /* no -> continue search: */
         bindingsptr skipSTACKop varframe_binding_size;
         count++;
       }
       /* Below bindingsptr are count inactive bindings.
-       From bindingsptr on there are anzahl-count active, to be nested bindings. */
-      anzahl = anzahl-count;    /* number of bindings to be nested */
-      if (anzahl == 0) {
+       From bindingsptr on there are bcount-count active, to be nested bindings. */
+      bcount = bcount-count;    /* number of bindings to be nested */
+      if (bcount == 0) {
         /* no bindings -> creating a vector is unnecessary. */
         env = popSTACK();
       } else {
-        /* create vector for anzahl bindings: */
-        env = allocate_vector(2*anzahl+1);
+        /* create vector for bcount bindings: */
+        env = allocate_vector(2*bcount+1);
         /* and fill: */
         {
           var gcv_object_t* ptr = &TheSvector(env)->data[0];
           /* put bindungs starting at bindingsptr in the vector at ptr: */
-          dotimespL(anzahl,anzahl, {
+          dotimespL(bcount,bcount, {
             if (as_oint(*(bindingsptr STACKop varframe_binding_mark)) & wbit(dynam_bit_o)) { /* binding dynamic? */
               /* dynamic binding, lexical scope */
               *ptr++ = symbol_without_flags(*(bindingsptr STACKop varframe_binding_sym)); /* put Symbol without Flag-Bits in the Vector */
@@ -3854,7 +3854,7 @@ local maygc Values eval_closure (object closure)
   } else {
     /* closure is an interpreted Closure */
     var gcv_object_t* args_pointer = args_end_pointer; /* Pointer to the arguments */
-    var uintC args_on_stack = 0; /* Anzahl der Argumente */
+    var uintC args_on_stack = 0; /* number of arguments */
     while (consp(args)) {
       pushSTACK(Cdr(args));             /* save rest of list */
       eval(Car(args));                  /* evaluate next element */
