@@ -1,4 +1,5 @@
-/* Elementary functions for real numbers */
+/* Elementary functions for real numbers
+ German names translated into English: Reini Urban 2007-11 */
 
 local bool R_zerop (object x)
 { /* R_zerop(x) determines, if (= x 0), with x being a real number. */
@@ -233,8 +234,7 @@ local maygc object RA_float_F (object x) {
                    pushSTACK(x), x = popSTACK());
 }
 
-/* R_float_F(x) converts a real number x into a Float
- and rounds if necessary.
+/* R_float_F(x) converts a real number x into a float and rounds if necessary.
  > x: a real number
  < result: (float x)
  can trigger GC */
@@ -322,7 +322,7 @@ local maygc uintL R_float_digits (object x)
  < STACK_0: remainder r, a real number
  Decreases STACK by 2
  can trigger GC
- method:
+ Method:
  x rational -> RA_rounding_I_RA(x)
  x float -> F_rounding_I_F(x) */
 #define GEN_R_round(rounding)                             \
@@ -335,25 +335,25 @@ local maygc uintL R_float_digits (object x)
   }
 
 /* R_floor_I_R(x) => (floor x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_floor_I_R (object x);
 GEN_R_round(floor)
 
 /* R_ceiling_I_R(x) => (ceiling x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_ceiling_I_R (object x);
 GEN_R_round(ceiling)
 
 /* R_truncate_I_R(x) => (truncate x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_truncate_I_R (object x);
 GEN_R_round(truncate)
 
 /* R_round_I_R(x) => (round x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_round_I_R (object x);
 GEN_R_round(round)
@@ -367,7 +367,7 @@ GEN_R_round(round)
  < STACK_0: remainder r, a real number
  Decreases STACK by 2
  can trigger GC
- method:
+ Method:
  x rational -> RA_rounding_I_RA(x), convert quotient into Float.
  x Float -> F_frounding_F_F(x). */
 #define GEN_R_fround(rounding)                                          \
@@ -375,31 +375,31 @@ GEN_R_round(round)
     GCTRIGGER1(x);                                                      \
     if (R_rationalp(x)) {                                               \
       CONCAT3(RA_,rounding,_I_RA) (x); /* rational-routine */           \
-      STACK_1 = I_float_F(STACK_1); /* convert 1. value into in Float */ \
+      STACK_1 = I_float_F(STACK_1); /* convert 1st value into in Float */ \
     } else                                                              \
       { CONCAT3(F_f,rounding,_F_F) (x); } /* float-routine */           \
   }
 
 /* R_ffloor_F_R(x) => (ffloor x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_ffloor_F_R (object x);
 GEN_R_fround(floor)
 
 /* R_fceiling_F_R(x) => (fceiling x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_fceiling_F_R (object x);
 GEN_R_fround(ceiling)
 
 /* R_ftruncate_F_R(x) => (ftruncate x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_ftruncate_F_R (object x);
 GEN_R_fround(truncate)
 
 /* R_fround_F_R(x) => (fround x), with x being a real number.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_fround_F_R (object x);
 GEN_R_fround(round)
@@ -512,9 +512,9 @@ local maygc object R_R_div_R (object x, object y)
  < STACK_0: remainder r, a real number
  decrease STACK by 2
  can trigger GC
- method:
+ Method:
  both integers -> I_I_rounding_I_I(x,y).
- Else: R_rounding_I_R(x/y) -> (q,r). Return q and x-y*q=y*r. */
+ else: R_rounding_I_R(x/y) -> (q,r). Return q and x-y*q=y*r. */
 #define GEN_R_R_round(rounding)                                         \
   local maygc void CONCAT3(R_R_,rounding,_I_R) (object x, object y) {   \
     GCTRIGGER2(x,y);                                                    \
@@ -532,40 +532,40 @@ local maygc object R_R_div_R (object x, object y)
   }
 
 /* R_R_floor_I_R(x,y) => (floor x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_floor_I_R (object x, object y);
 GEN_R_R_round(floor)
 
 /* R_R_ceiling_I_R(x,y) => (ceiling x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_ceiling_I_R (object x, object y);
 GEN_R_R_round(ceiling)
 
 /* R_R_truncate_I_R(x,y) => (truncate x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_truncate_I_R (object x, object y);
 GEN_R_R_round(truncate)
 
 /* R_R_round_I_R(x,y) => (round x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_round_I_R (object x, object y);
 GEN_R_R_round(round)
 
 /* Generates a function like R_R_mod_R
- Returns the remainder of a division of real numbers.
- (remainder x y) = (- x (* y (rounding x y)))
-                 = (* y (nth-value 1 (rounding x y)))
- R_R_remainder_R(x,y)
- > x,y: real numbers
- < result: remainder r, a real number
+   Returns the remainder of a division of real numbers.
+   (remainder x y) = (- x (* y (rounding x y)))
+                   = (* y (nth-value 1 (rounding x y)))
+   R_R_remainder_R(x,y)
+   > x,y: real numbers
+   < result: remainder r, a real number
  can trigger GC
- method:
- both integers -> I_I_remainder_I(x,y).
- else: R_rounding_I_R(x/y) -> (q,r). return x-y*q=y*r.  */
+   Method:
+   both integers -> I_I_remainder_I(x,y).
+   else: R_rounding_I_R(x/y) -> (q,r). return x-y*q=y*r.  */
 #define GEN_R_R_mod(remainder,rounding)                                 \
   local maygc object CONCAT3(R_R_,remainder,_R) (object x, object y) {  \
     GCTRIGGER2(x,y);                                                    \
@@ -574,7 +574,7 @@ GEN_R_R_round(round)
     } else {                                                            \
       pushSTACK(y);                                                     \
       /* form whole-numbered part of the quotient: */                   \
-      CONCAT3(R_,rounding,_I_R) (R_R_div_R(x,y));                     \
+      CONCAT3(R_,rounding,_I_R) (R_R_div_R(x,y));                       \
       y = STACK_2; x = STACK_0; skipSTACK(3);                           \
       return R_R_mult_R(y,x); /* multiply part behind decimal point with y */ \
     }                                                                   \
@@ -591,20 +591,20 @@ local maygc object R_R_rem_R (object x, object y);
 GEN_R_R_mod(rem,truncate)
 
 /* Generates a function like R_R_ffloor_F_R
- Returns whole-numbered quotient (as float) and remainder \
- of a division of real numbers.                       \
- (q,r) := (frounding x y)                             \
- R_R_frounding_F_R(x,y);                              \
- > x,y: real numbers                                  \
- < STACK_1: quotient q, an integer-valued float       \
- < STACK_0: remainder r, a real number                \
- decreases STACK by 2                                 \
+   Returns whole-numbered quotient (as float) and remainder \
+   of a division of real numbers.                       \
+   (q,r) := (frounding x y)                             \
+   R_R_frounding_F_R(x,y);                              \
+   > x,y: real numbers                                  \
+   < STACK_1: quotient q, an integer-valued float       \
+   < STACK_0: remainder r, a real number                \
+   decreases STACK by 2                                 \
  can trigger GC                                       \
- method:                                                             \
- x,y both rational:                                                  \
-   R_R_rounding_I_R(x,y), convert quotient into a float.             \
- else:                                                               \
-   R_frounding_F_R(x/y) -> q,r. Return the values q and x-y*q = y*r. \ */
+   Method:                                                             \
+   x,y both rational:                                                  \
+     R_R_rounding_I_R(x,y), convert quotient into a float.             \
+   else:                                                               \
+     R_frounding_F_R(x/y) -> q,r. Return the values q and x-y*q = y*r. \ */
 #define GEN_R_R_fround(rounding)                                        \
   local maygc void CONCAT3(R_R_f,rounding,_F_R) (object x, object y) {  \
     GCTRIGGER2(x,y);                                                    \
@@ -614,34 +614,34 @@ GEN_R_R_mod(rem,truncate)
     } else {                                                            \
       pushSTACK(y);                                                     \
       /* form whole-numbered part of the quotient: */                   \
-      CONCAT3(R_f,rounding,_F_R) (R_R_div_R(x,y));                    \
+      CONCAT3(R_f,rounding,_F_R) (R_R_div_R(x,y));                      \
       y = STACK_2; STACK_2 = STACK_1;                                   \
       /* multiply part behind decimal point with y: */                  \
-      STACK_1 = R_R_mult_R(y,STACK_0);                                   \
+      STACK_1 = R_R_mult_R(y,STACK_0);                                  \
       skipSTACK(1);                                                     \
     }                                                                   \
   }
 
 /* R_R_ffloor_F_R(x,y) => (ffloor x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_ffloor_F_R (object x, object y);
 GEN_R_R_fround(floor)
 
 /* R_R_fceiling_F_R(x,y) => (fceiling x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_fceiling_F_R (object x, object y);
 GEN_R_R_fround(ceiling)
 
 /* R_R_ftruncate_F_R(x,y) => (ftruncate x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_ftruncate_F_R (object x, object y);
 GEN_R_R_fround(truncate)
 
 /* R_R_fround_F_R(x,y) => (fround x y), with x and y being real numbers.
- Both values into the stack.
+ Both values onto the stack.
  can trigger GC */
 local maygc void R_R_fround_F_R (object x, object y);
 GEN_R_R_fround(round)
@@ -656,9 +656,9 @@ local maygc object R_1_plus_R (object x)
 local maygc object R_minus1_plus_R (object x)
 { return R_rationalp(x) ? RA_minus1_plus_RA(x) : R_R_plus_R(x,Fixnum_minus1); }
 
-/* F_rational_RA(x) => (rational x), wo x ein Float ist.
+/* F_rational_RA(x) => (rational x), with x being a float.
  can trigger GC
- method:
+ Method:
  The mathematical value of a Float is, if INTEGER-DECODE-FLOAT returns
  the three numbers m,e,s (mantissa, exponent, sign),
  = s * 2^e * m.
@@ -687,12 +687,12 @@ local maygc object R_rational_RA (object x)
 { return (R_rationalp(x) ? x : F_rational_RA(x)); }
 
 /* R_R_comp(x,y) compares two real numbers x and y.
- result: 0 if x=y, +1 if x>y, -1 if x<y.
+ Result: 0 if x=y, +1 if x>y, -1 if x<y.
  can trigger GC
- method:
+ Method:
  both rational or both floats -> clear.
  one rational, one float ->
-   Turnt the rational number into a float, compare.
+   Turn the rational number into a float, compare.
    different? -> that's it.
    equal -> turn the float with RATIONAL into a rational, compare again. */
 local maygc signean R_R_comp (object x, object y)
@@ -745,8 +745,7 @@ local maygc signean R_R_comp (object x, object y)
  test for equality of two integers: either both are EQ or both
  are Bignums of same length and same digits (including sign).
  returns wit false_statement, if not equal.
- #define I_I_equal(x,y) (eq(x,y) || (I_bignump(x) && I_bignump(y) && (x_len==y_len) && (compare_loop_up(x_data,y_data)==0)))
-*/
+ #define I_I_equal(x,y) (eq(x,y) || (I_bignump(x) && I_bignump(y) && (x_len==y_len) && (compare_loop_up(x_data,y_data)==0))) */
 #define I_I_equal(x_,y_,false_statement)                        \
   { var object _x = (x_);                                       \
     var object _y = (y_);                                       \
@@ -920,8 +919,8 @@ local bool R_R_equal (object x, object y)
 }}
 
 /* EQUALP-hash-code of a real number:
- mixture of exponent, length, first 32 bits,
- but done, so that (hashcode (rational x)) = (hashcode x)
+ Mixture of exponent, length, first 32 bits,
+ but so that (hashcode (rational x)) = (hashcode x)
  and (hashcode 0.0) = 0 (important because of "complex canonicalization"). */
 global uint32 hashcode4_real (object obj);
 global uint32 hashcode4_uint32 (uint32 x);
@@ -1116,18 +1115,18 @@ local maygc object R_sqrt_R (object x)
 #define RA_sqrt_R  R_sqrt_R
 
 /* R_I_expt_R(x,y) => (expt x y),
-   with x being a real number and y being an integer.
+ with x being a real number and y being an integer.
  can trigger GC
- method:
- For y>0:
-   a:=x, b:=y.
-   As long as b is even, set a:=a*a, b:=b/2. [a^b stays invariant, = x^y.]
-   c:=a.
-   As long as b:=floor(b/2) >0 ,
-     set a:=a*a, and if b is odd, set c:=a*c.
-   result c.
- For y=0: result 1.
- Forr y<0: (/ (expt x (- y))). */
+ Method:
+   For y>0:
+     a:=x, b:=y.
+     As long as b is even, set a:=a*a, b:=b/2. [a^b stays invariant, = x^y.]
+     c:=a.
+     As long as b:=floor(b/2) >0 ,
+       set a:=a*a, and if b is odd, set c:=a*c.
+     result c.
+   For y=0: result 1.
+   For y<0: (/ (expt x (- y))). */
 local maygc object R_I_expt_R (object x, object y)
 {
   if (eq(y,Fixnum_0)) {
@@ -1172,10 +1171,10 @@ local maygc object R_I_expt_R (object x, object y)
    If x < 0.0, return (- (rationalize (- x))).
    If x > 0.0:
      Call (integer-decode-float x). It returns a m,e,s=1 (mantissa,
-     exponent, sign).
+       exponent, sign).
      If e >= 0: return x = m*2^e.
      Search a rational number between a = (m-1/2)*2^e and b = (m+1/2)*2^e
-     with smallest possible numerator and denominator.
+       with smallest possible numerator and denominator.
      Note 1: If m is a power of 2, we ought to take a = (m-1/4)*2^e.
        But in this case the result will be x itself anyway, regardless of
        the choice of a. Therefore we can simply ignore this case.
@@ -1184,7 +1183,7 @@ local maygc object R_I_expt_R (object x, object y)
        has a denominator <= 2^|e|, we can restrict the seach to the open
        interval (a,b).
      So, for given a and b (0 < a < b) we are searching a rational number
-     y with a <= y <= b.
+       y with a <= y <= b.
      Recursive algorithm fraction_between(a,b):
        c := (ceiling a)
        if c < b
@@ -1203,8 +1202,8 @@ local maygc object R_I_expt_R (object x, object y)
      exponent, sign).
    If e >= 0, return m*2^e*s. (This includes the case x = 0.0.)
    Create rational numbers a := (2*m-1)*2^(e-1) and b := (2*m+1)*2^(e-1)
-   (positive and already in lowest terms because the denominator is a
-   power of two and the numerator is odd).
+     (positive and already in lowest terms because the denominator is a
+     power of two and the numerator is odd).
    Start a continued fraction expansion
      p[-1] := 0, p[0] := 1, q[-1] := 1, q[0] := 0, i := 0.
    Loop
