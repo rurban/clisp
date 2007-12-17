@@ -5652,20 +5652,20 @@ local maygc void pphelp_newline (const gcv_object_t* stream_) {
 #define PPHELP_STREAM_P(str) \
  (builtin_stream_p(str) && (TheStream(str)->strmtype == strmtype_pphelp))
 
-/* open parenthesis (klammer_auf)  and close parenthesis (klammer_zu)
+/* open parenthesis (paren_open) and close parenthesis (paren_close)
    --------------------------
  to be nested correctly. */
-#define KLAMMER_AUF  klammer_auf(stream_);
-#define KLAMMER_ZU   klammer_zu(stream_);
+#define PAREN_OPEN    paren_open(stream_);
+#define PAREN_CLOSE   paren_close(stream_);
 
 /* UP: prints parenthesis '(' to the stream and possibly memorizes
  the position.
- klammer_auf(&stream);  english: open_parenthesis(&stream);
+ paren_open(&stream);
  > stream: Stream
  < stream: Stream
  changes STACK
  can trigger GC */
-local maygc void klammer_auf (const gcv_object_t* stream_) {
+local maygc void paren_open (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (!PPHELP_STREAM_P(stream)) { /* normal Stream */
     write_ascii_char(stream_,'(');
@@ -5681,12 +5681,12 @@ local maygc void klammer_auf (const gcv_object_t* stream_) {
 
 /* UP: Prints parenthesis ')' to the Stream, possibly at the memorized
  position.
- klammer_zu(&stream); english: close_parenthesis(&stream);
+ paren_close(&stream);
  > stream: Stream
  < stream: Stream
  changes STACK
  can trigger GC */
-local maygc void klammer_zu (const gcv_object_t* stream_) {
+local maygc void paren_close (const gcv_object_t* stream_) {
   var object stream = *stream_;
   if (!PPHELP_STREAM_P(stream)) { /* normal Stream */
     write_ascii_char(stream_,')');
@@ -7447,7 +7447,7 @@ local maygc void pr_cons (const gcv_object_t* stream_, object list) {
     var uintL length = 0;               /* previous length := 0 */
     pushSTACK(list);                    /* save list */
     var gcv_object_t* list_ = &STACK_0; /* and memorize, where it is */
-    KLAMMER_AUF;                        /* '(' */
+    PAREN_OPEN;                         /* '(' */
     INDENT_START(get_indent_lists()); /* indent by 1 character, because of '(' */
     JUSTIFY_START(1);
     /* test for attaining of *PRINT-LENGTH* : */
@@ -7487,7 +7487,7 @@ local maygc void pr_cons (const gcv_object_t* stream_, object list) {
   end_of_list:                  /* print list content. */
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     skipSTACK(1);
   }
   LEVEL_END;
@@ -7591,7 +7591,7 @@ local maygc void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
     var uintL length_limit = get_print_length(); /* *PRINT-LENGTH*-limit */
     pushSTACK(car); pushSTACK(cdr);              /* save car and cdr */
     var gcv_object_t* pair_ = &STACK_0; /* and memorize, where they are */
-    KLAMMER_AUF;                        /* '(' */
+    PAREN_OPEN;                         /* '(' */
     INDENT_START(get_indent_lists());/* indent by 1 character, because of '(' */
     JUSTIFY_START(1);
     /* test for attaining of *PRINT-LENGTH* : */
@@ -7610,7 +7610,7 @@ local maygc void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
   end_of_list:
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     skipSTACK(2);
   }
   LEVEL_END;
@@ -7679,7 +7679,7 @@ local maygc void pr_number (const gcv_object_t* stream_, object number) {
     pushSTACK(number);                    /* save number */
     var gcv_object_t* number_ = &STACK_0; /* and memorize, where it is */
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'C');
-    KLAMMER_AUF;
+    PAREN_OPEN;
     INDENT_START(3);       /* indent by 3 characters because of '#C(' */
     JUSTIFY_START(1);
     JUSTIFY_LAST(false);
@@ -7689,7 +7689,7 @@ local maygc void pr_number (const gcv_object_t* stream_, object number) {
     pr_real_number(stream_,TheComplex(*number_)->c_imag); /* print imaginary part */
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     skipSTACK(1);
   }
 }
@@ -7864,7 +7864,7 @@ local maygc void pr_vector (const gcv_object_t* stream_, object v) {
       var uintL index = 0 + offset; /* startindex = 0 in the vector */
       if (readable) {
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
-        KLAMMER_AUF;           /* print '(' */
+        PAREN_OPEN;           /* print '(' */
         INDENT_START(3);   /* indent by 3 characters because of '#A(' */
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
@@ -7875,11 +7875,11 @@ local maygc void pr_vector (const gcv_object_t* stream_, object v) {
         pr_list(stream_,listof(1)); /* print list with the length */
         JUSTIFY_SPACE;
         JUSTIFY_LAST(true);
-        KLAMMER_AUF;            /* '(' */
+        PAREN_OPEN;            /* '(' */
         INDENT_START(1);     /* indent by  1 character because of '(' */
       } else {
         write_ascii_char(stream_,'#');
-        KLAMMER_AUF;            /* '(' */
+        PAREN_OPEN;            /* '(' */
         INDENT_START(2);    /* indent by 2 characters because of '#(' */
       }
       JUSTIFY_START(1);
@@ -7899,11 +7899,11 @@ local maygc void pr_vector (const gcv_object_t* stream_, object v) {
       }
       JUSTIFY_END_FILL;
       INDENT_END;
-      KLAMMER_ZU;
+      PAREN_CLOSE;
       if (readable) {
         JUSTIFY_END_FILL;
         INDENT_END;
-        KLAMMER_ZU;
+        PAREN_CLOSE;
       }
       skipSTACK(1);
     }
@@ -7955,7 +7955,7 @@ local maygc void pr_kvtable (const gcv_object_t* stream_, gcv_object_t* kvt_,
 local maygc void pr_nilvector (const gcv_object_t* stream_, object v) {
   var uintL len = vector_length(v); /* vector-length */
   write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
-  KLAMMER_AUF;                 /* print '(' */
+  PAREN_OPEN;                 /* print '(' */
   INDENT_START(3);         /* indent by 3 characters because of '#A(' */
   JUSTIFY_START(1);
   JUSTIFY_LAST(false);
@@ -7966,7 +7966,7 @@ local maygc void pr_nilvector (const gcv_object_t* stream_, object v) {
   pr_list(stream_,listof(1));   /* print list with the length */
   JUSTIFY_END_FILL;
   INDENT_END;
-  KLAMMER_ZU;
+  PAREN_CLOSE;
 }
 
 /* -------- Multi-Dimensional Arrays --------
@@ -8108,7 +8108,7 @@ local maygc void pr_array_recursion (pr_array_locals_t* locals, uintL depth,
       + locals->dims_sizes[depth].dimprod   /* + dimension product */
       ;                   /* delivers the end-index of this sub-array */
     var uintL count = locals->dims_sizes[depth].dim;
-    KLAMMER_AUF;                /* print '(' */
+    PAREN_OPEN;                /* print '(' */
     INDENT_START(1);         /* indent by 1 character, because of '(' */
     JUSTIFY_START(1);
     /* loop over dimension (r-depth): print a sub-array at a time */
@@ -8144,7 +8144,7 @@ local maygc void pr_array_recursion (pr_array_locals_t* locals, uintL depth,
       JUSTIFY_END_LINEAR;
     }
     INDENT_END;
-    KLAMMER_ZU;                    /* print ')' */
+    PAREN_CLOSE;                   /* print ')' */
     locals->info.index = endindex; /* reached end-index */
   }
 }
@@ -8214,7 +8214,7 @@ local maygc void pr_array (const gcv_object_t* stream_, object obj) {
       /* now go ahead. */
       if (readable) {
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'A');
-        KLAMMER_AUF;          /* print '(' */
+        PAREN_OPEN;          /* print '(' */
         INDENT_START(3);  /* indent by 3 characters, because of '#A(' */
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
@@ -8227,7 +8227,7 @@ local maygc void pr_array (const gcv_object_t* stream_, object obj) {
         }
         JUSTIFY_END_FILL;
         INDENT_END;
-        KLAMMER_ZU;             /* print ')' */
+        PAREN_CLOSE;             /* print ')' */
       } else {
         /* first, print prefix #nA : */
         INDENTPREP_START;
@@ -8392,7 +8392,7 @@ local maygc void pr_structure_default (const gcv_object_t* stream_,
       !nullp(constructor);
     if (readable) {             /* print structure re-readably: */
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-      KLAMMER_AUF;
+      PAREN_OPEN;
       INDENT_START(3);    /* indent by 3 characters, because of '#S(' */
       JUSTIFY_START(1);
     } else {                    /* print structure non-rereadably: */
@@ -8445,7 +8445,7 @@ local maygc void pr_structure_default (const gcv_object_t* stream_,
     JUSTIFY_END_FILL;
     if (readable) {  /* completion of fall differentiation from above */
       INDENT_END;
-      KLAMMER_ZU;
+      PAREN_CLOSE;
     } else {
       UNREADABLE_END;
     }
@@ -8659,7 +8659,7 @@ local maygc void pr_record_descr (const gcv_object_t* stream_, object obj,
      und    *(obj_ STACKop -2) = slotlist . */
     if (readable) {             /* print obj re-readably: */
       write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-      KLAMMER_AUF;
+      PAREN_OPEN;
       INDENT_START(3);    /* indent by 3 characters, because of '#S(' */
       JUSTIFY_START(1);
     } else {                    /* print obj non-re-readably: */
@@ -8705,7 +8705,7 @@ local maygc void pr_record_descr (const gcv_object_t* stream_, object obj,
     JUSTIFY_END_FILL;
     if (readable) {  /* completion of fall differentiation from above */
       INDENT_END;
-      KLAMMER_ZU;
+      PAREN_CLOSE;
     } else {
       UNREADABLE_END;
     }
@@ -8764,7 +8764,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         if (readable) {
           /* #S(HASH-TABLE ...) */
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-          KLAMMER_AUF;
+          PAREN_OPEN;
           INDENT_START(3); /* indent by 3 characters, because of '#S(' */
           JUSTIFY_START(1);
         } else {
@@ -8834,7 +8834,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_END_FILL;
         if (readable) {
           INDENT_END;
-          KLAMMER_ZU;
+          PAREN_CLOSE;
         } else {
           UNREADABLE_END;
         }
@@ -8864,7 +8864,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         if (pack_deletedp(*obj_))
           error_print_readably(*obj_);
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
-        KLAMMER_AUF;          /* '(' */
+        PAREN_OPEN;          /* '(' */
         INDENT_START(3);  /* indent by 3 characters, because of '#.(' */
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
@@ -8874,7 +8874,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         pr_string(stream_,ThePackage(*obj_)->pack_name); /* print Name */
         JUSTIFY_END_FILL;
         INDENT_END;
-        KLAMMER_ZU;
+        PAREN_CLOSE;
       }
       skipSTACK(1);
     } break;
@@ -8956,7 +8956,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         pushSTACK(obj);                    /* save Random-State */
         var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
         write_ascii_char(stream_,'#'); write_ascii_char(stream_,'S');
-        KLAMMER_AUF;
+        PAREN_OPEN;
         INDENT_START(3);  /* indent by 3 characters, because of '#S(' */
         JUSTIFY_START(1);
         JUSTIFY_LAST(false);
@@ -8964,7 +8964,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         pr_record_ab(stream_,obj_,0,0);       /* print component */
         JUSTIFY_END_FILL;
         INDENT_END;
-        KLAMMER_ZU;
+        PAREN_CLOSE;
         skipSTACK(1);
       }
       LEVEL_END;
@@ -9230,7 +9230,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           /* Now the list (element1 ...): */
           LEVEL_CHECK;
           var uintL length = 0;             /* previous length := 0 */
-          KLAMMER_AUF;                      /* '(' */
+          PAREN_OPEN;                       /* '(' */
           INDENT_START(get_indent_lists()); /* indent by 1 character, because of '(' */
           JUSTIFY_START(1);
           /* test for attaining of *PRINT-LENGTH* : */
@@ -9267,7 +9267,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           }
           JUSTIFY_END_FILL;
           INDENT_END;
-          KLAMMER_ZU;
+          PAREN_CLOSE;
           LEVEL_END;
         }
       weak_list_end:
@@ -9296,7 +9296,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           /* Now the list (pair1 ...): */
           LEVEL_CHECK;
           var uintL length = 0;             /* previous length := 0 */
-          KLAMMER_AUF;                      /* '(' */
+          PAREN_OPEN;                       /* '(' */
           INDENT_START(get_indent_lists()); /* indent by 1 character, because of '(' */
           JUSTIFY_START(1);
           /* test for attaining of *PRINT-LENGTH* : */
@@ -9337,7 +9337,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           }
           JUSTIFY_END_FILL;
           INDENT_END;
-          KLAMMER_ZU;
+          PAREN_CLOSE;
           LEVEL_END;
         }
       weak_alist_end:
@@ -9504,7 +9504,7 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
     pushSTACK(obj);                    /* save obj */
     var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'.');
-    KLAMMER_AUF;              /* '(' */
+    PAREN_OPEN;              /* '(' */
     INDENT_START(3);      /* indent by 3 characters, because of '#.(' */
     JUSTIFY_START(1);
     JUSTIFY_LAST(false);
@@ -9515,7 +9515,7 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
     pr_symbol(stream_,TheSubr(*obj_)->name); /* print Name */
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     skipSTACK(1);
   } else
     pr_unreadably(stream_,TheSubr(obj)->name,
@@ -9635,7 +9635,7 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     pushSTACK(obj);                    /* save Closure */
     var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
     write_ascii_char(stream_,'#'); write_ascii_char(stream_,'Y');
-    KLAMMER_AUF;
+    PAREN_OPEN;
     INDENT_START(3);      /* indent by 3 characters, because of '#Y(' */
     JUSTIFY_START(1);
     JUSTIFY_LAST(false);
@@ -9646,7 +9646,7 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     var uintB ccv_flags = TheCodevec(codevec)->ccv_flags;
     pr_circle(stream_,codevec,&pr_cclosure_codevector);
     JUSTIFY_SPACE;
-    KLAMMER_AUF;                      /* ( */
+    PAREN_OPEN;                       /* ( */
     INDENT_START(get_indent_lists()); /* ==> indent by 1 character */
     JUSTIFY_START(1);
     /* ignore *PRINT-LENGTH* & *PRINT-LINES* because of *PRINT-READABLE* */
@@ -9664,7 +9664,7 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
       }
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     JUSTIFY_SPACE;
     prin_object(stream_,seclass_object((seclass_t)Cclosure_seclass(*obj_)));
     if (lambda_list_p) {        /* lambda-list is a list */
@@ -9677,7 +9677,7 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     }
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     skipSTACK(1);
   }
   LEVEL_END;
@@ -9711,7 +9711,7 @@ local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object cod
     /* print main part: */
       INDENT_START(indent);     /* indent */
     }
-    KLAMMER_AUF;
+    PAREN_OPEN;
     INDENT_START(1);         /* indent by 1 character, because of '(' */
     JUSTIFY_START(1);
     {
@@ -9752,7 +9752,7 @@ local maygc void pr_cclosure_codevector (const gcv_object_t* stream_, object cod
     }
     JUSTIFY_END_FILL;
     INDENT_END;
-    KLAMMER_ZU;
+    PAREN_CLOSE;
     INDENT_END;
     skipSTACK(1);
   }
