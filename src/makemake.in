@@ -1515,7 +1515,6 @@ fi
 
 if [ "${with_dynamic_ffi}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_FFI"
-  LIBS="${FFCALL_LIBS} ${LIBS}"
 fi
 
 if [ "${with_dynamic_modules}" != no ]; then
