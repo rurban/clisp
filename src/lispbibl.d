@@ -8723,22 +8723,22 @@ typedef enum {
   #endif
 # is used by SPVW
 
-# Time in decoded-time:
-  typedef struct {
-    object Sekunden;
-    object Minuten;
-    object Stunden;
-    object Tag;
-    object Monat;
-    object Jahr;
-  } decoded_time_t;
+/* Time in decoded-time: */
+typedef struct {
+  object seconds;
+  object minutes;
+  object hours;
+  object day;
+  object month;
+  object year;
+} decoded_time_t;
 
 #ifdef UNIX
 # UP: Converts the system-time-format into Decoded-Time.
 # convert_time(&time,&timepoint);
 # > time_t time: time in the system-time-format
-# < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
+# < timepoint.seconds, timepoint.minutes, timepoint.hours,
+#   timepoint.day, timepoint.month, timepoint.year, each a Fixnum
   extern void convert_time (const time_t* time, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif
@@ -8746,8 +8746,8 @@ typedef enum {
 # UP: Converts the system-time-format into Decoded-Time.
 # convert_time(&time,&timepoint);
 # > FILETIME time: time in the system-time-format
-# < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-#   timepoint.Tag, timepoint.Monat, timepoint.Jahr, each a Fixnum
+# < timepoint.seconds, timepoint.minutes, timepoint.hours,
+#   timepoint.day, timepoint.month, timepoint.year, each a Fixnum
   extern void convert_time (const FILETIME* time, decoded_time_t* timepoint);
 # is used by PATHNAME
 #endif

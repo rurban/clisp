@@ -1662,12 +1662,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     #if 0
       char memdumptime[4+1+2+1+2 +1+ 2+1+2+1+2+1]; // YYYY-MM-DD HH:MM:SS
       sprintf(memdumptime,"%04u-%02u-%02u %02u:%02u:%02u",
-              (uintL)posfixnum_to_V(header._dumptime.Jahr),
-              (uintL)posfixnum_to_V(header._dumptime.Monat),
-              (uintL)posfixnum_to_V(header._dumptime.Tag),
-              (uintL)posfixnum_to_V(header._dumptime.Stunden),
-              (uintL)posfixnum_to_V(header._dumptime.Minuten),
-              (uintL)posfixnum_to_V(header._dumptime.Sekunden));
+              (uintL)posfixnum_to_V(header._dumptime.year),
+              (uintL)posfixnum_to_V(header._dumptime.month),
+              (uintL)posfixnum_to_V(header._dumptime.day),
+              (uintL)posfixnum_to_V(header._dumptime.hours),
+              (uintL)posfixnum_to_V(header._dumptime.minutes),
+              (uintL)posfixnum_to_V(header._dumptime.seconds));
     #endif
     char memdumptime[10+1];
     sprintf(memdumptime,"%u",header._dumptime);
