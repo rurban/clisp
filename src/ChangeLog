@@ -1,6 +1,7 @@
 2007-12-16  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d, spvw_memfile.d (quit_instantly): renamed from quit_sofort
+	* io.d (spaces): rename argument anzahl to scount
 
 2007-12-08  Reini Urban  <rurban@x-ray.at>
 
