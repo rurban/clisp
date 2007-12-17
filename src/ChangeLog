@@ -4,6 +4,8 @@
 	* io.d (spaces): rename argument anzahl to scount
 	(paren_open): rename from klammer_auf
 	(paren_close): rename from klammer_zu
+	* intelem.d (set_max32_Dptr): use if instead of (?:) to avoid three
+	"value computed is not used" warnings
 
 2007-12-08  Reini Urban  <rurban@x-ray.at>
 
