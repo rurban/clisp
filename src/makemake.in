@@ -1892,7 +1892,7 @@ echol "DESTDIR ="
 echol
 echol     "# (partial) list of available add-on modules"
 echol     "# (see directory modules/ for the full list"
-echol     "#  or pass --list-modules to top-level configure):"
+echol     "#  or pass --help-modules to top-level configure):"
 echol     "# queens               the queens function (a toy example)"
 echol     "# dirkey               the directory access (LDAP, win32 registry)"
 echol     "# berkeley-db          the Berkeley DB access"
@@ -1914,6 +1914,7 @@ if [ "${with_dynamic_ffi}" != no ]; then
   if [ "$cpu" = i386 -a \( "$TSYSOS" = win32gcc -o "$TSYSOS" = cygwin \) ] ;then
     echol "# bindings/win32       win32 bindings"
   fi
+  echol   "# gtk2                 GTK2 interface"
 fi
 if [ $TOS = unix -o $TOS = win32 ] ; then
   echol   "# clx/mit-clx          classical X11 interface"
