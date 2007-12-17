@@ -164,14 +164,14 @@ global break_sems_ break_sems;
 local jmp_buf original_context;
 
 /* leave LISP immediately:
- quit_sofort(exitcode);
+ quit_instantly(exitcode);
  > exitcode: 0 for normal, 1 for abnormal end of program
    we must set the SP to the original value.
    (On some operating systems, the memory occupied by the program is
    returned with free() , before control is withdrawn from it.
    For this short span the SP has to be set reasonably.) */
 local int exitcode;
-#define quit_sofort(xcode)  exitcode = xcode; longjmp(original_context,1)
+#define quit_instantly(xcode)  exitcode = xcode; longjmp(original_context,1)
 
 /* --------------------------------------------------------------------------
                          memory management, common part */
@@ -710,7 +710,7 @@ local fsubr_argtype_t fsubr_argtype (uintW req_count, uintW opt_count,
  illegal:
   fprintf(stderr,GETTEXTL("Unknown FSUBR signature: %d %d %d\n"),
           req_count,opt_count,body_flag);
-  quit_sofort(1);
+  quit_instantly(1);
 }
 
 local subr_argtype_t subr_argtype (uintW req_count, uintW opt_count,
@@ -821,7 +821,7 @@ local subr_argtype_t subr_argtype (uintW req_count, uintW opt_count,
   if (sid)
     fprintf(stderr," (%s::%s)\n",sid->packname,sid->symname);
   else fputs("\n",stderr);
-  quit_sofort(1);
+  quit_instantly(1);
 }
 /* set the argtype of a subr_t *ptr */
 #define SUBR_SET_ARGTYPE(ptr,sid)                                       \
@@ -1547,7 +1547,7 @@ local void init_module_2 (module_t* module) {
         if (nullp(pack)) {      /* package not found? */
           fprintf(stderr,GETTEXTL("module '%s' requires package %s.\n"),
                   module->name, packname);
-          quit_sofort(1);
+          quit_instantly(1);
         }
         symname = popSTACK();
         intern(symname,false,pack,&symbol);
@@ -1562,7 +1562,7 @@ local void init_module_2 (module_t* module) {
         fprintf(stderr,GETTEXTL("\nold definition: "));
         nobject_out(stderr,Symbol_function(symbol));
         fprintf(stderr,"\n");
-        quit_sofort(1);
+        quit_instantly(1);
       }
       Symbol_function(symbol) = subr_tab_ptr_as_object(subr_ptr); /* define function */
       init_ptr++; subr_ptr++;
@@ -1691,7 +1691,7 @@ nonreturning_function (local, print_license, (void)) {
   while (count--)
     write_sstring(&STACK_0,asciz_to_string(*ptr++,O(internal_encoding)));
   skipSTACK(1);
-  quit_sofort(0);
+  quit_instantly(0);
 }
 
 #include "spvw_calendar.c"
@@ -3354,9 +3354,9 @@ global int main (argc_t argc, char* argv[]) {
   no_mem:
   fprintf(stderr,GETTEXTL("%s: Not enough memory for Lisp."),program_name);
   fputs("\n",stderr);
-  quit_sofort(1);
+  quit_instantly(1);
   /*NOTREACHED*/
-  /* termination of program via quit_sofort() (engl. quit_instantly() ): */
+  /* termination of program via quit_instantly(): */
   end_of_main:
  #ifdef MULTIMAP_MEMORY
   exitmap();
@@ -3427,7 +3427,7 @@ nonreturning_function(global, quit, (void)) {
  #ifdef DYNAMIC_FFI
   exit_ffi();                   /* close FFI */
  #endif
-  quit_sofort(final_exitcode);  /* leave program */
+  quit_instantly(final_exitcode);  /* leave program */
 }
 
 /* --------------------------------------------------------------------------

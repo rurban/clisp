@@ -933,7 +933,7 @@ local void loadmem (const char* filename)
   if (handle != INVALID_HANDLE) {
     begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   }
-  quit_sofort(1);
+  quit_instantly(1);
 }
 local void loadmem_from_handle (Handle handle, const char* filename)
 {
@@ -1696,7 +1696,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
  abort_quit:
   /* close the file beforehand. */
   begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
-  quit_sofort(1);
+  quit_instantly(1);
 }
 
 #if defined(LOADMEM_TRY_SEARCH)
