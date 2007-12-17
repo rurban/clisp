@@ -416,15 +416,15 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
    -1 for unknown. */
 global int fd_read_wont_hang_p (HANDLE fd)
 {
-  # This is pretty complex. To test this, create a file "listen.lisp"
-  # containing the code
-  #   (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
-  # and execute "lisp.exe -q -i listen.lisp" with redirected standard input.
+  /* This is pretty complex. To test this, create a file "listen.lisp"
+   containing the code
+     (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
+   and execute "lisp.exe -q -i listen.lisp" with redirected standard input. */
   switch (GetFileType(fd)) {
     case FILE_TYPE_CHAR:
       {
         var DWORD nevents;
-        if (GetNumberOfConsoleInputEvents(fd,&nevents)) { # It's a console.
+        if (GetNumberOfConsoleInputEvents(fd,&nevents)) { /* It's a console. */
           if (nevents==0)
             return 0;
           var INPUT_RECORD* events =
@@ -440,22 +440,22 @@ global int fd_read_wont_hang_p (HANDLE fd)
             OS_error();
           }
           if (mode & ENABLE_LINE_INPUT) {
-            # Look out for a Key-Down event corresponding to CR/LF.
+            /* Look out for a Key-Down event corresponding to CR/LF. */
             var DWORD i;
             for (i = 0; i < nevents_read; i++) {
               if (events[i].EventType == KEY_EVENT
                   && events[i].Event.KeyEvent.bKeyDown
                   && events[i].Event.KeyEvent.uAsciiChar == CR)
-                # probably a byte available (except if it is Ctrl-Z)
+                /* probably a byte available (except if it is Ctrl-Z) */
                 return -1;
             }
-          } else { # Look out for any Key-Down event.
+          } else {              /* Look out for any Key-Down event. */
             var DWORD i;
             for (i = 0; i < nevents_read; i++) {
               if (events[i].EventType == KEY_EVENT
                   && events[i].Event.KeyEvent.bKeyDown
                   && events[i].Event.KeyEvent.uAsciiChar != 0)
-                # probably a byte available (except if it is Ctrl-Z)
+                /* probably a byte available (except if it is Ctrl-Z) */
                 return -1;
             }
           }
@@ -464,9 +464,9 @@ global int fd_read_wont_hang_p (HANDLE fd)
           OS_error();
         }
       }
-      # Not a console.
+      /* Not a console. */
       switch (WaitForSingleObject(fd,0)) {
-        case WAIT_OBJECT_0: # a byte is available, or EOF
+        case WAIT_OBJECT_0:     /* a byte is available, or EOF */
           return 1;
         case WAIT_TIMEOUT:
           return 0;
@@ -478,21 +478,21 @@ global int fd_read_wont_hang_p (HANDLE fd)
     case FILE_TYPE_PIPE:
       {
         var DWORD nbytes;
-        if (PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL)) { # input pipe
+        if (PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL)) { /* input pipe */
           if (nbytes > 0)
             return 3;
           else
             return 0;
-        } else if (GetLastError()==ERROR_BROKEN_PIPE) { # EOF reached
+        } else if (GetLastError()==ERROR_BROKEN_PIPE) { /* EOF reached */
           return 2;
-        } else if (GetLastError()==ERROR_ACCESS_DENIED) { # output pipe
-          # => fake EOF.
+        } else if (GetLastError()==ERROR_ACCESS_DENIED) { /* output pipe */
+          /* => fake EOF. */
           return 2;
         } else {
           OS_error();
         }
       }
-    default: # It's a file (or something unknown).
+    default:                   /* It's a file (or something unknown). */
       return -1;
   }
 }
@@ -754,10 +754,10 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
    Returns 1 for yes, 0 for no, -1 for unknown. */
 local inline int sock_read_will_hang_p (int fd)
 {
-  # Use select() with readfds = singleton set {fd}
-  # and timeout = zero interval.
-  var fd_set handle_set; # set of handles := {fd}
-  var struct timeval zero_time; # time interval := 0
+  /* Use select() with readfds = singleton set {fd}
+   and timeout = zero interval. */
+  var fd_set handle_set;         /* set of handles := {fd} */
+  var struct timeval zero_time;  /* time interval := 0 */
   FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
  restart_select:
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -767,12 +767,12 @@ local inline int sock_read_will_hang_p (int fd)
       goto restart_select;
     SOCK_error();
   } else {
-    # result = number of handles in handle_set for which read() would
-    # return without blocking.
+    /* result = number of handles in handle_set for which read() would
+     return without blocking. */
     if (result==0)
       return 1;
   }
-  # Now we know that recv() will return immediately.
+  /* Now we know that recv() will return immediately. */
   return 0;
 }
 
@@ -864,10 +864,10 @@ global int sock_read (SOCKET fd, void* buf, size_t nbyte, perseverance_t persev)
    Returns 1 for yes, 0 for no, -1 for unknown. */
 local inline int sock_write_will_hang_p (int fd)
 {
-  # Use select() with writefds = singleton set {fd}
-  # and timeout = zero interval.
-  var fd_set handle_set; # set of handles := {fd}
-  var struct timeval zero_time; # time interval := 0
+  /* Use select() with writefds = singleton set {fd}
+   and timeout = zero interval. */
+  var fd_set handle_set;         /* set of handles := {fd} */
+  var struct timeval zero_time;  /* time interval := 0 */
   FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
  restart_select:
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -877,12 +877,12 @@ local inline int sock_write_will_hang_p (int fd)
       goto restart_select;
     SOCK_error();
   } else {
-    # result = number of handles in handle_set for which write() would
-    # return without blocking.
+    /* result = number of handles in handle_set for which write() would
+     return without blocking. */
     if (result==0)
       return 1;
   }
-  # Now we know that send() will return immediately.
+  /* Now we know that send() will return immediately. */
   return 0;
 }
 
