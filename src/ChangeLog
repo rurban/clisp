@@ -10,6 +10,8 @@
 
 2007-12-08  Reini Urban  <rurban@x-ray.at>
 
+	* makemake.in: rename --list-modules to --help-modules,
+	add gtk2 to the list of suggested modules in the comments
 	<32_trans1>
 	* aridecl.d, compelem.d, flo_konv.d, realelem.d: translate comments
 
