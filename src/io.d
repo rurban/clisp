@@ -5384,17 +5384,17 @@ local maygc void write_sstring_case (const gcv_object_t* stream_, object string)
 }
 
 /* UP: prints a number of Spaces to stream.
- spaces(&stream,anzahl); english: spaces(&stream,number_of_spaces);
- > anzahl: number of Spaces (Fixnum>=0)
+ spaces(&stream,scount)
+ > scount: number of Spaces (Fixnum>=0)
  > stream: Stream
  < stream: Stream
  can trigger GC */
-local maygc void spaces (const gcv_object_t* stream_, object anzahl) {
+local maygc void spaces (const gcv_object_t* stream_, object scount) {
   var uintV count;
  #ifdef IO_DEBUG
-  ASSERT(posfixnump(anzahl));
+  ASSERT(posfixnump(scount));
  #endif
-  dotimesV(count,posfixnum_to_V(anzahl), {
+  dotimesV(count,posfixnum_to_V(scount), {
     write_ascii_char(stream_,' ');
   });
 }
