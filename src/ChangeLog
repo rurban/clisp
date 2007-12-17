@@ -5,7 +5,7 @@
 2007-12-08  Reini Urban  <rurban@x-ray.at>
 
 	<32_trans1>
-	* aridecl.d: translate comments
+	* aridecl.d, compelem.d: translate comments
 
 2007-12-15  Sam Steingold  <sds@gnu.org>
 
