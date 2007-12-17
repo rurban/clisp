@@ -197,7 +197,7 @@ static void emit_define (const char* form, const char* definition) {
   if (test_f) emit_define_test(form,definition);
 }
 
-/* this cannot be used on X whose definition includes ## ! */
+/* this cannot be used on X whose definition includes ##! */
 #define export_def(x)  puts("#define " #x "  " STRING(x))
 #define export_literal(x)  puts(STRING(x))
 

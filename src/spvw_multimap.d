@@ -123,7 +123,7 @@ local int initmap (const char* tmpdir)
 
 #ifdef HAVE_MSYNC
 typedef struct { void* mm_addr; uintM mm_len; } mmap_interval_t;
-local mmap_interval_t mmap_intervals[256]; # 256 is abundant.
+local mmap_interval_t mmap_intervals[256]; /* 256 is plenty. */
 local mmap_interval_t* mmap_intervals_ptr = &mmap_intervals[0];
 local void remember_mmap_interval (void* map_addr, uintM map_len)
 {
