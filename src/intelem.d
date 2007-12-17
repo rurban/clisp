@@ -18,7 +18,7 @@
   #define get_max32_Dptr(count,ptr)  \
     ((count)==0 ? 0 : (uint32)((ptr)[0]))
   #define set_max32_Dptr(count,ptr,value)  \
-    ((count)==0 ? 0 : ((ptr)[0] = (uintD)(value)))
+    do { if ((count) != 0) (ptr)[0] = (uintD)(value);} while(0)
 #endif
 #if (intDsize==16)
   # define get_32_Dptr(ptr)  (((uint32)((ptr)[0])<<16) | ((uint32)((ptr)[1])))
@@ -28,10 +28,11 @@
   #define get_max32_Dptr(count,ptr)  \
     ((count)==0 ? 0 :                   \
      (count)<=16 ? (uint32)((ptr)[0]) : highlow32_at(ptr))
-  #define set_max32_Dptr(count,ptr,value)  \
-    ((count)==0 ? 0 :                           \
-     (count)<=16 ? ((ptr)[0] = (uintD)(value)) : \
-                   set_highlow32_at(ptr,value))
+  #define set_max32_Dptr(count,ptr,value)               \
+    do { if ((count) != 0) {                            \
+      if ((count)<=16) (ptr)[0] = (uintD)(value);       \
+      else set_highlow32_at(ptr,value);                 \
+    }} while(0)
 #endif
 #if (intDsize==8)
   #define get_32_Dptr(ptr)  (((((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) <<8) | (uint32)((ptr)[3]))
@@ -42,12 +43,22 @@
      (count)<=16 ? (( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) : \
      (count)<=24 ? (((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) : \
                    (((((( (uint32)((ptr)[0]) <<8) | (uint32)((ptr)[1])) <<8) | (uint32)((ptr)[2])) <<8) | (uint32)((ptr)[3])))
-  #define set_max32_Dptr(count,ptr,value)  \
-    ((count)==0 ? 0 : \
-     (count)<=8 ? ((ptr)[0] = (uintD)(value)) : \
-     (count)<=16 ? ((ptr)[0] = (uintD)((value)>>8), (ptr)[1] = (uintD)(value)) : \
-     (count)<=24 ? ((ptr)[0] = (uintD)((value)>>16), (ptr)[1] = (uintD)((value)>>8), (ptr)[2] = (uintD)(value)) : \
-                   ((ptr)[0] = (uintD)((value)>>24), (ptr)[1] = (uintD)((value)>>16), (ptr)[2] = (uintD)((value)>>8), (ptr)[3] = (uintD)(value)))
+  #define set_max32_Dptr(count,ptr,value)               \
+    do { if ((count) != 0) {                            \
+      if ((count)<=8) (ptr)[0] = (uintD)(value);        \
+      else if ((count)<=16) {                           \
+        (ptr)[0] = (uintD)((value)>>8);                 \
+        (ptr)[1] = (uintD)(value);                      \
+      } else if ((count)<=24) {                         \
+        (ptr)[0] = (uintD)((value)>>16);                \
+        (ptr)[1] = (uintD)((value)>>8);                 \
+        (ptr)[2] = (uintD)(value);                      \
+      } else {                                          \
+        (ptr)[0] = (uintD)((value)>>24);                \
+        (ptr)[1] = (uintD)((value)>>16);                \
+        (ptr)[2] = (uintD)((value)>>8);                 \
+        (ptr)[3] = (uintD)(value);                      \
+      }}} while(0)
 #endif
 
 /* conversion routines digit-sequence-part <--> longword:
