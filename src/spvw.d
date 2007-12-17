@@ -653,7 +653,7 @@ global void* SP_anchor;
  > line: line number */
 nonreturning_function(global, error_notreached,
                       (const char* file, uintL line)) {
-  end_system_call(); # just in case
+  end_system_call();            /* just in case */
   pushSTACK(fixnum(line));
   pushSTACK(ascii_to_string(file));
   error(serious_condition,
@@ -3152,13 +3152,13 @@ local inline void main_actions (struct argv_actions *p) {
   if (p->argv_execute_file != NULL && !nullpSv(script)) {
     /*  execute:
      (PROGN
-       #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\# #\!
+       #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\##\!
                (FUNCTION SYS::UNIX-EXECUTABLE-READER))
        (SETQ *LOAD-VERBOSE* NIL)
        (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)
        (UNLESS argv_repl (EXIT))) */
    #if defined(UNIX) || defined(WIN32_NATIVE)
-    # Make clisp ignore the leading #! line.
+    /* Make clisp ignore the leading #! line. */
     pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
     pushSTACK(L(unix_executable_reader));
     funcall(L(set_dispatch_macro_character),3);

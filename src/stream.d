@@ -1566,7 +1566,7 @@ LISPFUNNR(synonym_stream_symbol,1)
    ================
 
  Additional Components:
-  define strm_broad_list  strm_other[0] # list of streams
+  define strm_broad_list  strm_other[0] - list of streams
 
  WRITE-BYTE - Pseudo-Function for Broadcast-Streams: */
 local maygc void wr_by_broad (object stream, object obj) {
@@ -10720,8 +10720,8 @@ local const char* SRcap; /* Scroll reverse (text down) */
 #endif
 /* Others: */
 local const char* IScap; /* Terminal Initialization 2 */
-/*  local const char* BLcap; # Bell
-    local const char* VBcap; # Visible Bell (Flash) */
+/*  local const char* BLcap; - Bell
+    local const char* VBcap; - Visible Bell (Flash) */
 local const char* CLcap; /* clear screen, cursor home */
 #if WANT_CLEAR_FROM_BOS || WANT_CLEAR_TO_EOS || WANT_CLEAR_LINE || WANT_CLEAR_FROM_BOL || WANT_CLEAR_TO_EOL
 local const char* CEcap; /* clear to end of line */
@@ -12355,7 +12355,7 @@ LISPFUNN(make_window,0) {
   s->strm_wr_ch = s->strm_wr_ch_npnl = P(wr_ch_window); /* WRITE-CHAR-Pseudofunction */
   s->strm_wr_ch_array = s->strm_wr_ch_array_npnl = P(wr_ch_array_dummy); /* WRITE-CHAR-SEQUENCE-Pseudofunction */
   begin_system_call();
-  initscr(); /* initialize Curses # What, if this crashes?? use newterm()?? */
+  initscr(); /* initialize Curses - What, if this crashes?? use newterm()?? */
   cbreak(); noecho(); /* Input not line-buffered, without Echo */
  #if defined(SUN3) || defined(SUN4)
   keypad(stdscr,true); /* activate Function-Key-Detection */

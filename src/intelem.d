@@ -21,9 +21,9 @@
     do { if ((count) != 0) (ptr)[0] = (uintD)(value);} while(0)
 #endif
 #if (intDsize==16)
-  # define get_32_Dptr(ptr)  (((uint32)((ptr)[0])<<16) | ((uint32)((ptr)[1])))
+  /* #define get_32_Dptr(ptr)  (((uint32)((ptr)[0])<<16) | ((uint32)((ptr)[1]))) */
   #define get_32_Dptr(ptr)  highlow32_at(ptr)
-  # define set_32_Dptr(ptr,value)  ((ptr)[0] = (uintD)((value)>>16), (ptr)[1] = (uintD)(value))
+  /* #define set_32_Dptr(ptr,value)  ((ptr)[0] = (uintD)((value)>>16), (ptr)[1] = (uintD)(value)) */
   #define set_32_Dptr(ptr,value)  set_highlow32_at(ptr,value)
   #define get_max32_Dptr(count,ptr)  \
     ((count)==0 ? 0 :                   \
