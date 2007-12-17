@@ -6804,12 +6804,12 @@ local void with_stat_info (void) {
    Truename already in STACK_0, as 2. list element */
     var decoded_time_t timepoint; /* Write-Date in decoded form */
     convert_time(&filestatus->st_mtime,&timepoint);
-    pushSTACK(timepoint.Sekunden);
-    pushSTACK(timepoint.Minuten);
-    pushSTACK(timepoint.Stunden);
-    pushSTACK(timepoint.Tag);
-    pushSTACK(timepoint.Monat);
-    pushSTACK(timepoint.Jahr);
+    pushSTACK(timepoint.seconds);
+    pushSTACK(timepoint.minutes);
+    pushSTACK(timepoint.hours);
+    pushSTACK(timepoint.day);
+    pushSTACK(timepoint.month);
+    pushSTACK(timepoint.year);
     newlist = listof(6); /* build 6-element list */
   }
   pushSTACK(newlist); /* as 3. list element */
@@ -7330,12 +7330,12 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                       pushSTACK(STACK_(2)); /* newpathname as 1st list element */
                       pushSTACK(STACK_(1+1)); /* resolved pathname as 2nd list element */
                       /* convert time and date from DOS-format to decoded-time: */
-                      pushSTACK(timepoint.Sekunden);
-                      pushSTACK(timepoint.Minuten);
-                      pushSTACK(timepoint.Stunden);
-                      pushSTACK(timepoint.Tag);
-                      pushSTACK(timepoint.Monat);
-                      pushSTACK(timepoint.Jahr);
+                      pushSTACK(timepoint.seconds);
+                      pushSTACK(timepoint.minutes);
+                      pushSTACK(timepoint.hours);
+                      pushSTACK(timepoint.day);
+                      pushSTACK(timepoint.month);
+                      pushSTACK(timepoint.year);
                       { /* 6-element timestamp ==> the 3rd element */
                         object timestamp = listof(6); pushSTACK(timestamp); }
                       pushSTACK(off_to_I(entry_size)); /* length ==> 4th */

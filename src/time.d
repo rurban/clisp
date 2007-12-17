@@ -335,8 +335,8 @@ LISPFUNNR(get_internal_run_time,0)
 /* UP: Wandelt das System-Zeitformat in Decoded-Time um.
  convert_time(&time,&timepoint);
  > time_t time: in system time format
- < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums */
+ < timepoint.seconds, timepoint.minutes, timepoint.hours,
+   timepoint.day, timepoint.month, timepoint.year, jeweils als Fixnums */
 global void convert_time (const time_t* time, decoded_time_t* timepoint)
 {
   begin_system_call();
@@ -345,20 +345,20 @@ global void convert_time (const time_t* time, decoded_time_t* timepoint)
   end_system_call();
   if (tm) {
     /* localtime war erfolgreich */
-    timepoint->Sekunden = fixnum(tm->tm_sec);
-    timepoint->Minuten  = fixnum(tm->tm_min);
-    timepoint->Stunden  = fixnum(tm->tm_hour);
-    timepoint->Tag      = fixnum(tm->tm_mday);
-    timepoint->Monat    = fixnum(1+tm->tm_mon);
-    timepoint->Jahr     = fixnum(1900+tm->tm_year);
+    timepoint->seconds = fixnum(tm->tm_sec);
+    timepoint->minutes = fixnum(tm->tm_min);
+    timepoint->hours   = fixnum(tm->tm_hour);
+    timepoint->day     = fixnum(tm->tm_mday);
+    timepoint->month   = fixnum(1+tm->tm_mon);
+    timepoint->year    = fixnum(1900+tm->tm_year);
   } else {
     /* gescheitert -> verwende 1.1.1900, 00:00:00 als Default */
-    timepoint->Sekunden = Fixnum_0;
-    timepoint->Minuten  = Fixnum_0;
-    timepoint->Stunden  = Fixnum_0;
-    timepoint->Tag      = Fixnum_1;
-    timepoint->Monat    = Fixnum_1;
-    timepoint->Jahr     = fixnum(1900);
+    timepoint->seconds = Fixnum_0;
+    timepoint->minutes = Fixnum_0;
+    timepoint->hours   = Fixnum_0;
+    timepoint->day     = Fixnum_1;
+    timepoint->month   = Fixnum_1;
+    timepoint->year    = fixnum(1900);
   }
 }
 #endif
@@ -366,20 +366,20 @@ global void convert_time (const time_t* time, decoded_time_t* timepoint)
 /* UP: Wandelt das System-Zeitformat in Decoded-Time um.
  convert_time(&time,&timepoint);
  > FILETIME time: in system time format
- < timepoint.Sekunden, timepoint.Minuten, timepoint.Stunden,
-   timepoint.Tag, timepoint.Monat, timepoint.Jahr, jeweils als Fixnums */
+ < timepoint.seconds, timepoint.minutes, timepoint.hours,
+   timepoint.day, timepoint.month, timepoint.year, jeweils als Fixnums */
 global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
 {
   var FILETIME ltime;
   var SYSTEMTIME ltm;
   if (!FileTimeToLocalFileTime(time,&ltime)) { OS_error(); }
   if (!FileTimeToSystemTime(&ltime,&ltm)) { OS_error(); }
-  timepoint->Sekunden = fixnum(ltm.wSecond);
-  timepoint->Minuten  = fixnum(ltm.wMinute);
-  timepoint->Stunden  = fixnum(ltm.wHour);
-  timepoint->Tag      = fixnum(ltm.wDay);
-  timepoint->Monat    = fixnum(ltm.wMonth);
-  timepoint->Jahr     = fixnum(ltm.wYear);
+  timepoint->seconds = fixnum(ltm.wSecond);
+  timepoint->minutes = fixnum(ltm.wMinute);
+  timepoint->hours   = fixnum(ltm.wHour);
+  timepoint->day     = fixnum(ltm.wDay);
+  timepoint->month   = fixnum(ltm.wMonth);
+  timepoint->year    = fixnum(ltm.wYear);
 }
 #endif
 
@@ -390,13 +390,13 @@ global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
  < result: universal time
  can trigger GC */
 local maygc object encode_universal_time (const decoded_time_t* timepoint)
-{ /* (ENCODE-UNIVERSAL-TIME Sekunden Minuten Stunden Tag Monat Jahr): */
-  pushSTACK(timepoint->Sekunden);
-  pushSTACK(timepoint->Minuten);
-  pushSTACK(timepoint->Stunden);
-  pushSTACK(timepoint->Tag);
-  pushSTACK(timepoint->Monat);
-  pushSTACK(timepoint->Jahr);
+{ /* (ENCODE-UNIVERSAL-TIME seconds minutes hours day month year): */
+  pushSTACK(timepoint->seconds);
+  pushSTACK(timepoint->minutes);
+  pushSTACK(timepoint->hours);
+  pushSTACK(timepoint->day);
+  pushSTACK(timepoint->month);
+  pushSTACK(timepoint->year);
   funcall(S(encode_universal_time),6);
   return value1;
 }
@@ -514,12 +514,12 @@ local decoded_time_t realstart_datetime;
 /* Sets the time of the start of the session.
  set_start_time(&timepoint);
  > timepoint: Zeit beim LISP-System-Start
- >   timepoint.Sekunden in {0,...,59},
- >   timepoint.Minuten in {0,...,59},
- >   timepoint.Stunden in {0,...,23},
- >   timepoint.Tag in {1,...,31},
- >   timepoint.Monat in {1,...,12},
- >   timepoint.Jahr in {1980,...,2999},
+ >   timepoint.seconds in {0,...,59},
+ >   timepoint.minutes in {0,...,59},
+ >   timepoint.hours in {0,...,23},
+ >   timepoint.day in {1,...,31},
+ >   timepoint.month in {1,...,12},
+ >   timepoint.year in {1980,...,2999},
  >   jeweils als Fixnums.
  can trigger GC */
 local maygc void set_start_time (const decoded_time_t* timepoint)

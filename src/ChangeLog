@@ -1,3 +1,8 @@
+2007-12-17  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d, pathname.d, spvw_memfile.d, time.d (decoded_time_t):
+	translate field name from German to English
+
 2007-12-16  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d, spvw_memfile.d (quit_instantly): renamed from quit_sofort
