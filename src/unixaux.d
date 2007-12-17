@@ -235,8 +235,8 @@ local inline int fd_read_will_hang_p (int fd)
         goto restart_poll;
       OS_error();
     } else {
-      # revents has POLLIN or some other bits set if read() would return
-      # without blocking.
+      /* revents has POLLIN or some other bits set if read() would return
+       without blocking. */
       if (pollfd_bag[0].revents == 0)
         #ifdef HAVE_RELIABLE_POLL
         return 1;
@@ -244,13 +244,13 @@ local inline int fd_read_will_hang_p (int fd)
         return -1;
         #endif
     }
-    # Now we know that read() will return immediately.
+    /* Now we know that read() will return immediately. */
     return 0;
   #elif defined(HAVE_SELECT) && !defined(UNIX_BEOS)
-    # Use select() with readfds = singleton set {fd}
-    # and timeout = zero interval.
-    var fd_set handle_set; # set of handles := {fd}
-    var struct timeval zero_time; # time interval := 0
+    /* Use select() with readfds = singleton set {fd}
+     and timeout = zero interval. */
+    var fd_set handle_set;         /* set of handles := {fd} */
+    var struct timeval zero_time;  /* time interval := 0 */
     FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
    restart_select:
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -258,10 +258,10 @@ local inline int fd_read_will_hang_p (int fd)
     if (result<0) {
       if (errno==EINTR)
         goto restart_select;
-      if (!(errno==EBADF)) { OS_error(); } # UNIX_LINUX returns EBADF for files!
+      if (errno!=EBADF) { OS_error(); } /*UNIX_LINUX returns EBADF for files!*/
     } else {
-      # result = number of handles in handle_set for which read() would
-      # return without blocking.
+      /* result = number of handles in handle_set for which read() would
+       return without blocking. */
       if (result==0)
         #ifdef HAVE_RELIABLE_SELECT
         return 1;
@@ -269,7 +269,7 @@ local inline int fd_read_will_hang_p (int fd)
         return -1;
         #endif
     }
-    # Now we know that read() will return immediately.
+    /* Now we know that read() will return immediately. */
     return 0;
   #else
     return -1;
@@ -310,11 +310,11 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
         NOTREACHED;
       #else
         if (persev == persev_bonus) {
-          # Non-blocking I/O is not worth it unless absolutely necessary.
+          /* Non-blocking I/O is not worth it unless absolutely necessary. */
           errno = EAGAIN;
           return 0;
         }
-        # As a last resort, use non-blocking I/O.
+        /* As a last resort, use non-blocking I/O. */
         var ssize_t done = 0;
         NO_BLOCK_DECL(fd);
         START_NO_BLOCK(fd);
@@ -383,8 +383,8 @@ local inline int fd_write_will_hang_p (int fd)
         goto restart_poll;
       OS_error();
     } else {
-      # revents has POLLOUT or some other bits set if write() would return
-      # without blocking.
+      /* revents has POLLOUT or some other bits set if write() would return
+       without blocking. */
       if (pollfd_bag[0].revents == 0)
         #ifdef HAVE_RELIABLE_POLL
         return 1;
@@ -392,13 +392,13 @@ local inline int fd_write_will_hang_p (int fd)
         return -1;
         #endif
     }
-    # Now we know that write() will return immediately.
+    /* Now we know that write() will return immediately. */
     return 0;
   #elif defined(HAVE_SELECT) && !defined(UNIX_BEOS)
-    # Use select() with writefds = singleton set {fd}
-    # and timeout = zero interval.
-    var fd_set handle_set; # set of handles := {fd}
-    var struct timeval zero_time; # time interval := 0
+    /* Use select() with writefds = singleton set {fd}
+     and timeout = zero interval. */
+    var fd_set handle_set;         /* set of handles := {fd} */
+    var struct timeval zero_time;  /* time interval := 0 */
     FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
    restart_select:
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -406,10 +406,10 @@ local inline int fd_write_will_hang_p (int fd)
     if (result<0) {
       if (errno==EINTR)
         goto restart_select;
-      if (!(errno==EBADF)) { OS_error(); } # UNIX_LINUX returns EBADF for files!
+      if (errno!=EBADF) { OS_error(); } /*UNIX_LINUX returns EBADF for files!*/
     } else {
-      # result = number of handles in handle_set for which write() would
-      # return without blocking.
+      /* result = number of handles in handle_set for which write() would
+       return without blocking. */
       if (result==0)
         #ifdef HAVE_RELIABLE_SELECT
         return 1;
@@ -417,7 +417,7 @@ local inline int fd_write_will_hang_p (int fd)
         return -1;
         #endif
     }
-    # Now we know that write() will return immediately.
+    /* Now we know that write() will return immediately. */
     return 0;
   #else
     return -1;
@@ -450,11 +450,11 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
         NOTREACHED;
       #else
         if (persev == persev_bonus) {
-          # Non-blocking I/O is not worth it unless absolutely necessary.
+          /* Non-blocking I/O is not worth it unless absolutely necessary. */
           errno = EAGAIN;
           return 0;
         }
-        # As a last resort, use non-blocking I/O.
+        /* As a last resort, use non-blocking I/O. */
         var ssize_t done = 0;
         NO_BLOCK_DECL(fd);
         START_NO_BLOCK(fd);
@@ -515,10 +515,10 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
    Returns 1 for yes, 0 for no, -1 for unknown. */
 local inline int sock_read_will_hang_p (int fd)
 {
-  # Use select() with readfds = singleton set {fd}
-  # and timeout = zero interval.
-  var fd_set handle_set; # set of handles := {fd}
-  var struct timeval zero_time; # time interval := 0
+  /* Use select() with readfds = singleton set {fd}
+   and timeout = zero interval. */
+  var fd_set handle_set;         /* set of handles := {fd} */
+  var struct timeval zero_time;  /* time interval := 0 */
   FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
  restart_select:
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -528,12 +528,12 @@ local inline int sock_read_will_hang_p (int fd)
       goto restart_select;
     OS_error();
   } else {
-    # result = number of handles in handle_set for which read() would
-    # return without blocking.
+    /* result = number of handles in handle_set for which read() would
+     return without blocking. */
     if (result==0)
       return 1;
   }
-  # Now we know that recv() will return immediately.
+  /* Now we know that recv() will return immediately. */
   return 0;
 }
 
@@ -593,10 +593,10 @@ global ssize_t sock_read (int fd, void* bufarea, size_t nbyte, perseverance_t pe
 local inline int sock_write_will_hang_p (int fd)
 {
   #if 0 /* On BeOS, select() supports only readfds, not writefds. */
-    # Use select() with writefds = singleton set {fd}
-    # and timeout = zero interval.
-    var fd_set handle_set; # set of handles := {fd}
-    var struct timeval zero_time; # time interval := 0
+    /* Use select() with writefds = singleton set {fd}
+     and timeout = zero interval. */
+    var fd_set handle_set;         /* set of handles := {fd} */
+    var struct timeval zero_time;  /* time interval := 0 */
     FD_ZERO(&handle_set); FD_SET(fd,&handle_set);
    restart_select:
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
@@ -606,12 +606,12 @@ local inline int sock_write_will_hang_p (int fd)
         goto restart_select;
       OS_error();
     } else {
-      # result = number of handles in handle_set for which write() would
-      # return without blocking.
+      /* result = number of handles in handle_set for which write() would
+       return without blocking. */
       if (result==0)
         return 0;
     }
-    # Now we know that send() will return immediately.
+    /* Now we know that send() will return immediately. */
   #else
     return -1;
   #endif
@@ -640,11 +640,11 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
     }
     if (will_hang < 0) {
       if (persev == persev_bonus) {
-        # Non-blocking I/O is not worth it unless absolutely necessary.
+        /* Non-blocking I/O is not worth it unless absolutely necessary. */
         errno = EAGAIN;
         return 0;
       }
-      # As a last resort, use non-blocking I/O.
+      /* As a last resort, use non-blocking I/O. */
       var ssize_t done = 0;
       NO_BLOCK_DECL(fd);
       START_NO_BLOCK(fd);
