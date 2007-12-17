@@ -6349,7 +6349,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var object symbol = TheCclosure(closure)->clos_consts[n];
       /* The Compiler has already checked, that it's a Symbol. */
       if (!boundp(Symbol_value(symbol))) {
-        pushSTACK(symbol); # CELL-ERROR slot NAME
+        pushSTACK(symbol);      /* CELL-ERROR slot NAME */
         pushSTACK(symbol); pushSTACK(Closure_name(closure));
         error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
       }

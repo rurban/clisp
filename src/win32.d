@@ -358,7 +358,7 @@ extern int interruptible_socket_wait (SOCKET socket_handle, socket_wait_event wa
 
 /* Hacking the terminal */
 #ifdef __MINGW32__
-  # include <io.h>
+  /* #include <io.h> */
   #define isatty clisp_isatty /* avoid collision with prototype in <mingw/io.h> */
 #endif
 extern int isatty (HANDLE handle); /* see win32aux.d */

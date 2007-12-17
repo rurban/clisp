@@ -299,4 +299,4 @@ local void xmmprotect (Heap* heap, aint addr, uintM len, int prot)
   #define xmmprotect(heap,addr,len,prot)  xmprotect(addr,len,prot)
 #endif
 
-#endif # GENERATIONAL_GC
+#endif  /* GENERATIONAL_GC */
