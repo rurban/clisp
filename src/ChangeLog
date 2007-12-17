@@ -2,6 +2,8 @@
 
 	* spvw.d, spvw_memfile.d (quit_instantly): renamed from quit_sofort
 	* io.d (spaces): rename argument anzahl to scount
+	(paren_open): rename from klammer_auf
+	(paren_close): rename from klammer_zu
 
 2007-12-08  Reini Urban  <rurban@x-ray.at>
 
