@@ -1145,6 +1145,7 @@ LISPFUN(make_string_output_stream,seclass_read,0,0,norest,key,2,
 LISPFUNN(get_output_stream_string,1)
 LISPFUNNR(make_string_push_stream,1)
 LISPFUNNF(string_stream_p,1)
+LISPFUNNR(string_stream_string,1)
 LISPFUNNR(make_buffered_input_stream,2)
 LISPFUNNR(buffered_input_stream_index,1)
 LISPFUN(make_buffered_output_stream,seclass_read,1,1,norest,nokey,0,NIL)

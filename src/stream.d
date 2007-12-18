@@ -2491,18 +2491,22 @@ LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
   VALUES1(stream); /* stream as value */
 }
 
+nonreturning_function(local, error_string_stream,
+                      (object stream, const char *message)) {
+  pushSTACK(stream);           /* TYPE-ERROR slot DATUM */
+  pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(stream);
+  pushSTACK(TheSubr(subr_self)->name);
+  error(type_error,message);
+}
+
 LISPFUNNR(string_input_stream_index,1)
 { /* (SYSTEM::STRING-INPUT-STREAM-INDEX string-input-stream) ==> Index */
   var object stream = popSTACK(); /* Argument */
   /* must be a String-Input-Stream: */
   if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_str_in))) {
-    pushSTACK(stream);           /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(stream);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: ~S is not a string input stream"));
-  }
+        && (TheStream(stream)->strmtype == strmtype_str_in)))
+    error_string_stream(stream,GETTEXT("~S: ~S is not a string input stream"));
   var object index = TheStream(stream)->strm_str_in_index;
   /* if a Character was pushed back with UNREAD-CHAR,
    use (1- index), a Fixnum >=0, as value: */
@@ -2628,13 +2632,8 @@ LISPFUNN(get_output_stream_string,1)
   var object stream = STACK_0;  /* Argument */
   /* must be a String-Output-Stream: */
   if (!(builtin_stream_p(stream)
-        && (TheStream(stream)->strmtype == strmtype_str_out))) {
-    /* stream in STACK_0 -- TYPE-ERROR slot DATUM */
-    pushSTACK(S(string_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(S(string_stream)); pushSTACK(STACK_2);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: ~S is not a string output stream"));
-  }
+        && (TheStream(stream)->strmtype == strmtype_str_out)))
+    error_string_stream(stream,GETTEXT("~S: ~S is not a string output stream"));
   /* the collected stuff is the value */
   VALUES1(get_output_stream_string(&STACK_0));
   skipSTACK(1);
@@ -2700,6 +2699,26 @@ LISPFUNNF(string_stream_p,1)
     }
   } else
     VALUES1(NIL);
+}
+
+LISPFUNNR(string_stream_string,1)
+{ /* (SYSTEM::STRING-STREAM-STRING string-stream) ==> String [beg end] */
+  var object stream = popSTACK();
+  if (builtin_stream_p(stream))
+    switch (TheStream(stream)->strmtype) {
+      case strmtype_str_in:   /* String-Input-Stream */
+        VALUES3(TheStream(stream)->strm_str_in_string,
+                TheStream(stream)->strm_str_in_begindex,
+                TheStream(stream)->strm_str_in_endindex);
+        return;
+      case strmtype_str_out:  /* String-Output-Stream */
+        VALUES1(TheStream(stream)->strm_str_out_string);
+        return;
+      case strmtype_str_push: /* String-Push-Stream */
+        VALUES1(TheStream(stream)->strm_str_push_string);
+        return;
+    }
+  error_string_stream(stream,GETTEXT("~S: ~S is not a string stream"));
 }
 
 

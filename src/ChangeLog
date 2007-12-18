@@ -1,5 +1,17 @@
 2007-12-18  Sam Steingold  <sds@gnu.org>
 
+	DESCRIBE shows contents of STRING-STREAMs
+	* stream.d (error_string_stream): add
+	(STRING-INPUT-STREAM-INDEX, GET-OUTPUT-STREAM-STRING): use it
+	(STRING-STREAM-STRING): add
+	* constsym.d, subr.d (string_stream_string): add
+	* describe.lisp (*squeeze-string-max*, *squeeze-string-section*)
+	(squeeze-string): add
+	(describe-object): use squeeze-string and string-stream-string to
+	describe string streams
+
+2007-12-18  Sam Steingold  <sds@gnu.org>
+
 	* record.d (error_closure): add
 	(SYS::CLOSURE-NAME, (SETF SYS::CLOSURE-NAME)): use it
 	(slot_in_arglist, SYS::%MAKE-INSTANCE): add a cast to avoid
