@@ -253,7 +253,8 @@
 <!ENTITY exit-on-error '<olink targetdoc="impnotes" targetptr="exit-on-error"><function>EXT:EXIT-ON-ERROR</function></olink>'>
 <!ENTITY expand-form '<link linkend="code-walk"><function>EXT:EXPAND-FORM</function></link>'>
 <!ENTITY extfmt '<link linkend="extfmt"><constant>:EXTERNAL-FORMAT</constant></link>'>
-<!ENTITY file-pipe-socket-s '<link linkend="open">file</link>/<link linkend="pipe">pipe</link>/<link linkend="socket">socket</link> &stream-t;'>
+<!ENTITY sock '<link linkend="socket">socket</link>'>
+<!ENTITY file-pipe-socket-s '<link linkend="open">file</link>/<link linkend="pipe">pipe</link>/&sock; &stream-t;'>
 <!ENTITY finalize '<link linkend="final"><function>EXT:FINALIZE</function></link>'>
 <!ENTITY fixnum-char-ansi '<link linkend="fixnum-char-ansi"><varname>CUSTOM:*COERCE-FIXNUM-CHAR-ANSI*</varname></link>'>
 <!ENTITY flocont '<link linkend="flocont"><varname>CUSTOM:*FLOATING-POINT-CONTAGION-ANSI*</varname></link>'>

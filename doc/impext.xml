@@ -1705,9 +1705,9 @@ here <function>WITH-FOO</function> does not receive the
  <link linkend="clhs-lisp"><filename>clhs.lisp</filename></link>,
  they allow downloading data over the Internet using the &http; protocol.
  <code>(&open-http; url &key-amp; &if-does-not-exist;)</code> opens
- a <link linkend="socket">socket</link> connection to the
- <replaceable>url</replaceable> host, sends the <command>GET</command>
- request, and returns two values: the &socket-stream; and content length.
+ a &sock; connection to the <replaceable>url</replaceable> host,
+ sends the <command>GET</command> request,
+ and returns two values: the &socket-stream; and content length.
 <code>(EXT:WITH-HTTP-INPUT (&var-r; url) &body-amp; body)</code> binds &var-r;
 to the &socket-stream; returned by &open-http; and executes the &body-r;.
 <code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>

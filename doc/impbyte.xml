@@ -161,7 +161,7 @@
    <link linkend="terminal">terminal</link> streams, &string-stream-t;s
    etc.</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/socket.d</filename></term>
- <listitem><simpara>Opening sockets for TCP/IP and CLX.
+ <listitem><simpara>Opening &sock;s for &tcp;/&ip; and &clx;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/io.d</filename></term>
  <listitem><simpara>The lisp reader (parser) and printer (also pretty
@@ -929,10 +929,10 @@ most other pointers point to &clisp; data.</para>
 </simplelist></para></listitem></varlistentry>
 </variablelist>
 
-<para>Let us turn to those &clisp; objects that consume regular &clisp;
-memory.  Every &clisp; object has a size which is determined when the
-object is allocated (using one of the <function>allocate_*()</function>
-routines). The size can be computed from the type tag and - if necessary
+<para>Let us turn to those &clisp; objects that consume regular &clisp; memory.
+Every &clisp; object has a size which is determined when the object is
+allocated (using one of the <function>allocate_*()</function> routines).
+The size can be computed from the type tag and - if necessary
 - the length field of the object's header. The length field always
 contains the number of elements of the object. The number of bytes is
 given by the function <function>objsize()</function>.</para>
@@ -946,9 +946,10 @@ purposes at their beginning.</para>
 
 <para>The garbage collector is invoked by
  <function>allocate_*()</function> calls according to certain heuristics.
-It marks all objects which are "live" (may be reached from the "roots"),
-compacts these objects and unmarks them.  Non-live objects are lost;
-their storage is reclaimed.</para>
+It marks all objects which are <quote>live</quote>
+(may be reached from the <quote>roots</quote>),
+compacts these objects and unmarks them.
+Non-live objects are lost; their storage is reclaimed.</para>
 
 <para>2-pointer objects are compacted by a simple hole-filling
 algorithm: fill the left-most object into the right-most hole, and so
