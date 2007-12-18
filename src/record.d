@@ -279,15 +279,18 @@ LISPFUNNR(structure_type_p,2) {
    == (APPLY (APPLY result arguments) arguments) .
 */
 
+/* error, if argument is not a closure */
+nonreturning_function(local, error_closure, (object obj)) {
+  pushSTACK(obj);
+  pushSTACK(TheSubr(subr_self)->name); /* function name */
+  error(error_condition, /* type_error ?? */
+        GETTEXT("~S: ~S is not a closure"));
+}
+
 /* (SYS::CLOSURE-NAME closure) returns the name of a closure. */
 LISPFUNNR(closure_name,1) {
   var object closure = popSTACK();
-  if (!closurep(closure)) {
-    pushSTACK(closure);
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    error(error_condition, /* type_error ?? */
-          GETTEXT("~S: ~S is not a closure"));
-  }
+  if (!closurep(closure)) error_closure(closure);
   VALUES1(Closure_name(closure));
 }
 
@@ -295,12 +298,7 @@ LISPFUNNR(closure_name,1) {
    closure. */
 LISPFUNN(set_closure_name,2) {
   var object closure = popSTACK();
-  if (!closurep(closure)) {
-    pushSTACK(closure);
-    pushSTACK(TheSubr(subr_self)->name); /* function name */
-    error(error_condition, /* type_error ?? */
-          GETTEXT("~S: ~S is not a closure"));
-  }
+  if (!closurep(closure)) error_closure(closure);
   var object new_name = popSTACK();
   if (Closure_instancep(closure))
     TheCclosure(closure)->clos_consts[1] = new_name;
@@ -314,14 +312,14 @@ nonreturning_function(local, error_cclosure, (object obj)) {
   pushSTACK(obj);
   pushSTACK(TheSubr(subr_self)->name); /* function name */
   error(error_condition, /* type_error ?? */
-        GETTEXT("~S: This is not a compiled closure: ~S"));
+        GETTEXT("~S: ~S is not a compiled closure"));
 }
 
 /* (SYS::CLOSURE-CODEVEC closure) returns the code-vector of a compiled
    closure, as an array of fixnums >=0, <256. */
 LISPFUNNR(closure_codevec,1) {
   var object closure = popSTACK();
-  if (!(cclosurep(closure))) error_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   var object codevec = TheCclosure(closure)->clos_codevec;
   VALUES1(codevec);
 }
@@ -330,7 +328,7 @@ LISPFUNNR(closure_codevec,1) {
    compiled closure. */
 LISPFUNNR(closure_consts,1) {
   var object closure = popSTACK();
-  if (!(cclosurep(closure))) error_cclosure(closure);
+  if (!cclosurep(closure)) error_cclosure(closure);
   /* put elements 2,3,... to a list: */
   var uintB ccv_flags =
     TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
