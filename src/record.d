@@ -1577,7 +1577,7 @@ local inline gcv_object_t* slot_in_arglist (const object slot, uintC argcount,
     var object initarg = NEXT(ptr);
     if (!nullp(memq(initarg,l)))
       return ptr;
-    NEXT(ptr);
+    (void)NEXT(ptr);
   });
   return NULL;
 }
@@ -1986,7 +1986,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
         dotimespC(count,argcount, {
           if (eq(NEXT(ptr),key))
             goto key_found;
-          NEXT(ptr);
+          (void)NEXT(ptr);
         });
       }
       /* not found */
