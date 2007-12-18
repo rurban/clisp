@@ -1,3 +1,8 @@
+2007-12-18  Sam Steingold  <sds@gnu.org>
+
+	* record.d (error_closure): add
+	(SYS::CLOSURE-NAME, (SETF SYS::CLOSURE-NAME)): use it
+
 2007-12-17  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, pathname.d, spvw_memfile.d, time.d (decoded_time_t):
