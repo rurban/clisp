@@ -9637,7 +9637,7 @@ Optimizations that might apply after this one are retried.
 |#
 
 ;; Executes Steps 1, 2 and 3:
-(defun compile-to-LAP ()
+(defun compile-to-LAP ()        ; LAP = Lisp Assembly Program
   (let ((*code-parts* (make-array 10 :adjustable t :fill-pointer 0))
         (*code-positions* (make-array 10 :adjustable t :fill-pointer 0)))
     ;; Expands the Code of Fnode *func* and divides it into pieces.
