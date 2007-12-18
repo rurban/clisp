@@ -2,6 +2,8 @@
 
 	* record.d (error_closure): add
 	(SYS::CLOSURE-NAME, (SETF SYS::CLOSURE-NAME)): use it
+	(slot_in_arglist, SYS::%MAKE-INSTANCE): add a cast to avoid
+	the "value computed is not used" warning
 
 2007-12-17  Sam Steingold  <sds@gnu.org>
 
