@@ -767,6 +767,33 @@ to see where the warning is coming from.</para>
 </qandaentry>
 
 
+<qandaentry id="faq-bad-error"><question id="faq-bad-error-q">
+  <simpara>The error message is not helpful!</simpara></question>
+<answer><para>Sometimes an error message contains a compound object
+  whose content you want to examine. Often this object will be available
+  for &inspect-my;ion via the <command>Inspect</command> command (see
+  <xref linkend="debugger-deb-step-1"/>). E.g., <screen>
+*** - READ: input stream #&lt;INPUT STRING-INPUT-STREAM&gt; ends within an object
+The following restarts are available:
+ABORT          :R1      ABORT
+<prompt>Break 4 [1]&gt;</prompt> <userinput>:i</userinput>
+#&lt;SYSTEM::SIMPLE-END-OF-FILE #x000333CB82F8&gt;:  standard object
+ type: SYSTEM::SIMPLE-END-OF-FILE
+0 [$STREAM]:  #&lt;INPUT STRING-INPUT-STREAM&gt;
+1 [$FORMAT-CONTROL]:
+"~S: input stream ~S ends within an object
+"
+2 [$FORMAT-ARGUMENTS]:  (READ #&lt;INPUT STRING-INPUT-STREAM&gt;)
+<prompt>INSPECT-- type :h for help; :q to return to the REPL ---&gt;</prompt> <userinput>0</userinput>
+#&lt;INPUT STRING-INPUT-STREAM&gt;:  atom
+ type: STRING-STREAM
+ class: #1=#&lt;BUILT-IN-CLASS STRING-STREAM&gt;
+<prompt>INSPECT-- type :h for help; :q to return to the REPL ---&gt;</prompt> <userinput>:d</userinput>
+
+#&lt;INPUT STRING-INPUT-STREAM&gt; is an input-stream. It reads from "(foo" from 0 to 4 at 4.
+</screen></para></answer></qandaentry>
+
+
 <qandaentry id="faq-other-problem"><question id="faq-other-problem-q">
   <simpara>Why is the function <function>FOO</function>
    broken?!</simpara></question>
