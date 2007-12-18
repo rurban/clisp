@@ -146,7 +146,8 @@
 <varlistentry id="eval-d">
  <term><filename role="clisp-cvs">src/eval.d</filename></term>
  <listitem><para>Evaluator (form interpreter) and &bytecode; interpreter.
-   <variablelist><varlistentry id="bytecode-d"><term>&bytecode-d;</term>
+   <variablelist><varlistentry id="bytecode-d">
+     <term><filename role="clisp-cvs">src/bytecode.d</filename></term>
      <listitem><simpara>List of &bytecode;s.</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/control.d</filename></term>
