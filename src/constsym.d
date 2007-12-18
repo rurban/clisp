@@ -939,6 +939,7 @@ LISPSYM(make_string_output_stream,"MAKE-STRING-OUTPUT-STREAM",lisp)
 LISPSYM(get_output_stream_string,"GET-OUTPUT-STREAM-STRING",lisp)
 LISPSYM(make_string_push_stream,"MAKE-STRING-PUSH-STREAM",system) /* ABI */
 LISPSYM(string_stream_p,"STRING-STREAM-P",system) /* ABI */
+LISPSYM(string_stream_string,"STRING-STREAM-STRING",system)
 LISPSYM(make_buffered_input_stream,"MAKE-BUFFERED-INPUT-STREAM",ext)
 LISPSYM(buffered_input_stream_index,"BUFFERED-INPUT-STREAM-INDEX",system)
 LISPSYM(make_buffered_output_stream,"MAKE-BUFFERED-OUTPUT-STREAM",ext)
