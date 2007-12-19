@@ -1,3 +1,8 @@
+2007-12-19  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_stream) [0]: print contents of a STRING-INPUT-STREAM
+	for bootstrap debugging only
+
 2007-12-18  Sam Steingold  <sds@gnu.org>
 
 	DESCRIBE shows contents of STRING-STREAMs

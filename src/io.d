@@ -9816,6 +9816,25 @@ local maygc void pr_stream (const gcv_object_t* stream_, object obj) {
   write_sstring_case(stream_,O(printstring_stream));
   /* Stream-specific supplementary information: */
   switch (type) {
+   #if 0
+    /* this is disabled with "#if 0" because the string may be huge.
+       normally one should use :i/:d in debugger, as described in
+       http://clisp.cons.org/impnotes/faq.html#faq-bad-error
+       and enable this only for build process debugging
+       when reploop, inspect, and describe are not yet available */
+    case strmtype_str_in:       /* STRING-INPUT-STREAM */
+      JUSTIFY_SPACE; JUSTIFY_LAST(false);
+      prin_object(stream_,TheStream(*obj_)->strm_other[0]); /* string */
+      write_ascii_char(stream_,':');
+      prin_object(stream_,TheStream(*obj_)->strm_other[1]); /* index */
+      JUSTIFY_SPACE; JUSTIFY_LAST(false); prin_object(stream_,S(Kstart));
+      JUSTIFY_SPACE; JUSTIFY_LAST(false);
+      prin_object(stream_,TheStream(*obj_)->strm_other[2]); /* begindex */
+      JUSTIFY_SPACE; JUSTIFY_LAST(false); prin_object(stream_,S(Kend));
+      JUSTIFY_SPACE; JUSTIFY_LAST(true);
+      prin_object(stream_,TheStream(*obj_)->strm_other[3]); /* endindex */
+      break;
+   #endif
     case strmtype_synonym:      /* Synonym-Stream */
       JUSTIFY_SPACE;
       JUSTIFY_LAST(true);
