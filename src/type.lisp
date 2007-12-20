@@ -523,9 +523,8 @@
 )
 (def-compound-type SIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (TEXT "~S: argument to SIGNED-BYTE must be an integer or * : ~S")
-           'typep n
-  ) )
+    (error (TEXT "~S: argument to ~S must be an integer or * : ~S")
+           'typep 'signed-byte n))
   (and (integerp x) (or (eq n '*) (< (integer-length x) n)))
   `(AND (INTEGERP ,x)
         ,@(if (eq n '*) '() `((< (INTEGER-LENGTH ,x) ,n)))
@@ -533,9 +532,8 @@
 )
 (def-compound-type UNSIGNED-BYTE (&optional (n '*)) (x)
   (unless (or (eq n '*) (integerp n))
-    (error (TEXT "~S: argument to UNSIGNED-BYTE must be an integer or * : ~S")
-           'typep n
-  ) )
+    (error (TEXT "~S: argument to ~S must be an integer or * : ~S")
+           'typep 'unsigned-byte n))
   (and (integerp x)
        (not (minusp x))
        (or (eq n '*) (<= (integer-length x) n))
