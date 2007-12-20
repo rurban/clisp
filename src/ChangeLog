@@ -1,3 +1,10 @@
+2007-12-20  Sam Steingold  <sds@gnu.org>
+
+	fix bug [ 1854698 ]: BYTE is a type, but is unacceptable input to TYPEP
+	* type.lisp (BYTE): add atomic type
+	* predtype.d (bytep): implement
+	* subr.d, constsym.d (bytep): add
+
 2007-12-19  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_stream) [0]: print contents of a STRING-INPUT-STREAM

@@ -1,3 +1,8 @@
+2007-12-20  Sam Steingold  <sds@gnu.org>
+
+	* type.tst: add tests for bug [ 1854698 ]:
+	BYTE is a type, but is unacceptable input to TYPEP
+
 2007-11-25  Sam Steingold  <sds@gnu.org>
 
 	* mop.tst: add a test for
