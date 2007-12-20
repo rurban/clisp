@@ -795,3 +795,29 @@ NIL
 (type-of (byte 1 2)) BYTE
 (typep (byte 1 2) 'BYTE) T
 (etypecase (byte 1 2) (integer 'integer) (byte t) (list 'list)) t
+
+;; http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html
+;; for some reason, BYTE is missing from table 4-2.
+(mapcan (lambda (type) (and (typep 0 type) (list type)))
+        '(array atom base-char base-string bignum bit bit-vector
+          broadcast-stream built-in-class cell-error character class
+          compiled-function complex concatenated-stream condition cons
+          control-error division-by-zero double-float echo-stream
+          end-of-file error extended-char file-error file-stream fixnum
+          float floating-point-inexact floating-point-invalid-operation
+          floating-point-overflow floating-point-underflow function
+          generic-function hash-table integer keyword list
+          logical-pathname long-float method method-combination nil null
+          number package package-error parse-error pathname
+          print-not-readable program-error random-state ratio rational
+          reader-error readtable real restart sequence serious-condition
+          short-float signed-byte simple-array simple-base-string
+          simple-bit-vector simple-condition simple-error simple-string
+          simple-type-error simple-vector simple-warning single-float
+          standard-char standard-class standard-generic-function
+          standard-method standard-object storage-condition stream
+          stream-error string string-stream structure-class
+          structure-object style-warning symbol synonym-stream t
+          two-way-stream type-error unbound-slot unbound-variable
+          undefined-function unsigned-byte vector warning))
+(ATOM BIT FIXNUM INTEGER NUMBER RATIONAL REAL SIGNED-BYTE T UNSIGNED-BYTE)

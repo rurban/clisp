@@ -1,3 +1,8 @@
+2007-12-12  Sam Steingold  <sds@gnu.org>
+
+	* type.tst: test all atomic types in table 4-2
+	http://www.lisp.org/HyperSpec/Body/sec_4-2-3.html
+
 2007-12-20  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: add tests for bug [ 1854698 ]:
