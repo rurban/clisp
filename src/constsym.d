@@ -713,6 +713,7 @@ LISPSYM(not,"NOT",lisp)
 LISPSYM(closurep,"CLOSUREP",system)
 LISPSYM(listp,"LISTP",lisp)
 LISPSYM(proper_list_p,"PROPER-LIST-P",ext)
+LISPSYM(bytep,"BYTEP",system) /* ABI */
 LISPSYM(integerp,"INTEGERP",lisp)
 LISPSYM(fixnump,"FIXNUMP",system) /* ABI */
 LISPSYM(rationalp,"RATIONALP",lisp)

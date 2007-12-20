@@ -1229,6 +1229,11 @@ LISPFUNNR(proper_list_p,1)
   VALUES_IF(proper_list_p(STACK_0)); skipSTACK(1);
 }
 
+LISPFUNNF(bytep,1)
+{ /* (SYS::BYTEP object) */
+  VALUES_IF(bytep(STACK_0)); skipSTACK(1);
+}
+
 LISPFUNNF(integerp,1)
 { /* (INTEGERP object), CLTL p. 74 */
   VALUES_IF(integerp(STACK_0)); skipSTACK(1);

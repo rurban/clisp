@@ -256,16 +256,11 @@
          (eq (array-element-type x)
              #+BASE-CHAR=CHARACTER 'CHARACTER #-BASE-CHAR=CHARACTER 'BASE-CHAR
 ) ) )    )
-(def-atomic-type BIGNUM
-  (lambda (x) (and (integerp x) (not (fixnump x))))
-)
-(def-atomic-type BIT
-  (lambda (x) (or (eql x 0) (eql x 1)))
-)
+(def-atomic-type BIGNUM (lambda (x) (and (integerp x) (not (fixnump x)))))
+(def-atomic-type BIT (lambda (x) (or (eql x 0) (eql x 1))))
 (def-atomic-type BIT-VECTOR bit-vector-p)
-(def-atomic-type BOOLEAN
-  (lambda (x) (or (eq x 'nil) (eq x 't)))
-)
+(def-atomic-type BOOLEAN (lambda (x) (or (eq x 'nil) (eq x 't))))
+(def-atomic-type BYTE bytep)
 (def-atomic-type CHARACTER characterp)
 (def-atomic-type COMPILED-FUNCTION compiled-function-p)
 (def-atomic-type COMPLEX complexp)
