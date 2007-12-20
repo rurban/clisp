@@ -17,6 +17,7 @@ User visible changes
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
   + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.
     [ 1835520 ]
+  + BYTE is now a full-fledged type. [ 1854698 ]
 
 
 2.43 (2007-11-18)
