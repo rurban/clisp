@@ -1,5 +1,11 @@
 2007-12-20  Sam Steingold  <sds@gnu.org>
 
+	fix bug [ 1779490 ]: linux:dirent definition error
+	* modules/bindings/glibc/linux.lisp (clisp_dirent_ino_t)
+	(clisp_dirent_off_t): define depending on __USE_FILE_OFFSET64
+
+2007-12-20  Sam Steingold  <sds@gnu.org>
+
 	fix bug [ 1854698 ]: BYTE is a type, but is unacceptable input to TYPEP
 	* type.lisp (BYTE): add atomic type
 	* predtype.d (bytep): implement
