@@ -11,6 +11,15 @@
 (= linux:DT_DIR (linux:dirent64-d_type (show (linux:readdir64 *d*)))) T
 (linux:closedir *d*) 0
 
+(defparameter *d* (show (linux:opendir "."))) *D*
+(linux:dirent-d_name (show (linux:readdir *d*))) "."
+(linux:dirent-d_name (show (linux:readdir *d*))) ".."
+(= (linux:dirent-d_off (show (linux:readdir *d*))) (linux:telldir *d*)) T
+(linux:seekdir *d* 0) NIL
+(linux:telldir *d*) 0
+(= linux:DT_DIR (linux:dirent-d_type (show (linux:readdir *d*)))) T
+(linux:closedir *d*) 0
+
 #|
 ;;; signal handling examples:
 ;;; changing signal handlers:
