@@ -18,6 +18,7 @@ User visible changes
   + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.
     [ 1835520 ]
   + BYTE is now a full-fledged type. [ 1854698 ]
+  + Fix linux:dirent definition in the bindings/glibc module. [ 1779490 ]
 
 
 2.43 (2007-11-18)

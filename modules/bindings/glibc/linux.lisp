@@ -1845,11 +1845,23 @@
 ;;; ============================== <dirent.h> ================================
 (c-lines "#include <dirent.h>~%")
 
-;;; ----------------------------- <direntry.h> -------------------------------
+;;; ----------------------------- <bits/dirent.h> ---------------------------
+;; d_type is only in dirent64, not in dirent in <linux/dirent.h>,
+;; but it appears to BE required, and does appear in <bits/dirent.h>
+
+(c-lines "#ifndef __USE_FILE_OFFSET64
+typedef __ino_t clisp_dirent_ino_t;
+typedef __off_t clisp_dirent_off_t;
+#else
+typedef __ino64_t clisp_dirent_ino_t;
+typedef __off64_t clisp_dirent_off_t;
+#endif~%")
+(def-c-type clisp_dirent_ino_t)
+(def-c-type clisp_dirent_off_t)
 
 (def-c-struct dirent
-  (d_ino ino_t)
-  (d_off off_t)
+  (d_ino clisp_dirent_ino_t)
+  (d_off clisp_dirent_off_t)
   (d_reclen ushort)
   (d_type uchar)
   (d_name (c-array-max character #.(cl:+ NAME_MAX 1))))
