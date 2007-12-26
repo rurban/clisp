@@ -1,7 +1,7 @@
 /*
  * CLISP Symbol functions
  * Bruno Haible 1990-2005
- * Sam Steingold 2001-2006
+ * Sam Steingold 2001-2007
  * German comments and names translated into English: Reini Urban 2007-11
  */
 
@@ -311,8 +311,8 @@ LISPFUNNR(keywordp,1)
 LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
 { /* (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
   (defun gensym (&optional (x nil s))
-    (let ((prefix "G") ; ein String
-          (counter *gensym-counter*)) ; ein Integer >=0
+    (let ((prefix "G") ; a String
+          (counter *gensym-counter*)) ; an integer >=0
       (when s
         (cond ((stringp x) (setq prefix x))
               ((integerp x)
@@ -340,25 +340,12 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
     if (stringp(x)) {
       prefix = x; /* set prefix */
     } else if (integerp(x)) {
-      if (R_minusp(x)) {
-        pushSTACK(x); /* TYPE-ERROR slot DATUM */
-        pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        pushSTACK(x);
-        pushSTACK(S(gensym));
-        error(type_error,GETTEXT("~S: index ~S is negative"));
-      }
-      /* x is a integer >=0 */
-      counter = x; /* set counter */
-    } else {
-      pushSTACK(x); /* TYPE-ERROR slot DATUM */
-      pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(x);
-      pushSTACK(S(gensym));
-      error(type_error,GETTEXT("~S: invalid argument ~S"));
-    }
+      counter = x = check_pos_integer(x); /* set counter to an integer >=0 */
+      prefix = O(gensym_prefix);          /* reset: invalidated by GC */
+    } else error_string_integer(x);
   }
   /* construct string: */
-  pushSTACK(prefix);  /* 1. part of string */
+  pushSTACK(prefix);  /* 1st part of string */
   pushSTACK(counter); /* counter */
   if (!integerp(x)) {
     if (!(integerp(counter) && !R_minusp(counter))) { /* integer >= 0 */
@@ -371,6 +358,6 @@ LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
     Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); /* (incf *GENSYM-COUNTER*) */
   }
   funcall(L(decimal_string),1); /* (sys::decimal-string counter) */
-  pushSTACK(value1); /* 2. part of string */
+  pushSTACK(value1); /* 2nd part of string */
   VALUES1(make_symbol(coerce_imm_ss(string_concat(2))));
 }
