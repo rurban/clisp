@@ -2,6 +2,7 @@
  * CLISP Symbol functions
  * Bruno Haible 1990-2005
  * Sam Steingold 2001-2006
+ * German comments and names translated into English: Reini Urban 2007-11
  */
 
 #include "lispbibl.c"
@@ -74,39 +75,35 @@ LISPFUNN(putd,2)
 }
 
 LISPFUNN(find_subr,1)
-# (SYS::%FIND-SUBR symbol)
-# (defun sys::%find-subr (symbol)
-#   (assert (symbolp symbol))
-#   (or (get symbol 'sys::traced-definition) (symbol-function symbol))
-# )
-  {
-    var object symbol = check_symbol(popSTACK());
-    var object result = get(symbol,S(traced_definition));
-    if (! boundp(result))
-      result = Symbol_function(symbol);
-    if (!subrp(result)) {
-      pushSTACK(symbol);
-      pushSTACK(S(find_subr));
-      error(error_condition,GETTEXT("~S: ~S is not a system function"));
-    }
-    VALUES1(result);
+{ /* (SYS::%FIND-SUBR symbol)
+ (defun sys::%find-subr (symbol)
+   (assert (symbolp symbol))
+   (or (get symbol 'sys::traced-definition) (symbol-function symbol))) */
+  var object symbol = check_symbol(popSTACK());
+  var object result = get(symbol,S(traced_definition));
+  if (!boundp(result))
+    result = Symbol_function(symbol);
+  if (!subrp(result)) {
+    pushSTACK(symbol);
+    pushSTACK(S(find_subr));
+    error(error_condition,GETTEXT("~S: ~S is not a system function"));
   }
+  VALUES1(result);
+}
 
 LISPFUNN(proclaim_constant,2)
-# (SYS::%PROCLAIM-CONSTANT symbol value) erklärt ein Symbol zu einer Konstanten
-# und ihm einen Wert zu.
-  {
-    var object symbol = check_symbol_not_symbol_macro(STACK_1);
-    var object val = STACK_0; skipSTACK(2);
-    set_const_flag(TheSymbol(symbol)); # symbol zu einer Konstanten machen
-    Symbol_value(symbol) = val; # ihren Wert setzen
-    VALUES1(symbol); /* return symbol */
-  }
+{ /* (SYS::%PROCLAIM-CONSTANT symbol value) turns the symbol into a constant
+   and assigns a value. */
+  var object symbol = check_symbol_not_symbol_macro(STACK_1);
+  var object val = STACK_0; skipSTACK(2);
+  set_const_flag(TheSymbol(symbol)); /* make a constant */
+  Symbol_value(symbol) = val; /* and set value */
+  VALUES1(symbol); /* return symbol */
+}
 
-/* (SYS::%PROCLAIM-SYMBOL-MACRO symbol)
-   turns the symbol into a global symbol macro. */
 LISPFUNN(proclaim_symbol_macro,1)
-{
+{ /* (SYS::%PROCLAIM-SYMBOL-MACRO symbol)
+   turns the symbol into a global symbol macro. */
   STACK_0 = check_symbol_not_global_special(STACK_0);
   set_symmacro_flag(TheSymbol(STACK_0)); /* Change symbol to a symbol-macro. */
   VALUES1(popSTACK()); /* return symbol */
@@ -115,11 +112,11 @@ LISPFUNN(proclaim_symbol_macro,1)
 LISPFUN(get,seclass_read,2,1,norest,nokey,0,NIL)
 { /* (GET symbol key [not-found]), CLTL p. 164 */
   var object symbol = check_symbol(STACK_2);
-  var object result = get(symbol,STACK_1); # suchen
-  if (! boundp(result)) { /* not found? */
-    result = STACK_0; # Defaultwert ist not-found
-    if (! boundp(result)) /* not supplied */
-      result = NIL; # dann NIL.
+  var object result = get(symbol,STACK_1); /* search */
+  if (!boundp(result)) { /* not found? */
+    result = STACK_0; /* default is not-found */
+    if (!boundp(result)) /* not supplied */
+      result = NIL; /* else NIL. */
   }
   VALUES1(result);
   skipSTACK(3);
@@ -232,12 +229,11 @@ LISPFUNNR(get_properties,2)
 }
 
 LISPFUNN(putplist,2)
-# (SYS::%PUTPLIST symbol list) == (SETF (SYMBOL-PLIST symbol) list)
-  {
-    var object symbol = check_symbol(STACK_1);
-    var object list = STACK_0; skipSTACK(2);
-    VALUES1(Symbol_plist(symbol) = list);
-  }
+{ /* (SYS::%PUTPLIST symbol list) == (SETF (SYMBOL-PLIST symbol) list) */
+  var object symbol = check_symbol(STACK_1);
+  var object list = STACK_0; skipSTACK(2);
+  VALUES1(Symbol_plist(symbol) = list);
+}
 
 LISPFUNN(put,3)
 { /* (SYS::%PUT symbol key value) == (SETF (GET symbol key) value) */
@@ -313,83 +309,68 @@ LISPFUNNR(keywordp,1)
 }
 
 LISPFUN(gensym,seclass_read,0,1,norest,nokey,0,NIL)
-# (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
-# (defun gensym (&optional (x nil s))
-#   (let ((prefix "G") ; ein String
-#         (counter *gensym-counter*)) ; ein Integer >=0
-#     (when s
-#       (cond ((stringp x) (setq prefix x))
-#             ((integerp x)
-#              (if (minusp x)
-#                (error-of-type 'type-error
-#                       :datum x :expected-type '(INTEGER 0 *)
-#                       (ENGLISH "~S: index ~S is negative")
-#                       'gensym x
-#                )
-#                (setq counter x)
-#             ))
-#             (t (error-of-type 'type-error
-#                       :datum x :expected-type '(OR STRING INTEGER)
-#                       (ENGLISH "~S: invalid argument ~S")
-#                       'gensym x
-#             )  )
-#     ) )
-#     (prog1
-#       (make-symbol
-#         (string-concat
-#           prefix
-#           #-CLISP (write-to-string counter :base 10 :radix nil)
-#           #+CLISP (sys::decimal-string counter)
-#       ) )
-#       (unless (integerp x) (setq *gensym-counter* (1+ counter)))
-# ) ) )
-  {
-    var object prefix = O(gensym_prefix); # "G"
-    var object counter = Symbol_value(S(gensym_counter)); # *GENSYM-COUNTER*
-    var object x = popSTACK(); # Argument
-    if (boundp(x)) {
-      # x angegeben
-      if (stringp(x)) {
-        prefix = x; # prefix setzen
-      } else if (integerp(x)) {
-        if (R_minusp(x)) {
-          pushSTACK(x); # TYPE-ERROR slot DATUM
-          pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-          pushSTACK(x);
-          pushSTACK(S(gensym));
-          error(type_error,
-                 GETTEXT("~S: index ~S is negative")
-                );
-        }
-        # x ist ein Integer >=0
-        counter = x; # counter setzen
-      } else {
-        pushSTACK(x); # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_string_integer)); # TYPE-ERROR slot EXPECTED-TYPE
+{ /* (GENSYM x), CLTL S. 169, CLtL2 S. 245-246
+  (defun gensym (&optional (x nil s))
+    (let ((prefix "G") ; ein String
+          (counter *gensym-counter*)) ; ein Integer >=0
+      (when s
+        (cond ((stringp x) (setq prefix x))
+              ((integerp x)
+               (if (minusp x)
+                 (error-of-type 'type-error
+                        :datum x :expected-type '(INTEGER 0 *)
+                        (ENGLISH "~S: index ~S is negative")
+                        'gensym x)
+                 (setq counter x)))
+              (t (error-of-type 'type-error
+                        :datum x :expected-type '(OR STRING INTEGER)
+                        (ENGLISH "~S: invalid argument ~S")
+                        'gensym x))))
+      (prog1
+        (make-symbol
+          (string-concat
+            prefix
+            #-CLISP (write-to-string counter :base 10 :radix nil)
+            #+CLISP (sys::decimal-string counter)))
+        (unless (integerp x) (setq *gensym-counter* (1+ counter)))))) */
+  var object prefix = O(gensym_prefix); /* "G" */
+  var object counter = Symbol_value(S(gensym_counter)); /* *GENSYM-COUNTER* */
+  var object x = popSTACK(); /* Argument */
+  if (boundp(x)) { /* x supplied */
+    if (stringp(x)) {
+      prefix = x; /* set prefix */
+    } else if (integerp(x)) {
+      if (R_minusp(x)) {
+        pushSTACK(x); /* TYPE-ERROR slot DATUM */
+        pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
         pushSTACK(x);
         pushSTACK(S(gensym));
-        error(type_error,
-               GETTEXT("~S: invalid argument ~S")
-              );
+        error(type_error,GETTEXT("~S: index ~S is negative"));
       }
+      /* x is a integer >=0 */
+      counter = x; /* set counter */
+    } else {
+      pushSTACK(x); /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(x);
+      pushSTACK(S(gensym));
+      error(type_error,GETTEXT("~S: invalid argument ~S"));
     }
-    # String zusammenbauen:
-    pushSTACK(prefix); # 1. Teilstring
-    pushSTACK(counter); # counter
-    if (!integerp(x)) {
-      if (!(integerp(counter) && !R_minusp(counter))) { # sollte Integer >= 0 sein
-        var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; # *GENSYM-COUNTER* zurücksetzen
-        pushSTACK(counter);            # TYPE-ERROR slot DATUM
-        pushSTACK(O(type_posinteger)); # TYPE-ERROR slot EXPECTED-TYPE
-        pushSTACK(new_value); pushSTACK(counter);
-        error(type_error,
-               GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S.")
-              );
-      }
-      Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); # (incf *GENSYM-COUNTER*)
-    }
-    funcall(L(decimal_string),1); # (sys::decimal-string counter)
-    pushSTACK(value1); # 2. String
-    VALUES1(make_symbol(coerce_imm_ss(string_concat(2))));
   }
-
+  /* construct string: */
+  pushSTACK(prefix);  /* 1. part of string */
+  pushSTACK(counter); /* counter */
+  if (!integerp(x)) {
+    if (!(integerp(counter) && !R_minusp(counter))) { /* integer >= 0 */
+      var object new_value = Symbol_value(S(gensym_counter)) = Fixnum_0; /* reset *GENSYM-COUNTER* */
+      pushSTACK(counter);            /* TYPE-ERROR slot DATUM */
+      pushSTACK(O(type_posinteger)); /* TYPE-ERROR slot EXPECTED-TYPE */
+      pushSTACK(new_value); pushSTACK(counter);
+      error(type_error,GETTEXT("The value of *GENSYM-COUNTER* was not a nonnegative integer. Old value ~S. New value ~S."));
+    }
+    Symbol_value(S(gensym_counter)) = I_1_plus_I(counter); /* (incf *GENSYM-COUNTER*) */
+  }
+  funcall(L(decimal_string),1); /* (sys::decimal-string counter) */
+  pushSTACK(value1); /* 2. part of string */
+  VALUES1(make_symbol(coerce_imm_ss(string_concat(2))));
+}
