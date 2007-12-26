@@ -1,7 +1,7 @@
 2007-12-26  Reini Urban  <rurban@x-ray.at>
 
 	<33_trans2>
-	* misc.d, sort.d, symbol.d:
+	* misc.d, sort.d, symbol.d, time.d:
 	translate comments and convert them from "# " to "/**/"
 
 2007-12-20  Sam Steingold  <sds@gnu.org>
