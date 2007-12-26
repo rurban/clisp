@@ -282,7 +282,7 @@ global void get_running_times (timescore_t* tm)
   tm->gcfreed = gc_space;
 }
 
-#ifdef TIME_2
+#if TIME_METHOD == 2
 /* Converts an internal_time_t to a Lisp integer.
  internal_time_to_I(&it) */
 local object internal_time_to_I (const internal_time_t* tp)
@@ -307,10 +307,9 @@ local object internal_time_to_I (const internal_time_t* tp)
 
 LISPFUNNR(get_internal_real_time,0)
 { /* (GET-INTERNAL-REAL-TIME), CLTL p. 446 */
- #ifdef TIME_1
+ #if TIME_METHOD == 1
   VALUES1(UL_to_I(get_real_time())); /* get real time since start of session */
- #endif
- #ifdef TIME_2
+ #elif TIME_METHOD == 2
   var internal_time_t tp;       /* absolute real time */
   get_real_time(&tp);
   VALUES1(internal_time_to_I(&tp)); /* convert to integer */
@@ -321,10 +320,9 @@ LISPFUNNR(get_internal_run_time,0)
 { /* (GET-INTERNAL-RUN-TIME), CLTL p. 446 */
   var timescore_t tm;
   get_running_times(&tm); /* get run time since start of session */
- #ifdef TIME_1
+ #if TIME_METHOD == 1
   VALUES1(UL_to_I(tm.runtime)); /* convert to integer */
- #endif
- #ifdef TIME_2
+ #elif TIME_METHOD == 2
   VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
  #endif
 }
@@ -464,7 +462,7 @@ global void convert_time_from_universal (object universal, FILETIME* time) {
 Returns the wall clock time in seconds (since session start or 1900-01-01).*/
 local uintL real_time_sec (void)
 {
- #ifdef TIME_1
+ #if TIME_METHOD == 1
   var uintL real_time = get_real_time();
   /* real_time := floor(real_time,ticks_per_second) : */
   #if (ticks_per_second == 1000000UL)
@@ -474,8 +472,7 @@ local uintL real_time_sec (void)
   #else
   divu_3232_3232(real_time,ticks_per_second,real_time=,);
   #endif
- #endif
- #ifdef TIME_2
+ #elif TIME_METHOD == 2
   #ifdef TIME_UNIX
   var uintL real_time;     /* seconds */
   var internal_time_t it;
@@ -790,12 +787,11 @@ LISPFUNNR(time,0)
    GC-Count (number of garbage collections in this session so far). */
   var timescore_t tm;
   get_running_times(&tm);     /* get run-time */
- #ifdef TIME_1
+ #if TIME_METHOD == 1
   #define as_2_values(time)                \
     pushSTACK(fixnum(high16(time)));       \
     pushSTACK(fixnum(low16(time)));
-  #endif
- #ifdef TIME_2
+ #elif TIME_METHOD == 2
   #ifdef TIME_UNIX
    #define as_2_values(time)                 \
      pushSTACK(fixnum(time.tv_sec));         \
@@ -810,7 +806,7 @@ LISPFUNNR(time,0)
         pushSTACK(fixnum(tv_usec));                                     \
       }
   #endif
- #endif
+ #endif                     /* TIME_METHOD */
   as_2_values(tm.realtime);   /* first two values: Real-Time */
   as_2_values(tm.runtime);    /* next two values: Run-Time */
   as_2_values(tm.gctime);     /* next two values: GC-Time */
