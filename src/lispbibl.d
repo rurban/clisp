@@ -2188,7 +2188,7 @@ typedef enum {
 #endif
 # When changed: do nothing
 
-# How time is measured:
+/* How time is measured: */
 #ifdef UNIX
   #if defined(HAVE_GETTIMEOFDAY) || defined(HAVE_FTIME)
     #define TIME_UNIX
@@ -2200,21 +2200,22 @@ typedef enum {
   #define TIME_WIN32
 #endif
 #if defined(TIME_UNIX_TIMES)
-  # There's only a medium time resolution, so you can use 32-bit numbers
-  # to store the time-differences without any problems.
-  #define TIME_1
-  # We fetch the time once on system sart. All further times are taken
-  # relatively to that one.
+  /* There's only a medium time resolution, so you can use 32-bit numbers
+   to store the time-differences without any problems. */
+  #define TIME_METHOD 1
+  /* We fetch the time once on system sart. All further times are taken
+   relatively to that one. */
   #define TIME_RELATIVE
-#endif
-#if defined(TIME_UNIX) || defined(TIME_WIN32)
-  # The time resolution is so high that you need two 32-bit numbers to
-  # measure time differences: seconds and and fractions of seconds.
-  #define TIME_2
-  # In this case we can use absolute and relative times for measurements.
+#elif defined(TIME_UNIX) || defined(TIME_WIN32)
+  /* The time resolution is so high that you need two 32-bit numbers to
+   measure time differences: seconds and and fractions of seconds. */
+  #define TIME_METHOD 2
+  /* In this case we can use absolute and relative times for measurements. */
   #define TIME_ABSOLUTE
+#else
+  #error TIME_METHOD is not defined
 #endif
-# When changed: extend time.d
+/* When changed: extend time.d */
 
 # Whether the operating system can give us the run-time, or whether we'll have
 # to accumulate it ourselves:
@@ -8599,35 +8600,34 @@ typedef enum {
 
 # ####################### TIMEBIBL in TIME.D ############################## #
 
-# (* 25567 24 60 60) => 2208988800
-# the number of seconds from 1900-01-01 to 1970-01-01
+/* (* 25567 24 60 60) => 2208988800
+ the number of seconds from 1900-01-01 to 1970-01-01 */
 #define UNIX_LISP_TIME_DIFF 2208988800UL
 %% export_def(UNIX_LISP_TIME_DIFF);
 
-# Type which is used for 'Internal Time':
-#ifdef TIME_1
-  typedef uintL internal_time_t;      # measured value of the ticking counter
+/* Type which is used for 'Internal Time': */
+#if TIME_METHOD == 1
+typedef uintL internal_time_t; /* measured value of the ticking counter */
   #if defined(TIME_UNIX_TIMES)
     #define ticks_per_second  CLK_TCK
   #endif
   #define sub_internal_time(x,y, z)  z = (x) - (y)
   #define add_internal_time(x,y, z)  z = (x) + (y)
-#endif
-#ifdef TIME_2
+#elif TIME_METHOD == 2
   #ifdef TIME_UNIX
-    typedef struct {
-      uintL tv_sec;    # number of seconds since 1.1.1970 00:00 GMT,
-                       # 'uintL' for tv_sec is good for 136 years.
-      uintL tv_usec;   # additional microseconds
-    } internal_time_t;
-    #define ticks_per_second  1000000UL  # 1 Tick = 1 mu-sec
-    #define sub_internal_time(x,y, z)  # z:=x-y  \
+typedef struct {
+  uintL tv_sec;    /* number of seconds since 1.1.1970 00:00 GMT,
+                      'uintL' for tv_sec is good for 136 years. */
+  uintL tv_usec;   /* additional microseconds */
+} internal_time_t;
+    #define ticks_per_second  1000000UL /* 1 Tick = 1 mu-sec */
+    #define sub_internal_time(x,y, z)   /* z:=x-y */ \
       do { (z).tv_sec = (x).tv_sec - (y).tv_sec;                \
         if ((x).tv_usec < (y).tv_usec)                          \
           { (x).tv_usec += ticks_per_second; (z).tv_sec -= 1; } \
         (z).tv_usec = (x).tv_usec - (y).tv_usec;                \
       } while(0)
-    #define add_internal_time(x,y, z)  # z:=x+y  \
+    #define add_internal_time(x,y, z)   /* z:=x+y */ \
       do { (z).tv_sec = (x).tv_sec + (y).tv_sec;                \
         (z).tv_usec = (x).tv_usec + (y).tv_usec;                \
         if ((z).tv_usec >= ticks_per_second)                    \
@@ -8635,16 +8635,16 @@ typedef enum {
       } while(0)
   #endif
   #ifdef TIME_WIN32
-    typedef # struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; }
-            FILETIME  # number of 0.1 mu-sec since 1.1.1601 00:00 GMT.
-            internal_time_t;
-    #define ticks_per_second  10000000UL  # 1 Tick = 0.1 mu-sec
-    #define sub_internal_time(x,y, z)  # z:=x-y  \
+typedef /* struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } */
+  FILETIME /* number of 0.1 mu-sec since 1.1.1601 00:00 GMT. */
+  internal_time_t;
+    #define ticks_per_second  10000000UL /* 1 Tick = 0.1 mu-sec */
+    #define sub_internal_time(x,y, z)    /* z:=x-y */ \
       do { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;      \
         if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
         (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;            \
       } while(0)
-    #define add_internal_time(x,y, z)  # z:=x+y  \
+    #define add_internal_time(x,y, z)    /* z:=x+y */ \
       do { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;      \
         (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;            \
         if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1;}\
@@ -8653,61 +8653,59 @@ typedef enum {
 #endif
 
 #ifndef HAVE_RUN_TIME
-# UP: Stops the run-time timer
-  # run_time_stop();
+/* UP: Stops the run-time timer
+   run_time_stop(); */
   extern void run_time_stop (void);
-  # is used by STREAM
+  /* is used by STREAM */
 
-  # UP: restarts the run-time timer
-  # run_time_restart();
+  /* UP: restarts the run-time timer
+   run_time_restart(); */
   extern void run_time_restart (void);
-  # is used by STREAM
+  /* is used by STREAM */
 #else
-  # You don't need a run-time timer
+  /* You don't need a run-time timer */
   #define run_time_stop()
   #define run_time_restart()
 #endif
 
-#ifdef TIME_1
+#if TIME_METHOD == 1
 
-# UP: Yields the real-time
-# get_real_time()
-# < uintL result: time since LISP-system-start (in 1/200 sec resp. in 1/50 sec resp. in 1/100 sec resp. in 1/CLK_TCK sec)
+/* UP: Yields the real-time
+ get_real_time()
+ < uintL result: time since LISP-system-start (in 1/200 sec resp. in 1/50 sec resp. in 1/100 sec resp. in 1/CLK_TCK sec) */
   extern uintL get_real_time (void);
-# is used by STREAM, LISPARIT
+/* is used by STREAM, LISPARIT */
 
-#endif
+#elif TIME_METHOD == 2
 
-#ifdef TIME_2
-
-# UP: yields the real-time
-# get_real_time()
-# < internal_time_t* result: absolute time
+/* UP: yields the real-time
+ get_real_time()
+ < internal_time_t* result: absolute time */
   extern void get_real_time (internal_time_t*);
-# is used by LISPARIT
+/* is used by LISPARIT */
 
 #endif
 
-# UP: Yields the run-time
-# get_running_times(&timescore);
-# < timescore.runtime:  Run-time since LISP-system-start (in Ticks)
-# < timescore.realtime: Real-time since LISP-system-start (in Ticks)
-# < timescore.gctime:   GC-Time since LISP-system-start (in Ticks)
-# < timescore.gccount:  Number of GC's since LISP-system-start
-# < timescore.gcfreed:  Size of the space reclaimed by the GC's so far
-  typedef struct {
-    internal_time_t runtime;
-    internal_time_t realtime;
-    internal_time_t gctime;
-    uintL gccount;
-    uintL2 gcfreed;
-  } timescore_t;
-  extern void get_running_times (timescore_t*);
-# is used by
+/* UP: Yields the run-time
+ get_running_times(&timescore);
+ < timescore.runtime:  Run-time since LISP-system-start (in Ticks)
+ < timescore.realtime: Real-time since LISP-system-start (in Ticks)
+ < timescore.gctime:   GC-Time since LISP-system-start (in Ticks)
+ < timescore.gccount:  Number of GC's since LISP-system-start
+ < timescore.gcfreed:  Size of the space reclaimed by the GC's so far */
+typedef struct {
+  internal_time_t runtime;
+  internal_time_t realtime;
+  internal_time_t gctime;
+  uintL gccount;
+  uintL2 gcfreed;
+} timescore_t;
+extern void get_running_times (timescore_t*);
+/* is used by TIME */
 
-# UP: yields the run-time
-# get_running_time(runtime);
-# < runtime: Run-time (in Ticks)
+/* UP: yields the run-time
+ get_running_time(runtime);
+ < runtime: Run-time (in Ticks) */
   #ifndef HAVE_RUN_TIME
     #define get_running_time(runtime)  runtime = get_time()
     extern uintL get_time (void);
@@ -8721,7 +8719,7 @@ typedef enum {
       extern uintL get_run_time (internal_time_t* runtime);
     #endif
   #endif
-# is used by SPVW
+/* is used by SPVW */
 
 /* Time in decoded-time: */
 typedef struct {

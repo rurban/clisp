@@ -1,5 +1,11 @@
 2007-12-26  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, spvw_gcstat.d, time.d (TIME_1, TIME_2): replace with
+	TIME_METHOD which takes values 1 or 2 which ensures that one and
+	only one code path is always taken
+
+2007-12-26  Sam Steingold  <sds@gnu.org>
+
 	* symbol.d (GENSYM): use check_pos_integer & error_string_integer
 
 2007-12-26  Reini Urban  <rurban@x-ray.at>

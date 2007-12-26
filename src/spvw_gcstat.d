@@ -45,11 +45,12 @@ global uintL2 gc_space =
 #endif
 
 global internal_time_t gc_time =
- #ifdef TIME_1
+ #if TIME_METHOD == 1
   0
- #endif
- #ifdef TIME_2
+ #elif TIME_METHOD == 2
   {0,0}
+ #else
+  #error bad TIME_METHOD
  #endif
   ;
 
