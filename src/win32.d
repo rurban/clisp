@@ -449,8 +449,9 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
    //extern LPVOID MapViewOfFileEx (HANDLE FileMappingObject, DWORD DesiredAccess, DWORD FileOffsetHigh, DWORD FileOffsetLow, DWORD NumberOfBytesToMap, LPVOID BaseAddress);
    //extern BOOL UnmapViewOfFile (LPCVOID BaseAddress); */
 #define HAVE_WIN32_VM
-/* Damit kann man munmap() und mprotect() selber schreiben. mmap() wird
-   emuliert, weil MapViewOfFileEx() zu viele Nachteile hat. Siehe spvw.d. */
+/* So you can write munmap() and mprotect() write by your own. mmap() is
+   emulated, because MapViewOfFileEx() has too many disadvantages.
+   See spvw.d. */
 /* #define HAVE_MMAP */
 #define HAVE_MUNMAP
 #define HAVE_WORKING_MPROTECT
