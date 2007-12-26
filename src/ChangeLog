@@ -1,3 +1,7 @@
+2007-12-26  Sam Steingold  <sds@gnu.org>
+
+	* symbol.d (GENSYM): use check_pos_integer & error_string_integer
+
 2007-12-26  Reini Urban  <rurban@x-ray.at>
 
 	<33_trans2>
