@@ -1,4 +1,4 @@
-;; Tests for datatypes containing weak references
+;; Tests for datatypes containing weak references -*- Lisp -*-
 ;; Bruno Haible 2004-05-05
 
 ;; Type tests
@@ -32,7 +32,7 @@
  (nil nil nil nil nil  t  nil nil)
  (nil nil nil nil nil nil  t  nil)
  (nil nil nil nil nil nil nil  t ))
- 
+
 
 ;; WEAK-POINTER
 
