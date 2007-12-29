@@ -829,107 +829,8 @@ LISPFUNN(set_weak_alist_contents,2) {
   skipSTACK(2);
 }
 
-/* UP: Checks the :KEY argument
- test_key_arg()
- > STACK_0: optional argument
- < STACK_0: correct KEY function */
-local void test_key_arg (void) {
-  var object key_arg = STACK_0;
-  if (missingp(key_arg))
-    STACK_0 = L(identity); /* #'IDENTITY as default for :KEY */
-}
-
-/* Applies a :KEY argument.
- funcall_key(key,item);
- > key: value of the :KEY argument
- > item: object being considered
- < value1: (FUNCALL key item) */
-#define funcall_key(key,item) do {                    \
-  var object _key = (key);                            \
-  var object _item = (item);                          \
-  /* shortcut for :KEY #'IDENTITY, very frequent */   \
-  if (!eq(_key,L(identity))) {                        \
-    pushSTACK(_item); funcall(_key,1);                \
-  } else {                                            \
-    value1 = _item;                                   \
-  }                                                   \
- } while(0)
-
-/* Subroutine to compute the test :TEST
- up_test(stackptr,x)
- > *(stackptr+1): the test function
- > *(stackptr+3): the item to compare with
- > x: the argument
- < result: true if the test is okay, otherwise false.
- can trigger GC */
-local maygc bool up_test (const gcv_object_t* stackptr, object x) {
-  /* Per CLTL p.247 do a (funcall testfun item x): */
-  var object item = *(stackptr STACKop 3);
-  var object fun = *(stackptr STACKop 1);
-  /* Special case the most frequent cases, */
-  if (eq(fun,L(eq)))
-    return eq(item,x);
-  if (eq(fun,L(eql)))
-    return eql(item,x);
-  if (eq(fun,L(equal)))
-    return equal(item,x);
-  pushSTACK(item);
-  pushSTACK(x); /* x */
-  funcall(fun,2);
-  return !nullp(value1);
-}
-
-/* Subroutine to compute the test :TEST-NOT
- up_test_not(stackptr,x)
- > *(stackptr+1): the test function
- > *(stackptr+3): the item to compare with
- > x: the argument
- < result: true if the test is okay, otherwise false.
- can trigger GC */
-local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
-  /* Per CLTL p.247 do a (not (funcall testfun item x)): */
-  pushSTACK(*(stackptr STACKop 3)); /* item */
-  pushSTACK(x); /* x */
-  funcall(*(stackptr STACKop 0),2);
-  return nullp(value1);
-}
-
-/* UP: Check the :TEST, :TEST-NOT - arguments
- test_test_args()
- > stackptr: Pointer to the STACK
- > *(stackptr+1): :TEST argument
- > *(stackptr+0): :TEST-NOT argument
- < *(stackptr+1): computed :TEST argument
- < *(stackptr+0): computed :TEST-NOT argument
- < up_fun: Adress of a test function, specified like this:
-        > stackptr: same Pointer to the Stack, *(stackptr+3) = item,
-          *(stackptr+1) = :test argument, *(stackptr+0) = :test-not argument,
-        > x: the argument
-        < true, if the test returns true, otherwise false.
- Let up_function_t be the type of such a test function address: */
-typedef maygc bool (*up_function_t) (const gcv_object_t* stackptr, object x);
-local up_function_t test_test_args (gcv_object_t* stackptr) {
-  var object test_arg = *(stackptr STACKop 1);
-  if (!boundp(test_arg))
-    test_arg = NIL;
-  /* test_arg is the :TEST argument */
-  var object test_not_arg = *(stackptr STACKop 0);
-  if (!boundp(test_not_arg))
-    test_not_arg = NIL;
-  /* test_not_arg is the :TEST-NOT argument */
-  if (nullp(test_not_arg)) {
-    /* :TEST-NOT was not specified */
-    if (nullp(test_arg))
-      *(stackptr STACKop 1) = L(eql); /* #'EQL as default for :TEST */
-    return &up_test;
-  } else {
-    /* :TEST-NOT was not specified */
-    if (nullp(test_arg))
-      return &up_test_not;
-    else
-      error_both_tests();
-  }
-}
+/* call test/test-not function on the appropriate STACK arguments */
+#define CALL_TEST(shift,key)  (*pcall_test)(&STACK_(shift),STACK_(shift+3),key)
 
 /* (WEAK-ALIST-ASSOC item weak-alist [:test] [:test-not] [:key])
    is equivalent to
@@ -940,13 +841,12 @@ LISPFUN(weak_alist_assoc,seclass_default,2,0,norest,key,3,
   /* Check weak-alist argument: */
   STACK_3 = check_weakalist(STACK_3);
   /* Check :TEST/:TEST-NOT arguments in STACK_2,STACK_1: */
-  var up_function_t up_fun = test_test_args(&STACK_1);
-  /* Check :KEY argument in STACK_0: */
-  test_key_arg();
+  var funarg_t* pcall_test = check_test_args(&STACK_1);
+  check_key_arg(&STACK_0); /* Check :KEY argument in STACK_0 */
   /* Search: */
   var object wal = TheMutableWeakAlist(STACK_3)->mwal_list;
-  /* We cannot use TheWeakAlist(wal)->wal_count here, because it can be */
-  /* decremented by a GC happening during the loop. */
+  /* We cannot use TheWeakAlist(wal)->wal_count here, because it can be
+     decremented by a GC happening during the loop. */
   var uintL maxlen = (Lrecord_length(wal)-2)/2;
   pushSTACK(wal);
   pushSTACK(NIL);
@@ -960,7 +860,7 @@ LISPFUN(weak_alist_assoc,seclass_default,2,0,norest,key,3,
       STACK_1 = key;
       STACK_0 = TheWeakAlist(wal)->wal_data[2*i+1];
       funcall_key(STACK_(0+3),key);
-      if (up_fun(&STACK_(1+3),value1)) {
+      if (CALL_TEST(1+3,value1)) {
         var object result = allocate_cons();
         Car(result) = STACK_1; Cdr(result) = STACK_0;
         VALUES1(result);
@@ -983,9 +883,8 @@ LISPFUN(weak_alist_rassoc,seclass_default,2,0,norest,key,3,
   /* Check weak-alist argument: */
   STACK_3 = check_weakalist(STACK_3);
   /* Check :TEST/:TEST-NOT arguments in STACK_2,STACK_1: */
-  var up_function_t up_fun = test_test_args(&STACK_1);
-  /* Check :KEY argument in STACK_0: */
-  test_key_arg();
+  var funarg_t* pcall_test = check_test_args(&STACK_1);
+  check_key_arg(&STACK_0); /* Check :KEY argument in STACK_0 */
   /* Search: */
   var object wal = TheMutableWeakAlist(STACK_3)->mwal_list;
   /* We cannot use TheWeakAlist(wal)->wal_count here, because it can be
@@ -1003,7 +902,7 @@ LISPFUN(weak_alist_rassoc,seclass_default,2,0,norest,key,3,
       STACK_0 = value;
       STACK_1 = TheWeakAlist(wal)->wal_data[2*i+0];
       funcall_key(STACK_(0+3),value);
-      if (up_fun(&STACK_(1+3),value1)) {
+      if (CALL_TEST(1+3,value1)) {
         var object result = allocate_cons();
         Car(result) = STACK_1; Cdr(result) = STACK_0;
         VALUES1(result);
@@ -1026,7 +925,7 @@ LISPFUN(weak_alist_value,seclass_default,2,0,norest,key,2,
   /* Check weak-alist argument: */
   STACK_2 = check_weakalist(STACK_2);
   /* Check :TEST/:TEST-NOT arguments in STACK_1,STACK_0: */
-  var up_function_t up_fun = test_test_args(&STACK_0);
+  var funarg_t* pcall_test = check_test_args(&STACK_0);
   /* Search: */
   var object wal = TheMutableWeakAlist(STACK_2)->mwal_list;
   /* We cannot use TheWeakAlist(wal)->wal_count here, because it can be
@@ -1041,7 +940,7 @@ LISPFUN(weak_alist_value,seclass_default,2,0,norest,key,2,
     var object key = TheWeakAlist(wal)->wal_data[2*i+0];
     if (!eq(key,unbound)) {
       STACK_0 = TheWeakAlist(wal)->wal_data[2*i+1];
-      if (up_fun(&STACK_(0+2),key)) {
+      if (CALL_TEST(0+2,key)) {
         VALUES1(STACK_0);
         skipSTACK(4+2);
         return;
@@ -1063,7 +962,7 @@ LISPFUN(set_weak_alist_value,seclass_default,3,0,norest,key,2,
   /* Check weak-alist argument: */
   STACK_2 = check_weakalist(STACK_2);
   /* Check :TEST/:TEST-NOT arguments in STACK_1,STACK_0: */
-  var up_function_t up_fun = test_test_args(&STACK_0);
+  var funarg_t* pcall_test = check_test_args(&STACK_0);
   /* Search: */
   var object wal = TheMutableWeakAlist(STACK_2)->mwal_list;
   /* We cannot use TheWeakAlist(wal)->wal_count here, because it can be
@@ -1082,7 +981,7 @@ LISPFUN(set_weak_alist_value,seclass_default,3,0,norest,key,2,
          while we call the :TEST/:TEST-NOT function. */
       STACK_1 = key;
       STACK_0 = TheWeakAlist(wal)->wal_data[2*i+1];
-      if (up_fun(&STACK_(0+3),key)) {
+      if (CALL_TEST(0+3,key)) {
         /* Replace the pair's value. */
         wal = STACK_2;
         TheWeakAlist(wal)->wal_data[2*i+1] = STACK_(4+3);

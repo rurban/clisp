@@ -9531,6 +9531,9 @@ extern maygc object object_out (object obj);
 /* print the object to a C stream - not all objects can be handled yet!
  non-consing, STACK non-modifying */
 extern maygc object nobject_out (FILE* out, object obj);
+#define NOBJECT_OUT(obj,label)                                         \
+  (printf("[%s:%d] %s: %s: ",__FILE__,__LINE__,STRING(obj),label),     \
+   nobject_out(stdout,obj), printf("\n"))
 # used for debugging purposes
 %% puts("extern object object_out (object obj);");
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
@@ -14051,6 +14054,53 @@ extern maygc void prin1 (const gcv_object_t* stream_, object obj);
 #define terpri(stream_)  write_ascii_char(stream_,NL)
 # is used by IO, DEBUG, PACKAGE, ERROR, SPVW
 
+# ####################### Functional arguments for FUNARG.D ################ #
+/* used by LIST, WEAK, SEQUENCE */
+
+/* UP: Checks the :KEY argument
+ check_key_arg()
+ > *pkey_arg: optional argument
+ < *pkey_arg: correct KEY function */
+global void check_key_arg (gcv_object_t *pkey_arg);
+/* used by LIST, SEQUENCE, WEAK */
+
+/* Applies a :KEY argument.
+ funcall_key(key,item);
+ > key: value of the :KEY argument
+ > item: object being considered
+ < value1: (FUNCALL key item) */
+#define funcall_key(key,item) do {                    \
+  var object _key = (key);                            \
+  var object _item = (item);                          \
+  GCTRIGGER2(_key,_item);                             \
+  /* shortcut for :KEY #'IDENTITY, very common */     \
+  if (!eq(_key,L(identity))) {                        \
+    pushSTACK(_item); funcall(_key,1);                \
+  } else {                                            \
+    value1 = _item;                                   \
+  }                                                   \
+ } while(0)
+
+/* Subroutine to compute the test :TEST & :TEST-NOT
+ call_test(fun,item,x)
+ > *fun: the test function
+ > item: the item to compare with
+ > x: the argument
+ < result: true if the test is okay, otherwise false.
+ can trigger GC */
+typedef maygc bool funarg_t (const gcv_object_t* fun, object item, object x);
+funarg_t call_if, call_if_not;
+
+/* UP: Check the :TEST, :TEST-NOT - arguments
+ check_test_args()
+ > stackptr: Pointer to the STACK
+ > *(stackptr+1): :TEST argument
+ > *(stackptr+0): :TEST-NOT argument
+ < *(stackptr+1): computed :TEST argument
+ < *(stackptr+0): computed :TEST-NOT argument
+ < call_test: Adress of a test function */
+extern funarg_t* check_test_args (gcv_object_t* stackptr);
+
 # ####################### LISTBIBL for LIST.D ############################## #
 
 # UP: Copies a list
@@ -15333,11 +15383,6 @@ extern maygc void map_sequence (object obj, map_sequence_function_t* fun, void* 
  error: invalid application of `sizeof' to a function type */
 %% puts("typedef void map_sequence_function_t (void* arg, object element);");
 %% puts("extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);");
-
-# Error, if both :TEST, :TEST-NOT - argumente have been given.
-# error_both_tests();
-nonreturning_function(extern, error_both_tests, (void));
-# is used by LIST, SEQUENCE, WEAK
 
 # ###################### STRMBIBL for STREAM.D ############################# #
 
