@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2005
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  */
 #include "lispbibl.c"
 
@@ -1756,31 +1756,6 @@ LISPFUN(notevery,seclass_default,2,0,rest,nokey,0,NIL)
     return_Values seq_boolop(&boolop_notevery,rest_args_pointer STACKop 2,rest_args_pointer,argcount,NIL);
   }
 
-# UP: Überprüft das :KEY-Argument
-# test_key_arg(stackptr)
-# > *(stackptr-4): optionales Argument
-# < *(stackptr-4): korrekte KEY-Funktion
-  local void test_key_arg (gcv_object_t* stackptr)
-  {
-    var object key_arg = *(stackptr STACKop -4);
-    if (missingp(key_arg))
-      *(stackptr STACKop -4) = L(identity); # #'IDENTITY als Default für :KEY
-  }
-
-# Anwenden eines :KEY-Arguments
-# funcall_key(key);
-# > key: Wert des :KEY-Arguments
-# > value1: Element einer Sequence
-# < value1: (FUNCALL key value1)
-# can trigger GC
-  #define funcall_key(key)  \
-    { var object _key = (key);                                                  \
-      GCTRIGGER2(_key,value1);                                                  \
-      if (!eq(_key,L(identity))) { # :KEY #'IDENTITY ist sehr häufig, Abkürzung \
-        pushSTACK(value1); funcall(_key,1);                                     \
-      }                                                                         \
-    }
-
 LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(initial_value)) )
 # (REDUCE function sequence [:from-end] [:start] [:end] [:key] [:initial-value]),
@@ -1792,7 +1767,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
     # Stackaufbau: function, sequence, from-end, start, end, key, initial-value,
     #              typdescr.
     # key überprüfen:
-    test_key_arg(&STACK_(5+1));
+    check_key_arg(&STACK_(1+1));
     # Defaultwert für start ist 0:
     start_default_0(STACK_(3+1));
     # Defaultwert für end ist die Länge der Sequence:
@@ -1834,7 +1809,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         # initial-value ist nicht angegeben
         pushSTACK(STACK_(5+3)); pushSTACK(STACK_(0+1));
         funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS seq pointer)
-        funcall_key(STACK_(1+3)); # (FUNCALL key (SEQ-ACCESS seq pointer))
+        funcall_key(STACK_(1+3),value1); /* (FUNCALL key (SEQ-ACCESS seq pointer)) */
         pushSTACK(value1); # =: value
         goto into_fromend_loop;
       } else {
@@ -1847,7 +1822,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         # nächstes value berechnen:
         pushSTACK(STACK_(5+4)); pushSTACK(STACK_(1+1));
         funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS seq pointer)
-        funcall_key(STACK_(1+4)); # (FUNCALL key (SEQ-ACCESS seq pointer))
+        funcall_key(STACK_(1+4),value1); /* (FUNCALL key (SEQ-ACCESS seq pointer)) */
         pushSTACK(value1); pushSTACK(STACK_(0+1));
         funcall(STACK_(6+4+2),2); # (FUNCALL fun (FUNCALL key (SEQ-ACCESS seq pointer)) value)
         STACK_0 = value1; # =: value
@@ -1872,7 +1847,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         # initial-value ist nicht angegeben
         pushSTACK(STACK_(5+3)); pushSTACK(STACK_(0+1));
         funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS seq pointer)
-        funcall_key(STACK_(1+3)); # (FUNCALL key (SEQ-ACCESS seq pointer))
+        funcall_key(STACK_(1+3),value1); /* (FUNCALL key (SEQ-ACCESS seq pointer)) */
         pushSTACK(value1); # =: value
         goto into_fromstart_loop;
       } else {
@@ -1885,7 +1860,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
         # nächstes value berechnen:
         pushSTACK(STACK_(5+4)); pushSTACK(STACK_(1+1));
         funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS seq pointer)
-        funcall_key(STACK_(1+4)); # (FUNCALL key (SEQ-ACCESS seq pointer))
+        funcall_key(STACK_(1+4),value1); /* (FUNCALL key (SEQ-ACCESS seq pointer)) */
         pushSTACK(STACK_0); pushSTACK(value1);
         funcall(STACK_(6+4+2),2); # (FUNCALL fun value (FUNCALL key (SEQ-ACCESS seq pointer)))
         STACK_0 = value1; # =: value
@@ -2041,63 +2016,13 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
     VALUES1(popSTACK()); /* return sequence1 */
   }
 
-# Unterprogramm zum Ausführen des Tests :TEST
-# up_test(stackptr,x)
-# > *(stackptr-5): die Testfunktion
-# > *(stackptr+1): das zu vergleichende Item
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up_test (const gcv_object_t* stackptr, object x)
-  {
-    # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
-    pushSTACK(*(stackptr STACKop 1)); # item
-    pushSTACK(x); # x
-    funcall(*(stackptr STACKop -5),2);
-    return !nullp(value1);
-  }
-
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
-# up_test_not(stackptr,x)
-# > *(stackptr-6): die Testfunktion
-# > *(stackptr+1): das zu vergleichende Item
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up_test_not (const gcv_object_t* stackptr, object x)
-  {
-    # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
-    pushSTACK(*(stackptr STACKop 1)); # item
-    pushSTACK(x); # x
-    funcall(*(stackptr STACKop -6),2);
-    return nullp(value1);
-  }
-
-# Unterprogramm zum Ausführen des Tests -IF
-# up_if(stackptr,x)
-# > *(stackptr+1): das Testprädikat
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up_if (const gcv_object_t* stackptr, object x)
-  {
-    # nach CLTL S. 247 ein (funcall predicate x) ausführen:
-    pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-    return !nullp(value1);
-  }
-
-# Unterprogramm zum Ausführen des Tests -IF-NOT
-# up_if_not(stackptr,x)
-# > *(stackptr+1): das Testprädikat
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up_if_not (const gcv_object_t* stackptr, object x)
-  {
-    # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
-    pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-    return nullp(value1);
-  }
+/* local version of call_if & call_if_not for an idiosyncratic stack layout */
+#define MY_CALL(f)                                              \
+  local maygc bool seq_##f (const gcv_object_t* stackptr,       \
+                            object arg1, object arg2)           \
+  { return f(stackptr STACKop 6,arg1,arg2); }
+MY_CALL(call_if)
+MY_CALL(call_if_not)
 
 # UP: Überprüft das :COUNT-Argument
 # > STACK_1: optionales Argument
@@ -2121,51 +2046,6 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
     error_posint(S(Kcount),count);
   }
 
-# Fehler, wenn beide :TEST, :TEST-NOT - Argumente angegeben wurden.
-# error_both_tests();
-nonreturning_function(global, error_both_tests, (void)) {
-  pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,
-         GETTEXT("~S: Must not specify both arguments to :TEST and :TEST-NOT"));
-}
-
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
-# test_test_args(stackptr)
-# > stackptr: Pointer in den STACK
-# > *(stackptr-5): :TEST-Argument
-# > *(stackptr-6): :TEST-NOT-Argument
-# < *(stackptr-5): verarbeitetes :TEST-Argument
-# < *(stackptr-6): verarbeitetes :TEST-NOT-Argument
-# < up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
-#       > stackptr: derselbe Pointer in den Stack, *(stackptr+1) = item,
-#         *(stackptr-5) = :test-Argument, *(stackptr-6) = :test-not-Argument,
-#       > x: Argument
-#       < true, falls der Test erfüllt ist, false sonst.
-  # up_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef maygc bool (*up_function) (const gcv_object_t* stackptr, object x);
-  local up_function test_test_args (gcv_object_t* stackptr)
-  {
-    var object test_arg = *(stackptr STACKop -5);
-    if (!boundp(test_arg))
-      test_arg=NIL;
-    # test_arg ist das :TEST-Argument
-    var object test_not_arg = *(stackptr STACKop -6);
-    if (!boundp(test_not_arg))
-      test_not_arg=NIL;
-    # test_not_arg ist das :TEST-NOT-Argument
-    if (nullp(test_not_arg)) {
-      # :TEST-NOT wurde nicht angegeben
-      if (nullp(test_arg))
-        *(stackptr STACKop -5) = L(eql); # #'EQL als Default für :TEST
-      return(&up_test);
-    }
-    # :TEST-NOT wurde angegeben
-    if (nullp(test_arg))
-      return &up_test_not;
-    else
-      error_both_tests();
-  }
-
 # UP: bereitet eine Sequence-Operation mit Test vor.
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... [STACK]
@@ -2183,7 +2063,7 @@ nonreturning_function(global, error_both_tests, (void)) {
     # sequence überprüfen, typdescr auf den Stack:
     pushSTACK(get_valid_seq_type(*(stackptr STACKop 0)));
     # key überprüfen:
-    test_key_arg(stackptr);
+    check_key_arg(stackptr STACKop -4);
     # Defaultwert für from-end ist NIL:
     default_NIL(*(stackptr STACKop -1));
     # Defaultwert für start ist 0:
@@ -2241,9 +2121,9 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # > Stack layout:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer into the stack
-# > up_fun: address of test function with the following specification:
-#           > stackptr: the same pointer into the stack
-#           > x: argument
+# > pcall_test: address of test function with the following specification:
+#           > stackptr: the pointer into the stack
+#           > x,y: arguments
 #           < true, if the test is satisfied, false otherwise.
 # > help_fun: address of a helper routine which does the rest. Specification:
 #       > stackptr: pointer into the stack
@@ -2258,7 +2138,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # can trigger GC
   # help_function is defined to be the type of such a helper function:
   typedef maygc object (*help_function) (gcv_object_t* stackptr, uintV bvl, uintV dl);
-  local maygc Values seq_filterop (gcv_object_t* stackptr, up_function up_fun, help_function help_fun)
+  local maygc Values seq_filterop (gcv_object_t* stackptr, funarg_t* pcall_test, help_function help_fun)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(*(stackptr STACKop -4)); # key
@@ -2289,8 +2169,8 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
         pushSTACK(STACK_(2+2)); # sequence
         pushSTACK(STACK_(1+1)); # pointer
         funcall(seq_access(STACK_(0+4+2+2)),2); # (SEQ-ACCESS sequence pointer)
-        funcall_key(STACK_(1+2)); # (FUNCALL key ...)
-        if ((*up_fun)(stackptr,value1)) { # Testroutine aufrufen
+        funcall_key(STACK_(1+2),value1);        /* (FUNCALL key ...) */
+        if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
           # Test erfüllt
           sbvector_bset(STACK_(0+2),bvi); # (setf (sbit bv bvi) 1)
           dl++; # dl := dl+1, ein gesetztes Bit mehr
@@ -2320,8 +2200,8 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
         pushSTACK(STACK_(2+2)); # sequence
         pushSTACK(STACK_(1+1)); # pointer
         funcall(seq_access(STACK_(0+4+2+2)),2); # (SEQ-ACCESS sequence pointer)
-        funcall_key(STACK_(1+2)); # (FUNCALL key ...)
-        if ((*up_fun)(stackptr,value1)) { # Testroutine aufrufen
+        funcall_key(STACK_(1+2),value1);        /* (FUNCALL key ...) */
+        if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
           # Test erfüllt
           sbvector_bset(STACK_(0+2),bvi); # (setf (sbit bv bvi) 1)
           dl++; # dl := dl+1, ein gesetztes Bit mehr
@@ -2578,11 +2458,11 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # > Stack layout:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer into the stack
-# > up_fun: address of test function with the following specification:
-#           > stackptr: the same pointer into the stack
-#           > x: argument
+# > pcall_test: address of test function with the following specification:
+#           > stackptr: the pointer into the stack
+#           > x,y: arguments
 #           < true, if the test is satisfied, false otherwise.
-  local Values remove_op (gcv_object_t* stackptr, up_function up_fun)
+  local Values remove_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     seq_prepare_filterop(stackptr);
     # Stack layout:
@@ -2611,8 +2491,8 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
         pushSTACK(*(stackptr STACKop 0)); # sequence
         pushSTACK(STACK_(1+1)); # pointer
         funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
-        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
-        if ((*up_fun)(stackptr,value1)) {
+        funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key ...) */
+        if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
           # Test fulfilled.
           # result1 := (nreconc (ldiff result2 pointer) result1)
           pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(L(ldiff),2);
@@ -2634,7 +2514,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       skipSTACK(5);
     } else {
       # Use a bit vector for doing the filtering.
-      return_Values seq_filterop(stackptr,up_fun,&remove_help);
+      return_Values seq_filterop(stackptr,pcall_test,&remove_help);
     }
   }
 
@@ -2642,11 +2522,11 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
 # > Stack layout:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer into the stack
-# > up_fun: address of test function with the following specification:
-#           > stackptr: the same pointer into the stack
-#           > x: argument
+# > pcall_test: address of test function with the following specification:
+#           > stackptr: the pointer into the stack
+#           > x,y: arguments
 #           < true, if the test is satisfied, false otherwise.
-  local Values delete_op (gcv_object_t* stackptr, up_function up_fun)
+  local Values delete_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     seq_prepare_filterop(stackptr);
     # Stack layout:
@@ -2682,8 +2562,8 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
         pushSTACK(*(stackptr STACKop 0)); # sequence
         pushSTACK(STACK_(2+1)); # pointer
         funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
-        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
-        if ((*up_fun)(stackptr,value1)) {
+        funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key ...) */
+        if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
           # Test fulfilled.
           if (!nullp(STACK_1)) { # last/=NIL?
             # (cdr last) := (setq pointer (cdr pointer))
@@ -2709,7 +2589,7 @@ local maygc uintV end_minus_start (gcv_object_t *end, gcv_object_t *start,
       skipSTACK(5);
     } else {
       # Use a bit vector for doing the filtering.
-      return_Values seq_filterop(stackptr,up_fun,&delete_help);
+      return_Values seq_filterop(stackptr,pcall_test,&delete_help);
     }
   }
 
@@ -2719,11 +2599,13 @@ LISPFUN(remove,seclass_default,2,0,norest,key,7,
 # CLTL S. 253
   {
     var gcv_object_t* stackptr = &STACK_7;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* test function */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    remove_op(stackptr,up_fun);
+    remove_op(stackptr,pcall_test);
     skipSTACK(2+7+1);
   }
+
+
 
 LISPFUN(remove_if,seclass_default,2,0,norest,key,5,
         (kw(from_end),kw(start),kw(end),kw(key),kw(count)) )
@@ -2732,7 +2614,7 @@ LISPFUN(remove_if,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    remove_op(stackptr,&up_if);
+    remove_op(stackptr,&seq_call_if);
     skipSTACK(2+5+1);
   }
 
@@ -2743,7 +2625,7 @@ LISPFUN(remove_if_not,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    remove_op(stackptr,&up_if_not);
+    remove_op(stackptr,&seq_call_if_not);
     skipSTACK(2+5+1);
   }
 
@@ -2753,9 +2635,9 @@ LISPFUN(delete,seclass_default,2,0,norest,key,7,
 # CLTL S. 254
   {
     var gcv_object_t* stackptr = &STACK_7;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* test function */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    delete_op(stackptr,up_fun);
+    delete_op(stackptr,pcall_test);
     skipSTACK(2+7+1);
   }
 
@@ -2766,7 +2648,7 @@ LISPFUN(delete_if,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    delete_op(stackptr,&up_if);
+    delete_op(stackptr,&seq_call_if);
     skipSTACK(2+5+1);
   }
 
@@ -2777,90 +2659,23 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    delete_op(stackptr,&up_if_not);
+    delete_op(stackptr,&seq_call_if_not);
     skipSTACK(2+5+1);
-  }
-
-# Unterprogramm zum Ausführen des Tests :TEST
-# up2_test(stackptr,x,y)
-# > *(stackptr-5): die Testfunktion
-# > x,y: Argumente
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up2_test (const gcv_object_t* stackptr, object x, object y)
-    {
-      # ein (funcall testfun x y) ausführen:
-      pushSTACK(x); # x
-      pushSTACK(y); # y
-      funcall(*(stackptr STACKop -5),2);
-      return !nullp(value1);
-    }
-
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
-# up2_test_not(stackptr,x,y)
-# > *(stackptr-6): die Testfunktion
-# > x,y: Argumente
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-  local maygc bool up2_test_not (const gcv_object_t* stackptr, object x, object y)
-    {
-      # ein (not (funcall testfun x y)) ausführen:
-      pushSTACK(x); # x
-      pushSTACK(y); # y
-      funcall(*(stackptr STACKop -6),2);
-      return nullp(value1);
-    }
-
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
-# test_test2_args(stackptr)
-# > stackptr: Pointer in den STACK
-# > *(stackptr-5): :TEST-Argument
-# > *(stackptr-6): :TEST-NOT-Argument
-# < *(stackptr-5): verarbeitetes :TEST-Argument
-# < *(stackptr-6): verarbeitetes :TEST-NOT-Argument
-# < up2_fun: address of a test function, with specification:
-#       > stackptr: the same pointer into the stack,
-#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
-#       > x,y: arguments
-#       < true, if the test is satisfied, false otherwise.
-  # up2_function sei der Typ der Adresse einer solchen Testfunktion:
-  typedef maygc bool (*up2_function) (const gcv_object_t* stackptr, object x, object y);
-  local up2_function test_test2_args (gcv_object_t* stackptr)
-  {
-    var object test_arg = *(stackptr STACKop -5);
-    if (!boundp(test_arg))
-      test_arg=NIL;
-    # test_arg ist das :TEST-Argument
-    var object test_not_arg = *(stackptr STACKop -6);
-    if (!boundp(test_not_arg))
-      test_not_arg=NIL;
-    # test_not_arg ist das :TEST-NOT-Argument
-    if (nullp(test_not_arg)) {
-      # :TEST-NOT wurde nicht angegeben
-      if (nullp(test_arg))
-        *(stackptr STACKop -5) = L(eql); # #'EQL als Default für :TEST
-      return &up2_test;
-    }
-    # :TEST-NOT wurde angegeben
-    if (nullp(test_arg))
-      return(&up2_test_not);
-    else
-      error_both_tests();
   }
 
 # UP: Executes a REMOVE-DUPLICATES operation on a list.
 # > Stack layout:
 #     sequence from-end start end key test test-not
 #     typdescr l.
-# > up2_fun: address of a test function, with specification:
-#       > stackptr: the same pointer into the stack,
-#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+# > pcall_test: address of a test function, with specification:
+#       > stackptr: the pointer into the stack,
+#         *(stackptr-0) = :test argument, *(stackptr-1) = :test-not argument,
 #       > x,y: arguments
 #       < true, if the test is satisfied, false otherwise.
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values remove_duplicates_list_from_start (up2_function up2_fun, uintV bvl)
+  local maygc Values remove_duplicates_list_from_start (funarg_t* pcall_test, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(NIL); # result1 := NIL
@@ -2879,7 +2694,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       pushSTACK(STACK_(6+5)); # sequence
       pushSTACK(STACK_(0+1)); # pointer1
       funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer1)
-      funcall_key(STACK_(2+5)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      funcall_key(STACK_(2+5),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
       pushSTACK(value1); # =: item1
       # Stack layout:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
@@ -2899,10 +2714,10 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         pushSTACK(STACK_(6+5+2)); # sequence
         pushSTACK(STACK_(0+1)); # pointer2
         funcall(seq_access(STACK_(4+2+2)),2); # (SEQ-ACCESS sequence pointer2)
-        funcall_key(STACK_(2+5+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        funcall_key(STACK_(2+5+2),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer2)) */
         # value1 =: item2
         # Compare item1 and item2:
-        if ((*up2_fun)(stackptr,STACK_1,value1))
+        if ((*pcall_test)(stackptr STACKop -6,STACK_1,value1))
           # Test satisfied -> terminate the inner loop and remove item1:
           break;
       } while (--l2 > 0);
@@ -2931,15 +2746,15 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > Stack layout:
 #     sequence from-end start end key test test-not
 #     typdescr l.
-# > up2_fun: address of a test function, with specification:
-#       > stackptr: the same pointer into the stack,
-#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+# > pcall_test: address of a test function, with specification:
+#       > stackptr: the pointer into the stack,
+#         *(stackptr-0) = :test argument, *(stackptr-1) = :test-not argument,
 #       > x,y: arguments
 #       < true, if the test is satisfied, false otherwise.
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values delete_duplicates_list_from_start (up2_function up2_fun, uintV bvl)
+  local maygc Values delete_duplicates_list_from_start (funarg_t* pcall_test, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # result := sequence
@@ -2965,7 +2780,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       pushSTACK(STACK_(6+5)); # sequence
       pushSTACK(STACK_(1+1)); # pointer1
       funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer1)
-      funcall_key(STACK_(2+5)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      funcall_key(STACK_(2+5),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
       pushSTACK(value1); # =: item1
       # Stack layout:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
@@ -2985,10 +2800,10 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         pushSTACK(STACK_(6+5+2)); # sequence
         pushSTACK(STACK_(0+1)); # pointer2
         funcall(seq_access(STACK_(4+2+2)),2); # (SEQ-ACCESS sequence pointer2)
-        funcall_key(STACK_(2+5+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        funcall_key(STACK_(2+5+2),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer2)) */
         # value1 =: item2
         # Compare item1 and item2:
-        if ((*up2_fun)(stackptr,STACK_1,value1))
+        if ((*pcall_test)(stackptr STACKop -6,STACK_1,value1))
           # Test satisfied -> terminate the inner loop and remove item1:
           break;
       } while (--l2 > 0);
@@ -3020,15 +2835,15 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 # > Stack layout:
 #     sequence from-end start end key test test-not
 #     typdescr l.
-# > up2_fun: address of a test function, with specification:
-#       > stackptr: the same pointer into the stack,
-#         *(stackptr-5) = :test argument, *(stackptr-6) = :test-not argument,
+# > pcall_test: address of a test function, with specification:
+#       > stackptr: the pointer into the stack,
+#         *(stackptr-0) = :test argument, *(stackptr-1) = :test-not argument,
 #       > x,y: arguments
 #       < true, if the test is satisfied, false otherwise.
 # > bvl: = end - start
 # < mv_space/mv_count: values
 # can trigger GC
-  local maygc Values delete_duplicates_list_from_end (up2_function up2_fun, uintV bvl)
+  local maygc Values delete_duplicates_list_from_end (funarg_t* pcall_test, uintV bvl)
   {
     var gcv_object_t* stackptr = &STACK_(6+2);
     pushSTACK(STACK_(6+2)); # sequence
@@ -3045,7 +2860,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
       pushSTACK(STACK_(6+3)); # sequence
       pushSTACK(STACK_(0+1)); # pointer1
       funcall(seq_access(STACK_(2+2)),2); # (SEQ-ACCESS sequence pointer1)
-      funcall_key(STACK_(2+3)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+      funcall_key(STACK_(2+3),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
       pushSTACK(value1); # =: item1
       # Stack layout:
       #   sequence [stackptr], from-end, start, end, key, test, test-not,
@@ -3067,10 +2882,10 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
         pushSTACK(STACK_(6+3+3)); # sequence
         pushSTACK(STACK_(1+1)); # pointer2
         funcall(seq_access(STACK_(2+3+2)),2); # (SEQ-ACCESS sequence pointer2)
-        funcall_key(STACK_(2+3+3)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+        funcall_key(STACK_(2+3+3),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer2)) */
         # value1 =: item2
         # Compare item1 and item2:
-        if ((*up2_fun)(stackptr,STACK_2,value1)) {
+        if ((*pcall_test)(stackptr STACKop -6,STACK_2,value1)) {
           # Test satisfied -> remove item2:
           # (cdr lastpointer2) := (setq pointer2 (cdr pointer2))
           Cdr(STACK_0) = STACK_1 = Cdr(STACK_1);
@@ -3095,7 +2910,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
   }
 
 # UP: Executes a sequence duplicates-removal operation.
-# seq_duplicates(up2_fun,help_fun)
+# seq_duplicates(help_fun)
 # It traverses a sequence and stores in a bit vector which elements occur
 # twice. Then a routine is called which does the rest.
 # > Stack layout:
@@ -3112,6 +2927,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
 #       can trigger GC
 # < mv_space/mv_count: values
 # can trigger GC
+extern funarg_t call_test;
   local maygc Values seq_duplicates (help_function help_fun)
   {
     var gcv_object_t* stackptr = &STACK_6;
@@ -3126,9 +2942,9 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     #   sequence [stackptr], from-end, start, end, key, test, test-not,
     #   typdescr.
     # Check :test and :test-not:
-    var up2_function up2_fun = test_test2_args(stackptr);
+    var funarg_t* pcall_test = check_test_args(&STACK_1);
     # Check key:
-    test_key_arg(stackptr);
+    check_key_arg(&STACK_3);
     # Default value for from-end is NIL:
     default_NIL(*(stackptr STACKop -1));
     # Default value for start is 0:
@@ -3157,7 +2973,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
     # Bei :test #'eq/eql/equal und großer Länge verwende Hashtabelle:
     if (bvl < 10)
       goto standard;
-    if (!(up2_fun == &up2_test))
+    if (pcall_test != &call_test)
       goto standard;
     {
       var object test = STACK_(1+2);
@@ -3173,7 +2989,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
           # In this case we don't need to allocate a bit vector.
           if (help_fun == &delete_help) {
             # Delete duplicates from a list.
-            delete_duplicates_list_from_end(up2_fun,bvl);
+            delete_duplicates_list_from_end(pcall_test,bvl);
             return;
           }
         }
@@ -3200,7 +3016,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
                 pushSTACK(STACK_(6+3+1)); # sequence
                 pushSTACK(STACK_(0+1)); # pointer1
                 funcall(seq_access(STACK_(2+1+2)),2); # (SEQ-ACCESS sequence pointer1)
-                funcall_key(STACK_(2+3+1)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+                funcall_key(STACK_(2+3+1),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
                 pushSTACK(value1); # =: item1
               }
               # Stackaufbau:
@@ -3228,10 +3044,10 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
                     pushSTACK(STACK_(6+3+3)); # sequence
                     pushSTACK(STACK_(0+1)); # pointer2
                     funcall(seq_access(STACK_(2+3+2)),2); # (SEQ-ACCESS sequence pointer2)
-                    funcall_key(STACK_(2+3+3)); # (FUNCALL key (SEQ-ACCESS sequence pointer2))
+                    funcall_key(STACK_(2+3+3),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer2)) */
                     # value1 =: item2
                     # item1 und item2 vergleichen:
-                    if ((*up2_fun)(stackptr,STACK_1,value1)) { # Testroutine aufrufen
+                    if ((*pcall_test)(stackptr STACKop -6,STACK_1,value1)) {
                       # Test erfüllt -> vermerke, dass item2 zu streichen ist:
                       sbvector_bset(STACK_(0+3),bvi2); # (setf (sbit bv bvi2) 1)
                       dl = dl+1; # dl:=dl+1
@@ -3258,12 +3074,12 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
           # In this case we don't need to allocate a bit vector.
           if (help_fun == &remove_help) {
             # Remove duplicates from a list.
-            remove_duplicates_list_from_start(up2_fun,bvl);
+            remove_duplicates_list_from_start(pcall_test,bvl);
             return;
           }
           if (help_fun == &delete_help) {
             # Delete duplicates from a list.
-            delete_duplicates_list_from_start(up2_fun,bvl);
+            delete_duplicates_list_from_start(pcall_test,bvl);
             return;
           }
         }
@@ -3299,7 +3115,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
                 pushSTACK(STACK_(6+3+2)); # sequence
                 pushSTACK(STACK_(0+1)); # pointer2
                 funcall(seq_access(STACK_(2+2+2)),2); # (SEQ-ACCESS sequence pointer2)
-                funcall_key(STACK_(2+3+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+                funcall_key(STACK_(2+3+2),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
                 pushSTACK(value1); # =: item2
               }
               # Stackaufbau:
@@ -3325,10 +3141,10 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
                     pushSTACK(STACK_(6+3+4)); # sequence
                     pushSTACK(STACK_(0+1)); # pointer1
                     funcall(seq_access(STACK_(2+4+2)),2); # (SEQ-ACCESS sequence pointer1)
-                    funcall_key(STACK_(2+3+4)); # (FUNCALL key (SEQ-ACCESS sequence pointer1))
+                    funcall_key(STACK_(2+3+4),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer1)) */
                     # value1 =: item1
                     # item1 und item2 vergleichen:
-                    if ((*up2_fun)(stackptr,value1,STACK_1)) { # Testroutine aufrufen
+                    if ((*pcall_test)(stackptr STACKop -6,value1,STACK_1)) {
                       # Test erfüllt -> vermerke, dass item1 zu streichen ist:
                       sbvector_bset(STACK_(0+4),bvi1); # (setf (sbit bv bvi1) 1)
                       dl = dl+1; # dl:=dl+1
@@ -3385,7 +3201,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
             pushSTACK(STACK_(6+3+2)); # sequence
             pushSTACK(STACK_(0+1)); # pointer
             funcall(seq_access(STACK_(2+2+2)),2); # (SEQ-ACCESS sequence pointer)
-            funcall_key(STACK_(2+3+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
+            funcall_key(STACK_(2+3+2),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
           }
           # item wird in die Tabelle gesteckt; war es schon
           # drin, wird bei pointer gestrichen.
@@ -3410,7 +3226,7 @@ LISPFUN(delete_if_not,seclass_default,2,0,norest,key,5,
             pushSTACK(STACK_(6+3+2)); # sequence
             pushSTACK(STACK_(0+1)); # pointer
             funcall(seq_access(STACK_(2+2+2)),2); # (SEQ-ACCESS sequence pointer)
-            funcall_key(STACK_(2+3+2)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
+            funcall_key(STACK_(2+3+2),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
           }
           # item wird in die Tabelle gesteckt; war es schon
           # drin, wird an der vorigen Position gestrichen.
@@ -3594,11 +3410,11 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer into the stack, *(stackptr+2)=newitem,
 #   *(stackptr+0)=sequence
-# > up_fun: address of test function with the following specification:
-#           > stackptr: the same pointer into the stack
-#           > x: argument
+# > pcall_test: address of test function with the following specification:
+#           > stackptr: the pointer into the stack
+#           > x,y: arguments
 #           < true, if the test is satisfied, false otherwise.
-  local Values substitute_op (gcv_object_t* stackptr, up_function up_fun)
+  local Values substitute_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     seq_prepare_filterop(stackptr);
     # Stack layout:
@@ -3627,8 +3443,8 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
         pushSTACK(*(stackptr STACKop 0)); # sequence
         pushSTACK(STACK_(1+1)); # pointer
         funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
-        funcall_key(*(stackptr STACKop -4)); # (FUNCALL key ...)
-        if ((*up_fun)(stackptr,value1)) {
+        funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key ...) */
+        if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
           # Test fulfilled.
           # result1 := (cons newitem (nreconc (ldiff result2 pointer) result1))
           pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(L(ldiff),2);
@@ -3653,7 +3469,7 @@ LISPFUN(delete_duplicates,seclass_default,1,0,norest,key,6,
       skipSTACK(5);
     } else {
       # Use a bit vector for doing the filtering.
-      seq_filterop(stackptr,up_fun,&substitute_help);
+      seq_filterop(stackptr,pcall_test,&substitute_help);
     }
   }
 
@@ -3664,9 +3480,9 @@ LISPFUN(substitute,seclass_default,3,0,norest,key,7,
                                        [:test] [:test-not] [:count]),
  CLTL p. 255 */
   var gcv_object_t* stackptr = &STACK_7;
-  var up_function up_fun = test_test_args(stackptr); # Testfunktion
+  var funarg_t* pcall_test = check_test_args(&STACK_1); /* test function */
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  substitute_op(stackptr,up_fun);
+  substitute_op(stackptr,pcall_test);
   skipSTACK(3+7+1);
 }
 
@@ -3677,7 +3493,7 @@ LISPFUN(substitute_if,seclass_default,3,0,norest,key,5,
  CLTL p. 255 */
   var gcv_object_t* stackptr = &STACK_5;
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  substitute_op(stackptr,&up_if);
+  substitute_op(stackptr,&seq_call_if);
   skipSTACK(3+5+1);
 }
 
@@ -3688,7 +3504,7 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
  CLTL p. 255 */
   var gcv_object_t* stackptr = &STACK_5;
   seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-  substitute_op(stackptr,&up_if_not);
+  substitute_op(stackptr,&seq_call_if_not);
   skipSTACK(3+5+1);
 }
 
@@ -3757,18 +3573,18 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... count typdescr [STACK]
 # > stackptr: Pointer in den Stack, *(stackptr+2)=newitem
-# > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
+# > pcall_test: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
-#           > x: Argument
+#           > x,y: arguments
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local maygc Values nsubstitute_op (gcv_object_t* stackptr, up_function up_fun)
+local maygc Values nsubstitute_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     if (!(nullp(*(stackptr STACKop -1)))) { # from-end abfragen
       # from-end ist angegeben -> Bit-Vector erzeugen und dann ersetzen:
       seq_prepare_filterop(stackptr);
-      return_Values seq_filterop(stackptr,up_fun,&nsubstitute_fe_help);
+      return_Values seq_filterop(stackptr,pcall_test,&nsubstitute_fe_help);
     } else {
       # from-end ist nicht angegeben
       # COUNT-Argument muss NIL oder ein Integer >= 0 sein:
@@ -3803,9 +3619,9 @@ LISPFUN(substitute_if_not,seclass_default,3,0,norest,key,5,
           # item herausgreifen:
           pushSTACK(STACK_4); pushSTACK(STACK_(0+1));
           funcall(seq_access(STACK_(0+5+2)),2); # (SEQ-ACCESS sequence pointer)
-          funcall_key(STACK_3); # (FUNCALL key (SEQ-ACCESS sequence pointer))
+          funcall_key(STACK_3,value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
           # value1 =: item
-          if ((*up_fun)(stackptr,value1)) { # Testroutine aufrufen
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
             # Test ist erfüllt
             pushSTACK(STACK_4); pushSTACK(STACK_(0+1));
             pushSTACK(*(stackptr STACKop 2)); # newitem
@@ -3831,9 +3647,9 @@ LISPFUN(nsubstitute,seclass_default,3,0,norest,key,7,
 # CLTL S. 256
   {
     var gcv_object_t* stackptr = &STACK_7;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* test funtion */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    nsubstitute_op(stackptr,up_fun); # gefiltert ersetzen
+    nsubstitute_op(stackptr,pcall_test);
     skipSTACK(3+7+1);
   }
 
@@ -3844,7 +3660,7 @@ LISPFUN(nsubstitute_if,seclass_default,3,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    nsubstitute_op(stackptr,&up_if); # gefiltert ersetzen
+    nsubstitute_op(stackptr,&seq_call_if);
     skipSTACK(3+5+1);
   }
 
@@ -3855,7 +3671,7 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
   {
     var gcv_object_t* stackptr = &STACK_5;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    nsubstitute_op(stackptr,&up_if_not); # gefiltert ersetzen
+    nsubstitute_op(stackptr,&seq_call_if_not);
     skipSTACK(3+5+1);
   }
 
@@ -3863,13 +3679,13 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
-# > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
+# > pcall_test: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
-#           > x: Argument
+#           > x,y: arguments
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local maygc Values find_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values find_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     # Stackaufbau: ..., typdescr, sequence.
@@ -3897,8 +3713,8 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
           pushSTACK(STACK_2); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS sequence pointer)
           pushSTACK(value1); # =: item
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key item)
-          if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key item) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1))
             goto found; # Test erfüllt -> gefunden
           # Test ist nicht erfüllt
           skipSTACK(1); # item vergessen
@@ -3930,8 +3746,8 @@ LISPFUN(nsubstitute_if_not,seclass_default,3,0,norest,key,5,
           pushSTACK(STACK_2); pushSTACK(STACK_(0+1));
           funcall(seq_access(STACK_(3+2)),2); # (SEQ-ACCESS sequence pointer)
           pushSTACK(value1); # =: item
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key item)
-          if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key item) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1))
             goto found; # Test erfüllt -> gefunden
           # Test ist nicht erfüllt
           skipSTACK(1); # item vergessen
@@ -3955,9 +3771,9 @@ LISPFUN(find,seclass_default,2,0,norest,key,6,
 # CLTL S. 257
   {
     var gcv_object_t* stackptr = &STACK_6;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_0); /* test function */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    find_op(stackptr,up_fun); # suchen
+    find_op(stackptr,pcall_test);
     skipSTACK(2+6+1);
   }
 
@@ -3968,7 +3784,7 @@ LISPFUN(find_if,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    find_op(stackptr,&up_if); # suchen
+    find_op(stackptr,&seq_call_if);
     skipSTACK(2+4+1);
   }
 
@@ -3979,7 +3795,7 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    find_op(stackptr,&up_if_not); # suchen
+    find_op(stackptr,&seq_call_if_not);
     skipSTACK(2+4+1);
   }
 
@@ -3987,13 +3803,13 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
-# > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
+# > pcall_test: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
-#           > x: Argument
+#           > x,y: arguments
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local maygc Values position_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values position_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     # Stackaufbau: ..., typdescr, sequence.
@@ -4023,8 +3839,8 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
           # item herausgreifen:
           pushSTACK(STACK_3); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
-          if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1))
             goto found; # Test erfüllt -> gefunden
           # Test ist nicht erfüllt
           # pointer weiterrücken und count decrementieren:
@@ -4055,8 +3871,8 @@ LISPFUN(find_if_not,seclass_default,2,0,norest,key,4,
           # item herausgreifen:
           pushSTACK(STACK_3); pushSTACK(STACK_(0+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
-          if ((*up_fun)(stackptr,value1)) # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1))
             goto found; # Test erfüllt -> gefunden
           # Test ist nicht erfüllt
           # pointer := (SEQ-UPD sequence pointer) :
@@ -4081,9 +3897,9 @@ LISPFUN(position,seclass_default,2,0,norest,key,6,
 # CLTL S. 257
   {
     var gcv_object_t* stackptr = &STACK_6;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_0); /* test function */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    position_op(stackptr,up_fun); # suchen
+    position_op(stackptr,pcall_test);
     skipSTACK(2+6+1);
   }
 
@@ -4094,7 +3910,7 @@ LISPFUN(position_if,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    position_op(stackptr,&up_if); # suchen
+    position_op(stackptr,&seq_call_if);
     skipSTACK(2+4+1);
   }
 
@@ -4105,7 +3921,7 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    position_op(stackptr,&up_if_not); # suchen
+    position_op(stackptr,&seq_call_if_not);
     skipSTACK(2+4+1);
   }
 
@@ -4113,13 +3929,13 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
 # > Stackaufbau:
 #     ... sequence [stackptr] from-end start end key ... typdescr [STACK]
 # > stackptr: Pointer in den Stack
-# > up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
+# > pcall_test: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
 #           > stackptr: derselbe Pointer in den Stack,
-#           > x: Argument
+#           > x,y: arguments
 #           < true, falls der Test erfüllt ist, false sonst.
 # < mv_space/mv_count: Werte
 # can trigger GC
-  local maygc Values count_op (gcv_object_t* stackptr, up_function up_fun)
+  local maygc Values count_op (gcv_object_t* stackptr, funarg_t* pcall_test)
   {
     pushSTACK(*(stackptr STACKop 0)); # sequence
     pushSTACK(Fixnum_0); # total := 0
@@ -4147,8 +3963,8 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
           # item herausgreifen:
           pushSTACK(STACK_3); pushSTACK(STACK_(1+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
-          if ((*up_fun)(stackptr,value1)) { # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
             # Test ist erfüllt -> total := total + 1 :
             STACK_2 = fixnum_inc(STACK_2,1);
           }
@@ -4179,8 +3995,8 @@ LISPFUN(position_if_not,seclass_default,2,0,norest,key,4,
           # item herausgreifen:
           pushSTACK(STACK_3); pushSTACK(STACK_(0+1));
           funcall(seq_access(STACK_(4+2)),2); # (SEQ-ACCESS sequence pointer)
-          funcall_key(*(stackptr STACKop -4)); # (FUNCALL key (SEQ-ACCESS sequence pointer))
-          if ((*up_fun)(stackptr,value1)) { # Testroutine aufrufen
+          funcall_key(*(stackptr STACKop -4),value1); /* (FUNCALL key (SEQ-ACCESS sequence pointer)) */
+          if ((*pcall_test)(stackptr STACKop -6,*(stackptr STACKop 1),value1)) {
             # Test ist erfüllt -> total := total + 1 :
             STACK_2 = fixnum_inc(STACK_2,1);
           }
@@ -4200,9 +4016,9 @@ LISPFUN(count,seclass_default,2,0,norest,key,6,
 # CLTL S. 257
   {
     var gcv_object_t* stackptr = &STACK_6;
-    var up_function up_fun = test_test_args(stackptr); # Testfunktion
+    var funarg_t* pcall_test = check_test_args(&STACK_0); /* test function */
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    count_op(stackptr,up_fun); # suchen
+    count_op(stackptr,pcall_test);
     skipSTACK(2+6+1);
   }
 
@@ -4213,7 +4029,7 @@ LISPFUN(count_if,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    count_op(stackptr,&up_if); # suchen
+    count_op(stackptr,&seq_call_if);
     skipSTACK(2+4+1);
   }
 
@@ -4224,7 +4040,7 @@ LISPFUN(count_if_not,seclass_default,2,0,norest,key,4,
   {
     var gcv_object_t* stackptr = &STACK_4;
     seq_prepare_testop(stackptr); # Argumente aufbereiten, typdescr
-    count_op(stackptr,&up_if_not); # suchen
+    count_op(stackptr,&seq_call_if_not);
     skipSTACK(2+4+1);
   }
 
@@ -4239,9 +4055,9 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
     #              key, test, test-not.
     var gcv_object_t* stackptr = &STACK_6;
     # key überprüfen:
-    test_key_arg(stackptr);
+    check_key_arg(&STACK_2);
     # test, test-not überprüfen:
-    var up2_function up2_fun = test_test2_args(stackptr);
+    var funarg_t* pcall_test = check_test_args(&STACK_0);
     # sequence1 überprüfen:
     pushSTACK(get_valid_seq_type(STACK_(6+3)));
     # sequence2 überprüfen:
@@ -4293,16 +4109,16 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
       while (!eq(STACK_0,Fixnum_0)) { # count (ein Integer) = 0 ?
         pushSTACK(STACK_(6+5+6)); pushSTACK(STACK_(5+1));
         funcall(seq_access(STACK_(1+6+2)),2); # (SEQ-ACCESS seq1 pointer1)
-        funcall_key(STACK_(4+6)); # (FUNCALL key (SEQ-ACCESS seq1 pointer1))
+        funcall_key(STACK_(4+6),value1); /* (FUNCALL key (SEQ-ACCESS seq1 pointer1)) */
         pushSTACK(value1); # =: item1, retten
         pushSTACK(STACK_(5+5+6+1)); pushSTACK(STACK_(4+1+1));
         funcall(seq_access(STACK_(0+6+1+2)),2); # (SEQ-ACCESS seq2 pointer2)
-        funcall_key(STACK_(4+6+1)); # (FUNCALL key (SEQ-ACCESS seq2 pointer2))
+        funcall_key(STACK_(4+6+1),value1); /* (FUNCALL key (SEQ-ACCESS seq2 pointer2)) */
         {
           var object item2 = value1;
           var object item1 = popSTACK();
           # beide vergleichen:
-          if (!((*up2_fun)(&STACK_(8+6),item1,item2))) # Testroutine anwenden
+          if (!((*pcall_test)(&STACK_(2+6),item1,item2))) # Testroutine anwenden
             goto fe_found;
         }
         # Test erfüllt -> weitersuchen:
@@ -4373,16 +4189,16 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
           # keines der beiden Flags ist gesetzt
           pushSTACK(STACK_(6+5+5)); pushSTACK(STACK_(4+1));
           funcall(seq_access(STACK_(1+5+2)),2); # (SEQ-ACCESS seq1 pointer1)
-          funcall_key(STACK_(4+5)); # (FUNCALL key (SEQ-ACCESS seq1 pointer1))
+          funcall_key(STACK_(4+5),value1); /* (FUNCALL key (SEQ-ACCESS seq1 pointer1)) */
           pushSTACK(value1); # =: item1, retten
           pushSTACK(STACK_(5+5+5+1)); pushSTACK(STACK_(3+1+1));
           funcall(seq_access(STACK_(0+5+1+2)),2); # (SEQ-ACCESS seq2 pointer2)
-          funcall_key(STACK_(4+5+1)); # (FUNCALL key (SEQ-ACCESS seq2 pointer2))
+          funcall_key(STACK_(4+5+1),value1); /* (FUNCALL key (SEQ-ACCESS seq2 pointer2)) */
           {
             var object item2 = value1;
             var object item1 = popSTACK();
             # beide vergleichen:
-            if (!((*up2_fun)(&STACK_(8+5),item1,item2))) # Testroutine anwenden
+            if (!((*pcall_test)(&STACK_(2+5),item1,item2)))
               goto fs_found;
           }
           # Test erfüllt -> weitersuchen:
@@ -4429,9 +4245,9 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
     #              key, test, test-not.
     var gcv_object_t* stackptr = &STACK_6;
     # key überprüfen:
-    test_key_arg(stackptr);
+    check_key_arg(&STACK_2);
     # test, test-not überprüfen:
-    var up2_function up2_fun = test_test2_args(stackptr);
+    var funarg_t* pcall_test = check_test_args(&STACK_0);
     # sequence1 überprüfen:
     pushSTACK(get_valid_seq_type(STACK_(6+3)));
     # sequence2 überprüfen:
@@ -4443,7 +4259,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
     if (eq(seq_type(STACK_1),S(string)) && eq(seq_type(STACK_0),S(string)) # beides STRINGs ?
         && nullp(STACK_(0+5)) # und kein from-end ?
         && eq(STACK_4,L(identity)) # und key = #'identity ?
-        && (up2_fun == &up2_test) # und test-not nicht angegeben ?
+        && (pcall_test == &call_test) # und test-not nicht angegeben ?
        ) {
       var object test = STACK_3;
       if (eq(test,L(eq)) || eq(test,L(eql)) || eq(test,L(equal)) || eq(test,L(char_eq))) {
@@ -4520,16 +4336,16 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
             goto notfound; # ja -> seq2 zu Ende, nicht gefunden
           pushSTACK(STACK_(6+5+5+4)); pushSTACK(STACK_(3+1));
           funcall(seq_access(STACK_(1+5+4+2)),2); # (SEQ-ACCESS seq1 pointer1)
-          funcall_key(STACK_(4+5+4)); # (FUNCALL key (SEQ-ACCESS seq1 pointer1))
+          funcall_key(STACK_(4+5+4),value1); /* (FUNCALL key (SEQ-ACCESS seq1 pointer1)) */
           pushSTACK(value1); # =: item1, retten
           pushSTACK(STACK_(5+5+5+4+1)); pushSTACK(STACK_(2+1+1));
           funcall(seq_access(STACK_(0+5+4+1+2)),2); # (SEQ-ACCESS seq2 pointer2)
-          funcall_key(STACK_(4+5+4+1)); # (FUNCALL key (SEQ-ACCESS seq2 pointer2))
+          funcall_key(STACK_(4+5+4+1),value1); /* (FUNCALL key (SEQ-ACCESS seq2 pointer2)) */
           {
             var object item2 = value1;
             var object item1 = popSTACK();
             # beide vergleichen:
-            if (!((*up2_fun)(&STACK_(8+5+4),item1,item2))) # Testroutine anwenden
+            if (!((*pcall_test)(&STACK_(2+5+4),item1,item2)))
               break;
           }
           # Test erfüllt -> weitervergleichen:
@@ -4610,16 +4426,16 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
           # seq2 ist noch nicht am Ende.
           pushSTACK(STACK_(6+5+5+4)); pushSTACK(STACK_(3+1));
           funcall(seq_access(STACK_(1+5+4+2)),2); # (SEQ-ACCESS seq1 pointer1)
-          funcall_key(STACK_(4+5+4)); # (FUNCALL key (SEQ-ACCESS seq1 pointer1))
+          funcall_key(STACK_(4+5+4),value1); /* (FUNCALL key (SEQ-ACCESS seq1 pointer1)) */
           pushSTACK(value1); # =: item1, retten
           pushSTACK(STACK_(5+5+5+4+1)); pushSTACK(STACK_(2+1+1));
           funcall(seq_access(STACK_(0+5+4+1+2)),2); # (SEQ-ACCESS seq2 pointer2)
-          funcall_key(STACK_(4+5+4+1)); # (FUNCALL key (SEQ-ACCESS seq2 pointer2))
+          funcall_key(STACK_(4+5+4+1),value1); /* (FUNCALL key (SEQ-ACCESS seq2 pointer2)) */
           {
             var object item2 = value1;
             var object item1 = popSTACK();
             # beide vergleichen:
-            if (!((*up2_fun)(&STACK_(8+5+4),item1,item2))) # Testroutine anwenden
+            if (!((*pcall_test)(&STACK_(2+5+4),item1,item2)))
               break;
           }
           # Test erfüllt -> weitervergleichen:
@@ -4687,14 +4503,14 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
       {
         pushSTACK(STACK_8); pushSTACK(STACK_(1+1));
         funcall(seq_access(STACK_(7+2)),2); # (SEQ-ACCESS sequence2 pointer2)
-        funcall_key(*(stackptr STACKop -1)); # (FUNCALL key (SEQ-ACCESS sequence2 pointer2))
+        funcall_key(*(stackptr STACKop -1),value1); /* (FUNCALL key (SEQ-ACCESS sequence2 pointer2)) */
         pushSTACK(value1); # =: item2
       }
       # item1 holen:
       {
         pushSTACK(STACK_(10+1)); pushSTACK(STACK_(2+1+1));
         funcall(seq_access(STACK_(9+1+2)),2); # (SEQ-ACCESS sequence1 pointer1)
-        funcall_key(*(stackptr STACKop -1)); # (FUNCALL key (SEQ-ACCESS sequence1 pointer1))
+        funcall_key(*(stackptr STACKop -1),value1); /* (FUNCALL key (SEQ-ACCESS sequence1 pointer1)) */
         pushSTACK(value1); # =: item1
       }
       funcall(*(stackptr STACKop 0),2); # (FUNCALL predicate item2 item1)
@@ -4871,7 +4687,7 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
     # Argumente start und end überprüfen:
     test_start_end(&O(kwpair_start),&STACK_1);
     # key überprüfen:
-    test_key_arg(&STACK_7);
+    check_key_arg(&STACK_3);
     # l := (- end start), ein Integer >=0
     var object l = I_I_minus_I(STACK_1,STACK_2);
     pushSTACK(l);
@@ -4912,7 +4728,7 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
     pushSTACK(NIL);
     # Stackaufbau: result-type, sequence1, sequence2, predicate, key, nil.
     # key-Argument überprüfen:
-    test_key_arg(&STACK_5);
+    check_key_arg(&STACK_1);
     # sequence1 überprüfen:
     {
       var object seq1 = STACK_4;

@@ -407,75 +407,8 @@ LISPFUN(cons,seclass_no_se,2,0,norest,nokey,0,NIL)
   VALUES1(cons_from_stack());
 }
 
-
-# Unterprogramm zum Ausführen des Tests :TEST
-# up2_test(stackptr,arg1,arg2)
-# > *(stackptr+1): die Testfunktion
-# > arg1,arg2: Argumente
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up2_test (const gcv_object_t* stackptr, object arg1, object arg2) {
-  var object fun = *(stackptr STACKop 1);
-  # Special case the most frequent cases
-  if (eq(fun,L(eq)))
-    return eq(arg1,arg2);
-  if (eq(fun,L(eql)))
-    return eql(arg1,arg2);
-  if (eq(fun,L(equal)))
-    return equal(arg1,arg2);
-  pushSTACK(arg1); pushSTACK(arg2); funcall(fun,2);
-  return !nullp(value1);
-}
-
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
-# up2_test_not(stackptr,arg1,arg2)
-# > *(stackptr+0): die Testfunktion
-# > arg1,arg2: Argumente
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up2_test_not (const gcv_object_t* stackptr, object arg1, object arg2) {
-  pushSTACK(arg1); pushSTACK(arg2); funcall(*(stackptr STACKop 0),2);
-  return nullp(value1);
-}
-
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
-# test_test2_args(stackptr)
-# > stackptr: Pointer in den STACK
-# > *(stackptr+1): :TEST-Argument
-# > *(stackptr+0): :TEST-NOT-Argument
-# < *(stackptr+1): verarbeitetes :TEST-Argument
-# < *(stackptr+0): verarbeitetes :TEST-NOT-Argument
-# < up2_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
-#       > stackptr: derselbe Pointer in den Stack, arg1, arg2: Argumente
-#       < true, falls der Test erfüllt ist, false sonst.
-# up2_function_t sei der Typ der Adresse einer solchen Testfunktion:
-typedef maygc bool (*up2_function_t) (const gcv_object_t* stackptr,
-                                      object arg1, object arg2);
-local up2_function_t test_test2_args (gcv_object_t* stackptr) {
-  var object test_arg = *(stackptr STACKop 1);
-  if (!boundp(test_arg))
-    test_arg=NIL;
-  # test_arg ist das :TEST-Argument
-  var object test_not_arg = *(stackptr STACKop 0);
-  if (!boundp(test_not_arg))
-    test_not_arg=NIL;
-  # test_not_arg ist das :TEST-NOT-Argument
-  if (nullp(test_not_arg)) {
-    # :TEST-NOT wurde nicht angegeben
-    if (nullp(test_arg))
-      *(stackptr STACKop 1) = L(eql); # #'EQL als Default für :TEST
-    return &up2_test;
-  } else {
-    # :TEST-NOT wurde angegeben
-    if (nullp(test_arg))
-      return &up2_test_not;
-    else
-      error_both_tests();
-  }
-}
-
 # UP: Testet, ob zwei Bäume gleich sind.
-# tree_equal(stackptr,up2_fun,arg1,arg2)
+# tree_equal(stackptr,pcall_test,arg1,arg2)
 # > arg1,arg2: Bäume
 # > stackptr: Pointer in den Stack
 # > A5: Adresse einer Testfunktion, die arg1 und arg2 vergleicht und dabei auf
@@ -483,13 +416,13 @@ local up2_function_t test_test2_args (gcv_object_t* stackptr) {
 #       *(stackprt+0).L zugreifen kann.
 # < result: true, falls gleich, false sonst
 # can trigger GC
-local maygc bool tree_equal (const gcv_object_t* stackptr, up2_function_t up2_fun,
+local maygc bool tree_equal (const gcv_object_t* stackptr, funarg_t* pcall_test,
                              object arg1, object arg2) {
  start:
   if (atomp(arg1))
     if (atomp(arg2))
       # arg1 und arg2 sind beide Atome
-      return up2_fun(stackptr,arg1,arg2);
+      return pcall_test(stackptr,arg1,arg2);
     else
       return false;
   else
@@ -499,7 +432,7 @@ local maygc bool tree_equal (const gcv_object_t* stackptr, up2_function_t up2_fu
       # arg1 und arg2 sind beides Conses
       check_STACK(); check_SP();
       pushSTACK(Cdr(arg1)); pushSTACK(Cdr(arg2));
-      if (tree_equal(stackptr,up2_fun,Car(arg1),Car(arg2))) { # rekursiv die CARs vergleichen
+      if (tree_equal(stackptr,pcall_test,Car(arg1),Car(arg2))) { /* recursive on CARs */
         # falls gleich, tail-end-rekursiv die CDRs vergleichen
         arg2 = popSTACK(); arg1 = popSTACK(); goto start;
       } else {
@@ -512,8 +445,8 @@ LISPFUN(tree_equal,seclass_default,2,0,norest,key,2, (kw(test),kw(test_not)) )
 { /* (TREE-EQUAL x y :test :test-not), CLTL p. 264 */
   var gcv_object_t* stackptr = &STACK_0;
   /* check :TEST/:TEST-NOT arguments: */
-  var up2_function_t up2_fun = test_test2_args(stackptr);
-  VALUES_IF(tree_equal(stackptr,up2_fun,STACK_3,STACK_2));
+  var funarg_t* pcall_test = check_test_args(stackptr);
+  VALUES_IF(tree_equal(stackptr,pcall_test,STACK_3,STACK_2));
   skipSTACK(4);
 }
 
@@ -1263,132 +1196,8 @@ LISPFUNN(prplacd,2)             /* (SYS::%RPLACD cons object) */
   VALUES1(arg2);
 }
 
-# Unterprogramm zum Ausführen des Tests :TEST
-# up_test(stackptr,x)
-# > *(stackptr+1): die Testfunktion
-# > *(stackptr+3): das zu vergleichende Item
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up_test (const gcv_object_t* stackptr, object x) {
-  # nach CLTL S. 247 ein (funcall testfun item x) ausführen:
-  var object item = *(stackptr STACKop 3);
-  var object fun = *(stackptr STACKop 1);
-  # Special case the most frequent cases,
-  if (eq(fun,L(eq)))
-    return eq(item,x);
-  if (eq(fun,L(eql)))
-    return eql(item,x);
-  if (eq(fun,L(equal)))
-    return equal(item,x);
-  pushSTACK(item);
-  pushSTACK(x); # x
-  funcall(fun,2);
-  return !nullp(value1);
-}
-
-# Unterprogramm zum Ausführen des Tests :TEST-NOT
-# up_test_not(stackptr,x)
-# > *(stackptr+0): die Testfunktion
-# > *(stackptr+3): das zu vergleichende Item
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up_test_not (const gcv_object_t* stackptr, object x) {
-  # nach CLTL S. 247 ein (not (funcall testfun item x)) ausführen:
-  pushSTACK(*(stackptr STACKop 3)); # item
-  pushSTACK(x); # x
-  funcall(*(stackptr STACKop 0),2);
-  return nullp(value1);
-}
-
-# Unterprogramm zum Ausführen des Tests -IF
-# up_if(stackptr,x)
-# > *(stackptr+1): das Testprädikat
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up_if (const gcv_object_t* stackptr, object x) {
-  # nach CLTL S. 247 ein (funcall predicate x) ausführen:
-  pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-  return !nullp(value1);
-}
-
-# Unterprogramm zum Ausführen des Tests -IF-NOT
-# up_if_not(stackptr,x)
-# > *(stackptr+1): das Testprädikat
-# > x: Argument
-# < result: true falls der Test erfüllt ist, false sonst
-# can trigger GC
-local maygc bool up_if_not (const gcv_object_t* stackptr, object x) {
-  # nach CLTL S. 247 ein (not (funcall predicate x)) ausführen:
-  pushSTACK(x); funcall(*(stackptr STACKop 1),1);
-  return nullp(value1);
-}
-
-# UP: Überprüft das :KEY-Argument
-# test_key_arg()
-# > STACK_0: optionales Argument
-# < STACK_0: korrekte KEY-Funktion
-local void test_key_arg (void) {
-  var object key_arg = STACK_0;
-  if (missingp(key_arg))
-    STACK_0 = L(identity); # #'IDENTITY als Default für :KEY
-}
-
-# Applies a :KEY argument.
-# funcall_key(key,item);
-# > key: value of the :KEY argument
-# > item: object being considered
-# < value1: (FUNCALL key item)
-#define funcall_key(key,item)                     \
-  {                                               \
-    var object _key = (key);                      \
-    var object _item = (item);                    \
-    # shortcut for :KEY #'IDENTITY, very frequent \
-    if (!eq(_key,L(identity))) {                  \
-      pushSTACK(_item); funcall(_key,1);          \
-    } else {                                      \
-      value1 = _item;                             \
-    }                                             \
-  }
-
-# UP: Überprüft die :TEST, :TEST-NOT - Argumente
-# test_test_args()
-# > stackptr:=&STACK_1 : Pointer in den STACK
-# > STACK_2: :TEST-Argument
-# > STACK_1: :TEST-NOT-Argument
-# < STACK_2: verarbeitetes :TEST-Argument
-# < STACK_1: verarbeitetes :TEST-NOT-Argument
-# < up_fun: Adresse einer Testfunktion, die wie folgt spezifiziert ist:
-#       > stackptr: derselbe Pointer in den Stack, *(stackptr+3) = item,
-#         *(stackptr+1) = :test-Argument, *(stackptr+0) = :test-not-Argument,
-#       > x: Argument
-#       < true, falls der Test erfüllt ist, false sonst.
-  # up_function_t sei der Typ der Adresse einer solchen Testfunktion:
-typedef maygc bool (*up_function_t) (const gcv_object_t* stackptr, object x);
-local up_function_t test_test_args (void) {
-  var object test_arg = STACK_2;
-  if (!boundp(test_arg))
-    test_arg=NIL;
-  # test_arg ist das :TEST-Argument
-  var object test_not_arg = STACK_1;
-  if (!boundp(test_not_arg))
-    test_not_arg=NIL;
-  # test_not_arg ist das :TEST-NOT-Argument
-  if (nullp(test_not_arg)) {
-    # :TEST-NOT wurde nicht angegeben
-    if (nullp(test_arg))
-      STACK_2 = L(eql); # #'EQL als Default für :TEST
-    return &up_test;
-  } else {
-    # :TEST-NOT wurde angegeben
-    if (nullp(test_arg))
-      return &up_test_not;
-    else
-      error_both_tests();
-  }
-}
+/* (funcall TESTFUN ...) */
+#define CALL_TEST(p)  (*pcall_test)(p,*(p STACKop 3),value1)
 
 # UP: Ersetzt im Baum tree alle x, deren KEY der TESTFUNktion genügen,
 # durch NEW. Konstruktiv.
@@ -1400,11 +1209,12 @@ local up_function_t test_test_args (void) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < result: (evtl. neuer) Baum
 # can trigger GC
-local maygc object subst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
+local maygc object subst (object tree, gcv_object_t* stackptr,
+                          funarg_t* pcall_test) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
-  if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
+  if (CALL_TEST(stackptr)) { /* (funcall TESTFUN ...) */
     # Test erfüllt
     skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
   } else
@@ -1416,10 +1226,10 @@ local maygc object subst (object tree, gcv_object_t* stackptr, up_function_t up_
       # Argument ist ein Cons -> SUBST rekursiv aufrufen:
       check_STACK(); check_SP();
       # rekursiv für den CDR aufrufen:
-      var object new_cdr = subst(Cdr(STACK_0),stackptr,up_fun);
+      var object new_cdr = subst(Cdr(STACK_0),stackptr,pcall_test);
       pushSTACK(new_cdr); # CDR-Ergebnis retten
       # rekursiv für den CAR aufrufen:
-      var object new_car = subst(Car(STACK_1),stackptr,up_fun);
+      var object new_car = subst(Car(STACK_1),stackptr,pcall_test);
       if (eq(new_car,Car(STACK_1)) && eq(STACK_0,Cdr(STACK_1))) {
         # beides unverändert
         skipSTACK(1); # CDR-Ergebnis vergessen
@@ -1434,29 +1244,29 @@ local maygc object subst (object tree, gcv_object_t* stackptr, up_function_t up_
 LISPFUN(subst,seclass_default,3,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
 { /* (SUBST new old tree :test :test-not :key), CLTL p. 273 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  var up_function_t up_fun = test_test_args(); /* :TEST/:TEST-NOT-Arguments in STACK_2,STACK_1 */
-  { var object newobj = STACK_5; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Arguments in STACK_2,STACK_1 */
+  pushSTACK(STACK_5); /* newobj */
   /* stack layout: new, old, tree, test, test_not, key, new. */
-  VALUES1(subst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
+  VALUES1(subst(STACK_4,&STACK_2,pcall_test)); /* do the substitution */
   skipSTACK(7);
 }
 
 LISPFUN(subst_if,seclass_default,3,0,norest,key,1, (kw(key)) )
 { /* (SUBST-IF new pred tree :key), CLTL p. 273 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  { var object newobj = STACK_3; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  pushSTACK(STACK_3); /* newobj */
   /* stack layout: new, pred, tree, key, new. */
-  VALUES1(subst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
+  VALUES1(subst(STACK_2,&STACK_2,&call_if)); /* do the substitution */
   skipSTACK(5);
 }
 
 LISPFUN(subst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
 { /* (SUBST-IF-NOT new pred tree :key), CLTL S. 273 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  { var object newobj = STACK_3; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  pushSTACK(STACK_3); /* newobj */
   /* stack layout: new, pred, tree, key, new. */
-  VALUES1(subst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
+  VALUES1(subst(STACK_2,&STACK_2,&call_if_not)); /* do the substitution */
   skipSTACK(5);
 }
 
@@ -1470,11 +1280,12 @@ LISPFUN(subst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < result: Baum
 # can trigger GC
-local maygc object nsubst (object tree, gcv_object_t* stackptr, up_function_t up_fun) {
+local maygc object nsubst (object tree, gcv_object_t* stackptr,
+                           funarg_t* pcall_test) {
   # erst (KEY tree) berechnen und TESTFUN aufrufen:
   pushSTACK(tree); # tree retten
   funcall_key(*(stackptr STACKop -1),tree); # (KEY tree)
-  if (up_fun(stackptr,value1)) { # TESTFUN aufrufen
+  if (CALL_TEST(stackptr)) { /* (funcall TESTFUN ...) */
     # Test erfüllt
     skipSTACK(1); return *(stackptr STACKop -2); # NEW als Wert
   } else {
@@ -1484,12 +1295,12 @@ local maygc object nsubst (object tree, gcv_object_t* stackptr, up_function_t up
       check_STACK(); check_SP();
       # rekursiv für den CDR aufrufen:
       {
-        var object modified_cdr = nsubst(Cdr(STACK_0),stackptr,up_fun);
+        var object modified_cdr = nsubst(Cdr(STACK_0),stackptr,pcall_test);
         Cdr(STACK_0) = modified_cdr;
       }
       # rekursiv für den CAR aufrufen:
       {
-        var object modified_car = nsubst(Car(STACK_0),stackptr,up_fun);
+        var object modified_car = nsubst(Car(STACK_0),stackptr,pcall_test);
         Car(STACK_0) = modified_car;
       }
     }
@@ -1500,29 +1311,29 @@ local maygc object nsubst (object tree, gcv_object_t* stackptr, up_function_t up
 LISPFUN(nsubst,seclass_default,3,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
 { /* (NSUBST new old tree :test :test-not :key), CLTL p. 274 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  var up_function_t up_fun = test_test_args(); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
-  { var object newobj = STACK_5; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
+  pushSTACK(STACK_5); /* newobj */
   /* stack layout: new, old, tree, test, test_not, key, new. */
-  VALUES1(nsubst(STACK_4,&STACK_2,up_fun)); /* do the substitution */
+  VALUES1(nsubst(STACK_4,&STACK_2,pcall_test)); /* do the substitution */
   skipSTACK(7);
 }
 
 LISPFUN(nsubst_if,seclass_default,3,0,norest,key,1, (kw(key)) )
 { /* (NSUBST-IF new pred tree :key), CLTL p. 274 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  { var object newobj = STACK_3; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  pushSTACK(STACK_3); /* newobj */
   /* stack layout: new, pred, tree, key, new. */
-  VALUES1(nsubst(STACK_2,&STACK_2,&up_if)); /* do the substitution */
+  VALUES1(nsubst(STACK_2,&STACK_2,&call_if)); /* do the substitution */
   skipSTACK(5);
 }
 
 LISPFUN(nsubst_if_not,seclass_default,3,0,norest,key,1, (kw(key)) )
 { /* (NSUBST-IF-NOT new pred tree :key), CLTL p. 274 */
-  test_key_arg(); /* :KEY-Argument in STACK_0 */
-  { var object newobj = STACK_3; pushSTACK(newobj); }
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  pushSTACK(STACK_3); /* newobj */
   /* stack layout: new, pred, tree, key, new. */
-  VALUES1(nsubst(STACK_2,&STACK_2,&up_if_not)); /* do the substitution */
+  VALUES1(nsubst(STACK_2,&STACK_2,&call_if_not)); /* do the substitution */
   skipSTACK(5);
 }
 
@@ -1562,7 +1373,7 @@ local maygc object sublis_assoc (gcv_object_t* stackptr)
          *(stackptr-3) (an adress!), called on u and the
          value in *(stackptr-2), returns true: */
       var bool erg = /* 2-argument test function, called on (KEY x) and u */
-        (*(up2_function_t)TheMachineCode(*(stackptr STACKop -3)))
+        (*(funarg_t*)TheMachineCode(*(stackptr STACKop -3)))
         ( stackptr, *(stackptr STACKop -2), Car(head) );
       if (erg) /* test passed ==> return x = (u . v) = (CAR alist) */
         return Car(popSTACK());
@@ -1622,18 +1433,17 @@ LISPFUN(sublis,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
   # (SUBLIS alist tree :test :test-not :key), CLTL S. 274
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
     var gcv_object_t* stackptr = &STACK_1;
-    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
+    var funarg_t* pcall_test = check_test_args(stackptr); /* :TEST/:TEST-NOT-Arguments in STACK_2,STACK_1 */
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       VALUES1(STACK_3);
       skipSTACK(5);
     } else {
       pushSTACK(NIL); # Dummy
-      pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
-      # stack layout: alist, tree, test, test_not, key, dummy, up2_fun.
+      pushSTACK(make_machine_code(pcall_test)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
+      # stack layout: alist, tree, test, test_not, key, dummy, pcall_test.
       VALUES1(sublis(STACK_5,stackptr)); /* do the substitution */
       skipSTACK(7);
     }
@@ -1681,18 +1491,17 @@ LISPFUN(nsublis,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
   # (NSUBLIS alist tree :test :test-not :key), CLTL S. 275
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
     var gcv_object_t* stackptr = &STACK_1;
-    var up2_function_t up2_fun = test_test2_args(stackptr); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    # up2_fun = Testfunktion, wird mit stackptr und (KEY x) und u als
+    var funarg_t* pcall_test = check_test_args(stackptr); /* :TEST/:TEST-NOT-Arguments in STACK_2,STACK_1 */
     # Argumenten angesprungen. Sie liefert true, falls der Test erfüllt ist.
     if (nullp(STACK_4)) { # shortcut: nothing to do if alist = ()
       VALUES1(STACK_3);
       skipSTACK(5);
     } else {
       pushSTACK(NIL); # Dummy
-      pushSTACK(make_machine_code(up2_fun)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
-      # Stackaufbau: alist, tree, test, test_not, key, dummy, up2_fun.
+      pushSTACK(make_machine_code(pcall_test)); # Testfunktion, wegen Typinfo=machine_type GC-sicher!
+      # Stackaufbau: alist, tree, test, test_not, key, dummy, pcall_test.
       VALUES1(nsublis(STACK_5,stackptr)); /* do the substitution */
       skipSTACK(7);
     }
@@ -1727,12 +1536,13 @@ LISPFUNNR(memq,2) {
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < result: Listenrest
 # can trigger GC
-local maygc object member (object list, gcv_object_t* stackptr, up_function_t up_fun) {
+local maygc object member (object list, gcv_object_t* stackptr,
+                           funarg_t* pcall_test) {
   while (!endp(list)) {
     pushSTACK(list); # Listenrest retten
     funcall_key(*(stackptr STACKop -1),Car(list)); # (KEY x)
     {
-      var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+      var bool erg = CALL_TEST(stackptr); /* (funcall TESTFUN ...) */
       list = popSTACK();
       if (erg)
         return list; # Test erfüllt -> list als Ergebnis
@@ -1747,25 +1557,25 @@ LISPFUN(member,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
   # (MEMBER item list :test :test-not :key), CLTL S. 275
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    VALUES1(member(STACK_3,&STACK_1,up_fun)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
+    VALUES1(member(STACK_3,&STACK_1,pcall_test)); /* do the search */
     skipSTACK(5);
   }
 
 LISPFUN(member_if,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF pred list :key), CLTL S. 275
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(member(STACK_1,&STACK_1,&up_if)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    VALUES1(member(STACK_1,&STACK_1,&call_if)); /* do the search */
     skipSTACK(3);
   }
 
 LISPFUN(member_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (MEMBER-IF-NOT pred list :key), CLTL S. 275
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(member(STACK_1,&STACK_1,&up_if_not)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    VALUES1(member(STACK_1,&STACK_1,&call_if_not)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1814,15 +1624,15 @@ LISPFUN(adjoin,seclass_default,2,0,norest,key,3,
   # (ADJOIN item list :test :test-not :key), CLTL S. 276
   {
     # erst Test auf (MEMBER (key item) list :test :test-not :key):
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
     {
       var object item = STACK_4;
       pushSTACK(item); # item retten
       funcall_key(STACK_1,item); STACK_5 = value1; # item := (funcall key item)
     }
     # Stackaufbau: (key item), list, test, test-not, key, item
-    if (nullp(member(STACK_4,&STACK_2,up_fun))) { # Suche durchführen
+    if (nullp(member(STACK_4,&STACK_2,pcall_test))) { # Suche durchführen
       # item noch nicht in list gefunden: muss consen
       var object new_cons = allocate_cons();
       Cdr(new_cons) = STACK_4; # = list
@@ -1896,7 +1706,8 @@ LISPFUN(pairlis,seclass_read,2,1,norest,nokey,0,NIL)
 #       Sie liefert true, falls der Test erfüllt ist, false sonst.
 # < result: Listenelement (ein Cons) oder NIL
 # can trigger GC
-local maygc object assoc (object alist, gcv_object_t* stackptr, up_function_t up_fun)
+local maygc object assoc (object alist, gcv_object_t* stackptr,
+                          funarg_t* pcall_test)
 {
  start:
   if (endp(alist)) /* end of alist ==> NIL */
@@ -1906,7 +1717,7 @@ local maygc object assoc (object alist, gcv_object_t* stackptr, up_function_t up
     if (mconsp(head)) { # atomare Listenelemente überspringen
       pushSTACK(alist); # Listenrest ((u . v) ...) retten
       funcall_key(*(stackptr STACKop -1),Car(head)); # (KEY u)
-      var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+      var bool erg = CALL_TEST(stackptr); /* (funcall TESTFUN ...) */
       alist = popSTACK();
       if (erg)
         # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
@@ -1923,25 +1734,25 @@ LISPFUN(assoc,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
   # (ASSOC item alist :test :test-not :key), CLTL S. 280
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-    VALUES1(assoc(STACK_3,&STACK_1,up_fun)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
+    VALUES1(assoc(STACK_3,&STACK_1,pcall_test)); /* do the search */
     skipSTACK(5);
   }
 
 LISPFUN(assoc_if,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF pred alist :key), CLTL S. 280
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(assoc(STACK_1,&STACK_1,&up_if)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    VALUES1(assoc(STACK_1,&STACK_1,&call_if)); /* do the search */
     skipSTACK(3);
   }
 
 LISPFUN(assoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
   # (ASSOC-IF-NOT pred alist :key), CLTL S. 280
   {
-    test_key_arg(); # :KEY-Argument in STACK_0
-    VALUES1(assoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
+    check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+    VALUES1(assoc(STACK_1,&STACK_1,&call_if_not)); /* do the search */
     skipSTACK(3);
   }
 
@@ -1955,8 +1766,7 @@ LISPFUN(assoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
 # < result: Listenelement (ein Cons) oder NIL
 # can trigger GC
 local maygc object rassoc (object alist, gcv_object_t* stackptr,
-                           up_function_t up_fun)
-{
+                           funarg_t* pcall_test) {
  start:
   if (endp(alist)) /* end of alist ==> NIL */
     return NIL;
@@ -1965,7 +1775,7 @@ local maygc object rassoc (object alist, gcv_object_t* stackptr,
     if (mconsp(head)) { # atomare Listenelemente überspringen
       pushSTACK(alist); # Listenrest ((u . v) ...) retten
       funcall_key(*(stackptr STACKop -1),Cdr(head)); # (KEY v)
-      var bool erg = up_fun(stackptr,value1); # TESTFUN aufrufen
+      var bool erg = CALL_TEST(stackptr); /* (funcall TESTFUN ...) */
       alist = popSTACK();
       if (erg)
         # Test erfüllt -> x = (u . v) = (CAR alist) als Ergebnis
@@ -1981,23 +1791,23 @@ local maygc object rassoc (object alist, gcv_object_t* stackptr,
 LISPFUN(rassoc,seclass_default,2,0,norest,key,3,
         (kw(test),kw(test_not),kw(key)) )
 { /* (RASSOC item alist :test :test-not :key), CLTL S. 281 */
-  test_key_arg(); # :KEY-Argument in STACK_0
-  var up_function_t up_fun = test_test_args(); # :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1
-  VALUES1(rassoc(STACK_3,&STACK_1,up_fun)); /* do the search */
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  var funarg_t* pcall_test = check_test_args(&STACK_1); /* :TEST/:TEST-NOT-Argumente in STACK_2,STACK_1 */
+  VALUES1(rassoc(STACK_3,&STACK_1,pcall_test)); /* do the search */
   skipSTACK(5);
 }
 
 LISPFUN(rassoc_if,seclass_default,2,0,norest,key,1, (kw(key)) )
 { /* (RASSOC-IF pred alist :key), CLTL S. 281 */
-  test_key_arg(); # :KEY-Argument in STACK_0
-  VALUES1(rassoc(STACK_1,&STACK_1,&up_if)); /* do the search */
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  VALUES1(rassoc(STACK_1,&STACK_1,&call_if)); /* do the search */
   skipSTACK(3);
 }
 
 LISPFUN(rassoc_if_not,seclass_default,2,0,norest,key,1, (kw(key)) )
 { /* (RASSOC-IF-NOT pred alist :key), CLTL S. 281 */
-  test_key_arg(); # :KEY-Argument in STACK_0
-  VALUES1(rassoc(STACK_1,&STACK_1,&up_if_not)); /* do the search */
+  check_key_arg(&STACK_0); /* :KEY-Argument in STACK_0 */
+  VALUES1(rassoc(STACK_1,&STACK_1,&call_if_not)); /* do the search */
   skipSTACK(3);
 }
 
