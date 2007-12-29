@@ -1573,7 +1573,7 @@ CPARTS=$CPARTS' encoding pathname stream'
 if [ $TSYS = master -o $TOS = unix -o $TOS = win32 ] ; then
   CPARTS=$CPARTS' socket'
 fi
-CPARTS=$CPARTS' io'
+CPARTS=$CPARTS' io funarg'
 CPARTS=$CPARTS' array hashtabl list package record weak sequence'
 CPARTS=$CPARTS' charstrg debug error misc time predtype symbol lisparit i18n'
 if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then

@@ -1,3 +1,14 @@
+2007-12-27  Sam Steingold  <sds@gnu.org>
+
+	* funarg.d: new file, extracted from list.d, sequence.d, weak.d
+	* list.d, sequence.d, weak.d: use funarg.d
+	replace up_function_t and up2_function_t with funarg_t
+	extend the 2001-06-16 patch (do not go through FUNCALL for simple tests)
+	by selecting the test function once, not testing on each comparison
+	* makemake.in (CPARTS): add funarg
+	* lispbibl.d (check_key_arg, funcall_key, check_test_args): add
+	(error_both_tests): remove
+
 2007-12-26  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, spvw_gcstat.d, time.d (TIME_1, TIME_2): replace with
