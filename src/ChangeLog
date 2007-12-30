@@ -1,5 +1,15 @@
 2007-12-30  Sam Steingold  <sds@gnu.org>
 
+	avoid goto and return from inside with_string_0
+	* pathname.d (delete_file_if_exists_obj, realpath_obj, stat_obj)
+	(open_output_file_obj, create_backup_file_obj): add
+	(assure_dir_exists): use realpath_obj()
+	(directory_exists, directory_search_hash): use stat_obj()
+	(DELETE-FILE): use delete_file_if_exists_obj()
+	(open_file): use open_output_file_obj() & create_backup_file_obj()
+
+2007-12-30  Sam Steingold  <sds@gnu.org>
+
 	fix bug [ 1860489 ]: deletion of symlinks into non-existent dirs fails
 	* pathname.d (DELETE-FILE): when the directory does not exist,
 	still remove the link, just skip check_delete_open()
