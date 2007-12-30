@@ -1,7 +1,7 @@
 /*
  * Functions for weak references in CLISP
  * Bruno Haible 1999-2005
- * Sam Steingold 2003
+ * Sam Steingold 2003, 2007
  */
 #include "lispbibl.c"
 

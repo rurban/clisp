@@ -1,7 +1,7 @@
 /*
  * Functions for records and structures in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2007
  * German comments translated into English: Stefan Kain 2002-04-16
  */
 #include "lispbibl.c"
