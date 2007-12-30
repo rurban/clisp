@@ -127,17 +127,23 @@ global funarg_t* check_test_args (gcv_object_t* stackptr) {
   if (nullp(test_not_arg)) { /* :TEST-NOT was not specified */
     if (nullp(test_arg))
       *(stackptr STACKop 1) = test_arg = L(eql); /* :TEST defaults to #'EQL */
-    if (eq(test_arg,L(eq))) return &call_test_eq;
-    if (eq(test_arg,L(eql))) return &call_test_eql;
-    if (eq(test_arg,L(equal))) return &call_test_equal;
-    if (eq(test_arg,L(equalp))) return &call_test_equalp;
+    if (subrp(test_arg))
+      switch (TheSubr(test_arg)->fastcmp) {
+        case fastcmp_eq: return &call_test_eq;
+        case fastcmp_eql: return &call_test_eql;
+        case fastcmp_equal: return &call_test_equal;
+        case fastcmp_equalp: return &call_test_equalp;
+      }
     return &call_test;
   }
   if (!nullp(test_arg)) error_both_tests();
-  if (eq(test_not_arg,L(eq))) return &call_test_not_eq;
-  if (eq(test_arg,L(eql))) return &call_test_not_eql;
-  if (eq(test_arg,L(equal))) return &call_test_not_equal;
-  if (eq(test_arg,L(equalp))) return &call_test_not_equalp;
+  if (subrp(test_not_arg))
+    switch (TheSubr(test_not_arg)->fastcmp) {
+      case fastcmp_eq: return &call_test_not_eq;
+      case fastcmp_eql: return &call_test_not_eql;
+      case fastcmp_equal: return &call_test_not_equal;
+      case fastcmp_equalp: return &call_test_not_equalp;
+    }
   return &call_test_not;
 }
 

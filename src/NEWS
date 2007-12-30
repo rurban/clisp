@@ -13,6 +13,8 @@ User visible changes
 
 * The AFFI (simple ffi, originally for Amiga) code has been removed.
 
+* Speed up list and sequence functions when :TEST is EQ, EQL, EQUAL or EQUALP.
+
 * Bug fixes:
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
   + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.

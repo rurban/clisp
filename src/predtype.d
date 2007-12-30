@@ -1139,22 +1139,22 @@ global bool equalp (object obj1, object obj2)
   }
 }
 
-LISPFUNNF(eq,2)
+LISPFUN(eq,SECFC(seclass_foldable,fastcmp_eq),2,0,norest,nokey,0,NIL)
 { /* (EQ obj1 obj2), CLTL p. 77 */
   VALUES_IF(eq(STACK_0,STACK_1)); skipSTACK(2);
 }
 
-LISPFUNNF(eql,2)
+LISPFUN(eql,SECFC(seclass_foldable,fastcmp_eql),2,0,norest,nokey,0,NIL)
 { /* (EQL obj1 obj2), CLTL p. 78 */
   VALUES_IF(eql(STACK_0,STACK_1)); skipSTACK(2);
 }
 
-LISPFUNNR(equal,2)
+LISPFUN(equal,SECFC(seclass_read,fastcmp_equal),2,0,norest,nokey,0,NIL)
 { /* (EQUAL obj1 obj2), CLTL p. 80 */
   VALUES_IF(equal(STACK_0,STACK_1)); skipSTACK(2);
 }
 
-LISPFUNNR(equalp,2)
+LISPFUN(equalp,SECFC(seclass_read,fastcmp_equalp),2,0,norest,nokey,0,NIL)
 { /* (EQUALP obj1 obj2), CLTL p. 81 */
   VALUES_IF(equalp(STACK_0,STACK_1)); skipSTACK(2);
 }
