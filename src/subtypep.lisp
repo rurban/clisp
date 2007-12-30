@@ -1,5 +1,6 @@
 ;;;; SUBTYPEP
 ;;;; Bruno Haible 2004-03-28, 2004-04-03
+;;;; Sam Steingold 2004-2005
 
 ;; SUBTYPEP is very powerful. It can tell:
 ;; - whether a type is empty:
