@@ -45,9 +45,18 @@
 #define LISPFUN_C(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   subr_t D_##name;
 
+/* convert combination of side-effect class + fast comparison into
+ the individual fields. since fastcmp is fastcmp_none virtually always,
+ there is little reason to have separate argument slots in LISPFUN_* for it */
+#define SECFC_BITS  16
+#define SECFC_MASK  ((1 << SECFC_BITS) - 1)
+#define SECFC(sec,fc)     (sec ^ (fc << SECFC_BITS))
+#define SECFC_SEC(secfc)  (secfc & SECFC_MASK)
+#define SECFC_FC(secfc)   (secfc >> SECFC_BITS)
+
 /* expander for the initialization of the SUBR-table: */
 #ifdef TYPECODES
-#define LISPFUN_D(name_,sec,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
+#define LISPFUN_D(name_,secfc,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
   ptr->GCself = subr_tab_ptr_as_object(ptr /* = &subr_tab.D_##name_ */);\
   ptr->rectype = Rectype_Subr;                                          \
   ptr->recflags = 0;                                                    \
@@ -62,10 +71,11 @@
   ptr->rest_flag = (uintB)subr_##rest_flag_;                            \
   ptr->key_flag = (uintB)subr_##key_flag_;                              \
   ptr->key_count = key_count_;                                          \
-  ptr->seclass = sec;                                                   \
+  ptr->seclass = SECFC_SEC(secfc);                                      \
+  ptr->fastcmp = SECFC_FC(sec_fc);                                      \
   ptr++;
 #else
-#define LISPFUN_D(name_,sec,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
+#define LISPFUN_D(name_,sec_fc,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
   ptr->GCself = subr_tab_ptr_as_object(ptr /* = &subr_tab.D_##name_ */);\
   ptr->tfl = xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength);      \
   ptr->name = S_help_(S_##name_);                                       \
@@ -77,7 +87,8 @@
   ptr->rest_flag = (uintB)subr_##rest_flag_;                            \
   ptr->key_flag = (uintB)subr_##key_flag_;                              \
   ptr->key_count = key_count_;                                          \
-  ptr->seclass = sec;                                                   \
+  ptr->seclass = SECFC_SEC(secfc);                                      \
+  ptr->fastcmp = SECFC_FC(sec_fc);                                      \
   ptr++;
 #endif
 #define LISPFUN_E(name_,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
@@ -85,7 +96,7 @@
   ptr++;
 #ifdef TYPECODES
 #ifdef DEBUG_GCSAFETY
-#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_F(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { gcv_nullobj, /* preliminary */                                      \
     Rectype_Subr, 0, subr_length, subr_xlength,                         \
     gcv_nullobj, /* preliminary */                                      \
@@ -97,10 +108,11 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #else
-#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_F(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { { gcv_nullobj }, /* preliminary */                                  \
     Rectype_Subr, 0, subr_length, subr_xlength,                         \
     gcv_nullobj, /* preliminary */                                      \
@@ -112,11 +124,12 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #endif
 #else
-#define LISPFUN_F(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_F(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { gcv_nullobj, /* preliminary */                                      \
     xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength),               \
     gcv_nullobj, /* preliminary */                                      \
@@ -128,12 +141,13 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #endif
 #ifdef TYPECODES
 #ifdef DEBUG_GCSAFETY
-#define LISPFUN_G(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_G(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { subr_tab_ptr_as_object(&subr_tab.D_##name),                         \
     Rectype_Subr, 0, subr_length, subr_xlength,                         \
     S_help_(S_##name),                                                  \
@@ -145,10 +159,11 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #else
-#define LISPFUN_G(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_G(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { { subr_tab_ptr_as_object(&subr_tab.D_##name) },                     \
     Rectype_Subr, 0, subr_length, subr_xlength,                         \
     S_help_(S_##name),                                                  \
@@ -160,11 +175,12 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #endif
 #else
-#define LISPFUN_G(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
+#define LISPFUN_G(name,secfc,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
   { subr_tab_ptr_as_object(&subr_tab.D_##name),                         \
     xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength),               \
     S_help_(S_##name),                                                  \
@@ -176,7 +192,8 @@
     (uintB)subr_##rest_flag,                                            \
     (uintB)subr_##key_flag,                                             \
     key_count,                                                          \
-    sec,                                                                \
+    SECFC_SEC(secfc),                                                   \
+    SECFC_FC(secfc),                                                    \
   },
 #endif
 
@@ -859,10 +876,10 @@ LISPFUNN(program_name,0)
 LISPFUNN(lib_directory,0)
 LISPFUNN(set_lib_directory,1)
 /* ---------- PREDTYPE ---------- */
-LISPFUNNF(eq,2)
-LISPFUNNF(eql,2)
-LISPFUNNR(equal,2)
-LISPFUNNR(equalp,2)
+LISPFUN(eq,SECFC(seclass_foldable,fastcmp_eq),2,0,norest,nokey,0,NIL)
+LISPFUN(eql,SECFC(seclass_foldable,fastcmp_eql),2,0,norest,nokey,0,NIL)
+LISPFUN(equal,SECFC(seclass_read,fastcmp_equal),2,0,norest,nokey,0,NIL)
+LISPFUN(equalp,SECFC(seclass_read,fastcmp_equalp),2,0,norest,nokey,0,NIL)
 LISPFUNNF(consp,1)
 LISPFUNNF(atom,1)
 LISPFUNNF(symbolp,1)
