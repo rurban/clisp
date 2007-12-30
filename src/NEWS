@@ -21,6 +21,7 @@ User visible changes
     [ 1835520 ]
   + BYTE is now a full-fledged type. [ 1854698 ]
   + Fix linux:dirent definition in the bindings/glibc module. [ 1779490 ]
+  + Symbolic links into non-existent directories can now be deleted. [ 1860489 ]
 
 
 2.43 (2007-11-18)

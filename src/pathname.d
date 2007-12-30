@@ -6076,12 +6076,9 @@ LISPFUNN(delete_file,1) {
   check_noname(pathname);
   pushSTACK(pathname); pushSTACK(pathname);
   var object namestring = assure_dir_exists(false,true);
-  if (eq(namestring,nullobj)) {
-    /* path to the file does not exist ==> return NIL */
-    skipSTACK(2); VALUES1(NIL); return;
-  }
-  check_delete_open(STACK_0);
-  /* delete the original filename - not the truename */
+  if (!eq(namestring,nullobj)) /* path to the file exists */
+    check_delete_open(STACK_0);
+  /* delete the original filename - not the truename (which may be invalid!) */
   namestring = whole_namestring(STACK_1);
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     if (!delete_file_if_exists(namestring_asciz)) {
