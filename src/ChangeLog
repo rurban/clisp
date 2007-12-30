@@ -1,5 +1,11 @@
 2007-12-30  Sam Steingold  <sds@gnu.org>
 
+	fix bug [ 1860489 ]: deletion of symlinks into non-existent dirs fails
+	* pathname.d (DELETE-FILE): when the directory does not exist,
+	still remove the link, just skip check_delete_open()
+
+2007-12-30  Sam Steingold  <sds@gnu.org>
+
 	additional 5% speedup in simple sequence tests: switch instead of if
 	* lispbibl.d (fastcmp_t): new type
 	(subr_t): split uintW seclass into uintB seclass and uintB fastcmp
