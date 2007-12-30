@@ -1,3 +1,17 @@
+2007-12-30  Sam Steingold  <sds@gnu.org>
+
+	additional 5% speedup in simple sequence tests: switch instead of if
+	* lispbibl.d (fastcmp_t): new type
+	(subr_t): split uintW seclass into uintB seclass and uintB fastcmp
+	* funarg.d (check_test_args): use fastcmp subr field in switch
+	instead of a sequence of if statements
+	* subr.d (SECFC_BITS, SECFC_MASK, SECFC, SECFC_SEC, SECFC_FC):
+	macros to allow passing both seclass and fastcmp in one LISPFUN
+	macro argument
+	(LISPFUN_D, LISPFUN_F, LISPFUN_G): set fastcmp
+	(eq, eql, equal, equalp): set fastcmp
+	* predtype.d (eq, eql, equal, equalp): ditto
+
 2007-12-27  Sam Steingold  <sds@gnu.org>
 
 	* funarg.d: new file, extracted from list.d, sequence.d, weak.d

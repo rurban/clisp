@@ -6717,7 +6717,8 @@ typedef struct {
   uintB rest_flag;              /* flag for arbitrary number of arguments */
   uintB key_flag;               /* flag for keywords */
   uintW key_count;              /* number of keyword parameter */
-  uintW seclass;                /* side-effect class */
+  uintB seclass;                /* side-effect class */
+  uintB fastcmp;                /* fast comparison method */
   /* If necessary, add fillers here to ensure sizeof(subr_t)
      is a multiple of varobject_alignment. */
 } subr_t
@@ -6781,7 +6782,7 @@ typedef enum {
 } subr_argtype_t;
 /* Conversion: see SPVW: */
 /* extern subr_argtype_t subr_argtype (uintW req_count, uintW opt_count, subr_rest_t rest_flag, subr_key_t key_flag); */
-%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_count; uintW opt_count; uintB rest_flag; uintB key_flag; uintW key_count; uintW seclass; } %%s",attribute_aligned_object,attribute_aligned_object);
+%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t name%s; gcv_object_t keywords%s; lisp_function_t function; uintW argtype; uintW req_count; uintW opt_count; uintB rest_flag; uintB key_flag; uintW key_count; uintB seclass; uintB fastcmp; } %%s",attribute_aligned_object,attribute_aligned_object);
 %% #if defined(HEAPCODES) && (alignment_long < 4) && defined(GNU)
 %%   strcat(buf," __attribute__ ((aligned (4)))");
 %% #endif
@@ -6806,6 +6807,21 @@ typedef enum {
   seclass_default /* may do side effects */
 } seclass_t;
 %% puts("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};");
+
+/* fast comparison method is really fastcmp_t:
+ when you want to make another comparison function bypass FUNCALL in
+ :TEST/:TEST-NOT sequence functions, you need to
+ -- add fastcmp_FOO here and
+ -- augment funarg.d:check_test_args(), and
+ -- add call_test_FOO and call_test_not_FOO in funarg.d */
+typedef enum {
+  fastcmp_none=0,   /* no special tricks */
+  fastcmp_eq,       /* EQ */
+  fastcmp_eql,      /* EQL */
+  fastcmp_equal,    /* EQUAL */
+  fastcmp_equalp,   /* EQUALP */
+  fastcmp_for_broken_compilers_that_dont_like_trailing_commas
+} fastcmp_t;
 
 # Small-Read-Label
 #ifdef TYPECODES
@@ -12615,7 +12631,7 @@ LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
              v(kw(keyword1),...,kw(keywordn))   (NIL if nokey)
  See SUBR.D */
 #define LISPFUN  LISPFUN_B
-/* is used by all modules */
+/* used by all modules */
 
 /* The macro LISPFUNN initiates a simple declaration of a LISP-function.
 LISPFUNN(name,req_count)
@@ -12624,7 +12640,7 @@ LISPFUNN(name,req_count)
  LISPFUNNF - ditto, but seclass_foldable instead of seclass_default
  LISPFUNNR - ditto, but seclass_read instead of seclass_default
  See SUBR.D
- is used by all modules */
+ used by all modules */
 
 /* UP: initialize hand-made compiled closures
  init_cclosures();
