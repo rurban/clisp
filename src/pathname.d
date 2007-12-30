@@ -368,6 +368,13 @@ local inline bool delete_file_if_exists (char* pathstring) {
  #endif
   return exists;
 }
+local bool delete_file_if_exists_obj (object namestring) {
+  bool ret;
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    ret = delete_file_if_exists(namestring_asciz);
+  });
+  return ret;
+}
 
 /* Delete a file being the target of a subsequent rename.
  delete_file_before_rename(pathstring);
@@ -5578,6 +5585,15 @@ local maygc object use_default_dir (object pathname) {
   #define if_HAVE_LSTAT(statement)
 #endif
 
+local char* realpath_obj (object namestring, char *path_buffer) {
+  char* ret;
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    begin_system_call();
+    ret = realpath(namestring_asciz,path_buffer);
+    end_system_call();
+  });
+  return ret;
+}
 local var struct stat * filestatus;
 local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
   var uintC allowed_links = MAXSYMLINKS; /* number of allowed symbolic links */
@@ -5593,19 +5609,12 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
         pushSTACK(O(dot_string)); /* and "." */
         var object string = string_concat(stringcount+1); /* concatenate */
         /* resolve symbolic links therein: */
-        with_sstring_0(string,O(pathname_encoding),string_asciz, {
-          begin_system_call();
-          if ( realpath(string_asciz,&path_buffer[0]) ==NULL) {
-            if (errno!=ENOENT) { end_system_call(); OS_file_error(STACK_0); }
-            end_system_call();
-            if (!tolerantp)
-              error_dir_not_exists(asciz_dir_to_pathname(&path_buffer[0],O(pathname_encoding))); /* erroneous component */
-            end_system_call();
-            FREE_DYNAMIC_ARRAY(string_asciz);
-            return nullobj;
-          }
-          end_system_call();
-        });
+        if (realpath_obj(string,path_buffer) == NULL) {
+          if (errno!=ENOENT) { OS_file_error(STACK_0); }
+          if (!tolerantp)
+            error_dir_not_exists(asciz_dir_to_pathname(path_buffer,O(pathname_encoding))); /* erroneous component */
+          return nullobj;
+        }
       }
       /* new Directory-Path must start with '/' : */
       if (!(path_buffer[0] == '/')) {
@@ -5924,6 +5933,20 @@ LISPFUNNR(probe_file,1)
   }
 }
 
+/* call stat(2) on the object and return its return value
+ > namestring: string
+ > status: pointer to a stat
+ < status */
+local int stat_obj (object namestring, struct stat *status) {
+  int ret;
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    begin_system_call();
+    ret = stat(namestring_asciz,status);
+    end_system_call();
+  });
+  return ret;
+}
+
 /* tests, if a directory exists.
  directory_exists(pathname)
  > pathname: an absolute pathname without wildcards, with Name=NIL and Type=NIL
@@ -5959,18 +5982,14 @@ local maygc bool directory_exists (object pathname) {
   pushSTACK(dir_namestring);
   pushSTACK(O(dot_string)); /* and "." */
   dir_namestring = string_concat(2); /* concatenate */
-  with_sstring_0(dir_namestring,O(pathname_encoding),dir_namestring_asciz, {
-    var struct stat statbuf;
-    begin_system_call();
-    if (stat(dir_namestring_asciz,&statbuf) < 0) {
-      if (!(errno==ENOENT)) { end_system_call(); OS_file_error(STACK_0); }
+  var struct stat statbuf;
+  if (stat_obj(dir_namestring,&statbuf) < 0) {
+    if (errno != ENOENT) OS_file_error(STACK_0);
+    exists = false;
+  } else {
+    if (!S_ISDIR(statbuf.st_mode)) /* found file is no subdirectory ? */
       exists = false;
-    } else {
-      if (!S_ISDIR(statbuf.st_mode)) /* found file is no subdirectory ? */
-        exists = false;
-    }
-    end_system_call();
-  });
+  }
  #endif
   skipSTACK(1);
   return exists;
@@ -6080,15 +6099,12 @@ LISPFUNN(delete_file,1) {
     check_delete_open(STACK_0);
   /* delete the original filename - not the truename (which may be invalid!) */
   namestring = whole_namestring(STACK_1);
-  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    if (!delete_file_if_exists(namestring_asciz)) {
-      /* file does not exist -> value NIL */
-      FREE_DYNAMIC_ARRAY(namestring_asciz); skipSTACK(2);
-      VALUES1(NIL); return;
-    }
-  });
-  /* file existed, was deleted -> pathname (/=NIL) as value */
-  VALUES1(nullp(O(ansi)) ? (object)STACK_1 : T); skipSTACK(2);
+  if (delete_file_if_exists_obj(namestring))
+    /* file existed, was deleted -> pathname (/=NIL) as value */
+    VALUES1(nullp(O(ansi)) ? (object)STACK_1 : T);
+  else /* file does not exist -> value NIL */
+    VALUES1(NIL);
+  skipSTACK(2);
 }
 
 /* error-message because of renaming attempt of an opened file
@@ -6318,6 +6334,14 @@ local inline Handle open_output_file (char* pathstring, bool wronly,
   return handle;
 #endif
 }
+local inline Handle open_output_file_obj (object namestring, bool wronly,
+                                          bool truncate_if_exists) {
+  Handle ret;
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    ret = open_output_file(namestring_asciz,wronly,truncate_if_exists);
+  });
+  return ret;
+}
 #endif
 
 /* Create a backup file before opening a file for output.
@@ -6355,6 +6379,11 @@ local inline maygc void create_backup_file (char* pathstring,
     if (delete_backup_file) { delete_existing_file(new_namestring_asciz); }
   });
   skipSTACK(1);
+}
+local inline maygc void create_backup_file_obj
+(object namestring, bool delete_backup_file) {
+  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz,
+                 { create_backup_file(namestring_asciz,delete_backup_file); });
 }
 
 /* check the :DIRECTION argument */
@@ -6539,7 +6568,7 @@ local maygc object open_file (object filename, direction_t direction,
   var object handle;
  {var bool append_flag = false;
   var bool wronly_flag = false;
- {switch (direction) {
+  switch (direction) {
     case DIRECTION_PROBE:
       if (!file_exists(namestring)) { /* file does not exist */
         /* :IF-DOES-NOT-EXIST decides: */
@@ -6586,55 +6615,50 @@ local maygc object open_file (object filename, direction_t direction,
       /* default for if_exists is :SUPERSEDE (= :NEW-VERSION) : */
       if (if_exists==IF_EXISTS_UNBOUND)
         if_exists = IF_EXISTS_SUPERSEDE;
-      #if defined(UNIX) || defined(WIN32_NATIVE)
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        if (file_exists(namestring)) {
-          /* file exists
-           :IF-EXISTS decides: */
-          switch (if_exists) {
-            case IF_EXISTS_ERROR:
-              goto error_exists;
-            case IF_EXISTS_NIL:
-              goto result_NIL;
-            case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
-              create_backup_file(namestring_asciz,
-                                 if_exists==IF_EXISTS_RENAME_AND_DELETE);
-              break;
-            case IF_EXISTS_APPEND:
-              append_flag = true; /* position at the end */
-            default: ;
-              /* :OVERWRITE -> use the existing file
-               :NEW-VERSION, :SUPERSEDE -> truncate the file at 0 length */
-          }
-        } else {
-          /* file does not exist
-           :IF-DOES-NOT-EXIST decides: */
-          if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
-              || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
-            goto error_notfound;
-          if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
+     #if defined(UNIX) || defined(WIN32_NATIVE)
+      if (file_exists(namestring)) {
+        /* file exists => :IF-EXISTS decides: */
+        switch (if_exists) {
+          case IF_EXISTS_ERROR:
+            goto error_exists;
+          case IF_EXISTS_NIL:
             goto result_NIL;
-          /* :CREATE */
+          case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
+            create_backup_file_obj(namestring,
+                                   if_exists==IF_EXISTS_RENAME_AND_DELETE);
+            break;
+          case IF_EXISTS_APPEND:
+            append_flag = true; /* position at the end */
+          default: ;
+            /* :OVERWRITE -> use the existing file
+               :NEW-VERSION, :SUPERSEDE -> truncate the file at 0 length */
         }
-        /* open file:
+      } else { /* file does not exist => :IF-DOES-NOT-EXIST decides: */
+        if (if_not_exists==IF_DOES_NOT_EXIST_UNBOUND
+            || if_not_exists==IF_DOES_NOT_EXIST_ERROR)
+          goto error_notfound;
+        if (if_not_exists==IF_DOES_NOT_EXIST_NIL)
+          goto result_NIL;
+        /* :CREATE */
+      }
+      /* open file:
          if-exists: if if_exists<IF_EXISTS_APPEND delete contents;
          othersise (with :APPEND, :OVERWRITE) preserve contents.
          if-not-exists: create new file. */
-        var Handle handl =
-          open_output_file(namestring_asciz,wronly_flag,
-                           (if_exists!=IF_EXISTS_APPEND
-                            && if_exists!=IF_EXISTS_OVERWRITE));
-        handle = allocate_handle(handl);
-      });
-      #endif
+      var Handle handl =
+        open_output_file_obj(namestring,wronly_flag,
+                             (if_exists!=IF_EXISTS_APPEND
+                              && if_exists!=IF_EXISTS_OVERWRITE));
+      handle = allocate_handle(handl);
+     #endif
       break;
     default: NOTREACHED;
       /* STACK_0 = Truename, FILE-ERROR slot PATHNAME */
-  error_notfound: /* error: file not found */
+    error_notfound: /* error: file not found */
       error_file_not_exists();
-  error_exists: /* error: file already exists */
+    error_exists: /* error: file already exists */
       error_file_exists();
- }}
+  }
  handle_ok:
   /* handle and append_flag are done with.
    make the Stream: */
@@ -6899,15 +6923,7 @@ local maygc object directory_search_hashcode (void) {
   pushSTACK(O(dot_string)); /* and "." */
   var object namestring = string_concat(2); /* concatenate */
   var struct stat status;
-  with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    begin_system_call();
-    if (!( stat(namestring_asciz,&status) ==0)) { /* get information */
-      end_system_call();
-      FREE_DYNAMIC_ARRAY(namestring_asciz);
-      return nullobj;
-    }
-    end_system_call();
-  });
+  if (stat_obj(namestring,&status) != 0) return nullobj;
   /* entry exists (oh miracle...) */
   pushSTACK(UL_to_I(status.st_dev)); /* Device-Number and */
   #if SIZEOF_INO_T > 4
