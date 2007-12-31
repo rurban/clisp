@@ -7090,7 +7090,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
             /* entry is a directory. */
             if (recursively) { /* all recursive subdirectories wanted? */
               /* yes -> turn into a pathname and push to pathnames-to-insert
-                 (it is later insertet in front of pathname-list-rest): */
+                 (it is later inserted in front of pathname-list-rest): */
               pushSTACK(pathname_add_subdir(STACK_2/*pathname*/,STACK_0/*direntry*/));
               /* push this new pathname in front of pathname-to-insert: */
               PUSH_ON_STACK(0,1+3);
@@ -7389,7 +7389,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
     STACK_1 = Cdr(STACK_1); /* shorten subdir-list */
     var signean next_task; /* what has to be done with the Dirs from pathname-list: */
     /* 0: nothing, finished
-       1: look for a file of given namen/type
+       1: look for a file of given name/type
       -1: look for a subdirectory of given name
        2: look for all files, that match the given name/type
       -2: look for all subdirectories, that match the given name */
@@ -7420,9 +7420,9 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
    #if defined(UNIX) || defined(WIN32_NATIVE)
     if (dsp->circle_p) { /* query :CIRCLE-Flag */
       /* maintain hash-table of all scanned directories so far (as
-       cons (dev . ino)) : */
-      /* (MAKE-HASH-TABLE :KEY-TYPE '(CONS INTEGER INTEGER) :VALUE-TYPE '(EQL T)
-                          :TEST 'EQUAL) */
+       cons (dev . ino)) :
+       (MAKE-HASH-TABLE :KEY-TYPE '(CONS INTEGER INTEGER) :VALUE-TYPE '(EQL T)
+                        :TEST 'EQUAL) */
       pushSTACK(S(Ktest)); pushSTACK(S(equal));
       funcall(L(make_hash_table),2);
       pushSTACK(value1);
