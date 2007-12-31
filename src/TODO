@@ -176,14 +176,14 @@ initially, *warn-on-floating-point-contagion* and *enable-portability-warnings*
 should be T.
 
 
-Cannot remove symbolic links to directories
-with either DELETE-FILE or DELETE-DIR.
-<http://article.gmane.org/gmane.lisp.clisp.devel:13452>
-the case of symlinks to directories, there is absolutely no way out.
-you cannot get the name of the link,
-you cannot delete it (with either delete-file or delete-dir),
-and you cannot even probe it! (with either probe-file or probe-directory)
-(note BTW a naming inconsistency between probe-directory and delete-dir).
+naming inconsistency between
+        EXT:PROBE-DIRECTORY
+        EXT:DEFAULT-DIRECTORY
+        CL:PATHNAME-DIRECTORY
+and
+        EXT:DELETE-DIR
+        EXT:MAKE-DIR
+        EXT:RENAME-DIR
 
 
 --with-dynamic-modules ==> link errors:
