@@ -6739,6 +6739,32 @@ typedef struct {
 } dir_search_param_t;
 local maygc object directory_search (object pathname, dir_search_param_t *dsp);
 
+/* UP: extends a pathname by the file-information.
+ > STACK_1: absolute pathname
+ > STACK_0: absolute pathname, links resolved
+ > timepoint: decoded mtime
+ > entry_size: file size
+ < replace STACK_0 with :FULL info:
+        (Pathname Truename Write-Date Length [Comment])
+ can trigger GC */
+local maygc void pack_full_info (decoded_time_t *timepoint, off_t *entry_size) {
+  var object newlist;
+  /* Pathname already in STACK_1, as 1st list element
+     Truename already in STACK_0, as 2nd list element */
+  pushSTACK(timepoint->seconds);
+  pushSTACK(timepoint->minutes);
+  pushSTACK(timepoint->hours);
+  pushSTACK(timepoint->day);
+  pushSTACK(timepoint->month);
+  pushSTACK(timepoint->year);
+  newlist = listof(6); /* build 6-element list */
+  pushSTACK(newlist); /* as 3rd list element */
+  pushSTACK(off_to_I(*entry_size)); /* length as 4th list element */
+  newlist = listof(4); /* build 4-element list */
+  pushSTACK(Car(newlist)); /* pathname again in the STACK */
+  pushSTACK(newlist); /* list in the STACK */
+}
+
 #ifdef WIN32_NATIVE
   /* Set of macros for directory search. */
   #define READDIR_wildnametype_suffix  O(wild_string) /* "*" */
@@ -6769,6 +6795,32 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp);
     }
   #define READDIR_entry_size()  \
     (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
+
+/* UP: get mtime and size from filesystem
+ > STACK_0: absolute pathname, links resolved
+ < timepoint: decoded time
+ < entry_size: file size
+ can trigger GC */
+local maygc void get_time_size (decoded_time_t *timepoint, off_t *entry_size) {
+  READDIR_var_declarations;
+  with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),resolved_asciz,{
+    var bool notfound = false;
+    begin_system_call();
+    READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
+    end_system_call();
+    if (notfound || READDIR_entry_ISDIR()) /* just to be paranoid */
+      OS_file_error(STACK_1);
+    READDIR_entry_timedate(timepoint);
+    *entry_size = READDIR_entry_size();
+  });
+  READDIR_end_declarations;
+}
+local maygc void with_stat_info_computed (void) {
+  decoded_time_t timepoint;
+  off_t entry_size;
+  get_time_size(&timepoint,&entry_size); /* about STACK_0 */
+  pack_full_info(&timepoint,&entry_size);
+}
 #endif
 
 #ifdef UNIX
@@ -6818,30 +6870,17 @@ local maygc object pathname_add_subdir (object pathname, object subdir) {
  > *filestatus: its stat-info
  < STACK_0: list (Pathname Truename Write-Date Length [Comment])
             in :FULL-Format */
-local void with_stat_info (void) {
-  var object newlist;
-  var off_t size = filestatus->st_size;
-  { /* Pathname already in STACK_1, as 1. list element
-   Truename already in STACK_0, as 2. list element */
-    var decoded_time_t timepoint; /* Write-Date in decoded form */
-    convert_time(&filestatus->st_mtime,&timepoint);
-    pushSTACK(timepoint.seconds);
-    pushSTACK(timepoint.minutes);
-    pushSTACK(timepoint.hours);
-    pushSTACK(timepoint.day);
-    pushSTACK(timepoint.month);
-    pushSTACK(timepoint.year);
-    newlist = listof(6); /* build 6-element list */
-  }
-  pushSTACK(newlist); /* as 3. list element */
- #if SIZEOF_OFF_T > 4
-  pushSTACK(UQ_to_I(size)); /* length as 4. list element */
- #else
-  pushSTACK(UL_to_I(size)); /* length as 4. list element */
- #endif
-  newlist = listof(4); /* build 4-element list */
-  pushSTACK(Car(newlist)); /* pathname again in the stack */
-  pushSTACK(newlist); /* list in the stack */
+local void with_stat_info_arg (struct stat *filestatus) {
+  var decoded_time_t timepoint; /* Write-Date in decoded form */
+  convert_time(&(filestatus->st_mtime),&timepoint);
+  pack_full_info(&timepoint,&(filestatus->st_size));
+}
+#define with_stat_info() with_stat_info_arg(filestatus)
+local void with_stat_info_computed (void) {
+  struct stat status;
+  if (stat_obj(whole_namestring(STACK_0),&status) < 0)
+    OS_file_error(STACK_0);
+  with_stat_info_arg(&status);
 }
 #endif
 
@@ -7277,54 +7316,24 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                           direntry-maybhacked-pathname, true-pathname,
                           direntry-name-to-check.
                      test Full-Flag and poss. get more information: */
-
                     if (dsp->full_p      /* :FULL wanted? */
                         && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
                       var decoded_time_t timepoint;
-                      var off_t entry_size = 0;
-                      /* get file attributes into these vars */
+                      var off_t entry_size;
+                      pushSTACK(STACK_(2)); /* newpathname as 1st list element */
+                      pushSTACK(STACK_(1+1)); /* resolved pathname as 2nd list element */
+                      /* get file attributes into timepoint & entry_size */
                       if (rresolved == shell_shortcut_file) {
                         /* need another readdir here */
-                        READDIR_var_declarations;
-                        with_sstring_0(whole_namestring(STACK_1),O(pathname_encoding),resolved_asciz, {
-                          var bool notfound = false;
-                          begin_system_call();
-                          READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
-                          end_system_call();
-                          if (notfound || READDIR_entry_ISDIR()) {
-                            /* just to be paranoid */
-                            OS_file_error(STACK_1);
-                          }
-                          READDIR_entry_timedate(&timepoint);
-                          entry_size = READDIR_entry_size();
-                        });
-                        READDIR_end_declarations;
+                        get_time_size(&timepoint,&entry_size);
                       } else {         /* easy way */
                         READDIR_entry_timedate(&timepoint);
                         entry_size = READDIR_entry_size();
                       }
-                      pushSTACK(STACK_(2)); /* newpathname as 1st list element */
-                      pushSTACK(STACK_(1+1)); /* resolved pathname as 2nd list element */
-                      /* convert time and date from DOS-format to decoded-time: */
-                      pushSTACK(timepoint.seconds);
-                      pushSTACK(timepoint.minutes);
-                      pushSTACK(timepoint.hours);
-                      pushSTACK(timepoint.day);
-                      pushSTACK(timepoint.month);
-                      pushSTACK(timepoint.year);
-                      { /* 6-element timestamp ==> the 3rd element */
-                        object timestamp = listof(6); pushSTACK(timestamp); }
-                      pushSTACK(off_to_I(entry_size)); /* length ==> 4th */
-                      { object fullinfo = listof(4); STACK_1 = fullinfo; }
-                    }
-                    /* now STACK_1 can contain either truename or
-                     list-of-file-information (both for insertion to result-list)
-                     stack layout: ..., pathname, dir_namestring, direntry,
-                           direntry-maybhacked-pathname,
-                           true-pathname-or-list-of-info,
-                           direntry-name-to-check.
-                     push STACK_1 in front of result-list: */
-                    PUSH_ON_STACK(1,4+4+6);
+                      pack_full_info(&timepoint,&entry_size);
+                      PUSH_ON_STACK(0,4+4+6+2);
+                      skipSTACK(2); /* drop newname & full info list */
+                    } else PUSH_ON_STACK(1,4+4+6);
                   }
                 }
               }
@@ -7445,13 +7454,15 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         /* try to shorten the task a little: */
         if (!recursively) {
           switch (next_task) {
-            case 0: /* return this pathname */
-             #if defined(UNIX) || defined(WIN32_NATIVE)
+            case 0: /* return this directory pathname */
+              ASSERT(namenullp(STACK_0));
+              pushSTACK(copy_pathname(STACK_0));
               assure_dir_exists(false,false); /* first resolve links */
-             #endif
+              if (dsp->full_p) /* assure_dir_exists does not set filestatus */
+                with_stat_info_computed();
               /* and push STACK_0 in front of result-list: */
-              PUSH_ON_STACK(0,5+4);
-              skipSTACK(1);
+              PUSH_ON_STACK(0,4+4+2);
+              skipSTACK(2);
               goto next_pathname;
            #if !defined(WIN32_NATIVE)
             case 1: /* look in this pathname for a file */
