@@ -7039,23 +7039,22 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       }
       /* skip "." and ".." : */
       if (!(equal(direntry,O(dot_string))
-            || equal(direntry,O(dotdot_string))))
-        {
-          pushSTACK(direntry);
-          /* stack layout: ..., pathname, dir_namestring, direntry.
-           determine, if it is a directory or a file: */
-          pushSTACK(STACK_1); /* Directory-Namestring */
-          SUBDIR_PUSHSTACK(direntry); /* direntry */
-          var object namestring = string_concat(2); /* concatenate */
-          /* get information: */
-          var struct stat status;
-         #if 1 /* just an optimization */
-          if (!recursively) {
-            /* Try to avoid calling directory_search_direntry_ok(),
+            || equal(direntry,O(dotdot_string)))) {
+        pushSTACK(direntry);
+        /* stack layout: ..., pathname, dir_namestring, direntry.
+         determine, if it is a directory or a file: */
+        pushSTACK(STACK_1); /* Directory-Namestring */
+        SUBDIR_PUSHSTACK(direntry); /* direntry */
+        var object namestring = string_concat(2); /* concatenate */
+        /* get information: */
+        var struct stat status;
+       #if 1 /* just an optimization */
+        if (!recursively) {
+          /* Try to avoid calling directory_search_direntry_ok(),
              since it is an expensive operation (it calls stat()). */
-            if (next_task < 0) {
-              /* match (car subdir-list) with direntry: */
-              if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
+          if (next_task < 0) {
+            /* match (car subdir-list) with direntry: */
+            if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (S_ISDIR(status.st_mode))
                   goto push_matching_subdir;
@@ -7069,9 +7068,8 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
-            } else if (next_task > 0) {
-              /* match name&type with direntry: */
-              if (wildcard_match(STACK_(2+4+3),STACK_0))
+          } else if (next_task > 0) { /* match name&type with direntry: */
+            if (wildcard_match(STACK_(2+4+3),STACK_0))
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (!S_ISDIR(status.st_mode))
                   goto push_matching_file;
@@ -7085,90 +7083,86 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
-            }
-            goto done_direntry;
           }
-         #endif
-          if (directory_search_direntry_ok(namestring,&status)) {
-            /* entry exists and is not unwanted. */
-            if (S_ISDIR(status.st_mode)) { /* is it a directory? */
-              /* entry is a directory. */
-              if (recursively) { /* all recursive subdirectories wanted? */
-                /* yes -> turn into a pathname and push to
-                 pathnames-to-insert (is later insertet in front
-                 of pathname-list-rest): */
+          goto done_direntry;
+        }
+       #endif
+        if (directory_search_direntry_ok(namestring,&status)) {
+          /* entry exists and is not unwanted. */
+          if (S_ISDIR(status.st_mode)) { /* is it a directory? */
+            /* entry is a directory. */
+            if (recursively) { /* all recursive subdirectories wanted? */
+              /* yes -> turn into a pathname and push to pathnames-to-insert
+                 (it is later insertet in front of pathname-list-rest): */
+              pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
+              {
+                var object pathname = pathname_add_subdir();
+                pushSTACK(pathname);
+              }
+              /* push this new pathname in front of pathname-to-insert: */
+              PUSH_ON_STACK(0,1+3);
+              skipSTACK(1);
+            }
+            if (next_task<0) {
+              /* match (car subdir-list) with direntry: */
+              if (wildcard_match(Car(STACK_(1+4+3)),STACK_0)) {
+               push_matching_subdir:
+                /* subdirectory matches -> turn into a pathname
+                   and push onto new-pathname-list: */
                 pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
                 {
                   var object pathname = pathname_add_subdir();
                   pushSTACK(pathname);
                 }
-                /* push this new pathname in front of pathname-to-insert: */
-                PUSH_ON_STACK(0,1+3);
+                /* push this new pathname in front of new-pathname-list: */
+                PUSH_ON_STACK(0,4+3);
                 skipSTACK(1);
               }
-              if (next_task<0) {
-                /* match (car subdir-list) with direntry: */
-                if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
-                  {
-                  push_matching_subdir:
-                    /* subdirectory matches -> turn into a pathname
-                     and push onto new-pathname-list: */
-                    pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
-                    {
-                      var object pathname = pathname_add_subdir();
-                      pushSTACK(pathname);
-                    }
-                    /* push this new pathname in front of new-pathname-list: */
-                    PUSH_ON_STACK(0,4+3);
-                    skipSTACK(1);
-                  }
-              }
-            } else {
-              /* entry is a (halfway) normal File. */
-              if (next_task>0) {
-                /* match name&type with direntry: */
-                if (wildcard_match(STACK_(2+4+3),STACK_0))
-                  {
-                  push_matching_file:
-                    /* File matches -> turn into a pathname
-                     and push onto result-list: */
-                    pushSTACK(STACK_0); /* direntry */
-                    split_name_type(1); /* split into Name and Type */
-                    {
-                      var object pathname = copy_pathname(STACK_(2+2));
-                      ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
-                      ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
-                      ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
-                      pushSTACK(pathname);
-                      pushSTACK(pathname);
-                    }
-                    /* form truename (resolve symbolic links): */
-                    if (!eq(nullobj,assure_dir_exists(true,true))
-                        && file_exists(_EMA_)) {
-                      /* if file (still...) exists */
-                      if (dsp->full_p) /* :FULL wanted? */
-                        with_stat_info(); /* yes -> extend STACK_0 */
-                      /* and push STACK_0 in front of result-list: */
-                      PUSH_ON_STACK(0,4+4+3+2);
-                    } else if (dsp->if_none == DIR_IF_NONE_KEEP)
-                      PUSH_ON_STACK(1/* unresolved pathname */,4+4+3+2);
-                    skipSTACK(2);
-                  }
+            }
+          } else { /* entry is a (halfway) normal File. */
+            if (next_task>0) {
+              /* match name&type with direntry: */
+              if (wildcard_match(STACK_(2+4+3),STACK_0)) {
+               push_matching_file:
+                /* File matches -> turn into a pathname
+                   and push onto result-list: */
+                pushSTACK(STACK_0); /* direntry */
+                split_name_type(1); /* split into Name and Type */
+                {
+                  var object pathname = copy_pathname(STACK_(2+2));
+                  ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
+                  ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
+                  ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
+                  pushSTACK(pathname);
+                  pushSTACK(pathname);
+                }
+                /* form truename (resolve symbolic links): */
+                if (!eq(nullobj,assure_dir_exists(true,true))
+                    && file_exists(_EMA_)) {
+                  /* if file (still...) exists */
+                  if (dsp->full_p) /* :FULL wanted? */
+                    with_stat_info(); /* yes -> extend STACK_0 */
+                  /* and push STACK_0 in front of result-list: */
+                  PUSH_ON_STACK(0,4+4+3+2);
+                } else if (dsp->if_none == DIR_IF_NONE_KEEP)
+                  PUSH_ON_STACK(1/* unresolved pathname */,4+4+3+2);
+                skipSTACK(2);
               }
             }
-          } else
-            switch (dsp->if_none) {
-              case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
-              case DIR_IF_NONE_ERROR:
-                pushSTACK(namestring);
-                error_file_not_exists();
-              case DIR_IF_NONE_KEEP:
-                goto push_matching_file;
-              default: NOTREACHED;
-            }
-         done_direntry:
-          skipSTACK(1); /* forget direntry */
-        }
+          }
+        } else
+          switch (dsp->if_none) {
+            case DIR_IF_NONE_IGNORE: case DIR_IF_NONE_DISCARD: break;
+            case DIR_IF_NONE_ERROR:
+              pushSTACK(namestring);
+              error_file_not_exists();
+            case DIR_IF_NONE_KEEP:
+              goto push_matching_file;
+            default: NOTREACHED;
+          }
+       done_direntry:
+        skipSTACK(1); /* forget direntry */
+      }
     }
     begin_system_call();
     if (CLOSEDIR(dirp)) { end_system_call(); OS_file_error(STACK_1); }
