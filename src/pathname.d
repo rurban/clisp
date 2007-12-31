@@ -413,13 +413,13 @@ local inline void rename_existing_file (char* old_pathstring,
 }
 
 /* ========================================================================
-                         P A T H N A M E S */
+                         P A T H N A M E S
 
-/* All simple-strings occurring in pathnames are in fact
-   normal-simple-strings. */
+ All simple-strings occurring in pathnames are in fact
+ normal-simple-strings.
 
 #ifdef PATHNAME_UNIX
-/* Components:
+ Components:
  HOST          always NIL
  DEVICE        always NIL
  DIRECTORY     (Startpoint . Subdirs) whereas
@@ -446,11 +446,11 @@ local inline void rename_existing_file (char* old_pathstring,
  or                         /sub1.typ/ ** /sub3.typ/x*.lisp  (without Spaces!)
  or similar.
  If NAME starts with a dot, (parse-namestring (namestring pathname)) will not
- be the same as pathname. */
+ be the same as pathname.
 #endif
 
 #ifdef PATHNAME_WIN32
-/* Components:
+ Components:
  HOST          NIL or Simple-String (Wildcard-Characters are without meaning)
  DEVICE        NIL or :WILD or "A"|...|"Z"
  DIRECTORY     (Startpoint . Subdirs) whereas
@@ -479,11 +479,11 @@ local inline void rename_existing_file (char* old_pathstring,
  or similar.
  Instead of '\'  - traditionally on DOS - also '/' is allowed.
  If HOST is non-NIL and the DIRECTORY's Startpoint is not :ABSOLUTE,
- (parse-namestring (namestring pathname)) will not be the same as pathname. */
+ (parse-namestring (namestring pathname)) will not be the same as pathname.
 #endif
 
 #ifdef LOGICAL_PATHNAMES
-/* Components of Logical Pathnames:
+ Components of Logical Pathnames:
  HOST          Simple-String or NIL
  DEVICE        always NIL
  DIRECTORY     (Startpoint . Subdirs) whereas
@@ -499,10 +499,10 @@ local inline void rename_existing_file (char* old_pathstring,
                :WILD (means "*") or
                Simple-String, poss. with Wildcard-Character *
  VERSION       NIL or :NEWEST or :WILD or Integer
- External Notation: see CLtl2 p. 628-629. */
+ External Notation: see CLtl2 p. 628-629.
 #endif
 
-/* access functions without case transforms:
+ access functions without case transforms:
  xpathname_host(logical,pathname)
  xpathname_device(logical,pathname)
  xpathname_directory(logical,pathname)
@@ -634,12 +634,9 @@ local object subst_common_case (object obj) {
 local bool legal_logical_word_char (chart ch) {
   ch = up_case(ch);
   var cint c = as_cint(ch);
-  if (((c >= 'A') && (c <= 'Z'))
-      || ((c >= '0') && (c <= '9'))
-      || (c == '-'))
-    return true;
-  else
-    return false;
+  return (((c >= 'A') && (c <= 'Z'))
+          || ((c >= '0') && (c <= '9'))
+          || (c == '-'));
 }
 
 #endif
@@ -657,12 +654,9 @@ local bool legal_hostchar (chart ch) {
   { /* This is just a guess. I do not know which characters are allowed in
        Windows host names. */
     var cint c = as_cint(ch);
-    if ((c >= ' ') && (c <= '~')
-        && (c != '"') && (c != '/') && (c != ':') && (c != '<') && (c != '>')
-        && (c != '\\'))
-      return true;
-    else
-      return false;
+    return ((c >= ' ') && (c <= '~')
+            && (c != '"') && (c != '/') && (c != ':')
+            && (c != '<') && (c != '>') && (c != '\\'));
   }
  #else
   return alphanumericp(ch) || chareq(ch,ascii('-'));
@@ -2017,8 +2011,8 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
     }
   }
  #endif /* HAS_HOST || LOGICAL_PATHNAMES */
-  value1 = STACK_0; /* pathname as 1. value */
-  value2 = z.FNindex; /* index as 2. value */
+  value1 = STACK_0; /* pathname as 1st value */
+  value2 = z.FNindex; /* index as 2nd value */
   mv_count=2; /* 2 values */
   DOUT("parse-namestring:[end ret]",value1);
   skipSTACK(5+2); return;
@@ -5306,7 +5300,7 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
       while (*rent && !cpslashp(*rent))
         rent++;
       if (*rent) rent++; else
-        return FALSE;/*host and sharename don't end with slash*/
+        return false;/*host and sharename don't end with slash*/
     }
   }
   pos = strlen(rent);
@@ -5321,11 +5315,11 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
         if (rent[pos-1] == '*' || rent[pos-1] == '?') wild = 1;
         pos--;
       }
-      if (wild) return FALSE;
+      if (wild) return false;
       if (dotcount <= 0)  symbol = fn_name; else
       if (dotcount == 1)  symbol = fn_dot; else
       if (dotcount == 2)  symbol = fn_dots; else
-        return FALSE; /* too many dots */
+        return false; /* too many dots */
     }
     if (state == 1  /* beginning */
       || state == 2 /* name component */) {
@@ -5343,27 +5337,27 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
           strcpy(fullname+ops,wfd.cFileName);
           ops+=strlen(wfd.cFileName);
           FindClose(h);
-        } else return FALSE; /* file not found */
+        } else return false; /* file not found */
         state = 3;
       } break;
       case fn_slash:
         if (state == 1) state = 2;
-        else return FALSE; /* two slashes in a row */
+        else return false; /* two slashes in a row */
         break;
       case fn_eof:
-        if (state == 1 && current == rent) return FALSE; /* D: */
+        if (state == 1 && current == rent) return false; /* D: */
         else state = 0;
         break;
       default:
-        return FALSE;/* program error */
+        return false;/* program error */
       }
     } else if (state == 3) {/* slash */
       switch(symbol) {
       case fn_slash: state = 2;break;
       case fn_eof:
-        if (current == rent) state = 0; else return FALSE; /*D:FOO*/
+        if (current == rent) state = 0; else return false; /*D:FOO*/
         break;
-      default: return FALSE; /* program error */
+      default: return false; /* program error */
       }
     } else if (state % 2 == 1) {/* dots - slash 9, 11, 13 ... */
       switch(symbol) {
@@ -5372,19 +5366,19 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
         if (state == 10) state = 2; /* zero depth */
         break; /* same depth */
       case fn_eof:
-        return FALSE; /* too many ".." */
+        return false; /* too many ".." */
         break;
-      default: return FALSE; /* program error */
+      default: return false; /* program error */
       }
     } else {/* dots - name 10, 12, 14, ... */
       switch(symbol) {
       case fn_dot: state -= 1; break; /* same depth */
       case fn_dots: state += 1; break; /* increase depth */
       case fn_name: state -= 3; /* decrease depth */
-      if (state < 9) return FALSE; /* program error */
+      if (state < 9) return false; /* program error */
       break;
-      case fn_slash: return FALSE; /* two slashes */
-      case fn_eof: return FALSE; /* too many ".."s */
+      case fn_slash: return false; /* two slashes */
+      case fn_eof: return false; /* too many ".."s */
       }
     }
   } while (state != 0);
@@ -5394,7 +5388,7 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
     fullname[ops++] = (rent--)[-1];
   fullname[ops] = '\0';
   strrev(fullname);
-  return TRUE;
+  return true;
 }
 
 #endif
@@ -6123,8 +6117,8 @@ nonreturning_function(local, error_rename_open, (object pathname)) {
                 oldtruename, oldnamestring, newtruename, newnamestring. */
 local void rename_file (void) {
   { /* 1. newpathname := (MERGE-PATHNAMES newname oldpathname) */
-    pushSTACK(STACK_1); /* newname as 1. argument */
-    pushSTACK(STACK_(0+1)); /* oldpathname as 2. argument */
+    pushSTACK(STACK_1); /* newname as 1st argument */
+    pushSTACK(STACK_(0+1)); /* oldpathname as 2nd argument */
     funcall(L(merge_pathnames),2);
     pushSTACK(value1);
   }
@@ -7694,11 +7688,11 @@ local maygc object shorter_directory (object pathname, bool resolve_links) {
   var object dir_namestring =
     (resolve_links ? assure_dir_exists(false,false) : assume_dir_exists());
   /* build subdir-string for the operating system: */
-  STACK_0 = dir_namestring; /* directory-namestring so far as 1. String */
+  STACK_0 = dir_namestring; /* directory-namestring so far as 1st String */
   var uintC stringcount =  /* the strings in the last subdir */
     subdir_namestring_parts(STACK_1,false);
   /* and no '\' at the end (for the OS)
-   and no '/' at the end (for the OS) */
+     and no '/' at the end (for the OS) */
   var object dirstring = string_concat(1+stringcount); /* concatenate */
   skipSTACK(1);
   return dirstring;
@@ -8757,9 +8751,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 LISPFUNN(savemem,2) {
   var bool exec_p = !nullp(popSTACK());
   /* execute (OPEN pathname :direction :output) :
-   pathname as 1. argument */
-  pushSTACK(S(Kdirection)); /* :DIRECTION as 2. Argument */
-  pushSTACK(S(Koutput)); /* :OUTPUT as 3. Argument */
+   pathname as 1st argument */
+  pushSTACK(S(Kdirection)); /* :DIRECTION as 2nd Argument */
+  pushSTACK(S(Koutput)); /* :OUTPUT as 3rd Argument */
  #ifdef UNIX
   /* On Unix with mmap() existing .mem-Files may not be simply
    overwritten, because running Lisp-processes would crash due to this.
@@ -8774,8 +8768,8 @@ LISPFUNN(savemem,2) {
    contents into memory immediately. */
   gar_col();
   #endif
-  pushSTACK(S(Kif_exists)); /* :IF-EXISTS as 4. Argument */
-  pushSTACK(S(Krename_and_delete)); /* :RENAME-AND-DELETE as 5. Argument */
+  pushSTACK(S(Kif_exists)); /* :IF-EXISTS as 4th Argument */
+  pushSTACK(S(Krename_and_delete)); /* :RENAME-AND-DELETE as 5th Argument */
   funcall(L(open),5);
  #else
   funcall(L(open),3);

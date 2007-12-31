@@ -179,9 +179,9 @@ local BOOL DoInterruptible(LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp)
 {
   var DWORD thread_id;
   if (!interruptible_thread) {
-    interruptible_call_event = CreateEvent(NULL,TRUE,FALSE,NULL);
+    interruptible_call_event = CreateEvent(NULL,true,false,NULL);
     if (!interruptible_call_event) OS_error();
-    interruptible_return_event = CreateEvent(NULL,TRUE,FALSE,NULL);
+    interruptible_return_event = CreateEvent(NULL,true,false,NULL);
     if (!interruptible_return_event) OS_error();
     interruptible_thread =
       CreateThread(NULL,10000,&standbythreadf,NULL,0,&thread_id);
