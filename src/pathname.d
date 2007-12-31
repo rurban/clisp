@@ -6845,6 +6845,16 @@ local void with_stat_info (void) {
 }
 #endif
 
+/* push object in front of a list
+ can trigger GC */
+local inline maygc void push (gcv_object_t *head, gcv_object_t *tail) {
+  var object new_cons = allocate_cons();
+  Car(new_cons) = *head;
+  Cdr(new_cons) = *tail;
+  *tail = new_cons;
+}
+#define PUSH_ON_STACK(h,t)  push(&STACK_(h),&STACK_(t))
+
 /* Search for a subdirectory with a given name.
  directory_search_1subdir(subdir,namestring);
  > STACK_0 = pathname
@@ -6860,12 +6870,8 @@ local maygc void copy_pathname_and_add_subdir (object subdir)
   { var object pathname = pathname_add_subdir();
     pushSTACK(pathname);
   }
-  { /* push this new pathname in front of new-pathname-list: */
-    var object new_cons = allocate_cons();
-    Car(new_cons) = STACK_0;
-    Cdr(new_cons) = STACK_(3+1);
-    STACK_(3+1) = new_cons;
-  }
+  /* push this new pathname in front of new-pathname-list: */
+  PUSH_ON_STACK(0,3+1);
 }
 
 /* Check whether a directory exists and call copy_pathname_and_add_subdir()
@@ -7096,12 +7102,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   var object pathname = pathname_add_subdir();
                   pushSTACK(pathname);
                 }
-                { /* push this new pathname in front of pathname-to-insert: */
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = popSTACK();
-                  Cdr(new_cons) = STACK_(0+3);
-                  STACK_(0+3) = new_cons;
-                }
+                /* push this new pathname in front of pathname-to-insert: */
+                PUSH_ON_STACK(0,1+3);
+                skipSTACK(1);
               }
               if (next_task<0) {
                 /* match (car subdir-list) with direntry: */
@@ -7115,13 +7118,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                       var object pathname = pathname_add_subdir();
                       pushSTACK(pathname);
                     }
-                    { /* push this new pathname
-                         in front of new-pathname-list: */
-                      var object new_cons = allocate_cons();
-                      Car(new_cons) = popSTACK();
-                      Cdr(new_cons) = STACK_(3+3);
-                      STACK_(3+3) = new_cons;
-                    }
+                    /* push this new pathname in front of new-pathname-list: */
+                    PUSH_ON_STACK(0,4+3);
+                    skipSTACK(1);
                   }
               }
             } else {
@@ -7149,18 +7148,10 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                       /* if file (still...) exists */
                       if (dsp->full_p) /* :FULL wanted? */
                         with_stat_info(); /* yes -> extend STACK_0 */
-                      { /* and push STACK_0 in front of result-list: */
-                        var object new_cons = allocate_cons();
-                        Car(new_cons) = STACK_0;
-                        Cdr(new_cons) = STACK_(4+4+3+2);
-                        STACK_(4+4+3+2) = new_cons;
-                      }
-                    } else if (dsp->if_none == DIR_IF_NONE_KEEP) {
-                      var object new_cons = allocate_cons();
-                      Car(new_cons) = STACK_1; /* unresolved pathname */
-                      Cdr(new_cons) = STACK_(4+4+3+2);
-                      STACK_(4+4+3+2) = new_cons;
-                    }
+                      /* and push STACK_0 in front of result-list: */
+                      PUSH_ON_STACK(0,4+4+3+2);
+                    } else if (dsp->if_none == DIR_IF_NONE_KEEP)
+                      PUSH_ON_STACK(1/* unresolved pathname */,4+4+3+2);
                     skipSTACK(2);
                   }
               }
@@ -7287,24 +7278,15 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                     && dsp->if_none != DIR_IF_NONE_IGNORE)) {
               if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
                 /* nonfound shortcuts are treated as shortcuts to files */
-                if (recursively) { /* all recursive subdirectories wanted? */
-                  /* yes -> push truename onto
-                   pathnames-to-insert (is inserted in front of
-                   pathname-list-rest later): */
-                  var object new_cons = allocate_cons();
-                  Car(new_cons) = STACK_(1);
-                  Cdr(new_cons) = STACK_(0+6);
-                  STACK_(0+6) = new_cons;
-                }
+                if (recursively) /* all recursive subdirectories wanted? */
+                  /* yes -> push truename onto pathnames-to-insert
+                     (it is inserted in front of pathname-list-rest later): */
+                  PUSH_ON_STACK(1,0+6);
                 if (next_task<0) {
                   /* match (car subdir-list) with direntry: */
-                  if (wildcard_match(Car(STACK_(1+4+6)),STACK_0)) {
+                  if (wildcard_match(Car(STACK_(1+4+6)),STACK_0))
                     /* Subdirectory matches -> push truename onto new-pathname-list: */
-                    var object new_cons = allocate_cons();
-                    Car(new_cons) = STACK_(1);
-                    Cdr(new_cons) = STACK_(3+6);
-                    STACK_(3+6) = new_cons;
-                  }
+                    PUSH_ON_STACK(1,3+6);
                 }
               } else {
                 /* entry is a (halfway) normal file. */
@@ -7359,13 +7341,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                      stack layout: ..., pathname, dir_namestring, direntry,
                            direntry-maybhacked-pathname,
                            true-pathname-or-list-of-info,
-                           direntry-name-to-check. */
-                    { /* push STACK_1 in front of result-list: */
-                      var object new_cons = allocate_cons();
-                      Car(new_cons) = STACK_1;
-                      Cdr(new_cons) = STACK_(4+4+6);
-                      STACK_(4+4+6) = new_cons;
-                    }
+                           direntry-name-to-check.
+                     push STACK_1 in front of result-list: */
+                    PUSH_ON_STACK(1,4+4+6);
                   }
                 }
               }
@@ -7490,12 +7468,9 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
              #if defined(UNIX) || defined(WIN32_NATIVE)
               assure_dir_exists(false,false); /* first resolve links */
              #endif
-              { /* and push STACK_0 in front of result-list: */
-                var object new_cons = allocate_cons();
-                Car(new_cons) = popSTACK();
-                Cdr(new_cons) = STACK_(4+4);
-                STACK_(4+4) = new_cons;
-              }
+              /* and push STACK_0 in front of result-list: */
+              PUSH_ON_STACK(0,5+4);
+              skipSTACK(1);
               goto next_pathname;
            #if !defined(WIN32_NATIVE)
             case 1: /* look in this pathname for a file */
@@ -7512,10 +7487,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
                 if (dsp->full_p) /* :FULL wanted? */
                   with_stat_info(); /* yes -> extend STACK_0 */
                 /* and push STACK_0 in front of result-list: */
-                var object new_cons = allocate_cons();
-                Car(new_cons) = STACK_0;
-                Cdr(new_cons) = STACK_(4+4+2);
-                STACK_(4+4+2) = new_cons;
+                PUSH_ON_STACK(0,4+4+2);
               }
               skipSTACK(2);
               goto next_pathname;
@@ -7566,13 +7538,8 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
           }
         }
        #endif
-        if (next_task==0) {
-          /* push pathname STACK_1 in front of result-list: */
-          var object new_cons = allocate_cons();
-          Car(new_cons) = STACK_1;
-          Cdr(new_cons) = STACK_(4+4+2);
-          STACK_(4+4+2) = new_cons;
-        }
+        if (next_task==0) /* push pathname STACK_1 in front of result-list: */
+          PUSH_ON_STACK(1,4+4+2);
         directory_search_scandir(recursively,next_task,dsp);
         skipSTACK(2); /* forget pathname and dir_namestring */
       next_pathname: ;

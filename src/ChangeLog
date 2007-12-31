@@ -1,3 +1,9 @@
+2007-12-31  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (push, PUSH_ON_STACK): add inline & macro wrapper
+	(copy_pathname_and_add_subdir, directory_search_scandir)
+	(directory_search): use it
+
 2007-12-30  Sam Steingold  <sds@gnu.org>
 
 	avoid goto and return from inside with_string_0
