@@ -6791,15 +6791,15 @@ local inline int stat_for_search (char* pathstring, struct stat * statbuf) {
 
 #ifdef PATHNAME_NOEXT
 /* UP: Extends the directory of a pathname by one component.
- > STACK_1: a pathname
- > STACK_0: new Subdir-component, a Simple-String
+ > pathname: a pathname
+ > subdir: new Subdir-component, a Simple-String
  < result: new pathname with directory lengthened by subdir
- removes the 2 arguments from the STACK
  can trigger GC */
-local maygc object pathname_add_subdir (void) {
+local maygc object pathname_add_subdir (object pathname, object subdir) {
+  pushSTACK(pathname); pushSTACK(subdir);
   /* copy pathname and lengthen its directory according to
    (append x (list y)) = (nreverse (cons y (reverse x))) : */
-  var object pathname = copy_pathname(STACK_1);
+  pathname = copy_pathname(STACK_1);
   STACK_1 = pathname;
   pushSTACK(reverse(ThePathname(pathname)->pathname_directory));
   var object new_cons = allocate_cons();
@@ -6866,10 +6866,7 @@ local inline maygc void push (gcv_object_t *head, gcv_object_t *tail) {
  can trigger GC */
 local maygc void copy_pathname_and_add_subdir (object subdir)
 { /* copy pathname(STACK_0) and lengthen its directory by subdir: */
-  pushSTACK(subdir);
-  { var object pathname = pathname_add_subdir();
-    pushSTACK(pathname);
-  }
+  STACK_0 = pathname_add_subdir(STACK_0,subdir);
   /* push this new pathname in front of new-pathname-list: */
   PUSH_ON_STACK(0,3+1);
 }
@@ -7094,11 +7091,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
             if (recursively) { /* all recursive subdirectories wanted? */
               /* yes -> turn into a pathname and push to pathnames-to-insert
                  (it is later insertet in front of pathname-list-rest): */
-              pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
-              {
-                var object pathname = pathname_add_subdir();
-                pushSTACK(pathname);
-              }
+              pushSTACK(pathname_add_subdir(STACK_2/*pathname*/,STACK_0/*direntry*/));
               /* push this new pathname in front of pathname-to-insert: */
               PUSH_ON_STACK(0,1+3);
               skipSTACK(1);
@@ -7109,11 +7102,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                push_matching_subdir:
                 /* subdirectory matches -> turn into a pathname
                    and push onto new-pathname-list: */
-                pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); /* pathname and direntry */
-                {
-                  var object pathname = pathname_add_subdir();
-                  pushSTACK(pathname);
-                }
+                pushSTACK(pathname_add_subdir(STACK_2/*pathname*/,STACK_0/*direntry*/));
                 /* push this new pathname in front of new-pathname-list: */
                 PUSH_ON_STACK(0,4+3);
                 skipSTACK(1);
@@ -7207,10 +7196,8 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
 
             /* make full name of found file - dir + direntry
              TODO: optimize to not do it when it not needed */
-            if (READDIR_entry_ISDIR()) {
-              /* pathname and direntry: */
-              pushSTACK(STACK_(6)); pushSTACK(STACK_(4+1));
-              STACK_(3) = pathname_add_subdir();
+            if (READDIR_entry_ISDIR()) { /* pathname and direntry: */
+              STACK_3 = pathname_add_subdir(STACK_6,STACK_4);
             } else {
               STACK_(3) = copy_pathname(STACK_(6));
               ThePathname(STACK_(3))->pathname_type = STACK_0;
