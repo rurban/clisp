@@ -6062,11 +6062,11 @@ local bool openp (object pathname) {
  > pathname: truename of the file */
 nonreturning_function(local, error_delete_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(pathname);
-  error(file_error,GETTEXT("cannot delete file ~S since there is a file stream open to it"));
+  pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: Cannot delete file ~S since there is a file stream open to it"));
 }
 #define check_delete_open(pathname)                                     \
- do { if (openp(pathname)) { error_delete_open(pathname); } } while(0)
+  do { if (openp(pathname)) { error_delete_open(pathname); } } while(0)
 
 /* (DELETE-FILE filename), CLTL p. 424 */
 LISPFUNN(delete_file,1) {
@@ -6106,9 +6106,11 @@ LISPFUNN(delete_file,1) {
  > pathname: truename of the file */
 nonreturning_function(local, error_rename_open, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(pathname);
-  error(file_error,GETTEXT("cannot rename file ~S since there is a file stream open to it"));
+  pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: Cannot rename file ~S since there is a file stream open to it"));
 }
+#define check_rename_open(pathname)                                     \
+  do { if (openp(pathname)) { error_rename_open(pathname); } } while(0)
 
 /* UP: Renames a file.
  rename_file();
@@ -6126,8 +6128,7 @@ local void rename_file (void) {
   { /* 2. check oldpathname: */
     var object oldpathname = STACK_1;
     var object old_namestring = true_namestring(oldpathname,true,false);
-    if (openp(STACK_0)) /* do not rename open files! */
-      { error_rename_open(STACK_0); }
+    check_rename_open(STACK_0); /* do not rename open files! */
     if (!file_exists(old_namestring))
       error_file_not_exists();
     pushSTACK(old_namestring);
@@ -6348,8 +6349,7 @@ Can trigger GC */
 local inline maygc void create_backup_file (char* pathstring,
                                             bool delete_backup_file) {
   var object filename = STACK_0;
-  if (openp(filename))
-    error_rename_open(filename); /* do not rename open files! */
+  check_rename_open(filename); /* do not rename open files! */
   var object new_namestring;
  #if defined(UNIX) || defined(WIN32_NATIVE)
   /* extend truename with "%" resp. ".bak" resp. "~" :
