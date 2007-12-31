@@ -15,6 +15,12 @@ User visible changes
 
 * Speed up list and sequence functions when :TEST is EQ, EQL, EQUAL or EQUALP.
 
+* Rename EXT:DELETE-DIR, EXT:MAKE-DIR, and EXT:RENAME-DIR to
+  EXT:DELETE-DIRECTORY, EXT:MAKE-DIRECTORY, and EXT:RENAME-DIRECTORY,
+  respectively, for consistency with EXT:PROBE-DIRECTORY,
+  EXT:DEFAULT-DIRECTORY and CL:PATHNAME-DIRECTORY.
+  The old names are still available, but deprecated.
+
 * Bug fixes:
   + Fix FRESH-LINE at the end of a line containing only TABs. [ 1834193 ]
   + PPRINT-LOGICAL-BLOCK no longer ignores *PRINT-PPRINT-DISPATCH-TABLE*.

@@ -3033,7 +3033,7 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
     } else { /* non-wild dest, must be a directory */
       pushSTACK(STACK_2); funcall(L(probe_directory),1);
       if (nullp(value1)) {      /* dest is a non-exitent dir */
-        pushSTACK(STACK_2); funcall(L(make_dir),1);
+        pushSTACK(STACK_2); funcall(L(make_directory),1);
       }
       while (!nullp(STACK_0)) {
         copy_one_file(NIL,Car(STACK_0),STACK_4,STACK_2,method,
