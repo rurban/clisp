@@ -1,5 +1,15 @@
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1860677 ]: DIRECTORY of dirs ignores :FULL
+	* pathname.d (pack_full_info, with_stat_info_computed): add
+	(get_time_size) [WIN32_NATIVE]: add
+	(with_stat_info_arg) [UNIX]: add
+	(directory_search_scandir) [WIN32_NATIVE]: use get_time_size()
+	and pack_full_info()
+	(directory_search): use with_stat_info_computed() for directories
+
+2007-12-31  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (push, PUSH_ON_STACK): add inline & macro wrapper
 	(copy_pathname_and_add_subdir, directory_search_scandir)
 	(directory_search): use it
