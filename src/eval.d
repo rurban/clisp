@@ -100,7 +100,7 @@ local const Subr FUNTAB[] = {
   _(host_namestring), _(merge_pathnames), _(enough_namestring),
   _(make_pathname), _(namestring), _(truename), _(probe_file),
   _(delete_file), _(rename_file), _(open), _(directory), _(cd),
-  _(make_dir), _(delete_dir), _(file_write_date), _(file_author),
+  _(make_directory), _(delete_directory), _(file_write_date), _(file_author),
   _(savemem),
   /* PREDTYPE : 44-3 SUBRs */
   /* _(eq), */ _(eql), _(equal), _(equalp), _(consp), _(atom), _(symbolp),
