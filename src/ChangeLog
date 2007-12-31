@@ -1,6 +1,9 @@
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d, win32aux.d: use true/false instead of TRUE/FALSE
+	* pathname.d (error_delete_open, error_rename_open): print subr name
+	(check_rename_open): add
+	(rename_file, create_backup_file): use it
 
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
