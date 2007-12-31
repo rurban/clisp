@@ -176,16 +176,6 @@ initially, *warn-on-floating-point-contagion* and *enable-portability-warnings*
 should be T.
 
 
-naming inconsistency between
-        EXT:PROBE-DIRECTORY
-        EXT:DEFAULT-DIRECTORY
-        CL:PATHNAME-DIRECTORY
-and
-        EXT:DELETE-DIR
-        EXT:MAKE-DIR
-        EXT:RENAME-DIR
-
-
 --with-dynamic-modules ==> link errors:
 gcc -I. -fPIC -x none -Wl,-export-dynamic -shared -o dynmod/lib-i18n.dll gettext.o
 gettext.o(.text+0x7f):i18n/gettext.c:2296: undefined reference to `_I_to_L'

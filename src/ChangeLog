@@ -1,5 +1,15 @@
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
+	Rename EXT:DELETE-DIR, EXT:MAKE-DIR, and EXT:RENAME-DIR to
+	EXT:DELETE-DIRECTORY, EXT:MAKE-DIRECTORY, and EXT:RENAME-DIRECTORY,
+	respectively, for consistency with EXT:PROBE-DIRECTORY,
+	EXT:DEFAULT-DIRECTORY and CL:PATHNAME-DIRECTORY.
+	* constsym.d, eval.d, init.lisp, pathname.d, subr.d: do the renaming
+	* deprecated.lisp (delete-dir, make-dir, rename-dir): deprecate
+	* modules/syscalls/calls.c (COPY-FILE): use L(make_directory)
+
+2007-12-31  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1860677 ]: DIRECTORY of dirs ignores :FULL
 	* pathname.d (pack_full_info, with_stat_info_computed): add
 	(get_time_size) [WIN32_NATIVE]: add

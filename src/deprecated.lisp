@@ -1,6 +1,6 @@
 ;; deprecated CLISP functionality
 ;; present for now, will be removed later
-;; Sam Steingold 2001
+;; Sam Steingold 2001, 2007
 
 ;; the standard way to deprecate a function is to define a
 ;; compiler-macro for it which will issue a warning
@@ -48,3 +48,10 @@ Use ~s instead"
   (deprecate 'ffi::foreign-address-null 'null)
   (setf (cdr (assoc 'ffi::foreign-address-null compiler::*deprecated-functions-alist*))
         (list "The FFI now returns C NULL pointers as Lisp NIL. Use the function ~S instead." 'null)))
+
+;; ------------------------------------------------------
+;; for consistency with EXT:PROBE-DIRECTORY
+;;     EXT:DEFAULT-DIRECTORY CL:PATHNAME-DIRECTORY
+(deprecate 'ext::delete-dir 'delete-directory)
+(deprecate 'ext::make-dir 'make-directory)
+(deprecate 'ext::rename-dir 'rename-directory)

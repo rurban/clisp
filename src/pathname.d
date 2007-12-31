@@ -7704,8 +7704,8 @@ local maygc object shorter_directory (object pathname, bool resolve_links) {
   return dirstring;
 }
 
-LISPFUNN(make_dir,1)
-{ /* (MAKE-DIR pathname) makes a new subdirectory pathname. */
+LISPFUNN(make_directory,1)
+{ /* (MAKE-DIRECTORY pathname) makes a new subdirectory pathname. */
   var object pathstring = shorter_directory(STACK_0,true);
   with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
     make_directory(pathstring_asciz);
@@ -7714,8 +7714,8 @@ LISPFUNN(make_dir,1)
   VALUES1(T);
 }
 
-LISPFUNN(delete_dir,1)
-{ /* (DELETE-DIR pathname) removes the subdirectory pathname. */
+LISPFUNN(delete_directory,1)
+{ /* (DELETE-DIRECTORY pathname) removes the subdirectory pathname. */
   var object pathstring = shorter_directory(STACK_0,true);
   with_sstring_0(pathstring,O(pathname_encoding),pathstring_asciz, {
     delete_directory(pathstring_asciz);
@@ -7724,8 +7724,8 @@ LISPFUNN(delete_dir,1)
   VALUES1(T);
 }
 
-LISPFUNN(rename_dir,2)
-{ /* (RENAME-DIR dirname newname) removes the subdirectory pathname. */
+LISPFUNN(rename_directory,2)
+{ /* (RENAME-DIRECTORY dirname newname) removes the subdirectory pathname. */
   var object newdir = shorter_directory(STACK_0,true); STACK_0 = newdir;
   var object olddir = shorter_directory(STACK_2,true); STACK_2 = olddir;
   with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
