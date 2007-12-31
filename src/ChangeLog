@@ -54,6 +54,7 @@
 	(LISPFUN_D, LISPFUN_F, LISPFUN_G): set fastcmp
 	(eq, eql, equal, equalp): set fastcmp
 	* predtype.d (eq, eql, equal, equalp): ditto
+	* genclisph.d (LISPFUN_F): set fastcmp to 0
 
 2007-12-27  Sam Steingold  <sds@gnu.org>
 
