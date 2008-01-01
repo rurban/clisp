@@ -213,10 +213,6 @@ ABORT          :R3      ABORT
 Break 1 [3]>
 
 
-Make the *KEYBOARD-STREAM* recognize all kinds of function keys in Linux
-console and xterm again.
-
-
 Reentrancy: remove the static filestatus variable from pathname.d.
 
 
@@ -247,43 +243,7 @@ for Emacs: GC root macro, YETANOTHER macro
            [sds: what does this mean?]
 
 
-(directory "/proc/self/*" :full t )
-((#P"/proc/self/status" #P"/proc/self/status" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/mem" #P"/proc/self/mem" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/environ" #P"/proc/self/environ" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/cmdline" #P"/proc/self/cmdline" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/stat" #P"/proc/self/stat" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/statm" #P"/proc/self/statm" (6 44 0 1 4 1999) 0)
-  (#P"/proc/self/maps" #P"/proc/self/maps" (6 44 0 1 4 1999) 0)
-
-
-(directory "/proc/self/fd/*")
-
-stat("/proc", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-stat("/proc/self", {st_mode=S_IFDIR|0555, st_size=0, ...}) = 0
-stat("/proc/self/fd", {st_mode=S_IFDIR|0500, st_size=0, ...}) = 0
-stat("/proc/self/fd/.", {st_mode=S_IFDIR|0500, st_size=0, ...}) = 0
-open("/proc/self/fd/.", O_RDONLY)       = 6
-fcntl(6, F_SETFD, FD_CLOEXEC)           = 0
-getdents(6, /* 9 entries */, 1024)      = 112
-stat("/proc/self/fd/0", {st_mode=S_IFCHR|0620, st_rdev=makedev(3, 2), ...}) = 0
-lstat("/proc/self/fd/0", {st_mode=S_IFLNK|0700, st_size=64, ...}) = 0
-readlink("/proc/self/fd/0", "[0303]:39982", 64) = 12
-readlink("/proc/self/fd/0", "[0303]:39982", 12) = 12
-readlink("/proc", 0xbfffd498, 4094)     = -1 EINVAL (Invalid argument)
-readlink("/proc/self", "1108", 4094)    = 5
-lstat("/proc/1108/fd/[0303]:39982", 0x8138260) = -1 ENOENT (No such file or directory)
-
-
-Problem is the call to assure_dir_exists(TRUE,FALSE); where in fact not
-all links are resolved in the directory!
-
-
 print-readably for interpreted closures and #<specdecl> ?
-
-
-parse_namestring: split_name_type(1), und bei make_pathname
-Klein->Großschreibung umwandeln, so dass (make-pathname :type "fas") immer geht.
 
 
 Should reject invalid format string:
@@ -449,39 +409,6 @@ Harlequin's HyperSpec. See http://clisp.cons.org/~haible/clahs/.
 FFI: Actually support :language :cc/:gcc by passing appropriate flags
 to the avcall/vacall macros. The default should be the same compiler
 as the one used to compile clisp.
-
-
-(read-char *keyboard-input*) is still not perfect. Under Linux, it
-returns the following key sequences for some keystrokes:
-
-Under xterm:
-Shift F1 --> F11
-Shift F2 --> F12
-Shift F3 --> Escape [ 2 5 ~
-Shift F4 --> Escape [ 2 6 ~
-Shift F5 --> Escape [ 2 8 ~
-Shift F6 --> Escape [ 2 9 ~
-Shift F7 --> Escape [ 3 1 ~
-Shift F8 --> Escape [ 3 2 ~
-Shift F9 --> F9
-Shift F10 --> F10
-Shift F11 --> F11
-Shift F12 --> F12
-
-Under console:
-Shift F1 --> F11
-Shift F2 --> F12
-Shift F3 --> Escape [ 2 5 ~
-Shift F4 --> Escape [ 2 6 ~
-Shift F5 --> Escape [ 2 8 ~
-Shift F6 --> Escape [ 2 9 ~
-Shift F7 --> Escape [ 3 1 ~
-Shift F8 --> Escape [ 3 2 ~
-Shift F9 --> Escape [ 3 3 ~
-Shift F10 --> Escape [ 3 4 ~
-Shift F11 --> F11
-Shift F12 --> F12
-Ctrl-Alt-Q --> nothing at all
 
 
 Looks at GCL CLCS (debugger.lsp top-patches.lsp condition-definitions.lsp)
