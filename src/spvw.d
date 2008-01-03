@@ -1926,6 +1926,58 @@ struct argv_actions {
   bool argv_help_image;
 };
 
+/* parses the rest of an option, that specifies a byte-size.
+   also checks, if certain boundaries are obeyed. */
+local inline int size_arg (const char *arg, const char *docstring, uintM *ret,
+                           uintM limit_low, uintM limit_high) {
+  /* arg should consist of a few decimal places, then
+     maybe K/M/G/T/P, then maybe B or W: [0-9]+[KMGTP]?[BW]? */
+  uintM val = 0;
+  while ((*arg >= '0') && (*arg <= '9'))
+    val = 10*val + (uintM)(*arg++ - '0');
+  switch (*arg) {
+    case 'k': case 'K':         /* in kilobytes */
+      val <<= 10; arg++; break; /* *= 1024 */
+    case 'm': case 'M':         /* in megabytes */
+      val <<= 20; arg++; break; /* *= 1024*1024 */
+    case 'g': case 'G':         /* in gigabytes */
+      val <<= 30; arg++; break; /* *= 1024*1024*1024 */
+   #if intMsize > 32            /* 64-bit platforms only */
+    case 't': case 'T':         /* in terabytes */
+      val <<= 40; arg++; break; /* *= 1024*1024*1024*1024 */
+    case 'p': case 'P':         /* in petabytes */
+      val <<= 50; arg++; break; /* *= 1024*1024*1024*1024*1024 */
+   #endif
+  }
+  switch (*arg) {
+    case 'w': case 'W':            /* in words */
+      val *= sizeof(gcv_object_t); /*FALLTHROUGH*/
+    case 'b': case 'B':            /* in bytes */
+      arg++; break;
+  }
+  if (*arg != '\0') {           /* argument finished? */
+    fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB"),
+            docstring);
+    fputs("\n",stderr);
+    return 1;
+  }
+  if (val < limit_low) {
+    fprintf(stderr,GETTEXTL("warning: %s %lu too small, using %lu instead"),
+            docstring, val, limit_low);
+    fputs("\n",stderr);
+    val = limit_low;
+  }
+  if (val > limit_high) {
+    fprintf(stderr,GETTEXTL("warning: %s %lu too large, using %lu instead"),
+            docstring, val, limit_high);
+    fputs("\n",stderr);
+    val = limit_high;
+  }
+  /* For multiple -m resp. -s arguments, only the last counts. */
+  *ret = val;
+  return 0;
+}
+
 /* Parse the command-line options.
  Returns -1 on normal termination, or an exit code >= 0 for immediate exit. */
 local inline int parse_options (int argc, const char* const* argv,
@@ -2042,50 +2094,7 @@ local inline int parse_options (int argc, const char* const* argv,
                   INVALID_ARG(arg);             \
                   return 1;                     \
                 }                               \
-              } else {                          \
-                arg = &arg[2];                  \
-              }
-            /* parses the rest of an option, that specifies a byte-size.
-             also checks, if certain boundaries are obeyed. */
-            #define SIZE_ARG(docstring,sizevar,limit_low,limit_high)    \
-               /* arg should consist of a few decimal places, then      \
-                maybe K or M, then maybe B or W. */                     \
-              do {                        /* arg: [0-9]+[KMG]?[BW]? */  \
-                var uintM val = 0;                                      \
-                while ((*arg >= '0') && (*arg <= '9'))                  \
-                  val = 10*val + (uintM)(*arg++ - '0');                 \
-                switch (*arg) {                                         \
-                  case 'k': case 'K':               /* in kilobytes */  \
-                    val = val * 1024; arg++; break;                     \
-                  case 'm': case 'M':               /* in megabytes */  \
-                    val = val * 1024*1024; arg++; break;                \
-                  case 'g': case 'G':               /* in gigabytes */  \
-                    val = val * 1024*1024*1024; arg++; break;           \
-                }                                                       \
-                switch (*arg) {                                         \
-                  case 'w': case 'W':                  /* in words */   \
-                    val = val * sizeof(gcv_object_t);                   \
-                  case 'b': case 'B':                  /* in bytes */   \
-                    arg++; break;                                       \
-                }                                                       \
-                if (*arg != '\0') {           /* argument finished? */  \
-                  fprintf(stderr,GETTEXTL("Syntax for %s: nnnnnnn or nnnnKB or nMB"), docstring); \
-                  fputs("\n",stderr);                                   \
-                  return 1;                                             \
-                }                                                       \
-                if (val < limit_low) {                                  \
-                  fprintf(stderr,GETTEXTL("%s out of range"), docstring); \
-                  fputs("\n",stderr);                                   \
-                  return 1;                                             \
-                }                                                       \
-                if (val > limit_high) {                                 \
-                  fprintf(stderr,GETTEXTL("warning: %s out of range, using %u instead"), docstring, limit_high); \
-                  fputs("\n",stderr);                                   \
-                  val = limit_high;                                     \
-                }                                                       \
-                /* For multiple -m resp. -s arguments, only the last counts. */ \
-                sizevar = val;                                          \
-              } while(0)
+              } else arg += 2
           case 'm':             /* memory size */
            #ifdef WIN32_NATIVE
             if (arg[2]=='m' && arg[3]=='\0') /* "-mm" -> print a memory map */
@@ -2095,15 +2104,15 @@ local inline int parse_options (int argc, const char* const* argv,
               p2->argv_modern = true;
             else {
               OPTION_ARG;
-              SIZE_ARG(GETTEXTL("memory size"),p1->argv_memneed,100000,
-                       /* memory size limited by: */
-                       (oint_addr_len+addr_shift < intLsize-1
-                        /* address space in oint_addr_len+addr_shift bits */
-                        ? vbitm(oint_addr_len+addr_shift)
-                        /* (resp. big dummy-limit) */
-                        : vbitm(oint_addr_len+addr_shift)-1));
-            }
-            break;
+              if (size_arg(arg,GETTEXTL("memory size"),&(p1->argv_memneed),
+                           (MINIMUM_SPACE + RESERVE) * sizeof(gcv_object_t),
+                           (oint_addr_len+addr_shift < intLsize-1
+                            /* address space in oint_addr_len+addr_shift bits */
+                            ? vbitm(oint_addr_len+addr_shift)
+                            /* (resp. big dummy-limit) */
+                            : vbitm(oint_addr_len+addr_shift)-1)))
+                return 1;
+            } break;
           case 't':             /* traditional, temporary directory */
             if (asciz_equal(arg,"-traditional"))
               p2->argv_ansi = 2; /* traditional */
