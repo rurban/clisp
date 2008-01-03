@@ -1,6 +1,7 @@
 2008-01-03  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: pass "-o ./" to "clisp -c" uniformly
+	(MEMOPT): new variable: -m 2MW for compilation
 
 2007-12-31  Sam Steingold  <sds@gnu.org>
 
