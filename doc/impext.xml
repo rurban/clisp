@@ -1856,7 +1856,8 @@ additionally binds &cont-r; to the content length.</para>
  except that a code walker would probably leave the &macrolet; and
  &symbol-macrolet; forms intact and just do the expansion.</para>
 
-<warning><para>Function &expand-form; expands forms by assuming the
+<warning><para>Function &expand-form; is the exported part of the
+  &clisp; interpreter (AKA &eval;), so it expands forms by assuming the
   &eval-when; situation <constant>:EXECUTE</constant> and is therefore
   unsuitable for forms that may later be passed to the compiler:
 <programlisting language="lisp">
