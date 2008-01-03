@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2005
-# Sam Steingold 1999-2007
+# Sam Steingold 1999-2008
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -2942,7 +2942,7 @@ echol
 
 for f in ${LUTILS} ; do
   echol "${f}.fas : ${UTILDIR_M}${f}.lisp lisp${LEXE} lispinit.mem"
-  echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR}${f}.lisp -o ${f}.fas"
+  echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR}${f}.lisp -o ./"
   echol
   link_dep "${f}.lisp" "${UTILDIR_M}${f}.lisp" "${UTILDIR_}${f}.lisp"
   echol
@@ -2980,7 +2980,7 @@ if [ $CROSS = false ] ; then
     echol "${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} $image"
     # The strict minimum needed for compiling compiler.lisp is between 1400KW
     # and 1500KW. To reduce GCs, we spend 20% more than this.
-    echotab "\$(RUN) -m 1800KW -M ${image} -q -c ${SRCDIR}${f}.lisp -o ./${f}.fas"
+    echotab "\$(RUN) -m 1800KW -M ${image} -q -c ${SRCDIR}${f}.lisp -o ./"
     echol
   done
   echol "config.fas : config.lisp lisp${LEXE} halfcompiled.mem"
