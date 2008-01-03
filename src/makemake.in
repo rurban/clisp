@@ -2948,6 +2948,10 @@ for f in ${LUTILS} ; do
   echol
 done
 
+# The strict minimum needed for building interpreted.mem is between 1400KW
+# and 1500KW. To reduce GCs, we spend 30% more than this. 8MB is not a big deal.
+MEMOPT="-m 2MW"
+
 if [ $CROSS = false ] ; then
 
   echol "interpreted.mem : lisp${LEXE} \$(LISPFILES)"
@@ -2961,9 +2965,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  # The strict minimum needed for building interpreted.mem is between 1400KW
-  # and 1500KW. To reduce GCs, we spend 20% more than this.
-  echotab '$(RUN) -m 1800KW -x "(and (setq custom::*load-paths* (quote (\"'${SRCDIR}'\"))) (load \"'${SRCDIR}'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab '$(RUN) '${MEMOPT}' -x "(and (setq custom::*load-paths* (quote (\"'${SRCDIR}'\"))) (load \"'${SRCDIR}'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -2978,13 +2980,11 @@ if [ $CROSS = false ] ; then
       image=halfcompiled.mem
     fi
     echol "${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} $image"
-    # The strict minimum needed for compiling compiler.lisp is between 1400KW
-    # and 1500KW. To reduce GCs, we spend 20% more than this.
-    echotab "\$(RUN) -m 1800KW -M ${image} -q -c ${SRCDIR}${f}.lisp -o ./"
+    echotab "\$(RUN) ${MEMOPT} -M ${image} -q -c ${SRCDIR}${f}.lisp -o ./"
     echol
   done
   echol "config.fas : config.lisp lisp${LEXE} halfcompiled.mem"
-  echotab "\$(RUN) -m 1800KW -M ${image} -q -c config.lisp"
+  echotab "\$(RUN) ${MEMOPT} -M ${image} -q -c config.lisp"
   echol
 
 else
@@ -3011,7 +3011,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) -m 1800KW -x "(and (setq custom::*load-paths* (quote (\"'${SRCDIR}'\"))) (load \"'${SRCDIR}'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab '$(RUN) '${MEMOPT}' -x "(and (setq custom::*load-paths* (quote (\"'${SRCDIR}'\"))) (load \"'${SRCDIR}'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
@@ -3098,11 +3098,11 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS; do
     echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -m 1000KW -M ${TESTIMAGE} -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}${f}.fas"
+    echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}${f}.fas"
     echol
   done
   echol "${RECOMPILEDIR}${NEXT_M}config.fas : config.lisp lisp${LEXE} ${TESTIMAGE}"
-  echotab "\$(RUN) -m 1000KW -M ${TESTIMAGE} -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}config.fas"
+  echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}config.fas"
   echol
 
   echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
