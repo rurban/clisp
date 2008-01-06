@@ -2105,7 +2105,7 @@ local inline int parse_options (int argc, const char* const* argv,
             else {
               OPTION_ARG;
               if (size_arg(arg,GETTEXTL("memory size"),&(p1->argv_memneed),
-                           (MINIMUM_SPACE + RESERVE) * sizeof(gcv_object_t),
+                           (MINIMUM_SPACE + RESERVE) * 8 /*teile/teile_STACK*/,
                            (oint_addr_len+addr_shift < intLsize-1
                             /* address space in oint_addr_len+addr_shift bits */
                             ? vbitm(oint_addr_len+addr_shift)
@@ -2470,6 +2470,11 @@ local inline void free_argv_actions (struct argv_actions *p) {
 /* Initialize memory and load the specified memory image.
  Returns 0 if successful, -1 upon error (after printing an error message
  to stderr). */
+#if 0
+#define VAROUT(v)  printf("[%s:%d] %s=%ld\n",__FILE__,__LINE__,STRING(v),v)
+#else
+#define VAROUT(v)
+#endif
 extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
   back_trace = NULL;
@@ -2536,10 +2541,13 @@ local inline int init_memory (struct argv_initparams *p) {
       teile*varobject_alignment
      #endif
       ;
+    VAROUT(pagesize);
     var uintM memneed = p->argv_memneed; /* needed memory */
+    VAROUT(memneed);
     var aint memblock;  /* lower address of the provided memory block */
    #if !(defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY))
     memneed = teile_STACK*floor(memneed,teile); /* do not yet calculate memory for objects */
+    VAROUT(memneed);
     #undef teile
     #define teile  teile_STACK
    #endif
@@ -2548,6 +2556,7 @@ local inline int init_memory (struct argv_initparams *p) {
      seems also to encompass the mallocs before prepare_zeromap().
      Do not know why. */
     if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
+    VAROUT(memneed);
    #endif
    #if defined(MULTIMAP_MEMORY_VIA_SHM) && (defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5))
     /* SunOS 4 refuses to shmat() into a previously malloc-ed region,
@@ -2559,12 +2568,15 @@ local inline int init_memory (struct argv_initparams *p) {
      if possible, out of reach of malloc() . */
     {
       var uintM memhave = round_down(bit(oint_addr_len)-(aint)sbrk(0),SHMLBA);
+      VAROUT(memhave);
       if (memhave < memneed) { memneed = memhave; }
       memblock = round_down(bit(oint_addr_len) - memneed,SHMLBA);
+      VAROUT(memblock);
     }
    #else
     while (1) {
       memblock = (aint)mymalloc(memneed); /* try to allocate memory */
+      VAROUT(memneed); VAROUT(memblock);
       if (!((void*)memblock == NULL)) break; /* successful -> OK */
       memneed = floor(memneed,8)*7; /* else try again with 7/8 thereof */
       if (memneed == 0) break;
@@ -2580,7 +2592,7 @@ local inline int init_memory (struct argv_initparams *p) {
     }
     if (memneed < MINIMUM_SPACE+RESERVE) { /* but with less than MINIMUM_SPACE */
       /* we will not be satisfied: */
-      fprintf(stderr,GETTEXTL("Only %d bytes available."),memneed);
+      fprintf(stderr,GETTEXTL("Only %ld bytes available."),memneed);
       fputs("\n",stderr);
       return -1;
     }
@@ -2592,10 +2604,12 @@ local inline int init_memory (struct argv_initparams *p) {
     {                       /* round to the next lower page boundary: */
       var uintL unaligned = (uintL)(-memblock) % pagesize;
       memblock += unaligned; memneed -= unaligned;
+      VAROUT(unaligned); VAROUT(memneed);
     }
     {                         /* round off to the last page boundary: */
       var uintL unaligned = memneed % pagesize;
       memneed -= unaligned;
+      VAROUT(unaligned); VAROUT(memneed);
     }
     /* the memory region [memblock,memblock+memneed-1] is now free,
      and its boundaries are located on page boundaries. */
@@ -2610,6 +2624,7 @@ local inline int init_memory (struct argv_initparams *p) {
     {                           /* set symbol_tab to address 0: */
       var uintL memneed = round_up(sizeof(symbol_tab),pagesize); /* round up length */
       multimap(case_symbolflagged: , 0, memneed, false);
+      VAROUT(memneed);
     }
     /* set subr_tab to address 0: */
     if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_count*sizeof(subr_t),pagesize)) <0)
