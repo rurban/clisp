@@ -36,9 +36,13 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
         and for stack overflow detection in interpreted Lisp code.
       <ftp://ftp.gnu.org/pub/gnu/libsigsegv/>
       <http://sourceforge.net/projects/libsigsegv/>
+   * GNU libffcall
+      + Highly recommended: needed for the foreign function interface.
+      <ftp://ftp.gnu.org/pub/gnu/libffcall/>
+      <http://www.gnu.org/software/libffcall/>
    * GNU libiconv
       + Not needed on systems with glibc 2.2 or newer, or MacOS X 10.3 or
-        newer, but recommended on all other systems.
+        newer, but recommended on all other systems for additional encodings.
       <ftp://ftp.gnu.org/pub/gnu/libiconv/>
       <http://sourceforge.net/projects/libiconv/>
    * GNU readline
