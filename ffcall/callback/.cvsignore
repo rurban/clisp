@@ -1,8 +1,0 @@
-callback.h
-callback.lib
-minitests.out
-minitests.output.*
-tests.out
-tests.output.*
-trampoline_r.h
-vacall_r.h
