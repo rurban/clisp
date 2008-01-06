@@ -1,3 +1,9 @@
+2008-01-05  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel: remove all ffcall-related targets (libffcall is
+	now hosted on savannah)
+	* ffcall/: remove the tree
+
 2008-01-03  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (size_arg): turn into a function from macro SIZE_ARG;
