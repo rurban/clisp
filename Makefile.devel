@@ -11,7 +11,7 @@ GROFF = nroff -man
 RM = rm -f
 
 .PHONY : all htmldoc makefiles configures check-configures \
-	ffcall-aux ffcall-i386 update-ansi-tests potfiles fixperms \
+	update-ansi-tests potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
 	build-aux-update gnulib-update distrib release pre-release \
@@ -23,20 +23,7 @@ all : makefiles check-configures update-ansi-tests  			    \
 	potfiles                                                            \
 	src/version.h                                                       \
 	src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c 		    \
-	ffcall-aux htmldoc
-
-ffcall-aux : ffcall/avcall/avcall.h.msvc ffcall/vacall/config.h.msvc        \
-	ffcall/vacall/vacall.h.msvc ffcall/trampoline/config.h.msvc         \
-	ffcall/callback/vacall_r/config.h.msvc                              \
-	ffcall/callback/vacall_r/vacall_r.h.msvc                            \
-	ffcall/callback/trampoline_r/config.h.msvc                          \
-	ffcall/avcall/avcall.h.mingw32 ffcall/vacall/vacall.h.mingw32       \
-	ffcall/callback/vacall_r/vacall_r.h.mingw32
-
-
-ffcall-i386 : ffcall/avcall/avcall-i386-msvc.c          \
-	ffcall/vacall/vacall-i386-msvc.c                \
-	ffcall/callback/vacall_r/vacall-i386-msvc.c
+	htmldoc
 
 htmldoc:
 	make -C doc all html
@@ -66,15 +53,12 @@ MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre \
 	postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm
 CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
-CLISP_CONFIGURES=src/configure $(MOD_CONFIGURES)
-FFCALL=avcall vacall trampoline callback callback/vacall_r callback/trampoline_r
-FFCALL_CONFIGURES=ffcall/configure $(patsubst %,ffcall/%/configure,$(FFCALL))
-CONFIGURES = $(CLISP_CONFIGURES) ${FFCALL_CONFIGURES}
+CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 src/gllib/Makefile.in : src/gllib/Makefile.am
 	cd src; automake gllib/Makefile #  --add-missing ??
 
-configures : ffcall/autoconf/aclocal.m4 $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
+configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CLISP_CONFIGURES))
@@ -96,13 +80,6 @@ $(CLISP_CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
 
 $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
 	cd $*; $(AUTOHEADER) --include=$(CURDIR)/src
-
-ffcall/autoconf/aclocal.m4 : src/aclocal.m4
-	cd ffcall ; $(MAKE) -f Makefile.devel autoconf/aclocal.m4
-
-$(FFCALL_CONFIGURES) : %/configure : %/configure.in \
-			ffcall/autoconf/aclocal.m4 $(AUTOCONF_FILES)
-	cd ffcall ; $(MAKE) -f Makefile.devel $(patsubst ffcall/%,%,$@)
 
 # syntax check
 check-configures : configures
@@ -163,50 +140,6 @@ src/ari80386.msvc.c : src/ari80386.d src/asmi386.sh
 
 src/sp80386.msvc.c : src/sp80386.d src/asmi386.sh
 	src/asmi386.sh -no-C < src/sp80386.d > src/sp80386.msvc.c
-
-ffcall/avcall/avcall.h.msvc : ffcall/avcall/avcall.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.msvc
-
-ffcall/avcall/avcall.h.mingw32 : ffcall/avcall/avcall.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall.h.mingw32
-
-ffcall/avcall/avcall-i386-msvc.c : ffcall/avcall/avcall-i386-macro.S ffcall/avcall/asmi386.sh
-	cd ffcall ; $(MAKE) -f Makefile.devel avcall/avcall-i386-msvc.c
-
-# ffcall/vacall/config.h.in , ffcall/trampoline/config.h.in,
-# ffcall/callback/vacall_r/vacall_r.h.in,
-# ffcall/callback/trampoline_r/config.h.in
-# are not auto-generated!
-ffcall/vacall/config.h.msvc : ffcall/vacall/config.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel vacall/config.h.msvc
-
-ffcall/vacall/vacall.h.msvc : ffcall/vacall/vacall.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.msvc
-
-ffcall/vacall/vacall.h.mingw32 : ffcall/vacall/vacall.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall.h.mingw32
-
-ffcall/vacall/vacall-i386-msvc.c : ffcall/vacall/vacall-i386-macro.S ffcall/vacall/asmi386.sh
-	cd ffcall ; $(MAKE) -f Makefile.devel vacall/vacall-i386-msvc.c
-
-ffcall/trampoline/config.h.msvc : ffcall/trampoline/config.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel trampoline/config.h.msvc
-
-ffcall/callback/vacall_r/config.h.msvc : ffcall/callback/vacall_r/config.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/config.h.msvc
-
-ffcall/callback/vacall_r/vacall_r.h.msvc : ffcall/callback/vacall_r/vacall_r.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.msvc
-
-ffcall/callback/vacall_r/vacall_r.h.mingw32 : ffcall/callback/vacall_r/vacall_r.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall_r.h.mingw32
-
-ffcall/callback/vacall_r/vacall-i386-msvc.c : ffcall/callback/vacall_r/vacall-i386-macro.S ffcall/callback/vacall_r/asmi386.sh
-	cd ffcall ; $(MAKE) -f Makefile.devel callback/vacall_r/vacall-i386-msvc.c
-
-ffcall/callback/trampoline_r/config.h.msvc : ffcall/callback/trampoline_r/config.h.in
-	cd ffcall ; $(MAKE) -f Makefile.devel callback/trampoline_r/config.h.msvc
-
 
 # Build and test all essential memory models on a Linux/x86 machine.
 MULTIBUILD_OPTIONS =
