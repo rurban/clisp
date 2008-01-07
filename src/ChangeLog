@@ -1,3 +1,10 @@
+2008-01-06  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1865567 ]: hangs at the end of input script
+	* reploop.lisp (main-loop): revert the 2003-12-18 patch: exit on
+	EOF on all streams to avoid CLISP hanging at the end of script on
+	"clisp < script" and "cat script | clisp"
+
 2008-01-05  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel: remove all ffcall-related targets (libffcall is
