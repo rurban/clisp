@@ -30,6 +30,8 @@ User visible changes
   + Symbolic links into non-existent directories can now be deleted. [ 1860489 ]
   + DIRECTORY :FULL on directories now returns the same information as
     on files. [ 1860677 ]
+  + CLISP no longer hangs at the end of a script coming via a pipe
+    ("clisp < script.lisp" or "cat script | clisp"). [ 1865567 ]
 
 
 2.43 (2007-11-18)
