@@ -276,13 +276,11 @@ nonreturning_function(global, error_unencodable,
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
   if (as_cint(ch) < 0x10000)
-    error(charset_type_error,
-           GETTEXT("Character #\\u~C~C~C~C cannot be represented in the character set ~S"));
+    error(charset_type_error,GETTEXT("Character #\\u~C~C~C~C cannot be represented in the character set ~S"));
   else {
     pushSTACK(ascii_char(hex_table[(as_cint(ch)>>16)&0x0F]));
     pushSTACK(ascii_char(hex_table[(as_cint(ch)>>20)&0x0F]));
-    error(charset_type_error,
-           GETTEXT("Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"));
+    error(charset_type_error,GETTEXT("Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"));
   }
 }
 
@@ -551,8 +549,7 @@ nonreturning_function(local, error_uni32_invalid,
     pushSTACK(ascii_char(hex_table[code&0x0F]));
     code = code>>4;
   });
-  error(error_condition,
-         GETTEXT("character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
+  error(error_condition,GETTEXT("character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
 }
 
 global uintL uni32be_mblen (object encoding, const uintB* src,
@@ -775,8 +772,7 @@ nonreturning_function(local, error_utf8_invalid3,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,
-         GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  error(error_condition,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 /* Error when an invalid 4-byte sequence was encountered.
@@ -792,8 +788,7 @@ nonreturning_function(local, error_utf8_invalid4,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,
-         GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  error(error_condition,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 global uintL utf8_mblen (object encoding, const uintB* src,
