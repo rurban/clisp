@@ -165,27 +165,6 @@ libopen should DWIM -- include libltdl and use lt_dlopenext().
 Note: including libltdl is non-trivial and libtoolize requires configure.ac
 
 
-CLISP_LANGUAGE=german LC_ALL=C clisp -q -norc
-> (/ 0)
-=> endless loop
-*** - Character #\u00F6 cannot be represented in the character set
-      CHARSET:ASCII
-
-
-Fix unintuitive behaviour of REPL introduced on 2003-01-21:
-[1]> (read-char)
-abcdef
-#\a
-[2]>
-*** - EVAL: variable BCDEF has no value
-Mögliche Optionen:
-USE-VALUE      :R1      Sie dürfen einen Ersatzwertfür BDEF eingeben.
-STORE-VALUE    :R2      Sie dürfen einen neuen Wert für BDEF eingeben.
-ABORT          :R3      ABORT
-
-Break 1 [3]>
-
-
 Reentrancy: remove the static filestatus variable from pathname.d.
 
 
