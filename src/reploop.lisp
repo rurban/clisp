@@ -469,7 +469,7 @@ Continue       :c       switch off single step mode, continue evaluation
       (if (> *recursive-error-count* 3)
         (progn
           (setq *recursive-error-count* 0)
-          (write-string (TEXT "Unprintable error message.")
+          (write-string (TEXT "Unprintable error message")
                         *error-output*))
         (pretty-print-condition condition *error-output*
                                 :text-indent (if may-continue 5 6))))
