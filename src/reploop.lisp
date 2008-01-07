@@ -83,12 +83,20 @@
   "The final part of the prompt")
 (defun prompt-finish () (prompt-to-string *prompt-finish*))
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1865636&group_id=1355&atid=101355
+;; [ 1865636 ] infinite recursive error reporting
+(defun safe-wr-st (string &optional (stream *standard-output*))
+  (handler-case (write-string string stream)
+    (system::charset-type-error ()
+      (format stream "Unprintable message: change ~S or ~S" '*current-language*
+              '*terminal-encoding*))))
+
 ;; Help-function:
 (defvar *key-bindings* nil)     ; list of key-bindings and help strings
 (defun help ()
   (dolist (s *key-bindings*)
     (when (stringp s)
-      (write-string s #|*debug-io*|#))))
+      (safe-wr-st s #|*debug-io*|#))))
 
 (defvar *saved-debug-package* *common-lisp-user-package*)
 (defvar *saved-debug-readtable* (copy-readtable nil))
@@ -162,7 +170,7 @@
   (let (number)
     (loop
      (fresh-line *debug-io*)
-     (write-string (TEXT "Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
+     (safe-wr-st (TEXT "Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
      (setq number (read-from-string (read-line *debug-io* nil nil)))
      (if (or (integerp number) (eq number :all))
        (return)
@@ -232,7 +240,7 @@
 ;;; print it
 (defun print-error (condition)
   (fresh-line *debug-io*)
-  (write-string (TEXT "The last error:") *debug-io*)
+  (safe-wr-st (TEXT "The last error:") *debug-io*)
   (pretty-print-condition condition *debug-io* :text-indent 3)
   (elastic-newline *debug-io*))
 
@@ -460,7 +468,7 @@ Continue       :c       switch off single step mode, continue evaluation
     (if may-continue
       (progn
         (write-string "** - " *error-output*)
-        (write-string (TEXT "Continuable Error") *error-output*)
+        (safe-wr-st (TEXT "Continuable Error") *error-output*)
         (terpri *error-output*))
       (write-string "*** - " *error-output*))
 
@@ -481,14 +489,14 @@ Continue       :c       switch off single step mode, continue evaluation
       (if continuable
         (when interactive-p
           (fresh-line *debug-io*)
-          (write-string (TEXT "You can continue (by typing 'continue').")
-                        *debug-io*)
+          (safe-wr-st (TEXT "You can continue (by typing 'continue').")
+                      *debug-io*)
           (elastic-newline *debug-io*))
         (progn
           (fresh-line *debug-io*)
           (when interactive-p
-            (write-string (TEXT "If you continue (by typing 'continue'): ")
-                          *debug-io*))
+            (safe-wr-st (TEXT "If you continue (by typing 'continue'): ")
+                        *debug-io*))
           (princ may-continue *debug-io*)
           (elastic-newline *debug-io*)))))
 
@@ -500,7 +508,7 @@ Continue       :c       switch off single step mode, continue evaluation
       (when restarts
         (when interactive-p
           (fresh-line *debug-io*)
-          (write-string restarts-help *debug-io*)
+          (safe-wr-st restarts-help *debug-io*)
           (elastic-newline *debug-io*))
         (let ((counter 0))
           (dolist (restart restarts)
@@ -514,7 +522,7 @@ Continue       :c       switch off single step mode, continue evaluation
               ;; display the restarts:
               (when interactive-p
                 (fresh-line *debug-io*)
-                (write-string helpstring *debug-io*)
+                (safe-wr-st helpstring *debug-io*)
                 (elastic-newline *debug-io*))
               (push (string-concat (string #\Newline) helpstring) commandsr)
               ;; put it into the commandsr list.
@@ -593,15 +601,15 @@ Continue       :c       switch off single step mode, continue evaluation
 (defun step-values (values)
   (let ((*standard-output* *debug-io*))
     (fresh-line #|*debug-io*|#)
-    (write-string (TEXT "step ") #|*debug-io*|#)
+    (safe-wr-st (TEXT "step ") #|*debug-io*|#)
     (write *step-level* #|:stream *debug-io*|#)
     (write-string " ==> " #|*debug-io*|#)
     (case (length values)
-      (0 (write-string (TEXT "no values") #|*debug-io*|#))
-      (1 (write-string (TEXT "value: ") #|*debug-io*|#)
+      (0 (safe-wr-st (TEXT "no values") #|*debug-io*|#))
+      (1 (safe-wr-st (TEXT "value: ") #|*debug-io*|#)
          (write (car values) #|:stream *debug-io*|#))
       (t (write (length values) #|:stream *debug-io*|#)
-         (write-string (TEXT " values: ") #|*debug-io*|#)
+         (safe-wr-st (TEXT " values: ") #|*debug-io*|#)
          (do ((L values))
              ((endp L))
            (write (pop L) #|:stream *debug-io*|#)
@@ -636,7 +644,7 @@ Continue       :c       switch off single step mode, continue evaluation
                             *debug-mode*))
              (commands-list (commands nil (commands4))))
         (fresh-line #|*debug-io*|#)
-        (write-string (TEXT "step ") #|*debug-io*|#)
+        (safe-wr-st (TEXT "step ") #|*debug-io*|#)
         (write *step-level* #|:stream *debug-io*|#)
         (write-string " --> " #|*debug-io*|#)
         (write form #|:stream *debug-io*|# :length 4 :level 3)

@@ -1,6 +1,9 @@
 2008-01-06  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (break-loop): remove #\. from the end of a message
+	(safe-wr-st): new function, use instead of WRITE-STRING whenever
+	it is used with TEXT in this file to
+	fix bug #[ 1865636 ]: infinite recursive error reporting
 
 2008-01-06  Sam Steingold  <sds@gnu.org>
 
