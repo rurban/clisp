@@ -1,3 +1,9 @@
+2008-01-07  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1448744 ]: :q debugger command does not reset program stack
+	* eval.d (reset): save last driver frame and use it instead of
+	starting a new driver when the STACK is exhausted
+
 2008-01-06  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (break-loop): remove #\. from the end of a message

@@ -508,21 +508,27 @@ global /*maygc*/ void unwind (void)
 nonreturning_function(global, reset, (uintL count)) {
   /* when unwinding UNWIND-PROTECT-frames, don't save values: */
   bool top_p = (count==0);
+  gcv_object_t *last_driver_frame = NULL;
   VALUES0;
   unwind_protect_to_save.fun = (restartf_t)&reset;
   while (1) {
     /* does STACK end here? */
     if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
-      driver(); quit(); /* STACK completely gone -> restart */
+      if (last_driver_frame) {  /* restart at last driver frame */
+        setSTACK(STACK = last_driver_frame);
+        break;
+      }
+      NOTREACHED;
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
       /* at STACK_0: beginning of a frame */
-      if (framecode(STACK_0) == DRIVER_frame_info /* DRIVER_FRAME ? */
-          && !top_p && --count==0) /* done count resets */
-        break; /* yes -> found */
+      if (framecode(STACK_0) == DRIVER_frame_info) { /* DRIVER_FRAME ? */
+        last_driver_frame = STACK; /* save the frame */
+        if (!top_p && --count==0) /* done count resets */
+          break; /* yes -> found */
+      }
       unwind(); /* unwind frame */
-    } else {
-      /* STACK_0 contains a normal LISP-object */
+    } else { /* STACK_0 contains a normal LISP-object */
       skipSTACK(1);
     }
   }
