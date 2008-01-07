@@ -9,33 +9,6 @@ Should handle these soon.
 bind-eval.tst failure on Linux/amd64 [bruno]
 
 
-regression: [bruno]
-=============== script.lisp ==================
-(print (list 'script-args *args*))
-(print (list '*standard-input* *standard-input*))
-(print (list '*standard-output* *standard-output*))
-(print (list '*error-output* *error-output*))
-(print (list '*terminal-io* *terminal-io*))
-(print (list '*debug-io* *debug-io*))
-(print "tell me something...")
-(print (read-line *standard-input*))
-"first"
-(with-open-stream (in (make-stream :input))
-  (print in)
-  (print "tell me something else...")
-  (print (read-line in)))
-"second"
-(setf (stream-element-type *standard-input*) '(unsigned-byte 8))
-(print (list '*standard-input* *standard-input*))
-=============== script.lisp ==================
-$ cat script.lisp | clisp
-*** - (SETF STREAM-ELEMENT-TYPE) on #<IO TERMINAL-STREAM> is illegal
-$ clisp < script.lisp
-same + hangs instead of terminating.
-$ clisp script.lisp
-works fine.
-
-
 Many pretty-printer ansi test failures.
 (sds - but bruno has to fix the risky-test in iofkts.tst first)
 
