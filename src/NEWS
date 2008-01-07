@@ -32,6 +32,9 @@ User visible changes
     on files. [ 1860677 ]
   + CLISP no longer hangs at the end of a script coming via a pipe
     ("clisp < script.lisp" or "cat script | clisp"). [ 1865567 ]
+  + When *CURRENT-LANGUAGE* is incompatible with *TERMINAL-ENCODING*,
+    CLISP no longer goes into an infinite recursion trying to print
+    various help messages. [ 1865636 ]
 
 
 2.43 (2007-11-18)
