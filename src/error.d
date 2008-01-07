@@ -51,10 +51,10 @@ local void begin_error (void)
     /* bind *PRINT-PRETTY* to NIL (in order to save memory): */
     dynamic_bind(S(print_pretty),NIL);
     error(serious_condition,
-           /* Note: All translations of this error message should be in
-              pure ASCII, to avoid endless recursion if *terminal-encoding*
-              supports only ASCII characters. */
-           GETTEXT("Unprintable error message"));
+          /* Note: All translations of this error message should be in
+             pure ASCII, to avoid endless recursion if *terminal-encoding*
+             supports only ASCII characters. */
+          GETTEXT("Unprintable error message"));
   }
   var object error_handler = Symbol_value(S(error_handler)); /* *ERROR-HANDLER* */
   if (!nullp(error_handler)) { /* *ERROR-HANDER* /= NIL */
@@ -345,7 +345,7 @@ local void prepare_error (condition_t errortype, const char* errorstring,
  > on the STACK: initialization values for the condition,
                  according to errortype */
 nonreturning_function(global, error, (condition_t errortype,
-                                       const char* errorstring)) {
+                                      const char* errorstring)) {
   prepare_error(errortype,errorstring,true); /* finish error message */
   /* there is no point in using the condition system here:
      we will get into an infinite loop reporting the error */
@@ -990,7 +990,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
   if (keywordp(symbol)) {
     pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
     error(program_error,
-           GETTEXT("~S: the symbol ~S names a global special variable"));
+          GETTEXT("~S: the symbol ~S names a global special variable"));
   }
   if (special_var_p(TheSymbol(symbol))) {
     pushSTACK(symbol);                   /* save */
@@ -1438,9 +1438,9 @@ nonreturning_function(global, error_lambda_expression,
   pushSTACK(S(function)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
   error(type_error,
-         GETTEXT("~S: argument ~S is not a function.\n"
-                 "To get a function in the current environment, write (FUNCTION ...).\n"
-                 "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
+        GETTEXT("~S: argument ~S is not a function.\n"
+                "To get a function in the current environment, write (FUNCTION ...).\n"
+                "To get a function in the global environment, write (COERCE '... 'FUNCTION)."));
 }
 
 /* too many arguments in a function call
