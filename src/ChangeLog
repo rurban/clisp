@@ -1,5 +1,9 @@
 2008-01-06  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (break-loop): remove #\. from the end of a message
+
+2008-01-06  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1865567 ]: hangs at the end of input script
 	* reploop.lisp (main-loop): revert the 2003-12-18 patch: exit on
 	EOF on all streams to avoid CLISP hanging at the end of script on
