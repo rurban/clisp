@@ -6,7 +6,9 @@
 	* init.lisp (load): translated label: weiter --> proceed
 	* condition.lisp (check-type-failed, assert-failed)
 	(simple-assert-failed, eval-loaded-form, ctypecase-failed):
-	format RESTART-CASE clauses in a more traditional way (lalist first)
+	format RESTART-CASE clauses in a more traditional way (lalist
+	first)
+	* spvw_garcol.d (gc_unmarkcheck): better error reporting
 
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
