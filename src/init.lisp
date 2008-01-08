@@ -1746,7 +1746,7 @@
                '(*error-count* *warning-count* *style-warning-count*))
              '(0 0 0)
         (unwind-protect
-            (tagbody weiter
+            (tagbody proceed
               (when *load-echo* (fresh-line))
               (peek-char t input-stream nil eof-indicator)
               (setq *current-source-line-1* (line-number input-stream))
@@ -1754,14 +1754,14 @@
                 (setq *current-source-line-2* (line-number input-stream))
                 (when (eql obj eof-indicator) (go done))
                 (case (setq obj (eval-loaded-form obj *load-truename*))
-                  (skip (go weiter))
+                  (skip (go proceed))
                   (stop (go done)))
                 (when *load-print*
                   (when obj
                     (fresh-line)
                     (prin1 (first obj))
                     (elastic-newline))))
-              (go weiter) done)
+              (go proceed) done)
           (or (eq input-stream stream)
               (sys::built-in-stream-close input-stream))
           (or (eq stream filename)
