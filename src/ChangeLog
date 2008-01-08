@@ -3,6 +3,7 @@
 	* eval.d (interpret_bytecode_): translated labels:
 	svref_kein_svector --> svref_not_a_svector
 	svref_kein_index --> svref_not_an_index
+	* init.lisp (load): translated label: weiter --> proceed
 
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
