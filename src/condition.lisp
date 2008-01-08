@@ -1242,11 +1242,11 @@
       place-oldvalue)
     ;; Only one restart. Call it STORE-VALUE, not CONTINUE, so that it's not
     ;; chosen by "continue".
-    (STORE-VALUE
+    (STORE-VALUE (new-value)
       :report (lambda (stream)
                 (format stream (report-one-new-value-string) place))
       :interactive (lambda () (prompt-for-new-value place place-numvalues))
-      (new-value) (funcall place-setter new-value))))
+      (funcall place-setter new-value))))
 
 ;; ASSERT, CLtL2 p. 891
 (defmacro assert (test-form &optional (place-list nil) (datum nil) &rest args
@@ -1289,7 +1289,7 @@
         "~A" error-string)
       (apply #'error condition-datum+args)) ; use coerce-to-condition??
     ;; Only one restart: CONTINUE.
-    (CONTINUE
+    (CONTINUE (&rest new-values)
       :REPORT (lambda (stream)
                 (apply #'format stream
                        (if (= (length place-list) 1)
@@ -1300,7 +1300,7 @@
                      (mapcan #'(lambda (place place-numvalues)
                                  (prompt-for-new-value place place-numvalues))
                              place-list place-numvalues-list))
-      (&rest new-values) (apply places-setter new-values))))
+      (apply places-setter new-values))))
 (defun simple-assert-failed (error-string &rest condition-datum+args) ; ABI
   (restart-case
     ;; No need for explicit association, see APPLICABLE-RESTART-P.
@@ -1310,10 +1310,9 @@
       (apply #'error condition-datum+args)) ; use coerce-to-condition??
     ;; Only one restart: CONTINUE.
     ;; But mark it as not meaningful, because it leads to user frustration.
-    (CONTINUE
+    (CONTINUE ()
       :REPORT (lambda (stream) (format stream (report-no-new-value-string)))
-      MEANINGFULP nil
-      ())))
+      MEANINGFULP nil)))
 
 (defun correctable-error (options condition)
   (let ((restarts
@@ -1400,20 +1399,20 @@
 ;; we will get the truename of the inner-most file instead of the current one
 (defun eval-loaded-form (obj file)
   (restart-case (eval-loaded-form-low obj)
-    (skip
-        :report (lambda (out)
-                  (format out (TEXT "skip "))
-                  (if (compiled-function-p obj)
-                      (write (sys::closure-name obj) :stream out
-                             :pretty nil :escape nil)
-                      (write obj :stream out :pretty nil :escape nil
-                             :level 2 :length 3)))
-        :interactive default-restart-interactive
-        () (return-from eval-loaded-form 'skip))
-    (stop
-        :report (lambda (out) (format out (TEXT "stop loading file ~A") file))
-        :interactive default-restart-interactive
-        () (return-from eval-loaded-form 'stop))))
+    (skip ()
+      :report (lambda (out)
+                (format out (TEXT "skip "))
+                (if (compiled-function-p obj)
+                  (write (sys::closure-name obj) :stream out
+                         :pretty nil :escape nil)
+                  (write obj :stream out :pretty nil :escape nil
+                         :level 2 :length 3)))
+      :interactive default-restart-interactive
+      (return-from eval-loaded-form 'skip))
+    (stop ()
+      :report (lambda (out) (format out (TEXT "stop loading file ~A") file))
+      :interactive default-restart-interactive
+      (return-from eval-loaded-form 'stop))))
 
 ;;; 29.4.3. Exhaustive Case Analysis
 
@@ -1510,11 +1509,11 @@
         place-oldvalue))
     ;; Only one restart. Call it STORE-VALUE, not CONTINUE, so that it's not
     ;; chosen by "continue".
-    (STORE-VALUE
+    (STORE-VALUE (new-value)
       :report (lambda (stream)
                 (format stream (report-one-new-value-string) place))
       :interactive (lambda () (prompt-for-new-value place place-numvalues))
-      (new-value) (funcall place-setter new-value))))
+      (funcall place-setter new-value))))
 
 ;;; 29.4.11. Debugging Utilities
 
