@@ -9,6 +9,7 @@
 	format RESTART-CASE clauses in a more traditional way (lalist
 	first)
 	* spvw_garcol.d (gc_unmarkcheck): better error reporting
+	* spvw.d (init_memory) [DEBUG_SPVW]: print STACK bounds too
 
 2008-01-07  Sam Steingold  <sds@gnu.org>
 

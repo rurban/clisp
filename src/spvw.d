@@ -2924,7 +2924,8 @@ local inline int init_memory (struct argv_initparams *p) {
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintM stack_depth =
       STACK_item_count((gcv_object_t*)STACK_bound,STACK);
-    fprintf(stderr,"STACK depth: %lu\n",stack_depth);
+    fprintf(stderr,"STACK depth: %lu [0x%lx 0x%lx]\n",stack_depth,
+            (aint)STACK_bound,(aint)STACK);
    #ifndef NO_SP_CHECK
     if (SP_bound != 0) {
       fprintf(stderr,"SP depth: %lu\n",(uintM)
