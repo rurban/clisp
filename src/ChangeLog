@@ -4,6 +4,9 @@
 	svref_kein_svector --> svref_not_a_svector
 	svref_kein_index --> svref_not_an_index
 	* init.lisp (load): translated label: weiter --> proceed
+	* condition.lisp (check-type-failed, assert-failed)
+	(simple-assert-failed, eval-loaded-form, ctypecase-failed):
+	format RESTART-CASE clauses in a more traditional way (lalist first)
 
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
