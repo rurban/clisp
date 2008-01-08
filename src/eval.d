@@ -7516,32 +7516,32 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
     {var object vec; var object index;
     CASE cod_svref:             /* (SVREF) */
       /* STACK_0 must be a Simple-Vector: */
-      if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
+      if (!simple_vector_p(STACK_0)) goto svref_not_a_svector;
       vec = popSTACK();         /* Simple-Vector */
       index = value1;
       { /* and the Index must be Fixnum >= 0, < length(vec) : */
         var uintV i;
         if (!(posfixnump(index)
               && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
-          goto svref_kein_index;
+          goto svref_not_an_index;
         VALUES1(TheSvector(vec)->data[i]); /* indexed Element as value */
     } goto next_byte;
     CASE cod_svset:             /* (SVSET) */
       /* STACK_0 must be a Simple-Vector: */
-      if (!simple_vector_p(STACK_0)) goto svref_kein_svector;
+      if (!simple_vector_p(STACK_0)) goto svref_not_a_svector;
       vec = popSTACK();         /* Simple-Vector */
       index = value1;
       { /* and the Index must be a Fixnum >=0, <Length(vec) : */
         var uintV i;
         if (!(posfixnump(index)
               && ((i = posfixnum_to_V(index)) < Svector_length(vec))))
-          goto svref_kein_index;
+          goto svref_not_an_index;
         value1 = TheSvector(vec)->data[i] = popSTACK(); /* put in new element */
         mv_count = 1;
     } goto next_byte;
-    svref_kein_svector:         /* Non-Simple-Vector in STACK_0 */
+    svref_not_a_svector:         /* Non-Simple-Vector in STACK_0 */
       error_no_svector(S(svref),STACK_0);
-    svref_kein_index:    /* unsuitable Index in index, for Vector vec */
+    svref_not_an_index:    /* unsuitable Index in index, for Vector vec */
       pushSTACK(vec);
       pushSTACK(index);
       pushSTACK(index);         /* TYPE-ERROR slot DATUM */

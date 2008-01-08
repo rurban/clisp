@@ -1,5 +1,11 @@
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (interpret_bytecode_): translated labels:
+	svref_kein_svector --> svref_not_a_svector
+	svref_kein_index --> svref_not_an_index
+
+2008-01-07  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1448744 ]: :q debugger command does not reset program stack
 	* eval.d (reset): save last driver frame and use it instead of
 	starting a new driver when the STACK is exhausted
