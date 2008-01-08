@@ -1396,7 +1396,8 @@ local void gc_unmarkcheck (void) {
     while (p1!=p1end) { /* lower bound reached -> finished */
       /* next object has address p1 */
       if (marked(p1)) { /* marked? */
-        fprintf(stderr,"\nObject 0x%lx marked!!\n",p1);
+        fprintf(stderr,"\n[%s:%d] Object 0x%lx in [0x%lx 0x%lx] marked!!\n",
+                __FILE__,__LINE__,p1,page->page_start,page->page_end);
         abort();
       }
       p1 += objsize((Varobject)p1);
@@ -1408,7 +1409,8 @@ local void gc_unmarkcheck (void) {
     while (p1!=p1end) { /* upper bound reached -> finished */
       /* next object has address p1 */
       if (marked(p1)) { /* marked? */
-        fprintf(stderr,"\nObject 0x%lx marked!!\n",p1);
+        fprintf(stderr,"\n[%s:%d] Object 0x%lx in [0x%lx 0x%lx] marked!!\n",
+                __FILE__,__LINE__,p1,page->page_start,page->page_end);
         abort();
       }
       p1 += sizeof(cons_);
