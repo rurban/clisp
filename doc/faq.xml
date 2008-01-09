@@ -137,16 +137,20 @@ further explanations of the issues could be provided).</para>
   subscribe to all mailing lists that are relevant to you without getting
   duplicate messages:<variablelist>
  <varlistentry><term>&clisp-announce;</term>
-  <listitem><simpara>extremely low-level moderated list, you should
-    definitely subscribe to this list if you have any interest in &clisp;
-    whatsoever</simpara></listitem></varlistentry>
+  <listitem><simpara>Extremely low-level moderated list, you should
+    definitely subscribe to this list if you have any interest in &cl;
+    and &clisp; whatsoever.</simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-list;</term>
-  <listitem><simpara>subscribe to this list of you use &clisp; and want
-    to ask (and answer!) questions</simpara></listitem></varlistentry>
+  <listitem><simpara>Subscribe to this list of you use &clisp; and want
+    to ask (and answer!) questions. If you subscribe to this list, you
+    probably want to subscribe to <email>clisp-announce</email> too.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-devel;</term>
-  <listitem><simpara>subscribe to this list if you want to help with &clisp;
-    developments; CVS commit notes go here (as a daily digest).</simpara>
-</listitem></varlistentry></variablelist></para></answer></qandaentry>
+  <listitem><simpara>Subscribe to this list if you want to help with &clisp;
+    developments; CVS commit notes go here (as a daily digest).
+    If you subscribe to this list, you probably want to subscribe
+    to <email>clisp-list</email> and <email>clisp-announce</email> too.
+</simpara></listitem></varlistentry></variablelist></para></answer></qandaentry>
 
 
 <qandaentry id="faq-rejected"><question id="faq-rejected-q"><simpara>Why
