@@ -2,17 +2,17 @@
  * top level loop, aux functions for the debugger, stepper for CLISP
  * Bruno Haible 1990-2005
  * ILISP friendliness: Marcus Daniels 8.4.1994
- * Sam Steingold 2001-2005
+ * Sam Steingold 2001-2008
  * German comments translated into English: Stefan Kain 2004-08-30
  */
 
 #include "lispbibl.c"
 
 
-/* ----------------------------------------------------------------------- */
-/* Top-Level-Loop */
+/* -----------------------------------------------------------------------
+ Top-Level-Loop
 
-/* SYS::READ-FORM realizes the following features of the top-level REP loop
+ SYS::READ-FORM realizes the following features of the top-level REP loop
    and of the debug REP loop:
 
    - The prompt. When the input stream is interactive, a prompt is printed
@@ -104,9 +104,8 @@
      [2]>
      *** - EVAL: variable BCDEF has no value
 
-*/
 
-/* (SYS::READ-FORM ostream istream prompt [commandlist])
+ (SYS::READ-FORM ostream istream prompt [commandlist])
  read one form (interactively) from the input stream.
  instead of the form, we also recognize special commands from commandlist
  (a fresh alist) or SYS::*KEY-BINDINGS*
@@ -607,21 +606,21 @@ LISPFUNN(load,1)
   skipSTACK(1); VALUES1(T);
 }
 
-/* ----------------------------------------------------------------------- */
-/* Auxiliary functions for debugger and stepper */
+/* -----------------------------------------------------------------------
+ Auxiliary functions for debugger and stepper
 
-/* The following functions climb around in the stack, but will never
+ The following functions climb around in the stack, but will never
  trespass a driver-frame or the upper end of the stack.
  Valid "stackpointers" are in this context pointers to stack elements or
  frames, if there is neither the end of stack nor a driver-frame.
- Modus 1: all stack item
+ Modus 1: all stack items
  Modus 2: frames
  Modus 3: lexical frames: frame-info has FRAME_BIT = 1 and
           (SKIP2_BIT = 1 or ENTRYPOINT_BIT = 0 or BLOCKGO_BIT = 1)
  Modus 4: EVAL- and APPLY-frames: frame-info = [TRAPPED_]EVAL/APPLY_FRAME_INFO
- Modus 5: APPLY-frames: frame-info = [TRAPPED_]APPLY_FRAME_INFO */
+ Modus 5: APPLY-frames: frame-info = [TRAPPED_]APPLY_FRAME_INFO
 
-/* Macro: tests, if FRAME has reached stack end. */
+ Macro: tests, if FRAME has reached stack end. */
 #define stack_upend_p()  \
   (   eq(FRAME_(0),nullobj)           /* Nullword = upper stack end */ \
    || (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
@@ -1105,10 +1104,10 @@ LISPFUNN(return_from_eval_frame,2)
   unwind_upto(FRAME);
 }
 
-/* ----------------------------------------------------------------------- */
-/* Debug aux */
+/* -----------------------------------------------------------------------
+ Debug aux
 
-/* Returns the top-of-frame of a back_trace element. */
+ Returns the top-of-frame of a back_trace element. */
 global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
   var gcv_object_t* stack = bt->bt_stack;
   var object fun = bt->bt_function;
@@ -1149,19 +1148,39 @@ global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
   NOTREACHED;
 }
 
-local void print_back_trace (const gcv_object_t* stream_,
-                             const struct backtrace_t *bt, int index) {
+/* print one backtrace object
+ > stream_ : lisp stream where the object is printed
+ > bt : the backtrace object to print
+ > index : the backtrace depth
+ can trigger GC */
+local maygc void print_back_trace (const gcv_object_t* stream_,
+                                   const struct backtrace_t *bt, uintL index) {
   write_ascii_char(stream_,'<');
-  if (index >= 0)
-    prin1(stream_,fixnum(index));
-  else
-    write_ascii_char(stream_,'#');
+  prin1(stream_,fixnum(index));
   write_ascii_char(stream_,'>');
   write_ascii_char(stream_,' ');
   prin1(stream_,bt->bt_function);
   if (bt->bt_num_arg >= 0) {
     write_ascii_char(stream_,' ');
     prin1(stream_,fixnum(bt->bt_num_arg));
+  }
+}
+/* print several backtrace objects, up to FRAME
+ > stream_ : lisp stream where the object is printed
+ < FRAME : stack pointer - the limit for printing the stack
+ > bt : the first backtrace object to print
+ > index : the backtrace depth
+ < bt : the next backtrace depth to be printed
+ < index : the next backtrace depth
+ can trigger GC */
+local maygc void print_bt_to_frame (const gcv_object_t* stream_,
+                                    const gcv_object_t* FRAME,
+                                    const struct backtrace_t* *bt_,
+                                    uintL *index) {
+  while (bt_beyond_stack_p(*bt_,FRAME)) {
+    print_back_trace(stream_,*bt_,++(*index));
+    terpri(stream_);
+    *bt_ = (*bt_)->bt_next;
   }
 }
 
@@ -1476,11 +1495,7 @@ LISPFUNN(describe_frame,2)
     var uintL count = 0;
     var p_backtrace_t bt = back_trace;
     unwind_back_trace(bt,FRAME STACKop -1);
-    while (bt_beyond_stack_p(bt,FRAME)) {
-      print_back_trace(&STACK_0,bt,++count);
-      terpri(&STACK_0);
-      bt = bt->bt_next;
-    }
+    print_bt_to_frame(&STACK_0,FRAME,&bt,&count);
   }
   print_stackitem(&STACK_0,FRAME); /* print stack-item */
   elastic_newline(&STACK_0);
@@ -1507,20 +1522,9 @@ local inline maygc uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
       var gcv_object_t* next_frame = (*frame_up_x)(FRAME);
       if (next_frame == FRAME) break;
       FRAME = next_frame;
-      while (bt_beyond_stack_p(bt,FRAME)) {
-        print_back_trace(stream_,bt,++count);
-        terpri(stream_);
-        bt = bt->bt_next;
-      }
-      print_stackitem(stream_,FRAME);
-    } else {
-      while (bt_beyond_stack_p(bt,FRAME)) {
-        print_back_trace(stream_,bt,++count);
-        terpri(stream_);
-        bt = bt->bt_next;
-      }
-      FRAME = print_stackitem(stream_,FRAME);
     }
+    print_bt_to_frame(stream_,FRAME,&bt,&count);
+    FRAME = print_stackitem(stream_,FRAME);
     elastic_newline(stream_);
   }
   skipSTACK(1); /* drop *STANDARD-OUTPUT* */

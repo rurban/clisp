@@ -1,3 +1,9 @@
+2008-01-09  Sam Steingold  <sds@gnu.org>
+
+	* debug.d (print_back_trace): index is uintL, not int
+	(print_bt_to_frame): add
+	(DESCRIBE-FRAME, show_stack): use it
+
 2008-01-07  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (interpret_bytecode_): translated labels:
