@@ -518,7 +518,11 @@ nonreturning_function(global, reset, (uintL count)) {
         setSTACK(STACK = last_driver_frame);
         break;
       }
-      NOTREACHED;
+      /* we used to start a new driver() here, but this is wrong because it
+         does not clean up SP & back_trace, just STACK, see
+         https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1448744&group_id=1355
+         we probably cannot even do NOTREACHED - the STACK is bad. */
+      abort();
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
       /* at STACK_0: beginning of a frame */
