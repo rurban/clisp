@@ -111,21 +111,21 @@
 (defvar *debug-frame*)
 (defvar *debug-mode* 4)
 ; lower bound for frame-down/frame-down-1
-(defvar *frame-limit1* nil)
+(defvar *frame-limit-down* nil)
 ; upper bound for frame-up and frame-up-1
-(defvar *frame-limit2* nil)
+(defvar *frame-limit-up* nil)
 
-(defun frame-limit1 (frames-to-skip)
+(defun frame-limit-down (frames-to-skip)
   (let ((frame (the-frame)))
-    (let ((*frame-limit1* nil)
-          (*frame-limit2* nil))
+    (let ((*frame-limit-down* nil)
+          (*frame-limit-up* nil))
       (dotimes (i frames-to-skip) (setq frame (frame-up-1 frame 1))))
     frame))
 
-(defun frame-limit2 ()
+(defun frame-limit-up ()
   (let ((frame (the-frame)))
-    (let ((*frame-limit1* nil)
-          (*frame-limit2* nil))
+    (let ((*frame-limit-down* nil)
+          (*frame-limit-up* nil))
       (loop
        (let ((nextframe (frame-up-1 frame 1)))
          (when (or (eq nextframe frame) (driver-frame-p nextframe)) (return))
@@ -195,7 +195,7 @@
   (let ((frame-count
          (show-stack
           mode limit
-          (frame-up-down (or *frame-limit1* (frame-limit1 13)) mode))))
+          (frame-up-down (or *frame-limit-down* (frame-limit-down 13)) mode))))
     (fresh-line *standard-output*)
     (format *standard-output* (TEXT "Printed ~D frames") frame-count)
     (elastic-newline *standard-output*)))
@@ -543,10 +543,10 @@ Continue       :c       switch off single step mode, continue evaluation
            (*standard-output* stream)
            (prompt (string-concat (prompt-start) (prompt-break)
                                   (prompt-body) (prompt-finish)))
-           (*frame-limit1* (frame-limit1 13))
-           (*frame-limit2* (frame-limit2))
+           (*frame-limit-down* (frame-limit-down 13))
+           (*frame-limit-up* (frame-limit-up))
            (*debug-mode* *debug-mode*)
-           (*debug-frame* (frame-up-down *frame-limit1* *debug-mode*))
+           (*debug-frame* (frame-up-down *frame-limit-down* *debug-mode*))
            (commands-list (commands may-continue commandsr)))
       (driver
        ;; build driver frame and repeat #'lambda (infinitely; ...)
@@ -635,10 +635,10 @@ Continue       :c       switch off single step mode, continue evaluation
              (*standard-output* stream)
              (prompt (string-concat (prompt-start) (prompt-step)
                                     (prompt-body) (prompt-finish)))
-             (*frame-limit1* (frame-limit1 11))
-             (*frame-limit2* (frame-limit2))
+             (*frame-limit-down* (frame-limit-down 11))
+             (*frame-limit-up* (frame-limit-up))
              (*debug-mode* *debug-mode*)
-             (*debug-frame* (frame-up-down *frame-limit1* *debug-mode*))
+             (*debug-frame* (frame-up-down *frame-limit-down* *debug-mode*))
              (commands-list (commands nil (commands4))))
         (fresh-line #|*debug-io*|#)
         (safe-wr-st (TEXT "step ") #|*debug-io*|#)

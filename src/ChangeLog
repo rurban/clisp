@@ -2,6 +2,10 @@
 
 	* reploop.lisp (frame-up-down): add
 	(print-backtrace, break-loop, step-hook-fn): use it
+	(*frame-limit1*): rename to *frame-limit-down*
+	(frame-limit1): rename to frame-limit-down
+	(*frame-limit2*): rename to *frame-limit-up*
+	(frame-limit2): rename to frame-limit-up
 	* debug.d (test_framepointer_arg): report a TYPE-ERROR
 	(climb_stack_once, climb_stack_repeat): add
 	(FRAME-UP-1, FRAME-DOWN-1): use climb_stack_once
