@@ -1,3 +1,8 @@
+2008-01-10  Sam Steingold  <sds@gnu.org>
+
+	* reploop.lisp (frame-up-down): add
+	(print-backtrace, break-loop, step-hook-fn): use it
+
 2008-01-09  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (reset): replace NOTREACHED with abort
