@@ -2,6 +2,7 @@
 
 	* reploop.lisp (frame-up-down): add
 	(print-backtrace, break-loop, step-hook-fn): use it
+	* debug.d (test_framepointer_arg): report a TYPE-ERROR
 
 2008-01-09  Sam Steingold  <sds@gnu.org>
 

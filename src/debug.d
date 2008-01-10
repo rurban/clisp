@@ -866,9 +866,11 @@ local gcv_object_t* test_framepointer_arg (void)
 {
   var object arg = popSTACK();
   if (!framepointerp(arg)) {
+    pushSTACK(arg);              /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(frame_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg);
     pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: ~S is not a stack pointer"));
+    error(type_error,GETTEXT("~S: ~S is not a stack pointer"));
   }
   return uTheFramepointer(arg);
 }
