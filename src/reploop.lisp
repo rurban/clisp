@@ -187,14 +187,15 @@
   (setq *debug-print-frame-limit* (get-frame-limit))
   (throw 'debug 'continue))
 
+(defun frame-up-down (limit mode) (frame-down-1 (frame-up-1 limit mode) mode))
+
 (defun print-backtrace (&key ((:out *standard-output*) *standard-output*)
                         (mode *debug-mode*) (limit *debug-print-frame-limit*))
   ;; SHOW-STACK prints its output to *STANDARD-OUTPUT*, so we bind that
   (let ((frame-count
          (show-stack
           mode limit
-          (frame-down-1 (frame-up-1 (or *frame-limit1* (frame-limit1 13)) mode)
-                        mode))))
+          (frame-up-down (or *frame-limit1* (frame-limit1 13)) mode))))
     (fresh-line *standard-output*)
     (format *standard-output* (TEXT "Printed ~D frames") frame-count)
     (elastic-newline *standard-output*)))
@@ -545,9 +546,7 @@ Continue       :c       switch off single step mode, continue evaluation
            (*frame-limit1* (frame-limit1 13))
            (*frame-limit2* (frame-limit2))
            (*debug-mode* *debug-mode*)
-           (*debug-frame*
-            (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
-                          *debug-mode*))
+           (*debug-frame* (frame-up-down *frame-limit1* *debug-mode*))
            (commands-list (commands may-continue commandsr)))
       (driver
        ;; build driver frame and repeat #'lambda (infinitely; ...)
@@ -639,9 +638,7 @@ Continue       :c       switch off single step mode, continue evaluation
              (*frame-limit1* (frame-limit1 11))
              (*frame-limit2* (frame-limit2))
              (*debug-mode* *debug-mode*)
-             (*debug-frame*
-              (frame-down-1 (frame-up-1 *frame-limit1* *debug-mode*)
-                            *debug-mode*))
+             (*debug-frame* (frame-up-down *frame-limit1* *debug-mode*))
              (commands-list (commands nil (commands4))))
         (fresh-line #|*debug-io*|#)
         (safe-wr-st (TEXT "step ") #|*debug-io*|#)
