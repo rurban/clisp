@@ -3,6 +3,9 @@
 	* reploop.lisp (frame-up-down): add
 	(print-backtrace, break-loop, step-hook-fn): use it
 	* debug.d (test_framepointer_arg): report a TYPE-ERROR
+	(climb_stack_once, climb_stack_repeat): add
+	(FRAME-UP-1, FRAME-DOWN-1): use climb_stack_once
+	(FRAME-UP, FRAME-DOWN): use climb_stack_repeat
 
 2008-01-09  Sam Steingold  <sds@gnu.org>
 
