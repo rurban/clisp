@@ -291,6 +291,9 @@
 
 </section>
 
+<section id="compilation-semantics"><title>Compilation Semantics
+  <ulink url="&clhs;/Body/sec_3-2-2.html">[CLHS-3.2.2]</ulink></title>
+
 <section id="compiler-macros"><title>Compiler Macros
   <ulink url="&clhs;/Body/sec_3-2-2-1.html">[CLHS-3.2.2.1]</ulink></title>
 
@@ -299,6 +302,17 @@ ignored by the interpreter.</para>
 
 </section>
 
+<section id="minimal-compilation"><title>Minimal Compilation
+  <ulink url="&clhs;/Body/sec_3-2-2-2.html">[CLHS-3.2.2.2]</ulink></title>
+
+<para>When a &defun; form is &eval;uated, the macros used there are
+ expanded too, so they must be already defined, and their (re)definition
+ does &not-e; affect functions which are already defined.</para>
+
+<para>This means that even the interpreted code is <emphasis>minimally
+  compiled</emphasis> in &clisp;.</para>
+
+</section>
 
 <section id="semantic-constraints"><title>Semantic Constraints
   <ulink url="&clhs;/Body/sec_3-2-2-3.html">[CLHS-3.2.2.3]</ulink></title>
@@ -366,9 +380,11 @@ ignored by the interpreter.</para>
  interpreted evaluation, how much it wants to remember / cache, and how
  much it wants to evaluate according the current environment, if the
  environment has changed. &clisp; implements <emphasis>ad-hoc
-  look-up</emphasis> for variables, but not for macros.</para>
+  look-up</emphasis> for variables (but &not-e; for macros, see
+ <xref linkend="minimal-compilation"/>).</para>
 </simplesect>
 
+</section>
 </section>
 
 <section id="similarity"><title>Definition of Similarity
@@ -963,6 +979,8 @@ defined using &defhash;), the compiler will be able to optimize the
           (write-to-string gensym-count :base 10 :radix nil)))
       (incf gensym-count))))
 </programlisting>
+
+<para>See also <xref linkend="minimal-compilation"/>.</para>
 
 <formalpara id="arglist"><title>Function &arglist;</title>
 <para>Function <code>(&arglist; &name-r;)</code> returns the &lalist; of
