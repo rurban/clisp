@@ -1,3 +1,13 @@
+2008-01-13  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (per_thread): per-thread storage class
+	* spvw.d, lispbibl.d (STACK, callback_saved_registers)
+	(saved_mv_count, saved_value1, saved_back_trace, saved_STACK)
+	(SP_bound, STACK_bound, mv_count, mv_space, temp_mv_count)
+	(temp_value1, back_trace, aktenv, unwind_protect_to_save)
+	(handler_args, inactive_handlers): use per-thread instead of
+	current_thread() fields
+
 2008-01-12  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: use add traling #\/ to gllib in "find" so that
