@@ -1,5 +1,12 @@
 2008-01-13  Bruno Haible  <bruno@clisp.org>
 
+	Make it work on OpenBSD 4.0 x86 with address space randomization.
+	* lispbibl.d (ADDRESS_RANGE_RANDOMIZED): New macro.
+	(LINUX_NOEXEC_HEAPCODES/STANDARD_HEAPCODES, TRIVIALMAP_MEMORY): Depend
+	on it.
+
+2008-01-13  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_memfile.d (loadmem_from_handle) [SPVW_MIXED_BLOCKS_OPPOSITE]:
 	Fix the test whether there's enough room.
 
