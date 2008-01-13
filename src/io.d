@@ -8558,10 +8558,13 @@ local maygc void pr_readlabel (const gcv_object_t* stream_, object obj) {
  > stream: Stream
  < stream: Stream
  can trigger GC */
+local maygc void pr_framepointer_1 (const gcv_object_t* stream_, object obj)
+{ pr_uint(stream_,STACK_item_count(uTheFramepointer(obj),
+                                   (gcv_object_t*)STACK_start)); }
 local maygc void pr_framepointer (const gcv_object_t* stream_, object obj) {
   CHECK_PRINT_READABLY(obj);
-  /* #<FRAME-POINTER #x...> */
-  pr_unreadably(stream_,obj,&O(printstring_frame_pointer),pr_hex6);
+  /* #<FRAME-POINTER N> */
+  pr_unreadably(stream_,obj,&O(printstring_frame_pointer),pr_framepointer_1);
 }
 
 /* -------- Records --------
