@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2006 by Sam Steingold
+;;; Copyright (C) 2001-2008 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -178,7 +178,7 @@ The point should be on the prototype and the definition should follow."
 (defvar d-extra-keywords
   (eval-when-compile
    (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
-                 "inline" "NULL" "nullobj" "maygc"
+                 "inline" "NULL" "nullobj" "maygc" "per_thread"
                  "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
                  "dotimesW" "nonreturning_function" "return_Values"
