@@ -552,11 +552,18 @@
 #endif
 
 
-# Flags for the system's include files.
+/* Flags for the system's include files. */
 #ifdef MULTITHREAD
   #if defined(UNIX_GNU) || defined(UNIX_SUNOS5)
     #define _REENTRANT
   #endif
+  #if defined(__GNUC__)
+    #define per_thread __thread
+  #else
+    #error "how does your compiler specify per-thread storage class?"
+  #endif
+#else
+  #define per_thread
 #endif
 
 
@@ -748,11 +755,7 @@
         long back_trace_register_contents;
       #endif
     };
-    #ifndef MULTITHREAD
-      extern struct registers * callback_saved_registers;
-    #else
-      #define callback_saved_registers  (current_thread()->_callback_saved_registers)
-    #endif
+    extern per_thread struct registers * callback_saved_registers;
     #ifdef STACK_register
       #define SAVE_STACK_register(registers)     \
               registers->STACK_register_contents = STACK_reg
@@ -9138,11 +9141,7 @@ extern void* SP_anchor;
 # LISP-Stack: STACK
 #if !defined(STACK_register)
   # a global variable
-  #ifndef MULTITHREAD
-    extern gcv_object_t* STACK;
-  #else
-    #define STACK  (current_thread()->_STACK)
-  #endif
+  extern per_thread gcv_object_t* STACK;
 #else
   # a global register variable
   register gcv_object_t* STACK __asm__(STACK_register);
@@ -9296,11 +9295,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 # and
 #   end_callback();
 #ifdef HAVE_SAVED_mv_count
-  #ifndef MULTITHREAD
-    extern uintC saved_mv_count;
-  #else
-    #define saved_mv_count  (current_thread()->_saved_mv_count)
-  #endif
+  extern per_thread uintC saved_mv_count;
   #define SAVE_mv_count()     saved_mv_count = mv_count
   #define RESTORE_mv_count()  mv_count = saved_mv_count
 #else
@@ -9308,11 +9303,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define RESTORE_mv_count()
 #endif
 #ifdef HAVE_SAVED_value1
-  #ifndef MULTITHREAD
-    extern object saved_value1;
-  #else
-    #define saved_value1  (current_thread()->_saved_value1)
-  #endif
+  extern per_thread object saved_value1;
   #define SAVE_value1()     saved_value1 = value1
   #define RESTORE_value1()  value1 = saved_value1
 #else
@@ -9320,11 +9311,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define RESTORE_value1()
 #endif
 #ifdef HAVE_SAVED_back_trace
-  #ifndef MULTITHREAD
-    extern p_backtrace_t saved_back_trace;
-  #else
-    #define saved_back_trace  (current_thread()->_saved_back_trace)
-  #endif
+  extern per_thread p_backtrace_t saved_back_trace;
   #define SAVE_back_trace()     saved_back_trace = back_trace
   #define RESTORE_back_trace()  back_trace = saved_back_trace
 #else
@@ -9334,11 +9321,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 #define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_back_trace();
 #define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_back_trace();
 #if defined(HAVE_SAVED_STACK)
-  #ifndef MULTITHREAD
-    extern gcv_object_t* saved_STACK;
-  #else
-    #define saved_STACK  (current_thread()->_saved_STACK)
-  #endif
+  extern per_thread gcv_object_t* saved_STACK;
   #define begin_call()  SAVE_GLOBALS(); saved_STACK = STACK
   #define end_call()  RESTORE_GLOBALS(); saved_STACK = (gcv_object_t*)NULL
   #define begin_callback()  SAVE_REGISTERS( STACK = saved_STACK; ); end_call()
@@ -9456,11 +9439,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     #endif
   #endif
 #endif
-#ifndef MULTITHREAD
-  extern void* SP_bound;
-#else
-  #define SP_bound  (current_thread()->_SP_bound)
-#endif
+extern per_thread void* SP_bound;
 nonreturning_function(extern, SP_ueber, (void));
 #ifdef UNIX
   #define check_SP_notUNIX()
@@ -9477,11 +9456,7 @@ nonreturning_function(extern, SP_ueber, (void));
 #ifdef STACK_UP
   #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
 #endif
-#ifndef MULTITHREAD
-  extern void* STACK_bound;
-#else
-  #define STACK_bound  (current_thread()->_STACK_bound)
-#endif
+extern per_thread void* STACK_bound;
 nonreturning_function(extern, STACK_ueber, (void));
 %% #if notused
 %% export_def(check_STACK());
@@ -11514,30 +11489,16 @@ re-enters the corresponding top-level loop.
 #   The values in mv_space are not subject to the Garbage Collection!
 #if !defined(mv_count_register)
   # a global Variable
-  #ifndef MULTITHREAD
-    extern uintC mv_count;
-  #else
-    #define mv_count  (current_thread()->_mv_count)
-  #endif
+  extern per_thread uintC mv_count;
 #else
   # a global register
   register uintC mv_count __asm__(mv_count_register);
 #endif
-#ifndef MULTITHREAD
-  extern object mv_space [mv_limit-1];
-#else
-  #define mv_space  (current_thread()->_mv_space)
-#endif
+extern per_thread object mv_space [mv_limit-1];
 # Synonyms:
 #if !defined(value1_register)
-  #ifndef MULTITHREAD
     #define value1  mv_space[0]
-  #else
-    /* The first value mv_space[0] is moved to the beginning of struct
-       clisp_thread_t: */
-    #define value1  (current_thread()->_value1)
-    #define VALUE1_EXTRA # and thus has to be treated extra every time...
-  #endif
+  #define VALUE1_EXTRA /* and thus has to be treated extra every time... */
 #else
   # The first value mv_space[0] is stored permanently in a register:
   register object value1 __asm__(value1_register);
@@ -11553,11 +11514,7 @@ re-enters the corresponding top-level loop.
 #define value9  mv_space[8]
 # You might need global variables to pass with setjmp/longjmp:
 #ifdef NEED_temp_mv_count
-  #ifndef MULTITHREAD
-    extern uintC temp_mv_count;
-  #else
-    #define temp_mv_count  (current_thread()->_temp_mv_count)
-  #endif
+  extern per_thread uintC temp_mv_count;
   #define LONGJMP_SAVE_mv_count()  temp_mv_count = mv_count
   #define LONGJMP_RESTORE_mv_count()  mv_count = temp_mv_count
 #else
@@ -11565,11 +11522,7 @@ re-enters the corresponding top-level loop.
   #define LONGJMP_RESTORE_mv_count()
 #endif
 #ifdef NEED_temp_value1
-  #ifndef MULTITHREAD
-    extern object temp_value1;
-  #else
-    #define temp_value1  (current_thread()->_temp_value1)
-  #endif
+  extern per_thread object temp_value1;
   #define LONGJMP_SAVE_value1()  temp_value1 = value1
   #define LONGJMP_RESTORE_value1()  value1 = temp_value1
 #else
@@ -11740,11 +11693,7 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
 %% #endif
 
 #if !defined(back_trace_register)
-  #ifndef MULTITHREAD
-    extern p_backtrace_t back_trace;
-  #else
-    #define back_trace  (current_thread()->_back_trace)
-  #endif
+  extern per_thread p_backtrace_t back_trace;
 #else
   register p_backtrace_t back_trace __asm__(back_trace_register);
 #endif
@@ -11832,11 +11781,7 @@ typedef struct {
 } gcv_environment_t;
 
 # The current Environment:
-#ifndef MULTITHREAD
-  extern gcv_environment_t aktenv;
-#else
-  #define aktenv  (current_thread()->_aktenv)
-#endif
+extern per_thread gcv_environment_t aktenv;
 
 # Macro: Puts five single Environments on the STACK
 # and makes a single Environment out of them.
@@ -12408,11 +12353,7 @@ typedef struct {
   restartf_t fun;
   gcv_object_t* upto_frame;
 } unwind_protect_caller_t;
-#ifndef MULTITHREAD
-  extern unwind_protect_caller_t unwind_protect_to_save;
-#else
-  #define unwind_protect_to_save  (current_thread()->_unwind_protect_to_save)
-#endif
+extern per_thread unwind_protect_caller_t unwind_protect_to_save;
 extern /*maygc*/ void unwind (void);
 # is used by CONTROL, DEBUG, SPVW
 
@@ -12460,21 +12401,13 @@ typedef struct {
   SPint* sp;
   object spdepth;
 } handler_args_t;
-#ifndef MULTITHREAD
-  extern handler_args_t handler_args;
-#else
-  #define handler_args  (current_thread()->_handler_args)
-#endif
+extern per_thread handler_args_t handler_args;
 typedef struct stack_range_t {
   struct stack_range_t * next;
   gcv_object_t* low_limit;
   gcv_object_t* high_limit;
 } stack_range_t;
-#ifndef MULTITHREAD
-  extern stack_range_t* inactive_handlers;
-#else
-  #define inactive_handlers  (current_thread()->_inactive_handlers)
-#endif
+extern per_thread stack_range_t* inactive_handlers;
 # is used by ERROR
 
 # UP: Determines, whether an Object is a function name, ie. a Symbol or

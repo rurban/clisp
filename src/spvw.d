@@ -249,110 +249,110 @@ local int exitcode;
 
 #endif  /* SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY */
 
+/* Global variables. */
+
+/* the STACK: */
+#if !defined(STACK_register)
+global per_thread gcv_object_t* STACK;
+#endif
+#ifdef HAVE_SAVED_STACK
+global per_thread gcv_object_t* saved_STACK;
+#endif
+
+/* MULTIPLE-VALUE-SPACE: */
+#if !defined(mv_count_register)
+global per_thread uintC mv_count;
+#endif
+#ifdef NEED_temp_mv_count
+global per_thread uintC temp_mv_count;
+#endif
+#ifdef HAVE_SAVED_mv_count
+global per_thread uintC saved_mv_count;
+#endif
+global per_thread object mv_space [mv_limit-1];
+#ifdef NEED_temp_value1
+global per_thread object temp_value1;
+#endif
+#ifdef HAVE_SAVED_value1
+global per_thread object saved_value1;
+#endif
+
+/* During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR */
+#if !defined(back_trace_register)
+global per_thread p_backtrace_t back_trace = NULL;
+#endif
+#ifdef HAVE_SAVED_back_trace
+global per_thread p_backtrace_t saved_back_trace;
+#endif
+
+/* during callbacks, the saved registers: */
+#if defined(HAVE_SAVED_REGISTERS)
+global per_thread struct registers * callback_saved_registers = NULL;
+#endif
+
+/* stack-limits: */
+#ifndef NO_SP_CHECK
+global per_thread void* SP_bound;          /* SP-growth-limit */
+#endif
+global per_thread void* STACK_bound;       /* STACK-growth-limit */
+
+/* the lexical environment: */
+global per_thread gcv_environment_t aktenv;
+
+global per_thread unwind_protect_caller_t unwind_protect_to_save;
+
+/* variables for passing of information to the top of the handler: */
+global per_thread handler_args_t handler_args;
+
+/* As only whole regions of handlers are deactivated and activated again,
+ we treat the handlers on deactivation separately, but we maintain
+ a list of the STACK-regions, in which the handlers are deactivated.
+ A handler counts as inactive if and only if:
+ low_limit <= handler < high_limit
+ is true for one of the regions listed in inactive_handlers */
+global per_thread stack_range_t* inactive_handlers = NULL;
+
 /* --------------------------------------------------------------------------
                            Multithreading */
 
 #ifndef MULTITHREAD
 
-  /* Global variables. */
+#define for_all_threadobjs(statement)                                   \
+  do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;               \
+    var uintC count;                                                    \
+    dotimespC(count,sizeof(gcv_environment_t)/sizeof(gcv_object_t),     \
+              { statement; objptr++; });                                \
+  } while(0)
 
-  /* the STACK: */
-  #if !defined(STACK_register)
-    global gcv_object_t* STACK;
-  #endif
-  #ifdef HAVE_SAVED_STACK
-    global gcv_object_t* saved_STACK;
-  #endif
+#define for_all_STACKs(statement)             \
+  do { var gcv_object_t* objptr = &STACK_0;   \
+    { statement; }                            \
+  } while(0)
 
-  /* MULTIPLE-VALUE-SPACE: */
-  #if !defined(mv_count_register)
-    global uintC mv_count;
-  #endif
-  #ifdef NEED_temp_mv_count
-    global uintC temp_mv_count;
-  #endif
-  #ifdef HAVE_SAVED_mv_count
-    global uintC saved_mv_count;
-  #endif
-  global object mv_space [mv_limit-1];
-  #ifdef NEED_temp_value1
-    global object temp_value1;
-  #endif
-  #ifdef HAVE_SAVED_value1
-    global object saved_value1;
-  #endif
-
-  /* During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR */
-  #if !defined(back_trace_register)
-    global p_backtrace_t back_trace;
-  #endif
-  #ifdef HAVE_SAVED_back_trace
-    global p_backtrace_t saved_back_trace;
-  #endif
-
-  /* during callbacks, the saved registers: */
-  #if defined(HAVE_SAVED_REGISTERS)
-    global struct registers * callback_saved_registers = NULL;
-  #endif
-
-  /* stack-limits: */
-  #ifndef NO_SP_CHECK
-    global void* SP_bound;      /* SP-growth-limit */
-  #endif
-  global void* STACK_bound;     /* STACK-growth-limit */
-
-  /* the lexical environment: */
-  global gcv_environment_t aktenv;
-
-  global unwind_protect_caller_t unwind_protect_to_save;
-
-  /* variables for passing of information to the top of the handler: */
-  global handler_args_t handler_args;
-
-  /* As only whole regions of handlers are deactivated and activated again,
-   we treat the handlers on deactivation separately, but we maintain
-   a list of the STACK-regions, in which the handlers are deactivated. */
-  global stack_range_t* inactive_handlers = NULL;
-  /* A handler counts as inactive if and only if:
-   low_limit <= handler < high_limit
-   is true for one of the regions listed in inactive_handlers: */
-
-  #define for_all_threadobjs(statement)                                  \
-    do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;              \
-         var uintC count;                                                \
-         dotimespC(count,sizeof(gcv_environment_t)/sizeof(gcv_object_t), \
-           { statement; objptr++; });                                    \
-    } while(0)
-
-  #define for_all_STACKs(statement)           \
-    do { var gcv_object_t* objptr = &STACK_0; \
-         { statement; }                       \
-    } while(0)
-
-  #define for_all_back_traces(statement)    \
-    do { var p_backtrace_t bt = back_trace; \
-      { statement;  }                       \
-    } while(0)
+#define for_all_back_traces(statement)      \
+  do { var p_backtrace_t bt = back_trace;   \
+    { statement;  }                         \
+  } while(0)
 
 #else
 
-  /* Mutex protecting the set of threads. */
-  local xmutex_t allthreads_lock;
+/* Mutex protecting the set of threads. */
+local xmutex_t allthreads_lock;
 
-  /* Set of threads. */
-  #define MAXNTHREADS  128
-  local uintC nthreads = 0;
-  local clisp_thread_t* allthreads[MAXNTHREADS];
+/* Set of threads. */
+#define MAXNTHREADS  128
+local uintC nthreads = 0;
+local clisp_thread_t* allthreads[MAXNTHREADS];
 
-  /* Number of symbol values currently in use in every thread. */
-  local uintL num_symvalues = 0;
-  /* Maximum number of symbol values in every thread before new thread-local
-   storage must be added.
-   = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
-           -offsetofa(clisp_thread_t,_symvalues),sizeof(gcv_object_t)) */
-  local uintL maxnum_symvalues;
+/* Number of symbol values currently in use in every thread. */
+local uintL num_symvalues = 0;
+/* Maximum number of symbol values in every thread before new thread-local
+ storage must be added.
+ = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
+         -offsetofa(clisp_thread_t,_symvalues),sizeof(gcv_object_t)) */
+local uintL maxnum_symvalues;
 
-  /* Initialization. */
+/* Initialization. */
 local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock);
@@ -361,7 +361,7 @@ local void init_multithread (void) {
                            sizeof(gcv_object_t));
 }
 
-  /* Create a new thread. */
+/* Create a new thread. */
 local clisp_thread_t* create_thread (void* sp) {
   var clisp_thread_t* thread;
   xmutex_lock(&allthreads_lock);
