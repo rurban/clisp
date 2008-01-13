@@ -1,7 +1,7 @@
 /*
  * List of all symbols known to the C-program ("program constants")
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  */
 
 /* The macro LISPSYM declares a LISP symbol.
@@ -1191,23 +1191,23 @@ LISPSYM(foreign_library_function,"FOREIGN-LIBRARY-FUNCTION",ffi) /* Legacy ABI *
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
-LISPSYM(make_process,"MAKE-PROCESS",mt)
-LISPSYM(process_wait,"PROCESS-WAIT",mt)
+LISPSYM(make_thread,"MAKE-THREAD",mt)
+LISPSYM(thread_wait,"THREAD-WAIT",mt)
 LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt) /* ABI */
-LISPSYM(process_yield,"PROCESS-YIELD",mt)
-LISPSYM(process_kill,"PROCESS-KILL",mt)
-LISPSYM(process_interrupt,"PROCESS-INTERRUPT",mt)
-LISPSYM(process_restart,"PROCESS-RESTART",mt)
-LISPSYM(processp,"PROCESSP",mt)
-LISPSYM(process_name,"PROCESS-NAME",mt)
-LISPSYM(process_active_p,"PROCESS-ACTIVE-P",mt)
-LISPSYM(process_state,"PROCESS-STATE",mt)
-LISPSYM(process_whostate,"PROCESS-WHOSTATE",mt)
-LISPSYM(current_process,"CURRENT-PROCESS",mt)
-LISPSYM(list_processes,"LIST-PROCESSES",mt)
+LISPSYM(thread_yield,"THREAD-YIELD",mt)
+LISPSYM(thread_kill,"THREAD-KILL",mt)
+LISPSYM(thread_interrupt,"THREAD-INTERRUPT",mt)
+LISPSYM(thread_restart,"THREAD-RESTART",mt)
+LISPSYM(threadp,"THREADP",mt)
+LISPSYM(thread_name,"THREAD-NAME",mt)
+LISPSYM(thread_active_p,"THREAD-ACTIVE-P",mt)
+LISPSYM(thread_state,"THREAD-STATE",mt)
+LISPSYM(thread_whostate,"THREAD-WHOSTATE",mt)
+LISPSYM(current_thread,"CURRENT-THREAD",mt)
+LISPSYM(list_threads,"LIST-THREADS",mt)
 LISPSYM(make_lock,"MAKE-LOCK",mt)
-LISPSYM(process_lock,"PROCESS-LOCK",mt)
-LISPSYM(process_unlock,"PROCESS-UNLOCK",mt)
+LISPSYM(thread_lock,"THREAD-LOCK",mt)
+LISPSYM(thread_unlock,"THREAD-UNLOCK",mt)
 #endif
 
 /* Keywords: */

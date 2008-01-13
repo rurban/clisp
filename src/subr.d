@@ -1,11 +1,10 @@
 /*
  * list of all SUBRs
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2007
- */
+ * Sam Steingold 1998-2008
 
-/* A C-compiled LISP-function is defined by a declaration
-   LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
+ A C-compiled LISP-function is defined by a declaration
+ LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
  in this file.
  > name: the function name (a C-identifier)
  > seclass: the side-effect class (seclass_t, see lispbibl.d)
@@ -15,9 +14,9 @@
  > key_flag: either nokey or key or key_allow
  > key_count: a number (0 if nokey)
  > keywords: either NIL (if nokey) or a expression of the form
-             (kw(keyword1),...,kw(keywordn)) */
+             (kw(keyword1),...,kw(keywordn))
 
-/* A C-compiled LISP-function with a fixed number of arguments
+ A C-compiled LISP-function with a fixed number of arguments
  is defined by the abbreviating declaration
    LISPFUNN(name,req_count)
  > name: the function name (a C-identifier)
@@ -1423,18 +1422,18 @@ LISPFUNN(foreign_library_function,5)
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
-LISPFUN(make_process,seclass_default,2,0,rest,nokey,0,NIL)
-LISPFUN(process_wait,seclass_default,3,0,rest,nokey,0,NIL)
+LISPFUN(make_thread,seclass_default,1,0,norest,key,1,(kw(name)))
+LISPFUN(thread_wait,seclass_default,3,0,rest,nokey,0,NIL)
 LISPFUNN(call_with_timeout,3)
-LISPFUNN(process_yield,0)
-LISPFUNN(process_kill,1)
-LISPFUN(process_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
-LISPFUNN(process_restart,1)
-LISPFUNN(processp,1)
-LISPFUNN(process_name,1)
-LISPFUNN(process_active_p,1)
-LISPFUNN(process_state,1)
-LISPFUNN(process_whostate,1)
-LISPFUNN(current_process,0)
-LISPFUNN(list_processes,0)
+LISPFUNN(thread_yield,0)
+LISPFUNN(thread_kill,1)
+LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
+LISPFUNN(thread_restart,1)
+LISPFUNN(threadp,1)
+LISPFUNN(thread_name,1)
+LISPFUNN(thread_active_p,1)
+LISPFUNN(thread_state,1)
+LISPFUNN(thread_whostate,1)
+LISPFUNN(current_thread,0)
+LISPFUNN(list_threads,0)
 #endif
