@@ -1,15 +1,15 @@
 /*
  * CLISP thread functions - multiprocessing
  * Distributed under the GNU GPL as a part of GNU CLISP
- * Sam Steingold 2003-2004
+ * Sam Steingold 2003-2008
  */
 
 #include "lispbibl.c"
 
 #ifdef MULTITHREAD
 
-LISPFUN(make_process,seclass_default,2,0,rest,nokey,0,NIL)
-{ /* (MAKE-PROCESS name function &rest arguments) */
+LISPFUN(make_thread,seclass_default,1,0,norest,key,1,(kw(name)))
+{ /* (MAKE-THREAD function &key name) */
   NOTREACHED;
 }
 
@@ -76,71 +76,72 @@ LISPFUNN(call_with_timeout,3)
       funcall(STACK_1,0); /* run timeout-function */
     }
     xcondition_destroy(&cd.cond);
+    xmutex_destroy(&cd.mutex);
   } else
     funcall(STACK_1,0);
   skipSTACK(3);
 }
 
-LISPFUN(process_wait,seclass_default,3,0,rest,nokey,0,NIL)
-{ /* (PROCESS-WAIT whostate timeout predicate &rest arguments)
+LISPFUN(thread_wait,seclass_default,3,0,rest,nokey,0,NIL)
+{ /* (THREAD-WAIT whostate timeout predicate &rest arguments)
    predicate may be a LOCK structure in which case we wait for its release
    timeout maybe NIL in which case we wait forever */
   /* set whostate! */
   NOTREACHED;
 }
 
-LISPFUNN(process_yield,0)
-{ /* (PROCESS-YIELD) */
+LISPFUNN(thread_yield,0)
+{ /* (THREAD-YIELD) */
   NOTREACHED;
 }
 
-LISPFUNN(process_kill,1)
-{ /* (PROCESS-KILL process) */
+LISPFUNN(thread_kill,1)
+{ /* (THREAD-KILL thread) */
   NOTREACHED;
 }
 
-LISPFUN(process_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
-{ /* (PROCESS-INTERRUPT process function &rest arguments) */
+LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
+{ /* (THREAD-INTERRUPT thread function &rest arguments) */
   NOTREACHED;
 }
 
-LISPFUNN(process_restart,1)
-{ /* (PROCESS-RESTART process) */
+LISPFUNN(thread_restart,1)
+{ /* (THREAD-RESTART thread) */
   NOTREACHED;
 }
 
-LISPFUNN(processp,1)
-{ /* (PROCESSP object) */
+LISPFUNN(threadp,1)
+{ /* (THREADP object) */
   NOTREACHED;
 }
 
-LISPFUNN(process_name,1)
-{ /* (PROCESS-NAME process) */
+LISPFUNN(thread_name,1)
+{ /* (THREAD-NAME thread) */
   NOTREACHED;
 }
 
-LISPFUNN(process_active_p,1)
-{ /* (PROCESS-ACTIVE-P process) */
+LISPFUNN(thread_active_p,1)
+{ /* (THREAD-ACTIVE-P thread) */
   NOTREACHED;
 }
 
-LISPFUNN(process_state,1)
-{ /* (PROCESS-STATE process) */
+LISPFUNN(thread_state,1)
+{ /* (THREAD-STATE thread) */
   NOTREACHED;
 }
 
-LISPFUNN(process_whostate,1)
-{ /* (PROCESS-WHOSTATE process) */
+LISPFUNN(thread_whostate,1)
+{ /* (THREAD-WHOSTATE thread) */
   NOTREACHED;
 }
 
-LISPFUNN(current_process,0)
-{ /* (CURRENT-PROCESS) */
+LISPFUNN(current_thread,0)
+{ /* (CURRENT-THREAD) */
   NOTREACHED;
 }
 
-LISPFUNN(list_processes,0)
-{ /* (LIST-PROCESSES) */
+LISPFUNN(list_threads,0)
+{ /* (LIST-THREADS) */
   NOTREACHED;
 }
 

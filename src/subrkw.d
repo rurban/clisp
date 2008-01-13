@@ -1,7 +1,7 @@
 /*
  * List of all the SUBRs with Keywords
  * Bruno Haible 1990-2004
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2008
  */
 
 v(7, (kw(adjustable),kw(element_type),kw(initial_element),
@@ -214,4 +214,8 @@ v(3, (kw(initial_contents),kw(count),kw(read_only)))
 s(foreign_allocate)
 v(1, (kw(full)))
 s(foreign_free)
+#endif
+#ifdef MULTITHREAD
+v(1, kw(name))
+s(make_thread)
 #endif

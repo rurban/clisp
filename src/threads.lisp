@@ -3,11 +3,11 @@
 (defpackage "THREADS"
   (:nicknames "MT" "MP")
   (:use "COMMON-LISP" "EXT")
-  (:export "MAKE-PROCESS" "PROCESS-WAIT"
-           "WITHOUT-INTERRUPTS" "PROCESS-YIELD" "PROCESS-KILL"
-           "PROCESS-INTERRUPT" "PROCESS-RESTART" "PROCESSP" "PROCESS-NAME"
-           "PROCESS-ACTIVE-P" "PROCESS-STATE" "CURRENT-PROCESS" "LIST-PROCESSES"
-           "MAKE-LOCK" "PROCESS-LOCK" "PROCESS-UNLOCK" "WITH-LOCK"
+  (:export "MAKE-THREAD" "THREAD-WAIT"
+           "WITHOUT-INTERRUPTS" "THREAD-YIELD" "THREAD-KILL"
+           "THREAD-INTERRUPT" "THREAD-RESTART" "THREADP" "THREAD-NAME"
+           "THREAD-ACTIVE-P" "THREAD-STATE" "CURRENT-THREAD" "LIST-THREADS"
+           "MAKE-LOCK" "THREAD-LOCK" "THREAD-UNLOCK" "WITH-LOCK"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"))
 
 (in-package "MT")
@@ -45,20 +45,20 @@ terminate and evaluate TIMEOUT-FORMS."
 (defstruct (lock (:constructor make-lock (name)))
   name owner)
 
-(defun process-lock (lock &optional whostate timeout)
-  (process-wait whostate timeout lock)
-  (setf (lock-owner lock) (current-process)))
+(defun thread-lock (lock &optional whostate timeout)
+  (thread-wait whostate timeout lock)
+  (setf (lock-owner lock) (current-thread)))
 
-(defun process-unlock (lock)
-  (let ((self (current-process)) (owner (lock-owner lock)))
+(defun thread-unlock (lock)
+  (let ((self (current-thread)) (owner (lock-owner lock)))
     (when owner
       (unless (eq owner self)
-        (error (SYS::TEXT "~S: ~S does not own ~S") 'process-unlock self lock))
+        (error (SYS::TEXT "~S: ~S does not own ~S") 'thread-unlock self lock))
       (setf (lock-owner lock) nil))))
 
 (defmacro with-lock ((lock) &body body)
   "Execute BODY with LOCK locked."
   (let ((lk (gensym "WL-")))
     `(let ((,lk ,lock))
-      (unwind-protect (progn (process-lock ,lk) ,@body)
-        (process-unlock ,lk)))))
+      (unwind-protect (progn (thread-lock ,lk) ,@body)
+        (thread-unlock ,lk)))))
