@@ -1,6 +1,8 @@
 2008-01-12  Sam Steingold  <sds@gnu.org>
 
 	* xthread.d: disable spin locks (gcc barfs)
+	* constsym.d, subr.d, subrkw.d, threads.lisp, zthread.d:
+	rename thread functions from PROCESS to THREAD
 
 2008-01-10  Sam Steingold  <sds@gnu.org>
 
