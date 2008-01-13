@@ -2282,13 +2282,13 @@ echotab 'if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile depf
 if [ $CC_CPLUSPLUS = true ]; then
   # cannot compile gnulib/regex with c++
   # http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
-  echotab '$(MAKE) -C $@ CC=gcc CFLAGS="$(SUBDIR_CFLAGS)"'
+  echotab 'cd $@ && $(MAKE) CC=gcc CFLAGS="$(SUBDIR_CFLAGS)"'
 else
-  echotab '$(MAKE) -C $@ CFLAGS="$(SUBDIR_CFLAGS)"'
+  echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 fi
 echol
 echol "${GLLIB_O}: gllib"
-echotab '$(MAKE) -C gllib CFLAGS="$(SUBDIR_CFLAGS)"'
+echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 
 # developer targets
