@@ -1,5 +1,10 @@
 2008-01-12  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: use add traling #\/ to gllib in "find" so that
+	gllib can be a symlink
+
+2008-01-12  Sam Steingold  <sds@gnu.org>
+
 	* xthread.d: disable spin locks (gcc barfs)
 	* constsym.d, subr.d, subrkw.d, threads.lisp, zthread.d:
 	rename thread functions from PROCESS to THREAD
