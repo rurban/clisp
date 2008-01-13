@@ -240,7 +240,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
   }
 #endif
-  else if (as_oint(obj) & wbit(frame_bit_o)) {
+  else if (framepointerp(obj)) {
     fputs("#<frame ",out);
     switch (framecode(obj)) {
       case DYNBIND_frame_info: fputs("DYNBIND",out); break;
@@ -271,7 +271,8 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       case DRIVER_frame_info: fputs("DRIVER",out); break;
       default: fputs("**UNKNOWN**",out);
     }
-    fprintf(out," 0x%lx>",as_oint(obj));
+    fprintf(out," %d>",STACK_item_count(uTheFramepointer(obj),
+                                        (gcv_object_t*)STACK_start));
   } else if (builtin_stream_p(obj)) {
     fprintf(out,"#<built-in-stream type=%d flags=%d len=%d xlen=%d slen=%d",
             TheStream(obj)->strmtype,TheStream(obj)->strmflags,
@@ -319,7 +320,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
 
 /* non-consing, STACK non-modifying */
 global object nobject_out (FILE* out, object obj) {
-  var local int level = 5; /* for debugging */
+  local int level = 5; /* for debugging */
   begin_system_call();
   if (out == NULL) out = stdout;
   nobject_out1(out,obj,level);

@@ -9457,6 +9457,7 @@ nonreturning_function(extern, SP_ueber, (void));
   #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
 #endif
 extern per_thread void* STACK_bound;
+extern per_thread void* STACK_start;
 nonreturning_function(extern, STACK_ueber, (void));
 %% #if notused
 %% export_def(check_STACK());

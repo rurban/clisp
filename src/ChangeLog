@@ -1,5 +1,16 @@
 2008-01-13  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (STACK_start): declare new per_thread
+	* spvw.d (STACK_start): create and ...
+	(init_memory): init to the initial value of STACK
+	* spvw_debug.d (nobject_out1): use STACK_start to print
+	framepointers and framepointerp to check for them
+	* io.d (pr_framepointer_1): new function: print frame offset from
+	STACK_start instead of its address
+	(pr_framepointer): use it instead of pr_hex6
+
+2008-01-13  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (per_thread): per-thread storage class
 	* spvw.d, lispbibl.d (STACK, callback_saved_registers)
 	(saved_mv_count, saved_value1, saved_back_trace, saved_STACK)
