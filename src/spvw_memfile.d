@@ -997,7 +997,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         begin_system_call();
         if ( lseek(handle,-(off_t)sizeof(header),SEEK_CUR) <0)
           ABORT_SYS;               /* in file, back to the start */
-        if (pipe(handles) != 0) ABORT_SYS;
+        if (pipe(handles) != 0)
+          ABORT_SYS;
         if ((child = vfork()) ==0) {
           if ( dup2(handles[1],stdout_handle) >=0)
             if ( CLOSE(handles[1]) ==0)
@@ -1016,8 +1017,10 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         if (child==-1) {
           CLOSE(handles[1]); CLOSE(handles[0]); ABORT_SYS;
         }
-        if (CLOSE(handles[1]) !=0) ABORT_SYS;
-        if (CLOSE(handle) != 0) ABORT_SYS;
+        if (CLOSE(handles[1]) !=0)
+          ABORT_SYS;
+        if (CLOSE(handle) != 0)
+          ABORT_SYS;
         end_system_call();
        #if ((defined(SPVW_PURE_BLOCKS) && defined(SINGLEMAP_MEMORY)) || (defined(SPVW_MIXED_BLOCKS_STAGGERED) && defined(TRIVIALMAP_MEMORY))) && defined(HAVE_MMAP)
         use_mmap = false; /* mmap can not be done with a pipe! */
@@ -1128,7 +1131,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     begin_system_call();
     offset_subrs = MALLOC(offset_subrs_count,offset_subrs_t);
     end_system_call();
-    if (offset_subrs==NULL) ABORT_MEM;
+    if (offset_subrs==NULL)
+      ABORT_MEM;
     /* read module names and compare with the existing modules: */
     var DYNAMIC_ARRAY(old_modules,module_t*,1+header._module_count);
     {
@@ -1309,7 +1313,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       begin_system_call();
       offset_pages = MALLOC(offset_pages_len,offset_pages_t);
       end_system_call();
-      if (offset_pages==NULL) ABORT_MEM;
+      if (offset_pages==NULL)
+        ABORT_MEM;
       {
         var uintL pagenr;
         for (pagenr=0; pagenr<offset_pages_len; pagenr++) {
@@ -1337,14 +1342,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               var uintM size2 = size1 + sizeof_NODE + (varobject_alignment-1);
               var aint addr = (aint)mymalloc(size2);
               var Pages page;
-              if ((void*)addr == NULL) ABORT_MEM;
+              if ((void*)addr == NULL)
+                ABORT_MEM;
              #if !defined(AVL_SEPARATE)
               page = (Pages)addr;
              #else
               begin_system_call();
               page = (NODE*)malloc(sizeof(NODE));
               end_system_call();
-              if (page == NULL) ABORT_MEM;
+              if (page == NULL)
+                ABORT_MEM;
              #endif
               /* get page from operating system. */
               page->m_start = addr; page->m_length = size2;
@@ -1398,7 +1405,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         var uintM map_len = round_up(misaligned+len,map_pagesize);
         heapptr->heap_limit = (heapptr->heap_start-misaligned) + map_len;
         if (map_len > 0) {
-          if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1) ABORT_MEM;
+          if (heapptr->heap_limit-1 > heapptr->heap_hardlimit-1)
+            ABORT_MEM;
          #if defined(HAVE_MMAP)
           /* if possible, we put the initialization file into memory.
              This should accelerate the start and delay unnecessary
@@ -1465,7 +1473,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef TRIVIALMAP_MEMORY
       var uintM map_len = round_up(len+varobjects_misaligned,map_pagesize);
       mem.varobjects.heap_limit = (mem.varobjects.heap_start-varobjects_misaligned) + map_len;
-      if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0) ABORT_MEM;
+      if (zeromap((void*)(mem.varobjects.heap_start-varobjects_misaligned),map_len) <0)
+        ABORT_MEM;
      #endif
       READ(mem.varobjects.heap_start,len);
     }
@@ -1474,7 +1483,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
      #ifdef TRIVIALMAP_MEMORY
       var uintM map_len = round_up(len,map_pagesize);
       mem.conses.heap_limit = mem.conses.heap_end - map_len;
-      if (zeromap((void*)mem.conses.heap_limit,map_len) <0) ABORT_MEM;
+      if (zeromap((void*)mem.conses.heap_limit,map_len) <0)
+        ABORT_MEM;
      #endif
       READ(mem.conses.heap_start,len);
     }
@@ -1631,7 +1641,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       }
     }
     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-    if (mem.varobjects.heap_end > mem.conses.heap_start) ABORT_MEM;
+    if (mem.varobjects.heap_end > mem.conses.heap_start)
+      ABORT_MEM;
     #endif
     /* now wee need the SIGSEGV-handler. */
     install_segv_handler();
@@ -1665,7 +1676,8 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       begin_system_call();
       markwatchset = (markwatch_t*)malloc(markwatchset_allocated*sizeof(markwatch_t));
       end_system_call();
-      if (markwatchset==NULL) ABORT_MEM;
+      if (markwatchset==NULL)
+        ABORT_MEM;
     }
   }
   /* Delete cache of standard file streams. */
