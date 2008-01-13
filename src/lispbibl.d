@@ -1,6 +1,6 @@
 /*
  * Main include-file for CLISP
- * Bruno Haible 1990-2007
+ * Bruno Haible 1990-2008
  * Marcus Daniels 11.11.1994
  * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2001-09-24
@@ -2233,6 +2233,13 @@ typedef enum {
 #endif
 # When changed: do nothing
 
+# Whether the operating system allocates memory (via mmap or malloc) at
+# randomized locations.
+#if defined(UNIX_OPENBSD)
+  #define ADDRESS_RANGE_RANDOMIZED
+#endif
+# When changed: do nothing
+
 # Whether the operating system is capable of sending interruptions
 # (Ctrl-C and others) as signal:
 #if defined(UNIX)
@@ -2627,7 +2634,11 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
     # is used that distributes virtual addresses over the entire address
     # space from 0x00000000 to 0xBFFFFFFF (as a function of its access
     # permissions); here we use LINUX_NOEXEC_HEAPCODES.
-    #if defined(I80386) && defined(UNIX_LINUX)
+    # On OpenBSD 3.8 or newer, starting in 2005, the addresses of mmap and
+    # malloc results (and hence also of shared libraries) are randomized;
+    # only the code address is fixed around 0x1C000000 and the stack address
+    # is around 0xCF000000. In this case, we also use LINUX_NOEXEC_HEAPCODES.
+    #if (defined(I80386) && defined(UNIX_LINUX)) || (defined(I80386) && defined(UNIX_OPENBSD) && defined(ADDRESS_RANGE_RANDOMIZED))
       #define LINUX_NOEXEC_HEAPCODES
     #else
       #define STANDARD_HEAPCODES
@@ -3010,11 +3021,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define MAP_MEMORY
 #endif
 
-#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX)) && !defined(NO_TRIVIALMAP)
+#if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MAP_MEMORY) && !(defined(UNIX_HPUX) || defined(UNIX_AIX) || defined(ADDRESS_RANGE_RANDOMIZED)) && !defined(NO_TRIVIALMAP)
   # mmap() allows for a more flexible way of memory management than malloc().
   # It's not really memory-mapping, but a more comfortable way to
   # manage two large memory blocks.
-  # But is doesn't work on HP-UX 9 and AIX.
+  # But it doesn't work on HP-UX 9 and AIX.
+  # Also it does not work reliably when address space layout randomization
+  # is in effect: TRIVIALMAP_MEMORY assumes that one can increase existing a
+  # memory region by mmapping the pages after it; but this might overwrite
+  # some small malloc regions that have been put there by the system.
   #define TRIVIALMAP_MEMORY
 #endif
 
