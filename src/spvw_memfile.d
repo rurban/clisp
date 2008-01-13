@@ -1052,6 +1052,20 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if (header._heapcount != heapcount) ABORT_INI;
    #endif
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
+    /* Determine if there is enough memory.
+       It's sufficient if and only if
+           required room <= available room
+       <==>
+           header._mem_conses_end - header._mem_conses_start
+           + header._mem_varobjects_end - header._mem_varobjects_start
+           <= mem.conses.heap_end - mem.varobjects.heap_start
+       Note that the left-hand side is the sum of two nonnegative values
+       and does not overflow (since the memory image fit into the address
+       range before it was saved). */
+    if ((header._mem_conses_end - header._mem_conses_start)
+        + (header._mem_varobjects_end - header._mem_varobjects_start)
+        > mem.conses.heap_end - mem.varobjects.heap_start)
+      ABORT_MEM;
     { /* calculate offsets (offset = new address - old address): */
       var sintM offset_varobjects = /* offset for objects of variable length */
         mem.varobjects.heap_start - header._mem_varobjects_start;
@@ -1060,19 +1074,35 @@ local void loadmem_from_handle (Handle handle, const char* filename)
       /* calculate new memory partitioning: */
       mem.varobjects.heap_end = header._mem_varobjects_end + offset_varobjects;
       mem.conses.heap_start = header._mem_conses_start + offset_conses;
-      /* determine, if there is enough memory:
-         it suffices exactly, if
-         required room <= available room  <==>
-         header._mem_conses_end-header._mem_conses_start
-         + header._mem_varobjects_end-header._mem_varobjects_start
-         <= mem.conses.heap_end - mem.varobjects.heap_start  <==>
-         header._mem_varobjects_end
-         + mem.varobjects.heap_start-header._mem_varobjects_start
-         <= header._mem_conses_start
-         + mem.conses.heap_end-header._mem_conses_end  <==>
-         mem.varobjects.heap_end <= mem.conses.heap_start */
-      if ((saint)(mem.varobjects.heap_end) > (saint)(mem.conses.heap_start))
-        ABORT_MEM;
+      /* Note that these don't overflow nor get negative, because of the
+         inequality that was already checked above:
+
+             header._mem_varobjects_start <= header._mem_varobjects_end
+         <==>
+             mem.varobjects.heap_start <= mem.varobjects.heap_end
+
+             header._mem_varobjects_end - header._mem_varobjects_start
+             <= mem.conses.heap_end - mem.varobjects.heap_start
+         <==> 
+             mem.varobjects.heap_end <= mem.conses.heap_end
+
+             header._mem_conses_end - header._mem_conses_start
+             <= mem.conses.heap_end - mem.varobjects.heap_start
+         <==>
+             mem.varobjects.heap_start <= mem.conses.heap_start
+
+             header._mem_conses_start <= header._mem_conses_end
+         <==>
+             mem.conses.heap_start <= mem.conses.heap_end
+
+         Note that the varobjects and conses won't overlap, since,
+         considerung the full strength of the inequality:
+             header._mem_conses_end - header._mem_conses_start
+             + header._mem_varobjects_end - header._mem_varobjects_start
+             <= mem.conses.heap_end - mem.varobjects.heap_start
+         <==>
+             mem.varobjects.heap_end <= mem.conses.heap_start
+       */
       /* prepare update: */
       offset_varobjects_o = (oint)offset_varobjects << (oint_addr_shift-addr_shift);
       offset_conses_o = (oint)offset_conses << (oint_addr_shift-addr_shift);
