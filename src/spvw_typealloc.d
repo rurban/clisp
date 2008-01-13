@@ -1,8 +1,8 @@
-/* Allocator functions for the various types. */
+/* Allocator functions for the various types.
 
-/* -------------------------- Specification ---------------------------- */
+ -------------------------- Specification ----------------------------
 
-/* All these are declared in lispbibl.d. */
+ All these are declared in lispbibl.d. */
 global maygc object allocate_cons (void);
 global maygc object make_symbol (object string);
 global maygc object allocate_vector (uintL len);
@@ -37,6 +37,11 @@ global maygc object allocate_dfloat (uint32 semhi, uint32 mlo);
 global maygc object allocate_lfloat (uintC len, uintL expo, signean sign);
 global maygc object make_ratio (object num, object den);
 global maygc object make_complex (object real, object imag);
+#ifdef MULTITHREAD
+global maygc object allocate_thread (gcv_object_t *name_);
+global maygc object allocate_mutex (gcv_object_t *name_);
+global maygc object allocate_exemption (gcv_object_t *name_);
+#endif
 
 /* -------------------------- Implementation --------------------------- */
 
@@ -636,3 +641,50 @@ global maygc object make_complex (object real, object imag) {
  #endif  /* SPVW_MIXED */
   #undef FILL
 }
+
+#ifdef MULTITHREAD
+/* allocate a thread object
+ allocate_thread()
+ > name : thread name (usually a symbol)
+ < result : new thread object (not started)
+ can trigger GC */
+global maygc object allocate_thread (gcv_object_t *name_) {
+  var object result = allocate_xrecord(0,Rectype_Thread,thread_length,
+                                       thread_xlength,orecord_type);
+  TheThread(result)->xth_name = *name_;
+  TheThread(result)->xth_system = xthread_self();
+  /* TheThread(result)->xth_next = O(threads);
+   * O(threads) = result; */
+  return result;
+}
+
+/* allocate a mutex object
+ allocate_mutex()
+ > name : mutex name (usually a symbol)
+ < result : new mutex object (initialized)
+ can trigger GC */
+global maygc object allocate_mutex (gcv_object_t *name_) {
+  var object result = allocate_xrecord(0,Rectype_Mutex,mutex_length,
+                                       mutex_xlength,orecord_type);
+  TheMutex(result)->xmu_name = *name_;
+  begin_system_call();
+  xmutex_init(&(TheMutex(result)->xmu_system));
+  end_system_call();
+  return result;
+}
+
+/* allocate an exemption object
+ allocate_exemption()
+ > name : exemption name (usually a symbol)
+ < result : new exemption object (initialized)
+ can trigger GC */
+global maygc object allocate_exemption (gcv_object_t *name_) {
+  var object result = allocate_xrecord(0,Rectype_Exemption,exemption_length,
+                                       exemption_xlength,orecord_type);
+  TheExemption(result)->xco_name = *name_;
+  begin_system_call();
+  xcondition_init(&(TheExemption(result)->xco_system));
+  end_system_call();
+  return result;
+}
+#endif

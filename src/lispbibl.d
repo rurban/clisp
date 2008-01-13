@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2007
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
@@ -4907,6 +4907,16 @@ enum {
 %% printf("#define Rectype_WeakHashedAlist_Either %d\n",Rectype_WeakHashedAlist_Either);
   Rectype_WeakHashedAlist_Both,
 %% printf("#define Rectype_WeakHashedAlist_Both %d\n",Rectype_WeakHashedAlist_Both);
+#ifdef MULTITHREAD
+%% #ifdef MULTITHREAD
+  Rectype_Thread,
+%%  printf("#define Rectype_Thread %d\n",Rectype_Thread);
+  Rectype_Mutex,
+%%  printf("#define Rectype_Mutex %d\n",Rectype_Mutex);
+  Rectype_Exemption,
+%%  printf("#define Rectype_Exemption %d\n",Rectype_Exemption);
+%% #endif
+#endif
   rectype_for_broken_compilers_that_dont_like_trailing_commas
 };
 
@@ -6852,6 +6862,39 @@ typedef enum {
 #endif
 %% export_def(make_machine(ptr));
 
+#ifdef MULTITHREAD
+
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t xth_name _attribute_aligned_object_; /* name */
+  gcv_object_t xth_next _attribute_aligned_object_; /* next thread */
+  gcv_object_t xth_prev _attribute_aligned_object_; /* previous thread */
+  gcv_object_t *xth_tlvs;              /* thread-local values */
+  gcv_object_t *xth_stack;             /* the thread stack */
+  struct backtrace_t *xth_bt;          /* the backtrace */
+  xthread_t xth_system;                /* OS object */
+} * Thread;
+#define thread_length  2
+#define thread_xlength (sizeof(*(Thread)0)-offsetofa(record_,recdata)-thread_length*sizeof(gcv_object_t))
+
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t xmu_name _attribute_aligned_object_; /* name */
+  xmutex_t xmu_system;                              /* OS object */
+} * Mutex;
+#define mutex_length  1
+#define mutex_xlength (sizeof(*(Mutex)0)-offsetofa(record_,recdata)-mutex_length*sizeof(gcv_object_t))
+
+typedef struct {
+  XRECORD_HEADER
+  gcv_object_t xco_name _attribute_aligned_object_; /* name */
+  xcondition_t xco_system;                          /* OS object */
+} * Exemption;
+#define exemption_length  1
+#define exemption_xlength (sizeof(*(Exemption)0)-offsetofa(record_,recdata)-exemption_length*sizeof(gcv_object_t))
+
+#endif
+
 # Pointer to machine code
 # make_machine_code(ptr)
 #if defined(TYPECODES) || (log2_C_CODE_ALIGNMENT >= 2)
@@ -7074,6 +7117,11 @@ typedef enum {
       |ratio_type|complex_type|bit(sign_bit_t),                         \
       obj                                                               \
     ))
+ #ifdef MULTITHREAD
+  #define TheThread(obj)  ((Thread)(ngci_types_pointable(orecord_type,obj)))
+  #define TheMutex(obj)   ((Mutex)(ngci_types_pointable(orecord_type,obj)))
+  #define TheExemption(obj) ((Exemption)(ngci_types_pointable(orecord_type,obj)))
+ #endif
 #else # no TYPECODES
   #define TheCons(obj)  ((Cons)(ngci_pointable(obj)-cons_bias))
   #define TheRatio(obj)  ((Ratio)(ngci_pointable(obj)-varobject_bias))
@@ -7170,6 +7218,11 @@ typedef enum {
   #define TheVarobject(obj)  ((Varobject)(ngci_pointable(obj)-varobject_bias))
   # Object, represents a pointer into the memory:
   #define ThePointer(obj)  ((void*)(pgci_pointable(obj) & ~(aint)nonimmediate_bias_mask))
+ #ifdef MULTITHREAD
+  #define TheThread(obj)    ((Thread)(ngci_pointable(obj)-varobject_bias))
+  #define TheMutex(obj)     ((Mutex)(ngci_pointable(obj)-varobject_bias))
+  #define TheExemption(obj) ((Exemption)(ngci_pointable(obj)-varobject_bias))
+ #endif
 #endif
 #define TheClassVersion(obj)  ((ClassVersion)TheSvector(obj))
 #define TheSlotDefinition(obj)  ((SlotDefinition)TheInstance(obj))
@@ -10250,6 +10303,32 @@ extern maygc object make_ratio (object num, object den);
 # can trigger GC
 extern maygc object make_complex (object real, object imag);
 # is used by LISPARIT
+
+#ifdef MULTITHREAD
+/* allocate a thread object
+ allocate_thread()
+ > *name_ : thread name (usually a symbol)
+ < result : new thread object (not started)
+ can trigger GC */
+global maygc object allocate_thread (gcv_object_t *name_);
+/* used by ZTHREAD */
+
+/* allocate a mutex object
+ allocate_mutex()
+ > *name_ : mutex name (usually a symbol)
+ < result : new mutex object (initialized)
+ can trigger GC */
+global maygc object allocate_mutex (gcv_object_t *name_);
+/* used by ZTHREAD */
+
+/* allocate an exemption object
+ allocate_exemption()
+ > *name_ : exemption name (usually a symbol)
+ < result : new exemption object (initialized)
+ can trigger GC */
+global maygc object allocate_exemption (gcv_object_t *name_);
+/* used by ZTHREAD */
+#endif
 
 /* Adds a freshly allocated object to the list of weak pointers.
  activate_weak(obj);
