@@ -295,6 +295,7 @@ global per_thread struct registers * callback_saved_registers = NULL;
 global per_thread void* SP_bound;          /* SP-growth-limit */
 #endif
 global per_thread void* STACK_bound;       /* STACK-growth-limit */
+global per_thread void* STACK_start;       /* STACK initial value */
 
 /* the lexical environment: */
 global per_thread gcv_environment_t aktenv;
@@ -2797,6 +2798,7 @@ local inline int init_memory (struct argv_initparams *p) {
       setSTACK(STACK = (gcv_object_t*)low); /* initialize STACK */
       STACK_bound = (gcv_object_t*)high - 0x40; /* 64 pointers additionally safety margin */
       #endif
+      STACK_start = STACK;
     }
     #undef teile_STACK
     #define teile_STACK 0       /* need no more room for the STACK */
@@ -2867,6 +2869,7 @@ local inline int init_memory (struct argv_initparams *p) {
           ptr += for_STACK = teile_STACK*teil; /* 2/16 for Lisp-stack */
           STACK_bound = (gcv_object_t*)ptr - 0x40; /* 64 pointer safety margin */
         #endif
+          STACK_start = STACK;
         #endif
         #if defined(SPVW_MIXED_BLOCKS_OPPOSITE) && !defined(TRIVIALMAP_MEMORY)
         /* now, the lisp-objects start: */
