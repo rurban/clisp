@@ -2833,7 +2833,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 fi
 
 for f in localcharset.h ${UNICODE_EXTRA}; do
-  link_dep "${f}" `find ${SRCDIR}gllib -name ${f}`
+  link_dep "${f}" `find ${SRCDIR}gllib/ -name ${f}`
 done
 
 if [ $TOS = win32 ] ; then
