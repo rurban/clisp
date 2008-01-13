@@ -1,7 +1,7 @@
 /*
  * list of all objects known to the C-program ("program-constants")
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-02-20
 
  The symbols are already treated specially in CONSTSYM.
@@ -639,6 +639,11 @@
     LISPOBJ_S(printstring_strmtype_twoway_socket,"SOCKET")
     #endif
   LISPOBJ_S(printstring_stream,"-STREAM")
+#ifdef MULTITHREAD
+  LISPOBJ_S(printstring_thread,"THREAD")
+  LISPOBJ_S(printstring_mutex,"MUTEX")
+  LISPOBJ_S(printstring_exemption,"EXEMPTION")
+#endif
 /* for LISPARIT.D:
    various constant numbers: */
   #ifndef IMMEDIATE_FFLOAT

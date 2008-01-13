@@ -3,6 +3,18 @@
 	* xthread.d: disable spin locks (gcc barfs)
 	* constsym.d, subr.d, subrkw.d, threads.lisp, zthread.d:
 	rename thread functions from PROCESS to THREAD
+	* lispbibl.d (Rectype_Thread, Rectype_Mutex, Rectype_Exemption)
+	[MULTITHREAD]: add Rectypes
+	(Thread, Mutex, Exemption) [MULTITHREAD]: add types
+	(TheThread, TheMutex, TheExemption) [MULTITHREAD]: add macros
+	(allocate_thread, allocate_mutex, allocate_exemption)
+	[MULTITHREAD]: add declarations
+	* spvw_typealloc.d (allocate_thread, allocate_mutex)
+	(allocate_exemption) [MULTITHREAD]: add
+	* io.d (pr_orecord) [MULTITHREAD]: handle Rectype_Thread,
+	Rectype_Mutex, and Rectype_Exemption
+	* constobj.d (printstring_thread, printstring_mutex)
+	(printstring_exemption) [MULTITHREAD]: add strings
 
 2008-01-10  Sam Steingold  <sds@gnu.org>
 
