@@ -1,3 +1,7 @@
+2008-01-12  Sam Steingold  <sds@gnu.org>
+
+	* xthread.d: disable spin locks (gcc barfs)
+
 2008-01-10  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (frame-up-down): add
