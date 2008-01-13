@@ -1,9 +1,9 @@
 /*
  * Cross-platform thread support
  * Bruno Haible 1997-1999
- */
+ * Sam Steingold 2001-2008
 
-/* =============================================================================
+ =============================================================================
  This part is heavily influenced by the file <X11/Xthreads.h> from X11R6,
  which carries the following copyright:
  -----------------------------------------------------------------------------
@@ -44,51 +44,51 @@
    xmutex_t          Type of a mutex (mutually exclusive lock)
    xthread_key_t     Type of a key for accessing (limited) thread-local storage
  and the following functions/macros:
- # Threads in general:
-   # Initialization of the thread subsystem.
+ - Threads in general:
+   - Initialization of the thread subsystem.
    extern void           xthread_init (void);
-   # Return the current thread.
+   - Return the current thread.
    extern xthread_t      xthread_self (void);
-   # Create a new thread.
+   - Create a new thread.
    extern int            xthread_create (xthread_t* thread, void* (*startroutine) (void*), void* arg);
-   # Terminate the current thread.
+   - Terminate the current thread.
    extern void           xthread_exit (void* retvalue);
-   # Give other threads a chance to run.
+   - Give other threads a chance to run.
    extern void           xthread_yield (void);
-   # Compare two threads for identity.
+   - Compare two threads for identity.
    extern bool        xthread_equal (xthread_t thread1, xthread_t thread2);
- # Conditions:
-   # Initialize a wait queue.
+ - Conditions:
+   - Initialize a wait queue.
    extern int            xcondition_init (xcondition_t* c);
-   # Destroy a wait queue. The wait queue must be empty (noone waiting).
+   - Destroy a wait queue. The wait queue must be empty (noone waiting).
    extern int            xcondition_destroy (xcondition_t* c);
-   # Release a mutex and put the current thread into the wait queue.
-   # When the wait ends, the mutex is acquired again.
+   - Release a mutex and put the current thread into the wait queue.
+   - When the wait ends, the mutex is acquired again.
    extern int            xcondition_wait (xcondition_t* c, xmutex_t* m);
-   # Notify and unblock one thread in the wait queue.
+   - Notify and unblock one thread in the wait queue.
    extern int            xcondition_signal (xcondition_t* c);
-   # Notify and unblock all threads in the wait queue.
+   - Notify and unblock all threads in the wait queue.
    extern int            xcondition_broadcast (xcondition_t* c);
- # Mutexes:
-   # Initialize a mutex.
+ - Mutexes:
+   - Initialize a mutex.
    extern int            xmutex_init (xmutex_t* m);
-   # Destroy a mutex.
+   - Destroy a mutex.
    extern int            xmutex_destroy (xmutex_t* m);
-   # Lock a mutex.
+   - Lock a mutex.
    extern int            xmutex_lock (xmutex_t* m);
-   # Unlock a mutex.
+   - Unlock a mutex.
    extern int            xmutex_unlock (xmutex_t* m);
- # Thread-local storage:
-   # (This is probably not useful at all. The number of thread-local storage
-   # words is limited: 512 on Win32, 128 with LinuxThreads. And it's probably
-   # much slower than my current_thread() function.)
-   # Create a word of thread-local storage, and return a key to it.
+ - Thread-local storage:
+   - (This is probably not useful at all. The number of thread-local storage
+   - words is limited: 512 on Win32, 128 with LinuxThreads. And it's probably
+   - much slower than my current_thread() function.)
+   - Create a word of thread-local storage, and return a key to it.
    extern int            xthread_key_create (xthread_key_t* key);
-   # Delete a word of thread-local storage.
+   - Delete a word of thread-local storage.
    extern int            xthread_key_delete (xthread_key_t key);
-   # Get the value of the thread-local storage word for the current thread.
+   - Get the value of the thread-local storage word for the current thread.
    extern void*          xthread_key_get (xthread_key_t key);
-   # Set the value of the thread-local storage word for the current thread.
+   - Set the value of the thread-local storage word for the current thread.
    extern void           xthread_key_set (xthread_key_t key, void* value);
 */
 
@@ -301,6 +301,7 @@ typedef DWORD              xthread_key_t;
 
 #endif  /* WIN32_THREADS */
 
+#ifdef FOR_SOME_REASON_WE_ALSO_WANT_SPIN_LOCKS_WHICH_CAUSE_GCC_TO_BARF
 
 /* ==========================================================================
 
@@ -469,3 +470,4 @@ typedef DWORD              xthread_key_t;
 
 
 /* ====================================================================== */
+#endif  /* FOR_SOME_REASON_WE_ALSO_WANT_SPIN_LOCKS_WHICH_CAUSE_GCC_TO_BARF */
