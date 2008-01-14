@@ -1,3 +1,11 @@
+2008-01-14  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1871205 ]: how to quit upon SIGTERM, SIGKILL, or SIGQUIT
+	* spvw_sigterm.d (quit_on_signal_in_progress): new static boolean
+	(uninstall_sigterm_handler): undo the effects of install_sigterm_handler
+	(quit_on_signal): call uninstall_sigterm_handler first thing so
+	that the repeated signals bypass the handler and kill CLISP instantly
+
 2008-01-13  Bruno Haible  <bruno@clisp.org>
 
 	Make it work on OpenBSD 4.0 x86 with address space randomization.

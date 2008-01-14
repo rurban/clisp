@@ -36,6 +36,8 @@ User visible changes
     CLISP no longer goes into an infinite recursion trying to print
     various help messages. [ 1865636 ]
   + Fix the "Quit" debugger command. [ 1448744 ]
+  + Repeated terminating signals kill CLISP instantly with the correct
+    exit code. [ 1871205 ]
 
 
 2.43 (2007-11-18)
