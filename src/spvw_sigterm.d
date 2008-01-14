@@ -38,9 +38,9 @@ local void uninstall_sigterm_handler (void) {
 local bool quit_on_signal_in_progress = false;
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
-  /* next signal will bypass this function and kill CLISP instantly: */
-  uninstall_sigterm_handler();
   if (quit_on_signal_in_progress) { /* quit without much ado */
+    /* next signal will bypass this function and kill CLISP instantly: */
+    uninstall_sigterm_handler();
     fprintf(stderr,GETTEXT("Signal %d while exiting on a signal; cleanup may be incomplete\n"),sig);
     raise(sig);    /* kill CLISP instantly with the correct exit code */
   } else quit_on_signal_in_progress = true;
