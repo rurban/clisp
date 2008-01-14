@@ -10,8 +10,40 @@ local void install_sigterm_handler (void);
 /* --------------------------- Implementation ---------------------------- */
 
 #if defined(HAVE_SIGNALS)
+
+local void uninstall_sigterm_handler (void) {
+  begin_system_call();
+#ifdef SIGHUP
+  SIGNAL(SIGHUP,SIG_DFL);
+#endif
+#ifdef SIGQUIT
+  SIGNAL(SIGQUIT,SIG_DFL);
+#endif
+#ifdef SIGILL
+  SIGNAL(SIGILL,SIG_DFL);
+#endif
+#ifdef SIGABRT
+  SIGNAL(SIGABRT,SIG_DFL);
+#endif
+#ifdef SIGKILL
+  SIGNAL(SIGKILL,SIG_DFL);
+#endif
+#ifdef SIGTERM
+  SIGNAL(SIGTERM,SIG_DFL);
+#endif
+  end_system_call();
+}
+
+
+local bool quit_on_signal_in_progress = false;
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
+  /* next signal will bypass this function and kill CLISP instantly: */
+  uninstall_sigterm_handler();
+  if (quit_on_signal_in_progress) { /* quit without much ado */
+    fprintf(stderr,GETTEXT("Signal %d while exiting on a signal; cleanup may be incomplete\n"),sig);
+    raise(sig);    /* kill CLISP instantly with the correct exit code */
+  } else quit_on_signal_in_progress = true;
   pushSTACK(Symbol_value(S(error_output))); fresh_line(&STACK_0);
   pushSTACK(CLSTEXT("Exiting on signal ")); pushSTACK(STACK_1);
   funcall(L(write_string),2);   /* (write-line "exiting" stderr) */
