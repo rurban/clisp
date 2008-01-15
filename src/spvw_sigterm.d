@@ -11,26 +11,32 @@ local void install_sigterm_handler (void);
 
 #if defined(HAVE_SIGNALS)
 
-local void uninstall_sigterm_handler (void) {
-  begin_system_call();
+local void set_sigterm_handler (signal_handler_t handler) {
+  /* Iterate over those signals whose default action exits. */
 #ifdef SIGHUP
-  SIGNAL(SIGHUP,SIG_DFL);
+  /* maybe ignore? No, use nohup instead */
+  SIGNAL(SIGHUP,handler);
 #endif
 #ifdef SIGQUIT
-  SIGNAL(SIGQUIT,SIG_DFL);
+  SIGNAL(SIGQUIT,handler);
 #endif
 #ifdef SIGILL
-  SIGNAL(SIGILL,SIG_DFL);
+  SIGNAL(SIGILL,handler);
 #endif
 #ifdef SIGABRT
-  SIGNAL(SIGABRT,SIG_DFL);
+  SIGNAL(SIGABRT,handler);
 #endif
 #ifdef SIGKILL
-  SIGNAL(SIGKILL,SIG_DFL);
+  SIGNAL(SIGKILL,handler);
 #endif
 #ifdef SIGTERM
-  SIGNAL(SIGTERM,SIG_DFL);
+  SIGNAL(SIGTERM,handler);
 #endif
+}
+
+local void uninstall_sigterm_handler (void) {
+  begin_system_call();
+  set_sigterm_handler(SIG_DFL);
   end_system_call();
 }
 
@@ -57,25 +63,7 @@ local void quit_on_signal (int sig) {
 
 /* install error handlers for as many signals as possible */
 local void install_sigterm_handler (void) {
-#ifdef SIGHUP
-  /* maybe ignore? No, use nohup instead */
-  SIGNAL(SIGHUP,&quit_on_signal);
-#endif
-#ifdef SIGQUIT
-  SIGNAL(SIGQUIT,&quit_on_signal);
-#endif
-#ifdef SIGILL
-  SIGNAL(SIGILL,&quit_on_signal);
-#endif
-#ifdef SIGABRT
-  SIGNAL(SIGABRT,&quit_on_signal);
-#endif
-#ifdef SIGKILL
-  SIGNAL(SIGKILL,&quit_on_signal);
-#endif
-#ifdef SIGTERM
-  SIGNAL(SIGTERM,&quit_on_signal);
-#endif
+  set_sigterm_handler(&quit_on_signal);
 #ifdef SIGTTOU
   /* we must ignore SIGTTOU to avoid the following issue:
       - when CLISP is running in the background,
