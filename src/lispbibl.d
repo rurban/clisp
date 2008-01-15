@@ -9494,7 +9494,7 @@ nonreturning_function(extern, STACK_ueber, (void));
 
 # Exit the LISP-Interpreter
 # quit();
-# > final_exitcode: 0 for a normal end, >0 for failure
+# > final_exitcode: 0 for a normal end, >0 for failure, -signum for a signal
 nonreturning_function(extern, quit, (void));
 extern int final_exitcode;
 # is used by CONTROL
