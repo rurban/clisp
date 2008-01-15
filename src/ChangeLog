@@ -1,5 +1,10 @@
 2008-01-14  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_sigterm.d (quit_on_signal): After raising the signal, return
+	from the function.
+
+2008-01-14  Bruno Haible  <bruno@clisp.org>
+
 	* Makefile.devel: Use CONFIGURES instead of CLISP_CONFIGURES. Fixes
 	problem introduced on 2008-01-05.
 
