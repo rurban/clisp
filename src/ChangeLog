@@ -1,5 +1,10 @@
 2008-01-14  Bruno Haible  <bruno@clisp.org>
 
+	* spvw_sigterm.d (set_sigterm_handler): New function.
+	(uninstall_sigterm_handler, install_sigterm_handler): Use it.
+
+2008-01-14  Bruno Haible  <bruno@clisp.org>
+
 	* spvw_sigterm.d (quit_on_signal): After raising the signal, return
 	from the function.
 
