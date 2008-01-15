@@ -61,7 +61,7 @@ src/gllib/Makefile.in : src/gllib/Makefile.am
 configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
-			$(addsuffix .in,$(CLISP_CONFIGURES))
+			$(addsuffix .in,$(CONFIGURES))
 	$(RM) configure.ac
 	cp src/configure.in configure.ac
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
@@ -75,7 +75,7 @@ AUTOCONF = autoconf
 AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
-$(CLISP_CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
+$(CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
 	cd $*; $(AUTOCONF) --include=$(CURDIR)/src
 
 $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
