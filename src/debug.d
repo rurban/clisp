@@ -875,30 +875,22 @@ local gcv_object_t* test_framepointer_arg (void)
   return uTheFramepointer(arg);
 }
 
-/* climb once, according to table
+/* climb n times or as far as possible, according to table
  > STACK_0: mode
  > STACK_1: frame pointer
+ > STACK_2: indicator, how far to climb
  < value1: new frame pointer
- removes 2 elements from STACK
- can trigger GC */
-local maygc Values climb_stack_once (const climb_fun_t* table) {
-  var climb_fun_t climber = test_mode_arg(table);
-  var gcv_object_t* stackptr = test_framepointer_arg();
-  stackptr = (*climber)(stackptr); /* climb once */
-  VALUES1(make_framepointer(stackptr));
-}
-
-/* climb as far as possible, according to table
- > STACK_0: mode
- > STACK_1: frame pointer
- < value1: new frame pointer
- removes 2 elements from STACK
+ removes 3 elements from STACK
  can trigger GC*/
-local maygc Values climb_stack_repeat (const climb_fun_t* table) {
-  var climb_fun_t climber = test_mode_arg(table);
-  var gcv_object_t* stackptr = test_framepointer_arg();
-  while (1) { /* climb as far as possible: */
-    var gcv_object_t* next_stackptr = (*climber)(stackptr);
+local maygc Values climb_stack (const climb_fun_t* table) {
+  climb_fun_t climber = test_mode_arg(table);
+  gcv_object_t* stackptr = test_framepointer_arg();
+  object repeat_arg = popSTACK();
+  if (uint32_p(repeat_arg)) {
+    uint32 count = I_to_uint32(repeat_arg);
+    while (count--) stackptr = (*climber)(stackptr);
+  } else while (1) { /* climb as far as possible: */
+    gcv_object_t* next_stackptr = (*climber)(stackptr);
     if (next_stackptr == stackptr)
       break;
     stackptr = next_stackptr;
@@ -906,27 +898,16 @@ local maygc Values climb_stack_repeat (const climb_fun_t* table) {
   VALUES1(make_framepointer(stackptr));
 }
 
-LISPFUNN(frame_up_1,2)
-{ /* (SYS::FRAME-UP-1 framepointer mode)
-     returns the frame-pointer increased by 1. */
-  climb_stack_once(frame_up_table);
+LISPFUNN(frame_up,3)
+{ /* (SYS::FRAME-UP n framepointer mode)
+     returns the frame-pointer increased by n or the top one. */
+  climb_stack(frame_up_table);
 }
 
-LISPFUNN(frame_up,2)
-{ /* (SYS::FRAME-UP framepointer mode) returns the frame-pointer at the top. */
-  climb_stack_repeat(frame_up_table);
-}
-
-LISPFUNN(frame_down_1,2)
-{ /* (SYS::FRAME-DOWN-1 framepointer mode)
-     returns the frame-pointer 1 below. */
-  climb_stack_once(frame_down_table);
-}
-
-LISPFUNN(frame_down,2)
-{ /* (SYS::FRAME-DOWN framepointer mode)
-     returns the frame-pointer at the bottom. */
-  climb_stack_repeat(frame_down_table);
+LISPFUNN(frame_down,3)
+{ /* (SYS::FRAME-DOWN n framepointer mode)
+     returns the frame-pointer decreased by n or the bottom one. */
+  climb_stack(frame_down_table);
 }
 
 LISPFUNN(the_frame,0)

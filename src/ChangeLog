@@ -1,3 +1,16 @@
+2008-01-15  Sam Steingold  <sds@gnu.org>
+
+	* debug.d (climb_stack_once, climb_stack_repeat): merge into climb_stack
+	(FRAME-UP-1, FRAME-DOWN-1): remove
+	(FRAME-UP, FRAME-DOWN): accept an additional REPEAT argument
+	* reploop.lisp (frame-limit-down, frame-limit-up, debug-up)
+	(debug-top, debug-down, debug-bottom, frame-up-down):
+	use (frame-up 1 ...) instead of (frame-up-1 ...)
+	and (frame-down 1 ...) instead of (frame-down-1 ...)
+	and (frame-up t ...) instead of (frame-up ...)
+	and (frame-down t ...) instead of (frame-down ...)
+	* constsym.d, subr.d (frame_up_1, frame_down_1): remove
+
 2008-01-15  Bruno Haible  <bruno@clisp.org>
 
 	* lispbibl.d (quit): Note the meaning of a negative final_exitcode.
