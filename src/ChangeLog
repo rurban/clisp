@@ -9,6 +9,7 @@
 	and (frame-down 1 ...) instead of (frame-down-1 ...)
 	and (frame-up t ...) instead of (frame-up ...)
 	and (frame-down t ...) instead of (frame-down ...)
+	(print-backtrace): use ~:P in message
 	* constsym.d, subr.d (frame_up_1, frame_down_1): remove
 
 2008-01-15  Bruno Haible  <bruno@clisp.org>
