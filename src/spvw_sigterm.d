@@ -43,7 +43,9 @@ local void quit_on_signal (int sig) {
     uninstall_sigterm_handler();
     fprintf(stderr,GETTEXT("Signal %d while exiting on a signal; cleanup may be incomplete\n"),sig);
     raise(sig);    /* kill CLISP instantly with the correct exit code */
-  } else quit_on_signal_in_progress = true;
+    return;        /* return from signal handler if the signal is blocked */
+  }
+  quit_on_signal_in_progress = true;
   pushSTACK(Symbol_value(S(error_output))); fresh_line(&STACK_0);
   pushSTACK(CLSTEXT("Exiting on signal ")); pushSTACK(STACK_1);
   funcall(L(write_string),2);   /* (write-line "exiting" stderr) */
