@@ -1,3 +1,11 @@
+2008-01-15  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (quit): Note the meaning of a negative final_exitcode.
+	* spvw.d (quit_instantly): Likewise.
+	(main): If exitcode is negative, quit the program through a signal
+	rather than through exit().
+	* spvw_sigterm.d (quit_on_signal): Set final_exitcode.
+
 2008-01-14  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigterm.d (set_sigterm_handler): New function.

@@ -1,6 +1,6 @@
 /*
  * (SPVW = Speicherverwaltung): Memory Management for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-03-24
 
@@ -165,7 +165,7 @@ local jmp_buf original_context;
 
 /* leave LISP immediately:
  quit_instantly(exitcode);
- > exitcode: 0 for normal, 1 for abnormal end of program
+ > exitcode: 0 for normal, 1 for abnormal end of program, -signum for signal
    we must set the SP to the original value.
    (On some operating systems, the memory occupied by the program is
    returned with free() , before control is withdrawn from it.
@@ -3392,6 +3392,27 @@ global int main (argc_t argc, char* argv[]) {
   free_argv_initparams(&argv1);
   free_argv_actions(&argv2);
   fini_lowest_level();
+  if (exitcode < 0) {
+    var int sig = -exitcode;
+    #ifdef HAVE_SIGNALS
+     /* Reset the signal handler. */
+     SIGNAL(sig,SIG_DFL);
+     /* Unblock the signal. */
+     #if defined(SIGNALBLOCK_POSIX)
+     {
+       var sigset_t sigblock_mask;
+       sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
+       sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
+     }
+     #elif defined(SIGNALBLOCK_BSD)
+     sigsetmask(sigblock(0) & ~sigmask(sig));
+     #endif
+    #endif
+    /* Raise the signal. */
+    raise(sig);
+    /* If that did not help: use a fake exit code that encodes the signal. */
+    exitcode = 128 + sig;
+  }
  #ifdef UNIX
   exit(exitcode); /* Calling exit(), not _exit(), allows profiling to work. */
  #endif
