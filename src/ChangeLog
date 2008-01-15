@@ -1,3 +1,8 @@
+2008-01-14  Bruno Haible  <bruno@clisp.org>
+
+	* Makefile.devel: Use CONFIGURES instead of CLISP_CONFIGURES. Fixes
+	problem introduced on 2008-01-05.
+
 2008-01-14  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1871205 ]: how to quit upon SIGTERM, SIGKILL, or SIGQUIT
