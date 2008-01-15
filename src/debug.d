@@ -624,12 +624,12 @@ LISPFUNN(load,1)
 #define stack_upend_p()  \
   (   eq(FRAME_(0),nullobj)           /* Nullword = upper stack end */ \
    || (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
-   || ((framepointerp(Symbol_value(S(frame_limit2))))                        \
-       && (uTheFramepointer(Symbol_value(S(frame_limit2))) cmpSTACKop FRAME) /* FRAME > *frame-limit2* ? */))
+   || ((framepointerp(Symbol_value(S(frame_limit_up))))              \
+       && (uTheFramepointer(Symbol_value(S(frame_limit_up))) cmpSTACKop FRAME) /* FRAME > *frame-limit-up* ? */))
 #define stack_downend_p()  \
   (   (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
-   || ((framepointerp(Symbol_value(S(frame_limit1))))                        \
-       && (FRAME cmpSTACKop uTheFramepointer(Symbol_value(S(frame_limit1)))) /* FRAME < *frame-limit1* ? */))
+   || ((framepointerp(Symbol_value(S(frame_limit_down))))            \
+       && (FRAME cmpSTACKop uTheFramepointer(Symbol_value(S(frame_limit_down)))) /* FRAME < *frame-limit-down* ? */))
 
 /* Macro: Tests, if FRAME points to a frame.
  first approximation:

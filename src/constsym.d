@@ -1694,8 +1694,8 @@ LISPSYM(break_driver,"*BREAK-DRIVER*",ext) /* variable in DEBUG */
 LISPSYM(break_count,"*BREAK-COUNT*",system) /* variable in DEBUG */
 LISPSYM(recurse_count_standard_output,"*RECURSE-COUNT-STANDARD-OUTPUT*",system) /* variable in DEBUG */
 LISPSYM(recurse_count_debug_io,"*RECURSE-COUNT-DEBUG-IO*",system) /* variable in DEBUG */
-LISPSYM(frame_limit1,"*FRAME-LIMIT1*",system) /* variable in DEBUG */
-LISPSYM(frame_limit2,"*FRAME-LIMIT2*",system) /* variable in DEBUG */
+LISPSYM(frame_limit_down,"*FRAME-LIMIT-DOWN*",system) /* variable in DEBUG */
+LISPSYM(frame_limit_up,"*FRAME-LIMIT-UP*",system) /* variable in DEBUG */
 LISPSYM(setf,"SETF",lisp) /* marker in CONTROL */
 LISPSYM(psetf,"PSETF",lisp) /* marker in CONTROL */
 LISPSYM(multiple_value_setf,"MULTIPLE-VALUE-SETF",system) /* marker in CONTROL */
