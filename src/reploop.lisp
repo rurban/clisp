@@ -199,7 +199,7 @@
           mode limit
           (frame-up-down (or *frame-limit-down* (frame-limit-down 13)) mode))))
     (fresh-line *standard-output*)
-    (format *standard-output* (TEXT "Printed ~D frames") frame-count)
+    (format *standard-output* (TEXT "Printed ~D frame~:P") frame-count)
     (elastic-newline *standard-output*)))
 
 ;;; debug-backtrace with-optional 'print-limit'
