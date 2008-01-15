@@ -58,6 +58,7 @@ local void quit_on_signal (int sig) {
   pushSTACK(sint_to_I(sig)); pushSTACK(STACK_1);
   funcall(L(prin1),2);            /* (prin1 signal stderr) */
   terpri(&STACK_0); skipSTACK(1); /* drop *error-output* */
+  final_exitcode = - sig;
   quit();
 }
 
