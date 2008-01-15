@@ -110,16 +110,16 @@
 ;; Components of the Break-Loop:
 (defvar *debug-frame*)
 (defvar *debug-mode* 4)
-; lower bound for frame-down/frame-down-1
+; lower bound for frame-down
 (defvar *frame-limit-down* nil)
-; upper bound for frame-up and frame-up-1
+; upper bound for frame-up
 (defvar *frame-limit-up* nil)
 
 (defun frame-limit-down (frames-to-skip)
   (let ((frame (the-frame)))
     (let ((*frame-limit-down* nil)
           (*frame-limit-up* nil))
-      (dotimes (i frames-to-skip) (setq frame (frame-up-1 frame 1))))
+      (dotimes (i frames-to-skip) (setq frame (frame-up 1 frame 1))))
     frame))
 
 (defun frame-limit-up ()
@@ -127,10 +127,10 @@
     (let ((*frame-limit-down* nil)
           (*frame-limit-up* nil))
       (loop
-       (let ((nextframe (frame-up-1 frame 1)))
+       (let ((nextframe (frame-up 1 frame 1)))
          (when (or (eq nextframe frame) (driver-frame-p nextframe)) (return))
          (setq frame nextframe)))
-      (dotimes (i 2) (setq frame (frame-down-1 frame 1))))
+      (dotimes (i 2) (setq frame (frame-down 1 frame 1))))
     frame))
 
 (defun debug-help () (help) (throw 'debug 'continue))
@@ -148,22 +148,24 @@
 
 (defun debug-up ()
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-up-1 *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-up 1 *debug-frame* *debug-mode*)))
   (throw 'debug 'continue))
 
 (defun debug-top ()
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-up *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-up t *debug-frame* *debug-mode*)))
   (throw 'debug 'continue))
 
 (defun debug-down ()
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-down-1 *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-down 1 *debug-frame*
+                                                  *debug-mode*)))
   (throw 'debug 'continue))
 
 (defun debug-bottom ()
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-down *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-down t *debug-frame*
+                                                  *debug-mode*)))
   (throw 'debug 'continue))
 
 (defun get-frame-limit ()
@@ -187,7 +189,7 @@
   (setq *debug-print-frame-limit* (get-frame-limit))
   (throw 'debug 'continue))
 
-(defun frame-up-down (limit mode) (frame-down-1 (frame-up-1 limit mode) mode))
+(defun frame-up-down (limit mode) (frame-down 1 (frame-up 1 limit mode) mode))
 
 (defun print-backtrace (&key ((:out *standard-output*) *standard-output*)
                         (mode *debug-mode*) (limit *debug-print-frame-limit*))
