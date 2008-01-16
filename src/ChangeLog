@@ -1,3 +1,8 @@
+2008-01-16  Reini Urban  <rurban@x-ray.at>
+
+	<34_trans3>
+	* sequence.d: translate all comments and convert them to /**/
+
 2008-01-15  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (climb_stack_once, climb_stack_repeat): merge into climb_stack
