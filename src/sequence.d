@@ -1186,14 +1186,14 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
      Compute type descriptors and lengths and push onto the STACK: */
   if (argcount > 0) {
     var gcv_object_t* ptr = rest_args_pointer;
-    var uintC count;
-    dotimespC(count,argcount, {
+    var uintC count = argcount;
+    do {
       var object seq = NEXT(ptr); /* next sequence */
       var object typdescr = get_valid_seq_type(seq);
       pushSTACK(typdescr); /* type descriptor to the stack */
       pushSTACK(seq); funcall(seq_length(typdescr),1); /* (SEQ-LENGTH seq) */
       pushSTACK(value1); /* length to the stack */
-    });
+    } while (--count);
   }
   /* Stack layout: [args_pointer] typdescr2,
                   [rest_args_pointer] {sequence}, result-type-len,
@@ -1202,8 +1202,8 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
     var object total_length = Fixnum_0;
     if (argcount > 0) {
       var gcv_object_t* ptr = behind_args_pointer;
-      var uintC count;
-      dotimespC(count,argcount, {
+      var uintC count = argcount;
+      do {
         NEXT(ptr); /* skip typdescr */
         var object len = NEXT(ptr); /* next length  */
         if (!(posfixnump(len))) {
@@ -1211,7 +1211,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
           error(error_condition,GETTEXT("~S: bad length ~S"));
         }
         total_length = I_I_plus_I(total_length,len); /* total_length += len */
-      });
+      } while (--count);
     }
     {
       var object result_type_len = Before(behind_args_pointer);
@@ -1245,7 +1245,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
                   NIL, NIL, seq2, typdescr2, NIL, NIL, pointer2, [STACK].
      Loop over the argcount sequences: copy into seq2 */
   var gcv_object_t* current_arg_pointer = behind_args_pointer;
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     STACK_6 = NEXT(rest_args_pointer); /* seq1 = next sequence */
     STACK_5 = NEXT(current_arg_pointer); /* its typdescr1 */
     STACK_2 = NEXT(current_arg_pointer); /* its length */
@@ -1257,7 +1257,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
                     seq1, typdescr1, seq2, typdescr2, count,
                     pointer1, pointer2, [STACK]. */
     copy_seqpart_into(); /* Copy complete seq1 into seq2 */
-  });
+  }
   {
     var object result_type_len = Before(behind_args_pointer);
     if (boundp(result_type_len) && !integerp(result_type_len)) {
@@ -1338,14 +1338,14 @@ local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
      sequences and put them on the STACK: */
   {
     var gcv_object_t* ptr = rest_args_pointer;
-    var uintC count;
-    dotimespC(count,argcount+1, {
+    var uintC count = argcount+1;
+    do {
       var object seq = NEXT(ptr); /* next sequence */
       var object typdescr = get_valid_seq_type(seq);
       pushSTACK(typdescr); /* push type descriptor to the STACK */
       pushSTACK(seq); funcall(seq_init(typdescr),1); /* (SEQ-INIT sequence) */
       pushSTACK(value1); /* push pointer to the STACK */
-    });
+    } while (--count);
   }
   /* Stack layout:
              [args_pointer] ... predicate,
@@ -1357,8 +1357,8 @@ local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
     var gcv_object_t* ptr2 = typdescr_pointer;
     /* ptr1 runs from the top through the sequences,
        ptr2 runs from the top through the typdescr/pointers. */
-    var uintC count;
-    dotimespC(count,argcount+1, {
+    var uintC count = argcount+1;
+    do {
       var gcv_object_t* sequence_ = &NEXT(ptr1);
       var gcv_object_t* typdescr_ = &NEXT(ptr2);
       var gcv_object_t* pointer_ = &NEXT(ptr2);
@@ -1374,7 +1374,7 @@ local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
       /* pointer := (SEQ-UPD sequence pointer) : */
       pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_upd(*typdescr_),2);
       *pointer_ = value1;
-    });
+    } while (--count);
     /* Finished with all sequences.
        Call (FUNCALL predicate (SEQ-ACCESS sequence pointer) ...): */
     {
@@ -1423,8 +1423,8 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
        sequences and push it onto the STACK: */
     {
       var gcv_object_t* ptr = rest_args_pointer;
-      var uintC count;
-      dotimespC(count,argcount+1, {
+      var uintC count = argcount+1;
+      do {
         var gcv_object_t* sequence_ = &NEXT(ptr);
         var object seq = *sequence_; /* next sequence */
         var object typdescr = get_valid_seq_type(seq);
@@ -1433,7 +1433,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         pushSTACK(value1); /* pointer to the STACK */
         pushSTACK(*sequence_); funcall(seq_init(STACK_(1+1)),1); /* (SEQ-INIT sequence) */
         pushSTACK(value1); /* pointer to the STACK */
-      });
+      } while (--count);
     }
     /* Stack layout:
                [args_pointer] *result_type_ = typdescr2, function,
@@ -1446,8 +1446,8 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       var gcv_object_t* ptr2 = typdescr_pointer;
       /* ptr1 runs from the top through the sequences,
          ptr2 runs from the top through the type descriptors/pointers. */
-      var uintC count;
-      dotimespC(count,argcount+1, {
+      var uintC count = argcount+1;
+      do {
         var gcv_object_t* sequence_ = &NEXT(ptr1);
         var gcv_object_t* typdescr_ = &NEXT(ptr2);
         NEXT(ptr2);
@@ -1460,7 +1460,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         /* pointer := (SEQ-UPD sequence pointer) : */
         pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_upd(*typdescr_),2);
         *pointer_ = value1;
-      });
+      } while (--count);
       /* None of the sequences ended. */
       STACK_0 = fixnum_inc(STACK_0,1); /* minlength := minlength+1 */
     }
@@ -1493,8 +1493,8 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       var gcv_object_t* ptr2 = typdescr_pointer;
       /* ptr1 runs from the top through the sequences,
          ptr2 runs from the top through the type descriptors/pointers. */
-      var uintC count;
-      dotimespC(count,argcount+1, {
+      var uintC count = argcount+1;
+      do {
         var gcv_object_t* sequence_ = &NEXT(ptr1);
         var gcv_object_t* typdescr_ = &NEXT(ptr2);
         var gcv_object_t* pointer_ = &NEXT(ptr2);
@@ -1506,7 +1506,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         /* pointer := (SEQ-UPD sequence pointer) : */
         pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_upd(*typdescr_),2);
         *pointer_ = value1;
-      });
+      } while (--count);
       /* Process all sequences.
          Call (FUNCALL function (SEQ-ACCESS sequence pointer) ...): */
       funcall(*(result_type_ STACKop -1),argcount+1);
@@ -1554,14 +1554,14 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
      sequences and push to the STACK: */
   {
     var gcv_object_t* ptr = rest_args_pointer;
-    var uintC count;
-    dotimespC(count,argcount+1, {
+    var uintC count = argcount+1;
+    do {
       var object seq = NEXT(ptr);
       var object typdescr = get_valid_seq_type(seq);
       pushSTACK(typdescr); /* Push type descriptor to the STACK */
       pushSTACK(seq); funcall(seq_init(typdescr),1); /* (SEQ-INIT sequence) */
       pushSTACK(value1); /* Push pointer to the STACK */
-    });
+    } while (--count);
   }
   /* Stack layout:
              [args_pointer] result-sequence, function,
@@ -1575,8 +1575,8 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
       var gcv_object_t* ptr2 = typdescr_pointer;
       /* ptr1 runs from the top through the sequences,
          ptr2 runs from the top through the type descriptors/pointers. */
-      var uintC count;
-      dotimesC(count,argcount, {
+      var uintC count = argcount;
+      while (count--) {
         var object sequence = NEXT(ptr1);
         var object typdescr = NEXT(ptr2);
         var object pointer = NEXT(ptr2);
@@ -1585,7 +1585,7 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
         /* one of the sequences finished -> finish outer loop: */
         if (!nullp(value1))
           goto end_reached;
-      });
+      }
       { /* result-sequence finished -> finish outer loop: */
         var object sequence = NEXT(ptr1);
         var object typdescr = NEXT(ptr2);
@@ -1608,8 +1608,8 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
       var gcv_object_t* ptr2 = typdescr_pointer;
       /* ptr1 runs from the top through the sequences,
          ptr2 runs from the top through the type descriptors/pointers. */
-      var uintC count;
-      dotimesC(count,argcount, {
+      var uintC count = argcount;
+      while (count--) {
         var gcv_object_t* sequence_ = &NEXT(ptr1);
         var gcv_object_t* typdescr_ = &NEXT(ptr2);
         var gcv_object_t* pointer_ = &NEXT(ptr2);
@@ -1620,7 +1620,7 @@ LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
         /* pointer := (SEQ-UPD sequence pointer) : */
         pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_upd(*typdescr_),2);
         *pointer_ = value1;
-      });
+      }
       /* Run through all sequences
          Call (FUNCALL function (SEQ-ACCESS sequence pointer) ...): */
       funcall(Before(rest_args_pointer),argcount);
@@ -2294,10 +2294,10 @@ local maygc object delete_help (gcv_object_t* stackptr, uintV bvl, uintV dl) {
       /* list = *list_. */
       { /* Head part:
          Advance start times with list:=Cdr(list): */
-        var uintV count;
-        dotimesV(count,posfixnum_to_V(*(stackptr STACKop -2)), {
+        var uintV count = posfixnum_to_V(*(stackptr STACKop -2));
+        while (count--) {
           list_ = &Cdr(list); list = *list_;
-        });
+        }
       }
       { /* Middle part (seeve):
          Check bvl times the bit and evtl. remove a Cons: */
@@ -3195,14 +3195,14 @@ local maygc object substitute_help (gcv_object_t* stackptr, uintV bvl,
       /* Stack layout: ..., typdescr, l, bv, L1, L2. */
       { /* Copy first start Conses: */
         var uintV count = posfixnum_to_V(*(stackptr STACKop -2)); /* 0 <= start <= l ==> start is fixnum */
-        dotimesV(count,count, {
+        while (count--) {
           /* Here is (revappend L1 L2) = sequence */
           var object new_cons = allocate_cons();
           var object L2 = STACK_0;
           Car(new_cons) = Car(L2);
           STACK_0 = Cdr(L2); /* L2 := (cdr L2) */
           Cdr(new_cons) = STACK_1; STACK_1 = new_cons; /* L1 := (cons ... L1) */
-        });
+        }
       }
       /* decrement bvl over the last one in the bitvector: */
       /* (There exist ones, because dl>0.) */
