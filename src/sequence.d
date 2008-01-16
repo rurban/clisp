@@ -814,7 +814,7 @@ LISPFUNN(nreverse,1) { /* (NREVERSE sequence), CLTL p. 248 */
         /* Construct (SEQ-ACCESS seq pointer1): */
         pushSTACK(STACK_4); pushSTACK(STACK_(1+1));
         funcall(seq_access(STACK_(3+2)),2); /* (SEQ-ACCESS seq pointer1) */
-        pushSTACK(value1); /* and retten */
+        pushSTACK(value1); /* and save */
         /* Construct (SEQ-ACCESS seq pointer2): */
         pushSTACK(STACK_(4+1)); pushSTACK(STACK_(0+1+1));
         funcall(seq_access(STACK_(3+1+2)),2); /* (SEQ-ACCESS seq pointer2) */
@@ -940,6 +940,25 @@ LISPFUNN(nreverse,1) { /* (NREVERSE sequence), CLTL p. 248 */
   }
 }
 
+/* Verify complicated length constraint, by calling TYPEP:
+ > retvalue: address on the STACK of the return value
+ > rettype: address on the STACK of the return type
+ can trigger GC */
+local maygc void verify_return_value (gcv_object_t *retvalue,
+                                      gcv_object_t *rettype) {
+  pushSTACK(*retvalue); pushSTACK(*rettype); funcall(S(typep),2);
+  if (nullp(value1)) {
+    pushSTACK(*retvalue);       /* TYPE-ERROR slot DATUM */
+    pushSTACK(*rettype);        /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(*rettype); pushSTACK(*retvalue);
+    pushSTACK(TheSubr(subr_self)->name);
+    error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+  }
+}
+#define VERIFY_RETURN_VALUE(retvalue,rettype)   \
+  if (boundp(*rettype) && !integerp(*rettype))  \
+    verify_return_value(retvalue,rettype)
+
 LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         (kw(initial_element),kw(update)) )
 { /* (MAKE-SEQUENCE type size [:initial-element] [:update]), CLTL p. 249
@@ -1003,19 +1022,9 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
       }
       value1 = popSTACK(); /* seq */
     }
-  if (boundp(STACK_0) && !integerp(STACK_0)) {
-    /* Verify complicated length constraint, by calling TYPEP: */
-    pushSTACK(value1); /* save seq */
-    pushSTACK(value1); pushSTACK(STACK_(0+2)); funcall(S(typep),2);
-    if (nullp(value1)) {
-      /* STACK_0 = result = TYPE-ERROR slot DATUM */
-      pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(make_sequence));
-      error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-    }
-    value1 = popSTACK();
-  }
-  mv_count=1; /* seq as value */
+  pushSTACK(value1);            /* save seq */
+  VERIFY_RETURN_VALUE(&STACK_0,&STACK_1);
+  VALUES1(popSTACK());          /* seq as value */
   skipSTACK(5);
 }
 
@@ -1071,16 +1080,7 @@ global maygc Values coerce_sequence (object sequence, object result_type,
         STACK_2 = value1;
         /* Stack layout: result, result-type, typdescr2-len. */
       }
-      if (boundp(STACK_0) && !integerp(STACK_0)) {
-        /* Verify complicated length constraint, by calling TYPEP: */
-        pushSTACK(STACK_2); pushSTACK(STACK_(0+1)); funcall(S(typep),2);
-        if (nullp(value1)) {
-          pushSTACK(STACK_2);     /* TYPE-ERROR slot DATUM */
-          pushSTACK(STACK_(0+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-          pushSTACK(STACK_(0+2)); pushSTACK(STACK_2); pushSTACK(S(coerce));
-          error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-        }
-      }
+      VERIFY_RETURN_VALUE(&STACK_2,&STACK_0);
       skipSTACK(2); VALUES1(popSTACK()); /* return seq1 */
     }
   }
@@ -1124,16 +1124,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
       if (!nullp(value1)) {
         /* With end = (length sequence).
            Nothing to do. */
-        if (boundp(STACK_1) && !integerp(STACK_1)) {
-          /* Verify complicated length constraint, by calling TYPEP: */
-          pushSTACK(STACK_6); pushSTACK(STACK_(1+1)); funcall(S(typep),2);
-          if (nullp(value1)) {
-            pushSTACK(STACK_6);     /* TYPE-ERROR slot DATUM */
-            pushSTACK(STACK_(1+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-            pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
-            error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-          }
-        }
+        VERIFY_RETURN_VALUE(&STACK_6,&STACK_1);
         skipSTACK(6); VALUES1(popSTACK()); /* return sequence */
         return;
       }
@@ -1154,16 +1145,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
   copy_seqpart_onto(); /* copy, return seq2 */
   STACK_2 = value1;
   /* Stack layout: result, typdescr2-len, start. */
-  if (boundp(STACK_1) && !integerp(STACK_1)) {
-    /* Verify complicated length constraint, by calling TYPEP: */
-    pushSTACK(STACK_2); pushSTACK(STACK_(1+1)); funcall(S(typep),2);
-    if (nullp(value1)) {
-      pushSTACK(STACK_2);     /* TYPE-ERROR slot DATUM */
-      pushSTACK(STACK_(1+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_(1+2)); pushSTACK(STACK_2); pushSTACK(S(coerced_subseq));
-      error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-    }
-  }
+  VERIFY_RETURN_VALUE(&STACK_2,&STACK_1);
   skipSTACK(2); VALUES1(popSTACK()); /* return result */
 }
 
@@ -1258,19 +1240,7 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
                     pointer1, pointer2, [STACK]. */
     copy_seqpart_into(); /* Copy complete seq1 into seq2 */
   }
-  {
-    var object result_type_len = Before(behind_args_pointer);
-    if (boundp(result_type_len) && !integerp(result_type_len)) {
-      /* Verify complicated length constraint, by calling TYPEP: */
-      pushSTACK(STACK_4); pushSTACK(result_type_len); funcall(S(typep),2);
-      if (nullp(value1)) {
-        pushSTACK(STACK_4);                     /* TYPE-ERROR slot DATUM */
-        pushSTACK(Before(behind_args_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        pushSTACK(Before(behind_args_pointer)); pushSTACK(STACK_2); pushSTACK(S(concatenate));
-        error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-      }
-    }
-  }
+  VERIFY_RETURN_VALUE(&STACK_4,&(Before(behind_args_pointer)));
   VALUES1(STACK_4); /* return seq2 */
   set_args_end_pointer(args_pointer); /* clean up STACK */
 }
@@ -1518,16 +1488,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       /* size := (1- size) : */
       STACK_2 = fixnum_inc(STACK_2,-1);
     }
-    if (boundp(Before(typdescr_pointer)) && !integerp(Before(typdescr_pointer))) {
-      /* Verify complicated length constraint, by calling TYPEP: */
-      pushSTACK(STACK_1); pushSTACK(Before(typdescr_pointer)); funcall(S(typep),2);
-      if (nullp(value1)) {
-        pushSTACK(STACK_1);                  /* TYPE-ERROR slot DATUM */
-        pushSTACK(Before(typdescr_pointer)); /* TYPE-ERROR slot EXPECTED-TYPE */
-        pushSTACK(Before(typdescr_pointer)); pushSTACK(STACK_2); pushSTACK(S(map));
-        error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-      }
-    }
+    VERIFY_RETURN_VALUE(&STACK_1,&(Before(typdescr_pointer)));
     VALUES1(STACK_1); /* return seq2 */
     set_args_end_pointer(args_pointer); /* clean up STACK */
   } else {
@@ -4637,16 +4598,7 @@ LISPFUN(merge,seclass_default,4,0,norest,key,1, (kw(key)) )
                   len1, len2, pointer1, pointer2, pointer3. */
   /* Do the Merge-Operation: */
   merge(&STACK_(2+6+5));
-  if (boundp(STACK_(0+6+5)) && !integerp(STACK_(0+6+5))) {
-    /* Verify complicated length constraint, by calling TYPEP: */
-    pushSTACK(STACK_(1+5)); pushSTACK(STACK_(0+6+5+1)); funcall(S(typep),2);
-    if (nullp(value1)) {
-      pushSTACK(STACK_(1+5));     /* TYPE-ERROR slot DATUM */
-      pushSTACK(STACK_(0+6+5+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
-      pushSTACK(STACK_(0+6+5+2)); pushSTACK(STACK_2); pushSTACK(S(merge));
-      error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
-    }
-  }
+  VERIFY_RETURN_VALUE(&STACK_(1+5),&STACK_(0+6+5));
   VALUES1(STACK_(1+5)); /* return sequence3 */
   skipSTACK(6+6+5);
 }

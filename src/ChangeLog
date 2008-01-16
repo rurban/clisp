@@ -3,6 +3,9 @@
 	* sequence.d (REDUCE): use missingp
 	(CONCATENATE, seq_boolop, MAP, MAP-INTO, delete_help, substitute_help):
 	use while instead of dotimes and do/while instead of dotimesp
+	(verify_return_value, VERIFY_RETURN_VALUE): add function & macro
+	(MAKE-SEQUENCE, coerce_sequence, COERCED-SUBSEQ, CONCATENATE, MAP)
+	(MERGE): use them
 
 2008-01-16  Reini Urban  <rurban@x-ray.at>
 
