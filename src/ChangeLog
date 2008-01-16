@@ -11,6 +11,8 @@
 	(verify_return_value, VERIFY_RETURN_VALUE): add function & macro
 	(MAKE-SEQUENCE, coerce_sequence, COERCED-SUBSEQ, CONCATENATE, MAP)
 	(MERGE): use them
+	(CONCATENATE, seq_boolop, MAP): avoid GCC
+	"warning: value computed is not used"
 
 2008-01-16  Reini Urban  <rurban@x-ray.at>
 
