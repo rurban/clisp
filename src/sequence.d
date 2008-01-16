@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
@@ -1186,8 +1186,8 @@ LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
       var gcv_object_t* ptr = behind_args_pointer;
       var uintC count = argcount;
       do {
-        NEXT(ptr); /* skip typdescr */
-        var object len = NEXT(ptr); /* next length  */
+        ptr skipSTACKop -2; /* skip typdescr */
+        var object len = Before(ptr); /* next length  */
         if (!(posfixnump(len))) {
           pushSTACK(len); pushSTACK(S(concatenate));
           error(error_condition,GETTEXT("~S: bad length ~S"));
@@ -1292,7 +1292,7 @@ local maygc Values seq_boolop (seq_boolop_fun* boolop_fun,
                                gcv_object_t* rest_args_pointer,
                                uintC argcount,
                                object defolt) {
-  BEFORE(rest_args_pointer);
+  rest_args_pointer skipSTACKop 1;
   {
     var object predicate = Before(rest_args_pointer);
     if (!(symbolp(predicate) || functionp(predicate)))
@@ -1381,7 +1381,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
   /* result_type_ points into the STACK, to result-type. */
   if (!(nullp(*result_type_))) {
     /* general result-type */
-    BEFORE(rest_args_pointer);
+    rest_args_pointer skipSTACKop 1;
     /* rest_args_pointer now points over all argcount+1 sequence arguments
        Allocate 4*(argcount+1) objects on the STACK:
        (3 times for type descriptors and pointer, 1 time for function call) */
@@ -1420,7 +1420,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       do {
         var gcv_object_t* sequence_ = &NEXT(ptr1);
         var gcv_object_t* typdescr_ = &NEXT(ptr2);
-        NEXT(ptr2);
+        ptr2 skipSTACKop -1;
         var gcv_object_t* pointer_ = &NEXT(ptr2);
         /* (SEQ-ENDTEST sequence pointer) : */
         pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_endtest(*typdescr_),2);
@@ -1434,14 +1434,13 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
       /* None of the sequences ended. */
       STACK_0 = fixnum_inc(STACK_0,1); /* minlength := minlength+1 */
     }
-    end_found:
+   end_found: {
     /* STACK_0 = minimal length of the sequences
        Stack layout:
                [args_pointer] *result_type_ = typdescr2, function,
                [rest_args_pointer] {sequence}, result-type-len,
                [typdescr_pointer] {typdescr, pointer, pointer},
                size [STACK]. */
-    {
       var object result_type_len = Before(typdescr_pointer);
       if (integerp(result_type_len)
           && !SEQTYPE_LENGTH_MATCH(result_type_len,STACK_0))
@@ -1468,7 +1467,7 @@ LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
         var gcv_object_t* sequence_ = &NEXT(ptr1);
         var gcv_object_t* typdescr_ = &NEXT(ptr2);
         var gcv_object_t* pointer_ = &NEXT(ptr2);
-        NEXT(ptr2);
+        ptr2 skipSTACKop -1;
         /* (SEQ-ACCESS sequence pointer) : */
         pushSTACK(*sequence_); pushSTACK(*pointer_); funcall(seq_access(*typdescr_),2);
         /* Push as argument to the STACK: */
