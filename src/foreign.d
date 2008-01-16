@@ -1,7 +1,7 @@
 /* Foreign language interface for CLISP
  * Marcus Daniels 8.4.1994
  * Bruno Haible 1995-2005
- * Sam Steingold 2000-2007
+ * Sam Steingold 2000-2008
  */
 
 #include "lispbibl.c"
@@ -532,11 +532,11 @@ local maygc object convert_function_to_foreign (object fun, object resulttype,
       var object dv = TheIarray(O(foreign_callin_vector))->data;
       TheSvector(dv)->data[0] = TheSvector(dv)->data[3*f_index];
     } else { /* free list exhausted */
-      var uintC i;
-      dotimesC(i,3, {
+      var uintC i = 3;
+      while (i--) {
         pushSTACK(NIL); pushSTACK(O(foreign_callin_vector));
         funcall(L(vector_push_extend),2);
-      });
+      }
       f_index = floor(vector_length(O(foreign_callin_vector)),3);
     }
     { /* Next allocate the trampoline. */
@@ -1032,14 +1032,14 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
       sstring_un_realloc(array);
      #else
       var chart* ptr2 = &TheSnstring(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = as_chart(*ptr1++); } );
+      do { *ptr2++ = as_chart(*ptr1++); } while(--size);
      #endif
     }
   } else if (eq(eltype,S(uint8))) {
     if (size > 0) {
       var const uint8* ptr1 = (const uint8*)data;
       var uint8* ptr2 = (uint8*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #if 0
@@ -1047,7 +1047,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
     if (size > 0) {
       var const sint8* ptr1 = (const sint8*)data;
       var sint8* ptr2 = (sint8*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #endif
@@ -1055,7 +1055,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
     if (size > 0) {
       var const uint16* ptr1 = (const uint16*)data;
       var uint16* ptr2 = (uint16*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #if 0
@@ -1063,7 +1063,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
     if (size > 0) {
       var const sint16* ptr1 = (const sint16*)data;
       var sint16* ptr2 = (sint16*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #endif
@@ -1071,7 +1071,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
     if (size > 0) {
       var const uint32* ptr1 = (const uint32*)data;
       var uint32* ptr2 = (uint32*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #if 0
@@ -1079,7 +1079,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
     if (size > 0) {
       var const sint32* ptr1 = (const sint32*)data;
       var sint32* ptr2 = (sint32*)&TheSbvector(array)->data[0];
-      dotimespL(size,size, { *ptr2++ = *ptr1++; } );
+      do { *ptr2++ = *ptr1++; } while(--size);
     }
   }
  #endif
@@ -1241,7 +1241,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
             Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
             ASSERT(cptr == cendptr);
            #else
-            dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+            do { *cptr++ = as_chart(*bptr++); } while(--clen);
            #endif
           }
           return string;
@@ -1325,7 +1325,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
             Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
             ASSERT(cptr == cendptr);
            #else
-            dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+            do { *cptr++ = as_chart(*bptr++); } while(--clen);
            #endif
           }
           return string;
@@ -1422,7 +1422,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
               Encoding_mbstowcs(encoding)(encoding,nullobj,&bptr,bendptr,&cptr,cendptr);
               ASSERT(cptr == cendptr);
              #else
-              dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
+              do { *cptr++ = as_chart(*bptr++); } while(--clen);
              #endif
             }
             return string;
@@ -2160,8 +2160,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             obj = array_displace_check(obj,size,&offset);
             var const uint8* ptr1 = &TheSbvector(obj)->data[offset];
             var uint8* ptr2 = (uint8*)data;
-            var uintL count;
-            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+            var uintL count = size;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
         } else if (eq(eltype,S(uint16)) && bit_vector_p(Atype_16Bit,obj)) {
           if (size > 0) {
@@ -2170,8 +2170,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             var const uint16* ptr1 =
               (uint16*)&TheSbvector(obj)->data[2*offset];
             var uint16* ptr2 = (uint16*)data;
-            var uintL count;
-            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+            var uintL count = size;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
         } else if (eq(eltype,S(uint32)) && bit_vector_p(Atype_32Bit,obj)) {
           if (size > 0) {
@@ -2180,8 +2180,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             var const uint32* ptr1 =
               (uint32*)&TheSbvector(obj)->data[4*offset];
             var uint32* ptr2 = (uint32*)data;
-            var uintL count;
-            dotimespL(count,size, { *ptr2++ = *ptr1++; } );
+            var uintL count = size;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
         } else {
           pushSTACK(eltype);
@@ -2236,8 +2236,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             var uintL offset = 0;
             obj = array_displace_check(obj,len,&offset);
             var const uint8* ptr1 = &TheSbvector(obj)->data[offset];
-            var uintL count;
-            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+            var uintL count = len;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
           if (len < maxdim)
             *ptr2 = 0;
@@ -2248,8 +2248,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             obj = array_displace_check(obj,len,&offset);
             var const uint16* ptr1 =
               (uint16*)&TheSbvector(obj)->data[2*offset];
-            var uintL count;
-            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+            var uintL count = len;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
           if (len < maxdim)
             *ptr2 = 0;
@@ -2260,8 +2260,8 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
             obj = array_displace_check(obj,len,&offset);
             var const uint32* ptr1 =
               (uint32*)&TheSbvector(obj)->data[4*offset];
-            var uintL count;
-            dotimespL(count,len, { *ptr2++ = *ptr1++; } );
+            var uintL count = len;
+            do { *ptr2++ = *ptr1++; } while(--count);
           }
           if (len < maxdim)
             *ptr2 = 0;
@@ -2642,8 +2642,8 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
   if (argcount > 0) {
     var gcv_object_t* args_pointer = rest_args_pointer;
     var gcv_object_t* dimptr = &TheSvector(fvd)->data[2];
-    var uintC count;
-    dotimespC(count,argcount, {
+    var uintC count = argcount;
+    do {
       var object subscriptobj = NEXT(args_pointer);
       if (!posfixnump(subscriptobj)) {
         var object list = listof(argcount);
@@ -2664,7 +2664,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
       /* Compute row_major_index := row_major_index*dim+subscript: */
       row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
       *dimptr++;
-    });
+    } while (--count);
   }
   set_args_end_pointer(rest_args_pointer);
   fvd = TheSvector(fvd)->data[1]; /* the element's foreign type */
