@@ -1,6 +1,6 @@
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
-	* ariarm.d: convert comments from "# " to "/**/"
+	* ariarm.d, lispbibl.d: convert comments from "# " to "/**/"
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
