@@ -1,8 +1,9 @@
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d (convert_function_to_foreign, convert_from_foreign)
-	(convert_from_foreign_array_fill, convert_to_foreign, ELEMENT):
+	(convert_from_foreign_array_fill, convert_to_foreign, %ELEMENT):
 	use while instead of dotimes and do/while instead of dotimesp
+	(%ELEMENT): avoid GCC "warning: value computed is not used"
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
