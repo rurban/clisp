@@ -10,7 +10,7 @@
 2008-01-16  Reini Urban  <rurban@x-ray.at>
 
 	<34_trans3>
-	* sequence.d: translate all comments and convert them to /**/
+	* sequence.d, list.d: translate all comments and convert them to /**/
 
 2008-01-15  Sam Steingold  <sds@gnu.org>
 
