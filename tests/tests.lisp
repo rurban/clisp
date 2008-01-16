@@ -339,7 +339,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                   #+XCL             "tread"
                                     "type"
                   #-(or)            "unportable"
-                  #+(CLISP mt)      "mt"
+                  #+(and CLISP mt)  "mt"
                   #+CLISP           "weak"
                   #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
                   #+(or CLISP LISPWORKS) "weakhash2"))
