@@ -1,5 +1,10 @@
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
+	* list.d (make_list, NTHCDR, listof, LIST*, APPEND, NCONC, NBUTLAST):
+	use while instead of dotimes and do/while instead of dotimesp
+
+2008-01-16  Sam Steingold  <sds@gnu.org>
+
 	* sequence.d (REDUCE): use missingp
 	(CONCATENATE, seq_boolop, MAP, MAP-INTO, delete_help, substitute_help):
 	use while instead of dotimes and do/while instead of dotimesp

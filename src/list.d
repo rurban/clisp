@@ -2,7 +2,7 @@
  * List functions for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1999-2007
+ * Sam Steingold 1999-2008
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
@@ -114,12 +114,12 @@ global uintL llength1 (object list, object* last) {
  can trigger GC */
 global maygc object make_list (uintL len) {
   pushSTACK(NIL);
-  dotimesL(len,len, {
+  while (len--) {
     /* STACK_0 = old list, STACK_1 = initial value */
     var object new_cons = allocate_cons();
     Car(new_cons) = STACK_1; Cdr(new_cons) = STACK_0;
     STACK_0 = new_cons;
-  });
+  }
   return popSTACK();
 }
 
@@ -702,7 +702,7 @@ LISPFUNNR(nthcdr,2)
 { /* (NTHCDR integer list), CLTL p. 267 */
   var uintL count = get_integer_truncate(STACK_1);
   var object list = STACK_0;
-  dotimesL(count,count, {
+  while (count--) {
     if (consp(list))
       /* Walk list. */
       list = Cdr(list);
@@ -711,7 +711,7 @@ LISPFUNNR(nthcdr,2)
       break;
     else
       error_list(list);
-  });
+  }
   VALUES1(list);
   skipSTACK(2);
 }
@@ -833,12 +833,12 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
 global maygc object listof (uintC len) {
   pushSTACK(NIL); /* starting with empty list */
   /* Cons len times the arguments to the front of this list: */
-  dotimesC(len,len, {
+  while (len--) {
     var object new_cons = allocate_cons();
     Cdr(new_cons) = popSTACK();
     Car(new_cons) = STACK_0;
     STACK_0 = new_cons;
-  });
+  }
   return popSTACK();
 }
 
@@ -851,12 +851,12 @@ LISPFUN(liststar,seclass_no_se,1,0,rest,nokey,0,NIL)
 { /* (LIST* obj1 {object}), CLTL p. 267 */
   /* Former list already on the stack */
   /* Cons the argcount arguments to the front of this list: */
-  dotimesC(argcount,argcount, {
+  while (argcount--) {
     var object new_cons = allocate_cons();
     Cdr(new_cons) = popSTACK(); /* next argument before */
     Car(new_cons) = STACK_0;
     STACK_0 = new_cons;
-  });
+  }
   VALUES1(popSTACK());
 }
 
@@ -874,7 +874,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
     VALUES1(NIL); /* no arguments -> return NIL as result */
   } else {
     /* Append arguments. Run the loop argcount-1 times: */
-    dotimesC(argcount,argcount-1, {
+    while (--argcount) {
       /* STACK_0 = result list from right. */
       /* STACK_1 := (append STACK_1 STACK_0), increase STACK by 1: */
       var object list1;
@@ -921,7 +921,7 @@ LISPFUN(append,seclass_read,0,0,rest,nokey,0,NIL)
         Cdr(run) = STACK_0; /* add result copy */
         STACK_0 = list1; /* and the is the new result list */
       }
-    });
+    }
     VALUES1(popSTACK()); /* result list as value */
   }
 }
@@ -1003,7 +1003,7 @@ LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL)
     VALUES1(NIL); /* no arguments -> return NIL as result */
   } else {
     /* Append arguments. Run the loop for argcount-1 times: */
-    dotimesC(argcount,argcount-1, {
+    while (--argcount) {
       /* STACK_0 = current result list from right. */
       /* STACK_1 := (nconc STACK_1 STACK_0), increase STACK by 1: */
       if (matomp(STACK_1))
@@ -1026,7 +1026,7 @@ LISPFUN(nconc,seclass_default,0,0,rest,nokey,0,NIL)
         Cdr(list1) = popSTACK(); /* Add current result list */
         /* STACK_0 = new result list */
       }
-    });
+    }
     VALUES1(popSTACK());
   }
 }
@@ -1093,7 +1093,7 @@ LISPFUN(nbutlast,seclass_default,1,1,norest,nokey,0,NIL)
     var uintL new_len = len - count; /* >0 */
     var object run = STACK_0; /* runs through the list */
     /* take new_len-1 times the CDR and then set the CDR to NIL: */
-    dotimesL(new_len,new_len-1, { run = Cdr(run); } );
+    while (--new_len) run = Cdr(run);
     Cdr(run) = NIL;
     VALUES1(popSTACK()); /* return list */
   }
