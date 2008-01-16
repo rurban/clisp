@@ -2663,7 +2663,7 @@ LISPFUN(element,seclass_default,1,0,rest,nokey,0,NIL)
       }
       /* Compute row_major_index := row_major_index*dim+subscript: */
       row_major_index = mulu32_unchecked(row_major_index,dim)+subscript;
-      *dimptr++;
+      dimptr++;
     } while (--count);
   }
   set_args_end_pointer(rest_args_pointer);
