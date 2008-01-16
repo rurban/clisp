@@ -1746,7 +1746,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
   /* Stack layout: function, sequence, from-end, start, end, key, initial-value,
                    typdescr, count. */
   /* check from-end: */
-  if (boundp(STACK_(4+2)) && !nullp(STACK_(4+2))) { /* from-end is given and /=NIL */
+  if (!missingp(STACK_(4+2))) { /* from-end is given and /=NIL */
     /* Set running pointer: */
     pushSTACK(STACK_(5+2)); pushSTACK(STACK_(2+2+1));
     funcall(seq_fe_init_end(STACK_(1+2)),2); /* (SEQ-FE-INIT-END seq end) */

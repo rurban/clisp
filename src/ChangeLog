@@ -1,3 +1,7 @@
+2008-01-16  Sam Steingold  <sds@gnu.org>
+
+	* sequence.d (REDUCE): use missingp
+
 2008-01-16  Reini Urban  <rurban@x-ray.at>
 
 	<34_trans3>
