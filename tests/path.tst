@@ -509,19 +509,16 @@ nil
 t
 
 (let ((*default-pathname-defaults* #p""))
-  (namestring
-   (multiple-value-setq (new-name pathname truename)
-     (rename-file "non-existent-file.non" "file.da"))))
-"file.da"
+  (multiple-value-bind (new-name pathname truename)
+      (rename-file "non-existent-file.non" "file.da")
+    (list (namestring new-name) (null pathname) (null truename))))
+("file.da" NIL NIL)
 
-(namestring new-name)
-"file.da"
+(close (open "file.da" :direction :output :if-exists :rename-and-delete))
+t
 
-(null pathname)
-nil
-
-(null truename)
-nil
+(pathnamep (probe-file "test-pathname.abc"))
+t
 
 (progn (delete-file "test-pathname.abc") t)
 t
