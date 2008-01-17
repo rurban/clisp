@@ -1,5 +1,12 @@
 2008-01-17  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1506316 ]: segfault in framep() debug.d:644
+	* debug.d (stack_upend_p): use "STACK_start cmpSTACKop FRAME"
+	instead of "eq(FRAME_(0),nullobj)" to check for STACK start
+	(stack_downend_p): use "FRAME cmpSTACKop STACK" to check for STACK end
+
+2008-01-17  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (open_file): fix a gc-safety bug in (open
 	... :direction :output :if-exists :rename-and-delete)
 	by keeping namestring on the STACK all along

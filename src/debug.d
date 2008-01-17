@@ -622,12 +622,13 @@ LISPFUNN(load,1)
 
  Macro: tests, if FRAME has reached stack end. */
 #define stack_upend_p()  \
-  (   eq(FRAME_(0),nullobj)           /* Nullword = upper stack end */ \
+  (   (gcv_object_t*)STACK_start cmpSTACKop FRAME                        \
    || (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
    || ((framepointerp(Symbol_value(S(frame_limit_up))))              \
        && (uTheFramepointer(Symbol_value(S(frame_limit_up))) cmpSTACKop FRAME) /* FRAME > *frame-limit-up* ? */))
 #define stack_downend_p()  \
-  (   (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
+  (   FRAME cmpSTACKop STACK                                            \
+   || (framecode(FRAME_(0)) == DRIVER_frame_info) /* driver-frame = stack end */ \
    || ((framepointerp(Symbol_value(S(frame_limit_down))))            \
        && (FRAME cmpSTACKop uTheFramepointer(Symbol_value(S(frame_limit_down)))) /* FRAME < *frame-limit-down* ? */))
 
@@ -652,7 +653,7 @@ local bool framep (gcv_object_t* FRAME)
 }
 
 /* Macro: decreases FRAME down to the next frame. */
-#define next_frame_down()  do { FRAME skipSTACKop -1; } while (!frame_p());
+#define next_frame_down()  do { FRAME skipSTACKop -1; } while (!frame_p())
 
 /* Macro: Tests, if the frame at FRAME is a lexical frame. */
 #ifdef entrypoint_bit_t
