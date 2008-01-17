@@ -6618,8 +6618,10 @@ local maygc object open_file (object filename, direction_t direction,
           case IF_EXISTS_NIL:
             goto result_NIL;
           case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
+            pushSTACK(namestring); /* save */
             create_backup_file_obj(namestring,
                                    if_exists==IF_EXISTS_RENAME_AND_DELETE);
+            namestring = popSTACK(); /* restore */
             break;
           case IF_EXISTS_APPEND:
             append_flag = true; /* position at the end */
