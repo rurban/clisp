@@ -274,7 +274,7 @@
 
 <revision><revnumber>2.26</revnumber><date>2001-05-23</date>
  <revdescription><itemizedlist><listitem><simpara>dropped CLtL1,
-     added <constant>#+LISP=CL</constant> to &features-my;</simpara></listitem>
+     added <constant>:LISP=CL</constant> to &features-my;</simpara></listitem>
    <listitem><simpara>&define-compiler-macro;</simpara></listitem>
    <listitem><simpara>&upgraded-complex-part-type;</simpara></listitem>
    <listitem><simpara>&run-cmd;, &run-prog; accept &wait-k;</simpara></listitem>
