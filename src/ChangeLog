@@ -2,6 +2,7 @@
 
 	* pathname.d (open_file): fix a gc-safety bug in (open
 	... :direction :output :if-exists :rename-and-delete)
+	by keeping namestring on the STACK all along
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 

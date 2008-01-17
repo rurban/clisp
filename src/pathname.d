@@ -5853,9 +5853,9 @@ nonreturning_function(local, error_file_not_exists, (void)) {
 }
 
 /* TRUENAME for a pathname
-   pushes pathname on the stack and
-   returns the truename (filename for the operating system) or nullobj
-   can trigger GC */
+ pushes pathname on the stack and
+ returns the truename (filename for the operating system) or nullobj
+ can trigger GC */
 local maygc object true_namestring (object pathname, bool noname_p,
                                     bool tolerantp) {
   check_no_wildcards(pathname); /* with wildcards -> error */
@@ -6542,29 +6542,31 @@ local maygc void check_file_re_open (object truename, direction_t direction) {
 local maygc object open_file (object filename, direction_t direction,
                               if_exists_t if_exists,
                               if_does_not_exist_t if_not_exists) {
-  pushSTACK(STACK_3); /* save filename */
-  /* Directory must exist: */
-  var object namestring = /* File name for the operating system */
-    /* tolerant only if :PROBE and if_not_exists = UNBOUND or NIL */
-    true_namestring(filename,true,
-                    ((direction == DIRECTION_PROBE)
-                     && (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
-                    || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
-  if (eq(namestring,nullobj))
-    /* path to the file does not exist,
-     and :IF-DOES-NOT-EXIST = unbound or NIL */
-    goto result_NIL;
-  /* stack layout: Pathname, Truename.
+  pushSTACK(NIL);     /* reserve space for namestring */
+  pushSTACK(STACK_4); /* save filename */
+  { /* Directory must exist: */
+    var object namestring = /* File name for the operating system */
+      /* tolerant only if :PROBE and if_not_exists = UNBOUND or NIL */
+      true_namestring(filename,true,
+                      ((direction == DIRECTION_PROBE)
+                       && (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
+                      || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
+    if (eq(namestring,nullobj))
+      /* path to the file does not exist,
+         and :IF-DOES-NOT-EXIST = unbound or NIL */
+      goto result_NIL;
+    STACK_2 = namestring;
+  }
+  var gcv_object_t *namestring_ = &STACK_2;
+  /* stack layout: Namestring, Pathname, Truename
    check filename and get the handle: */
-  pushSTACK(namestring);        /* save */
-  check_file_re_open(namestring,direction);
-  namestring = popSTACK();      /* restore */
+  check_file_re_open(*namestring_,direction);
   var object handle;
  {var bool append_flag = false;
   var bool wronly_flag = false;
   switch (direction) {
     case DIRECTION_PROBE:
-      if (!file_exists(namestring)) { /* file does not exist */
+      if (!file_exists(*namestring_)) { /* file does not exist */
         /* :IF-DOES-NOT-EXIST decides: */
         if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
           goto error_notfound;
@@ -6572,7 +6574,7 @@ local maygc object open_file (object filename, direction_t direction,
             || if_not_exists==IF_DOES_NOT_EXIST_NIL)
           goto result_NIL;
         /* :CREATE -> create the file using open and close: */
-        with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+        with_sstring_0(*namestring_,O(pathname_encoding),namestring_asciz, {
           create_new_file(namestring_asciz);
         });
       }
@@ -6581,7 +6583,7 @@ local maygc object open_file (object filename, direction_t direction,
     case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE: { /* == :INPUT */
       var Handle handl;
       var bool result;
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+      with_sstring_0(*namestring_,O(pathname_encoding),namestring_asciz, {
         result = open_input_file(namestring_asciz,
                                  if_not_exists==IF_DOES_NOT_EXIST_CREATE,
                                  &handl);
@@ -6594,8 +6596,7 @@ local maygc object open_file (object filename, direction_t direction,
           goto error_notfound;
       }
       handle = allocate_handle(handl);
-    }
-      break;
+    } break;
     case DIRECTION_OUTPUT: wronly_flag = true; /*FALLTHROUGH*/
     case DIRECTION_IO:
       /* default for if_not_exists depends on if_exists: */
@@ -6610,7 +6611,7 @@ local maygc object open_file (object filename, direction_t direction,
       if (if_exists==IF_EXISTS_UNBOUND)
         if_exists = IF_EXISTS_SUPERSEDE;
      #if defined(UNIX) || defined(WIN32_NATIVE)
-      if (file_exists(namestring)) {
+      if (file_exists(*namestring_)) {
         /* file exists => :IF-EXISTS decides: */
         switch (if_exists) {
           case IF_EXISTS_ERROR:
@@ -6618,10 +6619,8 @@ local maygc object open_file (object filename, direction_t direction,
           case IF_EXISTS_NIL:
             goto result_NIL;
           case IF_EXISTS_RENAME: case IF_EXISTS_RENAME_AND_DELETE:
-            pushSTACK(namestring); /* save */
-            create_backup_file_obj(namestring,
+            create_backup_file_obj(*namestring_,
                                    if_exists==IF_EXISTS_RENAME_AND_DELETE);
-            namestring = popSTACK(); /* restore */
             break;
           case IF_EXISTS_APPEND:
             append_flag = true; /* position at the end */
@@ -6642,7 +6641,7 @@ local maygc object open_file (object filename, direction_t direction,
          othersise (with :APPEND, :OVERWRITE) preserve contents.
          if-not-exists: create new file. */
       handle = allocate_handle(open_output_file_obj
-                               (namestring,wronly_flag,
+                               (*namestring_,wronly_flag,
                                 (if_exists!=IF_EXISTS_APPEND
                                  && if_exists!=IF_EXISTS_OVERWRITE)));
      #endif
@@ -6657,16 +6656,16 @@ local maygc object open_file (object filename, direction_t direction,
  handle_ok:
   /* handle and append_flag are done with.
    make the Stream: */
-  pushSTACK(STACK_4); /* :BUFFERED argument */
-  pushSTACK(STACK_4); /* :EXTERNAL-FORMAT argument */
-  pushSTACK(STACK_4); /* :ELEMENT-TYPE argument */
+  pushSTACK(STACK_5); /* :BUFFERED argument */
+  pushSTACK(STACK_5); /* :EXTERNAL-FORMAT argument */
+  pushSTACK(STACK_5); /* :ELEMENT-TYPE argument */
   pushSTACK(handle);
-  {var object stream = make_file_stream(direction,append_flag,true);
-   skipSTACK(4);
-   return stream;
+ {var object stream = make_file_stream(direction,append_flag,true);
+  skipSTACK(5);
+  return stream;
  }}
  result_NIL: /* return NIL */
-  skipSTACK(6); /* forget both Pathnames and three arguments */
+  skipSTACK(7); /* forget both Pathnames and three arguments */
   return NIL;
 }
 
