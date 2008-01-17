@@ -394,19 +394,19 @@ DIRECTORY "HEICKING" SYSTEM::NAME "*" TYPE :WILD SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME :WILD :TYPE :WILD :VERSION NIL)
 
-(progn (setf file (open "nicht-vorhandenes-file.non"
+(progn (setf file (open "non-existent-file.non"
                         :direction :input
                         :element-type 'string-char
                         :if-does-not-exist :create)) t)
 t
 
-(null (probe-file "nicht-vorhandenes-file.non"))
+(null (probe-file "non-existent-file.non"))
 NIL
 
 (progn (close file) t)
 t
 
-(setf file (open "nicht-vorhandenes-file.non"
+(setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :error))
@@ -415,7 +415,7 @@ error
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :new-version)))
@@ -424,7 +424,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :rename)))
@@ -433,7 +433,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :rename-and-delete)))
@@ -442,7 +442,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :overwrite)))
@@ -451,7 +451,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :append)))
@@ -460,7 +460,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists :supersede)))
@@ -469,7 +469,7 @@ nil
 (progn (close file) t)
 t
 
-(setf file (open "nicht-vorhandenes-file.non"
+(setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-exists nil))
@@ -478,7 +478,7 @@ nil
 (progn (close file) t)
 error
 
-(setf file (open "nicht-vorhandenes-file.new"
+(setf file (open "non-existent-file.new"
                         :direction :io
                         :element-type 'string-char
                         :if-does-not-exist :error))
@@ -487,10 +487,10 @@ error
 (progn (close file) t)
 error
 
-(truename "~/no/ such / path /  nicht-vorhandenes-file.new")
+(truename "~/no/ such / path /  non-existent-file.new")
 error
 
-(null (setf file (open "nicht-vorhandenes-file.new"
+(null (setf file (open "non-existent-file.new"
                         :direction :io
                         :element-type 'string-char
                         :if-does-not-exist :create)))
@@ -499,7 +499,7 @@ nil
 (progn (close file) t)
 t
 
-(null (setf file (open "nicht-vorhandenes-file.non"
+(null (setf file (open "non-existent-file.non"
                         :direction :io
                         :element-type 'string-char
                         :if-does-not-exist nil)))
@@ -511,7 +511,7 @@ t
 (let ((*default-pathname-defaults* #p""))
   (namestring
    (multiple-value-setq (new-name pathname truename)
-     (rename-file "nicht-vorhandenes-file.non" "file.da"))))
+     (rename-file "non-existent-file.non" "file.da"))))
 "file.da"
 
 (namestring new-name)
@@ -526,7 +526,7 @@ nil
 (progn (delete-file "test-pathname.abc") t)
 t
 
-(progn (mapc #'delete-file (directory "nicht-vorhandenes-file.*")) t)
+(progn (mapc #'delete-file (directory "non-existent-file.*")) t)
 t
 
 (progn (delete-file "file.da") t)
