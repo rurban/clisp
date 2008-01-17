@@ -6635,15 +6635,16 @@ local maygc object open_file (object filename, direction_t direction,
           goto result_NIL;
         /* :CREATE */
       }
-      /* open file:
+      { /* open file:
          if-exists: if if_exists<IF_EXISTS_APPEND delete contents;
          othersise (with :APPEND, :OVERWRITE) preserve contents.
          if-not-exists: create new file. */
-      var Handle handl =
-        open_output_file_obj(namestring,wronly_flag,
-                             (if_exists!=IF_EXISTS_APPEND
-                              && if_exists!=IF_EXISTS_OVERWRITE));
-      handle = allocate_handle(handl);
+        var Handle handl =
+          open_output_file_obj(namestring,wronly_flag,
+                               (if_exists!=IF_EXISTS_APPEND
+                                && if_exists!=IF_EXISTS_OVERWRITE));
+        handle = allocate_handle(handl);
+      }
      #endif
       break;
     default: NOTREACHED;
