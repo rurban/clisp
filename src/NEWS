@@ -38,6 +38,7 @@ User visible changes
   + Fix the "Quit" debugger command. [ 1448744 ]
   + Repeated terminating signals kill CLISP instantly with the correct
     exit code. [ 1871205 ]
+  + Stack inspection is now safer. [ 1506316 ]
 
 
 2.43 (2007-11-18)
