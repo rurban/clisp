@@ -1092,3 +1092,12 @@ NIL
 (ext:make-dir "foo/") T
 (ext:rename-dir "foo/" "bar/") T
 (ext:delete-dir "bar/") T
+(flet ((kill (s) (makunbound s) (unintern s)))
+  (makunbound 'string)
+  (makunbound 'symbol)
+  (kill 'pathstring)
+  (kill 'pathsymbol)
+  (kill 'pathpath)
+  (makunbound 'stream)
+  (kill 'file))
+t
