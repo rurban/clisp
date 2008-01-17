@@ -6542,8 +6542,9 @@ local maygc void check_file_re_open (object truename, direction_t direction) {
 local maygc object open_file (object filename, direction_t direction,
                               if_exists_t if_exists,
                               if_does_not_exist_t if_not_exists) {
-  pushSTACK(NIL);     /* reserve space for namestring */
-  pushSTACK(STACK_4); /* save filename */
+  pushSTACK(NIL);     /* reserve space on STACK for namestring ... */
+  var gcv_object_t *namestring_ = &STACK_0; /* ... and remember it */
+  pushSTACK(STACK_(3+1)); /* save filename */
   { /* Directory must exist: */
     var object namestring = /* File name for the operating system */
       /* tolerant only if :PROBE and if_not_exists = UNBOUND or NIL */
@@ -6555,9 +6556,8 @@ local maygc object open_file (object filename, direction_t direction,
       /* path to the file does not exist,
          and :IF-DOES-NOT-EXIST = unbound or NIL */
       goto result_NIL;
-    STACK_2 = namestring;
+    *namestring_ = namestring;
   }
-  var gcv_object_t *namestring_ = &STACK_2;
   /* stack layout: Namestring, Pathname, Truename
    check filename and get the handle: */
   check_file_re_open(*namestring_,direction);
