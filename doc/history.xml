@@ -114,7 +114,7 @@
      &type-error-expected-type;, &package-error-package;,
      &stream-error-stream;, &file-error-pathname;,
      <function>EXT:SIMPLE-CONDITION-FORMAT-STRING</function>,
-     <function>EXT:SIMPLE-CONDITION-FORMAT-ARGUMENTS</function>,
+     &simple-condition-format-arguments;,
      &break-on-signals-var;, &debugger-hook-var;,
      &print-readably-var;</simpara></listitem>
 </itemizedlist></revdescription></revision>
@@ -250,7 +250,7 @@
    <listitem><simpara>&allocate-instance;</simpara></listitem>
    <listitem><simpara><xref linkend="weak-pointer"/></simpara></listitem>
    <listitem><simpara>&rd-integer;, &wr-integer;</simpara></listitem>
-   <listitem><simpara><function>EXT:SIMPLE-CONDITION-FORMAT-CONTROL</function></simpara></listitem>
+   <listitem><simpara>&simple-condition-format-control;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.24</revnumber><date>2000-03-06</date>
@@ -267,7 +267,7 @@
      &convert-string-to-bytes;</simpara></listitem>
    <listitem><simpara>&rbla;, &st-rbla;, &rbwhp;, &st-rbwhp;, &rbnh;,
      &st-rbnh;</simpara></listitem>
-   <listitem><simpara>&win32; improvements (unc pathnames, registry,
+   <listitem><simpara>&win32; improvements (UNC pathnames, registry,
      screen)</simpara></listitem></itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.25.1</revnumber><date>2001-04-06</date></revision>
