@@ -376,7 +376,6 @@ global bool graphic_char_p (chart ch) {
 global uintL char_width (chart ch);
 #ifdef UNICODE
 #include "uniwidth.h"           /* from gnulib */
-global inline int uc_width (ucs4_t uc, const char *encoding);
 global uintL char_width (chart ch) {
   /* This would be the same as wcwidth(ch), assuming wide characters were
      Unicode, except that for non-printable characters we return 0, not -1. */
