@@ -1,6 +1,8 @@
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (open_file): fix G++ compilation
+	* charstrg.d (uc_width): remove the global inline declaration of
+	the gnulib function to avoid a G++ warning
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
