@@ -111,6 +111,7 @@
 <!ENTITY libsigsegv '&gnu; <ulink url="http://libsigsegv.sourceforge.net/">libsigsegv</ulink>'>
 <!ENTITY readline '&gnu; <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html">readline</ulink>'>
 <!ENTITY gdbm '&gnu; <ulink url="http://www.gnu.org/software/gdbm">DataBase Manager</ulink>'>
+<!ENTITY gnulib '&gnu; <ulink url="http://www.gnu.org/software/gnulib/">Portability Library'</ulink>>
 <!ENTITY autoconf '&gnu; <ulink url="http://www.gnu.org/software/autoconf/">autoconf</ulink>'>
 <!ENTITY asdf '<ulink url="http://www.cliki.net/asdf"><function>asdf</function></ulink>'>
 <!ENTITY defsystem '<ulink url="http://www.cliki.net/defsystem"><function>defsystem</function></ulink>'>
