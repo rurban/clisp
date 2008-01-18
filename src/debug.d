@@ -1511,17 +1511,17 @@ local inline maygc uintL show_stack (climb_fun_t frame_up_x, uintL frame_limit,
   var gcv_object_t* stream_ = &STACK_0;
   var uintL count = 0;
   var p_backtrace_t bt = back_trace;
-  while (!eq(FRAME_(0),nullobj) /* nullobj = stack end */
+  while (!((gcv_object_t*)STACK_start cmpSTACKop FRAME)
          && (frame_limit==0 || count<frame_limit)) {
     fresh_line(stream_);
+    print_bt_to_frame(stream_,FRAME,&bt,&count);
+    FRAME = print_stackitem(stream_,FRAME);
+    elastic_newline(stream_);
     if (frame_up_x != NULL) {
       var gcv_object_t* next_frame = (*frame_up_x)(FRAME);
       if (next_frame == FRAME) break;
       FRAME = next_frame;
     }
-    print_bt_to_frame(stream_,FRAME,&bt,&count);
-    FRAME = print_stackitem(stream_,FRAME);
-    elastic_newline(stream_);
   }
   skipSTACK(1); /* drop *STANDARD-OUTPUT* */
   return count;

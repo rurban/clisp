@@ -2,6 +2,8 @@
 
 	* debug.d (print_back_trace, print_stackitem):
 	also print FRAME offset from STACK_start
+	(show_stack): use STACK_start instead of nullobj to check for stack end;
+	print bt & FRAME _before_ testing for loop termination
 
 2008-01-17  Sam Steingold  <sds@gnu.org>
 
