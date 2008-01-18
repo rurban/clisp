@@ -1198,8 +1198,7 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
     return FRAME STACKop 1;
   } else { /* met frame */
     write_ascii_char(stream_,'[');
-    prin1(stream_,fixnum(STACK_item_count(bt->bt_stack,
-                                          (gcv_object_t*)STACK_start)));
+    prin1(stream_,fixnum(STACK_item_count(FRAME,(gcv_object_t*)STACK_start)));
     write_ascii_char(stream_,']');
     write_ascii_char(stream_,' ');
     var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); /* top of frame */
