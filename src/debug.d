@@ -1148,6 +1148,9 @@ local maygc void print_back_trace (const gcv_object_t* stream_,
                                    const struct backtrace_t *bt, uintL index) {
   write_ascii_char(stream_,'<');
   prin1(stream_,fixnum(index));
+  write_ascii_char(stream_,'/');
+  prin1(stream_,fixnum(STACK_item_count(bt->bt_stack,
+                                        (gcv_object_t*)STACK_start)));
   write_ascii_char(stream_,'>');
   write_ascii_char(stream_,' ');
   prin1(stream_,bt->bt_function);
@@ -1182,8 +1185,7 @@ local maygc void print_bt_to_frame (const gcv_object_t* stream_,
 local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
                                            gcv_object_t* FRAME)
 {
-  if (!frame_p()) {
-    /* no frame, normal LISP-object */
+  if (!frame_p()) { /* no frame, normal LISP-object */
     write_sstring(stream_,O(showstack_string_lisp_obj)); /* "- " */
     var object obj = FRAME_(0);
    #if !defined(NO_symbolflags)
@@ -1194,8 +1196,12 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
    #endif
     prin1(stream_,obj);       /* print LISP-object */
     return FRAME STACKop 1;
-  } else {
-    /* met frame */
+  } else { /* met frame */
+    write_ascii_char(stream_,'[');
+    prin1(stream_,fixnum(STACK_item_count(bt->bt_stack,
+                                          (gcv_object_t*)STACK_start)));
+    write_ascii_char(stream_,']');
+    write_ascii_char(stream_,' ');
     var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); /* top of frame */
     switch (framecode(FRAME_(0))) { /* according to frametype */
       case TRAPPED_APPLY_frame_info:
