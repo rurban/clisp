@@ -2068,13 +2068,14 @@ LISPSPECFORM(the, 2,0,nobody)
   pushSTACK(STACK_(2+1)); funcall(S(type_for_discrimination),1);
   pushSTACK(value1);
   funcall(S(pthe),2);
-  if (nullp(value1)) {
-    /* type-check failed */
-    pushSTACK(STACK_(2+0)); /* value-type */
-    pushSTACK(STACK_(0+1)); /* values */
-    pushSTACK(STACK_(1+2)); /* form */
+  if (nullp(value1)) { /* type-check failed */
+    pushSTACK(STACK_0);     /* TYPE-ERROR slot DATUM */
+    pushSTACK(STACK_(2+1)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(STACK_(2+2)); /* value-type */
+    pushSTACK(STACK_(0+3)); /* values */
+    pushSTACK(STACK_(1+4)); /* form */
     pushSTACK(S(the));
-    error(error_condition, /* type_error ?? */
+    error(type_error,
           GETTEXT("~S: ~S evaluated to the values ~S, not of type ~S"));
   }
   /* type-check OK -> return values: */

@@ -1,3 +1,7 @@
+2008-01-19  Sam Steingold  <sds@gnu.org>
+
+	* control.d (THE): raise TYPE-ERROR on failure
+
 2008-01-18  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (print_back_trace, print_stackitem):
