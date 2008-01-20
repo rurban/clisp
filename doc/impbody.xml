@@ -447,10 +447,6 @@ executes a compiled version of &form-r;.</para>
 </programlisting>
  returns two functions.  The first is compiled and increments &x-r;, the
  second is interpreted (slower) and decrements the same &x-r;.</para>
-
-<para>The type assertion <code>(&the; &val-type-r; &form-r;)</code>
- enforces a type check in interpreted code.
- No type check is done in compiled code.  See also the &ethe; macro.</para>
 </section>
 
 <section id="space-decl"><title>Declaration &space-dec;</title>
@@ -509,8 +505,15 @@ compile-time.</para></warning></section>
  <constant>:LOAD-TOPLEVEL</constant>
  and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
  &top-level-form; versus non-&top-level-form; distinction.</para></warning>
-
 </section>
+
+<section id="speop-the"><title>Special operator &the;</title>
+
+<para>The special form <code>(&the; &val-type-r; &form-r;)</code> is
+ similar to &check-type; but does a type check only in interpreted
+ code (no type check is done in compiled code - but see the &ethe;
+ macro) and does not allow interactive error correction by the user.
+</para></section>
 
 </section>
 </chapter>
