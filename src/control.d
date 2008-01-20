@@ -187,8 +187,7 @@ local maygc bool check_setq_body (object caller) {
         goto error_dotted;
       /* STACK_0 == SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
-      error(source_program_error,
-             GETTEXT("~S: odd number of arguments: ~S"));
+      error(source_program_error,GETTEXT("~S: odd number of arguments: ~S"));
     }
     STACK_0 = Cdr(STACK_0);
   }
@@ -543,14 +542,12 @@ local /*maygc*/ void make_variable_frame
             if (special_var_p(TheSymbol(symbol))) {
               pushSTACK(symbol);
               pushSTACK(caller);
-              error(program_error,
-                     GETTEXT("~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"));
+              error(program_error,GETTEXT("~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"));
             }
             if (specdecled) {
               pushSTACK(symbol); /* SOURCE-PROGRAM-ERROR slot DETAIL */
               pushSTACK(symbol); pushSTACK(caller);
-              error(source_program_error,
-                     GETTEXT("~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"));
+              error(source_program_error,GETTEXT("~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"));
             }
             /* static binding */
           } else {
@@ -587,7 +584,7 @@ local /*maygc*/ void make_variable_frame
         pushSTACK(unbound);     /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(caller);
         error(source_program_error,
-               GETTEXT("~S: too many variables and/or declarations"));
+              GETTEXT("~S: too many variables and/or declarations"));
       }
      #endif
       pushSTACK(aktenv.var_env); /* current VAR_ENV as NEXT_ENV */
@@ -1025,14 +1022,14 @@ LISPSPECFORM(macrolet, 1,0,body)
       pushSTACK(macrodefs);     /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(macrodefs); pushSTACK(S(macrolet));
       error(source_program_error,
-             GETTEXT("~S: ~S is not a macro specification"));
+            GETTEXT("~S: ~S is not a macro specification"));
     }
     var object name = Car(macrodefs);
     if (!symbolp(name)) {
       pushSTACK(name);          /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(name); pushSTACK(S(macrolet));
       error(source_program_error,
-             GETTEXT("~S: macro name ~S should be a symbol"));
+            GETTEXT("~S: macro name ~S should be a symbol"));
     }
     if (!mconsp(Cdr(macrodefs)))
       goto error_spec;
@@ -1087,14 +1084,14 @@ LISPSPECFORM(function_macro_let, 1,0,body)
       pushSTACK(funmacspecs);   /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(funmacspecs); pushSTACK(S(function_macro_let));
       error(source_program_error,
-             GETTEXT("~S: ~S is not a function and macro specification"));
+            GETTEXT("~S: ~S is not a function and macro specification"));
     }
     var object name = Car(funmacspecs);
     if (!symbolp(name)) {
       pushSTACK(name);          /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(name); pushSTACK(S(function_macro_let));
       error(source_program_error,
-             GETTEXT("~S: function and macro name ~S should be a symbol"));
+            GETTEXT("~S: function and macro name ~S should be a symbol"));
     }
     if (!(mconsp(Cdr(funmacspecs)) && mconsp(Car(Cdr(funmacspecs)))
           && mconsp(Cdr(Cdr(funmacspecs)))
@@ -1248,7 +1245,7 @@ LISPSPECFORM(case, 1,0,body)
       pushSTACK(clauses);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(keys); pushSTACK(S(case));
       error(source_program_error,
-             GETTEXT("~S: the ~S clause must be the last one"));
+            GETTEXT("~S: the ~S clause must be the last one"));
     } else {
       if (listp(keys)) {
         while (consp(keys)) {
@@ -1302,8 +1299,7 @@ LISPSPECFORM(block, 1,0,body)
 nonreturning_function(global, error_block_left, (object name)) {
   pushSTACK(name);
   pushSTACK(S(return_from));
-  error(control_error,
-         GETTEXT("~S: the block named ~S has already been left"));
+  error(control_error,GETTEXT("~S: the block named ~S has already been left"));
 }
 
 LISPSPECFORM(return_from, 1,1,nobody)
@@ -1338,7 +1334,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   pushSTACK(name);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(name); pushSTACK(S(return_from));
   error(source_program_error,
-         GETTEXT("~S: no block named ~S is currently visible"));
+        GETTEXT("~S: no block named ~S is currently visible"));
   /* found block-frame: env */
  found:
   FRAME = uTheFramepointer(env); /* pointer to that frame */
@@ -1595,8 +1591,7 @@ LISPSPECFORM(tagbody, 0,0,body)
         } else {
           pushSTACK(item);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
           pushSTACK(item); pushSTACK(S(tagbody));
-          error(source_program_error,
-                 GETTEXT("~S: ~S is neither tag nor form"));
+          error(source_program_error,GETTEXT("~S: ~S is neither tag nor form"));
         }
       }
     }
@@ -1676,7 +1671,7 @@ LISPSPECFORM(go, 1,0,nobody)
           pushSTACK(tag);
           pushSTACK(S(go));
           error(control_error,
-                 GETTEXT("~S: tagbody for tag ~S has already been left"));
+                GETTEXT("~S: tagbody for tag ~S has already been left"));
         }
         FRAME = uTheFramepointer(env); /* pointer to the (still active!) frame */
         value1 = FRAME_(frame_bindings+2*index+1); /* formlist */
@@ -1690,7 +1685,7 @@ LISPSPECFORM(go, 1,0,nobody)
   pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(tag); pushSTACK(S(go));
   error(source_program_error,
-         GETTEXT("~S: no tag named ~S is currently visible"));
+        GETTEXT("~S: no tag named ~S is currently visible"));
   /* tagbody-frame found. FRAME is pointing to it (without typeinfo),
      value1 is the liste of the forms to be executed. */
  found:
@@ -2059,8 +2054,7 @@ LISPSPECFORM(declare, 0,0,body)
 { /* (DECLARE {decl-spec}), CLTL p. 153 */
   /* ({decl-spec}) already in STACK_0 */
   pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
-  error(source_program_error,
-         GETTEXT("declarations ~S are not allowed here"));
+  error(source_program_error,GETTEXT("declarations ~S are not allowed here"));
 }
 
 LISPSPECFORM(the, 2,0,nobody)
@@ -2081,7 +2075,7 @@ LISPSPECFORM(the, 2,0,nobody)
     pushSTACK(STACK_(1+2)); /* form */
     pushSTACK(S(the));
     error(error_condition, /* type_error ?? */
-           GETTEXT("~S: ~S evaluated to the values ~S, not of type ~S"));
+          GETTEXT("~S: ~S evaluated to the values ~S, not of type ~S"));
   }
   /* type-check OK -> return values: */
   list_to_mv(popSTACK(), { error_mv_toomany(S(the)); } );
@@ -2390,7 +2384,7 @@ LISPFUNN(keyword_test,2)
       pushSTACK(arglist);
       /* ANSI CL 3.5.1.6. wants a PROGRAM-ERROR here. */
       error(program_error,
-             GETTEXT("keyword argument list ~S has an odd length"));
+            GETTEXT("keyword argument list ~S has an odd length"));
     }
   }
   { /* search, if there is :ALLOW-OTHER-KEYS : */
@@ -2427,8 +2421,8 @@ LISPFUNN(keyword_test,2)
           STACK_3 = type;
         }
         error(keyword_error,
-               GETTEXT("Illegal keyword/value pair ~S, ~S in argument list.\n"
-                       "The allowed keywords are ~S"));
+              GETTEXT("Illegal keyword/value pair ~S, ~S in argument list.\n"
+                      "The allowed keywords are ~S"));
       }
     }
   }
