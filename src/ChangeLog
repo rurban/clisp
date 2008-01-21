@@ -5,6 +5,8 @@
 	(CHECK_STACK, CHECK_STACK_S, CHECK_STACK_C): new macros
 	(eval_fsubr, eval_subr, apply_subr, funcall_subr): use CHECK_STACK_S
 	(eval_closure, apply_closure, funcall_closure): use CHECK_STACK_C
+	(find_keyword_value, match_subr_key, match_cclosure_key): avoid
+	GCC "warning: value computed is not used"
 
 2008-01-19  Sam Steingold  <sds@gnu.org>
 
