@@ -635,9 +635,9 @@
    and restored during end_callback().
  - When the interpreter does a longjmp(), the registers STACK, mv_count,
    value1 may need to be temporarily saved. This is highly machine
-   dependent and is indicated by the NEED_temp_xxxx macros. */
+   dependent and is indicated by the NEED_temp_xxxx macros.
 
-  /* Register for STACK. */
+   * Register for STACK. */
   #if defined(MC680X0)
     #define STACK_register "a4" /* highest address register after sp=A7,fp=A6/A5 */
   #endif
@@ -2431,9 +2431,7 @@ if possible.
 FSUBR, Bignum, Single-Float (unless IMMEDIATE_FFLOAT), Double-Float,
 Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
-*/
-
-/* ######################## LISP-objects in general ######################## */
+ ######################## LISP-objects in general ######################## */
 
 #if defined(DEBUG_GCSAFETY)
   #ifndef __cplusplus
@@ -4245,13 +4243,13 @@ extern bool inside_gc;
 #endif
 
 
-/* ################### Methods for memory management ##################### */
+/* ################### Methods for memory management #####################
 
-/* SPVW_BLOCKS : Memory management with few memory blocks
-   SPVW_PAGES  : Memory management with many memory blocks
-   SPVW_MIXED  : Objects of mixed types are possible on the same page or block
-   SPVW_PURE   : Every memory block/every memory page contains only objects
-                 of exactly one type */
+ SPVW_BLOCKS : Memory management with few memory blocks
+ SPVW_PAGES  : Memory management with many memory blocks
+ SPVW_MIXED  : Objects of mixed types are possible on the same page or block
+ SPVW_PURE   : Every memory block/every memory page contains only objects
+               of exactly one type */
 #if defined(MAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   /* Multimapping of single pages isn't implemented yet.??
    Singlemapping of single pages isn't implemented yet.??
@@ -4421,9 +4419,9 @@ extern bool inside_gc;
 #endif
 
 
-/* ################## Structure of memory of LISP objects ################### */
+/* ################## Structure of memory of LISP objects ###################
 
-/* uintWC is the Integer type for the lengths of Bignum, Lfloat, Iarray.
+ uintWC is the Integer type for the lengths of Bignum, Lfloat, Iarray.
  Subset relation: uintW <= uintWC <= uintC. */
 #ifdef TYPECODES
   #define intWCsize intCsize
@@ -4441,9 +4439,9 @@ extern bool inside_gc;
 
 /* ---------------------- Objects with two pointers ---------------------- #
  They contain just the two pointers, no header. The type must already be
- known when the object is accessed. */
+ known when the object is accessed.
 
-/* Normally, Cons, Ratio, Complex can all be considered as pairs. But if
+ Normally, Cons, Ratio, Complex can all be considered as pairs. But if
  SPVW_MIXED, the heap statistics are a little unspecific if we mix the
  three types; therefore in that case we let Ratio and Complex be Varobjects. */
 #ifdef SPVW_MIXED
@@ -4456,9 +4454,9 @@ extern bool inside_gc;
  The first word is reserved for garbage collection. Outside of garbage
  collection, it contains a pointer to the object itself. Note that the
  GC, when it moves an object, takes care not to modify the typecode of
- this first word (except the GC bit, which it temporarily uses). */
+ this first word (except the GC bit, which it temporarily uses).
 
-/* Type of the header flags: */
+ Type of the header flags: */
 #if (oint_type_len<=8) && !defined(ARM) && !defined(DECALPHA) && !defined(IA64) && !defined(DEBUG_GCSAFETY)
   /* Access to an individual byte is possible */
   #define hfintsize  intBsize
@@ -5653,9 +5651,7 @@ typedef struct {
   #endif
   gcv_object_t data _attribute_aligned_object_; /* data vector */
   uintL totalsize;   /* totalsize = product of the n dimensions */
-  uintL dims[unspecified]; /* poss. displaced-offset, */
-                           /* n dimensions,
-                            poss. fill-pointer */
+  uintL dims[unspecified]; /* poss. displaced-offset, n dimensions, poss. fill-pointer */
 } iarray_;
 typedef iarray_ *  Iarray;
 #define iarray_data_offset  offsetof(iarray_,data)
@@ -5686,9 +5682,9 @@ typedef iarray_ *  Iarray;
 #define arrayflags_adjustable_bit  7 /* set, if array is adjustable */
 #define arrayflags_fillp_bit       6 /* set, if a fill-pointer exists (only possible for n=1) */
 #define arrayflags_displaced_bit   5 /* set, if array is displaced */
-#define arrayflags_dispoffset_bit  4 /* set, if there is space for the */
-                                     /* displaced-offset
-                                      (<==> array adjustable or displaced) */
+#define arrayflags_dispoffset_bit  4 /* set, if there is space for the
+                                        displaced-offset
+                                        (<==> array adjustable or displaced) */
 #define arrayflags_atype_mask  0x0F  /* mask for the element-type */
 /* Element-types of arrays in Bits 3..0 of its flags:
  The first ones are chosen, so that 2^Atype_nBit = n. */
@@ -6024,8 +6020,7 @@ typedef struct {
   gcv_object_t enc_towcs_error _attribute_aligned_object_; /* input error action, :ERROR or :IGNORE or a character */
   gcv_object_t enc_tombs_error _attribute_aligned_object_; /* output error action, :ERROR or :IGNORE or a character or an uint8 */
   #ifdef UNICODE
-  gcv_object_t enc_charset     _attribute_aligned_object_; /* character set, a symbol in the CHARSET package */
-                                                           /* or a simple-string */
+  gcv_object_t enc_charset     _attribute_aligned_object_; /* character set, a symbol in the CHARSET package or a simple-string */
   /* Functions to convert bytes to characters. */
     gcv_object_t enc_mblen     _attribute_aligned_object_; /* uintL (*) (object encoding, const uintB* src, const uintB* srcend); */
     gcv_object_t enc_mbstowcs  _attribute_aligned_object_; /* void (*) (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend); */
@@ -6267,8 +6262,8 @@ typedef struct {
   #define MAXHOSTNAMELEN 64
 #endif
 typedef struct host_data_t {
-  char hostname[45+1];   /* IP address in presentable, printable format */
-                         /* (IPv4 max. 15 characters, IPv6 max. 45 characters) */
+  char hostname[45+1];   /* IP address in presentable, printable format
+                        (IPv4 max. 15 characters, IPv6 max. 45 characters) */
   char truename[MAXHOSTNAMELEN+1]; /* hostname, with or without domain name */
   unsigned int port;
 } host_data_t;
@@ -7323,15 +7318,15 @@ typedef struct {
 %% export_def(Symbol_package(obj));
 
 
-/* ####################### type test predicates ############################### #
+/* ####################### type test predicates ########################### #
  There are two kinds of predicates:
  1.  ???p, query with 'if':  if ???p(object)
  2.  if_???p, called as
          if_???p(object, statement1, statement2)
        instead of
-         if ???p(object) statement1 else statement2 */
+         if ???p(object) statement1 else statement2
 
-/* UP: tests for equality of pointers EQ
+ UP: tests for equality of pointers EQ
  eq(obj1,obj2)
  > obj1,obj2: Lisp-objects
  < result: true, if objects are equal */
@@ -8328,10 +8323,9 @@ typedef struct {
 #endif
 
 
-/* ################# Declarations for the arithmetics ####################### */
+/* ################# Declarations for the arithmetics #######################
 
-
-/* Type hierachy :
+ Type hierachy :
  Number (N) =
     Real (R) =
        Float (F) =
@@ -8344,10 +8338,9 @@ typedef struct {
              Fixnum (FN)
              Bignum (BN)
           Ratio (RT)
-    Complex (C) */
+    Complex (C)
 
-
-/* Type field:
+ Type field:
  Bytes for testing whether it's that type (Bit set, is yes).
  _bit_t to test in the type byte (tint)
  _bit_o to test in the object (oint) */
@@ -8361,17 +8354,17 @@ typedef struct {
 #ifdef TYPECODES
 
 /* see above:
- #define number_bit_t     4  # set only for numbers
- #define number_bit_o     (number_bit_t+oint_type_shift)    # set only for numbers */
+ #define number_bit_t  4  -- set only for numbers
+ #define number_bit_o  (number_bit_t+oint_type_shift)  -- set only for numbers
 
-/* float_bit:
+ float_bit:
  in a number : Bit set, if it's a Float.
-                Bit unset, if it's a rational or complex number.
+               Bit unset, if it's a rational or complex number.
  (For NUMBER_BITS_INVERTED it's exactly the other way around.)
  #define float_bit_t      1
- #define float_bit_o      (float_bit_t+oint_type_shift) */
+ #define float_bit_o      (float_bit_t+oint_type_shift)
 
-/* float1_bit:
+ float1_bit:
  In a floating-point: discriminates further: */
 #ifndef NUMBER_BITS_INVERTED
 /* Float-Bit   1 2
@@ -8681,9 +8674,9 @@ typedef struct {
 %% export_def(slong_p);
 
 
-/* ####################### TIMEBIBL in TIME.D ############################# */
+/* ####################### TIMEBIBL in TIME.D #############################
 
-/* (* 25567 24 60 60) => 2208988800
+ (* 25567 24 60 60) => 2208988800
  the number of seconds from 1900-01-01 to 1970-01-01 */
 #define UNIX_LISP_TIME_DIFF 2208988800UL
 %% export_def(UNIX_LISP_TIME_DIFF);
@@ -11379,9 +11372,8 @@ loop after an error message. The structure is simple
 SP is a pointer into the program stack. (SP).L is a routine, that
 re-enters the corresponding top-level loop.
 
-*/
-
-/* STACK:
+ STACK:
+ ------
  STACK is the LISP-Stack.
  STACK_0 is the first object on the STACK.
  STACK_1 is the second object on the STACK.
@@ -11487,9 +11479,9 @@ re-enters the corresponding top-level loop.
 %%     printf("#define STACK_%d  (STACK_(%d))\n",i,i);
 %% }
 
-/* Values: */
+/* Values:
 
-/* Highest number of multiple values + 1 */
+ Highest number of multiple values + 1 */
 #define mv_limit  128
 /* Values are always passed in the MULTIPLE_VALUE_SPACE mv_space:
  uintC mv_count : number of values, >=0, <mv_limit
