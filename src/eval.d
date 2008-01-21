@@ -3095,6 +3095,24 @@ local maygc Values eval1 (object form)
   }
 }
 
+#define CHECK_STACK(stack_before,fun) do {                              \
+  if (STACK != stack_before) { /* STACK as before? */                   \
+    fprintf(stderr,"\n[%s:%d] STACK is not restored: %d in ",           \
+            __FILE__,__LINE__,STACK_item_count(STACK,stack_before));    \
+    nobject_out(stderr,fun); fprintf(stderr,"\n");                      \
+    abort();                   /* no -> go to Debugger */               \
+  }} while(0)
+#if STACKCHECKS
+#define CHECK_STACK_S(stack_before,fun)  CHECK_STACK(stack_before,fun)
+#else
+#define CHECK_STACK_S(stack_before,fun)
+#endif
+#if STACKCHECKC
+#define CHECK_STACK_C(stack_before,fun)  CHECK_STACK(stack_before,fun)
+#else
+#define CHECK_STACK_C(stack_before,fun)
+#endif
+
 /* In EVAL: Applies a FSUBR to an argument-list, cleans up STACK
  and returns the values.
  eval_fsubr(fun,args);
@@ -3198,10 +3216,7 @@ local maygc Values eval_fsubr (object fun, object args)
    Call FSUBR: */
   with_saved_back_trace_fsubr(fun,
     (*(fsubr_function_t*)(TheFsubr(fun)->function))(); );
-  #if STACKCHECKS
-   if (!(STACK == STACKbefore)) /* STACK as before? */
-     abort();                   /* no -> go to Debugger */
-  #endif
+  CHECK_STACK_S(STACKbefore,fun);
   unwind();                     /* unwind EVAL-Frame */
 }
 
@@ -3537,10 +3552,7 @@ local maygc Values eval_subr (object fun)
                                TheSubr(fun)->req_count + TheSubr(fun)->opt_count + argcount,
       (*(subr_rest_function_t*)(TheSubr(fun)->function))(argcount,rest_args_pointer); );
   }
-  #if STACKCHECKS
-  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
-    abort();                               /* no -> leave to Debugger */
-  #endif
+  CHECK_STACK_S(args_end_pointer,fun);
   unwind();                  /* unwind EVAL-Frame */
   return;                    /* finished */
   /* Gathered error-messages: */
@@ -3857,10 +3869,7 @@ local maygc Values eval_closure (object closure)
    apply_cclosure_nokey_:
     interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* interprete bytecode starting at Byte 8 */
    done:
-    #if STACKCHECKC
-    if (!(STACK == STACKbefore)) /* STACK as before? */
-      abort();                   /* no -> go to Debugger */
-    #endif
+    CHECK_STACK_C(STACKbefore,closure);
     skipSTACK(1);               /* discard Closure */
     unwind();                   /* unwind EVAL-Frame */
     return;                     /* finished */
@@ -4380,10 +4389,7 @@ local maygc Values apply_subr (object fun, uintC args_on_stack, object args)
   with_saved_back_trace_subr(fun,STACK,-1,
     (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
  done:
-  #if STACKCHECKS
-  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
-    abort();                               /* no -> go to Debugger */
-  #endif
+  CHECK_STACK_S(args_end_pointer,fun);
   return;                       /* finished */
   /* gathered error messages: */
  error_toofew: error_subr_toofew(fun,args);
@@ -4767,10 +4773,7 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
    apply_cclosure_nokey:        /* jump to Closure without &KEY: */
     interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* process Bytecode starting at Byte 8 */
    done:
-    #if STACKCHECKC
-    if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
-      abort();                               /* no -> go to Debugger */
-    #endif
+    CHECK_STACK_C(args_end_pointer,closure);
     return;                     /* finished */
   } else {
     /* closure is an interpreted Closure
@@ -5185,10 +5188,7 @@ local maygc Values funcall_subr (object fun, uintC args_on_stack)
   with_saved_back_trace_subr(fun,STACK,args_on_stack,
     (*(subr_norest_function_t*)(TheSubr(fun)->function))(); );
  done:
-  #if STACKCHECKS
-  if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
-    abort();                               /* no -> go to Debugger */
-  #endif
+  CHECK_STACK_S(args_end_pointer,fun);
   return;                       /* finished */
   /* Gathered error-messages: */
  error_count:
@@ -5590,10 +5590,7 @@ local maygc Values funcall_closure (object closure, uintC args_on_stack)
    apply_cclosure_nokey:        /* jump to Closure without &KEY: */
     interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* process Bytecode starting at Byte 8 */
    done:
-    #if STACKCHECKC
-    if (!(args_pointer == args_end_pointer)) /* Stack cleaned up? */
-      abort();                               /* no -> go to Debugger */
-    #endif
+    CHECK_STACK_C(args_end_pointer,closure);
     return;                     /* finished */
    error_count:               /* collected error-messages: */
     if (args_on_stack < TheCodevec(codevec)->ccv_numreq)
