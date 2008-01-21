@@ -2,6 +2,9 @@
 
 	* eval.d (reset): set unwind_protect_to_save.upto_frame;
 	print a useful(?) error message on abort
+	(CHECK_STACK, CHECK_STACK_S, CHECK_STACK_C): new macros
+	(eval_fsubr, eval_subr, apply_subr, funcall_subr): use CHECK_STACK_S
+	(eval_closure, apply_closure, funcall_closure): use CHECK_STACK_C
 
 2008-01-19  Sam Steingold  <sds@gnu.org>
 
