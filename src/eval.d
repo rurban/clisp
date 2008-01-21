@@ -511,9 +511,10 @@ nonreturning_function(global, reset, (uintL count)) {
   gcv_object_t *last_driver_frame = NULL;
   VALUES0;
   unwind_protect_to_save.fun = (restartf_t)&reset;
+  unwind_protect_to_save.upto_frame = NULL;
   while (1) {
     /* does STACK end here? */
-    if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) {
+    if (eq(STACK_0,nullobj) && eq(STACK_1,nullobj)) { /* check STACK_start? */
       if (last_driver_frame) {  /* restart at last driver frame */
         setSTACK(STACK = last_driver_frame);
         break;
@@ -522,6 +523,8 @@ nonreturning_function(global, reset, (uintL count)) {
          does not clean up SP & back_trace, just STACK, see
          https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1448744&group_id=1355
          we probably cannot even do NOTREACHED - the STACK is bad. */
+      fprintf(stderr,"\n[%s:%d] reset() found no driver frame (sp=0x%x-0x%x)\n",
+              __FILE__,__LINE__,(aint)SP_anchor,(aint)SP());
       abort();
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
