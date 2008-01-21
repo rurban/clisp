@@ -2381,16 +2381,12 @@ local maygc void trace_call (object fun, uintB type_of_call, uintB caller_type)
     var uintC find_count;                                               \
     dotimesC(find_count,argcount, {                                     \
       if (eq(NEXT(argptr),keyword)) goto kw_found; /* right keyword? */ \
-      NEXT(argptr);                                                     \
+      argptr skipSTACKop -1;   /* NEXT */                               \
     });                                                                 \
-    if (true) {                                                         \
-      /* not found */                                                   \
-      notfound_statement                                                \
-        } else {                                                        \
-     kw_found:                  /* found */                             \
+    if (true) { notfound_statement } /* not found */                    \
+    else { kw_found:           /* found */                              \
       {var object value = NEXT(argptr);                                 \
-      found_statement                                                   \
-        }}                                                              \
+      found_statement }}                                                \
   }
 
 /* UP: Applies an interpreted closure to arguments.
@@ -2747,7 +2743,7 @@ local void match_subr_key (object fun, uintL argcount,
         /* find the pair Key.Value for this Keyword: */
         find_keyword_value(
           /* not found -> value remains #<UNBOUND> : */
-          { NEXT(key_args_ptr); },
+          { (void)NEXT(key_args_ptr); },
           /* found -> save value: */
           { NEXT(key_args_ptr) = value; }
           );
@@ -2828,7 +2824,7 @@ local maygc object match_cclosure_key (object closure, uintL argcount,
         /* find the pair Key.value for this keyword: */
         find_keyword_value(
           /* not found -> Wert remains #<UNBOUND> : */
-          { NEXT(key_args_ptr); },
+          { (void)NEXT(key_args_ptr); },
           /* found -> save value: */
           { NEXT(key_args_ptr) = value; }
           );
