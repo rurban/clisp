@@ -662,6 +662,7 @@ global maygc object check_faddress_valid (object fa) {
   object fp = TheFaddress(fa)->fa_base;
   if (!fp_validp(TheFpointer(fp))) {
     pushSTACK(fa); validate_fpointer(fp); fa=popSTACK();
+    check_fpointer(TheFaddress(fa)->fa_base,false);
   }
   return fa;
 }
@@ -4299,6 +4300,8 @@ local maygc void update_library (object acons, uintL version) {
       STACK_0 = Cdr(STACK_0);
     } else {                    /* not found - drop object */
       Cdr(STACK_0) = Cdr(Cdr(STACK_0));
+      TheFaddress(*fa_)->fa_base = allocate_fpointer((void*)0);
+      mark_fp_invalid(TheFpointer(TheFaddress(*fa_)->fa_base));
     }
   }
   skipSTACK(4);                /* drop acons, library list & lib_addr */
