@@ -1,5 +1,15 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	* savemem.lisp (*saveinitmem-verbose*): add defvar
+	(saveinitmem): :verbose defaults to *saveinitmem-verbose*
+	* spvw.d (init_symbol_values): define *SAVEINITMEM-VERBOSE*
+	(main_actions): set it to NIL when argv_verbose < 1
+	* init.lisp (*saveinitmem-verbose*): export from CUSTOM
+	(loading-message): permit more than 1 format argument
+	* constsym.d (*saveinitmem-verbose*): add symbol
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	* spvw_memfile.d (savemem): return file length
 	* lispbibl.d (savemem): update prototype
 	* pathname.d (SAVEMEM): return file length

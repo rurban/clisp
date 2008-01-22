@@ -75,7 +75,7 @@
 <para>The function <code>(&savemem; &optional-amp;
   (&filename-r; "lispinit.mem") &key-amp; :KEEP-GLOBAL-HANDLERS :QUIET
   :INIT-FUNCTION :LOCKED-PACKAGES :START-PACKAGE :EXECUTABLE :NORC
-  :SCRIPT :DOCUMENTATION)</code>
+  :SCRIPT :DOCUMENTATION :VERBOSE)</code>
  saves the running &clisp;'s memory to the file &filename-r;;
  extension &mem-file; is recommended (when &filename-r; does not have an
  extension, &mem-file; extension is automatically added unless the file
@@ -87,6 +87,10 @@
    <simpara>This is &not-e; recommended for interactive application
     delivery, please <emphasis>append</emphasis> your banner to ours
     (using &init-function;) instead of <emphasis>replacing</emphasis> it.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><constant>:VERBOSE</constant></term>
+  <listitem><simpara>Print a message after writing the file.
+    This argument defaults to &savemem-verbose;; initial value is &t;.
  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:NORC</constant></term>
   <listitem><simpara>If this argument is not &nil;, the &RC-file;
@@ -1813,6 +1817,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&prompt-start;</member>
   <member>&prompt-step;</member>
   <member>&err-pr-bt;</member>
+  <member>&savemem-verbose;</member>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
   <member>&suppress-check-redef;</member>
