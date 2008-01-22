@@ -422,7 +422,7 @@ Continue       :c       switch off single step mode, continue evaluation
 ;; establish the DEBUG catcher and the ABORT restart
 (defmacro with-abort-restart ((&key report) &body body)
   `(catch 'debug
-     (with-restarts ((ABORT () :report (lambda () ,report)
+     (with-restarts ((ABORT () :report (lambda (s) (write-string ,report s))
                        (throw 'debug 'continue)))
        ,@body)))
 
