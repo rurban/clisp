@@ -1,5 +1,11 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (with-abort-restart): new macro: establish the
+	DEBUG catcher and the ABORT restart with a useful report function
+	(main-loop, break-loop, step-hook-fn): use it
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1877497 ]: the set of restarts grows with each image save
 	* savemem.lisp (saveinitmem): bind *ACTIVE-RESTARTS* &
 	*CONDITION-RESTARTS* to NIL around SAVEMEM instead of setting them
