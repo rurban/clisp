@@ -1,5 +1,10 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (nobject_out1): print INVALID for invalid foreign
+	functions and foreign addresses
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	* control.d (APPLY, specdecled_): avoid GCC "warning: value
 	computed is not used"
 

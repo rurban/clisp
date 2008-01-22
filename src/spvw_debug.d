@@ -133,12 +133,14 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       obj = Closure_name(obj);
     }
     #ifdef DYNAMIC_FFI
-      else if (ffunctionp(obj)) {
+    else if (ffunctionp(obj)) {
+      if (!fp_validp(TheFpointer(TheFaddress(TheFfunction(obj)->ff_address)->fa_base)))
+        string_out(out,O(printstring_invalid));
       string_out(out,O(printstring_ffunction));
       obj = TheFfunction(obj)->ff_name;
     }
     #endif
-      else { /* interpreted closure */
+    else { /* interpreted closure */
       string_out(out,O(printstring_closure));
       obj = TheIclosure(obj)->clos_name;
     }
@@ -235,7 +237,10 @@ local void nobject_out1 (FILE* out, object obj, int level) {
   else if (eq(obj,dot_value)) string_out(out,O(printstring_dot));
 #if defined(DYNAMIC_FFI)
   else if (faddressp(obj)) {
-    fputs("#<",out); string_out(out,O(printstring_faddress)); fputs(" ",out);
+    fputs("#<",out);
+    if (!fp_validp(TheFpointer(TheFaddress(obj)->fa_base)))
+      string_out(out,O(printstring_invalid));
+    string_out(out,O(printstring_faddress)); fputs(" ",out);
     XOUT(TheFaddress(obj)->fa_base);
     fprintf(out," + 0x%lx>",TheFaddress(obj)->fa_offset);
   }
