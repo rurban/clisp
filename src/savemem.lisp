@@ -44,8 +44,7 @@
                #-(or win32 cygwin) filename))
          (*driver*
            #'(lambda ()
-               ;(declare (special *command-index* *home-package*
-               ;                  *active-restarts* *condition-restarts*))
+               ;(declare (special *command-index* *home-package*))
                ;; Reset a few special variables. This must happen in the
                ;; fresh session, not in the old session, because that would
                ;; temporarily disable error handling in the old session.
@@ -62,8 +61,6 @@
                      / nil
                      // nil
                      /// nil
-                     *active-restarts* nil
-                     *condition-restarts* nil
                      *command-index* 0
                      *home-package* nil)
                (setq *driver* old-driver)
@@ -73,7 +70,12 @@
       (setq old-global-handlers ; disable and save all global handlers
             (ext::set-global-handler nil nil)))
     (setf (package-lock locked-packages) t)
-    (savemem fn executable)
+    (let ((*active-restarts* nil)
+          (*condition-restarts* nil))
+      ;; we used to set *ACTIVE-RESTARTS* & *CONDITION-RESTARTS* above in the
+      ;; *DRIVER* binding, but that caused mutiple ABORT restarts, bug
+      ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1877497&group_id=1355&atid=101355
+      (savemem fn executable))
     (when old-global-handlers   ; re-install all global handlers
       (ext::set-global-handler old-global-handlers nil))
     (when verbose
