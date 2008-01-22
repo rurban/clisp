@@ -1164,4 +1164,17 @@ FM
 MY-UINTP
 (my-uintp 123) 123
 
+(def-call-out toupper (:library :default)
+  (:language :stdc) (:arguments (c character)) (:return-type character))
+TOUPPER
+(toupper #\a)
+#\A
+
+(when (ignore-errors (ffi::foreign-library "libpcre.so"))
+  (def-call-out pcre-version (:name "pcre_version")
+    ;; actually in libpcre.so, but dlsym() now searches in any open library
+    (:library :default) (:language :stdc) (:arguments) (:return-type c-string))
+  (not (stringp (cl-user::show (pcre-version)))))
+NIL
+
 (progn (in-package "USER") (delete-package "FTEST") T) T
