@@ -3119,9 +3119,9 @@ local inline void main_actions (struct argv_actions *p) {
   if (p->argv_init_filecount > 0) {
     var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
     var sp_jmp_buf returner; /* return point */
-    finish_entry_frame(DRIVER,returner,,goto done_driver_init_files;);
     var const char* const* fileptr = &p->argv_init_files[0];
     var uintL count = p->argv_init_filecount;
+    finish_entry_frame(DRIVER,returner,,goto done_driver_init_files;);
     do {
       pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
       funcall(S(load),1);
@@ -3138,9 +3138,9 @@ local inline void main_actions (struct argv_actions *p) {
     if (p->argv_compile_filecount > 0) {
       var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
       var sp_jmp_buf returner; /* return point */
-      finish_entry_frame(DRIVER,returner,,goto done_driver_compile_files;);
       var const argv_compile_file_t* fileptr = &p->argv_compile_files[0];
       var uintL count = p->argv_compile_filecount;
+      finish_entry_frame(DRIVER,returner,,goto done_driver_compile_files;);
       do {
         var uintC argcount = 1;
         var object filename = asciz_to_string(fileptr->input_file,O(misc_encoding));
