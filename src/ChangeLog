@@ -1,5 +1,11 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/glibc/linux.lisp (SIGSET_NWORDS): compute using
+	ffi:ulong, as specified in <bits/sigset.h>
+	(sigset_t): array of ulong, as specified in <bits/sigset.h>
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1407486 ]: FFI revalidates too many library functions
 	in new session
 	* foreign.d (check_faddress_valid): check that validate_fpointer()

@@ -2402,11 +2402,11 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 ;;; --------------------------------- <bits/sigset.h> -----------------------
 (eval-when (load compile eval)
   (defconstant SIGSET_NWORDS
-    ;; #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:uint)))
-    32))
+    ;; 32 on 32-bit platforms, 16 on 64-bit platforms
+    #.(cl:/ 1024 #.(cl:* 8 (ffi:sizeof 'ffi:ulong)))))
 
 (def-c-struct sigset_t
-  (val (c-array-max uint #.SIGSET_NWORDS)))
+  (val (c-array-max ulong #.SIGSET_NWORDS)))
 ;;; --------------------------------- <bits/sigaction.h> ---------------------
 
 (def-c-type sighandler_t (c-function (:arguments (sig int)) ;from signal.h
