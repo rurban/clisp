@@ -285,7 +285,8 @@ compiles the specified lisp files to a platform-independent
    &load-verbose-var; and &compile-verbose-var; to &t;, and
    &load-print-var; and &compile-print-var; to &nil;, as per &ansi-cl;.
    The first &opt-q; removes the banner and the good-bye message, the
-   second sets variables &load-verbose-var; and &compile-verbose-var; to &nil;.
+   second sets variables &load-verbose-var;, &compile-verbose-var; and
+   &savemem-verbose; to &nil;.
    The first &opt-v; sets variables &err-pr-bt;, &load-print-var; and
    &compile-print-var; to &t;, the second sets &load-echo; to &t;.
    These settings affect the output produced by &opt-i; and &opt-c; options.
