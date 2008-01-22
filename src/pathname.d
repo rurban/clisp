@@ -8777,8 +8777,7 @@ LISPFUNN(savemem,2) {
   /* write memory image into the file:
    (the stream has to be closed by function savemem(),
    also in case of an error.) */
-  savemem(value1,exec_p);
-  VALUES1(T);
+  VALUES1(off_to_I(savemem(value1,exec_p)));
 }
 
 #ifdef DYNAMIC_MODULES

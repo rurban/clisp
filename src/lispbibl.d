@@ -10520,8 +10520,9 @@ extern uintM free_space (void);
  savemem(stream);
  > object stream: open File-Output-Stream, will be closed
  > bool exec_p: should the result include runtime?
+ < file length
  can trigger GC */
-extern maygc void savemem (object stream, bool exec_p);
+extern maygc off_t savemem (object stream, bool exec_p);
 /* used by PATHNAME */
 
 #ifdef HAVE_SIGNALS
@@ -15707,7 +15708,7 @@ extern maygc object open_file_stream_handle (object stream, Handle *fd);
  < result: the length of the stream
  should be wrapped in begin_system_call()/end_system_call()
  for gdbm module */
-global off_t handle_length (object stream, Handle fd);
+extern off_t handle_length (object stream, Handle fd);
 %% puts("extern off_t handle_length (object stream, Handle fd);");
 
 /* Function: Reads several bytes from a stream.
