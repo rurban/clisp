@@ -39,6 +39,7 @@ User visible changes
   + Repeated terminating signals kill CLISP instantly with the correct
     exit code. [ 1871205 ]
   + Stack inspection is now safer. [ 1506316 ]
+  + Avoid the growth of the restart set with each image save. [ 1877497 ]
 
 
 2.43 (2007-11-18)
