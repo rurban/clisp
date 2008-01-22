@@ -299,7 +299,7 @@ LISPFUNN(fmakunbound,1)
 
 LISPFUN(apply,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (APPLY function {arg} arglist), CLTL p. 107 */
-  BEFORE(rest_args_pointer);
+  rest_args_pointer skipSTACKop 1; /* BEFORE */
   apply(Before(rest_args_pointer), /* function */
         argcount, /* number of {arg} on the stack */
         popSTACK()); /* arglist */
@@ -424,7 +424,7 @@ local maygc object check_varspec (object varspec, object caller) {
 global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
                                   uintL spec_count) {
   do {
-    NEXT(spec_pointer);
+    spec_pointer skipSTACKop -1; /* NEXT */
    #ifdef NO_symbolflags
     if (eq(NEXT(spec_pointer),symbol)) {
       if (eq(NEXT(spec_pointer),Fixnum_0))
