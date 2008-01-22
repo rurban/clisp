@@ -44,6 +44,8 @@ User visible changes
     exit code. [ 1871205 ]
   + Stack inspection is now safer. [ 1506316 ]
   + Avoid the growth of the restart set with each image save. [ 1877497 ]
+  + Handle foreign functions coming from the old image which cannot be
+    validated. [ 1407486 ]
 
 
 2.43 (2007-11-18)

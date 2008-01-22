@@ -1,5 +1,14 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1407486 ]: FFI revalidates too many library functions
+	in new session
+	* foreign.d (check_faddress_valid): check that validate_fpointer()
+	actually did make the pointer valid
+	(update_library): make sure that the non-validatable object
+	remains marked as invalid
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (nobject_out1): print INVALID for invalid foreign
 	functions and foreign addresses
 
