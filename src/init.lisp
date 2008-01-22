@@ -395,7 +395,7 @@
 
 (common-lisp:export
  '(*load-paths* *editor* *clhs-root-default* *browsers* *browser* *http-proxy*
-   clhs-root *impnotes-root-default* impnotes-root
+   clhs-root *impnotes-root-default* impnotes-root *saveinitmem-verbose*
    *load-echo* *applyhook* *evalhook* *load-compiling* *compile-warnings*
    *load-obsolete-action* *suppress-check-redefinition*
    *eq-hashfunction* *eql-hashfunction* *equal-hashfunction*
@@ -1685,12 +1685,12 @@
       (declare (ignore file))
       (eval-loaded-form-low obj)))))
 
-(defun loading-message (format argument)
+(defun loading-message (format &rest arguments)
   (when *load-verbose*
     (fresh-line)
     (write-string ";;")
     (write-spaces *load-level*)
-    (format t format argument)
+    (apply #'format t format arguments)
     (elastic-newline)))
 
 ;; (LOAD filename [:verbose] [:print] [:if-does-not-exist] [:external-format]

@@ -26,15 +26,18 @@
 
 ;; Saves the current memory contents.
 ;; This function works only when compiled!
+(defvar *saveinitmem-verbose* t
+  "The default value for the :VERBOSE argument of SAVEINITMEM.")
 (defun saveinitmem (&optional (filename "lispinit.mem")
-                    &key ((:quiet *quiet*) nil) init-function verbose
+                    &key ((:quiet *quiet*) nil) init-function
+                    ((:verbose *saveinitmem-verbose*) *saveinitmem-verbose*)
                     ((:norc *norc*) nil)
                     ((:documentation *image-doc*)
                      (documentation init-function 'function))
                     ((:script *script*) (null init-function))
                     keep-global-handlers (start-package *package*)
                     (locked-packages *system-package-list*) executable)
-  (let* ((old-driver *driver*) old-global-handlers
+  (let* ((old-driver *driver*) old-global-handlers file-size
          (*package* (sys::%find-package start-package))
          (fn (if (not executable)
                (merge-pathnames filename #.(make-pathname :type "mem"))
@@ -75,11 +78,11 @@
       ;; we used to set *ACTIVE-RESTARTS* & *CONDITION-RESTARTS* above in the
       ;; *DRIVER* binding, but that caused mutiple ABORT restarts, bug
       ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1877497&group_id=1355&atid=101355
-      (savemem fn executable))
+      (setq file-size (savemem fn executable)))
     (when old-global-handlers   ; re-install all global handlers
       (ext::set-global-handler old-global-handlers nil))
-    (when verbose
-      (fresh-line)
-      (format t (TEXT "Wrote the memory image into ~A") fn)
-      (terpri)))
+    (when *saveinitmem-verbose*
+      (let ((*load-level* 1))   ; proper indentation
+        (loading-message (TEXT "Wrote the memory image into ~A (~:D byte~:P)")
+                         fn file-size))))
   (room nil))

@@ -1348,6 +1348,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_echo),NIL); /* *LOAD-ECHO* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
+  define_variable(S(saveinitmem_verbose),T); /* *SAVEINITMEM-VERBOSE* := T */
   define_variable(S(report_error_print_backtrace),NIL); /* *REPORT-ERROR-PRINT-BACKTRACE* := NIL */
   define_variable(S(loop_ansi),NIL); /* CUSTOM:*LOOP-ANSI* := NIL */
   define_variable(S(defun_accept_specialized_lambda_list),NIL); /* CUSTOM:*DEFUN-ACCEPT-SPECIALIZED-LAMBDA-LIST* := NIL */
@@ -3058,8 +3059,10 @@ local inline void main_actions (struct argv_actions *p) {
   }
   if (p->argv_load_compiling)   /* (SETQ *LOAD-COMPILING* T) : */
     { Symbol_value(S(load_compiling)) = T; }
-  if (p->argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil) */
-    Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) = NIL;
+  if (p->argv_verbose < 1) /* (setq *load-verbose* nil *compile-verbose* nil
+                                    *saveinitmem-verbose* nil) */
+    Symbol_value(S(load_verbose)) = Symbol_value(S(compile_verbose)) =
+      Symbol_value(S(saveinitmem_verbose)) = NIL;
   if (p->argv_verbose > 2) /* (setq *load-print* t *compile-print* t
                                     *report-error-print-backtrace* t) */
     Symbol_value(S(report_error_print_backtrace)) =
