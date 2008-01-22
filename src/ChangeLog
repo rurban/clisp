@@ -49,7 +49,8 @@
 
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 1877497 ]: the set of restarts grows with each image save
+	fix bugs #[ 1877497 ]: the set of restarts grows with each image save
+	and #[ 1714737 ]: Bad restarts when .clisprc signals errors.
 	* savemem.lisp (saveinitmem): bind *ACTIVE-RESTARTS* &
 	*CONDITION-RESTARTS* to NIL around SAVEMEM instead of setting them
 	to NIL in the *DRIVER* to avoid multiple ABORT restarts in saved images
