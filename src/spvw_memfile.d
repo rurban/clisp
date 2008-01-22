@@ -6,9 +6,10 @@
  savemem(stream);
  > object stream: open file output stream
  > bool exec_p: should the result include runtime?
+ < file length
  As a side effect, the stream is closed.
  can trigger GC */
-global maygc void savemem (object stream, bool exec_p);
+global maygc off_t savemem (object stream, bool exec_p);
 
 /* UP: Restores a memory image from disk.
  loadmem(filename);
@@ -360,7 +361,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
  > object stream: open File-Output-Stream, will be closed
  > bool exec_p: should the result include runtime?
  can trigger GC */
-global maygc void savemem (object stream, bool exec_p)
+global maygc off_t savemem (object stream, bool exec_p)
 { /* We need the stream only because of the handle provided by it.
      In case of an error we have to close it (the caller makes no
      WITH-OPEN-FILE, but only OPEN). Hence, the whole stream is passed
@@ -645,8 +646,11 @@ global maygc void savemem (object stream, bool exec_p)
   else { size_t tmp = (size_t)-1; WRITE(&tmp,sizeof(size_t)); }
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
+  var off_t res;
+  begin_system_call(); res = handle_length(STACK_0,handle); end_system_call();
   builtin_stream_close(&STACK_0,0);
   skipSTACK(1);
+  return res;
 }
 #undef WRITE
 
@@ -1086,7 +1090,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
 
              header._mem_varobjects_end - header._mem_varobjects_start
              <= mem.conses.heap_end - mem.varobjects.heap_start
-         <==> 
+         <==>
              mem.varobjects.heap_end <= mem.conses.heap_end
 
              header._mem_conses_end - header._mem_conses_start
