@@ -1,3 +1,9 @@
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
+	* spvw_memfile.d (savemem): return file length
+	* lispbibl.d (savemem): update prototype
+	* pathname.d (SAVEMEM): return file length
+
 2008-01-21  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (run_hooks): establish a DRIVER frame around the loop to
