@@ -57,8 +57,9 @@ document xout
          print the specified object with nobject_out()
 end
 
+# ffi.tst requires -E utf-8
 define run_test
-  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -i tests/tests -x "(run-test \"tests/$arg0\")"
+  run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -i tests/tests -x "(run-test \"tests/$arg0\")"
 end
 document run_test
          run the specified test in the test suite
