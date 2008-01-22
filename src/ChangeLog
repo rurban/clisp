@@ -1,3 +1,11 @@
+2008-01-21  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (run_hooks): establish a DRIVER frame around the loop to
+	enable reset() on errors in user code
+	(main_actions): ditto around loading RC file, init files,
+	compiling files, executing scripts (but not expression, they go
+	through SYS::DRIVER)
+
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (with-abort-restart): new macro: establish the

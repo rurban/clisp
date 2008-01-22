@@ -2969,12 +2969,16 @@ local inline int init_memory (struct argv_initparams *p) {
 /* run all functions in the list
  can trigger GC */
 local void maygc run_hooks (object hooks) {
+  var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
+  var sp_jmp_buf returner; /* return point */
+  finish_entry_frame(DRIVER,returner,,goto done_driver_run_hooks;);
   pushSTACK(hooks);
   while (mconsp(STACK_0)) {     /* process */
     var object obj = STACK_0;
     STACK_0 = Cdr(obj); funcall(Car(obj),0);
   }
-  skipSTACK(1);
+ done_driver_run_hooks:
+  setSTACK(STACK = top_of_frame); /* drop hooks & skip driver-frame */
 }
 
 /* Perform the main actions as specified by the command-line arguments. */
@@ -3088,6 +3092,9 @@ local inline void main_actions (struct argv_actions *p) {
   }
   /* load RC file ~/.clisprc */
   if (nullpSv(norc) && !p->argv_norc && p->argv_memfile) {
+    var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
+    var sp_jmp_buf returner; /* return point */
+    finish_entry_frame(DRIVER,returner,,goto done_driver_rc;);
     /* If no memfile is given, LOAD cannot be called with 3 arguments.
        (LOAD (MAKE-PATHNAME :NAME ".clisprc"
                             :DEFAULTS (USER-HOMEDIR-PATHNAME))
@@ -3102,15 +3109,22 @@ local inline void main_actions (struct argv_actions *p) {
     pushSTACK(S(Kif_does_not_exist));
     pushSTACK(S(nil));
     funcall(S(load),3);
+   done_driver_rc:
+    setSTACK(STACK = top_of_frame); /* skip driver-frame */
   }
   /* execute (LOAD initfile) for each initfile: */
   if (p->argv_init_filecount > 0) {
+    var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
+    var sp_jmp_buf returner; /* return point */
+    finish_entry_frame(DRIVER,returner,,goto done_driver_init_files;);
     var const char* const* fileptr = &p->argv_init_files[0];
     var uintL count = p->argv_init_filecount;
     do {
       pushSTACK(asciz_to_string(*fileptr++,O(misc_encoding)));
       funcall(S(load),1);
     } while (--count);
+   done_driver_init_files:
+    setSTACK(STACK = top_of_frame); /* skip driver-frame */
   }
   if (p->argv_compile) {
     /* execute
@@ -3119,6 +3133,9 @@ local inline void main_actions (struct argv_actions *p) {
                    [:LISTING (MERGE-PATHNAMES #".lis" (or output-file file))])
      for each file: */
     if (p->argv_compile_filecount > 0) {
+      var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
+      var sp_jmp_buf returner; /* return point */
+      finish_entry_frame(DRIVER,returner,,goto done_driver_compile_files;);
       var const argv_compile_file_t* fileptr = &p->argv_compile_files[0];
       var uintL count = p->argv_compile_filecount;
       do {
@@ -3157,6 +3174,8 @@ local inline void main_actions (struct argv_actions *p) {
         funcall(S(compile_file),argcount);
         fileptr++;
       } while (--count);
+     done_driver_compile_files:
+      setSTACK(STACK = top_of_frame); /* skip driver-frame */
     }
     if (!p->argv_repl)
       return;
@@ -3178,6 +3197,9 @@ local inline void main_actions (struct argv_actions *p) {
     skipSTACK(1);
   }
   if (p->argv_execute_file != NULL && !nullpSv(script)) {
+    var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
+    var sp_jmp_buf returner; /* return point */
+    finish_entry_frame(DRIVER,returner,,goto done_driver_execute_file;);
     /*  execute:
      (PROGN
        #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\##\!
@@ -3204,6 +3226,8 @@ local inline void main_actions (struct argv_actions *p) {
    #else
     funcall(S(load),1);
    #endif
+   done_driver_execute_file:
+    setSTACK(STACK = top_of_frame); /* skip driver-frame */
     if (!p->argv_repl)
       return;
   } else if (p->argv_execute_file) { /* !scripting => (push exec-file *args) */
@@ -3229,7 +3253,10 @@ local inline void main_actions (struct argv_actions *p) {
      is undefined. Do not set an error handler in that case.
      we use SYS::MAIN-LOOP instead of the image-specific user-defined
      SYS::*DRIVER* so that the users can always get to the repl using
-     -x '(saveinitmem ...)' */
+     -x '(saveinitmem ...)'
+    SYS::MAIN-LOOP calls DRIVER, so we do not need to do
+      finish_entry_frame(DRIVER,returner,,;);
+    here */
     var object main_loop_function = Symbol_function(S(main_loop));
     if (closurep(main_loop_function)) {
       dynamic_bind(S(standard_input),value1);
