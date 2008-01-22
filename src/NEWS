@@ -43,6 +43,7 @@ User visible changes
   + Repeated terminating signals kill CLISP instantly with the correct
     exit code. [ 1871205 ]
   + Stack inspection is now safer. [ 1506316 ]
+  + Errors in the RC-file and init files are now handled properly. [ 1714737 ]
   + Avoid the growth of the restart set with each image save. [ 1877497 ]
   + Handle foreign functions coming from the old image which cannot be
     validated. [ 1407486 ]
