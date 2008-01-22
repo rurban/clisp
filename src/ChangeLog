@@ -1,5 +1,10 @@
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
+	* control.d (APPLY, specdecled_): avoid GCC "warning: value
+	computed is not used"
+
+2008-01-22  Sam Steingold  <sds@gnu.org>
+
 	* savemem.lisp (*saveinitmem-verbose*): add defvar
 	(saveinitmem): :verbose defaults to *saveinitmem-verbose*
 	* spvw.d (init_symbol_values): define *SAVEINITMEM-VERBOSE*
