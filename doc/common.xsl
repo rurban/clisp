@@ -361,8 +361,34 @@ set       toc,title
     <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support This Project]"/></a></td>
     <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
  </tr></table></div>
- <xsl:if test="$google.ads != 0">
-  <div class="google-ads"><hr width="100%"/>
+ <xsl:if test="$google.ads != 0"><div class="google-ads"><hr width="100%"/>
+   <form method="get" action="http://www.google.com/custom" target="_top">
+    <table width="100%" border="0"><tr>
+      <td nowrap="nowrap" align="center">
+       <input type="hidden" name="domains"
+              value="clisp.cons.org;clisp.podval.org;www.lisp.org"/>
+       <label for="sbi" style="display: none">Enter your search terms</label>
+       <input type="text" name="q" size="50" maxlength="255" id="sbi" value=""/>
+       <label for="sbb" style="display: none">Submit search form</label>
+       <input type="submit" name="sa" value="Google Search" id="sbb"/></td></tr>
+     <tr><td nowrap="nowrap" align="center">
+       <input type="radio" name="sitesearch" value="" checked="1" id="ss0"/>
+       <label for="ss0" title="Search the Web"><small>Web</small></label>
+       <input type="radio" name="sitesearch" value="clisp.cons.org" id="ss1"/>
+       <label for="ss1" title="Search clisp.cons.org">
+        <small>clisp.cons.org</small></label>
+       <input type="radio" name="sitesearch" value="clisp.podval.org" id="ss2"/>
+       <label for="ss2" title="Search clisp.podval.org">
+        <small>clisp.podval.org</small></label>
+       <input type="radio" name="sitesearch" value="www.lisp.org" id="ss3"/>
+       <label for="ss3" title="Search www.lisp.org">
+        <small>www.lisp.org</small></label>
+       <input type="hidden" name="client" value="pub-4445255502750357"/>
+       <input type="hidden" name="forid" value="1"/>
+       <input type="hidden" name="ie" value="UTF-8"/>
+       <input type="hidden" name="oe" value="UTF-8"/>
+       <input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:000000;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;LH:48;LW:48;L:http://clisp.cons.org/clisp.png;S:http://clisp.cons.org;FORID:1"/>
+       <input type="hidden" name="hl" value="en"/></td></tr></table></form>
    <script type="text/javascript"><xsl:comment>
 google_ad_client = "pub-4445255502750357";
 google_ad_width = 728;
