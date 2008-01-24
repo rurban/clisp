@@ -64,12 +64,12 @@ test -r "$SRC" || fail "$0: source does not exist: $SRC"
 
 mkdirparent "$DST"
 
-for f in `cd "$SRC" > /dev/null ; find . -type d -print`; do
+for f in `cd "$SRC" > /dev/null ; find . -name CVS -prune -o -type d -print`; do
   dir="$DST"`echo "$f" | sed -e 's,^\.,,'`;
   test -d "${dir}" || mkdir "${dir}"
 done
 
-for f in `cd "$SRC" > /dev/null ; find . -type f -print`; do
+for f in `cd "$SRC" > /dev/null ; find . -name CVS -prune -o -type f -print`; do
   f=`echo "$f" | sed -e 's,^\./,,'`
   cmp -s "$SRC"/"$f" "$DST"/"$f" || link "$SRC"/"$f" "$DST"/"$f"
 done
