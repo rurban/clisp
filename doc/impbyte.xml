@@ -164,8 +164,8 @@
  <listitem><simpara>Opening &sock;s for &tcp;/&ip; and &clx;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/io.d</filename></term>
- <listitem><simpara>The lisp reader (parser) and printer (also pretty
-   printer).</simpara></listitem></varlistentry>
+ <listitem><simpara>The lisp reader (parser) and printer (including
+   pretty printer).</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/array.d</filename></term>
  <listitem><simpara>Functions dealing with &array-t;s and &vector-t;s.
 </simpara></listitem></varlistentry>
@@ -183,6 +183,9 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/sequence.d</filename></term>
  <listitem><simpara>The generic &sequence-t; functions.
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">src/funarg.d</filename></term>
+ <listitem><simpara>Functional arguments, like &test-k; and &key-k;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/charstrg.d</filename></term>
  <listitem><simpara>Functions dealing with &character-t;s and &string-t;s.
@@ -508,6 +511,10 @@
 <varlistentry>
  <term><filename role="clisp-cvs">src/compiler.lisp</filename></term>
  <listitem><simpara>compiles Lisp code to &bytecode;
+</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/functions.lisp</filename></term>
+ <listitem><simpara>&function-lambda-expression; et al
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/disassem.lisp</filename></term>
