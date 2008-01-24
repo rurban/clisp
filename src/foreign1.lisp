@@ -721,10 +721,13 @@
   *definedp=1;~%  switch (number) {~%"
                          c-decl c-decl)
                  (dotimes (num (length vec))
-                   (let ((const (aref vec num)))
-                     (format *coutput-stream* "#  if defined(~A)
-    case ~D: return ~A;~%#  endif~%"
-                             const num const)))
+                   (destructuring-bind (const . guard) (aref vec num)
+                     (when guard
+                       (format *coutput-stream* "#  if ~A~%" guard))
+                     (format *coutput-stream* "    case ~D: return ~A;~%"
+                             num const)
+                     (when guard
+                       (format *coutput-stream* "#  endif~%"))))
                  (format *coutput-stream* "    default: *definedp=0; return 0;
   }~%}~%#define HAVE_~A~%" (string-upcase (symbol-name fun)))))
              *constant-table*)
@@ -854,11 +857,13 @@
 (defmacro DEF-C-CONST (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
   (prepare-module)
-  (let* ((alist (parse-options options '(:name :type :documentation)
+  (let* ((alist (parse-options options '(:name :type :documentation :guard)
                                whole-form))
          (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
          (c-type (or (second (assoc ':type alist)) 'ffi:int))
-         (c-name (foreign-name name (assoc ':name alist)))
+         (c-name (or (second (assoc ':name alist)) name))
+         (guard (let ((g (assoc ':guard alist)))
+                  (if g (second g) (format nil "defined(~A)" c-name))))
          f-name c-number)
     (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
                 "A constant must be either an integer, a string or a pointer")
@@ -869,10 +874,11 @@
                                         (copy-seq (symbol-name c-type))))))
           c-number
           (vector-push-extend
-           c-name (cdr (or (gethash c-type *constant-table*)
-                           (setf (gethash c-type *constant-table*)
-                                 (cons f-name (make-array 10 :adjustable t
-                                                          :fill-pointer 0)))))))
+           (cons c-name guard)
+           (cdr (or (gethash c-type *constant-table*)
+                    (setf (gethash c-type *constant-table*)
+                          (cons f-name (make-array 10 :adjustable t
+                                                   :fill-pointer 0)))))))
     `(progn
        ;; c-number == 0 ==> need to output the def-call-out form
        ,@(when (zerop c-number)
