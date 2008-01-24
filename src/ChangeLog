@@ -1,5 +1,15 @@
 2008-01-23  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1781476 ]: signal handling examples in glibc fail
+	* modules/bindings/glibc/linux.lisp (sigaction): sa_restorer is
+	now a generic pointer, not a pointer to a function, because...
+	  The sa_restorer element is obsolete and should not be used.
+	  POSIX does not specify a sa_restorer element.
+	On Linux 2.6.22.7-57.fc6, sigaction(SIGINT) returns invalid
+	pointers as sa_restorer
+
+2008-01-23  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (finalize-coutput-file): constants
 	*CONSTANT-TABLE* are now (const . guard)
 	(DEF-C-CONST): accept :GUARD

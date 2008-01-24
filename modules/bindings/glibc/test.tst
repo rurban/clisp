@@ -20,7 +20,6 @@
 (= linux:DT_DIR (linux:dirent-d_type (show (linux:readdir *d*)))) T
 (linux:closedir *d*) 0
 
-#|
 ;;; signal handling examples:
 ;;; changing signal handlers:
 (defparameter *sigact* (show (linux:signal-action-retrieve linux:SIGINT)))
@@ -73,4 +72,3 @@ NIL                             ; the standard behavior is restored
 
 ;; (linux:raise linux:SIGINT)
 ;; ==> ** - Continuable Error/PRINT: User break
-|#
