@@ -2712,9 +2712,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 
 <varlistentry id="def-c-const"><term><code>(&def-c-const; &name-r;
    {&option-r;}*)</code></term>
- <listitem><para>This form defines a Lisp &constant; &name-r; whose
-   value is determined at link time using an internal &foreign-function-t;.
-   When the &cpp; constant is not defined, &name-r; is unbound.</para>
+ <listitem><para>This form defines a Lisp &constant; &name-r; whose value is
+   determined at build time using an internal &foreign-function-t;.</para>
   <variablelist id="def-c-const-opts"><title>Options for &def-c-const;</title>
    <varlistentry><term><code>(&name-k; &cname-r;)</code></term>
     <listitem><simpara>specifies the name as seen from &c-lang;, as a
@@ -2725,6 +2724,12 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
       <simplelist><member><type>FFI:INT</type></member>
        <member>&c-string;</member><member>&c-pointer;</member>
    </simplelist></para></listitem></varlistentry>
+   <varlistentry><term><code>(<constant>:GUARD</constant>
+      &string-r;)</code></term>
+    <listitem><para>specifies the &cpp; check to wrap around &cname-r;,
+      defaults to <literal role="data">"defined(&cname-r;)"</literal>;
+      can be &nil; to omit the test. When the test fails, &name-r; is
+      unbound.</para></listitem></varlistentry>
    <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
     <listitem><simpara>Specifies the (optional) &variable-doc; documentation.
   </simpara></listitem></varlistentry></variablelist>
@@ -3862,9 +3867,11 @@ instead, in conjunction with
 
 <example id="dffi-ex-macro"><title>Accessing &cpp; macros</title>
 <para>Suppose you are interfacing to a library <filename>mylib.so</filename>
- which defines macros and <literal>inline</literal> functions
+ which defines types, macros and <literal>inline</literal> functions
  in <filename>mylib.h</filename>:<programlisting language="C">
 #define FOO(x)  .....
+#define BAR ...
+struct zot { ... }
 inline int bar (int x) { ... }
 </programlisting>
  To make them available from &clisp;, write these forms into the lisp
@@ -3872,6 +3879,8 @@ inline int bar (int x) { ... }
 (&c-lines; "#include &lt;mylib.h&gt;
 int my_foo (int x) { return FOO(x); }
 int my_bar (int x) { return bar(x); }~%")
+(&def-c-const; bar)
+(&def-c-const; zot-size (:name "sizeof(struct zot)") (:guard nil))
 (&def-call-out; my-foo (:name "my_foo") (:arguments (x int)) (:return-type int))
 (&def-call-out; my-bar (:name "my_bar") (:arguments (x int)) (:return-type int))
 </programlisting></para>
