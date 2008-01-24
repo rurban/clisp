@@ -2415,8 +2415,19 @@ and SIG_IGN do anyway, by other means ... They are just sugar, really.
 (def-c-struct sigaction
   (sa_handler sighandler_t)
   (sa_mask sigset_t)
-  (sa_flags uint32) ; actually int but otherwise CLISP can't coerce SA_RESETHAND?!
-  (sa_restorer (c-function (:arguments) (:return-type nil))))
+  (sa_flags uint32) ; actually int but otherwise CLISP can't coerce SA_RESETHAND
+  ;; The sa_restorer element is obsolete and should not be used.
+  ;; POSIX does not specify a sa_restorer element.
+  (sa_restorer c-pointer))      ; (c-function (:arguments) (:return-type nil))
+
+#+(or)(progn ;; DEBUG
+(def-c-const sigaction-size (:name "sizeof(struct sigaction)") (:guard nil))
+(def-c-const sigset-size (:name "sizeof(sigset_t)") (:guard nil))
+(def-c-const _SIGSET_NWORDS)
+(assert (= (sizeof 'sigaction) sigaction-size))
+(assert (= (sizeof 'sigset_t) sigset-size))
+(assert (= SIGSET_NWORDS _SIGSET_NWORDS))
+)
 
 (defconstant SA_NOCLDSTOP  1)   ; Don't send SIGCHLD when children stop.
 (defconstant SA_NOCLDWAIT  2)   ; Don't create zombie on child death.
