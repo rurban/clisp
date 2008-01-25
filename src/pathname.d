@@ -6802,7 +6802,7 @@ local maygc void get_time_size (decoded_time_t *timepoint, off_t *entry_size) {
     begin_system_call();
     READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
     end_system_call();
-    if (notfound || READDIR_entry_ISDIR()) /* just to be paranoid */
+    if (notfound) /* just to be paranoid */
       OS_file_error(STACK_1);
     READDIR_entry_timedate(timepoint);
     *entry_size = READDIR_entry_size();
