@@ -794,7 +794,7 @@ T
   (when (directory f) (delete-file f))
   (list
    (let ((d (ext:string-concat f "/")))
-     (when (directory d) (ext:delete-dir d))
+     (when (directory d) (ext:delete-directory d))
      (directory d))
    (directory (ext:string-concat f "/*"))))
 (NIL NIL)
@@ -921,7 +921,7 @@ T
        (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
   (with-open-file (s f :direction :output)
-    (prin1 `(ext:delete-dir ,d) s))
+    (prin1 `(ext:delete-directory ,d) s))
   (ensure-directories-exist d)
   (list (ext:probe-directory d)
         (load n)
@@ -934,7 +934,7 @@ T
        (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
   (with-open-file (s f :direction :output)
-    (prin1 `(ext:delete-dir ,d) s))
+    (prin1 `(ext:delete-directory ,d) s))
   (ensure-directories-exist d)
   (setf (logical-pathname-translations "FOO") '(("*" "./*")))
   (list (ext:probe-directory d)
@@ -1069,13 +1069,13 @@ T
   (unwind-protect
        (let ((*load-paths* nil) (*load-verbose* t))
          (setf (logical-pathname-translations "FOO") nil)
-         (ext:make-dir dir)
+         (ext:make-directory dir)
          (with-open-file (f file :direction :output)
            (format f "~S~%" '(("FOO:**;*" "/foo/**/*"))))
          (and (load-logical-pathname-translations "FOO")
               (cadar (logical-pathname-translations "FOO"))))
     (delete-file file)
-    (ext:delete-dir dir))) "/foo/**/*"
+    (ext:delete-directory dir))) "/foo/**/*"
 (translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1550803&group_id=1355
@@ -1089,9 +1089,9 @@ NIL
 (make-pathname :directory '(:absolute :wild-inferiors "subdir"))
 #P"/**/subdir/"
 
-(ext:make-dir "foo/") T
-(ext:rename-dir "foo/" "bar/") T
-(ext:delete-dir "bar/") T
+(ext:make-directory "foo/") T
+(ext:rename-directory "foo/" "bar/") T
+(ext:delete-directory "bar/") T
 (flet ((kill (s) (makunbound s) (unintern s)))
   (makunbound 'string)
   (makunbound 'symbol)

@@ -1,3 +1,9 @@
+2008-01-25  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: use EXT:DELETE-DIRECTORY, EXT:MAKE-DIRECTORY, and
+	EXT:RENAME-DIRECTORY instead of the deprecated EXT:DELETE-DIR,
+	EXT:MAKE-DIR, and EXT:RENAME-DIR
+
 2008-01-22  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (toupper, pcre_version): add tests
