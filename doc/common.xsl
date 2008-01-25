@@ -368,7 +368,10 @@ set       toc,title
        <input type="hidden" name="domains"
               value="clisp.cons.org;clisp.podval.org;www.lisp.org"/>
        <label for="sbi" style="display: none">Enter your search terms</label>
-       <input type="text" name="q" size="50" maxlength="255" id="sbi" value=""/>
+       <input type="text" name="q" size="50" maxlength="255" id="sbi">
+        <xsl:attribute name="value">
+         <xsl:apply-templates select="." mode="object.title.markup.textonly"/>
+       </xsl:attribute></input>
        <label for="sbb" style="display: none">Submit search form</label>
        <input type="submit" name="sa" value="Google Search" id="sbb"/></td></tr>
      <tr><td nowrap="nowrap" align="center">
