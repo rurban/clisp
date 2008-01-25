@@ -1090,9 +1090,19 @@ NIL
 #P"/**/subdir/"
 
 (ext:make-directory "foo/") T
+(defparameter *dir* (directory "foo/" :full t)) *DIR*
+(cdr *dir*) NIL
+(length (car *dir*)) 4
+(equal (caar *dir*) (cadar *dir*)) T
+(equal (caar *dir*) (car (directory "foo/"))) T
 (ext:rename-directory "foo/" "bar/") T
+(equal (cddar (directory "bar/" :full t)) (cddar *dir*)) T
+(directory "foo/") NIL
 (ext:delete-directory "bar/") T
+(directory "bar/" :full t) NIL
+
 (flet ((kill (s) (makunbound s) (unintern s)))
+  (kill '*dir*)
   (makunbound 'string)
   (makunbound 'symbol)
   (kill 'pathstring)
