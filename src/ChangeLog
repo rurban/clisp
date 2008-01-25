@@ -1,3 +1,9 @@
+2008-01-25  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (get_time_size) [WIN32_NATIVE]: accept directories;
+	this should fix the 2007-12-31 patch for woe32
+	Thanks to Michael Kappert <michael.kappert@gmx.net> for testing.
+
 2008-01-24  Sam Steingold  <sds@gnu.org>
 
 	* lndir: do not link over CVS directories
