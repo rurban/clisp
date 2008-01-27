@@ -1,3 +1,8 @@
+2008-01-27  Reini Urban  <rurban@x-ray.at>
+
+	<35_trans4>
+	* places.lisp: Translate comments to English.
+
 2008-01-27  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (get_time_size) [WIN32_NATIVE]: strip trailing
