@@ -6799,11 +6799,16 @@ local maygc void get_time_size (decoded_time_t *timepoint, off_t *entry_size) {
   READDIR_var_declarations;
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),resolved_asciz,{
     var bool notfound = false;
+    /* strip trailing slash,
+       see http://msdn2.microsoft.com/en-us/library/aa364418.aspx */
+    if (resolved_asciz[resolved_asciz_bytelen - 1] == '\\')
+      resolved_asciz[resolved_asciz_bytelen - 1] = 0;
     begin_system_call();
     READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
     end_system_call();
     if (notfound) /* just to be paranoid */
       OS_file_error(STACK_1);
+    begin_system_call(); FindClose(search_handle); end_system_call();
     READDIR_entry_timedate(timepoint);
     *entry_size = READDIR_entry_size();
   });
