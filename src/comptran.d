@@ -120,6 +120,8 @@ local maygc object N_log_N (object x, gcv_object_t *end_p)
   }
 }
 
+#define C_rationalp(x)  (R_rationalp(TheComplex(x)->c_real) && R_rationalp(TheComplex(x)->c_imag))
+
 /* N_N_log_N(a,b) returns (log a b), where a and b are numbers.
  can trigger GC */
 local maygc object N_N_log_N (object a, object b);
@@ -147,14 +149,11 @@ local maygc object N_N_log_N (object a, object b)
 {
   if (N_realp(b) && R_plusp(b)) {
     /* b is real and >0 */
-    if (N_realp(a) && R_plusp(a)) {
-      /* a and b are both real and >0 */
+    if (N_realp(a) && R_plusp(a)) { /* a and b are both real and >0 */
       return R_R_log_R(a,b);
-    } else {
-      /* b is real and >0, but a not */
+    } else { /* b is real and >0, but a not */
       pushSTACK(a); pushSTACK(b); /* save a,b */
-      /* calculate imagpart (/ (phase a) (log b)) : */
-      {
+      { /* calculate imagpart (/ (phase a) (log b)) : */
         var object angle = N_phase_R(a,true); /* (phase a) */
         if (eq(angle,Fixnum_0)) /* = fixnum 0 <==> (= a 0) -> Error */
           divide_0();
@@ -176,8 +175,7 @@ local maygc object N_N_log_N (object a, object b)
           goto real_ok;
         }
       } else {
-        if (R_rationalp(TheComplex(a)->c_real)
-            && R_rationalp(TheComplex(a)->c_imag)) {
+        if (C_rationalp(a)) {
           /* a complex with rational real- and imagpart a1,a2
              calculate squared value a1^2+a2^2: */
           pushSTACK(TheComplex(a)->c_imag);
@@ -231,8 +229,7 @@ local maygc object N_I_expt_N (object x, object y)
     return R_I_expt_R(x,y);
   if (eq(y,Fixnum_0)) {
     /* y=0 -> return 1 */
-    if (R_rationalp(TheComplex(x)->c_real)
-        && R_rationalp(TheComplex(x)->c_imag)) {
+    if (C_rationalp(x)) {
       return Fixnum_1;
     } else {
       var object fx = R_R_contagion_R(TheComplex(x)->c_real,
@@ -331,8 +328,7 @@ local maygc object N_N_expt_N (object x, object y)
           else
             return RA_F_exact_contagion_R(Fixnum_1,x);
         } else {
-          if (R_rationalp(TheComplex(x)->c_real)
-              && R_rationalp(TheComplex(x)->c_imag)) {
+          if (C_rationalp(x)) {
             return Fixnum_1;
           } else {
             var object fx = R_R_contagion_R(TheComplex(x)->c_real,
@@ -353,8 +349,7 @@ local maygc object N_N_expt_N (object x, object y)
         if (R_rationalp(x))
           return R_I_expt_R(x,y);
       } else {
-        if (R_rationalp(TheComplex(x)->c_real)
-            && R_rationalp(TheComplex(x)->c_imag))
+        if (C_rationalp(x))
           return N_I_expt_N(x,y);
       }
     } else {
@@ -374,8 +369,7 @@ local maygc object N_N_expt_N (object x, object y)
           y = popSTACK(); x = popSTACK();
         }
       } else {
-        if (R_rationalp(TheComplex(x)->c_real)
-            && R_rationalp(TheComplex(x)->c_imag)) {
+        if (C_rationalp(x)) {
          complex_rational: /* x in Q(i) */
           var uintL k = I_power2p(TheRatio(y)->rt_den);
           if (!(k==0)) {
@@ -536,8 +530,7 @@ local maygc object N_cos_N (object x)
     if (eq(STACK_1,Fixnum_0)) {
       var object result = R_cosh_R(STACK_0); /* cosh(b) */
       skipSTACK(2); return result;
-    } else {
-      /* a and b must be converted to floats. */
+    } else { /* a and b must be converted to floats. */
       if (R_rationalp(STACK_1)) /* a */
         STACK_1 = RA_float_F(STACK_1);
       if (R_rationalp(STACK_0)) /* b */
