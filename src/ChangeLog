@@ -1,3 +1,10 @@
+2008-01-27  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (get_time_size) [WIN32_NATIVE]: strip trailing
+	backslash from resolved_asciz and close search_handle.
+	This actually fixes 2007-12-31 & 2008-01-25 patches.
+	Thanks to Michael Kappert <michael.kappert@gmx.net> for testing.
+
 2008-01-25  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (get_time_size) [WIN32_NATIVE]: accept directories;
