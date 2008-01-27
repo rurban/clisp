@@ -1,7 +1,7 @@
 2008-01-27  Reini Urban  <rurban@x-ray.at>
 
 	<35_trans4>
-	* places.lisp, comptran.d, realrand.d:
+	* places.lisp, comptran.d, realrand.d, realtran.d:
 	Translate comments to English. Convert # to /* */.
 
 2008-01-27  Sam Steingold  <sds@gnu.org>
