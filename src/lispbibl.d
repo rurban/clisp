@@ -14702,7 +14702,7 @@ nonreturning_function(extern, error_sstring, (object obj));
       error_sstring_immutable(obj);
   /* Error message, if a Simple-String is immutable:
    error_sstring_immutable(obj);
-   > obj: der String */
+   > obj: the String */
   nonreturning_function(extern, error_sstring_immutable, (object obj));
   /* is used by Macro check_sstring_mutable */
 
