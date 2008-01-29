@@ -3233,7 +3233,7 @@ local inline void main_actions (struct argv_actions *p) {
     setSTACK(STACK = top_of_frame); /* skip driver-frame */
     if (!p->argv_repl)
       return;
-  } else if (p->argv_execute_file) { /* !scripting => (push exec-file *args) */
+  } else if (p->argv_execute_file) { /* !scripting => (push exec-file *args*) */
     pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
     var object new_cons = allocate_cons();
     Car(new_cons) = popSTACK();
