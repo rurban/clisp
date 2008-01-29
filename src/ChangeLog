@@ -1,5 +1,10 @@
 2008-01-29  Sam Steingold  <sds@gnu.org>
 
+	* po/Makefile.devel (LISPSOURCES): remove affi1
+	(DSOURCES): remove affi, add funarg
+
+2008-01-29  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.44 (2008-02-02)
 
 2008-01-27  Sam Steingold  <sds@gnu.org>
