@@ -89,9 +89,9 @@
   <ulink url="&clhs;/Body/sec_2-3-5.html">[CLHS-2.3.5]</ulink></title>
 
 <para>When a token with package markers is read, then no checking is
- done whether the package part and the symbol-name part do not have
- number syntax. (What's the purpose of this check?) So we consider
- tokens like <token>USER::</token> or <token>:1</token> or
+ done whether the &symbol-package; part and the &symbol-name; part do
+ not have number syntax. (What would the purpose of this check be?)
+ So we consider tokens like <token>USER::</token> or <token>:1</token> or
  <token>LISP::4711</token> or <token>21:3</token> as symbols.</para>
 
 </section>
@@ -132,7 +132,7 @@
 
 <para><keysym>#\Code</keysym> allows input of characters of arbitrary code:
  e.g., <keysym>#\Code231</keysym> reads as the character
- <code>(&code-char; 231.)</code>.</para>
+ <code>(&code-char; 231)</code>.</para>
 
 </section>
 
@@ -306,7 +306,7 @@ ignored by the interpreter.</para>
   <ulink url="&clhs;/Body/sec_3-2-2-2.html">[CLHS-3.2.2.2]</ulink></title>
 
 <para>When a &defun; form is &eval;uated, the macros used there are
- expanded too, so they must be already defined, and their (re)definition
+ expanded, so they must be already defined, and their (re)definition
  does &not-e; affect functions which are already defined.</para>
 
 <para>This means that even the interpreted code is <emphasis>minimally
@@ -1568,11 +1568,11 @@ but can be changed some time in the future.</para></section>
 modern case-sensitive world:
 <itemizedlist>
 <listitem><simpara>Using &ansi-cl; symbols in lowercase.</simpara></listitem>
-<listitem><simpara>Macros that create symbols by suffixing or prefixing given
-  symbols.</simpara></listitem>
+<listitem><simpara>Macros that create symbols by suffixing or prefixing
+  given symbols.</simpara></listitem>
 <listitem><simpara>Comparing symbol names as in
-  <code>(string= (symbol-name x) (symbol-name y))</code>.</simpara></listitem>
-</itemizedlist></para>
+  <code>(&string-eq; (&symbol-name; &x-r;) (&symbol-name; &y-r;))</code>.
+</simpara></listitem></itemizedlist></para>
 
 <para>The following practices will not work in a case-sensitive world or
 can give problems:
@@ -1581,7 +1581,7 @@ can give problems:
   lowercase from the same source file.</simpara></listitem>
 <listitem><simpara>Macros that create symbols in other packages than the
   original symbols.</simpara></listitem>
-<listitem><simpara>Comparing symbol-name return values with &eq;.
+<listitem><simpara>Comparing &symbol-name; return values with &eq;.
 </simpara></listitem>
 <listitem><simpara>Comparing <code>(&symbol-name; x)</code> with
   <code>(cs-cl:symbol-name y)</code>.</simpara></listitem>
