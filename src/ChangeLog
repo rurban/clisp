@@ -1,3 +1,7 @@
+2008-01-29  Sam Steingold  <sds@gnu.org>
+
+	* version.sh: 2.44 (2008-02-02)
+
 2008-01-27  Sam Steingold  <sds@gnu.org>
 
 	* comptran.d (C_rationalp): new macro
