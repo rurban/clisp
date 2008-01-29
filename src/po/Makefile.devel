@@ -39,7 +39,7 @@ DSOURCES = \
     intlog intplus intcomp intbyte intmal intdiv intgcd int2adic intsqrt \
     intprint intread intserial rational sfloat ffloat dfloat lfloat flo_konv \
     flo_rest realelem realrand realtran compelem comptran \
- affi \
+ funarg \
  foreign \
  unixaux win32aux \
  built
@@ -65,7 +65,7 @@ LISPSOURCES = init defseq backquote defmacro macros1 macros2 defs1 \
               describe room edit macros3 clhs inspect gray threads \
               case-sensitive foreign1 exporting \
               german french spanish russian dutch danish \
-              deprecated affi1
+              deprecated
 
 SOURCES := $(patsubst %,%.d,$(DSOURCES)) $(patsubst %,%.lisp,$(LISPSOURCES))
 
