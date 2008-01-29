@@ -1554,10 +1554,13 @@ world.</para></section>
 
 <section id="cs-gensym-kwd"><title>Gensyms and Keywords</title>
 <para>Note that gensyms and keywords are still treated traditionally:
-even in a case-sensitive package, <code>(&eq; #:FooBar #:foobar)</code>
-and <code>(&eq; ':KeyWord ':keyword)</code> evaluate to true.  We
-believe this has limited negative impact for the moment, but can be
-changed a few years from now.</para></section>
+even in a case-sensitive package,<programlisting language="lisp">
+(&string-eq; '#:FooBar '#:foobar)
+<computeroutput>&t;</computeroutput>
+(&eq; ':KeyWord ':keyword)
+<computeroutput>&t;</computeroutput></programlisting>
+We believe this has a limited negative impact for the moment,
+but can be changed some time in the future.</para></section>
 
 <section id="case-sensitive-migration"><title>Migration Tips</title>
 
