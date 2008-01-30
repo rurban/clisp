@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([PARI (Common)])
-if $cl_cv_have_ffcall = no; then
+if test $cl_cv_have_ffcall = no; then
   AC_MSG_ERROR([module PARI requires FFI])
 fi
 CL_MODULE_COMMON_CHECKS
