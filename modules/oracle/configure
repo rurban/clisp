@@ -1734,6 +1734,11 @@ ac_config_headers="$ac_config_headers config.h"
 
 
 echo "$as_me: ${term_bold}** Oracle (Common)${term_norm}" >&6
+if test $cl_cv_have_ffcall = no; then
+  { { echo "$as_me:$LINENO: error: module Oracle requires FFI" >&5
+echo "$as_me: error: module Oracle requires FFI" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
