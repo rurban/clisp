@@ -1,6 +1,10 @@
 2008-01-30  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: libsvm requires FFI
+	* modules/fastcgi/configure.in, modules/oracle/configure.in:
+	* modules/pari/configure.in, modules/postgresql/configure.in:
+        * modules/wildcard/configure.in, modules/zlib/configure.in:
+	fail if ffcall is not present
 
 2008-01-29  Sam Steingold  <sds@gnu.org>
 

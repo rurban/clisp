@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for wildcard
 dnl Bruno Haible 12.4.1997
-dnl Sam Steingold 2003-07-28, 2006-2007
+dnl Sam Steingold 2003-07-28, 2006-2008
 
 AC_PREREQ(2.57)
 AC_INIT(wildcard, 1.0, clisp-list)
@@ -9,6 +9,9 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Wildcard (Common)])
+if $cl_cv_have_ffcall = no; then
+  AC_MSG_ERROR([module Wildcard requires FFI])
+fi
 CL_MODULE_COMMON_CHECKS
 dnl called from top-level configure.in:gl_INIT [gl_FUNC_FNMATCH_POSIX]
 dnl $ac_cv_func_fnmatch_gnu comes from ../config.cache
