@@ -745,7 +745,7 @@ t
   (write-char #\) out))
 MY-PPRINT-REVERSE
 
-(let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch nil)))
   (set-pprint-dispatch '(cons (member foo)) 'my-pprint-reverse 0)
   (write-to-string '(foo bar :boo 1) :pretty t :escape t))
 "(1 :BOO BAR FOO)"
@@ -761,7 +761,7 @@ MY-PPRINT-REVERSE
         (write-char #\Space out)))))
 MY-PPRINT-LOGICAL
 
-(let ((*print-pprint-dispatch* (copy-pprint-dispatch)))
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch nil)))
   (set-pprint-dispatch '(cons (member bar)) 'my-pprint-logical 0)
   (write-to-string '(bar foo :boo 1) :pretty t :escape t))
 "(?BAR? ?FOO? ?:BOO? ?1?)"
@@ -778,7 +778,7 @@ T
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1598053&group_id=1355&atid=101355
 ;; https://sourceforge.net/tracker/index.php?func=detail&aid=1483768&group_id=1355&atid=101355
-(let ((*print-pprint-dispatch* (copy-pprint-dispatch))
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch nil))
       (*print-pretty* t))
   (flet ((my-symbol-pprint (stream obj)
            (let ((*print-pretty* nil))
@@ -788,7 +788,7 @@ T
 "(++A++ (++B++ (++C++ (++D++) ++E++) ++F++) ++G++)"
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1835520&group_id=1355
-(let ((*print-pprint-dispatch* (copy-pprint-dispatch))
+(let ((*print-pprint-dispatch* (copy-pprint-dispatch nil))
       (*print-pretty* t)
       (l '(:bracket 1 2 (:bracket 3 4))))
   (flet ((bracket-list-printer (stream blist)
@@ -877,6 +877,9 @@ T
     (set-pprint-dispatch '(cons (member foo)) #'foo-printer)
     (write-to-string '(foo 123) :pretty t)))
 "FOO:(123.)"
+
+;; http://article.gmane.org/gmane.lisp.clisp.devel:17529
+(eq *print-pprint-dispatch* (copy-pprint-dispatch)) T
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1834193&group_id=1355
 (with-output-to-string (s)
