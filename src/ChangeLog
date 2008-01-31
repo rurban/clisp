@@ -1,5 +1,11 @@
 2008-01-30  Sam Steingold  <sds@gnu.org>
 
+	* pprint.lisp (copy-pprint-dispatch): distinguish the 3 cases:
+	no argument, NIL argument, table argument
+	Reported by "Hoehle, Joerg-Cyril" <Joerg-Cyril.Hoehle@t-systems.com>
+
+2008-01-30  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: libsvm requires FFI
 	* modules/fastcgi/configure.in, modules/oracle/configure.in:
 	* modules/pari/configure.in, modules/postgresql/configure.in:

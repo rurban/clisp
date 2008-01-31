@@ -59,18 +59,20 @@ Inspired by Paul Graham, <On Lisp>, p. 145."
             (setq top (car tail)))
           (pop tail))))
 
-(defun copy-pprint-dispatch (&optional (table *print-pprint-dispatch*)) ; ABI
+(defun copy-pprint-dispatch (&optional (table nil table-p)) ; ABI
   ;; table     ---a pprint dispatch table, or nil.
   ;; value:
   ;;  new-table---a fresh pprint dispatch table.
-  (unless (or (null table) (pprint-dispatch-p table))
-    (error-of-type 'type-error
-      :datum table :expected-type '(satisfies pprint-dispatch-p)
-      (TEXT "~S: ~S is not a valid print dispatch table")
-      'copy-pprint-dispatch table))
-  (if table
-      (copy-alist table)
-      (make-pprint-dispatch)))
+  (if table-p
+      (if table
+          (if (pprint-dispatch-p table)
+              (copy-alist table)
+              (error-of-type 'type-error
+                :datum table :expected-type '(satisfies pprint-dispatch-p)
+                (TEXT "~S: ~S is not a valid print dispatch table")
+                'copy-pprint-dispatch table))
+          (make-pprint-dispatch))
+      *print-pprint-dispatch*))
 
 (defun set-pprint-dispatch (type-specifier function &optional (priority 0)
                             (table *print-pprint-dispatch*))
