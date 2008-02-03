@@ -349,7 +349,7 @@
 <revision><revnumber>2.30</revnumber><date>2002-09-15</date>
  <authorinitials>sds</authorinitials>
  <revdescription><itemizedlist><listitem><simpara>Do not bundle
-    &libiconv;, &ggettext;, &readline;, &libsigsegv;</simpara></listitem>
+    &libiconv;, &ggettext;, &readline;, &libsigsegv;.</simpara></listitem>
    <listitem><simpara>&ucs-4;</simpara></listitem>
    <listitem><simpara>&parsedot;</simpara></listitem>
    <listitem><simpara>&sost-shut;</simpara></listitem>
@@ -483,5 +483,9 @@
      with &gnulib;.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.44</revnumber><date>2008-02-02</date>
+ <authorinitials>sds</authorinitials>
+ <revdescription><simpara>Do not bundle &libffcall;.</simpara>
+</revdescription></revision>
 
 </revhistory>

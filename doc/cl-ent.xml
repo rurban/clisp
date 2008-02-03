@@ -109,6 +109,7 @@
 <!ENTITY glibc '&gnu; <ulink url="http://www.gnu.org/software/libc/">libc</ulink>'>
 <!ENTITY libiconv '&gnu; <ulink url="http://www.gnu.org/software/libiconv/">libiconv</ulink>'>
 <!ENTITY libsigsegv '&gnu; <ulink url="http://libsigsegv.sourceforge.net/">libsigsegv</ulink>'>
+<!ENTITY libffcall '&gnu; <ulink url="http://libffcall.sourceforge.net/">libffcall</ulink>'>
 <!ENTITY readline '&gnu; <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rltop.html">readline</ulink>'>
 <!ENTITY gdbm '&gnu; <ulink url="http://www.gnu.org/software/gdbm">DataBase Manager</ulink>'>
 <!ENTITY gnulib '&gnu; <ulink url="http://www.gnu.org/software/gnulib/">Portability Library</ulink>'>
