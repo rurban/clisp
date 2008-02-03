@@ -1,11 +1,11 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\fI\%http://www.haible.de/bruno/\fR>
-.\" Generator: DocBook XSL Stylesheets vsnapshot_7536 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2007-11-18
+.\" Generator: DocBook XSL Stylesheets vsnapshot_7566 <http://docbook.sf.net/>
+.\"      Date: Last modified: 2008-01-30
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.43
+.\"    Source: CLISP 2.44
 .\"
-.TH "CLISP" "1" "Last modified: 2007\-11\-18" "CLISP 2.43" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2008\-01\-30" "CLISP 2.44" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -309,9 +309,10 @@ to
 [ANSI CL standard]\. The first
 \fB\-q\fR
 removes the banner and the good\-bye message, the second sets variables
-\fI\fI*LOAD\-VERBOSE*\fR\fR\&[13]
-and
+\fI\fI*LOAD\-VERBOSE*\fR\fR\&[13],
 \fI\fI*COMPILE\-VERBOSE*\fR\fR\&[14]
+and
+\fICUSTOM:*SAVEINITMEM\-VERBOSE*\fR
 to
 \fI\fBNIL\fR\fR\&[16]\. The first
 \fB\-v\fR
@@ -446,7 +447,7 @@ Comply with the
 [ANSI CL standard]
 specification even where
 \fI\fBCLISP\fR\fR\&[6]
-has been traditionally different\. It sets the
+has been traditionally different by setting the
 \fISYMBOL\-MACRO\fR\&[10]
 \fICUSTOM:*ANSI*\fR
 to
@@ -1038,9 +1039,9 @@ Author.
 .PP
 \fBSee \fI\fICOPYRIGHT\fR (file in the CLISP sources) \fR for the list of other contributors and the license\.\fR
 .SH "COPYRIGHT"
-Copyright \(co 1992-2007 Bruno Haible
+Copyright \(co 1992-2008 Bruno Haible
 .br
-Copyright \(co 1998-2007 Sam Steingold
+Copyright \(co 1998-2008 Sam Steingold
 .br
 .SH "NOTES"
 .IP " 1." 4
