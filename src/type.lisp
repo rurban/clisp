@@ -488,7 +488,7 @@
    )
 )
 (def-compound-type SIMPLE-VECTOR (&optional (size '*)) (x)
-  (ensure-dim SIMLPE-VECTOR size)
+  (ensure-dim SIMPLE-VECTOR size)
   (and (simple-vector-p x)
        (or (eq size '*) (eql size (array-dimension x 0)))
   )
