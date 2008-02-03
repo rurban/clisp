@@ -25,7 +25,7 @@ User visible changes
   The old names are still available, but deprecated.
 
 * The :VERBOSE argument to SAVEINITMEM defaults to a new user variable
-  *SAVEINITMEM-VERBOSE*, intial value T.
+  *SAVEINITMEM-VERBOSE*, initial value T.
   See <http://clisp.cons.org/impnotes/image.html> for details.
 
 * Bug fixes:
