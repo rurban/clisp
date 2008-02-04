@@ -1,3 +1,13 @@
+User visible changes
+--------------------
+
+* Experimental Just-In-Time Compilation of byte-compiled closures is now
+  done using GNU lightning (this is a configure-time option).
+  Thanks to Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>.
+
+
+
+
 2.44 (2008-02-02)
 =================
 
