@@ -1251,7 +1251,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNNR(file_length,1)
 LISPFUNN(file_string_length,2)
 LISPFUNN(line_number,1)
-LISPFUN(allow_read_eval,seclass_default,1,1,norest,nokey,0,NIL)
+LISPFUN(stream_fasl_p,seclass_default,1,1,norest,nokey,0,NIL)
 LISPFUNN(defgray,1)
 /* ---------- SYMBOL ---------- */
 LISPFUNN(putd,2)

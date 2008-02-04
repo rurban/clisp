@@ -2576,7 +2576,27 @@ LISPFUNN(string_reader,2) {     /* reads " */
     /* no -> really read String */
     get_buffers();  /* two empty Buffers on the Stack */
     /* stack layout: stream, char, Buffer, anotherBuffer. */
-    while (1) {
+    if (stream_get_fasl(*stream_)) while (1) { /* faithful */
+      /* read next character: */
+      object ch = read_char(stream_);
+      if (eq(ch,eof_value)) goto error_eof;
+      if (eq(ch,ascii_char('"')))
+        break;
+      /* ignore newlines */
+      if (!(eq(ch,ascii_char(0x0A)) || eq(ch,ascii_char(0x0D)))) {
+        if (eq(ch,ascii_char('\\'))) { /* single-escape-character? */
+          /* yes -> read another character: */
+          ch = read_char(stream_);
+          if (eq(ch,eof_value)) goto error_eof;
+          if (eq(ch,ascii_char('n')))
+            ch = ascii_char(0x0A); /* "\n" = #\Linefeed */
+          else if (eq(ch,ascii_char('r')))
+            ch = ascii_char(0x0D); /* "\r" = #\Return */
+        }
+        /* push character ch into Buffer: */
+        ssstring_push_extend(STACK_1,char_code(ch));
+      }
+    } else while (1) {          /* ANSI */
       /* read next character: */
       var object ch;
       var uintWL scode;
@@ -3466,7 +3486,7 @@ LISPFUNN(read_eval_reader,3) {  /* reads #. */
   /* either *READ-EVAL* or the Stream must allow the Evaluation. */
   if (nullpSv(read_eval)) {
     pushSTACK(obj);
-    var bool allowed = stream_get_read_eval(*stream_);
+    var bool allowed = stream_get_fasl(*stream_);
     obj = popSTACK();
     if (!allowed)
       error_read_eval_forbidden(stream_,obj);
@@ -3494,18 +3514,17 @@ LISPFUNN(load_eval_reader,3) {  /* reads #, */
   if (!nullp(popSTACK()))       /* n/=NIL -> Error */
     error_dispatch_number();
   obj = make_references(obj);   /* unentangle references */
-  if (!nullpSv(compiling)) {
-    /* In Compiler: */
+  if (!nullpSv(compiling)) { /* In Compiler: */
+    /* NB: stream may not be a FASL stream, it may be a Lisp file! */
     pushSTACK(obj);
     var object newobj = allocate_loadtimeeval(); /* Load-time-Eval-Object */
     TheLoadtimeeval(newobj)->loadtimeeval_form = popSTACK(); /* with obj as Form */
     value1 = newobj;
-  } else {
-    /* In Interpreter:
+  } else { /* In Interpreter:
      either *READ-EVAL* or the Stream must allow the Evaluation. */
     if (nullpSv(read_eval)) {
       pushSTACK(obj);
-      var bool allowed = stream_get_read_eval(*stream_);
+      var bool allowed = stream_get_fasl(*stream_);
       obj = popSTACK();
       if (!allowed)
         error_read_eval_forbidden(stream_,obj);
@@ -4150,66 +4169,10 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
   if (eq(STACK_0,Fixnum_0)) {
     var object ch = read_char(stream_);
     if (eq(ch,eof_value)) { error_eof(stream_); } /* EOF -> Error */
-    if (eq(ch,ascii_char('"'))) {
-      /* Read a string with explicit newlines. */
-      if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
-        /* yes -> only read ahead of string: */
-        while (1) {
-          /* read next character: */
-          ch = read_char(stream_);
-          if (eq(ch,eof_value)) goto eof_in_string;
-          if (eq(ch,ascii_char('"')))
-            break;
-          if (eq(ch,ascii_char('\\'))) { /* single-escape-character? */
-            /* yes -> read another character: */
-            ch = read_char(stream_);
-            if (eq(ch,eof_value)) goto eof_in_string;
-          }
-        }
-        VALUES1(NIL);
-      } else {
-        /* no -> really read string: */
-        get_buffers();          /* two empty Buffers on the Stack */
-        /* stack layout: stream, subchar, arg, Buffer, anotherBuffer. */
-        while (1) {
-          /* read next character: */
-          ch = read_char(stream_);
-          if (eq(ch,eof_value)) goto eof_in_string;
-          if (eq(ch,ascii_char('"')))
-            break;
-          /* ignore newlines */
-          if (!(eq(ch,ascii_char(0x0A)) || eq(ch,ascii_char(0x0D)))) {
-            if (eq(ch,ascii_char('\\'))) { /* single-escape-character? */
-              /* yes -> read another character: */
-              ch = read_char(stream_);
-              if (eq(ch,eof_value)) goto eof_in_string;
-              if (eq(ch,ascii_char('n')))
-                ch = ascii_char(0x0A); /* "\n" = #\Linefeed */
-              else if (eq(ch,ascii_char('r')))
-                ch = ascii_char(0x0D); /* "\r" = #\Return */
-            }
-            /* push character ch into Buffer: */
-            ssstring_push_extend(STACK_1,char_code(ch));
-          }
-        }
-        { /* copy Buffer and convert it into Simple-String: */
-          var object string;
-         #ifndef TYPECODES
-          if (TheStream(*stream_)->strmflags & bit(strmflags_immut_bit_B))
-            string = coerce_imm_ss(STACK_1);
-          else
-         #endif
-            string = copy_string(STACK_1);
-          VALUES1(string);
-        }
-        /* free Buffer for reuse: */
-        O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
-      }
-      skipSTACK(3); return;
-     eof_in_string:
-      pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
-      error(end_of_file,GETTEXT("~S: input stream ~S ends within a string"));
+    if (eq(ch,ascii_char('_'))) {        /* FASL stream */
+      stream_set_fasl(*stream_,true);
+    } else if (eq(ch,ascii_char('^'))) { /* non-FASL stream */
+      stream_set_fasl(*stream_,false);
     } else {
       unread_char(stream_,ch);
       dynamic_bind(S(read_suppress),NIL); /* bind *READ-SUPPRESS* to NIL */
@@ -4220,8 +4183,8 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
       expr = make_references(expr); /* unentangle references */
       pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
       funcall(L(set_stream_external_format),3); /* (SYS::SET-STREAM-EXTERNAL-FORMAT stream expr :input) */
-      VALUES0; skipSTACK(3); return;
     }
+    VALUES0; skipSTACK(3); return;
   }
   /* when *READ-SUPPRESS* /= NIL, only read one Object: */
   if (!nullpSv(read_suppress)) {
@@ -6480,8 +6443,8 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
         Symbol_value(S(prin_l1)) = linepos;
       }
       pushSTACK(make_pphelp_stream()); /* new PPHELP-Stream, line-position = 0 */
-      if (stream_get_read_eval(*stream_)) /* adopt READ-EVAL-Bit */
-        TheStream(STACK_0)->strmflags |= bit(strmflags_reval_bit_B);
+      if (stream_get_fasl(*stream_)) /* adopt FASL-Bit */
+        TheStream(STACK_0)->strmflags |= bit(strmflags_fasl_bit_B);
       /* print object to the new stream: */
       pr_xxx(&STACK_0,STACK_1);
       var bool skip_first_nl = false;
@@ -6960,8 +6923,9 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
           case_sensitive = pack_casesensitivep(home);
           case_inverted = pack_caseinvertedp(home);
           if (externalp(STACK_0,home)
-              /* When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
-               external. It may not be external when the output is read later. */
+              /* When *PRINT-READABLY*, print PACK::SYMBOL even when the
+                 symbol is external. It may not be external when the
+                 output is read later. */
               && nullpSv(print_readably))
             goto one_marker;             /* yes -> 1 package-marker */
           write_ascii_char(stream_,':'); /* else 2 package-marker */
@@ -6977,6 +6941,34 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
      print only the symbol-name under control of *PRINT-CASE* */
     write_sstring_case(stream_,Symbol_name(sym));
   }
+}
+
+/* print #\Newline/#\Return as \n/\r
+ > stream: stream
+ > c: character
+ > pending_newline: is a newline pending due to previous \n/\r?
+ < pending_newline: is a newline now pending?
+ < return: are we done with this character?
+ can trigger GC */
+local inline maygc bool pr_fasl_special (const gcv_object_t* stream_, chart c,
+                                         bool *pending_newline) {
+  if (chareq(c,ascii(0x0A))) {
+    write_ascii_char(stream_,'\\');
+    write_ascii_char(stream_,'n');
+    *pending_newline = true;
+    return true;
+  }
+  if (chareq(c,ascii(0x0D))) {
+    write_ascii_char(stream_,'\\');
+    write_ascii_char(stream_,'r');
+    *pending_newline = true;
+    return true;
+  }
+  if (*pending_newline) {
+    write_ascii_char(stream_,NL);
+    *pending_newline = false;
+  }
+  return false;
 }
 
 /* UP: prints part of a symbol (package-name or symbol-name) with Escape-Character
@@ -6998,7 +6990,7 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
       Nonterminating Macro and
    5. if it contains no lower-/upper-case letters
       (depending on readtable_case) and no colons and
-   6. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base). */
+   6. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base).*/
   sstring_un_realloc(string);
   var uintL len = Sstring_length(string); /* length */
   /* check condition 1: */
@@ -7185,39 +7177,19 @@ local maygc void pr_character (const gcv_object_t* stream_, object ch) {
  can trigger GC */
 local maygc void pr_sstring_ab (const gcv_object_t* stream_, object string,
                                 uintL start, uintL len) {
-  /* query *PRINT-ESCAPE*: */
+  /* query *PRINT-ESCAPE* & *PRINT-READABLY*: */
   if (!nullpSv(print_escape) || !nullpSv(print_readably)) {
     /* with escape-character: */
-    var bool must_escape_newlines = false; /* special escaping of newlines needed... */
-    if (!nullpSv(print_readably)) { /* if *PRINT-READABLY* /= NIL ... */
-      /* and if it contains CR characters: */
-      if (len > 0) {
-        var uintL restlen = len;
-        SstringDispatch(string,X, {
-          var const cintX* charptr = &((SstringX)TheVarobject(string))->data[start];
-          do {
-            var chart ch = as_chart(*charptr++);
-            if (chareq(ch,ascii(0x0D))) { /* CR? */
-              must_escape_newlines = true;
-              break;
-            }
-          } while (--restlen);
-        });
-      }
-    }
     var uintL index = start;
     pushSTACK(string);          /* save simple-string */
-    if (must_escape_newlines) {
+    if (stream_get_fasl(*stream_)) {
       /* With the normal string syntax, CR characters can not be faithfully
        printed and read back in: CR and CR/LF are converted to LF on input.
        But LF characters can: they are converted to either CR or LF or CR/LF
        on output, depending on the stream's line terminator, which are all
        read back as LF.
-       Use the #0Y"..." syntax. Transform LF to \n, CR to \r, and add
+       FASL ==> Transform LF to \n, CR to \r, and add
        newlines at these occasions, so that the line length stays small. */
-      write_ascii_char(stream_,'#');
-      write_ascii_char(stream_,'0');
-      write_ascii_char(stream_,'Y');
       write_ascii_char(stream_,'"'); /* prepend a quotation mark */
       var bool pending_newline = false;
       string = STACK_0;
@@ -7226,19 +7198,7 @@ local maygc void pr_sstring_ab (const gcv_object_t* stream_, object string,
         dotimespL(len,len, {
           var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); /* next character */
           /* if c = #\Linefeed or c = #\Return escape it: */
-          if (chareq(c,ascii(0x0A))) {
-            write_ascii_char(stream_,'\\');
-            write_ascii_char(stream_,'n');
-            pending_newline = true;
-          } else if (chareq(c,ascii(0x0D))) {
-            write_ascii_char(stream_,'\\');
-            write_ascii_char(stream_,'r');
-            pending_newline = true;
-          } else {
-            if (pending_newline) {
-              write_ascii_char(stream_,NL);
-              pending_newline = false;
-            }
+          if (!pr_fasl_special(stream_,c,&pending_newline)) {
             /* if c = #\" or c = #\\ first print a '\': */
             if (chareq(c,ascii('"')) || chareq(c,ascii('\\')))
               write_ascii_char(stream_,'\\');
@@ -7269,21 +7229,9 @@ local maygc void pr_sstring_ab (const gcv_object_t* stream_, object string,
           if (len==0)
             break;
           var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]);
-          if (chareq(c,ascii(0x0A))) {
-            write_ascii_char(stream_,'\\');
-            write_ascii_char(stream_,'n');
-            pending_newline = true;
-            index++; len--; index0 = index;
-          } else if (chareq(c,ascii(0x0D))) {
-            write_ascii_char(stream_,'\\');
-            write_ascii_char(stream_,'r');
-            pending_newline = true;
+          if (pr_fasl_special(stream_,c,&pending_newline)) {
             index++; len--; index0 = index;
           } else {
-            if (pending_newline) {
-              write_ascii_char(stream_,NL);
-              pending_newline = false;
-            }
             write_ascii_char(stream_,'\\');
             index0 = index; index++; len--;
           }
@@ -8268,16 +8216,16 @@ local maygc void pr_sharp_dot (const gcv_object_t* stream_,object obj) {
  < stream: stream
  can trigger GC */
 local maygc void pr_instance (const gcv_object_t* stream_, object obj) {
-  if (!nullpSv(compiling) && !nullpSv(print_readably)
+  pushSTACK(obj);              /* save obj */
+  if (stream_get_fasl(*stream_) && !nullpSv(print_readably)
       && !nullpSv(load_forms)) { /* compiling - use MAKE-LOAD-FORM */
-    pushSTACK(obj);              /* save obj */
-    pushSTACK(obj); funcall(S(make_init_form),1);
+    pushSTACK(STACK_0/*obj*/); funcall(S(make_init_form),1);
     obj = popSTACK();           /* recall obj */
     if (!nullp(value1)) {
       pr_sharp_dot(stream_,value1);
       return;
     }
-  }
+  } else obj = popSTACK();
   LEVEL_CHECK;
   /* execute (CLOS:PRINT-OBJECT obj stream) : */
   var uintC count = pr_external_1(*stream_); /* instantiate bindings */
@@ -8862,7 +8810,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         JUSTIFY_END_FILL;
         UNREADABLE_END;
       } else {
-        if (nullpSv(read_eval) && !stream_get_read_eval(*stream_))
+        if (nullpSv(read_eval) && !stream_get_fasl(*stream_))
           error_print_readably(*obj_);
         if (pack_deletedp(*obj_))
           error_print_readably(*obj_);
@@ -8899,7 +8847,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           write_ascii_char(stream_,'#'); write_ascii_char(stream_,'P');
         }
         pr_string(stream_,STACK_0); /* print the string */
-      } else if (!nullpSv(compiling)) { /* readably & compiling */
+      } else if (stream_get_fasl(*stream_)) { /* readably & compiling */
         pr_record_descr(stream_,STACK_1,S(pathname),true,O(pathname_slotlist));
       } else if (nullpSv(print_pathnames_ansi)) { /* readably, not ANSI */
         var gcv_object_t* obj_ = &STACK_0;
@@ -9002,7 +8950,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       if (!nullpSv(print_readably))
         if (nullpSv(read_eval)) {
           pushSTACK(obj);
-          var bool allowed = stream_get_read_eval(*stream_);
+          var bool allowed = stream_get_fasl(*stream_);
           obj = popSTACK();
           if (!allowed)
             error_print_readably(obj);
@@ -9516,7 +9464,7 @@ local maygc void pr_subr (const gcv_object_t* stream_, object obj) {
   if (!nullpSv(print_readably)) {
     if (nullpSv(read_eval)) {
       pushSTACK(obj);
-      var bool allowed = stream_get_read_eval(*stream_);
+      var bool allowed = stream_get_fasl(*stream_);
       obj = popSTACK();
       if (!allowed)
         error_print_readably(obj);

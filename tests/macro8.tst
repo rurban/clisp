@@ -1016,14 +1016,14 @@ NIL
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
 (let ((f "test-crlf-print-read.lisp")
-      (s (coerce #(#\a #\return #\b) 'string)))
+      (v #(#\a #\return #\b)))
   (unwind-protect
        (progn
          (with-open-file (out f :direction :output)
            (let ((*print-readably* t))
-             (format out "(defvar *z* ~S)~%" s)))
+             (format out "(defvar *z* (coerce ~S 'string))~%" v)))
          (load (compile-file f))
-         (string= s *z*))
+         (string= (coerce v 'string) *z*))
     (post-compile-file-cleanup f)
     (makunbound '*z*)
     (unintern '*z*)))
