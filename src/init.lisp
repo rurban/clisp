@@ -1736,7 +1736,6 @@
            (eof-indicator input-stream))
       (loading-message (TEXT "Loading file ~A ...") filename)
       (when *load-compiling* (compiler::c-reset-globals))
-      (sys::allow-read-eval input-stream t)
       ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
       ;; the user might set `*load-compiling*' to T either directly
       ;; or using the -C option, so we have to check that

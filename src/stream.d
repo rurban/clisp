@@ -62,7 +62,7 @@
  Bits in the Flags:
    define strmflags_open_bit_B  0  - set, if the Stream is open
    define strmflags_immut_bit_B 1  - set if read literals are immutable
-   define strmflags_reval_bit_B 2  - set if Read-Eval is allowed */
+   define strmflags_fasl_bit_B  2  - Read-Eval is allowed, \r=#\Return */
   #define strmflags_unread_bit_B 3  /* set while strm_rd_ch_last is back */
 /* define strmflags_rd_by_bit_B 4  - set if READ-BYTE is possible
    define strmflags_wr_by_bit_B 5  - set if WRITE-BYTE is possible
@@ -71,7 +71,7 @@
  Bitmasks in the Flags:
    define strmflags_open_B  bit(strmflags_open_bit_B) */
   #define strmflags_immut_B  bit(strmflags_immut_bit_B)
-  #define strmflags_reval_B  bit(strmflags_reval_bit_B)
+  #define strmflags_fasl_B   bit(strmflags_fasl_bit_B)
   #define strmflags_unread_B bit(strmflags_unread_bit_B)
 /* define strmflags_rd_by_B bit(strmflags_rd_by_bit_B)
    define strmflags_wr_by_B bit(strmflags_wr_by_bit_B)
@@ -17483,64 +17483,67 @@ LISPFUNN(line_number,1) {
   VALUES1(stream_line_number(stream));
 }
 
-/* Function: Returns true if a stream allows read-eval.
+/* Function: Returns true if a stream is a FASL stream:
+   "i/o consistency is more important than ANSI compliance"
+ == read-eval is allowed regardless of *READ-EVAL*
+ == #\Return in strings and symbols is printed as \r
+ == #\Newline in strings and symbols is printed as \n
+ == literal newline inside strings is ignored on input
  stream_get_read_eval(stream)
  > stream: a stream
  < result: true if read-eval is allowed from the stream, else false
  can trigger GC */
-global maygc bool stream_get_read_eval (object stream) {
+global maygc bool stream_get_fasl (object stream) {
   if (builtin_stream_p(stream)) {
-    return ((TheStream(stream)->strmflags & strmflags_reval_B) != 0);
+    return ((TheStream(stream)->strmflags & strmflags_fasl_B) != 0);
   } else {
-    /* (SLOT-VALUE stream '$reval): */
+    /* (SLOT-VALUE stream '$fasl): */
     var object stream_forwarded = stream;
     instance_un_realloc(stream_forwarded);
     instance_update(stream,stream_forwarded);
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
-    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
+    var object slotinfo = gethash(S(fasl),TheClass(clas)->slot_location_table,false);
     var object value = TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)];
     return !nullp(value);
   }
 }
 
-/* Function: Changes the read-eval state of a stream.
+/* Function: Changes the FASL state of a stream.
  stream_set_read_eval(stream,value);
  > stream: a stream
- > value: true if read-eval shall be allowed from the stream, else false
+ > value: true if the stream should be a FASL stream, else false
  can trigger GC */
-global maygc void stream_set_read_eval (object stream, bool value) {
+global maygc void stream_set_fasl (object stream, bool value) {
   if (builtin_stream_p(stream)) {
     if (value)
-      TheStream(stream)->strmflags |= strmflags_reval_B;
+      TheStream(stream)->strmflags |= strmflags_fasl_B;
     else
-      TheStream(stream)->strmflags &= ~strmflags_reval_B;
+      TheStream(stream)->strmflags &= ~strmflags_fasl_B;
   } else {
-    /* (SETF (SLOT-VALUE stream '$reval) value): */
+    /* (SETF (SLOT-VALUE stream '$fasl) value): */
     var object stream_forwarded = stream;
     instance_un_realloc(stream_forwarded);
     instance_update(stream,stream_forwarded);
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
-    var object slotinfo = gethash(S(reval),TheClass(clas)->slot_location_table,false);
+    var object slotinfo = gethash(S(fasl),TheClass(clas)->slot_location_table,false);
     TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)] = (value ? T : NIL);
   }
 }
 
-/* (SYS::ALLOW-READ-EVAL stream) returns the stream's READ-EVAL flag.
- (SYS::ALLOW-READ-EVAL stream flag) sets the stream's READ-EVAL flag.
- T means #. is allowed regardless of the value of *READ-EVAL*, NIL
- (the default) means that *READ-EVAL* is respected. */
-LISPFUN(allow_read_eval,seclass_default,1,1,norest,nokey,0,NIL) {
+/* (SYS::STREAM-FASL-P stream) returns the stream's FASL flag.
+ (SYS::STREAM-FASL-P stream flag) sets the stream's FASL flag. */
+LISPFUN(stream_fasl_p,seclass_default,1,1,norest,nokey,0,NIL) {
   var object stream = check_stream(STACK_1);
   var object flag = STACK_0;
   if (eq(flag,unbound)) {
-    value1 = (stream_get_read_eval(stream) ? T : NIL);
+    value1 = (stream_get_fasl(stream) ? T : NIL);
   } else {
     if (nullp(flag)) {
-      stream_set_read_eval(stream,false); value1 = NIL;
+      stream_set_fasl(stream,false); value1 = NIL;
     } else {
-      stream_set_read_eval(stream,true); value1 = T;
+      stream_set_fasl(stream,true); value1 = T;
     }
   }
   skipSTACK(2); mv_count=1;

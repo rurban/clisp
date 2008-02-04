@@ -61,7 +61,7 @@
   (let ((clos::*allow-mixing-metaclasses* t))
     (clos:defclass fundamental-stream (stream clos:standard-object)
       (($open :type boolean :initform t) ; whether the stream is open
-       ($reval :type boolean :initform nil) ; whether read-eval is allowed
+       ($fasl :type boolean :initform nil) ; read-eval is allowed; \r=#\Return
        ($penl :type boolean :initform nil) ; whether an elastic newline is pending
 ) ) ) )
 

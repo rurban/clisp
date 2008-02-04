@@ -1,5 +1,27 @@
 2008-02-04  Sam Steingold  <sds@gnu.org>
 
+	extend the meaning of the REVAL stream flag to mean a FASL stream:
+	in addition to ignoring *READ-EVAL*, use \n for #\Newline and #\r
+	for #\Return inside strings (replaces the 2006-11-17 patch #0Y"")
+	* compiler.lisp (set-output-stream-fasl): extract from compile-file
+	(compile-file): use it to mark *fasoutput-stream* & *liboutput-stream*
+	as FASL streams with UTF-8 encoding
+	* constsym.d, subr.d, stream.d (ALLOW-READ-EVAL): -> STREAM-FASL-P
+	* constsym.d, gray.lisp, stream.d ($REVAL): rename to $FASL
+	* init.lisp (load): do not mark input-stream as a FASL stream: a
+	FAS file is marked as such with #0Y_; a lisp file is just a text file
+	* lispbibl.d (strmflags_fasl_bit_B): rename from strmflags_reval_bit_B
+	* lispbibl.d, stream.d (stream_get_read_eval): rename to stream_get_fasl
+	(stream_set_read_eval): rename to stream_set_fasl
+	* io.d (STRING-READER): when reading from a FASL stream, recognize \n\r
+	(CLOSURE-READER): accept #0Y_ to set FASL flag, #0Y^ to clear it,
+	do not accept #0Y""
+	(pr_fasl_special): new function
+	(pr_sstring_ab): use it; do not print #0Y to FASL streams
+	(pr_instance, pr_orecord): use FASL stream flag instead of *COMPILING*
+
+2008-02-04  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: fix distrib on win32 when building in src
 
 2008-02-04  Sam Steingold  <sds@gnu.org>
