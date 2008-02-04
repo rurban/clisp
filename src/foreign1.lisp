@@ -848,6 +848,10 @@
     (parse-foreign-name (second name-option))
     (to-c-name lisp-name)))
 
+(defun get-assoc (key alist default)
+  (let ((pair (assoc key alist)))
+    (if pair (second pair) default)))
+
 ;; CPP consts (#define'd in an *.h file):
 ;; for each type (int, string, pointer) there is a C function (and a
 ;;  foreign-function created when the first constant of this type is
@@ -856,38 +860,44 @@
 ;;  into the C file and compiled, so the numbers have to be pre-assigned
 (defmacro DEF-C-CONST (&whole whole-form name &rest options)
   (setq name (check-symbol name (first whole-form)))
-  (prepare-module)
   (let* ((alist (parse-options options '(:name :type :documentation :guard)
                                whole-form))
          (doc (cdr (assoc ':documentation alist))) ; ("doc string") or NIL
-         (c-type (or (second (assoc ':type alist)) 'ffi:int))
-         (c-name (or (second (assoc ':name alist)) name))
-         (guard (let ((g (assoc ':guard alist)))
-                  (if g (second g) (format nil "defined(~A)" c-name))))
-         f-name c-number)
+         (c-type (get-assoc :type alist 'ffi:int))
+         (c-name (get-assoc :name alist name))
+         (guard (get-assoc :guard alist (format nil "defined(~A)" c-name)))
+         (cftype (parse-c-function
+                  `((:arguments (number int) (defined-p (c-ptr int) :out))
+                    (:return-type ,c-type))
+                  whole-form)))
     (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
                 "A constant must be either an integer, a string or a pointer")
-    (setq f-name (intern
-                  (format nil "module__~A__constant_map_~A" *name*
-                          (nstring-downcase
-                           (nsubstitute #\_ #\-
-                                        (copy-seq (symbol-name c-type))))))
-          c-number
-          (vector-push-extend
-           (cons c-name guard)
-           (cdr (or (gethash c-type *constant-table*)
-                    (setf (gethash c-type *constant-table*)
-                          (cons f-name (make-array 10 :adjustable t
-                                                   :fill-pointer 0)))))))
-    `(progn
+    `(multiple-value-bind (f-name c-number)
+         (note-c-const ',c-name ',c-type ,guard)
        ;; c-number == 0 ==> need to output the def-call-out form
-       ,@(when (zerop c-number)
-           `((ffi:def-call-out ,f-name
-                 (:arguments (number ffi:int)
-                             (defined-p (ffi:c-ptr ffi:int) :out))
-               (:return-type ,c-type))))
-       (defconstant ,name (c-const-value ',f-name ,c-number ',name ',c-name)
+       (when (zerop c-number)
+         (SYSTEM::%PUTD f-name
+                        (FIND-FOREIGN-FUNCTION ',c-name ,cftype NIL NIL NIL)))
+       (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
          ,@doc))))
+
+(defun note-c-const (c-name c-type guard) ; ABI
+  (unless (boundp 'system::*compiling-from-file*)
+    (error (TEXT "~S(~S) requires writing to a C file") 'def-c-const c-name))
+  (when (compiler::prepare-coutput-file)
+    (prepare-module))
+  (let ((f-name (intern
+                 (format nil "module__~A__constant_map_~A" *name*
+                         (nstring-downcase
+                          (nsubstitute #\_ #\-
+                                       (copy-seq (symbol-name c-type))))))))
+    (values f-name
+            (vector-push-extend
+             (cons c-name guard)
+             (cdr (or (gethash c-type *constant-table*)
+                      (setf (gethash c-type *constant-table*)
+                            (cons f-name (make-array 10 :adjustable t
+                                                     :fill-pointer 0)))))))))
 
 (defun c-const-value (f-name c-number name c-name) ; ABI
   (multiple-value-bind (value value-p) (funcall f-name c-number)
@@ -896,10 +906,6 @@
           (warn (TEXT "~S(~S): CPP constant ~A is not defined")
                 'def-c-const name c-name)
           (sys::%unbound)))))
-
-(defun get-assoc (key alist default)
-  (let ((pair (assoc key alist)))
-    (if pair (second pair) default)))
 
 (defmacro DEF-C-VAR (&whole whole-form
                      name &rest options)
