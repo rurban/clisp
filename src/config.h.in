@@ -269,6 +269,9 @@
 /* Define to 1 if you have the `sun' library (-lsun). */
 #undef HAVE_LIBSUN
 
+/* Define to 1 if you have the <lightning.h> header file. */
+#undef HAVE_LIGHTNING_H
+
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
 
