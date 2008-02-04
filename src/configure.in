@@ -68,6 +68,10 @@ ALL_LINGUAS="en da de fr es nl ru"
 AM_GNU_GETTEXT([external], [need-ngettext])
 CL_SIGSEGV          dnl set variable LIBSIGSEGV
 CL_FFCALL           dnl set variables LIBAVCALL LIBCALLBACK
+CL_LIGHTNING
+if test x$with_jitc = xlightning -a $ac_cv_header_lightning_h = no; then
+  AC_MSG_ERROR([cannot find gnu lightning])
+fi
 dnl
 BOLD_MSG([checks for fundamental compiler characteristics])
 AC_C_INLINE         dnl DEFS inline

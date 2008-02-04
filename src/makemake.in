@@ -64,6 +64,9 @@ options:
        --with-threads=FLAVOR   MT [_experimental_!]
                                FLAVOR: POSIX_THREADS POSIXOLD_THREADS
                                        SOLARIS_THREADS C_THREADS WIN32_THREADS
+       --with-jitc=FLAVOR      use a given Just-In-Time Compiler.
+                The only flavor at this time is lightning
+                  (GNU lightning must be installed in the standard place).
        --with-gmalloc          use the GNU malloc instead of of the libc one
                                (needed on HP-UX and OpenBSD)
     See modules/ directory for available modules and add them to the full
@@ -1496,6 +1499,9 @@ fi
 if [ "${with_threads}" != no ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
 fi
+if [ "${with_jitc}" != "" ]; then
+  XCFLAGS="$XCFLAGS -DUSE_JITC -D${with_jitc}"
+fi
 
 if [ "${with_termcap_ncurses}" = no -o "${LIBTERMCAP}" = "broken" ] ; then
   XCFLAGS=$XCFLAGS' -DNO_TERMCAP_NCURSES'
@@ -2476,7 +2482,7 @@ echol
 
 if [ -n "${SRCDIR}" ] ; then
   if [ ${HOS} = unix -o ${HSYS} = win32gcc ] ; then
-    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname modules; do
+    for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname modules ${with_jitc}; do
       link_dep "${f}.c" "${SRCDIR}${f}.c"
     done
     link_dep modules.h "${SRCDIR}modules.h"
@@ -2617,7 +2623,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     depends=$depends''$SPVW_INCLUDES' sort subrkw spvw_calendar'
   fi
   if [ $f = eval ] ; then
-    depends=$depends' bytecode'
+    depends=$depends' bytecode '${with_jitc}
   fi
   if [ $f = array -o $f = hashtabl -o $f = io -o $f = time -o $f = package -o $f = spvw -o $f = stream -o $f = foreign ] ; then
     depends=$depends' arilev0'
@@ -4001,7 +4007,7 @@ echol "clean5 : clean4"
 echotab "-\$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY"
 if [ -n "${SRCDIR}" ] ; then
   line="-\$(RM)"
-  for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ; do
+  for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ${with_jitc} ; do
     line="$line ${f}.c"
   done
   line="$line modules.h"${UNICODE_EXTRA}
