@@ -11160,6 +11160,21 @@ The function make-closure is required.
                             (pathname-version tmp)))))))
       input-file)))
 
+(defun set-output-stream-fasl (stream)
+  (sys::stream-fasl-p stream t) ; set FASL flag for current output
+  (write-string "#0Y_ " stream) ; set FASL flag for future input
+  #+UNICODE ;; Set the stream's encoding to UTF-8, if it supports it.
+  (let ((*error-handler*
+         #'(lambda (&rest error-args)
+             (declare (ignore error-args))
+             (return-from set-output-stream-fasl nil)))
+        (encoding 'charset:utf-8))
+    (setf (stream-external-format stream) encoding)
+    (write-string "#0Y " stream)
+    (let ((*package* #,(find-package "CHARSET")))
+      (write encoding :stream stream :readably t))
+    (terpri stream)))
+
 ;; Common-Lisp-Function COMPILE-FILE
 ;; file          should be a Pathname/String/Symbol.
 ;; :output-file  should be nil or t or a Pathname/String/Symbol or
@@ -11219,8 +11234,6 @@ The function make-closure is required.
                (*load-forms* (make-hash-table :key-type 't :value-type 't
                                               :test 'eq))
                (compilation-successful nil))
-          (when *fasoutput-stream* (sys::allow-read-eval *fasoutput-stream* t))
-          (when *liboutput-stream* (sys::allow-read-eval *liboutput-stream* t))
           (unwind-protect
             (with-compilation-unit ()
               (when listing-stream
@@ -11261,33 +11274,16 @@ The function make-closure is required.
                   (format verbose-out (TEXT ";; Compiling file ~A ...")
                           input-file)
                   (elastic-newline verbose-out))
-                (when *fasoutput-stream*
+                (when (and new-output-stream *fasoutput-stream*)
                   (let ((*package* *keyword-package*))
                     (write `(SYSTEM::VERSION ',(version))
                            :stream *fasoutput-stream*
                          ; :escape t :level nil :length nil :radix t
                            :readably t :right-margin 79 :case ':upcase))
-                  (terpri *fasoutput-stream*))
-                #+UNICODE
-                (flet ((set-utf-8 (stream)
-                         ;; Set the stream's encoding to UTF-8,
-                         ;; if it supports it.
-                         (block try
-                           (let ((*error-handler*
-                                   #'(lambda (&rest error-args)
-                                       (declare (ignore error-args))
-                                       (return-from try nil)))
-                                 (encoding 'charset:utf-8))
-                             (setf (stream-external-format stream) encoding)
-                             (write-string "#0Y " stream)
-                             (let ((*package* #,(find-package "CHARSET")))
-                               (write encoding :stream stream :readably t))
-                             (terpri stream)))))
-                  (when new-output-stream
-                    (when *fasoutput-stream*
-                      (set-utf-8 *fasoutput-stream*))
-                    (when *liboutput-stream*
-                      (set-utf-8 *liboutput-stream*))))
+                  (terpri *fasoutput-stream*)
+                  (set-output-stream-fasl *fasoutput-stream*))
+                (when (and new-output-stream *liboutput-stream*)
+                  (set-output-stream-fasl *liboutput-stream*))
                 (loop
                   (peek-char t istream nil eof-value)
                   (setq *compile-file-lineno1* (line-number istream))

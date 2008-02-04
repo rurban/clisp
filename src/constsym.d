@@ -1023,7 +1023,7 @@ LISPSYM(file_position,"FILE-POSITION",lisp)
 LISPSYM(file_length,"FILE-LENGTH",lisp)
 LISPSYM(file_string_length,"FILE-STRING-LENGTH",lisp)
 LISPSYM(line_number,"LINE-NUMBER",system)
-LISPSYM(allow_read_eval,"ALLOW-READ-EVAL",system)
+LISPSYM(stream_fasl_p,"STREAM-FASL-P",system)
 LISPSYM(defgray,"%DEFGRAY",system)
 /* ---------- SYMBOL ---------- */
 LISPSYM(putd,"%PUTD",system) /* ABI */
@@ -1524,7 +1524,7 @@ LISPSYM(error_output,"*ERROR-OUTPUT*",lisp) /* variable in STREAM */
 LISPSYM(trace_output,"*TRACE-OUTPUT*",lisp) /* variable in STREAM */
 LISPSYM(stream_element_type,"STREAM-ELEMENT-TYPE",lisp) /* function in STREAM */
 LISPSYM(lastchar,"$LASTCHAR",system) /* slotname in STREAM */
-LISPSYM(reval,"$REVAL",system) /* slotname in STREAM */
+LISPSYM(fasl,"$FASL",system) /* slotname in STREAM */
 LISPSYM(default_pathname_defaults,"*DEFAULT-PATHNAME-DEFAULTS*",lisp) /* variable in PATHNAME */
 LISPSYM(merge_pathnames_ansi,"*MERGE-PATHNAMES-ANSI*",custom) /* variable in PATHNAME */
 LISPSYM(print_pathnames_ansi,"*PRINT-PATHNAMES-ANSI*",custom) /* variable in IO */

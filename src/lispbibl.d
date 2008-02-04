@@ -6332,7 +6332,7 @@ typedef struct {
 /* Bit-masks in the Flags: */
   #define strmflags_open_bit_B   0  /* set, if the Stream is open */
   #define strmflags_immut_bit_B  1  /* set if read literals are immutable */
-  #define strmflags_reval_bit_B  2  /* set, if Read-Eval is permitted */
+  #define strmflags_fasl_bit_B    2  /* Read-Eval is permitted; \r=#\Return */
   #define strmflags_rd_by_bit_B  4  /* set, if READ-BYTE is possible */
   #define strmflags_wr_by_bit_B  5  /* set, if WRITE-BYTE is possible */
   #define strmflags_rd_ch_bit_B  6  /* set, if READ-CHAR is possible */
@@ -15891,18 +15891,18 @@ extern maygc object stream_line_number (object stream);
 extern maygc object stream_get_lastchar (object stream);
 /* is used by DEBUG */
 
-/* Function: Returns true if a stream allows read-eval.
- stream_get_read_eval(stream)
+/* Function: Returns true if a stream is a FAS stream.
+ stream_get_fasl(stream)
  > stream: a stream
- < result: true if read-eval is allowed from the stream, else false */
-extern maygc bool stream_get_read_eval (object stream);
+ < result: true if the stream is a FAS stream, else false */
+extern maygc bool stream_get_fasl (object stream);
 /* used by IO */
 
-/* Function: Changes the read-eval state of a stream.
- stream_set_read_eval(stream,value);
+/* Function: Changes the FAS state of a stream.
+ stream_set_fasl(stream,value);
  > stream: a stream
- > value: true if read-eval shall be allowed from the stream, else false */
-extern maygc void stream_set_read_eval (object stream, bool value);
+ > value: true if the stream should be a FAS stream, else false */
+extern maygc void stream_set_fasl (object stream, bool value);
 /* used by */
 
 #if defined(UNIX)
