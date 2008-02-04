@@ -2489,23 +2489,27 @@ if [ -n "${SRCDIR}" ] ; then
     echol
   fi
   if [ ${HSYS} = win32gcc ] ; then
+    # install.lisp requires dirkey module which is built by mingw but not msvc
     for f in install.lisp install.bat ; do
       link_dep "${f}" "${SRCDIR}${f}"
     done
-    for f in add_to_path.nsh is_user_admin.nsh; do
-      link_dep "${f}" "${PARENT_SRCTOPDIR_}win32msvc/nsis/${f}"
-    done
-    echol "install.nsi : ${PARENT_SRCTOPDIR_}win32msvc/nsis/install.nsi config.status"
-    # comma used as separator in patterns below to allow embedded
-    # slashes in module names (e.g., bindings/win32)
-    echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' -e 's,\@BASE_MODULES\@,\$(BASE_MODULES),g' -e 's,\@MODULES\@,\$(MODULES),g' ${PARENT_SRCTOPDIR_}win32msvc/nsis/install.nsi > install.nsi"
-    echol
-    echol "COPYRIGHT.rtf : COPYRIGHT ${PARENT_SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp config.status"
-    echotab "$(RUN) -M lispinit.mem -q ${PARENT_SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp"
-    echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' COPYRIGHT.tmp > COPYRIGHT.rtf"
-    echotab '$(RM) COPYRIGHT.tmp'
-    echol
   fi
+fi
+
+if [ ${HOS} = win32 ]; then
+  for f in add_to_path.nsh is_user_admin.nsh; do
+    link_dep "${f}" "${SRCTOPDIR_}win32msvc/nsis/${f}"
+  done
+  echol "install.nsi : ${SRCTOPDIR_}win32msvc/nsis/install.nsi config.status"
+  # comma used as separator in patterns below to allow embedded
+  # slashes in module names (e.g., bindings/win32)
+  echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' -e 's,\@BASE_MODULES\@,\$(BASE_MODULES),g' -e 's,\@MODULES\@,\$(MODULES),g' ${SRCTOPDIR_}win32msvc/nsis/install.nsi > install.nsi"
+  echol
+  echol "COPYRIGHT.rtf : COPYRIGHT ${SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp config.status"
+  echotab "$(RUN) -M lispinit.mem -q ${SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp"
+  echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' COPYRIGHT.tmp > COPYRIGHT.rtf"
+  echotab '$(RM) COPYRIGHT.tmp'
+  echol
 fi
 
 echol "allc : init \$(CFILES)"
