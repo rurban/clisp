@@ -1,3 +1,9 @@
+2008-02-04  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (DEF-C-CONST): use get-assoc & note-c-const
+	(note-c-const): new ABI function; make the requirement that
+	def-c-const must be compiled to C explicit for better error reporting
+
 2008-02-03  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
 
 	* lightning.c: new file, implements JITC via GNU lightning
