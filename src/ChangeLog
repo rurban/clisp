@@ -1,3 +1,18 @@
+2008-02-03  Sam Steingold  <sds@gnu.org>
+
+	add JITC harness
+	* configure: accept --with-jitc=FLAVOR
+	* eval.d (interpret_bytecode) [USE_JITC]: use jit_run
+	[USE_JITC]: load the appropriate jit implementation
+	* configure.in: call CL_LIGHTNING
+	* m4/lightning.m4: implement CL_LIGHTNING
+	* lispbibl.d [USE_JITC]: disable registers when using JITC
+	* makemake.in: accept --with-jitc=FLAVOR
+	(XCFLAGS) [--with-jitc=FLAVOR]: add -DUSE_JITC -D${with_jitc}
+	link over ${with_jitc}.c into the build directory
+	(eval.o): depend on ${with_jitc}.c
+	(clean5): remove ${with_jitc}.c
+
 2008-01-30  Sam Steingold  <sds@gnu.org>
 
 	* pprint.lisp (copy-pprint-dispatch): distinguish the 3 cases:

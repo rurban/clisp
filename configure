@@ -83,6 +83,9 @@ options: The following options are recognized:
              via OS threads [highly experimental - use at your own risk]
              FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
                        C_THREADS WIN32_THREADS
+  --with-jitc=FLAVOR   use a given Just-In-Time Compiler.
+             The only flavor at this time is lightning
+               (GNU lightning must be installed in the standard place).
   --with-module=MODULE  build with add-on MODULE
                         some modules require dynamic FFI,
                         so FFI will be turned on if its checks pass

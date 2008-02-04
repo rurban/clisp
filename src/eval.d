@@ -268,9 +268,6 @@ typedef enum {
 */
 local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
                                             const uintB* byteptr);
-#define interpret_bytecode(closure,codevec,index)                       \
-  with_saved_back_trace_cclosure(closure,                               \
-    interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); )
 
 /* GCC2 can jump directly to labels.
    This results in faster code than switch(). */
@@ -281,6 +278,19 @@ local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
       #define FAST_DISPATCH_THREADED
     #endif
   #endif
+#endif
+
+#if defined(USE_JITC)
+/* replacement for interpret_bytecode_ */
+local /*maygc*/ Values jit_run (object closure_in, Sbvector codeptr,
+                                const uintB* byteptr_in);
+#define interpret_bytecode(closure,codevec,index)                       \
+  with_saved_back_trace_cclosure(closure,                               \
+    jit_run(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); )
+#else
+#define interpret_bytecode(closure,codevec,index)                       \
+  with_saved_back_trace_cclosure(closure,                               \
+    interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); )
 #endif
 
 /* Values of the bytecodes (256 totally): */
@@ -8220,6 +8230,13 @@ global maygc void init_cclosures (void) {
   }
 }
 
+#if defined(USE_JITC)
+ #if defined(lightning)
+  #include "lightning.c"
+ #else
+  #error USE_JITC: what is your JITC flavor?
+ #endif
+#endif
 
 /* where is check_SP() or check_STACK() to be inserted??
  is nest_env supposed to receive its target-environment as parameter??
