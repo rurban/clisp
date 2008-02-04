@@ -876,8 +876,10 @@
          (note-c-const ',c-name ',c-type ,guard)
        ;; c-number == 0 ==> need to output the def-call-out form
        (when (zerop c-number)
-         (SYSTEM::%PUTD f-name
-                        (FIND-FOREIGN-FUNCTION ',c-name ,cftype NIL NIL NIL)))
+         (SYSTEM::%PUTD
+          ;; we do not really need to name this foreign function; this is just
+          ;; to avoid an HT lookup in FIND-FOREIGN-FUNCTION for each C constant
+          f-name (FIND-FOREIGN-FUNCTION ',c-name ,cftype NIL NIL NIL)))
        (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
          ,@doc))))
 
