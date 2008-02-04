@@ -1,3 +1,7 @@
+2008-02-03  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
+
+	* lightning.c: new file, implements JITC via GNU lightning
+
 2008-02-03  Sam Steingold  <sds@gnu.org>
 
 	add JITC harness
