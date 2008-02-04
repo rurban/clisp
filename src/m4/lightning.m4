@@ -8,4 +8,4 @@ AC_ARG_WITH([lightning-prefix],
 [if test -f $withval/include/lightning.h; then
   AC_LIB_APPENDTOVAR([CPPFLAGS],-I$withval/include)
 fi],[])
-AC_CHECK_HEADER(lightning.h)])
+AC_CHECK_HEADERS(lightning.h)])
