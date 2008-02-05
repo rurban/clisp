@@ -1,5 +1,10 @@
 2008-02-04  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: for consistency
+	with UNIX, do NOT call MERGE-PATHNAMES on directories
+
+2008-02-04  Sam Steingold  <sds@gnu.org>
+
 	extend the meaning of the REVAL stream flag to mean a FASL stream:
 	in addition to ignoring *READ-EVAL*, use \n for #\Newline and #\r
 	for #\Return inside strings (replaces the 2006-11-17 patch #0Y"")
