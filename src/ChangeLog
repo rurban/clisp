@@ -1,3 +1,9 @@
+2008-02-06  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1887934 ]: make clean removes Lisp source files
+	* makemake.in (clean5): do not remove LISPFILES, they are not
+	linked over since 2007-12-10
+
 2008-02-04  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (assure_dir_exists) [WIN32_NATIVE]: for consistency
