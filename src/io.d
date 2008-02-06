@@ -1205,7 +1205,8 @@ local maygc void read_token (const gcv_object_t* stream_) {
   read_token_1(stream_,ch,scode);
 }
 
-local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode) {
+local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
+                               uintWL scode) {
   if (terminal_stream_p(*stream_))
     dynamic_bind(S(terminal_read_open_object),S(symbol));
   /* fetch empty Token-Buffers, upon STACK: */
@@ -1249,7 +1250,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL sc
           pushSTACK(S(read));
           error(end_of_file,GETTEXT("~S: input stream ~S ends within a token after single escape character"));
         }
-        if (fasl_stream) {
+        if (fasl_stream && multiple_escape_flag) {
           if (eq(ch,ascii_char('n')))
             ch = ascii_char(0x0A); /* "\n" = #\Linefeed */
           else if (eq(ch,ascii_char('r')))
