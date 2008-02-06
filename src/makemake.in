@@ -2393,8 +2393,7 @@ UTILS=$UTILS' ccmp2c' # needed by clx module
 if [ "$CHSCONVERT" = "./cv_lt_at" ] ; then
   UTILS=$UTILS' cv_lt_at'
 fi
-LUTILS=''
-LUTILS=$LUTILS' modprep'
+LUTILS='modprep'
 
 PARAMS="intparam floatparam"
 PARAMS_H=""
@@ -2954,7 +2953,7 @@ for f in ${LUTILS} ; do
   echol "${f}.fas : ${UTILDIR_M}${f}.lisp lisp${LEXE} lispinit.mem"
   echotab "\$(RUN) -M lispinit.mem -q -c ${UTILDIR}${f}.lisp -o ./"
   echol
-  link_dep "${f}.lisp" "${UTILDIR_M}${f}.lisp" "${UTILDIR_}${f}.lisp"
+  link_dep "${f}.lisp" "${UTILDIR_M}${f}.lisp" "${UTILDIR_}${f}.lisp" # linkkit
   echol
 done
 
