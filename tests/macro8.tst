@@ -1015,20 +1015,24 @@ NIL
 ((NIL) (NIL) (T))
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
-(let ((f "test-crlf-print-read.lisp")
-      (s (coerce #(#\a #\return #\b) 'string)))
+(let* ((f "test-crlf-print-read.lisp")
+       (v #(#\a #\return #\newline #\null #\b))
+       (s (coerce v 'string)))
   (unwind-protect
        (progn
          (with-open-file (out f :direction :output)
            (let ((*print-readably* t))
              #+clisp (sys::set-output-stream-fasl out)
-             (format out "(defparameter *z* ~S)~%" s)))
+             (format out "(defparameter *v* ~S)~%" v)
+             (format out "(defparameter *s* ~S)~%" s)))
          (load (compile-file f))
-         (string= s *z*))
+         (list (string= s *s*)
+               (equalp v *v*)
+               (= (length s) (length v))))
     (post-compile-file-cleanup f)
-    (makunbound '*z*)
-    (unintern '*z*)))
-T
+    (makunbound '*v*) (unintern '*v*)
+    (makunbound '*s*) (unintern '*s*)))
+(T T T)
 
 (let ((f "test-crlf-print-read.lisp")
       (code '(defmacro add-crlf (string)
@@ -1047,6 +1051,20 @@ T
     (makunbound '*z*)
     (unintern '*z*)))
 (3 3)
+
+(let* ((f "test-crlf-print-read.lisp")
+       #+clisp (*package* (find-package "CS-COMMON-LISP-USER"))
+       (c (read-from-string "*c*")))
+  (unwind-protect
+       (progn
+         (with-open-file (out f :direction :output)
+           (format out "(defconstant *c* #\\Null)~%"))
+         (load (compile-file f))
+         (char-code (symbol-value c)))
+    (post-compile-file-cleanup f)
+    (proclaim (list 'special c)) ; cannot makunbound a constant!
+    (makunbound c) (unintern c)))
+0
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
