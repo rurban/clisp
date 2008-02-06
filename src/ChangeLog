@@ -1,5 +1,10 @@
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (run_test, run_all_tests, ansi_tests, ansi_tests_compiled):
+	pass -E utf-8 because all our files are in unicode
+
+2008-02-06  Sam Steingold  <sds@gnu.org>
+
 	accept "-lp" to add to *LOAD-PATHS*
 	(and fix mingw separate directory build, see
 	http://permalink.gmane.org/gmane.lisp.clisp.devel/17375
