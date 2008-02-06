@@ -4014,8 +4014,7 @@ if [ -n "${SRCDIR}" ] ; then
   for f in $UNICODE_INCLUDES $NLS_INCLUDES spvw_calendar w32shell execname ${with_jitc} ; do
     line="$line ${f}.c"
   done
-  line="$line modules.h"${UNICODE_EXTRA}
-  line="$line \$(LISPFILES) modprep.lisp NEWS clisp.png"
+  line="$line NEWS clisp.png modules.h"${UNICODE_EXTRA}
   if [ ${HOS} = win32 ]; then
     line="$line clisp.ico"
   fi
