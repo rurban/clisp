@@ -1346,6 +1346,7 @@ local void init_symbol_values (void) {
   define_variable(S(load_verbose),T); /* *LOAD-VERBOSE* := T */
   define_variable(S(load_print),NIL); /* *LOAD-PRINT* := NIL */
   define_variable(S(load_echo),NIL); /* *LOAD-ECHO* := NIL */
+  define_variable(S(load_paths),NIL); /* *LOAD-PATHS* := NIL */
   define_variable(S(compile_print),NIL); /* *COMPILE-PRINT* := NIL */
   define_variable(S(compile_verbose),T); /* *COMPILE-VERBOSE* := T */
   define_variable(S(saveinitmem_verbose),T); /* *SAVEINITMEM-VERBOSE* := T */
@@ -1638,6 +1639,7 @@ local void usage (void) {
   printf(GETTEXTL(" -p package    - start in the package\n"));
   printf(GETTEXTL(" -C            - set *LOAD-COMPILING* to T\n"));
   printf(GETTEXTL(" -norc         - do not load the user ~/.clisprc file\n"));
+  printf(GETTEXTL(" -lp dir       - add dir to *LOAD-PATHS* (can be repeated)\n"));
   printf(GETTEXTL(" -i file       - load initfile (can be repeated)\n"));
   printf(GETTEXTL("Actions:\n"));
   printf(GETTEXTL(" -c [-l] lispfile [-o outputfile] - compile lispfile\n"));
@@ -1905,6 +1907,8 @@ struct argv_actions {
   const char* argv_lisplibdir;
   bool argv_developer;
   bool argv_load_compiling;
+  uintL argv_load_paths_count;
+  argv_compile_file_t* argv_load_paths; /* share space with -c args */
   uintL argv_init_filecount;
   const char **argv_init_files;
   bool argv_compile;
@@ -2005,7 +2009,9 @@ local inline int parse_options (int argc, const char* const* argv,
   p2->argv_norc = false;
   p2->argv_on_error = ON_ERROR_DEFAULT;
   p2->argv_compile_filecount = 0;
-  p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); /* maximal argc file-arguments */
+  p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); /* max argc file-arguments + -lp arguments */
+  p2->argv_load_paths_count = 0;
+  p2->argv_load_paths = p2->argv_compile_files + argc; /* share space with -c */
   p2->argv_package = NULL;
   p2->argv_ansi = 0;
   p2->argv_modern = false;
@@ -2069,7 +2075,8 @@ local inline int parse_options (int argc, const char* const* argv,
   {
     var const char* const* argptr = &argv[1];
     var const char* const* argptr_limit = &argv[argc];
-    var enum { for_exec, for_init, for_compile, for_expr } argv_for = for_exec;
+    var enum { for_exec, for_init, for_compile, for_expr, for_load_path }
+    argv_for = for_exec;
     /* loop and process options, replace processed options with NULL: */
     while (argptr < argptr_limit) {
       var const char* arg = *argptr++; /* next argument */
@@ -2260,8 +2267,11 @@ local inline int parse_options (int argc, const char* const* argv,
             }
             break;
           case 'l':             /* compilation listings */
-            p2->argv_compile_listing = true;
-            if (arg[2] != '\0') {
+            if (arg[2] == 0)
+              p2->argv_compile_listing = true;
+            else if (arg[2] == 'p' && arg[3] == 0) {
+              argv_for = for_load_path;
+            } else {
               INVALID_ARG(arg);
               return 1;
             }
@@ -2411,6 +2421,10 @@ local inline int parse_options (int argc, const char* const* argv,
             break;
           case for_expr:
             p2->argv_exprs[-1-(sintP)(p2->argv_expr_count++)] = arg;
+            break;
+          case for_load_path:
+            p2->argv_load_paths[-1-(sintP)(p2->argv_load_paths_count)].input_file = arg;
+            p2->argv_load_paths[-1-(sintP)(p2->argv_load_paths_count++)].output_file = NULL;
             break;
           default: NOTREACHED;
         }
@@ -3114,6 +3128,17 @@ local inline void main_actions (struct argv_actions *p) {
     funcall(S(load),3);
    done_driver_rc:
     setSTACK(STACK = top_of_frame); /* skip driver-frame */
+  }
+  /* augment *LOAD-PATHS* from -lp - after loading RC so that setting
+   *LOAD-PATHS* in ~/.clisprc does not override the command line */
+  if (p->argv_load_paths_count > 0) {
+    var const argv_compile_file_t* fileptr = &p->argv_load_paths[-1];
+    var uintL count = p->argv_load_paths_count;
+    do { pushSTACK(asciz_to_string((fileptr--)->input_file,O(misc_encoding))); }
+    while (--count);
+    pushSTACK(Symbol_value(S(load_paths)));
+    funcall(L(liststar),p->argv_load_paths_count+1);
+    Symbol_value(S(load_paths)) = value1;
   }
   /* execute (LOAD initfile) for each initfile: */
   if (p->argv_init_filecount > 0) {
