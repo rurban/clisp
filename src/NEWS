@@ -5,6 +5,8 @@ User visible changes
   done using GNU lightning (this is a configure-time option).
   Thanks to Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>.
 
+* New command-line option -lp adds directories to *LOAD-PATHS*.
+  See <http://clisp.cons.org/impnotes/clisp.html#opt-load-paths> for details.
 
 
 
