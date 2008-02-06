@@ -1594,7 +1594,7 @@ can give problems:
 
 <para>&clisp; supports a command-line option &opt-modern; that
  sets the &package-var; initially to the &cs-clu; package, and
- &print-base-var; to <constant>:DOWNCASE</constant>.</para>
+ &print-case-var; to <constant>:DOWNCASE</constant>.</para>
 
 <para>For packages to be located in the <quote>modern</quote>
  (case-sensitive) world, you need to augment their &defpackage;
