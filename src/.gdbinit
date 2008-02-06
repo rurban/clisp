@@ -66,23 +66,23 @@ document run_test
 end
 
 define run_all_tests
-  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -i tests/tests -x "(cd \"tests/\") (run-all-tests)"
+  run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -i tests/tests -x "(cd \"tests/\") (run-all-tests)"
 end
 document run_all_tests
          run the whole test suite
 end
 
 define ansi_tests
-  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
+  run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
 document ansi_tests
          run the gcl/ansi-test suite
 end
 
 define ansi_tests_compiled
-  run -B . -N locale -E 1:1 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
+  run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
 end
-document ansi_tests
+document ansi_tests_compiled
          run the gcl/ansi-test suite - compiled
 end
 
