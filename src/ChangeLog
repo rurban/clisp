@@ -1,5 +1,22 @@
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
+	accept "-lp" to add to *LOAD-PATHS*
+	(and fix mingw separate directory build, see
+	http://permalink.gmane.org/gmane.lisp.clisp.devel/17375
+	http://permalink.gmane.org/gmane.lisp.clisp.devel/17388)
+	* init.lisp (*load-paths*): do not reset
+	* constsym.d (*load-paths*): add
+	* spvw.d (init_symbol_values): init *LOAD-PATHS*
+	(struct argv_actions): add argv_load_paths_count & argv_load_paths
+	(parse_options): init p2->argv_load_paths_count & p2->argv_load_paths;
+	argv_for now has an additional value: for_load_path;
+	accept "-lp" and set argv_for to for_load_path for adding the
+	argument o p2->argv_load_paths
+	(main_actions): push -lp arguments to *LOAD-PATHS*
+	* makemake.in: use -lp instead of setting *LOAD-PATHS* in -x
+
+2008-02-06  Sam Steingold  <sds@gnu.org>
+
 	the final fix for bug #[ 1578179 ]: Compile-file: non-similarity of
 	strings with cr/lf (also treated on 2006-11-17 & 2008-02-04)
 	* io.d (read_token_1): when reading from a FASL stream,

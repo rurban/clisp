@@ -1512,8 +1512,7 @@
 
 (PROGN
 
-(proclaim '(special *load-paths*))
-(or (boundp '*load-paths*) (setq *load-paths* nil))
+(proclaim '(special *load-paths*)) ; defined in spvw.d
 (proclaim '(special *source-file-types*))
 (setq *source-file-types* '("lisp" "lsp" "cl"))
 (proclaim '(special *compiled-file-types*))
@@ -1535,7 +1534,7 @@
             (cons #"" *load-paths*))))))
 
 (proclaim '(special *compile-verbose*))
-(setq *compile-verbose* t)         ; defined in spvw.d
+(setq *compile-verbose* t)      ; defined in spvw.d
 (proclaim '(special *load-verbose*))
 (setq *load-verbose* t)         ; defined in spvw.d
 (proclaim '(special *load-print*))

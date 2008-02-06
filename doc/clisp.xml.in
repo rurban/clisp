@@ -77,6 +77,8 @@
 <arg><option><link linkend="opt-pack">-p &pack-r;</link></option></arg>
 <arg>&opt-C;</arg>
 <arg>&opt-norc;</arg>
+<arg rep="repeat"><option><link linkend="opt-load-paths">-lp
+   &directory-r;</link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-init">-i
    <replaceable>init-file</replaceable></link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-compile">-c</link></option>
@@ -383,6 +385,16 @@ compiles the specified lisp files to a platform-independent
    in the home directory &user-homedir-pathname;, whichever is newer.
    This option, &opt-norc;, prevents loading of the &RC-file;.
 </simpara></listitem></varlistentry>
+
+<varlistentry id="opt-load-paths"><term><option>-lp</option>
+  &directory-r;</term>
+ <listitem><simpara>Specifies directories to be added to &load-paths;
+   at startup.  This is done &after-e; loading the &RC-file; (so that
+   it does not override the command-line option) but &before-e; loading
+   the init-files specified by the <option>-i</option> options (so that
+   the init-files will be searched for in the specified directories).
+   Several <option>-lp</option> options can be given; all the specified
+   directories will be added.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-init"><term><option>-i</option>
   <replaceable>init-file</replaceable></term>

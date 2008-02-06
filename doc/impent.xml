@@ -282,7 +282,7 @@
 <!ENTITY load-echo '<olink targetdoc="impnotes" targetptr="loadfile"><varname>CUSTOM:*LOAD-ECHO*</varname></olink>'>
 <!ENTITY load-lpt-db '<olink targetdoc="impnotes" targetptr="load-lpt"><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>'>
 <!ENTITY load-obs '<link linkend="loadfile"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>'>
-<!ENTITY load-paths '<link linkend="load-paths"><varname>CUSTOM:*LOAD-PATHS*</varname></link>'>
+<!ENTITY load-paths '<olink targetdoc="impnotes" targetptr="load-paths"><varname>CUSTOM:*LOAD-PATHS*</varname></olink>'>
 <!ENTITY make-encoding '<link linkend="make-encoding"><function>EXT:MAKE-ENCODING</function></link>'>
 <!ENTITY make-stream '<link linkend="make-stream"><function>EXT:MAKE-STREAM</function></link>'>
 <!ENTITY mapcap '<link linkend="mapcap"><function>EXT:MAPCAP</function></link>'>
