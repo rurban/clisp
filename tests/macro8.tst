@@ -1022,13 +1022,31 @@ NIL
          (with-open-file (out f :direction :output)
            (let ((*print-readably* t))
              #+clisp (sys::set-output-stream-fasl out)
-             (format out "(defvar *z* ~S)~%" s)))
+             (format out "(defparameter *z* ~S)~%" s)))
          (load (compile-file f))
          (string= s *z*))
     (post-compile-file-cleanup f)
     (makunbound '*z*)
     (unintern '*z*)))
 T
+
+(let ((f "test-crlf-print-read.lisp")
+      (code '(defmacro add-crlf (string)
+              (with-output-to-string (o)
+                (write-string string o)
+                (princ #\Return o)
+                (princ #\LineFeed o)))))
+  (unwind-protect
+       (progn
+         (with-open-file (out f :direction :output)
+           (write code :stream out :pretty t)
+           (format out "(defparameter *z* (length (add-crlf \"a\")))~%"))
+         (list (progn (load f) *z*)
+               (progn (load (compile-file f)) *z*)))
+    (post-compile-file-cleanup f)
+    (makunbound '*z*)
+    (unintern '*z*)))
+(3 3)
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
 (funcall (compile nil '(lambda () (declare (optimize foo)))))

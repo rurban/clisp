@@ -1219,6 +1219,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL sc
    read-operations. */
   var bool multiple_escape_flag = false;
   var bool escape_flag = false;
+  var bool fasl_stream = stream_get_fasl(*stream_); /* don't need to save ch */
   goto char_read;
   while (1) {
     /* Here the token in STACK_1 (Semi-Simple-String for characters)
@@ -1248,8 +1249,13 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL sc
           pushSTACK(S(read));
           error(end_of_file,GETTEXT("~S: input stream ~S ends within a token after single escape character"));
         }
-    escape:
-        /* past Escape-character:
+        if (fasl_stream) {
+          if (eq(ch,ascii_char('n')))
+            ch = ascii_char(0x0A); /* "\n" = #\Linefeed */
+          else if (eq(ch,ascii_char('r')))
+            ch = ascii_char(0x0D); /* "\r" = #\Return */
+        }
+      escape: /* past Escape-character:
          take over character into token without change */
         ssstring_push_extend(STACK_1,char_code(ch));
         ssbvector_push_extend(STACK_0,a_escaped);
@@ -6991,13 +6997,16 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
    5. if it contains no lower-/upper-case letters
       (depending on readtable_case) and no colons and
    6. if it does not have Potential-Number Syntax (with *PRINT-BASE* as base).*/
+  pushSTACK(string);
+  var bool fasl_stream = stream_get_fasl(*stream_);
+  string = popSTACK();
   sstring_un_realloc(string);
   var uintL len = Sstring_length(string); /* length */
   /* check condition 1: */
   if (len==0)
     goto surround;              /* length=0 -> must use |...| */
   /* check condition 2: */
-  if (!nullpSv(print_readably))
+  if (!nullpSv(print_readably) || fasl_stream)
     /* *PRINT-READABLY* is true -> must use |...| because when read back in, the
      (READTABLE-CASE *READTABLE*) could be :PRESERVE or :INVERT, and we don't
      know in advance. (Actually, the |...| are only necessary if the symbol
@@ -7088,6 +7097,7 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
     pushSTACK(TheReadtable(readtable)->readtable_syntax_table);
   }
   pushSTACK(string);
+  var bool pending_newline = false;
   /* stack layout: syntax_table, string. */
   write_ascii_char(stream_,'|');
   if (len > 0) {
@@ -7095,15 +7105,17 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
       var uintL index = 0;
       do {
         var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); /* the next character */
-        if (case_inverted)
-          c = invert_case(c);
-        switch (syntax_table_get(STACK_1,c)) { /* its Syntaxcode */
-          case syntax_single_esc:
-          case syntax_multi_esc: /* The Escape-Character c is prepended by '\': */
-            write_ascii_char(stream_,'\\');
-          default: ;
+        if (!pr_fasl_special(stream_,c,&pending_newline)) {
+          if (case_inverted)
+            c = invert_case(c);
+          switch (syntax_table_get(STACK_1,c)) { /* its Syntaxcode */
+            case syntax_single_esc:
+            case syntax_multi_esc: /* The Escape-Character c is prepended by '\': */
+              write_ascii_char(stream_,'\\');
+            default: ;
+          }
+          write_code_char(stream_,c); /* print Character */
         }
-        write_code_char(stream_,c); /* print Character */
         index++;
       } while (index < len);
     });

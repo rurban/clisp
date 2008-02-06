@@ -1,5 +1,14 @@
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
+	the final fix for bug #[ 1578179 ]: Compile-file: non-similarity of
+	strings with cr/lf (also treated on 2006-11-17 & 2008-02-04)
+	* io.d (read_token_1): when reading from a FASL stream,
+	read \r & \n as #\Return and #\Newline respectively
+	(pr_symbol_part): when printing to a FASL stream,
+	print #\Newline & #\Return as \r and \n respectively
+
+2008-02-06  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1887934 ]: make clean removes Lisp source files
 	* makemake.in (clean5): do not remove LISPFILES, they are not
 	linked over since 2007-12-10
