@@ -1,5 +1,13 @@
 2008-02-07  Sam Steingold  <sds@gnu.org>
 
+	finally fix def-c-const
+	* foreign1.lisp (compile-time-value): new macro
+	(def-c-const): use it; do not use def-call-out for the constant
+	function to avoid clutter
+	(finalize-coutput-file): keep cftype in *constant-table*
+
+2008-02-07  Sam Steingold  <sds@gnu.org>
+
 	prepare for keeping jitc code in cclosure by not assuming that
 	cclosure constants start at position 2 inside the record
 	* constsym.d, subr.d (closure_const, set_closure_const): declare
