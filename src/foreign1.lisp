@@ -714,7 +714,7 @@
               *c-name* count))
     (format *coutput-stream* "~%")
     (maphash (lambda (type fun-vec)
-               (let* ((fun (car fun-vec)) (vec (cdr fun-vec))
+               (let* ((fun (first fun-vec)) (vec (second fun-vec))
                       (c-decl (to-c-typedecl type fun)))
                  (format *coutput-stream* "~A (int number, int *definedp);~%~
                                            ~A (int number, int *definedp) {
@@ -729,7 +729,7 @@
                      (when guard
                        (format *coutput-stream* "#  endif~%"))))
                  (format *coutput-stream* "    default: *definedp=0; return 0;
-  }~%}~%#define HAVE_~A~%" (string-upcase (symbol-name fun)))))
+  }~%}~%")))
              *constant-table*)
     (setq *variable-list*
           (nreverse (delete-duplicates
@@ -798,6 +798,13 @@
                 "  register_foreign_function((void*)&~A,~A,~D);~%"
                 c-name (to-c-string c-name) (svref (second function) 3))
         (when *foreign-guard* (format *coutput-stream* "# endif~%"))))
+    (maphash (lambda (type fun-vec)
+               (declare (ignore type))
+               (let ((c-name (to-c-name (car fun-vec))))
+                 (format *coutput-stream*
+                         "  register_foreign_function((void*)&~A,\"~A\",~D);~%"
+                         c-name c-name (svref (third fun-vec) 3))))
+             *constant-table*)
     (format *coutput-stream*
             "}~2%void module__~A__fini_function (module_t* module)~%~
             {~{~%~A~}~%}~%"
@@ -852,6 +859,15 @@
   (let ((pair (assoc key alist)))
     (if pair (second pair) default)))
 
+;; this is fairly general, maybe we need to move it...
+(eval-when (compile)
+  (defmacro compile-time-value (expression)
+    expression))
+(eval-when ((not compile))
+  (defmacro compile-time-value (expression)
+    (declare (ignore expression))
+    ()))
+
 ;; CPP consts (#define'd in an *.h file):
 ;; for each type (int, string, pointer) there is a C function (and a
 ;;  foreign-function created when the first constant of this type is
@@ -871,35 +887,41 @@
                     (:return-type ,c-type))
                   whole-form)))
     (check-type c-type (member ffi:int ffi:c-string ffi:c-pointer)
-                "A constant must be either an integer, a string or a pointer")
-    `(multiple-value-bind (f-name c-number)
-         (note-c-const ',c-name ',c-type ,guard)
-       ;; c-number == 0 ==> need to output the def-call-out form
-       (when (zerop c-number)
-         (SYSTEM::%PUTD
-          ;; we do not really need to name this foreign function; this is just
-          ;; to avoid an HT lookup in FIND-FOREIGN-FUNCTION for each C constant
-          f-name (FIND-FOREIGN-FUNCTION ',c-name ,cftype NIL NIL NIL)))
-       (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
-         ,@doc))))
+                "an integer, a string or a pointer")
+    `(let ((f-name&c-number
+            (compile-time-value (note-c-const ',c-name ',c-type
+                                              ',cftype ',guard))))
+       (unless f-name&c-number
+         (error (TEXT "~S(~S ~S) requires writing to a C file")
+                'def-c-const ',name ',c-name))
+       (let ((f-name (first f-name&c-number))
+             (c-number (second f-name&c-number)))
+         ;; c-number == 0 ==> need to output the def-call-out form
+         (when (zerop c-number)
+           (SYSTEM::%PUTD
+            ;; we do not really need to name this foreign function; this is just
+            ;; to avoid an HT lookup in FIND-FOREIGN-FUNCTION for each C const
+            f-name (FIND-FOREIGN-FUNCTION (to-c-name f-name)
+                                          ,cftype NIL NIL NIL)))
+         (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
+           ,@doc)))))
 
-(defun note-c-const (c-name c-type guard) ; ABI
-  (unless (boundp 'system::*compiling-from-file*)
-    (error (TEXT "~S(~S) requires writing to a C file") 'def-c-const c-name))
+(defun note-c-const (c-name c-type cftype guard)
   (when (compiler::prepare-coutput-file)
-    (prepare-module))
-  (let ((f-name (intern
-                 (format nil "module__~A__constant_map_~A" *name*
-                         (nstring-downcase
-                          (nsubstitute #\_ #\-
-                                       (copy-seq (symbol-name c-type))))))))
-    (values f-name
+    (prepare-module)
+    (let ((f-name (intern
+                   (format nil "module__~A__constant_map_~A" *name*
+                           (nstring-downcase
+                            (nsubstitute #\_ #\-
+                                         (copy-seq (symbol-name c-type))))))))
+      (list f-name
             (vector-push-extend
              (cons c-name guard)
-             (cdr (or (gethash c-type *constant-table*)
-                      (setf (gethash c-type *constant-table*)
-                            (cons f-name (make-array 10 :adjustable t
-                                                     :fill-pointer 0)))))))))
+             (second (or (gethash c-type *constant-table*)
+                         (setf (gethash c-type *constant-table*)
+                               (list f-name (make-array 10 :adjustable t
+                                                        :fill-pointer 0)
+                                     cftype)))))))))
 
 (defun c-const-value (f-name c-number name c-name) ; ABI
   (multiple-value-bind (value value-p) (funcall f-name c-number)
