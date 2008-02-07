@@ -1,3 +1,21 @@
+2008-02-07  Sam Steingold  <sds@gnu.org>
+
+	prepare for keeping jitc code in cclosure by not assuming that
+	cclosure constants start at position 2 inside the record
+	* constsym.d, subr.d (closure_const, set_closure_const): declare
+	* record.d (CLOSURE-CONST, SET-CLOSURE-CONST): implement
+	* pleces.lisp ((SETF CLOSURE-CONST)): define
+	* compiler.lisp (pass3): use CLOSURE-CONST instead of SYS::%RECORD-REF
+	(make-trampoline): use CLOSURE-CODEVEC instead of SYS::%RECORD-REF
+	* defs2.lisp (dispatch-reader): use CLOSURE-CONST instead of %RECORD-REF
+	and return constant number instead of record position in VECTOR-INDEX
+	* io.d (SET-MACRO-CHARACTER, GET-MACRO-CHARACTER):
+	O(dispatch_reader_index) contains position in
+	TheCclosure(newclos)->clos_consts, not in
+	((Srecord)TheCclosure(newclos))->recdata
+	* trace.lisp (subclosure-pos, %local-get, %local-set): use
+	CLOSURE-CONST instead of %RECORD-REF & %RECORD-STORE
+
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit (run_test, run_all_tests, ansi_tests, ansi_tests_compiled):

@@ -206,7 +206,7 @@
   (let ((vector-index
           (do ((i 0 (1+ i)))
                (nil)
-            (when (eq (%record-ref #'dispatch-reader i) vector) (return i)))))
+            (when (eq (closure-const #'dispatch-reader i) vector) (return i)))))
     (%defio #'dispatch-reader vector-index)
   )
 )

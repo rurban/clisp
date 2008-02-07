@@ -62,7 +62,8 @@
           sys::make-load-time-eval sys::make-macro-expander
           sys::make-funmacro-expander
           sys::analyze-lambdalist sys::specialized-lambda-list-to-ordinary
-          sys::closure-name sys::closure-codevec sys::closure-consts
+          sys::closure-name sys::closure-codevec
+          sys::closure-consts sys::closure-const
           sys::fixnump sys::short-float-p sys::single-float-p
           sys::double-float-p sys::long-float-p
           sys::search-file sys::date-string sys::line-number
@@ -10714,8 +10715,7 @@ The function make-closure is required.
 (defun pass3 ()
   (dolist (pair *fnode-fixup-table*)
     (let ((code (fnode-code (first pair))) (n (second pair)))
-      (macrolet ((closure-const (code n) `(sys::%record-ref ,code (+ 2 ,n))))
-        (setf (closure-const code n) (fnode-code (closure-const code n)))))))
+      (setf (closure-const code n) (fnode-code (closure-const code n))))))
 
 
 ;;;;****             TOP - LEVEL   CALL
@@ -11474,7 +11474,7 @@ The function make-closure is required.
                               (list 'SKIP&RETGF (+ 1 req-num (if (or rest-p key-p) 1 0)))))
                       '(0 . 0))
       (let ((trampoline (fnode-code fnode)))
-        (sys::%record-ref trampoline 1)))))
+        (sys::closure-codevec trampoline)))))
 
 ;; The compilation of code using symbol-macros requires venv-search in
 ;; compiled form.
