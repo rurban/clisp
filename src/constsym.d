@@ -769,6 +769,8 @@ LISPSYM(closure_name,"CLOSURE-NAME",system)
 LISPSYM(set_closure_name,"(SETF CLOSURE-NAME)",system)
 LISPSYM(closure_codevec,"CLOSURE-CODEVEC",system)
 LISPSYM(closure_consts,"CLOSURE-CONSTS",system)
+LISPSYM(closure_const,"CLOSURE-CONST",system)
+LISPSYM(set_closure_const,"SET-CLOSURE-CONST",system)
 LISPSYM(make_code_vector,"MAKE-CODE-VECTOR",system)
 LISPSYM(make_closure,"%MAKE-CLOSURE",system)
 LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system) /* ABI */

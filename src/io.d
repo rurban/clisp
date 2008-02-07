@@ -676,7 +676,7 @@ LISPFUN(set_macro_character,seclass_default,2,2,norest,nokey,0,NIL)
         && eq(TheCclosure(function)->clos_codevec,
               TheCclosure(O(dispatch_reader))->clos_codevec)) {
       var object vector =
-        ((Srecord)TheCclosure(function))->recdata[posfixnum_to_V(O(dispatch_reader_index))];
+        TheCclosure(function)->clos_consts[posfixnum_to_V(O(dispatch_reader_index))];
       if (simple_vector_p(vector)) {
         /* It's a clone of #'dispatch-reader. Pull out the vector. */
         function = copy_perchar_table(vector);
@@ -720,7 +720,7 @@ LISPFUN(get_macro_character,seclass_read,1,1,norest,nokey,0,NIL)
         pushSTACK(copy_perchar_table(entry));
         var object newclos = allocate_cclosure_copy(O(dispatch_reader));
         do_cclosure_copy(newclos,O(dispatch_reader));
-        ((Srecord)TheCclosure(newclos))->recdata[posfixnum_to_V(O(dispatch_reader_index))] = popSTACK();
+        TheCclosure(newclos)->clos_consts[posfixnum_to_V(O(dispatch_reader_index))] = popSTACK();
         value1 = newclos;
       } else
         value1 = entry;

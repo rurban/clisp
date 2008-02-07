@@ -68,11 +68,11 @@
            (do ((length (sys::%record-length closure))
                 ;; compiler::symbol-suffix is defined in compiler.lisp
                 (nm (compiler::symbol-suffix (closure-name closure) name))
-                (pos 2 (1+ pos)) obj)
+                (pos 0 (1+ pos)) obj)
                ((= pos length)
                 (error (TEXT "~s: no local name ~s in ~s")
                        'local name closure))
-             (setq obj (sys::%record-ref closure pos))
+             (setq obj (sys::closure-const closure pos))
              (when (and (closurep obj)
                         (or (eq (closure-name obj) nm)
                             (eq (closure-name obj)
@@ -97,18 +97,18 @@
 
   (defun %local-get (spec) ; ABI
     (multiple-value-bind (clo pos) (local-helper spec)
-      (sys::%record-ref clo pos)))
+      (sys::closure-const clo pos)))
   (defun %local-set (new-def spec) ; ABI
     (unless (closurep new-def)
       (error-of-type 'type-error
         :datum new-def :expected-type 'closure
         (TEXT "~S: ~S is not a closure") `(setf (local ,@spec)) new-def))
     (multiple-value-bind (clo pos) (local-helper spec)
-      (sys::%record-store clo pos
-         (if (sys::%compiled-function-p new-def)
-             new-def
-             (fdefinition (compile (closure-name (sys::%record-ref clo pos))
-                                   new-def)))))))
+      (setf (sys::closure-const clo pos)
+            (if (sys::%compiled-function-p new-def)
+                new-def
+                (fdefinition (compile (closure-name (sys::%record-ref clo pos))
+                                      new-def)))))))
 
 (defmacro local (&rest spec)
   "Return the closure defined locally with LABELS or FLET.

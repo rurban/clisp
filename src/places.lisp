@@ -1139,8 +1139,9 @@
 (def-setf-alias long-float-digits SYSTEM::|(SETF LONG-FLOAT-DIGITS)|)
 ;;;----------------------------------------------------------------------------
 (defsetf system::%record-ref system::%record-store)
-;;;----------------------------------------------------------------------------
 (defsetf system::%structure-ref system::%structure-store)
+(defsetf system::closure-const (closure n) (value)
+  `(system::set-closure-const ,value ,closure ,n))
 ;;;----------------------------------------------------------------------------
 (def-setf-alias clos::standard-instance-access CLOS::|(SETF STANDARD-INSTANCE-ACCESS)|)
 ;;;----------------------------------------------------------------------------
