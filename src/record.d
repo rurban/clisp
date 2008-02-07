@@ -348,6 +348,35 @@ LISPFUNNR(closure_consts,1) {
   VALUES1(STACK_0); skipSTACK(2); /* list as value */
 }
 
+/* return the address of the Nth constant
+ > STACK_0: position
+ > STACK_1: compiled closure
+ < address of the constant
+ can trigger GC */
+local maygc gcv_object_t* closure_const (void) {
+  var uintV pos = posfixnum_to_V(check_posfixnum(STACK_0));
+  var object closure = STACK_1;
+  if (!cclosurep(closure)) error_cclosure(closure);
+  var uintB ccv_flags =
+    TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
+  var uintC max_index = Cclosure_last_const(closure)
+    - ccv_flags_documentation_p(ccv_flags) - ccv_flags_lambda_list_p(ccv_flags);
+  if (pos > max_index) error_index(max_index);
+  return &(TheCclosure(closure)->clos_consts[(uintP)pos]);
+}
+
+/* (SYS::CLOSURE-CONST closure n)
+   returns the n-th constant of the compiled closure. */
+LISPFUNNR(closure_const,2) {
+  VALUES1(*closure_const()); skipSTACK(2);
+}
+/* (SYS::SET-CLOSURE-CONST value closure n)
+   set the n-th constant of the compiled closure. */
+LISPFUNN(set_closure_const,3) {
+  VALUES1(*closure_const() = STACK_2); skipSTACK(3);
+}
+
+
 /* (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
    a simple-8bit-vector of the same length, that contains these numbers
    as bytes. */
