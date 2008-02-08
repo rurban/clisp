@@ -431,7 +431,7 @@ local object find_sym (char* name_s, char* pack_s) {
 
 #endif
 
-#ifdef DEBUG_SPVW
+#if defined(DEBUG_SPVW)
 #define FUN(from,to,name) local to CONCAT(name,_) (from x) { return name(x); }
 FUN(chart,cint,as_cint)
 FUN(cint,chart,as_chart)
@@ -462,5 +462,6 @@ FUN(object,Dfloat,TheDfloat)
 FUN(object,Lfloat,TheLfloat)
 FUN(object,Cclosure,TheCclosure)
 FUN(object,int,Cclosure_length)
+FUN(object,Codevec,TheCodevec)
 #undef FUN
 #endif
