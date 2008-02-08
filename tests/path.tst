@@ -1100,6 +1100,7 @@ NIL
 (directory "foo/") NIL
 (ext:delete-directory "bar/") T
 (directory "bar/" :full t) NIL
+(pathname-version (car (directory "./"))) NIL
 
 (flet ((kill (s) (makunbound s) (unintern s)))
   (kill '*dir*)
