@@ -6,6 +6,9 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
+unify unbound_variable errors between control.d:SYMBOL-VALUE & eval.d:interpret_bytecode
+
+
 bind-eval.tst failure on Linux/amd64 [bruno]
 
 
@@ -229,7 +232,7 @@ etc. that are ported to ACL can be ported to clisp with minimal effort.
 <http://www.franz.com/support/documentation/6.2/doc/fwrappers-and-advice.htm>
 
 
-clean up and modularize spvw.d
+clean up and modularize spvw.d (hasn't this been done already in 1998-07?)
 
 
 Add fast unicode attribute accessors (like CHAR-NUMERIC-P and CHAR-DECOMPOSE)
