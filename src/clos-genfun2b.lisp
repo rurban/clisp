@@ -1150,15 +1150,16 @@
                       (setf (gethash hash-key prototype-factory-table)
                             (let* ((reqvars (gensym-list reqnum))
                                    (prototype-factory
-                                     (eval `#'(LAMBDA (GF)
-                                                (DECLARE (COMPILE))
-                                                (%GENERIC-FUNCTION-LAMBDA
-                                                  (,@reqvars ,@(if restp '(&REST ARGS) '()))
-                                                  (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
-                                                  (FUNCALL 'INITIAL-FUNCALL-GF GF))))))
-                              (assert (<= (sys::%record-length (funcall prototype-factory 'dummy)) 3))
+                                    (eval `#'(LAMBDA (GF)
+                                               (DECLARE (COMPILE))
+                                               (%GENERIC-FUNCTION-LAMBDA
+                                                (,@reqvars ,@(if restp '(&REST ARGS) '()))
+                                                (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
+                                                (FUNCALL 'INITIAL-FUNCALL-GF GF)))))
+                                   (dummy-f (funcall prototype-factory 'dummy)))
+                              (assert (<= (sys::%record-length dummy-f) 3))
                               (cons prototype-factory
-                                    (sys::closure-codevec (funcall prototype-factory 'dummy)))))))))))
+                                    (sys::closure-codevec dummy-f))))))))))
       (set-funcallable-instance-function gf (funcall prototype-factory gf))))
   (defun gf-never-called-p (gf)
     (or (safe-gf-undeterminedp gf)
