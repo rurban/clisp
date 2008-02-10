@@ -2,6 +2,8 @@
 
 	* clos-genfun2b.lisp (finalize-fast-gf): avoid calling
 	prototype-factory twice on the same argument
+	* record.d (%COPY-GENERIC-FUNCTION): use clos_venv instead of
+	clos_consts[0]
 
 2008-02-07  Sam Steingold  <sds@gnu.org>
 
