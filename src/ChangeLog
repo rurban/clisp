@@ -1,3 +1,8 @@
+2008-02-10  Sam Steingold  <sds@gnu.org>
+
+	* clos-genfun2b.lisp (finalize-fast-gf): avoid calling
+	prototype-factory twice on the same argument
+
 2008-02-07  Sam Steingold  <sds@gnu.org>
 
 	finally fix def-c-const
