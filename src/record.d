@@ -1,7 +1,7 @@
 /*
  * Functions for records and structures in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-04-16
  */
 #include "lispbibl.c"
@@ -376,7 +376,6 @@ LISPFUNN(set_closure_const,3) {
   VALUES1(*closure_const() = STACK_2); skipSTACK(3);
 }
 
-
 /* (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
    a simple-8bit-vector of the same length, that contains these numbers
    as bytes. */
@@ -597,11 +596,11 @@ local inline maygc object check_genericlambda_function (object obj) {
 /* (SYS::%COPY-GENERIC-FUNCTION venv closure) copies the closure, which must be
    a generic function with venv slot, copying in the given venv. */
 LISPFUNN(copy_generic_function,2) {
-  /* Note: closure's clos_consts[0] is a simple-vector #(NIL c1 ... cn) where
+  /* Note: closure's clos_venv is a simple-vector #(NIL c1 ... cn) where
      c1,...,cn are constant objects, and NIL is the placeholder to be replaced
      with the passed venv. */
   var object oldclos = check_genericlambda_function(STACK_0);
-  var object vector = TheCclosure(oldclos)->clos_consts[0];
+  var object vector = TheCclosure(oldclos)->clos_venv;
   if (!(simple_vector_p(vector)
         && (Svector_length(vector) > 0)
         && nullp(TheSvector(vector)->data[0]))) {
@@ -618,7 +617,7 @@ LISPFUNN(copy_generic_function,2) {
   oldclos = STACK_0;
   do_cclosure_copy(newclos,oldclos);
   /* Put in the copied vector with venv: */
-  TheCclosure(newclos)->clos_consts[0] = STACK_1;
+  TheCclosure(newclos)->clos_venv = STACK_1;
   VALUES1(newclos);
   skipSTACK(2);
 }
