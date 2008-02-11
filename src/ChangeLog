@@ -1,6 +1,7 @@
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-sources): grep ${SRCDIR}*.d, not *.d
+	* subrkw.d (make_thread): fix a typo
 
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
