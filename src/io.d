@@ -7108,7 +7108,7 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
       var uintL index = 0;
       do {
         var chart c = as_chart(((SstringX)TheVarobject(STACK_0))->data[index]); /* the next character */
-        if (!pr_fasl_special(stream_,c,&pending_newline)) {
+        if (!fasl_stream || !pr_fasl_special(stream_,c,&pending_newline)) {
           if (case_inverted)
             c = invert_case(c);
           switch (syntax_table_get(STACK_1,c)) { /* its Syntaxcode */
