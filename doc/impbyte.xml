@@ -457,7 +457,11 @@
  <listitem><simpara>see <xref linkend="image"/>
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">src/keyboard.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/xcharin.lisp</filename> (optional)</term>
+ <listitem><simpara>implements extended character input for &with-kbd;
+</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/keyboard.lisp</filename> (optional)</term>
  <listitem><simpara>implements the macro &with-kbd;
 </simpara></listitem></varlistentry>
 <varlistentry>
@@ -681,12 +685,24 @@
   </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry>
+ <term><filename role="clisp-cvs">src/gray.lisp</filename></term>
+ <listitem><simpara>implements &gray-streams;
+</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/fill-out.lisp</filename></term>
+ <listitem><simpara>implements &fill-stream;
+</simpara></listitem></varlistentry>
+<varlistentry>
+ <term><filename role="clisp-cvs">src/disassem.lisp</filename></term>
+ <listitem><simpara>implements &disassemble;
+</simpara></listitem></varlistentry>
+<varlistentry>
  <term><filename role="clisp-cvs">src/condition.lisp</filename></term>
  <listitem><simpara>implements the &cl; Condition System (&clcs;)
 </simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">src/gstream.lisp</filename></term>
- <listitem><simpara>generic stream default methods
+ <term><filename role="clisp-cvs">src/gstream.lisp</filename> (optional)</term>
+ <listitem><simpara>generic stream default methods, see <xref linkend="gstream">
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/foreign1.lisp</filename></term>
