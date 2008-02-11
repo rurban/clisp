@@ -1,7 +1,7 @@
 ;; Run Yuji Minejima's test suite
 
 (load (make-pathname :name "tests" :type nil
-                     :defaults (merge-pathnames "../tests/" *load-truename*)))
+                     :defaults (merge-pathnames "../tests/" *load-pathname*)))
 
 (setq *run-test-type* "lisp"
       *test-result-in-file* nil)

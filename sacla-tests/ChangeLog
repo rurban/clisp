@@ -1,3 +1,10 @@
+2008-02-11  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp: when loading tests/tests.lisp, use *load-pathname*
+	instead of *load-truename* because build/tests/tests.lisp may
+	have been compiled but *load-truename* will point us to the
+	top-level directory without the compiled files
+
 2005-11-08  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-all-tests): run "must-condition" with disabled
