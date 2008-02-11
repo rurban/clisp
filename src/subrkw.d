@@ -216,6 +216,6 @@ v(1, (kw(full)))
 s(foreign_free)
 #endif
 #ifdef MULTITHREAD
-v(1, kw(name))
+v(1, (kw(name)))
 s(make_thread)
 #endif
