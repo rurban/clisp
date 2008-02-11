@@ -8,6 +8,9 @@ User visible changes
 * New command-line option -lp adds directories to *LOAD-PATHS*.
   See <http://clisp.cons.org/impnotes/clisp.html#opt-load-paths> for details.
 
+* Bug fixes:
+  + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
+
 
 
 2.44 (2008-02-02)

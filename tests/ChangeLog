@@ -1,3 +1,8 @@
+2008-02-11  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: test for bug #[ 1890854 ]:
+	read-preserving-whitespace eats whitespace after quoted obj
+
 2008-02-06  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst ("test-crlf-print-read.lisp"): use
