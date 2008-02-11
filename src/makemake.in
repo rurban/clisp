@@ -3055,7 +3055,7 @@ if [ $CROSS = false ] ; then
   echol "# 2. no variables of type gcv_object_t - only pointers to it"
   echol "check-sources : # lisp${LEXE} lispinit.mem"
   echotab '$(RUN) -M lispinit.mem -C -i '"${SRCDIR}"'check-lispfun.lisp -x "(check-lisp-defs \"'"${SRCDIR}"'\")"'
-  echotab "if egrep ' var gcv_object_t *[^* ]' *.d; then false; else true; fi"
+  echotab "if egrep ' var gcv_object_t *[^* ]' ${SRCDIR}*.d; then false; else true; fi"
   echol
 
   echol "# Test: recompile \$(LISPFILES) and compare their contents."

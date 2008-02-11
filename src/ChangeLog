@@ -1,5 +1,9 @@
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-sources): grep ${SRCDIR}*.d, not *.d
+
+2008-02-11  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1890854 ]: read-preserving-whitespace eats whitespace
 	after quoted object
 	* io.d (list2_reader): bind *READ-RECURSIVE-P* around
