@@ -12633,7 +12633,7 @@ extern maygc object coerce_function (object obj);
 /* is used by CONTROL */
 
 /* The macro LISPFUN initiates a declaration of a LISP functions.
-LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
+ LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
  > name: the name of the function (a C-Identifier)
  > seclass: the side-effect class (seclass_t, see above)
  > req_count: number of required parameters (a number)
@@ -12649,7 +12649,7 @@ LISPFUN(name,seclass,req_count,opt_count,rest_flag,key_flag,key_count,keywords)
 /* used by all modules */
 
 /* The macro LISPFUNN initiates a simple declaration of a LISP-function.
-LISPFUNN(name,req_count)
+ LISPFUNN(name,req_count)
  > name: the function-name (a C-Identifier)
  > req_count: the (fixed) number of arguments (a number)
  LISPFUNNF - ditto, but seclass_foldable instead of seclass_default
