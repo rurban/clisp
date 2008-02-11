@@ -1399,12 +1399,10 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  system function mentioned in the <varname>FUNTAB</varname> arrays in
  file &eval-d;, all the &fasl-file; files will
  become obsolete and will need to be recompiled.
- You will need to add a note to that effect to
- the &news; file
- and augment the object <literal>version</literal> in
- file &constsym-d;.
-  Please try to avoid this as much as possible.</para></warning>
-</section>
+ You will need to add a note to that effect to the &news; file
+ and augment the object <literal>version</literal> in file &constobj-d;.
+ <emphasis>Please try to avoid this as much as possible</emphasis>.
+</para></warning></section>
 
 </chapter>
 
