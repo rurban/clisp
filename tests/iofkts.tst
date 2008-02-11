@@ -857,6 +857,14 @@ T
              #2=(\"null\" #1# \"zero\") #2#))"))
 T
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1890854&group_id=1355
+(with-input-from-string (s "'a #'b c d")
+  (list (read-preserving-whitespace s) (read-char s)
+        (read-preserving-whitespace s) (read-char s)
+        (read-preserving-whitespace s) (read-char s)
+        (read-char s)))
+((QUOTE A) #\Space (FUNCTION B) #\Space C #\Space #\d)
+
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1412454&group_id=1355&atid=101355
 (let (#+clisp (*pprint-first-newline* nil))
   (format nil "~{~a~}" (list "string1" "string2"

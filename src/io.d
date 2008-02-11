@@ -2659,7 +2659,9 @@ LISPFUNN(string_reader,2) {     /* reads " */
  modifies STACK, can trigger GC
  can trigger GC */
 local maygc Values list2_reader (const gcv_object_t* stream_) {
+  dynamic_bind(S(read_recursive_p),T);
   var object obj = read_recursive_no_dot(stream_); /* read Object */
+  dynamic_unbind(S(read_recursive_p));
   if (!nullpSv(read_suppress)) { /* *READ-SUPPRESS* /= NIL ? */
     VALUES1(NIL); /* yes -> don't cons up a list, just return NIL */
   } else {
