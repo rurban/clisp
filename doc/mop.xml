@@ -237,10 +237,10 @@ slot in instances of the class is available.
   permutation of those symbols from the &lalist; which name the
   required arguments of the generic function.</simpara></listitem>
 <listitem><simpara>The <quote>declarations</quote> are available as a
- list of &declaration-specifier-glo;s.</simpara>
+ list of &declspec-glo;s.</simpara>
 <note><simpara>There is a slight misnomer in the naming of functions and
  options in this document: Where the term <quote>declaration</quote> is
- used, actually a &declaration-specifier-glo; is meant.
+ used, actually a &declspec-glo; is meant.
 </simpara></note></listitem>
 &doc-li;</itemizedlist></para>
 <simpara>See also <xref linkend="mop-gf"/></simpara>
@@ -2641,7 +2641,7 @@ reinitialization.</para>
 
 <para>Returns a possibly empty list of the <quote>declarations</quote>
 of the generic function.  The elements of this list are
-&declaration-specifier-glo;s.  This list is the defaulted value of the
+&declspec-glo;s.  This list is the defaulted value of the
 &declarations-k; initialization argument that was associated with the
 &gfmo; during initialization or reinitialization.</para></section>
 
@@ -2880,9 +2880,9 @@ previously stored value is left unchanged.</para>
    argument, in the order they appear in that argument.  If neither
    argument is supplied, neither are initialized (see the description of
    &lambda-list-k;.)</simpara></listitem>
- <listitem><simpara>The &declarations-k; argument is a list of &declaration-specifier-glo;s.
+ <listitem><simpara>The &declarations-k; argument is a list of &declspec-glo;s.
   </simpara><simpara>An &err-sig; if this value is not a &proper-list-glo; or
-   if each of its elements is not a legal &declaration-specifier-glo;.</simpara>
+   if each of its elements is not a legal &declspec-glo;.</simpara>
   <simpara>When the generic function is being initialized, and this
    argument is not supplied, it defaults to the empty list.
  </simpara></listitem>
@@ -3820,10 +3820,9 @@ evaluating the &eql-t; specializer form in the &lex-env; of the
 <listitem><simpara>The value of the &function-k; initialization
 argument is the method function.</simpara></listitem>
 <listitem><simpara>The value of the &declarations-k; initialization
-argument is a list of the &declaration-specifier-glo;s from the
-&defmethod; form.  If there are no declarations in the macro form, this
-initialization argument either does not appear, or appears with a value
-of the empty list.</simpara>
+argument is a list of the &declspec-glo;s from the &defmethod; form.
+If there are no declarations in the macro form, this initialization argument
+either does not appear, or appears with a value of the empty list.</simpara>
 <note>&clisp-only;<simpara>No &declarations-k; initialization argument is
   provided, because method initialization does not support a &declarations-k;
   argument, and because the method function is already completely provided
