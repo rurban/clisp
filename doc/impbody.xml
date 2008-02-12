@@ -495,10 +495,10 @@ Additionally, some non-trivial forms are identified as constants, e.g.,
 
 <warning><para>Since &defconstant; initial value forms are not
 evaluated at compile time, &constantp; will not report &t; of their
-name within the same &comp-unit; for the null &lex-env;.  This is
-consistent and matches questionable code using the pattern
-<code>(if (&constantp; &form-r;) (&eval; &form-r;))</code>.  Use
-&eval-when; if you need recognition and the value during
+name within the same &comp-unit; for the null &lex-env;.
+This is consistent and matches questionable code using the pattern
+<code>(&if; (&constantp; &form-r;) (&eval; &form-r;))</code>.
+Use &eval-when; if you need recognition and the value during
 compile-time.</para></warning></section>
 
 <section id="eval-when"><title>Macro &eval-when;</title>
@@ -536,11 +536,11 @@ compile-time.</para></warning></section>
 <section id="type-spec"><title>Type Specifiers
   <ulink url="&clhs;/Body/sec_4-2-3.html">[CLHS-4.2.3]</ulink></title>
 
-<para>The general form of the &complex-t; type specifier is <literal
+<para>The general form of the &complex-t; &typespec-glo; is <literal
  role="type">(&complex-t; <replaceable>type-of-real-part</replaceable>
- <replaceable>type-of-imaginary-part</replaceable>)</literal>.  The type
- specifier <literal role="type">(&complex-t; &type-r;)</literal> is
- equivalent to <literal role="type">(&complex-t; &type-r;
+ <replaceable>type-of-imaginary-part</replaceable>)</literal>.
+ The &typespec-glo; <literal role="type">(&complex-t; &type-r;)</literal>
+ is equivalent to <literal role="type">(&complex-t; &type-r;
  &type-r;)</literal>.</para>
 
 <para>&deftype; &lalist;s are subject to destructuring (nested &lalist;s
@@ -548,14 +548,12 @@ compile-time.</para></warning></section>
  but not an &environment-amp; marker.</para>
 
 <formalpara><title>Function <code>(<function>EXT:TYPE-EXPAND</function>
-   <replaceable>typespec</replaceable> &optional-amp;
-   <replaceable>once-p</replaceable>)</code></title>
-<para>If <replaceable>typespec</replaceable> is a user-defined type,
- this will expand it recursively until it is no longer a user-defined
- type (unless <replaceable>once-p</replaceable> is supplied and
- non-&nil;).  Two values are returned - the expansion and an indicator
- (&t; or &nil;) of whether the original
- <replaceable>typespec</replaceable> was a user-defined type.
+   &type-r; &optional-amp; <replaceable>once-p</replaceable>)</code></title>
+<para>If &type-r; is a user-defined &typespec-glo; this will expand it
+ recursively until it is no longer a user-defined type
+ (unless <replaceable>once-p</replaceable> is supplied and non-&nil;).
+ Two values are returned - the expansion and an indicator (&t; or &nil;)
+ of whether the original &type-r; was a user-defined &typespec-glo;.
 </para></formalpara>
 
 <itemizedlist><title>The possible results of &type-of;</title>
@@ -1953,15 +1951,14 @@ can give problems:
  not only <literal role="data">0.0</literal>
  (which would mean <quote>approximately 0</quote>).</para>
 
-<para>The type specifier for this is <literal
- role="type">(&complex-t; &integer-t;
- &single-float-t;)</literal>, and <literal
- role="type">(&complex-t; <varname>type-of-real-part</varname>
- <varname>type-of-imaginary-part</varname>)</literal> in general.</para>
+<para>The &typespec-glo; for this is <literal role="type">(&complex-t;
+  &integer-t; &single-float-t;)</literal>, and <literal role="type">(&complex-t;
+  <varname>type-of-real-part</varname>
+  <varname>type-of-imaginary-part</varname>)</literal> in general.</para>
 
-<para>The type specifier <literal role="type">(&complex-t;
- &type-r;)</literal> is equivalent to <literal
- role="type">(&complex-t; &type-r; &type-r;)</literal>.</para>
+<para>The &typespec-glo; <literal role="type">(&complex-t;
+  &type-r;)</literal> is equivalent to <literal role="type">(&complex-t;
+  &type-r; &type-r;)</literal>.</para>
 
 </section>
 
