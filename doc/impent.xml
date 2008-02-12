@@ -299,6 +299,7 @@
 <!ENTITY muffle-cerrors '<link linkend="muffle-cerrors"><function>EXT:MUFFLE-CERRORS</function></link>'>
 <!ENTITY need-defmethod '<simpara>You must define a method for this function.</simpara>'>
 <!ENTITY notspec '<link linkend="notspec-decl"><literal>EXT:NOTSPECIAL</literal></link>'>
+<!ENTITY constnotin '<link linkend="constant-notinline"><literal>EXT:CONSTANT-NOTINLINE</literal></link>'>
 <!ENTITY no-underflow '<link linkend="no-underflow"><function>EXT:WITHOUT-FLOATING-POINT-UNDERFLOW</function></link>'>
 <!ENTITY opt-ansi '<option><olink targetdoc="man" targetptr="opt-ansi">-ansi</olink></option>'>
 <!ENTITY opt-C '<option><olink targetdoc="man" targetptr="opt-load-comp">-C</olink></option>'>
