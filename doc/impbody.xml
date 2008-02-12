@@ -4408,6 +4408,19 @@ functions are provided:
 
 </section>
 
+<section id="write-float-decimal"><title>Printing Floats
+  <ulink url="&clhs;/Body/sec_22-1-3-1-3.html">[CLHS-22.1.3.1.3]</ulink></title>
+
+<para>In the absence of &write-float-decimal;, floating point numbers
+ are output in radix 2.  This function is defined in &floatprint-lisp;
+ and is not available if you run &clisp; without a &mem-image; (which
+ you should never do anyway!)</para>
+
+<para>If &print-readably-var; is true, &read-default-float-format-var;
+ has no influence on the way &float-t;s are printed.</para>
+
+</section>
+
 <section id="spacecharprint"><title>Printing Characters
   <ulink url="&clhs;/Body/sec_22-1-3-2.html">[CLHS-22.1.3.2]</ulink></title>
 
@@ -4601,19 +4614,6 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <para>&print-case-var; controls the output not only of symbols, but also
  of characters and some unreadable &sharp-lt; objects.</para>
-
-<para>In the absence of
- <firstterm><ulink url="&clhs;/Body/sec_22-1-3-1-3.html"
-                   ><function>SYS::WRITE-FLOAT-DECIMAL</function></ulink>
-  <indexterm id="write-float-decimal" significance="preferred">
-   <primary id="write-float-decimal-i"><function>WRITE-FLOAT-DECIMAL</function>
- </primary></indexterm></firstterm>,
- floating point numbers are output in radix 2.  This function is defined
- in &floatprint-lisp; and is not available if you run
- &clisp; without a &mem-image; (which you should never do anyway!)</para>
-
-<para>If &print-readably-var; is true, &read-default-float-format-var;
- has no influence on the way floating point numbers are printed.</para>
 
 <variablelist>
 <varlistentry><term>&unix-w32-only;</term>
