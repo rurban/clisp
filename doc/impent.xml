@@ -649,6 +649,8 @@
 <!ENTITY cplace-r '<replaceable>c-place</replaceable>'>
 <!ENTITY create-r '<replaceable>create</replaceable>'>
 <!ENTITY ctype-r '<replaceable>c-type</replaceable>'>
+<!ENTITY ctype1-r '<replaceable>c-type&sub-1;</replaceable>'>
+<!ENTITY ctypen-r '<replaceable>c-type&sub-n;</replaceable>'>
 <!ENTITY ctypei-r '<replaceable>c-type-internal</replaceable>'>
 <!ENTITY data-r '<replaceable>data</replaceable>'>
 <!ENTITY db-r '<replaceable>db</replaceable>'>
@@ -657,6 +659,8 @@
 <!ENTITY dest-r '<replaceable>destination</replaceable>'>
 <!ENTITY digits-r '<replaceable>digits</replaceable>'>
 <!ENTITY dim-r '<replaceable>dim</replaceable>'>
+<!ENTITY dim1-r '<replaceable>dim&sub-1;</replaceable>'>
+<!ENTITY dimn-r '<replaceable>dim&sub-n;</replaceable>'>
 <!ENTITY dimensions-r '<replaceable>dimensions</replaceable>'>
 <!ENTITY direction-r '<replaceable>direction</replaceable>'>
 <!ENTITY dkey-r '<replaceable>dkey</replaceable>'>
@@ -679,7 +683,11 @@
 <!ENTITY host-r '<replaceable>host</replaceable>'>
 <!ENTITY hw '<replaceable>hardware</replaceable>'>
 <!ENTITY i-r '<replaceable>i</replaceable>'>
+<!ENTITY ident1-r '<replaceable>ident&sub-1;</replaceable>'>
+<!ENTITY identn-r '<replaceable>ident&sub-n;</replaceable>'>
 <!ENTITY index-r '<replaceable>index</replaceable>'>
+<!ENTITY index1-r '<replaceable>index&sub-1;</replaceable>'>
+<!ENTITY indexn-r '<replaceable>index&sub-n;</replaceable>'>
 <!ENTITY initargs-r '<replaceable>initargs</replaceable>'>
 <!ENTITY initform-r '<replaceable>initform</replaceable>'>
 <!ENTITY instance-r '<replaceable>instance</replaceable>'>

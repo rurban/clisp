@@ -2870,27 +2870,20 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
         function</link></simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 
-<varlistentry id="element"><term><code>(&element;
-     &cplace-r; <replaceable>index&sub-1;</replaceable> ...
-     <replaceable>index&sub-n;</replaceable>)</code></term>
-<listitem><simpara>Array element: If &cplace-r; is of foreign type
-  <literal role="type">(&c-array; &ctype-r;
-  (<replaceable>dim&sub-1;</replaceable>
-  ... <replaceable>dim&sub-n;</replaceable>))</literal>
-  and 0 &le; <replaceable>index&sub-1;</replaceable>
-  &lt; <replaceable>dim&sub-1;</replaceable>, ..., 0
-  &le; <replaceable>index&sub-n;</replaceable> &lt;
-  <replaceable>dim&sub-n;</replaceable>, this will be
-  the &place; corresponding to <code>(&aref;
-  &cplace-r; <replaceable>index&sub-1;</replaceable>
-  ... <replaceable>index&sub-n;</replaceable>)</code> or
-  <varname>&cplace-r;[<replaceable>index&sub-1;</replaceable>]...[<replaceable>index&sub-n;</replaceable>]</varname>.
-  It is a &place; of type &ctype-r;.
-  If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
-  &ctype-r; &dim-r;)</literal> and 0 &le; &index-r; &lt; &dim-r;,
-  this will be the &place; corresponding to <code>(&aref; &cplace-r;
-  &index-r;)</code> or <varname>&cplace-r;[&index-r;]</varname>.
-  It is a &place; of type &ctype-r;.
+<varlistentry id="element"><term><code>(&element; &cplace-r; &index1-r;
+     ... &indexn-r;)</code></term>
+ <listitem><simpara>Array element: If &cplace-r; is of foreign type
+   <literal role="type">(&c-array; &ctype-r; (&dim1-r; ... &dimn-r;))</literal>
+   and 0 &le; &index1-r; &lt; &dim1-r;, ..., 0 &le; &indexn-r; &lt; &dimn-r;,
+   this will be the &place; corresponding to <code>(&aref; &cplace-r;
+   &index1-r; ... &indexn-r;)</code> or
+   <varname>&cplace-r;[&index1-r;]...[&indexn-r;]</varname>.
+   It is a &place; of type &ctype-r;.
+   If &cplace-r; is of foreign type <literal role="type">(&c-array-max;
+    &ctype-r; &dim-r;)</literal> and 0 &le; &index-r; &lt; &dim-r;,
+   this will be the &place; corresponding to <code>(&aref; &cplace-r;
+    &index-r;)</code> or <varname>&cplace-r;[&index-r;]</varname>.
+   It is a &place; of type &ctype-r;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="deref"><term><code>(&deref; &cplace-r;)</code></term>
@@ -3358,63 +3351,47 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   a string, without the trailing zero character.
  </simpara></listitem></varlistentry>
 
-<varlistentry id="c-struct"><term><literal role="type">(&c-struct;
-  &class-r; (<replaceable>ident&sub-1;</replaceable>
-   <replaceable>c-type&sub-1;</replaceable>) ...
-  (<replaceable>ident&sub-n;</replaceable>
-   <replaceable>c-type&sub-n;</replaceable>))</literal></term>
+<varlistentry id="c-struct"><term><literal role="type">(&c-struct; &class-r;
+   (&ident1-r; &ctype1-r;) ... (&identn-r; &ctypen-r;))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
- <type>struct { <replaceable>c-type&sub-1;</replaceable>
- <replaceable>ident&sub-1;</replaceable>; ...;
- <replaceable>c-type&sub-n;</replaceable>
- <replaceable>ident&sub-n;</replaceable>; }</type>.
- Its Lisp equivalent is: if &class-r; is &vector-t;, a
- &simple-vector-t;; if &class-r; is &list-t;, a &proper-list-glo;;
- if &class-r; is a symbol naming a structure or &clos; class, an
- instance of this class, with slots of names
- <replaceable>ident&sub-1;</replaceable>, ...,
- <replaceable>ident&sub-n;</replaceable>.</simpara><simpara>
- &class-r; may also be a &cons-t; of a &symbol-t; (as above) and
- a &list-t; of &def-c-struct; options.
- </simpara></listitem></varlistentry>
+   <type>struct { &ctype1-r; &ident1-r;; ...; &ctypen-r; &identn-r;; }</type>.
+   Its Lisp equivalent is: if &class-r; is &vector-t;, a
+   &simple-vector-t;; if &class-r; is &list-t;, a &proper-list-glo;;
+   if &class-r; is a symbol naming a structure or &clos; class, an
+   instance of this class, with slots of names
+   &ident1-r;, ..., &identn-r;.</simpara><simpara>
+   &class-r; may also be a &cons-t; of a &symbol-t; (as above) and
+   a &list-t; of &def-c-struct; options.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="c-union"><term><literal role="type">(&c-union;
-  (<replaceable>ident&sub-1;</replaceable>
-   <replaceable>c-type&sub-1;</replaceable>) ...
-  (<replaceable>ident&sub-n;</replaceable>
-   <replaceable>c-type&sub-n;</replaceable>))</literal></term>
+   (&ident1-r; &ctype1-r;) ... (&identn-r; &ctypen-r;))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>union { <replaceable>c-type&sub-1;</replaceable>
-  <replaceable>ident&sub-1;</replaceable>; ...;
-  <replaceable>c-type&sub-n;</replaceable>
-  <replaceable>ident&sub-n;</replaceable>;
-  }</type>.
-  Conversion to and from Lisp assumes that a value is to be viewed as
-  being of <replaceable>c-type&sub-1;</replaceable>.
- </simpara></listitem></varlistentry>
+   <type>union { &ctype1-r; &ident1-r;; ...; &ctypen-r; &identn-r;; }</type>.
+   Conversion to and from Lisp assumes that a value is to be viewed as
+   being of &ctype1-r;.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="c-array"><term><literal role="type">(&c-array;
-   &ctype-r; <replaceable>dim&sub-1;</replaceable>)</literal></term>
-   <term><literal role="type">(&c-array;
-   &ctype-r; (<replaceable>dim&sub-1;</replaceable> ...
-   <replaceable>dim&sub-n;</replaceable>))</literal></term>
+   &ctype-r; &dim1-r;)</literal></term>
+ <term><literal role="type">(&c-array; &ctype-r; (&dim1-r;
+   ... &dimn-r;))</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; [<replaceable>dim&sub-1;</replaceable>]
-  ... [<replaceable>dim&sub-n;</replaceable>]</type>.
-  Note that when an array is passed as an argument to a function in
-  &c-lang;, it is actually passed as a pointer; you therefore have to
-  write <literal role="type">(&c-ptr; (&c-array; ...))</literal> for this
-  argument's type.</simpara></listitem></varlistentry>
+   <type>&ctype-r; [&dim1-r;] ... [&dimn-r;]</type>.
+   Note that when an array is passed as an argument to a function in
+   &c-lang;, it is actually passed as a pointer; you therefore have to
+   write <literal role="type">(&c-ptr; (&c-array; ...))</literal> for this
+   argument's type.</simpara></listitem></varlistentry>
 
 <varlistentry id="c-array-max"><term><literal role="type">(&c-array-max;
-  &ctype-r; &maxdim-r;)</literal></term>
+   &ctype-r; &maxdim-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; [&maxdim-r;]</type>, an array containing up to
-  &maxdim-r; elements.
-  The array is zero-terminated if it contains less than &maxdim-r; elements.
-  Conversion from Lisp of an array with more than &maxdim-r; elements
-  silently ignores the superfluous elements.
-  </simpara></listitem></varlistentry>
+   <type>&ctype-r; [&maxdim-r;]</type>, an array containing up to
+   &maxdim-r; elements.
+   The array is zero-terminated if it contains less than &maxdim-r; elements.
+   Conversion from Lisp of an array with more than &maxdim-r; elements
+   silently ignores the extra elements.
+</simpara></listitem></varlistentry>
 
 <varlistentry id="c-function"><term><literal
    role="type">(&c-function; (&arguments-k;
@@ -3430,29 +3407,29 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
   is transparent, and &c-NULL;/&nil; is recognized and
   accepted.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-ptr"><term><literal role="type">(&c-ptr;
-              &ctype-r;)</literal></term>
+<varlistentry id="c-ptr">
+ <term><literal role="type">(&c-ptr; &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; *</type>: a pointer to a single item of the given
-  &ctype-r;.</simpara></listitem></varlistentry>
+   <type>&ctype-r; *</type>: a pointer to a single item of the given
+   &ctype-r;.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-ptr-null"><term><literal
-   role="type">(&c-ptr-null; &ctype-r;)</literal></term>
+<varlistentry id="c-ptr-null">
+ <term><literal role="type">(&c-ptr-null; &ctype-r;)</literal></term>
  <listitem><simpara>This type is also equivalent to what &c-lang; calls
-  <type>&ctype-r; *</type>: a pointer to a single item of the given
-  &ctype-r;, with the exception that &c-lang; &c-NULL; corresponds to
-  Lisp &nil;.</simpara></listitem></varlistentry>
+   <type>&ctype-r; *</type>: a pointer to a single item of the given
+   &ctype-r;, with the exception that &c-lang; &c-NULL; corresponds to
+   Lisp &nil;.</simpara></listitem></varlistentry>
 
-<varlistentry id="c-array-ptr"><term><literal
-   role="type">(&c-array-ptr; &ctype-r;)</literal></term>
+<varlistentry id="c-array-ptr">
+ <term><literal role="type">(&c-array-ptr; &ctype-r;)</literal></term>
  <listitem><simpara>This type is equivalent to what &c-lang; calls
-  <type>&ctype-r; (*)[]</type>: a pointer to a zero-terminated array of
-  items of the given &ctype-r;.</simpara></listitem></varlistentry>
+   <type>&ctype-r; (*)[]</type>: a pointer to a zero-terminated array of
+   items of the given &ctype-r;.</simpara></listitem></varlistentry>
 </variablelist>
 
 <!-- #ifdef UNICODE -->
 <para>The conversion of &c-string;,
- <literal role="type">(&c-array; &character-t; <replaceable>dim&sub-1;</replaceable>)</literal>,
+ <literal role="type">(&c-array; &character-t; &dim1-r;)</literal>,
  <literal role="type">(&c-array-max; &character-t; &maxdim-r;)</literal>,
  <literal role="type">(&c-array-ptr; &character-t;)</literal>
  is governed by &foreign-enc; and dimensions are given
@@ -3461,9 +3438,8 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
  <literal role="type">(&c-ptr; &character-t;)</literal>, or
  <literal role="type">(&c-ptr-null; &character-t;)</literal>, as well as
  that of multi-dimensional arrays <literal role="type">(&c-array; &character-t;
- (<replaceable>dim&sub-1;</replaceable> ... <replaceable>dim&sub-n;</replaceable>))</literal>,
- are governed by &foreign-enc; if the latter is a 1:1 encoding, or by the
- &ascii; encoding otherwise.</para>
+ (&dim1-r; ... &dimn-r;))</literal>, are governed by &foreign-enc; if
+ the latter is a 1:1 encoding, or by the &ascii; encoding otherwise.</para>
 <!-- #endif -->
 <note><para>Remember that the &c-lang; type <type>char</type> is
   a <emphasis>numeric</emphasis> type and does not use &character-t;
@@ -3487,8 +3463,8 @@ and possibly the calling convention.</para>
    <primary id="dflt-ffi-lang-i"><function>DEFAULT-FOREIGN-LANGUAGE</function>
  </primary></indexterm></firstterm>.
  If this macro has not been called in the current &comp-unit;
- (usually a file), a warning is issued and
-&stdc-k; is used for the rest of the unit.</para></section>
+ (usually a file), a warning is issued and &stdc-k; is used for the rest
+ of the unit.</para></section>
 
 <section id="dffi-variables"><title>Foreign variables</title>
 
@@ -3693,11 +3669,12 @@ corresponds to
 
 <programlisting language="lisp">
 (declare (type foo f))
-(foo-a (aref (foo-b f) 7)) or (slot-value (aref (slot-value f 'b) 7) 'a)
+(foo-a (aref (foo-b f) 7)) ; or
+(slot-value (aref (slot-value f 'b) 7) 'a)
 </programlisting></para></example>
 
 <example id="dffi-extern-var">
- <title>external &c-lang; variable and some accesses</title>
+ <title>External &c-lang; variable and some accesses</title>
 
 <para><programlisting language="C">
 struct bar {
@@ -3727,12 +3704,12 @@ corresponds to
 
 (def-c-var my_struct (:type (c-ptr bar)))
 
-(setq my_struct (let ((s my_struct)) (incf (slot-value s 'x)) s))
-or (incf (slot my_struct 'x))
-(setq my_struct (let ((s my_struct)) (setf (slot-value s 'a) 5) s))
-or (setf (slot my_struct 'a) 5)
-(setq my_struct (slot-value my_struct 'n))
-or (setq my_struct (deref (slot my_struct 'n)))
+(setq my_struct (let ((s my_struct)) (incf (slot-value s 'x)) s)) ; or
+(incf (slot my_struct 'x))
+(setq my_struct (let ((s my_struct)) (setf (slot-value s 'a) 5) s)) ; or
+(setf (slot my_struct 'a) 5)
+(setq my_struct (slot-value my_struct 'n)) ; or
+(setq my_struct (deref (slot my_struct 'n)))
 </programlisting></para></example>
 
 <example id="dffi-extern-func1"><title>Calling an external function</title>
