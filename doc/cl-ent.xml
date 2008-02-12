@@ -213,6 +213,7 @@
 <!ENTITY spelalist '<ulink url="&clhs;/Body/sec_3-4-3.html">specialized lambda list</ulink>'>
 <!ENTITY comp-unit '<ulink url="&clhs;/Body/glo_c.html#compilation_unit">compilation unit</ulink>'>
 <!ENTITY declspec-glo '<ulink url="&clhs;/Body/glo_d.html#declaration_specifier">declaration specifier</ulink>'>
+<!ENTITY typespec-glo '<ulink url="&clhs;/Body/glo_t.html#type_specifier">type specifier</ulink>'>
 <!ENTITY proper-list-glo '<ulink url="&clhs;/Body/glo_p.html#proper_list">proper list</ulink>'>
 <!ENTITY proper-name-glo '<ulink url="&clhs;/Body/glo_p.html#proper_name">proper name</ulink>'>
 <!ENTITY exec-time '<ulink url="&clhs;/Body/glo_e.html#execution_time">execution time</ulink>'>
