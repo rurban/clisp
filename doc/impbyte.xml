@@ -1628,53 +1628,61 @@ nevertheless, through the use of &load-time-value;.)</para>
 <variablelist>
  <varlistentry><term><literal>spdepth_1</literal> (2 bytes)</term>
   <listitem><simpara>The 1st part of the maximal &SP; depth.
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal>spdepth_jmpbufsize</literal> (2 bytes)</term>
   <listitem><simpara>The &jbs; part of the maximal &SP; depth.
-   The maximal &SP; depth (precomputed by the compiler) is given by
-   <literal>spdepth_1 + spdepth_jmpbufsize * &jbs;</literal>.
-  </simpara></listitem></varlistentry>
+    The maximal &SP; depth (precomputed by the compiler) is given by
+    <literal>spdepth_1 + spdepth_jmpbufsize * &jbs;</literal>.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&numreq; (2 bytes)</term>
   <listitem><simpara>Number of required parameters.
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
  <varlistentry><term><literal>numopt</literal> (2 bytes)</term>
   <listitem><simpara>Number of optional parameters.
-  </simpara></listitem></varlistentry>
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&flags; (1 byte)</term>
   <listitem><variablelist>
-   <varlistentry><term>bit 0</term>
-    <listitem><simpara>set if the function has the &rest-amp; parameter
+    <varlistentry><term>bit 0</term>
+     <listitem><simpara>set if the function has the &rest-amp; parameter
     </simpara></listitem></varlistentry>
-   <varlistentry><term>bit 7</term>
-    <listitem><simpara>set if the function has &key-amp; parameters
+    <varlistentry><term>bit 7</term>
+     <listitem><simpara>set if the function has &key-amp; parameters
     </simpara></listitem></varlistentry>
-   <varlistentry><term>bit 6</term>
-    <listitem><simpara>set if the function has &allow-other-keys-amp;
+    <varlistentry><term>bit 6</term>
+     <listitem><simpara>set if the function has &allow-other-keys-amp;
     </simpara></listitem></varlistentry>
-   <varlistentry><term>bit 4</term>
-    <listitem><simpara>set if the function is a generic function
+    <varlistentry><term>bit 4</term>
+     <listitem><simpara>set if the function is a generic function
     </simpara></listitem></varlistentry>
-   <varlistentry><term>bit 3</term>
-    <listitem><simpara>set if the function is a generic function and its
-     effective method shall be returned (instead of being executed)
-    </simpara></listitem></varlistentry></variablelist></listitem>
-   </varlistentry>
-  <varlistentry><term><literal>signature</literal> (1 byte)</term>
-   <listitem><simpara>An abbreviation code depending on
+    <varlistentry><term>bit 3</term>
+     <listitem><simpara>set if the function is a generic function and its
+       effective method shall be returned (instead of being executed)
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>bit 2</term>
+     <listitem><simpara>set if the full original &lalist; is kept in the
+       closure object, see <xref linkend="space-decl"/>
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>bit 1</term>
+     <listitem><simpara>set if the &function-doc; &documentation; &string-t;
+       is kept in the closure object, see <xref linkend="space-decl"/>
+  </simpara></listitem></varlistentry></variablelist></listitem>
+ </varlistentry>
+ <varlistentry><term><literal>signature</literal> (1 byte)</term>
+  <listitem><simpara>An abbreviation code depending on
     &numreq;, <literal>numopt</literal>, &flags;.
     It is used for speeding up the function
     call.</simpara></listitem></varlistentry>
-  <varlistentry><term><literal>numkey</literal> (2 bytes, only if the
-     function has &key-amp;)</term>
-   <listitem><simpara>The number of &key-amp; parameters.
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><literal>keyconsts</literal> (2 bytes, only if the
-     function has &key-amp;)</term>
-   <listitem><simpara>The offset of the &keyword-const; in the function.
-   </simpara></listitem></varlistentry>
-  <varlistentry><term><literal>byte</literal>* (any number of bytes)</term>
-   <listitem><simpara>The bytecode instructions.
-   </simpara></listitem></varlistentry>
+ <varlistentry><term><literal>numkey</literal> (2 bytes, only if the
+   function has &key-amp;)</term>
+  <listitem><simpara>The number of &key-amp; parameters.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal>keyconsts</literal> (2 bytes, only if the
+   function has &key-amp;)</term>
+  <listitem><simpara>The offset of the &keyword-const; in the function.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><literal>byte</literal>* (any number of bytes)</term>
+  <listitem><simpara>The bytecode instructions.
+ </simpara></listitem></varlistentry>
 </variablelist></para>
 
 </section>
