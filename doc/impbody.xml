@@ -4451,10 +4451,9 @@ functions are provided:
 
 <para>When &print-readably-var; is true, other vectors are written as
  follows: if the &array-element-type; is &t-t;, the syntax
- <computeroutput>#(<replaceable>x<subscript>0</subscript></replaceable>
-  ... <replaceable>x<subscript>n-1</subscript></replaceable>)</computeroutput>
- is used.  Otherwise, the syntax <computeroutput>#A(&eltype-r;
- &dimensions-r; &cont-r;)</computeroutput> is used.</para>
+ <computeroutput>#(&x1-r; ... &xn-r;)</computeroutput> is used.
+ Otherwise, the syntax <computeroutput>#A(&eltype-r;
+  &dimensions-r; &cont-r;)</computeroutput> is used.</para>
 
 </section>
 
