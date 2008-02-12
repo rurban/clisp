@@ -2337,7 +2337,7 @@ has no initialization function.  This is the defaulted value of the
  <title>Generic Function &slotdef-type;</title>
  <subtitle><code>(&slotdef-type; &slot-r;)</code></subtitle>
 
-<para>Returns the type of &slot-r;.  This is a type specifier name.
+<para>Returns the type of &slot-r;.  This is a &typespec-glo; name.
 This is the defaulted value of the &type-k; initialization argument that
 was associated with the &sdmo; during initialization.</para></section>
 
@@ -2493,7 +2493,7 @@ class &slotdef-t;.</para>
    appropriate &lex-env;.  The &initfunction-k; argument
    defaults to false.  An &err-sig; if the &initfunction-k; argument is
    supplied, but the &initform-k; argument is not supplied.</simpara></listitem>
- <listitem><simpara>The &type-k; argument is a type specifier name.  An
+ <listitem><simpara>The &type-k; argument is a &typespec-glo; name.  An
    &err-sig; otherwise.  The &type-k; argument defaults to the symbol &t;.
  </simpara></listitem>
  <listitem><simpara>The &allocation-k; argument is a &symbol-t;.  An

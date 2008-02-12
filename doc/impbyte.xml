@@ -439,7 +439,7 @@
  <listitem><simpara>defines &write-float-decimal; for printing floating
    point numbers in base 10</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/type.lisp</filename></term>
- <listitem><simpara>functions working with type specifiers: &typep;,
+ <listitem><simpara>functions working with &typespec-glo;s: &typep;,
    &subtypep;</simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/defstruct.lisp</filename></term>
