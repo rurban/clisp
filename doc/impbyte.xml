@@ -436,9 +436,8 @@
    and extensiion &place;s</simpara></listitem></varlistentry>
 <varlistentry id="floatprint-lisp">
  <term><filename role="clisp-cvs">src/floatprint.lisp</filename></term>
- <listitem><simpara>defines <link linkend="write-float-decimal"><function>SYS::WRITE-FLOAT-DECIMAL</function></link>
-   for printing floating point numbers in base 10
-</simpara></listitem></varlistentry>
+ <listitem><simpara>defines &write-float-decimal; for printing floating
+   point numbers in base 10</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/type.lisp</filename></term>
  <listitem><simpara>functions working with type specifiers: &typep;,
    &subtypep;</simpara></listitem></varlistentry>
@@ -702,8 +701,8 @@
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/gstream.lisp</filename> (optional)</term>
- <listitem><simpara>generic stream default methods, see <xref linkend="gstream">
-</simpara></listitem></varlistentry>
+ <listitem><simpara>generic stream default methods,
+   see <xref linkend="gstream"/></simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/foreign1.lisp</filename></term>
  <listitem><simpara>&ffi-pac; interface
