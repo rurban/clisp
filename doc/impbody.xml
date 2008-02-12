@@ -411,7 +411,8 @@ ignored by the interpreter.</para>
  global &proclaim; and &declaim; forms, not in local &declare; forms.
  Of course, you cannot expect miracles: functions compiled before the
  &notspec; proclamation was issued will still be treating &var-r; as
- special even after the &notspec; proclamation.</para></formalpara>
+ special even after the &notspec; proclamation. See also
+ <xref linkend="semantic-constraints"/>.</para></formalpara>
 
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <code>(&spe-var-p; &symbol-r;
@@ -422,6 +423,13 @@ ignored by the interpreter.</para>
  This function will always return &t; for global special
  variables and &constant;s.</para></formalpara>
 </section>
+
+<section id="constant-notinline"><title>Declaration &constnotin;</title>
+ <para>Constants defined by &defconstant; but proclaimed &constnotin;
+  will not be inlined by the compiler. This is useful for variables
+  which remain constant within an a single Lisp process but may vary
+  between processed and machines, such as endianness or word size.
+</para></section>
 
 <section id="safety-decl"><title>Declaration &safety-dec;</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
@@ -784,7 +792,11 @@ compile-time.</para></warning></section>
 <para>If the variable is already bound to a value which is not &eql; to
  the new value, a &warning-t; is issued.</para>
 <para>&constant;s may not be bound dynamically or lexically.</para>
-</section>
+<para>See also <xref linkend="constant-notinline"/>.</para>
+<para>If you need to undo a &defconstant; form, &proclaim; the symbol
+ &special-dec; (to turn the constant into a variable), and then
+ &proclaim; it &notspec; (to turn the globally special variable into an
+ ordinary symbol).</para></section>
 
 <section id="fcase"><title>Macro &fcase;</title>
 
