@@ -204,8 +204,15 @@ and <http://clisp.cons.org/impnotes/bytecode.html>.
     further constants)
 |#
 
-(defun make-closure (&key name codevec consts seclass lambda-list documentation)
-  (sys::%make-closure name (sys::make-code-vector codevec) consts seclass
+;; FIXME: jitc-p & seclass are passed in a cons to SYS::%MAKE-CLOSURE
+;;        because a subr cannot take more than 6 required arguments.
+;; TODO: remove make-closure from here, remove make-code-vector from record.d
+;;       make make-closure in record.d accept keyword arguments
+;;  this will invalidate bytecode format because it will modify FUNTAB!
+(defun make-closure (&key name codevec consts seclass lambda-list documentation
+                     jitc-p)
+  (sys::%make-closure name (sys::make-code-vector codevec) consts
+                      (cons seclass jitc-p)
                       lambda-list documentation))
 
 ;; The instruction list is in <doc/impbyte.xml>.
@@ -1395,7 +1402,7 @@ for-value   NIL or T
 ;;       >= 1 =>
 ;; SPACE >= 3 => discard arglist
 ;;       >= 2 => discard doc string
-;;       >= 1 =>
+;;       >= 1 => never JIT compile
 ;; SPEED >= 3 =>
 ;;       >= 2 =>
 ;;       >= 1 =>
@@ -10663,7 +10670,10 @@ The function make-closure is required.
                        0)       ; discard
       :documentation (if (and !generatedp (>= 1 (declared-optimize 'space)))
                          (fnode-documentation fnode)
-                         0)))   ; discard
+                         0)     ; discard
+      :jitc-p (if (>= 0 (declared-optimize 'space))
+                  1             ; allow
+                  0)))          ; not allow
   fnode)
 
 ;; Return the signature of the byte-compiled function object

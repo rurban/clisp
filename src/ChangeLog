@@ -1,3 +1,28 @@
+2008-02-13  Sam Steingold  <sds@gnu.org>
+
+	first stab at keeping JITC code in the closure
+	* compiler.lisp (make-closure): accept :jitc-p and pass it on to
+	%make-closure in a cons cell together with seclass
+	* eval.d (interpret_bytecode) [USE_JITC]: check cclosure_jitc_p
+	and use jit_run instead of jit_compile_
+	* io.d (CLOSURE-READER): pass jitc_p to make_closure
+	(pr_cclosure_lang): write jitc_p
+	* lightning.c (jitc_object): new struct
+	(all_jitc_objects): new static
+	(gc_mark_jitc_object): mark jitc_object
+	(gc_scan_jitc_objects): scan all_jitc_objects
+	(jit_compile_): save jitc_object in cclosure_jitc(closure)
+	(jit_run): add
+	* lispbibl.d (Codevec.ccv_flags): use bit(5) for jitc_p
+	(ccv_flags_jitc_p, cclosure_jitc, cclosure_jitc_p): define
+	(gc_mark_jitc_object, gc_scan_jitc_objects) [USE_JITC]: declare
+	* record.d (%MAKE-CLOSURE): accept jitc_p in a cons cell with seclass
+	(MAKE-CONSTANT-INITFUNCTION): pass (seclass . jitc_p)
+	(CLOSURE-DOCUMENTATION, (SETF CLOSURE-DOCUMENTATION))
+	(CLOSURE-LAMBDA-LIST): update for jitc_p
+	* spvw_garcol.d (gar_col_normal) [USE_JITC]: call gc_scan_jitc_objects
+	* spvw_gcmark.d (down_cclosure): define
+
 2008-02-11  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_symbol_part): use pr_fasl_special only on fasl_streams

@@ -58,6 +58,37 @@ typedef int (*jit_func)(object, uintL);
 /* This is for x86 (Quite imprecise for now) */
 #define JIT_AVG_BCSIZE 130
 
+/* ======= CLISP GC harness */
+struct jitc_object {
+  int jo_gc_mark;
+  jit_insn *code_buffer;
+  jit_insn **bc_index;
+  struct jitc_object* jo_next;
+};
+/* all JITC objects as a linked list */
+static struct jitc_object *all_jitc_objects = NULL;
+/* mark object as used */
+void gc_mark_jitc_object (void *ptr) {
+  struct jitc_object *jo = (struct jitc_object*)ptr;
+  jo->jo_gc_mark = 1;
+}
+/* scan all JITC objects and release unused objects */
+void gc_scan_jitc_objects (void) {
+  struct jitc_object **next = &all_jitc_objects;
+  while (*next) {
+    if ((*next)->jo_gc_mark) {  /* keep */
+      (*next)->jo_gc_mark = 0;  /* unmark for the next GC */
+      next = &((*next)->jo_next);
+    } else {                      /* release */
+      struct jitc_object *jo_next = (*next)->jo_next;
+      free((*next)->code_buffer);
+      free((*next)->bc_index);
+      free(*next);
+      *next = jo_next;
+    }
+  }
+}
+
 /* ------------------- (*) JIT Internals ----------------------- */
 /* Check overflow on codebuffer */
 #define jit_check_overflow()\
@@ -1246,24 +1277,17 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   /* codebuffer: contains the JITed code (Temp allocation scheme) */
   jit_insn *codeBuffer = malloc(sizeof(jit_insn)*byteptr_max*JIT_AVG_BCSIZE);
   /* bcIndex: Address of the beginning of each BC in codeBuffer
-     Used by the compiler to patch jumps.
-
- -------> Needs to be saved between calls because
-        of (JMPHASH) and the unwind protect BCs */
+     Used by the compiler to patch jumps.  */
   jit_insn **bcIndex = calloc(byteptr_max+1,sizeof(jit_insn*));
+  /* save JITC code into the closure */
+  struct jitc_object *jo = malloc(sizeof(struct jitc_object));
+  jo->jo_gc_mark = 0;
+  jo->code_buffer = codeBuffer;
+  jo->bc_index = bcIndex;
+  jo->jo_next = all_jitc_objects;
+  all_jitc_objects = jo;
+  TheFpointer(cclosure_jitc(closure))->fp_pointer = jo;
 
-
-  /* *********************** */
-  /* REPLACE HERE: */
-  /* save codeBuffer and bcIndex in the closure's struct to use the JITed */
-  /* code in the future. */
-  /* TheCclosure(closure)->clos_jit_codevec = codeBuffer; */
-  /* TheCclosure(closure)->clos_jit_bcindex = bcIndex; */
-  /* .... */
-  /* *********************** */
-
-
-  jit_func bc_func = (jit_func) (jit_set_ip(codeBuffer).iptr); /* Function ptr */
   jit_prolog(2);
   /* Arguments */
   const int jit_arg_closure = jit_arg_i();
@@ -5437,15 +5461,21 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
  finished:
   /* disassemble(stderr, codeBuffer, jit_get_ip().ptr); */
   jit_flush_code(codeBuffer, jit_get_ip().ptr);
-
-  /* TEMPORARY: Just for show */
-  /* Call the JITed function */
-  bc_func(closure, saved_byteptr - CODEPTR);
-
-  free(codeBuffer);
-  free(bcIndex);
   return;
 }
 
-/* for now */
-#define jit_run jit_compile_
+/* ensure that the function has been jit-compiled and run it */
+static Values jit_run (object closure_in, Sbvector codeptr,
+                       const uintB* byteptr_in) {
+  struct jitc_object *jo;
+  if (nullp(cclosure_jitc(closure_in))) {
+    pushSTACK(closure_in);
+    { object fp = allocate_fpointer(NULL);
+      closure_in = popSTACK();
+      cclosure_jitc(closure_in) = fp; }
+    jit_compile_(closure_in,codeptr,byteptr_in);
+  }
+  jo = TheFpointer(cclosure_jitc(closure_in))->fp_pointer;
+  { jit_func bc_func = (jit_func) (jit_set_ip(jo->code_buffer).iptr);
+    bc_func(closure, byteptr_in - CODEPTR); }
+}

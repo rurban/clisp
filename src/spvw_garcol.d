@@ -1594,6 +1594,9 @@ local void gar_col_normal (void)
  #endif
   /* No more gc_mark operations from here on. */
   clean_weakpointers(all_weakpointers);
+ #if defined(USE_JITC)
+  gc_scan_jitc_objects();
+ #endif
   inside_gc = true;
   /* All active objects are marked now:
    active objects of variable length and active two-pointer-objects carry
