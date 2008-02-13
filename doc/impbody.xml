@@ -792,9 +792,9 @@ compile-time.</para></warning></section>
 <para>&constant;s may not be bound dynamically or lexically.</para>
 <para>See also <xref linkend="constant-notinline"/>.</para>
 <para>If you need to undo a &defconstant; form, &proclaim; the symbol
- &special-dec; (to turn the constant into a variable), and then
- &proclaim; it &notspec; (to turn the globally special variable into an
- ordinary symbol).</para></section>
+ &special-dec; (to turn the &constant; into a &dyn-var;), and then
+ &proclaim; it &notspec; (to turn the &dyn-var; into a &lex-var;).
+</para></section>
 
 <section id="fcase"><title>Macro &fcase;</title>
 
@@ -833,9 +833,8 @@ defined using &defhash;), the compiler will be able to optimize the
  implementations.</para>
 
 <para><code>(&let; ((&x-r; &y-r;)) (&eq; &x-r; &x-r;))</code> always
- returns &t;, regardless of &y-r;.</para>
-
-<para>See also <xref linkend="dffi-eq"/>.</para>
+ returns &t; for any Lisp object &y-r;.
+ See also <xref linkend="dffi-eq"/>.</para>
 
 </section>
 
