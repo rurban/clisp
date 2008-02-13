@@ -6647,7 +6647,7 @@ typedef struct {
                               Bit 2: docstring at the end of const vec
                               Bit 3: generic function with call-inhibition?
                               Bit 4: generic function?
-                              Bit 5: not used
+                              Bit 5: JITC code at the end of const vec
                               Bit 6: &ALLOW-OTHER-KEYS-Flag
                               Bit 7: keyword-parameter given? */
   uintB  ccv_signature; /* abbreviated argument type, for faster FUNCALL */
@@ -6676,6 +6676,9 @@ typedef struct {
    (sizeof(*(Cclosure)0) - offsetofa(srecord_,recdata))/sizeof(gcv_object_t))
 #define ccv_flags_lambda_list_p(ccv_flags)    (((ccv_flags) & bit(1)) != 0)
 #define ccv_flags_documentation_p(ccv_flags)  (((ccv_flags) & bit(2)) != 0)
+#define ccv_flags_jitc_p(ccv_flags)           (((ccv_flags) & bit(5)) != 0)
+#define cclosure_jitc(closure)  TheCclosure(closure)->clos_consts[Cclosure_last_const(closure)]
+#define cclosure_jitc_p(closure)  ccv_flags_jitc_p(TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags)
 
 /* A compiled LISP-function gets its arguments on the STACK
  and returns its values in MULTIPLE_VALUE_SPACE.
@@ -12662,6 +12665,11 @@ extern maygc object coerce_function (object obj);
  can trigger GC */
 extern maygc void init_cclosures (void);
 
+#if defined(USE_JITC)
+/* GC hooks for JIT code */
+extern void gc_mark_jitc_object (void *ptr);
+extern void gc_scan_jitc_objects (void);
+#endif
 
 /* ##################### CTRLBIBL for CONTROL.D ############################ */
 
