@@ -4216,18 +4216,16 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
     /* (apply (function SYS::%MAKE-CLOSURE) obj): */
     pushSTACK(Car(obj)); obj = Cdr(obj); /* 1st argument (name) */
     pushSTACK(Car(obj)); obj = Cdr(obj); /* 2nd argument (codevec) */
-    pushSTACK(Car(obj)); obj = Cdr(obj); /* 3rd argument (side-effect class) */
-    pushSTACK(Car(obj)); obj = Cdr(obj); /* 4th argument (const list) */
-    if (consp(obj)) {
-      pushSTACK(Car(obj)); obj = Cdr(obj); /* 5th argument (lambda-list) */
-      if (consp(obj)) pushSTACK(Car(obj)); /* 6th argument (documentation) */
-      else pushSTACK(Fixnum_0); /* 6th argument (no documentation) */
-    } else {
-      pushSTACK(Fixnum_0);      /* 5th argument (no lambda-list) */
-      pushSTACK(Fixnum_0);      /* 6th argument (no documentation) */
-    }
-    funcall(L(make_closure),6);
-    mv_count=1;                 /* value1 as value */
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 3rd argument (const list) */
+    pushSTACK(Car(obj)); obj = Cdr(obj); /* 4th argument (side-effect class) */
+   #define OPTARG  if (consp(obj)) { pushSTACK(Car(obj)); obj = Cdr(obj); } else pushSTACK(Fixnum_0)
+    OPTARG;    /* 5th argument (lambda-list) */
+    OPTARG;    /* 6th argument (documentation) */
+    OPTARG;    /* 7th argument (jitc_p) */
+   #undef OPTARG
+    { var object tmp = allocate_cons(); /* (cons seclass jitc_p( */
+      Car(tmp) = STACK_3; STACK_3 = tmp; Cdr(tmp) = popSTACK(); }
+    funcall(L(make_closure),6); /* value1 as value */
   } else {
     /* n specified -> read Codevector:
      Syntax: #nY(b1 ... bn), where n is a Fixnum >=0 and b1,...,bn
@@ -9637,7 +9635,8 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     var uintL pos = 0;
     var bool lambda_list_p = ccv_flags_lambda_list_p(ccv_flags);
     var bool documentation_p = ccv_flags_documentation_p(ccv_flags);
-    var uintL end = last - lambda_list_p - documentation_p;
+    var bool jitc_p = ccv_flags_jitc_p(ccv_flags);
+    var uintL end = last - lambda_list_p - documentation_p - jitc_p;
     if (end != (uintL)-1)
       for (; true; pos++) {
         prin_object(stream_,TheCclosure(*obj_)->clos_consts[pos]);
@@ -9656,6 +9655,10 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
       if (documentation_p) {    /* documentation is a string or NIL */
         JUSTIFY_SPACE;
         prin_object(stream_,TheCclosure(*obj_)->clos_consts[last]);
+	if (jitc_p) {           /* jitc_p: 0 or 1 */
+	  JUSTIFY_SPACE;
+          write_ascii_char(stream_,'1');
+	}
       }
     }
     JUSTIFY_END_FILL;

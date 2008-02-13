@@ -165,6 +165,12 @@ local void gc_mark (object obj)
     curr = succ; /* predecessor becomes current object */               \
     goto down; /* and descent */                                        \
   }}
+#if defined(USE_JITC)
+ #define down_cclosure() \
+  if (cclosurep(curr) && cclosure_jitc_p(curr)) gc_mark_jitc_object(TheFpointer(cclosure_jitc(curr))->fp_pointer)
+#else
+ #define down_cclosure()
+#endif
 #define up_sxrecord()                             \
   { curr = objectplus(pred,-(soint)offsetofa(record_,recdata)<<(oint_addr_shift-addr_shift)); /* record becomes current object */ \
     pred = prepred; goto up; /* go further up */  \
@@ -234,6 +240,7 @@ local void gc_mark (object obj)
     case_lrecord: /* Lrecord */
       down_lrecord();
     case_sxrecord: /* Srecord/Xrecord */
+      down_cclosure();          /*FALLTHROUGH*/
     case_subr: /* SUBR */
       down_sxrecord();
     case_machine: /* machine address */
@@ -304,6 +311,7 @@ local void gc_mark (object obj)
         case Rectype_WeakHashedAlist_Both: /* Lrecord */
           down_lrecord();
         default: /* Srecord/Xrecord */
+          down_cclosure();
           down_sxrecord();
       }
     #ifdef STANDARD_HEAPCODES
@@ -429,4 +437,5 @@ local void gc_mark (object obj)
 #undef down_varobject
 #undef up_pair
 #undef down_pair
+#undef down_cclosure
 }
