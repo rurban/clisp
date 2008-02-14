@@ -2437,8 +2437,8 @@ local maygc object lookup_foreign_variable
     pushSTACK(NIL);             /* 4 continue-format-string */
     pushSTACK(S(error));        /* 3 error type */
     pushSTACK(NIL);             /* 2 error-format-string */
-    pushSTACK(S(lookup_foreign_variable)); /* 1 */
-    pushSTACK(*name);                      /* 0 */
+    pushSTACK(S(find_foreign_variable)); /* 1 */
+    pushSTACK(*name);                    /* 0 */
     STACK_2 = CLSTEXT("~S: foreign variable ~S does not exist");
     STACK_4 = CLSTEXT("Skip foreign variable creation");
     funcall(L(cerror_of_type),5);
@@ -2481,13 +2481,6 @@ local maygc object lookup_foreign_variable
     fvar = new_fvar;
   }
   return fvar;
-}
-
-/* (FFI::LOOKUP-FOREIGN-VARIABLE foreign-variable-name foreign-type) - LEGACY */
-LISPFUNN(lookup_foreign_variable,2) {
-  STACK_1 = coerce_ss(STACK_1);
-  VALUES1(lookup_foreign_variable(&STACK_1,&STACK_0));
-  skipSTACK(2);
 }
 
 /* forvard declaration -- defined later */
@@ -3225,15 +3218,6 @@ local maygc object lookup_foreign_function
   TheFfunction(ffun)->ff_flags = TheSvector(fvd)->data[3];
   TheFfunction(ffun)->ff_properties = props;
   return ffun;
-}
-
-/* (FFI::LOOKUP-FOREIGN-FUNCTION foreign-function-name foreign-type properties)
-   LEGACY */
-LISPFUNN(lookup_foreign_function,3) {
-  STACK_2 = coerce_ss(STACK_2);
-  STACK_1 = check_foreign_function_type(STACK_1);
-  VALUES1(lookup_foreign_function(&STACK_2,&STACK_1,&STACK_0));
-  skipSTACK(3);
 }
 
 /* forvard declaration -- defined later */
@@ -4177,12 +4161,11 @@ local object dlerror_string (void)
 }
 #endif
 
-/* Open a library with the given name and version
+/* Open a library with the given name
  name: pointer to a Lisp string (corrected on error) or :DEFAULT or :NEXT
- version: library version, not used (a holdover from Amiga?)
  returns a dlopen() handle to the DLL
  can trigger GC -- only on error */
-local maygc void * open_library (gcv_object_t* name, uintL version)
+local maygc void * open_library (gcv_object_t* name)
 {
   var void * handle;
  open_library_restart:
@@ -4271,12 +4254,11 @@ local maygc void* object_handle (object library, object name) {
 /* update the DLL pointer and all related objects: re-open the library,
  and update the base fp_pointer of fpointer-library-handle and all objects in
  acons = (library-name fpointer-library-handle object1 object2 ...)
- version = library version, not used (a holdover from Amiga?)
  can trigger GC -- only on error in open_library() or object_handle() */
-local maygc void update_library (object acons, uintL version) {
+local maygc void update_library (object acons) {
   pushSTACK(acons);
   var gcv_object_t *acons_ = &STACK_0;
-  var void *lib_handle = open_library(&Car(*acons_),version);
+  var void *lib_handle = open_library(&Car(*acons_));
   pushSTACK(Car(Cdr(*acons_))); /* library address - Fpointer */
   var gcv_object_t *lib_addr_ = &STACK_0; /* presumably invalid */
   TheFpointer(*lib_addr_)->fp_pointer = lib_handle;
@@ -4336,11 +4318,10 @@ local object find_library_by_address (object addr) {
 
 /* Check a foreign library argument: an address or a string
  > obj ----- library name (will be opened) or address (will be updated)
- > version - missing or integer (legacy, not used)
  < Return the library specifier (name fpointer object...)
     if obj was the name, it is checked and updated by open_library
  can trigger GC */
-local maygc object check_library (gcv_object_t *obj, uintL version) {
+local maygc object check_library (gcv_object_t *obj) {
   var object lib_spec = (fpointerp(*obj) ? find_library_by_address(*obj)
                          : stringp(*obj) ? find_library_by_name(*obj) : NIL);
   if (nullp(lib_spec)) {        /* open new */
@@ -4348,7 +4329,7 @@ local maygc object check_library (gcv_object_t *obj, uintL version) {
     pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
     pushSTACK(allocate_cons()); pushSTACK(allocate_fpointer((void*)0));
     /* Open the library: */
-    var void * libaddr = open_library(obj,version);
+    var void * libaddr = open_library(obj);
     var object lib = popSTACK();
     var object acons = popSTACK();
     var object new_cons = popSTACK();
@@ -4364,20 +4345,19 @@ local maygc object check_library (gcv_object_t *obj, uintL version) {
     if (!fp_validp(TheFpointer(Car(Cdr(lib_spec)))))
       /* Library already existed in a previous Lisp session.
          Update the address, and make it valid. */
-      update_library(lib_spec,version);
+      update_library(lib_spec);
     return lib_spec;
   }
 }
 
-/* (FFI::FOREIGN-LIBRARY name [required-version])
+/* (FFI:OPEN-FOREIGN-LIBRARY name)
  returns a foreign library specifier (fpointer). */
-LISPFUN(foreign_library,seclass_default,1,1,norest,nokey,0,NIL) {
-  var uintL v = (boundp(STACK_0) ? I_to_uint32(check_uint32(STACK_0)) : 0);
-  VALUES1(Car(Cdr(check_library(&STACK_1,v))));
-  skipSTACK(2);
+LISPFUNN(open_foreign_library,1) {
+  VALUES1(Car(Cdr(check_library(&STACK_0))));
+  skipSTACK(1);
 }
 
-/* (FFI:CLOSE-FOREIGN-LIBRARY name [required-version]) */
+/* (FFI:CLOSE-FOREIGN-LIBRARY name) */
 LISPFUNN(close_foreign_library,1) {
   var object lib_cons = find_library_by_name(popSTACK());
   if (consp(lib_cons)) {
@@ -4401,7 +4381,7 @@ local maygc void validate_fpointer (object obj)
   while (consp(STACK_0)) {
     var object acons = Car(STACK_0); STACK_0 = Cdr(STACK_0);
     if (eq(Car(Cdr(acons)),STACK_1)) {
-      update_library(acons,0);  /*version??*/
+      update_library(acons);
       skipSTACK(2); return;
     }
   }
@@ -4448,7 +4428,7 @@ local maygc void push_foreign_object (object obj, object acons) {
  can trigger GC */
 local maygc object foreign_library_check
 (gcv_object_t *name, gcv_object_t *library, gcv_object_t *offset) {
-  *library = check_library(library,0);
+  *library = check_library(library);
   if (!nullp(*offset)) *offset = check_sint32(*offset);
   return object_address(*library,*name,*offset);
 }
@@ -4487,13 +4467,6 @@ local maygc object foreign_library_variable
   return popSTACK(); /* fvar */
 }
 
-/* (FFI::FOREIGN-LIBRARY-VARIABLE name library offset c-type) LEGACY */
-LISPFUNN(foreign_library_variable,4) {
-  STACK_3 = coerce_ss(STACK_3);
-  VALUES1(foreign_library_variable(&STACK_3,&STACK_0,&STACK_2,&STACK_1));
-  skipSTACK(4);
-}
-
 /* UP: find and allocate a foreign function in a dynamic library
  > name     - function C name (string - prechecked)
  > library  - library C name (string - checked here)
@@ -4515,15 +4488,6 @@ local maygc object foreign_library_function
   STACK_0 = ffun; /* save */
   push_foreign_object(ffun,*library);
   return popSTACK(); /* ffun */
-}
-
-/* (FFI::FOREIGN-LIBRARY-FUNCTION name library properties offset
-     c-function-type) LEGACY. */
-LISPFUNN(foreign_library_function,5) {
-  STACK_4 = coerce_ss(STACK_4);
-  VALUES1(foreign_library_function(&STACK_4,&STACK_0,&STACK_2,
-                                   &STACK_3,&STACK_1));
-  skipSTACK(5);
 }
 
 #else /* not WIN32_NATIVE HAVE_DLOPEN */

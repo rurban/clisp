@@ -226,7 +226,6 @@
        (SYSTEM::%PUT ',symbol 'SYSTEM::SYMBOLMACRO
                      (SYSTEM::MAKE-GLOBAL-SYMBOL-MACRO ',expansion)))
      ',symbol))
-(defun check-not-special-variable-p (symbol)) ; legacy ABI
 ;; ----------------------------------------------------------------------------
 ;; X3J13 vote <123>
 ;; Macro (nth-value n form) == (nth n (multiple-value-list form)), CLtL2 S. 184
