@@ -1,3 +1,21 @@
+2008-02-14  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (version): bump
+	* constsym.d, subr.d, foreign.d (lookup_foreign_variable)
+	(lookup_foreign_function, foreign_library_variable): remove legacy ABI
+	* constsym.d, subr.d, foreign.d (open_foreign_library): renamed
+	from foreign_library
+	* foreign.d (open_library, update_library, check_library):
+	remove legacy version argument
+	* eval.d (FUNTAB): add cs_string_eq, cs_string_noteq, cs_string_less,
+	cs_string_greater, cs_string_ltequal, cs_string_gtequal, cs_string,
+	fdefinition, whitespacep, elastic_newline, cs_intern, cs_find_symbol,
+	cs_shadow, cs_make_package, cs_find_all_symbols, cs_symbol_name,
+	map_into, xgcd
+	* foreign1.lisp (open-foreign-library): export
+	* macros2.lisp (check-not-special-variable-p): remove legacy ABI
+	* record.d, subr.d (MAKE-MACRO): both arguments are required
+
 2008-02-13  Sam Steingold  <sds@gnu.org>
 
 	first stab at keeping JITC code in the closure

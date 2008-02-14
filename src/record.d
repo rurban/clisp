@@ -770,9 +770,9 @@ LISPFUNN(global_symbol_macro_definition,1)
  (SYS::MACROP object) tests for a Macro.
  (SYS::MACRO-EXPANDER macro) returns the macro's expander function. */
 
-/* (SYS::MAKE-MACRO expander &optional lambdalist) [&optional is Legacy ABI]
+/* (SYS::MAKE-MACRO expander lambdalist)
  returns a Macro object with the given expander function. */
-LISPFUN(make_macro,seclass_no_se,1,1,norest,nokey,0,NIL) {
+LISPFUN(make_macro,seclass_no_se,2,0,norest,nokey,0,NIL) {
   STACK_1 = check_function(STACK_1);
   var object m = allocate_macro();
   TheMacro(m)->macro_lambda_list = popSTACK();

@@ -26,23 +26,25 @@ local const Subr FUNTAB[] = {
   _(bit_orc2), _(bit_not), _(array_has_fill_pointer_p), _(fill_pointer),
   _(set_fill_pointer), _(vector_push), _(vector_pop), _(vector_push_extend),
   _(make_array), _(adjust_array),
-  /* CHARSTRG : 47 SUBRs */
+  /* CHARSTRG : 54 SUBRs */
   _(standard_char_p), _(graphic_char_p), _(string_char_p), _(alpha_char_p),
   _(upper_case_p), _(lower_case_p), _(both_case_p), _(digit_char_p),
   _(alphanumericp), _(char_code), _(code_char), _(character), _(char_upcase),
   _(char_downcase), _(digit_char), _(char_int), _(int_char), _(char_name),
-  _(char), _(schar), _(store_char), _(store_schar), _(string_eq),
-  _(string_noteq), _(string_less), _(string_greater),
-  _(string_ltequal), _(string_gtequal), _(string_equal),
+  _(char), _(schar), _(store_char), _(store_schar),
+  _(string_eq), _(cs_string_eq), _(string_noteq), _(cs_string_noteq),
+  _(string_less), _(cs_string_less), _(string_greater), _(cs_string_greater),
+  _(string_ltequal), _(cs_string_ltequal),
+  _(string_gtequal), _(cs_string_gtequal), _(string_equal),
   _(string_not_equal), _(string_lessp), _(string_greaterp),
   _(string_not_greaterp), _(string_not_lessp), _(search_string_eq),
   _(search_string_equal), _(make_string), _(string_both_trim),
   _(nstring_upcase), _(string_upcase), _(nstring_downcase),
   _(string_downcase), _(nstring_capitalize), _(string_capitalize),
-  _(string), _(name_char), _(substring),
-  /* CONTROL : 23-2 SUBRs */
-  _(symbol_value), /* _(symbol_function), */ _(boundp), _(fboundp),
-  _(special_operator_p), _(set), _(makunbound), _(fmakunbound),
+  _(string), _(cs_string), _(name_char), _(substring),
+  /* CONTROL : 24-2 SUBRs */
+  _(symbol_value), /* _(symbol_function), */ _(fdefinition), _(boundp),
+  _(fboundp), _(special_operator_p), _(set), _(makunbound), _(fmakunbound),
   /* _(values_list), */ _(driver), _(unwind_to_driver), _(macro_function),
   _(macroexpand), _(macroexpand_1), _(proclaim), _(eval),
   _(evalhook), _(applyhook), _(constantp), _(function_side_effect),
@@ -54,16 +56,16 @@ local const Subr FUNTAB[] = {
   _(make_hash_table), _(gethash), _(puthash), _(remhash), _(maphash),
   _(clrhash), _(hash_table_count), _(hash_table_iterator),
   _(hash_table_iterate), _(class_gethash), _(sxhash),
-  /* IO : 36 SUBRs */
+  /* IO : 38 SUBRs */
   _(copy_readtable), _(set_syntax_from_char), _(set_macro_character),
   _(get_macro_character), _(make_dispatch_macro_character),
   _(set_dispatch_macro_character), _(get_dispatch_macro_character),
   _(read), _(read_preserving_whitespace), _(read_delimited_list),
   _(read_line), _(read_char), _(unread_char), _(peek_char), _(listen),
-  _(read_char_no_hang), _(clear_input), _(read_from_string),
-  _(parse_integer), _(write), _(prin1), _(print), _(pprint), _(princ),
+  _(read_char_no_hang), _(clear_input), _(read_from_string), _(parse_integer),
+  _(whitespacep), _(write), _(prin1), _(print), _(pprint), _(princ),
   _(write_to_string), _(prin1_to_string), _(princ_to_string), _(write_char),
-  _(write_string), _(write_line), _(terpri), _(fresh_line),
+  _(write_string), _(write_line), _(terpri), _(fresh_line), _(elastic_newline),
   _(finish_output), _(force_output), _(clear_output), _(line_position),
   /* LIST : 84-36=48 SUBRs */
   /* _(car), _(cdr), _(caar), _(cadr), _(cdar), _(cddr), _(caaar), _(caadr),
@@ -84,13 +86,15 @@ local const Subr FUNTAB[] = {
   _(lisp_implementation_type), _(lisp_implementation_version),
   _(software_type), _(software_version), _(identity), _(get_universal_time),
   _(get_internal_run_time), _(get_internal_real_time), _(sleep), _(time),
-  /* PACKAGE : 26 SUBRs */
+  /* PACKAGE : 31 SUBRs */
   _(make_symbol), _(find_package), _(package_name), _(package_nicknames),
   _(rename_package), _(package_use_list), _(package_used_by_list),
-  _(package_shadowing_symbols), _(list_all_packages), _(intern),
-  _(find_symbol), _(unintern), _(export), _(unexport), _(import),
-  _(shadowing_import), _(shadow), _(use_package), _(unuse_package),
-  _(make_package), _(pin_package), _(find_all_symbols),
+  _(package_shadowing_symbols), _(list_all_packages), _(intern), _(cs_intern),
+  _(find_symbol), _(cs_find_symbol), _(unintern), _(export), _(unexport),
+  _(import), _(shadowing_import), _(shadow), _(cs_shadow),
+  _(use_package), _(unuse_package),
+  _(make_package), _(cs_make_package), _(pin_package),
+  _(find_all_symbols), _(cs_find_all_symbols),
   _(map_symbols), _(map_external_symbols), _(map_all_symbols),
   _(pfind_package), _(re_export),
   /* PATHNAME : 27 SUBRs */
@@ -142,10 +146,10 @@ local const Subr FUNTAB[] = {
   _(output_stream_p), _(built_in_stream_element_type),
   _(stream_external_format), _(built_in_stream_close), _(read_byte),
   _(write_byte), _(file_position), _(file_length),
-  /* SYMBOL : 14 SUBRs */
+  /* SYMBOL : 15 SUBRs */
   _(putd), _(proclaim_constant), _(get), _(getf), _(get_properties),
   _(putplist), _(put), _(remprop), _(symbol_package), _(symbol_plist),
-  _(symbol_name), _(keywordp), _(gensym), _(gensym),
+  _(symbol_name), _(cs_symbol_name), _(keywordp), _(gensym), _(gensym),
   /* LISPARIT : 84 SUBRs */
   _(decimal_string), _(zerop), _(plusp), _(minusp), _(oddp), _(evenp),
   _(plus_one), _(minus_one), _(conjugate), _(exp), _(expt), _(log),
@@ -163,7 +167,9 @@ local const Subr FUNTAB[] = {
   _(make_random_state), _(factorial), _(exquo), _(long_float_digits),
   _(set_long_float_digits), _(log2), _(log10),
   /* other: */
-}; /* that were 529-43 SUBRs. */
+}; /* that were 501 = 542 - 41 SUBRs.
+     (- (+ 0 3 30 54 24 0 11 38 84 10 31 27 44 23 40 24 15 84)
+        (+ 0 0  2  0  0 0  0  0 36  0  0  0  3  0  0  0  0  0)) */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
   /* SPVW : 0 SUBRs */
@@ -193,16 +199,17 @@ local const Subr FUNTABR[] = {
   /* PREDTYPE : 0 SUBRs */
   /* RECORD : 1 SUBR */
   _(pallocate_instance),
-  /* SEQUENCE : 6 SUBRs */
-  _(concatenate), _(map), _(some), _(every), _(notany), _(notevery),
+  /* SEQUENCE : 7 SUBRs */
+  _(concatenate), _(map), _(map_into), _(some), _(every), _(notany),
+  _(notevery),
   /* STREAM : 2 SUBRs */
   _(make_broadcast_stream), _(make_concatenated_stream),
   /* SYMBOL : 0 SUBRs */
-  /* LISPARIT : 18 SUBRs */
+  /* LISPARIT : 19 SUBRs */
   _(numequal), _(numunequal), _(smaller), _(greater), _(ltequal),
   _(gtequal), _(max), _(min), _(plus), _(minus), _(star), _(slash), _(gcd),
-  _(lcm), _(logior), _(logxor), _(logand), _(logeqv),
-}; /* That were 63 SUBRs. */
+  _(xgcd), _(lcm), _(logior), _(logxor), _(logand), _(logeqv)
+}; /* That were (+ 0 0 7 13 9 0 2 1 0 4 0 0 0 0 1 7 2 0 19) = 65 SUBRs. */
 #undef _
 #define FUNTAB1  (&FUNTAB[0])
 #define FUNTAB2  (&FUNTAB[256])
