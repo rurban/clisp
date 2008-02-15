@@ -1,5 +1,21 @@
 2008-02-14  Sam Steingold  <sds@gnu.org>
 
+	* record.d (make_code_vector): converted from MAKE-CODE-VECTOR
+	(make_closure): accept 7 keywords instead of 6 positional arguments;
+	call make_code_vector on :CODE
+	(make_constant_initfunction): update
+	* subr.d, constsym.d (make_code_vector): remove
+	* constsym.d (make_closure): rename from %MAKE-CLOSURE to MAKE-CLOSURE
+	(Kcode, Kconstants, Kseclass, Klambda_list, Kdocumentation, Kjitc_p):
+	add
+	* subrkw.d (make_closure): add
+	* eval.d (FUNTAB): remove make_code_vector
+	* io.d (CLOSURE-READER): update the C_make_closure() call
+	* compiler.lisp (make-closure): remove defun
+	(create-fun-obj): update make-closure call
+
+2008-02-14  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d (version): bump
 	* constsym.d, subr.d, foreign.d (lookup_foreign_variable)
 	(lookup_foreign_function, foreign_library_variable): remove legacy ABI
