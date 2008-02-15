@@ -1,3 +1,8 @@
+2008-02-15  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d, _clisp.c: remove the last vestiges of the -s command
+	line option, removed on 2004-08-31
+
 2008-02-14  Sam Steingold  <sds@gnu.org>
 
 	* record.d (make_code_vector): converted from MAKE-CODE-VECTOR
