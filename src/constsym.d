@@ -771,8 +771,7 @@ LISPSYM(closure_codevec,"CLOSURE-CODEVEC",system)
 LISPSYM(closure_consts,"CLOSURE-CONSTS",system)
 LISPSYM(closure_const,"CLOSURE-CONST",system)
 LISPSYM(set_closure_const,"SET-CLOSURE-CONST",system)
-LISPSYM(make_code_vector,"MAKE-CODE-VECTOR",system)
-LISPSYM(make_closure,"%MAKE-CLOSURE",system)
+LISPSYM(make_closure,"MAKE-CLOSURE",system) /* ABI */
 LISPSYM(make_constant_initfunction,"MAKE-CONSTANT-INITFUNCTION",system) /* ABI */
 LISPSYM(constant_initfunction_p,"CONSTANT-INITFUNCTION-P",system)
 LISPSYM(closure_set_seclass,"CLOSURE-SET-SECLASS",system)
@@ -1343,6 +1342,12 @@ LISPSYM(Kso_sndtimeo,"SO-SNDTIMEO",keyword)
 LISPSYM(Kwin32,"WIN32",keyword)
 #endif
 LISPSYM(Kread_only,"READ-ONLY",keyword)
+LISPSYM(Kcode,"CODE",keyword)
+LISPSYM(Kconstants,"CONSTANTS",keyword)
+LISPSYM(Kseclass,"SECLASS",keyword)
+LISPSYM(Klambda_list,"LAMBDA-LIST",keyword)
+LISPSYM(Kdocumentation,"DOCUMENTATION",keyword)
+LISPSYM(Kjitc_p,"JITC-P",keyword)
 
 /* other symbols: */
 LISPSYM(standard_char,"STANDARD-CHAR",lisp) /* type in PREDTYPE */

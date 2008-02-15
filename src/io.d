@@ -4223,9 +4223,7 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
     OPTARG;    /* 6th argument (documentation) */
     OPTARG;    /* 7th argument (jitc_p) */
    #undef OPTARG
-    { var object tmp = allocate_cons(); /* (cons seclass jitc_p( */
-      Car(tmp) = STACK_3; STACK_3 = tmp; Cdr(tmp) = popSTACK(); }
-    funcall(L(make_closure),6); /* value1 as value */
+    C_make_closure(); /* value1 as value */
   } else {
     /* n specified -> read Codevector:
      Syntax: #nY(b1 ... bn), where n is a Fixnum >=0 and b1,...,bn

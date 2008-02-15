@@ -219,3 +219,5 @@ s(foreign_free)
 v(1, (kw(name)))
 s(make_thread)
 #endif
+v(7, (kw(name),kw(code),kw(constants),kw(seclass),kw(lambda_list),kw(documentation),kw(jitc_p)) )
+s(make_closure)

@@ -116,11 +116,11 @@ local const Subr FUNTAB[] = {
   _(functionp), _(packagep), _(arrayp), _(simple_array_p), _(bit_vector_p),
   _(vectorp), _(simple_vector_p), _(simple_string_p), _(simple_bit_vector_p),
   _(type_of), _(class_of), _(find_class), _(coerce),
-  /* RECORD : 23 SUBRs */
+  /* RECORD : 22 SUBRs */
   _(record_ref), _(record_store), _(record_length), _(structure_ref),
   _(structure_store), _(make_structure), _(copy_structure),
   _(structure_type_p), _(closure_name), _(closure_codevec),
-  _(closure_consts), _(make_code_vector), _(make_closure),
+  _(closure_consts), _(make_closure),
   _(copy_generic_function), _(make_load_time_eval),
   _(function_macro_function), _(structure_object_p), _(std_instance_p),
   _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
@@ -167,8 +167,8 @@ local const Subr FUNTAB[] = {
   _(make_random_state), _(factorial), _(exquo), _(long_float_digits),
   _(set_long_float_digits), _(log2), _(log10),
   /* other: */
-}; /* that were 501 = 542 - 41 SUBRs.
-     (- (+ 0 3 30 54 24 0 11 38 84 10 31 27 44 23 40 24 15 84)
+}; /* that were 500 = 541 - 41 SUBRs.
+     (- (+ 0 3 30 54 24 0 11 38 84 10 31 27 44 22 40 24 15 84)
         (+ 0 0  2  0  0 0  0  0 36  0  0  0  3  0  0  0  0  0)) */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
@@ -4549,8 +4549,7 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
       case (uintB)cclos_argtype_1_0_key: /* 1 required argument, &key */
         REQ_ARG();
         noch_0_opt_args_key:
-      case (uintB)cclos_argtype_0_0_key:
-        /* only &key */
+      case (uintB)cclos_argtype_0_0_key: /* only &key */
         if ((args_on_stack==0) && atomp(args)) goto unbound_optional_key_0;
         goto apply_cclosure_key_withlist;
       case (uintB)cclos_argtype_3_1_key:
@@ -4562,8 +4561,7 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
       case (uintB)cclos_argtype_1_1_key:
         /* 1 required argument and 1 optional argument, &key */
         REQ_ARG();
-      case (uintB)cclos_argtype_0_1_key:
-        /* 1 optional argument, &key */
+      case (uintB)cclos_argtype_0_1_key: /* 1 optional argument, &key */
         noch_1_opt_args_key:
         OPT_ARG(key_1);
         goto noch_0_opt_args_key;
