@@ -252,7 +252,6 @@ int main (int argc, char* argv[])
             else break;   /* GNU-style long options --help, --version */
           /* Skippable options with arguments. */
           case 'm':
-          case 's':
           case 't':
           case 'L':
           case 'o':

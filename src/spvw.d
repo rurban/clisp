@@ -1599,7 +1599,7 @@ local void init_other_modules_2 (void) {
 /* print usage */
 local void usage (void) {
   printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
-  printf(GETTEXTL("is an ANSI Common Lisp."));
+  printf(GETTEXTL("is an ANSI Common Lisp implementation."));
   printf("\n");
   printf(GETTEXTL("Usage:  "));
   printf(program_name);
@@ -1618,10 +1618,10 @@ local void usage (void) {
   printf(GETTEXTL(" -K linkingset - use this executable and memory image\n"));
  #endif
   printf(GETTEXTL(" -M memfile    - use this memory image\n"));
-  printf(GETTEXTL(" -m size       - memory size (size = xxxxxxxB or xxxxKB or xMB)\n"));
-  #ifdef MULTIMAP_MEMORY_VIA_FILE
+  printf(GETTEXTL(" -m size       - memory size (size = nB or nKB or nMB)\n"));
+ #ifdef MULTIMAP_MEMORY_VIA_FILE
   printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap\n"));
-  #endif
+ #endif
   printf(GETTEXTL("Internationalization:\n"));
   printf(GETTEXTL(" -L language   - set user language\n"));
   printf(GETTEXTL(" -N nlsdir     - NLS catalog directory\n"));
@@ -1979,7 +1979,7 @@ local inline int size_arg (const char *arg, const char *docstring, uintM *ret,
     fputs("\n",stderr);
     val = limit_high;
   }
-  /* For multiple -m resp. -s arguments, only the last counts. */
+  /* For multiple -m arguments, only the last counts. */
   *ret = val;
   return 0;
 }
@@ -2028,8 +2028,7 @@ local inline int parse_options (int argc, const char* const* argv,
 
   /* process arguments argv[0..argc-1] :
      -h              Help
-     -m size         Memory size (size = xxxxxxxB oder xxxxKB oder xMB)
-     -s size         Stack size (size = xxxxxxxB oder xxxxKB oder xMB)
+     -m size         Memory size (size = nB or nKB or nMB)
      -t directory    temporary directory
      -B directory    set lisplibdir
      -K linkingset   specify executable and mem file
@@ -2104,7 +2103,7 @@ local inline int parse_options (int argc, const char* const* argv,
                   return 1;                     \
                 }                               \
               } else arg += 2
-          case 'm':             /* memory size */
+          case 'm':             /* memory size  */
            #ifdef WIN32_NATIVE
             if (arg[2]=='m' && arg[3]=='\0') /* "-mm" -> print a memory map */
               { DumpProcessMemoryMap(); return 1; }
