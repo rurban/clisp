@@ -204,17 +204,6 @@ and <http://clisp.cons.org/impnotes/bytecode.html>.
     further constants)
 |#
 
-;; FIXME: jitc-p & seclass are passed in a cons to SYS::%MAKE-CLOSURE
-;;        because a subr cannot take more than 6 required arguments.
-;; TODO: remove make-closure from here, remove make-code-vector from record.d
-;;       make make-closure in record.d accept keyword arguments
-;;  this will invalidate bytecode format because it will modify FUNTAB!
-(defun make-closure (&key name codevec consts seclass lambda-list documentation
-                     jitc-p)
-  (sys::%make-closure name (sys::make-code-vector codevec) consts
-                      (cons seclass jitc-p)
-                      lambda-list documentation))
-
 ;; The instruction list is in <doc/impbyte.xml>.
 
 ;; classification of instructions:
@@ -10614,7 +10603,7 @@ The function make-closure is required.
   (setf (fnode-code fnode)
     (make-closure
       :name fname
-      :codevec
+      :code
         (macrolet ((as-word (anz)
                      (if *big-endian*
                        ;; BIG-ENDIAN-Processor
@@ -10650,7 +10639,7 @@ The function make-closure is required.
                 (as-word (fnode-Keyword-Offset fnode)))
               (values))
             byte-list))
-      :consts
+      :constants
         (let ((l (append
                    (make-list (fnode-Keyword-Offset fnode))
                    (fnode-keywords fnode)
