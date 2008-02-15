@@ -259,12 +259,9 @@ LISPFUNNR(structure_type_p,2) {
    closure as an array of fixnums >=0, <256.
  (SYS::CLOSURE-CONSTS closure) returns a list of all constants of a
    compiled closure.
- (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
-   a simple-8bit-vector of the same length, that contains these numbers
-   as bytes.
- (SYS::%MAKE-CLOSURE name codevec consts seclass) returns a closure with given
-   name (a symbol), given code-vector (a simple-bit-vector) and
-   further given constants.
+ (SYS::MAKE-CLOSURE &key name code constants seclass lambda-list documentation
+    jitc-p) returns a closure with given name (a symbol), given code-vector
+    (a list of bytes), given constants, seclass, lalist, doc string and JITC_p.
  (SYS::MAKE-CONSTANT-INITFUNCTION value) returns a closure that, when called
    with 0 arguments, returns the given value.
  (SYS::CONSTANT-INITFUNCTION-P object) tests whether an object was returned by
@@ -376,13 +373,13 @@ LISPFUNN(set_closure_const,3) {
   VALUES1(*closure_const() = STACK_2); skipSTACK(3);
 }
 
-/* (SYS::MAKE-CODE-VECTOR list) returns for a list of fixnums >=0, <256
-   a simple-8bit-vector of the same length, that contains these numbers
-   as bytes. */
-LISPFUNNR(make_code_vector,1) {
-  var object bv = allocate_bit_vector(Atype_8Bit,llength(STACK_0)); /* simple-8bit-vector */
+/* make_code_vector(list) converts a list of fixnums >=0, <256
+ into a simple-8bit-vector of the same length, that contains these numbers
+ as bytes. */
+local maygc void make_code_vector (gcv_object_t *code) {
+  var object bv = allocate_bit_vector(Atype_8Bit,llength(*code)); /* simple-8bit-vector */
   /* fill: */
-  var object listr = popSTACK(); /* list */
+  var object listr = *code; /* list */
   var uintB* ptr = &TheSbvector(bv)->data[0]; /* loop through the bit-vector */
   while (consp(listr)) {
     var uintV byte;
@@ -394,7 +391,8 @@ LISPFUNNR(make_code_vector,1) {
     *ptr++ = (uintB)byte;
     listr = Cdr(listr);
   }
-  VALUES1(bv); return;
+  *code = bv;
+  return;
  bad_byte:
   pushSTACK(Car(listr)); /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_uint8)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -422,24 +420,19 @@ local seclass_t parse_seclass (object sec, object closure)
  returns a closure with given name (a symbol),
  given code-vector (a simple-bit-vector), given constants,
  given side-effect class, lambda-list and documentation. */
-LISPFUNNR(make_closure,6) {
-  ASSERT(consp(STACK_2));
-  var bool jitc_p = !eq(Fixnum_0,Cdr(STACK_2));
-  var seclass_t seclass = parse_seclass(Car(STACK_2),STACK_5);
-  /* codevec must be a simple-bit-vector: */
-  if (!simple_bit_vector_p(Atype_8Bit,STACK_4)) {
-    /* STACK_4 = codevec */
-    pushSTACK(STACK_4); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(simple_bit_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_(4+2));
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: invalid code-vector ~S"));
-  }
-  /* create a new closure of length (+ 2 (length consts) lalist-p doc-p) : */
+LISPFUN(make_closure,seclass_default,0,0,norest,key,7,(kw(name),kw(code),
+        kw(constants),kw(seclass),kw(lambda_list),kw(documentation),kw(jitc_p)))
+{
+  var bool jitc_p = !eq(Fixnum_0,popSTACK());
+  var seclass_t seclass = parse_seclass(STACK_2,STACK_5);
+  /* convert code to a simple-bit-vector: */
+  if (listp(STACK_4)) make_code_vector(&STACK_4);
+  /* create a new closure of length
+     (+ 2 (length consts) lalist-p doc-p jitc_p) : */
   var uintL length = 2+llength(STACK_3) + (jitc_p ? 1 : 0)
     +(listp(STACK_1) ? 1 : 0)+(nullp(STACK_0) || stringp(STACK_0) ? 1 : 0);
   if (!(length <= (uintL)(bitm(intWsize)-1))) { /* should fit into a uintW */
-    pushSTACK(STACK_4/*consts */);
+    pushSTACK(STACK_3/* constants */);
     pushSTACK(STACK_6/* name */);
     pushSTACK(TheSubr(subr_self)->name);
     error(error_condition,GETTEXT("~S: function ~S is too big: ~S"));
@@ -475,10 +468,10 @@ LISPFUNN(make_constant_initfunction,1)
   pushSTACK(S(constant_initfunction));
   pushSTACK(O(constant_initfunction_code));
   pushSTACK(consts);
-  pushSTACK(allocate_cons());
-  Car(STACK_0) = O(seclass_no_se); Cdr(STACK_0) = Fixnum_0;
+  pushSTACK(O(seclass_no_se));
   pushSTACK(Fixnum_0); /* no lalist */
   pushSTACK(Fixnum_0); /* no doc */
+  pushSTACK(Fixnum_0); /* no jitc */
   C_make_closure();
 }
 
