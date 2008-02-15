@@ -167,18 +167,28 @@ compiles the specified lisp files to a platform-independent
  <listitem><para>Sets the amount of memory &clisp;
    tries to grab on startup. The amount may be given as
    <variablelist>
-    <varlistentry><term><replaceable>nnnnnnn</replaceable></term>
+    <varlistentry><term>&n-r;</term><term>&n-r;<command>B</command></term>
      <listitem><simpara>measured in bytes
     </simpara></listitem></varlistentry>
+    <varlistentry><term>&n-r;</term><term>&n-r;<command>W</command></term>
+     <listitem><simpara>measured in machine words (4&times;&n-r; on
+       32-bit platforms, 8&times;&n-r; on 64-bit platforms)
+    </simpara></listitem></varlistentry>
     <varlistentry>
-     <term><replaceable>nnnn</replaceable><command>K</command></term>
-     <term><replaceable>nnnn</replaceable><command>KB</command></term>
+     <term>&n-r;<command>K</command></term>
+     <term>&n-r;<command>KB</command></term>
      <listitem><simpara>measured in kilobytes
+    </simpara></listitem></varlistentry>
+     <varlistentry><term>&n-r;<command>KW</command></term>
+     <listitem><simpara>measured in kilowords
     </simpara></listitem></varlistentry>
     <varlistentry>
      <term>&n-r;<command>M</command></term>
      <term>&n-r;<command>MB</command></term>
      <listitem><simpara>measured in megabytes
+   </simpara></listitem></varlistentry>
+    <varlistentry><term>&n-r;<command>MW</command></term>
+     <listitem><simpara>measured in megawords
    </simpara></listitem></varlistentry></variablelist>
    The default is 3 megabytes.
 <!-- #if (oint_addr_len+addr_shift==24) -->
