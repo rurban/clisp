@@ -1014,6 +1014,26 @@ NIL
 #+clisp
 ((NIL) (NIL) (T))
 
+#+clisp
+(let ((f "test-compile-time-value.lisp"))
+  (defparameter test-compile-time-value-c 0)
+  (with-open-file (*standard-output* f :direction :output)
+    (write '(defun test-compile-time-value-f ()
+             (incf test-compile-time-value-c) 'test-compile-time-value))
+    (terpri)
+    (write '(defparameter test-compile-time-value-v
+             (compile-time-value (test-compile-time-value-f))))
+    (terpri))
+  (unwind-protect
+       (list (progn (load f)
+                    (list test-compile-time-value-c test-compile-time-value-v))
+             (progn (compile-file f)
+                    (list test-compile-time-value-c test-compile-time-value-v))
+             (progn (load (compile-file-pathname f))
+                    (list test-compile-time-value-c test-compile-time-value-v)))
+    (post-compile-file-cleanup f)))
+#+clisp ((0 NIL) (1 NIL) (1 TEST-COMPILE-TIME-VALUE))
+
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
 (let* ((f "test-crlf-print-read.lisp")
        (v #(#\a #\return #\newline #\null #\b))
@@ -1118,16 +1138,16 @@ NIL
 #+clisp (listp (arglist 'sys::backquote)) #+clisp t
 
 ; Clean up.
-(progn
-  (fmakunbound 'test-macro-arglist)
-  (unintern 'test-macro-arglist)
-  (fmakunbound 'test-fun-arglist)
-  (unintern 'test-fun-arglist)
-  (fmakunbound 'circularity-in-code)
-  (unintern 'circularity-in-code)
-  (fmakunbound 'test-constant-folding)
-  (unintern 'test-constant-folding)
-  (fmakunbound 'test-compiler)
-  (unintern 'test-compiler)
-  (unintern 'x))
+(flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
+  (kill 'test-macro-arglist)
+  (kill 'test-fun-arglist)
+  (kill 'circularity-in-code)
+  (kill 'test-constant-folding)
+  (kill 'test-compiler)
+  (kill 'test-compile-time-value-c)
+  (kill 'test-compile-time-value-f)
+  (kill 'test-compile-time-value-v)
+  (kill 'add-crlf)
+  (kill '*z*) (kill '*c*) (kill '*v*)
+  (kill 'x))
 T
