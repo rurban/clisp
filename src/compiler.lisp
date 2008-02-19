@@ -11456,7 +11456,8 @@ The function make-closure is required.
     ; support them.
     (when (> opt-num 0)
       (setq opt-num 0 rest-p t))
-    (let ((fnode
+    (let ((*denv* (if (boundp '*denv*) *denv* *toplevel-denv*)) ; for declared-optimize in create-fun-obj
+          (fnode
             (make-fnode :name 'trampoline
                         :req-num req-num
                         :opt-num opt-num
