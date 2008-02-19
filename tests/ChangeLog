@@ -1,5 +1,10 @@
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
+	* ffi.tst: foreign-library --> open-foreign-library;
+	lookup-foreign-variable --> find-foreign-variable
+
+2008-02-19  Sam Steingold  <sds@gnu.org>
+
 	* macro8.tst: test new macro COMPILE-TIME-VALUE
 
 2008-02-11  Sam Steingold  <sds@gnu.org>
