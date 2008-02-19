@@ -1,3 +1,8 @@
+2008-02-19  Sam Steingold  <sds@gnu.org>
+
+	* macros3.lisp (compile-time-value): new exported user macro
+	* foreign1.lisp (compile-time-value): remove broken definition
+
 2008-02-15  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d, _clisp.c: remove the last vestiges of the -s command

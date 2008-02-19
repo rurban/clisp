@@ -706,6 +706,8 @@ EXT:MEMOIZED
 memoized
 EXT:WITH-COLLECT
 with-collect
+EXT:COMPILE-TIME-VALUE
+compile-time-value
 EXT:WITH-GENSYMS
 with-gensyms
 EXT:REMOVE-PLIST
