@@ -1,5 +1,10 @@
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (make-trampoline): bind *DENV* for
+	DECLARED-OPTIMIZE in CREATE-FUN-OBJ
+
+2008-02-19  Sam Steingold  <sds@gnu.org>
+
 	* macros3.lisp (compile-time-value): new exported user macro
 	* foreign1.lisp (compile-time-value): remove broken definition
 
