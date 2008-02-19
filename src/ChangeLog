@@ -2,6 +2,8 @@
 
 	* compiler.lisp (make-trampoline): use backquote for readability;
 	bind *DENV* for DECLARED-OPTIMIZE in CREATE-FUN-OBJ
+	(create-fun-obj): compute (DECLARED-OPTIMIZE 'SPACE) just once,
+	not 3 times
 
 2008-02-19  Sam Steingold  <sds@gnu.org>
 

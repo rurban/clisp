@@ -10599,6 +10599,7 @@ The function make-closure is required.
 (defun create-fun-obj (fnode byte-list SPdepth
                        &aux (fname (fnode-name fnode))
                             (lambda-list (fnode-lambda-list fnode))
+                            (space (declared-optimize 'space))
                             (!generatedp (not (generatedp fname lambda-list))))
   (setf (fnode-code fnode)
     (make-closure
@@ -10654,13 +10655,13 @@ The function make-closure is required.
       :seclass (anode-seclass (fnode-code fnode))
       ;; no metadata for anonymous functions
       ;; NB: :lambda-list 0 ==> :documentation 0
-      :lambda-list (if (and !generatedp (>= 2 (declared-optimize 'space)))
+      :lambda-list (if (and !generatedp (>= 2 space))
                        lambda-list
                        0)       ; discard
-      :documentation (if (and !generatedp (>= 1 (declared-optimize 'space)))
+      :documentation (if (and !generatedp (>= 1 space))
                          (fnode-documentation fnode)
                          0)     ; discard
-      :jitc-p (if (>= 0 (declared-optimize 'space))
+      :jitc-p (if (>= 0 space)
                   1             ; allow
                   0)))          ; not allow
   fnode)
