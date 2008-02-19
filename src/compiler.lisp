@@ -11470,8 +11470,8 @@ The function make-closure is required.
                         :Consts-Offset 0)))
       (create-fun-obj fnode
                       (assemble-LAP
-                        (list (list 'VENV)
-                              (list 'SKIP&RETGF (+ 1 req-num (if (or rest-p key-p) 1 0)))))
+                       `((VENV) (SKIP&RETGF ,(+ 1 req-num
+                                                (if (or rest-p key-p) 1 0)))))
                       '(0 . 0))
       (let ((trampoline (fnode-code fnode)))
         (sys::closure-codevec trampoline)))))

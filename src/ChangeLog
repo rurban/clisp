@@ -1,7 +1,7 @@
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (make-trampoline): bind *DENV* for
-	DECLARED-OPTIMIZE in CREATE-FUN-OBJ
+	* compiler.lisp (make-trampoline): use backquote for readability;
+	bind *DENV* for DECLARED-OPTIMIZE in CREATE-FUN-OBJ
 
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
