@@ -20,6 +20,10 @@ User visible changes
 * New function FFI:OPEN-FOREIGN-LIBRARY allows pre-opening of shared libraries.
   See <http://clisp.cons.org/impnotes/dffi.html#dffi-open-lib> for details.
 
+* New macro EXT:COMPILE-TIME-VALUE allows computing values at file compilation.
+  See <http://clisp.podval.org/impnotes/macros3.html#compile-time-value>
+  for details.
+
 * Bug fixes:
   + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
 

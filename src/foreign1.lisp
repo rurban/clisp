@@ -859,15 +859,6 @@
   (let ((pair (assoc key alist)))
     (if pair (second pair) default)))
 
-;; this is fairly general, maybe we need to move it...
-(eval-when (compile)
-  (defmacro compile-time-value (expression)
-    expression))
-(eval-when ((not compile))
-  (defmacro compile-time-value (expression)
-    (declare (ignore expression))
-    ()))
-
 ;; CPP consts (#define'd in an *.h file):
 ;; for each type (int, string, pointer) there is a C function (and a
 ;;  foreign-function created when the first constant of this type is

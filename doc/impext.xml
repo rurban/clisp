@@ -1659,6 +1659,37 @@ is approximately equivalent to
 and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
 </para></section>
 
+<section id="compile-time-value">
+ <title>Macro <function>EXT:COMPILE-TIME-VALUE</function></title>
+<para>Sometimes one may want to call an expensive function at
+ compilation time and write the return value into the &fasl-file; file,
+ thus speeding up loading the &fasl-file; file.
+ E.g., let your file <filename>primes.lisp</filename> be
+ <programlisting language="lisp">
+(defun primes-list (limit)
+  "Return the list of all primes smaller than LIMIT."
+  ...)
+(defvar *all-primes* (compile-time-value (primes-list &most-positive-fixnum;)))
+</programlisting>
+Then <variablelist>
+ <varlistentry><term><code>(&load; "primes.lisp")</code></term>
+  <listitem><simpara>will &not-e; call <function>primes-list</function>
+    and <varname>*all-primes*</varname> will be &nil;.
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><code>(&compile-file; "primes.lisp")</code></term>
+  <listitem><simpara>will call <function>primes-list</function> (and
+    will probably take a long time) and will write the resulting list
+    into <code>(&compile-file-pathname; "primes.lisp")</code>
+ </simpara></listitem></varlistentry>
+ <varlistentry><term><code>(&load; (&compile-file-pathname;
+    "primes.lisp"))</code></term>
+  <listitem><simpara>will &not-e; call <function>primes-list</function>
+    but <varname>*all-primes*</varname> will be the list computed during
+    compilation.</simpara></listitem></varlistentry></variablelist></para>
+<para>The alternative is to save a &mem-image;, which is faster than
+ &fasl-file; file but less portable.</para>
+</section>
+
 <section id="with-gensyms">
      <title>Macro <function>EXT:WITH-GENSYMS</function></title>
 <para>Similar to its namesake from
