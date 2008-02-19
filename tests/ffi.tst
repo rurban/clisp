@@ -253,16 +253,18 @@ C-SELF
        'ext:encoding)
 #+UNICODE T
 
-(typep (ffi::lookup-foreign-variable "ffi_user_pointer"
-                                     (ffi::parse-c-type 'ffi:c-pointer))
+(typep (ffi::find-foreign-variable "ffi_user_pointer"
+                                   (ffi::parse-c-type 'ffi:c-pointer)
+                                   nil nil)
        'foreign-variable)
 T
 
-(ffi::lookup-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64))
+(ffi::find-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64) nil nil)
 ERROR
 
-(typep (ffi::lookup-foreign-variable "ffi_user_pointer"
-                                     (parse-c-type '(c-array-ptr sint8)))
+(typep (ffi::find-foreign-variable "ffi_user_pointer"
+                                   (parse-c-type '(c-array-ptr sint8))
+                                   nil nil)
        'foreign-variable)
 T
 
@@ -1151,7 +1153,7 @@ FM
 #-BeOS (integerp (sys::code-address-of #'c-malloc)) T
 #-BeOS (stringp (nth-value 2 (function-lambda-expression #'c-malloc))) T
 
-(type-of (ffi::foreign-library :default))  ffi:foreign-pointer
+(type-of (ffi:open-foreign-library :default))  ffi:foreign-pointer
 
 (listp (macroexpand '(def-c-var foo-var (:type int)))) T
 
@@ -1170,7 +1172,7 @@ TOUPPER
 (toupper #\a)
 #\A
 
-(when (ignore-errors (ffi::foreign-library "libpcre.so"))
+(when (ignore-errors (ffi:open-foreign-library "libpcre.so"))
   (def-call-out pcre-version (:name "pcre_version")
     ;; actually in libpcre.so, but dlsym() now searches in any open library
     (:library :default) (:language :stdc) (:arguments) (:return-type c-string))
