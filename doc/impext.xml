@@ -1662,7 +1662,7 @@ and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
 <section id="compile-time-value">
  <title>Macro <function>EXT:COMPILE-TIME-VALUE</function></title>
 <para>Sometimes one may want to call an expensive function at
- compilation time and write the return value into the &fasl-file; file,
+ compilation time and write the &pri-val; into the &fasl-file; file,
  thus speeding up loading the &fasl-file; file.
  E.g., let your file <filename>primes.lisp</filename> be
  <programlisting language="lisp">
@@ -1766,7 +1766,7 @@ additionally binds &cont-r; to the content length.</para>
  If no <literal role="data">#\@</literal> is present,
  &name-r; and &pass-r; are &nil;.
  If no <literal role="data">#\:</literal> is present,
- &pass-r; (or &port-r;) are &nil;.</para>
+ &pass-r; (or &port-r;) is &nil;.</para>
 <para>Use function <code>(EXT:HTTP-PROXY &optional-amp; (&string-t;
   (&getenv; "http_proxy")))</code> to reset &http-proxy;.</para></section>
 </section>
