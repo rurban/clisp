@@ -3426,7 +3426,9 @@ for-value   NIL or T
                ;; and if it is the newest:
                (if (and (consp present-files)
                         (string= (pathname-type newest-file) "lib"))
-                 (load newest-file :verbose nil :print nil :echo nil) ; load libfile
+                 (load newest-file ; load libfile
+                       :verbose (and *load-verbose* *compile-verbose*)
+                       :print (and *load-print* *compile-print*))
                  (let ((fi (or newest-file file)))
                    (if (null *compile-file-directory*)
                      ;; `compile-file' was called without an explicit

@@ -4,6 +4,7 @@
 	bind *DENV* for DECLARED-OPTIMIZE in CREATE-FUN-OBJ
 	(create-fun-obj): compute (DECLARED-OPTIMIZE 'SPACE) just once,
 	not 3 times
+	(c-REQUIRE): do not suppress load libfile message completely
 
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
