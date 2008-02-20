@@ -1,5 +1,9 @@
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
+	* utils/fix-perms.sh: all *.d are non-executable
+
+2008-02-19  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (make-trampoline): use backquote for readability;
 	bind *DENV* for DECLARED-OPTIMIZE in CREATE-FUN-OBJ
 	(create-fun-obj): compute (DECLARED-OPTIMIZE 'SPACE) just once,

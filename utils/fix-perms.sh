@@ -13,6 +13,7 @@ find . -type f -follow -perm +111 '(' \
   -o -name '*.m4' \
   -o -name '*.h' \
   -o -name '*.c' \
+  -o -name '*.d' \
   -o -name '*.lisp' \
   -o -name '*.tst' \
   -o -name '*.bat' \
