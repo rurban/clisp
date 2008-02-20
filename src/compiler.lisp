@@ -2146,6 +2146,7 @@ for-value   NIL or T
        (EVAL-WHEN . c-EVAL-WHEN)
        (DECLARE . c-DECLARE)
        (LOAD-TIME-VALUE . c-LOAD-TIME-VALUE)
+       (COMPILE-TIME-VALUE . c-COMPILE-TIME-VALUE)
        (LOCALLY . c-LOCALLY)
        ;; Macros:
        (%GENERIC-FUNCTION-LAMBDA . c-%GENERIC-FUNCTION-LAMBDA)
@@ -4463,6 +4464,15 @@ for-value   NIL or T
                                      :form form
                                      :ltv-form *form*))))
              '()))))
+
+
+;; compile (COMPILE-TIME-VALUE form)
+(defun c-COMPILE-TIME-VALUE ()
+  (test-list *form* 2 2)
+  (make-anode :type 'CONST
+              :sub-anodes '()
+              :seclass *seclass-foldable*
+              :code `((CONST ,(new-const (eval (second *form*)))))))
 
 ;; compile (CATCH tag {form}*)
 (defun c-CATCH ()

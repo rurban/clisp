@@ -386,6 +386,9 @@ with compatible bytecodes."
 ;;; http://groups.google.com/group/comp.lang.lisp/browse_thread/thread/7fda163e5e8194f2/65564bd5e2810f01
 (defmacro compile-time-value (expression)
   "Evaluate the EXPRESSION at compile time, writing the value into the FAS file."
+  (declare (ignore expression))
+  () ; see compiler.lisp:c-COMPILE-TIME-VALUE
+  #+(or) ;; the gensym result leaks into the *.lib and *.fas files
   (let ((result (gensym "COMPILE-TIME-VALUE-")))
     `(let ((,result nil))
        (declare (special ,result))
