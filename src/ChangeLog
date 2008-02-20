@@ -231,7 +231,7 @@
 	* makemake.in: libsvm requires FFI
 	* modules/fastcgi/configure.in, modules/oracle/configure.in:
 	* modules/pari/configure.in, modules/postgresql/configure.in:
-        * modules/wildcard/configure.in, modules/zlib/configure.in:
+	* modules/wildcard/configure.in, modules/zlib/configure.in:
 	fail if ffcall is not present
 
 2008-01-29  Sam Steingold  <sds@gnu.org>
@@ -945,11 +945,11 @@
 
 	<24_more_anz>
 	* control.d, lispbibl.d (specdecled_, make_variable_frame): rename
-        arg and local spec_anz to spec_count
-        * control.d (make_variable_frame): rename local var_anz to var_count
-        * eval.d, lispbibl.d (frame_anz): rename to frame_count
+	arg and local spec_anz to spec_count
+	* control.d (make_variable_frame): rename local var_anz to var_count
+	* eval.d, lispbibl.d (frame_anz): rename to frame_count
 	<23_clos_reqoptkey_anz>
-        * eval.d, lispbibl.d: rename global members
+	* eval.d, lispbibl.d: rename global members
 	(clos_spec_anz): -> clos_spec_count
 	(clos_req_anz): -> clos_req_count
 	(clos_opt_anz): -> clos_opt_count
@@ -1003,10 +1003,10 @@
 
 	<16_strcmp3>
 	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
-        (string_grgleich): rename to string_gtequal
+	(string_grgleich): rename to string_gtequal
 	(cs_string_grgleich): rename to cs_string_gtequal
-        * charstrg.d, constsym.d, eval.d, sequence.d, subr.d, subrkw.d:
-        (search_string_gleich): rename to search_string_eq
+	* charstrg.d, constsym.d, eval.d, sequence.d, subr.d, subrkw.d:
+	(search_string_gleich): rename to search_string_eq
 	<15_strcmp2>
 	* charstrg.d, constsym.d, eval.d, subr.d, subrkw.d:
 	(string_groesser): rename to string_greater
