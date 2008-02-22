@@ -5507,8 +5507,8 @@ exhaust the available line length.</para></simplesect>
    &inspect; in &clisp;</title>
  <varlistentry><term><constant>:TTY</constant></term>
   <listitem><simpara>The interaction is conducted via the &terminal-io-var;
-    stream.  Please use the <userinput>:h</userinput> command to get the
-    list of all available commands.</simpara></listitem></varlistentry>
+    stream.  Please use the &help; command to get the list of all
+    available commands.</simpara></listitem></varlistentry>
  <varlistentry><term><constant>:HTTP</constant></term>
   <listitem><simpara>A window in your Web browser (specified by the
     &browser-k; keyword argument) is opened and it is controlled by

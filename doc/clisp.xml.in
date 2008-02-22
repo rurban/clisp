@@ -480,7 +480,7 @@ compiles the specified lisp files to a platform-independent
 <refsection id="usage"><title>Usage</title>
 
 <variablelist>
-<varlistentry><term>help</term>
+<varlistentry><term>&help;</term>
  <listitem><simpara>get context-sensitive on-line help, see
    <olink targetdoc="impnotes" targetptr="environment"/>.
 </simpara></listitem></varlistentry>
