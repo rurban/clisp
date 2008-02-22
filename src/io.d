@@ -9649,10 +9649,10 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
     prin_object(stream_,seclass_object((seclass_t)Cclosure_seclass(*obj_)));
     if (lambda_list_p) {        /* lambda-list is a list */
       JUSTIFY_SPACE;
-      pr_list(stream_,TheCclosure(*obj_)->clos_consts[last-documentation_p]);
+      pr_list(stream_,TheCclosure(*obj_)->clos_consts[++pos]);
       if (documentation_p) {    /* documentation is a string or NIL */
         JUSTIFY_SPACE;
-        prin_object(stream_,TheCclosure(*obj_)->clos_consts[last]);
+        prin_object(stream_,TheCclosure(*obj_)->clos_consts[++pos]);
 	if (jitc_p) {           /* jitc_p: 0 or 1 */
 	  JUSTIFY_SPACE;
           write_ascii_char(stream_,'1');
