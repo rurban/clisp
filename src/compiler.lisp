@@ -1602,8 +1602,9 @@ for-value   NIL or T
   (keyword-flag nil) ; Flag, if &KEY - Parameter is specified.
   (keywords nil)  ; List of Keyword-Constants (in the right order)
   allow-other-keys-flag         ; &ALLOW-OTHER-KEYS-Flag
-  lambda-list                   ; as passed to defun, discarded if SPACE >= 3
-  documentation                 ; discarded if SPACE >= 2
+  lambda-list     ; as passed to defun, discarded if SPACE >= 3
+  documentation   ; discarded if SPACE >= 2
+  (denv *denv*)   ; declaration environment at compilation time
   Consts-Offset   ; number of local constants so far
   (consts nil)    ; List of other constants of this function
                   ; this list is built up foremost in the second pass.
@@ -4050,6 +4051,7 @@ for-value   NIL or T
             (bind-aux-vars auxvar auxinit))
           (push-specials)
           (push-*denv* other-decls)
+          (setf (fnode-denv *func*) *denv*)
           (let* ((body-anode (c-form `(PROGN ,@body-rest) (if gf-p 'ONE 'ALL)))
                  ;; check the variables:
                  (closurevars
@@ -10609,9 +10611,9 @@ The function make-closure is required.
             lambda-list)))      ; gensyms in lambda-list
 ;; enters a byte-list as Code into fnode.
 (defun create-fun-obj (fnode byte-list SPdepth
-                       &aux (fname (fnode-name fnode))
+                       &aux (fname (fnode-name fnode)) (denv (fnode-denv fnode))
                             (lambda-list (fnode-lambda-list fnode))
-                            (space (declared-optimize 'space))
+                            (space (declared-optimize 'space denv))
                             (!generatedp (not (generatedp fname lambda-list))))
   (setf (fnode-code fnode)
     (make-closure
@@ -11469,12 +11471,13 @@ The function make-closure is required.
     ; support them.
     (when (> opt-num 0)
       (setq opt-num 0 rest-p t))
-    (let ((*denv* (if (boundp '*denv*) *denv* *toplevel-denv*)) ; for declared-optimize in create-fun-obj
-          (fnode
+    (let ((fnode
             (make-fnode :name 'trampoline
                         :req-num req-num
                         :opt-num opt-num
                         :rest-flag (or rest-p key-p)
+                        ;; no lalist, docstring or jitc:
+                        :denv '((optimize (space 3) (speed 0)))
                         :code (let ((*form* nil) (*stackz* nil))
                                 (make-anode :seclass *seclass-dirty*))
                         :Blocks-Offset 0
