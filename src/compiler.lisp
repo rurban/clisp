@@ -10614,6 +10614,7 @@ The function make-closure is required.
                        &aux (fname (fnode-name fnode)) (denv (fnode-denv fnode))
                             (lambda-list (fnode-lambda-list fnode))
                             (space (declared-optimize 'space denv))
+                            (speed (declared-optimize 'speed denv))
                             (!generatedp (not (generatedp fname lambda-list))))
   (setf (fnode-code fnode)
     (make-closure
@@ -10675,7 +10676,7 @@ The function make-closure is required.
       :documentation (if (and !generatedp (>= 1 space))
                          (fnode-documentation fnode)
                          0)     ; discard
-      :jitc-p (if (>= 0 space)
+      :jitc-p (if (or (>= 0 space) (<= 1 speed))
                   1             ; allow
                   0)))          ; not allow
   fnode)

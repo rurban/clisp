@@ -1,3 +1,12 @@
+2008-02-16  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (create-fun-obj): jitc-p is true when either SPACE is 0
+	or SPEED is at least 1
+	* clos-genfun2b.lisp (*compile-no-jitc*): new constant
+	(compute-discriminating-function-<generic-function>)
+	(prototype-factory-table, finalize-fast-gf):
+	use it in generated lambda declarations instead of (COMPILE)
+
 2008-02-15  Sam Steingold  <sds@gnu.org>
 
 	* lightning.c (jit_run): use !fpointerp instead of nullp
