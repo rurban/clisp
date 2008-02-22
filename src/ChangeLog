@@ -22,6 +22,7 @@
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
 	* macros3.lisp (compile-time-value): new exported user macro
+	* init.lisp (compile-time-value): export from EXT
 	* compiler.lisp (c-COMPILE-TIME-VALUE): compile it
 	(c-form-table): use c-COMPILE-TIME-VALUE for COMPILE-TIME-VALUE
 	* foreign1.lisp (compile-time-value): remove broken definition
