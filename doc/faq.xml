@@ -92,10 +92,12 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-help"><question id="faq-help-q"><simpara>How do I
    ask for help?</simpara></question>
-<answer><para>Politely - please refer to &netiquette;.</para>
+<answer><label>&clisp;</label>
+ <para>Type &help; and hit <keycap>Enter</keycap>.</para></answer>
+<answer><label>Human</label>
+ <para>Politely - please refer to &netiquette;.</para>
  <para>If you have a question about &clisp;, you have the following options
-  (listed in the order of decreasing audience size):
-  <variablelist>
+  (listed in the order of decreasing audience size):<variablelist>
    <varlistentry><term>USENET group <ulink url="http://groups.google.com/groups?as_ugroup=comp.lang.lisp">comp.lang.lisp</ulink></term>
     <listitem><simpara>This is the right place to ask all general Lisp
       questions, such as <ulink url="&clhs;/Body/acc_charcm_schar.html">"how
