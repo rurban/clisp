@@ -388,7 +388,7 @@
    make-buffered-input-stream make-buffered-output-stream
    get-setf-method preliminary local module-info
    source-program-error source-program-error-form source-program-error-detail
-   compiler-let load-time-eval)
+   compiler-let load-time-eval compile-time-value)
  "EXT")
 
 (common-lisp:in-package "CUSTOM")
