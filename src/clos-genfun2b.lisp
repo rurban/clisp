@@ -136,11 +136,13 @@
 (predefun compute-discriminating-function (gf)
   (compute-discriminating-function-<generic-function> gf))
 
+(defconstant *compile-no-jitc* '((OPTIMIZE (SPEED 0) (SPACE 3)) (COMPILE)))
+
 (defun compute-discriminating-function-<generic-function> (gf)
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
             (eval `(LET ,bindings
-                     (DECLARE ,@(safe-gf-declspecs gf) (COMPILE))
+                     (DECLARE ,@(safe-gf-declspecs gf) ,@*COMPILE-NO-JITC*)
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
       preliminary)))
@@ -1048,7 +1050,7 @@
 ;; ======================= Installing the Dispatch Code =======================
 
 #||
-(defun make-gf (generic-function-class name lambdabody lambda-list argument-precedence-order method-combination user-defined-args methods)
+ (defun make-gf (generic-function-class name lambdabody lambda-list argument-precedence-order method-combination user-defined-args methods)
   (let ((final
           (apply #'make-generic-function-instance generic-function-class
             :name name
@@ -1059,7 +1061,7 @@
                     user-defined-args)))
         (preliminary
          (eval `(LET ()
-                  (DECLARE (COMPILE))
+                  (DECLARE ,@*COMPILE-NO-JITC*)
                   (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
     (assert (<= (sys::%record-length preliminary) 3))
     (set-funcallable-instance-function final preliminary)
@@ -1083,7 +1085,7 @@
                      user-defined-args)))
          (preliminary
            (eval `(LET ((GF ',final))
-                    (DECLARE (COMPILE))
+                    (DECLARE ,@*COMPILE-NO-JITC*)
                     (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
                       (DECLARE (INLINE APPLY))
                       (APPLY 'SLOW-FUNCALL-GF GF ARGS))))))
@@ -1092,8 +1094,8 @@
     (setf (std-gf-methods final) methods)
     final))
 
-(flet ((prototype-factory (gf)
-           (declare (compile))
+ (flet ((prototype-factory (gf)
+           (declare ,@*COMPILE-NO-JITC*)
            (%generic-function-lambda (&rest args)
              (declare (inline apply))
              (apply 'slow-funcall-gf gf args))))
@@ -1132,7 +1134,7 @@
                          :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t))
       (uninitialized-prototype-factory
         (eval `#'(LAMBDA (GF)
-                   (DECLARE (COMPILE))
+                   (DECLARE ,@*COMPILE-NO-JITC*)
                    (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
                      (DECLARE (INLINE FUNCALL) (IGNORE ARGS))
                      (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD GF))))))
@@ -1151,7 +1153,7 @@
                             (let* ((reqvars (gensym-list reqnum))
                                    (prototype-factory
                                     (eval `#'(LAMBDA (GF)
-                                               (DECLARE (COMPILE))
+                                               (DECLARE ,@*COMPILE-NO-JITC*)
                                                (%GENERIC-FUNCTION-LAMBDA
                                                 (,@reqvars ,@(if restp '(&REST ARGS) '()))
                                                 (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))
