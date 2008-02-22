@@ -5468,7 +5468,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 static Values jit_run (object closure_in, Sbvector codeptr,
                        const uintB* byteptr_in) {
   struct jitc_object *jo;
-  if (nullp(cclosure_jitc(closure_in))) {
+  if (!fpointerp(cclosure_jitc(closure_in))) {
     pushSTACK(closure_in);
     { object fp = allocate_fpointer(NULL);
       closure_in = popSTACK();
