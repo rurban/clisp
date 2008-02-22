@@ -1,5 +1,9 @@
 2008-02-22  Sam Steingold  <sds@gnu.org>
 
+	* io.d (pr_cclosure_lang): fix printing of lalist & docstring
+
+2008-02-22  Sam Steingold  <sds@gnu.org>
+
 	make sure that CREATE-FUN-OBJ uses the correct OPTIMIZE settings
 	* compiler.lisp (fnode): add DENV slot
 	(c-LAMBDABODY): (SETF (FNODE-DENV *FUNC*) *DENV*)
