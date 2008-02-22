@@ -11,6 +11,7 @@
 
 	* lightning.c (jit_run): use !fpointerp instead of nullp
 	to test cclosure_jitc
+	(jit_compile_) [DEBUG_BYTECODE]: declare byteptr_bad_jump
 
 2008-02-22  Sam Steingold  <sds@gnu.org>
 
