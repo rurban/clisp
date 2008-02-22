@@ -5547,10 +5547,12 @@ exhaust the available line length.</para></simplesect>
 
 <section id="room"><title>Function &room;</title>
 
-<para>The function &room; returns two values: the number of bytes
- currently occupied by Lisp objects, and the number of bytes that can be
- allocated before the next regular &gc;ion occurs.</para>
+<para>The function <firstterm>&room;</firstterm> returns two values: the
+ number of bytes currently occupied by Lisp objects, and the number of
+ bytes that can be allocated before the next regular &gc;ion occurs.</para>
+</section>
 
+<section id="gc-sect"><title>Function <function>EXT:GC</function></title>
 <para>The function
  <firstterm><link linkend="gc"><function>EXT:GC</function></link>
   <indexterm id="gc-func" significance="preferred">
@@ -5558,18 +5560,18 @@ exhaust the available line length.</para></simplesect>
  </primary></indexterm></firstterm>
  starts a global &gc;ion and its return value has the same meaning as
  the second value of &room;.</para>
-
 </section>
 
 <section id="time"><title>Macro &time;</title>
 
-<para>The timing data printed by the macro &time; includes:
- <simplelist columns="1">
- <member>the real time (<quote>wall</quote> time),</member>
- <member>the run time (processor time for this process),</member>
- <member>the number of bytes allocated, and</member>
- <member>the number of &gc;ions performed, if any.</member>
-</simplelist></para>
+<para>The timing data printed by the macro &time; includes:<itemizedlist>
+  <listitem><simpara>the real time (<quote>wall</quote> time,
+    &get-internal-real-time;),</simpara></listitem>
+  <listitem><simpara>the run time (processor time for this process,
+    &get-internal-run-time;),</simpara></listitem>
+  <listitem><simpara>the number of bytes allocated, and</simpara></listitem>
+  <listitem><simpara>the number of &gc;ions performed, if any.
+</simpara></listitem></itemizedlist></para>
 
 <para>The macro <firstterm>&ts;</firstterm> (mnemonic:
  <quote><emphasis>TIME</emphasis> and <emphasis>S</emphasis>pace</quote>)
