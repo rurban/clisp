@@ -1,3 +1,12 @@
+2008-02-22  Sam Steingold  <sds@gnu.org>
+
+	make sure that CREATE-FUN-OBJ uses the correct OPTIMIZE settings
+	* compiler.lisp (fnode): add DENV slot
+	(c-LAMBDABODY): (SETF (FNODE-DENV *FUNC*) *DENV*)
+	(create-fun-obj): pass (FNODE-DENV FNODE) to DECLARED-OPTIMIZE
+	(make-trampoline): revert last patch: do not bind *DENV*; instead,
+	pass :DENV '((OPTIMIZE (SPACE 3) (SPEED 0))) to MAKE-FNODE
+
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
 	* utils/fix-perms.sh: all *.d are non-executable
