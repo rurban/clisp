@@ -1,3 +1,8 @@
+2008-02-15  Sam Steingold  <sds@gnu.org>
+
+	* lightning.c (jit_run): use !fpointerp instead of nullp
+	to test cclosure_jitc
+
 2008-02-22  Sam Steingold  <sds@gnu.org>
 
 	* io.d (pr_cclosure_lang): fix printing of lalist & docstring
