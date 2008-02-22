@@ -885,9 +885,9 @@ jit_patch(ref);}
       goto label;                                     \
     } while(0)
   #define DEBUG_CHECK_BYTEPTR(nb) do {                                \
-    var const uintL b = nb - codeptr->data;                           \
+    const uintL b = nb - codeptr->data;                               \
     if ((b < byteptr_min) || (b > byteptr_max)) {                     \
-      var uintL bp = byteptr - codeptr->data;                         \
+      uintL bp = byteptr - codeptr->data;                             \
       fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__);                 \
       byteptr_bad_jump = b - bp;                                      \
       /*nobject_out(stderr,closure);*/                                \
@@ -940,7 +940,7 @@ jit_patch(ref);}
 #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
   #undef U_operand
   #define U_operand(where)  \
-    { var uintL dummy;              \
+    { uintL dummy;              \
       __asm__(                      \
         "ldub [%1],%0"       "\n\t" \
         "andcc %0,0x80,%%g0" "\n\t" \
@@ -996,7 +996,7 @@ jit_patch(ref);}
   /* Let's choose the first one. 1-byte operands are most frequent. */
   #undef U_operand
   #define U_operand(where)  /* (v1) */ \
-    { var uintL dummy;                 \
+    { uintL dummy;                     \
       __asm__(                         \
         "ldrb   %0,[%1],#1"     "\n\t" \
         "tst    %0,#0x80"       "\n\t" \
@@ -1008,7 +1008,7 @@ jit_patch(ref);}
   #if 0
   #undef U_operand
   #define U_operand(where)  /* (v2) */ \
-    { var uintL dummy;                 \
+    { uintL dummy;                     \
       __asm__(                         \
         "ldrb   %0,[%1],#1"     "\n\t" \
         "movs   %0,%0,LSL#25"   "\n\t" \
@@ -1079,7 +1079,7 @@ jit_patch(ref);}
 #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
   #undef S_operand
   #define S_operand(where)  \
-    { var uintL dummy;              \
+    { uintL dummy;                  \
       __asm__(                      \
         "ldub [%1],%0"       "\n\t" \
         "andcc %0,0x80,%%g0" "\n\t" \
@@ -1143,7 +1143,7 @@ jit_patch(ref);}
   /* Macro written by Peter Burwood. */
   #undef S_operand
   #define S_operand(where)  \
-    { var uintL dummy;                  \
+    { uintL dummy;                      \
       __asm__(                          \
         "ldrb   %0,[%1],#1"      "\n\t" \
         "movs   %0,%0,LSL#25"    "\n\t" \
@@ -1169,7 +1169,7 @@ jit_patch(ref);}
 /* skips the next Operand (a Signed Integer) */
 /* and advances the bytecodepointer. */
   #define S_operand_ignore()  \
-    { var uintB where = *byteptr++; /* read first byte          */ \
+    { uintB where = *byteptr++; /* read first byte          */ \
       if ((uintB)where & bit(7))                               \
         /* Bit 7 war gesetzt                                    */ \
         { if ((uintB)((where<<1) | *byteptr++) == 0) /* next Byte */ \
@@ -1179,7 +1179,7 @@ jit_patch(ref);}
 #if defined(GNU) && defined(MC680X0) && !defined(NO_ASM)
   #undef S_operand_ignore
   #define S_operand_ignore()  \
-    { var uintB where;           \
+    { uintB where;               \
       __asm__(                   \
         "moveb %1@+,%0"   "\n\t" \
         "bpl 1f"          "\n\t" \
@@ -1194,8 +1194,8 @@ jit_patch(ref);}
 #if defined(GNU) && defined(SPARC) && !defined(NO_ASM)
   #undef S_operand_ignore
   #define S_operand_ignore()  \
-    { var uintL where;              \
-      var uintL dummy;              \
+    { uintL where;                  \
+      uintL dummy;                  \
       __asm__(                      \
         "ldub [%1],%0"       "\n\t" \
         "andcc %0,0x80,%%g0" "\n\t" \
@@ -1215,8 +1215,8 @@ jit_patch(ref);}
   /* Macro written by Peter Burwood. */
   #undef S_operand_ignore
   #define S_operand_ignore()  \
-    { var uintL where;                  \
-      var uintL dummy;                  \
+    { uintL where;                  \
+      uintL dummy;                  \
       __asm__(                          \
         "ldrb   %0,[%1],#1"      "\n\t" \
         "movs   %0,%0,LSL#25"    "\n\t" \
@@ -1233,7 +1233,7 @@ jit_patch(ref);}
 /* moves the next Operand (a Label) */
 /* to (uintB*)where and advances the bytecodepointer. */
   #define L_operand(Lwhere)  \
-    { var uintL where; /* variable for the displacement */ \
+    { uintL where; /* variable for the displacement */ \
       S_operand(where); /* Displacement                 */ \
       Lwhere = byteptr + (sintL)where; /* add           */ \
     }
@@ -1256,12 +1256,12 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     });
   /* situate argument closure in register: */
   #ifdef closure_register
-  var object closure __asm__(closure_register);
+  object closure __asm__(closure_register);
   closure = closure_in;
   #endif
   /* situate argument byteptr in register: */
   #ifdef byteptr_register
-  var register const uintB* byteptr __asm__(byteptr_register);
+  register const uintB* byteptr __asm__(byteptr_register);
   byteptr = byteptr_in;
   #endif
   TRACE_CALL(closure,'B','C');
@@ -1273,6 +1273,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   const uintL byteptr_max = sbvector_length(codeptr)-1;
   const uintL sp_length = (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
       + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
+ #ifdef DEBUG_BYTECODE
+  sintL byteptr_bad_jump;
+ #endif
 
   /* codebuffer: contains the JITed code (Temp allocation scheme) */
   jit_insn *codeBuffer = malloc(sizeof(jit_insn)*byteptr_max*JIT_AVG_BCSIZE);
@@ -1343,7 +1346,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       goto next_byte;
     }
     CASE cod_push_nil: {        /* (PUSH-NIL n) */
-      var uintC n;
+      uintC n;
       U_operand(n);
       if (n != 0 ) {
         jit_movi_ui(JIT_R2,n);
@@ -3663,7 +3666,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       goto next_byte;
     }
     CASE cod_load_car_push: {   /* (LOAD&CAR&PUSH n) */
-      var uintL n;
+      uintL n;
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
@@ -3693,8 +3696,8 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       goto next_byte;
     }
     CASE cod_load_car_store: {  /* (LOAD&CAR&STORE m n) */
-      var uintL m;
-      var uintL n;
+      uintL m;
+      uintL n;
       U_operand(m);
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
@@ -3785,7 +3788,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       goto next_byte;
     }
     CASE cod_load_cdr_push: {   /* (LOAD&CDR&PUSH n) */
-      var uintL n;
+      uintL n;
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
@@ -3815,7 +3818,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       goto next_byte;
     }
     CASE cod_load_cdr_store: {  /* (LOAD&CDR&STORE n) */
-      var uintL n;
+      uintL n;
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
@@ -4177,7 +4180,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     }
     CASE cod_liststar: {        /* (LIST* n) */
       jit_insn* ref;
-      var uintC n;
+      uintC n;
       U_operand(n);
 
       jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
