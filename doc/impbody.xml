@@ -5024,8 +5024,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <title>Commands common to the main loop, the debugger and the stepper</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
   &cmd-abbrev-oper-header;<tbody>
- <row><entry><command>Help</command></entry>
-   <entry><command>:h</command></entry>
+ <row><entry>&help;</entry><entry><command>:h</command></entry>
    <entry>prints a list of available commands</entry></row>
 </tbody></tgroup></table>
 
@@ -5320,11 +5319,11 @@ E.g.,
 
 <section id="trace"><title>Macro &trace;</title>
 
-<para><code>(&trace; &func-r; ...)</code> makes the
- functions &func-r;, ... traced.  &func-r; should be either a symbol or
- a list <code>(&symbol-r; &key-amp;
+<para><code>(&trace; &funcname-r; ...)</code> makes the
+ functions &funcname-r;, ... traced.  Each &funcname-r; should be either
+ a &funname; or a &list-t; <code>(&funcname-r; &key-amp;
  <constant>:SUPPRESS-IF</constant> <constant>:MAX-DEPTH</constant>
- <constant>:STEP-IF</constant>
+ <constant>:STEP-IF</constant> <constant>:BINDINGS</constant>
  <constant>:PRE</constant> <constant>:POST</constant>
  <constant>:PRE-BREAK-IF</constant> <constant>:POST-BREAK-IF</constant>
  <constant>:PRE-PRINT</constant> <constant>:POST-PRINT</constant>
@@ -5374,7 +5373,7 @@ E.g.,
 <para>In all these forms you can access the following variables:
 <variablelist>
  <varlistentry><term><varname>EXT:*TRACE-FUNCTION*</varname></term>
-  <listitem><simpara>the function itself
+  <listitem><simpara>the traced function itself
   </simpara></listitem></varlistentry>
  <varlistentry><term><varname>EXT:*TRACE-ARGS*</varname></term>
   <listitem><simpara>the arguments to the function
@@ -5500,7 +5499,7 @@ exhaust the available line length.</para></simplesect>
 
 <section id="inspect"><title>Function &inspect;</title>
 
-<para>The function &inspect; takes a keyword argument
+<para>The function &inspect; accepts a keyword argument
  <constant>:FRONTEND</constant>, which specifies the way &clisp; will
  interact with the user, and defaults
  to <varname>CUSTOM:*INSPECT-FRONTEND*</varname>.
@@ -5524,7 +5523,7 @@ exhaust the available line length.</para></simplesect>
     unpredictable behavior.</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>The function &inspect; also takes a keyword argument &browser-k;,
+<para>The function &inspect; also accepts a keyword argument &browser-k;,
  which specifies the browser used by the <constant>:HTTP</constant>
  front-end and defaults to <varname>CUSTOM:*INSPECT-BROWSER*</varname>.</para>
 
