@@ -29,7 +29,7 @@ static void header (void)
 }
 
 #define check(type,typeprefix,typestr,equalfn,mainfn)  \
-static boolean equalfn (type* x, type* y);				\
+static boolean equalfn (volatile type* x, volatile type* y);		\
 static void mainfn (void)						\
 {									\
   int mant_bits;							\
@@ -109,7 +109,10 @@ static void mainfn (void)						\
   }									\
   printf("\n");								\
 }									\
-static boolean equalfn (type* x, type* y) { return *x == *y; }		\
+static boolean equalfn (volatile type* x, volatile type* y)		\
+{									\
+  return *x == *y;							\
+}									\
 
 check(float,"float","float",equal_float,main_float)
 check(double,"double","double",equal_double,main_double)
