@@ -14,7 +14,7 @@ RM = rm -f
 	update-ansi-tests potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
-	build-aux-update gnulib-update distrib release pre-release \
+	build-aux-update gnulib-imported distrib release pre-release \
 	upload upload-ssh upload-sf upload-sunsite upload-gnu \
 	src-distrib doc-distrib gnu-distrib tag-release tp-mail
 
@@ -314,16 +314,25 @@ src/build-aux/ltmain.sh src/m4/libtool.m4 :
 	cp libtool-$(LIBTOOL_VERSION)/libtool.m4 src/m4/libtool.m4
 	rm -rf libtool-$(LIBTOOL_VERSION)
 
-GNULIB_HOME=../../gnulib
+GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
+GNULIB_CVS_REPOSITORY = HEAD
+GNULIB_CHECKOUT := $(shell if test $$USER = sds; then echo ../../gnulib; else echo gnulib; fi)
+update-gnulib:
+	if test -d $(GNULIB_CHECKOUT); then \
+	  cd $(GNULIB_CHECKOUT) && \
+	  cvs update -d -P; \
+	else \
+	  cvs -d "$(GNULIB_CVS_ROOT)" checkout -d $(GNULIB_CHECKOUT) $(GNULIB_CVS_REPOSITORY); \
+	fi
+
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
-build-aux-update : src/build-aux/ltmain.sh force
-	cd $(GNULIB_HOME) && cvs update -dP
-	for f in $(GNULIB_AUX); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
+build-aux-update : src/build-aux/ltmain.sh update-gnulib force
+	for f in $(GNULIB_AUX); do cp -afuv $(GNULIB_CHECKOUT)/build-aux/$$f src/build-aux; done
 	cp -afuv /usr/share/automake*/compile src/build-aux
 
-gnulib-update : build-aux-update
+gnulib-imported : build-aux-update
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
-	$(GNULIB_HOME)/gnulib-tool --import --source-base=src/gllib \
+	$(GNULIB_CHECKOUT)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
 		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
 		uniwidth/width streq uniname/uniname unitypes link-follow
@@ -343,7 +352,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 release : distrib upload tag-release
 
 # 2-3 weeks before a release
-pre-release : gnulib-update tp-mail
+pre-release : gnulib-imported tp-mail
 
 ## RELEASE TODO:
 # Before doing a "make distrib":
