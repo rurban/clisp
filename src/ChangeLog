@@ -1,5 +1,16 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Make it easier to update the gnulib imported files.
+	* Makefile.devel (GNULIB_CVS_ROOT, GNULIB_CVS_REPOSITORY): New
+	variables.
+	(GNULIB_CHECKOUT): Renamed from GNULIB_HOME. Make it normally a
+	subdirectory of the current directory.
+	(update-gnulib): New rule.
+	(build-aux-update): Depend on it.
+	(gnulib-imported): Rename from gnulib-update.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* Makefile.devel (build-aux-update): Pass option -d to 'cvs update'.
 	Remove unportable 'cd -' command.
 
