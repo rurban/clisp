@@ -36,6 +36,7 @@ User visible changes
 --------------------
 
 * Bug fixes:
+  + Add a workaround against a gcc 4.2.x bug. [ 1836142 ]
   + Fix error in compilation of floatparam.c during configuration with gcc 4.3
     snapshots. [ 1836142 ]
 
