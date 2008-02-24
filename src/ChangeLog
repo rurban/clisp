@@ -1,5 +1,12 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Fix [ 1836142 ] part 2.
+	* lispbibl.d (STACK_register, mv_count_register, value1_register,
+	back_trace_register): Don't define for gcc-4.2 and newer when
+	USE_GCC_REGISTER_VARIABLES is not defined.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* lispbibl.d (STACK_register, mv_count_register, value1_register,
 	back_trace_register): Define for gcc-3.3.[4-6].
 

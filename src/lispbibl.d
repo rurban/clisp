@@ -20,6 +20,8 @@
      DYNAMIC_MODULES
    Safety level:
      SAFETY={0,1,2,3}
+   Exploit GCC global register variables:
+     USE_GCC_REGISTER_VARIABLES
    Debugging (turned on by --with-debug configure option):
      DEBUG_GCSAFETY (requires G++)
      DEBUG_OS_ERROR
@@ -603,8 +605,13 @@
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=7871
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=10684
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14937
-   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938 */
-#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && (__GNUC_MINOR__ < 3 || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 4))) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
+   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938
+   Likewise, gcc-4.2 has severe bugs with global register variables, see
+   CLISP bug 1836142 and http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300
+   Likewise for gcc-4.3-20080215 and probably future versions of GCC as well.
+   Therefore for these versions of gcc enable the global register variables
+   only when USE_GCC_REGISTER_VARIABLES is explicitly defined.  */
+#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && (__GNUC_MINOR__ < 3 || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 4))) && !(((__GNUC__ == 4 && __GNUC_MINOR__ >= 2) || __GNUC__ > 4) && !defined(USE_GCC_REGISTER_VARIABLES)) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
