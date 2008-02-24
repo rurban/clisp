@@ -1,3 +1,9 @@
+2008-02-23  Bruno Haible  <bruno@clisp.org>
+
+	Fix [ 1836142 ] part 1.
+	* floatparam.c (check): Change argument types to 'volatile type*'.
+	This defeats optimizations of gcc 4.3.0 snapshots.
+
 2008-02-16  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (create-fun-obj): jitc-p is true when either SPACE is 0
