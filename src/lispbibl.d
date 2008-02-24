@@ -598,13 +598,13 @@
    inline function, which is the case on UNIX_DGUX and UNIX_GNU.
    Only GCC supports global register variables. Not Apple's variant of GCC.
    And only the C frontend, not the C++ frontend, understands the syntax.
-   And gcc-3.0 to 3.3 has severe bugs with global register variables, see
+   And gcc-3.0 to 3.3.3 has severe bugs with global register variables, see
    CLISP bugs 710737 and 723097 and
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=7871
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=10684
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14937
    http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14938 */
-#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && __GNUC_MINOR__ < 4) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
+#if defined(GNU) && !(__APPLE_CC__ > 1) && !defined(__cplusplus) && !(__GNUC__ == 3 && (__GNUC_MINOR__ < 3 || (__GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ < 4))) && !defined(MULTITHREAD) && (SAFETY < 2) && !defined(USE_JITC)
 /* Overview of use of registers in gcc terminology:
  fixed: mentioned in FIXED_REGISTERS
  used:  mentioned in CALL_USED_REGISTERS but not FIXED_REGISTERS
