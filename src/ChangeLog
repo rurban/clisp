@@ -1,5 +1,9 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (COPYRIGHT.rtf): Fix escaping.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Make it easier to update the gnulib imported files.
 	* Makefile.devel (GNULIB_CVS_ROOT, GNULIB_CVS_REPOSITORY): New
 	variables.
