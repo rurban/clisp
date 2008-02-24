@@ -29,6 +29,17 @@ User visible changes
 
 
 
+2.44.1 (2008-02-23)
+===================
+
+User visible changes
+--------------------
+
+* Bug fixes:
+  + Fix error in compilation of floatparam.c during configuration with gcc 4.3
+    snapshots. [ 1836142 ]
+
+
 2.44 (2008-02-02)
 =================
 
