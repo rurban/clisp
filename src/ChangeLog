@@ -1,5 +1,16 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	Add rule for fetching a working libtool.m4.
+	* src/build-aux/ltmain.sh: Remove file.
+	* Makefile.devel (src/aclocal.m4): Depend on src/m4/libtool.m4.
+	(build-aux-update): Depend on src/build-aux/ltmain.sh.
+	(LIBTOOL_VERSION, LIBTOOL_SOURCE_FILE, LIBTOOL_SOURCE_URL): New
+	variables.
+	(src/build-aux/ltmain.sh src/m4/libtool.m4): New rule.
+	(EXCLUDE): Also exclude the LIBTOOL_SOURCE_FILE and its predecessors.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Fix [ 1836142 ] part 2.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register,
 	back_trace_register): Don't define for gcc-4.2 and newer when
