@@ -2505,7 +2505,7 @@ if [ ${HOS} = win32 ]; then
   echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' -e 's,\@BASE_MODULES\@,\$(BASE_MODULES),g' -e 's,\@MODULES\@,\$(MODULES),g' ${SRCTOPDIR_}win32msvc/nsis/install.nsi > install.nsi"
   echol
   echol "COPYRIGHT.rtf : COPYRIGHT ${SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp config.status"
-  echotab "$(RUN) -M lispinit.mem -q ${SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp"
+  echotab "\$(RUN) -M lispinit.mem -q ${SRCTOPDIR_}win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp"
   echotab "sed -e 's/\@NAME\@/\$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/\$(VERSION)/g' COPYRIGHT.tmp > COPYRIGHT.rtf"
   echotab '$(RM) COPYRIGHT.tmp'
   echol
