@@ -317,7 +317,7 @@ src/build-aux/ltmain.sh src/m4/libtool.m4 :
 GNULIB_HOME=../../gnulib
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
 build-aux-update : src/build-aux/ltmain.sh force
-	cd $(GNULIB_HOME); cvs up; cd -
+	cd $(GNULIB_HOME) && cvs update -dP
 	for f in $(GNULIB_AUX); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
 	cp -afuv /usr/share/automake*/compile src/build-aux
 
