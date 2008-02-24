@@ -1,7 +1,12 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (build-aux-update): Pass option -d to 'cvs update'.
+	Remove unportable 'cd -' command.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	Add rule for fetching a working libtool.m4.
-	* src/build-aux/ltmain.sh: Remove file.
+	* build-aux/ltmain.sh: Remove file.
 	* Makefile.devel (src/aclocal.m4): Depend on src/m4/libtool.m4.
 	(build-aux-update): Depend on src/build-aux/ltmain.sh.
 	(LIBTOOL_VERSION, LIBTOOL_SOURCE_FILE, LIBTOOL_SOURCE_URL): New
