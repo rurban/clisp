@@ -1,3 +1,8 @@
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
+	* lispbibl.d (STACK_register, mv_count_register, value1_register,
+	back_trace_register): Define for gcc-3.3.[4-6].
+
 2008-02-23  Bruno Haible  <bruno@clisp.org>
 
 	Fix [ 1836142 ] part 1.
