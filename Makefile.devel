@@ -60,7 +60,7 @@ src/gllib/Makefile.in : src/gllib/Makefile.am
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
-src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
+src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) src/m4/libtool.m4 \
 			$(addsuffix .in,$(CONFIGURES))
 	$(RM) configure.ac
 	cp src/configure.in configure.ac
@@ -301,12 +301,24 @@ install-gcc:
 	rm -rf gcc-$(GCC_VERSION)-build
 	rm -rf gcc-$(GCC_VERSION)
 
+# It is important to get ltmain.sh and libtool.m4 from the same version of
+# libtool. Don't rely on what's installed in /usr/share or similar.
+LIBTOOL_VERSION = 1.5.26
+LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
+LIBTOOL_SOURCE_URL = http://ftp.gnu.org/gnu/libtool/$(LIBTOOL_SOURCE_FILE)
+src/build-aux/ltmain.sh src/m4/libtool.m4 :
+	test -f $(LIBTOOL_SOURCE_FILE) || wget $(LIBTOOL_SOURCE_URL)
+	rm -rf libtool-$(LIBTOOL_VERSION)
+	gunzip -c < $(LIBTOOL_SOURCE_FILE) | tar xf -
+	cp libtool-$(LIBTOOL_VERSION)/ltmain.sh src/build-aux/ltmain.sh
+	cp libtool-$(LIBTOOL_VERSION)/libtool.m4 src/m4/libtool.m4
+	rm -rf libtool-$(LIBTOOL_VERSION)
+
 GNULIB_HOME=../../gnulib
 GNULIB_AUX=config.guess config.rpath config.sub depcomp install-sh missing
-build-aux-update : force
+build-aux-update : src/build-aux/ltmain.sh force
 	cd $(GNULIB_HOME); cvs up; cd -
 	for f in $(GNULIB_AUX); do cp -afuv $(GNULIB_HOME)/build-aux/$$f src/build-aux; done
-	cp -afuv /usr/share/libtool/ltmain.sh src/build-aux
 	cp -afuv /usr/share/automake*/compile src/build-aux
 
 gnulib-update : build-aux-update
@@ -377,6 +389,7 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
+        --exclude libtool-\*.tar.gz                                        \
         `sed "s/^/--exclude /" doc/.cvsignore`                             \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
