@@ -485,8 +485,9 @@
 
 <revision><revnumber>2.43.1</revnumber><date>2008-02-24</date>
  <authorinitials>bruno</authorinitials>
- <revdescription><itemizedlist><listitem><simpara>Portability: Support
-   &gcc; 4.2 and 4.3.</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara>Portability: work around &gcc;
+ <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
+ 34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.44</revnumber><date>2008-02-02</date>
@@ -496,8 +497,9 @@
 
 <revision><revnumber>2.44.1</revnumber><date>2008-02-24</date>
  <authorinitials>bruno</authorinitials>
- <revdescription><itemizedlist><listitem><simpara>Portability: Support
-   &gcc; 4.2 and 4.3.</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara>Portability: work around &gcc;
+ <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
+ 34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 </revhistory>
