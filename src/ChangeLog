@@ -1,3 +1,8 @@
+2008-02-24  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (GNULIB_CHECKOUT): do not specialize
+	on a specific user, one can always use a symlink
+
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
 	* configure (info_help): Mention the --with[out]-lib*-prefix options.
