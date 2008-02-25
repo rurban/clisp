@@ -1,3 +1,8 @@
+2008-02-25  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (src/m4/gtk-2.0.m4): use wget instead of svn
+	* autogen.sh: svn is no longer required, let us keep it this way!
+
 2008-02-24  Sam Steingold  <sds@gnu.org>
 
 	* configure (info_help): use ./src/configure to get the list
