@@ -10,7 +10,7 @@ GROFF = nroff -man
 # GROFF = groff -mandoc
 RM = rm -f
 
-.PHONY : all htmldoc makefiles configures check-configures \
+.PHONY : all build-prerequisites htmldoc makefiles configures check-configures \
 	update-ansi-tests potfiles fixperms \
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
@@ -18,12 +18,11 @@ RM = rm -f
 	upload upload-ssh upload-sf upload-sunsite upload-gnu \
 	src-distrib doc-distrib gnu-distrib tag-release tp-mail
 
-all : makefiles check-configures update-ansi-tests  			    \
-	fixperms                                                            \
-	potfiles                                                            \
-	src/version.h                                                       \
-	src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c 		    \
-	htmldoc
+all : build-prerequisites makefiles update-ansi-tests potfiles htmldoc
+
+build-prerequisites : check-configures fixperms                             \
+			src/version.h                                       \
+			src/asmi386.h src/ari80386.msvc.c src/sp80386.msvc.c
 
 htmldoc:
 	make -C doc all html
@@ -409,7 +408,8 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
-        --exclude libtool-\*.tar.gz --exclude=$(GTK2_SOURCE_FILE)          \
+        --exclude libtool-\*.tar.gz --exclude $(GTK2_SOURCE_FILE)          \
+        --exclude autogen.sh                                               \
         `sed "s/^/--exclude /" doc/.cvsignore`                             \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
