@@ -1,5 +1,10 @@
 2008-02-24  Sam Steingold  <sds@gnu.org>
 
+	* configure (info_help): use ./src/configure to get the list
+	of options which specify location of dependencies
+
+2008-02-24  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (GNULIB_CHECKOUT): do not specialize
 	on a specific user, one can always use a symlink
 
