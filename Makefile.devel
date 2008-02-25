@@ -315,10 +315,7 @@ src/build-aux/ltmain.sh src/m4/libtool.m4 :
 
 GTK2_SVN_ROOT = http://svn.gnome.org/svn/gtk+/trunk/m4macros
 src/m4/gtk-2.0.m4 :
-	rm -rf tmp-m4macros
-	svn checkout $(GTK2_SVN_ROOT) tmp-m4macros
-	cp tmp-m4macros/gtk-2.0.m4 src/m4/gtk-2.0.m4
-	rm -rf tmp-m4macros
+	cd src/m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
 GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
 GNULIB_CVS_REPOSITORY = HEAD
