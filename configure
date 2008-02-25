@@ -58,10 +58,10 @@ options: The following options are recognized:
                         documentation in HTML format
   --dvidir=DIR          sets the installation directory for
                         documentation in TeX DVI format
-  --psdir=DIR           sets the installation directory for
-                        documentation in PostScript format
   --pdfdir=DIR          sets the installation directory for
                         documentation in PDF format
+  --psdir=DIR           sets the installation directory for
+                        documentation in PostScript format
   --elispdir=DIR        sets the installation directory for Emacs Lisp files
   --vimdir=DIR          sets the installation directory for VIM files
   --host=HOST           specify host in CPU-VENDOR-OS format (just
@@ -83,6 +83,16 @@ options: The following options are recognized:
              via OS threads [highly experimental - use at your own risk]
              FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
                        C_THREADS WIN32_THREADS
+  --with-libiconv-prefix[=DIR]  search for libiconv in DIR/include and DIR/lib
+  --without-libiconv-prefix     don't search for libiconv in includedir and libdir
+  --with-libintl-prefix[=DIR]  search for libintl in DIR/include and DIR/lib
+  --without-libintl-prefix     don't search for libintl in includedir and libdir
+  --with-libsigsegv-prefix[=DIR]  search for libsigsegv in DIR/include and DIR/lib
+  --without-libsigsegv-prefix     don't search for libsigsegv in includedir and libdir
+  --with-libtermcap-prefix=DIR  search for ncurses and termcap in DIR
+  --with-libreadline-prefix[=DIR]  search for libreadline in DIR/include and DIR/lib
+  --without-libreadline-prefix     don't search for libreadline in includedir and libdir
+  --with-lightning-prefix additional place to look for the lightning headers
   --with-jitc=FLAVOR   use a given Just-In-Time Compiler.
              The only flavor at this time is lightning
                (GNU lightning must be installed in the standard place).
