@@ -60,7 +60,7 @@ src/gllib/Makefile.in : src/gllib/Makefile.am
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
-src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) src/m4/libtool.m4 \
+src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) src/m4/libtool.m4 src/m4/gtk-2.0.m4 \
 			$(addsuffix .in,$(CONFIGURES))
 	$(RM) configure.ac
 	cp src/configure.in configure.ac
@@ -314,6 +314,17 @@ src/build-aux/ltmain.sh src/m4/libtool.m4 :
 	cp libtool-$(LIBTOOL_VERSION)/libtool.m4 src/m4/libtool.m4
 	rm -rf libtool-$(LIBTOOL_VERSION)
 
+# Where does gtk-2.0.m4 originally come from?
+GTK2_VERSION = 3.0.1
+GTK2_SOURCE_FILE = smalltalk-3.0.1.tar.gz
+GTK2_SOURCE_URL = http://ftp.gnu.org/gnu/smalltalk/$(GTK2_SOURCE_FILE)
+src/m4/gtk-2.0.m4 :
+	test -f $(GTK2_SOURCE_FILE) || wget $(GTK2_SOURCE_URL)
+	rm -rf smalltalk-$(GTK2_VERSION)
+	gunzip -c < $(GTK2_SOURCE_FILE) | tar xf -
+	cp smalltalk-3.0.1/build-aux/gtk-2.0.m4 src/m4/gtk-2.0.m4
+	rm -rf smalltalk-$(GTK2_VERSION)
+
 GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
 GNULIB_CVS_REPOSITORY = HEAD
 GNULIB_CHECKOUT := $(shell if test $$USER = sds; then echo ../../gnulib; else echo gnulib; fi)
@@ -398,7 +409,7 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude \*.exe --exclude \*.mem --exclude \*.o --exclude build   \
         --exclude .cvsignore --exclude \*~ --exclude .\#\*                 \
         --exclude $(AUTOCONF_CACHE) --exclude tmp --exclude queued         \
-        --exclude libtool-\*.tar.gz                                        \
+        --exclude libtool-\*.tar.gz --exclude=$(GTK2_SOURCE_FILE)          \
         `sed "s/^/--exclude /" doc/.cvsignore`                             \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 

@@ -1,5 +1,13 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* Makefile.devel (GTK2_VERSION, GTK2_SOURCE_FILE, GTK2_SOURCE_URL): New
+	variables.
+	(src/m4/gtk-2.0.m4): New rule.
+	(src/aclocal.m4): Depend on it.
+	(EXCLUDE): Also exclude the GTK2_SOURCE_FILE.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* makemake.in (COPYRIGHT.rtf): Fix escaping.
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
