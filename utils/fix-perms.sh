@@ -24,4 +24,4 @@ find . -type f -follow -perm +111 '(' \
   ')' \
   -exec chmod -c a-x '{}' ';'
 
-find . -name configure -exec chmod -c +x '{}' ';'
+find . '(' -name configure -o -name autogen.sh ')' -exec chmod -c +x '{}' ';'
