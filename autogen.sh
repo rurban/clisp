@@ -8,7 +8,6 @@
 #   - autoconf >= 2.60 and automake >= 1.10 in the PATH,
 #   - GNU make in the PATH,
 #   - cvs in the PATH,
-#   - svn in the PATH,
 #   - wget in the PATH,
 #   - an internet connection.
 
