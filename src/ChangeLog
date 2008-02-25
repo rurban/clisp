@@ -1,5 +1,10 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
+	* configure (info_help): Mention the --with[out]-lib*-prefix options.
+	Sort the other options like autoconf does.
+
+2008-02-24  Bruno Haible  <bruno@clisp.org>
+
 	* autogen.sh: New file.
 	* Makefile.devel (build-prerequisites): New target.
 	(all): Depend on it.
