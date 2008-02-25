@@ -326,7 +326,7 @@ src/m4/gtk-2.0.m4 :
 
 GNULIB_CVS_ROOT = :pserver:anonymous@pserver.git.sv.gnu.org:/gnulib.git
 GNULIB_CVS_REPOSITORY = HEAD
-GNULIB_CHECKOUT := $(shell if test $$USER = sds; then echo ../../gnulib; else echo gnulib; fi)
+GNULIB_CHECKOUT := gnulib
 update-gnulib:
 	if test -d $(GNULIB_CHECKOUT); then \
 	  cd $(GNULIB_CHECKOUT) && \
