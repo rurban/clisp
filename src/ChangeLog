@@ -3,6 +3,7 @@
 	* modules/wildcard/Makefile.in (all): depend on wildcard.fas
 	* modules/oracle/Makefile.in (all): depend on oracle.fas
 	* modules/fastcgi/Makefile.in (all): depend on fastcgi.fas
+	* modules/bindings/glibc/Makefile (all): depend on linux.fas
 
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
