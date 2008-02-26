@@ -1,6 +1,7 @@
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
 	* modules/wildcard/Makefile.in (all): depend on wildcard.fas
+	* modules/oracle/Makefile.in (all): depend on oracle.fas
 
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
