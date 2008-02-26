@@ -1,5 +1,9 @@
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
+	* modules/wildcard/Makefile.in (all): depend on wildcard.fas
+
+2008-02-26  Sam Steingold  <sds@gnu.org>
+
 	a less invasive work-around for bug #[ 1413016 ]:
 	it is not amd64 which is at fault, but TYPECODES
 	* makemake.in (XCFLAGS): revert the 2007-10-15 patch
