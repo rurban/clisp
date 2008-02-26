@@ -17,9 +17,9 @@ SHELL = /bin/sh
 DISTRIBFILES = fastcgi.o fastcgi_wrappers.o link.sh Makefile fastcgi.lisp
 distribdir =
 
-all : fastcgi.o fastcgi_wrappers.o
+all : fastcgi.o fastcgi.fas fastcgi_wrappers.o
 
-fastcgi.c:       fastcgi.lisp
+fastcgi.c fastcgi.fas:       fastcgi.lisp
 	$(CLISP) -c fastcgi.lisp
 
 fastcgi.o:       fastcgi.c
