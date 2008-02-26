@@ -16,9 +16,9 @@ SHELL = /bin/sh
 DISTRIBFILES = linux.o link.sh Makefile linux.lisp wrap.lisp
 distribdir =
 
-all : linux.o wrap.fas
+all : linux.o linux.fas wrap.fas
 
-linux.c : linux.lisp
+linux.c linux.fas : linux.lisp
 	$(CLISP) -c linux.lisp
 
 linux.o : linux.c $(INCLUDES)/clisp.h
