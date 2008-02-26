@@ -4,6 +4,7 @@
 	* modules/oracle/Makefile.in (all): depend on oracle.fas
 	* modules/fastcgi/Makefile.in (all): depend on fastcgi.fas
 	* modules/bindings/glibc/Makefile (all): depend on linux.fas
+	* modules/postgresql/Makefile.in (all): depend on postgresql.fas
 
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
