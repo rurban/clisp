@@ -37,9 +37,9 @@ SHELL = /bin/sh
 DISTRIBFILES = oracle.o orafns.o oiface.o link.sh Makefile oracle.lisp
 distribdir =
 
-all : orafns.o oracle.o oiface.o
+all : orafns.o oracle.o oracle.fas oiface.o
 
-oracle.c:       oracle.lisp
+oracle.c oracle.fas:       oracle.lisp
 	$(CLISP) -c oracle.lisp
 
 oracle.o:       oracle.c
