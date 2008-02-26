@@ -16,9 +16,9 @@ SHELL = /bin/sh
 DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml wildcard.dvi
 distribdir =
 
-all : wildcard.o
+all : wildcard.o wildcard.fas
 
-wildcard.c : wildcard.lisp
+wildcard.c wildcard.fas : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
 
 wildcard.o : wildcard.c $(INCLUDES)/clisp.h config.h
