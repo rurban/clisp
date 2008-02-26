@@ -1,3 +1,8 @@
+2008-02-26  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (DEBUG_SPVW_ASSERT): print the failed assertion
+	before abort() both as is and with expanded macros
+
 2008-02-25  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (src/m4/gtk-2.0.m4): use wget instead of svn

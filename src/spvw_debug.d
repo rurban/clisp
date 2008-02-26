@@ -2,7 +2,8 @@
 
 /* DEBUG_SPVW_ASSERT(expression) is an assertion used to debug SPVW. */
 #ifdef DEBUG_SPVW
-  #define DEBUG_SPVW_ASSERT(expression)  if (!(expression)) abort(); else (void)0/*;*/
+  /* print the failed assertion before abort() as is and with expanded macros */
+  #define DEBUG_SPVW_ASSERT(expression)  if (!(expression)) {fprintf(stderr,"\n[%s:%d] assertion failure:\n" #expression "\n" STRING(expression) "\n",__FILE__,__LINE__); abort();} else (void)0/*;*/
 #else
   #define DEBUG_SPVW_ASSERT(expression)  (void)0/*;*/
 #endif
