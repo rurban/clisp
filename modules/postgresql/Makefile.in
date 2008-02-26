@@ -16,9 +16,9 @@ SHELL = /bin/sh
 DISTRIBFILES = postgresql.o link.sh Makefile postgresql.lisp sql.lisp
 distribdir =
 
-all : postgresql.o sql.fas
+all : postgresql.o postgresql.fas sql.fas
 
-postgresql.c : postgresql.lisp
+postgresql.c postgresql.fas : postgresql.lisp
 	$(CLISP) -c postgresql.lisp
 
 postgresql.o : postgresql.c $(INCLUDES)/clisp.h config.h
