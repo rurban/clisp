@@ -1,5 +1,13 @@
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
+	a less invasive work-around for bug #[ 1413016 ]:
+	it is not amd64 which is at fault, but TYPECODES
+	* makemake.in (XCFLAGS): revert the 2007-10-15 patch
+	* spvw_garcol.d (update) [TYPECODES]: comment out DEBUG_SPVW_ASSERT
+	(gc_unmarkcheck) [TYPECODES]: disable
+
+2008-02-26  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (DEBUG_SPVW_ASSERT): print the failed assertion
 	before abort() both as is and with expanded macros
 

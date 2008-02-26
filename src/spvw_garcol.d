@@ -1237,8 +1237,8 @@ local void gc_sweep1_varobject_page (Page* page)
               if (marked(ThePointer(obj))) {             /* marked? */  \
                 var object newptr =                                     \
                   type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-                DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr)) \
-                                  || is_valid_stack_address(as_oint(newptr))); \
+                /*DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr))\
+                  || is_valid_stack_address(as_oint(newptr)));*/        \
                 *(gcv_object_t*)objptr = newptr;                        \
               }                                                         \
           }                                                             \
@@ -1385,7 +1385,7 @@ local void gc_sweep2_varobject_page (Page* page)
   page->page_end = p2; /* set upper bound of the objects of variable length */
 }
 
-#if defined(DEBUG_SPVW) && !defined(GENERATIONAL_GC)
+#if defined(DEBUG_SPVW) && !defined(GENERATIONAL_GC) && !defined(TYPECODES)
   /* check, if everything is really unmarked: */
   #define CHECK_GC_UNMARKED()  gc_unmarkcheck()
 local void gc_unmarkcheck (void) {
