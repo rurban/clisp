@@ -1214,7 +1214,6 @@ LISPSYM(Kinitial_contents,"INITIAL-CONTENTS",keyword)
 LISPSYM(Kfill_pointer,"FILL-POINTER",keyword)
 LISPSYM(Kdisplaced_to,"DISPLACED-TO",keyword)
 LISPSYM(Kdisplaced_index_offset,"DISPLACED-INDEX-OFFSET",keyword)
-/* keyword-pairs for test_start_end (do not separate pairs!): */
 LISPSYM(Kstart1,"START1",keyword)
 LISPSYM(Kend1,"END1",keyword)
 LISPSYM(Kstart2,"START2",keyword)
@@ -1595,7 +1594,6 @@ LISPSYM(reading_struct,"*READING-STRUCT*",system) /* IO variable */
 LISPSYM(compiling,"*COMPILING*",system) /* IO variable */
 LISPSYM(make_init_form,"MAKE-INIT-FORM",clos) /* a function for io.d */
 LISPSYM(make_byte,"MAKE-BYTE",system) /* function for IO */
-/* readtable-case-values -- preserve order! */
 LISPSYM(Kupcase,"UPCASE",keyword) /* *PRINT-CASE* - value in IO */
 LISPSYM(Kdowncase,"DOWNCASE",keyword) /* *PRINT-CASE* - value in IO */
 LISPSYM(Kpreserve,"PRESERVE",keyword) /* *PRINT-CASE* - value in IO */

@@ -813,15 +813,15 @@ LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUNN(readtable_case,1)
 { /* (READTABLE-CASE readtable), CLTL2 S. 549 */
   var object readtable = check_readtable(popSTACK()); /* Readtable */
-  VALUES1((&S(Kupcase))[RTCase(readtable)]);
+  VALUES1((&O(rtcase_0))[RTCase(readtable)]);
 }
 
 LISPFUNN(set_readtable_case,2)
 { /* (SYSTEM::SET-READTABLE-CASE readtable value), CLTL2 p. 549 */
   var object value = popSTACK();
  retry_readtable_case:
-  /* convert symbol value into an index by searching in table S(Kupcase..): */
-  var const gcv_object_t* ptr = &S(Kupcase);
+  /* convert symbol value into an index by searching in table O(rtcase..): */
+  var const gcv_object_t* ptr = &O(rtcase_0);
   var uintC rtcase = 0;
   var uintC count = 4;
   while (count--) {
@@ -833,8 +833,8 @@ LISPFUNN(set_readtable_case,2)
   pushSTACK(NIL); /* no PLACE */
   pushSTACK(value);          /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_rtcase)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(S(Kinvert)); pushSTACK(S(Kpreserve));
-  pushSTACK(S(Kdowncase)); pushSTACK(S(Kupcase));
+  pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2));
+  pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
   pushSTACK(value);
   pushSTACK(S(set_readtable_case));
   check_value(type_error,GETTEXT("~S: new value ~S should be ~S, ~S, ~S or ~S."));
