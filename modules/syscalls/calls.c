@@ -261,8 +261,8 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
 DEFCHECKER(check_fcntl_cmd, prefix=F_GET, delim=, default=,FD FL)
 /* note that O_ACCMODE is treated specially */
 DEFCHECKER(check_fl_flags, prefix=O, default=,bitmasks=both,          \
-           RDONLY WRONLY RDWR APPEND CREAT TRUNC EXCL NOCTTY SYNC NONBLOCK \
-           BINARY TEXT NOINHERIT DIRECT LARGEFILE DIRECTORY NOFOLLOW)
+           RDONLY WRONLY RDWR :APPEND CREAT TRUNC EXCL NOCTTY SYNC NONBLOCK \
+           BINARY TEXT NOINHERIT DIRECT LARGEFILE :DIRECTORY NOFOLLOW)
 DEFCHECKER(check_fd_flags, prefix=FD,bitmasks=both,CLOEXEC)
 DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html */
@@ -2821,7 +2821,7 @@ static void copy_file_low (object source, object dest,
 }
 
 DEFCHECKER(check_copy_method,enum=copy_method_t,default=COPY_METHOD_COPY,\
-           prefix=COPY_METHOD, COPY SYMLINK HARDLINK RENAME)
+           prefix=COPY_METHOD, :COPY SYMLINK HARDLINK :RENAME)
 /* copy just one file: source --> dest (both STRINGs, NIL or PATHNAME)
    can trigger GC */
 static void copy_one_file (object source, object src_path,
@@ -2971,7 +2971,7 @@ static void copy_one_file (object source, object src_path,
  if-does-not-exist := nil ;; do nothing and return nil
                     | :error ;; (default) signal an error
  */
-DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
+DEFUN(POSIX::COPY-FILE, source target &key METHOD :PRESERVE     \
       :IF-EXISTS :IF-DOES-NOT-EXIST)
 {
   if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
@@ -3040,7 +3040,7 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 #include <shlobj.h>
 DEFCHECKER(check_file_attributes, type=DWORD, reverse=uint32_to_I,      \
            default=, prefix=FILE_ATTRIBUTE, bitmasks=both,              \
-           ARCHIVE COMPRESSED DEVICE DIRECTORY ENCRYPTED HIDDEN NORMAL  \
+           ARCHIVE COMPRESSED :DEVICE :DIRECTORY ENCRYPTED HIDDEN :NORMAL \
            NOT-CONTENT-INDEXED OFFLINE READONLY REPARSE-POINT SPARSE-FILE \
            SYSTEM TEMPORARY)
 DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
@@ -3183,7 +3183,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
     object sc = STACK_0;
     int sci;
    restart_show_command:
-    if (eq(sc,`:NORMAL`)) sci = SW_SHOWNORMAL;
+    if (eq(sc,S(Knormal))) sci = SW_SHOWNORMAL;
     else if (eq(sc,`:MAX`)) sci = SW_SHOWMAXIMIZED;
     else if (eq(sc,`:MIN`)) sci = SW_SHOWMINIMIZED;
     else {
@@ -3305,7 +3305,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file)
   pushSTACK(asciz_to_string(wd,GLO(pathname_encoding)));   /* 3 */
   pushSTACK(asciz_to_string(args,GLO(pathname_encoding))); /* 4 */
   switch (show_cmd) {                                   /* 5 */
-    case SW_SHOWNORMAL: pushSTACK(`:NORMAL`); break;
+    case SW_SHOWNORMAL: pushSTACK(S(Knormal)); break;
     case SW_SHOWMAXIMIZED: pushSTACK(`:MAX`); break;
     case SW_SHOWMINIMIZED: pushSTACK(`:MIN`); break;
     default: NOTREACHED;
