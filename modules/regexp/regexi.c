@@ -70,7 +70,7 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
 }
 
 DEFFLAGSET(regexp_exec_flags, REG_NOTBOL REG_NOTEOL)
-DEFUN(REGEXP::REGEXP-EXEC, pattern string &key BOOLEAN START END NOTBOL NOTEOL)
+DEFUN(REGEXP::REGEXP-EXEC,pattern string &key BOOLEAN :START :END NOTBOL NOTEOL)
 { /* match the compiled pattern against the string */
   int eflags = regexp_exec_flags();
   object string = (STACK_3 = check_string(STACK_3));
