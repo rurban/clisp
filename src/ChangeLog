@@ -1,7 +1,10 @@
 2008-02-27  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/calls.c: use S(K...) instead of `...` for
+	* modules/syscalls/calls.c use S(K...) instead of `...` for
 	common keywords
+	(copy_method_t): move before DEFMODULE for DEFCHECKER to work
+	(check_copy_method): replace with a DEFCHECKER
+	(copy_method_object): remove
 
 2008-02-26  Sam Steingold  <sds@gnu.org>
 
