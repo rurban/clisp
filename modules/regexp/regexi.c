@@ -94,9 +94,9 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key BOOLEAN :START :END NOTBOL NOTEOL)
   string = STACK_0;
   if (end != length || start != 0) {
     pushSTACK(sfixnum((int)(end-start)));
-    pushSTACK(`:ELEMENT-TYPE`); pushSTACK(S(character));
-    pushSTACK(`:DISPLACED-TO`); pushSTACK(string);
-    pushSTACK(`:DISPLACED-INDEX-OFFSET`); pushSTACK(posfixnum(start));
+    pushSTACK(S(Kelement_type)); pushSTACK(S(character));
+    pushSTACK(S(Kdisplaced_to)); pushSTACK(string);
+    pushSTACK(S(Kdisplaced_index_offset)); pushSTACK(posfixnum(start));
     funcall(L(make_array),7);
     string = value1;
   }

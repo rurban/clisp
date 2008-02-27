@@ -145,7 +145,7 @@ static void check_pattern (gcv_object_t *pat, pcre** compiled_pattern,
 DEFCHECKER(error_pcre_code,prefix=PCRE_ERROR, NOMATCH NULL BADOPTION    \
            BADMAGIC UNKNOWN_NODE NOMEMORY NOSUBSTRING MATCHLIMIT CALLOUT \
            DFA_UITEM DFA_UCOND DFA_UMLIMIT DFA_WSSIZE DFA_RECURSE       \
-           BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL INTERNAL BADCOUNT)
+           BADUTF8 BADUTF8_OFFSET PARTIAL BADPARTIAL :INTERNAL BADCOUNT)
 nonreturning_function(static, error_pcre, (int status)) {
   pushSTACK(error_pcre_code_reverse(status));
   pushSTACK(sfixnum(status)); pushSTACK(TheSubr(subr_self)->name);
@@ -159,7 +159,7 @@ nonreturning_function(static, error_pcre, (int status)) {
     end_system_call();                                  \
     if (status < bad) error_pcre(status);               \
   } while(0)
-DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS SIZE CAPTURECOUNT      \
+DEFCHECKER(fullinfo_arg,prefix=PCRE_INFO,OPTIONS :SIZE CAPTURECOUNT     \
            BACKREFMAX FIRSTBYTE FIRSTTABLE LASTLITERAL                  \
            NAMEENTRYSIZE NAMECOUNT NAMETABLE STUDYSIZE)
 /* PCRE_INFO_DEFAULTTABLES -- does not look useful
@@ -242,7 +242,7 @@ DEFUN(PCRE:PATTERN-INFO,pattern &optional request)
   if (missingp(STACK_0)) {
     int count = 0;
     pushSTACK(`:OPTIONS`); pushSTACK(fullinfo_options(c_pat,study)); count+=2;
-    pushSTACK(`:SIZE`);
+    pushSTACK(S(Ksize));
     pushSTACK(fullinfo_size(c_pat,study,PCRE_INFO_SIZE)); count+=2;
     pushSTACK(`:CAPTURECOUNT`);
     pushSTACK(fullinfo_int(c_pat,study,PCRE_INFO_CAPTURECOUNT)); count+=2;

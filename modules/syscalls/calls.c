@@ -690,11 +690,11 @@ DEFUN(POSIX:SYNC, &optional file) {
 /* ========================== process priority ========================== */
 #if defined(WIN32_NATIVE)
 DEFCHECKER(check_priority_value,suffix=PRIORITY_CLASS,default=0,        \
-           REALTIME HIGH ABOVE-NORMAL NORMAL BELOW-NORMAL LOW IDLE)
+           REALTIME :HIGH ABOVE-NORMAL :NORMAL BELOW-NORMAL :LOW IDLE)
 #else
 DEFCHECKER(check_priority_value,default=0,reverse=sint_to_I,                \
-           REALTIME=-NZERO HIGH=(-NZERO/2) ABOVE-NORMAL=(-NZERO/4) NORMAL=0 \
-           BELOW-NORMAL=(NZERO/4) LOW=(NZERO/2) IDLE=NZERO)
+           REALTIME=-NZERO :HIGH=(-NZERO/2) ABOVE-NORMAL=(-NZERO/4) :NORMAL=0 \
+           BELOW-NORMAL=(NZERO/4) :LOW=(NZERO/2) IDLE=NZERO)
 #endif
 DEFCHECKER(check_priority_which,prefix=PRIO,default=0, PROCESS PGRP USER)
 DEFUN(OS:PRIORITY, pid &optional which) {
@@ -960,7 +960,7 @@ DEFCHECKER(sysconf_arg,prefix=_SC,default=,                             \
            THREAD-PROCESS-SHARED THREAD-SAFE-FUNCTIONS THREAD-SPORADIC-SERVER \
            THREADS TIMEOUTS TIMERS TRACE TRACE-EVENT-FILTER             \
            TRACE-EVENT-NAME-MAX TRACE-INHERIT TRACE-LOG TRACE-NAME-MAX  \
-           TRACE-SYS-MAX TRACE-USER-EVENT-MAX TYPED-MEMORY-OBJECTS VERSION \
+           TRACE-SYS-MAX TRACE-USER-EVENT-MAX TYPED-MEMORY-OBJECTS :VERSION \
            V6-ILP32-OFF32 V6-ILP32-OFFBIG V6-LP64-OFF64 V6-LPBIG-OFFBIG \
            2-C-BIND 2-C-DEV 2-CHAR-TERM 2-FORT-DEV 2-FORT-RUN 2-LOCALEDEF \
            2-PBS 2-PBS-ACCOUNTING 2-PBS-CHECKPOINT 2-PBS-LOCATE 2-PBS-MESSAGE \
@@ -4041,3 +4041,12 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   end_system_call();
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
+
+/* internal playground - see spvd.d & spvw_debug.d */
+extern unsigned int get_symbol_count (void);
+extern object get_constsym (unsigned int);
+DEFUN(CONSTSYM, &optional pos) {
+  VALUES1(missingp(STACK_0) ? fixnum(get_symbol_count())
+          : get_constsym(I_to_uint(check_uint(STACK_0))));
+  skipSTACK(1);
+}
