@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2007
+ * Sam Steingold 2004-2008
  * Bruno Haible 2004-2005
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
@@ -598,7 +598,7 @@ DEFUN(RAWSOCK:IFADDRS,) {
 #endif  /* ifaddrs.h */
 /* ================== sys/socket.h interface ================== */
 DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
-           UNSPEC UNIX LOCAL INET IMPLINK PUP CHAOS AX25 DATAKIT CCITT  \
+           UNSPEC :UNIX LOCAL INET IMPLINK PUP CHAOS AX25 DATAKIT CCITT \
            IPX NS ISO OSI ECMA APPLETALK NETROM BRIDGE ATMPVC X25 INET6 \
            ROSE DECnet NETBEUI SECURITY KEY NETLINK DLI LAT HYLINK BAN  \
            ROUTE PACKET ASH ECONET ATM ATMSVC SNA IRDA NETBIOS VOICEVIEW \
@@ -799,7 +799,7 @@ nonreturning_function(static, error_eai, (int ecode)) {
 #endif
   end_system_call();
   pushSTACK(`RAWSOCK::EAI`);    /* error type */
-  pushSTACK(`:CODE`); pushSTACK(check_gai_ecode_reverse(ecode));
+  pushSTACK(S(Kcode)); pushSTACK(check_gai_ecode_reverse(ecode));
   pushSTACK(`:MESSAGE`); pushSTACK(asciz_to_string(msg,GLO(misc_encoding)));
   funcall(S(make_instance),5);
   pushSTACK(value1); funcall(S(error),1);
@@ -864,7 +864,7 @@ static void call_getaddrinfo (const char* nd,const char* sv,
   end_system_call();
 }
 DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
-      PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG) {
+      PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED :ALL ADDRCONFIG) {
   struct addrinfo hints = {addrinfo_flags(),
                            check_socket_domain(popSTACK()),
                            check_socket_type(popSTACK()),
@@ -914,7 +914,7 @@ DEFUN(RAWSOCK:GETADDRINFO, &key NODE SERVICE PROTOCOL SOCKTYPE FAMILY \
 /* remove 3 objects from the STACK and return the RECV flag
    based on MSG_PEEK MSG_OOB MSG_WAITALL */
 DEFFLAGSET(recv_flags,MSG_PEEK MSG_OOB MSG_WAITALL)
-DEFUN(RAWSOCK:RECV,socket buffer &key START END PEEK OOB WAITALL) {
+DEFUN(RAWSOCK:RECV,socket buffer &key :START :END PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
@@ -924,7 +924,7 @@ DEFUN(RAWSOCK:RECV,socket buffer &key START END PEEK OOB WAITALL) {
   VALUES1(fixnum(retval)); skipSTACK(2);
 }
 
-DEFUN(RAWSOCK:RECVFROM, socket buffer address &key START END PEEK OOB WAITALL) {
+DEFUN(RAWSOCK:RECVFROM,socket buffer address &key :START :END PEEK OOB WAITALL){
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_4));
   int retval;
@@ -989,7 +989,7 @@ static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,
   TheStructure(*mho)->recdata[MSG_SOCKADDR] = popSTACK();
 }
 /* POSIX recvmsg() */
-DEFUN(RAWSOCK:RECVMSG,socket message &key START END PEEK OOB WAITALL) {
+DEFUN(RAWSOCK:RECVMSG,socket message &key :START :END PEEK OOB WAITALL) {
   int flags = recv_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
@@ -1006,7 +1006,7 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key START END PEEK OOB WAITALL) {
 }
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
-DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
+DEFUN(RAWSOCK:SOCK-READ,socket buffer &key :START :END)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/read.html
      http://www.opengroup.org/onlinepubs/009695399/functions/readv.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
@@ -1029,7 +1029,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key START END)
 /* remove 2 objects from the STACK and return the SEND flag
    based on MSG_OOB MSG_EOR */
 DEFFLAGSET(send_flags, MSG_OOB MSG_EOR)
-DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
+DEFUN(RAWSOCK:SEND,socket buffer &key :START :END OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
@@ -1041,7 +1041,7 @@ DEFUN(RAWSOCK:SEND,socket buffer &key START END OOB EOR) {
 
 #if defined(HAVE_RECVMSG) && defined(HAVE_SENDMSG) && defined(HAVE_STRUCT_MSGHDR_MSG_FLAGS) && defined(HAVE_STRUCT_MSGHDR_MSG_CONTROL) && defined(HAVE_SYS_UIO_H)
 /* POSIX sendmsg() */
-DEFUN(RAWSOCK:SENDMSG,socket message &key START END OOB EOR) {
+DEFUN(RAWSOCK:SENDMSG,socket message &key :START :END OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   int retval;
@@ -1058,7 +1058,7 @@ DEFUN(RAWSOCK:SENDMSG,socket message &key START END OOB EOR) {
 }
 #endif  /* HAVE_SENDMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
-DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
+DEFUN(RAWSOCK:SENDTO, socket buffer address &key :START :END OOB EOR) {
   int flags = send_flags();
   rawsock_t sock = I_to_uint(check_uint(STACK_4));
   int retval;
@@ -1077,7 +1077,7 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key START END OOB EOR) {
   VALUES1(fixnum(retval)); skipSTACK(3);
 }
 
-DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key START END)
+DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key :START :END)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/write.html
      http://www.opengroup.org/onlinepubs/009695399/functions/writev.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
@@ -1159,7 +1159,7 @@ DEFCHECKER(sockopt_level,default=SOL_SOCKET, ALL=-1 SOL-SOCKET          \
            IPPROTO-ICMPV6 IPPROTO-DSTOPTS IPPROTO-NONE)
 DEFCHECKER(sockopt_name,default=-1,prefix=SO,                            \
            DEBUG ACCEPTCONN BROADCAST USELOOPBACK PEERCRED              \
-           REUSEADDR KEEPALIVE LINGER OOBINLINE SNDBUF RCVBUF ERROR TYPE \
+           REUSEADDR KEEPALIVE LINGER OOBINLINE SNDBUF RCVBUF :ERROR :TYPE \
            DONTROUTE RCVLOWAT RCVTIMEO SNDLOWAT SNDTIMEO)
 #endif
 #if defined(HAVE_GETSOCKOPT) || defined(WIN32_NATIVE)
@@ -1397,7 +1397,7 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 #endif
 
 /* ================== CHECKSUM from Fred Cohen ================== */
-DEFUN(RAWSOCK:IPCSUM, buffer &key START END) { /* IP CHECKSUM */
+DEFUN(RAWSOCK:IPCSUM, buffer &key :START :END) { /* IP checksum */
   size_t length;
   unsigned char* buffer =
     (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);
@@ -1417,7 +1417,7 @@ DEFUN(RAWSOCK:IPCSUM, buffer &key START END) { /* IP CHECKSUM */
   skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
+DEFUN(RAWSOCK:ICMPCSUM, buffer &key :START :END) { /* ICMP checksum */
   size_t length;
   unsigned char* buffer =
     (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ);
@@ -1440,7 +1440,7 @@ DEFUN(RAWSOCK:ICMPCSUM, buffer &key START END) { /* ICMP CHECKSUM */
   skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
+DEFUN(RAWSOCK:TCPCSUM, buffer &key :START :END) { /* TCP checksum */
   size_t length;
   unsigned char* buffer =
     (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);
@@ -1469,7 +1469,7 @@ DEFUN(RAWSOCK:TCPCSUM, buffer &key START END) { /* TCP checksum */
   skipSTACK(1);
 }
 
-DEFUN(RAWSOCK:UDPCSUM, buffer &key START END) { /* UDP checksum */
+DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
   size_t length;
   unsigned char* buffer =
     (unsigned char*)parse_buffer_arg(&STACK_2,&length,PROT_READ_WRITE);

@@ -1,5 +1,15 @@
 2008-02-27  Sam Steingold  <sds@gnu.org>
 
+	use keyword symbols from the core when possible
+	* utils/modprep.lisp (mk-objdef, objdef-object, objdef-local): add
+	(parse-signature, new-checker): use mk-objdef instead of init-to-objdef
+	(check-signature, lexical-analysis, print-tables-1): use
+	objdef-object & objdef-local instead of objdef-tag
+	* modules/berkeley-db/bdb.c, modules/gdbm/gdbm.c, modules/pcre/cpcre.c:
+	* modules/syscalls/calls.c: use #\: in DEFUN to denote core keywords
+
+2008-02-27  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c use S(K...) instead of `...` for
 	common keywords
 	(copy_method_t): move before DEFMODULE for DEFCHECKER to work
