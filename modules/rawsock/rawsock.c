@@ -565,7 +565,7 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 #endif  /* net/if.h */
 /* ================== ifaddrs.h interface ================== */
 #if defined(HAVE_NET_IF_H) && defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
-DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,UP BROADCAST DEBUG LOOPBACK \
+DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,:UP BROADCAST DEBUG LOOPBACK \
            POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI        \
            OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC MONITOR \
            STATICARP NEEDSGIANT                                         \
@@ -604,7 +604,7 @@ DEFCHECKER(check_socket_domain,prefix=AF,default=AF_UNSPEC,             \
            ROUTE PACKET ASH ECONET ATM ATMSVC SNA IRDA NETBIOS VOICEVIEW \
            PPPOX WANPIPE BLUETOOTH FIREFOX CLUSTER 12844 NETDES)
 DEFCHECKER(check_socket_type,prefix=SOCK,default=0,   \
-           STREAM DGRAM RAW RDM SEQPACKET PACKET)
+           :STREAM DGRAM RAW RDM SEQPACKET PACKET)
 DEFCHECKER(check_socket_protocol,default=0,                             \
            IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
            IPPROTO-UDP IPPROTO-IGMP IPPROTO-IPIP IPPROTO-EGP IPPROTO-PUP \

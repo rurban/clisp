@@ -30,8 +30,8 @@ DEFMODULE(i18n,"I18N")
 
 /* Returns the <locale.h> value corresponding to a LC_... constant. */
 DEFCHECKER(check_locale_category,prefix=LC,default=LC_MESSAGES, \
-           ALL COLLATE CTYPE MESSAGES MONETARY NUMERIC TIME \
-           PAPER NAME ADDRESS TELEPHONE MEASUREMENT IDENTIFICATION)
+           :ALL COLLATE CTYPE MESSAGES MONETARY NUMERIC TIME            \
+           PAPER :NAME ADDRESS TELEPHONE MEASUREMENT IDENTIFICATION)
 
 #ifdef GNU_GETTEXT
 
