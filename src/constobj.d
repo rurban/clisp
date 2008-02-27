@@ -155,6 +155,13 @@
    internal list of all defined sequence-types: */
   LISPOBJ(seq_types,"NIL")
   LISPOBJ(type_recognizable_sequence_type,"(SATISFIES SYSTEM::RECOGNIZABLE-SEQUENCE-TYPE-P)") /* type for error message */
+  /* keyword-pairs for test_start_end (do not separate pairs!): */
+  LISPOBJ(kwpair_start,":START")
+  LISPOBJ(kwpair_end,":END")
+  LISPOBJ(kwpair_start1,":START1")
+  LISPOBJ(kwpair_end1,":END1")
+  LISPOBJ(kwpair_start2,":START2")
+  LISPOBJ(kwpair_end2,":END2")
 /* for PREDTYPE.D:
    distinctive marks for classes, are filled by CLOS::%DEFCLOS */
   LISPOBJ(class_version_standard_class,"#()")
@@ -501,7 +508,12 @@
   LISPOBJ(standard_input_file_stream,"NIL")
   LISPOBJ(standard_output_file_stream,"NIL")
   LISPOBJ(standard_error_file_stream,"NIL")
-/* for IO.D: */
+/* for IO.D:
+   four readtable-case-values: */
+  LISPOBJ(rtcase_0,":UPCASE")
+  LISPOBJ(rtcase_1,":DOWNCASE")
+  LISPOBJ(rtcase_2,":PRESERVE")
+  LISPOBJ(rtcase_3,":INVERT")
  /* for reader:
    standard-readtable of Common Lisp */
   LISPOBJ(standard_readtable,".")
