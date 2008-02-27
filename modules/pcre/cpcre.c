@@ -1,7 +1,7 @@
 /*
  * PCRE - Perl Compatible Regular Expressions
  * <http://www.pcre.org/>
- * Copyright (C) 2003-2007 Sam Steingold
+ * Copyright (C) 2003-2008 Sam Steingold
  * GPL2
  */
 
@@ -80,9 +80,9 @@ DEFCHECKER(pcre_options,prefix=PCRE,bitmasks=both,\
            CASELESS MULTILINE DOTALL EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA \
            NOTBOL NOTEOL UNGREEDY NOTEMPTY UTF8 NO-AUTO-CAPTURE NO-UTF8-CHECK \
            AUTO-CALLOUT PARTIAL)
-DEFUN(PCRE:PCRE-COMPILE,string &key :STUDY :IGNORE-CASE :MULTILINE :DOTALL \
-      :EXTENDED :ANCHORED :DOLLAR-ENDONLY :EXTRA :NOTBOL :NOTEOL :UNGREADY \
-      :NOTEMPTY :NO-AUTO-CAPTURE :AUTO-CALLOUT :PARTIAL)
+DEFUN(PCRE:PCRE-COMPILE,string &key STUDY IGNORE-CASE MULTILINE DOTALL \
+      EXTENDED ANCHORED DOLLAR-ENDONLY EXTRA NOTBOL NOTEOL UNGREADY \
+      NOTEMPTY NO-AUTO-CAPTURE AUTO-CALLOUT PARTIAL)
 { /* compile the pattern, return PATTERN struct */
   int options = PCRE_UTF8 | pcre_compile_flags();
   bool study = !missingp(STACK_0);
@@ -337,8 +337,8 @@ DEFUN(PCRE:PCRE-NAME-TO-INDEX,pattern name)
 
 DEFFLAGSET(pcre_exec_flags, PCRE_ANCHORED PCRE_NOTBOL PCRE_NOTEOL \
            PCRE_NOTEMPTY PCRE_PARTIAL PCRE_DFA_SHORTEST PCRE_DFA_RESTART)
-DEFUN(PCRE:PCRE-EXEC,pattern subject &key :WORK-SPACE :DFA :BOOLEAN :OFFSET \
-      :ANCHORED :NOTBOL :NOTEOL :NOTEMPTY :PARTIAL :DFA-SHORTEST :DFA-RESTART)
+DEFUN(PCRE:PCRE-EXEC,pattern subject &key WORK-SPACE DFA BOOLEAN OFFSET \
+      ANCHORED NOTBOL NOTEOL NOTEMPTY PARTIAL DFA-SHORTEST DFA-RESTART)
 { /* match the SUBJECT string against a pre-compiled PATTERN;
      return a vector of MATCH structures or NIL if no matches */
   int options = pcre_exec_flags();

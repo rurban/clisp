@@ -181,7 +181,7 @@ static BOOL my_UnlockFileEx
 #else
 # define I_to_offset(x)  I_to_uint32(x)
 #endif
-DEFUN(POSIX::STREAM-LOCK, stream lockp &key BLOCK SHARED START LENGTH)
+DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
 { /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
   bool lock_p = !nullp(STACK_4), failed_p;
@@ -318,7 +318,7 @@ DEFCHECKER(check_syslog_facility,default=LOG_USER,prefix=LOG,\
 DEFFLAGSET(syslog_opt_flags,LOG_PID LOG_CONS LOG_NDELAY LOG_ODELAY LOG_NOWAIT)
 #if defined(HAVE_OPENLOG)
 static char* log_ident=NULL;
-DEFUN(POSIX:OPENLOG,ident &key :PID :CONS :NDELAY :ODELAY :NOWAIT :FACILITY) {
+DEFUN(POSIX:OPENLOG,ident &key PID CONS NDELAY ODELAY NOWAIT FACILITY) {
   int facility = check_syslog_facility(popSTACK());
   int logopt = syslog_opt_flags();
   with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
@@ -459,8 +459,8 @@ static object temp_name (char *dir, char *prefix) {
   return asciz_to_string(path,GLO(pathname_encoding));
 }
 #endif
-DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
-      ELEMENT-TYPE) {
+DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
+      :ELEMENT-TYPE) {
 #if defined(HAVE_MKSTEMP)
   /* http://www.opengroup.org/onlinepubs/009695399/functions/mkstemp.html */
   object fname = physical_namestring(STACK_4);
@@ -1821,7 +1821,7 @@ static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
   if (mtime) *mtime = wfd.ftLastWriteTime;
 }
 #endif  /* WIN32_NATIVE | UNIX_CYGWIN32*/
-DEFUN(POSIX::SET-FILE-STAT, file &key :ATIME :MTIME :MODE :UID :GID)
+DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
 { /* interface to chmod(2), chown(2), utime(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/utime.html
      http://www.opengroup.org/onlinepubs/009695399/functions/chown.html
@@ -2972,7 +2972,7 @@ static void copy_one_file (object source, object src_path,
                     | :error ;; (default) signal an error
  */
 DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
-      IF-EXISTS IF-DOES-NOT-EXIST)
+      :IF-EXISTS :IF-DOES-NOT-EXIST)
 {
   if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
   if_exists_t if_exists = check_if_exists(STACK_1);

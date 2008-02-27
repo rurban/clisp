@@ -1,7 +1,7 @@
 ;;; MODPREP - CLISP module preprocessor
 ;;;
 ;;; Copyright (C) 1998 Bruno Haible (20.9.1998, 10.-11.10.1998) [C]
-;;; Copyright (C) 2003-2007 by Sam Steingold [lisp]
+;;; Copyright (C) 2003-2008 by Sam Steingold [lisp]
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 #| This preprocessor generates all necessary tables for a CLISP module.
@@ -25,6 +25,7 @@ The input file is normal C code, modified like this:
     DEFUN(foo::bar, x y [&optional z] [&rest foo | &key a b c] )
   &rest and &key cannot be combined (this is a restriction for SUBRs).
   &key requires at least one keyword (this is a restriction for SUBRs too).
+  if keywords are named with colon (:FOO), they are assumed to preexist in core.
 - Variables containing Lisp objects (known to the garbage collector) are
   defined using the macro
     DEFVAR(variable_name, initform)
@@ -372,6 +373,32 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
     (stack-push-optimize (objdef-cond-stack odef) condition)
     odef))
 
+(defun maybe-prepend-colon (name)
+  (if (find #\: name) name (ext:string-concat ":" name)))
+
+(defun mk-objdef (init &key (start 0) (end (length init))
+                  (condition (current-condition)))
+  "Make OBJDEF from INIT.
+If init starts with #\:, assume a standard keyword like :TYPE
+ otherwise call INIT-TO-OBJDEF after possibly prepending #\:."
+  (if (char= (aref init start) #\:) ; standard keyword like :TYPE
+      (make-objdef :init (subseq init start end))
+      (init-to-objdef (maybe-prepend-colon (subseq init start end)) condition)))
+
+(defun objdef-object (od)
+  "How do we access this objdef in C?"
+  (let ((tag (objdef-tag od)))
+    (if tag
+        (ext:string-concat "O(" tag ")") ; local object
+        (ext:string-concat "S(K"         ; global keyword: drop leading #\:
+                           (nsubstitute #\_ #\-
+                                        (nstring-downcase
+                                         (subseq (objdef-init od) 1)))
+                           ")"))))
+
+(defun objdef-local (od)
+  (or (objdef-tag od) (error "No tag in local object ~S" od)))
+
 (defconstant *seclass*
   #("seclass_foldable" "seclass_no_se" "seclass_read"
     "seclass_write" "seclass_default")
@@ -450,12 +477,7 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
            (if (zerop seen-rest) (setq seen-rest t)
                (error "~S:~D: bad signature ~S between ~S and ~S"
                       *input-file* *lineno* line pos1 pos2)))
-          (seen-key
-           (push (init-to-objdef (if (char= (aref line pos1) #\:)
-                                     (subseq line pos1 pos2)
-                                     (ext:string-concat
-                                      ":" (subseq line pos1 pos2))))
-                 keys))
+          (seen-key (push (mk-objdef line :start pos1 :end pos2) keys))
           (seen-opt (incf opt))
           ((incf req)))
     :finally (return (check-signature fname
@@ -502,11 +524,11 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
               (format out "STACK_(argcount-~D+~D) = unbound; " req+opt i))
             (format out "for (i = argcount-~D; i > 0; i -= 2) " req+opt)
             (loop :for k :in kwds :and i :upfrom 0 :do
-              (format out "~[~:;else ~]if (eq (STACK_(i-1),O(~A))) ~
+              (format out "~[~:;else ~]if (eq(STACK_(i-1),~A)) ~
  STACK_(argcount-~D+~D) = STACK_(i-2); "
-                      i (objdef-tag k) req+opt (- n-kwds i 1)))
+                      i (objdef-object k) req+opt (- n-kwds i 1)))
             (format out "else error_key_badkw(TheSubr(subr_self)->name,STACK_(i-1),STACK_(i-2),O(~A)); skipSTACK(argcount-~D); }"
-                    (objdef-tag (init-to-objdef kwd-list)) req+opt))
+                    (objdef-local (init-to-objdef kwd-list)) req+opt))
           (setq *must-close-next-defun* t))))))
 
 (defun signature-match (s1 s2)
@@ -532,9 +554,6 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
 (defvar *fundefs* (make-array 10 :adjustable t :fill-pointer 0))
 (defun tag-to-fundef (tag)
   (find tag *fundefs* :test #'string= :key #'fundef-tag))
-
-(defun maybe-prepend-colon (name)
-  (if (find #\: name) name (ext:string-concat ":" name)))
 
 (defun new-fundef (name pack)
   (let ((fd (make-fundef :pack pack :name name :tag
@@ -690,9 +709,10 @@ CPP-NAMES is the list of possible values, either strings or
     (stack-push-optimize (checker-cond-stack ch) condition)
     (cond (enum
            (dolist (name cpp-names)
-             (let ((name-c (maybe-prepend-colon name)))
-               (push (init-to-objdef name-c condition) cpp-odefs)
-               (setq type-odef (ext:string-concat type-odef " " name-c))))
+             (let ((od (mk-objdef name :condition condition)))
+               (push od cpp-odefs)
+               (setq type-odef (ext:string-concat
+                                type-odef " " (objdef-init od)))))
            (setf (checker-type-odef ch)
                  (init-to-objdef (ext:string-concat type-odef "))"))))
           (t
@@ -700,19 +720,19 @@ CPP-NAMES is the list of possible values, either strings or
            (dolist (name cpp-names)
              (etypecase name
                (string
-                (let ((co (ext:string-concat
-                           "defined(" (to-C-name name prefix suffix delim)
-                           ")")))
-                  (push (init-to-objdef (maybe-prepend-colon name)
-                                        (concatenate 'vector condition
-                                                     (list co)))
-                        cpp-odefs)
-                  (push (cons co (maybe-prepend-colon name)) type-odef)))
+                (let* ((co (ext:string-concat
+                            "defined(" (to-C-name name prefix suffix delim)
+                            ")"))
+                       (od (mk-objdef name :condition
+                                      (concatenate 'vector condition
+                                                   (list co)))))
+                  (push od cpp-odefs)
+                  (push (cons co (objdef-init od)) type-odef)))
                (cons
-                (let ((nm (symbol-name (car name))))
-                  (push (init-to-objdef (maybe-prepend-colon nm) condition)
-                        cpp-odefs)
-                  (push (maybe-prepend-colon nm) type-odef)))))
+                (let ((od (mk-objdef (symbol-name (car name))
+                                     :condition condition)))
+                  (push od cpp-odefs)
+                  (push (objdef-init od) type-odef)))))
            (setf (checker-type-odef ch)
                  (init-to-objdef (nreconc type-odef (list "))"))))))
     (setf (checker-cpp-odefs ch) (nreverse cpp-odefs))
@@ -838,13 +858,13 @@ Also return status: NIL for parsing until the end and
                                subst-start nil in-subst nil))
                        (let* ((id (subseq line (1+ subst-start) ii))
                               (def (init-to-objdef id))
-                              (tag (objdef-tag def))
+                              (tag (objdef-object def))
                               (tlen (1- (length tag))))
                          (setq line (ext:string-concat
                                      (subseq line 0 subst-start)
-                                     "O(" tag ")" (subseq line (1+ ii)))
-                               end (+ end tlen (- subst-start ii) 3)
-                               ii (+ subst-start tlen 3)
+                                     tag (subseq line (1+ ii)))
+                               end (+ end tlen (- subst-start ii))
+                               ii (+ subst-start tlen)
                                subst-start nil in-subst nil))))
                (setq in-subst t subst-start ii))))))
 
@@ -982,7 +1002,7 @@ commas and parentheses."
           *fundefs* (sort *fundefs* #'string-lessp :key #'fundef-tag))
     (loop :for od :across *objdefs*
       :do (with-conditional (out (objdef-cond-stack od))
-            (format out "  gcv_object_t _~A;" (objdef-tag od))))
+            (format out "  gcv_object_t _~A;" (objdef-local od))))
     (loop :for vd :across *vardefs*
       :do (with-conditional (out (vardef-cond-stack vd))
             (format out "  gcv_object_t _~A;" (vardef-tag vd))))
@@ -993,7 +1013,7 @@ commas and parentheses."
     (formatln out "struct ~A_t {" object-tab-initdata)
     (loop :for od :across *objdefs*
       :do (with-conditional (out (objdef-cond-stack od))
-            (format out "  object_initdata_t _~A;" (objdef-tag od))))
+            (format out "  object_initdata_t _~A;" (objdef-local od))))
     (loop :for vd :across *vardefs*
       :do (with-conditional (out (vardef-cond-stack vd))
             (format out "  object_initdata_t _~A;"  (vardef-tag vd))))
@@ -1044,7 +1064,6 @@ commas and parentheses."
       :for prefix = (checker-prefix ch) :for suffix = (checker-suffix ch)
       :for delim = (checker-delim ch)
       :for reverse = (checker-reverse ch) :for bitmasks = (checker-bitmasks ch)
-      :for type-tag = (objdef-tag (checker-type-odef ch))
       :for c-name = (checker-name ch) :for c-type = (or (checker-type ch) "int")
       :for enum-p = (checker-enum-p ch)
       :do (with-conditional (out (checker-cond-stack ch))
@@ -1054,7 +1073,7 @@ commas and parentheses."
               :for odef :in (checker-cpp-odefs ch)
               :for need-ifdef = (and (not enum-p) (stringp name))
               :do (when need-ifdef (formatln out " #ifdef ~A" name-C))
-              (formatln out "  { ~A, &(O(~A)) }," name-C (objdef-tag odef))
+              (formatln out "  { ~A, &(~A) }," name-C (objdef-object odef))
               (when need-ifdef (formatln out " #endif")))
             (formatln out "  { 0, NULL }")
             (formatln out "};")
@@ -1127,7 +1146,7 @@ commas and parentheses."
         (when (signature-key-p sig)
           (with-conditional (out (signature-cond-stack sig))
             (dolist (kw (signature-keywords sig))
-              (formatln out "  pushSTACK(O(~A));" (objdef-tag kw)))
+              (formatln out "  pushSTACK(~A);" (objdef-object kw)))
             (format out "  ~A._~A.keywords = vectorof(~D);" subr-tab tag
                     (length (signature-keywords sig)))))))
     (loop :for vi :across *varinits*
