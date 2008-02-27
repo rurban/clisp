@@ -4042,11 +4042,13 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
+#if defined(DEBUG_SPVW)
 /* internal playground - see spvd.d & spvw_debug.d */
-extern unsigned int get_symbol_count (void);
+extern unsigned int get_constsym_count (void);
 extern object get_constsym (unsigned int);
 DEFUN(CONSTSYM, &optional pos) {
-  VALUES1(missingp(STACK_0) ? fixnum(get_symbol_count())
+  VALUES1(missingp(STACK_0) ? fixnum(get_constsym_count())
           : get_constsym(I_to_uint(check_uint(STACK_0))));
   skipSTACK(1);
 }
+#endif
