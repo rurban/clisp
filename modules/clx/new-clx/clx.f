@@ -717,7 +717,7 @@ static object make_ptr_obj (object type, object dpy, void *ptr)
   pushSTACK(type);
   pushSTACK(`:DISPLAY`);  pushSTACK(dpy);
   pushSTACK(`:PTR`);      pushSTACK(allocate_fpointer (ptr));
-  funcall(`CLOS::MAKE-INSTANCE`,5);
+  funcall(S(make_instance),5);
   return value1;
 }
 
@@ -763,7 +763,7 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
     pushSTACK(*type);
     pushSTACK(`:DISPLAY`);  pushSTACK(*dpy);
     pushSTACK(`:ID`);       pushSTACK(make_uint29 (xid));
-    funcall(`CLOS::MAKE-INSTANCE`,5);
+    funcall(S(make_instance),5);
     return value1;
   } else {
     /* TODO: We should check the type of the preallocated object?!
@@ -1078,9 +1078,9 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
             strcat(whole,"-");
             strcat(whole,names[1]);
             end_x_call();
-            pushSTACK(`:CHARSET`);
+            pushSTACK(S(Kcharset));
             pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
-            pushSTACK(`:OUTPUT-ERROR-ACTION`);
+            pushSTACK(S(Koutput_error_action));
             pushSTACK(fixnum(info->default_char));
             funcall(L(make_encoding),4);
             pushSTACK(STACK_0); /* obj */
@@ -1243,7 +1243,7 @@ DEFCHECKER(get_ordering,default=Unsorted, UNSORTED=Unsorted Y-SORTED=YSorted \
 DEFCHECKER(get_mapping_request,default=, MODIFIER=MappingModifier \
            KEYBOARD=MappingKeyboard POINTER=MappingPointer)
 #define make_mapping_request get_mapping_request_reverse
-DEFCHECKER(get_crossing_mode,default=, NORMAL=NotifyNormal GRAB=NotifyGrab \
+DEFCHECKER(get_crossing_mode,default=, :NORMAL=NotifyNormal GRAB=NotifyGrab \
            UNGRAB=NotifyUngrab WHILE-GRABBED=NotifyWhileGrabbed)
 #define make_crossing_mode get_crossing_mode_reverse
 /* NIM: :while-grabbed */
@@ -1254,7 +1254,7 @@ DEFCHECKER(get_crossing_kind,default=, ANCESTOR=NotifyAncestor          \
            NONE=NotifyDetailNone)
 #define make_crossing_kind get_crossing_kind_reverse
 /* NIM: :pointer, :pointer-root, :none */
-DEFCHECKER(get_focus_mode,default=,NORMAL=NotifyNormal GRAB=NotifyGrab \
+DEFCHECKER(get_focus_mode,default=,:NORMAL=NotifyNormal GRAB=NotifyGrab \
            UNGRAB=NotifyUngrab WHILE-GRABBED=NotifyWhileGrabbed)
 #define make_focus_mode get_focus_mode_reverse
 /* This seems to be the same as crossing_mode, but added the
@@ -3905,7 +3905,7 @@ static void general_draw_text (int image_p)
   else
     width = 17; /* Does not mater we ignore this value either way round. */
 
-  if (boundp(STACK_0) && !eq (STACK_0, `:DEFAULT`)) {
+  if (boundp(STACK_0) && !eq (STACK_0, S(Kdefault))) {
     if (eq (STACK_0, fixnum(8)))  size = 8;
     else if (eq (STACK_0, fixnum(16))) size = 16;
     else my_type_error(`(MEMBER 8 16 :DEFAULT)`,STACK_0);
@@ -5851,7 +5851,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
   DEF_EVENT (`:CLIENT-MESSAGE`, ClientMessage, XClientMessageEvent, xclient) \
     ESLOT2(`:WINDOW`,           window,                 window)         \
     ESLOT2(`:EVENT-WINDOW`,     window,                 window)         \
-    ESLOT4(`:TYPE`,             xatom,                  message_type)   \
+    ESLOT4(S(Ktype),            xatom,                  message_type)    \
     ESLOT (`:FORMAT`,           client_message_format,  format)         \
     ESLOT5(`:DATA`,             client_message_data,    data)           \
                                                                         \
@@ -6032,7 +6032,7 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
     if (peek_p) X_CALL(XPutBackEvent (dpy, &ev));
 }
 
-DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER TIMEOUT PEEK-P DISCARD-P \
+DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER :TIMEOUT PEEK-P DISCARD-P \
       FORCE-OUTPUT-P)
 {
   Display *dpy = get_display(STACK_5);
@@ -6998,7 +6998,7 @@ DEFUN(XLIB:BELL, display &optional percent)
 }
 
 DEFCHECKER(check_on_off,default=AutoRepeatModeDefault,OFF=AutoRepeatModeOff\
-           ON=AutoRepeatModeOn DEFAULT=AutoRepeatModeDefault)
+           ON=AutoRepeatModeOn :DEFAULT=AutoRepeatModeDefault)
 DEFUN(XLIB:CHANGE-KEYBOARD-CONTROL, display \
       &key KEY-CLICK-PERCENT BELL-PERCENT BELL-PITCH BELL-DURATION LED    \
       LED-MODE :KEY AUTO-REPEAT-MODE)
@@ -7570,7 +7570,7 @@ DEFUN(XLIB:RESET-SCREEN-SAVER, display)
 
 /* same for DontAllowExposures ... */
 DEFCHECKER(check_yes_no,default=DefaultBlanking,\
-           NO=DontPreferBlanking YES=PreferBlanking DEFAULT=DefaultBlanking)
+           NO=DontPreferBlanking YES=PreferBlanking :DEFAULT=DefaultBlanking)
 
 DEFUN(XLIB:SCREEN-SAVER, display)
 {
@@ -7747,7 +7747,7 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
       f += 2;
       break;
     case BadValue:              /* value-error */
-      pushSTACK(`:VALUE`);
+      pushSTACK(S(Kvalue));
       pushSTACK(make_uint32 (event->resourceid));
       f += 2;
       break;
