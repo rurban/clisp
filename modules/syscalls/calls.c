@@ -336,7 +336,6 @@ DEFUN(POSIX:SETLOGMASK, maskpri) {
 }
 #endif
 DEFUN(POSIX::%SYSLOG, severity facility message) {
-
   int priority =
     check_syslog_severity(STACK_2) | check_syslog_facility(STACK_1);
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
@@ -498,13 +497,13 @@ DEFUN(POSIX:MKSTEMP, template &key DIRECTION BUFFERED EXTERNAL-FORMAT \
         });
     });
   pushSTACK(STACK_3);           /* ELEMENT-TYPE */
-  STACK_1 = `:ELEMENT-TYPE`;
+  STACK_1 = S(Kelement_type);
   STACK_2 = STACK_5;            /* EXTERNAL-FORMAT */
-  STACK_3 = `:EXTERNAL-FORMAT`;
+  STACK_3 = S(Kexternal_format);
   STACK_4 = STACK_6;            /* BUFFERED */
-  STACK_5 = `:BUFFERED`;
-  STACK_6 = missingp(STACK_7) ? `:OUTPUT` : STACK_7; /* DIRECTION */
-  STACK_7 = `:DIRECTION`;
+  STACK_5 = S(Kbuffered);
+  STACK_6 = missingp(STACK_7) ? S(Koutput) : STACK_7; /* DIRECTION */
+  STACK_7 = S(Kdirection);
   funcall(L(open),9);
 #endif
 }
@@ -2763,9 +2762,9 @@ static void copy_file_low (object source, object dest,
   pushSTACK(dest);
   /* input: */
   pushSTACK(source);            /* filename */
-  pushSTACK(`:DIRECTION`); pushSTACK(`:INPUT`);
-  pushSTACK(`:ELEMENT-TYPE`); pushSTACK(S(unsigned_byte));
-  pushSTACK(`:IF-DOES-NOT-EXIST`);
+  pushSTACK(S(Kdirection)); pushSTACK(S(Kinput));
+  pushSTACK(S(Kelement_type)); pushSTACK(S(unsigned_byte));
+  pushSTACK(S(Kif_does_not_exist));
   pushSTACK(if_does_not_exist_symbol(if_not_exists));
   funcall(L(open),7); source = value1;
   if (nullp(source)) {
@@ -2775,9 +2774,9 @@ static void copy_file_low (object source, object dest,
   pushSTACK(STACK_0); STACK_1 = source;
   /* stack layout: 1: source stream; 0: dest path */
   /* output: */
-  pushSTACK(`:DIRECTION`); pushSTACK(`:OUTPUT`);
-  pushSTACK(`:ELEMENT-TYPE`); pushSTACK(S(unsigned_byte));
-  pushSTACK(`:IF-EXISTS`); pushSTACK(if_exists_symbol(if_exists));
+  pushSTACK(S(Kdirection)); pushSTACK(S(Koutput));
+  pushSTACK(S(Kelement_type)); pushSTACK(S(unsigned_byte));
+  pushSTACK(S(Kif_exists)); pushSTACK(if_exists_symbol(if_exists));
   funcall(L(open),7); dest = value1;
   if (nullp(dest)) {
     builtin_stream_close(&STACK_0,0);
@@ -2879,7 +2878,7 @@ static void copy_one_file (object source, object src_path,
       case IF_EXISTS_NIL: skipSTACK(5); return;
       case IF_EXISTS_APPEND:
         /* we know that method != COPY_METHOD_COPY - handled above! */
-        pushSTACK(`:APPEND`);
+        pushSTACK(S(Kappend));
         pushSTACK(copy_method_object(method));
         pushSTACK(`POSIX::COPY-FILE`);
         error(error_condition,GETTEXT("~S: ~S forbids ~S"));
@@ -2891,8 +2890,8 @@ static void copy_one_file (object source, object src_path,
       case IF_EXISTS_UNBOUND: case IF_EXISTS_ERROR:
       case IF_EXISTS_RENAME:    /* delegate to OPEN */
         pushSTACK(value1);      /* destination */
-        pushSTACK(`:IF-EXISTS`); pushSTACK(if_exists_symbol(if_exists));
-        pushSTACK(`:DIRECTION`); pushSTACK(`:OUTPUT`);
+        pushSTACK(S(Kif_exists)); pushSTACK(if_exists_symbol(if_exists));
+        pushSTACK(S(Kdirection)); pushSTACK(S(Koutput));
         funcall(L(open),5);
         pushSTACK(value1); builtin_stream_close(&STACK_0,0);
         funcall(L(delete_file),1);
@@ -2908,9 +2907,9 @@ static void copy_one_file (object source, object src_path,
         skipSTACK(6); return;
       } else { /* delegate error to OPEN */
         pushSTACK(STACK_3);     /* source */
-        pushSTACK(`:IF-DOES-NOT-EXIST`);
+        pushSTACK(S(Kif_does_not_exist));
         pushSTACK(if_does_not_exist_symbol(if_not_exists));
-        pushSTACK(`:DIRECTION`); pushSTACK(`:INPUT`);
+        pushSTACK(S(Kdirection)); pushSTACK(S(Kinput));
         funcall(L(open),5);
         NOTREACHED;
       }
@@ -3016,7 +3015,7 @@ DEFUN(POSIX::COPY-FILE, source target &key METHOD PRESERVE \
   XOUT(STACK_2,"POSIX::COPY-FILE -- dest");
   if (wild_source_p) {
     pushSTACK(STACK_3);         /* source pathname */
-    pushSTACK(`:IF-DOES-NOT-EXIST`); pushSTACK(`:DISCARD`);
+    pushSTACK(S(Kif_does_not_exist)); pushSTACK(S(Kdiscard));
     funcall(L(directory),3);
     STACK_0 = value1;
     XOUT(STACK_0,"POSIX::COPY-FILE: source list");
@@ -3487,7 +3486,7 @@ DEFUN(POSIX::MEMORY-STATUS,)
 /* Pushes corresponding value to STACK */
 static int PropVariantToLisp (PROPVARIANT *pvar) {
   if(pvar->vt & VT_ARRAY) {
-    pushSTACK(`:ARRAY`);
+    pushSTACK(S(Karray));
     return 1;
   }
   if(pvar->vt & VT_BYREF) {
