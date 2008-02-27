@@ -1214,6 +1214,7 @@ LISPSYM(Kinitial_contents,"INITIAL-CONTENTS",keyword)
 LISPSYM(Kfill_pointer,"FILL-POINTER",keyword)
 LISPSYM(Kdisplaced_to,"DISPLACED-TO",keyword)
 LISPSYM(Kdisplaced_index_offset,"DISPLACED-INDEX-OFFSET",keyword)
+/* keyword-pairs for test_start_end (do not separate pairs!): */
 LISPSYM(Kstart1,"START1",keyword)
 LISPSYM(Kend1,"END1",keyword)
 LISPSYM(Kstart2,"START2",keyword)
@@ -1569,9 +1570,7 @@ LISPSYM(Koverwrite,"OVERWRITE",keyword) /* argument in PATHNAME */
 LISPSYM(Kappend,"APPEND",keyword) /* argument in PATHNAME */
 LISPSYM(Ksupersede,"SUPERSEDE",keyword) /* argument in PATHNAME */
 LISPSYM(Kcreate,"CREATE",keyword) /* argument in PATHNAME */
-#if defined(DYNAMIC_FFI)
-LISPSYM(Kcopy,"COPY",keyword) /* SET-FOREIGN-POINTER */
-#endif
+LISPSYM(Kcopy,"COPY",keyword) /* SET-FOREIGN-POINTER & modules */
 LISPSYM(warn,"WARN",lisp) /* function in STREAM, PATHNAME */
 LISPSYM(Kignore,"IGNORE",keyword) /* argument in ENCODING, PATHNAME */
 LISPSYM(with_output_to_string,"WITH-OUTPUT-TO-STRING",lisp) /* error reporter in STREAM */
@@ -1596,8 +1595,11 @@ LISPSYM(reading_struct,"*READING-STRUCT*",system) /* IO variable */
 LISPSYM(compiling,"*COMPILING*",system) /* IO variable */
 LISPSYM(make_init_form,"MAKE-INIT-FORM",clos) /* a function for io.d */
 LISPSYM(make_byte,"MAKE-BYTE",system) /* function for IO */
+/* readtable-case-values -- preserve order! */
 LISPSYM(Kupcase,"UPCASE",keyword) /* *PRINT-CASE* - value in IO */
 LISPSYM(Kdowncase,"DOWNCASE",keyword) /* *PRINT-CASE* - value in IO */
+LISPSYM(Kpreserve,"PRESERVE",keyword) /* *PRINT-CASE* - value in IO */
+LISPSYM(Kinvert,"INVERT",keyword) /* *PRINT-CASE* - value in IO */
 LISPSYM(Kcapitalize,"CAPITALIZE",keyword) /* *PRINT-CASE* - value in IO */
                            /* Must be in the same order as in io.d! */
 LISPSYM(print_case,"*PRINT-CASE*",lisp) /* --------- IO variable -+ */

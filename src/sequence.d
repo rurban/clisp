@@ -667,7 +667,7 @@ LISPFUN(subseq,seclass_read,2,1,norest,nokey,0,NIL)
   }
   /* Stack layout: sequence, start, end, typdescr. */
   /* Check start- and end- arguments: */
-  test_start_end(&O(kwpair_start),&STACK_1);
+  test_start_end(&S(Kstart),&STACK_1);
   /* construct part: */
   return_Values subseq();
 }
@@ -1107,7 +1107,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
   /* Default value for end is (length sequence): */
   end_default_len(STACK_3,STACK_6,STACK_2);
   /* Check start and end arguments: */
-  test_start_end(&O(kwpair_start),&STACK_3);
+  test_start_end(&S(Kstart),&STACK_3);
   /* Determine result sequence length. */
   STACK_3 = I_I_minus_I(STACK_3,STACK_4); /* count := (- end start) */
   /* Stack layout: sequence, result-type, start, count, typdescr, typdescr2-len, typdescr2. */
@@ -1684,7 +1684,7 @@ LISPFUN(reduce,seclass_default,2,0,norest,key,5,
   /* Default value for end is the length of the sequence: */
   end_default_len(STACK_(2+1),STACK_(5+1),STACK_0);
   /* check start- and end arguments: */
-  test_start_end(&O(kwpair_start),&STACK_(2+1));
+  test_start_end(&S(Kstart),&STACK_(2+1));
   { /* subtract and compare start- and end arguments: */
     var object count = I_I_minus_I(STACK_(2+1),STACK_(3+1));
     /* count = (- end start), an integer >=0. */
@@ -1791,7 +1791,7 @@ LISPFUN(fill,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
   /* Default value for end is the length of the sequence: */
   end_default_len(STACK_1,STACK_4,STACK_0);
   /* check start- and end arguments: */
-  test_start_end(&O(kwpair_start),&STACK_1);
+  test_start_end(&S(Kstart),&STACK_1);
   /* subtract start- and end-arguments: */
   STACK_1 = I_I_minus_I(STACK_1,STACK_2); /* (- end start), an integer >=0 */
   /* Stack layout: sequence, item, start, count, typdescr. */
@@ -1860,8 +1860,8 @@ LISPFUN(replace,seclass_default,2,0,norest,key,4,
   /* Default value for end2 is the length of sequence2: */
   end_default_len(STACK_(0+2),STACK_(4+2),STACK_0);
   /* Check start- and end arguments: */
-  test_start_end(&O(kwpair_start1),&STACK_(2+2));
-  test_start_end(&O(kwpair_start2),&STACK_(0+2));
+  test_start_end(&S(Kstart1),&STACK_(2+2));
+  test_start_end(&S(Kstart2),&STACK_(0+2));
   /* Calc count1: */
   STACK_(2+2) = I_I_minus_I(STACK_(2+2),STACK_(3+2)); /* (- end1 start1) = count1 */
   /* Stack layout: sequence1, sequence2, start1, count1, start2, end2,
@@ -1967,7 +1967,7 @@ local void seq_prepare_testop (gcv_object_t* stackptr) {
   /* Default value for end is NIL: */
   default_NIL(*(stackptr STACKop -3));
   /* Check start and end: */
-  test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
+  test_start_end_1(&S(Kstart),&*(stackptr STACKop -3));
 }
 
 /* UP: Prepares a sequence filtering operation.
@@ -1989,7 +1989,7 @@ local maygc void seq_prepare_filterop (gcv_object_t* stackptr) {
   if (nullp(*(stackptr STACKop -3))) { /* end=NIL ? */
     *(stackptr STACKop -3) = STACK_0; /* yes -> end:=l */
     /* Then check start and end again: */
-    test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+    test_start_end(&S(Kstart),&*(stackptr STACKop -3));
   }
   /* Now all arguments are checked. */
 }
@@ -2813,7 +2813,7 @@ local maygc Values seq_duplicates (help_function help_fun) {
   /* Default value for end is NIL: */
   default_NIL(*(stackptr STACKop -3));
   /* Check start and end: */
-  test_start_end_1(&O(kwpair_start),&*(stackptr STACKop -3));
+  test_start_end_1(&S(Kstart),&*(stackptr STACKop -3));
   /* Determine the length of the sequence: */
   pushSTACK(STACK_(6+1)); /* sequence */
   funcall(seq_length(STACK_(0+1)),1); /* (SEQ-LENGTH sequence) */
@@ -2825,7 +2825,7 @@ local maygc Values seq_duplicates (help_function help_fun) {
   if (nullp(*(stackptr STACKop -3))) {
     *(stackptr STACKop -3) = STACK_0; /* end := l */
     /* Then check start and end again: */
-    test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+    test_start_end(&S(Kstart),&*(stackptr STACKop -3));
   }
   /* Now all arguments are checked. */
   var uintV bvl = end_minus_start(stackptr STACKop -3,stackptr STACKop -2,
@@ -3540,7 +3540,7 @@ local maygc Values find_op (gcv_object_t* stackptr, funarg_t* pcall_test) {
       pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); /* (SEQ-LENGTH sequence) */
       *(stackptr STACKop -3) = value1; /* =: end */
       /* So check again start and end: */
-      test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+      test_start_end(&S(Kstart),&*(stackptr STACKop -3));
     }
     {
       pushSTACK(STACK_0); pushSTACK(*(stackptr STACKop -3));
@@ -3659,7 +3659,7 @@ local maygc Values position_op (gcv_object_t* stackptr, funarg_t* pcall_test) {
       pushSTACK(STACK_0); funcall(seq_length(STACK_(1+1)),1); /* (SEQ-LENGTH sequence) */
       *(stackptr STACKop -3) = value1; /* =: end */
       /* So check again start and end: */
-      test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+      test_start_end(&S(Kstart),&*(stackptr STACKop -3));
     }
     pushSTACK(*(stackptr STACKop -3)); /* index := end */
     {
@@ -3782,7 +3782,7 @@ local maygc Values count_op (gcv_object_t* stackptr, funarg_t* pcall_test) {
       pushSTACK(STACK_1); funcall(seq_length(STACK_(2+1)),1); /* (SEQ-LENGTH sequence) */
       *(stackptr STACKop -3) = value1; /* =: end */
       /* So again start and end check: */
-      test_start_end(&O(kwpair_start),&*(stackptr STACKop -3));
+      test_start_end(&S(Kstart),&*(stackptr STACKop -3));
     }
     {
       pushSTACK(STACK_1); pushSTACK(*(stackptr STACKop -3));
@@ -3907,8 +3907,8 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
     /* Default value of end2 is (SEQ-LENGTH seq2): */
     end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
     /* check start- and end arguments: */
-    test_start_end(&O(kwpair_start1),&STACK_(3+5));
-    test_start_end(&O(kwpair_start2),&STACK_(1+5));
+    test_start_end(&S(Kstart1),&STACK_(3+5));
+    test_start_end(&S(Kstart2),&STACK_(1+5));
     /* Set pointer1 and pointer2 to the of the sequences: */
     {
       pushSTACK(STACK_(6+5)); pushSTACK(STACK_(3+5+1));
@@ -3974,8 +3974,8 @@ LISPFUN(mismatch,seclass_default,2,0,norest,key,8,
   } else {
     /* from-end is not given */
     /* Check start- and end arguments: */
-    test_start_end_1(&O(kwpair_start1),&STACK_(3+5));
-    test_start_end_1(&O(kwpair_start2),&STACK_(1+5));
+    test_start_end_1(&S(Kstart1),&STACK_(3+5));
+    test_start_end_1(&S(Kstart2),&STACK_(1+5));
     /* Set pointer1 and pointer2 to the start of the sequences: */
     {
       pushSTACK(STACK_(6+5)); pushSTACK(STACK_(4+5+1));
@@ -4113,8 +4113,8 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
     /* Default value of end2 is (SEQ-LENGTH seq2): */
     end_default_len(STACK_(1+5),STACK_(5+5),STACK_0);
     /* Check start- and end arguments: */
-    test_start_end(&O(kwpair_start1),&STACK_(3+5));
-    test_start_end(&O(kwpair_start2),&STACK_(1+5));
+    test_start_end(&S(Kstart1),&STACK_(3+5));
+    test_start_end(&S(Kstart2),&STACK_(1+5));
     /* Place pointer10 and pointer20 to the end of the sequences: */
     {
       pushSTACK(STACK_(6+5)); pushSTACK(STACK_(3+5+1));
@@ -4196,8 +4196,8 @@ LISPFUN(search,seclass_default,2,0,norest,key,8,
   } else {
     /* from-end is not given */
     /* Check start- and end arguments: */
-    test_start_end_1(&O(kwpair_start1),&STACK_(3+5));
-    test_start_end_1(&O(kwpair_start2),&STACK_(1+5));
+    test_start_end_1(&S(Kstart1),&STACK_(3+5));
+    test_start_end_1(&S(Kstart2),&STACK_(1+5));
     /* Set pointer10 and pointer20 to the start of the sequences: */
     {
       pushSTACK(STACK_(6+5)); pushSTACK(STACK_(4+5+1));
@@ -4504,7 +4504,7 @@ local maygc Values stable_sort (void) {
   /* Default value for end: */
   end_default_len(STACK_1,STACK_5,STACK_0);
   /* Check arguments start and end: */
-  test_start_end(&O(kwpair_start),&STACK_1);
+  test_start_end(&S(Kstart),&STACK_1);
   /* key check: */
   check_key_arg(&STACK_3);
   /* l := (- end start), an integer >=0 */
@@ -4615,7 +4615,7 @@ LISPFUN(read_char_sequence,seclass_default,2,0,norest,key,2,
   /* Default value for end is the length of the sequence: */
   end_default_len(STACK_1,STACK_4,STACK_0);
   /* Check start- and end arguments: */
-  test_start_end(&O(kwpair_start),&STACK_1);
+  test_start_end(&S(Kstart),&STACK_1);
   if (eq(seq_type(STACK_0),S(string))) { /* Typename = STRING ? */
     var uintV start = posfixnum_to_V(STACK_2);
     var uintV end = posfixnum_to_V(STACK_1);
@@ -4664,7 +4664,7 @@ LISPFUN(write_char_sequence,seclass_default,2,0,norest,key,2,
   /* Default value for end is the length of the sequence: */
   end_default_len(STACK_1,STACK_4,STACK_0);
   /* Check start and end arguments: */
-  test_start_end(&O(kwpair_start),&STACK_1);
+  test_start_end(&S(Kstart),&STACK_1);
   if (eq(seq_type(STACK_0),S(string))) { /* Typename = STRING ? */
     var uintV start = posfixnum_to_V(STACK_2);
     var uintV end = posfixnum_to_V(STACK_1);
@@ -4711,7 +4711,7 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,4,
   STACK_3 = check_stream(STACK_3);
   start_default_0(STACK_2); /* default value for start is 0 */
   end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
-  test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
+  test_start_end(&S(Kstart),&STACK_1); /* check start and end */
   if (eq(seq_type(STACK_0),fixnum(8))) {
     /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
     var uintV start = posfixnum_to_V(STACK_2);
@@ -4766,7 +4766,7 @@ LISPFUN(write_byte_sequence,seclass_default,2,0,norest,key,4,
   STACK_3 = check_stream(STACK_3);
   start_default_0(STACK_2); /* default value for start is 0 */
   end_default_len(STACK_1,STACK_4,STACK_0); /* end defaults to length */
-  test_start_end(&O(kwpair_start),&STACK_1); /* check start and end */
+  test_start_end(&S(Kstart),&STACK_1); /* check start and end */
   if (eq(seq_type(STACK_0),fixnum(8))) {
     /* type = (VECTOR (UNSIGNED-BYTE 8)) ? */
     var uintV start = posfixnum_to_V(STACK_2);
