@@ -6,7 +6,21 @@
 	(check-signature, lexical-analysis, print-tables-1): use
 	objdef-object & objdef-local instead of objdef-tag
 	* modules/berkeley-db/bdb.c, modules/gdbm/gdbm.c, modules/pcre/cpcre.c:
-	* modules/syscalls/calls.c: use #\: in DEFUN to denote core keywords
+	* modules/syscalls/calls.c, modules/regexp/regexi.c:
+	* modules/rawsock/rawsock.c, modules/clx/new-clx/clx.f:
+	use #\: in DEFUN to denote core keywords
+	* constsym.d (Kcopy): always define
+	(Kpreserve, Kinvert): add
+	* constobj.d (kwpair_start, kwpair_end, kwpair_start1, kwpair_end1)
+	(kwpair_start2, kwpair_end2, rtcase_0, rtcase_1, rtcase_2, rtcase_3):
+	remove, use the corresponding symbols instead
+	* io.d (READTABLE-CASE, SET-READTABLE-CASE): use symbols instead
+	of objects for readtable case values
+	* sequence.d (SUBSEQ, COERCED-SUBSEQ, REDUCE, FILL, REPLACE)
+	(seq_prepare_testop, seq_prepare_filterop, seq_duplicates, find_op)
+	(position_op, count_op, MISMATCH, SEARCH, stable_sort)
+	(READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE, READ-BYTE-SEQUENCE)
+	(WRITE-BYTE-SEQUENCE): use symbols instead of objects for START/END
 
 2008-02-27  Sam Steingold  <sds@gnu.org>
 
