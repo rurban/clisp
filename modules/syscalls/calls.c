@@ -1,6 +1,6 @@
 /*
  * system calls
- * Copyright (C) 2003-2007 Sam Steingold
+ * Copyright (C) 2003-2008 Sam Steingold
  * Copyright (C) 2005 Bruno Haible
  * Copyright (C) 2005 Arseny Slobodyuk
  * GPL2
@@ -111,6 +111,14 @@ extern object nobject_out (FILE* stream, object obj);
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
 #endif
+
+/* for COPY-FILE, must come before DEFMODULE for DEFCHECKER to work */
+typedef enum {
+  COPY_METHOD_COPY,
+  COPY_METHOD_SYMLINK,
+  COPY_METHOD_HARDLINK,
+  COPY_METHOD_RENAME
+} copy_method_t;
 
 DEFMODULE(syscalls,"POSIX")
 
@@ -2812,40 +2820,8 @@ static void copy_file_low (object source, object dest,
   Car(*retval) = listof(3);
 }
 
-typedef enum {
-  COPY_METHOD_COPY,
-  COPY_METHOD_SYMLINK,
-  COPY_METHOD_HARDLINK,
-  COPY_METHOD_RENAME
-} copy_method_t;
-static inline copy_method_t check_copy_method (object method) {
-  if (missingp(method) || eq(method,`:COPY`))
-    return COPY_METHOD_COPY;
-  else if (eq(method,`:SYMLINK`))
-    return COPY_METHOD_SYMLINK;
-  else if (eq(method,`:HARDLINK`))
-    return COPY_METHOD_HARDLINK;
-  else if (eq(method,`:RENAME`))
-    return COPY_METHOD_RENAME;
-  else {
-    pushSTACK(method);           /* TYPE-ERROR slot DATUM */
-    pushSTACK(`(MEMBER :HARDLINK :SYMLINK :RENAME :COPY)`); /* EXPECTED-TYPE */
-    pushSTACK(method);
-    pushSTACK(`:METHOD`);
-    pushSTACK(`POSIX::COPY-FILE`);
-    error(type_error,GETTEXT("~S: ~S illegal ~S argument ~S"));
-  }
-}
-static inline object copy_method_object (copy_method_t method) {
-  switch (method) {
-    case COPY_METHOD_COPY:     return `:COPY`;
-    case COPY_METHOD_SYMLINK:  return `:SYMLINK`;
-    case COPY_METHOD_HARDLINK: return `:HARDLINK`;
-    case COPY_METHOD_RENAME:   return `:RENAME`;
-    default: NOTREACHED;
-  }
-}
-
+DEFCHECKER(check_copy_method,enum=copy_method_t,default=COPY_METHOD_COPY,\
+           prefix=COPY_METHOD, COPY SYMLINK HARDLINK RENAME)
 /* copy just one file: source --> dest (both STRINGs, NIL or PATHNAME)
    can trigger GC */
 static void copy_one_file (object source, object src_path,
@@ -2879,7 +2855,7 @@ static void copy_one_file (object source, object src_path,
       case IF_EXISTS_APPEND:
         /* we know that method != COPY_METHOD_COPY - handled above! */
         pushSTACK(S(Kappend));
-        pushSTACK(copy_method_object(method));
+        pushSTACK(check_copy_method_reverse(method));
         pushSTACK(`POSIX::COPY-FILE`);
         error(error_condition,GETTEXT("~S: ~S forbids ~S"));
       case IF_EXISTS_OVERWRITE:
