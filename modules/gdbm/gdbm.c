@@ -2,7 +2,7 @@
  * GDBM - The GNU database manager
  * <http://www.gnu.org/software/gdbm/>
  * Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
- * Copyright (C) 2007  Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2007-2008  Sam Steingold <sds@gnu.org>
  * GPL2
  */
 
@@ -76,10 +76,10 @@ nonreturning_function(static, error_gdbm, (char *fatal_message)) {
   pushSTACK(`:MESSAGE`);
   if (fatal_message) {
     pushSTACK(asciz_to_string(fatal_message, GLO(misc_encoding)));
-    pushSTACK(`:CODE`); pushSTACK(`:FATAL`);
+    pushSTACK(S(Kcode)); pushSTACK(`:FATAL`);
   } else {
     pushSTACK(safe_to_string(gdbm_strerror(gdbm_errno)));
-    pushSTACK(`:CODE`); pushSTACK(check_gdbm_errno_reverse(gdbm_errno));
+    pushSTACK(S(Kcode)); pushSTACK(check_gdbm_errno_reverse(gdbm_errno));
   }
   pushSTACK(`"~S: ~A"`);
   pushSTACK(TheSubr(subr_self)->name);
@@ -112,7 +112,7 @@ static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
       pushSTACK(`GDBM::GDBM-ERROR`);
       pushSTACK(`:MESSAGE`);
       pushSTACK(`"open GDBM file required"`);
-      pushSTACK(`:CODE`); pushSTACK(`:CLOSED-FILE`);
+      pushSTACK(S(Kcode)); pushSTACK(`:CLOSED-FILE`);
       pushSTACK(`"~S: ~A"`);
       pushSTACK(TheSubr(subr_self)->name);
       pushSTACK(STACK_4); /* message */
@@ -138,8 +138,8 @@ DEFCHECKER(gdbm_open_read_write, default=GDBM_WRCREAT, prefix=GDBM,     \
            READER WRITER WRCREAT NEWDB)
 DEFCHECKER(gdbm_open_option, default=0, prefix=GDBM, SYNC NOLOCK FAST)
 #if defined(HAVE_GDBM_OPEN)
-DEFUN(GDBM::GDBM-OPEN, name &key :BLOCKSIZE :READ-WRITE :OPTION :MODE   \
-      :DEFAULT-KEY-TYPE :DEFAULT-VALUE-TYPE)
+DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE OPTION MODE   \
+      DEFAULT-KEY-TYPE DEFAULT-VALUE-TYPE)
 {
   gdbm_data_t default_value_type = check_data_type(popSTACK());
   gdbm_data_t default_key_type = check_data_type(popSTACK());
@@ -221,7 +221,7 @@ nonreturning_function(static, error_bad_type, (object lisp_obj)) {
   pushSTACK(`"invalid lisp object type: "`);
   pushSTACK(lisp_obj); funcall(L(prin1_to_string),1);
   pushSTACK(value1); value1 = string_concat(2); pushSTACK(value1);
-  pushSTACK(`:CODE`); pushSTACK(`:LISP-TYPE`);
+  pushSTACK(S(Kcode)); pushSTACK(`:LISP-TYPE`);
   pushSTACK(`"~S: ~A"`);
   pushSTACK(TheSubr(subr_self)->name);
   pushSTACK(STACK_4); /* message */
@@ -305,7 +305,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
         pushSTACK(`GDBM::GDBM-ERROR`);
         pushSTACK(`:MESSAGE`);
         pushSTACK(`"32BIT-VECTOR conversion requires a datum length divisible by 4"`);
-        pushSTACK(`:CODE`); pushSTACK(`:DATUM-TYPE`);
+        pushSTACK(S(Kcode)); pushSTACK(`:DATUM-TYPE`);
         pushSTACK(`"~S: ~A"`);
         pushSTACK(TheSubr(subr_self)->name);
         pushSTACK(STACK_4); /* message */
@@ -336,7 +336,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
       pushSTACK(`GDBM::GDBM-ERROR`);
       pushSTACK(`:MESSAGE`);
       pushSTACK(`"desired lisp type not specified"`);
-      pushSTACK(`:CODE`); pushSTACK(`:DATUM-TYPE`);
+      pushSTACK(S(Kcode)); pushSTACK(`:DATUM-TYPE`);
       pushSTACK(`"~S: ~A"`);
       pushSTACK(TheSubr(subr_self)->name);
       pushSTACK(STACK_4); /* message */
@@ -347,7 +347,7 @@ static object datum_to_object (datum d, gdbm_data_t data_type) {
 }
 
 #if defined(HAVE_GDBM_FETCH)
-DEFUN(GDBM:GDBM-FETCH, dbf key &key TYPE)
+DEFUN(GDBM:GDBM-FETCH, dbf key &key :TYPE)
 {
   gdbm_data_t data_type = check_data_type(popSTACK());
   GDBM_FILE dbf = check_gdbm(&STACK_1,NULL,&data_type,true);
@@ -370,7 +370,7 @@ DEFUN(GDBM:GDBM-DELETE, dbf key)
 #endif  /* HAVE_GDBM_DELETE */
 
 #if defined(HAVE_GDBM_FIRSTKEY)
-DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
+DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key :TYPE)
 {
   gdbm_data_t data_type = check_data_type(popSTACK());
   GDBM_FILE dbf = check_gdbm(&STACK_0,&data_type,NULL,true);
@@ -381,7 +381,7 @@ DEFUN(GDBM:GDBM-FIRSTKEY, dbf &key TYPE)
 #endif  /* HAVE_GDBM_FIRSTKEY */
 
 #if defined(HAVE_GDBM_NEXTKEY)
-DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key TYPE)
+DEFUN(GDBM:GDBM-NEXTKEY, dbf key &key :TYPE)
 {
   gdbm_data_t data_type = check_data_type(STACK_0);
   GDBM_FILE dbf = check_gdbm(&STACK_2,&data_type,NULL,true);
