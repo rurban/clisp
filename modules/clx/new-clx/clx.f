@@ -1197,7 +1197,7 @@ DEFCHECKER(get_map_state,default=,UNMAPPED=IsUnmapped                   \
 #define make_map_state get_map_state_reverse
 DEFCHECKER(get_shape,default=,COMPLEX=Complex CONVEX=Convex \
            NON-CONVEX=Nonconvex)
-DEFCHECKER(get_W_class,default=,COPY=CopyFromParent INPUT-OUTPUT=InputOutput \
+DEFCHECKER(get_W_class,default=,:COPY=CopyFromParent INPUT-OUTPUT=InputOutput \
            INPUT-ONLY=InputOnly)
 #define make_W_class get_W_class_reverse
 DEFCHECKER(get_stack_mode,default=,ABOVE=Above BELOW=Below TOP-IF=TopIf \
@@ -2128,7 +2128,7 @@ DEFUN(XLIB:DISPLAY-FINISH-OUTPUT, display) /* OK */
   VALUES1(NIL);
 }
 
-DEFUN(XLIB:CLOSE-DISPLAY, display &key ABORT) /* OK */
+DEFUN(XLIB:CLOSE-DISPLAY, display &key :ABORT) /* OK */
 { /* We can do nothing meaningful with the :abort option ... or could we? */
 
   /* if abort is NIL sync with display and remove the display from the
@@ -2459,7 +2459,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y WIDTH HEIGHT           \
   if (!missingp(STACK_10)) { attr.bit_gravity          = get_gravity (STACK_10);       valuemask |= CWBitGravity; }
 
   if (!missingp(STACK_(11))) { /* :border */
-    if (eq(STACK_(11), `:COPY`)) {
+    if (eq(STACK_(11),S(Kcopy))) {
       attr.border_pixmap = CopyFromParent;
       valuemask |= CWBorderPixmap;
     } else if (pixmap_p (STACK_(11))) {
@@ -2688,7 +2688,7 @@ DEFUN(XLIB:SET-WINDOW-BORDER, arg1 arg2)
   XSetWindowAttributes attr;
   unsigned long value_mask = 0;
 
-  if (eq (STACK_0, `:COPY`)) {
+  if (eq (STACK_0,S(Kcopy))) {
     attr.border_pixmap = CopyFromParent; value_mask = CWBorderPixmap;
   } else if (pixmap_p (STACK_0)) {
     attr.border_pixmap = get_pixmap (STACK_0); value_mask = CWBorderPixmap;
@@ -2792,7 +2792,7 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
 
     if (childs) X_CALL(XFree(childs));
 
-    /* Now cons `em together */
+    /* Now cons 'em together */
     value1 = coerce_result_type(nchilds,res_type);
 
     pushSTACK(value1);
@@ -2803,11 +2803,10 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
     value1 = popSTACK();
     mv_count = 3;
   } else {
-    /* Wat schall wi nu tun? */
     VALUES1(NIL);
   }
 
-  skipSTACK(3);         /* Nu vi er færdig. */
+  skipSTACK(3);
 }
 
 DEFUN(XLIB:REPARENT-WINDOW, window1 window2 x y)
@@ -3990,7 +3989,7 @@ static void general_draw_text (int image_p)
 /* XLIB:DRAW-GLYPH drawable[6] gcontext[5] x[4] y[3] element[2]
        &key :translate[1] :width[0] */
 DEFUN(XLIB:DRAW-GLYPH, drawable gcontext x y element \
-      &key TRANSLATE WIDTH SIZE)
+      &key TRANSLATE WIDTH :SIZE)
 {
   NOTIMPLEMENTED;
 }
@@ -3999,18 +3998,18 @@ DEFUN(XLIB:DRAW-GLYPH, drawable gcontext x y element \
          &key (:start 0)[4] :end[3]
          (:translate #'translate-default)[2] :width[1] (:size :default)[0] */
 DEFUN(XLIB:DRAW-GLYPHS, drawable gcontext x y sequence \
-      &key START END TRANSLATE WIDTH SIZE)
+      &key :START :END TRANSLATE WIDTH :SIZE)
 {
   general_draw_text (0);
 }
 
 DEFUN(XLIB:DRAW-IMAGE-GLYPH, drawable gcontext x y element \
-      &key TRANSLATE WIDTH SIZE)
+      &key TRANSLATE WIDTH :SIZE)
 {UNDEFINED;}
 /* XLIB:DRAW-IMAGE-GLPYHS drawable gcontext x y sequence &key (:start 0) :end
        (:translate #'translate-default) :width (:size :default) */
 DEFUN(XLIB:DRAW-IMAGE-GLYPHS, drawable gcontext x y sequence \
-      &key START END TRANSLATE WIDTH SIZE)
+      &key :START :END TRANSLATE WIDTH :SIZE)
 {
   general_draw_text(1);
 }
@@ -4701,7 +4700,7 @@ DEF_CHAR_ATTR(XLIB:CHAR-ASCENT,        sint16, ascent)
 DEF_CHAR_ATTR(XLIB:CHAR-DESCENT,       sint16, descent)
 
 /* 8.6  Querying Text Size */
-DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
+DEFUN(XLIB:TEXT-EXTENTS, font obj &key :START :END TRANSLATE)
 { /* FIXME: Could font be a graphics context?!
      -- yes! This is handled by get_font_info_and_display already */
   object font;
@@ -4754,7 +4753,7 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key START END TRANSLATE)
 
 /* -> width - Type int32
    -> first-not-done - Type array-index or null. */
-DEFUN(XLIB:TEXT-WIDTH, font sequence &key START END TRANSLATE)
+DEFUN(XLIB:TEXT-WIDTH, font sequence &key :START :END TRANSLATE)
 {
   object font;
   XFontStruct *font_info = get_font_info_and_display (STACK_4, &font, NULL);
@@ -5388,11 +5387,11 @@ void coerce_into_map (void *arg, object element) {
 }
 
 DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
-           PREPEND=PropModePrepend APPEND=PropModeAppend)
+           PREPEND=PropModePrepend :APPEND=PropModeAppend)
 /*   XLIB:CHANGE-PROPERTY window property data type format
           &key (:mode :replace) (:start 0) :end :transform */
 DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
-      &key MODE START END TRANSFORM)
+      &key MODE :START :END TRANSFORM)
 {
   Display  *dpy;
   Window    win = get_window_and_display (STACK_8, &dpy);
@@ -5455,7 +5454,7 @@ DEFUN(XLIB:DELETE-PROPERTY, arg1 arg2)  /* OK */
             format      -- Type (member 8 16 32)
             bytes-after -- Type card32 */
 DEFUN(XLIB:GET-PROPERTY,window property                         \
-      &key TYPE START END DELETE-P RESULT-TYPE TRANSFORM) /* OK */
+      &key :TYPE :START :END DELETE-P RESULT-TYPE TRANSFORM) /* OK */
 {
   /* input: */
   Display *display;
@@ -5676,19 +5675,19 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
 
 #define ALL_EVENT_DEFS                                                  \
   DEF_EVENT (`:KEY-PRESS`, KeyPress, XKeyPressedEvent, xkey)            \
-    ESLOT (`:CODE`,             uint8,                  keycode)        \
+    ESLOT (S(Kcode),            uint8,                  keycode)        \
     COMMON_INPUT_EVENT                                                  \
                                                                         \
   DEF_EVENT (`:KEY-RELEASE`, KeyRelease, XKeyReleasedEvent, xkey)       \
-    ESLOT (`:CODE`,             uint8,                  keycode)        \
+    ESLOT (S(Kcode),            uint8,                  keycode)        \
     COMMON_INPUT_EVENT                                                  \
                                                                         \
   DEF_EVENT (`:BUTTON-PRESS`, ButtonPress, XButtonPressedEvent, xbutton) \
-    ESLOT (`:CODE`,             uint8,                  button)         \
+    ESLOT (S(Kcode),            uint8,                  button)         \
     COMMON_INPUT_EVENT                                                  \
                                                                         \
   DEF_EVENT (`:BUTTON-RELEASE`, ButtonRelease, XButtonReleasedEvent, xbutton) \
-    ESLOT (`:CODE`,             uint8,                  button)         \
+    ESLOT (S(Kcode),            uint8,                  button)         \
     COMMON_INPUT_EVENT                                                  \
                                                                         \
   DEF_EVENT (`:MOTION-NOTIFY`, MotionNotify, XMotionEvent, xmotion)     \
@@ -5726,7 +5725,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT (`:Y`,                uint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
-    ESLOT (`:COUNT`,            uint16,                 count)          \
+    ESLOT (S(Kcount),           uint16,                 count)          \
                                                                         \
   DEF_EVENT (`:GRAPHICS-EXPOSURE`, GraphicsExpose, XGraphicsExposeEvent, xgraphicsexpose) \
     ESLOT2(`:DRAWABLE`,         drawable,               drawable)       \
@@ -5735,7 +5734,7 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT (`:Y`,                uint16,                 y)              \
     ESLOT (`:WIDTH`,            uint16,                 width)          \
     ESLOT (`:HEIGHT`,           uint16,                 height)         \
-    ESLOT (`:COUNT`,            uint16,                 count)          \
+    ESLOT (S(Kcount),           uint16,                 count)          \
     ESLOT (`:MAJOR`,            uint8,                  major_code)     \
     ESLOT (`:MINOR`,            uint16,                 minor_code)     \
                                                                         \
@@ -5743,8 +5742,8 @@ DEFUN(XLIB:SET-SELECTION-OWNER, display selection owner &optional time)
     ESLOT3(`:KEYMAP`,           key_vector,             key_vector)     \
                                                                         \
   DEF_EVENT (`:MAPPING-NOTIFY`, MappingNotify, XMappingEvent, xmapping) \
-    ESLOT (`:COUNT`,            uint8,                  count)          \
-    ESLOT (`:START`,            uint8,                  first_keycode)  \
+    ESLOT (S(Kcount),           uint8,                  count)          \
+    ESLOT (S(Kstart),           uint8,                  first_keycode)  \
     ESLOT (`:REQUEST`,          mapping_request,        request)        \
                                                                         \
   DEF_EVENT (`:NO-EXPOSURE`, NoExpose, XNoExposeEvent, xnoexpose)       \
@@ -6324,7 +6323,7 @@ DEFUN(XLIB:POINTER-POSITION, window)
   mv_count = 4;
 }
 
-DEFUN(XLIB:MOTION-EVENTS, window &key START STOP RESULT-TYPE)
+DEFUN(XLIB:MOTION-EVENTS, window &key :START STOP RESULT-TYPE)
 { /* -> (repeat-seq (int16 x) (int16 y) (timestamp time))  */
   Display *dpy;
   Window win = get_window_and_display (STACK_3, &dpy);
@@ -6779,7 +6778,7 @@ DEFUN(XLIB:GET-SEARCH-RESOURCE, table attribute-name attribute-class) {
 }
 
 /* 13.5  Resource Database Files */
-DEFUN(XLIB:READ-RESOURCES, rdb path &key KEY TEST TEST-NOT OVERRIDE)
+DEFUN(XLIB:READ-RESOURCES, rdb path &key :KEY :TEST :TEST-NOT OVERRIDE)
 { /* FIXME: KEY, TEST, TEST-NOT are ignored */
   XrmDatabase rdb = nullp(STACK_5) ? NULL : check_rdb(&STACK_5);
   bool override = nullp(STACK_0); /* default=true */
@@ -6795,7 +6794,7 @@ DEFUN(XLIB:READ-RESOURCES, rdb path &key KEY TEST TEST-NOT OVERRIDE)
   else { SET_RDB(STACK_5,rdb); VALUES1(STACK_5); }
   skipSTACK(6);
 }
-DEFUN(XLIB:WRITE-RESOURCES, rdb path &key WRITE TEST TEST-NOT)
+DEFUN(XLIB:WRITE-RESOURCES, rdb path &key WRITE :TEST :TEST-NOT)
 { /* FIXME: WRITE, TEST, TEST-NOT are ignored */
   XrmDatabase rdb = check_rdb(&STACK_4);
   with_string_0(physical_namestring(STACK_3),GLO(pathname_encoding),pathz,{
@@ -7002,7 +7001,7 @@ DEFCHECKER(check_on_off,default=AutoRepeatModeDefault,OFF=AutoRepeatModeOff\
            ON=AutoRepeatModeOn DEFAULT=AutoRepeatModeDefault)
 DEFUN(XLIB:CHANGE-KEYBOARD-CONTROL, display \
       &key KEY-CLICK-PERCENT BELL-PERCENT BELL-PITCH BELL-DURATION LED    \
-      LED-MODE KEY AUTO-REPEAT-MODE)
+      LED-MODE :KEY AUTO-REPEAT-MODE)
 {  /* http://www.linuxmanpages.com/man3/XChangeKeyboardControl.3x.php */
   unsigned long value_mask = 0;
   XKeyboardControl xkbc;
@@ -7155,7 +7154,7 @@ static object check_kbdmap_mx (object data) {
   return data;
 }
 
-DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
+DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key :END FIRST-KEYCODE :START)
 {
   int start = check_uint_defaulted(popSTACK(),0), end;
   int first_keycode = check_uint_defaulted(popSTACK(),start);
@@ -7171,7 +7170,7 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key END FIRST-KEYCODE START)
   VALUES0; skipSTACK(2);
 }
 
-DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE START END DATA)
+DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE :START :END DATA)
 { /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
   Display *dpy = get_display(STACK_4);
   int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
@@ -7567,7 +7566,7 @@ DEFUN(XLIB:RESET-SCREEN-SAVER, display)
 
 /*  Lots of mixing with :on/:off, :yes/:no, why not T and NIL,
     the natural way?!
- [Was that written by Pascal programmers?] @*~#&%§"  */
+ [Was that written by Pascal programmers?] @*~#&%"  */
 
 /* same for DontAllowExposures ... */
 DEFCHECKER(check_yes_no,default=DefaultBlanking,\
@@ -7588,8 +7587,7 @@ DEFUN(XLIB:SCREEN-SAVER, display)
   value2 = make_sint16 (interval);
   value3 = check_yes_no_reverse(prefer_blanking);
   value4 = check_yes_no_reverse(allow_exposures);
-  /* Hey?! Manual says :YES/:NO but actual implementation
-     does :ON/:OFF! &$#"&! */
+  /* The manual says :YES/:NO but the implementation does :ON/:OFF! */
   mv_count = 4;
 }
 
@@ -7796,7 +7794,7 @@ int xlib_after_function (Display *display)
 DEFCHECKER(get_shape_kind,default=ShapeBounding,        \
            BOUNDING=ShapeBounding CLIP=ShapeClip)
 DEFCHECKER(get_shape_operation,default=ShapeSet, SET=ShapeSet UNION=ShapeUnion \
-           INTERSECT=ShapeIntersect SUBTRACT=ShapeSubtract INVERT=ShapeInvert)
+           INTERSECT=ShapeIntersect SUBTRACT=ShapeSubtract :INVERT=ShapeInvert)
 
 static Bool ensure_shape_extension (Display *dpy, object dpy_obj, int error_p)
 { /* Ensures that the SHAPE extension is initialized. If it is not available
@@ -8040,11 +8038,11 @@ DEFUN(XLIB:DESCRIBE-REQUEST, arg1 arg2) {UNDEFINED;}
 DEFUN(XLIB:DESCRIBE-TRACE, a1 &optional a2) {UNDEFINED;}
 DEFUN(XLIB:EVENT-HANDLER, arg1 arg2) {UNDEFINED;}
 DEFUN(XLIB:GET-EXTERNAL-EVENT-CODE, arg1 arg2) {UNDEFINED;}
-DEFUN(XLIB:MAKE-EVENT-HANDLERS, &key TYPE DEFAULT) {UNDEFINED;}
+DEFUN(XLIB:MAKE-EVENT-HANDLERS, &key :TYPE :DEFAULT) {UNDEFINED;}
 DEFUN(XLIB:DECODE-CORE-ERROR, a1 a2 &optional a3) {UNDEFINED;}
 
 /* Digging with resources */
-DEFUN(XLIB:ROOT-RESOURCES, arg &key DATABASE KEY TEST TEST-NOT) {UNDEFINED;}
+DEFUN(XLIB:ROOT-RESOURCES, arg &key DATABASE :KEY :TEST :TEST-NOT) {UNDEFINED;}
 DEFUN(XLIB:RESOURCE-DATABASE-TIMESTAMP, arg) {UNDEFINED;}
 DEFUN(XLIB:RESOURCE-KEY, arg) {UNDEFINED;}
 
@@ -8062,11 +8060,11 @@ DEFUN(XLIB:UNDEFINE-KEYSYM, a1 a2 &key DISPLAY MODIFIERS &allow-other-keys){UNDE
 DEFUN(XLIB:UNTRACE-DISPLAY, display) {UNDEFINED;}
 DEFUN(XLIB:SUSPEND-DISPLAY-TRACING, display) {UNDEFINED;}
 DEFUN(XLIB:RESUME-DISPLAY-TRACING, display) {UNDEFINED;}
-DEFUN(XLIB:SHOW-TRACE, display &key LENGTH SHOW-PROCESS) {UNDEFINED;}
+DEFUN(XLIB:SHOW-TRACE, display &key :LENGTH SHOW-PROCESS) {UNDEFINED;}
 DEFUN(XLIB:TRACE-DISPLAY, display) {UNDEFINED;}
 
 /*  Somewhat bogus ... */
-DEFUN(XLIB:SET-WM-RESOURCES, a1 a2 &key WRITE TEST TEST-NOT) {UNDEFINED;}
+DEFUN(XLIB:SET-WM-RESOURCES, a1 a2 &key WRITE :TEST :TEST-NOT) {UNDEFINED;}
 
 /* [ MOVED TO LISP */
 ##if 0
@@ -8095,7 +8093,7 @@ DEFUN(XLIB:WM-HINTS-WINDOW-GROUP, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-ICON-NAME, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-NORMAL-HINTS, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-PROTOCOLS, arg) {UNDEFINED;}
-DEFUN(XLIB:WM-RESOURCES, arg1 arg2 &key KEY TEST TEST-NOT) {UNDEFINED;}
+DEFUN(XLIB:WM-RESOURCES, arg1 arg2 &key :KEY :TEST :TEST-NOT) {UNDEFINED;}
 DEFUN(XLIB:WM-SIZE-HINTS-BASE-HEIGHT, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-SIZE-HINTS-BASE-WIDTH, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-SIZE-HINTS-HEIGHT, arg) {UNDEFINED;}
@@ -8131,7 +8129,7 @@ DEFUN(XLIB:VISUAL-INFO-PLIST, arg)
 DEFUN(XLIB:VISUAL-INFO-RED-MASK, arg)
 
 /* These here are defined in Lisp: */
-DEFUN(XLIB:CUT-BUFFER, a1 &key BUFFER TYPE RESULT-TYPE TRANSFORM START END) {UNDEFINED;}
+DEFUN(XLIB:CUT-BUFFER, a1 &key BUFFER :TYPE RESULT-TYPE TRANSFORM :START :END) {UNDEFINED;}
 DEFUN(XLIB:ROTATE-CUT-BUFFERS, a1 &optional a2 a3) {UNDEFINED;}
 DEFUN(XLIB:BITMAP-IMAGE, &optional a1 &rest args)
 ##endif
