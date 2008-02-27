@@ -433,6 +433,13 @@ local object find_sym (char* name_s, char* pack_s) {
 #endif
 
 #if defined(DEBUG_SPVW)
+unsigned int get_constsym_count (void);
+unsigned int get_constsym_count (void) { return symbol_count; }
+object get_constsym (unsigned int);
+object get_constsym (unsigned int pos) {
+  if (pos < symbol_count) return symbol_tab_ptr_as_object(((symbol_*)((char*)&symbol_tab+varobjects_misaligned))+pos);
+  else return Fixnum_0;
+}
 #define FUN(from,to,name) local to CONCAT(name,_) (from x) { return name(x); }
 FUN(chart,cint,as_cint)
 FUN(cint,chart,as_chart)

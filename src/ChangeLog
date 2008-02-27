@@ -21,6 +21,8 @@
 	(position_op, count_op, MISMATCH, SEARCH, stable_sort)
 	(READ-CHAR-SEQUENCE, WRITE-CHAR-SEQUENCE, READ-BYTE-SEQUENCE)
 	(WRITE-BYTE-SEQUENCE): use symbols instead of objects for START/END
+	* spvw_debug.d (get_symbol_count, get_constsym) [DEBUG_SPVW]: add
+	* modules/syscalls/calls.c (CONSTSYM) [DEBUG_SPVW]: use them
 
 2008-02-27  Sam Steingold  <sds@gnu.org>
 
