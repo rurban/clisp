@@ -854,7 +854,7 @@ static getaddrinfo_t getaddrinfo_f = &my_getaddrinfo;
 DEFFLAGSET(addrinfo_flags,AI_PASSIVE AI_CANONNAME AI_NUMERICHOST \
            AI_NUMERICSERV AI_V4MAPPED AI_ALL AI_ADDRCONFIG)
 DEFCHECKER(check_addrinfo_flags,prefix=AI,default=0,bitmasks=both,    \
-           PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED ALL ADDRCONFIG)
+           PASSIVE CANONNAME NUMERICHOST NUMERICSERV V4MAPPED :ALL ADDRCONFIG)
 static void call_getaddrinfo (const char* nd,const char* sv,
                               const struct addrinfo* hints,
                               struct addrinfo** ret) {
@@ -1150,7 +1150,7 @@ DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
 
 /* ================== socket options ================== */
 #if defined(HAVE_GETSOCKOPT) || defined(HAVE_SETSOCKOPT) || defined(WIN32_NATIVE)
-DEFCHECKER(sockopt_level,default=SOL_SOCKET, ALL=-1 SOL-SOCKET          \
+DEFCHECKER(sockopt_level,default=SOL_SOCKET, :ALL=-1 SOL-SOCKET         \
            SOL-IP SOL-IPX SOL-AX25 SOL-ATALK SOL-NETROM SOL-TCP SOL-UDP \
            IPPROTO-IP IPPROTO-IPV6 IPPROTO-ICMP IPPROTO-RAW IPPROTO-TCP \
            IPPROTO-UDP IPPROTO-IGMP IPPROTO-IPIP IPPROTO-EGP IPPROTO-PUP \
