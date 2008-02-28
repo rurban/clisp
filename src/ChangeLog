@@ -5,6 +5,8 @@
 	(parse-signature, new-checker): use mk-objdef instead of init-to-objdef
 	(check-signature, lexical-analysis, print-tables-1): use
 	objdef-object & objdef-local instead of objdef-tag
+	NB: this feature is actually disabled because
+	&S(...) is invalid (S() is not an lvalue) in non-debug builds
 	* modules/berkeley-db/bdb.c, modules/gdbm/gdbm.c, modules/pcre/cpcre.c:
 	* modules/syscalls/calls.c, modules/regexp/regexi.c:
 	* modules/rawsock/rawsock.c, modules/clx/new-clx/clx.f:
