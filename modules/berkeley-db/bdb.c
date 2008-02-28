@@ -187,7 +187,7 @@ DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
            REP-NEWMASTER REP-NEWSITE REP-NOTPERM REP-STARTUPDONE REP-UNAVAIL \
            RUNRECOVERY SECONDARY-BAD VERIFY-BAD VERSION-MISMATCH        \
            ALREADY-ABORTED DELETED LOCK-NOTEXIST NEEDSPLIT REP-EGENCHG  \
-           REP-LOGREADY REP-PAGEDONE SURPRISE-KID SWAPBYTES TIMEOUT TXN-CKP \
+           REP-LOGREADY REP-PAGEDONE SURPRISE-KID SWAPBYTES :TIMEOUT TXN-CKP \
            VERIFY-FATAL)
 nonreturning_function(static, error_bdb, (int status, const char *caller)) {
   end_system_call();
@@ -360,7 +360,7 @@ static void dbe_set_encryption (DB_ENV *dbe, gcv_object_t *o_flags_,
                 { SYSCALL(dbe->set_encrypt,(dbe,password,flags)); });
 }
 
-DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
+DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
 { /* Create an environment handle */
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
@@ -394,7 +394,7 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
       pushSTACK(STACK_(2+1));   /* TYPE-ERROR slot DATUM */
       pushSTACK(`(OR STRING BDB::DBE)`); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(STACK_2);                /* host */
-      pushSTACK(`BDB::DBE`); pushSTACK(S(string)); pushSTACK(`:HOST`);
+      pushSTACK(`BDB::DBE`); pushSTACK(S(string)); pushSTACK(S(Khost));
       pushSTACK(TheSubr(subr_self)->name);
       check_value(type_error,GETTEXT("~S: ~S should be a ~S or a ~S, not ~S"));
       STACK_2 = value1;
@@ -564,10 +564,10 @@ DEFFLAGSET(dbe_open_flags, DB_JOINENV DB_INIT_CDB DB_INIT_LOCK DB_INIT_LOG \
 DEFCHECKER(check_dbe_open_flags,prefix=DB,default=0,bitmasks=both,      \
            type=uint32_t, JOINENV INIT-CDB INIT-LOCK INIT-LOG           \
            INIT-MPOOL INIT-TXN RECOVER RECOVER-FATAL USE-ENVIRON        \
-           USE-ENVIRON-ROOT CREATE LOCKDOWN PRIVATE SYSTEM-MEM THREAD)
+           USE-ENVIRON-ROOT :CREATE LOCKDOWN PRIVATE SYSTEM-MEM THREAD)
 DEFUN(BDB:DBE-OPEN, dbe &key HOME FLAGS JOINENV INIT-CDB INIT-LOCK    \
       INIT-LOG INIT-MPOOL INIT-TXN RECOVER RECOVER-FATAL USE-ENVIRON \
-      USE-ENVIRON-ROOT CREATE LOCKDOWN PRIVATE SYSTEM-MEM THREAD MODE)
+      USE-ENVIRON-ROOT :CREATE LOCKDOWN PRIVATE SYSTEM-MEM THREAD MODE)
 { /* open DB environment */
   int mode = check_uint_default0(popSTACK());
   u_int32_t flags = dbe_open_flags()
@@ -653,7 +653,7 @@ static void my_set_verbose (DB_ENV *dbe, object arg, u_int32_t flag) {
   if (boundp(arg)) SYSCALL(dbe->set_verbose,(dbe,flag,!nullp(arg)));
 }
 DEFCHECKER(check_lk_detect,prefix=DB_LOCK, default=DB_LOCK_DEFAULT, NORUN \
-           DEFAULT EXPIRE MAXLOCKS MINLOCKS MINWRITE OLDEST RANDOM YOUNGEST)
+           :DEFAULT EXPIRE MAXLOCKS MINLOCKS MINWRITE OLDEST RANDOM YOUNGEST)
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT TIMEOUT \
       SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR      \
@@ -661,7 +661,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS \
       AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE \
       LOG-INMEMORY DIRECT-LOG NOLOCKING                              \
-      NOMMAP NOPANIC OVERWRITE PANIC-ENVIRONMENT REGION-INIT       \
+      NOMMAP NOPANIC :OVERWRITE PANIC-ENVIRONMENT REGION-INIT        \
       TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU                           \
       VERB-CHKPOINT VERB-DEADLOCK VERB-RECOVERY VERB-REPLICATION    \
       VERB-WAITSFOR :VERBOSE MSGFILE)
@@ -927,7 +927,7 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
   if (flags & DB_TXN_NOSYNC) { pushSTACK(`:TXN-NOSYNC`); count++; }
   if (flags & DB_REGION_INIT) { pushSTACK(`:REGION-INIT`); count++; }
   if (flags & DB_PANIC_ENVIRONMENT) {pushSTACK(`:PANIC-ENVIRONMENT`);count++;}
-  if (flags & DB_OVERWRITE) { pushSTACK(`:OVERWRITE`); count++; }
+  if (flags & DB_OVERWRITE) { pushSTACK(S(Koverwrite)); count++; }
   if (flags & DB_NOPANIC) { pushSTACK(`:NOPANIC`); count++; }
   if (flags & DB_NOMMAP) { pushSTACK(`:NOMMAP`); count++; }
   if (flags & DB_NOLOCKING) { pushSTACK(`:NOLOCKING`); count++; }
@@ -1086,7 +1086,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_REGION_INIT);
   } else if (eq(what,`:PANIC-ENVIRONMENT`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_PANIC_ENVIRONMENT);
-  } else if (eq(what,`:OVERWRITE`)) {
+  } else if (eq(what,S(Koverwrite))) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_OVERWRITE);
   } else if (eq(what,`:NOPANIC`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOPANIC);
@@ -1455,7 +1455,7 @@ DEFCHECKER(db_get_action,prefix=DB, default=0, \
 DEFFLAGSET(db_get_options, DB_AUTO_COMMIT DB_READ_COMMITTED \
            DB_READ_UNCOMMITTED DB_MULTIPLE DB_RMW)
 DEFUN(BDB:DB-GET, db key &key ACTION AUTO-COMMIT READ-COMMITTED \
-      READ-UNCOMMITTED MULTIPLE RMW TRANSACTION :ERROR :TYPE KEY-TYPE)
+      READ-UNCOMMITTED MULTIPLE RMW TRANSACTION :ERROR :TYPE :KEY-TYPE)
 { /* Get items from a database */
   dbt_o_t key_type = check_dbt_type(popSTACK());
   dbt_o_t out_type = check_dbt_type(popSTACK());
@@ -1586,10 +1586,10 @@ DEFUN(BDB:DB-STAT, db &key FAST-STAT TRANSACTION)
 DEFFLAGSET(db_open_flags, DB_CREATE DB_READ_UNCOMMITTED DB_EXCL DB_NOMMAP \
            DB_RDONLY DB_THREAD DB_TRUNCATE DB_AUTO_COMMIT)
 DEFCHECKER(check_db_open_flags,prefix=DB,default=0,bitmasks=both,type=uint32_t,\
-           CREATE READ-UNCOMMITTED EXCL NOMMAP RDONLY THREAD TRUNCATE \
+           :CREATE READ-UNCOMMITTED EXCL NOMMAP RDONLY THREAD TRUNCATE  \
            AUTO-COMMIT)
 DEFUN(BDB:DB-OPEN, db file &key DATABASE :TYPE MODE FLAGS            \
-      CREATE READ-UNCOMMITTED EXCL NOMMAP RDONLY THREAD TRUNCATE \
+      :CREATE READ-UNCOMMITTED EXCL NOMMAP RDONLY THREAD TRUNCATE    \
       AUTO-COMMIT TRANSACTION)
 { /* Open a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -1666,7 +1666,7 @@ DEFUN(BDB:DB-REMOVE, db file database)
   VALUES0; skipSTACK(3);
 }
 
-DEFCHECKER(db_put_action,prefix=DB, default=0, APPEND NODUPDATA NOOVERWRITE)
+DEFCHECKER(db_put_action,prefix=DB, default=0, :APPEND NODUPDATA NOOVERWRITE)
 DEFUN(BDB:DB-PUT, db key val &key AUTO-COMMIT ACTION TRANSACTION)
 { /* Store items into a database */
   DB_TXN *txn = (DB_TXN*)bdb_handle(popSTACK(),`BDB::TXN`,BH_NIL_IS_NULL);
@@ -2228,8 +2228,8 @@ static dbt_o_t fill_or_init (object datum, DBT *pdbt, int re_len) {
   } else return fill_dbt(datum,pdbt,re_len); /* datum */
 }
 DEFCHECKER(dbc_get_action,prefix=DB,default=DB_CURRENT,                 \
-           CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
-           NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
+           :CURRENT FIRST GET-BOTH GET-BOTH-RANGE GET-RECNO JOIN-ITEM LAST \
+           :NEXT NEXT-DUP NEXT-NODUP PREV PREV-NODUP SET SET-RANGE SET-RECNO)
 DEFFLAGSET(dbc_get_options, DB_READ_COMMITTED \
            DB_READ_UNCOMMITTED DB_MULTIPLE DB_MULTIPLE_KEY DB_RMW)
 DEFUN(BDB:DBC-GET, cursor key data action &key READ-COMMITTED \
@@ -2274,7 +2274,7 @@ DEFUN(BDB:DBC-GET, cursor key data action &key READ-COMMITTED \
 }
 
 DEFCHECKER(dbc_put_flag,prefix=DB, default=DB_CURRENT,          \
-           CURRENT AFTER BEFORE KEYFIRST KEYLAST NODUPDATA)
+           :CURRENT AFTER BEFORE KEYFIRST KEYLAST NODUPDATA)
 DEFUN(BDB:DBC-PUT, cursor key data flag)
 { /* retrieve key/data pairs from the database */
   u_int32_t flag = dbc_put_flag(popSTACK());
@@ -2304,7 +2304,7 @@ DEFUN(BDB:LOCK-DETECT, dbe action)
 }
 
 DEFCHECKER(check_lockmode, enum=db_lockmode_t, prefix=DB_LOCK, default=, \
-           NG READ WRITE WAIT IWRITE IREAD IWR READ-UNCOMMITTED WWRITE)
+           NG READ WRITE :WAIT IWRITE IREAD IWR READ-UNCOMMITTED WWRITE)
 DEFFLAGSET(lock_get_flags, DB_LOCK_NOWAIT)
 DEFUN(BDB:LOCK-GET, dbe object locker mode &key NOWAIT)
 { /* Acquire a lock */
@@ -2543,7 +2543,7 @@ DEFUN(BDB:LOGC-CLOSE, logc)
 }
 
 DEFCHECKER(logc_get_action,prefix=DB,default=DB_CURRENT,        \
-           CURRENT FIRST LAST NEXT PREV)
+           :CURRENT FIRST LAST :NEXT PREV)
 DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
 { /* return records from the log. */
   int no_error = nullp(popSTACK());
@@ -2690,7 +2690,7 @@ static object gid_to_vector (u_int8_t gid[DB_XIDDATASIZE]) {
 }
 
 DEFFLAGSET(txn_recover_flags, DB_FIRST DB_NEXT)
-DEFUN(BDB:TXN-RECOVER, dbe &key FIRST NEXT)
+DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
 { /* return a list of prepared but not yet resolved transactions */
   u_int32_t flags = txn_recover_flags();
   DB_ENV *dbe = (DB_ENV*)bdb_handle(popSTACK(),`BDB::DBE`,BH_VALID);
