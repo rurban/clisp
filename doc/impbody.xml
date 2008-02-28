@@ -1206,9 +1206,8 @@ the iteration variable and assign it on each iteration.</para></section>
    <ulink url="&clhs;/Body/chap-9.html">[CLHS-9]</ulink></title>
 
 <para>When an error occurred, you are in a break loop. You can evaluate
- forms as usual. The <command>help</command> command (or help key if
- there is one) lists the available <link linkend="debugger">debugging
- commands</link>.</para>
+ forms as usual. The &help; command (or help key if there is one) lists
+ the available <link linkend="debugger">debugging commands</link>.</para>
 
 <formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
 <para>The macro <code>(&muffle-cerrors; {&form-r;}*)</code>
@@ -5220,13 +5219,12 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  &function-t;s, each returning a &list-t;
  of <firstterm>bindings</firstterm>, i.e., either a
 <variablelist><varlistentry><term>&string-t;</term>
-<listitem><simpara>the help string printed by <command>Help</command>
-  in addition to the standard &clisp; help</simpara></listitem></varlistentry>
-<varlistentry><term>&cons-t;
-  <literal role="data">(&string-t; . &function-t;)</literal></term>
+<listitem><simpara>the help string printed by &help; in addition to the
+  standard &clisp; help</simpara></listitem></varlistentry>
+<varlistentry><term>&cons-t; <literal role="data">(&string-t;
+   . &function-t;)</literal></term>
 <listitem><simpara>the actual binding: when the user types the string,
-  the function is called.
-</simpara></listitem></varlistentry></variablelist>
+  the function is called.</simpara></listitem></varlistentry></variablelist>
 E.g.,
 <programlisting language="lisp">
 (setq &user-commands;
@@ -5255,11 +5253,9 @@ E.g.,
 
 <section id="disassemble"><title>Function &disassemble;</title>
 
-<variablelist>
-<varlistentry><term>&unix-only;</term>
- <listitem><simpara>&disassemble; can disassemble to machine code,
-   provided that &gnu; &gdb; is present.
-   In that case the argument may be a
+<variablelist><varlistentry><term>&unix-only;</term>
+  <listitem><simpara>&disassemble; can disassemble to machine code,
+    provided that &gnu; &gdb; is present. In that case the argument may be a
    <classname>EXT:SYSTEM-FUNCTION</classname>, a &foreign-function-t;, a
    special operator handler, a &symbol-t; denoting one of these, an
    &integer-t; (address), or a &string-t;.
