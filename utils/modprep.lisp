@@ -380,8 +380,9 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
                   (condition (current-condition)))
   "Make OBJDEF from INIT.
 If init starts with #\:, assume a standard keyword like :TYPE
- otherwise call INIT-TO-OBJDEF after possibly prepending #\:."
-  (if (char= (aref init start) #\:) ; standard keyword like :TYPE
+ otherwise call INIT-TO-OBJDEF after possibly prepending #\:.
+The last feature is disabled because &S() does not work in non-debug builds."
+  (if (and nil (char= (aref init start) #\:)) ; standard keyword like :TYPE
       (make-objdef :init (subseq init start end))
       (init-to-objdef (maybe-prepend-colon (subseq init start end)) condition)))
 
