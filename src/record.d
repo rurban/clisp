@@ -330,7 +330,8 @@ LISPFUNNR(closure_consts,1) {
   var uintB ccv_flags =
     TheCodevec(TheCclosure(closure)->clos_codevec)->ccv_flags;
   var uintC index = Cclosure_last_const(closure) + 1
-    - ccv_flags_documentation_p(ccv_flags) - ccv_flags_lambda_list_p(ccv_flags);
+    - ccv_flags_jitc_p(ccv_flags) - ccv_flags_documentation_p(ccv_flags)
+    - ccv_flags_lambda_list_p(ccv_flags);
   /* step through closure from behind and push constants onto a list: */
   pushSTACK(closure); /* closure */
   pushSTACK(NIL); /* list := () */
