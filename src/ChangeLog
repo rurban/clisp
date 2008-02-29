@@ -1,3 +1,7 @@
+2008-02-29  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_cclosure_lang): fix printing of lalist & docstring yet again
+
 2008-02-27  Sam Steingold  <sds@gnu.org>
 
 	use keyword symbols from the core when possible
