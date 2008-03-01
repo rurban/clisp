@@ -42,16 +42,16 @@ local const Subr FUNTAB[] = {
   _(nstring_upcase), _(string_upcase), _(nstring_downcase),
   _(string_downcase), _(nstring_capitalize), _(string_capitalize),
   _(string), _(cs_string), _(name_char), _(substring),
-  /* CONTROL : 24-2 SUBRs */
+  /* CONTROL : 25-2 SUBRs */
   _(symbol_value), /* _(symbol_function), */ _(fdefinition), _(boundp),
   _(fboundp), _(special_operator_p), _(set), _(makunbound), _(fmakunbound),
   /* _(values_list), */ _(driver), _(unwind_to_driver), _(macro_function),
   _(macroexpand), _(macroexpand_1), _(proclaim), _(eval),
   _(evalhook), _(applyhook), _(constantp), _(function_side_effect),
-  _(function_name_p),_(parse_body), _(keyword_test),
+  _(function_name_p),_(parse_body), _(keyword_test), _(check_function_name),
   /* DEBUG : 0 SUBRs */
-  /* ERROR : 1 SUBR */
-  _(invoke_debugger),
+  /* ERROR : 1-1 SUBR */
+  /* _(invoke_debugger), */
   /* HASHTABL : 11 SUBRs */
   _(make_hash_table), _(gethash), _(puthash), _(remhash), _(maphash),
   _(clrhash), _(hash_table_count), _(hash_table_iterator),
@@ -86,7 +86,7 @@ local const Subr FUNTAB[] = {
   _(lisp_implementation_type), _(lisp_implementation_version),
   _(software_type), _(software_version), _(identity), _(get_universal_time),
   _(get_internal_run_time), _(get_internal_real_time), _(sleep), _(time),
-  /* PACKAGE : 31 SUBRs */
+  /* PACKAGE : 32 SUBRs */
   _(make_symbol), _(find_package), _(package_name), _(package_nicknames),
   _(rename_package), _(package_use_list), _(package_used_by_list),
   _(package_shadowing_symbols), _(list_all_packages), _(intern), _(cs_intern),
@@ -106,7 +106,7 @@ local const Subr FUNTAB[] = {
   _(delete_file), _(rename_file), _(open), _(directory), _(cd),
   _(make_directory), _(delete_directory), _(file_write_date), _(file_author),
   _(savemem),
-  /* PREDTYPE : 44-3 SUBRs */
+  /* PREDTYPE : 48-3 SUBRs */
   /* _(eq), */ _(eql), _(equal), _(equalp), _(consp), _(atom), _(symbolp),
   _(stringp), _(numberp), _(compiled_function_p), /* _(null), _(not), */
   _(closurep), _(listp), _(integerp), _(fixnump), _(rationalp), _(floatp),
@@ -115,16 +115,18 @@ local const Subr FUNTAB[] = {
   _(hash_table_p), _(pathnamep), _(logical_pathname_p), _(characterp),
   _(functionp), _(packagep), _(arrayp), _(simple_array_p), _(bit_vector_p),
   _(vectorp), _(simple_vector_p), _(simple_string_p), _(simple_bit_vector_p),
-  _(type_of), _(class_of), _(find_class), _(coerce),
-  /* RECORD : 22 SUBRs */
+  _(type_of), _(class_of), _(find_class), _(coerce), _(typep_class),
+  _(defined_class_p), _(proper_list_p), _(pcompiled_function_p),
+  /* RECORD : 28 SUBRs */
   _(record_ref), _(record_store), _(record_length), _(structure_ref),
   _(structure_store), _(make_structure), _(copy_structure),
   _(structure_type_p), _(closure_name), _(closure_codevec),
-  _(closure_consts), _(make_closure),
+  _(closure_consts), _(make_closure), _(make_macro),
   _(copy_generic_function), _(make_load_time_eval),
   _(function_macro_function), _(structure_object_p), _(std_instance_p),
   _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
-  _(slot_exists_p),
+  _(slot_exists_p), _(macrop), _(macro_expander), _(symbol_macro_p),
+  _(standard_instance_access), _(set_standard_instance_access),
   /* SEQUENCE : 40 SUBRs */
   _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
   _(reverse), _(nreverse), _(make_sequence), _(reduce), _(fill),
@@ -166,10 +168,11 @@ local const Subr FUNTAB[] = {
   _(ldb), _(ldb_test), _(mask_field), _(dpb), _(deposit_field), _(random),
   _(make_random_state), _(factorial), _(exquo), _(long_float_digits),
   _(set_long_float_digits), _(log2), _(log10),
-  /* other: */
-}; /* that were 500 = 541 - 41 SUBRs.
-     (- (+ 0 3 30 54 24 0 11 38 84 10 31 27 44 22 40 24 15 84)
-        (+ 0 0  2  0  0 0  0  0 36  0  0  0  3  0  0  0  0  0)) */
+  /* ENCODING: 1 SUBRs */
+  _(encodingp),
+}; /* that were 511 = 554 - 43 SUBRs.
+     (- (+ 0 3 30 54 25 0 1 11 38 84 10 32 27 48 28 40 24 15 84 1)
+        (+ 0 0  2  0  2 0 1  0  0 36  0  0  0  3  0  0  0  0  0 0)) */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
   /* SPVW : 0 SUBRs */
@@ -182,9 +185,9 @@ local const Subr FUNTABR[] = {
   _(char_ltequal), _(char_gtequal), _(char_equal), _(char_not_equal),
   _(char_lessp), _(char_greaterp), _(char_not_greaterp), _(char_not_lessp),
   _(string_concat),
-  /* CONTROL : 9 SUBRs */
+  /* CONTROL : 10 SUBRs */
   _(apply), _(funcall), _(mapcar), _(maplist), _(mapc),
-  _(mapl), _(mapcan), _(mapcon), _(values),
+  _(mapl), _(mapcan), _(mapcap), _(mapcon), _(values),
   /* DEBUG : 0 SUBRs */
   /* ERROR : 2 SUBRs */
   _(error), _(error_of_type),
@@ -209,12 +212,32 @@ local const Subr FUNTABR[] = {
   _(numequal), _(numunequal), _(smaller), _(greater), _(ltequal),
   _(gtequal), _(max), _(min), _(plus), _(minus), _(star), _(slash), _(gcd),
   _(xgcd), _(lcm), _(logior), _(logxor), _(logand), _(logeqv)
-}; /* That were (+ 0 0 7 13 9 0 2 1 0 4 0 0 0 0 1 7 2 0 19) = 65 SUBRs. */
+}; /* That were (+ 0 0 7 13 10 0 2 1 0 4 0 0 0 0 1 7 2 0 19) = 66 SUBRs. */
 #undef _
 #define FUNTAB1  (&FUNTAB[0])
 #define FUNTAB2  (&FUNTAB[256])
 #define FUNTAB_length  (sizeof(FUNTAB)/sizeof(Subr))
 #define FUNTABR_length  (sizeof(FUNTABR)/sizeof(Subr))
+
+#if defined(DEBUG_SPVW)
+local void check_funtab (void) {
+  uintL i;
+  for (i=0; i < FUNTAB_length; i++)
+    if (FUNTAB[i]->rest_flag != subr_norest) {
+      nobject_out(stdout,FUNTAB[i]->name);
+      printf("=FUNTAB[%d] accepts &rest\n",i);
+    }
+  for (i=0; i < FUNTABR_length; i++)
+    if (FUNTABR[i]->rest_flag != subr_rest) {
+      nobject_out(stdout,FUNTABR[i]->name);
+      printf("=FUNTABR[%d] does NOT accept &rest\n",i);
+    }
+  printf("FUNTAB_length=%d\n",FUNTAB_length);
+  if (FUNTAB_length > 512) printf(" *** - > 512!\n");
+  printf("FUNTABR_length=%d\n",FUNTABR_length);
+  if (FUNTABR_length > 256) printf(" *** - > 256!\n");
+}
+#endif
 
 /* argument-type-tokens for compiled closures: */
 typedef enum {
