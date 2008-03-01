@@ -330,9 +330,9 @@
   LISPOBJ(memory_image_timestamp,"NIL") /* the dump date of the current image */
   LISPOBJ(memory_image_host,"NIL") /* the host on which this image was dumped */
   /* The date of the last change of the bytecode interpreter
-     or the arglist of any built-in function in FUNTAB */
-  /* when changing, remove legacy ABI  */
-  LISPOBJ(version,"(20080214)")
+     or the arglist of any built-in function in FUNTAB or FUNTABR */
+  /* when changing, remove legacy ABI! */
+  LISPOBJ(version,"(20080302)")
 #ifdef MACHINE_KNOWN
   LISPOBJ(machine_type_string,"NIL")
   LISPOBJ(machine_version_string,"NIL")
