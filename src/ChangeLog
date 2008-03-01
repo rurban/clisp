@@ -1,3 +1,9 @@
+2008-03-01  Sam Steingold  <sds@gnu.org>
+
+	* record.d (CONSTANT_INITFUNCTION_P): new define
+	(CONSTANT-INITFUNCTION-P, %SHARED-INITIALIZE, do_initialize_instance):
+	(%MAKE-INSTANCE): use it
+
 2008-02-29  Sam Steingold  <sds@gnu.org>
 
 	* record.d (CLOSURE-CONSTS): fix for the jitc addition
