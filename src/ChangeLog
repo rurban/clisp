@@ -1,3 +1,15 @@
+2008-02-29  Sam Steingold  <sds@gnu.org>
+
+	* analyse-funtab.lisp: new file: study which functions should be
+	added to eval.d:FUNTAB
+	* eval.d (FUNTAB): add check_function_name, typep_class,
+	defined_class_p, proper_list_p, pcompiled_function_p, make_macro,
+	macrop, macro_expander, symbol_macro_p, standard_instance_access,
+	set_standard_instance_access, encodingp;
+	remove invoke_debugger (not speed-critical)
+	(FUNTABR): add mapcap
+	* constobj.d (version): bump
+
 2008-03-01  Sam Steingold  <sds@gnu.org>
 
 	* record.d (CONSTANT_INITFUNCTION_P): new define
