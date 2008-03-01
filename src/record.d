@@ -478,12 +478,12 @@ LISPFUNN(make_constant_initfunction,1)
 
 /* (SYS::CONSTANT-INITFUNCTION-P object) tests whether an object was returned by
    SYS::MAKE-CONSTANT-INITFUNCTION. */
-LISPFUNN(constant_initfunction_p,1)
-{
+#define CONSTANT_INITFUNCTION_P(obj)  (closurep(obj)  \
+  && eq(TheClosure(obj)->clos_name_or_class_version,S(constant_initfunction)) \
+  && eq(TheClosure(obj)->clos_codevec,O(constant_initfunction_code)))
+LISPFUNN(constant_initfunction_p,1) {
   var object obj = popSTACK();
-  VALUES_IF(closurep(obj)
-            && eq(TheClosure(obj)->clos_name_or_class_version,S(constant_initfunction))
-            && eq(TheClosure(obj)->clos_codevec,O(constant_initfunction_code)));
+  VALUES_IF(CONSTANT_INITFUNCTION_P(obj));
 }
 
 LISPFUNN(closure_set_seclass,2)
@@ -1696,9 +1696,7 @@ LISPFUN(pshared_initialize,seclass_default,2,0,rest,nokey,0,NIL) {
         }
        eval_init:
         /* evaluate the initform: */
-        if (closurep(init)
-            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
-            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+        if (CONSTANT_INITFUNCTION_P(init)) {
           value1 = TheClosure(init)->other[0];
         } else {
           pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
@@ -1930,9 +1928,7 @@ local Values do_initialize_instance (object info,
         var object init = Cdr(TheSlotDefinition(slot)->slotdef_inheritable_initer); /* (slot-definition-initfunction slot) */
         if (nullp(init))
           goto slot_done;
-        if (closurep(init)
-            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
-            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+        if (CONSTANT_INITFUNCTION_P(init)) {
           value1 = TheClosure(init)->other[0];
         } else {
           pushSTACK(clas); pushSTACK(slots); pushSTACK(slot);
@@ -2028,9 +2024,7 @@ LISPFUN(pmake_instance,seclass_default,1,0,rest,nokey,0,NIL) {
       pushSTACK(key); /* Initarg in the stack */
       {
         var object init = Car(Cdr(Cdr(default_initarg)));
-        if (closurep(init)
-            && eq(TheClosure(init)->clos_name_or_class_version,S(constant_initfunction))
-            && eq(TheClosure(init)->clos_codevec,O(constant_initfunction_code))) {
+        if (CONSTANT_INITFUNCTION_P(init)) {
           pushSTACK(TheClosure(init)->other[0]); /* default in the stack */
         } else {
           pushSTACK(l);
