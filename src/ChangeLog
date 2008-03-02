@@ -6,7 +6,6 @@
 	defined_class_p, proper_list_p, pcompiled_function_p, make_macro,
 	macrop, macro_expander, symbol_macro_p, standard_instance_access,
 	set_standard_instance_access, encodingp;
-	remove invoke_debugger (not speed-critical)
 	(FUNTABR): add mapcap
 	* constobj.d (version): bump
 

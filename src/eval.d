@@ -50,8 +50,8 @@ local const Subr FUNTAB[] = {
   _(evalhook), _(applyhook), _(constantp), _(function_side_effect),
   _(function_name_p),_(parse_body), _(keyword_test), _(check_function_name),
   /* DEBUG : 0 SUBRs */
-  /* ERROR : 1-1 SUBR */
-  /* _(invoke_debugger), */
+  /* ERROR : 1 SUBR */
+  _(invoke_debugger),
   /* HASHTABL : 11 SUBRs */
   _(make_hash_table), _(gethash), _(puthash), _(remhash), _(maphash),
   _(clrhash), _(hash_table_count), _(hash_table_iterator),
@@ -170,9 +170,9 @@ local const Subr FUNTAB[] = {
   _(set_long_float_digits), _(log2), _(log10),
   /* ENCODING: 1 SUBRs */
   _(encodingp),
-}; /* that were 511 = 554 - 43 SUBRs.
+}; /* that were 512 = 555 - 43 SUBRs.
      (- (+ 0 3 30 54 25 0 1 11 38 84 10 32 27 48 28 40 24 15 84 1)
-        (+ 0 0  2  0  2 0 1  0  0 36  0  0  0  3  0  0  0  0  0 0)) */
+        (+ 0 0  2  0  2 0 0  0  0 36  0  0  0  3  0  0  0  0  0 0)) */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
   /* SPVW : 0 SUBRs */
