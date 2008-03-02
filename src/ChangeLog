@@ -1,3 +1,9 @@
+2008-03-01  Sam Steingold  <sds@gnu.org>
+
+	* clos-genfun4.lisp (check-gf-lambda-list): new function
+	(generic-function-argument-precedence-order, generic-function-argorder)
+	(generic-function-lambda-list, generic-function-signature): use it
+
 2008-02-29  Sam Steingold  <sds@gnu.org>
 
 	* analyse-funtab.lisp: new file: study which functions should be

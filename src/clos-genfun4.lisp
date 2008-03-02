@@ -385,13 +385,15 @@
 (setq |#'generic-function-method-class| #'generic-function-method-class)
 (initialize-extended-method-check #'generic-function-method-class)
 
+(defun check-gf-lambda-list (gf caller)
+  (when (std-gf-undeterminedp gf)
+    (error (TEXT "~S: the lambda-list of ~S is not yet known") caller gf)))
+
 ;; MOP p. 79
 (defgeneric generic-function-lambda-list (generic-function)
   (:method ((gf standard-generic-function))
     (check-generic-function-initialized gf)
-    (when (eq (std-gf-signature gf) (sys::%unbound))
-      (error (TEXT "~S: the lambda-list of ~S is not yet known")
-             'generic-function-lambda-list gf))
+    (check-gf-lambda-list gf 'generic-function-lambda-list)
     (std-gf-lambda-list gf)))
 (initialize-extended-method-check #'generic-function-lambda-list)
 
@@ -408,9 +410,7 @@
                      (apply #'format nil errorstring arguments))))))
     (:method ((gf standard-generic-function))
       (check-generic-function-initialized gf)
-      (when (eq (std-gf-signature gf) (sys::%unbound))
-        (error (TEXT "~S: the lambda-list of ~S is not yet known")
-               'generic-function-lambda-list gf))
+      (check-gf-lambda-list gf 'generic-function-signature)
       (std-gf-signature gf))))
 (setq |#'generic-function-signature| #'generic-function-signature)
 
@@ -442,9 +442,7 @@
 (defgeneric generic-function-argument-precedence-order (generic-function)
   (:method ((gf standard-generic-function))
     (check-generic-function-initialized gf)
-    (when (eq (std-gf-signature gf) (sys::%unbound))
-      (error (TEXT "~S: the lambda-list of ~S is not yet known")
-             'generic-function-argument-precedence-order gf))
+    (check-gf-lambda-list gf 'generic-function-argument-precedence-order)
     (let ((argorder (std-gf-argorder gf))
           (lambdalist (std-gf-lambda-list gf)))
       (mapcar #'(lambda (i) (nth i lambdalist)) argorder))))
@@ -468,9 +466,7 @@
                    (apply #'format nil errorstring arguments))))))
   (:method ((gf standard-generic-function))
     (check-generic-function-initialized gf)
-    (when (eq (std-gf-signature gf) (sys::%unbound))
-      (error (TEXT "~S: the lambda-list of ~S is not yet known")
-             'generic-function-argument-precedence-order gf))
+    (check-gf-lambda-list gf 'generic-function-argorder)
     (std-gf-argorder gf)))
 (setq |#'generic-function-argorder| #'generic-function-argorder)
 
