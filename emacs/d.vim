@@ -15,7 +15,7 @@ syn keyword dOperator popSTACK pushSTACK skipSTACK skipSTACKop STACKop loop
 syn keyword dOperator nonreturning_function return_Values DEFUN O S funcall
 syn keyword dOperator SstringDispatch SstringCase NOTREACHED GETTEXT until
 syn match dOperator "\<dotimesp?[CLW]\>"
-syn match dOperator "\<LISPFUN[NR]*\>"
+syn match dOperator "\<LISPFUN[NRF]*\>"
 syn match dOperator "\<VALUES[0-9]\>"
 syn region dCommentL start="# " skip="\\$" end="$" keepend contains=@cCommentGroup,cComment2String,cCharacter,cNumbersCom,cSpaceError,@Spell
 
