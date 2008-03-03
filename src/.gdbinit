@@ -1,6 +1,9 @@
 # CLISP .gdbinit
 set language c
 
+# https://bugzilla.redhat.com/show_bug.cgi?id=435581
+set build-id-verbose 0
+
 define boot
   file lisp.run
   set args -B . -N locale -E 1:1 -q -norc -M lispinit.mem
