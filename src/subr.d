@@ -476,7 +476,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
         (kw(initial_contents),kw(key_type),kw(value_type),
          kw(warn_if_needs_rehash_after_gc),kw(weak),
          kw(test),kw(size),kw(rehash_size),kw(rehash_threshold)) )
-LISPFUN(gethash,seclass_default,2,1,norest,nokey,0,NIL)
+LISPFUN(gethash,seclass_read,2,1,norest,nokey,0,NIL)
 LISPFUNN(puthash,3)
 LISPFUNN(remhash,2)
 LISPFUNN(maphash,2)

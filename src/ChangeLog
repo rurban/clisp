@@ -1,3 +1,7 @@
+2008-03-03  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d, subr.d (GETHASH): seclass_read, not seclass_default
+
 2008-03-02  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (define-hash-table-test): use check-symbol
