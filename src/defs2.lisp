@@ -405,13 +405,7 @@
 ;; ----------------------------------------------------------------------------
 
 (defmacro define-hash-table-test (name test hash)
-  (loop (when (symbolp name) (return))
-    ;; check-value will be defined in condition.lisp
-    (setq name (check-value
-                nil (make-condition 'simple-type-error
-                      :format-control (TEXT "~S: ~S should be a symbol")
-                      :format-arguments (list 'define-hash-table-test name)
-                      :datum name :expected-type 'symbol))))
+  (setq name (check-symbol name 'define-hash-table-test))
   `(progn (setf (get ',name 'hash-table-test) (cons #',test #',hash)) ',name))
 
 ;; (default-directory) is a Synonym for (cd).
