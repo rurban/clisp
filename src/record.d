@@ -1386,7 +1386,7 @@ LISPFUNN(set_standard_instance_access,3) {
 }
 
 /* (SYS::%UNBOUND) */
-LISPFUNNF(punbound,0) {
+LISPFUNNR(punbound,0) { /* not Foldable yet because (const-value (new-const #<unbound>)) is NIL */
   VALUES1(unbound);
 }
 

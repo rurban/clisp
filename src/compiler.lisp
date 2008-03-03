@@ -2016,6 +2016,7 @@ for-value   NIL or T
 (defun c-constantp (form)
   (if (atom form)
     (or (numberp form) (characterp form) (arrayp form)
+        ;; not (hash-table-p form) ??
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((and *compiling-from-file*
@@ -2581,6 +2582,16 @@ for-value   NIL or T
                 seclass
                 *seclass-dirty*))))))))
 
+;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
+;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
+;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
+(defmacro return-if-foldable (seclass fun codelist caller)
+  (let ((const-form (gensym "RETURN-IF-FOLDABLE-")))
+    `(when (seclass-foldable-p ,seclass)
+       (let ((,const-form (try-constant-fold ,codelist ,fun)))
+         (when ,const-form
+           (return-from ,caller (c-GLOBAL-FUNCTION-CALL-form ,const-form)))))))
+
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
   (test-list *form* 1)
@@ -2592,6 +2603,7 @@ for-value   NIL or T
          #+CLISP-DEBUG (anodelist '())
          (codelist (list '(CALLP))))
         ((null formlist)
+         (return-if-foldable seclass fun codelist c-NORMAL-FUNCTION-CALL)
          (push
            `(,@(case n
                  (0 `(CALL0)) (1 `(CALL1)) (2 `(CALL2)) (t `(CALL ,n)))
@@ -2795,6 +2807,20 @@ for-value   NIL or T
                  (return-from try-eval nil))))
        ,@forms)
      t))
+
+(defun try-constant-fold (codelist fun)
+  (when (every (lambda (code) (or (not (anode-p code)) (anode-constantp code)))
+               codelist)
+    ;; try to call function:
+    (let ((args (let ((L '())) ; list of (constant) arguments
+                  (dolist (code codelist L) ; no nreverse!
+                    (when (anode-p code)
+                      (push (anode-constant-value code) L)))))
+          resulting-values)
+      (when (try-eval (setq resulting-values
+                            (multiple-value-list (apply fun args))))
+        ;; function called successfully, perform constant folding:
+        `(VALUES ,@(mapcar #'(lambda (x) `(QUOTE ,x)) resulting-values))))))
 
 ;; (c-DIRECT-FUNCTION-CALL args applyargs fun req opt rest-p key-p keylist
 ;;                         subr-flag call-code-producer)
@@ -3045,28 +3071,7 @@ for-value   NIL or T
               ;; now all key argument are on the Stack.
               (push keyanz *stackz*)))
           (setq codelist (nreconc codelist (funcall call-code-producer))))
-        ;; Constant-Folding: if fun is foldable (i.e.: subr-flag = T and
-        ;; key-flag = NIL) and if codelist consists besides the (PUSH)s and the
-        ;; Call-Code at the end only of Anodes with code = ((CONST ...)) ?
-        (when (and (seclass-foldable-p seclass)
-                   (every #'(lambda (code)
-                              (or (not (anode-p code)) (anode-constantp code)))
-                          codelist))
-          ;; try to call function:
-          (let ((args (let ((L '())) ; list of (constant) arguments
-                        (dolist (code codelist)
-                          (when (anode-p code)
-                            (push (anode-constant-value code) L)))
-                        (nreverse L)))
-                resulting-values)
-            (when (try-eval
-                   (setq resulting-values
-                         (multiple-value-list (apply fun args))))
-              ;; function called successfully, perform constant folding:
-              (return-from c-DIRECT-FUNCTION-CALL
-                (c-GLOBAL-FUNCTION-CALL-form
-                  `(VALUES ,@(mapcar #'(lambda (x) `(QUOTE ,x))
-                                     resulting-values)))))))
+        (return-if-foldable seclass fun codelist c-DIRECT-FUNCTION-CALL)
         (make-anode
           :type `(DIRECT-CALL ,fun)
           :sub-anodes (remove-if-not #'anode-p codelist)
