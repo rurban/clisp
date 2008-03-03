@@ -1,3 +1,7 @@
+2008-03-02  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit (build-id-verbose): set to 0 to avoid fedora yum messages
+
 2008-03-01  Sam Steingold  <sds@gnu.org>
 
 	* clos-genfun4.lisp (check-gf-lambda-list): new function
