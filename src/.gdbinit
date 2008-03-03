@@ -146,6 +146,13 @@ commands
   continue
 end
 
+break main_actions
+commands
+  silent
+  call check_funtab()
+  continue
+end
+
 # disable all the above breaks
 disable 1 2 3 4 5 6
 
