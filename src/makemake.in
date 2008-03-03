@@ -3103,11 +3103,11 @@ if [ $CROSS = false ] ; then
 
   for f in $LPARTS; do
     echol "${RECOMPILEDIR}${NEXT_M}${f}.fas : ${SRCDIR}${f}.lisp lisp${LEXE} ${TESTIMAGE}"
-    echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}${f}.fas"
+    echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c ${SRCDIR}${f}.lisp -o ${RECOMPILEDIR}${NEXT_}"
     echol
   done
   echol "${RECOMPILEDIR}${NEXT_M}config.fas : config.lisp lisp${LEXE} ${TESTIMAGE}"
-  echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}config.fas"
+  echotab "\$(RUN) -m 1MW -M ${TESTIMAGE} -q -d -c config.lisp -o ${RECOMPILEDIR}${NEXT_}"
   echol
 
   echol "lispinit2.mem : lisp${LEXE} \$(TESTFASFILES)"
