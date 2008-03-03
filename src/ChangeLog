@@ -1,5 +1,15 @@
 2008-03-03  Sam Steingold  <sds@gnu.org>
 
+	c-NORMAL-FUNCTION-CALL can now fold calls
+	* compiler.lisp (try-constant-fold): extracted from
+	c-DIRECT-FUNCTION-CALL
+	(return-if-foldable): new macro, uses try-constant-fold
+	(c-NORMAL-FUNCTION-CALL, c-DIRECT-FUNCTION-CALL): use it
+	* record.d, subr.d (%UNBOUND): seclass_read, not seclass_foldable,
+	because (const-value (new-const #<unbound>)) is NIL
+
+2008-03-03  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d, subr.d (GETHASH): seclass_read, not seclass_default
 
 2008-03-02  Sam Steingold  <sds@gnu.org>
