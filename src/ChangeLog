@@ -1,5 +1,9 @@
 2008-03-02  Sam Steingold  <sds@gnu.org>
 
+	* defs2.lisp (define-hash-table-test): use check-symbol
+
+2008-03-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-recompile): do not specify file name in "-o",
 	just the directory
 
