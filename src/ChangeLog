@@ -1,5 +1,10 @@
 2008-03-02  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-recompile): do not specify file name in "-o",
+	just the directory
+
+2008-03-02  Sam Steingold  <sds@gnu.org>
+
 	* .gdbinit (build-id-verbose): set to 0 to avoid fedora yum messages
 	(main_actions): silent break to call check_funtab()
 
