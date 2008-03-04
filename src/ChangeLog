@@ -5,6 +5,8 @@
 	c-DIRECT-FUNCTION-CALL
 	(return-if-foldable): new macro, uses try-constant-fold
 	(c-NORMAL-FUNCTION-CALL, c-DIRECT-FUNCTION-CALL): use it
+	(function-code-list): extracted from c-GLOBAL-FUNCTION-CALL
+	(c-GLOBAL-FUNCTION-CALL): use it
 	* record.d, subr.d (%UNBOUND): seclass_read, not seclass_foldable,
 	because (const-value (new-const #<unbound>)) is NIL
 

@@ -2813,7 +2813,7 @@ for-value   NIL or T
                codelist)
     ;; try to call function:
     (let ((args (let ((L '())) ; list of (constant) arguments
-                  (dolist (code codelist L) ; no nreverse!
+                  (dolist (code codelist (nreverse L))
                     (when (anode-p code)
                       (push (anode-constant-value code) L)))))
           resulting-values)
@@ -3105,6 +3105,60 @@ for-value   NIL or T
           (c-form `(FUNCTION ,fun) 'ONE)
           (if key-flag '(CALLCKEY) '(CALLC))))))
 
+(defun function-code-list (fun arg-count)
+  (case fun
+    ((CAR FIRST) `((CAR ,*denv*)))
+    ((CDR REST) `((CDR ,*denv*)))
+    (CAAR `((CAR ,*denv*) (CAR ,*denv*)))
+    ((CADR SECOND) `((CDR ,*denv*) (CAR ,*denv*)))
+    (CDAR `((CAR ,*denv*) (CDR ,*denv*)))
+    (CDDR `((CDR ,*denv*) (CDR ,*denv*)))
+    (CAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    ((CADDR THIRD) `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    (CDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (CDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (CAAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CAAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CAADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CAADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
+    (CADAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    (CADADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    (CADDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    ((CADDDR FOURTH) `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
+    (CDAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
+    (CDDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (CDDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (CDDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (CDDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
+    (ATOM '((ATOM)))
+    (CONSP '((CONSP)))
+    ((NOT NULL) '((NOT)))
+    (CONS '((CONS)))
+    (SVREF `((SVREF ,*denv*)))
+    (SYS::%SVSTORE '((SVSET)))
+    (EQ '((EQ)))
+    (VALUES (case arg-count
+              (0 '((VALUES0)) )
+              (1 '((VALUES1)) )
+              (t `((PUSH) ; also push last argument to the Stack
+                   (STACK-TO-MV ,arg-count)))))
+    (VALUES-LIST '((LIST-TO-MV)))
+    (SYMBOL-FUNCTION `((SYMBOL-FUNCTION ,*denv*)))
+    (LIST (if (plusp arg-count)
+              `((PUSH) (LIST ,arg-count))
+              '((NIL))))
+    (LIST* (case arg-count
+             (1 '((VALUES1)) )
+             (t `((LIST* ,(1- arg-count))) )))
+    (t (compiler-error 'c-GLOBAL-FUNCTION-CALL fun))))
+
 ;; global function call: (fun {form}*)
 (defun c-GLOBAL-FUNCTION-CALL-form (*form*)
   (c-GLOBAL-FUNCTION-CALL (first *form*)))
@@ -3154,9 +3208,8 @@ for-value   NIL or T
       (c-NORMAL-FUNCTION-CALL fun)
       (multiple-value-bind (name req opt rest-p key-p keylist allow-p check)
           (function-signature fun t)
-        (setq check (and name
-                         (test-argument-syntax args nil fun req opt rest-p
-                                               key-p keylist allow-p)))
+        (setq check (and name (test-argument-syntax args nil fun req opt rest-p
+                                                    key-p keylist allow-p)))
         (if (and name (equal fun name)) ; function is valid
           (case fun
             ((CAR CDR FIRST REST NOT NULL CONS SVREF VALUES
@@ -3173,86 +3226,34 @@ for-value   NIL or T
                        (if (>= (declared-optimize 'SAFETY) 3)
                          *seclass-dirty* ; see comment in F-SIDE-EFFECT
                          (function-side-effect fun)))) ; no need for a check
-                 (if (and (null *for-value*) (null (seclass-modifies sideeffects)))
-                   ;; don't have to call the function,
-                   ;; only evaluate the arguments
-                   (c-form `(PROGN ,@args))
-                   (if (and (eq fun 'VALUES) (eq *for-value* 'ONE))
-                     (if (= n 0) (c-NIL) (c-form `(PROG1 ,@args)))
-                     (let ((seclass sideeffects)
-                           (codelist '()))
-                       (let ((*stackz* *stackz*))
-                         ;; evaluate the arguments and push all to the
-                         ;; stack except for the last (because the last
-                         ;; one is expected in A0):
-                         (loop
-                           (when (null args) (return))
-                           (let ((anode (c-form (pop args) 'ONE)))
-                             (seclass-or-f seclass anode)
-                             (push anode codelist))
-                           (when args ; not at the end
-                             (push '(PUSH) codelist)
-                             (push 1 *stackz*)))
-                         (setq codelist
-                           (nreconc codelist
-                             (case fun
-                               ((CAR FIRST) `((CAR ,*denv*)))
-                               ((CDR REST) `((CDR ,*denv*)))
-                               (CAAR `((CAR ,*denv*) (CAR ,*denv*)))
-                               ((CADR SECOND) `((CDR ,*denv*) (CAR ,*denv*)))
-                               (CDAR `((CAR ,*denv*) (CDR ,*denv*)))
-                               (CDDR `((CDR ,*denv*) (CDR ,*denv*)))
-                               (CAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               ((CADDR THIRD) `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               (CDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (CDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (CAAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CAAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CAADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CAADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*)))
-                               (CADAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               (CADADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               (CADDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               ((CADDDR FOURTH) `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*)))
-                               (CDAAAR `((CAR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDAADR `((CDR ,*denv*) (CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDADAR `((CAR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDADDR `((CDR ,*denv*) (CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*)))
-                               (CDDAAR `((CAR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (CDDADR `((CDR ,*denv*) (CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (CDDDAR `((CAR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (CDDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
-                               (ATOM '((ATOM)))
-                               (CONSP '((CONSP)))
-                               ((NOT NULL) '((NOT)))
-                               (CONS '((CONS)))
-                               (SVREF `((SVREF ,*denv*)))
-                               (SYS::%SVSTORE '((SVSET)))
-                               (EQ '((EQ)))
-                               (VALUES (case n
-                                         (0 '((VALUES0)) )
-                                         (1 '((VALUES1)) )
-                                         (t `((PUSH) ; also push last argument to the Stack
-                                              (STACK-TO-MV ,n)))))
-                               (VALUES-LIST '((LIST-TO-MV)))
-                               (SYMBOL-FUNCTION `((SYMBOL-FUNCTION ,*denv*)))
-                               (LIST (if (plusp n)
-                                       `((PUSH) (LIST ,n))
-                                       '((NIL))))
-                               (LIST* (case n
-                                        (1 '((VALUES1)) )
-                                        (t `((LIST* ,(1- n))) )))
-                               (t (compiler-error 'c-GLOBAL-FUNCTION-CALL
-                                                  fun))))))
-                       (make-anode
-                         :type `(PRIMOP ,fun)
-                         :sub-anodes (remove-if-not #'anode-p codelist)
-                         :seclass seclass
-                         :code codelist)))))
+                 (cond ((and (null *for-value*)
+                             (null (seclass-modifies sideeffects)))
+                        ;; don't have to call the function,
+                        ;; only evaluate the arguments
+                        (c-form `(PROGN ,@args)))
+                       ((and (eq fun 'VALUES) (eq *for-value* 'ONE))
+                        (if (= n 0) (c-NIL) (c-form `(PROG1 ,@args))))
+                       (t (let ((seclass sideeffects) (codelist '()))
+                            (let ((*stackz* *stackz*))
+                              ;; evaluate the arguments and push all to the
+                              ;; stack except for the last (because the last
+                              ;; one is expected in A0):
+                              (loop
+                                (when (null args) (return))
+                                (let ((anode (c-form (pop args) 'ONE)))
+                                  (seclass-or-f seclass anode)
+                                  (push anode codelist))
+                                (when args ; not at the end
+                                  (push '(PUSH) codelist)
+                                  (push 1 *stackz*)))
+                              (setq codelist
+                                    (nreconc codelist
+                                             (function-code-list fun n)))
+                              (make-anode
+                               :type `(PRIMOP ,fun)
+                               :sub-anodes (remove-if-not #'anode-p codelist)
+                               :seclass seclass
+                               :code codelist))))))
                ;; check failed (wrong argument count) => not INLINE:
                (c-NORMAL-FUNCTION-CALL fun)))
             (t ; is the SUBR fun contained in the FUNTAB?
