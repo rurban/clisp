@@ -2603,17 +2603,18 @@ for-value   NIL or T
          #+CLISP-DEBUG (anodelist '())
          (codelist (list '(CALLP))))
         ((null formlist)
+         (setq codelist 
+               (nreverse 
+                (cons `(,@(case n (0 `(CALL0)) (1 `(CALL1))
+                                  (2 `(CALL2)) (t `(CALL ,n)))
+                        ,(make-funname-const fun))
+                      codelist)))
          (return-if-foldable seclass fun codelist c-NORMAL-FUNCTION-CALL)
-         (push
-           `(,@(case n
-                 (0 `(CALL0)) (1 `(CALL1)) (2 `(CALL2)) (t `(CALL ,n)))
-             ,(make-funname-const fun))
-           codelist)
          (make-anode
            :type 'CALL
            :sub-anodes (nreverse anodelist)
            :seclass seclass
-           :code (nreverse codelist)
+           :code codelist
            :stackz oldstackz))
       (let* ((formi (pop formlist))
              (anodei (c-form formi 'ONE)))
