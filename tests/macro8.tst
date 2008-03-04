@@ -1137,6 +1137,18 @@ NIL
 
 #+clisp (listp (arglist 'sys::backquote)) #+clisp t
 
+;; check constant folding
+#-clisp (setf (fdefinition 'check-const-fold) #'eval) #+clisp
+(defun check-const-fold (form)
+  (sys::closure-const (compile nil `(lambda () ,form)) 0))
+check-const-fold
+(check-const-fold '(! 10)) 3628800
+(check-const-fold '(char-code #\a)) 97
+(check-const-fold '(code-char 97)) #\a
+(check-const-fold '(char-upcase #\a)) #\A
+#+clisp (check-const-fold '(char-invertcase #\a)) #+clisp #\A
+#+clisp (check-const-fold '(mod-expt 29 13 17)) #+clisp 14
+
 ; Clean up.
 (flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
   (kill 'test-macro-arglist)
