@@ -1,3 +1,7 @@
+2008-03-02  Sam Steingold  <sds@gnu.org>
+
+	* macros8.tst (check-const-fold): check constant folding
+
 2008-02-19  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: foreign-library --> open-foreign-library;
