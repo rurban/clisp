@@ -1,5 +1,10 @@
 2008-03-05  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (l-constantp, c-constantp): hash tables are constants
+	(c-constant-value): handle hash tables; check for unhandled types
+
+2008-03-05  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-VAR): when the variable is a constant,
 	make anode foldable
 	(c-GLOBAL-FUNCTION-CALL): fold some calls (NULL/CONSP/XOR...)

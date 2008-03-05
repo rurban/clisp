@@ -2001,7 +2001,7 @@ for-value   NIL or T
 ;; as load-time-constant.
 (defun l-constantp (form)
   (if (atom form)
-    (or (numberp form) (characterp form) (arrayp form)
+    (or (numberp form) (characterp form) (arrayp form) (hash-table-p form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((eq (symbol-package form) *lisp-package*)
@@ -2015,8 +2015,7 @@ for-value   NIL or T
 ;; When *compiling-from-file* = nil , this is identical to (l-constantp form) .
 (defun c-constantp (form)
   (if (atom form)
-    (or (numberp form) (characterp form) (arrayp form)
-        ;; not (hash-table-p form) ??
+    (or (numberp form) (characterp form) (arrayp form) (hash-table-p form)
         (and (symbolp form)
              (cond ((keywordp form) t)
                    ((and *compiling-from-file*
@@ -2034,11 +2033,13 @@ for-value   NIL or T
     (cond ((numberp form) form)
           ((characterp form) form)
           ((arrayp form) form)
+          ((hash-table-p form) form)
           ((symbolp form)
            (cond ((keywordp form) form)
                  ((eq (symbol-package form) *lisp-package*)
                   (symbol-value form))
-                 (t (cdr (assoc form *constant-special-vars*))))))
+                 (t (cdr (assoc form *constant-special-vars*)))))
+          (t (compiler-error 'c-constant-value form)))
     (second form)))
 
 ;; (anode-constantp anode) determines, if the Anode returns a constant

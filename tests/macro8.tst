@@ -1142,7 +1142,7 @@ NIL
 (defun check-const-fold (form)
   (sys::closure-const (compile nil `(lambda () ,form)) 0))
 check-const-fold
-(check-const-fold '(! 10)) 3628800
+#+clisp (check-const-fold '(! 10)) #+clisp 3628800
 (check-const-fold '(char-code #\a)) 97
 (check-const-fold '(code-char 97)) #\a
 (check-const-fold '(char-upcase #\a)) #\A
@@ -1151,6 +1151,7 @@ check-const-fold
 #+clisp (sys::closure-consts (compile nil (lambda () (atom 12)))) #+clisp ()
 #+clisp (sys::closure-consts (compile nil (lambda () (consp 12)))) #+clisp ()
 #+clisp (sys::closure-consts (compile nil (lambda () (xor 1 nil 2)))) #+clisp ()
+#+clisp (check-const-fold '(hash-table-test #s(hash-table eq))) #+clisp FASTHASH-EQ
 
 (funcall (COMPILE NIL (LAMBDA (B C) (BLOCK B3 (IF (IF B (NOT NIL) C) (RETURN-FROM B3 124))))) 1 2) 124
 
