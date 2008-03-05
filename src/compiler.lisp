@@ -2428,10 +2428,9 @@ for-value   NIL or T
           (make-anode
             :type 'VAR
             :sub-anodes '()
-            :seclass (make-seclass
-                      :uses (if (and *for-value* (not (var-constantp var)))
-                              (list symbol)
-                              'NIL))
+            :seclass (if (var-constantp var) *seclass-foldable*
+                         (make-seclass :uses (if *for-value*
+                                                 (list symbol) 'NIL)))
             :code (if *for-value*
                     (if (var-constantp var)
                       `((CONST ,(make-const
@@ -3214,6 +3213,15 @@ for-value   NIL or T
                         ;; don't have to call the function,
                         ;; only evaluate the arguments
                         (c-form `(PROGN ,@args)))
+                       ((and (seclass-foldable-p sideeffects)
+                             (every #'c-constantp args))
+                        (let ((*stackz* *stackz*))
+                          (multiple-value-bind (seclass codelist)
+                              (collect-args sideeffects args)
+                            (return-if-foldable seclass fun codelist
+                                                c-GLOBAL-FUNCTION-CALL)
+                            (compiler-error 'c-GLOBAL-FUNCTION-CALL
+                                            (list fun args seclass codelist)))))
                        ((and (eq fun 'VALUES) (eq *for-value* 'ONE))
                         (if (= n 0) (c-NIL) (c-form `(PROG1 ,@args))))
                        (t (let ((*stackz* *stackz*))
