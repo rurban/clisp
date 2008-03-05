@@ -1,3 +1,9 @@
+2008-03-05  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-VAR): when the variable is a constant,
+	make anode foldable
+	(c-GLOBAL-FUNCTION-CALL): fold some calls (NULL/CONSP/XOR...)
+
 2008-03-03  Sam Steingold  <sds@gnu.org>
 
 	c-NORMAL-FUNCTION-CALL can now fold calls

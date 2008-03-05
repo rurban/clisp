@@ -1148,6 +1148,11 @@ check-const-fold
 (check-const-fold '(char-upcase #\a)) #\A
 #+clisp (check-const-fold '(char-invertcase #\a)) #+clisp #\A
 #+clisp (check-const-fold '(mod-expt 29 13 17)) #+clisp 14
+#+clisp (sys::closure-consts (compile nil (lambda () (atom 12)))) #+clisp ()
+#+clisp (sys::closure-consts (compile nil (lambda () (consp 12)))) #+clisp ()
+#+clisp (sys::closure-consts (compile nil (lambda () (xor 1 nil 2)))) #+clisp ()
+
+(funcall (COMPILE NIL (LAMBDA (B C) (BLOCK B3 (IF (IF B (NOT NIL) C) (RETURN-FROM B3 124))))) 1 2) 124
 
 ; Clean up.
 (flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
