@@ -3215,6 +3215,7 @@ for-value   NIL or T
                         (c-form `(PROGN ,@args)))
                        ((and (seclass-foldable-p sideeffects)
                              (every #'c-constantp args))
+                        ;; call the function at compile time
                         (let ((*stackz* *stackz*))
                           (multiple-value-bind (seclass codelist)
                               (collect-args sideeffects args)
