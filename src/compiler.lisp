@@ -2592,37 +2592,41 @@ for-value   NIL or T
          (when ,const-form
            (return-from ,caller (c-GLOBAL-FUNCTION-CALL-form ,const-form)))))))
 
+;; compile arg and augment SECLASS, CODELIST, and *STACKZ*
+;; NB: codelist should be a symbol, it is multiply evaluated
+(defmacro collect-arg (seclass codelist arg)
+  (let ((anode (gensym "COLLECT-ARG-")))
+    `(let ((,anode (c-form ,arg 'ONE)))
+       (seclass-or-f ,seclass ,anode)
+       (push ,anode ,codelist)
+       (push '(PUSH) ,codelist)
+       (push 1 *stackz*))))
+
+;; compile each argument in ARGS and return seclass and codelist
+;; modifies *stackz*
+(defun collect-args (seclass args &optional codelist)
+  (dolist (arg args (values seclass codelist))
+    (collect-arg seclass codelist arg)))
+
 ;; global function call, normal (notinline): (fun {form}*)
 (defun c-NORMAL-FUNCTION-CALL (fun) ; fun is a symbol or (SETF symbol)
   (test-list *form* 1)
   (let* ((n (length (cdr *form*)))
          #+CLISP-DEBUG (oldstackz *stackz*)
          (*stackz* *stackz*))
-    (do ((formlist (cdr *form*))
-         (seclass (f-side-effect fun))
-         #+CLISP-DEBUG (anodelist '())
-         (codelist (list '(CALLP))))
-        ((null formlist)
-         (setq codelist 
-               (nreverse 
-                (cons `(,@(case n (0 `(CALL0)) (1 `(CALL1))
-                                  (2 `(CALL2)) (t `(CALL ,n)))
-                        ,(make-funname-const fun))
-                      codelist)))
-         (return-if-foldable seclass fun codelist c-NORMAL-FUNCTION-CALL)
-         (make-anode
-           :type 'CALL
-           :sub-anodes (nreverse anodelist)
-           :seclass seclass
-           :code codelist
-           :stackz oldstackz))
-      (let* ((formi (pop formlist))
-             (anodei (c-form formi 'ONE)))
-        #+CLISP-DEBUG (push anodei anodelist)
-        (seclass-or-f seclass anodei)
-        (push anodei codelist)
-        (push '(PUSH) codelist)
-        (push 1 *stackz*)))))
+    (multiple-value-bind (seclass codelist)
+        (collect-args (f-side-effect fun) (cdr *form*) (list '(CALLP)))
+      (setq codelist (nreconc codelist
+                              `((,@(case n (0 `(CALL0)) (1 `(CALL1))
+                                           (2 `(CALL2)) (t `(CALL ,n)))
+                                 ,(make-funname-const fun)))))
+      (return-if-foldable seclass fun codelist c-NORMAL-FUNCTION-CALL)
+      (make-anode
+       :type 'CALL
+       :sub-anodes codelist
+       :seclass seclass
+       :code codelist
+       :stackz oldstackz))))
 
 ;; Compute the signature of a function object:
 ;; 1. name
@@ -2853,12 +2857,7 @@ for-value   NIL or T
         (let ((*stackz* *stackz*))
           ;; required and given optional parameters:
           (dotimes (i (min n reqopt))
-            (let* ((formi (pop args))
-                   (anodei (c-form formi 'ONE)))
-              (seclass-or-f seclass anodei)
-              (push anodei codelist))
-            (push '(PUSH) codelist)
-            (push 1 *stackz*))
+            (collect-arg seclass codelist (pop args)))
           (if applyargs
             (progn
               (when subr-flag
@@ -2880,15 +2879,9 @@ for-value   NIL or T
                 ;; as list.
                 ;; List consisting of all additional arguments:
                 (progn
-                  (let ((*stackz* *stackz*)
-                        (rest-args args))
-                    (loop
-                      (when (null rest-args) (return))
-                      (let ((anode (c-form (pop rest-args) 'ONE)))
-                        (seclass-or-f seclass anode)
-                        (push anode codelist))
-                      (push '(PUSH) codelist)
-                      (push 1 *stackz*))
+                  (let ((*stackz* *stackz*))
+                    (multiple-value-setq (seclass codelist)
+                      (collect-args seclass args codelist))
                     (let ((anode (c-form (first applyargs) 'ONE)))
                       (seclass-or-f seclass anode)
                       (push anode codelist))
@@ -2905,13 +2898,8 @@ for-value   NIL or T
               (when rest-p
                 (if subr-flag
                   ;; Passing of remaining arguments to a SUBR: one by one
-                  (loop
-                    (when (null args) (return))
-                    (let ((anode (c-form (pop args) 'ONE)))
-                      (seclass-or-f seclass anode)
-                      (push anode codelist))
-                    (push '(PUSH) codelist)
-                    (push 1 *stackz*))
+                  (multiple-value-setq (seclass codelist)
+                    (collect-args seclass args codelist))
                   ;; passing of remaining arguments to a compiled closure:
                   ;; as list
                   (if (null args)
@@ -2922,15 +2910,9 @@ for-value   NIL or T
                       (push 1 *stackz*))
                     ;; list of all further arguments:
                     (progn
-                      (let ((*stackz* *stackz*)
-                            (rest-args args))
-                        (loop
-                          (when (null rest-args) (return))
-                          (let ((anode (c-form (pop rest-args) 'ONE)))
-                            (seclass-or-f seclass anode)
-                            (push anode codelist))
-                          (push '(PUSH) codelist)
-                          (push 1 *stackz*))
+                      (let ((*stackz* *stackz*))
+                        (multiple-value-setq (seclass codelist)
+                          (collect-args seclass args codelist))
                         (push `(LIST ,(- n reqopt)) codelist))
                       (push '(PUSH) codelist)
                       (push 1 *stackz*)))))))
@@ -3234,19 +3216,13 @@ for-value   NIL or T
                         (c-form `(PROGN ,@args)))
                        ((and (eq fun 'VALUES) (eq *for-value* 'ONE))
                         (if (= n 0) (c-NIL) (c-form `(PROG1 ,@args))))
-                       (t (let ((seclass sideeffects) (codelist '()))
-                            (let ((*stackz* *stackz*))
+                       (t (let ((*stackz* *stackz*))
+			    (multiple-value-bind (seclass codelist)
+			        (collect-args sideeffects args)
                               ;; evaluate the arguments and push all to the
                               ;; stack except for the last (because the last
                               ;; one is expected in A0):
-                              (loop
-                                (when (null args) (return))
-                                (let ((anode (c-form (pop args) 'ONE)))
-                                  (seclass-or-f seclass anode)
-                                  (push anode codelist))
-                                (when args ; not at the end
-                                  (push '(PUSH) codelist)
-                                  (push 1 *stackz*)))
+			      (pop codelist) (pop *stackz*)
                               (setq codelist
                                     (nreconc codelist
                                              (function-code-list fun n)))

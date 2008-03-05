@@ -7,6 +7,9 @@
 	(c-NORMAL-FUNCTION-CALL, c-DIRECT-FUNCTION-CALL): use it
 	(function-code-list): extracted from c-GLOBAL-FUNCTION-CALL
 	(c-GLOBAL-FUNCTION-CALL): use it
+	(collect-arg, collect-args): add
+	(c-NORMAL-FUNCTION-CALL, c-DIRECT-FUNCTION-CALL)
+	(c-GLOBAL-FUNCTION-CALL): use them
 	* record.d, subr.d (%UNBOUND): seclass_read, not seclass_foldable,
 	because (const-value (new-const #<unbound>)) is NIL
 
