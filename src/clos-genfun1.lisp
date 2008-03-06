@@ -192,8 +192,7 @@
     (:fixed-slot-locations t)
     (:generic-accessors nil)))
 
-(defun std-gf-undeterminedp (gf)
-  (eq (std-gf-signature gf) (sys::%unbound)))
+(defun std-gf-undeterminedp (gf) (eq (sys::%unbound) (std-gf-signature gf)))
 
 ;; Preliminary.
 ;; During bootstrapping, only <standard-generic-function> instances are used.
