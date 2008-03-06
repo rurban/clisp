@@ -1,3 +1,8 @@
+2008-03-06  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): treat SYS::%UNBOUND using ...
+	(function-code-list): SYS::%UNBOUND --> ((PUSH-UNBOUND 1) (POP))
+
 2008-03-05  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (l-constantp, c-constantp): hash tables are constants
