@@ -216,8 +216,8 @@
 
 (defun print-object-<standard-method> (method stream)
   (print-unreadable-object (method stream :type t)
-    (if (and (not (eq (std-method-qualifiers method) (sys::%unbound)))
-             (not (eq (std-method-specializers method) (sys::%unbound))))
+    (if (and (not (eq (sys::%unbound) (std-method-qualifiers method)))
+             (not (eq (sys::%unbound) (std-method-specializers method))))
       (progn
         (dolist (q (std-method-qualifiers method))
           (write q :stream stream)

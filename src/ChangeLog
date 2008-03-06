@@ -2,6 +2,10 @@
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): treat SYS::%UNBOUND using ...
 	(function-code-list): SYS::%UNBOUND --> ((PUSH-UNBOUND 1) (POP))
+	* clos-class6.lisp, clos-genfun1.lisp, clos-method1.lisp:
+	pass (SYS::%UNBOUND) as the first argument to EQ so save one
+	bytecode instruction (since this involves an internal CLISP
+	function, it does not warrant a general optimization in c-EQ)
 
 2008-03-05  Sam Steingold  <sds@gnu.org>
 

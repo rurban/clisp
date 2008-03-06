@@ -263,7 +263,7 @@
   ;; When the valid-initargs-from-slots change, the result of
   ;; (valid-initarg-keywords class ...) changes, therefore we need to invalidate
   ;; all the caches that use valid-initarg-keywords:
-  (when (or (eq (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) (sys::%unbound))
+  (when (or (eq (sys::%unbound) (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*))
             (set-exclusive-or (sys::%record-ref class *<slotted-class>-valid-initargs-from-slots-location*) new-value))
     (remhash class *make-instance-table*)
     (remhash class *reinitialize-instance-table*)
