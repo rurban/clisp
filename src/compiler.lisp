@@ -3122,6 +3122,7 @@ for-value   NIL or T
     (CDDDDR `((CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*) (CDR ,*denv*)))
     (ATOM '((ATOM)))
     (CONSP '((CONSP)))
+    (SYS::%UNBOUND '((PUSH-UNBOUND 1) (POP)))
     ((NOT NULL) '((NOT)))
     (CONS '((CONS)))
     (SVREF `((SVREF ,*denv*)))
@@ -3199,7 +3200,7 @@ for-value   NIL or T
               CAAR CADR CDAR CDDR CAAAR CAADR CADAR CADDR CDAAR CDADR
               CDDAR CDDDR SECOND THIRD FOURTH CAAAAR CAAADR CAADAR CAADDR
               CADAAR CADADR CADDAR CADDDR CDAAAR CDAADR CDADAR CDADDR
-              CDDAAR CDDADR CDDDAR CDDDDR ATOM CONSP
+              CDDAAR CDDADR CDDDAR CDDDDR ATOM CONSP SYS::%UNBOUND
               VALUES-LIST SYS::%SVSTORE EQ SYMBOL-FUNCTION LIST LIST*)
              ;; these here have keylist=NIL, allow-p=NIL and
              ;; (which is not used) opt=0.
