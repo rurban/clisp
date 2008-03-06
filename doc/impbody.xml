@@ -4199,7 +4199,7 @@ functions are provided:
 </section>
 
 <section id="elastic-newline">
-<title>Avoiding blank lines, &elastic-newline;</title>
+ <title>Avoiding blank lines, &elastic-newline;</title>
 
 <para>The function <code>(&elastic-newline; [&stream-r;])</code> is like
  &fresh-line; but the other way around: It outputs a conditional newline
@@ -4564,17 +4564,16 @@ functions are provided:
    <secondary id="format-dot-i">~.</secondary></indexterm></firstterm>
  is a kind of opposite to <code>~&amp;</code>: It outputs a conditional
  newline, by calling the function &elastic-newline;.
- <code>~<replaceable>n</replaceable>.</code> outputs
- <replaceable>n-1</replaceable> newlines followed by an &elastic-newline;.
- <code>~0.</code> does nothing.</para>
+ <code>~&n-r;.</code> outputs <replaceable>n-1</replaceable> newlines
+ followed by an &elastic-newline;. <code>~0.</code> does nothing.</para>
 
 <para>&format; &format-r; and &format; &format-rs; can output only
- integers in the range <varname>|n| &lt;
- <replaceable>10<superscript>66</superscript></replaceable></varname>.
+ integers in the range <code>|&n-r;| &lt;
+  <replaceable>10<superscript>66</superscript></replaceable></code>.
  The output is in English, according to the American conventions, and
  these conventions are identical to the British conventions only in the
- range <varname>|n| &lt;
- <replaceable>10<superscript>9</superscript></replaceable></varname>.</para>
+ range <code>|&n-r;| &lt;
+  <replaceable>10<superscript>9</superscript></replaceable></code>.</para>
 
 <para>&format; &format-c; does not output the character itself, only the
  instruction how to type the character.</para>
