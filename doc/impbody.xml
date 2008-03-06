@@ -3899,86 +3899,7 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 </section>
 
-<section id="stream-dict"><title>The Streams Dictionary
-   <ulink url="&clhs;/Body/sec_the_streams_dictionary.html">[CLHS-21.2]</ulink></title>
-
-<section id="stream-eltype"><title>Function &stream-element-type;</title>
-
-<para>&stream-element-type; is &setf;able. The &stream-element-type; of
-  &stream-t;s created by the functions &open;, &mk-pipe-in;
-  &mk-pipe-out;, &mk-pipe-io;, &so-accept;, &so-connect;
-  can be modified, if the old and the new &stream-element-type;s are either
- <itemizedlist><listitem><simpara>both equivalent to &character-t; or
-    &ubyte-8; or &sbyte-8;; or</simpara></listitem>
-  <listitem><simpara>both equivalent to &ubyte-n; or &sbyte-n;, with the
-    same &n-r;.</simpara></listitem></itemizedlist></para>
-
-<para>Functions &stream-element-type; and <code>(&setf;
- &stream-element-type;)</code> are &generic-function-t;s, see
- <xref linkend="gray"/>.</para>
-
-<section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
-
-<para>Note that you cannot change &stream-element-type; for some
- built-in streams, such as <link linkend="terminal">terminal streams</link>,
- which is normally the value of &terminal-io-var;.
- Since &standard-input-var; normally is a &synonym-stream-t; pointing
- to &terminal-io-var;, you cannot use &read-byte; on it.</para>
-
-<para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
- (Common Gateway Interface) provides the form data for
- <command>METHOD="POST"</command> on the &stdin;,
- and the server will &not-e; send you an &eos; on the end of the data,
- you will need to use
- <code>(&getenv; <envar>"CONTENT_LENGTH"</envar>)</code>
- to determine how much data you should read from &stdin;.
- &clisp; will detect that &stdin; is not a terminal and create a regular
- &file-stream-t; which can be passed to <code>(&setf;
- &stream-element-type;)</code>.
- To test this functionality interactively,
- you will need to open the standard input in the binary mode:
-<programlisting language="lisp">
-(let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
-                       :element-type '&ubyte-8;)))
-  (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&ubyte-8;))
-    (&read-sequence; buf in))
-  buf)
-</programlisting></para>
-</section>
-</section>
-
-<section id="make-stream"><title>Function &make-stream;</title>
-<para>Function &make-stream; creates a Lisp stream out of an OS &file-des;:
- <code>(&make-stream; &object-r; &key-amp; &direction-k;
-  &eltype; &extfmt; &buffered;)</code></para>
-<para>&object-r; designates an OS handle (a &file-des;),
- and should be one of the following: <variablelist>
-  <varlistentry><term>number</term>
-   <listitem><simpara>denotes the &file-des; of this value
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&input-k;</term>
-   <listitem><simpara>denotes &clisp; process &standard-input-var;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&output-k;</term>
-   <listitem><simpara>denotes &clisp; process &standard-output-var;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&error-k;</term>
-   <listitem><simpara>denotes &clisp; process &error-output-var;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&stream-t;</term>
-   <listitem><simpara>denotes the handle of this stream, which should be
-     a &file-stream-t; or a &socket-stream;</simpara></listitem></varlistentry>
-</variablelist></para>
-
-<warning id="make-stream-warn-buffering"><title>Beware of buffering!</title>
- <para>When there are several Lisp &stream-t;s backed by the same OS
-  &file-des;, the behavior may be highly confusing when some of the
-  Lisp streams are &buffered;.  Use &force-output; for &out-s;s,
-  and <link linkend="bulk-io">bulk input</link> for &in-s;s.</para></warning>
-
-<para>The handle is duplicated (with <function role="unix">dup</function>),
- so it is safe to &close; a &stream-t; returned by &make-stream;.</para>
-</section>
+<section id="bin-io"><title>Binary Input and Output</title>
 
 <section id="bin-input"><title>Binary input, &read-byte;,
   &rd-integer; &amp; &rd-float;</title>
@@ -4043,6 +3964,7 @@ This keyboard input is not echoed on the screen.  During execution of a
  &ubyte-8;.  &eltype-r; should be
  &type-eq; to &single-float-t; or &double-float-t;.</para>
 
+</section>
 </section>
 
 <section id="bulk-io"><title>Bulk Input and Output</title>
@@ -4184,6 +4106,355 @@ functions are provided:
 
 </section>
 
+<section id="newline-convention"><title>Newline Convention</title>
+
+<section id="nl-question"><title>Should programs output a newline before
+  or after each line of output?</title>
+
+<para>The answer is complicated. There is an antagonism between
+ the <quote>old Lisp way</quote> of outputting a newline before the
+ line's contents (exemplified by the functions &print; and &pprint;) and
+ the <quote>Unix way</quote> of outputting a newline after the line's
+ contents. Which one is <quote>right</quote>?</para>
+
+<para>A newline convention is, by definition, a consistent way to use
+ the &terpri; and &fresh-line; functions or - in &format; notation -
+ &format-percent; and &format-amp; directives in such a way that the
+ resulting output is properly subdivided into lines.</para>
+
+<para>Three newline conventions are conceivable:</para>
+<orderedlist numeration="upperalpha">
+ <listitem><simpara>Print a newline before the line, and nothing after it.
+   As a format string: <quote role="format">~%First line.~%Second line.</quote>
+ </simpara></listitem>
+ <listitem><simpara>Print a newline if needed before the line,
+   and a newline always after it. As a format string:
+   <quote role="format">~&amp;First line.~%Second line.~%</quote>
+ </simpara></listitem>
+ <listitem><simpara>Print nothing before the line, and a newline always
+   after it. As a format string:
+   <quote role="format">First line.~%Second line.~%</quote>
+</simpara></listitem></orderedlist>
+
+<para>The most important criterion is interoperability.  Two newline
+conventions are interoperable if, when parts of a program use one of the
+convention and other parts of the program use the other conventions,
+lines are still properly separated.  It is easily seen that &nlcA; and
+&nlcB; are interoperable, &nlcB; and &nlcC; are interoperable as well,
+but &nlcA; and &nlcC; are not interoperable: When an output with
+convention &nlcA; is followed by output in convention &nlcC;, two lines
+are appended without a line separator.  This should not happen.</para>
+
+<para>Therefore, in what follows, we consider five kinds of programs:
+<itemizedlist><listitem><simpara>&nlcA;: using convention &nlcA; exclusively,
+</simpara></listitem>
+<listitem><simpara>&nlcAB;: mixing conventions &nlcA; and &nlcB;,
+</simpara></listitem>
+<listitem><simpara>&nlcB;: using convention &nlcB; exclusively,
+</simpara></listitem>
+<listitem><simpara>&nlcBC;: mixing conventions &nlcB; and &nlcC;,
+</simpara></listitem>
+<listitem><simpara>&nlcC;: using convention &nlcC; exclusively.
+</simpara></listitem></itemizedlist></para>
+
+<para>Which of these five kinds of programs operation is satisfactory?
+Let us consider different criteria:<orderedlist numeration="arabic">
+ <listitem><simpara>Do extra blank lines occur during normal operation?
+ </simpara></listitem>
+ <listitem><simpara>What happens if &fresh-line; prints a newline when
+   it is not needed, i.e. when it cannot tell for sure whether the
+   current column is 0?  (This situation happens, for example, when
+   logging to a file: After the user has entered a line interactively,
+   the column on screen is 0, but since the input has not been echoed in
+   the log file, the column in the log file is usually not 0, and
+   &fresh-line; <emphasis>must</emphasis> output a newline. Then a blank
+   line is visible on the screen.)</simpara></listitem>
+ <listitem><simpara>What happens if &fresh-line; omits a newline when it
+   would be needed?
+   (This is more rare, but can happen, for example, when standard output
+   and standard error are different streams but are joined outside the
+   Lisp implementation, at the OS level.
+   Such as in <command>lisp | cat</command>.)</simpara></listitem>
+ <listitem><para>Is it possible to reliably output a blank line
+     before or after a paragraph of text? I.e. what happens with
+   <orderedlist numeration="upperalpha"><listitem>
+     <orderedlist numeration="arabic"><listitem><simpara>
+        <quote role="format">~%~%First line.~%Second line.</quote>
+      </simpara></listitem><listitem><simpara>
+        <quote role="format">~%First line.~%Second line.~%</quote>
+    </simpara></listitem></orderedlist></listitem>
+    <listitem><orderedlist numeration="arabic"><listitem><simpara>
+        <quote role="format">~&amp;~%First line.~%Second line.~%</quote>
+      </simpara></listitem><listitem><simpara>
+        <quote role="format">~&amp;First line.~%Second line.~%~%</quote>
+    </simpara></listitem></orderedlist></listitem>
+    <listitem><orderedlist numeration="arabic"><listitem><simpara>
+        <quote role="format">~%First line.~%Second line.~%</quote>
+      </simpara></listitem><listitem><simpara>
+        <quote role="format">First line.~%Second line.~%~%</quote>
+ </simpara></listitem></orderedlist></listitem></orderedlist></para></listitem>
+ <listitem><simpara>Is is possible to optimize away blank lines?
+   I.e. is it possible to avoid a blank line even though another piece
+   of code uses one of A1 ... C2, without risking that adjacent lines be
+   unseparated?</simpara></listitem>
+</orderedlist></para></section>
+
+<section id="nl-trad-analysis"><title>Analysis</title>
+<orderedlist numeration="arabic">
+ <listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcAB;: An extra blank line each time one
+     switches from convention &nlcB; to &nlcA;.</simpara></listitem>
+   <listitem><simpara>&nlcB;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcBC;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No extra blank lines.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcAB;: Blank lines can occur when
+     convention &nlcB; is used.</simpara></listitem>
+   <listitem><simpara>&nlcB;: Blank lines can occur.</simpara></listitem>
+   <listitem><simpara>&nlcBC;: Blank lines can occur when
+     convention &nlcB; is used.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No extra blank lines.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcAB;: Lines can be unseparated when one
+     switches from convention &nlcA; to &nlcB;.</simpara></listitem>
+   <listitem><simpara>&nlcB;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcBC;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No problem.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcAB;: The blank line is omitted when using
+     A2 before switching to &nlcB;.</simpara></listitem>
+   <listitem><simpara>&nlcB;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcBC;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No problem.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: Yes, using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     eats a previous blank line.</simpara></listitem>
+   <listitem><simpara>&nlcAB;: Not really: Using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     may eat a previous blank line or a following blank line, but you
+     cannot know in advance which one.</simpara></listitem>
+   <listitem><simpara>&nlcB;: Yes, using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     eats a following blank line.</simpara></listitem>
+   <listitem><simpara>&nlcBC;: Impossible.</simpara></listitem>
+   <listitem><simpara>&nlcC;: Impossible.
+     To optimize blank lines in case &nlcC; would require the opposite of
+     &fresh-line;, namely a conditional newline that is annullated if the
+     <emphasis>next</emphasis> output on the stream will be a
+     newline. (&elastic-newline;, see below.)</simpara></listitem>
+</itemizedlist></listitem></orderedlist>
+</section>
+
+<section id="nl-conclusion"><title>Conclusion</title>
+
+<para>Each approach has its advantages and disadvantages.</para>
+
+<para>When used globally (i.e. no interoperability requirements),
+ &nlcA;, &nlcB;, &nlcC; can be compared as follows:<itemizedlist>
+  <listitem><simpara>&nlcA; and &nlcC; are equally perfect if eating
+    blank lines is not a requirement.</simpara></listitem>
+  <listitem><simpara>If eating blank lines is desirable, &nlcA; is perfect.
+  </simpara></listitem>
+  <listitem><simpara>&nlcB; is not so good, because it is suboptimal in case 2.
+</simpara></listitem></itemizedlist></para>
+
+<para>For &clisp; built-ins, however, the interoperability requirement
+ with both &nlcA; and &nlcC; is a major requirement. Therefore we have
+ to choose &nlcB;, and accept the drawbacks:<itemizedlist>
+  <listitem><simpara>&nlcAB;: An extra blank line each time one
+    switches from convention &nlcB; to &nlcA;.</simpara></listitem>
+  <listitem><simpara>&nlcB;: When logging to a file, blank lines can
+    occur.</simpara></listitem>
+  <listitem><simpara>&nlcAB;: When joining two output streams into
+    one, lines can be unseparated.</simpara></listitem>
+  <listitem><simpara>&nlcAB;: Blank lines after a paragraph can be
+    eaten by &clisp;.</simpara></listitem>
+  <listitem><simpara>&nlcAB;: Optimizing blank lines is not really
+    possible.</simpara></listitem></itemizedlist>
+ And to minimize the drawbacks, we recommend the user programs to use
+ approach &nlcB; or &nlcC;, but not &nlcA;.</para>
+
+<para>Another drawback of &nlcB; is, however, that in interactive sessions
+ the cursor is nearly always positioned at the beginning of a line,
+ pointing the user's focus to the wrong point and taking away a screen
+ line.</para>
+</section>
+
+<section id="nl-solution"><title>Solution</title>
+
+<para>To solve this, we introduce the concept of an <firstterm>elastic
+  newline</firstterm>, output by the function &elastic-newline;.
+ This is the converse of &fresh-line;: It waits for the next character
+ and outputs a newline when the next character is not a newline; then
+ the next character is processed normally.
+ As a &format; directive, we write it &format-dot;.
+ &elastic-newline; followed by &fresh-line; leads to exactly one newline
+ always.</para>
+
+<para>Elastic newline leads to a slightly different newline convention:</para>
+
+<itemizedlist><listitem><simpara>&nlcBp;:
+   Print a newline if needed before the line, and a newline if needed after it.
+   As a format string:
+   <quote role="format">~&amp;First line.~%Second line.~.</quote>
+</simpara></listitem></itemizedlist>
+
+<para>The five programs being considered are now:</para><itemizedlist>
+ <listitem><simpara>&nlcA;: using convention &nlcA; exclusively,
+ </simpara></listitem>
+ <listitem><simpara>&nlcABp;: mixing conventions &nlcA; and &nlcBp;,
+ </simpara></listitem>
+ <listitem><simpara>&nlcBp;: using convention &nlcBp; exclusively,
+ </simpara></listitem>
+ <listitem><simpara>&nlcBpC;: mixing conventions &nlcBp; and &nlcC;,
+ </simpara></listitem>
+ <listitem><simpara>&nlcC;: using convention &nlcC; exclusively,
+</simpara></listitem></itemizedlist></section>
+
+<section id="nl-elnl-analysis"><title>Elastic Newline Analysis</title>
+
+<orderedlist numeration="arabic"><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcABp;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcBp;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcBpC;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No extra blank lines.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No extra blank lines.</simpara></listitem>
+   <listitem><simpara>&nlcABp;: Blank lines can occur when
+     convention &nlcBp; is used.</simpara></listitem>
+   <listitem><simpara>&nlcBp;: Blank lines can occur.</simpara></listitem>
+   <listitem><simpara>&nlcBpC;: Blank lines can occur when
+     convention &nlcBp; is used.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No extra blank lines.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcABp;: Lines can be unseparated when one
+     switches from convention &nlcA; to &nlcBp;.</simpara></listitem>
+   <listitem><simpara>&nlcBp;: Lines can be unseparated when one
+     switches from one stream to another without performing a
+     &force-output;. This is a general problem with buffered streams;
+     &clisp;'s &fresh-line; contains a workaround that is limited to
+     &standard-output-var; and &error-output-var;.</simpara></listitem>
+   <listitem><simpara>&nlcBpC;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No problem.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcABp;: The blank line is omitted when
+     using A2 before switching to &nlcBp; or when using B2 before switching
+     to &nlcA;.</simpara></listitem>
+   <listitem><simpara>&nlcBp;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcBpC;: No problem.</simpara></listitem>
+   <listitem><simpara>&nlcC;: No problem.</simpara></listitem>
+ </itemizedlist></listitem><listitem><itemizedlist>
+   <listitem><simpara>&nlcA;: Yes, using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     eats a previous blank line.</simpara></listitem>
+   <listitem><simpara>&nlcABp;: Not really: Using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     may eat a previous blank line or a following blank line, but you
+     cannot know in advance which one.</simpara></listitem>
+   <listitem><simpara>&nlcBp;: Yes, using
+     <quote role="format">~&amp;First line.~%Second line.</quote>
+     eats a following blank line.</simpara></listitem>
+   <listitem><simpara>&nlcBpC;: Impossible.</simpara></listitem>
+   <listitem><simpara>&nlcC;: Yes, using
+     <quote role="format">First line.~%Second line.~.</quote>
+     eats a following blank line.</simpara></listitem>
+</itemizedlist></listitem></orderedlist>
+
+<para>Now criterium 1 is satisfied perfectly. We therefore choose
+ &nlcBp;, not &nlcB;, for use inside &clisp;, and programs can use
+ either &nlcA; or &nlcC; without problems during normal operation.</para>
+</section>
+</section>
+
+<section id="stream-dict"><title>The Streams Dictionary
+   <ulink url="&clhs;/Body/sec_the_streams_dictionary.html">[CLHS-21.2]</ulink></title>
+
+<section id="stream-eltype"><title>Function &stream-element-type;</title>
+
+<para>&stream-element-type; is &setf;able. The &stream-element-type; of
+  &stream-t;s created by the functions &open;, &mk-pipe-in;
+  &mk-pipe-out;, &mk-pipe-io;, &so-accept;, &so-connect;
+  can be modified, if the old and the new &stream-element-type;s are either
+ <itemizedlist><listitem><simpara>both equivalent to &character-t; or
+    &ubyte-8; or &sbyte-8;; or</simpara></listitem>
+  <listitem><simpara>both equivalent to &ubyte-n; or &sbyte-n;, with the
+    same &n-r;.</simpara></listitem></itemizedlist></para>
+
+<para>Functions &stream-element-type; and <code>(&setf;
+ &stream-element-type;)</code> are &generic-function-t;s, see
+ <xref linkend="gray"/>.</para>
+
+<section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
+
+<para>Note that you cannot change &stream-element-type; for some
+ built-in streams, such as <link linkend="terminal">terminal streams</link>,
+ which is normally the value of &terminal-io-var;.
+ Since &standard-input-var; normally is a &synonym-stream-t; pointing
+ to &terminal-io-var;, you cannot use &read-byte; on it.</para>
+
+<para>Since <ulink url="http://hoohoo.ncsa.uiuc.edu/cgi/">CGI</ulink>
+ (Common Gateway Interface) provides the form data for
+ <command>METHOD="POST"</command> on the &stdin;,
+ and the server will &not-e; send you an &eos; on the end of the data,
+ you will need to use
+ <code>(&getenv; <envar>"CONTENT_LENGTH"</envar>)</code>
+ to determine how much data you should read from &stdin;.
+ &clisp; will detect that &stdin; is not a terminal and create a regular
+ &file-stream-t; which can be passed to <code>(&setf;
+ &stream-element-type;)</code>.
+ To test this functionality interactively,
+ you will need to open the standard input in the binary mode:
+<programlisting language="lisp">
+(let ((buf (&make-array; (&parse-integer; (&getenv; "CONTENT_LENGTH"))
+                       :element-type '&ubyte-8;)))
+  (&with-open-stream; (in (&make-stream; &input-k; &eltype; '&ubyte-8;))
+    (&read-sequence; buf in))
+  buf)
+</programlisting></para>
+</section>
+</section>
+
+<section id="make-stream"><title>Function &make-stream;</title>
+<para>Function &make-stream; creates a Lisp stream out of an OS &file-des;:
+ <code>(&make-stream; &object-r; &key-amp; &direction-k;
+  &eltype; &extfmt; &buffered;)</code></para>
+<para>&object-r; designates an OS handle (a &file-des;),
+ and should be one of the following: <variablelist>
+  <varlistentry><term>number</term>
+   <listitem><simpara>denotes the &file-des; of this value
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&input-k;</term>
+   <listitem><simpara>denotes &clisp; process &standard-input-var;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&output-k;</term>
+   <listitem><simpara>denotes &clisp; process &standard-output-var;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&error-k;</term>
+   <listitem><simpara>denotes &clisp; process &error-output-var;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&stream-t;</term>
+   <listitem><simpara>denotes the handle of this stream, which should be
+     a &file-stream-t; or a &socket-stream;</simpara></listitem></varlistentry>
+</variablelist></para>
+
+<warning id="make-stream-warn-buffering"><title>Beware of buffering!</title>
+ <para>When there are several Lisp &stream-t;s backed by the same OS
+  &file-des;, the behavior may be highly confusing when some of the
+  Lisp streams are &buffered;.  Use &force-output; for &out-s;s,
+  and <link linkend="bulk-io">bulk input</link> for &in-s;s.</para></warning>
+
+<para>The handle is duplicated (with <function role="unix">dup</function>),
+ so it is safe to &close; a &stream-t; returned by &make-stream;.</para>
+</section>
+
 <section id="file-pos"><title>Function &file-position;</title>
 
 <para>&file-position; works on any &file-stream-t;.</para>
@@ -4198,8 +4469,7 @@ functions are provided:
 <!-- #endif -->
 </section>
 
-<section id="elastic-newline">
- <title>Avoiding blank lines, &elastic-newline;</title>
+<section id="elastic-newline"><title>Function &elastic-newline;</title>
 
 <para>The function <code>(&elastic-newline; [&stream-r;])</code> is like
  &fresh-line; but the other way around: It outputs a conditional newline
@@ -4211,14 +4481,13 @@ functions are provided:
  &fresh-line;, &finish-output;, &force-output; or &close;.</para>
 
 <para>The functionality of &elastic-newline; is also available through
- the &format; directive <link linkend="format-dot">~.</link>.</para>
+ the &format; directive &format-dot;.</para>
 
 <para>A technique for avoiding unnecessary blank lines in output is to
  begin each chunk of output with a call to &fresh-line; and to terminate it
  with a call to &elastic-newline;.</para>
 
-<para>See also
- <filename role="clisp-cvs">doc/Newline-Convention.txt</filename>.</para>
+<para>See also <xref linkend="newline-convention"/>.</para>
 
 </section>
 
