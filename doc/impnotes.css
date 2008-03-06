@@ -1,6 +1,6 @@
 /*
  * CLISP implementation notes stylesheets
- * Copyright (C) 2001-2007 by Sam Steingold <sds@gnu.org>
+ * Copyright (C) 2001-2008 by Sam Steingold <sds@gnu.org>
  * Covered by the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
  */
 
@@ -29,6 +29,9 @@ li, td, dd p { margin: 0pt; }
 
 /* mark packages with color */
 .package { background-color: lightgreen; color: navy; }
+
+/* mark format strings with color */
+.format { background-color: lightgray; color: navy; }
 
 /* no border for images */
 img { border-width: 0; }
