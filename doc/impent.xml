@@ -457,6 +457,16 @@
 <!ENTITY mod-expt '<link linkend="mod-expt"><function>EXT:MOD-EXPT</function></link>'>
 <!ENTITY compiled-file-p '<link linkend="compiled-file-p"><function>EXT:COMPILED-FILE-P</function></link>'>
 <!ENTITY help '<olink targetdoc="impnotes" targetptr="debugger-main-deb-step"><command>help</command></olink>'>
+<!ENTITY format-bang '<link linkend="format-bang"><literal>~!</literal></link>'>
+<!ENTITY format-dot '<link linkend="format-dot"><literal>~.</literal></link>'>
+<!ENTITY nlcA '<emphasis role="strong">A</emphasis>'>
+<!ENTITY nlcB '<emphasis role="strong">B</emphasis>'>
+<!ENTITY nlcC '<emphasis role="strong">C</emphasis>'>
+<!ENTITY nlcAB '<emphasis role="strong">AB</emphasis>'>
+<!ENTITY nlcBC '<emphasis role="strong">BC</emphasis>'>
+<!ENTITY nlcBp "<emphasis role='strong'>B'</emphasis>">
+<!ENTITY nlcABp "<emphasis role='strong'>AB'</emphasis>">
+<!ENTITY nlcBpC "<emphasis role='strong'>B'C</emphasis>">
 
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
