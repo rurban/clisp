@@ -283,6 +283,10 @@
  <strong class="{@role}"><xsl:apply-imports/></strong>
 </xsl:template>
 
+<xsl:template match="quote[@role = 'format']">
+ <span class="{@role}"><xsl:apply-imports/></span>
+</xsl:template>
+
 <xsl:template match="firstterm">
  <strong class="first"><xsl:apply-imports/></strong>
 </xsl:template>
