@@ -1,0 +1,47 @@
+strict digraph all {
+  rankdir=LR;
+
+  so [label="standard-object"];
+
+  es [label="eql-specializer", shape="box"];
+
+  bic [label="built-in-class", shape="box"];
+  sc [label="standard-class", shape="box"];
+  fsc [label="funcallable-standard-class", shape="box"];
+  frc [label="forward-referenced-class", shape="box"];
+
+  sd [label="slot-definition"];
+  ssd [label="standard-slot-definition"];
+  dsd [label="direct-slot-definition"];
+  sdsd [label="standard-direct-slot-definition", shape="box"];
+  esd [label="effective-slot-definition"];
+  sesd [label="standard-effective-slot-definition", shape="box"];
+
+  mc [label="method-combination"];
+
+  sm [label="standard-method", shape="box"];
+  sam [label="standard-accessor-method"];
+  srm [label="standard-reader-method", shape="box"];
+  swm [label="standard-writer-method", shape="box"];
+
+  fso [label="funcallable-standard-object"];
+  gf [label="generic-function"];
+  sgf [label="standard-generic-function", shape="box"];
+
+  so -> metaobject -> specializer -> class -> bic;
+    class -> sc; class -> fsc; class -> frc;
+    specializer -> es;
+
+  metaobject -> sd -> ssd;
+    sd -> dsd -> sdsd; sd -> esd -> sesd;
+    ssd -> sdsd; ssd -> sesd;
+
+  metaobject -> mc
+
+  metaobject -> method -> sm -> sam -> srm; sam -> swm;
+
+  function [shape="box"];
+  function -> fso;
+    metaobject -> gf;
+    so -> fso -> gf -> sgf;
+}
