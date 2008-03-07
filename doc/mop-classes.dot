@@ -1,32 +1,32 @@
 strict digraph all {
   rankdir=LR;
 
-  so [label="standard-object"];
+  so [label="standard-\n-object"];
 
-  es [label="eql-specializer", shape="box"];
+  es [label="eql-\n-specializer", shape="box"];
 
-  bic [label="built-in-class", shape="box"];
-  sc [label="standard-class", shape="box"];
-  fsc [label="funcallable-standard-class", shape="box"];
-  frc [label="forward-referenced-class", shape="box"];
+  bic [label="built-\n-in-\n-class", shape="box"];
+  sc [label="standard-\n-class", shape="box"];
+  fsc [label="funcallable-\n-standard-\n-class", shape="box"];
+  frc [label="forward-\n-referenced-\n-class", shape="box"];
 
-  sd [label="slot-definition"];
-  ssd [label="standard-slot-definition"];
-  dsd [label="direct-slot-definition"];
-  sdsd [label="standard-direct-slot-definition", shape="box"];
-  esd [label="effective-slot-definition"];
-  sesd [label="standard-effective-slot-definition", shape="box"];
+  sd [label="slot-\n-definition"];
+  ssd [label="standard-\n-slot-\n-definition"];
+  dsd [label="direct-\n-slot-\n-definition"];
+  sdsd [label="standard-\n-direct-\n-slot-\n-definition", shape="box"];
+  esd [label="effective-\n-slot-\n-definition"];
+  sesd [label="standard-\n-effective-\n-slot-\n-definition", shape="box"];
 
-  mc [label="method-combination"];
+  mc [label="method-\n-combination"];
 
-  sm [label="standard-method", shape="box"];
-  sam [label="standard-accessor-method"];
-  srm [label="standard-reader-method", shape="box"];
-  swm [label="standard-writer-method", shape="box"];
+  sm [label="standard-\n-method", shape="box"];
+  sam [label="standard-\n-accessor-\n-method"];
+  srm [label="standard-\n-reader-\n-method", shape="box"];
+  swm [label="standard-\n-writer-\n-method", shape="box"];
 
-  fso [label="funcallable-standard-object"];
-  gf [label="generic-function"];
-  sgf [label="standard-generic-function", shape="box"];
+  fso [label="funcallable-\n-standard-\n-object"];
+  gf [label="generic-\n-function"];
+  sgf [label="standard-\n-generic-\n-function", shape="box"];
 
   so -> metaobject -> specializer -> class -> bic;
     class -> sc; class -> fsc; class -> frc;
