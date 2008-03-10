@@ -7964,35 +7964,6 @@ local maygc void finish_output_buffered (object stream) {
     }
     end_system_call();
     #endif
-   #else
-    if (!nullp(TheStream(stream)->strm_file_truename)) { /* avoid closing stdout_handle */
-    #if 0
-     /* close File (DOS writes physically): */
-      begin_system_call();
-      if ( CLOSE(TheHandle(BufferedStream_channel(stream))) <0) {
-        end_system_call(); OS_filestream_error(stream);
-      }
-      end_system_call();
-      /* reopen File: */
-      pushSTACK(stream); /* save stream */
-      pushSTACK(TheStream(stream)->strm_file_truename); /* Filename */
-      /* Directory alrady exists: */
-      var object namestring = assume_dir_exists(); /* Filename as ASCIZ-String */
-      var sintW handle;
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-        begin_system_call();
-        handle = OPEN(namestring_asciz,O_RDWR); /* reopen file */
-        if (handle < 0) { end_system_call(); OS_filestream_error(STACK_1); }
-        end_system_call();
-      });
-      /* Now handle contains the Handle of the opened File. */
-      var object handlobj = allocate_handle(handle);
-      skipSTACK(1);
-      stream = popSTACK(); /* restore stream */
-      /* enter new Handle: */
-      BufferedStream_channel(stream) = handlobj;
-    #endif
-    }
    #endif
   }
   /* and reposition: */
