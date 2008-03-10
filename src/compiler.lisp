@@ -2186,6 +2186,8 @@ for-value   NIL or T
        (MAPLAP . c-MAPLAP)
        (TYPEP . c-TYPEP)
        (FORMAT . c-FORMAT)
+       (SORT . c-SORT)
+       (STABLE-SORT . c-SORT)   ; => never occurs in compiled code!
        (NTH . c-NTH)
        (SYSTEM::%SETNTH . c-SETNTH)
        ;; Special case for LIST
@@ -7135,6 +7137,18 @@ for-value   NIL or T
               `(FORMAT ,(second *form*) (FORMATTER ,(third *form*))
                        ,@(cdddr *form*)))))
       (c-GLOBAL-FUNCTION-CALL 'FORMAT))))
+
+(defun c-SORT ()
+  (test-list *form* 3)
+  ;; Give a warning for the common error of transposed predicate and sequence
+  (let ((sequence-form (second *form*)))
+    (when (or (function-form-p sequence-form) (lambda-form-p sequence-form))
+      (c-warn (TEXT "First argument to ~S should be sequence, not ~S")
+              (car *form*) sequence-form))
+    (when (and (consp sequence-form) (quote-p sequence-form))
+      (c-warn (TEXT "~S is destructive, should not be called on a constant ~S")
+              (car *form*) sequence-form))
+    (c-GLOBAL-FUNCTION-CALL 'SORT)))
 
 ;; c-NTH for NTH; c-SETNTH for (SETF NTH)==SYSTEM::%SETNTH
 ;; mostly for (defstruct (foo (:type list))) accessors

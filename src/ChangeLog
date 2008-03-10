@@ -1,5 +1,12 @@
 2008-03-10  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-form-table): SORT & STABLE-SORT -> c-SORT
+	(c-SORT): new function (check arg order, map STABLE-SORT to SORT)
+	* eval.d (FUNTAB): remove stable_sort, add symbol_macro_expand
+	* constobj.d (version): bump
+
+2008-03-10  Sam Steingold  <sds@gnu.org>
+
 	thread safety: remove static variables
 	* pathname.d (struct file_status): new struct type
 	(file_status_init): new function
@@ -225,14 +232,14 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
 	Fix [ 1836142 ] part 2.
-	* lispbibl.d (STACK_register, mv_count_register, value1_register,
-	back_trace_register): Don't define for gcc-4.2 and newer when
+	* lispbibl.d (STACK_register, mv_count_register, value1_register)
+	(back_trace_register): Don't define for gcc-4.2 and newer when
 	USE_GCC_REGISTER_VARIABLES is not defined.
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
-	* lispbibl.d (STACK_register, mv_count_register, value1_register,
-	back_trace_register): Define for gcc-3.3.[4-6].
+	* lispbibl.d (STACK_register, mv_count_register, value1_register)
+	(back_trace_register): Define for gcc-3.3.[4-6].
 
 2008-02-23  Bruno Haible  <bruno@clisp.org>
 
