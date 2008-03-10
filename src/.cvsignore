@@ -33,7 +33,6 @@ impnotes.html
 ansidecl
 txt2c
 ccmp2c
-bindings
 stage
 suite
 clisp-link
@@ -65,7 +64,6 @@ constsym.c
 control.c
 debug.c
 dfloat.c
-dirkey.c
 encoding.c
 error.c
 errunix.c
