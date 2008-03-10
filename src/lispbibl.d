@@ -15131,18 +15131,6 @@ extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
 extern maygc object physical_namestring (object thing);
 %% puts("extern object physical_namestring (object obj);");
 
-/* UP: Gives the directory-namestring in OS-format of a halfway checked
-     pathname assuming that the directory of the pathname exists.
- assume_dir_exists()
- > STACK_0: absolute pathname, halfway checked
- < STACK_0: (poss. the same) pathname, better resolved
- < result:
-     if Name=NIL: Directory-Namestring (for the OS)
-     if Name/=NIL: Namestring (for the OS, with nullbyte at the end)
- can trigger GC */
-extern maygc object assume_dir_exists (void);
-/* is used by STREAM */
-
 /* Converts a directory pathname to an OS directory specification.
  > pathname: an object
  > use_default: whether to use the current default directory
