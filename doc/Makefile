@@ -1,5 +1,5 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2007 Sam Steingold
+# (c) 2000-2008 Sam Steingold
 
 # To generate HTML, you will need xsltproc & xmllint from the libxml2
 # (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
@@ -203,6 +203,11 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	egrep -Hnr 'id="id[0-9]*"' $@ || true
 	(test -n "$(DIST)" && scp -p html/*.html html/id-href.map impnotes.css \
 	 $(DIST)/impnotes/;) || true
+
+# try to use http://www.graphviz.org/ instead of openoffice for MOP
+# class inheritance diagrams
+mop-classes.png : mop-classes.dot
+	dot -Tpng mop-classes.dot -o mop-classes.png
 
 up: impnotes.html html
 	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
