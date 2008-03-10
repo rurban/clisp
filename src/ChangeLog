@@ -1,3 +1,22 @@
+2008-03-10  Sam Steingold  <sds@gnu.org>
+
+	thread safety: remove static variables
+	* pathname.d (struct file_status): new struct type
+	(file_status_init): new function
+	(assure_dir_exists): accept a pointer to struct file_status
+	instead of using STACK_0; return the value in struct file_status
+	(assume_dir_exists): remove
+	(file_exists): use struct file_status instead of a global static
+	(true_namestring): accept struct file_status, do not modify STACK
+	(TRUENAME, PROBE-FILE, DELETE-FILE, rename_file, open_file, CD)
+	(FILE-WRITE-DATE, EXECUTE): update true_namestring invocations
+	(open_input_file, with_stat_info_computed): accept struct file_status
+	(get_time_size): accept pathname directly without STACK
+	(with_stat_info): remove
+	(with_stat_info_arg): rename to with_stat_info
+	(directory_search_scandir, directory_search, shorter_directory):
+	update the assure_dir_exists invocations
+
 2008-03-09  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (assure_dir_exists) [WIN32_NATIVE]:

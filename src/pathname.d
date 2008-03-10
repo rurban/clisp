@@ -5395,21 +5395,34 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
 
 /* UP: guarantees that the Directory of the Pathname exists
  (signals an error if it does not)
- assure_dir_exists(links_resolved,tolerantp)
- > STACK_0: absolute pathname without wildcards in directory
+ assure_dir_exists(file_status,links_resolved,tolerantp)
+ > fs->fs_pathname: absolute pathname without wildcards in directory
  > links_resolved: Flag, whether all links in the directory
                    of the pathname are already resolved
  > tolerantp: Flag, whether an error should be avoided
- < returns:
+ < fs->fs_namestring:
      if Name=NIL: Directory-Namestring (for DOS)
      if Name/=NIL: Namestring (for DOS)
      if tolerantp, maybe: nullobj
  can trigger GC */
 #ifdef WIN32_NATIVE
-local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
-  var bool nnullp = namenullp(STACK_0);
-  if (nnullp && links_resolved) return directory_namestring(STACK_0);
-  with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),path, {
+struct file_status {
+  gcv_object_t *fs_pathname; /* pointer into STACK */
+  object fs_namestring; /* usually returned by assure_dir_exists() */
+};
+local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
+  fs->fs_pathname = path;
+  fs->fs_namestring = nullobj;
+}
+local maygc void assure_dir_exists (struct file_status *fs,
+                                    bool links_resolved, bool tolerantp) {
+  var bool nnullp = namenullp(*(fs->fs_pathname));
+  if (nnullp && links_resolved) {
+    fs->fs_namestring = directory_namestring(*(fs->fs_pathname));
+    return;
+  }
+  with_sstring_0(whole_namestring(*(fs->fs_pathname)),O(pathname_encoding),
+                 path, {
     var char resolved[MAX_PATH];
     var bool substitute = false;
     var bool error = false;
@@ -5440,7 +5453,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
               if (fileattr == 0xFFFFFFFF
                   || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
                 SetLastError(ERROR_DIRECTORY);
-                end_system_call(); OS_file_error(STACK_0);
+                end_system_call(); OS_file_error(*(fs->fs_pathname));
               }
               pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
               /* substitute immediately - w/o substitute flag
@@ -5449,9 +5462,9 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
               /* save old pathname name and type components */
               pushSTACK(ThePathname(STACK_2)->pathname_name);
               pushSTACK(ThePathname(STACK_3)->pathname_type);
-              STACK_4 = STACK_2;
-              ThePathname(STACK_4)->pathname_name = STACK_1;
-              ThePathname(STACK_4)->pathname_type = STACK_0;
+              *(fs->fs_pathname) = STACK_2;
+              ThePathname(*(fs->fs_pathname))->pathname_name = STACK_1;
+              ThePathname(*(fs->fs_pathname))->pathname_type = STACK_0;
               skipSTACK(4);
               error = false;
             }
@@ -5461,8 +5474,11 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
     }
     end_system_call();
     if (error) {
-      if (tolerantp) return nullobj;
-      pushSTACK(copy_pathname(STACK_0));
+      if (tolerantp) {
+        fs->fs_namestring = nullobj;
+        return;
+      }
+      pushSTACK(copy_pathname(*(fs->fs_pathname)));
       ThePathname(STACK_0)->pathname_name = NIL;
       ThePathname(STACK_0)->pathname_type = NIL;
       error_dir_not_exists(popSTACK());
@@ -5470,8 +5486,8 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
     if (substitute) {
       var object resolved_string =
         asciz_to_string(resolved,O(pathname_encoding));
-      STACK_0 = coerce_pathname(resolved_string);
-      nnullp = namenullp(STACK_0);
+      *(fs->fs_pathname) = coerce_pathname(resolved_string);
+      nnullp = namenullp(*(fs->fs_pathname));
     }
   });
   if (!nnullp) {
@@ -5480,22 +5496,10 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
        assure_dir_exists() must call MERGE-PATHNAMES  */
     funcall(L(merge_pathnames),1); pushSTACK(value1);
   }
-  { var object dns = directory_namestring(STACK_0);
-    return nnullp ? dns : OSnamestring(dns); }
+  { var object dns = directory_namestring(*(fs->fs_pathname));
+    fs->fs_namestring = nnullp ? dns : OSnamestring(dns); }
 }
 #endif
-
-/* UP: returns the directory-namestring of a pathname under the assumption,
-     that the directory of this pathname exists.
- assume_dir_exists()
- > STACK_0: absolute pathname without wildcards in the directory
- < result:
-     if Name=NIL: directory-namestring (for DOS)
-     if Name/=NIL: namestring (for DOS)
- can trigger GC */
-local maygc object assume_dir_exists (void) {
-  return assure_dir_exists(true,false);
-}
 
 #endif
 
@@ -5558,20 +5562,33 @@ local maygc object use_default_dir (object pathname) {
 
 /* UP: Assures, that the directory of a pathname exists, and thereby resolves
  symbolic links.
- assure_dir_exists(tolerantp)
- > STACK_0: non-logical pathname, whose directory does not contain :RELATIVE.
+ assure_dir_exists(file_status, links_resolved, tolerantp)
+ > file_status->fs_pathname: non-logical pathname,
+     whose directory does not contain :RELATIVE.
  > links_resolved: Flag, if all links in the directory of the pathname
      are already resolved and if it is known to exist
  > tolerantp: flag, if an error is to be avoided
- < STACK_0: (poss. the same) pathname, whereas neither for the directory nor
-            for the Filename a symbolic link is to be tracked.
- < result:
+ < file_status->fs_pathname: (poss. the same) pathname, whereas neither for
+     the directory nor for the Filename a symbolic link is to be tracked.
+ < file_status->fs_namestring:
      if Name=NIL: directory-namestring (for UNIX, with '/' at the end)
      if Name/=NIL: namestring (for UNIX)
      if tolerantp poss.: nullobj
- < filestatus: if Name/=NIL: NULL if the file does not exist,
-                                  else a pointer to a STAT-information.
+ < file_status->fs_stat_validp: if Name/=NIL:
+     false if the file does not exist,
+     true if it exists, in which case file_status->fs_stat contains its stats
  can trigger GC */
+struct file_status {
+  gcv_object_t *fs_pathname; /* pointer into STACK */
+  object fs_namestring; /* usually returned by assure_dir_exists() */
+  bool fs_stat_validp;
+  struct stat fs_stat;
+};
+local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
+  fs->fs_pathname = path;
+  fs->fs_namestring = nullobj;
+  fs->fs_stat_validp = false;
+}
 
 /* this has to be done this ugly way since C does not allow conditionals
  (like #ifdef HAVE_LSTAT) inside macros (like with_sstring_0) */
@@ -5590,8 +5607,8 @@ local char* realpath_obj (object namestring, char *path_buffer) {
   });
   return ret;
 }
-local var struct stat * filestatus;
-local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
+local maygc void assure_dir_exists (struct file_status *fs,
+                                    bool links_resolved, bool tolerantp) {
   var uintC allowed_links = MAXSYMLINKS; /* number of allowed symbolic links */
   if (links_resolved)
     goto dir_exists;
@@ -5599,22 +5616,22 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
     { /* determine Truepath of the directory: */
       var char path_buffer[MAXPATHLEN]; /* cf. REALPATH(3) */
       {
-        var object pathname = STACK_0;
+        var object pathname = *(fs->fs_pathname);
         var uintC stringcount = /* host and directory strings */
           directory_namestring_parts(pathname);
         pushSTACK(O(dot_string)); /* and "." */
         var object string = string_concat(stringcount+1); /* concatenate */
         /* resolve symbolic links therein: */
         if (realpath_obj(string,path_buffer) == NULL) {
-          if (errno!=ENOENT) { OS_file_error(STACK_0); }
+          if (errno!=ENOENT) { OS_file_error(*(fs->fs_pathname)); }
           if (!tolerantp)
             error_dir_not_exists(asciz_dir_to_pathname(path_buffer,O(pathname_encoding))); /* erroneous component */
-          return nullobj;
+          fs->fs_namestring = nullobj; return;
         }
       }
       /* new Directory-Path must start with '/' : */
       if (!(path_buffer[0] == '/')) {
-        /* STACK_0 = FILE-ERROR slot PATHNAME */
+        pushSTACK(*(fs->fs_pathname)); /* FILE-ERROR slot PATHNAME */
         pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding)));
         error(file_error,GETTEXT("UNIX REALPATH returned ~S"));
       }
@@ -5626,39 +5643,42 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
         *pathptr = '/'; len++; /* add a '/' */
       }
       /* and convert to a string: */
-      var object new_string = n_char_to_string(&path_buffer[0],len,O(pathname_encoding));
+      var object new_string =
+        n_char_to_string(&path_buffer[0],len,O(pathname_encoding));
       /* turn it into a pathname and use its Directory: */
       var object new_pathname = coerce_pathname(new_string);
-      ThePathname(STACK_0)->pathname_directory
+      ThePathname(*(fs->fs_pathname))->pathname_directory
         = ThePathname(new_pathname)->pathname_directory;
     }
   dir_exists:
     /* get information for the addressed file: */
-    if (namenullp(STACK_0)) /* no file addressed? */
-      return directory_namestring(STACK_0); /* yes -> finished */
-    var object namestring = whole_namestring(STACK_0); /* concatenate */
+    if (namenullp(*(fs->fs_pathname))) { /* no file addressed? */
+      fs->fs_namestring = directory_namestring(*(fs->fs_pathname));
+      return; /* yes -> finished */
+    }
+    fs->fs_namestring = whole_namestring(*(fs->fs_pathname)); /* concat */
     /* get information: */
-    var local struct stat status;
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+    with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
       begin_system_call();
-      if (!( lstat(namestring_asciz,&status) ==0)) {
+      if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
         if (!(errno==ENOENT))
-          { end_system_call(); OS_file_error(STACK_0); }
+          { end_system_call(); OS_file_error(*(fs->fs_pathname)); }
         /* file does not exist. */
         end_system_call();
         FREE_DYNAMIC_ARRAY(namestring_asciz);
-        filestatus = (struct stat *)NULL; return namestring;
+        fs->fs_stat_validp = false; return;
       }
       end_system_call();
       /* file exists. */
-      if (S_ISDIR(status.st_mode)) { /* is it a directory? */
-        /* STACK_0 = FILE-ERROR slot PATHNAME */
-        pushSTACK(whole_namestring(STACK_0));
+      if (S_ISDIR(fs->fs_stat.st_mode)) { /* is it a directory? */
+        pushSTACK(*(fs->fs_pathname)); /* FILE-ERROR slot PATHNAME */
+        pushSTACK(whole_namestring(*(fs->fs_pathname)));
         pushSTACK(TheSubr(subr_self)->name);
         error(file_error,GETTEXT("~S: ~S names a directory, not a file"));
       }
      if_HAVE_LSTAT(
-      else if (possible_symlink(namestring_asciz) && S_ISLNK(status.st_mode)) {
+      else if (possible_symlink(namestring_asciz)
+               && S_ISLNK(fs->fs_stat.st_mode)) {
         /* is it a symbolic link?
            yes -> continue resolving: */
         if (allowed_links==0) { /* no more links allowed? */
@@ -5666,10 +5686,10 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
           begin_system_call();
           errno = ELOOP_VALUE;
           end_system_call();
-          OS_file_error(STACK_0);
+          OS_file_error(*(fs->fs_pathname));
         }
         allowed_links--; /* after that, one link less is allowed */
-        var uintL linklen = status.st_size; /* presumed length of the link-content */
+        var uintL linklen = fs->fs_stat.st_size; /* presumed length of the link-content */
        retry_readlink: {
           var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
           /* read link-content: */
@@ -5678,7 +5698,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
             var int result = readlink(namestring_asciz,linkbuf,linklen);
             end_system_call();
             if (result<0)
-              OS_file_error(STACK_0);
+              OS_file_error(*(fs->fs_pathname));
             if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
               FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
             }
@@ -5690,29 +5710,19 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
         }
         funcall(L(parse_namestring),1);
         pushSTACK(value1);
-        var object pathname = copy_pathname(STACK_(0+1));
+        var object pathname = copy_pathname(*(fs->fs_pathname));
         ThePathname(pathname)->pathname_name = NIL;
         ThePathname(pathname)->pathname_type = NIL;
         pushSTACK(pathname);
         funcall(L(merge_pathnames),2);
-        STACK_0 = value1;
+        *(fs->fs_pathname) = value1;
       }
      ) /* HAVE_LSTAT */
       else { /* normal file */
-        filestatus = &status; return namestring;
+        fs->fs_stat_validp = true; return;
       }
     });
   }
-}
-
-/* the same under the assumption, that the directory already exists.
-   (only a little simplification, as the file can be a symbolic link into a
-   different directory, and this must be tested to exist.) */
-local maygc object assume_dir_exists (void) {
-  var object ret;
-  with_saved_back_trace_subr(L(open),STACK STACKop -7,-1,
-    ret = assure_dir_exists(true,false); );
-  return ret;
 }
 
 #endif
@@ -5814,33 +5824,31 @@ nonreturning_function(local, error_notdir, (object pathname)) {
          error_notdir(pathname); } while(0)
 
 /* test, if a file exists:
- file_exists(namestring)
- > led the way: assure_dir_exists()
- > STACK_0: pathname, the same as after execution of assure_dir_exists(), Name/=NIL
- > namestring: its namestring for the operating system */
+ file_exists(file_status)
+ > only after: assure_dir_exists() */
 #ifdef WIN32_NATIVE
-  local inline int access0 (const char* path) {
+  local inline int access0 (const char* path, struct file_status *fs) {
     begin_system_call();
     var DWORD fileattr = GetFileAttributes(path);
     if (fileattr == 0xFFFFFFFF) {
       if (WIN32_ERROR_NOT_FOUND) {
         end_system_call(); return -1;
       }
-      end_system_call(); OS_file_error(STACK_0);
+      end_system_call(); OS_file_error(*(fs->fs_pathname));
     }
     end_system_call();
     return 0;
   }
-  local bool file_exists (object namestring) {
+  local bool file_exists (struct file_status *fs) {
     var bool exists;
-    with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      exists = (access0(namestring_asciz)==0);
+    with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
+      exists = (access0(namestring_asciz,fs)==0);
     });
     return exists;
   }
 #endif
 #ifdef UNIX
-  #define file_exists(namestring)  (!(filestatus == (struct stat *)NULL))
+  #define file_exists(fs)  ((fs)->fs_stat_validp)
   #define FILE_EXISTS_TRIVIAL
 #endif
 
@@ -5855,21 +5863,20 @@ nonreturning_function(local, error_file_not_exists, (void)) {
 }
 
 /* TRUENAME for a pathname
- pushes pathname on the stack and
- returns the truename (filename for the operating system) or nullobj
+ set fs->fs_pathname to the truename (filename for the operating system)
+ or nullobj
  can trigger GC */
-local maygc object true_namestring (object pathname, bool noname_p,
-                                    bool tolerantp) {
-  check_no_wildcards(pathname); /* with wildcards -> error */
-  pathname = use_default_dir(pathname); /* insert default-directory */
-  if (noname_p) check_noname(pathname);
-  pushSTACK(pathname); /* directory must exist: */
-  return assure_dir_exists(false,tolerantp);
+local maygc void true_namestring (struct file_status *fs, bool noname_p,
+                                  bool tolerantp) {
+  check_no_wildcards(*fs->fs_pathname); /* with wildcards -> error */
+  *(fs->fs_pathname) = use_default_dir(*(fs->fs_pathname)); /* insert default-directory */
+  if (noname_p) check_noname(*(fs->fs_pathname));
+  assure_dir_exists(fs,false,tolerantp);
 }
 
 LISPFUNNR(truename,1)
 { /* (TRUENAME pathname), CLTL p. 413 */
-  var object pathname = popSTACK(); /* pathname-argument */
+  var object pathname = STACK_0; /* pathname-argument */
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
     /* must be file-stream: */
     pathname = as_file_stream(pathname);
@@ -5877,12 +5884,12 @@ LISPFUNNR(truename,1)
     /* Streamtype File-Stream */
     VALUES1(TheStream(pathname)->strm_file_truename);
   } else {
-    var object namestring =
-      true_namestring(merge_defaults(coerce_pathname(pathname)),false,false);
-    if (namenullp(STACK_0)) {
-      /* no name specified */
-      if (!nullp(ThePathname(STACK_0)->pathname_type)) {
-        /* STACK_0 = FILE-ERROR slot PATHNAME */
+    var struct file_status fs; file_status_init(&fs,&STACK_0);
+    *(fs.fs_pathname) = merge_defaults(coerce_pathname(pathname));
+    true_namestring(&fs,false,false);
+    if (namenullp(*(fs.fs_pathname))) { /* no name specified */
+      if (!nullp(ThePathname(*(fs.fs_pathname))->pathname_type)) {
+        pushSTACK(*(fs.fs_pathname)); /* FILE-ERROR slot PATHNAME */
         pushSTACK(STACK_0); /* pathname */
         pushSTACK(TheSubr(subr_self)->name);
         error(file_error,GETTEXT("~S: pathname with type but without name makes no sense: ~S"));
@@ -5891,11 +5898,12 @@ LISPFUNNR(truename,1)
     } else {
       /* name specified.
        check, if the file exists: */
-      if (!file_exists(namestring)) { error_file_not_exists(); }
+      if (!file_exists(&fs)) { error_file_not_exists(); }
       /* file exists -> pathname as value */
     }
-    VALUES1(popSTACK());
+    VALUES1(*(fs.fs_pathname));
   }
+  skipSTACK(1);
 }
 
 LISPFUNNR(probe_file,1)
@@ -5916,17 +5924,17 @@ LISPFUNNR(probe_file,1)
   } else /* turn into a pathname */
     pathname = merge_defaults(coerce_pathname(pathname));
   /* pathname is now a Pathname. */
-  var object namestring = true_namestring(pathname,true,true);
-  if (eq(namestring,nullobj)) {
+  pushSTACK(pathname);
+  var struct file_status fs; file_status_init(&fs,&STACK_0);
+  true_namestring(&fs,true,true);
+  if (eq(fs.fs_namestring,nullobj)) {
     /* path to the file does not exist -> NIL as value: */
     skipSTACK(1); VALUES1(NIL); return;
   }
-  /* check, if the file exists: */
-  if (file_exists(namestring)) {
-    VALUES1(popSTACK()); /* file exists -> pathname as value */
-  } else {
-    skipSTACK(1); VALUES1(NIL); return; /* else NIL as value */
-  }
+  if (file_exists(&fs)) /* check, if the file exists: */
+    VALUES1(*(fs.fs_pathname)); /* file exists -> pathname as value */
+  else VALUES1(NIL); /* else NIL as value */
+  skipSTACK(1);
 }
 
 /* call stat(2) on the object and return its return value
@@ -6090,12 +6098,12 @@ LISPFUNN(delete_file,1) {
   pathname = use_default_dir(pathname); /* insert default-directory */
   check_noname(pathname);
   pushSTACK(pathname); pushSTACK(pathname);
-  var object namestring = assure_dir_exists(false,true);
-  if (!eq(namestring,nullobj)) /* path to the file exists */
-    check_delete_open(STACK_0);
+  var struct file_status fs; file_status_init(&fs,&STACK_0);
+  assure_dir_exists(&fs,false,true);
+  if (!eq(fs.fs_namestring,nullobj)) /* path to the file exists */
+    check_delete_open(*(fs.fs_pathname));
   /* delete the original filename - not the truename (which may be invalid!) */
-  namestring = whole_namestring(STACK_1);
-  if (delete_file_if_exists_obj(namestring))
+  if (delete_file_if_exists_obj(whole_namestring(STACK_1)))
     /* file existed, was deleted -> pathname (/=NIL) as value */
     VALUES1(nullp(O(ansi)) ? (object)STACK_1 : T);
   else /* file does not exist -> value NIL */
@@ -6128,26 +6136,28 @@ local void rename_file (void) {
   }
   /* stack layout: filename, newname, oldpathname, newpathname. */
   { /* 2. check oldpathname: */
-    var object oldpathname = STACK_1;
-    var object old_namestring = true_namestring(oldpathname,true,false);
-    check_rename_open(STACK_0); /* do not rename open files! */
-    if (!file_exists(old_namestring))
+    pushSTACK(STACK_1);
+    var struct file_status fs; file_status_init(&fs,&STACK_0);
+    true_namestring(&fs,true,false);
+    check_rename_open(*(fs.fs_pathname)); /* do not rename open files! */
+    if (!file_exists(&fs))
       error_file_not_exists();
-    pushSTACK(old_namestring);
+    pushSTACK(fs.fs_namestring);
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
                 oldtruename, oldnamestring. */
   { /* 3. check newpathname: */
     var object newpathname = coerce_pathname(STACK_2);
-    var object new_namestring = true_namestring(newpathname,true,false);
+    pushSTACK(newpathname);
+    var struct file_status fs; file_status_init(&fs,&STACK_0);
+    true_namestring(&fs,true,false);
     /* stack layout: filename, newname, oldpathname, newpathname,
                   oldtruename, oldnamestring, newtruename.
      4. rename file: */
-    if (file_exists(new_namestring)) {
+    if (file_exists(&fs))
       /* file already exists -> do not delete without forewarn */
       error_file_exists();
-    }
-    pushSTACK(new_namestring);
+    pushSTACK(fs.fs_namestring);
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
                 oldtruename, oldnamestring, newtruename, newnamestring.
@@ -6216,20 +6226,21 @@ local inline void create_new_file (char* pathstring) {
 }
 
 /* Open a file for input.
- open_input_file(pathstring,create_if_not_exists,&handle)
- > led the way: assure_dir_exists()
+ open_input_file(file_status, pathstring,create_if_not_exists,&handle)
+ > only after: assure_dir_exists()
+ > file_status: structure, filled in by assure_dir_exists()
  > pathstring: file name, ASCIZ-String
  > create_if_not_exists: if true, the file must be created
  > STACK_0: pathname
  < handle: open file handle
  < result: whether the file could be opened (necessarily true if create_if_not_exists) */
-local inline bool open_input_file (char* pathstring, bool create_if_not_exists,
-                                   Handle* handle_) {
+local inline bool open_input_file (struct file_status *fs, char* pathstring,
+                                   bool create_if_not_exists, Handle* handle_) {
  #ifdef UNIX
   var int result;
   #ifdef FILE_EXISTS_TRIVIAL
   var int oflags = O_RDONLY | O_BINARY;
-  if (!file_exists(_EMA_)) {
+  if (!file_exists(fs)) {
     /* file does not exist */
     if (!create_if_not_exists) return false;
     /* create file with open: */
@@ -6343,7 +6354,7 @@ local inline Handle open_output_file_obj (object namestring, bool wronly,
 
 /* Create a backup file before opening a file for output.
  create_backup_file(pathstring,delete_backup_file);
- > led the way: assure_dir_exists()
+ > only after: assure_dir_exists()
  > pathstring: file name, ASCIZ-String
  > delete_backup_file: if true, delete the backup file
  > STACK_0: pathname
@@ -6547,19 +6558,19 @@ local maygc object open_file (object filename, direction_t direction,
   pushSTACK(NIL);     /* reserve space on STACK for namestring ... */
   var gcv_object_t *namestring_ = &STACK_0; /* ... and remember it */
   pushSTACK(STACK_(3+1)); /* save filename */
-  { /* Directory must exist: */
-    var object namestring = /* File name for the operating system */
-      /* tolerant only if :PROBE and if_not_exists = UNBOUND or NIL */
-      true_namestring(filename,true,
-                      ((direction == DIRECTION_PROBE)
-                       && (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
-                      || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
-    if (eq(namestring,nullobj))
-      /* path to the file does not exist,
-         and :IF-DOES-NOT-EXIST = unbound or NIL */
-      goto result_NIL;
-    *namestring_ = namestring;
-  }
+  /* Directory must exist: */
+  pushSTACK(filename);
+  var struct file_status fs; file_status_init(&fs,&STACK_0);
+  /* tolerant only if :PROBE and if_not_exists = UNBOUND or NIL */
+  true_namestring(&fs,true,
+                  ((direction == DIRECTION_PROBE)
+                   && (if_not_exists == IF_DOES_NOT_EXIST_UNBOUND))
+                  || (if_not_exists == IF_DOES_NOT_EXIST_NIL));
+  if (eq(fs.fs_namestring,nullobj))
+    /* path to the file does not exist,
+       and :IF-DOES-NOT-EXIST = unbound or NIL */
+    goto result_NIL;
+  *namestring_ = fs.fs_namestring;
   /* stack layout: Namestring, Pathname, Truename
    check filename and get the handle: */
   check_file_re_open(*namestring_,direction);
@@ -6568,7 +6579,7 @@ local maygc object open_file (object filename, direction_t direction,
   var bool wronly_flag = false;
   switch (direction) {
     case DIRECTION_PROBE:
-      if (!file_exists(*namestring_)) { /* file does not exist */
+      if (!file_exists(&fs)) { /* file does not exist */
         /* :IF-DOES-NOT-EXIST decides: */
         if (if_not_exists==IF_DOES_NOT_EXIST_ERROR)
           goto error_notfound;
@@ -6586,7 +6597,7 @@ local maygc object open_file (object filename, direction_t direction,
       var Handle handl;
       var bool result;
       with_sstring_0(*namestring_,O(pathname_encoding),namestring_asciz, {
-        result = open_input_file(namestring_asciz,
+        result = open_input_file(&fs,namestring_asciz,
                                  if_not_exists==IF_DOES_NOT_EXIST_CREATE,
                                  &handl);
       });
@@ -6613,7 +6624,7 @@ local maygc object open_file (object filename, direction_t direction,
       if (if_exists==IF_EXISTS_UNBOUND)
         if_exists = IF_EXISTS_SUPERSEDE;
      #if defined(UNIX) || defined(WIN32_NATIVE)
-      if (file_exists(*namestring_)) {
+      if (file_exists(&fs)) {
         /* file exists => :IF-EXISTS decides: */
         switch (if_exists) {
           case IF_EXISTS_ERROR:
@@ -6793,13 +6804,15 @@ local maygc void pack_full_info (decoded_time_t *timepoint, off_t *entry_size) {
     (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
 
 /* UP: get mtime and size from filesystem
- > STACK_0: absolute pathname, links resolved
+ > pathname: absolute pathname, links resolved
  < timepoint: decoded time
  < entry_size: file size
  can trigger GC */
-local maygc void get_time_size (decoded_time_t *timepoint, off_t *entry_size) {
+local maygc void get_time_size (gcv_object_t *pathname,
+                                decoded_time_t *timepoint, off_t *entry_size) {
   READDIR_var_declarations;
-  with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),resolved_asciz,{
+  with_sstring_0(whole_namestring(*pathname),O(pathname_encoding),
+                 resolved_asciz,{
     var bool notfound = false;
     /* strip trailing slash,
        see http://msdn2.microsoft.com/en-us/library/aa364418.aspx */
@@ -6809,17 +6822,17 @@ local maygc void get_time_size (decoded_time_t *timepoint, off_t *entry_size) {
     READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
     end_system_call();
     if (notfound) /* just to be paranoid */
-      OS_file_error(STACK_1);
+      OS_file_error(*pathname);
     begin_system_call(); FindClose(search_handle); end_system_call();
     READDIR_entry_timedate(timepoint);
     *entry_size = READDIR_entry_size();
   });
   READDIR_end_declarations;
 }
-local maygc void with_stat_info_computed (void) {
+local maygc void with_stat_info_computed (struct file_status *fs) {
   decoded_time_t timepoint;
   off_t entry_size;
-  get_time_size(&timepoint,&entry_size); /* about STACK_0 */
+  get_time_size(fs->fs_pathname,&timepoint,&entry_size);
   pack_full_info(&timepoint,&entry_size);
 }
 #endif
@@ -6871,17 +6884,18 @@ local maygc object pathname_add_subdir (object pathname, object subdir) {
  > *filestatus: its stat-info
  < STACK_0: list (Pathname Truename Write-Date Length [Comment])
             in :FULL-Format */
-local void with_stat_info_arg (struct stat *filestatus) {
+local void with_stat_info (struct stat *filestatus) {
   var decoded_time_t timepoint; /* Write-Date in decoded form */
   convert_time(&(filestatus->st_mtime),&timepoint);
   pack_full_info(&timepoint,&(filestatus->st_size));
 }
-#define with_stat_info() with_stat_info_arg(filestatus)
-local void with_stat_info_computed (void) {
-  struct stat status;
-  if (stat_obj(whole_namestring(STACK_0),&status) < 0)
-    OS_file_error(STACK_0);
-  with_stat_info_arg(&status);
+local void with_stat_info_computed (struct file_status *fs) {
+  if (!fs->fs_stat_validp) {
+    if (stat_obj(whole_namestring(*(fs->fs_pathname)),&(fs->fs_stat)) < 0)
+      OS_file_error(*(fs->fs_pathname));
+    fs->fs_stat_validp = true;
+  }
+  with_stat_info(&(fs->fs_stat));
 }
 #endif
 
@@ -7166,11 +7180,12 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   pushSTACK(pathname);
                 }
                 /* form truename (resolve symbolic links): */
-                if (!eq(nullobj,assure_dir_exists(true,true))
-                    && file_exists(_EMA_)) {
+                var struct file_status fs; file_status_init(&fs,&STACK_0);
+                assure_dir_exists(&fs,true,true);
+                if (!eq(nullobj,fs.fs_namestring) && file_exists(&fs)) {
                   /* if file (still...) exists */
                   if (dsp->full_p) /* :FULL wanted? */
-                    with_stat_info(); /* yes -> extend STACK_0 */
+                    with_stat_info(&(fs.fs_stat)); /* yes -> extend STACK_0 */
                   /* and push STACK_0 in front of result-list: */
                   PUSH_ON_STACK(0,4+4+3+2);
                 } else if (dsp->if_none == DIR_IF_NONE_KEEP)
@@ -7455,18 +7470,19 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         /* try to shorten the task a little: */
         if (!recursively) {
           switch (next_task) {
-            case 0: /* return this directory pathname */
+            case 0: { /* return this directory pathname */
               ASSERT(namenullp(STACK_0));
               pushSTACK(copy_pathname(STACK_0));
-              assure_dir_exists(false,false); /* first resolve links */
-              if (dsp->full_p) /* assure_dir_exists does not set filestatus */
-                with_stat_info_computed();
+              var struct file_status fs; file_status_init(&fs,&STACK_0);
+              assure_dir_exists(&fs,false,false); /* first resolve links */
+              if (dsp->full_p) /* assure_dir_exists does not fill fs_stat */
+                with_stat_info_computed(&fs);
               /* and push STACK_0 in front of result-list: */
               PUSH_ON_STACK(0,4+4+2);
               skipSTACK(2);
-              goto next_pathname;
+            } goto next_pathname;
            #if !defined(WIN32_NATIVE)
-            case 1: /* look in this pathname for a file */
+            case 1: { /* look in this pathname for a file */
               ThePathname(pathname)->pathname_name = /* insert name (/=NIL) */
                 ThePathname(STACK_(3+4+1))->pathname_name;
               ThePathname(pathname)->pathname_type = /* insert type */
@@ -7474,44 +7490,45 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
               ThePathname(pathname)->pathname_version =
                 DEFAULT_VERSION; /* original may be :WILD! */
               pushSTACK(pathname);
-              assure_dir_exists(true,false); /* resolve links, search file */
-              if (file_exists(_EMA_)) { /* if file exists */
+              var struct file_status fs; file_status_init(&fs,&STACK_0);
+              assure_dir_exists(&fs,true,false); /* resolve links, stat file */
+              if (file_exists(&fs)) { /* if file exists */
                 /* extend result-list: */
                 if (dsp->full_p) /* :FULL wanted? */
-                  with_stat_info(); /* yes -> extend STACK_0 */
+                  with_stat_info(&(fs.fs_stat)); /* yes -> extend STACK_0 */
                 /* and push STACK_0 in front of result-list: */
                 PUSH_ON_STACK(0,4+4+2);
               }
               skipSTACK(2);
-              goto next_pathname;
+            } goto next_pathname;
            #endif
-            case -1: /* search for a subdirectory in this pathname */
+            case -1: { /* search for a subdirectory in this pathname */
+              var struct file_status fs; file_status_init(&fs,&STACK_0);
+              assure_dir_exists(&fs,true,false); /* resolve links, directory-namestring */
+              pushSTACK(fs.fs_namestring); /* directory-namestring */
               {
-                var object namestring = assure_dir_exists(true,false); /* resolve links, directory-namestring */
-                pushSTACK(namestring); /* directory-namestring */
-
-                {
-                  var object subdir = Car(STACK_(1+4+1+1)); /* (car subdir-list) */
-                  SUBDIR_PUSHSTACK(subdir);
-                }
-               #if defined(WIN32_NATIVE)
-                pushSTACK(O(backslash_string));
-                namestring = string_concat(3); /* concatenate */
-               #else
-                namestring = string_concat(2);
-               #endif
-                /* get information: */
-                directory_search_1subdir(Car(STACK_(1+4+1)),namestring);
+                var object subdir = Car(STACK_(1+4+1+1)); /*(car subdir-list)*/
+                SUBDIR_PUSHSTACK(subdir);
               }
-              skipSTACK(1);
-              goto next_pathname;
+             #if defined(WIN32_NATIVE)
+              pushSTACK(O(backslash_string));
+              fs.fs_namestring = string_concat(3); /* concatenate */
+             #else
+              fs.fs_namestring = string_concat(2);
+             #endif
+              /* get information: */
+              directory_search_1subdir(Car(STACK_(1+4+1)),fs.fs_namestring);
+            }
+            skipSTACK(1);
+            goto next_pathname;
           }
         }
         /* in order to finish the task, all entries in this directory
          have to be scanned: */
         {
-          var object dir_namestring = assure_dir_exists(true,false); /* resolve links, form directory-name */
-          pushSTACK(dir_namestring); /* save */
+          var struct file_status fs; file_status_init(&fs,&STACK_0);
+          assure_dir_exists(&fs,true,false); /* resolve links, form directory-name */
+          pushSTACK(fs.fs_namestring); /* save */
         }
         /* stack layout: ..., pathname, dir_namestring. */
        #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -7649,7 +7666,9 @@ LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL) {
      set name and type to NIL: */
   ThePathname(pathname)->pathname_name = NIL;
   ThePathname(pathname)->pathname_type = NIL;
-  true_namestring(pathname,false,false); /* the directory must exist */
+  pushSTACK(pathname);
+  var struct file_status fs; file_status_init(&fs,&STACK_0);
+  true_namestring(&fs,false,false); /* the directory must exist */
   change_default(); /* set default drive and default directory */
   VALUES1(popSTACK()); /* new pathname as the value */
 }
@@ -7692,10 +7711,10 @@ local maygc object shorter_directory (object pathname, bool resolve_links) {
   /* this directory must exist: */
   pushSTACK(pathname);
   /* stack layout: pathname, subdircons, pathname. */
-  var object dir_namestring =
-    (resolve_links ? assure_dir_exists(false,false) : assume_dir_exists());
+  var struct file_status fs; file_status_init(&fs,&STACK_0);
+  assure_dir_exists(&fs,!resolve_links,false);
   /* build subdir-string for the operating system: */
-  STACK_0 = dir_namestring; /* directory-namestring so far as 1st String */
+  STACK_0 = fs.fs_namestring; /* directory-namestring so far as 1st String */
   var uintC stringcount =  /* the strings in the last subdir */
     subdir_namestring_parts(STACK_1,false);
   /* and no '\' at the end (for the OS)
@@ -7999,14 +8018,16 @@ LISPFUNNR(file_write_date,1)
   } else { /* turn into a pathname */
     pathname = merge_defaults(coerce_pathname(pathname));
    is_pathname: { /* pathname is now really a pathname */
-      var object namestring = true_namestring(pathname,true,false);
+      pushSTACK(pathname);
+      var struct file_status fs; file_status_init(&fs,&STACK_0);
+      true_namestring(&fs,true,false);
      #ifdef UNIX
-      if (!file_exists(namestring)) { error_file_not_exists(); } /* file must exist */
-      file_datetime = filestatus->st_mtime;
+      if (!file_exists(&fs)) { error_file_not_exists(); } /* file must exist */
+      file_datetime = fs.fs_stat.st_mtime;
      #endif
      #ifdef WIN32_NATIVE
       /* Only a directory search gives us the times. */
-      with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
+      with_sstring_0(fs.fs_namestring,O(pathname_encoding),namestring_asciz, {
         var HANDLE search_handle;
         begin_system_call();
         search_handle = FindFirstFile(namestring_asciz,&filedata);
@@ -8054,10 +8075,10 @@ LISPFUNNR(file_author,1)
   } else {
     pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
    is_pathname: { /* pathname is now really a pathname */
-      var object namestring = true_namestring(pathname,true,false);
-     #if defined(UNIX) || defined(WIN32_NATIVE)
-      if (!file_exists(namestring)) { error_file_not_exists(); } /* file must exist */
-     #endif
+      pushSTACK(pathname);
+      var struct file_status fs; file_status_init(&fs,&STACK_0);
+      true_namestring(&fs,true,false);
+      if (!file_exists(&fs)) { error_file_not_exists(); } /* file must exist */
       skipSTACK(1);
     }
   }
@@ -8074,11 +8095,12 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
     var gcv_object_t* argptr = args_pointer; /* Pointer to the arguments */
     { /* check file: */
       var gcv_object_t* file_ = &NEXT(argptr);
-      var object namestring = true_namestring(coerce_pathname(*file_),
-                                              true,false);
+      pushSTACK(coerce_pathname(*file_));
+      var struct file_status fs; file_status_init(&fs,&STACK_0);
+      true_namestring(&fs,true,false);
       /* check, if the file exists: */
-      if (!file_exists(namestring)) { error_file_not_exists(); }
-      *file_ = string_to_asciz(namestring,O(pathname_encoding)); /* save */
+      if (!file_exists(&fs)) { error_file_not_exists(); }
+      *file_ = string_to_asciz(fs.fs_namestring,O(pathname_encoding)); /* save */
       skipSTACK(1);
     }
     { /* check the other arguments: */
