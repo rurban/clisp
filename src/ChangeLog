@@ -1,3 +1,8 @@
+2008-03-09  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (assure_dir_exists) [WIN32_NATIVE]:
+	move some code outside of with_sstring_0()
+
 2008-03-06  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-GLOBAL-FUNCTION-CALL): treat SYS::%UNBOUND using ...
