@@ -117,7 +117,7 @@ local const Subr FUNTAB[] = {
   _(vectorp), _(simple_vector_p), _(simple_string_p), _(simple_bit_vector_p),
   _(type_of), _(class_of), _(find_class), _(coerce), _(typep_class),
   _(defined_class_p), _(proper_list_p), _(pcompiled_function_p),
-  /* RECORD : 28 SUBRs */
+  /* RECORD : 29 SUBRs */
   _(record_ref), _(record_store), _(record_length), _(structure_ref),
   _(structure_store), _(make_structure), _(copy_structure),
   _(structure_type_p), _(closure_name), _(closure_codevec),
@@ -126,8 +126,9 @@ local const Subr FUNTAB[] = {
   _(function_macro_function), _(structure_object_p), _(std_instance_p),
   _(slot_value), _(set_slot_value), _(slot_boundp), _(slot_makunbound),
   _(slot_exists_p), _(macrop), _(macro_expander), _(symbol_macro_p),
+  _(symbol_macro_expand),
   _(standard_instance_access), _(set_standard_instance_access),
-  /* SEQUENCE : 40 SUBRs */
+  /* SEQUENCE : 40-1 SUBRs */
   _(sequencep), _(elt), _(setelt), _(subseq), _(copy_seq), _(length),
   _(reverse), _(nreverse), _(make_sequence), _(reduce), _(fill),
   _(replace), _(remove), _(remove_if), _(remove_if_not), _(delete),
@@ -136,7 +137,7 @@ local const Subr FUNTAB[] = {
   _(substitute_if_not), _(nsubstitute), _(nsubstitute_if),
   _(nsubstitute_if_not), _(find), _(find_if), _(find_if_not), _(position),
   _(position_if), _(position_if_not), _(count), _(count_if),
-  _(count_if_not), _(mismatch), _(search), _(sort), _(stable_sort),
+  _(count_if_not), _(mismatch), _(search), _(sort), /* _(stable_sort), */
   _(merge),
   /* STREAM : 24 SUBRs */
   _(file_stream_p), _(make_synonym_stream), _(synonym_stream_p),
@@ -170,9 +171,9 @@ local const Subr FUNTAB[] = {
   _(set_long_float_digits), _(log2), _(log10),
   /* ENCODING: 1 SUBRs */
   _(encodingp),
-}; /* that were 512 = 555 - 43 SUBRs.
-     (- (+ 0 3 30 54 25 0 1 11 38 84 10 32 27 48 28 40 24 15 84 1)
-        (+ 0 0  2  0  2 0 0  0  0 36  0  0  0  3  0  0  0  0  0 0)) */
+}; /* that were 512 = 556 - 44 SUBRs.
+     (- (+ 0 3 30 54 25 0 1 11 38 84 10 32 27 48 29 40 24 15 84 1)
+        (+ 0 0  2  0  2 0 0  0  0 36  0  0  0  3  0  1  0  0  0 0)) */
 /* Now FUNTABR : */
 local const Subr FUNTABR[] = {
   /* SPVW : 0 SUBRs */
