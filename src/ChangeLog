@@ -2,6 +2,10 @@
 
 	* pathname.d (assure_dir_exists) [WIN32_NATIVE]:
 	move some code outside of with_sstring_0()
+	(assume_dir_exists): local, not global
+	* lispbibl.d (assume_dir_exists): remove prototype
+	* stream.d (finish_output_buffered): remove "#if 0" code which used
+	assume_dir_exists()
 
 2008-03-06  Sam Steingold  <sds@gnu.org>
 

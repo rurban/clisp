@@ -5493,7 +5493,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
      if Name=NIL: directory-namestring (for DOS)
      if Name/=NIL: namestring (for DOS)
  can trigger GC */
-global maygc object assume_dir_exists (void) {
+local maygc object assume_dir_exists (void) {
   return assure_dir_exists(true,false);
 }
 
@@ -5708,7 +5708,7 @@ local maygc object assure_dir_exists (bool links_resolved, bool tolerantp) {
 /* the same under the assumption, that the directory already exists.
    (only a little simplification, as the file can be a symbolic link into a
    different directory, and this must be tested to exist.) */
-global maygc object assume_dir_exists (void) {
+local maygc object assume_dir_exists (void) {
   var object ret;
   with_saved_back_trace_subr(L(open),STACK STACKop -7,-1,
     ret = assure_dir_exists(true,false); );
