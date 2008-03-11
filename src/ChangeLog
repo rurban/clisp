@@ -1,5 +1,9 @@
 2008-03-11  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.45 (2008-04-04)
+
+2008-03-11  Sam Steingold  <sds@gnu.org>
+
 	keep in our cvs some externally maintained files - because
 	requiring ./autogen.sh after cvs co is outrageous
 	* autogen.sh: remove
