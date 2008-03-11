@@ -5,6 +5,7 @@
 	* autogen.sh: remove
 	* Makefile.devel (build-aux-update): update ltmain.sh,
 	libtool.m4 (from libtool 2.2) and gtk-2.0.m4 (from gtk2 svn) here
+	(gnulib-imported): decouple from build-aux-update
 
 2008-03-10  Sam Steingold  <sds@gnu.org>
 

@@ -333,7 +333,7 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
-gnulib-imported : build-aux-update
+gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_CHECKOUT)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
@@ -355,7 +355,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 release : distrib upload tag-release
 
 # 2-3 weeks before a release
-pre-release : gnulib-imported tp-mail
+pre-release : gnulib-imported build-aux-update tp-mail
 
 ## RELEASE TODO:
 # Before doing a "make distrib":
