@@ -340,6 +340,7 @@ gnulib-imported : update-gnulib force
 		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
 		uniwidth/width streq uniname/uniname unitypes link-follow
 	$(RM) configure.ac
+	rm -fv src/build-aux/.cvsignore src/glm4/.cvsignore
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \
