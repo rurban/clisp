@@ -7341,7 +7341,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                       /* get file attributes into timepoint & entry_size */
                       if (rresolved == shell_shortcut_file) {
                         /* need another readdir here */
-                        get_time_size(&timepoint,&entry_size);
+                        get_time_size(&STACK_0,&timepoint,&entry_size);
                       } else {         /* easy way */
                         READDIR_entry_timedate(&timepoint);
                         entry_size = READDIR_entry_size();
