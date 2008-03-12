@@ -5313,6 +5313,13 @@ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
 fi
 { echo "$as_me:$LINENO: result: $gb_cv_have_XGetAtomNames" >&5
 echo "${ECHO_T}$gb_cv_have_XGetAtomNames" >&6; }
+if test $gb_cv_have_XGetAtomNames = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_XGETATOMNAMES 1
+_ACEOF
+
+fi
 
 { echo "$as_me:$LINENO: checking for Xpm library" >&5
 echo $ECHO_N "checking for Xpm library... $ECHO_C" >&6; }
@@ -5388,8 +5395,8 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <X11/Xlib.h>
-	         #include <X11/Xutil.h>
-	         #include <X11/extensions/shape.h>
+                 #include <X11/Xutil.h>
+                 #include <X11/extensions/shape.h>
 int
 main ()
 {
@@ -5432,6 +5439,117 @@ fi
 { echo "$as_me:$LINENO: result: $gb_cv_have_xshape" >&5
 echo "${ECHO_T}$gb_cv_have_xshape" >&6; }
 
+{ echo "$as_me:$LINENO: checking if XauGetAuthByAddr needs -Xau" >&5
+echo $ECHO_N "checking if XauGetAuthByAddr needs -Xau... $ECHO_C" >&6; }
+if test "${gb_cv_need_lXau+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+   gb_LIBS_save=$LIBS
+    gb_CFLAGS_save=$CFLAGS
+    LIBS="$X_LIBS $X_PRE_LIBS $LIBS"
+    CFLAGS="$CFLAGS $X_CFLAGS"
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <X11/Xlib.h>
+int
+main ()
+{
+XauGetAuthByAddr(AF_INET,0,"",
+        13,"localhost:0.0",13,"localhost:0.0");
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  gb_cv_need_lXau=no
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	gb_cv_need_lXau=maybe
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+    if test $gb_cv_need_lXau = maybe; then
+      LIBS="$X_LIBS -lXau $X_PRE_LIBS $LIBS"
+      CFLAGS="$CFLAGS $X_CFLAGS"
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <X11/Xlib.h>
+int
+main ()
+{
+XauGetAuthByAddr(AF_INET,0,"",
+          13,"localhost:0.0",13,"localhost:0.0");
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  gb_cv_need_lXau=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	{ { echo "$as_me:$LINENO: error: XauGetAuthByAddr was not found
+See \`config.log' for more details." >&5
+echo "$as_me: error: XauGetAuthByAddr was not found
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+    fi
+    LIBS=$gb_LIBS_save
+    CFLAGS=$gb_CFLAGS_save
+fi
+{ echo "$as_me:$LINENO: result: $gb_cv_need_lXau" >&5
+echo "${ECHO_T}$gb_cv_need_lXau" >&6; }
+
 
 
 
@@ -5447,6 +5565,10 @@ if test $gb_cv_have_xshape = "yes"; then
     WANTS="$WANTS -DWANT_XSHAPE=1"
 else
     WANTS="$WANTS -DWANT_XSHAPE=0"
+fi
+
+if test $gb_cv_need_lXau = "yes"; then
+    X_LIBS="$X_LIBS -lXau";
 fi
 
 echo "$as_me: ${term_bold}** NEW CLX (output)${term_norm}" >&6
