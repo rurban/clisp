@@ -63,20 +63,22 @@ AC_CACHE_CHECK(for X shape extension, gb_cv_have_xshape,
     LIBS=$gb_LIBS_save
     CFLAGS=$gb_CFLAGS_save])
 
-AC_CACHE_CHECK(if XauGetAuthByAddr needs -Xau, gb_cv_need_lXau,
+AC_CACHE_CHECK(if XauGetAuthByAddr needs -lXau, gb_cv_need_lXau,
   [ gb_LIBS_save=$LIBS
     gb_CFLAGS_save=$CFLAGS
-    LIBS="$X_LIBS $X_PRE_LIBS $LIBS"
+    LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
-    AC_TRY_LINK([#include <X11/Xlib.h>],[XauGetAuthByAddr(AF_INET,0,"",
-        13,"localhost:0.0",13,"localhost:0.0");],
+    AC_TRY_LINK([#include <sys/socket.h>
+#include <X11/Xlib.h>],
+[XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");],
       gb_cv_need_lXau=no,
       gb_cv_need_lXau=maybe)
     if test $gb_cv_need_lXau = maybe; then
       LIBS="$X_LIBS -lXau $X_PRE_LIBS $LIBS"
       CFLAGS="$CFLAGS $X_CFLAGS"
-      AC_TRY_LINK([#include <X11/Xlib.h>],[XauGetAuthByAddr(AF_INET,0,"",
-          13,"localhost:0.0",13,"localhost:0.0");],
+      AC_TRY_LINK([#include <sys/socket.h>
+#include <X11/Xlib.h>],
+[XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");],
         gb_cv_need_lXau=yes,
         AC_MSG_FAILURE([XauGetAuthByAddr was not found]))
     fi
