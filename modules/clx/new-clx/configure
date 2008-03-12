@@ -5439,14 +5439,14 @@ fi
 { echo "$as_me:$LINENO: result: $gb_cv_have_xshape" >&5
 echo "${ECHO_T}$gb_cv_have_xshape" >&6; }
 
-{ echo "$as_me:$LINENO: checking if XauGetAuthByAddr needs -Xau" >&5
-echo $ECHO_N "checking if XauGetAuthByAddr needs -Xau... $ECHO_C" >&6; }
+{ echo "$as_me:$LINENO: checking if XauGetAuthByAddr needs -lXau" >&5
+echo $ECHO_N "checking if XauGetAuthByAddr needs -lXau... $ECHO_C" >&6; }
 if test "${gb_cv_need_lXau+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
    gb_LIBS_save=$LIBS
     gb_CFLAGS_save=$CFLAGS
-    LIBS="$X_LIBS $X_PRE_LIBS $LIBS"
+    LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -5454,12 +5454,12 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
+#include <sys/socket.h>
 #include <X11/Xlib.h>
 int
 main ()
 {
-XauGetAuthByAddr(AF_INET,0,"",
-        13,"localhost:0.0",13,"localhost:0.0");
+XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");
   ;
   return 0;
 }
@@ -5501,12 +5501,12 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
+#include <sys/socket.h>
 #include <X11/Xlib.h>
 int
 main ()
 {
-XauGetAuthByAddr(AF_INET,0,"",
-          13,"localhost:0.0",13,"localhost:0.0");
+XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");
   ;
   return 0;
 }
