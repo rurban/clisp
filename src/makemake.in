@@ -4000,6 +4000,11 @@ cat <<!!
 	-\$(RMRF) locale
 !!
 fi
+if [ -n "${SUBDIRS}" ]; then
+cat <<!!
+	-\$(RMRF) ${SUBDIRS}
+!!
+fi
 
 echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
