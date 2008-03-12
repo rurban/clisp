@@ -26,7 +26,7 @@
           foreign-address foreign-address-unsigned unsigned-foreign-address
           with-foreign-object with-c-var with-foreign-string
           foreign-allocate allocate-deep allocate-shallow foreign-free
-          foreign-pointer set-foreign-pointer
+          foreign-pointer set-foreign-pointer foreign-pointer-info
           open-foreign-library close-foreign-library memory-as
           foreign-variable foreign-function))
 

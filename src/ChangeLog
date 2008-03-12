@@ -1,5 +1,12 @@
 2008-03-12  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (FOREIGN-POINTER-INFO): add interface to dladdr()
+	* constsym.d, subr.d (foreign_pointer_info): declare
+	* m4/dynload.m4 (CL_DYNLOAD): check for dladdr()
+	* foreign1.lisp (FOREIGN-POINTER-INFO): export
+
+2008-03-12  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (clean4): also remove ${SUBDIRS} (gllib)
 
 2008-03-12  Sam Steingold  <sds@gnu.org>

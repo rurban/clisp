@@ -113,8 +113,7 @@ LISPFUNN(set_validp,2)
     if (!new_value) {
       if (eq(fp,O(fp_zero))) {
         pushSTACK(TheSubr(subr_self)->name);
-        error(error_condition,
-               GETTEXT("~S: must not invalidate the sole FFI session pointer"));
+        error(error_condition,GETTEXT("~S: must not invalidate the sole FFI session pointer"));
       }
       mark_fp_invalid(TheFpointer(fp));
     }
@@ -4552,6 +4551,33 @@ global void exit_ffi (void) {
   O(foreign_libraries) = NIL;
  #endif
 }
+
+#if defined(HAVE_DLADDR)
+LISPFUNN(foreign_pointer_info,1) {
+  object arg = foreign_address(popSTACK(),true);
+  void *addr = Fpointer_value(arg);
+  Dl_info dli;
+  int status;
+  begin_system_call(); status = dladdr(addr,&dli); end_system_call();
+  if (status == 0) {            /* failed */
+   #if defined(HAVE_DLERROR)
+    pushSTACK(dlerror_string());
+   #endif
+    pushSTACK(arg); pushSTACK(TheSubr(subr_self)->name);
+   #if defined(HAVE_DLERROR)
+    error(error_condition,GETTEXT("~S(~S): dladdr() failed: ~S"));
+   #else
+    error(error_condition,GETTEXT("~S(~S): dladdr() failed"));
+   #endif
+  } else {
+    pushSTACK(safe_to_string(dli.dli_fname));
+    pushSTACK(allocate_fpointer(dli.dli_fbase));
+    pushSTACK(safe_to_string(dli.dli_sname));
+    pushSTACK(allocate_fpointer(dli.dli_saddr));
+    STACK_to_mv(4);
+  }
+}
+#endif
 
 #endif
 

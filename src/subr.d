@@ -1414,6 +1414,9 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
 LISPFUNN(open_foreign_library,1)
 LISPFUNN(close_foreign_library,1)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
+#if defined(HAVE_DLADDR)
+LISPFUNN(foreign_pointer_info,1)
+#endif
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
