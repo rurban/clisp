@@ -271,10 +271,10 @@ build-darwin-powerpc-wide:
 
 SRCDIRS=src utils benchmarks emacs modules sacla-tests tests
 TAGS : force
-	$(CTAGS) -e -R --langmap=c:.c.d $(SRCDIRS)
+	$(CTAGS) -e -R --langmap=c:.c.d.f $(SRCDIRS)
 
 tags : force
-	$(CTAGS) -R --langmap=c:.c.d $(SRCDIRS)
+	$(CTAGS) -R --langmap=c:.c.d.f $(SRCDIRS)
 
 # Bootstrap SBCL.
 SBCL_VERSION = 0.8.15
