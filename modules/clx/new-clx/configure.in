@@ -31,6 +31,9 @@ AC_CACHE_CHECK(for XGetAtomNames, gb_cv_have_XGetAtomNames,
       gb_cv_have_XGetAtomNames=no)
     LIBS=$gb_LIBS_save
     CFLAGS=$gb_CFLAGS_save])
+if test $gb_cv_have_XGetAtomNames = yes; then
+  AC_DEFINE([HAVE_XGETATOMNAMES], 1, [Define if XGetAtomNames() works])
+fi
 
 dnl Look for Xpm
 AC_CACHE_CHECK(for Xpm library, gb_cv_have_xpm,

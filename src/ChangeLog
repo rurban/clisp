@@ -2,6 +2,7 @@
 
 	* modules/clx/new-clx/configure.in: fix last patch: cannot nest
 	AC_TRY_LINK; fail if XauGetAuthByAddr was not found
+	also define HAVE_XGETATOMNAMES when XGetAtomNames is present (4y late!)
 
 2008-03-12  Reini Urban  <rurban@x-ray.at>
 
