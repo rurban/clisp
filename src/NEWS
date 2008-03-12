@@ -24,6 +24,9 @@ User visible changes
   See <http://clisp.podval.org/impnotes/macros3.html#compile-time-value>
   for details.
 
+* New function FFI:FOREIGN-POINTER-INFO allows some introspection.
+  See <http://clisp.cons.org/impnotes/dffi.html#fptr-info> for details.
+
 * Bug fixes:
   + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
 

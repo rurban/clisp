@@ -3274,6 +3274,12 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  <simpara>&ffi-guard; is initialized to &nil; for backwards compatibility.
 </simpara></listitem></varlistentry>
 
+<varlistentry id="fptr-info"><term>&foreign-pointer-info;</term>
+ <listitem><simpara>This is an interface
+   to <function role="bsd">dladdr</function> and it returns the 4 fields
+   of <type>Dl_info</type> as &mul-val;.</simpara></listitem>
+</varlistentry>
+
 </variablelist>
 
 <variablelist id="dffi-low"><title>Low-level &ffi-pac; forms</title>
