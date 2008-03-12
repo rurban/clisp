@@ -1183,6 +1183,9 @@ LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 LISPSYM(open_foreign_library,"OPEN-FOREIGN-LIBRARY",ffi)
 LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
+#if defined(HAVE_DLADDR)
+LISPSYM(foreign_pointer_info,"FOREIGN-POINTER-INFO",ffi)
+#endif
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
