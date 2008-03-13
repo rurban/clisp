@@ -1,3 +1,8 @@
+2008-03-13  Sam Steingold  <sds@gnu.org>
+
+	* m4/ffcall.m4 (CL_FFCALL): reinstate AC_CACHE_CHECK,
+	restore LIBS after a failed test
+
 2008-03-12  Sam Steingold  <sds@gnu.org>
 
 	* src/glm4/lib-link.m4: updated from gnulib, discarding my changes
