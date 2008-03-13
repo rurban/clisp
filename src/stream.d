@@ -15794,9 +15794,9 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
         eofp = read_line_synonym(stream,buffer_);
         break;
       case strmtype_twoway:
-       #ifdef SOCKET_STREAMS
+     #ifdef SOCKET_STREAMS
       case strmtype_twoway_socket:
-      #endif
+     #endif
         eofp = read_line_twoway(stream,buffer_);
         break;
         /* No special-casing of strmtype_echo, because the echo-stream may
