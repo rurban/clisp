@@ -3745,6 +3745,9 @@ if test $ac_cv_search_tgetent != no ; then
 
 
 
+
+
+
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -3786,7 +3789,7 @@ if test "${with_libreadline_prefix+set}" = set; then
 
 fi
 
-  LIBREADLINE=
+      LIBREADLINE=
   LTLIBREADLINE=
   INCREADLINE=
   LIBREADLINE_PREFIX=
@@ -4175,6 +4178,11 @@ fi
       LTLIBREADLINE="${LTLIBREADLINE}${LTLIBREADLINE:+ }-R$found_dir"
     done
   fi
+
+
+
+
+
 
  ac_save_CPPFLAGS="$CPPFLAGS"
  CPPFLAGS="$CPPFLAGS $INCREADLINE"

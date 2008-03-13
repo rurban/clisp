@@ -3928,6 +3928,9 @@ else
 
 
 
+
+
+
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -3969,7 +3972,7 @@ if test "${with_libpcre_prefix+set}" = set; then
 
 fi
 
-  LIBPCRE=
+      LIBPCRE=
   LTLIBPCRE=
   INCPCRE=
   LIBPCRE_PREFIX=
@@ -4358,6 +4361,11 @@ fi
       LTLIBPCRE="${LTLIBPCRE}${LTLIBPCRE:+ }-R$found_dir"
     done
   fi
+
+
+
+
+
 
     ac_cv_libpcre_libs="$LIBPCRE"
     ac_cv_libpcre_ltlibs="$LTLIBPCRE"

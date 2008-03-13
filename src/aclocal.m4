@@ -2564,9 +2564,8 @@ test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 13 (gettext-0.17)
-dnl -*- Autoconf -*-
-dnl Copyright (C) 2001-2007 Free Software Foundation, Inc.
+# lib-link.m4 serial 15 (gettext-0.18)
+dnl Copyright (C) 2001-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2585,9 +2584,9 @@ AC_DEFUN([AC_LIB_LINKFLAGS],
 [
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
-  define([Name],[translit([$1],[./-], [___])])
-  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([Name],[translit([$1],[./-], [___])])
+  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   AC_CACHE_CHECK([how to link with lib[]$1], [ac_cv_lib[]Name[]_libs], [
     AC_LIB_LINKFLAGS_BODY([$1], [$2])
     ac_cv_lib[]Name[]_libs="$LIB[]NAME"
@@ -2606,8 +2605,8 @@ AC_DEFUN([AC_LIB_LINKFLAGS],
   dnl Also set HAVE_LIB[]NAME so that AC_LIB_HAVE_LINKFLAGS can reuse the
   dnl results of this search when this library appears as a dependency.
   HAVE_LIB[]NAME=yes
-  undefine([Name])
-  undefine([NAME])
+  popdef([NAME])
+  popdef([Name])
 ])
 
 dnl AC_LIB_HAVE_LINKFLAGS(name, dependencies, includes, testcode)
@@ -2624,9 +2623,9 @@ AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
 [
   AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
   AC_REQUIRE([AC_LIB_RPATH])
-  define([Name],[translit([$1],[./-], [___])])
-  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([Name],[translit([$1],[./-], [___])])
+  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
 
   dnl Search for lib[]Name and define LIB[]NAME, LTLIB[]NAME and INC[]NAME
   dnl accordingly.
@@ -2662,8 +2661,8 @@ AC_DEFUN([AC_LIB_HAVE_LINKFLAGS],
   AC_SUBST([LIB]NAME)
   AC_SUBST([LTLIB]NAME)
   AC_SUBST([LIB]NAME[_PREFIX])
-  undefine([Name])
-  undefine([NAME])
+  popdef([NAME])
+  popdef([Name])
 ])
 
 dnl Determine the platform dependent parameters needed to use rpath:
@@ -2703,22 +2702,52 @@ AC_DEFUN([AC_LIB_RPATH],
     :, enable_rpath=yes)
 ])
 
-dnl AC_LIB_LINKFLAGS_ADD(name) adds -with-libname-prefix command line switch
-AC_DEFUN([AC_LIB_LINKFLAGS_ADD],[dnl
+dnl AC_LIB_FROMPACKAGE(name, package)
+dnl declares that libname comes from the given package. The configure file
+dnl will then not have a --with-libname-prefix option but a
+dnl --with-package-prefix option. Several libraries can come from the same
+dnl package. This declaration must occur before an AC_LIB_LINKFLAGS or similar
+dnl macro call that searches for libname.
+AC_DEFUN([AC_LIB_FROMPACKAGE],
+[
+  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  define([acl_frompackage_]NAME, [$2])
+  popdef([NAME])
+  pushdef([PACK],[$2])
+  pushdef([PACKUP],[translit(PACK,[abcdefghijklmnopqrstuvwxyz./-],
+                                  [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  define([acl_libsinpackage_]PACKUP,
+    m4_ifdef([acl_libsinpackage_]PACKUP, [acl_libsinpackage_]PACKUP[[, ]],)[lib$1])
+  popdef([PACKUP])
+  popdef([PACK])
+])
+
+dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
+dnl the libraries corresponding to explicit and implicit dependencies.
+dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
+dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
+dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
+AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
+[
   AC_REQUIRE([AC_LIB_PREPARE_MULTILIB])
-  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
+                                [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([PACK],[m4_ifdef([acl_frompackage_]NAME, [acl_frompackage_]NAME, lib[$1])])
+  pushdef([PACKUP],[translit(PACK,[abcdefghijklmnopqrstuvwxyz./-],
+                                  [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
+  pushdef([PACKLIBS],[m4_ifdef([acl_frompackage_]NAME, [acl_libsinpackage_]PACKUP, lib[$1])])
   dnl Autoconf >= 2.61 supports dots in --with options.
-  define([N_A_M_E],[m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.61]),[-1],[translit([$1],[.],[_])],[$1])])
+  pushdef([P_A_C_K],[m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.61]),[-1],[translit(PACK,[.],[_])],PACK)])
   dnl By default, look in $includedir and $libdir.
   use_additional=yes
   AC_LIB_WITH_FINAL_PREFIX([
     eval additional_includedir=\"$includedir\"
     eval additional_libdir=\"$libdir\"
   ])
-  AC_LIB_ARG_WITH([lib]N_A_M_E[-prefix],
-[  --with-lib]N_A_M_E[-prefix[=DIR]  search for lib$1 in DIR/include and DIR/lib
-  --without-lib]N_A_M_E[-prefix     don't search for lib$1 in includedir and libdir],
+  AC_ARG_WITH(P_A_C_K[-prefix],
+[[  --with-]]P_A_C_K[[-prefix[=DIR]  search for ]PACKLIBS[ in DIR/include and DIR/lib
+  --without-]]P_A_C_K[[-prefix     don't search for ]PACKLIBS[ in includedir and libdir]],
 [
     if test "X$withval" = "Xno"; then
       use_additional=no
@@ -2733,18 +2762,9 @@ AC_DEFUN([AC_LIB_LINKFLAGS_ADD],[dnl
         additional_libdir="$withval/$acl_libdirstem"
       fi
     fi
-])])
-
-dnl AC_LIB_LINKFLAGS_SEARCH(name [, dependencies]) searches for libname and
-dnl the libraries corresponding to explicit and implicit dependencies.
-dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
-dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
-dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS_SEARCH],[dnl
+])
   dnl Search the library and its dependencies in $additional_libdir and
   dnl $LDFLAGS. Using breadth-first-seach.
-  define([NAME],[translit([$1],[abcdefghijklmnopqrstuvwxyz./-],
-                               [ABCDEFGHIJKLMNOPQRSTUVWXYZ___])])
   LIB[]NAME=
   LTLIB[]NAME=
   INC[]NAME=
@@ -3180,16 +3200,11 @@ AC_DEFUN([AC_LIB_LINKFLAGS_SEARCH],[dnl
       LTLIB[]NAME="${LTLIB[]NAME}${LTLIB[]NAME:+ }-R$found_dir"
     done
   fi
-])
-
-dnl AC_LIB_LINKFLAGS_BODY(name [, dependencies]) searches for libname and
-dnl the libraries corresponding to explicit and implicit dependencies.
-dnl Sets the LIB${NAME}, LTLIB${NAME} and INC${NAME} variables.
-dnl Also, sets the LIB${NAME}_PREFIX variable to nonempty if libname was found
-dnl in ${LIB${NAME}_PREFIX}/$acl_libdirstem.
-AC_DEFUN([AC_LIB_LINKFLAGS_BODY],[
-AC_LIB_LINKFLAGS_ADD($1)dnl
-AC_LIB_LINKFLAGS_SEARCH($1,$2)dnl
+  popdef([P_A_C_K])
+  popdef([PACKLIBS])
+  popdef([PACKUP])
+  popdef([PACK])
+  popdef([NAME])
 ])
 
 dnl AC_LIB_APPENDTOVAR(VAR, CONTENTS) appends the elements of CONTENTS to VAR,
@@ -6483,7 +6498,7 @@ fi
 ])
 
 # -*- Autoconf -*-
-# Copyright (C) 2007 Sam Steingold (GNU GPL2+)
+# Copyright (C) 2007-2008 Sam Steingold (GNU GPL2+)
 
 AC_PREREQ(2.61)
 
@@ -6491,40 +6506,26 @@ AC_DEFUN([CL_FFCALL],[dnl
 AC_ARG_WITH([ffcall],
 [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
 [cl_use_ffcall=$withval],[cl_use_ffcall=default])
-AC_REQUIRE([AC_LIB_PREPARE_PREFIX])dnl prerequisite of AC_LIB_LINKFLAGS_BODY
-AC_REQUIRE([AC_LIB_RPATH])dnl prerequisite of AC_LIB_LINKFLAGS_BODY
-AC_LIB_LINKFLAGS_ADD([ffcall])dnl accept --with-libffcall-prefix
 if test $cl_use_ffcall != no; then
- AC_CACHE_CHECK([whether ffcall is present],[cl_cv_have_ffcall],[dnl
-  cl_cv_have_ffcall=no
-  cl_save_CPPFLAGS="$CPPFLAGS"
-  cl_save_LIBS="$LIBS"
-  AC_LIB_LINKFLAGS_SEARCH(avcall)
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCAVCALL])
-  AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
-  AC_LIB_LINKFLAGS_SEARCH(callback)
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCCALLBACK])
-  AC_LIB_APPENDTOVAR([LIBS], [$LIBCALLBACK])
-  AC_CHECK_HEADERS(avcall.h callback.h)
-  AC_SEARCH_LIBS(__builtin_avcall,avcall)
-  AC_SEARCH_LIBS(trampoline_r_data0,callback)
-  if test $ac_cv_header_avcall_h = yes \
-       -a $ac_cv_header_callback_h = yes \
-       -a "$ac_cv_search___builtin_avcall" != no \
-       -a "$ac_cv_search_trampoline_r_data0" != no
-  then cl_cv_have_ffcall=yes
-  else
-    CPPFLAGS="$cl_save_CPPFLAGS"
-    LIBS="$cl_save_LIBS"
-    LIBAVCALL=
-    LIBCALLBACK=
-  fi
- ])
- AC_SUBST(LIBAVCALL)
- AC_SUBST(LIBCALLBACK)
- if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
-   FFCALL=ffcall-1.8
-   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
+AC_LIB_FROMPACKAGE(avcall,libffcall)
+AC_LIB_FROMPACKAGE(callback,libffcall)
+AC_LIB_LINKFLAGS([avcall])
+AC_LIB_LINKFLAGS([callback])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBCALLBACK])
+AC_CHECK_HEADERS(avcall.h callback.h)
+AC_SEARCH_LIBS(__builtin_avcall,avcall)
+AC_SEARCH_LIBS(trampoline_r_data0,callback)
+if test $ac_cv_header_avcall_h = yes \
+     -a $ac_cv_header_callback_h = yes \
+     -a "$ac_cv_search___builtin_avcall" != no \
+     -a "$ac_cv_search_trampoline_r_data0" != no
+then cl_have_ffcall=yes
+else cl_have_ffcall=no
+fi
+if test $cl_use_ffcall = yes -a $cl_have_ffcall = no; then
+  FFCALL=ffcall-1.8
+  AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
   mkdir tools; cd tools; prefix=`pwd`/${ac_cv_host}
   wget http://ftp.gnu.org/pub/gnu/ffcall/${FFCALL}.tar.gz
@@ -6533,7 +6534,7 @@ if test $cl_use_ffcall != no; then
   ./configure --prefix=\${prefix} && make && make check && make install
   cd ../..
   ./configure --with-libffcall-prefix=\${prefix} [$]*])
- fi
+fi
 fi;])
 
 dnl -*- Autoconf -*-
