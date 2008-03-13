@@ -6506,24 +6506,29 @@ AC_DEFUN([CL_FFCALL],[dnl
 AC_ARG_WITH([ffcall],
 [AC_HELP_STRING([--with-ffcall],[use FFCALL (default is YES, if present)])],
 [cl_use_ffcall=$withval],[cl_use_ffcall=default])
+AC_CACHE_CHECK([whether libffcall is installed],[cl_cv_have_ffcall],
+[cl_cv_have_ffcall=no
 if test $cl_use_ffcall != no; then
 AC_LIB_FROMPACKAGE(avcall,libffcall)
 AC_LIB_FROMPACKAGE(callback,libffcall)
 AC_LIB_LINKFLAGS([avcall])
 AC_LIB_LINKFLAGS([callback])
+AC_CHECK_HEADERS(avcall.h callback.h)
+if test $ac_cv_header_avcall_h = yes \
+     -o $ac_cv_header_callback_h = yes
+then
+cl_save_LIBS="$LIBS"
 AC_LIB_APPENDTOVAR([LIBS], [$LIBAVCALL])
 AC_LIB_APPENDTOVAR([LIBS], [$LIBCALLBACK])
-AC_CHECK_HEADERS(avcall.h callback.h)
-AC_SEARCH_LIBS(__builtin_avcall,avcall)
-AC_SEARCH_LIBS(trampoline_r_data0,callback)
-if test $ac_cv_header_avcall_h = yes \
-     -a $ac_cv_header_callback_h = yes \
-     -a "$ac_cv_search___builtin_avcall" != no \
+AC_SEARCH_LIBS(__builtin_avcall)
+AC_SEARCH_LIBS(trampoline_r_data0)
+if test "$ac_cv_search___builtin_avcall" != no \
      -a "$ac_cv_search_trampoline_r_data0" != no
-then cl_have_ffcall=yes
-else cl_have_ffcall=no
+then cl_cv_have_ffcall=yes
+else LIBS=$cl_save_LIBS
 fi
-if test $cl_use_ffcall = yes -a $cl_have_ffcall = no; then
+fi
+if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
   FFCALL=ffcall-1.8
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
@@ -6535,7 +6540,7 @@ if test $cl_use_ffcall = yes -a $cl_have_ffcall = no; then
   cd ../..
   ./configure --with-libffcall-prefix=\${prefix} [$]*])
 fi
-fi;])
+fi;])])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
