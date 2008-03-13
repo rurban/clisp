@@ -1242,7 +1242,7 @@ There are no small objects in pages belonging to a big object.</para>
 
 <para>Every subroutine marked with <quote>can trigger GC</quote>
 or <literal>maygc</literal> may invoke &gc;ion.
-&gc;or moves all the &clisp; non-&immediate-o;s and updates the pointers.
+The &gc;or moves all the &clisp; non-&immediate-o;s and updates the pointers.
 But the &gc;or looks only at the &STACK; and not in the &c-lang;
 variables. (Anything else would not be portable.)
 Therefore at every "unsafe" point, i.e. every call to such a subroutine,
