@@ -1,5 +1,10 @@
 2008-03-12  Sam Steingold  <sds@gnu.org>
 
+	* src/glm4/lib-link.m4: updated from gnulib, discarding my changes
+	* src/m4/ffcall.m4 (CL_FFCALL): updated for the new AC_LIB_LINKFLAGS
+
+2008-03-12  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (FOREIGN-POINTER-INFO): add interface to dladdr()
 	* constsym.d, subr.d (foreign_pointer_info): declare
 	* m4/dynload.m4 (CL_DYNLOAD): check for dladdr()
