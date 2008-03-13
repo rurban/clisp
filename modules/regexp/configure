@@ -4549,6 +4549,9 @@ fi
 
 
 
+
+
+
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -4590,7 +4593,7 @@ if test "${with_libiconv_prefix+set}" = set; then
 
 fi
 
-  LIBICONV=
+      LIBICONV=
   LTLIBICONV=
   INCICONV=
   LIBICONV_PREFIX=
@@ -4979,6 +4982,11 @@ fi
       LTLIBICONV="${LTLIBICONV}${LTLIBICONV:+ }-R$found_dir"
     done
   fi
+
+
+
+
+
 
 
 
@@ -5517,6 +5525,9 @@ echo "${ECHO_T}$LIBICONV" >&6; }
 
 
 
+
+
+
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -5558,7 +5569,7 @@ if test "${with_libintl_prefix+set}" = set; then
 
 fi
 
-  LIBINTL=
+      LIBINTL=
   LTLIBINTL=
   INCINTL=
   LIBINTL_PREFIX=
@@ -5947,6 +5958,11 @@ fi
       LTLIBINTL="${LTLIBINTL}${LTLIBINTL:+ }-R$found_dir"
     done
   fi
+
+
+
+
+
 
           { echo "$as_me:$LINENO: checking for GNU gettext in libintl" >&5
 echo $ECHO_N "checking for GNU gettext in libintl... $ECHO_C" >&6; }

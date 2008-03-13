@@ -3928,6 +3928,9 @@ else
 
 
 
+
+
+
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -3969,7 +3972,7 @@ if test "${with_libdb_prefix+set}" = set; then
 
 fi
 
-  LIBDB=
+      LIBDB=
   LTLIBDB=
   INCDB=
   LIBDB_PREFIX=
@@ -4358,6 +4361,11 @@ fi
       LTLIBDB="${LTLIBDB}${LTLIBDB:+ }-R$found_dir"
     done
   fi
+
+
+
+
+
 
     ac_cv_libdb_libs="$LIBDB"
     ac_cv_libdb_ltlibs="$LTLIBDB"
