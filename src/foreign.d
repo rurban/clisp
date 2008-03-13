@@ -3523,7 +3523,8 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
         if (!(arg_flags & ff_out)) {
           inargcount++;
           if (inargcount > argcount)
-            error_too_few_args(S(foreign_call_out),Before(rest_args_pointer),argcount,inargcount);
+            error_too_few_args(S(foreign_call_out),Before(rest_args_pointer),
+                               argcount,inargcount);
         }
         if (arg_flags & (ff_out | ff_inout)) {
           if (!(simple_vector_p(arg_fvd) && (Svector_length(arg_fvd) == 2)
@@ -3675,8 +3676,8 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     if (av_overflown(alist))
       /* avcall has limited buffer space
        __AV_ALIST_WORDS is only an approximation in number of arguments */
-      error_too_many_args(S(foreign_call_out),Before(rest_args_pointer),allargcount,
-                           __AV_ALIST_WORDS);
+      error_too_many_args(S(foreign_call_out),Before(rest_args_pointer),
+                          allargcount,__AV_ALIST_WORDS);
     /* Finally call the function. */
     begin_call();
     av_call(alist);
@@ -3704,7 +3705,7 @@ LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL) {
     FREE_DYNAMIC_ARRAY(total_room);
     FREE_DYNAMIC_ARRAY(results);
   }
-  set_args_end_pointer(rest_args_pointer STACKop 1); /* STACK aufräumen */
+  set_args_end_pointer(rest_args_pointer STACKop 1); /* STACK cleanup */
 }
 
 /* Here is the point where we use the VACALL package. */
@@ -4580,4 +4581,3 @@ LISPFUNN(foreign_pointer_info,1) {
 #endif
 
 #endif
-
