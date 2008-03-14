@@ -30773,12 +30773,6 @@ else
   cl_use_ffcall=default
 fi
 
-{ echo "$as_me:$LINENO: checking whether libffcall is installed" >&5
-echo $ECHO_N "checking whether libffcall is installed... $ECHO_C" >&6; }
-if test "${cl_cv_have_ffcall+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cl_cv_have_ffcall=no
 if test $cl_use_ffcall != no; then
 
 
@@ -31938,8 +31932,8 @@ fi
 
 done
 
-if test $ac_cv_header_avcall_h = yes \
-     -o $ac_cv_header_callback_h = yes
+if test "$ac_cv_header_avcall_h" = yes \
+     -a "$ac_cv_header_callback_h" = yes
 then
 cl_save_LIBS="$LIBS"
 
@@ -32154,12 +32148,26 @@ if test "$ac_res" != no; then
 
 fi
 
-if test "$ac_cv_search___builtin_avcall" != no \
-     -a "$ac_cv_search_trampoline_r_data0" != no
+if test "$ac_cv_search___builtin_avcall" = no \
+     -o "$ac_cv_search_trampoline_r_data0" = no
+then LIBS=$cl_save_LIBS
+fi
+fi
+{ echo "$as_me:$LINENO: checking whether libffcall is installed" >&5
+echo $ECHO_N "checking whether libffcall is installed... $ECHO_C" >&6; }
+if test "${cl_cv_have_ffcall+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "$ac_cv_header_avcall_h" = yes \
+      -a "$ac_cv_header_callback_h" = yes \
+      -a "$ac_cv_search___builtin_avcall" != no \
+      -a "$ac_cv_search_trampoline_r_data0" != no
 then cl_cv_have_ffcall=yes
-else LIBS=$cl_save_LIBS
+else cl_cv_have_ffcall=no
 fi
 fi
+{ echo "$as_me:$LINENO: result: $cl_cv_have_ffcall" >&5
+echo "${ECHO_T}$cl_cv_have_ffcall" >&6; }
 if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
   FFCALL=ffcall-1.8
   { { echo "$as_me:$LINENO: error: despite --with-ffcall, FFCALL was not found
@@ -32183,9 +32191,6 @@ echo "$as_me: error: despite --with-ffcall, FFCALL was not found
    { (exit 1); exit 1; }; }
 fi
 fi;
-fi
-{ echo "$as_me:$LINENO: result: $cl_cv_have_ffcall" >&5
-echo "${ECHO_T}$cl_cv_have_ffcall" >&6; }
 
 # Check whether --with-lightning-prefix was given.
 if test "${with_lightning_prefix+set}" = set; then
