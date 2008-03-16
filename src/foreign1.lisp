@@ -926,7 +926,7 @@
                      name &rest options)
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist (parse-options options '(:name :type :read-only :alloc
-                                         :library :documentation)
+                                         :library :version :documentation)
                                whole-form))
          (doc (assoc ':documentation alist))
          (c-name (foreign-name name (assoc ':name alist)))
@@ -945,6 +945,7 @@
                          (:MALLOC-FREE fv-flag-malloc-free))
                        0))))
          (library (get-assoc :library alist '*foreign-library*))
+         (version (second (assoc :version alist)))
          #|
          (getter-function-name (sys::symbol-suffix name "%GETTER%"))
          (setter-function-name (sys::symbol-suffix name "%SETTER%"))
@@ -952,7 +953,7 @@
          (def (gensym "DEF-C-VAR-")))
     `(LET ((,def (LOAD-TIME-VALUE
                   (FIND-FOREIGN-VARIABLE
-                   ',c-name (PARSE-C-TYPE ',type) ,library NIL))))
+                   ',c-name (PARSE-C-TYPE ',type) ,library ,version NIL))))
        #|
        (LET ((FVAR (LOOKUP-FOREIGN-VARIABLE ',c-name (PARSE-C-TYPE ',type))))
          (DEFUN ,getter-function-name () (FOREIGN-VALUE FVAR))
@@ -1064,7 +1065,7 @@
   (setq name (check-symbol name (first whole-form)))
   (let* ((alist
           (parse-options options '(:name :arguments :return-type :language
-                                   :built-in :library :documentation)
+                                   :built-in :library :version :documentation)
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
          (properties (and (>= 1 (compiler::declared-optimize
@@ -1072,13 +1073,14 @@
                                              system::*denv*)))
                           (assoc ':documentation alist)))
          (library (get-assoc :library alist '*foreign-library*))
+         (version (second (assoc :version alist)))
          (c-name (foreign-name name (assoc :name alist)))
          (built-in (second (assoc :built-in alist)))
          ;; Maximize sharing in .fas file, reuse options
          ;; parse-c-function ignores unknown options, e.g. :name
          (ctype `(PARSE-C-FUNCTION ',options ',whole-form)))
     `(LET ((,def (FIND-FOREIGN-FUNCTION
-                  ',c-name ,ctype ',properties ,library NIL)))
+                  ',c-name ,ctype ',properties ,library ,version NIL)))
        (EXT:COMPILER-LET ((,def ,ctype))
          (EVAL-WHEN (COMPILE)
            (UNLESS ,LIBRARY (NOTE-C-FUN ',c-name ,def ',built-in)))

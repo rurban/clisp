@@ -172,6 +172,9 @@
 /* Define to 1 if you have the `dlsym' function. */
 #undef HAVE_DLSYM
 
+/* Define to 1 if you have the `dlvsym' function. */
+#undef HAVE_DLVSYM
+
 /* Define to 1 if you have the `fchmod' function. */
 #undef HAVE_FCHMOD
 
