@@ -1,3 +1,9 @@
+2008-03-13  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
+
+	* eval.d, lightning.c: cleanup: avoid using Lisp objects with malloc,
+	use jitc_ prefix for macros defined in CLISP to separate from the
+	system code
+
 2008-03-15  Sam Steingold  <sds@gnu.org>
 
 	patch #[ 1913831 ]: dlvsym support in FFI

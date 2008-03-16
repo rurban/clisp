@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007- Yann Nicolas Dauphin
+ * Copyright (C) 2007-2008 Yann Nicolas Dauphin
  * These are the set of macros built on top of GNU Lightning
  * to build the JIT compiler.
  * Simplicity and predictability is enforced.
@@ -35,7 +35,7 @@
  * It has no integrated debugger.
  * But it is not a problem if you know and apply the following:
  *  - Always work in small chunks
- *  - Always use jit_debug() to check the generated code
+ *  - Always use jitc_debug() to check the generated code
  *
  *  - If the code doesn't compile because of 'Cannot apply unary & etc', it's
  *    because you are passing an immediate value in place of a register
@@ -53,10 +53,10 @@
 
 /* Pointer to a JIT-Compiled function */
 /* Takes the closure and the distance to the starting bytecode as arguments */
-typedef int (*jit_func)(object, uintL);
+typedef int (*jitc_func)(object, uintL);
 
 /* This is for x86 (Quite imprecise for now) */
-#define JIT_AVG_BCSIZE 130
+#define JITC_AVG_BCSIZE 130
 
 /* ======= CLISP GC harness */
 struct jitc_object {
@@ -88,37 +88,42 @@ void gc_scan_jitc_objects (void) {
     }
   }
 }
-
 /* ------------------- (*) JIT Internals ----------------------- */
 /* Check overflow on codebuffer */
-#define jit_check_overflow()\
-    if((jit_insn*)jit_get_ip().ptr > (codeBuffer + (sizeof(jit_insn)*byteptr_max*JIT_AVG_BCSIZE))){\
+#define jitc_check_overflow()\
+    if((jit_insn*)jit_get_ip().ptr > (codeBuffer + (sizeof(jit_insn)*byteptr_max*JITC_AVG_BCSIZE))){\
         fprintf(stderr,"\nFATAL ERROR: JIT codeBuffer overflow\n");\
         exit(-1);\
     }
-/* jit_patch_fwdjmps():
+/* jitc_patch_fwdjmps():
 All values in bcIndex are initialized to 0(by calloc).
 If the value bcIndex[bcPos] is different from 0, it means there are forward
-jumps to this bytecode(see jit_bcjmpi()).
+jumps to this bytecode(see jitc_bcjmpi()).
+Forward jumps are stored as a list. See jitc_bcjmpi(bc).
 This implies that (bcPos == byteptr - CODEPTR).*/
-#define jit_patch_fwdjmps()\
+typedef struct{
+        jit_insn* car;
+        jit_insn* cdr;
+} jitc_jmp_cons_;
+typedef jitc_jmp_cons_ * jitc_jmp_cons;
+#define jitc_patch_fwdjmps()\
     if(bcIndex[bcPos]){\
-        Cons list = (Cons)bcIndex[bcPos];\
-        while(list != (Cons)NIL){\
-            jit_insn *ref = (jit_insn*)list->car;\
+        jitc_jmp_cons list = (jitc_jmp_cons)bcIndex[bcPos];\
+        while(list != NULL){\
+            jit_insn *ref = list->car;\
             jit_patch(ref);\
-            Cons old_cell = list;\
-            list = (Cons)list->cdr;\
+            jitc_jmp_cons old_cell = list;\
+            list = (jitc_jmp_cons)list->cdr;\
             free(old_cell);\
         }\
     }
 
-/* jit_bcjmpi(bc):
+/* jitc_bcjmpi(bc):
  Puts a jump to bytecode bc.
  If it's a back jump, just patch it.
  If it's a forward jump, put a list in the bcIndex[bc] with the address
  to be patched. */
-#define jit_bcjmpi(bc)\
+#define jitc_bcjmpi(bc)\
 {   jit_insn* rf1;\
     rf1 = jit_jmpi(jit_forward());\
     if((bc) < (byteptr - CODEPTR)){\
@@ -128,77 +133,77 @@ This implies that (bcPos == byteptr - CODEPTR).*/
     }\
     else if(bcIndex[bc] == 0){\
         /* FWD JMP: no list for this BC */\
-        Cons list = malloc(sizeof(Cons));\
-        list->car = (gcv_object_t)rf1;\
-        list->cdr = (gcv_object_t)NIL;\
+        jitc_jmp_cons list = malloc(sizeof(jitc_jmp_cons));\
+        list->car = rf1;\
+        list->cdr = NULL;\
         bcIndex[bc] = (jit_insn*)list;\
     }\
     else{\
         /* FWD JMP: add to list */\
-        Cons list = (Cons)bcIndex[bc];\
-        Cons new_cell = malloc(sizeof(Cons));\
-        new_cell->car = (gcv_object_t)rf1;\
-        new_cell->cdr = (gcv_object_t)list;\
+        jitc_jmp_cons list = (jitc_jmp_cons)bcIndex[bc];\
+        jitc_jmp_cons new_cell = malloc(sizeof(jitc_jmp_cons));\
+        new_cell->car = rf1;\
+        new_cell->cdr = (jit_insn*)list;\
         bcIndex[bc] = (jit_insn*)new_cell;\
     }\
 }
 /* Uses addresses in bcIndex to jmp */
-#define jit_bcjmpr();\
+#define jitc_bcjmpr();\
     jit_muli_ul(JIT_R1,JIT_R2,sizeof(jit_insn*));\
-    jit_movi_p(JIT_R0,bcIndex);\
+    jit_movi_l(JIT_R0,bcIndex);\
     jit_ldxr_p(JIT_R0,JIT_R0,JIT_R1);\
     jit_jmpr(JIT_R0);
 
-#define jit_return() jit_ret();
+#define jitc_return() jit_ret();
 
 /* All bytecodes that modify the runtime context of a JIT function are tagged
-with jit_tag_unsafe. This eases the task of assigning a register to a permanent value*/
-#define jit_tag_unsafe()
+with jitc_tag_unsafe. This eases the task of assigning a register to a permanent value*/
+#define jitc_tag_unsafe()
 /* ------------------- (0) Utilities ----------------------- */
 /* this file is not processed by clisp/src/po/clisp-xgettext
    because all error messages that appear in this file already appear in
    src/eval.d, so we can use GETTEXT in this macro */
-#define jit_errori(type, message)               \
-  jit_movi_p(JIT_R0, type);                     \
-  jit_movi_p(JIT_R1, GETTEXT(message));         \
+#define jitc_errori(type, message)               \
+  jit_movi_l(JIT_R0, type);                     \
+  jit_movi_l(JIT_R1, GETTEXT(message));         \
   jit_prepare(2);                               \
   jit_pusharg_p(JIT_R1);                        \
   jit_pusharg_p(JIT_R0);                        \
   jit_finish(error)
-#define jit_notreached()                        \
+#define jitc_notreached()                        \
   jit_prepare(2);                               \
-  jit_movi_p(JIT_R0,__LINE__);                  \
+  jit_movi_l(JIT_R0,__LINE__);                  \
   jit_pusharg_p(JIT_R0);                        \
-  jit_movi_p(JIT_R0,__FILE__);                  \
+  jit_movi_l(JIT_R0,__FILE__);                  \
   jit_pusharg_p(JIT_R0);                        \
   jit_finish(error_notreached)
 
 /* Gives access to slots in structures */
-#define jit_get_fieldr(type, field)\
-    jit_ldxi_p(JIT_R0, JIT_R2, The##type(jit_ptr_field(type, field)));
-#define jit_getptr_fieldr(type, field)\
-    jit_addi_p(JIT_R0, JIT_R2, The##type(jit_ptr_field(type, field)));
+#define jitc_get_fieldr(type, field)\
+    jit_ldxi_p(JIT_R0, JIT_R2, The##type(as_object(jit_ptr_field(type, field))));
+#define jitc_getptr_fieldr(type, field)\
+    jit_addi_p(JIT_R0, JIT_R2, The##type(as_object(jit_ptr_field(type, field))));
 
 /* Length of a srecord */
-#define jit_getlenr(type)\
-    jit_get_fieldr(type,tfl);\
+#define jitc_getlenr(type)\
+    jitc_get_fieldr(type,tfl);\
     jit_rshi_ul(JIT_R0,JIT_R0,16);
 
 /* Gives access to a closure's constants */
-#define jit_get_cconsti(n)\
+#define jitc_get_cconsti(n)\
     jit_ldr_p(JIT_R0,JIT_V1);\
-    jit_addi_p(JIT_R0, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_consts)));\
+    jit_addi_p(JIT_R0, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_consts))));\
     jit_ldxi_p(JIT_R0,JIT_R0,(n)*sizeof(gcv_object_t));
-#define jit_getptr_cconsti(n)\
+#define jitc_getptr_cconsti(n)\
     jit_ldr_p(JIT_R0,JIT_V1);\
-    jit_addi_p(JIT_R0, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_consts)));\
+    jit_addi_p(JIT_R0, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_consts))));\
     jit_addi_p(JIT_R0,JIT_R0,(n)*sizeof(gcv_object_t));
 
-/* jit_repeat():
+/* jitc_repeat():
  > reg: counter
  > STATEMENT:
  Checks if (reg == 0) before looping */
-#define jit_repeat(reg, STATEMENT)              \
+#define jitc_repeat(reg, STATEMENT)              \
   {           jit_insn *rf166,*rf266;           \
     rf166 = jit_beqi_p(jit_forward(),reg,0);    \
     rf266 = jit_get_label();                    \
@@ -209,11 +214,11 @@ with jit_tag_unsafe. This eases the task of assigning a register to a permanent 
     jit_bnei_p(rf266,reg,0);                    \
     jit_patch(rf166);                           \
   }
-/* jit_repeatp():
+/* jitc_repeatp():
  > reg: counter
  > STATEMENT:
  Does not check (if reg == 0) before looping */
-#define jit_repeatp(reg, STATEMENT)\
+#define jitc_repeatp(reg, STATEMENT)\
 {           jit_insn *ref66;\
 ref66 = jit_get_label();\
             \
@@ -224,169 +229,169 @@ jit_bnei_p(ref66,reg,0);\
     }
 /* ------------------- (1) Stack operations ----------------------- */
 #ifdef STANDARD_HEAPCODES
-    /* jit_getsize_framer(): */
+    /* jitc_getsize_framer(): */
     /* > &bottomword: Address of bottomword */
-    #define jit_getsize_framer()\
+    #define jitc_getsize_framer()\
         jit_ldr_ui(JIT_R1,JIT_R2);\
         jit_andi_ui(JIT_R0,JIT_R1,(wbit(FB1)-1));
-    #define jit_get_framecoder()\
+    #define jitc_get_framecoder()\
         jit_andi_ui(JIT_R0,JIT_R2,minus_wbit(FB1));
 #endif
 #ifdef LINUX_NOEXEC_HEAPCODES
-    /* jit_getsize_framer(): */
+    /* jitc_getsize_framer(): */
     /* > &bottomword: Address of bottomword */
-    #define jit_getsize_framer()\
+    #define jitc_getsize_framer()\
         jit_ldr_ui(JIT_R1,JIT_R2);\
         jit_rshi_ul(JIT_R0,JIT_R1,6);
-    #define jit_get_framecoder()\
+    #define jitc_get_framecoder()\
         jit_andi_ui(JIT_R0,JIT_R2,0x3F);
 #endif
 #ifdef STACK_DOWN
-    #define jit_bnov_stacki jit_blti_p
-    #define jit_getptbl_stackr()
-  #define jit_skip_stack_opir jit_addi_p
-    #define jit_skip_stack_opr jit_addr_p
-    #define jit_get_stacki(n)\
+    #define jitc_bnov_stacki jit_blti_p
+    #define jitc_getptbl_stackr()
+  #define jitc_skip_stack_opir jit_addi_p
+    #define jitc_skip_stack_opr jit_addr_p
+    #define jitc_get_stacki(n)\
         jit_ldi_p(JIT_R1, &STACK);\
         jit_ldxi_i(JIT_R0, JIT_R1,(n)*sizeof(gcv_object_t));
-    #define jit_getptr_stacki(n)\
+    #define jitc_getptr_stacki(n)\
         jit_ldi_p(JIT_R1, &STACK);\
         jit_addi_i(JIT_R0, JIT_R1,(n)*sizeof(gcv_object_t));
-    #define jit_get_framei(n)\
+    #define jitc_get_framei(n)\
         jit_ldxi_p(JIT_R0,JIT_R2,(n)*sizeof(gcv_object_t));
-    #define jit_getptr_framei(n)\
+    #define jitc_getptr_framei(n)\
         jit_addi_p(JIT_R0,JIT_R2,(n)*sizeof(gcv_object_t));
-    /* jit_gettop_framer(): */
+    /* jitc_gettop_framer(): */
     /* > &bottomword: Address of bottomword */
-    #define jit_gettop_framer()\
-        jit_getsize_framer();\
+    #define jitc_gettop_framer()\
+        jitc_getsize_framer();\
         jit_addr_ui(JIT_R1,JIT_R2,JIT_R0);\
         jit_movr_p(JIT_R0,JIT_R1);
     /* reg is modified */
-    #define jit_frame_nextx(reg)\
+    #define jitc_frame_nextx(reg)\
         jit_subi_p(reg,reg,sizeof(gcv_object_t));\
         jit_ldr_p(JIT_R0,reg);
-    #define jit_get_scountr(res,new,old)\
+    #define jitc_get_scountr(res,new,old)\
         jit_subr_p(res,old,new);\
         jit_divi_ul(res,res,sizeof(void*));
 #endif
 #ifdef STACK_UP
-    #define jit_bnov_stacki jit_bgti_p
-    #define jit_getptbl_stackr()  jit_subi_i(JIT_R0,JIT_R2,sizeof(gcv_object_t))
-  #define jit_skip_stack_opir jit_subi_p
-    #define jit_skip_stack_opr jit_subr_p
-    #define jit_get_stacki(n)\
+    #define jitc_bnov_stacki jit_bgti_p
+    #define jitc_getptbl_stackr()  jit_subi_i(JIT_R0,JIT_R2,sizeof(gcv_object_t))
+  #define jitc_skip_stack_opir jit_subi_p
+    #define jitc_skip_stack_opr jit_subr_p
+    #define jitc_get_stacki(n)\
         jit_ldi_p(JIT_R1, &STACK);\
         jit_ldxi_i(JIT_R0, JIT_R1,-sizeof(gcv_object_t) - ((n)*sizeof(gcv_object_t)));
-    #define jit_get_stackr()\
+    #define jitc_get_stackr()\
         jit_ldi_p(JIT_R1, &STACK);\
         jit_subi_p(JIT_R1,JIT_R1,sizeof(gcv_object_t));\
         jit_muli_ul(JIT_R0,JIT_R2,sizeof(gcv_object_t));\
         jit_subr_p(JIT_R1,JIT_R1,JIT_R0);\
         jit_ldr_p(JIT_R0, JIT_R1);
-    #define jit_getptr_stacki(n)\
+    #define jitc_getptr_stacki(n)\
         jit_ldi_p(JIT_R1, &STACK);\
         jit_addi_i(JIT_R0, JIT_R1,-sizeof(gcv_object_t) - ((n)*sizeof(gcv_object_t)));
-    #define jit_get_framei(n)\
+    #define jitc_get_framei(n)\
         jit_ldxi_i(JIT_R0, JIT_R2,-sizeof(gcv_object_t) - ((n)*sizeof(gcv_object_t)));
-    #define jit_getptr_framei(n)\
+    #define jitc_getptr_framei(n)\
         jit_addi_i(JIT_R0, JIT_R2,-sizeof(gcv_object_t) - ((n)*sizeof(gcv_object_t)));
-    /* jit_gettop_framer(): */
+    /* jitc_gettop_framer(): */
     /* > &bottomword: Address of bottomword */
-    #define jit_gettop_framer()\
-        jit_getsize_framer();\
+    #define jitc_gettop_framer()\
+        jitc_getsize_framer();\
         jit_subr_ui(JIT_R1,JIT_R2,JIT_R0);\
         jit_addi_ui(JIT_R0,JIT_R1,sizeof(gcv_object_t));
     /* reg is modified */
-    #define jit_frame_nextx(reg)\
+    #define jitc_frame_nextx(reg)\
         jit_ldr_p(JIT_R0,reg);\
         jit_addi_p(reg,reg,sizeof(gcv_object_t));
-    #define jit_get_scountr(res,new,old)\
+    #define jitc_get_scountr(res,new,old)\
         jit_subr_p(res,new,old);\
         jit_divi_ul(res,res,sizeof(void*));
 #endif
 
 
-#define jit_skip_stacki(n)\
+#define jitc_skip_stacki(n)\
     jit_ldi_p(JIT_R0, &STACK);\
-    jit_skip_stack_opir(JIT_R0, JIT_R0,(n)*sizeof(gcv_object_t));\
+    jitc_skip_stack_opir(JIT_R0, JIT_R0,(n)*sizeof(gcv_object_t));\
     jit_sti_p(&STACK, JIT_R0);
-#define jit_skip_stackr()\
+#define jitc_skip_stackr()\
     jit_ldi_p(JIT_R0, &STACK);\
     jit_muli_i(JIT_R1,JIT_R2,sizeof(void*));\
-    jit_skip_stack_opr(JIT_R0, JIT_R0,JIT_R1);\
+    jitc_skip_stack_opr(JIT_R0, JIT_R0,JIT_R1);\
     jit_sti_p(&STACK, JIT_R0);
 
-#define jit_push_stacki(obj)\
-    jit_getptr_stacki(-1);\
-    jit_movi_p(JIT_R1, obj);\
+#define jitc_push_stacki(obj)\
+    jitc_getptr_stacki(-1);\
+    jit_movi_l(JIT_R1, obj);\
     jit_str_p(JIT_R0, JIT_R1);\
-    jit_skip_stacki(-1);
-#define jit_push_stackr()\
-    jit_getptr_stacki(-1);\
+    jitc_skip_stacki(-1);
+#define jitc_push_stackr()\
+    jitc_getptr_stacki(-1);\
     jit_str_p(JIT_R0, JIT_R2);\
-    jit_skip_stacki(-1);
+    jitc_skip_stacki(-1);
 /* Loads the argument before pushing */
-#define jit_ldpush_stackr()\
-    jit_getptr_stacki(-1);\
+#define jitc_ldpush_stackr()\
+    jitc_getptr_stacki(-1);\
     jit_ldr_p(JIT_R1,JIT_R2);\
     jit_str_p(JIT_R0, JIT_R1);\
-    jit_skip_stacki(-1);
+    jitc_skip_stacki(-1);
 
-#define jit_pop_stack()\
-    jit_skip_stacki(1);\
-    jit_get_stacki(-1);
+#define jitc_pop_stack()\
+    jitc_skip_stacki(1);\
+    jitc_get_stacki(-1);
 
 /*  Make the 'Frame Info' word of a frame on the lisp stack */
-#define jit_finish_framer(TYPE, SIZE)\
-    jit_getptr_stacki(-1);\
-    jit_movi_p(JIT_R1,makebottomword(TYPE##_frame_info,SIZE*sizeof(gcv_object_t)));\
+#define jitc_finish_framer(TYPE, SIZE)\
+    jitc_getptr_stacki(-1);\
+    jit_movi_l(JIT_R1,as_oint(makebottomword(TYPE##_frame_info,SIZE*sizeof(gcv_object_t))));\
     jit_str_p(JIT_R0, JIT_R1);\
-    jit_skip_stacki(-1);
+    jitc_skip_stacki(-1);
 
 /* Check if the stack has overflowed */
-#define jit_check_stack()\
+#define jitc_check_stack()\
     { jit_insn* ref;\
         jit_ldi_p(JIT_R0,&(STACK));\
         jit_ldi_p(JIT_R1,&(STACK_bound));\
-    ref = jit_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
-        jit_calli(STACK_ueber);\
+    ref = jitc_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
+        (void)jit_calli(STACK_ueber);\
     jit_patch(ref);\
     }
-/* jit_check_stack i-r():
+/* jitc_check_stack i-r():
  Check if the stack will overflow given the parameter
  Equivalent to macro get_space_on_STACK */
-#define jit_check_stackr()\
+#define jitc_check_stackr()\
     { jit_insn* ref;\
         jit_ldi_p(JIT_R0,&(STACK));\
         jit_ldi_p(JIT_R1,&(STACK_bound));\
         jit_addr_p(JIT_R1,JIT_R1,JIT_R2);\
-    ref = jit_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
-        jit_calli(STACK_ueber);\
+    ref = jitc_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
+        (void)jit_calli(STACK_ueber);\
     jit_patch(ref);\
     }
-#define jit_check_stacki(n)\
+#define jitc_check_stacki(n)\
     { jit_insn* ref;\
         jit_ldi_p(JIT_R0,&(STACK));\
         jit_ldi_p(JIT_R1,&(STACK_bound));\
         jit_addi_p(JIT_R1,JIT_R1,(n));\
-    ref = jit_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
-        jit_calli(STACK_ueber);\
+    ref = jitc_bnov_stacki(jit_forward(), JIT_R0,JIT_R1);\
+        (void)jit_calli(STACK_ueber);\
     jit_patch(ref);\
     }
 /* ------------------- (2) Multiple Values ----------------------- */
-/* jit_rawset_valuesi_1: */
+/* jitc_rawset_valuesi_1: */
 /* Doesn't modify mvcount */
-#define jit_rawset_valuesi_1(value)\
-    jit_movi_p(JIT_R0, value);\
+#define jitc_rawset_valuesi_1(value)\
+    jit_movi_l(JIT_R0, value);\
     jit_sti_p (mv_space,JIT_R0);
 
-#define jit_set_valuesi_1(value)\
-    jit_movi_p(JIT_R0, value);\
+#define jitc_set_valuesi_1(value)\
+    jit_movi_l(JIT_R0, value);\
     jit_sti_p(mv_space,JIT_R0);\
     jit_movi_ui(JIT_R0, 1);\
     jit_sti_ui(&mv_count, JIT_R0);
-#define jit_set_valuesr_1()\
+#define jitc_set_valuesr_1()\
     jit_sti_p (mv_space,JIT_R2);\
     jit_movi_ui(JIT_R0, 1);\
     jit_sti_ui(&mv_count, JIT_R0);
@@ -396,40 +401,40 @@ jit_bnei_p(ref66,reg,0);\
     jit_movi_ui(JIT_R0, N);\
     jit_sti_ui(&mv_count, JIT_R0);
 
-#define jit_get_valuesr_1()\
+#define jitc_get_valuesr_1()\
     jit_ldi_p(JIT_R0, mv_space);
-#define jit_getptr_valuesr_1()\
-    jit_movi_p(JIT_R0, mv_space);
+#define jitc_getptr_valuesr_1()\
+    jit_movi_l(JIT_R0, mv_space);
 
-#define jit_getptr_valuesi(n)\
-    jit_movi_p(JIT_R0, mv_space);\
+#define jitc_getptr_valuesi(n)\
+    jit_movi_l(JIT_R0, mv_space);\
     jit_addi_p(JIT_R0,JIT_R0,(n)*sizeof(gcv_object_t));
-#define jit_getptr_valuesr()\
-    jit_movi_p(JIT_R0, mv_space);\
+#define jitc_getptr_valuesr()\
+    jit_movi_l(JIT_R0, mv_space);\
     jit_muli_ul(JIT_R1,JIT_R2,sizeof(gcv_object_t));\
     jit_addr_p(JIT_R0,JIT_R0,JIT_R1);
 
-#define jit_get_mvcountr()\
+#define jitc_get_mvcountr()\
     jit_ldi_p(JIT_R0, &mv_count);
-#define jit_set_mvcounti(n)\
+#define jitc_set_mvcounti(n)\
     jit_movi_ui(JIT_R0,n);\
     jit_sti_p(&mv_count,JIT_R0);
-#define jit_set_mvcountr()\
+#define jitc_set_mvcountr()\
     jit_sti_p(&mv_count,JIT_R2);
 /* Modifies All registers except JIT_V0 */
-#define jit_mv2stackx()\
+#define jitc_mv2stackx()\
     {       jit_insn *rf1,*rf2;\
-            jit_get_mvcountr();\
+            jitc_get_mvcountr();\
 rf1 = jit_beqi_p(jit_forward(),JIT_R0,0);\
 \
             jit_movr_p(JIT_V2,JIT_R0);\
             jit_movr_p(JIT_R2,JIT_R0);\
-            jit_check_stackr();\
-            jit_getptr_valuesi(0);\
+            jitc_check_stackr();\
+            jitc_getptr_valuesi(0);\
             jit_movr_p(JIT_V1,JIT_R0);\
-jit_repeatp(JIT_V2,\
+jitc_repeatp(JIT_V2,\
             jit_ldr_p(JIT_R2,JIT_V1);\
-            jit_push_stackr();\
+            jitc_push_stackr();\
             jit_addi_p(JIT_V1,JIT_V1,sizeof(gcv_object_t));\
 );\
 \
@@ -437,54 +442,54 @@ jit_patch(rf1);\
     }
 /* ------------------- (3) SP operations ----------------------- */
 /* Operations on a down-growing stack */
-#define jit_set_spr()\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R2);
-#define jit_get_spi(n)\
-    jit_ldxi_p(JIT_R1,JIT_FP,jit_sp_ptr);\
+#define jitc_set_spr()\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R2);
+#define jitc_get_spi(n)\
+    jit_ldxi_p(JIT_R1,JIT_FP,jitc_sp_ptr);\
     jit_ldxi_p(JIT_R0, JIT_R1, (n)*sizeof(SPint));
-#define jit_getptr_spi(n)\
-    jit_ldxi_p(JIT_R1,JIT_FP,jit_sp_ptr);\
+#define jitc_getptr_spi(n)\
+    jit_ldxi_p(JIT_R1,JIT_FP,jitc_sp_ptr);\
     jit_addi_p(JIT_R0, JIT_R1, (n)*sizeof(SPint));
 
-#define jit_skip_spi(n)\
-    jit_ldxi_p(JIT_R1,JIT_FP,jit_sp_ptr);\
+#define jitc_skip_spi(n)\
+    jit_ldxi_p(JIT_R1,JIT_FP,jitc_sp_ptr);\
     jit_addi_p(JIT_R0,JIT_R1,(n)*sizeof(SPint));\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);
 
-#define jit_push_spi(item)\
-    jit_getptr_spi(-1);\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);\
-    jit_movi_p(JIT_R1, (item));\
+#define jitc_push_spi(item)\
+    jitc_getptr_spi(-1);\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);\
+    jit_movi_l(JIT_R1, (item));\
     jit_str_p(JIT_R0,JIT_R1);
-#define jit_push_spr()\
-    jit_getptr_spi(-1);\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);\
+#define jitc_push_spr()\
+    jitc_getptr_spi(-1);\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);\
     jit_str_p(JIT_R0,JIT_R2);
 /* Loads the parameter before pushing */
-#define jit_ldpush_spr()\
-    jit_getptr_spi(-1);\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);\
+#define jitc_ldpush_spr()\
+    jitc_getptr_spi(-1);\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);\
     jit_ldr_p(JIT_R1,JIT_R2);\
     jit_str_p(JIT_R0,JIT_R1);
 
-#define jit_pop_sp()\
-    jit_getptr_spi(0);\
+#define jitc_pop_sp()\
+    jitc_getptr_spi(0);\
     jit_addi_p(JIT_R1,JIT_R0,sizeof(SPint));\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R1);\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R1);\
     jit_ldr_p(JIT_R0, JIT_R0);
-#define jit_alloc_jmpbuf()\
-    jit_ldxi_p(JIT_R0,JIT_FP,jit_sp_ptr);\
+#define jitc_alloc_jmpbuf()\
+    jit_ldxi_p(JIT_R0,JIT_FP,jitc_sp_ptr);\
     jit_subi_i(JIT_R0,JIT_R0,(jmpbufsize)*sizeof(SPint));\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);
-#define jit_free_jmpbuf()\
-    jit_ldxi_p(JIT_R0,JIT_FP,jit_sp_ptr);\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);
+#define jitc_free_jmpbuf()\
+    jit_ldxi_p(JIT_R0,JIT_FP,jitc_sp_ptr);\
     jit_addi_i(JIT_R0,JIT_R0,(jmpbufsize)*sizeof(SPint));\
-    jit_stxi_p(jit_sp_ptr,JIT_FP, JIT_R0);
-#define jit_finish_eframex(TYPE, SIZE, ON_REENTRY, ON_FINISH)\
+    jit_stxi_p(jitc_sp_ptr,JIT_FP, JIT_R0);
+#define jitc_finish_eframex(TYPE, SIZE, ON_REENTRY, ON_FINISH)\
 {\
         jit_insn *rf1;\
-        jit_push_stackr();\
-        jit_push_stacki(nullobj);\
+        jitc_push_stackr();\
+        jitc_push_stacki(as_oint(nullobj));\
         \
         jit_prepare(1);\
         jit_pusharg_p(JIT_R2);\
@@ -492,13 +497,13 @@ jit_patch(rf1);\
         jit_retval(JIT_R2);\
         \
 rf1 = jit_beqi_p(jit_forward(),JIT_R2,0);\
-        jit_set_spr();\
+        jitc_set_spr();\
         \
         ON_REENTRY;\
         \
 jit_patch(rf1);\
-        jit_getptr_stacki(0);\
-        jit_movi_p(JIT_R1,makebottomword(TYPE##_frame_info,SIZE*sizeof(gcv_object_t)));\
+        jitc_getptr_stacki(0);\
+        jit_movi_l(JIT_R1,as_oint(makebottomword(TYPE##_frame_info,SIZE*sizeof(gcv_object_t))));\
         jit_str_p(JIT_R0,JIT_R1);\
         \
         ON_FINISH;\
@@ -506,48 +511,48 @@ jit_patch(rf1);\
 
 
 /* ------------------- (4) Symbols ----------------------- */
-#define jit_get_symvali(symbol)\
-    jit_movi_p(JIT_R1,symbol);\
-    jit_ldxi_p(JIT_R0,JIT_R1, TheSymbol(jit_ptr_field(Symbol, symvalue)));
-#define jit_get_symvalr()\
-    jit_ldxi_p(JIT_R0,JIT_R2, TheSymbol(jit_ptr_field(Symbol, symvalue)));
-#define jit_getptr_symvali(symbol)\
-    jit_movi_p(JIT_R1,symbol);\
-    jit_addi_p(JIT_R0,JIT_R1, TheSymbol(jit_ptr_field(Symbol, symvalue)));
-#define jit_getptr_symvalr()\
-    jit_addi_p(JIT_R0,JIT_R2, TheSymbol(jit_ptr_field(Symbol, symvalue)));
-#define jit_sym_constpr(sym)\
-    jit_ldxi_p(JIT_R0, JIT_R2, TheSymbol(jit_ptr_field(Symbol, header_flags)));\
+#define jitc_get_symvali(symbol)\
+    jit_movi_l(JIT_R1,symbol);\
+    jit_ldxi_p(JIT_R0,JIT_R1, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
+#define jitc_get_symvalr()\
+    jit_ldxi_p(JIT_R0,JIT_R2, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
+#define jitc_getptr_symvali(symbol)\
+    jit_movi_l(JIT_R1,symbol);\
+    jit_addi_p(JIT_R0,JIT_R1, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
+#define jitc_getptr_symvalr()\
+    jit_addi_p(JIT_R0,JIT_R2, TheSymbol(as_object(jit_ptr_field(Symbol, symvalue))));
+#define jitc_sym_constpr(sym)\
+    jit_ldxi_p(JIT_R0, JIT_R2, TheSymbol(as_object(jit_ptr_field(Symbol, header_flags))));\
     jit_notr_ul(JIT_R0,JIT_R0);\
     jit_andi_ul(JIT_R1,JIT_R0,bit(var_bit0_hf)|bit(var_bit1_hf));\
     jit_eqi_ul(JIT_R0,JIT_R1,0);
 
-#define jit_sympr()\
+#define jitc_sympr()\
   { jit_insn* ref;                                                      \
     jit_andi_ul(JIT_R1, JIT_R2,nonimmediate_heapcode_mask);             \
-    jit_movi_p(JIT_R0,0);                                               \
+    jit_movi_l(JIT_R0,0);                                               \
     ref = jit_bnei_p(jit_forward(),JIT_R1,(varobject_bias+varobjects_misaligned)); \
-    jit_ldxi_p(JIT_R1,JIT_R2, TheRecord(jit_ptr_field(Record, tfl)));   \
+    jit_ldxi_p(JIT_R1,JIT_R2, TheRecord(as_object(jit_ptr_field(Record, tfl))));   \
     jit_andi_ul(JIT_R1, JIT_R1,0xFF);                                   \
     jit_eqi_p(JIT_R0,JIT_R1,Rectype_Symbol);                            \
     jit_patch(ref);}
 
 /* Modifies JIT_R2 */
-#define jit_check_fdefx() {                                             \
+#define jitc_check_fdefx() {                                             \
     jit_insn *rf1,*rf2;                                                 \
-    jit_sympr();                                                        \
+    jitc_sympr();                                                        \
     rf1 = jit_beqi_p(jit_forward(),JIT_R0,1);                           \
-    jit_save_backtrace3(L(symbol_function), STACK, -1, -1,{             \
+    jitc_save_backtrace3(as_oint(L(symbol_function)), STACK, -1, -1,{    \
         jit_prepare(1);                                                 \
         jit_pusharg_p(JIT_R2);                                          \
         jit_finish(check_symbol);                                       \
         jit_retval(JIT_R2);                                             \
       });                                                               \
     jit_patch(rf1);                                                     \
-    jit_get_fieldr(Symbol,symfunction);                                 \
-    rf2 = jit_bnei_p(jit_forward(),JIT_R0,unbound);                     \
+    jitc_get_fieldr(Symbol,symfunction);                                 \
+    rf2 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(unbound));            \
     jit_prepare(2);                                                     \
-    jit_movi_p(JIT_R0,S(symbol_function));                              \
+    jit_movi_l(JIT_R0,as_oint(S(symbol_function)));                     \
     jit_pusharg_p(JIT_R0);                                              \
     jit_pusharg_p(JIT_R2);                                              \
     jit_finish(check_fdefinition);                                      \
@@ -555,89 +560,89 @@ jit_patch(rf1);\
     jit_patch(rf2);                                                     \
   }
 
-#define jit_sym_atompr()\
+#define jitc_sym_atompr()\
     jit_andi_ul(JIT_R1,JIT_R2,7);\
     jit_nei_p(JIT_R0,JIT_R1,(cons_bias+conses_misaligned));
-#define jit_sym_conspr()\
+#define jitc_sym_conspr()\
     jit_andi_ul(JIT_R1,JIT_R2,7);\
     jit_eqi_p(JIT_R0,JIT_R1,(cons_bias+conses_misaligned));
 /* ------------------- (5) Svectors ----------------------- */
-#define jit_svecpr()\
-	{ jit_insn* ref;\
+#define jitc_svecpr()\
+        { jit_insn* ref;\
     jit_andi_ul(JIT_R1, JIT_R2,nonimmediate_heapcode_mask);\
-		jit_movi_p(JIT_R0,0);\
+                jit_movi_l(JIT_R0,0);\
 ref = jit_bnei_p(jit_forward(),JIT_R1,(varobject_bias+varobjects_misaligned));\
-    jit_ldxi_p(JIT_R1,JIT_R2, TheRecord(jit_ptr_field(Record, tfl)));\
+    jit_ldxi_p(JIT_R1,JIT_R2, TheRecord(as_object(jit_ptr_field(Record, tfl))));\
     jit_andi_ul(JIT_R1, JIT_R1,0xFF);\
     jit_eqi_p(JIT_R0,JIT_R1,Rectype_Svector);\
 jit_patch(ref);}
-#define jit_getlen_svecr()\
-    jit_get_fieldr(Svector,tfl);\
+#define jitc_getlen_svecr()\
+    jitc_get_fieldr(Svector,tfl);\
     jit_rshi_i(JIT_R0,JIT_R0,8);
-#define jit_get_svecdatair(n)\
-    jit_addi_p(JIT_R1, JIT_R2, TheSvector(jit_ptr_field(Svector, data)));\
+#define jitc_get_svecdatair(n)\
+    jit_addi_p(JIT_R1, JIT_R2, TheSvector(as_object(jit_ptr_field(Svector, data))));\
     jit_ldxi_p(JIT_R0, JIT_R1, (n)*sizeof(gcv_object_t));
-#define jit_getptr_svecdatair(n)\
-    jit_addi_p(JIT_R1, JIT_R2, TheSvector(jit_ptr_field(Svector, data)));\
+#define jitc_getptr_svecdatair(n)\
+    jit_addi_p(JIT_R1, JIT_R2, TheSvector(as_object(jit_ptr_field(Svector, data))));\
     jit_addi_p(JIT_R0, JIT_R1, (n)*sizeof(gcv_object_t));
-/* jit_get_svecdatax():
+/* jitc_get_svecdatax():
  > JIT_R2: Address of svec
    JIT_R1: Element position
  Modifies JIT_R1 */
-#define jit_get_svecdatax()\
-    jit_addi_p(JIT_R0, JIT_R2, TheSvector(jit_ptr_field(Svector, data)));\
+#define jitc_get_svecdatax()\
+    jit_addi_p(JIT_R0, JIT_R2, TheSvector(as_object(jit_ptr_field(Svector, data))));\
     jit_muli_ul(JIT_R1,JIT_R1,sizeof(gcv_object_t));\
     jit_ldxr_p(JIT_R0, JIT_R0, JIT_R1);
-#define jit_getptr_svecdatax()\
-    jit_addi_p(JIT_R0, JIT_R2, TheSvector(jit_ptr_field(Svector, data)));\
+#define jitc_getptr_svecdatax()\
+    jit_addi_p(JIT_R0, JIT_R2, TheSvector(as_object(jit_ptr_field(Svector, data))));\
     jit_muli_ul(JIT_R1,JIT_R1,sizeof(gcv_object_t));\
     jit_addr_p(JIT_R0, JIT_R0, JIT_R1);
 /* ------------------- (6) Calls ----------------------- */
-#define jit_funcall()\
+#define jitc_funcall()\
   { jit_prepare(2);\
-        jit_movi_p(JIT_R0,k);\
+        jit_movi_l(JIT_R0,k);\
         jit_pusharg_p(JIT_R0);\
-        jit_get_cconsti(n);\
+        jitc_get_cconsti(n);\
         jit_pusharg_p(JIT_R0);\
         jit_finish(funcall);\
   }
-#define jit_funcall0()\
+#define jitc_funcall0()\
   { jit_prepare(2);\
-        jit_movi_p(JIT_R0,0);\
+        jit_movi_l(JIT_R0,0);\
         jit_pusharg_p(JIT_R0);\
-        jit_get_cconsti(n);\
+        jitc_get_cconsti(n);\
         jit_pusharg_p(JIT_R0);\
         jit_finish(funcall);\
   }
-#define jit_funcall1()\
+#define jitc_funcall1()\
   { jit_prepare(2);\
-        jit_movi_p(JIT_R0,1);\
+        jit_movi_l(JIT_R0,1);\
         jit_pusharg_p(JIT_R0);\
         jit_ldr_p(JIT_R0,JIT_V1);\
-        jit_get_cconsti(n);\
+        jitc_get_cconsti(n);\
         jit_pusharg_p(JIT_R0);\
         jit_finish(funcall);\
   }
-#define jit_funcall2()\
+#define jitc_funcall2()\
   { jit_prepare(2);\
-        jit_movi_p(JIT_R0,2);\
+        jit_movi_l(JIT_R0,2);\
         jit_pusharg_p(JIT_R0);\
-        jit_get_cconsti(n);\
+        jitc_get_cconsti(n);\
         jit_pusharg_p(JIT_R0);\
         jit_finish(funcall);\
   }
 /* !!! DO NOT NEST jit_save_backtrace*s */
-/* jit_save_backtrace1(fun,stack,num_arg,statement): */
+/* jitc_save_backtrace1(fun,stack,num_arg,statement): */
 /* This one does not dynamically load the 'fun' argument */
-#define jit_save_backtrace1(fun,stack,num_arg,statement) {      \
+#define jitc_save_backtrace1(fun,stack,num_arg,statement) {      \
     jit_addi_p(JIT_R0,JIT_FP,bt_here);                          \
     jit_ldi_p(JIT_R1,&back_trace);                                      \
     jit_stxi_i (jit_field(struct backtrace_t, bt_next), JIT_R0, JIT_R1); \
-    jit_movi_p(JIT_R1,(fun));                                           \
+    jit_movi_l(JIT_R1,(fun));                                           \
     jit_stxi_i (jit_field(struct backtrace_t, bt_function), JIT_R0, JIT_R1); \
     jit_ldi_p(JIT_R1,&(stack));                                         \
     jit_stxi_i (jit_field(struct backtrace_t, bt_stack), JIT_R0, JIT_R1); \
-    jit_movi_p(JIT_R1,(num_arg));                                       \
+    jit_movi_l(JIT_R1,(num_arg));                                       \
     jit_stxi_i (jit_field(struct backtrace_t, bt_num_arg), JIT_R0, JIT_R1); \
     jit_sti_p(&back_trace, JIT_R0);                                     \
     statement;                                                          \
@@ -645,9 +650,9 @@ jit_patch(ref);}
     jit_ldxi_p(JIT_R1, JIT_R0, jit_field(struct backtrace_t, bt_next)); \
     jit_sti_p(&back_trace, JIT_R1);                                     \
   }
-/* jit_save_backtrace2(fun,stack,num_arg,statement):
+/* jitc_save_backtrace2(fun,stack,num_arg,statement):
  This one dynamically loads the 'fun' argument */
-#define jit_save_backtrace2(fun,stack,num_arg,statement) {   \
+#define jitc_save_backtrace2(fun,stack,num_arg,statement) {   \
     jit_addi_p(JIT_R0,JIT_FP,bt_here);                       \
     jit_ldi_p(JIT_R1,&back_trace);                                      \
     jit_stxi_i (jit_field(struct backtrace_t, bt_next), JIT_R0, JIT_R1); \
@@ -655,7 +660,7 @@ jit_patch(ref);}
     jit_stxi_i (jit_field(struct backtrace_t, bt_function), JIT_R0, JIT_R1); \
     jit_ldi_p(JIT_R1,&(stack));                                         \
     jit_stxi_i (jit_field(struct backtrace_t, bt_stack), JIT_R0, JIT_R1); \
-    jit_movi_p(JIT_R1,(num_arg));                                       \
+    jit_movi_l(JIT_R1,(num_arg));                                       \
     jit_stxi_i (jit_field(struct backtrace_t, bt_num_arg), JIT_R0, JIT_R1); \
     jit_sti_p(&back_trace, JIT_R0);                                     \
     statement;                                                          \
@@ -663,18 +668,18 @@ jit_patch(ref);}
     jit_ldxi_p(JIT_R1, JIT_R0, jit_field(struct backtrace_t, bt_next)); \
     jit_sti_p(&back_trace, JIT_R1);                                     \
   }
-/* jit_save_backtrace3():
+/* jitc_save_backtrace3():
  Saves 'STACK STACKop n' instead of just STACK */
-#define jit_save_backtrace3(fun,stack,n,num_arg,statement) {    \
+#define jitc_save_backtrace3(fun,stack,n,num_arg,statement) {    \
     jit_addi_p(JIT_R0,JIT_FP,bt_here);                          \
     jit_ldi_p(JIT_R1,&back_trace);                                      \
     jit_stxi_i (jit_field(struct backtrace_t, bt_next), JIT_R0, JIT_R1); \
-    jit_movi_p(JIT_R1,(fun));                                           \
+    jit_movi_l(JIT_R1,(fun));                                           \
     jit_stxi_i (jit_field(struct backtrace_t, bt_function), JIT_R0, JIT_R1); \
     jit_ldi_p(JIT_R1,&(stack));                                         \
-    jit_skip_stack_opir(JIT_R1,JIT_R1,(n)*sizeof(gcv_object_t));        \
+    jitc_skip_stack_opir(JIT_R1,JIT_R1,(n)*sizeof(gcv_object_t));        \
     jit_stxi_i (jit_field(struct backtrace_t, bt_stack), JIT_R0, JIT_R1); \
-    jit_movi_p(JIT_R1,(num_arg));                                       \
+    jit_movi_l(JIT_R1,(num_arg));                                       \
     jit_stxi_i (jit_field(struct backtrace_t, bt_num_arg), JIT_R0, JIT_R1); \
     jit_sti_p(&back_trace, JIT_R0);                                     \
     statement;                                                          \
@@ -682,92 +687,92 @@ jit_patch(ref);}
     jit_ldxi_p(JIT_R1, JIT_R0, jit_field(struct backtrace_t, bt_next)); \
     jit_sti_p(&back_trace, JIT_R1);                                     \
   }
-#define jit_funcalls1();                        \
+#define jitc_funcalls1();                        \
   {{ Subr fun = FUNTAB1[n];                                        \
-     jit_save_backtrace1(subr_tab_ptr_as_object(fun),STACK,-1,         \
-                         jit_movi_p(JIT_R0,(fun->function));            \
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,         \
+                         jit_movi_l(JIT_R0,(fun->function));            \
                          jit_callr(JIT_R0););                           \
     }}
-#define jit_funcalls2();                        \
+#define jitc_funcalls2();                        \
   {{ Subr fun = FUNTAB2[n];                                        \
-     jit_save_backtrace1(subr_tab_ptr_as_object(fun),STACK,-1,    \
-                         jit_movi_p(JIT_R0,(fun->function));      \
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,    \
+                         jit_movi_l(JIT_R0,(fun->function));      \
                          jit_callr(JIT_R0););                     \
     }}
-#define jit_funcallsr();                        \
+#define jitc_funcallsr();                        \
   {{ Subr fun = FUNTABR[n];                                        \
-     jit_save_backtrace1(subr_tab_ptr_as_object(fun),STACK,-1,    \
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,    \
                          jit_prepare(2);                          \
                          jit_ldi_p(JIT_R1,&(args_end_pointer));         \
-                         jit_skip_stack_opir(JIT_R0,JIT_R1,m*sizeof(gcv_object_t)); \
+                         jitc_skip_stack_opir(JIT_R0,JIT_R1,m*sizeof(gcv_object_t)); \
                          jit_pusharg_p(JIT_R0);                         \
-                         jit_movi_p(JIT_R0,m);                          \
+                         jit_movi_l(JIT_R0,m);                          \
                          jit_pusharg_p(JIT_R0);                         \
-                         jit_movi_p(JIT_R0,(fun->function));            \
+                         jit_movi_l(JIT_R0,(fun->function));            \
                          jit_finishr(JIT_R0);)                          \
        }}
-#define jit_funcallc()                          \
-  jit_check_stack();                            \
-  jit_save_backtrace2(value1, STACK,-1,         \
+#define jitc_funcallc()                          \
+  jitc_check_stack();                            \
+  jitc_save_backtrace2(value1, STACK,-1,         \
                       jit_prepare(3);           \
-                      jit_get_valuesr_1();                              \
-                      jit_ldxi_p(JIT_R0, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_codevec))); \
-                      jit_addi_p(JIT_R0, JIT_R0, TheSbvector(jit_ptr_field(Sbvector, data))); \
+                      jitc_get_valuesr_1();                              \
+                      jit_ldxi_p(JIT_R0, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_codevec)))); \
+                      jit_addi_p(JIT_R0, JIT_R0, TheSbvector(as_object(jit_ptr_field(Sbvector, data)))); \
                       jit_addi_p(JIT_R0, JIT_R0, CCV_START_NONKEY*sizeof(uint8)); \
                       jit_pusharg_p(JIT_R0);                            \
-                      jit_get_valuesr_1();                              \
-                      jit_ldxi_p(JIT_R1, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_codevec))); \
-                      jit_addi_p(JIT_R1,JIT_R1,TheSbvector(0));         \
+                      jitc_get_valuesr_1();                              \
+                      jit_ldxi_p(JIT_R1, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_codevec)))); \
+                      jit_addi_p(JIT_R1,JIT_R1,TheSbvector(as_object(0)));         \
                       jit_pusharg_p(JIT_R1);                            \
                       jit_pusharg_p(JIT_R0);                            \
                       jit_finish(interpret_bytecode_););
-#define jit_funcallckey()                       \
-  jit_check_stack();                            \
-  jit_save_backtrace2(value1, STACK,-1,         \
+#define jitc_funcallckey()                       \
+  jitc_check_stack();                            \
+  jitc_save_backtrace2(value1, STACK,-1,         \
                       jit_prepare(3);           \
-                      jit_get_valuesr_1();                              \
-                      jit_ldxi_p(JIT_R0, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_codevec))); \
-                      jit_addi_p(JIT_R0, JIT_R0, TheSbvector(jit_ptr_field(Sbvector, data))); \
+                      jitc_get_valuesr_1();                              \
+                      jit_ldxi_p(JIT_R0, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_codevec)))); \
+                      jit_addi_p(JIT_R0, JIT_R0, TheSbvector(as_object(jit_ptr_field(Sbvector, data)))); \
                       jit_addi_p(JIT_R0, JIT_R0, CCV_START_KEY*sizeof(uint8)); \
                       jit_pusharg_p(JIT_R0);                            \
-                      jit_get_valuesr_1();                              \
-                      jit_ldxi_p(JIT_R1, JIT_R0, TheCclosure(jit_ptr_field(Cclosure, clos_codevec))); \
-                      jit_addi_p(JIT_R1,JIT_R1,TheSbvector(0));         \
+                      jitc_get_valuesr_1();                              \
+                      jit_ldxi_p(JIT_R1, JIT_R0, TheCclosure(as_object(jit_ptr_field(Cclosure, clos_codevec)))); \
+                      jit_addi_p(JIT_R1,JIT_R1,TheSbvector(as_object(0)));         \
                       jit_pusharg_p(JIT_R1);                            \
                       jit_pusharg_p(JIT_R0);                            \
                       jit_finish(interpret_bytecode_););
 /* ------------------- (6) Fixnum ----------------------- */
-#define jit_val2fixnumr()                       \
+#define jitc_val2fixnumr()                       \
   jit_lshi_ul(JIT_R0,JIT_R2,oint_data_shift);   \
-  jit_movi_p(JIT_R1,fixnum_type);               \
+  jit_movi_l(JIT_R1,fixnum_type);               \
   jit_lshi_ul(JIT_R1,JIT_R1,oint_type_shift);   \
   jit_addr_p(JIT_R0,JIT_R0,JIT_R1);
-#define jit_posfixnum2valr()\
+#define jitc_posfixnum2valr()\
   jit_andi_ui(JIT_R0,JIT_R2,((oint)wbitm(oint_data_len+oint_data_shift)-1)); \
   jit_rshi_ul(JIT_R0,JIT_R0,oint_data_shift);
-#define jit_posfixnumpr()                       \
-  jit_movi_p(JIT_R0,7);                         \
+#define jitc_posfixnumpr()                       \
+  jit_movi_l(JIT_R0,7);                         \
   jit_lshi_ul(JIT_R0,JIT_R0,imm_type_shift);    \
   jit_ori_ul(JIT_R0,JIT_R0,immediate_bias);     \
   jit_andr_ul(JIT_R1,JIT_R0,JIT_R2);            \
   jit_eqi_p(JIT_R0,JIT_R1,fixnum_type);
 
-#define jit_inc_posfixnumir(n)                  \
-  jit_movi_p(JIT_R0,n);                         \
+#define jitc_inc_posfixnumir(n)                  \
+  jit_movi_l(JIT_R0,n);                         \
   jit_lshi_ul(JIT_R0,JIT_R0,oint_data_shift);   \
   jit_addr_p(JIT_R0,JIT_R0,JIT_R2);
 
 /* Might need to reassign this to a function hence the 'x' */
-#define jit_ul2ix() jit_val2fixnumr()
+#define jitc_ul2ix() jitc_val2fixnumr()
 
 #if (oint_data_len>=intVsize)
-    #define jit_fixnum2valr()  jit_posfixnum2valr();
+    #define jitc_fixnum2valr()  jitc_posfixnum2valr();
 #elif (sign_bit_o == oint_data_len+oint_data_shift)
-  #define jit_fixnum2valr()\
+  #define jitc_fixnum2valr()\
         jit_lshi_ul(JIT_R0,JIT_R2,(intVsize-1-sign_bit_o));\
         jit_rshi_ul(JIT_R0,JIT_R0,(intVsize-1-sign_bit_o+oint_data_shift));
 #else
-  #define jit_fixnum2valr()\
+  #define jitc_fixnum2valr()\
         jit_rshi_l(JIT_R1,JIT_R2,sign_bit_o);\
         jit_lshi_l(JIT_R1,JIT_R1,(intVsize-1));\
         jit_rshi_l(JIT_R1,JIT_R1,(intVsize-1-oint_data_len));\
@@ -778,27 +783,27 @@ jit_patch(ref);}
 
 
 /* ------------------- (X) Debugging ----------------------- */
-#define jit_debug()\
+#define jitc_debug()\
     disassemble(stderr, codeBuffer, jit_get_ip().ptr);
 /* Prints to STDOUT */
 /* Carefull, since a C function is called, JIT_R* might get modified */
-#define jit_printm(mes)\
-    jit_movi_p(JIT_R0, mes);\
+#define jitc_printm(mes)\
+    jit_movi_l(JIT_R0, mes);\
     jit_prepare(3);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R0);\
     jit_finish(printf);
-#define jit_printr()\
-    jit_movi_p(JIT_R0, "The register equals: I=%d, P=%p\n");\
+#define jitc_printr()\
+    jit_movi_l(JIT_R0, "The register equals: I=%d, P=%p\n");\
     jit_prepare(3);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R0);\
     jit_finish(printf);
-#define jit_printi(val)\
-    jit_movi_p(JIT_R0, "The variable equals: I=%d, P=%p\n");\
-    jit_movi_p(JIT_R1, val);\
+#define jitc_printi(val)\
+    jit_movi_l(JIT_R0, "The variable equals: I=%d, P=%p\n");\
+    jit_movi_l(JIT_R1, val);\
     jit_prepare(3);\
     jit_pusharg_p(JIT_R1);\
     jit_pusharg_p(JIT_R1);\
@@ -1278,7 +1283,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
  #endif
 
   /* codebuffer: contains the JITed code (Temp allocation scheme) */
-  jit_insn *codeBuffer = malloc(sizeof(jit_insn)*byteptr_max*JIT_AVG_BCSIZE);
+  jit_insn *codeBuffer = malloc(sizeof(jit_insn)*byteptr_max*JITC_AVG_BCSIZE);
   /* bcIndex: Address of the beginning of each BC in codeBuffer
      Used by the compiler to patch jumps.  */
   jit_insn **bcIndex = calloc(byteptr_max+1,sizeof(jit_insn*));
@@ -1290,33 +1295,34 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   jo->jo_next = all_jitc_objects;
   all_jitc_objects = jo;
   TheFpointer(cclosure_jitc(closure))->fp_pointer = jo;
-
+	
+	(void)jit_set_ip(codeBuffer);
   jit_prolog(2);
   /* Arguments */
-  const int jit_arg_closure = jit_arg_i();
-  const int jit_arg_startpos= jit_arg_i();
+  const int jitc_arg_closure = jit_arg_i();
+  const int jitc_arg_startpos= jit_arg_i();
   /* Stack allocated variables */
-  const int jit_sp_space = (sp_length)?jit_allocai(sizeof(SPint)*sp_length):0;
-  const int jit_sp_ptr = jit_allocai(sizeof(void*)); /* top of SP */
-  const int jit_var_a = jit_allocai(sizeof(void*)); /* Temp variables */
-  const int jit_var_b = jit_allocai(sizeof(void*));
-  const int jit_var_c = jit_allocai(sizeof(void*));
-  const int jit_var_d = jit_allocai(sizeof(void*));
+  const int jitc_sp_space = (sp_length)?jit_allocai(sizeof(SPint)*sp_length):0;
+  const int jitc_sp_ptr = jit_allocai(sizeof(void*)); /* top of SP */
+  const int jitc_var_a = jit_allocai(sizeof(void*)); /* Temp variables */
+  const int jitc_var_b = jit_allocai(sizeof(void*));
+  const int jitc_var_c = jit_allocai(sizeof(void*));
+  const int jitc_var_d = jit_allocai(sizeof(void*));
   const int bt_here = jit_allocai(sizeof(struct backtrace_t));
-  /* Init of jit_sp_ptr */
-  jit_addi_p(JIT_R0,JIT_FP,jit_sp_space);
+  /* Init of jitc_sp_ptr */
+  jit_addi_p(JIT_R0,JIT_FP,jitc_sp_space);
   jit_addi_p(JIT_R0,JIT_R0,sizeof(SPint)*(sp_length)); /* SP grows down */
-  jit_stxi_p(jit_sp_ptr,JIT_FP,JIT_R0);
+  jit_stxi_p(jitc_sp_ptr,JIT_FP,JIT_R0);
 
   /* situate closure in STACK, below the arguments: */
-  jit_getarg_p(JIT_R2, jit_arg_closure);
-  jit_push_stackr();
-  jit_getptr_stacki(0);
+  jit_getarg_p(JIT_R2, jitc_arg_closure);
+  jitc_push_stackr();
+  jitc_getptr_stacki(0);
   jit_movr_p(JIT_V1,JIT_R0); /* Permanently in JIT_V1 */
 
   /* Jump to starting instruction */
-  jit_getarg_p(JIT_R2, jit_arg_startpos);
-  jit_bcjmpr();
+  jit_getarg_p(JIT_R2, jitc_arg_startpos);
+  jitc_bcjmpr();
 
 
   /* next Byte to be interpreted */
@@ -1330,19 +1336,19 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
         goto finished;
   uintL bcPos = byteptr - CODEPTR;
 
-		jit_check_overflow();
-  jit_patch_fwdjmps();
+  jitc_check_overflow();
+  jitc_patch_fwdjmps();
   bcIndex[bcPos] = (jit_insn*)jit_get_ip().ptr;
 
   switch (*byteptr++)
   #define CASE  case (uintB)
   { /* ------------------- (1) Constants ----------------------- */
     CASE cod_nil: {             /* (NIL) */
-      jit_set_valuesi_1(NIL);
+      jitc_set_valuesi_1(as_oint(NIL));
       goto next_byte;
     }
     CASE cod_nil_push: {        /* (NIL&PUSH) */
-      jit_push_stacki(NIL);
+      jitc_push_stacki(as_oint(NIL));
       goto next_byte;
     }
     CASE cod_push_nil: {        /* (PUSH-NIL n) */
@@ -1350,27 +1356,27 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       if (n != 0 ) {
         jit_movi_ui(JIT_R2,n);
-        jit_repeatp(JIT_R2,
-                    jit_push_stacki(NIL);
+        jitc_repeatp(JIT_R2,
+                    jitc_push_stacki(as_oint(NIL));
                     );
       }
       goto next_byte;
     }
     CASE cod_t: {               /* (T) */
-      jit_set_valuesi_1(T);
+      jitc_set_valuesi_1(as_oint(T));
       goto next_byte;
     }
     CASE cod_t_push: {          /* (T&PUSH) */
-      jit_push_stacki(T);
+      jitc_push_stacki(as_oint(T));
       goto next_byte;
     }
     CASE cod_const: {           /* (CONST n) */
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1378,9 +1384,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
@@ -1389,9 +1395,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1399,9 +1405,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
@@ -1413,11 +1419,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k2);
       U_operand(n);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1429,11 +1435,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k2);
       U_operand(n);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
@@ -1443,11 +1449,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_svecdatair(1+m);
+      jitc_get_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1457,11 +1463,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_svecdatair(1+m);
+      jitc_get_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
@@ -1471,24 +1477,24 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
       U_operand(m);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
 
       if (k != 0) {
-        jit_movi_p(JIT_V2,k);
-        jit_repeatp(JIT_V2,
-                    jit_get_fieldr(Svector,data);
+        jit_movi_l(JIT_V2,k);
+        jitc_repeatp(JIT_V2,
+                    jitc_get_fieldr(Svector,data);
                     jit_movr_p(JIT_R2,JIT_R0);
                     );
       }
 
-      jit_get_svecdatair(m);
+      jitc_get_svecdatair(m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -1499,24 +1505,24 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
       U_operand(m);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
 
       if (k != 0) {
-        jit_movi_p(JIT_V2,k);
-        jit_repeatp(JIT_V2,
-                    jit_get_fieldr(Svector,data);
+        jit_movi_l(JIT_V2,k);
+        jitc_repeatp(JIT_V2,
+                    jitc_get_fieldr(Svector,data);
                     jit_movr_p(JIT_R2,JIT_R0);
                     );
       }
 
-      jit_get_svecdatair(m);
+      jitc_get_svecdatair(m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -1530,13 +1536,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_svecdatair(1+m);
+      jitc_get_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1544,11 +1550,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0, JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1556,11 +1562,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0, JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1572,11 +1578,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k2);
       U_operand(n);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_framei(n);
+      jitc_getptr_framei(n);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1588,18 +1594,18 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_stacki(k);
+      jitc_get_stacki(k);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_valuesr_1();
+      jitc_getptr_valuesr_1();
       jit_str_p(JIT_R0,JIT_R2);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_svecdatair(1+m);
+      jitc_getptr_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R2,JIT_R0);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -1609,13 +1615,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_svecdatair(1+m);
+      jitc_getptr_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R2,JIT_R0);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -1625,26 +1631,26 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
       U_operand(m);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
 
       if (k != 0) {
-        jit_movi_p(JIT_V2,k);
-        jit_repeatp(JIT_V2,
-                    jit_get_fieldr(Svector,data);
+        jit_movi_l(JIT_V2,k);
+        jitc_repeatp(JIT_V2,
+                    jitc_get_fieldr(Svector,data);
                     jit_movr_p(JIT_R2,JIT_R0);
                     );
       }
 
-      jit_getptr_svecdatair(m);
+      jitc_getptr_svecdatair(m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R2,JIT_R0);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -1658,15 +1664,15 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(m);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_svecdatair(1+m);
+      jitc_get_svecdatair(1+m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R2,JIT_R0);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -1676,16 +1682,16 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_insn  *ref;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_symvalr();
-      ref = jit_bnei_p(jit_forward(), JIT_R0, unbound);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_errori(unbound_variable,"~S: symbol ~S has no value");
+      jitc_get_symvalr();
+      ref = jit_bnei_p(jit_forward(), JIT_R0, as_oint(unbound));
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_errori(unbound_variable,"~S: symbol ~S has no value");
       jit_patch(ref);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1694,16 +1700,16 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_insn  *ref;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_symvalr();
-      ref = jit_bnei_p(jit_forward(), JIT_R0, unbound);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_errori(unbound_variable,"~S: symbol ~S has no value");
+      jitc_get_symvalr();
+      ref = jit_bnei_p(jit_forward(), JIT_R0, as_oint(unbound));
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_errori(unbound_variable,"~S: symbol ~S has no value");
       jit_patch(ref);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
@@ -1712,21 +1718,21 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_insn  *ref;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_sym_constpr();
+      jitc_sym_constpr();
       ref = jit_bnei_p(jit_forward(), JIT_R0, 1);
-      jit_push_stackr();
-      jit_getptr_fieldr(Cclosure, clos_consts);
+      jitc_push_stackr();
+      jitc_getptr_fieldr(Cclosure, clos_consts);
       jit_ldxi_p(JIT_R2,JIT_R0,sizeof(gcv_object_t));
-      jit_push_stackr();
-      jit_errori(error_condition,"~S: assignment to constant symbol ~S is impossible");
+      jitc_push_stackr();
+      jitc_errori(error_condition,"~S: assignment to constant symbol ~S is impossible");
       jit_patch(ref);
-      jit_getptr_symvalr();
+      jitc_getptr_symvalr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R2,JIT_R0);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -1734,24 +1740,24 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_V2,JIT_R0);
       jit_movr_p(JIT_R2,JIT_V2);
       /* Create frame : */
-      jit_get_symvalr();
+      jitc_get_symvalr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_push_stackr();
-      jit_finish_framer(DYNBIND,3);
+      jitc_push_stackr();
+      jitc_finish_framer(DYNBIND,3);
       /* modify value */
-      jit_getptr_symvalr();
+      jitc_getptr_symvalr();
       jit_ldi_p(JIT_R1, &(value1));
       jit_str_p(JIT_R0, JIT_R1);
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -1759,37 +1765,37 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       /* unwind variable-binding-frame: */
       jit_insn *rf1,*rf2;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_gettop_framer();
+      jitc_gettop_framer();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R2); /* new_stack */
-      jit_getptbl_stackr();
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R2); /* new_stack */
+      jitc_getptbl_stackr();
       jit_movr_p(JIT_V2,JIT_R0); /* frame_end */
-      jit_getptr_stacki(1);
+      jitc_getptr_stacki(1);
       jit_movr_p(JIT_V1,JIT_R0); /* bindingptr */
 
       rf1 = jit_get_label();
       rf2 = jit_beqr_p(jit_forward(),JIT_V1,JIT_V2);
       jit_ldr_p(JIT_R2,JIT_V1);
-      jit_getptr_symvalr();
+      jitc_getptr_symvalr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_skip_stack_opir(JIT_R1,JIT_V1,sizeof(gcv_object_t));
+      jitc_skip_stack_opir(JIT_R1,JIT_V1,sizeof(gcv_object_t));
       jit_ldr_p(JIT_R0,JIT_R1);
       jit_str_p(JIT_R2,JIT_R0);
 
-      jit_skip_stack_opir(JIT_V1,JIT_V1,2*sizeof(gcv_object_t));
-      jit_jmpi(rf1);
+      jitc_skip_stack_opir(JIT_V1,JIT_V1,2*sizeof(gcv_object_t));
+      (void)jit_jmpi(rf1);
       jit_patch(rf2);
 
-      jit_ldxi_p(JIT_R0,JIT_FP,jit_var_c); /* new_stack */
+      jit_ldxi_p(JIT_R0,JIT_FP,jitc_var_c); /* new_stack */
       jit_sti_p(&STACK,JIT_R0);
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -1798,77 +1804,77 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_insn *rf1,*rf2,*rf3;
       U_operand(n); /* n>0 */
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
       jit_ldi_p(JIT_V2,&STACK); /* FRAME */
-      jit_movi_p(JIT_R0,n);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R0);
+      jit_movi_l(JIT_R0,n);
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R0);
       rf1 = jit_get_label();
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_framei(1);
+      jitc_getptr_framei(1);
       jit_movr_p(JIT_V1,JIT_R0); /* bindingptr */
-      jit_getptr_framei(0);
+      jitc_getptr_framei(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_gettop_framer();
+      jitc_gettop_framer();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_stxi_p(jit_var_d,JIT_FP,JIT_R2); /* new_frame */
-      jit_getptbl_stackr();
+      jit_stxi_p(jitc_var_d,JIT_FP,JIT_R2); /* new_frame */
+      jitc_getptbl_stackr();
       jit_movr_p(JIT_V2,JIT_R0); /* frame_end */
 
       rf2 = jit_get_label();
       rf3 = jit_beqr_p(jit_forward(),JIT_V1,JIT_V2);
       jit_ldr_p(JIT_R2,JIT_V1);
-      jit_getptr_symvalr();
+      jitc_getptr_symvalr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_skip_stack_opir(JIT_R1,JIT_V1,sizeof(gcv_object_t));
+      jitc_skip_stack_opir(JIT_R1,JIT_V1,sizeof(gcv_object_t));
       jit_ldr_p(JIT_R0,JIT_R1);
       jit_str_p(JIT_R2,JIT_R0);
 
-      jit_skip_stack_opir(JIT_V1,JIT_V1,2*sizeof(gcv_object_t));
-      jit_jmpi(rf2);
+      jitc_skip_stack_opir(JIT_V1,JIT_V1,2*sizeof(gcv_object_t));
+      (void)jit_jmpi(rf2);
       jit_patch(rf3);
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_d); /* new_frame */
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_d); /* new_frame */
 
-      jit_ldxi_p(JIT_R0,JIT_FP,jit_var_c);
+      jit_ldxi_p(JIT_R0,JIT_FP,jitc_var_c);
       jit_subi_i(JIT_R2,JIT_R0,1);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R2);
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R2);
       jit_bnei_i(rf1,JIT_R2,0);
 
       jit_sti_p(&STACK,JIT_V2);
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_progv: {           /* (PROGV) */
       jit_ldi_p(JIT_R0,&STACK);
-      jit_skip_stack_opir(JIT_R2,JIT_R0,sizeof(gcv_object_t));
-      jit_push_spr();
+      jitc_skip_stack_opir(JIT_R2,JIT_R0,sizeof(gcv_object_t));
+      jitc_push_spr();
       jit_prepare(2);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_pusharg_p(JIT_R0);
       jit_finish(progv);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     /* ------------------- (4) Stack operations ----------------------- */
     CASE cod_push: {            /* (PUSH) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_pop: {             /* (POP) */
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -1876,7 +1882,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_skip_stacki(n);
+      jitc_skip_stacki(n);
 
       goto next_byte;
     }
@@ -1888,9 +1894,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k2);
       U_operand(n);
 
-      jit_skip_spi(k1+jmpbufsize*k2);
-      jit_pop_sp();
-      jit_skip_stack_opir(JIT_R1,JIT_R0,n*sizeof(gcv_object_t));
+      jitc_skip_spi(k1+jmpbufsize*k2);
+      jitc_pop_sp();
+      jitc_skip_stack_opir(JIT_R1,JIT_R0,n*sizeof(gcv_object_t));
       jit_sti_p(&STACK,JIT_R1);
 
       goto next_byte;
@@ -1901,7 +1907,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k1);
       U_operand(k2);
 
-      jit_skip_spi(k1+jmpbufsize*k2);
+      jitc_skip_spi(k1+jmpbufsize*k2);
 
       goto next_byte;
     }
@@ -1910,9 +1916,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_skip_stacki(n);
+      jitc_skip_stacki(n);
 
-      jit_return();
+      jitc_return();
 
       goto next_byte;
     }
@@ -1920,32 +1926,32 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
       if (((Codevec)codeptr)->ccv_flags & bit(3)) { /* call inhibition? */
-        jit_skip_stacki(n);
-        jit_set_mvcounti(1);
+        jitc_skip_stacki(n);
+        jitc_set_mvcounti(1);
       } else {
         uintL r = ((Codevec)codeptr)->ccv_numreq;
         n -= r;
         if (((Codevec)codeptr)->ccv_flags & bit(0)) {
-          jit_skip_stacki(n-1);
+          jitc_skip_stacki(n-1);
           jit_prepare(3);
-          jit_pop_stack();
+          jitc_pop_stack();
           jit_pusharg_p(JIT_R0);
-          jit_movi_p(JIT_R0,r);
+          jit_movi_l(JIT_R0,r);
           jit_pusharg_p(JIT_R0);
-          jit_get_valuesr_1();
+          jitc_get_valuesr_1();
           jit_pusharg_p(JIT_R0);
           jit_finish(apply);
         } else {
-          jit_skip_stacki(n);
+          jitc_skip_stacki(n);
           jit_prepare(2);
-          jit_movi_p(JIT_R0,r);
+          jit_movi_l(JIT_R0,r);
           jit_pusharg_p(JIT_R0);
-          jit_get_valuesr_1();
+          jitc_get_valuesr_1();
           jit_pusharg_p(JIT_R0);
           jit_finish(funcall);
         }
       }
-      jit_return();
+      jitc_return();
 
       goto next_byte;
     }
@@ -1953,7 +1959,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
 
       goto next_byte;
     }
@@ -1962,9 +1968,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -1974,9 +1980,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -1986,10 +1992,10 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_set_mvcounti(1);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_set_mvcounti(1);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -1999,10 +2005,10 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_set_mvcounti(1);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_set_mvcounti(1);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2012,11 +2018,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_sym_atompr();
+      jitc_sym_atompr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2026,11 +2032,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2040,11 +2046,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       rf1 = jit_bner_p(jit_forward(),JIT_R0,JIT_R2);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2054,11 +2060,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       rf1 = jit_beqr_p(jit_forward(),JIT_R0,JIT_R2);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2070,11 +2076,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       rf1 = jit_bner_p(jit_forward(),JIT_R0,JIT_R2);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2086,11 +2092,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       rf1 = jit_beqr_p(jit_forward(),JIT_R0,JIT_R2);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2104,23 +2110,23 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       L_operand(label_byteptr);
 
       jit_prepare(3);
-      jit_movi_p(JIT_R0,false);
+      jit_movi_l(JIT_R0,false);
       jit_pusharg_p(JIT_R0);
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_pusharg_p(JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
       jit_finish(gethash);
       jit_retval(JIT_R2);
 
-      rf1 = jit_bnei_p(jit_forward(),JIT_R2,nullobj);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      rf1 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(nullobj));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
-      jit_fixnum2valr();
+      jitc_fixnum2valr();
       jit_movr_p(JIT_R2,JIT_R0);
       jit_addi_p(JIT_R2,JIT_R2,(saved_byteptr - CODEPTR));
 
-      jit_bcjmpr();
+      jitc_bcjmpr();
 
       goto next_byte;
     }
@@ -2133,29 +2139,29 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       L_operand(label_byteptr);
 
       jit_prepare(3);
-      jit_movi_p(JIT_R0,false);
+      jit_movi_l(JIT_R0,false);
       jit_pusharg_p(JIT_R0);
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_svecdatair(n);
+      jitc_get_svecdatair(n);
       jit_pusharg_p(JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
       jit_finish(gethash);
       jit_retval(JIT_R2);
 
-      rf1 = jit_bnei_p(jit_forward(),JIT_R2,nullobj);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      rf1 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(nullobj));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
-      jit_fixnum2valr();
+      jitc_fixnum2valr();
       jit_movr_p(JIT_R2,JIT_R0);
       jit_addi_p(JIT_R2,JIT_R2,(saved_byteptr - CODEPTR));
 
-      jit_bcjmpr();
+      jitc_bcjmpr();
 
       goto next_byte;
     }
-#define jit_save_backtrace_jsr(statement) {             \
+#define jitc_save_backtrace_jsr(statement) {             \
       jit_addi_p(JIT_R0,JIT_FP,bt_here);                \
       jit_ldi_p(JIT_R1,&back_trace);                                    \
       jit_stxi_i (jit_field(struct backtrace_t, bt_next), JIT_R0, JIT_R1); \
@@ -2163,7 +2169,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_stxi_i (jit_field(struct backtrace_t, bt_function), JIT_R0, JIT_R1); \
       jit_ldi_p(JIT_R1,&(STACK));                                       \
       jit_stxi_i (jit_field(struct backtrace_t, bt_stack), JIT_R0, JIT_R1); \
-      jit_movi_p(JIT_R1,-1);                                            \
+      jit_movi_l(JIT_R1,-1);                                            \
       jit_stxi_i (jit_field(struct backtrace_t, bt_num_arg), JIT_R0, JIT_R1); \
       jit_sti_p(&back_trace, JIT_R0);                                   \
       statement;                                                        \
@@ -2175,41 +2181,41 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_check_stack();
-      jit_save_backtrace_jsr({
+      jitc_check_stack();
+      jitc_save_backtrace_jsr({
           jit_prepare(3);
           jit_ldr_p(JIT_R2,JIT_V1);
-          jit_get_fieldr(Closure,clos_codevec);
-          jit_addi_p(JIT_R1,JIT_R0,TheSbvector(0)); /* codeptr */
+          jitc_get_fieldr(Closure,clos_codevec);
+          jit_addi_p(JIT_R1,JIT_R0,TheSbvector(as_object(0))); /* codeptr */
           jit_addi_p(JIT_R0,JIT_R1,(label_byteptr - (uintB*)codeptr));
           jit_pusharg_p(JIT_R0);
           jit_pusharg_p(JIT_R1);
           jit_pusharg_p(JIT_R2);
           jit_finish(interpret_bytecode_);
         });
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_jsr_push: {        /* (JSR&PUSH label) */
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_check_stack();
-      jit_save_backtrace_jsr({
+      jitc_check_stack();
+      jitc_save_backtrace_jsr({
           jit_prepare(3);
           jit_ldr_p(JIT_R2,JIT_V1);
-          jit_get_fieldr(Closure,clos_codevec);
-          jit_addi_p(JIT_R1,JIT_R0,TheSbvector(0)); /* codeptr */
+          jitc_get_fieldr(Closure,clos_codevec);
+          jit_addi_p(JIT_R1,JIT_R0,TheSbvector(as_object(0))); /* codeptr */
           jit_addi_p(JIT_R0,JIT_R1,(label_byteptr - (uintB*)codeptr));
           jit_pusharg_p(JIT_R0);
           jit_pusharg_p(JIT_R1);
           jit_pusharg_p(JIT_R2);
           jit_finish(interpret_bytecode_);
         });
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_tag_unsafe();
+      jitc_push_stackr();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_jmptail: {         /* (JMPTAIL m n label) */
@@ -2220,19 +2226,19 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
       jit_ldi_p(JIT_R0,&STACK);
-      jit_skip_stack_opir(JIT_V1,JIT_R0,m*sizeof(gcv_object_t));
-      jit_skip_stack_opir(JIT_R2,JIT_R0,n*sizeof(gcv_object_t));
+      jitc_skip_stack_opir(JIT_V1,JIT_R0,m*sizeof(gcv_object_t));
+      jitc_skip_stack_opir(JIT_R2,JIT_R0,n*sizeof(gcv_object_t));
 
-      jit_movi_p(JIT_V2,m);
-      jit_repeat(JIT_V2,{
+      jit_movi_l(JIT_V2,m);
+      jitc_repeat(JIT_V2,{
          #ifdef STACK_DOWN /* Because of postfix/prefix increment diffs */
           jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
          #endif
-          jit_frame_nextx(JIT_V1);
+          jitc_frame_nextx(JIT_V1);
           jit_str_p(JIT_R2,JIT_R0);
          #ifdef STACK_UP
           jit_addi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
@@ -2244,7 +2250,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
      #endif
       /* jit_sti_p(&closureptr,JIT_R2); */
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
       jit_ldr_p(JIT_R0,JIT_V1);
       jit_str_p(JIT_R2,JIT_R0);
      #ifdef STACK_UP
@@ -2252,18 +2258,18 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
      #endif
       jit_sti_p(&STACK,JIT_R2);
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_bcjmpi(label_byteptr - CODEPTR);
 
       goto next_byte;
     }
     /* ------------------- (6) Environments and Closures ----------------- */
     CASE cod_venv: {            /* (VENV) */
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -2271,27 +2277,27 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_prepare(1);
-      jit_movi_p(JIT_R0,(n+1));
+      jit_movi_l(JIT_R0,(n+1));
       jit_pusharg_p(JIT_R0);
       jit_finish(allocate_vector);
       jit_retval(JIT_V2);
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_svecdatair(0);
+      jitc_getptr_svecdatair(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_str_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_str_p(JIT_R0,JIT_V2);
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_copy_closure: {    /* (COPY-CLOSURE m n) */
@@ -2300,18 +2306,18 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(m);
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_cconsti(m);
+      jitc_get_cconsti(m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       /* Allocate closure */
       jit_prepare(2);
-      jit_getlenr(Cclosure);
+      jitc_getlenr(Cclosure);
       jit_pusharg_p(JIT_R0);
-      jit_get_fieldr(Cclosure,tfl);
+      jitc_get_fieldr(Cclosure,tfl);
       jit_rshi_i(JIT_R0,JIT_R0,8);
       jit_andi_ui(JIT_R0,JIT_R0,0xFF);
       jit_lshi_i(JIT_R0,JIT_R0,8);
@@ -2320,16 +2326,16 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_finish(allocate_srecord_);
       jit_retval(JIT_V1);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R2);
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R2);
 
       /* Copy the closure */
-      jit_pop_stack(); /* oldclos */
+      jitc_pop_stack(); /* oldclos */
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getlenr(Cclosure);
+      jitc_getlenr(Cclosure);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_addi_p(JIT_V1, JIT_V1, TheCclosure(jit_ptr_field(Srecord, recdata))); /* newclos */
-      jit_addi_p(JIT_R2, JIT_R2, TheCclosure(jit_ptr_field(Srecord, recdata))); /* oldclos */
-      jit_repeatp(JIT_V2,
+      jit_addi_p(JIT_V1, JIT_V1, TheCclosure(as_object(jit_ptr_field(Srecord, recdata)))); /* newclos */
+      jit_addi_p(JIT_R2, JIT_R2, TheCclosure(as_object(jit_ptr_field(Srecord, recdata)))); /* oldclos */
+      jitc_repeatp(JIT_V2,
                   jit_ldr_p(JIT_R1,JIT_R2);
                   jit_str_p(JIT_V1,JIT_R1);
                   jit_addi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
@@ -2337,22 +2343,22 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
                   );
 
       /* Copy stack to closure */
-      jit_ldxi_p(JIT_R2,JIT_FP,jit_var_c); /* oldclos */
-      jit_getptr_fieldr(Cclosure,clos_consts);
+      jit_ldxi_p(JIT_R2,JIT_FP,jitc_var_c); /* oldclos */
+      jitc_getptr_fieldr(Cclosure,clos_consts);
       jit_addi_p(JIT_R2,JIT_R0,n*sizeof(gcv_object_t)); /* newptr */
-      jit_movi_p(JIT_V2,n);
-      jit_repeatp(JIT_V2,
-                  jit_pop_stack();
+      jit_movi_l(JIT_V2,n);
+      jitc_repeatp(JIT_V2,
+                  jitc_pop_stack();
                   jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
                   jit_str_p(JIT_R2,JIT_R0);
                   );
-      jit_ldxi_p(JIT_R2,JIT_FP,jit_var_c);
-      jit_set_valuesr_1();
+      jit_ldxi_p(JIT_R2,JIT_FP,jitc_var_c);
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_copy_closure_push: { /* (COPY-CLOSURE&PUSH m n) */
@@ -2361,18 +2367,18 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(m);
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_cconsti(m);
+      jitc_get_cconsti(m);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       /* Allocate closure */
       jit_prepare(2);
-      jit_getlenr(Cclosure);
+      jitc_getlenr(Cclosure);
       jit_pusharg_p(JIT_R0);
-      jit_get_fieldr(Cclosure,tfl);
+      jitc_get_fieldr(Cclosure,tfl);
       jit_rshi_i(JIT_R0,JIT_R0,8);
       jit_andi_ui(JIT_R0,JIT_R0,0xFF);
       jit_lshi_i(JIT_R0,JIT_R0,8);
@@ -2381,39 +2387,39 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_finish(allocate_srecord_);
       jit_retval(JIT_V1);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R2);
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R2);
 
       /* Copy the closure */
-      jit_pop_stack(); /* oldclos */
+      jitc_pop_stack(); /* oldclos */
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getlenr(Cclosure);
+      jitc_getlenr(Cclosure);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_addi_p(JIT_V1, JIT_V1, TheCclosure(jit_ptr_field(Srecord, recdata))); /* newclos */
-      jit_addi_p(JIT_R2, JIT_R2, TheCclosure(jit_ptr_field(Srecord, recdata))); /* oldclos */
-      jit_repeatp(JIT_V2,
+      jit_addi_p(JIT_V1, JIT_V1, TheCclosure(as_object(jit_ptr_field(Srecord, recdata)))); /* newclos */
+      jit_addi_p(JIT_R2, JIT_R2, TheCclosure(as_object(jit_ptr_field(Srecord, recdata)))); /* oldclos */
+      jitc_repeatp(JIT_V2,
                   jit_ldr_p(JIT_R1,JIT_R2);
-	      	  jit_str_p(JIT_V1,JIT_R1);
-	          jit_addi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
+                  jit_str_p(JIT_V1,JIT_R1);
+                  jit_addi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
                   jit_addi_p(JIT_V1,JIT_V1,sizeof(gcv_object_t));
                   );
 
       /* Copy stack to closure */
-      jit_ldxi_p(JIT_R2,JIT_FP,jit_var_c); /* oldclos */
-      jit_getptr_fieldr(Cclosure,clos_consts);
+      jit_ldxi_p(JIT_R2,JIT_FP,jitc_var_c); /* oldclos */
+      jitc_getptr_fieldr(Cclosure,clos_consts);
       jit_addi_p(JIT_R2,JIT_R0,n*sizeof(gcv_object_t)); /* newptr */
-      jit_movi_p(JIT_V2,n);
-      jit_repeatp(JIT_V2,
-	          jit_pop_stack();
-    		  jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
-     		  jit_str_p(JIT_R2,JIT_R0);
+      jit_movi_l(JIT_V2,n);
+      jitc_repeatp(JIT_V2,
+                  jitc_pop_stack();
+                  jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
+                  jit_str_p(JIT_R2,JIT_R0);
                   );
-      jit_ldxi_p(JIT_R2,JIT_FP,jit_var_c);
-      jit_push_stackr();
+      jit_ldxi_p(JIT_R2,JIT_FP,jitc_var_c);
+      jitc_push_stackr();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     /* ------------------- (7) Function Calls ----------------------- */
@@ -2423,9 +2429,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
       U_operand(n);
 
-      jit_funcall();
+      jitc_funcall();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call_push: {       /* (CALL&PUSH k n) */
@@ -2434,105 +2440,105 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
       U_operand(n);
 
-      jit_funcall();
-      jit_get_valuesr_1();
+      jitc_funcall();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call0: {           /* (CALL0 n) */
       uintL n;
       U_operand(n);
 
-      jit_funcall0();
+      jitc_funcall0();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call1: {           /* (CALL1 n) */
       uintL n;
       U_operand(n);
 
-      jit_funcall1();
+      jitc_funcall1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call1_push: {      /* (CALL1&PUSH n) */
       uintL n;
       U_operand(n);
 
-      jit_funcall1();
-      jit_get_valuesr_1();
+      jitc_funcall1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call2: {           /* (CALL2 n) */
       uintL n;
       U_operand(n);
 
-      jit_funcall2();
+      jitc_funcall2();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call2_push: {      /* (CALL2&PUSH n) */
       uintL n;
       U_operand(n);
 
-      jit_funcall2();
-      jit_get_valuesr_1();
+      jitc_funcall2();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls1: {          /* (CALLS1 n) */
       uintL n;
       B_operand(n);
 
-      jit_funcalls1();
+      jitc_funcalls1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls1_push: {     /* (CALLS1&PUSH n) */
       uintL n;
       B_operand(n);
 
-      jit_funcalls1();
-      jit_get_valuesr_1();
+      jitc_funcalls1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls2: {          /* (CALLS2 n) */
       uintL n;
       B_operand(n);
 
-      jit_funcalls2();
+      jitc_funcalls2();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls2_push: {     /* (CALLS2&PUSH n) */
       uintL n;
       B_operand(n);
 
-      jit_funcalls2();
-      jit_get_valuesr_1();
+      jitc_funcalls2();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callsr: {          /* (CALLSR m n) */
@@ -2541,9 +2547,9 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(m);
       B_operand(n);
 
-      jit_funcallsr();
+      jitc_funcallsr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callsr_push: {     /* (CALLSR&PUSH m n) */
@@ -2552,42 +2558,42 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(m);
       B_operand(n);
 
-      jit_funcallsr();
-      jit_get_valuesr_1();
+      jitc_funcallsr();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callc: {           /* (CALLC) */
-      jit_funcallc();
+      jitc_funcallc();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callc_push: {      /* (CALLC&PUSH) */
-      jit_funcallc();
-      jit_get_valuesr_1();
+      jitc_funcallc();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callckey: {        /* (CALLCKEY) */
-      jit_funcallckey();
+      jitc_funcallckey();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callckey_push: {   /* (CALLCKEY&PUSH) */
-      jit_funcallckey();
-      jit_get_valuesr_1();
+      jitc_funcallckey();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_funcall: {         /* (FUNCALL n) */
@@ -2595,14 +2601,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(2);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(funcall);
-      jit_skip_stacki(1);
+      jitc_skip_stacki(1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_funcall_push: {    /* (FUNCALL&PUSH n) */
@@ -2610,17 +2616,17 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(2);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(funcall);
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_movr_p(JIT_R1,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R1,JIT_R0);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_apply: {           /* (APPLY n) */
@@ -2628,16 +2634,16 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(3);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(apply);
-      jit_skip_stacki(1);
+      jitc_skip_stacki(1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_apply_push: {      /* (APPLY&PUSH n) */
@@ -2645,19 +2651,19 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(3);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(apply);
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_movr_p(JIT_R1,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_str_p(JIT_R1,JIT_R0);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
   /* ------------------- (8) optional and Keyword-arguments -------------- */
@@ -2666,43 +2672,43 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_insn* ref;
       U_operand(n);
 
-      jit_movi_p(JIT_R2,n);
-      jit_repeat(JIT_R2,
-                 jit_push_stacki(unbound);
+      jit_movi_l(JIT_R2,n);
+      jitc_repeat(JIT_R2,
+                 jitc_push_stacki(as_oint(unbound));
                  );
 
       goto next_byte;
     }
     CASE cod_unlist: {          /* (UNLIST n m) */
-      jit_insn *rf1,*rf2,*rf3;
+      jit_insn *rf1=0,*rf2=0,*rf3=0;
       uintC n;
       uintC m;
       U_operand(n);
       U_operand(m);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
       if (n > 0) {
-        jit_movi_p(JIT_V2,n);
-        jit_repeatp(JIT_V2,
-                    jit_sym_atompr();
+        jit_movi_l(JIT_V2,n);
+        jitc_repeatp(JIT_V2,
+                    jitc_sym_atompr();
                     rf2 = jit_beqi_p(jit_forward(), JIT_R0, 1);
-                    jit_get_fieldr(Cons,cdr);
+                    jitc_get_fieldr(Cons,cdr);
                     jit_movr_p(JIT_V1,JIT_R0);
-                    jit_get_fieldr(Cons,car);
+                    jitc_get_fieldr(Cons,car);
                     jit_movr_p(JIT_R2,JIT_R0);
-                    jit_push_stackr();
+                    jitc_push_stackr();
                     jit_movr_p(JIT_R2,JIT_V1);
                     );
       }
 
-      jit_sym_atompr();
+      jitc_sym_atompr();
       rf1 = jit_beqi_p(jit_forward(), JIT_R0, 1);
       jit_prepare(1);
-      jit_movi_p(JIT_R0,S(lambda));
+      jit_movi_l(JIT_R0,as_oint(S(lambda)));
       jit_pusharg_p(JIT_R0);
       jit_finish(error_apply_toomany);
 
@@ -2711,48 +2717,48 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
         rf3 = jit_blei_p(jit_forward(),JIT_V2,m);
         jit_prepare(2);
         jit_pusharg_p(JIT_R2);
-        jit_movi_p(JIT_R0,S(lambda));
+        jit_movi_l(JIT_R0,as_oint(S(lambda)));
         jit_pusharg_p(JIT_R0);
         jit_finish(error_apply_toofew);
         jit_patch(rf3);
-        jit_repeatp(JIT_V2,
-                    jit_push_stacki(unbound);
+        jitc_repeatp(JIT_V2,
+                    jitc_push_stacki(as_oint(unbound));
                     );
       }
 
       jit_patch(rf1);
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_unliststar: {      /* (UNLIST* n m) */
-      jit_insn *rf1,*rf2,*rf3;
+      jit_insn *rf1=0,*rf2=0,*rf3=0;
       uintC n;
       uintC m;
       U_operand(n);
       U_operand(m);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
       if (n > 0) {
-        jit_movi_p(JIT_V2,n);
-        jit_repeatp(JIT_V2,
-                    jit_sym_atompr();
+        jit_movi_l(JIT_V2,n);
+        jitc_repeatp(JIT_V2,
+                    jitc_sym_atompr();
                     rf2 = jit_beqi_p(jit_forward(), JIT_R0, 1);
-                    jit_get_fieldr(Cons,cdr);
+                    jitc_get_fieldr(Cons,cdr);
                     jit_movr_p(JIT_V1,JIT_R0);
-                    jit_get_fieldr(Cons,car);
+                    jitc_get_fieldr(Cons,car);
                     jit_movr_p(JIT_R2,JIT_R0);
-                    jit_push_stackr();
+                    jitc_push_stackr();
                     jit_movr_p(JIT_R2,JIT_V1);
                     );
       }
 
-      jit_push_stackr();
+      jitc_push_stackr();
       rf1 = jit_jmpi(jit_forward());
 
       if (n > 0) {
@@ -2760,18 +2766,18 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
         rf3 = jit_blei_p(jit_forward(),JIT_V2,m);
         jit_prepare(2);
         jit_pusharg_p(JIT_R2);
-        jit_movi_p(JIT_R0,S(lambda));
+        jit_movi_l(JIT_R0,as_oint(S(lambda)));
         jit_pusharg_p(JIT_R0);
         jit_finish(error_apply_toofew);
         jit_patch(rf3);
-        jit_repeatp(JIT_V2,
-                    jit_push_stacki(unbound);
+        jitc_repeatp(JIT_V2,
+                    jitc_push_stacki(as_oint(unbound));
                     );
-        jit_push_stacki(NIL);
+        jitc_push_stacki(as_oint(NIL));
       }
       jit_patch(rf1);
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -2782,11 +2788,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_get_stacki(n);
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,unbound);
+      jitc_get_stacki(n);
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(unbound));
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_set_valuesr_1();
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -2796,12 +2802,12 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,unbound);
-      jit_set_valuesi_1(NIL);
+      jitc_get_stacki(n);
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(unbound));
+      jitc_set_valuesi_1(as_oint(NIL));
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      jit_set_valuesi_1(T);
+      jitc_set_valuesi_1(as_oint(T));
       jit_patch(rf2);
 
       goto next_byte;
@@ -2811,10 +2817,10 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
-      ref = jit_bnei_p(jit_forward(),JIT_R0,unbound);
-      jit_getptr_stacki(n);
-      jit_movi_p(JIT_R1,NIL);
+      jitc_get_stacki(n);
+      ref = jit_bnei_p(jit_forward(),JIT_R0,as_oint(unbound));
+      jitc_getptr_stacki(n);
+      jit_movi_l(JIT_R1,as_oint(NIL));
       jit_str_p(JIT_R0,JIT_R1);
       jit_patch(ref);
 
@@ -2822,13 +2828,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     }
     /* ------------------- (9) Treatment of multiple values ---------------- */
     CASE cod_values0: {         /* (VALUES0) */
-      jit_set_valuesi_1(NIL);
-      jit_set_mvcounti(0);
+      jitc_set_valuesi_1(as_oint(NIL));
+      jitc_set_mvcounti(0);
 
       goto next_byte;
     }
     CASE cod_values1: {         /* (VALUES1) */
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -2837,21 +2843,21 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       if (n >= mv_limit) GOTO_ERROR(error_toomany_values);
       if (n == 0) {
-        jit_rawset_valuesi_1(NIL);
-        jit_set_mvcounti(0);
+        jitc_rawset_valuesi_1(as_oint(NIL));
+        jitc_set_mvcounti(0);
       } else {
-        jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+        jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-        jit_set_mvcounti(n);
-        jit_getptr_valuesi(n);
+        jitc_set_mvcounti(n);
+        jitc_getptr_valuesi(n);
         jit_movr_p(JIT_R2,JIT_R0);
-        jit_movi_p(JIT_V2,n);
-        jit_repeatp(JIT_V2,
-                    jit_pop_stack();
+        jit_movi_l(JIT_V2,n);
+        jitc_repeatp(JIT_V2,
+                    jitc_pop_stack();
                     jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
                     jit_str_p(JIT_R2,JIT_R0);
                     );
-        jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+        jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
       }
 
       goto next_byte;
@@ -2859,13 +2865,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     CASE cod_mv_to_stack: {     /* (MV-TO-STACK) */
       jit_insn *rf1, *rf2;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_mv2stackx();
+      jitc_mv2stackx();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -2874,170 +2880,170 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_movi_p(JIT_R2,n*sizeof(gcv_object_t));
-      jit_check_stackr();
+      jit_movi_l(JIT_R2,n*sizeof(gcv_object_t));
+      jitc_check_stackr();
 
-      jit_movi_p(JIT_V2,n);
+      jit_movi_l(JIT_V2,n);
       rf1 = jit_beqi_p(jit_forward(),JIT_V2,0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       jit_subi_p(JIT_V2,JIT_V2,1);
       rf2 = jit_beqi_p(jit_forward(),JIT_V2,0);
 
-      jit_get_mvcountr();
+      jitc_get_mvcountr();
       jit_movr_p(JIT_V1,JIT_R0);
       rf3 = jit_blei_ui(jit_forward(),JIT_V1,1);
       jit_subi_p(JIT_V1,JIT_V1,1);
 
-      jit_getptr_valuesi(1);
+      jitc_getptr_valuesi(1);
       jit_movr_p(JIT_R2,JIT_R0);
       rf4 = jit_get_label(); /* Infinite loop */
-      jit_ldpush_stackr();
+      jitc_ldpush_stackr();
 
       jit_addi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
       jit_subi_p(JIT_V2,JIT_V2,1);
       rf5 = jit_beqi_p(jit_forward(),JIT_V2,0);
       jit_subi_p(JIT_V1,JIT_V1,1);
       rf6 = jit_beqi_p(jit_forward(),JIT_V1,0);
-      jit_jmpi(rf4);
+      (void)jit_jmpi(rf4);
 
       jit_patch(rf3); /* nv_to_stack_fill */
       jit_patch(rf6);
-      jit_repeatp(JIT_V2,
-                  jit_push_stacki(NIL);
+      jitc_repeatp(JIT_V2,
+                  jitc_push_stacki(as_oint(NIL));
                   );
 
       jit_patch(rf1); /* nv_to_stack_end */
       jit_patch(rf2);
       jit_patch(rf5);
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_mv_to_list: {      /* (MV-TO-LIST) */
       jit_insn *rf1;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_mv2stackx();
-      jit_push_stacki(NIL);
+      jitc_mv2stackx();
+      jitc_push_stacki(as_oint(NIL));
 
-      jit_get_mvcountr();
+      jitc_get_mvcountr();
       jit_movr_p(JIT_V2,JIT_R0);
       rf1 = jit_beqi_p(jit_forward(),JIT_V2,0);
-      jit_repeatp(JIT_V2,
-                  jit_calli(allocate_cons);
+      jitc_repeatp(JIT_V2,
+                  (void)jit_calli(allocate_cons);
                   jit_retval(JIT_R2);
 
-                  jit_getptr_fieldr(Cons,cdr);
+                  jitc_getptr_fieldr(Cons,cdr);
                   jit_movr_p(JIT_V1,JIT_R0);
-                  jit_pop_stack();
+                  jitc_pop_stack();
                   jit_str_p(JIT_V1,JIT_R0);
-                  jit_getptr_fieldr(Cons,car);
+                  jitc_getptr_fieldr(Cons,car);
                   jit_movr_p(JIT_V1,JIT_R0);
-                  jit_get_stacki(0);
+                  jitc_get_stacki(0);
                   jit_str_p(JIT_V1,JIT_R0);
-                  jit_getptr_stacki(0);
+                  jitc_getptr_stacki(0);
                   jit_str_p(JIT_R0,JIT_R2);
                   );
       jit_patch(rf1);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_list_to_mv: {      /* (LIST-TO-MV) */
       jit_insn *rf1,*rf2,*rf3,*rf4,*rf5;
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_sym_atompr();
+      jitc_sym_atompr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_set_valuesi_1(NIL);
-      jit_movi_p(JIT_V2,1);
+      jitc_set_valuesi_1(as_oint(NIL));
+      jit_movi_l(JIT_V2,1);
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1); /* else */
 
-      jit_getptr_valuesi(0);
+      jitc_getptr_valuesi(0);
       jit_movr_p(JIT_V1,JIT_R0);
-      jit_movi_p(JIT_V2,0);
+      jit_movi_l(JIT_V2,0);
       rf3 = jit_get_label();
       rf4 = jit_bnei_p(jit_forward(), JIT_V2,(mv_limit-1));
-      jit_ldxi_p(JIT_R0,JIT_FP,jit_var_b); /* closureptr */
+      jit_ldxi_p(JIT_R0,JIT_FP,jitc_var_b); /* closureptr */
       jit_ldr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_errori(error_condition,"~S: too many return values");
+      jitc_push_stackr();
+      jitc_errori(error_condition,"~S: too many return values");
       jit_patch(rf4);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_str_p(JIT_V1,JIT_R0);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
       jit_addi_p(JIT_V1,JIT_V1,sizeof(gcv_object_t));
       jit_addi_p(JIT_V2,JIT_V2,1);
-      jit_sym_conspr();
+      jitc_sym_conspr();
       jit_beqi_p(rf3, JIT_R0,1);
       jit_patch(rf2);
-      rf5 = jit_beqi_p(jit_forward(),JIT_R2,NIL);
+      rf5 = jit_beqi_p(jit_forward(),JIT_R2,as_oint(NIL));
       jit_prepare(2);
       jit_pusharg_p(JIT_R2);
-      jit_movi_p(JIT_R0,S(values_list));
+      jit_movi_l(JIT_R0,as_oint(S(values_list)));
       jit_pusharg_p(JIT_R0);
       jit_finish(error_proper_list_dotted);
       jit_patch(rf5);
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_set_mvcountr();
+      jitc_set_mvcountr();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_mvcallp: {         /* (MVCALLP) */
       jit_ldi_p(JIT_R2,&(STACK));
-      jit_push_spr();
-      jit_get_valuesr_1();
+      jitc_push_spr();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_mvcall: {          /* (MVCALL) */
       jit_insn *ref;
 
-      jit_pop_sp();
+      jitc_pop_sp();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_frame_nextx(JIT_R2);
+      jitc_frame_nextx(JIT_R2);
       jit_ldi_p(JIT_R1,&(STACK));
-      jit_get_scountr(JIT_R2,JIT_R1,JIT_R2);
+      jitc_get_scountr(JIT_R2,JIT_R1,JIT_R2);
 
       ref = jit_blei_ui(jit_forward(),JIT_R2,ca_limit_1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stacki(S(multiple_value_call));
-      jit_errori(program_error,"~S: too many arguments given to ~S");
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(multiple_value_call)));
+      jitc_errori(program_error,"~S: too many arguments given to ~S");
       jit_patch(ref);
       jit_prepare(2);
       jit_pusharg_p(JIT_R2);
       jit_pusharg_p(JIT_R0);
       jit_finish(funcall);
 
-      jit_skip_stacki(1);
+      jitc_skip_stacki(1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     /* ------------------- (10) BLOCK ----------------------- */
@@ -3049,61 +3055,61 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       S_operand(label_dist);
       label_dist += byteptr - CODEPTR;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_push_spi(label_dist);
+      jitc_push_spi(label_dist);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_push_spr();
+      jitc_push_spr();
 
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V2);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_V1,JIT_R0);
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_str_p(JIT_R0,JIT_V1);
 
-      jit_push_stackr();
-      jit_alloc_jmpbuf();
+      jitc_push_stackr();
+      jitc_alloc_jmpbuf();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_finish_eframex(CBLOCK,3,{
+      jitc_finish_eframex(CBLOCK,3,{
           /* Executed if catched a RETURN-FROM */
-          jit_free_jmpbuf();
-          jit_skip_stacki(2);
-          jit_pop_stack();
+          jitc_free_jmpbuf();
+          jitc_skip_stacki(2);
+          jitc_pop_stack();
           jit_movr_p(JIT_R2,JIT_R0);
-          jit_getptr_fieldr(Cons,cdr);
-          jit_movi_p(JIT_R1,disabled);
+          jitc_getptr_fieldr(Cons,cdr);
+          jit_movi_l(JIT_R1,as_oint(disabled));
           jit_str_p(JIT_R0,JIT_R1);
-          jit_pop_sp();
+          jitc_pop_sp();
           jit_movr_p(JIT_V1,JIT_R0);
-          jit_skip_spi(1);
-          jit_bcjmpi(label_dist);
+          jitc_skip_spi(1);
+          jitc_bcjmpi(label_dist);
         },{
           jit_movr_p(JIT_R2,JIT_V2);
-          jit_getptr_fieldr(Cons,cdr);
+          jitc_getptr_fieldr(Cons,cdr);
           jit_ldi_p(JIT_R1,&(STACK));
           jit_str_p(JIT_R0,JIT_R1);
         });
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_block_close: {     /* (BLOCK-CLOSE) */
       /* unwind CBLOCK-Frame: */
-      jit_free_jmpbuf();
-      jit_skip_stacki(2);
-      jit_pop_stack();
+      jitc_free_jmpbuf();
+      jitc_skip_stacki(2);
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_fieldr(Cons,cdr);
-      jit_movi_p(JIT_R1,disabled);
+      jitc_getptr_fieldr(Cons,cdr);
+      jit_movi_l(JIT_R1,as_oint(disabled));
       jit_str_p(JIT_R0,JIT_R1);
-      jit_skip_spi(2);
+      jitc_skip_spi(2);
 
       goto next_byte;
     }
@@ -3112,13 +3118,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_get_fieldr(Cons,cdr);
-      ref = jit_bnei_p(jit_forward(),JIT_R0,disabled);
+      jitc_get_fieldr(Cons,cdr);
+      ref = jit_bnei_p(jit_forward(),JIT_R0,as_oint(disabled));
       jit_prepare(1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_pusharg_p(JIT_R0);
       jit_finish(error_block_left);
       jit_patch(ref);
@@ -3137,15 +3143,15 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k2);
       U_operand(n);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_get_fieldr(Cons,cdr);
-      ref = jit_bnei_p(jit_forward(),JIT_R0,disabled);
+      jitc_get_fieldr(Cons,cdr);
+      ref = jit_bnei_p(jit_forward(),JIT_R0,as_oint(disabled));
       jit_prepare(1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_pusharg_p(JIT_R0);
       jit_finish(error_block_left);
       jit_patch(ref);
@@ -3162,48 +3168,48 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       const uintB* old_byteptr = byteptr;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V2);
 
       object tag_vector = TheCclosure(closure)->clos_consts[n];
       uintL m = Svector_length(tag_vector);
-      jit_check_stacki(m*sizeof(gcv_object_t));
+      jitc_check_stacki(m*sizeof(gcv_object_t));
 
       uintL count;
       dotimespL(count,m, {
           const uintB* label_byteptr;
           L_operand(label_byteptr);
-          jit_push_stacki(fixnum(label_byteptr - CODEPTR));
+          jitc_push_stacki(as_oint(fixnum(label_byteptr - CODEPTR)));
         });
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_V2);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_str_p(JIT_R0,JIT_V2);
       jit_movr_p(JIT_V2,JIT_R2);
 
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_push_spr();
+      jitc_push_spr();
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_push_stackr();
-      jit_alloc_jmpbuf();
+      jitc_push_stackr();
+      jitc_alloc_jmpbuf();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_finish_eframex(CTAGBODY,3,{
+      jitc_finish_eframex(CTAGBODY,3,{
           /* Executed if (GO) is reached */
-          jit_get_valuesr_1(); /* n of label */
+          jitc_get_valuesr_1(); /* n of label */
           jit_movr_p(JIT_R2,JIT_R0);
-          jit_posfixnum2valr();
-          jit_movi_p(JIT_R1,m);
+          jitc_posfixnum2valr();
+          jit_movi_l(JIT_R1,m);
           jit_subr_p(JIT_R0,JIT_R1,JIT_R0);
           jit_addi_p(JIT_R2,JIT_R0,3);
-          jit_get_stackr();
+          jitc_get_stackr();
           jit_movr_p(JIT_R2,JIT_R0);
-          jit_posfixnum2valr();
+          jitc_posfixnum2valr();
           byteptr = old_byteptr;
           uintL count;
           dotimespL(count,m, {
@@ -3211,55 +3217,55 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
               const uintB* label_byteptr;
               L_operand(label_byteptr);
               rf1 = jit_bnei_p(jit_forward(),JIT_R0,label_byteptr - CODEPTR);
-              jit_bcjmpi(label_byteptr - CODEPTR);
+              jitc_bcjmpi(label_byteptr - CODEPTR);
               jit_patch(rf1);
             });
         },{
           jit_movr_p(JIT_R2,JIT_V2);
-          jit_getptr_fieldr(Cons,cdr);
+          jitc_getptr_fieldr(Cons,cdr);
           jit_ldi_p(JIT_R1,&(STACK));
           jit_str_p(JIT_R0,JIT_R1);
         });
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_tagbody_close_nil: { /* (TAGBODY-CLOSE-NIL) */
-      jit_set_valuesi_1(NIL);
+      jitc_set_valuesi_1(as_oint(NIL));
 
-      jit_free_jmpbuf();
-      jit_get_stacki(2);
+      jitc_free_jmpbuf();
+      jitc_get_stacki(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_fieldr(Cons,cdr);
-      jit_movi_p(JIT_R1,disabled);
+      jitc_getptr_fieldr(Cons,cdr);
+      jit_movi_l(JIT_R1,as_oint(disabled));
       jit_str_p(JIT_R0,JIT_R1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       jit_addi_p(JIT_R0,JIT_R0,3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_skip_stackr();
-      jit_skip_spi(1);
+      jitc_skip_stackr();
+      jitc_skip_spi(1);
 
       goto next_byte;
     }
     CASE cod_tagbody_close: {   /* (TAGBODY-CLOSE) */
       /* unwind CTAGBODY-Frame: */
-      jit_free_jmpbuf();
-      jit_get_stacki(2);
+      jitc_free_jmpbuf();
+      jitc_get_stacki(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_fieldr(Cons,cdr);
-      jit_movi_p(JIT_R1,disabled);
+      jitc_getptr_fieldr(Cons,cdr);
+      jit_movi_l(JIT_R1,as_oint(disabled));
       jit_str_p(JIT_R0,JIT_R1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       jit_addi_p(JIT_R0,JIT_R0,3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_skip_stackr();
-      jit_skip_spi(1);
+      jitc_skip_stackr();
+      jitc_skip_spi(1);
 
       goto next_byte;
     }
@@ -3270,33 +3276,33 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(l);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_get_fieldr(Cons,cdr);
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,disabled);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,cdr);
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(disabled));
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_get_svecdatair(l);
+      jitc_push_stackr();
+      jitc_get_svecdatair(l);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stacki(S(go));
-      jit_errori(control_error,"(~S ~S): the tagbody of the tags ~S has already been left");
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(go)));
+      jitc_errori(control_error,"(~S ~S): the tagbody of the tags ~S has already been left");
       jit_patch(rf1);
 
       jit_movr_p(JIT_R2,JIT_R0);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_get_framei(0);
+      jitc_get_framei(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framecoder();
+      jitc_get_framecoder();
       rf2 = jit_bnei_p(jit_forward(),JIT_R0,CTAGBODY_frame_info);
-      jit_set_valuesi_1(fixnum(1+l));
+      jitc_set_valuesi_1(as_oint(fixnum(1+l)));
       rf3 = jit_jmpi(jit_forward());
       jit_patch(rf2);
-      jit_get_framei(frame_bindings+2*l+1);
+      jitc_get_framei(frame_bindings+2*l+1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       jit_patch(rf3);
       jit_prepare(1);
@@ -3316,24 +3322,24 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(l);
 
-      jit_get_spi(k1+jmpbufsize*k2);
+      jitc_get_spi(k1+jmpbufsize*k2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_framei(n);
+      jitc_get_framei(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_get_fieldr(Cons,cdr);
-      ref = jit_bnei_p(jit_forward(),JIT_R0,disabled);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,cdr);
+      ref = jit_bnei_p(jit_forward(),JIT_R0,as_oint(disabled));
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_get_svecdatair(l);
+      jitc_push_stackr();
+      jitc_get_svecdatair(l);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stacki(S(go));
-      jit_errori(control_error,"(~S ~S): the tagbody of the tags ~S has already been left");
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(go)));
+      jitc_errori(control_error,"(~S ~S): the tagbody of the tags ~S has already been left");
       jit_patch(ref);
 
-      jit_set_valuesi_1(fixnum(1+l));
+      jitc_set_valuesi_1(as_oint(fixnum(1+l)));
 
       jit_prepare(1);
       jit_pusharg_p(JIT_R0);
@@ -3347,45 +3353,45 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_push_spi(label_byteptr - CODEPTR);
+      jitc_push_spi(label_byteptr - CODEPTR);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_push_spr();
+      jitc_push_spr();
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_alloc_jmpbuf();
+      jitc_push_stackr();
+      jitc_alloc_jmpbuf();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_finish_eframex(CATCH,3,{
+      jitc_finish_eframex(CATCH,3,{
           /* Executed if (throw) is caught */
-          jit_free_jmpbuf();
-          jit_skip_stacki(3);
+          jitc_free_jmpbuf();
+          jitc_skip_stacki(3);
 
-          jit_skip_spi(2);
-          jit_bcjmpi(label_byteptr - CODEPTR);
+          jitc_skip_spi(2);
+          jitc_bcjmpi(label_byteptr - CODEPTR);
         },{
         });
 
       goto next_byte;
     }
     CASE cod_catch_close: {     /* (CATCH-CLOSE) */
-      jit_free_jmpbuf();
-      jit_skip_spi(2);
-      jit_skip_stacki(3);
+      jitc_free_jmpbuf();
+      jitc_skip_spi(2);
+      jitc_skip_stacki(3);
 
       goto next_byte;
     }
     CASE cod_throw: {           /* (THROW) */
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
       jit_prepare(1);
       jit_pusharg_p(JIT_R2);
       jit_finish(throw_to);
 
-      jit_push_stackr();
-      jit_push_stacki(S(throw));
-      jit_errori(control_error,"~S: there is no CATCHer for tag ~S");
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(throw)));
+      jitc_errori(control_error,"~S: there is no CATCHer for tag ~S");
 
       goto next_byte;
     }
@@ -3395,101 +3401,101 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       const uintB* label_byteptr;
       L_operand(label_byteptr);
 
-      jit_push_spi(label_byteptr - CODEPTR);
+      jitc_push_spi(label_byteptr - CODEPTR);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_spr();
+      jitc_push_spr();
 
-      jit_alloc_jmpbuf();
+      jitc_alloc_jmpbuf();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_finish_eframex(UNWIND_PROTECT,2,{
+      jitc_finish_eframex(UNWIND_PROTECT,2,{
           /* Executed if a (throw) is caught */
-          jit_free_jmpbuf();
-          jit_skip_stacki(2);
+          jitc_free_jmpbuf();
+          jitc_skip_stacki(2);
 
-          jit_skip_spi(2);
+          jitc_skip_spi(2);
           jit_ldi_p(JIT_R2,&unwind_protect_to_save.fun);
-          jit_push_spr();
+          jitc_push_spr();
           jit_ldi_p(JIT_R2,&unwind_protect_to_save.upto_frame);
-          jit_push_spr();
+          jitc_push_spr();
           jit_ldi_p(JIT_R2,&STACK);
-          jit_push_spr();
+          jitc_push_spr();
 
-          jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-          jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
-          jit_mv2stackx();
-          jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-          jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+          jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+          jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
+          jitc_mv2stackx();
+          jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+          jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-          jit_bcjmpi(label_byteptr - CODEPTR);
+          jitc_bcjmpi(label_byteptr - CODEPTR);
         },{
         });
 
       goto next_byte;
     }
     CASE cod_uwp_normal_exit: { /* (UNWIND-PROTECT-NORMAL-EXIT) */
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_free_jmpbuf();
-      jit_skip_spi(2);
-      jit_skip_stacki(2);
+      jitc_free_jmpbuf();
+      jitc_skip_spi(2);
+      jitc_skip_stacki(2);
 
-      jit_push_spi(NULL);
-      jit_push_spi(NULL);
+      jitc_push_spi(NULL);
+      jitc_push_spi(NULL);
       jit_ldi_p(JIT_R2,&STACK);
-      jit_push_spr();
+      jitc_push_spr();
 
-      jit_mv2stackx();
+      jitc_mv2stackx();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_uwp_close: {       /* (UNWIND-PROTECT-CLOSE) */
       jit_insn *rf1;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_pop_sp(); /* oldSTACK */
+      jitc_pop_sp(); /* oldSTACK */
       jit_ldi_p(JIT_R1,&STACK);
-      jit_get_scountr(JIT_R2,JIT_R1,JIT_R0);
+      jitc_get_scountr(JIT_R2,JIT_R1,JIT_R0);
 
       rf1 = jit_blti_p(jit_forward(),JIT_R2,mv_limit);
       jit_ldr_p(JIT_R2,JIT_V1);
-      jit_push_stackr();
-      jit_errori(error_condition,"~S: too many return values");
+      jitc_push_stackr();
+      jitc_errori(error_condition,"~S: too many return values");
       jit_patch(rf1);
       /* Stack to MV */
       jit_movr_p(JIT_V2,JIT_R2);
-      jit_set_mvcountr();
-      jit_getptr_valuesr_1();
-      jit_movi_p(JIT_R1,NIL);
+      jitc_set_mvcountr();
+      jitc_getptr_valuesr_1();
+      jit_movi_l(JIT_R1,as_oint(NIL));
       jit_str_p(JIT_R0,JIT_R1);
       rf1 = jit_beqi_p(jit_forward(),JIT_V2,0);
-      jit_getptr_valuesr();
+      jitc_getptr_valuesr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_repeatp(JIT_V2,{
-          jit_pop_stack();
+      jitc_repeatp(JIT_V2,{
+          jitc_pop_stack();
           jit_subi_p(JIT_R2,JIT_R2,sizeof(gcv_object_t));
           jit_str_p(JIT_R2,JIT_R0);
         });
       jit_patch(rf1);
 
-      jit_pop_sp();
+      jitc_pop_sp();
       jit_movr_p(JIT_R2,JIT_R0); /* arg */
-      jit_pop_sp(); /* fun */
+      jitc_pop_sp(); /* fun */
       rf1 = jit_beqi_p(jit_forward(),JIT_R0,NULL);
       jit_prepare(1);
       jit_pusharg_p(JIT_R2);
       jit_finishr(JIT_R0);
-      jit_notreached();
+      jitc_notreached();
       jit_patch(rf1);
       rf1 = jit_beqi_p(jit_forward(),JIT_R2,NULL);
-      jit_bcjmpr();
+      jitc_bcjmpr();
       jit_patch(rf1);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -3497,29 +3503,29 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       /* this is executed, if within the same Closure an execution
          of the Cleanup-Code is necessary.
          closure remains, byteptr:=label_byteptr : */
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_spi(jmpbufsize+1);
-      jit_stxi_p(jit_var_c,JIT_FP,JIT_R0);
+      jitc_get_spi(jmpbufsize+1);
+      jit_stxi_p(jitc_var_c,JIT_FP,JIT_R0);
 
-      jit_free_jmpbuf();
-      jit_skip_spi(2);
-      jit_skip_stacki(2);
+      jitc_free_jmpbuf();
+      jitc_skip_spi(2);
+      jitc_skip_stacki(2);
 
-      jit_push_spi(NULL);
-      jit_push_spi(byteptr - CODEPTR);
+      jitc_push_spi(NULL);
+      jitc_push_spi(byteptr - CODEPTR);
       jit_ldi_p(JIT_R2,&(STACK));
-      jit_push_spr();
+      jitc_push_spr();
 
-      jit_mv2stackx();
+      jitc_mv2stackx();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_ldxi_p(JIT_R2,JIT_FP,jit_var_c);
+      jit_ldxi_p(JIT_R2,JIT_FP,jitc_var_c);
 
-      jit_bcjmpr();
+      jitc_bcjmpr();
 
       goto next_byte;
     }
@@ -3529,32 +3535,32 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_ldr_p(JIT_R2,JIT_V1);
-      jit_push_stackr();
-      jit_getptr_spi(0);
+      jitc_push_stackr();
+      jitc_getptr_spi(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_finish_framer(HANDLER,4);
+      jitc_push_stackr();
+      jitc_finish_framer(HANDLER,4);
 
       goto next_byte;
     }
     CASE cod_handler_begin_push: { /* (HANDLER-BEGIN&PUSH) */
       jit_insn *rf1;
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
       jit_ldi_p(JIT_R2,&handler_args.spdepth);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_posfixnum2valr();
+      jitc_posfixnum2valr();
       jit_movr_p(JIT_V2,JIT_R0);
 
       jit_ldi_p(JIT_R2,&handler_args.spdepth);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_posfixnum2valr();
+      jitc_posfixnum2valr();
       jit_muli_ul(JIT_R0,JIT_R0,jmpbufsize);
       jit_addr_p(JIT_V2,JIT_V2,JIT_R0);
 
@@ -3563,19 +3569,19 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       jit_lshi_ul(JIT_R0,JIT_V2,sizeof(SPint*)/2);
       jit_addr_p(JIT_R2,JIT_R2,JIT_R0);
 
-      jit_repeatp(JIT_V2,
+      jitc_repeatp(JIT_V2,
                   jit_addi_p(JIT_R2,JIT_R2,-sizeof(SPint*));
-                  jit_ldpush_spr();
+                  jitc_ldpush_spr();
                   );
       jit_patch(rf1);
 
       jit_ldi_p(JIT_R2,&handler_args.stack);
-      jit_push_spr();
+      jitc_push_spr();
       jit_ldi_p(JIT_R2,&handler_args.condition);
-      jit_set_valuesr_1();
-      jit_push_stackr();
+      jitc_set_valuesr_1();
+      jitc_push_stackr();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -3583,13 +3589,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     CASE cod_not: {             /* (NOT) */
       jit_insn *rf1,*rf2;
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
 
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_set_valuesi_1(T);
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_set_valuesi_1(as_oint(T));
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      jit_set_valuesi_1(NIL);
+      jitc_set_valuesi_1(as_oint(NIL));
       jit_patch(rf2);
 
       goto next_byte;
@@ -3597,35 +3603,35 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
     CASE cod_eq: {              /* (EQ) */
       jit_insn *rf1,*rf2;
 
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
 
       rf1 = jit_beqr_p(jit_forward(),JIT_R2,JIT_R0);
-      jit_set_valuesi_1(NIL);
+      jitc_set_valuesi_1(as_oint(NIL));
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      jit_set_valuesi_1(T);
+      jitc_set_valuesi_1(as_oint(T));
       jit_patch(rf2);
 
       goto next_byte;
     }
     CASE cod_car: {             /* (CAR) */
       jit_insn *rf1,*rf2,*rf3,*rf4;
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(car), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(car)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3633,28 +3639,28 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
       jit_patch(rf2);
       jit_patch(rf4);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_car_push: {        /* (CAR&PUSH) */
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_push_stackr();
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_push_stackr();
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(car), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(car)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3670,21 +3676,21 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_push_stackr();
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_push_stackr();
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(car), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(car)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3702,25 +3708,25 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_stacki(m);
+      jitc_get_stacki(m);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,car);
+      jitc_get_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
-      jit_getptr_stacki(n);
+      jitc_set_valuesr_1();
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_set_valuesr_1();
-      jit_getptr_stacki(n);
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_set_valuesr_1();
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(car), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(car)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3728,26 +3734,26 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
       jit_patch(rf2);
       jit_patch(rf4);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_cdr: {             /* (CDR) */
       jit_insn *rf1,*rf2,*rf3,*rf4;
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(cdr), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(cdr)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3755,28 +3761,28 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
       jit_patch(rf2);
       jit_patch(rf4);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_cdr_push: {        /* (CDR&PUSH) */
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_push_stackr();
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_push_stackr();
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(cdr), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(cdr)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3792,21 +3798,21 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_push_stackr();
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_push_stackr();
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(cdr), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(cdr)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3822,25 +3828,25 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       jit_insn *rf1,*rf2,*rf3,*rf4;
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_sym_conspr();
+      jitc_sym_conspr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_get_fieldr(Cons,cdr);
+      jitc_get_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
-      jit_getptr_stacki(n);
+      jitc_set_valuesr_1();
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
       rf2 = jit_jmpi(jit_forward());
       jit_patch(rf1);
-      rf3 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_set_valuesr_1();
-      jit_getptr_stacki(n);
+      rf3 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_set_valuesr_1();
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
       rf4 = jit_jmpi(jit_forward());
       jit_patch(rf3);
-      jit_save_backtrace3(L(cdr), STACK, -1, -1,{
+      jitc_save_backtrace3(as_oint(L(cdr)), STACK, -1, -1,{
           jit_prepare(1);
           jit_pusharg_p(JIT_R2);
           jit_finish(error_list);
@@ -3848,137 +3854,137 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
       jit_patch(rf2);
       jit_patch(rf4);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_cons: {            /* (CONS) */
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V2);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,cdr);
+      jitc_getptr_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_cons_push: {       /* (CONS&PUSH) */
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V2);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,cdr);
+      jitc_getptr_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_cons_store: { /* (LOAD&CONS&STORE n) */
       uintL n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V2);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
 
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getptr_fieldr(Cons,cdr);
+      jitc_getptr_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_str_p(JIT_R2,JIT_R0);
 
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_V2);
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_symbol_function: { /* (SYMBOL-FUNCTION) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_check_fdefx();
+      jitc_check_fdefx();
 
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_const_symbol_function: { /* (CONST&SYMBOL-FUNCTION n) */
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_check_fdefx();
+      jitc_check_fdefx();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_const_symbol_function_push: { /* (CONST&SYMBOL-FUNCTION&PUSH n) */
       uintL n;
       U_operand(n);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_check_fdefx();
+      jitc_check_fdefx();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_const_symbol_function_store: { /* (CONST&SYMBOL-FUNCTION&STORE n k) */
@@ -3987,165 +3993,165 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       U_operand(k);
 
-      jit_get_cconsti(n);
+      jitc_get_cconsti(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_check_fdefx();
+      jitc_check_fdefx();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_getptr_stacki(k);
+      jitc_getptr_stacki(k);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
       /* object vec;object index; */
     CASE cod_svref: {           /* (SVREF) */
       jit_insn *rf1,*rf2;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_svecpr();
+      jitc_svecpr();
       rf1 = jit_beqi_p(jit_forward(),JIT_R0,1);
       jit_prepare(2);
       jit_pusharg_p(JIT_R2);
-      jit_movi_p(JIT_R0,S(svref));
+      jit_movi_l(JIT_R0,as_oint(S(svref)));
       jit_pusharg_p(JIT_R0);
       jit_finish(error_no_svector);
       jit_patch(rf1);
-      jit_skip_stacki(1);
+      jitc_skip_stacki(1);
       jit_movr_p(JIT_V2,JIT_R2);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_posfixnum2valr();
+      jitc_posfixnum2valr();
       jit_movr_p(JIT_R2,JIT_V2);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       rf2 = jit_bltr_p(jit_forward(),JIT_V2,JIT_R0);
       jit_patch(rf1);
       /* ERROR */
       jit_movr_p(JIT_V2,JIT_R2);
-      jit_push_stackr();
-      jit_get_valuesr_1();
+      jitc_push_stackr();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_push_stacki(S(integer));
-      jit_push_stacki(Fixnum_0);
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(integer)));
+      jitc_push_stacki(as_oint(Fixnum_0));
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_ul2ix();
+      jitc_ul2ix();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_prepare(1);
-      jit_movi_p(JIT_R0,1);
+      jit_movi_l(JIT_R0,1);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_prepare(1);
-      jit_movi_p(JIT_R0,3);
+      jit_movi_l(JIT_R0,3);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_push_stackr();
-      jit_get_stacki(3);
+      jitc_push_stackr();
+      jitc_get_stacki(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_push_stacki(S(svref));
-      jit_errori(type_error,"~S: ~S is not a correct index into ~S");
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(svref)));
+      jitc_errori(type_error,"~S: ~S is not a correct index into ~S");
       jit_patch(rf2);
       jit_movr_p(JIT_R1,JIT_V2);
-      jit_get_svecdatax();
+      jitc_get_svecdatax();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
     CASE cod_svset: {           /* (SVSET) */
       jit_insn *rf1,*rf2;
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
 
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_svecpr();
+      jitc_svecpr();
       rf1 = jit_beqi_p(jit_forward(),JIT_R0,1);
       jit_prepare(2);
       jit_pusharg_p(JIT_R2);
-      jit_movi_p(JIT_R0,S(svref));
+      jit_movi_l(JIT_R0,as_oint(S(svref)));
       jit_pusharg_p(JIT_R0);
       jit_finish(error_no_svector);
       jit_patch(rf1);
-      jit_skip_stacki(1);
+      jitc_skip_stacki(1);
       jit_movr_p(JIT_V2,JIT_R2);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      jit_posfixnum2valr();
+      jitc_posfixnum2valr();
       jit_movr_p(JIT_R2,JIT_V2);
       jit_movr_p(JIT_V2,JIT_R0);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       rf2 = jit_bltr_p(jit_forward(),JIT_V2,JIT_R0);
       jit_patch(rf1);
       /* ERROR */
       jit_movr_p(JIT_V2,JIT_R2);
-      jit_push_stackr();
-      jit_get_valuesr_1();
+      jitc_push_stackr();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_push_stacki(S(integer));
-      jit_push_stacki(Fixnum_0);
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(integer)));
+      jitc_push_stacki(as_oint(Fixnum_0));
       jit_movr_p(JIT_R2,JIT_V2);
-      jit_getlen_svecr();
+      jitc_getlen_svecr();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_ul2ix();
+      jitc_ul2ix();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_prepare(1);
-      jit_movi_p(JIT_R0,1);
+      jit_movi_l(JIT_R0,1);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_push_stackr();
+      jitc_push_stackr();
       jit_prepare(1);
-      jit_movi_p(JIT_R0,3);
+      jit_movi_l(JIT_R0,3);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_push_stackr();
-      jit_get_stacki(3);
+      jitc_push_stackr();
+      jitc_get_stacki(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
-      jit_push_stackr();
-      jit_push_stacki(S(svref));
-      jit_errori(type_error,"~S: ~S is not a correct index into ~S");
+      jitc_push_stackr();
+      jitc_push_stackr();
+      jitc_push_stacki(as_oint(S(svref)));
+      jitc_errori(type_error,"~S: ~S is not a correct index into ~S");
       jit_patch(rf2);
       jit_movr_p(JIT_R1,JIT_V2);
-      jit_getptr_svecdatax();
+      jitc_getptr_svecdatax();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
       goto next_byte;
     }
@@ -4154,13 +4160,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(1);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
 
       goto next_byte;
     }
@@ -4169,13 +4175,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 
       jit_prepare(1);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
       jit_finish(listof);
       jit_retval(JIT_R2);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_liststar: {        /* (LIST* n) */
@@ -4183,42 +4189,42 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintC n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_movi_p(JIT_V2,n);
+      jit_movi_l(JIT_V2,n);
       ref = jit_get_label();
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V1);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_getptr_fieldr(Cons,cdr);
+      jitc_getptr_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_str_p(JIT_R2,JIT_R0);
 
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_str_p(JIT_R0,JIT_V1);
 
       jit_subi_p(JIT_V2,JIT_V2,1);
       jit_bnei_p(ref,JIT_V2,0);
 
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_liststar_push: {   /* (LIST*&PUSH n) */
@@ -4226,38 +4232,38 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintC n;
       U_operand(n);
 
-      jit_stxi_p(jit_var_a,JIT_FP,JIT_V2);
-      jit_stxi_p(jit_var_b,JIT_FP,JIT_V1);
+      jit_stxi_p(jitc_var_a,JIT_FP,JIT_V2);
+      jit_stxi_p(jitc_var_b,JIT_FP,JIT_V1);
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_movi_p(JIT_V2,n);
+      jit_movi_l(JIT_V2,n);
       ref = jit_get_label();
-      jit_calli(allocate_cons);
+      (void)jit_calli(allocate_cons);
       jit_retval(JIT_V1);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_getptr_fieldr(Cons,cdr);
+      jitc_getptr_fieldr(Cons,cdr);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_pop_stack();
+      jitc_pop_stack();
       jit_str_p(JIT_R2,JIT_R0);
       jit_movr_p(JIT_R2,JIT_V1);
-      jit_getptr_fieldr(Cons,car);
+      jitc_getptr_fieldr(Cons,car);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_str_p(JIT_R2,JIT_R0);
 
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_str_p(JIT_R0,JIT_V1);
 
       jit_subi_p(JIT_V2,JIT_V2,1);
       jit_bnei_p(ref,JIT_V2,0);
 
-      jit_ldxi_p(JIT_V1,JIT_FP,jit_var_b);
-      jit_ldxi_p(JIT_V2,JIT_FP,jit_var_a);
+      jit_ldxi_p(JIT_V1,JIT_FP,jitc_var_b);
+      jit_ldxi_p(JIT_V2,JIT_FP,jitc_var_a);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     /* ------------------- (16) combined Operations ----------------------- */
@@ -4265,11 +4271,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_movi_p(JIT_R2,NIL);
+      jit_movi_l(JIT_R2,as_oint(NIL));
 
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -4277,11 +4283,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_movi_p(JIT_R2,T);
+      jit_movi_l(JIT_R2,as_oint(T));
 
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
@@ -4291,15 +4297,15 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       U_operand(k);
 
-      jit_funcalls1();
+      jitc_funcalls1();
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(k);
+      jitc_getptr_stacki(k);
       jit_str_p(JIT_R0, JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls2_store: {    /* (CALLS2&STORE n k) */
@@ -4308,15 +4314,15 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       U_operand(k);
 
-      jit_funcalls2();
+      jitc_funcalls2();
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(k);
+      jitc_getptr_stacki(k);
       jit_str_p(JIT_R0, JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callsr_store: {    /* (CALLSR&STORE m n k) */
@@ -4327,15 +4333,15 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       U_operand(k);
 
-      jit_funcallsr();
+      jitc_funcallsr();
 
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(k);
+      jitc_getptr_stacki(k);
       jit_str_p(JIT_R0, JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_inc_push: {   /* (LOAD&INC&PUSH n) */
@@ -4343,26 +4349,26 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      rf2 = jit_beqi_p(jit_forward(), JIT_R2,fixnum(vbitm(oint_data_len)-1));
-      jit_inc_posfixnumir(1);
+      rf2 = jit_beqi_p(jit_forward(), JIT_R2,as_oint(fixnum(vbitm(oint_data_len)-1)));
+      jitc_inc_posfixnumir(1);
       rf3 = jit_jmpi(jit_forward());
       jit_patch(rf1);
       jit_patch(rf2);
-      jit_push_stackr();
-      jit_save_backtrace1(L(plus_one), STACK, -1,{
-          jit_calli(C_plus_one);
+      jitc_push_stackr();
+      jitc_save_backtrace1(as_oint(L(plus_one)), STACK, -1,{
+          (void)jit_calli(C_plus_one);
         });
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_patch(rf3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_inc_store: {  /* (LOAD&INC&STORE n) */
@@ -4370,28 +4376,28 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      rf2 = jit_beqi_p(jit_forward(), JIT_R2,fixnum(vbitm(oint_data_len)-1));
-      jit_inc_posfixnumir(1);
+      rf2 = jit_beqi_p(jit_forward(), JIT_R2,as_oint(fixnum(vbitm(oint_data_len)-1)));
+      jitc_inc_posfixnumir(1);
       rf3 = jit_jmpi(jit_forward());
       jit_patch(rf1);
       jit_patch(rf2);
-      jit_push_stackr();
-      jit_save_backtrace1(L(plus_one), STACK, -1, {
-          jit_calli(C_plus_one);
+      jitc_push_stackr();
+      jitc_save_backtrace1(as_oint(L(plus_one)), STACK, -1, {
+          (void)jit_calli(C_plus_one);
         });
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_patch(rf3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_dec_push: {   /* (LOAD&DEC&PUSH n) */
@@ -4399,26 +4405,26 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      rf2 = jit_beqi_p(jit_forward(), JIT_R2,Fixnum_0);
-      jit_inc_posfixnumir(-1);
+      rf2 = jit_beqi_p(jit_forward(), JIT_R2,as_oint(Fixnum_0));
+      jitc_inc_posfixnumir(-1);
       rf3 = jit_jmpi(jit_forward());
       jit_patch(rf1);
       jit_patch(rf2);
-      jit_push_stackr();
-      jit_save_backtrace1(L(minus_one), STACK, -1, {
-          jit_calli(C_minus_one);
+      jitc_push_stackr();
+      jitc_save_backtrace1(as_oint(L(minus_one)), STACK, -1, {
+          (void)jit_calli(C_minus_one);
         });
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_patch(rf3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_dec_store: {  /* (LOAD&DEC&STORE n) */
@@ -4426,28 +4432,28 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintL n;
       U_operand(n);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
 
-      jit_posfixnumpr();
+      jitc_posfixnumpr();
       rf1 = jit_bnei_p(jit_forward(),JIT_R0,1);
-      rf2 = jit_beqi_p(jit_forward(), JIT_R2,Fixnum_0);
-      jit_inc_posfixnumir(-1);
+      rf2 = jit_beqi_p(jit_forward(), JIT_R2,as_oint(Fixnum_0));
+      jitc_inc_posfixnumir(-1);
       rf3 = jit_jmpi(jit_forward());
       jit_patch(rf1);
       jit_patch(rf2);
-      jit_push_stackr();
-      jit_save_backtrace1(L(minus_one), STACK, -1, {
-          jit_calli(C_minus_one);
+      jitc_push_stackr();
+      jitc_save_backtrace1(as_oint(L(minus_one)), STACK, -1, {
+          (void)jit_calli(C_minus_one);
         });
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_patch(rf3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(n);
+      jitc_getptr_stacki(n);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call1_jmpif: {     /* (CALL1&JMPIF n label) */
@@ -4457,13 +4463,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcall1();
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_funcall1();
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call1_jmpifnot: {  /* (CALL1&JMPIFNOT n label) */
@@ -4473,13 +4479,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcall1();
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_funcall1();
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call2_jmpif: {     /* (CALL2&JMPIF n label) */
@@ -4489,13 +4495,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcall2();
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_funcall2();
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_call2_jmpifnot: {  /* (CALL2&JMPIFNOT n label) */
@@ -4505,13 +4511,13 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcall2();
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_funcall2();
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls1_jmpif: {    /* (CALLS1&JMPIF n label) */
@@ -4521,14 +4527,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcalls1();
+      jitc_funcalls1();
 
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls1_jmpifnot: { /* (CALLS1&JMPIFNOT n label) */
@@ -4538,14 +4544,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcalls1();
+      jitc_funcalls1();
 
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls2_jmpif: {    /* (CALLS2&JMPIF n label) */
@@ -4555,14 +4561,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcalls2();
+      jitc_funcalls2();
 
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_calls2_jmpifnot: { /* (CALLS2&JMPIFNOT n label) */
@@ -4572,14 +4578,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcalls2();
+      jitc_funcalls2();
 
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callsr_jmpif: {    /* (CALLSR&JMPIF m n label) */
@@ -4591,14 +4597,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcallsr();
+      jitc_funcallsr();
 
-      jit_get_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_callsr_jmpifnot: { /* (CALLSR&JMPIFNOT m n label) */
@@ -4610,14 +4616,14 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       B_operand(n);
       L_operand(label_byteptr);
 
-      jit_funcallsr();
+      jitc_funcallsr();
 
-      jit_get_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R0,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_get_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R0,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_load_jmpif: {      /* (LOAD&JMPIF n label) */
@@ -4627,11 +4633,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
-      rf1 = jit_beqi_p(jit_forward(),JIT_R2,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_set_valuesr_1();
+      rf1 = jit_beqi_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -4643,11 +4649,11 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(n);
       L_operand(label_byteptr);
 
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
-      rf1 = jit_bnei_p(jit_forward(),JIT_R2,NIL);
-      jit_bcjmpi(label_byteptr - CODEPTR);
+      jitc_set_valuesr_1();
+      rf1 = jit_bnei_p(jit_forward(),JIT_R2,as_oint(NIL));
+      jitc_bcjmpi(label_byteptr - CODEPTR);
       jit_patch(rf1);
 
       goto next_byte;
@@ -4659,17 +4665,17 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       U_operand(k);
 
       jit_prepare(3);
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_pusharg_p(JIT_R0);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(apply);
-      jit_skip_stacki(k+1);
-      jit_return();
+      jitc_skip_stacki(k+1);
+      jitc_return();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     CASE cod_funcall_skip_retgf: { /* (FUNCALL&SKIP&RETGF n k) */
@@ -4681,748 +4687,748 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
       uintB flags = ((Codevec)codeptr)->ccv_flags;
 
       jit_prepare(2);
-      jit_movi_p(JIT_R0,n);
+      jit_movi_l(JIT_R0,n);
       jit_pusharg_p(JIT_R0);
-      jit_get_stacki(n);
+      jitc_get_stacki(n);
       jit_pusharg_p(JIT_R0);
       jit_finish(funcall);
       if (flags & bit(3)) { /* call inhibition? */
-        jit_skip_stacki(k+1);
-        jit_set_mvcounti(1);
+        jitc_skip_stacki(k+1);
+        jitc_set_mvcounti(1);
       } else {
         k -= r;
         if (flags & bit(0)) {
-          jit_skip_stacki(k);
+          jitc_skip_stacki(k);
           jit_prepare(3);
-          jit_pop_stack();
+          jitc_pop_stack();
           jit_pusharg_p(JIT_R0);
-          jit_movi_p(JIT_R0,r);
+          jit_movi_l(JIT_R0,r);
           jit_pusharg_p(JIT_R0);
-          jit_get_valuesr_1();
+          jitc_get_valuesr_1();
           jit_pusharg_p(JIT_R0);
           jit_finish(apply);
         } else {
-          jit_skip_stacki(k+1);
+          jitc_skip_stacki(k+1);
           jit_prepare(2);
-          jit_movi_p(JIT_R0,r);
+          jit_movi_l(JIT_R0,r);
           jit_pusharg_p(JIT_R0);
-          jit_get_valuesr_1();
+          jitc_get_valuesr_1();
           jit_pusharg_p(JIT_R0);
           jit_finish(funcall);
         }
       }
-      jit_return();
+      jitc_return();
 
-      jit_tag_unsafe();
+      jitc_tag_unsafe();
       goto next_byte;
     }
     /* ------------------- (17) short codes ----------------------- */
     CASE cod_load0: {           /* (LOAD.S 0) */
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load1: {           /* (LOAD.S 1) */
-      jit_get_stacki(1);
+      jitc_get_stacki(1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load2: {           /* (LOAD.S 2) */
-      jit_get_stacki(2);
+      jitc_get_stacki(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load3: {           /* (LOAD.S 3) */
-      jit_get_stacki(3);
+      jitc_get_stacki(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load4: {           /* (LOAD.S 4) */
-      jit_get_stacki(4);
+      jitc_get_stacki(4);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load5: {           /* (LOAD.S 5) */
-      jit_get_stacki(5);
+      jitc_get_stacki(5);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load6: {           /* (LOAD.S 6) */
-      jit_get_stacki(6);
+      jitc_get_stacki(6);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load7: {           /* (LOAD.S 7) */
-      jit_get_stacki(7);
+      jitc_get_stacki(7);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load8: {           /* (LOAD.S 8) */
-      jit_get_stacki(8);
+      jitc_get_stacki(8);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load9: {           /* (LOAD.S 9) */
-      jit_get_stacki(9);
+      jitc_get_stacki(9);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load10: {          /* (LOAD.S 10) */
-      jit_get_stacki(10);
+      jitc_get_stacki(10);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load11: {          /* (LOAD.S 11) */
-      jit_get_stacki(11);
+      jitc_get_stacki(11);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load12: {          /* (LOAD.S 12) */
-      jit_get_stacki(12);
+      jitc_get_stacki(12);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load13: {          /* (LOAD.S 13) */
-      jit_get_stacki(13);
+      jitc_get_stacki(13);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load14: {          /* (LOAD.S 14) */
-      jit_get_stacki(14);
+      jitc_get_stacki(14);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_load_push0: {      /* (LOAD&PUSH.S 0) */
-      jit_get_stacki(0);
+      jitc_get_stacki(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push1: {      /* (LOAD&PUSH.S 1) */
-      jit_get_stacki(1);
+      jitc_get_stacki(1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push2: {      /* (LOAD&PUSH.S 2) */
-      jit_get_stacki(2);
+      jitc_get_stacki(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push3: {      /* (LOAD&PUSH.S 3) */
-      jit_get_stacki(3);
+      jitc_get_stacki(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push4: {      /* (LOAD&PUSH.S 4) */
-      jit_get_stacki(4);
+      jitc_get_stacki(4);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push5: {      /* (LOAD&PUSH.S 5) */
-      jit_get_stacki(5);
+      jitc_get_stacki(5);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push6: {      /* (LOAD&PUSH.S 6) */
-      jit_get_stacki(6);
+      jitc_get_stacki(6);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push7: {      /* (LOAD&PUSH.S 7) */
-      jit_get_stacki(7);
+      jitc_get_stacki(7);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push8: {      /* (LOAD&PUSH.S 8) */
-      jit_get_stacki(8);
+      jitc_get_stacki(8);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push9: {      /* (LOAD&PUSH.S 9) */
-      jit_get_stacki(9);
+      jitc_get_stacki(9);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push10: {     /* (LOAD&PUSH.S 10) */
-      jit_get_stacki(10);
+      jitc_get_stacki(10);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push11: {     /* (LOAD&PUSH.S 11) */
-      jit_get_stacki(11);
+      jitc_get_stacki(11);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push12: {     /* (LOAD&PUSH.S 12) */
-      jit_get_stacki(12);
+      jitc_get_stacki(12);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push13: {     /* (LOAD&PUSH.S 13) */
-      jit_get_stacki(13);
+      jitc_get_stacki(13);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push14: {     /* (LOAD&PUSH.S 14) */
-      jit_get_stacki(14);
+      jitc_get_stacki(14);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push15: {     /* (LOAD&PUSH.S 15) */
-      jit_get_stacki(15);
+      jitc_get_stacki(15);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push16: {     /* (LOAD&PUSH.S 16) */
-      jit_get_stacki(16);
+      jitc_get_stacki(16);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push17: {     /* (LOAD&PUSH.S 17) */
-      jit_get_stacki(17);
+      jitc_get_stacki(17);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push18: {     /* (LOAD&PUSH.S 18) */
-      jit_get_stacki(18);
+      jitc_get_stacki(18);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push19: {     /* (LOAD&PUSH.S 19) */
-      jit_get_stacki(19);
+      jitc_get_stacki(19);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push20: {     /* (LOAD&PUSH.S 20) */
-      jit_get_stacki(20);
+      jitc_get_stacki(20);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push21: {     /* (LOAD&PUSH.S 21) */
-      jit_get_stacki(21);
+      jitc_get_stacki(21);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push22: {     /* (LOAD&PUSH.S 22) */
-      jit_get_stacki(22);
+      jitc_get_stacki(22);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push23: {     /* (LOAD&PUSH.S 23) */
-      jit_get_stacki(23);
+      jitc_get_stacki(23);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_load_push24: {     /* (LOAD&PUSH.S 24) */
-      jit_get_stacki(24);
+      jitc_get_stacki(24);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const0: {          /* (CONST.S 0) */
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const1: {          /* (CONST.S 1) */
-      jit_get_cconsti(1);
+      jitc_get_cconsti(1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const2: {          /* (CONST.S 2) */
-      jit_get_cconsti(2);
+      jitc_get_cconsti(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const3: {          /* (CONST.S 3) */
-      jit_get_cconsti(3);
+      jitc_get_cconsti(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const4: {          /* (CONST.S 4) */
-      jit_get_cconsti(4);
+      jitc_get_cconsti(4);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const5: {          /* (CONST.S 5) */
-      jit_get_cconsti(5);
+      jitc_get_cconsti(5);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const6: {          /* (CONST.S 6) */
-      jit_get_cconsti(6);
+      jitc_get_cconsti(6);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const7: {          /* (CONST.S 7) */
-      jit_get_cconsti(7);
+      jitc_get_cconsti(7);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const8: {          /* (CONST.S 8) */
-      jit_get_cconsti(8);
+      jitc_get_cconsti(8);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const9: {          /* (CONST.S 9) */
-      jit_get_cconsti(9);
+      jitc_get_cconsti(9);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const10: {         /* (CONST.S 10) */
-      jit_get_cconsti(10);
+      jitc_get_cconsti(10);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const11: {         /* (CONST.S 11) */
-      jit_get_cconsti(11);
+      jitc_get_cconsti(11);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const12: {         /* (CONST.S 12) */
-      jit_get_cconsti(12);
+      jitc_get_cconsti(12);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const13: {         /* (CONST.S 13) */
-      jit_get_cconsti(13);
+      jitc_get_cconsti(13);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const14: {         /* (CONST.S 14) */
-      jit_get_cconsti(14);
+      jitc_get_cconsti(14);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const15: {         /* (CONST.S 15) */
-      jit_get_cconsti(15);
+      jitc_get_cconsti(15);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const16: {         /* (CONST.S 16) */
-      jit_get_cconsti(16);
+      jitc_get_cconsti(16);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const17: {         /* (CONST.S 17) */
-      jit_get_cconsti(17);
+      jitc_get_cconsti(17);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const18: {         /* (CONST.S 18) */
-      jit_get_cconsti(18);
+      jitc_get_cconsti(18);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const19: {         /* (CONST.S 19) */
-      jit_get_cconsti(19);
+      jitc_get_cconsti(19);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const20: {         /* (CONST.S 20) */
-      jit_get_cconsti(20);
+      jitc_get_cconsti(20);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_set_valuesr_1();
+      jitc_set_valuesr_1();
 
       goto next_byte;
     }
     CASE cod_const_push0: {     /* (CONST&PUSH.S 0) */
-      jit_get_cconsti(0);
+      jitc_get_cconsti(0);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push1: {     /* (CONST&PUSH.S 1) */
-      jit_get_cconsti(1);
+      jitc_get_cconsti(1);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push2: {     /* (CONST&PUSH.S 2) */
-      jit_get_cconsti(2);
+      jitc_get_cconsti(2);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push3: {     /* (CONST&PUSH.S 3) */
-      jit_get_cconsti(3);
+      jitc_get_cconsti(3);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push4: {     /* (CONST&PUSH.S 4) */
-      jit_get_cconsti(4);
+      jitc_get_cconsti(4);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push5: {     /* (CONST&PUSH.S 5) */
-      jit_get_cconsti(5);
+      jitc_get_cconsti(5);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push6: {     /* (CONST&PUSH.S 6) */
-      jit_get_cconsti(6);
+      jitc_get_cconsti(6);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push7: {     /* (CONST&PUSH.S 7) */
-      jit_get_cconsti(7);
+      jitc_get_cconsti(7);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push8: {     /* (CONST&PUSH.S 8) */
-      jit_get_cconsti(8);
+      jitc_get_cconsti(8);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push9: {     /* (CONST&PUSH.S 9) */
-      jit_get_cconsti(9);
+      jitc_get_cconsti(9);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push10: {    /* (CONST&PUSH.S 10) */
-      jit_get_cconsti(10);
+      jitc_get_cconsti(10);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push11: {    /* (CONST&PUSH.S 11) */
-      jit_get_cconsti(11);
+      jitc_get_cconsti(11);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push12: {    /* (CONST&PUSH.S 12) */
-      jit_get_cconsti(12);
+      jitc_get_cconsti(12);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push13: {    /* (CONST&PUSH.S 13) */
-      jit_get_cconsti(13);
+      jitc_get_cconsti(13);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push14: {    /* (CONST&PUSH.S 14) */
-      jit_get_cconsti(14);
+      jitc_get_cconsti(14);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push15: {    /* (CONST&PUSH.S 15) */
-      jit_get_cconsti(15);
+      jitc_get_cconsti(15);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push16: {    /* (CONST&PUSH.S 16) */
-      jit_get_cconsti(16);
+      jitc_get_cconsti(16);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push17: {    /* (CONST&PUSH.S 17) */
-      jit_get_cconsti(17);
+      jitc_get_cconsti(17);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push18: {    /* (CONST&PUSH.S 18) */
-      jit_get_cconsti(18);
+      jitc_get_cconsti(18);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push19: {    /* (CONST&PUSH.S 19) */
-      jit_get_cconsti(19);
+      jitc_get_cconsti(19);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push20: {    /* (CONST&PUSH.S 20) */
-      jit_get_cconsti(20);
+      jitc_get_cconsti(20);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push21: {    /* (CONST&PUSH.S 21) */
-      jit_get_cconsti(21);
+      jitc_get_cconsti(21);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push22: {    /* (CONST&PUSH.S 22) */
-      jit_get_cconsti(22);
+      jitc_get_cconsti(22);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push23: {    /* (CONST&PUSH.S 23) */
-      jit_get_cconsti(23);
+      jitc_get_cconsti(23);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push24: {    /* (CONST&PUSH.S 24) */
-      jit_get_cconsti(24);
+      jitc_get_cconsti(24);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push25: {    /* (CONST&PUSH.S 25) */
-      jit_get_cconsti(25);
+      jitc_get_cconsti(25);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push26: {    /* (CONST&PUSH.S 26) */
-      jit_get_cconsti(26);
+      jitc_get_cconsti(26);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push27: {    /* (CONST&PUSH.S 27) */
-      jit_get_cconsti(27);
+      jitc_get_cconsti(27);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push28: {    /* (CONST&PUSH.S 28) */
-      jit_get_cconsti(28);
+      jitc_get_cconsti(28);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_const_push29: {    /* (CONST&PUSH.S 29) */
-      jit_get_cconsti(29);
+      jitc_get_cconsti(29);
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_push_stackr();
+      jitc_push_stackr();
 
       goto next_byte;
     }
     CASE cod_store0: {          /* (STORE.S 0) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(0);
+      jitc_getptr_stacki(0);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store1: {          /* (STORE.S 1) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(1);
+      jitc_getptr_stacki(1);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store2: {          /* (STORE.S 2) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(2);
+      jitc_getptr_stacki(2);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store3: {          /* (STORE.S 3) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(3);
+      jitc_getptr_stacki(3);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store4: {          /* (STORE.S 4) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(4);
+      jitc_getptr_stacki(4);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store5: {          /* (STORE.S 5) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(5);
+      jitc_getptr_stacki(5);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store6: {          /* (STORE.S 6) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(6);
+      jitc_getptr_stacki(6);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
     CASE cod_store7: {          /* (STORE.S 7) */
-      jit_get_valuesr_1();
+      jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
-      jit_getptr_stacki(7);
+      jitc_getptr_stacki(7);
       jit_str_p(JIT_R0,JIT_R2);
-      jit_set_mvcounti(1);
+      jitc_set_mvcounti(1);
 
       goto next_byte;
     }
@@ -5468,7 +5474,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 }
 
 /* ensure that the function has been jit-compiled and run it */
-static Values jit_run (object closure_in, Sbvector codeptr,
+static Values jitc_run (object closure_in, Sbvector codeptr,
                        const uintB* byteptr_in) {
   struct jitc_object *jo;
   if (!fpointerp(cclosure_jitc(closure_in))) {
@@ -5479,6 +5485,6 @@ static Values jit_run (object closure_in, Sbvector codeptr,
     jit_compile_(closure_in,codeptr,byteptr_in);
   }
   jo = TheFpointer(cclosure_jitc(closure_in))->fp_pointer;
-  { jit_func bc_func = (jit_func) (jit_set_ip(jo->code_buffer).iptr);
+  { jitc_func bc_func = (jitc_func) (jit_set_ip(jo->code_buffer).iptr);
     bc_func(closure, byteptr_in - CODEPTR); }
 }
