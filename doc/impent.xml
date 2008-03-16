@@ -128,6 +128,7 @@
 <!ENTITY use-k '<constant>:USE</constant>'>
 <!ENTITY value-k '<constant>:VALUE</constant>'>
 <!ENTITY verbose-k '<constant>:VERBOSE</constant>'>
+<!ENTITY version-k '<constant>:VERSION</constant>'>
 <!ENTITY wait-k '<constant>:WAIT</constant>'>
 <!ENTITY warnings-k '<constant>:WARNINGS</constant>'>
 <!ENTITY wild-inferiors-k '<constant>:WILD-INFERIORS</constant>'>
@@ -900,6 +901,7 @@
 <!ENTITY directory-r '<replaceable>directory</replaceable>'>
 <!ENTITY startpoint-r '<replaceable>startpoint</replaceable>'>
 <!ENTITY subdir-r '<replaceable>subdir</replaceable>'>
+<!ENTITY version-r '<replaceable>version</replaceable>'>
 <!ENTITY always-nil '<listitem><simpara>always &nil;</simpara></listitem>'>
 <!ENTITY path-comps '<title>Pathname components</title>'>
 <!ENTITY unix-win32-dir-name-type-version
@@ -923,7 +925,7 @@
  <varlistentry><term>&name-r;</term><term>&type-r;</term>
   <listitem><simpara>&nil; or &simple-string-t;, &maybe-wild;
  </simpara></listitem></varlistentry>
- <varlistentry><term><replaceable>version</replaceable></term>
+ <varlistentry><term>&version-r;</term>
   <listitem><simpara>&nil; or &wild-k; or &newest-k;
     (after merging the defaults)</simpara></listitem></varlistentry>'>
 <!ENTITY maybe-wild 'may contain wildcard characters &file-ques; and
