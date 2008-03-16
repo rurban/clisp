@@ -889,19 +889,8 @@ jit_patch(ref);}
       fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__); \
       goto label;                                     \
     } while(0)
-  #define DEBUG_CHECK_BYTEPTR(nb) do {                                \
-    const uintL b = nb - codeptr->data;                               \
-    if ((b < byteptr_min) || (b > byteptr_max)) {                     \
-      uintL bp = byteptr - codeptr->data;                             \
-      fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__);                 \
-      byteptr_bad_jump = b - bp;                                      \
-      /*nobject_out(stderr,closure);*/                                \
-      /*fprintf(stderr," jump by %d takes %d outside [%d;%d]",byteptr_bad_jump,bp,byteptr_min,byteptr_max);*/ \
-      goto error_byteptr;                                            \
-    }} while(0)
 #else
   #define GOTO_ERROR(label)  goto label
-  #define DEBUG_CHECK_BYTEPTR(b)     do{}while(0)
 #endif
 /* Operand-Fetch:
    next Byte:
@@ -1295,8 +1284,8 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   jo->jo_next = all_jitc_objects;
   all_jitc_objects = jo;
   TheFpointer(cclosure_jitc(closure))->fp_pointer = jo;
-	
-	(void)jit_set_ip(codeBuffer);
+
+  (void)jit_set_ip(codeBuffer);
   jit_prolog(2);
   /* Arguments */
   const int jitc_arg_closure = jit_arg_i();

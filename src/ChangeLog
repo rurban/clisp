@@ -1,3 +1,7 @@
+2008-03-16  Sam Steingold  <sds@gnu.org>
+
+	* lightning.c (DEBUG_CHECK_BYTEPTR): do not redefine
+
 2008-03-13  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
 
 	* eval.d, lightning.c: cleanup: avoid using Lisp objects with malloc,
