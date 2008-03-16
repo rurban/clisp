@@ -313,11 +313,11 @@ local /*maygc*/ Values interpret_bytecode_ (object closure, Sbvector codeptr,
 
 #if defined(USE_JITC)
 /* replacement for interpret_bytecode_ */
-local /*maygc*/ Values jit_run (object closure_in, Sbvector codeptr,
-                                const uintB* byteptr_in);
+local /*maygc*/ Values jitc_run (object closure_in, Sbvector codeptr,
+                                 const uintB* byteptr_in);
 #define interpret_bytecode(closure,codevec,index)                       \
   with_saved_back_trace_cclosure(closure,                               \
-    if (cclosure_jitc_p(closure)) jit_run(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); \
+    if (cclosure_jitc_p(closure)) jitc_run(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); \
     else interpret_bytecode_(closure,TheSbvector(codevec),&TheSbvector(codevec)->data[index]); )
 #else
 #define interpret_bytecode(closure,codevec,index)                       \
