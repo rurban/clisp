@@ -9108,10 +9108,14 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           /* print Name: */
           if (!nullp(TheFvariable(*obj_)->fv_name)) {
             JUSTIFY_LAST(length+1 >= length_limit);
-                prin_object(stream_,TheFvariable(*obj_)->fv_name);
-                length++;       /* increase previous length */
-                if (length >= length_limit) goto fvariable_end;
-                JUSTIFY_SPACE;  /* print Space */
+            prin_object(stream_,TheFvariable(*obj_)->fv_name);
+            if (!nullp(TheFfunction(*obj_)->ff_version)) {
+              write_ascii_char(stream_,'@');
+              prin_object(stream_,TheFfunction(*obj_)->ff_version);
+            }
+            length++;       /* increase previous length */
+            if (length >= length_limit) goto fvariable_end;
+            JUSTIFY_SPACE;  /* print Space */
           }
           JUSTIFY_LAST(true);
           /* print Address: */
@@ -9147,6 +9151,10 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
           if (!nullp(TheFfunction(*obj_)->ff_name)) {
             JUSTIFY_LAST(length+1 >= length_limit);
             prin_object(stream_,TheFfunction(*obj_)->ff_name);
+            if (!nullp(TheFfunction(*obj_)->ff_version)) {
+              write_ascii_char(stream_,'@');
+              prin_object(stream_,TheFfunction(*obj_)->ff_version);
+            }
             length++;           /* increase previous length */
             if (length >= length_limit) goto ffunction_end;
             JUSTIFY_SPACE;      /* print Space */
@@ -9653,10 +9661,10 @@ local maygc void pr_cclosure_lang (const gcv_object_t* stream_, object obj) {
       if (documentation_p) {    /* documentation is a string or NIL */
         JUSTIFY_SPACE;
         prin_object(stream_,TheCclosure(*obj_)->clos_consts[++end]);
-	if (jitc_p) {           /* jitc_p: 0 or 1 */
-	  JUSTIFY_SPACE;
+        if (jitc_p) {           /* jitc_p: 0 or 1 */
+          JUSTIFY_SPACE;
           write_ascii_char(stream_,'1');
-	}
+        }
       }
     }
     JUSTIFY_END_FILL;

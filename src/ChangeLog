@@ -1,3 +1,20 @@
+2008-03-15  Sam Steingold  <sds@gnu.org>
+
+	patch #[ 1913831 ]: dlvsym support in FFI
+	* lispbibl.d (Fvariable): add field fv_version
+	(Ffunction): add field ff_version
+	* io.d (pr_orecord): print foreign variable and function version
+	* foreign.d (error_version_nonlibrary, find_name_version): add
+	(foreign_library_variable, FIND-FOREIGN-VARIABLE)
+	(foreign_library_function, FIND-FOREIGN-FUNCTION)
+	(object_handle, object_address, foreign_library_check): accept VERSION
+	(update_library): handle versioned objects
+	* foreign1.lisp (def-call-out, def-c-var): accept :VERSION
+	* subr.d (find_foreign_variable): accept 5 arguments
+	(find_foreign_function): accept 6 arguments
+	* m4/dynload.m4 (CL_DYNLOAD): check for dlvsym
+	Suggested by Kaz Kylheku <kkylheku@gmail.com>.
+
 2008-03-14  Sam Steingold  <sds@gnu.org>
 
 	* m4/ffcall.m4 (CL_FFCALL): do not nest AC_CACHE_CHECK

@@ -6128,6 +6128,7 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   gcv_object_t fv_name    _attribute_aligned_object_;
+  gcv_object_t fv_version _attribute_aligned_object_;
   gcv_object_t fv_address _attribute_aligned_object_;
   gcv_object_t fv_size    _attribute_aligned_object_;
   gcv_object_t fv_type    _attribute_aligned_object_;
@@ -6138,6 +6139,7 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   gcv_object_t ff_name       _attribute_aligned_object_;
+  gcv_object_t ff_version    _attribute_aligned_object_;
   gcv_object_t ff_address    _attribute_aligned_object_;
   gcv_object_t ff_resulttype _attribute_aligned_object_;
   gcv_object_t ff_argtypes   _attribute_aligned_object_;
