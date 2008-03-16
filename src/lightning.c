@@ -101,52 +101,45 @@ If the value bcIndex[bcPos] is different from 0, it means there are forward
 jumps to this bytecode(see jitc_bcjmpi()).
 Forward jumps are stored as a list. See jitc_bcjmpi(bc).
 This implies that (bcPos == byteptr - CODEPTR).*/
-typedef struct{
-        jit_insn* car;
-        jit_insn* cdr;
-} jitc_jmp_cons_;
-typedef jitc_jmp_cons_ * jitc_jmp_cons;
-#define jitc_patch_fwdjmps()\
-    if(bcIndex[bcPos]){\
-        jitc_jmp_cons list = (jitc_jmp_cons)bcIndex[bcPos];\
-        while(list != NULL){\
-            jit_insn *ref = list->car;\
-            jit_patch(ref);\
-            jitc_jmp_cons old_cell = list;\
-            list = (jitc_jmp_cons)list->cdr;\
-            free(old_cell);\
-        }\
-    }
+struct jitc_insn_list {
+  jit_insn* jump;
+  struct jitc_insn_list* next;
+};
+#define jitc_patch_fwdjmps()   \
+  if(bcIndex[bcPos]){          \
+    struct jitc_insn_list *list = (struct jitc_insn_list*)bcIndex[bcPos];\
+    while (list != NULL) {         \
+      jit_insn *ref = list->jump;  \
+      jit_patch(ref);              \
+      struct jitc_insn_list *prev = list;  \
+      list = list->next;                   \
+      free(prev);                          \
+    }                                      \
+  }
 
 /* jitc_bcjmpi(bc):
  Puts a jump to bytecode bc.
  If it's a back jump, just patch it.
  If it's a forward jump, put a list in the bcIndex[bc] with the address
  to be patched. */
-#define jitc_bcjmpi(bc)\
-{   jit_insn* rf1;\
-    rf1 = jit_jmpi(jit_forward());\
-    if((bc) < (byteptr - CODEPTR)){\
-        /* BACK JMP */\
-        jit_insn *rf2 = bcIndex[bc];\
-        jit_patch_at ((rf1), (rf2));\
-    }\
-    else if(bcIndex[bc] == 0){\
-        /* FWD JMP: no list for this BC */\
-        jitc_jmp_cons list = malloc(sizeof(jitc_jmp_cons));\
-        list->car = rf1;\
-        list->cdr = NULL;\
-        bcIndex[bc] = (jit_insn*)list;\
-    }\
-    else{\
-        /* FWD JMP: add to list */\
-        jitc_jmp_cons list = (jitc_jmp_cons)bcIndex[bc];\
-        jitc_jmp_cons new_cell = malloc(sizeof(jitc_jmp_cons));\
-        new_cell->car = rf1;\
-        new_cell->cdr = (jit_insn*)list;\
-        bcIndex[bc] = (jit_insn*)new_cell;\
-    }\
-}
+#define jitc_bcjmpi(bc) do {       \
+  jit_insn* rf1;                   \
+  rf1 = jit_jmpi(jit_forward());   \
+  if ((bc) < (byteptr - CODEPTR)) { /* BACK JMP */\
+    jit_insn *rf2 = bcIndex[bc]; \
+    jit_patch_at ((rf1), (rf2)); \
+  } else if (bcIndex[bc] == 0) { /* FWD JMP: no list for this BC */\
+    struct jitc_insn_list *list = malloc(sizeof(struct jitc_insn_list));\
+    list->jump = rf1;  \
+    list->next = NULL; \
+    bcIndex[bc] = (jit_insn*)list;\
+  } else{ /* FWD JMP: add to list */\
+    struct jitc_insn_list *new_cell = malloc(sizeof(struct jitc_insn_list));\
+    new_cell->jump = rf1;  \
+    new_cell->next = (struct jitc_insn_list*)bcIndex[bc]; \
+    bcIndex[bc] = (jit_insn*)new_cell;\
+  }  \
+} while(0)
 /* Uses addresses in bcIndex to jmp */
 #define jitc_bcjmpr();\
     jit_muli_ul(JIT_R1,JIT_R2,sizeof(jit_insn*));\

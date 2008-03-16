@@ -1,6 +1,7 @@
 2008-03-16  Sam Steingold  <sds@gnu.org>
 
 	* lightning.c (DEBUG_CHECK_BYTEPTR): do not redefine
+	(jitc_jmp_cons_): replace with struct jitc_insn_list in a more C style
 
 2008-03-13  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
 
