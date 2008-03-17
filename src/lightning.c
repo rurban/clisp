@@ -1,5 +1,8 @@
 /*
  * Copyright (C) 2007-2008 Yann Nicolas Dauphin
+ * Copyright (C) 2007-2008 Sam Steingold
+ * This file is a part of GNU CLISP and is distributed under GNU GPL v2+
+ *
  * These are the set of macros built on top of GNU Lightning
  * to build the JIT compiler.
  * Simplicity and predictability is enforced.
@@ -8,7 +11,7 @@
  * http://www.gnu.org/software/lightning/manual/html_node/GNU-lightning-macros.html
  *
  * - The macros behave like functions; they may modify JIT_R0 and
- * JIT_R1 only (exceptions are identified by the 'x' postfix)
+ *   JIT_R1 only (exceptions are identified by the 'x' postfix)
  *
  * - Macros ending in 'i' take an immediate value as parameter, a macro
  *   ending with 'r' takes JIT_R2 as parameter.
