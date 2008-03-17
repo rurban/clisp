@@ -1232,6 +1232,11 @@ jit_patch(ref);}
       #undef CODEPTR
       #define CODEPTR  (&codeptr->data[0])
 
+/* do not use cod_labels */
+#ifdef FAST_DISPATCH
+#undef next_byte
+#endif
+
 static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
                                       const uintB* byteptr_in)
 {
