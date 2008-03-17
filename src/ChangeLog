@@ -3,6 +3,8 @@
 	* spvw_gcmark.d (down_cclosure) [USE_JITC]: check that the
 	cclosure has been already JIT-compiled before gc_mark_jitc_object()
 	Reported by Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>
+	* lightning.c (next_byte) [FAST_DISPATCH]: undefine to avoid
+	error: 'cod_labels' undeclared
 
 2008-03-16  Sam Steingold  <sds@gnu.org>
 
