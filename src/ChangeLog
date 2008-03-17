@@ -20,6 +20,8 @@
 
 	* foreign1.lisp (DEF-C-CONST): pass NIL as version to
 	FIND-FOREIGN-FUNCTION (finish patch [ 1913831 ])
+	* foreign.d (foreign_library_check): when version is non-NIL,
+	coerce it to simple-string
 
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
