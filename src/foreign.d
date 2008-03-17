@@ -4318,12 +4318,12 @@ local maygc void update_library (object acons) {
     var object ve;                     /* its version */
     switch (Record_type(fo)) {
       case Rectype_Fvariable:
-        fn = TheFvariable(fo)->fv_name; 
-        ve = TheFvariable(fo)->fv_version; 
+        fn = TheFvariable(fo)->fv_name;
+        ve = TheFvariable(fo)->fv_version;
         break;
       case Rectype_Ffunction:
-        fn = TheFfunction(fo)->ff_name; 
-        ve = TheFfunction(fo)->ff_version; 
+        fn = TheFfunction(fo)->ff_name;
+        ve = TheFfunction(fo)->ff_version;
         break;
       default: NOTREACHED;
     }
@@ -4446,7 +4446,7 @@ local maygc void validate_fpointer (object obj)
  > name - string (C name)
  > offset - integer or NIL, if supplied, name is ignored
  can trigger GC */
-local maygc object object_address (object library, object name, 
+local maygc object object_address (object library, object name,
                                    object version, object offset)
 { var object lib_addr = Car(Cdr(library));
   var sintP result_offset;
@@ -4476,6 +4476,7 @@ local maygc void push_foreign_object (object obj, object acons) {
 /* UP: check foreign_library_* arguments and create the foreign object
  > name    - object name (pre-checked)
  > library - library name --> library specifier
+ > version - object version (checked here)
  > offset  - address offset in the library or NIL
  < new object address
  can trigger GC */
@@ -4484,6 +4485,7 @@ local maygc object foreign_library_check
  gcv_object_t *version, gcv_object_t *offset) {
   *library = check_library(library);
   if (!nullp(*offset)) *offset = check_sint32(*offset);
+  if (!nullp(*version)) *version = coerce_ss(*version);
   return object_address(*library,*name,*version,*offset);
 }
 #define push_foreign_library_object(n,l,v,o)                    \
@@ -4495,6 +4497,7 @@ local maygc object foreign_library_check
 /* UP: find and allocate a foreign variable in a dynamic library
  > name     - variable C name (string - prechecked)
  > library  - library C name (string - checked here)
+ > version  - object version (NIL or string - checked here)
  > offset   - address offset in the library or NIL
  > fvd      - function type
  can trigger GC */
@@ -4524,10 +4527,11 @@ local maygc object foreign_library_variable
 
 /* UP: find and allocate a foreign function in a dynamic library
  > name     - function C name (string - prechecked)
- > library  - library C name (string - checked here)
- > offset   - address offset in the library or NIL
- > properties - function properties
  > fvd      - function type (already checked)
+ > properties - function properties
+ > library  - library C name (string - checked here)
+ > version  - object version (NIL or string - checked here)
+ > offset   - address offset in the library or NIL
  can trigger GC */
 local maygc object foreign_library_function
 (gcv_object_t *name, gcv_object_t *fvd, gcv_object_t *properties,
