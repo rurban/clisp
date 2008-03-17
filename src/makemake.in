@@ -2687,6 +2687,9 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     # gcc-2.96 on Linux/ia64 miscompiles eval.d when -O is used.
     flags2=$flags2' -O0'
   fi
+  if [ $f = eval -a "${with_jitc}" = lightning ]; then
+    flags2=$flags2' -Wno-unused' # should be gone - eventually...
+  fi
   if [ $f = genclisph -a $XCC_GCC = true ] ; then
     flags2=$flags2' -O0' # no need to optimize this
   fi
