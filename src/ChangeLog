@@ -1,3 +1,9 @@
+2008-03-17  Sam Steingold  <sds@gnu.org>
+
+	* spvw_gcmark.d (down_cclosure) [USE_JITC]: check that the
+	cclosure has been already JIT-compiled before gc_mark_jitc_object()
+	Reported by Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>
+
 2008-03-16  Sam Steingold  <sds@gnu.org>
 
 	* lightning.c (DEBUG_CHECK_BYTEPTR): do not redefine

@@ -166,8 +166,11 @@ local void gc_mark (object obj)
     goto down; /* and descent */                                        \
   }}
 #if defined(USE_JITC)
- #define down_cclosure() \
-  if (cclosurep(curr) && cclosure_jitc_p(curr)) gc_mark_jitc_object(TheFpointer(cclosure_jitc(curr))->fp_pointer)
+ #define down_cclosure()  if (cclosurep(curr) && cclosure_jitc_p(curr)) { \
+   object jitc = cclosure_jitc(curr);                                   \
+   if (fpointerp(jitc))                                                 \
+     gc_mark_jitc_object(TheFpointer(jitc)->fp_pointer);                \
+ }
 #else
  #define down_cclosure()
 #endif
