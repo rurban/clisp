@@ -3,6 +3,8 @@
 	* lightning.c (DEBUG_CHECK_BYTEPTR): do not redefine
 	(jitc_jmp_cons_): replace with struct jitc_insn_list in a more C style
 	* makemake.in [with_jitc=lightning]: compile eval.c with -Wno-unused
+	* .gdbinit (build-id-verbose): do not set (not needed
+	since gdb-6.6-45.fc8)
 
 2008-03-13  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
 
