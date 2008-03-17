@@ -163,7 +163,7 @@ local void make_space_gc (uintM need)
        remedy: try a full GC. */
     #ifdef GENERATIONAL_GC
     if (!mem.last_gc_full) {
-      gar_col(); goto doing_gc;
+      gar_col(0); goto doing_gc;
     } else
     #endif
       { error_speicher_voll(); }
@@ -251,7 +251,7 @@ local void make_space_gc_true (uintM need, Heap* heapptr)
       goto do_gc;
    #ifdef GENERATIONAL_GC
     if (!mem.last_gc_full) {
-      gar_col(); goto doing_gc;
+      gar_col(0); goto doing_gc;
     }
    #endif
     error_speicher_voll();
@@ -311,7 +311,7 @@ local void make_space_gc_false (uintM need, Heap* heapptr)
       goto do_gc;
    #ifdef GENERATIONAL_GC
     if (!mem.last_gc_full) {
-      gar_col(); goto doing_gc;
+      gar_col(0); goto doing_gc;
     }
    #endif
     error_speicher_voll();
@@ -393,13 +393,13 @@ local void make_space_gc (uintM need, Heap* heapptr)
       goto do_gc;
    #ifdef GENERATIONAL_GC
     if (!mem.last_gc_full) {
-        gar_col(); goto doing_gc;
+      gar_col(0); goto doing_gc;
     }
    #endif
     error_speicher_voll();
    sufficient:
     heapptr->heap_limit = needed_limit;
-    }
+  }
   /* now for sure (heapptr->heap_limit - heapptr->heap_end >= need).
    if (mem.total_room < need), we ignore that: */
   if (mem.total_room < need)

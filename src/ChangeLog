@@ -1,5 +1,23 @@
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
+	drop JITC objects before saving memory
+	* debug.d (GC): accept optional argument to invalidate JITC objects;
+	return 3 values (same as %ROOM)
+	* subr.d (gc): update declaration
+	* lightning.c (gc_drop_jitc): add variable
+	* spvw_garcol.d (gar_col): accept level argument to invalidate
+	JITC objects (when 1, set gc_drop_jitc to true)
+	* lispbibl.d (gar_col): update prototype
+	(gc_drop_jitc) [USE_JITC]: declare extern
+	* pathname.d (SAVEMEM): pass 1 to gar_col()
+	* spvw_memfile.d (savemem): pass 1 to gar_col()
+	* spvw_allocate.d (make_space_gc, make_space_gc_true)
+	(make_space_gc_false): pass 0 to gar_col()
+	* spvw_gcmark.d (down_cclosure) [USE_JITC]: do not mark JITC when
+	gc_drop_jitc is true
+
+2008-03-17  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (DEF-C-CONST): pass NIL as version to
 	FIND-FOREIGN-FUNCTION (finish patch [ 1913831 ])
 
