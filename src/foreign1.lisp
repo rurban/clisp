@@ -893,7 +893,7 @@
             ;; we do not really need to name this foreign function; this is just
             ;; to avoid an HT lookup in FIND-FOREIGN-FUNCTION for each C const
             f-name (FIND-FOREIGN-FUNCTION (to-c-name f-name)
-                                          ,cftype NIL NIL NIL)))
+                                          ,cftype NIL NIL NIL NIL)))
          (defconstant ,name (c-const-value f-name c-number ',name ',c-name)
            ,@doc)))))
 
