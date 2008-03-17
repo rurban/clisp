@@ -5822,8 +5822,13 @@ exhaust the available line length.</para></simplesect>
   <indexterm id="gc-func" significance="preferred">
    <primary id="gc-func-i"><function>GC</function>
  </primary></indexterm></firstterm>
- starts a global &gc;ion and its return value has the same meaning as
- the second value of &room;.</para>
+ starts a global &gc;ion and returns three values:<orderedlist>
+  <listitem><simpara>room occupied by Lisp objects</simpara></listitem>
+  <listitem><simpara>room available for Lisp objects</simpara></listitem>
+  <listitem><simpara>room permanently allocated</simpara></listitem>
+</orderedlist></para>
+<para>When the optional parameter is non-&nil; also invalidates
+ just-in-time compiled objects.</para>
 </section>
 
 <section id="time"><title>Macro &time;</title>

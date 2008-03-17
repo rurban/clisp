@@ -381,7 +381,7 @@ global maygc off_t savemem (object stream, bool exec_p)
     });
   }
   /* execute one GC first: */
-  gar_col();
+  gar_col(1);
   if (exec_p) savemem_with_runtime(handle);
   /* write basic information: */
   var memdump_header_t header;

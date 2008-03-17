@@ -1567,10 +1567,12 @@ LISPFUNN(proom,0)
   STACK_to_mv(3);
 }
 
-LISPFUNN(gc,0)
-{ /* execute a GC and return the free space for LISP-objects (in bytes) */
-  gar_col();                  /* execute GC */
-  VALUES1(uintM_to_I(free_space()));
+LISPFUN(gc,seclass_default,0,1,norest,nokey,0,NIL)
+{ /* execute a GC and return same values as %ROOM
+   with an argument, invalidate JITC objects */
+  var object arg = popSTACK();
+  gar_col(missingp(arg) ? 0 : 1); /* execute GC */
+  C_proom();
 }
 
 /* rewrite read-form, in collaboration with the terminal-stream?? */

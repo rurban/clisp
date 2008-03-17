@@ -18,7 +18,6 @@
  define DEBUG_TRANSLATE_PATHNAME 1 */
 #if DEBUG_TRANSLATE_PATHNAME
 #define string_concat(x) (printf("[%d]string_concat(%d)\n",__LINE__,x),(string_concat)(x))
-/* define DOUT(l,o) printf("[%d] %s %s\n",__LINE__,l,#o);gar_col() */
 #define DOUT(label,obj)  OBJECT_OUT(obj,label)
 #define SDOUT(label,obj) printf("%d %s %s",__LINE__,label,STRING(obj));nobject_out(stdout,obj)
 #else
@@ -8795,7 +8794,7 @@ LISPFUNN(savemem,2) {
    causes random pages to be mapped in instead of pages from the renamed
    old mem file. Workaround: Do a full GC, forcing all the old mem file's
    contents into memory immediately. */
-  gar_col();
+  gar_col(1);
   #endif
   pushSTACK(S(Kif_exists)); /* :IF-EXISTS as 4th Argument */
   pushSTACK(S(Krename_and_delete)); /* :RENAME-AND-DELETE as 5th Argument */

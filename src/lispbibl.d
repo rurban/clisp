@@ -9610,9 +9610,10 @@ extern maygc object nobject_out (FILE* out, object obj);
 /* used by SPVW, macros SP_allocate_bit_vector, SP_allocate_string */
 
 /* UP: executes a Garbage Collection
- gar_col();
+ gar_col(level);
+ > level: if 1, also drop all jitc code
  can trigger GC */
-extern maygc void gar_col(void);
+extern maygc void gar_col (int level);
 /* is used by DEBUG */
 
 /* GC-statistics */
@@ -12678,6 +12679,7 @@ extern maygc void init_cclosures (void);
 /* GC hooks for JIT code */
 extern void gc_mark_jitc_object (void *ptr);
 extern void gc_scan_jitc_objects (void);
+extern bool gc_drop_jitc;
 #endif
 
 /* ##################### CTRLBIBL for CONTROL.D ############################ */
