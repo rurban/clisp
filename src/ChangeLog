@@ -1,5 +1,10 @@
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
+	* foreign1.lisp (DEF-C-CONST): pass NIL as version to
+	FIND-FOREIGN-FUNCTION (finish patch [ 1913831 ])
+
+2008-03-17  Sam Steingold  <sds@gnu.org>
+
 	* spvw_gcmark.d (down_cclosure) [USE_JITC]: check that the
 	cclosure has been already JIT-compiled before gc_mark_jitc_object()
 	Reported by Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>
