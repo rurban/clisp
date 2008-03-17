@@ -70,6 +70,7 @@ struct jitc_object {
 };
 /* all JITC objects as a linked list */
 static struct jitc_object *all_jitc_objects = NULL;
+bool gc_drop_jitc = false;
 /* mark object as used */
 void gc_mark_jitc_object (void *ptr) {
   struct jitc_object *jo = (struct jitc_object*)ptr;

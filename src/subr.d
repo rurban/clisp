@@ -434,7 +434,7 @@ LISPFUNN(describe_frame,2)
 LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
 LISPFUNN(crash,0)
 LISPFUNN(proom,0)
-LISPFUNN(gc,0)
+LISPFUN(gc,seclass_default,0,1,norest,nokey,0,NIL)
 /* ---------- ENCODING ---------- */
 LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
         (kw(charset),kw(line_terminator),kw(input_error_action),
