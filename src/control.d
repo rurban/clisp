@@ -430,7 +430,7 @@ global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
       if (eq(NEXT(spec_pointer),Fixnum_0))
         return &Before(spec_pointer);
     } else {
-      NEXT(spec_pointer);
+      (void)NEXT(spec_pointer);
     }
    #else
     if (eq(NEXT(spec_pointer),symbol))
