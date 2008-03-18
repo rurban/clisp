@@ -2,6 +2,7 @@
 
 	* stream.d (push_ch): extracted from read_line
 	(read_line): use it
+	* spvw_debug (nobject_out1): handle arrays
 
 2008-03-18  Sam Steingold  <sds@gnu.org>
 
