@@ -1264,8 +1264,8 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
   const uintB* saved_byteptr = byteptr;
   /* byteptr_min is never zero: Codevec is stored in the first bytes of the Sbvector */
-  const uintB* byteptr_min = CODEPTR + (((Codevec)codeptr)->ccv_flags & bit(7)
-      ? CCV_START_KEY : CCV_START_NONKEY);
+  const uintL byteptr_min = ((Codevec)codeptr)->ccv_flags & bit(7)
+      ? CCV_START_KEY : CCV_START_NONKEY;
   const uintL byteptr_max = sbvector_length(codeptr)-1;
   const uintL sp_length = (uintL)(((Codevec)codeptr)->ccv_spdepth_1)
       + jmpbufsize * (uintL)(((Codevec)codeptr)->ccv_spdepth_jmpbufsize);
@@ -1319,7 +1319,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   /* next Byte to be interpreted */
   /* > codeptr: Closure's codevector, a Simple-Bit-Vector, pointable */
   /* > byteptr: pointer to the next byte in code */
-  byteptr = byteptr_min;
+  byteptr = CODEPTR + byteptr_min;
 
   next_byte:
   /* definition by cases, according to byte to be interpreted byte */
