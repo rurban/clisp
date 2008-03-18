@@ -3314,7 +3314,7 @@ DEFUN(XLIB:SET-GCONTEXT-CLIP-MASK, clip-mask gcontext &optional ordering)
       begin_x_call();
       XGetGCValues (dpy, gcontext, GCClipXOrigin|GCClipYOrigin, &values);
       XSetClipRectangles (dpy, gcontext, values.clip_x_origin,
-                          values.clip_y_origin, rectangles, n/4, ordering);
+                          values.clip_y_origin, rectangles, n, ordering);
       end_x_call();
     }
 
