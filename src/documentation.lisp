@@ -1,5 +1,5 @@
 ;;;; Generic documentation
-;;;; Sam Steingold 2002 - 2006
+;;;; Sam Steingold 2002 - 2006, 2008
 ;;;; Bruno Haible 2004
 
 (in-package "CLOS")
@@ -10,7 +10,7 @@
         ((eq (type-of x) 'FUNCTION) ; interpreted function?
          (sys::%record-ref x 2))
         #+FFI ((eq (type-of x) 'ffi::foreign-function)
-               (getf (sys::%record-ref x 5) :documentation))
+               (getf (sys::%record-ref x 6) :documentation))
         ((sys::closurep x) (sys::closure-documentation x))
         ((setq name (sys::subr-info x)) (get :documentation name)) ; subr
         (t (get :documentation (sys::%record-ref x 0)))))
