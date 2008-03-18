@@ -118,7 +118,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     }
     fputc(')',out);
   } else if (arrayp(obj)) {
-    fprintf(out,"#<array %d=",Array_type(obj));
+    fprintf(out,"#<array %d",Array_type(obj));
     if (mdarrayp(obj)) fprintf(out," rank=%d",Iarray_rank(obj));
     else fprintf(out," len=%d",vector_length(obj));
     fprintf(out," 0x%lx>",as_oint(obj));
