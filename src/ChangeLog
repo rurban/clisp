@@ -1,5 +1,10 @@
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
+	* lightning.c (jit_compile_): restore the semantics of byteptr_min
+	as in interpret_bytecode_() (fixes --with-debug compilation)
+
+2008-03-17  Sam Steingold  <sds@gnu.org>
+
 	drop JITC objects before saving memory
 	* debug.d (GC): accept optional argument to invalidate JITC objects;
 	return 3 values (same as %ROOM)
