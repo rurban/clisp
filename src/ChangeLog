@@ -44,6 +44,8 @@
 	FIND-FOREIGN-FUNCTION (finish patch [ 1913831 ])
 	* foreign.d (foreign_library_check): when version is non-NIL,
 	coerce it to simple-string
+	* documentation.lisp (function-documentation): foreign-function
+	properties are not in slot 6
 
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
