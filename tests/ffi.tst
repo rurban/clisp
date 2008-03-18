@@ -249,22 +249,24 @@ C-SELF
 #+UNICODE T
 
 #+UNICODE
-(typep (setf custom:*foreign-encoding* (ext:make-encoding :charset 'charset:utf-8))
+(typep (setf custom:*foreign-encoding*
+             (ext:make-encoding :charset 'charset:utf-8))
        'ext:encoding)
 #+UNICODE T
 
 (typep (ffi::find-foreign-variable "ffi_user_pointer"
                                    (ffi::parse-c-type 'ffi:c-pointer)
-                                   nil nil)
+                                   nil nil nil)
        'foreign-variable)
 T
 
-(ffi::find-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64) nil nil)
+(ffi::find-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64)
+                            nil nil nil)
 ERROR
 
 (typep (ffi::find-foreign-variable "ffi_user_pointer"
                                    (parse-c-type '(c-array-ptr sint8))
-                                   nil nil)
+                                   nil nil nil)
        'foreign-variable)
 T
 

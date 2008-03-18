@@ -1,3 +1,7 @@
+2008-03-18  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: update tests for versioned symbols
+
 2008-03-02  Sam Steingold  <sds@gnu.org>
 
 	* macros8.tst (check-const-fold): check constant folding
