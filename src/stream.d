@@ -15768,24 +15768,26 @@ LISPFUN(built_in_stream_close,seclass_default,1,0,norest,key,1, (kw(abort)) ) {
  < buffer: contains the read characters, excluding the terminating #\Newline
  < result: true if EOF was seen before newline, else false
  can trigger GC */
-global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* buffer_) {
+local inline maygc bool push_ch (object ch, object buffer) {
+  if (!charp(ch)) {
+    if (eq(subr_self,L(read_line))) error_char(ch);
+    else with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
+                                    error_char(ch));
+  }
+  if (eq(ch,ascii_char(NL)))
+    return false;
+  ssstring_push_extend(buffer,char_code(ch));
+  return true;
+}
+global maygc bool read_line (const gcv_object_t* stream_,
+                             const gcv_object_t* buffer_) {
   var object stream = *stream_;
   if (builtin_stream_p(stream)) {
     if (TheStream(stream)->strmflags & strmflags_unread_B) { /* Char after UNREAD ? */
       /* yes -> delete Flagbit and fetch last character: */
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
-      var object ch = TheStream(stream)->strm_rd_ch_last;
-      if (!charp(ch)) {
-        if (eq(subr_self,L(read_line)))
-          error_char(ch);
-        else
-          with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
-            error_char(ch); );
-      }
-      if (eq(ch,ascii_char(NL)))
+      if (!push_ch(TheStream(stream)->strm_rd_ch_last,*buffer_))
         return false;
-      ssstring_push_extend(*buffer_,char_code(ch));
-      stream = *stream_;
     }
     var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
     var bool eofp;
@@ -15802,25 +15804,13 @@ global maygc bool read_line (const gcv_object_t* stream_, const gcv_object_t* bu
         /* No special-casing of strmtype_echo, because the echo-stream may
          be interactive, and delaying the echo in this case is undesirable. */
       default:
-        while (1) {
+        do {
           var object ch = rd_ch(*stream_)(stream_); /* read next character */
           if (eq(ch,eof_value)) { /* EOF ? */
             eofp = true; break;
           }
-          /* else check for Character: */
-          if (!charp(ch)) {
-            if (eq(subr_self,L(read_line)))
-              error_char(ch);
-            else
-              with_saved_back_trace_subr(L(read_line),STACK STACKop -4,-1,
-                error_char(ch); );
-          }
-          if (eq(ch,ascii_char(NL))) { /* NL -> End of Line */
-            eofp = false; break;
-          }
-          /* write other Character in the Buffer: */
-          ssstring_push_extend(*buffer_,char_code(ch));
-        }
+          eofp = push_ch(ch,*buffer_);
+        } while (eofp);
         break;
     }
     stream = *stream_;
