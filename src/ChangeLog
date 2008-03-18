@@ -1,3 +1,10 @@
+2008-03-18  Drutsa Pavel  <rawlik@users.sourceforge.net>
+
+	fix bug [ 1918017 ]: new-clx:gcontext-clip-mask does not set rectangles
+	* modules/clx/new-clx/clx.f (XLIB:SET-GCONTEXT-CLIP-MASK): do not
+	divide n by 4 when passing to XSetClipRectangles - it has already
+	been done by get_seq_len()
+
 2008-03-17  Sam Steingold  <sds@gnu.org>
 
 	* lightning.c (jit_compile_): restore the semantics of byteptr_min
