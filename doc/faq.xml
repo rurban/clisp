@@ -725,8 +725,19 @@ trying to &nconc; a circular list).</para>
 <qandaentry id="faq-pp-newline">
  <question id="faq-pp-newline-q"><para>Why is an extra line break
    inserted by the pretty printer?</para></question>
-<answer><para>See <xref linkend="ppr-first-newline"/>.
-</para></answer></qandaentry>
+<answer><para>See <xref linkend="ppr-first-newline"/>.</para>
+ <para>For example, here you are pretty-printing two objects: a
+  one-liner <keysym>#\Q</keysym> and a two-liner <literal>CRLF</literal>,
+  and a line break is inserted between them so that they are printed on
+  separate lines: <programlisting language="lisp">
+(defparameter crlf (coerce '(#\Return #\Linefeed) 'string))
+<computeroutput>CRLF</computeroutput>
+(map 'list #'char-code (format nil "Q~a" crlf))
+<computeroutput>(81 10 13 10)</computeroutput> ; not (81 13 10) !
+</programlisting></para>
+ <para>When you want &cr-c;+&lf-c;-terminated lines, use &extfmt; &dos-k;
+  argument when opening your &stream-t;s.</para>
+</answer></qandaentry>
 
 
 <qandaentry id="faq-warning">
