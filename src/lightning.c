@@ -147,7 +147,7 @@ struct jitc_insn_list {
 /* Uses addresses in bcIndex to jmp */
 #define jitc_bcjmpr();\
     jit_muli_ul(JIT_R1,JIT_R2,sizeof(jit_insn*));\
-    jit_movi_l(JIT_R0,bcIndex);\
+    jit_movi_p(JIT_R0,bcIndex);\
     jit_ldxr_p(JIT_R0,JIT_R0,JIT_R1);\
     jit_jmpr(JIT_R0);
 
@@ -162,7 +162,7 @@ with jitc_tag_unsafe. This eases the task of assigning a register to a permanent
    src/eval.d, so we can use GETTEXT in this macro */
 #define jitc_errori(type, message)               \
   jit_movi_l(JIT_R0, type);                     \
-  jit_movi_l(JIT_R1, GETTEXT(message));         \
+  jit_movi_p(JIT_R1, GETTEXT(message));         \
   jit_prepare(2);                               \
   jit_pusharg_p(JIT_R1);                        \
   jit_pusharg_p(JIT_R0);                        \
@@ -171,7 +171,7 @@ with jitc_tag_unsafe. This eases the task of assigning a register to a permanent
   jit_prepare(2);                               \
   jit_movi_l(JIT_R0,__LINE__);                  \
   jit_pusharg_p(JIT_R0);                        \
-  jit_movi_l(JIT_R0,__FILE__);                  \
+  jit_movi_p(JIT_R0,__FILE__);                  \
   jit_pusharg_p(JIT_R0);                        \
   jit_finish(error_notreached)
 
@@ -686,28 +686,28 @@ jit_patch(ref);}
   }
 #define jitc_funcalls1();                        \
   {{ Subr fun = FUNTAB1[n];                                        \
-     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,         \
-                         jit_movi_l(JIT_R0,(fun->function));            \
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,\
+                         jit_movi_p(JIT_R0,(fun->function));            \
                          jit_callr(JIT_R0););                           \
     }}
 #define jitc_funcalls2();                        \
   {{ Subr fun = FUNTAB2[n];                                        \
-     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,    \
-                         jit_movi_l(JIT_R0,(fun->function));      \
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,\
+                         jit_movi_p(JIT_R0,(fun->function));      \
                          jit_callr(JIT_R0););                     \
     }}
 #define jitc_funcallsr();                        \
   {{ Subr fun = FUNTABR[n];                                        \
-     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,    \
-                         jit_prepare(2);                          \
-                         jit_ldi_p(JIT_R1,&(args_end_pointer));         \
-                         jitc_skip_stack_opir(JIT_R0,JIT_R1,m*sizeof(gcv_object_t)); \
-                         jit_pusharg_p(JIT_R0);                         \
-                         jit_movi_l(JIT_R0,m);                          \
-                         jit_pusharg_p(JIT_R0);                         \
-                         jit_movi_l(JIT_R0,(fun->function));            \
-                         jit_finishr(JIT_R0);)                          \
-       }}
+     jitc_save_backtrace1(as_oint(subr_tab_ptr_as_object(fun)),STACK,-1,{\
+         jit_prepare(2);                                                \
+         jit_ldi_p(JIT_R1,&(args_end_pointer));                         \
+         jitc_skip_stack_opir(JIT_R0,JIT_R1,m*sizeof(gcv_object_t));    \
+         jit_pusharg_p(JIT_R0);                                         \
+         jit_movi_l(JIT_R0,m);                                          \
+         jit_pusharg_p(JIT_R0);                                         \
+         jit_movi_p(JIT_R0,(fun->function));                            \
+         jit_finishr(JIT_R0);                                           \
+       });}}
 #define jitc_funcallc()                          \
   jitc_check_stack();                            \
   jitc_save_backtrace2(value1, STACK,-1,         \
@@ -792,14 +792,14 @@ jit_patch(ref);}
     jit_pusharg_p(JIT_R0);\
     jit_finish(printf);
 #define jitc_printr()\
-    jit_movi_l(JIT_R0, "The register equals: I=%d, P=%p\n");\
+    jit_movi_i(JIT_R0, "The register equals: I=%d, P=%p\n");\
     jit_prepare(3);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R2);\
     jit_pusharg_p(JIT_R0);\
     jit_finish(printf);
 #define jitc_printi(val)\
-    jit_movi_l(JIT_R0, "The variable equals: I=%d, P=%p\n");\
+    jit_movi_p(JIT_R0, "The variable equals: I=%d, P=%p\n");\
     jit_movi_l(JIT_R1, val);\
     jit_prepare(3);\
     jit_pusharg_p(JIT_R1);\
