@@ -1886,6 +1886,10 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
   #error "WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT"
 #endif
 
+#if defined(TYPECODES) && defined(HEAPCODES)
+  #error "TYPECODES and HEAPCODES make no sense together"
+#endif
+
 #if !(defined(TYPECODES) || defined(HEAPCODES))
   /* Choose typecodes on 64-bit machines (because there's enough room for type
    bits), but not on 32-bit machines (because a 16 MB limit is ridiculous
@@ -12677,7 +12681,7 @@ extern maygc void init_cclosures (void);
 
 #if defined(USE_JITC)
 #if defined(TYPECODES)
-#error "USE_JITC requires HEAPCODES"
+  #error "USE_JITC requires HEAPCODES"
 #endif
 /* GC hooks for JIT code */
 extern void gc_mark_jitc_object (void *ptr);
