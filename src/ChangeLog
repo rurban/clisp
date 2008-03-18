@@ -1,5 +1,10 @@
 2008-03-18  Sam Steingold  <sds@gnu.org>
 
+	* lightning.c: use jit_movi_p instead of jit_movi_l for pointers
+	to avoid "warning: cast from pointer to integer of different size"
+
+2008-03-18  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (push_ch): extracted from read_line
 	(read_line): use it
 	* spvw_debug (nobject_out1): handle arrays
