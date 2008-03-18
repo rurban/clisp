@@ -1,5 +1,10 @@
 2008-03-18  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (push_ch): extracted from read_line
+	(read_line): use it
+
+2008-03-18  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in, lispbibl.d: USE_JITC requires HEAPCODES
 
 2008-03-18  Drutsa Pavel  <rawlik@users.sourceforge.net>
