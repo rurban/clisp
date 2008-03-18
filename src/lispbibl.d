@@ -12676,6 +12676,9 @@ extern maygc object coerce_function (object obj);
 extern maygc void init_cclosures (void);
 
 #if defined(USE_JITC)
+#if defined(TYPECODES)
+#error "USE_JITC requires HEAPCODES"
+#endif
 /* GC hooks for JIT code */
 extern void gc_mark_jitc_object (void *ptr);
 extern void gc_scan_jitc_objects (void);
