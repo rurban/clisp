@@ -1496,7 +1496,7 @@ if [ "${with_threads}" != no ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"
 fi
 if [ "${with_jitc}" != "" ]; then
-  XCFLAGS="$XCFLAGS -DUSE_JITC -D${with_jitc}"
+  XCFLAGS="$XCFLAGS -DHEAPCODES -DUSE_JITC -D${with_jitc}"
 fi
 
 if [ "${with_termcap_ncurses}" = no -o "${LIBTERMCAP}" = "broken" ] ; then
