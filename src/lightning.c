@@ -5440,7 +5440,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   #undef B_operand
   #undef CASE
   }
-  #if DEBUG_BYTECODE
+#if DEBUG_BYTECODE
  error_byteptr:
   pushSTACK(fixnum(byteptr_max));
   pushSTACK(fixnum(byteptr_min));
@@ -5448,16 +5448,16 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
   pushSTACK(sfixnum(byteptr_bad_jump));
   pushSTACK(closure);
   error(error_condition,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
-  #endif
+#endif
  error_toomany_values:
   pushSTACK(closure);
   error(error_condition,GETTEXT("~S: too many return values"));
-  #if STACKCHECKC
+#if STACKCHECKC
  error_STACK_putt:
   pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
   pushSTACK(closure);                       /* FUNC */
   error(serious_condition,GETTEXT("Corrupted STACK in ~S at byte ~S"));
- #endif
+#endif
  finished:
   /* disassemble(stderr, codeBuffer, jit_get_ip().ptr); */
   jit_flush_code(codeBuffer, jit_get_ip().ptr);
@@ -5466,7 +5466,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
 
 /* ensure that the function has been jit-compiled and run it */
 static Values jitc_run (object closure_in, Sbvector codeptr,
-                       const uintB* byteptr_in) {
+                        const uintB* byteptr_in) {
   struct jitc_object *jo;
   if (!fpointerp(cclosure_jitc(closure_in))) {
     pushSTACK(closure_in);
