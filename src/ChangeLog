@@ -1,3 +1,8 @@
+2008-03-19  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [XCC_GCC]: add -falign-functions=4 on all
+	CPUs - it cannot hurt and is required at least on AMD64
+
 2008-03-18  Sam Steingold  <sds@gnu.org>
 
 	* lightning.c: use jit_movi_p instead of jit_movi_l for pointers
