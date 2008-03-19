@@ -233,7 +233,7 @@
 <!ENTITY glo-env '<ulink url="&clhs;/Body/sec_3-1-1-1.html">global environment</ulink>'>
 <!ENTITY dyn-env '<ulink url="&clhs;/Body/sec_3-1-1-2.html">dynamic environment</ulink>'>
 <!ENTITY lex-env '<ulink url="&clhs;/Body/sec_3-1-1-3.html">lexical environment</ulink>'>
-<!ENTITY env-r '<replaceable><ulink url="&clhs;/sec_3-1-1-4.html">environment</ulink></replaceable>'>
+<!ENTITY env-r '<replaceable><ulink url="&clhs;/Body/sec_3-1-1-4.html">environment</ulink></replaceable>'>
 <!ENTITY variable '<ulink url="&clhs;/Body/sec_3-1-2-1-1.html">variable</ulink>'>
 <!ENTITY lex-var '<ulink url="&clhs;/Body/sec_3-1-2-1-1-1.html">lexical variable</ulink>'>
 <!ENTITY dyn-var '<ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">dynamic variable</ulink>'>
