@@ -250,6 +250,25 @@
  <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
+<xsl:param name="clhs.top" select="'http://www.lisp.org/HyperSpec/'"/>
+<xsl:param name="clhs.body" select="concat($clhs.top, 'Body/')"/>
+<xsl:template match="ulink[@role='clhs']">
+ <a class="{@role}" href="{$clhs.body}{@url}"><xsl:apply-templates/></a>
+</xsl:template>
+
+<xsl:template match="literal[@role = '#lt']">
+ <span class="data">
+  <!-- assume that literal == inline.monoseq -->
+  <xsl:call-template name="inline.monoseq">
+   <xsl:with-param name="content">
+    <a href="{$clhs.body}sec_2-4-8-20.html"><xsl:text>#&lt;</xsl:text></a>
+    <xsl:apply-templates/>
+    <xsl:text>&gt;</xsl:text>
+   </xsl:with-param>
+  </xsl:call-template>
+ </span>
+</xsl:template>
+
 <xsl:template match="revision/revnumber" mode="titlepage.mode">
  <span class="revnumber"><xsl:apply-imports/></span>
 </xsl:template>
