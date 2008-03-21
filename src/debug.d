@@ -1540,10 +1540,18 @@ LISPFUN(show_stack,seclass_default,0,3,norest,nokey,0,NIL)
   VALUES1(UL_to_I(show_stack(frame_up_x,frame_limit,start_frame)));
 }
 
-/* For debugging: From within gdb, type: call ext_show_stack().
+/* For debugging: From within gdb, type: call gdb_show_stack().
    Equivalent to (ext:show-stack) from the Lisp prompt. */
-global void ext_show_stack (void) {
+global void gdb_show_stack (void) {
   pushSTACK(unbound); pushSTACK(unbound); pushSTACK(unbound); C_show_stack();
+}
+
+/* Fore debugging: From within gdb, type: call gdb_disassemble_closure(obj).
+   Equivalent to (sys::disassemble-closures (list obj) *standard-output*). */
+extern void gdb_disassemble_closure (object obj) {
+  pushSTACK(obj); pushSTACK(Symbol_value(S(standard_output)));
+  funcall(S(disassemble_closures),2);
+  pushSTACK(Symbol_value(S(standard_output))); terpri(&STACK_0); skipSTACK(1);
 }
 
 LISPFUNN(crash,0)

@@ -16867,7 +16867,11 @@ extern void sigsegv_handler_failed (void* address);
 
 /* For debugging: From within gdb, type: call ext_show_stack().
    Equivalent to (ext:show-stack) from the Lisp prompt. */
-extern void ext_show_stack (void);
+extern void gdb_show_stack (void);
+
+/* Fore debugging: From within gdb, type: call gdb_disassemble_closure(obj).
+   Equivalent to (sys::disassemble-closures (list obj) *standard-output*). */
+extern void gdb_disassemble_closure (object obj);
 
 /*************************************************************************/
 
