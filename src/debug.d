@@ -1102,16 +1102,15 @@ LISPFUNN(return_from_eval_frame,2)
 global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
   var gcv_object_t* stack = bt->bt_stack;
   var object fun = bt->bt_function;
-  if (fsubrp(fun)) {
-    /* FSUBR */
+  if (fsubrp(fun)) { /* FSUBR */
     var uintW numreq;
     var uintW numopt;
     var uintW body_flag;
     switch ((uintW)posfixnum_to_V(TheFsubr(fun)->argtype)) {
-      case fsubr_argtype_1_0_nobody: numreq = 1; numopt = 0; body_flag = 0; break;
-      case fsubr_argtype_2_0_nobody: numreq = 2; numopt = 0; body_flag = 0; break;
-      case fsubr_argtype_1_1_nobody: numreq = 1; numopt = 1; body_flag = 0; break;
-      case fsubr_argtype_2_1_nobody: numreq = 2; numopt = 1; body_flag = 0; break;
+      case fsubr_argtype_1_0_nobody: numreq = 1; numopt = 0; body_flag=0; break;
+      case fsubr_argtype_2_0_nobody: numreq = 2; numopt = 0; body_flag=0; break;
+      case fsubr_argtype_1_1_nobody: numreq = 1; numopt = 1; body_flag=0; break;
+      case fsubr_argtype_2_1_nobody: numreq = 2; numopt = 1; body_flag=0; break;
       case fsubr_argtype_0_body: numreq = 0; numopt = 0; body_flag = 1; break;
       case fsubr_argtype_1_body: numreq = 1; numopt = 0; body_flag = 1; break;
       case fsubr_argtype_2_body: numreq = 2; numopt = 0; body_flag = 1; break;
@@ -1119,20 +1118,18 @@ global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
     }
     return stack STACKop (numreq + numopt + body_flag);
   }
-  if (subrp(fun))
-    /* SUBR */
+  if (subrp(fun)) /* SUBR */
     return stack STACKop (TheSubr(fun)->req_count + TheSubr(fun)->opt_count
                           + TheSubr(fun)->key_count);
   if (closurep(fun)) {
-    if (simple_bit_vector_p(Atype_8Bit,TheClosure(fun)->clos_codevec)) {
-      /* Compiled-Closure */
-      var object codevec = TheClosure(fun)->clos_codevec;
+    var object codevec = TheClosure(fun)->clos_codevec;
+    if (simple_bit_vector_p(Atype_8Bit,codevec)) { /* Compiled Closure */
       return stack STACKop (TheCodevec(codevec)->ccv_numreq
                             + TheCodevec(codevec)->ccv_numopt
                             + (TheCodevec(codevec)->ccv_flags & bit(0) ? 1 : 0)
-                            + (TheCodevec(codevec)->ccv_flags & bit(7) ? TheCodevec(codevec)->ccv_numkey : 0));
-    } else
-      /* Interpreted-Closure */
+                            + (TheCodevec(codevec)->ccv_flags & bit(7) 
+                               ? TheCodevec(codevec)->ccv_numkey : 0));
+    } else /* Interpreted Closure */
       return stack;
   }
   /* Only SUBRs and functions occur as bt_function. */
