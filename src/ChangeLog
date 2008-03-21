@@ -1,3 +1,9 @@
+2008-03-21  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (cclosure_run) [USE_JITC]: new local inline
+	(interpret_bytecode) [USE_JITC]: use it instead of explicit code
+	* lightning.c: use it instead of interpret_bytecode_()
+
 2008-03-19  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [XCC_GCC]: add -falign-functions=4 on all

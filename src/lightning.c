@@ -722,7 +722,7 @@ jit_patch(ref);}
                       jit_addi_p(JIT_R1,JIT_R1,TheSbvector(as_object(0)));         \
                       jit_pusharg_p(JIT_R1);                            \
                       jit_pusharg_p(JIT_R0);                            \
-                      jit_finish(interpret_bytecode_););
+                      jit_finish(cclosure_run););
 #define jitc_funcallckey()                       \
   jitc_check_stack();                            \
   jitc_save_backtrace2(value1, STACK,-1,         \
@@ -737,7 +737,7 @@ jit_patch(ref);}
                       jit_addi_p(JIT_R1,JIT_R1,TheSbvector(as_object(0)));         \
                       jit_pusharg_p(JIT_R1);                            \
                       jit_pusharg_p(JIT_R0);                            \
-                      jit_finish(interpret_bytecode_););
+                      jit_finish(cclosure_run););
 /* ------------------- (6) Fixnum ----------------------- */
 #define jitc_val2fixnumr()                       \
   jit_lshi_ul(JIT_R0,JIT_R2,oint_data_shift);   \
@@ -2182,7 +2182,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
           jit_pusharg_p(JIT_R0);
           jit_pusharg_p(JIT_R1);
           jit_pusharg_p(JIT_R2);
-          jit_finish(interpret_bytecode_);
+          jit_finish(cclosure_run);
         });
       jitc_tag_unsafe();
       goto next_byte;
@@ -2201,7 +2201,7 @@ static /*maygc*/ Values jit_compile_ (object closure_in, Sbvector codeptr,
           jit_pusharg_p(JIT_R0);
           jit_pusharg_p(JIT_R1);
           jit_pusharg_p(JIT_R2);
-          jit_finish(interpret_bytecode_);
+          jit_finish(cclosure_run);
         });
       jitc_get_valuesr_1();
       jit_movr_p(JIT_R2,JIT_R0);
