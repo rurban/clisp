@@ -2020,6 +2020,7 @@ LISPSYM(wait_keypress,"WAIT-KEYPRESS",system) /* function for SPVW */
 #ifdef UNIX
 LISPSYM(disassemble_use_live_process,"*DISASSEMBLE-USE-LIVE-PROCESS*",system) /* variable in SPVW */
 #endif
+LISPSYM(disassemble_closures,"DISASSEMBLE-CLOSURES",system) /* function for DEBUG */
 /* ---------- FFI ---------- */
 #ifdef DYNAMIC_FFI
 /* LISPSYM(boolean,"BOOLEAN",ffi) */

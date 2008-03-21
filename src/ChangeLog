@@ -1,5 +1,12 @@
 2008-03-21  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d, debug.d (gdb_show_stack): renamed from ext_show_stack
+	* lispbibl.d (gdb_disassemble_closure): add protorype
+	* debug.d (gdb_disassemble_closure): implement
+	* constsym.d (disassemble_closures): add
+
+2008-03-21  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (cclosure_run) [USE_JITC]: new local inline
 	(interpret_bytecode) [USE_JITC]: use it instead of explicit code
 	* lightning.c: use it instead of interpret_bytecode_()
