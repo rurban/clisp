@@ -1,3 +1,13 @@
+2008-03-23  Sam Steingold  <sds@gnu.org>
+
+	implemented GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE
+	* defs2.lisp (%read-sequence): rename from READ-SEQUENCE
+	(read-sequence): call it or GRAY::STREAM-READ-SEQUENCE
+	(%write-sequence): renamed from WRITE-SEQUENCE
+	(write-sequence): call it or GRAY::STREAM-WRITE-SEQUENCE
+	* gray.lisp (stream-read-sequence, stream-write-sequence): implemented
+	Suggested by Anton Vodonosov <avodonosov@yandex.ru>.
+
 2008-03-21  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d, debug.d (gdb_show_stack): renamed from ext_show_stack

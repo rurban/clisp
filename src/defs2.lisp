@@ -1,6 +1,6 @@
 ;;; ANSI-compatible definitions + some extensions
 ;;; Bruno Haible 21.7.1994 - 2006
-;;; Sam Steingold 1999-2004, 2007
+;;; Sam Steingold 1999-2004, 2007-2008
 
 ;; ============================================================================
 
@@ -242,7 +242,7 @@
       (T (return))))
   (stream-element-type stream))
 
-(defun read-sequence (sequence stream &rest rest &key (start 0) (end nil))
+(defun %read-sequence (sequence stream &rest rest &key (start 0) (end nil))
   (declare (ignore start end))
   (let ((seltype (stream-input-element-type stream))
         (veltype (if (vectorp sequence) (array-element-type sequence) t)))
@@ -256,7 +256,13 @@
                   'read-sequence sequence stream
                   'read-char-sequence 'read-byte-sequence)))))
 
-(defun write-sequence (sequence stream &rest rest &key (start 0) (end nil))
+(defun read-sequence (sequence stream &rest rest &key (start 0) (end nil))
+  (declare (ignore start end))
+  (if (built-in-stream-p stream)
+      (apply #'%read-sequence sequence stream rest)
+      (apply 'gray::stream-read-sequence sequence stream rest)))
+
+(defun %write-sequence (sequence stream &rest rest &key (start 0) (end nil))
   (declare (ignore start end))
   (let ((seltype (stream-output-element-type stream))
         (veltype (if (vectorp sequence) (array-element-type sequence) t)))
@@ -272,6 +278,12 @@
            (error (TEXT "~S: element types of ~S and ~S are ambiguous. Please use ~S or ~S.")
                   'write-sequence sequence stream
                   'write-char-sequence 'write-byte-sequence)))))
+
+(defun write-sequence (sequence stream &rest rest &key (start 0) (end nil))
+  (declare (ignore start end))
+  (if (built-in-stream-p stream)
+      (apply #'%write-sequence sequence stream rest)
+      (apply 'gray::stream-write-sequence sequence stream rest)))
 
 ;; ----------------------------------------------------------------------------
 
