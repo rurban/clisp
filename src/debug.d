@@ -1544,8 +1544,8 @@ global void gdb_show_stack (void) {
 }
 
 /* Fore debugging: From within gdb, type: call gdb_disassemble_closure(obj).
-   Equivalent to (sys::disassemble-closures (list obj) *standard-output*). */
-extern void gdb_disassemble_closure (object obj) {
+   Equivalent to (sys::disassemble-closures obj *standard-output*). */
+global void gdb_disassemble_closure (object obj) {
   pushSTACK(obj); pushSTACK(Symbol_value(S(standard_output)));
   funcall(S(disassemble_closures),2);
   pushSTACK(Symbol_value(S(standard_output))); terpri(&STACK_0); skipSTACK(1);
@@ -1573,7 +1573,7 @@ LISPFUNN(proom,0)
 }
 
 LISPFUN(gc,seclass_default,0,1,norest,nokey,0,NIL)
-{ /* execute a GC and return same values as %ROOM
+{ /* execute a GC and return the same values as %ROOM
    with an argument, invalidate JITC objects */
   var object arg = popSTACK();
   gar_col(missingp(arg) ? 0 : 1); /* execute GC */
