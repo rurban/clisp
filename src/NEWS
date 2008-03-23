@@ -32,9 +32,14 @@ User visible changes
   Thanks to Kaz Kylheku <kkylheku@gmail.com>.
   See <http://clisp.cons.org/impnotes/dffi.html#def-call-out> for details,
 
+* New functions GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE have
+  been added for portability reasons.
+  Suggested by Anton Vodonosov <avodonosov@yandex.ru>.
+  See <http://clisp.cons.org/impnotes/gray.html#st-rd-seq> for details.
+
 * Bug fixes:
   + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
-  + Fix rectangle count in New-clx XLIB:SET-GCONTEXT-CLIP-MASK. [ 1918017 ]
+  + Fix rectangle count in NEW-CLX XLIB:SET-GCONTEXT-CLIP-MASK. [ 1918017 ]
 
 
 2.44.1 (2008-02-23)
