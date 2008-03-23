@@ -15,6 +15,8 @@
    fundamental-binary-output-stream
    ;; general generic functions:
    stream-position
+   stream-read-sequence
+   stream-write-sequence
    ;; Generic functions for character input:
    stream-read-char
    stream-unread-char
@@ -155,6 +157,15 @@
         (cl:file-position stream)))
   (:method ((stream fundamental-stream) position)
     (clos:no-applicable-method #'stream-position stream position)))
+
+
+(clos:defgeneric stream-read-sequence (sequence stream &key start end)
+  (:method (sequence (stream fundamental-input-stream) &rest rest)
+    (apply #'sys::%read-sequence sequence stream rest)))
+
+(clos:defgeneric stream-write-sequence (sequence stream &key start end)
+  (:method (sequence (stream fundamental-output-stream) &rest rest)
+    (apply #'sys::%write-sequence sequence stream rest)))
 
 ;; Generic functions for character input
 
