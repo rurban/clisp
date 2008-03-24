@@ -1,5 +1,11 @@
 2008-03-24  Sam Steingold  <sds@gnu.org>
 
+	fix bug [ 1924506 ]: void function cannot return value
+	* foreign.d (convert_to_foreign): "return void" does not work on
+	Solaris 2.8
+
+2008-03-24  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (NULL): #undef before defining
 	to avoid "warning: macro redefined: NULL"
 
