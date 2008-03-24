@@ -2369,8 +2369,10 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
     }
   } else {
     object inttype = gethash(fvd,O(foreign_inttype_table),false);
-    if (!eq(inttype,nullobj))
-      return convert_to_foreign(inttype,obj,data,converter_malloc);
+    if (!eq(inttype,nullobj)) {
+      convert_to_foreign(inttype,obj,data,converter_malloc);
+      return;
+    }
   }
   error_foreign_type(fvd);
  bad_obj:
