@@ -3967,9 +3967,8 @@ This keyboard input is not echoed on the screen.  During execution of a
 
 <section id="bulk-io"><title>Bulk Input and Output</title>
 
-<formalpara id="read-seq"><title>Function &read-sequence;</title>
-<para>In addition to &read-sequence;, the following two
- functions are provided:
+<section id="read-seq"><title>Bulk Input</title>
+<para>In addition to &read-sequence;, the following two functions are provided:
 <variablelist>
  <varlistentry id="rd-by-seq"><term>&rd-by-seq;
    performs multiple &read-byte; operations:</term>
@@ -3999,11 +3998,10 @@ This keyboard input is not echoed on the screen.  During execution of a
    &string-t; and &stream-r; is a &file-pipe-socket-s; with
    &stream-element-type; &character-t; or an &input-s; &string-stream-t;.
  </simpara></listitem></varlistentry>
-</variablelist></para></formalpara>
+</variablelist></para></section>
 
-<formalpara id="write-seq"><title>Function &write-sequence;</title>
-<para>In addition to &write-sequence;, the following two
-functions are provided:
+<section id="write-seq"><title>Bulk Output</title>
+<para>In addition to &write-sequence;, the following two functions are provided:
 <variablelist>
  <varlistentry id="wr-by-seq"><term>&wr-by-seq;
    performs multiple &write-byte; operations:</term>
@@ -4028,16 +4026,16 @@ functions are provided:
  <simpara>This function is especially efficient if &sequence-r; is a
   &string-t; and &stream-r; is a &file-pipe-socket-s; with
   &stream-element-type; &character-t;.</simpara></listitem></varlistentry>
-</variablelist></para></formalpara>
+</variablelist></para></section>
 
-<formalpara id="bulk-io-rationale"><title>Rationale</title>
+<section id="bulk-io-rationale"><title>Rationale</title>
 <para>The rationale for &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
  &wr-by-seq; is that some &stream-t;s support both character and binary
  i/o, and when you read into a &sequence-t; that can hold both (e.g.,
  &list-t; or &simple-vector-t;) you cannot determine which kind of
  input to use.  In such situation &read-sequence; and &write-sequence;
  &signal; an &error-t;, while &rd-ch-seq;, &rd-by-seq;, &wr-ch-seq; and
- &wr-by-seq; work just fine.</para></formalpara>
+ &wr-by-seq; work just fine.</para></section>
 
 </section>
 
