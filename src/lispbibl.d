@@ -1227,8 +1227,10 @@ typedef signed int  signean;
 
 /* Null pointers */
 #ifdef __cplusplus
+  #undef NULL
   #define NULL  0
 #elif !(defined(INTEL) || defined(_AIX))
+  #undef NULL
   #define NULL  ((void*) 0L)
 #endif
 %% puts("#undef NULL");
@@ -1251,7 +1253,7 @@ typedef signed int  signean;
   #undef offsetof
   #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
 #endif
-/* Determine the offset of an array 'ident' in a struct of the type 'type': */
+/ * Determine the offset of an array 'ident' in a struct of the type 'type': */
 #if defined(__cplusplus) || defined(MICROSOFT)
   #define offsetofa(type,ident)  offsetof(type,ident)
 #else
