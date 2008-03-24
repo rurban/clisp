@@ -160,10 +160,18 @@
 
 
 (clos:defgeneric stream-read-sequence (sequence stream &key start end)
+  (:method (sequence (stream fundamental-binary-input-stream) &key start end)
+    (stream-read-byte-sequence sequence stream start end))
+  (:method (sequence (stream fundamental-character-input-stream) &key start end)
+    (stream-read-char-sequence sequence stream start end))
   (:method (sequence (stream fundamental-input-stream) &rest rest)
     (apply #'sys::%read-sequence sequence stream rest)))
 
 (clos:defgeneric stream-write-sequence (sequence stream &key start end)
+  (:method (sequence (stream fundamental-binary-output-stream) &key start end)
+    (stream-write-byte-sequence sequence stream start end))
+  (:method (sequence (stream fundamental-character-output-stream) &key start end)
+    (stream-write-char-sequence sequence stream start end))
   (:method (sequence (stream fundamental-output-stream) &rest rest)
     (apply #'sys::%write-sequence sequence stream rest)))
 

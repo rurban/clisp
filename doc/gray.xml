@@ -92,13 +92,15 @@ and is supported by most &cl; implementations currently in use.</para>
  <varlistentry id="st-rd-seq"><term><code>(GRAY:STREAM-READ-SEQUENCE
    &stream-r; &sequence-r; &key-amp; &start-k; &end-k;)</code></term>
   <listitem><simpara>Used by &read-sequence;. <emphasis>Deprecated</emphasis>.
-    Define <function>GRAY:STREAM-READ-CHAR-SEQUENCE</function> and call
-    &rd-ch-seq; instead.</simpara></listitem></varlistentry>
+    Define &st-rd-cs; or &st-rd-bs; and call &rd-ch-seq;/&rd-by-seq; instead.
+   </simpara><simpara>The default method calls &st-rd-cs; or &st-rd-bs;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="st-wr-seq"><term><code>(GRAY:STREAM-WRITE-SEQUENCE
    &stream-r; &sequence-r; &key-amp; &start-k; &end-k;)</code></term>
-  <listitem><simpara>Used by &write-sequence;. <emphasis>Deprecated</emphasis>
-    Define <function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function> and call
-    &wr-ch-seq; instead.</simpara></listitem></varlistentry>
+  <listitem><simpara>Used by &write-sequence;. <emphasis>Deprecated</emphasis>.
+    Define &st-wr-cs; or &st-wr-bs; and call &wr-ch-seq;/&wr-by-seq; instead.
+   </simpara><simpara>The default method calls &st-wr-cs; or &st-wr-bs;.
+ </simpara></listitem></varlistentry>
 </variablelist>
 
 <variablelist><title>Generic functions for character input</title>
@@ -141,8 +143,8 @@ and is supported by most &cl; implementations currently in use.</para>
    sufficient for streams whose &st-rc; method has no side-effects.</simpara>
   <simpara>This function is a &clisp; extension (see &rcwhp;).</simpara>
   </listitem></varlistentry>
- <varlistentry><term><code>(GRAY:STREAM-READ-CHAR-SEQUENCE &stream-r;
-   &sequence-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
+ <varlistentry id="st-rd-cs"><term><code>(&st-rd-cs;
+   &stream-r; &sequence-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
    &start-k; and &end-k; with characters consecutively read from &stream-r;.
    Returns the index of the first element of &sequence-r; that was not
@@ -185,7 +187,7 @@ and is supported by most &cl; implementations currently in use.</para>
   <simpara>The default method calls &st-lc; and compares its result with
    0; this is sufficient for streams whose &st-lc; never returns &nil;.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(GRAY:STREAM-WRITE-CHAR-SEQUENCE
+ <varlistentry id="st-wr-cs"><term><code>(&st-wr-cs;
     &stream-r; &sequence-r; &optional-amp; [&start-r; [&end-r;]])</code></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
    by &start-k; and &end-k; to &stream-r;.</simpara>
@@ -204,8 +206,7 @@ and is supported by most &cl; implementations currently in use.</para>
    <simpara>&string-r; is a string.  &start-r; is a nonnegative integer
    and default to 0.  &end-r; is a nonnegative integer or &nil; and
    defaults to &nil;, which stands for <code>(&length; &string-r;)</code>.
-   </simpara><simpara>The default method calls
-   <function>GRAY:STREAM-WRITE-CHAR-SEQUENCE</function>;
+   </simpara><simpara>The default method calls &st-wr-cs;;
    this is always sufficient.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(GRAY:STREAM-TERPRI &stream-r;)</code></term>
   <listitem><simpara>Outputs a &nl-s; character.</simpara>
@@ -273,9 +274,9 @@ and is supported by most &cl; implementations currently in use.</para>
     this is always sufficient.</simpara>
    <simpara>This function is a &clisp; extension (see &rbnh;).
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(GRAY:STREAM-READ-BYTE-SEQUENCE
-     &stream-r; &sequence-r; &optional-amp;
-      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
+ <varlistentry id="st-rd-bs"><term><code>(&st-rd-bs;
+    &stream-r; &sequence-r; &optional-amp;
+    [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
   <listitem><simpara>Fills the subsequence of &sequence-r; specified by
     &start-k; and &end-k; with integers consecutively read from &stream-r;.
     Returns the index of the first element of &sequence-r; that was not
@@ -296,12 +297,12 @@ and is supported by most &cl; implementations currently in use.</para>
 
 <variablelist><title>Generic functions for binary output</title>
  <varlistentry><term><code>(GRAY:STREAM-WRITE-BYTE
-                 &stream-r; &int-r;)</code></term>
+    &stream-r; &int-r;)</code></term>
   <listitem><simpara>Writes &int-r;.</simpara>
    &need-defmethod;</listitem></varlistentry>
- <varlistentry><term><code>(GRAY:STREAM-WRITE-BYTE-SEQUENCE
-     &stream-r; &sequence-r; &optional-amp;
-      [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
+ <varlistentry id="st-wr-bs"><term><code>(&st-wr-bs;
+    &stream-r; &sequence-r; &optional-amp;
+    [&start-r; [&end-r; [&no-hang; [&interactive-r;]]]])</code></term>
   <listitem><simpara>Outputs the subsequence of &sequence-r; specified
     by &start-k; and &end-k; to &stream-r;</simpara>
    <simpara>&sequence-r; is an &array-t; of &integer-t;s.
