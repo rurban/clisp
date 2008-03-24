@@ -1,5 +1,10 @@
 2008-03-24  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (NULL): #undef before defining
+	to avoid "warning: macro redefined: NULL"
+
+2008-03-24  Sam Steingold  <sds@gnu.org>
+
 	* gray.lisp (stream-read-sequence): define methods for
 	fundamental-binary-input-stream & fundamental-character-input-stream
 	(stream-write-sequence): define methods for
