@@ -13,7 +13,9 @@ and is supported by most &cl; implementations currently in use.</para>
  <literal>FUNDAMENTAL-</literal> or <literal>STREAM-</literal>,
  are exported from the package &gray-pac;
  and &re-export;ed from &ext-pac;.</para>
+</section>
 
+<section id="gray-classes"><title>Defined classes</title>
 <variablelist><title>Defined classes</title>
  <varlistentry id="fu-st"><term>&fu-st;</term>
   <listitem><simpara>This is a superclass of all user-defined streams.
@@ -58,8 +60,9 @@ and is supported by most &cl; implementations currently in use.</para>
     <term><classname>GRAY:FUNDAMENTAL-BINARY-OUTPUT-STREAM</classname></term>
   <listitem><simpara>This is a convenience class inheriting from both
    &fu-st-bin; and &fu-st-out;.</simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
+<section id="gray-gf-general"><title>General generic functions</title>
 <variablelist><title>General generic functions defined on streams</title>
  <varlistentry><term><code>(&stream-element-type; &stream-r;)</code></term>
   <listitem><simpara>Returns the stream's element type, normally a
@@ -101,8 +104,10 @@ and is supported by most &cl; implementations currently in use.</para>
     Define &st-wr-cs; or &st-wr-bs; and call &wr-ch-seq;/&wr-by-seq; instead.
    </simpara><simpara>The default method calls &st-wr-cs; or &st-wr-bs;.
  </simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
+<section id="gray-gf-char-in">
+ <title>Generic functions for character input</title>
 <variablelist><title>Generic functions for character input</title>
  <varlistentry id="st-rc"><term><code>(&st-rc; &stream-r;)</code></term>
   <listitem><simpara>If a character was pushed back using &st-uc;,
@@ -170,8 +175,10 @@ and is supported by most &cl; implementations currently in use.</para>
    &stream-r;, and returns true if some pending input was removed.</simpara>
   <simpara>The default method does nothing and returns &nil;; this is
    sufficient for non-interactive streams.</simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
+<section id="gray-gf-char-out">
+ <title>Generic functions for character output</title>
 <variablelist><title>Generic functions for character output</title>
  <varlistentry id="st-wc"><term><code>(&st-wc; &stream-r; &ch-r;)</code></term>
   <listitem><simpara>Writes &ch-r;.
@@ -240,8 +247,10 @@ and is supported by most &cl; implementations currently in use.</para>
   <simpara>The default method outputs an appropriate amount of space
    characters; this is sufficient for non-proportional output.</simpara>
  </listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
+<section id="gray-gf-byte-in">
+ <title>Generic functions for binary input</title>
 <variablelist><title>Generic functions for binary input</title>
  <varlistentry id="st-rb"><term><code>(&st-rb; &stream-r;)</code></term>
   <listitem><simpara>Returns and consumes the next integer from the
@@ -293,8 +302,10 @@ and is supported by most &cl; implementations currently in use.</para>
     is always sufficient if speed does not matter.</simpara>
    <simpara>This function is a &clisp; extension (see
     &rd-by-seq;).</simpara></listitem></varlistentry>
-</variablelist>
+</variablelist></section>
 
+<section id="gray-gf-byte-out">
+ <title>Generic functions for binary output</title>
 <variablelist><title>Generic functions for binary output</title>
  <varlistentry><term><code>(GRAY:STREAM-WRITE-BYTE
     &stream-r; &int-r;)</code></term>
@@ -318,8 +329,7 @@ and is supported by most &cl; implementations currently in use.</para>
     sufficient if speed does not matter.</simpara>
    <simpara>This function is a &clisp; extension (see
     &wr-by-seq;).</simpara></listitem></varlistentry>
-</variablelist>
-</section>
+</variablelist></section>
 
 <section id="fill-stream"><title>Class &fill-stream;</title>
 <para>As an example of the use of &gray-pac; &stream-t;s, &clisp;
