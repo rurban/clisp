@@ -1,3 +1,10 @@
+2008-03-24  Vladimir Volovich  <vvv2@users.sourceforge.net>
+	Sam Steingold  <sds@gnu.org>
+
+	fix bug [ 1924508 ]: undefined symbol getSP when linking lisp.run
+	on Sparc Solaris 2.8 using Sun Studio 11
+	* spsparc.d, spsparc64.d: add global getSP
+
 2008-03-24  Sam Steingold  <sds@gnu.org>
 
 	fix bug [ 1924506 ]: void function cannot return value
