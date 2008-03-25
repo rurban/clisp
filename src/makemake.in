@@ -640,7 +640,7 @@ case $# in
 esac
 
 # for systems that lack stdint (or have a broken stdin) [e.g., solaris9]
-CFLAGS=${CFLAGS}' -Igllib'
+CPPFLAGS=${CPPFLAGS}' -Igllib'
 
 if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
