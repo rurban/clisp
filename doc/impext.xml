@@ -937,19 +937,17 @@ their corresponding byte vector representation according to that encoding.
 
 <para>In order to specify the behavior of a generic stream, the user
  must define &clos; methods on the following &clos; generic
- functions.  The function
- <function>gstream:generic-stream-<replaceable>xyz</replaceable></function>
- corresponds to the &cl; function
- <function><replaceable>xyz</replaceable></function>.  They all take a
- controller and some number of arguments.</para>
+ functions.  The function <function>gstream:generic-stream-&x-r;</function>
+ corresponds to the &cl; function <function>&x-r;</function>.
+ They all take a controller and some number of arguments.</para>
 
 <variablelist>
- <varlistentry><term><code>(<function>gstream:generic-stream-read-char</function>
+ <varlistentry><term><code>(gstream:generic-stream-read-char
                  <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara> Returns and consumes the next character, &nil; at
     end of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-peek-char</function>
+ <varlistentry><term><code>(gstream:generic-stream-peek-char
                  <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara> Returns the next character, &nil; at end of file.  A
    second value indicates whether the side effects associated with
@@ -957,12 +955,12 @@ their corresponding byte vector representation according to that encoding.
    &read-char; was done, &nil; means that no side effects were done.
    Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-read-byte</function>
+ <varlistentry><term><code>(gstream:generic-stream-read-byte
                  <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>Returns and consumes the next integer, &nil; at end
    of file.  Takes one argument, the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-read-char-will-hang-p</function>
+ <varlistentry><term><code>(gstream:generic-stream-read-char-will-hang-p
      <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>This generic function is used to query the stream's
    input status.  It returns &nil; if
@@ -970,33 +968,33 @@ their corresponding byte vector representation according to that encoding.
    <function>gstream:generic-stream-peek-char</function> will certainly
    return immediately.  Otherwise it returns true.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-write-char</function>
+ <varlistentry><term><code>(gstream:generic-stream-write-char
                  <replaceable>controller</replaceable> &ch-r;)</code></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the character to be written.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-write-byte</function>
+ <varlistentry><term><code>(gstream:generic-stream-write-byte
                  <replaceable>controller</replaceable>
                  <replaceable>by</replaceable>)</code></term>
   <listitem><simpara>The first argument is the controller object.
    The second argument is the integer to be written.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-write-string</function>
+ <varlistentry><term><code>(gstream:generic-stream-write-string
                  <replaceable>controller</replaceable>
                  &string-r; &start-r; &len-r;)</code></term>
   <listitem><simpara>Writes the subsequence of &string-r; starting from
    &start-r; of length &len-r;.
    The first argument is the controller object.
   </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>gstream:generic-stream-clear-input</function>
+ <varlistentry><term><code>(gstream:generic-stream-clear-input
                  <replaceable>controller</replaceable>)</code></term>
-  <term><code>(<function>gstream:generic-stream-clear-output</function>
+  <term><code>(gstream:generic-stream-clear-output
      <replaceable>controller</replaceable>)</code></term>
-  <term><code>(<function>gstream:generic-stream-finish-output</function>
+  <term><code>(gstream:generic-stream-finish-output
      <replaceable>controller</replaceable>)</code></term>
-  <term><code>(<function>gstream:generic-stream-force-output</function>
+  <term><code>(gstream:generic-stream-force-output
      <replaceable>controller</replaceable>)</code></term>
-  <term><code>(<function>gstream:generic-stream-close</function>
+  <term><code>(gstream:generic-stream-close
      <replaceable>controller</replaceable>)</code></term>
   <listitem><simpara>Take one argument, the controller object.
  </simpara></listitem></varlistentry>
@@ -3698,33 +3696,21 @@ and possibly the calling convention.</para>
 
 <example id="dffi-simple"><title>Simple declarations and access</title>
 
-<para>The &c-lang; declaration
-
-<programlisting language="C">
+<para>The &c-lang; declaration <programlisting language="C">
 struct foo {
-    int a;
-    struct foo * b[100];
+  int a;
+  struct foo * b[100];
 };
-</programlisting>
-
-corresponds to
-
-<programlisting language="lisp">
+</programlisting> corresponds to <programlisting language="lisp">
 (def-c-struct foo
   (a int)
   (b (c-array (c-ptr foo) 100)))
 </programlisting></para>
 
-<para>The element access
-
-<programlisting language="C">
+<para>The element access <programlisting language="C">
 struct foo f;
 f.b[7].a
-</programlisting>
-
-corresponds to
-
-<programlisting language="lisp">
+</programlisting> corresponds to <programlisting language="lisp">
 (declare (type foo f))
 (foo-a (aref (foo-b f) 7)) ; or
 (slot-value (aref (slot-value f 'b) 7) 'a)
@@ -3735,10 +3721,10 @@ corresponds to
 
 <para><programlisting language="C">
 struct bar {
-    short x, y;
-    char a, b;
-    int z;
-    struct bar * n;
+  short x, y;
+  char a, b;
+  int z;
+  struct bar * n;
 };
 
 extern struct bar * my_struct;
@@ -3746,11 +3732,7 @@ extern struct bar * my_struct;
 my_struct-&gt;x++;
 my_struct-&gt;a = 5;
 my_struct = my_struct-&gt;n;
-</programlisting>
-
-corresponds to
-
-<programlisting language="lisp">
+</programlisting> corresponds to <programlisting language="lisp">
 (def-c-struct bar
   (x short)
   (y short)
@@ -3792,9 +3774,7 @@ This translates to
 (def-call-out div (:arguments (numer int) (denom int))
   (:return-type div_t))
 </programlisting>
-
 Sample call from within Lisp (after running &clisp-link;):
-
 <programlisting language="lisp">
 (div 20 3)
 <computeroutput>#S(DIV_T :QUOT 6 :REM 2)</computeroutput>
@@ -3803,9 +3783,7 @@ Sample call from within Lisp (after running &clisp-link;):
 <example id="dffi-extern-func2">
  <title>Another example for calling an external function</title>
 
-<para>Suppose the following is defined in a file
- <filename>cfun.c</filename>:
-
+<para>Suppose the following is defined in a file <filename>cfun.c</filename>:
 <programlisting language="C">
 struct cfunr { int x; char *s; };
 struct cfunr * cfun (int i,char *s,struct cfunr * r,int a[10]) {
@@ -3954,12 +3932,12 @@ int my_bar (int x) { return bar(x); }
 extern void lispsort_begin (int);
 void* lispsort_function;
 void lispsort_double (int n, double * array) {
-    double * sorted_array;
-    int i;
-    lispsort_begin(n); /* store #'sort2 in lispsort_function */
-    sorted_array = ((double * (*) (double *)) lispsort_function) (array);
-    for (i = 0; i &lt; n; i++) array[i] = sorted_array[i];
-    free(sorted_array);
+  double * sorted_array;
+  int i;
+  lispsort_begin(n); /* store #'sort2 in lispsort_function */
+  sorted_array = ((double * (*) (double *)) lispsort_function) (array);
+  for (i = 0; i &lt; n; i++) array[i] = sorted_array[i];
+  free(sorted_array);
 }
 </programlisting>
 
