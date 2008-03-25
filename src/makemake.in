@@ -1241,6 +1241,7 @@ else
     # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
     # we do not reset XCFLAGS so that the user can pass -xarch=v8 et ak
     # XCFLAGS=''
+    :
   else
     XCFLAGS=${XCFLAGS}' -O'
   fi
