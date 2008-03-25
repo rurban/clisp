@@ -536,6 +536,7 @@ case $# in
      CFLAGS='@CFLAGS@'                   # additional options for $CC
      LDFLAGS='@LDFLAGS@'                 # additional options for linking
      CC_GCC='@CC_GCC@'                   # either true or false
+     CC_SUNPRO='@CC_SUNPRO@'             # either true or false
      CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
      CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
      CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
@@ -598,6 +599,7 @@ case $# in
      CPPFLAGS=''
      CFLAGS=''
      CLFLAGS=''
+     CC_SUNPRO=false            # really?
      if [ $TSYS = win32msvc ] ; then
        CC='cl'
        CC_GCC=false
@@ -1217,11 +1219,8 @@ if [ $XCC_GCC = true ] ; then
 else
 
   if [ $TSYS = sun4 -a $CROSS = false ] ; then
-    # Detect SUNWspro C compiler.
-    if $CC -flags 2> /dev/null | grep SunSoft > /dev/null ; then
-      # SUNWspro cc, defines __SUNPRO_C
-      XCC_SUNPRO=true
-    fi
+    # Detect SUNWspro C compiler - defines __SUNPRO_C
+    XCC_SUNPRO=${CC_SUNPRO}
   fi
   if [ $TSYS = win32msvc ] ; then
     XCPP="cl -E"
@@ -1240,7 +1239,8 @@ else
   elif [ "$HSYSOS" = hp-ux -o $TSYS = sun4 ] ; then
     # HP's HPPA compilers crash when optimizing.
     # SUN's cc is buggy when optimizing spvw.d, even with only -O1.
-    XCFLAGS=''
+    # we do not reset XCFLAGS so that the user can pass -xarch=v8 et ak
+    # XCFLAGS=''
   else
     XCFLAGS=${XCFLAGS}' -O'
   fi

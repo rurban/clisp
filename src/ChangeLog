@@ -1,5 +1,13 @@
 2008-03-25  Sam Steingold  <sds@gnu.org>
 
+	* m4/cc-sunpro.m4: new file, define CL_CC_SUNPRO
+	* configure.in: call CL_CC_SUNPRO
+	* makemake.in: use CC_SUNPRO, set by CL_CC_SUNPRO, to detect
+	SUN SUNWspro C compiler (instead of "$CC -flags")
+	Reported by Vladimir Volovich <vvv2@users.sourceforge.net>
+
+2008-03-25  Sam Steingold  <sds@gnu.org>
+
 	fix bug [ 1924501 ]: cannot find gllib include
 	* makemake.in (CPPFLAGS): pass -Igllib here, not CFLAGS
 
