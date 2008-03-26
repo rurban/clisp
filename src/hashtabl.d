@@ -1,7 +1,7 @@
 /*
  * Hash-Tables in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-01-29
  */
 
@@ -1610,18 +1610,12 @@ global object hash_table_weak_type (object ht) {
   var object kvt = TheHashtable(ht)->ht_kvtable;
   if (simple_vector_p(kvt))
     return NIL;
-  else {
-    switch (Record_type(kvt)) {
-      case Rectype_WeakHashedAlist_Key:
-        return S(Kkey);
-      case Rectype_WeakHashedAlist_Value:
-        return S(Kvalue);
-      case Rectype_WeakHashedAlist_Either:
-        return S(Kkey_and_value);
-      case Rectype_WeakHashedAlist_Both:
-        return S(Kkey_or_value);
+  else switch (Record_type(kvt)) {
+      case Rectype_WeakHashedAlist_Key:    { return S(Kkey); }
+      case Rectype_WeakHashedAlist_Value:  { return S(Kvalue); }
+      case Rectype_WeakHashedAlist_Either: { return S(Kkey_and_value); }
+      case Rectype_WeakHashedAlist_Both:   { return S(Kkey_or_value); }
       default: NOTREACHED;
-    }
   }
 }
 
@@ -2076,7 +2070,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
           goto check_rehash_size;
         }
         /* As it is senseless to enlarge a table always only by a fixed
-           number of elements (results in disastrous efficiency), we set
+           number of elements (results in disastrous inefficiency), we set
            rehash-size := min(1 + rehash-size/size , 2.0) . */
         pushSTACK(STACK_1); /* rehash-size */
         pushSTACK(STACK_(2+1)); /* size */
@@ -2088,10 +2082,11 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
         funcall(L(min),2); /* (MIN ... 2.0s0) */
         STACK_1 = value1; /* =: rehash-size */
       }
-      /* check (> rehash-size 1) : */
-      pushSTACK(STACK_1); /* rehash-size */
-      pushSTACK(Fixnum_1); /* 1 */
-      funcall(L(greater),2); /* (> rehash-size 1) */
+      { /* check (> rehash-size 1) : */
+        pushSTACK(STACK_1); /* rehash-size */
+        pushSTACK(Fixnum_1); /* 1 */
+        funcall(L(greater),2); /* (> rehash-size 1) */
+      }
       if (nullp(value1)) goto bad_rehash_size;
       /* convert rehash-size into a short-float: */
       pushSTACK(STACK_1); /* rehash-size */
@@ -2451,19 +2446,19 @@ global maygc object hash_table_test (object ht) {
   var uintB test_code = ht_test_code(record_flags(TheHashtable(ht)));
   switch (test_code) {
     case htflags_test_eq_B:
-      return S(fasthash_eq);
+      { return S(fasthash_eq); }
     case htflags_test_eq_B | htflags_stablehash_B:
-      return S(stablehash_eq);
+      { return S(stablehash_eq); }
     case htflags_test_eql_B:
-      return S(fasthash_eql);
+      { return S(fasthash_eql); }
     case htflags_test_eql_B | htflags_stablehash_B:
-      return S(stablehash_eql);
+      { return S(stablehash_eql); }
     case htflags_test_equal_B:
-      return S(fasthash_equal);
+      { return S(fasthash_equal); }
     case htflags_test_equal_B | htflags_stablehash_B:
-      return S(stablehash_equal);
+      { return S(stablehash_equal); }
     case htflags_test_equalp_B:
-      return S(equalp);
+      { return S(equalp); }
     case bit(2): { /* user-defined ==> (test . hash) */
       pushSTACK(ht);
       var object ret = allocate_cons();

@@ -761,12 +761,12 @@ local void loadmem_update (gcv_object_t* objptr)
     #endif
       /* object of variable length */
      #ifdef SPVW_MIXED_BLOCKS
-      *objptr = as_object(as_oint(*objptr) + offset_varobjects_o); break;
+      { *objptr = as_object(as_oint(*objptr) + offset_varobjects_o); break; }
      #endif
     case_pair:
       /* Two-Pointer-Object */
      #ifdef SPVW_MIXED_BLOCKS
-      *objptr = as_object(as_oint(*objptr) + offset_conses_o); break;
+      { *objptr = as_object(as_oint(*objptr) + offset_conses_o); break; }
      #endif
      #ifdef SPVW_PAGES
       {
@@ -809,9 +809,9 @@ local void loadmem_update (gcv_object_t* objptr)
           }
           ptr++;
         });
+        /* SUBR not found -> #<UNBOUND> */
+        *objptr = unbound;
       }
-      /* SUBR not found -> #<UNBOUND> */
-      *objptr = unbound;
    #endif
     found_subr:
       break;
@@ -1684,22 +1684,23 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         ABORT_MEM;
     }
   }
-  /* Delete cache of standard file streams. */
-  O(standard_input_file_stream) = NIL;
-  O(standard_output_file_stream) = NIL;
-  O(standard_error_file_stream) = NIL;
- #ifdef MACHINE_KNOWN
-  /* declare (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
-     as unknown again: */
-  O(machine_type_string) = NIL;
-  O(machine_version_string) = NIL;
-  O(machine_instance_string) = NIL;
- #endif
- #ifndef LANGUAGE_STATIC
-  /* delete cache of (LISP-IMPLEMENTATION-VERSION)
-     (depends on (SYS::CURRENT-LANGUAGE) ): */
-  O(lisp_implementation_version_string) = NIL;
- #endif
+  { /* Delete cache of standard file streams. */
+    O(standard_input_file_stream) = NIL;
+    O(standard_output_file_stream) = NIL;
+    O(standard_error_file_stream) = NIL;
+   #ifdef MACHINE_KNOWN
+    /* declare (MACHINE-TYPE), (MACHINE-VERSION), (MACHINE-INSTANCE)
+       as unknown again: */
+    O(machine_type_string) = NIL;
+    O(machine_version_string) = NIL;
+    O(machine_instance_string) = NIL;
+   #endif
+   #ifndef LANGUAGE_STATIC
+    /* delete cache of (LISP-IMPLEMENTATION-VERSION)
+       (depends on (SYS::CURRENT-LANGUAGE) ): */
+    O(lisp_implementation_version_string) = NIL;
+   #endif
+  }
   CHECK_AVL_CONSISTENCY();
   CHECK_GC_CONSISTENCY();
   CHECK_GC_UNMARKED(); CHECK_NULLOBJ(); CHECK_GC_CACHE(); CHECK_GC_GENERATIONAL(); SAVE_GC_DATA();
@@ -1718,9 +1719,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     char memdumptime[10+1];
     sprintf(memdumptime,"%u",header._dumptime);
     O(memory_image_timestamp) = ascii_to_string(memdumptime);
+    O(memory_image_host) = asciz_to_string(header._dumphost,
+                                           Symbol_value(S(utf_8)));
   }
-  O(memory_image_host) = asciz_to_string(header._dumphost,
-                                         Symbol_value(S(utf_8)));
   return;
 #undef ABORT_SYS
 #undef ABORT_INI

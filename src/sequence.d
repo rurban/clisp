@@ -237,11 +237,12 @@ local maygc object valid_type1 (gcv_object_t* type_) {
     name = TheClass(name)->classname;
     goto expanded_unconstrained; /* other classes could be DEFSTRUCT defined types */
   }, {});
-  pushSTACK(name); /* possibly complicated length constraint */
-  /* Call (SYS::SUBTYPE-SEQUENCE name): */
-  pushSTACK(name); funcall(S(subtype_sequence),1);
-  if (eq(value1,S(sequence)) || eq(value1,NIL))
-    return NIL;
+  { pushSTACK(name); /* possibly complicated length constraint */
+    /* Call (SYS::SUBTYPE-SEQUENCE name): */
+    pushSTACK(name); funcall(S(subtype_sequence),1);
+    if (eq(value1,S(sequence)) || eq(value1,NIL))
+      return NIL;
+  }
   /* Return the expanded but unsimplified type. */
   *type_ = STACK_0;
   name = value1;
@@ -249,7 +250,7 @@ local maygc object valid_type1 (gcv_object_t* type_) {
   return find_seq_type(name);
 
  expanded_unconstrained:
-  pushSTACK(unbound); /* no length constraint */
+  { pushSTACK(unbound); } /* no length constraint */
  expanded:
   /* Return the expanded elementary type, without the length constraint. */
   *type_ = name;
@@ -282,31 +283,31 @@ local object get_seq_type (object seq) {
       case Array_type_string:
         switch (Iarray_flags(seq) & arrayflags_atype_mask) {
           case Atype_NIL: /* type (VECTOR NIL) */
-            name = Fixnum_0; break;
+            { name = Fixnum_0; break; }
           case Atype_Char: /* type STRING */
-            name = S(string); break;
+            { name = S(string); break; }
           default:
             NOTREACHED;
         }
         break;
       case Array_type_sstring:
-        name = S(string); break; /* type STRING */
+        { name = S(string); break; } /* type STRING */
       case Array_type_sbvector:
       case Array_type_sb2vector:
       case Array_type_sb4vector:
       case Array_type_sb8vector:
       case Array_type_sb16vector:
       case Array_type_sb32vector: /* type n, meaning (VECTOR (UNSIGNED-BYTE n)) */
-        name = fixnum(bit(sbNvector_atype(seq))); break;
+        { name = fixnum(bit(sbNvector_atype(seq))); break; }
       case Array_type_bvector:
       case Array_type_b2vector:
       case Array_type_b4vector:
       case Array_type_b8vector:
       case Array_type_b16vector:
       case Array_type_b32vector: /* type n, meaning (VECTOR (UNSIGNED-BYTE n)) */
-        name = fixnum(bit(bNvector_atype(seq))); break;
+        { name = fixnum(bit(bNvector_atype(seq))); break; }
       case Array_type_vector: case Array_type_svector:
-        name = S(vector); break; /* type [GENERAL-]VECTOR */
+        { name = S(vector); break; } /* type [GENERAL-]VECTOR */
       default:
         NOTREACHED;
     }

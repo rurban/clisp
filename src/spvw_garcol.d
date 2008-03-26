@@ -1159,7 +1159,7 @@ local void gc_sweep1_varobject_page (Page* page)
     p1 += laenge;              /* destination address for next object */
     goto sweeploop2;
   }
- sweepok1: *last_open_ptr = pointer_as_object(p2);
+ sweepok1: { *last_open_ptr = pointer_as_object(p2); }
  sweepok2: ;
  #if defined(SPVW_PURE) || defined(GENERATIONAL_GC)
   return p1;

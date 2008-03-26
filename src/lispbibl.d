@@ -12348,6 +12348,13 @@ extern maygc Values eval_noenv (object form);
 extern maygc Values eval_no_hooks (object form);
 /* is used by CONTROL */
 
+/* UP: signal an error on a dotted form in EVAL
+ error_dotted_form(form,fun)
+ > form: full form being evaluated
+ > fun: caller (car form) */
+nonreturning_function(global, error_dotted_form, (object form, object fun));
+/* is used by CONTROL */
+
 /* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the given values.
  bindhooks(evalhook_value,applyhook_value);
  > evalhook_value: Value for *EVALHOOK*
@@ -12729,11 +12736,11 @@ nonreturning_function(extern, error_block_left, (object name));
 #ifndef COMPILE_STANDALONE
 static inline object seclass_object (seclass_t sec) {
   switch (sec) {
-    case seclass_foldable: return NIL;
-    case seclass_no_se:    return O(seclass_no_se);
-    case seclass_read:     return O(seclass_read);
-    case seclass_write:    return O(seclass_write);
-    case seclass_default:  return O(seclass_default);
+    case seclass_foldable: { return NIL; }
+    case seclass_no_se:    { return O(seclass_no_se); }
+    case seclass_read:     { return O(seclass_read); }
+    case seclass_write:    { return O(seclass_write); }
+    case seclass_default:  { return O(seclass_default); }
     default: NOTREACHED;
   }
 }

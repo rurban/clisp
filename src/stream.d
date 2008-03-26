@@ -1,7 +1,7 @@
 /*
  * Streams for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
  * German comments translated into English: Stefan Kain 2001-11-02
@@ -1788,7 +1788,7 @@ local maygc object rd_by_concat (object stream) {
              Cdr(TheStream(stream)->strm_concat_list);
   }
   /* all Streams emptied -> return EOF: */
-  result = eof_value;
+  { result = eof_value; }
  OK:
   skipSTACK(1);
   return result;
@@ -3360,17 +3360,18 @@ local maygc void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded)
       goto eltype_integer;
     }
   }
-  /* First of all canonicalize a little bit (therewith the different
-   SUBTYPEP will not have to do the same three times): */
-  pushSTACK(arg); funcall(S(canonicalize_type),1); /* (SYS::CANONICALIZE-TYPE arg) */
-  pushSTACK(value1); /* save canon-arg */
-  pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); /* (SUBTYPEP canon-arg 'CHARACTER) */
-  if (!nullp(value1)) {
-    skipSTACK(1);
-    decoded->kind = eltype_ch; decoded->size = 0;
-    return;
+  { /* First of all canonicalize a little bit (therewith the different
+       SUBTYPEP will not have to do the same three times): */
+    pushSTACK(arg); funcall(S(canonicalize_type),1); /* (SYS::CANONICALIZE-TYPE arg) */
+    pushSTACK(value1); /* save canon-arg */
+    pushSTACK(STACK_0); pushSTACK(S(character)); funcall(S(subtypep),2); /* (SUBTYPEP canon-arg 'CHARACTER) */
+    if (!nullp(value1)) {
+      skipSTACK(1);
+      decoded->kind = eltype_ch; decoded->size = 0;
+      return;
+    }
+    funcall(S(subtype_integer),1); /* (SYS::SUBTYPE-INTEGER canon-arg) */
   }
-  funcall(S(subtype_integer),1); /* (SYS::SUBTYPE-INTEGER canon-arg) */
   if (!((mv_count>1) && integerp(value1) && integerp(value2)))
     goto bad_eltype;
   {
@@ -13900,7 +13901,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
 
   var char *hostname;
   if (missingp(STACK_3))
-    hostname = "localhost";
+    hostname = (char*)"localhost";
   else
     hostname = TheAsciz(string_to_asciz(check_string(STACK_3),
                                         O(misc_encoding)));
@@ -14552,7 +14553,7 @@ LISPFUNN(socket_stream_shutdown,2) {
   if (shutdown(handle,shutdown_how))
     { SOCK_error(); }
   end_system_call();
-  value1 = NIL;
+  { value1 = NIL; }
  done:
   skipSTACK(1);
   mv_count = 1;
@@ -15050,22 +15051,21 @@ LISPFUNNR(built_in_stream_element_type,1) {
       } else eltype = T; /* empty stream list */
       break;
     /* first the stream-types with restricted element-types: */
-    case strmtype_str_out:      /* could be (VECTOR NIL) */
+    case strmtype_str_out: {    /* could be (VECTOR NIL) */
       eltype = (((Iarray_flags(TheStream(stream)->strm_str_out_string)
                   & arrayflags_atype_mask) == Atype_NIL)
                 ? NIL : S(character));
-      break;
+    } break;
     case strmtype_str_in:
     case strmtype_str_push:
     case strmtype_pphelp:
     case strmtype_buff_in:
     case strmtype_buff_out:
       /* CHARACTER */
-      eltype = S(character); break;
+      { eltype = S(character); } break;
    #ifdef KEYBOARD
     case strmtype_keyboard:
-      eltype = T;
-      break;
+      { eltype = T; } break;
    #endif
     case strmtype_terminal:
    #ifdef SCREEN
@@ -15075,7 +15075,7 @@ LISPFUNNR(built_in_stream_element_type,1) {
     case strmtype_printer:
    #endif
       /* CHARACTER */
-      eltype = S(character); break;
+      { eltype = S(character); } break;
     case strmtype_file:
    #ifdef PIPES
     case strmtype_pipe_in:
@@ -15140,10 +15140,9 @@ LISPFUNNR(built_in_stream_element_type,1) {
         *stream_list_ = Cdr(*stream_list_);
       }
       switch (count) {
-        case 0: eltype = T; skipSTACK(1); break; /* no streams */
-        case 1: eltype = STACK_0; skipSTACK(2); break;
-        default: eltype = combine_stream_element_types(count);
-          skipSTACK(1); break;
+        case 0: { eltype = T; skipSTACK(1); } break; /* no streams */
+        case 1: { eltype = STACK_0; skipSTACK(2); } break;
+        default: eltype = combine_stream_element_types(count); skipSTACK(1);
       }
     } break;
       /* then the general streams: */
@@ -15301,7 +15300,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
       }
       break;
    #ifdef SOCKET_STREAMS
-    case strmtype_twoway_socket:
+    case strmtype_twoway_socket: {
       /* Apply to the input and output side individually. */
       pushSTACK(TheStream(STACK_2)->strm_twoway_socket_input); /* stream */
       pushSTACK(STACK_(0+1));
@@ -15309,7 +15308,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
       pushSTACK(TheStream(STACK_2)->strm_twoway_socket_output); /* stream */
       pushSTACK(STACK_(0+1));
       funcall(L(built_in_stream_set_element_type),2);
-      break;
+    } break;
    #endif
     default:
       error_illegal_streamop(O(setf_stream_element_type),stream);
@@ -17082,7 +17081,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
         var stringarg arg;
         pushSTACK(TheStream(stream)->strm_str_in_string);
         switch (pos_type) {
-          case POS_SET_END:     /* :END */
+          case POS_SET_END: {   /* :END */
             pushSTACK(TheStream(stream)->strm_str_in_begindex);
             pushSTACK(TheStream(stream)->strm_str_in_endindex);
             test_string_limits_ro(&arg);
@@ -17090,28 +17089,28 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
             TheStream(stream)->strm_str_in_index =
               TheStream(stream)->strm_str_in_endindex;
             value1 = fixnum(arg.len);
-            break;
-          case POS_SET_START:   /* :START */
+          } break;
+          case POS_SET_START: { /* :START */
             TheStream(stream)->strm_str_in_index =
               TheStream(stream)->strm_str_in_begindex;
             value1 = Fixnum_0;
             skipSTACK(1);
-            break;
-          case POS_SET_OFF:     /* OFFSET */
+          } break;
+          case POS_SET_OFF: {   /* OFFSET */
             pushSTACK(TheStream(stream)->strm_str_in_begindex);
             pushSTACK(fixnum_inc(STACK_0,pos_off));
             test_string_limits_ro(&arg);
             stream = STACK_1; /* restore */
             TheStream(stream)->strm_str_in_index = fixnum(arg.index+arg.len);
             value1 = fixnum(arg.len); /* == pos */
-            break;
-          case POS_QUERY:       /* ask for position */
+          } break;
+          case POS_QUERY: {     /* ask for position */
             pushSTACK(TheStream(stream)->strm_str_in_begindex);
             pushSTACK(TheStream(stream)->strm_str_in_index);
             test_string_limits_ro(&arg);
             stream = STACK_1; /* restore */
             pos_off = arg.len;
-            goto get_position_common;
+          } goto get_position_common;
           default: NOTREACHED;
         }
        set_position_common:   /* value1 is pre-set! */
@@ -17146,7 +17145,7 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
       case strmtype_str_push: {
         var object string = TheStream(stream)->strm_str_push_string;
         switch (pos_type) {
-          case POS_SET_END:     /* :END */
+          case POS_SET_END: {   /* :END */
             /* Pretend that the "end" of the stream corresponds to the current
                fill-pointer. The array-dimension 0 wouldn't be the right choice
                because it depends on how the implementation increases the size
@@ -17156,14 +17155,14 @@ LISPFUN(file_position,seclass_default,1,1,norest,nokey,0,NIL)
                this is hairy to implement correctly. */
             value1 = fixnum(vector_length(string));
             /* No need to call set-fill-pointer because it would be a nop. */
-            break;
+          } break;
           case POS_SET_START:        /* :START, pos_off==0 already */
-          case POS_SET_OFF:          /* OFFSET */
+          case POS_SET_OFF: {        /* OFFSET */
             pushSTACK(string); pushSTACK(fixnum(pos_off)); C_set_fill_pointer();
-            break;
-          case POS_QUERY:
+          } break;
+          case POS_QUERY: {
             pos_off = vector_length(string);
-            goto get_position_common;
+          } goto get_position_common;
           default: NOTREACHED;
         }
         goto set_position_common;

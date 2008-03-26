@@ -605,15 +605,11 @@ global bool proper_list_p (object obj) {
     if (atomp(fast))
       break;
     if (eq(fast,slow))
-      goto no;
+      return false;
     fast = Cdr(fast);
     slow = Cdr(slow);
   }
-  if (nullp(fast))
-    return true;
-  else {
-   no: return false;
-  }
+  return nullp(fast);
 }
 
 /* We cannot have lists longer than 1<<32 for RAM reasons
@@ -1935,10 +1931,11 @@ LISPFUNN(list_fe_init_end,2)
     pushSTACK(S(integer)); pushSTACK(Fixnum_0); pushSTACK(STACK_(0+3));
     tmp = listof(3); pushSTACK(tmp); /* TYPE-ERROR slot EXPECTED-TYPE */
   }
-  pushSTACK(STACK_(4+2));
-  pushSTACK(STACK_(3+3));
-  pushSTACK(S(list_fe_init_end));
-  error(type_error,GETTEXT("~S: end index ~S too large for ~S"));
+  { pushSTACK(STACK_(4+2));
+    pushSTACK(STACK_(3+3));
+    pushSTACK(S(list_fe_init_end));
+    error(type_error,GETTEXT("~S: end index ~S too large for ~S"));
+  }
  end:
   VALUES1(STACK_2); /* return L1 */
   skipSTACK(5);

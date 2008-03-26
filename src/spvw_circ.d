@@ -983,7 +983,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
       if (STACK_overflow())  /* check STACK-depth */
         longjmp(env->abort_context,true); /* abort */
       /* store object with deleted garcol_bit in STACK: */
-      pushSTACK(without_mark_bit(obj));
+      { pushSTACK(without_mark_bit(obj)); }
       env->counter++;           /* and count */
       goto m_end;
     #ifdef TYPECODES

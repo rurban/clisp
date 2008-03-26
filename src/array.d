@@ -1,7 +1,7 @@
 /*
  * Array functions
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2006
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-09-23
  */
 
@@ -526,21 +526,21 @@ global /*maygc*/ object storagevector_aref (object datenvektor, uintL index) {
                GCTRIGGER1(datenvektor));
   switch (Array_type(datenvektor)) {
     case Array_type_svector: /* Simple-Vector */
-      return TheSvector(datenvektor)->data[index];
+      { return TheSvector(datenvektor)->data[index]; }
     case Array_type_sbvector: /* Simple-Bit-Vector */
-      return ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 );
+      { return ( sbvector_btst(datenvektor,index) ? Fixnum_1 : Fixnum_0 ); }
     case Array_type_sb2vector:
-      return fixnum((TheSbvector(datenvektor)->data[index/4]>>(2*((~index)%4)))&(bit(2)-1));
+      { return fixnum((TheSbvector(datenvektor)->data[index/4]>>(2*((~index)%4)))&(bit(2)-1)); }
     case Array_type_sb4vector:
-      return fixnum((TheSbvector(datenvektor)->data[index/2]>>(4*((~index)%2)))&(bit(4)-1));
+      { return fixnum((TheSbvector(datenvektor)->data[index/2]>>(4*((~index)%2)))&(bit(4)-1)); }
     case Array_type_sb8vector:
-      return fixnum(TheSbvector(datenvektor)->data[index]);
+      { return fixnum(TheSbvector(datenvektor)->data[index]); }
     case Array_type_sb16vector:
-      return fixnum(((uint16*)&TheSbvector(datenvektor)->data[0])[index]);
+      { return fixnum(((uint16*)&TheSbvector(datenvektor)->data[0])[index]); }
     case Array_type_sb32vector:
-      return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]);
+      { return UL_to_I(((uint32*)&TheSbvector(datenvektor)->data[0])[index]); }
     case Array_type_sstring: /* Simple-String */
-      return code_char(schar(datenvektor,index));
+      { return code_char(schar(datenvektor,index)); }
     case Array_type_snilvector:  /* (VECTOR NIL) */
       error_nilarray_retrieve();
     default: NOTREACHED;
@@ -829,29 +829,29 @@ global uintBWL array_atype (object array)
   switch (Array_type(array)) {
     case Array_type_mdarray: /* general array -> look at Arrayflags */
     case Array_type_string: /* STRING or (VECTOR NIL) */
-      return Iarray_flags(array) & arrayflags_atype_mask;
+      { return Iarray_flags(array) & arrayflags_atype_mask; }
     case Array_type_sbvector:
     case Array_type_sb2vector:
     case Array_type_sb4vector:
     case Array_type_sb8vector:
     case Array_type_sb16vector:
     case Array_type_sb32vector:
-      return sbNvector_atype(array);
+      { return sbNvector_atype(array); }
     case Array_type_bvector:
     case Array_type_b2vector:
     case Array_type_b4vector:
     case Array_type_b8vector:
     case Array_type_b16vector:
     case Array_type_b32vector:
-      return bNvector_atype(array);
+      { return bNvector_atype(array); }
     case Array_type_sstring:
-      return Atype_Char;
+      { return Atype_Char; }
     case Array_type_svector:
     case Array_type_vector: /* [GENERAL-]VECTOR */
-      return Atype_T;
+      { return Atype_T; }
     #if 0 /* not necessary */
     case Array_type_snilvector:
-      return Atype_NIL;
+      { return Atype_NIL; }
     #endif
     default: NOTREACHED;
   }
@@ -865,21 +865,20 @@ global uintBWL array_atype (object array)
 global maygc object array_element_type (object array) {
   var uintBWL atype = array_atype(array);
   switch (atype) {
-    case Atype_T:           return S(t);         /* T */
-    case Atype_Bit:         return S(bit);       /* BIT */
-    case Atype_Char:        return S(character); /* CHARACTER */
+    case Atype_T:           { return S(t); }     /* T */
+    case Atype_Bit:         { return S(bit); }   /* BIT */
+    case Atype_Char:        { return S(character); } /* CHARACTER */
     case Atype_2Bit:        /* (UNSIGNED-BYTE 2) */
     case Atype_4Bit:        /* (UNSIGNED-BYTE 4) */
     case Atype_8Bit:        /* (UNSIGNED-BYTE 8) */
     case Atype_16Bit:       /* (UNSIGNED-BYTE 16) */
-    case Atype_32Bit:       /* (UNSIGNED-BYTE 32) */
-      break;
-    case Atype_NIL:         return S(nil); /* (VECTOR NIL) -> NIL */
+    case Atype_32Bit: {     /* (UNSIGNED-BYTE 32) */
+      pushSTACK(S(unsigned_byte));
+      pushSTACK(fixnum(bit(atype)));
+    } return listof(2);
+    case Atype_NIL:         { return S(nil); } /* (VECTOR NIL) -> NIL */
     default: NOTREACHED;
   }
-  pushSTACK(S(unsigned_byte));
-  pushSTACK(fixnum(bit(atype)));
-  return listof(2);
 }
 
 LISPFUNNF(array_element_type,1)
@@ -4374,10 +4373,10 @@ local maygc object fill_initial_element (uintL len, object vector) {
 local maygc object make_storagevector (uintL len, uintB eltype) {
   var object vector;
   switch (eltype) {
-    case Atype_T: /* create simple-vector */
+    case Atype_T: { /* create simple-vector */
       vector = allocate_vector(len);
-      break;
-    case Atype_Char: /* create simple-string */
+    } break;
+    case Atype_Char: { /* create simple-string */
       check_stringsize(len);
      #ifdef HAVE_SMALL_SSTRING
       if (charp(STACK_4) && len>0) {
@@ -4393,18 +4392,18 @@ local maygc object make_storagevector (uintL len, uintB eltype) {
      #else
       vector = allocate_string(len);
      #endif
-      break;
+    } break;
     case Atype_Bit:
     case Atype_2Bit:
     case Atype_4Bit:
     case Atype_8Bit:
     case Atype_16Bit:
-    case Atype_32Bit: /* create simple bit/byte-vector */
+    case Atype_32Bit: { /* create simple bit/byte-vector */
       vector = allocate_bit_vector(eltype,len);
-      break;
-    case Atype_NIL:
+    } break;
+    case Atype_NIL: {
       vector = NIL;
-      break;
+    } break;
     default: NOTREACHED;
   }
   return fill_initial_element(len,vector);
