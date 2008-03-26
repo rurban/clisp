@@ -1,7 +1,7 @@
 /*
  * Arithmetics for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2005, 2007-2008
  * German comments translated into English: Stefan Kain 2002-12-23
  */
 
@@ -539,9 +539,9 @@ LISPFUN(numequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }
@@ -566,9 +566,9 @@ LISPFUN(numunequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }
@@ -588,9 +588,9 @@ LISPFUN(smaller,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }
@@ -610,9 +610,9 @@ LISPFUN(greater,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }
@@ -632,9 +632,9 @@ LISPFUN(ltequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }
@@ -654,9 +654,9 @@ LISPFUN(gtequal,seclass_foldable,1,0,rest,nokey,0,NIL)
     });
   }
  yes:
-  value1 = T; goto ok;
+  { value1 = T; } goto ok;
  no:
-  value1 = NIL; goto ok;
+  { value1 = NIL; } goto ok;
  ok:
   mv_count=1; set_args_end_pointer(args_pointer);
 }

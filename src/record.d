@@ -1433,7 +1433,7 @@ global maygc object update_instance (object user_obj, object obj) {
     finish_entry_frame(UNWIND_PROTECT,returner,, goto clean_up; );
   }
   record_flags_set(TheInstance(obj),instflags_beingupdated_B);
-  do {
+  {do {
     pushSTACK(obj);
     var object cv = TheInstance(obj)->inst_class_version;
     /* We know that the next class is already finalized before
@@ -1545,7 +1545,7 @@ global maygc object update_instance (object user_obj, object obj) {
     /* STACK layout: user-obj, UNWIND-PROTECT frame. */
     obj = STACK_2;
     instance_un_realloc(obj);
-  } while (!instance_valid_p(obj));
+  } while (!instance_valid_p(obj));}
   record_flags_clr(TheInstance(obj),instflags_beingupdated_B);
   skipSTACK(1+2); /* unwind UNWIND-PROTECT frame, drop user-obj */
  #if STACKCHECKS || STACKCHECKC

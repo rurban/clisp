@@ -48,14 +48,14 @@ local bool init_language_from (const char* langname);
 
 local object current_language_o (uintL lang) {
   switch (lang) {
-    case language_english: return S(english);
+    case language_english:  { return S(english); }
    #ifdef GNU_GETTEXT
-    case language_deutsch:  return S(german);
-    case language_francais: return S(french);
-    case language_spanish:  return S(spanish);
-    case language_dutch:    return S(dutch);
-    case language_russian:  return S(russian);
-    case language_danish:   return S(danish);
+    case language_deutsch:  { return S(german); }
+    case language_francais: { return S(french); }
+    case language_spanish:  { return S(spanish); }
+    case language_dutch:    { return S(dutch); }
+    case language_russian:  { return S(russian); }
+    case language_danish:   { return S(danish); }
    #endif
     default: NOTREACHED;
   }

@@ -1829,22 +1829,23 @@ local maygc void install_global_handlers (on_error_t on_error)
   /* do nothing if there is no memory image */
   if (!boundp(Symbol_function(S(set_global_handler)))) return;
   switch (on_error) {
-    case ON_ERROR_EXIT:
+    case ON_ERROR_EXIT: {
       pushSTACK(S(interrupt_condition));
       pushSTACK(Symbol_function(S(exitunconditionally)));
       funcall(S(set_global_handler),2);
       pushSTACK(S(serious_condition));
       pushSTACK(Symbol_function(S(exitonerror)));
       funcall(S(set_global_handler),2);
-      goto appease;
-    case ON_ERROR_ABORT:
+    } goto appease;
+    case ON_ERROR_ABORT: {
       pushSTACK(S(serious_condition));
       pushSTACK(Symbol_function(S(abortonerror)));
       funcall(S(set_global_handler),2);
-      /*FALLTHROUGH*/
-    case ON_ERROR_APPEASE: appease:
+    } /*FALLTHROUGH*/
+    case ON_ERROR_APPEASE: appease: {
       pushSTACK(S(error)); pushSTACK(Symbol_function(S(appease_cerror)));
       funcall(S(set_global_handler),2); return;
+    }
     case ON_ERROR_DEBUG: return;
     default: NOTREACHED;
   }
@@ -3058,9 +3059,9 @@ local inline void main_actions (struct argv_actions *p) {
   install_global_handlers(p->argv_on_error);
   switch (p->argv_ansi) {
     case 1:                     /* Maximum ANSI CL compliance */
-      pushSTACK(T); funcall(L(set_ansi),1); break;
+      { pushSTACK(T); funcall(L(set_ansi),1); break; }
     case 2:                     /* The traditional CLISP behavior */
-      pushSTACK(NIL); funcall(L(set_ansi),1); break;
+      { pushSTACK(NIL); funcall(L(set_ansi),1); break; }
     default:                /* use the settings from the memory image */
       break;
   }
@@ -3111,20 +3112,21 @@ local inline void main_actions (struct argv_actions *p) {
     var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(DRIVER,returner,,goto done_driver_rc;);
-    /* If no memfile is given, LOAD cannot be called with 3 arguments.
+    { /* If no memfile is given, LOAD cannot be called with 3 arguments.
        (LOAD (MAKE-PATHNAME :NAME ".clisprc"
                             :DEFAULTS (USER-HOMEDIR-PATHNAME))
              :IF-DOES-NOT-EXIST NIL) */
-    pushSTACK(S(Kname));
-    pushSTACK(ascii_to_string(".clisprc"));
-    pushSTACK(S(Kdefaults));
-    funcall(S(user_homedir_pathname),0);
-    pushSTACK(value1);
-    funcall(L(make_pathname),4);
-    pushSTACK(value1);
-    pushSTACK(S(Kif_does_not_exist));
-    pushSTACK(S(nil));
-    funcall(S(load),3);
+      pushSTACK(S(Kname));
+      pushSTACK(ascii_to_string(".clisprc"));
+      pushSTACK(S(Kdefaults));
+      funcall(S(user_homedir_pathname),0);
+      pushSTACK(value1);
+      funcall(L(make_pathname),4);
+      pushSTACK(value1);
+      pushSTACK(S(Kif_does_not_exist));
+      pushSTACK(S(nil));
+      funcall(S(load),3);
+    }
    done_driver_rc:
     setSTACK(STACK = top_of_frame); /* skip driver-frame */
   }
@@ -3227,32 +3229,33 @@ local inline void main_actions (struct argv_actions *p) {
     var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(DRIVER,returner,,goto done_driver_execute_file;);
-    /*  execute:
-     (PROGN
-       #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\##\!
-               (FUNCTION SYS::UNIX-EXECUTABLE-READER))
-       (SETQ *LOAD-VERBOSE* NIL)
-       (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)
-       (UNLESS argv_repl (EXIT))) */
-   #if defined(UNIX) || defined(WIN32_NATIVE)
-    /* Make clisp ignore the leading #! line. */
-    pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
-    pushSTACK(L(unix_executable_reader));
-    funcall(L(set_dispatch_macro_character),3);
-   #endif
-    Symbol_value(S(load_verbose)) = NIL;
-    if (asciz_equal(p->argv_execute_file,"-")) {
-      pushSTACK(Symbol_value(S(standard_input))); /* *STANDARD-INPUT* */
-    } else {
-      pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
+    { /*  execute:
+       (PROGN
+         #+UNIX (SET-DISPATCH-MACRO-CHARACTER #\##\!
+                 (FUNCTION SYS::UNIX-EXECUTABLE-READER))
+         (SETQ *LOAD-VERBOSE* NIL)
+         (LOAD argv_execute_file :EXTRA-FILE-TYPES ...)
+         (UNLESS argv_repl (EXIT))) */
+     #if defined(UNIX) || defined(WIN32_NATIVE)
+      /* Make clisp ignore the leading #! line. */
+      pushSTACK(ascii_char('#')); pushSTACK(ascii_char('!'));
+      pushSTACK(L(unix_executable_reader));
+      funcall(L(set_dispatch_macro_character),3);
+     #endif
+      Symbol_value(S(load_verbose)) = NIL;
+      if (asciz_equal(p->argv_execute_file,"-")) {
+        pushSTACK(Symbol_value(S(standard_input))); /* *STANDARD-INPUT* */
+      } else {
+        pushSTACK(asciz_to_string(p->argv_execute_file,O(misc_encoding)));
+      }
+     #ifdef WIN32_NATIVE
+      pushSTACK(S(Kextra_file_types));
+      pushSTACK(O(load_extra_file_types));
+      funcall(S(load),3);
+     #else
+      funcall(S(load),1);
+     #endif
     }
-   #ifdef WIN32_NATIVE
-    pushSTACK(S(Kextra_file_types));
-    pushSTACK(O(load_extra_file_types));
-    funcall(S(load),3);
-   #else
-    funcall(S(load),1);
-   #endif
    done_driver_execute_file:
     setSTACK(STACK = top_of_frame); /* skip driver-frame */
     if (!p->argv_repl)

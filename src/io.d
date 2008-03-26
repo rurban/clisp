@@ -703,7 +703,7 @@ LISPFUN(get_macro_character,seclass_read,1,1,norest,nokey,0,NIL)
   /* Test the Syntaxcode: */
   var object nontermp = NIL; /* non-terminating-p Flag */
   switch (syntax_readtable_get(readtable,c)) {
-    case syntax_nt_macro: nontermp = T;
+    case syntax_nt_macro: { nontermp = T; }
     case syntax_t_macro: { /* nontermp = NIL; */
       /* c is a macro-character. */
       var object entry =
@@ -829,16 +829,17 @@ LISPFUNN(set_readtable_case,2)
       goto found;
     ptr++; rtcase++;
   };
-  /* invalid value */
-  pushSTACK(NIL); /* no PLACE */
-  pushSTACK(value);          /* TYPE-ERROR slot DATUM */
-  pushSTACK(O(type_rtcase)); /* TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2));
-  pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
-  pushSTACK(value);
-  pushSTACK(S(set_readtable_case));
-  check_value(type_error,GETTEXT("~S: new value ~S should be ~S, ~S, ~S or ~S."));
-  value = value1;
+  { /* invalid value */
+    pushSTACK(NIL); /* no PLACE */
+    pushSTACK(value);          /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_rtcase)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(O(rtcase_3)); pushSTACK(O(rtcase_2));
+    pushSTACK(O(rtcase_1)); pushSTACK(O(rtcase_0));
+    pushSTACK(value);
+    pushSTACK(S(set_readtable_case));
+    check_value(type_error,GETTEXT("~S: new value ~S should be ~S, ~S, ~S or ~S."));
+    value = value1;
+  }
   goto retry_readtable_case;
  found: /* found in table */
   var object readtable = check_readtable(popSTACK()); /* readtable */
@@ -1230,7 +1231,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
     read_char_syntax(ch = ,scode = ,stream_); /* read next character */
   char_read:
     switch(scode) {
-      case syntax_illegal:
+      case syntax_illegal: {
         if (multiple_escape_flag) goto escape;
         /* illegal -> issue Error: */
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
@@ -1239,7 +1240,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
         pushSTACK(S(read));
         error(reader_error, /* ANSI CL 2.2. wants a reader-error here */
               GETTEXT("~S from ~S: illegal character ~S"));
-        break;
+      } break;
       case syntax_single_esc:   /* Single-Escape-Character -> */
         /* read next character and take over unchanged */
         escape_flag = true;
@@ -1923,13 +1924,14 @@ local maygc object read_internal (const gcv_object_t* stream_) {
         goto wloop;
       else                      /* 1 value -> as result */
         return value1;
-    case syntax_eof:                  /* EOF at start of Token */
+    case syntax_eof: {                /* EOF at start of Token */
       if (!nullpSv(read_recursive_p)) /* *READ-RECURSIVE-P* /= NIL ? */
         /* yes -> EOF within an object -> error */
         error_eof_inside(stream_);
       /* otherwise eof_value as value: */
       clear_input(*stream_);    /* clear the EOF char from the stream */
       return eof_value;
+    }
     case syntax_illegal:        /* read_token_1 returns Error */
     case syntax_single_esc:
     case syntax_multi_esc:
@@ -2058,24 +2060,24 @@ local maygc object read_internal (const gcv_object_t* stream_) {
         break;
       index++;
     }
-    /* error message */
-    pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
-    pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
-    pushSTACK(*stream_);                     /* Stream */
-    pushSTACK(S(read));
-    error(reader_error,GETTEXT("~S from ~S: too many colons in token ~S"));
-    /* error message */
-  found_illg:
-    pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
-    pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
-    pushSTACK(*stream_);                     /* Stream */
-    pushSTACK(S(read));
-    error(reader_error,GETTEXT("~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"));
+    { /* error message */
+      pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
+      pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
+      pushSTACK(*stream_);                     /* Stream */
+      pushSTACK(S(read));
+      error(reader_error,GETTEXT("~S from ~S: too many colons in token ~S"));
+    }
+   found_illg: { /* error message */
+      pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
+      pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
+      pushSTACK(*stream_);                     /* Stream */
+      pushSTACK(S(read));
+      error(reader_error,GETTEXT("~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"));
+    }
     /* search Symbol or create it: */
-  current:                   /* search Symbol in the current package. */
-    /* Symbolname = O(token_buff_1) = (subseq O(token_buff_1) 0 len)
-     is a non-simple String. */
-    {
+   current: {                /* search Symbol in the current package. */
+      /* Symbolname = O(token_buff_1) = (subseq O(token_buff_1) 0 len)
+         is a non-simple String. */
       var object pack = get_current_package();
       if (!pack_casesensitivep(pack))
         case_convert_token(0,len,direction);
@@ -2208,7 +2210,7 @@ nonreturning_function(local, error_invalid_value, (object symbol)) {
   pushSTACK(Symbol_value(symbol)); pushSTACK(symbol);
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,
-         GETTEXT("~S: the value of ~S has been arbitrarily altered to ~S"));
+        GETTEXT("~S: the value of ~S has been arbitrarily altered to ~S"));
 }
 
 local object check_read_reference_table (void) {
@@ -2235,10 +2237,10 @@ local object make_references (object obj) {
       var object alistr = alist; /* run through list */
       while (consp(alistr)) {    /* each List-Element must be a Cons: */
         if (!mconsp(Car(alistr)))
-          goto error_badtable;
+          error_invalid_value(S(read_reference_table));
         alistr = Cdr(alistr);
       }
-      if (!nullp(alistr)) error_badtable:
+      if (!nullp(alistr))
         error_invalid_value(S(read_reference_table));
     }
     /* Alist alist is OK */
@@ -2794,14 +2796,15 @@ LISPFUNN(comment_reader,3) {                   /* reads #| */
       goto loop2;
   } else
     goto loop1;
- error_eof:
-  pushSTACK(STACK_1);           /* STREAM-ERROR slot STREAM */
-  pushSTACK(STACK_(0+1));       /* sub-char */
-  pushSTACK(STACK_(0+2));       /* sub-char */
-  pushSTACK(STACK_(1+3));       /* Stream */
-  pushSTACK(S(read));
-  error(end_of_file,
-         GETTEXT("~S: input stream ~S ends within a comment #~C ... ~C#"));
+ error_eof: {
+    pushSTACK(STACK_1);         /* STREAM-ERROR slot STREAM */
+    pushSTACK(STACK_(0+1));     /* sub-char */
+    pushSTACK(STACK_(0+2));     /* sub-char */
+    pushSTACK(STACK_(1+3));     /* Stream */
+    pushSTACK(S(read));
+    error(end_of_file,
+          GETTEXT("~S: input stream ~S ends within a comment #~C ... ~C#"));
+  }
  done:
   VALUES0; skipSTACK(2); /* return no values */
 }
@@ -2981,14 +2984,15 @@ local maygc Values radix_2 (uintWL base) {
       return;
     case 0:                     /* no number */
     case 3:                     /* Float */
-  not_rational:                 /* no rational number */
-      pushSTACK(STACK_2);       /* STREAM-ERROR slot STREAM */
-      pushSTACK(STACK_(0+1));   /* base */
-      pushSTACK(STACK_(1+2));   /* sub-char */
-      pushSTACK(copy_string(O(token_buff_1))); /* Token */
-      pushSTACK(STACK_(2+4));                  /* Stream */
-      pushSTACK(S(read));
-      error(reader_error,GETTEXT("~S from ~S: token ~S after #~C is not a rational number in base ~S"));
+    not_rational: {             /* no rational number */
+        pushSTACK(STACK_2);     /* STREAM-ERROR slot STREAM */
+        pushSTACK(STACK_(0+1)); /* base */
+        pushSTACK(STACK_(1+2)); /* sub-char */
+        pushSTACK(copy_string(O(token_buff_1))); /* Token */
+        pushSTACK(STACK_(2+4));                  /* Stream */
+        pushSTACK(S(read));
+        error(reader_error,GETTEXT("~S from ~S: token ~S after #~C is not a rational number in base ~S"));
+      }
     default: NOTREACHED;
   }
 }
@@ -3420,7 +3424,7 @@ LISPFUNN(array_reader,3) {                             /* reads #A */
     dynamic_unbind(S(reading_array));
     pushSTACK(contents); pushSTACK(contents);
   }
-  STACK_4 = NIL;   /* dims := '() */
+  { STACK_4 = NIL; }            /* dims := '() */
   /* stack layout: dims, -, rank, subcontents, contents.
    determine Dimensions and Element-type: */
   if (eq(STACK_2,Fixnum_0)) {              /* rank=0 ? */
@@ -3452,7 +3456,7 @@ LISPFUNN(array_reader,3) {                             /* reads #A */
   }
   /* stack layout: dims, -, eltype, -, contents.
    call MAKE-ARRAY: */
-  STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents);
+  { STACK_3 = S(Kelement_type); STACK_1 = S(Kinitial_contents); }
  call_make_array:
   funcall(L(make_array),5);
   mv_count=1; return;
@@ -3737,6 +3741,33 @@ LISPFUNN(syntax_error_reader,3) { /* reads #) and #whitespace */
  > expr: a Feature-Expresion
  > STACK_1: Stream or unbound
  < result: truth value: 0 if satisfied, ~0 if not. */
+nonreturning_function(local, error_feature, (object expr)) {
+  /* Wrong structure of feature expression. */
+  if (boundp(STACK_1)) {        /* Called from READ. */
+    pushSTACK(STACK_1);         /* STREAM-ERROR slot STREAM */
+    pushSTACK(expr);            /* Feature-Expression */
+    pushSTACK(STACK_(1+2));     /* Stream */
+    pushSTACK(S(read));
+    error(reader_error,GETTEXT("~S from ~S: illegal feature ~S"));
+  } else {                      /* Called from FEATUREP. */
+    pushSTACK(expr);            /* Feature-Expression */
+    pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,GETTEXT("~S: illegal feature ~S"));
+  }
+}
+local uintWL interpret_feature (object expr);
+local uintWL interpret_features (uintWL and_or_flag, object expr) {
+   var object list = Cdr(expr);
+   while (consp(list)) {   /* interpret one List-element: */
+     var uintWL sub_ret = interpret_feature(Car(list));
+     if (sub_ret != and_or_flag)
+       return sub_ret;
+     list = Cdr(list);
+   }
+   if (nullp(list))
+     return and_or_flag;
+   error_feature(expr);
+}
 local uintWL interpret_feature (object expr) {
   check_SP();
   if (symbolp(expr)) {          /* expr Symbol, search in *FEATURES*: */
@@ -3745,49 +3776,19 @@ local uintWL interpret_feature (object expr) {
   } else if (consp(expr) && symbolp(Car(expr))) {
     var object opname = Symbol_name(Car(expr));
     var uintWL and_or_flag;
-    if (string_eq(opname,Symbol_name(S(and)))) { /* expr = (AND ...) */
-      and_or_flag = 0; goto and_or;
-    } else if (string_eq(opname,Symbol_name(S(or)))) { /* expr = (OR ...) */
-      and_or_flag = ~0;
-     and_or: {
-        /* interprete the list-elements of expr, until there is a
-         result /=and_or_flag. Default is and_or_flag. */
-        var object list = Cdr(expr);
-        while (consp(list)) {   /* interprete on List-element: */
-          var uintWL sub_erg = interpret_feature(Car(list));
-          if (!(sub_erg == and_or_flag))
-            return sub_erg;
-          list = Cdr(list);
-        }
-        if (nullp(list))
-          return and_or_flag;
-        /* expr was a Dotted List -> error */
-      }
-    } else if (string_eq(opname,Symbol_name(S(not)))) {
+    if (string_eq(opname,Symbol_name(S(and)))) /* expr = (AND ...) */
+      return interpret_features(0,expr);
+    if (string_eq(opname,Symbol_name(S(or)))) /* expr = (OR ...) */
+      return interpret_features(~0,expr);
+    if (string_eq(opname,Symbol_name(S(not)))) {
       /* expr = (NOT ...) is to be of the shape (NOT obj): */
       var object opargs = Cdr(expr);
       if (consp(opargs) && nullp(Cdr(opargs)))
         return ~interpret_feature(Car(opargs));
-      /* expr has no correct shape -> error */
-    }
-    /* wrong (car expr) -> error */
-  }
- bad: {
-    /* Wrong structure of feature expression. */
-    if (boundp(STACK_1)) {
-      /* Called from READ. */
-      pushSTACK(STACK_1);       /* STREAM-ERROR slot STREAM */
-      pushSTACK(expr);          /* Feature-Expression */
-      pushSTACK(STACK_(1+2));   /* Stream */
-      pushSTACK(S(read));
-      error(reader_error,GETTEXT("~S from ~S: illegal feature ~S"));
-    } else {
-      /* Called from FEATUREP. */
-      pushSTACK(expr);          /* Feature-Expression */
-      pushSTACK(TheSubr(subr_self)->name);
-      error(error_condition,GETTEXT("~S: illegal feature ~S"));
     }
   }
+  /* expr has an incorrect shape -> error */
+  error_feature(expr);
 }
 
 /* run-time version of #+
@@ -4040,13 +4041,14 @@ LISPFUNN(structure_reader,3) {                 /* reads #S */
           }
         }
       }
-      /* Structure of this Type undefined */
-      pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
-      pushSTACK(name);
-      pushSTACK(*stream_);      /* Stream */
-      pushSTACK(S(read));
-      error(reader_error,
-            GETTEXT("~S from ~S: no structure of type ~S has been defined"));
+      { /* Structure of this Type undefined */
+        pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
+        pushSTACK(name);
+        pushSTACK(*stream_);      /* Stream */
+        pushSTACK(S(read));
+        error(reader_error,
+              GETTEXT("~S from ~S: no structure of type ~S has been defined"));
+      }
      found_constructor:
       if (nullp(constructor)) {
         pushSTACK(*stream_);    /* STREAM-ERROR slot STREAM */
@@ -5661,65 +5663,66 @@ local maygc void paren_close (const gcv_object_t* stream_) {
   } else {                  /* Pretty-Print-Help-Stream */
     /* fetch desired position of the parenthesis: */
     var object pos = Symbol_value(S(prin_rpar)); /* SYS::*PRIN-RPAR* */
-    if (nullp(pos)) goto hinten; /* none -> print parenthesis behind */
-    /* print parenthesis at Position pos: */
-    if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler)
-        && !nullp(Cdr(TheStream(stream)->strm_pphelp_strings))) {
-      /* multi-liner with more than one line ("real" multi-liner)
-       print parenthesis at desired Position.
-       Therefore test, if the last line in the stream contains
-       1. only Spaces up to the desired Position (inclusively)
-       and
-       2. only Spaces and ')' , otherwise.
-       if yes, put parenthesis to the desired position.
-       if no, start new line, print Spaces and the parenthesis. */
-      var object lastline =     /* last line */
-        Car(TheStream(stream)->strm_pphelp_strings);
-      if (!stringp(lastline)) { /* drop the newline / indentation / tab */
-        do { TheStream(stream)->strm_pphelp_strings =
-               Cdr(TheStream(stream)->strm_pphelp_strings);
-        } while (!stringp(TheStream(stream)->strm_pphelp_strings));
-        goto new_line;
-      }
-      var uintL len = TheIarray(lastline)->dims[1]; /* lendgh = Fill-Pointer of line */
-      var uintV need = posfixnum_to_V(pos) + 1; /* necessary number of Spaces */
-      if (len < need)                           /* line too short ? */
-        goto new_line;                      /* yes -> start new line */
-      lastline = TheIarray(lastline)->data; /* last line, Normal-Simple-String */
-      var chart* charptr = &TheSnstring(lastline)->data[0];
-      /* test, if (need) number of spaces are ahead: */
-      {
-        var uintV count;
-        dotimespV(count,need, {
-          if (!chareq(*charptr++,ascii(' '))) /* Space ? */
-            goto new_line;                    /* no -> start new line */
-        });
-      }
-      var chart* charptr1 = charptr; /* memorize position */
-      /* test, if (len-need) times Space or ')' is ahead: */
-      {
-        var uintL count;
-        dotimesL(count,len-need, {
-          var chart c = *charptr++;
-          if (!(chareq(c,ascii(' ')) || chareq(c,ascii(')')))) /* Space or ')' ? */
-            goto new_line;      /* no -> start new line */
-        });
-      }
-      /* put parenthesis to the desired position pos = need-1: */
-      *--charptr1 = ascii(')');
-    } else {
-      /* single-liner.
-       parenthesis must be printed behind.
-       Exception: if Line-Position = SYS::*PRIN-LINELENGTH*,
-                 printing would occur past the end of the line;
-                 instead, a new line is started.
-       Max Right Margin == Line-Position ? */
-      if (eq(right_margin(),TheStream(stream)->strm_pphelp_lpos)) {
-      new_line:                 /* start enw line */
-        pphelp_newline(stream_); spaces(stream_,pos);
-      }
-    hinten:                     /* print parenthesis behind */
+    if (nullp(pos)) { /* none -> print parenthesis behind */
       write_ascii_char(stream_,')');
+    } else { /* print parenthesis at Position pos: */
+      if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler)
+          && !nullp(Cdr(TheStream(stream)->strm_pphelp_strings))) {
+        /* multi-liner with more than one line ("real" multi-liner)
+         print parenthesis at desired Position.
+         Therefore test, if the last line in the stream contains
+         1. only Spaces up to the desired Position (inclusively)
+         and
+         2. only Spaces and ')' , otherwise.
+         if yes, put parenthesis to the desired position.
+         if no, start new line, print Spaces and the parenthesis. */
+        var object lastline =     /* last line */
+          Car(TheStream(stream)->strm_pphelp_strings);
+        if (!stringp(lastline)) { /* drop the newline / indentation / tab */
+          do { TheStream(stream)->strm_pphelp_strings =
+                 Cdr(TheStream(stream)->strm_pphelp_strings);
+          } while (!stringp(TheStream(stream)->strm_pphelp_strings));
+          goto new_line;
+        }
+        var uintL len = TheIarray(lastline)->dims[1]; /* lendgh = Fill-Pointer of line */
+        var uintV need = posfixnum_to_V(pos) + 1; /* necessary number of Spaces */
+        if (len < need)                           /* line too short ? */
+          goto new_line;        /* yes -> start new line */
+        lastline = TheIarray(lastline)->data; /* last line, Normal-Simple-String */
+        var chart* charptr = &TheSnstring(lastline)->data[0];
+        { /* test, if (need) number of spaces are ahead: */
+          var uintV count;
+          dotimespV(count,need, {
+            if (!chareq(*charptr++,ascii(' '))) /* Space ? */
+              goto new_line;                    /* no -> start new line */
+          });
+        }
+        var chart* charptr1 = charptr; /* memorize position */
+        /* test, if (len-need) times Space or ')' is ahead: */
+        {
+          var uintL count;
+          dotimesL(count,len-need, {
+            var chart c = *charptr++;
+            if (!(chareq(c,ascii(' ')) || chareq(c,ascii(')')))) /* Space or ')' ? */
+              goto new_line;      /* no -> start new line */
+          });
+        }
+        /* put parenthesis to the desired position pos = need-1: */
+        *--charptr1 = ascii(')');
+      } else {
+        /* single-liner.
+         parenthesis must be printed behind.
+         Exception: if Line-Position = SYS::*PRIN-LINELENGTH*,
+                   printing would occur past the end of the line;
+                   instead, a new line is started.
+         Max Right Margin == Line-Position ? */
+        if (eq(right_margin(),TheStream(stream)->strm_pphelp_lpos)) {
+        new_line:                 /* start enw line */
+          pphelp_newline(stream_); spaces(stream_,pos);
+        }
+        /* print parenthesis behind */
+        write_ascii_char(stream_,')');
+      }
     }
     dynamic_unbind(S(prin_rpar));
   }
@@ -5740,10 +5743,10 @@ local void double_dots (const gcv_object_t* stream_);
   JUSTIFY_END_FILL (collects short blocks even in multi-liners into one line)
      or
   JUSTIFY_END_LINEAR (in multi-liners each block occupies its own line). */
-#define JUSTIFY_START(n)    justify_start(stream_,n);
-#define JUSTIFY_SPACE       justify_space(stream_);
-#define JUSTIFY_END_FILL    justify_end_fill(stream_);
-#define JUSTIFY_END_LINEAR  justify_end_linear(stream_);
+#define JUSTIFY_START(n)    justify_start(stream_,n)
+#define JUSTIFY_SPACE       justify_space(stream_)
+#define JUSTIFY_END_FILL    justify_end_fill(stream_)
+#define JUSTIFY_END_LINEAR  justify_end_linear(stream_)
 
 /* SYS::*PRIN-TRAILLENGTH* = number of columns that need to be reserved for
                            closing parentheses on the current line; bound
@@ -5983,43 +5986,43 @@ local maygc void justify_end_linear (const gcv_object_t* stream_) {
       else
         goto gesamt_mehrzeiler;
     }
-  gesamt_einzeiler:             /* a single-liner, altogether. */
-    /* print blocks apartly, separated by Spaces, to the stream: */
-    pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); /* (nreverse SYS::*PRIN-JBLOCKS*) */
-    while (1) {             /* peruse (non-empty) block list STACK_0: */
-      var object block = Car(STACK_0); /* next block */
-      /* (a single-liner, string without #\Newline) */
-      STACK_0 = Cdr(STACK_0);      /* shorten block list */
-      write_string(stream_,block); /* print block to the stream */
-      if (matomp(STACK_0))         /* remaining list empty -> done */
-        break;
-      write_ascii_char(stream_,' '); /* print #\Space */
-    }
-    goto done;
-  gesamt_mehrzeiler:            /* a multi-liner, altogether. */
-    /* print blocks apartly, separated by Newline, to the stream: */
-    pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); /* (nreverse SYS::*PRIN-JBLOCKS*) */
-    while (1) {             /* peruse (non-empty) block list STACK_0: */
-      var object block = Car(STACK_0); /* next block */
-      STACK_0 = Cdr(STACK_0);          /* shorten block list */
-      if (consp(block)) {              /* multi-line sub-block */
-        multi_line_sub_block_out(block,stream_);
-      } else {                  /* single-line sub-block */
-        /* print it on the PPHELP-stream: */
-        write_string(stream_,block);
+   gesamt_einzeiler: {          /* a single-liner, altogether. */
+      /* print blocks apartly, separated by Spaces, to the stream: */
+      pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); /* (nreverse SYS::*PRIN-JBLOCKS*) */
+      while (1) {             /* peruse (non-empty) block list STACK_0: */
+        var object block = Car(STACK_0); /* next block */
+        /* (a single-liner, string without #\Newline) */
+        STACK_0 = Cdr(STACK_0);      /* shorten block list */
+        write_string(stream_,block); /* print block to the stream */
+        if (matomp(STACK_0))         /* remaining list empty -> done */
+          break;
+        write_ascii_char(stream_,' '); /* print #\Space */
       }
-      if (matomp(STACK_0))      /* remaining list empty? */
-        break;
-      pphelp_newline(stream_);                  /* start new line */
-      spaces(stream_,Symbol_value(S(prin_lm))); /* SYS::*PRIN-LM* Spaces */
-      CHECK_LINES_LIMIT(break);
-    }
-    stream = *stream_;
-    /* restore line-position: */
-    TheStream(stream)->strm_pphelp_lpos = STACK_1;
-    /* GesamtModus := multi-liner: */
-    TheStream(stream)->strm_pphelp_modus = mehrzeiler;
-    goto done;
+    } goto done;
+   gesamt_mehrzeiler: {         /* a multi-liner, altogether. */
+      /* print blocks apartly, separated by Newline, to the stream: */
+      pushSTACK(nreverse(Symbol_value(S(prin_jblocks)))); /* (nreverse SYS::*PRIN-JBLOCKS*) */
+      while (1) {             /* peruse (non-empty) block list STACK_0: */
+        var object block = Car(STACK_0); /* next block */
+        STACK_0 = Cdr(STACK_0);          /* shorten block list */
+        if (consp(block)) {              /* multi-line sub-block */
+          multi_line_sub_block_out(block,stream_);
+        } else {                  /* single-line sub-block */
+          /* print it on the PPHELP-stream: */
+          write_string(stream_,block);
+        }
+        if (matomp(STACK_0))      /* remaining list empty? */
+          break;
+        pphelp_newline(stream_);                  /* start new line */
+        spaces(stream_,Symbol_value(S(prin_lm))); /* SYS::*PRIN-LM* Spaces */
+        CHECK_LINES_LIMIT(break);
+      }
+      stream = *stream_;
+      /* restore line-position: */
+      TheStream(stream)->strm_pphelp_lpos = STACK_1;
+      /* GesamtModus := multi-liner: */
+      TheStream(stream)->strm_pphelp_modus = mehrzeiler;
+    } goto done;
    done:          /* line-position is now correct. */
     skipSTACK(2); /* forget empty remaining list and the old line-position */
     /* unbind bindings of JUSTIFY_START: */
@@ -6889,12 +6892,10 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
     /* with escape-characters and maybe package-name: */
     var bool case_sensitive = false;
     var bool case_inverted = false;
+    pushSTACK(sym);             /* save symbol */
     if (keywordp(sym)) {        /* Keyword ? */
-      pushSTACK(sym);           /* save symbol */
       write_ascii_char(stream_,':');
-      sym = popSTACK();         /* move sym back */
     } else {
-      pushSTACK(sym);           /* save symbol */
       var object curr_pack = get_current_package();
       sym = STACK_0;           /* restore */
       var object home = Symbol_package(sym); /* home-package of the symbol */
@@ -6902,9 +6903,9 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
         /* query *PRINT-GENSYM*: */
         if (!nullpSv(print_gensym) || !nullpSv(print_readably)) {
           /* use syntax #:name */
-          write_ascii_char(stream_,'#'); goto one_marker;
-        }
-        /* else print without prefix */
+          write_ascii_char(stream_,'#');
+          write_ascii_char(stream_,':');
+        } /* else print without prefix */
       } else {
         if (accessiblep(sym,curr_pack)
             /* When *PRINT-READABLY*, print PACK::SYMBOL even when the symbol is
@@ -6916,30 +6917,29 @@ local maygc void pr_symbol (const gcv_object_t* stream_, object sym) {
           case_sensitive = pack_casesensitivep(curr_pack);
           case_inverted = pack_caseinvertedp(curr_pack);
         } else {
-          /* print symbol with package-name and 1 or 2 package-markers */
-          pushSTACK(home);        /* save home-package */
-          pr_symbol_part(stream_, /* print package-name */
-                         ((nullpSv(print_symbol_package_prefix_shortest)
-                           || !nullpSv(print_readably))
-                          ? ThePackage(home)->pack_name
-                          : ThePackage(home)->pack_shortest_name),
-                         false,false);
-          home = popSTACK();    /* move home-package back */
-          case_sensitive = pack_casesensitivep(home);
-          case_inverted = pack_caseinvertedp(home);
-          if (externalp(STACK_0,home)
-              /* When *PRINT-READABLY*, print PACK::SYMBOL even when the
-                 symbol is external. It may not be external when the
-                 output is read later. */
-              && nullpSv(print_readably))
-            goto one_marker;             /* yes -> 1 package-marker */
-          write_ascii_char(stream_,':'); /* else 2 package-marker */
-        one_marker:
+          { /* print symbol with package-name and 1 or 2 package-markers */
+            pushSTACK(home);        /* save home-package */
+            pr_symbol_part(stream_, /* print package-name */
+                           ((nullpSv(print_symbol_package_prefix_shortest)
+                             || !nullpSv(print_readably))
+                            ? ThePackage(home)->pack_name
+                            : ThePackage(home)->pack_shortest_name),
+                           false,false);
+            home = popSTACK();    /* move home-package back */
+            case_sensitive = pack_casesensitivep(home);
+            case_inverted = pack_caseinvertedp(home);
+            if (!externalp(STACK_0,home)
+                /* When *PRINT-READABLY*, print PACK::SYMBOL even when the
+                   symbol is external. It may not be external when the
+                   output is read later. */
+                || !nullpSv(print_readably))
+              write_ascii_char(stream_,':'); /* yes -> 2 package-markers */
+          }
           write_ascii_char(stream_,':');
         }
       }
-      sym = popSTACK();         /* move sym back */
     }
+    sym = popSTACK();         /* move sym back */
     pr_symbol_part(stream_,Symbol_name(sym),case_sensitive,case_inverted); /* print symbol-name */
   } else {
     /* Print symbol without escape-characters:
@@ -7110,7 +7110,7 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
           switch (syntax_table_get(STACK_1,c)) { /* its Syntaxcode */
             case syntax_single_esc:
             case syntax_multi_esc: /* The Escape-Character c is prepended by '\': */
-              write_ascii_char(stream_,'\\');
+              { write_ascii_char(stream_,'\\'); }
             default: ;
           }
           write_code_char(stream_,c); /* print Character */
@@ -7436,14 +7436,14 @@ local maygc void pr_cons (const gcv_object_t* stream_, object list) {
       if (special_list_p(list,true) != (pr_routine_t*)NULL) /* necessary because of QUOTE or similar stuff? */
         goto dotted_list;
     }
-  dotted_list:       /* print list-remainder in dotted-list-notation: */
-    JUSTIFY_LAST(false);
-    write_ascii_char(stream_,'.');
-    JUSTIFY_SPACE;
-    JUSTIFY_LAST(true);
-    prin_object(stream_,*list_);
-    goto end_of_list;
-  end_of_list:                  /* print list content. */
+   dotted_list: {    /* print list-remainder in dotted-list-notation: */
+      JUSTIFY_LAST(false);
+      write_ascii_char(stream_,'.');
+      JUSTIFY_SPACE;
+      JUSTIFY_LAST(true);
+      prin_object(stream_,*list_);
+    } goto end_of_list;
+   end_of_list:                 /* print list content. */
     JUSTIFY_END_FILL;
     INDENT_END;
     PAREN_CLOSE;
@@ -7562,7 +7562,7 @@ local maygc void pr_pair (const gcv_object_t* stream_, object car, object cdr) {
     prin_object(stream_,*(pair_ STACKop 1)); /* print the CAR */
     JUSTIFY_SPACE;                           /* print one Space */
     JUSTIFY_LAST(false);
-    write_ascii_char(stream_,'.');
+    { write_ascii_char(stream_,'.'); }
     JUSTIFY_SPACE;
     JUSTIFY_LAST(true);
     prin_object(stream_,*(pair_ STACKop 0));
@@ -7591,12 +7591,15 @@ local maygc void pr_real_number (const gcv_object_t* stream_, object number) {
       /* print Radix-Specifier: */
       pushSTACK(number);        /* save number */
       switch (base) {
-        case 2:                 /* base 2 */
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'b'); break;
-        case 8:                 /* base 8 */
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'o'); break;
-        case 16:                /* base 16 */
-          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x'); break;
+        case 2: {               /* base 2 */
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'b');
+        } break;
+        case 8: {               /* base 8 */
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'o');
+        } break;
+        case 16: {              /* base 16 */
+          write_ascii_char(stream_,'#'); write_ascii_char(stream_,'x');
+        } break;
         case 10:                /* base 10 */
           if (RA_integerp(number)) {
             /* mark base 10 for integers by appending a period: */
@@ -7605,11 +7608,11 @@ local maygc void pr_real_number (const gcv_object_t* stream_, object number) {
             write_ascii_char(stream_,'.');
             return;
           }
-        default:                /* print base in #nR-notation: */
+        default: {              /* print base in #nR-notation: */
           write_ascii_char(stream_,'#');
           pr_uint(stream_,base);
           write_ascii_char(stream_,'r');
-          break;
+        } break;
       }
       number = popSTACK();
     }
@@ -8844,7 +8847,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       CHECK_PRINT_READABLY(obj);
       pr_unreadably(stream_,obj,&O(printstring_readtable),pr_hex6);
       break;
-    case Rectype_Pathname:
+    case Rectype_Pathname: {
      #ifdef IO_DEBUG
       pr_record_descr(stream_,obj,S(pathname),true,O(pathname_slotlist));
      #else
@@ -8892,7 +8895,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       }
       skipSTACK(2);
      #endif
-      break;
+    } break;
    #ifdef LOGICAL_PATHNAMES
     case Rectype_Logpathname:
       if (!nullpSv(print_readably) || nullpSv(parse_namestring_ansi)) {
@@ -8939,7 +8942,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
     case Rectype_Stream:        /* Stream */
       pr_stream(stream_,obj); break;
    #endif
-    case Rectype_Byte:
+    case Rectype_Byte: {
      #if 0
       /* #<BYTE size position> */
       CHECK_PRINT_READABLY(obj);
@@ -8948,7 +8951,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
       /* #S(BYTE :SIZE size :POSITION position) */
       pr_record_descr(stream_,obj,S(byte),true,O(byte_slotlist));
      #endif
-      break;
+    } break;
     #ifdef LINUX_NOEXEC_HEAPCODES
     case Rectype_Subr:          /* Subr */
       pr_subr(stream_,obj);
@@ -9903,7 +9906,7 @@ local maygc void pr_stream (const gcv_object_t* stream_, object obj) {
     case strmtype_twoway_socket:
       *obj_ = TheStream(*obj_)->strm_twoway_socket_input;
       /*FALLTHROUGH*/
-    case strmtype_socket:       /* Socket-Stream */
+    case strmtype_socket: {     /* Socket-Stream */
       JUSTIFY_SPACE;
       JUSTIFY_LAST(false);
       prin_object(stream_,TheStream(*obj_)->strm_eltype); /* Stream-Element-Type */
@@ -9916,7 +9919,7 @@ local maygc void pr_stream (const gcv_object_t* stream_, object obj) {
       }
       write_ascii_char(stream_,':');
       pr_number(stream_,TheStream(*obj_)->strm_socket_port);
-      break;
+    } break;
    #endif
     default:                    /* else no supplementary information */
       break;
@@ -10077,22 +10080,21 @@ LISPFUN(pprint_newline,seclass_default,1,1,norest,nokey,0,NIL) {
   }
   if (PPHELP_STREAM_P(STACK_0) && !nullpSv(print_pretty))
     switch (ppn_type) {
-      case PPRINT_NEWLINE_MISER:
+      case PPRINT_NEWLINE_MISER: {
         if (nullpSv(prin_miserp)) /* miser style */
           break;
         STACK_1 = S(Klinear);
-        /*FALLTHROUGH*/
-      case PPRINT_NEWLINE_LINEAR:
+      } /*FALLTHROUGH*/
+      case PPRINT_NEWLINE_LINEAR: {
         if (eq(TheStream(STACK_0)->strm_pphelp_modus,mehrzeiler))
           goto mandatory;
-        /*FALLTHROUGH*/
-      case PPRINT_NEWLINE_FILL:
+      } /*FALLTHROUGH*/
+      case PPRINT_NEWLINE_FILL: {
         cons_ssstring(&STACK_0,STACK_1);
-        break;
-      case PPRINT_NEWLINE_MANDATORY:
-    mandatory:
+      } break;
+      case PPRINT_NEWLINE_MANDATORY: mandatory: {
         cons_ssstring(&STACK_0,NIL);
-        break;
+      } break;
     }
   VALUES1(NIL); skipSTACK(2);
 }

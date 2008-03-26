@@ -1437,7 +1437,7 @@ local maygc void split_name_type (uintL skip) {
     });
   }
   /* no dot found -> Type := NIL */
-  pushSTACK(NIL);
+  { pushSTACK(NIL); }
   goto name_type_ok;
  punkt: /* dot found at index */
   /* type := (substring string index) */
@@ -3480,7 +3480,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     }
     /* None of the desired cases -> error: */
   directory_bad:
-    pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); goto error_arg;
+    { pushSTACK(STACK_3); pushSTACK(S(Kdirectory)); } goto error_arg;
   directory_ok: ;
   }
   { /* 4. check name: */
@@ -3553,7 +3553,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
     }
   }
   /* 6. check version: */
-  STACK_0 = test_optional_version(!boundp(STACK_7) ? NIL : unbound);
+  { STACK_0 = test_optional_version(!boundp(STACK_7) ? NIL : unbound); }
   DOUT("make-pathname:[ver]",STACK_0);
   DOUT("make-pathname:[ver]",STACK_7);
   { /* 7. build Pathname: */
@@ -4788,10 +4788,11 @@ local maygc object translate_pathname (gcv_object_t* subst, object pattern) {
   if (logpathnamep(pattern))
     logical = true;
  #endif
-#define GET_ITEM(what,xwhat,where,skip)                                     \
-   item = translate_##what(subst,xpathname_##xwhat(logical,where),logical); \
-   if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }             \
-   DOUT(#what " > ",item); pushSTACK(S(K##xwhat)); pushSTACK(item)
+#define GET_ITEM(what,xwhat,where,skip)    do {                         \
+  item = translate_##what(subst,xpathname_##xwhat(logical,where),logical); \
+  if (eq(item,nullobj)) { skipSTACK(skip); goto subst_error; }          \
+  DOUT(#what " > ",item); pushSTACK(S(K##xwhat)); pushSTACK(item);      \
+ } while(0)
 #define GET_ITEM_S(y,x,w) GET_ITEM(y,x,STACK_(w),w)
   /* build together arguments for MAKE-PATHNAME: */
   GET_ITEM(host,host,pattern,0);
@@ -6415,11 +6416,11 @@ global direction_t check_direction (object dir) {
 
 local object direction_symbol (direction_t direction) {
   switch (direction) {
-    case DIRECTION_INPUT: return S(Kinput);
-    case DIRECTION_INPUT_IMMUTABLE: return S(Kinput_immutable);
-    case DIRECTION_OUTPUT: return S(Koutput);
-    case DIRECTION_IO: return S(Kio);
-    case DIRECTION_PROBE: return S(Kprobe);
+    case DIRECTION_INPUT:           { return S(Kinput); }
+    case DIRECTION_INPUT_IMMUTABLE: { return S(Kinput_immutable); }
+    case DIRECTION_OUTPUT:          { return S(Koutput); }
+    case DIRECTION_IO:              { return S(Kio); }
+    case DIRECTION_PROBE:           { return S(Kprobe); }
     default: NOTREACHED;
   }
 }
@@ -6448,10 +6449,10 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
    if_does_not_exist_symbol(item)*/
 global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
   switch (if_not_exist) {
-    case IF_DOES_NOT_EXIST_UNBOUND: return unbound;
-    case IF_DOES_NOT_EXIST_ERROR: return S(Kerror);
-    case IF_DOES_NOT_EXIST_NIL: return NIL;
-    case IF_DOES_NOT_EXIST_CREATE: return S(Kcreate);
+    case IF_DOES_NOT_EXIST_UNBOUND: { return unbound; }
+    case IF_DOES_NOT_EXIST_ERROR:   { return S(Kerror); }
+    case IF_DOES_NOT_EXIST_NIL:     { return NIL; }
+    case IF_DOES_NOT_EXIST_CREATE:  { return S(Kcreate); }
   }
   NOTREACHED;
 }
@@ -6487,14 +6488,14 @@ global if_exists_t check_if_exists (object if_exists) {
    if_exists_symbol(item) */
 global object if_exists_symbol (if_exists_t if_exists) {
   switch (if_exists) {          /* :IF-EXISTS */
-    case IF_EXISTS_UNBOUND: return unbound;
-    case IF_EXISTS_ERROR: return S(Kerror);
-    case IF_EXISTS_NIL: return NIL;
-    case IF_EXISTS_RENAME: return S(Krename);
-    case IF_EXISTS_RENAME_AND_DELETE: return S(Krename_and_delete);
-    case IF_EXISTS_SUPERSEDE: return S(Ksupersede);
-    case IF_EXISTS_APPEND: return S(Kappend);
-    case IF_EXISTS_OVERWRITE: return S(Koverwrite);
+    case IF_EXISTS_UNBOUND:     { return unbound; }
+    case IF_EXISTS_ERROR:       { return S(Kerror); }
+    case IF_EXISTS_NIL:         { return NIL; }
+    case IF_EXISTS_RENAME:      { return S(Krename); }
+    case IF_EXISTS_RENAME_AND_DELETE: { return S(Krename_and_delete); }
+    case IF_EXISTS_SUPERSEDE:   { return S(Ksupersede); }
+    case IF_EXISTS_APPEND:      { return S(Kappend); }
+    case IF_EXISTS_OVERWRITE:   { return S(Koverwrite); }
   }
   NOTREACHED;
 }
@@ -6590,7 +6591,7 @@ local maygc object open_file (object filename, direction_t direction,
           create_new_file(namestring_asciz);
         });
       }
-      handle = NIL; /* Handle := NIL */
+      { handle = NIL; } /* Handle := NIL */
       break;
     case DIRECTION_INPUT: case DIRECTION_INPUT_IMMUTABLE: { /* == :INPUT */
       var Handle handl;
@@ -6652,10 +6653,10 @@ local maygc object open_file (object filename, direction_t direction,
          if-exists: if if_exists<IF_EXISTS_APPEND delete contents;
          othersise (with :APPEND, :OVERWRITE) preserve contents.
          if-not-exists: create new file. */
-      handle = allocate_handle(open_output_file_obj
-                               (*namestring_,wronly_flag,
-                                (if_exists!=IF_EXISTS_APPEND
-                                 && if_exists!=IF_EXISTS_OVERWRITE)));
+      { handle = allocate_handle(open_output_file_obj
+                                 (*namestring_,wronly_flag,
+                                  (if_exists!=IF_EXISTS_APPEND
+                                   && if_exists!=IF_EXISTS_OVERWRITE))); }
      #endif
       break;
     default: NOTREACHED;
@@ -7440,7 +7441,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         next_task = -2; /* search subdirs with wildcards */
     }
     /* traverse pathname-list and construct new list: */
-    pushSTACK(NIL);
+    { pushSTACK(NIL); }
    #if defined(UNIX) || defined(WIN32_NATIVE)
     if (dsp->circle_p) { /* query :CIRCLE-Flag */
       /* maintain hash-table of all scanned directories so far (as
