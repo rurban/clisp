@@ -1127,7 +1127,7 @@ global gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt) {
       return stack STACKop (TheCodevec(codevec)->ccv_numreq
                             + TheCodevec(codevec)->ccv_numopt
                             + (TheCodevec(codevec)->ccv_flags & bit(0) ? 1 : 0)
-                            + (TheCodevec(codevec)->ccv_flags & bit(7) 
+                            + (TheCodevec(codevec)->ccv_flags & bit(7)
                                ? TheCodevec(codevec)->ccv_numkey : 0));
     } else /* Interpreted Closure */
       return stack;
@@ -1200,10 +1200,10 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
     write_ascii_char(stream_,' ');
     var gcv_object_t* FRAME_top = topofframe(FRAME_(0)); /* top of frame */
     switch (framecode(FRAME_(0))) { /* according to frametype */
-      case TRAPPED_APPLY_frame_info:
+      case TRAPPED_APPLY_frame_info: {
         write_sstring(stream_,CLSTEXT("APPLY frame with breakpoint for call "));
-        goto APPLY_frame;
-      case APPLY_frame_info:
+      } goto APPLY_frame;
+      case APPLY_frame_info: {
         write_sstring(stream_,CLSTEXT("APPLY frame for call "));
        APPLY_frame:
         /* print function name and arguments: */
@@ -1219,16 +1219,16 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
           });
         }
         write_ascii_char(stream_,')'); /* print ')' */
-        break;
-      case TRAPPED_EVAL_frame_info:
+      } break;
+      case TRAPPED_EVAL_frame_info: {
         write_sstring(stream_,CLSTEXT("EVAL frame with breakpoint for form "));
-        goto EVAL_frame;
-      case EVAL_frame_info:
+      } goto EVAL_frame;
+      case EVAL_frame_info: {
         write_sstring(stream_,CLSTEXT("EVAL frame for form "));
-      EVAL_frame:
+       EVAL_frame:
         prin1(stream_,FRAME_(frame_form)); /* print form */
-        break;
-      case DYNBIND_frame_info: /* dynamic variable binding frames: */
+      } break;
+      case DYNBIND_frame_info: { /* dynamic variable binding frames: */
         write_sstring(stream_,CLSTEXT("frame binding variables (~ = dynamically):"));
         /* print bindings: */
         FRAME skipSTACKop 1;
@@ -1242,14 +1242,14 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
           prin1(stream_,FRAME_(1)); /* print value */
           FRAME skipSTACKop 2;
         }
-        break;
+      } break;
      #ifdef HAVE_SAVED_REGISTERS
-      case CALLBACK_frame_info: /* callback-register-frames: */
+      case CALLBACK_frame_info: { /* callback-register-frames: */
         write_sstring(stream_,CLSTEXT("CALLBACK frame"));
-        break;
+      } break;
      #endif
       /* variable- and function binding frames: */
-      case VAR_frame_info:
+      case VAR_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding variables "));
        #ifdef NO_symbolflags
         prin1(stream_,make_framepointer(FRAME)); /* print frame-pointer */
@@ -1276,10 +1276,11 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
        #else
         goto VARFUN_frame;
        #endif
-      case FUN_frame_info:
+      }
+      case FUN_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding functions "));
         goto VARFUN_frame;
-      VARFUN_frame:
+       VARFUN_frame: {
         prin1(stream_,make_framepointer(FRAME)); /* print frame-pointer */
         write_sstring(stream_,CLSTEXT(" binds (~ = dynamically):"));
         pushSTACK(FRAME_(frame_next_env)); /* save next environment */
@@ -1297,8 +1298,8 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
             prin1(stream_,FRAME_(1)); /* print value */
           }
           FRAME skipSTACKop 2;
-        }
-      VARFUN_frame_next:
+        }}
+       VARFUN_frame_next:
         /* print next environment: */
         terpri(stream_);
         write_sstring(stream_,CLSTEXT("  Next environment: "));
@@ -1322,9 +1323,9 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
             } while (simple_vector_p(env));
           }
         }
-        break;
+      } break;
         /* compiled block/tagbody-frames: */
-      case CBLOCK_CTAGBODY_frame_info:
+      case CBLOCK_CTAGBODY_frame_info: {
         if (simple_vector_p(Car(FRAME_(frame_ctag)))) {
           /* compiled tagbody-frames: */
           write_sstring(stream_,CLSTEXT("compiled tagbody frame for "));
@@ -1334,28 +1335,28 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
           write_sstring(stream_,CLSTEXT("compiled block frame for "));
           prin1(stream_,Car(FRAME_(frame_ctag))); /* blockname */
         }
-        break;
+      } break;
         /* interpreted block-frames: */
-      case IBLOCK_frame_info:
+      case IBLOCK_frame_info: {
         write_sstring(stream_,CLSTEXT("block frame "));
-        goto IBLOCK_frame;
-      case NESTED_IBLOCK_frame_info:
+      } goto IBLOCK_frame;
+      case NESTED_IBLOCK_frame_info: {
         write_sstring(stream_,CLSTEXT("nested block frame "));
-        goto IBLOCK_frame;
-      IBLOCK_frame:
+      } goto IBLOCK_frame;
+      IBLOCK_frame: {
         pushSTACK(FRAME_(frame_next_env));
         prin1(stream_,make_framepointer(FRAME)); /* print frame-pointer */
         write_sstring(stream_,CLSTEXT(" for "));
         prin1(stream_,FRAME_(frame_name)); /* blockname */
-        goto NEXT_ENV;
+      } goto NEXT_ENV;
         /* interpreted tagbody-frames: */
-      case ITAGBODY_frame_info:
+      case ITAGBODY_frame_info: {
         write_sstring(stream_,CLSTEXT("tagbody frame "));
-        goto ITAGBODY_frame;
-      case NESTED_ITAGBODY_frame_info:
+      } goto ITAGBODY_frame;
+      case NESTED_ITAGBODY_frame_info: {
         write_sstring(stream_,CLSTEXT("nested tagbody frame "));
-        goto ITAGBODY_frame;
-      ITAGBODY_frame:
+      } goto ITAGBODY_frame;
+      ITAGBODY_frame: {
         pushSTACK(FRAME_(frame_next_env));
         prin1(stream_,make_framepointer(FRAME)); /* print frame-pointer */
         write_sstring(stream_,CLSTEXT(" for"));
@@ -1369,95 +1370,86 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
           prin1(stream_,FRAME_(1)); /* print body */
           FRAME skipSTACKop 2;
         }
-        goto NEXT_ENV;
-      NEXT_ENV: /* printing of a block- or tagbody-environments STACK_0 */
+      } goto NEXT_ENV;
+      NEXT_ENV: { /* printing of a block- or tagbody-environments STACK_0 */
         terpri(stream_);
         write_sstring(stream_,CLSTEXT("  Next environment: "));
-        {
-          var object env = popSTACK();
-          if (!consp(env)) {
-            prin1(stream_,env);
-          } else {
-            /* next environment is an Alist */
-            do {
-              pushSTACK(Cdr(env));
-              env = Car(env);
-              if (atomp(env)) {
-                pushSTACK(S(show_stack));
-                error(error_condition,GETTEXT("~S: environment is not an alist"));
-              }
-              pushSTACK(Cdr(env));
-              pushSTACK(Car(env));
-              write_sstring(stream_,O(showstack_string_bindung)); /* "␤  | " */
-              prin1(stream_,popSTACK());
-              write_sstring(stream_,O(showstack_string_zuordtag)); /* " --> " */
-              prin1(stream_,popSTACK());
-              env = popSTACK();
-            } while (consp(env));
-          }
+        var object env = popSTACK();
+        if (!consp(env)) {
+          prin1(stream_,env);
+        } else { /* next environment is an Alist */
+          do {
+            pushSTACK(Cdr(env));
+            env = Car(env);
+            if (atomp(env)) {
+              pushSTACK(S(show_stack));
+              error(error_condition,GETTEXT("~S: environment is not an alist"));
+            }
+            pushSTACK(Cdr(env));
+            pushSTACK(Car(env));
+            write_sstring(stream_,O(showstack_string_bindung)); /* "␤  | " */
+            prin1(stream_,popSTACK());
+            write_sstring(stream_,O(showstack_string_zuordtag)); /* " --> " */
+            prin1(stream_,popSTACK());
+            env = popSTACK();
+          } while (consp(env));
         }
-        break;
-      case CATCH_frame_info:
-        /* catch-frames: */
+      } break;
+      case CATCH_frame_info: { /* catch-frames: */
         write_sstring(stream_,CLSTEXT("catch frame for tag "));
         prin1(stream_,FRAME_(frame_tag)); /* tag */
-        break;
-      case HANDLER_frame_info:
-        /* handler-frames: */
+      } break;
+      case HANDLER_frame_info: { /* handler-frames: */
         write_sstring(stream_,CLSTEXT("handler frame for conditions"));
-        {
-          var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); /* 2*m */
-          var uintL i = 0;
-          do {
-            write_ascii_char(stream_,' '); /* print ' ' */
-            prin1(stream_,TheSvector(Car(FRAME_(frame_handlers)))->data[i]); /* print type i */
-            i += 2;
-          } while (i < m2);
-        }
-        break;
-      case UNWIND_PROTECT_frame_info:
-        /* unwind-protect-frames: */
+        var uintL m2 = Svector_length(Car(FRAME_(frame_handlers))); /* 2*m */
+        var uintL i = 0;
+        do {
+          write_ascii_char(stream_,' '); /* print ' ' */
+          prin1(stream_,TheSvector(Car(FRAME_(frame_handlers)))->data[i]); /* print type i */
+          i += 2;
+        } while (i < m2);
+      } break;
+      case UNWIND_PROTECT_frame_info: { /* unwind-protect-frames: */
         write_sstring(stream_,CLSTEXT("unwind-protect frame"));
-        break;
-      case DRIVER_frame_info:
-        /* driver-frames: */
+      } break;
+      case DRIVER_frame_info: { /* driver-frames: */
         terpri(stream_); /* blank line */
         write_sstring(stream_,CLSTEXT("driver frame"));
-        break;
+      } break;
         /* environment-frames: */
-      case ENV1V_frame_info:
+      case ENV1V_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_VENV_frame)); /* "␤  VAR_ENV <--> " */
         prin1(stream_,FRAME_(1));
-        break;
-      case ENV1F_frame_info:
+      } break;
+      case ENV1F_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_FENV_frame)); /* "␤  FUN_ENV <--> " */
         prin1(stream_,FRAME_(1));
-        break;
-      case ENV1B_frame_info:
+      } break;
+      case ENV1B_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_BENV_frame)); /* "␤  BLOCK_ENV <--> " */
         prin1(stream_,FRAME_(1));
-        break;
-      case ENV1G_frame_info:
+      } break;
+      case ENV1G_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_GENV_frame)); /* "␤  GO_ENV <--> " */
         prin1(stream_,FRAME_(1));
-        break;
-      case ENV1D_frame_info:
+      } break;
+      case ENV1D_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_DENV_frame)); /* "␤  DECL_ENV <--> " */
         prin1(stream_,FRAME_(1));
-        break;
-      case ENV2VD_frame_info:
+      } break;
+      case ENV2VD_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_VENV_frame)); /* "␤  VAR_ENV <--> " */
         prin1(stream_,FRAME_(1));
         write_sstring(stream_,O(showstack_string_DENV_frame)); /* "␤  DECL_ENV <--> " */
         prin1(stream_,FRAME_(2));
-        break;
-      case ENV5_frame_info:
+      } break;
+      case ENV5_frame_info: {
         write_sstring(stream_,CLSTEXT("frame binding environments"));
         write_sstring(stream_,O(showstack_string_VENV_frame)); /* "␤  VAR_ENV <--> " */
         prin1(stream_,FRAME_(1));
@@ -1469,7 +1461,7 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
         prin1(stream_,FRAME_(4));
         write_sstring(stream_,O(showstack_string_DENV_frame)); /* "␤  DECL_ENV <--> " */
         prin1(stream_,FRAME_(5));
-        break;
+      } break;
       default:
         pushSTACK(S(show_stack));
         error(serious_condition,GETTEXT("~S: unknown frame type"));

@@ -1,5 +1,14 @@
 2008-03-25  Sam Steingold  <sds@gnu.org>
 
+	* array.d, control.d, debug.d, eval.d, execname.c, hashtabl.d:
+	* io.d, lisparit.d, lispbibl.d, list.d, package.d, pathname.d:
+	* predtype.d, record.d, sequence.d, spvw.d, spvw_circ.d:
+	* spvw_debug.d, spvw_garcol.d, spvw_language.d, spvw_memfile.d:
+	* stream.d, weak.d: add extra braces to work around the g++ 4.2
+	error "jump to label ... crosses initialization of ..."
+
+2008-03-25  Sam Steingold  <sds@gnu.org>
+
 	* m4/cc-sunpro.m4: new file, define CL_CC_SUNPRO
 	* configure.in: call CL_CC_SUNPRO
 	* makemake.in: use CC_SUNPRO, set by CL_CC_SUNPRO, to detect

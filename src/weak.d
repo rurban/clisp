@@ -1,7 +1,7 @@
 /*
  * Functions for weak references in CLISP
  * Bruno Haible 1999-2005
- * Sam Steingold 2003, 2007
+ * Sam Steingold 2003, 2007-2008
  */
 #include "lispbibl.c"
 
@@ -739,14 +739,10 @@ local inline maygc object check_weakalist (object obj) {
 LISPFUNNR(weak_alist_type,1) {
   var object type;
   switch (Record_type(TheMutableWeakAlist(popSTACK())->mwal_list)) {
-    case Rectype_WeakAlist_Key:
-      type = S(Kkey); break;
-    case Rectype_WeakAlist_Value:
-      type = S(Kvalue); break;
-    case Rectype_WeakAlist_Either:
-      type = S(Kkey_and_value); break;
-    case Rectype_WeakAlist_Both:
-      type = S(Kkey_or_value); break;
+    case Rectype_WeakAlist_Key:    { type = S(Kkey); break; }
+    case Rectype_WeakAlist_Value:  { type = S(Kvalue); break; }
+    case Rectype_WeakAlist_Either: { type = S(Kkey_and_value); break; }
+    case Rectype_WeakAlist_Both:   { type = S(Kkey_or_value); break; }
     default: NOTREACHED;
   }
   VALUES1(type);

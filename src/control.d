@@ -184,7 +184,7 @@ local maygc bool check_setq_body (object caller) {
     STACK_0 = Cdr(STACK_0);
     if (atomp(STACK_0)) {
       if (!nullp(STACK_0))
-        goto error_dotted;
+        error_dotted_form(STACK_1,TheFsubr(subr_self)->name);
       /* STACK_0 == SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
       error(source_program_error,GETTEXT("~S: odd number of arguments: ~S"));
@@ -192,12 +192,8 @@ local maygc bool check_setq_body (object caller) {
     STACK_0 = Cdr(STACK_0);
   }
   /* body is finished. */
-  if (!nullp(STACK_0)) {
-   error_dotted: /* The whole body is still in STACK_0. */
-    /* STACK_0 == SOURCE-PROGRAM-ERROR slot DETAIL */
-    pushSTACK(STACK_1); pushSTACK(TheFsubr(subr_self)->name);
-    error(source_program_error,GETTEXT("dotted list given to ~S : ~S"));
-  }
+  if (!nullp(STACK_0))
+    error_dotted_form(STACK_1,TheFsubr(subr_self)->name);
   skipSTACK(1); /* drop body */
   return false;
 }
@@ -292,7 +288,7 @@ LISPFUNN(fmakunbound,1)
       error(error_condition,GETTEXT("~S: the special operator definition of ~S must not be removed"));
     }
   }
-  Symbol_function(symbol) = unbound;
+  { Symbol_function(symbol) = unbound; }
  undef:
   VALUES1(funname);
 }
@@ -1330,13 +1326,13 @@ LISPSPECFORM(return_from, 1,1,nobody)
       }
     env = Cdr(env);
   }
-  /* env is done. */
-  pushSTACK(name);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
-  pushSTACK(name); pushSTACK(S(return_from));
-  error(source_program_error,
-        GETTEXT("~S: no block named ~S is currently visible"));
-  /* found block-frame: env */
- found:
+  { /* env is done. */
+    pushSTACK(name);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
+    pushSTACK(name); pushSTACK(S(return_from));
+    error(source_program_error,
+          GETTEXT("~S: no block named ~S is currently visible"));
+  }
+ found: /* found block-frame: env */
   FRAME = uTheFramepointer(env); /* pointer to that frame */
   /* produce values, with which the block will be left: */
   var object result = popSTACK();
@@ -1344,7 +1340,7 @@ LISPSPECFORM(return_from, 1,1,nobody)
   if (boundp(result)) { /* result supplied? */
     eval(result);
   } else {
-      VALUES1(NIL);
+    VALUES1(NIL);
   }
   /* jump to the found block-frame and unwind it: */
   unwind_upto(FRAME);
@@ -1601,7 +1597,7 @@ LISPSPECFORM(tagbody, 0,0,body)
     pushSTACK(aktenv.go_env); /* current GO_ENV as NEXT_ENV */
     finish_entry_frame(ITAGBODY,returner,, goto go_entry; );
     /* extend GO_ENV: */
-    aktenv.go_env = make_framepointer(STACK);
+    { aktenv.go_env = make_framepointer(STACK); }
     if (false) {
      go_entry: /* we jump to this label, if this frame has caught a GO. */
       body = value1; /* the formlist is passed as value1. */
@@ -1681,14 +1677,14 @@ LISPSPECFORM(go, 1,0,nobody)
     } while (--count);
     env = Cdr(env);
   }
-  /* env is finished. */
-  pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
-  pushSTACK(tag); pushSTACK(S(go));
-  error(source_program_error,
-        GETTEXT("~S: no tag named ~S is currently visible"));
-  /* tagbody-frame found. FRAME is pointing to it (without typeinfo),
-     value1 is the liste of the forms to be executed. */
- found:
+  { /* env is finished. */
+    pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
+    pushSTACK(tag); pushSTACK(S(go));
+    error(source_program_error,
+          GETTEXT("~S: no tag named ~S is currently visible"));
+  }
+ found: /* tagbody-frame found. FRAME is pointing to it (without typeinfo),
+           value1 is the liste of the forms to be executed. */
   mv_count=1; /* formlist value1 is passed */
   /* jump to the found tagbody-frame and continue there: */
   unwind_upto(FRAME);

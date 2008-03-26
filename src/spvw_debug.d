@@ -193,10 +193,10 @@ local void nobject_out1 (FILE* out, object obj, int level) {
       XOUT(TheHashtable(obj)->ht_hash);
     } else {
       switch (ht_test_code(record_flags(TheHashtable(obj))) & (bit(1)|bit(0))) {
-        case 0: XOUT(S(eq)); break;
-        case 1: XOUT(S(eql)); break;
-        case 2: XOUT(S(equal)); break;
-        case 3: XOUT(S(equalp)); break;
+        case 0: { XOUT(S(eq)); break; }
+        case 1: { XOUT(S(eql)); break; }
+        case 2: { XOUT(S(equal)); break; }
+        case 3: { XOUT(S(equalp)); break; }
         default: abort();
       }
     }
