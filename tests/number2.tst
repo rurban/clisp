@@ -518,4 +518,7 @@ NIL
 (tanh 1d100)   1d0
 (tanh 1f10)    1f0
 (tanh 1s10)    1s0
-
+(tanh 1d-10)   1d-10
+(tanh 1L-10)   1L-10
+(tanh 1L-17)   1L-17
+(tanh 1L-47)   1L-47
