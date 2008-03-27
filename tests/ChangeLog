@@ -1,3 +1,8 @@
+2008-03-27  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: add tests for bug #[ 1683394 ]:
+	TANH floating point overflow for large floats
+
 2008-03-18  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: update tests for versioned symbols
