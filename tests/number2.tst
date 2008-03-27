@@ -501,3 +501,21 @@ T
   :for b1 = (logxor b (ash 1 (floor (integer-length b) 2))) :for s1 = (sxhash b1)
   :when (= s s1) :collect (list b s b1 s1))
 NIL
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1683394&group_id=1355
+(tanh 1s13)    1s0
+(tanh 1s3)     1s0
+(tanh 1s2)     1s0
+(tanh 1s1)     1s0
+(tanh 1s0)     0.7616s0
+(tanh 1f0)     0.7615942
+(tanh 1d0)     0.7615941559557649d0
+(tanh 1l0)     0.7615941559557648881L0
+(tanh 1f1)     1f0
+(tanh 1d1)     0.9999999958776927d0
+(tanh 1l1)     0.9999999958776927636L0
+(tanh 1l100)   1L0
+(tanh 1d100)   1d0
+(tanh 1f10)    1f0
+(tanh 1s10)    1s0
+
