@@ -41,7 +41,7 @@ User visible changes
   + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
   + Fix rectangle count in NEW-CLX XLIB:SET-GCONTEXT-CLIP-MASK. [ 1918017 ]
   + Fix compilation on systems not supporting returning void. [ 1924506 ]
-
+  + Fix TANH floating point overflow for large floats. [ 1683394 ]
 
 2.44.1 (2008-02-23)
 ===================

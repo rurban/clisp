@@ -1122,8 +1122,7 @@ local maygc object R_sinh_R (object x);
     if e>0: y:=exp(x) calculate, (scale-float (- y (/ y)) -1) bilden. */
 local maygc object R_sinh_R (object x)
 {
-  if (R_rationalp(x)) {
-    /* x rational */
+  if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) /* x=0 -> 0 as result */
       return x;
     x = RA_float_F(x); /* otherwise convert to Float */
@@ -1139,8 +1138,7 @@ local maygc object R_sinh_R (object x)
     temp = F_F_float_F(temp,STACK_1); /* and round again */
     skipSTACK(2);
     return temp;
-  } else {
-    /* e > 0 -> use exp(x) */
+  } else { /* e > 0 -> use exp(x) */
     var object temp;
     pushSTACK(x);
     pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
@@ -1167,16 +1165,14 @@ local maygc object R_cosh_R (object x);
     if e>0: calculate y:=exp(x), (scale-float (+ y (/ y)) -1) bilden. */
 local maygc object R_cosh_R (object x)
 {
-  if (R_rationalp(x)) {
-    /* x rational */
+  if (R_rationalp(x)) { /* x rational */
     if (eq(x,Fixnum_0)) /* x=0 -> 1 as result */
       return Fixnum_1;
     x = RA_float_F(x); /* otherwise convert to float */
   }
   /* x float */
   var sintL e = F_exponent_L(x);
-  if (e > 0) {
-    /* e>0 -> use exp(x) */
+  if (e > 0) { /* e>0 -> use exp(x) */
     var object temp;
     pushSTACK(x);
     pushSTACK(temp = R_exp_R(x,true,NULL)); /* y:=exp(x) */
@@ -1184,8 +1180,7 @@ local maygc object R_cosh_R (object x)
     temp = F_F_plus_F(popSTACK(),temp); /* add to y */
     temp = F_I_scale_float_F(temp,Fixnum_minus1); /* (scale-float -1) */
     return F_F_float_F(temp,popSTACK());
-  } else {
-    /* e<=0 */
+  } else { /* e<=0 */
     if (R_zerop(x))
       return I_F_float_F(Fixnum_1,x);
     {
@@ -1215,7 +1210,7 @@ local maygc object R_cosh_R (object x)
   x rational -> with x=0 (1,0) as result, otherwise convert x to float.
   x float -> increase precision,
     e := exponent from (decode-float x), d := (float-digits x)
-    if x=0.0 oder e<=(1-d)/2 liefere (1.0,x)
+    if x=0.0 or e<=(1-d)/2 return (1.0,x)
       (because with e<=(1-d)/2 follows
        1 <= sinh(x)/x < cosh(x) = 1+x^2/2+... < 1+2^(-d),
        so cosh(x), rounded to d bits, equals 1.0
@@ -1281,15 +1276,33 @@ local maygc void R_cosh_sinh_R_R (object x, gcv_object_t* end_p)
 
 /* R_tanh_R(x) compute the hyperbolic tangens (tanh x) of a real number x.
  can trigger GC
- Method:
- (/ (sinh x) (cosh x)) */
+ Method: x = 0 => 0
+         x < 0 => - tanh(-x)
+         x > 0 => 1 - exp(-2x) / 1 + exp(-2x)
+ [[ (/ (sinh x) (cosh x)) -- leads to FP overflow [ 1683394 ] ]] */
+local maygc object posF_tanh_posF (object x) {
+  pushSTACK(x);               /* save to be able to restore precision */
+  dynamic_bind(S(inhibit_floating_point_underflow),T);
+  x = R_exp_R(F_I_scale_float_F(F_minus_F(x),Fixnum_1),true,NULL);
+  dynamic_unbind(S(inhibit_floating_point_underflow));
+  if (R_zerop(x)) return I_F_float_F(Fixnum_1,popSTACK());
+  pushSTACK(x); pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
+  STACK_2 = I_F_float_F(Fixnum_1,STACK_3);
+  STACK_1 = F_F_minus_F(STACK_2,STACK_3);
+  STACK_0 = F_F_plus_F(STACK_2,STACK_3);
+  /* STACK: x, e^-2x, 1.0, 1-e^-2x, 1+e^-2x */
+  x = F_F_div_F(STACK_1,STACK_0);
+  skipSTACK(4);
+  return F_F_float_F(x,popSTACK());
+}
 local maygc object R_tanh_R (object x)
 {
-  pushSTACK(x);
-  R_cosh_sinh_R_R(x,NULL);
-  /* stack layout: x, cosh(x), sinh(x). */
-  var object result = R_R_div_R(STACK_0,STACK_1);
-  if (floatp(STACK_0) || floatp(STACK_1))
-    result = F_R_float_F(result,STACK_2); /* reduce precision */
-  skipSTACK(3); return result;
+  if (R_rationalp(x)) { /* x rational */
+    if (eq(x,Fixnum_0)) /* x=0 -> 0 */
+      return Fixnum_0;
+    x = RA_float_F(x); /* ==> Float */
+  }
+  /* x -- float */
+  return positivep(x) ? posF_tanh_posF(x)
+    : F_minus_F(posF_tanh_posF(F_minus_F(x)));
 }
