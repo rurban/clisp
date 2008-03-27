@@ -1276,10 +1276,11 @@ local maygc void R_cosh_sinh_R_R (object x, gcv_object_t* end_p)
 
 /* R_tanh_R(x) compute the hyperbolic tangens (tanh x) of a real number x.
  can trigger GC
- Method: x = 0 => 0
-         x < 0 => - tanh(-x)
-         x > 0 => 1 - exp(-2x) / 1 + exp(-2x)
- [[ (/ (sinh x) (cosh x)) -- leads to FP overflow [ 1683394 ] ]] */
+ Method:
+   x = 0 => 0
+   |x| < 1 => (/ (sinh x) (cosh x)) - better precision for small x
+   x < 0 => - tanh(-x)
+   x > 0 => 1 - exp(-2x) / 1 + exp(-2x) - better handling of very large x */
 local maygc object posF_tanh_posF (object x) {
   pushSTACK(x);               /* save to be able to restore precision */
   dynamic_bind(S(inhibit_floating_point_underflow),T);
@@ -1303,6 +1304,14 @@ local maygc object R_tanh_R (object x)
     x = RA_float_F(x); /* ==> Float */
   }
   /* x -- float */
-  return positivep(x) ? posF_tanh_posF(x)
-    : F_minus_F(posF_tanh_posF(F_minus_F(x)));
+  if (F_exponent_L(x) <= 0) {   /* small => (/ (sinh x) (cosh x)) */
+    pushSTACK(x);
+    R_cosh_sinh_R_R(x,NULL);
+    /* stack layout: x, cosh(x), sinh(x). */
+    var object result = R_R_div_R(STACK_0,STACK_1);
+    if (floatp(STACK_0) || floatp(STACK_1))
+      result = F_R_float_F(result,STACK_2); /* reduce precision */
+    skipSTACK(3); return result;
+  } else return positivep(x) ? posF_tanh_posF(x)
+           : F_minus_F(posF_tanh_posF(F_minus_F(x)));
 }
