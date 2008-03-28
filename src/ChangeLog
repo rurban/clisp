@@ -2,7 +2,7 @@
 
 	fix bug #[ 1683394 ]: TANH floating point overflow for large floats
 	* realtran.d (posF_tanh_posF): new function: 1-exp(-2x)/1+exp(-2x)
-	(R_tanh_R): use it instead of R_cosh_sinh_R_R
+	(R_tanh_R): use it instead of R_cosh_sinh_R_R when |x|>=1
 
 2008-03-25  Sam Steingold  <sds@gnu.org>
 
