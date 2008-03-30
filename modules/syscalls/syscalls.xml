@@ -595,6 +595,11 @@
   <term><code>(&setf; (POSIX:GETEGID) &gid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getegid</function> and
    <function role="unix">setegid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="getgroups"><term><code>(POSIX:GETGROUPS)</code></term>
+  <term><code>(&setf; (POSIX:GETGROUPS) &list-r;)</code></term>
+  <listitem><simpara>Call <function role="unix">getgroups</function> and
+   <function role="bsd">setgroups</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="strtime"><term><code>(OS:STRING-TIME &fmt-r;
     &optional-amp; &object-r; timezone)</code></term>
   <listitem><simpara>When &object-r; is a &string-t;, is is parsed

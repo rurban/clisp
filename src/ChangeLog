@@ -1,5 +1,8 @@
 2008-03-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (GETGROUPS, %SETGROUPS): implemented
+	* modules/syscalls/posix.lisp (GETGROUPS): export, add DEFSETF
+	* modules/syscalls/configure.in: check for getgroups and setgroups 
 	* src/lispbibl.d (llength1): export to clisp.h
 
 2008-03-29  Sam Steingold  <sds@gnu.org>

@@ -1,5 +1,5 @@
 ;;; handle the posix functions
-;;; Sam Steingold 1999-2007
+;;; Sam Steingold 1999-2008
 
 (defpackage #:posix
   (:use #:common-lisp #:ext)
@@ -29,11 +29,12 @@
 )
 ;;; ============================================================
 #+unix (progn
-(export '(getuid getgid geteuid getegid))
+(export '(getuid getgid geteuid getegid getgroups))
 (defsetf getuid posix::%setuid)
 (defsetf getgid posix::%setgid)
 (defsetf geteuid posix::%seteuid)
 (defsetf getegid posix::%setegid)
+(defsetf getgroups posix::%setgroups)
 )
 ;;; ============================================================
 (defmacro with-stream-lock ((stream &rest options) &body body)
