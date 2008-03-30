@@ -14196,6 +14196,7 @@ extern uintL llength1 (object obj, object* last);
 /* used in SEQUENCE */
 #define llength(obj)  llength1(obj,NULL)
 /* used by CONTROL, EVAL, RECORD, IO, PACKAGE, HASHTABL, STREAM */
+%% puts("extern uintL llength1 (object obj, object* last);");
 
 /* UP: Makes a list with exactly len elements
  make_list(len)
