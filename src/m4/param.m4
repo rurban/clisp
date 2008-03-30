@@ -17,8 +17,8 @@ AC_REQUIRE([AC_C_CHAR_UNSIGNED])dnl
 cl_machine_file_c=$2
 if test -z "$[$5]"; then
 AC_CHECKING(for [$1])
-if test $cross_compiling = no; then
 cl_machine_file_h=$4
+if test $cross_compiling = no; then
 cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 EOF
