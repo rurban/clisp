@@ -1606,6 +1606,33 @@ DEFUN(POSIX:GETEGID,){ GETTER(gid,getegid); }
 #if defined(HAVE_SETEGID)
 DEFUN(POSIX::%SETEGID, egid) { SETTER(gid,setegid); }
 #endif
+#if defined(HAVE_GETGROUPS)
+DEFUN(POSIX::GETGROUPS,) {
+  int group_count, ret;
+  gid_t *groups;
+  begin_system_call(); group_count = getgroups(0,NULL); end_system_call();
+  groups = (gid_t*)alloca(sizeof(gid_t) * group_count);
+  begin_system_call(); ret = getgroups(group_count,groups); end_system_call();
+  if (ret == -1) OS_error();
+  while (ret--) pushSTACK(gid_to_I(*groups++));
+  VALUES1(listof(group_count));
+}
+#endif
+#if defined(HAVE_SETGROUPS)
+DEFUN(POSIX::%SETGROUPS, groups) {
+  int group_count = llength1(STACK_0,NULL), i = group_count;
+  gid_t *groups = (gid_t*)alloca(sizeof(gid_t) * group_count), *pgrp = groups;
+  pushSTACK(STACK_0);
+  while (i--) {
+    *pgrp++ = I_to_gid(Car(STACK_0));
+    STACK_0 = Cdr(STACK_0);
+  }
+  if (!nullp(popSTACK())) NOTREACHED;
+  begin_system_call(); i = setgroups(group_count,groups); end_system_call();
+  if (i == -1) OS_error();
+  VALUES1(popSTACK());
+}
+#endif
 
 #if defined(HAVE_STAT)
 /* call stat() on the pathname
