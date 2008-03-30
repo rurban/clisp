@@ -1,5 +1,11 @@
 2008-03-30  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1929496 ]: cosmetic informational message fix
+	* m4/param.m4: set cl_machine_file_h before the cross_compiling test
+	so that it is defined in both branches
+
+2008-03-30  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (GETGROUPS, %SETGROUPS): implemented
 	* modules/syscalls/posix.lisp (GETGROUPS): export, add DEFSETF
 	* modules/syscalls/configure.in: check for getgroups and setgroups 
