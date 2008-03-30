@@ -1,3 +1,9 @@
+2008-03-29  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1928920 ]: missing quotes in shell code for test invocation
+	* m4/intparam.m4: use ac_cv_type_long_long_int
+	instead of the obsolete ac_cv_type_long_long
+
 2008-03-28  Yann Dauphin  <yann-nicolas.dauphin@polymtl.ca>
 	Sam Steingold  <sds@gnu.org>
 
