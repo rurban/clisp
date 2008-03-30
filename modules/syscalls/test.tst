@@ -77,6 +77,12 @@ T
 #+unix (let ((id (show (os:getegid)))) (= id (setf (os:getegid) id))) T
 #+unix (= (os:getuid) (os:geteuid)) T
 #+unix (= (os:getgid) (os:getegid)) T
+#+unix (listp (show (if (fboundp 'os:getgroups) (os:getgroups)
+                        '(no os:getgroups)) :pretty t)) T
+#+unix (if (and (fboundp 'os:getgroups) (fboundp 'os::%setgroups))
+           (let ((g (os:getgroups))) ; setgroups may fail with EPERM
+	     (eq g (or (ignore-errors (setf (os:getgroups) g)) g)))
+           t) T
 
 #+unix (listp (show (if (fboundp 'os:sysconf)
                         (os:sysconf) '(no os:sysconf)) :pretty t)) T

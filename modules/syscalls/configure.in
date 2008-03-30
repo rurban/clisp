@@ -39,7 +39,7 @@ getpgid setpgrp getsid setpgid setsid kill pathconf fpathconf realpath dnl
 getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
-getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
+getegid geteuid getgid getuid setegid seteuid setgid setuid getgroups setgroups dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 erf erfc lgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx)
