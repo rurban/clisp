@@ -52691,7 +52691,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     n=`expr $n + 1`; x="$x * (long)2"
   done
 
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
 
   n=1; x="(long long)2"
   while true; do
@@ -52928,7 +52928,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     n=`expr $n + 1`; x="$x * (unsigned long)2"
   done
 
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
 
   n=1; x="(unsigned long long)2"
   while true; do
@@ -53005,7 +53005,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     else
       echo "#error \"Integers of type long have no binary representation!!\""
     fi
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
       if test -n "$longlong_bitsize"; then
         echo "/* Integers of type long long have $longlong_bitsize bits. */"
         echo "#define long_long_bitsize $longlong_bitsize"
@@ -53038,7 +53038,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     else
       echo "#error \"Integers of type unsigned long have no binary representation!!\""
     fi
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
       if test -n "$ulonglong_bitsize"; then
         echo "/* Integers of type unsigned long long have $ulonglong_bitsize bits. */"
         echo
@@ -53058,7 +53058,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
     if test "$long_bitsize" != "$ulong_bitsize"; then
       echo "#error \"Integer types long and unsigned long have different sizes!!\""
     fi
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
       if test "$longlong_bitsize" != "$ulonglong_bitsize"; then
         echo "#error \"Integer types long long and unsigned long long have different sizes!!\""
       fi
@@ -56392,7 +56392,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
     echo "/* Type unsigned long has sizeof = $sizeof_ulong and alignment = $alignment_ulong. */"
     echo
-    if test $ac_cv_type_long_long = yes; then
+    if test $ac_cv_type_long_long_int = yes; then
 
   if test "$cross_compiling" = yes; then
   # Depending upon the size, compute the lo and hi bounds.
@@ -59380,7 +59380,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
         echo "#define int_big_endian"
         echo "/* Type unsigned long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
         echo "#define long_big_endian"
-        if test $ac_cv_type_long_long = yes; then
+        if test $ac_cv_type_long_long_int = yes; then
           echo "/* Type unsigned long long is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */"
           echo "#define long_long_big_endian"
         fi
@@ -59392,7 +59392,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
         echo "#define int_little_endian"
         echo "/* Type unsigned long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
         echo "#define long_little_endian"
-        if test $ac_cv_type_long_long = yes; then
+        if test $ac_cv_type_long_long_int = yes; then
           echo "/* Type unsigned long long is stored LITTLE-ENDIAN in memory (i.e. like Z80 or VAX). */"
           echo "#define long_long_little_endian"
         fi
@@ -59401,7 +59401,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
         echo "#error \"Type short is stored in memory in an obscure manner!!\""
         echo "#error \"Type int is stored in memory in an obscure manner!!\""
         echo "#error \"Type long is stored in memory in an obscure manner!!\""
-        if test $ac_cv_type_long_long = yes; then
+        if test $ac_cv_type_long_long_int = yes; then
           echo "#error \"Type long long is stored in memory in an obscure manner!!\""
         fi
         ;;
