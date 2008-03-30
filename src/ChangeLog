@@ -1,3 +1,7 @@
+2008-03-30  Sam Steingold  <sds@gnu.org>
+
+	* src/lispbibl.d (llength1): export to clisp.h
+
 2008-03-29  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1928920 ]: missing quotes in shell code for test invocation
