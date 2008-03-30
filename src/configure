@@ -52462,8 +52462,8 @@ cl_machine_file_c=${srcdir}/intparam.c
 if test -z "$cl_cv_file_intparam_h"; then
 { echo "$as_me:$LINENO: checking for integer types and behaviour..." >&5
 echo "$as_me: checking for integer types and behaviour..." >&6;}
-if test $cross_compiling = no; then
 cl_machine_file_h=intparam.h
+if test $cross_compiling = no; then
 cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 EOF
@@ -59426,8 +59426,8 @@ cl_machine_file_c=${srcdir}/floatparam.c
 if test -z "$cl_cv_file_floatparam_h"; then
 { echo "$as_me:$LINENO: checking for floating-point types and behaviour..." >&5
 echo "$as_me: checking for floating-point types and behaviour..." >&6;}
-if test $cross_compiling = no; then
 cl_machine_file_h=floatparam.h
+if test $cross_compiling = no; then
 cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 EOF
