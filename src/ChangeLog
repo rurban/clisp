@@ -4,6 +4,8 @@
 	cross-compiling
 	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): require CL_OFFSETOF and
 	include <stddef.h> so that offsetof is defined
+	(CL_INTPARAM_CROSS): disable [void (*)(void)] because compilation
+	fails, while the results are never used
 
 2008-03-30  Sam Steingold  <sds@gnu.org>
 
