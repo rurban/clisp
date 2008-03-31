@@ -1,3 +1,10 @@
+2008-03-31  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1929516 ]: m4:CL_INTPARAM_ALIGNOF loops infinitely when
+	cross-compiling
+	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): require CL_OFFSETOF and
+	include <stddef.h> so that offsetof is defined
+
 2008-03-30  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1929496 ]: cosmetic informational message fix
@@ -8,7 +15,7 @@
 
 	* modules/syscalls/calls.c (GETGROUPS, %SETGROUPS): implemented
 	* modules/syscalls/posix.lisp (GETGROUPS): export, add DEFSETF
-	* modules/syscalls/configure.in: check for getgroups and setgroups 
+	* modules/syscalls/configure.in: check for getgroups and setgroups
 	* src/lispbibl.d (llength1): export to clisp.h
 
 2008-03-29  Sam Steingold  <sds@gnu.org>

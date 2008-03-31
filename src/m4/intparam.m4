@@ -274,12 +274,15 @@ AC_DEFUN([CL_INTPARAM_SIZEOF],
 
 dnl CL_INTPARAM_ALIGNOF(type, variable)
 dnl puts into variable the determined alignment of the type.
-AC_DEFUN([CL_INTPARAM_ALIGNOF],
-[
+AC_DEFUN([CL_INTPARAM_ALIGNOF],[
+  AC_REQUIRE([CL_OFFSETOF])
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
     AC_TRY_COMPILE([
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
