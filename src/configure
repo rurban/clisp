@@ -53727,6 +53727,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -53736,6 +53737,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -54100,6 +54104,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -54109,6 +54114,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -54471,6 +54479,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -54480,6 +54489,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -54844,6 +54856,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -54853,6 +54866,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -55215,6 +55231,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -55224,6 +55241,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -55588,6 +55608,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -55597,6 +55618,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -55959,6 +55983,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -55968,6 +55993,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -56332,6 +56360,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -56341,6 +56370,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -56704,6 +56736,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -56713,6 +56746,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -57077,6 +57113,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -57086,6 +57123,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -57449,6 +57489,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -57458,6 +57499,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -57822,6 +57866,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -57831,6 +57876,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -58196,6 +58244,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -58205,6 +58254,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -58570,6 +58622,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -58579,6 +58632,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -58941,6 +58997,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -58950,6 +59007,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
@@ -59312,6 +59372,7 @@ rm -f conftest.val
 
 
 
+
     n=1
   while true; do
     cat >conftest.$ac_ext <<_ACEOF
@@ -59321,6 +59382,9 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
+#ifdef HAVE_OFFSETOF
+# include <stddef.h>
+#endif
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
