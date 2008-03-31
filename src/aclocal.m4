@@ -7727,8 +7727,13 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     CL_INTPARAM_ALIGNOF([long *], [alignment_long_ptr])
     echo "/* Type long * has sizeof = $sizeof_long_ptr and alignment = $alignment_long_ptr. */"
     echo
-    CL_INTPARAM_SIZEOF([void (*)(void)], [sizeof_function_ptr])
-    CL_INTPARAM_ALIGNOF([void (*)(void)], [alignment_function_ptr])
+    dnl disabled because:
+    dnl - the results of these are not used anywhere
+    dnl - the results of non-cross are not generated (see src/intparam.h)
+    dnl - the C code fails with "expected identifier or '(' before ')' token"
+    dnl   on the line "typedef int verify[2*(alignof(void (*)(void)) == 256) - 1];"
+    dnl CL_INTPARAM_SIZEOF([void (*)(void)], [sizeof_function_ptr])
+    dnl CL_INTPARAM_ALIGNOF([void (*)(void)], [alignment_function_ptr])
     echo "/* Type function * has sizeof = $sizeof_function_ptr and alignment = $alignment_function_ptr. */"
     echo
     case $ac_cv_c_bigendian in
