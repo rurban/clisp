@@ -337,7 +337,7 @@
   <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
     and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP
      :ROTH)</literal>) file modes.</simpara></listitem></varlistentry>
- <varlistentry id="umask"><term><code>(<function>UMASK</function>
+ <varlistentry id="umask"><term><code>(<function>POSIX:UMASK</function>
     &mode-r;)</code></term>
  <listitem><simpara>Change process mask using
    <function role="unix">umask</function>.
