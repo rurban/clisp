@@ -30,7 +30,7 @@ User visible changes
 * Versioned library symbols are now accessible via the :VERSION argument of
   DEF-CALL-OUT and DEF-C-VAR.
   Thanks to Kaz Kylheku <kkylheku@gmail.com>.
-  See <http://clisp.cons.org/impnotes/dffi.html#def-call-out> for details,
+  See <http://clisp.cons.org/impnotes/dffi.html#def-call-out> for details.
 
 * New functions GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE have
   been added for portability reasons.
@@ -43,6 +43,11 @@ User visible changes
   + Fix argument handling in NEW-CLX XLIB:QUERY-COLORS. [ 1931101 ]
   + Fix compilation on systems not supporting returning void. [ 1924506 ]
   + Fix TANH floating point overflow for large floats. [ 1683394 ]
+  + Cross-compilation process has been restored to its former glory,
+    thanks to the valiant and persistent testing by
+    Vladimir Volovich <vvv2@users.sourceforge.net>.
+    [ 1928920, 1929496, 1929516, 1931097 ]
+
 
 2.44.1 (2008-02-23)
 ===================
