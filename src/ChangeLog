@@ -1,5 +1,13 @@
 2008-04-01  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1931097 ]: cross-compile mode tries to execute intparam
+	* makemake.in (PARAMS) [CROSS]: use touch, not executables, for
+	intparam and floatparam because the constants are defined in config.h
+	(UTILCC) [CROSS]: define to cc instead of $(CC) because the
+	utilities (gctrigger et al) must run locally
+
+2008-04-01  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1931101 ]: new-clx QUERY-COLORS wants colors not pixels
 	* modules/clx/new-clx/clx.f (XLIB:QUERY-COLORS): expect pixel sequence
 	(coerce_into_color): just fill pixels
