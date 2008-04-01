@@ -2417,12 +2417,18 @@ echol $line
 echodummyrule init
 echol
 for parf in ${PARAMS}; do
-  echol "${parf}.h : ${SRCDIR}${parf}.c config.h"
-  echotab "echo '#include \"config.h\"' > tmp.c"
-  echotab "cat '${SRCDIR}${parf}.c' >> tmp.c"
-  echotab_to_HEXE "\$(CC)" "tmp.c" "${parf}"
-  echotab "${HERE}${parf}${HEXE} > ${parf}.h"
-  echotab "\$(RM) ${parf}${HEXE} tmp.c"
+  if [ $CROSS = true ]; then
+    # everything is in config.h
+    echol "${parf}.h : ${SRCDIR}${parf}.c config.h"
+    echotab '$(TOUCH) '"${parf}.h"
+  else
+    echol "${parf}.h : ${SRCDIR}${parf}.c config.h"
+    echotab "echo '#include \"config.h\"' > tmp.c"
+    echotab "cat '${SRCDIR}${parf}.c' >> tmp.c"
+    echotab_to_HEXE "\$(CC)" "tmp.c" "${parf}"
+    echotab "${HERE}${parf}${HEXE} > ${parf}.h"
+    echotab "\$(RM) ${parf}${HEXE} tmp.c"
+  fi
   echol
 done
 if [ $XCC_UNUSABLE_CPP = true ] ; then
@@ -2442,10 +2448,11 @@ if [ $CROSS = true ] ; then
   echol
 fi
 if [ ${HSYS} = "win32gcc" ]; then
-  cat <<EOF
-# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links
-UTILCC=gcc
-EOF
+  echol "# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links"
+  echol "UTILCC=gcc"
+elif [ $CROSS = true ]; then
+  echol "# **HACK**: utilities must run locally"
+  echol "UTILCC=cc"
 else echol "UTILCC=\$(CC)"
 fi
 UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
