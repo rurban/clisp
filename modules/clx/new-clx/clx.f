@@ -1,7 +1,7 @@
 /* -*- C -*- vim:filetype=c
 Copyright (c) 1996-1999 by Gilbert Baumann, distributed under GPL
 Bruno Haible  1998-2000
-Sam Steingold 2001-2007
+Sam Steingold 2001-2008
 ----------------------------------------------------------------------------
 
    Title:       C implementation of CLX utilizing the Xlib
@@ -5102,11 +5102,9 @@ DEFUN(XLIB:LOOKUP-COLOR, colormap name) /* [OK] */
 }
 
 /* convert a Lisp sequence of pixels to a C vector of colors at them */
-struct seq_color { Display *dpy; XColor* color; };
 void coerce_into_color (void *arg, object element);
 void coerce_into_color (void *arg, object element) {
-  struct seq_color *sc = (struct seq_color *)arg;
-  get_color(sc->dpy,element,sc->color++);
+  ((XColor*)arg)->pixel = get_pixel(element);
 }
 
 DEFUN(XLIB:QUERY-COLORS, colormap pixels &key RESULT-TYPE)
@@ -5115,10 +5113,8 @@ DEFUN(XLIB:QUERY-COLORS, colormap pixels &key RESULT-TYPE)
   Colormap cm = get_colormap_and_display (STACK_2, &dpy);
   gcv_object_t *res_type = &STACK_0;
   int ncolors = get_uint32(funcall1(L(length),STACK_1)), i;
-  struct seq_color sc;
   DYNAMIC_ARRAY (colors, XColor, ncolors);
-  sc.dpy = dpy; sc.color = colors;
-  map_sequence(STACK_1,coerce_into_color,(void*)&sc);
+  map_sequence(STACK_1,coerce_into_color,(void*)colors);
 
   X_CALL(XQueryColors (dpy, cm, colors, ncolors));
   /* FIXME - find what to do with the DoRed, DoGreen, and DoBlue flags?! */

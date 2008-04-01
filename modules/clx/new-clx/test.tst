@@ -109,8 +109,16 @@ NIL
 (multiple-value-bind (pixel screen-color exact-color)
     (xlib:alloc-color *colormap* (first *color*))
   (show (list pixel screen-color exact-color))
+  (assert (eq exact-color (first *color*)))
+  (show (xlib:query-colors *colormap* (list pixel)))
   (xlib:free-colors *colormap* (list pixel)))
 NIL
+(every #'xlib:color-p
+       (show (ext:appease-cerrors
+              (xlib:query-colors *colormap*
+                                 (loop :with max = (ash 1 32) :repeat 100
+                                   :collect (random max))))))
+T
 
 (defparameter *font* (show (xlib:open-font *dpy* "fixed"))) *FONT*
 (listp (show (multiple-value-list (xlib:text-extents *font* "abcd")))) T

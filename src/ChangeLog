@@ -1,3 +1,9 @@
+2008-04-01  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1931101 ]: new-clx QUERY-COLORS wants colors not pixels
+	* modules/clx/new-clx/clx.f (XLIB:QUERY-COLORS): expect pixel sequence
+	(coerce_into_color): just fill pixels
+
 2008-03-31  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1929516 ]: m4:CL_INTPARAM_ALIGNOF loops infinitely when
