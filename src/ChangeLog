@@ -1,5 +1,12 @@
 2008-04-02  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1928735 ]: BIGNUM failure
+	* intread.d (DIGITS_to_I): drop leading 0s; be extra permissive in the
+	initial length check, but perform an overflow check on each erg_len
+	increment
+
+2008-04-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (interpreted.mem, halfcompiled.mem): work around an
 	msys "feature": ":" after "/" is converted to a ";"
 
