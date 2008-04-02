@@ -2656,7 +2656,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     dependsc=$dependsc' '$g'.c'
   done
   dependsc=$dependsc''$EVERY_INCLUDES_H
-  if [ $f = spvw -a -n ${SPVW_VERSION} ] ; then
+  if [ $f = spvw -a -n "${SPVW_VERSION}" ] ; then
     dependsc=$dependsc' '${SPVW_VERSION}
   fi
   if [ $f = encoding ] ; then
