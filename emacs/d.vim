@@ -9,7 +9,7 @@ set enc=utf-8
 
 syn keyword dObject true false NIL T nullobj unbound
 syn keyword dType local global maygc var inline object
-syn match dType "\<[us]int[LW]\>"
+syn match dType "\<[us]int[BCDLMPQVW2]*\>"
 syn match dType "\<[a-zA-Z0-9_]*_t\>"
 syn keyword dOperator popSTACK pushSTACK skipSTACK skipSTACKop STACKop loop
 syn keyword dOperator nonreturning_function return_Values DEFUN O S funcall
