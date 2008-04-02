@@ -2968,6 +2968,15 @@ MEMOPT="-m 2MW"
 
 if [ $CROSS = false ] ; then
 
+  if [ "$HSYS" = win32gcc ]; then
+    # work around an msys "feature": ":" after "/" is converted to a ";"
+    # <http://article.gmane.org/gmane.comp.gnu.mingw.msys/4281>
+    # <http://article.gmane.org/gmane.lisp.clisp.devel/17589>
+    # <http://article.gmane.org/gmane.lisp.clisp.devel/17895>
+    SAFE_SRCDIR=`echo ${SRCDIR} | sed 's,/,\\\\\\\\,g'`
+  else SAVE_SRCDIR=${SRCDIR}
+  fi
+
   echol "interpreted.mem : lisp${LEXE} \$(LISPFILES)"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) interpreted.mem"
@@ -2979,7 +2988,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) '"${MEMOPT} -lp ${SRCDIR} -x "'"(and (load \"'"${SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab '$(RUN) '"${MEMOPT} -lp ${SAFE_SRCDIR} -x "'"(and (load \"'"${SAFE_SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -3025,7 +3034,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) '"${MEMOPT} -lp ${SRCDIR} -x "'"(and (load \"'"${SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab '$(RUN) '"${MEMOPT} -lp ${SAFE_SRCDIR} -x "'"(and (load \"'"${SAFE_SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
