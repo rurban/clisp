@@ -1,3 +1,8 @@
+2008-04-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (interpreted.mem, halfcompiled.mem): work around an
+	msys "feature": ":" after "/" is converted to a ";"
+
 2008-04-02  Vladimir Volovich  <vvv2@users.sourceforge.net>
 	Sam Steingold  <sds@gnu.org>
 
