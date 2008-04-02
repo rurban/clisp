@@ -1,3 +1,8 @@
+2008-04-02  Vladimir Volovich  <vvv2@users.sourceforge.net>
+	Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: quote arguments of "test -n" (fix bug #[ 1932548 ])
+
 2008-04-01  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1931097 ]: cross-compile mode tries to execute intparam
