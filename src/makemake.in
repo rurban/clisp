@@ -2974,7 +2974,7 @@ if [ $CROSS = false ] ; then
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17589>
     # <http://article.gmane.org/gmane.lisp.clisp.devel/17895>
     SAFE_SRCDIR=`echo ${SRCDIR} | sed 's,/,\\\\\\\\,g'`
-  else SAVE_SRCDIR=${SRCDIR}
+  else SAFE_SRCDIR=${SRCDIR}
   fi
 
   echol "interpreted.mem : lisp${LEXE} \$(LISPFILES)"
@@ -2988,7 +2988,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab "\$(RUN) ${MEMOPT} -lp '${SAFE_SRCDIR}' -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
+  echotab "\$(RUN) ${MEMOPT} -lp ${SAFE_SRCDIR} -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -3034,7 +3034,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab "\$(RUN) ${MEMOPT} -lp '${SAFE_SRCDIR}' -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
+  echotab "\$(RUN) ${MEMOPT} -lp ${SAFE_SRCDIR} -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
