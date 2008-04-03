@@ -2988,7 +2988,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) '"${MEMOPT} -lp ${SAFE_SRCDIR} -x "'"(and (load \"'"${SAFE_SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab "\$(RUN) ${MEMOPT} -lp '${SAFE_SRCDIR}' -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
   echotab "\$(MV) lispimag.mem interpreted.mem"
   echol
 
@@ -3034,7 +3034,7 @@ if [ $CROSS = false ] ; then
     echotab "cp -p lisp${LEXE} lisp.tmp"
     echotab "mv lisp.tmp lisp${LEXE}"
   fi
-  echotab '$(RUN) '"${MEMOPT} -lp ${SAFE_SRCDIR} -x "'"(and (load \"'"${SAFE_SRCDIR}"'init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)"'
+  echotab "\$(RUN) ${MEMOPT} -lp '${SAFE_SRCDIR}' -x '(and (load \"${SAFE_SRCDIR}init.lisp\") (sys::%saveinitmem) (ext::exit)) (ext::exit t)'"
   echotab "\$(MV) lispimag.mem halfcompiled.mem"
   echol
 
