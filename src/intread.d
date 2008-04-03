@@ -13,7 +13,8 @@
     var uintD* erg_MSDptr;
     var uintC erg_len;
     var uintD* erg_LSDptr;
-    while (as_cint(*MSBptr) == '0') { len--; MSBptr++; } /* drop leading 0s */
+    while (len && as_cint(*MSBptr) == '0')
+      { len--; MSBptr++; } /* drop leading 0s */
     # Platz fürs Ergebnis:
     # 1+ceiling(len*log(base)/(intDsize*log(2))) oder etwas mehr Digits
     var uintL need = 1+floor(len,intDsize*256); # > len/(intDsize*256) >=0
