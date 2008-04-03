@@ -1276,6 +1276,50 @@ LISPFUNNF(scale_float,2)
   VALUES1(F_I_scale_float_F(STACK_1,STACK_0)); skipSTACK(2);
 }
 
+LISPFUNNF(float_scale_exponent,1)
+{ /* for a Float x:
+ sign, mantissa and n, with n being an integer
+ and mantissa being a floating-point-number, 0.1 <= mantissa < 1,
+ arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
+ (for arg=zero: zero and n=0.)
+ (defun format-scale-exponent-aux (arg zero one ten tenth lg2)
+  (multiple-value-bind (significand expon) (decode-float arg)
+    (declare (ignore significand))
+    (if (zerop arg)
+      (values zero 0)
+      (let* ((expon10a (truncate (* expon lg2))) ; round is not used, in order to avoid overflow
+             (signif10a (/ arg (expt ten expon10a))))
+        (do ((ten-power ten (* ten-power ten))
+             (signif10b signif10a (/ signif10a ten-power))
+             (expon10b expon10a (1+ expon10b)))
+            ((< signif10b one)
+             (do ((ten-power ten (* ten-power ten))
+                  (signif10c signif10b (* signif10b ten-power))
+                  (expon10c expon10b (1- expon10c)))
+                 ((>= signif10c tenth)
+                  (values signif10c expon10c)))))))))
+ (defun format-scale-exponent (arg)
+  (format-scale-exponent-aux arg 0 1 10 1/10 (log 2 (float 10 arg))) */
+  STACK_0 = check_float(STACK_0);
+  if (R_zerop(STACK_0)) {
+    VALUES3(I_F_float_F(Fixnum_0,STACK_0),Fixnum_0,Fixnum_0);
+    skipSTACK(1); return;
+  }
+  var int s;                    /* sign */
+  if (R_minusp(STACK_0)) {
+    s = -1;
+    STACK_0 = F_minus_F(STACK_0);
+  } else s = 1;
+  /* STACK_0 > 0 */
+  pushSTACK(F_extend_F(STACK_0)); /* increase computational precision */
+  R_ceiling_I_R(R_R_log_R(STACK_0,fixnum(10)));
+  /* STACK: x, x, q, r */
+  var object tmp = R_I_expt_R(fixnum(10),STACK_1); /* 10^q */
+  tmp = R_R_div_R(STACK_2,tmp);                    /* x/10^q */
+  tmp = F_R_float_F(tmp,STACK_3); /* restore precision */
+  VALUES3(STACK_1,tmp,sfixnum(s)); skipSTACK(4);
+}
+
 LISPFUNNF(float_radix,1)
 { /* (FLOAT-RADIX float), CLTL p. 218 */
   var object f = check_float(popSTACK());

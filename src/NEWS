@@ -44,6 +44,7 @@ User visible changes
   + Fix compilation on systems not supporting returning void. [ 1924506 ]
   + Fix TANH floating point overflow for large floats. [ 1683394 ]
   + Avoid extra aggressive bignum overflow reporting in READ. [ 1928735 ]
+  + Improved floating point number formatting. [ 1790496 ]
   + Cross-compilation process has been restored to its former glory,
     thanks to the valiant and persistent testing by
     Vladimir Volovich <vvv2@users.sourceforge.net>.

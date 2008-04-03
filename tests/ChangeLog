@@ -1,3 +1,8 @@
+2008-04-03  Sam Steingold  <sds@gnu.org>
+
+	* format.tst: add tests for bug #[ 1790496 ]:
+	float format directive ~ve prints spurious digits
+
 2008-03-27  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: add tests for bug #[ 1683394 ]:
