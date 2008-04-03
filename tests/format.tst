@@ -320,6 +320,12 @@ FOO
 (format nil "~9,2,1E" 0.0314159)
 "  3.14E-2"
 
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1790496&group_id=1355&atid=101355
+(format nil "~ve" 21 46d7)
+"               4.6d+8"
+(format nil "~21e" 466d17)
+"             4.66d+19"
+
 ;; ~% ~d ~e (v) ---------------------------------------------------------------
 (let (x)
  (dotimes (k 13 x)
