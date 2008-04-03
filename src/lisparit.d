@@ -1282,6 +1282,7 @@ LISPFUNNF(float_scale_exponent,1)
  and mantissa being a floating-point-number, 0.1 <= mantissa < 1,
  arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
  (for arg=zero: zero and n=0.)
+ original code from format.lisp:
  (defun format-scale-exponent-aux (arg zero one ten tenth lg2)
   (multiple-value-bind (significand expon) (decode-float arg)
     (declare (ignore significand))
@@ -1311,13 +1312,18 @@ LISPFUNNF(float_scale_exponent,1)
     STACK_0 = F_minus_F(STACK_0);
   } else s = 1;
   /* STACK_0 > 0 */
-  pushSTACK(F_extend_F(STACK_0)); /* increase computational precision */
-  R_ceiling_I_R(R_R_log_R(STACK_0,fixnum(10)));
+  pushSTACK(F_extend_F(STACK_0)); /* increase computational precision to avoid overflow */
+  F_floor_I_F(R_R_log_R(STACK_0,fixnum(10)));
+  STACK_1 = I_1_plus_I(STACK_1);
   /* STACK: x, x, q, r */
-  var object tmp = R_I_expt_R(fixnum(10),STACK_1); /* 10^q */
-  tmp = R_R_div_R(STACK_2,tmp);                    /* x/10^q */
-  tmp = F_R_float_F(tmp,STACK_3); /* restore precision */
-  VALUES3(STACK_1,tmp,sfixnum(s)); skipSTACK(4);
+  STACK_0 = R_I_expt_R(fixnum(10),STACK_1); /* 10^q */
+  STACK_0 = R_R_div_R(STACK_3,STACK_0); /* x/10^q -- NB: original precision! */
+  /* if the mantissa is one, increase N and divide the mantissa */
+  if (N_N_equal(Fixnum_1,STACK_0)) {
+    STACK_0 = N_N_div_N(STACK_0,fixnum(10)); /* tmp <- tmp / 10 */
+    STACK_1 = I_1_plus_I(STACK_1);   /* q <- q+1 */
+  }
+  VALUES3(STACK_1,STACK_0,sfixnum(s)); skipSTACK(4);
 }
 
 LISPFUNNF(float_radix,1)
