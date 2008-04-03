@@ -699,51 +699,6 @@
     (format-integer base mincol padchar commachar commainterval
                     colon-modifier atsign-modifier arg stream)))
 
-;; (format-scale-exponent-aux arg zero one ten tenth lg2)
-;; returns two values for the Floating-Point-Number arg >= 0 and
-;; zero = 0.0, one = 1.0, ten = 10.0, tenth = 0.1, lg2 = log(2)/log(10)
-;; (the four in the same floating point precision as arg):
-;; mantissa and n, with n being an integer
-;; and mantissa being a floating-point-number, 0.1 <= mantissa < 1,
-;; arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
-;; (for arg=zero: zero and n=0.)
-(defun format-scale-exponent-aux (arg zero one ten tenth lg2)
-  (multiple-value-bind (significand expon) (decode-float arg)
-    (declare (ignore significand))
-    (if (zerop arg)
-      (values zero 0)
-      (let* ((expon10a (truncate (* expon lg2))) ; round is not used, in order to avoid overflow
-             (signif10a (/ arg (expt ten expon10a))))
-        (do ((ten-power ten (* ten-power ten))
-             (signif10b signif10a (/ signif10a ten-power))
-             (expon10b expon10a (1+ expon10b)))
-            ((< signif10b one)
-             (do ((ten-power ten (* ten-power ten))
-                  (signif10c signif10b (* signif10b ten-power))
-                  (expon10c expon10b (1- expon10c)))
-                 ((>= signif10c tenth)
-                  (values signif10c expon10c)))))))))
-
-;; (format-scale-exponent arg)
-;; returns two values for floating point number arg >= 0:
-;; mantissa and n, with integer n
-;; and floating-point mantissa, 0.1 <= mantissa < 1,
-;; arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
-;; (for arg=zero: 0.0 and n=0.)
-(defun format-scale-exponent (arg)
-  (format-scale-exponent-aux arg 0 1 10 1/10 (log 2 (float 10 arg)))
-  #+(or)
-  (cond ((short-float-p arg)
-         (format-scale-exponent-aux arg 0.0s0 1.0s0 10.0s0 0.1s0 0.30103s0))
-        ((single-float-p arg)
-         (format-scale-exponent-aux arg 0.0f0 1.0f0 10.0f0 0.1f0 0.30103s0))
-        ((double-float-p arg)
-         (format-scale-exponent-aux arg 0.0d0 1.0d0 10.0d0 0.1d0 0.30103s0))
-        ((long-float-p arg)
-         (format-scale-exponent-aux arg
-           (float 0 arg) (float 1 arg) (float 10 arg) (float 1/10 arg)
-           0.30102999566d0))))  ; lg2 is needed with 32 Bit-Precision
-
 ;; (format-float-to-string arg width d k dmin)
 ;; returns a String for Floating-point arg:
 ;; it has the value of (* (abs arg) (expt 10 k)), with at least d digits behind
@@ -998,7 +953,7 @@
 ;; as necessary.
 (defun format-float-for-e (w d e k
        overflowchar padchar exponentchar plus-sign-flag arg stream)
-  (multiple-value-bind (mantissa oldexponent) (format-scale-exponent (abs arg))
+  (multiple-value-bind (oldexponent mantissa) (float-scale-exponent (abs arg))
     (let* ((exponent (if (zerop arg) 0 (- oldexponent k))) ; Exponent to be printed
            (expdigits (write-to-string (abs exponent) :base 10.
                                        :radix nil :readably nil))
@@ -1284,8 +1239,7 @@
   (declare (ignore colon-modifier))
   (if (rationalp arg) (setq arg (float arg)))
   (if (floatp arg)
-    (multiple-value-bind (mantissa n) (format-scale-exponent (abs arg))
-      (declare (ignore mantissa))
+    (let ((n (float-scale-exponent (abs arg))))
       (if (null d)
         (setq d
           (multiple-value-bind (digits digitslength)

@@ -1,3 +1,12 @@
+2008-04-03  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1790496 ]: float format directive ~ve prints spurious digits
+	* lisparit.d (FLOAT-SCALE-EXPONENT): implement
+	* constsym.d, subr.f (float_scale_exponent): declare
+	* format.lisp (format-scale-exponent-aux, format-scale-exponent): remove
+	(format-float-for-e, format-general-float): use
+	FLOAT-SCALE-EXPONENT instead of FORMAT-SCALE-EXPONENT
+
 2008-04-02  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1928735 ]: BIGNUM failure
