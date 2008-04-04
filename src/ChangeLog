@@ -1,5 +1,11 @@
 2008-04-03  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d, intprint.d (UDS_to_DIGITS): rename to UDS_to_digits
+	(DIGITS): rename to digits_t
+	(power_table_entry): rename to power_table_entry_t
+
+2008-04-03  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1790496 ]: float format directive ~ve prints spurious digits
 	* lisparit.d (FLOAT-SCALE-EXPONENT): implement
 	* constsym.d, subr.f (float_scale_exponent): declare

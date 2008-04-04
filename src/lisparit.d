@@ -258,8 +258,8 @@ global maygc void print_integer (object z, uintWL base, const gcv_object_t* stre
     var uintL need = digits_need(len,base);
     var DYNAMIC_STRING(digits,need);
     pushSTACK(digits);
-    var DIGITS erg; erg.LSBptr = &TheSnstring(digits)->data[need];
-    UDS_to_DIGITS(MSDptr,len,(uintD)base,&erg); /* conversion into digits */
+    var digits_t erg; erg.LSBptr = &TheSnstring(digits)->data[need];
+    UDS_to_digits(MSDptr,len,(uintD)base,&erg); /* conversion into digits */
     /* print digits: */
     write_char_array(stream_,&STACK_0,erg.MSBptr-&TheSnstring(digits)->data[0],
                      erg.len);
@@ -432,8 +432,8 @@ global maygc object decimal_string (object x) {
   I_to_NDS(x, MSDptr=,len=,); /* x (>=0) as UDS */
   var uintL need = digits_need(len,10);
   var DYNAMIC_ARRAY(ziffern,chart,need); /* space for the digits */
-  var DIGITS erg; erg.LSBptr = &ziffern[need];
-  UDS_to_DIGITS(MSDptr,len,10,&erg); /* conversion into digits */
+  var digits_t erg; erg.LSBptr = &ziffern[need];
+  UDS_to_digits(MSDptr,len,10,&erg); /* conversion into digits */
   /* write digits into normal-simple-string: */
   check_stringsize(erg.len);
   var object string = allocate_string(erg.len);
