@@ -8,7 +8,7 @@ unlet b:current_syntax
 set enc=utf-8
 
 syn keyword dObject true false NIL T nullobj unbound
-syn keyword dType local global maygc var inline object
+syn keyword dType local global maygc var inline object chart
 syn match dType "\<[us]int[BCDLMPQVW2]*\>"
 syn match dType "\<[a-zA-Z0-9_]*_t\>"
 syn keyword dOperator popSTACK pushSTACK skipSTACK skipSTACKop STACKop loop
