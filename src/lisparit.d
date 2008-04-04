@@ -1282,6 +1282,8 @@ LISPFUNNF(float_scale_exponent,1)
  and mantissa being a floating-point-number, 0.1 <= mantissa < 1,
  arg = mantissa * 10^n (also 10^(n-1) <= arg < 10^n ).
  (for arg=zero: zero and n=0.)
+ This is similar to DECODE-FLOAT, but decimal instead of binary and
+ with a different return value order to accommodate format.lisp.
  original code from format.lisp:
  (defun format-scale-exponent-aux (arg zero one ten tenth lg2)
   (multiple-value-bind (significand expon) (decode-float arg)
