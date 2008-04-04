@@ -880,6 +880,7 @@
    <entry/></row>'>
 <!ENTITY alt '<keycap>Alternate</keycap>'>
 <!ENTITY ctrl '<keycap>Control</keycap>'>
+<!ENTITY ctrl-c '<keycombo>&ctrl;<keysym>C</keysym></keycombo>'>
 <!ENTITY shift '<keycap>Shift</keycap>'>
 <!ENTITY fasl-file '<filename>#P".fas"</filename>'>
 <!ENTITY lisp-file '<filename>#P".lisp"</filename>'>

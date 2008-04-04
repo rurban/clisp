@@ -2644,21 +2644,24 @@ and to do many related things, like inspect and modify foreign memory,
 define a <quote>callback</quote> (i.e., make a lisp function available
 to the &c-lang; world), etc.
 To use this facility, one writes a foreign function description into an
-ordinary Lisp file, which is then compiled and loaded as usual.</para>
+ordinary Lisp file, which is then compiled and loaded as usual;
+or just evaluates the appropriate form in the &repl;.</para>
 
 <para>There are two basic ways to do define a foreign function:<orderedlist>
 <listitem><simpara>Use <function role="unix">dlopen</function> and
   <function role="unix">dlsym</function> to get to the location of the
   function code in a dynamic library.
   To access this facility, pass the &library-k; option to &def-call-out;
-  and &def-c-var;.
-  Unfortunately, this functionality is not available on some operating
-  systems, and, also, it offers only a part of the foreign functionality:
-  &cpp; macros and <literal>inline</literal> functions cannot be
-  accessed this way.</simpara></listitem>
+  and &def-c-var;.</simpara>
+  <simpara>Unfortunately, this functionality is not available on some
+  operating systems, and, also, it offers only a part of the foreign
+  functionality: &cpp; macros and <literal>inline</literal> functions
+  cannot be accessed this way.  On the other hand, this functionality
+  is available in the &repl; and does not require a &c-lang; compiler.
+</simpara></listitem>
 <listitem><simpara>Use a somewhat less direct way: when you do not use
-  the &library-k; argument, &compile-file-my; produces a &c-file; file (in
-  addition to a &fasl-file; and a &lib-file;).
+  the &library-k; argument, &compile-file-my; produces a &c-file; file
+  (in addition to a &fasl-file; and a &lib-file;).
   Then you compile (with a &c-lang; compiler) and link it into &clisp;
   (statically, linking it into <filename>lisp.a</filename>, or
   dynamically, loading it into a running &clisp; using
@@ -2671,8 +2674,8 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
 </para>
 
 <para>All symbols relating to the foreign function interface are
- exported from the package &ffi-pac;.  To use them,
- <code>(&use-package; &ffi-pac;)</code>.</para>
+ exported from the package &ffi-pac;.
+ To use them, <code>(&use-package; &ffi-pac;)</code>.</para>
 
 <para>Special &ffi-pac; forms may appear anywhere in the Lisp file.</para>
 
@@ -2685,7 +2688,7 @@ ordinary Lisp file, which is then compiled and loaded as usual.</para>
  and &the-ansi; &c-lang;.</para>
 
 <note><simpara>Unless specifically noted otherwise, type specification
-  parameters are not evaluated, so that they can be compiled by
+  parameters are &not-e; evaluated, so that they can be compiled by
   &parse-c-type; into the internal format at macroexpansion time.
 </simpara></note>
 
@@ -4245,7 +4248,7 @@ Now you can sum doubles:
   (&format; t "~&amp;Waiting for a connection on ~S:~D~%"
           (&sose-host; server) (&sose-port; server))
   (&unwind-protect;
-      ;; infinite loop, terminate with <keycombo>&ctrl;<keysym>C</keysym></keycombo>
+      ;; infinite loop, terminate with &ctrl-c;
       (&loop; (&with-open-stream; (socket (&so-accept; server))
               (&multiple-value-bind; (local-host local-port) (&sost-local; socket)
                 (&multiple-value-bind; (remote-host remote-port) (&sost-peer; socket)
@@ -4637,8 +4640,7 @@ Now you can sum doubles:
     Note <xref linkend="dribble-script"/>.</simpara></listitem>
   <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
-  <listitem><simpara>Non-&cont-err;s and
-   <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupts will
+  <listitem><simpara>Non-&cont-err;s and &ctrl-c; interrupts will
    terminate the execution of the Lisp script with an error status
    (using &exit-on-error;).</simpara></listitem>
   <listitem><simpara>If you wish the script's contents to be compiled

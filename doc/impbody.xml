@@ -1223,17 +1223,15 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <formalpara id="abort-on-error"><title>Macro &abort-on-error;</title>
 <para>The macro <code>(&abort-on-error; {&form-r;}*)</code>
- executes the &form-r;s; when an &error-t; occurs,
- or when a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs,
- the error message is printed and the &abort-s; &restart-t; is invoked.
-</para></formalpara>
+ executes the &form-r;s; when an &error-t; occurs, or when a &ctrl-c;
+ interrupt occurs, the error message is printed and the &abort-s;
+ &restart-t; is invoked.</para></formalpara>
 
 <formalpara id="exit-on-error"><title>Macro &exit-on-error;</title>
 <para>The macro <code>(&exit-on-error; {&form-r;}*)</code>
- executes the &form-r;s; when an &error-t; occurs,
- or when a <keycombo>&ctrl;<keysym>C</keysym></keycombo> interrupt occurs,
- the error message is printed and &clisp; terminates with an error status.
-</para></formalpara>
+ executes the &form-r;s; when an &error-t; occurs, or when a &ctrl-c;
+ interrupt occurs, the error message is printed and &clisp; terminates
+ with an error status.</para></formalpara>
 
 <formalpara id="err-pr-bt"><title>Variable &err-pr-bt;</title>
 <para>When this variable is non-&nil; the error message printed by
