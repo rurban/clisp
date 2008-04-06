@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2006 by Sam Steingold
+;;; Copyright (C) 2000-2006, 2008 by Sam Steingold
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
@@ -44,7 +44,7 @@
 (defun read-from-file (file &key (out *standard-output*) (package "KEYWORD")
                        repeat)
   "Read an object from a file.
-The keyword argument KEYWORD specifies the package to read in.
+The keyword argument PACKAGE specifies the package to read in.
 The keyword argument OUT specifies the output for log messages.
 The keyword argument REPEAT specifies how many objects to read:
  If NIL (default), read once and return the object read;
@@ -66,7 +66,7 @@ The keyword argument REPEAT specifies how many objects to read:
                    internal-time-units-per-second))))))
 
 (defun browse-url (url &key (browser *browser*) (out *standard-output*))
-  "Run the browser (a keyword in `*browsers*' or a list) on the URL."
+  "Run the browser (a keyword in *BROWSERS* or a list) on the URL."
   #+WIN32
   (when (eq browser :default) ; feed url to ShellExecute
     (when out
