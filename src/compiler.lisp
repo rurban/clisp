@@ -10615,8 +10615,9 @@ The function make-closure is required.
       (keywordp fname)          ; :lambda
       (and (symbolp fname) (non-user-symbol-p fname)) ; gensym
       (and (consp fname) (non-user-symbol-p (second fname))) ; (setf gensym)
-      (some #'(lambda (arg) (and (symbolp arg) (non-user-symbol-p arg)))
-            lambda-list)))      ; gensyms in lambda-list
+      (and (not (eq 'SYSTEM::<MACRO-FORM> (first lambda-list))) ; macroexpander
+           (some #'(lambda (arg) (and (symbolp arg) (non-user-symbol-p arg)))
+                 lambda-list)))) ; gensyms in lambda-list
 ;; enters a byte-list as Code into fnode.
 (defun create-fun-obj (fnode byte-list SPdepth
                        &aux (fname (fnode-name fnode)) (denv (fnode-denv fnode))
