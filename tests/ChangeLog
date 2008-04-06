@@ -1,3 +1,8 @@
+2008-04-06  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: test DESCRIBE and DOCUMENTATION of foreign functions and
+	variables
+
 2008-04-03  Sam Steingold  <sds@gnu.org>
 
 	* format.tst: add tests for bug #[ 1790496 ]:

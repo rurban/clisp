@@ -134,7 +134,7 @@ to print the corresponding values, or T for all of them.")
       #+FFI
       (FFI::FOREIGN-VARIABLE
        (format stream (TEXT "a foreign variable of foreign type ~S.")
-               (ffi::deparse-c-type (sys::%record-ref obj 3))))
+               (ffi::deparse-c-type (sys::%record-ref obj 4)))) ; fv_type
       #+SOCKETS
       (SOCKET-SERVER
        (format stream (TEXT "a server socket accepting connections.")))
@@ -235,7 +235,7 @@ to print the corresponding values, or T for all of them.")
   (:method ((obj structure-object) (stream stream)) ; CLISP specific
     (format stream (TEXT "a structure of type ~S.")
             (type-of obj))
-    (let ((types (butlast (cdr (sys::%record-ref obj 0)))))
+    (let ((types (butlast (cdr (sys::%record-ref obj 0))))) ; structure_types
       (when types
         (terpri stream)
         (format stream (TEXT "As such, it is also a structure of type ~{~S~^, ~}.")
@@ -537,10 +537,11 @@ to print the corresponding values, or T for all of them.")
       #+FFI
       (FFI::FOREIGN-FUNCTION
        (format stream (TEXT "a foreign function of foreign type ~S.")
-               (ffi::deparse-c-type (vector 'ffi::c-function
-                                            (sys::%record-ref obj 2)
-                                            (sys::%record-ref obj 3)
-                                            (sys::%record-ref obj 4)))))
+               (ffi::deparse-c-type
+                (vector 'ffi::c-function
+                        (sys::%record-ref obj 3) ; ff_resulttype
+                        (sys::%record-ref obj 4) ; ff_argtypes
+                        (sys::%record-ref obj 5))))) ; ff_flags
       (COMPILED-FUNCTION
        (let ((subrp (sys::subr-info obj)))
          (format stream (if subrp
@@ -630,7 +631,7 @@ to print the corresponding values, or T for all of them.")
          (or (sys::closure-lambda-list func)
              (sig-to-list (get-signature func))))
         ((sys::closurep func) ; interpreted closure?
-         (car (sys::%record-ref func 1)))))
+         (car (sys::%record-ref func 1))))) ; clos_form
 
 (defun describe-arglist (stream function)
   (terpri stream)

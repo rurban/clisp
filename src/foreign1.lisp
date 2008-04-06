@@ -1111,7 +1111,7 @@
 
 ; Called by SYS::FUNCTION-SIGNATURE.
 (defun foreign-function-in-arg-count (obj)
-  (count-inarguments (sys::%record-ref obj 3)))
+  (count-inarguments (sys::%record-ref obj 4))) ; ff_argtypes
 
 (defmacro DEF-C-CALL-IN (name &rest options)
   (warn (TEXT "~s is deprecated, use ~s instead")
