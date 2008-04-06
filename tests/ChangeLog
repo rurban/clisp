@@ -1,5 +1,9 @@
 2008-04-06  Sam Steingold  <sds@gnu.org>
 
+	* setf.tst: check that macro doc strings are preserved by compile
+
+2008-04-06  Sam Steingold  <sds@gnu.org>
+
 	* ffi.tst: test DESCRIBE and DOCUMENTATION of foreign functions and
 	variables
 

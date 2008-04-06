@@ -678,6 +678,11 @@ T
 (setf (documentation 'foo 'function) nil) NIL
 (documentation 'foo 'function) NIL
 
+(defmacro foo () "docstring" nil) FOO
+(documentation 'foo 'function) "docstring"
+(compile 'foo) FOO
+(documentation 'foo 'function) "docstring"
+
 ;; Clean up.
 (progn (unintern 'x)
        (fmakunbound 'func01) (unintern 'func01)
