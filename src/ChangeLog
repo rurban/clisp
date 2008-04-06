@@ -1,5 +1,10 @@
 2008-04-06  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1936255 ]: COMPILE discards MACRO doc strings
+	* compiler.lisp (generatedp): handle lambda lists from macroexpanders
+
+2008-04-06  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-object): update slot access of
 	FOREIGN-VARIABLE and FOREIGN-FUNCTION for the fv_version/ff_version
 	* documentation.lisp (set-function-documentation): ff_properties is 6
