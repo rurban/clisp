@@ -28,8 +28,15 @@ T
   (:return-type c-pointer) (:language :stdc))
 C-SELF
 
-(stringp (documentation 'c-self 'function))
-T
+(sys::get-signature #'c-self) #(1 0 NIL NIL NIL NIL)
+(describe #'c-self) NIL
+(documentation 'c-self 'function)  "return the pointer argument as is"
+(setf (documentation 'c-self 'function) "junk")  "junk"
+(documentation 'c-self 'function)  "junk"
+(setf (documentation 'c-self 'function) nil)  NIL
+(documentation 'c-self 'function)  NIL
+(setf (documentation 'c-self 'function) "return argument")  "return argument"
+(documentation 'c-self 'function)  "return argument"
 
 (typep #'c-self 'function)
 T
@@ -269,6 +276,10 @@ ERROR
                                    nil nil nil)
        'foreign-variable)
 T
+
+(def-c-var user-pointer (:type c-pointer) (:name "ffi_user_pointer"))
+user-pointer
+(describe (get 'user-pointer 'foreign-variable)) NIL
 
 (progn
   (def-call-out c-self (:name "ffi_identity")

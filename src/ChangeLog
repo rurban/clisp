@@ -1,3 +1,10 @@
+2008-04-06  Sam Steingold  <sds@gnu.org>
+
+	* describe.lisp (describe-object): update slot access of
+	FOREIGN-VARIABLE and FOREIGN-FUNCTION for the fv_version/ff_version
+	* documentation.lisp (set-function-documentation): ff_properties is 6
+	* foreign1.lisp (foreign-function-in-arg-count): ff_argtypes is 4
+
 2008-04-03  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d, intprint.d (UDS_to_DIGITS): rename to UDS_to_digits
@@ -211,7 +218,7 @@
 	* foreign.d (foreign_library_check): when version is non-NIL,
 	coerce it to simple-string
 	* documentation.lisp (function-documentation): foreign-function
-	properties are not in slot 6
+	properties are now in slot 6
 
 2008-03-17  Sam Steingold  <sds@gnu.org>
 

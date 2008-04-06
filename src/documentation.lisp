@@ -8,12 +8,12 @@
   (cond ((typep-class x <standard-generic-function>)
          (std-gf-documentation x))
         ((eq (type-of x) 'FUNCTION) ; interpreted function?
-         (sys::%record-ref x 2))
+         (sys::%record-ref x 2))    ; clos_docstring
         #+FFI ((eq (type-of x) 'ffi::foreign-function)
-               (getf (sys::%record-ref x 6) :documentation))
+               (getf (sys::%record-ref x 6) :documentation)) ; ff_properties
         ((sys::closurep x) (sys::closure-documentation x))
         ((setq name (sys::subr-info x)) (get :documentation name)) ; subr
-        (t (get :documentation (sys::%record-ref x 0)))))
+        (t (get :documentation (sys::%record-ref x 0))))) ; clos_name
 
 ;;; documentation
 (defgeneric documentation (x doc-type)
@@ -84,14 +84,16 @@
   (cond ((typep-class x <standard-generic-function>)
          (setf (std-gf-documentation x) new-value))
         ((eq (type-of x) 'FUNCTION) ; interpreted function?
-         (setf (sys::%record-ref x 2) new-value))
+         (setf (sys::%record-ref x 2) new-value)) ; clos_docstring
         #+FFI ((eq (type-of x) 'ffi::foreign-function)
-               (setf (getf (sys::%record-ref x 5) :documentation) new-value))
+               (setf (getf (sys::%record-ref x 6) ; ff_properties
+			   :documentation) new-value))
         ((sys::closurep x) (sys::closure-set-documentation x new-value))
         ((setq name (sys::subr-info x)) ; subr
          (setf (get :documentation name) new-value))
         (t                      ; fsubr
-         (setf (get :documentation (sys::%record-ref x 0)) new-value))))
+         (setf (get :documentation (sys::%record-ref x 0)) ; clos_name
+	       new-value))))
 
 (defgeneric (setf documentation) (new-value x doc-type)
   (:argument-precedence-order doc-type x new-value)
