@@ -1,3 +1,10 @@
+2008-04-07  Sam Steingold  <sds@gnu.org>
+
+	partially fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
+	* comptran.d (N_log_abs_R): new function: compute (log (abs z))
+	without using hypot, thus avoiding a square root
+	(N_log_N, N_N_log_N): use it
+
 2008-04-06  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1936255 ]: COMPILE discards MACRO doc strings
