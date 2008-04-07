@@ -84,33 +84,55 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
   }
 }
 
-/* N_log_N(x,&end_precision) returns (log x), being x a number.
+/* N_log_abs_R(z,&end_precision) returns (log (abs z)), z being a number
+ can trigger GC
+ Method: (/ (log (+ x^2 y^2)) 2) */
+local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
+  if (N_realp(z)) {
+    z = N_abs_R(z);
+    if (R_zerop(z))
+      divide_0();
+    return R_ln_R(z,end_p);
+  } else {
+    pushSTACK(z);
+    var object tmp = R_square_R(TheComplex(z)->c_real); pushSTACK(tmp); /*x^2*/
+    tmp = R_square_R(TheComplex(STACK_1)->c_imag); /* y^2 */
+    tmp = R_R_plus_R(tmp,STACK_0);                 /* x^2 + y^2 */
+    if (R_zerop(tmp))
+      divide_0();
+    tmp = R_ln_R(tmp,end_p);    /* log(x^2 + y^2) */
+    tmp = floatp(tmp)           /* log(x^2 + y^2)/2 */
+      ? F_I_scale_float_F(tmp,Fixnum_minus1)
+      : RA_RA_div_RA(tmp,fixnum(2));
+    skipSTACK(2);
+    return tmp;
+  }
+}
+
+/* N_log_N(x,&end_precision) returns (log x), x being a number.
  can trigger GC
  Method:
   (complex (log (abs x)) (phase x)) */
 local maygc object N_log_N (object x, gcv_object_t *end_p)
 {
   pushSTACK(x); /* save x */
-  pushSTACK(N_abs_R(x)); /* (abs x) */
-  if (R_zerop(STACK_0)) /* (abs x) = 0 -> Error */
-    divide_0();
-  STACK_0 = R_ln_R(STACK_0,end_p); /* (log (abs x)) */
   /* Increase precision: */
-  if (floatp(STACK_1))
-    STACK_1 = F_extend_F(STACK_1);
-  else if (complexp(STACK_1)
-           && (floatp(TheComplex(STACK_1)->c_real)
-               || floatp(TheComplex(STACK_1)->c_imag))) {
-    var object realpart = TheComplex(STACK_1)->c_real;
+  if (floatp(STACK_0))
+    STACK_0 = F_extend_F(STACK_0);
+  else if (complexp(STACK_0)
+           && (floatp(TheComplex(STACK_0)->c_real)
+               || floatp(TheComplex(STACK_0)->c_imag))) {
+    var object realpart = TheComplex(STACK_0)->c_real;
     if (floatp(realpart))
       realpart = F_extend_F(realpart);
     pushSTACK(realpart);
-    var object imagpart = TheComplex(STACK_(1+1))->c_imag;
+    var object imagpart = TheComplex(STACK_(0+1))->c_imag;
     if (floatp(imagpart))
       imagpart = F_extend_F(imagpart);
     realpart = popSTACK();
-    STACK_1 = R_R_complex_C(realpart,imagpart);
+    STACK_0 = R_R_complex_C(realpart,imagpart);
   }
+  pushSTACK(N_log_abs_R(STACK_0,end_p)); /* (log (abs x)) */
   STACK_1 = N_phase_R(STACK_1,true); /* (phase x) */
   if (end_p != NULL && floatp(STACK_1))
     STACK_1 = F_R_float_F(STACK_1,*end_p);
@@ -190,7 +212,7 @@ local maygc object N_N_log_N (object a, object b)
         }
       }
       /* no chance for rational realpart */
-      pushSTACK(F_ln_F(N_abs_R(a),&STACK_3)); /* (log (abs a)), a float */
+      pushSTACK(N_log_abs_R(a,&STACK_3)); /* (log (abs a)), a float */
       /* divide by (log b), return the realpart: */
       b = STACK_2;
       if (R_rationalp(b))
