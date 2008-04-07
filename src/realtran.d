@@ -778,7 +778,7 @@ local maygc object F_extend2_F (object x)
 /* R_ln_R(x,&end_precision) returns for a real number x>0 ln(x) as number.
  can trigger GC
  Method:
- x rational -> bei x=1 0 as result, otherwise convert x to Float.
+ x rational -> for x=1 return 0 as result, otherwise convert x to Float.
  x Float ->
    d := (float-digits x),
    Increase precision by sqrt(d)+max(integer-length(e)) bits,
@@ -1115,7 +1115,7 @@ local maygc object R_exp_R (object x, bool start_p, gcv_object_t* end_p)
  can trigger GC */
 local maygc object R_sinh_R (object x);
 /* Method:
-  x rational -> bei x=0 0 as result, otherwise convert x to float.
+  x rational -> for x=0 return 0 as result, otherwise convert x to float.
   x Float -> increase precision,
     e := exponent from (decode-float x)
     if e<=0: (sinh(x)/x)^2 calculate, Wurzel ziehen, multiply with x.
@@ -1153,7 +1153,7 @@ local maygc object R_sinh_R (object x)
  can trigger GC */
 local maygc object R_cosh_R (object x);
 /* Method:
-  x rational -> bei x=0 1 as result, otherwise convert x to float.
+  x rational -> for x=0 return 1 as result, otherwise convert x to float.
   x float -> increase precision,
     e := exponent of (decode-float x), d := (float-digits x)
     if x=0.0 or e<=(1-d)/2 return 1.0
