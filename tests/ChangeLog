@@ -1,3 +1,7 @@
+2008-04-07  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: updated for improved accuracy of log(complex)
+
 2008-04-06  Sam Steingold  <sds@gnu.org>
 
 	* setf.tst: check that macro doc strings are preserved by compile
