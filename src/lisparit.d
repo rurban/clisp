@@ -1305,7 +1305,7 @@ LISPFUNNF(float_scale_exponent,1)
   (format-scale-exponent-aux arg 0 1 10 1/10 (log 2 (float 10 arg))) */
   STACK_0 = check_float(STACK_0);
   if (R_zerop(STACK_0)) {
-    VALUES3(I_F_float_F(Fixnum_0,STACK_0),Fixnum_0,Fixnum_0);
+    VALUES3(Fixnum_0/*exp*/,I_F_float_F(Fixnum_0,STACK_0)/*mant*/,Fixnum_0);
     skipSTACK(1); return;
   }
   var int s;                    /* sign */
@@ -1325,7 +1325,7 @@ LISPFUNNF(float_scale_exponent,1)
     STACK_0 = N_N_div_N(STACK_0,fixnum(10)); /* tmp <- tmp / 10 */
     STACK_1 = I_1_plus_I(STACK_1);   /* q <- q+1 */
   }
-  VALUES3(STACK_1,STACK_0,sfixnum(s)); skipSTACK(4);
+  VALUES3(STACK_1/*exp*/,STACK_0/*mant*/,sfixnum(s)/*sign*/); skipSTACK(4);
 }
 
 LISPFUNNF(float_radix,1)
