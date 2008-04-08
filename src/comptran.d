@@ -87,25 +87,36 @@ local maygc object N_exp_N (object x, bool start_p, gcv_object_t* end_p)
 /* N_log_abs_R(z,&end_precision) returns (log (abs z)), z being a number
  can trigger GC
  Method: (/ (log (+ x^2 y^2)) 2) */
+local maygc object R_R_norm2_1_R (object x, object y) {
+  /* helper for N_log_abs_R: for abs(x)>=abs(y), compute (x+1)(x-1)+y^2 */
+  pushSTACK(x); pushSTACK(R_square_R(y));
+  pushSTACK(R_1_plus_R(STACK_1));
+  STACK_2 = R_minus1_plus_R(STACK_2);
+  STACK_0 = R_R_mult_R(STACK_0,STACK_2);
+  { var object tmp = R_R_plus_R(STACK_0,STACK_1);
+    skipSTACK(3); return tmp; }
+}
 local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
   if (N_realp(z)) {
     z = N_abs_R(z);
     if (R_zerop(z))
       divide_0();
     return R_ln_R(z,end_p);
-  } else {
+  } else { /* 1/2 * lnx1 (x^2 + y^2 - 1) */
     pushSTACK(z);
-    var object tmp = R_square_R(TheComplex(z)->c_real); pushSTACK(tmp); /*x^2*/
-    tmp = R_square_R(TheComplex(STACK_1)->c_imag); /* y^2 */
-    tmp = R_R_plus_R(tmp,STACK_0);                 /* x^2 + y^2 */
-    if (R_zerop(tmp))
+    pushSTACK(R_abs_R(TheComplex(z)->c_real));
+    z = R_abs_R(TheComplex(STACK_1)->c_imag);
+    z = R_R_comp(z,STACK_0) < 0
+      ? R_R_norm2_1_R(TheComplex(STACK_1)->c_real,TheComplex(STACK_1)->c_imag)
+      : R_R_norm2_1_R(TheComplex(STACK_1)->c_imag,TheComplex(STACK_1)->c_real);
+    if (R_R_equal(z,Fixnum_minus1))
       divide_0();
-    tmp = R_ln_R(tmp,end_p);    /* log(x^2 + y^2) */
-    tmp = floatp(tmp)           /* log(x^2 + y^2)/2 */
-      ? F_I_scale_float_F(tmp,Fixnum_minus1)
-      : RA_RA_div_RA(tmp,fixnum(2));
+    z = R_ln1_R(z,end_p);   /* log(1 + (x^2 + y^2 - 1)) */
+    z = floatp(z)           /* log(x^2 + y^2)/2 */
+      ? F_I_scale_float_F(z,Fixnum_minus1)
+      : RA_RA_div_RA(z,fixnum(2));
     skipSTACK(2);
-    return tmp;
+    return z;
   }
 }
 
