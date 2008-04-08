@@ -525,3 +525,10 @@ NIL
 (tanh 1L-10)   1L-10
 (tanh 1L-17)   1L-17
 (tanh 1L-47)   1L-47
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1934968&group_id=1355
+(= (float (realpart (log (coerce #c(1d0 1d-8) '(complex long-float)))) 0d0)
+   (realpart (log #c(1d0 1d-8))))  T
+(= (float (realpart (log (coerce #c(1.000000001d0 1d-5) '(complex long-float))))
+          0d0)
+   (realpart (log #c(1.000000001d0 1d-5))))  T

@@ -1,3 +1,13 @@
+2008-04-08  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
+	* comptran.d (R_R_norm2_1_R): new function
+	(N_log_abs_R): use it together with R_ln1_R
+	* realtran.d (F_lnx1_F): converted from F_lnx_F to accept y=x-1
+	(F_lnx_F): use F_lnx1_F
+	(R_ln1_R): converted from R_ln_R to accept y=x-1
+	(R_ln_R): use R_ln1_R
+
 2008-04-07  Sam Steingold  <sds@gnu.org>
 
 	partially fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
