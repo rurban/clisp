@@ -1,3 +1,7 @@
+2008-04-09  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d: g++ 4.2.* and 4.3.0 are not supported due to g++ bug 35708
+
 2008-04-08  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1934968 ]: log(complex) sometimes inaccurate
