@@ -404,6 +404,10 @@
 /* Choose the compiler: */
 #if defined(__GNUC__)
   #define GNU
+  /* known bugs */
+  #if defined(__cplusplus) && (__GNUC__ == 4) && ((__GNUC_MINOR__ == 2) || ((__GNUC_MINOR__ == 3) && (__GNUC_PATCHLEVEL__ < 1)))
+    #error g++ 4.2.* and 4.3.0 are not supported due to g++ bug 35708
+  #endif
 #endif
 #if defined(__STDC__) || defined(__BORLANDC__) || defined(__cplusplus)
   /* ANSI C compilers define __STDC__ (but some define __STDC__=0 !).
