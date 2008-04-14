@@ -532,3 +532,9 @@ NIL
 (= (float (realpart (log (coerce #c(1.000000001d0 1d-5) '(complex long-float))))
           0d0)
    (realpart (log #c(1.000000001d0 1d-5))))  T
+
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1942246&group_id=1355
+(coerce 1 'double-float) 1d0
+(coerce 1 '(double-float 0d0)) 1d0
+(coerce 1 '(double-float * *)) 1d0
+(coerce 1 '(double-float * -1d0)) ERROR

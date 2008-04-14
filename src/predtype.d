@@ -2421,7 +2421,7 @@ LISPFUNNR(coerce,2)
         || eq(type,S(double_float)) /* DOUBLE-FLOAT ? */
         || eq(type,S(long_float)) /* LONG-FLOAT ? */
        ) { /* convert object to float */
-      value1 = coerce_float(STACK_1,result_type);
+      value1 = coerce_float(STACK_1,type);
       goto check_return; /* and check against result-type */
     }
     if (eq(type,S(complex))) { /* COMPLEX ? */
