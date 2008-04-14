@@ -1,5 +1,11 @@
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1942246 ]: (coerce 1 '(double-float 0d0)) fails
+	* predtype.d (COERCE): when result_type is a list, pass its CAR to
+	coerce_float() instead of the whole list
+
+2008-04-14  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (sec_usec_number): usec should be _divided_ by 1000000,
 	not multiplied by it
 	* modules/syscalls/calls.c (rusage_to_lisp): add,
