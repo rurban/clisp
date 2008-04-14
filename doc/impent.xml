@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!-- *** Entities for impnotes.xml *** -->
-<!ENTITY clisp-announce '<email>clisp-announce@lists.sourceforge.net</email> (<ulink url="http://lists.sourceforge.net/lists/listinfo/clisp-announce"/>)'>
-<!ENTITY clisp-list '<email>clisp-list@lists.sourceforge.net</email> (<ulink url="http://lists.sourceforge.net/lists/listinfo/clisp-list"/>)'>
-<!ENTITY clisp-devel '<email>clisp-devel@lists.sourceforge.net</email> (<ulink url="http://lists.sourceforge.net/lists/listinfo/clisp-devel"/>)'>
 
 <!-- *** people *** -->
 <!ENTITY bruno '<author><firstname>Bruno</firstname><surname>Haible</surname><address><otheraddr><ulink url="http://www.haible.de/bruno/"/></otheraddr></address></author>'>
@@ -976,6 +973,7 @@
 <!ENTITY is-e '<emphasis role="strong">is</emphasis>'>
 <!ENTITY after-e '<emphasis role="strong">after</emphasis>'>
 <!ENTITY before-e '<emphasis role="strong">before</emphasis>'>
+<!ENTITY must-e '<emphasis role="strong">must</emphasis>'>
 <!ENTITY charset-glibc-libiconv 'This character set is only available on
                                  platforms with &glibc; or &libiconv;.'>
 <!ENTITY charset-libiconv 'This character set is only available on

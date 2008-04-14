@@ -445,8 +445,7 @@ further explanations of the issues could be provided).</para>
       packager, while &base; is the same on all platforms.
  </simpara></listitem></varlistentry></variablelist></para>
  <para>See <ulink url="ml">clisp-list</ulink> for more information
-  (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>,
-  <ulink role="gmane" url="general/8691"/>).</para>
+  (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>/<ulink role="gmane" url="general/8691"/>).</para>
 </answer></qandaentry>
 
 
@@ -643,14 +642,12 @@ further explanations of the issues could be provided).</para>
        global <filename>SYSTEM.INI</filename></simpara></listitem>
      <listitem><simpara>modify the <filename>PIF</filename>
        that you use to invoke &clisp;
-       (<ulink role="gmane" url="general/4656"/>)</simpara></listitem>
+       (<ulink role="sfmail" url="3D2600BB.1CDBE9D0%40freenet.de"/>/<ulink role="gmane" url="general/4656"/>)</simpara></listitem>
      <listitem><simpara>or set the program stack (of the run
        times <command>base/lisp.exe</command> or
        <command>full/lisp.exe</command>, &not-e; the driver
        <command>clisp.exe</command>) using <command>editbin</command>
-       (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>,
-       <ulink role="gmane" url="general/5523"/>,
-       <ulink role="gmane" url="general/12043"/>); you can find the
+       (<ulink role="sfmail" url="sa0ptz4o4e3.fsf%40glip.premonitia.com"/>/<ulink role="gmane" url="general/5523"/>); you can find the
        current stack size using <command>dumpbin</command>.
  </simpara></listitem></itemizedlist></para></listitem></varlistentry>
  <varlistentry><term>&unix-only;</term>
@@ -715,8 +712,7 @@ trying to &nconc; a circular list).</para>
  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para>
 <para>See also <ulink url="ml">clisp-list</ulink>
- (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>,
- <ulink role="gmane" url="general/9850"/>).</para>
+ (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para>
 
 <formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
  calculations, use &rational-t;s:<programlisting language="lisp">
@@ -790,8 +786,8 @@ to see where the warning is coming from.</para>
   defined by &defvar; and &defparameter; (e.g., <varname>*FOO*</varname>)
   and &defconstant; (e.g., <varname>+BAR+</varname>).</para></answer>
 <answer><label>More</label>
- <simplelist><member><ulink role="gmane" url="general/11945"/></member>
-  <member><ulink role="gmane" url="general/11949"/></member>
+ <simplelist><member><ulink role="sfmail" url="470A4B2A.30306%40gnu.org"/>/<ulink role="gmane" url="general/11945"/></member>
+  <member><ulink role="sfmail" url="200710090043.01871.bruno%40clisp.org"/>/<ulink role="gmane" url="general/11949"/></member>
 </simplelist></answer>
 </qandaentry>
 
