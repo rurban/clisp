@@ -174,7 +174,7 @@ further explanations of the issues could be provided).</para>
   <listitem><simpara>do not mail here without a prior discussion
     on &clisp-devel; or &clisp-list;</simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-devel;</term>
-  <listitem><simpara>subscriber-only, you <emphasis>must</emphasis> post
+  <listitem><simpara>subscriber-only, you &must-e; post
     from a <emphasis role="strong">subscribed address</emphasis>,
     no exceptions (see <link linkend="faq-help">above</link>)
  </simpara></listitem></varlistentry>
