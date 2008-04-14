@@ -17,7 +17,8 @@ The frequently asked <link linkend="faq-meta">political</link> questions are
 answered here in <emphasis>full</emphasis> detail (meaning that no
 further explanations of the issues could be provided).</para>
 
-<para>Please submit more questions (and answers!) to &clisp-list;.</para>
+<para>Please submit more questions (and answers!)
+ to <ulink url="ml">clisp-list</ulink>.</para>
 </abstract>
 
 <qandaset id="faq-set"><title>FAQ</title>
@@ -102,13 +103,15 @@ further explanations of the issues could be provided).</para>
       questions, such as <ulink url="&clhs;/Body/acc_charcm_schar.html">"how
        do I access a character in a string?"</ulink></simpara>
    </listitem></varlistentry>
-   <varlistentry><term>&clisp; User Mailing List &clisp-list;</term>
+   <varlistentry><term>&clisp; User Mailing
+     List <ulink url="ml">clisp-list</ulink></term>
     <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.general"/>
     </term><listitem><simpara>This is the right place to ask user-level
       &clisp;-specific questions, such as
       <link linkend="image">"how do I save my &clisp; image?"</link>
    </simpara></listitem></varlistentry>
-   <varlistentry><term>&clisp; Developer Mailing List &clisp-devel;</term>
+   <varlistentry><term>&clisp; Developer Mailing
+     List <ulink url="ml">clisp-devel</ulink></term>
     <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel"/></term>
     <listitem><simpara>This is the right place to discuss &clisp; internals,
       submit patches, offer help.</simpara></listitem></varlistentry>
@@ -131,7 +134,7 @@ further explanations of the issues could be provided).</para>
   Alternatively, you can post to the &clisp;
   <ulink url="http://sourceforge.net/forum/forum.php?forum_id=3816">web
    forum</ulink> and your message will be forwarded to
-  the <email>clisp-list</email> mailing list.
+  the <ulink url="ml">clisp-list</ulink> mailing list.
   If you read a list on <ulink url="http://gmane.org">Gmane</ulink>
   and do not want to receive it also by e-mail, you can subscribe to
   it using the aforementioned web interface and then disable mail
@@ -145,21 +148,22 @@ further explanations of the issues could be provided).</para>
    lists</ulink> is very actively discouraged and is virtually non-existent,
   thus you can subscribe to all mailing lists that are relevant to you
    without getting duplicate messages:<variablelist>
- <varlistentry><term>&clisp-announce;</term>
+ <varlistentry><term><ulink url="ml">clisp-announce</ulink></term>
   <listitem><simpara>Extremely low-level moderated list, you should
     definitely subscribe to this list if you have any interest in &cl;
     or &clisp; whatsoever.</simpara></listitem></varlistentry>
- <varlistentry><term>&clisp-list;</term>
+ <varlistentry><term><ulink url="ml">clisp-list</ulink></term>
   <listitem><simpara>Subscribe to this list of you use &clisp; and want
     to ask (and answer!) questions. If you subscribe to this list, you
-    probably want to subscribe to <email>clisp-announce</email> too.
+    probably want to subscribe to <ulink url="ml">clisp-announce</ulink> too.
  </simpara></listitem></varlistentry>
- <varlistentry><term>&clisp-devel;</term>
+ <varlistentry><term><ulink url="ml">clisp-devel</ulink></term>
   <listitem><simpara>Subscribe to this list if you want to influence
     &clisp; developments; &cvs; commit notes go here (as a daily digest).
     If you subscribe to this list, you probably want to subscribe
-    to <email>clisp-list</email> &and-e; <email>clisp-announce</email> too.
-</simpara></listitem></varlistentry></variablelist></para></answer></qandaentry>
+    to <ulink url="ml">clisp-list</ulink>
+    &and-e; <ulink url="ml">clisp-announce</ulink> too.</simpara>
+</listitem></varlistentry></variablelist></para></answer></qandaentry>
 
 
 <qandaentry id="faq-rejected"><question id="faq-rejected-q"><simpara>Why
@@ -170,15 +174,16 @@ further explanations of the issues could be provided).</para>
   can safely <emphasis role="strong">assume that it went
    to <filename>/dev/null</filename></emphasis>
   and try again, noting the following:<variablelist>
- <varlistentry><term>&clisp-announce;</term>
+ <varlistentry><term><ulink url="ml">clisp-announce</ulink></term>
   <listitem><simpara>do not mail here without a prior discussion
-    on &clisp-devel; or &clisp-list;</simpara></listitem></varlistentry>
- <varlistentry><term>&clisp-devel;</term>
+    on <ulink url="ml">clisp-devel</ulink>
+    or <ulink url="ml">clisp-list</ulink></simpara></listitem></varlistentry>
+ <varlistentry><term><ulink url="ml">clisp-devel</ulink></term>
   <listitem><simpara>subscriber-only, you &must-e; post
     from a <emphasis role="strong">subscribed address</emphasis>,
     no exceptions (see <link linkend="faq-help">above</link>)
  </simpara></listitem></varlistentry>
- <varlistentry><term>&clisp-list;</term>
+ <varlistentry><term><ulink url="ml">clisp-list</ulink></term>
   <listitem><para>used to be the only open list (it is closed now), so
     it is filtered especially aggressively:<itemizedlist>
      <listitem><simpara>no &mime; mail (no &html; formatting, no
@@ -207,7 +212,8 @@ further explanations of the issues could be provided).</para>
    do I help?</simpara></question>
 <answer><para>Please read <xref linkend="extend"/> and submit your patch,
   together with a <filename role="clisp-cvs">src/ChangeLog</filename>
-  entry (see other entries there for inspiration), to &clisp-devel;.</para>
+  entry (see other entries there for inspiration),
+  to <ulink url="ml">clisp-devel</ulink>.</para>
  <para>See <filename role="clisp-cvs">src/CodingStyle</filename> for the
   style one should follow.</para>
  <para>If your patch is more than just a few lines, it is
@@ -438,7 +444,7 @@ further explanations of the issues could be provided).</para>
     <listitem><simpara>Composition of the &full; &linkset; is up to the
       packager, while &base; is the same on all platforms.
  </simpara></listitem></varlistentry></variablelist></para>
- <para>See &clisp-list; for more information
+ <para>See <ulink url="ml">clisp-list</ulink> for more information
   (<ulink role="sfmail" url="200407212204.44395.bruno%40clisp.org"/>,
   <ulink role="gmane" url="general/8691"/>).</para>
 </answer></qandaentry>
@@ -708,7 +714,7 @@ trying to &nconc; a circular list).</para>
  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para>
-<para>See also &clisp-list;
+<para>See also <ulink url="ml">clisp-list</ulink>
  (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>,
  <ulink role="gmane" url="general/9850"/>).</para>
 
