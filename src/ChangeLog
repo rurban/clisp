@@ -1,5 +1,9 @@
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
+	* modules/dirkey/dirkey1.lisp: do not re-export LDAP functions from EXT
+
+2008-04-14  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1942246 ]: (coerce 1 '(double-float 0d0)) fails
 	* predtype.d (COERCE): when result_type is a list, pass its CAR to
 	coerce_float() instead of the whole list

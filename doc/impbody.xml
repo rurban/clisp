@@ -1243,8 +1243,8 @@ the iteration variable and assign it on each iteration.</para></section>
  establishes a global handler for the &cond-r;.
  The <replaceable>handler</replaceable> should be &funcall;able (a
  &symbol-t; or a &function-t;).  If it returns, the next applicable
- handler is invoked, so if you do not want to land in the debugger, it
- should &not-e; return.
+ handler is invoked, so if you do &not-e; want to land in the debugger,
+ it should &not-e; return.
  E.g., the option &opt-on-error; <option>abort</option> and the macro
  &abort-on-error; are implemented by installing the following handler:
  <programlisting language="lisp">(defun sys::abortonerror (condition)
@@ -1420,7 +1420,7 @@ performance considerations.
     <code>(&use-package; "EXT")</code> is enough to
     make all the extensions available in the current package.
     This package uses packages (in addition to &cl-pac;):
-    &ldap-pac;, &posix-pac;, &socket-pac;, &gstream-pac;, &gray-pac;,
+    &posix-pac;, &socket-pac;, &gstream-pac;, &gray-pac;,
     &i18n-pac;, &custom-pac;.</simpara></listitem></varlistentry>
  <varlistentry><term>&charset-pac;</term><listitem>
    <simpara>defines and &export;s some character sets, for use with
