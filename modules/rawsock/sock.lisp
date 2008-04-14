@@ -1,7 +1,7 @@
 ;; Module for Raw Sockets / CLISP
 ;; Fred Cohen, 2003-2004
 ;; Don Cohen, 2003-2004
-;; Sam Steingold 2004-2007
+;; Sam Steingold 2004-2008
 ;; <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
 
 (defpackage #:rawsock
@@ -111,4 +111,5 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (($ecode :reader eai-code :initarg :code)
    ($message :reader eai-message :initarg :message))
   (:documentation "getaddrinfo()/getnameinfo() error, see <netdb.h>")
-  (:report (lambda (c out) (format out "[~S]: ~A" (eai-code c) (eai-message c)))))
+  (:report (lambda (c out)
+             (format out "[~S]: ~A" (eai-code c) (eai-message c)))))
