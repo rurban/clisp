@@ -1,3 +1,8 @@
+2008-04-14  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: add tests for bug #[ 1942246 ]:
+	(coerce 1 '(double-float 0d0)) fails
+
 2008-04-07  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: updated for improved accuracy of log(complex)
