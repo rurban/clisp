@@ -1114,41 +1114,32 @@ DEFUN(POSIX::PATHCONF, pathspec &optional what)
 
 
 #if defined(HAVE_GETRUSAGE)
-DEFUN(POSIX::USAGE,)
-{ /* getrusage(3) */
-
-#define GETRU(who)                                              \
-  begin_system_call(); getrusage(who,&ru); end_system_call();   \
-  tmp = ru.ru_utime.tv_sec + 0.000001 * ru.ru_utime.tv_usec;    \
-  pushSTACK(c_double_to_DF((dfloatjanus*)&tmp));                \
-  tmp = ru.ru_stime.tv_sec + 0.000001 * ru.ru_stime.tv_usec;    \
-  pushSTACK(c_double_to_DF((dfloatjanus*)&tmp));                \
-  pushSTACK(L_to_I(ru.ru_maxrss));                              \
-  pushSTACK(L_to_I(ru.ru_ixrss));                               \
-  pushSTACK(L_to_I(ru.ru_idrss));                               \
-  pushSTACK(L_to_I(ru.ru_isrss));                               \
-  pushSTACK(L_to_I(ru.ru_minflt));                              \
-  pushSTACK(L_to_I(ru.ru_majflt));                              \
-  pushSTACK(L_to_I(ru.ru_nswap));                               \
-  pushSTACK(L_to_I(ru.ru_inblock));                             \
-  pushSTACK(L_to_I(ru.ru_oublock));                             \
-  pushSTACK(L_to_I(ru.ru_msgsnd));                              \
-  pushSTACK(L_to_I(ru.ru_msgrcv));                              \
-  pushSTACK(L_to_I(ru.ru_nsignals));                            \
-  pushSTACK(L_to_I(ru.ru_nvcsw));                               \
-  pushSTACK(L_to_I(ru.ru_nivcsw))
-
+static /*maygc*/ Values rusage_to_lisp (int who) {
   struct rusage ru;
-  double tmp;
-  pushSTACK(NIL);               /* to save the children data */
-  GETRU(RUSAGE_SELF);
-  GETRU(RUSAGE_CHILDREN);
-  funcall(`POSIX::MAKE-USAGE`,16); /* children */
-  STACK_(14) = value1;
-  funcall(`POSIX::MAKE-USAGE`,16); /* self */
-  value2 = popSTACK();
-  mv_count = 2;
-#undef GETRU
+  int count = 2;
+  begin_system_call(); getrusage(who,&ru); end_system_call();
+  pushSTACK(sec_usec_number(ru.ru_utime.tv_sec,ru.ru_utime.tv_usec,0));
+  pushSTACK(sec_usec_number(ru.ru_stime.tv_sec,ru.ru_stime.tv_usec,0));
+  pushSTACK(L_to_I(ru.ru_maxrss)); count++;
+  pushSTACK(L_to_I(ru.ru_ixrss)); count++;
+  pushSTACK(L_to_I(ru.ru_idrss)); count++;
+  pushSTACK(L_to_I(ru.ru_isrss)); count++;
+  pushSTACK(L_to_I(ru.ru_minflt)); count++;
+  pushSTACK(L_to_I(ru.ru_majflt)); count++;
+  pushSTACK(L_to_I(ru.ru_nswap)); count++;
+  pushSTACK(L_to_I(ru.ru_inblock)); count++;
+  pushSTACK(L_to_I(ru.ru_oublock)); count++;
+  pushSTACK(L_to_I(ru.ru_msgsnd)); count++;
+  pushSTACK(L_to_I(ru.ru_msgrcv)); count++;
+  pushSTACK(L_to_I(ru.ru_nsignals)); count++;
+  pushSTACK(L_to_I(ru.ru_nvcsw)); count++;
+  pushSTACK(L_to_I(ru.ru_nivcsw)); count++;
+  funcall(`POSIX::MAKE-USAGE`,count);
+}
+DEFUN(POSIX::USAGE,) { /* getrusage(3) */
+  rusage_to_lisp(RUSAGE_CHILDREN); pushSTACK(value1);
+  rusage_to_lisp(RUSAGE_SELF);
+  value2 = popSTACK(); mv_count = 2;
 }
 #endif /* HAVE_GETRUSAGE */
 
