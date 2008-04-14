@@ -709,7 +709,8 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  that the other &iconv; implementations are broken in various ways and
  we do not want to deal with random &clisp; crashes caused by those bugs.
  If your system supplies an &iconv; implementation which passes the
- &libiconv;'s test suite, please report that to &clisp-list; and a
+ &libiconv;'s test suite, please report that
+ to <ulink url="ml">clisp-list</ulink> and a
  future &clisp; version will use &iconv; on your system.</simpara>
 
 </listitem></varlistentry></variablelist>
@@ -3666,8 +3667,8 @@ and possibly the calling convention.</para>
   <emphasis role="platform">x86_64</emphasis> and &win32;)
   have problems with this.
   The recommended workaround is to pass pointers; this is fully supported.
-  See also the &clisp-list; (<ulink role="sfmail" url="5513622"/>,
-  <ulink role="gmane" url="devel/10089"/>).</simpara></warning>
+  See also the <ulink url="ml">clisp-devel</ulink>
+  (<ulink role="sfmail" url="200307141526.26925.bruno%40clisp.org"/>/<ulink role="gmane" url="devel/10089"/>).</simpara></warning>
 
 </section>
 
@@ -4200,14 +4201,14 @@ Now you can sum doubles:
 <section id="dffi-ex-more"><title>More examples</title>
 
 <para>You can find more information and examples of the &clisp;
- &ffi-pac; in the following &clisp-list; messages:
+ &ffi-pac; in the following <ulink url="ml">clisp-list</ulink> messages:
  <variablelist><varlistentry><term>variable size values</term>
-   <listitem><simpara><ulink role="sfmail" url="5736140"/>,
-     <ulink role="gmane" url="general/7278"/></simpara></listitem></varlistentry>
+   <listitem><simpara><ulink role="sfmail" url="9F8582E37B2EE5498E76392AEDDCD3FE05F4B8F7%40G8PQD.blf01.telekom.de"/>/<ulink role="gmane" url="general/7278"/>
+  </simpara></listitem></varlistentry>
   <varlistentry><term>variable length arrays</term>
-   <listitem><simpara><ulink role="sfmail" url="4062459"/>,
-     <ulink role="gmane" url="general/6626"/></simpara></listitem>
-</varlistentry></variablelist></para>
+   <listitem><simpara><ulink role="sfmail" url="9F8582E37B2EE5498E76392AEDDCD3FE0287A252%40G8PQD.blf01.telekom.de"/>/<ulink role="gmane" url="general/6626"/>
+     <ulink role="sfmail" url="9F8582E37B2EE5498E76392AEDDCD3FE0287A3B1%40G8PQD.blf01.telekom.de"/>/<ulink role="gmane" url="general/6628"/>
+</simpara></listitem></varlistentry></variablelist></para>
 <para>Even more examples can be found in the file
  <filename role="clisp-cvs">tests/ffi.tst</filename>
  in the &clisp; source distribution.</para>

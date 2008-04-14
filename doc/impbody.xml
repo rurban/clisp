@@ -4161,7 +4161,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
    logging to a file: After the user has entered a line interactively,
    the column on screen is 0, but since the input has not been echoed in
    the log file, the column in the log file is usually not 0, and
-   &fresh-line; <emphasis>must</emphasis> output a newline. Then a blank
+   &fresh-line; &must-e; output a newline. Then a blank
    line is visible on the screen.)</simpara></listitem>
  <listitem><simpara>What happens if &fresh-line; omits a newline when it
    would be needed?
