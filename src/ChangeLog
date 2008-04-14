@@ -2,6 +2,9 @@
 
 	* stream.d (sec_usec_number): usec should be _divided_ by 1000000,
 	not multiplied by it
+	* modules/syscalls/calls.c (rusage_to_lisp): add,
+	use sec_usec_number() instead of C arithmetics
+	(USAGE): use it instead of GETRU
 
 2008-04-09  Sam Steingold  <sds@gnu.org>
 
