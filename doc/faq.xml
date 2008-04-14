@@ -5,8 +5,7 @@
 
 <abstract id="faq-abstract">
 <para>This is a list of frequently asked questions about &clisp; on the
-<ulink url="http://sourceforge.net/mail/?group_id=1355">CLISP mailing
- lists</ulink>
+<link linkend="faq-mailing-lists">CLISP mailing lists</link>
 and the USENET newsgroup
 <ulink url="http://groups.google.com/groups?as_ugroup=comp.lang.lisp"
        >comp.lang.lisp</ulink>.
@@ -48,7 +47,7 @@ further explanations of the issues could be provided).</para>
    <ulink url="http://www.cygwin.com/acronyms/#PTC"><acronym>PTC<alt>Patches
       Thoughtfully Considered</alt></acronym></ulink>.</para>
   <para>Additionally, the nightly builds of the &clisp; implementation
-   notes documenting the current CVS head are available at
+   notes documenting the current &cvs; HEAD are available at
    <ulink url="http://clisp.podval.org/impnotes/"/>.
    It contains both the documentation for the new features and the
    general improvements in the documentation.</para>
@@ -111,12 +110,8 @@ further explanations of the issues could be provided).</para>
    </simpara></listitem></varlistentry>
    <varlistentry><term>&clisp; Developer Mailing List &clisp-devel;</term>
     <term>AKA <ulink url="http://news.gmane.org/gmane.lisp.clisp.devel"/></term>
-    <listitem><simpara>This is the right place to discuss &clisp;
-      internals, submit patches, offer help.  You must be subscribed to post.
-      If you read this list on <ulink url="http://gmane.org">Gmane</ulink>
-      and do not want to receive it also by e-mail, you can subscribe to
-      it using the aforementioned web interface and then disable mail
-      delivery.</simpara></listitem></varlistentry>
+    <listitem><simpara>This is the right place to discuss &clisp; internals,
+      submit patches, offer help.</simpara></listitem></varlistentry>
    <varlistentry><term><ulink url="http://sourceforge.net/project/memberlist.php?group_id=1355">Individual &clisp; developers</ulink></term>
     <listitem><simpara>This is <emphasis>never</emphasis> the right thing to
       do, unless you want to <emphasis>hire</emphasis> this developer to do
@@ -129,29 +124,41 @@ further explanations of the issues could be provided).</para>
       to <ulink url="http://clisp.cons.org">search</ulink> them before asking).
       Please do &not-e; copy your messages to the
       individual developers.</simpara></listitem></varlistentry>
-</variablelist></para></answer></qandaentry>
+</variablelist></para>
+<note><title>Mailing lists are member-only</title>
+ <simpara>To avoid spam, we require that you subscribe before you can
+  post to a mailing list.
+  Alternatively, you can post to the &clisp;
+  <ulink url="http://sourceforge.net/forum/forum.php?forum_id=3816">web
+   forum</ulink> and your message will be forwarded to
+  the <email>clisp-list</email> mailing list.
+  If you read a list on <ulink url="http://gmane.org">Gmane</ulink>
+  and do not want to receive it also by e-mail, you can subscribe to
+  it using the aforementioned web interface and then disable mail
+  delivery.</simpara></note></answer></qandaentry>
 
 
 <qandaentry id="faq-mailing-lists"><question id="faq-mailing-lists-q">
   <simpara>Which mailing lists should I subscribe to?</simpara></question>
-<answer><para>Cross-posting in the &clisp; mailing lists is very
-  actively discouraged and is virtually non-existent, thus you can
-  subscribe to all mailing lists that are relevant to you without getting
-  duplicate messages:<variablelist>
+<answer><para>Cross-posting in the &clisp;
+  <ulink url="current/http://sourceforge.net/mail/?group_id=1355">mailing
+   lists</ulink> is very actively discouraged and is virtually non-existent,
+  thus you can subscribe to all mailing lists that are relevant to you
+   without getting duplicate messages:<variablelist>
  <varlistentry><term>&clisp-announce;</term>
   <listitem><simpara>Extremely low-level moderated list, you should
     definitely subscribe to this list if you have any interest in &cl;
-    and &clisp; whatsoever.</simpara></listitem></varlistentry>
+    or &clisp; whatsoever.</simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-list;</term>
   <listitem><simpara>Subscribe to this list of you use &clisp; and want
     to ask (and answer!) questions. If you subscribe to this list, you
     probably want to subscribe to <email>clisp-announce</email> too.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-devel;</term>
-  <listitem><simpara>Subscribe to this list if you want to help with &clisp;
-    developments; CVS commit notes go here (as a daily digest).
+  <listitem><simpara>Subscribe to this list if you want to influence
+    &clisp; developments; &cvs; commit notes go here (as a daily digest).
     If you subscribe to this list, you probably want to subscribe
-    to <email>clisp-list</email> and <email>clisp-announce</email> too.
+    to <email>clisp-list</email> &and-e; <email>clisp-announce</email> too.
 </simpara></listitem></varlistentry></variablelist></para></answer></qandaentry>
 
 
@@ -165,15 +172,15 @@ further explanations of the issues could be provided).</para>
   and try again, noting the following:<variablelist>
  <varlistentry><term>&clisp-announce;</term>
   <listitem><simpara>do not mail here without a prior discussion
-    on &clisp-devel;</simpara></listitem></varlistentry>
+    on &clisp-devel; or &clisp-list;</simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-devel;</term>
   <listitem><simpara>subscriber-only, you <emphasis>must</emphasis> post
     from a <emphasis role="strong">subscribed address</emphasis>,
     no exceptions (see <link linkend="faq-help">above</link>)
  </simpara></listitem></varlistentry>
  <varlistentry><term>&clisp-list;</term>
-  <listitem><para>the only open list, so it is filtered especially
-    aggressively:<itemizedlist>
+  <listitem><para>used to be the only open list (it is closed now), so
+    it is filtered especially aggressively:<itemizedlist>
      <listitem><simpara>no &mime; mail (no &html; formatting, no
        attachments - send the URL instead)</simpara></listitem>
      <listitem><simpara>the list address must be in <literal>CC</literal>
@@ -206,8 +213,7 @@ further explanations of the issues could be provided).</para>
  <para>If your patch is more than just a few lines, it is
   <emphasis>much</emphasis> preferred that you make your patch available
   on the web and send the link to the list.</para>
- <para>The patch must be against the
-  <ulink url="http://www.cvshome.org">CVS</ulink> head
+ <para>The patch must be against the &cvs; head
   (reasonably recent).</para></answer></qandaentry>
 
 
@@ -675,7 +681,7 @@ trying to &nconc; a circular list).</para>
 
 <qandaentry id="faq-autoconf"><question id="faq-autoconf-q"><simpara>Why
    is autoconf invoked during build?</simpara></question>
-<answer><para>When building from the CVS HEAD development sources, you
+<answer><para>When building from the &cvs; HEAD development sources, you
   will sometimes get errors when <command role="unix">make</command>
   tries to regenerate some <filename>configure</filename> scripts for you.
  <emphasis role="strong">This is never necessary!</emphasis>
@@ -685,7 +691,7 @@ trying to &nconc; a circular list).</para>
  and re-run <command role="unix">make</command>.</para>
 <para>You can also pass <option>--disable-maintainer-mode</option>
  to the top-level <filename role="clisp-cvs">configure</filename> script
- (this is the default when you are &not-e; working from the CVS).</para>
+ (this is the default when you are &not-e; working from the &cvs;).</para>
 </answer></qandaentry>
 
 
