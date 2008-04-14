@@ -2448,13 +2448,11 @@ can give problems:
 
 <para>The alphabetic characters are those &unicode; characters which are
  defined as letters by the &unicode; standard, e.g., the &ascii; characters
-<literallayout>             ABCDEFGHIJKLMNOPQRSTUVWXYZ
-             abcdefghijklmnopqrstuvwxyz
-</literallayout>
+<literallayout><literal>             ABCDEFGHIJKLMNOPQRSTUVWXYZ
+             abcdefghijklmnopqrstuvwxyz</literal></literallayout>
 and the international alphabetic characters from the character set:
-<literallayout>             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde; etc.
-</literallayout></para>
-
+<literallayout><literal>             &Ccedil;&uuml;&eacute;&acirc;&auml;&agrave;&aring;&ccedil;&ecirc;&euml;&egrave;&iuml;&icirc;&igrave;&Auml;&Aring;&Eacute;&aelig;&AElig;&ocirc;&ouml;&ograve;&ucirc;&ugrave;&yuml;&Ouml;&Uuml;&szlig;&aacute;&iacute;&oacute;&uacute;&ntilde;&Ntilde;&ordf;&ordm;&atilde;&otilde;&Oslash;&oslash;&Agrave;&Atilde;&Otilde;</literal></literallayout>
+etc.</para>
 </section>
 
 <section id="char-case"><title>Characters With Case
@@ -2542,7 +2540,7 @@ and the international alphabetic characters from the character set:
 
 <formalpara><title>Rationale</title>
 <para>In &clisp;, &nl-s; is identical to &lf-s;
- (which is specifically permitted by &ansi-cl; in section
+ (which is specifically permitted by the &ansi-cl; in section
  <ulink role="clhs" url="sec_13-1-7.html">13.1.7 <quote>Character
    Names</quote></ulink>).
  Consider a file containing exactly this string:
