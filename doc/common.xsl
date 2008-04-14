@@ -257,8 +257,13 @@
 <xsl:param name="clhs.top" select="'http://www.lisp.org/HyperSpec/'"/>
 <xsl:param name="clhs.body" select="concat($clhs.top, 'Body/')"/>
 <xsl:template match="ulink[@role='clhs']">
- <a class="{@role}" href="{$clhs.body}{@url}"><xsl:apply-templates/></a>
-</xsl:template>
+ <xsl:choose><xsl:when test=".=''">
+   <a class="{@role}" href="{$clhs.body}{@url}.html"><xsl:text>[</xsl:text>
+    <xsl:value-of select="@url"/>
+    <xsl:text>]</xsl:text></a></xsl:when>
+  <xsl:otherwise>
+   <a class="{@role}" href="{$clhs.body}{@url}"><xsl:apply-templates/></a>
+</xsl:otherwise></xsl:choose></xsl:template>
 
 <xsl:template match="literal[@role = '#lt']">
  <span class="data">
