@@ -509,8 +509,7 @@ schema, <literal>SCOTT</literal>.
 <para>Obviously, a working &oracle-link; environment is required.  It is
 recommended that you first be able to log on and use the &oracle-link;
 SQL*Plus application to test your environment
-<emphasis>before</emphasis> attempting &oracle-link; access via the
-&clisp; module.
+&before-e; attempting &oracle-link; access via the &clisp; module.
 At a minimum you will need to set environment variables
 <envar>ORACLE_HOME</envar> to the &oracle-link; base directory and
 <envar>LD_LIBRARY_PATH</envar> to include

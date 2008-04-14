@@ -72,9 +72,9 @@
  <varlistentry><term><code>(destroy-problem &problem-r;)</code></term>
   <listitem><simpara>Release the memory taken by the <type>problem</type>
     object and invalidate the &foreign-variable-t; &problem-r;.</simpara>
-   <warning><simpara>You <emphasis>must</emphasis> call this function yourself,
-     but only <emphasis>after</emphasis> deallocating all <type>model</type>
-     objects trained from this &problem-r;.</simpara>
+   <warning><simpara>You &must-e; call this function yourself, but only
+     &after-e; deallocating all <type>model</type> objects trained from
+     this &problem-r;.</simpara>
     <simpara>See <filename role="clisp-cvs">modules/libsvm/README</filename>
      for more information.</simpara></warning></listitem></varlistentry>
  <varlistentry><term><code>(load-problem &filename-r; &key-amp;

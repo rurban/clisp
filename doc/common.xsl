@@ -73,6 +73,10 @@
  <a class="{@role}" href="http://www.google.com/search?q={.}"
     ><xsl:apply-templates/></a></xsl:template>
 
+<xsl:template match="ulink[@url='ml']">
+ <a class="{@role}" href="http://lists.sourceforge.net/lists/listinfo/{.}"
+    ><xsl:apply-templates/></a></xsl:template>
+
 <!-- =============================== RFC =============================== -->
 <xsl:param name="rfc.top" select="'http://rfc.net/rfc'"/>
 <xsl:template match="ulink[@role='rfc']">
@@ -98,7 +102,7 @@
 
 <!-- =============================== SF mail =============================== -->
 <xsl:param name="sfmail.top"
-           select="'http://sourceforge.net/mailarchive/message.php?msg_id='"/>
+           select="'http://sourceforge.net/mailarchive/message.php?msg_name='"/>
 <xsl:template match="ulink[@role='sfmail']">
  <a class="{@role}" href="{$sfmail.top}{@url}"><code>
    <xsl:choose><xsl:when test=".=''"><xsl:text>SFmail/</xsl:text>

@@ -910,8 +910,8 @@
 <chapter id="gc"><title>Overview of &clisp;'s Garbage Collection</title>
 
  <abstract><simpara>These are internals, which are of interest only to the
-   &clisp; developers.  If you are not subscribed to &clisp-devel;, this
-   chapter is probably not for you.</simpara></abstract>
+   &clisp; developers.  If you do not read <ulink url="ml">clisp-devel</ulink>,
+   this chapter is probably not for you.</simpara></abstract>
 
 <section id="internals-intro"><title>Introduction</title>
 

@@ -21,7 +21,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <warning id="rawsock-not-streams"><title>Do &not-e; use &make-stream;!</title>
  <simpara>You can turn such a raw socket into a usual lisp &stream-t;
   using &make-stream;, but you should be <emphasis>extremely</emphasis>
-  careful with such dubious actions!  See the &clisp-devel;
+  careful with such dubious actions!
+  See the <ulink url="ml">clisp-devel</ulink>
   <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
          >mailing list archives</ulink> for more details.
   Note that &make-stream; will duplicate the &file-des;
