@@ -238,6 +238,16 @@
  functions (both of type &compiled-function-t;) and interpreted
  functions (of type &function-t;).</para>
 
+<table id="eval-limits-table" frame="all"><title>Function call limits</title>
+ <tgroup cols="2" colsep="1" rowsep="1" align="center"><tbody>
+   <row><entry>&call-arguments-limit;</entry>
+    <entry>2<superscript>12</superscript>=4096</entry></row>
+   <row><entry>&multiple-values-limit;</entry>
+    <entry>2<superscript>7</superscript>=128</entry></row>
+   <row><entry>&lambda-parameters-limit;</entry>
+    <entry>2<superscript>12</superscript>=4096</entry></row>
+</tbody></tgroup></table>
+
 <section id="evaluation"><title>Evaluation
   <ulink role="clhs" url="sec_3-1"/></title>
 
@@ -257,6 +267,29 @@
 
 </section>
 
+<section id="sym-forms"><title>Symbols as Forms
+  <ulink role="clhs" url="sec_3-1-2-1-1"/></title>
+
+<section id="def-sym-mac"><title>Macro &define-symbol-macro;</title>
+
+<para>The macro &define-symbol-macro; establishes &symbol-macro;s with
+ global scope (as opposed to &symbol-macro;s defined with
+ &symbol-macrolet;, which have local scope).</para>
+
+<para>The function
+ <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
+   <primary id="symbol-mex-i"><function>SYMBOL-MACRO-EXPAND</function>
+ </primary></indexterm></firstterm>
+ tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;
+ in the &glo-env;, <code>(&symbol-mex; &symbol-r;)</code> returns two
+ values, &t; and the expansion; otherwise it returns &nil;.</para>
+
+<para>&symbol-mex; is a special case of &macroexpand-1;. &macroexpand-1;
+ can also test whether a symbol is defined as a &symbol-macro; in &lex-env;s
+ other than the &glo-env;.</para>
+
+</section>
+
 <section id="dyn-var"><title>Dynamic Variables
   <ulink role="clhs" url="sec_3-1-2-1-1-2"/></title>
 
@@ -266,8 +299,11 @@
  in the &glo-env;.  The compiler &signal;s a &warning-t; when it
  encounters an undefined variable.</para></section>
 
-<section id="function-form"><title>Conses as Forms
+</section>
+
+<section id="cons-forms"><title>Conses as Forms
   <ulink role="clhs" url="sec_3-1-2-1-2"/></title>
+
 <para>Lists of the form <code>((&setf; &symbol-r;) ...)</code> are also
  treated as function forms. This makes the syntax
  <code>(&funcname-r; &args-r; ...)</code> consistent with the syntax
@@ -276,6 +312,103 @@
  <ulink role="clhs" url="glo_f.html#function_form">function form</ulink>s,
  and is consistent with the use of &funname;s elsewhere in &cl;.
 </para></section>
+
+<section id="specforms"><title>Special Forms
+  <ulink role="clhs" url="sec_3-1-2-1-2-1"/></title>
+
+<section id="eval-when"><title>Special operator &eval-when;</title>
+
+<para>&eval-when; also accepts the situations <code>(NOT EVAL)</code>
+ and <code>(NOT COMPILE)</code>.</para>
+
+<warning><para>The situations <constant>EVAL</constant>,
+ <constant>LOAD</constant> and <constant>COMPILE</constant> are
+ deprecated by the &ansi-cl;, and they are &not-e; equivalent to the new
+ standard situations <constant>:EXECUTE</constant>,
+ <constant>:LOAD-TOPLEVEL</constant>
+ and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
+ &top-level-form; versus non-&top-level-form; distinction.</para></warning>
+</section>
+
+<section id="speop-the"><title>Special operator &the;</title>
+
+<para>The special form <code>(&the; &val-type-r; &form-r;)</code> is
+ similar to &check-type; but does a type check only in interpreted
+ code (no type check is done in compiled code - but see the &ethe;
+ macro) and does not allow interactive error correction by the user.
+</para></section>
+</section>
+
+<section id="funforms"><title>Function Forms
+  <ulink role="clhs" url="sec_3-1-2-1-2-3"/></title>
+
+<formalpara><title>Constant &lambda-list-keywords;</title>
+<para><code>(&optional-amp; &rest-amp; &key-amp; &allow-other-keys-amp;
+  &aux-amp; &body-amp; &whole-amp; &environment-amp;)</code></para></formalpara>
+
+<section id="sym-fun"><title>Function &symbol-function;</title>
+
+<para><code>(&setf; (&symbol-function; &symbol-r;) &object-r;)</code>
+ requires &object-r; to be either a &function-t;, a &symbol-function;
+ return value, or a &lambda-expr;.  The &lambda-expr; is thereby
+ immediately converted to a &function-t;.</para></section>
+</section>
+
+<section id="defun"><title>Macros &defun; &amp; &defmacro;</title>
+
+<para>&defun; and &defmacro; are allowed in non-toplevel positions. As
+ an example, consider the old (&cltl1;) definition of &gensym;:</para>
+
+<programlisting language="lisp">
+(let ((gensym-prefix "G")
+      (gensym-count 1))
+  (defun gensym (&amp;optional (x nil s))
+    (when s
+      (cond ((stringp x) (setq gensym-prefix x))
+            ((integerp x)
+             (if (minusp x)
+               (error "~S: index ~S is negative" 'gensym x)
+               (setq gensym-count x)))
+            (t (error "~S: argument ~S of wrong type" 'gensym x))))
+    (prog1
+      (make-symbol
+        (concatenate 'string
+          gensym-prefix
+          (write-to-string gensym-count :base 10 :radix nil)))
+      (incf gensym-count))))
+</programlisting>
+
+<para>See also <xref linkend="minimal-compilation"/>.</para>
+
+<formalpara id="arglist"><title>Function &arglist;</title>
+<para>Function <code>(&arglist; &name-r;)</code> returns the &lalist; of
+ the function or macro that &name-r; names and &sig-err; if &name-r; is
+ not &fboundp;.  It also &sig-err; when the macro &lalist; is not
+ available due to the compiler optimization settings
+ (see <xref linkend="space-decl"/>).</para></formalpara>
+
+<formalpara id="suppress-check-redef">
+ <title>Variable &suppress-check-redef;</title>
+<para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,
+ &clisp; issues a &warning-t; when a function (macro, variable, class,
+ etc) is redefined in a different file than its original definition.
+ It is &not-e; a good idea to set this variable to &t;.
+</para></formalpara>
+
+<formalpara id="defun-accept-spelalist">
+ <title>Variable &defun-accept-spelalist;</title>
+<para>When <firstterm>&defun-accept-spelalist;</firstterm> is
+non-&nil;, &defun; accepts &spelalist;s, converting type-parameter
+associations to type declarations:
+<programlisting language="lisp">(defun f ((x list) (y integer)) ...)</programlisting>
+is equivalent to
+<programlisting language="lisp">(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
+This extension is disabled by &opt-ansi; and by setting &ansi; to &t;,
+but can be re-enabled by setting &defun-accept-spelalist; explicitly.
+</para></formalpara>
+
+</section>
+
 </section>
 
 <section id="compilation"><title>Compilation
@@ -428,6 +561,21 @@ ignored by the interpreter.</para>
   between processed and machines, such as endianness or word size.
 </para></section>
 
+<section id="constantp"><title>Function &constantp;</title>
+
+<para>Function &constantp; fully complies with &ansi-cl;.
+Additionally, some non-trivial forms are identified as constants, e.g.,
+<code>(&constantp; '(&plus; 1 2 3))</code> returns &t;.</para>
+
+<warning><para>Since &defconstant; initial value forms are not
+evaluated at compile time, &constantp; will not report &t; of their
+name within the same &comp-unit; for the null &lex-env;.
+This is consistent and matches questionable code using the pattern
+<code>(&if; (&constantp; &form-r;) (&eval; &form-r;))</code>.
+Use &eval-when; if you need recognition and the value during
+compile-time. See also <xref linkend="compile-time-value"/>.
+</para></warning></section>
+
 <section id="safety-decl"><title>Declaration &safety-dec;</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
  results in <quote>safe</quote> compiled code: function calls are never
@@ -480,46 +628,6 @@ executes a compiled version of &form-r;.</para>
 </section>
 </section>
 
-<section id="eval-comp"><title>The Evaluation and Compilation Dictionary
-  <ulink role="clhs" url="sec_the_evalu_n_dictionary"/></title>
-
-<section id="constantp"><title>Function &constantp;</title>
-
-<para>Function &constantp; fully complies with &ansi-cl;.
-Additionally, some non-trivial forms are identified as constants, e.g.,
-<code>(&constantp; '(&plus; 1 2 3))</code> returns &t;.</para>
-
-<warning><para>Since &defconstant; initial value forms are not
-evaluated at compile time, &constantp; will not report &t; of their
-name within the same &comp-unit; for the null &lex-env;.
-This is consistent and matches questionable code using the pattern
-<code>(&if; (&constantp; &form-r;) (&eval; &form-r;))</code>.
-Use &eval-when; if you need recognition and the value during
-compile-time.</para></warning></section>
-
-<section id="eval-when"><title>Macro &eval-when;</title>
-
-<para>&eval-when; also accepts the situations <code>(NOT EVAL)</code>
- and <code>(NOT COMPILE)</code>.</para>
-
-<warning><para>The situations <constant>EVAL</constant>,
- <constant>LOAD</constant> and <constant>COMPILE</constant> are
- deprecated by the &ansi-cl;, and they are &not-e; equivalent to the new
- standard situations <constant>:EXECUTE</constant>,
- <constant>:LOAD-TOPLEVEL</constant>
- and <constant>:COMPILE-TOPLEVEL</constant> in that they ignore the
- &top-level-form; versus non-&top-level-form; distinction.</para></warning>
-</section>
-
-<section id="speop-the"><title>Special operator &the;</title>
-
-<para>The special form <code>(&the; &val-type-r; &form-r;)</code> is
- similar to &check-type; but does a type check only in interpreted
- code (no type check is done in compiled code - but see the &ethe;
- macro) and does not allow interactive error correction by the user.
-</para></section>
-
-</section>
 </chapter>
 
 
@@ -608,6 +716,16 @@ compile-time.</para></warning></section>
  <listitem><simpara>a class object (&clos; classes without a
    &proper-name-glo;)</simpara></listitem>
 </itemizedlist>
+
+<formalpara id="fixnum-char-ansi"><title>Function &coerce;</title>
+<para>&fixnum-t; is not a <ulink
+  url="&clhs;/Body/glo_c.html#character_designator">character
+  designator</ulink> in &ansi-cl;, although &code-char; provides an
+  obvious venue to &coerce; a &fixnum-t; to a &character-t;.
+  When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-t;s to
+  &character-t;s via &code-char;.
+  When &fixnum-char-ansi; is non-&nil;, &fixnum-t;s cannot be
+  &coerce;d to &character-t;s.</para></formalpara>
 
 </section>
 </section>
@@ -738,44 +856,106 @@ compile-time.</para></warning></section>
 
 </section>
 
-<section id="type-class-dict"><title>The Types and Classes Dictionary
-  <ulink role="clhs" url="sec_the_types_s_dictionary"/></title>
-
-<section id="fixnum-char-ansi"><title>Function &coerce;</title>
-
-<para>&fixnum-t; is not a <ulink
-  url="&clhs;/Body/glo_c.html#character_designator">character
-  designator</ulink> in &ansi-cl;, although &code-char; provides an
-  obvious venue to &coerce; a &fixnum-t; to a &character-t;.
-  When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-t;s to
-  &character-t;s via &code-char;.
-  When &fixnum-char-ansi; is non-&nil;, &fixnum-t;s cannot be
-  &coerce;d to &character-t;s.</para>
-</section>
-</section>
 </chapter>
-
 
 <chapter id="data"><title>Data and Control Flow
    <ulink role="clhs" url="chap-5"/></title>
 
-<section id="flow-dict"><title>The Data and Control Flow Dictionary
-  <ulink role="clhs" url="sec_the_data__w_dictionary"/></title>
+<section id="gen-ref"><title>Generalized Reference
+  <ulink role="clhs" url="sec_5-1"/></title>
 
-<formalpara id="fle"><title>Function &function-lambda-expression;</title>
+<para>&key-amp; markers in &defsetf; &lalist;s are supported, but the
+ corresponding keywords must appear literally in the program text.</para>
+
+<para>An attempt to modify read-only data &sig-err;.
+ Program text and quoted constants loaded from files are considered
+ read-only data.  This check is only performed for strings, not for
+ conses, other kinds of arrays, and user-defined data types.</para>
+
+<para>See also <xref linkend="letf"/>.</para>
+
+</section>
+
+<section id="setf-expansion"><title>Setf Expansions
+  <ulink role="clhs" url="sec_5-1-1-2"/></title>
+<para><code>(&get-setf-expansion; &form-r; &optional-amp; &env-r;)</code>,
+ <code>(EXT:GET-SETF-METHOD &form-r; &optional-amp; &env-r;)</code>, and
+ <code>(EXT:GET-SETF-METHOD-MULTIPLE-VALUE &form-r; &optional-amp;
+  &env-r;)</code> receive as optional argument &env-r; the environment
+  necessary for macro expansions. In &define-setf-expander;
+  and <function>EXT:DEFINE-SETF-METHOD</function> &lalist;s, one can
+  specify &environment-amp; and a variable, which will be bound to the
+  environment.  This environment should be passed to all calls of
+  &get-setf-expansion;, <function>EXT:GET-SETF-METHOD</function> and
+ <function>EXT:GET-SETF-METHOD-MULTIPLE-VALUE</function>.  If this is
+ done, even local macros will be interpreted as places correctly.</para>
+</section>
+
+<section id="extra-places"><title>Kinds of Places
+  <ulink role="clhs" url="sec_5-1-2"/></title>
+
+<para>Additional &place;s:
+<variablelist>
+ <varlistentry><term>&funcall;</term>
+  <listitem><simpara><code>(&setf; (&funcall; #'&symbol-r; ...)
+     &object-r;)</code> and
+    <code>(&setf; (&funcall; '&symbol-r; ...) &object-r;)</code>
+    are equivalent to <code>(&setf; (&symbol-r; ...) &object-r;)</code>.
+ </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&progn;</term>
+  <listitem><simpara><code>(&setf; (&progn; &form-r; ... &place-r;)
+     &object-r;)</code></simpara></listitem></varlistentry>
+
+ <varlistentry><term>&locally;</term>
+  <listitem><simpara><code>(&setf; (&locally; &declaration-r; ...
+     &form-r; ... &place-r;) &object-r;)</code>
+  </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&if;</term>
+  <listitem><simpara><code>(&setf; (&if; &cond-r;
+     <replaceable>place&sub-1;</replaceable>
+     <replaceable>place&sub-2;</replaceable>)
+     &object-r;)</code></simpara></listitem></varlistentry>
+
+ <varlistentry><term>&get-dispatch-macro-character;</term>
+  <listitem><simpara><code>(&setf; (&get-dispatch-macro-character; ...)
+     ...)</code> calls &set-dispatch-macro-character;.
+ </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&lfd;:</term>
+  <listitem><simpara><code>(&setf; (&lfd;) &digits-r;)</code> sets the
+    default mantissa length of &long-float-t;s to &digits-r; bits.
+ </simpara></listitem></varlistentry>
+
+ <varlistentry><term>&values-list;</term>
+  <listitem><simpara><code>(&setf; (&values-list; &list-r;) &form-r;)</code>
+    is equivalent to <code>(&values-list; (&setf; &list-r;
+     (&multiple-value-list; &form-r;)))</code>.</simpara>
+   <note><simpara>Note that this &place; is restricted: it can only be
+     used in &setf;, &letf;, &letf-star;, not in other positions.
+ </simpara></note></listitem></varlistentry>
+</variablelist></para>
+
+</section>
+
+<section id="misc-data"><title>Miscellaneous</title>
+
+<simplesect id="fle"><title>Function &function-lambda-expression;</title>
 <para>The &name-r; of a &foreign-function-t; is a <emphasis>string</emphasis>
 (the name of the underlying &c-lang; function), not a lisp &funname;.
-</para></formalpara>
+</para></simplesect>
 
-<formalpara id="des-bind"><title>Macro &destructuring-bind;</title>
-<para>This macro does not perform full error checking.</para></formalpara>
+<simplesect id="des-bind"><title>Macro &destructuring-bind;</title>
+<para>This macro does not perform full error checking.</para></simplesect>
 
-<formalpara id="macro-special"><title>Macros &prog1;, &prog2;, &and-m;,
+<simplesect id="macro-special"><title>Macros &prog1;, &prog2;, &and-m;,
  &or-m;, &psetq;, &when;, &unless;, &cond;, &case;, &multiple-value-list;,
   &multiple-value-bind;, &multiple-value-setq;</title>
-<para>These macros are implemented as special operators (as permitted by
- <ulink role="clhs" url="sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>)
- and, as such, are rather efficient.</para></formalpara>
+<para>These macros are implemented as special operators
+ (as permitted by <ulink role="clhs" url="sec_3-1-2-1-2-2"/>)
+ and, as such, are rather efficient.</para></simplesect>
+</section>
 
 <section id="defconstant"><title>Macro &defconstant;</title>
 <para>The initial value is &not-e; evaluated at compile time,
@@ -832,84 +1012,6 @@ defined using &defhash;), the compiler will be able to optimize the
 
 </section>
 
-<section id="sym-fun"><title>Function &symbol-function;</title>
-
-<para><code>(&setf; (&symbol-function; &symbol-r;) &object-r;)</code>
- requires &object-r; to be either a function, a &symbol-function; return
- value, or a &lambda-expr;.  The &lambda-expr; is thereby immediately
- converted to a &function-t;.</para>
-
-</section>
-
-<section id="setf"><title>Macro &setf;</title>
-
-<para>Additional &place;s:
-<variablelist>
- <varlistentry><term>&funcall;</term>
-  <listitem><simpara><code>(&setf; (&funcall; #'&symbol-r; ...)
-     &object-r;)</code> and
-    <code>(&setf; (&funcall; '&symbol-r; ...) &object-r;)</code>
-    are equivalent to <code>(&setf; (&symbol-r; ...) &object-r;)</code>.
- </simpara></listitem></varlistentry>
-
- <varlistentry><term>&progn;</term>
-  <listitem><simpara><code>(&setf; (&progn; &form-r; ... &place-r;)
-     &object-r;)</code></simpara></listitem></varlistentry>
-
- <varlistentry><term>&locally;</term>
-  <listitem><simpara><code>(&setf; (&locally; &declaration-r; ...
-     &form-r; ... &place-r;) &object-r;)</code>
-  </simpara></listitem></varlistentry>
-
- <varlistentry><term>&if;</term>
-  <listitem><simpara><code>(&setf; (&if; &cond-r;
-     <replaceable>place&sub-1;</replaceable>
-     <replaceable>place&sub-2;</replaceable>)
-     &object-r;)</code></simpara></listitem></varlistentry>
-
- <varlistentry><term>&get-dispatch-macro-character;</term>
-  <listitem><simpara><code>(&setf; (&get-dispatch-macro-character; ...)
-     ...)</code> calls &set-dispatch-macro-character;.
- </simpara></listitem></varlistentry>
-
- <varlistentry><term>&lfd;:</term>
-  <listitem><simpara><code>(&setf; (&lfd;) &digits-r;)</code> sets the
-    default mantissa length of &long-float-t;s to &digits-r; bits.
- </simpara></listitem></varlistentry>
-
- <varlistentry><term>&values-list;</term>
-  <listitem><simpara><code>(&setf; (&values-list; &list-r;) &form-r;)</code>
-    is equivalent to <code>(&values-list; (&setf; &list-r;
-     (&multiple-value-list; &form-r;)))</code>.</simpara>
-   <note><simpara>Note that this &place; is restricted: it can only be
-     used in &setf;, &letf;, &letf-star;, not in other positions.
- </simpara></note></listitem></varlistentry>
-</variablelist></para>
-
-<para>&key-amp; markers in &defsetf; &lalist;s are supported, but the
- corresponding keywords must appear literally in the program text.</para>
-
-<para><code>(&get-setf-expansion; &form-r; &optional-amp; &env-r;)</code>,
- <code>(EXT:GET-SETF-METHOD &form-r; &optional-amp; &env-r;)</code>, and
- <code>(EXT:GET-SETF-METHOD-MULTIPLE-VALUE &form-r; &optional-amp;
-  &env-r;)</code> receive as optional argument &env-r; the environment
-  necessary for macro expansions. In &define-setf-expander;
-  and <function>EXT:DEFINE-SETF-METHOD</function> &lalist;s, one can
-  specify &environment-amp; and a variable, which will be bound to the
-  environment.  This environment should be passed to all calls of
-  &get-setf-expansion;, <function>EXT:GET-SETF-METHOD</function> and
- <function>EXT:GET-SETF-METHOD-MULTIPLE-VALUE</function>.  If this is
- done, even local macros will be interpreted as places correctly.</para>
-
-<para>An attempt to modify read-only data &sig-err;.
- Program text and quoted constants loaded from files are considered
- read-only data.  This check is only performed for strings, not for
- conses, other kinds of arrays, and user-defined data types.</para>
-
-<para>See also <xref linkend="letf"/>.</para>
-
-</section>
-
 <section id="func"><title>Special Operator &function;</title>
 
 <para><code>(&function; &symbol-r;)</code> returns the local function
@@ -922,102 +1024,6 @@ defined using &defhash;), the compiler will be able to optimize the
 
 </section>
 
-<section id="def-sym-mac"><title>Macro &define-symbol-macro;</title>
-
-<para>The macro &define-symbol-macro; establishes &symbol-macro;s with
- global scope (as opposed to &symbol-macro;s defined with
- &symbol-macrolet;, which have local scope).</para>
-
-<para>The function
- <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
-   <primary id="symbol-mex-i"><function>SYMBOL-MACRO-EXPAND</function>
- </primary></indexterm></firstterm>
- tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;
- in the &glo-env;, <code>(&symbol-mex; &symbol-r;)</code> returns two
- values, &t; and the expansion; otherwise it returns &nil;.</para>
-
-<para>&symbol-mex; is a special case of &macroexpand-1;. &macroexpand-1;
- can also test whether a symbol is defined as a &symbol-macro; in &lex-env;s
- other than the &glo-env;.</para>
-
-</section>
-
-<section id="lambda"><title>Macro &lambda-m;</title>
-
-<formalpara><title>Constant &lambda-list-keywords;</title>
-<para><code>(&optional-amp; &rest-amp; &key-amp; &allow-other-keys-amp;
-  &aux-amp; &body-amp; &whole-amp; &environment-amp;)</code></para></formalpara>
-
-<table id="values-limits-table" frame="all">
- <title>Function call limits</title>
- <tgroup cols="2" colsep="1" rowsep="1" align="center">
- <tbody>
-  <row><entry>&call-arguments-limit;</entry>
-   <entry>2<superscript>12</superscript>=4096</entry></row>
-  <row><entry>&multiple-values-limit;</entry>
-   <entry>2<superscript>7</superscript>=128</entry></row>
-  <row><entry>&lambda-parameters-limit;</entry>
-   <entry>2<superscript>12</superscript>=4096</entry></row>
-</tbody></tgroup></table>
-
-</section>
-
-<section id="defun"><title>Macros &defun; &amp; &defmacro;</title>
-
-<para>&defun; and &defmacro; are allowed in non-toplevel positions. As
- an example, consider the old (&cltl1;) definition of &gensym;:</para>
-
-<programlisting language="lisp">
-(let ((gensym-prefix "G")
-      (gensym-count 1))
-  (defun gensym (&amp;optional (x nil s))
-    (when s
-      (cond ((stringp x) (setq gensym-prefix x))
-            ((integerp x)
-             (if (minusp x)
-               (error "~S: index ~S is negative" 'gensym x)
-               (setq gensym-count x)))
-            (t (error "~S: argument ~S of wrong type" 'gensym x))))
-    (prog1
-      (make-symbol
-        (concatenate 'string
-          gensym-prefix
-          (write-to-string gensym-count :base 10 :radix nil)))
-      (incf gensym-count))))
-</programlisting>
-
-<para>See also <xref linkend="minimal-compilation"/>.</para>
-
-<formalpara id="arglist"><title>Function &arglist;</title>
-<para>Function <code>(&arglist; &name-r;)</code> returns the &lalist; of
- the function or macro that &name-r; names and &sig-err; if &name-r; is
- not &fboundp;.  It also &sig-err; when the macro &lalist; is not
- available due to the compiler optimization settings
- (see <xref linkend="space-decl"/>).</para></formalpara>
-
-<formalpara id="suppress-check-redef">
- <title>Variable &suppress-check-redef;</title>
-<para>When <firstterm>&suppress-check-redef;</firstterm> is &nil;,
- &clisp; issues a &warning-t; when a function (macro, variable, class,
- etc) is redefined in a different file than its original definition.
- It is &not-e; a good idea to set this variable to &t;.
-</para></formalpara>
-
-<formalpara id="defun-accept-spelalist">
- <title>Variable &defun-accept-spelalist;</title>
-<para>When <firstterm>&defun-accept-spelalist;</firstterm> is
-non-&nil;, &defun; accepts &spelalist;s, converting type-parameter
-associations to type declarations:
-<programlisting language="lisp">(defun f ((x list) (y integer)) ...)</programlisting>
-is equivalent to
-<programlisting language="lisp">(defun f (x y) (declare (type list x) (type integer y)) ...)</programlisting>
-This extension is disabled by &opt-ansi; and by setting &ansi; to &t;,
-but can be re-enabled by setting &defun-accept-spelalist; explicitly.
-</para></formalpara>
-
-</section>
-
-</section>
 </chapter>
 
 
@@ -1049,8 +1055,7 @@ accepted in &clisp; but elicit a warning at macro-expansion time.
 When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 </section>
 
-<section id="iter-dict"><title>The Iteration Dictionary
-  <ulink role="clhs" url="sec_6-2"/></title>
+<section id="iter-misc"><title>Miscellaneous</title>
 
 <para>The macros &dolist; and &dotimes; establish a single binding for
 the iteration variable and assign it on each iteration.</para></section>
@@ -1093,10 +1098,6 @@ the iteration variable and assign it on each iteration.</para></section>
   &type-error-expected-type; available.</para>
 
 </section>
-
-<!-- <section id="obj-dict"><title>The Objects Dictionary
-  <ulink role="clhs" url="sec_7-7"/></title>
-</section> -->
 
 </chapter>
 
@@ -1203,6 +1204,47 @@ the iteration variable and assign it on each iteration.</para></section>
  forms as usual. The &help; command (or help key if there is one) lists
  the available <link linkend="debugger">debugging commands</link>.</para>
 
+<section id="cond-nl"><title>Embedded Newlines in Condition Reports
+   <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
+
+<para>The error message prefix for the first line is <quote>*** - </quote>.
+ All subsequent lines are indented by 6 characters.
+ Long lines are broken on &whitespace;
+ (see <xref linkend="fill-stream"/>).</para>
+
+</section>
+
+<section id="restarts"><title>Interfaces to Restarts
+   <ulink role="clhs" url="sec_9-1-4-2-2"/></title>
+
+<formalpara id="restart-case"><title>Macro &restart-case;</title>
+ <para>In <code>(&restart-case; &form-r; {&restart-clause-r;}*)</code>,
+  the argument list can also be specified after the keyword/value pairs
+  instead of before them, i.e., each &restart-clause-r; can be either
+  <code>(<varname>restart-name</varname> &args;
+   {<replaceable>keyword-value-pair</replaceable>}* {&form-r;}*)</code>
+  or <code>(<replaceable>restart-name</replaceable>
+   {<replaceable>keyword-value-pair</replaceable>}* &args; {&form-r;}*)</code>.
+</para></formalpara>
+
+<formalpara id="with-restarts"><title>Macro &with-restarts;</title>
+<para>The macro &with-restarts; is like &restart-case;, except that the
+ forms are specified after the restart clauses instead of before them,
+ and the restarts created are not implicitly associated with any &condition-t;.
+ <code>(&with-restarts; ({&restart-clause-r;}*) {&form-r;}*)</code> is
+ therefore equivalent to <code>(&restart-case; (&progn; {&form-r;}*)
+ {&restart-clause-r;}*)</code>.</para></formalpara>
+
+<formalpara id="compute-restarts"><title>Function &compute-restarts;</title>
+<para>&compute-restarts; and &find-restart; behave as specified in
+ &ansi-cl;: If the optional &cond-r; argument is non-&nil;,
+ only &restart-t;s associated with that &condition-t;
+ and &restart-t;s associated with no &condition-t; at all are considered.
+ Therefore the effect of associating a restart to a condition is not to
+ activate it, but to hide it from other conditions.
+ This makes the syntax-dependent implicit association performed by
+ &restart-case; nearly obsolete.</para></formalpara>
+
 <formalpara id="muffle-cerrors"><title>Macro &muffle-cerrors;</title>
 <para>The macro <code>(&muffle-cerrors; {&form-r;}*)</code>
  executes the &form-r;s; when a &cont-err; occurs whose &continue; &restart-t;
@@ -1258,47 +1300,6 @@ the iteration variable and assign it on each iteration.</para></section>
   &body-r;)</code> removes all global handlers, executes &body-r;, and
  then restores the handlers.</para></formalpara>
 
-<section id="cond-nl"><title>Embedded Newlines in Condition Reports
-   <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
-
-<para>The error message prefix for the first line is <quote>*** - </quote>.
- All subsequent lines are indented by 6 characters.
- Long lines are broken on &whitespace;
- (see <xref linkend="fill-stream"/>).</para>
-
-</section>
-
-<section id="cond-dict"><title>Interfaces to Restarts
-   <ulink role="clhs" url="sec_9-1-4-2-2"/></title>
-
-<formalpara id="restart-case"><title>Macro &restart-case;</title>
- <para>In <code>(&restart-case; &form-r; {&restart-clause-r;}*)</code>,
-  the argument list can also be specified after the keyword/value pairs
-  instead of before them, i.e., each &restart-clause-r; can be either
-  <code>(<varname>restart-name</varname> &args;
-   {<replaceable>keyword-value-pair</replaceable>}* {&form-r;}*)</code>
-  or <code>(<replaceable>restart-name</replaceable>
-   {<replaceable>keyword-value-pair</replaceable>}* &args; {&form-r;}*)</code>.
-</para></formalpara>
-
-<formalpara id="with-restarts"><title>Macro &with-restarts;</title>
-<para>The macro &with-restarts; is like &restart-case;, except that the
- forms are specified after the restart clauses instead of before them,
- and the restarts created are not implicitly associated with any &condition-t;.
- <code>(&with-restarts; ({&restart-clause-r;}*) {&form-r;}*)</code> is
- therefore equivalent to <code>(&restart-case; (&progn; {&form-r;}*)
- {&restart-clause-r;}*)</code>.</para></formalpara>
-
-<formalpara id="compute-restarts"><title>Function &compute-restarts;</title>
-<para>&compute-restarts; and &find-restart; behave as specified in
- &ansi-cl;: If the optional &cond-r; argument is non-&nil;,
- only &restart-t;s associated with that &condition-t;
- and &restart-t;s associated with no &condition-t; at all are considered.
- Therefore the effect of associating a restart to a condition is not to
- activate it, but to hide it from other conditions.
- This makes the syntax-dependent implicit association performed by
- &restart-case; nearly obsolete.</para></formalpara>
-
 </section>
 </chapter>
 
@@ -1322,6 +1323,95 @@ the iteration variable and assign it on each iteration.</para></section>
   <listitem><simpara>with no nicknames
  </simpara></listitem></varlistentry>
 </variablelist>
+
+<section id="pack-intro"><title>Introduction to Packages
+  <ulink role="clhs" url="sec_11-1-1"/></title>
+
+<section id="make-pack"><title>Function &make-package;</title>
+<para>The default value of the &use-k; argument is
+ <literal role="data">(&cl-pac;)</literal>.</para>
+
+<para>&make-package; accepts additional keyword arguments
+ &case-sensitive-k; and &case-inverted-k; (but &not-e; &modern-k;!)
+</para></section>
+
+<section id="defpack"><title>Macro &defpackage;</title>
+<para>&defpackage; accepts additional options &case-sensitive-k;,
+ &case-inverted-k;, and &modern-k;.</para>
+<para>When the package being defined already exists, it is modified as
+ follows (and in this order):<variablelist>
+  <varlistentry><term>&case-sensitive-k;</term>
+   <listitem><simpara>adjusted with <code>(&setf; &pack-sensitive;)</code>
+     (with a warning)</simpara></listitem></varlistentry>
+  <varlistentry><term>&case-inverted-k;</term>
+   <listitem><simpara>adjusted with <code>(&setf; &pack-inverted;)</code>
+     (with a warning)</simpara></listitem></varlistentry>
+  <varlistentry><term>&modern-k;</term>
+   <listitem><para>if &cl-pac; is being used, it is un-used and
+     &cs-cl; is used instead; also, &cs-cl; is used instead of &cl-pac;
+     throughout the &defpackage; form, e.g.,<programlisting language="lisp">
+(&defpackage; "FOO"
+  (&modern-k; &t;)
+  (&use-k; "COMMON-LISP" "EXT"))
+</programlisting>is equivalent to<programlisting language="lisp">
+(&defpackage; "FOO"
+  (&case-sensitive-k; &t;)
+  (&case-inverted-k; &t;)
+  (&use-k; "CS-COMMON-LISP" "EXT"))
+</programlisting></para>
+    <simpara><code>(&modern-k; &nil;)</code> reverts the
+      effects of <code>(&modern-k; &t;)</code>.</simpara>
+  </listitem></varlistentry>
+  <varlistentry><term><constant>:NICKNAMES</constant></term>
+   <listitem><simpara>adjusted with &rename-package;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&documentation-k;</term>
+   <listitem><simpara>reset to the new value with <code>(&setf;
+      &documentation;)</code></simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SHADOW</constant></term>
+   <listitem><simpara>adjusted with &shadow;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SHADOWING-IMPORT-FROM</constant></term>
+   <listitem><simpara>adjusted with &shadowing-import;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>&use-k;</term>
+   <listitem><simpara>adjusted with &use-package; and &unuse-package;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:IMPORT-FROM</constant></term>
+   <listitem><simpara>adjusted with &import;
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:INTERN</constant></term>
+   <listitem><simpara>adjusted with &intern; (but &not-e; &unintern;)
+  </simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:EXPORT</constant></term>
+   <listitem><simpara>adjusted with &intern; and &export; (but &not-e;
+     &unexport;)</simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:SIZE</constant></term>
+   <listitem><simpara>ignored</simpara></listitem></varlistentry>
+</variablelist></para></section>
+
+<section id="re-export"><title>Function &re-export;</title>
+
+<para>The function <code>(&re-export; <replaceable>FROM-PACK</replaceable>
+  <replaceable>TO-PACK</replaceable>)</code> re-&export;s all external
+ &symbol-t;s from <replaceable>FROM-PACK</replaceable> also from
+ <replaceable>TO-PACK</replaceable>, provided it already uses
+ <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
+</para></section>
+
+<section id="pack-inverted"><title>Function &pack-inverted;</title>
+ <para>Returns &t; if the argument is a
+  <link linkend="pack-case-inverted">case-inverted package</link>.
+  This function is &setf;able, although it is probably not a good idea
+  to change the case-inverted status of an existing package.</para></section>
+
+<section id="pack-sensitive"><title>Function &pack-sensitive;</title>
+ <para>Returns &t; if the argument is a
+  <link linkend="pack-case-sensitive">case-sensitive package</link>.
+  This function is &setf;able, although it is probably not a good idea
+  to change the case-sensitive status of an existing package.</para></section>
+
+</section>
 
 <section id="pack-lock"><title>Constraints on the &cl-pac; Package
   for Conforming Programs - package locking
@@ -1603,94 +1693,6 @@ can give problems:
 </section>
 </section>
 
-<section id="pack-dict"><title>The Packages Dictionary
-   <ulink role="clhs" url="sec_the_packa_s_dictionary"/></title>
-
-<section id="make-pack"><title>Function &make-package;</title>
-<para>The default value of the &use-k; argument is
- <literal role="data">(&cl-pac;)</literal>.</para>
-
-<para>&make-package; accepts additional keyword arguments
- &case-sensitive-k; and &case-inverted-k; (but &not-e; &modern-k;!)
-</para></section>
-
-<section id="defpack"><title>Macro &defpackage;</title>
-<para>&defpackage; accepts additional options &case-sensitive-k;,
- &case-inverted-k;, and &modern-k;.</para>
-<para>When the package being defined already exists, it is modified as
- follows (and in this order):<variablelist>
-  <varlistentry><term>&case-sensitive-k;</term>
-   <listitem><simpara>adjusted with <code>(&setf; &pack-sensitive;)</code>
-     (with a warning)</simpara></listitem></varlistentry>
-  <varlistentry><term>&case-inverted-k;</term>
-   <listitem><simpara>adjusted with <code>(&setf; &pack-inverted;)</code>
-     (with a warning)</simpara></listitem></varlistentry>
-  <varlistentry><term>&modern-k;</term>
-   <listitem><para>if &cl-pac; is being used, it is un-used and
-     &cs-cl; is used instead; also, &cs-cl; is used instead of &cl-pac;
-     throughout the &defpackage; form, e.g.,<programlisting language="lisp">
-(&defpackage; "FOO"
-  (&modern-k; &t;)
-  (&use-k; "COMMON-LISP" "EXT"))
-</programlisting>is equivalent to<programlisting language="lisp">
-(&defpackage; "FOO"
-  (&case-sensitive-k; &t;)
-  (&case-inverted-k; &t;)
-  (&use-k; "CS-COMMON-LISP" "EXT"))
-</programlisting></para>
-    <simpara><code>(&modern-k; &nil;)</code> reverts the
-      effects of <code>(&modern-k; &t;)</code>.</simpara>
-  </listitem></varlistentry>
-  <varlistentry><term><constant>:NICKNAMES</constant></term>
-   <listitem><simpara>adjusted with &rename-package;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&documentation-k;</term>
-   <listitem><simpara>reset to the new value with <code>(&setf;
-      &documentation;)</code></simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:SHADOW</constant></term>
-   <listitem><simpara>adjusted with &shadow;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:SHADOWING-IMPORT-FROM</constant></term>
-   <listitem><simpara>adjusted with &shadowing-import;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&use-k;</term>
-   <listitem><simpara>adjusted with &use-package; and &unuse-package;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:IMPORT-FROM</constant></term>
-   <listitem><simpara>adjusted with &import;
-  </simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:INTERN</constant></term>
-   <listitem><simpara>adjusted with &intern; (but &not-e; &unintern;)
-  </simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:EXPORT</constant></term>
-   <listitem><simpara>adjusted with &intern; and &export; (but &not-e;
-     &unexport;)</simpara></listitem></varlistentry>
-  <varlistentry><term><constant>:SIZE</constant></term>
-   <listitem><simpara>ignored</simpara></listitem></varlistentry>
-</variablelist></para></section>
-
-<section id="re-export"><title>Function &re-export;</title>
-
-<para>The function <code>(&re-export; <replaceable>FROM-PACK</replaceable>
-  <replaceable>TO-PACK</replaceable>)</code> re-&export;s all external
- &symbol-t;s from <replaceable>FROM-PACK</replaceable> also from
- <replaceable>TO-PACK</replaceable>, provided it already uses
- <replaceable>FROM-PACK</replaceable>; and &signal;s an &error-t; otherwise.
-</para></section>
-
-<section id="pack-inverted"><title>Function &pack-inverted;</title>
- <para>Returns &t; if the argument is a
-  <link linkend="pack-case-inverted">case-inverted package</link>.
-  This function is &setf;able, although it is probably not a good idea
-  to change the case-inverted status of an existing package.</para></section>
-
-<section id="pack-sensitive"><title>Function &pack-sensitive;</title>
- <para>Returns &t; if the argument is a
-  <link linkend="pack-case-sensitive">case-sensitive package</link>.
-  This function is &setf;able, although it is probably not a good idea
-  to change the case-sensitive status of an existing package.</para></section>
-
-</section>
 </chapter>
 
 <chapter id="numbers"><title>Numbers
@@ -1719,13 +1721,175 @@ can give problems:
 </section>
 
 <section id="num-concepts"><title>Number Concepts
-   <ulink role="clhs" url="sec_12-1"/></title>
+  <ulink role="clhs" url="sec_12-1"/></title>
+
+
+<section id="num-ops"><title>Numeric Operations
+  <ulink role="clhs" url="sec_12-1-1"/></title>
+
+<section id="int-func-ext"><title>Additional Integer Functions</title>
+
+<formalpara id="factorial"><title>Function <function>EXT:!</function></title>
+<para><code>(<function>EXT:!</function> &n-r;)</code> returns the
+ factorial of &n-r;, &n-r; being a nonnegative &integer-t;.</para></formalpara>
+
+<formalpara id="exquo"><title>Function <function>EXT:EXQUO</function></title>
+<para><code>(<function>EXT:EXQUO</function> &x-r; &y-r;)</code> returns
+ the integer quotient <varname>x/y</varname> of two integers
+ &x-r;,&y-r;, and &signal;s an &error-t; when the quotient is not
+ integer.  (This is more efficient than &slash;.)</para></formalpara>
+
+<formalpara id="xgcd"><title>Function <function>EXT:XGCD</function></title>
+<para><code>(<function>EXT:XGCD</function> &x1-r; ... &xn-r;)</code>
+ returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
+ greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
+ &k1-r;, ..., &kn-r; are the integer coefficients such that
+<programlisting language="lisp">
+&l-r; = (&gcd; &x1-r; ... &xn-r;)
+  = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
+</programlisting></para></formalpara>
+
+<formalpara id="mod-expt"><title>Function &mod-expt;</title>
+<para><code>(&mod-expt; &k-r; &l-r; &m-r;)</code>
+ is equivalent to <code>(&mod; (&expt; &k-r; &l-r;) &m-r;)</code>
+ except it is more efficient for very large arguments.</para></formalpara>
+
+</section>
+
+<section id="float-decode"><title>Function &decode-float;</title>
+
+<para>&float-radix; always returns <returnvalue>2</returnvalue>.</para>
+
+<para><code>(&float-digits; &number-r; &digits-r;)</code> coerces
+ &number-r; (a &real-t;) to a floating point number with at least
+ &digits-r; mantissa digits.  The following always evaluates to &t;:
+ <programlisting language="lisp">
+(&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
+</programlisting></para>
+
+</section>
+
+<section id="bool-ops"><title>Boolean Operations
+  <ulink role="clhs" url="convar_boole-_cm_boole-xor"/></title>
+
+ <table id="bool-op-table" frame="all">
+  <title>Boolean operations</title>
+  <tgroup cols="2" colsep="1" rowsep="1" align="left">
+   <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
+    <row><entry>&boole-clr;</entry><entry>0</entry></row>
+    <row><entry>&boole-set;</entry><entry>15</entry></row>
+    <row><entry>&boole-1;</entry><entry>10</entry></row>
+    <row><entry>&boole-2;</entry><entry>12</entry></row>
+    <row><entry>&boole-c1;</entry><entry>5</entry></row>
+    <row><entry>&boole-c2;</entry><entry>3</entry></row>
+    <row><entry>&boole-and;</entry><entry>8</entry></row>
+    <row><entry>&boole-ior;</entry><entry>14</entry></row>
+    <row><entry>&boole-xor;</entry><entry>6</entry></row>
+    <row><entry>&boole-eqv;</entry><entry>9</entry></row>
+    <row><entry>&boole-nand;</entry><entry>7</entry></row>
+    <row><entry>&boole-nor;</entry><entry>1</entry></row>
+    <row><entry>&boole-andc1;</entry><entry>4</entry></row>
+    <row><entry>&boole-andc2;</entry><entry>2</entry></row>
+    <row><entry>&boole-orc1;</entry><entry>13</entry></row>
+    <row><entry>&boole-orc2;</entry><entry>11</entry></row>
+ </tbody></tgroup></table>
+
+</section>
 
 <section id="byte-type"><title>Byte Operations on Integers
-   <ulink role="clhs" url="sec_12-1-1-3-2"/></title>
+  <ulink role="clhs" url="sec_12-1-1-3-2"/></title>
 
 <para>Byte specifiers are objects of built-in type &byte-t;,
  not &integer-t;s.</para>
+
+</section>
+
+<section id="float-notes"><title>Floating Point Arithmetics</title>
+
+<formalpara id="expt"><title>Function &expt;</title>
+<para><code>(&expt; &base-r; <replaceable>exponent</replaceable>)</code>
+ is not very precise if <replaceable>exponent</replaceable> has a large
+ absolute value.</para></formalpara>
+
+<formalpara id="log"><title>Function &log;</title>
+<para><code>(&log; &number-r; &base-r;)</code> &sig-err; if
+ <literal>&base-r; = 1</literal>.</para></formalpara>
+
+<formalpara id="pi"><title>Constant &pi-v;</title>
+ <para>The value of &pi-v; is a &long-float-t; with the precision given
+  by &lfd-l;.  When this precision is changed, the value of &pi-v; is
+  automatically recomputed.  Therefore &pi-v; is &not-e; a &constant;.
+</para></formalpara>
+
+<formalpara id="ucpt"><title>Function &upgraded-complex-part-type;</title>
+<para>When the argument is not a &recog-subt; or &real-t;,
+ &upgraded-complex-part-type; &signal;s an &error-t;, otherwise it
+ returns its argument (even though a &complex-t; number in &clisp; can
+ always have &realpart; and &imagpart; of any type) because it allows
+ the most precise type inference.</para></formalpara>
+
+<formalpara id="default-float-format">
+ <title>Variable &default-float-format;</title>
+<para>When rational numbers are to be converted to floats (due to
+ &float;, &coerce;, &sqrt; or a transcendental function), the result
+ type is given by the variable &default-float-format;.</para></formalpara>
+
+<formalpara id="no-underflow"><title>Macro &no-underflow;</title>
+<para>The macro <code>(&no-underflow; {&form-r;}*)</code> executes the
+ &form-r;s, with errors of type &floating-point-underflow-t; inhibited.
+ Floating point operations will silently return zero instead of
+ &signal;ing an &error-t; of type &floating-point-underflow-t;.
+</para></formalpara>
+
+<formalpara id="float-invalid-op">
+ <title>Condition &floating-point-invalid-operation-t;</title>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
+
+<formalpara id="float-inexact">
+ <title>Condition &floating-point-inexact-t;</title>
+<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
+
+</section>
+
+</section>
+
+<section id="num-const"><title>Implementation-Dependent Numeric Constants
+  <ulink role="clhs" url="sec_12-1-2"/></title>
+
+<section id="fixnum-lim"><title>Fixnum Limits</title>
+
+<table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
+   <row><entry>&most-positive-fixnum;</entry>
+    <entry>2<superscript>24</superscript>-1 = 16777215</entry>
+    <entry>2<superscript>48</superscript>-1 = 281474976710655</entry></row>
+   <row><entry>&most-negative-fixnum;</entry>
+    <entry>-2<superscript>24</superscript> = -16777216</entry>
+    <entry>-2<superscript>48</superscript> = -281474976710656</entry></row>
+</tbody></tgroup></table></section>
+
+<section id="bignum-lim"><title>Bignum Limits</title>
+
+<para>&bignum-t;s are limited in size.  Their maximum size is
+ <literal>32*(2<superscript>16</superscript>-2)=2097088</literal> bits.
+ The largest representable &bignum-t; is therefore
+ <literal>2<superscript>2097088</superscript>-1</literal>.</para></section>
+
+<section id="float-lim"><title>Float Limits</title>
+
+<para>Together with &pi-v;, the other &long-float-t; constants
+ <simplelist columns="2">
+  <member>&least-negative-long-float;</member>
+  <member>&least-negative-normalized-long-float;</member>
+  <member>&least-positive-long-float;</member>
+  <member>&least-positive-normalized-long-float;</member>
+  <member>&long-float-epsilon;</member>
+  <member>&long-float-negative-epsilon;</member>
+  <member>&most-negative-long-float;</member>
+  <member>&most-positive-long-float;</member></simplelist>
+ are recomputed whenever &lfd-l; is &setf;ed.
+ They are &not-e; &constant;s.</para>
+</section>
 
 </section>
 
@@ -1969,12 +2133,9 @@ can give problems:
  with &x-r; = <literal role="data">&sharp-C;(0 3.0)</literal>.</para>
 
 </section>
-</section>
 
-<section id="num-dict"><title>The Numbers Dictionary
-   <ulink role="clhs" url="sec_the_numbers_dictionary"/></title>
-
-<section id="random-state"><title>Random Numbers</title>
+<section id="random-state"><title>Random-State Operations
+  <ulink role="clhs" url="sec_12-1-7"/></title>
 <para>To ease reproducibility, the variable &random-state-var; is
  initialized to the same value on each invocation, so that
  <screen>&sh-prompt; clisp -norc &opt-x; '(&random; 1s0)'</screen>
@@ -1984,168 +2145,59 @@ can give problems:
 &sh-prompt; clisp -norc &opt-x; '(&savemem; "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
 &sh-prompt; clisp -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'
 </screen> or by placing <code>(&setq; &random-state-var;
-  (&make-random-state; &t;))</code> into your &RC-file;.</para></section>
-
-<section id="int-func-ext"><title>Additional Integer Functions</title>
-
-<formalpara id="factorial"><title>Function <function>EXT:!</function></title>
-<para><code>(<function>EXT:!</function> &n-r;)</code> returns the
- factorial of &n-r;, &n-r; being a nonnegative &integer-t;.</para></formalpara>
-
-<formalpara id="exquo"><title>Function <function>EXT:EXQUO</function></title>
-<para><code>(<function>EXT:EXQUO</function> &x-r; &y-r;)</code> returns
- the integer quotient <varname>x/y</varname> of two integers
- &x-r;,&y-r;, and &signal;s an &error-t; when the quotient is not
- integer.  (This is more efficient than &slash;.)</para></formalpara>
-
-<formalpara id="xgcd"><title>Function <function>EXT:XGCD</function></title>
-<para><code>(<function>EXT:XGCD</function> &x1-r; ... &xn-r;)</code>
- returns the values &l-r;, &k1-r;, ..., &kn-r;, where &l-r; is the
- greatest common divisor of the integers &x1-r;, ..., &xn-r;, and
- &k1-r;, ..., &kn-r; are the integer coefficients such that
-<programlisting language="lisp">
-&l-r; = (&gcd; &x1-r; ... &xn-r;)
-  = (+ (* &k1-r; &x1-r;) ... (* &kn-r; &xn-r;))
-</programlisting></para></formalpara>
-
-<formalpara id="mod-expt"><title>Function &mod-expt;</title>
-<para><code>(&mod-expt; &k-r; &l-r; &m-r;)</code>
- is equivalent to <code>(&mod; (&expt; &k-r; &l-r;) &m-r;)</code>
- except it is more efficient for very large arguments.</para></formalpara>
-
+  (&make-random-state; &t;))</code> into your &RC-file;.</para>
+</section>
 </section>
 
-<section id="float-notes"><title>Floating Point Arithmetics</title>
-
-<formalpara id="expt"><title>Function &expt;</title>
-<para><code>(&expt; &base-r; <replaceable>exponent</replaceable>)</code>
- is not very precise if <replaceable>exponent</replaceable> has a large
- absolute value.</para></formalpara>
-
-<formalpara id="log"><title>Function &log;</title>
-<para><code>(&log; &number-r; &base-r;)</code> &sig-err; if
- <literal>&base-r; = 1</literal>.</para></formalpara>
-
-<formalpara id="pi"><title>Constant &pi-v;</title>
- <para>The value of &pi-v; is a &long-float-t; with the precision given
-  by &lfd-l;.  When this precision is changed, the value of &pi-v; is
-  automatically recomputed.  Therefore &pi-v; is &not-e; a &constant;.
-</para></formalpara>
-
-<formalpara id="ucpt"><title>Function &upgraded-complex-part-type;</title>
-<para>When the argument is not a &recog-subt; or &real-t;,
- &upgraded-complex-part-type; &signal;s an &error-t;, otherwise it
- returns its argument (even though a &complex-t; number in &clisp; can
- always have &realpart; and &imagpart; of any type) because it allows
- the most precise type inference.</para></formalpara>
-
-<formalpara id="default-float-format">
- <title>Variable &default-float-format;</title>
-<para>When rational numbers are to be converted to floats (due to
- &float;, &coerce;, &sqrt; or a transcendental function), the result
- type is given by the variable &default-float-format;.</para></formalpara>
-
-<formalpara id="no-underflow"><title>Macro &no-underflow;</title>
-<para>The macro <code>(&no-underflow; {&form-r;}*)</code> executes the
- &form-r;s, with errors of type &floating-point-underflow-t; inhibited.
- Floating point operations will silently return zero instead of
- &signal;ing an &error-t; of type &floating-point-underflow-t;.
-</para></formalpara>
-
-<formalpara id="float-invalid-op">
- <title>Condition &floating-point-invalid-operation-t;</title>
-<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
-
-<formalpara id="float-inexact">
- <title>Condition &floating-point-inexact-t;</title>
-<para>This &condition-t; is never &signal;ed by &clisp;.</para></formalpara>
-
-</section>
-
-<section id="float-decode"><title>Float Decoding
-  <ulink role="clhs" url="fun_decode-fl_decode-float"/></title>
-
-<para>&float-radix; always returns <returnvalue>2</returnvalue>.</para>
-
-<para><code>(&float-digits; &number-r; &digits-r;)</code> coerces
- &number-r; (a &real-t;) to a floating point number with at least
- &digits-r; mantissa digits.  The following always evaluates to &t;:
- <programlisting language="lisp">
-(&geq; (&float-digits; (&float-digits; &number-r; &digits-r;)) &digits-r;)
-</programlisting></para>
-
-</section>
-
-<section id="bool-ops"><title>Boolean Operations
-  <ulink role="clhs" url="convar_boole-_cm_boole-xor"/></title>
-
- <table id="bool-op-table" frame="all">
-  <title>Boolean operations</title>
-  <tgroup cols="2" colsep="1" rowsep="1" align="left">
-   <thead><row><entry>constant</entry><entry>value</entry></row></thead><tbody>
-    <row><entry>&boole-clr;</entry><entry>0</entry></row>
-    <row><entry>&boole-set;</entry><entry>15</entry></row>
-    <row><entry>&boole-1;</entry><entry>10</entry></row>
-    <row><entry>&boole-2;</entry><entry>12</entry></row>
-    <row><entry>&boole-c1;</entry><entry>5</entry></row>
-    <row><entry>&boole-c2;</entry><entry>3</entry></row>
-    <row><entry>&boole-and;</entry><entry>8</entry></row>
-    <row><entry>&boole-ior;</entry><entry>14</entry></row>
-    <row><entry>&boole-xor;</entry><entry>6</entry></row>
-    <row><entry>&boole-eqv;</entry><entry>9</entry></row>
-    <row><entry>&boole-nand;</entry><entry>7</entry></row>
-    <row><entry>&boole-nor;</entry><entry>1</entry></row>
-    <row><entry>&boole-andc1;</entry><entry>4</entry></row>
-    <row><entry>&boole-andc2;</entry><entry>2</entry></row>
-    <row><entry>&boole-orc1;</entry><entry>13</entry></row>
-    <row><entry>&boole-orc2;</entry><entry>11</entry></row>
- </tbody></tgroup></table>
-
-</section>
-
-<section id="fixnum-lim"><title>Fixnum Limits
-  <ulink role="clhs" url="convar_most-p_ative-fixnum"/></title>
-
-<table id="fixnum-lim-table" frame="all"><title>Fixnum limits</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
-   <row><entry>&most-positive-fixnum;</entry>
-    <entry>2<superscript>24</superscript>-1 = 16777215</entry>
-    <entry>2<superscript>48</superscript>-1 = 281474976710655</entry></row>
-   <row><entry>&most-negative-fixnum;</entry>
-    <entry>-2<superscript>24</superscript> = -16777216</entry>
-    <entry>-2<superscript>48</superscript> = -281474976710656</entry></row>
-</tbody></tgroup></table></section>
-
-<section id="bignum-lim"><title>Bignum Limits
-  <ulink role="clhs" url="typ_bignum"/></title>
-<para>&bignum-t;s are limited in size.  Their maximum size is
- <literal>32*(2<superscript>16</superscript>-2)=2097088</literal> bits.
- The largest representable &bignum-t; is therefore
- <literal>2<superscript>2097088</superscript>-1</literal>.</para></section>
-
-<section id="float-lim"><title>Float Limits
-  <ulink role="clhs" url="convar_most-p_d-long-float"/></title>
-
- <para>Together with &pi-v;, the other &long-float-t; constants
-  <simplelist columns="2">
-   <member>&least-negative-long-float;</member>
-   <member>&least-negative-normalized-long-float;</member>
-   <member>&least-positive-long-float;</member>
-   <member>&least-positive-normalized-long-float;</member>
-   <member>&long-float-epsilon;</member>
-   <member>&long-float-negative-epsilon;</member>
-   <member>&most-negative-long-float;</member>
-   <member>&most-positive-long-float;</member></simplelist>
-  are recomputed whenever &lfd-l; is &setf;ed.
-  They are &not-e; &constant;s.</para>
-
-</section>
-
-</section>
 </chapter>
 
 <chapter id="characters"><title>Characters
    <ulink role="clhs" url="chap-13"/></title>
+
+<section id="char-intro"><title>Introduction to Characters
+  <ulink role="clhs" url="sec_13-1"/></title>
+
+<section id="char-code"><title>Function &char-code;</title>
+
+<para>&char-code; takes values from &zero; (inclusive) to
+ &char-code-limit; (exclusive), i.e., the implementation
+ supports exactly &char-code-limit; characters.</para>
+
+<table id="char-code-limit-table" frame="all">
+ <title>Number of characters</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>binaries built</entry>
+             <entry>&without; &unicode; support</entry>
+             <entry>&with; &unicode; support</entry></row></thead>
+ <tbody><row><entry>&char-code-limit;</entry>
+             <entry>2<superscript>8</superscript> = 256</entry>
+             <entry>17 * 2<superscript>16</superscript> = 1114112</entry></row>
+</tbody></tgroup></table>
+</section>
+
+<section id="base-char"><title>Type &base-char-t;</title>
+<para>The types <classname>EXT:STRING-CHAR</classname> and
+ &base-char-t; are equivalent to &character-t;.
+ <classname>EXT:STRING-CHAR</classname> used to be available as
+ <classname>STRING-CHAR</classname> prior to removal from &ansi-cl; by
+ &iss026;.</para>
+</section>
+
+<section id="char-width"><title>Function &char-width;</title>
+<para><code>(&char-width; &ch-r;)</code> returns the number of screen
+ columns occupied by &ch-r;.  The value is <variablelist>
+  <varlistentry><term>0</term><listitem><simpara>for non-spacing
+     characters (such as control characters and many combining
+     characters);</simpara></listitem></varlistentry>
+  <varlistentry><term>2</term><listitem><simpara>for double-width East
+     Asian characters;</simpara></listitem></varlistentry>
+  <varlistentry><term>1</term><listitem><simpara>for all other
+     characters.</simpara></listitem></varlistentry></variablelist>
+ See also function &string-width;.
+</para></section>
+</section>
+
+<section id="char-sets"><title>Character sets</title>
 
 <para>The characters are ordered according to a superset of the
  &charset-ascii;.</para>
@@ -2314,7 +2366,6 @@ can give problems:
 
 <para>&nl-s; is the &line-term;.</para>
 
-
 <table id="extra-named-chars-table" frame="all">
   <title>Additional Named Characters</title>
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
@@ -2350,6 +2401,8 @@ can give problems:
 </tbody></tgroup></table>
 
 <para>See also <xref linkend="sharpsign-backslash"/>.</para>
+
+</section>
 
 <section id="char-script"><title>Character Scripts
    <ulink role="clhs" url="sec_13-1-2-1"/></title>
@@ -2577,46 +2630,6 @@ etc.</para>
 
 </section>
 
-<section id="char-dict"><title>The Characters Dictionary
-   <ulink role="clhs" url="sec_the_chara_s_dictionary"/></title>
-
-<section id="char-code"><title>Function &char-code;</title>
-
-<para>&char-code; takes values from &zero; (inclusive) to
- &char-code-limit; (exclusive), i.e., the implementation
- supports exactly &char-code-limit; characters.</para>
-
-<table id="char-code-limit-table" frame="all">
- <title>Number of characters</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>binaries built</entry>
-             <entry>&without; &unicode; support</entry>
-             <entry>&with; &unicode; support</entry></row></thead>
- <tbody><row><entry>&char-code-limit;</entry>
-             <entry>2<superscript>8</superscript> = 256</entry>
-             <entry>17 * 2<superscript>16</superscript> = 1114112</entry></row>
-</tbody></tgroup></table>
-</section>
-
-<section id="base-char"><title>Type &base-char-t;</title>
-<para>The types <classname>EXT:STRING-CHAR</classname> and
- &base-char-t; are equivalent to &character-t;.
- <classname>EXT:STRING-CHAR</classname> used to be available as
- <classname>STRING-CHAR</classname> prior to removal from &ansi-cl; by
- &iss026;.</para>
-</section>
-
-<section id="char-width"><title>Function &char-width;</title>
-<para><code>(&char-width; &ch-r;)</code> returns the number of screen
- columns occupied by &ch-r;.
- This is 0 for non-spacing characters
- (such as control characters and many combining characters),
- 2 for double-width East Asian characters,
- and 1 for all other characters.
- See also function &string-width;.
-</para></section>
-</section>
-
 <section id="char-platform-dep"><title>Platform-Dependent Characters</title>
 
 <para>The characters that are not &graphic; chars and the space character
@@ -2761,11 +2774,10 @@ etc.</para>
 </chapter>
 
 
-<chapter id="conses"><title>Conses
-   <ulink role="clhs" url="chap-14"/></title>
+<chapter id="conses"><title>Conses <ulink role="clhs" url="chap-14"/></title>
 
-<section id="cons-dict"><title>The Conses Dictionary
-   <ulink role="clhs" url="sec_the_conses_dictionary"/></title>
+<section id="cons-list"><title>Conses as Lists
+  <ulink role="clhs" url="sec_14-1-2"/></title>
 
 <section id="map-func"><title>Mapping Functions</title>
 
@@ -2798,6 +2810,12 @@ etc.</para>
  &ubyte-8;, &ubyte-16;, &ubyte-32;, and, of course, the required
  specializations &nil-t;, &bit-t; and &character-t;.</para></formalpara>
 
+<formalpara><title>Function &adjust-array; for displaced arrays</title>
+<para>An array to which another array is displaced should not be shrunk
+ (using &adjust-array;) in such a way that the other array points into
+ void space.  This cannot be checked at the time &adjust-array; is
+ called!</para></formalpara>
+
 <section id="array-elts"><title>Array Elements
    <ulink role="clhs" url="sec_15-1-1"/></title>
 
@@ -2814,24 +2832,12 @@ etc.</para>
     <entry>2<superscript>32</superscript>-1 = 4294967295</entry></row>
 </tbody></tgroup></table></section>
 
-<section id="array-dict"><title>The Arrays Dictionary
-   <ulink role="clhs" url="sec_the_arrays_dictionary"/></title>
-
-<formalpara><title>Function &adjust-array; for displaced arrays</title>
-<para>An array to which another array is displaced should not be shrunk
- (using &adjust-array;) in such a way that the other array points into
- void space.  This cannot be checked at the time &adjust-array; is
- called!</para></formalpara>
-
-</section>
 </chapter>
 
 
-<chapter id="strings"><title>Strings
-   <ulink role="clhs" url="chap-16"/></title>
+<chapter id="strings"><title>Strings <ulink role="clhs" url="chap-16"/></title>
 
-<section id="string-dict"><title>The Strings Dictionary
-   <ulink role="clhs" url="sec_the_strings_dictionary"/></title>
+<section id="string-misc"><title>Miscellaneous</title>
 
 <section id="string-comp"><title>String Comparison</title>
 <para>String comparison (&string-lst; and friends) is based on the
@@ -2860,10 +2866,7 @@ etc.</para>
 
 
 <chapter id="sequences"><title>Sequences
-   <ulink role="clhs" url="chap-17"/></title>
-
-<section id="seq-dict"><title>The Sequences Dictionary
-   <ulink role="clhs" url="sec_the_seque_s_dictionary"/></title>
+  <ulink role="clhs" url="chap-17"/></title>
 
 <section id="seq-macro-ext"><title>Additional Macros</title>
 
@@ -2884,7 +2887,7 @@ etc.</para>
 </section>
 
 <section id="nreverse-nreconc">
-   <title>Functions &nreverse; &amp; &nreconc;</title>
+ <title>Functions &nreverse; &amp; &nreconc;</title>
 
 <formalpara><title>Function &nreverse;</title>
 <para>The result of &nreverse; is always &eq; to the argument.
@@ -2935,15 +2938,11 @@ etc.</para>
  by the &start-k; and &end-k; arguments.</para>
 
 </section>
-</section>
 </chapter>
 
 
 <chapter id="hash"><title>Hash Tables
    <ulink role="clhs" url="chap-18"/></title>
-
-<section id="hash-dict"><title>The Hash Tables Dictionary
-   <ulink role="clhs" url="sec_the_hash__s_dictionary"/></title>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
@@ -3144,7 +3143,6 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>&dohash; forms are &iter-form;s.</para>
 
-</section>
 </section>
 </chapter>
 
@@ -3420,8 +3418,7 @@ checks whether the &hash-table-t; is weak.</para>
 </section>
 <!-- #endif -->
 
-<section id="filename-dict"><title>The Filenames Dictionary
-  <ulink role="clhs" url="sec_the_filen_s_dictionary"/></title>
+<section id="filename-misc"><title>Miscellaneous</title>
 
 <formalpara id="path-des"><title>Pathname Designators</title>
  <para>When &parsename; is &nil;, &symbol-t; is also treated as a
@@ -3537,7 +3534,7 @@ checks whether the &hash-table-t; is weak.</para>
 </section>
 
 <section id="load-lpt">
-   <title>Function &load-logical-pathname-translations;</title>
+ <title>Function &load-logical-pathname-translations;</title>
 
 <para>When the &host-r; argument to &load-logical-pathname-translations;
 is not a defined logical host yet, we proceed as follows:
@@ -3581,9 +3578,6 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 
 <chapter id="files"><title>Files
    <ulink role="clhs" url="chap-20"/></title>
-
-<section id="file-dict"><title>The Files Dictionary
-   <ulink role="clhs" url="sec_the_files_dictionary"/></title>
 
 <simplesect id="dir-is-not-file"><title>Directory is not a file</title>
 <para>&clisp; has traditionally taken the view that a directory is a
@@ -3733,7 +3727,6 @@ pointing to non-existent files and can take the following values:
   <replaceable>new-directory-pathname</replaceable>)</code> renames a
  subdirectory to a new name.</para></simplesect>
 
-</section>
 </chapter>
 
 
@@ -4359,9 +4352,6 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 </section>
 
-<section id="stream-dict"><title>The Streams Dictionary
-   <ulink role="clhs" url="sec_the_streams_dictionary"/></title>
-
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
 <para>&stream-element-type; is &setf;able. The &stream-element-type; of
@@ -4404,7 +4394,6 @@ Let us consider different criteria:<orderedlist numeration="arabic">
     (&read-sequence; buf in))
   buf)
 </programlisting></para>
-</section>
 </section>
 
 <section id="make-stream"><title>Function &make-stream;</title>
@@ -4841,9 +4830,6 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 
 </section>
 
-<section id="print-dict"><title>The Printer Dictionary
-   <ulink role="clhs" url="sec_the_printer_dictionary"/></title>
-
 <section id="write"><title>Functions &write; &amp; &write-to-string;</title>
 <para>The functions &write; and &write-to-string; have an additional
  keyword argument <constant>:CLOSURE</constant> which is used to bind
@@ -4884,7 +4870,6 @@ warning, you need to fix the source code of the incriminated method.</para>
 <para>&print-array-var; is initially set to &t;.</para>
 
 </section>
-</section>
 </chapter>
 
 <chapter id="reader"><title>Reader
@@ -4915,9 +4900,6 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 <chapter id="system"><title>System Construction
    <ulink role="clhs" url="chap-24"/></title>
-
-<section id="system-dict"><title>The System Construction Dictionary
-  <ulink role="clhs" url="sec_the_syste_n_dictionary"/></title>
 
 <para>The compiler can be called not only by the functions &compile;,
  &compile-file; and &disassemble;, but also by the declaration
@@ -5250,20 +5232,20 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  use it to determine whether the file needs to be recompiled.</para>
 </section>
 
-</section>
 </chapter>
 
 
 <chapter id="environment"><title>Environment
    <ulink role="clhs" url="chap-25"/></title>
 
-<section id="debugger"><title>Debugging Utilities
-   <ulink role="clhs" url="sec_25-1-2"/></title>
+<section id="repl"><title>Top Level Loop
+  <ulink role="clhs" url="sec_25-1-1"/></title>
 
 <para>The debugger may be invoked through the functions
  &invoke-debugger;, &break;, &signal;, &error;, &cerror;, &warn;.
  The stepper is invoked through the macro &step;.
- Debugger and stepper execute subordinate &repl; (called "break loops")
+ Debugger and stepper execute subordinate &repl;
+ (called <firstterm>break loops</firstterm>)
  which are similar to the main &repl; except for the
  <link linkend="prompt">prompt</link> and the set of available commands.
  Commands must be typed literally, in any case,
@@ -5498,42 +5480,33 @@ E.g.,
 
 </section>
 
-<section id="environment-dict"><title>The Environment Dictionary
-   <ulink role="clhs" url="sec_the_envir_t_dictionary"/></title>
+<section id="debugger"><title>Debugging Utilities
+   <ulink role="clhs" url="sec_25-1-2"/></title>
 
 <!-- #ifdef HAVE_DISASSEMBLER -->
-
 <section id="disassemble"><title>Function &disassemble;</title>
-
 <variablelist><varlistentry><term>&unix-only;</term>
   <listitem><simpara>&disassemble; can disassemble to machine code,
     provided that &gnu; &gdb; is present. In that case the argument may be a
    <classname>EXT:SYSTEM-FUNCTION</classname>, a &foreign-function-t;, a
    special operator handler, a &symbol-t; denoting one of these, an
    &integer-t; (address), or a &string-t;.
-</simpara></listitem></varlistentry>
-</variablelist>
+</simpara></listitem></varlistentry></variablelist>
 </section>
-
 <!-- #endif -->
 
 <section id="uncompile"><title>Function &uncompile;</title>
-
 <para>The function &uncompile; does the converse of
  &compile;: <code>(&uncompile; &func-r;)</code> reverts a compiled
  &func-r; (name), that has been entered or loaded in the same session
  and then compiled, back to its interpreted form.</para>
-
 </section>
 
 <section id="documentation"><title>Function &documentation;</title>
-
 <para>No on-line documentation is available for the system functions
- (yet), but see <xref linkend="describe"/>.</para>
-</section>
+ (yet), but see <xref linkend="describe"/>.</para></section>
 
 <section id="describe"><title>Function &describe;</title>
-
 <para>When &browser; is non-&nil;, and &clhs-root; returns a valid URL,
  &describe; on a standard &cl; symbol will point your web browser to the
  appropriate &hyperspec; page.</para>
@@ -5562,7 +5535,6 @@ E.g.,
  or <filename>/usr/doc/clisp/impnotes.html</filename>.
  If the return value is &nil;, the feature is completely disabled.
 </para></formalpara>
-
 </section>
 
 <section id="trace"><title>Macro &trace;</title>
@@ -5793,28 +5765,6 @@ exhaust the available line length.</para></simplesect>
  specifies the number of sequence elements printed in detail when a
  sequence is inspected.</para></section>
 
-<section id="room"><title>Function &room;</title>
-
-<para>The function <firstterm>&room;</firstterm> returns two values: the
- number of bytes currently occupied by Lisp objects, and the number of
- bytes that can be allocated before the next regular &gc;ion occurs.</para>
-</section>
-
-<section id="gc-sect"><title>Function <function>EXT:GC</function></title>
-<para>The function
- <firstterm><link linkend="gc"><function>EXT:GC</function></link>
-  <indexterm id="gc-func" significance="preferred">
-   <primary id="gc-func-i"><function>GC</function>
- </primary></indexterm></firstterm>
- starts a global &gc;ion and returns three values:<orderedlist>
-  <listitem><simpara>room occupied by Lisp objects</simpara></listitem>
-  <listitem><simpara>room available for Lisp objects</simpara></listitem>
-  <listitem><simpara>room permanently allocated</simpara></listitem>
-</orderedlist></para>
-<para>When the optional parameter is non-&nil; also invalidates
- just-in-time compiled objects.</para>
-</section>
-
 <section id="time"><title>Macro &time;</title>
 
 <para>The timing data printed by the macro &time; includes:<itemizedlist>
@@ -5832,7 +5782,6 @@ exhaust the available line length.</para></simplesect>
  &form-r;, and, as a side effect, outputs detailed information about the
  memory allocations caused by this evaluation.  It also prints
  everything printed by &time;.</para>
-
 </section>
 
 <section id="ed"><title>Function &ed;</title>
@@ -5845,63 +5794,6 @@ exhaust the available line length.</para></simplesect>
  session (not loaded from a file), the program text to be edited is a
  pretty-printed version (without comments) of the text which was used to
  define the function.</para>
-
-</section>
-
-<section id="clock"><title>Clock Time</title>
-
-<!-- #if !(defined(UNIX) || defined(WIN32)) -->
-<variablelist id="default-tz"><title>Default Time Zone</title>
-<varlistentry><term>&no-platform-only;</term>
- <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
-   contains the default time zone used by &encode-universal-time; and
-   &decode-universal-time;.  It is initially set to -1
-   (which means 1 hour east of Greenwich, i.e., Mid European Time).
-</simpara></listitem></varlistentry></variablelist>
-<!-- #endif -->
-
-<para>The &TZ; in a &dec-time; does not necessarily have be an
- &integer-t;, but (as &float-t; or &rational-t; number)
- it should be a multiple of <literal role="data">1/3600</literal>.</para>
-
-<table id="internal-time-units-table" frame="all">
- <title>Time granularity</title>
- <tgroup cols="3" colsep="1" rowsep="1" align="center">
- <thead><row><entry>platform</entry>
-   <entry>&unix;</entry><entry>&win32;</entry></row></thead><tbody>
- <row><entry>&internal-time-units-per-second;</entry>
-  <entry>1,000,000</entry><entry>10,000,000</entry></row>
-</tbody></tgroup></table>
-
-<para>&get-internal-run-time; returns the amount of run time
- consumed by the current &clisp; process since its startup.</para>
-
-</section>
-
-<section id="machine"><title>Machine</title>
-<variablelist>
-<!-- #ifdef MACHINE_KNOWN -->
-<varlistentry><term>&unix-only;</term>
- <listitem><simpara>The functions &short-site-name;, &long-site-name;
-   should be defined in a site-specific &config-lisp; file.
-   The default implementations try to read the value of the &env-var;
-   <envar>ORGANIZATION</envar>, and, failing that,
-   call <function role="unix">uname</function>.
-</simpara></listitem></varlistentry>
-<varlistentry><term>&win32-only;</term>
- <listitem><simpara>The functions &short-site-name;, &long-site-name;
-   should be defined in a site-specific &config-lisp; file.
-   The default implementations try to read the registry.
-</simpara></listitem></varlistentry>
-<!-- #else -->
-<varlistentry><term>&no-platform-only;</term>
- <listitem><simpara>The functions &machine-type;, &machine-version;,
-   &machine-instance; and &short-site-name;, &long-site-name; should be
-   defined by every user in his user-specific &config-lisp; file.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
-</variablelist>
-
 </section>
 
 <section id="apropos"><title>Functions &apropos; &amp; &apropos-list;</title>
@@ -6023,9 +5915,58 @@ exhaust the available line length.</para></simplesect>
  <blockquote><para>&dribble; is intended primarily for interactive
    debugging; its effect cannot be relied upon when used in a program.
 </para></blockquote></para>
+</section></section>
 
 </section>
 
+<section id="environment-enq"><title>Environment Inquiry
+  <ulink role="clhs" url="sec_25-1-3"/></title>
+
+<section id="room"><title>Function &room;</title>
+
+<para>The function <firstterm>&room;</firstterm> returns two values: the
+ number of bytes currently occupied by Lisp objects, and the number of
+ bytes that can be allocated before the next regular &gc;ion occurs.</para>
+</section>
+
+<section id="gc-sect"><title>Function <function>EXT:GC</function></title>
+<para>The function
+ <firstterm><link linkend="gc"><function>EXT:GC</function></link>
+  <indexterm id="gc-func" significance="preferred">
+   <primary id="gc-func-i"><function>GC</function>
+ </primary></indexterm></firstterm>
+ starts a global &gc;ion and returns three values:<orderedlist>
+  <listitem><simpara>room occupied by Lisp objects</simpara></listitem>
+  <listitem><simpara>room available for Lisp objects</simpara></listitem>
+  <listitem><simpara>room permanently allocated</simpara></listitem>
+</orderedlist></para>
+<para>When the optional parameter is non-&nil; also invalidates
+ just-in-time compiled objects.</para>
+</section>
+
+<section id="machine"><title>Machine</title>
+<variablelist>
+<!-- #ifdef MACHINE_KNOWN -->
+<varlistentry><term>&unix-only;</term>
+ <listitem><simpara>The functions &short-site-name;, &long-site-name;
+   should be defined in a site-specific &config-lisp; file.
+   The default implementations try to read the value of the &env-var;
+   <envar>ORGANIZATION</envar>, and, failing that,
+   call <function role="unix">uname</function>.
+</simpara></listitem></varlistentry>
+<varlistentry><term>&win32-only;</term>
+ <listitem><simpara>The functions &short-site-name;, &long-site-name;
+   should be defined in a site-specific &config-lisp; file.
+   The default implementations try to read the registry.
+</simpara></listitem></varlistentry>
+<!-- #else -->
+<varlistentry><term>&no-platform-only;</term>
+ <listitem><simpara>The functions &machine-type;, &machine-version;,
+   &machine-instance; and &short-site-name;, &long-site-name; should be
+   defined by every user in his user-specific &config-lisp; file.
+</simpara></listitem></varlistentry>
+<!-- #endif -->
+</variablelist>
 </section>
 
 <section id="version"><title>Function &lisp-implementation-version;</title>
@@ -6048,6 +5989,37 @@ exhaust the available line length.</para></simplesect>
 </para></section>
 
 </section>
+
+<section id="clock"><title>Time <ulink role="clhs" url="sec_25-1-4"/></title>
+
+<!-- #if !(defined(UNIX) || defined(WIN32)) -->
+<variablelist id="default-tz"><title>Default Time Zone</title>
+<varlistentry><term>&no-platform-only;</term>
+ <listitem><simpara>The variable <firstterm>&default-tz;</firstterm>
+   contains the default time zone used by &encode-universal-time; and
+   &decode-universal-time;.  It is initially set to -1
+   (which means 1 hour east of Greenwich, i.e., Mid European Time).
+</simpara></listitem></varlistentry></variablelist>
+<!-- #endif -->
+
+<para>The &TZ; in a &dec-time; does not necessarily have be an
+ &integer-t;, but (as &float-t; or &rational-t; number)
+ it should be a multiple of <literal role="data">1/3600</literal>.</para>
+
+<table id="internal-time-units-table" frame="all">
+ <title>Time granularity</title>
+ <tgroup cols="3" colsep="1" rowsep="1" align="center">
+ <thead><row><entry>platform</entry>
+   <entry>&unix;</entry><entry>&win32;</entry></row></thead><tbody>
+ <row><entry>&internal-time-units-per-second;</entry>
+  <entry>1,000,000</entry><entry>10,000,000</entry></row>
+</tbody></tgroup></table>
+
+<para>&get-internal-run-time; returns the amount of run time
+ consumed by the current &clisp; process since its startup.</para>
+
+</section>
+
 </chapter>
 
 
