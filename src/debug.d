@@ -258,7 +258,8 @@ local maygc Values read_form(void)
               }
               if (false) {
                found:
-                funcall(Cdr(Car(alist)),0); /* call the appropriate function */
+                pushSTACK(subsstring(line,len,input_len));
+                funcall(Cdr(Car(alist)),1); /* call the appropriate function */
                 dynamic_unbind(S(key_bindings));
                 goto eof;
               }

@@ -5296,87 +5296,58 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 <para>There is a current <firstterm>stack mode</firstterm> which defines
  in how much detail the stack is shown by the stack-related debugger
- commands.</para>
+ commands:<orderedlist>
+  <listitem><simpara>All the stack elements are considered.
+    This mode works fine for debugging compiled functions.</simpara></listitem>
+  <listitem><simpara>All the frames are considered.</simpara></listitem>
+  <listitem><simpara>Only lexical frames (frames that correspond to special
+    forms that modify the &lex-env;) are considered.</simpara></listitem>
+  <listitem><simpara>Only &eval; and &apply; frames are considered.
+    Every evaluation of a form in the interpreter corresponds to an
+    &eval; frame.  This is the default.</simpara></listitem>
+  <listitem><simpara>Only &apply; frames are considered.
+    Every invocation of an interpreted function corresponds to one
+    &apply; frame.</simpara></listitem>
+</orderedlist></para>
 
 <table id="debugger-deb-step-1" frame="all">
  <title>Commands common to the debugger and the stepper</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
   &cmd-abbrev-oper-header;<tbody>
  <row><entry><command>Error</command></entry>
-   <entry><command>:e</command></entry>
-   <entry>print the last error object.</entry></row>
+  <entry><command>:e</command></entry>
+  <entry>print the last error object.</entry></row>
  <row><entry><command>Inspect</command></entry>
-   <entry><command>:i</command></entry>
-   <entry>&inspect-my; the last error object.</entry></row>
- <row><entry><command>Mode-1</command></entry>
-   <entry><command>:m1</command></entry>
-   <entry>sets the current mode to 1: all the stack elements are considered.
-    This mode works fine for debugging compiled functions.</entry></row>
- <row><entry><command>Mode-2</command></entry>
-   <entry><command>:m2</command></entry>
-   <entry>sets the current mode to 2: all the frames are considered.
-     </entry></row>
- <row><entry><command>Mode-3</command></entry>
-   <entry><command>:m3</command></entry>
-   <entry>sets the current mode to 3: only lexical frames (frames that
-    correspond to special forms that modify the &lex-env;) are
-    considered.</entry></row>
- <row><entry><command>Mode-4</command></entry>
-   <entry><command>:m4</command></entry>
-   <entry>sets the current mode to 4 (the default): only &eval; and
-    &apply; frames are considered. Every evaluation of a form in the
-    interpreter corresponds to an EVAL frame.</entry></row>
- <row><entry><command>Mode-5</command></entry>
-   <entry><command>:m5</command></entry>
-   <entry>sets the current mode to 5: only &apply; frames are
-         considered. Every invocation of an interpreted function
-         corresponds to one &apply; frame.</entry></row>
+  <entry><command>:i</command></entry>
+  <entry>&inspect-my; the last error object.</entry></row>
  <row><entry><command>Where</command></entry>
-   <entry><command>:w</command></entry>
-   <entry>shows the &cur-frame;.</entry></row>
+  <entry><command>:w</command></entry>
+  <entry>shows the &cur-frame;.</entry></row>
  <row><entry><command>Up</command></entry>
-   <entry><command>:u</command></entry>
-   <entry>goes up one frame, i.e., to the caller if in mode-5
-    </entry></row>
+  <entry><command>:u</command></entry>
+  <entry>goes up one frame, i.e., to the caller if in mode-5</entry></row>
  <row><entry><command>Down</command></entry>
-   <entry><command>:d</command></entry>
-   <entry>does down one frame, i.e., to the callee if in mode-5
-    </entry></row>
+  <entry><command>:d</command></entry>
+  <entry>does down one frame, i.e., to the callee if in mode-5</entry></row>
  <row><entry><command>Top</command></entry>
-   <entry><command>:t</command></entry>
-   <entry>goes to top frame, i.e., to the top-level form if in mode-4
-    </entry></row>
+  <entry><command>:t</command></entry>
+  <entry>goes to top frame, i.e., to the top-level form if in mode-4
+ </entry></row>
  <row><entry><command>Bottom</command></entry>
-   <entry><command>:b</command></entry>
-   <entry>goes to bottom (most recent) frame, i.e., most probably to the
-         form or function that caused the debugger to be entered.
-    </entry></row>
- <row><entry><command>Backtrace</command></entry>
-   <entry><command>:bt</command></entry>
-   <entry>lists the stack in current mode, bottom frame first, top frame
-     last.</entry></row>
- <row><entry><command>Backtrace-1</command></entry>
-   <entry><command>:bt1</command></entry>
-   <entry>lists the stack in mode 1.</entry></row>
- <row><entry><command>Backtrace-2</command></entry>
-   <entry><command>:bt2</command></entry>
-   <entry>lists the stack in mode 2.</entry></row>
- <row><entry><command>Backtrace-3</command></entry>
-   <entry><command>:bt3</command></entry>
-   <entry>lists the stack in mode 3.</entry></row>
- <row><entry><command>Backtrace-4</command></entry>
-   <entry><command>:bt4</command></entry>
-   <entry>lists the stack in mode 4.</entry></row>
- <row><entry><command>Backtrace-5</command></entry>
-   <entry><command>:bt5</command></entry>
-   <entry>lists the stack in mode 5.</entry></row>
- <row><entry><command>Frame-limit</command></entry>
-   <entry><command>:fl</command></entry>
-   <entry>set the frame-limit: this many frames will be printed in a
-     backtrace at most.</entry></row>
- <row><entry><command>Backtrace-l</command></entry>
-   <entry><command>:bl</command></entry>
-   <entry>limit of frames to print will be prompted for.</entry></row>
+  <entry><command>:b</command></entry>
+  <entry>goes to bottom (most recent) frame, i.e., most probably to the
+   form or function that caused the debugger to be entered.</entry></row>
+ <row><entry><command>Mode</command> &mode-r;</entry>
+  <entry><command>:m</command> &mode-r;</entry>
+  <entry>sets the current stack mode</entry></row>
+ <row><entry><command>Frame-limit</command> &l-r;</entry>
+  <entry><command>:fl</command></entry>
+  <entry>set the frame-limit: this many frames will be printed
+   by <command>Backtrace</command> at most.</entry></row>
+ <row><entry><command>Backtrace</command> [&mode-r; [&l-r;]]</entry>
+  <entry><command>:bt</command></entry>
+  <entry>lists the stack in the given &mode-r;, bottom frame first, top
+   frame last; at most &l-r; frames are printed.</entry></row>
 </tbody></tgroup></table>
 
 <para>If the &cur-frame; is an &eval; or &apply; frame, the
@@ -5387,22 +5358,21 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <tgroup cols="3" colsep="1" rowsep="1" align="center">
   &cmd-abbrev-oper-header;<tbody>
 <row><entry><command>Break+</command></entry>
-   <entry><command>:br+</command></entry>
-   <entry>sets a breakpoint in the current frame.  When the corresponding
-     form or function will be left, the debugger will be entered again, with
-     the variable &trace-val; containing a list of its values.</entry></row>
+ <entry><command>:br+</command></entry>
+ <entry>sets a breakpoint in the current frame.  When the corresponding
+  form or function will be left, the debugger will be entered again, with
+  the variable &trace-val; containing a list of its values.</entry></row>
 <row><entry><command>Break-</command></entry>
-   <entry><command>:br-</command></entry>
-   <entry>removes a breakpoint from the current frame.</entry></row>
+ <entry><command>:br-</command></entry>
+ <entry>removes a breakpoint from the current frame.</entry></row>
 <row><entry><command>Redo</command></entry>
-   <entry><command>:rd</command></entry>
-   <entry>re-evaluates the corresponding form or function call. This
-     command can be used to restart parts of a computation without
-     aborting it entirely.</entry></row>
-<row><entry><command>Return</command></entry>
-   <entry><command>:rt</command></entry>
-   <entry>leaves the current frame.  You will be prompted for the return
-     values.</entry></row>
+ <entry><command>:rd</command></entry>
+ <entry>re-evaluates the corresponding form or function call. This
+  command can be used to restart parts of a computation without
+  aborting it entirely.</entry></row>
+<row><entry><command>Return</command> &value-r;</entry>
+ <entry><command>:rt</command></entry>
+ <entry>leaves the current frame, returning the given value.</entry></row>
 </tbody></tgroup></table>
 
 <table id="debugger-deb" frame="all">
@@ -5457,21 +5427,25 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   standard &clisp; help</simpara></listitem></varlistentry>
 <varlistentry><term>&cons-t; <literal role="data">(&string-t;
    . &function-t;)</literal></term>
-<listitem><simpara>the actual binding: when the user types the string,
-  the function is called.</simpara></listitem></varlistentry></variablelist>
-E.g.,
+ <listitem><simpara>the actual binding: when the user types the string,
+   the function is called on the remainder of the string, i.e., the part
+   of the string after the command.</simpara></listitem></varlistentry>
+</variablelist> E.g.,
 <programlisting language="lisp">
 (setq &user-commands;
       (list (lambda () (list (format nil "~2%User-defined commands:")))
             (lambda ()
-              (flet ((panic () (format t "don't panic, ~D~%" (random 42))))
+              (flet ((panic (argline)
+                       (format t "don't panic~@[ because of ~A~], ~D~%"
+                               (and (plusp (length argline)) argline)
+                               (random 42))))
                 (list (format nil "~%panic   :p    hit the panic button!")
                       (cons "panic" #'panic)
                       (cons ":p" #'panic))))
             (lambda ()
               (let ((curses #("ouch" "yuk" "bletch")))
-                (flet ((swear ()
-                         (format t "~A!~%"
+                (flet ((swear (argline)
+                         (format t "~A: ~A!~%" argline
                                  (aref curses (random (length curses))))))
                   (list (format nil "~%swear   :e    curse")
                         (cons "swear" #'swear)
