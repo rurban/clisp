@@ -1,5 +1,19 @@
 2008-04-16  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (read_form): pass the remainder of the input line to the
+	command function
+	* reploop.lisp (debug-reset-io, debug-help, debug-unwind, debug-quit)
+	(debug-mode, debug-where, debug-up, debug-top, debug-down, bottom)
+	(debug-frame-limit, debug-backtrace, debug-trap-on, debug-trap-off)
+	(debug-redo, return, debug-continue, debug-print-error)
+	(debug-inspect-error): accept the argline argument
+	(debug-mode-[12345], get-frame-limit, debug-backtrace-[12345]): remove
+	(wrap-user-commands): pass argline to user function
+	(commands1, commands4): update
+	(break-loop): pass argline to the restart caller
+
+2008-04-16  Sam Steingold  <sds@gnu.org>
+
 	* reploop.lisp (break-loop): bind *saved-debug-package* &
 	*saved-debug-readtable* so that only that binding is modified by
 	debug-reset-io, not the global sane values
