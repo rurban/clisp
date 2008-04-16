@@ -100,7 +100,8 @@
 
 (defvar *saved-debug-package* *common-lisp-user-package*)
 (defvar *saved-debug-readtable* (copy-readtable nil))
-(defun debug-reset-io ()
+(defun debug-reset-io (a)
+  (declare (ignore a))
   (rotatef *package* *saved-debug-package*)
   (rotatef *readtable* *saved-debug-readtable*)
   (fresh-line *debug-io*)
@@ -109,7 +110,7 @@
 
 ;; Components of the Break-Loop:
 (defvar *debug-frame*)
-(defvar *debug-mode* 4)
+(defvar *stack-mode* 4)
 ; lower bound for frame-down
 (defvar *frame-limit-down* nil)
 ; upper bound for frame-up
@@ -133,66 +134,65 @@
       (dotimes (i 2) (setq frame (frame-down 1 frame 1))))
     frame))
 
-(defun debug-help () (help) (throw 'debug 'continue))
-(defun debug-unwind () (throw 'debug 'unwind))
-(defun debug-quit () (throw 'debug 'abort-to-top))
-(defun debug-mode-1 () (setq *debug-mode* 1) (throw 'debug 'continue))
-(defun debug-mode-2 () (setq *debug-mode* 2) (throw 'debug 'continue))
-(defun debug-mode-3 () (setq *debug-mode* 3) (throw 'debug 'continue))
-(defun debug-mode-4 () (setq *debug-mode* 4) (throw 'debug 'continue))
-(defun debug-mode-5 () (setq *debug-mode* 5) (throw 'debug 'continue))
+(defun debug-help (a) (declare (ignore a))  (help) (throw 'debug 'continue))
+(defun debug-unwind (a) (declare (ignore a)) (throw 'debug 'unwind))
+(defun debug-quit (a) (declare (ignore a)) (throw 'debug 'abort-to-top))
+(defun stack-mode (argline &key (start 0) (end (length argline)))
+  (multiple-value-bind (mode pos)
+      (read-from-string argline nil *stack-mode* :start start :end end)
+    (check-type mode (integer 1 5))
+    (values mode pos)))
+(defun debug-mode (argline)
+  (setq *stack-mode* (stack-mode argline)) (throw 'debug 'continue))
 
-(defun debug-where ()
+(defun debug-where (a)
+  (declare (ignore a))
   (describe-frame *standard-output* *debug-frame*)
   (throw 'debug 'continue))
 
-(defun debug-up ()
+(defun debug-up (a)
+  (declare (ignore a))
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-up 1 *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-up 1 *debug-frame* *stack-mode*)))
   (throw 'debug 'continue))
 
-(defun debug-top ()
+(defun debug-top (a)
+  (declare (ignore a))
   (describe-frame *standard-output*
-                  (setq *debug-frame* (frame-up t *debug-frame* *debug-mode*)))
+                  (setq *debug-frame* (frame-up t *debug-frame* *stack-mode*)))
   (throw 'debug 'continue))
 
-(defun debug-down ()
+(defun debug-down (a)
+  (declare (ignore a))
   (describe-frame *standard-output*
                   (setq *debug-frame* (frame-down 1 *debug-frame*
-                                                  *debug-mode*)))
+                                                  *stack-mode*)))
   (throw 'debug 'continue))
 
-(defun debug-bottom ()
+(defun debug-bottom (a)
+  (declare (ignore a))
   (describe-frame *standard-output*
                   (setq *debug-frame* (frame-down t *debug-frame*
-                                                  *debug-mode*)))
+                                                  *stack-mode*)))
   (throw 'debug 'continue))
 
-(defun get-frame-limit ()
-  (let (number)
-    (loop
-     (fresh-line *debug-io*)
-     (safe-wr-st (TEXT "Enter the limit for max. frames to print or ':all' for all: ") *debug-io*)
-     (setq number (read-from-string (read-line *debug-io* nil nil)))
-     (if (or (integerp number) (eq number :all))
-       (return)
-       (progn
-         (fresh-line *debug-io*)
-         (format *debug-io* (TEXT "~A is not a number. Try again.")
-                 number)
-         (elastic-newline *debug-io*))))
-    (unless (eq number :all)
-      number)))
+(defun frame-limit (argline &key (start 0) (end (length argline)))
+  (multiple-value-bind (limit pos)
+      (read-from-string argline nil *debug-print-frame-limit*
+                        :start start :end end)
+    (check-type limit (or null (eql :all) integer))
+    (values (if (eq limit :all) nil limit)
+            pos)))
 
 ;;; sets the limit for frames to print in a backtrace
-(defun debug-set-frame-limit ()
-  (setq *debug-print-frame-limit* (get-frame-limit))
+(defun debug-frame-limit (argline)
+  (setq *debug-print-frame-limit* (frame-limit argline))
   (throw 'debug 'continue))
 
 (defun frame-up-down (limit mode) (frame-down 1 (frame-up 1 limit mode) mode))
 
 (defun print-backtrace (&key ((:out *standard-output*) *standard-output*)
-                        (mode *debug-mode*) (limit *debug-print-frame-limit*))
+                        (mode *stack-mode*) (limit *debug-print-frame-limit*))
   ;; SHOW-STACK prints its output to *STANDARD-OUTPUT*, so we bind that
   (let ((frame-count
          (show-stack
@@ -203,41 +203,39 @@
     (elastic-newline *standard-output*)))
 
 ;;; debug-backtrace with-optional 'print-limit'
-(defun debug-backtrace (&optional (mode *debug-mode*)
-                                  (limit *debug-print-frame-limit*)
-                                  (prompt-limit-p nil))
-  (print-backtrace :out *debug-io* :mode mode
-                   :limit (or (and prompt-limit-p (get-frame-limit)) limit))
+(defun debug-backtrace (argline)
+  (multiple-value-bind (mode pos) (stack-mode argline)
+    (print-backtrace :out *debug-io* :mode mode
+                     :limit (frame-limit argline :start pos)))
   (throw 'debug 'continue))
 
-(defun debug-backtrace-1 () (debug-backtrace 1))
-(defun debug-backtrace-2 () (debug-backtrace 2))
-(defun debug-backtrace-3 () (debug-backtrace 3))
-(defun debug-backtrace-4 () (debug-backtrace 4))
-(defun debug-backtrace-5 () (debug-backtrace 5))
-
-(defun debug-trap-on ()
+(defun debug-trap-on (a)
+  (declare (ignore a))
   (trap-eval-frame *debug-frame* t)
   (throw 'debug 'continue))
 
-(defun debug-trap-off ()
+(defun debug-trap-off (a)
+  (declare (ignore a))
   (trap-eval-frame *debug-frame* nil)
   (throw 'debug 'continue))
 
-(defun debug-redo ()
+(defun debug-redo (a)
+  (declare (ignore a))
   (redo-eval-frame *debug-frame*)
   (throw 'debug 'continue))
 
-(defun debug-return ()
-  (return-from-eval-frame *debug-frame* (read-form (TEXT "Values: ")))
+(defun debug-return (argline)
+  (return-from-eval-frame *debug-frame* (read-from-string argline))
   (throw 'debug 'continue))
-(defun debug-continue () (throw 'debug 'quit))
+(defun debug-continue (a) (declare (ignore a)) (throw 'debug 'quit))
 
 ;;; New command to print the error message again
-(defun debug-print-error ()
+(defun debug-print-error (a)
+  (declare (ignore a))
   ;; condition is local to break-loop so have to go back there
   (throw 'debug 'print-error))
-(defun debug-inspect-error ()
+(defun debug-inspect-error (a)
+  (declare (ignore a))
   (throw 'debug 'inspect-error))
 
 ;;; print it
@@ -258,8 +256,8 @@ or a pair (STRING . FUNCTION) so that typing STRING will call FUNCTION.")
             (etypecase binding
               (string binding)
               (cons (cons (car binding)
-                          (lambda ()
-                            (funcall (cdr binding))
+                          (lambda (argline)
+                            (funcall (cdr binding) argline)
                             (throw 'debug 'continue))))))
           (mapcap #'funcall functions)))
 
@@ -288,30 +286,21 @@ Unwind         :uw      abort to the next recent input loop
 Reset          :re      toggle *PACKAGE* and *READTABLE* between the
                           local bindings and the sane values
 Quit           :q       quit to the top-level input loop
-Mode-1         :m1      inspect all the stack elements
-Mode-2         :m2      inspect all the frames
-Mode-3         :m3      inspect only lexical frames
-Mode-4         :m4      inspect only EVAL and APPLY frames (default)
-Mode-5         :m5      inspect only APPLY frames
 Where          :w       inspect this frame
 Up             :u       go up one frame, inspect it
 Top            :t       go to top frame, inspect it
 Down           :d       go down one frame, inspect it
 Bottom         :b       go to bottom (most recent) frame, inspect it
-Backtrace-1    :bt1     list all stack elements
-Backtrace-2    :bt2     list all frames
-Backtrace-3    :bt3     list all lexical frames
-Backtrace-4    :bt4     list all EVAL and APPLY frames
-Backtrace-5    :bt5     list all APPLY frames
-Backtrace      :bt      list stack in current mode
-Backtrace-l    :bl      list stack in current mode.
-                          Limit of frames to print will be prompted for.
-Frame-limit    :fl      set the frame-limit. This many frames will
-                          be printed in a backtrace at most.
+Mode mode      :m       set stack mode for Backtrace: 1=all the stack elements
+             2=all the frames                         3=only lexical frames
+             4=only EVAL and APPLY frames (default)   5=only APPLY frames
+Frame-limit    :fl      set the frame-limit for Backtrace. This many frames
+                          will be printed in a backtrace at most.
+Backtrace [mode [limit]] :bt  inspect the stack
 Break+         :br+     set breakpoint in EVAL frame
 Break-         :br-     disable breakpoint in EVAL frame
 Redo           :rd      re-evaluate form in EVAL frame
-Return         :rt      leave EVAL frame, prescribing the return values")
+Return value   :rt      leave EVAL frame, prescribing the return values")
    (cons "Help"         #'debug-help  )
    (cons ":h"           #'debug-help  )
    (cons "?"            #'debug-help  )
@@ -327,16 +316,6 @@ Return         :rt      leave EVAL frame, prescribing the return values")
    (cons ":re"          #'debug-reset-io)
    (cons "Quit"         #'debug-quit)
    (cons ":q"           #'debug-quit)
-   (cons "Mode-1"       #'debug-mode-1)
-   (cons ":m1"          #'debug-mode-1)
-   (cons "Mode-2"       #'debug-mode-2)
-   (cons ":m2"          #'debug-mode-2)
-   (cons "Mode-3"       #'debug-mode-3)
-   (cons ":m3"          #'debug-mode-3)
-   (cons "Mode-4"       #'debug-mode-4)
-   (cons ":m4"          #'debug-mode-4)
-   (cons "Mode-5"       #'debug-mode-5)
-   (cons ":m5"          #'debug-mode-5)
    (cons "Where"        #'debug-where )
    (cons ":w"           #'debug-where )
    (cons "Up"           #'debug-up    )
@@ -347,22 +326,12 @@ Return         :rt      leave EVAL frame, prescribing the return values")
    (cons ":d"           #'debug-down  )
    (cons "Bottom"       #'debug-bottom)
    (cons ":b"           #'debug-bottom)
-   (cons "Backtrace-1"  #'debug-backtrace-1)
-   (cons ":bt1"         #'debug-backtrace-1)
-   (cons "Backtrace-2"  #'debug-backtrace-2)
-   (cons ":bt2"         #'debug-backtrace-2)
-   (cons "Backtrace-3"  #'debug-backtrace-3)
-   (cons ":bt3"         #'debug-backtrace-3)
-   (cons "Backtrace-4"  #'debug-backtrace-4)
-   (cons ":bt4"         #'debug-backtrace-4)
-   (cons "Backtrace-5"  #'debug-backtrace-5)
-   (cons ":bt5"         #'debug-backtrace-5)
-   (cons "Backtrace"    #'debug-backtrace  )
-   (cons ":bt"          #'debug-backtrace  )
-   (cons "Backtrace-l"  #'(lambda () (debug-backtrace *debug-mode* nil t)))
-   (cons ":bl"          #'(lambda () (debug-backtrace *debug-mode* nil t)))
-   (cons "Frame-limit"  #'debug-set-frame-limit )
-   (cons ":fl"          #'debug-set-frame-limit )))
+   (cons "Mode"         #'debug-mode)
+   (cons ":m"           #'debug-mode)
+   (cons "Frame-limit"  #'debug-frame-limit)
+   (cons ":fl"          #'debug-frame-limit)
+   (cons "Backtrace"    #'debug-backtrace)
+   (cons ":bt"          #'debug-backtrace)))
 
 (defun commands2 ()
   (list
@@ -391,24 +360,38 @@ Over           :o       step over this level: evaluate at once up to the next re
 Continue       :c       switch off single step mode, continue evaluation
 -- Step-until :su, Next-until :nu, Over-until :ou, Continue-until :cu --
            same as above, specify a condition when to stop")
-   (cons "Step"         #'(lambda () (throw 'stepper 'into)))
-   (cons ":s"           #'(lambda () (throw 'stepper 'into)))
-   (cons "Next"         #'(lambda () (throw 'stepper 'over)))
-   (cons ":n"           #'(lambda () (throw 'stepper 'over)))
-   (cons "Over"         #'(lambda () (throw 'stepper 'over-this-level)))
-   (cons ":o"           #'(lambda () (throw 'stepper 'over-this-level)))
-   (cons "Continue"     #'(lambda () (throw 'stepper 'continue)))
-   (cons ":c"           #'(lambda () (throw 'stepper 'continue)))
-   (cons "Step-until"   #'(lambda () (throw 'stepper (values 'into t))))
-   (cons ":su"          #'(lambda () (throw 'stepper (values 'into t))))
-   (cons "Next-until"   #'(lambda () (throw 'stepper (values 'over t))))
-   (cons ":nu"          #'(lambda () (throw 'stepper (values 'over t))))
-   (cons "Over-until"   #'(lambda () (throw 'stepper
-                                       (values 'over-this-level t))))
-   (cons ":ou"          #'(lambda () (throw 'stepper
-                                       (values 'over-this-level t))))
-   (cons "Continue-until" #'(lambda () (throw 'stepper (values 'continue t))))
-   (cons ":cu"          #'(lambda () (throw 'stepper (values 'continue t))))))
+   (cons "Step"         #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'into)))
+   (cons ":s"           #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'into)))
+   (cons "Next"         #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'over)))
+   (cons ":n"           #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'over)))
+   (cons "Over"         #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'over-this-level)))
+   (cons ":o"           #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'over-this-level)))
+   (cons "Continue"     #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'continue)))
+   (cons ":c"           #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper 'continue)))
+   (cons "Step-until"   #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'into t))))
+   (cons ":su"          #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'into t))))
+   (cons "Next-until"   #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'over t))))
+   (cons ":nu"          #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'over t))))
+   (cons "Over-until"   #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'over-this-level t))))
+   (cons ":ou"          #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'over-this-level t))))
+   (cons "Continue-until" #'(lambda (a) (declare (ignore a))
+                                    (throw 'stepper (values 'continue t))))
+   (cons ":cu"          #'(lambda (a) (declare (ignore a))
+                                  (throw 'stepper (values 'continue t))))))
 
 (defun commands (may-continue commandsr)
   (nconc (commands1)
@@ -527,7 +510,8 @@ Continue       :c       switch off single step mode, continue evaluation
                    (helpstring (format nil "~A~15T~A~24T~A" name command
                                        (princ-to-string restart)))
                    (restart restart)  ; for FUNC
-                   (func #'(lambda () (invoke-restart-interactively restart))))
+                   (func #'(lambda (a) (declare (ignore a))
+                                   (invoke-restart-interactively restart))))
               ;; display the restarts:
               (when interactive-p
                 (fresh-line *debug-io*)
@@ -553,8 +537,8 @@ Continue       :c       switch off single step mode, continue evaluation
                                   (prompt-body) (prompt-finish)))
            (*frame-limit-down* (frame-limit-down 13))
            (*frame-limit-up* (frame-limit-up))
-           (*debug-mode* *debug-mode*)
-           (*debug-frame* (frame-up-down *frame-limit-down* *debug-mode*))
+           (*stack-mode* *stack-mode*)
+           (*debug-frame* (frame-up-down *frame-limit-down* *stack-mode*))
            (*saved-debug-package* *saved-debug-package*)
            (*saved-debug-readtable* *saved-debug-readtable*)
            (commands-list (commands may-continue commandsr)))
@@ -645,8 +629,8 @@ Continue       :c       switch off single step mode, continue evaluation
                                     (prompt-body) (prompt-finish)))
              (*frame-limit-down* (frame-limit-down 11))
              (*frame-limit-up* (frame-limit-up))
-             (*debug-mode* *debug-mode*)
-             (*debug-frame* (frame-up-down *frame-limit-down* *debug-mode*))
+             (*stack-mode* *stack-mode*)
+             (*debug-frame* (frame-up-down *frame-limit-down* *stack-mode*))
              (commands-list (commands nil (commands4))))
         (fresh-line #|*debug-io*|#)
         (safe-wr-st (TEXT "step ") #|*debug-io*|#)
