@@ -1,3 +1,9 @@
+2008-04-16  Sam Steingold  <sds@gnu.org>
+
+	* reploop.lisp (break-loop): bind *saved-debug-package* &
+	*saved-debug-readtable* so that only that binding is modified by
+	debug-reset-io, not the global sane values
+
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/dirkey/dirkey1.lisp: do not re-export LDAP functions from EXT
