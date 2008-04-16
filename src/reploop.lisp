@@ -555,6 +555,8 @@ Continue       :c       switch off single step mode, continue evaluation
            (*frame-limit-up* (frame-limit-up))
            (*debug-mode* *debug-mode*)
            (*debug-frame* (frame-up-down *frame-limit-down* *debug-mode*))
+           (*saved-debug-package* *saved-debug-package*)
+           (*saved-debug-readtable* *saved-debug-readtable*)
            (commands-list (commands may-continue commandsr)))
       (driver
        ;; build driver frame and repeat #'lambda (infinitely; ...)
