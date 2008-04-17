@@ -500,15 +500,16 @@
 ;; Get encoding id from environment variable PGCLIENTENCODING
 (def-call-out PQenv2encoding (:return-type int) (:arguments))
 
-;; === in fe-auth.c ===
+;; === fe-auth.c ===
 (def-call-out PQencryptPassword (:return-type c-string)
   (:arguments (passwd c-string) (user c-string)))
 
-;; === in encnames.c ===
-(def-call-out pg_char_to_encoding (:return-type int)
-  (:arguments (name c-string)))
-(def-call-out pg_encoding_to_char (:return-type c-string)
-  (:arguments (encoding int)))
+;; === encnames.c ===
+;; 8.1.4: detected by configure by not declared in headers
+;; (def-call-out pg_char_to_encoding (:return-type int)
+;;   (:arguments (name c-string)))
+;; (def-call-out pg_encoding_to_char (:return-type c-string)
+;;   (:arguments (encoding int)))
 (def-call-out pg_valid_server_encoding_id (:return-type int)
   (:arguments (encoding int)))
 

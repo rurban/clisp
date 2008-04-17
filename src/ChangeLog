@@ -5,7 +5,7 @@
 	(PQnparams, PQparamtype, PQdescribePrepared, PQdescribePortal)
 	(PQsendDescribePrepared, PQsendDescribePortal, PQescapeStringConn)
 	(PQescapeByteaConn, lo_create, lo_truncate, PQencryptPassword)
-	(pg_char_to_encoding, pg_encoding_to_char)
+	(pg_char_to_encoding, pg_encoding_to_char) [commented out for 8.1.4]
 	(pg_valid_server_encoding_id): add
 	sync with postgres_ext.h 1.17 (8.3)
 	(PG_DIAG_SEVERITY, PG_DIAG_SQLSTATE, PG_DIAG_MESSAGE_PRIMARY)
