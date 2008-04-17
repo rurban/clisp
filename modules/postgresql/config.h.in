@@ -9,6 +9,9 @@
 /* Define to 1 if you have the `lo_creat' function. */
 #undef HAVE_LO_CREAT
 
+/* Define to 1 if you have the `lo_create' function. */
+#undef HAVE_LO_CREATE
+
 /* Define to 1 if you have the `lo_export' function. */
 #undef HAVE_LO_EXPORT
 
@@ -27,6 +30,9 @@
 /* Define to 1 if you have the `lo_tell' function. */
 #undef HAVE_LO_TELL
 
+/* Define to 1 if you have the `lo_truncate' function. */
+#undef HAVE_LO_TRUNCATE
+
 /* Define to 1 if you have the `lo_unlink' function. */
 #undef HAVE_LO_UNLINK
 
@@ -38,6 +44,15 @@
 
 /* Define to 1 if you have the <pgsql/postgres_ext.h> header file. */
 #undef HAVE_PGSQL_POSTGRES_EXT_H
+
+/* Define to 1 if you have the `pg_char_to_encoding' function. */
+#undef HAVE_PG_CHAR_TO_ENCODING
+
+/* Define to 1 if you have the `pg_encoding_to_char' function. */
+#undef HAVE_PG_ENCODING_TO_CHAR
+
+/* Define to 1 if you have the `pg_valid_server_encoding_id' function. */
+#undef HAVE_PG_VALID_SERVER_ENCODING_ID
 
 /* Define to 1 if you have the <postgresql/postgres_ext.h> header file. */
 #undef HAVE_POSTGRESQL_POSTGRES_EXT_H
@@ -72,6 +87,12 @@
 /* Define to 1 if you have the `PQconnectdb' function. */
 #undef HAVE_PQCONNECTDB
 
+/* Define to 1 if you have the `PQconnectionNeedsPassword' function. */
+#undef HAVE_PQCONNECTIONNEEDSPASSWORD
+
+/* Define to 1 if you have the `PQconnectionUsedPassword' function. */
+#undef HAVE_PQCONNECTIONUSEDPASSWORD
+
 /* Define to 1 if you have the `PQconnectPoll' function. */
 #undef HAVE_PQCONNECTPOLL
 
@@ -87,11 +108,20 @@
 /* Define to 1 if you have the `PQdb' function. */
 #undef HAVE_PQDB
 
+/* Define to 1 if you have the `PQdescribePortal' function. */
+#undef HAVE_PQDESCRIBEPORTAL
+
+/* Define to 1 if you have the `PQdescribePrepared' function. */
+#undef HAVE_PQDESCRIBEPREPARED
+
 /* Define to 1 if you have the `PQdisplayTuples' function. */
 #undef HAVE_PQDISPLAYTUPLES
 
 /* Define to 1 if you have the `PQdsplen' function. */
 #undef HAVE_PQDSPLEN
+
+/* Define to 1 if you have the `PQencryptPassword' function. */
+#undef HAVE_PQENCRYPTPASSWORD
 
 /* Define to 1 if you have the `PQendcopy' function. */
 #undef HAVE_PQENDCOPY
@@ -105,8 +135,14 @@
 /* Define to 1 if you have the `PQescapeBytea' function. */
 #undef HAVE_PQESCAPEBYTEA
 
+/* Define to 1 if you have the `PQescapeByteaConn' function. */
+#undef HAVE_PQESCAPEBYTEACONN
+
 /* Define to 1 if you have the `PQescapeString' function. */
 #undef HAVE_PQESCAPESTRING
+
+/* Define to 1 if you have the `PQescapeStringConn' function. */
+#undef HAVE_PQESCAPESTRINGCONN
 
 /* Define to 1 if you have the `PQexec' function. */
 #undef HAVE_PQEXEC
@@ -195,6 +231,9 @@
 /* Define to 1 if you have the `PQisnonblocking' function. */
 #undef HAVE_PQISNONBLOCKING
 
+/* Define to 1 if you have the `PQisthreadsafe' function. */
+#undef HAVE_PQISTHREADSAFE
+
 /* Define to 1 if you have the `PQmakeEmptyPGresult' function. */
 #undef HAVE_PQMAKEEMPTYPGRESULT
 
@@ -206,6 +245,9 @@
 
 /* Define to 1 if you have the `PQnotifies' function. */
 #undef HAVE_PQNOTIFIES
+
+/* Define to 1 if you have the `PQnparams' function. */
+#undef HAVE_PQNPARAMS
 
 /* Define to 1 if you have the `PQntuples' function. */
 #undef HAVE_PQNTUPLES
@@ -221,6 +263,9 @@
 
 /* Define to 1 if you have the `PQparameterStatus' function. */
 #undef HAVE_PQPARAMETERSTATUS
+
+/* Define to 1 if you have the `PQparamtype' function. */
+#undef HAVE_PQPARAMTYPE
 
 /* Define to 1 if you have the `PQpass' function. */
 #undef HAVE_PQPASS
@@ -275,6 +320,12 @@
 
 /* Define to 1 if you have the `PQresultStatus' function. */
 #undef HAVE_PQRESULTSTATUS
+
+/* Define to 1 if you have the `PQsendDescribePortal' function. */
+#undef HAVE_PQSENDDESCRIBEPORTAL
+
+/* Define to 1 if you have the `PQsendDescribePrepared' function. */
+#undef HAVE_PQSENDDESCRIBEPREPARED
 
 /* Define to 1 if you have the `PQsendPrepare' function. */
 #undef HAVE_PQSENDPREPARE
