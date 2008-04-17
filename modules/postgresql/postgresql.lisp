@@ -40,8 +40,6 @@
 
 (def-c-type Oid)
 
-(def-c-type size_t)
-
 (eval-when (load compile eval)
   (defconstant NAMEDATALEN 64)
   (defconstant MAX-PARAM 64)
@@ -258,7 +256,7 @@
 
 ;; Enable/disable tracing
 (def-call-out PQtrace (:return-type nil)
-  (:arguments (conn PGconn) (debug_port c-pointer))) ; ?? FILE*
+  (:arguments (conn PGconn) (debug_port FILE)))
 (def-call-out PQuntrace (:return-type nil) (:arguments (conn PGconn)))
 
 ;; Override default notice handling routines
@@ -452,15 +450,15 @@
 
 ;; === fe-print.c ===
 (def-call-out PQprint (:return-type nil)
-  (:arguments (fout c-pointer) ; ?? FILE*
+  (:arguments (fout FILE)
               (res PGresult)
               (ps (c-ptr PQprintOpt))))
 (def-call-out PQdisplayTuples (:return-type nil)
-  (:arguments (res PGresult) (fp c-pointer) ; ?? FILE*
+  (:arguments (res PGresult) (fp FILE)
               (fillAlign int) (fieldSep c-string)
               (printHeader int) (quiet int)))
 (def-call-out PQprintTuples (:return-type nil)
-  (:arguments (res PGresult) (fout c-pointer) ; ?? FILE*
+  (:arguments (res PGresult) (fout FILE)
               (printAttName int) (terseOutput int) (width int)))
 
 ;; === fe-lobj.c ===
