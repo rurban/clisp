@@ -203,7 +203,7 @@
 ;;; /* init.c */
 
 ;; long allocatemoremem(size_t newsize);
-(def-call-out allocatemoremem (:arguments (newsize ulong)) (:return-type long))
+(def-call-out allocatemoremem (:arguments (newsize size_t)) (:return-type long))
 (defun allocatemem (&optional (newsize 0)) (allocatemoremem newsize))
 
 (c-lines "#include \"cpari.h\"~%")

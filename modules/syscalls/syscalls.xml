@@ -642,6 +642,32 @@
   <listitem><simpara>Find the first bit set.
     Like <function role="unix">ffs</function>, but implemented in Lisp and
     supports &bignum-t;s.</simpara></listitem></varlistentry>
+ <varlistentry id="stdio">
+  <term><type>FFI:FILE</type></term>
+  <term><code>(OS:FOPEN &filename-r; &mode-r;)</code></term>
+  <term><code>(OS:FDOPEN fd &mode-r;)</code></term>
+  <term><code>(OS:FCLOSE file)</code></term>
+  <!-- <term><code>(OS:FGETC file)</code></term>
+       <term><code>(OS:FPUTC int file)</code></term>
+       <term><code>(OS:UNGETC int file)</code></term> -->
+  <term><code>(OS:CLEARERR file)</code></term>
+  <term><code>(OS:FEOF file)</code></term>
+  <term><code>(OS:FERROR file)</code></term>
+  <term><code>(OS:FILENO file)</code></term>
+  <listitem><simpara>This is the interface
+    to <filename role="unix">stdio.h</filename>.
+    Only <function>OS:FOPEN</function> and <function>OS:FDOPEN</function>
+    check their return values (and may &sig-err;), all the other
+   functions return &integer-t;s as is.</simpara>
+   <simpara>These are &not-e; for i/o, but merely for for &ffi-pac;
+    modules which interface to functions which use the
+    &c-lang; <type>FILE*</type> pointers.
+    E.g., &postgresql-mod; has a function <function>PQtrace</function>
+    which expects a <type>FILE*</type> argument.
+    You can use <function>OS:FOPEN</function>
+    and <function>OS:FCLOSE</function> for that.</simpara>
+   <simpara>These are only present if &ffi-pac; is present.</simpara>
+ </listitem></varlistentry>
 </variablelist>
 
 </section>

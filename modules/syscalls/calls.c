@@ -4060,6 +4060,71 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
 }
 #endif  /* WIN32_NATIVE || UNIX_CYGWIN32 */
 
+#if defined(HAVE_FFI)
+/* STDIO inteface for postgresql et al */
+DEFUN(POSIX::FOPEN, file mode) {
+  STACK_0 = check_string(STACK_0);
+  STACK_1 = check_string(STACK_1);
+  with_string_0(STACK_1, GLO(pathname_encoding), pathz, {
+      with_string_0(STACK_0, GLO(misc_encoding), modez, {
+          FILE *fp;
+          begin_system_call();
+          fp = fopen(pathz,modez);
+          end_system_call();
+          if (fp) STACK_0 = allocate_fpointer((FOREIGN)fp);
+          else OS_error();
+        });
+    });
+  VALUES1(STACK_0); skipSTACK(2);
+}
+DEFUN(POSIX::FDOPEN, fd mode) {
+  STACK_0 = check_string(STACK_0);
+  STACK_1 = check_sint(STACK_1);
+  with_string_0(STACK_0, GLO(misc_encoding), modez, {
+      FILE *fp;
+      begin_system_call();
+      fp = fdopen(I_to_sint(STACK_1),modez);
+      end_system_call();
+      if (fp) STACK_0 = allocate_fpointer((FOREIGN)fp);
+      else OS_error();
+    });
+  VALUES1(STACK_0); skipSTACK(2);
+}
+#define FILE_TO_INT(fun) {                              \
+    int ret;                                            \
+    STACK_0 = check_fpointer(STACK_0,1);                \
+    begin_system_call();                                \
+    ret = fun(TheFpointer(STACK_0)->fp_pointer);        \
+    end_system_call();                                  \
+    VALUES1(sint_to_I(ret)); skipSTACK(1);              \
+  }
+DEFUN(POSIX::FCLOSE, fp) FILE_TO_INT(fclose)
+DEFUN(POSIX::FILENO, fp) FILE_TO_INT(fileno)
+DEFUN(POSIX::FEOF, fp) FILE_TO_INT(feof)
+DEFUN(POSIX::FERROR, fp) FILE_TO_INT(ferror)
+/* no fputs & fgets because they will mess with encodings &c */
+DEFUN(POSIX::CLEARERR, fp) {
+  int ret;
+  STACK_0 = check_fpointer(STACK_0,1);
+  begin_system_call();
+  clearerr(TheFpointer(STACK_0)->fp_pointer);
+  end_system_call();
+  VALUES0; skipSTACK(1);
+}
+/* #define INT_FILE_TO_INT(fun) {                                          \
+ *     int ret;                                                            \
+ *     STACK_0 = check_fpointer(STACK_0,1);                                \
+ *     STACK_1 = check_sint(STACK_1);                                      \
+ *     begin_system_call();                                                \
+ *     ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);     \
+ *     end_system_call();                                                  \
+ *     VALUES1(sint_to_I(ret)); skipSTACK(2);                              \
+ *   }
+ * DEFUN(POSIX::FGETC, fp) FILE_TO_INT(fgetc)
+ * DEFUN(POSIX::FPUTC, c fp) INT_FILE_TO_INT(fputc)
+ * DEFUN(POSIX::UNGETC, c fp) INT_FILE_TO_INT(ungetc) */
+#endif  /* HAVE_FFI */
+
 #if defined(DEBUG_SPVW)
 /* internal playground - see spvd.d & spvw_debug.d */
 extern unsigned int get_constsym_count (void);

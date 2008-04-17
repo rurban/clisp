@@ -292,6 +292,22 @@ T
     (delete-file file)))
 (T T)
 
+#+ffi (defparameter *foo* (os:fopen "foo" "w")) #+ffi *foo*
+;; #+ffi (os:fputc 65 *foo*) #+ffi 65
+#+ffi (os:feof *foo*) #+ffi 0
+#+ffi (os:ferror *foo*) #+ffi 0
+#+ffi (os:clearerr *foo*) #+ffi NIL
+#+ffi (os:fclose *foo*) #+ffi 0
+#+ffi (defparameter *foo* (os:fopen "foo" "r")) #+ffi *foo*
+;; #+ffi (os:fgetc *foo*) #+ffi 65
+;; #+ffi (os:fgetc *foo*) #+ffi -1
+#+ffi (os:feof *foo*) #+ffi 0
+#+ffi (os:ferror *foo*) #+ffi 0
+#+ffi (os:clearerr *foo*) #+ffi NIL
+#+ffi (os:fclose *foo*) #+ffi 0
+#+ffi (null (delete-file "foo")) #+ffi NIL
+
+
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))

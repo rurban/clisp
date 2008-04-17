@@ -4591,7 +4591,8 @@ global maygc void init_ffi (void) {
   /* Allocate a fresh zero foreign pointer: */
   O(fp_zero) = allocate_fpointer((void*)0);
   ffi_user_pointer = NULL;
-  register_foreign_inttype("ffi_sint32",4,true);
+  register_foreign_inttype("size_t",sizeof(size_t),false);
+  register_foreign_inttype("ssize_t",sizeof(ssize_t),true);
   register_foreign_inttype("ffi_uintp",sizeof(uintP),false);
   register_foreign_variable(&ffi_user_pointer,"ffi_user_pointer",
                             0,sizeof(ffi_user_pointer));
