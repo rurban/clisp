@@ -1,5 +1,10 @@
 2008-04-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/bindings/glibc/linux.lisp (FILE): define to c-pointer,
+	use for all FILE functions instead of c-pointer
+
+2008-04-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/postgresql.lisp: sync with libpq-fe.h 1.141 (8.3)
 	(PQconnectionNeedsPassword, PQconnectionUsedPassword, PQisthreadsafe)
 	(PQnparams, PQparamtype, PQdescribePrepared, PQdescribePortal)
