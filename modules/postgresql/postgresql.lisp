@@ -1,5 +1,5 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
-;; Copyright (C) 1999-2007 Sam Steingold
+;; Copyright (C) 1999-2008 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
 (pushnew :PostgreSQL *features*)
@@ -99,7 +99,7 @@
 (def-c-type PGcancel c-pointer) ; components unknown
 
 (def-c-struct PGnotify
-  (result c-string)             ; (c-array character #.NAMEDATALEN)???
+  (relname c-string)            ; (c-array character #.NAMEDATALEN)???
   (be_pid int)
   (extra c-string)
   ;; private:
@@ -118,28 +118,28 @@
 
 (def-c-struct PQprintOpt
   (header pqbool)           ; print output field headings and row count
-  (align pqbool)                ; fill align the fields
-  (standard pqbool)             ; old brain dead format
-  (html3 pqbool)                ; output html tables
-  (expanded pqbool)             ; expand tables
-  (pager pqbool)                ; use pager for output if needed
-  (fieldSep c-string)           ; field separator
-  (tableOpt c-string)           ; insert to HTML <table ...>
-  (caption c-string)            ; HTML <caption>
-  (fieldName (c-array-ptr c-string))) ; null terminated array of repalceme field names
+  (align pqbool)            ; fill align the fields
+  (standard pqbool)         ; old brain dead format
+  (html3 pqbool)            ; output html tables
+  (expanded pqbool)         ; expand tables
+  (pager pqbool)            ; use pager for output if needed
+  (fieldSep c-string)       ; field separator
+  (tableOpt c-string)       ; insert to HTML <table ...>
+  (caption c-string)        ; HTML <caption>
+  (fieldName (c-array-ptr c-string))) ; null terminated array of replacement field names
 
 (def-c-struct PQconninfoOption
   (keyword c-string)        ; The keyword of the option
-  (envvar c-string)                ; Fallback environment variable name
-  (compiled c-string)              ; Fallback compiled in default value
-  (val c-string)                   ; Option's current value, or NULL
-  (label c-string)                 ; Label for field in connect dialog
+  (envvar c-string)         ; Fallback environment variable name
+  (compiled c-string)       ; Fallback compiled in default value
+  (val c-string)            ; Option's current value, or NULL
+  (label c-string)          ; Label for field in connect dialog
   (dispchar c-string) ; Character to display for this field
                       ; a connect dialog. Values are: ""
                       ; Display entered value as is "*"
                       ; Password field - hide value "D"
                       ; Debug option - don't show by default
-  (dispsize int))               ; Field size in characters for dialog
+  (dispsize int))     ; Field size in characters for dialog
 
 (def-c-struct PQArgBlock
   (len int)
