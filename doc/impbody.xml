@@ -5345,7 +5345,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <entry>set the frame-limit: this many frames will be printed
    by <command>Backtrace</command> at most.</entry></row>
  <row><entry><command>Backtrace</command> [&mode-r; [&l-r;]]</entry>
-  <entry><command>:bt</command></entry>
+  <entry><command>:bt</command> [&mode-r; [&l-r;]]</entry>
   <entry>lists the stack in the given &mode-r;, bottom frame first, top
    frame last; at most &l-r; frames are printed.</entry></row>
 </tbody></tgroup></table>
@@ -5371,7 +5371,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   command can be used to restart parts of a computation without
   aborting it entirely.</entry></row>
 <row><entry><command>Return</command> &value-r;</entry>
- <entry><command>:rt</command></entry>
+ <entry><command>:rt</command> &value-r;</entry>
  <entry>leaves the current frame, returning the given value.</entry></row>
 </tbody></tgroup></table>
 
@@ -5417,7 +5417,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <command>Next</command> commands or one <command>Over</command> command
  will help.</para>
 
-<section id="user-commands"><title>User-customizable Commands</title>
+<section id="user-commands"><title>User-defined Commands</title>
 
 <para>You can set <firstterm>&user-commands;</firstterm> to a list of
  &function-t;s, each returning a &list-t;
