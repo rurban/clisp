@@ -1,3 +1,20 @@
+2008-04-17  Sam Steingold  <sds@gnu.org>
+
+	* modules/postgresql/postgresql.lisp: sync with libpq-fe.h 1.141 (8.3)
+	(PQconnectionNeedsPassword, PQconnectionUsedPassword, PQisthreadsafe)
+	(PQnparams, PQparamtype, PQdescribePrepared, PQdescribePortal)
+	(PQsendDescribePrepared, PQsendDescribePortal, PQescapeStringConn)
+	(PQescapeByteaConn, lo_create, lo_truncate, PQencryptPassword)
+	(pg_char_to_encoding, pg_encoding_to_char)
+	(pg_valid_server_encoding_id): add
+	sync with postgres_ext.h 1.17 (8.3)
+	(PG_DIAG_SEVERITY, PG_DIAG_SQLSTATE, PG_DIAG_MESSAGE_PRIMARY)
+	(PG_DIAG_MESSAGE_DETAIL, PG_DIAG_MESSAGE_HINT)
+	(PG_DIAG_STATEMENT_POSITION, PG_DIAG_INTERNAL_POSITION)
+	(PG_DIAG_INTERNAL_QUERY, PG_DIAG_CONTEXT, PG_DIAG_SOURCE_FILE)
+	(PG_DIAG_SOURCE_LINE, PG_DIAG_SOURCE_FUNCTION): add
+	* modules/postgresql/configure.in: check for the new functions
+
 2008-04-16  Sam Steingold  <sds@gnu.org>
 
 	* debug.d (read_form): pass the remainder of the input line to the
