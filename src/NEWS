@@ -42,7 +42,7 @@ User visible changes
 
 * Updated the postgresql module to PostgreSQL 8.3.
 
-* Module syscalls now inferfaces to <stdio.h> (for the sake of FFI modules).
+* Module syscalls now interfaces to <stdio.h> (for the sake of FFI modules).
   See <http://clisp.cons.org/impnotes/syscalls.html#stdio> for details.
 
 * Bug fixes:
