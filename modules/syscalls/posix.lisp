@@ -387,6 +387,9 @@
     xio))
 
 ;;;--------------------------------------------------------------------------
+#+FFI (export '(fopen fdopen fclose ; fgetc fputc ungetc
+                clearerr feof ferror fileno))
+;;;--------------------------------------------------------------------------
 (defun ffs (n) (integer-length (logand n (- n))))
 ;; http://www.opengroup.org/onlinepubs/009695399/functions/ffs.html
 ;; this lisp implementation is about 10% faster than using FFI:

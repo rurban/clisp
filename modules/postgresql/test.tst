@@ -7,7 +7,10 @@
 ;;; if you get "FATAL: database \"postgres\" does not exist":
 ;;; $ createdb -U postgres postgres
 
+(defparameter *trace* (os:fopen "postgres.log" "w")) *trace*
+
 (sql:with-sql-connection (conn :name "template1" :log *standard-output*)
+  (sql:PQtrace conn *trace*)
   (sql:sql-transaction conn "BEGIN" sql:PGRES_COMMAND_OK)
   ;; fetch instances from the pg_database, the system catalog of databases
   (sql:sql-transaction
@@ -33,8 +36,11 @@
   (sql:sql-transaction conn "CLOSE mycursor" sql:PGRES_COMMAND_OK)
   ;; commit the transaction
   (sql:sql-transaction conn "COMMIT" sql:PGRES_COMMAND_OK)
+  (sql:PQuntrace conn)
   NIL)
 NIL
+
+(os:fclose *trace*) 0
 
 ;;;
 ;;; asynchronous notification interface

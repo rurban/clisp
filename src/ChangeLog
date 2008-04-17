@@ -1,5 +1,21 @@
 2008-04-17  Sam Steingold  <sds@gnu.org>
 
+	simplify support for FFI modules which want to use stdio.h
+	* lispbibl.d (HAVE_FFI): export to clisp.h
+	* foreign.d (init_ffi): register size_t and ssize_t
+	* foreign1.lisp (size_t, ssize_t, FILE): add types
+	* modules/bindings/glibc/linux.lisp ((size_t, ssize_t): do not redefine
+	* modules/pari/pari.lisp (allocatemoremem): use size_t
+	* modules/postgresql/postgresql.lisp (size_t): do not redefine
+	(PQtrace, PQprint, PQdisplayTuples, PQprintTuples):
+	use FILE instead of c-pointer
+	* modules/syscalls/calls.c (fopen, fdopen, fclose)
+	(clearerr, feof, ferror, fileno) [HAVE_FFI]: implement
+	* modules/syscalls/posix.lisp (fopen, fdopen, fclose)
+	(clearerr, feof, ferror, fileno) [FFI]: export
+
+2008-04-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/bindings/glibc/linux.lisp (FILE): define to c-pointer,
 	use for all FILE functions instead of c-pointer
 

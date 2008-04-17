@@ -20,6 +20,7 @@
           single-float double-float default-foreign-library
           c-pointer c-string c-struct c-union c-array c-array-max
           c-function c-ptr c-ptr-null c-array-ptr
+          size_t ssize_t |file|
           def-c-enum def-c-struct element deref slot cast typeof
           sizeof bitsizeof c-var-object c-var-address offset
           validp with-c-place foreign-value enum-from-value enum-to-value
@@ -123,8 +124,11 @@
           '(nil boolean character char uchar short ushort int uint long ulong
             uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
             single-float double-float
+            size_t ssize_t      ; see foreign.d:init_ffi()
             c-pointer c-string))
   (setf (gethash c-type *c-type-table*) c-type))
+;; FILE* is used by modern ffi packages
+(setf (gethash '|file| *c-type-table*) 'c-pointer) ; (def-c-type FILE c-pointer)
 
 ;; parse the components of a C-STRUCT or C-UNION
 (defun parse-components (typespec)

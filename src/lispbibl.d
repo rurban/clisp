@@ -16660,6 +16660,7 @@ extern maygc object decimal_string (object x);
 
 #ifdef DYNAMIC_FFI
 %% #ifdef DYNAMIC_FFI
+%%  puts("#define HAVE_FFI");
 
 /* Return the pointer encoded by a Foreign-Pointer. */
   #define Fpointer_value(obj) TheFpointer(obj)->fp_pointer

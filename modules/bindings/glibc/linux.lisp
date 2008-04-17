@@ -33,8 +33,6 @@
 
 (def-c-type ptrdiff_t)          ; long
 
-(def-c-type size_t)             ; uint or ulong, doesn't matter
-
 (def-c-type wchar_t)            ; int
 
 ; =========================== <sys/types.h> ===================================
@@ -105,16 +103,12 @@
 (def-c-type pid_t __pid_t)
 (def-c-type uid_t __uid_t)
 
-(def-c-type ssize_t __ssize_t)
-
 (def-c-type daddr_t __daddr_t)
 (def-c-type caddr_t __caddr_t)
 
 (def-c-type key_t __key_t)
 
 (def-c-type time_t __time_t)   ; in <time.h>
-
-(def-c-type size_t uint)       ; in <stddef.h>
 
 (def-c-type int8_t sint8)
 (def-c-type u_int8_t uint8)
