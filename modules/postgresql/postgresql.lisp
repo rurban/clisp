@@ -2,6 +2,13 @@
 ;; Copyright (C) 1999-2008 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
+;; this file is in sync with libpq-fe.h 1.141
+;; CVS tags: REL8_3_STABLE, REL8_3_RC2, REL8_3_RC1, REL8_3_1, REL8_3_0
+;; http://anoncvs.postgresql.org/cvsweb.cgi/pgsql/src/interfaces/libpq/libpq-fe.h
+;; and with postgres_ext.h 1.17
+;; CVS tags: REL8_3_STABLE, REL8_3_RC2, REL8_3_RC1, REL8_3_BETA4, REL8_3_BETA3, REL8_3_BETA2, REL8_3_BETA1, REL8_3_1, REL8_3_0, HEAD
+;; http://anoncvs.postgresql.org/cvsweb.cgi/pgsql/src/include/postgres_ext.h
+
 (pushnew :PostgreSQL *features*)
 
 (defpackage "SQL"
@@ -9,7 +16,7 @@
   (:modern t)
   (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
-           #:defconstant #:defun #:defmacro #:defvar
+           #:defconstant #:defun #:defmacro #:defvar #:def-c-const
            #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "SQL")
@@ -31,12 +38,28 @@
 #  error \"PostgreSQL is not found\"
 #endif~%")
 
-(def-c-type Oid uint)
+(def-c-type Oid)
+
+(def-c-type size_t)
 
 (eval-when (load compile eval)
   (defconstant NAMEDATALEN 64)
   (defconstant MAX-PARAM 64)
   (defconstant BUFSIZ 1024))
+
+;; Identifiers of error message fields.
+(def-c-const PG_DIAG_SEVERITY)           ; 'S'
+(def-c-const PG_DIAG_SQLSTATE)           ; 'C'
+(def-c-const PG_DIAG_MESSAGE_PRIMARY)    ; 'M'
+(def-c-const PG_DIAG_MESSAGE_DETAIL)     ; 'D'
+(def-c-const PG_DIAG_MESSAGE_HINT)       ; 'H'
+(def-c-const PG_DIAG_STATEMENT_POSITION) ; 'P'
+(def-c-const PG_DIAG_INTERNAL_POSITION)  ; 'p'
+(def-c-const PG_DIAG_INTERNAL_QUERY)     ; 'q'
+(def-c-const PG_DIAG_CONTEXT)            ; 'W'
+(def-c-const PG_DIAG_SOURCE_FILE)        ; 'F'
+(def-c-const PG_DIAG_SOURCE_LINE)        ; 'L'
+(def-c-const PG_DIAG_SOURCE_FUNCTION)    ; 'R'
 
 (c-lines "#if defined(HAVE_POSTGRES_EXT_H)
 #  include <libpq-fe.h>
@@ -99,7 +122,7 @@
 (def-c-type PGcancel c-pointer) ; components unknown
 
 (def-c-struct PGnotify
-  (relname c-string)            ; (c-array character #.NAMEDATALEN)???
+  (relname c-string)
   (be_pid int)
   (extra c-string)
   ;; private:
@@ -114,7 +137,7 @@
     (c-function (:arguments (p1 c-pointer) (message c-string))
                 (:return-type nil)))
 
-(def-c-type pqbool char)        ; for PQprint()
+(def-c-type pqbool)             ; for PQprint()
 
 (def-c-struct PQprintOpt
   (header pqbool)           ; print output field headings and row count
@@ -149,10 +172,8 @@
 ;; === fe-connect.c ===
 ;; make a new client connection to the backend
 ;; Asynchronous (non-blocking)
-;;extern PGconn *PQconnectStart(const char *conninfo);
 (def-call-out PQconnectStart (:return-type PGconn)
   (:arguments (conninfo c-string)))
-;;extern PostgresPollingStatusType PQconnectPoll(PGconn *conn);
 (def-call-out PQconnectPoll (:return-type PostgresPollingStatusType)
   (:arguments (conn PGconn)))
 
@@ -217,29 +238,34 @@
 (def-call-out PQerrorMessage (:return-type c-string) (:arguments (conn PGconn)))
 (def-call-out PQsocket (:return-type int) (:arguments (conn PGconn)))
 (def-call-out PQbackendPID (:return-type int) (:arguments (conn PGconn)))
+(def-call-out PQconnectionNeedsPassword (:return-type int)
+  (:arguments (conn PGconn)))
+(def-call-out PQconnectionUsedPassword (:return-type int)
+  (:arguments (conn PGconn)))
 (def-call-out PQclientEncoding (:return-type int) (:arguments (conn PGconn)))
 (def-call-out PQsetClientEncoding (:return-type int)
   (:arguments (conn PGconn) (encoding c-string)))
 
-;; ifdef USE_SSL
-;; (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type SSL))
+;; Get the OpenSSL structure associated with a connection. Returns NULL for
+;; unencrypted connections or if any other TLS library is in use.
 (def-call-out PQgetssl (:arguments (conn PGconn)) (:return-type c-pointer))
 ;; Tell libpq whether it needs to initialize OpenSSL (not in libpq 8.0)
 (def-call-out PQinitSSL (:return-type nil) (:arguments (do_init int)))
 
+;; Set verbosity for PQerrorMessage and PQresultErrorMessage
 (def-call-out PQsetErrorVerbosity (:return-type PGVerbosity)
   (:arguments (conn PGconn) (verbosity PGVerbosity)))
 
+;; Enable/disable tracing
 (def-call-out PQtrace (:return-type nil)
   (:arguments (conn PGconn) (debug_port c-pointer))) ; ?? FILE*
-(def-call-out PQuntrace (:arguments (conn PGconn)) (:return-type nil))
+(def-call-out PQuntrace (:return-type nil) (:arguments (conn PGconn)))
 
+;; Override default notice handling routines
 (def-call-out PQsetNoticeReceiver (:return-type PQnoticeReceiver)
-  (:arguments (conn PGconn) (proc PQnoticeProcessor)
-              (arg c-pointer)))
+  (:arguments (conn PGconn) (proc PQnoticeProcessor) (arg c-pointer)))
 (def-call-out PQsetNoticeProcessor (:return-type PQnoticeProcessor)
-  (:arguments (conn PGconn) (proc PQnoticeProcessor)
-              (arg c-pointer)))
+  (:arguments (conn PGconn) (proc PQnoticeProcessor) (arg c-pointer)))
 
 ;; Used to set callback that prevents concurrent access to
 ;; non-thread safe functions that libpq needs.
@@ -326,6 +352,7 @@
 (def-call-out PQsetnonblocking (:return-type int)
   (:arguments (conn PGconn) (arg int)))
 (def-call-out PQisnonblocking (:return-type int) (:arguments (conn PGconn)))
+(def-call-out PQisthreadsafe (:return-type int) (:arguments))
 
 ;; Force the write buffer to be written (or at least try)
 (def-call-out PQflush (:return-type int) (:arguments (conn PGconn)))
@@ -379,6 +406,19 @@
   (:arguments (res PGresult) (tup_num int) (field_num int)))
 (def-call-out PQgetisnull (:return-type int)
   (:arguments (res PGresult) (tup_num int) (field_num int)))
+(def-call-out PQnparams (:return-type int) (:arguments (res PGresult)))
+(def-call-out PQparamtype (:return-type Oid)
+  (:arguments (res PGresult) (param_num int)))
+
+;; Describe prepared statements and portals
+(def-call-out PQdescribePrepared (:return-type PGresult)
+  (:arguments (conn PGconn) (stmt c-string)))
+(def-call-out PQdescribePortal (:return-type PGresult)
+  (:arguments (conn PGconn) (portal c-string)))
+(def-call-out PQsendDescribePrepared (:return-type int)
+  (:arguments (conn PGconn) (stmt c-string)))
+(def-call-out PQsendDescribePortal (:return-type int)
+  (:arguments (conn PGconn) (portal c-string)))
 
 ;; Delete a PGresult
 (def-call-out PQclear (:return-type nil) (:arguments (res PGresult)))
@@ -390,15 +430,25 @@
   (:arguments (conn PGconn) (status ExecStatusType)))
 
 ;; Quoting strings before inclusion in queries
-(def-call-out PQescapeString (:return-type uint)
+(def-call-out PQescapeStringConn (:return-type size_t)
+  (:arguments (conn PGconn)
+              (to (c-ptr (c-array-max char #.BUFSIZ)) :out :alloca)
+              (from c-string) (length size_t) (error (c-ptr int) :out)))
+(def-call-out PQescapeByteaConn (:return-type (c-array-max uchar #.BUFSIZ))
+  (:arguments (conn PGconn)
+              (from (c-array-max uchar #.BUFSIZ)) (from_length size_t)
+              (to_length (c-ptr size_t) :out)))
+(def-call-out PQunescapeBytea (:return-type (c-array-max uchar #.BUFSIZ))
+  (:arguments (strtext (c-ptr (c-array-max uchar #.BUFSIZ)) :in-out)
+              (retbuflen (c-ptr size_t) :out)))
+
+;; These forms are deprecated!
+(def-call-out PQescapeString (:return-type size_t)
   (:arguments (to (c-ptr (c-array-max char #.BUFSIZ)) :out :alloca)
-              (from c-string) (length uint)))
-(def-call-out PQescapeBytea (:return-type c-string)
-  (:arguments (bintext (c-ptr (c-array-max char #.BUFSIZ)) :in-out)
-              (binlen uint) (bytealen (c-ptr uint) :out)))
-(def-call-out PQunescapeBytea (:return-type c-string)
-  (:arguments (strtext (c-ptr (c-array-max char #.BUFSIZ)) :in-out)
-              (retbuflen (c-ptr uint) :out)))
+              (from c-string) (length size_t)))
+(def-call-out PQescapeBytea (:return-type (c-array-max char #.BUFSIZ))
+  (:arguments (from (c-ptr (c-array-max char #.BUFSIZ)) :in-out)
+              (from_length size_t) (to_length (c-ptr size_t) :out)))
 
 ;; === fe-print.c ===
 (def-call-out PQprint (:return-type nil)
@@ -427,8 +477,12 @@
   (:arguments (conn PGconn) (fd int) (offset int) (whence int)))
 (def-call-out lo_creat (:return-type Oid)
   (:arguments (conn PGconn) (mode int)))
+(def-call-out lo_create (:return-type Oid)
+  (:arguments (conn PGconn) (lobjId Oid)))
 (def-call-out lo_tell (:return-type int)
   (:arguments (conn PGconn) (fd int)))
+(def-call-out lo_truncate (:return-type int)
+  (:arguments (conn PGconn) (fd int) (len size_t)))
 (def-call-out lo_unlink (:return-type int)
   (:arguments (conn PGconn) (lobjId Oid)))
 (def-call-out lo_import (:return-type Oid)
@@ -445,5 +499,17 @@
   (:arguments (s (c-pointer uchar)) (encoding int)))
 ;; Get encoding id from environment variable PGCLIENTENCODING
 (def-call-out PQenv2encoding (:return-type int) (:arguments))
+
+;; === in fe-auth.c ===
+(def-call-out PQencryptPassword (:return-type c-string)
+  (:arguments (passwd c-string) (user c-string)))
+
+;; === in encnames.c ===
+(def-call-out pg_char_to_encoding (:return-type int)
+  (:arguments (name c-string)))
+(def-call-out pg_encoding_to_char (:return-type c-string)
+  (:arguments (encoding int)))
+(def-call-out pg_valid_server_encoding_id (:return-type int)
+  (:arguments (encoding int)))
 
 (provide "postgresql")
