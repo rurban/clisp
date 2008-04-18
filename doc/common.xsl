@@ -182,6 +182,19 @@
 </xsl:template>
 <!-- =========== / BSD functions ============ -->
 
+<!-- =========== PostGreSQL functions ============ -->
+<xsl:template match="function[@role='pq'] | varname[@role='pq']">
+ <a class="{@role}" href="http://search.postgresql.org/search?q={.}">
+  <xsl:apply-imports/></a>
+</xsl:template>
+<!-- =========== / PostGreSQL functions ============ -->
+
+<!-- =========== Win32 functions ============ -->
+<xsl:template match="function[@role='win32'] | varname[@role='win32']">
+ <a class="{@role}" href="http://search.msdn.microsoft.com/Default.aspx?query={.}"><xsl:apply-imports/></a>
+</xsl:template>
+<!-- =========== / Win32 functions ============ -->
+
 <!-- =========================== Berkeley DB =========================== -->
 <!-- xsl:param name="bdb.top" select="'http://www.sleepycat.com/docs/'"/ -->
 <xsl:param name="bdb.top" select="'http://www.oracle.com/technology/documentation/berkeley-db/db/'"/>
