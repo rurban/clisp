@@ -4104,7 +4104,6 @@ DEFUN(POSIX::FEOF, fp) FILE_TO_INT(feof)
 DEFUN(POSIX::FERROR, fp) FILE_TO_INT(ferror)
 /* no fputs & fgets because they will mess with encodings &c */
 DEFUN(POSIX::CLEARERR, fp) {
-  int ret;
   STACK_0 = check_fpointer(STACK_0,1);
   begin_system_call();
   clearerr(TheFpointer(STACK_0)->fp_pointer);
