@@ -792,7 +792,6 @@ executes a compiled version of &form-r;.</para>
 <para>Among those classes listed in <ulink
  url="&clhs;/Body/sec_4-3-7.html#classtypecorrespondence">Figure
  4-8</ulink>, only the following are instances of &built-in-class;:
-
 <itemizedlist>
  <listitem><simpara>&t-t;</simpara></listitem>
  <listitem><simpara>&character-t;</simpara></listitem>
@@ -803,12 +802,10 @@ executes a compiled version of &form-r;.</para>
    &string-t;</simpara></listitem>
  <listitem><simpara>&list-t;, &cons-t;</simpara></listitem>
  <listitem><simpara>&symbol-t;, &null-t;</simpara></listitem>
- <listitem><simpara>&function-t;, &generic-function-t;,
-   &standard-generic-function-t;</simpara></listitem>
+ <listitem><simpara>&function-t;</simpara></listitem>
  <listitem><simpara>&hash-table-t;</simpara></listitem>
  <listitem><simpara>&package-t;</simpara></listitem>
- <listitem><simpara>&pathname-t;, &logical-pathname-t;
- </simpara></listitem>
+ <listitem><simpara>&pathname-t;, &logical-pathname-t;</simpara></listitem>
  <listitem><simpara>&random-state-t;</simpara></listitem>
  <listitem><simpara>&readtable-t;</simpara></listitem>
  <listitem><simpara>&stream-t;, &broadcast-stream-t;,
@@ -857,7 +854,7 @@ executes a compiled version of &form-r;.</para>
 </chapter>
 
 <chapter id="data"><title>Data and Control Flow
-   <ulink role="clhs" url="chap-5"/></title>
+  <ulink role="clhs" url="chap-5"/></title>
 
 <section id="gen-ref"><title>Generalized Reference
   <ulink role="clhs" url="sec_5-1"/></title>
