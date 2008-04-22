@@ -63,11 +63,10 @@
 <section id="reader-alg"><title>Reader Algorithm
   <ulink role="clhs" url="sec_2-2"/></title>
 
-<para>The requirement of step 4 that a
- <quote><ulink role="clhs" url="glo_r.html#reader_macro_function">reader
-  macro function</ulink> may return zero values or one value</quote>
-  &is-e; enforced.  You can use the function &values; to control the
-  number of values returned.</para>
+<para>The requirement of step 4 that a <quote><ulink url="clhs/glo">reader
+   macro function</ulink> may return zero values or one value</quote>
+ &is-e; enforced.  You can use the function &values; to control the
+ number of values returned.</para>
 
 </section>
 
@@ -77,10 +76,10 @@
 <para>A <firstterm>reserved token
   <indexterm id="res-token" significance="preferred">
    <primary id="res-token-i">reserved token</primary></indexterm></firstterm>,
- i.e., a <ulink role="clhs" url="glo_t.html#token">token</ulink> that has
- <ulink role="clhs" url="glo_p.html#potential_number">potential number</ulink>
- syntax but cannot be interpreted as a &number-t;, is interpreted as
- &symbol-t; when being read.</para>
+ i.e., a <ulink url="clhs/glo">token</ulink> that has
+ <ulink url="clhs/glo">potential number</ulink> syntax but cannot be
+ interpreted as a &number-t;, is interpreted as &symbol-t; when being
+ read.</para>
 
 </section>
 
@@ -308,8 +307,8 @@
  treated as function forms. This makes the syntax
  <code>(&funcname-r; &args-r; ...)</code> consistent with the syntax
  <code>(&funcall; #'&funcname-r; &args-r; ...)</code>.
- It implements the item 7 of the &ansi-cl; issue &iss174; and the definition of
- <ulink role="clhs" url="glo_f.html#function_form">function form</ulink>s,
+ It implements the item 7 of the &ansi-cl; issue &iss174; and the
+ definition of <ulink url="clhs/glo">function form</ulink>s,
  and is consistent with the use of &funname;s elsewhere in &cl;.
 </para></section>
 
@@ -466,7 +465,7 @@ ignored by the interpreter.</para>
 (funcall add-i-10 32)
 <computeroutput>42</computeroutput> ; as expected
 (defvar value 12)
-<computeroutput>VALUE</computeroutput> ; affects <function>ADDER-I</function> and <function>ADD-I-10</function> but not <function>ADDER-C</function> and <function>ADD-C-10</function>
+<computeroutput>VALUE</computeroutput> ; affects <function>ADDER-I</function> and <function>ADD-I-10</function> but &not-e; <function>ADDER-C</function> and <function>ADD-C-10</function>
 (funcall add-c-10 32)
 <computeroutput>42</computeroutput> ; as before
 (funcall add-i-10 32)
@@ -579,8 +578,8 @@ compile-time. See also <xref linkend="compile-time-value"/>.
 <section id="safety-decl"><title>Declaration &safety-dec;</title>
 <para>Declaration <code>(&optimize-dec; (&safety-dec; 3))</code>
  results in <quote>safe</quote> compiled code: function calls are never
- eliminated. This guarantees the semantics described in &ansi-cl;
- <ulink role="clhs" url="sec_3-5.html">Section 3.5</ulink>.
+ eliminated. This guarantees the semantics described in
+ <ulink role="clhs" url="sec_3-5"/>.
 </para></section>
 
 <section id="compile-decl"><title>Declaration &compile-decl;</title>
@@ -718,8 +717,7 @@ executes a compiled version of &form-r;.</para>
 </itemizedlist>
 
 <formalpara id="fixnum-char-ansi"><title>Function &coerce;</title>
-<para>&fixnum-t; is not a <ulink
-  url="&clhs;/Body/glo_c.html#character_designator">character
+<para>&fixnum-t; is not a <ulink url="clhs/glo">character
   designator</ulink> in &ansi-cl;, although &code-char; provides an
   obvious venue to &coerce; a &fixnum-t; to a &character-t;.
   When &fixnum-char-ansi; is &nil;, &clisp; &coerce;s &fixnum-t;s to
@@ -777,7 +775,7 @@ executes a compiled version of &form-r;.</para>
    <primary id="gen-labels-i"><function>GENERIC-LABELS</function>
  </primary></indexterm></firstterm>
  are implemented as macros, not as special operators (as permitted by
- <ulink role="clhs" url="sec_3-1-2-1-2-2.html">Section 3.1.2.1.2.2</ulink>).
+ <ulink role="clhs" url="sec_3-1-2-1-2-2"/>).
  They are not imported into the packages &clu-pac; and &cl-pac; because
  of the &ansi-cl; issue &iss181;.</para>
 
@@ -1037,8 +1035,9 @@ defined using &defhash;), the compiler will be able to optimize the
  <title>Iteration variables in the loop epilogue</title>
 
 <para>The standard is unambiguous in that the iteration variables do
- still exist in the &finally; clause, but &not-e; as to what values
- these variables might have.
+ still exist in the
+ <ulink role="clhs" url="sec_6-1-7-2"><literal>FINALLY</literal></ulink>
+ clause, but &not-e; as to what values these variables might have.
  Therefore the code which relies on the values of such variables, e.g.,
  <programlisting language="lisp">(loop for x on y finally (return x))</programlisting>
  is inherently non-portable across &cl; implementations,
@@ -1527,8 +1526,8 @@ performance considerations.
 
 <para>All pre-existing packages except &clu-pac; belong to the
  implementation, in the sense that the programs that do not follow
- <ulink role="clhs" url="sec_11-1-2-1-2.html">Section 11.1.2.1.2</ulink>
- ("Constraints on the &cl-pac; Package for Conforming Programs")
+ <ulink role="clhs" url="sec_11-1-2-1-2"/>
+ (<quote>Constraints on the &cl-pac; Package for Conforming Programs</quote>)
  cause undefined behavior.</para>
 
 </section>
@@ -1701,9 +1700,8 @@ can give problems:
 <section id="num-types"><title>Numeric Types</title>
 
 <para>The type &number-t; is the disjoint union of the types
- &real-t; and &complex-t; (<ulink
- url="&clhs;/Body/glo_e.html#exhaustive_partition"><quote>exhaustive
- partition</quote></ulink>)</para>
+ &real-t; and &complex-t; (<ulink url="clhs/glo">exhaustive
+ partition</ulink>)</para>
 
 <para>The type &real-t; is the disjoint union of the types
  &rational-t; and &float-t;.</para>
@@ -2007,9 +2005,8 @@ can give problems:
  different float types is rounded to the float format of the shortest
  (least precise) of the arguments: &rational-t; &rarr;
  &long-float-t; &rarr; &double-float-t; &rarr; &single-float-t;
- &rarr; &short-float-t; (in contrast to <ulink
- url="&clhs;/Body/sec_12-1-4-4.html">12.1.4.4 Rule of Float Precision
- Contagion</ulink>!)</para>
+ &rarr; &short-float-t; (in contrast to
+ <ulink role="clhs" url="sec_12-1-4-4"/>!)</para>
 
 <variablelist>
 <varlistentry><term>Rationale:</term>
@@ -2063,9 +2060,8 @@ can give problems:
 
 <para>When &floratcont; is &nil;, the traditional &clisp; method is used,
  namely if the result is mathematically an exact rational number, this
- rational number is returned (in contrast to <ulink
- url="&clhs;/Body/sec_12-1-4-1.html">12.1.4.1 Rule of Float and Rational
- Contagion</ulink>!)</para>
+ rational number is returned (in contrast to
+ <ulink role="clhs" url="sec_12-1-4-1"/>!)</para>
 
 <para>&floratcont; has an effect only in those few cases when the mathematical
  result is exact although one of the arguments is a floating-point number,
@@ -2589,9 +2585,8 @@ etc.</para>
 
 <formalpara><title>Rationale</title>
 <para>In &clisp;, &nl-s; is identical to &lf-s;
- (which is specifically permitted by the &ansi-cl; in section
- <ulink role="clhs" url="sec_13-1-7.html">13.1.7 <quote>Character
-   Names</quote></ulink>).
+ (which is specifically permitted by the &ansi-cl; in
+ <ulink role="clhs" url="sec_13-1-7"/> <quote>Character Names</quote>).
  Consider a file containing exactly this string:
  <code>(&concatenate; '&string-any; "foo" (&string; &lf-s;)
   "bar" (&string; &cr-s;) (&string; &lf-s;))</code>
@@ -3422,8 +3417,8 @@ checks whether the &hash-table-t; is weak.</para>
 
 <formalpara id="path-des"><title>Pathname Designators</title>
  <para>When &parsename; is &nil;, &symbol-t; is also treated as a
-  <ulink role="clhs" url="glo_p.html#pathname_designator">pathname
-   designator</ulink>, namely its &symbol-name; is converted to the
+  <ulink url="clhs/glo">pathname designator</ulink>,
+  namely its &symbol-name; is converted to the
   operating system's preferred pathname case.</para></formalpara>
 
 <formalpara id="path-match"><title>Function &pathname-match-p;</title>
@@ -3471,7 +3466,7 @@ checks whether the &hash-table-t; is weak.</para>
    &host-r; &defaults-r; &key-amp; &start-r; &end-r;
    <replaceable>junk-allowed</replaceable>)</code>
  returns a logical pathname only if &host-r; is a
- <ulink role="clhs" url="glo_l.html#logical_host">logical host</ulink>
+ <ulink url="clhs/glo">logical host</ulink>
  or &host-r; is &nil; and &defaults-r; is a &logical-pathname-t;.
  To construct a logical pathname from a string, the function
  &logical-pathname; can be used.</para>
@@ -4708,7 +4703,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 
 <section id="print-array"><title>Printing Other Arrays
-   <ulink role="clhs" url="sec_22-1-3-8"/></title>
+  <ulink role="clhs" url="sec_22-1-3-8"/></title>
 
 <para>When &print-readably-var; is true, other arrays are written as
  follows: if the &array-element-type; is &t-t;, the syntax
@@ -4743,10 +4738,10 @@ Let us consider different criteria:<orderedlist numeration="arabic">
  of &pathprint;: when it is &nil;, we print pathnames like this:
 <computeroutput>&sharp-minus;CLISP &sharp-P;"..."
 &sharp-plus;CLISP &sharp-S;(&pathname-t; ...)</computeroutput>.
- Otherwise, when the variable &pathprint; is non-&nil;, the
- &sharp-P; notation is used as per <ulink
- url="&clhs;/Body/sec_1-5-1-4-1.html">1.5.1.4.1 Resolution of Apparent
- Conflicts in Exceptional Situations</ulink>.</para>
+Otherwise, when the variable &pathprint; is non-&nil;, the
+&sharp-P; notation is used as per <ulink role="clhs" url="sec_1-5-1-4-1"/>
+<quote>Resolution of Apparent Conflicts in Exceptional Situations</quote>.
+</para>
 
 <note><simpara>The &sharp-S; notation for &pathname-t;s is used
   extensively in the &hyperspec; (see examples for &pathname;,
@@ -4763,18 +4758,17 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 
 <section id="clpp"><title>The Lisp Pretty Printer
-   <ulink role="clhs" url="sec_22-2"/></title>
+  <ulink role="clhs" url="sec_22-2"/></title>
 
 <para>The Lisp Pretty Printer implementation is &not-e; perfect yet.
  &pprint-logical-block; does not respect &print-lines-var;.</para>
 
 <section id="pp-dispatch"><title>Pretty Print Dispatch Table
-   <ulink role="clhs" url="sec_22-2-1-4"/></title>
+  <ulink role="clhs" url="sec_22-2-1-4"/></title>
 
-<para>A <ulink role="clhs" url="glo_p.html#pprint_dispatch_table">pprint
- dispatch table</ulink> is a &cons; of a &symbol-t;
- &print-pprint-dispatch-var; and an &alist; which maps types into
- priorities and print functions.
+<para>A <ulink url="clhs/glo">pprint dispatch table</ulink> is a &cons;
+ of a &symbol-t; &print-pprint-dispatch-var; and an &alist; which maps
+ types into priorities and print functions.
  Their use is strongly discouraged because of the performance issues:
  when &print-pprint-dispatch-var; is non-trivial and &print-pretty-var;
  is non-&nil;, printing of every object requires a lookup in the table,
@@ -5130,8 +5124,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   <listitem><simpara>the name of this implementation
 </simpara></listitem></varlistentry>
 <varlistentry><term><constant>:ANSI-CL</constant></term>
- <listitem><simpara>&clisp;
-   <ulink role="clhs" url="glo_p.html#purports_to_conform">purports to
+ <listitem><simpara>&clisp; <ulink url="clhs/glo">purports to
     conform</ulink> to &ansi-cl;</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:COMMON-LISP</constant></term>
  <listitem><simpara>required by &ansi-cl;</simpara></listitem></varlistentry>
