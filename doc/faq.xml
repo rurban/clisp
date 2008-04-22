@@ -524,13 +524,18 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-bin-distrib"><question id="faq-bin-distrib-q"><para>Where
    is the binary distribution for my platform?</para></question>
-<answer><para>The &clisp; maintainers can only build &clisp; binary
-  distributions on those &sf-cf; platforms that are up an running at
-  the time of the &clisp; release and also have a reasonably modern
-  &c-lang; compiler.</para>
- <para>Note that &clisp; is included in many software distributions, see
-  the section <quote>Get CLISP</quote> on the &clisp;'s home page.</para>
-</answer></qandaentry>
+<answer><para>The &clisp; maintainers do not offer &clisp; binary
+  distributions, we believe that software packagers specializing on a
+  particular platform are in a better position to provide quality binaries.
+  Indeed, the section <quote>Get CLISP</quote> on the &clisp;'s home
+  page points to &clisp; packages for all major &linux; and &bsd;
+  variants.</para>
+ <para>The only exception is &win32; for which there is no centralized
+  packager: <emphasis>usually</emphasis>, after each &clisp; release,
+  a &clisp; user <emphasis>volunteers</emphasis> to build a &win32;
+  binary package, which we then distribute at
+  <ulink url="http://sourceforge.net/project/showfiles.php?group_id=1355"/>.
+</para></answer></qandaentry>
 
 
 <qandaentry id="faq-bin-distrib-prev"><question id="faq-bin-distrib-prev-q">
