@@ -94,7 +94,7 @@
 
 
 #if !(defined(POSIX_THREADS) || defined(POSIXOLD_THREADS) || defined(SOLARIS_THREADS) || defined(C_THREADS) || defined(WIN32_THREADS))
-  #error "Define your flavour of multithreading"
+  #error Define your flavour of multithreading
 #endif
 
 /* NOTE: This file is not yet finished. The primary target is POSIX_THREADS.

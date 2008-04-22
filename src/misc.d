@@ -594,7 +594,7 @@ LISPFUNN(process_id,0) {
   end_system_call();
   VALUES1(uint32_to_I(pid));
 #else
-  #error "What is process-ID on your system?"
+  #error What is process-ID on your system?
 #endif
 }
 

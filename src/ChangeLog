@@ -1,3 +1,10 @@
+2008-04-22  Sam Steingold  <sds@gnu.org>
+
+	* arilev1.d, hashtabl.d, lisparit.d, lispbibl.d, misc.d:
+	* pathname.d, spvw.d, spvw_garcol.d, spvw_memfile.d, time.d, unix.d:
+	* xthread.d, modules/berkeley-db/bdb.c:
+	"#error" does not need quotes around the message
+
 2008-04-17  Sam Steingold  <sds@gnu.org>
 
 	simplify support for FFI modules which want to use stdio.h

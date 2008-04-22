@@ -1336,7 +1336,7 @@ local void gc_sweep1_varobject_page (Page* page)
 #elif (varobject_alignment==8)
   #define uintVLA  uintL2
 #else
-  #error "Unknown value for 'varobject_alignment'!"
+  #error Unknown value for 'varobject_alignment'!
 #endif
 #if defined(GNU) && (__GNUC__ < 3) && !defined(__cplusplus) /* better for optimization */
   #if defined(fast_dotimesL) && (intMsize==intLsize)
