@@ -9,8 +9,8 @@
 (defpackage "READLINE"
   (:use "CL" "EXT" "FFI")
   (:shadowing-import-from "EXPORTING"
-     #:defconstant #:defun #:defmacro #:defvar #:def-c-type #:def-c-enum
-     #:def-c-struct #:def-c-var #:def-c-const #:def-call-out)
+    #:defconstant #:defun #:defmacro #:defvar #:def-c-type #:def-c-enum
+    #:def-c-struct #:def-c-var #:def-c-const #:def-call-out)
   (:documentation "
 Interface to the GNU readline and history library. It allows you to
 - use readline functionality for user input in your programs

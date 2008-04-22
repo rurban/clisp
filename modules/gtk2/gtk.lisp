@@ -44,8 +44,8 @@
 
 (defpackage "GTK"
   (:use "CL" "FFI" "EXT") (:modern t)
-  (:shadowing-import-from
-   "EXPORTING" #:def-c-struct #:def-call-out #:def-c-type #:defun))
+  (:shadowing-import-from "EXPORTING"
+    #:def-c-struct #:def-call-out #:def-c-type #:defun))
 
 (in-package "GTK")
 (setf (documentation (find-package "GTK") 'sys::impnotes) "GTK")
