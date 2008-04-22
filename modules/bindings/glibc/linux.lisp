@@ -8,10 +8,10 @@
   (:nicknames "UNIX" "GLIBC")
   (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
-           #:defconstant #:defun #:defmacro #:define-modify-macro
-           #:define-symbol-macro #:defsetf
-           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var
-           #:def-c-const #:def-call-out)
+    #:defconstant #:defun #:defmacro #:define-modify-macro
+    #:define-symbol-macro #:defsetf
+    #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var
+    #:def-c-const #:def-call-out)
   (:shadow read write random abort abs acos asin atan cos sin tan cosh sinh tanh
            acosh asinh atanh exp log sqrt floor truncate ftruncate open close
            remove sleep))

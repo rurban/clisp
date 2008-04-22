@@ -16,8 +16,8 @@
   (:modern t)
   (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
-           #:defconstant #:defun #:defmacro #:defvar #:def-c-const
-           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
+    #:defconstant #:defun #:defmacro #:defvar #:def-c-const
+    #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "SQL")
 
@@ -35,7 +35,7 @@
 #elif defined(HAVE_PGSQL_POSTGRES_EXT_H)
 #  include <pgsql/postgres_ext.h>
 #else
-#  error \"PostgreSQL is not found\"
+#  error PostgreSQL is not found
 #endif~%")
 
 (def-c-type Oid)
@@ -66,7 +66,7 @@
 #elif defined(HAVE_PGSQL_POSTGRES_EXT_H)
 #  include <pgsql/libpq-fe.h>
 #else
-#  error \"PostgreSQL is not found\"
+#  error PostgreSQL is not found
 #endif~%")
 
 (def-c-enum ConnStatusType

@@ -7,8 +7,8 @@
 
 (defpackage "LIBSVM"
   (:modern t) (:use "CL" "FFI")
-  (:shadowing-import-from "EXPORTING" #:def-c-enum #:def-c-struct
-                          #:def-call-out #:def-c-type #:defun))
+  (:shadowing-import-from "EXPORTING"
+    #:def-c-enum #:def-c-struct #:def-call-out #:def-c-type #:defun))
 (in-package "LIBSVM")
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
