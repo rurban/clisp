@@ -267,6 +267,7 @@
  <span class="{@role}"><xsl:apply-imports/></span>
 </xsl:template>
 
+<!-- ========================== CLHS ========================== -->
 <xsl:param name="clhs.top" select="'http://www.lisp.org/HyperSpec/'"/>
 <xsl:param name="clhs.body" select="concat($clhs.top, 'Body/')"/>
 <xsl:template match="ulink[@role='clhs']">
@@ -275,8 +276,12 @@
     <xsl:value-of select="@url"/>
     <xsl:text>]</xsl:text></a></xsl:when>
   <xsl:otherwise>
-   <a class="{@role}" href="{$clhs.body}{@url}"><xsl:apply-templates/></a>
+   <a class="{@role}" href="{$clhs.body}{@url}.html"><xsl:apply-templates/></a>
 </xsl:otherwise></xsl:choose></xsl:template>
+
+<xsl:template match="ulink[@url='clhs/glo']">
+ <a class="{@role}" href="{$clhs.body}glo_{substring(.,1,1)}.html#{translate(normalize-space(.),' ','_')}">
+  <xsl:apply-templates/></a></xsl:template>
 
 <xsl:template match="literal[@role = '#lt']">
  <span class="data">
@@ -290,6 +295,7 @@
   </xsl:call-template>
  </span>
 </xsl:template>
+<!-- ========================== /CLHS ========================== -->
 
 <xsl:template match="revision/revnumber" mode="titlepage.mode">
  <span class="revnumber"><xsl:apply-imports/></span>

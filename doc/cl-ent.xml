@@ -12,8 +12,8 @@
 <!ENTITY clrfi 'http://clrfi.alu.org/clrfi'>
 <!ENTITY mop-home 'http://www.lisp.org/mop'>
 <!ENTITY cl '<ulink url="http://www.lisp.org"><command>Common Lisp</command></ulink>'>
-<!ENTITY clos '<ulink url="&clhs;/Body/chap-7.html"><command>CLOS</command></ulink>'>
-<!ENTITY clcs '<ulink url="&clhs;/Body/chap-9.html"><command>CLCS</command></ulink>'>
+<!ENTITY clos '<ulink role="clhs" url="chap-7"><command>CLOS</command></ulink>'>
+<!ENTITY clcs '<ulink role="clhs" url="chap-9"><command>CLCS</command></ulink>'>
 <!ENTITY clx '<ulink url="http://www.cliki.net/CLX"><command>CLX</command></ulink>'>
 <!ENTITY ilu '<ulink url="http://www2.parc.com/istl/projects/ILU/"><acronym>ILU<alt>Inter-Language Unification</alt></acronym></ulink>'>
 <!ENTITY the-ansi '<ulink url="http://www.ansi.org/"><acronym>ANSI<alt>The American National Standards Institute</alt></acronym></ulink>'>
@@ -186,99 +186,98 @@
 <!-- *** CLHS - Common Lisp HyperSpec *** -->
 
 <!-- *** misc *** -->
-<!ENTITY lambda-expr '<ulink url="&clhs;/Body/sec_3-1-3.html">lambda expression</ulink>'>
-<!ENTITY repl '<ulink url="&clhs;/Body/sec_25-1-1.html">read-eval-print loop</ulink>'>
-<!ENTITY iter-form '<ulink url="&clhs;/Body/glo_i.html#iteration_form">iteration form</ulink>'>
-<!ENTITY alist '<ulink url="&clhs;/Body/glo_a.html#association_list">association list</ulink>'>
-<!ENTITY plist '<ulink url="&clhs;/Body/glo_p.html#property_list">property list</ulink>'>
-<!ENTITY type-eq '<ulink url="&clhs;/Body/glo_t.html#type_equivalent">type equivalent</ulink>'>
-<!ENTITY symbol-macro '<ulink url="&clhs;/Body/mac_define-symbol-macro.html"><classname>SYMBOL-MACRO</classname></ulink>'>
-<!ENTITY eos '<ulink url="&clhs;/Body/glo_e.html#end_of_file"><literal>end-of-stream</literal></ulink>'>
-<!ENTITY input-s '<ulink url="&clhs;/Body/glo_i.html#input">input</ulink>'>
+<!ENTITY lambda-expr '<ulink role="clhs" url="sec_3-1-3">lambda expression</ulink>'>
+<!ENTITY repl '<ulink role="clhs" url="sec_25-1-1">read-eval-print loop</ulink>'>
+<!ENTITY iter-form '<ulink url="clhs/glo">iteration form</ulink>'>
+<!ENTITY alist '<ulink url="clhs/glo">association list</ulink>'>
+<!ENTITY plist '<ulink url="clhs/glo">property list</ulink>'>
+<!ENTITY type-eq '<ulink url="clhs/glo">type equivalent</ulink>'>
+<!ENTITY symbol-macro '<ulink role="clhs" url="mac_define-symbol-macro"><classname>SYMBOL-MACRO</classname></ulink>'>
+<!ENTITY eos '<literal><ulink url="clhs/glo">end-of-stream</ulink></literal>'>
+<!ENTITY input-s '<ulink url="clhs/glo">input</ulink>'>
 <!ENTITY in-s '&input-s; &stream-t;'>
-<!ENTITY output-s '<ulink url="&clhs;/Body/glo_o.html#output">output</ulink>'>
+<!ENTITY output-s '<ulink url="clhs/glo">output</ulink>'>
 <!ENTITY out-s '&output-s; &stream-t;'>
-<!ENTITY bidir-s '<ulink url="&clhs;/Body/glo_b.html#bidirectional">bidirectional</ulink>'>
+<!ENTITY bidir-s '<ulink url="clhs/glo">bidirectional</ulink>'>
 <!ENTITY bidi-s '&bidir-s; &stream-t;'>
-<!ENTITY fresh '<ulink url="&clhs;/Body/glo_f.html#fresh">fresh</ulink>'>
-<!ENTITY consing '<ulink url="&clhs;/Body/glo_c.html#cons">consing[3]</ulink>'>
-<!ENTITY recog-subt '<ulink url="&clhs;/Body/glo_r.html#recognizable_subtype">recognizable subtype</ulink>'>
-<!ENTITY place '<ulink url="&clhs;/Body/glo_p.html#place">place</ulink>'>
-<!ENTITY pri-esc '<ulink url="&clhs;/Body/glo_p.html#printer_escaping">printer escaping</ulink>'>
-<!ENTITY mul-val '<ulink url="&clhs;/Body/glo_m.html#multiple_values">multiple values</ulink>'>
-<!ENTITY pri-val '<ulink url="&clhs;/Body/glo_p.html#primary_value">primary value</ulink>'>
-<!ENTITY finally '<ulink url="&clhs;/Body/sec_6-1-7-2.html"><literal>FINALLY</literal></ulink>'>
-<!ENTITY cont-err '<ulink url="&clhs;/Body/glo_c.html#continuable">continuable</ulink> &error-t;'>
-<!ENTITY funname '<ulink url="&clhs;/Body/glo_f.html#function_name">function name</ulink>'>
-<!ENTITY ext-obj '<ulink url="&clhs;/Body/sec_3-2-4-1.html">externalizable object</ulink>'>
-<!ENTITY spelalist '<ulink url="&clhs;/Body/sec_3-4-3.html">specialized lambda list</ulink>'>
-<!ENTITY comp-unit '<ulink url="&clhs;/Body/glo_c.html#compilation_unit">compilation unit</ulink>'>
-<!ENTITY declspec-glo '<ulink url="&clhs;/Body/glo_d.html#declaration_specifier">declaration specifier</ulink>'>
-<!ENTITY typespec-glo '<ulink url="&clhs;/Body/glo_t.html#type_specifier">type specifier</ulink>'>
-<!ENTITY proper-list-glo '<ulink url="&clhs;/Body/glo_p.html#proper_list">proper list</ulink>'>
-<!ENTITY proper-name-glo '<ulink url="&clhs;/Body/glo_p.html#proper_name">proper name</ulink>'>
-<!ENTITY exec-time '<ulink url="&clhs;/Body/glo_e.html#execution_time">execution time</ulink>'>
-<!ENTITY compile-time '<ulink url="&clhs;/Body/glo_c.html#compile_time">compile time</ulink>'>
-<!ENTITY top-level-form '<ulink url="&clhs;/Body/sec_3-2-3-1.html">top-level form</ulink>'>
-<!ENTITY dec-time '<ulink url="&clhs;/Body/sec_25-1-4-1.html">decoded time</ulink>'>
-<!ENTITY uni-time '<ulink url="&clhs;/Body/sec_25-1-4-2.html">universal time</ulink>'>
-<!ENTITY int-time '<ulink url="&clhs;/Body/sec_25-1-4-3.html">internal time</ulink>'>
-<!ENTITY seconds '<ulink url="&clhs;/Body/sec_25-1-4-4.html">seconds</ulink>'>
-<!ENTITY TZ '<ulink url="&clhs;/Body/glo_t.html#time_zone">time zone</ulink>'>
-<!ENTITY feature-expr '<ulink url="&clhs;/Body/sec_24-1-2-1.html">feature exression</ulink>'>
-<!ENTITY graphic '<ulink url="&clhs;/Body/glo_g.html#graphic">graphic</ulink>'>
-<!ENTITY printing '<ulink url="&clhs;/Body/glo_p.html#printing">printing</ulink>'>
+<!ENTITY fresh '<ulink url="clhs/glo">fresh</ulink>'>
+<!ENTITY consing '<ulink url="clhs/glo">cons</ulink>ing[3]'>
+<!ENTITY recog-subt '<ulink url="clhs/glo">recognizable subtype</ulink>'>
+<!ENTITY place '<ulink url="clhs/glo">place</ulink>'>
+<!ENTITY pri-esc '<ulink url="clhs/glo">printer escaping</ulink>'>
+<!ENTITY mul-val '<ulink url="clhs/glo">multiple values</ulink>'>
+<!ENTITY pri-val '<ulink url="clhs/glo">primary value</ulink>'>
+<!ENTITY cont-err '<ulink url="clhs/glo">continuable</ulink> &error-t;'>
+<!ENTITY funname '<ulink url="clhs/glo">function name</ulink>'>
+<!ENTITY ext-obj '<ulink role="clhs" url="sec_3-2-4-1">externalizable object</ulink>'>
+<!ENTITY spelalist '<ulink role="clhs" url="sec_3-4-3">specialized lambda list</ulink>'>
+<!ENTITY comp-unit '<ulink url="clhs/glo">compilation unit</ulink>'>
+<!ENTITY declspec-glo '<ulink url="clhs/glo">declaration specifier</ulink>'>
+<!ENTITY typespec-glo '<ulink url="clhs/glo">type specifier</ulink>'>
+<!ENTITY proper-list-glo '<ulink url="clhs/glo">proper list</ulink>'>
+<!ENTITY proper-name-glo '<ulink url="clhs/glo">proper name</ulink>'>
+<!ENTITY exec-time '<ulink url="clhs/glo">execution time</ulink>'>
+<!ENTITY compile-time '<ulink url="clhs/glo">compile time</ulink>'>
+<!ENTITY top-level-form '<ulink role="clhs" url="sec_3-2-3-1">top-level form</ulink>'>
+<!ENTITY dec-time '<ulink role="clhs" url="sec_25-1-4-1">decoded time</ulink>'>
+<!ENTITY uni-time '<ulink role="clhs" url="sec_25-1-4-2">universal time</ulink>'>
+<!ENTITY int-time '<ulink role="clhs" url="sec_25-1-4-3">internal time</ulink>'>
+<!ENTITY seconds '<ulink role="clhs" url="sec_25-1-4-4">seconds</ulink>'>
+<!ENTITY TZ '<ulink url="clhs/glo">time zone</ulink>'>
+<!ENTITY feature-expr '<ulink role="clhs" url="sec_24-1-2-1">feature exression</ulink>'>
+<!ENTITY graphic '<ulink url="clhs/glo">graphic</ulink>'>
+<!ENTITY printing '<ulink url="clhs/glo">printing</ulink>'>
 
 <!-- *** variables, bindings etc *** -->
-<!ENTITY environment '<ulink url="&clhs;/Body/sec_3-1-1.html">environment</ulink>'>
-<!ENTITY glo-env '<ulink url="&clhs;/Body/sec_3-1-1-1.html">global environment</ulink>'>
-<!ENTITY dyn-env '<ulink url="&clhs;/Body/sec_3-1-1-2.html">dynamic environment</ulink>'>
-<!ENTITY lex-env '<ulink url="&clhs;/Body/sec_3-1-1-3.html">lexical environment</ulink>'>
-<!ENTITY env-r '<replaceable><ulink url="&clhs;/Body/sec_3-1-1-4.html">environment</ulink></replaceable>'>
-<!ENTITY variable '<ulink url="&clhs;/Body/sec_3-1-2-1-1.html">variable</ulink>'>
-<!ENTITY lex-var '<ulink url="&clhs;/Body/sec_3-1-2-1-1-1.html">lexical variable</ulink>'>
-<!ENTITY dyn-var '<ulink url="&clhs;/Body/sec_3-1-2-1-1-2.html">dynamic variable</ulink>'>
-<!ENTITY constant '<ulink url="&clhs;/Body/sec_3-1-2-1-1-3.html">constant variable</ulink>'>
+<!ENTITY environment '<ulink role="clhs" url="sec_3-1-1">environment</ulink>'>
+<!ENTITY glo-env '<ulink role="clhs" url="sec_3-1-1-1">global environment</ulink>'>
+<!ENTITY dyn-env '<ulink role="clhs" url="sec_3-1-1-2">dynamic environment</ulink>'>
+<!ENTITY lex-env '<ulink role="clhs" url="sec_3-1-1-3">lexical environment</ulink>'>
+<!ENTITY env-r '<replaceable><ulink role="clhs" url="sec_3-1-1-4">environment</ulink></replaceable>'>
+<!ENTITY variable '<ulink role="clhs" url="sec_3-1-2-1-1">variable</ulink>'>
+<!ENTITY lex-var '<ulink role="clhs" url="sec_3-1-2-1-1-1">lexical variable</ulink>'>
+<!ENTITY dyn-var '<ulink role="clhs" url="sec_3-1-2-1-1-2">dynamic variable</ulink>'>
+<!ENTITY constant '<ulink role="clhs" url="sec_3-1-2-1-1-3">constant variable</ulink>'>
 
 <!-- *** packages *** -->
-<!ENTITY cl-pac '<ulink url="&clhs;/Body/sec_11-1-2-1.html"><quote role="package">COMMON-LISP</quote></ulink>'>
-<!ENTITY clu-pac '<ulink url="&clhs;/Body/sec_11-1-2-2.html"><quote role="package">COMMON-LISP-USER</quote></ulink>'>
-<!ENTITY kwd-pac '<ulink url="&clhs;/Body/sec_11-1-2-3.html"><quote role="package">KEYWORD</quote></ulink>'>
+<!ENTITY cl-pac '<ulink role="clhs" url="sec_11-1-2-1"><quote role="package">COMMON-LISP</quote></ulink>'>
+<!ENTITY clu-pac '<ulink role="clhs" url="sec_11-1-2-2"><quote role="package">COMMON-LISP-USER</quote></ulink>'>
+<!ENTITY kwd-pac '<ulink role="clhs" url="sec_11-1-2-3"><quote role="package">KEYWORD</quote></ulink>'>
 
 <!-- *** reader *** -->
-<!ENTITY whitespace '<ulink url="&clhs;/Body/sec_2-1-4-7.html">whitespace</ulink>'>
-<!ENTITY sharp-back '<ulink url="&clhs;/Body/sec_2-4-8-1.html"><literal role="data">#\</literal></ulink>'>
-<!ENTITY sharp-prime '<ulink url="&clhs;/Body/sec_2-4-8-2.html"><literal role="data">#&#39;</literal></ulink>'>
-<!ENTITY sharp-dot '<ulink url="&clhs;/Body/sec_2-4-8-6.html"><literal role="data">#.</literal></ulink>'>
-<!ENTITY sharp-C '<ulink url="&clhs;/Body/sec_2-4-8-11.html"><literal role="data">#C</literal></ulink>'>
-<!ENTITY sharp-A '<ulink url="&clhs;/Body/sec_2-4-8-12.html"><literal role="data">#<replaceable>rank</replaceable>A</literal></ulink>'>
-<!ENTITY sharp-S '<ulink url="&clhs;/Body/sec_2-4-8-13.html"><literal role="data">#S</literal></ulink>'>
-<!ENTITY sharp-P '<ulink url="&clhs;/Body/sec_2-4-8-14.html"><literal role="data">#P</literal></ulink>'>
-<!ENTITY sharp-eq '<ulink url="&clhs;/Body/sec_2-4-8-15.html"><literal role="data">#n=</literal></ulink>'>
-<!ENTITY sharp-sharp '<ulink url="&clhs;/Body/sec_2-4-8-16.html"><literal role="data">#n#</literal></ulink>'>
-<!ENTITY sharp-plus '<ulink url="&clhs;/Body/sec_2-4-8-17.html"><literal role="data">#+</literal></ulink>'>
-<!ENTITY sharp-minus '<ulink url="&clhs;/Body/sec_2-4-8-18.html"><literal role="data">#-</literal></ulink>'>
-<!ENTITY sharp-lt '<ulink url="&clhs;/Body/sec_2-4-8-20.html"><literal role="data">#&lt;</literal></ulink>'>
+<!ENTITY whitespace '<ulink role="clhs" url="sec_2-1-4-7">whitespace</ulink>'>
+<!ENTITY sharp-back '<ulink role="clhs" url="sec_2-4-8-1"><literal role="data">#\</literal></ulink>'>
+<!ENTITY sharp-prime '<ulink role="clhs" url="sec_2-4-8-2"><literal role="data">#&#39;</literal></ulink>'>
+<!ENTITY sharp-dot '<ulink role="clhs" url="sec_2-4-8-6"><literal role="data">#.</literal></ulink>'>
+<!ENTITY sharp-C '<ulink role="clhs" url="sec_2-4-8-11"><literal role="data">#C</literal></ulink>'>
+<!ENTITY sharp-A '<ulink role="clhs" url="sec_2-4-8-12"><literal role="data">#<replaceable>rank</replaceable>A</literal></ulink>'>
+<!ENTITY sharp-S '<ulink role="clhs" url="sec_2-4-8-13"><literal role="data">#S</literal></ulink>'>
+<!ENTITY sharp-P '<ulink role="clhs" url="sec_2-4-8-14"><literal role="data">#P</literal></ulink>'>
+<!ENTITY sharp-eq '<ulink role="clhs" url="sec_2-4-8-15"><literal role="data">#n=</literal></ulink>'>
+<!ENTITY sharp-sharp '<ulink role="clhs" url="sec_2-4-8-16"><literal role="data">#n#</literal></ulink>'>
+<!ENTITY sharp-plus '<ulink role="clhs" url="sec_2-4-8-17"><literal role="data">#+</literal></ulink>'>
+<!ENTITY sharp-minus '<ulink role="clhs" url="sec_2-4-8-18"><literal role="data">#-</literal></ulink>'>
+<!ENTITY sharp-lt '<ulink role="clhs" url="sec_2-4-8-20"><literal role="data">#&lt;</literal></ulink>'>
 
 <!-- *** format instructions *** -->
-<!ENTITY format-a '<ulink url="&clhs;/Body/sec_22-3-4-1.html"><literal>~A</literal></ulink>'>
-<!ENTITY format-amp '<ulink url="&clhs;/Body/sec_22-3-1-3.html"><literal>~&amp;</literal></ulink>'>
-<!ENTITY format-b '<ulink url="&clhs;/Body/sec_22-3-2-3.html"><literal>~B</literal></ulink>'>
-<!ENTITY format-c '<ulink url="&clhs;/Body/sec_22-3-1-1.html"><literal>~:@C</literal></ulink>'>
-<!ENTITY format-d '<ulink url="&clhs;/Body/sec_22-3-2-2.html"><literal>~D</literal></ulink>'>
-<!ENTITY format-dollar '<ulink url="&clhs;/Body/sec_22-3-3-4.html"><literal>~$</literal></ulink>'>
-<!ENTITY format-e '<ulink url="&clhs;/Body/sec_22-3-3-2.html"><literal>~E</literal></ulink>'>
-<!ENTITY format-f '<ulink url="&clhs;/Body/sec_22-3-3-1.html"><literal>~F</literal></ulink>'>
-<!ENTITY format-g '<ulink url="&clhs;/Body/sec_22-3-3-3.html"><literal>~G</literal></ulink>'>
-<!ENTITY format-o '<ulink url="&clhs;/Body/sec_22-3-2-4.html"><literal>~O</literal></ulink>'>
-<!ENTITY format-percent '<ulink url="&clhs;/Body/sec_22-3-1-2.html"><literal>~&#37;</literal></ulink>'>
-<!ENTITY format-r '<ulink url="&clhs;/Body/sec_22-3-2-1.html"><literal>~R</literal></ulink>'>
-<!ENTITY format-rs '<ulink url="&clhs;/Body/sec_22-3-2-1.html"><literal>~:R</literal></ulink>'>
-<!ENTITY format-s '<ulink url="&clhs;/Body/sec_22-3-4-2.html"><literal>~S</literal></ulink>'>
-<!ENTITY format-slash '<ulink url="&clhs;/Body/sec_22-3-5-4.html"><literal>~/</literal></ulink>'>
-<!ENTITY format-t '<ulink url="&clhs;/Body/sec_22-3-6-1.html"><literal>~T</literal></ulink>'>
-<!ENTITY format-w '<ulink url="&clhs;/Body/sec_22-3-4-3.html"><literal>~W</literal></ulink>'>
-<!ENTITY format-x '<ulink url="&clhs;/Body/sec_22-3-2-5.html"><literal>~X</literal></ulink>'>
+<!ENTITY format-a '<ulink role="clhs" url="sec_22-3-4-1"><literal>~A</literal></ulink>'>
+<!ENTITY format-amp '<ulink role="clhs" url="sec_22-3-1-3"><literal>~&amp;</literal></ulink>'>
+<!ENTITY format-b '<ulink role="clhs" url="sec_22-3-2-3"><literal>~B</literal></ulink>'>
+<!ENTITY format-c '<ulink role="clhs" url="sec_22-3-1-1"><literal>~:@C</literal></ulink>'>
+<!ENTITY format-d '<ulink role="clhs" url="sec_22-3-2-2"><literal>~D</literal></ulink>'>
+<!ENTITY format-dollar '<ulink role="clhs" url="sec_22-3-3-4"><literal>~$</literal></ulink>'>
+<!ENTITY format-e '<ulink role="clhs" url="sec_22-3-3-2"><literal>~E</literal></ulink>'>
+<!ENTITY format-f '<ulink role="clhs" url="sec_22-3-3-1"><literal>~F</literal></ulink>'>
+<!ENTITY format-g '<ulink role="clhs" url="sec_22-3-3-3"><literal>~G</literal></ulink>'>
+<!ENTITY format-o '<ulink role="clhs" url="sec_22-3-2-4"><literal>~O</literal></ulink>'>
+<!ENTITY format-percent '<ulink role="clhs" url="sec_22-3-1-2"><literal>~&#37;</literal></ulink>'>
+<!ENTITY format-r '<ulink role="clhs" url="sec_22-3-2-1"><literal>~R</literal></ulink>'>
+<!ENTITY format-rs '<ulink role="clhs" url="sec_22-3-2-1"><literal>~:R</literal></ulink>'>
+<!ENTITY format-s '<ulink role="clhs" url="sec_22-3-4-2"><literal>~S</literal></ulink>'>
+<!ENTITY format-slash '<ulink role="clhs" url="sec_22-3-5-4"><literal>~/</literal></ulink>'>
+<!ENTITY format-t '<ulink role="clhs" url="sec_22-3-6-1"><literal>~T</literal></ulink>'>
+<!ENTITY format-w '<ulink role="clhs" url="sec_22-3-4-3"><literal>~W</literal></ulink>'>
+<!ENTITY format-x '<ulink role="clhs" url="sec_22-3-2-5"><literal>~X</literal></ulink>'>
 
 <!-- ** this file is generated by "clocc/src/cllib/clhs.lisp". ** -->
 <!-- (clhs-write-entities "/usr/local/src/clocc/etc/clhs-ent.xml") -->
