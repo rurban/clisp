@@ -1,5 +1,8 @@
 2008-04-22  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (installdirs, install-bin, uninstall): pass DESTDIR
+	to make in po
+	* po/Makefile.in.in (install-data-yes, installdirs): respect DESTDIR
 	* configure: do not try to link po twice
 
 2008-04-22  Sam Steingold  <sds@gnu.org>
