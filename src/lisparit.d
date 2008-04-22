@@ -1731,7 +1731,7 @@ local maygc object make_random_state (object r)
     seed_hi = CoGetCurrentProcess();
     end_system_call();
    #else
-    #error "make_random_state() is not defined on this platform!"
+    #error make_random_state() is not defined on this platform!
    #endif
   } else { /* check random-state: */
     r = check_random_state( (nullp(r) ? unbound : r) );

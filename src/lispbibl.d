@@ -109,7 +109,7 @@
   #if defined(unix)
     #define GENERIC_UNIX
   #else
-    #error "Unknown machine type -- set machine again!"
+    #error Unknown machine type!
   #endif
 #endif
 /* additional specification of the machine: */
@@ -347,7 +347,7 @@
   #define STACK_ADDRESS_RANGE ~0UL
   #define ICONV_CONST
 #else
-  #error "where is the configuration for your platform?"
+  #error where is the configuration for your platform?
 #endif
 
 
@@ -478,7 +478,7 @@
 
 /* We don't support pre-ANSI-C compilers any more. */
 #if !defined(ANSI)
-  #error "An ANSI C or C++ compiler is required to compile CLISP!"
+  #error An ANSI C or C++ compiler is required to compile CLISP!
 #endif
 
 /* gcc-2.7.2 has a bug: it interpretes `const' as meaning `not modified by
@@ -503,7 +503,7 @@
   /* Z80, VAX, I80386, DECALPHA, MIPSEL, IA64, AMD64, ...:
    Low Byte is the lowest, High Byte in a higher address */
   #if defined(BIG_ENDIAN_P)
-    #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
+    #error Bogus BIG_ENDIAN_P!
   #endif
   #define BIG_ENDIAN_P  0
 #endif
@@ -511,12 +511,12 @@
   /* MC680X0, SPARC, HPPA, MIPSEB, M88000, POWERPC, S390, ...:
    High Byte is the lowest, Low Byte is a higher adress (easier to read) */
   #if defined(BIG_ENDIAN_P)
-    #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again"
+    #error Bogus BIG_ENDIAN_P!
   #endif
   #define BIG_ENDIAN_P  1
 #endif
 #if !defined(BIG_ENDIAN_P)
-  #error "Bogus BIG_ENDIAN_P -- set BIG_ENDIAN_P again!"
+  #error Bogus BIG_ENDIAN_P!
 #endif
 %% export_def(BIG_ENDIAN_P);
 
@@ -565,7 +565,7 @@
   #if defined(__GNUC__)
     #define per_thread __thread
   #else
-    #error "how does your compiler specify per-thread storage class?"
+    #error how does your compiler specify per-thread storage class?
   #endif
 #else
   #define per_thread
@@ -1151,13 +1151,13 @@
   #endif
   typedef unsigned char  UBYTE;
 #else
-  #error "No 8 bit integer type? -- Which Interger-type has 8 Bit?"
+  #error No 8 bit integer type? -- Which Interger-type has 8 Bit?
 #endif
 #if (short_bitsize==16)
   typedef short          SWORD;
   typedef unsigned short UWORD;
 #else
-  #error "No 16 bit integer type? -- Which Integer-type has 16 Bit?"
+  #error No 16 bit integer type? -- Which Integer-type has 16 Bit?
 #endif
 #if (long_bitsize==32)
   typedef long           SLONG;
@@ -1166,7 +1166,7 @@
   typedef int            SLONG;
   typedef unsigned int   ULONG;
 #else
-  #error "No 32 bit integer type? -- Which Integer-type has 32 Bit?"
+  #error No 32 bit integer type? -- Which Integer-type has 32 Bit?
 #endif
 #if (long_bitsize==64)
   typedef long           SLONGLONG;
@@ -1187,7 +1187,7 @@
  #endif
 #endif
 #if defined(WIDE) && !defined(HAVE_LONG_LONG_INT)
-  #error "No 64 bit integer type? -- Which Integer-type has 64 Bit?"
+  #error No 64 bit integer type? -- Which Integer-type has 64 Bit?
 #endif
 %% #ifdef __CHAR_UNSIGNED__
 %%   emit_typedef("signed char","SBYTE");
@@ -1628,7 +1628,7 @@ typedef unsigned_int_with_n_bits(pointer_bitsize)  uintP;
   #define intWLsize intLsize
   #define intBWLsize intLsize
 #else
-  #error "Preferred integer sizes depend on CPU -- readjust intBWsize, intWLsize, intBWLsize!"
+  #error Preferred integer sizes depend on CPU -- readjust intBWsize, intWLsize, intBWLsize!
 #endif
 typedef signed_int_with_n_bits(intBWsize)     sintBW;
 typedef unsigned_int_with_n_bits(intBWsize)   uintBW;
@@ -1826,7 +1826,7 @@ typedef unsigned_int_with_n_bits(intBWLsize)  uintBWL;
   #define intDDsize 64  /* = 2*intDsize */
   #define log2_intDsize  5  /* = log2(intDsize) */
 #else
-  #error "Preferred digit size depends on CPU -- readjust intDsize!"
+  #error Preferred digit size depends on CPU -- readjust intDsize!
 #endif
 typedef unsigned_int_with_n_bits(intDsize)  uintD;
 typedef signed_int_with_n_bits(intDsize)    sintD;
@@ -1889,11 +1889,11 @@ typedef signed_int_with_n_bits(intDsize)    sintD;
 #endif
 
 #if defined(WIDE_SOFT) && defined(HEAPCODES)
-  #error "WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT"
+  #error WIDE_SOFT and HEAPCODES make no sense together, no need for WIDE_SOFT
 #endif
 
 #if defined(TYPECODES) && defined(HEAPCODES)
-  #error "TYPECODES and HEAPCODES make no sense together"
+  #error TYPECODES and HEAPCODES make no sense together
 #endif
 
 #if !(defined(TYPECODES) || defined(HEAPCODES))
@@ -1984,7 +1984,7 @@ typedef enum {
 %%   export_def(Handle);
 %%   puts("#include <winsock2.h>"); /* defines SOCKET */
 %% #else
-%%   puts("#error \"what is Handle on your platform?!\"");
+%%   puts("#error what is Handle on your platform?!");
 %% #endif
 %% #if defined(UNIX)
 %%   puts("extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);");
@@ -2083,7 +2083,7 @@ typedef enum {
 #include "xthread.c"
 
 #if !(defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
-  #error "Multithreading requires memory mapping facilities!"
+  #error Multithreading requires memory mapping facilities!
 #endif
 
 #endif
@@ -2272,7 +2272,7 @@ typedef enum {
   #define NO_ASYNC_INTERRUPTS
 #endif
 #if defined(NO_ASYNC_INTERRUPTS) && defined(MULTITHREAD)
-  #error "No multithreading possible with this memory model!"
+  #error No multithreading possible with this memory model!
 #endif
 /* When changed: extend SPVW, write a interruptp(). */
 
@@ -2452,10 +2452,10 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 
 #if defined(DEBUG_GCSAFETY)
   #ifndef __cplusplus
-    #error "DEBUG_GCSAFETY works only with a C++ compiler! Reconfigure with CC=g++."
+    #error DEBUG_GCSAFETY works only with a C++ compiler! Reconfigure with CC=g++.
   #endif
   #if defined(WIDE_SOFT) || defined(WIDE_AUXI)
-    #error "DEBUG_GCSAFETY cannot be used together with WIDE_SOFT or WIDE_AUXI (not yet implemented)!"
+    #error DEBUG_GCSAFETY cannot be used together with WIDE_SOFT or WIDE_AUXI (not yet implemented)!
   #endif
   /* The 'gcv_object_t' and 'object' types share the major part of their innards. */
   #ifndef OBJECT_STRUCT
@@ -2902,7 +2902,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
   #define oint_addr_len 24
   #define oint_addr_mask 0x00FFFFFFUL
 #else
-  #error "TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES."
+  #error TYPECODES maybe not supported any more on this platform. Try defining TRY_TYPECODES_1 or TRY_TYPECODES_2, or use -DHEAPCODES.
 #endif
 %% #if notused
 %%  export_def(oint_type_shift);
@@ -2913,7 +2913,7 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 %%  export_def(oint_addr_mask);
 %% #endif
 #ifndef oint_type_len
-#error "CLISP has not been ported to this platform - oint_type_len undefined"
+#error CLISP has not been ported to this platform - oint_type_len undefined
 #endif
 
 /* Generally we use all of the space of an address for the data of Fixnums etc.
@@ -2986,10 +2986,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  MALLOC_ADDRESS_RANGE values. */
 #if !defined(WIDE_SOFT)
   #if (CODE_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error "oint_addr_mask doesn't cover CODE_ADDRESS_RANGE !!"
+     #error oint_addr_mask doesn't cover CODE_ADDRESS_RANGE !!
   #endif
   #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error "oint_addr_mask doesn't cover MALLOC_ADDRESS_RANGE !!"
+     #error oint_addr_mask doesn't cover MALLOC_ADDRESS_RANGE !!
   #endif
 #endif
 
@@ -3639,15 +3639,15 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 /* varobject_alignment should be defined: */
 #ifndef varobject_alignment
-  #error "varobject_alignment depends on CPU -- readjust varobject_alignment!!"
+  #error varobject_alignment depends on CPU -- readjust varobject_alignment!!
 #endif
 /* varobject_alignment should be a power of 2: */
 #if !((varobject_alignment & (varobject_alignment-1)) ==0)
-  #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
+  #error Bogus varobject_alignment -- readjust varobject_alignment!!
 #endif
 /* varobject_alignment should be a multiple of 2^addr_shift : */
 #if (varobject_alignment % bit(addr_shift))
-  #error "Bogus varobject_alignment -- readjust varobject_alignment!!"
+  #error Bogus varobject_alignment -- readjust varobject_alignment!!
 #endif
 %% export_def(varobject_alignment);
 
@@ -3710,7 +3710,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define tint_avoid  ((bitm(oint_type_len)-1) & ~tint_allowed_type_mask)
   /* tint_avoid must only contain one bit: */
   #if (tint_avoid & (tint_avoid-1))
-    #error "Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!"
+    #error Bogus oint_type_mask -- oint_type_mask has more than one extraneous bit!!
   #endif
   /* tint_avoid consists of exactly one bit that has to be avoided. */
   #if (tint_avoid > bit(0))
@@ -3928,7 +3928,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif /* STANDARD_8BIT_TYPECODES */
 
 #if !(gcinvariant_type_p(ffloat_type) == defined(IMMEDIATE_FFLOAT))
-  #error "gcinvariant_type_p() incorrectly implemented!"
+  #error gcinvariant_type_p() incorrectly implemented!
 #endif
 
 /* Test for gc-invariant object. (This includes immediate, machine, subr.)
@@ -4296,22 +4296,22 @@ extern bool inside_gc;
   #define SPVW_MIXED
 #endif
 #if !(defined(SPVW_BLOCKS) || defined(SPVW_PAGES))
-  #error "readjust SPVW_BLOCKS/SPVW_PAGES!"
+  #error readjust SPVW_BLOCKS/SPVW_PAGES!
 #endif
 #if !(defined(SPVW_MIXED) || defined(SPVW_PURE))
-  #error "readjust SPVW_MIXED/SPVW_PURE!"
+  #error readjust SPVW_MIXED/SPVW_PURE!
 #endif
 #if (defined(SPVW_BLOCKS) && defined(SPVW_PURE)) != defined(SINGLEMAP_MEMORY)
-  #error "SINGLEMAP_MEMORY <==> SPVW_PURE_BLOCKS!"
+  #error SINGLEMAP_MEMORY <==> SPVW_PURE_BLOCKS!
 #endif
 #if (defined(SPVW_BLOCKS) && defined(SPVW_MIXED)) < defined(TRIVIALMAP_MEMORY)
-  #error "TRIVIALMAP_MEMORY ==> SPVW_MIXED_BLOCKS!"
+  #error TRIVIALMAP_MEMORY ==> SPVW_MIXED_BLOCKS!
 #endif
 #if defined(SPVW_PURE) && !defined(TYPECODES)
-  #error "SPVW_PURE ==> TYPECODES!"
+  #error SPVW_PURE ==> TYPECODES!
 #endif
 #if (defined(SPVW_BLOCKS) && (defined(SPVW_PURE) || defined(SPVW_MIXED))) < defined(GENERATIONAL_GC)
-  #error "GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!"
+  #error GENERATIONAL_GC ==> SPVW_PURE_BLOCKS or SPVW_MIXED_BLOCKS_STAGGERED or SPVW_MIXED_BLOCKS_OPPOSITE!
 #endif
 
 /* Algorithm by Morris, that compacts Conses without mixing them up: */
@@ -4518,7 +4518,7 @@ typedef varobject_ *  Varobject;
     #define GCself  header._GCself
     /* The typecode can be found in the byte ((Varobject)p)->header_flags. */
     #if !(oint_type_len>=hfintsize ? oint_type_shift%hfintsize==0 : floor(oint_type_shift,hfintsize)==floor(oint_type_shift+oint_type_len-1,hfintsize))
-      #error "Bogus header_flags -- redefine header_flags!"
+      #error Bogus header_flags -- redefine header_flags!
     #endif
     #if BIG_ENDIAN_P
       #define header_flags  header.flags[sizeof(gcv_object_t)/sizeof(hfint)-1-floor(oint_type_shift,hfintsize)]
@@ -6313,7 +6313,7 @@ typedef struct {
     /* Because of space requirements, I have to put strmflags and strmtype
      into a fixnum in recdata[0]. */
     #if !((oint_addr_len+oint_addr_shift>=24) && (8>=oint_addr_shift))
-      #error "No room for stream flags -- re-accommodate Stream-Flags!!"
+      #error No room for stream flags -- re-accommodate Stream-Flags!!
     #endif
     XRECORD_HEADER
     #if defined(WIDE) && BIG_ENDIAN_P
@@ -9077,7 +9077,7 @@ All other long words on the LISP-Stack are LISP-objects.
   #define SPoffset -1 /* top-of-SP ist *(SP+SPoffset) */
 #endif
 #if (defined(SP_DOWN) && defined(SP_UP)) || (!defined(SP_DOWN) && !defined(SP_UP))
-  #error "Unknown SP direction -- readjust SP_DOWN/SP_UP!"
+  #error Unknown SP direction -- readjust SP_DOWN/SP_UP!
 #endif
 /* Derived from that:
  SPint  is the type of the elements on the SP, an Integer type at least as
@@ -9184,7 +9184,7 @@ extern void* SP_anchor;
   #define STACK_UP /* STACK grows upward */
 #endif
 #if (defined(STACK_DOWN) && defined(STACK_UP)) || (!defined(STACK_DOWN) && !defined(STACK_UP))
-  #error "Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!"
+  #error Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!
 #endif
 %% #if !defined(STACK_register)
 %%   puts("extern gcv_object_t* STACK;");
@@ -10840,7 +10840,7 @@ extern struct object_tab_ {
   /* if you want DYNAMIC_MODULES to work on a non-WIN32_NATIVE platform
      which does not HAVE_DYNLOAD (e.g., via ltdl), you will need to
      implement libopen() and find_name() in spvw.d for your platform */
-  #error "Dynamic modules require dynamic loading!"
+  #error Dynamic modules require dynamic loading!
 #endif
 
 /* Number of external modules: */
@@ -12054,7 +12054,7 @@ extern per_thread gcv_environment_t aktenv;
 /* Bits for Symbols in VAR-Frames:
  bit(active_bit),bit(dynam_bit),bit(svar_bit) must fit into one uintB: */
 #if !((active_bit<intBsize) && (dynam_bit<intBsize) && (svar_bit<intBsize))
-  #error "Symbol bits don't fit in a single byte -- Symbol-Bits passen nicht in ein Byte!"
+  #error Symbol bits don't fit in a single byte -- Symbol-Bits passen nicht in ein Byte!
 #endif
 #ifdef NO_symbolflags
   /* Bits are separatly stored on the Stack as Fixnums. */
@@ -12065,7 +12065,7 @@ extern per_thread gcv_environment_t aktenv;
     /* bit(active_bit),bit(dynam_bit),bit(svar_bit) must be true divisors
      of varobject_alignment: */
     #if (varobject_alignment % bit(active_bit+1)) || (varobject_alignment % bit(dynam_bit+1)) || (varobject_alignment % bit(svar_bit+1))
-      #error "No more room for three bits in a symbol -- Kein Platz fuer drei Bits in der Adresse eines Symbols!"
+      #error No more room for three bits in a symbol -- Kein Platz fuer drei Bits in der Adresse eines Symbols!
     #endif
   #endif
 #endif
@@ -12694,7 +12694,7 @@ extern maygc void init_cclosures (void);
 
 #if defined(USE_JITC)
 #if defined(TYPECODES)
-  #error "USE_JITC requires HEAPCODES"
+  #error USE_JITC requires HEAPCODES
 #endif
 /* GC hooks for JIT code */
 extern void gc_mark_jitc_object (void *ptr);

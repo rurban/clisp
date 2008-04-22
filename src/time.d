@@ -823,7 +823,7 @@ LISPFUNNR(time,0)
   }
   /* Now tm.gcfreed = so far required space at all */
   #if (oint_data_len<24)
-  #error "Fix function SYS::%%TIME!"
+  #error Fix function SYS::%%TIME!
   #endif
   /* decode into 24 bits pieces: */
  #ifdef intQsize

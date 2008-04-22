@@ -12,7 +12,7 @@
 # uintDD,sintDD   integer types for a double-digit
 
 #if !((32%intDsize)==0)
-  #error "intDsize should be a divisor of 32!"
+  #error intDsize should be a divisor of 32!
 #endif
 
 

@@ -259,7 +259,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
         sigsetmask(old_sigblock_mask); \
       }
 #else
-  #error "How does one block a signal?"
+  #error How does one block a signal?
 #endif
 /* deliver a signal some time later: */
 /* extern_C {unsigned|} int alarm ({unsigned|} int seconds); / * ALARM(3V) */
@@ -699,7 +699,7 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
   extern_C clock_t times (struct tms * buffer); /* TIMES(3V) */
   extern_C time_t time (time_t* tloc); /* TIME(3V) */
 #else
-  #error "Cannot access real time with resolution finer than 1 second."
+  #error Cannot access real time with resolution finer than 1 second.
 #endif
 /* used by SPVW, MISC */
 
