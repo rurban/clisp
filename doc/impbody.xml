@@ -5872,10 +5872,10 @@ exhaust the available line length.</para></simplesect>
  Thus changing &terminal-io-var; to a dribble stream affects all
  standard i/o.</para>
 
-<para>On the other hand, when &clisp; acts as a script interpreter,
- it adheres to the &unix; <filename role="unix">stdio.h</filename>
- <link linkend="script-exec">conventions</link>, thus &standard-input-var;,
- &standard-output-var;, and &error-output-var; are normal &file-stream-t;s,
+<para>On the other hand, when &clisp; acts as a script interpreter, it
+ adheres to the &unix; &stdio; <link linkend="script-exec">conventions</link>,
+ thus &standard-input-var;, &standard-output-var;, and
+ &error-output-var; are normal &file-stream-t;s,
  and thus are &not-e; affected by &dribble; (&terminal-io-var; - and
  thus <code>(&print; ... &t;)</code> - &is-e; still affected).
  The &ansi-cl; explicitly permits this behavior by stating
