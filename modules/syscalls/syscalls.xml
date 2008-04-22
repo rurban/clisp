@@ -654,8 +654,7 @@
   <term><code>(OS:FEOF file)</code></term>
   <term><code>(OS:FERROR file)</code></term>
   <term><code>(OS:FILENO file)</code></term>
-  <listitem><simpara>This is the interface
-    to <filename role="unix">stdio.h</filename>.
+  <listitem><simpara>This is the interface to &stdio;.
     Only <function>OS:FOPEN</function> and <function>OS:FDOPEN</function>
     check their return values (and may &sig-err;), all the other
    functions return &integer-t;s as is.</simpara>
