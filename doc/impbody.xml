@@ -3746,8 +3746,8 @@ pointing to non-existent files and can take the following values:
   Arrow keys can be used to move within the input history.
   The &tab-c; key completes the &symbol-t; name or
   &pathname-t; that is being typed.
-  See <ulink url="http://cnswww.cns.cwru.edu/~chet/readline/rluserman.html"
-             >readline user manual</ulink> for general details and
+  See <ulink url="&readline-link;rluserman.html">readline user
+  manual</ulink> for general details and
   <olink targetdoc="man" targetptr="completion"/> for &clisp;-specific
   extensions.</para>
  <warning><simpara>The &readline; library is &not-e; used (even when
