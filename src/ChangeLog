@@ -1,5 +1,9 @@
 2008-04-22  Sam Steingold  <sds@gnu.org>
 
+	* configure: do not try to link po twice
+
+2008-04-22  Sam Steingold  <sds@gnu.org>
+
 	* arilev1.d, hashtabl.d, lisparit.d, lispbibl.d, misc.d:
 	* pathname.d, spvw.d, spvw_garcol.d, spvw_memfile.d, time.d, unix.d:
 	* xthread.d, modules/berkeley-db/bdb.c:
