@@ -1,6 +1,6 @@
 ;;; readline & history interface
-;;; http://cnswww.cns.cwru.edu/~chet/readline/readline.html
-;;; http://cnswww.cns.cwru.edu/~chet/readline/history.html
+;;; http://tiswww.case.edu/php/chet/readline/readline.html
+;;; http://tiswww.case.edu/php/chet/readline/history.html
 ;;;
 ;;; Copyright (C) 2005 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
