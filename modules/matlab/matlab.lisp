@@ -9,8 +9,8 @@
   (:modern t)
   (:use "COMMON-LISP" "FFI")
   (:shadowing-import-from "EXPORTING"
-           #:defconstant #:defun #:defmacro #:defvar
-           #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
+    #:defconstant #:defun #:defmacro #:defvar
+    #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
 
 (in-package "MATLAB")
 

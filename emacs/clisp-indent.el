@@ -154,6 +154,7 @@
 (defindent rotatef (&body))
 (defindent setf (6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6))
 (defindent setq (6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6 8 6))
+(defindent :shadowing-import-from (4 &rest 2))
 (defindent shiftf (&body))
 (defindent space (2))
 (defindent step (2))
