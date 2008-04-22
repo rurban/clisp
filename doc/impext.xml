@@ -4633,11 +4633,9 @@ Now you can sum doubles:
    to a &list-t; of &string-t;s, representing the arguments given to the
    Lisp script (i.e., <envar>$1</envar> in &sh; becomes <code>(&first;
      &args;)</code> etc).</simpara></listitem>
-  <listitem><simpara>The standard &unix; i/o facilities
-    (see <filename role="unix">stdio.h</filename>) are used:
-    &standard-input-var; is bound to &stdin;,
-    &standard-output-var; to &stdout;, and
-    &error-output-var; to &stderr;.
+  <listitem><simpara>The standard &unix; i/o facilities (see &stdio;)
+    are used: &standard-input-var; is bound to &stdin;,
+    &standard-output-var; to &stdout;, and &error-output-var; to &stderr;.
     Note <xref linkend="dribble-script"/>.</simpara></listitem>
   <listitem><simpara>The &cont-err;s will be turned into &warning-t;s
    (using &appease-cerrors;).</simpara></listitem>
