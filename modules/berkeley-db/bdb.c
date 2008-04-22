@@ -8,7 +8,7 @@
 #include "clisp.h"
 
 #ifndef FOREIGN
-# error "Berkeley-DB requires CLISP FOREIGN CPP macro"
+# error Berkeley-DB requires CLISP FOREIGN CPP macro
 #endif
 
 #include "config.h"
@@ -370,7 +370,7 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
 # elif defined(DB_CLIENT)       /* 4.1 and before */
   SYSCALL(db_env_create,(&dbe,remote_p ? DB_CLIENT : 0));
 # else
-#  error "how does your Berkeley DB create a remote client?"
+#  error how does your Berkeley DB create a remote client?
 # endif
   if (remote_p) {
     if (uint_p(STACK_0)) sv_timeout = I_to_uint(STACK_0);
@@ -1265,7 +1265,7 @@ static object check_dbt_object (object obj) {
 # define db_recno_to_I(r)  uint32_to_I(r)
 # define I_to_db_recno(i)  I_to_uint32(check_uint32(i))
 #else
-# error "db_recno_t size if unknown!"
+# error db_recno_t size if unknown!
 #endif
 /* fill a DBT with contents of obj (a byte vector, string, or positive integer)
  dbt_type, when non-NULL, will contain the argument type

@@ -2957,7 +2957,7 @@ LISPFUNN(sxhash,1)
   sx = sx % 0xFFFFFF;
   VALUES1(fixnum(sx));
 #else
- #error "sxhash results do not fit in a fixnum"
+ #error sxhash results do not fit in a fixnum
 #endif
 }
 

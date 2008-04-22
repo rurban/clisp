@@ -2426,7 +2426,7 @@ local uintC directory_namestring_parts (object pathname) {
 #elif defined(PATHNAME_UNIX)
 #define push_slash pushSTACK(O(slash_string))
 #else
-#error "what is the directory separator on your platform?"
+#error what is the directory separator on your platform?
 #endif
     {
       if (!mconsp(directory)) return stringcount; /* no directory */

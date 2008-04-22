@@ -899,7 +899,7 @@ local Handle open_filename (const char* filename)
                GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
                NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
  #else
-  #error "missing open_filename()"
+  #error missing open_filename()
  #endif
 }
 local void loadmem (const char* filename)
@@ -909,7 +909,7 @@ local void loadmem (const char* filename)
 #elif defined(WIN32_NATIVE)
  #define INVALID_HANDLE_P(handle)  (handle == INVALID_HANDLE)
 #else
- #error "missing INVALID_HANDLE_P()"
+ #error missing INVALID_HANDLE_P()
 #endif
   var Handle handle;
   begin_system_call();

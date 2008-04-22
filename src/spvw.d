@@ -2749,7 +2749,7 @@ local inline int init_memory (struct argv_initparams *p) {
       mem.heaps[1].heap_hardlimit = 0x8F000000; /* upper bound of large usable range */
       mem.heaps[0].heap_hardlimit = mem.heaps[1].heap_limit = 0x60000000; /* arbitrary separator address */
        #else
-        #error "Where is room in the memory map to put the heaps?"
+        #error Where is room in the memory map to put the heaps?
        #endif
       #else
        #ifdef TYPECODES
