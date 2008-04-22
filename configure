@@ -600,21 +600,12 @@ if test -n "$do_config"; then
     export CC
   fi
   if test -z "$INPLACE"; then
-    # Create subdirectories for: po
-    # and fill them.
-    # - po: Because the Makefile carefully uses $(srcdir), only
-    #   a few files need to be linked over.
-    for subdir in po; do
-      if [ -d src/$subdir ] ; then
-        maybe_mkdir "${ABS_DIRNAME}/${subdir}";
-      fi
-    done
+    # Create the po subdirectory and fill it
     for f in po; do
       if [ -d src/$f ] ; then
         maybe_mkdir "${ABS_DIRNAME}/${f}";
         ( cd src
-          for g in $f/* ; do maybe_link $g "$ABS_DIRNAME/$g"; done;
-        )
+          for g in $f/* ; do maybe_link $g "$ABS_DIRNAME/$g"; done; )
       fi
     done
     for f in configure config.h.in makemake.in version.h ; do
