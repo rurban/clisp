@@ -104,8 +104,7 @@
 <!ENTITY eff '<ulink url="http://www.eff.org">Electronic Frontier Foundation</ulink>'>
 <!ENTITY gnu '<ulink url="http://www.gnu.org">GNU</ulink>'>
 <!ENTITY sf '<ulink url="http://sourceforge.net">SourceForge</ulink>'>
-<!ENTITY sf-cf '&sf; <ulink url="http://sourceforge.net/docs/compile_farm">CompileFarm</ulink>'>
-<!ENTITY ggettext '&gnu; <ulink url="http://www.gnu.org/software/gettext/gettext.html">gettext</ulink>'>
+<!ENTITY ggettext '&gnu; <ulink url="http://www.gnu.org/software/gettext/">gettext</ulink>'>
 <!ENTITY glibc '&gnu; <ulink url="http://www.gnu.org/software/libc/">libc</ulink>'>
 <!ENTITY libiconv '&gnu; <ulink url="http://www.gnu.org/software/libiconv/">libiconv</ulink>'>
 <!ENTITY libsigsegv '&gnu; <ulink url="http://libsigsegv.sourceforge.net/">libsigsegv</ulink>'>
@@ -146,6 +145,7 @@
 <!ENTITY ascii '<ulink url="http://en.wikipedia.org/wiki/ASCII"><emphasis role="platform">ASCII</emphasis></ulink>'>
 <!ENTITY atari '<ulink url="http://www.atari.org/"><emphasis role="platform">Atari</emphasis></ulink>'>
 <!ENTITY beos '<ulink url="http://www.bebits.com/app/2680"><emphasis role="platform">BeOS</emphasis></ulink>'>
+<!ENTITY bsd '<ulink url="http://www.bsd.org/"><emphasis role="platform">*BSD</emphasis></ulink>'>
 <!ENTITY cygwin '<ulink url="http://cygwin.com/"><emphasis role="platform">Cygwin</emphasis></ulink>'>
 <!ENTITY dos '<ulink url="http://www.freedos.org/"><emphasis role="platform">DOS</emphasis></ulink>'>
 <!ENTITY gnome '<ulink url="http://www.gnome.org/"><emphasis role="platform">Gnome</emphasis></ulink>'>
