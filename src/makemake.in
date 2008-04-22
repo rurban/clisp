@@ -3593,7 +3593,7 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
     echotab "mkdir -p \$(DESTDIR)\$(bindir)"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd po && \$(MAKE) installdirs prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) installdirs DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
     echotab "mkdir -p \$(DESTDIR)\$(datarootdir)"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
@@ -3647,7 +3647,7 @@ if [ $CROSS = false ] ; then
     # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd po && \$(MAKE) install prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) install DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
     echotab "mkdir -p \$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
@@ -3724,7 +3724,7 @@ if [ $CROSS = false ] ; then
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
     fi
     if [ -n "$USE_GETTEXT" ] ; then
-      echotab "cd po && \$(MAKE) uninstall prefix='\$(DESTDIR)\$(prefix)' exec_prefix='\$(DESTDIR)\$(exec_prefix)'"
+      echotab "cd po && \$(MAKE) uninstall DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
     echol
     echol "uninstall-man : force"

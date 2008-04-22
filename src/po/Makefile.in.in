@@ -3,7 +3,7 @@
 # Copyright (C) 1995, 1996, 1997 Free Software Foundation, Inc.
 # Copyright (C) 1996 Marcus Daniels.
 # Copyright (C) 1997 Bruno Haible.
-# Copyright (C) 2007 Sam Steingold
+# Copyright (C) 2007-2008 Sam Steingold
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,9 +78,9 @@ install-data-no: all force
 
 install-data-yes: all force
 	@catalogs='$(CATALOGS)'; \
+	destdir=$(DESTDIR)$(localedir); \
 	for cat in $$catalogs; do \
 	  cat=`basename $$cat`; \
-	  destdir=$(localedir); \
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
@@ -108,7 +108,7 @@ installdirs: force
 	@catalogs='$(CATALOGS)'; \
 	for cat in $$catalogs; do \
 	  cat=`basename $$cat`; \
-	  destdir=$(localedir); \
+	  destdir=$(DESTDIR)$(localedir); \
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
