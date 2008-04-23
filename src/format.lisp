@@ -1086,7 +1086,7 @@
       (princ-to-string arg)
       stream)))
 
-;; preliminary, see fill-out.lisp
+;; preliminary, see fill-out.lisp (defgeneric is not yet available)
 (defun stream-start-s-expression (stream)
   (declare (ignore stream)) *print-right-margin*)
 (defun stream-end-s-expression (stream) (declare (ignore stream)))
