@@ -826,6 +826,8 @@ FFI:*OUTPUT-C-VARIABLES*
 ffi-extern-output
 FFI:*FOREIGN-GUARD*
 ffi-guard
+FFI:FOREIGN-POINTER-INFO
+fptr-info
 FFI:MEMORY-AS
 memory-as
 FFI:C-POINTER
