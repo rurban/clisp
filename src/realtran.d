@@ -661,7 +661,7 @@ local maygc object F_lnx1_F (object x)
   if (R_zerop(x)) /* y=0.0 -> y as result */
     return x;
   pushSTACK(x); pushSTACK(x);
-  STACK_1 = R_1_plus_R(x); /* x := (+ y 1) */
+  STACK_1 = R_R_plus_R(x,Fixnum_1); /* x := (+ y 1) */
   /* Stack layout: x, y. */
   var uintL d = F_float_digits(STACK_0);
   var sintL e = F_exponent_L(STACK_0);
@@ -701,8 +701,6 @@ local maygc object F_lnx1_F (object x)
   skipSTACK(3);
   return F_I_scale_float_F(erg,k); /* because of recursion multiply with 2^k */
 }
-local inline maygc object F_lnx_F (object x)
-{ return F_lnx1_F(R_minus1_plus_R(x)); }
 
 /* ln2_F_float_F(f) returns ln(2) as number in the same float-format as f.
  can trigger GC */
@@ -723,13 +721,38 @@ local maygc object ln2_F_float_F (object f)
     if (f_len == len)
       return ln2;
   }
-  /* wanted > given length -> must recalculate: */
-  {
+  { /* wanted > given length -> must recalculate: */
     var uintC len = lf_len_extend(f_len); /* need some more digits */
-    var object temp = F_lnx_F(I_to_LF(fixnum(2),len,true)); /* (ln 2.0) */
+    var object temp = F_lnx1_F(I_to_LF(Fixnum_1,len,true)); /* (ln 2.0) */
     /* temp = ln(2) is finished. */
     return O(LF_ln2) = LF_shorten_LF(temp,f_len); /* shorten, and store as LF_ln2 */
   }
+}
+
+/* short-float 2/3 */
+#define SF_two_thirds  make_SF(0,0+SF_exp_mid,floor(bit(SF_mant_len+2),3))
+
+/* F_lnx_F computes log(x) for x > 0
+ by scaling close to 1 and then using ln2 and lnx1 above */
+local maygc object F_lnx_F (object x)
+{
+  F_decode_float_F_I_F(x); /* compute m,e,s */
+  /* Stack layout: m, e, s. */
+  if (F_F_comp(STACK_2,SF_two_thirds) < 0) { /* m < 2/3 -> */
+    STACK_2 = F_I_scale_float_F(STACK_2,Fixnum_1); /* double m */
+    STACK_1 = I_minus1_plus_I(STACK_1); /* decrement e */
+  }
+  STACK_2 = F_lnx1_F(R_R_plus_R(STACK_2,Fixnum_minus1)); /* ln(m) in the more accurate float format */
+  if (!eq(STACK_1,Fixnum_0)) {
+    x = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
+    x = R_R_mult_R(STACK_1,x); /* e*ln(2) */
+    x = R_R_plus_R(STACK_2,x); /* ln(m)+e*ln(2) */
+  } else
+    /* Avoid computing 0*ln(2) since it triggers a
+       warn_floating_point_rational_contagion() call. */
+    x = STACK_2;
+  skipSTACK(3);
+  return x;
 }
 
 /* Extends a Long-Float length n, so that from d = intDsize*n
@@ -775,6 +798,7 @@ local maygc object F_extend2_F (object x)
            );
 }
 
+
 /* R_ln1_R(x,&end_precision) returns for a real number x>-1 ln(x+1) as number.
  can trigger GC
  Method:
@@ -787,42 +811,29 @@ local maygc object F_extend2_F (object x)
    ln(m) calculate, ln(x)=ln(m)+e*ln(2) as result. */
 local maygc object R_ln1_R (object x, gcv_object_t* end_p)
 {
-  if (R_zerop(x)) return Fixnum_0; /* x=1 -> return 0 */
+  if (eq(x,Fixnum_0)) return Fixnum_0; /* x=1 => return 0 */
   if (R_rationalp(x))
     x = RA_float_F(x); /* convert to float */
   /* x -- float */
   x = F_extend2_F(x); /* increase computational precision */
-  var sintL e = F_exponent_L(x);
-  if (e < 0) {                  /* |x|<1/2 */
-    x = F_lnx1_F(x);
-    if (end_p != NULL) /* (float ... x) */
-      x = F_R_float_F(x,*end_p);
-    return x;
-  }
-  F_decode_float_F_I_F(R_1_plus_R(x)); /* compute m,e,s */
-  /* Stack layout: m, e, s. */
-  if (F_F_comp(STACK_2,
-               make_SF(0,0+SF_exp_mid,floor(bit(SF_mant_len+2),3))) /* short-float 2/3 */
-      < 0) { /* m < 2/3 -> */
-    STACK_2 = F_I_scale_float_F(STACK_2,Fixnum_1); /* double m */
-    STACK_1 = I_minus1_plus_I(STACK_1); /* decrement e */
-  }
-  STACK_2 = F_lnx_F(STACK_2); /* ln(m) in the more accurate float format */
-  if (!eq(STACK_1,Fixnum_0)) {
-    x = ln2_F_float_F(STACK_0); /* ln(2) in that float format */
-    x = R_R_mult_R(STACK_1,x); /* e*ln(2) */
-    x = R_R_plus_R(STACK_2,x); /* ln(m)+e*ln(2) */
-  } else
-    /* Avoid computing 0*ln(2) since it triggers a
-       warn_floating_point_rational_contagion() call. */
-    x = STACK_2;
+  x = F_exponent_L(x) < 0 /* |x|<1/2 */
+    ? F_lnx1_F(x) : F_lnx_F(R_R_plus_R(x,Fixnum_1));
   if (end_p != NULL) /* (float ... x) */
     x = F_R_float_F(x,*end_p);
-  skipSTACK(3);
   return x;
 }
 local inline maygc object R_ln_R (object x, gcv_object_t* end_p)
-{ return R_ln1_R(R_minus1_plus_R(x),end_p); }
+{
+  if (eq(x,Fixnum_1)) return Fixnum_0; /* x=1 => return 0 */
+  if (R_rationalp(x))
+    x = RA_float_F(x); /* convert to float */
+  /* x -- float */
+  x = F_extend2_F(x); /* increase computational precision */
+  x = F_lnx_F(x);
+  if (end_p != NULL) /* (float ... x) */
+    x = F_R_float_F(x,*end_p);
+  return x;
+}
 #define F_ln_F  R_ln_R
 
 /* I_I_log_RA(a,b) returns for Integers a>0, b>1 the logarithm log(a,b)
