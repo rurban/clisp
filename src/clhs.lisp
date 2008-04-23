@@ -334,7 +334,11 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (let ((pack (symbol-package obj)))
     ;; do not search impnotes for user symbols
     (when (and pack
-               (member (package-name pack) *system-package-list* :test #'equal)
+               (or (eq pack #,(find-package "CUSTOM"))
+                   ;; CUSTOM is not in *SYSTEM-PACKAGE-LIST*
+                   ;; because it must not be locked
+                   (member (package-name pack) *system-package-list*
+                           :test #'equal))
                (ensure-impnotes-map))
       (let ((doc (call-next-method)))
         (if doc
