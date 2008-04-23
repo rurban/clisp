@@ -4,7 +4,7 @@
 
 <para>The &regexp-pac; module implements the
  <ulink url="regexp.html">POSIX regular expressions</ulink>
-by calling the standard &c-lang; system facilities.
+matching by calling the standard &c-lang; system facilities.
 The syntax of these &reg-exp;s is described in many places,
 such as your local <filename role="unix">regex.h</filename> manual
 and &emacs; info pages.</para>
@@ -112,7 +112,7 @@ and &emacs; info pages.</para>
 </simpara></listitem></varlistentry>
 
 <varlistentry id="re-eflags"><term>&re-eflags-opts;</term>
- <listitem><simpara>These options constrol execution of a pattern.
+ <listitem><simpara>These options control execution of a pattern.
    See <filename role="unix">regex.h</filename> for their meaning.
 </simpara></listitem></varlistentry>
 
