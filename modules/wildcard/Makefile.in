@@ -13,7 +13,7 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml wildcard.dvi
+DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml
 distribdir =
 
 all : wildcard.o wildcard.fas
@@ -33,10 +33,8 @@ clisp-module-distrib : clisp-module force
 
 clean : force
 	rm -f core *.o *.a
-	rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
 
 distclean : clean
-	rm -f *.dvi
 
 force :
 
