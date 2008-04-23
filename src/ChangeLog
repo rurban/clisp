@@ -1,5 +1,10 @@
 2008-04-23  Sam Steingold  <sds@gnu.org>
 
+	* fill-out.lisp (stream-start-s-expression@t): return
+	*PRINT-RIGHT-MARGIN*, just like in format.lisp
+
+2008-04-23  Sam Steingold  <sds@gnu.org>
+
 	* spvw_language.d (clisp_gettext): the common part of ...
 	(clgettext, clgettextl): use it
 
