@@ -220,7 +220,7 @@ clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
 	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo
 
-count: $(IMPNOTES)
+count: $(IMPNOTES) $(CHECK_DEPS)
 	wc $^
 
 DTD_DOWNLOAD=http://www.docbook.org/xml/$(DTDVER)/docbook-xml-$(DTDVER).zip
@@ -235,6 +235,6 @@ docbook-xsl :
 SEARCH=
 search: force
 	@if test -z "$(SEARCH)"; then echo "usage: make search SEARCH=string"; \
-	else grep -n '$(SEARCH)' $(IMPNOTES); fi
+	else grep -n '$(SEARCH)' $(IMPNOTES) $(CHECK_DEPS); fi
 
 force:
