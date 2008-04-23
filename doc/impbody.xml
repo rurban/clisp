@@ -230,7 +230,7 @@
 
 
 <chapter id="eval"><title>Evaluation and Compilation
-   <ulink role="clhs" url="chap-3"/></title>
+  <ulink role="clhs" url="chap-3"/></title>
 
 <para>All the functions built by &function;, &compile; and the like are
  atoms.  There are built-in functions written in &c-lang;, compiled
@@ -616,7 +616,7 @@ executes a compiled version of &form-r;.</para>
 </section>
 
 <section id="lalist"><title>Lambda Lists
-   <ulink role="clhs" url="sec_3-4"/></title>
+  <ulink role="clhs" url="sec_3-4"/></title>
 
 <section id="boa-lalist"><title>Boa Lambda Lists
   <ulink role="clhs" url="sec_3-4-6"/></title>
@@ -631,10 +631,9 @@ executes a compiled version of &form-r;.</para>
 
 
 <chapter id="types-classes"><title>Types and Classes
-   <ulink role="clhs" url="chap-4"/></title>
+  <ulink role="clhs" url="chap-4"/></title>
 
-<section id="types"><title>Types
-  <ulink role="clhs" url="sec_4-2"/></title>
+<section id="types"><title>Types <ulink role="clhs" url="sec_4-2"/></title>
 
 <section id="type-spec"><title>Type Specifiers
   <ulink role="clhs" url="sec_4-2-3"/></title>
@@ -1057,8 +1056,7 @@ When &loop-ansi; is non-&nil;, an &err-sig;.</para></section>
 the iteration variable and assign it on each iteration.</para></section>
 </chapter>
 
-<chapter id="objects"><title>Objects
-   <ulink role="clhs" url="chap-7"/></title>
+<chapter id="objects"><title>Objects <ulink role="clhs" url="chap-7"/></title>
 
 <section id="std-meth-combo"><title>Standard Method Combination
   <ulink role="clhs" url="sec_7-6-6-2"/></title>
@@ -1098,7 +1096,7 @@ the iteration variable and assign it on each iteration.</para></section>
 </chapter>
 
 <chapter id="structures"><title>Structures
-   <ulink role="clhs" url="chap-8"/></title>
+  <ulink role="clhs" url="chap-8"/></title>
 
 <section id="defstruct-options"><title>The options for &defstruct;.</title>
 
@@ -1194,14 +1192,14 @@ the iteration variable and assign it on each iteration.</para></section>
 
 
 <chapter id="conditions"><title>Conditions
-   <ulink role="clhs" url="chap-9"/></title>
+  <ulink role="clhs" url="chap-9"/></title>
 
 <para>When an error occurred, you are in a break loop. You can evaluate
  forms as usual. The &help; command (or help key if there is one) lists
  the available <link linkend="debugger">debugging commands</link>.</para>
 
 <section id="cond-nl"><title>Embedded Newlines in Condition Reports
-   <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
+  <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
 
 <para>The error message prefix for the first line is <quote>*** - </quote>.
  All subsequent lines are indented by 6 characters.
@@ -1211,7 +1209,7 @@ the iteration variable and assign it on each iteration.</para></section>
 </section>
 
 <section id="restarts"><title>Interfaces to Restarts
-   <ulink role="clhs" url="sec_9-1-4-2-2"/></title>
+  <ulink role="clhs" url="sec_9-1-4-2-2"/></title>
 
 <formalpara id="restart-case"><title>Macro &restart-case;</title>
  <para>In <code>(&restart-case; &form-r; {&restart-clause-r;}*)</code>,
@@ -1300,13 +1298,12 @@ the iteration variable and assign it on each iteration.</para></section>
 </chapter>
 
 
-<chapter id="symbols"><title>Symbols
-   <ulink role="clhs" url="chap-10"/></title>
+<chapter id="symbols"><title>Symbols <ulink role="clhs" url="chap-10"/></title>
 <para>No notes.</para>
 </chapter>
 
 <chapter id="packages"><title>Packages
-   <ulink role="clhs" url="chap-11"/></title>
+  <ulink role="clhs" url="chap-11"/></title>
 
 <variablelist><title>The &ansi-cl; packages present in &clisp;</title>
  <varlistentry><term>&cl-pac;</term>
@@ -1483,7 +1480,7 @@ performance considerations.
 </section>
 
 <section id="imppack"><title>Implementation-Defined Packages
-   <ulink role="clhs" url="sec_11-1-2-4"/></title>
+  <ulink role="clhs" url="sec_11-1-2-4"/></title>
 
 <para>The following additional packages exist:</para>
 <variablelist><title>Implementation-Defined Packages</title>
@@ -1691,8 +1688,7 @@ can give problems:
 
 </chapter>
 
-<chapter id="numbers"><title>Numbers
-   <ulink role="clhs" url="chap-12"/></title>
+<chapter id="numbers"><title>Numbers <ulink role="clhs" url="chap-12"/></title>
 
 <section id="num-types"><title>Numeric Types</title>
 
@@ -1889,7 +1885,7 @@ can give problems:
 </section>
 
 <section id="float-subst"><title>Rule of Float Substitutability
-   <ulink role="clhs" url="sec_12-1-3-3"/></title>
+  <ulink role="clhs" url="sec_12-1-3-3"/></title>
 
 <para>When a mathematical function may return an exact (&rational-t;) or
  inexact (&float-t;) result, it always returns the exact result.</para>
@@ -1897,7 +1893,7 @@ can give problems:
 </section>
 
 <section id="float-comp"><title>Floating-point Computations
-   <ulink role="clhs" url="sec_12-1-4"/></title>
+  <ulink role="clhs" url="sec_12-1-4"/></title>
 
 <para>There are four floating point types: &short-float-t;,
  &single-float-t;, &double-float-t; and &long-float-t;:
@@ -1947,7 +1943,7 @@ can give problems:
 
 
 <section id="flocont"><title>Rule of Float Precision Contagion
-   <ulink role="clhs" url="sec_12-1-4-4"/></title>
+  <ulink role="clhs" url="sec_12-1-4-4"/></title>
 
 <para>The floating point contagion is controlled by the variable
  &flocont;.  When it is non-&nil;, contagion is done as per the
@@ -2049,7 +2045,7 @@ can give problems:
 </section>
 
 <section id="floratcont"><title>Rule of Float and Rational Contagion
-   <ulink role="clhs" url="sec_12-1-4-1"/></title>
+  <ulink role="clhs" url="sec_12-1-4-1"/></title>
 
 <para>The contagion between floating point and rational numbers is controlled
  by the variable &floratcont;.  When it is non-&nil;, contagion is done as per
@@ -2089,7 +2085,7 @@ can give problems:
 </section>
 
 <section id="complex-comp"><title>Complex Computations
-   <ulink role="clhs" url="sec_12-1-5"/></title>
+  <ulink role="clhs" url="sec_12-1-5"/></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types. For example, <code>(&sqrt; -9.0)</code> evaluates to
@@ -2109,9 +2105,8 @@ can give problems:
 
 </section>
 
-<section id="complex-rational"><title>Rule of
-   Canonical Representation for Complex Rationals
-   <ulink role="clhs" url="sec_12-1-5-3"/></title>
+<section id="complex-rational"><title>Rule of Canonical Representation
+  for Complex Rationals <ulink role="clhs" url="sec_12-1-5-3"/></title>
 
 <para>Complex numbers can have a real part and an imaginary part of
  different types.  If the imaginary part is &eql; to &zero;,
@@ -2145,7 +2140,7 @@ can give problems:
 </chapter>
 
 <chapter id="characters"><title>Characters
-   <ulink role="clhs" url="chap-13"/></title>
+  <ulink role="clhs" url="chap-13"/></title>
 
 <section id="char-intro"><title>Introduction to Characters
   <ulink role="clhs" url="sec_13-1"/></title>
@@ -2398,7 +2393,7 @@ can give problems:
 </section>
 
 <section id="char-script"><title>Character Scripts
-   <ulink role="clhs" url="sec_13-1-2-1"/></title>
+  <ulink role="clhs" url="sec_13-1-2-1"/></title>
 
 <para>The only defined character script is the type &character-t;
  itself.</para>
@@ -2406,7 +2401,7 @@ can give problems:
 </section>
 
 <section id="char-attrib"><title>Character Attributes
-   <ulink role="clhs" url="sec_13-1-3"/></title>
+  <ulink role="clhs" url="sec_13-1-3"/></title>
 
 <para>Characters have no implementation-defined or &cltl1; font and bit
  attributes.  All characters are simple characters.</para>
@@ -2476,7 +2471,7 @@ can give problems:
 </section>
 
 <section id="graph-char"><title>Graphic Characters
-   <ulink role="clhs" url="sec_13-1-4-1"/></title>
+  <ulink role="clhs" url="sec_13-1-4-1"/></title>
 
 <para>The &graphic; characters are those &unicode; characters which are
  defined by the &unicode; standard, excluding the ranges
@@ -2486,7 +2481,7 @@ can give problems:
 </section>
 
 <section id="alpha-char"><title>Alphabetic Characters
-   <ulink role="clhs" url="sec_13-1-4-2"/></title>
+  <ulink role="clhs" url="sec_13-1-4-2"/></title>
 
 <para>The alphabetic characters are those &unicode; characters which are
  defined as letters by the &unicode; standard, e.g., the &ascii; characters
@@ -2498,7 +2493,7 @@ etc.</para>
 </section>
 
 <section id="char-case"><title>Characters With Case
-   <ulink role="clhs" url="sec_13-1-4-3"/></title>
+  <ulink role="clhs" url="sec_13-1-4-3"/></title>
 
 <section id="char-invertcase"><title>Function &char-invertcase;</title>
 <para><code>(&char-invertcase; &ch-r;)</code> returns the corresponding
@@ -2530,7 +2525,7 @@ etc.</para>
 </section>
 
 <section id="num-char"><title>Numeric Characters
-   <ulink role="clhs" url="sec_13-1-4-4"/></title>
+  <ulink role="clhs" url="sec_13-1-4-4"/></title>
 
 <para>The numeric characters are those &unicode; characters which are
  defined as digits by the &unicode; standard.</para>
@@ -2538,7 +2533,7 @@ etc.</para>
 </section>
 
 <section id="char-ord"><title>Ordering of Characters
-   <ulink role="clhs" url="sec_13-1-6"/></title>
+  <ulink role="clhs" url="sec_13-1-6"/></title>
 
 <para>The characters are ordered according to their &unicode; code.</para>
 
@@ -2549,7 +2544,7 @@ etc.</para>
 </section>
 
 <section id="clhs-newline"><title>Treatment of Newline during Input and Output
-   <ulink role="clhs" url="sec_13-1-8"/></title>
+  <ulink role="clhs" url="sec_13-1-8"/></title>
 
 <para>Newlines are written according to the stream's &encoding;, see the
  function &stream-external-format; and the description of &encoding;s,
@@ -2608,7 +2603,7 @@ etc.</para>
 </section>
 
 <section id="char-int"><title>Character Encodings
-   <ulink role="clhs" url="sec_13-1-9"/></title>
+  <ulink role="clhs" url="sec_13-1-9"/></title>
 
 <para>The integer returned by &char-int; is the same as the character's
  code (&char-code;).</para>
@@ -2792,8 +2787,7 @@ etc.</para>
 </chapter>
 
 
-<chapter id="arrays"><title>Arrays
-   <ulink role="clhs" url="chap-15"/></title>
+<chapter id="arrays"><title>Arrays <ulink role="clhs" url="chap-15"/></title>
 
 <formalpara><title>Function &make-array;</title>
 <para>&make-array; can return specialized arrays for the &array-element-type;s
@@ -2809,7 +2803,7 @@ etc.</para>
  called!</para></formalpara>
 
 <section id="array-elts"><title>Array Elements
-   <ulink role="clhs" url="sec_15-1-1"/></title>
+  <ulink role="clhs" url="sec_15-1-1"/></title>
 
 <table id="array-limit-table" frame="all"><title>Array limits</title>
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&cpu-type-header;<tbody>
@@ -2933,8 +2927,7 @@ etc.</para>
 </chapter>
 
 
-<chapter id="hash"><title>Hash Tables
-   <ulink role="clhs" url="chap-18"/></title>
+<chapter id="hash"><title>Hash Tables <ulink role="clhs" url="chap-18"/></title>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
@@ -3139,7 +3132,7 @@ checks whether the &hash-table-t; is weak.</para>
 </chapter>
 
 <chapter id="filenames"><title>Filenames
-   <ulink role="clhs" url="chap-19"/></title>
+  <ulink role="clhs" url="chap-19"/></title>
 
 <para>For most operations, pathnames denoting files and pathnames
  denoting directories cannot be used interchangeably.</para>
@@ -3211,7 +3204,7 @@ checks whether the &hash-table-t; is weak.</para>
  operating systems.</para>
 
 <section id="path-components"><title>Pathname Components
-   <ulink role="clhs" url="sec_19-2-1"/></title>
+  <ulink role="clhs" url="sec_19-2-1"/></title>
 
 <para>When a pathname is to be fully specified (no wildcards), that
  means that no &wild-k;, &wild-inferiors-k; is allowed, no wildcard
@@ -3568,8 +3561,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 </chapter>
 
 
-<chapter id="files"><title>Files
-   <ulink role="clhs" url="chap-20"/></title>
+<chapter id="files"><title>Files <ulink role="clhs" url="chap-20"/></title>
 
 <simplesect id="dir-is-not-file"><title>Directory is not a file</title>
 <para>&clisp; has traditionally taken the view that a directory is a
@@ -3722,8 +3714,7 @@ pointing to non-existent files and can take the following values:
 </chapter>
 
 
-<chapter id="streams"><title>Streams
-   <ulink role="clhs" url="chap-21"/></title>
+<chapter id="streams"><title>Streams <ulink role="clhs" url="chap-21"/></title>
 
 <section id="streams-interactive"><title>Interactive Streams
  <ulink role="clhs" url="sec_21-1-1-1-3"/></title>
@@ -4609,11 +4600,10 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </chapter>
 
 
-<chapter id="printer"><title>Printer
-   <ulink role="clhs" url="chap-22"/></title>
+<chapter id="printer"><title>Printer <ulink role="clhs" url="chap-22"/></title>
 
 <section id="multi-rep"><title>Multiple Possible Textual Representations
-   <ulink role="clhs" url="sec_22-1-1-1"/></title>
+  <ulink role="clhs" url="sec_22-1-1-1"/></title>
 
 <formalpara id="pr-closure"><title>Variable &pr-closure;</title>
 <para>An additional variable &pr-closure; controls whether compiled and
@@ -4689,7 +4679,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 
 <section id="print-vector"><title>Printing Other Vectors
-   <ulink role="clhs" url="sec_22-1-3-7"/></title>
+  <ulink role="clhs" url="sec_22-1-3-7"/></title>
 
 <para>When &print-readably-var; is true, other vectors are written as
  follows: if the &array-element-type; is &t-t;, the syntax
@@ -4863,8 +4853,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 </section>
 </chapter>
 
-<chapter id="reader"><title>Reader
-   <ulink role="clhs" url="chap-23"/></title>
+<chapter id="reader"><title>Reader <ulink role="clhs" url="chap-23"/></title>
 
 <section id="rt-case"><title>Effect of Readtable Case on the Lisp Reader
   <ulink role="clhs" url="sec_23-1-2"/></title>
@@ -4890,7 +4879,7 @@ warning, you need to fix the source code of the incriminated method.</para>
 
 
 <chapter id="system"><title>System Construction
-   <ulink role="clhs" url="chap-24"/></title>
+  <ulink role="clhs" url="chap-24"/></title>
 
 <para>The compiler can be called not only by the functions &compile;,
  &compile-file; and &disassemble;, but also by the declaration
@@ -5226,7 +5215,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 
 
 <chapter id="environment"><title>Environment
-   <ulink role="clhs" url="chap-25"/></title>
+  <ulink role="clhs" url="chap-25"/></title>
 
 <section id="repl"><title>Top Level Loop
   <ulink role="clhs" url="sec_25-1-1"/></title>
@@ -5445,7 +5434,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 </section>
 
 <section id="debugger"><title>Debugging Utilities
-   <ulink role="clhs" url="sec_25-1-2"/></title>
+  <ulink role="clhs" url="sec_25-1-2"/></title>
 
 <!-- #ifdef HAVE_DISASSEMBLER -->
 <section id="disassemble"><title>Function &disassemble;</title>
