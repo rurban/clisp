@@ -1,3 +1,13 @@
+2008-04-23  Sam Steingold  <sds@gnu.org>
+
+	followup to the 2008-04-08 patch which broke log for very small numbers
+	* comptran.d (N_log_abs_R): avoid the log(1 + (x^2 + y^2 - 1))
+	trick for small numbers
+	* realtran.d (ln2_F_float_F): use F_lnx1_F instead of F_lnx_F
+	(F_lnx_F): move most of the calculation from R_ln1_R here
+	(R_ln1_R): use either F_lnx1_F (small arg) or F_lnx_F (others)
+	(R_ln_R): do not call R_ln1_R, call F_lnx_F directly
+
 2008-04-22  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (installdirs, install-bin, uninstall): pass DESTDIR
@@ -529,7 +539,7 @@
 	* eval.d (FUNTAB): add check_function_name, typep_class,
 	defined_class_p, proper_list_p, pcompiled_function_p, make_macro,
 	macrop, macro_expander, symbol_macro_p, standard_instance_access,
-	set_standard_instance_access, encodingp;
+	set_standard_instance_access, encodingp
 	(FUNTABR): add mapcap
 	* constobj.d (version): bump
 
@@ -661,7 +671,7 @@
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
-	Fix [ 1836142 ] part 2.
+	fix bug #[ 1836142 ] part 2.
 	* lispbibl.d (STACK_register, mv_count_register, value1_register)
 	(back_trace_register): Don't define for gcc-4.2 and newer when
 	USE_GCC_REGISTER_VARIABLES is not defined.
@@ -673,7 +683,7 @@
 
 2008-02-23  Bruno Haible  <bruno@clisp.org>
 
-	Fix [ 1836142 ] part 1.
+	fix bug #[ 1836142 ] part 1.
 	* floatparam.c (check): Change argument types to 'volatile type*'.
 	This defeats optimizations of gcc 4.3.0 snapshots.
 
