@@ -1,5 +1,10 @@
 2008-04-23  Sam Steingold  <sds@gnu.org>
 
+	* spvw_language.d (clisp_gettext): the common part of ...
+	(clgettext, clgettextl): use it
+
+2008-04-23  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (documentation@symbol@impnotes): look into impnotes
 	for CUSTOM symbols too, so that (documentation 'impnotes-root
 	'sys::impnotes) works
