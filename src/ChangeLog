@@ -1,5 +1,11 @@
 2008-04-23  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (documentation@symbol@impnotes): look into impnotes
+	for CUSTOM symbols too, so that (documentation 'impnotes-root
+	'sys::impnotes) works
+
+2008-04-23  Sam Steingold  <sds@gnu.org>
+
 	followup to the 2008-04-08 patch which broke log for very small numbers
 	* comptran.d (N_log_abs_R): avoid the log(1 + (x^2 + y^2 - 1))
 	trick for small numbers
