@@ -71,7 +71,7 @@ eq
 CL:SYMBOL-FUNCTION
 sym-fun
 CL:SETF
-setf
+extra-places
 CL:FUNCTION
 func
 CL:DEFINE-SYMBOL-MACRO
@@ -79,7 +79,9 @@ def-sym-mac
 EXT:SYMBOL-MACRO-EXPAND
 symbol-mex
 CL:LAMBDA
-lambda
+funforms
+CL:LAMBDA-LIST-KEYWORDS
+funforms
 CL:DEFUN
 defun
 CL:DEFMACRO
@@ -277,7 +279,11 @@ maplap
 CL:MAKE-ARRAY
 arrays
 CL:ADJUST-ARRAY
-array-dict
+arrays
+CL:ARRAY-DIMENSION-LIMIT
+array-limit-table
+CL:ARRAY-TOTAL-SIZE-LIMIT
+array-limit-table
 EXT:STRING-WIDTH
 string-width
 EXT:STRING-INVERTCASE
