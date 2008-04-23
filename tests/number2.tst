@@ -538,3 +538,13 @@ NIL
 (coerce 1 '(double-float 0d0)) 1d0
 (coerce 1 '(double-float * *)) 1d0
 (coerce 1 '(double-float * -1d0)) ERROR
+
+(+ (log most-positive-short-float) (log least-positive-short-float))
+1.38574s0
+(+ (log most-positive-single-float) (log least-positive-single-float))
+1.3862915f0
+(+ (log most-positive-double-float) (log least-positive-double-float))
+1.3862943611198943d0
+(+ (log most-positive-long-float) (log least-positive-long-float))
+-0.69314718060195446014L0
+(mapcar #'log '(1.0s0 1.0 1.0d0 1.0L0)) (0.0s0 0.0 0.0d0 0.0L0)
