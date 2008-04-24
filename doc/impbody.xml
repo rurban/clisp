@@ -3078,39 +3078,42 @@ checks whether the &hash-table-t; is weak.</para>
 
 <para>You can define a new hash table test using the macro
  &defhash;: <code>(&defhash; test-name &test-f; &hash-f;)</code>, after
- which <replaceable>test-name</replaceable> can be passed as the
- &test-k; argument to &make-hash-table;.
+ which &name-r; can be passed as the &test-k; argument to &make-hash-table;.
  E.g.: <programlisting language="lisp">(&defhash; string &string-eq; &sxhash;)
- (&make-hash-table; :test 'string)</programlisting>
+<computeroutput>STRING</computeroutput>
+(&make-hash-table; :test 'string)
+<computeroutput>#S(HASH-TABLE :TEST (#&lt;SYSTEM-FUNCTION STRING=&gt; . #&lt;SYSTEM-FUNCTION SXHASH&gt;))</computeroutput></programlisting>
 (which is not too useful because it is equivalent to an &equal;
 &hash-table-t; but less efficient).</para>
 
 <para>The fundamental requirement is that the &test-f; and &hash-f; are
  consistent: <programlisting language="lisp">
 (&funcall; &test-f; &x-r; &y-r;) &rArr;
-(&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))
- </programlisting>
+(&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))</programlisting>
  This means that the following definition: <programlisting language="lisp">
-(&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation>
- </programlisting>
- is &not-e; correct because <code>(&areq; 1 1d0)</code> is
- &t; but <code>(&areq; (&sxhash; 1) (&sxhash; 1d0))</code>
- is &nil;.  The correct way is, e.g.: <programlisting language="lisp">
-(&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))
- </programlisting>
- (note that <code>(&coerce; &x-r; &short-float-t;)</code> does &not-e;
- cons up &fresh; objects while <code>(&coerce; &x-r;
- &double-float-t;)</code> does).</para>
+(&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation></programlisting>
+ is &not-e; correct because <programlisting language="lisp">
+(&areq; 1 1d0)
+<computeroutput>&t;</computeroutput>   <lineannotation>; same object!</lineannotation>
+(&areq; (&sxhash; 1) (&sxhash; 1d0))
+<computeroutput>&nil;</computeroutput> <lineannotation>; different buckets!</lineannotation></programlisting>
+ The correct way is, e.g.: <programlisting language="lisp">
+(&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))</programlisting></para>
+<note><simpara>Note that &coerce;ing to a &short-float-t; does &not-e; cons up
+  &fresh; objects while &coerce;ing to a &double-float-t; does.</simpara></note>
 
 </section>
 
 <section id="ht-test"><title>Function &hash-table-test;</title>
-<para>Function &hash-table-test; returns either one of &fasthash-eq;,
- &stablehash-eq;, <constant>EXT:FASTHASH-EQL</constant>,
- <constant>EXT:STABLEHASH-EQL</constant>,
- <constant>EXT:FASTHASH-EQUAL</constant>,
- <constant>EXT:STABLEHASH-EQUAL</constant>, &equalp; (but not &eq;, &eql;
- nor &equal; anymore), or, for &hash-table-t;s
+<para>Function &hash-table-test; returns either one of
+ <simplelist columns="2"><member>&fasthash-eq;</member>
+  <member>&stablehash-eq;</member>
+  <member><constant>EXT:FASTHASH-EQL</constant></member>
+  <member><constant>EXT:STABLEHASH-EQL</constant></member>
+  <member><constant>EXT:FASTHASH-EQUAL</constant></member>
+  <member><constant>EXT:STABLEHASH-EQUAL</constant></member>
+  <member>&equalp;</member></simplelist>
+ (but &not-e; &eq;, &eql; nor &equal; anymore), or, for &hash-table-t;s
  created with a user-defined &hash-table-test; (see macro &defhash;),
  a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.
 </para></section>
@@ -3533,9 +3536,9 @@ is not a defined logical host yet, we proceed as follows:
   and the result is passed to <code>(&setf;
   &logical-pathname-translations;)</code>.</simpara></listitem>
  <listitem><simpara>Variable &load-lpt-db; is consulted.
-  Its value should be a list of files and/or directories,
+  Its value should be a &list-t; of files and/or directories,
   which are searched for in the &load-paths;, just like for &load-my;.
-  When the element is a file, it is &read; from,
+  When the element is a file, it is repeatedly &read; from,
   <ulink url="http://www.franz.com/support/documentation/6.0/doc/pathnames.htm#load-logical-pathname-translations-2">Allegro CL-style</ulink>,
   odd objects being host names and even object being their
   &logical-pathname-translations;.
@@ -3563,9 +3566,9 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 
 <chapter id="files"><title>Files <ulink role="clhs" url="chap-20"/></title>
 
-<simplesect id="dir-is-not-file"><title>Directory is not a file</title>
+<simplesect id="dir-is-not-file"><title>Directory is &not-e; a file</title>
 <para>&clisp; has traditionally taken the view that a directory is a
- separate object and not a special kind of file, so whenever the
+ separate object and &not-e; a special kind of file, so whenever the
  standard says that a function operates on <emphasis>files</emphasis>
  without specifically mentioning that it also works on
  <emphasis>directories</emphasis>, &clisp; &sig-err; when passed a
@@ -4378,6 +4381,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
   buf)
 </programlisting></para>
 </section>
+</section>
 
 <section id="make-stream"><title>Function &make-stream;</title>
 <para>Function &make-stream; creates a Lisp stream out of an OS &file-des;:
@@ -4420,7 +4424,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 <variablelist>
  <varlistentry><term>&win32-only;</term>
 <listitem><simpara>When a &nl-s; is output to (respectively input from)
-  a file stream, its file position is increased by 2 since &nl-s; is
+  a &file-stream-t;, its file position is increased by 2 since &nl-s; is
   encoded as &cr-c;/&lf-c; in the file.
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
@@ -4596,7 +4600,6 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </para></formalpara>
 </section>
 
-</section>
 </chapter>
 
 
@@ -5086,7 +5089,7 @@ receives a corresponding keyword argument (&verbose-k;, &print-k;,
 are recursive, just like the arguments &warnings-k;, &verbose-k;, and
 &print-k; for &compile-file-my;.</para>
 
-<para>When evaluation of a read form &sig-err;, two &restart-t;-s are
+<para>When evaluation of a read form &sig-err;, two &restart-t;s are
  available:<variablelist><varlistentry><term><literal>SKIP</literal></term>
    <listitem><simpara>Skip this form and read the next one.
   </simpara></listitem></varlistentry>
