@@ -244,7 +244,7 @@ global void init_language (const char* argv_language,
 
   #ifdef GNU_GETTEXT
 
-local const char * clisp_gettext (const char * catalog, const char * msgid) {
+local const char * clisp_gettext (const char * domain, const char * msgid) {
   var const char * translated_msg;
   if (msgid[0] == '\0') {
     /* If you ask gettext to translate the empty string, it returns
@@ -252,7 +252,7 @@ local const char * clisp_gettext (const char * catalog, const char * msgid) {
     translated_msg = msgid;
   } else {
     begin_system_call();
-    translated_msg = dgettext(catalog,msgid);
+    translated_msg = dgettext(domain,msgid);
     end_system_call();
   }
   return translated_msg;
@@ -266,7 +266,7 @@ global const char * clgettext (const char * msgid)
 /* Low-level messages, which are output through fprintf(3), are
    stored in a separate catalog and returned in locale encoding. */
 global const char * clgettextl (const char * msgid)
-{ return clisp_gettext("clisplow", msgid);  }
+{ return clisp_gettext("clisplow", msgid); }
 
   #endif
 
