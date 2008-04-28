@@ -161,8 +161,7 @@ space.</para>
   the &full; &linkset; cannot be used with the &base; runtime:<screen>
 &sh-prompt; clisp -K full -x '(&savemem;)'
 &sh-prompt; clisp -K base -M lispinit.mem
-base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime
-</screen></para></warning>
+base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen></para></warning>
 
 </section>
 
@@ -1883,8 +1882,8 @@ additionally binds &cont-r; to the content length.</para>
                     (macrolet ((baz (x) `(bar ,x)))
                       (symbol-macrolet ((z 3))
                         (baz z)))))
-<computeroutput>(locally (print 3))</computeroutput> ; the expansion
-<computeroutput>&t;</computeroutput>                   ; indicator: some expansion has actually been done
+<computeroutput>(locally (print 3))</computeroutput> <lineannotation>the expansion</lineannotation>
+<computeroutput>&t;</computeroutput> <lineannotation>indicator: some expansion has actually been done</lineannotation>
 </programlisting></para>
 
 <para>This is sometimes called a <quote>code walker</quote>,
@@ -2145,20 +2144,19 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <simplesect id="mod-create"><title>Creating &linkset;s</title>
 <para>The command <screen>
-&sh-prompt; &clisp-link; create-module-set &mod-r; <replaceable>file1.c</replaceable> ...
-</screen> creates a &modset; in &mod-r; directory which refers
+&sh-prompt; &clisp-link; create-module-set &mod-r; <replaceable>file1.c</replaceable> ...</screen> creates a &modset; in &mod-r; directory which refers
  (via symbolic links) to <replaceable>file1.c</replaceable> etc.
  The files are expected to be modules of their own.</para>
 
 <para>The command <screen>
-&sh-prompt; &clisp-link; add-module-set &mod-r; &source-r; &dest-r;
-</screen> combines a &linkset; in directory &source-r; and a
+&sh-prompt; &clisp-link; add-module-set &mod-r; &source-r; &dest-r;</screen>
+ combines a &linkset; in directory &source-r; and a
  &module; in directory &mod-r; to a new &linkset;, in the directory
  &dest-r; which is newly created.</para>
 
 <para>The command <screen>
-&sh-prompt; &clisp-link; run &source-r; &mod-r; ...
-</screen> runs the &linkset; in directory &source-r;, with the &module;
+&sh-prompt; &clisp-link; run &source-r; &mod-r; ...</screen>
+ runs the &linkset; in directory &source-r;, with the &module;
  in directory &mod-r; loaded. More than one module can be specified.
  If &clisp; has been built with the configuration option &with-dynmod;,
  the loading will be performed <link linkend="mod-dynload">dynamically</link>.
@@ -2485,8 +2483,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
  and build &clisp; in directory <filename>build-dir</filename> with,
  e.g.,<screen>
-&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir
-</screen>then run it with
+&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir</screen>then run it with
 <screen>&sh-prompt; ./build-dir/clisp &opt-K; full</screen>
 This will create a &base; &linkset; with modules
 &i18n-mod;, &regexp-mod; and &syscalls-mod; (and maybe &readline-mod;);
@@ -3716,7 +3713,7 @@ struct foo f;
 f.b[7].a
 </programlisting> corresponds to <programlisting language="lisp">
 (declare (type foo f))
-(foo-a (aref (foo-b f) 7)) ; or
+(foo-a (aref (foo-b f) 7)) <lineannotation>or</lineannotation>
 (slot-value (aref (slot-value f 'b) 7) 'a)
 </programlisting></para></example>
 
@@ -3741,17 +3738,17 @@ my_struct = my_struct-&gt;n;
   (x short)
   (y short)
   (a char)
-  (b char) ; or (b character) if it represents a character, not a number
+  (b char) <lineannotation>or (b character) if it represents a character, not a number</lineannotation>
   (z int)
   (n (c-ptr bar)))
 
 (def-c-var my_struct (:type (c-ptr bar)))
 
-(setq my_struct (let ((s my_struct)) (incf (slot-value s 'x)) s)) ; or
+(setq my_struct (let ((s my_struct)) (incf (slot-value s 'x)) s)) <lineannotation>or</lineannotation>
 (incf (slot my_struct 'x))
-(setq my_struct (let ((s my_struct)) (setf (slot-value s 'a) 5) s)) ; or
+(setq my_struct (let ((s my_struct)) (setf (slot-value s 'a) 5) s)) <lineannotation>or</lineannotation>
 (setf (slot my_struct 'a) 5)
-(setq my_struct (slot-value my_struct 'n)) ; or
+(setq my_struct (slot-value my_struct 'n)) <lineannotation>or</lineannotation>
 (setq my_struct (deref (slot my_struct 'n)))
 </programlisting></para></example>
 
@@ -3857,8 +3854,7 @@ a[8] = 8.
 a[9] = 9.
 #S(TEST-C-CALL::CFUNR :X 10 :S "A C string")
 &gt;
-&sh-prompt; rm -r base+cfun
-</screen></para>
+&sh-prompt; rm -r base+cfun</screen></para>
 
 <para>Note that there is a memory leak here: The return value
 <varname>r2</varname> of <function>cfun()</function> is
@@ -3903,17 +3899,15 @@ int my_bar (int x) { return bar(x); }~%")
 <para>Compiling this file will produce <filename>my.c</filename>
  and <filename>my.fas</filename> and you have two options:
  <orderedlist><listitem><para>Compile <filename>my.c</filename>
-    into <filename>my.o</filename> with <screen>
-&sh-prompt; gcc -c my.c -lmylib
-</screen> and use &clisp-link; to create a new &clisp; &linkset;.
+    into <filename>my.o</filename> with
+    <screen>&sh-prompt; gcc -c my.c -lmylib</screen>
+    and use &clisp-link; to create a new &clisp; &linkset;.
   </para></listitem>
-  <listitem><para>Add <code>(:library "my.dll")</code> to the
-    &def-call-out; forms, compile <filename>my.c</filename>
-    into <filename>my.so</filename> (or <filename>my.dll</filename> on
-    &win32;) with <screen>
-&sh-prompt; gcc -shared -o my.so my.c -lmylib
-</screen> and load <filename>my.fas</filename>.
-</para></listitem></orderedlist></para>
+  <listitem><para>Add <code>(:library "my.dll")</code> to the &def-call-out;
+    forms, compile <filename>my.c</filename> into <filename>my.so</filename>
+    (or <filename>my.dll</filename> on &win32;) with
+    <screen>&sh-prompt; gcc -shared -o my.so my.c -lmylib</screen> and
+    load <filename>my.fas</filename>.</para></listitem></orderedlist></para>
 <para>Of course, you could have created <filename>my1.c</filename>
  containing<programlisting language="C">
 #include &lt;mylib.h&gt;
@@ -3980,12 +3974,10 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 Now try
 
-<screen>
-&sh-prompt; &clisp-link; create-module-set sort sort2.c sorttest.c
+<screen>&sh-prompt; &clisp-link; create-module-set sort sort2.c sorttest.c
 &sh-prompt; cc -O -c sort1.c
 &sh-prompt; cd sort
-&sh-prompt; ln -s ../sort1.o sort1.o
-</screen>
+&sh-prompt; ln -s ../sort1.o sort1.o</screen>
 
 Add <filename>sort1.o</filename> to <envar>NEW_LIBS</envar>
 and <envar>NEW_FILES</envar> in &link-sh;.
@@ -3995,16 +3987,14 @@ Create a file <filename>package.lisp</filename> containing the form
 and add <filename>package.lisp</filename> to &mod-preload; in &link-sh;.
 Proceed:
 
-<screen>
-&sh-prompt; cd ..
+<screen>&sh-prompt; cd ..
 &sh-prompt; base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
 &sh-prompt; &clisp-link; add-module-set sort base base+sort
 &sh-prompt; base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
                 0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
 #(0.063d0 0.271d0 0.501d0 0.523d0 0.528d0 0.55d0 0.585d0 0.615d0 0.67d0 0.711d0)
-&sh-prompt; rm -r base+sort
-</screen></para></example>
+&sh-prompt; rm -r base+sort</screen></para></example>
 
 <example id="ex-call-in-dll">
  <title>Calling Lisp from &c-lang; dynamically</title>
@@ -4151,7 +4141,7 @@ double test_dll(struct bar *ptr)
  All pointers depending on this resource can be disabled at once upon
  close by sharing their &foreign-pointer; using &set-foreign-pointer;.
 <programlisting language="lisp">
-(def-c-type PGconn c-pointer) ; opaque pointer
+(def-c-type PGconn c-pointer) <lineannotation>opaque pointer</lineannotation>
 (def-call-out PQconnectdb (:return-type PGconn)
   (:arguments (conninfo c-string)))
 (defun sql-connect (conninfo)
@@ -4172,8 +4162,8 @@ double test_dll(struct bar *ptr)
   the dependent resource will invalidate the primary one.</para></warning>
 <note><para>An alternative approach to resource management,
   more suitable to non-&ffi-pac; &module;s,
-  is implemented in the <link linkend="berkeley-db">berkeley-db</link>
-  module, see <xref linkend="bdb-close"/>.</para></note></para></example>
+  is implemented in the &berkeley-db-mod; module,
+  see <xref linkend="bdb-close"/>.</para></note></para></example>
 
 <example id="ex-dffi-float"><title>Float point array computations</title>
 <para>Save this code into <filename>sum.c</filename>:
@@ -4713,14 +4703,11 @@ Another problem is that no user input will be available.</para></formalpara>
  be able to do (as <literal role="login">root</literal>; you might want to put
  these lines into <filename>/etc/rc.d/rc.local</filename>):
 
-<screen>
-<prompt>#</prompt> echo ":CLISP:E::fas::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-<prompt>#</prompt> echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
-</screen></para>
+<screen><prompt>#</prompt> echo ":CLISP:E::fas::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register
+<prompt>#</prompt> echo ":CLISP:E::lisp::/usr/local/bin/clisp:" &gt;&gt; /proc/sys/fs/binfmt_misc/register</screen></para>
 
 <para>Then you can do the following:
-<screen>
-&sh-prompt; cat &lt;&lt; EOF &gt; hello.lisp
+<screen>&sh-prompt; cat &lt;&lt; EOF &gt; hello.lisp
 (print "hello, world!")
 EOF
 &sh-prompt; clisp -c hello.lisp
@@ -4730,9 +4717,7 @@ EOF
 &sh-prompt; chmod +x hello.fas
 &sh-prompt; hello.fas
 
-"hello, world!"
-&sh-prompt;
-</screen></para>
+"hello, world!"</screen></para>
 
 <para>Please read
  <ulink url="http://www.linuxhq.com/kernel/file/Documentation/binfmt_misc.txt">
