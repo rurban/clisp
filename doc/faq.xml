@@ -229,7 +229,7 @@ further explanations of the issues could be provided).</para>
 <answer><para>When debugging the core:<screen>
 &sh-prompt; ./configure --with-debug --build build-g
 &sh-prompt; cd build-g
-&sh-prompt; gdb lisp.run            ;; or lisp.exe on windows and cygwin
+&sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> boot
 <prompt>(gdb)</prompt> run
 </screen></para>
@@ -237,7 +237,7 @@ further explanations of the issues could be provided).</para>
 <para>When debugging module <literal>foo</literal>:<screen>
 &sh-prompt; ./configure --with-debug --with-module=foo --build build-g
 &sh-prompt; cd build-g
-&sh-prompt; gdb full/lisp.run       ;; or lisp.exe on windows and cygwin
+&sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> full
 <prompt>(gdb)</prompt> run
 </screen></para>
@@ -455,9 +455,8 @@ further explanations of the issues could be provided).</para>
    for my &clisp; program?</simpara></question>
  <answer><para>Use module &gtk2-mod;: create <filename>ui.glade</filename>
    with &glade;, then do<screen>
-    &sh-prompt; ./configure --with-module=gtk2 --build build-gtk
-    &sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'
-  </screen></para>
+&sh-prompt; ./configure --with-module=gtk2 --build build-gtk
+&sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'</screen></para>
   <para>There are many other options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
     Lisp software running in &clisp;"</ulink>.</para></answer></qandaentry>
@@ -747,7 +746,7 @@ trying to &nconc; a circular list).</para>
 (defparameter crlf (coerce '(#\Return #\Linefeed) 'string))
 <computeroutput>CRLF</computeroutput>
 (map 'list #'char-code (format nil "Q~a" crlf))
-<computeroutput>(81 10 13 10)</computeroutput> ; not (81 13 10) !
+<computeroutput>(81 10 13 10)</computeroutput><lineannotation>not (81 13 10) !</lineannotation>
 </programlisting></para>
  <para>When you want &cr-c;+&lf-c;-terminated lines, use &extfmt; &dos-k;
   argument when opening your &stream-t;s.</para>
@@ -777,11 +776,11 @@ to see where the warning is coming from.</para>
 (setq add-10 (adder 10))
 <computeroutput>ADD-10</computeroutput>
 (funcall add-10 32)
-<computeroutput>42</computeroutput> ; as expected
+<computeroutput>42</computeroutput><lineannotation>as expected</lineannotation>
 (defvar val 12)
 <computeroutput>VAL</computeroutput>
 (funcall add-10 0)
-<computeroutput>12</computeroutput> ; why not 10?!
+<computeroutput>12</computeroutput><lineannotation>why not 10?!</lineannotation>
 </programlisting></question>
 <answer><label>Explanation</label>
  <para>The above code does not conform to &ansi-cl;, therefore &clisp;

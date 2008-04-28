@@ -453,23 +453,23 @@ ignored by the interpreter.</para>
  between <emphasis>compiled</emphasis> and <emphasis>interpreted</emphasis>
  programs:<programlisting language="lisp">
 (defun adder-c (value) (declare (&compile-decl;)) (lambda (x) (+ x value)))
-<computeroutput>ADDER-C</computeroutput>  ; compiled function; &value-r; is lexical
+<computeroutput>ADDER-C</computeroutput><lineannotation>compiled function; &value-r; is lexical</lineannotation>
 (defun adder-i (value) (lambda (x) (+ x value)))
-<computeroutput>ADDER-I</computeroutput>  ; interpreted function; &value-r; is lexical
+<computeroutput>ADDER-I</computeroutput><lineannotation>interpreted function; &value-r; is lexical</lineannotation>
 (setq add-c-10 (adder-c 10))
-<computeroutput>ADD-C-10</computeroutput> ; compiled function
+<computeroutput>ADD-C-10</computeroutput><lineannotation>compiled function</lineannotation>
 (setq add-i-10 (adder-i 10))
-<computeroutput>ADD-I-10</computeroutput> ; interpreted function
+<computeroutput>ADD-I-10</computeroutput><lineannotation>interpreted function</lineannotation>
 (funcall add-c-10 32)
-<computeroutput>42</computeroutput> ; as expected
+<computeroutput>42</computeroutput><lineannotation>as expected</lineannotation>
 (funcall add-i-10 32)
-<computeroutput>42</computeroutput> ; as expected
+<computeroutput>42</computeroutput><lineannotation>as expected</lineannotation>
 (defvar value 12)
-<computeroutput>VALUE</computeroutput> ; affects <function>ADDER-I</function> and <function>ADD-I-10</function> but &not-e; <function>ADDER-C</function> and <function>ADD-C-10</function>
+<computeroutput>VALUE</computeroutput><lineannotation>affects <function>ADDER-I</function> and <function>ADD-I-10</function> but &not-e; <function>ADDER-C</function> and <function>ADD-C-10</function></lineannotation>
 (funcall add-c-10 32)
-<computeroutput>42</computeroutput> ; as before
+<computeroutput>42</computeroutput><lineannotation>as before</lineannotation>
 (funcall add-i-10 32)
-<computeroutput>44</computeroutput> ; &value-r; is now dynamic!
+<computeroutput>44</computeroutput><lineannotation>&value-r; is now dynamic!</lineannotation>
 </programlisting></para>
 
 <formalpara id="semantic-constraints-non-conf"><title>Non-conformance</title>
@@ -747,7 +747,7 @@ executes a compiled version of &form-r;.</para>
 (&do-symbols; (&symbol-r; "CL-NO-CLOS")
   (&export; &symbol-r; "CL-NO-CLOS"))
 (&in-package; "CL-NO-CLOS")
-(&load; "pcl") ; or whatever
+(&load; "pcl")<lineannotation>or whatever</lineannotation>
 (&defpackage; "MY-USER" (:use "CL-NO-CLOS"))
 (&in-package; "MY-USER")
 ;; your code which uses PCL goes here
@@ -2131,9 +2131,9 @@ can give problems:
 <para>If you want a new random state on each invocation, you can arrange
  for that by using &init-function;: <screen>
 &sh-prompt; clisp -norc &opt-x; '(&savemem; "foo" :init-function (&lambda-m; () (&setq; &random-state-var; (&make-random-state; &t;))))'
-&sh-prompt; clisp -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'
-</screen> or by placing <code>(&setq; &random-state-var;
-  (&make-random-state; &t;))</code> into your &RC-file;.</para>
+&sh-prompt; clisp -norc &opt-M; foo.mem &opt-x; '(&random; 1s0)'</screen>
+ or by placing <code>(&setq; &random-state-var;
+    (&make-random-state; &t;))</code> into your &RC-file;.</para>
 </section>
 </section>
 
@@ -3091,12 +3091,12 @@ checks whether the &hash-table-t; is weak.</para>
 (&funcall; &test-f; &x-r; &y-r;) &rArr;
 (&areq; (&funcall; &hash-f; &x-r;) (&funcall; &hash-f; &y-r;))</programlisting>
  This means that the following definition: <programlisting language="lisp">
-(&defhash; number &areq; &sxhash;) <lineannotation>; broken!</lineannotation></programlisting>
+(&defhash; number &areq; &sxhash;)<lineannotation>broken!</lineannotation></programlisting>
  is &not-e; correct because <programlisting language="lisp">
 (&areq; 1 1d0)
-<computeroutput>&t;</computeroutput>   <lineannotation>; same object!</lineannotation>
+<computeroutput>&t;</computeroutput><lineannotation>same object!</lineannotation>
 (&areq; (&sxhash; 1) (&sxhash; 1d0))
-<computeroutput>&nil;</computeroutput> <lineannotation>; different buckets!</lineannotation></programlisting>
+<computeroutput>&nil;</computeroutput><lineannotation>different buckets!</lineannotation></programlisting>
  The correct way is, e.g.: <programlisting language="lisp">
 (&defhash; number &areq; (&lambda-m; (x) (&sxhash; (&coerce; x '&short-float-t;))))</programlisting></para>
 <note><simpara>Note that &coerce;ing to a &short-float-t; does &not-e; cons up
@@ -5796,13 +5796,13 @@ exhaust the available line length.</para></simplesect>
   (&multiple-value-bind; (so ta) (dribble-toggle *loggable* s)
     (&when; (&streamp; so) (&setq; *loggable* so))
     ta))
-(toggle-logging &y-r;)     ; start logging
+(toggle-logging &y-r;)<lineannotation>start logging</lineannotation>
 ...
-(toggle-logging)       ; finish logging
+(toggle-logging)<lineannotation>finish logging</lineannotation>
 ...
-(toggle-logging &y-r;)     ; restart logging
+(toggle-logging &y-r;)<lineannotation>restart logging</lineannotation>
 ...
-(toggle-logging)       ; finish logging
+(toggle-logging)<lineannotation>finish logging</lineannotation>
 (&close; &y-r;)
 </programlisting></para>
 
