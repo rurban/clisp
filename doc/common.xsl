@@ -343,6 +343,11 @@
  <xsl:apply-imports/>
 </xsl:template>
 
+<xsl:template match="programlisting[@language = 'lisp']/lineannotation">
+ <strong>&#9;;&#160;</strong> <!-- TAB + ; + &nbsp; -->
+ <xsl:apply-imports/>
+</xsl:template>
+
 <xsl:template match="screen/userinput">
  <big><strong><xsl:apply-imports/></strong></big>
 </xsl:template>
