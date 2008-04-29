@@ -537,11 +537,11 @@ ignored by the interpreter.</para>
 <para>Declarations <code>(&proclaim; '(&special-dec; &var-r;))</code>
  and &defconstant; are undone by the <code>(&proclaim; '(&notspec;
   &var-r;))</code> declaration.  This declaration can be used only in
- global &proclaim; and &declaim; forms, not in local &declare; forms.
- Of course, you cannot expect miracles: functions compiled before the
- &notspec; proclamation was issued will still be treating &var-r; as
+ global &proclaim; and &declaim; forms, &not-e; in local &declare; forms.
+<warning><simpara> You cannot expect miracles: functions compiled &before-e;
+ the &notspec; proclamation was issued will still be treating &var-r; as
  special even after the &notspec; proclamation. See also
- <xref linkend="semantic-constraints"/>.</para></formalpara>
+ <xref linkend="semantic-constraints"/>.</simpara></warning></para></formalpara>
 
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <code>(&spe-var-p; &symbol-r;
@@ -587,16 +587,14 @@ compile-time. See also <xref linkend="compile-time-value"/>.
 <para>The declaration &compile-decl; has the effect that the current
  form is compiled prior to execution.  Examples:
 <programlisting language="lisp">
-(&locally; (&declare; (compile)) &form-r;)
-</programlisting>
+(&locally; (&declare; (compile)) &form-r;)</programlisting>
 executes a compiled version of &form-r;.</para>
 
 <para><programlisting language="lisp">
 (&let; ((x 0))
   (&flet; ((inc () (&declare; (compile)) (&incf; x))
          (dec () (&decf; x)))
-    (&values; #'inc #'dec)))
-</programlisting>
+    (&values; #'inc #'dec)))</programlisting>
  returns two functions.  The first is compiled and increments &x-r;, the
  second is interpreted (slower) and decrements the same &x-r;.</para>
 </section>
