@@ -3664,7 +3664,7 @@ and possibly the calling convention.</para>
   <emphasis role="platform">x86_64</emphasis> and &win32;)
   have problems with this.
   The recommended workaround is to pass pointers; this is fully supported.
-  See also the <ulink url="ml">clisp-devel</ulink>
+  See also <ulink url="ml">clisp-devel</ulink>
   (<ulink role="sfmail" url="200307141526.26925.bruno%40clisp.org"/>/<ulink role="gmane" url="devel/10089"/>).</simpara></warning>
 
 </section>
@@ -3685,7 +3685,7 @@ and possibly the calling convention.</para>
  <varlistentry><term>&in-out-k; (means: read-write):</term>
   <listitem><simpara>Information is passed from the caller to the callee
    and then back to the caller.  When viewed as a Lisp function, the
-   &out-k; value is returned as an additional multiple value.
+   &out-k; value is returned as an additional return value.
   </simpara></listitem></varlistentry>
 </variablelist>
 
@@ -4060,11 +4060,10 @@ int CallInFunc(LispFunc f) {
   (:return-type ffi:int))
 
 (defun myhostname ()
-  (multiple-value-bind (success name)
-      ;; &out-k; and &in-out-k; parameters are returned as &mul-val;
+  (multiple-value-bind (success name)<lineannotation>&out-k; and &in-out-k; parameters are returned as &mul-val;</lineannotation>
       (gethostname 256)
     (if (zerop success) name
-        (error ...)))) ;; <function role="unix">strerror</function>(<varname role="unix">errno</varname>)
+        (error ...))))<lineannotation><function role="unix">strerror</function>(<varname role="unix">errno</varname>)</lineannotation>
 
 (defvar hostname (myhostname))
 </programlisting>
