@@ -2,7 +2,7 @@
 
 	fix bug #[ 1928759 ]: (format nil "~8e" .999999d0) => " 10.0d-1"
 	* format.lisp (format-float-for-e): when format-float-to-string
-	rounds up above 1, adjust averything
+	rounds up above 1, adjust everything
 
 2008-04-23  Sam Steingold  <sds@gnu.org>
 
