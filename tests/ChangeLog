@@ -1,3 +1,8 @@
+2008-04-30  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: add tests for bug #[ 1928759 ]:
+	(format nil "~8e" .999999d0) => " 10.0d-1"
+
 2008-04-14  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: add tests for bug #[ 1942246 ]:

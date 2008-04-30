@@ -979,7 +979,7 @@
           ;; mantwidth = number of available characters (or nil)
           ;;  for the Mantissa (without sign,including point)
           (multiple-value-bind (mantdigits mantdigitslength
-                                leadingpoint trailingpoint)
+                                leadingpoint trailingpoint point-pos)
               (format-float-to-string mantissa mantwidth mantd k dmin)
             (when w
               (setq mantwidth (- mantwidth mantdigitslength))
@@ -995,14 +995,36 @@
             (if (and overflowchar w (minusp mantwidth))
               (format-padding w overflowchar stream) ; not enough room -> overflow
               (progn
+                (when (< 1 point-pos)
+                  ;; format-float-to-string rounded the mantissa up above 1
+                  ;; so that all our assumptions are now wrong and we are
+                  ;; about to get (format nil "~8e" .999999d9) => " 10.0d+8"
+                  (let* ((shift (- point-pos 1))
+                         (new-exponent (+ exponent shift))
+                         (new-expdigits
+                          (write-to-string (abs new-exponent) :base 10.
+                                           :radix nil :readably nil)))
+                    ;; shift the decimal point left
+                    (dotimes (i shift)
+                      (rotatef (char mantdigits (- point-pos i))
+                               (char mantdigits (- point-pos i 1))))
+                    ;; update for the the exponent change
+                    (incf mantwidth (- (length expdigits)
+                                       (length new-expdigits)))
+                    (setq exponent new-exponent
+                          expdigits new-expdigits)
+                    ;; update for the trailing point change
+                    (when trailingpoint
+                      (setq trailingpoint nil)
+                      (incf mantwidth))))
                 (when (and w (> mantwidth 0))
                   (format-padding mantwidth padchar stream))
                 (if (minusp arg)
                   (write-char #\- stream)
                   (if plus-sign-flag (write-char #\+ stream)))
-                (if leadingpoint (write-char #\0 stream))
+                (when leadingpoint (write-char #\0 stream))
                 (write-string mantdigits stream)
-                (if trailingpoint (write-char #\0 stream))
+                (when trailingpoint (write-char #\0 stream))
                 (write-char
                   (cond (exponentchar)
                         ((and (not *PRINT-READABLY*)
