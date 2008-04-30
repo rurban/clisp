@@ -52,7 +52,7 @@ User visible changes
   + Fix compilation on systems not supporting returning void. [ 1924506 ]
   + Fix TANH floating point overflow for large floats. [ 1683394 ]
   + Avoid extra aggressive bignum overflow reporting in READ. [ 1928735 ]
-  + Improved floating point number formatting. [ 1790496 ]
+  + Improved floating point number formatting. [ 1790496, 1928759 ]
   + COMPILE no longer discards MACRO doc strings. [ 1936255 ]
   + Improved accuracy of LOG on complex numbers. [ 1934968 ]
   + Fix COERCE for compound float result-types. [ 1942246 ]
