@@ -3530,7 +3530,7 @@ and possibly the calling convention.</para>
  just as normal variables can, except that the range of allowed values
  is limited according to the variable's foreign type.</para>
 
-<warning id="dffi-eq"><title>Equality of foreign values.</title>
+<warning id="dffi-eq"><title>Equality of foreign values</title>
  <simpara>For a foreign variable &x-r; the form <code>(&eql; &x-r;
    &x-r;)</code> is not necessarily true, since every time &x-r; is
   evaluated its foreign value is converted to a &fresh; Lisp value.
