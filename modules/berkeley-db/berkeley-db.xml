@@ -2,10 +2,10 @@
 
 <section id="berkeley-db"><title>Berkeley DB access</title>
 
-<para>This interface to <ulink role="bdb" url="index.html">Berkeley DB
-  from Sleepycat Software</ulink> exports most
- functions in the official &c-lang; API.
- Supported versions:<simplelist type="horiz" columns="1">
+<para>This interface to <ulink role="bdb" url="index.html">Berkeley DB</ulink>
+ from <ulink url="http://en.wikipedia.org/wiki/Sleepycat_Software">Sleepycat
+  Software</ulink>/&oracle-link; exports most functions in the official
+ &c-lang; API.  Supported versions:<simplelist type="horiz" columns="1">
   <member><ulink role="bdb" url="ref/upgrade.4.2/toc.html">4.2</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.3/toc.html">4.3</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.4/toc.html">4.4</ulink></member>
@@ -47,7 +47,7 @@
 <para>&close; will close (or commit, in the case of a
  <link linkend="bdb-transaction">transaction</link>, or
  put, in the case of a <link linkend="bdb-lock">lock</link>)
- the Berkeley-DB handle objects.  &gc;or will also call &close;.
+ the Berkeley-DB handle objects.  The &gc;or will also call &close;.
  Closing an object will &close; all its dependents and remove the object
  itself from the dependents lists of its parents (but see
  <link linkend="bdb-lock"><function>BDB:LOCK-CLOSE</function></link>).</para>
