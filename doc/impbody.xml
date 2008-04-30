@@ -1096,10 +1096,10 @@ the iteration variable and assign it on each iteration.</para></section>
 <chapter id="structures"><title>Structures
   <ulink role="clhs" url="chap-8"/></title>
 
-<section id="defstruct-options"><title>The options for &defstruct;.</title>
+<section id="defstruct-options"><title>The options for &defstruct;</title>
 
-<section id="defstruct-print-function"><title>The &print-function-k;
-  option.</title>
+<section id="defstruct-print-function">
+ <title>The &print-function-k; option</title>
 
 <para>The &print-function-k; option should contain a &lambda-expr;
  <code>(&lambda-m; (object stream depth) (declare (ignore depth)) ...)</code>
@@ -1157,7 +1157,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 </section>
 
-<section id="defstruct-mop"><title>The structure &mop;.</title>
+<section id="defstruct-mop"><title>The structure &mop;</title>
 <para>The following functions accept a structure &name-r; as the only argument.
  If &defstruct; was given the &type-k; option (i.e., &defstruct; did
  &not-e; define a new type), then <code>(&find-class; &name-r;)</code>
