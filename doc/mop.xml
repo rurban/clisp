@@ -5443,7 +5443,7 @@ Example:<programlisting id="mop-clisp-gf-already-called-warning-code"
  programmer might have expected that <varname>*book-counter*</varname>
  is 2.</para>
 
-<note><title>No warning for standard generic functions.</title>
+<note><title>No warning for standard generic functions</title>
  <para>A few functions, such as &print-object;, are listed in the
   &ansi-cl; and the &amop; as <quote>standard generic functions</quote>,
   to which users may add methods.
