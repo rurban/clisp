@@ -7,6 +7,8 @@
 find . -type f -follow -perm +111 '(' \
      -name '*.in' \
   -o -name '*.xml' \
+  -o -name '*.xsl' \
+  -o -name '*.css' \
   -o -name '*.html' \
   -o -name '*.png' \
   -o -name '*.xsl' \
