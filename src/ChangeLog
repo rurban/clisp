@@ -1,5 +1,9 @@
 2008-05-01  Sam Steingold  <sds@gnu.org>
 
+	* utils/fix-perms.sh: *.xsl & *.css are not executable
+
+2008-05-01  Sam Steingold  <sds@gnu.org>
+
 	* macros1.lisp (*suppress-similar-constant-redefinition-warning*):
 	new user variable
 	(defconstant): pass ,initial-var to constant-warning
