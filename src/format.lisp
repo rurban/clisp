@@ -995,7 +995,7 @@
             (if (and overflowchar w (minusp mantwidth))
               (format-padding w overflowchar stream) ; not enough room -> overflow
               (progn
-                (when (< 1 point-pos)
+                (when (and (plusp k) (< k point-pos))
                   ;; format-float-to-string rounded the mantissa up above 1
                   ;; so that all our assumptions are now wrong and we are
                   ;; about to get (format nil "~8e" .999999d9) => " 10.0d+8"
