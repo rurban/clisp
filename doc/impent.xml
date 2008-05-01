@@ -407,6 +407,7 @@
 <!ENTITY string-invertcase '<link linkend="string-invertcase"><function>EXT:STRING-INVERTCASE</function></link>'>
 <!ENTITY nstring-invertcase '<link linkend="string-invertcase"><function>EXT:NSTRING-INVERTCASE</function></link>'>
 <!ENTITY suppress-check-redef '<link linkend="suppress-check-redef"><varname>CUSTOM:*SUPPRESS-CHECK-REDEFINITION*</varname></link>'>
+<!ENTITY suppress-similar-const-redef '<link linkend="defconstant-similar"><varname>CUSTOM:*SUPPRESS-SIMILAR-CONSTANT-REDEFINITION-WARNING*</varname></link>'>
 <!ENTITY sys-pack-list '<link linkend="pack-lock"><varname>CUSTOM:*SYSTEM-PACKAGE-LIST*</varname></link>'>
 <!ENTITY term-enc '<olink targetdoc="impnotes" targetptr="term-enc"><varname>CUSTOM:*TERMINAL-ENCODING*</varname></olink>'>
 <!ENTITY the-env '<link linkend="the-env"><function>EXT:THE-ENVIRONMENT</function></link>'>

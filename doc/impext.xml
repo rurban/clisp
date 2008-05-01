@@ -1850,6 +1850,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&count-ansi;</member>
   <member>&source-types;</member>
   <member>&suppress-check-redef;</member>
+  <member>&suppress-similar-const-redef;</member>
   <member>&sys-pack-list;</member>
   <member>&term-enc;</member>
   <member>&trace-indent;</member>

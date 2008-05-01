@@ -953,14 +953,20 @@ executes a compiled version of &form-r;.</para>
 <para>The initial value is &not-e; evaluated at compile time,
  just like with &defvar; and &defparameter;.
  Use &eval-when; if you need the value at compile time.</para>
-<para>If the variable is already bound to a value which is not &eql; to
- the new value, a &warning-t; is issued.</para>
 <para>&constant;s may not be bound dynamically or lexically.</para>
 <para>See also <xref linkend="constant-notinline"/>.</para>
 <para>If you need to undo a &defconstant; form, &proclaim; the symbol
  &special-dec; (to turn the &constant; into a &dyn-var;), and then
- &proclaim; it &notspec; (to turn the &dyn-var; into a &lex-var;).
-</para></section>
+ &proclaim; it &notspec; (to turn the &dyn-var; into a &lex-var;).</para>
+<section id="defconstant-similar"><title>Variable
+  &suppress-similar-const-redef;</title>
+<para>If the variable is already bound to a value which is not &eql; to
+ the new value, a &warning-t; is issued. If, however, the new value
+ is <quote>visually similar</quote> (prints to the same string, as is
+ commonly the case when re-loading files) to the old one, the warning
+ can be suppressed by setting &suppress-similar-const-redef; to a
+ non-&nil; value.</para></section>
+</section>
 
 <section id="fcase"><title>Macro &fcase;</title>
 
