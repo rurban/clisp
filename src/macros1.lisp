@@ -1,9 +1,9 @@
 ;;;; Definitions for control structures etc.
 ;;;; 29.4.1988, 3.9.1988
 
-(in-package "EXT")
-(export '(fcase))
 (in-package "SYSTEM")
+(export '(ext::fcase) "EXT")
+(export '(custom::*suppress-similar-constant-redefinition-warning*) "CUSTOM")
 
 ;; (DEFMACRO-SPECIAL . macrodef) is like (DEFMACRO . macrodef) except
 ;; that it works on a special form without replacing the special form
@@ -75,7 +75,7 @@
          (IF (CONSTANTP ',symbol)
            (UNLESS (CONSTANT-EQL ,initial-value ,initial-var
                                  (SYMBOL-VALUE ',symbol))
-             (CONSTANT-WARNING ',symbol ',whole-form)))
+             (CONSTANT-WARNING ',symbol ',whole-form ,initial-var)))
          (SYS::%PROCLAIM-CONSTANT ',symbol ,initial-var)
          ,@(if docstring
              `((SYS::%SET-DOCUMENTATION ',symbol 'VARIABLE ',docstring)))
@@ -92,9 +92,20 @@
   (and (equal (type-of new-value) (type-of old-value))
        (equal new-value old-value)))
 ; The redefinition warning.
-(defun constant-warning (symbol form) ; ABI
-  (warn (TEXT "~S redefines the constant ~S. Its old value was ~S.")
-        form symbol (symbol-value symbol)))
+(defvar custom:*suppress-similar-constant-redefinition-warning* nil
+  "When non-NIL, no warning is issued when a constant is redefined
+to a new value which is visually similar (prints identically) to the old one.")
+(defun constant-warning (symbol form new-value) ; ABI
+  (let ((old-value (symbol-value symbol)))
+    ;; use write-to-string instead of equal to handle circularity
+    (if (string= (write-to-string new-value :pretty nil :circle t)
+                 (write-to-string old-value :pretty nil :circle t))
+        (unless custom:*suppress-similar-constant-redefinition-warning*
+          (warn (TEXT "~S redefines the constant ~S. Its old value was visually similar though. Set ~S to avoid this warning.")
+                form symbol
+                'custom:*suppress-similar-constant-redefinition-warning*))
+        (warn (TEXT "~S redefines the constant ~S. Its old value was ~S.")
+              form symbol old-value))))
 
 (defmacro-special and (&body args)
   (cond ((null args) T)
