@@ -331,8 +331,7 @@ FOO
  (dotimes (k 13 x)
   (setq x (cons (format nil "~%Scale factor ~2D: |~13,6,2,VE|"
           (- k 5) (- k 5) 3.14159) x))))
-(
-"
+("
 Scale factor  7: | 3141590.E-06|" "
 Scale factor  6: | 314159.0E-05|" "
 Scale factor  5: | 31415.90E-04|" "
@@ -347,6 +346,23 @@ Scale factor -3: | 0.000314E+04|" "
 Scale factor -4: | 0.000031E+05|" "
 Scale factor -5: | 0.000003E+06|")
 
+(format nil "~G" 1d22) "10000000000000000000000.    "
+(format nil "~G" 1d23) "100000000000000000000000.    "
+(format nil "~G" 1d24) "1000000000000000000000000.    "
+(format nil "~F" 1d22) "10000000000000000000000.0"
+(format nil "~F" 1d23) "100000000000000000000000.0"
+(format nil "~F" 1d24) "1000000000000000000000000.0"
+(format nil "~E" 1d22) "1.0d+22"
+(format nil "~E" 1d23) "1.0d+23"
+(format nil "~E" 1d24) "1.0d+24"
+
+;; http://sourceforge.net/tracker/index.php?func=detail&aid=1928759&group_id=1355&atid=101355
+(format nil "~8e" .8999999d0)  "  9.0d-1"
+(format nil "~8e" .999999d0)   "  1.0d+0"
+(format nil "~8e" .999999d9)   "  1.0d+9"
+(format nil "~8e" .999999d10)  " 1.0d+10"
+(format nil "~8e" .999999d-10) " 1.0d-10"
+(format nil "~8e" .999999d-9)  "  1.0d-9"
 
 ;; ~g -------------------------------------------------------------------------
 (defun foo (x)
