@@ -973,9 +973,8 @@
         ;; if Overflowchar and w and e being stated, Exponent needs more room:
         (format-padding w overflowchar stream)
         (progn
-          (if w
-            (if (or plus-sign-flag (minusp arg))
-              (setq mantwidth (1- mantwidth))))
+          (when (and w (or plus-sign-flag (minusp arg)))
+            (setq mantwidth (1- mantwidth)))
           ;; mantwidth = number of available characters (or nil)
           ;;  for the Mantissa (without sign,including point)
           (multiple-value-bind (mantdigits mantdigitslength
@@ -983,11 +982,11 @@
               (format-float-to-string mantissa mantwidth mantd k dmin)
             (when w
               (setq mantwidth (- mantwidth mantdigitslength))
-              (if trailingpoint
+              (when trailingpoint
                 (if (or (null mantd) (> mantd 0))
                   (setq mantwidth (- mantwidth 1))
                   (setq trailingpoint nil)))
-              (if leadingpoint
+              (when leadingpoint
                 (if (> mantwidth 0)
                   (setq mantwidth (- mantwidth 1))
                   (setq leadingpoint nil))))
