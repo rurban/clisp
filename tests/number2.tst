@@ -470,23 +470,6 @@ NIL
 (prin1-to-string 1d22) "1.0d22"
 (prin1-to-string 1d23) "9.999999999999999d22"
 (prin1-to-string 1d24) "1.0d24"
-(format nil "~G" 1d22) "10000000000000000000000.    "
-(format nil "~G" 1d23) "100000000000000000000000.    "
-(format nil "~G" 1d24) "1000000000000000000000000.    "
-(format nil "~F" 1d22) "10000000000000000000000.0"
-(format nil "~F" 1d23) "100000000000000000000000.0"
-(format nil "~F" 1d24) "1000000000000000000000000.0"
-(format nil "~E" 1d22) "1.0d+22"
-(format nil "~E" 1d23) "1.0d+23"
-(format nil "~E" 1d24) "1.0d+24"
-
-;; http://sourceforge.net/tracker/index.php?func=detail&aid=1928759&group_id=1355&atid=101355
-(format nil "~8e" .8999999d0)  "  9.0d-1"
-(format nil "~8e" .999999d0)   "  1.0d+0"
-(format nil "~8e" .999999d9)   "  1.0d+9"
-(format nil "~8e" .999999d10)  " 1.0d+10"
-(format nil "~8e" .999999d-10) " 1.0d-10"
-(format nil "~8e" .999999d-9)  "  1.0d-9"
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
 (loop :repeat 6400 :for x = -1L2 :then (+ x 0.03125l0)
