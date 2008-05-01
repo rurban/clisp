@@ -37,6 +37,12 @@ User visible changes
   Suggested by Anton Vodonosov <avodonosov@yandex.ru>.
   See <http://clisp.cons.org/impnotes/gray.html#st-rd-seq> for details.
 
+* New user variable CUSTOM:*SUPPRESS-SIMILAR-CONSTANT-REDEFINITION-WARNING*
+  controls whether the redefinition warning is issues when the new
+  constant value is visually similar to the old one.
+  See <http://clisp.cons.org/impnotes/defconstant.html#defconstant-similar>
+  for details.
+
 * REPL commands can now accept arguments.
   See <http://clisp.cons.org/impnotes/repl.html> for details.
 

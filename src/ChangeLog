@@ -1,3 +1,12 @@
+2008-05-01  Sam Steingold  <sds@gnu.org>
+
+	* macros1.lisp (*suppress-similar-constant-redefinition-warning*):
+	new user variable
+	(defconstant): pass ,initial-var to constant-warning
+	(constant-warning): accept 3rd variable and respect
+	*suppress-similar-constant-redefinition-warning*
+	* constobj.d (version): bump, because constant-warning is ABI
+
 2008-04-30  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1928759 ]: (format nil "~8e" .999999d0) => " 10.0d-1"
