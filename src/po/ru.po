@@ -384,15 +384,15 @@ msgstr "*** - Исчерпана память. СБРОС"
 
 #: spvw_mmap.d:64 spvw_mmap.d:192 spvw_mmap.d:351 spvw_multimap.d:160
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Невозможно спроецировать память на адрес 0x%x ."
+msgstr "Невозможно спроецировать память на адрес 0x%lx ."
 
 #: spvw_mmap.d:165
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон в 0x%lx ."
 
 #: spvw_mmap.d:175
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:219
 msgid "CreateFileMapping() failed."
@@ -419,9 +419,8 @@ msgid "Cannot open <%s>."
 msgstr "Невозможно открыть <%s>."
 
 #: spvw_multimap.d:139
-#, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) ошибка."
 
 #: spvw_multimap.d:196
 msgid "Cannot delete <%s>."
@@ -456,9 +455,8 @@ msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти размером %d."
 
 #: spvw_multimap.d:349
-#, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Невозможно проецировать общую память на адрес 0x%x."
+msgstr "Невозможно спроецировать общую память на адрес 0x%lx."
 
 #: spvw_multimap.d:364 spvw_multimap.d:370
 msgid "%s: Cannot fill shared memory."
@@ -469,26 +467,24 @@ msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
 #: spvw_fault.d:283
-#, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d): ошибка."
+msgstr "mprotect(0x%lx,%d,%d): ошибка."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
-msgstr ""
+msgstr "Постоянно размещено: %lu байтов."
 
 #: spvw_sigsegv.d:26
 msgid "Currently in use: %lu bytes."
-msgstr ""
+msgstr "Используется сейчас: %lu байтов."
 
 #: spvw_sigsegv.d:29
 msgid "Free space: %lu bytes."
-msgstr ""
+msgstr "Свободная память: %lu байтов."
 
 #: spvw_sigsegv.d:40
-#, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%x."
+msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%lx."
 
 #: spvw_sigsegv.d:74
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
@@ -516,11 +512,11 @@ msgstr "Освобождаем память - вызываем GC..."
 
 #: spvw_sigterm.d:50
 msgid "Signal %d while exiting on a signal; cleanup may be incomplete\n"
-msgstr ""
+msgstr "Сигнал %d во время прекращения работы по сигналу; зачистка возможно осталась незавершённой\n"
 
 #: spvw_sigterm.d:56
 msgid "Exiting on signal "
-msgstr ""
+msgstr "Прекращаю работу по сигналу "
 
 #: spvw_memfile.d:227
 msgid "disk full"
@@ -529,7 +525,7 @@ msgstr "переполнение диска"
 #: spvw_memfile.d:270
 #, lisp-format
 msgid "runtime too small (~S bytes missing)"
-msgstr ""
+msgstr "исполнитель слишком мал (не хватает ~S байтов)"
 
 #: spvw_memfile.d:930 spvw_memfile.d:1731
 msgid "%s: operating system error during load of initialization file `%s'"
@@ -540,9 +536,8 @@ msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
 #: spvw_memfile.d:1736
-#, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
-msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP"
+msgstr "%s: файл инициализации `%s' был создан не этой версией исполнителя CLISP"
 
 #: spvw_memfile.d:1740
 msgid "%s: not enough memory for initialization"
@@ -550,17 +545,17 @@ msgstr "%s: недостаточно памяти для инициализации"
 
 #: spvw_memfile.d:1809
 msgid "%s: 'image size' method failed, but found image header at %d\n"
-msgstr ""
+msgstr "%s: метод 'размер образа' провалился, но заголовок образа найден в %d\n"
 
 #: eval.d:873 init.lisp:843 init.lisp:858 compiler.lisp:1187
 #, lisp-format
 msgid "Invalid access to the value of the lexical variable ~S from within a ~S definition"
-msgstr ""
+msgstr "Недействительное обращение к значению лексической переменной ~S изнутри определения ~S"
 
 #: eval.d:1057 init.lisp:783 init.lisp:797 compiler.lisp:945
 #, lisp-format
 msgid "Invalid access to the local function definition of ~S from within a ~S definition"
-msgstr ""
+msgstr "Недействительное обращение к локальной функции ~S изнутри определения ~S"
 
 #: eval.d:1546
 #, lisp-format
@@ -630,17 +625,17 @@ msgstr "~S: ~S - специальный оператор, а не функция"
 #: eval.d:2277
 #, lisp-format
 msgid "~S: ~S is a macro, not a function"
-msgstr "~S: ~S - макрокоманда, а не функция"
+msgstr "~S: ~S - макрос, а не функция"
 
 #: eval.d:2549
 #, lisp-format
 msgid "EVAL/APPLY: too few arguments given to ~S"
-msgstr "EVAL/APPLY: Слишком мало аргументов для ~S"
+msgstr "EVAL/APPLY: слишком мало аргументов для ~S"
 
 #: eval.d:2632
 #, lisp-format
 msgid "EVAL/APPLY: too many arguments given to ~S"
-msgstr "EVAL/APPLY: Слишком много аргументов для ~S"
+msgstr "EVAL/APPLY: слишком много аргументов для ~S"
 
 #: eval.d:3034
 #, lisp-format
@@ -688,9 +683,9 @@ msgid "APPLY: too many arguments given to ~S"
 msgstr "APPLY: слишком много аргументов для ~S"
 
 #: eval.d:4115
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "APPLY: dotted argument list given to ~S : ~S"
-msgstr "точечный список в ~S : ~S"
+msgstr "APPLY: точечный список передан ~S : ~S"
 
 #: eval.d:4119
 #, lisp-format
@@ -742,9 +737,9 @@ msgid "~S: jump by ~S takes ~S outside [~S;~S]"
 msgstr ""
 
 #: eval.d:8215
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: too many return values"
-msgstr "слишком много возвращаемых значений"
+msgstr "~S: слишком много возвращаемых значений"
 
 #: eval.d:8221
 #, lisp-format
@@ -772,9 +767,9 @@ msgid "~S: the special operator definition of ~S must not be removed"
 msgstr "~S: определение специальной формы ~S не должно удаляться"
 
 #: control.d:355
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "doc-string is not allowed here and will be ignored: ~S"
-msgstr "~S: строка документации здесь не разрешена: ~S"
+msgstr "строка документации здесь не разрешена и будет проигнорирована: ~S"
 
 #: control.d:407
 #, lisp-format
@@ -782,22 +777,14 @@ msgid "~S: illegal variable specification ~S"
 msgstr "~S: неверная спецификация переменной ~S"
 
 #: control.d:541
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S не должен одновременно объявляться как SPECIAL и быть макрокомандой\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S нельзя объявлять одновременно и как специальный и как макрос"
+msgstr "~S: символ ~S был объявлен как SPECIAL и не может быт переопределёк как SYMBOL-MACRO"
 
 #: control.d:546
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and defined a SYMBOL-MACRO at the same time"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S не должен одновременно объявляться как SPECIAL и быть макрокомандой\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S нельзя объявлять одновременно и как специальный и как макрос"
+msgstr "~S: символ ~S не должен одновременно объявляться как SPECIAL и определяться как SYMBOL-MACRO"
 
 #: control.d:583
 #, lisp-format
@@ -905,14 +892,14 @@ msgid "~S: bad declaration ~S"
 msgstr "~S: некорректное объявление ~S"
 
 #: control.d:2351 error.d:909
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a symbol"
-msgstr "~SS: ~SS не является символом."
+msgstr "~S: ~S не является символом."
 
 #: control.d:2384
 #, lisp-format
 msgid "keyword argument list ~S has an odd length"
-msgstr "Список ключевых аргументов ~S нечетной длины"
+msgstr "список ключевых аргументов ~S нечетной длины"
 
 #: control.d:2421
 #, lisp-format
@@ -920,18 +907,18 @@ msgid ""
 "Illegal keyword/value pair ~S, ~S in argument list.\n"
 "The allowed keywords are ~S"
 msgstr ""
-"недопустимая пара ключевое слово/значение ~S, ~S в списке аргументов.\n"
+"Недопустимая пара ключевое слово/значение ~S, ~S в списке аргументов.\n"
 "Разрешенные ключевые слова: ~S"
 
 #: encoding.d:240
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Invalid base64 encoding termination at position ~S"
-msgstr "Некорректная спецификация параметра ~S в функции ~S"
+msgstr "Некорректное завершение кодировки base64 в позиции ~S"
 
 #: encoding.d:245
 #, lisp-format
 msgid "Invalid base64 encoding at ~S (character ~S of ~S)"
-msgstr ""
+msgstr "Некорректная кодировка base64 в ~S (знак ~S в ~S)"
 
 #: encoding.d:279
 #, lisp-format
@@ -985,7 +972,7 @@ msgstr "~S: недопустимый ~S аргумент ~S"
 
 #: encoding.d:2543 encoding.d:2548
 msgid "WARNING: %s: no encoding %s, using %s"
-msgstr ""
+msgstr "ПРЕДУПРЕЖДЕНИЕ: %s: кодировка %s не существует, используется %s"
 
 #: pathname.d:682 pathname.d:725
 #, lisp-format
@@ -1044,17 +1031,17 @@ msgstr "~S: серверы ~S и ~S в ~S должны совпадать"
 #: pathname.d:2178
 #, lisp-format
 msgid "~S: argument ~S is not a logical pathname, string, stream or symbol"
-msgstr "~S: аргумент ~S не является логическим именем файла, строкой , потоком или символом"
+msgstr "~S: аргумент ~S не является логическим именем файла, строкой, потоком или символом"
 
 #: pathname.d:2188
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: the stream ~S was not opened with a logical pathname"
-msgstr "~S: поток ввода ~S заканчивается внутри объекта"
+msgstr "~S: поток ввода ~S не был открыт с логическим именем файла"
 
 #: pathname.d:2203
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S does not contain a host specification"
-msgstr "~S: аргумент ~S не содержит номера файла"
+msgstr "~S: аргумент ~S не содержит спецификации сервера"
 
 #: pathname.d:2258
 #, lisp-format
@@ -1169,26 +1156,26 @@ msgstr "~S: файл ~S не существует"
 #: pathname.d:5895
 #, lisp-format
 msgid "~S: pathname with type but without name makes no sense: ~S"
-msgstr "~S: Имеет ли смысл имя файла с расширением, но без имени ? Нет: ~S"
+msgstr "~S: Имеет ли смысл имя файла с расширением, но без имени? Нет: ~S"
 
 #: pathname.d:6076
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Cannot delete file ~S since there is a file stream open to it"
-msgstr "невозможно удалить файл ~S, т.к. существует файловый поток, открытый для него"
+msgstr "~S: Невозможно удалить файл ~S, т.к. существует файловый поток, открытый для него"
 
 #: pathname.d:6120
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Cannot rename file ~S since there is a file stream open to it"
-msgstr "невозможно переименовать файл ~S, т.к. существует файловый поток, открытый для него"
+msgstr "~S: Невозможно переименовать файл ~S, т.к. существует файловый поток, открытый для него"
 
 #: pathname.d:6536
 msgid "Open the file anyway"
-msgstr ""
+msgstr "Открыть файл несмотря ни на что"
 
 #: pathname.d:6537
 #, lisp-format
 msgid "~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results"
-msgstr ""
+msgstr "~S: ~S уже связан с файлом ~S, если открыть этот файл как ~S, последствия будут непредсказуемы"
 
 #: pathname.d:7703
 #, lisp-format
@@ -1202,7 +1189,7 @@ msgstr "Создание каталога: "
 #: pathname.d:8867
 #, lisp-format
 msgid "~S: library directory is not known, use a command line option to specify it"
-msgstr "~S: каталог, в котором хранится библиотека CLISP не задан, задайте его в командной строке"
+msgstr "~S: директория установки неизвестна, задайте её в командной строке"
 
 #: stream.d:272 stream.d:13623
 #, lisp-format
