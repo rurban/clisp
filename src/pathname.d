@@ -8864,7 +8864,7 @@ LISPFUNN(lib_directory,0)
     VALUES1(O(lib_dir));
   } else {
     pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: library directory is not known, use a command line option to specify it"));
+    error(error_condition,GETTEXT("~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"));
   }
 }
 
