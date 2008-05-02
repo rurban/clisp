@@ -1,6 +1,7 @@
 2008-05-02  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (dispatch-reader): fix message
+	* io.d (read_macro): ditto
 
 2008-05-01  Sam Steingold  <sds@gnu.org>
 
