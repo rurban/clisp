@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-02 15:06:33-0400\n"
+"POT-Creation-Date: 2008-05-02 16:52:52-0400\n"
 "PO-Revision-Date: 1998-09-02 19:50+0600\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
@@ -1188,8 +1188,8 @@ msgstr "Создание каталога: "
 
 #: pathname.d:8867
 #, lisp-format
-msgid "~S: library directory is not known, use a command line option to specify it"
-msgstr "~S: директория установки неизвестна, задайте её в командной строке"
+msgid "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
+msgstr "~S: директория установки неизвестна, задайте её с помощью -B в командной строке или задайте *LIB-DIRECTORY*"
 
 #: stream.d:272 stream.d:13623
 #, lisp-format
@@ -1722,9 +1722,9 @@ msgid "~S from ~S: ~S is longer than the explicitly given length ~S"
 msgstr "~S из ~S: ~S длиннее, чем явно заданная длина ~S"
 
 #: io.d:3207
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: must specify elements of ~S of length ~S"
-msgstr "~S из ~S: требуется указать элемент ~S длины ~S"
+msgstr "~S из ~S: требуется указать элементы ~S длины ~S"
 
 #: io.d:3217
 #, lisp-format
@@ -1847,9 +1847,9 @@ msgid "~S from ~S: object #Y~S has not the syntax of a compiled closure"
 msgstr "~S из ~S: объект #Y~S не соответствует синтаксису откомпилированного замыкания "
 
 #: io.d:4245
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: invalid code vector length ~S"
-msgstr "~S: недопустимая длина битового вектора ~S"
+msgstr "~S из ~S: недопустимая длина кодового вектора ~S"
 
 #: io.d:4363
 #, lisp-format
@@ -1859,12 +1859,12 @@ msgstr "~S из ~S: некорректный синтаксис для имени файла: #P~S"
 #: io.d:4588
 #, lisp-format
 msgid "~S: peek type should be NIL or T or a character, not ~S"
-msgstr "~S: тип для peek должен быть NIL, T, или литера, а не ~S"
+msgstr "~S: тип для peek должен быть NIL, T, или знак, а не ~S"
 
 #: io.d:4727
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S argument ~S is not an integer between 2 and 36"
-msgstr "~S: ~S аргумент должен быть целым числом между 2 и 36, а не ~S"
+msgstr "~S: ~S аргумент ~S не является целым числом между 2 и 36"
 
 #: io.d:4826
 #, lisp-format
@@ -1896,9 +1896,9 @@ msgid "~S: not enough stack space for carrying out circularity analysis"
 msgstr "~S: недостаточно места в стеке для выполнения анализа цикличности"
 
 #: io.d:8349
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: bad class"
-msgstr "~S: недопустимое ~S"
+msgstr "~S: недопустимый класс"
 
 #: io.d:9471
 #, lisp-format
@@ -1941,7 +1941,7 @@ msgstr "~S: индексы ~S для ~S не типа `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 #: array.d:382 foreign.d:2668
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
-msgstr "~S: индексы ~S для ~S выходят за границы"
+msgstr "~S: индексы ~S для ~S вне диапазона"
 
 #: array.d:439
 #, lisp-format
@@ -1951,7 +1951,7 @@ msgstr "~S: индекс ~S для ~S не типа `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 #: array.d:456
 #, lisp-format
 msgid "~S: index ~S for ~S is out of range"
-msgstr "~S: индекс ~S для ~S выходит за границы"
+msgstr "~S: индекс ~S для ~S вне диапазона"
 
 #: array.d:503
 #, lisp-format
@@ -1959,14 +1959,14 @@ msgid "~S: cannot retrieve values from an array of element type NIL"
 msgstr "~S:  невозможно извлечь значения из массива с типом элемента NIL"
 
 #: array.d:509
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: cannot store values in an array of element type NIL"
-msgstr "~S:  невозможно извлечь значения из массива с типом элемента NIL"
+msgstr "~S:  невозможно записать значения в массив с типом элемента NIL"
 
 #: array.d:515
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: cannot access values of an array of element type NIL"
-msgstr "~S:  невозможно извлечь значения из массива с типом элемента NIL"
+msgstr "~S:  невозможен доступ к значениям из массива с типом элемента NIL"
 
 #: array.d:560
 #, lisp-format
@@ -2154,12 +2154,12 @@ msgid "internal error occured while resizing ~S"
 msgstr "Внутренняя ошибка при изменении размера ~S"
 
 #: hashtabl.d:1867 hashtabl.d:1887 hashtabl.d:1907
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "~S: The value of ~S should be ~S or ~S, not ~S.\n"
 "It has been reset to ~S."
 msgstr ""
-"~S: значение ~S переменной ~S не является ни ~S, ни ~S, ни ~S.\n"
+"~S: Значение переменной ~S должно быть ~S или ~S, а не ~S.\n"
 "Оно переустанавливается в ~S."
 
 #: hashtabl.d:1927
@@ -2188,14 +2188,14 @@ msgid "~S: internal error while building ~S"
 msgstr "~S: внутренняя ошибка при построении ~S"
 
 #: hashtabl.d:2251
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a hash table"
-msgstr "~S: аргумент ~SS не является литерой"
+msgstr "~S: аргумент ~S не является хэш-таблицей"
 
 #: list.d:747
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is a circular list"
-msgstr "~S: ~S не является ~S"
+msgstr "~S: ~S - цикличный список"
 
 #: list.d:1145
 #, lisp-format
@@ -2246,36 +2246,35 @@ msgid "symbol ~A from ~A will become a shadowing symbol"
 msgstr "символ ~A из ~A станет затеняющим символом"
 
 #: package.d:970
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "Uninterning ~S from ~S uncovers a name conflict.\n"
 "You may choose the symbol in favour of which to resolve the conflict."
-msgstr "Вы можете выбрать символ, в пользу которого разрешить конфликт."
+msgstr ""
+"Исключение ~S из ~S вызывает конфликт имен.\n"
+"Вы можете выбрать символ, в пользу которого разрешить конфликт."
 
 #: package.d:1018
-#, fuzzy
 msgid "((IMPORT \"import it and unintern the other symbol\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
-msgstr "((\"I\" \"импортировать этот символ и исключить другой\" T) (\"N\" \"не включать новый символ, оставить как было\" NIL))"
+msgstr "((IMPORT \"импортировать этот символ и исключить другой\" T) (IGNORE \"не включать новый символ, оставить как было\" NIL))"
 
 #: package.d:1022
-#, fuzzy
 msgid "((IMPORT \"import it, unintern one other symbol and shadow the other symbols\" . T) (IGNORE \"do not import it, leave undone\" . NIL))"
-msgstr "((\"I\" \"импоротировать этот символ, исключить другой и затенить остальные\" T) (\"N\" \"не включать символ, оставить как было\" NIL))"
+msgstr "((IMPORT \"импоротировать этот символ, исключить другой и затенить остальные\" T) (IGNORE \"не включать символ, оставить как было\" NIL))"
 
 #: package.d:1026
-#, fuzzy
 msgid "((IMPORT \"import it and shadow the other symbol\" . T) (IGNORE \"do nothing\" . NIL))"
-msgstr "((\"I\" \"импоротировать этот символ и затенить другой\" T) (\"N\" \"ничего не трогать\" NIL))"
+msgstr "((IMPORT \"импоротировать этот символ и затенить другой\" T) (IGNORE \"ничего не трогать\" NIL))"
 
 #: package.d:1032
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S and other symbols."
-msgstr "импорт ~SS в ~SS приводит к конфликту имен с ~SS и другими символами."
+msgstr "Импорт ~S в ~S приводит к конфликту имен с ~S и другими символами."
 
 #: package.d:1033
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Importing ~S into ~S produces a name conflict with ~S."
-msgstr "импорт ~SS в ~SS приводит к конфликту имен с ~SS."
+msgstr "Импорт ~S в ~S приводит к конфликту имен с ~S."
 
 #: package.d:1133
 #, lisp-format
@@ -2288,14 +2287,13 @@ msgid "UNEXPORT works only on accessible symbols, not on ~S in ~S"
 msgstr "UNEXPORT работает только на доступных символах, а не на ~S в ~S"
 
 #: package.d:1200
-#, fuzzy
 msgid "((IMPORT \"import the symbol first\" . T) (IGNORE \"do nothing, do not export the symbol\" . NIL))"
-msgstr "((\"I\" \"сначала импортировать символ\" T) (\"N\" \"ничего не делать, не экспортировать\" NIL))"
+msgstr "((IMPORT \"сначала импортировать символ\" T) (IGNORE \"ничего не делать, не экспортировать\" NIL))"
 
 #: package.d:1202
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Symbol ~S should be imported into ~S before being exported."
-msgstr "символ ~SS должен быть импортирован в ~SS прежде чем его можно будет экспортировать."
+msgstr "~S: Символ ~S должен быть импортирован в ~S прежде чем его можно будет экспортировать."
 
 #: package.d:1236
 msgid "the symbol to export, "
@@ -2306,27 +2304,31 @@ msgid "the old symbol, "
 msgstr "прежний символ, "
 
 #: package.d:1261
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "Exporting ~S from ~S produces a name conflict with ~S from ~S.\n"
 "You may choose which symbol should be accessible in ~S."
-msgstr "экспорт ~SS из ~SS создаёт конфликт имён с ~SS из ~SS."
+msgstr ""
+"Экспорт ~S из ~S создаёт конфликт имён с ~S из ~S.\n"
+"Вы можете выбрать, какой символ должен быть доступен в ~S."
 
 #: package.d:1488
-#, fuzzy, lisp-format
+#, lisp-format
 msgid ""
 "(~S ~S ~S): ~S name conflicts remain\n"
 "Which symbol with name ~S should be accessible in ~S?"
-msgstr "какой символ с именем ~SS должен быть доступен в пакете ~SS ?"
+msgstr ""
+"(~S ~S ~S): осталось ~S конфликтов имён\n"
+"Какой символ с именем ~S должен быть доступен в пакете ~S?"
 
 #: package.d:1722
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The value of *PACKAGE* was not a package and was reset. The old value was ~S. The new value is ~S."
-msgstr "Значение *PACKAGE* не было пакетом. Прежнее значение ~S. Новое значение ~S."
+msgstr "Значение *PACKAGE* не было пакетом и было переустановлено. Прежнее значение ~S. Новое значение ~S."
 
 #: package.d:1723
 msgid "Proceed with the new value."
-msgstr ""
+msgstr "Продолжать с новым значением"
 
 #: package.d:1746
 #, lisp-format
