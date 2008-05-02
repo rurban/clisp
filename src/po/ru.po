@@ -1227,9 +1227,9 @@ msgid "integer ~S is out of range, cannot be output onto ~S"
 msgstr "целое число ~S находится вне допустимого диапазона и не может выводиться в ~S"
 
 #: stream.d:1179
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a stream of type ~S"
-msgstr "~S: аргумент ~S должен быть потоком типа ~S"
+msgstr "~S: аргумент ~S не является потоком типа ~S"
 
 #: stream.d:1237
 #, lisp-format
@@ -1242,19 +1242,19 @@ msgid "~S: argument ~S should be an output stream"
 msgstr "~S: аргумент ~S должен быть потоком вывода"
 
 #: stream.d:1543
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument should be a symbol, not ~S"
-msgstr "~S: аргумент должен быть ~S, а не ~S"
+msgstr "~S: аргумент должен быть символом, а не ~S"
 
 #: stream.d:2394 stream.d:2881
 #, lisp-format
 msgid "~S is beyond the end because the string ~S has been adjusted"
-msgstr "~S после конца, потому что длина строки ~S увеличилась"
+msgstr "~S после конца, потому что длина строки ~S изменилась"
 
 #: stream.d:2509
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a string input stream"
-msgstr "~S: ~S не является буферизованным потоком ввода"
+msgstr "~S: ~S не является потоком ввода из строки"
 
 #: stream.d:2581 charstrg.d:3209
 #, lisp-format
@@ -1262,9 +1262,9 @@ msgid "~S: ~S argument must be a subtype of ~S, not ~S"
 msgstr "~S: аргумент ~S должен быть подтипом ~S, а не ~S"
 
 #: stream.d:2636
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a string output stream"
-msgstr "~S: ~S не является буферизованным потоком ввода"
+msgstr "~S: ~S не является потоком вывода в строку"
 
 #: stream.d:2670
 #, lisp-format
@@ -1272,9 +1272,9 @@ msgid "~S: argument ~S should be a string with fill pointer"
 msgstr "~S: аргумент ~S должен быть строкой с указателем заполнения"
 
 #: stream.d:2721
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a string stream"
-msgstr "~S: ~S не является буферизованным потоком ввода"
+msgstr "~S: ~S не является строковым потоком"
 
 #: stream.d:2972
 #, lisp-format
@@ -1322,9 +1322,9 @@ msgid "file ~S is not an integer file"
 msgstr "~S - не файл целых чисел"
 
 #: stream.d:8982
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
-msgstr "Значение ~S, возвращенное ~S не является ~S."
+msgstr "Значение ~S, возвращенное ~S не является списком."
 
 #: stream.d:9003
 #, lisp-format
@@ -1375,14 +1375,14 @@ msgid "host should be string, not ~S"
 msgstr "адрес сервера должен быть строкой, а не ~S"
 
 #: stream.d:13360
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "дисплей должен быть неотрицательным ограниченным целым, а не ~S"
 
 #: stream.d:13435 stream.d:16684 stream.d:16742 stream.d:16795 stream.d:16854 io.d:948
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
-msgstr "~S: Поток ввода ~S достиг своего конца"
+msgstr "~S: поток ввода ~S достиг своего конца"
 
 #: stream.d:13618 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1025
 #, lisp-format
@@ -1401,12 +1401,12 @@ msgstr "~S: аргумент ~S не типа SOCKET-STREAM"
 
 #: stream.d:13686
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
-msgstr ""
+msgstr "ПРЕДУПРЕЖДЕНИЕ: вызов (socket-server <socket>) нежелателен, используйте (socket-server <port> :interface <socket>)"
 
 #: stream.d:13942
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not an open stream"
-msgstr "~S: аргумент ~S не является открытым ~S"
+msgstr "~S: аргумент ~S не является открытым потоком"
 
 #: stream.d:14162
 #, lisp-format
@@ -1414,19 +1414,19 @@ msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: список ~S слишком длинный (~S - максимум)"
 
 #: stream.d:14389
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: аргумент ~S должен быть потоком типа ~S"
 
 #: stream.d:14601
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Некорректное направление ~S для файла ~S."
 
 #: stream.d:14631
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
-msgstr "~S: ~S должно быть номером файла, файловым потоком или направлением"
+msgstr "~S: ~S должно быть номером файла, файловым потоком или ондним из ~S, ~S, ~S"
 
 #: stream.d:14916
 #, lisp-format
@@ -1453,9 +1453,9 @@ msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: ~S в ~S не может быть преобразованным из ~S в ~S."
 
 #: stream.d:15829
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
-msgstr "Значение ~S, возвращенное ~S не является ~S."
+msgstr "Значение ~S, возвращенное ~S не является строкой."
 
 #: stream.d:16340
 #, lisp-format
@@ -1493,9 +1493,9 @@ msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S не является ~S, не может выводиться в ~S"
 
 #: stream.d:17010
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not an open file stream"
-msgstr "~S: аргумент ~S не является открытым ~S"
+msgstr "~S: аргумент ~S не является открытым файловым потоком"
 
 #: stream.d:17064
 #, lisp-format
@@ -1503,14 +1503,14 @@ msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S
 msgstr "~S: позиция должна быть задана ~S, ~S или неотрицательным целым, а не ~S"
 
 #: socket.d:475
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: IP address ~S must have length ~S or ~S"
-msgstr "~S: аргумент ~S должен быть или ~S или ~S."
+msgstr "~S: IP адрес ~S должен иметь длину ~S или ~S."
 
 #: socket.d:477
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: IP address ~S must have length ~S"
-msgstr "~S: массив ~S не имеет типа элемента ~S"
+msgstr "~S: IP адрес ~S должен иметь длину ~S"
 
 #: io.d:481
 #, lisp-format
@@ -1533,9 +1533,9 @@ msgid "~S: ~S is not a dispatch macro character"
 msgstr "~S: ~S не является диспетчерским макрознаком"
 
 #: io.d:793
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: digit ~C not allowed as sub-char"
-msgstr "~S: цифру $ не разрешается использовать как подзнак диспетчерского макрознака"
+msgstr "~S: цифру ~C не разрешается использовать как подзнак диспетчерского макрознака"
 
 #: io.d:840
 #, lisp-format
@@ -1552,18 +1552,14 @@ msgstr ""
 "Сброс значения в 10."
 
 #: io.d:918 defs2.lisp:178
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: character read should be a character: ~S"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S из ~S: считанный знак должен быть литерой: ~S\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S из ~S: считанный знак должен быть знаком: ~S"
+msgstr "~S из ~S: считанный знак должен быть знаком: ~S"
 
 #: io.d:960
 #, lisp-format
 msgid "~S: input stream ~S ends within an object. Last opening parenthesis probably in line ~S."
-msgstr "~S: поток ввода ~S заканчивается внутри объекта. Последняя открытая скобка, возможно, в строке ~S."
+msgstr "~S: поток ввода ~S заканчивается внутри объекта. Последняя открытая скобка, вероятно, в строке ~S."
 
 #: io.d:964
 #, lisp-format
@@ -1596,22 +1592,14 @@ msgid "~S from ~S: macro character definition for ~S may not return ~S values, o
 msgstr "~S из ~S: определение макрознака для ~S не может возвращать значений ~S, допускается только одно значение."
 
 #: io.d:1849 defs2.lisp:172
-#, fuzzy, lisp-format
-msgid "~S: input stream ~S ends within read macro beginning to ~S"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: входной поток ~S заканчивается внутри макроса чтения знака с началом в ~S\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: поток ввода ~S заканчивается внутри макроса чтения знака, начинающегося с ~S"
+#, lisp-format
+msgid "~S: input stream ~S ends within read macro beginning with ~S"
+msgstr "~S: поток ввода ~S заканчивается внутри макроса чтения, начинающегося с ~S"
 
 #: io.d:1881 defs2.lisp:199
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: After ~S is ~S an undefined dispatch macro character"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S из ~S: После ~S символ ~S является неопределенным диспетчерским макрознаком\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S из ~S: После ~S стоит ~S - неопределенный диспетчерский макрознак"
+msgstr "~S из ~S: После ~S стоит ~S - неопределенный диспетчерский макрознак"
 
 #: io.d:1893
 #, lisp-format
@@ -1631,7 +1619,7 @@ msgstr "~S из ~S: слишком много двоеточий в лексеме ~S"
 #: io.d:2075
 #, lisp-format
 msgid "~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"
-msgstr ""
+msgstr "~S из ~S: лексема ~S содержит недействительный составляющий знак (см. ANSI CL 2.1.4.2.)"
 
 #: io.d:2122
 #, lisp-format
@@ -1649,14 +1637,14 @@ msgid "~S from ~S: token \".\" not allowed here"
 msgstr "~S из ~S: лексема \".\" здесь неуместна"
 
 #: io.d:2213
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: the value of ~S has been arbitrarily altered to ~S"
-msgstr "~S: значение ~S было произвольно изменено"
+msgstr "~S: значение ~S было произвольно изменено на ~S"
 
 #: io.d:2221
 #, lisp-format
 msgid "~S: symbol ~S is not bound, it appears that top-level ~S was called with a non-NIL recursive-p argument"
-msgstr ""
+msgstr "~S: символ ~S не связан, похоже, верхнеуровневый ~S был вызван с аргументом recursive-p не NIL"
 
 #: io.d:2257
 #, lisp-format
@@ -1679,14 +1667,14 @@ msgid "~S: input stream ~S ends within a string"
 msgstr "~S: поток ввода ~S заканчивается внутри строковой константы"
 
 #: io.d:2717
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: no number allowed between # and ~C"
-msgstr "~S из ~S: числа не разрешены между # и $"
+msgstr "~S из ~S: числа не разрешены между # и ~C"
 
 #: io.d:2806
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: input stream ~S ends within a comment #~C ... ~C#"
-msgstr "~S: поток ввода ~S заканчивается внутри комментария #$ ... $#"
+msgstr "~S: поток ввода ~S заканчивается внутри комментария #~C ... ~C#"
 
 #: io.d:2873
 #, lisp-format
@@ -1699,9 +1687,9 @@ msgid "~S from ~S: there is no character with name ~S"
 msgstr "~S из ~S: нет знака с именем ~S"
 
 #: io.d:2994
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: token ~S after #~C is not a rational number in base ~S"
-msgstr "~S из ~S: лексема ~S после #$ не является рациональным числом с основанием ~S"
+msgstr "~S из ~S: лексема ~S после #~C не является рациональным числом с основанием ~S"
 
 #: io.d:3058
 #, lisp-format
@@ -1729,19 +1717,19 @@ msgid "~S from ~S: token ~S after #: should contain no colon"
 msgstr "~S из ~S: лексема ~S после # не должна содержать двоеточия"
 
 #: io.d:3198
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: ~S is longer than the explicitly given length ~S"
-msgstr "~S из ~S: вектор длиннее, чем явно заданная длина ~S"
+msgstr "~S из ~S: ~S длиннее, чем явно заданная длина ~S"
 
 #: io.d:3207
 #, fuzzy, lisp-format
 msgid "~S from ~S: must specify elements of ~S of length ~S"
-msgstr "~S из ~S: требуется указать элемент вектора длины ~S"
+msgstr "~S из ~S: требуется указать элемент ~S длины ~S"
 
 #: io.d:3217
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: invalid ~S length ~S"
-msgstr "~S: недопустимая длина битового вектора ~S"
+msgstr "~S из ~S: недопустимая ~S длина ~S"
 
 #: io.d:3266
 #, lisp-format
@@ -1759,9 +1747,9 @@ msgid "~S from ~S: ~S = ~S does not allow the evaluation of ~S"
 msgstr "~S из ~S: ~S = ~S не позволяет оценивание ~S"
 
 #: io.d:3592
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S from ~S: a number must be given between # and ~C"
-msgstr "~S из ~S: число должно быть задано между # и $"
+msgstr "~S из ~S: число должно быть задано между # и ~C"
 
 #: io.d:3641
 #, lisp-format
@@ -1786,7 +1774,7 @@ msgstr "~S from ~S: объекты, напечатанные в виде #<...>, не могут быть снова счи
 #: io.d:3721
 #, lisp-format
 msgid "~S from ~S: objects printed as # in view of ~S cannot be read back in"
-msgstr "~S из ~S: объекты, напечатанные как # не могут быть снова считаны ввиду ~S"
+msgstr "~S из ~S: объекты, напечатанные как # ввиду ~S не могут быть снова считаны"
 
 #: io.d:3751
 #, lisp-format
@@ -1794,9 +1782,9 @@ msgid "~S from ~S: illegal feature ~S"
 msgstr "~S из ~S: свойство ~S недопустимо"
 
 #: io.d:3755
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: illegal feature ~S"
-msgstr "~S из ~S: свойство ~S недопустимо"
+msgstr "~S: свойство ~S недопустимо"
 
 #: io.d:3923
 #, lisp-format
