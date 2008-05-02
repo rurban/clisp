@@ -192,7 +192,8 @@ impnotes.pdf: impnotes.fo
 
 html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
-	cd html && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
+	cd $@/ && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
+	cp -pv impnotes.css $@/
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
 	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl chunk.tdb
 	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
@@ -201,7 +202,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	mv -f ../build/clisp-1.html $@/clisp.html
 	rm -f _clisp-1.html
 	egrep -Hnr 'id="id[0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p html/*.html html/id-href.map impnotes.css \
+	(test -n "$(DIST)" && scp -p $@/*.html $@/id-href.map impnotes.css \
 	 $(DIST)/impnotes/;) || true
 
 # try to use http://www.graphviz.org/ instead of openoffice for MOP
