@@ -6,8 +6,8 @@
 # Также принимали участие в переводе:
 #
 # Городняя Лидия Васильевна <gorod@lidia.iis.nsk.su>
-# Дмитрий Иванов          <divanov@aha.ru>
-# Sam Steingold               <sds@gnu.org>
+# Дмитрий Иванов            <divanov@aha.ru>
+# Сёма Штейнгольд           <sds@gnu.org>
 #
 msgid ""
 msgstr ""
@@ -50,7 +50,7 @@ msgid ""
 "Please see <http://clisp.cons.org/impnotes/faq.html#faq-bugs> for bug reporting instructions."
 msgstr ""
 "внутренняя ошибка: достигнут оператор в файле ~S, строка ~S!!\n"
-"Пожалуйста, сообщите авторам программы, как вы вышли на эту ошибку!"
+"Пожалуйста, сообщите авторам программы, как вы вышли на эту ошибку! См. <http://clisp.cons.org/impnotes/faq.html#faq-bugs>."
 
 #: spvw.d:712
 msgid "Unknown FSUBR signature: %d %d %d\n"
@@ -61,40 +61,34 @@ msgid "Unknown SUBR signature: %d %d %d %d"
 msgstr "Неизвестная сигнатура SUBR: %d %d %d %d"
 
 #: spvw.d:1550
-#, fuzzy
 msgid "module '%s' requires package %s.\n"
 msgstr "модуль `%s' требует пакета %s.\n"
 
 #: spvw.d:1560
-#, fuzzy
 msgid "module '%s' redefines symbol "
-msgstr "модуль `%s' требует пакета %s.\n"
+msgstr "модуль `%s' переопределяет символ "
 
 #: spvw.d:1562
-#, fuzzy
 msgid " in the locked package "
-msgstr "удаленный пакет."
+msgstr " в заблокированном пакете "
 
 #: spvw.d:1564
-#, fuzzy
 msgid ""
 "\n"
 "old definition: "
-msgstr " с макроопределением"
+msgstr ""
+"\n"
+"старое определение: "
 
 #: spvw.d:1601
-#, fuzzy
 msgid "is an ANSI Common Lisp."
-msgstr ""
-" - реализация ANSI Common Lisp.\n"
-"Использование:  "
+msgstr " - реализация ANSI Common Lisp."
 
 #: spvw.d:1603
 msgid "Usage:  "
-msgstr ""
+msgstr "Использование: "
 
 #: spvw.d:1605
-#, fuzzy
 msgid ""
 " [options] [lispfile [argument ...]]\n"
 " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
@@ -123,9 +117,8 @@ msgid " --license     - print the licensing information\n"
 msgstr " --license     - вывод информации о лицензии\n"
 
 #: spvw.d:1613
-#, fuzzy
 msgid " -help-image   - print image-specific help and exit\n"
-msgstr " -h, --help    - вывод этой справки и выход\n"
+msgstr " -h, --help    - вывод справки о данном образе памяти и выход\n"
 
 #: spvw.d:1614
 msgid "Memory image selection:\n"
@@ -207,7 +200,7 @@ msgstr " -traditional  - традиционные установки clisp (отменяет -ansi)\n"
 
 #: spvw.d:1637
 msgid " -modern       - start in a case-sensitive lowercase-preferring package\n"
-msgstr ""
+msgstr " -modern       - запускаться в пакете чувствительном к регистру и предпочитающем нижний регистр"
 
 #: spvw.d:1638
 msgid " -p package    - start in the package\n"
@@ -230,30 +223,28 @@ msgid "Actions:\n"
 msgstr "Действия:\n"
 
 #: spvw.d:1643
-#, fuzzy
 msgid " -c [-l] lispfile [-o outputfile] - compile lispfile\n"
 msgstr " -c [-l] лисп-файл [-o вых-файл] - компилировать лисп-файл\n"
 
 #: spvw.d:1644
 msgid " -x expressions - execute the expressions, then exit\n"
-msgstr " -x выражения  - выполнить выражения и завершить работу\n"
+msgstr " -x выражения   - выполнить выражения и завершить работу\n"
 
 #: spvw.d:1645
 msgid " Depending on the image, positional arguments can mean:\n"
-msgstr ""
+msgstr " В зависимости от образа памяти, позиционные аргументы могут значить:\n"
 
 #: spvw.d:1646
-#, fuzzy
 msgid "   lispscript [argument ...] - load script, then exit\n"
-msgstr " лисп-файл [аргумент1 ...] - загрузить лисп файл и завершить работу\n"
+msgstr "   лисп-файл [аргумент ...]  - загрузить лисп файл и завершить работу\n"
 
 #: spvw.d:1647
 msgid "   [argument ...]            - run the init-function\n"
-msgstr ""
+msgstr "   [аргумент ...]            - выполнить инициализационную функцию\n"
 
 #: spvw.d:1648
 msgid "  arguments are placed in EXT:*ARGS* as strings.\n"
-msgstr ""
+msgstr "  аргументы содержатся в EXT:*ARGS* в виде строк.\n"
 
 #: spvw.d:1649
 msgid "These actions put CLISP into a batch mode, which is overridden by\n"
@@ -261,10 +252,9 @@ msgstr "Эти действия поместят CLISP в пакетный режим, если не задан\n"
 
 #: spvw.d:1650
 msgid " -on-error action - action can be one of debug, exit, abort, appease\n"
-msgstr ""
+msgstr " -on-error действие - действие может быть debug, exit, abort, appease\n"
 
 #: spvw.d:1651
-#, fuzzy
 msgid " -repl            - enter the interactive read-eval-print loop when done\n"
 msgstr " -repl             - по окончании войти в интерактивный цикл чтение-выполнение-печать.\n"
 
@@ -274,20 +264,19 @@ msgstr "По умолчанию - интерактивный цикл чтение-выполнение-печать.\n"
 
 #: spvw.d:1661
 msgid "%s: use '-h' for help"
-msgstr ""
+msgstr "%s: воспользуйтесь аргументом '-h' для справки"
 
 #: spvw.d:1664
-#, fuzzy
 msgid "invalid argument"
-msgstr "Неправильный аргумент"
+msgstr "неправильный аргумент"
 
 #: spvw.d:1804
 msgid "Welcome to"
-msgstr ""
+msgstr "Добро пожаловать"
 
 #: spvw.d:1810
 msgid "Type :h and hit Enter for context help."
-msgstr ""
+msgstr "Напечатайте :h и нажмите Ввод для получения справки."
 
 #: spvw.d:1961
 msgid "Syntax for %s: nnnnnnn or nnnnKB or nMB"
@@ -295,11 +284,11 @@ msgstr "Синтаксис для %s: nnnnnnn, или nnnnKB, или nMB"
 
 #: spvw.d:1967
 msgid "warning: %s %lu too small, using %lu instead"
-msgstr ""
+msgstr "предупреждение: %s %lu слишком мал, использую %lu вместо него"
 
 #: spvw.d:1973
 msgid "warning: %s %lu too large, using %lu instead"
-msgstr ""
+msgstr "предупреждение: %s %lu слишком велик, использую %lu вместо него"
 
 #: spvw.d:2109
 msgid "memory size"
@@ -307,39 +296,36 @@ msgstr "размер памяти"
 
 #: spvw.d:2125
 msgid "multiple -t"
-msgstr ""
+msgstr "несколько -t"
 
 #: spvw.d:2145
 msgid "multiple -B"
-msgstr ""
+msgstr "несколько -B"
 
 #: spvw.d:2180
-#, fuzzy
 msgid "-E requires an argument"
-msgstr "~S обязательных аргументов"
+msgstr "-E требует аргумент"
 
 #: spvw.d:2446
 msgid "-l without -c is invalid"
-msgstr ""
+msgstr "-l без -c не допускается"
 
 #: spvw.d:2452
 #, fuzzy
 msgid "-x with -c is invalid"
-msgstr "~S в ~S не допускается"
+msgstr "-x вместе с -c не допускается"
 
 #: spvw.d:2457
 msgid "-x with lisp-file is invalid"
-msgstr ""
+msgstr "-x вместе с лисп-файлом не допускается"
 
 #: spvw.d:2590
-#, fuzzy
 msgid "Return value of malloc() = %lx is not compatible with type code distribution."
-msgstr "Значение функции malloc() = %x не совместимо с typecode."
+msgstr "Значение функции malloc() = %x не совместимо с распределением кодов типов."
 
 #: spvw.d:2597
-#, fuzzy
 msgid "Only %ld bytes available."
-msgstr "Только %d байтов доступно."
+msgstr "Доступно только %d байтов."
 
 #: spvw.d:2851
 msgid "Could not determine the end of the SP stack!"
@@ -355,17 +341,19 @@ msgstr "Попробуйте: "
 
 #: spvw.d:3021
 msgid "WARNING: No installation directory specified."
-msgstr "ПРЕДУПРЕЖДЕНИЕ: Не указан файл инициализации."
+msgstr "ПРЕДУПРЕЖДЕНИЕ: Не указана директория установки."
 
 #: spvw.d:3084
 msgid "All positional arguments are put into "
-msgstr ""
+msgstr "Все позиционные аргументы помещаются в "
 
 #: spvw.d:3086
 msgid ""
 "The first positional argument is the script name,\n"
 "the rest are put into "
 msgstr ""
+"Первый позиционный аргумент - имя скрипта.\n"
+"остальные помещаются в "
 
 #: spvw.d:3195
 msgid "WARNING: no such package: "
@@ -373,7 +361,7 @@ msgstr "ПРЕДУПРЕЖДЕНИЕ: нет такого пакета: "
 
 #: spvw.d:3413
 msgid "%s: Not enough memory for Lisp."
-msgstr "%s: Не достаточно памяти для Лиспa."
+msgstr "%s: Недостаточно памяти для Лиспa."
 
 #: spvw.d:3488
 msgid "Bye."
@@ -392,17 +380,14 @@ msgid "*** - Memory exhausted. RESET"
 msgstr "*** - Исчерпана память. СБРОС"
 
 #: spvw_mmap.d:64 spvw_mmap.d:192 spvw_mmap.d:351 spvw_multimap.d:160
-#, fuzzy
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Невозможно проецировать память на адрес 0x%x ."
+msgstr "Невозможно спроецировать память на адрес 0x%x ."
 
 #: spvw_mmap.d:165
-#, fuzzy
 msgid "Cannot reserve address range at 0x%lx ."
 msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
 
 #: spvw_mmap.d:175
-#, fuzzy
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
 msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
 
