@@ -1,3 +1,7 @@
+2008-05-02  Sam Steingold  <sds@gnu.org>
+
+	* defs2.lisp (dispatch-reader): fix message
+
 2008-05-01  Sam Steingold  <sds@gnu.org>
 
 	* utils/fix-perms.sh: *.xsl & *.css are not executable
