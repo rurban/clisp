@@ -1846,7 +1846,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
           pushSTACK(ch);        /* main char */
           pushSTACK(*stream_);  /* Stream */
           pushSTACK(S(read));
-          error(end_of_file,GETTEXT("~S: input stream ~S ends within read macro beginning to ~S"));
+          error(end_of_file,GETTEXT("~S: input stream ~S ends within read macro beginning with ~S"));
         }
         /* otherwise check for character. */
         if (!charp(nextch))
