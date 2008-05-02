@@ -2,6 +2,7 @@
 
 	* defs2.lisp (dispatch-reader): fix message
 	* io.d (read_macro): ditto
+	* pathname.d (SYS::LIB-DIRECTORY): ditto
 
 2008-05-01  Sam Steingold  <sds@gnu.org>
 
