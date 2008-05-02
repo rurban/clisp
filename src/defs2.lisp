@@ -169,7 +169,7 @@
                     (unless nextch
                       (error-of-type 'end-of-file
                         :stream stream
-                        (TEXT "~S: input stream ~S ends within read macro beginning to ~S")
+                        (TEXT "~S: input stream ~S ends within read macro beginning with ~S")
                         'read stream ch
                     ) )
                     (unless (characterp nextch)
