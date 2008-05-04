@@ -953,7 +953,7 @@ local maygc void verify_return_value (gcv_object_t *retvalue,
     pushSTACK(*rettype);        /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(*rettype); pushSTACK(*retvalue);
     pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: The result ~S is not of type ~S"));
+    error(type_error,GETTEXT("~S: the result ~S is not of type ~S"));
   }
 }
 #define VERIFY_RETURN_VALUE(retvalue,rettype)   \
@@ -981,7 +981,7 @@ LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
     if (!boundp(STACK_2)) { /* :initial-element not supplied? */
       if (boundp(STACK_1)) { /* :update without :initial-element -> Error */
         pushSTACK(S(make_sequence));
-        error(error_condition,GETTEXT("~S: :update must not be specified without :initial-element"));
+        error(error_condition,GETTEXT("~S: :UPDATE must not be specified without :INITIAL-ELEMENT"));
       } else if (posfixnump(seq_type(typdescr))) { /* type name integer? (means byte-vector) */
         STACK_2 = Fixnum_0; /* initial-element := 0 */
       }
