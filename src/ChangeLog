@@ -1,5 +1,10 @@
 2008-05-03  Sam Steingold  <sds@gnu.org>
 
+	* foreign.d (check_fvar_alignment): add
+	(FOREIGN-VARIABLE, %OFFSET, FOREIGN-ALLOCATE): use it
+
+2008-05-03  Sam Steingold  <sds@gnu.org>
+
 	* charstrg.d, compiler.lisp, debug.d, defmacro.lisp, error.d:
 	* funarg.d, record.d, sequence.d: tweak i18n messages
 
