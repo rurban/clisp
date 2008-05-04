@@ -2502,7 +2502,7 @@ local maygc void test_1_stringsym_limits (bool invert, object* string_,
     pushSTACK(STACK_0); /* :END-Index */
     pushSTACK(STACK_2); /* :START-Index */
     pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
+    error(error_condition,GETTEXT("~S: :START-index ~S must not be greater than :END-index ~S"));
   }
   skipSTACK(3);
   /* copy string and issue results: */
@@ -2552,7 +2552,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
       pushSTACK(STACK_2); /* :END1-Index */
       pushSTACK(STACK_4); /* :START1-Index */
       pushSTACK(TheSubr(subr_self)->name);
-      error(error_condition,GETTEXT("~S: :start1-index ~S must not be greater than :end1-index ~S"));
+      error(error_condition,GETTEXT("~S: :START1-index ~S must not be greater than :END1-index ~S"));
     }
     /* issue the results for string1: */
     arg1->index = start1; arg1->len = end1-start1;
@@ -2575,7 +2575,7 @@ local void test_2_stringsym_limits (bool invert, stringarg* arg1, stringarg* arg
       pushSTACK(STACK_0); /* :END2-Index */
       pushSTACK(STACK_2); /* :START2-Index */
       pushSTACK(TheSubr(subr_self)->name);
-      error(error_condition,GETTEXT("~S: :start2-index ~S must not be greater than :end2-index ~S"));
+      error(error_condition,GETTEXT("~S: :START2-index ~S must not be greater than :END2-index ~S"));
     }
     /* issue the results for string2: */
     arg2->index = start2; arg2->len = end2-start2;
@@ -3708,7 +3708,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
     pushSTACK(STACK_0); /* :END-Index */
     pushSTACK(STACK_2); /* :START-Index */
     pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: :start-index ~S must not be greater than :end-index ~S"));
+    error(error_condition,GETTEXT("~S: :START-index ~S must not be greater than :END-index ~S"));
   }
   skipSTACK(3);
   /* extract substring: */

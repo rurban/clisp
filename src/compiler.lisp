@@ -3567,7 +3567,7 @@ for-value   NIL or T
     (if (memq sym *ignores*)
       ;; var ignore-declared
       (if (var-specialp var)
-        (c-warn (TEXT "Binding variable ~S can cause side effects despite IGNORE declaration~%since it is declared SPECIAL.")
+        (c-warn (TEXT "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL.")
                 sym)
         (if (var-for-value-usedp var)
           (c-style-warn (TEXT "variable ~S is used despite IGNORE declaration.")

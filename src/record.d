@@ -1126,7 +1126,7 @@ local inline gcv_object_t* ptr_to_slot (object instance, object slotinfo,
   /* invalid location, probably bad :allocation slot option */
   pushSTACK(instance); pushSTACK(slotname);
   pushSTACK(slotinfo); pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option"));
+  error(error_condition,GETTEXT("~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option)"));
 }
 
 /* UP: visits a slot.

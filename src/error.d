@@ -971,7 +971,7 @@ global maygc object check_symbol_not_symbol_macro (object symbol) {
       STACK_2 = CLSTEXT("~S: attempting to turn ~S into a SPECIAL variable, but it is already a global SYMBOL-MACRO.");
     else if (eq(subr_self,L(proclaim_constant)))
       STACK_2 = CLSTEXT("~S: attempting to turn ~S into a constant, but it is already a global SYMBOL-MACRO.");
-    else STACK_2 = CLSTEXT("~S: Interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO.");
+    else STACK_2 = CLSTEXT("~S: interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO.");
     funcall(L(cerror_of_type),5);
     /* continue restart ==> remove SYMBOL-MACRO definition */
     pushSTACK(STACK_0);                  /* save symbol */
@@ -990,7 +990,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
   if (keywordp(symbol)) {
     pushSTACK(symbol); pushSTACK(TheSubr(subr_self)->name);
     error(program_error,
-          GETTEXT("~S: the symbol ~S names a global special variable"));
+          GETTEXT("~S: the symbol ~S names a global SPECIAL variable"));
   }
   if (special_var_p(TheSymbol(symbol))) {
     pushSTACK(symbol);                   /* save */
