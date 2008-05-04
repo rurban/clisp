@@ -137,8 +137,8 @@ the actual object #<MACRO expander> for the FENV.
       ((atom listr)
        (if listr
          (cerror (TEXT "The rest of the lambda list will be ignored.")
-                 (TEXT "The lambda list of macro ~S contains a dot after &AUX.")
-                 name)))
+                 (TEXT "The lambda list of macro ~S contains a dot after ~S.")
+                 name '&aux)))
     (cond ((symbolp (car listr)) (setq %let-list (cons `(,(car listr) nil) %let-list)))
           ((atom (car listr))
            (error-of-type 'source-program-error
@@ -178,8 +178,8 @@ the actual object #<MACRO expander> for the FENV.
       ((atom listr)
        (if listr
          (cerror (TEXT "The rest of the lambda list will be ignored.")
-                 (TEXT "The lambda list of macro ~S contains a dot after &KEY.")
-                 name)))
+                 (TEXT "The lambda list of macro ~S contains a dot after ~S.")
+                 name '&key)))
     (setq next (car listr))
     (cond ((eq next '&ALLOW-OTHER-KEYS) (setq other-keys-forbidden nil))
           ((eq next '&AUX)

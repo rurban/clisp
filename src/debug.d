@@ -1384,7 +1384,8 @@ local maygc gcv_object_t* print_stackitem (const gcv_object_t* stream_,
             env = Car(env);
             if (atomp(env)) {
               pushSTACK(S(show_stack));
-              error(error_condition,GETTEXT("~S: environment is not an alist"));
+              error(error_condition,
+                    GETTEXT("~S: environment is not an association list"));
             }
             pushSTACK(Cdr(env));
             pushSTACK(Car(env));
