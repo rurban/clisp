@@ -305,7 +305,7 @@ global maygc void register_foreign_inttype (const char * name_asciz,
 nonreturning_function(local, error_foreign_type, (object fvd)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(fvd); pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: Illegal foreign data type ~S"));
+  error(error_condition,GETTEXT("~S: illegal foreign data type ~S"));
 }
 
 /* Error message. */
@@ -2509,6 +2509,13 @@ LISPFUNN(find_foreign_variable,5) {
   skipSTACK(5);
 }
 
+static void check_fvar_alignment (object fvar, uintL alignment) {
+  if (((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1))) {
+    pushSTACK(fvar); pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
+  }
+}
+
 /* (FFI:FOREIGN-VARIABLE address c-type &key name) constructor */
 LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
 {
@@ -2550,12 +2557,7 @@ LISPFUN(foreign_variable,seclass_read,2,0,norest,key,1,(kw(name)) )
     TheFvariable(fvar)->fv_address = STACK_2;
     record_flags_replace(TheFvariable(fvar), 0);
   }
-  if (((uintP)Faddress_value(TheFvariable(fvar)->fv_address)
-       & (sas.alignment-1))) {
-    pushSTACK(fvar);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
-  }
+  check_fvar_alignment(fvar,sas.alignment);
   VALUES1(fvar); skipSTACK(3);
 }
 
@@ -2891,12 +2893,7 @@ LISPFUNN(offset,3) {
   TheFvariable(new_fvar)->fv_address = STACK_0;
   TheFvariable(new_fvar)->fv_size    = fixnum(size);
   TheFvariable(new_fvar)->fv_type    = STACK_(0+1);
-  if (((uintP)Faddress_value(TheFvariable(new_fvar)->fv_address)
-       & (alignment-1))) {
-    pushSTACK(new_fvar);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
-  }
+  check_fvar_alignment(new_fvar,alignment);
   VALUES1(new_fvar);
   skipSTACK(3+1);
 }
@@ -3106,12 +3103,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
     /* Must not set fv_malloc flag since it applies
        to sublevel structures only. */
   }
-  /* Check alignment */
-  if (!(((uintP)arg_address & (arg_alignment-1)) == 0)) {
-    pushSTACK(fvar);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
-  }
+  check_fvar_alignment(fvar,arg_alignment);
   { /* :INITIAL-CONTENTS NIL also causes an initialization! */
     var object initarg = STACK_3;
     if (boundp(initarg)) {
@@ -4517,11 +4509,7 @@ local maygc object foreign_library_variable
   TheFvariable(fvar)->fv_address = STACK_0;
   TheFvariable(fvar)->fv_size = fixnum(size);
   TheFvariable(fvar)->fv_type = *fvd;
-  if ((uintP)Faddress_value(TheFvariable(fvar)->fv_address) & (alignment-1)) {
-    pushSTACK(fvar);
-    pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,GETTEXT("~S: foreign variable ~S does not have the required alignment"));
-  }
+  check_fvar_alignment(fvar,alignment);
   STACK_0 = fvar; /* save */
   push_foreign_object(fvar,*library);
   return popSTACK(); /* fvar */
