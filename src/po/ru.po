@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-02 16:52:52-0400\n"
-"PO-Revision-Date: 1998-09-02 19:50+0600\n"
+"POT-Creation-Date: 2008-05-03 22:35:56-0400\n"
+"PO-Revision-Date: 2008-05-03 22:35-0400\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -779,7 +779,7 @@ msgstr "~S: неверная спецификация переменной ~S"
 #: control.d:541
 #, lisp-format
 msgid "~S: symbol ~S has been declared SPECIAL and may not be re-defined as a SYMBOL-MACRO"
-msgstr "~S: символ ~S был объявлен как SPECIAL и не может быт переопределёк как SYMBOL-MACRO"
+msgstr "~S: символ ~S был объявлен как SPECIAL и не может быт переопределён как SYMBOL-MACRO"
 
 #: control.d:546
 #, lisp-format
@@ -1416,7 +1416,7 @@ msgstr "~S: список ~S слишком длинный (~S - максимум)"
 #: stream.d:14389
 #, lisp-format
 msgid "~S: argument ~S should be of type ~S."
-msgstr "~S: аргумент ~S должен быть потоком типа ~S"
+msgstr "~S: аргумент ~S должен быть ~S"
 
 #: stream.d:14601
 #, lisp-format
@@ -1928,17 +1928,17 @@ msgstr "индекс слишком велик"
 msgid "An array has been shortened by adjusting it while another array was displaced to it."
 msgstr "Массив был уменьшен в то время, как другой массив был спроецирован на него."
 
-#: array.d:348 foreign.d:2644
+#: array.d:348 foreign.d:2646
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
 msgstr "~S: задано ~S индексов, но ~S имеет размерность ~S"
 
-#: array.d:360 foreign.d:2659
+#: array.d:360 foreign.d:2661
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~S: индексы ~S для ~S не типа `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
-#: array.d:382 foreign.d:2668
+#: array.d:382 foreign.d:2670
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
 msgstr "~S: индексы ~S для ~S вне диапазона"
@@ -2357,36 +2357,34 @@ msgstr "~S: аргумент должен быть символом или списком символов, а не ~S"
 
 #: package.d:2315
 msgid "discard this nickname"
-msgstr ""
+msgstr "удалить это прозвище"
 
 #: package.d:2316
 msgid "return the existing package"
-msgstr ""
+msgstr "вернуть существующий пакет"
 
 #: package.d:2320
-#, fuzzy
 msgid "input another nickname"
-msgstr "Можете ввести еще одно прозвище."
+msgstr "ввести другое прозвище"
 
 #: package.d:2321
-#, fuzzy
 msgid "input another name"
-msgstr "Можете ввести еще одно имя."
+msgstr "ввести другое имя"
 
 #: package.d:2327
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: a package with name ~S already exists."
-msgstr "пакет с именем ~SS уже существует."
+msgstr "~S: пакет с именем ~S уже существует."
 
 #: package.d:2418
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "One should not change the case sensitiveness of ~S."
-msgstr "Невозможно изменить чувствительность к регистру для ~S."
+msgstr "Не следует изменять чувствительность к регистру для ~S."
 
 #: package.d:2429
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "One should not change the case inversion of ~S."
-msgstr "Невозможно изменить чувствительность к регистру для ~S."
+msgstr "Не следует изменять обращение регистра для ~S."
 
 #: package.d:2499
 msgid "Ignore."
@@ -2423,14 +2421,14 @@ msgid "~S: ~S is not a record"
 msgstr "~S: ~S не является записью"
 
 #: record.d:99
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: length ~S should be of type ~S"
-msgstr "~S: ~S ~S должен быть типа ~S"
+msgstr "~S: длина ~S должна быть ~S"
 
 #: record.d:132
 #, lisp-format
 msgid "~S: ~S is not a structure of type ~S"
-msgstr "~S: ~S не структура типа ~S"
+msgstr "~S: ~S не структура ~S"
 
 #: record.d:180
 #, lisp-format
@@ -2443,9 +2441,9 @@ msgid "~S: ~S is not a closure"
 msgstr "~S: ~S не является замыканием"
 
 #: record.d:312
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a compiled closure"
-msgstr "~S: Это не откомпилированное замыкание: ~S"
+msgstr "~S: ~S - не откомпилированное замыкание"
 
 #: record.d:401
 #, lisp-format
@@ -2463,14 +2461,14 @@ msgid "~S: function ~S is too big: ~S"
 msgstr "~S: функция ~S слишком велика: ~S"
 
 #: record.d:547
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument is not a funcallable instance: ~S"
-msgstr "~S: аргумент не является инородной переменной: ~S"
+msgstr "~S: аргумент не является вызываемым экземпляром: ~S"
 
 #: record.d:554
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument is not a function: ~S"
-msgstr "~S: аргумент не является инородной функцией: ~S"
+msgstr "~S: аргумент не является функцией: ~S"
 
 #: record.d:617
 #, lisp-format
@@ -2480,56 +2478,52 @@ msgstr "~S: Это не прототип родовой функции: ~S"
 #: record.d:811
 #, lisp-format
 msgid "Due to the compiler optimization settings, lambda list for ~S is not available"
-msgstr ""
+msgstr "Ввиду установок оптимизации компилятора, лямбда-список для ~S отсутствует"
 
 #: record.d:954
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a CLOS class-version"
-msgstr "~S: ~S не является классом"
+msgstr "~S: ~S не является версией класса"
 
 #: record.d:1041
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: invalid initialization argument ~S"
-msgstr "~S: неверный аргумент ~S"
+msgstr "~S: неверный инициализационный аргумент ~S"
 
 #: record.d:1129
 #, lisp-format
-msgid "~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option"
-msgstr ""
+msgid "~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option)"
+msgstr "~S: Неверное местонахождение ~S слота ~S в ~S (проверьте слотовый параметр :ALLOCATION)"
 
 #: record.d:1146
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: invalid arguments: class argument ~S is not the class of ~S"
-msgstr "~S: список аргументов для ~S является точечным (заканчивается ~S)"
+msgstr "~S: неверные аргументы: класс ~S не является классом ~S"
 
 #: record.d:1366
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: invalid slot location ~S"
-msgstr "~S ~S: неверный параметр ~S"
+msgstr "~S: неверное местонахождение слота ~S"
 
 #: record.d:1372
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: not a CLOS instance: ~S"
-msgstr "~S: не список: ~S"
+msgstr "~S: не экземпляр CLOS: ~S"
 
 #: record.d:2064 clos-class5.lisp:633
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S method for ~S returned ~S"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"Метод ~S для ~S возвратил ~S\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"метод ~S для ~S возвратил ~S"
+msgstr "метод ~S для ~S возвратил ~S"
 
 #: weak.d:436 weak.d:538
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: the keys list argument is empty"
-msgstr "~S: слишком много аргументов для ~S"
+msgstr "~S: пустой список ключей"
 
 #: weak.d:649
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not an association list"
-msgstr "~S: ~S не является ~S"
+msgstr "~S: ~S не является ассоциативным списком"
 
 #: sequence.d:271
 #, lisp-format
@@ -2539,7 +2533,7 @@ msgstr "Не существует последовательностей типа ~S"
 #: sequence.d:359
 #, lisp-format
 msgid "~S: sequence type forces length ~S, but result has length ~S"
-msgstr "~S: Тип последовательности предполагает длину ~S, но результат имеет длину ~S"
+msgstr "~S: тип последовательности предполагает длину ~S, но результат имеет длину ~S"
 
 #: sequence.d:371
 #, lisp-format
@@ -2562,9 +2556,9 @@ msgid "~S: bad length ~S"
 msgstr "~S: неверная длина ~S"
 
 #: sequence.d:956
-#, fuzzy, lisp-format
-msgid "~S: The result ~S is not of type ~S"
-msgstr "~S: ~S не является ~S"
+#, lisp-format
+msgid "~S: the result ~S is not of type ~S"
+msgstr "~S: результат ~S не является ~S"
 
 #: sequence.d:978
 #, lisp-format
@@ -2573,13 +2567,13 @@ msgstr "~S: размер должен быть целым числом >=0, а не ~S"
 
 #: sequence.d:984
 #, lisp-format
-msgid "~S: :update must not be specified without :initial-element"
-msgstr "~S: :update нельзя употреблять без :initial-element"
+msgid "~S: :UPDATE must not be specified without :INITIAL-ELEMENT"
+msgstr "~S: :UPDATE нельзя указывать без :INITIAL-ELEMENT"
 
 #: sequence.d:2011
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: sequence ~S is too long: ~S is not a FIXNUM"
-msgstr "~S: последовательность ~S слишком длинная"
+msgstr "~S: последовательность ~S слишком длинная: ~S не является ограниченным целым"
 
 #: charstrg.d:1586
 #, lisp-format
@@ -2649,14 +2643,14 @@ msgstr "~S: ~S-индекс ~S не должен быть больше, чем длина строки"
 #: charstrg.d:2239
 #, lisp-format
 msgid "~S: index ~S should be less than the length of the string"
-msgstr "~S: индекс ~S должен быть меньше, чем длина строки (string)"
+msgstr "~S: индекс ~S должен быть меньше, чем длина строки"
 
 #: charstrg.d:2242
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S-index ~S should be less than the length of the string"
-msgstr "~S: ~S-index ~S индекс ~S должен быть меньше, чем длина строки (string)"
+msgstr "~S: ~S индекс ~S должен быть меньше, чем длина строки"
 
-#: charstrg.d:2401
+#: charstrg.d:2401 charstrg.d:2505 charstrg.d:3711
 #, lisp-format
 msgid "~S: :START-index ~S must not be greater than :END-index ~S"
 msgstr "~S: начальный индекс ~S не должен быть больше, чем конечный ~S"
@@ -2664,22 +2658,17 @@ msgstr "~S: начальный индекс ~S не должен быть больше, чем конечный ~S"
 #: charstrg.d:2466
 #, lisp-format
 msgid "~S: argument ~S should be a string, a symbol or a character"
-msgstr "~S: аргумент ~S должен быть строкой, символом или литерой "
-
-#: charstrg.d:2505 charstrg.d:3711
-#, lisp-format
-msgid "~S: :start-index ~S must not be greater than :end-index ~S"
-msgstr "~S: начальный индекс ~S не должен быть больше, чем конечный ~S"
+msgstr "~S: аргумент ~S должен быть строкой, символом или знаком"
 
 #: charstrg.d:2555
 #, lisp-format
-msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
-msgstr "~S: начальный индекс 1 ~S не должен быть больше, чем конечный индекс 1 ~S"
+msgid "~S: :START1-index ~S must not be greater than :END1-index ~S"
+msgstr "~S: первый начальный индекс ~S не должен быть больше, чем первый конечный индекс ~S"
 
 #: charstrg.d:2578
 #, lisp-format
-msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
-msgstr "~S: начальный индекс 2 ~S не должен быть больше, чем конечный индекс 2 ~S"
+msgid "~S: :START2-index ~S must not be greater than :END2-index ~S"
+msgstr "~S: второй начальный индекс ~S не должен быть больше, чем второй конечный индекс ~S"
 
 #: charstrg.d:3194
 #, lisp-format
@@ -2687,9 +2676,9 @@ msgid "~S: the string length ~S should be nonnegative fixnum"
 msgstr "~S: длина строки ~S должен быть неотрицательным ограниченным целым"
 
 #: charstrg.d:3226
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S argument ~S should be of type ~S"
-msgstr "~S: аргумент ~S должен быть потоком типа ~S"
+msgstr "~S: ~S аргумент ~S должен быть ~S"
 
 #: debug.d:857
 #, lisp-format
@@ -2779,82 +2768,78 @@ msgstr "вложенный фрейм размеченной подпрограммы "
 msgid " for"
 msgstr " для"
 
-#: debug.d:1387
+#: debug.d:1388
 #, lisp-format
-msgid "~S: environment is not an alist"
+msgid "~S: environment is not an association list"
 msgstr "~S: окружение не является ассоциативным списком"
 
-#: debug.d:1400
+#: debug.d:1401
 msgid "catch frame for tag "
 msgstr "фрейм catch с меткой "
 
-#: debug.d:1404
+#: debug.d:1405
 msgid "handler frame for conditions"
 msgstr "фрейм обработчика для исключений "
 
-#: debug.d:1414
+#: debug.d:1415
 msgid "unwind-protect frame"
 msgstr "фрейм unwind-protect"
 
-#: debug.d:1418
+#: debug.d:1419
 msgid "driver frame"
 msgstr "фрейм драйвера"
 
-#: debug.d:1422 debug.d:1427 debug.d:1432 debug.d:1437 debug.d:1442 debug.d:1447 debug.d:1454
+#: debug.d:1423 debug.d:1428 debug.d:1433 debug.d:1438 debug.d:1443 debug.d:1448 debug.d:1455
 msgid "frame binding environments"
 msgstr "окружения для связывания фрейма"
 
-#: debug.d:1468
+#: debug.d:1469
 #, lisp-format
 msgid "~S: unknown frame type"
 msgstr "~S: неизвестный тип фрейма"
 
 #: error.d:57 reploop.lisp:472
 msgid "Unprintable error message"
-msgstr "Непечатное ($%__^^%&^) сообщение об ошибке"
+msgstr "Непечатное ($%_^_^%&^) сообщение об ошибке"
 
 #: error.d:183
 #, lisp-format
 msgid "internal error or error in message catalog: invalid low-level format string ~S"
-msgstr ""
+msgstr "внутренняя ошибка или ошибка в каталоге сообщений: неверная низкоуровневая строка форматирования ~S"
 
 #: error.d:725 error.d:730
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: User break"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: Выполнение прервано пользователем\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: Прервано пользователем"
+msgstr "~S: Прервано пользователем"
 
 #: error.d:728
 msgid "Continue execution"
 msgstr "Продолжать выполнение"
 
-#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2527 foreign.d:3192
-#, fuzzy, lisp-format
+#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2534 foreign.d:3184
+#, lisp-format
 msgid "~S: ~S is not of type ~S"
 msgstr "~S: ~S не является ~S"
 
 #: error.d:826 error.d:828
 #, lisp-format
 msgid "~S: ~S comes from a previous Lisp session and is invalid"
-msgstr "~S: ~S осталось от прошлого сеанса Лиспа и некорректно"
+msgstr "~S: ~S осталось от прошлого сеанса Лиспа и посему некорректно"
 
 #: error.d:845 error.d:870
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a list"
-msgstr "~S: ~S не является ~S"
+msgstr "~S: ~S не является списком"
 
 #: error.d:881
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: A proper list must not end with ~S"
 msgstr "~S: Истинный список не должен заканчиваться ~S"
 
 #: error.d:894
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: A proper list must not be circular: ~S"
-msgstr "~S: Истинный список не должен заканчиваться ~S"
+msgstr "~S: Истинный список не должен зацикливаться: ~S"
 
 #: error.d:929
 #, lisp-format
@@ -2868,56 +2853,51 @@ msgstr "~S: ~S не является символом и не может быть объявлена как ~S"
 
 #: error.d:969
 msgid "Remove the global SYMBOL-MACRO definition"
-msgstr ""
+msgstr "Убрать глобальное определение как SYMBOL-MACRO"
 
 #: error.d:971
 #, lisp-format
 msgid "~S: attempting to turn ~S into a SPECIAL variable, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgstr "~S: попытка превратить ~S в специальную переменную, но этот символ уже определён как глобальный SYMBOL-MACRO."
 
 #: error.d:973
 #, lisp-format
 msgid "~S: attempting to turn ~S into a constant, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgstr "~S: попытка превратить ~S в константу, но этот символ уже определён как глобальный SYMBOL-MACRO."
 
 #: error.d:974
 #, lisp-format
-msgid "~S: Interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
-msgstr ""
+msgid "~S: interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
+msgstr "~S: включение ~S в пакет KEYWORD сделает его константой, но он уже определён как глобальный SYMBOL-MACRO."
 
-#: error.d:993
-#, fuzzy, lisp-format
-msgid "~S: the symbol ~S names a global special variable"
+#: error.d:993 error.d:1005
+#, lisp-format
+msgid "~S: the symbol ~S names a global SPECIAL variable"
 msgstr "~S: символ ~S именует глобальную переменную"
 
 #: error.d:1004
 msgid "Remove the global SPECIAL variable binding"
-msgstr ""
-
-#: error.d:1005
-#, fuzzy, lisp-format
-msgid "~S: the symbol ~S names a global SPECIAL variable"
-msgstr "~S: символ ~S именует глобальную переменную"
+msgstr "Убрать глобальное связывание"
 
 #: error.d:1035
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a vector"
-msgstr "~S: ~S не является записью"
+msgstr "~S: ~S не является вектором"
 
 #: error.d:1043
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not an array"
-msgstr "~S: ~S-аргумент ~S не является массивом"
+msgstr "~S: аргумент ~S не является массивом"
 
 #: error.d:1050
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a vector"
-msgstr "~S: аргумент ~S не является ~S"
+msgstr "~S: аргумент ~S не является вектором"
 
 #: error.d:1063
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a vector of type ~S"
-msgstr "~S: аргумент ~S должен быть потоком типа ~S"
+msgstr "~S: аргумент ~S должен быть вектором типа ~S"
 
 #: error.d:1077
 #, lisp-format
@@ -2925,34 +2905,34 @@ msgid "~S: ~S may not be used as an environment"
 msgstr "~S: ~S не может использоваться как окружение"
 
 #: error.d:1087 error.d:1095
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a nonnegative fixnum"
 msgstr "~S: аргумент ~S должен быть неотрицательным ограниченным целым"
 
 #: error.d:1102
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not an integer"
-msgstr "~S: ~S не является потоком ввода ~S"
+msgstr "~S: ~S - не целое"
 
 #: error.d:1115
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a non-negative integer"
-msgstr "~S: ~S не является неотрицательным ~S"
+msgstr "~S: ~S не является неотрицательным целым"
 
 #: error.d:1129 error.d:1137 xcharin.lisp:34
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a character"
-msgstr "~S: аргумент ~SS не является литерой"
+msgstr "~S: аргумент ~S не является знаком"
 
 #: error.d:1144
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a string"
-msgstr "~S: аргумент ~S не является ~S"
+msgstr "~S: аргумент ~S не является строкой"
 
 #: error.d:1161
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Attempt to modify a read-only string: ~S"
-msgstr "Попытка модифицировать строку с доступом только для чтения"
+msgstr "Попытка модифицировать строку с доступом только для чтения: ~S"
 
 #: error.d:1171
 #, lisp-format
@@ -2962,7 +2942,7 @@ msgstr "~S: argument ~S не является ни строкой ни целым числом"
 #: error.d:1182
 #, lisp-format
 msgid "string too long: desired length ~S exceeds the supported maximum length"
-msgstr ""
+msgstr "слишком длинная строка: требуемая длина ~S больше поддерживаемого максимума"
 
 #: error.d:1193 clos-class2.lisp:103
 #, lisp-format
@@ -2970,9 +2950,9 @@ msgid "~S: ~S is not a class"
 msgstr "~S: ~S не является классом"
 
 #: error.d:1202
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a stream"
-msgstr "~S: аргумент ~S не является ~S"
+msgstr "~S: аргумент ~S не является потоком"
 
 #: error.d:1255
 #, lisp-format
@@ -2990,9 +2970,9 @@ msgid "~S: keyword arguments in ~S should occur pairwise"
 msgstr "~S: ключевые параметры в ~S должны быть парными"
 
 #: error.d:1295
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S marker ~S is not a symbol"
-msgstr "~S: ~S параметр ~S не является ~S"
+msgstr "~S: ~S маркер ~S не является символом"
 
 #: error.d:1318
 #, lisp-format
@@ -3004,23 +2984,19 @@ msgstr ""
 "Разрешенные ключевые слова: ~S"
 
 #: error.d:1333
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a function"
-msgstr "~S: ~S не является именем функции"
+msgstr "~S: ~S не является функцией"
 
 #: error.d:1369 trace.lisp:162
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: undefined function ~S"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: неопределенная функция ~S\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: не определена функция ~S"
+msgstr "~S: функция ~S не определена"
 
 #: error.d:1425
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a function name; try using a symbol instead"
-msgstr "~S: ~S не является именем функции"
+msgstr "~S: ~S не является именем функции, попробуйте какой-нибудь символ"
 
 #: error.d:1441
 #, lisp-format
@@ -3054,14 +3030,14 @@ msgid "~S: Too few arguments (~S instead of at least ~S) given to ~S"
 msgstr "~S: Слишком мало аргументов (~S вместо как минимум ~S) для ~S"
 
 #: error.d:1496
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not an integer with at most ~S bits (including the sign bit)"
-msgstr "~S: ~S аргумент должен быть целым числом между 2 и 36, а не ~S"
+msgstr "~S: аргумент ~S не является целым с не более чем ~S битами (включая знак)"
 
 #: error.d:1497
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: argument ~S is not a nonnegative integer with at most ~S bits"
-msgstr "~S: ~S не является неотрицательным целым числом, меньшим, чем размерность ~S"
+msgstr "~S: ~S не является неотрицательным целым с не более чем ~S битами"
 
 #: error.d:1530
 #, lisp-format
@@ -3095,7 +3071,7 @@ msgstr "~S: ~S не является числом типа `double-float'"
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr "Неверный многобайтный или широкий характер"
+msgstr "Неверный многобайтный или широкий знак"
 
 #: errunix.d:65
 msgid "Operation not permitted"
@@ -3123,7 +3099,7 @@ msgstr "Нет такого устройства или адреса"
 
 #: errunix.d:101
 msgid "Arg list too long"
-msgstr "Список аргументов слишком длинный"
+msgstr "Слишком длинный список аргументов"
 
 #: errunix.d:107
 msgid "Exec format error"
@@ -3139,7 +3115,7 @@ msgstr "Нет порожденных процессов"
 
 #: errunix.d:125
 msgid "No more processes"
-msgstr "Не осталось ни одного процесса"
+msgstr "Не осталось процессов"
 
 #: errunix.d:131
 msgid "Not enough memory"
@@ -3163,7 +3139,7 @@ msgstr "Устройство занято"
 
 #: errunix.d:161
 msgid "File exists"
-msgstr "Файл/каталог существует"
+msgstr "Файл существует"
 
 #: errunix.d:167
 msgid "Cross-device link"
@@ -3251,7 +3227,7 @@ msgstr "Слишком много уровней символьных ссылок"
 
 #: errunix.d:299
 msgid "File name too long"
-msgstr "Имя файла слишком длинное"
+msgstr "Слишком длинное имя файла"
 
 #: errunix.d:305
 msgid "Directory not empty"
@@ -3466,9 +3442,8 @@ msgid "UNIX error "
 msgstr "Ошибка UNIX'а "
 
 #: errunix.d:658
-#, fuzzy
 msgid "POSIX library error "
-msgstr "Ошибка библиотеки UNIX'а "
+msgstr "Ошибка POSIX библиотеки "
 
 #: errwin32.d:3873
 msgid "Win32 error "
@@ -3509,19 +3484,19 @@ msgid "C compiler"
 msgstr "компилятор C"
 
 #: misc.d:738
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: Lisp value ~S is not found in table ~S: ~S"
-msgstr "значение ~S (~S) не соответствует его табличному значению (~S) в ~S"
+msgstr "~S: значение в Лиспе ~S не найдено в таблице ~S: ~S"
 
 #: misc.d:765
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: C value ~S is not found in table ~S: ~S"
-msgstr "~S: аргумент ~SS не является литерой"
+msgstr "~S: значение в C ~S не найдено в таблице ~S: ~S"
 
 #: time.d:869 intlog.d:655
 #, lisp-format
 msgid "~S: too large shift amount ~S"
-msgstr "~S: Слишком большое количество сдвигов ~S"
+msgstr "~S: слишком большой сдвиг ~S"
 
 #: predtype.d:1793 predtype.d:2031
 #, lisp-format
@@ -3541,7 +3516,7 @@ msgstr "~S: ~S не является именем класса"
 #: predtype.d:2184
 #, lisp-format
 msgid "~S: type definition for ~S exceeds depth limit, maybe recursive"
-msgstr "~S: вложенность определения типа для ~S превосходит всякие пределы, рекурсивное что ли ?"
+msgstr "~S: вложенность определения типа для ~S превосходит всякие пределы, рекурсивное что ли?"
 
 #: predtype.d:2503 type.lisp:32
 #, lisp-format
@@ -3574,24 +3549,24 @@ msgid "~S: argument should be a positive fixnum, not ~S"
 msgstr "~S: аргумент должен быть положительным ограниченным целым, а не ~S"
 
 #: lisparit.d:347
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a number"
-msgstr "~S: ~S не является 8-битным числом"
+msgstr "~S: ~S не является числом"
 
 #: lisparit.d:364
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a real number"
-msgstr "~S: ~S не является числом типа `long'"
+msgstr "~S: ~S не является действительным числом"
 
 #: lisparit.d:391
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a floating-point number"
-msgstr "~S: ~S не является числом типа `long'"
+msgstr "~S: ~S не является числом плавающей точкой"
 
 #: lisparit.d:417
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S is not a rational number"
-msgstr "~S: ~S не является числом типа `long'"
+msgstr "~S: ~S не является рациональным числом"
 
 #: lisparit.d:1648
 #, lisp-format
@@ -3609,19 +3584,19 @@ msgid "~S: argument should be positive and an integer or float, not ~S"
 msgstr "~S: аргумент должен быть положительным числом, целым или с плавающей точкой, а не ~S"
 
 #: aridecl.d:351
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: division by zero"
-msgstr "деление на нуль"
+msgstr "~S: деление на нуль"
 
 #: aridecl.d:358
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: floating point overflow"
-msgstr "переполнение при операции с плавающей точкой"
+msgstr "~S: переполнение при операции с плавающей точкой"
 
 #: aridecl.d:365
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: floating point underflow"
-msgstr "потеря значимости при операции с плавающей точкой"
+msgstr "~S: потеря значимости при операции с плавающей точкой"
 
 #: intelem.d:232 intelem.d:328
 #, lisp-format
@@ -3671,34 +3646,24 @@ msgid "long float too long"
 msgstr "длинное число с плавающей точкой слишком длинное"
 
 #: flo_konv.d:427
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: floating point NaN occurred"
-msgstr "NaN в результате операции с плавающей точкой"
+msgstr "~S: NaN в результате операции с плавающей точкой"
 
 #: flo_rest.d:39
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Floating point operation combines numbers of different precision. See ANSI CL 12.1.4.4 and the CLISP impnotes for details. The result's actual precision is controlled by ~S. To shut off this warning, set ~S to ~S."
-msgstr ""
-"Операция с плавающей точкой производится с числами разной точности.\n"
-"См. ANSI CL 12.1.4.4 и документацию CLISP.\n"
-"Фактическая точность результата определяется переменной\n"
-"~S.\n"
-"Чтобы отключить это предупреждение, установите ~S в ~S."
+msgstr "Операция с плавающей точкой производится с числами разной точности. См. ANSI CL 12.1.4.4 и документацию CLISP. Фактическая точность результата определяется переменной ~S. Чтобы отключить это предупреждение, установите ~S в ~S."
 
 #: realelem.d:149
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Numerical operation combines exact and inexact numbers (rational numbers and floating-point numbers), and the mathematical result is exact. See ANSI CL 12.1.4.1 and the CLISP impnotes for details. The result's actual exactness is controlled by ~S. To shut off this warning, set ~S to ~S."
-msgstr ""
-"Операция с плавающей точкой производится с числами разной точности.\n"
-"См. ANSI CL 12.1.4.4 и документацию CLISP.\n"
-"Фактическая точность результата определяется переменной\n"
-"~S.\n"
-"Чтобы отключить это предупреждение, установите ~S в ~S."
+msgstr "Операция с плавающей точкой производится с числами разной точности. См. ANSI CL 12.1.4.4 и документацию CLISP. Фактическая точность результата определяется переменной ~S. Чтобы отключить это предупреждение, установите ~S в ~S."
 
 #: funarg.d:107
-#, fuzzy, lisp-format
-msgid "~S: Must not specify both :TEST and :TEST-NOT arguments"
-msgstr "~S: Нельзя указывать оба аргумента: :TEST и :TEST-NOT"
+#, lisp-format
+msgid "~S: must not specify both :TEST and :TEST-NOT arguments"
+msgstr "~S: нельзя указывать оба аргумента: :TEST и :TEST-NOT"
 
 #: foreign.d:27
 #, lisp-format
@@ -3721,39 +3686,39 @@ msgid "~S: cannot resurrect the zombie ~S"
 msgstr "~S: невозможно оживить зомби ~S"
 
 #: foreign.d:198
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Foreign variable ~S already exists"
 msgstr "Инородная переменная ~S уже существует"
 
 #: foreign.d:234
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Foreign function ~S already exists"
 msgstr "Инородная функция ~S уже существует"
 
 #: foreign.d:261
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "No foreign int type of size ~S"
-msgstr "неверный тип инородных данных ~S"
+msgstr "Неверный тип инородных данных ~S"
 
 #: foreign.d:278
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Cannot redefine foreign type ~S from ~S to ~S"
-msgstr ";; переопределение инородной функции библиотеки ~S~%;;  из ~S в ~S"
+msgstr "Нельзя переопределить инородный тип ~S из ~S в ~S"
 
 #: foreign.d:308
-#, fuzzy, lisp-format
-msgid "~S: Illegal foreign data type ~S"
-msgstr "неверный тип инородных данных ~S"
+#, lisp-format
+msgid "~S: illegal foreign data type ~S"
+msgstr "~S: неверный тип инородных данных ~S"
 
 #: foreign.d:316
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S cannot be converted to the foreign type ~S"
-msgstr "~S невозможно отконвертировать к инородному типу ~S"
+msgstr "~S: ~S невозможно преобразовать к инородному типу ~S"
 
 #: foreign.d:324
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: 64 bit integers are not supported on this platform and with this C compiler: ~S"
-msgstr "64-битовые целые числа не поддерживаются C-компилятором на этой платформе: ~S"
+msgstr "~S: 64-битовые целые числа не поддерживаются C-компилятором на этой платформе: ~S"
 
 #: foreign.d:338
 #, lisp-format
@@ -3763,7 +3728,7 @@ msgstr "~S: неверный тип инородной функции ~S"
 #: foreign.d:468
 #, lisp-format
 msgid "~S cannot be converted to a foreign function with another calling convention."
-msgstr "~S невозможно отконвертировать в инородную функцию по другому согласованию вызова."
+msgstr "~S невозможно преобразовать в инородную функцию по другому согласованию вызова."
 
 #: foreign.d:1094
 #, lisp-format
@@ -3773,12 +3738,12 @@ msgstr "~S: тип элемента нулевого размера: ~S"
 #: foreign.d:1102
 #, lisp-format
 msgid "~S: trying to read an object of type ~S from NULL address"
-msgstr ""
+msgstr "~S: попытка прочесть объект типа ~S с адреса NULL"
 
 #: foreign.d:1920
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: trying to write object ~S of type ~S into NULL address"
-msgstr "~S: инородная переменная ~S типа ~S не является массивом"
+msgstr "~S: попытка записать объект ~S типа ~S в адрес NULL"
 
 #: foreign.d:2427
 #, lisp-format
@@ -3786,14 +3751,13 @@ msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
 msgstr "~S: инородная переменная неизвестного типа, отсутствует DEF-C-VAR: ~S"
 
 #: foreign.d:2443
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: foreign variable ~S does not exist"
-msgstr "Инородная переменная ~S не существует"
+msgstr "~S: инородная переменная ~S не существует"
 
 #: foreign.d:2444
-#, fuzzy
 msgid "Skip foreign variable creation"
-msgstr "Инородная переменная ~ уже существует"
+msgstr "Не создавать инородную переменную"
 
 #: foreign.d:2458
 #, lisp-format
@@ -3808,111 +3772,110 @@ msgstr "~S: спецификация типа инородной переменной ~S конфликтует: ~S и ~S"
 #: foreign.d:2496
 #, lisp-format
 msgid "~S(~S): version ~S without library does not make sense"
-msgstr ""
+msgstr "~S(~S): версия ~S без библиотеки лишена смысла"
 
-#: foreign.d:2557 foreign.d:2898 foreign.d:3113 foreign.d:4523
+#: foreign.d:2515
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required alignment"
 msgstr "~S: инородная переменная ~S не имеет требуемого типа выравнивания"
 
-#: foreign.d:2590
+#: foreign.d:2592
 #, lisp-format
 msgid "~S: foreign variable ~S may not be modified"
 msgstr "~S: инородная переменная ~S не может быть изменена"
 
-#: foreign.d:2636
+#: foreign.d:2638
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not an array"
 msgstr "~S: инородная переменная ~S типа ~S не является массивом"
 
-#: foreign.d:2712
+#: foreign.d:2714
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a pointer"
 msgstr "~S: инородная переменная ~S типа ~S не является указателем"
 
-#: foreign.d:2820
+#: foreign.d:2822
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a struct or union"
 msgstr "~S: инородная переменная ~S типа ~S не является struct или union"
 
-#: foreign.d:2827
+#: foreign.d:2829
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
 msgstr "~S: инородная переменная ~S типа ~S не имеет компонента с именем ~S"
 
-#: foreign.d:3172
+#: foreign.d:3164
 #, lisp-format
 msgid "~S: ~S has no type, :FULL is illegal"
 msgstr "~S: ~S не имеет типа, :FULL запрещён"
 
-#: foreign.d:3198
+#: foreign.d:3190
 #, lisp-format
 msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
 msgstr "~S: инородная функция с неизвестным соглашением вызова, отсутствует DEF-CALL-OUT: ~S"
 
-#: foreign.d:3216
-#, fuzzy, lisp-format
+#: foreign.d:3208
+#, lisp-format
 msgid "~S: foreign function ~S does not exist"
 msgstr "~S: инородная функция ~S не существует"
 
-#: foreign.d:3217
-#, fuzzy
+#: foreign.d:3209
 msgid "Skip foreign function creation"
-msgstr "Инородная функция ~ уже существует"
+msgstr "Не создавать инородную функцию"
 
-#: foreign.d:3224
+#: foreign.d:3216
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: конфликт соглашений вызова для инородной функции ~S"
 
-#: foreign.d:3551 foreign1.lisp:1196
+#: foreign.d:3543 foreign1.lisp:1196
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
 msgstr "~S: аргумент :OUT не является указателем: ~S"
 
-#: foreign.d:4202
-#, fuzzy, lisp-format
+#: foreign.d:4194
+#, lisp-format
 msgid "~S: ~S is not supported on this platform."
-msgstr "~S: ~S не является буферизованным потоком ввода"
+msgstr "~S: ~S не поддерживаются на этой платформе"
 
-#: foreign.d:4221
+#: foreign.d:4213
 #, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
 msgstr "~S: Невозможно открыть библиотеку ~S: ~S"
 
-#: foreign.d:4223
+#: foreign.d:4215
 #, lisp-format
 msgid "~S: Cannot open library ~S"
 msgstr "~S: Невозможно открыть библиотеку ~S"
 
-#: foreign.d:4293
+#: foreign.d:4285
 #, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
 msgstr "~S: нет динамического объекта ~S в библиотеке ~S"
 
-#: foreign.d:4294
-#, fuzzy, lisp-format
+#: foreign.d:4286
+#, lisp-format
 msgid "~S: no dynamic object named ~S (version ~S) in library ~S"
-msgstr "~S: нет динамического объекта ~S в библиотеке ~S"
+msgstr "~S: нет динамического объекта ~S (версия ~S) в библиотеке ~S"
 
-#: foreign.d:4295
+#: foreign.d:4287
 msgid "Skip foreign object creation"
-msgstr ""
+msgstr "Не создавать инородный объект"
 
-#: foreign.d:4568
+#: foreign.d:4556
 #, lisp-format
 msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
-msgstr ""
+msgstr "~S: невозможно найти ~S в ~S из-за отсутствия dlsym() на этой платформе"
 
-#: foreign.d:4632
-#, fuzzy, lisp-format
+#: foreign.d:4620
+#, lisp-format
 msgid "~S(~S): dladdr() failed: ~S"
-msgstr "~S: malloc(): ошибка."
+msgstr "~S(~S): dladdr() ошибка: ~S"
 
-#: foreign.d:4634
-#, fuzzy, lisp-format
+#: foreign.d:4622
+#, lisp-format
 msgid "~S(~S): dladdr() failed"
-msgstr "~S: malloc(): ошибка."
+msgstr "~S(~S): dladdr() ошибка"
 
 #: init.lisp:271 format.lisp:363
 #, lisp-format
@@ -3926,7 +3889,7 @@ msgstr "~S: Управляющая строка должна быть строкой, а не ~S"
 
 #: init.lisp:314 init.lisp:2186 condition.lisp:1581 reploop.lisp:463
 msgid "Continuable Error"
-msgstr ""
+msgstr "Ошибка в возможностью продолжения"
 
 #: init.lisp:549
 msgid "special operator"
@@ -3941,19 +3904,19 @@ msgid "function"
 msgstr "функция"
 
 #: init.lisp:615
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: ~S is a special operator and may not be redefined."
-msgstr "~S является специальным оператором, который не может быть переопределен."
+msgstr "~A: ~S является специальным оператором, который не может быть переопределен."
 
 #: init.lisp:677
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: redefining ~A ~S in ~A, was defined in ~A"
-msgstr "~a: переопределение ~a ~s в ~a; предыдущее определение в ~a"
+msgstr "~A: переопределение ~A ~S в ~A; предыдущее определение в ~A"
 
 #: init.lisp:706
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~A: redefining ~S; it was traced!"
-msgstr "~S: переопределение ~S; она трассировалась!"
+msgstr "~A: переопределение ~S; она трассировалась!"
 
 #: init.lisp:720
 #, lisp-format
@@ -4001,22 +3964,14 @@ msgid "code after SYMBOL-MACROLET contains a dotted list, ending with ~S"
 msgstr "код после SYMBOL-MACROLET содержит точечный список, оканчивающийся на ~S"
 
 #: init.lisp:1139 compiler.lisp:5796
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S must not be declared SPECIAL and a macro at the same time"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S не должен одновременно объявляться как SPECIAL и быть макрокомандой\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S нельзя объявлять одновременно и как специальный и как макрос"
+msgstr "~S: символ ~S нельзя объявлять одновременно и как специальный и как макрос"
 
 #: init.lisp:1152
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: symbol ~S is declared special and must not be declared a macro"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S, объявленный SPECIAL нельзя объявлять как макро\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~S: символ ~S объявлен специальным, его нельзя определить как макрос"
+msgstr "~S: символ ~S, объявленный SPECIAL, нельзя объявлять как макро"
 
 #: init.lisp:1159
 #, lisp-format
@@ -4073,19 +4028,19 @@ msgid "WARNING:"
 msgstr "ПРЕДУПРЕЖДЕНИЕ:"
 
 #: init.lisp:1598
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: compiled file ~A lacks a version marker"
-msgstr "~Ss: в откомпилированном файле ~Ss отсутствует индикатор версии"
+msgstr "~S: в откомпилированном файле ~S отсутствует индикатор версии"
 
 #: init.lisp:1600
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: compiled file ~A has a corrupt version marker ~S"
-msgstr "~Ss: недействительный индикатор версии в откомпилированном файле ~Ss: ~Ss"
+msgstr "~S: недействительный индикатор версии в откомпилированном файле ~A: ~S"
 
 #: init.lisp:1602
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: compiled file ~A was created by an older CLISP version and needs to be recompiled"
-msgstr "~Ss: старый индикатор версии в откомпилированном файле ~Ss: ~Ss"
+msgstr "~S: откомпилированный файл ~A был создан старой версией CLISP, необходима рекомпилация"
 
 #: init.lisp:1714
 #, lisp-format
@@ -4093,14 +4048,14 @@ msgid "~S: A file with name ~A does not exist"
 msgstr "~S: Файл с именем ~A не существует"
 
 #: init.lisp:1736
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Loading file ~A ..."
-msgstr "Загружается файл "
+msgstr "Загружается файл ~A..."
 
 #: init.lisp:1769 defs1.lisp:499
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Loaded file ~A"
-msgstr "Загружен файл "
+msgstr "Загружен файл ~A"
 
 #: init.lisp:1782
 #, lisp-format
@@ -4162,55 +4117,35 @@ msgid "~S: unquotes may not occur in arrays"
 msgstr "~S: запятые в массивах запрещены"
 
 #: backquote.lisp:131
-#, fuzzy
 msgid "the syntax `,@form is invalid"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~aСинтаксис `,@form не определён\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~SaСинтаксис `,@form не определён"
+msgstr "синтаксис `,@form не определён"
 
 #: backquote.lisp:132
-#, fuzzy
 msgid "the syntax `,.form is invalid"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~aСинтаксис `,.form не определён\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~SaСинтаксис `,.form не определён"
+msgstr "синтаксис `,.form не определён"
 
 #: backquote.lisp:136 backquote.lisp:152
 #, lisp-format
 msgid "READ: ~@?"
-msgstr ""
+msgstr "READ: ~@?"
 
 #: backquote.lisp:147
-#, fuzzy
 msgid "the syntax `( ... . ,@form) is invalid"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~aСинтаксис `( ... . ,@form) не определён\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~SaСинтаксис `( ... . ,@form) не определён"
+msgstr "синтаксис `( ... . ,@form) не определён"
 
 #: backquote.lisp:148
-#, fuzzy
 msgid "the syntax `( ... . ,.form) is invalid"
-msgstr ""
-"#-#-#-#-#  ru1.po (clisp 2.33)  #-#-#-#-#\n"
-"~aСинтаксис `( ... . ,.form) не определён\n"
-"#-#-#-#-#  ru2.po (clisp 2.33)  #-#-#-#-#\n"
-"~SaСинтаксис `( ... . ,.form) не определён"
+msgstr "синтаксис `( ... . ,.form) не определён"
 
 #: defmacro.lisp:50
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The macro ~S may not be called with a circular argument list: ~S"
-msgstr "Макрос ~S не может быть вызван с ~S аргументами: ~S"
+msgstr "Макрос ~S не может быть вызван с циклическим списком аргументов: ~S"
 
 #: defmacro.lisp:56
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "The macro ~S may not be called with a dotted argument list: ~S"
-msgstr "Макрос ~S не может быть вызван с ~S аргументами: ~S"
+msgstr "Макрос ~S не может быть вызван с точечным списком аргументов: ~S"
 
 #: defmacro.lisp:61
 #, lisp-format
@@ -4218,19 +4153,19 @@ msgid "The macro ~S may not be called with ~S arguments: ~S"
 msgstr "Макрос ~S не может быть вызван с ~S аргументами: ~S"
 
 #: defmacro.lisp:68 defmacro.lisp:427
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S: ~S does not match lambda list element ~:S"
-msgstr "~S: ~S не соответствует элементу лямбда-списка ~S"
+msgstr "~S: ~S не соответствует элементу лямбда-списка ~:S"
 
 #: defmacro.lisp:139 defmacro.lisp:180 defmacro.lisp:268
 #, lisp-format
 msgid "The rest of the lambda list will be ignored."
 msgstr "Остаток лямбда-списка будет проигнорирован."
 
-#: defmacro.lisp:140
+#: defmacro.lisp:140 defmacro.lisp:181
 #, lisp-format
-msgid "The lambda list of macro ~S contains a dot after &AUX."
-msgstr "Лямбда-список макроса ~S содержит точку после &AUX."
+msgid "The lambda list of macro ~S contains a dot after ~S."
+msgstr "Лямбда-список макроса ~S содержит точку после ~S."
 
 #: defmacro.lisp:147
 #, lisp-format
@@ -4241,11 +4176,6 @@ msgstr "в макросе ~S: ~S не может быть использована как &AUX-переменная."
 #, lisp-format
 msgid "~S: invalid supplied-p variable ~S"
 msgstr "~S: Неправильная спецификация переменной и поля ~S"
-
-#: defmacro.lisp:181
-#, lisp-format
-msgid "The lambda list of macro ~S contains a dot after &KEY."
-msgstr "Лямбда-список макроса ~S содержит точку после &KEY."
 
 #: defmacro.lisp:189 defmacro.lisp:344
 #, lisp-format
@@ -4335,7 +4265,7 @@ msgstr "В лямбда-списке макроса ~S за &ENVIRONMENT должен следовать символ, отли
 #: defmacro.lisp:473
 #, lisp-format
 msgid "Cannot define a macro from that: ~S"
-msgstr "Невозможно определить макрос из: ~S"
+msgstr "Невозможно определить макрос из ~S"
 
 #: defmacro.lisp:479
 #, lisp-format
@@ -4363,14 +4293,14 @@ msgid "~S: non-symbol ~S cannot be defined constant"
 msgstr "~S: не символ ~S не может быть определен как константа"
 
 #: macros1.lisp:104
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "~S redefines the constant ~S. Its old value was visually similar though. Set ~S to avoid this warning."
-msgstr "~S переопределяет константу ~S. Ее прежнее значение было ~S."
+msgstr "~S переопределяет константу ~S. Её прежнее значение было визуально сходно. Установите ~S чтобы избежать это предупреждение."
 
 #: macros1.lisp:107
 #, lisp-format
 msgid "~S redefines the constant ~S. Its old value was ~S."
-msgstr "~S переопределяет константу ~S. Ее прежнее значение было ~S."
+msgstr "~S переопределяет константу ~S. Её прежнее значение было ~S."
 
 #: macros1.lisp:161
 #, lisp-format
@@ -4395,7 +4325,7 @@ msgstr "Не является списком альтернатив из COND: ~S"
 #: macros1.lisp:434
 #, lisp-format
 msgid "The atom ~S must not be used as a COND clause."
-msgstr "Атом ~S не должен использоваться в качестве выражения COND."
+msgstr "Атом ~S не должен использоваться в качестве альтернативы COND."
 
 #: macros2.lisp:13
 #, lisp-format
@@ -4432,9 +4362,9 @@ msgid "Retry"
 msgstr "Еще раз"
 
 #: macros2.lisp:55
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "You may input new values for ~@{~S~^, ~}."
-msgstr "Вы можете ввести новые значения для ~S."
+msgstr "Вы можете ввести новые значения для ~@{~S~^, ~}."
 
 #: macros2.lisp:58
 #, lisp-format
@@ -4492,19 +4422,19 @@ msgid "~S: ~S does not name a logical host"
 msgstr "~S: ~S не является логическим именем сервера"
 
 #: defs1.lisp:497
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Loading logical hosts from file ~A ..."
-msgstr "Загрузка файла логических имен серверов"
+msgstr "Загрузка файла логических имен серверов из файла ~A ..."
 
 #: defs1.lisp:502 defs1.lisp:510
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Defined logical host ~A"
-msgstr "Обьявлено логическое имя сервера"
+msgstr "Определено логическое имя сервера ~A"
 
 #: defs1.lisp:508
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Loading logical host from file ~A ..."
-msgstr "Загрузка файла логических имен серверов"
+msgstr "Загрузка файла логического имени сервера из файла ~A ..."
 
 #: defs1.lisp:538
 #, lisp-format
@@ -4517,7 +4447,7 @@ msgid "~S: argument ~S should be a nonnegative number"
 msgstr "~S: аргумент ~S должен быть неотрицательным числом"
 
 #: defs1.lisp:760
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "incorrect date: ~S-~S-~S ~S:~S:~S, time zone ~S"
 msgstr "некорректная дата: ~S.~S.~S, ~Sч~Sм~Sс, временная зона ~S"
 
@@ -4527,34 +4457,34 @@ msgid "Lambda list marker ~S not allowed here."
 msgstr "Маркер лямбда-списка ~S здесь не разрешен."
 
 #: lambdalist.lisp:16
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Invalid lambda list element ~S"
 msgstr "Неверный элемент лямбда-списка ~S"
 
 #: lambdalist.lisp:17
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Invalid lambda list element ~S. A lambda list may only contain symbols and lists."
-msgstr "~S: лямбда-список может содержать только символы и списки, а не ~S"
+msgstr "Неверный элемент лямбда-списка ~S. Лямбда-список может содержать только символы и списки."
 
 #: lambdalist.lisp:31
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Lambda list element ~S is superfluous. Only one variable is allowed after &REST."
-msgstr "Элемент ~S лямбда-списка является излишним."
+msgstr "Элемент ~S лямбда-списка излишен. Только одна переменная может следовать за &REST"
 
 #: lambdalist.lisp:32
 #, lisp-format
 msgid "Lambda list element ~S is superfluous. No variable is allowed right after &ALLOW-OTHER-KEYS."
-msgstr ""
+msgstr "Элемент ~S лямбда-списка излишен. Переменные недопустимы сразу за &ALLOW-OTHER-KEYS."
 
 #: lambdalist.lisp:33
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."
-msgstr "Элемент ~S лямбда-списка является излишним."
+msgstr "Элемент ~S лямбда-списка излишен. Только одна переменная может следовать за &ENVIRONMENT."
 
 #: lambdalist.lisp:34
 #, lisp-format
 msgid "Lambda list element ~S is superfluous."
-msgstr "Элемент ~S лямбда-списка является излишним."
+msgstr "Элемент ~S лямбда-списка излишен."
 
 #: lambdalist.lisp:116 lambdalist.lisp:272 lambdalist.lisp:414 lambdalist.lisp:572
 #, lisp-format
@@ -4567,9 +4497,9 @@ msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr "Лямбда-списки с точками разрешены только в макросах, а не здесь: ~S"
 
 #: lambdalist.lisp:243
-#, fuzzy, lisp-format
+#, lisp-format
 msgid "Duplicate variable name ~S"
-msgstr "~S ~S: повторяющееся имя переменной ~S"
+msgstr "Повторяющееся имя переменной ~S"
 
 #: lambdalist.lisp:262
 #, lisp-format
@@ -5726,8 +5656,8 @@ msgid "Illegal syntax in LET/LET*: ~S"
 msgstr "некорректный синтаксис в LET/LET*: ~S"
 
 #: compiler.lisp:3570
-#, lisp-format
-msgid "Binding variable ~S can cause side effects despite IGNORE declaration~%since it is declared SPECIAL."
+#, fuzzy, lisp-format
+msgid "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL."
 msgstr "Связывание переменной ~S может вызывать побочные эффекты несмотря на~%объявления IGNORE, так как она объявлена как SPECIAL."
 
 #: compiler.lisp:3573
@@ -8142,6 +8072,24 @@ msgstr "~S не является корректным значением типа ~S"
 msgid "~S is only allowed after ~S: ~S"
 msgstr "~S разрешается только после ~S: ~S"
 
+#~ msgid "The lambda list of macro ~S contains a dot after &KEY."
+#~ msgstr "Лямбда-список макроса ~S содержит точку после &KEY."
+
+#~ msgid "~S: :update must not be specified without :initial-element"
+#~ msgstr "~S: :update нельзя употреблять без :initial-element"
+
+#~ msgid "~S: :start-index ~S must not be greater than :end-index ~S"
+#~ msgstr "~S: начальный индекс ~S не должен быть больше, чем конечный ~S"
+
+#~ msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
+#~ msgstr "~S: первый начальный индекс ~S не должен быть больше, чем первый конечный индекс ~S"
+
+#~ msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
+#~ msgstr "~S: второй начальный индекс ~S не должен быть больше, чем второй конечный индекс ~S"
+
+#~ msgid "~S: the symbol ~S names a global special variable"
+#~ msgstr "~S: символ ~S именует глобальную переменную"
+
 #~ msgid "dotted list given to ~S : ~S"
 #~ msgstr "точечный список в ~S : ~S"
 
@@ -9391,9 +9339,6 @@ msgstr "~S разрешается только после ~S: ~S"
 
 #~ msgid "~: ambiguous, more than one initialization specified"
 #~ msgstr "~: двусмысленность, указано несколько вариантов инициализации"
-
-#~ msgid "~: ~ must not be specified without ~"
-#~ msgstr "~: ~ нельзя указывать без ~"
 
 #~ msgid "~: the initial-element ~ is not of type ~"
 #~ msgstr "~: инициализирующий элемент для ~ не типа ~"
