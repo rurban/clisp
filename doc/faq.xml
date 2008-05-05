@@ -125,9 +125,10 @@ further explanations of the issues could be provided).</para>
       and some other user may be able to help you in the meantine;
       as well as for the benefit of the other &clisp; users,
       since the mailing lists are publicly archived (you are encouraged
-      to <ulink url="http://clisp.cons.org">search</ulink> them before asking).
-      Please do &not-e; copy your messages to the
-      individual developers.</simpara></listitem></varlistentry>
+      to <ulink url="http://clisp.cons.org/#search">search</ulink> them
+      before asking).</simpara>
+     <simpara>Please do &not-e; copy your messages to the individual
+      developers.</simpara></listitem></varlistentry>
 </variablelist></para>
 <note><title>Mailing lists are member-only</title>
  <simpara>To avoid spam, we require that you subscribe before you can
@@ -148,7 +149,7 @@ further explanations of the issues could be provided).</para>
   <ulink url="current/http://sourceforge.net/mail/?group_id=1355">mailing
    lists</ulink> is very actively discouraged and is virtually non-existent,
   thus you can subscribe to all mailing lists that are relevant to you
-   without getting duplicate messages:<variablelist>
+  without getting duplicate messages:<variablelist>
  <varlistentry><term><ulink url="ml">clisp-announce</ulink></term>
   <listitem><simpara>Extremely low-level moderated list, you should
     definitely subscribe to this list if you have any interest in &cl;
