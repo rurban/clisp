@@ -141,8 +141,8 @@
 
 (defun invalid-method-sort-order-error (order-form order-value) ; ABI
   (method-combination-error
-    (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
-    order-form order-value))
+    (TEXT "The value of ~S is ~S, should be ~S or ~S.")
+    order-form order-value ':MOST-SPECIFIC-FIRST ':MOST-SPECIFIC-LAST))
 
 (defun call-method-duplicates-error (gf method+groupname)
   (let ((*method-combination-generic-function* gf)
@@ -155,8 +155,8 @@
 
 (defun invalid-sort-order-error (order-form order-value) ; ABI
   (error-of-type 'program-error
-    (TEXT "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST.")
-    order-form order-value))
+    (TEXT "The value of ~S is ~S, should be ~S or ~S.")
+    order-form order-value ':MOST-SPECIFIC-FIRST ':MOST-SPECIFIC-LAST))
 
 (defun any-method-combination-check-options (gf-name combination options checker) ; ABI
   (locally (declare (compile))

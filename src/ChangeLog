@@ -13,7 +13,7 @@
 2008-05-05  Sam Steingold  <sds@gnu.org>
 
 	* clos-slotdef1.lisp, compiler.lisp, lambdalist.lisp, trace.lisp:
-	* clos-method1.lisp: more uniform i18n messages
+	* clos-method1.lisp, clos-methcomb2.lisp: more uniform i18n messages
 
 2008-05-03  Sam Steingold  <sds@gnu.org>
 
