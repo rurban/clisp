@@ -70,7 +70,7 @@
                 (nm (compiler::symbol-suffix (closure-name closure) name))
                 (pos 0 (1+ pos)) obj)
                ((= pos length)
-                (error (TEXT "~s: no local name ~s in ~s")
+                (error (TEXT "~S: no local name ~S in ~S")
                        'local name closure))
              (setq obj (sys::closure-const closure pos))
              (when (and (closurep obj)

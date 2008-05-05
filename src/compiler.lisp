@@ -1465,26 +1465,26 @@ for-value   NIL or T
                (dolist (x (cdr declspec))
                  (if (symbolp x)
                    (push x specials)
-                   (c-warn (TEXT "Non-symbol ~S may not be declared SPECIAL.")
-                           x))))
+                   (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
+                           x 'SPECIAL))))
               ((IGNORE)
                (dolist (x (cdr declspec))
                  (if (symbolp x)
                    (push x ignores)
-                   (c-warn (TEXT "Non-symbol ~S may not be declared IGNORE.")
-                           x))))
+                   (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
+                           x 'IGNORE))))
               ((IGNORABLE)
                (dolist (x (cdr declspec))
                  (if (symbolp x)
                    (push x ignorables)
-                   (c-warn (TEXT "Non-symbol ~S may not be declared IGNORABLE.")
-                           x))))
+                   (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
+                           x 'IGNORABLE))))
               ((SYS::READ-ONLY)
                (dolist (x (cdr declspec))
                  (if (symbolp x)
                    (push x readonlys)
-                   (c-warn (TEXT "Non-symbol ~S may not be declared READ-ONLY.")
-                           x))))
+                   (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
+                           x 'READ-ONLY))))
               (t
                ;; Syntax check.
                (case declspectype
@@ -1541,8 +1541,8 @@ for-value   NIL or T
                                                        (null (cddr x))))
                                             (list x)
                                             (progn
-                                              (c-warn (TEXT "Not a valid DYNAMIC-EXTENT specifier: ~S")
-                                                      x)
+                                              (c-warn (TEXT "Not a valid ~S specifier: ~S")
+                                                      'DYNAMIC-EXTENT x)
                                               '())))
                                       (cdr declspec)))))
                  (DECLARATION
@@ -1929,7 +1929,7 @@ for-value   NIL or T
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
   (apply #'c-comment
-         (string-concat (TEXT "WARNING~@[ in ~A~]~A :") "~%" cstring)
+         (string-concat (TEXT "WARNING~@[ in ~S~]~A :") "~%" cstring)
          (current-function) (c-source-location)
          args))
 
@@ -2419,8 +2419,7 @@ for-value   NIL or T
   ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (TEXT "~S is neither declared nor bound,~@
-                     it will be treated as if it were declared SPECIAL.")
+      (c-warn (TEXT "~S is neither declared nor bound, it will be treated as if it were declared SPECIAL.")
               symbol)
       (when *compiling-from-file*
         (pushnew symbol *unknown-free-vars* :test #'eq))
