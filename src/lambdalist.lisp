@@ -28,11 +28,10 @@
                     (check-item item ,items)
                     (funcall errfunc item
                              ,(case lastseen
-                                (&REST '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &REST."))
-                                (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after &ALLOW-OTHER-KEYS."))
-                                (&ENVIRONMENT '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."))
-                                (t '(TEXT "Lambda list element ~S is superfluous.")))
-                             item)))
+                                ((&REST &ENVIRONMENT) '(TEXT "Lambda list element ~S is superfluous. Only one variable is allowed after ~S."))
+                                (&ALLOW-OTHER-KEYS '(TEXT "Lambda list element ~S is superfluous. No variable is allowed right after ~S."))
+                                (t '(TEXT "Lambda list element ~S (after ~S) is superfluous.")))
+                             item ',lastseen)))
                 (setq L (cdr L)))))
 
 ;;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
@@ -113,8 +112,8 @@
         (setq L (cdr L))
         (macrolet ((err-norest ()
                      `(funcall errfunc lambdalist
-                               (TEXT "Missing &REST parameter in lambda list ~S")
-                               lambdalist)))
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&REST lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -269,8 +268,8 @@
         (setq L (cdr L))
         (macrolet ((err-norest ()
                      `(funcall errfunc lambdalist
-                               (TEXT "Missing &REST parameter in lambda list ~S")
-                               lambdalist)))
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&REST lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -411,8 +410,8 @@
         (setq L (cdr L))
         (macrolet ((err-norest ()
                      `(funcall errfunc lambdalist
-                               (TEXT "Missing &REST parameter in lambda list ~S")
-                               lambdalist)))
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&REST lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -479,9 +478,9 @@
       (when (and (consp L) (eq (car L) '&environment))
         (setq L (cdr L))
         (macrolet ((err-noenvironment ()
-                     `(funcall errfunc lambdalist
-                               (TEXT "Missing &ENVIRONMENT parameter in lambda list ~S")
-                               lambdalist)))
+                     '(funcall errfunc lambdalist
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&ENVIRONMENT lambdalist)))
           (if (atom L)
             (err-noenvironment)
             (prog ((item (car L)))
@@ -569,8 +568,8 @@
         (setq L (cdr L))
         (macrolet ((err-norest ()
                      `(funcall errfunc lambdalist
-                               (TEXT "Missing &REST parameter in lambda list ~S")
-                               lambdalist)))
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&REST lambdalist)))
           (if (atom L)
             (err-norest)
             (prog ((item (car L)))
@@ -619,8 +618,8 @@
         (setq L (cdr L))
         (macrolet ((err-nowhole ()
                      `(funcall errfunc lambdalist
-                               (TEXT "Missing &WHOLE parameter in lambda list ~S")
-                               lambdalist)))
+                               (TEXT "Missing ~S parameter in lambda list ~S")
+                               '&WHOLE lambdalist)))
           (if (atom L)
             (err-nowhole)
             (prog ((item (car L)))

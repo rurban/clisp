@@ -5,7 +5,8 @@
 
 2008-05-05  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp, trace.lisp: more uniform i18n messages
+	* clos-slotdef1.lisp, compiler.lisp, lambdalist.lisp, trace.lisp:
+	more uniform i18n messages
 
 2008-05-03  Sam Steingold  <sds@gnu.org>
 
