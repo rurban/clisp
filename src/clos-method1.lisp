@@ -265,8 +265,9 @@
     (error (TEXT "(~S ~S): Missing ~S argument.")
            'initialize-instance 'standard-accessor-method ':slot-definition))
   (unless (typep slot-definition 'direct-slot-definition)
-    (error (TEXT "(~S ~S): The slot-definition argument is not of type ~S.")
-           'initialize-instance 'standard-accessor-method 'direct-slot-definition))
+    (error (TEXT "(~S ~S): Argument ~S is not of type ~S.")
+           'initialize-instance 'standard-accessor-method ':slot-definition
+           'direct-slot-definition))
   ; Fill the slots.
   (setf (%accessor-method-slot-definition method) slot-definition)
   method)
