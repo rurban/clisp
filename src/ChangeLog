@@ -1,5 +1,10 @@
 2008-05-05  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp (format-not-both-error): replaces format-conditional-error
+	(format-parse-cs, format-conditional, formatter-main-1): use it
+
+2008-05-05  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp, trace.lisp: more uniform i18n messages
 
 2008-05-03  Sam Steingold  <sds@gnu.org>
