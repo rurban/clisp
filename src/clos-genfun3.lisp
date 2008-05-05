@@ -332,8 +332,7 @@
          |#
          (check-gf-declspecs (rest option) 'declare
            #'(lambda (errorstring &rest arguments)
-               (error (TEXT "~S ~S: ~A")
-                      caller funname
+               (error "~S ~S: ~A" caller funname
                       (apply #'format nil errorstring arguments))))
          (setq declares
                (if declares
@@ -450,8 +449,8 @@
               (error-of-type 'ext:source-program-error
                 :form whole-form
                 :detail detail
-                (TEXT "~S ~S: ~A")
-                caller funname (apply #'format nil errorstring arguments))))
+                "~S ~S: ~A" caller funname
+                (apply #'format nil errorstring arguments))))
       (declare (ignore argorder))
       (let ((method-combinations-defaulted
               ;; Default :method-combination is STANDARD:
