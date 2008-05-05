@@ -269,8 +269,7 @@
              (setf (csd-type newcsd) 0)
              (if (csd-colon-p newcsd)
                (if (csd-atsign-p newcsd)
-                 (format-error 'error control-string index
-                   (TEXT "The ~~newline format directive cannot take both modifiers."))
+                 (format-not-both-error "~newline")
                  nil) ; ~:<newline> -> ignore Newline, retain Whitespace
                (progn
                  (when (csd-atsign-p newcsd)
@@ -334,6 +333,11 @@
             (setq pos1 (+ pos2 1)))))
       (apply #'error-of-type
              type (nreconc type-initargs (list* errorstring arguments))))))
+
+(defun format-not-both-error (directive)
+  (format-error 'error *FORMAT-CS* nil
+                (TEXT "The ~A format directive cannot take both modifiers.")
+                directive))
 
 ;;; ---------------------------------------------------------------------------
 
@@ -1478,7 +1482,7 @@
                            &optional (prefix nil))
   (if colon-modifier
     (if atsign-modifier
-      (format-conditional-error)
+      (format-not-both-error "~[")
       (progn
         (when (next-arg)
           (setq *FORMAT-CSDL* (csd-clause-chain (car *FORMAT-CSDL*))))
@@ -1507,10 +1511,6 @@
           (setq *FORMAT-CSDL* (cdr *FORMAT-CSDL*)))
         (format-interpret stream 'FORMAT-CONDITIONAL-END))))
   (format-skip-to-end)) ; skip to the end of ~[...~]-Directive
-
-(defun format-conditional-error ()
-  (format-error 'error *FORMAT-CS* nil
-    (TEXT "The ~~[ format directive cannot take both modifiers.")))
 
 ; ~{, CLTL p.403-404, CLtL2 p. 602-604
 (defun format-iteration (stream colon-modifier atsign-modifier
@@ -2257,7 +2257,7 @@
                      (FORMAT-CONDITIONAL            ; #\[
                       (if colon-p
                         (if atsign-p
-                          (format-conditional-error)
+                          (format-not-both-error "~[")
                           (progn
                             (simple-arglist 0)
                             (push `(IF (NOT ,(formatter-next-arg))
