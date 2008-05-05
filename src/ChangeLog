@@ -1,5 +1,12 @@
 2008-05-05  Sam Steingold  <sds@gnu.org>
 
+	* clos-genfun3.lisp (analyze-defgeneric): do not pass through
+	gettext messages which contain no text, just format directives
+	* clos-method2.lisp (program-error-reporter)
+	(analyze-method-description): ditto
+
+2008-05-05  Sam Steingold  <sds@gnu.org>
+
 	* format.lisp (format-not-both-error): replaces format-conditional-error
 	(format-parse-cs, format-conditional, formatter-main-1): use it
 
