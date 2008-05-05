@@ -5814,7 +5814,7 @@ for-value   NIL or T
         (((NOT EVAL) (NOT :EXECUTE)) (setq load-p t compile-p t))
         (((NOT COMPILE)) (setq load-p t eval-p t))
         (((NOT :COMPILE-TOPLEVEL)) (setq load-p t execute-p t))
-        (t (c-error (TEXT "~s situation must be ~s, ~s or ~s, but not ~s")
+        (t (c-error (TEXT "~S situation must be ~S, ~S or ~S, but not ~S")
                     'eval-when :load-toplevel :compile-toplevel :execute
                     situation))))
     (let ((form `(PROGN ,@(cddr *form*))))
