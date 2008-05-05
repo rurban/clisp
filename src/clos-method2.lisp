@@ -42,8 +42,7 @@
 (defmacro program-error-reporter (caller)
   `#'(lambda (detail errorstring &rest arguments)
        (declare (ignore detail))
-       (error-of-type 'program-error
-         (TEXT "~S: ~A") ,caller
+       (error-of-type 'program-error "~S: ~A" ,caller
          (apply #'format nil errorstring arguments))))
 
 ;; MOP p. 52
@@ -95,8 +94,7 @@
                 (error-of-type 'ext:source-program-error
                   :form whole-form
                   :detail detail
-                  (TEXT "~S ~S: ~A")
-                  caller funname
+                  "~S ~S: ~A" caller funname
                   (apply #'format nil errorstring arguments))))
         (let ((req-specializer-forms
                 (mapcar #'(lambda (specializer-name)
@@ -124,8 +122,7 @@
                     (error-of-type 'ext:source-program-error
                       :form whole-form
                       :detail detail
-                      (TEXT "~S ~S: ~A")
-                      caller funname
+                      "~S ~S: ~A" caller funname
                       (apply #'format nil errorstring arguments))))
             (declare (ignore optinits optsvars keyvars keyinits keysvars
                              auxvars auxinits))
