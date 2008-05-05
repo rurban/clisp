@@ -2419,7 +2419,8 @@ for-value   NIL or T
   ;; search the variable in *venv* :
   (multiple-value-bind (a b c) (venv-search symbol)
     (when (eq a 'NIL)
-      (c-warn (TEXT "~S is neither declared nor bound, it will be treated as if it were declared SPECIAL.")
+      (c-warn (TEXT "~S is neither declared nor bound,~@
+                     it will be treated as if it were declared SPECIAL.")
               symbol)
       (when *compiling-from-file*
         (pushnew symbol *unknown-free-vars* :test #'eq))
