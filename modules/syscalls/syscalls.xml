@@ -643,10 +643,11 @@
     Like <function role="unix">ffs</function>, but implemented in Lisp and
     supports &bignum-t;s.</simpara></listitem></varlistentry>
  <varlistentry id="stdio">
-  <term><type>FFI:FILE</type></term>
+  <term><type>FFI:FILE</type> = &foreign-pointer-t;</term>
   <term><code>(OS:FOPEN &filename-r; &mode-r;)</code></term>
   <term><code>(OS:FDOPEN fd &mode-r;)</code></term>
   <term><code>(OS:FCLOSE file)</code></term>
+  <term><code>(OS:FFLUSH file)</code></term>
   <!-- <term><code>(OS:FGETC file)</code></term>
        <term><code>(OS:FPUTC int file)</code></term>
        <term><code>(OS:UNGETC int file)</code></term> -->
@@ -655,8 +656,25 @@
   <term><code>(OS:FERROR file)</code></term>
   <term><code>(OS:FILENO file)</code></term>
   <listitem><simpara>This is the interface to &stdio;.
-    Only <function>OS:FOPEN</function> and <function>OS:FDOPEN</function>
-    check their return values (and may &sig-err;), all the other
+    Functions <function>OS:FOPEN</function>, <function>OS:FDOPEN</function>,
+    <function>OS:FCLOSE</function>, <function>OS:FFLUSH</function>,
+    <function>OS:FILENO</function> may &sig-err;.</simpara>
+   <variablelist><title>Return values</title>
+    <varlistentry><term><function>OS:FOPEN</function></term>
+     <term><function>OS:FDOPEN</function></term>
+     <listitem><simpara><type>FFI:FILE</type> = &foreign-pointer-t;
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><function>OS:FCLOSE</function></term>
+     <term><function>OS:FFLUSH</function></term>
+     <term><function>OS:CLEARERR</function></term>
+     <listitem><simpara>no values</simpara></listitem></varlistentry>
+    <varlistentry><term><function>OS:FEOF</function></term>
+     <term><function>OS:FERROR</function></term>
+     <listitem><simpara>&boolean-t;</simpara></listitem></varlistentry>
+    <varlistentry><term><function>OS:FILENO</function></term>
+     <listitem><simpara>&integer-t; (&file-des;)</simpara>
+   </listitem></varlistentry></variablelist>
+   <simpara>The first two return a &foreign-pointer-t;,
    functions return &integer-t;s as is.</simpara>
    <simpara>These are &not-e; for i/o, but merely for for &ffi-pac;
     modules which interface to functions which use the
