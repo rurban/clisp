@@ -2,19 +2,19 @@
 # Copyright (C) 1998 Free Software Foundation, Inc.
 # Eduard Haritonov <hed@iis.nsk.su>, 1998.
 # Arseny Slobodjuck <ampy@ich.dvo.ru>, 2002 - 2004.
+# Sam Steingold <sds@gnu.org>, 2004-2008
 #
 # Также принимали участие в переводе:
 #
 # Городняя Лидия Васильевна <gorod@lidia.iis.nsk.su>
 # Дмитрий Иванов            <divanov@aha.ru>
-# Сёма Штейнгольд           <sds@gnu.org>
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.33\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-02 15:06:52-0400\n"
-"PO-Revision-Date: 1998-09-02 19:50+0600\n"
+"POT-Creation-Date: 2008-05-06 16:54:56-0400\n"
+"PO-Revision-Date: 2008-05-04 20:34-0400\n"
 "Last-Translator: Arseny Slobodjuck <ampy@ich.dvo.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -58,7 +58,6 @@ msgstr ""
 "старое определение: "
 
 #: spvw.d:1602
-#, fuzzy
 msgid "is an ANSI Common Lisp implementation."
 msgstr " - реализация ANSI Common Lisp."
 
@@ -115,9 +114,8 @@ msgid " -M memfile    - use this memory image\n"
 msgstr " -M образ      - использовать файл образа памяти\n"
 
 #: spvw.d:1621
-#, fuzzy
 msgid " -m size       - memory size (size = nB or nKB or nMB)\n"
-msgstr " -m размер     - размер памяти (xxxxxxxB или xxxxKB или xMB)\n"
+msgstr " -m размер     - размер памяти (размер = nB или nKB или nMB)\n"
 
 #: spvw.d:1623
 msgid " -t tmpdir     - temporary directory for memmap\n"
@@ -194,9 +192,8 @@ msgid " -norc         - do not load the user ~/.clisprc file\n"
 msgstr " -norc         - не грузить ~/.clisprc\n"
 
 #: spvw.d:1642
-#, fuzzy
 msgid " -lp dir       - add dir to *LOAD-PATHS* (can be repeated)\n"
-msgstr " -i файл       - загрузить файл инициализации (можно повторять)\n"
+msgstr " -lp директория - добавить директорию в *LOAD-PATHS* (можно повторять)\n"
 
 #: spvw.d:1643
 msgid " -i file       - load initfile (can be repeated)\n"
@@ -287,7 +284,6 @@ msgid "-l without -c is invalid"
 msgstr "-l без -c не допускается"
 
 #: spvw.d:2466
-#, fuzzy
 msgid "-x with -c is invalid"
 msgstr "-x вместе с -c не допускается"
 
@@ -321,15 +317,15 @@ msgstr "*** - Исчерпана память. СБРОС"
 
 #: spvw_mmap.d:64 spvw_mmap.d:192 spvw_mmap.d:351 spvw_multimap.d:160
 msgid "Cannot map memory to address 0x%lx ."
-msgstr "Невозможно спроецировать память на адрес 0x%x ."
+msgstr "Невозможно спроецировать память на адрес 0x%lx ."
 
 #: spvw_mmap.d:165
 msgid "Cannot reserve address range at 0x%lx ."
-msgstr "Невозможно зарезервировать адресный диапазон в 0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон в 0x%lx ."
 
 #: spvw_mmap.d:175
 msgid "Cannot reserve address range 0x%lx-0x%lx ."
-msgstr "Невозможно зарезервировать адресный диапазон 0x%x-0x%x ."
+msgstr "Невозможно зарезервировать адресный диапазон 0x%lx-0x%lx ."
 
 #: spvw_mmap.d:219
 msgid "CreateFileMapping() failed."
@@ -356,9 +352,8 @@ msgid "Cannot open <%s>."
 msgstr "Невозможно открыть <%s>."
 
 #: spvw_multimap.d:139
-#, fuzzy
 msgid "msync(0x%lx,0x%x,MS_INVALIDATE) failed."
-msgstr "msync(0x%x,0x%x,MS_INVALIDATE) завершился неудачно."
+msgstr "msync(0x%lx,0x%x,MS_INVALIDATE) ошибка."
 
 #: spvw_multimap.d:196
 msgid "Cannot delete <%s>."
@@ -393,9 +388,8 @@ msgid "Cannot allocate private shared memory segment of size %d."
 msgstr "Невозможно разместить сегмент частной разделяемой (private shared) памяти размером %d."
 
 #: spvw_multimap.d:349
-#, fuzzy
 msgid "Cannot map shared memory to address 0x%lx."
-msgstr "Невозможно проецировать общую память на адрес 0x%x."
+msgstr "Невозможно спроецировать общую память на адрес 0x%lx."
 
 #: spvw_multimap.d:364 spvw_multimap.d:370
 msgid "%s: Cannot fill shared memory."
@@ -406,26 +400,24 @@ msgid "Cannot remove shared memory segment."
 msgstr "Невозможно удалить сегмент общей памяти."
 
 #: spvw_fault.d:283
-#, fuzzy
 msgid "mprotect(0x%lx,%d,%d) failed."
-msgstr "mprotect(0x%x,%d,%d): ошибка."
+msgstr "mprotect(0x%lx,%d,%d): ошибка."
 
 #: spvw_sigsegv.d:23
 msgid "Permanently allocated: %lu bytes."
-msgstr ""
+msgstr "Постоянно размещено: %lu байтов."
 
 #: spvw_sigsegv.d:26
 msgid "Currently in use: %lu bytes."
-msgstr ""
+msgstr "Используется сейчас: %lu байтов."
 
 #: spvw_sigsegv.d:29
 msgid "Free space: %lu bytes."
-msgstr ""
+msgstr "Свободная память: %lu байтов."
 
 #: spvw_sigsegv.d:40
-#, fuzzy
 msgid "SIGSEGV cannot be cured. Fault address = 0x%lx."
-msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%x."
+msgstr "SIGSEGV не удается исправить. Ошибочный адрес = 0x%lx."
 
 #: spvw_sigsegv.d:74
 msgid "Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"
@@ -452,9 +444,8 @@ msgid "%s: Cannot map the initialization file `%s' into memory."
 msgstr "%s: Невозможно разместить файл инициализации `%s' в памяти."
 
 #: spvw_memfile.d:1736
-#, fuzzy
 msgid "%s: initialization file `%s' was not created by this version of CLISP runtime"
-msgstr "%s: файл инициализации `%s' был создан не этой версией CLISP"
+msgstr "%s: файл инициализации `%s' был создан не этой версией исполнителя CLISP"
 
 #: spvw_memfile.d:1740
 msgid "%s: not enough memory for initialization"
@@ -462,11 +453,11 @@ msgstr "%s: недостаточно памяти для инициализации"
 
 #: spvw_memfile.d:1809
 msgid "%s: 'image size' method failed, but found image header at %d\n"
-msgstr ""
+msgstr "%s: метод 'размер образа' провалился, но заголовок образа найден в %d\n"
 
 #: errunix.d:58
 msgid "Invalid multibyte or wide character"
-msgstr "Неверный многобайтный или широкий характер"
+msgstr "Неверный многобайтный или широкий знак"
 
 #: errunix.d:65
 msgid "Operation not permitted"
@@ -494,7 +485,7 @@ msgstr "Нет такого устройства или адреса"
 
 #: errunix.d:101
 msgid "Arg list too long"
-msgstr "Список аргументов слишком длинный"
+msgstr "Слишком длинный список аргументов"
 
 #: errunix.d:107
 msgid "Exec format error"
@@ -510,7 +501,7 @@ msgstr "Нет порожденных процессов"
 
 #: errunix.d:125
 msgid "No more processes"
-msgstr "Не осталось ни одного процесса"
+msgstr "Не осталось процессов"
 
 #: errunix.d:131
 msgid "Not enough memory"
@@ -534,7 +525,7 @@ msgstr "Устройство занято"
 
 #: errunix.d:161
 msgid "File exists"
-msgstr "Файл/каталог существует"
+msgstr "Файл существует"
 
 #: errunix.d:167
 msgid "Cross-device link"
@@ -622,7 +613,7 @@ msgstr "Слишком много уровней символьных ссылок"
 
 #: errunix.d:299
 msgid "File name too long"
-msgstr "Имя файла слишком длинное"
+msgstr "Слишком длинное имя файла"
 
 #: errunix.d:305
 msgid "Directory not empty"
