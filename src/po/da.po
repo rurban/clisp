@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.32.91\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-02 15:06:33-0400\n"
+"POT-Creation-Date: 2008-05-06 16:54:51-0400\n"
 "PO-Revision-Date: 2004-09-08 23:56:00 GMT\n"
 "Last-Translator: Dennis Decker Jensen <dennisdjensen@tiscali.dk>\n"
 "Language-Team: Danish <dansk@klid.dk>\n"
@@ -1378,8 +1378,8 @@ msgid "Creating directory: "
 msgstr "Laver katalog: "
 
 #: pathname.d:8867
-#, lisp-format
-msgid "~S: library directory is not known, use a command line option to specify it"
+#, fuzzy, lisp-format
+msgid "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
 msgstr "~S: bibliotekskatalog er ikke kendt. Brug et kommandotilvalg til at anføre det"
 
 #: stream.d:272 stream.d:13623
@@ -1806,8 +1806,8 @@ msgid "~S from ~S: macro character definition for ~S may not return ~S values, o
 msgstr "~S fra ~S: makrotegns-definitionen for ~S returnerer måske ikke ~S værdier, kun én værdi."
 
 #: io.d:1849 defs2.lisp:172
-#, lisp-format
-msgid "~S: input stream ~S ends within read macro beginning to ~S"
+#, fuzzy, lisp-format
+msgid "~S: input stream ~S ends within read macro beginning with ~S"
 msgstr "~S: inddatastrømmen ~S slutter midt i læsemakro til ~S"
 
 #: io.d:1881 defs2.lisp:199
@@ -2163,17 +2163,17 @@ msgid "An array has been shortened by adjusting it while another array was displ
 msgstr "En tabel er blevet afkortet ved justering, mens en anden tabel overtog den."
 
 # array subscribt -> array index -> tabelindeks
-#: array.d:348 foreign.d:2644
+#: array.d:348 foreign.d:2646
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
 msgstr "~S: fik ~S-indeksene, men ~S har rangen ~S"
 
-#: array.d:360 foreign.d:2659
+#: array.d:360 foreign.d:2661
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~S: indeksene ~S for ~S er ikke af typen `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
-#: array.d:382 foreign.d:2668
+#: array.d:382 foreign.d:2670
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
 msgstr "~S: indeksene ~S for ~S er uden for interval"
@@ -2733,7 +2733,7 @@ msgstr "~S: ugyldigt initialargument ~S"
 
 #: record.d:1129
 #, lisp-format
-msgid "~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option"
+msgid "~S: Invalid location ~S of slot ~S in ~S (check the :ALLOCATION slot option)"
 msgstr ""
 
 #: record.d:1146
@@ -2797,8 +2797,8 @@ msgid "~S: bad length ~S"
 msgstr "~S: dårlig længde ~S"
 
 #: sequence.d:956
-#, lisp-format
-msgid "~S: The result ~S is not of type ~S"
+#, fuzzy, lisp-format
+msgid "~S: the result ~S is not of type ~S"
 msgstr "~S: Resultatet ~S er ikke af typen ~S"
 
 #: sequence.d:978
@@ -2806,10 +2806,14 @@ msgstr "~S: Resultatet ~S er ikke af typen ~S"
 msgid "~S: size should be an integer >=0, not ~S"
 msgstr "~S: størrelse skal være et heltal >= 0, ikke ~S"
 
+# Alternativ: "skal anføres med" er bedre!
+# "må ikke anføres uden" lyder klodset og dømmende
+# Den engelske mening er også dårlig udtrykt: "Must" udtrykker fysisk
+# nødvendighed, ikke moralsk bud!
 #: sequence.d:984
-#, lisp-format
-msgid "~S: :update must not be specified without :initial-element"
-msgstr "~S: :update skal ikke anføres uden :initial-element"
+#, fuzzy, lisp-format
+msgid "~S: :UPDATE must not be specified without :INITIAL-ELEMENT"
+msgstr "~S: ~S skal anføres med ~S"
 
 #: sequence.d:2011
 #, fuzzy, lisp-format
@@ -2891,7 +2895,7 @@ msgstr "~S: indekset ~S skal være mindre end længden af strengen"
 msgid "~S: ~S-index ~S should be less than the length of the string"
 msgstr "~S: ~S-indekset ~S skal være mindre end længden af strengen"
 
-#: charstrg.d:2401
+#: charstrg.d:2401 charstrg.d:2505 charstrg.d:3711
 #, lisp-format
 msgid "~S: :START-index ~S must not be greater than :END-index ~S"
 msgstr "~S: :START-indekset ~S skal ikke være større end :END-indekset ~S"
@@ -2901,20 +2905,15 @@ msgstr "~S: :START-indekset ~S skal ikke være større end :END-indekset ~S"
 msgid "~S: argument ~S should be a string, a symbol or a character"
 msgstr "~S: argumentet ~S skal være en streng, et symbol eller et tegn"
 
-#: charstrg.d:2505 charstrg.d:3711
-#, lisp-format
-msgid "~S: :start-index ~S must not be greater than :end-index ~S"
-msgstr "~S: :start-indekset ~S skal ikke være større end :end-indekset ~S"
-
 #: charstrg.d:2555
-#, lisp-format
-msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
-msgstr "~S: :start1-indekset ~S skal ikke være større end :end1-indekset ~S"
+#, fuzzy, lisp-format
+msgid "~S: :START1-index ~S must not be greater than :END1-index ~S"
+msgstr "~S: :START-indekset ~S skal ikke være større end :END-indekset ~S"
 
 #: charstrg.d:2578
-#, lisp-format
-msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
-msgstr "~S: :start2-indekset ~S skal ikke være større end :end2-indekset ~S"
+#, fuzzy, lisp-format
+msgid "~S: :START2-index ~S must not be greater than :END2-index ~S"
+msgstr "~S: :START-indekset ~S skal ikke være større end :END-indekset ~S"
 
 #: charstrg.d:3194
 #, lisp-format
@@ -3013,32 +3012,32 @@ msgstr "indlejret mærkatkrops-ramme "
 msgid " for"
 msgstr " for"
 
-#: debug.d:1387
-#, lisp-format
-msgid "~S: environment is not an alist"
+#: debug.d:1388
+#, fuzzy, lisp-format
+msgid "~S: environment is not an association list"
 msgstr "~S: miljø er ikke en associationsliste"
 
-#: debug.d:1400
+#: debug.d:1401
 msgid "catch frame for tag "
 msgstr "catch-ramme for mærkat "
 
-#: debug.d:1404
+#: debug.d:1405
 msgid "handler frame for conditions"
 msgstr "håndteringsramme for (fejl-)tilstande"
 
-#: debug.d:1414
+#: debug.d:1415
 msgid "unwind-protect frame"
 msgstr "unwind-protect-ramme"
 
-#: debug.d:1418
+#: debug.d:1419
 msgid "driver frame"
 msgstr "driver-ramme"
 
-#: debug.d:1422 debug.d:1427 debug.d:1432 debug.d:1437 debug.d:1442 debug.d:1447 debug.d:1454
+#: debug.d:1423 debug.d:1428 debug.d:1433 debug.d:1438 debug.d:1443 debug.d:1448 debug.d:1455
 msgid "frame binding environments"
 msgstr "miljøbunden ramme "
 
-#: debug.d:1468
+#: debug.d:1469
 #, lisp-format
 msgid "~S: unknown frame type"
 msgstr "~S: ukendt rammetype"
@@ -3061,7 +3060,7 @@ msgstr "~S: Brugerstop"
 msgid "Continue execution"
 msgstr "Fortsæt udførsel"
 
-#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2527 foreign.d:3192
+#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2534 foreign.d:3184
 #, lisp-format
 msgid "~S: ~S is not of type ~S"
 msgstr "~S: ~S er ikke af typen ~S"
@@ -3112,22 +3111,17 @@ msgstr "~S: forsøger at skifte ~S til en konstant, men det er allerede en global
 
 #: error.d:974
 #, fuzzy, lisp-format
-msgid "~S: Interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
+msgid "~S: interning ~S into the KEYWORD package would turn it into a constant, but it is already a global SYMBOL-MACRO."
 msgstr "~S: At importere ~S ind i ~S ville skifte den til en konstant, men den er allerede en global symbolmakro."
 
-#: error.d:993
+#: error.d:993 error.d:1005
 #, fuzzy, lisp-format
-msgid "~S: the symbol ~S names a global special variable"
+msgid "~S: the symbol ~S names a global SPECIAL variable"
 msgstr "~s: symbolet ~s navngiver en global variabel"
 
 #: error.d:1004
 msgid "Remove the global SPECIAL variable binding"
 msgstr ""
-
-#: error.d:1005
-#, fuzzy, lisp-format
-msgid "~S: the symbol ~S names a global SPECIAL variable"
-msgstr "~s: symbolet ~s navngiver en global variabel"
 
 #: error.d:1035
 #, lisp-format
@@ -3930,7 +3924,7 @@ msgstr ""
 
 #: funarg.d:107
 #, fuzzy, lisp-format
-msgid "~S: Must not specify both :TEST and :TEST-NOT arguments"
+msgid "~S: must not specify both :TEST and :TEST-NOT arguments"
 msgstr "~S: Må ikke anføre begge argumenter til :TEST og :TEST-NOT"
 
 #: foreign.d:27
@@ -3975,7 +3969,7 @@ msgstr ";; redefinerer ekstern biblioteksfunktion ~S~%;;  fra ~S til ~S"
 
 #: foreign.d:308
 #, fuzzy, lisp-format
-msgid "~S: Illegal foreign data type ~S"
+msgid "~S: illegal foreign data type ~S"
 msgstr "ugyldig ekstern datatype: ~S"
 
 #: foreign.d:316
@@ -4043,116 +4037,116 @@ msgstr "~S: typeanførslerne for ekstern variabel ~S i konflikt: ~S og ~S"
 msgid "~S(~S): version ~S without library does not make sense"
 msgstr ""
 
-#: foreign.d:2557 foreign.d:2898 foreign.d:3113 foreign.d:4523
+#: foreign.d:2515
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required alignment"
 msgstr "~S: ekstern variabel ~S har ikke den påkrævede placering"
 
-#: foreign.d:2590
+#: foreign.d:2592
 #, lisp-format
 msgid "~S: foreign variable ~S may not be modified"
 msgstr "~S: ekstern variabel ~S må ikke ændres"
 
-#: foreign.d:2636
+#: foreign.d:2638
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not an array"
 msgstr "~S: ekstern variabel ~S af typen ~S er ikke en tabel"
 
-#: foreign.d:2712
+#: foreign.d:2714
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a pointer"
 msgstr "~S: ekstern variabel ~S af typen ~S er ikke en peger"
 
-#: foreign.d:2820
+#: foreign.d:2822
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a struct or union"
 msgstr "~S: ekstern variabel ~S af typen ~S er ikke en C-struktur (struct) eller C-forening (union)"
 
-#: foreign.d:2827
+#: foreign.d:2829
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
 msgstr "~S: ekstern variabel ~S af typen ~S har ingen komponent med navnet ~S"
 
-#: foreign.d:3172
+#: foreign.d:3164
 #, lisp-format
 msgid "~S: ~S has no type, :FULL is illegal"
 msgstr "~S: ~S har ingen type, hvorved :FULL bliver ugyldig"
 
-#: foreign.d:3198
+#: foreign.d:3190
 #, lisp-format
 msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
 msgstr "~S: ekstern funktion med ukendt kaldekonvention, mangler DEF-CALL-OUT: ~S"
 
-#: foreign.d:3216
+#: foreign.d:3208
 #, fuzzy, lisp-format
 msgid "~S: foreign function ~S does not exist"
 msgstr "~S: Den ekstern funktion ~S eksisterer ikke"
 
-#: foreign.d:3217
+#: foreign.d:3209
 #, fuzzy
 msgid "Skip foreign function creation"
 msgstr "Den eksterne funktion ~S eksisterer allerede"
 
-#: foreign.d:3224
+#: foreign.d:3216
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: kaldekonventionerne for den ekstern funktion ~S i konflikt"
 
-#: foreign.d:3551 foreign1.lisp:1196
+#: foreign.d:3543 foreign1.lisp:1196
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
 msgstr "~S: :OUT-argumentet er ikke en peger: ~S"
 
-#: foreign.d:4202
+#: foreign.d:4194
 #, lisp-format
 msgid "~S: ~S is not supported on this platform."
 msgstr "~S: ~S er ikke understøttet på denne platform."
 
-#: foreign.d:4221
+#: foreign.d:4213
 #, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
 msgstr "~S: Biblioteket ~S kan ikke åbnes: ~S"
 
-#: foreign.d:4223
+#: foreign.d:4215
 #, lisp-format
 msgid "~S: Cannot open library ~S"
 msgstr "~S: Kan ikke åbne biblioteket ~S"
 
-#: foreign.d:4293
+#: foreign.d:4285
 #, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
 msgstr "~S: intet dynamisk objekt med navnet ~S er i biblioteket ~S"
 
-#: foreign.d:4294
+#: foreign.d:4286
 #, fuzzy, lisp-format
 msgid "~S: no dynamic object named ~S (version ~S) in library ~S"
 msgstr "~S: intet dynamisk objekt med navnet ~S er i biblioteket ~S"
 
-#: foreign.d:4295
+#: foreign.d:4287
 msgid "Skip foreign object creation"
 msgstr ""
 
-#: foreign.d:4568
+#: foreign.d:4556
 #, lisp-format
 msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
 msgstr ""
 
-#: foreign.d:4632
+#: foreign.d:4620
 #, fuzzy, lisp-format
 msgid "~S(~S): dladdr() failed: ~S"
 msgstr "~S: malloc() mislykkedes"
 
-#: foreign.d:4634
+#: foreign.d:4622
 #, fuzzy, lisp-format
 msgid "~S(~S): dladdr() failed"
 msgstr "~S: malloc() mislykkedes"
 
-#: init.lisp:271 format.lisp:363
+#: init.lisp:271 format.lisp:367
 #, lisp-format
 msgid "The destination argument ~S is invalid (not NIL or T or a stream or a string)."
 msgstr "Destinationsargumentet ~S er ugyldigt (hverken NIL, T, en strøm eller en streng)."
 
-#: init.lisp:301 format.lisp:388 format.lisp:2551
+#: init.lisp:301 format.lisp:392 format.lisp:2551
 #, lisp-format
 msgid "~S: The control-string must be a string, not ~S"
 msgstr "~S: Kontrolstrengen skal være en streng, ikke ~S"
@@ -4348,7 +4342,7 @@ msgstr "udgangsklausulen i ~s skal være en liste"
 msgid "~S: cannot define a function from that: ~S"
 msgstr "~s: kan ikke definere en funktion fra dette: ~s"
 
-#: init.lisp:1995 clos-genfun3.lisp:101 clos-genfun3.lisp:173
+#: init.lisp:1995 clos-genfun3.lisp:101 clos-genfun3.lisp:176
 #, lisp-format
 msgid "~S: the name of a function must be a symbol, not ~S"
 msgstr "~s: funktionsnavnet skal være et symbol, ikke ~s"
@@ -4434,9 +4428,9 @@ msgstr "~s: ~s stemmer ikke overens med lambdaliste-elementet ~:s"
 msgid "The rest of the lambda list will be ignored."
 msgstr "Resten af lambdalisten vil blive ignoreret."
 
-#: defmacro.lisp:140
-#, lisp-format
-msgid "The lambda list of macro ~S contains a dot after &AUX."
+#: defmacro.lisp:140 defmacro.lisp:181
+#, fuzzy, lisp-format
+msgid "The lambda list of macro ~S contains a dot after ~S."
 msgstr "Lambdalisten for makroen ~s har en prik efter &AUX."
 
 #: defmacro.lisp:147
@@ -4448,11 +4442,6 @@ msgstr "i makroen ~s er ~s ikke anvendelig som &AUX-variabel."
 #, lisp-format
 msgid "~S: invalid supplied-p variable ~S"
 msgstr "~s: ugyldig præsens-indikator-variabel ~s"
-
-#: defmacro.lisp:181
-#, lisp-format
-msgid "The lambda list of macro ~S contains a dot after &KEY."
-msgstr "Lambdalisten for makroen ~s har en prik efter &KEY."
 
 #: defmacro.lisp:189 defmacro.lisp:344
 #, lisp-format
@@ -4747,59 +4736,44 @@ msgid "Invalid lambda list element ~S. A lambda list may only contain symbols an
 msgstr "Ugyldigt lambdaliste-element ~s: En lambdaliste må kun bestå af symboler og lister."
 
 #: lambdalist.lisp:31
-#, lisp-format
-msgid "Lambda list element ~S is superfluous. Only one variable is allowed after &REST."
+#, fuzzy, lisp-format
+msgid "Lambda list element ~S is superfluous. Only one variable is allowed after ~S."
 msgstr "Lambdaliste-elementet ~S er overflødigt. Kun én variabel er tilladt efter &REST."
 
 #: lambdalist.lisp:32
-#, lisp-format
-msgid "Lambda list element ~S is superfluous. No variable is allowed right after &ALLOW-OTHER-KEYS."
+#, fuzzy, lisp-format
+msgid "Lambda list element ~S is superfluous. No variable is allowed right after ~S."
 msgstr "Lambdaliste-elementet ~S er overflødigt. Ingen variabel er tilladt lige efter &ALLOW-OTHER-KEYS."
 
 #: lambdalist.lisp:33
-#, lisp-format
-msgid "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."
-msgstr "Lambdaliste-elementet ~S er overflødigt. Kun én variabel er tilladt efter &ENVIRONMENT."
-
-#: lambdalist.lisp:34
-#, lisp-format
-msgid "Lambda list element ~S is superfluous."
+#, fuzzy, lisp-format
+msgid "Lambda list element ~S (after ~S) is superfluous."
 msgstr "Lambdaliste-elementet ~S er overflødigt."
 
-#: lambdalist.lisp:116 lambdalist.lisp:272 lambdalist.lisp:414 lambdalist.lisp:572
-#, lisp-format
-msgid "Missing &REST parameter in lambda list ~S"
+#: lambdalist.lisp:115 lambdalist.lisp:271 lambdalist.lisp:413 lambdalist.lisp:482 lambdalist.lisp:571 lambdalist.lisp:621
+#, fuzzy, lisp-format
+msgid "Missing ~S parameter in lambda list ~S"
 msgstr "Mangler &REST-parameter i lambdalisten ~S"
 
-#: lambdalist.lisp:201 lambdalist.lisp:328 lambdalist.lisp:499 lambdalist.lisp:588
+#: lambdalist.lisp:200 lambdalist.lisp:327 lambdalist.lisp:498 lambdalist.lisp:587
 #, lisp-format
 msgid "Lambda lists with dots are only allowed in macros, not here: ~S"
 msgstr "Prikkede Lambdalister er kun tilladt i makroer, ikke på dette sted: ~S"
 
-#: lambdalist.lisp:243
+#: lambdalist.lisp:242
 #, lisp-format
 msgid "Duplicate variable name ~S"
 msgstr "Duplikeret variabelnavn ~S"
 
-#: lambdalist.lisp:262
+#: lambdalist.lisp:261
 #, lisp-format
 msgid "Invalid lambda list element ~S. Optional parameters cannot have default value forms in generic function lambda lists."
 msgstr "Ugyldigt lambdaliste-element ~S. Valgfrie parametre kan ikke have standardværdi-forme i generiske funktions-lambdalister."
 
-#: lambdalist.lisp:315
+#: lambdalist.lisp:314
 #, lisp-format
 msgid "Invalid lambda list element ~S. Keyword parameters cannot have default value forms in generic function lambda lists."
 msgstr "Ugyldigt lambdaliste-element ~S. Nøgleordsparametre kan ikke have standardværdi-forme i generiske funktions-lambdalister."
-
-#: lambdalist.lisp:483
-#, lisp-format
-msgid "Missing &ENVIRONMENT parameter in lambda list ~S"
-msgstr "Mangler &ENVIRONMENT-parameter i lambdalisten ~S"
-
-#: lambdalist.lisp:622
-#, lisp-format
-msgid "Missing &WHOLE parameter in lambda list ~S"
-msgstr "Mangler &WHOLE-parameter i lambdalisten ~S"
 
 #: places.lisp:24
 #, lisp-format
@@ -5006,9 +4980,9 @@ msgid "(~S ~S) for slot ~S: The ~S argument should be a proper list of function 
 msgstr "(~S ~S) for feltet ~S: ~S-argumentet skal være en ægte liste af funktionsnavne, ikke ~S"
 
 #: clos-slotdef1.lisp:423
-#, lisp-format
-msgid "Wrong ~S result for class ~S: not a plist: ~S"
-msgstr "Forkert ~S-resultat for klassen ~S: ikke en egenskabsliste: ~S"
+#, fuzzy, lisp-format
+msgid "Wrong ~S result for class ~S: not a property list: ~S"
+msgstr "Forkert ~S-resultat for klassen ~S: ikke en ægte liste: ~S"
 
 #: clos-slotdef1.lisp:426
 #, lisp-format
@@ -5144,10 +5118,10 @@ msgstr "~S ~S, felttilvalget for feltet ~S: ~S er ikke et symbol"
 msgid "~S ~S, slot option for slot ~S: ~S is not a string"
 msgstr "~S ~S, felttilvalget for feltet ~S: ~S er ikke en streng"
 
-#: clos-class3.lisp:282 clos-class3.lisp:365
+#: clos-class3.lisp:282 clos-class3.lisp:365 clos-methcomb2.lisp:1141 clos-methcomb2.lisp:1155 clos-methcomb2.lisp:1163
 #, lisp-format
-msgid "~S ~S, option ~S may only be given once"
-msgstr "~S ~S, tilvalget ~S må kun anføres en enkelt gang"
+msgid "~S ~S: option ~S may only be given once"
+msgstr "~S ~S: tilvalget ~S må kun anføres en enkelt gang"
 
 #: clos-class3.lisp:292 clos-class3.lisp:319 clos-methcomb2.lisp:1169
 #, lisp-format
@@ -5174,7 +5148,7 @@ msgstr "~S ~S, tilvalget ~S: ~S må kun anføres en enkelt gang"
 msgid "~S ~S, option ~S: ~S is not a string"
 msgstr "~S ~S, tilvalget ~S: ~S er ikke en streng"
 
-#: clos-class3.lisp:351 clos-class3.lisp:372 clos-class3.lisp:396 clos-genfun3.lisp:554
+#: clos-class3.lisp:351 clos-class3.lisp:372 clos-class3.lisp:396 clos-genfun3.lisp:556
 #, lisp-format
 msgid "~S ~S: invalid option ~S"
 msgstr "~S ~S: ~S er et ugyldigt tilvalg"
@@ -5458,12 +5432,12 @@ msgstr ""
 msgid "~S ~S: unknown option ~S"
 msgstr "~s ~s: ~s er ikke et muligt tilvalg"
 
-#: defstruct.lisp:696 clos-genfun3.lisp:444 condition.lisp:128
+#: defstruct.lisp:696 clos-genfun3.lisp:446 condition.lisp:128
 #, lisp-format
 msgid "~S ~S: invalid syntax in ~S option: ~S"
 msgstr "~s ~s: ~s-tilvalget har ugyldig syntaks: ~s"
 
-#: defstruct.lisp:701 clos-genfun3.lisp:317 condition.lisp:133
+#: defstruct.lisp:701 clos-genfun3.lisp:320 condition.lisp:133
 #, lisp-format
 msgid "~S ~S: not a ~S option: ~S"
 msgstr "~s ~s: ikke et ~s-tilvalg: ~s"
@@ -5574,83 +5548,78 @@ msgstr "Det afsluttende formatdirektiv '~A' har ikke et forudgående, tilsvarende
 msgid "The closing format directive '~A' does not match the corresponding opening one. It should read '~A'."
 msgstr "Det afsluttende formatdirektiv '~A' stemmer ikke med det forudgående; skal læses som '~A'."
 
-#: format.lisp:265 format.lisp:1494 format.lisp:2291
+#: format.lisp:265 format.lisp:1498 format.lisp:2291
 #, lisp-format
 msgid "The ~~; format directive is not allowed at this point."
 msgstr "Formatdirektivet '~~;' er ikke gyldigt på dette sted."
 
-#: format.lisp:273
-#, lisp-format
-msgid "The ~~newline format directive cannot take both modifiers."
-msgstr "'~~'-newline-formatdirektivet er meningsløst med både ':' og '@' som modifikationer"
-
-#: format.lisp:290
+#: format.lisp:289
 #, lisp-format
 msgid "An opening format directive is never closed; expecting '~A'."
 msgstr "Et åbningsformatdirektiv er ikke blevet afsluttet; forventede et '~A'."
 
-#: format.lisp:321
+#: format.lisp:320
 msgid "Current point in control string:"
 msgstr "Nærværende sted i kontrolstrengen:"
 
-#: format.lisp:358
+#: format.lisp:339
+#, fuzzy, lisp-format
+msgid "The ~A format directive cannot take both modifiers."
+msgstr "'~~['-formatdirektivet tager ikke både ':' og '@' som modifikationer"
+
+#: format.lisp:362
 #, lisp-format
 msgid "The destination string ~S should have a fill pointer."
 msgstr "Destinationsstrengen ~s skal have en udfyldningspeger."
 
-#: format.lisp:399
+#: format.lisp:403
 msgid "There are not enough arguments left for this format directive."
 msgstr "Der er ikke nok argumenter tilbage til dette formatdirektiv."
 
-#: format.lisp:402
+#: format.lisp:406
 #, lisp-format
 msgid "The argument list is a dotted list: ~S"
 msgstr "Argumentlisten skal være en prikket liste: ~s"
 
-#: format.lisp:487
+#: format.lisp:491
 #, lisp-format
 msgid "The ~~:@R format directive requires an integer in the range 1 - 4999, not ~S"
 msgstr "'~~:@R'-formatdirektivet kræver et heltal i intervallet 1 til 4999, ikke ~s"
 
-#: format.lisp:503
+#: format.lisp:507
 #, lisp-format
 msgid "The ~~@R format directive requires an integer in the range 1 - 3999, not ~S"
 msgstr "'~~@R'-formatdirektivet kræver et heltal i intervallet 1 til 3999, ikke ~s"
 
-#: format.lisp:560
+#: format.lisp:564
 #, lisp-format
 msgid "The argument for the ~~R format directive is too large."
 msgstr "Argumentet til '~~R'-formatdirektivet er for stort."
 
-#: format.lisp:1191
+#: format.lisp:1195
 #, lisp-format
 msgid "The ~~R and ~~:R format directives require an integer argument, not ~S"
 msgstr "'~~R'- og '~~:R'-formatdirektiverne kræver et heltalsargument, ikke ~s"
 
-#: format.lisp:1211
+#: format.lisp:1215
 #, lisp-format
 msgid "The ~~C format directive requires a character argument, not ~S"
 msgstr "'~~C'-formatdirektivet kræver et tegnargument, ikke ~s"
 
-#: format.lisp:1439
+#: format.lisp:1443
 #, lisp-format
 msgid "The control string argument for the ~~? format directive is invalid: ~S"
 msgstr "Kontrolstrengs-argumentet til '~~?'-formatdirektivet er ugyldigt: ~s"
 
-#: format.lisp:1444
+#: format.lisp:1448
 #, lisp-format
 msgid "The argument list argument for the ~~? format directive is invalid: ~S"
 msgstr "Argumentlisten til '~~?'-formatdirektivet er ugyldigt: ~s"
 
-#: format.lisp:1499
+#: format.lisp:1503
 #, lisp-format
 msgid "The ~~[ parameter must be an integer, not ~S"
 msgstr "'~~['-parameteren skal være et heltal, ikke ~s"
-
-#: format.lisp:1513
-#, lisp-format
-msgid "The ~~[ format directive cannot take both modifiers."
-msgstr "'~~['-formatdirektivet tager ikke både ':' og '@' som modifikationer"
 
 #: format.lisp:1536
 #, lisp-format
@@ -5695,8 +5664,8 @@ msgid "Wrote the memory image into ~A (~:D byte~:P)"
 msgstr "Gemte hukommelsesbilledet i ~A"
 
 #: trace.lisp:73
-#, lisp-format
-msgid "~s: no local name ~s in ~s"
+#, fuzzy, lisp-format
+msgid "~S: no local name ~S in ~S"
 msgstr "~s: det lokale navn ~s eksisterer ikke i ~s"
 
 #: trace.lisp:86
@@ -5745,7 +5714,7 @@ msgstr "Ikke et gyldigt optimeringsniveau for ~S, skal være en af 0, 1, 2, 3: ~S
 msgid "~S is not a valid ~S quality."
 msgstr "~S er ikke en gyldig ~S-kvalitet"
 
-#: compiler.lisp:1437
+#: compiler.lisp:1437 compiler.lisp:1544
 #, lisp-format
 msgid "Not a valid ~S specifier: ~S"
 msgstr "Ikke en gyldig ~S-anførsel: ~S"
@@ -5755,25 +5724,10 @@ msgstr "Ikke en gyldig ~S-anførsel: ~S"
 msgid "Bad declaration syntax: ~S~%Will be ignored."
 msgstr "Dårlig deklarationssyntaks: ~S~%Vil blive ignoreret."
 
-#: compiler.lisp:1468
-#, lisp-format
-msgid "Non-symbol ~S may not be declared SPECIAL."
+#: compiler.lisp:1468 compiler.lisp:1474 compiler.lisp:1480 compiler.lisp:1486
+#, fuzzy, lisp-format
+msgid "Non-symbol ~S may not be declared ~S."
 msgstr "Kun symboler kan deklareres SPECIAL, ikke ~S"
-
-#: compiler.lisp:1474
-#, lisp-format
-msgid "Non-symbol ~S may not be declared IGNORE."
-msgstr "Kun symboler kan deklareres IGNORE, ikke ~S"
-
-#: compiler.lisp:1480
-#, lisp-format
-msgid "Non-symbol ~S may not be declared IGNORABLE."
-msgstr "Kun symboler kan deklareres IGNORABLE, ikke ~S"
-
-#: compiler.lisp:1486
-#, lisp-format
-msgid "Non-symbol ~S may not be declared READ-ONLY."
-msgstr "Kun symboler kan deklareres READ-ONLY, ikke ~S"
 
 #: compiler.lisp:1498
 #, lisp-format
@@ -5789,11 +5743,6 @@ msgstr "~S er ikke et funktionsnavn og må derfor ikke underkastes en FTYPE-dekla
 #, lisp-format
 msgid "~S is not a function name and therefore may not be declared ~S."
 msgstr "~s er ikke et funktionsnavn og må derfor ikke deklareres ~S."
-
-#: compiler.lisp:1544
-#, lisp-format
-msgid "Not a valid DYNAMIC-EXTENT specifier: ~S"
-msgstr "Ikke en gyldig DYNAMIC-EXTENT-anførsel: ~S"
 
 #: compiler.lisp:1555
 #, lisp-format
@@ -5826,8 +5775,8 @@ msgid " in lines ~D..~D"
 msgstr " i linjerne ~D..~D"
 
 #: compiler.lisp:1932
-#, lisp-format
-msgid "WARNING~@[ in ~A~]~A :"
+#, fuzzy, lisp-format
+msgid "WARNING~@[ in ~S~]~A :"
 msgstr "ADVARSEL~@[ i ~A~]~A :"
 
 #: compiler.lisp:1953
@@ -5856,7 +5805,7 @@ msgid "Not the name of a function: ~S"
 msgstr "~S er ikke navnet på en funktion."
 
 #: compiler.lisp:2422 compiler.lisp:2485
-#, lisp-format
+#, fuzzy, lisp-format
 msgid ""
 "~S is neither declared nor bound,~@\n"
 "                     it will be treated as if it were declared SPECIAL."
@@ -5865,7 +5814,7 @@ msgstr ""
 "                     den vil blive behandlet som SPECIAL-deklareret variabel."
 
 #: compiler.lisp:2502
-#, lisp-format
+#, fuzzy, lisp-format
 msgid ""
 "The constant ~S may not be assigned to.~@\n"
 "                                        The assignment will be ignored."
@@ -5938,8 +5887,8 @@ msgstr "Ugyldig syntaks i LET/LET*: ~S"
 # i lisp og funktionsorienterede sprog er tildeling og binding
 # to vidt forskellige ting, deraf fastholdelsen af ordet 'binding'
 #: compiler.lisp:3570
-#, lisp-format
-msgid "Binding variable ~S can cause side effects despite IGNORE declaration~%since it is declared SPECIAL."
+#, fuzzy, lisp-format
+msgid "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL."
 msgstr "Binding af variabelen ~S kan forårsage bivirkninger trods dens IGNORE-deklaration,~%eftersom den også er deklareret SPECIAL (dynamisk binding)."
 
 #: compiler.lisp:3573
@@ -6048,8 +5997,8 @@ msgid "~S: symbol ~S is declared SPECIAL and must not be declared a macro"
 msgstr "~s: symbolet ~s er deklareret specielt og må ikke deklareres makro"
 
 #: compiler.lisp:5817
-#, lisp-format
-msgid "~s situation must be ~s, ~s or ~s, but not ~s"
+#, fuzzy, lisp-format
+msgid "~S situation must be ~S, ~S or ~S, but not ~S"
 msgstr "~S-situationen skal være ~s, ~s eller ~s, men ikke ~s"
 
 #: compiler.lisp:5834
@@ -6495,31 +6444,21 @@ msgid "(~S ~S): The ~S argument should be a string or NIL, not ~S"
 msgstr "(~S ~S): ~S-argumentet skal være en streng eller NIL, ikke ~S"
 
 #: clos-method1.lisp:268
-#, lisp-format
-msgid "(~S ~S): The slot-definition argument is not of type ~S."
-msgstr "(~S ~S): feltdefinitions-argumentet er ikke af typen ~S"
+#, fuzzy, lisp-format
+msgid "(~S ~S): Argument ~S is not of type ~S."
+msgstr "~S: argumentet ~S skal være en strøm af typen ~S"
 
 #: clos-method2.lisp:35
 #, lisp-format
 msgid "Invalid specialized parameter in method lambda list ~S: ~S"
 msgstr "Ugyldig specialiseret parameter i metodelambdalisten ~S: ~S"
 
-#: clos-method2.lisp:46
-#, lisp-format
-msgid "~S: ~A"
-msgstr "~S: ~A"
-
-#: clos-method2.lisp:84
+#: clos-method2.lisp:83
 #, lisp-format
 msgid "~S ~S: missing lambda list"
 msgstr "~S ~S: mangler lambdalisten"
 
-#: clos-method2.lisp:98 clos-method2.lisp:127 clos-genfun3.lisp:335 clos-genfun3.lisp:453
-#, lisp-format
-msgid "~S ~S: ~A"
-msgstr "~S ~S: ~A"
-
-#: clos-method2.lisp:115
+#: clos-method2.lisp:113
 #, lisp-format
 msgid "~S ~S: Invalid specializer ~S in lambda list ~S"
 msgstr "~s ~S: ugyldig specialisering ~S i lambdalisten ~S"
@@ -6550,9 +6489,9 @@ msgid "For function ~S applied to argument list ~S:~%While computing the effecti
 msgstr "For funktionen ~S anvendt på argumentlisten ~S:~%Under bestemmelse af den effektive metode for ~S~:%Umuligt at kombinere metoderne:~%~?"
 
 #: clos-methcomb2.lisp:144 clos-methcomb2.lisp:158
-#, lisp-format
-msgid "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST."
-msgstr "Værdien af ~S er ~S, skal være :MOST-SPECIFIC-FIRST eller :MOST-SPECIFIC-LAST."
+#, fuzzy, lisp-format
+msgid "The value of ~S is ~S, should be ~S or ~S."
+msgstr "~S: værdien af ~S skal være en ~S, ikke ~S"
 
 #: clos-methcomb2.lisp:151
 #, lisp-format
@@ -6635,7 +6574,8 @@ msgid "~S ~S: invalid method group specifier ~S: ~A"
 msgstr "~S ~S: Ugyldig metodegruppe-kvalificering ~S: ~A"
 
 #: clos-methcomb2.lisp:881
-msgid "Not a list of at least length 2"
+#, fuzzy
+msgid "Not a list of length at least 2"
 msgstr "Ikke en liste af en længde på minimum 2"
 
 #: clos-methcomb2.lisp:890
@@ -6697,11 +6637,6 @@ msgstr "Metodekombinationen: ~S"
 #, lisp-format
 msgid "~S ~S: options must come in pairs"
 msgstr "~S ~S: tilvalg skal anføres parvis"
-
-#: clos-methcomb2.lisp:1141 clos-methcomb2.lisp:1155 clos-methcomb2.lisp:1163
-#, lisp-format
-msgid "~S ~S: option ~S may only be given once"
-msgstr "~S ~S: tilvalget ~S må kun anføres en enkelt gang"
 
 #: clos-methcomb2.lisp:1147
 #, lisp-format
@@ -6918,82 +6853,72 @@ msgstr "~S i ~S: fejl i bestemmelsen af effektive metoder"
 msgid "~S in ~S: the new arguments ~S have a different effective method than the old arguments ~S"
 msgstr "~S i ~S: de nye argumenter, ~S, har en effektiv metode forskellig fra de gamle argumenter, ~S"
 
-#: clos-genfun3.lisp:60
+#: clos-genfun3.lisp:60 clos-genfun3.lisp:431
 #, lisp-format
 msgid "~S ~S: invalid ~S option ~S"
 msgstr "~S ~S: ugyldigt ~S tilvalg ~S"
 
-#: clos-genfun3.lisp:106
-#, lisp-format
-msgid "~S for generic-function ~S: generic-function-class ~S is neither a class or a symbol"
-msgstr "~S for den generiske funktion ~S: generic-function-class ~S er hverken en klasse eller et symbol"
-
-#: clos-genfun3.lisp:109
-#, lisp-format
-msgid "~S for generic-function ~S: generic-function-class ~S is not a subclass of GENERIC-FUNCTION"
-msgstr "~S for den generiske funktion ~S: generic-function-class ~S er ikke afledt af klassen GENERIC-FUNCTION"
-
-#: clos-genfun3.lisp:118
-#, lisp-format
-msgid "~S for generic-function ~S: method-class ~S is neither a class or a symbol"
+#: clos-genfun3.lisp:106 clos-genfun3.lisp:120
+#, fuzzy, lisp-format
+msgid "~S for generic-function ~S: ~S ~S is neither a class or a symbol"
 msgstr "~S for den generiske funktion ~S: method-class ~S er hverken en klasse eller et symbol"
 
-#: clos-genfun3.lisp:183 clos-genfun3.lisp:233
+#: clos-genfun3.lisp:110
+#, fuzzy, lisp-format
+msgid "~S for generic-function ~S: ~S ~S is not a subclass of ~S"
+msgstr "~S for den generiske funktion ~S: method-class ~S er hverken en klasse eller et symbol"
+
+#: clos-genfun3.lisp:186 clos-genfun3.lisp:236
 #, lisp-format
 msgid "~S: ~S does not name a generic function"
 msgstr "~S: ~S navngiver ikke en generisk funktion"
 
-#: clos-genfun3.lisp:192
+#: clos-genfun3.lisp:195
 #, lisp-format
 msgid "Wrong ~S result for ~S: not a generic-function: ~S"
 msgstr "Forkert ~S-resultat for ~S: ikke en generisk funktion: ~S"
 
-#: clos-genfun3.lisp:347 clos-genfun3.lisp:369
+#: clos-genfun3.lisp:349 clos-genfun3.lisp:371
 #, lisp-format
 msgid "~S ~S: ~S may only be specified once."
 msgstr "~s ~S: ~S må kun anføres en enkelt gang."
 
-#: clos-genfun3.lisp:355
+#: clos-genfun3.lisp:357
 #, lisp-format
 msgid "~S ~S: A string must be specified after ~S : ~S"
 msgstr "~s ~S: Efter ~S skal en streng anføres: ~S"
 
-#: clos-genfun3.lisp:361
+#: clos-genfun3.lisp:363
 #, lisp-format
 msgid "~S ~S: Only one ~S string is allowed."
 msgstr "~S ~S: Højst en enkelt ~S-streng er gyldig."
 
-#: clos-genfun3.lisp:381
+#: clos-genfun3.lisp:383
 #, lisp-format
 msgid "~S ~S: A method combination type name must be specified after ~S : ~S"
 msgstr "~s ~S: Et metodekombinations-typenavn skal anføres efter ~S: ~S"
 
-#: clos-genfun3.lisp:389
+#: clos-genfun3.lisp:391
 #, lisp-format
 msgid "~S ~S: Invalid method combination specification: ~S"
 msgstr "~s ~S: Ugyldig metodekombinations-anførsel: ~S"
 
-#: clos-genfun3.lisp:397 clos-genfun3.lisp:411
+#: clos-genfun3.lisp:399 clos-genfun3.lisp:413
 #, lisp-format
 msgid "~S ~S: A class name must be specified after ~S : ~S"
 msgstr "~s ~S: Et klassenavn skal anføres efter ~S: ~S"
 
-#: clos-genfun3.lisp:403 clos-genfun3.lisp:417 clos-genfun3.lisp:438
+#: clos-genfun3.lisp:405 clos-genfun3.lisp:419 clos-genfun3.lisp:440
 #, lisp-format
 msgid "~S ~S: Only one ~S option is allowed."
 msgstr "~s ~S: Højst et enkelt ~S-tilvalg er gyldigt."
 
-#: clos-genfun3.lisp:429
-#, lisp-format
-msgid "~S ~S: invalid ~S option: ~S"
-msgstr "~S ~S: ugyldigt ~S-tilvalg: ~S"
-
-#: clos-genfun3.lisp:514
+#: clos-genfun3.lisp:516
 #, lisp-format
 msgid "~S ~S: invalid generic function lambda-list: ~A"
 msgstr "~S ~S: ugyldig generisk funktions lambdaliste: ~A"
 
-#: clos-genfun3.lisp:637
+#: clos-genfun3.lisp:639
 #, lisp-format
 msgid "~S: ~S is not a generic function specification"
 msgstr "~S: ~S er ikke en anførsel for en generisk funktion"
@@ -7311,7 +7236,7 @@ msgid ""
 "Mode mode      :m       set stack mode for Backtrace: 1=all the stack elements\n"
 "             2=all the frames                         3=only lexical frames\n"
 "             4=only EVAL and APPLY frames (default)   5=only APPLY frames\n"
-"Frame-limit    :fl      set the frame-limit for Backtrace. This many frames\n"
+"Frame-limit n  :fl      set the frame-limit for Backtrace. This many frames\n"
 "                          will be printed in a backtrace at most.\n"
 "Backtrace [mode [limit]] :bt  inspect the stack\n"
 "Break+         :br+     set breakpoint in EVAL frame\n"
@@ -7633,23 +7558,18 @@ msgid "a weak association list, of type ~S "
 msgstr "en svag associationsliste af typen ~S "
 
 #: describe.lisp:209
-#, lisp-format
-msgid "(i.e. a list of EXT:WEAK-MAPPING key/value pairs)"
+#, fuzzy, lisp-format
+msgid "(i.e. a list of ~S key/value pairs)"
 msgstr "(i.e. en liste af EXT:WEAK-MAPPING-nøgler og -værdier i par)"
 
 #: describe.lisp:210
-#, lisp-format
-msgid "(i.e. a list of EXT:WEAK-MAPPING value/key pairs)"
+#, fuzzy, lisp-format
+msgid "(i.e. a list of ~S value/key pairs)"
 msgstr "(i.e. en liste af EXT:WEAK-MAPPING-værdier og nøgler i par) "
 
-#: describe.lisp:211
-#, lisp-format
-msgid "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)"
-msgstr "(i.e. en liste af (nøgle . værdi)-par hver kombineret i en EXT:WEAK-AND-RELATION)"
-
-#: describe.lisp:212
-#, lisp-format
-msgid "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-OR-RELATION)"
+#: describe.lisp:211 describe.lisp:212
+#, fuzzy, lisp-format
+msgid "(i.e. a list of (key . value) pairs each combined into a ~S)"
 msgstr "(i.e. en liste af (nøgle . værdi)-par hver kombineret i en EXT:WEAK-OR-RELATION)"
 
 #: describe.lisp:214
@@ -7837,14 +7757,9 @@ msgstr "."
 msgid "Documentation as a ~a:"
 msgstr "Dokumentation som som en ~A:"
 
-#: describe.lisp:344
+#: describe.lisp:344 describe.lisp:346 describe.lisp:456
 #, fuzzy, lisp-format
-msgid "~%ANSI Documentation is at~% ~S"
-msgstr "Dokumentation som som en ~A:"
-
-#: describe.lisp:346 describe.lisp:456
-#, fuzzy, lisp-format
-msgid "~%CLISP Documentation is at~% ~S"
+msgid "~%~A Documentation is at~% ~S"
 msgstr "Dokumentation som som en ~A:"
 
 #: describe.lisp:353
@@ -8008,8 +7923,8 @@ msgid "a deleted package."
 msgstr "En slettet pakke."
 
 #: describe.lisp:460
-#, lisp-format
-msgid "an ~s hash table with ~[no entries~:;~:*~:d entr~:*~[~;y~:;ies~]~]."
+#, fuzzy, lisp-format
+msgid "an ~S hash table with ~[no entries~:;~:*~:D entr~@:P~]."
 msgstr "En ~S-hashtabel ~[uden elementer~:;med ~:*~:d element~:*~[er~;~:;er~]~]."
 
 #: describe.lisp:463
@@ -8076,10 +7991,10 @@ msgstr " (en~:[~; immutabel~] ~:[~;gentildelt ~]~A streng)"
 msgid "a generic function."
 msgstr "en generisk funktion."
 
-#: describe.lisp:513
+#: describe.lisp:513 describe.lisp:638
 #, lisp-format
-msgid "Argument list: ~A"
-msgstr "Argumentlisten: ~A"
+msgid "Argument list: ~:S"
+msgstr "Argumentlisten: ~:S"
 
 #: describe.lisp:518
 #, lisp-format
@@ -8128,11 +8043,6 @@ msgstr "~A er "
 #, lisp-format
 msgid "Documentation:"
 msgstr "Dokumentation:"
-
-#: describe.lisp:638
-#, lisp-format
-msgid "Argument list: ~:S"
-msgstr "Argumentlisten: ~:S"
 
 #: describe.lisp:646
 #, lisp-format
@@ -8271,13 +8181,13 @@ msgid "Invalid parameter specification in ~S: ~S"
 msgstr "Ugyldig parameteranførsel i ~S: ~S"
 
 #: foreign1.lisp:395
-#, lisp-format
-msgid "~s argument ~s is not a pointer in ~s"
+#, fuzzy, lisp-format
+msgid "~S argument ~S is not a pointer in ~S"
 msgstr "~S-argumentet ~S er ikke en peger i ~S"
 
 #: foreign1.lisp:420
-#, lisp-format
-msgid "~s: No ~s argument and no ~s form in this compilation unit; ~s assumed now and for the rest of this unit"
+#, fuzzy, lisp-format
+msgid "~S: No ~S argument and no ~S form in this compilation unit; ~S assumed now and for the rest of this unit"
 msgstr "~S: Ingen ~S-argument og ingen ~S-form i denne oversættelses-enhed. I denne enhed bruges ~S fremover."
 
 #: foreign1.lisp:426
@@ -8314,8 +8224,8 @@ msgid "~S: ~S option missing in ~S"
 msgstr "~S: ~S-tilvalg mangler i ~S"
 
 #: foreign1.lisp:1064 foreign1.lisp:1121
-#, lisp-format
-msgid "~s is deprecated, use ~s instead"
+#, fuzzy, lisp-format
+msgid "~S is deprecated, use ~S instead"
 msgstr "~S godtages ikke, brug ~S i stedet for."
 
 #: foreign1.lisp:1230
@@ -8347,6 +8257,92 @@ msgstr "~S er ikke en gyldig værdi af typen ~S"
 #, lisp-format
 msgid "~S is only allowed after ~S: ~S"
 msgstr "~S er kun tilladt efter ~S: ~S"
+
+#~ msgid "Argument list: ~A"
+#~ msgstr "Argumentlisten: ~A"
+
+#~ msgid "~S ~S, option ~S may only be given once"
+#~ msgstr "~S ~S, tilvalget ~S må kun anføres en enkelt gang"
+
+#~ msgid "The value of ~S is ~S, should be :MOST-SPECIFIC-FIRST or :MOST-SPECIFIC-LAST."
+#~ msgstr "Værdien af ~S er ~S, skal være :MOST-SPECIFIC-FIRST eller :MOST-SPECIFIC-LAST."
+
+#~ msgid "~S for generic-function ~S: generic-function-class ~S is neither a class or a symbol"
+#~ msgstr "~S for den generiske funktion ~S: generic-function-class ~S er hverken en klasse eller et symbol"
+
+#~ msgid "~S for generic-function ~S: generic-function-class ~S is not a subclass of GENERIC-FUNCTION"
+#~ msgstr "~S for den generiske funktion ~S: generic-function-class ~S er ikke afledt af klassen GENERIC-FUNCTION"
+
+#~ msgid "~S ~S: invalid ~S option: ~S"
+#~ msgstr "~S ~S: ugyldigt ~S-tilvalg: ~S"
+
+#~ msgid "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)"
+#~ msgstr "(i.e. en liste af (nøgle . værdi)-par hver kombineret i en EXT:WEAK-AND-RELATION)"
+
+#, fuzzy
+#~ msgid "~%CLISP Documentation is at~% ~S"
+#~ msgstr "Dokumentation som som en ~A:"
+
+#~ msgid "(~S ~S): The slot-definition argument is not of type ~S."
+#~ msgstr "(~S ~S): feltdefinitions-argumentet er ikke af typen ~S"
+
+#~ msgid "~S: ~A"
+#~ msgstr "~S: ~A"
+
+#~ msgid "~S ~S: ~A"
+#~ msgstr "~S ~S: ~A"
+
+#, fuzzy
+#~ msgid "~S is neither declared nor bound, it will be treated as if it were declared SPECIAL."
+#~ msgstr ""
+#~ "~s er hverken deklareret eller bunden,~@\n"
+#~ "                     den vil blive behandlet som SPECIAL-deklareret variabel."
+
+#~ msgid "Lambda list element ~S is superfluous. Only one variable is allowed after &ENVIRONMENT."
+#~ msgstr "Lambdaliste-elementet ~S er overflødigt. Kun én variabel er tilladt efter &ENVIRONMENT."
+
+#~ msgid "Missing &ENVIRONMENT parameter in lambda list ~S"
+#~ msgstr "Mangler &ENVIRONMENT-parameter i lambdalisten ~S"
+
+#~ msgid "Missing &WHOLE parameter in lambda list ~S"
+#~ msgstr "Mangler &WHOLE-parameter i lambdalisten ~S"
+
+#~ msgid "Wrong ~S result for class ~S: not a plist: ~S"
+#~ msgstr "Forkert ~S-resultat for klassen ~S: ikke en egenskabsliste: ~S"
+
+#~ msgid "~S: :update must not be specified without :initial-element"
+#~ msgstr "~S: :update skal ikke anføres uden :initial-element"
+
+#~ msgid "~S: :start-index ~S must not be greater than :end-index ~S"
+#~ msgstr "~S: :start-indekset ~S skal ikke være større end :end-indekset ~S"
+
+#~ msgid "~S: :start1-index ~S must not be greater than :end1-index ~S"
+#~ msgstr "~S: :start1-indekset ~S skal ikke være større end :end1-indekset ~S"
+
+#~ msgid "~S: :start2-index ~S must not be greater than :end2-index ~S"
+#~ msgstr "~S: :start2-indekset ~S skal ikke være større end :end2-indekset ~S"
+
+#, fuzzy
+#~ msgid "~S: the symbol ~S names a global special variable"
+#~ msgstr "~s: symbolet ~s navngiver en global variabel"
+
+#~ msgid "The lambda list of macro ~S contains a dot after &KEY."
+#~ msgstr "Lambdalisten for makroen ~s har en prik efter &KEY."
+
+#~ msgid "The ~~newline format directive cannot take both modifiers."
+#~ msgstr "'~~'-newline-formatdirektivet er meningsløst med både ':' og '@' som modifikationer"
+
+#~ msgid "Non-symbol ~S may not be declared IGNORE."
+#~ msgstr "Kun symboler kan deklareres IGNORE, ikke ~S"
+
+#~ msgid "Non-symbol ~S may not be declared IGNORABLE."
+#~ msgstr "Kun symboler kan deklareres IGNORABLE, ikke ~S"
+
+#~ msgid "Non-symbol ~S may not be declared READ-ONLY."
+#~ msgstr "Kun symboler kan deklareres READ-ONLY, ikke ~S"
+
+#~ msgid "Not a valid DYNAMIC-EXTENT specifier: ~S"
+#~ msgstr "Ikke en gyldig DYNAMIC-EXTENT-anførsel: ~S"
 
 #~ msgid "dotted list given to ~S : ~S"
 #~ msgstr "prikket liste givet til ~S: ~S"
