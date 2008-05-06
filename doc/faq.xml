@@ -377,7 +377,7 @@ following command:
    &defun;?</simpara></question>
 <answer><para>Pass &opt-M; to the runtime (&lisp-run;
   or <filename>lisp.exe</filename>).
-  Use the driver <filename>clisp</filename> (or
+  Or, better yet, use the driver <filename>clisp</filename> (or
   <filename>clisp.exe</filename>) instead of invoking the runtime
   directly.</para></answer></qandaentry>
 
