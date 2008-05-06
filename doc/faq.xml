@@ -260,15 +260,16 @@ following command:
 
 <formalpara><title>Useful commands</title>
 <para>You are encouraged to make use of commands defined in
- <filename role="clisp-cvs">src/.gdbinit</filename>, such as<simplelist>
+ <filename role="clisp-cvs">src/.gdbinit</filename>,
+ such as<simplelist columns="3">
   <member><command>boot</command></member>
   <member><command>base</command></member>
   <member><command>full</command></member>
-  <member><command>xout</command></member>
-  <member><command>zout</command></member>
   <member><command>run_test</command></member>
   <member><command>run_all_tests</command></member>
   <member><command>ansi_tests</command></member>
+  <member><command>xout</command></member>
+  <member><command>zout</command></member>
  </simplelist>and others.</para></formalpara>
 
 </answer></qandaentry>
