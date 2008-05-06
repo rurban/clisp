@@ -4090,18 +4090,21 @@ DEFUN(POSIX::FDOPEN, fd mode) {
     });
   VALUES1(STACK_0); skipSTACK(2);
 }
-#define FILE_TO_INT(fun) {                              \
+#define FILE_FUNCTION(fun,finish)                       \
     int ret;                                            \
     STACK_0 = check_fpointer(STACK_0,1);                \
     begin_system_call();                                \
     ret = fun(TheFpointer(STACK_0)->fp_pointer);        \
     end_system_call();                                  \
-    VALUES1(sint_to_I(ret)); skipSTACK(1);              \
-  }
-DEFUN(POSIX::FCLOSE, fp) FILE_TO_INT(fclose)
-DEFUN(POSIX::FILENO, fp) FILE_TO_INT(fileno)
-DEFUN(POSIX::FEOF, fp) FILE_TO_INT(feof)
-DEFUN(POSIX::FERROR, fp) FILE_TO_INT(ferror)
+    finish; skipSTACK(1)
+DEFUN(POSIX::FILENO, fp)
+{ FILE_FUNCTION(fileno,{ if(ret==-1)OS_error(); VALUES1(sint_to_I(ret)); }); }
+DEFUN(POSIX::FEOF, fp) { FILE_FUNCTION(feof,VALUES_IF(ret)); }
+DEFUN(POSIX::FERROR, fp) { FILE_FUNCTION(ferror,VALUES_IF(ret)); }
+DEFUN(POSIX::FCLOSE, fp)
+{ FILE_FUNCTION(fclose,{ if (ret == EOF) OS_error(); VALUES0; }); }
+DEFUN(POSIX::FFLUSH, fp)
+{ FILE_FUNCTION(fflush,{ if (ret == EOF) OS_error(); VALUES0; }); }
 /* no fputs & fgets because they will mess with encodings &c */
 DEFUN(POSIX::CLEARERR, fp) {
   STACK_0 = check_fpointer(STACK_0,1);
@@ -4110,16 +4113,17 @@ DEFUN(POSIX::CLEARERR, fp) {
   end_system_call();
   VALUES0; skipSTACK(1);
 }
-/* #define INT_FILE_TO_INT(fun) {                                          \
- *     int ret;                                                            \
- *     STACK_0 = check_fpointer(STACK_0,1);                                \
- *     STACK_1 = check_sint(STACK_1);                                      \
- *     begin_system_call();                                                \
- *     ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);     \
- *     end_system_call();                                                  \
- *     VALUES1(sint_to_I(ret)); skipSTACK(2);                              \
+/* fgetc returns -1 on EOF instead of signaling an error. or signal?!
+ * DEFUN(POSIX::FGETC, fp) FILE_FUNCTION(fgetc,VALUES1(sint_to_I(ret)))
+ * #define INT_FILE_TO_INT(fun) {                                       \
+ *     int ret;                                                         \
+ *     STACK_0 = check_fpointer(STACK_0,1);                             \
+ *     STACK_1 = check_sint(STACK_1);                                   \
+ *     begin_system_call();                                             \
+ *     ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);  \
+ *     end_system_call();                                               \
+ *     VALUES1(sint_to_I(ret)); skipSTACK(2);                           \
  *   }
- * DEFUN(POSIX::FGETC, fp) FILE_TO_INT(fgetc)
  * DEFUN(POSIX::FPUTC, c fp) INT_FILE_TO_INT(fputc)
  * DEFUN(POSIX::UNGETC, c fp) INT_FILE_TO_INT(ungetc) */
 #endif  /* HAVE_FFI */
