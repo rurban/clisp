@@ -1,5 +1,10 @@
 2008-05-06  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (report-results): since we now have more than 10,000
+	tests, we need more space for numbers...
+
+2008-05-06  Sam Steingold  <sds@gnu.org>
+
 	* weak.tst: test DESCRIBE on weak objects
 
 2008-05-01  Sam Steingold  <sds@gnu.org>
