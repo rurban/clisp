@@ -46,7 +46,7 @@ define zout
   echo \n
 end
 document zout
-         print the specified object with PRIN1
+         print the specified object with PRIN1 (consing!)
 end
 
 define xout
@@ -54,7 +54,7 @@ define xout
   echo \n
 end
 document xout
-         print the specified object with nobject_out()
+         print the specified object with nobject_out (non-consing)
 end
 
 # ffi.tst requires -E utf-8
