@@ -227,24 +227,50 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
    debug &clisp;?</simpara></question>
-<answer><para>When debugging the core:<screen>
+<answer><formalpara><title>Debugging the core</title><para><screen>
 &sh-prompt; ./configure --with-debug --build build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> boot
 <prompt>(gdb)</prompt> run
-</screen></para>
+</screen></para></formalpara>
 
-<para>When debugging module <literal>foo</literal>:<screen>
+<formalpara><title>Debugging module <literal>foo</literal></title><para><screen>
 &sh-prompt; ./configure --with-debug --with-module=foo --build build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> full
-<prompt>(gdb)</prompt> run
-</screen></para>
+<prompt>(gdb)</prompt> run</screen>
+When debugging a &base; module, use <command>base</command>
+ instead of <command>full</command> and <command>boot</command> above.
+</para></formalpara>
 
-<para>When debugging a &base; module, use <command>base</command>
- instead of <command>full</command> and <command>boot</command> above.</para>
+<formalpara><title>The impact of generational &gc;or</title>
+<para>If your &clisp; was built with generational &gc;or, you will see
+ plenty of spurious segfaults (that's how the generational &gc;or
+ works).  At the end of <filename role="clisp-cvs">src/.gdbinit</filename>
+ you will find the following suggested &gdb; commands:
+<programlisting language="gdb">handle SIGSEGV noprint nostop
+break sigsegv_handler_failed</programlisting>
+which will stop execution on a <emphasis>dangerous</emphasis> segfault.
+You can find out whether this is needed by examining the output of the
+following command:
+<screen>&sh-prompt; clisp --version | grep GENERATIONAL_GC</screen>
+</para></formalpara>
+
+<formalpara><title>Useful commands</title>
+<para>You are encouraged to make use of commands defined in
+ <filename role="clisp-cvs">src/.gdbinit</filename>, such as<simplelist>
+  <member><command>boot</command></member>
+  <member><command>base</command></member>
+  <member><command>full</command></member>
+  <member><command>xout</command></member>
+  <member><command>zout</command></member>
+  <member><command>run_test</command></member>
+  <member><command>run_all_tests</command></member>
+  <member><command>ansi_tests</command></member>
+ </simplelist>and others.</para></formalpara>
+
 </answer></qandaentry>
 </qandadiv>
 
