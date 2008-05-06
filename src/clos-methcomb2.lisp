@@ -878,7 +878,7 @@
            (normalize-group (group)
              (unless (and (consp group) (consp (cdr group)))
                (group-error group group
-                            (TEXT "Not a list of at least length 2")))
+                            (TEXT "Not a list of length at least 2")))
              (let ((variable (car group))
                    (groupr (cdr group))
                    (patterns '())
