@@ -392,7 +392,7 @@
                         ;; see FOREIGN-CALL-OUT in foreign.d
                         (when (and (or (eq argmode :OUT) (eq argmode :IN-OUT))
                                    (not (eq (ctype-type argtype) 'C-PTR)))
-                          (warn (TEXT "~s argument ~s is not a pointer in ~s")
+                          (warn (TEXT "~S argument ~S is not a pointer in ~S")
                                 argmode argtype whole))
                         (list argtype
                               (+ (ecase argmode
@@ -417,7 +417,7 @@
            (language-to-flag
             (or *foreign-language*
                 (progn
-                  (warn (TEXT "~s: No ~s argument and no ~s form in this compilation unit; ~s assumed now and for the rest of this unit")
+                  (warn (TEXT "~S: No ~S argument and no ~S form in this compilation unit; ~S assumed now and for the rest of this unit")
                         whole :language 'default-foreign-language :stdc)
                   (setq *foreign-language* :STDC))))))))) ; Default is ANSI C
 
@@ -1061,7 +1061,7 @@
 ;; ============================ named C functions ============================
 
 (defmacro DEF-C-CALL-OUT (name &rest options)
-  (warn (TEXT "~s is deprecated, use ~s instead")
+  (warn (TEXT "~S is deprecated, use ~S instead")
         'def-c-call-out 'def-call-out)
   `(DEF-CALL-OUT ,name ,@options (:LANGUAGE :STDC)))
 
@@ -1118,7 +1118,7 @@
   (count-inarguments (sys::%record-ref obj 4))) ; ff_argtypes
 
 (defmacro DEF-C-CALL-IN (name &rest options)
-  (warn (TEXT "~s is deprecated, use ~s instead")
+  (warn (TEXT "~S is deprecated, use ~S instead")
         'def-c-call-in 'def-call-in)
   `(DEF-CALL-IN ,name ,@options (:LANGUAGE :STDC)))
 
