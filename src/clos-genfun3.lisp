@@ -103,11 +103,13 @@
   (unless (defined-class-p generic-function-class)
     (if (symbolp generic-function-class)
       (setq generic-function-class (find-class generic-function-class))
-      (error (TEXT "~S for generic-function ~S: generic-function-class ~S is neither a class or a symbol")
-             'ensure-generic-function-using-class funname generic-function-class)))
+      (error (TEXT "~S for generic-function ~S: ~S ~S is neither a class or a symbol")
+             'ensure-generic-function-using-class funname
+             ':generic-function-class generic-function-class)))
   (unless (subclassp generic-function-class <generic-function>)
-    (error (TEXT "~S for generic-function ~S: generic-function-class ~S is not a subclass of GENERIC-FUNCTION")
-           'ensure-generic-function-using-class funname generic-function-class))
+    (error (TEXT "~S for generic-function ~S: ~S ~S is not a subclass of ~S")
+           'ensure-generic-function-using-class funname
+           ':generic-function-class generic-function-class 'GENERIC-FUNCTION))
   ;; Preparation of initialization arguments.
   (setq all-keys (copy-list all-keys))
   (remf all-keys ':generic-function-class)
@@ -115,8 +117,9 @@
     (unless (defined-class-p method-class)
       (if (symbolp method-class)
         (setq method-class (find-class method-class))
-        (error (TEXT "~S for generic-function ~S: method-class ~S is neither a class or a symbol")
-               'ensure-generic-function-using-class funname method-class)))
+        (error (TEXT "~S for generic-function ~S: ~S ~S is neither a class or a symbol")
+               'ensure-generic-function-using-class funname
+               ':method-class method-class)))
     (setf (getf all-keys ':method-class) method-class))
   (if gf
     ;; Redefinition of a generic function.
@@ -425,7 +428,7 @@
          (error-of-type 'ext:source-program-error
            :form whole-form
            :detail option
-           (TEXT "~S ~S: invalid ~S option: ~S")
+           (TEXT "~S ~S: invalid ~S option ~S")
            caller funname 'defgeneric option))
         (t
          (let ((optionkey (first option)))

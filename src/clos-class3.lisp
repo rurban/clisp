@@ -279,7 +279,7 @@
               (error-of-type 'ext:source-program-error
                 :form whole-form
                 :detail options
-                (TEXT "~S ~S, option ~S may only be given once")
+                (TEXT "~S ~S: option ~S may only be given once")
                 'defclass name optionkey))
             (case optionkey
               (:METACLASS
@@ -362,7 +362,7 @@
                    (error-of-type 'ext:source-program-error
                      :form whole-form
                      :detail options
-                     (TEXT "~S ~S, option ~S may only be given once")
+                     (TEXT "~S ~S: option ~S may only be given once")
                      'defclass name optionkey))
                  (push option user-defined-args)
                  (return))))))

@@ -294,7 +294,7 @@ Bottom         :b       go to bottom (most recent) frame, inspect it
 Mode mode      :m       set stack mode for Backtrace: 1=all the stack elements
              2=all the frames                         3=only lexical frames
              4=only EVAL and APPLY frames (default)   5=only APPLY frames
-Frame-limit    :fl      set the frame-limit for Backtrace. This many frames
+Frame-limit n  :fl      set the frame-limit for Backtrace. This many frames
                           will be printed in a backtrace at most.
 Backtrace [mode [limit]] :bt  inspect the stack
 Break+         :br+     set breakpoint in EVAL frame

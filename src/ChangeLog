@@ -1,3 +1,8 @@
+2008-05-06  Sam Steingold  <sds@gnu.org>
+
+	* clos-class3.lisp, clos-genfun3.lisp, clos-methcomb2.lisp,
+	* describe.lisp, reploop.lisp: various small i18n message fixes
+
 2008-05-05  Sam Steingold  <sds@gnu.org>
 
 	* clos-genfun3.lisp (analyze-defgeneric): do not pass through

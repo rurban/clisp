@@ -101,13 +101,13 @@ to print the corresponding values, or T for all of them.")
         (terpri stream)
         (format stream (TEXT "No slots."))))))
 
-(defun launch-doc (obj type stream name)
+(defun launch-doc (obj type stream name kind)
   (when (zerop *describe-nesting*)
     (let ((doc (documentation obj type)))
       (when doc
         (if *browser*
             (ext::browse-url doc :out stream)
-            (format stream name doc))))))
+            (format stream name kind doc))))))
 
 (defvar *squeeze-string-max* 100)
 (defvar *squeeze-string-section* 10) ; at most half of *squeeze-string-max*
@@ -206,10 +206,10 @@ to print the corresponding values, or T for all of them.")
              (remaining (weak-alist-contents obj)))
          (format stream (TEXT "a weak association list, of type ~S ") type)
          (ecase type
-           (:KEY    (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING key/value pairs)")))
-           (:VALUE  (format stream (TEXT "(i.e. a list of EXT:WEAK-MAPPING value/key pairs)")))
-           (:KEY-AND-VALUE (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-AND-RELATION)")))
-           (:KEY-OR-VALUE  (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a EXT:WEAK-OR-RELATION)"))))
+           (:KEY    (format stream (TEXT "(i.e. a list of ~S key/value pairs)") 'EXT:WEAK-MAPPING))
+           (:VALUE  (format stream (TEXT "(i.e. a list of ~S value/key pairs)") 'EXT:WEAK-MAPPING))
+           (:KEY-AND-VALUE (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a ~S)") 'EXT:WEAK-AND-RELATION))
+           (:KEY-OR-VALUE  (format stream (TEXT "(i.e. a list of (key . value) pairs each combined into a ~S)") 'EXT:WEAK-OR-RELATION)))
          (if remaining
            (format stream (TEXT ", containing ~S.") remaining)
            (format stream (TEXT ", no longer referring to any pairs.")))))
@@ -341,9 +341,9 @@ to print the corresponding values, or T for all of them.")
             (terpri stream)
             (princ doc stream))))
       (launch-doc obj 'ext::clhs ; change to sys::clhs when ext:clhs is finally removed
-                  stream (TEXT "~%ANSI Documentation is at~% ~S"))
+                  stream (TEXT "~%~A Documentation is at~% ~S") :ansi-cl)
       (launch-doc obj 'sys::impnotes stream
-                  (TEXT "~%CLISP Documentation is at~% ~S"))
+                  (TEXT "~%~A Documentation is at~% ~S") :clisp)
       (when moree
         (terpri stream)
         (format stream (TEXT "For more information, evaluate ~{~S~^ or ~}.")
@@ -453,11 +453,11 @@ to print the corresponding values, or T for all of them.")
                        (format stream (TEXT "It is a traditional ANSI CL compatible package, but uses the symbols from the modern ~S!")
                                (find-package "CS-COMMON-LISP"))))))))
         (launch-doc obj 'sys::impnotes stream
-                    (TEXT "~%CLISP Documentation is at~% ~S")))
+                    (TEXT "~%~A Documentation is at~% ~S") :clisp))
       (format stream (TEXT "a deleted package."))))
   (:method ((obj hash-table) (stream stream))
     (let ((count (hash-table-count obj)))
-      (format stream (TEXT "an ~s hash table with ~[no entries~:;~:*~:d entr~:*~[~;y~:;ies~]~].")
+      (format stream (TEXT "an ~S hash table with ~[no entries~:;~:*~:D entr~:*~[~;y~:;ies~]~].")
               (hash-table-test obj) count)))
   (:method ((obj readtable) (stream stream))
     (format stream (TEXT "~:[a~;the Common Lisp~] readtable.")
