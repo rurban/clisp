@@ -267,10 +267,10 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
   "res = list of RUN-TEST return values (testname total-count error-count)"
   (let ((error-count (reduce #'+ res :key #'third)))
     (format
-     t "~&finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
+     t "~&finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~6:d test~:p~%"
      (length res) error-count (reduce #'+ res :key #'second))
     (loop :with here = (truename "./") :for rec :in res :for count :upfrom 1 :do
-      (format t "~&~3d ~25@a:~31T ~3:d error~:p out of~50T ~5:d test~:p~%"
+      (format t "~&~3d ~25@a:~31T ~3:d error~:p out of~50T ~6:d test~:p~%"
               count (enough-namestring (first rec) here)
               (third rec) (second rec)))
     error-count))
