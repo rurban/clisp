@@ -62,6 +62,7 @@ User visible changes
   + COMPILE no longer discards MACRO doc strings. [ 1936255 ]
   + Improved accuracy of LOG on complex numbers. [ 1934968 ]
   + Fix COERCE for compound float result-types. [ 1942246 ]
+  + Fix $http_proxy parsing. [ 1959436 ]
   + Cross-compilation process has been restored to its former glory,
     thanks to the valiant and persistent testing by
     Vladimir Volovich <vvv2@users.sourceforge.net>.
