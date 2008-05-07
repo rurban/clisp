@@ -1,5 +1,10 @@
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (describe-object@symbol) [FFI]:
+	print foreign type information
+
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (encflags): ' -E UTF-8 -Epathname 1:1':
 	UTF-8 for files, terminal, wildcard test
 	1:1 for pathname
