@@ -1,5 +1,10 @@
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (MYIMPROOT): use beta pages for the latest id-href.map
+	(check-doc): use base, not boot, for better symbol coverage
+
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
 	* describe.lisp (describe-object@symbol) [FFI]:
 	print foreign type information
 
