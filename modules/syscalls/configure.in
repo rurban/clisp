@@ -35,8 +35,8 @@ AC_CHECK_FUNCS(clock getloadavg confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
 openlog setlogmask syslog closelog strftime strptime mktime dnl
-getpgid setpgrp getsid setpgid setsid kill pathconf fpathconf realpath dnl
-getgrgid getgrnam getgrent endgrent setgrent dnl
+getpgid getsid setpgid setsid kill pathconf fpathconf realpath dnl
+getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid getgroups setgroups dnl
