@@ -1,3 +1,8 @@
+2008-05-07  Reini Urban  <rurban@x-ray.at>
+
+	* modules/syscalls/calls.c (FILE_FUNCTION, CLEARERR): fix g++ and
+	cygwin compilation by casting the pointers to (FILE*)
+
 2008-05-06  Bruno Haible  <bruno@clisp.org>
 
 	* clos-specializer2.lisp (reinitialize-instance@specializer): Change

@@ -4094,7 +4094,7 @@ DEFUN(POSIX::FDOPEN, fd mode) {
     int ret;                                            \
     STACK_0 = check_fpointer(STACK_0,1);                \
     begin_system_call();                                \
-    ret = fun(TheFpointer(STACK_0)->fp_pointer);        \
+    ret = fun((FILE*)TheFpointer(STACK_0)->fp_pointer); \
     end_system_call();                                  \
     finish; skipSTACK(1)
 DEFUN(POSIX::FILENO, fp)
@@ -4109,7 +4109,7 @@ DEFUN(POSIX::FFLUSH, fp)
 DEFUN(POSIX::CLEARERR, fp) {
   STACK_0 = check_fpointer(STACK_0,1);
   begin_system_call();
-  clearerr(TheFpointer(STACK_0)->fp_pointer);
+  clearerr((FILE*)TheFpointer(STACK_0)->fp_pointer);
   end_system_call();
   VALUES0; skipSTACK(1);
 }
