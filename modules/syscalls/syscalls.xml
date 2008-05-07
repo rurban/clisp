@@ -332,7 +332,7 @@
    Use <constant>:FIFO</constant> to create pipes
    and <constant>:SOCK</constant> to create sockets.
  </simpara></listitem></varlistentry>
- <varlistentry id="convert-modes">
+ <varlistentry id="convert-mode">
   <term><code>(<function>POSIX:CONVERT-MODE</function> &mode-r;)</code></term>
   <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
     and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP
@@ -476,7 +476,7 @@
     </para></listitem></varlistentry></variablelist>
     Returns the property contents before assignment as multiple values.
  </para></listitem></varlistentry>
- <varlistentry><term><code>(POSIX:CRYPT &key-r;
+ <varlistentry id="crypt"><term><code>(POSIX:CRYPT &key-r;
     <replaceable>salt</replaceable>)</code></term>
   <listitem><simpara>Call <function role="unix">crypt</function>,
     arguments are &string-t;s.</simpara></listitem></varlistentry>
