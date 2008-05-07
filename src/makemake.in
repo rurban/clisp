@@ -2941,12 +2941,12 @@ else
   localeflags='-B .'
 fi
 if [ "${with_unicode}" != no ] ; then
-  # The first "-E" sets all encodings to iso-8859-1 which ensures that we can
-  # parse all pathnames etc. The others are just sugar, all that really matters
-  # here is that no encoding is left as ASCII (the C locale encoding):
-  # we only open CLISP source files here, and they are in UTF-8, thus -Efile;
-  # we want to be able to dump everything to the terminal, thus -Eterminal.
-  encflags=' -E 1:1 -Efile UTF-8 -Eterminal UTF-8'
+  # make sure that no encoding is left as ASCII (the C locale encoding)
+  # The first "-E" sets all encodings to UTF-8, so that we can read
+  #   CLISP source files and dump everything to the terminal;
+  #   this is also important for the wildcard and regexp test suite.
+  # The second "-E" ensures that we can parse all pathnames.
+  encflags=' -E UTF-8 -Epathname 1:1'
 else
   encflags=''
 fi
