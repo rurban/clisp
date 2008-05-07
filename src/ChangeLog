@@ -16,6 +16,7 @@
 2008-05-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FFLUSH): add
+	* modules/syscalls/posix.lisp (fflush): export
 	(FILENO, FEOF, FERROR, FCLOSE): check return values
 
 2008-05-06  Sam Steingold  <sds@gnu.org>
