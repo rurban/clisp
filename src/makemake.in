@@ -3266,7 +3266,8 @@ if [ $CROSS = false ] ; then
 
   # have CVS + developer with a network connection => check id-href.map
   # Try wget, lynx, curl in order. wget is common, but MacOS X only has curl.
-  MYIMPROOT=http://clisp.cons.org/impnotes/
+  # use beta pages for the latest id-href.map
+  MYIMPROOT=http://clisp.podval.org/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}CVS" \
      && { { wget --version >/dev/null 2>/dev/null \
@@ -3277,8 +3278,8 @@ if [ $CROSS = false ] ; then
                && curl --silent ${MYTESTURL} > id-href.map; }; }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
-    echol "check-doc: lisp${LEXE} lispinit.mem"
-    echotab "\$(RUN) -q -M lispinit.mem -x '(setq *impnotes-root-default* \"${MYIMPROOT}\")' -x '(sys::ensure-impnotes-map t)'"
+    echol "check-doc: clisp${TEXE} # base"
+    echotab "./clisp ${someflags} -x '(setq *impnotes-root-default* \"${MYIMPROOT}\")' -x '(sys::ensure-impnotes-map t)'"
     echol
   fi
 
