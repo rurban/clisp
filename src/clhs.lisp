@@ -92,10 +92,11 @@ The keyword argument REPEAT specifies how many objects to read:
           (t (format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
-;;; see also clocc/cllib/net.lisp
+;;; keep in sync with clocc/cllib/url.lisp
 (defvar *http-proxy* nil
   "A list of 3 elements (user:password host port), parsed from $http_proxy
-proxy-user:proxy-password@proxy-host:proxy-port")
+\[http://]proxy-user:proxy-password@proxy-host:proxy-port[/]
+by HTTP-PROXY.")
 (defconstant *http-port* 80)
 (defun http-proxy (&optional (proxy-string (getenv "http_proxy") proxy-p))
   "When the argument is supplied or *HTTP-PROXY* is NIL, parse the argument,
@@ -107,12 +108,13 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                                                #2=#.(length #1#)))
                       #2# 0))
            (at (position #\@ proxy-string :start start))
-           (colon (position #\: proxy-string :start (or at start))))
+           (colon (position #\: proxy-string :start (or at start)))
+           (slash (position #\/ proxy-string :start (or colon at start))))
       (setq *http-proxy*
             (list (and at (subseq proxy-string start at))
-                  (subseq proxy-string (if at (1+ at) start) colon)
+                  (subseq proxy-string (if at (1+ at) start) (or colon slash))
                   (if colon
-                      (parse-integer proxy-string :start (1+ colon))
+                      (parse-integer proxy-string :start (1+ colon) :end slash)
                       *http-port*)))
       (format t "~&;; ~S=~S~%" '*http-proxy* *http-proxy*)))
   *http-proxy*)
