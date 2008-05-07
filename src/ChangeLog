@@ -1,3 +1,8 @@
+2008-05-07  Reini Urban  <rurban@x-ray.at>
+
+	* modules/syscalls/calls.c (FMTID_SummaryInformation)
+	(FMTID_UserDefinedProperties): enable also on UNIX_CYGWIN32
+
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1959436 ]: Allow ending http_proxy with a slash

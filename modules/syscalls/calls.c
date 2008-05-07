@@ -79,7 +79,7 @@
 # endif
 #endif
 
-#if defined(_WIN32)
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
 DEFINE_GUID(FMTID_SummaryInformation, 0xF29F85E0, 0x4FF9, 0x1068,
             0xAB, 0x91, 0x08, 0x00, 0x2B, 0x27, 0xB3, 0xD9);
