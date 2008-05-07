@@ -1,3 +1,8 @@
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1959436 ]: Allow ending http_proxy with a slash
+	* clhs.lisp (http-proxy): handle the trailing slash
+
 2008-05-07  Reini Urban  <rurban@x-ray.at>
 
 	* modules/syscalls/calls.c (FILE_FUNCTION, CLEARERR): fix g++ and
