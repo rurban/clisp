@@ -387,7 +387,7 @@
     xio))
 
 ;;;--------------------------------------------------------------------------
-#+FFI (export '(fopen fdopen fclose ; fgetc fputc ungetc
+#+FFI (export '(fopen fdopen fclose fflush ; fgetc fputc ungetc
                 clearerr feof ferror fileno))
 ;;;--------------------------------------------------------------------------
 (defun ffs (n) (integer-length (logand n (- n))))
