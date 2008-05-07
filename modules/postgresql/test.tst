@@ -40,7 +40,8 @@
   NIL)
 NIL
 
-(os:fclose *trace*) 0
+(os:fclose *trace*) NIL
+(null (show (delete-file "postgres.log"))) NIL
 
 ;;;
 ;;; asynchronous notification interface
