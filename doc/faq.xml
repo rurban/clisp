@@ -227,7 +227,8 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
    debug &clisp;?</simpara></question>
-<answer><formalpara><title>Debugging the core</title><para><screen>
+<answer><formalpara id="faq-debug-core"><title>Debugging the core</title>
+<para><screen>
 &sh-prompt; ./configure --with-debug --build build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
@@ -235,7 +236,8 @@ further explanations of the issues could be provided).</para>
 <prompt>(gdb)</prompt> run
 </screen></para></formalpara>
 
-<formalpara><title>Debugging module <literal>foo</literal></title><para><screen>
+<formalpara id="faq-debug-module"><title>Debugging
+  module <literal>foo</literal></title><para><screen>
 &sh-prompt; ./configure --with-debug --with-module=foo --build build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
@@ -245,7 +247,8 @@ When debugging a &base; module, use <command>base</command>
  instead of <command>full</command> and <command>boot</command> above.
 </para></formalpara>
 
-<formalpara><title>The impact of generational &gc;or</title>
+<formalpara id="faq-debug-gengc">
+ <title>The impact of generational &gc;or</title>
 <para>If your &clisp; was built with generational &gc;or, you will see
  plenty of spurious segfaults (that's how the generational &gc;or
  works).  At the end of <filename role="clisp-cvs">src/.gdbinit</filename>
@@ -258,7 +261,7 @@ following command:
 <screen>&sh-prompt; clisp --version | grep GENERATIONAL_GC</screen>
 </para></formalpara>
 
-<formalpara><title>Useful commands</title>
+<formalpara id="faq-debug-gdbinit"><title>Useful commands</title>
 <para>You are encouraged to make use of commands defined in
  <filename role="clisp-cvs">src/.gdbinit</filename>,
  such as<simplelist columns="3">
@@ -272,6 +275,16 @@ following command:
   <member><command>zout</command></member>
  </simplelist>and others.</para></formalpara>
 
+<formalpara id="faq-debug-macros"><title>Macros</title>
+ <para>&clisp; makes heavy use of &cpp; macros
+  (e.g., <function>pushSTACK</function>), which can complicate debugging
+  in &gdb;.  The macros are defined
+  in <filename role="clisp-cvs">src/lispbibl.d</filename>, but the maze
+  of conditionals may be hard to navigate. If you are using &gcc;, you
+  can do <command role="unix">make lispbibl.h</command> and then
+  examine the definitions in the generated <filename>lispbibl.h</filename>.
+  See also bottom of <filename role="clisp-cvs">src/spvw_debug.d</filename>.
+</para></formalpara>
 </answer></qandaentry>
 </qandadiv>
 
