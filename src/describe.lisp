@@ -314,7 +314,7 @@ to print the corresponding values, or T for all of them.")
                        (assoc obj *deprecated-functions-alist* :test #'eq))))
         (let ((dep (get obj 'deprecated)))
           (when dep
-            (format stream (TEXT " (use ~s instead)") dep)))
+            (format stream (TEXT " (use ~S instead)") dep)))
         (pushnew (symbol-function obj) mored))
       (when (or (get obj 'system::type-symbol)
                 (get obj 'system::defstruct-description)
@@ -324,6 +324,14 @@ to print the corresponding values, or T for all of them.")
           (push `(type-expand ',obj t) moree)))
       (when (clos::defined-class-p (get obj 'clos::closclass))
         (format stream (TEXT ", names a class")))
+      #+FFI
+      (multiple-value-bind (expansion found-p)
+          (gethash obj ffi::*c-type-table*)
+        (when found-p
+          (cond ((eq expansion obj)
+                 (format stream (TEXT ", names a built-in foreign type")))
+                (t (format stream (TEXT ", names a foreign type"))
+                   (push `(gethash ',obj ffi::*c-type-table*) moree)))))
       (when (symbol-plist obj)
         (let ((properties
                (do ((l nil) (pl (symbol-plist obj) (cddr pl)))
