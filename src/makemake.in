@@ -623,7 +623,7 @@ CPPFLAGS=${CPPFLAGS}' -Igllib'
 if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
-  # We can cross-compile only with GCC 2
+  # We can cross-compile only with GCC
   XCC=${COMPILER}  # ${TSYS}-gcc
   XCPP="${XCC} -E"
   XCPPFLAGS=''
@@ -907,7 +907,7 @@ MODULESDIR="${SRCTOPDIR}modules${NEXT}"
 MODULESDIR_="${SRCTOPDIR_}modules${NEXT_}"
 MODULESDIR_M="${SRCTOPDIR_M}modules${NEXT_M}"
 
-if [ $CROSS = false ] && [ $HSYS = win32msvc ] ; then
+if [ $CROSS = false -a $HSYS = win32msvc ] ; then
   NEXT_CC="$NEXT_"
   UTILDIR_CC="$UTILDIR_"
 else
@@ -1498,7 +1498,7 @@ if [ "${with_dynamic_modules}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
-if [ ${HAVE_MALLOC_POSIX} = 0 ]; then
+if [ ${HAVE_MALLOC_POSIX} = 0 -o ${CROSS} = true ]; then
   # gnulib/stdlib.h will define malloc to rpl_malloc, so we need this
   GLLIB_O=gllib/malloc${TOBJ}; GLLIB=gllib/malloc
   EXTRAOBJ=" gllib/malloc${TOBJ}"
@@ -1906,7 +1906,7 @@ echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
-  echol "CC = ${CC}"
+  echol "CC = gcc"
   echol "CPPFLAGS = ${CPPFLAGS}"
   echol "CFLAGS = ${CFLAGS}"
   echol "CLFLAGS = ${CLFLAGS}"
@@ -2652,7 +2652,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
     flags=$flags" -DCOMPILE_STANDALONE"
   fi
   if [ $f = modules ] ; then
-    if [ $HOS = unix -a $CROSS = true ] ; then
+    if [ $HOS = unix -a $CROSS = false ] ; then
       dependsc=$dependsc' clisp.h'
     else
       flags=$flags' -DNO_CLISP_H'
@@ -3341,7 +3341,7 @@ echotab "      \$(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(
 echotab "    else \$(SHELL) ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi"
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(XCC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
 cygwin_finish() {
