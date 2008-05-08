@@ -16,7 +16,7 @@ development environment, using native system calls
    -- cygwin <http://cywgin.com> or
    -- mingw/msys <http://www.mingw.org/>.
    Either way, read ../unix/INSTALL, get libsigsegv, and do
-   $ ./configure --with-mingw --build build-mingw --with-module=...
+   $ ./configure --with-mingw --cbc build-mingw --with-module=...
    $ cd build-mingw
    $ make distrib
    unzip the distribution in your preferred location, and run install.bat.

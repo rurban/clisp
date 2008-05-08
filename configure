@@ -34,7 +34,7 @@ options: The following options are recognized:
   --help                print this message and exit
   --version             print the CLISP version and exit
   --config              unix/INSTALL step 3: configuration only
-  --build               unix/INSTALL steps 3-8: configure, build, check
+  --cbc                 unix/INSTALL steps 3-8: Configure, Build, Check
   --install             unix/INSTALL step 9: install
  The following options set installation parameters:
   --srcdir=SRCDIR       sets the source directory to SRCDIR
@@ -64,8 +64,6 @@ options: The following options are recognized:
                         documentation in PostScript format
   --elispdir=DIR        sets the installation directory for Emacs Lisp files
   --vimdir=DIR          sets the installation directory for VIM files
-  --host=HOST           specify host in CPU-VENDOR-OS format (just
-                        in case config.guess guesses wrong)
   --enable-maintainer-mode   enable make rules and dependencies not useful
                              (and sometimes confusing) to the casual installer
                         The default is determined by the presence of the
@@ -98,7 +96,10 @@ options: The following options are recognized:
   --with-gmalloc        use the GNU malloc instead of of the libc one
                         (needed on HP-UX and OpenBSD)
   --edit-config         edit config.lisp with ${EDITOR:-vi} before make
-                        (useful with --build and --install)
+                        (useful with --cbc and --install)
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
 
  You can specify the location of dependencies using
 EOP
@@ -109,7 +110,7 @@ cat << \EOP
  See also the --help-modules option.
 
 Example:
-  configure --build built-with-gcc
+  configure --cbc built-with-gcc
   su bin
   configure --install built-with-gcc
   exit
@@ -145,7 +146,7 @@ srcdir=''
 subdir_configure_args=''
 makemake_args=''
 do_config=''
-do_build=''
+do_cbc=''
 do_install=''
 argcount=0
 edit_config=''
@@ -184,16 +185,16 @@ do
 
     case "$arg" in
 
-      --build | --buil | --bui | --bu)
+      --cbc | --cb)
         do_config=1
-        do_build=1 ;;
+        do_cbc=1 ;;
 
-      --config | --confi | --conf | --con | --co | --c)
+      --config | --confi | --conf | --con | --co)
         do_config=1 ;;
 
       --install | --instal | --insta | --inst | --ins)
         do_config=1
-        do_build=1
+        do_cbc=1
         do_install=1 ;;
 
       --edit-config | --edit-confi | --edit-conf | --edit-con | --edit-co | \
@@ -416,12 +417,26 @@ do
       --hyperspec=* | --hyperspe=* | --hypersp=* | --hypers=* | --hs=* | --hy=*)
         makemake_args="$makemake_args --hyperspec="`getarg "$arg"` ;;
 
-      --host=* | --hos=* | --ho=* | \
       --quiet | --quie | --qui | --qu | --q | \
       --silent | --silen | --sile | --sil | --si)
         subdir_configure_args="$subdir_configure_args $arg" ;;
 
+      --host=* | --hos=* | --ho=*)
+        target=cross
+        subdir_configure_args="$subdir_configure_args $arg" ;;
+
       --host | --hos | --ho)
+        target=cross
+        subdir_configure_args="$subdir_configure_args $arg"
+        prev=host
+        passnext=yes ;;
+
+      --build=* | --buil=* | --bui=* | --bu=*)
+        target=cross
+        subdir_configure_args="$subdir_configure_args $arg" ;;
+
+      --build | --buil | --bui | --bu)
+        target=cross
         subdir_configure_args="$subdir_configure_args $arg"
         prev=host
         passnext=yes ;;
@@ -480,7 +495,7 @@ $0: Try \`$0 --help'"
 DIRNAME=$POSARG1
 COMPILER=$POSARG2 # deprecated
 
-if test -z "$do_config" -a -z "$do_build" -a -z "$do_install"; then
+if test -z "$do_config" -a -z "$do_cbc" -a -z "$do_install"; then
   # Default is --config
   do_config=1
 fi
@@ -647,9 +662,13 @@ if test -n "$do_config"; then
     $subdir_configure_args --cache-file=config.cache
 fi
 
-makemake_args="${makemake_args} ${subdir_srcdir_args} ${target} ${debug}";
+makemake_args="${makemake_args} ${subdir_srcdir_args}";
 
 . "${ABS_DIRNAME}/config.cache"
+
+test -n "${target}" && target="${target} ${ac_cv_host} ${ac_cv_prog_CC}"
+makemake_args="${makemake_args} ${target} ${debug}";
+
 test -n "${cl_cv_have_ffcall}" || cl_cv_have_ffcall=notchecked
 cat <<EOF
 Configure findings:
@@ -664,6 +683,9 @@ if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
   if [ "${ignore_absence_of_libsigsegv}" = "yes" ]; then
     echo "As you requested, we will proceed without libsigsegv..."
   else
+    if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
+    else host_arg=" --host=$ac_cv_host";
+    fi
     SIGSEGV=libsigsegv-2.5
     cat <<EOF 1>&2
 $0: libsigsegv was not detected, thus some features, such as
@@ -680,7 +702,7 @@ EOF
   wget http://ftp.gnu.org/pub/gnu/libsigsegv/${SIGSEGV}.tar.gz
   tar xfz ${SIGSEGV}.tar.gz
   cd ${SIGSEGV}
-  ./configure --prefix=\${prefix} && make && make check && make install
+  ./configure${host_arg} --prefix=\${prefix} && make && make check && make install
   cd ../..
   ./configure --with-libsigsegv-prefix=\${prefix} $*
 If you insist on building without libsigsegv, please pass
@@ -710,7 +732,7 @@ echo "./makemake $makemake_args > Makefile"
 ./makemake $makemake_args > Makefile
 make config.lisp
 
-if test -z "$do_build"; then
+if test -z "$do_cbc"; then
   echo
   echo "To continue building CLISP, the following commands are recommended"
   echo "  (cf. unix/INSTALL step 4 ff):"
