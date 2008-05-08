@@ -432,6 +432,9 @@
 /* The size of `off_t', as computed by sizeof. */
 #undef SIZEOF_OFF_T
 
+/* The size of `pid_t', as computed by sizeof. */
+#undef SIZEOF_PID_T
+
 /* The size of `rlim_t', as computed by sizeof. */
 #undef SIZEOF_RLIM_T
 
