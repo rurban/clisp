@@ -1906,7 +1906,7 @@ echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then
-  echol "CC = gcc"
+  echol "CC = ${CC}"
   echol "CPPFLAGS = ${CPPFLAGS}"
   echol "CFLAGS = ${CFLAGS}"
   echol "CLFLAGS = ${CLFLAGS}"
@@ -3341,7 +3341,7 @@ echotab "      \$(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(
 echotab "    else \$(SHELL) ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi"
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(XCC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
 cygwin_finish() {
