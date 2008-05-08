@@ -1,5 +1,9 @@
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.45 (2008-05-15)
+
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
 	* m4/ffcall.m4 (CL_FFCALL): suggest passing --host=... to the
 	FFCALL configure if $ac_cv_build != $ac_cv_host
 
