@@ -6554,6 +6554,9 @@ then cl_cv_have_ffcall=yes
 else cl_cv_have_ffcall=no
 fi])
 if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
+  if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
+  else host_arg=" --host=$ac_cv_host";
+  fi
   FFCALL=ffcall-1.8
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
@@ -6561,7 +6564,7 @@ if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
   wget http://ftp.gnu.org/pub/gnu/ffcall/${FFCALL}.tar.gz
   tar xfz ${FFCALL}.tar.gz
   cd ${FFCALL}
-  ./configure --prefix=\${prefix} && make && make check && make install
+  ./configure$host_arg --prefix=\${prefix} && make && make check && make install
   cd ../..
   ./configure --with-libffcall-prefix=\${prefix} [$]*])
 fi
