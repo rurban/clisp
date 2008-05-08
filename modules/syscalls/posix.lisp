@@ -12,7 +12,7 @@
    #:file-owner #:physical-memory #:stream-options #+unix #:string-time
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
-   #:getpgid #:setpgrp #:getsid #:setsid #:setpgid #:kill #:sync
+   #:getsid #:setsid #:getpgrp #:setpgrp #:kill #:sync
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
@@ -29,11 +29,12 @@
 )
 ;;; ============================================================
 #+unix (progn
-(export '(getuid getgid geteuid getegid getgroups))
+(export '(getuid getgid geteuid getegid getpgid getgroups))
 (defsetf getuid posix::%setuid)
 (defsetf getgid posix::%setgid)
 (defsetf geteuid posix::%seteuid)
 (defsetf getegid posix::%setegid)
+(defsetf getpgid posix::%setpgid)
 (defsetf getgroups posix::%setgroups)
 )
 ;;; ============================================================
