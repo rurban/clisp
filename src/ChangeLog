@@ -1,6 +1,14 @@
 2008-05-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/configure.in: check size of pid_t
+	* modules/syscalls/calls.c (GETTER, SETTER): move up in file
+	(pid_to_I, I_to_pid): define based on SIZEOF_PID_T
+	(GETSID, SETPGRP, SETPGID, KILL): use the above
+	(GETTER1): add
+	(GETSID): use it
+	(SETPGID): replace with POSIX::%SETPGID
+	(GETPGID): add
+	* modules/syscalls/posix.lisp (GETPGID): add DEFSETF
 
 2008-05-07  Sam Steingold  <sds@gnu.org>
 

@@ -112,6 +112,24 @@ extern object nobject_out (FILE* stream, object obj);
 # include <fcntl.h>
 #endif
 
+/* general convenience macros */
+#define GETTER(type,call)                                       \
+  type##_t id;                                                  \
+  begin_system_call(); id = call(); end_system_call();          \
+  VALUES1(type##_to_I(id))
+#define GETTER1(type,call)                              \
+  type##_t id = I_to_##type(STACK_0);                   \
+  type##_t ret;                                         \
+  begin_system_call(); ret=call(id); end_system_call(); \
+  if (ret==(type##_t)-1) OS_error();                    \
+  VALUES1(type##_to_I(ret)); skipSTACK(1)
+#define SETTER(type,call)                                       \
+  type##_t id = I_to_##type(STACK_0);                           \
+  int status;                                                   \
+  begin_system_call(); status = call(id); end_system_call();    \
+  if (status) OS_error();                                       \
+  VALUES1(popSTACK())
+
 /* for COPY-FILE, must come before DEFMODULE for DEFCHECKER to work */
 typedef enum {
   COPY_METHOD_COPY,
@@ -603,31 +621,21 @@ DEFUN(POSIX::SETUTXENT,) {
 #endif  /* HAVE_UTMPX_H */
 
 /* ========================= processes & signals ========================= */
+#if SIZEOF_PID_T == 8
+# define pid_to_I(g)  uint64_to_I(g)
+# define I_to_pid(g)  I_to_uint64(g=check_sint64(g))
+#else
+# define pid_to_I(g)  uint32_to_I(g)
+# define I_to_pid(g)  I_to_uint32(g=check_sint32(g))
+#endif
 #if defined(HAVE_GETSID)
-DEFUN(POSIX:GETSID, pid) {
-  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
-  pid_t ret;
-  begin_system_call(); ret=getsid(pid); end_system_call();
-  if (ret==(pid_t)-1) OS_error();
-  VALUES1(fixnum(ret));
-}
+DEFUN(POSIX:GETSID, pid) { GETTER1(pid,getsid); }
 #endif
 #if defined(HAVE_SETSID)
-DEFUN(POSIX:SETSID,) {
-  pid_t ret;
-  begin_system_call(); ret=setsid(); end_system_call();
-  if (ret==(pid_t)-1) OS_error();
-  VALUES1(fixnum(ret));
-}
+DEFUN(POSIX:SETSID,) { GETTER(pid,setsid); } /* sic! */
 #endif
 #if defined(HAVE_GETPGRP)
-DEFUN(POSIX:GETPGRP, pid) {
-  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
-  pid_t ret;
-  begin_system_call(); ret=getpgrp(pid); end_system_call();
-  if (ret==(pid_t)-1) OS_error();
-  VALUES1(fixnum(ret));
-}
+DEFUN(POSIX:GETPGRP,) { GETTER(pid,getpgrp); }
 #endif
 #if defined(HAVE_SETPGRP)
 DEFUN(POSIX:SETPGRP,) {
@@ -638,17 +646,20 @@ DEFUN(POSIX:SETPGRP,) {
   begin_system_call(); ret=setpgrp(0,0); end_system_call();
 # endif
   if (ret==(pid_t)-1) OS_error();
-  VALUES1(fixnum(ret));
+  VALUES1(pid_to_I(ret));
 }
 #endif
+#if defined(HAVE_GETPGID)
+DEFUN(POSIX:GETPGID, pid) { GETTER1(pid,getpgid); }
+#endif
 #if defined(HAVE_SETPGID)
-DEFUN(POSIX:SETPGID, pid pgid) {
-  pid_t pgid = I_to_uint32(check_uint32(popSTACK()));
-  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
+DEFUN(POSIX::%SETPGID, pid pgid) {
+  pid_t pgid = I_to_pid(STACK_0);
+  pid_t pid = I_to_pid(STACK_1);
   int ret;
   begin_system_call(); ret=setpgid(pid,pgid); end_system_call();
   if (ret==-1) OS_error();
-  VALUES0;
+  VALUES1(STACK_0); skipSTACK(2);
 }
 #endif
 /* http://www.opengroup.org/onlinepubs/009695399/basedefs/signal.h.html */
@@ -658,12 +669,12 @@ DEFCHECKER(check_signal,SIGABRT SIGALRM SIGBUS SIGCHLD SIGCONT SIGFPE SIGHUP \
            SIGTRAP SIGURG SIGVTALRM SIGXCPU SIGXFSZ)
 #if defined(HAVE_KILL)
 DEFUN(POSIX:KILL, pid sig) {
-  int sig = check_signal(popSTACK());
-  pid_t pid = I_to_uint32(check_uint32(popSTACK()));
+  int sig = check_signal(STACK_0);
+  pid_t pid = I_to_pid(STACK_1);
   int ret;
   begin_system_call(); ret=kill(pid,sig); end_system_call();
   if (ret==-1) OS_error();
-  VALUES0;
+  VALUES0; skipSTACK(2);
 }
 #endif
 
@@ -1548,7 +1559,6 @@ DEFUN(POSIX::USER-INFO, &optional user)
  http://msdn.microsoft.com/library/en-us/netmgmt/netmgmt/netuserenum.asp */
 #endif  /* user-info */
 
-
 #if SIZEOF_GID_T == 8
 # define gid_to_I(g)  uint64_to_I(g)
 # define I_to_gid(g)  I_to_uint64(g=check_sint64(g))
@@ -1563,16 +1573,6 @@ DEFUN(POSIX::USER-INFO, &optional user)
 # define uid_to_I(g)  uint32_to_I(g)
 # define I_to_uid(g)  I_to_uint32(g=check_sint32(g))
 #endif
-#define GETTER(type,call)                                       \
-  type##_t id;                                                  \
-  begin_system_call(); id = call(); end_system_call();          \
-  VALUES1(type##_to_I(id))
-#define SETTER(type,call)                                       \
-  type##_t id = I_to_##type(STACK_0);                           \
-  int status;                                                   \
-  begin_system_call(); status = call(id); end_system_call();    \
-  if (status) OS_error();                                       \
-  VALUES1(popSTACK())
 #if defined(HAVE_GETUID)
 DEFUN(POSIX:GETUID,){ GETTER(uid,getuid); }
 #endif
