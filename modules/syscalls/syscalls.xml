@@ -539,7 +539,7 @@
  <varlistentry id="kill"><term><code>(POSIX:KILL &pid-r; &sig-r;)</code></term>
   <listitem><simpara>calls <function role="unix">kill</function>
  </simpara></listitem></varlistentry>
- <varlistentry id="getpgrp"><term><code>(POSIX:GETPGRP &pid-r;)</code></term>
+ <varlistentry id="getpgrp"><term><code>(POSIX:GETPGRP)</code></term>
   <listitem><simpara>calls <function role="unix">getpgrp</function>
  </simpara></listitem></varlistentry>
  <varlistentry id="setpgrp"><term><code>(POSIX:SETPGRP)</code></term>
