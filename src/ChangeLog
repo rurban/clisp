@@ -1,5 +1,10 @@
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
+	* m4/ffcall.m4 (CL_FFCALL): suggest passing --host=... to the
+	FFCALL configure if $ac_cv_build != $ac_cv_host
+
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
 	* configure: accept --cbc to mean Configure/Build/Check and
 	--build to mean the build host (the usual autoconf meaning)
 	* makemake.in: rely on configure for cross-compilation too
