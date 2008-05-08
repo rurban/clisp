@@ -190,12 +190,14 @@ impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl $(XSL_TARGET)
 impnotes.pdf: impnotes.fo
 	${FOP} $< $@
 
-html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
+id-href.map : chunk.tdb
+	$(XSLTPROC) --timing -o $@ id-href-map.xsl $<
+
+html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK) id-href.map
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi
 	cd $@/ && grep -v -e "^#" .symlinks | sed 's/^/ln -vf /' | sh -
-	cp -pv impnotes.css $@/
+	cp -pv impnotes.css id-href.map $@/
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
-	$(XSLTPROC) --timing -o $@/id-href.map id-href-map.xsl chunk.tdb
 	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
 	cd ../build; make clisp-1.html;
@@ -219,7 +221,8 @@ regexp.html: ../modules/regexp/regexp.texinfo
 
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
-	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo
+	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo \
+	  id-href.map
 
 count: $(IMPNOTES) $(CHECK_DEPS)
 	wc $^
