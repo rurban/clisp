@@ -1,4 +1,4 @@
-# Copyright (C) 1998-2007 by Sam Steingold
+# Copyright (C) 1998-2008 by Sam Steingold
 # Distributed under the terms of the GNU General Public License.
 # See <http://www.gnu.org/copyleft/gpl.html>.
 
@@ -63,7 +63,7 @@ EOF
 # this has to be done just once - comment it out if you did this already
 #rm -rf %{builddir}
 #MODS=''; for m in %{modules}; do MODS=${MODS}' '--with-module=$m; done
-#./configure --prefix=%{prefix} --fsstnd=redhat ${MODS} --build %{builddir}
+#./configure --prefix=%{prefix} --fsstnd=redhat ${MODS} --cbc %{builddir}
 %install
 cd %{builddir}
 make DESTDIR=$RPM_BUILD_ROOT install

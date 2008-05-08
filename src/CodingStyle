@@ -257,7 +257,7 @@ changes and add the ChangeLog entry.
 You are encouraged to add a test case to a file in <clisp/tests/>
 whenever you add a feature or fix a bug, the more tests, the better.
 One requirement must be satisfied after every CVS commit:
-    $ cvs up -C; ./configure --build build-dir
+    $ cvs up -C; ./configure --cbc build-dir
 must pass all tests, the old and the new alike.
 
 Documentation and comment changes do not need a ChangeLog entry.

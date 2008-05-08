@@ -1,5 +1,11 @@
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
+	* configure: accept --cbc to mean Configure/Build/Check and
+	--build to mean the build host (the usual autoconf meaning)
+	* makemake.in: rely on configure for cross-compilation too
+
+2008-05-07  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (MYIMPROOT): use beta pages for the latest id-href.map
 	(check-doc): use base, not boot, for better symbol coverage
 

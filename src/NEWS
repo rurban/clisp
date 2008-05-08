@@ -10,6 +10,9 @@ Important notes
 User visible changes
 --------------------
 
+* The top-level configure option --build has been replaced by --cbc
+  (Configure/Build/Check) to avoid conflict with the standard autoconf option.
+
 * Experimental Just-In-Time Compilation of byte-compiled closures is now
   done using GNU lightning (this is a configure-time option).
   Thanks to Yann Dauphin <yann-nicolas.dauphin@polymtl.ca>.
