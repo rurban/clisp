@@ -75,6 +75,9 @@ T
 #+unix (let ((id (show (os:getgid)))) (= id (setf (os:getgid) id))) T
 #+unix (let ((id (show (os:geteuid)))) (= id (setf (os:geteuid) id))) T
 #+unix (let ((id (show (os:getegid)))) (= id (setf (os:getegid) id))) T
+#+unix (let* ((pid (os:process-id))
+              (id (show (os:getpgid pid))))
+         (= id (setf (os:getpgid pid) id))) #+unix T
 #+unix (= (os:getuid) (os:geteuid)) T
 #+unix (= (os:getgid) (os:getegid)) T
 #+unix (listp (show (if (fboundp 'os:getgroups) (os:getgroups)
