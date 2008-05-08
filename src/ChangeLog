@@ -25,8 +25,6 @@
 	--build to mean the build host (the usual autoconf meaning)
 	* makemake.in: rely on configure for cross-compilation too
 	(EXTRAOBJ) [CROSS]: add gllib/malloc
-	(CC) [CROSS]: set to gcc
-	(anymodule): pass CC=XCC instead of CC
 
 2008-05-07  Sam Steingold  <sds@gnu.org>
 
