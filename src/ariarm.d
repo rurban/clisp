@@ -1834,8 +1834,8 @@ LABEL(mulusmall_loop_down_l1)
 LABEL(mulusmall_loop_down_l1)
         LDR     ip,[a2,#-4]!
 
-/*       BL      mulu32_64_vregs         /* muluD(digit,*--ptr,hi=,lo=) */
- replaced by multiplication of a small x = a1 and a big y = ip : */
+/*       BL      mulu32_64_vregs         / * muluD(digit,*--ptr,hi=,lo=) */
+/* replaced by multiplication of a small x = a1 and a big y = ip : */
         MOV     v1,ip,LSR #16    /* top half of y */
         BIC     ip,ip,v1,LSL #16 /* bottom half of y */
         MUL     v2,a1,v1         /* middle section of result */
