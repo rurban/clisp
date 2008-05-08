@@ -2986,10 +2986,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  MALLOC_ADDRESS_RANGE values. */
 #if !defined(WIDE_SOFT)
   #if (CODE_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error oint_addr_mask doesn't cover CODE_ADDRESS_RANGE !!
+     #error oint_addr_mask does not cover CODE_ADDRESS_RANGE !!
   #endif
   #if (MALLOC_ADDRESS_RANGE >> addr_shift) & ~(oint_addr_mask >> oint_addr_shift)
-     #error oint_addr_mask doesn't cover MALLOC_ADDRESS_RANGE !!
+     #error oint_addr_mask does not cover MALLOC_ADDRESS_RANGE !!
   #endif
 #endif
 
