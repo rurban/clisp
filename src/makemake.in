@@ -496,6 +496,52 @@ esac
 # CC, CPPFLAGS, CFLAGS, CLFLAGS, CPP = compiler on host, for host
 # XCC, XCPPFLAGS, XCFLAGS, XCLFLAGS, XCPP = cross-compiler on host, for target
 
+# These variables are set by configure:
+# srcdir='@srcdir@'                 # either '.' or '../src', see above
+CP='@CP@'                           # either 'cp -p' or 'cp'
+LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
+LN='@LN@'                           # either 'ln' or ${CP}
+HLN='@HLN@'                         # either 'ln' or 'hln'
+CC="@CC@"                           # either 'gcc -O' or 'cc'
+CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
+CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
+CFLAGS='@CFLAGS@'                   # additional options for $CC
+LDFLAGS='@LDFLAGS@'                 # additional options for linking
+CC_GCC='@CC_GCC@'                   # either true or false
+CC_SUNPRO='@CC_SUNPRO@'             # either true or false
+CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
+CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
+CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
+AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
+RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
+INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
+INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
+INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
+GROFF='@GROFF@'                     # either 'groff' or ''
+DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
+LIBS='@LIBS@'                       # list of system libraries
+LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
+INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
+LIBICONV='@LIBICONV@'               # either '-liconv' or ''
+LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
+X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
+X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
+FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
+host='@host@'                       # something like 'sparc-sun-sunos4'
+host_cpu='@host_cpu@'               # something like 'sparc'
+host_vendor='@host_vendor@'         # something like 'sun'
+host_os='@host_os@'                 # something like 'sunos4'
+MAKE='@MAKE@'                       # gmake or make
+GNU_MAKE='@GNU_MAKE@'               # yes or no
+HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
+# Important: Don't rely on this host classification.
+# 1. GNU's database config.guess is not always up to date.
+# 2. New operating systems are emerging at every corner.
+# 3. People tend to change their systems locally.
+# Use this classification ONLY if we know no better way to check for a
+# feature or bug than to look at various `uname ...` results and list
+# the buggy systems explicitly. ONLY in this case!
+
 case $# in
   0 | 1)
      # Assume we are on Unix (or win32gcc); target=host (not cross-compiling).
@@ -524,51 +570,6 @@ case $# in
      TSYS="$HSYS"
      TSYSOS="$HSYSOS"
      TOS="$HOS"
-     # These variables are set by configure:
-     # srcdir='@srcdir@'                 # either '.' or '../src', see above
-     CP='@CP@'                           # either 'cp -p' or 'cp'
-     LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
-     LN='@LN@'                           # either 'ln' or ${CP}
-     HLN='@HLN@'                         # either 'ln' or 'hln'
-     CC="@CC@"                           # either 'gcc -O' or 'cc'
-     CPP="@CPP@"                         # either $CC' -E' or '/lib/cpp'
-     CPPFLAGS='@CPPFLAGS@'               # additional options for $CC and $CPP
-     CFLAGS='@CFLAGS@'                   # additional options for $CC
-     LDFLAGS='@LDFLAGS@'                 # additional options for linking
-     CC_GCC='@CC_GCC@'                   # either true or false
-     CC_SUNPRO='@CC_SUNPRO@'             # either true or false
-     CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
-     CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
-     CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
-     AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
-     RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
-     INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
-     INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
-     INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
-     GROFF='@GROFF@'                     # either 'groff' or ''
-     DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
-     LIBS='@LIBS@'                       # list of system libraries
-     LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
-     INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
-     LIBICONV='@LIBICONV@'               # either '-liconv' or ''
-     LIBSIGSEGV='@LTLIBSIGSEGV@'         # '-lsigsegv -L/usr/local/lib' or ''
-     X_CFLAGS='@X_CFLAGS@'               # either '-I/usr/somewhere/include' or ''
-     X_LIBS='@X_LIBS@'                   # either '-L/usr/somewhere/lib -lX11' or ''
-     FFCALL_LIBS='@LIBAVCALL@ @LIBCALLBACK@' # libavcall.a libcallback.a
-     host='@host@'                       # something like 'sparc-sun-sunos4'
-     host_cpu='@host_cpu@'               # something like 'sparc'
-     host_vendor='@host_vendor@'         # something like 'sun'
-     host_os='@host_os@'                 # something like 'sunos4'
-     MAKE='@MAKE@'                       # gmake or make
-     GNU_MAKE='@GNU_MAKE@'               # yes or no
-     HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
-     # Important: Don't rely on this host classification.
-     # 1. GNU's database config.guess is not always up to date.
-     # 2. New operating systems are emerging at every corner.
-     # 3. People tend to change their systems locally.
-     # Use this classification ONLY if we know no better way to check for a
-     # feature or bug than to look at various `uname ...` results and list
-     # the buggy systems explicitly. ONLY in this case!
      ;;
   *) if [ "$1" = cross ] ; then
        CROSS=true
@@ -580,7 +581,7 @@ case $# in
      TSYS=$1
      COMPILER=$2
      # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|win32msvc).
-     # COMPILER should be gcc or cc
+     # COMPILER should be <host...>-gcc or cc
      case ${TSYS} in
        win32msvc ) TOS='win32' ;;
        *)          TOS='unix' ;;
@@ -595,11 +596,6 @@ case $# in
        HSYS="$TSYS"
        HSYSOS="$TSYSOS"
      fi
-     CC_CPLUSPLUS=false
-     CPPFLAGS=''
-     CFLAGS=''
-     CLFLAGS=''
-     CC_SUNPRO=false            # really?
      if [ $TSYS = win32msvc ] ; then
        CC='cl'
        CC_GCC=false
@@ -609,34 +605,14 @@ case $# in
        CC_NEED_DEEMA=true
        FFCALL_LIBS='avcall.lib callback.lib'
      else
-       if [ $COMPILER = gcc ] ; then
-         CC=gcc
-         CC_GCC=true
-       else
-         CC=cc
-         CC_GCC=false
-       fi
+       CC=${COMPILER}
+       case $COMPILER in
+         *-gcc ) CC_GCC=true ;;
+         *) CC_GCC=false ;;
+       esac
        CFLAGS='-O'
        CPP="${CC} -E"
-       CC_NEED_CCPAUX=false
-       if [ $COMPILER = gcc ] ; then
-         # guess that if cross-compiling using gcc, then as preprends underscore
-         AS_UNDERSCORE=true
-       else
-         AS_UNDERSCORE=false
-       fi
-       CC_NEED_DEEMA=false
-       FFCALL_LIBS=''
      fi
-     GROFF='groff'
-     DVIPDF='dvipdf'
-     LIBS=''
-     LIBICONV=''
-     LIBSIGSEGV=''
-     X_CFLAGS=''
-     X_LIBS=''
-     GNU_MAKE='no'
-     HAVE_MALLOC_POSIX=0
      shift 2
      ;;
 esac
@@ -648,7 +624,7 @@ if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
   # We can cross-compile only with GCC 2
-  XCC="gcc-${TSYS}"
+  XCC=${COMPILER}  # ${TSYS}-gcc
   XCPP="${XCC} -E"
   XCPPFLAGS=''
   XCFLAGS=''
@@ -2442,11 +2418,6 @@ if [ $XCC_UNUSABLE_CPP = true ] ; then
   fi
   echol
 fi
-if [ $CROSS = true ] ; then
-  echol "config.h :"
-  echotab "if [ ! -f config.h ] ; then \$(TOUCH) config.h ; fi"
-  echol
-fi
 if [ ${HSYS} = "win32gcc" ]; then
   echol "# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links"
   echol "UTILCC=gcc"
@@ -3784,7 +3755,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echotab "echo 'recommended: libsigsegv http://sourceforge.net/projects/libsigsegv' >> cygwin.README"
   echotab "echo '' >> cygwin.README"
   echotab "echo 'builds \"out of the box\" on cygwin:' >> cygwin.README"
-  echotab "echo './configure$makemake_args --build --install build-cygwin' >> cygwin.README"
+  echotab "echo './configure$makemake_args --cbc --install build-cygwin' >> cygwin.README"
   echotab "echo 'will configure, build and install CLISP' >> cygwin.README"
   echotab "echo 'see unix/INSTALL for details' >> cygwin.README"
   echotab "echo '' >> cygwin.README"
@@ -3805,7 +3776,7 @@ if [ ${HSYSOS} = cygwin ]; then
   echol "cygwin-src : setup.hint force"
   echotab "touch \$(CLISP_VR).patch"
   echotab "echo '#!/bin/sh' > \$(CLISP_SCRIPT)"
-  echotab "echo './configure$makemake_args --build build-cygwin' >> \$(CLISP_SCRIPT)"
+  echotab "echo './configure$makemake_args --cbc build-cygwin' >> \$(CLISP_SCRIPT)"
   echotab "echo 'cd build-cygwin' >> \$(CLISP_SCRIPT)"
   echotab "echo 'make distrib' >> \$(CLISP_SCRIPT)"
   echotab "ln -s \$(TAR_SRC) ."

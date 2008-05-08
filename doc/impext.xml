@@ -2484,7 +2484,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
  and build &clisp; in directory <filename>build-dir</filename> with,
  e.g.,<screen>
-&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --build build-dir</screen>then run it with
+&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --cbc build-dir</screen>then run it with
 <screen>&sh-prompt; ./build-dir/clisp &opt-K; full</screen>
 This will create a &base; &linkset; with modules
 &i18n-mod;, &regexp-mod; and &syscalls-mod; (and maybe &readline-mod;);

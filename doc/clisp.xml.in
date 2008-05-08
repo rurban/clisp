@@ -706,12 +706,12 @@ compiles the specified lisp files to a platform-independent
 <para><emphasis>Before</emphasis> submitting a bug report, please take
  the following basic steps to make the report more useful:<orderedlist>
  <listitem><simpara>Please do a clean build (remove your build directory
-   and build &clisp; with <command>./configure --build build</command>
+   and build &clisp; with <command>./configure --cbc build</command>
    or at least do a <command role="unix">make distclean</command>
    before <command role="unix">make</command>).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>./configure --with-debug --build build-g ; cd build-g; gdb
+   <command>./configure --with-debug --cbc build-g ; cd build-g; gdb
     lisp.run</command>, then load the appropriate &linkset; by either
    &base; or &full; &gdb; command, and report the backtrace (see also
    <olink targetdoc="impnotes" targetptr="faq-debug"/>).</simpara></listitem>

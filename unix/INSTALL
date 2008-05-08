@@ -62,7 +62,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
                --with-libsigsegv-prefix=/usr/local         \
                --with-libiconv-prefix=/home/user/my/prefix \
                --with-module=libsvm --with-module=rawsock  \
-               --build my-build-directory
+               --cbc my-build-directory
 
 3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
@@ -215,7 +215,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
 12. If you are lazy and have too few spare neurons to remember this long
     process, just use the shortcut, like I do:
 
-         ./configure --with-module=rawsock --build build-dir
+         ./configure --with-module=rawsock --cbc build-dir
 
     this covers the build process through step 8 (except mod-check).
     If you want to instal too, do
