@@ -1,40 +1,7 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 ;; German comments translated into English: Stefan Kain 2001-12-26
-;; Sam Steingold 2001-2007
-
-;; (TRACE) returns a list of traced functions
-;; (TRACE fun ...) additionally traces the functions fun, ... .
-;; Format for fun:
-;;  Either a Symbol
-;;   symbol
-;;  or a List made of a Symbol and a few Keyword-Arguments (pair-wise!)
-;;   (symbol
-;;    [:suppress-if form]   ; no Trace-Output, as long as form is true
-;;    [:max-depth form]     ; no trace output, as long as (> *trace-level* form)
-;;    [:step-if form]       ; Trace moves into the Stepper, if form is true
-;;    [:pre form]           ; executes form before function call
-;;    [:post form]          ; executes form after  function call
-;;    [:pre-break-if form]  ; Trace moves into break-loop before function call,
-;;                          ; if form is true
-;;    [:post-break-if form] ; Trace moves into break-loop after  function call,
-;;                          ; if form is true
-;;    [:pre-print form]     ; prints the values of form before function call
-;;    [:post-print form]    ; prints the values of form after  function call
-;;    [:print form]         ; prints the values of form before
-;;                          ; and after the function call
-;;   )
-;;   In all these forms *TRACE-FUNCTION* (the function itself),
-;;   *TRACE-ARGS* (the function arguments),
-;;   *TRACE-FORM* (the function-/macro-call as form),
-;;   and after function call also *TRACE-VALUES* (the list of values
-;;   of the function call) can be accessed,
-;;   and the function can be left with RETURN with given values.
-;; (UNTRACE) returns list of traced functions, discards the all.
-;; (UNTRACE symbol ...) discards symbol, ... from the list of traced
-;;   functions.
-;; TRACE and UNTRACE are also applicable to functions (SETF symbol) and macros,
-;;   not however applicable to locally defined functions and macros.
+;; Sam Steingold 2001-2008
 
 (in-package "COMMON-LISP")
 (export '(trace untrace))
@@ -142,6 +109,36 @@ This will not work with closures that use lexical variables!"
       (setf (symbol-function (tracer-symb trr)) new-fdef)))
 
 (defmacro trace (&rest funs)
+  "Trace function execution.
+\(TRACE) returns the list of all traced functions.
+\(TRACE fun ...) additionally traces the functions fun, ... .
+Format for fun:
+ Either a function name
+ or a list made of a function-cell and a few keyword arguments (pairwise!)
+  (function-name
+   [:suppress-if form]   ; no Trace-Output, as long as form is true
+   [:max-depth form]     ; no trace output, as long as (> *trace-level* form)
+   [:step-if form]       ; Trace moves into the Stepper, if form is true
+   [:bindings ((variable form)...)] ; binds variables around the following forms
+   [:pre form]           ; executes form before function call
+   [:post form]          ; executes form after  function call
+   [:pre-break-if form]  ; Trace moves into break-loop before function call,
+                         ; if form is true
+   [:post-break-if form] ; Trace moves into break-loop after  function call,
+                         ; if form is true
+   [:pre-print form]     ; prints the values of form before function call
+   [:post-print form]    ; prints the values of form after  function call
+   [:print form]         ; prints the values of form before
+                         ; and after the function call
+  )
+In all these forms *TRACE-FUNCTION* (the function itself),
+  *TRACE-ARGS* (the function arguments),
+  *TRACE-FORM* (the function-/macro-call as form),
+  and after function call also *TRACE-VALUES* (the list of values
+  of the function call) can be accessed,
+  and the function can be left with RETURN with given values.
+TRACE and UNTRACE are also applicable to functions (SETF symbol) and macros,
+ however not applicable to locally defined functions and macros."
   (if (null funs)
     '*TRACED-FUNCTIONS*
     `(APPEND
@@ -311,6 +308,8 @@ This will not work with closures that use lexical variables!"
   (elastic-newline *trace-output*))
 
 (defmacro untrace (&rest funs)
+  "(UNTRACE) returns the list of traced functions, stops tracing all of them.
+\(UNTRACE symbol ...) removes symbol, ... from the list of traced functions."
   `(MAPCAN #'UNTRACE1
      ,(if (null funs) `(COPY-LIST *TRACED-FUNCTIONS*) `',funs)))
 
