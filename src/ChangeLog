@@ -1,5 +1,11 @@
 2008-05-09  Sam Steingold  <sds@gnu.org>
 
+	* condition.lisp (coerce-to-condition): use INVOKE-DEBUGGER instead
+	of SIGNAL to report TYPE-ERROR so that COERCE-TO-CONDITION never
+	returns NIL (http://article.gmane.org/gmane.lisp.clisp.general/12208)
+
+2008-05-09  Sam Steingold  <sds@gnu.org>
+
 	* trace.lisp (trace, untrace): turn comments into doc strings
 
 2008-05-08  Sam Steingold  <sds@gnu.org>
@@ -1006,8 +1012,8 @@
 
 	accept "-lp" to add to *LOAD-PATHS*
 	(and fix mingw separate directory build, see
-	http://permalink.gmane.org/gmane.lisp.clisp.devel/17375
-	http://permalink.gmane.org/gmane.lisp.clisp.devel/17388)
+	http://article.gmane.org/gmane.lisp.clisp.devel/17375
+	http://article.gmane.org/gmane.lisp.clisp.devel/17388)
 	* init.lisp (*load-paths*): do not reset
 	* constsym.d (*load-paths*): add
 	* spvw.d (init_symbol_values): init *LOAD-PATHS*
@@ -2366,8 +2372,8 @@
 2007-10-29  Sam Steingold  <sds@gnu.org>
 
 	Work around the wildcard build error reported in
-	<http://permalink.gmane.org/gmane.lisp.clisp.devel/16815>
-	and <http://permalink.gmane.org/gmane.lisp.clisp.devel/16824>.
+	<http://article.gmane.org/gmane.lisp.clisp.devel/16815>
+	and <http://article.gmane.org/gmane.lisp.clisp.devel/16824>.
 	The problem is that all gnulib autoconf macros are called from
 	src/glm4/gnulib-comp.m4:gl_INIT, so they should not be called from
 	module configures; we can rely on sourcing config.cache.
@@ -4500,7 +4506,7 @@
 
 	* m4/general.m4 (CL_CANONICAL_HOST_CPU_FOR_FFCALL):
 	re-enable FFI for mips/mipsel
-	http://permalink.gmane.org/gmane.lisp.cl-debian/1493
+	http://article.gmane.org/gmane.lisp.cl-debian/1493
 
 2006-07-14  Peter Van Eynde  <pvaneynd@debian.org>
 	Sam Steingold  <sds@podval.org>
