@@ -1,5 +1,9 @@
 2008-05-09  Sam Steingold  <sds@gnu.org>
 
+	* describe.lisp (clisp-data-file): put the error message through i18n
+
+2008-05-09  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (coerce-to-condition): use INVOKE-DEBUGGER instead
 	of SIGNAL to report TYPE-ERROR so that COERCE-TO-CONDITION never
 	returns NIL (http://article.gmane.org/gmane.lisp.clisp.general/12208)
