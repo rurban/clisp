@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.30  2008/05/06 20:56:45  sds
+# regenerated
+#
 # Revision 1.29  2008/05/02 19:14:31  sds
 # regenerated
 #
@@ -230,6 +233,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.30  2008/05/06 20:56:45  sds
+# regenerated
+#
 # Revision 1.29  2008/05/02 19:14:31  sds
 # regenerated
 #
@@ -370,7 +376,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-06 16:54:56-0400\n"
+"POT-Creation-Date: 2008-05-09 14:00:30-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"

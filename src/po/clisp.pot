@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.45\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-06 16:54:51-0400\n"
-"PO-Revision-Date: 2008-05-06 16:54:51-0400\n"
+"POT-Creation-Date: 2008-05-09 14:00:26-0400\n"
+"PO-Revision-Date: 2008-05-09 14:00:26-0400\n"
 "Last-Translator: Automatically generated <ssteingold@nyc-qws-005>\n"
 "Language-Team: Template <xx@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -2395,7 +2395,7 @@ msgstr ""
 msgid "~S: Slot ~S of ~S has no value"
 msgstr ""
 
-#: record.d:284 trace.lisp:105
+#: record.d:284 trace.lisp:72
 #, lisp-format
 msgid "~S: ~S is not a closure"
 msgstr ""
@@ -2945,7 +2945,7 @@ msgstr ""
 msgid "~S: ~S is not a function"
 msgstr ""
 
-#: error.d:1369 trace.lisp:162
+#: error.d:1369 trace.lisp:159
 #, lisp-format
 msgid "~S: undefined function ~S"
 msgstr ""
@@ -3853,7 +3853,7 @@ msgstr ""
 msgid "macro"
 msgstr ""
 
-#: init.lisp:560 trace.lisp:178
+#: init.lisp:560 trace.lisp:175
 msgid "function"
 msgstr ""
 
@@ -5345,27 +5345,27 @@ msgstr ""
 msgid "Wrote the memory image into ~A (~:D byte~:P)"
 msgstr ""
 
-#: trace.lisp:73
+#: trace.lisp:40
 #, lisp-format
 msgid "~S: no local name ~S in ~S"
 msgstr ""
 
-#: trace.lisp:86
+#: trace.lisp:53
 #, lisp-format
 msgid "~S: ~S does not name a closure"
 msgstr ""
 
-#: trace.lisp:164
+#: trace.lisp:161
 #, lisp-format
 msgid "~S: cannot trace special operator ~S"
 msgstr ""
 
-#: trace.lisp:192
+#: trace.lisp:189
 #, lisp-format
 msgid ";; Tracing ~:[function~;macro~] ~S."
 msgstr ""
 
-#: trace.lisp:328
+#: trace.lisp:327
 #, lisp-format
 msgid "~S: ~S was traced and has been redefined!"
 msgstr ""
@@ -5965,9 +5965,9 @@ msgstr ""
 msgid "~S is not possible here"
 msgstr ""
 
-#: clos-specializer2.lisp:15 clos-slotdef2.lisp:44 clos-method3.lisp:46
+#: clos-specializer2.lisp:15 clos-methcomb3.lisp:33
 #, lisp-format
-msgid "~S: The MOP does not allow reinitializing ~S"
+msgid "~S: It is not allowed to reinitialize ~S"
 msgstr ""
 
 #: clos-class5.lisp:663
@@ -6013,6 +6013,11 @@ msgstr ""
 #: clos-class6.lisp:388
 #, lisp-format
 msgid "~S: ~S is an abstract class and therefore does not have a direct instance"
+msgstr ""
+
+#: clos-slotdef2.lisp:44 clos-method3.lisp:46
+#, lisp-format
+msgid "~S: The MOP does not allow reinitializing ~S"
 msgstr ""
 
 #: clos-slots1.lisp:143 clos-slots1.lisp:186
@@ -6326,11 +6331,6 @@ msgstr ""
 #: clos-methcomb2.lisp:1278
 #, lisp-format
 msgid "~S ~S: invalid syntax, neither short form nor long form syntax: ~S"
-msgstr ""
-
-#: clos-methcomb3.lisp:33
-#, lisp-format
-msgid "~S: It is not allowed to reinitialize ~S"
 msgstr ""
 
 #: clos-genfun2a.lisp:154 clos-genfun2b.lisp:58
@@ -7071,7 +7071,7 @@ msgstr ""
 msgid "a macro expander."
 msgstr ""
 
-#: describe.lisp:157 describe.lisp:349 describe.lisp:559
+#: describe.lisp:157 describe.lisp:357 describe.lisp:567
 #, lisp-format
 msgid "For more information, evaluate ~{~S~^ or ~}."
 msgstr ""
@@ -7333,7 +7333,7 @@ msgstr ""
 
 #: describe.lisp:317
 #, lisp-format
-msgid " (use ~s instead)"
+msgid " (use ~S instead)"
 msgstr ""
 
 #: describe.lisp:322
@@ -7348,309 +7348,324 @@ msgstr ""
 
 #: describe.lisp:332
 #, lisp-format
-msgid ", has ~:D propert~@:P ~{~S~^, ~}"
+msgid ", names a built-in foreign type"
 msgstr ""
 
-#: describe.lisp:335 describe.lisp:377 describe.lisp:411 describe.lisp:433 describe.lisp:508
+#: describe.lisp:333
 #, lisp-format
-msgid "."
+msgid ", names a foreign type"
 msgstr ""
 
 #: describe.lisp:340
 #, lisp-format
-msgid "Documentation as a ~a:"
+msgid ", has ~:D propert~@:P ~{~S~^, ~}"
 msgstr ""
 
-#: describe.lisp:344 describe.lisp:346 describe.lisp:456
+#: describe.lisp:343 describe.lisp:385 describe.lisp:419 describe.lisp:441 describe.lisp:516
+#, lisp-format
+msgid "."
+msgstr ""
+
+#: describe.lisp:348
+#, lisp-format
+msgid "Documentation as a ~A:"
+msgstr ""
+
+#: describe.lisp:352 describe.lisp:354 describe.lisp:464
 #, lisp-format
 msgid "~%~A Documentation is at~% ~S"
 msgstr ""
 
-#: describe.lisp:353
+#: describe.lisp:361
 #, lisp-format
-msgid "an integer, uses ~S bit~:p, is represented as a ~:[bignum~;fixnum~]."
+msgid "an integer, uses ~S bit~:P, is represented as a ~:[bignum~;fixnum~]."
 msgstr ""
 
-#: describe.lisp:356
+#: describe.lisp:364
 #, lisp-format
 msgid "a rational, not integral number."
 msgstr ""
 
-#: describe.lisp:358
+#: describe.lisp:366
 #, lisp-format
 msgid "a float with ~S bits of mantissa (~(~A~))."
 msgstr ""
 
-#: describe.lisp:361
+#: describe.lisp:369
 #, lisp-format
 msgid "a complex number "
 msgstr ""
 
-#: describe.lisp:366
+#: describe.lisp:374
 #, lisp-format
 msgid "at the origin"
 msgstr ""
 
-#: describe.lisp:367
+#: describe.lisp:375
 #, lisp-format
 msgid "on the ~:[posi~;nega~]tive real axis"
 msgstr ""
 
-#: describe.lisp:370
+#: describe.lisp:378
 #, lisp-format
 msgid "on the ~:[posi~;nega~]tive imaginary axis"
 msgstr ""
 
-#: describe.lisp:372
+#: describe.lisp:380
 #, lisp-format
 msgid "in the ~:[~:[first~;fourth~]~;~:[second~;third~]~] quadrant"
 msgstr ""
 
-#: describe.lisp:374
+#: describe.lisp:382
 #, lisp-format
 msgid " of the Gaussian number plane."
 msgstr ""
 
-#: describe.lisp:376
+#: describe.lisp:384
 #, lisp-format
 msgid "a character"
 msgstr ""
 
-#: describe.lisp:382
+#: describe.lisp:390
 #, lisp-format
 msgid "Unicode name: ~A"
 msgstr ""
 
-#: describe.lisp:383
+#: describe.lisp:391
 #, lisp-format
 msgid "It is not defined by the Unicode standard."
 msgstr ""
 
-#: describe.lisp:385
+#: describe.lisp:393
 #, lisp-format
 msgid "It is a ~:[non-~;~]printable character."
 msgstr ""
 
-#: describe.lisp:389
+#: describe.lisp:397
 #, lisp-format
 msgid "Its use is non-portable."
 msgstr ""
 
-#: describe.lisp:391
+#: describe.lisp:399
 #, lisp-format
 msgid "a~:[~:[ closed ~;n output-~]~;~:[n input-~;n input/output-~]~]stream."
 msgstr ""
 
-#: describe.lisp:397
+#: describe.lisp:405
 #, lisp-format
 msgid " It reads from ~S from ~:D to ~:D at ~:D."
 msgstr ""
 
-#: describe.lisp:400
+#: describe.lisp:408
 #, lisp-format
 msgid " It appends to ~S."
 msgstr ""
 
-#: describe.lisp:405
+#: describe.lisp:413
 #, lisp-format
 msgid "the package named ~A"
 msgstr ""
 
-#: describe.lisp:409
-#, lisp-format
-msgid ". It has ~:d nickname~:p ~{~A~^, ~}"
-msgstr ""
-
-#: describe.lisp:415
-#, lisp-format
-msgid "It "
-msgstr ""
-
 #: describe.lisp:417
 #, lisp-format
-msgid "imports the external symbols of ~:d package~:p ~{~A~^, ~} and "
+msgid ". It has ~:D nickname~:P ~{~A~^, ~}"
 msgstr ""
 
 #: describe.lisp:423
 #, lisp-format
-msgid "exports ~[no symbols~:;~:*~:d symbol~:p~]"
+msgid "It "
 msgstr ""
 
-#: describe.lisp:426
+#: describe.lisp:425
+#, lisp-format
+msgid "imports the external symbols of ~:D package~:P ~{~A~^, ~} and "
+msgstr ""
+
+#: describe.lisp:431
+#, lisp-format
+msgid "exports ~[no symbols~:;~:*~:D symbol~:P~]"
+msgstr ""
+
+#: describe.lisp:434
 #, lisp-format
 msgid "~{ ~S~^,~}"
 msgstr ""
 
-#: describe.lisp:429
+#: describe.lisp:437
 #, lisp-format
-msgid " to ~:d package~:p ~{~A~^, ~}"
+msgid " to ~:D package~:P ~{~A~^, ~}"
 msgstr ""
 
-#: describe.lisp:432
+#: describe.lisp:440
 #, lisp-format
 msgid ", but no package uses these exports"
 msgstr ""
 
-#: describe.lisp:442
+#: describe.lisp:450
 #, lisp-format
 msgid "It is a modern case-sensitive package."
 msgstr ""
 
-#: describe.lisp:445
+#: describe.lisp:453
 #, lisp-format
 msgid "ATTENTION: "
 msgstr ""
 
-#: describe.lisp:448
+#: describe.lisp:456
 #, lisp-format
 msgid "It is a modern case-sensitive package, but uses the symbols from the traditional ~S!"
 msgstr ""
 
-#: describe.lisp:450
+#: describe.lisp:458
 #, lisp-format
 msgid "It is case-inverted, but not case-sensitive!"
 msgstr ""
 
-#: describe.lisp:452
+#: describe.lisp:460
 #, lisp-format
 msgid "It is case-sensitive, but not case-inverted!"
 msgstr ""
 
-#: describe.lisp:453
+#: describe.lisp:461
 #, lisp-format
 msgid "It is a traditional ANSI CL compatible package, but uses the symbols from the modern ~S!"
 msgstr ""
 
-#: describe.lisp:457
+#: describe.lisp:465
 #, lisp-format
 msgid "a deleted package."
 msgstr ""
 
-#: describe.lisp:460
+#: describe.lisp:468
 #, lisp-format
 msgid "an ~S hash table with ~[no entries~:;~:*~:D entr~@:P~]."
 msgstr ""
 
-#: describe.lisp:463
+#: describe.lisp:471
 #, lisp-format
 msgid "~:[a~;the Common Lisp~] readtable."
 msgstr ""
 
-#: describe.lisp:466
+#: describe.lisp:474
 #, lisp-format
 msgid "a ~:[~;portable ~]pathname~:[.~;~:*, with the following components:~{~A~}~]"
 msgstr ""
 
-#: describe.lisp:480
+#: describe.lisp:488
 #, lisp-format
 msgid "a random-state."
 msgstr ""
 
-#: describe.lisp:484
+#: describe.lisp:492
 #, lisp-format
 msgid "a~:[~; simple~] ~A dimensional array"
 msgstr ""
 
-#: describe.lisp:487
+#: describe.lisp:495
 #, lisp-format
 msgid " (vector)"
 msgstr ""
 
-#: describe.lisp:490
+#: describe.lisp:498
 msgid " with no storage"
 msgstr ""
 
-#: describe.lisp:491
+#: describe.lisp:499
 #, lisp-format
 msgid " of ~As"
 msgstr ""
 
-#: describe.lisp:493
+#: describe.lisp:501
 #, lisp-format
 msgid ", adjustable"
 msgstr ""
 
-#: describe.lisp:495
+#: describe.lisp:503
 #, lisp-format
 msgid ", of size ~{~S~^ x ~}"
 msgstr ""
 
-#: describe.lisp:498
+#: describe.lisp:506
 #, lisp-format
 msgid " and current length (fill-pointer) ~S"
 msgstr ""
 
-#: describe.lisp:502
+#: describe.lisp:510
 #, lisp-format
 msgid " (a string)"
 msgstr ""
 
-#: describe.lisp:505
+#: describe.lisp:513
 #, lisp-format
 msgid " (a~:[~;n immutable~] ~:[~;reallocated ~]~A string)"
 msgstr ""
 
-#: describe.lisp:510
+#: describe.lisp:518
 #, lisp-format
 msgid "a generic function."
 msgstr ""
 
-#: describe.lisp:513 describe.lisp:638
+#: describe.lisp:521 describe.lisp:646
 #, lisp-format
 msgid "Argument list: ~:S"
 msgstr ""
 
-#: describe.lisp:518
+#: describe.lisp:526
 #, lisp-format
 msgid "Method combination: ~S"
 msgstr ""
 
-#: describe.lisp:523
+#: describe.lisp:531
 #, lisp-format
 msgid "Methods:"
 msgstr ""
 
-#: describe.lisp:534
+#: describe.lisp:542
 #, lisp-format
 msgid "No methods."
 msgstr ""
 
-#: describe.lisp:539
+#: describe.lisp:547
 #, lisp-format
 msgid "a foreign function of foreign type ~S."
 msgstr ""
 
-#: describe.lisp:548
+#: describe.lisp:556
 msgid "a built-in system function."
 msgstr ""
 
-#: describe.lisp:549
+#: describe.lisp:557
 msgid "a compiled function."
 msgstr ""
 
-#: describe.lisp:564
+#: describe.lisp:572
 #, lisp-format
 msgid "an interpreted function."
 msgstr ""
 
-#: describe.lisp:575
+#: describe.lisp:583
 #, lisp-format
 msgid "~A [see above]"
 msgstr ""
 
-#: describe.lisp:579
+#: describe.lisp:587
 #, lisp-format
 msgid "~A is "
 msgstr ""
 
-#: describe.lisp:584
+#: describe.lisp:592
 #, lisp-format
 msgid "Documentation:"
 msgstr ""
 
-#: describe.lisp:646
+#: describe.lisp:654
 #, lisp-format
 msgid "Documentation: ~A"
+msgstr ""
+
+#: describe.lisp:666
+#, lisp-format
+msgid "~S: file ~S does not exist - adjust ~S"
 msgstr ""
 
 #: room.lisp:17
@@ -7708,27 +7723,27 @@ msgstr ""
 msgid "illegal syntax in LETF binding: ~S"
 msgstr ""
 
-#: clhs.lisp:175
+#: clhs.lisp:177
 #, lisp-format
 msgid "~S: error ~D: ~S"
 msgstr ""
 
-#: clhs.lisp:236
+#: clhs.lisp:238
 #, lisp-format
 msgid "~S is not found"
 msgstr ""
 
-#: clhs.lisp:251 clhs.lisp:291
+#: clhs.lisp:253 clhs.lisp:293
 #, lisp-format
 msgid "~S returns invalid value ~S, fix it, ~S, ~S, or ~S"
 msgstr ""
 
-#: clhs.lisp:315
+#: clhs.lisp:317
 #, lisp-format
 msgid "~S: invalid symbol ~S with id ~S: ~A"
 msgstr ""
 
-#: clhs.lisp:318
+#: clhs.lisp:320
 #, lisp-format
 msgid "~S: invalid id ~S for symbol ~S"
 msgstr ""
