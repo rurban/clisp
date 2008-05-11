@@ -69,7 +69,8 @@ AC_CACHE_CHECK(if XauGetAuthByAddr needs -lXau, gb_cv_need_lXau,
     LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     AC_TRY_LINK([#include <sys/socket.h>
-#include <X11/Xlib.h>],
+#include <X11/Xlib.h>
+#include <X11/Xauth.h>],
 [XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");],
       gb_cv_need_lXau=no,
       gb_cv_need_lXau=maybe)
@@ -77,7 +78,8 @@ AC_CACHE_CHECK(if XauGetAuthByAddr needs -lXau, gb_cv_need_lXau,
       LIBS="$X_LIBS -lXau $X_PRE_LIBS $LIBS"
       CFLAGS="$CFLAGS $X_CFLAGS"
       AC_TRY_LINK([#include <sys/socket.h>
-#include <X11/Xlib.h>],
+#include <X11/Xlib.h>
+#include <X11/Xauth.h>],
 [XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");],
         gb_cv_need_lXau=yes,
         AC_MSG_FAILURE([XauGetAuthByAddr was not found]))
