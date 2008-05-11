@@ -6571,9 +6571,19 @@ local object rd_ch_buffered (const gcv_object_t* stream_) {
              ls_eof   if EOF is reached,
              ls_wait  if no character is available, but not because of EOF */
 local signean listen_char_buffered (object stream) {
-  uintB* buf = buffered_nextbyte(stream,persev_immediate);
+ listen_char_buffered_retry:
+  var uintB* buf = buffered_nextbyte(stream,persev_immediate);
   if (buf == (uintB*)NULL) return ls_eof; /* EOF */
   if (buf == (uintB*)-1)   return ls_wait; /* will hang */
+  if (*buf == '\n' && ChannelStream_ignore_next_LF(stream)) { /* discard LF */
+    /* assume that '\n' is LF in all encodings */
+    BufferedStream_index(stream) += 1;
+    BufferedStream_position(stream) += 1;
+    ChannelStream_ignore_next_LF(stream) = false;
+    goto listen_char_buffered_retry;
+    /* we might extract rd_ch_buffered_low from above instead,
+       but it seems too much work for little gain */
+  }
   /* In case of UNICODE, the presence of a byte does not guarantee the
    presence of a multi-byte character. Returning ls_avail here is
    therefore not correct. But this doesn't matter since programs seeing

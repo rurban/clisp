@@ -1,5 +1,11 @@
 2008-05-10  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1961475 ]: Hang on read-char-no-hang
+	* stream.d (listen_char_buffered): when the next byte is '\n' and
+	ChannelStream_ignore_next_LF is true, discard it and retry
+
+2008-05-10  Sam Steingold  <sds@gnu.org>
+
 	* clos-genfun4.lisp (no-next-method): signal
 	SYS::SIMPLE-PROGRAM-ERROR instead of PROGRAM-ERROR because only
 	the former accepts :FORMAT-CONTROL & :FORMAT-ARGUMENTS
