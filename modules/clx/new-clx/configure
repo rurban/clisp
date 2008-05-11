@@ -5456,6 +5456,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <sys/socket.h>
 #include <X11/Xlib.h>
+#include <X11/Xauth.h>
 int
 main ()
 {
@@ -5503,6 +5504,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <sys/socket.h>
 #include <X11/Xlib.h>
+#include <X11/Xauth.h>
 int
 main ()
 {
