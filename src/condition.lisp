@@ -230,7 +230,7 @@
   (handler-case
       (apply #'try-coerce-to-condition datum arguments
              caller-name default-type more-initargs)
-    (TYPE-ERROR (error) (invoke-debugger error))
+    (TYPE-ERROR (error) (error error))
     (ERROR (error)
       ;; ANSI CL wants a type error here.
       (error-of-type 'type-error
