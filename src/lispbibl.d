@@ -12054,7 +12054,7 @@ extern per_thread gcv_environment_t aktenv;
 /* Bits for Symbols in VAR-Frames:
  bit(active_bit),bit(dynam_bit),bit(svar_bit) must fit into one uintB: */
 #if !((active_bit<intBsize) && (dynam_bit<intBsize) && (svar_bit<intBsize))
-  #error Symbol bits don't fit in a single byte -- Symbol-Bits passen nicht in ein Byte!
+  #error Symbol bits do not fit in a single byte -- Symbol-Bits passen nicht in ein Byte!
 #endif
 #ifdef NO_symbolflags
   /* Bits are separatly stored on the Stack as Fixnums. */
