@@ -1,5 +1,11 @@
 2008-05-10  Sam Steingold  <sds@gnu.org>
 
+	* clos-genfun4.lisp (no-next-method): signal
+	SYS::SIMPLE-PROGRAM-ERROR instead of PROGRAM-ERROR because only
+	the former accepts :FORMAT-CONTROL & :FORMAT-ARGUMENTS
+
+2008-05-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/configure.in: when testing for
 	XauGetAuthByAddr, must #include <X11/Xauth.h> for g++
 
