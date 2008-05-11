@@ -167,10 +167,10 @@
                                 '(call-next-method)))
       (let ((qualifiers (method-qualifiers method)))
         (if qualifiers
-          (cerror cont-mesg 'program-error
+          (cerror cont-mesg 'sys::simple-program-error
             :format-control (TEXT "~S: ~S is invalid within ~{~S~^ ~} methods")
             :format-arguments (list gf 'CALL-NEXT-METHOD qualifiers))
-          (cerror cont-mesg 'program-error
+          (cerror cont-mesg 'sys::simple-program-error
             :format-control (TEXT "~S: ~S is invalid within primary methods")
             :format-arguments (list gf 'CALL-NEXT-METHOD)))))))
 
