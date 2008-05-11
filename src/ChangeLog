@@ -1,3 +1,8 @@
+2008-05-11  Sam Steingold  <sds@gnu.org>
+
+	* comptran.d (N_log_abs_R): fix a GC-safety bug (R_R_comp -
+	comparison! - turned out to maygc)
+
 2008-05-10  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1961475 ]: Hang on read-char-no-hang

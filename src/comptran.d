@@ -105,20 +105,20 @@ local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
   } else { /* 1/2 * lnx1 (x^2 + y^2 - 1) */
     pushSTACK(z);
     pushSTACK(R_abs_R(TheComplex(z)->c_real));
-    z = R_abs_R(TheComplex(STACK_1)->c_imag);
-    if (R_R_comp(z,SF_two_thirds) < 0 && R_R_comp(STACK_0,SF_two_thirds) < 0) {
+    pushSTACK(R_abs_R(TheComplex(STACK_1)->c_imag));
+    if (   R_R_comp(STACK_0,SF_two_thirds) < 0
+        && R_R_comp(STACK_1,SF_two_thirds) < 0) {
       /* z is small ==> log(x^2 + y^2) */
-      pushSTACK(R_square_R(z)); /* y^2 */
+      STACK_0 = R_square_R(STACK_0); /* y^2 */
       STACK_1 = R_square_R(STACK_1); /* x^2 */
       z = R_R_plus_R(STACK_1,STACK_0); /* x^2 + y^2 */
       z = R_ln_R(z,end_p);             /* log (x^2 + y^2) */
-      skipSTACK(1);
     } else {                  /* z is big => log(1 + (x^2 + y^2 - 1)) */
-      z = R_R_comp(z,STACK_0) < 0
-        ? R_R_norm2_1_R(TheComplex(STACK_1)->c_real,
-                        TheComplex(STACK_1)->c_imag)
-        : R_R_norm2_1_R(TheComplex(STACK_1)->c_imag,
-                        TheComplex(STACK_1)->c_real);
+      z = R_R_comp(STACK_0,STACK_1) < 0
+        ? R_R_norm2_1_R(TheComplex(STACK_2)->c_real,
+                        TheComplex(STACK_2)->c_imag)
+        : R_R_norm2_1_R(TheComplex(STACK_2)->c_imag,
+                        TheComplex(STACK_2)->c_real);
       if (R_R_equal(z,Fixnum_minus1))
         divide_0();
       z = R_ln1_R(z,end_p);     /* log(1 + (x^2 + y^2 - 1)) */
@@ -126,7 +126,7 @@ local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
     z = floatp(z)               /* log(x^2 + y^2)/2 */
       ? F_I_scale_float_F(z,Fixnum_minus1)
       : RA_RA_div_RA(z,fixnum(2));
-    skipSTACK(2);
+    skipSTACK(3);
     return z;
   }
 }
