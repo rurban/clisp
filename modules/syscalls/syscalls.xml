@@ -31,8 +31,8 @@
   </para><simpara>This is an interface
    to <function role="unix">gethostent</function>,
    <function role="unix">gethostbyname</function>,
-   and <function role="unix">gethostbyaddr</function>.
- </simpara></listitem></varlistentry>
+   and <function role="unix">gethostbyaddr</function>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="service"><term><code>(<function>OS:SERVICE</function>
     &optional-amp; <replaceable>service-name</replaceable>
     &proto-r;)</code></term>
@@ -42,7 +42,11 @@
    (name, list of aliases, port, protocol) for the given
    <replaceable>service-name</replaceable> and &proto-r;,
    or all services as a &list-t; if <replaceable>service-name</replaceable>
-   is missing or &nil;.</simpara></listitem></varlistentry>
+   is missing or &nil;.</simpara><simpara>This is an interface
+   to <function role="unix">getservent</function>,
+   <function role="unix">getservbyname</function>,
+   and <function role="unix">getservbyport</function>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="file-stat"><term><code>(<function>POSIX:FILE-STAT</function>
     &path-r; &optional-amp; <replaceable>link-p</replaceable>)</code></term>
   <listitem><para>Return the <type>FILE-STAT</type> structure.
