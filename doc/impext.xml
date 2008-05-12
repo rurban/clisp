@@ -161,7 +161,8 @@ space.</para>
   the &full; &linkset; cannot be used with the &base; runtime:<screen>
 &sh-prompt; clisp -K full -x '(&savemem;)'
 &sh-prompt; clisp -K base -M lispinit.mem
-base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen></para></warning>
+base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
+See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parmbx02.ilog.biz"/>/<ulink role="gmane" url="devel/17757"/>.</para></warning>
 
 </section>
 
@@ -201,9 +202,6 @@ base/lisp.run: initialization file `lispinit.mem' was not created by this versio
 English, German, French, Spanish, Dutch, Russian, and Danish.
 &clisp; also supports internationalized Lisp programs, through
 &ggettext;, see <xref linkend="i18n-mod"/>.</para>
-
-<para>User programs can also be internationalized,
- see <xref linkend="i18n-mod"/>.</para>
 
 <section id="language"><title>The Language</title>
 
