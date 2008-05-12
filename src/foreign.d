@@ -1924,7 +1924,9 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
       if (fvariablep(obj))
         obj = TheFvariable(obj)->fv_address;
       else if (nullp(obj)) { *(void**)data = NULL; return; }
-      else if (!faddressp(obj)) goto bad_obj;
+      else if (fpointerp(obj)) {
+        validate_fpointer(obj); *(void**)data = Fpointer_value(obj); return;
+      } else if (!faddressp(obj)) goto bad_obj;
       obj = check_faddress_valid(obj);
       *(void**)data = Faddress_value(obj);
       return;

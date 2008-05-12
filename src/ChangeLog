@@ -1,3 +1,8 @@
+2008-05-12  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d (convert_to_foreign): accept Fpointer as a C-POINTER
+	so that POSIX:FOPEN value can actually be used by FFI
+
 2008-05-11  Sam Steingold  <sds@gnu.org>
 
 	* comptran.d (N_log_abs_R): fix a GC-safety bug (R_R_comp -
