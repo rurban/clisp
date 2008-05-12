@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -63,6 +63,7 @@ cl_cv_decl_eloop=yes,
 cl_cv_decl_eloop=no)
 cl_cv_decl_ELOOP="ELOOP"
 fi
+rm -rf conftest.dSYM
 rm -f conftest*
 ])
 AC_DEFINE_UNQUOTED(ELOOP_VALUE,$cl_cv_decl_ELOOP,[the real value of ELOOP even if it is hidden in <errno.h>])
