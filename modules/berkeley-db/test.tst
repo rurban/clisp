@@ -9,23 +9,6 @@
 NIL
 
 ;;; --- helpers ---
-(defun kill-down (name)
-  (dolist (f (directory (ext:string-concat name "**")))
-    (format t "~&removing ~S~%" f)
-    (if (pathname-name f)
-        (delete-file f)
-        (ext:delete-dir f))))
-kill-down
-(defun rmrf (name)
-  (ext:dir (ext:string-concat name "**"))
-  (kill-down name)
-  (format t "~&removing ~S~%" name)
-  (ext:delete-dir name))
-rmrf
-(defun prepare-dir (name)
-  (ensure-directories-exist name :verbose t)
-  (kill-down name))
-prepare-dir
 (defun show-db (db)
   (let* ((*print-pretty* t) (stat (bdb:db-stat db))
          (file (and (eq :RECNO (bdb:db-stat-type stat))
@@ -43,15 +26,6 @@ show-db
                    (list :messages (bdb:dbe-messages dbe))))))
   nil)
 show-dbe
-(defun show-file (file)         ; return line count
-  (with-open-file (st file :direction :input)
-    (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
-    (loop :for l = (read-line st nil nil) :while l :count t
-      :do (format t "--> ~S~%" l))))
-show-file
-(defun finish-file (file)
-  (prog1 (show-file file) (delete-file file)))
-finish-file
 (progn
   (defmethod close :before ((h bdb:bdb-handle) &key abort)
     (declare (ignore abort))

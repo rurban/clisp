@@ -1,11 +1,35 @@
 ;; run the test suit:
 
+;;; --- helpers for misc tests ---
 (defun princ-error (c) (format t "~&[~A]: ~A~%" (type-of c) c))
-
+(defun show (object &key ((:pretty *print-pretty*) *print-pretty*))
+  "Print the object on its own line and return it. Used in many tests!"
+  (fresh-line) (prin1 object) (terpri) object)
+(defun kill-down (name)
+  (dolist (f (directory (ext:string-concat name "**")))
+    (format t "~&removing ~S~%" f)
+    (if (pathname-name f)
+        (delete-file f)
+        (ext:delete-dir f))))
+(defun rmrf (name)
+  (ext:dir (ext:string-concat name "**"))
+  (kill-down name)
+  (format t "~&removing ~S~%" name)
+  (ext:delete-dir name))
+(defun prepare-dir (name)
+  (ensure-directories-exist name :verbose t)
+  (kill-down name))
+(defun show-file (file)         ; return line count
+  (with-open-file (st file :direction :input)
+    (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
+    (loop :for l = (read-line st nil nil) :while l :count t
+      :do (format t "--> ~S~%" l))))
+(defun finish-file (file) (prog1 (show-file file) (delete-file file)))
 (defun post-compile-file-cleanup (file)
   (delete-file file)
   (delete-file (compile-file-pathname file))
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+;;; end helpers
 
 #+OLD-CLISP
 ;; Binding *ERROR-HANDLER* is a hammer technique for catching errors. It also
@@ -123,10 +147,6 @@
         (format log "~&~S:~%CORRECT: ~S~%~7A: ~S~%~:[ DIFFERENT!~;same~]~%"
                 slot s-r lisp-implementation s-m (equal s-r s-m)))))
   (:method ((result t) (my-result t) (log stream)))) ; do nothing
-
-(defun show (object &key ((:pretty *print-pretty*) *print-pretty*))
-  "Print the object on its own line and return it. Used in many tests!"
-  (fresh-line) (prin1 object) (terpri) object)
 
 (defun type-error-handler (err)
   "Print the condition and THROW.

@@ -1,3 +1,8 @@
+2008-05-12  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (kill-down, rmrf, prepare-dir, show-file, finish-file):
+	move here from modules/berkeley-db/test.tst
+
 2008-05-06  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (report-results): since we now have more than 10,000
