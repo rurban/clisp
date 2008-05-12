@@ -98,7 +98,8 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-reorganize">
   <term><code>(GDBM:GDBM-REORGANIZE &db-r;)</code></term>
-  <listitem><simpara>Reorganize database.</simpara></listitem></varlistentry>
+  <listitem><simpara>Reorganize the database.
+ </simpara></listitem></varlistentry>
  <varlistentry id="gdbm-sync">
   <term><code>(GDBM:GDBM-SYNC &db-r;)</code></term>
   <listitem><simpara>Syncronize the in-memory state of the database to
