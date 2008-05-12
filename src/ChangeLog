@@ -1,5 +1,9 @@
 2008-05-12  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (tp-mail): put clisp version into the subject line
+
+2008-05-12  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (convert_to_foreign): accept Fpointer as a C-POINTER
 	so that POSIX:FOPEN value can actually be used by FFI
 
