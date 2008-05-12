@@ -41,7 +41,7 @@
 NIL
 
 (os:fclose *trace*) NIL
-(null (show (delete-file "postgres.log"))) NIL
+(integerp (show (finish-file "postgres.log"))) T
 
 ;;;
 ;;; asynchronous notification interface
