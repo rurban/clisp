@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -150,7 +150,8 @@ while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
 done
 # Now it's safe to do "rm -rf conftestdir".
 fi
-rm -rf conftest*
+rm -rf conftest.dSYM conftestdir
+rm -f conftest*
 ])
 if test -z "$cl_cv_os_valid_filename_char"; then
   cl_cv_os_valid_filename_charset="guessing 7-bit"
