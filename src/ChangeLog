@@ -1,5 +1,11 @@
 2008-05-13  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX:SETREUID, POSIX:SETREGID): implement
+	* modules/syscalls/configure.in (setreuid, setregid): check
+	* modules/syscalls/posix.lisp (setreuid, setregid): export
+
+2008-05-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (USER-INFO): use I_to_uid instead of
 	I_to_uint32; when getlogin() fails, signal an error instead of
 	defaulting to getuid()

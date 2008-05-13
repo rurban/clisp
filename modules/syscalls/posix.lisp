@@ -12,7 +12,7 @@
    #:file-owner #:physical-memory #:stream-options #+unix #:string-time
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
-   #:getsid #:setsid #:getpgrp #:setpgrp #:kill #:sync
+   #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
