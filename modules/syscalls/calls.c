@@ -759,7 +759,7 @@ DEFUN(OS:PRIORITY, pid &optional which) {
 #endif
   VALUES1(check_priority_value_reverse(res));
 }
-DEFUN(OS::SET-PRIORITY, value pid which) {
+DEFUN(OS::%SET-PRIORITY, value pid which) {
   int which = check_priority_which(popSTACK());
   int pid = I_to_uint32(check_uint32(popSTACK()));
   int value = check_priority_value(STACK_0);
@@ -809,6 +809,7 @@ DEFUNF(POSIX::JN,i x) { VAL_ID(jn); mv_count=1; }
 DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
 DEFUNF(POSIX::YN,i y) { VAL_ID(yn); mv_count=1; }
+DEFUNF(POSIX::TGAMMA,x) { VAL_D(tgamma); mv_count=1; }
 
 #if defined(HAVE_LGAMMA) || HAVE_DECL_LGAMMA_R
 DEFUNF(POSIX::LGAMMA,x) {
