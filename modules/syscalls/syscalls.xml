@@ -265,19 +265,19 @@
     <function role="unix">getrusage</function>.
  </simpara></listitem></varlistentry>
  <varlistentry>
-   <term><code>(<function>POSIX:ERF</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:ERFC</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:J0</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:J1</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:JN</function> &int-r; &real-r;)</code></term>
-   <term><code>(<function>POSIX:Y0</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:Y1</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:YN</function> &int-r; &real-r;)</code></term>
-   <term><code>(<function>POSIX:GAMMA</function> &real-r;)</code></term>
-   <term><code>(<function>POSIX:LGAMMA</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">erf</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">erfc</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">j0</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">j1</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">jn</function> &int-r; &real-r;)</code></term>
+  <term><code>(<function role="unix">y0</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">y1</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">yn</function> &int-r; &real-r;)</code></term>
+  <term><code>(<function role="unix">gamma</function> &real-r;)</code></term>
+  <term><code>(<function role="unix">lgamma</function> &real-r;)</code></term>
  <listitem><simpara>Compute the error functions, Bessel functions and
    Gamma.  These functions are required by the POSIX standard and should
-   be available in <filename>libm.so</filename>.</simpara>
+   be declared in <filename role="unix">math.h</filename>.</simpara>
   <warning><simpara>Please note that these functions do not provide
     lisp-style error handling and precision, and do all the computations
     at the &double-float-t; level.</simpara></warning>
