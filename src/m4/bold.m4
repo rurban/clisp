@@ -1,8 +1,8 @@
 dnl -*- Autoconf -*-
-# bold.m4 serial 1 (libsigsegv-2.0, clisp)
+# bold.m4 serial 2 (clisp)
 dnl Copyright (C) 1999-2002 Ralf S. Engelschall <rse@engelschall.com>
-dnl Copyright (C) 2002 Bruno Haible <bruno@clisp.org>
-dnl Copyright (C) 2006 Sam Steingol <sds@gnu.org>
+dnl Copyright (C) 2002-2008 Bruno Haible <bruno@clisp.org>
+dnl Copyright (C) 2006 Sam Steingold <sds@gnu.org>
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -58,4 +58,4 @@ AC_DEFUN([RSE_BOLD],
   esac
 
 ])
-AC_DEFUN([BOLD_MSG],AC_MSG_NOTICE(${term_bold}[** ]$1${term_norm}))
+AC_DEFUN([BOLD_MSG],[AC_MSG_NOTICE([${term_bold}** $1${term_norm}])])
