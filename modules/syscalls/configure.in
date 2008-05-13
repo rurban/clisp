@@ -46,7 +46,7 @@ fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 erf erfc lgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx)
 AC_FUNC_CHOWN
-AC_CHECK_DECLS([lgamma_r signgam],,,[#include <math.h>])
+AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 CL_STAT
 CL_RUSAGE
 gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
