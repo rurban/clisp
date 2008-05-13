@@ -5388,7 +5388,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -5429,6 +5429,7 @@ int main() { printf_address(chop_address(&printf_address)); exit(0); }
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_code=`./conftest`
+rm -rf conftest.dSYM
 rm -f conftest*
 else
 cl_cv_address_code='guessing 0'
@@ -5451,6 +5452,7 @@ int main() { printf_address(chop_address(malloc(10000))); exit(0); }
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_malloc=`./conftest`
+rm -rf conftest.dSYM
 rm -f conftest*
 else
 cl_cv_address_malloc='guessing 0'
@@ -5494,6 +5496,7 @@ int main() {
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_shlib=`./conftest`
+rm -rf conftest.dSYM
 rm -f conftest*
 else
 cl_cv_address_shlib='guessing 0'
@@ -5510,6 +5513,7 @@ int main() { int dummy; printf_address(chop_address(&dummy)); exit(0); }
 EOF
 AC_TRY_EVAL(ac_link)
 cl_cv_address_stack=`./conftest`
+rm -rf conftest.dSYM
 rm -f conftest*
 else
 cl_cv_address_stack='guessing ~0'
@@ -6056,7 +6060,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -6120,6 +6124,7 @@ cl_cv_decl_eloop=yes,
 cl_cv_decl_eloop=no)
 cl_cv_decl_ELOOP="ELOOP"
 fi
+rm -rf conftest.dSYM
 rm -f conftest*
 ])
 AC_DEFINE_UNQUOTED(ELOOP_VALUE,$cl_cv_decl_ELOOP,[the real value of ELOOP even if it is hidden in <errno.h>])
@@ -6571,7 +6576,7 @@ fi
 fi;])])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -6722,7 +6727,8 @@ while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
 done
 # Now it's safe to do "rm -rf conftestdir".
 fi
-rm -rf conftest*
+rm -rf conftest.dSYM conftestdir
+rm -f conftest*
 ])
 if test -z "$cl_cv_os_valid_filename_char"; then
   cl_cv_os_valid_filename_charset="guessing 7-bit"
@@ -15249,7 +15255,7 @@ fi
 ])
 
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -15295,6 +15301,7 @@ if test -s conftest; then
 else
   echo "creation of $cl_machine_file_h failed"
 fi
+rm -rf conftest.dSYM
 rm -f conftest*
 else
 echo "creating $cl_machine_file_h"

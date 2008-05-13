@@ -261,6 +261,12 @@
 /* Define to 1 if you have the `setpwent' function. */
 #undef HAVE_SETPWENT
 
+/* Define to 1 if you have the `setregid' function. */
+#undef HAVE_SETREGID
+
+/* Define to 1 if you have the `setreuid' function. */
+#undef HAVE_SETREUID
+
 /* Define to 1 if you have the `setrlimit' function. */
 #undef HAVE_SETRLIMIT
 
