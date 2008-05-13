@@ -1,3 +1,9 @@
+2008-05-13  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (USER-INFO): use I_to_uid instead of
+	I_to_uint32; when getlogin() fails, signal an error instead of
+	defaulting to getuid()
+
 2008-05-12  Bruno Haible  <bruno@clisp.org>
 
 	Clear spurious error messages on MacOS X 10.5.

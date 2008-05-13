@@ -1479,6 +1479,14 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 }
 #endif  /* getgrgid getgrnam */
 
+#if SIZEOF_UID_T == 8
+# define uid_to_I(g)  uint64_to_I(g)
+# define I_to_uid(g)  I_to_uint64(g=check_sint64(g))
+#else
+# define uid_to_I(g)  uint32_to_I(g)
+# define I_to_uid(g)  I_to_uint32(g=check_sint32(g))
+#endif
+
 #if defined(HAVE_GETLOGIN) && defined(HAVE_GETPWNAM) && defined(HAVE_GETPWUID) && defined(HAVE_GETUID)
 
 #if defined(HAVE_PWD_H)
@@ -1523,14 +1531,12 @@ DEFUN(POSIX::USER-INFO, &optional user)
 
   begin_system_call();
   errno = 0;
-  if (uint32_p(user))
-    pwd = getpwuid(I_to_uint32(user));
+  if (integerp(user))
+    pwd = getpwuid(I_to_uid(user));
   else if (eq(user,S(Kdefault))) {
     char *username = getlogin();
     if (username != NULL)
       pwd = getpwnam(username);
-    else
-      pwd = getpwuid(getuid());
   } else if (symbolp(user)) {
     user = Symbol_name(user);
     goto user_info_string;
@@ -1565,13 +1571,6 @@ DEFUN(POSIX::USER-INFO, &optional user)
 #else
 # define gid_to_I(g)  uint32_to_I(g)
 # define I_to_gid(g)  I_to_uint32(g=check_sint32(g))
-#endif
-#if SIZEOF_UID_T == 8
-# define uid_to_I(g)  uint64_to_I(g)
-# define I_to_uid(g)  I_to_uint64(g=check_sint64(g))
-#else
-# define uid_to_I(g)  uint32_to_I(g)
-# define I_to_uid(g)  I_to_uint32(g=check_sint32(g))
 #endif
 #if defined(HAVE_GETUID)
 DEFUN(POSIX:GETUID,){ GETTER(uid,getuid); }
