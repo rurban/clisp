@@ -206,8 +206,7 @@
    When &user-r; is missing or &nil;, return all
    users (using <function role="unix">getpwent</function>).
    When &user-r; is &default-k;, return the information about the current user
-   (using <function role="unix">getlogin</function>
-   or <function role="unix">getuid</function>).</simpara>
+   (using <function role="unix">getlogin</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
 <varlistentry id="group-info"><term><code>(<function>POSIX:GROUP-INFO</function>
     &optional-amp; <replaceable>group</replaceable>)</code></term>
