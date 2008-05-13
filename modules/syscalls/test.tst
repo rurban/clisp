@@ -108,17 +108,22 @@ T
 
 #+unix (os:uname-p (show (os:uname) :pretty t)) #+unix T
 
-#+unix (os:user-info-p (show (os:user-info :default) :pretty t)) T
 #+unix (listp (show (os:user-info) :pretty t)) T
+;; (os:user-info :default) calls getlogin which may fail in cron
+#+unix (os:user-info-p
+        (handler-case (show (os:user-info :default) :pretty t)
+          (:error (c) (princ-error c)
+                  (use-value (os:make-user-info "" "" 0 0 "" "" ""))))) T
 ;; some SF CF hosts (solaris, openbsd) are misconfigured:
 ;; user GID is 100, but there is no group with GID 100
 #+unix (os:group-info-p
         (show
          (handler-bind ((error (lambda (c) (princ-error c) (use-value 0))))
-           (os:group-info (os:user-info-gid (os:user-info :default)))))) T
+           (os:group-info (os:user-info-gid (os:user-info (os:getuid)))))
+         :pretty t)) T
 #+unix (listp (show (os:group-info) :pretty t)) T
-#+unix (= (os:getuid) (os:user-info-uid (os:user-info :default))) T
-#+unix (= (os:getgid) (os:user-info-gid (os:user-info :default))) T
+#+unix (= (os:getuid) (os:user-info-uid (os:user-info (os:getuid)))) T
+#+unix (= (os:getgid) (os:user-info-gid (os:user-info (os:getuid)))) T
 
 (os:file-stat-p (show (os:file-stat *tmp1*) :pretty t)) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)) :pretty t)) T
