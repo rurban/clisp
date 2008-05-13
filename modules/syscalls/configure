@@ -7063,9 +7063,9 @@ _ACEOF
 
 fi
 
-{ echo "$as_me:$LINENO: checking whether lgamma_r signgam is declared" >&5
-echo $ECHO_N "checking whether lgamma_r signgam is declared... $ECHO_C" >&6; }
-if test "${ac_cv_have_decl_lgamma_r_signgam+set}" = set; then
+{ echo "$as_me:$LINENO: checking whether signgam is declared" >&5
+echo $ECHO_N "checking whether signgam is declared... $ECHO_C" >&6; }
+if test "${ac_cv_have_decl_signgam+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   cat >conftest.$ac_ext <<_ACEOF
@@ -7079,8 +7079,8 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-#ifndef lgamma_r signgam
-  (void) lgamma_r signgam;
+#ifndef signgam
+  (void) signgam;
 #endif
 
   ;
@@ -7104,28 +7104,28 @@ eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
 	 test -z "$ac_c_werror_flag" ||
 	 test ! -s conftest.err
        } && test -s conftest.$ac_objext; then
-  ac_cv_have_decl_lgamma_r_signgam=yes
+  ac_cv_have_decl_signgam=yes
 else
   echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_have_decl_lgamma_r_signgam=no
+	ac_cv_have_decl_signgam=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_have_decl_lgamma_r_signgam" >&5
-echo "${ECHO_T}$ac_cv_have_decl_lgamma_r_signgam" >&6; }
-if test $ac_cv_have_decl_lgamma_r_signgam = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_have_decl_signgam" >&5
+echo "${ECHO_T}$ac_cv_have_decl_signgam" >&6; }
+if test $ac_cv_have_decl_signgam = yes; then
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_LGAMMA_R_SIGNGAM 1
+#define HAVE_DECL_SIGNGAM 1
 _ACEOF
 
 
 else
   cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_LGAMMA_R_SIGNGAM 0
+#define HAVE_DECL_SIGNGAM 0
 _ACEOF
 
 
