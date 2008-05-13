@@ -4,7 +4,17 @@
 
 ;;; Based on the examples distributed with PostgreSQL (man libpq)
 
-;;; if you get "FATAL: database \"postgres\" does not exist":
+;;; == Troubleshooting:
+;;; ** if you get "could not connect to server:"
+;;; # service postgresql initdb
+;;; # service postgresql start
+;;; ** if you get "FATAL:  Ident authentication failed for user \"postgres\""
+;;; 1. edit /var/lib/pgsql/data/pg_hba.conf and make sure that METHOD for
+;;;    "local" is "trust"
+;;; 2. sudo -u postgres psql
+;;;    # alter user postgres set password 'postgres'
+;;; 3. service postgresql restart
+;;; ** if you get "FATAL: database \"postgres\" does not exist":
 ;;; $ createdb -U postgres postgres
 
 (defparameter *trace* (os:fopen "postgres.log" "w")) *trace*
@@ -68,7 +78,7 @@ NIL
 ;;; test the binary cursor interface
 ;;;
 ;;; *** this is not supported by CLISP at the moment:
-;;; *** need to include geo_decls.h
+;;; *** need to include /usr/include/pgsql/server/utils/geo_decls.h
 ;;;
 ;;; populate a database by doing the following:
 ;;;
