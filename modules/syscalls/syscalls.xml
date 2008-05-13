@@ -561,6 +561,14 @@
     &pid-r;) <replaceable>pgid</replaceable>)</code></term>
   <listitem><simpara>Call <function role="unix">getpgid</function> and
    <function role="unix">setpgid</function>.</simpara></listitem></varlistentry>
+ <varlistentry id="setreuid"><term><code>(POSIX:SETREUID
+    ruid euid)</code></term>
+  <listitem><simpara>Call <function role="unix">setreuid</function>.
+ </simpara></listitem></varlistentry>
+ <varlistentry id="setregid"><term><code>(POSIX:SETREGID
+    rgid egid)</code></term>
+  <listitem><simpara>Call <function role="unix">setregid</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="endutxent"><term><code>(POSIX:ENDUTXENT)</code></term>
   <listitem><simpara>Calls <function role="unix">endutxent</function>.
  </simpara></listitem></varlistentry>
