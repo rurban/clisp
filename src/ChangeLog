@@ -1,5 +1,9 @@
 2008-05-13  Bruno Haible  <bruno@clisp.org>
 
+	* src/m4/pkg.m4: New file, from pkg-config-0.23.
+
+2008-05-13  Bruno Haible  <bruno@clisp.org>
+
 	* src/m4/bold.m4 (BOLD_MSG): Fix underquoting.
 
 2008-05-13  Sam Steingold  <sds@gnu.org>
