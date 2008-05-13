@@ -80,8 +80,10 @@ T
          (= id (setf (os:getpgid pid) id))) #+unix T
 #+unix (= (os:getuid) (os:geteuid)) T
 #+unix (= (os:getgid) (os:getegid)) T
-#+unit (multiple-value-list (os:setreuid (os:getuid) (os:geteuid))) NIL
-#+unit (multiple-value-list (os:setregid (os:getgid) (os:getegid))) NIL
+#+unix (multiple-value-list (os:setreuid (os:getuid) (os:geteuid))) NIL
+#+unix (multiple-value-list (os:setregid (os:getgid) (os:getegid))) NIL
+#+unix (multiple-value-list (os:setreuid -1 -1)) NIL
+#+unix (multiple-value-list (os:setregid -1 -1)) NIL
 #+unix (listp (show (if (fboundp 'os:getgroups) (os:getgroups)
                         '(no os:getgroups)) :pretty t)) T
 #+unix (if (and (fboundp 'os:getgroups) (fboundp 'os::%setgroups))
