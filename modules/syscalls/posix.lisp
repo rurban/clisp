@@ -13,7 +13,7 @@
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
-   #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:gamma #:lgamma #:ffs))
+   #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
 (provide "syscalls")
@@ -52,7 +52,7 @@
   `(%syslog ,severity ,facility (format nil ,format ,@args)))
 ;;; ============================================================
 (defsetf priority (pid &optional which) (value)
-  `(set-priority ,value ,pid ,which))
+  `(%set-priority ,value ,pid ,which))
 ;;; ============================================================
 (defstruct (hostent (:constructor
                      make-hostent (name aliases addr-list addrtype)))

@@ -1,9 +1,9 @@
 2008-05-13  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/calls.c (POSIX:SETREUID, POSIX:SETREGID): implement
-	* modules/syscalls/configure.in (setreuid, setregid): check
+	* modules/syscalls/calls.c (SETREUID, SETREGID, TGAMMA): implement
+	* modules/syscalls/configure.in (setreuid, setregid, tgamma): check
 	(signgam): fix test
-	* modules/syscalls/posix.lisp (setreuid, setregid): export
+	* modules/syscalls/posix.lisp (setreuid, setregid, tgamma): export
 
 2008-05-13  Sam Steingold  <sds@gnu.org>
 
