@@ -145,15 +145,29 @@ T
 ((3 1f0 1) (5 1f0 1) (10 1f0 1) (15 1f0 1) (30 1f0 1) (50 1f0 1) (100 1f0 1))
 
 (loop :for n :upfrom 3 :for lg = (os:lgamma n)
-  :unless (= 1 (/ (! (1- n)) (exp lg))) :return n)
-5               ; OUCH! lgamma is not precize at double precision!
+  :unless (= 1 (/ (log (! (1- n))) lg)) :return n)
+29                    ; not bad...
 
-(loop :for n :upfrom 3 :for lg = (os:lgamma n)
-  :for elg = (handler-case (exp lg)
-               (floating-point-overflow () 'floating-point-overflow))
-  :unless (and (floatp elg) (= 1 (float (/ (! (1- n)) elg) 0f0)))
-  :return (list n elg))
+(loop :for n :upfrom 3
+  :for lg = (handler-case (os:lgamma n)
+              (floating-point-overflow () 'floating-point-overflow))
+  :for l! = (handler-case (log (float (! (1- n)) lg))
+              (floating-point-overflow () 'floating-point-overflow))
+  :unless (and (floatp lg) (floatp l!) (= 1 (float (/ l! lg) 0f0)))
+  :return (list n lg l!))
+(172 711.71472580229d0 FLOATING-POINT-OVERFLOW)
+
+(loop :for n :upfrom 3 :for tg = (os:tgamma n)
+  :unless (= 1 (/ (! (1- n)) tg)) :return n)
+5               ; OUCH! tgamma is not precize at double precision!
+
+(loop :for n :upfrom 3
+  :for tg = (handler-case (os:tgamma n)
+              (floating-point-overflow () 'floating-point-overflow))
+  :unless (and (floatp tg) (= 1 (float (/ (! (1- n)) tg) 0f0)))
+  :return (list n tg))
 (172 FLOATING-POINT-OVERFLOW) ; ... but it IS precize at single precision!
+
 
 #+unix (let ((id (show (os:getuid)))) (= id (setf (os:getuid) id))) T
 #+unix (let ((id (show (os:getgid)))) (= id (setf (os:getgid) id))) T
