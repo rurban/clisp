@@ -109,6 +109,9 @@
 /* Define to 1 if you have the `getlogin' function. */
 #undef HAVE_GETLOGIN
 
+/* Define to 1 if you have the `getppid' function. */
+#undef HAVE_GETPPID
+
 /* Define to 1 if you have the `getpgid' function. */
 #undef HAVE_GETPGID
 
