@@ -17,7 +17,8 @@
 <para>See <filename role="clisp-cvs">modules/postgresql/test.tst</filename>
  for sample usage.</para>
 
-<para>Additionally, some higher level functionality is available:</para>
+<para>Additionally, some higher level functionality is available (defined
+ in <filename role="clisp-cvs">modules/postgresql/sql.lisp</filename>):</para>
 
 <variablelist>
 <varlistentry id="sql:pq-finish"><term><code>(sql:pq-finish
