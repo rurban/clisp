@@ -46,6 +46,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.31  2008/05/09 18:00:58  sds
+# regenerated
+#
 # Revision 1.30  2008/05/06 20:56:45  sds
 # regenerated
 #
@@ -233,6 +236,9 @@
 #
 # $Id$
 # $Log$
+# Revision 1.31  2008/05/09 18:00:58  sds
+# regenerated
+#
 # Revision 1.30  2008/05/06 20:56:45  sds
 # regenerated
 #
@@ -376,7 +382,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: GNU clisp 1996-03-31\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-09 14:00:26-0400\n"
+"POT-Creation-Date: 2008-05-14 11:52:13-0400\n"
 "PO-Revision-Date: 1997-08-11 18:16 MET DST\n"
 "Last-Translator: Carlos Linares López <clinares@delicias.dia.fi.upm.es>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -1773,7 +1779,7 @@ msgstr ""
 msgid "invalid byte #x~C~C in ~S conversion"
 msgstr ""
 
-#: encoding.d:2029 encoding.d:2040 encoding.d:2050 encoding.d:2061 pathname.d:1272 pathname.d:3609 pathname.d:6413 pathname.d:6444 pathname.d:6483 pathname.d:7603 pathname.d:8531 stream.d:3298 stream.d:3406 stream.d:16536 hashtabl.d:2027 error.d:1254
+#: encoding.d:2029 encoding.d:2040 encoding.d:2050 encoding.d:2061 pathname.d:1272 pathname.d:3609 pathname.d:6413 pathname.d:6444 pathname.d:6483 pathname.d:7603 pathname.d:8531 stream.d:3298 stream.d:3406 stream.d:16546 hashtabl.d:2027 error.d:1254
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: el argumento de ~S es inválido: ~S"
@@ -2072,7 +2078,7 @@ msgstr ""
 #
 # ¿os gusta o lo encontrais raro?
 #
-#: stream.d:272 stream.d:13623
+#: stream.d:272 stream.d:13633
 #, lisp-format
 msgid "~S on ~S is illegal"
 msgstr "~S no es posible sobre el flujo ~S"
@@ -2288,12 +2294,12 @@ msgstr "no es posible colocarse en ~S más allá de EOF"
 # en la asignatura de Sistemas Operativos, en mi Facultad, los
 # llamábamos "ficheros normales". ¿Qué tal os suena?.
 #
-#: stream.d:7794
+#: stream.d:7804
 #, fuzzy, lisp-format
 msgid "~S: argument ~S ~S was specified, but ~S is not a regular file."
 msgstr "~S: ~S no es un fichero normal."
 
-#: stream.d:7828
+#: stream.d:7838
 #, lisp-format
 msgid "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."
 msgstr ""
@@ -2301,35 +2307,35 @@ msgstr ""
 # Duda: aqui he traducido de la version francesa (no se frances, pero
 # por lo que parece que pone, ...)
 #
-#: stream.d:7884
+#: stream.d:7894
 #, lisp-format
 msgid "file ~S is not an integer file"
 msgstr "el fichero ~S no tiene el formato de un fichero de enteros"
 
-#: stream.d:8982
+#: stream.d:8992
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:9003
+#: stream.d:9013
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:10084
+#: stream.d:10094
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
 msgstr "~S: el argumento ~S debe ser un WINDOW-STREAM"
 
-#: stream.d:10630
+#: stream.d:10640
 msgid "cannot output to standard output"
 msgstr "no se puede escribir en la salida estándar"
 
-#: stream.d:11821
+#: stream.d:11831
 msgid "environment has no TERM variable"
 msgstr "no existe ninguna variable de entorno TERM"
 
-#: stream.d:11826
+#: stream.d:11836
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
 msgstr "No existe ninguna entrada para el tipo de terminal ~S en termcap"
@@ -2342,7 +2348,7 @@ msgstr "No existe ninguna entrada para el tipo de terminal ~S en termcap"
 # 	tipo "usando el modo de impresora" o algo así, ¿no os parece
 # 	mejor?
 #
-#: stream.d:11839
+#: stream.d:11849
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "terminal insuficiente: usando el modo de impresora"
 
@@ -2351,19 +2357,19 @@ msgstr "terminal insuficiente: usando el modo de impresora"
 # alemana (aunque no sé ni alemán ni francés) hacen ---por lo visto---,
 # lo que yo: una traducción libre.
 #
-#: stream.d:11843
+#: stream.d:11853
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "teminal insuficiente: no se puede inicializar la salida"
 
-#: stream.d:11847
+#: stream.d:11857
 msgid "insufficient terminal: cannot scroll"
 msgstr "terminal insuficiente: no se puede desplazar la pantalla"
 
-#: stream.d:11852
+#: stream.d:11862
 msgid "insufficient terminal: cannot clear screen"
 msgstr "terminal insuficiente: no se puede borrar la pantalla"
 
-#: stream.d:11856
+#: stream.d:11866
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "terminal insuficiente: no se puede situar el cursor aleatoriamente"
 
@@ -2377,7 +2383,7 @@ msgstr "terminal insuficiente: no se puede situar el cursor aleatoriamente"
 # (A propósito, el juego ese de LucasArts es a¡GENIAL!!!
 # 					Telepromoción - cll) :)
 #
-#: stream.d:13353
+#: stream.d:13363
 #, lisp-format
 msgid "host should be string, not ~S"
 msgstr "el anfitrión debe ser una cadena de caracteres y no ~S"
@@ -2389,130 +2395,130 @@ msgstr "el anfitrión debe ser una cadena de caracteres y no ~S"
 # por ser el nombre de un subtipo (o tipo, si se quiere) en Lisp, est
 # sin traducir, ...
 #
-#: stream.d:13360
+#: stream.d:13370
 #, fuzzy, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "el `display' debe ser un entero del tipo FIXNUM >=0, y no ~S"
 
-#: stream.d:13435 stream.d:16684 stream.d:16742 stream.d:16795 stream.d:16854 io.d:948
+#: stream.d:13445 stream.d:16694 stream.d:16752 stream.d:16805 stream.d:16864 io.d:948
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: el flujo de entrada ~S ha alcanzado su final"
 
-#: stream.d:13618 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1025
+#: stream.d:13628 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1025
 #, fuzzy, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S no es un par"
 
-#: stream.d:13661
+#: stream.d:13671
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
 msgstr "~S: el argumento ~S no es un SOCKET-STREAM"
 
-#: stream.d:13672
+#: stream.d:13682
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
 msgstr "~S: el argumento ~S no es un SOCKET-STREAM"
 
-#: stream.d:13686
+#: stream.d:13696
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 msgstr ""
 
-#: stream.d:13942
+#: stream.d:13952
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open stream"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:14162
+#: stream.d:14172
 #, fuzzy, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: la secuencia ~S es demasiado larga"
 
-#: stream.d:14389
+#: stream.d:14399
 #, fuzzy, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: el argumento ~S debe ser un flujo del tipo ~S"
 
-#: stream.d:14601
+#: stream.d:14611
 #, fuzzy, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Sintaxis inválida en la forma ~SS: ~SS."
 
-#: stream.d:14631
+#: stream.d:14641
 #, fuzzy, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 msgstr "~SS: ~SS debe ser una expresión lambda"
 
-#: stream.d:14916
+#: stream.d:14926
 #, lisp-format
 msgid "The value of ~S is not a stream: ~S"
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:14918
+#: stream.d:14928
 #, lisp-format
 msgid "The value of ~S is not an appropriate stream: ~S"
 msgstr "El valor de ~S no es un flujo apropiado: ~S"
 
-#: stream.d:14930
+#: stream.d:14940
 #, fuzzy, lisp-format
 msgid "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 msgstr "El valor de ~S no era un flujo: ~S. Ha sido cambiado por ~S."
 
-#: stream.d:14943
+#: stream.d:14953
 msgid "readline library: out of memory."
 msgstr "biblioteca readline: la memoria ha sido agotada."
 
-#: stream.d:15245
+#: stream.d:15255
 #, fuzzy, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: ~S no puede convertirse al tipo ~S"
 
-#: stream.d:15829
+#: stream.d:15839
 #, fuzzy, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
 msgstr "El valor de ~S no es un flujo: ~S"
 
-#: stream.d:16340
+#: stream.d:16350
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 msgstr ""
 
-#: stream.d:16503
+#: stream.d:16513
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 msgstr ""
 
-#: stream.d:16553
+#: stream.d:16563
 #, fuzzy, lisp-format
 msgid "~S: illegal endianness argument ~S"
 msgstr "~S: el argumento de ~S es inválido: ~S"
 
-#: stream.d:16666
+#: stream.d:16676
 #, fuzzy, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:16667
+#: stream.d:16677
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
 msgstr ""
 
-#: stream.d:16668
+#: stream.d:16678
 #, fuzzy, lisp-format
 msgid "~S: ~S: stream of wrong direction"
 msgstr "~S: ~S no es una función"
 
-#: stream.d:16928 stream.d:16938
+#: stream.d:16938 stream.d:16948
 #, fuzzy, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S no es un entero, no puede escribirse en ~S"
 
-#: stream.d:17010
+#: stream.d:17020
 #, fuzzy, lisp-format
 msgid "~S: argument ~S is not an open file stream"
 msgstr "~S: el argumento ~S no es el flujo de un fichero abierto"
 
-#: stream.d:17064
+#: stream.d:17074
 #, fuzzy, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
 msgstr "~S: el argumento de posición debe ser ~S, ~S o un número no negativo del tipo FIXNUM, pero no ~S"
@@ -3121,17 +3127,17 @@ msgstr "índice demasiado grande"
 msgid "An array has been shortened by adjusting it while another array was displaced to it."
 msgstr "Una matriz ha sido acortada al trasladar otra matriz ella"
 
-#: array.d:348 foreign.d:2646
+#: array.d:348 foreign.d:2648
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
 msgstr "~S: se encontraron ~S subíndices, pero ~S tiene rango ~S"
 
-#: array.d:360 foreign.d:2661
+#: array.d:360 foreign.d:2663
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~S: los subíndices ~S de ~S no son del tipo '(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
-#: array.d:382 foreign.d:2670
+#: array.d:382 foreign.d:2672
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
 msgstr "~S: los subíndices ~S de ~S han excedido el rango"
@@ -4247,7 +4253,7 @@ msgstr "~S: Interrupción del usuario"
 msgid "Continue execution"
 msgstr "continuar la búsqueda"
 
-#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2534 foreign.d:3184
+#: error.d:795 foreign.d:688 foreign.d:2424 foreign.d:2536 foreign.d:3186
 #, fuzzy, lisp-format
 msgid "~S: ~S is not of type ~S"
 msgstr "~S: ~S no es un par"
@@ -5423,77 +5429,77 @@ msgstr ""
 msgid "~S: trying to write object ~S of type ~S into NULL address"
 msgstr "~S: la variable externa ~S del tipo ~S no es una matriz"
 
-#: foreign.d:2427
+#: foreign.d:2429
 #, lisp-format
 msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
 msgstr "~S: variable externa de tipo desconocido, se ha omitido DEF-C-VAR: ~S"
 
-#: foreign.d:2443
+#: foreign.d:2445
 #, fuzzy, lisp-format
 msgid "~S: foreign variable ~S does not exist"
 msgstr "La variable extranjera ~S no existe"
 
-#: foreign.d:2444
+#: foreign.d:2446
 #, fuzzy
 msgid "Skip foreign variable creation"
 msgstr "La variable extranjera ~ ya existe"
 
-#: foreign.d:2458
+#: foreign.d:2460
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required size or alignment"
 msgstr "~S: la variable externa ~S no tiene el tamaño o alineamiento requerido"
 
-#: foreign.d:2469
+#: foreign.d:2471
 #, lisp-format
 msgid "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
 msgstr "~S: conflicto de especificación de tipo de la variable extranjera ~S: ~S y ~S"
 
-#: foreign.d:2496
+#: foreign.d:2498
 #, lisp-format
 msgid "~S(~S): version ~S without library does not make sense"
 msgstr ""
 
-#: foreign.d:2515
+#: foreign.d:2517
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required alignment"
 msgstr "~S: la variable externa ~S no tiene el alineamiento requerido"
 
-#: foreign.d:2592
+#: foreign.d:2594
 #, lisp-format
 msgid "~S: foreign variable ~S may not be modified"
 msgstr "~S: no se puede modificar la variable externa ~S"
 
-#: foreign.d:2638
+#: foreign.d:2640
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not an array"
 msgstr "~S: la variable externa ~S del tipo ~S no es una matriz"
 
-#: foreign.d:2714
+#: foreign.d:2716
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a pointer"
 msgstr "~S: la variable externa ~S del tipo ~S no es un puntero"
 
-#: foreign.d:2822
+#: foreign.d:2824
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a struct or union"
 msgstr "~S: la variable externa ~S del tipo ~S no es, ni una estructura, ni una unión"
 
-#: foreign.d:2829
+#: foreign.d:2831
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
 msgstr "~S: la variable externa ~S del tipo ~S no tiene ningún componente con el nombre ~S"
 
-#: foreign.d:3164
+#: foreign.d:3166
 #, lisp-format
 msgid "~S: ~S has no type, :FULL is illegal"
 msgstr ""
 
-#: foreign.d:3190
+#: foreign.d:3192
 #, lisp-format
 msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
 msgstr "~S: función externa con convención de llamada desconocida, se ha omitido DEF-CALL-OUT: ~S"
 
-#: foreign.d:3208
+#: foreign.d:3210
 #, fuzzy, lisp-format
 msgid "~S: foreign function ~S does not exist"
 msgstr "~S: La función extranjera ~S no existe"
@@ -5503,17 +5509,17 @@ msgstr "~S: La función extranjera ~S no existe"
 # Lo he pensado mejor y `extranjera' me gusta mucho más, ..., ¿qué os
 # parece? cll
 #
-#: foreign.d:3209
+#: foreign.d:3211
 #, fuzzy
 msgid "Skip foreign function creation"
 msgstr "La función extranjera ~ ya existe"
 
-#: foreign.d:3216
+#: foreign.d:3218
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: conflicto en la convención de llamada de la función externa ~S"
 
-#: foreign.d:3543 foreign1.lisp:1196
+#: foreign.d:3545 foreign1.lisp:1196
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
 msgstr "~S: el argumento :OUT no es un puntero: ~S"
@@ -5522,46 +5528,46 @@ msgstr "~S: el argumento :OUT no es un puntero: ~S"
 # Duda: de acuerdo con la lista de spanglish, `buffer' se traduce
 # ---entre otros términos--- por "buffer".
 #
-#: foreign.d:4194
+#: foreign.d:4196
 #, fuzzy, lisp-format
 msgid "~S: ~S is not supported on this platform."
 msgstr "~S: ~S no es un flujo de entrada con buffer"
 
-#: foreign.d:4213
+#: foreign.d:4215
 #, fuzzy, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
 msgstr "~S: No se puede abrir la biblioteca ~S"
 
-#: foreign.d:4215
+#: foreign.d:4217
 #, lisp-format
 msgid "~S: Cannot open library ~S"
 msgstr "~S: No se puede abrir la biblioteca ~S"
 
-#: foreign.d:4285
+#: foreign.d:4287
 #, fuzzy, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
 msgstr "~S: No se puede abrir la biblioteca ~S"
 
-#: foreign.d:4286
+#: foreign.d:4288
 #, fuzzy, lisp-format
 msgid "~S: no dynamic object named ~S (version ~S) in library ~S"
 msgstr "~S: No se puede abrir la biblioteca ~S"
 
-#: foreign.d:4287
+#: foreign.d:4289
 msgid "Skip foreign object creation"
 msgstr ""
 
-#: foreign.d:4556
+#: foreign.d:4558
 #, lisp-format
 msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
 msgstr ""
 
-#: foreign.d:4620
+#: foreign.d:4622
 #, fuzzy, lisp-format
 msgid "~S(~S): dladdr() failed: ~S"
 msgstr "mprotect() falló."
 
-#: foreign.d:4622
+#: foreign.d:4624
 #, fuzzy, lisp-format
 msgid "~S(~S): dladdr() failed"
 msgstr "mprotect() falló."

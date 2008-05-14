@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: clisp 2.45\n"
 "Report-Msgid-Bugs-To: clisp-devel@lists.sourceforge.net\n"
-"POT-Creation-Date: 2008-05-09 14:00:27-0400\n"
-"PO-Revision-Date: 2008-05-09 14:00:27-0400\n"
+"POT-Creation-Date: 2008-05-14 11:52:14-0400\n"
+"PO-Revision-Date: 2008-05-14 11:52:14-0400\n"
 "Last-Translator: Automatically generated <ssteingold@nyc-qws-005>\n"
 "Language-Team: English <en@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -954,7 +954,7 @@ msgstr "invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"
 msgid "invalid byte #x~C~C in ~S conversion"
 msgstr "invalid byte #x~C~C in ~S conversion"
 
-#: encoding.d:2029 encoding.d:2040 encoding.d:2050 encoding.d:2061 pathname.d:1272 pathname.d:3609 pathname.d:6413 pathname.d:6444 pathname.d:6483 pathname.d:7603 pathname.d:8531 stream.d:3298 stream.d:3406 stream.d:16536 hashtabl.d:2027 error.d:1254
+#: encoding.d:2029 encoding.d:2040 encoding.d:2050 encoding.d:2061 pathname.d:1272 pathname.d:3609 pathname.d:6413 pathname.d:6444 pathname.d:6483 pathname.d:7603 pathname.d:8531 stream.d:3298 stream.d:3406 stream.d:16546 hashtabl.d:2027 error.d:1254
 #, lisp-format
 msgid "~S: illegal ~S argument ~S"
 msgstr "~S: illegal ~S argument ~S"
@@ -1180,7 +1180,7 @@ msgstr "Creating directory: "
 msgid "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
 msgstr "~S: installation directory is not known, use the -B command line option to specify it or set *LIB-DIRECTORY*"
 
-#: stream.d:272 stream.d:13623
+#: stream.d:272 stream.d:13633
 #, lisp-format
 msgid "~S on ~S is illegal"
 msgstr "~S on ~S is illegal"
@@ -1295,198 +1295,198 @@ msgstr "Closed ~S because disk is full."
 msgid "cannot position ~S beyond EOF"
 msgstr "cannot position ~S beyond EOF"
 
-#: stream.d:7794
+#: stream.d:7804
 #, lisp-format
 msgid "~S: argument ~S ~S was specified, but ~S is not a regular file."
 msgstr "~S: argument ~S ~S was specified, but ~S is not a regular file."
 
-#: stream.d:7828
+#: stream.d:7838
 #, lisp-format
 msgid "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."
 msgstr "~S: arguments ~S ~S and ~S ~S were specified, but ~S is not a regular file."
 
-#: stream.d:7884
+#: stream.d:7894
 #, lisp-format
 msgid "file ~S is not an integer file"
 msgstr "file ~S is not an integer file"
 
-#: stream.d:8982
+#: stream.d:8992
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a list."
 msgstr "Return value ~S of call to ~S is not a list."
 
-#: stream.d:9003
+#: stream.d:9013
 #, lisp-format
 msgid "Return value ~S of call to ~S contains ~S which is not a ~S."
 msgstr "Return value ~S of call to ~S contains ~S which is not a ~S."
 
-#: stream.d:10084
+#: stream.d:10094
 #, lisp-format
 msgid "~S: argument ~S should be a window stream"
 msgstr "~S: argument ~S should be a window stream"
 
-#: stream.d:10630
+#: stream.d:10640
 msgid "cannot output to standard output"
 msgstr "cannot output to standard output"
 
-#: stream.d:11821
+#: stream.d:11831
 msgid "environment has no TERM variable"
 msgstr "environment has no TERM variable"
 
-#: stream.d:11826
+#: stream.d:11836
 #, lisp-format
 msgid "terminal type ~S unknown to termcap"
 msgstr "terminal type ~S unknown to termcap"
 
-#: stream.d:11839
+#: stream.d:11849
 msgid "insufficient terminal: hardcopy terminal"
 msgstr "insufficient terminal: hardcopy terminal"
 
-#: stream.d:11843
+#: stream.d:11853
 msgid "insufficient terminal: overstrikes, cannot clear output"
 msgstr "insufficient terminal: overstrikes, cannot clear output"
 
-#: stream.d:11847
+#: stream.d:11857
 msgid "insufficient terminal: cannot scroll"
 msgstr "insufficient terminal: cannot scroll"
 
-#: stream.d:11852
+#: stream.d:11862
 msgid "insufficient terminal: cannot clear screen"
 msgstr "insufficient terminal: cannot clear screen"
 
-#: stream.d:11856
+#: stream.d:11866
 msgid "insufficient terminal: cannot position cursor randomly"
 msgstr "insufficient terminal: cannot position cursor randomly"
 
-#: stream.d:13353
+#: stream.d:13363
 #, lisp-format
 msgid "host should be string, not ~S"
 msgstr "host should be string, not ~S"
 
-#: stream.d:13360
+#: stream.d:13370
 #, lisp-format
 msgid "display should be a small nonnegative integer, not ~S"
 msgstr "display should be a small nonnegative integer, not ~S"
 
-#: stream.d:13435 stream.d:16684 stream.d:16742 stream.d:16795 stream.d:16854 io.d:948
+#: stream.d:13445 stream.d:16694 stream.d:16752 stream.d:16805 stream.d:16864 io.d:948
 #, lisp-format
 msgid "~S: input stream ~S has reached its end"
 msgstr "~S: input stream ~S has reached its end"
 
-#: stream.d:13618 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1025
+#: stream.d:13628 record.d:217 record.d:592 record.d:753 record.d:794 record.d:850 weak.d:40 weak.d:130 weak.d:248 weak.d:314 weak.d:372 weak.d:473 weak.d:575 weak.d:722 sequence.d:330 error.d:816 error.d:818 error.d:1025
 #, lisp-format
 msgid "~S: ~S is not a ~S"
 msgstr "~S: ~S is not a ~S"
 
-#: stream.d:13661
+#: stream.d:13671
 #, lisp-format
 msgid "~S: argument ~S is not an open SOCKET-STREAM"
 msgstr "~S: argument ~S is not an open SOCKET-STREAM"
 
-#: stream.d:13672
+#: stream.d:13682
 #, lisp-format
 msgid "~S: argument ~S is not a SOCKET-STREAM"
 msgstr "~S: argument ~S is not a SOCKET-STREAM"
 
-#: stream.d:13686
+#: stream.d:13696
 msgid "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 msgstr "WARNING: (socket-server <socket>) is deprecated, use (socket-server <port> :interface <socket>)"
 
-#: stream.d:13942
+#: stream.d:13952
 #, lisp-format
 msgid "~S: argument ~S is not an open stream"
 msgstr "~S: argument ~S is not an open stream"
 
-#: stream.d:14162
+#: stream.d:14172
 #, lisp-format
 msgid "~S: list ~S is too long (~S maximum)"
 msgstr "~S: list ~S is too long (~S maximum)"
 
-#: stream.d:14389
+#: stream.d:14399
 #, lisp-format
 msgid "~S: argument ~S should be of type ~S."
 msgstr "~S: argument ~S should be of type ~S."
 
-#: stream.d:14601
+#: stream.d:14611
 #, lisp-format
 msgid "Invalid direction ~S for accessing ~S"
 msgstr "Invalid direction ~S for accessing ~S"
 
-#: stream.d:14631
+#: stream.d:14641
 #, lisp-format
 msgid "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 msgstr "~S: ~S should be a handle, handle stream, or one of ~S, ~S, ~S"
 
-#: stream.d:14916
+#: stream.d:14926
 #, lisp-format
 msgid "The value of ~S is not a stream: ~S"
 msgstr "The value of ~S is not a stream: ~S"
 
-#: stream.d:14918
+#: stream.d:14928
 #, lisp-format
 msgid "The value of ~S is not an appropriate stream: ~S"
 msgstr "The value of ~S is not an appropriate stream: ~S"
 
-#: stream.d:14930
+#: stream.d:14940
 #, lisp-format
 msgid "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 msgstr "The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."
 
-#: stream.d:14943
+#: stream.d:14953
 msgid "readline library: out of memory."
 msgstr "readline library: out of memory."
 
-#: stream.d:15245
+#: stream.d:15255
 #, lisp-format
 msgid "~S: The ~S of ~S cannot be changed from ~S to ~S."
 msgstr "~S: The ~S of ~S cannot be changed from ~S to ~S."
 
-#: stream.d:15829
+#: stream.d:15839
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a string."
 msgstr "Return value ~S of call to ~S is not a string."
 
-#: stream.d:16340
+#: stream.d:16350
 #, lisp-format
 msgid "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 msgstr "Return value ~S of call to ~S is not a fixnum >= 0 or NIL."
 
-#: stream.d:16503
+#: stream.d:16513
 #, lisp-format
 msgid "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 msgstr "~S needs an ~S with a bit size being a multiple of 8, not ~S"
 
-#: stream.d:16553
+#: stream.d:16563
 #, lisp-format
 msgid "~S: illegal endianness argument ~S"
 msgstr "~S: illegal endianness argument ~S"
 
-#: stream.d:16666
+#: stream.d:16676
 #, lisp-format
 msgid "~S: argument ~S does not contain a valid OS stream handle"
 msgstr "~S: argument ~S does not contain a valid OS stream handle"
 
-#: stream.d:16667
+#: stream.d:16677
 #, lisp-format
 msgid "~S: ~S: buffered pipe-input-streams are not supported"
 msgstr "~S: ~S: buffered pipe-input-streams are not supported"
 
-#: stream.d:16668
+#: stream.d:16678
 #, lisp-format
 msgid "~S: ~S: stream of wrong direction"
 msgstr "~S: ~S: stream of wrong direction"
 
-#: stream.d:16928 stream.d:16938
+#: stream.d:16938 stream.d:16948
 #, lisp-format
 msgid "~S is not a ~S, cannot be output onto ~S"
 msgstr "~S is not a ~S, cannot be output onto ~S"
 
-#: stream.d:17010
+#: stream.d:17020
 #, lisp-format
 msgid "~S: argument ~S is not an open file stream"
 msgstr "~S: argument ~S is not an open file stream"
 
-#: stream.d:17064
+#: stream.d:17074
 #, lisp-format
 msgid "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
 msgstr "~S: position argument should be ~S or ~S or a nonnegative integer, not ~S"
@@ -1917,17 +1917,17 @@ msgstr "index too large"
 msgid "An array has been shortened by adjusting it while another array was displaced to it."
 msgstr "An array has been shortened by adjusting it while another array was displaced to it."
 
-#: array.d:348 foreign.d:2646
+#: array.d:348 foreign.d:2648
 #, lisp-format
 msgid "~S: got ~S subscripts, but ~S has rank ~S"
 msgstr "~S: got ~S subscripts, but ~S has rank ~S"
 
-#: array.d:360 foreign.d:2661
+#: array.d:360 foreign.d:2663
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 msgstr "~S: subscripts ~S for ~S are not of type `(INTEGER 0 (,ARRAY-DIMENSION-LIMIT))"
 
-#: array.d:382 foreign.d:2670
+#: array.d:382 foreign.d:2672
 #, lisp-format
 msgid "~S: subscripts ~S for ~S are out of range"
 msgstr "~S: subscripts ~S for ~S are out of range"
@@ -2804,7 +2804,7 @@ msgstr "~S: User break"
 msgid "Continue execution"
 msgstr "Continue execution"
 
-#: error.d:795 foreign.d:688 foreign.d:2422 foreign.d:2534 foreign.d:3184
+#: error.d:795 foreign.d:688 foreign.d:2424 foreign.d:2536 foreign.d:3186
 #, lisp-format
 msgid "~S: ~S is not of type ~S"
 msgstr "~S: ~S is not of type ~S"
@@ -3733,134 +3733,134 @@ msgstr "~S: trying to read an object of type ~S from NULL address"
 msgid "~S: trying to write object ~S of type ~S into NULL address"
 msgstr "~S: trying to write object ~S of type ~S into NULL address"
 
-#: foreign.d:2427
+#: foreign.d:2429
 #, lisp-format
 msgid "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
 msgstr "~S: foreign variable with unknown type, missing DEF-C-VAR: ~S"
 
-#: foreign.d:2443
+#: foreign.d:2445
 #, lisp-format
 msgid "~S: foreign variable ~S does not exist"
 msgstr "~S: foreign variable ~S does not exist"
 
-#: foreign.d:2444
+#: foreign.d:2446
 msgid "Skip foreign variable creation"
 msgstr "Skip foreign variable creation"
 
-#: foreign.d:2458
+#: foreign.d:2460
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required size or alignment"
 msgstr "~S: foreign variable ~S does not have the required size or alignment"
 
-#: foreign.d:2469
+#: foreign.d:2471
 #, lisp-format
 msgid "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
 msgstr "~S: type specifications for foreign variable ~S conflict: ~S and ~S"
 
-#: foreign.d:2496
+#: foreign.d:2498
 #, lisp-format
 msgid "~S(~S): version ~S without library does not make sense"
 msgstr "~S(~S): version ~S without library does not make sense"
 
-#: foreign.d:2515
+#: foreign.d:2517
 #, lisp-format
 msgid "~S: foreign variable ~S does not have the required alignment"
 msgstr "~S: foreign variable ~S does not have the required alignment"
 
-#: foreign.d:2592
+#: foreign.d:2594
 #, lisp-format
 msgid "~S: foreign variable ~S may not be modified"
 msgstr "~S: foreign variable ~S may not be modified"
 
-#: foreign.d:2638
+#: foreign.d:2640
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not an array"
 msgstr "~S: foreign variable ~S of type ~S is not an array"
 
-#: foreign.d:2714
+#: foreign.d:2716
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a pointer"
 msgstr "~S: foreign variable ~S of type ~S is not a pointer"
 
-#: foreign.d:2822
+#: foreign.d:2824
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S is not a struct or union"
 msgstr "~S: foreign variable ~S of type ~S is not a struct or union"
 
-#: foreign.d:2829
+#: foreign.d:2831
 #, lisp-format
 msgid "~S: foreign variable ~S of type ~S has no component with name ~S"
 msgstr "~S: foreign variable ~S of type ~S has no component with name ~S"
 
-#: foreign.d:3164
+#: foreign.d:3166
 #, lisp-format
 msgid "~S: ~S has no type, :FULL is illegal"
 msgstr "~S: ~S has no type, :FULL is illegal"
 
-#: foreign.d:3190
+#: foreign.d:3192
 #, lisp-format
 msgid "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
 msgstr "~S: foreign function with unknown calling convention, missing DEF-CALL-OUT: ~S"
 
-#: foreign.d:3208
+#: foreign.d:3210
 #, lisp-format
 msgid "~S: foreign function ~S does not exist"
 msgstr "~S: foreign function ~S does not exist"
 
-#: foreign.d:3209
+#: foreign.d:3211
 msgid "Skip foreign function creation"
 msgstr "Skip foreign function creation"
 
-#: foreign.d:3216
+#: foreign.d:3218
 #, lisp-format
 msgid "~S: calling conventions for foreign function ~S conflict"
 msgstr "~S: calling conventions for foreign function ~S conflict"
 
-#: foreign.d:3543 foreign1.lisp:1196
+#: foreign.d:3545 foreign1.lisp:1196
 #, lisp-format
 msgid "~S: :OUT argument is not a pointer: ~S"
 msgstr "~S: :OUT argument is not a pointer: ~S"
 
-#: foreign.d:4194
+#: foreign.d:4196
 #, lisp-format
 msgid "~S: ~S is not supported on this platform."
 msgstr "~S: ~S is not supported on this platform."
 
-#: foreign.d:4213
+#: foreign.d:4215
 #, lisp-format
 msgid "~S: Cannot open library ~S: ~S"
 msgstr "~S: Cannot open library ~S: ~S"
 
-#: foreign.d:4215
+#: foreign.d:4217
 #, lisp-format
 msgid "~S: Cannot open library ~S"
 msgstr "~S: Cannot open library ~S"
 
-#: foreign.d:4285
+#: foreign.d:4287
 #, lisp-format
 msgid "~S: no dynamic object named ~S in library ~S"
 msgstr "~S: no dynamic object named ~S in library ~S"
 
-#: foreign.d:4286
+#: foreign.d:4288
 #, lisp-format
 msgid "~S: no dynamic object named ~S (version ~S) in library ~S"
 msgstr "~S: no dynamic object named ~S (version ~S) in library ~S"
 
-#: foreign.d:4287
+#: foreign.d:4289
 msgid "Skip foreign object creation"
 msgstr "Skip foreign object creation"
 
-#: foreign.d:4556
+#: foreign.d:4558
 #, lisp-format
 msgid "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
 msgstr "~S: cannot find ~S in ~S due to lack of dlsym() on this platform"
 
-#: foreign.d:4620
+#: foreign.d:4622
 #, lisp-format
 msgid "~S(~S): dladdr() failed: ~S"
 msgstr "~S(~S): dladdr() failed: ~S"
 
-#: foreign.d:4622
+#: foreign.d:4624
 #, lisp-format
 msgid "~S(~S): dladdr() failed"
 msgstr "~S(~S): dladdr() failed"
