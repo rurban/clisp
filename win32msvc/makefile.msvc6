@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso as the output of the command:
+# This file was created on host nyc-qws-005 as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6
 
 # -------------- Start of configurable section --------------------
@@ -15,8 +15,8 @@ MFLAGS=
 !endif
 
 # The official version number
-PACKAGE_VERSION=2.44
-VERSION=2.44
+PACKAGE_VERSION=2.45
+VERSION=2.45
 # The official package name
 PACKAGE_NAME=@PACKAGE_NAME@
 # If you want to distribute a modified version of CLISP,
@@ -72,12 +72,12 @@ MODULE_CONFIGURE_FLAGS = --with-dynamic-ffi
 
 # Programs used by "make":
 CC = cl
-CPPFLAGS = 
-CFLAGS = $(MFLAGS) -Igllib -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DUNICODE -DDYNAMIC_FFI -DNO_GETTEXT -DNO_SIGSEGV -I.
+CPPFLAGS = @CPPFLAGS@ -Igllib
+CFLAGS = $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DUNICODE @INCTERMCAP@ -DDYNAMIC_FFI -DNO_GETTEXT -I.
 CPP = cl -E -D_MSC_VER=1200 -D_INTEGRAL_MAX_BITS=64
 CLFLAGS = 
-LIBS =  user32.lib ws2_32.lib advapi32.lib  ole32.lib shell32.lib
-X_LIBS = 
+LIBS = @LIBS@ user32.lib ws2_32.lib advapi32.lib @LTLIBSIGSEGV@ ole32.lib shell32.lib
+X_LIBS = @X_LIBS@
 #MSVCDIR = d:/msdev
 #MSVCDIR = d:/devstudio/vc
 #MSVCDIR = c:/msvs/vc98
@@ -94,20 +94,20 @@ MV = ren
 CAT = type
 GREP = grep
 AR = ar
-RANLIB = ranlib
+RANLIB = @RANLIB@
 
 # Programs used by "make install":
-INSTALL = copy
-INSTALL_PROGRAM = $(INSTALL)
-INSTALL_DATA = $(INSTALL)
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
 
 # Programs used by "make distrib":
 
 # formatter for manual page
-ROFF_MAN = groff -Tascii -mandoc # try "groff -Tascii -mandoc" or "nroff -man"
-ROFF_DVI = groff -Tdvi -mandoc # try "groff -Tdvi -mandoc"
-ROFF_PS  = groff -Tps -mandoc # try "groff -Tps -mandoc"
-DVIPDF = dvipdf
+ROFF_MAN = @GROFF@ -Tascii -mandoc # try "groff -Tascii -mandoc" or "nroff -man"
+ROFF_DVI = @GROFF@ -Tdvi -mandoc # try "groff -Tdvi -mandoc"
+ROFF_PS  = @GROFF@ -Tps -mandoc # try "groff -Tps -mandoc"
+DVIPDF = @DVIPDF@
 
 # -------------- End of configurable section --------------------
 
@@ -342,8 +342,7 @@ ari80386.obj \
 sp80386.obj \
 gllib/uniwidth/width.obj \
 gllib/uniname/uniname.obj \
-gllib/localcharset.obj \
-gllib/malloc.obj
+gllib/localcharset.obj
 
 LISPFILES = \
 init.lisp \
@@ -654,7 +653,7 @@ $(SUBDIRS):
 	if test ! -f $@/Makefile; then sh config.status --file=$@/Makefile depfiles; fi
 	cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"
 
-gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj: gllib
+gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj : gllib
 	cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"
 
 makemake : makemake.in config.status
@@ -707,23 +706,39 @@ floatparam.h : floatparam.c config.h
 
 UTILCC=$(CC)
 comment5.exe : ..\utils\comment5.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\comment5.c /Fecomment5.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\comment5.c /Fecomment5.exe
 
 gctrigger.exe : ..\utils\gctrigger.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\gctrigger.c /Fegctrigger.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\gctrigger.c /Fegctrigger.exe
 
 varbrace.exe : ..\utils\varbrace.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\varbrace.c /Fevarbrace.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\varbrace.c /Fevarbrace.exe
 
 deema.exe : ..\utils\deema.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\deema.c /Fedeema.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\deema.c /Fedeema.exe
 
 txt2c.exe : ..\utils\txt2c.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\txt2c.c /Fetxt2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\txt2c.c /Fetxt2c.exe
 
 ccmp2c.exe : ..\utils\ccmp2c.c
-	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  gllib/malloc.obj ..\utils\ccmp2c.c /Feccmp2c.exe
+	$(UTILCC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS)  ..\utils\ccmp2c.c /Feccmp2c.exe
 
+
+add_to_path.nsh : ..\win32msvc/nsis/add_to_path.nsh
+	-$(RM) add_to_path.nsh
+	-$(LN_S) ..\win32msvc/nsis/add_to_path.nsh add_to_path.nsh
+
+is_user_admin.nsh : ..\win32msvc/nsis/is_user_admin.nsh
+	-$(RM) is_user_admin.nsh
+	-$(LN_S) ..\win32msvc/nsis/is_user_admin.nsh is_user_admin.nsh
+
+install.nsi : ..\win32msvc/nsis/install.nsi config.status
+	sed -e 's/\@NAME\@/$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/$(VERSION)/g' -e 's,\@BASE_MODULES\@,$(BASE_MODULES),g' -e 's,\@MODULES\@,$(MODULES),g' ..\win32msvc/nsis/install.nsi > install.nsi
+
+COPYRIGHT.rtf : COPYRIGHT ..\win32msvc/nsis/text_to_rtf.lisp config.status
+	$(RUN) -M lispinit.mem -q ..\win32msvc/nsis/text_to_rtf.lisp COPYRIGHT COPYRIGHT.tmp
+	sed -e 's/\@NAME\@/$(PACKAGE_NAME)/g' -e 's/\@VERSION\@/$(VERSION)/g' COPYRIGHT.tmp > COPYRIGHT.rtf
+	$(RM) COPYRIGHT.tmp
 
 allc : init $(CFILES)
 
@@ -1462,7 +1477,7 @@ lisp.exe : $(OBJECTS) modules.obj   data
 config.lisp : cfgwin32.lisp
 	$(CP) cfgwin32.lisp config.lisp
 
-RUN= lisp.exe -B . -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc
+RUN= lisp.exe -B . -E UTF-8 -Epathname 1:1 -norc
 
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o ./
@@ -1474,7 +1489,7 @@ modprep.lisp : ..\utils\modprep.lisp
 
 interpreted.mem : lisp.exe $(LISPFILES)
 	-$(RM) interpreted.mem
-	$(RUN) -m 2MW -x "(and (setq custom::*load-paths* (quote (\"\"))) (load \"init.lisp\") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)"
+	$(RUN) -m 2MW -lp  -x '(and (load "init.lisp") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)'
 	$(MV) lispimag.mem interpreted.mem
 
 init.fas : init.lisp lisp.exe halfcompiled.mem
@@ -1764,7 +1779,7 @@ config.fas : config.lisp lisp.exe halfcompiled.mem
 
 halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
 	-$(RM) halfcompiled.mem
-	$(RUN) -m 2MW -x "(and (setq custom::*load-paths* (quote (\"\"))) (load \"init.lisp\") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)"
+	$(RUN) -m 2MW -lp  -x '(and (load "init.lisp") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)'
 	$(MV) lispimag.mem halfcompiled.mem
 
 lispinit.mem : lisp.exe $(FASFILES)
@@ -1791,289 +1806,289 @@ stage\testinit.mem: lispinit.mem
 	$(CP) lispinit.mem stage\testinit.mem
 
 stage\init.fas : init.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c init.lisp -o stage\init.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c init.lisp -o stage\
 
 stage\defseq.fas : defseq.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defseq.lisp -o stage\defseq.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defseq.lisp -o stage\
 
 stage\backquote.fas : backquote.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c backquote.lisp -o stage\backquote.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c backquote.lisp -o stage\
 
 stage\defmacro.fas : defmacro.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defmacro.lisp -o stage\defmacro.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defmacro.lisp -o stage\
 
 stage\macros1.fas : macros1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros1.lisp -o stage\macros1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros1.lisp -o stage\
 
 stage\macros2.fas : macros2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros2.lisp -o stage\macros2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros2.lisp -o stage\
 
 stage\defs1.fas : defs1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defs1.lisp -o stage\defs1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defs1.lisp -o stage\
 
 stage\timezone.fas : timezone.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c timezone.lisp -o stage\timezone.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c timezone.lisp -o stage\
 
 stage\lambdalist.fas : lambdalist.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c lambdalist.lisp -o stage\lambdalist.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c lambdalist.lisp -o stage\
 
 stage\places.fas : places.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c places.lisp -o stage\places.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c places.lisp -o stage\
 
 stage\floatprint.fas : floatprint.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c floatprint.lisp -o stage\floatprint.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c floatprint.lisp -o stage\
 
 stage\defpackage.fas : defpackage.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defpackage.lisp -o stage\defpackage.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defpackage.lisp -o stage\
 
 stage\type.fas : type.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c type.lisp -o stage\type.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c type.lisp -o stage\
 
 stage\subtypep.fas : subtypep.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c subtypep.lisp -o stage\subtypep.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c subtypep.lisp -o stage\
 
 stage\clos-package.fas : clos-package.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-package.lisp -o stage\clos-package.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-package.lisp -o stage\
 
 stage\clos-macros.fas : clos-macros.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-macros.lisp -o stage\clos-macros.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-macros.lisp -o stage\
 
 stage\clos-class0.fas : clos-class0.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class0.lisp -o stage\clos-class0.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class0.lisp -o stage\
 
 stage\clos-metaobject1.fas : clos-metaobject1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-metaobject1.lisp -o stage\clos-metaobject1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-metaobject1.lisp -o stage\
 
 stage\clos-slotdef1.fas : clos-slotdef1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef1.lisp -o stage\clos-slotdef1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef1.lisp -o stage\
 
 stage\clos-stablehash1.fas : clos-stablehash1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-stablehash1.lisp -o stage\clos-stablehash1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-stablehash1.lisp -o stage\
 
 stage\clos-specializer1.fas : clos-specializer1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer1.lisp -o stage\clos-specializer1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer1.lisp -o stage\
 
 stage\clos-class1.fas : clos-class1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class1.lisp -o stage\clos-class1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class1.lisp -o stage\
 
 stage\clos-class2.fas : clos-class2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class2.lisp -o stage\clos-class2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class2.lisp -o stage\
 
 stage\clos-class3.fas : clos-class3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class3.lisp -o stage\clos-class3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class3.lisp -o stage\
 
 stage\defstruct.fas : defstruct.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defstruct.lisp -o stage\defstruct.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defstruct.lisp -o stage\
 
 stage\format.fas : format.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c format.lisp -o stage\format.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c format.lisp -o stage\
 
 stage\international.fas : international.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c international.lisp -o stage\international.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c international.lisp -o stage\
 
 stage\savemem.fas : savemem.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c savemem.lisp -o stage\savemem.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c savemem.lisp -o stage\
 
 stage\functions.fas : functions.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c functions.lisp -o stage\functions.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c functions.lisp -o stage\
 
 stage\trace.fas : trace.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c trace.lisp -o stage\trace.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c trace.lisp -o stage\
 
 stage\cmacros.fas : cmacros.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c cmacros.lisp -o stage\cmacros.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c cmacros.lisp -o stage\
 
 stage\compiler.fas : compiler.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c compiler.lisp -o stage\compiler.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c compiler.lisp -o stage\
 
 stage\defs2.fas : defs2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defs2.lisp -o stage\defs2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c defs2.lisp -o stage\
 
 stage\loop.fas : loop.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c loop.lisp -o stage\loop.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c loop.lisp -o stage\
 
 stage\clos.fas : clos.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos.lisp -o stage\clos.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos.lisp -o stage\
 
 stage\clos-stablehash2.fas : clos-stablehash2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-stablehash2.lisp -o stage\clos-stablehash2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-stablehash2.lisp -o stage\
 
 stage\clos-specializer2.fas : clos-specializer2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer2.lisp -o stage\clos-specializer2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer2.lisp -o stage\
 
 stage\clos-specializer3.fas : clos-specializer3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer3.lisp -o stage\clos-specializer3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-specializer3.lisp -o stage\
 
 stage\clos-class4.fas : clos-class4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class4.lisp -o stage\clos-class4.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class4.lisp -o stage\
 
 stage\clos-class5.fas : clos-class5.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class5.lisp -o stage\clos-class5.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class5.lisp -o stage\
 
 stage\clos-class6.fas : clos-class6.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class6.lisp -o stage\clos-class6.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-class6.lisp -o stage\
 
 stage\clos-slotdef2.fas : clos-slotdef2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef2.lisp -o stage\clos-slotdef2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef2.lisp -o stage\
 
 stage\clos-slotdef3.fas : clos-slotdef3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef3.lisp -o stage\clos-slotdef3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slotdef3.lisp -o stage\
 
 stage\clos-slots1.fas : clos-slots1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slots1.lisp -o stage\clos-slots1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slots1.lisp -o stage\
 
 stage\clos-slots2.fas : clos-slots2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slots2.lisp -o stage\clos-slots2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-slots2.lisp -o stage\
 
 stage\clos-method1.fas : clos-method1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method1.lisp -o stage\clos-method1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method1.lisp -o stage\
 
 stage\clos-method2.fas : clos-method2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method2.lisp -o stage\clos-method2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method2.lisp -o stage\
 
 stage\clos-method3.fas : clos-method3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method3.lisp -o stage\clos-method3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method3.lisp -o stage\
 
 stage\clos-method4.fas : clos-method4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method4.lisp -o stage\clos-method4.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-method4.lisp -o stage\
 
 stage\clos-methcomb1.fas : clos-methcomb1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb1.lisp -o stage\clos-methcomb1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb1.lisp -o stage\
 
 stage\clos-methcomb2.fas : clos-methcomb2.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb2.lisp -o stage\clos-methcomb2.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb2.lisp -o stage\
 
 stage\clos-methcomb3.fas : clos-methcomb3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb3.lisp -o stage\clos-methcomb3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb3.lisp -o stage\
 
 stage\clos-methcomb4.fas : clos-methcomb4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb4.lisp -o stage\clos-methcomb4.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-methcomb4.lisp -o stage\
 
 stage\clos-genfun1.fas : clos-genfun1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun1.lisp -o stage\clos-genfun1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun1.lisp -o stage\
 
 stage\clos-genfun2a.fas : clos-genfun2a.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun2a.lisp -o stage\clos-genfun2a.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun2a.lisp -o stage\
 
 stage\clos-genfun2b.fas : clos-genfun2b.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun2b.lisp -o stage\clos-genfun2b.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun2b.lisp -o stage\
 
 stage\clos-genfun3.fas : clos-genfun3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun3.lisp -o stage\clos-genfun3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun3.lisp -o stage\
 
 stage\clos-genfun4.fas : clos-genfun4.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun4.lisp -o stage\clos-genfun4.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun4.lisp -o stage\
 
 stage\clos-genfun5.fas : clos-genfun5.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun5.lisp -o stage\clos-genfun5.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-genfun5.lisp -o stage\
 
 stage\clos-dependent.fas : clos-dependent.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-dependent.lisp -o stage\clos-dependent.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-dependent.lisp -o stage\
 
 stage\clos-print.fas : clos-print.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-print.lisp -o stage\clos-print.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-print.lisp -o stage\
 
 stage\clos-custom.fas : clos-custom.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-custom.lisp -o stage\clos-custom.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clos-custom.lisp -o stage\
 
 stage\documentation.fas : documentation.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c documentation.lisp -o stage\documentation.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c documentation.lisp -o stage\
 
 stage\fill-out.fas : fill-out.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c fill-out.lisp -o stage\fill-out.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c fill-out.lisp -o stage\
 
 stage\disassem.fas : disassem.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c disassem.lisp -o stage\disassem.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c disassem.lisp -o stage\
 
 stage\condition.fas : condition.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c condition.lisp -o stage\condition.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c condition.lisp -o stage\
 
 stage\loadform.fas : loadform.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c loadform.lisp -o stage\loadform.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c loadform.lisp -o stage\
 
 stage\gstream.fas : gstream.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c gstream.lisp -o stage\gstream.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c gstream.lisp -o stage\
 
 stage\xcharin.fas : xcharin.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c xcharin.lisp -o stage\xcharin.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c xcharin.lisp -o stage\
 
 stage\keyboard.fas : keyboard.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c keyboard.lisp -o stage\keyboard.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c keyboard.lisp -o stage\
 
 stage\screen.fas : screen.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c screen.lisp -o stage\screen.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c screen.lisp -o stage\
 
 stage\runprog.fas : runprog.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c runprog.lisp -o stage\runprog.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c runprog.lisp -o stage\
 
 stage\query.fas : query.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c query.lisp -o stage\query.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c query.lisp -o stage\
 
 stage\reploop.fas : reploop.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c reploop.lisp -o stage\reploop.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c reploop.lisp -o stage\
 
 stage\dribble.fas : dribble.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c dribble.lisp -o stage\dribble.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c dribble.lisp -o stage\
 
 stage\complete.fas : complete.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c complete.lisp -o stage\complete.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c complete.lisp -o stage\
 
 stage\pprint.fas : pprint.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c pprint.lisp -o stage\pprint.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c pprint.lisp -o stage\
 
 stage\describe.fas : describe.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c describe.lisp -o stage\describe.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c describe.lisp -o stage\
 
 stage\room.fas : room.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c room.lisp -o stage\room.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c room.lisp -o stage\
 
 stage\edit.fas : edit.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c edit.lisp -o stage\edit.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c edit.lisp -o stage\
 
 stage\macros3.fas : macros3.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros3.lisp -o stage\macros3.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c macros3.lisp -o stage\
 
 stage\clhs.fas : clhs.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clhs.lisp -o stage\clhs.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c clhs.lisp -o stage\
 
 stage\inspect.fas : inspect.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c inspect.lisp -o stage\inspect.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c inspect.lisp -o stage\
 
 stage\gray.fas : gray.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c gray.lisp -o stage\gray.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c gray.lisp -o stage\
 
 stage\case-sensitive.fas : case-sensitive.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c case-sensitive.lisp -o stage\case-sensitive.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c case-sensitive.lisp -o stage\
 
 stage\foreign1.fas : foreign1.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c foreign1.lisp -o stage\foreign1.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c foreign1.lisp -o stage\
 
 stage\exporting.fas : exporting.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c exporting.lisp -o stage\exporting.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c exporting.lisp -o stage\
 
 stage\german.fas : german.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c german.lisp -o stage\german.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c german.lisp -o stage\
 
 stage\french.fas : french.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c french.lisp -o stage\french.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c french.lisp -o stage\
 
 stage\spanish.fas : spanish.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c spanish.lisp -o stage\spanish.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c spanish.lisp -o stage\
 
 stage\russian.fas : russian.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c russian.lisp -o stage\russian.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c russian.lisp -o stage\
 
 stage\danish.fas : danish.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c danish.lisp -o stage\danish.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c danish.lisp -o stage\
 
 stage\dutch.fas : dutch.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c dutch.lisp -o stage\dutch.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c dutch.lisp -o stage\
 
 stage\deprecated.fas : deprecated.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c deprecated.lisp -o stage\deprecated.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c deprecated.lisp -o stage\
 
 stage\config.fas : config.lisp lisp.exe stage\testinit.mem
-	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c config.lisp -o stage\config.fas
+	$(RUN) -m 1MW -M stage\testinit.mem -q -d -c config.lisp -o stage\
 
 lispinit2.mem : lisp.exe $(TESTFASFILES)
 	$(RUN) -x "(and (cd \"stage/\") (load \"init.fas\") (cd \"../\") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)"
@@ -2170,17 +2185,17 @@ linkkit : modules.c clisp.h modprep.lisp
 	cd linkkit && $(LN_S) ..\clisp.h clisp.h
 	cd linkkit && $(LN_S) ..\modprep.lisp modprep.lisp
 
-modular : lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj  clisp-link linkkit modules.h modules.o makevars
+modular : lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj   clisp-link linkkit modules.h modules.o makevars
 
 makevars : Makefile
-	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj '"'") > makevars
+	(echo 'CC='"'"'$(CC)'"'" ; echo 'CPPFLAGS='"'"'$(CPPFLAGS)'"'" ; echo 'CFLAGS='"'"'$(CFLAGS)'"'" ; echo 'CLFLAGS='"'"'$(CLFLAGS)'"'" ; echo 'LIBS='"'"'lisp.a $(LIBS)'"'" ; echo 'X_LIBS='"'"'$(X_LIBS)'"'" ; echo 'RANLIB='"'"'$(RANLIB)'"'" ; echo 'FILES='"'"'lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  '"'") > makevars
 
 clisp-link : clisp-link.in
 	sed -e 's%%@with_dynamic_modules@%%no%%' -e 's%%@createsharedlib@%%%%' -e 's%%@LEXE@%%.exe%%' -e 's%%@SHREXT@%%.dll%%'< clisp-link.in > clisp-link
 	chmod a+x clisp-link
 
 boot : modular lispinit.mem
-	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj  modules.h modules.o lisp.exe lispinit.mem; do $(LN_S) ..\$$f .; done && ($(GREP) -v '^FILES=' ..\makevars; fl=''; for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj gllib/malloc.obj ; do fl=$$fl' '`basename $$f`; done; echo 'FILES='"'"$$fl"'") > makevars) || ($(RMRF) boot ; exit 1)
+	test -d boot || (mkdir boot && cd boot && for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj   modules.h modules.o lisp.exe lispinit.mem; do $(LN_S) ..\$$f .; done && ($(GREP) -v '^FILES=' ..\makevars; fl=''; for f in lisp.a libnoreadline.a gllib/uniwidth/width.obj gllib/uniname/uniname.obj gllib/localcharset.obj  ; do fl=$$fl' '`basename $$f`; done; echo 'FILES='"'"$$fl"'") > makevars) || ($(RMRF) boot ; exit 1)
 
 anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas clisp.h
 	lndir ..\modules/$@ $@
@@ -2194,7 +2209,7 @@ anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas c
 	    else $(SHELL) ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); \
 	    fi ) ;\
 	fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E UTF-8 -Epathname 1:1 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base
@@ -2206,11 +2221,11 @@ full : modular base $(MODULES)
 
 base-mod-check : clisp.exe tests # base
 	for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
-	z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp  -E UTF-8 -Epathname 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 mod-check : base-mod-check # full
 	for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
-	z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full  -E 1:1 -Efile UTF-8 -Eterminal UTF-8 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full  -E UTF-8 -Epathname 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
 IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
@@ -2324,7 +2339,7 @@ clisp.rc :
 	echo "MAINICON ICON \"clisp.ico\"" > clisp.rc
 
 clisp.exe : clisp.c clispres.obj w32shell.c execname.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS)  gllib/malloc.obj /link /out:clisp.exe
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(CLFLAGS) -DENABLE_RELOCATABLE clisp.c clispres.obj $(LIBS)  /link /out:clisp.exe
 
 # Distribution, to be executed on a Unix host or using Cygwin.
 distrib : install.lisp install.bat clisp.man clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force
@@ -2397,6 +2412,7 @@ clean3 : clean2
 clean4 : clean3
 	-$(RM) cflags.h cflags.h.stamp
 	-$(RM) $(CFILES)
+	-$(RMRF) gllib
 # clean5 even undoes "make init".
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
