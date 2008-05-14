@@ -600,6 +600,9 @@ which compute the error functions, Bessel functions and Gamma.</para>
  <varlistentry id="kill"><term><code>(POSIX:KILL &pid-r; &sig-r;)</code></term>
   <listitem><simpara>Calls <function role="unix">kill</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="getppid"><term><code>(POSIX:GETPPID)</code></term>
+  <listitem><simpara>Calls <function role="unix">getppid</function>.
+ </simpara></listitem></varlistentry>
  <varlistentry id="getpgrp"><term><code>(POSIX:GETPGRP)</code></term>
   <listitem><simpara>Calls <function role="unix">getpgrp</function>.
  </simpara></listitem></varlistentry>
