@@ -11,7 +11,7 @@
    #:stream-lock #:with-stream-lock #:duplicate-handle #:copy-file
    #:file-owner #:physical-memory #:stream-options #+unix #:string-time
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
-   #:priority #:process-id #:openlog #:setlogmask #:syslog #:closelog
+   #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 

@@ -650,6 +650,9 @@ DEFUN(POSIX::SETUTXENT,) {
 #endif  /* HAVE_UTMPX_H */
 
 /* ========================= processes & signals ========================= */
+#if defined(HAVE_GETPPID)
+DEFUN(POSIX:GETPPID,) { GETTER(pid,getppid); }
+#endif
 #if defined(HAVE_GETSID)
 DEFUN(POSIX:GETSID, pid) { GETTER1(pid,getsid); }
 #endif
