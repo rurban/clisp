@@ -50,9 +50,12 @@ User visible changes
   See <http://clisp.cons.org/impnotes/repl.html> for details.
 
 * Updated the postgresql module to PostgreSQL 8.3.
+  See <http://clisp.cons.org/impnotes/postgresql.html> for details.
 
 * Module syscalls now interfaces to <stdio.h> (for the sake of FFI modules).
   See <http://clisp.cons.org/impnotes/syscalls.html#stdio> for details.
+  There are others additions there also, but they are too numerous to
+  be enumerated here.
 
 * Bug fixes:
   + Fix handling of quoted objects by READ-PRESERVING-WHITESPACE. [ 1890854 ]
