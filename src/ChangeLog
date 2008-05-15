@@ -1,3 +1,7 @@
+2008-05-15  Sam Steingold  <sds@gnu.org>
+
+	* utils/fix-perms.sh: accept command line argument ROOT
+
 2008-05-15  Reini Urban  <rurban@x-ray.at>
 
 	* modules/clx/new-clx/clx.f [__CYGWIN__]: include <X11/Xwindows.h>
