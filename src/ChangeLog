@@ -1,5 +1,9 @@
 2008-05-15  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.46 (2008-07-07) [+ gnulib-imported build-aux-update]
+
+2008-05-15  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (fixperms): also fix web pages permissions
 	* utils/fix-perms.sh: accept command line argument ROOT
 
