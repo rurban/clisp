@@ -1,5 +1,6 @@
 2008-05-15  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (fixperms): also fix web pages permissions
 	* utils/fix-perms.sh: accept command line argument ROOT
 
 2008-05-15  Reini Urban  <rurban@x-ray.at>
