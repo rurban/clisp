@@ -1,3 +1,17 @@
+2008-05-15  Reini Urban  <rurban@x-ray.at>
+
+	* modules/clx/new-clx/clx.f [__CYGWIN__]: include <X11/Xwindows.h>
+	first thing to avoid conflicts with INT32,BOOL defined in
+	<windows.h> included from clisp.h
+
+2008-05-15  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (doc-distrib): exclude *~ and .#*
+
+2008-05-15  Sam Steingold  <sds@gnu.org>
+
+	* 2.45 tagged and released
+
 2008-05-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (GETPPID): implement

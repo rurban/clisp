@@ -401,6 +401,10 @@ For further for grepability I use the following tags in comments:
 /* enough bla bla, let's start coding, we have a long long way before us ...*/
 
 
+#ifdef __CYGWIN__
+/* INT32,BOOL conflict with <windows.h>. Leave the X11 conflicts out. */
+# include <X11/Xwindows.h>
+#endif
 #include "clisp.h"
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>          /* XGetVisualInfo */
