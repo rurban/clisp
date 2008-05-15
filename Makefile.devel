@@ -457,7 +457,7 @@ src-distrib : force
 doc-distrib : force
 	mkdir -p $(ARCHIVE)
 	ln -s . $(TOPDIR)
-	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\*
+	zip -9vor $(DOC_DIST) $(TOPDIR)/doc/html -x \*.cvsignore -x \*.symlinks -x \*CVS\* -x .\#\* -x \*~
 	$(RM) $(TOPDIR)
 
 # http://www.gnu.org/prep/maintain/html_node/Automated-Upload-Procedure.html
