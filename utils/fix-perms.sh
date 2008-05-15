@@ -4,7 +4,11 @@
 #
 # To verify:   find . -type f -perm +111 -print
 
-find . -type f -follow -perm +111 '(' \
+root=${1:-.}
+
+echo "fixing permissions under [${root}]"
+
+find ${root} -type f -follow -perm +111 '(' \
      -name '*.in' \
   -o -name '*.xml' \
   -o -name '*.xsl' \
@@ -26,4 +30,4 @@ find . -type f -follow -perm +111 '(' \
   ')' \
   -exec chmod -c a-x '{}' ';'
 
-find . '(' -name configure -o -name autogen.sh ')' -exec chmod -c +x '{}' ';'
+find ${root} -name configure -exec chmod -c +x '{}' ';'
