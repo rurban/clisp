@@ -1,5 +1,10 @@
 2008-05-15  Sam Steingold  <sds@gnu.org>
 
+	* configure: do not pass --with-module to subdir configures
+	(starting with autoconf 2.62 this results in warnings)
+
+2008-05-15  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.46 (2008-07-07) [+ gnulib-imported build-aux-update]
 
 2008-05-15  Sam Steingold  <sds@gnu.org>
