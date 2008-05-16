@@ -1,3 +1,8 @@
+2008-05-16  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (upload-sf): use rsync instead of ftp because of
+	the change in the SF FRS (File Release System)
+
 2008-05-15  Sam Steingold  <sds@gnu.org>
 
 	* configure: do not pass --with-module to subdir configures
