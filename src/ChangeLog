@@ -1,5 +1,10 @@
 2008-05-16  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (upload-sunsite): remove target
+	* clisp.lsm: remove file
+
+2008-05-16  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (upload-sf): use rsync instead of ftp because of
 	the change in the SF FRS (File Release System)
 
