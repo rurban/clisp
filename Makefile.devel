@@ -17,7 +17,7 @@ CTAGS = ctags
 	view-man view-html check-sbcl install-gcc \
 	multibuild-linux-x86 multibuild-darwin-powerpc \
 	build-aux-update gnulib-imported distrib release pre-release \
-	upload upload-ssh upload-sf upload-sunsite upload-gnu \
+	upload upload-ssh upload-sf upload-gnu \
 	src-distrib doc-distrib gnu-distrib tag-release tp-mail
 
 all : build-prerequisites makefiles update-ansi-tests potfiles htmldoc
@@ -370,7 +370,7 @@ pre-release : gnulib-imported build-aux-update tp-mail
 
 ## RELEASE TODO:
 # Before doing a "make distrib":
-# * update version.sh, src/NEWS, clisp.lsm, doc/history.xml
+# * update version.sh, src/NEWS, doc/history.xml
 # * "make -f Makefile.devel all"
 # === Note that for clisp to report its version correctly, src/version.h and
 # === src/configure must be regenerated after version.sh is updated
@@ -418,7 +418,7 @@ EXCLUDE=--exclude CVS --exclude \*.fas --exclude \*.lib --exclude \*.obj   \
         --exclude TAGS --exclude \*.elc --exclude \*.orig --exclude \*.rej
 
 T = $(TOPDIR)
-SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/clisp.lsm $T/configure
+SOURCES1 = $T/ANNOUNCE $T/COPYRIGHT $T/GNU-GPL $T/INSTALL $T/SUMMARY $T/clisp.spec $T/configure
 SOURCES2 = $T/src
 SOURCES4 = $T/utils
 SOURCES5 = $T/unix $T/win32msvc
@@ -438,15 +438,12 @@ upload-ssh : $(SRC_DIST1) force
 upload-sf : $(SRC_DIST1) force
 	rsync -avP -e ssh $(UPLOAD) frs.sf.net:uploads
 
-upload-sunsite : $(SRC_DIST1) force
-	lftp sunsite.unc.edu:/incoming/linux -e "mput clisp.lsm $(UPLOAD); quit"
-
 upload-gnu : force		# gnu-distrib -- do not re-sign everything
 	UP=""; for f in $(GNU_DIST); do \
 		UP=$${UP}" $$f $$f.sig $$f.directive.asc"; done; \
 	lftp ftp://ftp-upload.gnu.org/incoming/ftp -e "mput $${UP} $(GNU_SYM).asc; quit"
 
-upload : upload-ssh upload-sf upload-sunsite upload-gnu
+upload : upload-ssh upload-sf upload-gnu
 
 src-distrib : force
 	mkdir -p $(ARCHIVE)
