@@ -436,7 +436,7 @@ upload-ssh : $(SRC_DIST1) force
 	for h in $(SSHUP) ; do scp $(UPLOAD) src/NEWS $${h}; done
 
 upload-sf : $(SRC_DIST1) force
-	lftp upload.sf.net:/incoming -e "mput $(UPLOAD); quit"
+	rsync -avP -e ssh $(UPLOAD) frs.sf.net:uploads
 
 upload-sunsite : $(SRC_DIST1) force
 	lftp sunsite.unc.edu:/incoming/linux -e "mput clisp.lsm $(UPLOAD); quit"
