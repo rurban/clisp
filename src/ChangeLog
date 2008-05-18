@@ -1,3 +1,10 @@
+2008-05-18  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1966375 ]: no tgamma on solaris
+	* modules/syscalls/posix.lisp (tgamma): is tgamma is not defined,
+	define it using lgamma
+	* modules/syscalls/calls.c (tgamma) check HAVE_TGAMMA
+
 2008-05-16  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (upload-sunsite): remove target
