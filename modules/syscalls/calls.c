@@ -812,9 +812,13 @@ DEFUNF(POSIX::JN,i x) { VAL_ID(jn); mv_count=1; }
 DEFUNF(POSIX::Y0,x) { VAL_D(y0); mv_count=1; }
 DEFUNF(POSIX::Y1,x) { VAL_D(y1); mv_count=1; }
 DEFUNF(POSIX::YN,i y) { VAL_ID(yn); mv_count=1; }
+#if defined(HAVE_TGAMMA)
+/* http://www.opengroup.org/onlinepubs/009695399/functions/tgamma.html */
 DEFUNF(POSIX::TGAMMA,x) { VAL_D(tgamma); mv_count=1; }
+#endif
 
 #if defined(HAVE_LGAMMA) || HAVE_DECL_LGAMMA_R
+/* http://www.opengroup.org/onlinepubs/009695399/functions/lgamma.html */
 DEFUNF(POSIX::LGAMMA,x) {
 # if HAVE_DECL_LGAMMA_R
   int sign;
