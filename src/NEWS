@@ -1,3 +1,10 @@
+User visible changes
+--------------------
+
+* Bug fixes:
+  + Work around the absence of tgamma() on solaris. [ 1966375 ]
+
+
 2.45 (2008-05-15)
 =================
 

@@ -397,6 +397,11 @@
 ;; (ffi:def-call-out ffs (:name "ffs") (:arguments (i ffi:int))
 ;;   (:return-type ffi:int) (:language :stdc) (:library :default))
 ;; and it also supports bignums.
+(unless (fboundp os:tgamma)
+  ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1966375&group_id=1355
+  (defun os:tgamma (x)
+    (multiple-value-bind (lg sg) (os:lgamma x)
+      (* (or sg 1) (exp lg)))))
 ;;;--------------------------------------------------------------------------
 (setf (package-lock "EXT") nil)
 (use-package '("POSIX") "EXT")
