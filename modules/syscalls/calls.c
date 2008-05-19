@@ -103,35 +103,26 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
-#if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
-/* we use posix fcntl() on unix and win32 LockFileEx() on win32.
-   since cygwin supports fcntl(), we use it there, but another option
-   would be to use cygwin get_osfhandle() + win32 LockFileEx(),
-   see <http://article.gmane.org/gmane.os.cygwin/35175> */
-#if defined(HAVE_FCNTL_H)
-# include <fcntl.h>
-#endif
-
 #if SIZEOF_PID_T == 8
 # define pid_to_I(g)  uint64_to_I(g)
-# define I_to_pid(g)  I_to_uint64(g=check_sint64(g))
+# define I_to_pid(g)  I_to_uint64(g=check_uint64(g))
 #else
 # define pid_to_I(g)  uint32_to_I(g)
-# define I_to_pid(g)  I_to_uint32(g=check_sint32(g))
+# define I_to_pid(g)  I_to_uint32(g=check_uint32(g))
 #endif
 #if SIZEOF_UID_T == 8
 # define uid_to_I(g)  uint64_to_I(g)
-# define I_to_uid(g)  I_to_uint64(g=check_sint64(g))
+# define I_to_uid(g)  I_to_uint64(g=check_uint64(g))
 #else
 # define uid_to_I(g)  uint32_to_I(g)
-# define I_to_uid(g)  I_to_uint32(g=check_sint32(g))
+# define I_to_uid(g)  I_to_uint32(g=check_uint32(g))
 #endif
 #if SIZEOF_GID_T == 8
 # define gid_to_I(g)  uint64_to_I(g)
-# define I_to_gid(g)  I_to_uint64(g=check_sint64(g))
+# define I_to_gid(g)  I_to_uint64(g=check_uint64(g))
 #else
 # define gid_to_I(g)  uint32_to_I(g)
-# define I_to_gid(g)  I_to_uint32(g=check_sint32(g))
+# define I_to_gid(g)  I_to_uint32(g=check_uint32(g))
 #endif
 
 /* general convenience macros */
@@ -168,6 +159,15 @@ typedef enum {
 } copy_method_t;
 
 DEFMODULE(syscalls,"POSIX")
+
+#if defined(HAVE_FCNTL) || defined(WIN32_NATIVE)
+/* we use posix fcntl() on unix and win32 LockFileEx() on win32.
+   since cygwin supports fcntl(), we use it there, but another option
+   would be to use cygwin get_osfhandle() + win32 LockFileEx(),
+   see <http://article.gmane.org/gmane.os.cygwin/35175> */
+#if defined(HAVE_FCNTL_H)
+# include <fcntl.h>
+#endif
 
 /* ============================== aux ============================== */
 
