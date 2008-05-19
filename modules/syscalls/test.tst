@@ -403,16 +403,17 @@ T
 (T T)
 
 #+ffi (defparameter *foo* (os:fopen "foo" "w")) #+ffi *foo*
-;; #+ffi (os:fputc 65 *foo*) #+ffi 65
+#+ffi (os::%fputc 65 *foo*) #+ffi 65
 #+ffi (os:feof *foo*) #+ffi NIL
 #+ffi (os:ferror *foo*) #+ffi NIL
 #+ffi (os:clearerr *foo*) #+ffi NIL
 #+ffi (os:fflush *foo*) #+ffi NIL
 #+ffi (os:fclose *foo*) #+ffi NIL
 #+ffi (defparameter *foo* (os:fopen "foo" "r")) #+ffi *foo*
-;; #+ffi (os:fgetc *foo*) #+ffi 65
-;; #+ffi (os:fgetc *foo*) #+ffi -1
+#+ffi (os::%fgetc *foo*) #+ffi 65
 #+ffi (os:feof *foo*) #+ffi NIL
+#+ffi (os::%fgetc *foo*) #+ffi -1
+#+ffi (os:feof *foo*) #+ffi T
 #+ffi (os:ferror *foo*) #+ffi NIL
 #+ffi (os:clearerr *foo*) #+ffi NIL
 #+ffi (os:fclose *foo*) #+ffi NIL
