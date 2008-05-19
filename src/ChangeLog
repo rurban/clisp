@@ -1,7 +1,12 @@
+2008-05-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (FREOPEN): implement
+	* modules/syscalls/posix.lisp (freopen): export
+
 2008-05-18  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1966375 ]: no tgamma on solaris
-	* modules/syscalls/posix.lisp (tgamma): is tgamma is not defined,
+	* modules/syscalls/posix.lisp (tgamma): if tgamma is not defined,
 	define it using lgamma
 	* modules/syscalls/calls.c (tgamma) check HAVE_TGAMMA
 
