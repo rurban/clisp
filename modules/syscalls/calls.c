@@ -4082,7 +4082,7 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
 
 #if defined(HAVE_FFI)
 /* STDIO inteface for postgresql et al */
-DEFUN(POSIX::FOPEN, file mode) {
+DEFUN(POSIX::FOPEN, path mode) {
   STACK_0 = check_string(STACK_0);
   STACK_1 = check_string(STACK_1);
   with_string_0(STACK_1, GLO(pathname_encoding), pathz, {
@@ -4109,6 +4109,22 @@ DEFUN(POSIX::FDOPEN, fd mode) {
       else OS_error();
     });
   VALUES1(STACK_0); skipSTACK(2);
+}
+DEFUN(POSIX::FREOPEN, path mode file) {
+  STACK_2 = check_string(STACK_2); /* path */
+  STACK_1 = check_string(STACK_1); /* mode */
+  STACK_0 = check_fpointer(STACK_0,1); /* file */
+  with_string_0(STACK_1, GLO(pathname_encoding), pathz, {
+      with_string_0(STACK_0, GLO(misc_encoding), modez, {
+          FILE *fp;
+          begin_system_call();
+          fp = freopen(pathz,modez,(FILE*)TheFpointer(STACK_0)->fp_pointer);
+          end_system_call();
+          if (fp) TheFpointer(STACK_0)->fp_pointer = fp;
+          else OS_error();
+        });
+    });
+  VALUES0; skipSTACK(3);
 }
 #define FILE_FUNCTION(fun,finish)                       \
     int ret;                                            \

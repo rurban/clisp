@@ -706,6 +706,8 @@ which compute the error functions, Bessel functions and Gamma.</para>
     &mode-r;)</code></member>
   <member><code>(<function role="unix">fdopen</function> fd
     &mode-r;)</code></member>
+  <member><code>(<function role="unix">freopen</function> &filename-r;
+    &mode-r; file)</code></member>
   <member><code>(<function role="unix">fclose</function> file)</code></member>
   <member><code>(<function role="unix">fflush</function> file)</code></member>
   <!-- <member><code>(<function role="unix">fgetc</function>
@@ -720,18 +722,21 @@ which compute the error functions, Bessel functions and Gamma.</para>
   <member><code>(<function role="unix">fileno</function> file)</code></member>
   </simplelist>call their namesakes defined in &stdio;.</para>
  <simpara>Functions <function>OS:FOPEN</function>,
-  <function>OS:FDOPEN</function>, <function>OS:FCLOSE</function>,
-  <function>OS:FFLUSH</function>, <function>OS:FILENO</function>
-  may &signal; an &error-t;.</simpara>
+  <function>OS:FDOPEN</function>, <function>OS:FREOPEN</function>,
+  <function>OS:FCLOSE</function>, <function>OS:FFLUSH</function>,
+  <function>OS:FILENO</function> may &signal; an &error-t;.</simpara>
  <variablelist><title>Return values</title>
   <varlistentry><term><function>OS:FOPEN</function></term>
    <term><function>OS:FDOPEN</function></term>
    <listitem><simpara><type>FFI:file</type> = &foreign-pointer-t;
   </simpara></listitem></varlistentry>
-  <varlistentry><term><function>OS:FCLOSE</function></term>
+  <varlistentry><term><function>OS:FREOPEN</function></term>
+   <term><function>OS:FCLOSE</function></term>
    <term><function>OS:FFLUSH</function></term>
    <term><function>OS:CLEARERR</function></term>
-   <listitem><simpara>no values</simpara></listitem></varlistentry>
+   <listitem><simpara>no values (they modify
+     their <replaceable>file</replaceable> argument in place)
+  </simpara></listitem></varlistentry>
   <varlistentry><term><function>OS:FEOF</function></term>
    <term><function>OS:FERROR</function></term>
    <listitem><simpara>&boolean-t;</simpara></listitem></varlistentry>
