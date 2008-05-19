@@ -6121,6 +6121,7 @@ typedef struct {
 %%   emit_typedef("struct { XRECORD_HEADER void* fp_pointer;} *","Fpointer");
 %%   export_def(fp_validp(ptr));
 %%   export_def(mark_fp_invalid(ptr));
+%%   export_def(mark_fp_valid(ptr));
 %% #endif
 
 #ifdef DYNAMIC_FFI

@@ -2482,18 +2482,8 @@ typedef BOOL (WINAPI * BackupWriteFuncType)
    LPDWORD lpNumberOfBytesWritten, BOOL bAbort, BOOL bProcessSecurity,
    LPVOID *lpContext);
 static BackupWriteFuncType BackupWriteFunc = NULL;
-#endif
 
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
-typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
-            DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
-            void * reserved2, REFIID riid, void ** ppObjectOpen);
-static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
-#endif
-
-void module__syscalls__init_function_2 (module_t* module);
-void module__syscalls__init_function_2 (module_t* module) {
-#if defined(WIN32_NATIVE)
+static void init_win32_link (void) {
   HMODULE kernel32 = LoadLibrary ("kernel32.dll");
   if (kernel32 != NULL) {
     CreateHardLinkFunc = (CreateHardLinkFuncType)
@@ -2509,15 +2499,22 @@ void module__syscalls__init_function_2 (module_t* module) {
     if (UnlockFileExFunc == NULL)
       UnlockFileExFunc = (UnlockFileExFuncType) &my_UnlockFileEx;
   }
-#endif
-#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
-  { HMODULE ole32 = LoadLibrary ("ole32.dll");
-    if (ole32 != NULL)
-      StgOpenStorageExFunc = (StgOpenStorageExFuncType)
-        GetProcAddress (ole32, "StgOpenStorageEx");
-  }
-#endif
 }
+#endif
+
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+typedef HRESULT (WINAPI * StgOpenStorageExFuncType) (const WCHAR* pwcsName,
+            DWORD grfMode, DWORD stgfmt, DWORD grfAttrs, void * reserved1,
+            void * reserved2, REFIID riid, void ** ppObjectOpen);
+static StgOpenStorageExFuncType StgOpenStorageExFunc = NULL;
+
+static void init_win32_cygwin_open_storage (void) {
+  HMODULE ole32 = LoadLibrary ("ole32.dll");
+  if (ole32 != NULL)
+    StgOpenStorageExFunc = (StgOpenStorageExFuncType)
+      GetProcAddress (ole32, "StgOpenStorageEx");
+}
+#endif
 
 /* COPY-FILE related functions. */
 
@@ -4162,6 +4159,43 @@ DEFUN(POSIX::CLEARERR, fp) {
  *   }
  * DEFUN(POSIX::FPUTC, c fp) INT_FILE_TO_INT(fputc)
  * DEFUN(POSIX::UNGETC, c fp) INT_FILE_TO_INT(ungetc) */
+
+/* standard objects */
+DEFVAR(my_stdin,allocate_fpointer(NULL))
+DEFVAR(my_stdout,allocate_fpointer(NULL))
+DEFVAR(my_stderr,allocate_fpointer(NULL))
+static void init_stdio (void) {
+  TheFpointer(O(my_stdin))->fp_pointer = stdin;
+  mark_fp_valid(TheFpointer(O(my_stdin)));
+  TheFpointer(O(my_stdout))->fp_pointer = stdout;
+  mark_fp_valid(TheFpointer(O(my_stdout)));
+  TheFpointer(O(my_stderr))->fp_pointer = stderr;
+  mark_fp_valid(TheFpointer(O(my_stderr)));
+}
+DEFUN(POSIX::%STDIO, &optional which) {
+ stdio_restart:
+  if (missingp(STACK_0)) {
+    init_stdio();
+    VALUES0;
+  } else {
+    int which = I_to_sint(STACK_0 = check_sint(STACK_0));
+    switch (which) {
+      case 0: VALUES1(O(my_stdin)); break;
+      case 1: VALUES1(O(my_stdout)); break;
+      case 2: VALUES1(O(my_stderr)); break;
+      default:
+        pushSTACK(NIL);         /* no PLACE */
+        pushSTACK(STACK_1);     /* TYPE-ERROR slot DATUM */
+        pushSTACK(`(MEMBER 0 1 2)`); /* EXPECTED-TYPE */
+        pushSTACK(STACK_0); pushSTACK(STACK_2);
+        pushSTACK(TheSubr(subr_self)->name);
+        check_value(type_error,GETTEXT("~S: ~S is not a ~S"));
+        STACK_0 = value1;
+        goto stdio_restart;
+    }
+  }
+  skipSTACK(1);
+}
 #endif  /* HAVE_FFI */
 
 #if defined(DEBUG_SPVW)
@@ -4174,3 +4208,16 @@ DEFUN(CONSTSYM, &optional pos) {
   skipSTACK(1);
 }
 #endif
+
+void module__syscalls__init_function_2 (module_t* module);
+void module__syscalls__init_function_2 (module_t* module) {
+#if defined(WIN32_NATIVE)
+  init_win32_link();
+#endif
+#if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+  init_win32_cygwin_open_storage();
+#endif
+#if defined(HAVE_FFI)
+  init_stdio();
+#endif
+}

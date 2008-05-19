@@ -1,5 +1,13 @@
 2008-05-19  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (mark_fp_valid): export to clisp.h
+	* modules/syscalls/calls.c (%STDIO, my_stdin, my_stdout)
+	(my_stderr, init_stdio) [HAVE_FFI]: add
+	(module__syscalls__init_function_2) [HAVE_FFI]: call init_stdio()
+	* modules/syscalls/posix.lisp (stdin, stdout, stderr) [FFI]: defconstant
+
+2008-05-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (FREOPEN): implement
 	* modules/syscalls/posix.lisp (freopen): export
 
@@ -25304,7 +25312,7 @@
 
 	fixed bug #[ 873204 ]: infinite recursion with pprint-logical-block
 	* io.d (pretty_print_call): avoid an infinite recursion by
-	cheking *PRIN-PPRINTER* before calling PPRINT-DISPATCH
+	checking *PRIN-PPRINTER* before calling PPRINT-DISPATCH
 
 2004-01-08  Sam Steingold  <sds@gnu.org>
 

@@ -388,8 +388,13 @@
     xio))
 
 ;;;--------------------------------------------------------------------------
-#+FFI (export '(fopen fdopen freopen fclose fflush ; fgetc fputc ungetc
-                clearerr feof ferror fileno))
+#+FFI (progn
+(export '(fopen fdopen freopen fclose fflush ; fgetc fputc ungetc
+          clearerr feof ferror fileno stdin stdout stderr))
+(defconstant stdin (posix::%stdio 0))
+(defconstant stdout (posix::%stdio 1))
+(defconstant stderr (posix::%stdio 2))
+)
 ;;;--------------------------------------------------------------------------
 (defun ffs (n) (integer-length (logand n (- n))))
 ;; http://www.opengroup.org/onlinepubs/009695399/functions/ffs.html
