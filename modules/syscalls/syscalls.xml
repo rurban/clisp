@@ -721,8 +721,8 @@ which compute the error functions, Bessel functions and Gamma.</para>
   </simplelist>call their namesakes defined in &stdio;.</para>
  <simpara>Functions <function>OS:FOPEN</function>,
   <function>OS:FDOPEN</function>, <function>OS:FCLOSE</function>,
-  <function>OS:FFLUSH</function>, <function>OS:FILENO</function> may
-  &sig-err;.</simpara>
+  <function>OS:FFLUSH</function>, <function>OS:FILENO</function>
+  may &signal; an &error-t;.</simpara>
  <variablelist><title>Return values</title>
   <varlistentry><term><function>OS:FOPEN</function></term>
    <term><function>OS:FDOPEN</function></term>
