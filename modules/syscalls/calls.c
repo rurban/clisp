@@ -4146,19 +4146,20 @@ DEFUN(POSIX::CLEARERR, fp) {
   end_system_call();
   VALUES0; skipSTACK(1);
 }
-/* fgetc returns -1 on EOF instead of signaling an error. or signal?!
- * DEFUN(POSIX::FGETC, fp) FILE_FUNCTION(fgetc,VALUES1(sint_to_I(ret)))
- * #define INT_FILE_TO_INT(fun) {                                       \
- *     int ret;                                                         \
- *     STACK_0 = check_fpointer(STACK_0,1);                             \
- *     STACK_1 = check_sint(STACK_1);                                   \
- *     begin_system_call();                                             \
- *     ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);  \
- *     end_system_call();                                               \
- *     VALUES1(sint_to_I(ret)); skipSTACK(2);                           \
- *   }
- * DEFUN(POSIX::FPUTC, c fp) INT_FILE_TO_INT(fputc)
- * DEFUN(POSIX::UNGETC, c fp) INT_FILE_TO_INT(ungetc) */
+
+/* --- testing only! not exported! --- */
+/* fgetc returns -1 on EOF instead of signaling an error. or signal?! */
+DEFUN(POSIX::%FGETC, fp) { FILE_FUNCTION(fgetc,VALUES1(sint_to_I(ret))); }
+#define FILE_FUNCTION2(fun)                                          \
+  int ret;                                                           \
+  STACK_0 = check_fpointer(STACK_0,1);                               \
+  STACK_1 = check_sint(STACK_1);                                     \
+  begin_system_call();                                               \
+  ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);    \
+  end_system_call();                                                 \
+  VALUES1(sint_to_I(ret)); skipSTACK(2)
+DEFUN(POSIX::%FPUTC, c fp) { FILE_FUNCTION2(fputc); }
+DEFUN(POSIX::%UNGETC, c fp) { FILE_FUNCTION2(ungetc); }
 
 /* standard objects */
 DEFVAR(my_stdin,allocate_fpointer(NULL))
