@@ -170,11 +170,11 @@ do
     # If the previous option needs an argument for subdir configures or
     # makemake, pass it, otherwise set the variable
     case "$passnext" in
-      (configure) subdir_configure_args="$subdir_configure_args $arg" ;;
-      (makemake) makemake_args="$makemake_args$arg" ;;
-      (both) makemake_args="$makemake_args$arg"
+      configure) subdir_configure_args="$subdir_configure_args $arg" ;;
+      makemake) makemake_args="$makemake_args$arg" ;;
+      both) makemake_args="$makemake_args$arg"
         subdir_configure_args="$subdir_configure_args $arg" ;;
-      (*) eval "$prev=\$arg" ;;
+      *) eval "$prev=\$arg" ;;
     esac
     passnext=''
     prev=''
