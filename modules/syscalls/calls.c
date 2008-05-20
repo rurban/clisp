@@ -4111,8 +4111,8 @@ DEFUN(POSIX::FREOPEN, path mode file) {
   STACK_2 = check_string(STACK_2); /* path */
   STACK_1 = check_string(STACK_1); /* mode */
   STACK_0 = check_fpointer(STACK_0,1); /* file */
-  with_string_0(STACK_1, GLO(pathname_encoding), pathz, {
-      with_string_0(STACK_0, GLO(misc_encoding), modez, {
+  with_string_0(STACK_2, GLO(pathname_encoding), pathz, {
+      with_string_0(STACK_1, GLO(misc_encoding), modez, {
           FILE *fp;
           begin_system_call();
           fp = freopen(pathz,modez,(FILE*)TheFpointer(STACK_0)->fp_pointer);
