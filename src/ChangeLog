@@ -2,6 +2,9 @@
 
 	* modules/syscalls/calls.c (FREOPEN): fix stack access
 	include <fcntl.h> before DEFMODULE so that DEFCHECKERs work
+	(pid_to_I, I_to_pid, uid_to_I, I_to_uid, gid_to_I, I_to_gid): POSIX
+	specifies that pid_t is signed, assume that the others are signed too
+	http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/types.h.html
 
 2008-05-20  Sam Steingold  <sds@gnu.org>
 

@@ -106,26 +106,28 @@ extern object nobject_out (FILE* stream, object obj);
 # define XOUT(o,l)
 #endif
 
+/* http://www.opengroup.org/onlinepubs/009695399/basedefs/sys/types.h.html
+   specifies tha pid_t is signed, assume that uid_t & gid_t are signed too */
 #if SIZEOF_PID_T == 8
-# define pid_to_I(g)  uint64_to_I(g)
-# define I_to_pid(g)  I_to_uint64(g=check_uint64(g))
+# define pid_to_I(g)  sint64_to_I(g)
+# define I_to_pid(g)  I_to_sint64(g=check_sint64(g))
 #else
-# define pid_to_I(g)  uint32_to_I(g)
-# define I_to_pid(g)  I_to_uint32(g=check_uint32(g))
+# define pid_to_I(g)  sint32_to_I(g)
+# define I_to_pid(g)  I_to_sint32(g=check_sint32(g))
 #endif
 #if SIZEOF_UID_T == 8
-# define uid_to_I(g)  uint64_to_I(g)
-# define I_to_uid(g)  I_to_uint64(g=check_uint64(g))
+# define uid_to_I(g)  sint64_to_I(g)
+# define I_to_uid(g)  I_to_sint64(g=check_sint64(g))
 #else
-# define uid_to_I(g)  uint32_to_I(g)
-# define I_to_uid(g)  I_to_uint32(g=check_uint32(g))
+# define uid_to_I(g)  sint32_to_I(g)
+# define I_to_uid(g)  I_to_sint32(g=check_sint32(g))
 #endif
 #if SIZEOF_GID_T == 8
-# define gid_to_I(g)  uint64_to_I(g)
-# define I_to_gid(g)  I_to_uint64(g=check_uint64(g))
+# define gid_to_I(g)  sint64_to_I(g)
+# define I_to_gid(g)  I_to_sint64(g=check_sint64(g))
 #else
-# define gid_to_I(g)  uint32_to_I(g)
-# define I_to_gid(g)  I_to_uint32(g=check_uint32(g))
+# define gid_to_I(g)  sint32_to_I(g)
+# define I_to_gid(g)  I_to_sint32(g=check_sint32(g))
 #endif
 
 /* general convenience macros */
