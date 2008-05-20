@@ -417,7 +417,7 @@ T
 #+ffi (os:ferror *foo*) #+ffi NIL
 #+ffi (os:clearerr *foo*) #+ffi NIL
 #+ffi (os:fclose *foo*) #+ffi NIL
-#+ffi (null (delete-file "foo")) #+ffi NIL
+#+ffi (finish-file "foo") #+ffi 1
 
 
 (progn (proc-send *proc1* "(close s)(ext:quit)")
