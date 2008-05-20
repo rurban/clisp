@@ -1,6 +1,7 @@
 2008-05-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FREOPEN): fix stack access
+	include <fcntl.h> before DEFMODULE so that DEFCHECKERs work
 
 2008-05-20  Sam Steingold  <sds@gnu.org>
 
