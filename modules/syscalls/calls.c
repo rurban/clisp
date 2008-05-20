@@ -78,6 +78,9 @@
 #  define unused
 # endif
 #endif
+#if defined(HAVE_FCNTL_H)
+# include <fcntl.h>
+#endif
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
@@ -165,9 +168,6 @@ DEFMODULE(syscalls,"POSIX")
    since cygwin supports fcntl(), we use it there, but another option
    would be to use cygwin get_osfhandle() + win32 LockFileEx(),
    see <http://article.gmane.org/gmane.os.cygwin/35175> */
-#if defined(HAVE_FCNTL_H)
-# include <fcntl.h>
-#endif
 
 /* ============================== aux ============================== */
 
