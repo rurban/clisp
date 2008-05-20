@@ -1,5 +1,9 @@
 2008-05-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (FREOPEN): fix stack access
+
+2008-05-20  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1966714 ]: invalid syntax in top-level configure
 	* configure (passnext): support non-POSIX /bin/sh on Solaris
 
@@ -7,7 +11,6 @@
 
 	* modules/syscalls/calls.c: move DEFMODULE et al outside of the
 	file locking conditional
-	(I_to_pid, I_to_uid, I_to_gid): use check_uint* instead of check_sint*
 
 2008-05-19  Sam Steingold  <sds@gnu.org>
 
