@@ -2638,15 +2638,13 @@ operands) for the following frequent instructions:</para>
 <computeroutput>MY-PLUS-1</computeroutput>
 ;; works only on closure objects
 (sys::closure-name #'my-plus-1)
-<computeroutput>MY-PLUS-1</computeroutput>
-</programlisting></para></formalpara>
+<computeroutput>MY-PLUS-1</computeroutput></programlisting></para></formalpara>
 
 <formalpara id="closure-codevec"><title>Closure bytecode</title>
 <para>The actual bytecode vector (if you modify it, you can get a
  segfault when the function is executed):<programlisting language="lisp">
 (sys::closure-codevec #'my-plus-1)
-<computeroutput>#(0 0 0 0 2 0 0 0 6 3 174 174 51 2 53 25 3)</computeroutput>
-</programlisting></para></formalpara>
+<computeroutput>#(0 0 0 0 2 0 0 0 6 3 174 174 51 2 53 25 3)</computeroutput></programlisting></para></formalpara>
 
 <formalpara id="closure-consts"><title>Closure constants</title>
 <para>A closure can depend on external and internal values:
@@ -2655,9 +2653,8 @@ operands) for the following frequent instructions:</para>
   (defun my-plus-2 (z) (declare (compile)) (+ x y z)))
 <computeroutput>MY-PLUS-2</computeroutput>
 (sys::closure-consts #'my-plus-2)
-<computeroutput>(#(Y 456 X 123 NIL) 3 1)</computeroutput>
-</programlisting> Use &disassemble; to see how the constants are used.
-</para></formalpara>
+<computeroutput>(#(Y 456 X 123 NIL) 3 1)</computeroutput></programlisting>
+Use &disassemble; to see how the constants are used.</para></formalpara>
 
 <formalpara id="signature"><title>Closure signature</title>
 <para>Function <function>SYS::SIGNATURE</function> returns 8 values:
@@ -2681,9 +2678,8 @@ operands) for the following frequent instructions:</para>
   (sys::disassemble-LAP byte-list const-list))
 <computeroutput>((0 LOAD&amp;PUSH 2) (1 LOAD&amp;PUSH 2) (2 CALLSR 2 53) (5 SKIP&amp;RET 3))</computeroutput>
 (sys::assemble-LAP (mapcar #'rest *))
-<computeroutput>(174 174 51 2 53 25 3)</computeroutput>
-</programlisting></para></formalpara>
-</section>
+<computeroutput>(174 174 51 2 53 25 3)</computeroutput></programlisting>
+</para></formalpara></section>
 
 <section id="bytecode-design"><title>Bytecode Design</title>
 
@@ -2708,13 +2704,13 @@ operands) for the following frequent instructions:</para>
 <section id="byte-jmptail-q">
   <title>Why <link linkend="instr-jump">JMPTAIL</link>?</title>
   <abstract><title>Question:</title>
-   <para>Consider this function and its disassembly:<programlisting>
- (defun foo (x y) (if (or (= x 0) (= y 0)) (+ x y) (foo y (1- x))))
- (&disassemble; 'foo)
+   <para>Consider this function and its disassembly:
+<programlisting language="lisp">
+(defun foo (x y) (if (or (= x 0) (= y 0)) (+ x y) (foo y (1- x))))
+(&disassemble; 'foo)
 8     (LOAD&amp;PUSH 1)
 9     (LOAD&amp;DEC&amp;PUSH 3)
-11    (JMPTAIL 2 5 L0)
-    </programlisting>
+11    (JMPTAIL 2 5 L0)</programlisting>
     Why are the arguments pushed onto the &STACK;, just to be popped off of
     it during the <literal role="byte">JMPTAIL</literal>?
     Why not a sequence of <literal role="byte">LOAD</literal>,
