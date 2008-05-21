@@ -12,7 +12,8 @@ compiled with GNU CLISP.
 The user interface comes in English, German, French, Spanish, Dutch,
 Russian and Danish, and can be changed during run time.
 GNU CLISP includes an interpreter, a compiler, a debugger, CLOS, MOP,
-a foreign language interface, a socket interface, i18n, fast bignums and more.
+a foreign language interface, a socket interface, i18n, fast bignums,
+arbitrary precision floats and more.
 An X11 interface is available through CLX, Garnet, CLUE/CLIO.
 GNU CLISP runs Maxima, ACL2 and many other Common Lisp packages.
 
