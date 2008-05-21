@@ -1,3 +1,8 @@
+2008-05-21  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX::RESOLVE-HOST-IPADDR):
+	call sethostent() before the gethostent() iteration
+
 2008-05-20  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FREOPEN): fix stack access
