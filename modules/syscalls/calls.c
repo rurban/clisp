@@ -1349,6 +1349,7 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
 #  else
     int count = 0;
     begin_system_call();
+    sethostent(1);
     for (; (he = gethostent()); count++) {
       hostent_to_lisp(he);
       pushSTACK(value1);
