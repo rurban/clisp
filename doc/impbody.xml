@@ -418,6 +418,18 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 
 <para>&clisp; compiles to platform-independent &bytecode;.</para>
 
+<section id="compile-jit"><title>Just-In-Time Native Compilation</title>
+ <subtitle><emphasis role="plat-dep">only in &clisp; built &with;
+   &lightning;</emphasis></subtitle>
+<para>The code compiled to &bytecode;s with optimization levels
+ <programlisting language="lisp">
+(&or-m; (&geq; 0 &space-dec;) (&leq; 1 &speed-dec;))</programlisting>
+ (by &compile; &compile-file-my;, or &compile-decl;) will be
+ <firstterm>just-in-time</firstterm> (i.e., on the first execution)
+ compiled to native code using &lightning;.
+</para>
+</section>
+
 </section>
 
 <section id="compilation-semantics"><title>Compilation Semantics
