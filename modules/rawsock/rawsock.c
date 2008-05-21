@@ -1084,7 +1084,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key :START :END)
   ssize_t retval;
   size_t len;
   uintL offset;
-  if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEW */
+  if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEV */
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
     fill_iovec(STACK_0,offset,retval,buffer,PROT_READ);
     SYSCALL(retval,sock,writev(sock,buffer,retval));
