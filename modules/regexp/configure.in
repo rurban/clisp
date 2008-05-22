@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for regex
 dnl Bruno Haible 18.4.1995
-dnl Sam Steingold 2003-2007
+dnl Sam Steingold 2003-2008
 
 AC_PREREQ(2.57)
 AC_INIT(regexp, 1.0, clisp-list)
@@ -12,7 +12,6 @@ RSE_BOLD
 BOLD_MSG([Regexp (Common)])
 CL_MODULE_COMMON_CHECKS
 AC_CHECK_HEADERS(string.h sys/types.h)
-AM_GNU_GETTEXT([external])
 gl_C_RESTRICT
 
 dnl called from top-level configure.in:gl_INIT [gl_FUNC_ALLOCA gl_REGEX]
