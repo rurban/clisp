@@ -212,13 +212,17 @@ do
         echo "module sets found in the directory '${MODDIR}':"
         MODLIST=`find ${MODDIR} -name link.sh -o -name link.sh.in | sed -e 's,^${MODDIR}/,,' -e 's,/[^/]*$,,' | sort`
         for m in ${MODLIST}; do echo " "${m}; done
-        echo "to specify the location of the external software:"
+        echo "to specify the location of external software:"
         for m in src ${MODLIST}; do
           CFG=./${m}/configure
           if [ -x ${CFG} ]; then
-            echo " "${m}:
-            ${CFG} --help | grep '  --with-[a-zA-Z0-8]*-prefix'
-            echo "  run '${CFG} --help' for more information"
+            tmp=${CFG}.with
+            ${CFG} --help | grep '  --with-[a-zA-Z0-8]*-prefix' > ${tmp}
+            if test -s ${tmp}; then
+              echo "* ${m} (try also '${CFG} --help')"
+              cat ${tmp}
+            fi
+            rm -f ${tmp}
           fi
         done
         exit 0 ;;
