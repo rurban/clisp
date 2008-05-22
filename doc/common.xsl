@@ -394,6 +394,7 @@
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
     <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support This Project]"/></a></td>
+    <td align="center"><a href="http://sourceforge.net/awards/cca/?group_id=1355"><img src="http://sourceforge.net/awards/cca/badge_img.php?group_id=1355&amp;style=1" width="120" height="60" alt="[nominate this project for the community choice award]"/></a></td>
     <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
  </tr></table></div><hr width="100%"/>
  <!-- https://sourceforge.net/tracker/?func=detail&atid=200001&aid=1878997&group_id=1 -->
