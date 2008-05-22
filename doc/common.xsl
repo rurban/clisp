@@ -375,7 +375,7 @@
 <xsl:param name="google.ads" select="0"/>
 <xsl:template name="user.footer.content">
  <xsl:if test="/refentry/refentryinfo"><div class="refentryinfo">
-   <hr width="100%"/><table width="100%" summary="man page meta info">
+   <hr /><table width="100%" summary="man page meta info">
     <th><td align="left">
       <xsl:apply-templates select="/refentry/refentryinfo/title/node()"/>
      </td><td align="center">
@@ -384,19 +384,19 @@
       <xsl:apply-templates select="/refentry/refentryinfo/date/node()"/>
  </td></th></table></div></xsl:if>
  <xsl:if test="/book/bookinfo"><div class="bookinfo">
-   <hr width="100%"/><table width="100%" summary="impnotes meta info">
+   <hr /><table width="100%" summary="impnotes meta info">
     <th><td align="left">
       <xsl:apply-templates select="/book/bookinfo/subtitle/node()"/>
      </td><td align="right">
       <xsl:apply-templates select="/book/bookinfo/date/node()"/>
  </td></th></table></div></xsl:if>
- <div class="custom-footer"><hr width="100%"/><table width="100%">
+ <div class="custom-footer"><hr /><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
     <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
     <td align="center"><a href="http://sourceforge.net/awards/cca/?group_id=1355"><img src="http://sourceforge.net/awards/cca/badge_img.php?group_id=1355&amp;style=1" width="120" height="60" alt="[Nominate CLISP for the Community Choice Award]"/></a></td>
     <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
- </tr></table></div><hr width="100%"/>
+ </tr></table></div><hr />
  <!-- https://sourceforge.net/tracker/?func=detail&atid=200001&aid=1878997&group_id=1 -->
  <form method="get" action="http://www.google.com/custom" target="_top">
   <table width="100%" border="0"><tr>
@@ -428,7 +428,7 @@
      <input type="hidden" name="oe" value="UTF-8"/>
      <input type="hidden" name="cof" value="GALT:#008000;GL:1;DIV:#336699;VLC:663399;AH:center;BGC:FFFFFF;LBGC:000000;ALC:0000FF;LC:0000FF;T:000000;GFNT:0000FF;GIMP:0000FF;LH:48;LW:48;L:http://clisp.cons.org/clisp.png;S:http://clisp.cons.org;FORID:1"/>
      <input type="hidden" name="hl" value="en"/></td></tr></table></form>
- <hr width="100%"/>
+ <hr />
  <xsl:if test="$google.ads != 0"><div class="google-ads">
    <script type="text/javascript"><xsl:comment>
 google_ad_client = "pub-4445255502750357";

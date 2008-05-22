@@ -72,3 +72,6 @@ td span.term, dt span.term { font-weight: bold; }
 
 /* modules */
 .module { background-color: lightyellow; color: darkblue; font-weight: bold; }
+
+/* full width horizontal rulers */
+hr { width: 100%; }
