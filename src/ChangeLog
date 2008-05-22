@@ -1,5 +1,10 @@
 2008-05-22  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1956715 ]: segfault on SIGHUP
+	* spvw_sigterm.d (quit_on_signal) [HAVE_SAVED_STACK]: restore STACK
+
+2008-05-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/configure.in: remove AM_GNU_GETTEXT([external])
 	(why was it there in the first place?!)
 
