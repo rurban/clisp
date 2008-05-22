@@ -3,6 +3,7 @@ User visible changes
 
 * Bug fixes:
   + Work around the absence of tgamma() on solaris. [ 1966375 ]
+  + Avoid a rare segfault on SIGHUP. [ 1956715 ]
 
 
 2.45 (2008-05-15)
