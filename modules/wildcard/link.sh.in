@@ -6,8 +6,8 @@ for extra in '' @FNMATCH_O@; do
     NEW_LIBS="${NEW_LIBS} ${extra}"
   fi
 done
-make clisp-module \
-     CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-     INCLUDES="$absolute_linkkitdir"
+${MAKE-make} clisp-module \
+  CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
+  INCLUDES="$absolute_linkkitdir"
 NEW_MODULES="wildcard"
 TO_LOAD='wildcard'
