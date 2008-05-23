@@ -1,4 +1,4 @@
-make clisp-module \
+${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   INCLUDES="$absolute_linkkitdir"
 NEW_FILES="clx.o"
