@@ -3,9 +3,9 @@
 #
 # $Id$
 
-make clisp-module \
-     CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-     INCLUDES="$absolute_linkkitdir"
+${MAKE-make} clisp-module \
+  CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
+  INCLUDES="$absolute_linkkitdir"
 
 NEW_FILES="oracle.o oiface.o orafns.o"
 

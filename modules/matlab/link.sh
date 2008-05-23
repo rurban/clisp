@@ -7,7 +7,7 @@ fi
 # matlab=/usr/local/matlab/extern/lib/
 matlab=d:/MATLAB7/extern/lib/win32/microsoft/msvc60
 
-make clisp-module \
+${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
