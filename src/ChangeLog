@@ -1,3 +1,8 @@
+2008-05-25  Bruno Haible  <bruno@clisp.org>
+
+	* floatparam.c: Remove support for K&R C compilers.
+	* intparam.c: Likewise.
+
 2008-05-23  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1970141 ]: link.sh should respect $(MAKE)
