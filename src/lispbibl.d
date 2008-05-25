@@ -1377,8 +1377,10 @@ typedef signed int  signean;
 
 /* non-local exits */
 #include <setjmp.h>
-#if defined(UNIX) && defined(HAVE__JMP) && !defined(UNIX_LINUX) && !defined(UNIX_GNU) && !defined(UNIX_BEOS) && !defined(UNIX_CYGWIN32)
-  /* The following routines are more efficient (don't use with signal-masks): */
+#if (defined(UNIX) || defined(__MINGW32__)) && defined(HAVE__JMP)
+  /* The "_" routines are more efficient (do not save/restore signal masks,
+   see http://article.gmane.org/gmane.lisp.clisp.devel/18227 or
+   http://sourceforge.net/mailarchive/message.php?msg_id=200805251238.10097.bruno%40clisp.org): */
   #undef setjmp
   #undef longjmp
   #define setjmp  _setjmp

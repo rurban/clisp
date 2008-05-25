@@ -1,5 +1,10 @@
 2008-05-25  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (setjmp, longjmp) [HAVE__JMP]: on all autoconf platforms
+	(UNIX & __MINGW32__), use _setjmp and _longjmp whenever they are present
+
+2008-05-25  Sam Steingold  <sds@gnu.org>
+
 	* spvw_sigint.d (signal_handler_prepare_for_lisp): extracted from
 	react_on_sigint()
 	(react_on_sigint): call it
