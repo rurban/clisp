@@ -44,6 +44,7 @@ local void uninstall_sigterm_handler (void) {
 local bool quit_on_signal_in_progress = false;
 /* print the "exiting" message and quit */
 local void quit_on_signal (int sig) {
+ #ifndef NO_ASYNC_INTERRUPTS
   if (quit_on_signal_in_progress) { /* quit without much ado */
     /* next signal will bypass this function and kill CLISP instantly: */
     uninstall_sigterm_handler();
@@ -52,10 +53,7 @@ local void quit_on_signal (int sig) {
     return;        /* return from signal handler if the signal is blocked */
   }
   quit_on_signal_in_progress = true;
- #ifdef HAVE_SAVED_STACK
-  /* set STACK to a meaningful value: */
-  if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
- #endif
+  signal_handler_prepare_for_lisp(sig);
   pushSTACK(Symbol_value(S(error_output))); fresh_line(&STACK_0);
   pushSTACK(CLSTEXT("Exiting on signal ")); pushSTACK(STACK_1);
   funcall(L(write_string),2);   /* (write-line "exiting" stderr) */
@@ -64,6 +62,7 @@ local void quit_on_signal (int sig) {
   terpri(&STACK_0); skipSTACK(1); /* drop *error-output* */
   final_exitcode = - sig;
   quit();
+ #endif
 }
 
 /* install error handlers for as many signals as possible */
