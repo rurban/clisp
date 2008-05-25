@@ -80,7 +80,6 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
  #ifdef UNIX
   /* Unblock signals blocked by libsigsegv/src/handler-unix.c:install_for()
    Alternatively unblock all signals */
-  #if defined(SIGNALBLOCK_POSIX)
   { var sigset_t sigblock_mask;
     /* sigemptyset(&sigblock_mask);
      sigaddset(&sigblock_mask,SIGSEGV);
@@ -91,9 +90,6 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
     sigfillset(&sigblock_mask);
     sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
   }
-  #elif defined(SIGNALBLOCK_BSD)
-  sigsetmask(0);
-  #endif
  #endif
   sigsegv_leave_handler();
  #ifdef HAVE_SAVED_STACK

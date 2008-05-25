@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -81,28 +81,6 @@ AC_DEFINE(SIGTYPE_DOTS,,[declaration of the signal handler function type needs d
 fi
 ])
 
-AC_DEFUN([CL_SIGNALBLOCK],
-[AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])dnl
-AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
-signalblocks=""
-AC_CHECK_FUNC(sighold, AC_DEFINE(SIGNALBLOCK_SYSV,,[how to block and unblock signals])
-signalblocks="$signalblocks SystemV", )dnl
-AC_EGREP_HEADER(sigset_t, signal.h, , signals_not_posix=1)dnl
-if test -z "$signals_not_posix"; then
-AC_CHECK_FUNC(sigprocmask, AC_DEFINE(SIGNALBLOCK_POSIX,,[how to block and unblock signals])
-signalblocks="$signalblocks POSIX", )dnl
-fi
-AC_CHECK_FUNC(sigblock, AC_DEFINE(SIGNALBLOCK_BSD,,[how to block and unblock signals])
-signalblocks="$signalblocks BSD", )dnl
-AC_CACHE_CHECK(for signal blocking interfaces, cl_cv_func_signalblocks, [
-if test -z "$signalblocks"; then
-  cl_cv_func_signalblocks="none"
-else
-  cl_cv_func_signalblocks=`echo $signalblocks`
-fi
-])
-])
-
 AC_DEFUN([CL_SIGNAL_REINSTALL],
 [AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])dnl
 AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
@@ -149,7 +127,7 @@ esac
 ])
 
 AC_DEFUN([CL_SIGNAL_UNBLOCK],
-[AC_REQUIRE([CL_SIGNAL_REINSTALL])AC_REQUIRE([CL_SIGNALBLOCK])dnl
+[AC_REQUIRE([CL_SIGNAL_REINSTALL])dnl
 case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked, [
@@ -183,14 +161,10 @@ RETSIGTYPE sigalrm_handler()
 #ifdef SIGNAL_NEED_REINSTALL
   signal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
-#ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
     sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
     wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
   }
-#else
-  wasblocked = ((sigblock(0) & sigmask(SIGALRM)) != 0);
-#endif
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
@@ -210,7 +184,7 @@ esac
 ])
 
 AC_DEFUN([CL_SIGNAL_BLOCK_OTHERS],
-[AC_REQUIRE([CL_SIGNAL_REINSTALL])AC_REQUIRE([CL_SIGNALBLOCK])dnl
+[AC_REQUIRE([CL_SIGNAL_REINSTALL])dnl
 case "$signalblocks" in
   *POSIX* | *BSD*)
 AC_CACHE_CHECK(whether other signals are blocked when signal handlers are entered, cl_cv_func_signal_blocked_others, [
@@ -244,7 +218,6 @@ RETSIGTYPE sigalrm_handler()
 #ifdef SIGNAL_NEED_REINSTALL
   signal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
-#ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
     int i;
     sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
@@ -252,9 +225,6 @@ RETSIGTYPE sigalrm_handler()
       if (i!=SIGALRM && sigismember(&blocked,i))
         somewereblocked = 1;
   }
-#else
-  somewereblocked = ((sigblock(0) & ~sigmask(SIGALRM)) != 0);
-#endif
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
@@ -345,7 +315,6 @@ AC_DEFUN([CL_SIGACTION_UNBLOCK],
 [AC_REQUIRE([CL_TYPE_SIGNAL])dnl
 AC_REQUIRE([CL_SIGACTION])dnl
 AC_REQUIRE([CL_SIGACTION_REINSTALL])dnl
-AC_REQUIRE([CL_SIGNALBLOCK])dnl
 if test -n "$have_sigaction"; then
 case "$signalblocks" in
   *POSIX* | *BSD*)
@@ -394,14 +363,10 @@ RETSIGTYPE sigalrm_handler()
 #ifdef SIGNAL_NEED_REINSTALL
   mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
 #endif
-#ifdef SIGNALBLOCK_POSIX
   { sigset_t blocked;
     sigprocmask(SIG_BLOCK, (sigset_t *) 0, &blocked);
     wasblocked = sigismember(&blocked,SIGALRM) ? 1 : 0;
   }
-#else
-  wasblocked = ((sigblock(0) & sigmask(SIGALRM)) != 0);
-#endif
 }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be unblocked */
