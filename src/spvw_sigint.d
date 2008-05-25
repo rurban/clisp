@@ -25,11 +25,9 @@ global uintB interrupt_pending = false;
 
 #ifdef HAVE_SIGNALS
 
-/* React on signal SIGINT: Leave the signal handler and enter a break driver
- loop. If this function returns, this means the signal handler should try
- again later. */
-local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
- #ifndef NO_ASYNC_INTERRUPTS
+/* this must be done by signal handler before entering lisp.
+ also used in spvw_sigterm.d */
+local void signal_handler_prepare_for_lisp (int sig) {
   /* wait, until break is allowed: */
   if (!break_sems_cleared())
     return;
@@ -45,24 +43,29 @@ local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
    on our own and hope that it is called by all library-
    functions (statically linked or via DLL)?? */
 
-  #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && defined(SIGNALBLOCK_POSIX))
-  /* either if handlers, installed with [SIGNAL_NEED_UNBLOCK] and signal(),
+ #if defined(SIGNALBLOCK_POSIX) && ((defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || defined(GNU_READLINE))
+  { /* either if handlers, installed with [SIGNAL_NEED_UNBLOCK] and signal(),
    are called with blocked signal anyway - usually on
    BSD-systems -, or if other unsecure components [GNU_READLINE] can cause
    the blocking of the signal on call via sigaction() or similar,
    we must unblock the right now blocked signal: */
-  #if defined(SIGNALBLOCK_POSIX)
-  {
     var sigset_t sigblock_mask;
     sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
     sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
   }
-  #endif
-  #endif
-  #ifdef HAVE_SAVED_STACK
+ #endif
+ #ifdef HAVE_SAVED_STACK
   /* set STACK to a meaningful value: */
   if (saved_STACK != NULL) { setSTACK(STACK = saved_STACK); }
-  #endif
+ #endif
+}
+
+/* React on signal SIGINT: Leave the signal handler and enter a break driver
+ loop. If this function returns, this means the signal handler should try
+ again later. */
+local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
+ #ifndef NO_ASYNC_INTERRUPTS
+  signal_handler_prepare_for_lisp(sig);
   /* jump into a break-loop via 'error': */
   error(interrupt_condition,GETTEXT("Ctrl-C: User break"));
  #endif  /* NO_ASYNC_INTERRUPTS */
