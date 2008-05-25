@@ -1,5 +1,16 @@
 2008-05-25  Bruno Haible  <bruno@clisp.org>
 
+	* m4/signal.m4 (CL_SIGNALBLOCK): Remove macro.
+	(CL_SIGNAL_UNBLOCK, CL_SIGNAL_BLOCK_OTHERS, CL_SIGACTION_UNBLOCK):
+	Assume POSIX signal-blocking.
+	* unix.d (SIGNALBLOCK_POSIX): Define always.
+	* spvw.d (main): Assume SIGNALBLOCK_POSIX on Unix.
+	* spvw_sigint.d (react_on_sigint): Likewise.
+	* spvw_sigsegv.d (stackoverflow_handler): Likewise.
+	* configure.in (CL_SIGNALBLOCK): Remove invocation.
+
+2008-05-25  Bruno Haible  <bruno@clisp.org>
+
 	* floatparam.c: Remove support for K&R C compilers.
 	* intparam.c: Likewise.
 
