@@ -45,7 +45,7 @@ local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
    on our own and hope that it is called by all library-
    functions (statically linked or via DLL)?? */
 
-  #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && (defined(SIGNALBLOCK_BSD) || defined(SIGNALBLOCK_POSIX)))
+  #if (defined(USE_SIGACTION) ? defined(SIGACTION_NEED_UNBLOCK) : defined(SIGNAL_NEED_UNBLOCK)) || (defined(GNU_READLINE) && defined(SIGNALBLOCK_POSIX))
   /* either if handlers, installed with [SIGNAL_NEED_UNBLOCK] and signal(),
    are called with blocked signal anyway - usually on
    BSD-systems -, or if other unsecure components [GNU_READLINE] can cause
@@ -57,8 +57,6 @@ local void react_on_sigint (int sig) { /* sig = SIGINT or SIGALRM */
     sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
     sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
   }
-  #elif defined(SIGNALBLOCK_BSD)
-  sigsetmask(sigblock(0) & ~sigmask(sig));
   #endif
   #endif
   #ifdef HAVE_SAVED_STACK

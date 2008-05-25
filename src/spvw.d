@@ -3461,8 +3461,6 @@ global int main (argc_t argc, char* argv[]) {
        sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig);
        sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
      }
-     #elif defined(SIGNALBLOCK_BSD)
-     sigsetmask(sigblock(0) & ~sigmask(sig));
      #endif
     #endif
     /* Raise the signal. */

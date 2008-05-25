@@ -1,6 +1,6 @@
 /*
  * The include file for the UNIX version of CLISP
- * Bruno Haible 1990-2007
+ * Bruno Haible 1990-2008
  * Sam Steingold 1998-2007
  */
 
@@ -233,34 +233,18 @@ extern_C signal_handler_t signal (int sig, signal_handler_t handler); /* SIGNAL(
 #endif
 extern signal_handler_t install_signal_handler (int sig, signal_handler_t handler);
 #define SIGNAL(sig,handler)  install_signal_handler(sig,handler)
-/* a signal block and release: */
-#if defined(SIGNALBLOCK_POSIX)
-  /* extern_C int sigprocmask (int how, const sigset_t* set, sigset_t* oset); */ /* SIGPROCMASK(2V) */
-  /* extern_C int sigemptyset (sigset_t* set); */ /* SIGSETOPS(3V) */
-  /* extern_C int sigaddset (sigset_t* set, int signo); */ /* SIGSETOPS(3V) */
-  #define signalblock_on(sig)  \
-      { var sigset_t sigblock_mask;                                 \
-        sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig); \
-        sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
-  #define signalblock_off(sig)  \
-        sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL); \
-      }
-#elif defined(SIGNALBLOCK_SYSV)
-  extern_C int sighold (int sig);
-  extern_C int sigrelse (int sig);
-  #define signalblock_on(sig)  sighold(sig);
-  #define signalblock_off(sig)  sigrelse(sig);
-#elif defined(SIGNALBLOCK_BSD)
-  extern_C int sigblock (int mask); /* SIGBLOCK(2) */
-  extern_C int sigsetmask (int mask); /* SIGSETMASK(2) */
-  #define signalblock_on(sig)  \
-      { var int old_sigblock_mask = sigblock(sigmask(sig));
-  #define signalblock_off(sig)  \
-        sigsetmask(old_sigblock_mask); \
-      }
-#else
-  #error How does one block a signal?
-#endif
+/* Block and unblock (= delay and reenable) a signal: */
+#define SIGNALBLOCK_POSIX /* all Unix systems support the POSIX API for signal blocking */
+/* extern_C int sigprocmask (int how, const sigset_t* set, sigset_t* oset); */ /* SIGPROCMASK(2V) */
+/* extern_C int sigemptyset (sigset_t* set); */ /* SIGSETOPS(3V) */
+/* extern_C int sigaddset (sigset_t* set, int signo); */ /* SIGSETOPS(3V) */
+#define signalblock_on(sig)  \
+  { var sigset_t sigblock_mask;                                 \
+    sigemptyset(&sigblock_mask); sigaddset(&sigblock_mask,sig); \
+    sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
+#define signalblock_off(sig)  \
+    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL); \
+  }
 /* deliver a signal some time later: */
 /* extern_C {unsigned|} int alarm ({unsigned|} int seconds); / * ALARM(3V) */
 #if !defined(HAVE_UALARM) && defined(HAVE_SETITIMER)
