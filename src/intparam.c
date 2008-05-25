@@ -19,11 +19,6 @@
 #undef ushort
 #undef uchar
 
-#if !(defined(__STDC__) || defined(__cplusplus))
-/* Only for use in function parameter lists and as function return type. */
-#define void
-#endif
-
 /* Boolean type.  */
 /* Not a typedef because AIX <sys/types.h> already defines boolean_t.  */
 #define boolean_t int
@@ -77,24 +72,14 @@ int next_random_bit(void)
   return (random_table[random_position/8] >> (random_position % 8)) & 1;
 }
 
-#if defined(__STDC__) || defined(__cplusplus)
 void printf_underscored (const char* string)
-#else
-void printf_underscored(string)
-  char* string;
-#endif
 { char c;
   while ((c = *string++) != '\0') { printf("%c",(c==' ' ? '_' : c)); }
 }
 
 /* string_length(string) is the same as strlen(string).
    Better avoid depending on <string.h>. */
-#if defined(__STDC__) || defined(__cplusplus)
 int string_length (char* string)
-#else
-int string_length(string)
-  char* string;
-#endif
 { int count = 0;
   while (*string++ != '\0') { count++; }
   return count;
@@ -139,14 +124,14 @@ void main1(void) {
   }
 #define print_integer_bitsize(type,typestr,where)  \
   { if (where >= 0) {                                                   \
-      printf("/* Integers of t%spe %s have %ld bits. */\n","y",typestr,(long)where); \
+      printf("/* Integers of type %s have %ld bits. */\n",typestr,(long)where); \
       if (typestr[0] != 'u')                                            \
         { printf("#define "); printf_underscored(typestr); printf("_bitsize %ld\n",(long)where); } \
       printf("\n");                                                     \
     } else                                                              \
-      printf("#error \"Integers of t%spe %s have no binary representation!!\"\n","y",typestr); \
+      printf("#error \"Integers of type %s have no binary representation!!\"\n",typestr); \
     if (where != char_bitsize * sizeof(type))                           \
-      printf("#error \"Formula BITSIZE(T) = SIZEOF(T) * BITSPERBYTE does not hold for t%spe %s!!\"\n","y",typestr); \
+      printf("#error \"Formula BITSIZE(T) = SIZEOF(T) * BITSPERBYTE does not hold for type %s!!\"\n",typestr); \
   }
   get_signed_integer_bitsize(schar,uchar,char_bitsize);
   get_signed_integer_bitsize(short,ushort,short_bitsize);
@@ -273,9 +258,9 @@ void main4(void) {
       }                                                                 \
     }                                                                   \
     if (!left_works)                                                    \
-      printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+      printf("#error \"Left shift of integers of type %s does not work!!\"\n",typestr); \
     if (!right_works)                                                   \
-      printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+      printf("#error \"Right shift of integers of type %s does not work!!\"\n",typestr); \
   }
 #define test_integer_sshift(type,typestr,type_bitsize)                  \
   if (type_bitsize >= 0) {                                              \
@@ -307,9 +292,9 @@ void main4(void) {
       }                                                                 \
     }                                                                   \
     if (!left_works)                                                    \
-      printf("#error \"Left shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+      printf("#error \"Left shift of integers of type %s does not work!!\"\n",typestr); \
     if (!right_works)                                                   \
-      printf("#error \"Right shift of integers of t%spe %s does not work!!\"\n","y",typestr); \
+      printf("#error \"Right shift of integers of type %s does not work!!\"\n",typestr); \
   }
   test_integer_ushift(uchar,"unsigned char",uchar_bitsize);
   test_integer_ushift(ushort,"unsigned short",ushort_bitsize);
@@ -445,7 +430,7 @@ void main6(void) {
   check_sizeof_pointer(long*,"long *");
   check_sizeof_pointer(function*,"function *");
   pointer_bitsize = char_bitsize * sizeof(char*);
-  printf("/* Pointers of t%spe %s have %ld bits. */\n","y","char *",(long)pointer_bitsize);
+  printf("/* Pointers of type %s have %ld bits. */\n","char *",(long)pointer_bitsize);
   printf("#define pointer_bitsize %ld\n",(long)pointer_bitsize);
   printf("\n");
 }
@@ -504,7 +489,7 @@ void main8(void) {
       printf(" %ld\n",alignment);                                       \
     }                                                                   \
     if ((alignment & (alignment-1)) != 0)                               \
-      printf("#error \"The alignment %ld of t%spe %s is not a power of two!!\"\n",alignment,"y",typestr); \
+      printf("#error \"The alignment %ld of type %s is not a power of two!!\"\n",alignment,typestr); \
     printf("\n");                                                       \
   }
   get_alignment(char,"char"); get_alignment(uchar,"unsigned char");
@@ -541,7 +526,7 @@ void main9(void) {
       }                                                                 \
       if (big_endian && little_endian) {                                \
         if (sizeof(type) != 1)                                          \
-          printf("#error \"Endianness of t%spe %s in memory doesn't matter.\"\n","y",typestr); \
+          printf("#error \"Endianness of type %s in memory doesn't matter.\"\n",typestr); \
       }                                                                 \
       if (big_endian && !little_endian) {                               \
         printf("/* Type %s is stored BIG-ENDIAN in memory (i.e. like mc68000 or sparc). */\n",typestr); \
@@ -556,7 +541,7 @@ void main9(void) {
       if (!big_endian && !little_endian)                                \
         printf("#error \"Type %s is stored in memory in an obscure manner!!\"\n",typestr); \
     } else                                                              \
-      printf("#error \"Endianness makes no sense for t%spe %s !!\"\n","y",typestr); \
+      printf("#error \"Endianness makes no sense for type %s !!\"\n",typestr); \
   }
   get_endian(uchar,"unsigned char",uchar_bitsize);
   get_endian(ushort,"unsigned short",ushort_bitsize);
