@@ -1,3 +1,7 @@
+2008-05-27  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (unused): undef before #include "lightning.c"
+
 2008-05-26  Sam Steingold  <sds@gnu.org>
 
 	* floatparam.c, intparam.c: write to conftest.h or first arg, not stdout
