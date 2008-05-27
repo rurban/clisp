@@ -760,15 +760,6 @@
    are left */
 #undef SIGACTION_NEED_UNBLOCK
 
-/* how to block and unblock signals */
-#undef SIGNALBLOCK_BSD
-
-/* how to block and unblock signals */
-#undef SIGNALBLOCK_POSIX
-
-/* how to block and unblock signals */
-#undef SIGNALBLOCK_SYSV
-
 /* signal handlers need to be reinstalled when they are activated */
 #undef SIGNAL_NEED_REINSTALL
 
