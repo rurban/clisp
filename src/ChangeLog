@@ -5,7 +5,7 @@
 	instead of AC_LANG_SAVE/AC_LANG_RESTORE
 	* m4/cc-ema.m4: use AC_PREPROC_IFELSE instead of AC_TRY_CPP
 	* m4/c++.m4: use AC_RUN_IFELSE instead of AC_TRY_RUN and
-	AC_LINK_IFELSE instead of AC_TRY_LINK
+	AC_LINK_IFELSE instead of AC_TRY_LINK, use AC_MSG_FAILURE
 	* m4/general.m4 (CL_CPP_CHECK): remove unused macro
 
 2008-05-27  Sam Steingold  <sds@gnu.org>
