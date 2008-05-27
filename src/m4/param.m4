@@ -16,40 +16,28 @@ AC_DEFUN([CL_MACHINE],
 AC_REQUIRE([AC_C_CHAR_UNSIGNED])dnl
 cl_machine_file_c=$2
 if test -z "$[$5]"; then
-AC_CHECKING(for [$1])
+AC_MSG_NOTICE(checking for [$1])
 cl_machine_file_h=$4
-if test $cross_compiling = no; then
-cat > conftest.$ac_ext <<EOF
-#include "confdefs.h"
-EOF
-cat "$cl_machine_file_c" >> conftest.$ac_ext
 ORIGCC="$CC"
 if test $ac_cv_prog_gcc = yes; then
 # gcc -O (gcc version <= 2.3.2) crashes when compiling long long shifts for
 # target 80386. Strip "-O".
 CC=`echo "$CC " | sed -e 's/-O //g'`
 fi
-AC_TRY_EVAL(ac_link)
+cl_machine_file_program=`cat "$cl_machine_file_c"`
+AC_RUN_IFELSE([#include "confdefs.h"
+$cl_machine_file_program],[AC_MSG_RESULT(creating $cl_machine_file_h)
+if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
+  # The file exists and we would not be changing it
+  rm -f conftest.h
+else
+  rm -f "$cl_machine_file_h"
+  mv conftest.h "$cl_machine_file_h"
+fi
+[$5]=1],[AC_MSG_RESULT(creation of $cl_machine_file_h failed)],
+[AC_MSG_RESULT(creating $cl_machine_file_h)
+$3([$4])])
+rm -f conftest.h
 CC="$ORIGCC"
-if test -s conftest; then
-  echo "creating $cl_machine_file_h"
-  ./conftest > conftest.h
-  if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
-    # The file exists and we would not be changing it
-    rm -f conftest.h
-  else
-    rm -f "$cl_machine_file_h"
-    mv conftest.h "$cl_machine_file_h"
-  fi
-  [$5]=1
-else
-  echo "creation of $cl_machine_file_h failed"
-fi
-rm -rf conftest.dSYM
-rm -f conftest*
-else
-echo "creating $cl_machine_file_h"
-$3([$4])
-fi
 fi
 ])

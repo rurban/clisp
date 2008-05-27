@@ -116,15 +116,13 @@ check(ldouble,"long_double","long double",equal_ldouble,main_ldouble)
 #endif
 
 
-int main()
-{
+int main (void) {
+  if (freopen("conftest.h", "w", stdout) == NULL) return 1;
   header();
   main_float();
   main_double();
 #ifdef HAVE_LONGDOUBLE
   main_ldouble();
 #endif
-
-  if (ferror(stdout) || fclose(stdout)) return 1;
-  return 0;
+  return ferror(stdout) || fclose(stdout);
 }

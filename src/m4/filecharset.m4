@@ -13,13 +13,11 @@ AC_PREREQ(2.13)
 AC_DEFUN([CL_FILECHARSET],
 [AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([CL_CLOSEDIR])dnl
-AC_MSG_CHECKING(for the valid characters in filenames)
-AC_CACHE_VAL(cl_cv_os_valid_filename_char,[
-if test $cross_compiling = no; then
+AC_CACHE_CHECK(for the valid characters in filenames,
+cl_cv_os_valid_filename_char,[dnl
 dnl Create the subdirectory the test program will use for its files.
 mkdir conftestdir
-cat > conftest.c <<EOF
-#include "confdefs.h"
+AC_RUN_IFELSE([[#include "confdefs.h"
 #include <sys/types.h>
 #include <stdlib.h>
 /* Declare chdir(). */
@@ -40,12 +38,12 @@ cat > conftest.c <<EOF
 #else
 #define SDIRENT struct direct
 #endif
-changequote(,)dnl
 /* A small program which checks for each character whether or not it is
  * valid in filenames. */
 #define N 256
 int main ()
 {
+  if (freopen("conftest.out", "w", stdout) == NULL) return 1;
 #if defined(__CYGWIN32__) || defined(__MINGW32__)
   /* The test below would cause a dialog box to pop up (ch == ':'),
      and create files which cause "rm -rf conftest*" to hang
@@ -58,7 +56,7 @@ int main ()
   char legal[N];
   char filename[4];
   int i;
-  if (chdir("conftestdir") < 0) exit(1);
+  if (chdir("conftestdir") < 0) return 1;
   for (i = 0; i < N; i++) legal[i] = 0;
   strcpy(filename,"a_z");
   for (i = 0; i < N; i++)
@@ -130,12 +128,10 @@ int main ()
     printf("\n");
   }
 #endif
-  exit(0);
-}
-changequote([,])dnl
-EOF
-AC_TRY_EVAL(ac_link)
-cl_cv_os_valid_filename_char=`./conftest`
+  return ferror(stdout) || fclose(stdout);
+}]],[cl_cv_os_valid_filename_char=`cat conftest.out`],
+[cl_cv_os_valid_filename_char=''],[cl_cv_os_valid_filename_char=''])
+dnl clean up
 # Workaround a problem with NFS on Solaris 7, where unlink()ed files reappear
 # immediately under a different name and disappear only after 1. the process
 # doing readdir() has exited and 2. waiting a second or two.
@@ -149,10 +145,8 @@ while test -n "`ls conftestdir/.nfs* 2>/dev/null`"; do
   period=`expr 2 '*' $period`
 done
 # Now it's safe to do "rm -rf conftestdir".
-fi
-rm -rf conftest.dSYM conftestdir
-rm -f conftest*
-])
+rm -rf conftestdir
+rm -f conftest.out
 if test -z "$cl_cv_os_valid_filename_char"; then
   cl_cv_os_valid_filename_charset="guessing 7-bit"
 else
@@ -162,7 +156,7 @@ else
     cl_cv_os_valid_filename_charset="7-bit"
   fi
 fi
-AC_MSG_RESULT($cl_cv_os_valid_filename_charset)
+])
 if test -n "$cl_cv_os_valid_filename_char"; then
   AC_DEFINE_UNQUOTED(VALID_FILENAME_CHAR,$cl_cv_os_valid_filename_char,[expression in ch which is true if ch is a valid character in filenames])
 fi
