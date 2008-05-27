@@ -5558,7 +5558,7 @@ if test $cl_cv_builtin_strlen = yes; then
 fi
 ])
 
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -5567,7 +5567,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.61)
 
 AC_DEFUN([CL_CC_CPLUSPLUS],
 [AC_REQUIRE([AC_PROG_CPP])
@@ -5587,12 +5587,11 @@ AC_SUBST(CC_CPLUSPLUS)dnl
 
 AC_DEFUN([CL_CXX_WORKS],
 [AC_CACHE_CHECK(whether CXX works at all, cl_cv_prog_cxx_works, [
-AC_LANG_SAVE()
-AC_LANG_CPLUSPLUS()
+AC_LANG_PUSH(C++)
 AC_TRY_RUN([int main() { exit(0); }],
 cl_cv_prog_cxx_works=yes, cl_cv_prog_cxx_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cxx_works=yes, cl_cv_prog_cxx_works=no))
-AC_LANG_RESTORE()
+AC_LANG_POP(C++)
 ])
 case "$cl_cv_prog_cxx_works" in
   *no) echo "Installation or configuration problem: C++ compiler cannot create executables."; exit 1;;
@@ -6781,7 +6780,7 @@ CL_COMPILE_CHECK([__setfpucw], cl_cv_func_setfpucw,
 AC_DEFINE(HAVE_SETFPUCW,,[have <fpu_control.h> and it declares the __setfpucw() function]))
 ])
 
-dnl Copyright (C) 1993-2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -6790,7 +6789,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.61)
 
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -6890,12 +6889,11 @@ AC_DEFUN([AC_LANG_EXTERN],
 
 AC_DEFUN([CL_CC_WORKS],
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
-AC_LANG_SAVE()
-AC_LANG_C()
+AC_LANG_PUSH(C)
 AC_TRY_RUN([int main() { return 0; }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
-AC_LANG_RESTORE()
+AC_LANG_POP(C)
 ])
 case "$cl_cv_prog_cc_works" in
   *no) echo "Installation or configuration problem: C compiler cannot create executables."; exit 1;;
