@@ -70,7 +70,7 @@ further explanations of the issues could be provided).</para>
   <ulink url="&clhs;/Body/glo_p.html#purports_to_conform"><emphasis>purports
     to conform</emphasis></ulink> to the &ansi-cl; specification,
   so all deviations in <screen>&sh-prompt; clisp &opt-ansi;</screen>
-  from the &ansi-cl; standard are bugs and are not (yet) fixed only due
+  from the &ansi-cl; are bugs and are not (yet) fixed only due
   to lack of resources.</para>
 
  <para>On the other hand, some decisions made by the ANSI X3J13 committee
@@ -749,8 +749,8 @@ trying to &nconc; a circular list).</para>
    complains that it is unknown!</simpara></question>
 <answer><para>Indeed, you may see warnings like this
   <screen>configure: WARNING: Unrecognized options: --with-libsigsegv-prefix, --with-libffcall-prefix</screen>
-  because the top-level configure passes these options
-  (<option>--with-libsigsegv-prefix</option>)
+  because the top-level <command>configure</command> passes these
+  options (<option>--with-libsigsegv-prefix</option> etc)
   to <emphasis>all</emphasis> sub-<command>configure</command>s it
   invokes, while only <emphasis>some</emphasis> of them understand it
   (and the rest complain about it). These warnings are harmless.
@@ -771,8 +771,7 @@ trying to &nconc; a circular list).</para>
  but first make sure that you do know
  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
  Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
- </para>
-<para>See also <ulink url="ml">clisp-list</ulink>
+ </para><para>See also <ulink url="ml">clisp-list</ulink>
  (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para>
 
 <formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
