@@ -10,16 +10,9 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.61)
 
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
-dnl   AC_TRY_CPP          CL_CPP_CHECK
 dnl   AC_TRY_COMPILE      CL_COMPILE_CHECK
 dnl   AC_TRY_LINK         CL_LINK_CHECK
-dnl   AC_TRY_RUN          CL_RUN_CHECK - would require cross-compiling support
 dnl Usage:
-dnl AC_TRY_CPP(INCLUDES,
-dnl            ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
-dnl CL_CPP_CHECK(ECHO-TEXT, CACHE-ID,
-dnl              INCLUDES,
-dnl              ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 dnl AC_TRY_xxx(INCLUDES, FUNCTION-BODY,
 dnl            ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID,
@@ -52,20 +45,6 @@ AC_REQUIRE([CL_MPROTECT])dnl
 AC_REQUIRE([CL_SHM_H])dnl
 AC_REQUIRE([CL_SHM])dnl
 AC_REQUIRE([CL_CODEEXEC])dnl
-])
-
-AC_DEFUN([CL_CPP_CHECK],
-[AC_MSG_CHECKING(for $1)
-AC_CACHE_VAL($2,[
-AC_TRY_CPP([$3], $2=yes, $2=no)
-])
-AC_MSG_RESULT([$]$2)
-if test [$]$2 = yes; then
-  ifelse([$4], , :, [$4])
-ifelse([$5], , , [else
-  $5
-])dnl
-fi
 ])
 
 AC_DEFUN([CL_COMPILE_CHECK],
