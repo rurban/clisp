@@ -581,8 +581,9 @@ void main10(void)
     printf("#error \"Unknown stack model -- incorrect C semantics!!\"\n");
 }
 
-int main()
-{ main1();
+int main (void) {
+  if (freopen("conftest.h", "w", stdout) == NULL) return 1;
+  main1();
   main2();
   main3();
   main4();
@@ -592,6 +593,5 @@ int main()
   main8();
   main9();
   main10();
-  if (ferror(stdout) || fclose(stdout)) return 1;
-  return 0;
+  return ferror(stdout) || fclose(stdout);
 }
