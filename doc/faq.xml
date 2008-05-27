@@ -229,7 +229,7 @@ further explanations of the issues could be provided).</para>
    debug &clisp;?</simpara></question>
 <answer><formalpara id="faq-debug-core"><title>Debugging the core</title>
 <para><screen>
-&sh-prompt; ./configure --with-debug --build build-g
+&sh-prompt; ./configure --with-debug --cbc build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> boot
@@ -238,7 +238,7 @@ further explanations of the issues could be provided).</para>
 
 <formalpara id="faq-debug-module"><title>Debugging
   module <literal>foo</literal></title><para><screen>
-&sh-prompt; ./configure --with-debug --with-module=foo --build build-g
+&sh-prompt; ./configure --with-debug --with-module=foo --cbc build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> full
@@ -496,7 +496,7 @@ following command:
    for my &clisp; program?</simpara></question>
  <answer><para>Use module &gtk2-mod;: create <filename>ui.glade</filename>
    with &glade;, then do<screen>
-&sh-prompt; ./configure --with-module=gtk2 --build build-gtk
+&sh-prompt; ./configure --with-module=gtk2 --cbc build-gtk
 &sh-prompt; ./build-gtk/clisp -K full -x '(gtk:run-glade-file "ui.glade")'</screen></para>
   <para>There are many other options,
   see <ulink url="http://clisp.cons.org/resources.html#software">"Common
