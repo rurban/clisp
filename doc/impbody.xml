@@ -1839,7 +1839,8 @@ can give problems:
  <title>Variable &default-float-format;</title>
 <para>When rational numbers are to be converted to floats (due to
  &float;, &coerce;, &sqrt; or a transcendental function), the result
- type is given by the variable &default-float-format;.</para></formalpara>
+ type is given by the variable &default-float-format;.
+ See also &read-default-float-format-var;.</para></formalpara>
 
 <formalpara id="no-underflow"><title>Macro &no-underflow;</title>
 <para>The macro <code>(&no-underflow; {&form-r;}*)</code> executes the
