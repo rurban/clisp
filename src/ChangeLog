@@ -2,6 +2,7 @@
 
 	* m4/c++.m4, m4/general.m4: avoid obsolete macros:
 	use AC_LANG_PUSH/AC_LANG_POP instead of AC_LANG_SAVE/AC_LANG_RESTORE
+	* m4/cc-ema.m4: use AC_PREPROC_IFELSE instead of AC_TRY_CPP
 
 2008-05-27  Sam Steingold  <sds@gnu.org>
 
