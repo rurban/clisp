@@ -729,7 +729,7 @@ trying to &nconc; a circular list).</para>
 
 
 <qandaentry id="faq-autoconf"><question id="faq-autoconf-q"><simpara>Why
-   is autoconf invoked during build?</simpara></question>
+   is &autoconf; invoked during build?</simpara></question>
 <answer><para>When building from the &cvs; HEAD development sources, you
   will sometimes get errors when <command role="unix">make</command>
   tries to regenerate some <filename>configure</filename> scripts for you.
@@ -742,6 +742,21 @@ trying to &nconc; a circular list).</para>
  to the top-level <filename role="clisp-cvs">configure</filename> script
  (this is the default when you are &not-e; working from the &cvs;).</para>
 </answer></qandaentry>
+
+
+<qandaentry id="faq-conf-warn"><question id="faq-conf-warn-q"><simpara>I
+   give <command>configure</command> a recommended option, but it
+   complains that it is unknown!</simpara></question>
+<answer><para>Indeed, you may see warnings like this
+  <screen>configure: WARNING: Unrecognized options: --with-libsigsegv-prefix, --with-libffcall-prefix</screen>
+  because the top-level configure passes these options
+  (<option>--with-libsigsegv-prefix</option>)
+  to <emphasis>all</emphasis> sub-<command>configure</command>s it
+  invokes, while only <emphasis>some</emphasis> of them understand it
+  (and the rest complain about it). These warnings are harmless.
+  You did not see them before because &autoconf; did not check for
+  unrecognized options until version 2.62.
+</para></answer></qandaentry>
 
 
 <qandaentry id="faq-fp">
