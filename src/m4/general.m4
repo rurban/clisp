@@ -1,4 +1,4 @@
-dnl Copyright (C) 1993-2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -7,7 +7,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.61)
 
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
 dnl   AC_TRY_CPP          CL_CPP_CHECK
@@ -107,12 +107,11 @@ AC_DEFUN([AC_LANG_EXTERN],
 
 AC_DEFUN([CL_CC_WORKS],
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
-AC_LANG_SAVE()
-AC_LANG_C()
+AC_LANG_PUSH(C)
 AC_TRY_RUN([int main() { return 0; }],
 cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
-AC_LANG_RESTORE()
+AC_LANG_POP(C)
 ])
 case "$cl_cv_prog_cc_works" in
   *no) echo "Installation or configuration problem: C compiler cannot create executables."; exit 1;;
