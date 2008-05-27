@@ -1,3 +1,9 @@
+2008-05-26  Sam Steingold  <sds@gnu.org>
+
+	* floatparam.c, intparam.c: write to conftest.h, not stdout
+	* m4/address.m4, m4/eloop.m4, m4/filecharset.m4, m4/param.m4:
+	use AC_RUN_IFELSE instead of undocumented AC_TRY_EVAL(ac_link)
+
 2008-05-25  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (setjmp, longjmp) [HAVE__JMP]: on all autoconf platforms
