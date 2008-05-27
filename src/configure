@@ -23716,7 +23716,6 @@ if test "${cl_cv_prog_cc_works+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
 
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
