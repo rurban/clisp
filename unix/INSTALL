@@ -125,20 +125,20 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    in eleven easy to remember steps:
          make init                prepares all symbolic links and utilities
          make allc                makes all *.c files
-         make lisp.run            makes the executable
+         make lisp.run            makes the executable runtime
            (cygwin & mingw: use "make lisp.exe" instead)
          make interpreted.mem     a memory image with everything uncompiled
          make halfcompiled.mem    a memory image with compiler.fas and
-                                  the rest uncompiled
+                                   the rest uncompiled
          make lispinit.mem        makes all *.fas files and
-                                  a memory image with everything compiled
+                                   a memory image with everything compiled
          make manual              makes the documentation
          make modular             prepares for module building
          make boot                makes the boot linking set (just the core)
          make base                makes the base linking set
                                    (boot + regexp + syscalls + i18n + readline)
-         make full                makes the full linking set
-                                   (base + your MODULES variable in Makefile)
+         make full                makes the full linking set (base + your
+                                   MODULES variable in Makefile, see step 5)
 
    If something goes wrong, check and optionally modify the contents of
    the file config.h and retry this step. Yes, there are many warnings,
