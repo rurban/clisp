@@ -116,8 +116,8 @@ check(ldouble,"long_double","long double",equal_ldouble,main_ldouble)
 #endif
 
 
-int main (void) {
-  if (freopen("conftest.h", "w", stdout) == NULL) return 1;
+int main (int argc, char *argv[]) {
+  if (freopen(argc==1 ? "conftest.h" : argv[1], "w", stdout) == NULL) return 1;
   header();
   main_float();
   main_double();

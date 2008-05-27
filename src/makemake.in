@@ -2402,7 +2402,7 @@ for parf in ${PARAMS}; do
     echotab "echo '#include \"config.h\"' > tmp.c"
     echotab "cat '${SRCDIR}${parf}.c' >> tmp.c"
     echotab_to_HEXE "\$(CC)" "tmp.c" "${parf}"
-    echotab "${HERE}${parf}${HEXE} > ${parf}.h"
+    echotab "${HERE}${parf}${HEXE} ${parf}.h"
     echotab "\$(RM) ${parf}${HEXE} tmp.c"
   fi
   echol
