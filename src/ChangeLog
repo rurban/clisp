@@ -31,7 +31,9 @@
 	* m4/c++.m4: use AC_RUN_IFELSE instead of AC_TRY_RUN and
 	AC_LINK_IFELSE instead of AC_TRY_LINK, use AC_MSG_FAILURE
 	* m4/general.m4 (CL_CPP_CHECK): remove unused macro
-	(CL_CC_WORKS): use AC_MSG_FAILURE
+	(CL_CC_WORKS): use AC_MSG_FAILURE,
+	use RUN_IFELSE instead of AC_TRY_RUN
+	use AC_LINK_IFELSE instead of AC_TRY_LINK
 
 2008-05-27  Sam Steingold  <sds@gnu.org>
 
