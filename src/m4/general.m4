@@ -92,10 +92,9 @@ cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
 AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
 AC_LANG_POP(C)
 ])
-case "$cl_cv_prog_cc_works" in
-  *no) echo "Installation or configuration problem: C compiler cannot create executables."; exit 1;;
-  *yes) ;;
-esac
+if test "$cl_cv_prog_cc_works" = no; then
+AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create executables.])
+fi
 ])
 
 AC_DEFUN([CL_CONFIG_SUBDIRS],
