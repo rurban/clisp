@@ -23095,7 +23095,6 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 
 rm -f conftest.err conftest.$ac_ext
-
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_prog_cc_ema" >&5
 $as_echo "$cl_cv_prog_cc_ema" >&6; }
