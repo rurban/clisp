@@ -1,5 +1,9 @@
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
+	* m4/sigsegv.m4: use AC_LINK_IFELSE instead of AC_TRY_LINK
+
+2008-05-28  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (last-event-processed)
 	(last-timestamp-processed) [USE_LIBXT]: add
 
