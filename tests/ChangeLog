@@ -1,5 +1,9 @@
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
+	* format.tst: use defparameter instead of setq; do a full cleanup
+
+2008-05-28  Sam Steingold  <sds@gnu.org>
+
 	* streamslong.tst (gray-out): test stream-write-sequence et al
 
 2008-05-12  Sam Steingold  <sds@gnu.org>

@@ -52,14 +52,12 @@
 #+(or GCL CMU SBCL) "foo bar  baz"
 #-(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) UNKNOWN
 
-(progn
-(setq liste '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff
-gggggggg
- hhhhh iiii j kk lll mmmm nnnnnn oooooooooo ppppppppppppppp qqqqqqq
-rrrrrrrrrrrr
-s ttt uuuuuuuuu vvvvvvv wwwwwwwwww xxxxx yyyyyy zzzzzzzz))              ;26
-T)
-T
+(defparameter liste
+  '(aaaaaaa bbbbbb cccccccccccc dddddddddddddd eeee fffffffff
+    gggggggg hhhhh iiii j kk lll mmmm nnnnnn oooooooooo ppppppppppppppp
+    qqqqqqq rrrrrrrrrrrr s ttt uuuuuuuuu vvvvvvv wwwwwwwwww
+    xxxxx yyyyyy zzzzzzzz))     ; 26
+LISTE
 
 (format nil "~%;; ~<~%;; ~1:; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~;~
  ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~; ~s~;~
@@ -407,8 +405,7 @@ foo
 (FORMAT NIL "format-a:--~a--ende" (QUOTE AB\c))
 "format-a:--ABc--ende"
 
-(SETQ Y "elephant")
-"elephant"
+(defparameter Y "elephant") Y
 
 (FORMAT NIL "Look at the ~A!" Y)
 "Look at the elephant!"
@@ -508,8 +505,7 @@ foo
 #+(or CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) "format-s:--(|ABc| NIL XYZ)--ende-*"
 #-(or XCL CLISP AKCL ALLEGRO CMU SBCL LISPWORKS) UNKNOWN
 
-(SETQ X 5)
-5
+(defparameter X 5) X
 
 (FORMAT NIL "The answer is ~D." X)
 "The answer is 5."
@@ -831,8 +827,7 @@ freshline:
 new line but at beginning   same line, but spaced out
 new line and over two tabs-*"
 
-(SETQ N 3)
-3
+(defparameter N 3) N
 
 (FORMAT NIL "~D item~:P found." N)
 "3 items found."
@@ -917,16 +912,16 @@ but it was called with an argument of type SHORT-FLOAT.-*"
 (FORMAT NIL "~@R ~(~@R~)" 14 14)
 "XIV xiv"
 
-(DEFUN F (N) (FORMAT NIL "~@(~R~) error~:P detected." N))
-F
+(DEFUN FOO (N) (FORMAT NIL "~@(~R~) error~:P detected." N))
+FOO
 
-(F 0)
+(FOO 0)
 "Zero errors detected."
 
-(F 1)
+(FOO 1)
 "One error detected."
 
-(F 23)
+(FOO 23)
 "Twenty-three errors detected."
 
 (SETQ *PRINT-LEVEL* NIL *PRINT-LENGTH* 5)
@@ -940,11 +935,9 @@ F
 (SETQ *PRINT-LENGTH* NIL)
 NIL
 
-(SETQ FOO
+(defparameter FOO
 "Items:~#[none~; ~s~; ~S and ~S~
-          ~:;~@{~#[~; and~] ~S~^,~}~].")
-"Items:~#[none~; ~s~; ~S and ~S~
-          ~:;~@{~#[~; and~] ~S~^,~}~]."
+          ~:;~@{~#[~; and~] ~S~^,~}~].") FOO
 
 (FORMAT NIL FOO)
 "Items:none."
@@ -978,8 +971,8 @@ NIL
 (C 3)))
 "Pairs: <A,1> <B,2> <C,3>."
 
-(SETQ DONESTR "done.~^ ~D warning~:P.~^ ~D error~:P.")
-"done.~^ ~D warning~:P.~^ ~D error~:P."
+(defparameter DONESTR "done.~^ ~D warning~:P.~^ ~D error~:P.")
+DONESTR
 
 (FORMAT NIL DONESTR)
 "done."
@@ -990,8 +983,8 @@ NIL
 (FORMAT NIL DONESTR 1 5)
 "done. 1 warning. 5 errors."
 
-(SETQ TELLSTR "~@(~@[~R~]~^ ~A.~)")
-"~@(~@[~R~]~^ ~A.~)"
+(defparameter TELLSTR "~@(~@[~R~]~^ ~A.~)")
+TELLSTR
 
 (FORMAT NIL TELLSTR 23)
 "Twenty-three"
@@ -1048,11 +1041,6 @@ NIL
 #+XCL "**#\\**"
 #+CLISP (FORMAT NIL "**~@c**" (CODE-CHAR 27))
 #+CLISP "**#\\Escape**"
-
-(progn (fmakunbound 'foo)
-       (makunbound 'liste)
-t)
-T
 
 (string= (format nil "~10I")
          (with-output-to-string (s)
@@ -1239,9 +1227,18 @@ def"
 def")
 
 
-; Cleanup.
-(unintern 'x)
-T
+(progn ; Cleanup.
+  (fmakunbound 'format-blocksatz) (unintern 'format-blocksatz)
+  (fmakunbound 'type-clash-error) (unintern 'type-clash-error)
+  (fmakunbound 'foo) (makunbound 'foo) (unintern 'foo)
+  (makunbound 'x) (unintern 'x)
+  (makunbound 'y) (unintern 'y)
+  (makunbound 'n) (unintern 'n)
+  (makunbound 'liste) (unintern 'liste)
+  (makunbound 'donestr) (unintern 'donestr)
+  (makunbound 'tellstr) (unintern 'tellstr)
+  (setf (find-class 'gray-string-output-stream) nil))
+NIL
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
