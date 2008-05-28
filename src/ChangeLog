@@ -1,3 +1,13 @@
+2008-05-28  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1975798 ]: parameter confusion in new Gray Streams functions
+	* gray.lisp (stream-read-sequence): fix argument order in
+	stream-read-byte-sequence and stream-read-char-sequence
+	and specify the default values for start and end
+	(stream-write-sequence): fix argument order in
+	stream-write-byte-sequence and stream-write-char-sequence
+	and specify the default values for start and end
+
 2008-05-27  Sam Steingold  <sds@gnu.org>
 
 	avoid obsolete macros
