@@ -171,6 +171,9 @@
    closed-display-p
    ;; extensions
    open-default-display
+   ;;; Only when using libXt:
+   ;; last-event-processed last-timestamp-processed
+   ;;; Only when using the native resource database, not resource.lisp:
    ;; display-xdefaults resource-database-to-string resource-database-of-string
    ;; resource-database-locale
    ;; not implemented

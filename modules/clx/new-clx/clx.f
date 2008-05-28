@@ -6053,6 +6053,26 @@ DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER :TIMEOUT PEEK-P DISCARD-P \
   skipSTACK(6);
 }
 
+#if defined(USE_LIBXT)
+DEFUN(XLIB:LAST-EVENT-PROCESSED, display) {
+  Display *dpy = get_display(STACK_0);
+  XEvent *ev;
+  X_CALL(ev = XtLastEventProcessed(dpy));
+  if (ev) {
+    int cnt = disassemble_event_on_stack(&ev,&STACK_0);
+    VALUES1(listof(cnt));
+  } else VALUES1(NIL);
+  skipSTACK(1);
+}
+
+DEFUN(XLIB:LAST-TIMESTAMP-PROCESSED, display) {
+  Display *dpy = pop_display();
+  Time time;
+  X_CALL(time = XtLastTimestampProcessed(dpy));
+  if (time) VALUES1(uint32_to_I(time));
+  else VALUES1(NIL);
+}
+#endif  /* USE_LIBXT */
 
 /* 12.4  Managing the Event Queue */
 
