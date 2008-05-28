@@ -1,5 +1,10 @@
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
+	* m4/isc-posix.m4: remove. The comment says:
+	This file is not needed with autoconf-2.53 and newer. Remove it in 2005.
+
+2008-05-28  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1975798 ]: parameter confusion in new Gray Streams functions
 	* gray.lisp (stream-read-sequence): fix argument order in
 	stream-read-byte-sequence and stream-read-char-sequence
