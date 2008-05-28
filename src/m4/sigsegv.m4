@@ -29,7 +29,7 @@ AC_DEFUN([CL_SIGSEGV], [dnl
     cl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
     cl_save_LIBS="$LIBS"
     LIBS="$LIBS $LIBSIGSEGV"
-    AC_LINK_IFELSE([AC_LANG_SOURCE([#include <sigsegv.h>],
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <sigsegv.h>],
       [sigsegv_deinstall_handler();])], [cl_cv_lib_sigsegv=yes])
     LIBS="$cl_save_LIBS"
   ])
