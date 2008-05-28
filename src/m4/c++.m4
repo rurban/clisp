@@ -28,9 +28,9 @@ AC_SUBST(CC_CPLUSPLUS)dnl
 AC_DEFUN([CL_CXX_WORKS],
 [AC_CACHE_CHECK(whether CXX works at all, cl_cv_prog_cxx_works, [
 AC_LANG_PUSH(C++)
-AC_RUN_IFELSE([AC_LANG_SOURCE([],[int main() { exit(0); }])],
+AC_RUN_IFELSE([AC_LANG_SOURCE([int main() { exit(0); }])],
 [cl_cv_prog_cxx_works=yes], [cl_cv_prog_cxx_works=no],
-[AC_LINK_IFELSE([AC_LANG_SOURCE([],[])], [cl_cv_prog_cxx_works=yes],
+[AC_LINK_IFELSE([AC_LANG_SOURCE([])], [cl_cv_prog_cxx_works=yes],
 [cl_cv_prog_cxx_works=no])])
 AC_LANG_POP(C++)
 ])
