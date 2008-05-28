@@ -143,3 +143,31 @@ nil
   (delete-file file)
   (string= s1 s2))
 #+CLISP T
+
+#+CLISP
+(progn
+  (defclass gray-out (fundamental-character-output-stream)
+    ((accumulator :type string)))
+  (defmethod initialize-instance :after ((s gray-out) &rest args)
+    (setf (slot-value s 'accumulator)
+          (make-array 0 :element-type 'character :adjustable t :fill-pointer 0)))
+  (defmethod stream-write-char ((s gray-out) ch)
+    (vector-push-extend ch (slot-value s 'accumulator)))
+  (defmacro with-go ((v) &body forms)
+    `(let ((,v (make-instance 'gray-out)))
+       ,@forms
+       (close ,v)
+       (coerce (slot-value ,v 'accumulator) 'simple-string)))
+  (list (with-go (v) (write-char #\a v))
+        (with-go (v) (write-char-sequence "abc" v))
+        (handler-case (with-go (v) (write-sequence #(#\a #\b #\c) v))
+          (clos:method-call-error (e)
+            (clos:method-call-error-generic-function e)))
+        (with-go (v) (stream-write-char-sequence v "abc"))
+        (handler-case (with-go (v) (stream-write-sequence v #(#\a #\b #\c)))
+          (clos:method-call-error (e)
+            (clos:method-call-error-generic-function e)))
+        (with-go (v) (stream-write-sequence "abc" v))
+        (setf (find-class 'gray-out) nil)))
+#+CLISP ("a" "abc" #'gray:stream-write-char-sequence
+         "abc" #'gray:stream-write-sequence "abc" NIL)
