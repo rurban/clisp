@@ -93,13 +93,13 @@ and is supported by most &cl; implementations currently in use.</para>
     <replaceable>position</replaceable> means inquire.</simpara>
    &need-defmethod;</listitem></varlistentry>
  <varlistentry id="st-rd-seq"><term><code>(GRAY:STREAM-READ-SEQUENCE
-   &stream-r; &sequence-r; &key-amp; &start-k; &end-k;)</code></term>
+   &sequence-r; &stream-r; &key-amp; &start-k; &end-k;)</code></term>
   <listitem><simpara>Used by &read-sequence;. <emphasis>Deprecated</emphasis>.
     Define &st-rd-cs; or &st-rd-bs; and call &rd-ch-seq;/&rd-by-seq; instead.
    </simpara><simpara>The default method calls &st-rd-cs; or &st-rd-bs;.
  </simpara></listitem></varlistentry>
  <varlistentry id="st-wr-seq"><term><code>(GRAY:STREAM-WRITE-SEQUENCE
-   &stream-r; &sequence-r; &key-amp; &start-k; &end-k;)</code></term>
+   &sequence-r; &stream-r; &key-amp; &start-k; &end-k;)</code></term>
   <listitem><simpara>Used by &write-sequence;. <emphasis>Deprecated</emphasis>.
     Define &st-wr-cs; or &st-wr-bs; and call &wr-ch-seq;/&wr-by-seq; instead.
    </simpara><simpara>The default method calls &st-wr-cs; or &st-wr-bs;.
