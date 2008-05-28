@@ -87,9 +87,10 @@ AC_DEFUN([AC_LANG_EXTERN],
 AC_DEFUN([CL_CC_WORKS],
 [AC_CACHE_CHECK(whether CC works at all, cl_cv_prog_cc_works, [
 AC_LANG_PUSH(C)
-AC_TRY_RUN([int main() { return 0; }],
-cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no,
-AC_TRY_LINK([], [], cl_cv_prog_cc_works=yes, cl_cv_prog_cc_works=no))
+AC_RUN_IFELSE(AC_LANG_SOURCE([int main() { return 0; }]),
+[cl_cv_prog_cc_works=yes], [cl_cv_prog_cc_works=no],
+AC_LINK_IFELSE(AC_LANG_SOURCE([]),
+[cl_cv_prog_cc_works=yes], [cl_cv_prog_cc_works=no]))
 AC_LANG_POP(C)
 ])
 if test "$cl_cv_prog_cc_works" = no; then
