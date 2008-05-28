@@ -23824,10 +23824,13 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_prog_cc_works" >&5
 $as_echo "$cl_cv_prog_cc_works" >&6; }
-case "$cl_cv_prog_cc_works" in
-  *no) echo "Installation or configuration problem: C compiler cannot create executables."; exit 1;;
-  *yes) ;;
-esac
+if test "$cl_cv_prog_cc_works" = no; then
+{ { $as_echo "$as_me:$LINENO: error: Installation or configuration problem: C compiler cannot create executables.
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: Installation or configuration problem: C compiler cannot create executables.
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+fi
          { $as_echo "$as_me:$LINENO: ${term_bold}** check for add-ons${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** check for add-ons${term_norm}" >&6;}
 
@@ -31045,7 +31048,6 @@ _ACEOF
 
 
 
-
     use_additional=yes
 
   acl_save_prefix="$prefix"
@@ -31513,8 +31515,7 @@ $as_echo_n "checking for libsigsegv... " >&6; }
 if test "${cl_cv_lib_sigsegv+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-    cl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
+      cl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
     cl_save_LIBS="$LIBS"
     LIBS="$LIBS $LIBSIGSEGV"
     cat >conftest.$ac_ext <<_ACEOF
@@ -31575,8 +31576,6 @@ cat >>confdefs.h <<\_ACEOF
 #define HAVE_SIGSEGV 1
 _ACEOF
 
-  fi
-  if test "$cl_cv_lib_sigsegv" = yes; then
     { $as_echo "$as_me:$LINENO: checking how to link with libsigsegv" >&5
 $as_echo_n "checking how to link with libsigsegv... " >&6; }
     { $as_echo "$as_me:$LINENO: result: $LIBSIGSEGV" >&5
