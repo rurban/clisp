@@ -26,7 +26,7 @@ CC=`echo "$CC " | sed -e 's/-O //g'`
 fi
 cl_machine_file_program=`cat "$cl_machine_file_c"`
 AC_RUN_IFELSE([#include "confdefs.h"
-$cl_machine_file_program],[AC_MSG_RESULT(creating $cl_machine_file_h)
+$cl_machine_file_program],[AC_MSG_RESULT(created $cl_machine_file_h)
 if cmp -s "$cl_machine_file_h" conftest.h 2>/dev/null; then
   # The file exists and we would not be changing it
   rm -f conftest.h
