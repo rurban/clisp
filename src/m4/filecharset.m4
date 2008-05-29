@@ -32,12 +32,7 @@ AC_RUN_IFELSE([[#include "confdefs.h"
 #include <sys/file.h>
 #endif
 /* Declare opendir(), readdir(), closedir(). */
-#include <$ac_header_dirent>
-#ifdef DIRENT
-#define SDIRENT struct dirent
-#else
-#define SDIRENT struct direct
-#endif
+#include <dirent.h>
 /* A small program which checks for each character whether or not it is
  * valid in filenames. */
 #define N 256
@@ -68,7 +63,7 @@ int main ()
           if (fd >=0)
             { DIR* dirp = opendir(".");
               if (dirp != (DIR*)0)
-                { SDIRENT* d;
+                { struct dirent * d;
                   while ((d = readdir(dirp)))
                     { if (!strcmp(d->d_name,".")) continue;
                       if (!strcmp(d->d_name,"..")) continue;
