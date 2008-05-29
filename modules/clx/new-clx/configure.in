@@ -27,7 +27,7 @@ AC_CACHE_CHECK([for XGetAtomNames], [cl_cv_have_XGetAtomNames],
     LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <X11/Xlib.h>],
-     [XGetAtomNames(0,0,0,0);])],
+     [XGetAtomNames(0,0,0,0)])],
       [cl_cv_have_XGetAtomNames=yes], [cl_cv_have_XGetAtomNames=no])
     LIBS=$cl_LIBS_save
     CFLAGS=$cl_CFLAGS_save])
@@ -42,7 +42,7 @@ AC_CACHE_CHECK([for Xpm library], [cl_cv_have_xpm],
     LIBS="$X_LIBS -lXpm $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <X11/xpm.h>],
-     [XpmReadFileToPixmap(0,0,0,0,0,0);])],
+     [XpmReadFileToPixmap(0,0,0,0,0,0)])],
       [cl_cv_have_xpm=yes], [cl_cv_have_xpm=no])
     LIBS=$cl_LIBS_save
     CFLAGS=$cl_CFLAGS_save])
@@ -55,29 +55,28 @@ AC_CACHE_CHECK([for X shape extension], [cl_cv_have_xshape],
     CFLAGS="$CFLAGS $X_CFLAGS"
     AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <X11/extensions/shape.h>],[XShapeQueryExtension(0,0,0);])],
+#include <X11/extensions/shape.h>],[XShapeQueryExtension(0,0,0)])],
       [cl_cv_have_xshape=yes], [cl_cv_have_xshape=no])
     LIBS=$cl_LIBS_save
     CFLAGS=$cl_CFLAGS_save])
+
+m4_define([CL_PROGRAM_XauGetAuthByAddr],
+[AC_LANG_PROGRAM([#include <sys/socket.h>
+#include <X11/Xlib.h>
+#include <X11/Xauth.h>],
+[XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0")])])
 
 AC_CACHE_CHECK([if XauGetAuthByAddr needs -lXau], [cl_cv_need_lXau],
   [ cl_LIBS_save=$LIBS
     cl_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <sys/socket.h>
-#include <X11/Xlib.h>
-#include <X11/Xauth.h>],
-[XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");])],
+    AC_LINK_IFELSE([CL_PROGRAM_XauGetAuthByAddr],
       [cl_cv_need_lXau=no], [cl_cv_need_lXau=maybe])
     if test $cl_cv_need_lXau = maybe; then
       LIBS="$X_LIBS -lXau $X_PRE_LIBS $LIBS"
       CFLAGS="$CFLAGS $X_CFLAGS"
-      AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <sys/socket.h>
-#include <X11/Xlib.h>
-#include <X11/Xauth.h>],
-[XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");])],
-        [cl_cv_need_lXau=yes],
+      AC_LINK_IFELSE([CL_PROGRAM_XauGetAuthByAddr],[cl_cv_need_lXau=yes],
         AC_MSG_FAILURE([XauGetAuthByAddr was not found]))
     fi
     LIBS=$cl_LIBS_save
