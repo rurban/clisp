@@ -8,7 +8,7 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.61)
 
 dnl CL_MACHINE([MESSAGE], [PROGRAM_TO_RUN], [CROSS_MACRO], [DESTINATION], [CACHE_VAR])
 AC_DEFUN([CL_MACHINE],
@@ -16,7 +16,7 @@ AC_DEFUN([CL_MACHINE],
 AC_REQUIRE([AC_C_CHAR_UNSIGNED])dnl
 cl_machine_file_c=$2
 if test -z "$[$5]"; then
-AC_MSG_NOTICE(checking for [$1])
+AC_MSG_CHECKING(for [$1])
 cl_machine_file_h=$4
 ORIGCC="$CC"
 if test $ac_cv_prog_gcc = yes; then
