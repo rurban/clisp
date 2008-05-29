@@ -1,5 +1,5 @@
-# intparam.m4 serial 1
-dnl Copyright (C) 2005 Free Software Foundation, Inc.
+# intparam.m4 serial 2  -*- Autoconf -*-
+dnl Copyright (C) 2005-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -9,7 +9,6 @@ dnl From Bruno Haible, Sam Steingold
 AC_DEFUN([CL_INTPARAM_CROSS],
 [
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
-  AC_REQUIRE([gt_TYPE_LONGDOUBLE])
   AC_REQUIRE([AC_C_BIGENDIAN])
   cl_machine_file_h=$1
   {
@@ -113,7 +112,8 @@ AC_DEFUN([CL_INTPARAM_CROSS],
         echo "#error \"Integer types long long and unsigned long long have different sizes!!\""
       fi
     fi
-    AC_TRY_COMPILE([], [typedef int verify[2*(sizeof(char*)<=sizeof (long))-1];],
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
+      [[typedef int verify[2*(sizeof(char*)<=sizeof (long))-1];]])],
       [], [echo "#error \"Type char * does not fit into a long!!\""])
     _AC_COMPUTE_INT([sizeof (char *)], [pointer_size])
     pointer_bitsize=`expr $pointer_size '*' $char_bitsize`
@@ -184,14 +184,12 @@ AC_DEFUN([CL_INTPARAM_CROSS],
     echo "#define sizeof_double $sizeof_double"
     echo "#define alignment_double $alignment_double"
     echo
-    if test $gt_cv_c_long_double = yes; then
-      CL_INTPARAM_SIZEOF([long double], [sizeof_longdouble])
-      CL_INTPARAM_ALIGNOF([long double], [alignment_longdouble])
-      echo "/* Type long double has sizeof = $sizeof_longdouble and alignment = $alignment_longdouble. */"
-      echo "#define sizeof_long_double $sizeof_longdouble"
-      echo "#define alignment_long_double $alignment_longdouble"
-      echo
-    fi
+    CL_INTPARAM_SIZEOF([long double], [sizeof_longdouble])
+    CL_INTPARAM_ALIGNOF([long double], [alignment_longdouble])
+    echo "/* Type long double has sizeof = $sizeof_longdouble and alignment = $alignment_longdouble. */"
+    echo "#define sizeof_long_double $sizeof_longdouble"
+    echo "#define alignment_long_double $alignment_longdouble"
+    echo
     CL_INTPARAM_SIZEOF([char *], [sizeof_char_ptr])
     CL_INTPARAM_ALIGNOF([char *], [alignment_char_ptr])
     echo "/* Type char * has sizeof = $sizeof_char_ptr and alignment = $alignment_char_ptr. */"
@@ -263,7 +261,8 @@ AC_DEFUN([CL_INTPARAM_BITSIZE],
 [
   n=1; x="($1)2"
   while true; do
-    AC_TRY_COMPILE([], [typedef int verify[2*(($1)($x) == 0) - 1];],
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],
+      [[typedef int verify[2*(($1)($x) == 0) - 1];]])],
       [$2=$n; break;],
       [if test $n = 1000; then $2=; break; fi;])
     n=`expr $n + 1`; x="$x * ($1)2"
@@ -284,7 +283,7 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
-    AC_TRY_COMPILE([
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[dnl
 #ifdef HAVE_OFFSETOF
 # include <stddef.h>
 #endif
@@ -298,7 +297,7 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
 #else
 # define alignof(type)  offsetof (struct { char slot1; type slot2; }, slot2)
 #endif
-], [typedef int verify[2*(alignof($1) == $n) - 1];],
+]], [[typedef int verify[2*(alignof($1) == $n) - 1];]])],
       [$2=$n; break;]
       [if test $n = 0; then $2=; break; fi])
     n=`expr $n '*' 2`
