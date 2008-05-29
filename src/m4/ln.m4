@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -30,24 +30,21 @@ AC_DEFUN([CL_PROG_LN_S],
 [AC_REQUIRE([CL_PROG_LN])dnl
 dnl Make a symlink if possible; otherwise try a hard link. On filesystems
 dnl which support neither symlink nor hard link, use a plain copy.
-AC_MSG_CHECKING(whether ln -s works)
-AC_CACHE_VAL(cl_cv_prog_LN_S, [
+AC_CACHE_CHECK([whether ln -s works], [cl_cv_prog_LN_S_works], [
 rm -f conftestdata
 if ln -s X conftestdata 2>/dev/null; then
-  cl_cv_prog_LN_S="ln -s"
+  cl_cv_prog_LN_S_works=yes
 else
-  cl_cv_prog_LN_S="$cl_cv_prog_LN"
+  cl_cv_prog_LN_S_works=no
 fi
 rm -f conftestdata
 ])dnl
-if test "$cl_cv_prog_LN_S" = "ln -s"; then
-  AC_MSG_RESULT(yes)
+if test $cl_cv_prog_LN_S_works = yes; then
+  LN_S="ln -s"
 else
-  AC_MSG_RESULT(no)
+  LN_S="$cl_cv_prog_LN"
 fi
-LN_S="$cl_cv_prog_LN_S"
-AC_SUBST(LN_S)dnl
-])
+AC_SUBST(LN_S)])
 
 AC_DEFUN([CL_PROG_HLN],
 [AC_REQUIRE([CL_PROG_LN_S])dnl
