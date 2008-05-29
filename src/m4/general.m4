@@ -10,13 +10,11 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.61)
 
 dnl without AC_MSG_...:   with AC_MSG_... and caching:
-dnl   AC_TRY_COMPILE      CL_COMPILE_CHECK
-dnl   AC_TRY_LINK         CL_LINK_CHECK
+dnl   AC_COMPILE_IFELSE      CL_COMPILE_CHECK
+dnl   AC_LINK_IFELSE         CL_LINK_CHECK
 dnl Usage:
-dnl AC_TRY_xxx(INCLUDES, FUNCTION-BODY,
-dnl            ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
-dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID,
-dnl              INCLUDES, FUNCTION-BODY,
+dnl AC_xxx_IFELSE(PROGRAM, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
+dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID, PROGRAM,
 dnl              ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 
 dnl 3 next macros avoid aclocal warnings about wrong macro order
@@ -47,33 +45,14 @@ AC_REQUIRE([CL_SHM])dnl
 AC_REQUIRE([CL_CODEEXEC])dnl
 ])
 
-AC_DEFUN([CL_COMPILE_CHECK],
-[AC_MSG_CHECKING(for $1)
-AC_CACHE_VAL($2,[
-AC_TRY_COMPILE([$3],[$4], $2=yes, $2=no)
-])
-AC_MSG_RESULT([$]$2)
-if test [$]$2 = yes; then
-  ifelse([$5], , :, [$5])
-ifelse([$6], , , [else
-  $6
-])dnl
-fi
+AC_DEFUN([CL_CHECK],[dnl
+  AC_CACHE_CHECK([for $2],[$3],
+    [$1([AC_LANG_PROGRAM([$4],[$5])],[$3=yes],[$3=no])])
+  AS_IF([test $$3 = yes], [$6], [$7])
 ])
 
-AC_DEFUN([CL_LINK_CHECK],
-[AC_MSG_CHECKING(for $1)
-AC_CACHE_VAL($2,[
-AC_TRY_LINK([$3],[$4], $2=yes, $2=no)
-])
-AC_MSG_RESULT([$]$2)
-if test [$]$2 = yes; then
-  ifelse([$5], , :, [$5])
-ifelse([$6], , , [else
-  $6
-])dnl
-fi
-])
+AC_DEFUN([CL_COMPILE_CHECK], [CL_CHECK([AC_COMPILE_IFELSE],$@)])
+AC_DEFUN([CL_LINK_CHECK], [CL_CHECK([AC_LINK_IFELSE],$@)])
 
 dnl Expands to the "extern ..." prefix used for system declarations.
 dnl AC_LANG_EXTERN()
