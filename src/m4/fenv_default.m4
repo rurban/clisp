@@ -17,27 +17,30 @@ dnl   CL_FLOAT_OVERFLOW    CL_DOUBLE_OVERFLOW    CL_LONGDOUBLE_OVERFLOW
 dnl   CL_FLOAT_UNDERFLOW   CL_DOUBLE_UNDERFLOW   CL_LONGDOUBLE_UNDERFLOW
 dnl   CL_FLOAT_INEXACT     CL_DOUBLE_INEXACT     CL_LONGDOUBLE_INEXACT
 
+m4_define([CL_FENV_SIGNAL_INSTALL],[signal (SIGFPE, sigfpe_handler);
+#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
+  signal (SIGTRAP, sigfpe_handler);
+#endif])
 
-AC_DEFUN([CL_FLOAT_DIV0],
-[AC_CACHE_CHECK([whether single-float divbyzero raises an exception],
-[cl_cv_cc_float_divbyzero], [AC_RUN_IFELSE([#include <stdlib.h>
+AC_DEFUN([CL_FENV_CHECK],[dnl
+AC_CACHE_CHECK([whether $1],[$2],
+[AC_RUN_IFELSE([AC_LANG_SOURCE([#include <stdlib.h>
 #include <signal.h>
 static void sigfpe_handler (int sig) { exit (1); }
+$3])],[$2=no], [$2=yes], [$2="guessing no"])])])
+
+AC_DEFUN([CL_FLOAT_DIV0],
+[CL_FENV_CHECK([single-float divbyzero raises an exception],
+[cl_cv_cc_float_divbyzero],[dnl
 float x = 1;
 float y = 0;
 float z;
 float nan;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y; nan = y / y;
-  exit (0);
-}
-], [cl_cv_cc_float_divbyzero=no], [cl_cv_cc_float_divbyzero=yes],
-[cl_cv_cc_float_divbyzero="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_float_divbyzero" = yes; then
   AC_DEFINE(FLOAT_DIV0_EXCEPTION,1,
     [Define to 1 if 'float' division by zero raises an exception.])
@@ -45,25 +48,17 @@ fi
 ])
 
 AC_DEFUN([CL_DOUBLE_DIV0],
-[AC_CACHE_CHECK([whether double-float divbyzero raises an exception],
-[cl_cv_cc_double_divbyzero], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
+[CL_FENV_CHECK([double-float divbyzero raises an exception],
+[cl_cv_cc_double_divbyzero],[dnl
 double x = 1;
 double y = 0;
 double z;
 double nan;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y; nan = y / y;
-  exit (0);
-}
-], [cl_cv_cc_double_divbyzero=no], [cl_cv_cc_double_divbyzero=yes],
-[cl_cv_cc_double_divbyzero="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_double_divbyzero" = yes; then
   AC_DEFINE(DOUBLE_DIV0_EXCEPTION,1,
     [Define to 1 if 'double' division by zero raises an exception.])
@@ -71,25 +66,17 @@ fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_DIV0],
-[AC_CACHE_CHECK([whether long-float divbyzero raises an exception],
-[cl_cv_cc_longdouble_divbyzero], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
+[CL_FENV_CHECK([long-float divbyzero raises an exception],
+[cl_cv_cc_longdouble_divbyzero],[dnl
 long double x = 1;
 long double y = 0;
 long double z;
 long double nan;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y; nan = y / y;
   return 0;
-}
-], [cl_cv_cc_longdouble_divbyzero=no], [cl_cv_cc_longdouble_divbyzero=yes],
-[cl_cv_cc_longdouble_divbyzero="guessing no"])])
+}])
 if test "$cl_cv_cc_longdouble_divbyzero" = yes; then
   AC_DEFINE(LONGDOUBLE_DIV0_EXCEPTION,1,
     [Define to 1 if 'long double' division by zero raises an exception.])
@@ -98,25 +85,17 @@ fi
 
 
 AC_DEFUN([CL_FLOAT_OVERFLOW],
-[AC_CACHE_CHECK([whether single-float overflow raises an exception],
-[cl_cv_cc_float_overflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([single-float overflow raises an exception],
+[cl_cv_cc_float_overflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 float x = FLT_MAX;
 float y = FLT_MAX;
 float z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_float_overflow=no], [cl_cv_cc_float_overflow=yes],
-[cl_cv_cc_float_overflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_float_overflow" = yes; then
   AC_DEFINE(FLOAT_OVERFLOW_EXCEPTION,1,
     [Define to 1 if 'float' overflow raises an exception.])
@@ -124,25 +103,17 @@ fi
 ])
 
 AC_DEFUN([CL_DOUBLE_OVERFLOW],
-[AC_CACHE_CHECK([whether double-float overflow raises an exception],
-[cl_cv_cc_double_overflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([double-float overflow raises an exception],
+[cl_cv_cc_double_overflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 double x = DBL_MAX;
 double y = DBL_MAX;
 double z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_double_overflow=no], [cl_cv_cc_double_overflow=yes],
-[cl_cv_cc_double_overflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_double_overflow" = yes; then
   AC_DEFINE(DOUBLE_OVERFLOW_EXCEPTION,1,
     [Define to 1 if 'double' overflow raises an exception.])
@@ -150,27 +121,19 @@ fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_OVERFLOW],
-[AC_CACHE_CHECK([whether long-float overflow raises an exception],
-[cl_cv_cc_longdouble_overflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([long-float overflow raises an exception],
+[cl_cv_cc_longdouble_overflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 long double x;
 long double y;
 long double z;
-int main ()
-{
+int main () {
   x = LDBL_MAX;
   y = LDBL_MAX;
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_longdouble_overflow=no], [cl_cv_cc_longdouble_overflow=yes],
-[cl_cv_cc_longdouble_overflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_longdouble_overflow" = yes; then
   AC_DEFINE(LONGDOUBLE_OVERFLOW_EXCEPTION,1,
     [Define to 1 if 'long double' overflow raises an exception.])
@@ -179,25 +142,17 @@ fi
 
 
 AC_DEFUN([CL_FLOAT_UNDERFLOW],
-[AC_CACHE_CHECK([whether single-float underflow raises an exception],
-[cl_cv_cc_float_underflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([single-float underflow raises an exception],
+[cl_cv_cc_float_underflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 float x = FLT_MIN;
 float y = FLT_MIN;
 float z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_float_underflow=no], [cl_cv_cc_float_underflow=yes],
-[cl_cv_cc_float_underflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_float_underflow" = yes; then
   AC_DEFINE(FLOAT_UNDERFLOW_EXCEPTION,1,
     [Define to 1 if 'float' underflow raises an exception.])
@@ -205,25 +160,17 @@ fi
 ])
 
 AC_DEFUN([CL_DOUBLE_UNDERFLOW],
-[AC_CACHE_CHECK([whether double-float underflow raises an exception],
-[cl_cv_cc_double_underflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([double-float underflow raises an exception],
+[cl_cv_cc_double_underflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 double x = DBL_MIN;
 double y = DBL_MIN;
 double z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_double_underflow=no], [cl_cv_cc_double_underflow=yes],
-[cl_cv_cc_double_underflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_double_underflow" = yes; then
   AC_DEFINE(DOUBLE_UNDERFLOW_EXCEPTION,1,
     [Define to 1 if 'double' underflow raises an exception.])
@@ -231,27 +178,19 @@ fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_UNDERFLOW],
-[AC_CACHE_CHECK([whether long-float underflow raises an exception],
-[cl_cv_cc_longdouble_underflow], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
+[CL_FENV_CHECK([long-float underflow raises an exception],
+[cl_cv_cc_longdouble_underflow],[dnl
 #include <float.h>
-static void sigfpe_handler (int sig) { exit (1); }
 long double x;
 long double y;
 long double z;
-int main ()
-{
+int main () {
   x = LDBL_MIN;
   y = LDBL_MIN;
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+  CL_FENV_SIGNAL_INSTALL
   z = x * y;
-  exit (0);
-}
-], [cl_cv_cc_longdouble_underflow=no], [cl_cv_cc_longdouble_underflow=yes],
-[cl_cv_cc_longdouble_underflow="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_longdouble_underflow" = yes; then
   AC_DEFINE(LONGDOUBLE_UNDERFLOW_EXCEPTION,1,
     [Define to 1 if 'long double' underflow raises an exception.])
@@ -260,24 +199,16 @@ fi
 
 
 AC_DEFUN([CL_FLOAT_INEXACT],
-[AC_CACHE_CHECK([whether single-float inexact raises an exception],
-[cl_cv_cc_float_inexact], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
+[CL_FENV_CHECK([single-float inexact raises an exception],
+[cl_cv_cc_float_inexact],[dnl
 float x = 1;
 float y = 3;
 float z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y;
-  exit (0);
-}
-], [cl_cv_cc_float_inexact=no], [cl_cv_cc_float_inexact=yes],
-[cl_cv_cc_float_inexact="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_float_inexact" = yes; then
   AC_DEFINE(FLOAT_INEXACT_EXCEPTION,1,
     [Define to 1 if a 'float' inexact operation raises an exception.])
@@ -285,24 +216,16 @@ fi
 ])
 
 AC_DEFUN([CL_DOUBLE_INEXACT],
-[AC_CACHE_CHECK([whether double-float inexact raises an exception],
-[cl_cv_cc_double_inexact], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
+[CL_FENV_CHECK([double-float inexact raises an exception],
+[cl_cv_cc_double_inexact],[dnl
 double x = 1;
 double y = 3;
 double z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y;
-  exit (0);
-}
-], [cl_cv_cc_double_inexact=no], [cl_cv_cc_double_inexact=yes],
-[cl_cv_cc_double_inexact="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_double_inexact" = yes; then
   AC_DEFINE(DOUBLE_INEXACT_EXCEPTION,1,
     [Define to 1 if a 'double' inexact operation raises an exception.])
@@ -310,24 +233,16 @@ fi
 ])
 
 AC_DEFUN([CL_LONGDOUBLE_INEXACT],
-[AC_CACHE_CHECK([whether long-float inexact raises an exception],
-[cl_cv_cc_longdouble_inexact], [AC_RUN_IFELSE([#include <stdlib.h>
-#include <signal.h>
-static void sigfpe_handler (int sig) { exit (1); }
+[CL_FENV_CHECK([long-float inexact raises an exception],
+[cl_cv_cc_longdouble_inexact],[dnl
 long double x = 1;
 long double y = 3;
 long double z;
-int main ()
-{
-  signal (SIGFPE, sigfpe_handler);
-#if (defined (__sgi) || defined (_AIX)) && defined (SIGTRAP)
-  signal (SIGTRAP, sigfpe_handler);
-#endif
+int main () {
+  CL_FENV_SIGNAL_INSTALL
   z = x / y;
-  exit (0);
-}
-], [cl_cv_cc_longdouble_inexact=no], [cl_cv_cc_longdouble_inexact=yes],
-[cl_cv_cc_longdouble_inexact="guessing no"])])
+  return 0;
+}])
 if test "$cl_cv_cc_longdouble_inexact" = yes; then
   AC_DEFINE(LONGDOUBLE_INEXACT_EXCEPTION,1,
     [Define to 1 if a 'long double' inexact operation raises an exception.])
