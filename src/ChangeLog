@@ -1,5 +1,10 @@
 2008-05-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/configure.in: add proper quoting;
+	use AC_LINK_IFELSE instead of AC_TRY_LINK
+
+2008-05-29  Sam Steingold  <sds@gnu.org>
+
 	* m4/ln.m4 (CL_PROG_LN): use AC_CACHE_CHECK instead of
 	AC_MSG_CHECKING + AC_CACHE_VAL + AC_MSG_RESULT
 
