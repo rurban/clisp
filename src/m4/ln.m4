@@ -30,7 +30,7 @@ AC_DEFUN([CL_PROG_LN_S],
 [AC_REQUIRE([CL_PROG_LN])dnl
 dnl Make a symlink if possible; otherwise try a hard link. On filesystems
 dnl which support neither symlink nor hard link, use a plain copy.
-AC_CACHE_CHECK([whether ln -s works], [cl_cv_prog_LN_S_works], [
+AC_CACHE_CHECK([whether ln -s works], [cl_cv_prog_LN_S_works], [dnl
 rm -f conftestdata
 if ln -s X conftestdata 2>/dev/null; then
   cl_cv_prog_LN_S_works=yes
@@ -38,7 +38,7 @@ else
   cl_cv_prog_LN_S_works=no
 fi
 rm -f conftestdata
-])dnl
+])
 if test $cl_cv_prog_LN_S_works = yes; then
   LN_S="ln -s"
 else
