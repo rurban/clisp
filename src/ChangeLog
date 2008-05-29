@@ -1,3 +1,10 @@
+2008-05-29  Sam Steingold  <sds@gnu.org>
+
+	* m4/longdouble.m4: remove obsolete file
+	* m4/fenv_default.m4, m4/floatparam.m4, m4/intparam.m4:
+	assume 'long double' is supported,
+	use AC_COMPILE_IFELSE instead of AC_TRY_COMPILE
+
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
 	* m4/sigsegv.m4: use AC_LINK_IFELSE instead of AC_TRY_LINK
@@ -32,7 +39,7 @@
 	AC_LINK_IFELSE instead of AC_TRY_LINK, use AC_MSG_FAILURE
 	* m4/general.m4 (CL_CPP_CHECK): remove unused macro
 	(CL_CC_WORKS): use AC_MSG_FAILURE,
-	use RUN_IFELSE instead of AC_TRY_RUN
+	use AC_RUN_IFELSE instead of AC_TRY_RUN
 	use AC_LINK_IFELSE instead of AC_TRY_LINK
 
 2008-05-27  Sam Steingold  <sds@gnu.org>
