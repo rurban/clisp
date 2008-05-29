@@ -2905,7 +2905,7 @@ or just evaluates the appropriate form in the &repl;.</para>
    <varlistentry id="def-c-struct-external">
     <term><constant>:EXTERNAL</constant></term>
     <listitem><simpara>means that this structure is defined in a
-      &c-file; file that you include with, e.g.,
+      &c-lang; header file that you include with, e.g.,
       <code>(&c-lines; "#include &lt;filename.h&gt;~%")</code>.
   </simpara></listitem></varlistentry></variablelist>
   These options determine how the struct is written to the &c-file;.
