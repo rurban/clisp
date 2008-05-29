@@ -1,5 +1,9 @@
 2008-05-29  Sam Steingold  <sds@gnu.org>
 
+	* m4/fenv_default.m4 (CL_FENV_CHECK): define and use everywhere
+
+2008-05-29  Sam Steingold  <sds@gnu.org>
+
 	* m4/general.m4 (CL_CHECK): extracted from ...
 	(CL_COMPILE_CHECK, CL_LINK_CHECK): use it
 
