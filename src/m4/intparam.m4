@@ -283,7 +283,7 @@ AC_DEFUN([CL_INTPARAM_ALIGNOF],[
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[dnl
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #ifdef HAVE_OFFSETOF
 # include <stddef.h>
 #endif
