@@ -405,25 +405,7 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 /* rename() - declared in <stdio.h>; used by PATHNAME, UNIXAUX */
 
 /* directory search: */
-#if defined(DIRENT) || defined(_POSIX_VERSION)
-  #include <dirent.h>
-  #define SDIRENT  struct dirent
-#else
-  #ifdef SYSNDIR
-    #include <sys/ndir.h>
-  #else
-    #ifdef SYSDIR
-      #include <sys/dir.h>
-    #else
-      #ifdef NDIR
-        #include <ndir.h>
-      #else
-        #include <dir.h>
-      #endif
-    #endif
-  #endif
-  #define SDIRENT  struct direct
-#endif
+#include <dirent.h>
 /* declared in one of the above includes: opendir(), readdir(), closedir() */
 #ifdef VOID_CLOSEDIR
   #define CLOSEDIR(dirp)  (closedir(dirp),0)
