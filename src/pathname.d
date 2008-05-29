@@ -1,6 +1,6 @@
 /*
  * Pathnames for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Logical Pathnames: Marcus Daniels 16.9.1994
  * ANSI compliance, bugs: Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-01-03
@@ -7056,11 +7056,11 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       else OS_file_error(STACK_1);
     }
     while (1) {
-      var SDIRENT* dp;
+      var struct dirent * dp;
       begin_system_call();
       errno = 0;
       dp = readdir(dirp); /* fetch next directory-entry */
-      if (dp == (SDIRENT*)NULL) { /* error or directory finished */
+      if (dp == (struct dirent *)NULL) { /* error or directory finished */
         if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
         end_system_call();
         break;

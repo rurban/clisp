@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,8 +11,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CLOSEDIR],
-[AC_REQUIRE([CL_DIR_HEADER])dnl
-AC_BEFORE([$0], [CL_FILECHARSET])dnl
+[AC_BEFORE([$0], [CL_FILECHARSET])dnl
 CL_PROTO([closedir], [
 CL_PROTO_RET([
 #include <stdlib.h>
@@ -20,7 +19,7 @@ CL_PROTO_RET([
 #include <sys/types.h>
 #include <unistd.h>
 #endif
-#include <$ac_header_dirent>
+#include <dirent.h>
 ], [int closedir (DIR* dir);], [int closedir();],
 cl_cv_proto_closedir_ret, int, void)],
 [extern $cl_cv_proto_closedir_ret closedir (DIR*);])
@@ -38,7 +37,7 @@ AC_TRY_RUN([
 #include <unistd.h>
 #endif
 /* Declare opendir(), closedir(). */
-#include <$ac_header_dirent>
+#include <dirent.h>
 int main() { exit(closedir(opendir(".")) != 0); }],
 cl_cv_func_closedir_retval=yes, cl_cv_func_closedir_retval=no,
 # When cross-compiling, don't assume a return value.
