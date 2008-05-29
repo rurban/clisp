@@ -6,7 +6,8 @@
 2008-05-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/configure.in: add proper quoting;
-	use AC_LINK_IFELSE instead of AC_TRY_LINK
+	use AC_LINK_IFELSE instead of AC_TRY_LINK;
+	use m4_define to avoid writing the same program twice
 
 2008-05-29  Sam Steingold  <sds@gnu.org>
 
