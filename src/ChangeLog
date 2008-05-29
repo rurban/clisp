@@ -1,5 +1,10 @@
 2008-05-29  Sam Steingold  <sds@gnu.org>
 
+	* m4/ln.m4 (CL_PROG_LN): use AC_CACHE_CHECK instead of
+	AC_MSG_CHECKING + AC_CACHE_VAL + AC_MSG_RESULT
+
+2008-05-29  Sam Steingold  <sds@gnu.org>
+
 	* m4/longdouble.m4: remove obsolete file
 	* m4/fenv_default.m4, m4/floatparam.m4, m4/intparam.m4:
 	assume 'long double' is supported,
