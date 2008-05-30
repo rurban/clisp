@@ -4051,7 +4051,8 @@ int CallInFunc(LispFunc f) {
 <example id="dffi-gethostname"><title>Variable size arguments:
   calling <function role="unix">gethostname</function> from &clisp;</title>
 
-<para><funcsynopsis id="gethostname-synopsis"><funcprototype>
+<para>The standard &unix; function
+ <funcsynopsis id="gethostname-synopsis"><funcprototype>
    <funcdef><type>int</type> <function>gethostname</function></funcdef>
    <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
    <paramdef><type>size_t</type> <parameter>length</parameter></paramdef>
@@ -4081,11 +4082,17 @@ int CallInFunc(LispFunc f) {
   (:language :stdc) (:library :default)
   (:return-type ffi:int))
 <computeroutput>GETHOSTNAME</computeroutput>
+(&def-call-out; <function role="unix">strerror</function> (:arguments (errnum int))<lineannotation>for error reporting</lineannotation>
+  (:language :stdc) (:library :default)
+  (:return-type c-string :none))
+<computeroutput>STRERROR</computeroutput>
+(&def-c-var; <varname role="unix">errno</varname> (:type ffi:int) (:library :default))
+<computeroutput>ERRNO</computeroutput>
 (defun myhostname ()
   (multiple-value-bind (success name)<lineannotation>&out-k; and &in-out-k; parameters are returned as &mul-val;</lineannotation>
       (gethostname 256)
     (if (zerop success) name
-        (error ...))))<lineannotation><function role="unix">strerror</function>(<varname role="unix">errno</varname>)</lineannotation>
+      (error "~S: ~D: ~S" 'myhostname errno (strerror errno)))))
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
 <computeroutput>#(97 98 97 122 111 110 107)</computeroutput></programlisting>
@@ -4094,7 +4101,7 @@ argument is an array of <type>char</type> (an &integer-t; type, see
 <xref linkend="dffi-types"/>), not <type>character</type>.
 <programlisting language="lisp">
 (&def-call-out; gethostname
-  (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
+  (:arguments (name (&c-ptr; (&c-array-max; character 256))
                     &out-k; &alloca-k;)
               (length ffi:int))
   (:language :stdc) (:library :default)
@@ -4123,7 +4130,7 @@ foreign function succeeds: <programlisting language="lisp">
   (&with-foreign-object; (name '(&c-array-max; character 256))
     (let ((success (gethostname name 256)))
       (if (zerop success) (&foreign-value; name)
-        (error ...)))))
+        (error "~S: ~D: ~S" 'myhostname errno (strerror errno))))))
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
 <computeroutput>"abazonk"</computeroutput></programlisting></para>
