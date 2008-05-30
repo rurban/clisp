@@ -2025,7 +2025,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <para>&clisp-link; operates on &clisp; &linkset;s and on &modset;s.</para>
 
-<simplesect id="linkset"><title>&linkset;</title>
+<simplesect id="linkset"><title>Linking Set</title>
  <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
     <primary>linking set</primary></indexterm></firstterm>
    is a directory containing:
@@ -2080,7 +2080,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
  to the run-time).</para></simplesect>
 
-<simplesect id="modset"><title>&modset;</title>
+<simplesect id="modset"><title>Module Set</title>
  <para>A <firstterm>&modset;<indexterm id="modseti" significance="preferred">
     <primary>module set</primary></indexterm></firstterm>
    is a directory containing:
@@ -2159,6 +2159,12 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  the loading will be performed <link linkend="mod-dynload">dynamically</link>.
  Otherwise - this is much slower - a temporary &linkset; will be created
  and deleted afterwards.</para>
+
+<para>As you can see, you create new &linkset;s by combining existing
+ &linkset;s with &modset;s which you create by hand. Your &clisp; build
+ directory ontains three &linkset;s in
+ directories <command>boot</command>, &base;, and &full;, and a &clisp;
+ installation normally contains two &linkset;s: &base;, and &full;.</para>
 </simplesect>
 
 </section>
