@@ -23,7 +23,7 @@
 ;; SOFTWARE.
 
 ;;; current license:
-;; Copyright (C) 2006 Sam Steingold (sds@gnu.org)
+;; Copyright (C) 2006-2008 Sam Steingold (sds@gnu.org)
 ;;
 ;; This file is part of GNU CLISP.
 ;;
@@ -553,14 +553,16 @@ signal specific parameters, but not a data parameter."
   (gui-status-show (SYS::TEXT "Call DESCRIBE on the current selection")))
 
 (defun gui-quit (&optional (*gui* *gui*))
-  (gui-status-show (SYS::TEXT "Bye!"))
+  (gui-status-show (SYS::TEXT "Bye."))
   (gtk_main_quit)
   (throw 'gui-quit 0))
 
 (defun gui (file)
   (gtk_init nil nil)
   (let ((*gui* (gui-from-file file)))
-    (gui-status-show (SYS::TEXT "Welcome to CLISP!"))
+    (gui-status-show
+     (ext:string-concat (SYS::TEXT "Welcome to") " "
+                        (lisp-implementation-type) "!"))
     (gtk_widget_show (gui-main *gui*))
     (gtk_widget_hide (gui-about-window *gui*))
     (catch 'gui-quit (gtk_main))
