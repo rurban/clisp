@@ -223,7 +223,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 
 <para>This is controlled by the &symbol-macro;
  <firstterm>&curr-lang;<indexterm id="curr-lang" significance="preferred">
-   <primary id="curr-lang-i"><varname>*CURRENT-LANGUAGE*</varname>
+   <primary><varname>*CURRENT-LANGUAGE*</varname>
  </primary></indexterm></firstterm>,
  which can be set at run time as well as using the &opt-L; start-up option.
  If you wish to change the
@@ -234,8 +234,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 
 <para>More languages can be defined through the macro
  <firstterm>&deflang;<indexterm id="deflang" significance="preferred">
-   <primary id="deflang-i"><function>DEFLANGUAGE</function>
- </primary></indexterm></firstterm>:
+   <primary><function>DEFLANGUAGE</function></primary></indexterm></firstterm>:
  <code>(&deflang; &lang-r;)</code>.
  For such an additional language to take effect, you must install the
  corresponding message catalog, or translate the messages yourself,
@@ -244,22 +243,20 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro
  <firstterm>&def-i-l;<indexterm id="def-i-l" significance="preferred">
-   <primary id="def-i-l-i"><function>DEFINTERNATIONAL</function>
+   <primary><function>DEFINTERNATIONAL</function>
  </primary></indexterm></firstterm>:
  <code>(&def-i-l; &symbol-r; &optional-amp;
  (<replaceable>default-language</replaceable> &t;))</code> and add
  language-dependent values through the macro
  <firstterm>&defloc;<indexterm id="defloc" significance="preferred">
-   <primary id="defloc-i"><function>DEFLOCALIZED</function>
- </primary></indexterm></firstterm>:
+   <primary><function>DEFLOCALIZED</function></primary></indexterm></firstterm>:
  <code>(&defloc; &symbol-r; &lang-r;
   <replaceable>value-form</replaceable>)</code>
  (One such form for each language.  Languages without an assigned
  value will be treated like the default-language.)
  You can then access the localized value by calling
  <firstterm>&localized;<indexterm id="localized" significance="preferred">
-   <primary id="localized-i"><function>LOCALIZED</function>
- </primary></indexterm></firstterm>:
+   <primary><function>LOCALIZED</function></primary></indexterm></firstterm>:
  <code>(&localized; &symbol-r; &optional-amp; &lang-r;)</code></para>
 
 </section>
@@ -801,21 +798,21 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <variablelist>
 <varlistentry><term><firstterm>&path-enc;
    <indexterm id="path-enc" significance="preferred">
-    <primary id="path-enc-i"><varname>*PATHNAME-ENCODING*</varname>
+    <primary><varname>*PATHNAME-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for pathnames in the file
    system. Normally, this should be a 1:1 encoding.
    Its &line-term; mode is ignored.</simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">
-    <primary id="term-enc-i"><varname>*TERMINAL-ENCODING*</varname>
+    <primary><varname>*TERMINAL-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for communication with the
   terminal, in particular by &terminal-io-var;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&misc-enc;
    <indexterm id="misc-enc" significance="preferred">
-    <primary id="misc-enc-i"><varname>*MISC-ENCODING*</varname>
+    <primary><varname>*MISC-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding used for access to &env-var;s,
  command line options, and the like.  Its &line-term; mode is ignored.
@@ -823,7 +820,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <!-- #if defined(DYNAMIC_FFI) -->
 <varlistentry><term><firstterm>&foreign-enc;
    <indexterm id="foreign-enc" significance="preferred">
-    <primary id="foreign-enc-i"><varname>*FOREIGN-ENCODING*</varname>
+    <primary><varname>*FOREIGN-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
  <listitem><simpara>is the encoding for strings passed through the
  &ffi-pac; (some platforms only). If it is a 1:1 encoding,
@@ -1923,7 +1920,7 @@ additionally binds &cont-r; to the content length.</para>
     &body-r;)</code></term>
   <listitem><simpara>binds
     <firstterm>&scr-win;<indexterm id="scr-win" significance="preferred">
-      <primary id="scr-win-i"><varname>*WINDOW*</varname>
+      <primary><varname>*WINDOW*</varname>
     </primary></indexterm></firstterm>
     to a <type>WINDOW-STREAM</type> and executes &body-r;.
     The stream is guaranteed to be closed when the body is left.
@@ -2007,10 +2004,11 @@ additionally binds &cont-r; to the content length.</para>
  &c-lang;, for example).  It is invoked through &clisp-link;.</para>
 
 <para>A <firstterm>module<indexterm id="module" significance="preferred">
-   <primary id="module-i">module</primary></indexterm></firstterm> is a
+   <primary>module</primary></indexterm></firstterm> is a
  piece of external code which defines extra Lisp objects, symbols and
- functions.  A module <firstterm>name</firstterm> must consist of the
- characters <filename>A</filename>-<filename>Z</filename>,
+ functions.  A module <firstterm>name<indexterm id="module-name">
+ <primary>module</primary><secondary>name</secondary></indexterm></firstterm>
+ must consist of the characters <filename>A</filename>-<filename>Z</filename>,
  <filename>a</filename>-<filename>z</filename>, <filename>_</filename>,
  <filename>0</filename>-<filename>9</filename>.
  The module name <quote>clisp</quote> is reserved.
@@ -2029,7 +2027,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <simplesect id="linkset"><title>&linkset;</title>
  <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
-    <primary id="linkset-i">linking set</primary></indexterm></firstterm>
+    <primary>linking set</primary></indexterm></firstterm>
    is a directory containing:
 <variablelist>
 <varlistentry><term><filename>makevars</filename></term>
@@ -2084,7 +2082,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
 <simplesect id="modset"><title>&modset;</title>
  <para>A <firstterm>&modset;<indexterm id="modseti" significance="preferred">
-    <primary id="modset-i">module set</primary></indexterm></firstterm>
+    <primary>module set</primary></indexterm></firstterm>
    is a directory containing:
 <variablelist>
 <varlistentry><term>&link-sh;</term>
@@ -2808,7 +2806,9 @@ or just evaluates the appropriate form in the &repl;.</para>
 
 <varlistentry id="def-call-in"><term><code>(&def-call-in;
    &func-r; {&option-r;}*)</code></term>
-<listitem><simpara>This form defines a <firstterm>callback</firstterm> -
+<listitem><simpara>This form defines a
+  <firstterm>callback<indexterm id="def-call-in-callback">
+    <primary>callback</primary></indexterm></firstterm> -
   a named call-in function (i.e., a Lisp function called from the
   foreign language: control flow temporary enters Lisp)</simpara>
  <variablelist id="def-call-in-opts">
@@ -3522,7 +3522,7 @@ and possibly the calling convention.</para>
 <para>The default language is set using the macro
  <firstterm><function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>
   <indexterm id="dflt-ffi-lang" significance="preferred">
-   <primary id="dflt-ffi-lang-i"><function>DEFAULT-FOREIGN-LANGUAGE</function>
+   <primary><function>DEFAULT-FOREIGN-LANGUAGE</function>
  </primary></indexterm></firstterm>.
  If this macro has not been called in the current &comp-unit;
  (usually a file), a warning is issued and &stdc-k; is used for the rest
@@ -3566,17 +3566,29 @@ and possibly the calling convention.</para>
 
 <section id="dffi-functions"><title>Foreign functions</title>
 
-<para>Foreign functions are functions which are defined in the foreign
- language.  There are <firstterm>named foreign functions</firstterm>
+<para>Foreign functions are functions which are defined in the foreign language.
+ There are <firstterm>named foreign functions<indexterm id="dffi-ff-a">
+   <primary>foreign function</primary><secondary>named</secondary>
+ </indexterm></firstterm>
  (imported via &def-call-out; or created via &def-call-in;) and
- <firstterm>anonymous foreign functions</firstterm>; they arise through
- conversion of function pointers using &foreign-function;.</para>
+ <firstterm>anonymous foreign functions<indexterm id="dffi-ff-n">
+   <primary>foreign function</primary>
+   <secondary id="foreign-function-anonymous-i">anonymous</secondary>
+ </indexterm></firstterm>; they arise through conversion of function
+ pointers using &foreign-function;.</para>
 
-<para>A <firstterm>call-out function</firstterm> is a foreign function
+<para>A <firstterm>call-out function<indexterm id="dffi-ff-call-out">
+   <primary>foreign function</primary><secondary>call-out</secondary>
+ </indexterm></firstterm> is a foreign function
  called from Lisp: control flow temporarily leaves Lisp.
- A <firstterm>call-in function</firstterm>
- (AKA <firstterm>callback</firstterm>) is a Lisp function called
- from the foreign language: control flow temporary enters Lisp.</para>
+ A <firstterm>call-in function<indexterm id="dffi-ff-call-in">
+   <primary>foreign function</primary><secondary>call-in</secondary>
+ </indexterm></firstterm>
+ (AKA <firstterm>callback
+  <indexterm id="def-call-in-callback-main" significance="preferred">
+   <primary>callback</primary></indexterm></firstterm>)
+ is a Lisp function called from the foreign language:
+ control flow temporary enters Lisp.</para>
 
 <para>The following operators define foreign functions:
  <simplelist columns="1"><member>&def-call-in;</member>
@@ -3586,8 +3598,10 @@ and possibly the calling convention.</para>
 <simplesect id="dffi-callback-mem">
  <title>Callbacks and memory management</title>
 <para>Callbacks (&c-lang; function calling Lisp function) create
- so-called <firstterm>trampolines</firstterm>.  A trampoline is a piece
- of &c-lang; code which knows how to call a particular Lisp function.
+ so-called <firstterm>trampolines<indexterm id="dffi-trampoline">
+   <primary>trampoline</primary></indexterm></firstterm>.
+ A trampoline is a piece of &c-lang; code which knows how to call a
+ particular Lisp function.
  (That is how all foreign language interfaces work, not just ours).
  The &c-lang; pointer that the foreign library receives is the pointer
  to this piece of code.
@@ -4976,7 +4990,7 @@ EOF
 
 <para>The macro
  <firstterm>&with-print;<indexterm id="with-print" significance="preferred">
-   <primary id="with-print-i"><function>WITH-OUTPUT-TO-PRINTER</function>
+   <primary><function>WITH-OUTPUT-TO-PRINTER</function>
  </primary></indexterm></firstterm>:
 <programlisting language="lisp">
 (&with-print; (&var-r; [&extfmt;])
