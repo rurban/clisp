@@ -4054,43 +4054,79 @@ int CallInFunc(LispFunc f) {
 <para><funcsynopsis id="gethostname-synopsis"><funcprototype>
    <funcdef><type>int</type> <function>gethostname</function></funcdef>
    <paramdef><type>char*</type> <parameter>name</parameter></paramdef>
-   <paramdef><type>size_t</type> <parameter>namelen</parameter></paramdef>
+   <paramdef><type>size_t</type> <parameter>length</parameter></paramdef>
 </funcprototype></funcsynopsis>
  follows a typical pattern of &c-lang; "out"-parameter convention - it
  expects a pointer to a buffer it is going to fill.
  So you must view this parameter as either &out-k; or &in-out-k;.
  Additionally, one must tell the function the size of the buffer.
- Here <replaceable>namelen</replaceable> is just an &in-k; parameter.
+ Here &len-r; is just an &in-k; parameter.
  Sometimes this will be an &in-out-k; parameter, returning the
  number of bytes actually filled in.</para>
 
-<para>So &name-r; is actually a pointer to an array of up to
- <replaceable>namelen</replaceable> characters, regardless of what the
- poor <type>char*</type> &c-lang; prototype says, to be used like a
- &c-lang; <type>string</type> (&c-NULL;-termination).  &unix; specifies
- that <quote>host names are limited to
-  <constant>HOST_NAME_MAX</constant> bytes</quote>, which is, of course,
- system dependent, but it appears that 256 is sufficient.</para>
+<para>So &name-r; is actually a pointer to an array of up to &len-r;
+ characters, regardless of what the poor <type>char*</type> &c-lang;
+ prototype says, to be used like a &c-lang; <type>string</type>
+ (&c-NULL;-termination).  &unix; specifies that <quote>host names are
+ limited to <constant>HOST_NAME_MAX</constant> bytes</quote>, which is,
+ of course, system dependent, but it appears that 256 is sufficient.</para>
 
 <para>In the present example, you can use allocation &alloca-k;, like
- you would do in &c-lang;: stack-allocate a temporary.</para>
-
+ you would do in &c-lang;: stack-allocate a temporary:
 <programlisting language="lisp">
 (&def-call-out; gethostname
   (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
                     &out-k; &alloca-k;)
-              (len ffi:int))
-  (:language :stdc)
+              (length ffi:int))
+  (:language :stdc) (:library :default)
   (:return-type ffi:int))
-
+<computeroutput>GETHOSTNAME</computeroutput>
 (defun myhostname ()
   (multiple-value-bind (success name)<lineannotation>&out-k; and &in-out-k; parameters are returned as &mul-val;</lineannotation>
       (gethostname 256)
     (if (zerop success) name
         (error ...))))<lineannotation><function role="unix">strerror</function>(<varname role="unix">errno</varname>)</lineannotation>
-
-(defvar hostname (myhostname))
-</programlisting>
+<computeroutput>MYHOSTNAME</computeroutput>
+(myhostname)
+<computeroutput>#(97 98 97 122 111 110 107)</computeroutput></programlisting>
+It is a &simple-vector-t;, not a &string-t;, because the &name-r;
+argument is an array of <type>char</type> (an &integer-t; type, see
+<xref linkend="dffi-types"/>), not <type>character</type>.
+<programlisting language="lisp">
+(&def-call-out; gethostname
+  (:arguments (name (&c-ptr; (&c-array-max; ffi:char 256))
+                    &out-k; &alloca-k;)
+              (length ffi:int))
+  (:language :stdc) (:library :default)
+  (:return-type ffi:int))
+<computeroutput>GETHOSTNAME</computeroutput>
+(myhostname)
+<computeroutput>"abazonk"</computeroutput></programlisting>
+Now we have a different problem:
+if <function role="unix">gethostname</function> fails, then the buffer
+allocated for &name-r; will be filled with garbage, but it will still go
+through the string conversion &before-e; we can check
+the <replaceable>success</replaceable> status.
+If &foreign-enc; is <constant>CHARSET:ISO-8859-1</constant>, this is not
+a problem since no real conversion is happening, but with &utf-8; an
+&error-t; will be &signal;ed.
+A safe approach is to pass to the foreign function our own
+stack-allocated buffer, and only convert the buffer to a string when the
+foreign function succeeds: <programlisting language="lisp">
+(&def-call-out; gethostname
+  (:arguments (name &c-pointer;)
+              (length ffi:int))
+  (:language :stdc) (:library :default)
+  (:return-type ffi:int))
+<computeroutput>GETHOSTNAME</computeroutput>
+(defun myhostname ()
+  (&with-foreign-object; (name '(&c-array-max; character 256))
+    (let ((success (gethostname name 256)))
+      (if (zerop success) (&foreign-value; name)
+        (error ...)))))
+<computeroutput>MYHOSTNAME</computeroutput>
+(myhostname)
+<computeroutput>"abazonk"</computeroutput></programlisting></para>
 </example>
 
 <example id="dffi-dll-var">
