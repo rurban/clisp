@@ -8,7 +8,7 @@
 
 <para>The <firstterm>final delimiter
   <indexterm id="fin-delim" significance="preferred">
-   <primary id="fin-delim-i">final delimiter</primary></indexterm></firstterm>
+   <primary>final delimiter</primary></indexterm></firstterm>
  of an interactive stream:
  <variablelist><varlistentry><term>&unix;</term>
    <listitem><simpara>type <keycombo>&ctrl;<keysym>D</keysym></keycombo>
@@ -75,7 +75,8 @@
 
 <para>A <firstterm>reserved token
   <indexterm id="res-token" significance="preferred">
-   <primary id="res-token-i">reserved token</primary></indexterm></firstterm>,
+   <primary>token</primary><secondary>reserved</secondary>
+ </indexterm></firstterm>,
  i.e., a <ulink url="clhs/glo">token</ulink> that has
  <ulink url="clhs/glo">potential number</ulink> syntax but cannot be
  interpreted as a &number-t;, is interpreted as &symbol-t; when being
@@ -277,7 +278,7 @@
 
 <para>The function
  <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
-   <primary id="symbol-mex-i"><function>SYMBOL-MACRO-EXPAND</function>
+   <primary><function>SYMBOL-MACRO-EXPAND</function>
  </primary></indexterm></firstterm>
  tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;
  in the &glo-env;, <code>(&symbol-mex; &symbol-r;)</code> returns two
@@ -778,10 +779,10 @@ executes a compiled version of &form-r;.</para>
  interpreted code.</para>
 
 <para><firstterm>&gen-flet;<indexterm id="gen-flet" significance="preferred">
-   <primary id="gen-flet-i"><function>GENERIC-FLET</function>
+   <primary><function>GENERIC-FLET</function>
  </primary></indexterm></firstterm> and
  <firstterm>&gen-labels;<indexterm id="gen-labels" significance="preferred">
-   <primary id="gen-labels-i"><function>GENERIC-LABELS</function>
+   <primary><function>GENERIC-LABELS</function>
  </primary></indexterm></firstterm>
  are implemented as macros, not as special operators (as permitted by
  <ulink role="clhs" url="sec_3-1-2-1-2-2"/>).
@@ -1079,7 +1080,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <para>Generic function
  <firstterm>&no-prim;<indexterm id="no-prim" significance="preferred">
-   <primary id="no-prim-i"><function>NO-PRIMARY-METHOD</function>
+   <primary><function>NO-PRIMARY-METHOD</function>
  </primary></indexterm></firstterm>
  (similar to &no-applicable-method;) is called when there is an
  applicable method but no applicable <emphasis>primary</emphasis>
@@ -1089,7 +1090,7 @@ the iteration variable and assign it on each iteration.</para></section>
  &no-next-method; &signal; an &error-t; of type
  <firstterm>&meth-call-err;
   <indexterm id="meth-call-err" significance="preferred">
-   <primary id="meth-call-err-i"><classname>METHOD-CALL-ERROR</classname>
+   <primary><classname>METHOD-CALL-ERROR</classname>
  </primary></indexterm></firstterm>.
  You can find out more information about the error using functions
  <function>CLOS:METHOD-CALL-ERROR-GENERIC-FUNCTION</function>,
@@ -1101,8 +1102,7 @@ the iteration variable and assign it on each iteration.</para></section>
  corresponding parameter specializers are &t-t;), an &error-t; of type
  <firstterm>&meth-call-type-err;
   <indexterm id="meth-call-type-err" significance="preferred">
-   <primary id="meth-call-type-err-i">
-    <classname>METHOD-CALL-TYPE-ERROR</classname>
+   <primary><classname>METHOD-CALL-TYPE-ERROR</classname>
  </primary></indexterm></firstterm>
   is &signal;ed, additionally making &type-error-datum; and
   &type-error-expected-type; available.</para>
@@ -1428,8 +1428,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <formalpara><title>Function &package-lock;</title>
 <para><indexterm id="pack-lock-f" significance="preferred">
-  <primary id="pack-lock-i"><function>PACKAGE-LOCK</function>
- </primary></indexterm>
+  <primary><function>PACKAGE-LOCK</function></primary></indexterm>
  Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
 redefine functions which its symbols name result in a &cont-err;
@@ -1448,7 +1447,7 @@ A package (or a list thereof) can be locked using <code>(&setf;
  you can use
  <firstterm>&without-package-lock;
   <indexterm id="without-pack-lock" significance="preferred">
-   <primary id="without-pack-lock-i"><function>WITHOUT-PACKAGE-LOCK</function>
+   <primary><function>WITHOUT-PACKAGE-LOCK</function>
  </primary></indexterm></firstterm>:
 <programlisting language="lisp">
 (&without-package-lock; (&cl-pac; &ext-pac; &clos-pac;)
@@ -1572,16 +1571,16 @@ coexist in the same process and interoperate with each other. Example:
 <para>This is achieved through specification of the symbol case policy at
 the package level. A <firstterm>modern package
   <indexterm id="pack-modern" significance="preferred">
-   <primary>&package-t;</primary>
-   <secondary id="pack-modern-i">modern</secondary></indexterm></firstterm>
+   <primary>&package-t;</primary><secondary>modern</secondary>
+ </indexterm></firstterm>
  is one that is declared to be both case-sensitive and case-inverted and
  which use the symbols from the &cs-cl; package.</para>
 
 <para>A <firstterm>case-sensitive package
   <indexterm id="pack-case-sensitive" significance="preferred">
    <primary>&package-t;</primary>
-   <secondary id="pack-case-sensitive-i">case-sensitive</secondary></indexterm>
- </firstterm> is one whose &defpackage; declaration (or &make-package;
+   <secondary>case-sensitive</secondary></indexterm></firstterm>
+ is one whose &defpackage; declaration (or &make-package;
  creation form) has the option <code>(&case-sensitive-k; &t;)</code>.
  In a case-sensitive package, the reader does &not-e; uppercase the
  symbol name before calling &intern;.  Similarly, the printer, when
@@ -1593,7 +1592,7 @@ the package level. A <firstterm>modern package
 <para>A <firstterm>case-inverted package
   <indexterm id="pack-case-inverted" significance="preferred">
    <primary>&package-t;</primary>
-   <secondary id="pack-case-inverted-i">case-inverted</secondary></indexterm>
+   <secondary>case-inverted</secondary></indexterm>
  </firstterm> is one whose &defpackage; declaration (or &make-package;
  creation form) has the option <code>(&case-inverted-k; &t;)</code>.
  In the context of a case-inverted package, symbol names are
@@ -1697,7 +1696,8 @@ can give problems:
 
 <para>For packages to be located in the <quote>modern</quote>
  (case-sensitive) world, you need to augment their &defpackage;
- declaration by adding the option <code>(&modern-k; &t;)</code>.</para>
+ declaration by adding the option <code>(&modern-k; &t;)</code>,
+ see <xref linkend="defpack"/>.</para>
 
 </section>
 </section>
@@ -3066,8 +3066,7 @@ checks whether the &hash-table-t; is weak.</para>
  checking the efficiency of a particular &hash-table-t;, the variable
 <firstterm>&warn-on-hashtable-needing-rehash-after-gc;
  <indexterm id="hashtable-gc-rehash-warn" significance="preferred">
-  <primary id="hashtable-gc-rehash-warn-i">
-   <varname>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname>
+  <primary><varname>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname>
 </primary></indexterm></firstterm>
  achieves the same effect for all &hash-table-t;s in the system at once:
  when &warn-on-hashtable-needing-rehash-after-gc; is true and a
@@ -4792,8 +4791,7 @@ Otherwise, when the variable &pathprint; is non-&nil;, the
 
 <para>The additional &format; instruction
  <firstterm>~!<indexterm id="format-bang" significance="preferred">
-   <primary>&format;</primary>
-   <secondary id="format-bang-i">~!</secondary></indexterm></firstterm>
+   <primary>&format;</primary><secondary>~!</secondary></indexterm></firstterm>
  is similar to &format-slash;, but avoids putting a function name into a
  string, thus, even if the function is not interned in the &clu-pac;
  package, you might not need to specify the package explicitly.
@@ -4804,8 +4802,7 @@ Otherwise, when the variable &pathprint; is non-&nil;, the
 
 <para>The additional &format; instruction
  <firstterm>~.<indexterm id="format-dot" significance="preferred">
-   <primary>&format;</primary>
-   <secondary id="format-dot-i">~.</secondary></indexterm></firstterm>
+   <primary>&format;</primary><secondary>~.</secondary></indexterm></firstterm>
  is a kind of opposite to <code>~&amp;</code>: It outputs a conditional
  newline, by calling the function &elastic-newline;.
  <code>~&n-r;.</code> outputs <replaceable>n-1</replaceable> newlines
@@ -5906,8 +5903,7 @@ exhaust the available line length.</para></simplesect>
 <para>The function
  <firstterm><link linkend="gc"><function>EXT:GC</function></link>
   <indexterm id="gc-func" significance="preferred">
-   <primary id="gc-func-i"><function>GC</function>
- </primary></indexterm></firstterm>
+   <primary><function>GC</function></primary></indexterm></firstterm>
  starts a global &gc;ion and returns three values:<orderedlist>
   <listitem><simpara>room occupied by Lisp objects</simpara></listitem>
   <listitem><simpara>room available for Lisp objects</simpara></listitem>
