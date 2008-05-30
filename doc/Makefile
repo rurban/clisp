@@ -176,12 +176,12 @@ impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	egrep -Hn 'id="id[0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p impnotes.html impnotes.css $(DIST)/) \
-		|| true
+	(test -n "$(DIST)" && rsync -av impnotes.html \
+	  impnotes.css $(DIST)/) || true
 
 man: _clisp.html _clisp.1
 	(cd ../build && make clisp.html clisp.1 && \
-	 test -n "$(DIST)" && scp -p clisp.1 clisp.html $(DIST)/) || true
+	 test -n "$(DIST)" && rsync -av clisp.1 clisp.html $(DIST)/) || true
 
 impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl $(XSL_TARGET)
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
@@ -204,8 +204,8 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	mv -f ../build/clisp-1.html $@/clisp.html
 	rm -f _clisp-1.html
 	egrep -Hnr 'id="id[0-9]*"' $@ || true
-	(test -n "$(DIST)" && scp -p $@/*.html $@/id-href.map impnotes.css \
-	 $(DIST)/impnotes/;) || true
+	(test -n "$(DIST)" && rsync -av $@/*.html $@/id-href.map \
+	 impnotes.css $(DIST)/impnotes/;) || true
 
 # try to use http://www.graphviz.org/ instead of openoffice for MOP
 # class inheritance diagrams
@@ -213,8 +213,8 @@ mop-classes.png : mop-classes.dot
 	dot -Tpng mop-classes.dot -o mop-classes.png
 
 up: impnotes.html html
-	scp impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
-	scp -r html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
+	rsync -av impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
+	rsync -av html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
