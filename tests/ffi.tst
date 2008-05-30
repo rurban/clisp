@@ -6,7 +6,12 @@
 #+unicode (ext:encoding-charset *default-file-encoding*)
 #+unicode charset:utf-8
 
-(progn (defpackage "FTEST" (:use "FFI" "COMMON-LISP")) (in-package "FTEST") T)
+(progn
+  (defpackage "FTEST"
+    (:use "FFI" "COMMON-LISP")
+    (:import-from "CL-USER" #:show))
+  (in-package "FTEST")
+  T)
 T
 
 (multiple-value-list (sizeof 'uint8))
@@ -20,6 +25,56 @@ T
 
 (foreign-address-unsigned (unsigned-foreign-address 3))
 3
+
+(def-call-out gethostname1 (:name "gethostname")
+  (:arguments (name (c-ptr (c-array-max character 256)) :out :alloca) (len int))
+  (:return-type int) (:language :stdc) (:library :default))
+GETHOSTNAME1
+
+(defun myhostname1 ()
+  (multiple-value-bind (success name) (gethostname1 256)
+    (if (zerop success) name (error "~S: ~D" 'myhostname1 success))))
+MYHOSTNAME1
+
+(def-call-out gethostname2 (:name "gethostname")
+  (:arguments (name (c-ptr (c-array-max char 256)) :out :alloca) (len int))
+  (:return-type int) (:language :stdc) (:library :default))
+GETHOSTNAME2
+
+(defun myhostname2 ()
+  (multiple-value-bind (success name) (gethostname2 256)
+    (if (zerop success) name (error "~S: ~D" 'myhostname2 success))))
+MYHOSTNAME2
+
+(def-call-out gethostname3 (:name "gethostname")
+  (:arguments (name c-pointer) (len int))
+  (:return-type int) (:language :stdc) (:library :default))
+GETHOSTNAME3
+
+(defun myhostname3 ()
+  (with-foreign-object (name '(c-array-max character 256))
+    (let ((success (gethostname3 name 256)))
+      (if (zerop success) (foreign-value name)
+          (error "~S: ~D" 'myhostname2 success)))))
+MYHOSTNAME3
+
+(defun myhostname4 ()
+  (with-foreign-object (name '(c-array-max char 256))
+    (let ((success (gethostname3 name 256)))
+      (if (zerop success) (foreign-value name)
+          (error "~S: ~D" 'myhostname2 success)))))
+MYHOSTNAME4
+
+(string= (myhostname1) (myhostname3)) T
+(equalp (myhostname2) (myhostname4)) T
+
+(let ((n1 (show (myhostname1))))
+  (string= n1 (show (machine-instance)) :end2 (length n1)))
+T
+
+(string= (myhostname1)
+         (ext:convert-string-from-bytes (myhostname2) charset:utf-8))
+T
 
 (def-call-out c-self
   (:name "ffi_identity")
@@ -1189,7 +1244,7 @@ TOUPPER
   (def-call-out pcre-version (:name "pcre_version")
     ;; actually in libpcre.so, but dlsym() now searches in any open library
     (:library :default) (:language :stdc) (:arguments) (:return-type c-string))
-  (not (stringp (cl-user::show (pcre-version)))))
+  (not (stringp (show (pcre-version)))))
 NIL
 
 (progn (in-package "USER") (delete-package "FTEST") T) T
