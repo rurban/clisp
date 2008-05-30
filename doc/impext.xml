@@ -2802,8 +2802,9 @@ or just evaluates the appropriate form in the &repl;.</para>
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(&documentation-k; &string-r;)</code></term>
  <listitem><simpara>Specifies the (optional) &function-doc; documentation.
-</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+</simpara></listitem></varlistentry></variablelist>
+ <simpara>See also <xref linkend="dffi-functions"/>.</simpara>
+</listitem></varlistentry>
 
 <varlistentry id="def-call-in"><term><code>(&def-call-in;
    &func-r; {&option-r;}*)</code></term>
@@ -2826,29 +2827,8 @@ or just evaluates the appropriate form in the &repl;.</para>
 <varlistentry><term><code>(&lang-k; &lang-r;)</code></term>
  <listitem><simpara>See <xref linkend="c-flavor"/>.
 </simpara></listitem></varlistentry></variablelist>
-<formalpara><title>Callbacks and memory management</title><para>
- Callbacks (&c-lang; function calling Lisp function) create so-called
- <firstterm>trampolines</firstterm>.  A trampoline is a piece of
- &c-lang; code which knows how to call a particular Lisp function.
- (That is how all foreign language interfaces work, not just ours).
- The &c-lang; pointer that the foreign library receives is the pointer
- to this piece of code.
- These are &not-e; subject to &gc;ion, as there is no protocol to
- tell the garbage collector when a given callback is not needed anymore
- (unlike with Lisp objects).
- With callbacks to named functions (i.e., &func-r; is a &funname;) this
- is mostly harmless, since &func-r; is unlikely to be redefined.
- With callbacks to anonymous functions (i.e., &func-r; is
- &lambda-expr;), this might become an issue when they are produced
- dynamically, e.g. inside a loop, so many trampolines may be generated.
- You can use &foreign-free; to free the trampoline associated with a
- &foreign-function-t; object, but when you pass a lambda to a
- &def-call-out; with a parameter of type &c-function;, such a trampoline
- is allocated, but you do not get hold of the associated trampoline
- object, and thus you cannot (trivially) free it.
- Thus you may find it easier to create the &foreign-function-t; object
- first, pass it to the &def-call-out;, and then call &foreign-free;
- (e.g., using &finalize;).</para></formalpara></listitem></varlistentry>
+ <simpara>See also <xref linkend="dffi-functions"/>.</simpara>
+</listitem></varlistentry>
 
 <varlistentry id="dffi-open-lib"><term><code>(&open-foreign-library;
    &name-r;)</code></term>
@@ -3088,13 +3068,15 @@ or just evaluates the appropriate form in the &repl;.</para>
    <code>(&parse-c-type; '(&c-function; ...))</code>,
    in which case it is important to specify the &lang-k; because the
    expressions are likely to be evaluated at run time, outside the &comp-unit;).
-   &name-r;, a &string-t;, is mostly useful for documentation and
+   The &name-r;, a &string-t;, is mostly useful for documentation and
    interactive debugging since it appears in the printed representation
-   of the &foreign-function-t; object, as in
+   of the &foreign-function-t; object, e.g.,
    <computeroutput>#&lt;&foreign-function-t; "foo"
     #x0052B060&gt;</computeroutput>.
    It is inherited from the given &foreign-function-t; object when
-   available.</simpara></listitem></varlistentry>
+   available.</simpara>
+  <simpara>See also <xref linkend="dffi-functions"/>.</simpara>
+</listitem></varlistentry>
 
 <varlistentry id="validp"><term><code>(&validp; &f-ent;)</code></term>
   <term><code>(&setf; (&validp; &f-ent;) &value-r;)</code></term>
@@ -3588,17 +3570,46 @@ and possibly the calling convention.</para>
  language.  There are <firstterm>named foreign functions</firstterm>
  (imported via &def-call-out; or created via &def-call-in;) and
  <firstterm>anonymous foreign functions</firstterm>; they arise through
- conversion of function pointers.</para>
+ conversion of function pointers using &foreign-function;.</para>
 
 <para>A <firstterm>call-out function</firstterm> is a foreign function
  called from Lisp: control flow temporarily leaves Lisp.
- A <firstterm>call-in function</firstterm> is a Lisp function called
+ A <firstterm>call-in function</firstterm>
+ (AKA <firstterm>callback</firstterm>) is a Lisp function called
  from the foreign language: control flow temporary enters Lisp.</para>
 
 <para>The following operators define foreign functions:
- <simplelist columns="2"><member>&def-call-in;</member>
+ <simplelist columns="1"><member>&def-call-in;</member>
   <member>&def-call-out;</member><member>&foreign-function;</member>
 </simplelist></para>
+
+<simplesect id="dffi-callback-mem">
+ <title>Callbacks and memory management</title>
+<para>Callbacks (&c-lang; function calling Lisp function) create
+ so-called <firstterm>trampolines</firstterm>.  A trampoline is a piece
+ of &c-lang; code which knows how to call a particular Lisp function.
+ (That is how all foreign language interfaces work, not just ours).
+ The &c-lang; pointer that the foreign library receives is the pointer
+ to this piece of code.
+ These are &not-e; subject to &gc;ion, as there is no protocol to
+ tell the garbage collector when a given callback is not needed anymore
+ (unlike with Lisp objects).</para>
+<para>With callbacks to <emphasis>named</emphasis> functions (i.e.,
+ created by a &def-call-in; form where &func-r; is a &funname;) this is
+ mostly harmless, since &func-r; is unlikely to be redefined.
+ With callbacks to <emphasis>anonymous</emphasis> functions (i.e.,
+ created by &foreign-function; or a &def-call-in; form where &func-r;
+ argument is a &lambda-expr;), this might become an issue when they are
+ produced dynamically and en masse, e.g. inside a loop, so that many
+ trampolines are generated.</para>
+<para>You can use &foreign-free; to free the trampoline associated with a
+ &foreign-function-t; object, but when you pass a &lambda-expr; to a
+ &def-call-out; as an argument of type &c-function;, such a trampoline
+ &is-e; allocated, but you do &not-e; get hold of the associated trampoline
+ object, and thus you cannot (trivially) free it.
+ Thus you may find it easier to create the &foreign-function-t; object
+ first, pass it to the &def-call-out;, and then call &foreign-free;
+ manually.</para></simplesect>
 
 </section>
 
