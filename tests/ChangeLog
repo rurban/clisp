@@ -1,3 +1,7 @@
+2008-05-30  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst (gethostname): test 2 approaches
+
 2008-05-28  Sam Steingold  <sds@gnu.org>
 
 	* format.tst: use defparameter instead of setq; do a full cleanup
