@@ -3674,13 +3674,12 @@ fi
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** Rawsock (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** Rawsock (Headers)${term_norm}" >&6;}
-{ $as_echo "$as_me:$LINENO: checking for IPv4 sockets" >&5
+  { $as_echo "$as_me:$LINENO: checking for IPv4 sockets" >&5
 $as_echo_n "checking for IPv4 sockets... " >&6; }
 if test "${cl_cv_socket_ipv4+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -3724,12 +3723,10 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_socket_ipv4" >&5
 $as_echo "$cl_cv_socket_ipv4" >&6; }
-if test $cl_cv_socket_ipv4 = yes; then
+  if test $cl_cv_socket_ipv4 = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_IPV4 /**/
@@ -3737,13 +3734,13 @@ _ACEOF
 
 fi
 
-{ $as_echo "$as_me:$LINENO: checking for IPv6 sockets" >&5
+
+  { $as_echo "$as_me:$LINENO: checking for IPv6 sockets" >&5
 $as_echo_n "checking for IPv6 sockets... " >&6; }
 if test "${cl_cv_socket_ipv6+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -3787,12 +3784,10 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_socket_ipv6" >&5
 $as_echo "$cl_cv_socket_ipv6" >&6; }
-if test $cl_cv_socket_ipv6 = yes; then
+  if test $cl_cv_socket_ipv6 = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_IPV6 /**/
@@ -3800,14 +3795,14 @@ _ACEOF
 
 fi
 
+
 if test $cl_cv_socket_ipv6 = no; then
-{ $as_echo "$as_me:$LINENO: checking for IPv6 sockets in linux/in6.h" >&5
+  { $as_echo "$as_me:$LINENO: checking for IPv6 sockets in linux/in6.h" >&5
 $as_echo_n "checking for IPv6 sockets in linux/in6.h... " >&6; }
 if test "${cl_cv_socket_ipv6_linux+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -3852,12 +3847,10 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_socket_ipv6_linux" >&5
 $as_echo "$cl_cv_socket_ipv6_linux" >&6; }
-if test $cl_cv_socket_ipv6_linux = yes; then
+  if test $cl_cv_socket_ipv6_linux = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define IPV6_NEED_LINUX_IN6_H /**/
@@ -3868,6 +3861,7 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 fi
+
 
 fi
 

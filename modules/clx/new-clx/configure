@@ -5364,11 +5364,11 @@ _ACEOF
 
 { $as_echo "$as_me:$LINENO: checking for XGetAtomNames" >&5
 $as_echo_n "checking for XGetAtomNames... " >&6; }
-if test "${gb_cv_have_XGetAtomNames+set}" = set; then
+if test "${cl_cv_have_XGetAtomNames+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-   gb_LIBS_save=$LIBS
-    gb_CFLAGS_save=$CFLAGS
+   cl_LIBS_save=$LIBS
+    cl_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     cat >conftest.$ac_ext <<_ACEOF
@@ -5381,7 +5381,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-XGetAtomNames(0,0,0,0);
+XGetAtomNames(0,0,0,0)
   ;
   return 0;
 }
@@ -5407,23 +5407,23 @@ $as_echo "$ac_try_echo") >&5
 	 test "$cross_compiling" = yes ||
 	 $as_test_x conftest$ac_exeext
        }; then
-  gb_cv_have_XGetAtomNames=yes
+  cl_cv_have_XGetAtomNames=yes
 else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	gb_cv_have_XGetAtomNames=no
+	cl_cv_have_XGetAtomNames=no
 fi
 
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-    LIBS=$gb_LIBS_save
-    CFLAGS=$gb_CFLAGS_save
+    LIBS=$cl_LIBS_save
+    CFLAGS=$cl_CFLAGS_save
 fi
-{ $as_echo "$as_me:$LINENO: result: $gb_cv_have_XGetAtomNames" >&5
-$as_echo "$gb_cv_have_XGetAtomNames" >&6; }
-if test $gb_cv_have_XGetAtomNames = yes; then
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_have_XGetAtomNames" >&5
+$as_echo "$cl_cv_have_XGetAtomNames" >&6; }
+if test $cl_cv_have_XGetAtomNames = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_XGETATOMNAMES 1
@@ -5433,11 +5433,11 @@ fi
 
 { $as_echo "$as_me:$LINENO: checking for Xpm library" >&5
 $as_echo_n "checking for Xpm library... " >&6; }
-if test "${gb_cv_have_xpm+set}" = set; then
+if test "${cl_cv_have_xpm+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-   gb_LIBS_save=$LIBS
-    gb_CFLAGS_save=$CFLAGS
+   cl_LIBS_save=$LIBS
+    cl_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXpm $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     cat >conftest.$ac_ext <<_ACEOF
@@ -5450,7 +5450,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-XpmReadFileToPixmap(0,0,0,0,0,0);
+XpmReadFileToPixmap(0,0,0,0,0,0)
   ;
   return 0;
 }
@@ -5476,30 +5476,30 @@ $as_echo "$ac_try_echo") >&5
 	 test "$cross_compiling" = yes ||
 	 $as_test_x conftest$ac_exeext
        }; then
-  gb_cv_have_xpm=yes
+  cl_cv_have_xpm=yes
 else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	gb_cv_have_xpm=no
+	cl_cv_have_xpm=no
 fi
 
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-    LIBS=$gb_LIBS_save
-    CFLAGS=$gb_CFLAGS_save
+    LIBS=$cl_LIBS_save
+    CFLAGS=$cl_CFLAGS_save
 fi
-{ $as_echo "$as_me:$LINENO: result: $gb_cv_have_xpm" >&5
-$as_echo "$gb_cv_have_xpm" >&6; }
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_have_xpm" >&5
+$as_echo "$cl_cv_have_xpm" >&6; }
 
 { $as_echo "$as_me:$LINENO: checking for X shape extension" >&5
 $as_echo_n "checking for X shape extension... " >&6; }
-if test "${gb_cv_have_xshape+set}" = set; then
+if test "${cl_cv_have_xshape+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-   gb_LIBS_save=$LIBS
-    gb_CFLAGS_save=$CFLAGS
+   cl_LIBS_save=$LIBS
+    cl_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS -lXext $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     cat >conftest.$ac_ext <<_ACEOF
@@ -5509,12 +5509,12 @@ cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 #include <X11/Xlib.h>
-                 #include <X11/Xutil.h>
-                 #include <X11/extensions/shape.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/shape.h>
 int
 main ()
 {
-XShapeQueryExtension(0,0,0);
+XShapeQueryExtension(0,0,0)
   ;
   return 0;
 }
@@ -5540,30 +5540,32 @@ $as_echo "$ac_try_echo") >&5
 	 test "$cross_compiling" = yes ||
 	 $as_test_x conftest$ac_exeext
        }; then
-  gb_cv_have_xshape=yes
+  cl_cv_have_xshape=yes
 else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	gb_cv_have_xshape=no
+	cl_cv_have_xshape=no
 fi
 
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-    LIBS=$gb_LIBS_save
-    CFLAGS=$gb_CFLAGS_save
+    LIBS=$cl_LIBS_save
+    CFLAGS=$cl_CFLAGS_save
 fi
-{ $as_echo "$as_me:$LINENO: result: $gb_cv_have_xshape" >&5
-$as_echo "$gb_cv_have_xshape" >&6; }
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_have_xshape" >&5
+$as_echo "$cl_cv_have_xshape" >&6; }
+
+
 
 { $as_echo "$as_me:$LINENO: checking if XauGetAuthByAddr needs -lXau" >&5
 $as_echo_n "checking if XauGetAuthByAddr needs -lXau... " >&6; }
-if test "${gb_cv_need_lXau+set}" = set; then
+if test "${cl_cv_need_lXau+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-   gb_LIBS_save=$LIBS
-    gb_CFLAGS_save=$CFLAGS
+   cl_LIBS_save=$LIBS
+    cl_CFLAGS_save=$CFLAGS
     LIBS="$X_LIBS $X_PRE_LIBS -lX11 $LIBS"
     CFLAGS="$CFLAGS $X_CFLAGS"
     cat >conftest.$ac_ext <<_ACEOF
@@ -5578,7 +5580,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");
+XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0")
   ;
   return 0;
 }
@@ -5604,18 +5606,18 @@ $as_echo "$ac_try_echo") >&5
 	 test "$cross_compiling" = yes ||
 	 $as_test_x conftest$ac_exeext
        }; then
-  gb_cv_need_lXau=no
+  cl_cv_need_lXau=no
 else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
-	gb_cv_need_lXau=maybe
+	cl_cv_need_lXau=maybe
 fi
 
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-    if test $gb_cv_need_lXau = maybe; then
+    if test $cl_cv_need_lXau = maybe; then
       LIBS="$X_LIBS -lXau $X_PRE_LIBS $LIBS"
       CFLAGS="$CFLAGS $X_CFLAGS"
       cat >conftest.$ac_ext <<_ACEOF
@@ -5630,7 +5632,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 int
 main ()
 {
-XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0");
+XauGetAuthByAddr(AF_INET,0,"",13,"localhost:0.0",13,"localhost:0.0")
   ;
   return 0;
 }
@@ -5656,7 +5658,7 @@ $as_echo "$ac_try_echo") >&5
 	 test "$cross_compiling" = yes ||
 	 $as_test_x conftest$ac_exeext
        }; then
-  gb_cv_need_lXau=yes
+  cl_cv_need_lXau=yes
 else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
@@ -5672,30 +5674,30 @@ rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
     fi
-    LIBS=$gb_LIBS_save
-    CFLAGS=$gb_CFLAGS_save
+    LIBS=$cl_LIBS_save
+    CFLAGS=$cl_CFLAGS_save
 fi
-{ $as_echo "$as_me:$LINENO: result: $gb_cv_need_lXau" >&5
-$as_echo "$gb_cv_need_lXau" >&6; }
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_need_lXau" >&5
+$as_echo "$cl_cv_need_lXau" >&6; }
 
 
 
 
-if test $gb_cv_have_xpm = "yes"; then
+if test $cl_cv_have_xpm = "yes"; then
     X_LIBS="$X_LIBS -lXpm";
     WANTS="$WANTS -DWANT_XPM=1"
 else
     WANTS="$WANTS -DWANT_XPM=0"
 fi
 
-if test $gb_cv_have_xshape = "yes"; then
+if test $cl_cv_have_xshape = "yes"; then
     X_LIBS="$X_LIBS -lXext";
     WANTS="$WANTS -DWANT_XSHAPE=1"
 else
     WANTS="$WANTS -DWANT_XSHAPE=0"
 fi
 
-if test $gb_cv_need_lXau = "yes"; then
+if test $cl_cv_need_lXau = "yes"; then
     X_LIBS="$X_LIBS -lXau";
 fi
 

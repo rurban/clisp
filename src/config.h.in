@@ -50,9 +50,6 @@
 /* Define to 1 if using `alloca.c'. */
 #undef C_ALLOCA
 
-/* have <dirent.h>? */
-#undef DIRENT
-
 /* Define to 1 if 'double' division by zero raises an exception. */
 #undef DOUBLE_DIV0_EXCEPTION
 
@@ -283,9 +280,6 @@
 
 /* Define to 1 if you have the <locale.h> header file. */
 #undef HAVE_LOCALE_H
-
-/* Define if you have the 'long double' type. */
-#undef HAVE_LONG_DOUBLE
 
 /* Define to 1 if the system has the type `long long int'. */
 #undef HAVE_LONG_LONG_INT
@@ -656,9 +650,6 @@
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
-/* no <dirent.h>, use <ndir.h> */
-#undef NDIR
-
 /* need <sys/filio.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_FILIO_H
 
@@ -819,12 +810,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* no <dirent.h>, use <sys/dir.h> */
-#undef SYSDIR
-
-/* no <dirent.h>, use <sys/ndir.h> */
-#undef SYSNDIR
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #undef TIME_WITH_SYS_TIME

@@ -3674,13 +3674,12 @@ fi
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
-{ $as_echo "$as_me:$LINENO: checking for sys/utsname.h and struct utsname" >&5
+  { $as_echo "$as_me:$LINENO: checking for sys/utsname.h and struct utsname" >&5
 $as_echo_n "checking for sys/utsname.h and struct utsname... " >&6; }
 if test "${cl_cv_struct_utsname+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -3722,18 +3721,17 @@ sed 's/^/| /' conftest.$ac_ext >&5
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_struct_utsname" >&5
 $as_echo "$cl_cv_struct_utsname" >&6; }
-if test $cl_cv_struct_utsname = yes; then
+  if test $cl_cv_struct_utsname = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_SYS_UTSNAME_H /**/
 _ACEOF
 
 fi
+
 
 
 
@@ -7023,13 +7021,12 @@ _ACEOF
 fi
 
 
-{ $as_echo "$as_me:$LINENO: checking for lstat" >&5
+  { $as_echo "$as_me:$LINENO: checking for lstat" >&5
 $as_echo_n "checking for lstat... " >&6; }
 if test "${cl_cv_func_lstat+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -7079,18 +7076,17 @@ fi
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_func_lstat" >&5
 $as_echo "$cl_cv_func_lstat" >&6; }
-if test $cl_cv_func_lstat = yes; then
+  if test $cl_cv_func_lstat = yes; then
 
 cat >>confdefs.h <<\_ACEOF
 #define HAVE_LSTAT /**/
 _ACEOF
 
 fi
+
 
 
 
@@ -9212,13 +9208,12 @@ fi
 
 done
 if test $ac_cv_header_sys_resource_h = yes; then
-    { $as_echo "$as_me:$LINENO: checking for getrusage" >&5
+      { $as_echo "$as_me:$LINENO: checking for getrusage" >&5
 $as_echo_n "checking for getrusage... " >&6; }
 if test "${cl_cv_func_getrusage+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -9267,22 +9262,17 @@ fi
 rm -rf conftest.dSYM
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
-
 fi
-
 { $as_echo "$as_me:$LINENO: result: $cl_cv_func_getrusage" >&5
 $as_echo "$cl_cv_func_getrusage" >&6; }
-if test $cl_cv_func_getrusage = yes; then
-  :
-fi
+
   if test $cl_cv_func_getrusage = yes; then
     { $as_echo "$as_me:$LINENO: checking for getrusage declaration" >&5
 $as_echo_n "checking for getrusage declaration... " >&6; }
 if test "${cl_cv_proto_getrusage+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-    cat >conftest.$ac_ext <<_ACEOF
+  cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
 _ACEOF
 cat confdefs.h >>conftest.$ac_ext
@@ -9368,7 +9358,6 @@ _ACEOF
 cat confdefs.h >>conftest.$ac_ext
 cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
-
 #include <stdio.h>
 #include <sys/types.h> /* NetBSD 1.0 needs this */
 #include <sys/time.h>
