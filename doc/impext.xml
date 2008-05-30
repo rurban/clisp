@@ -3572,8 +3572,7 @@ and possibly the calling convention.</para>
  </indexterm></firstterm>
  (imported via &def-call-out; or created via &def-call-in;) and
  <firstterm>anonymous foreign functions<indexterm id="dffi-ff-n">
-   <primary>foreign function</primary>
-   <secondary id="foreign-function-anonymous-i">anonymous</secondary>
+   <primary>foreign function</primary><secondary>anonymous</secondary>
  </indexterm></firstterm>; they arise through conversion of function
  pointers using &foreign-function;.</para>
 
