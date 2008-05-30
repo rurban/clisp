@@ -13,7 +13,7 @@ AC_PREREQ(2.57)
 AC_DEFUN([CL_SIGINTERRUPT],
 [AC_REQUIRE([CL_SIGACTION])dnl
 AC_CHECK_FUNCS(siginterrupt)dnl
-if test "$ac_cv_func_strerror" = yes -a "$ac_cv_func_sigaction" = yes; then
+if test "$ac_cv_func_siginterrupt" = yes -a "$ac_cv_func_sigaction" = yes; then
 AC_CHECK_FUNCS(sigvec)dnl
 fi
 ])
