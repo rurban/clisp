@@ -148,8 +148,11 @@ XMLOUT=$(XSLTPROC) --timing --param google.ads $(GOOGLEADS) \
 DOC_MAN=--stringparam current.docid "man"
 DOC_IMP=--stringparam current.docid "impnotes"
 
+CHECK_IDS = if egrep -Hnr 'id="id[0-9]*"' $@; then exit 1; else true; fi
+
 clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ pile.xsl $<
+	$(CHECK_IDS)
 
 _clisp.html: clisp.html
 	sed $(SGML_UNCOMMENT) $< > $@
@@ -175,7 +178,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ pile.xsl $<
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
-	egrep -Hn 'id="id[0-9]*"' $@ || true
+	$(CHECK_IDS)
 	(test -n "$(DIST)" && rsync -av impnotes.html \
 	  impnotes.css $(DIST)/) || true
 
@@ -203,7 +206,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cd ../build; make clisp-1.html;
 	mv -f ../build/clisp-1.html $@/clisp.html
 	rm -f _clisp-1.html
-	egrep -Hnr 'id="id[0-9]*"' $@ || true
+	$(CHECK_IDS)
 	(test -n "$(DIST)" && rsync -av $@/*.html $@/id-href.map \
 	 impnotes.css $(DIST)/impnotes/;) || true
 
