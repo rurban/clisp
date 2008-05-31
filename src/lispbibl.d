@@ -120,14 +120,8 @@
   #define PC386 /* IBMPC-compatible with 80386/80486-processor */
 #endif
 #ifdef GENERIC_UNIX
-  #if (defined(sun) && defined(unix) && defined(sun386))
-    #define SUN386
-  #endif
   #if (defined(unix) && (defined(linux) || defined(__CYGWIN32__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)) && (defined(i386) || defined(__i386__) || defined(__x86_64__) || defined(__amd64__)))
     #define PC386
-  #endif
-  #if (defined(sun) && defined(unix) && defined(mc68020))
-    #define SUN3
   #endif
   #if (defined(sun) && defined(unix) && defined(sparc))
     #define SUN4
@@ -351,9 +345,6 @@
 /* A more precise classification of the operating system: */
 #if defined(UNIX) && defined(SIGNALBLOCK_BSD) && !defined(SIGNALBLOCK_SYSV)
   #define UNIX_BSD  /* BSD Unix */
-#endif
-#if (defined(SUN3) || defined(SUN386) || defined(SUN4)) && defined(HAVE_MMAP) && defined(HAVE_VADVISE)
-  #define UNIX_SUNOS4  /* Sun OS Version 4 */
 #endif
 #if (defined(SUN4) || (defined(I80386) && defined(__svr4__) && defined(__sun))) && !defined(HAVE_VADVISE) /* && !defined(HAVE_GETPAGESIZE) */
   #define UNIX_SUNOS5  /* Sun OS Version 5.[1-5] (Solaris 2) */
@@ -2989,7 +2980,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 
 
-#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(SUN3) && !defined(UNIX_SUNOS4) && !defined(WIDE_SOFT)) && !(defined(AMD64) && defined(UNIX_LINUX))
+#if (oint_addr_shift == 0) && (addr_shift == 0) && defined(TYPECODES) && !defined(WIDE_SOFT) && !(defined(AMD64) && defined(UNIX_LINUX))
 /* If the address bits are the lower ones and not WIDE_SOFT,
  memory mapping may be possible. */
 
@@ -2998,13 +2989,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      to an address that already contains its type information.
      But this does not work on SINIX and AIX. */
       #define SINGLEMAP_MEMORY
-  #endif
-
-  #if defined(UNIX_SUNOS4) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-    /* Access to Lisp-objects is done through memory-mapping: Each
-     memory page can be accessed at several addresses. */
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_FILE
   #endif
 
   #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
@@ -3959,8 +3943,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* What's really being sent from an address to the address-bus */
 #if defined(MC68000)
   #define hardware_  0x00FFFFFFUL  /* 68000 drops 8 */
-#elif defined(SUN3) && !defined(UNIX_SUNOS4)
-  #define hardware_addressbus_mask  0x0FFFFFFFUL  /* SUN3 unter SunOS 3.5 wirft 4 Bits weg */
 #else
   #define hardware_addressbus_mask  ~0UL  /* Default: nothing is dropped */
 #endif
@@ -4281,9 +4263,9 @@ extern bool inside_gc;
   /* SINGLEMAP_MEMORY -> Ony pure pages/blocks make sense, since
    the address of a page determines the type of the objects it contains. */
   #define SPVW_PURE
-#elif !defined(TYPECODES) || defined(MC68000) || defined(SUN3) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
+#elif !defined(TYPECODES) || defined(MC68000) || defined(SPVW_BLOCKS) || defined(TRIVIALMAP_MEMORY)
   /* !TYPECODES -> there aren't real typecodes, only Cons and Varobject.
-   MC68000 or SUN3 -> type_pointable(...) costs little or nothing.
+   MC68000 -> type_pointable(...) costs little or nothing.
    SPVW_BLOCKS -> SPVW_PURE_BLOCKS is only implemented for SINGLEMAP_MEMORY.
    TRIVIALMAP_MEMORY -> not many blocks available, small adress space. */
   #define SPVW_MIXED

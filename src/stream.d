@@ -12356,7 +12356,7 @@ LISPFUNN(make_window,0) {
   begin_system_call();
   initscr(); /* initialize Curses - What, if this crashes?? use newterm()?? */
   cbreak(); noecho(); /* Input not line-buffered, without Echo */
- #if defined(SUN3) || defined(SUN4)
+ #ifdef SUN4
   keypad(stdscr,true); /* activate Function-Key-Detection */
  #endif
   end_system_call();
@@ -12367,7 +12367,7 @@ LISPFUNN(make_window,0) {
 local void close_window (object stream, uintB abort) {
   begin_system_call();
   nocbreak(); echo(); /* Input is line-buffered again, with Echo */
- #if defined(SUN3) || defined(SUN4)
+ #ifdef SUN4
   keypad(stdscr,false); /* deactivate Function-Key-Detection again */
  #endif
   endwin(); /* deactivate Curses */
