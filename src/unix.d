@@ -272,7 +272,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
 #ifdef EINTR
   extern_C int siginterrupt (int sig, int flag); /* SIGINTERRUPT(3V) */
   #ifndef HAVE_SIGINTERRUPT
-    /* siginterrupt() can be implemented with sigaction() or sigvec() */
+    /* siginterrupt() can be implemented with sigaction() */
     #define NEED_OWN_SIGINTERRUPT
   #endif
 #else
