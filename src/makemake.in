@@ -498,7 +498,7 @@ esac
 
 # These variables are set by configure:
 # srcdir='@srcdir@'                 # either '.' or '../src', see above
-CP='@CP@'                           # either 'cp -p' or 'cp'
+CP='cp -p'                          # either 'cp -p' or 'cp'
 LN_S='@LN_S@'                       # either 'ln -s' or 'ln'
 LN='@LN@'                           # either 'ln' or ${CP}
 HLN='@HLN@'                         # either 'ln' or 'hln'
