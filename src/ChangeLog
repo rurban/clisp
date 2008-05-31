@@ -1,12 +1,16 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* src/configure.in: Remove CL_IRIX_SUN invocation.
-	* src/m4/sys-irix.m4: Remove file.
+	* m4/termios.m4 (RL_TERM): Remove macro.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* src/configure.in: Remove CL_DYNIX_SEQ invocation.
-	* src/m4/sys-dynix.m4: Remove file.
+	* configure.in: Remove CL_IRIX_SUN invocation.
+	* m4/sys-irix.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
+	* configure.in: Remove CL_DYNIX_SEQ invocation.
+	* m4/sys-dynix.m4: Remove file.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
@@ -19,12 +23,12 @@
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* src/m4/shm-rmid.m4 (CL_SHM_RMID): Choose more distant addresses,
+	* m4/shm-rmid.m4 (CL_SHM_RMID): Choose more distant addresses,
 	so that the test succeeds on Linux.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
-	* src/m4/select.m4 (RL_SELECT): Remove macro.
+	* m4/select.m4 (RL_SELECT): Remove macro.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
