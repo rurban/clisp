@@ -336,11 +336,6 @@ extern_C int raise (int sig);
 
 /* get information about a file: */
 #include <sys/stat.h>
-#ifdef STAT_MACROS_BROKEN
-  #undef S_ISDIR
-  #undef S_ISLNK
-  #undef S_ISREG
-#endif
 /* extern/extern_C int stat (const char* path, struct stat * buf); */ /* STAT(2V) */
 #ifdef HAVE_LSTAT
   /* extern/extern_C int lstat (const char* path, struct stat * buf); */ /* STAT(2V) */

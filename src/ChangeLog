@@ -1,5 +1,10 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove AC_HEADER_STAT invocation.
+	* unix.d: Ignore STAT_MACROS_BROKEN.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove AC_HEADER_TIME invocation. Instead simply test
 	for <time.h> and <sys/time.h>.
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Likewise.
