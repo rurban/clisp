@@ -1,5 +1,17 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_OPENFLAGS invocation.
+	* unix.d: Assume O_RDWR etc. is defined in <fcntl.h>.
+	* m4/filecharset.m4 (CL_FILECHARSET): Likewise.
+	* m4/general.m4 (CL_FFCALL_COMMON_TRAMPOLINE): Likewise.
+	* m4/ioctl.m4 (CL_IOCTL): Likewise.
+	* m4/mmap.m4 (CL_MMAP): Likewise.
+	* m4/poll.m4 (CL_POLL): Likewise.
+	* m4/select.m4 (CL_SELECT): Likewise.
+	* m4/openflags.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove CL_OFFSETOF invocation.
 	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): Don't require CL_OFFSETOF.
 	Include <stddef.h> always.

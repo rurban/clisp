@@ -79,7 +79,6 @@ AC_TYPE_LONG_LONG_INT dnl HAVE_LONG_LONG_INT
 dnl
 BOLD_MSG([checks for header files])
 AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h)
-CL_OPENFLAGS     dnl DEFS OPEN_NEEDS_SYS_FILE_H if sys/file.h is needed for the open() flags
 CL_UTSNAME     dnl DEFS HAVE_SYS_UTSNAME_H
 CL_SHM_H       dnl DEFS HAVE_SYS_IPC_H, HAVE_SYS_SHM_H
 CL_TERM        dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H

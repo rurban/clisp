@@ -28,9 +28,6 @@ AC_RUN_IFELSE([[#include "confdefs.h"
 #include <stdio.h>
 /* Declare open(). */
 #include <fcntl.h>
-#ifdef OPEN_NEEDS_SYS_FILE_H
-#include <sys/file.h>
-#endif
 /* Declare opendir(), readdir(), closedir(). */
 #include <dirent.h>
 /* A small program which checks for each character whether or not it is

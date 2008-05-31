@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -11,8 +11,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_MMAP],
-[AC_REQUIRE([CL_OPENFLAGS])dnl
-AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
+[AC_BEFORE([$0], [CL_MUNMAP])AC_BEFORE([$0], [CL_MPROTECT])
 AC_CHECK_HEADER(sys/mman.h, , no_mmap=1)dnl
 if test -z "$no_mmap"; then
 AC_CHECK_FUNC(mmap, , no_mmap=1)dnl
@@ -38,9 +37,6 @@ mmap_prog_1='
 #include <unistd.h>
 #endif
 #include <fcntl.h>
-#ifdef OPEN_NEEDS_SYS_FILE_H
-#include <sys/file.h>
-#endif
 #include <sys/types.h>
 #include <sys/mman.h>
 int main () {
