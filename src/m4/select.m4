@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -35,8 +35,7 @@ fi
 ])
 
 AC_DEFUN([CL_SELECT],
-[AC_REQUIRE([CL_OPENFLAGS])dnl
-dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
+[dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
 AC_CACHE_CHECK([for select], ac_cv_func_select, [
 AC_TRY_LINK([
 #ifdef __BEOS__
@@ -120,9 +119,6 @@ int select();
 #endif
 /* Declare open(). */
 #include <fcntl.h>
-#ifdef OPEN_NEEDS_SYS_FILE_H
-#include <sys/file.h>
-#endif
 int main ()
 { int fd = open("conftest.c",O_RDWR,0644);
   int correct_readability_nonempty, correct_readability_empty;
