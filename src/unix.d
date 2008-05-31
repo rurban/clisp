@@ -643,11 +643,8 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 
 /* process date/time of day: */
 #if defined(HAVE_GETTIMEOFDAY)
-  #ifdef GETTIMEOFDAY_DOTS
-    extern_C int gettimeofday (struct timeval * tp, ...); /* GETTIMEOFDAY(2) */
-  #else
-    extern_C int gettimeofday (struct timeval * tp, GETTIMEOFDAY_TZP_T tzp); /* GETTIMEOFDAY(2) */
-  #endif
+  /* gettimeofday is declared in <sys/time.h> - included above */
+  /* extern_C int gettimeofday (struct timeval * tp, struct timezone *tzp); */ /* GETTIMEOFDAY(2) */
 #elif defined(HAVE_FTIME)
   #include <sys/timeb.h>
   extern_C int ftime (struct timeb * tp); /* TIME(3V) */
