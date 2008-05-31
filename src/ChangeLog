@@ -144,6 +144,7 @@
 	* nls_nextstep.c: Remove file.
 	* pseudofun.d (nls_nextstep_table): Remove.
 	* encoding.d: Don't include nls_nextstep.c.
+	(nls_tables): Remove nls_nextstep_table.
 	* makemake.in (NLS_INCLUDES): Remove nls_nextstep.
 	* utils/unicode/Makefile (ALL): Remove nls_nextstep.c.
 	(nls_nextstep.c): Remove rule.
