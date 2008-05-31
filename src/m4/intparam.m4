@@ -1,4 +1,4 @@
-# intparam.m4 serial 2  -*- Autoconf -*-
+# intparam.m4 serial 3  -*- Autoconf -*-
 dnl Copyright (C) 2005-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -279,14 +279,11 @@ AC_DEFUN([CL_INTPARAM_SIZEOF],
 dnl CL_INTPARAM_ALIGNOF(type, variable)
 dnl puts into variable the determined alignment of the type.
 AC_DEFUN([CL_INTPARAM_ALIGNOF],[
-  AC_REQUIRE([CL_OFFSETOF])
   dnl Simplify the guessing by assuming that the alignment is a power of 2.
   n=1
   while true; do
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#ifdef HAVE_OFFSETOF
-# include <stddef.h>
-#endif
+#include <stddef.h>
 #ifdef __cplusplus
 # ifdef __GNUC__
 #  define alignof(type)  __alignof__ (type)
