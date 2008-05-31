@@ -61,11 +61,6 @@ extern_C char* strerror (int errnum);
   extern_C RETGETPAGESIZETYPE getpagesize (void); /* getpagesize(2) */
 #endif
 /* malloc(), free(), realloc() are defined in <stdlib.h> */
-#ifdef UNIX_NEXTSTEP
-  /* ignore the contents of libposix.a, since it is not documented */
-  #undef HAVE_MMAP
-  #undef HAVE_MUNMAP
-#endif
 #ifdef UNIX_RHAPSODY
 /* Ignore mmap and friends, because the configure test says no working mmap. */
   #undef HAVE_MMAP
@@ -123,7 +118,7 @@ extern_C char* strerror (int errnum);
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */
   #undef local
   #include <mach/mach_interface.h>
-  #if defined(UNIX_NEXTSTEP) || defined(UNIX_RHAPSODY)
+  #ifdef UNIX_RHAPSODY
     #include <mach/mach_init.h>
   #endif
   #ifdef UNIX_OSF
@@ -191,13 +186,6 @@ extern_C char* strerror (int errnum);
   extern_C void vadvise (int param); /* paging system control, see VADVISE(2) */
 #endif
 /* use madvise() ?? */
-/* used by SPVW */
-
-/* make stack large enough */
-#ifdef UNIX_NEXTSTEP
-  extern_C int getrlimit (RLIMIT_RESOURCE_T resource, struct rlimit * rlim); /* GETRLIMIT(2) */
-  extern_C int setrlimit (RLIMIT_RESOURCE_T resource, SETRLIMIT_CONST struct rlimit * rlim); /* SETRLIMIT(2) */
-#endif
 /* used by SPVW */
 
 /* normal program end */
@@ -439,7 +427,7 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 #define Handle  int  /* the type of a file descriptor */
 #define INVALID_HANDLE  -1
 extern_C off_t lseek (int fd, off_t offset, int whence); /* LSEEK(2V) */
-#ifndef SEEK_SET /* e.g., UNIX_NEXTSTEP */
+#ifndef SEEK_SET /* old platforms */
   /* position modes, see <unistd.h> : */
   #define SEEK_SET  0
   #define SEEK_CUR  1

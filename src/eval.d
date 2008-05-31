@@ -1,6 +1,6 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2001-08-13
  */
@@ -5663,7 +5663,7 @@ local maygc Values funcall_closure (object closure, uintC args_on_stack)
    LR(x,f) references label with number x forwards
    LR(x,b) references label with number x backwards
    The scope of the labels is only one assembler-statement. */
-  #if defined(I80386) && !defined(UNIX_NEXTSTEP)
+  #if defined(I80386)
     #ifdef ASM_UNDERSCORE
       #define LD(nr)  "LASM%=X" STRING(nr)
       #define LR(nr,fb)  "LASM%=X" STRING(nr)

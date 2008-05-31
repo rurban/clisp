@@ -1,5 +1,24 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	Remove NeXTstep support.
+	* SUMMARY: Remove mention of NeXTstep.
+	* lispbibl.d (UNIX_NEXTSTEP, NEXTSTEP_CHS): Remove macros.
+	* charstrg.d: Remove NEXTSTEP_CHS special casing.
+	* io.d: Likewise.
+	* eval.d (interpret_bytecode): Drop UNIX_NEXTSTEP conditional.
+	* lightning.c (LD, LR): Likewise.
+	* misc.d (MACHINE-TYPE): Likewise.
+	* spvw.d (init_memory): Likewise.
+	* unix.d: Likewise.
+
+	* nls_nextstep.c: Remove file.
+	* pseudofun.d (nls_nextstep_table): Remove.
+	* makemake.in (NLS_INCLUDES): Remove nls_nextstep.
+	* utils/unicode/Makefile (ALL): Remove nls_nextstep.c.
+	(nls_nextstep.c): Remove rule.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/gettimeofday.m4 (CL_GETTIMEOFDAY): Remove test for the prototype.
 	* unix.d (gettimeofday): Assume the declaration in <sys/time.h>.
 

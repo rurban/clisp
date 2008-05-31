@@ -548,15 +548,6 @@ With the C compiler 7.2.1 we were not able to make CLISP work. So use
 GNU gcc instead.
 
 
-* On NeXT running NeXTstep 3.3:
-
-NeXT's cc has problem with the inline assembler commands. Either add
--DNO_ASM to the CFLAGS in the Makefile, or use gcc-2.7.2 or newer.
-
-If you get an error in the header file "ip.h" because the type `n_long' is
-undefined, add -Dn_long='unsigned long' to the CFLAGS in the Makefile.
-
-
 * On Apple PowerPC running MacOS X Server:
 
 You can get C development tools from either

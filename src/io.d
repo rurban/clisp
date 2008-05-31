@@ -1,6 +1,6 @@
 /*
  * Input/Output for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Marcus Daniels 11.3.1997
  * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2001-06-12
@@ -221,23 +221,6 @@ local const uintB orig_syntax_table [small_char_code_limit] = {
   illg,illg,illg,illg,illg,illg,illg,illg,
   illg,illg,illg,illg,illg,illg,illg,illg,
   whsp,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
- #elif defined(NEXTSTEP_CHS)
-  whsp,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
-  cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
@@ -1075,24 +1058,6 @@ local const uintB attribute_table[small_char_code_limit] = {
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-#elif defined(NEXTSTEP_CHS)
-                                                                 a_illg,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
-  a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,

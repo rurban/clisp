@@ -1,6 +1,6 @@
 /*
  * Miscellaneous CLISP functions
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Sam Steingold 1999-2007
  */
 
@@ -133,8 +133,6 @@ LISPFUNN(machinetype,0)
                            (read-line stream nil nil))) */
    #if defined(UNIX_SUNOS4)
     pushSTACK(ascii_to_string("/bin/arch"));
-   #elif defined(UNIX_NEXTSTEP)
-    pushSTACK(ascii_to_string("/usr/bin/arch"));
    #else
     pushSTACK(ascii_to_string("uname -m"));
    #endif

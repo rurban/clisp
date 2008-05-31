@@ -1,6 +1,6 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 # Creation of the Makefile used for compiling CLISP
-# Bruno Haible 1991-2005
+# Bruno Haible 1991-2008
 # Sam Steingold 1999-2008
 
 # Simple usage:
@@ -1626,7 +1626,6 @@ if [ "${with_unicode}" != no ] ; then
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1250 nls_cp1251 nls_cp1252 nls_cp1253'
   NLS_INCLUDES=$NLS_INCLUDES' nls_cp1254 nls_cp1256 nls_cp1257'
   NLS_INCLUDES=$NLS_INCLUDES' nls_hp_roman8'
-  NLS_INCLUDES=$NLS_INCLUDES' nls_nextstep'
   NLS_INCLUDES=$NLS_INCLUDES' nls_jisx0201'
 fi
 
