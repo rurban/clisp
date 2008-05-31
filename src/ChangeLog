@@ -1,5 +1,11 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_ABORT invocation.
+	* m4/abort.m4: Remove file.
+	* unix.d (abort): Assume <stdlib.h> declares it.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove AC_HEADER_STDC invocation.
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Remove AC_HEADER_STDC
 	invocation.

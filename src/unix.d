@@ -206,7 +206,8 @@ nonreturning_function(extern_C, exit, (int status)); /* EXIT(2V) */
 /* used by SPVW, PATHNAME, STREAM */
 
 /* Immediate abnormal termination, jump into the debugger */
-extern_C ABORT_VOLATILE RETABORTTYPE abort (void); /* ABORT(3) */
+/* #include <stdlib.h> - see above */
+/* extern_C [volatile] void abort (void); */ /* ABORT(3) */
 /* used by SPVW, DEBUG, EVAL, IO */
 
 /* signal handling */
