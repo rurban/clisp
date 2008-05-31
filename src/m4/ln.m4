@@ -11,14 +11,13 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.13)
 
 AC_DEFUN([CL_PROG_LN],
-[AC_REQUIRE([CL_PROG_CP])dnl
-AC_CACHE_CHECK(how to make hard links, cl_cv_prog_LN, [
+[AC_CACHE_CHECK(how to make hard links, cl_cv_prog_LN, [
 rm -f conftestdata conftestfile
 echo data > conftestfile
 if ln conftestfile conftestdata 2>/dev/null; then
   cl_cv_prog_LN=ln
 else
-  cl_cv_prog_LN="$cl_cv_prog_cp"
+  cl_cv_prog_LN="cp -p"
 fi
 rm -f conftestdata conftestfile
 ])
