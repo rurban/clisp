@@ -1,5 +1,12 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_CC_NEED_CCPAUX invocation.
+	* m4/cc-cppaux.m4: Remove file.
+	* makemake.in (CC_NEED_CCPAUX, XCC_NEED_CCPAUX): Remove variables.
+	(*asm*.c): Fix dependency to use XASMCCPAUX.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/c++-constructors.m4: Remove file.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
