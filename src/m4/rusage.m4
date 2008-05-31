@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2005 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -30,7 +30,6 @@ if test $ac_cv_header_sys_resource_h = yes; then
 #include <sys/resource.h>
 ],
 [int getrusage (int who, struct rusage * rusage);],
-[int getrusage();],
 [cl_cv_proto_getrusage_arg1="int"],
 [cl_cv_proto_getrusage_arg1="enum __rusage_who"])
 ], [extern int getrusage ($cl_cv_proto_getrusage_arg1, struct rusage *);])dnl

@@ -54,8 +54,7 @@ CL_PROTO_TRY([
 #include <sys/select.h>
 #endif
 ], [int select ($x width, $y * readfds, $y * writefds, $y * exceptfds, $z struct timeval * timeout);],
-[int select();], [
-cl_cv_proto_select_arg1="$x"
+[cl_cv_proto_select_arg1="$x"
 cl_cv_proto_select_arg2="$y"
 cl_cv_proto_select_arg5="$z"
 have_select=1])

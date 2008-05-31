@@ -69,7 +69,7 @@ CL_PROTO_TRY($ioctl_decl[
 #ifdef INCLUDE_SYS_IOCTL_H
 #include <sys/ioctl.h>
 #endif
-], [int ioctl (int fd, $x request, $y);], [int ioctl();], [
+], [int ioctl (int fd, $x request, $y);], [
 cl_cv_proto_ioctl_arg2="$x"
 if test "$y" = "..."; then
 cl_cv_proto_ioctl_dots=yes
