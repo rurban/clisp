@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -24,7 +24,7 @@ CL_PROTO_TRY([
 #endif
 #include <sys/types.h>
 #include <sys/socket.h>
-], [int connect (int fd, $x $y name, $z namelen);], [int connect();], [
+], [int connect (int fd, $x $y name, $z namelen);], [
 cl_cv_proto_connect_arg2a="$x"
 cl_cv_proto_connect_arg2b="$y"
 cl_cv_proto_connect_arg3="$z"
