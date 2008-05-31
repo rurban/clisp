@@ -288,9 +288,7 @@ extern signal_handler_t install_signal_handler (int sig, signal_handler_t handle
    and not into possibly mprotect-protected ranges. */
 #endif
 /* raise a signal. */
-#ifdef HAVE_RAISE
 extern_C int raise (int sig);
-#endif
 /* used by SPVW */
 
 /* check environment variables:
