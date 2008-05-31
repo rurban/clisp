@@ -1,5 +1,10 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* src/configure.in: Remove CL_IRIX_SUN invocation.
+	* src/m4/sys-irix.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* src/configure.in: Remove CL_DYNIX_SEQ invocation.
 	* src/m4/sys-dynix.m4: Remove file.
 
