@@ -1,6 +1,6 @@
 /*
  * Streams for CLISP
- * Bruno Haible 1990-2005
+ * Bruno Haible 1990-2008
  * Sam Steingold 1998-2008
  * Generic Streams: Marcus Daniels 8.4.1994
  * SCREEN package for Win32: Arseny Slobodjuck 2001-02-14
@@ -14,9 +14,7 @@
   #include <readline/readline.h>
   #include <readline/history.h>
 #endif
-#ifdef STDC_HEADERS
-  #include <string.h>           /* declares strcpy(), strcat() */
-#endif
+#include <string.h>           /* declares strcpy(), strcat() */
 
 /* off_t is a signed type, defined in <sys/types.h> and <fcntl.h>, denoting
  a file descriptor's position. Here we also need the unsigned equivalent. */

@@ -23,9 +23,7 @@
 #error to CFLAGS make variable and rebuild CLISP before coming back here.
 #endif
 
-#if defined(STDC_HEADERS)
-# include <string.h>            /* for memcpy(3) */
-#endif
+#include <string.h>             /* for memcpy(3) */
 
 DEFMODULE(pcre,"PCRE")
 

@@ -10357,9 +10357,7 @@ extern uintL asciz_length (const char * asciz);
      require a begin_system_call()/end_system_call() . */
   #else
     /* let us presume, that strlen() is implemented efficiently. */
-    #ifdef STDC_HEADERS
-      #include <string.h> /* declares strlen() */
-    #endif
+    #include <string.h> /* declares strlen() */
     #define asciz_length(a)  ((uintL)strlen(a))
   #endif
 #endif

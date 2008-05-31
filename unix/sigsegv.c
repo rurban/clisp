@@ -39,11 +39,6 @@
 
 /* The following bits of information can be copied from config.h. */
 
-/* CL_STDC_HEADERS */
-/* Define if you have the ANSI C header files
-   <stdlib.h>, <stdarg.h>, <string.h>, <float.h>, <limits.h>. */
-#undef STDC_HEADERS
-
 /* CL_UNISTD_H */
 /* Define if you have <unistd.h>. */
 #undef HAVE_UNISTD_H
@@ -62,9 +57,7 @@
 
 /* Declarations. */
 
-#ifdef STDC_HEADERS
 #include <stdlib.h>
-#endif
 
 #ifdef HAVE_UNISTD_H
 #include <sys/types.h>

@@ -1,3 +1,18 @@
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
+	* configure.in: Remove AC_HEADER_STDC invocation.
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Remove AC_HEADER_STDC
+	invocation.
+	* lispbibl.d: Assume STDC_HEADERS.
+	* stream.d: Likewise.
+	* unix.d: Likewise.
+	* win32.d: Don't set STDC_HEADERS.
+	* malloc/gmalloc.c: Assume ANSI C or C++, STDC_HEADERS, memmove.
+	* unix/sigsegv.c: Assume STDC_HEADERS.
+	* modules/pcre/cpcre.c: Assume STDC_HEADERS.
+	* modules/rawsock/configure.in: Test for unistd.h.
+	* modules/rawsock/rawsock.c: Assume STDC_HEADERS.
+
 2008-05-30  Sam Steingold  <sds@gnu.org>
 
 	* m4/siginterrupt.m4: fix a typo:
