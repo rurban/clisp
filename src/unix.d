@@ -422,9 +422,9 @@ extern int file_id_eq (struct file_id *fi1, struct file_id *fi2);
 /* used by PATHNAME */
 
 /* work with open files: */
-#include <fcntl.h>
-/* declares open() */
-#if defined(ACCESS_NEEDS_SYS_FILE_H) || defined(OPEN_NEEDS_SYS_FILE_H)
+#include <fcntl.h> /* declares open() */
+/* #include <unistd.h> - declares R_OK, W_OK, X_OK - included above */
+#if defined(OPEN_NEEDS_SYS_FILE_H)
   #include <sys/file.h>
 #endif
 /* Only a few Unices (like UNIX_CYGWIN32) have O_TEXT and O_BINARY.

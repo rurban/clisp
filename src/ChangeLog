@@ -1,5 +1,11 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_ACCESSFLAGS invocation.
+	* m4/access.m4: Remove file.
+	* unix.d: Assume <unistd.h> declares R_OK, W_OK, X_OK.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove CL_ABORT invocation.
 	* m4/abort.m4: Remove file.
 	* unix.d (abort): Assume <stdlib.h> declares it.
