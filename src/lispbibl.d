@@ -291,9 +291,6 @@
   #ifdef AUX
     #define UNIX_AUX  /* Apple A/UX, a spiced-up SVR2 */
   #endif
-  #ifdef NeXT
-    #define UNIX_NEXTSTEP  /* NeXTstep */
-  #endif
   #if defined(__APPLE__) && defined(__MACH__)
     #define UNIX_MACOSX  /* MacOS X */
   #endif
@@ -392,11 +389,7 @@
   #define HPROMAN8_CHS  /* HP-Roman8, see hproman8.chs */
   /* under X-Term however: #define ISOLATIN_CHS ?? */
 #endif
-#ifdef UNIX_NEXTSTEP
-  #undef ISOLATIN_CHS
-  #define NEXTSTEP_CHS  /* NeXTstep, see nextstep.chs */
-#endif
-#if !(defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS) || defined(NEXTSTEP_CHS))
+#if !(defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS))
   #define ASCII_CHS  /* Default: plain ASCII charset without special chars */
 #endif
 
@@ -2871,8 +2864,8 @@ Long-Float, Ratio and Complex (only if SPVW_MIXED).
 /* Now come the 32-bit platforms with TYPECODES. We need to support it only on
  MC680X0 platforms without new gcc.
  It worked on the following platforms in the past, and may still work on:
-   (defined(MC680X0) && !defined(UNIX_AMIX) && !defined(UNIX_NEXTSTEP) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
-   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_NEXTSTEP) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
+   (defined(MC680X0) && !defined(UNIX_AMIX) && !(defined(UNIX_LINUX) && CODE_ADDRESS_RANGE))
+   (defined(I80386) && !(defined(UNIX_LINUX) && (CODE_ADDRESS_RANGE != 0)) && !defined(UNIX_HURD) && !defined(UNIX_SYSV_UHC_1) && !defined(UNIX_SYSV_PTX) && !defined(UNIX_SUNOS5) && !defined(UNIX_CYGWIN32) && !defined(WIN32_NATIVE))
    (defined(SPARC) && !defined(SUN4_29))
    (defined(MIPS) && !defined(UNIX_IRIX) && !defined(UNIX_DEC_ULTRIX))
    defined(M88000)

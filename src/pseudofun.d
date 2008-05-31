@@ -1,6 +1,6 @@
 /*
  * List of all relocatable machine pointers
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2008
  * Sam Steingold 2005, 2007
  */
 
@@ -217,7 +217,6 @@ XPSEUDODATA(struct nls_table_t, nls_cp1254_table)
 XPSEUDODATA(struct nls_table_t, nls_cp1256_table)
 XPSEUDODATA(struct nls_table_t, nls_cp1257_table)
 XPSEUDODATA(struct nls_table_t, nls_hp_roman8_table)
-XPSEUDODATA(struct nls_table_t, nls_nextstep_table)
 XPSEUDODATA(struct nls_table_t, nls_jisx0201_table)
 #ifdef HAVE_GOOD_ICONV
 XPSEUDOCODE(uintL, iconv_mblen, (object encoding, const uintB* src, const uintB* srcend))

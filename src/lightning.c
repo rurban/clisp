@@ -822,7 +822,7 @@ jit_patch(ref);}
 /* LR(x,f) references label with number x forwards */
 /* LR(x,b) references label with number x backwards */
 /* The scope of the labels is only one assembler-statement. */
-  #if defined(I80386) && !defined(UNIX_NEXTSTEP)
+  #if defined(I80386)
     #ifdef ASM_UNDERSCORE
       #define LD(nr)  "LASM%=X" STRING(nr)
       #define LR(nr,fb)  "LASM%=X" STRING(nr)

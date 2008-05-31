@@ -2842,19 +2842,6 @@ local inline int init_memory (struct argv_initparams *p) {
         var uintM teil = free_reserved/teile; /* a sub block, a 1/16 of the room */
         var aint ptr = memblock;
         mem.MEMBOT = ptr;
-          #ifdef UNIX_NEXTSTEP
-            /* Set the stack size limit to 8 MB if possible to prevent
-             crashes from machine stack overflow.
-             (If the stack is large enough, the Lisp STACK will overflow
-             first, and the error will be handled in a reasonable way.) */
-            { var struct rlimit rl;
-              var long need = 0x800000; /* 8 Megabyte */
-              getrlimit(RLIMIT_STACK,&rl);
-              if (rl.rlim_max < need) { need = rl.rlim_max; }
-              if (rl.rlim_cur < need)
-                { rl.rlim_cur = need; setrlimit(RLIMIT_STACK,&rl); }
-            }
-          #endif
           #if defined(WIN32_NATIVE) && !defined(NO_SP_CHECK)
             /* Even if the NOCOST_SP_CHECK stack overflow detection (using a
              guard page) works, we set SP_bound.

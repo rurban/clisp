@@ -186,15 +186,6 @@ extern signal_handler_t signal (int sig, signal_handler_t handler);
 #define WP_SIGNAL  FAULT_HANDLER(SIGBUS)
 #endif
 
-#if defined(NeXT) /* NextStep 3.2 */
-/* The fault address is not passed to the signal handler. To get the fault
- * address, a Mach exception handler has to be set up, which runs in a separate
- * thread.
- */
-#define WP_SIGNAL  FAULT_HANDLER(SIGBUS)
-#define CAN_HANDLE_WP_FAULT
-#endif
-
 #if 0
 /* Ultrix ?? */
 #define FAULT_HANDLER_ARGLIST  sig, code, scp
@@ -325,23 +316,6 @@ extern RETGETPAGESIZETYPE getpagesize(/* void */);
 #endif
 #endif
 
-#ifdef NeXT /* NeXTstep has Mach VM. */
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <mach/mach.h>
-#include <mach/machine/vm_param.h>
-#define mmap(addr,len,prot,unused_flags,unused_fd,unused_off) \
-  ({vm_address_t address = addr; \
-    vm_allocate(task_self(),&address,len,!(addr)); \
-    address; \
-  })
-#define mprotect(addr,len,prot) \
-  (vm_protect(task_self(),addr,len,0,prot)==KERN_SUCCESS ? 0 : -1)
-#define PROT_NONE 0
-#define PROT_READ VM_PROT_READ
-#define PROT_WRITE VM_PROT_WRITE
-#define PROT_EXEC VM_PROT_EXECUTE
-#else
 #ifdef HAVE_MMAP
 #include <sys/types.h>
 #include <sys/mman.h>
@@ -349,7 +323,6 @@ extern void* mmap (/* void* addr, size_t len, int prot, int flags, int fd, off_t
 extern int mprotect (/* void* addr, size_t len, int prot */);
 #else
 #error "Need mprotect() for the test."
-#endif
 #endif
 
 #ifndef PROT_READ_WRITE
