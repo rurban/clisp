@@ -92,8 +92,6 @@ dnl
 BOLD_MSG([checks for structure members])
 dnl
 AC_CHECK_MEMBERS([struct dirent.d_namlen],,,[#include <dirent.h>])
-dnl DEFS TM_IN_SYS_TIME
-AC_STRUCT_TM
 dnl
 BOLD_MSG([checks for functions and declarations])
 dnl
