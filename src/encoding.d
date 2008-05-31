@@ -1560,7 +1560,6 @@ static const nls_table_t * const nls_tables[] = {
   &nls_cp1256_table,
   &nls_cp1257_table,
   &nls_hp_roman8_table,
-  &nls_nextstep_table,
   &nls_jisx0201_table,
 };
 
