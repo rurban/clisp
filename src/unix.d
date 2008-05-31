@@ -17,15 +17,11 @@
 /* Declaration of types of I/O parameters of operating system functions */
 #include <stdlib.h>
 #include <sys/types.h>  /* declares pid_t, uid_t */
-#if defined(TIME_WITH_SYS_TIME)
+#ifdef HAVE_SYS_TIME_H
  #include <sys/time.h>
+#endif
+#ifdef HAVE_TIME_H
  #include <time.h>
-#else
- #if defined(HAVE_SYS_TIME_H)
-  #include <sys/time.h>
- #elif defined(HAVE_TIME_H)
-  #include <time.h>
- #endif
 #endif
 #ifdef HAVE_UNISTD_H
   #include <unistd.h>
