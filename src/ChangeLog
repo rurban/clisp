@@ -1,5 +1,14 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_OFFSETOF invocation.
+	* m4/intparam.m4 (CL_INTPARAM_ALIGNOF): Don't require CL_OFFSETOF.
+	Include <stddef.h> always.
+	* lispbibl.d: Include <stddef.h> always.
+	(offsetof): Don't redefine, use if it is defined.
+	* m4/offsetof.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	Remove SunOS 4 support.
 	* lispbibl.d (SUN386, SUN3, UNIX_SUNOS4): Remove macros.
 	(MULTIMAP_MEMORY_VIA_FILE, hardware_addressbus_mask, SPVW_MIXED):
