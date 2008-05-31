@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -29,8 +29,8 @@ int main ()
 { unsigned int pagesize = 8192; /* should be a multiple of SHMLBA */
   unsigned long addr = (unsigned long) malloc(2*pagesize);
   addr += pagesize-1; addr = (addr/pagesize)*pagesize;
- {unsigned long addr1 = addr + 0x10000;
-  unsigned long addr2 = addr + 0x20000;
+ {unsigned long addr1 = addr + 0x100000;
+  unsigned long addr2 = addr + 0x200000;
   int id = shmget(IPC_PRIVATE,pagesize,IPC_CREAT|0600);
   if (id<0)
     { exit(1); }
