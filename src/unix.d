@@ -734,12 +734,8 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
   /* extern_C int gethostname (char* name, size_t namelen); */ /* GETHOSTNAME(2) */
 #endif
 #ifdef HAVE_GETHOSTBYNAME
-  #ifdef HAVE_NETDB_H
-    #include <sys/socket.h>
-    #include <netdb.h>
-  #else
-    #include <sun/netdb.h>
-  #endif
+  #include <sys/socket.h>
+  #include <netdb.h>
 /* gethostbyname() is declared in the above files */
 #endif
 #ifndef MAXHOSTNAMELEN
