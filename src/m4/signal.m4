@@ -73,9 +73,6 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
 volatile int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
@@ -118,9 +115,6 @@ AC_TRY_RUN([
 /* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
  * Let it fail instead. */
 #error "better fail than hang"
-#endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
 #endif
 volatile int gotsig=0;
 volatile int wasblocked=0;
@@ -175,9 +169,6 @@ AC_TRY_RUN([
 /* On Cygwin32 version 18, this test would hang (SIGALRM not being signalled).
  * Let it fail instead. */
 #error "better fail than hang"
-#endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
 #endif
 volatile int gotsig=0;
 volatile int somewereblocked=0;
@@ -252,13 +243,7 @@ typedef RETSIGTYPE (*signal_handler_t) (int);
 #else
 typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
 signal_handler_t mysignal (int sig, signal_handler_t handler)
-#else
-signal_handler_t mysignal (sig, handler)
-     int sig;
-     signal_handler_t handler;
-#endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
   memset(&new_sa,0,sizeof(new_sa));
@@ -266,9 +251,6 @@ signal_handler_t mysignal (sig, handler)
   if (sigaction(sig,&new_sa,&old_sa)<0) { return (signal_handler_t)SIG_IGN; }
   return (signal_handler_t)old_sa.sa_handler;
 }
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
 volatile int gotsig=0;
 RETSIGTYPE sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
@@ -307,9 +289,6 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#if !defined(__STDC__) || __STDC__ != 1
-#define volatile
-#endif
 #ifdef __cplusplus
 #ifdef SIGTYPE_DOTS
 typedef RETSIGTYPE (*signal_handler_t) (...);
@@ -319,13 +298,7 @@ typedef RETSIGTYPE (*signal_handler_t) (int);
 #else
 typedef RETSIGTYPE (*signal_handler_t) ();
 #endif
-#if defined(__STDC__) || defined(__cplusplus)
 signal_handler_t mysignal (int sig, signal_handler_t handler)
-#else
-signal_handler_t mysignal (sig, handler)
-     int sig;
-     signal_handler_t handler;
-#endif
 { struct sigaction old_sa;
   struct sigaction new_sa;
   memset(&new_sa,0,sizeof(new_sa));
