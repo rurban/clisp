@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -53,7 +53,7 @@ CL_PROTO_TRY([
 #include <sys/socket.h>
 #include <netdb.h>
 #endif
-], [$y inet_addr ($x char *);], [$y inet_addr();], [
+], [$y inet_addr ($x char *);], [
 cl_cv_proto_inet_addr_ret="$y"
 cl_cv_proto_inet_addr_arg1="$x"
 have_inet_addr=1])
@@ -87,7 +87,7 @@ if test -z "$have_setsockopt_decl"; then
 CL_PROTO_TRY([
 #include <sys/types.h>
 #include <sys/socket.h>
-], [int setsockopt (int, int, int, $x $y, $z);], [int setsockopt ();], [
+], [int setsockopt (int, int, int, $x $y, $z);], [
 cl_cv_proto_setsockopt_const="$x"
 cl_cv_proto_setsockopt_arg_t="$y"
 cl_cv_proto_setsockopt_optlen_t="$z"

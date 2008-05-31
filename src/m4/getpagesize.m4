@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -27,7 +27,7 @@ CL_PROTO_RET([
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
-], [int getpagesize();], [int getpagesize();],
+], [int getpagesize();],
 cl_cv_proto_getpagesize_ret, int, size_t)
 ], [extern $cl_cv_proto_getpagesize_ret getpagesize (void);])
 AC_DEFINE_UNQUOTED(RETGETPAGESIZETYPE,$cl_cv_proto_getpagesize_ret,[return type of getpagesize()])

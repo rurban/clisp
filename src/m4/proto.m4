@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2002, 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2002, 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -20,33 +20,25 @@ AC_MSG_RESULT([$]{ac_t:-
          }[$]cl_cv_proto_$1)
 ])
 
-dnl CL_PROTO_RET(INCLUDES, ANSI-DECL, TRAD-DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
+dnl CL_PROTO_RET(INCLUDES, DECL, CACHE-ID, TYPE-IF-OK, TYPE-IF-FAILS)
 AC_DEFUN([CL_PROTO_RET],
 [AC_TRY_COMPILE([$1]
 AC_LANG_EXTERN
-[#if defined(__STDC__) || defined(__cplusplus)
-$2
-#else
-$3
-#endif
-], [], $4="$5", $4="$6")
+[$2
+], [], $3="$4", $3="$5")
 ])
 
-dnl CL_PROTO_TRY(INCLUDES, ANSI-DECL, TRAD-DECL, ACTION-IF-OK, ACTION-IF-FAILS)
+dnl CL_PROTO_TRY(INCLUDES, DECL, ACTION-IF-OK, ACTION-IF-FAILS)
 AC_DEFUN([CL_PROTO_TRY],
 [AC_TRY_COMPILE([$1]
 AC_LANG_EXTERN
-[#if defined(__STDC__) || defined(__cplusplus)
-$2
-#else
-$3
-#endif
-], [], [$4], [$5])
+[$2
+], [], [$3], [$4])
 ])
 
-dnl CL_PROTO_CONST(INCLUDES, ANSI-DECL, TRAD-DECL, CACHE-ID)
+dnl CL_PROTO_CONST(INCLUDES, DECL, CACHE-ID)
 AC_DEFUN([CL_PROTO_CONST],
-[CL_PROTO_TRY([$1], [$2], [$3], $4="", $4="const")]
+[CL_PROTO_TRY([$1], [$2], $3="", $3="const")]
 )
 
 dnl CL_PROTO_MISSING(function_name)

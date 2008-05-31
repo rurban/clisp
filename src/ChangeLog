@@ -1,5 +1,20 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* m4/proto.m4 (CL_PROTO_RET, CL_PROTO_TRY, CL_PROTO_CONST): Remove
+	TRAD-DECL argument.
+	* m4/connect.m4 (CL_CONNECT): Update.
+	* m4/getpagesize.m4 (CL_GETPAGESIZE): Update.
+	* m4/ioctl.m4 (CL_IOCTL): Update.
+	* m4/putenv.m4 (CL_PUTENV): Update.
+	* m4/readline.m4 (CL_READLINE): Update.
+	* m4/rlimit.m4 (CL_RLIMIT): Update.
+	* m4/rusage.m4 (CL_RUSAGE): Update.
+	* m4/select.m4 (CL_SELECT): Update.
+	* m4/tcpconn.m4 (CL_TCPCONN): Update.
+	* m4/waitpid.m4 (CL_WAITPID): Update.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/termios.m4 (RL_TERM): Remove macro.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>
