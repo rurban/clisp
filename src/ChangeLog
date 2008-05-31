@@ -1,5 +1,11 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* modules/regexp/configure.in: Require autoconf >= 2.58. Invoke
+	AC_C_RESTRICT instead of gl_C_RESTRICT.
+	* m4/restrict.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove CL_RAISE invocation.
 	* unix.d (raise): Assume 'raise' exists.
 	* spvw_sigpipe.d (sigpipe_handler): Likewise.
