@@ -15,15 +15,11 @@
 
 #include "config.h"
 
-#if defined(TIME_WITH_SYS_TIME)
+#if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
+#endif
+#if defined(HAVE_TIME_H)
 # include <time.h>
-#else
-# if defined(HAVE_SYS_TIME_H)
-#  include <sys/time.h>
-# elif defined(HAVE_TIME_H)
-#  include <time.h>
-# endif
 #endif
 #if defined(HAVE_SYS_TYPES_H)
 # include <sys/types.h>
