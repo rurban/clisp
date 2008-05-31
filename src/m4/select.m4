@@ -87,11 +87,7 @@ AC_TRY_RUN([
 #include <sys/select.h>
 #endif
 ]AC_LANG_EXTERN[
-#if defined(__STDC__) || defined(__cplusplus)
 int select (SELECT_WIDTH_T, SELECT_SET_T*, SELECT_SET_T*, SELECT_SET_T*, SELECT_CONST struct timeval *);
-#else
-int select();
-#endif
 /* Declare open(). */
 #include <fcntl.h>
 int main ()
