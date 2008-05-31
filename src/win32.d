@@ -1,6 +1,6 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
- * Bruno Haible 1997-2005
+ * Bruno Haible 1997-2008
  * Sam Steingold 1999-2007
  */
 
@@ -20,7 +20,6 @@
 #endif
 
 /* for _clisp.c */
-#define STDC_HEADERS 1
 #define HAVE_PERROR_DECL
 
 /* Declaration of operating system functions */

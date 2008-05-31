@@ -9,7 +9,7 @@
 
 /* Declarations for `malloc' and friends.
    Copyright (C) 1990, 1991, 1992, 1993, 1995, 1996, 1999, 2002, 2003, 2004,
-                 2005, 2006, 2007 Free Software Foundation, Inc.
+                 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
 		  Written May 1989 by Mike Haertel.
 
 This library is free software; you can redistribute it and/or
@@ -40,30 +40,13 @@ Fifth Floor, Boston, MA 02110-1301, USA.
 #include <config.h>
 #endif
 
-#if ((defined __cplusplus || (defined (__STDC__) && __STDC__) \
-      || defined STDC_HEADERS || defined PROTOTYPES) \
-     && ! defined (BROKEN_PROTOTYPES))
+/* Assume C++ or ANSI C.  */
 #undef	PP
 #define	PP(args)	args
 #undef	__ptr_t
 #define	__ptr_t		void *
-#else /* Not C++ or ANSI C.  */
-#undef	PP
-#define	PP(args)	()
-#undef	__ptr_t
-#define	__ptr_t		char *
-#endif /* C++ or ANSI C.  */
 
-#if	defined(_LIBC) || defined(STDC_HEADERS) || defined(USG)
 #include <string.h>
-#else
-#ifndef memset
-#define	memset(s, zero, n)	bzero ((s), (n))
-#endif
-#ifndef memcpy
-#define	memcpy(d, s, n)		bcopy ((s), (d), (n))
-#endif
-#endif
 
 #ifdef HAVE_LIMITS_H
 #include <limits.h>
@@ -88,22 +71,9 @@ extern "C"
 {
 #endif
 
-#ifdef STDC_HEADERS
 #include <stddef.h>
 #define	__malloc_size_t		size_t
 #define	__malloc_ptrdiff_t	ptrdiff_t
-#else
-#ifdef __GNUC__
-#include <stddef.h>
-#ifdef __SIZE_TYPE__
-#define	__malloc_size_t		__SIZE_TYPE__
-#endif
-#endif
-#ifndef __malloc_size_t
-#define	__malloc_size_t		unsigned int
-#endif
-#define	__malloc_ptrdiff_t	int
-#endif
 
 #ifndef	NULL
 #define	NULL	0
@@ -1002,21 +972,6 @@ Fifth Floor, Boston, MA 02110-1301, USA.
 #endif
 
 
-/* Cope with systems lacking `memmove'.    */
-#ifndef memmove
-#if  (defined (MEMMOVE_MISSING) || \
-      !defined(_LIBC) && !defined(STDC_HEADERS) && !defined(USG))
-#ifdef emacs
-#undef	__malloc_safe_bcopy
-#define __malloc_safe_bcopy safe_bcopy
-#endif
-/* This function is defined in realloc.c.  */
-extern void __malloc_safe_bcopy PP ((__ptr_t, __ptr_t, __malloc_size_t));
-#define memmove(to, from, size)	__malloc_safe_bcopy ((from), (to), (size))
-#endif
-#endif
-
-
 /* Debugging hook for free.  */
 void (*__free_hook) PP ((__ptr_t __ptr));
 
@@ -1320,86 +1275,6 @@ Fifth Floor, Boston, MA 02110-1301, USA.
 #ifndef	_MALLOC_INTERNAL
 #define _MALLOC_INTERNAL
 #include <malloc.h>
-#endif
-
-
-
-/* Cope with systems lacking `memmove'.    */
-#if  (defined (MEMMOVE_MISSING) || \
-      !defined(_LIBC) && !defined(STDC_HEADERS) && !defined(USG))
-
-#ifdef emacs
-#undef	__malloc_safe_bcopy
-#define __malloc_safe_bcopy safe_bcopy
-#else
-
-/* Snarfed directly from Emacs src/dispnew.c:
-   XXX Should use system bcopy if it handles overlap.  */
-
-/* Like bcopy except never gets confused by overlap.  */
-
-void
-__malloc_safe_bcopy (afrom, ato, size)
-     __ptr_t afrom;
-     __ptr_t ato;
-     __malloc_size_t size;
-{
-  char *from = afrom, *to = ato;
-
-  if (size <= 0 || from == to)
-    return;
-
-  /* If the source and destination don't overlap, then bcopy can
-     handle it.  If they do overlap, but the destination is lower in
-     memory than the source, we'll assume bcopy can handle that.  */
-  if (to < from || from + size <= to)
-    bcopy (from, to, size);
-
-  /* Otherwise, we'll copy from the end.  */
-  else
-    {
-      register char *endf = from + size;
-      register char *endt = to + size;
-
-      /* If TO - FROM is large, then we should break the copy into
-	 nonoverlapping chunks of TO - FROM bytes each.  However, if
-	 TO - FROM is small, then the bcopy function call overhead
-	 makes this not worth it.  The crossover point could be about
-	 anywhere.  Since I don't think the obvious copy loop is too
-	 bad, I'm trying to err in its favor.  */
-      if (to - from < 64)
-	{
-	  do
-	    *--endt = *--endf;
-	  while (endf != from);
-	}
-      else
-	{
-	  for (;;)
-	    {
-	      endt -= (to - from);
-	      endf -= (to - from);
-
-	      if (endt < to)
-		break;
-
-	      bcopy (endf, endt, to - from);
-	    }
-
-	  /* If SIZE wasn't a multiple of TO - FROM, there will be a
-	     little left over.  The amount left over is
-	     (endt + (to - from)) - to, which is endt - from.  */
-	  bcopy (from, to, endt - from);
-	}
-    }
-}
-#endif /* emacs */
-
-#ifndef memmove
-extern void __malloc_safe_bcopy PP ((__ptr_t, __ptr_t, __malloc_size_t));
-#define memmove(to, from, size) __malloc_safe_bcopy ((from), (to), (size))
-#endif
-
 #endif
 
 
@@ -1860,22 +1735,6 @@ struct hdr
     unsigned long int magic;	/* Magic number to check header integrity.  */
   };
 
-#if	defined(_LIBC) || defined(STDC_HEADERS) || defined(USG)
-#define flood memset
-#else
-static void flood __P ((__ptr_t, int, __malloc_size_t));
-static void
-flood (ptr, val, size)
-     __ptr_t ptr;
-     int val;
-     __malloc_size_t size;
-{
-  char *cp = ptr;
-  while (size--)
-    *cp++ = val;
-}
-#endif
-
 static enum mcheck_status checkhdr __P ((const struct hdr *));
 static enum mcheck_status
 checkhdr (hdr)
@@ -1914,7 +1773,7 @@ freehook (ptr)
       hdr = ((struct hdr *) ptr) - 1;
       checkhdr (hdr);
       hdr->magic = MAGICFREE;
-      flood (ptr, FREEFLOOD, hdr->size);
+      memset (ptr, FREEFLOOD, hdr->size);
     }
   else
     hdr = NULL;
@@ -1940,7 +1799,7 @@ mallochook (size)
   hdr->size = size;
   hdr->magic = MAGICWORD;
   ((char *) &hdr[1])[size] = MAGICBYTE;
-  flood ((__ptr_t) (hdr + 1), MALLOCFLOOD, size);
+  memset ((__ptr_t) (hdr + 1), MALLOCFLOOD, size);
   return (__ptr_t) (hdr + 1);
 }
 
@@ -1960,7 +1819,7 @@ reallochook (ptr, size)
 
       checkhdr (hdr);
       if (size < osize)
-	flood ((char *) ptr + size, FREEFLOOD, osize - size);
+	memset ((char *) ptr + size, FREEFLOOD, osize - size);
     }
 
   __free_hook = old_free_hook;
@@ -1977,7 +1836,7 @@ reallochook (ptr, size)
   hdr->magic = MAGICWORD;
   ((char *) &hdr[1])[size] = MAGICBYTE;
   if (size > osize)
-    flood ((char *) (hdr + 1) + osize, MALLOCFLOOD, size - osize);
+    memset ((char *) (hdr + 1) + osize, MALLOCFLOOD, size - osize);
   return (__ptr_t) (hdr + 1);
 }
 

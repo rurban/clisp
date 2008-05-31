@@ -3,7 +3,7 @@
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
  * Sam Steingold 2004-2008
- * Bruno Haible 2004-2005
+ * Bruno Haible 2004-2008
  * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
  */
 
@@ -28,12 +28,12 @@
 #if defined(HAVE_SYS_TYPES_H)
 # include <sys/types.h>
 #endif
-#if defined(STDC_HEADERS)
-# include <stdio.h>
+#include <stdio.h>
+#if defined(HAVE_UNISTD_H)
 # include <unistd.h>
-# include <string.h>            /* for memcpy(3) */
-# include <stddef.h>            /* for offsetof */
 #endif
+#include <string.h>            /* for memcpy(3) */
+#include <stddef.h>            /* for offsetof */
 #if defined(HAVE_SYS_SOCKET_H)
 # include <sys/socket.h>
 #endif
