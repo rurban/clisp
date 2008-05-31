@@ -1,5 +1,17 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove AC_HEADER_TIME invocation. Instead simply test
+	for <time.h> and <sys/time.h>.
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): Likewise.
+	* unix.d: Don't test TIME_WITH_SYS_TIME. Assume <time.h> and
+	<sys/time.h> are compatible.
+	* modules/berkeley-db/bdb.c: Likewise.
+	* modules/clx/new-clx/clx.f: Likewise.
+	* modules/rawsock/rawsock.c: Likewise.
+	* modules/syscalls/calls.c: Likewise.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove AC_STRUCT_TM invocation.
 
 2008-05-31  Bruno Haible  <bruno@clisp.org>

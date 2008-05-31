@@ -414,15 +414,11 @@ For further for grepability I use the following tags in comments:
 #include <stdio.h>              /* sprintf() */
 #include <string.h>             /* memcpy(), strchr(), strcpy() */
 #include "config.h"
-#if defined(TIME_WITH_SYS_TIME)
+#if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
+#endif
+#if defined(HAVE_TIME_H)
 # include <time.h>
-#else
-# if defined(HAVE_SYS_TIME_H)
-#  include <sys/time.h>
-# elif defined(HAVE_TIME_H)
-#  include <time.h>
-# endif
 #endif
 #if defined(HAVE_SYS_SOCKET_H)
 # include <sys/socket.h>
