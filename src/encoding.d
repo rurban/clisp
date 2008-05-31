@@ -1488,7 +1488,6 @@ static const unsigned char nopage[256] = {
 #include "nls_cp1256.c"
 #include "nls_cp1257.c"
 #include "nls_hp_roman8.c"
-#include "nls_nextstep.c"
 #include "nls_jisx0201.c"
 
 #define nls_first_sym  S(ascii)
