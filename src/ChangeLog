@@ -1,5 +1,12 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove CL_PERROR invocation.
+	* _clisp.c (perror): Remove declaration fallback.
+	* win32.d (HAVE_PERROR_DECL): Remove macro.
+	* m4/perror.m4: Remove file.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/proto.m4 (CL_PROTO_RET, CL_PROTO_TRY, CL_PROTO_CONST): Remove
 	TRAD-DECL argument.
 	* m4/connect.m4 (CL_CONNECT): Update.
