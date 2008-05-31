@@ -1235,10 +1235,8 @@ typedef signed int  signean;
 /* Determine the offset of a component 'ident' in a struct of the type 'type':
  See 0 as pointer to 'type', put a struct 'type' there and determine the
  address of its component 'ident' and return it as number: */
-#if defined(HAVE_OFFSETOF) || defined(__MINGW32__) || (defined(BORLAND) && defined(WIN32)) || defined(MICROSOFT)
-  #include <stddef.h>
-#else
-  #undef offsetof
+#include <stddef.h>
+#ifndef offsetof
   #define offsetof(type,ident)  ((ULONG)&(((type*)0)->ident))
 #endif
 /* Determine the offset of an array 'ident' in a struct of the type 'type': */
