@@ -12,24 +12,9 @@ AC_PREREQ(2.13)
 
 AC_DEFUN([CL_CLOSEDIR],
 [AC_BEFORE([$0], [CL_FILECHARSET])dnl
-CL_PROTO([closedir], [
-CL_PROTO_RET([
-#include <stdlib.h>
-#ifdef HAVE_UNISTD_H
-#include <sys/types.h>
-#include <unistd.h>
-#endif
-#include <dirent.h>
-], [int closedir (DIR* dir);], [int closedir();],
-cl_cv_proto_closedir_ret, int, void)],
-[extern $cl_cv_proto_closedir_ret closedir (DIR*);])
-AC_DEFINE_UNQUOTED(RETCLOSEDIRTYPE,$cl_cv_proto_closedir_ret,[closedir() return type])
-if test $cl_cv_proto_closedir_ret = void; then
-  AC_DEFINE(VOID_CLOSEDIR,,[closedir() return value is void or unusable])
-else
-  # The following test is necessary, because Cygwin32 declares closedir()
-  # as returning int but the return value is unusable.
-  AC_CACHE_CHECK(for usable closedir return value, cl_cv_func_closedir_retval,[
+# The following test is necessary, because Cygwin32 declares closedir()
+# as returning int but the return value is unusable.
+AC_CACHE_CHECK(for usable closedir return value, cl_cv_func_closedir_retval,[
 AC_TRY_RUN([
 #include <stdlib.h>
 #ifdef HAVE_UNISTD_H
@@ -45,5 +30,4 @@ cl_cv_func_closedir_retval="guessing no")])
 case "$cl_cv_func_closedir_retval" in
   *no) AC_DEFINE(VOID_CLOSEDIR,,[closedir() return value is void or unusable]) ;;
 esac
-fi
 ])
