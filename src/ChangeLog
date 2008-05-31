@@ -1,5 +1,10 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* m4/gettimeofday.m4 (CL_GETTIMEOFDAY): Remove test for the prototype.
+	* unix.d (gettimeofday): Assume the declaration in <sys/time.h>.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/gethostbyname.m4 (CL_GETHOSTBYNAME): Remove test for sun/netdb.h.
 	* unix.d: When gethostbyname exists, assume <sys/socket.h> and <netdb.h>
 	exist.
