@@ -1,6 +1,6 @@
 /*
  * Auxiliary functions for CLISP on UNIX
- * Bruno Haible 1990-2004
+ * Bruno Haible 1990-2008
  * Sam Steingold 1998-2005
  */
 
@@ -168,8 +168,6 @@ global int nonintr_tcflush (int fd, int flag) {
 global int siginterrupt (int sig, int flag);
 #if defined(HAVE_SIGACTION)
 extern_C int sigaction (/* int sig, [const] struct sigaction * new, struct sigaction * old */);
-#elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
-extern_C int sigvec (/* int sig, [const] struct sigvec * new, struct sigvec * old */);
 #endif
 global int siginterrupt (int sig, int flag) {
  #if defined(HAVE_SIGACTION)
@@ -198,19 +196,6 @@ global int siginterrupt (int sig, int flag) {
   }
  #endif
   sigaction(sig,&sa,(struct sigaction *)NULL);
- #elif defined(HAVE_SIGVEC) && defined(SV_INTERRUPT)
-  var struct sigvec sv;
-  sigvec(sig,(struct sigvec *)NULL,&sv);
-  if (flag) {
-    if (sv.sv_flags & SV_INTERRUPT)
-      return 0;
-    sv.sv_flags |= SV_INTERRUPT; /* system calls will be interrupted */
-  } else {
-    if (!(sv.sv_flags & SV_INTERRUPT))
-      return 0;
-    sv.sv_flags &= ~ SV_INTERRUPT; /* system calls will be restarted */
-  }
-  sigvec(sig,&sv,(struct sigvec *)NULL);
  #endif
   return 0;                    /* the return value is always ignored. */
 }
