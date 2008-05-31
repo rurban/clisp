@@ -1,11 +1,5 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* is abort() __volatile__? */
-#undef ABORT_VOLATILE
-
-/* is <sys/file.h> needed for R_OK/W_OK/X_OK? */
-#undef ACCESS_NEEDS_SYS_FILE_H
-
 /* symbols are prefixed by an underscore in assembly language */
 #undef ASM_UNDERSCORE
 
@@ -80,12 +74,6 @@
 
 /* Define to 1 if 'float' underflow raises an exception. */
 #undef FLOAT_UNDERFLOW_EXCEPTION
-
-/* declaration of gettimeofday() needs dots */
-#undef GETTIMEOFDAY_DOTS
-
-/* type of `tzp' in gettimeofday() declaration */
-#undef GETTIMEOFDAY_TZP_T
 
 /* Define to indicate the 'malloc' module. */
 #undef GNULIB_MALLOC_GNU
@@ -184,9 +172,6 @@
 /* Define to 1 if you have the `fork' function. */
 #undef HAVE_FORK
 
-/* have <fpu_control.h> and it defines the fpu_control_t type */
-#undef HAVE_FPU_CONTROL_T
-
 /* Define to 1 if you have the `fsync' function. */
 #undef HAVE_FSYNC
 
@@ -272,9 +257,6 @@
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
-/* Define to 1 if you have the `sun' library (-lsun). */
-#undef HAVE_LIBSUN
-
 /* Define to 1 if you have the <lightning.h> header file. */
 #undef HAVE_LIGHTNING_H
 
@@ -352,20 +334,11 @@
 /* Define to 1 if you have the `nice' function. */
 #undef HAVE_NICE
 
-/* <stddef.h> defines the offsetof macro */
-#undef HAVE_OFFSETOF
-
-/* <errno.h> or <stdio.h> contains a declaration for perror() */
-#undef HAVE_PERROR_DECL
-
 /* Define to 1 if you have the 'poll' function and it works. */
 #undef HAVE_POLL
 
 /* Define if you have the putenv() function. */
 #undef HAVE_PUTENV
-
-/* have raise() function */
-#undef HAVE_RAISE
 
 /* have a working modern GNU readline */
 #undef HAVE_READLINE
@@ -400,9 +373,6 @@
 
 /* Define to 1 if you have the `setenv' function. */
 #undef HAVE_SETENV
-
-/* have <fpu_control.h> and it declares the __setfpucw() function */
-#undef HAVE_SETFPUCW
 
 /* Define to 1 if you have the `setitimer' function. */
 #undef HAVE_SETITIMER
@@ -446,9 +416,6 @@
 /* Define if you have the libsigsegv library. */
 #undef HAVE_SIGSEGV
 
-/* Define to 1 if you have the `sigvec' function. */
-#undef HAVE_SIGVEC
-
 /* `struct sockaddr_un' from <sys/un.h> has a `sun_len' field */
 #undef HAVE_SOCKADDR_UN_LEN
 
@@ -481,9 +448,6 @@
 
 /* Define to 1 if `st_rdev' is member of `struct stat'. */
 #undef HAVE_STRUCT_STAT_ST_RDEV
-
-/* Define to 1 if you have the <sun/netdb.h> header file. */
-#undef HAVE_SUN_NETDB_H
 
 /* Define to 1 if you have the `sysconf' function. */
 #undef HAVE_SYSCONF
@@ -530,6 +494,9 @@
 /* Define to 1 if you have the <sys/times.h> header file. */
 #undef HAVE_SYS_TIMES_H
 
+/* Define to 1 if you have the <sys/time.h> header file. */
+#undef HAVE_SYS_TIME_H
+
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
 
@@ -555,6 +522,9 @@
 /* have the times() function and it returns the real time, but do not have the
    gettimeofday() or ftime() function */
 #undef HAVE_TIMES_CLOCK
+
+/* Define to 1 if you have the <time.h> header file. */
+#undef HAVE_TIME_H
 
 /* Define to 1 if you have the `ualarm' function. */
 #undef HAVE_UALARM
@@ -659,9 +629,6 @@
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
 
-/* need <sys/file.h> for using open() flags like O_RDWR */
-#undef OPEN_NEEDS_SYS_FILE_H
-
 /* Name of package */
 #undef PACKAGE
 
@@ -694,12 +661,6 @@
 /* The readline built-in filename completion function, either
    rl_filename_completion_function() or filename_completion_function() */
 #undef READLINE_FILE_COMPLETE
-
-/* abort() return type */
-#undef RETABORTTYPE
-
-/* closedir() return type */
-#undef RETCLOSEDIRTYPE
 
 /* return type of getpagesize() */
 #undef RETGETPAGESIZETYPE
@@ -805,17 +766,8 @@
 	STACK_DIRECTION = 0 => direction of growth unknown */
 #undef STACK_DIRECTION
 
-/* Define to 1 if the `S_IS*' macros in <sys/stat.h> do not work properly. */
-#undef STAT_MACROS_BROKEN
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
-#undef TIME_WITH_SYS_TIME
-
-/* Define to 1 if your <sys/time.h> declares `struct tm'. */
-#undef TM_IN_SYS_TIME
 
 /* define to 1 if the return type of unsetenv is int */
 #undef UNSETENV_POSIX
@@ -986,15 +938,8 @@
 # define _Restrict
 #endif
 
-/* Define as `return' if your compiler allows returning expressions of type
-   `void' from functions */
-#undef return_void
-
 /* Define as a signed type of the same size as size_t. */
 #undef ssize_t
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
-
-/* Define to, say, char, if your system does not support void type */
-#undef void
