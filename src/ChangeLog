@@ -1,5 +1,9 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* m4/signal.m4 (RL_RETSIGTYPE): Remove macro.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* m4/siginterrupt.m4 (CL_SIGINTERRUPT): Don't test for sigvec.
 	* unixaux.d (siginterrupt): Remove sigvec based emulation.
 
