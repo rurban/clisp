@@ -10,29 +10,6 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.57)
 
-AC_DEFUN([RL_RETSIGTYPE],
-[AC_MSG_CHECKING(return type of signal handlers)
-CL_PROTO_RET(
-[#include <sys/types.h>
-#include <signal.h>
-#ifdef signal
-#undef signal
-#endif
-], [
-#ifdef __cplusplus
-int (*signal (int sig, void (*handler)(int))) ();
-#else
-int (*signal ()) ();
-#endif
-], [int (*signal ()) ();],
-cl_cv_proto_signal_ret, int, void)
-AC_MSG_RESULT($cl_cv_proto_signal_ret)
-AC_DEFINE_UNQUOTED(RETSIGTYPE,$cl_cv_proto_signal_ret,[return type of signal handlers (int or void)])
-if test $cl_cv_proto_signal_ret = void; then
-  AC_DEFINE_UNQUOTED(RETSIGTYPE_VOID,,[return type of signal handlers is void])
-fi
-])
-
 AC_DEFUN([CL_TYPE_SIGNAL],
 [AC_CACHE_CHECK([return type of signal handlers], cl_cv_type_signal,
 [AC_TRY_COMPILE([#include <sys/types.h>
