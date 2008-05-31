@@ -195,10 +195,10 @@ local int exitcode;
 #if defined(SPVW_BLOCKS) && defined(SPVW_PURE) /* e.g. UNIX_LINUX, Linux 0.99.7 */
   #define SPVW_PURE_BLOCKS
 #endif
-#if defined(SPVW_PAGES) && defined(SPVW_MIXED) /* e.g. SUN3, HP9000_800 */
+#if defined(SPVW_PAGES) && defined(SPVW_MIXED) /* e.g. HP9000_800 */
   #define SPVW_MIXED_PAGES
 #endif
-#if defined(SPVW_PAGES) && defined(SPVW_PURE) /* e.g. SUN4, SUN386 */
+#if defined(SPVW_PAGES) && defined(SPVW_PURE) /* e.g. SUN4 */
   #define SPVW_PURE_PAGES
 #endif
 
@@ -2574,14 +2574,15 @@ local inline int init_memory (struct argv_initparams *p) {
     if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
     VAROUT(memneed);
    #endif
-   #if defined(MULTIMAP_MEMORY_VIA_SHM) && (defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5))
+   #if defined(MULTIMAP_MEMORY_VIA_SHM) && defined(UNIX_SUNOS5)
     /* SunOS 4 refuses to shmat() into a previously malloc-ed region,
      even if there is a munmap() inbetween:
      errno = EINVAL. Also the reverse, first to shmat() and then to
      merge the occupied region with sbrk() or brk()  into the
      data segment, fails with errno = ENOMEM.
      The only way out is to fetch the necessary memory from far,
-     if possible, out of reach of malloc() . */
+     if possible, out of reach of malloc() .
+     SunOS 5 is probably the same. */
     {
       var uintM memhave = round_down(bit(oint_addr_len)-(aint)sbrk(0),SHMLBA);
       VAROUT(memhave);

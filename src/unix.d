@@ -74,7 +74,7 @@ extern_C char* strerror (int errnum);
     #define MAP_ANON MAP_ANONYMOUS
     #define HAVE_MMAP_ANON
   #endif
-  #if defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5)
+  #ifdef UNIX_SUNOS5
     /* for SINGLEMAP_MEMORY: */
     #if defined(HAVE_MMAP_DEVZERO_SUN4_29) && defined(SUN4_29) && !defined(HAVE_MMAP_DEVZERO)
       /* On the assumption of the SUN4_29-type code distribution
@@ -92,8 +92,7 @@ extern_C char* strerror (int errnum);
   #endif
   #ifdef HAVE_MSYNC
     #ifdef MS_INVALIDATE
-      /* tested only on UNIX_LINUX, not UNIX_SUNOS4, not UNIX_SUNOS5,
-         not UNIX_FREEBSD. ?? */
+      /* tested only on UNIX_LINUX, not UNIX_SUNOS5, not UNIX_FREEBSD. ?? */
       /* for MULTIMAP_MEMORY_VIA_FILE: */
       /* extern_C int msync (void* addr, size_t len, int flags); */
     #else
@@ -102,7 +101,7 @@ extern_C char* strerror (int errnum);
     #endif
   #endif
   /* for MULTIMAP_MEMORY_VIA_FILE: */
-  #if defined(UNIX_SUNOS4) || defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
+  #if defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
     #if HAVE_SYS_STATVFS_H
       #include <sys/statvfs.h>
     #elif HAVE_SYS_STATFS_H
@@ -170,7 +169,7 @@ extern_C char* strerror (int errnum);
   #if defined(UNIX_LINUX) && !defined(UNIX_GNU)
     #include <asm/page.h> /* for SHMLBA on Linux 2.0 */
   #endif
-  #if defined(UNIX_SUNOS4) || defined(UNIX_SUNOS5)
+  #ifdef UNIX_SUNOS5
     #define SHMMAX  0x100000 /* maximum shared memory segment size = 1 MB */
   #endif
   #ifndef SHMMAX
