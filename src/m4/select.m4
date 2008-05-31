@@ -10,30 +10,6 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.57)
 
-AC_DEFUN([RL_SELECT],
-[dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
-AC_CACHE_CHECK([for select], ac_cv_func_select, [
-AC_TRY_LINK([#include <sys/time.h>
-]AC_LANG_EXTERN[
-#ifdef __cplusplus
-int select(int, fd_set*, fd_set*, fd_set*, struct timeval *);
-#else
-int select();
-#endif
-], [select(0,(fd_set*)0,(fd_set*)0,(fd_set*)0,(struct timeval *)0);],
-ac_cv_func_select=yes, ac_cv_func_select=no)])
-if test $ac_cv_func_select = yes; then
-AC_DEFINE(HAVE_SELECT, 1, [Define if you have the select() function.])
-CL_COMPILE_CHECK([sys/select.h], cl_cv_header_sys_select_h,
-[#ifdef __BEOS__
-#include <sys/socket.h>
-#endif
-#include <sys/time.h>
-#include <sys/select.h>], ,
-AC_DEFINE(HAVE_SYS_SELECT_H,,[have <sys/select.h>?]))dnl
-fi
-])
-
 AC_DEFUN([CL_SELECT],
 [dnl Not AC_CHECK_FUNCS(select) because it doesn't work when CC=g++.
 AC_CACHE_CHECK([for select], ac_cv_func_select, [

@@ -1,5 +1,9 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* src/m4/select.m4 (RL_SELECT): Remove macro.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* modules/regexp/configure.in: Require autoconf >= 2.58. Invoke
 	AC_C_RESTRICT instead of gl_C_RESTRICT.
 	* m4/restrict.m4: Remove file.
