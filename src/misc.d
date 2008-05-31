@@ -131,11 +131,7 @@ LISPFUNN(machinetype,0)
        (string-upcase
          (with-open-stream (stream (make-pipe-input-stream "/bin/arch"))
                            (read-line stream nil nil))) */
-   #if defined(UNIX_SUNOS4)
-    pushSTACK(ascii_to_string("/bin/arch"));
-   #else
     pushSTACK(ascii_to_string("uname -m"));
-   #endif
     funcall(L(make_pipe_input_stream),1); /* (MAKE-PIPE-INPUT-STREAM "/bin/arch") */
     pushSTACK(value1); /* save stream */
     pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
@@ -185,11 +181,7 @@ LISPFUNN(machine_version,0)
        (string-upcase
          (with-open-stream (stream (make-pipe-input-stream "/bin/arch -k"))
                            (read-line stream nil nil))) */
-   #if defined(UNIX_SUNOS4)
-    pushSTACK(ascii_to_string("/bin/arch -k"));
-   #else
     pushSTACK(ascii_to_string("uname -m"));
-   #endif
     funcall(L(make_pipe_input_stream),1); /* (MAKE-PIPE-INPUT-STREAM "/bin/arch -k") */
     pushSTACK(value1); /* save stream */
     pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);

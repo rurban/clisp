@@ -1,5 +1,17 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	Remove SunOS 4 support.
+	* lispbibl.d (SUN386, SUN3, UNIX_SUNOS4): Remove macros.
+	(MULTIMAP_MEMORY_VIA_FILE, hardware_addressbus_mask, SPVW_MIXED):
+	Update.
+	* unix.d: Drop UNIX_SUNOS4 conditional.
+	* spvw.d (init_memory): Likewise.
+	* misc.d (MACHINE-TYPE, MACHINE-VERSION): Likewise.
+	* _distmakefile (CC): Likewise.
+	* stream.d (MAKE-WINDOW, CLOSE-WINDOW): Drop SUN3 conditional.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	Remove NeXTstep support.
 	* SUMMARY: Remove mention of NeXTstep.
 	* lispbibl.d (UNIX_NEXTSTEP, NEXTSTEP_CHS): Remove macros.
