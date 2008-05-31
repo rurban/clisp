@@ -1,5 +1,14 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* m4/builtin_strlen.m4 (CL_BUILTIN_STRLEN): Assume ANSI C or C++.
+	* m4/mprotect.m4 (CL_MPROTECT): Likewise.
+	* m4/select.m4 (CL_SELECT): Likewise.
+	* m4/signal.m4 (CL_SIGNAL_REINSTALL, CL_SIGNAL_UNBLOCK,
+	CL_SIGNAL_BLOCK_OTHERS, CL_SIGACTION_REINSTALL, CL_SIGACTION_UNBLOCK):
+	Likewise.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove AC_HEADER_STAT invocation.
 	* unix.d: Ignore STAT_MACROS_BROKEN.
 
