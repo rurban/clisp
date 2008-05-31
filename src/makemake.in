@@ -510,7 +510,6 @@ LDFLAGS='@LDFLAGS@'                 # additional options for linking
 CC_GCC='@CC_GCC@'                   # either true or false
 CC_SUNPRO='@CC_SUNPRO@'             # either true or false
 CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
-CC_NEED_CCPAUX='@CC_NEED_CCPAUX@'   # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
@@ -600,7 +599,6 @@ case $# in
        CC='cl'
        CC_GCC=false
        CFLAGS='$(MFLAGS)'
-       CC_NEED_CCPAUX=false
        AS_UNDERSCORE=false
        CC_NEED_DEEMA=true
        FFCALL_LIBS='avcall.lib callback.lib'
@@ -630,7 +628,6 @@ if [ $CROSS = true ] ; then
   XCFLAGS=''
   XLDFLAGS=''
   XCC_GCC=true
-  XCC_NEED_CCPAUX=false
   XCC_NEED_DEEMA=false
 else
   TSYS="$HSYS"
@@ -641,7 +638,6 @@ else
   XCFLAGS="${CFLAGS}"
   XLDFLAGS="${LDFLAGS}"
   XCC_GCC="${CC_GCC}"
-  XCC_NEED_CCPAUX="${CC_NEED_CCPAUX}"
   XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
 fi
 XCC_UNUSABLE_CPP=false
@@ -2156,10 +2152,10 @@ echol "COMMENT5 = ${HERE}comment5"
 if [ -n "$XCC_SUNPRO" ] ; then
   XASM_NEED_CCPAUX=true
 else
-  XASM_NEED_CCPAUX=$XCC_NEED_CCPAUX
+  XASM_NEED_CCPAUX=false
 fi
 
-if [ $CC_NEED_CCPAUX = true -o $XCC_NEED_CCPAUX = true -o $XASM_NEED_CCPAUX = true ] ; then
+if [ $XASM_NEED_CCPAUX = true ] ; then
   NEED_CCPAUX=true
 else
   NEED_CCPAUX=false
@@ -2169,20 +2165,6 @@ XDECL_DEPENDENCIES=" gctrigger${HEXE} varbrace${HEXE}"
 
 echol "GCTRIGGER = ${HERE}gctrigger"
 echol "VARBRACE = ${HERE}varbrace"
-if [ $CC_NEED_CCPAUX = true ] ; then
-  CCPAUX='ccpaux'$HEXE
-  CCPAUX_FILTER=' | '$HERE'ccpaux'
-else
-  CCPAUX=''
-  CCPAUX_FILTER=''
-fi
-if [ $XCC_NEED_CCPAUX = true ] ; then
-  XCCPAUX='ccpaux'$HEXE
-  XCCPAUX_FILTER=' | '$HERE'ccpaux'
-else
-  XCCPAUX=''
-  XCCPAUX_FILTER=''
-fi
 if [ $XASM_NEED_CCPAUX = true ] ; then
   XASMCCPAUX='ccpaux'$HEXE
   XASMCCPAUX_FILTER=' | '$HERE'ccpaux'
@@ -2430,18 +2412,9 @@ UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
   case ${util} in
     comment5 )
-      if [ $CC_NEED_CCPAUX = true ] ; then
-        echol "${util}${HEXE} : ${UTILDIR_M}${util}.c ${CCPAUX}"
-        echotab "${HERE}ccpaux${HEXE} < ${UTILDIR_}${util}.c > ${util}.c"
-        echotab_to_HEXE "${UTILCOMPILE}" "${util}.c" "${util}"
-        echotab "\$(RM) ${util}.c"
-        echol
-        OBSOLETE=$OBSOLETE" ${util}.c"
-      else
-        echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
-        echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
-        echol
-      fi
+      echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
+      echotab_to_HEXE "${UTILCOMPILE}" "${UTILDIR_CC}${util}.c" "${util}"
+      echol
       ;;
     * )
       echol "${util}${HEXE} : ${UTILDIR_M}${util}.c"
@@ -2499,7 +2472,7 @@ for f in $DFILES ; do
 done
 
 for f in $ARI_ASMD $SP_ASMD ; do
-  echol "${f}.c : ${SRCDIR}${f}.d comment5${HEXE} ${XCCPAUX}"
+  echol "${f}.c : ${SRCDIR}${f}.d comment5${HEXE} ${XASMCCPAUX}"
   echotabpipe "\$(COMMENT5) ${SRCDIR}${f}.d${XASMCCPAUX_FILTER} > ${f}.c"
   echol
 done

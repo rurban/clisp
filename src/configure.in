@@ -52,7 +52,6 @@ AC_SYS_LARGEFILE    dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
 CL_CC_GCC           dnl sets variables CC_GCC, GCC_X_NONE
 CL_CC_SUNPRO        dnl sets variable CC_SUNPRO
 CL_CC_CPLUSPLUS     dnl sets variable CC_CPLUSPLUS
-CL_CC_NEED_CCPAUX   dnl sets variable CC_NEED_CCPAUX
 CL_CC_NEED_DEEMA    dnl sets variable CC_NEED_DEEMA
 CL_AS_UNDERSCORE    dnl sets variable AS_UNDERSCORE, DEFS ASM_UNDERSCORE
 CL_IRIX_SUN         dnl LIBS -lsun
