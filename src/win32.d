@@ -19,9 +19,6 @@
   #undef UNICODE
 #endif
 
-/* for _clisp.c */
-#define HAVE_PERROR_DECL
-
 /* Declaration of operating system functions */
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 #undef unused /* `unused' is used in function declarations. */

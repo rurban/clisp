@@ -28,7 +28,7 @@
 
 /* Declare strlen(), strcpy(), strcat(). */
 # include <string.h>
-/* Declare stderr. */
+/* Declare stderr, perror(). */
 # include <stdio.h>
 
 #if defined(WIN32_NATIVE)
@@ -50,15 +50,6 @@ BOOL real_path (LPCSTR namein, LPSTR nameout);
 #endif
 int find_executable (const char * program_name);
 #include "execname.c"
-
-#if !defined(HAVE_PERROR_DECL)
-/* Both <errno.h> and <stdio.h> failed to declare perror(). Declare it now. */
-# if defined(__cplusplus)
-extern "C" void perror (const char *);
-# else
-extern void perror (const char *);
-# endif
-#endif
 
 #if defined(UNIX_BINARY_DISTRIB)
 # if !ENABLE_RELOCATABLE
