@@ -59,7 +59,7 @@ local inline int my_readlink (const char* path, char* buf, size_t bufsiz) {
 #define readlink  my_readlink
 #endif
 
-/* we need realpath() (declared in <stdlib.h>, included under STDC_HEADERS)
+/* we need realpath() (declared in <stdlib.h>)
    http://www.opengroup.org/onlinepubs/009695399/functions/realpath.html
    which is alleged to be broken on some systems
    OTOH, on some other systems, notably on cygwin,

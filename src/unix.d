@@ -15,9 +15,7 @@
 #define stderr_handle  2  /* the file handle for the standard error */
 
 /* Declaration of types of I/O parameters of operating system functions */
-#ifdef STDC_HEADERS
-  #include <stdlib.h>
-#endif
+#include <stdlib.h>
 #include <sys/types.h>  /* declares pid_t, uid_t */
 #if defined(TIME_WITH_SYS_TIME)
  #include <sys/time.h>
