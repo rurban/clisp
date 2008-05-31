@@ -75,7 +75,6 @@ fi
 dnl
 BOLD_MSG([checks for fundamental compiler characteristics])
 AC_C_INLINE         dnl DEFS inline
-CL_VOID             dnl DEFS void
 CL_BUILTIN_STRLEN   dnl DEFS HAVE_BUILTIN_STRLEN
 AC_TYPE_LONG_LONG_INT dnl HAVE_LONG_LONG_INT
 dnl
