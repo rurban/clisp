@@ -1,5 +1,9 @@
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
+	* configure.in: Remove AC_STRUCT_TM invocation.
+
+2008-05-31  Bruno Haible  <bruno@clisp.org>
+
 	* configure.in: Remove CL_PERROR invocation.
 	* _clisp.c (perror): Remove declaration fallback.
 	* win32.d (HAVE_PERROR_DECL): Remove macro.
