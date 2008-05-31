@@ -36,7 +36,6 @@ AC_PROG_CC  dnl sets variable CC
 AC_PROG_CPP dnl sets variable CPP
 gl_EARLY
 AC_PROG_INSTALL dnl sets variables INSTALL, INSTALL_DATA, INSTALL_PROGRAM
-CL_PROG_CP      dnl sets variable CP
 CL_PROG_LN_S    dnl sets variable LN_S
 CL_PROG_HLN     dnl sets variable HLN
 AC_LIBTOOL_WIN32_DLL
