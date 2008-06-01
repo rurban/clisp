@@ -4163,8 +4163,20 @@ foreign function succeeds: <programlisting language="lisp">
         (error "~S: ~D: ~S" 'myhostname errno (strerror errno))))))
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
-<computeroutput>"abazonk"</computeroutput></programlisting></para>
-</example>
+<computeroutput>"abazonk"</computeroutput></programlisting>
+Note that the &type-r; argument of &with-foreign-object; is evaluated,
+so we do not have to make any assumptions
+about <constant>HOST_NAME_MAX</constant>: <programlisting language="lisp">
+(defun myhostname ()
+  (let ((host-name-max (<link linkend="sysinfo">os:sysconf</link> :host-name-max)))
+    (&with-foreign-object; (name `(&c-array-max; character ,host-name-max))
+      (let ((success (gethostname name ho)))
+        (if (zerop success) (&foreign-value; name)
+          (error "~S: ~D: ~S" 'myhostname errno (strerror errno)))))))
+<computeroutput>MYHOSTNAME</computeroutput>
+(myhostname)
+<computeroutput>"abazonk"</computeroutput></programlisting>
+</para></example>
 
 <example id="dffi-dll-var">
  <title>Accessing variables in shared libraries</title>
