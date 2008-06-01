@@ -1,5 +1,12 @@
 2008-06-01  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (setjmp) [__MINGW32__]: define as _setjmp (but do not
+	define longjmp as _longjmp because the latter does not exist)
+	This is only necessary for lightning.
+	Thanks to Yaroslav Kavenchuk <kavenchuk@tut.by> for investigation.
+
+2008-06-01  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (init_object_tab) [WIDE_HARD]: add :WORD-SIZE=64 to *FEATURES*
 	* built.d (built_flags): show all WIDE_* variants
 
