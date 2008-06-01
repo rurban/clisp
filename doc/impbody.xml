@@ -2208,18 +2208,14 @@ can give problems:
  &charset-ascii;.</para>
 
 <!-- #ifdef UNICODE -->
-<variablelist>
-<varlistentry><term>&unicode-only;</term>
+<variablelist><varlistentry><term>&unicode-only;</term>
 <listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode; 3.2
  character set (ISO 10646, also known as UCS-4).
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
 <!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
-<variablelist>
-<varlistentry><term><emphasis role="plat-dep">&unix;,
-   &win32; platforms only, and only in
-   &clisp; built &without; compile-time flag &unicode;.</emphasis></term>
+<variablelist><varlistentry><term>&non-unicode-only;</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
 <informaltable id="latin-1-table" frame="all">
