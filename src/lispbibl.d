@@ -1359,7 +1359,7 @@ typedef signed int  signean;
 
 /* non-local exits */
 #include <setjmp.h>
-#if (defined(UNIX) || defined(__MINGW32__)) && defined(HAVE__JMP)
+#if defined(UNIX) && defined(HAVE__JMP)
   /* The "_" routines are more efficient (do not save/restore signal masks,
    see http://article.gmane.org/gmane.lisp.clisp.devel/18227 or
    http://sourceforge.net/mailarchive/message.php?msg_id=200805251238.10097.bruno%40clisp.org): */
@@ -1372,6 +1372,17 @@ typedef signed int  signean;
     #undef longjmp
     #define longjmp(x,y)  (_longjmp(x,y), NOTREACHED)
   #endif
+#elif defined(__MINGW32__)
+  /* on mingw:
+    _CRTIMP int __cdecl __MINGW_NOTHROW _setjmp (jmp_buf);
+    #define setjmp(x) _setjmp(x)
+    _CRTIMP void __cdecl __MINGW_NOTHROW longjmp (jmp_buf, int) __MINGW_ATTRIB_NORETURN;
+     so we only need to redefine setjmp, not longjmp.
+     this is actually only necessary for lightning, see
+     http://article.gmane.org/gmane.lisp.clisp.devel:18315
+     http://lists.gnu.org/archive/html/lightning/2008-05/msg00015.html */
+  #undef setjmp
+  #define setjmp  _setjmp
 #endif
 /* A longjmp() can only be called using an `int'.
  But if we want to use a `long' and if sizeof(int) < sizeof(long),
