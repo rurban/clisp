@@ -1,6 +1,10 @@
 User visible changes
 --------------------
 
+* CLISP built natively on 64-bit platforms (i.e., with 64-bit pointers)
+  now has :WORD-SIZE=64 in *FEATURES*.
+  See <http://clisp.cons.org/impnotes/features.html> for details.
+
 * Bug fixes:
   + Work around the absence of tgamma() on solaris. [ 1966375 ]
   + Avoid a rare segfault on SIGHUP. [ 1956715 ]

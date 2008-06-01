@@ -5106,6 +5106,16 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>&clos; is implemented</simpara></listitem></varlistentry>
 <varlistentry><term><constant>:MOP</constant></term>
  <listitem><simpara>&mop; is implemented</simpara></listitem></varlistentry>
+<!-- #ifdef WIDE_HARD -->
+<varlistentry><term><constant>:WORD-SIZE=64</constant></term>
+ <listitem><simpara>if &clisp; was built for a 64-bit CPU.  This could
+   be useful on platforms with 64-bit CPUs which have a 32-bit mode
+   emulation (e.g., <emphasis role="platform">i386</emphasis> is
+   emulated on <emphasis role="platform">x86_64</emphasis>
+   and <emphasis role="platform">ia64</emphasis>) so that the user can
+   decide which ABI library to load dynamically using &ffi-pac;.
+</simpara></listitem></varlistentry>
+<!-- #endif -->
 <varlistentry><term><constant>:WIN32</constant></term>
  <listitem><simpara>if &hw; = PC (clone) and &os; = &win32;
   (Windows 95/98/Me/NT/2000/XP)</simpara></listitem></varlistentry>

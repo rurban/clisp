@@ -1,7 +1,7 @@
 /*
  * Information about the build environment
  * Bruno Haible 2004-2005
- * Sam Steingold 2004-2006
+ * Sam Steingold 2004-2008
  */
 
 #include "lispbibl.c"
@@ -36,7 +36,15 @@ global object built_flags (void) {
    #endif
   #endif
   #ifdef WIDE
+   #if defined(WIDE_HARD)
+    " WIDE_HARD"
+   #elif defined(WIDE_SOFT)
+    " WIDE_SOFT"
+   #elif defined(WIDE_AUXI)
+    " WIDE_AUXI"
+   #else
     " WIDE"
+   #endif
   #endif
   #ifdef GENERATIONAL_GC
     " GENERATIONAL_GC"
