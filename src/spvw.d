@@ -1434,6 +1434,9 @@ local void init_object_tab (void) {
      #if (base_char_code_limit == char_code_limit)
       " :BASE-CHAR=CHARACTER"
      #endif
+     #ifdef WIDE_HARD
+      " :WORD-SIZE=64"
+     #endif
      #ifdef PC386
       " :PC386"
      #endif

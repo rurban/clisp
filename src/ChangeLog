@@ -1,3 +1,8 @@
+2008-06-01  Sam Steingold  <sds@gnu.org>
+
+	* spvw.d (init_object_tab) [WIDE_HARD]: add :WORD-SIZE=64 to *FEATURES*
+	* built.d (built_flags): show all WIDE_* variants
+
 2008-05-31  Bruno Haible  <bruno@clisp.org>
 
 	* m4/builtin_strlen.m4 (CL_BUILTIN_STRLEN): Assume ANSI C or C++.
