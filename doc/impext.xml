@@ -4112,17 +4112,11 @@ int CallInFunc(LispFunc f) {
   (:language :stdc) (:library :default)
   (:return-type ffi:int))
 <computeroutput>GETHOSTNAME</computeroutput>
-(&def-call-out; <function role="unix">strerror</function> (:arguments (errnum int))<lineannotation>for error reporting</lineannotation>
-  (:language :stdc) (:library :default)
-  (:return-type c-string :none))
-<computeroutput>STRERROR</computeroutput>
-(&def-c-var; <varname role="unix">errno</varname> (:type ffi:int) (:library :default))<lineannotation>for error reporting</lineannotation>
-<computeroutput>ERRNO</computeroutput>
 (defun myhostname ()
   (multiple-value-bind (success name)<lineannotation>&out-k; and &in-out-k; parameters are returned as &mul-val;</lineannotation>
       (gethostname 256)
     (if (zerop success) name
-      (error "~S: ~D: ~S" 'myhostname errno (strerror errno)))))
+      (error "~S: ~S: ~S" 'myhostname (os:errno) (os:strerror)))))<lineannotation>See <xref linkend="errno"/></lineannotation>
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
 <computeroutput>#(97 98 97 122 111 110 107)</computeroutput></programlisting>
@@ -4160,7 +4154,7 @@ foreign function succeeds: <programlisting language="lisp">
   (&with-foreign-object; (name '(&c-array-max; character 256))
     (let ((success (gethostname name 256)))
       (if (zerop success) (&foreign-value; name)
-        (error "~S: ~D: ~S" 'myhostname errno (strerror errno))))))
+        (error "~S: ~S: ~S" 'myhostname (os:errno) (os:strerror))))))
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
 <computeroutput>"abazonk"</computeroutput></programlisting>
@@ -4172,7 +4166,7 @@ about <constant>HOST_NAME_MAX</constant>: <programlisting language="lisp">
     (&with-foreign-object; (name `(&c-array-max; character ,host-name-max))
       (let ((success (gethostname name host-name-max)))
         (if (zerop success) (&foreign-value; name)
-          (error "~S: ~D: ~S" 'myhostname errno (strerror errno)))))))
+          (error "~S: ~S: ~S" 'myhostname (os:errno) (os:strerror)))))))
 <computeroutput>MYHOSTNAME</computeroutput>
 (myhostname)
 <computeroutput>"abazonk"</computeroutput></programlisting>
