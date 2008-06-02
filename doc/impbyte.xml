@@ -1295,7 +1295,7 @@ where an allocation increments <varname>alloccount</varname>
 
 <para>Generational &gc;or uses memory protection, so when passing pointers
  into the lisp heap to &c-lang; functions, you may encounter errors
- (<varname>errno</varname>=<constant>EFAULT</constant>) unless you call
+ (&errno;=<constant>EFAULT</constant>) unless you call
  <function>handle_fault_range(protection,region_start,region_end)</function>
  on the appropriate memory region.  See files <simplelist>
 <member><filename role="clisp-cvs">src/unixaux.d</filename></member>
