@@ -110,6 +110,8 @@ SGML_UNCOMMENT=-e 's/^<!--\#\(.*\)-->$$/\#\1/'
 E=\ *<!--\(\#[^-]*\)--> *
 ROFF_UNCOMMENT=-e 's/^$E$$/\1/' -e 's/$E$$/\n\1/' -e 's/^$E/\1\n/' -e 's/$E/\n\1\n/g'
 
+.PHONY : all up count search clean
+
 all: check impnotes.html regexp.html man
 
 ifneq (,$(CATALOG_FILE))
@@ -215,9 +217,10 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 mop-classes.png : mop-classes.dot
 	dot -Tpng mop-classes.dot -o mop-classes.png
 
+UP=sf:/home/groups/c/cl/clisp/htdocs/
 up: impnotes.html html
-	rsync -av impnotes.html sf:/home/groups/c/cl/clisp/www/impnotes-new.html
-	rsync -av html/* sf:/home/groups/c/cl/clisp/www/impnotes-new/
+	rsync -av impnotes.html $(UP)/impnotes-new.html
+	rsync -av html/* $(UP)/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
