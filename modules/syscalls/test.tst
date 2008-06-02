@@ -431,6 +431,10 @@ T
 #+ffi (os:fclose *foo*) #+ffi NIL
 #+ffi (finish-file "foo") #+ffi 1
 
+#+ffi (loop :for e :from 0 :to 100
+        :do (show (list e (os:errno e) (os:strerror)))
+        :finally (os:errno nil))
+#+ffi NIL
 
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))

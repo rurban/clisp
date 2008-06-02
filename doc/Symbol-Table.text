@@ -1268,3 +1268,7 @@ POSIX:LGAMMA
 posix-math
 POSIX:FFS
 posix-math
+POSIX:ERRNO
+errno
+POSIX:STRERROR
+errno

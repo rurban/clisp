@@ -1,5 +1,10 @@
 2008-06-02  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (OS:ERRNO, OS:STRERROR): implement
+	* modules/syscalls/posix.lisp (OS:ERRNO, OS:STRERROR): export
+
+2008-06-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (IMPNOTES): rename to IMPNOTES_FILES to avoid
 	conflict with $IMPNOTES which is used by IMPNOTES-ROOT
 
