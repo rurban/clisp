@@ -1,3 +1,10 @@
+2008-06-02  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (mecase): ECASE for DEFMACRO: print the form in
+	the error message
+	* foreign1.lisp (parse-c-function, DEF-C-VAR): use SYS::MECASE
+	instead of ECASE for a better error message
+
 2008-06-01  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (setjmp) [__MINGW32__]: define as _setjmp (but do not
@@ -236,7 +243,7 @@
 
 2008-05-30  Sam Steingold  <sds@gnu.org>
 
-	* m4/siginterrupt.m4: fix a typo:
+	* m4/siginterrupt.m4: )fix a typo:
 	$ac_cv_func_strerror -> $ac_cv_func_siginterrupt
 
 2008-05-29  Bruno Haible  <bruno@clisp.org>

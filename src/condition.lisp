@@ -1493,6 +1493,14 @@
                   (case-errorstring keyform keyclauselist)
                   (case-expected-type keyclauselist)
                   env))
+    ;; for use in macros: when a file with generated ffi forms is compiled
+    ;; (prime example: gtk.lisp), any error message can become cryptic because
+    ;; the sources are efemeral - unless the whole form is printed in the error
+    (defmacro mecase (whole-form keyform &rest keyclauselist)
+      (simply-error 'CASE keyform keyclauselist
+                    `(format nil (TEXT "In form ~S~%~A") ,whole-form
+                             ,(case-errorstring keyform keyclauselist))
+                    (case-expected-type keyclauselist)))
 ) )
 (defun etypecase-failed (value errorstring expected-type) ; ABI
   (error-of-type 'type-error
