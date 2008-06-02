@@ -44,7 +44,7 @@ getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
 setreuid setregid getgroups setgroups dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
-crypt encrypt setkey GlobalMemoryStatusEx)
+crypt encrypt setkey GlobalMemoryStatusEx strerror)
 AC_FUNC_CHOWN
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 CL_STAT
