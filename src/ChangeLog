@@ -1,5 +1,10 @@
 2008-06-02  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (IMPNOTES): rename to IMPNOTES_FILES to avoid
+	conflict with $IMPNOTES which is used by IMPNOTES-ROOT
+
+2008-06-02  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (mecase): ECASE for DEFMACRO: print the form in
 	the error message
 	* foreign1.lisp (parse-c-function, DEF-C-VAR): use SYS::MECASE
