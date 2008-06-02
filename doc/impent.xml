@@ -681,6 +681,7 @@
 <!ENTITY direction-r '<replaceable>direction</replaceable>'>
 <!ENTITY dkey-r '<replaceable>dkey</replaceable>'>
 <!ENTITY dom-r '<replaceable>domain</replaceable>'>
+<!ENTITY ecode-r '<replaceable>error-code</replaceable>'>
 <!ENTITY eltype-r '<replaceable>element-type</replaceable>'>
 <!ENTITY encoding-r '<replaceable>encoding</replaceable>'>
 <!ENTITY end-r '<replaceable>end</replaceable>'>
