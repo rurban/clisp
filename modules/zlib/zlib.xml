@@ -25,9 +25,9 @@
 <varlistentry><term><code>(ZLIB:COMPRESS-BOUND source-length)</code></term>
  <listitem><simpara>Return the maximum length of the return value
    of <function>ZLIB:COMPRESS</function>.</simpara></listitem></varlistentry>
-<varlistentry><term><code>(ZLIB:ERROR-STRING errno)</code></term>
- <listitem><simpara>Return a descriptive string for the supplied error
-   code.</simpara></listitem></varlistentry>
+<varlistentry><term><code>(ZLIB:ERROR-STRING &ecode-r;)</code></term>
+ <listitem><simpara>Return a descriptive string for the supplied &ecode-r;.
+</simpara></listitem></varlistentry>
 <varlistentry><term><classname>ZLIB:ZERROR</classname></term>
  <listitem><simpara>An &error-t; sometimes &signal;ed
    by <function>ZLIB:COMPRESS</function>
