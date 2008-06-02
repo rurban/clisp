@@ -3357,8 +3357,8 @@ IMPNOTES_FILES="impnotes.html impnotes.css clisp.png"
 if [ ${HOS} = win32 ]; then
   IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico"
 fi
-echol "IMPNOTES = ${IMPNOTES_FILES}"
-echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES)"
+echol "IMPNOTES_FILES = ${IMPNOTES_FILES}"
+echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES_FILES)"
 echol
 for f in ${IMPNOTES_FILES} ; do
   echol "${f} : ${SRCDOCDIR_M}${f}"
@@ -3821,7 +3821,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data/"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES) \$(TOPDIR)/doc/"
+echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
 echotab "mkdir \$(TOPDIR)/emacs"
 for f in ${EMACS_FILES} ${VIM_FILES}; do
   echotab "${HLN} ${SRCTOPDIR}emacs/${f} \$(TOPDIR)/emacs/${f}"
@@ -3895,7 +3895,7 @@ elif [ $HOS = win32 ] ; then
     echotab "cp -p data/${f} \$\$distdir/data/${f} ; \\"
   done
   echotab "mkdir \$\$distdir/doc ; \\"
-  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) \$(IMPNOTES) ; do \\"
+  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/emacs; \\"
@@ -3931,7 +3931,7 @@ clean1 : clean0
 	-\$(RMRF) boot base full
 !!
 cat <<!!
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
