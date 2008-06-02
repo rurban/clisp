@@ -395,11 +395,11 @@
                           (warn (TEXT "~S argument ~S is not a pointer in ~S")
                                 argmode argtype whole))
                         (list argtype
-                              (+ (ecase argmode
+                              (+ (sys::mecase whole argmode
                                    ((:IN :READ-ONLY) 0)
                                    ((:OUT :WRITE-ONLY) ff-flag-out)
                                    ((:IN-OUT :READ-WRITE) ff-flag-in-out))
-                                 (ecase argalloc
+                                 (sys::mecase whole argalloc
                                    (:NONE 0)
                                    (:ALLOCA ff-flag-alloca)
                                    (:MALLOC-FREE ff-flag-malloc-free))))))
@@ -407,7 +407,7 @@
             'simple-vector)
     (+ (let ((rettype (assoc ':return-type alist)))
          (if (cddr rettype)
-           (ecase (third rettype)
+           (sys::mecase whole (third rettype)
              (:NONE 0)
              (:MALLOC-FREE ff-flag-malloc-free))
            0))
@@ -944,7 +944,7 @@
          (flags (+ (if read-only fv-flag-readonly 0)
                    (let ((alloc (assoc ':alloc alist)))
                      (if (cdr alloc)
-                       (ecase (second alloc)
+                       (sys::mecase whole-form (second alloc)
                          (:NONE 0)
                          (:MALLOC-FREE fv-flag-malloc-free))
                        0))))
