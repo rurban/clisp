@@ -191,7 +191,8 @@ pdfdir=''
 MODULES=''
 elispdir=''
 vimdir=''
-module_configure_flags=''
+# http://www.gnu.org/software/autoconf/manual/html_node/Option-Checking.html
+module_configure_flags='--disable-option-checking'
 CP='cp -p'
 LN_S='ln -s'
 HLN='ln'
@@ -1899,7 +1900,7 @@ fi
 echol "MODULES = ${MODULES}"
 echol
 echol "# Command line options passed to the configure files of add-on modules"
-echol "MODULE_CONFIGURE_FLAGS =${module_configure_flags}"
+echol "MODULE_CONFIGURE_FLAGS = ${module_configure_flags}"
 echol
 echol '# Programs used by "make":'
 if [ $CROSS = true ] ; then

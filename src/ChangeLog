@@ -1,5 +1,10 @@
 2008-06-03  Sam Steingold  <sds@gnu.org>
 
+	* configure, makemake.in: pass --disable-option-checking to
+	sub-configures
+
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (strip-comments): new function
 	(split-command): use it to support comments inside DEFCHECKERs
 
