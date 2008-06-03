@@ -26,14 +26,19 @@ T
 (foreign-address-unsigned (unsigned-foreign-address 3))
 3
 
-(def-call-out strerror (:arguments (errnum int))
-  (:language :stdc) (:library :default)
-  (:return-type c-string :none))
-STRERROR
-
-(def-c-var errno (:type ffi:int) (:library :default)) ERRNO
-
-(loop :for i :from 0 :to 100 :do (show (strerror i))) NIL
+(handler-case
+    (progn
+      (def-call-out strerror (:arguments (errnum int))
+        (:language :stdc) (:library :default)
+        (:return-type c-string :none))
+      (loop :for i :from 0 :to 100 :do (show (strerror i)))
+      (def-c-var errno (:type ffi:int) (:library :default))
+      (defun os-error (where)
+        (error "~S failed: errno=~D: ~S" where errno (strerror errno))))
+  (error (c)
+    (princ-error c)
+    (defun os-error (where) (error "~S failed" where))))
+OS-ERROR
 
 (def-call-out gethostname1 (:name "gethostname")
   (:arguments (name (c-ptr (c-array-max character 256)) :out :alloca) (len int))
@@ -43,7 +48,7 @@ GETHOSTNAME1
 (defun myhostname1 ()
   (multiple-value-bind (success name) (gethostname1 256)
     (if (zerop success) name
-        (error "~S: ~D: ~S" 'myhostname1 errno (strerror errno)))))
+        (os-error 'myhostname1))))
 MYHOSTNAME1
 
 (def-call-out gethostname2 (:name "gethostname")
@@ -54,7 +59,7 @@ GETHOSTNAME2
 (defun myhostname2 ()
   (multiple-value-bind (success name) (gethostname2 256)
     (if (zerop success) name
-        (error "~S: ~D: ~S" 'myhostname2 errno (strerror errno)))))
+        (os-error 'myhostname2))))
 MYHOSTNAME2
 
 (def-call-out gethostname3 (:name "gethostname")
@@ -66,14 +71,14 @@ GETHOSTNAME3
   (with-foreign-object (name '(c-array-max character 256))
     (let ((success (gethostname3 name 256)))
       (if (zerop success) (foreign-value name)
-          (error "~S: ~D: ~S" 'myhostname3 errno (strerror errno))))))
+          (os-error 'myhostname3)))))
 MYHOSTNAME3
 
 (defun myhostname4 ()
   (with-foreign-object (name '(c-array-max char 256))
     (let ((success (gethostname3 name 256)))
       (if (zerop success) (foreign-value name)
-          (error "~S: ~D: ~S" 'myhostname4 errno (strerror errno))))))
+          (os-error 'myhostname4)))))
 MYHOSTNAME4
 
 (string= (myhostname1) (myhostname3)) T

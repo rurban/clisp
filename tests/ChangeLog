@@ -1,3 +1,7 @@
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: do not require errno and strerror
+
 2008-05-30  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst (gethostname): test 2 approaches
