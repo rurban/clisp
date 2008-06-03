@@ -269,7 +269,9 @@
                    (* page-size (sysconf :AVPHYS-PAGES))))
   #+win32 (let ((mem-stat (memory-status)))
             (values (memstat-total-physical mem-stat)
-                    (memstat-avail-physical mem-stat))))
+                    (memstat-avail-physical mem-stat)))
+  #-(or unix win32)
+  (error "~S: only ~S and ~S are supported" 'physical-memory :unix :win32))
 
 ;;;--------------------------------------------------------------------------
 ;;; service / port map
@@ -284,7 +286,9 @@
 (defvar *services*)
 (defvar *services-file*
   #+unix "/etc/services"
-  #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services"))
+  #+win32 (string-concat (getenv "WINDIR") "/system32/drivers/etc/services")
+  #-(or unix win32)
+  (error "~S: only ~S and ~S are supported" '*services-file* :unix :win32))
 (defun service (&optional service-name protocol)
   (unless (boundp '*services*)
     (setq *services*

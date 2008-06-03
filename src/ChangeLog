@@ -1,5 +1,10 @@
 2008-06-03  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (physical-memory, *services-file*):
+	signal an error on non UNIX & Win32 platforms
+
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (FILE-OWNER): use *PATHNAME-ENCODING*
 	for the filename instead of *MISC-ENCODING*
 	(get_owner) [!HAVE_GETPWUID && !WIN32_NATIVE]: use an exhaustive
