@@ -243,13 +243,38 @@ The vector is freshly constructed, but the strings are shared"
               (let ((start (next-non-blank argument (1+ =))))
                 (if start (subseq argument start) T)))
         argument)))
-(defun split-command (line &key (start 0) (end (length line)))
+(defun strip-comments (line start end)
+  "Return the same LINE but without the embedded comments."
+  ;; abc/*c1*/def/*c2 --> abcdef
+  (do ((comment-start (search #1="/*" line :start2 start :end2 end)
+                      (and comment-end
+                           (search #1# line :start2 comment-end :end2 end)))
+       parts (comment-end start))
+      ((null comment-start)
+       (if parts
+           (let ((ret (apply #'ext:string-concat
+                             (nreverse (if comment-end
+                                           (cons (subseq line comment-end
+                                                         ;; include last #\)
+                                                         (and end (1+ end)))
+                                                 parts)
+                                           parts)))))
+             (values ret 0 (position #\) ret :from-end t)))
+           (values line start end)))
+    (push (subseq line comment-end comment-start) parts)
+    (when (setq comment-end (search #2="*/" line :start2 comment-start
+                                    :end2 end))
+      (incf comment-end #.(length #2#)))))
+(defun split-command (line &key (start 0) (end (length line)) &aux end1)
   "parse command line into command name and arguments:
 FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
+  ;; end: where the command in the original line in *lines* ends
+  ;; end1: where the command in the comment-stripped line ends
   (setq start (next-non-blank line start))
   (unless start (return-from split-command nil)) ; blank line
   (setq end (position #\) line :start start :end end :from-end t))
-  (let* ((last (or (prev-non-blank line end)         ;nothing before #\)
+  (setf (values line start end1) (strip-comments line start end))
+  (let* ((last (or (prev-non-blank line end1) ; nothing before #\)
                    (return-from split-command nil))) ; => no command
          (paren (position #\( line :start start :end last)) args
          (name (subseq line start
@@ -259,7 +284,7 @@ FOO(bar,baz,zot) ==> FOO; (bar baz zot); end-position"
       (return-from split-command nil))
     ;; valid command in LINE
     (unless end (error "~S:~D: no closing paren in ~S[~:D;~:D]"
-                       *input-file* *lineno* line start end))
+                       *input-file* *lineno* line start end1))
     (unless paren (error "~S:~D: no opening paren in ~S[~:D;~:D]"
                          *input-file* *lineno* line start last))
     (setq start (next-non-blank line (1+ paren)))
