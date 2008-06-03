@@ -1,3 +1,8 @@
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (module_configure_flags): do not add
+	--with-dynamic-ffi & --with-dynamic-modules
+
 2008-06-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (encflags): add -Emisc 1:1 so that syscalls tests

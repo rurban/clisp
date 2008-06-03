@@ -262,7 +262,8 @@ EOF
         echol "makemake: $package: invalid package name" >&2; exit 1
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=no"
-      module_configure_flags="$module_configure_flags $1"
+      test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
+        module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -with-* | --with-*)
@@ -284,7 +285,8 @@ EOF
         fi
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=${packopt}"
-      module_configure_flags="$module_configure_flags $1"
+      test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
+        module_configure_flags="$module_configure_flags $1"
       shift
       ;;
     -disable-* | --disable-*)
