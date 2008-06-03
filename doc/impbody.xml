@@ -5529,7 +5529,16 @@ and after evaluating the form it prints:
 where <quote>trace level</quote> is the total nesting level.
 </para></simplesect>
 
-<simplesect id="trace-eg"><title>Example</title>
+<simplesect id="trace-indent"><title>Variable &trace-indent;</title>
+<para>If you want the &trace; level to be indicated by the indentation
+in addition to the printed numbers, set &trace-indent; to non-&nil;.
+Initially it is &nil; since many nested traced calls will easily
+exhaust the available line length.</para></simplesect>
+
+<simplesect id="trace-eg"><title>Examples</title>
+
+<example id="trace-call-id">
+ <title>Identifying Individual Calls in &trace;</title>
 <para>Suppose the trace level above is not enough for you to identify
  individual calls.  You can give each call a unique id and print it:
 <programlisting language="lisp">
@@ -5615,14 +5624,9 @@ where <quote>trace level</quote> is the total nesting level.
 *f0-call-count*
 <computeroutput>4</computeroutput>
 *f1-call-count*
-<computeroutput>7</computeroutput>
-</programlisting></para></simplesect>
+<computeroutput>7</computeroutput></programlisting></para></example>
 
-<simplesect id="trace-indent"><title>Variable &trace-indent;</title>
-<para>If you want the &trace; level to be indicated by the indentation
-in addition to the printed numbers, set &trace-indent; to non-&nil;.
-Initially it is &nil; since many nested traced calls will easily
-exhaust the available line length.</para></simplesect>
+</simplesect>
 
 </section>
 
