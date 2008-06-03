@@ -4225,6 +4225,10 @@ DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            ENOIOCTL EPROCUNAVAIL EPROGMISMATCH EPROGUNAVAIL ERPCMISMATCH \
            /* Solaris extras */                                         \
            ELOCKUNMAPPED ENOTACTIVE ENOTRECOVERABLE EOWNERDEAD          \
+           /* http://www.google.com/codesearch?q=+file:errno.h */       \
+           EALIGN EDIRTY EDUPPKG EINIT EISNAME ENET ENOSYM EREMDEV      \
+           EREMOTERELEASE EVERSION EAIO ECLONEME EFAIL EINPROG EMTIMERS \
+           ERESTARTNOHAND ERESTARTNOINTR ERESTARTSYS                    \
            )
 DEFUN(OS::ERRNO, &optional newval) {
   if (!missingp(STACK_0))
