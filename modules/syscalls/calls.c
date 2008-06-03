@@ -2250,7 +2250,7 @@ DEFUN(POSIX::STAT-VFS, file)
 
 /* FILE-OWNER */
 
-#if defined(UNIX)
+#if defined(HAVE_GETPWUID)
 static const char * get_owner (const char *filename) {
   struct stat statbuf;
   if (lstat(filename, &statbuf) >= 0) {
@@ -2260,9 +2260,7 @@ static const char * get_owner (const char *filename) {
   }
   return "";
 }
-#endif
-
-#if defined(WIN32_NATIVE)
+#elif defined(WIN32_NATIVE)
 
 #include <windows.h>
 #include <aclapi.h>
@@ -2432,14 +2430,15 @@ static const char * get_owner (const char *filename) {
   }
   return owner;
 }
-
-#endif /* WIN32_NATIVE */
+#else /* neither HAVE_GETPWUID nor WIN32_NATIVE - should never happen! */
+static const char * get_owner (const char *filename) { return ""; }
+#endif
 
 DEFUN(OS::FILE-OWNER, file) {
   object file;
   const char *result;
   file = physical_namestring(STACK_0);
-  with_string_0(file,GLO(misc_encoding),filename, {
+  with_string_0(file,GLO(pathname_encoding),filename, {
     begin_system_call();
     result = get_owner(filename);
     end_system_call();
