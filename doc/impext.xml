@@ -2278,7 +2278,8 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 </section>
 
 <section id="mod-set-example"><title>Example</title>
-
+<example id="mod-set-ex-bindings">
+ <title>Create a &modset; with &glibc; bindings</title>
 <para>To link in the &ffi-pac; bindings for the &gnu;/&linux; operating
  system, the following steps are needed.  (Step 1 and step 2 need not be
  executed in this order.)</para>
@@ -2305,7 +2306,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <step><title>Run and try it</title>
 <screen>&sh-prompt; base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
 </procedure>
-
+</example>
 </section>
 
 <section id="module-tools"><title>Module tools</title>
