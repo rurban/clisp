@@ -1,5 +1,12 @@
 2008-06-03  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (FILE-OWNER): use *PATHNAME-ENCODING*
+	for the filename instead of *MISC-ENCODING*
+	(get_owner) [!HAVE_GETPWUID && !WIN32_NATIVE]: use an exhaustive
+	cpp conditioning to ensure that it is always defined
+
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (module_configure_flags): do not add
 	--with-dynamic-ffi & --with-dynamic-modules
 
