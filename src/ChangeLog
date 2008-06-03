@@ -1,5 +1,10 @@
 2008-06-03  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (strip-comments): new function
+	(split-command): use it to support comments inside DEFCHECKERs
+
+2008-06-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/posix.lisp (physical-memory, *services-file*):
 	signal an error on non UNIX & Win32 platforms
 
