@@ -127,7 +127,8 @@ extern object nobject_out (FILE* stream, object obj);
 #endif
 
 /* general convenience macros */
-#define GETTER(type,call)                            ##_t id;                                                  \
+#define GETTER(type,call)                                       \
+  type##_t id;                                                  \
   begin_system_call(); id = call(); end_system_call();          \
   VALUES1(type##_to_I(id))
 #define GETTER1(type,call)                              \
@@ -4202,18 +4203,18 @@ DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EAGAIN EALREADY EBADF EBADMSG EBUSY ECANCELED ECHILD ECONNABORTED \
            ECONNREFUSED ECONNRESET EDEADLK EDESTADDRREQ EDOM EDQUOT EEXIST \
            EFAULT EFBIG EHOSTUNREACH EIDRM EILSEQ EINPROGRESS EINTR EINVAL \
-           EIO EISCONN EISDIR ELOOP EMFILE EMLINK EMSGSIZE EMULTIHOP \
+           EIO EISCONN EISDIR ELOOP EMFILE EMLINK EMSGSIZE EMULTIHOP    \
            ENAMETOOLONG ENETDOWN ENETRESET ENETUNREACH ENFILE ENOBUFS ENODATA \
            ENODEV ENOENT ENOEXEC ENOLCK ENOLINK ENOMEM ENOMSG ENOPROTOOPT \
            ENOSPC ENOSR ENOSTR ENOSYS ENOTCONN ENOTDIR ENOTEMPTY ENOTSOCK \
            ENOTSUP ENOTTY ENXIO EOPNOTSUPP EOVERFLOW EPERM EPIPE EPROTO \
            EPROTONOSUPPORT EPROTOTYPE ERANGE EROFS ESPIPE ESRCH ESTALE ETIME \
-           ETIMEDOUT ETXTBSY EWOULDBLOCK EXDEV \
-           /* clisp/src/errunix.d */ ERREMOTE  \
-           /* Linux extras */                  \
-           EADV EBADE EBADFD EBADR EBADRQC EBADSLT EBFONT ECHRNG ECOMM \
+           ETIMEDOUT ETXTBSY EWOULDBLOCK EXDEV                          \
+           /* clisp/src/errunix.d */ ERREMOTE                           \
+           /* Linux extras */                                           \
+           EADV EBADE EBADFD EBADR EBADRQC EBADSLT EBFONT ECHRNG ECOMM  \
            EDEADLOCK EDOTDOT EHOSTDOWN EISNAM EL2HLT EL2NSYNC EL3HLT EL3RST \
-           ELIBACC ELIBBAD ELIBEXEC ELIBMAX ELIBSCN ELNRNG EMEDIUMTYPE \
+           ELIBACC ELIBBAD ELIBEXEC ELIBMAX ELIBSCN ELNRNG EMEDIUMTYPE  \
            ENAVAIL ENOANO ENOCSI ENOMEDIUM ENONET ENOPKG ENOTBLK ENOTNAM \
            ENOTUNIQ EPFNOSUPPORT EREMCHG EREMOTE EREMOTEIO ERESTART ESHUTDOWN \
            ESOCKTNOSUPPORT ESRMNT ESTRPIPE ETOOMANYREFS EUCLEAN EUNATCH \
