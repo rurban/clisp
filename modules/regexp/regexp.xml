@@ -12,8 +12,7 @@ and &emacs; info pages.</para>
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:REGEXP</constant>.</simpara>
 
-<section id="regexp-api"><title>Regular Expression API</title>
-<variablelist id="re-api">
+<variablelist id="regexp-api"><title>Regular Expression API</title>
 <varlistentry id="re-match"><term><code>(&re-match; &pattern-r;
    &string-r; &key-amp; (&start-k; 0) &end-k; &re-cflags-opts;
    &re-eflags-opts;)</code></term>
@@ -64,8 +63,7 @@ and &emacs; info pages.</para>
   <example id="ex-re-quote"><title>&re-regexp-quote;</title>
    <programlisting language="lisp">
 (regexp-quote "^The cat$")
-<computeroutput>"\\^The cat\\$"</computeroutput>
-  </programlisting></example>
+<computeroutput>"\\^The cat\\$"</computeroutput></programlisting></example>
   One use of &re-regexp-quote; is to combine an exact string match with
   context described as a &reg-exp;.
   When <replaceable>extended</replaceable> is non-&nil;, also
@@ -123,9 +121,9 @@ and &emacs; info pages.</para>
    <filename role="unix">regex.h</filename> to use the current &locale;.
 </simpara></listitem></varlistentry>
 
-</variablelist></section>
+</variablelist>
 
-<section id="re-example"><title>Example</title>
+<example id="re-count-shell-users"><title>Count Unix Shell Users</title>
 
 <para>The following code computes the number of people who use a
  particular shell:<programlisting language="lisp">
@@ -142,8 +140,8 @@ and &emacs; info pages.</para>
             (format t "[~d] ~s~30t== ~5:d~%" (incf n) k v)))))
 </programlisting></para>
 
-<para>For comparison, the same can be done by the following &perl;:
-<programlisting language="perl">
+<para>For comparison, the almost same (except nice output formatting)
+can be done by the following &perl;: <programlisting language="perl">
 #!/usr/local/bin/perl -w
 
 use diagnostics;
@@ -164,6 +162,5 @@ for my $kk (keys(%hash)) {
   print "[",++$ii,"] \"",$kk,"\"  --  ",$hash{$kk},"\n";
 }
 close(INF);
-</programlisting></para>
-</section>
+</programlisting></para></example>
 </section>
