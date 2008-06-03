@@ -199,8 +199,7 @@ static LockFileExFuncType LockFileExFunc = NULL;
 static BOOL my_LockFileEx
 (HANDLE hFile, DWORD dwFlags, DWORD dwReserved,
  DWORD nNumberOfBytesToLockLow, DWORD nNumberOfBytesToLockHigh,
- LPOVERLAPPED lpOverlapped)
-{
+ LPOVERLAPPED lpOverlapped) {
   (void)dwFlags; (void)dwReserved;
   return LockFile(hFile,lpOverlapped->Offset,lpOverlapped->OffsetHigh,
                   nNumberOfBytesToLockLow,nNumberOfBytesToLockHigh);
@@ -213,8 +212,7 @@ static UnlockFileExFuncType UnlockFileExFunc = NULL;
 static BOOL my_UnlockFileEx
 (HANDLE hFile, DWORD dwReserved,
  DWORD nNumberOfBytesToUnlockLow, DWORD nNumberOfBytesToUnlockHigh,
- LPOVERLAPPED lpOverlapped)
-{
+ LPOVERLAPPED lpOverlapped) {
   (void)dwReserved;
   return UnlockFile(hFile,lpOverlapped->Offset,lpOverlapped->OffsetHigh,
                     nNumberOfBytesToUnlockLow,nNumberOfBytesToUnlockHigh);
@@ -835,8 +833,7 @@ DEFUNF(POSIX::LGAMMA,x) {
 #endif
 
 #if defined(HAVE_CLOCK)
-DEFUN(POSIX:BOGOMIPS,)
-{
+DEFUN(POSIX:BOGOMIPS,) {
   if (clock() != (clock_t)-1) {
     unsigned long loops = 1;
     while ((loops <<= 1)) {
@@ -1382,8 +1379,7 @@ static Values servent_to_lisp (struct servent * se) {
   funcall(`POSIX::MAKE-SERVICE`,4);
 }
 
-DEFUN(POSIX:SERVICE, &optional service-name protocol)
-{
+DEFUN(POSIX:SERVICE, &optional service-name protocol) {
   object protocol = popSTACK();
   char *proto = NULL;
   char proto_buf[16];
@@ -2255,10 +2251,7 @@ DEFUN(POSIX::STAT-VFS, file)
 /* FILE-OWNER */
 
 #if defined(UNIX)
-
-static const char *
-get_owner (const char *filename)
-{
+static const char * get_owner (const char *filename) {
   struct stat statbuf;
   if (lstat(filename, &statbuf) >= 0) {
     struct passwd *pwd = getpwuid(statbuf.st_uid);
@@ -2267,7 +2260,6 @@ get_owner (const char *filename)
   }
   return "";
 }
-
 #endif
 
 #if defined(WIN32_NATIVE)
@@ -2309,9 +2301,7 @@ static BOOL WINAPI (*ConvertSidToStringSidFunc) (IN PSID Sid, OUT LPTSTR *String
 
 static BOOL initialized_sid_apis = FALSE;
 
-static void
-initialize_sid_apis ()
-{
+static void initialize_sid_apis () {
   HMODULE advapi32 = LoadLibrary("advapi32.dll");
   if (advapi32 != NULL) {
     GetSecurityInfoFunc =
@@ -2342,9 +2332,7 @@ static struct sid_cache_entry *sid_cache = NULL;
 static size_t sid_cache_count = 0;
 static size_t sid_cache_allocated = 0;
 
-static const char *
-sid_cache_get (PSID psid)
-{
+static const char * sid_cache_get (PSID psid) {
   size_t i;
   for (i = 0; i < sid_cache_count; i++)
     if (EqualSid(psid, sid_cache[i].psid))
@@ -2352,9 +2340,7 @@ sid_cache_get (PSID psid)
   return NULL;
 }
 
-static void
-sid_cache_put (PSID psid, const char *name)
-{
+static void sid_cache_put (PSID psid, const char *name) {
   if (sid_cache_count == sid_cache_allocated) {
     size_t new_allocated = 2 * sid_cache_allocated + 5;
     sid_cache = (struct sid_cache_entry*)
@@ -2377,9 +2363,7 @@ sid_cache_put (PSID psid, const char *name)
   }
 }
 
-static const char *
-get_owner (const char *filename)
-{
+static const char * get_owner (const char *filename) {
   const char *owner;
 
   if (!initialized_sid_apis)
@@ -2451,8 +2435,7 @@ get_owner (const char *filename)
 
 #endif /* WIN32_NATIVE */
 
-DEFUN(OS::FILE-OWNER, file)
-{
+DEFUN(OS::FILE-OWNER, file) {
   object file;
   const char *result;
   file = physical_namestring(STACK_0);
@@ -3006,8 +2989,7 @@ static void copy_one_file (object source, object src_path,
                     | :error ;; (default) signal an error
  */
 DEFUN(POSIX::COPY-FILE, source target &key METHOD :PRESERVE     \
-      :IF-EXISTS :IF-DOES-NOT-EXIST)
-{
+      :IF-EXISTS :IF-DOES-NOT-EXIST) {
   if_does_not_exist_t if_not_exists = check_if_does_not_exist(STACK_0);
   if_exists_t if_exists = check_if_exists(STACK_1);
   bool preserve_p = (!nullp(STACK_2) && boundp(STACK_2));
@@ -3099,8 +3081,7 @@ static Values wfd_to_file_info (WIN32_FIND_DATA *wfd) {
   funcall(`POSIX::MAKE-FILE-INFO`,7);
 }
 
-DEFUN(POSIX::FILE-INFO, file &optional all)
-{
+DEFUN(POSIX::FILE-INFO, file &optional all) {
   WIN32_FIND_DATA wfd;
   if (missingp(STACK_0)) {
     find_first_file(STACK_1,&wfd,NULL);
@@ -3128,8 +3109,7 @@ DEFUN(POSIX::FILE-INFO, file &optional all)
 }
 
 DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
-      SHOW-COMMAND ICON DESCRIPTION HOT-KEY PATH)
-{
+      SHOW-COMMAND ICON DESCRIPTION HOT-KEY PATH) {
   HRESULT hres;
   IShellLink* psl;
   IPersistFile* ppf;
@@ -3277,8 +3257,7 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
  fail_none: end_system_call(); OS_file_error(*file);
 }
 
-DEFUN(POSIX::SHORTCUT-INFO, file)
-{
+DEFUN(POSIX::SHORTCUT-INFO, file) {
   HRESULT hres;
   IShellLink* psl;
   char path[MAX_PATH], wd[MAX_PATH], args[MAX_PATH],
@@ -3878,8 +3857,7 @@ static const char * DecodeHRESULT (HRESULT hres) {
 
      returns multiple values - property contents before assignment. */
 DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
-{
-  /* TODO: close interfaces even on errors;
+{ /* TODO: close interfaces even on errors;
            support more datatypes
            use IPropertySetStorage::Create when it doesn't exist */
   IPropertyStorage * ppropstg = NULL;
