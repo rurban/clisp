@@ -143,7 +143,8 @@ set -e
 (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 srcdir=''
-subdir_configure_args=''
+# http://www.gnu.org/software/autoconf/manual/html_node/Option-Checking.html
+subdir_configure_args='--disable-option-checking'
 makemake_args=''
 do_config=''
 do_cbc=''
