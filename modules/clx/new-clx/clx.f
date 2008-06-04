@@ -1866,9 +1866,13 @@ DEFUN(XLIB:DISPLAY-BITMAP-FORMAT, display) /* OK */
 
 DEFUN(XLIB:NO-OPERATION, display) {
   Display *dpy = pop_display ();
-  int ret;
-  X_CALL(ret = XNoOp(dpy));
-  VALUES1(sint_to_I(ret));
+  int status;
+  X_CALL(status = XNoOp(dpy));
+  if (status) VALUES0;
+  else {
+    pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,"~S: XNoOp failed.");
+  }
 }
 
 DEFUN(XLIB:DISPLAY-BYTE-ORDER, display) /* OK */
