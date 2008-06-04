@@ -171,6 +171,7 @@
    closed-display-p
    ;; extensions
    open-default-display
+   display-get-default display-resource-manager-string screen-resource-string
    ;;; Only when using libXt:
    ;; last-event-processed last-timestamp-processed
    ;;; Only when using the native resource database, not resource.lisp:
