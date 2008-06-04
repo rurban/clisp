@@ -5674,7 +5674,10 @@ exhaust the available line length.</para></simplesect>
  </tbody></tgroup></informaltable></para>
 
 <para>User variable
- <firstterm><varname>CUSTOM:*INSPECT-LENGTH*</varname></firstterm>
+ <firstterm><varname>CUSTOM:*INSPECT-LENGTH*</varname>
+  <indexterm id="inspect-length" significance="preferred">
+   <primary><varname>*INSPECT-LENGTH*</varname></primary>
+ </indexterm></firstterm>
  specifies the number of sequence elements or slots printed in detail
  when a sequence or a structure or a &clos; object is inspected.
 </para></section>
@@ -5690,7 +5693,10 @@ exhaust the available line length.</para></simplesect>
   <listitem><simpara>the number of &gc;ions performed, if any.
 </simpara></listitem></itemizedlist></para>
 
-<para>The macro <firstterm>&ts;</firstterm> (mnemonic:
+<para>The macro <firstterm>&ts;
+  <indexterm id="times" significance="preferred">
+   <primary><function>TIMES</function></primary>
+ </indexterm></firstterm> (mnemonic:
  <quote><emphasis>TIME</emphasis> and <emphasis>S</emphasis>pace</quote>)
  is like the macro &time;: <code>(&ts; &form-r;)</code> evaluates the
  &form-r;, and, as a side effect, outputs detailed information about the
@@ -5700,10 +5706,11 @@ exhaust the available line length.</para></simplesect>
 
 <section id="ed"><title>Function &ed;</title>
 
-<para>The function &ed; calls the external editor specified by the value
- of <code>(&getenv; "EDITOR")</code>
- or, failing that, the value of the variable
- <firstterm>&editor;</firstterm> (set in &config-lisp;).
+<para>The function &ed; calls the external editor specified by the value of
+ <code>(&getenv; "EDITOR")</code> or, failing that, the value of the variable
+ <firstterm>&editor;<indexterm id="editor" significance="preferred">
+   <primary><varname>*EDITOR*</varname></primary></indexterm></firstterm>
+  (set in &config-lisp;).
  If the argument is a function name which was defined in the current
  session (not loaded from a file), the program text to be edited is a
  pretty-printed version (without comments) of the text which was used to
@@ -5838,9 +5845,12 @@ exhaust the available line length.</para></simplesect>
 
 <section id="room"><title>Function &room;</title>
 
-<para>The function <firstterm>&room;</firstterm> returns two values: the
- number of bytes currently occupied by Lisp objects, and the number of
- bytes that can be allocated before the next regular &gc;ion occurs.</para>
+<para>The function <firstterm>&room;
+  <indexterm id="room-func" significance="preferred">
+   <primary><function>ROOM</function></primary></indexterm></firstterm>
+  returns two values: the number of bytes currently occupied by Lisp
+  objects, and the number of bytes that can be allocated before the next
+  regular &gc;ion occurs.</para>
 </section>
 
 <section id="gc-sect"><title>Function <function>EXT:GC</function></title>
