@@ -367,8 +367,23 @@
      http://article.gmane.org/gmane.text.docbook.apps:19957
      list examples in the section toc -->
 <xsl:param name="generate.toc">
- section   toc,example
- <xsl:value-of select="generate.toc"/>
+appendix  toc,title
+article/appendix  nop
+article   toc,title
+book      toc,title,figure,table,example,equation
+chapter   toc,title
+part      toc,title
+preface   toc,title
+qandadiv  toc
+qandaset  toc
+reference toc,title
+sect1     toc
+sect2     toc
+sect3     toc
+sect4     toc
+sect5     toc
+section   toc,example
+set       toc,title
 </xsl:param>
 
 <xsl:template name="section.toc">
