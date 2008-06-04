@@ -363,6 +363,33 @@
   <xsl:text>&#10;</xsl:text></xsl:if>
 </xsl:template>
 
+<!-- http://article.gmane.org/gmane.text.docbook.apps:19941
+     http://article.gmane.org/gmane.text.docbook.apps:19957
+     list examples in the section toc -->
+<xsl:param name="generate.toc">
+ section   toc,example
+ <xsl:value-of select="generate.toc"/>
+</xsl:param>
+
+<xsl:template name="section.toc">
+ <xsl:param name="toc-context" select="."/>
+ <xsl:param name="toc.title.p" select="true()"/>
+
+ <xsl:call-template name="make.lots">
+  <xsl:with-param name="toc.params" select="'toc,title,example'"/>
+  <xsl:with-param name="toc">
+   <xsl:call-template name="make.toc">
+    <xsl:with-param name="toc-context" select="$toc-context"/>
+    <xsl:with-param name="toc.title.p" select="$toc.title.p"/>
+    <xsl:with-param name="toc.params" select="'toc,title,example'"/>
+    <xsl:with-param name="nodes"
+		    select="section|sect1|sect2|sect3|sect4|sect5|refentry
+			    |bridgehead[$bridgehead.in.toc != 0]"/>
+   </xsl:call-template>
+  </xsl:with-param>
+ </xsl:call-template>
+</xsl:template>
+
 <xsl:param name="generate.section.toc.level" select="10"/>
 <xsl:param name="toc.section.depth" select="10"/>
 <xsl:param name="toc.max.depth" select="3"/>
