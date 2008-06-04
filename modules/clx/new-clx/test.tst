@@ -35,7 +35,8 @@
 
 (dotimes (i 8) (show (xlib:cut-buffer *dpy* :buffer i))) NIL
 (loop :for i :from 1 :to 1000
-  :always (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i))))
+  :always (handler-case (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i)))
+            (xlib:atom-error (c) (= i (xlib::atom-error-atom-id c)))))
 T
 ;; (block xlib:atom-name
 ;;   (handler-bind ((error (lambda (c)
