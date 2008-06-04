@@ -1942,7 +1942,7 @@ DEFUN(XLIB::DISPLAY-EXTENDED-MAX-REQUEST-LENGTH, display) {
   VALUES1(make_uint32(n));
 }
 
-DEFUN(XLIB::DISPLAY-RESOURCE-MANAGER-STRING, display) {
+DEFUN(XLIB::DISPLAY-RESOURCE-MANAGER-STRING, display) { /* extension */
   Display *dpy = pop_display ();
   char *s;
   X_CALL(s = XResourceManagerString (dpy));
@@ -2376,7 +2376,7 @@ DEFUN(XLIB:SCREEN-ROOT, screen) /* OK */
   skipSTACK(1);
 }
 
-DEFUN(XLIB::SCREEN-RESOURCE-STRING, screen) {
+DEFUN(XLIB::SCREEN-RESOURCE-STRING, screen) { /* extension */
   Screen *screen = get_screen(popSTACK());
   char *s;
   X_CALL(s = XScreenResourceString(screen));
@@ -6639,6 +6639,17 @@ DEFUN(XLIB:ALLOW-EVENTS, display mode &optional time)
 /* -----------------------------------------------------------------------
  *  Chapter 13  Resources
  * ----------------------------------------------------------------------- */
+
+DEFUN(XLIB:DISPLAY-GET-DEFAULT, dpy program option) { /* extension */
+  Display *dpy = get_display(STACK_2);
+  char *ret;
+  with_stringable_0_tc(STACK_0,GLO(misc_encoding),option, {
+      with_stringable_0_tc(STACK_1,GLO(misc_encoding),program, {
+          X_CALL(ret = XGetDefault(dpy,program,option));
+        });
+    });
+  VALUES1(safe_to_string(ret)); skipSTACK(3);
+}
 
 /* Resources are done in Lisp (code from MIT-CLX).
    This is not an ideal solution because it reduces interoperability with
