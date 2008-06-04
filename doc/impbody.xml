@@ -5675,8 +5675,9 @@ exhaust the available line length.</para></simplesect>
 
 <para>User variable
  <firstterm><varname>CUSTOM:*INSPECT-LENGTH*</varname></firstterm>
- specifies the number of sequence elements printed in detail when a
- sequence is inspected.</para></section>
+ specifies the number of sequence elements or slots printed in detail
+ when a sequence or a structure or a &clos; object is inspected.
+</para></section>
 
 <section id="time"><title>Macro &time;</title>
 
