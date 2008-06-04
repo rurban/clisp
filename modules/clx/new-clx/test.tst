@@ -34,16 +34,19 @@
 ;;   (= *font-count* (length fonts))) T
 
 (dotimes (i 8) (show (xlib:cut-buffer *dpy* :buffer i))) NIL
-(loop :for i :from 1 :to 1000
-  :always (handler-case (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i)))
-            (xlib:atom-error (c) (= i (xlib::atom-error-atom-id c)))))
+(loop :with max :for i :from 1 :to 1000
+  :always (handler-case
+              (prog1 (= i (xlib:find-atom *dpy* (xlib:atom-name *dpy* i)))
+                (setq max i))
+            (xlib:atom-error (c) (= i (xlib::atom-error-atom-id c))))
+  :finally (show max))
 T
-;; (block xlib:atom-name
-;;   (handler-bind ((error (lambda (c)
-;;                           (princ-error c)
-;;                           (return-from xlib:atom-name 42))))
-;;     (xlib:atom-name *dpy* 0)))
-;; 42                              ; no atom 0!
+(block xlib:atom-name
+  (handler-bind ((error (lambda (c)
+                          (princ-error c)
+                          (return-from xlib:atom-name 42))))
+    (xlib:atom-name *dpy* 0)))
+42                              ; no atom 0!
 
 (multiple-value-bind (kc% b% bp bd lm gar arm) (xlib:keyboard-control *dpy*)
   (show (list kc% b% bp bd lm gar arm) :pretty t)
