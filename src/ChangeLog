@@ -1,5 +1,11 @@
 2008-06-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (DISPLAY-GET-DEFAULT): add
+	* modules/clx/new-clx/clx.lisp (display-get-default)
+	(display-resource-manager-string, screen-resource-string): export
+
+2008-06-04  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (NO-OPERATION): return no values on
 	success and signal an error on failure
 

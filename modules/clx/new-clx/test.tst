@@ -60,8 +60,21 @@ NIL
 (listp (show (multiple-value-list (xlib:display-keycode-range *dpy*)))) T
 (integerp (show (xlib:display-max-request-length *dpy*))) T
 (integerp (show (xlib::display-extended-max-request-length *dpy*))) T
-(let ((r (show (xlib::display-resource-manager-string *dpy*))))
-  (or (null r) (stringp r))) T
+(let ((r (show (xlib:display-resource-manager-string *dpy*))))
+  (or (null r)
+      (with-input-from-string (s r)
+        (loop :for r = (read-line s nil nil) :while r
+          :always (or (find #\* r)
+                      (let* ((dot (position #\. r))
+                             (colon (position #\: r))
+                             (program (subseq r 0 dot))
+                             (option (subseq r (1+ dot) colon))
+                             (value (subseq r (+ 2 colon)))
+                             (default (xlib:display-get-default
+                                       *dpy* program option)))
+                        (or (string= default value)
+                            (print (list r program option value default)))))))))
+  T
 (integerp (show (xlib:display-motion-buffer-size *dpy*))) T
 (listp (show (xlib:display-pixmap-formats *dpy*) :pretty t)) T
 (xlib:bitmap-format-p (show (xlib:display-bitmap-format *dpy*))) T
@@ -80,7 +93,7 @@ NIL
         (equalp (slot-value *screen* 'xlib::ptr)
                 (slot-value (nth n (xlib:display-roots *dpy*)) 'xlib::ptr))))
 (T T T)
-(let ((r (show (xlib::screen-resource-string *screen*))))
+(let ((r (show (xlib:screen-resource-string *screen*))))
   (or (null r) (stringp r))) T
 (integerp (show (xlib:screen-black-pixel *screen*))) T
 (integerp (show (xlib:screen-white-pixel *screen*))) T
