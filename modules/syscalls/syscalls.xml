@@ -775,7 +775,8 @@ which compute the error functions, Bessel functions and Gamma.</para>
    &errno; is set (useful before a system call which sets &errno; as the
    only way to report an error).</simpara>
   <simpara>The current &errno; is returned as a keyword if possible, a
-   number otherwise.</simpara>
+   number otherwise.  When &ecode-r; is &t;, all known error codes are
+   returned as an &alist;.</simpara>
   <simpara>On &win32;, <function role="win32">GetLastError</function>
    and <function role="win32">SetLastError</function> are used instead
    of &errno;.</simpara></listitem></varlistentry>
