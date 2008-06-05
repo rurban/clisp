@@ -431,10 +431,13 @@ T
 #+ffi (os:fclose *foo*) #+ffi NIL
 #+ffi (finish-file "foo") #+ffi 1
 
-#+ffi (loop :for e :from 0 :to 100
-        :do (show (list e (os:errno e) (os:strerror)))
+#+ffi (loop :with all = (os:errno t)
+        :for e :from 0 :to (loop :for p :in all :maximize (car p))
+        :for c = (os:errno e) :for s = (os:strerror) :do (show (list e c s))
+        :when (and (eq e c) (not (search "unknown" s :test #'char-equal)))
+        :collect (list e s)
         :finally (os:errno nil))
-#+ffi NIL
+#+ffi ()
 
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))

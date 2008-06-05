@@ -4177,7 +4177,7 @@ DEFUN(POSIX::%STDIO, &optional which) {
 #if (defined(HAVE_ERRNO_H) && defined(HAVE_STRERROR)) || defined(WIN32_NATIVE)
 /* http://www.opengroup.org/onlinepubs/009695399/basedefs/errno.h.html */
 #if defined(WIN32_NATIVE)
-DEFCHECKER(check_errno,type=DWORD,prefix=ERROR,                         \
+DEFCHECKER(check_errno,type=DWORD,prefix=ERROR,reverse=uint32_to_I,     \
            /* http://msdn.microsoft.com/en-us/library/aa914935.aspx */  \
            ACCESS_DENIED ACCOUNT_DISABLED ACCOUNT_EXPIRED ACCOUNT_LOCKED_OUT \
            ACCOUNT_RESTRICTION ACTIVE_CONNECTIONS ADAP_HDW_ERR          \
@@ -4355,6 +4355,7 @@ DEFCHECKER(check_errno,type=DWORD,prefix=ERROR,                         \
            WAIT_NO_CHILDREN WINDOW_NOT_COMBOBOX WINDOW_NOT_DIALOG       \
            WINDOW_OF_OTHER_THREAD WINS_INTERNAL WORKING_SET_QUOTA WRITE_FAULT \
            WRITE_PROTECT WRONG_DISK WRONG_PASSWORD)
+# define errno_to_I uint32_to_I
 #else
 DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EAGAIN EALREADY EBADF EBADMSG EBUSY ECANCELED ECHILD ECONNABORTED \
@@ -4388,25 +4389,36 @@ DEFCHECKER(check_errno, E2BIG EACCES EADDRINUSE EADDRNOTAVAIL EAFNOSUPPORT \
            EREMOTERELEASE EVERSION EAIO ECLONEME EFAIL EINPROG EMTIMERS \
            ERESTARTNOHAND ERESTARTNOINTR ERESTARTSYS                    \
            )
+# define errno_to_I  sint_to_I
 #endif
 DEFUN(OS::ERRNO, &optional newval) {
- #if defined(WIN32_NATIVE)
-  DWORD error_code;
-  if (missingp(STACK_0)) {
-    begin_system_call();
-    error_code = GetLastError();
-    end_system_call();
+  if (eq(T,STACK_0)) {          /* all known error codes */
+    int pos = 0;
+    for (; pos < check_errno_map.size; pos++) {
+      pushSTACK(allocate_cons());
+      Car(STACK_0) = errno_to_I(check_errno_map.table[pos].c_const);
+      Cdr(STACK_0) = *check_errno_map.table[pos].l_const;
+    }
+    VALUES1(listof(check_errno_map.size));
   } else {
-    error_code = check_errno(STACK_0);
-    begin_system_call();
-    SetLastError(error_code);
-    end_system_call();
+   #if defined(WIN32_NATIVE)
+    DWORD error_code;
+    if (missingp(STACK_0)) {
+      begin_system_call();
+      error_code = GetLastError();
+      end_system_call();
+    } else {
+      error_code = check_errno(STACK_0);
+      begin_system_call();
+      SetLastError(error_code);
+      end_system_call();
+    }
+    VALUES1(check_errno_reverse(error_code));
+   #else
+    if (!missingp(STACK_0))
+      errno = check_errno(STACK_0);
+    VALUES1(check_errno_reverse(errno));
   }
-  VALUES1(check_errno_reverse(error_code));
- #else
-  if (!missingp(STACK_0))
-    errno = check_errno(STACK_0);
-  VALUES1(check_errno_reverse(errno));
  #endif
   skipSTACK(1);
 }
