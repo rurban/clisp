@@ -394,13 +394,13 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
     &filename-r;)</code></term>
-  <listitem><simpara>calls <function role="unix">mkdtemp</function>
+  <listitem><simpara>Calls <function role="unix">mkdtemp</function>
     (similar to <function role="unix">mkstemp</function> but not in POSIX),
     returns the namestring of a new empty temporary directory.
  </simpara></listitem></varlistentry>
  <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
     &stream-r;)</code></term>
-  <listitem><simpara>calls <function role="unix">fsync</function>
+  <listitem><simpara>Calls <function role="unix">fsync</function>
     (<function role="win32">FlushFileBuffers</function> on &win32;)
     on the &file-des; associated with &stream-r;,
     or <function role="unix">sync</function>
@@ -507,12 +507,14 @@
   <listitem><simpara>Call <function role="unix">gethostid</function> and
     return a (hopefully) universally unique &integer-t; identifier of
     this machine.</simpara>
-   <note><para>On &linux; this number appears to be the IPv4 32-bit
+   <warning><para>On &linux; this number appears to be the IPv4 32-bit
      address with the first 2 bytes and the last 2 bytes swapped:
 <programlisting language="lisp">(rawsock:convert-address :inet (os:gethostid))
 <computeroutput>"7.3.192.168"</computeroutput>
 (first (hostent-addr-list (resolve-host-ipaddr :default)))
-<computeroutput>"192.168.7.3"</computeroutput></programlisting></para></note>
+<computeroutput>"192.168.7.3"</computeroutput></programlisting>This, of
+course, means that <quote>universally unique</quote> is is &not-e;.
+   </para></warning>
    <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
 </variablelist></section>
 
@@ -565,7 +567,7 @@ which compute the error functions, Bessel functions and Gamma.</para>
 <variablelist>
  <varlistentry id="openlog"><term><code>(POSIX:OPENLOG ident &key-amp;
     :PID :CONS :NDELAY :ODELAY :NOWAIT :FACILITY)</code></term>
-  <listitem><simpara>calls <function role="unix">openlog</function>
+  <listitem><simpara>Calls <function role="unix">openlog</function>
  </simpara></listitem></varlistentry>
  <varlistentry id="setlogmask"><term><code>(POSIX:SETLOGMASK
     maskpri)</code></term>
