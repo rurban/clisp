@@ -629,9 +629,9 @@ which compute the error functions, Bessel functions and Gamma.</para>
  <varlistentry id="setsid"><term><code>(POSIX:SETSID)</code></term>
   <listitem><simpara>Calls <function role="unix">setsid</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="getpgid"><term><code>(POSIX:GETPGID &pid-r;)</code></term>
-  <term><code>(&setf; (POSIX:GETPGID
-    &pid-r;) <replaceable>pgid</replaceable>)</code></term>
+ <varlistentry id="getpgid"><term><code>(POSIX:PGID &pid-r;)</code></term>
+  <term><code>(&setf; (POSIX:PGID &pid-r;)
+    <replaceable>pgid</replaceable>)</code></term>
   <listitem><simpara>Call <function role="unix">getpgid</function> and
    <function role="unix">setpgid</function>.</simpara></listitem></varlistentry>
  <varlistentry id="setreuid"><term><code>(POSIX:SETREUID
@@ -642,24 +642,24 @@ which compute the error functions, Bessel functions and Gamma.</para>
     rgid egid)</code></term>
   <listitem><simpara>Call <function role="unix">setregid</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="getuid"><term><code>(POSIX:GETUID)</code></term>
-  <term><code>(&setf; (POSIX:GETUID) &uid-r;)</code></term>
+ <varlistentry id="getuid"><term><code>(POSIX:UID)</code></term>
+  <term><code>(&setf; (POSIX:UID) &uid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getuid</function> and
    <function role="unix">setuid</function>.</simpara></listitem></varlistentry>
- <varlistentry id="getgid"><term><code>(POSIX:GETGID)</code></term>
-  <term><code>(&setf; (POSIX:GETGID) &gid-r;)</code></term>
+ <varlistentry id="getgid"><term><code>(POSIX:GID)</code></term>
+  <term><code>(&setf; (POSIX:GID) &gid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getgid</function> and
    <function role="unix">setgid</function>.</simpara></listitem></varlistentry>
- <varlistentry id="geteuid"><term><code>(POSIX:GETEUID)</code></term>
-  <term><code>(&setf; (POSIX:GETEUID) &uid-r;)</code></term>
+ <varlistentry id="geteuid"><term><code>(POSIX:EUID)</code></term>
+  <term><code>(&setf; (POSIX:EUID) &uid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">geteuid</function> and
    <function role="unix">seteuid</function>.</simpara></listitem></varlistentry>
- <varlistentry id="getegid"><term><code>(POSIX:GETEGID)</code></term>
-  <term><code>(&setf; (POSIX:GETEGID) &gid-r;)</code></term>
+ <varlistentry id="getegid"><term><code>(POSIX:EGID)</code></term>
+  <term><code>(&setf; (POSIX:EGID) &gid-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getegid</function> and
    <function role="unix">setegid</function>.</simpara></listitem></varlistentry>
- <varlistentry id="getgroups"><term><code>(POSIX:GETGROUPS)</code></term>
-  <term><code>(&setf; (POSIX:GETGROUPS) &list-r;)</code></term>
+ <varlistentry id="getgroups"><term><code>(POSIX:GROUPS)</code></term>
+  <term><code>(&setf; (POSIX:GROUPS) &list-r;)</code></term>
   <listitem><simpara>Call <function role="unix">getgroups</function> and
    <function role="bsd">setgroups</function>.
  </simpara></listitem></varlistentry>

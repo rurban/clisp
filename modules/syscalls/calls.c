@@ -672,7 +672,7 @@ DEFUN(POSIX:SETPGRP,) {
 }
 #endif
 #if defined(HAVE_GETPGID)
-DEFUN(POSIX:GETPGID, pid) { GETTER1(pid,getpgid); }
+DEFUN(POSIX:PGID, pid) { GETTER1(pid,getpgid); }
 #endif
 #if defined(HAVE_SETPGID)
 DEFUN(POSIX::%SETPGID, pid pgid) {
@@ -1590,31 +1590,31 @@ DEFUN(POSIX::USER-INFO, &optional user)
 #endif  /* user-info */
 
 #if defined(HAVE_GETUID)
-DEFUN(POSIX:GETUID,){ GETTER0(uid,getuid); }
+DEFUN(POSIX:UID,){ GETTER0(uid,getuid); }
 #endif
 #if defined(HAVE_SETUID)
 DEFUN(POSIX::%SETUID, uid) { SETTER(uid,setuid); }
 #endif
 #if defined(HAVE_GETGID)
-DEFUN(POSIX:GETGID,){ GETTER0(gid,getgid); }
+DEFUN(POSIX:GID,){ GETTER0(gid,getgid); }
 #endif
 #if defined(HAVE_SETGID)
 DEFUN(POSIX::%SETGID, gid) { SETTER(gid,setgid); }
 #endif
 #if defined(HAVE_GETEUID)
-DEFUN(POSIX:GETEUID,){ GETTER0(uid,geteuid); }
+DEFUN(POSIX:EUID,){ GETTER0(uid,geteuid); }
 #endif
 #if defined(HAVE_SETEUID)
 DEFUN(POSIX::%SETEUID, euid) { SETTER(uid,seteuid); }
 #endif
 #if defined(HAVE_GETEGID)
-DEFUN(POSIX:GETEGID,){ GETTER0(gid,getegid); }
+DEFUN(POSIX:EGID,){ GETTER0(gid,getegid); }
 #endif
 #if defined(HAVE_SETEGID)
 DEFUN(POSIX::%SETEGID, egid) { SETTER(gid,setegid); }
 #endif
 #if defined(HAVE_GETGROUPS)
-DEFUN(POSIX::GETGROUPS,) {
+DEFUN(POSIX:GROUPS,) {
   int group_count, ret;
   gid_t *groups;
   begin_system_call(); group_count = getgroups(0,NULL); end_system_call();

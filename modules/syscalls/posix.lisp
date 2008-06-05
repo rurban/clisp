@@ -30,13 +30,13 @@
 )
 ;;; ============================================================
 #+unix (progn
-(export '(getuid getgid geteuid getegid getpgid getgroups))
-(defsetf getuid posix::%setuid)
-(defsetf getgid posix::%setgid)
-(defsetf geteuid posix::%seteuid)
-(defsetf getegid posix::%setegid)
-(defsetf getpgid posix::%setpgid)
-(defsetf getgroups posix::%setgroups)
+(export '(uid gid euid egid pgid groups))
+(defsetf uid posix::%setuid)
+(defsetf gid posix::%setgid)
+(defsetf euid posix::%seteuid)
+(defsetf egid posix::%setegid)
+(defsetf pgid posix::%setpgid)
+(defsetf groups posix::%setgroups)
 )
 ;;; ============================================================
 (defmacro with-stream-lock ((stream &rest options) &body body)
