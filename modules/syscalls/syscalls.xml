@@ -538,10 +538,9 @@ which compute the error functions, Bessel functions and Gamma.</para>
 <warning><simpara>Please note that these functions do not provide
   lisp-style error handling and precision, and do all the computations
   at the &double-float-t; level.</simpara></warning>
-<para><code>(<function>POSIX:FFS</function> &n-r;)</code>:
- Find the first bit set.
- Like <function role="unix">ffs</function>, but implemented in Lisp and
- supports &bignum-t;s.</para>
+<para>Function <code>(<function role="unix">ffs</function> &n-r;)</code>
+ finds the first bit set. It is implemented in pure Lisp and supports
+ &bignum-t;s.</para>
 </section>
 
 <section id="encryption"><title>Encryption</title>
