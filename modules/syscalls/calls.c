@@ -1642,7 +1642,14 @@ DEFUN(POSIX::%SETGROUPS, groups) {
 #endif
 #if defined(HAVE_GETHOSTID)
 /* http://www.opengroup.org/onlinepubs/009695399/functions/gethostid.html */
-DEFUN(POSIX:GETHOSTID,) { GETTER(long,slong,gethostid); }
+/* this is returned as an integer, not as a string,
+   because this is NOT the IP address:
+   (posix:gethostid) ==> 430729603
+   (rawsock:convert-address :inet 430729603) ==>  "131.105.172.25"
+   (rawsock:htonl 430729603) ==> 2204740633
+   (rawsock:convert-address :inet 2204740633) ==> "25.172.105.131"
+   but (rawsock:resolve-host-ipaddr :default) ==> "172.25.131.105" */
+DEFUN(POSIX:GETHOSTID,) { GETTER(ulong,ulong,gethostid); }
 #endif
 
 #if defined(HAVE_STAT)
