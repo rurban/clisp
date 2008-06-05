@@ -775,11 +775,17 @@ which compute the error functions, Bessel functions and Gamma.</para>
    &errno; is set (useful before a system call which sets &errno; as the
    only way to report an error).</simpara>
   <simpara>The current &errno; is returned as a keyword if possible, a
-   number otherwise.</simpara></listitem></varlistentry>
+   number otherwise.</simpara>
+  <simpara>On &win32;, <function role="win32">GetLastError</function>
+   and <function role="win32">SetLastError</function> are used instead
+   of &errno;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(OS:STRERROR &optional-amp; &ecode-r;)</code></term>
  <listitem><simpara>Return a string description of &ecode-r;.
-   When &ecode-r; is not supplied, &errno; is used.</simpara>
-  <simpara>This calls <function role="unix">strerror</function>.</simpara>
+   When &ecode-r; is not supplied, &errno;
+   (<function role="win32">GetLastError</function> on &win32;)
+   is used.</simpara>
+  <simpara>This calls <function role="unix">strerror</function> on &unix;
+   and <function role="win32">FormatMessage</function> on &win32;.</simpara>
 </listitem></varlistentry>
 </variablelist></para>
 <simpara>This functionality is only present if &ffi-pac; is present.</simpara>
