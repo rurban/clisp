@@ -1,5 +1,11 @@
 2008-06-04  Sam Steingold  <sds@gnu.org>
 
+	* calls.c (ERRNO, STRERROR) [WIN32_NATIVE]: use GetLastError(),
+	SetLastError() and FormatMessage() instead of errno and strerror
+	(check_errno) [WIN32_NATIVE]: define separately
+
+2008-06-04  Sam Steingold  <sds@gnu.org>
+
 	* inspect.lisp (get-insp): accept :w and :n
 	(print-inspection, inspect-frontend): say when more slots are available
 	(inspect): bind *INSPECT-LENGTH* so that :w & :n do not act across
