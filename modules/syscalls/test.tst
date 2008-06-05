@@ -180,7 +180,7 @@ FLOAT~
   :return (list n tg))
 (172 FLOATING-POINT-OVERFLOW) ; ... but it IS precize at single precision!
 
-#+unix (= (show (os:process-id)) (show (os:getppid))) NIL
+#+unix (= (show (os:process-id)) (show (os:getppid))) #+unix NIL
 #+unix (let ((id (show (os:getuid)))) (= id (setf (os:getuid) id))) T
 #+unix (let ((id (show (os:getgid)))) (= id (setf (os:getgid) id))) T
 #+unix (let ((id (show (os:geteuid)))) (= id (setf (os:geteuid) id))) T
