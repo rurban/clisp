@@ -181,24 +181,24 @@ FLOAT~
 (172 FLOATING-POINT-OVERFLOW) ; ... but it IS precize at single precision!
 
 #+unix (= (show (os:process-id)) (show (os:getppid))) #+unix NIL
-#+unix (let ((id (show (os:getuid)))) (= id (setf (os:getuid) id))) T
-#+unix (let ((id (show (os:getgid)))) (= id (setf (os:getgid) id))) T
-#+unix (let ((id (show (os:geteuid)))) (= id (setf (os:geteuid) id))) T
-#+unix (let ((id (show (os:getegid)))) (= id (setf (os:getegid) id))) T
+#+unix (let ((id (show (os:uid)))) (= id (setf (os:uid) id))) T
+#+unix (let ((id (show (os:gid)))) (= id (setf (os:gid) id))) T
+#+unix (let ((id (show (os:euid)))) (= id (setf (os:euid) id))) T
+#+unix (let ((id (show (os:egid)))) (= id (setf (os:egid) id))) T
 #+unix (let* ((pid (os:process-id))
-              (id (show (os:getpgid pid))))
-         (= id (setf (os:getpgid pid) id))) #+unix T
-#+unix (= (os:getuid) (os:geteuid)) T
-#+unix (= (os:getgid) (os:getegid)) T
-#+unix (multiple-value-list (os:setreuid (os:getuid) (os:geteuid))) NIL
-#+unix (multiple-value-list (os:setregid (os:getgid) (os:getegid))) NIL
+              (id (show (os:pgid pid))))
+         (= id (setf (os:pgid pid) id))) #+unix T
+#+unix (= (os:uid) (os:euid)) T
+#+unix (= (os:gid) (os:egid)) T
+#+unix (multiple-value-list (os:setreuid (os:uid) (os:euid))) NIL
+#+unix (multiple-value-list (os:setregid (os:gid) (os:egid))) NIL
 #+unix (multiple-value-list (os:setreuid -1 -1)) NIL
 #+unix (multiple-value-list (os:setregid -1 -1)) NIL
-#+unix (listp (show (if (fboundp 'os:getgroups) (os:getgroups)
-                        '(no os:getgroups)) :pretty t)) T
-#+unix (if (and (fboundp 'os:getgroups) (fboundp 'os::%setgroups))
-           (let ((g (os:getgroups))) ; setgroups may fail with EPERM
-	     (eq g (or (ignore-errors (setf (os:getgroups) g)) g)))
+#+unix (listp (show (if (fboundp 'os:groups) (os:groups)
+                        '(no os:groups)) :pretty t)) T
+#+unix (if (and (fboundp 'os:groups) (fboundp 'os::%setgroups))
+           (let ((g (os:groups))) ; setgroups may fail with EPERM
+	     (eq g (or (ignore-errors (setf (os:groups) g)) g)))
            t) T
 
 #+unix (listp (show (if (fboundp 'os:sysconf)
@@ -233,11 +233,11 @@ T
 #+unix (os:group-info-p
         (show
          (handler-bind ((error (lambda (c) (princ-error c) (use-value 0))))
-           (os:group-info (os:user-info-gid (os:user-info (os:getuid)))))
+           (os:group-info (os:user-info-gid (os:user-info (os:uid)))))
          :pretty t)) T
 #+unix (listp (show (os:group-info) :pretty t)) T
-#+unix (= (os:getuid) (os:user-info-uid (os:user-info (os:getuid)))) T
-#+unix (= (os:getgid) (os:user-info-gid (os:user-info (os:getuid)))) T
+#+unix (= (os:uid) (os:user-info-uid (os:user-info (os:uid)))) T
+#+unix (= (os:gid) (os:user-info-gid (os:user-info (os:uid)))) T
 
 (os:file-stat-p (show (os:file-stat *tmp1*) :pretty t)) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)) :pretty t)) T
