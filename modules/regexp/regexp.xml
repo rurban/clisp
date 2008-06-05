@@ -123,7 +123,7 @@ and &emacs; info pages.</para>
 
 </variablelist>
 
-<example id="re-count-shell-users"><title>Count Unix Shell Users</title>
+<example id="re-count-shell-users"><title>Count unix shell users</title>
 
 <para>The following code computes the number of people who use a
  particular shell:<programlisting language="lisp">
