@@ -1,5 +1,11 @@
 2008-06-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c, modules/syscalls/posix.lisp:
+	remove the GET prefix from SETFable functions
+	PGID, UID, GID, EUID, EGID, GROUPS
+
+2008-06-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (GETHOSTID): implement
 	* modules/syscalls/posix.lisp (gethostid): export
 
