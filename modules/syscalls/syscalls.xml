@@ -503,6 +503,17 @@
  <varlistentry id="phys-mem"><term><code>(OS:PHYSICAL-MEMORY)</code></term>
   <listitem><simpara>Return 2 values: total and available physical memory.
    </simpara><simpara>&unix-w32-only;</simpara></listitem></varlistentry>
+ <varlistentry id="gethostid"><term><code>(OS:GETHOSTID)</code></term>
+  <listitem><simpara>Call <function role="unix">gethostid</function> and
+    return a (hopefully) universally unique &integer-t; identifier of
+    this machine.</simpara>
+   <note><para>On &linux; this number appears to be the IPv4 32-bit
+     address with the first 2 bytes and the last 2 bytes swapped:
+<programlisting language="lisp">(rawsock:convert-address :inet (os:gethostid))
+<computeroutput>"7.3.192.168"</computeroutput>
+(first (hostent-addr-list (resolve-host-ipaddr :default)))
+<computeroutput>"192.168.7.3"</computeroutput></programlisting></para></note>
+   <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="posix-math"><title>Mathematical functions</title>
