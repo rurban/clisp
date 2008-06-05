@@ -127,10 +127,11 @@ extern object nobject_out (FILE* stream, object obj);
 #endif
 
 /* general convenience macros */
-#define GETTER(type,call)                                       \
-  type##_t id;                                                  \
+#define GETTER(type,conv,call)                                  \
+  type id;                                                      \
   begin_system_call(); id = call(); end_system_call();          \
-  VALUES1(type##_to_I(id))
+  VALUES1(conv##_to_I(id))
+#define GETTER0(type,call)  GETTER(type##_t,type,call)
 #define GETTER1(type,call)                              \
   type##_t id = I_to_##type(STACK_0);                   \
   type##_t ret;                                         \
@@ -647,16 +648,16 @@ DEFUN(POSIX::SETUTXENT,) {
 
 /* ========================= processes & signals ========================= */
 #if defined(HAVE_GETPPID)
-DEFUN(POSIX:GETPPID,) { GETTER(pid,getppid); }
+DEFUN(POSIX:GETPPID,) { GETTER0(pid,getppid); }
 #endif
 #if defined(HAVE_GETSID)
 DEFUN(POSIX:GETSID, pid) { GETTER1(pid,getsid); }
 #endif
 #if defined(HAVE_SETSID)
-DEFUN(POSIX:SETSID,) { GETTER(pid,setsid); } /* sic! */
+DEFUN(POSIX:SETSID,) { GETTER0(pid,setsid); } /* sic! */
 #endif
 #if defined(HAVE_GETPGRP)
-DEFUN(POSIX:GETPGRP,) { GETTER(pid,getpgrp); }
+DEFUN(POSIX:GETPGRP,) { GETTER0(pid,getpgrp); }
 #endif
 #if defined(HAVE_SETPGRP)
 DEFUN(POSIX:SETPGRP,) {
@@ -1589,25 +1590,25 @@ DEFUN(POSIX::USER-INFO, &optional user)
 #endif  /* user-info */
 
 #if defined(HAVE_GETUID)
-DEFUN(POSIX:GETUID,){ GETTER(uid,getuid); }
+DEFUN(POSIX:GETUID,){ GETTER0(uid,getuid); }
 #endif
 #if defined(HAVE_SETUID)
 DEFUN(POSIX::%SETUID, uid) { SETTER(uid,setuid); }
 #endif
 #if defined(HAVE_GETGID)
-DEFUN(POSIX:GETGID,){ GETTER(gid,getgid); }
+DEFUN(POSIX:GETGID,){ GETTER0(gid,getgid); }
 #endif
 #if defined(HAVE_SETGID)
 DEFUN(POSIX::%SETGID, gid) { SETTER(gid,setgid); }
 #endif
 #if defined(HAVE_GETEUID)
-DEFUN(POSIX:GETEUID,){ GETTER(uid,geteuid); }
+DEFUN(POSIX:GETEUID,){ GETTER0(uid,geteuid); }
 #endif
 #if defined(HAVE_SETEUID)
 DEFUN(POSIX::%SETEUID, euid) { SETTER(uid,seteuid); }
 #endif
 #if defined(HAVE_GETEGID)
-DEFUN(POSIX:GETEGID,){ GETTER(gid,getegid); }
+DEFUN(POSIX:GETEGID,){ GETTER0(gid,getegid); }
 #endif
 #if defined(HAVE_SETEGID)
 DEFUN(POSIX::%SETEGID, egid) { SETTER(gid,setegid); }
@@ -1638,6 +1639,10 @@ DEFUN(POSIX::%SETGROUPS, groups) {
   if (i == -1) OS_error();
   VALUES1(popSTACK());
 }
+#endif
+#if defined(HAVE_GETHOSTID)
+/* http://www.opengroup.org/onlinepubs/009695399/functions/gethostid.html */
+DEFUN(POSIX:GETHOSTID,) { GETTER(long,slong,gethostid); }
 #endif
 
 #if defined(HAVE_STAT)

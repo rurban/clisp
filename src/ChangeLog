@@ -1,5 +1,10 @@
 2008-06-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (GETHOSTID): implement
+	* modules/syscalls/posix.lisp (gethostid): export
+
+2008-06-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (ERRNO): when the argument is T,
 	return all known error codes as an alist
 
