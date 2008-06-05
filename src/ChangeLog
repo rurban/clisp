@@ -1,3 +1,8 @@
+2008-06-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (ERRNO): when the argument is T,
+	return all known error codes as an alist
+
 2008-06-04  Sam Steingold  <sds@gnu.org>
 
 	* calls.c (ERRNO, STRERROR) [WIN32_NATIVE]: use GetLastError(),
