@@ -439,6 +439,8 @@ T
         :finally (os:errno nil))
 #+ffi ()
 
+(integerp (show (os:gethostid))) T
+
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))
