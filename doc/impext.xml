@@ -4139,9 +4139,8 @@ if <function role="unix">gethostname</function> fails, then the buffer
 allocated for &name-r; will be filled with garbage, but it will still go
 through the string conversion &before-e; we can check
 the <replaceable>success</replaceable> status.
-If &foreign-enc; is <constant>CHARSET:ISO-8859-1</constant>, this is not
-a problem since no real conversion is happening, but with &utf-8; an
-&error-t; will be &signal;ed.
+If &foreign-enc; is &iso-8859-1;, this is not a problem since no real
+conversion is happening, but with &utf-8; an &error-t; may be &signal;ed.
 A safe approach is to pass to the foreign function our own
 stack-allocated buffer, and only convert the buffer to a string when the
 foreign function succeeds: <programlisting language="lisp">
