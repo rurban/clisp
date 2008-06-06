@@ -398,18 +398,18 @@ following command:
 <qandaentry id="faq-ide">
 <question id="faq-ide-q"><simpara>Where is the <acronym>IDE<alt>Integrated
     Development Environment</alt></acronym>?</simpara></question>
-<answer><formalpara><title>&emacs;-based</title><para><itemizedlist>
-    <listitem><simpara><ulink url="http://www.gnu.org/software/emacs/manual/emacs.html#External%20Lisp"><function>inferior-lisp</function></ulink></simpara></listitem>
-    <listitem><simpara>&slime;</simpara></listitem>
-    <listitem><simpara>&ilisp;</simpara></listitem>
-    <listitem><simpara><ulink url="http://cl-cookbook.sourceforge.net/windows.html">The Common Lisp Cookbook</ulink></simpara></listitem>
- </itemizedlist></para></formalpara>
- <formalpara><title>non-&emacs;-based</title><para><itemizedlist>
-    <listitem><simpara><ulink url="google">VisualCLisp</ulink></simpara></listitem>
-    <listitem><simpara><ulink url="http://jabberwocky.sourceforge.net/">Jabberwocky</ulink></simpara></listitem>
-    <listitem><simpara><ulink url="http://gclisp.sourceforge.net/">GClisp</ulink></simpara></listitem>
-    <listitem><simpara>&phemlock;</simpara></listitem>
-</itemizedlist></para></formalpara></answer></qandaentry>
+<answer><label>&emacs;-based</label><itemizedlist>
+  <listitem><simpara><ulink url="http://www.gnu.org/software/emacs/manual/emacs.html#External%20Lisp"><function>inferior-lisp</function></ulink></simpara></listitem>
+  <listitem><simpara>&slime;</simpara></listitem>
+  <listitem><simpara>&ilisp;</simpara></listitem>
+  <listitem><simpara><ulink url="http://cl-cookbook.sourceforge.net/windows.html">The Common Lisp Cookbook</ulink></simpara></listitem>
+</itemizedlist></answer>
+<answer><label>non-&emacs;-based</label><itemizedlist>
+  <listitem><simpara><ulink url="google">VisualCLisp</ulink></simpara></listitem>
+  <listitem><simpara><ulink url="http://jabberwocky.sourceforge.net/">Jabberwocky</ulink></simpara></listitem>
+  <listitem><simpara><ulink url="http://gclisp.sourceforge.net/">GClisp</ulink></simpara></listitem>
+  <listitem><simpara>&phemlock;</simpara></listitem>
+</itemizedlist></answer></qandaentry>
 
 
 <qandaentry id="faq-opt"><question id="faq-opt-q"><simpara>What are the
@@ -424,38 +424,32 @@ following command:
 
 <qandaentry id="faq-ext"><question id="faq-ext-q"><simpara>What &clisp;
    extensions are available?</simpara></question>
-<answer><variablelist>
-  <varlistentry><term>Distributed with &clisp;</term>
-   <listitem><simpara>Quite a few modules are
-     <link linkend="included-modules">included</link> with &clisp;,
-     pass <option>--with-module=...</option> to <filename>configure</filename>
-     to build them and use the &full; &linkset;.
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>3rd party</term>
-   <listitem><simpara>See the <emphasis>incomplete</emphasis> list of
-     <ulink url="http://clisp.cons.org/resources.html#software"><quote>Common
-      Lisp software running in &clisp;</quote></ulink>.
-  </simpara></listitem></varlistentry>
-  <varlistentry><term><acronym>DIY<alt>Do It Yourself</alt></acronym></term>
-   <listitem><simpara>See <xref linkend="modules"/> and <xref linkend="dffi"/>
-     for information on how to interface with external &c-lang; libraries.
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>&http; (very Frequently Asked!)</term>
-   <listitem><itemizedlist>
-     <listitem><simpara>&clisp; comes with
-       <filename role="clisp-cvs">src/inspect.lisp</filename>
-       which implements a rudimentary &http; server</simpara></listitem>
-     <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/donc/http.lisp">CLOCC/src/donc/</ulink> has an &http; server</simpara></listitem>
-     <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
-     <listitem><simpara><ulink url="http://www.fractalconcept.com/asp/mod_lisp">mod_lisp</ulink>
-       hooks lisp into &apache;</simpara></listitem>
-     <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP"
-       >Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
-    </itemizedlist>
-    <para>Both <ulink url="http://allegroserve.sourceforge.net/">AllegroServe</ulink>
-     and <ulink url="http://www.ai.mit.edu/projects/iiip/doc/cl-http/">CL-HTTP</ulink>
-     require multithreading and do not work with &clisp; yet.
-</para></listitem></varlistentry></variablelist></answer></qandaentry>
+<answer><label>bindled</label><simpara>Quite a few modules are
+  <link linkend="included-modules">included</link> with &clisp;,
+  pass <option>--with-module=...</option> to <filename>configure</filename>
+  to build them and use the &full; &linkset;.</simpara></answer>
+<answer><label>3rd party</label>
+ <simpara>See the <emphasis>incomplete</emphasis> list of
+  <ulink url="http://clisp.cons.org/resources.html#software"><quote>Common
+    Lisp software running in &clisp;</quote></ulink>.</simpara></answer>
+<answer><label><acronym>DIY<alt>Do It Yourself</alt></acronym></label>
+ <simpara>See <xref linkend="modules"/> and <xref linkend="dffi"/>
+  for information on how to interface with external &c-lang; libraries.
+</simpara></answer>
+<answer><label>&http;</label><itemizedlist><title>Very Frequently Asked!</title>
+  <listitem><simpara>&clisp; comes with
+    <filename role="clisp-cvs">src/inspect.lisp</filename>
+    which implements a rudimentary &http; server</simpara></listitem>
+  <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/donc/http.lisp">CLOCC/src/donc/</ulink> has an &http; server</simpara></listitem>
+  <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
+  <listitem><simpara><ulink url="http://www.fractalconcept.com/asp/mod_lisp">mod_lisp</ulink>
+    hooks lisp into &apache;</simpara></listitem>
+  <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP">Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
+ </itemizedlist>
+ <para>Both <ulink url="http://allegroserve.sourceforge.net/">AllegroServe</ulink>
+  and <ulink url="http://www.ai.mit.edu/projects/iiip/doc/cl-http/">CL-HTTP</ulink>
+  require multithreading and do not work with &clisp; yet.
+</para></answer></qandaentry>
 
 
 <qandaentry id="faq-rc"><question id="faq-rc-q"><simpara>Where is the
@@ -625,12 +619,12 @@ following command:
  &repl; and &not-e; by the function you call.
  E.g., if file <filename>"foo"</filename> contains non-&ascii; characters,
  you will see such an error when you type<programlisting language="lisp">
-(with-open-file (s "foo" :direction :input :external-format charset:iso-8859-1)
-  (read-line s))
+(&with-open-file; (s "foo" :direction :input &extfmt; charset:iso-8859-1)
+  (&read-line; s))
 </programlisting> If instead you type <programlisting language="lisp">
-(with-open-file (s "foo" :direction :input :external-format charset:iso-8859-1)
-  (setq l (read-line s))
-  nil)
+(&with-open-file; (s "foo" :direction :input &extfmt; charset:iso-8859-1)
+  (&setq; l (&read-line; s))
+  &nil; )
 </programlisting> &clisp; will just print &nil; and signal the error
  when you type <literal>l</literal>.</para></answer></qandaentry>
 
@@ -658,10 +652,10 @@ following command:
    avoid stack overflow?</simpara></question>
 <answer><para>&clisp; has <link linkend="vm"><emphasis>two</emphasis>
    stacks</link>, the <quote>program stack</quote> and the <quote>lisp
-   stack</quote>, and both may occasionally overflow.</para>
- <itemizedlist><title>Avoiding stack overflow: Generic</title>
-  <listitem><simpara>You will always get a stack
-    overflow when you try to print a circular object (list or
+   stack</quote>, and both may occasionally overflow.</para></answer>
+<answer><label>Generic</label><itemizedlist>
+  <listitem><simpara>You will always get a stack overflow when you try
+    to print a <ulink url="clhs/glo">circular</ulink> object (list or
     structure) and &print-circle-var; is &nil;.
     Just set &print-circle-var; to &t;.</simpara></listitem>
   <listitem><simpara>You will always get a stack overflow on infinite
@@ -679,9 +673,9 @@ following command:
   <listitem><simpara>If you get a segmentation fault after (or instead
     of) a <quote>program stack overflow</quote> message, please make
     sure that you had &libsigsegv; installed when you configured and
-    built &clisp;.</simpara></listitem></itemizedlist>
+    built &clisp;.</simpara></listitem></itemizedlist></answer>
 
-<variablelist><title>Avoiding stack overflow: Platform-specific</title>
+<answer><label>Platform-specific</label><variablelist>
  <varlistentry><term>&win32-only;</term>
   <listitem><para>You have several option, use whichever is applicable
     to your situation:<itemizedlist><listitem><simpara>modify the
@@ -712,8 +706,8 @@ following command:
 and will not work as one would naively expect.
 (on the first invocation, it will return
 <returnvalue>(a b c 1 2 3)</returnvalue>,
-the second invocation will produce a circular list, the third will hang
-trying to &nconc; a circular list).</para>
+the second invocation will produce a <ulink url="clhs/glo">circular
+ list</ulink>, the third will hang trying to &nconc; a circular list).</para>
 
 <para>Instead you must do
 <programlisting language="lisp">(let ((var (copy-list '(a b c))))
@@ -745,25 +739,27 @@ trying to &nconc; a circular list).</para>
 
 
 <qandaentry id="faq-fp">
- <blockinfo><title>Is floating point arithmetics broken?</title></blockinfo>
- <question id="faq-fp-q"><para>Why don't floating point arithmetics
+ <blockinfo><title>Is floating point arithmetic broken?</title></blockinfo>
+ <question id="faq-fp-q"><para>Why don't floating point arithmetic
    return what I want?</para><programlisting language="lisp">
 (- 1.1 0.9)
 <computeroutput>0.20000005</computeroutput>
 </programlisting></question>
-<answer><para>This not a bug, at least not a bug in &clisp;.
- You may argue that this is a bug in &ieee-bfp;,
- but first make sure that you do know
- <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
- Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
+<answer><label>inexact</label><para>Floating point arithmetic is
+  inherently <emphasis>inexact</emphasis>, so this not a bug,
+  at least not a bug in &clisp;.
+  You may argue that this is a bug in &ieee-bfp;,
+  but first please make sure that you do know
+  <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
+   Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para><para>See also <ulink url="ml">clisp-list</ulink>
- (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para>
+  (<ulink role="sfmail" url="17121.26476.75643.47774%40thalassa.informatimago.com"/>/<ulink role="gmane" url="general/9850"/>).</para></answer>
 
-<formalpara><title>PS</title><para>If you want <emphasis>exact</emphasis>
+<answer><label>exact</label><para>If you want <emphasis>exact</emphasis>
  calculations, use &rational-t;s:<programlisting language="lisp">
 (- 11/10 9/10)
-<computeroutput>1/5</computeroutput>
-</programlisting></para></formalpara></answer></qandaentry>
+<computeroutput>1/5</computeroutput></programlisting>
+</para></answer></qandaentry>
 
 
 <qandaentry id="faq-random">
