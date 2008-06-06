@@ -744,21 +744,6 @@ trying to &nconc; a circular list).</para>
 </answer></qandaentry>
 
 
-<qandaentry id="faq-conf-warn"><question id="faq-conf-warn-q"><simpara>I
-   give <command>configure</command> a recommended option, but it
-   complains that it is unknown!</simpara></question>
-<answer><para>Indeed, you may see warnings like this
-  <screen>configure: WARNING: Unrecognized options: --with-libsigsegv-prefix, --with-libffcall-prefix</screen>
-  because the top-level <command>configure</command> passes these
-  options (<option>--with-libsigsegv-prefix</option> etc)
-  to <emphasis>all</emphasis> sub-<command>configure</command>s it
-  invokes, while only <emphasis>some</emphasis> of them understand it
-  (and the rest complain about it). These warnings are harmless.
-  You did not see them before because &autoconf; did not check for
-  unrecognized options until version 2.62.
-</para></answer></qandaentry>
-
-
 <qandaentry id="faq-fp">
  <blockinfo><title>Is floating point arithmetics broken?</title></blockinfo>
  <question id="faq-fp-q"><para>Why don't floating point arithmetics
