@@ -4413,7 +4413,7 @@ DEFUN(OS::ERRNO, &optional newval) {
     }
     VALUES1(listof(check_errno_map.size));
   } else {
-   #if defined(WIN32_NATIVE)
+#  if defined(WIN32_NATIVE)
     DWORD error_code;
     if (missingp(STACK_0)) {
       begin_system_call();
@@ -4426,17 +4426,17 @@ DEFUN(OS::ERRNO, &optional newval) {
       end_system_call();
     }
     VALUES1(check_errno_reverse(error_code));
-   #else
+#  else
     if (!missingp(STACK_0))
       errno = check_errno(STACK_0);
     VALUES1(check_errno_reverse(errno));
+#  endif
   }
- #endif
   skipSTACK(1);
 }
 DEFUN(OS::STRERROR, &optional error_code) {
   char *ret = NULL;
- #if defined(WIN32_NATIVE)
+# if defined(WIN32_NATIVE)
   DWORD error_code = missingp(STACK_0) ? (DWORD)-1 : check_errno(STACK_0);
   int status;
   begin_system_call();
@@ -4452,11 +4452,11 @@ DEFUN(OS::STRERROR, &optional error_code) {
   end_system_call();
   VALUES1(status == 0 ? NIL : safe_to_string(ret));
   begin_system_call(); LocalFree(ret); end_system_call();
- #else
+# else
   int error_code = missingp(STACK_0) ? errno : check_errno(STACK_0);
   begin_system_call(); ret = strerror(error_code); end_system_call();
   VALUES1(safe_to_string(ret));
- #endif
+# endif
   skipSTACK(1);
 }
 #endif  /* (HAVE_ERRNO_H & HAVE_STRERROR) | WIN32_NATIVE */
