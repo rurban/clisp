@@ -421,6 +421,7 @@
 <!ENTITY ucs-4 '<link linkend="charset-UCS-4"><constant>CHARSET:UCS-4</constant></link>'>
 <!ENTITY utf-8 '<link linkend="charset-UTF-8"><constant>CHARSET:UTF-8</constant></link>'>
 <!ENTITY utf-16 '<link linkend="charset-UTF-16"><constant>CHARSET:UTF-16</constant></link>'>
+<!ENTITY iso-8859-1 '<link linkend="charset-UTF-16"><constant>CHARSET:ISO-8859-1</constant></link>'>
 <!ENTITY warn-fpc '<link linkend="warn-fpc"><varname>CUSTOM:*WARN-ON-FLOATING-POINT-CONTAGION*</varname></link>'>
 <!ENTITY warn-fprc '<link linkend="warn-fprc"><varname>CUSTOM:*WARN-ON-FLOATING-POINT-RATIONAL-CONTAGION*</varname></link>'>
 <!ENTITY wdkey-open '<link linkend="with-dir-key-open"><function>LDAP:WITH-DIR-KEY-OPEN</function></link>'>

@@ -611,18 +611,17 @@ following command:
  Note that &load; will traverse the directories mentioned in &load-paths;
  - this applies to the <link linkend="faq-rc">init (RC) file</link> too.
  You will need to set &path-enc; or pass &opt-E; to &clisp;.
- Using a <quote>1:1</quote> encoding, such as
- <link linkend="charset-ISO-8859-1"><constant>ISO-8859-1</constant></link>,
+ Using a <quote>1:1</quote> encoding, such as &iso-8859-1;,
  should help you avoid this error.</para>
 
 <para>Note that this error may be signaled by the Print part of the
  &repl; and &not-e; by the function you call.
  E.g., if file <filename>"foo"</filename> contains non-&ascii; characters,
  you will see such an error when you type<programlisting language="lisp">
-(&with-open-file; (s "foo" :direction :input &extfmt; charset:iso-8859-1)
+(&with-open-file; (s "foo" :direction :input &extfmt; &iso-8859-1;)
   (&read-line; s))
 </programlisting> If instead you type <programlisting language="lisp">
-(&with-open-file; (s "foo" :direction :input &extfmt; charset:iso-8859-1)
+(&with-open-file; (s "foo" :direction :input &extfmt; &iso-8859-1;)
   (&setq; l (&read-line; s))
   &nil; )
 </programlisting> &clisp; will just print &nil; and signal the error
@@ -655,8 +654,8 @@ following command:
    stack</quote>, and both may occasionally overflow.</para></answer>
 <answer><label>Generic</label><itemizedlist>
   <listitem><simpara>You will always get a stack overflow when you try
-    to print a <ulink url="clhs/glo">circular</ulink> object (list or
-    structure) and &print-circle-var; is &nil;.
+    to print a <ulink url="clhs/glo">circular</ulink> object (&list-t;,
+    &structure-object-t;, &vector-t; etc) and &print-circle-var; is &nil;.
     Just set &print-circle-var; to &t;.</simpara></listitem>
   <listitem><simpara>You will always get a stack overflow on infinite
     recursion.</simpara></listitem>
@@ -675,7 +674,7 @@ following command:
     sure that you had &libsigsegv; installed when you configured and
     built &clisp;.</simpara></listitem></itemizedlist></answer>
 
-<answer><label>Platform-specific</label><variablelist>
+<answer><label>Specific</label><variablelist>
  <varlistentry><term>&win32-only;</term>
   <listitem><para>You have several option, use whichever is applicable
     to your situation:<itemizedlist><listitem><simpara>modify the
