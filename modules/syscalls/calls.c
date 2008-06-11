@@ -1649,7 +1649,7 @@ DEFUN(POSIX::%SETGROUPS, groups) {
    (rawsock:htonl 430729603) ==> 2204740633
    (rawsock:convert-address :inet 2204740633) ==> "25.172.105.131"
    but (rawsock:resolve-host-ipaddr :default) ==> "172.25.131.105" */
-DEFUN(POSIX:GETHOSTID,) { GETTER(ulong,ulong,gethostid); }
+DEFUN(POSIX:GETHOSTID,) { GETTER(unsigned long,ulong,gethostid); }
 #endif
 
 #if defined(HAVE_STAT)
