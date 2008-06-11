@@ -434,7 +434,7 @@ T
 #+ffi (loop :with all = (os:errno t)
         :for e :from 0 :to (loop :for p :in all :maximize (car p))
         :for c = (os:errno e) :for s = (os:strerror) :do (show (list e c s))
-        :when (and (eq e c) (not (search "unknown" s :test #'char-equal)))
+        :when (and s (eq e c) (not (search "unknown" s :test #'char-equal)))
         :collect (list e s)
         :finally (os:errno nil))
 #+ffi ()
