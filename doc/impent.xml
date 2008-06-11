@@ -248,6 +248,7 @@
 <!ENTITY endianness '<link linkend="endianness"><replaceable>ENDIANNESS</replaceable></link>'>
 <!ENTITY ethe '<link linkend="ethe"><function>EXT:ETHE</function></link>'>
 <!ENTITY exec '<link linkend="exec"><function>EXT:EXECUTE</function></link>'>
+<!ENTITY exit '<link linkend="exit"><function>EXT:EXIT</function></link>'>
 <!ENTITY exit-on-error '<olink targetdoc="impnotes" targetptr="exit-on-error"><function>EXT:EXIT-ON-ERROR</function></olink>'>
 <!ENTITY expand-form '<link linkend="code-walk"><function>EXT:EXPAND-FORM</function></link>'>
 <!ENTITY extfmt '<link linkend="extfmt"><constant>:EXTERNAL-FORMAT</constant></link>'>
