@@ -230,7 +230,7 @@ clean: force
 	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo \
 	  id-href.map
 
-count: $(IMPNOTES) $(CHECK_DEPS)
+count: $(IMPNOTES)
 	wc $^
 
 DTD_DOWNLOAD=http://www.docbook.org/xml/$(DTDVER)/docbook-xml-$(DTDVER).zip
