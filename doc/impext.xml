@@ -100,9 +100,8 @@
   <listitem><simpara>This argument specifies a function that will be
    executed at startup of the saved image, before entering the standard &repl;
    (but after all other initialization, see <xref linkend="cradle-grave"/>);
-   thus, if you want to avoid the &repl;, you have to call
-   <link linkend="quit"><function>EXT:EXIT</function></link> at the end
-   of the init function yourself
+   thus, if you want to avoid the &repl;, you have to call &exit; at the
+   end of the init function yourself
    (this does not prevent &fini-hooks; from being run).</simpara>
    <simpara>See <olink targetdoc="man" targetptr="opt-exec-file">the
      manual</olink> for passing command line arguments to this function.
@@ -169,12 +168,9 @@ See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parm
 <section id="quit"><title>Quitting &clisp;</title>
 
 <para>The functions <simplelist>
-  <member><code>(<function>EXT:EXIT</function>
-    &optional-amp; &status-r;)</code></member>
-  <member><code>(<function>EXT:QUIT</function>
-    &optional-amp; &status-r;)</code></member>
-  <member><code>(<function>EXT:BYE</function>
-    &optional-amp; &status-r;)</code></member></simplelist>
+  <member><code>(&exit; &optional-amp; &status-r;)</code></member>
+  <member><code>(EXT:QUIT &optional-amp; &status-r;)</code></member>
+  <member><code>(EXT:BYE &optional-amp; &status-r;)</code></member></simplelist>
  - all synonymous - terminate &clisp;.  If &status-r; is non-&nil;,
  &clisp; aborts with the supplied numeric error &status-r;, i.e.,
  the OS environment is informed that the &clisp; session did not
@@ -4344,7 +4340,7 @@ Now you can sum doubles:
                 (&multiple-value-bind; (remote-host remote-port) (&sost-peer; socket)
                   (&format; &t; "~&amp;Connection: ~S:~D -- ~S:~D~%"
                           remote-host remote-port local-host local-port)))
-              ;; loop is terminated when the remote host closes the connection or on <link linkend="quit"><function>EXT:EXIT</function></link>
+              ;; loop is terminated when the remote host closes the connection or on &exit;
               (&loop; (&when; (&eq; :eof (&so-status; (cons socket :input))) (&return;))
                     (&print; (&eval; (&read; socket)) socket)
                     ;; flush everything left in socket
