@@ -149,12 +149,16 @@ FLOAT~
 (float~ (os:y1 10.0)    0.24901542420695383d0)    T
 (float~ (os:yN 2 1.0)   -1.6506826068162543d0)    T
 (float~ (os:yN 2 10.0)  -0.005868082442208629d0)  T
-(multiple-value-list (os:lgamma 2))   (0.0d0 1)
+;; neither signgam not lgamma_r are defined on win32
+(multiple-value-list (os:lgamma 2))   (0.0d0 #+win32 nil #-win32 1)
 (mapcar (lambda (n)
           (multiple-value-bind (lg s) (os:lgamma n)
             (list n (float (/ (! (1- n)) (exp lg)) 0f0) s)))
         '(3 5 10 15 30 50 100))
-((3 1f0 1) (5 1f0 1) (10 1f0 1) (15 1f0 1) (30 1f0 1) (50 1f0 1) (100 1f0 1))
+((3 1f0 #+win32 nil #-win32 1) (5 1f0 #+win32 nil #-win32 1)
+ (10 1f0 #+win32 nil #-win32 1) (15 1f0 #+win32 nil #-win32 1)
+ (30 1f0 #+win32 nil #-win32 1) (50 1f0 #+win32 nil #-win32 1)
+ (100 1f0 #+win32 nil #-win32 1))
 
 (loop :for n :upfrom 3 :for lg = (os:lgamma n)
   :unless (= 1 (/ (log (! (1- n))) lg)) :return n)
@@ -171,14 +175,15 @@ FLOAT~
 
 (loop :for n :upfrom 3 :for tg = (os:tgamma n)
   :unless (= 1 (/ (! (1- n)) tg)) :return n)
-5               ; OUCH! tgamma is not precize at double precision!
+#+win32 34            ; win32 really wins here:
+#-win32 5             ; OUCH! tgamma is not precise at double precision!
 
 (loop :for n :upfrom 3
   :for tg = (handler-case (os:tgamma n)
               (floating-point-overflow () 'floating-point-overflow))
   :unless (and (floatp tg) (= 1 (float (/ (! (1- n)) tg) 0f0)))
   :return (list n tg))
-(172 FLOATING-POINT-OVERFLOW) ; ... but it IS precize at single precision!
+(172 FLOATING-POINT-OVERFLOW) ; ... but it IS precise at single precision!
 
 #+unix (= (show (os:process-id)) (show (os:getppid))) #+unix NIL
 #+unix (let ((id (show (os:uid)))) (= id (setf (os:uid) id))) T
@@ -431,6 +436,7 @@ T
 #+ffi (os:fclose *foo*) #+ffi NIL
 #+ffi (finish-file "foo") #+ffi 1
 
+;; this should be run in the C domain for (search "unknown" ...) to make sense
 #+ffi (loop :with all = (os:errno t)
         :for e :from 0 :to (loop :for p :in all :maximize (car p))
         :for c = (os:errno e) :for s = (os:strerror) :do (show (list e c s))
