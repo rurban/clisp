@@ -4243,7 +4243,7 @@ double test_dll(struct bar *ptr)
  All pointers depending on this resource can be disabled at once upon
  close by sharing their &foreign-pointer; using &set-foreign-pointer;.
 <programlisting language="lisp">
-(def-c-type PGconn c-pointer) <lineannotation>opaque pointer</lineannotation>
+(def-c-type PGconn c-pointer)<lineannotation>opaque pointer</lineannotation>
 (def-call-out PQconnectdb (:return-type PGconn)
   (:arguments (conninfo c-string)))
 (defun sql-connect (conninfo)
@@ -4252,8 +4252,7 @@ double test_dll(struct bar *ptr)
     ;; may wish to use &finalize; as well
     (&set-foreign-pointer; conn &copy-k;)))
 (defun sql-dependent-resource (conn arg1)
-  (let ((res (PQxxx conn arg1)))
-    (&set-foreign-pointer; res conn)))
+  (&set-foreign-pointer; (PQxxx conn arg1) conn))
 (defun sql-close (connection)
   (when (&validp; connection)
     (PQfinish connection)
@@ -4286,9 +4285,7 @@ Now you can sum doubles:
   (:arguments (len int) (vec (&c-array-ptr; double-float))))
 (sum 3 #(1d0 2d0 3d0))
 <computeroutput>6d0</computeroutput>
-</programlisting>
-</para>
-</example>
+</programlisting></para></example>
 
 <section id="dffi-ex-more"><title>More examples</title>
 
