@@ -509,14 +509,13 @@
     this machine.</simpara>
    <warning><para>On &linux; this number appears to be the IPv4 32-bit
      address with the first 2 bytes and the last 2 bytes swapped:
-<programlisting language="lisp">(rawsock:convert-address :inet (os:gethostid))
+<programlisting language="lisp">(&convert-address; :inet (os:gethostid))
 <computeroutput>"7.3.192.168"</computeroutput>
-(first (hostent-addr-list (resolve-host-ipaddr :default)))
+(first (posix:hostent-addr-list (&resolve-host; :default)))
 <computeroutput>"192.168.7.3"</computeroutput></programlisting>This, of
-course, means that <quote>universally unique</quote> is is &not-e;.
-   </para></warning>
-   <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
-</variablelist></section>
+course, means that <quote>universally unique</quote> it is &not-e;.
+   </para></warning><simpara>&unix-w32-only;</simpara></listitem>
+</varlistentry></variablelist></section>
 
 <section id="posix-math"><title>Mathematical functions</title>
 <para>We implement access to <simplelist columns="1">
