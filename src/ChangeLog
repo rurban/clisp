@@ -1,3 +1,8 @@
+2008-06-11  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (GETHOSTID):
+	use `unsigned long' instead of non-standard `ulong'
+
 2008-06-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c, modules/syscalls/posix.lisp:
