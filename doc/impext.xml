@@ -3014,13 +3014,6 @@ or just evaluates the appropriate form in the &repl;.</para>
    &c-lang; type of &cplace-r;, measured in bits.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="fa-null">
- <term><code>(&foreign-address-null; &f-ent;)</code></term>
-<listitem><simpara>This predicate returns &t; if the
-  &f-ent; refers to the &c-NULL; address (and thus &f-ent; should
-  probably not be passed to most foreign functions).
-</simpara></listitem></varlistentry>
-
 <varlistentry id="faddr-u">
  <term><code>(&foreign-address-unsigned; &f-ent;)</code></term>
  <term><code>(&unsigned-foreign-address; &number-r;)</code></term>
