@@ -28,3 +28,4 @@
 <!ENTITY stderr '<varname role="unix">stderr</varname>'>
 <!ENTITY stdio '<filename role="unix">stdio.h</filename>'>
 <!ENTITY errno '<varname role="unix">errno</varname>'>
+<!ENTITY strerror '<function role="unix">strerror</function>'>
