@@ -794,10 +794,9 @@ which compute the error functions, Bessel functions and Gamma.</para>
 <varlistentry><term><code>(OS:STRERROR &optional-amp; &ecode-r;)</code></term>
  <listitem><simpara>Return a string description of &ecode-r;.
    When &ecode-r; is not supplied, &errno;
-   (<function role="win32">GetLastError</function> on &win32;)
-   is used.</simpara>
-  <simpara>This calls <function role="unix">strerror</function> on &unix;
-   and <function role="win32">FormatMessage</function> on &win32;.</simpara>
+   (<function role="win32">GetLastError</function> on &win32;) is used.
+  </simpara><simpara>This calls &strerror; on &unix; and
+   <function role="win32">FormatMessage</function> on &win32;.</simpara>
 </listitem></varlistentry>
 </variablelist></para>
 <simpara>This functionality is only present if &ffi-pac; is present.</simpara>

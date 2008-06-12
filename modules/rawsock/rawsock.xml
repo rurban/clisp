@@ -197,8 +197,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  as &condition-t;s of type <type>RAWSOCK:EAI</type>
  using <function role="unix">gai_strerror</function>.</para>
 <para>Errors in other functions are reported as the usual OS errors
- (using <function role="unix">strerror</function>).</para>
-</section>
+ (using &strerror;).</para></section>
 
 <section id="rawsock-high-level"><title>High-Level Functions</title>
 <variablelist id="rawsock-high-level-list"><title>Functions that do not
@@ -308,7 +307,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <listitem><simpara>Open a &unix; socket special file.
    Returns two values: &stream-r; and &addr-r;.  &type-r; is passed
    to <function>RAWSOCK:OPEN-UNIX-SOCKET</function>, other &options-r;
-   to &make-stream; (but see <xref linkend="rawsock-not-streams"/>!).
+   to &make-stream; (but see <xref linkend="rawsock-not-streams"/>).
 </simpara></listitem></varlistentry>
 <varlistentry>
  <term><code>(RAWSOCK:IPCSUM &buf-r; &key-amp; start end)</code>
