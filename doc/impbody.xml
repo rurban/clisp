@@ -968,9 +968,14 @@ executes a compiled version of &form-r;.</para>
  Use &eval-when; if you need the value at compile time.</para>
 <para>&constant;s may not be bound dynamically or lexically.</para>
 <para>See also <xref linkend="constant-notinline"/>.</para>
-<para>If you need to undo a &defconstant; form, &proclaim; the symbol
- &special-dec; (to turn the &constant; into a &dyn-var;), and then
- &proclaim; it &notspec; (to turn the &dyn-var; into a &lex-var;).</para>
+<para>If you need to undo the effects of a &defconstant; form,
+ &proclaim; the symbol &special-dec; (to turn the &constant; into a &dyn-var;),
+ and then &proclaim; it &notspec; (to turn the &dyn-var; into a &lex-var;).
+</para><note><para>If you follow the usual variable naming convention
+ (<varname>*FOO*</varname> for &defvar; and &defparameter;,
+ <constant>+BAR+</constant> for &defconstant;, <varname>ZOT</varname>
+ for &let;/&let-star;), you will save yourself a lot of trouble.
+ See also <xref linkend="faq-scope"/>.</para></note>
 <section id="defconstant-similar"><title>Variable
   &suppress-similar-const-redef;</title>
 <para>If the variable is already bound to a value which is not &eql; to
@@ -978,7 +983,7 @@ executes a compiled version of &form-r;.</para>
  is <quote>visually similar</quote> (prints to the same string, as is
  commonly the case when re-loading files) to the old one, the warning
  can be suppressed by setting &suppress-similar-const-redef; to a
- non-&nil; value.</para></section>
+ non-&nil; value.</para><para>The initial value is &nil;.</para></section>
 </section>
 
 <section id="fcase"><title>Macro &fcase;</title>
