@@ -439,9 +439,11 @@ T
 ;; this should be run in the C domain for (search "unknown" ...) to make sense
 #+ffi (loop :with all = (os:errno t)
         :for e :from 0 :to (loop :for p :in all :maximize (car p))
-        :for c = (os:errno e) :for s = (os:strerror) :do (show (list e c s))
-        :when (and s (eq e c) (not (search "unknown" s :test #'char-equal)))
-        :collect (list e s)
+        :for c = (os:errno e) :for s = (os:strerror)
+	:for k = (not (search "unknown" s :test #'char-equal))
+	:when (and (null s) (not (eq e c))) :collect (list e c) :end
+	:when (and s k) :do (show (list e c s)) :end
+        :when (and s (eq e c) k) :collect (list e s) :end
         :finally (os:errno nil))
 #+ffi ()
 
