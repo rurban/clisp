@@ -9,7 +9,7 @@
 (progn
   (defpackage "FTEST"
     (:use "FFI" "COMMON-LISP")
-    (:import-from "CL-USER" #:show))
+    (:import-from "CL-USER" #:show #:princ-error))
   (in-package "FTEST")
   T)
 T
