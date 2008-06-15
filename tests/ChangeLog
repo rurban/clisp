@@ -1,3 +1,7 @@
+2008-06-13  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst (test-macro-dotted-args): check dotted macro forms
+
 2008-06-03  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: do not require errno and strerror
@@ -71,7 +75,7 @@
 
 2008-03-02  Sam Steingold  <sds@gnu.org>
 
-	* macros8.tst (check-const-fold): check constant folding
+	* macro8.tst (check-const-fold): check constant folding
 
 2008-02-19  Sam Steingold  <sds@gnu.org>
 

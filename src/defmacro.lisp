@@ -490,7 +490,7 @@ the actual object #<MACRO expander> for the FENV.
     (multiple-value-bind (body-rest declarations docstring) (parse-body body t)
       (if declarations
         (setq declarations (list (cons 'DECLARE declarations))))
-      (let ((%whole-form whole-form) (%proper-list-p t))
+      (let ((%whole-form whole-form) (%proper-list-p nil))
         (multiple-value-bind (newlambdalist envvar)
             (remove-env-arg lambdalist name)
           (let ((%arg-count 0) (%min-args 0) (%restp nil) (%null-tests nil)

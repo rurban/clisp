@@ -1,5 +1,10 @@
 2008-06-13  Sam Steingold  <sds@gnu.org>
 
+	* defmacro.lisp (make-macro-expansion): bind %proper-list-p to nil,
+	not t, to allow dotted macro forms (broken since 2006-04-15)
+
+2008-06-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (check_errno) [WIN32_NATIVE]:
 	#include <winerror.h>, drop prefix=ERROR, 
 	and use cygwin cvs tree to define many more codes
@@ -5501,8 +5506,8 @@
 
 	Report circular and dotted lists in macro forms and type specifiers.
 	Allow circular and dotted lists in DESTRUCTURING-BIND.
-	* list.d (sys::list-length-in-bounds-p,
-	sys::proper-list-length-in-bounds-p): New functions.
+	* list.d (sys::list-length-in-bounds-p)
+	(sys::proper-list-length-in-bounds-p): New functions.
 	* defmacro.lisp (macro-call-error): Provide different error messages
 	for the case of a circular or dotted list.
 	(%proper-list-p): New special variable.

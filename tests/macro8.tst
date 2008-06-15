@@ -1155,6 +1155,13 @@ check-const-fold
 
 (funcall (COMPILE NIL (LAMBDA (B C) (BLOCK B3 (IF (IF B (NOT NIL) C) (RETURN-FROM B3 124))))) 1 2) 124
 
+(progn 
+  (defmacro test-macro-dotted-args (&rest f) `',f)
+  (list (test-macro-dotted-args 123)
+        (test-macro-dotted-args . 123)
+        (test-macro-dotted-args 1 2 . 3)))
+((123) 123 (1 2 . 3))
+
 ; Clean up.
 (flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
   (kill 'test-macro-arglist)
@@ -1166,6 +1173,7 @@ check-const-fold
   (kill 'test-compile-time-value-f)
   (kill 'test-compile-time-value-v)
   (kill 'add-crlf)
+  (kill 'test-macro-dotted-args)
   (kill '*z*) (kill '*c*) (kill '*v*)
   (kill 'x))
 T
