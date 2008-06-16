@@ -15,7 +15,7 @@
   <listitem><simpara>&win32; registry access
   </simpara></listitem></varlistentry>
  <varlistentry><term>:gnome</term>
-  <listitem><simpara><ulink url="http://developer.gnome.org/doc/API/libgnome/gnome-gnome-config.html">gnome-config</ulink> access
+  <listitem><simpara><ulink url="http://library.gnome.org/devel/libgnome/stable/libgnome-gnome-config.html">gnome-config</ulink> access
   </simpara></listitem></varlistentry>
  <varlistentry><term>:ldap</term>
   <listitem><simpara>LDAP interface via
