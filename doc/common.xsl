@@ -154,7 +154,7 @@
 
 <!-- =========== The Open Group Base Specifications Issue 6 ============ -->
 <xsl:param name="unix.top"
-           select="'http://www.opengroup.org/onlinepubs/007904975/'"/>
+           select="'http://www.opengroup.org/onlinepubs/009695399/'"/>
 <xsl:template match="function[@role='unix'] | varname[@role='unix']">
  <a class="{@role}" href="{$unix.top}functions/{.}.html"
     ><xsl:apply-imports/></a>
