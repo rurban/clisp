@@ -447,7 +447,7 @@ following command:
   <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP">Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
  </itemizedlist>
  <para>Both <ulink url="http://allegroserve.sourceforge.net/">AllegroServe</ulink>
-  and <ulink url="http://www.ai.mit.edu/projects/iiip/doc/cl-http/">CL-HTTP</ulink>
+  and <ulink url="http://www.cl-http.org:8001/cl-http/">CL-HTTP</ulink>
   require multithreading and do not work with &clisp; yet.
 </para></answer></qandaentry>
 
