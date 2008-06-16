@@ -74,7 +74,7 @@
     ><xsl:apply-templates/></a></xsl:template>
 
 <xsl:template match="ulink[@url='ml']">
- <a class="{@role}" href="http://lists.sourceforge.net/lists/listinfo/{.}"
+ <a class="{@role}" href="https://lists.sourceforge.net/lists/listinfo/{.}"
     ><xsl:apply-templates/></a></xsl:template>
 
 <!-- =============================== RFC =============================== -->
