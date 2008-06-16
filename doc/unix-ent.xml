@@ -7,9 +7,7 @@
  See http://www.gnu.org/copyleft/gpl.html
  -->
 
-<!ENTITY unix '<ulink
-               url="http://www.UNIX-systems.org/online.html"><emphasis
-               role="strong">UNIX</emphasis></ulink>'>
+<!ENTITY unix '<ulink url="http://www.unix.org/online.html"><emphasis role="strong">UNIX</emphasis></ulink>'>
 
 <!ENTITY X '<ulink url="http://www.x.org/">X Window System</ulink>'>
 
