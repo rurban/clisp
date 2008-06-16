@@ -2539,7 +2539,8 @@ to the 3 (or 4) <link linkend="base-modules">base modules</link>.</para>
 
 <section id="incmod-kdml"><title>Mathematics, Data Mining et al</title>
 <variablelist><varlistentry><term>&libsvm-mod;</term>
-  <listitem><simpara>Build <ulink url="http://www.kernel-machines.org/">Support
+  <listitem><simpara>Build
+    <ulink url="http://www.support-vector-machines.org/">Support
      Vector Machine</ulink> models using &libsvm-link; inside &clisp;.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&pari-mod;</term>
