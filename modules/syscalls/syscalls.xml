@@ -394,7 +394,7 @@
  </simpara></listitem></varlistentry>
  <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
     &filename-r;)</code></term>
-  <listitem><simpara>Calls <function role="unix">mkdtemp</function>
+  <listitem><simpara>Calls <function role="bsd">mkdtemp</function>
     (similar to <function role="unix">mkstemp</function> but not in POSIX),
     returns the namestring of a new empty temporary directory.
  </simpara></listitem></varlistentry>
