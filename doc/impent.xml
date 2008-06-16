@@ -539,7 +539,7 @@
 <!ENTITY textdomaindir '<link linkend="textdomaindir"><function>I18N:TEXTDOMAINDIR</function></link>'>
 
 <!-- *** libsvm *** -->
-<!ENTITY libsvm-link '<ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm">LibSVM</ulink>'>
+<!ENTITY libsvm-link '<ulink url="http://www.csie.ntu.edu.tw/~cjlin/libsvm/">LibSVM</ulink>'>
 
 <!-- *** rawsock *** -->
 <!ENTITY convert-address '<link linkend="rawsock-convert-address"><function>RAWSOCK:CONVERT-ADDRESS</function></link>'>
