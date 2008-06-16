@@ -146,8 +146,8 @@ further explanations of the issues could be provided).</para>
 <qandaentry id="faq-mailing-lists"><question id="faq-mailing-lists-q">
   <simpara>Which mailing lists should I subscribe to?</simpara></question>
 <answer><para>Cross-posting in the &clisp;
-  <ulink url="current/http://sourceforge.net/mail/?group_id=1355">mailing
-   lists</ulink> is very actively discouraged and is virtually non-existent,
+  <ulink url="http://sourceforge.net/mail/?group_id=1355">mailing lists</ulink>
+  is very actively discouraged and is virtually non-existent,
   thus you can subscribe to all mailing lists that are relevant to you
   without getting duplicate messages:<variablelist>
  <varlistentry><term><ulink url="ml">clisp-announce</ulink></term>
