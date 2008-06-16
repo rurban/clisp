@@ -258,7 +258,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    using <function role="unix">if_nameindex</function>.
 </simpara></listitem></varlistentry>
 <varlistentry id="rawsock-ifaddrs"><term><code>(RAWSOCK:IFADDRS)</code></term>
- <listitem><simpara>Call <function role="unix">getifaddrs</function>
+ <listitem><simpara>Call <function role="bsd">getifaddrs</function>
    and return a &list-t; of <type>ifaddrs</type> objects.
 </simpara></listitem></varlistentry>
 <varlistentry id="rawsock-sockopt"><term><code>(RAWSOCK:SOCKET-OPTION
