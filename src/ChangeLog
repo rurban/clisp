@@ -1,3 +1,8 @@
+2008-06-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (RAWSOCK:NETWORK): use getnetbyaddr
+	instead of non-existent getnetbynumber
+
 2008-06-13  Sam Steingold  <sds@gnu.org>
 
 	* defmacro.lisp (make-macro-expansion): bind %proper-list-p to nil,
@@ -6,7 +11,7 @@
 2008-06-13  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (check_errno) [WIN32_NATIVE]:
-	#include <winerror.h>, drop prefix=ERROR, 
+	#include <winerror.h>, drop prefix=ERROR,
 	and use cygwin cvs tree to define many more codes
 
 2008-06-11  Sam Steingold  <sds@gnu.org>
