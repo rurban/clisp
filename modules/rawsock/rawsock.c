@@ -494,9 +494,9 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
     VALUES1(listof(count));
     return;
   } else if (uint_p(net)) {
-#  if defined(HAVE_GETNETBYNUMBER)
+#  if defined(HAVE_GETNETBYADDR)
     begin_system_call();
-    ne = getnetbynumber(I_to_uint(net),type);
+    ne = getnetbyaddr(I_to_uint(net),type);
     end_system_call();
 #  endif
   } else if (stringp(net)) {

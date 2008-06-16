@@ -239,7 +239,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    &optional-amp; &net-r; &type-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getnetbyname</function>
    when &net-r; is a &string-t;,
-   or call <function role="unix">getnetbynumber</function> when
+   or call <function role="unix">getnetbyaddr</function> when
    &net-r; is an &integer-t;.
    Return a <type>RAWSOCK:NETWORK</type> structure object.
    When &net-r; is &nil;, return a &list-t; of all known networks
