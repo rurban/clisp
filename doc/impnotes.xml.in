@@ -97,7 +97,7 @@
 
 <para>The first part of these notes, <xref linkend="clhs-chapters"/>,
  is indexed in parallel to the &hyperspec; and documents how &clisp;
- implements the standard &ansi-cl;.</para>
+ implements the &ansi-cl;.</para>
 
 <para>The second part, <xref linkend="ext-standard"/>, documents the
  common extensions to the &ansi-cl;, specifically &mop; and &gray-pac;
