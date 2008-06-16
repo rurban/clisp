@@ -442,7 +442,7 @@ following command:
     which implements a rudimentary &http; server</simpara></listitem>
   <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/donc/http.lisp">CLOCC/src/donc/</ulink> has an &http; server</simpara></listitem>
   <listitem><simpara><ulink url="http://clocc.sourceforge.net/clocc/src/cllib/url.lisp">CLOCC/src/cllib/</ulink> handles URLs</simpara></listitem>
-  <listitem><simpara><ulink url="http://www.fractalconcept.com/asp/mod_lisp">mod_lisp</ulink>
+  <listitem><simpara><ulink url="http://www.cliki.net/mod_lisp">mod_lisp</ulink>
     hooks lisp into &apache;</simpara></listitem>
   <listitem><simpara><ulink url="http://www.cliki.net/HTTP%20dot%20LSP">Object-Oriented HTTP server for &clisp;</ulink></simpara></listitem>
  </itemizedlist>
