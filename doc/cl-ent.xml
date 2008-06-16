@@ -10,7 +10,7 @@
 <!-- *** general references about Common Lisp *** -->
 <!ENTITY clhs 'http://www.lisp.org/HyperSpec'>
 <!ENTITY clrfi 'http://clrfi.alu.org/clrfi'>
-<!ENTITY mop-home 'http://www.lisp.org/mop'>
+<!ENTITY mop-home 'http://www.lisp.org/mop/'>
 <!ENTITY cl '<ulink url="http://www.lisp.org"><command>Common Lisp</command></ulink>'>
 <!ENTITY clos '<ulink role="clhs" url="chap-7"><command>CLOS</command></ulink>'>
 <!ENTITY clcs '<ulink role="clhs" url="chap-9"><command>CLCS</command></ulink>'>
@@ -112,7 +112,7 @@
 <!ENTITY readline-link 'http://tiswww.case.edu/php/chet/readline/'>
 <!ENTITY readline '&gnu; <ulink url="&readline-link;readline.html">readline</ulink>'>
 <!ENTITY lightning '&gnu; <ulink url="http://www.gnu.org/software/lightning/">lightning</ulink>'>
-<!ENTITY gdbm '&gnu; <ulink url="http://www.gnu.org/software/gdbm">DataBase Manager</ulink>'>
+<!ENTITY gdbm '&gnu; <ulink url="http://www.gnu.org/software/gdbm/">DataBase Manager</ulink>'>
 <!ENTITY gnulib '&gnu; <ulink url="http://www.gnu.org/software/gnulib/">Portability Library</ulink>'>
 <!ENTITY autoconf '&gnu; <ulink url="http://www.gnu.org/software/autoconf/">autoconf</ulink>'>
 <!ENTITY cvs '<ulink url="http://www.cvshome.org">CVS</ulink>'>
