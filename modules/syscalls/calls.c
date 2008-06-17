@@ -2044,6 +2044,8 @@ DEFUN(POSIX:MKDTEMP, template) {
   object fname = physical_namestring(popSTACK());
   with_string_0(fname,GLO(pathname_encoding),namez,{
       char *c_template;
+      if (namez[namez_bytelen-1] == '/') /* mkdtemp(".../") --> ENOENT */
+        namez[--namez_bytelen] = 0;
       begin_system_call();
       if (namez_bytelen > 6
           && namez[namez_bytelen-1]=='X'
