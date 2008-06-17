@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<section id="zlib"><title>ZLIB Interface</title>
+<section id="zlib"><title>Interface to zlib</title>
 
 <para>This is an &ffi-pac;-based interface to the
- <ulink url="http://zlib.net">ZLIB</ulink>.</para>
+ <ulink url="http://zlib.net">zlib</ulink>.</para>
 
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:ZLIB</constant>.</simpara>
