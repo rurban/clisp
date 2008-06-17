@@ -1,5 +1,11 @@
 2008-06-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/posix.lisp (make-xterm-io-stream): avoid a race
+	condition [between (delete-file tmps) and (mknod tmps :FIFO :RWXU)]
+	by using mkdtemp and creating the pipe in the temporary directory
+
+2008-06-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (MKDTEMP): strip trailing slash from
 	namez because mkdtemp(".../") --> ENOENT
 

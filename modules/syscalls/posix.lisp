@@ -363,12 +363,11 @@
 ;;;--------------------------------------------------------------------------
 #+unix
 (defun make-xterm-io-stream (&key (title "CLISP I/O"))
-  (let* ((tmps (mkstemp "/tmp/clisp-x-io-XXXXXX"))
-         (pipe (namestring tmps))
+  (let* ((tmpdir (mkdtemp "/tmp/clisp-x-io-XXXXXX/"))
+         (pipe (namestring (merge-pathnames "pipe" tmpdir)))
          xio
          (clos::*enable-clos-warnings* nil))
-    (close tmps) (delete-file tmps)
-    (mknod tmps :FIFO :RWXU)
+    (mknod pipe :FIFO :RWXU)
     (setq title (string title))
     ;; - tty tells us what device to use for IO
     ;; - cat holds xterm from quitting and prints the good-bye message
@@ -388,6 +387,7 @@
       (with-open-file (s pipe :direction :output)
         (write-line (SYS::TEXT "Bye.") s))
       (delete-file pipe)
+      (delete-directory tmpdir)
       (let ((clos::*enable-clos-warnings* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
