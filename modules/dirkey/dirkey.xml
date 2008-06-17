@@ -118,7 +118,7 @@ future).</para>
     <function>LDAP:DIR-KEY-VALUES</function>,
     <function>LDAP:DIR-KEY-CHILDREN</function> and
     <function>LDAP:DIR-KEY-DUMP-TREE</function> in
-    <filename role="clisp-cvs">modules/dirkey/dirkey.lisp</filename>.
+    <filename role="clisp-cvs">modules/dirkey/dirkey1.lisp</filename>.
     </simpara></listitem></varlistentry>
 </variablelist>
 
