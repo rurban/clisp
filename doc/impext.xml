@@ -2581,8 +2581,8 @@ to the 3 (or 4) <link linkend="base-modules">base modules</link>.</para>
 <section id="incmod-gui"><title>Graphics</title>
 <variablelist><varlistentry><term>&clx;</term>
  <listitem><para>Call
-  <ulink url="http://www.the-labs.com/X11/XLib-Manual/">Xlib</ulink>
-  functions from &clisp;.  Two implementations are supplied:
+   <ulink url="http://www.x.org/docs/X11/xlib.pdf">Xlib</ulink>
+   functions from &clisp;.  Two implementations are supplied:
   <variablelist><varlistentry><term>&mit-clx;, from MIT
    <ulink url="ftp://ftp.x.org/R5contrib/CLX.R5.02.tar.Z"/></term>
    <listitem><simpara>the standard implementation
