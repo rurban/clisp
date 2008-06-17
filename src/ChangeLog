@@ -1,3 +1,8 @@
+2008-06-17  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (MKDTEMP): strip trailing slash from
+	namez because mkdtemp(".../") --> ENOENT
+
 2008-06-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (RAWSOCK:NETWORK): use getnetbyaddr
