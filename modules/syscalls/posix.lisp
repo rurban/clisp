@@ -362,7 +362,7 @@
 
 ;;;--------------------------------------------------------------------------
 #+unix
-(defun make-xterm-io-stream (&key (title "CLISP I/O"))
+(defun make-xterm-io-stream (&key (title "CLISP I/O") (xterm "xterm"))
   (let* ((tmpdir (mkdtemp "/tmp/clisp-x-io-XXXXXX/"))
          (pipe (namestring (merge-pathnames "pipe" tmpdir)))
          xio
@@ -372,8 +372,8 @@
     ;; - tty tells us what device to use for IO
     ;; - cat holds xterm from quitting and prints the good-bye message
     ;;   (actually, the xterm window disappears before you can read it...)
-    (shell (format nil "xterm -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
-                   title title pipe pipe))
+    (shell (format nil "~a -n ~s -T ~s -e 'tty >> ~a; cat ~a' &"
+                   xterm title title pipe pipe))
     (with-open-file (s pipe :direction :input)
       (setq xio (open (read-line s) :direction :io)))
     ;; GC uses the internal non-generic builtin_stream_close() so
@@ -391,7 +391,6 @@
       (let ((clos::*enable-clos-warnings* nil))
         (remove-method #'close (find-method #'close '(:after) `((eql ,xio))))))
     xio))
-
 ;;;--------------------------------------------------------------------------
 #+FFI (progn
 (export '(fopen fdopen freopen fclose fflush ; fgetc fputc ungetc
