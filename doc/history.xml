@@ -427,7 +427,7 @@
  <revdescription><itemizedlist><listitem><simpara>&open-http;, &notspec;,
      &def-c-const;, <link linkend="base64"><constant>BASE64</constant></link>
    </simpara></listitem>
-   <listitem><simpara><filename role="clisp-cvs">modules/new-clx/demos/koch.lisp</filename></simpara></listitem>
+   <listitem><simpara><filename role="clisp-cvs">modules/clx/new-clx/demos/koch.lisp</filename></simpara></listitem>
    <listitem><simpara><filename role="clisp-cvs">src/spvw_sigterm.d</filename></simpara></listitem></itemizedlist>
 </revdescription></revision>
 
@@ -469,7 +469,7 @@
    <listitem><simpara><xref linkend="defstruct-mop"/></simpara></listitem>
    <listitem><simpara>&rename-dir;</simpara></listitem>
    <listitem><simpara>Many additions to
-     <filename role="clisp-cvs">modules/new-clx/demos/</filename>
+     <filename role="clisp-cvs">modules/clx/new-clx/demos/</filename>
    </simpara></listitem>
    <listitem><simpara>New modules: &gtk2-mod;, &gdbm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
