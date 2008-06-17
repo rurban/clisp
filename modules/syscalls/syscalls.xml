@@ -700,10 +700,13 @@ which compute the error functions, Bessel functions and Gamma.</para>
 </simpara></listitem></itemizedlist></para></section>
 
 <section id="mk-xterm-io"><title>XTerm</title>
-<para><code>(&mk-xterm-io; &key-amp; title)</code>
+<para><code>(&mk-xterm-io; &key-amp; title xterm)</code>
  When running under the &X;, you can create a &bidi-s;, which uses a new
- dedicated <command role="unix">xterm</command>, using the function
- &mk-xterm-io;: <programlisting language="lisp">
+ dedicated text window (created by the executable specified by
+ the <constant>:XTERM</constant> argument which should be compatible
+ with <command>xterm</command> and <command>rxvt</command>, i.e., accept
+ options <option>-n</option>, <option>-T</option>, and <option>-e</option>)
+ using the function &mk-xterm-io;: <programlisting language="lisp">
 (&setq; &error-output-var;
       (&setq; &debug-io-var;
             (&mk-xterm-io; :title "clisp errors and debug")))
