@@ -2,8 +2,8 @@
 
 <section id="netica"><title>Netica Interface</title>
 
-<para>This is an interface to the &netica-link; for working with
- Bayesian belief networks and influence diagrams.</para>
+<para>This is an interface to the &netica-link; (&c-lang; API version 3.25)
+ for working with Bayesian belief networks and influence diagrams.</para>
 
 <para>The package <quote role="package">NETICA</quote> is
  <link linkend="package-case">case-sensitive</link>, e.g., you would write
@@ -23,7 +23,7 @@
 <varlistentry><term><code>(netica:start-netica &key-amp;
    :license :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">NewNeticaEnviron_ns</function>
-   and <function role="netica">InitNetica_bn</function> and print some
+   and <function role="netica">InitNetica2_bn</function> and print some
    statistics; initialize <varname>netica:*env*</varname>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:check-errors &key-amp;
@@ -45,7 +45,7 @@
 </simplelist></para></listitem></varlistentry>
 <varlistentry><term><code>(netica:close-netica &key-amp;
    :env :verbose)</code></term>
- <listitem><simpara>Terminate the netica session.
+ <listitem><simpara>Terminate the Netica session.
    Sets <varname>netica:*env*</varname> to &nil;.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:make-net &key-amp; :name
