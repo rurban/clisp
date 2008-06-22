@@ -1,6 +1,7 @@
 2008-06-21  Sam Steingold  <sds@gnu.org>
 
 	* modules/netica/Makefile: do not use ${...-...}
+	* modules/netica/demo.lisp: test netica:read-net
 
 2008-06-21  Sam Steingold  <sds@gnu.org>
 
