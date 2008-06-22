@@ -14,8 +14,26 @@
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:NETICA</constant>.</simpara>
 
-<para>An interface to all public &c-lang; functions is provided.
- Additionally, some higher level functionality is available
+<para>All public &c-lang; functions are available as
+ &foreign-function-t;s.</para>
+
+<para>The functions which are specified to return &c-lang; arrays,
+namely <simplelist>
+ <member><function role="netica">GetNodeBeliefs_bn</function></member>
+ <member><function role="netica">GetNodeExpectedUtils_bn</function></member>
+ <member><function role="netica">GetNodeLikelihood_bn</function></member>
+ <member><function role="netica">GetNodeProbs_bn</function></member>
+ <member><function role="netica">GetNodeLevels_bn</function></member>
+ </simplelist> correspond to &foreign-function-t;s which return &c-pointer;s.
+ We define wrappers for them, namely <simplelist>
+ <member><function role="netica">GetNodeBeliefs</function></member>
+ <member><function role="netica">GetNodeExpectedUtils</function></member>
+ <member><function role="netica">GetNodeLikelihood</function></member>
+ <member><function role="netica">GetNodeProbs</function></member>
+ <member><function role="netica">GetNodeLevels</function></member>
+</simplelist> which return the appropriate &vector-t;s.</para>
+
+<para>Additionally, some higher level functionality is available
  (see <filename role="clisp-cvs">modules/netica/demo.lisp</filename>
  for sample usage):</para>
 
@@ -75,7 +93,8 @@
 <varlistentry><term><code>(netica:get-beliefs node
    &key-amp; :env :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">GetNodeBeliefs_bn</function>
-   on the node.</simpara></listitem></varlistentry>
+   on the node and pretty-print the results when <constant>:VERBOSE</constant>
+   is non-&nil;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:enter-finding net node
    state &key-amp; :env :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">EnterFinding_bn</function>
