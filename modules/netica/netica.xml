@@ -25,12 +25,12 @@ namely <simplelist>
  <member><function role="netica">GetNodeProbs_bn</function></member>
  <member><function role="netica">GetNodeLevels_bn</function></member>
  </simplelist> correspond to &foreign-function-t;s which return &c-pointer;s.
- We define wrappers for them, namely <simplelist>
- <member><function role="netica">GetNodeBeliefs</function></member>
- <member><function role="netica">GetNodeExpectedUtils</function></member>
- <member><function role="netica">GetNodeLikelihood</function></member>
- <member><function role="netica">GetNodeProbs</function></member>
- <member><function role="netica">GetNodeLevels</function></member>
+ We define low level wrappers for them, namely <simplelist>
+ <member><function>GetNodeBeliefs</function></member>
+ <member><function>GetNodeExpectedUtils</function></member>
+ <member><function>GetNodeLikelihood</function></member>
+ <member><function>GetNodeProbs</function></member>
+ <member><function>GetNodeLevels</function></member>
 </simplelist> which return the appropriate &vector-t;s.</para>
 
 <para>Additionally, some higher level functionality is available
@@ -98,8 +98,8 @@ namely <simplelist>
 <varlistentry><term><code>(netica:enter-finding net node
    state &key-amp; :env :verbose)</code></term>
  <listitem><simpara>Call <function role="netica">EnterFinding_bn</function>
-   using <function role="netica">NodeNamed_bn</function>
-   and <function role="netica">StateNamed_bn</function>.
+   using <function role="netica">GetNodeNamed_bn</function>
+   and <function role="netica">GetStateNamed_bn</function>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:save-net net &key-amp;
    :file :env :verbose)</code></term>
@@ -111,7 +111,7 @@ namely <simplelist>
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(netica:with-open-dne-file (var
    file &rest-amp; opts) &body-amp; body)</code></term>
- <listitem><simpara>Call <function role="netica">NewStreamFile_ns</function>,
+ <listitem><simpara>Call <function role="netica">NewFileStream_ns</function>,
    execute &body-r;, then <function role="netica">DeleteStream_ns</function>
    - just like &with-open-stream;.</simpara></listitem></varlistentry>
 <varlistentry><term><varname>netica:*verbose*</varname></term>
