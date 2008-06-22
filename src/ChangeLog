@@ -2,6 +2,7 @@
 
 	* modules/netica/Makefile: do not use ${...-...}
 	* modules/netica/demo.lisp: test netica:read-net
+	* modules/netica/link.sh: netica 3.25 requires g++
 
 2008-06-21  Sam Steingold  <sds@gnu.org>
 
