@@ -5,7 +5,7 @@ CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
 INCLUDES = ..
-NETICA = ${NETICA_C_API-/usr/local/netica}/src
+NETICA = $(NETICA_C_API)/src
 CLISP = clisp -q -norc
 
 LN = ln
