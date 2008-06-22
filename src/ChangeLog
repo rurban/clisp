@@ -1,3 +1,10 @@
+2008-06-21  Sam Steingold  <sds@gnu.org>
+
+	* io.d (pr_record_descr): use pr_symbol instead of literal ':' +
+	pr_like_symbol(Symbol_name) to print slot names so that the keywords
+	are printed as :|HOST| and not :|host| when writing a FASL file
+	in a modern package
+
 2008-06-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/netica/: updated to the Netica C API version 3.25 from 2.15

@@ -1086,6 +1086,17 @@ NIL
     (makunbound c) (unintern c)))
 0
 
+(let ((f "test-pr-kw.lisp"))
+  (with-open-file (o f :direction :output)
+    (format o "(defpackage m (:modern t))~%(in-package m)~%~
+\(defparameter p #.(make-pathname :type \"mem\"))~%"))
+  (unwind-protect
+       (progn (load (compile-file f))
+	      (symbol-value (read-from-string "m::p")))
+    (post-compile-file-cleanup f)
+    (delete-package "M")))
+#.(make-pathname :type "mem")
+
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1618724&group_id=1355
 (funcall (compile nil '(lambda () (declare (optimize foo)))))
 NIL
