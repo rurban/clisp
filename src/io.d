@@ -4797,7 +4797,7 @@ LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
 
 /* ==========================================================================
    P R I N T
-   ===========================================================================
+   ==========================================================================
 
  The basic idea of the printer:
  Depending on the datatype, the external representation of the
@@ -7102,8 +7102,7 @@ local maygc void pr_like_symbol (const gcv_object_t* stream_, object string) {
     var object pack = get_current_package();
     pr_symbol_part(stream_,popSTACK()/*string*/,
                    pack_casesensitivep(pack),pack_caseinvertedp(pack));
-  } else
-    /* print without escape-characters */
+  } else /* print without escape-characters */
     write_sstring_case(stream_,string);
 }
 
@@ -8619,9 +8618,8 @@ local maygc void pr_record_descr (const gcv_object_t* stream_, object obj,
         var gcv_object_t* slot_ = &STACK_0; /* there's the slot */
         JUSTIFY_START(0);
         JUSTIFY_LAST(false);
-        write_ascii_char(stream_,':'); /* Keyword-mark */
         /* (first slot) should be a symbol */
-        pr_like_symbol(stream_,Symbol_name(Car(*slot_))); /* print symbolnames of the component */
+        pr_symbol(stream_,Car(*slot_)); /* print symbolnames of the component */
         JUSTIFY_SPACE;
         JUSTIFY_LAST(true);
         pushSTACK(*(obj_ STACKop 0)); /* obj as argument */

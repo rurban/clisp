@@ -1,3 +1,8 @@
+2008-06-21  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst (test-pr-kw): check that we can write a literal
+	structure in the FAS file compiled in a modern package
+
 2008-06-14  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: import princ-error into ftest
