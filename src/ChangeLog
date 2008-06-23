@@ -1,5 +1,11 @@
 2008-06-23  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (check_variable_value_replacement): extracted from eval1()
+	(eval1): use it
+	(interpret_bytecode_): use it for cod_getvalue & cod_getvalue_push
+
+2008-06-23  Sam Steingold  <sds@gnu.org>
+
 	* unix/MAGIC.add: remove non-CLISP-specific entries;
 	CLISP FASL files start with |SYSTEM|::|VERSION| since 2004-03-27
 

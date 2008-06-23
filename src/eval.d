@@ -3001,6 +3001,25 @@ global maygc Values eval_no_hooks (object form) {
   pushSTACK(NIL); eval1(form);
 }
 
+/* error-message, if a symbol has no value.
+ > symbol: unbound symbol
+ < value1: bound value
+ can trigger GC */
+local maygc void check_variable_value_replacement (gcv_object_t *symbol,
+                                                   bool restart_p) {
+  do {
+    pushSTACK(*symbol); /* PLACE */
+    pushSTACK(*symbol); /* CELL-ERROR Slot NAME */
+    pushSTACK(*symbol);
+    pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(unbound_variable,GETTEXT("~S: variable ~S has no value"));
+    else error(unbound_variable,GETTEXT("~S: variable ~S has no value"));
+  } while (!boundp(value1));
+  if (!nullp(value2)) /* STORE-VALUE */
+    value1 = setq(*symbol,value1);
+}
+
 /* UP: evaluates a form in the current environment.
  Does not take the value of *EVALHOOK* into consideration
  and expects the value of *APPLYHOOK*.
@@ -3026,17 +3045,8 @@ local maygc Values eval1 (object form)
         eval(TheSymbolmacro(symbolmacro)->symbolmacro_expansion); /* evaluate Expansion */
         unwind(); /* unwind EVAL-Frame */
       } else {
-        if (!boundp(value1)) {
-          do {
-            pushSTACK(form); /* PLACE */
-            pushSTACK(form); /* CELL-ERROR slot NAME */
-            pushSTACK(form);
-            check_value(unbound_variable,GETTEXT("EVAL: variable ~S has no value"));
-            form = STACK_(frame_form+1);
-          } while (!boundp(value1));
-          if (!nullp(value2)) /* STORE-VALUE */
-            value1 = setq(form,value1);
-        }
+        if (!boundp(value1))
+          check_variable_value_replacement(&(STACK_(frame_form+1)),true);
         mv_count=1; /* value1 as value */
         skipSTACK(1);
         unwind(); /* unwind EVAL-Frame */
@@ -6397,9 +6407,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var object symbol = TheCclosure(closure)->clos_consts[n];
       /* The Compiler has already checked, that it's a Symbol. */
       if (!boundp(Symbol_value(symbol))) {
-        pushSTACK(symbol);      /* CELL-ERROR slot NAME */
-        pushSTACK(symbol); pushSTACK(Closure_name(closure));
-        error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+        pushSTACK(symbol); check_variable_value_replacement(&STACK_0,false);
       }
       VALUES1(Symbol_value(symbol));
     } goto next_byte;
@@ -6409,9 +6417,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var object symbol = TheCclosure(closure)->clos_consts[n];
       /* The Compiler has already checked, that it's a Symbol. */
       if (!boundp(Symbol_value(symbol))) {
-        pushSTACK(symbol);    /* CELL-ERROR slot NAME */
-        pushSTACK(symbol); pushSTACK(Closure_name(closure));
-        error(unbound_variable,GETTEXT("~S: symbol ~S has no value"));
+        pushSTACK(symbol); check_variable_value_replacement(&STACK_0,false);
       }
       pushSTACK(Symbol_value(symbol));
     } goto next_byte;
