@@ -61,11 +61,11 @@
 -  XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
  fi
  XCC_UNUSABLE_CPP=false
- 
+
 @@ -757,15 +745,6 @@
    OS_INCLUDES=$OS_INCLUDES' xthread'
  fi
- 
+
 -if [ $CROSS = true ] ; then
 -  if [ $TOS = os2 ] ; then
 -    # CHSCONVERT='$(HOME)/cc/convert-to-ibmpc'
@@ -132,12 +132,12 @@
    esac
    if [ $TSYS = sun4 ] ; then
 @@ -1454,13 +1430,12 @@
- 
+
  EXTRA_CPARTS='noreadline'
- 
+
 -DFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
 +CFILES="$CPARTS $EVERY_INCLUDES $OTHER_INCLUDES $SPVW_INCLUDES $ERROR_INCLUDES $LISPARIT_INCLUDES genclisph modules $EXTRA_CPARTS"
- 
+
 -ARI_ASMD=''
  ARI_ASMC=''
  ARI_ASMS=''
@@ -187,7 +187,7 @@
 +  ARI_ASMC=$ARI_ASMC' ariarm'
    ARI_ASMS=$ARI_ASMS' ariarm'
  fi
- 
+
 -SP_ASMD=''
 +SP_ASMC=''
  SP_ASMS=''
@@ -230,7 +230,7 @@
 @@ -1963,52 +1932,6 @@
    echol
  fi
- 
+
 -if [ -n "$XCC_SUNPRO" ] ; then
 -  XASM_NEED_CCPAUX=true
 -else
@@ -281,20 +281,20 @@
    TXT2CINCL="-I'${SRCTOPDIR}'"
  else
 @@ -2025,10 +1948,7 @@
- 
+
  echol
- 
+
 -echolist "DFILES =" "$DFILES $ARI_ASMD $SP_ASMD" ".d"
 -echol
 -
 -echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD" ".c"
 +echolist "CFILES =" "$CFILES $ARI_ASMC $ARI_ASMC $SP_ASMC" ".c"
  echol
- 
+
  echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
 @@ -2094,22 +2014,9 @@
- 
- 
+
+
  UTILS=''
 -if [ $NEED_CCPAUX = true ] ; then
 -  UTILS=$UTILS' ccpaux'
@@ -312,7 +312,7 @@
 -if [ "$CHSCONVERT" = "./cv_lt_pc" ] ; then
 -  UTILS=$UTILS' cv_lt_pc'
 -fi
- 
+
  PARAMS="intparam floatparam";
  PARAMS_H="";
 @@ -2129,7 +2036,7 @@
@@ -347,10 +347,10 @@
 -    OBSOLETE=$OBSOLETE" ${util}.c"
 -  fi
  done
- 
+
  echol
 @@ -2223,9 +2121,9 @@
- 
+
  if [ -n "${SRCDIR}" ] ; then
    if [ ${HOS} = unix -o ${HSYS} = win32gcc ] ; then
 -    for f in $DFILES $ARI_ASMD $SP_ASMD ; do
@@ -365,7 +365,7 @@
 @@ -2246,18 +2144,6 @@
  echodummyrule allc
  echol
- 
+
 -for f in $DFILES ; do
 -  echol "${f}.c : ${f}.d ${XDECL_DEPENDENCIES}"
 -  echotabpipe "\$(CAT) ${f}.d${CHSCONVERT_FILTER} ${XDECL_FILTER} > ${f}.c"
@@ -401,7 +401,7 @@
          if [ $f = arimips ] ; then
 @@ -2807,11 +2693,11 @@
    echol
- 
+
    echol "# check the sources:"
 -  echol "# 1. subr.d, fsubr.d, subrkw.d and all the LISPFUNs must add up"
 +  echol "# 1. subr.c, fsubr.c, subrkw.c and all the LISPFUNs must add up"
@@ -411,7 +411,7 @@
 -  echotab "if egrep ' var gcv_object_t *[^* ]' *.d; then false; else true; fi"
 +  echotab "if egrep ' gcv_object_t *[^* ]' *.c; then false; else true; fi"
    echol
- 
+
    echol "# Test: recompile \$(LISPFILES) and compare their contents."
 @@ -2932,10 +2818,9 @@
  echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph ; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
@@ -444,7 +444,7 @@
  echotab "  (dir=\$(TOPDIR)/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}\$(TOPDIR)/\$\$module LN="`if test "$HLN" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
  echotab "fi; done"
 @@ -3501,7 +3386,7 @@
- 
+
  # clean1 removes everything that becomes obsolete once lisp${LEXE} is recompiled
  # without changing the bytecode format and the tables in
 -# constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
@@ -483,14 +483,3 @@
    echo "$0: No link kit found in $CLISP_LINKKIT" 1>&2
    exit 1
  fi
---- clisp-build/src/configure	Wed Jan 29 07:56:03 2003
-+++ clisp-conversion/src/configure	Mon Mar  3 17:08:59 2003
-@@ -270,7 +270,7 @@
- PACKAGE_STRING=
- PACKAGE_BUGREPORT=
- 
--ac_unique_file="lispbibl.d"
-+ac_unique_file="lispbibl.c"
- # Factoring default headers for most tests.
- ac_includes_default="\
- #include <stdio.h>
