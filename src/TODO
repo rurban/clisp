@@ -171,17 +171,6 @@ Note: including libltdl is non-trivial and libtoolize requires configure.ac
 Better error checking in get-setf-expansion for long defsetf
 
 
-Better error report when calling a foreign function with not enough
-arguments. So far, it says it needs one more argument than it
-was given, instead of telling the precise number the function wants.
-E.g. > (linux:qsort)
-*** - FFI::FOREIGN-CALL-OUT: Too few arguments (0 instead of at least 1) given
-      to #<FOREIGN-FUNCTION "qsort" #x080511C8>
-A solution might involve moving the count-inarguments code from *.lisp
-to foreign.d, see
-http://sourceforge.net/tracker/index.php?func=detail&aid=654718&group_id=1355&atid=101355
-
-
 FFI: passing structs by value:
 http://clisp.cons.org/impnotes/dffi.html#ffi-struct-arg
 foreign.d should signal an error when a struct is passed by value
