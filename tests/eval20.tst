@@ -125,7 +125,79 @@ NIL
   zz)
 (12 . 2)
 
+;; globally special
+(defparameter x 1) x
+(handler-bind ((unbound-variable
+                (lambda (c) (princ-error c) (store-value 10))))
+  (list (let (x) (makunbound 'x) x) x))
+(10 1)
 
-; Clean up.
-(unintern 'x)
+(handler-bind ((unbound-variable
+                (lambda (c) (princ-error c) (store-value 11))))
+  (list (let (x) (makunbound 'x) (symbol-value 'x)) x))
+(11 1)
+
+(handler-bind ((unbound-variable
+                (lambda (c) (princ-error c) (store-value 12))))
+  (list (let (x) (makunbound 'x) (list x (symbol-value 'x))) x))
+((12 12) 1)
+
+(handler-bind ((unbound-variable
+                (lambda (c) (princ-error c) (store-value 13))))
+  (list (let (x) (makunbound 'x) (list (symbol-value 'x) x)) x))
+((13 13) 1)
+
+(let ((count 140))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (use-value (incf count)))))
+    (list (let (x) (makunbound 'x) (list x (symbol-value 'x))) x)))
+((141 142) 1)
+
+(let ((count 150))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (use-value (incf count)))))
+    (list (let (x) (makunbound 'x) (list (symbol-value 'x) x)) x)))
+((151 152) 1)
+
+;; lexical: makunbound does not affect the lexical binding
+(let ((y 1))
+  (list (let ((y 20)) (makunbound 'y) y) y))
+(20 1)
+
+(let ((y 1))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (store-value 21))))
+    (list (let (y) (makunbound 'y) (symbol-value 'y)) y)))
+(21 1)
+
+(let ((y 1))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (store-value 220))))
+    (list (let ((y 22)) (makunbound 'y) (list y (symbol-value 'y))) y)))
+((22 220) 1)
+
+(let ((y 1))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (store-value 230))))
+    (list (let ((y 23)) (makunbound 'y) (list (symbol-value 'y) y)) y)))
+((230 23) 1)
+
+(let ((y 1) (count 240))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (use-value (incf count)))))
+    (list (let ((y 24)) (makunbound 'y) (list y (symbol-value 'y))) y)))
+((24 241) 1)
+
+(let ((y 1) (count 250))
+  (handler-bind ((unbound-variable
+                  (lambda (c) (princ-error c) (use-value (incf count)))))
+    (list (let ((y 25)) (makunbound 'y) (list (symbol-value 'y) y)) y)))
+((251 25) 1)
+
+
+;; Clean up.
+(flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
+  (kill 'setf-foo)
+  (kill 'bar)
+  (kill 'x))
 T
