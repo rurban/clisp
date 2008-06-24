@@ -6,9 +6,6 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
-unify unbound_variable errors between control.d:SYMBOL-VALUE & eval.d:interpret_bytecode
-
-
 bind-eval.tst failure on Linux/amd64 [bruno]
 
 

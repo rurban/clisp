@@ -1,3 +1,11 @@
+2008-06-24  Sam Steingold  <sds@gnu.org>
+
+	* error.d (check_variable_value_replacement): move here from eval.d
+	* lispbibl.d (check_variable_value_replacement): prototype
+	* eval.d (eval1): call setq here
+	* control.d (check_global_symbol_value): remove
+	(SYMBOL-VALUE): use check_variable_value_replacement
+
 2008-06-23  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (check_variable_value_replacement): extracted from eval1()
