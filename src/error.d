@@ -1481,6 +1481,25 @@ nonreturning_function(global, error_too_few_args,
   }
 }
 
+/* error-message, if a symbol has no value.
+ > symbol_: unbound symbol
+ > restart_p: false if nonreturning
+ < value1: bound value
+ < value2: non-NIL if STORE-VALUE was selected
+ can trigger GC */
+global maygc void check_variable_value_replacement (gcv_object_t *symbol_,
+                                                    bool restart_p) {
+  do {
+    pushSTACK(*symbol_); /* PLACE */
+    pushSTACK(*symbol_); /* CELL-ERROR Slot NAME */
+    pushSTACK(*symbol_);
+    pushSTACK(TheSubr(subr_self)->name);
+    if (restart_p)
+      check_value(unbound_variable,GETTEXT("~S: variable ~S has no value"));
+    else error(unbound_variable,GETTEXT("~S: variable ~S has no value"));
+  } while (!boundp(value1));
+}
+
 /* error if an argument is not of a given elementary integer C type.
  error_c_integer(obj);
  > obj: the faulty argument
