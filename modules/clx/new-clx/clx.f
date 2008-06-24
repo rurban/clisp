@@ -5425,7 +5425,6 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
 
     X_CALL(XChangeProperty (dpy, win, property, type, format, mode, data,
                             (end-start)));
-
     FREE_DYNAMIC_ARRAY (data);
   }
 
@@ -5505,9 +5504,9 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
           pushSTACK(*transform_f); /* transform function .. */
 
         switch (actual_format_return) {
-          case  8: pushSTACK(make_uint8  (prop_return[i])); break;
-          case 16: pushSTACK(make_uint16 (((unsigned short*)prop_return)[i])); break;
-          case 32: pushSTACK(make_uint32 (((unsigned long*) prop_return)[i])); break;
+          case  8: pushSTACK(make_uint8(prop_return[i])); break;
+          case 16: pushSTACK(make_uint16(((uint16*)prop_return)[i])); break;
+          case 32: pushSTACK(make_uint32(((uint32*)prop_return)[i])); break;
           default:
             NOTREACHED;
         }
