@@ -1,5 +1,5 @@
 ;;;; Copyright (C) 1996 by Gilbert Baumann
-;;;; Copyright (C) 2001-2007 by Sam Steingold
+;;;; Copyright (C) 2001-2008 by Sam Steingold
 ;;;; Distributed under GPL.
 ;;;; Some parts are from the MIT-CLX Distribution, copyrighted by
 ;;;; Texas Instruments Incorporated, but freely distributable
