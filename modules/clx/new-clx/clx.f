@@ -4482,10 +4482,9 @@ DEFUN(XLIB:SET-FONT-PATH, display new-path)
 {
   Display *dpy = get_display(STACK_1);
   int npathen = get_uint32(funcall1(L(length),STACK_0)) , i;
-  struct seq_path sp;
   DYNAMIC_ARRAY (pathen, char*, npathen);
-  sp.path = pathen;
-  map_sequence(STACK_0,coerce_into_path,(void*)&sp);
+  { struct seq_path sp; sp.path = pathen;
+    map_sequence(STACK_0,coerce_into_path,(void*)&sp); }
 
   begin_x_call();
   XSetFontPath (dpy, pathen, npathen);
@@ -5068,10 +5067,9 @@ DEFUN(XLIB:FREE-COLORS, colormap pixels &optional plane-mask)
   Colormap  cm = get_colormap_and_display (STACK_2, &dpy);
   unsigned long plane_mask = (boundp(STACK_0) ? get_pixel (STACK_0) : 0);
   unsigned int npixels = get_uint32(funcall1(L(length),STACK_1));
-  struct seq_pixel sp;
   DYNAMIC_ARRAY (pixels, unsigned long, npixels);
-  sp.pixel = pixels;
-  map_sequence(STACK_1,coerce_into_pixel,(void*)&sp);
+  { struct seq_pixel sp; sp.pixel = pixels;
+    map_sequence(STACK_1,coerce_into_pixel,(void*)&sp); }
 
   X_CALL(XFreeColors (dpy, cm, pixels, npixels, plane_mask));
 
@@ -5172,10 +5170,10 @@ DEFUN(XLIB:STORE-COLORS, colormap pixel-colors &key RED-P GREEN-P BLUE-P)
   Display *dpy;
   Colormap cm = get_colormap_and_display (STACK_1, &dpy);
   int ncolors = get_seq_len(&STACK_0,&`XLIB::PIXEL-COLORS-SEQ`,2);
-  struct seq_pixel_color spc;
   DYNAMIC_ARRAY (colors, XColor, ncolors);
-  spc.dpy = dpy; spc.color = colors; spc.slot = 0; spc.flags = flags;
-  map_sequence(STACK_0,coerce_into_pixel_color,(void*)&spc);
+  { struct seq_pixel_color spc;
+    spc.dpy = dpy; spc.color = colors; spc.slot = 0; spc.flags = flags;
+    map_sequence(STACK_0,coerce_into_pixel_color,(void*)&spc); }
 
   X_CALL(XStoreColors (dpy, cm, colors, ncolors));
 
@@ -5414,11 +5412,10 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   }
 
   {
-    struct seq_map sm;
     DYNAMIC_ARRAY (data, unsigned char, len ? len : 1);
-    sm.transform = &STACK_0; sm.data = data; sm.format = format;
-    map_sequence(STACK_6,coerce_into_map,(void*)&sm);
-
+    { struct seq_map sm;
+      sm.transform = &STACK_0; sm.data = data; sm.format = format;
+      map_sequence(STACK_6,coerce_into_map,(void*)&sm); }
     X_CALL(XChangeProperty (dpy, win, property, type, format, mode, data,
                             (end-start)));
     FREE_DYNAMIC_ARRAY (data);
@@ -5561,10 +5558,9 @@ DEFUN(XLIB:ROTATE-PROPERTIES, window properties &optional delta)
   Window win   = get_window_and_display (STACK_2, &dpy);
   int delta    = (boundp(STACK_0) ? get_sint32 (STACK_0) : 1);
   int num_props = get_uint32(funcall1(L(length),STACK_1));
-  struct seq_xatom sa;
   DYNAMIC_ARRAY (props, Atom, num_props);
-  sa.dpy = dpy; sa.atom = props;
-  map_sequence(STACK_1,coerce_into_xatom,(void*)&sa);
+  { struct seq_xatom sa; sa.dpy = dpy; sa.atom = props;
+    map_sequence(STACK_1,coerce_into_xatom,(void*)&sa); }
 
   X_CALL(XRotateWindowProperties (dpy, win, props, num_props, delta));
 
@@ -6983,10 +6979,9 @@ DEFUN(XLIB:SET-POINTER-MAPPING, display mapping)
   Display *dpy = get_display(STACK_1);
   int nmap = get_uint32(funcall1(L(length),STACK_0));
   int result;
-  struct seq_uint8 su;
   DYNAMIC_ARRAY (map, unsigned char, nmap);
-  su.data = map;
-  map_sequence(STACK_0,coerce_into_uint8,(void*)&su);
+  { struct seq_uint8 su; su.data = map;
+    map_sequence(STACK_0,coerce_into_uint8,(void*)&su); }
 
   X_CALL(result = XSetPointerMapping (dpy, map, nmap));
 
