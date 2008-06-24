@@ -2827,17 +2827,13 @@ DEFUN(XLIB:REPARENT-WINDOW, window1 window2 x y)
 
 DEFUN(XLIB:TRANSLATE-COORDINATES, src src-x src-y dst)
 {
-  int x,y;
-  Window child;
-  Window src, dest;
-  int src_x, src_y;
   Display *dpy;
+  Window src = get_xid_object_and_display (`XLIB::WINDOW`, STACK_3, &dpy);
+  Window dest = get_window (STACK_0);
+  Window child;
+  int src_x = get_sint16 (STACK_2), src_y = get_sint16 (STACK_1);
+  int x,y;
   int r;
-
-  src   = get_xid_object_and_display (`XLIB::WINDOW`, STACK_3, &dpy);
-  dest  = get_window (STACK_0);
-  src_x = get_sint16 (STACK_2);
-  src_y = get_sint16 (STACK_1);
 
   X_CALL(r = XTranslateCoordinates (dpy, src, dest, src_x, src_y,
                                     &x, &y, &child));
@@ -5457,11 +5453,16 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
 {
   /* input: */
   Display *display;
-  Window w;
-  Atom property;
-  long long_offset, long_length;
-  Bool delete_p;
-  Atom req_type;
+  Window w = get_xid_object_and_display (`XLIB::WINDOW`, STACK_7, &display);
+  Atom property = get_xatom (display, STACK_6);
+  /* How is :start/:end counted?
+     CLX counts the same way libX counts [This should be documented.] */
+  long long_offset = get_uint32_0(STACK_4);
+  long long_length =
+    (missingp(STACK_3) ? 0x7FFFFFFF : (get_uint32(STACK_3) - long_offset));
+  Bool delete_p = (missingp(STACK_2) ? 0 : 1);
+  Atom req_type =
+    (missingp(STACK_5) ? AnyPropertyType : get_xatom (display, STACK_5));
   /* output: */
   Atom actual_type_return;
   int actual_format_return;
@@ -5469,16 +5470,6 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
   unsigned long bytes_after_return;
   unsigned char *prop_return = NULL;
   Status r;
-
-  w = get_xid_object_and_display (`XLIB::WINDOW`, STACK_7, &display);
-  property = get_xatom (display, STACK_6);
-
-  /* How is :start/:end counted?
-   CLX counts the same way libX counts [This should be documented.] */
-  long_offset = get_uint32_0 (STACK_4);
-  long_length = (missingp(STACK_3) ? 0x7FFFFFFF : (get_uint32(STACK_3) - long_offset));
-  delete_p = (missingp(STACK_2) ? 0 : 1);
-  req_type = (missingp(STACK_5) ? AnyPropertyType : get_xatom (display, STACK_5));
 
   X_CALL(r = XGetWindowProperty (display, w, property,long_offset,long_length,
                                  delete_p, req_type,
@@ -5496,8 +5487,8 @@ DEFUN(XLIB:GET-PROPERTY,window property                         \
       pushSTACK(NIL);
     } else {
       uintC i;
-      gcv_object_t *transform_f = &(STACK_0);
-      gcv_object_t *result_type_f = &(STACK_1);
+      gcv_object_t *transform_f = &STACK_0;
+      gcv_object_t *result_type_f = &STACK_1;
 
       for (i = 0; i < nitems_return; i++) {
         if (boundp(*transform_f))
