@@ -84,32 +84,16 @@ LISPSPECFORM(function, 1,1,nobody)
   skipSTACK(2);
 }
 
-/* error-message, if a symbol has no value.
- > symbol: symbol
- < value1: bound value
- can trigger GC */
-local maygc void check_global_symbol_value (object symbol) {
-  value1 = Symbol_value(symbol);
-  if (!boundp(value1)) {
-    do {
-      pushSTACK(symbol); /* save */
-      pushSTACK(symbol); /* PLACE */
-      pushSTACK(symbol); /* CELL-ERROR Slot NAME */
-      pushSTACK(symbol);
-      pushSTACK(TheSubr(subr_self)->name);
-      check_value(unbound_variable,GETTEXT("~S: ~S has no dynamic value"));
-      symbol = popSTACK(); /* restore */
-    } while (!boundp(value1));
-    if (!nullp(value2)) /* STORE-VALUE */
-      Symbol_value(symbol) = value1;
-  }
-}
-
 LISPFUNNR(symbol_value,1)
 { /* (SYMBOL-VALUE symbol), CLTL p. 90 */
-  var object symbol = check_symbol(popSTACK());
-  check_global_symbol_value(symbol); /* value1 <- Symbol_value */
-  mv_count=1;
+  STACK_0 = check_symbol(STACK_0);
+  value1 = Symbol_value(STACK_0);
+  if (!boundp(value1)) {
+    check_variable_value_replacement(&STACK_0,true); /* sets value1 */
+    if (!nullp(value2)) /* STORE-VALUE */
+      Symbol_value(STACK_0) = value1;
+  }
+  skipSTACK(1); mv_count = 1;
 }
 
 LISPFUNNR(symbol_function,1)
