@@ -5,6 +5,7 @@
 (defun show (object &key ((:pretty *print-pretty*) *print-pretty*))
   "Print the object on its own line and return it. Used in many tests!"
   (fresh-line) (prin1 object) (terpri) object)
+#+clisp (progn
 (defun kill-down (name)
   (dolist (f (directory (ext:string-concat name "**")))
     (format t "~&removing ~S~%" f)
@@ -19,6 +20,7 @@
 (defun prepare-dir (name)
   (ensure-directories-exist name :verbose t)
   (kill-down name))
+)
 (defun show-file (file)         ; return line count
   (with-open-file (st file :direction :input)
     (format t "~&~S: ~:D byte~:P:~%" file (file-length st))
