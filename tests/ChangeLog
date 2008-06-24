@@ -1,5 +1,9 @@
 2008-06-24  Sam Steingold  <sds@gnu.org>
 
+	* eval20.tst: add some let/eval/symbol-value tests
+
+2008-06-24  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (kill-down, rmrf, prepare-dir): #+CLISP-specific
 
 2008-06-21  Sam Steingold  <sds@gnu.org>
