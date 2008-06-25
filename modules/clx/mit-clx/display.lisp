@@ -341,6 +341,15 @@
     (declare (ignore screen))
     (open-display host :display display :protocol protocol)))
 
+(defmacro with-open-display ((display &rest options) &body body)
+  "Open a DISPLAY, execute BODY, close the DISPLAY."
+  `(let ((,display ,(if options
+                        `(open-display ,@options)
+                        `(open-default-display))))
+     (unwind-protect (progn ,@body)
+       (when ,display
+         (close-display ,display)))))
+
 (defun open-display (host &key (display 0) protocol authorization-name authorization-data)
   ;; Implementation specific routine to setup the buffer for a specific host and display.
   ;; This must interface with the local network facilities, and will probably do special
