@@ -595,6 +595,19 @@ static uint32 get_aint32 (object obj)
 }
 
 
+/* errors */
+DEFCHECKER(check_error_code, default=Success,                           \
+           XLIB::UNKNOWN-ERROR=Success XLIB::REQUEST-ERROR=BadRequest   \
+           XLIB::VALUE-ERROR=BadValue XLIB::WINDOW-ERROR=BadWindow      \
+           XLIB::PIXMAP-ERROR=BadPixmap XLIB::ATOM-ERROR=BadAtom        \
+           XLIB::CURSOR-ERROR=BadCursor XLIB::FONT-ERROR=BadFont        \
+           XLIB::MATCH-ERROR=BadMatch XLIB::DRAWABLE-ERROR=BadDrawable  \
+           XLIB::ACCESS-ERROR=BadAccess XLIB::ALLOC-ERROR=BadAlloc      \
+           XLIB::COLORMAP-ERROR=BadColor XLIB::GCONTEXT-ERROR=BadGC     \
+           XLIB::ID-CHOICE-ERROR=BadIDChoice XLIB::NAME-ERROR=BadName   \
+           XLIB::LENGTH-ERROR=BadLength                                 \
+           XLIB::IMPLEMENTATION-ERROR=BadImplementation)
+
 /* -----------------------------------------------------------------------
  *  Displays
  * ----------------------------------------------------------------------- */
@@ -5412,13 +5425,24 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   }
 
   {
+    Status r;
     DYNAMIC_ARRAY (data, unsigned char, len ? len : 1);
     { struct seq_map sm;
       sm.transform = &STACK_0; sm.data = data; sm.format = format;
       map_sequence(STACK_6,coerce_into_map,(void*)&sm); }
-    X_CALL(XChangeProperty (dpy, win, property, type, format, mode, data,
-                            (end-start)));
+    X_CALL(r = XChangeProperty (dpy, win, property, type, format, mode, data,
+                                (end-start)));
     FREE_DYNAMIC_ARRAY (data);
+    if (r != Success) {
+      pushSTACK(check_error_code_reverse(r));
+      pushSTACK(STACK_(4+1));   /* format */
+      pushSTACK(STACK_(5+2)); pushSTACK(L_to_I(type));
+      pushSTACK(STACK_(6+4));   /* data */
+      pushSTACK(STACK_(7+5)); pushSTACK(L_to_I(property));
+      pushSTACK(STACK_(8+7));   /* window */
+      pushSTACK(TheSubr(subr_self)->name);
+      error(error_condition,"~S(~S ~S=~S ~S ~S=~S ~S): ~S");
+    }
   }
 
   VALUES1(NIL);
@@ -7697,18 +7721,6 @@ man XErrorEvent says:
    request_code member is a protocol request of the procedure that failed, as
    defined in <X11/Xproto.h>.
 #endif
-
-DEFCHECKER(check_error_code, default=Success,                           \
-           XLIB::UNKNOWN-ERROR=Success XLIB::REQUEST-ERROR=BadRequest   \
-           XLIB::VALUE-ERROR=BadValue XLIB::WINDOW-ERROR=BadWindow      \
-           XLIB::PIXMAP-ERROR=BadPixmap XLIB::ATOM-ERROR=BadAtom        \
-           XLIB::CURSOR-ERROR=BadCursor XLIB::FONT-ERROR=BadFont        \
-           XLIB::MATCH-ERROR=BadMatch XLIB::DRAWABLE-ERROR=BadDrawable  \
-           XLIB::ACCESS-ERROR=BadAccess XLIB::ALLOC-ERROR=BadAlloc      \
-           XLIB::COLORMAP-ERROR=BadColor XLIB::GCONTEXT-ERROR=BadGC     \
-           XLIB::ID-CHOICE-ERROR=BadIDChoice XLIB::NAME-ERROR=BadName   \
-           XLIB::LENGTH-ERROR=BadLength                                 \
-           XLIB::IMPLEMENTATION-ERROR=BadImplementation)
 
 /* Error handler for errors occured on the display.
  This error handler is installed on all open displays, we simply call up the

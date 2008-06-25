@@ -1,3 +1,8 @@
+2008-06-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (CHANGE-PROPERTY):
+	check the return value of XChangeProperty()
+
 2008-06-24  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (GET-PROPERTY):
