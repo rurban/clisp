@@ -9,6 +9,8 @@ User visible changes
   FFI modules).
   See <http://clisp.cons.org/impnotes/syscalls.html#errno> for details.
 
+* Modules MIT-CLX and NEW-CLX export a new macro XLIB:WITH-OPEN-DISPLAY.
+
 * Updated the netica module to the Netica C API version 3.25 (from 2.15).
 
 * Bug fixes:

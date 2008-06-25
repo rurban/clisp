@@ -2,7 +2,7 @@
 ;;; Ported to CLX by Blaine Burks
 
 ;;; Adapted from http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl by...
-;;; Copyright (C) 2007 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2007-2008 Sam Steingold <sds@gnu.org>
 ;;; GPL2 is applicable
 
 (in-package :clx-demos)
@@ -94,50 +94,49 @@
               ((:width *bball-max-x*) *bball-max-x*)
               ((:height *bball-max-y*) *bball-max-y*))
   "Bouncing balls."
-  (let* ((dpy (xlib:open-default-display))
-         (screen (xlib:display-default-screen dpy))
-         (root (xlib:screen-root screen))
-         (white-pixel (xlib:screen-white-pixel screen))
-         (black-pixel (xlib:screen-black-pixel screen))
-         (window (xlib:create-window
-                  :parent root :width *bball-max-x* :height *bball-max-y*
-                  :event-mask '(:exposure :button-press :button-release
-                                :key-press :key-release)
-                  :x x :y y :background white-pixel))
-         (gcontext (xlib:create-gcontext :drawable window
-                                         :foreground white-pixel
-                                         :background black-pixel
-                                         :function boole-xor
-                                         :exposures :off))
-         (bounce-pixmap (xlib:create-pixmap
-                         :width +bball-size-x+ :height +bball-size-y+ :depth 1
-                         :drawable window))
-         (pixmap-gc (xlib:create-gcontext :drawable bounce-pixmap
-                                          :foreground white-pixel
-                                          :background black-pixel))
-         (balls (loop :repeat nballs :collect (make-ball))))
-    (print 'map)
-    (xlib:map-window window)
-    (print 'finish)
-    (xlib:display-finish-output dpy)
-    (print 'put-image)
-    (xlib:put-image bounce-pixmap pixmap-gc +bball-image+
-                    :x 0 :y 0 :width +bball-size-x+ :height +bball-size-y+)
-    #+(or)
-    (xlib:free-gcontext pixmap-gc)
-    (dolist (ball balls)
-      (xor-ball bounce-pixmap window gcontext (ball-x ball) (ball-y ball)))
-    (print 'finish)
-    (xlib:display-force-output dpy)
-    (dotimes (i duration)
+  (xlib:with-open-display (dpy)
+    (let* ((screen (xlib:display-default-screen dpy))
+           (root (xlib:screen-root screen))
+           (white-pixel (xlib:screen-white-pixel screen))
+           (black-pixel (xlib:screen-black-pixel screen))
+           (window (xlib:create-window
+                    :parent root :width *bball-max-x* :height *bball-max-y*
+                    :event-mask '(:exposure :button-press :button-release
+                                  :key-press :key-release)
+                    :x x :y y :background white-pixel))
+           (gcontext (xlib:create-gcontext :drawable window
+                                           :foreground white-pixel
+                                           :background black-pixel
+                                           :function boole-xor
+                                           :exposures :off))
+           (bounce-pixmap (xlib:create-pixmap
+                           :width +bball-size-x+ :height +bball-size-y+
+                           :depth 1 :drawable window))
+           (pixmap-gc (xlib:create-gcontext :drawable bounce-pixmap
+                                            :foreground white-pixel
+                                            :background black-pixel))
+           (balls (loop :repeat nballs :collect (make-ball))))
+      (print 'map)
+      (xlib:map-window window)
+      (print 'finish)
+      (xlib:display-finish-output dpy)
+      (print 'put-image)
+      (xlib:put-image bounce-pixmap pixmap-gc +bball-image+
+                      :x 0 :y 0 :width +bball-size-x+ :height +bball-size-y+)
+      #+(or)
+      (xlib:free-gcontext pixmap-gc)
       (dolist (ball balls)
-        (bounce-1-ball bounce-pixmap window gcontext ball))
+        (xor-ball bounce-pixmap window gcontext (ball-x ball) (ball-y ball)))
+      (print 'finish)
       (xlib:display-force-output dpy)
-      (sleep sleep))
-    (xlib:free-pixmap bounce-pixmap)
-    (xlib:free-gcontext gcontext)
-    (xlib:unmap-window window)
-    (xlib:display-finish-output dpy)
-    (xlib:close-display dpy)))
+      (dotimes (i duration)
+        (dolist (ball balls)
+          (bounce-1-ball bounce-pixmap window gcontext ball))
+        (xlib:display-force-output dpy)
+        (sleep sleep))
+      (xlib:free-pixmap bounce-pixmap)
+      (xlib:free-gcontext gcontext)
+      (xlib:unmap-window window)
+      (xlib:display-finish-output dpy))))
 
 (provide "bball")

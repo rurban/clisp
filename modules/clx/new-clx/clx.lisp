@@ -170,7 +170,7 @@
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
    closed-display-p
    ;; extensions
-   open-default-display
+   open-default-display with-open-display
    display-get-default display-resource-manager-string screen-resource-string
    ;;; Only when using libXt:
    ;; last-event-processed last-timestamp-processed
@@ -1313,6 +1313,15 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
     (let ((dpy (open-display host :display display :protocol protocol)))
        (setf (display-default-screen dpy) screen)
        dpy)))
+
+(defmacro with-open-display ((display &rest options) &body body)
+  "Open a DISPLAY, execute BODY, close the DISPLAY."
+  `(let ((,display ,(if options
+                        `(open-display ,@options)
+                        `(open-default-display))))
+     (unwind-protect (progn ,@body)
+       (when ,display
+         (close-display ,display)))))
 
 
 ;;;; --------------------------------------------------------------------------

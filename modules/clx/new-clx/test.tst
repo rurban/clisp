@@ -272,6 +272,86 @@ NIL
 (xlib:display-finish-output *dpy*) NIL
 (xlib:display-p (show (xlib:close-display *dpy*))) T
 
+(xlib:with-open-display (dpy)
+  (ext:appease-cerrors
+   (let ((count 0))
+     (dolist (screen (xlib:display-roots dpy))
+       (dolist (window (xlib:query-tree (xlib:screen-root screen)))
+         (let ((wmh (xlib:wm-hints window)))
+           (when wmh
+             (print (list (incf count) screen window wmh))
+             ;; (setf (xlib:wm-hints window) wmh)
+             ))))
+     (integerp (print count)))))
+T
+
+(xlib:with-open-display (dpy)
+  (let* ((win (xlib:create-window
+               :parent (xlib:screen-root (first (xlib:display-roots dpy)))
+               :x 0 :y 0 :width 50 :height 50))
+         (pm (xlib:create-pixmap :width (random 100) :height (random 100)
+                                 :depth 8 :drawable win)))
+    (setf (xlib:wm-hints win)
+          (xlib:make-wm-hints))
+    (xlib:display-finish-output dpy)
+    (xlib:wm-hints-icon-pixmap (xlib:wm-hints win))))
+T
+
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/18431>
+;; From: "Shawn Betts" <sabetts@vcn.bc.ca>
+(labels ((parent (dpy) (xlib:screen-root (first (xlib:display-roots dpy))))
+         (make-win (dpy)
+           (xlib:create-window :parent (parent dpy)
+                               :x 0 :y 0 :width 50 :height 50))
+         (make-pixmap (window)
+           (xlib:create-pixmap :width (random 100) :height (random 100)
+                               :depth 8 :drawable window))
+         (window-list (dpy) (xlib:query-tree (parent dpy)))
+         (first-pass (dpy)
+           ;; Open a fresh connection. Create a window and a pixmap.
+           (let* ((dpy2 (xlib:open-default-display))
+                  (window (make-win dpy2)) (wid (xlib:window-id window))
+                  (pixmap (make-pixmap window)))
+             ;; make the pixmap the window's icon pixmap hint.
+             (setf (xlib:wm-hints window)
+                   (xlib:make-wm-hints :icon-pixmap pixmap))
+             (format t "Window ID: ~8x pixmap ID: ~8x~%"
+                     wid (xlib:pixmap-id pixmap))
+             (xlib:display-finish-output dpy2)
+             (format t " --> ~S~%"
+                     (xlib:wm-hints-icon-pixmap (xlib:wm-hints window)))
+             ;; On the old connection, list the root window children
+             ;; and the icon pixmap hint to cache their XIDs.
+             (dolist (w (window-list dpy))
+               (let ((id (xlib:window-id w)) (hints (xlib:wm-hints w)))
+                 (when hints
+                   (let ((pm (xlib:wm-hints-icon-pixmap hints)))
+                     (when pm
+                       (format t " W: ~8x -> ~s~%" id pm))))))
+             (xlib:close-display dpy2)))
+         (second-pass (dpy)
+           ;; Open a fresh connection and create 2 windows.
+           (xlib:with-open-default-display (dpy2)
+             (let ((window1 (make-win dpy2)) (id1 (xlib:window-id window1))
+                   (window2 (make-win dpy2)) (id2 (xlib:window-id window2)))
+               (format t "Window#1 ID: ~8x Window#2 ID: ~8x~%" id1 id2)
+               (xlib:display-finish-output dpy2)
+               ;; On the old connection, list the root window children
+               ;; and note the second window is erroneously a pixmap
+               ;; due to too agressive caching in clx.
+               (dolist (w (window-list dpy))
+                 (let ((id (xlib:window-id w)))
+                   (cond ((= id1 id) (princ "1 "))
+                         ((= id2 id) (princ "2 "))
+                         (t (princ "  "))))
+                 (format t "window: ~s~%" w)
+                 (assert (xlib:window-p w)))))))
+  (xlib:with-open-display (dpy)
+    (first-pass dpy)
+    (second-pass dpy)
+    (xlib:display-p (xlib:close-display dpy))))
+T
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
