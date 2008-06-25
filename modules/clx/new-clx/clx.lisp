@@ -343,7 +343,7 @@
                     (:constructor nil)
                     (:copier nil)
                     (:conc-name %display-))
-  foreign-pointer ;; these two slots are for use in clx.d only.
+  foreign-pointer ;; these two slots are for use in clx.f only.
   hash-table      ;; .. so keep hands off here!
   plist
   after-function
@@ -657,7 +657,8 @@
 
 ;; Some of the functions below need decode-type and encode-type,
 ;; I provide here a limited implementation to get these functions working.
-;;
+;; sds: I am pretty sure that these should be eliminated and the code using
+;;      them should be moved to C for the same reasong (set-)wm-hints had to
 (defmacro decode-type (type value)
   (cond ((eq type 'pixmap) `(lookup-pixmap %buffer ,value))
         ((eq type 'window) `(lookup-window %buffer ,value))
@@ -677,6 +678,7 @@
         (t (error "Unknown type ~S." type)) ))
 
 (defstruct wm-hints
+  ;; keep in sync with clx.f
   (input nil )
   (initial-state nil )
   (icon-pixmap nil )
@@ -689,89 +691,7 @@
   ;; may be extended in the future
   )
 
-(defun wm-hints (window)
-  (let ((prop (get-property window :WM_HINTS :type :WM_HINTS
-                            :result-type 'vector)))
-    (when prop
-      (decode-wm-hints prop (window-display window)))))
-
 (defsetf wm-hints set-wm-hints)
-(defun set-wm-hints (window wm-hints)
-  (change-property window :WM_HINTS (encode-wm-hints wm-hints) :WM_HINTS 32)
-  wm-hints)
-
-(defun decode-wm-hints (vector display)
-  (let ((input-hint 0)
-        (state-hint 1)
-        (icon-pixmap-hint 2)
-        (icon-window-hint 3)
-        (icon-position-hint 4)
-        (icon-mask-hint 5)
-        (window-group-hint 6))
-    (let ((flags (aref vector 0))
-          (hints (make-wm-hints))
-          (%buffer display))
-      (setf (wm-hints-flags hints) flags)
-      (when (logbitp input-hint flags)
-        (setf (wm-hints-input hints) (decode-type (member :off :on)
-                                                  (aref vector 1))))
-      (when (logbitp state-hint flags)
-        (setf (wm-hints-initial-state hints)
-              (decode-type (member :dont-care :normal :zoom :iconic :inactive)
-                           (aref vector 2))))
-      (when (logbitp icon-pixmap-hint flags)
-        (setf (wm-hints-icon-pixmap hints) (decode-type pixmap (aref vector 3))))
-      (when (logbitp icon-window-hint flags)
-        (setf (wm-hints-icon-window hints) (decode-type window (aref vector 4))))
-      (when (logbitp icon-position-hint flags)
-        (setf (wm-hints-icon-x hints) (aref vector 5)
-              (wm-hints-icon-y hints) (aref vector 6)))
-      (when (logbitp icon-mask-hint flags)
-        (setf (wm-hints-icon-mask hints) (decode-type pixmap (aref vector 7))))
-      (when (and (logbitp window-group-hint flags) (> (length vector) 7))
-        (setf (wm-hints-window-group hints) (aref vector 8)))
-      hints)))
-
-(defun encode-wm-hints (wm-hints)
-  (let ((input-hint         #b1)
-        (state-hint         #b10)
-        (icon-pixmap-hint   #b100)
-        (icon-window-hint   #b1000)
-        (icon-position-hint #b10000)
-        (icon-mask-hint     #b100000)
-        (window-group-hint  #b1000000)
-        (mask               #b1111111)
-        )
-    (let ((vector (make-array 9 :initial-element 0))
-          (flags 0))
-      (declare (type (simple-vector 9) vector)
-               (type card16 flags))
-      (when (wm-hints-input wm-hints)
-        (setf flags input-hint
-              (aref vector 1) (encode-type (member :off :on) (wm-hints-input wm-hints))))
-      (when (wm-hints-initial-state wm-hints)
-        (setf flags (logior flags state-hint)
-              (aref vector 2) (encode-type (member :dont-care :normal :zoom :iconic :inactive)
-                                           (wm-hints-initial-state wm-hints))))
-      (when (wm-hints-icon-pixmap wm-hints)
-        (setf flags (logior flags icon-pixmap-hint)
-              (aref vector 3) (encode-type pixmap (wm-hints-icon-pixmap wm-hints))))
-      (when (wm-hints-icon-window wm-hints)
-        (setf flags (logior flags icon-window-hint)
-              (aref vector 4) (encode-type window (wm-hints-icon-window wm-hints))))
-      (when (and (wm-hints-icon-x wm-hints) (wm-hints-icon-y wm-hints))
-        (setf flags (logior flags icon-position-hint)
-              (aref vector 5) (encode-type card16 (wm-hints-icon-x wm-hints))
-              (aref vector 6) (encode-type card16 (wm-hints-icon-y wm-hints))))
-      (when (wm-hints-icon-mask wm-hints)
-        (setf flags (logior flags icon-mask-hint)
-              (aref vector 7) (encode-type pixmap (wm-hints-icon-mask wm-hints))))
-      (when (wm-hints-window-group wm-hints)
-        (setf flags (logior flags window-group-hint)
-              (aref vector 8) (wm-hints-window-group wm-hints)))
-      (setf (aref vector 0) (logior flags (logandc2 (wm-hints-flags wm-hints) mask)))
-      vector)))
-
 
 ;;-----------------------------------------------------------------------------
 ;; WM_SIZE_HINTS

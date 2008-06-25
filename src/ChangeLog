@@ -1,5 +1,16 @@
 2008-06-25  Sam Steingold  <sds@gnu.org>
 
+	move WM-HINTS to C to better handle word size differences
+	* modules/clx/new-clx/clx.f (lookup_display, change_property): add
+	(CHANGE-PROPERTY): use change_property()
+	(xlib_error_handler, xlib_io_error_handler): use lookup_display()
+	(check_wmh_initial_state, check_wmh_flag): add DEFCHECKERs
+	(WM-HINTS, SET-WM-HINTS): implement
+	* modules/clx/new-clx/clx.lisp (wm-hints, set-wm-hints)
+	(decode-wm-hints, encode-wm-hints): remove
+
+2008-06-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/mit-clx/display.lisp (with-open-display): define
 	* modules/clx/mit-clx/package.lisp (with-open-display): export
 
