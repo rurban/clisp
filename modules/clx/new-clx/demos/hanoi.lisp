@@ -1,7 +1,7 @@
 ;;;; Hanoi.
 
 ;;; Adapted from http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl by...
-;;; Copyright (C) 2007 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2007-2008 Sam Steingold <sds@gnu.org>
 ;;; GPL2 is applicable
 
 (in-package :clx-demos)
@@ -41,7 +41,7 @@
 
 ;;; Invert-Rectangle calls the CLX function draw-rectangle with "fill-p"
 ;;; set to T.  Update-Screen forces the display output.
-;;; 
+;;;
 (defmacro invert-rectangle (x y height width)
   `(xlib:draw-rectangle *hanoi-window* *hanoi-gcontext*
                         ,x ,y ,width ,height t))
@@ -215,7 +215,7 @@
 ;;; disks, a third needle, TEMP-NEEDLE, is needed for temporary storage.
 
 (defun move-n-disks (n start-needle end-needle temp-needle)
-  "Moves the top N disks from START-NEEDLE to END-NEEDLE.  
+  "Moves the top N disks from START-NEEDLE to END-NEEDLE.
    Uses TEMP-NEEDLE for temporary storage."
   (cond ((= n 1)
          (move-one-disk start-needle end-needle))
@@ -227,39 +227,39 @@
 
 ;;;; Hanoi itself.
 
-(defun hanoi (&key (disks 10) (x 10) (y 10) (width 768) 
-              ((:horizontal-velocity *horizontal-velocity*) *horizontal-velocity*)
+(defun hanoi (&key (disks 10) (x 10) (y 10) (width 768)
+              ((:horizontal-velocity *horizontal-velocity*)
+               *horizontal-velocity*)
               ((:vertical-velocity *vertical-velocity*) *vertical-velocity*)
               ((:height *hanoi-window-height*) 300))
   "Towers of Hanoi."
-  (let* ((*hanoi-display* (xlib:open-default-display))
-         (screen (xlib:display-default-screen *hanoi-display*))
-         (root (xlib:screen-root screen))
-         (white-pixel (xlib:screen-white-pixel screen))
-         (black-pixel (xlib:screen-black-pixel screen))
-         (*hanoi-window*
-          (xlib:create-window
-           :parent root :x x :y y :width width :height *hanoi-window-height*
-           :event-mask '(:exposure :button-press :button-release
-                         :key-press :key-release)
-           :background white-pixel))
-         (*transfer-height* (- *hanoi-window-height* (* disk-spacing disks)))
-         (*hanoi-gcontext* (xlib:create-gcontext :drawable *hanoi-window*
-                                                 :foreground white-pixel
-                                                 :background black-pixel
-                                                 :fill-style :solid
-                                                 :function boole-c2))
-         (needle-1 (make-needle :position 184))
-         (needle-2 (make-needle :position 382))
-         (needle-3 (make-needle :position 584)))
-    (xlib:map-window *hanoi-window*)
-    (xlib:display-force-output *hanoi-display*)
-    (dotimes (i disks)
-      (drop-initial-disk (make-disk :size (* 10 (- disks i))) needle-1))
-    (move-n-disks disks needle-1 needle-3 needle-2)
-    (xlib:free-gcontext *hanoi-gcontext*)
-    (xlib:unmap-window *hanoi-window*)
-    (xlib:display-finish-output *hanoi-display*)
-    (xlib:close-display *hanoi-display*)))
+  (xlib:with-open-display (*hanoi-display*)
+    (let* ((screen (xlib:display-default-screen *hanoi-display*))
+           (root (xlib:screen-root screen))
+           (white-pixel (xlib:screen-white-pixel screen))
+           (black-pixel (xlib:screen-black-pixel screen))
+           (*hanoi-window*
+            (xlib:create-window
+             :parent root :x x :y y :width width :height *hanoi-window-height*
+             :event-mask '(:exposure :button-press :button-release
+                           :key-press :key-release)
+             :background white-pixel))
+           (*transfer-height* (- *hanoi-window-height* (* disk-spacing disks)))
+           (*hanoi-gcontext* (xlib:create-gcontext :drawable *hanoi-window*
+                                                   :foreground white-pixel
+                                                   :background black-pixel
+                                                   :fill-style :solid
+                                                   :function boole-c2))
+           (needle-1 (make-needle :position 184))
+           (needle-2 (make-needle :position 382))
+           (needle-3 (make-needle :position 584)))
+      (xlib:map-window *hanoi-window*)
+      (xlib:display-force-output *hanoi-display*)
+      (dotimes (i disks)
+        (drop-initial-disk (make-disk :size (* 10 (- disks i))) needle-1))
+      (move-n-disks disks needle-1 needle-3 needle-2)
+      (xlib:free-gcontext *hanoi-gcontext*)
+      (xlib:unmap-window *hanoi-window*)
+      (xlib:display-finish-output *hanoi-display*))))
 
 (provide "hanoi")

@@ -1,7 +1,7 @@
 ;;;; Bounce window.
 
 ;;; Adapted from http://www.cs.cmu.edu/afs/cs/project/ai-repository/ai/lang/lisp/gui/clx/clx_demo.cl by...
-;;; Copyright (C) 2007 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2007-2008 Sam Steingold <sds@gnu.org>
 ;;; GPL2 is applicable
 
 (in-package :clx-demos)
@@ -27,62 +27,61 @@ screen border elasticity, and gravity value."
           "Elasticity must be between 0 and 1, got ~S" elasticity)
   (assert (plusp gravity) (gravity)
           "Gravity must be positive, got ~S" gravity)
-  (let* ((dpy (xlib:open-default-display))
-         (screen (xlib:display-default-screen dpy))
-         (root (xlib:screen-root screen))
-         (white-pixel (xlib:screen-white-pixel screen))
-         ;; (black-pixel (xlib:screen-black-pixel screen))
-         (window (xlib:create-window
-                  :parent root :width width :height height
-                  :event-mask '(:exposure :button-press :button-release
-                                :key-press :key-release)
-                  :x x :y y :background white-pixel))
-         (top-of-window-at-bottom (- (xlib:drawable-height root) height))
-         (left-of-window-at-right (- (xlib:drawable-width root) width))
-         (y-velocity 0)
-         (prev-neg-velocity most-negative-fixnum)
-         (number-problems nil))
-    (declare (fixnum top-of-window-at-bottom left-of-window-at-right
-                      y-velocity))
-    (xlib:map-window window)
-    (xlib:display-finish-output dpy)
-    (loop (when (= prev-neg-velocity 0) (return t))
-          (let ((negative-velocity (minusp y-velocity)))
-            (loop
-              (let ((next-y (+ y y-velocity))
-                    (next-y-velocity (+ y-velocity gravity)))
-                (declare (fixnum next-y next-y-velocity))
-                (when (> next-y top-of-window-at-bottom)
-                  (cond
-                   (number-problems
-                    (setf y-velocity (incf prev-neg-velocity)))
-                   (t
-                    (setq y-velocity
-                          (- (truncate (* elasticity y-velocity))))
-                    (when (= y-velocity prev-neg-velocity)
-                      (incf y-velocity)
-                      (setf number-problems t))
-                    (setf prev-neg-velocity y-velocity)))
-                  (setf y top-of-window-at-bottom)
-                  (setf (xlib:drawable-x window) x
-                        (xlib:drawable-y window) y)
-                  (xlib:display-force-output dpy)
-                  (return))
-                (setq y-velocity next-y-velocity)
-                (setq y next-y))
-              (when (and negative-velocity (>= y-velocity 0))
-                (setf negative-velocity nil))
-              (let ((next-x (+ x x-velocity)))
-                (declare (fixnum next-x))
-                (when (or (> next-x left-of-window-at-right)
-                          (< next-x 0))
-                  (setq x-velocity (- (truncate (* elasticity x-velocity)))))
-                (setq x next-x))
-              (setf (xlib:drawable-x window) x
-                    (xlib:drawable-y window) y)
-              (xlib:display-force-output dpy))))
-    (xlib:unmap-window window)
-    (xlib:display-finish-output dpy)
-    (xlib:close-display dpy)))
+  (xlib:with-open-display (dpy)
+    (let* ((screen (xlib:display-default-screen dpy))
+           (root (xlib:screen-root screen))
+           (white-pixel (xlib:screen-white-pixel screen))
+           ;; (black-pixel (xlib:screen-black-pixel screen))
+           (window (xlib:create-window
+                    :parent root :width width :height height
+                    :event-mask '(:exposure :button-press :button-release
+                                  :key-press :key-release)
+                    :x x :y y :background white-pixel))
+           (top-of-window-at-bottom (- (xlib:drawable-height root) height))
+           (left-of-window-at-right (- (xlib:drawable-width root) width))
+           (y-velocity 0)
+           (prev-neg-velocity most-negative-fixnum)
+           (number-problems nil))
+      (declare (fixnum top-of-window-at-bottom left-of-window-at-right
+                       y-velocity))
+      (xlib:map-window window)
+      (xlib:display-finish-output dpy)
+      (loop (when (= prev-neg-velocity 0) (return t))
+        (let ((negative-velocity (minusp y-velocity)))
+          (loop
+            (let ((next-y (+ y y-velocity))
+                  (next-y-velocity (+ y-velocity gravity)))
+              (declare (fixnum next-y next-y-velocity))
+              (when (> next-y top-of-window-at-bottom)
+                (cond
+                  (number-problems
+                   (setf y-velocity (incf prev-neg-velocity)))
+                  (t
+                   (setq y-velocity
+                         (- (truncate (* elasticity y-velocity))))
+                   (when (= y-velocity prev-neg-velocity)
+                     (incf y-velocity)
+                     (setf number-problems t))
+                   (setf prev-neg-velocity y-velocity)))
+                (setf y top-of-window-at-bottom)
+                (setf (xlib:drawable-x window) x
+                      (xlib:drawable-y window) y)
+                (xlib:display-force-output dpy)
+                (return))
+              (setq y-velocity next-y-velocity)
+              (setq y next-y))
+            (when (and negative-velocity (>= y-velocity 0))
+              (setf negative-velocity nil))
+            (let ((next-x (+ x x-velocity)))
+              (declare (fixnum next-x))
+              (when (or (> next-x left-of-window-at-right)
+                        (< next-x 0))
+                (setq x-velocity (- (truncate (* elasticity x-velocity)))))
+              (setq x next-x))
+            (setf (xlib:drawable-x window) x
+                  (xlib:drawable-y window) y)
+            (xlib:display-force-output dpy))))
+      (xlib:unmap-window window)
+      (xlib:display-finish-output dpy))))
 
 (provide "bwindow")

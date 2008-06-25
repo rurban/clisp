@@ -1,5 +1,19 @@
 2008-06-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.lisp (with-open-display): define & export
+	* modules/clx/new-clx/demos/bball.lisp:
+	* modules/clx/new-clx/demos/bwindow.lisp:
+	* modules/clx/new-clx/demos/clclock.lisp:
+	* modules/clx/new-clx/demos/greynetic.lisp:
+	* modules/clx/new-clx/demos/hanoi.lisp:
+	* modules/clx/new-clx/demos/koch.lisp:
+	* modules/clx/new-clx/demos/petal.lisp:
+	* modules/clx/new-clx/demos/plaid.lisp:
+	* modules/clx/new-clx/demos/qix.lisp:
+	* modules/clx/new-clx/demos/recurrence.lisp: use it
+
+2008-06-25  Sam Steingold  <sds@gnu.org>
+
 	move WM-HINTS to C to better handle word size differences
 	* modules/clx/new-clx/clx.f (lookup_display, change_property): add
 	(CHANGE-PROPERTY): use change_property()

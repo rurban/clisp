@@ -73,50 +73,54 @@ Returns the new list and an indicator of whether we are done or not."
 (defun koch (&key (width 1000) (height 1000) (delay 1) (x 10) (y 10)
              (scale 0.8) (font "fixed") (event-loop t))
   "Koch snowflake."
-  (let* ((dpy (xlib:open-default-display))
-         (screen (xlib:display-default-screen dpy))
-         (root (xlib:screen-root screen))
-         (white-pixel (xlib:screen-white-pixel screen))
-         (black-pixel (xlib:screen-black-pixel screen))
-         (win (xlib:create-window
-               :parent root :x x :y y :width width :height height
-               :event-mask '(:exposure :button-press :button-release
-                             :key-press :key-release)
-               :background white-pixel))
-         (fnt (xlib:open-font dpy font))
-         (gc (xlib:create-gcontext
-              :drawable win :font fnt
-              :foreground black-pixel :background white-pixel)))
-    (koch-show "dpy" dpy) (koch-show "screen" screen) (koch-show "root" root)
-    (koch-show "white-pixel" white-pixel) (koch-show "black-pixel" black-pixel)
-    (koch-show "win" win) (koch-show "font" fnt) (koch-show "gc" gc)
-    (setf (xlib:wm-icon-name win) "Koch Snowflake"
-          (xlib:wm-name win) "Koch Snowflake")
-    (xlib:map-window win)
-    (loop :with done-p :and points = (list width height scale) :and s1 :and s2
-      :with previous :for iteration :upfrom 0 :do
-      (setf (values points done-p) (koch-update points))
-      (when done-p (loop-finish))
-      (when previous ; remove old junk
-        (setf (xlib:gcontext-foreground gc) white-pixel)
+  (xlib:with-open-display (dpy)
+    (let* ((screen (xlib:display-default-screen dpy))
+           (root (xlib:screen-root screen))
+           (white-pixel (xlib:screen-white-pixel screen))
+           (black-pixel (xlib:screen-black-pixel screen))
+           (win (xlib:create-window
+                 :parent root :x x :y y :width width :height height
+                 :event-mask '(:exposure :button-press :button-release
+                               :key-press :key-release)
+                 :background white-pixel))
+           (fnt (xlib:open-font dpy font))
+           (gc (xlib:create-gcontext
+                :drawable win :font fnt
+                :foreground black-pixel :background white-pixel)))
+      (koch-show "dpy" dpy)
+      (koch-show "screen" screen)
+      (koch-show "root" root)
+      (koch-show "white-pixel" white-pixel)
+      (koch-show "black-pixel" black-pixel)
+      (koch-show "win" win)
+      (koch-show "font" fnt)
+      (koch-show "gc" gc)
+      (setf (xlib:wm-icon-name win) "Koch Snowflake"
+            (xlib:wm-name win) "Koch Snowflake")
+      (xlib:map-window win)
+      (loop :with done-p :and points = (list width height scale)
+        :and s1 :and s2 :with previous :for iteration :upfrom 0 :do
+        (setf (values points done-p) (koch-update points))
+        (when done-p (loop-finish))
+        (when previous ; remove old junk
+          (setf (xlib:gcontext-foreground gc) white-pixel)
+          (xlib:draw-glyphs win gc 30 30 s1)
+          (xlib:draw-glyphs win gc 30 50 s2)
+          (xlib:draw-lines win gc previous) ; remove old lines
+          (setf (xlib:gcontext-foreground gc) black-pixel))
+        (setq previous points
+              s1 (format nil "iteration: ~:D" iteration)
+              s2 (format nil "vertexes: ~:D" (1- (/ (length points) 2))))
+        (format t "~&;; ~A; ~A~%" s1 s2)
         (xlib:draw-glyphs win gc 30 30 s1)
         (xlib:draw-glyphs win gc 30 50 s2)
-        (xlib:draw-lines win gc previous) ; remove old lines
-        (setf (xlib:gcontext-foreground gc) black-pixel))
-      (setq previous points
-            s1 (format nil "iteration: ~:D" iteration)
-            s2 (format nil "vertexes: ~:D" (1- (/ (length points) 2))))
-      (format t "~&;; ~A; ~A~%" s1 s2)
-      (xlib:draw-glyphs win gc 30 30 s1)
-      (xlib:draw-glyphs win gc 30 50 s2)
-      (xlib:draw-lines win gc points)
-      (xlib:display-finish-output dpy)
-      (sleep delay))
-    (when event-loop (koch-events dpy))
-    (xlib:free-gcontext gc)
-    (xlib:close-font fnt)
-    (xlib:unmap-window win)
-    (xlib:display-finish-output dpy)
-    (xlib:close-display dpy)))
+        (xlib:draw-lines win gc points)
+        (xlib:display-finish-output dpy)
+        (sleep delay))
+      (when event-loop (koch-events dpy))
+      (xlib:free-gcontext gc)
+      (xlib:close-font fnt)
+      (xlib:unmap-window win)
+      (xlib:display-finish-output dpy))))
 
 (provide "koch")
