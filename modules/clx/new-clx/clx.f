@@ -667,6 +667,17 @@ static object find_display (Display *display)
   skipSTACK(1);
   return NIL;
 }
+static object lookup_display (Display *dpy) {
+  object display = find_display(dpy);
+  if (nullp(display)) {
+    int fd;
+    X_CALL(fd = XConnectionNumber(dpy));
+    pushSTACK(L_to_I(fd));
+    pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,"~S: display ~S not found");
+  }
+  return display;
+}
 
 static Bool ensure_living_display (gcv_object_t *objf)
 { /* ensures that the object pointed to by 'objf' is really a display.
@@ -5393,6 +5404,24 @@ void coerce_into_map (void *arg, object element) {
   }
 }
 
+static void change_property (Display* dpy, Window win, Atom property,
+                             Atom type, int format, int mode,
+                             void* data, int size) {
+  Status r;
+  X_CALL(r = XChangeProperty(dpy,win,property,type,format,mode,data,size));
+  if (r != Success) {           /* FIXME: also print data */
+    pushSTACK(check_error_code_reverse(r));
+    pushSTACK(L_to_I(size));
+    pushSTACK(L_to_I(mode));
+    pushSTACK(L_to_I(format));
+    pushSTACK(L_to_I(type));
+    pushSTACK(L_to_I(property));
+    pushSTACK(L_to_I(win));
+    pushSTACK(TheSubr(subr_self)->name);
+    error(error_condition,"~S(~S ~S ~S ~S ~S ~S): ~S");
+  }
+}
+
 DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
            PREPEND=PropModePrepend :APPEND=PropModeAppend)
 /*   XLIB:CHANGE-PROPERTY window property data type format
@@ -5425,24 +5454,12 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
   }
 
   {
-    Status r;
     DYNAMIC_ARRAY (data, unsigned char, len ? len : 1);
     { struct seq_map sm;
       sm.transform = &STACK_0; sm.data = data; sm.format = format;
       map_sequence(STACK_6,coerce_into_map,(void*)&sm); }
-    X_CALL(r = XChangeProperty (dpy, win, property, type, format, mode, data,
-                                (end-start)));
+    change_property(dpy,win,property,type,format,mode,data,end-start);
     FREE_DYNAMIC_ARRAY (data);
-    if (r != Success) {
-      pushSTACK(check_error_code_reverse(r));
-      pushSTACK(STACK_(4+1));   /* format */
-      pushSTACK(STACK_(5+2)); pushSTACK(L_to_I(type));
-      pushSTACK(STACK_(6+4));   /* data */
-      pushSTACK(STACK_(7+5)); pushSTACK(L_to_I(property));
-      pushSTACK(STACK_(8+7));   /* window */
-      pushSTACK(TheSubr(subr_self)->name);
-      error(error_condition,"~S(~S ~S=~S ~S ~S=~S ~S): ~S");
-    }
   }
 
   VALUES1(NIL);
@@ -7731,10 +7748,8 @@ int xlib_error_handler (Display *display, XErrorEvent *event)
 
   begin_callback ();
 
-  /* find the display. */
-  pushSTACK(find_display (display));
-  if (nullp (STACK_0))
-    NOTREACHED;                 /* hmm? */
+  /* find the display and push it on the STACK. */
+  pushSTACK(lookup_display(display));
 
   /* find the error handler */
   pushSTACK(TheStructure (STACK_0)->recdata[slot_DISPLAY_ERROR_HANDLER]);
@@ -7802,7 +7817,7 @@ int xlib_io_error_handler (Display *display)
 int xlib_after_function (Display *display)
 {
   begin_callback ();
-  pushSTACK(find_display (display));
+  pushSTACK(lookup_display(display));
   funcall(TheStructure(STACK_0)->recdata[slot_DISPLAY_AFTER_FUNCTION],1);
   end_callback ();
   return 0;
@@ -8057,6 +8072,144 @@ DEFUN(XLIB:MAPPING-NOTIFY, display request start count)
   VALUES0;
 }
 
+/* WM-HINTS & SET-WM-HINTS have to be in C because sizeof(XWMHints)
+   is arch-dependent (36 on i386 and 56 on amd64), see bug
+   https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2002470&group_id=1355 */
+DEFCHECKER(check_wmh_initial_state,default=,WITHDRAWN=WithdrawnState    \
+           NORMAL=NormalState ICONIC=IconicState                        \
+           /* Obsolete states no longer defined by ICCCM */             \
+           ZOOM=ZoomState INACTIVE=InactiveState)
+DEFCHECKER(check_wmh_flag,bitmasks=true, INPUT=InputHint STATE=StateHint \
+           ICON-PIXMAP=IconPixmapHint ICON-WINDOW=IconWindowHint        \
+           ICON-POSITION=IconPositionHint ICON-MASK=IconMaskHint        \
+           WINDOW-GROUP=WindowGroupHint URGENCY=XUrgencyHint)
+#include <X11/Xatom.h>          /* for XA_WM_HINTS */
+DEFUN(XLIB:WM-HINTS, window) {
+  Display *dpy;
+  Window win = get_window_and_display(popSTACK(),&dpy);
+  Status r;
+  XWMHints *hints;
+  Atom actual_type;
+  int actual_format;
+  unsigned long leftover;
+  unsigned long nitems;
+
+  X_CALL(r = XGetWindowProperty(dpy, win, XA_WM_HINTS, 0L,
+                                (long)(sizeof(XWMHints)/4), false,
+                                XA_WM_HINTS, &actual_type, &actual_format,
+                                &nitems, &leftover, (unsigned char **)&hints));
+  printf("\nr=%d type=%d format=%d nitems=%d leftover=%d hints=%x\n",
+         r,actual_type,actual_format,nitems,leftover,hints);
+  if (r == Success && actual_type == XA_WM_HINTS && actual_format == 32
+      && nitems != 0 && hints != NULL) {
+    int count = 2;
+    long flags = hints->flags;
+    gcv_object_t *display;
+    pushSTACK(NIL); display = &STACK_0;
+    pushSTACK(`:FLAGS`); pushSTACK(check_wmh_flag_to_list(flags));
+    if (flags & InputHint) {
+      pushSTACK(`:INPUT`); count += 2;
+      pushSTACK(hints->input ? `:ON` : `:OFF`);
+    }
+    if (flags & StateHint) {
+      pushSTACK(`:INITIAL-STATE`); count += 2;
+      pushSTACK(check_wmh_initial_state_reverse(hints->initial_state));
+    }
+    if (flags & IconPixmapHint) {
+      if (nullp(*display)) *display = lookup_display(dpy);
+      pushSTACK(`:ICON-PIXMAP`); count += 2;
+      pushSTACK(make_pixmap(*display,hints->icon_pixmap));
+    }
+    if (flags & IconWindowHint) {
+      if (nullp(*display)) *display = lookup_display(dpy);
+      pushSTACK(`:ICON-WINDOW`); count += 2;
+      pushSTACK(make_window(*display,hints->icon_window));
+    }
+    if (flags & IconPositionHint) {
+      count += 4;
+      pushSTACK(`:ICON-X`); pushSTACK(L_to_I(hints->icon_x));
+      pushSTACK(`:ICON-Y`); pushSTACK(L_to_I(hints->icon_y));
+    }
+    if (flags & IconMaskHint) {
+      if (nullp(*display)) *display = lookup_display(dpy);
+      pushSTACK(`:ICON-MASK`); count += 2;
+      pushSTACK(make_pixmap(*display,hints->icon_mask));
+    }
+    if (flags & WindowGroupHint) {
+      pushSTACK(`:WINDOW-GROUP`); count += 2;
+      pushSTACK(L_to_I(hints->window_group)); /* FIXME: raw XID?! */
+    }
+    funcall(`XLIB::MAKE-WM-HINTS`,count);
+    XFree((char*)hints);
+    skipSTACK(1);               /* drop display */
+  } else {
+    if (hints != NULL) XFree((char*)hints);
+    VALUES0;
+  }
+}
+enum {
+  slot_WM_HINTS_INPUT = 1,
+  slot_WM_INITIAL_STATE,
+  slot_WM_ICON_PIXMAP,
+  slot_WM_ICON_WINDOW,
+  slot_WM_ICON_X,
+  slot_WM_ICON_Y,
+  slot_WM_ICON_MASK,
+  slot_WM_WINDOW_GROUP,
+  slot_WM_FLAGS,
+  wm_hints_structure_size
+};
+DEFUN(XLIB:SET-WM-HINTS, window hints) {
+  Display *dpy;
+  Window win = get_window_and_display(STACK_1,&dpy);
+  XWMHints hints;
+  X_CALL(memset((void*)&hints,0,sizeof(hints)));
+  if (!typep_classname(STACK_0,`XLIB::WM-HINTS`))
+    my_type_error(`XLIB::WM-HINTS`,STACK_0);
+# define SLOT TheStructure(STACK_0)->recdata
+  if (!nullp(SLOT[slot_WM_FLAGS]))
+    hints.flags = check_wmh_flag_from_list(SLOT[slot_WM_FLAGS]);
+  if (!nullp(SLOT[slot_WM_HINTS_INPUT])) {
+    hints.input = eq(`:ON`,SLOT[slot_WM_HINTS_INPUT]);
+    hints.flags |= InputHint;
+  }
+  if (!nullp(SLOT[slot_WM_INITIAL_STATE])) {
+    hints.initial_state = check_wmh_initial_state(SLOT[slot_WM_INITIAL_STATE]);
+    hints.flags |= StateHint;
+  }
+  if (!nullp(SLOT[slot_WM_ICON_PIXMAP])) {
+    hints.icon_pixmap = get_pixmap(SLOT[slot_WM_ICON_PIXMAP]);
+    hints.flags |= IconPixmapHint;
+  }
+  if (!nullp(SLOT[slot_WM_ICON_WINDOW])) {
+    hints.icon_window = get_window(SLOT[slot_WM_ICON_WINDOW]);
+    hints.flags |= IconWindowHint;
+  }
+  if (!nullp(SLOT[slot_WM_ICON_X])) {
+    SLOT[slot_WM_ICON_X] = check_sint(SLOT[slot_WM_ICON_X]);
+    hints.icon_x = I_to_sint(SLOT[slot_WM_ICON_X]);
+    hints.flags |= IconPositionHint;
+  }
+  if (!nullp(SLOT[slot_WM_ICON_Y])) {
+    SLOT[slot_WM_ICON_Y] = check_sint(SLOT[slot_WM_ICON_Y]);
+    hints.icon_y = I_to_sint(SLOT[slot_WM_ICON_Y]);
+    hints.flags |= IconPositionHint;
+  }
+  if (!nullp(SLOT[slot_WM_ICON_MASK])) {
+    hints.icon_mask = get_pixmap(SLOT[slot_WM_ICON_MASK]);
+    hints.flags |= IconMaskHint;
+  }
+  if (!nullp(SLOT[slot_WM_WINDOW_GROUP])) { /* FIXME: raw XID?! */
+    SLOT[slot_WM_WINDOW_GROUP] = check_slong(SLOT[slot_WM_WINDOW_GROUP]);
+    hints.window_group = I_to_slong(SLOT[slot_WM_WINDOW_GROUP]);
+    hints.flags |= WindowGroupHint;
+  }
+# undef SLOT
+  change_property(dpy,win,XA_WM_HINTS,XA_WM_HINTS,32,PropModeReplace,
+                  &hints,sizeof(hints)/4);
+  VALUES1(STACK_0); skipSTACK(2); /* return hints */
+}
+
 ##if 0
 /* ??? */
 DEFUN(XLIB:DESCRIBE-ERROR, arg1 arg2) {UNDEFINED;}
@@ -8107,7 +8260,6 @@ DEFUN(XLIB:TRANSIENT-FOR, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-CLIENT-MACHINE, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-COLORMAP-WINDOWS, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-COMMAND, arg) {UNDEFINED;}
-DEFUN(XLIB:WM-HINTS, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-HINTS-FLAGS, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-HINTS-ICON-MASK, arg) {UNDEFINED;}
 DEFUN(XLIB:WM-HINTS-ICON-PIXMAP, arg) {UNDEFINED;}
