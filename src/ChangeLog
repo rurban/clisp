@@ -2,6 +2,7 @@
 
 	* modules/clx/new-clx/clx.f (CHANGE-PROPERTY):
 	check the return value of XChangeProperty()
+	(DISPLAY-VENDOR-NAME): return just one value
 
 2008-06-24  Sam Steingold  <sds@gnu.org>
 

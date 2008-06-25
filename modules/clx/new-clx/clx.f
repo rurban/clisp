@@ -2048,7 +2048,7 @@ DEFUN(XLIB:DISPLAY-VENDOR, display)   /* OK */
 }
 
 DEFUN(XLIB:DISPLAY-VENDOR-NAME, display) /* OK */
-{ funcall(``XLIB:DISPLAY-VENDOR``,1); }
+{ funcall(``XLIB:DISPLAY-VENDOR``,1); mv_count = 1; }
 
 DEFUN(XLIB:DISPLAY-RELEASE-NUMBER, display) /* OK */
 {
