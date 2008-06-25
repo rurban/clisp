@@ -65,27 +65,26 @@
 (defun qix (&key (x 10) (y 10)
             (width 400) (height 400) (delay 0.05) (nqixs 3) (nlines 80))
   "The famous swirling vectors."
-  (let* ((dpy (xlib:open-default-display))
-         (scr (xlib:display-default-screen dpy))
-         (root-win (xlib:screen-root scr))
-         (white-pixel (xlib:screen-white-pixel scr))
-         (black-pixel (xlib:screen-black-pixel scr))
-         (win (xlib:create-window :parent root-win :x x :y y
-                                  :width width :height height
-                                  :background white-pixel))
-         (gcon (xlib:create-gcontext :drawable win
-                                     :foreground black-pixel
-                                     :background white-pixel)))
-    (xlib:map-window win)
-    (xlib:display-finish-output dpy)
-    (format t "~&Qix uses the following parameters:~%
+  (xlib:with-open-display (dpy)
+    (let* ((scr (xlib:display-default-screen dpy))
+           (root-win (xlib:screen-root scr))
+           (white-pixel (xlib:screen-white-pixel scr))
+           (black-pixel (xlib:screen-black-pixel scr))
+           (win (xlib:create-window :parent root-win :x x :y y
+                                    :width width :height height
+                                    :background white-pixel))
+           (gcon (xlib:create-gcontext :drawable win
+                                       :foreground black-pixel
+                                       :background white-pixel)))
+      (xlib:map-window win)
+      (xlib:display-finish-output dpy)
+      (format t "~&Qix uses the following parameters:~%
   :x ~s :y ~s :width ~d :height ~d :delay ~f :nqixs ~d :nlines ~d~%"
-            x y width height delay nqixs nlines)
-    (draw-qix dpy win gcon width height white-pixel black-pixel
-              delay nqixs nlines)
-    (xlib:free-gcontext gcon)
-    (xlib:unmap-window win)
-    (xlib:display-finish-output dpy)
-    (xlib:close-display dpy)))
+              x y width height delay nqixs nlines)
+      (draw-qix dpy win gcon width height white-pixel black-pixel
+                delay nqixs nlines)
+      (xlib:free-gcontext gcon)
+      (xlib:unmap-window win)
+      (xlib:display-finish-output dpy))))
 
 (provide "qix")
