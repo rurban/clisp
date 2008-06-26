@@ -1,5 +1,10 @@
 2008-06-26  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.lisp (WITH-GCONTEXT, set-wm-class):
+	STRING-CONCAT requires package prefix
+
+2008-06-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/demos/sokoban.lisp (init-sokoban):
 	do not set *display*
 	(sokoban): use xlib:with-open-display;

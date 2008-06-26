@@ -544,25 +544,25 @@
         dashes? clip-mask?)
     (do ((q options (cddr q)))
         ((null q))
-        (cond ((eq (car q) :dashes)    (setf dashes? t))
-              ((eq (car q) :clip-mask) (setf clip-mask? t)))
-        (setf comps      (logior comps (%gcontext-key->mask (car q)))
-              setf-forms (nconc setf-forms
-                                (list (list (find-symbol (string-concat "GCONTEXT-" (symbol-name (car q))) :xlib)
-                                            gcon)
-                                      (cadr q)))) )
+      (cond ((eq (car q) :dashes)    (setf dashes? t))
+            ((eq (car q) :clip-mask) (setf clip-mask? t)))
+      (setf comps      (logior comps (%gcontext-key->mask (car q)))
+            setf-forms (nconc setf-forms
+                              (list (list (find-symbol (ext:string-concat "GCONTEXT-" (symbol-name (car q))) :xlib)
+                                          gcon)
+                                    (cadr q)))))
     `(LET* ((,gcon ,gcontext)
             (,saved (%SAVE-GCONTEXT-COMPONENTS ,gcon ,comps))
             ,@(if dashes?    (list `(,g0 (GCONTEXT-DASHES    ,gcon))))
-            ,@(if clip-mask? (list `(,g1 (GCONTEXT-CLIP-MASK ,gcon)))) )
+            ,@(if clip-mask? (list `(,g1 (GCONTEXT-CLIP-MASK ,gcon)))))
        (UNWIND-PROTECT
-           (PROGN
-             (SETF ,@setf-forms)
-             ,@body)
+            (PROGN
+              (SETF ,@setf-forms)
+              ,@body)
          (PROGN
            (%RESTORE-GCONTEXT-COMPONENTS ,gcon ,saved)
-           ,@(if dashes?    (list `(SETF (GCONTEXT-DASHES ,gcon) ,g0)) )
-           ,@(if clip-mask? (list `(SETF (GCONTEXT-CLIP-MASK ,gcon) ,g1)) )))) ))
+           ,@(if dashes?    (list `(SETF (GCONTEXT-DASHES ,gcon) ,g0)))
+           ,@(if clip-mask? (list `(SETF (GCONTEXT-CLIP-MASK ,gcon) ,g1))))))))
 
 (defmacro WITH-SERVER-GRABBED ((display) &body body)
   ;; The body is not surrounded by a with-display.
@@ -614,7 +614,7 @@
 
 (defun set-wm-class (window resource-name resource-class)
   (set-string-property window :WM_CLASS
-                       (string-concat
+                       (ext:string-concat
                         (string (or resource-name ""))
                         (load-time-value
                          (make-string 1 :initial-element (card8->char 0)))
