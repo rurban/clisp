@@ -5332,17 +5332,15 @@ DEFUN(XLIB:QUERY-BEST-CURSOR, arg1 arg2 arg3)
   query_best_X (XQueryBestCursor);
 }
 
-/*   XLIB:RECOLOR-CURSOR cursor foreground background
-
- FIXME? Are color names also OK here? */
-DEFUN(XLIB:RECOLOR-CURSOR, arg1 arg2 arg3)
+/* FIXME? Are color names also OK here? */
+DEFUN(XLIB:RECOLOR-CURSOR, cursor foreground background)
 {
   Display *dpy;
   Cursor cursor = get_cursor_and_display (STACK_2, &dpy);
-  XColor foreground,background;
+  XColor foreground, background;
 
   get_color (dpy, STACK_1, &foreground);
-  get_color (dpy, STACK_1, &background);
+  get_color (dpy, STACK_0, &background);
 
   X_CALL(XRecolorCursor (dpy, cursor, &foreground, &background));
 
@@ -5407,8 +5405,8 @@ void coerce_into_map (void *arg, object element) {
 
 DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
            PREPEND=PropModePrepend :APPEND=PropModeAppend)
-/*   XLIB:CHANGE-PROPERTY window property data type format
-          &key (:mode :replace) (:start 0) :end :transform */
+/* (XLIB:CHANGE-PROPERTY window property data type format
+          &key (:mode :replace) (:start 0) :end :transform) */
 DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
       &key MODE :START :END TRANSFORM)
 {
