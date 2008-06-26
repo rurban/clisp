@@ -285,7 +285,7 @@ NIL
              (show (list window-count hint-count screen window wmh) :pretty t)
              (setf (xlib:wm-hints window) wmh)))))
      (length (show (list 'window-count window-count 'hint-count hint-count))))))
-2
+4
 
 (xlib:with-open-display (dpy)
   (let* ((win (xlib:create-window
