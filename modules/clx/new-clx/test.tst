@@ -273,18 +273,47 @@ NIL
 (xlib:display-finish-output *dpy*) NIL
 (xlib:display-p (show (xlib:close-display *dpy*))) T
 
-(xlib:with-open-display (dpy)
-  (ext:appease-cerrors
-   (let ((window-count 0) (hint-count 0))
+(defun map-windows (f)
+  (xlib:with-open-display (dpy)
+    (ext:appease-cerrors
      (dolist (screen (xlib:display-roots dpy))
        (dolist (window (xlib:query-tree (xlib:screen-root screen)))
-         (let ((wmh (xlib:wm-hints window)))
-           (incf window-count)
-           (when wmh
-             (incf hint-count)
-             (show (list window-count hint-count screen window wmh) :pretty t)
-             (setf (xlib:wm-hints window) wmh)))))
-     (length (show (list 'window-count window-count 'hint-count hint-count))))))
+         (funcall f window))))))
+MAP-WINDOWS
+
+(let ((window-count 0) (hint-count 0))
+  (map-windows (lambda (window)
+                 (let ((wmh (xlib:wm-hints window)))
+                   (incf window-count)
+                   (when wmh
+                     (incf hint-count)
+                     (show (list window-count hint-count window wmh)
+                           :pretty t)
+                     (setf (xlib:wm-hints window) wmh)))))
+  (length (show (list 'window-count window-count 'hint-count hint-count))))
+4
+
+(let ((window-count 0) (wmc-count 0))
+  (map-windows (lambda (window)
+                 (multiple-value-bind (name class) (xlib:get-wm-class window)
+                   (incf window-count)
+                   (when name
+                     (incf wmc-count)
+                     (show (list window-count wmc-count window name class)
+                           :pretty t)
+                     (xlib:set-wm-class window name class)))))
+  (length (show (list 'window-count window-count 'wmc-count wmc-count))))
+4
+
+(let ((window-count 0) (cmd-count 0))
+  (map-windows (lambda (window)
+                 (let ((cmd (xlib:wm-command window)))
+                   (incf window-count)
+                   (when cmd
+                     (incf cmd-count)
+                     (show (list window-count cmd-count window cmd)
+                           :pretty t)))))
+  (length (show (list 'window-count window-count 'cmd-count cmd-count))))
 4
 
 (xlib:with-open-display (dpy)
