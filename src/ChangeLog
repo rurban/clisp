@@ -1,5 +1,11 @@
 2008-06-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (change_property): remove
+	(SET-WM-HINTS, CHANGE-PROPERTY): use XChangeProperty() directly
+	and ignore its return value which is always 1
+
+2008-06-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.lisp (with-open-display): define & export
 	* modules/clx/new-clx/demos/bball.lisp:
 	* modules/clx/new-clx/demos/bwindow.lisp:
