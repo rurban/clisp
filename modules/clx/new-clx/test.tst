@@ -311,26 +311,25 @@ T
          (window-list (dpy) (xlib:query-tree (parent dpy)))
          (first-pass (dpy)
            ;; Open a fresh connection. Create a window and a pixmap.
-           (let* ((dpy2 (xlib:open-default-display))
-                  (window (make-win dpy2)) (wid (xlib:window-id window))
-                  (pixmap (make-pixmap window)))
-             ;; make the pixmap the window's icon pixmap hint.
-             (setf (xlib:wm-hints window)
-                   (xlib:make-wm-hints :icon-pixmap pixmap))
-             (format t "Window ID: ~8x pixmap ID: ~8x~%"
-                     wid (xlib:pixmap-id pixmap))
-             (xlib:display-finish-output dpy2)
-             (format t " --> ~S~%"
-                     (xlib:wm-hints-icon-pixmap (xlib:wm-hints window)))
-             ;; On the old connection, list the root window children
-             ;; and the icon pixmap hint to cache their XIDs.
-             (dolist (w (window-list dpy))
-               (let ((id (xlib:window-id w)) (hints (xlib:wm-hints w)))
-                 (when hints
-                   (let ((pm (xlib:wm-hints-icon-pixmap hints)))
-                     (when pm
-                       (format t " W: ~8x -> ~s~%" id pm))))))
-             (xlib:close-display dpy2)))
+           (xlib:with-open-display (dpy2)
+             (let* ((window (make-win dpy2)) (wid (xlib:window-id window))
+                    (pixmap (make-pixmap window)))
+               ;; make the pixmap the window's icon pixmap hint.
+               (setf (xlib:wm-hints window)
+                     (xlib:make-wm-hints :icon-pixmap pixmap))
+               (format t "Window ID: ~8x pixmap ID: ~8x~%"
+                       wid (xlib:pixmap-id pixmap))
+               (xlib:display-finish-output dpy2)
+               (format t " --> ~S~%"
+                       (xlib:wm-hints-icon-pixmap (xlib:wm-hints window)))
+               ;; On the old connection, list the root window children
+               ;; and the icon pixmap hint to cache their XIDs.
+               (dolist (w (window-list dpy))
+                 (let ((id (xlib:window-id w)) (hints (xlib:wm-hints w)))
+                   (when hints
+                     (let ((pm (xlib:wm-hints-icon-pixmap hints)))
+                       (when pm
+                         (format t " W: ~8x -> ~s~%" id pm)))))))))
          (second-pass (dpy)
            ;; Open a fresh connection and create 2 windows.
            (xlib:with-open-display (dpy2)
