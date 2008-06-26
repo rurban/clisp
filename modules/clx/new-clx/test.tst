@@ -348,9 +348,10 @@ T
                          (t (princ "  "))))
                  (format t "window: ~s~%" w)
                  (assert (xlib:window-p w)))))))
-  (xlib:with-open-display (dpy)
-    (first-pass dpy)
-    (second-pass dpy)))
+  (ext:appease-cerrors
+   (xlib:with-open-display (dpy)
+     (first-pass dpy)
+     (second-pass dpy))))
 NIL
 
 ;; cleanup
