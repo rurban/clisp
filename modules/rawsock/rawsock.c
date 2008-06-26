@@ -967,7 +967,7 @@ static void check_message (gcv_object_t *mho, uintL *offset, struct msghdr *mhp)
   TheStructure(*mho)->recdata[MSG_CONTROL] =
     check_byte_vector(TheStructure(*mho)->recdata[MSG_CONTROL]);
   mhp->msg_flags =
-    check_msg_flags_from_list(TheStructure(*mho)->recdata[MSG_FLAGS]);
+    check_msg_flags_of_list(TheStructure(*mho)->recdata[MSG_FLAGS]);
 }
 /* fill msg_controllen, msg_control, msg_iov, msg_name from mho */
 static void fill_msghdr (gcv_object_t *mho, uintL offset, struct msghdr *mhp,

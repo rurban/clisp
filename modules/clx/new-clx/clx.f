@@ -1398,7 +1398,7 @@ static unsigned int get_modifier_mask (object obj)
   if (!boundp(obj)) return 0;
   if (eq (obj, `:ANY`)) return AnyModifier;
   if (integerp (obj)) return get_uint16 (obj);
-  if (listp(obj)) return check_modifier_from_list(obj);
+  if (listp(obj)) return check_modifier_of_list(obj);
   my_type_error(`(OR (EQL :ANY) XLIB::CARD16 LIST)`,obj);
 }
 
@@ -1431,7 +1431,7 @@ static unsigned long get_event_mask (object obj)
 { /* get_event_mask could handle a numerical and symbolic
    representation of an event mask */
   if (uint32_p (obj)) return get_uint32 (obj);
-  if (listp (obj)) return check_event_mask_from_list(obj);
+  if (listp (obj)) return check_event_mask_of_list(obj);
   my_type_error(`(OR XLIB::CARD32 LIST)`,obj);
 }
 
@@ -8149,7 +8149,7 @@ DEFUN(XLIB:SET-WM-HINTS, window hints) {
     my_type_error(`XLIB::WM-HINTS`,STACK_0);
 # define SLOT TheStructure(STACK_0)->recdata
   if (!nullp(SLOT[slot_WM_FLAGS]))
-    hints.flags = check_wmh_flag_from_list(SLOT[slot_WM_FLAGS]);
+    hints.flags = check_wmh_flag_of_list(SLOT[slot_WM_FLAGS]);
   if (!nullp(SLOT[slot_WM_HINTS_INPUT])) {
     hints.input = eq(`:ON`,SLOT[slot_WM_HINTS_INPUT]);
     hints.flags |= InputHint;

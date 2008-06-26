@@ -85,7 +85,7 @@ The input file is normal C code, modified like this:
  enum means no #ifdef
  prefix, suffix default to ""
  reverse defaults to "" and means ERROR
- bitmasks means additional *_to_list and *_from_list functions are defined
+ bitmasks means additional *_to_list and *_of_list functions are defined
  delim defaults to "_" and separates prefix and suffix
 
 Restrictions and caveats:
@@ -1124,7 +1124,7 @@ commas and parentheses."
             (when bitmasks
               (formatln out "#define ~A_to_list(a) map_c_to_list(a,&~A_map)"
                         c-name c-name)
-              (formatln out "#define ~A_from_list(a) map_list_to_c(a,&~A_map)"
+              (formatln out "#define ~A_of_list(a) map_list_to_c(a,&~A_map)"
                         c-name c-name))))
     (newline out)))
 
