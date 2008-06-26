@@ -3,7 +3,7 @@
 ;;;;   Created: Tue Feb 27 15:43:28 1996
 ;;;;    Author: Gilbert Baumann <unk6@rz.uni-karlsruhe.de>
 ;;;; Copyright: (c) copyright 1996 by Gilbert Baumann, distributed under GPL.
-;;;; some hacking by Sam Steingold 2002-2007
+;;;; some hacking by Sam Steingold 2002-2008
 
 ;;;; History
 ;;;;
@@ -176,8 +176,8 @@
 
 (defun init-sokoban ()
   "Initialized the whole beast, opens display, creates window ..."
-  (setq *display* (xlib:open-default-display))
-  (let* ((root-window (xlib:screen-root (xlib:display-default-screen *display*)))
+  (let* ((root-window (xlib:screen-root
+                       (xlib:display-default-screen *display*)))
          (make-pixmap (lambda (name)
                         (xpm::read-file-to-pixmap root-window
                           (make-pathname :name name :type "xpm"
@@ -385,69 +385,69 @@ If you quit sokoban using 'q' the current state will be saved in
 
 (defun sokoban (&key ((:debug *sokoban-debug*) *sokoban-debug*))
   "Play the game of sokoban, pushing objects around."
-  (when (or (null *display*) (closed-display-p *display*))
+  (xlib:with-open-display (*display*)
     (init-sokoban)
-    (sokoban-usage))
-  (block event-loop
-    (xlib:event-case (*display*)
-      (:button-press (code window x y)
-        (case code
-          (1 (walk-to x y) nil)
-          (3 (undo) (update) nil)
-          (otherwise
-           (when *sokoban-debug*
-             (format t "~&; ~s: (~s ~s ~s ~s)~%"
-                     :button-press code window x y)))))
-      (:key-press (code window)
-        (case (xlib:keycode->keysym *display* code 0)
-          (65361 #|LEFT|#  (move -1 0))
-          (65362 #|UP|#    (move 0 -1))
-          (65363 #|RIGHT|# (move 1 0))
-          (65364 #|DOWN|#  (move 0 1))
-          (#o165 #|u|# (undo))
-          (#o166 #|v|# (undo-til-push))
-          (#o162 #|r|# (restart-sokoban))
-          (#o163 #|s|# (save-state))
-          (#o161 #|q|# (return-from event-loop t))
-          (#o153 #|k|# (return-from sokoban 'killed))
-          (#o141 #|a|# (stats))
-          (#o144 #|d|# (setq *sokoban-debug* (not *sokoban-debug*)))
-          (#o150 #|h|# (sokoban-usage))
-          (#o156 #|n|#
-           (cond ((ready-p)
-                  (incf *level*)
-                  (init-field))
-                 (T
-                  (format T "~%;You are not yet ready! (consider restart with `r'.)"))))
-          (#o146 #|f|# ;force
-           (incf *level*)
-           (init-field))
-          (otherwise
-           (when *sokoban-debug*
-             (format t "~&; ~s: ~s ~s/~s~%" :key-press window code
-                     (xlib:keycode->keysym *display* code 0)))))
-        (update)
-        (when (ready-p)
-          (unless *said-congrat-p*
-            (format T "~%; Congratulations! -- you are ready.~A" (code-char 7))
-            (format T "~%; Statistics: You needed ~R moves." (length *undos*))
-            (setq *said-congrat-p* t))
-          (unless *said-proceed-p*
-            (format T "~%; Proceed to next move with 'n'.")
-            (setq *said-proceed-p* t)) )
-        nil)
-      (:exposure (x y width height count)
-        (when *sokoban-debug*
-          (format t "~&; ~s: (~s ~s ~s ~s ~s)~&" :exposure
-                  x y width height count))
-        (when (= count 0) (update t))
-        nil)))
-  (save-state)
-  (xlib:free-gcontext *gcontext*)
-  (xlib:unmap-window *window*)
-  (xlib:display-finish-output *display*)
-  (xlib:close-display *display*))
-
+    (sokoban-usage)
+    (block event-loop
+      (xlib:event-case (*display*)
+        (:button-press (code window x y)
+          (case code
+            (1 (walk-to x y) nil)
+            (3 (undo) (update) nil)
+            (otherwise
+             (when *sokoban-debug*
+               (format t "~&; ~s: (~s ~s ~s ~s)~%"
+                       :button-press code window x y)))))
+        (:key-press (code window)
+          (case (xlib:keycode->keysym *display* code 0)
+            (65361 #|LEFT|#  (move -1 0))
+            (65362 #|UP|#    (move 0 -1))
+            (65363 #|RIGHT|# (move 1 0))
+            (65364 #|DOWN|#  (move 0 1))
+            (#o165 #|u|# (undo))
+            (#o166 #|v|# (undo-til-push))
+            (#o162 #|r|# (restart-sokoban))
+            (#o163 #|s|# (save-state))
+            (#o161 #|q|# (return-from event-loop t))
+            (#o153 #|k|# (return-from sokoban 'killed))
+            (#o141 #|a|# (stats))
+            (#o144 #|d|# (setq *sokoban-debug* (not *sokoban-debug*)))
+            (#o150 #|h|# (sokoban-usage))
+            (#o156 #|n|#
+             (cond ((ready-p)
+                    (incf *level*)
+                    (init-field))
+                   (T
+                    (format T "~%;You are not ready yet! (consider restart with `r'.)"))))
+            (#o146 #|f|# ;force
+             (incf *level*)
+             (init-field))
+            (otherwise
+             (when *sokoban-debug*
+               (format t "~&; ~s: ~s ~s/~s~%" :key-press window code
+                       (xlib:keycode->keysym *display* code 0)))))
+          (update)
+          (when (ready-p)
+            (unless *said-congrat-p*
+              (format T "~%; Congratulations! -- you are ready.")
+              (xlib:bell *display* 50)
+              (format T "~%; Statistics: You needed ~R moves."
+                      (length *undos*))
+              (setq *said-congrat-p* t))
+            (unless *said-proceed-p*
+              (format T "~%; Proceed to next move with 'n'.")
+              (setq *said-proceed-p* t)) )
+          nil)
+        (:exposure (x y width height count)
+          (when *sokoban-debug*
+            (format t "~&; ~s: (~s ~s ~s ~s ~s)~&" :exposure
+                    x y width height count))
+          (when (= count 0) (update t))
+          nil)))
+    (save-state)
+    (xlib:free-gcontext *gcontext*)
+    (xlib:unmap-window *window*)
+    (xlib:display-finish-output *display*)))
 
 (defun save-state ()
   (with-open-file (o *sokoban-state-file* :direction :output)

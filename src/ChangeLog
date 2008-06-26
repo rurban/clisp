@@ -1,3 +1,9 @@
+2008-06-26  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/demos/sokoban.lisp (init-sokoban):
+	do not set *display*
+	(sokoban): use xlib:with-open-display
+
 2008-06-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (change_property): remove
