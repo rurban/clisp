@@ -5404,23 +5404,6 @@ void coerce_into_map (void *arg, object element) {
   }
 }
 
-static void change_property (Display* dpy, Window win, Atom property,
-                             Atom type, int format, int mode,
-                             void* data, int size) {
-  Status r;
-  X_CALL(r = XChangeProperty(dpy,win,property,type,format,mode,data,size));
-  if (r != Success) {           /* FIXME: also print data */
-    pushSTACK(check_error_code_reverse(r));
-    pushSTACK(L_to_I(size));
-    pushSTACK(L_to_I(mode));
-    pushSTACK(L_to_I(format));
-    pushSTACK(L_to_I(type));
-    pushSTACK(L_to_I(property));
-    pushSTACK(L_to_I(win));
-    pushSTACK(TheSubr(subr_self)->name);
-    error(error_condition,"~S(~S ~S ~S ~S ~S ~S): ~S");
-  }
-}
 
 DEFCHECKER(check_propmode,default=PropModeReplace, REPLACE=PropModeReplace \
            PREPEND=PropModePrepend :APPEND=PropModeAppend)
@@ -5458,7 +5441,9 @@ DEFUN(XLIB:CHANGE-PROPERTY, window property data type format \
     { struct seq_map sm;
       sm.transform = &STACK_0; sm.data = data; sm.format = format;
       map_sequence(STACK_6,coerce_into_map,(void*)&sm); }
-    change_property(dpy,win,property,type,format,mode,data,end-start);
+    /* XChangeProperty returns 1 unconditionally
+       - see http://freedesktop.org/wiki/UsingCvs */
+    X_CALL(XChangeProperty(dpy,win,property,type,format,mode,data,end-start));
     FREE_DYNAMIC_ARRAY (data);
   }
 
@@ -8098,8 +8083,6 @@ DEFUN(XLIB:WM-HINTS, window) {
                                 (long)(sizeof(XWMHints)/4), false,
                                 XA_WM_HINTS, &actual_type, &actual_format,
                                 &nitems, &leftover, (unsigned char **)&hints));
-  printf("\nr=%d type=%d format=%d nitems=%d leftover=%d hints=%x\n",
-         r,actual_type,actual_format,nitems,leftover,hints);
   if (r == Success && actual_type == XA_WM_HINTS && actual_format == 32
       && nitems != 0 && hints != NULL) {
     int count = 2;
@@ -8205,8 +8188,8 @@ DEFUN(XLIB:SET-WM-HINTS, window hints) {
     hints.flags |= WindowGroupHint;
   }
 # undef SLOT
-  change_property(dpy,win,XA_WM_HINTS,XA_WM_HINTS,32,PropModeReplace,
-                  &hints,sizeof(hints)/4);
+  X_CALL(XChangeProperty(dpy,win,XA_WM_HINTS,XA_WM_HINTS,32,PropModeReplace,
+                         (unsigned char*)&hints,sizeof(hints)/4));
   VALUES1(STACK_0); skipSTACK(2); /* return hints */
 }
 

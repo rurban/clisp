@@ -274,16 +274,17 @@ NIL
 
 (xlib:with-open-display (dpy)
   (ext:appease-cerrors
-   (let ((count 0))
+   (let ((window-count 0) (hint-count 0))
      (dolist (screen (xlib:display-roots dpy))
        (dolist (window (xlib:query-tree (xlib:screen-root screen)))
          (let ((wmh (xlib:wm-hints window)))
+           (incf window-count)
            (when wmh
-             (print (list (incf count) screen window wmh))
-             ;; (setf (xlib:wm-hints window) wmh)
-             ))))
-     (integerp (print count)))))
-T
+             (incf hint-count)
+             (show (list window-count hint-count screen window wmh))
+             (setf (xlib:wm-hints window) wmh)))))
+     (length (show (list window-count hint-count))))))
+2
 
 (xlib:with-open-display (dpy)
   (let* ((win (xlib:create-window
@@ -292,9 +293,9 @@ T
          (pm (xlib:create-pixmap :width (random 100) :height (random 100)
                                  :depth 8 :drawable win)))
     (setf (xlib:wm-hints win)
-          (xlib:make-wm-hints))
+          (xlib:make-wm-hints :icon-pixmap pm))
     (xlib:display-finish-output dpy)
-    (xlib:wm-hints-icon-pixmap (xlib:wm-hints win))))
+    (eq pm (xlib:wm-hints-icon-pixmap (xlib:wm-hints win)))))
 T
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/18431>
@@ -331,9 +332,9 @@ T
              (xlib:close-display dpy2)))
          (second-pass (dpy)
            ;; Open a fresh connection and create 2 windows.
-           (xlib:with-open-default-display (dpy2)
-             (let ((window1 (make-win dpy2)) (id1 (xlib:window-id window1))
-                   (window2 (make-win dpy2)) (id2 (xlib:window-id window2)))
+           (xlib:with-open-display (dpy2)
+             (let* ((window1 (make-win dpy2)) (id1 (xlib:window-id window1))
+                    (window2 (make-win dpy2)) (id2 (xlib:window-id window2)))
                (format t "Window#1 ID: ~8x Window#2 ID: ~8x~%" id1 id2)
                (xlib:display-finish-output dpy2)
                ;; On the old connection, list the root window children
@@ -348,9 +349,8 @@ T
                  (assert (xlib:window-p w)))))))
   (xlib:with-open-display (dpy)
     (first-pass dpy)
-    (second-pass dpy)
-    (xlib:display-p (xlib:close-display dpy))))
-T
+    (second-pass dpy)))
+NIL
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
