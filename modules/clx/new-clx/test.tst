@@ -281,9 +281,9 @@ NIL
            (incf window-count)
            (when wmh
              (incf hint-count)
-             (show (list window-count hint-count screen window wmh))
+             (show (list window-count hint-count screen window wmh) :pretty t)
              (setf (xlib:wm-hints window) wmh)))))
-     (length (show (list window-count hint-count))))))
+     (length (show (list 'window-count window-count 'hint-count hint-count))))))
 2
 
 (xlib:with-open-display (dpy)
