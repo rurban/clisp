@@ -21,7 +21,7 @@
 (listp (show (xlib:display-plist *dpy*))) T
 (stringp (show (xlib:display-host *dpy*))) T
 (listp (show (multiple-value-list (xlib:pointer-control *dpy*)))) T
-(listp (show (xlib:pointer-mapping *dpy*))) T
+(listp (show (xlib:pointer-mapping *dpy*) :pretty t)) T
 (listp (show (xlib:font-path *dpy*) :pretty t)) T
 ;; (defparameter *font-count*
 ;;   (let ((font-names (xlib:list-font-names *dpy* "*")))
@@ -134,7 +134,8 @@ NIL
        (show (ext:appease-cerrors
               (xlib:query-colors *colormap*
                                  (loop :with max = (ash 1 32) :repeat 100
-                                   :collect (random max))))))
+                                   :collect (random max))))
+             :pretty t))
 T
 
 (defparameter *font* (show (xlib:open-font *dpy* "fixed"))) *FONT*
