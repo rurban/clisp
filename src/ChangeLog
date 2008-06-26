@@ -2,7 +2,8 @@
 
 	* modules/clx/new-clx/demos/sokoban.lisp (init-sokoban):
 	do not set *display*
-	(sokoban): use xlib:with-open-display
+	(sokoban): use xlib:with-open-display;
+	handle numeric keypad
 
 2008-06-25  Sam Steingold  <sds@gnu.org>
 
