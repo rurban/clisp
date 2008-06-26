@@ -316,9 +316,9 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
   int value;
   if (boundp(STACK_0)) {        /* SET */
     switch (cmd) {
-      case F_GETFD: value = check_fd_flags_from_list(STACK_0);
+      case F_GETFD: value = check_fd_flags_of_list(STACK_0);
         cmd = F_SETFD; break;
-      case F_GETFL: value = check_fl_flags_from_list(STACK_0);
+      case F_GETFL: value = check_fl_flags_of_list(STACK_0);
         cmd = F_SETFL; break;
       default: NOTREACHED;
     }
@@ -1877,9 +1877,9 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
                : I_to_uint32(check_uint32(popSTACK())));
   mode_t mode = (missingp(STACK_0) ? skipSTACK(1), (mode_t)-1
 #               if defined(WIN32_NATIVE)
-                 : (mode_t)check_file_attributes_from_list(popSTACK())
+                 : (mode_t)check_file_attributes_of_list(popSTACK())
 #               else
-                 : check_chmod_mode_from_list(popSTACK())
+                 : check_chmod_mode_of_list(popSTACK())
 #               endif
                  );
 # if defined(WIN32_NATIVE)
@@ -1944,14 +1944,14 @@ DEFUN(POSIX::CONVERT-MODE, mode)
 { /* convert between symbolic and numeric permissions */
   VALUES1(integerp(STACK_0)
           ? check_chmod_mode_to_list(I_to_uint32(check_uint32(popSTACK())))
-          : uint32_to_I(check_chmod_mode_from_list(popSTACK())));
+          : uint32_to_I(check_chmod_mode_of_list(popSTACK())));
 }
 
 #if defined(HAVE_UMASK)
 DEFUN(POSIX::UMASK, cmask)
 { /* lisp interface to umask(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/umask.html */
-  mode_t cmask = check_chmod_mode_from_list(popSTACK());
+  mode_t cmask = check_chmod_mode_of_list(popSTACK());
   begin_system_call();
   cmask = umask(cmask);
   end_system_call();
@@ -1979,7 +1979,7 @@ DEFCHECKER(mknod_type_check,prefix=S_I,delim=,default=, \
 DEFUN(POSIX::MKNOD, path type mode)
 { /* lisp interface to mknod(2)
      http://www.opengroup.org/onlinepubs/009695399/functions/mknod.html */
-  mode_t mode = check_chmod_mode_from_list(popSTACK());
+  mode_t mode = check_chmod_mode_of_list(popSTACK());
 #if defined(HAVE_MKNOD)
   mode |= mknod_type_check(popSTACK());
 #else
@@ -3078,7 +3078,7 @@ DEFUN(POSIX::CONVERT-ATTRIBUTES, attributes)
     VALUES1(check_file_attributes_to_list
             (I_to_uint32(check_uint32(popSTACK()))));
   else if (listp(STACK_0))
-    VALUES1(fixnum(check_file_attributes_from_list(popSTACK())));
+    VALUES1(fixnum(check_file_attributes_of_list(popSTACK())));
   else VALUES1(fixnum(check_file_attributes(popSTACK())));
 }
 /* convert the 8 members of WIN32_FIND_DATA to the FILE-INFO struct

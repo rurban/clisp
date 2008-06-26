@@ -1,5 +1,12 @@
 2008-06-26  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (print-tables-1): use "..._of_list" instead
+	of "..._from_list"
+	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
+	* modules/rawsock/rawsock.c, modules/syscalls/calls.c: update
+
+2008-06-26  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.lisp (WITH-GCONTEXT, set-wm-class):
 	STRING-CONCAT requires package prefix
 
