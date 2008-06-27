@@ -131,7 +131,7 @@
 <!ENTITY openmcl '<ulink url="http://openmcl.clozure.com/"><command>OpenMCL</command></ulink>'>
 <!ENTITY sbcl '<ulink url="http://sbcl.sourceforge.net/"><command>SBCL</command></ulink>'>
 <!ENTITY acl '<ulink url="http://www.franz.com"><command>Allegro CL</command></ulink>'>
-<!ENTITY lispworks '<ulink url="http://www.xanalys.com/software_tools/products/index.html"><command>LispWorks</command></ulink>'>
+<!ENTITY lispworks '<ulink url="http://www.lispworks.com/products/lispworks.html"><command>LispWorks</command></ulink>'>
 
 <!-- *** Editors *** -->
 <!ENTITY emacs '<ulink url="http://www.gnu.org/software/emacs/">Emacs</ulink>'>
