@@ -1648,14 +1648,14 @@ local object check_random_state (object obj) {
       error(type_error,GETTEXT("~S: argument should be a ~S, not ~S"));
     }
   } else { /* not specified -> default from *RANDOM-STATE* */
-    obj = Symbol_value(S(random_state_stern)); /* value of *RANDOM-STATE* */
+    obj = Symbol_value(S(random_state_star)); /* value of *RANDOM-STATE* */
     if (random_state_p(obj)) {
       return obj;
     } else {
       pushSTACK(obj); /* TYPE-ERROR slot DATUM */
       pushSTACK(S(random_state)); /* TYPE-ERROR slot EXPECTED-TYPE */
       pushSTACK(obj); pushSTACK(S(random_state));
-      pushSTACK(S(random_state_stern));
+      pushSTACK(S(random_state_star));
       pushSTACK(TheSubr(subr_self)->name);
       error(type_error,GETTEXT("~S: the value of ~S should be a ~S, not ~S"));
     }
@@ -2072,7 +2072,7 @@ global maygc void init_arith (void)
   define_variable(S(read_default_float_format),S(single_float)); /* *READ-DEFAULT-FLOAT-FORMAT* := 'SINGLE-FLOAT */
   {
     var object obj = make_random_state(T); /* new random Random-State */
-    define_variable(S(random_state_stern),obj); /* =: *RANDOM-STATE* */
+    define_variable(S(random_state_star),obj); /* =: *RANDOM-STATE* */
   }
   /* SYS::*INHIBIT-FLOATING-POINT-UNDERFLOW* := NIL */
   define_variable(S(inhibit_floating_point_underflow),NIL);

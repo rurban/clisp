@@ -3135,7 +3135,7 @@ LISPFUNN(gc_statistics,0)
  with_gc_statistics(fun);
  > fun: function, that triggers a GC */
 global void with_gc_statistics (gc_function_t* fun) {
-  var object flag = Symbol_value(S(gc_statistics_stern));
+  var object flag = Symbol_value(S(gc_statistics_star));
   if (!posfixnump(flag)) {
     /* No need to do statistics, throw old ones away. */
     O(gc_statistics_list) = NIL; fun();
@@ -3173,7 +3173,7 @@ global void with_gc_statistics (gc_function_t* fun) {
     if (posfixnum_to_V(Symbol_value(S(recurse_count_gc_statistics))) > 3) {
       /* recursion depth too big. */
       danger = true;
-      dynamic_bind(S(gc_statistics_stern),Fixnum_0);
+      dynamic_bind(S(gc_statistics_star),Fixnum_0);
     }
     /* Allocate and fill result vector. */
     heap_statistics_result(&locals);
@@ -3183,7 +3183,7 @@ global void with_gc_statistics (gc_function_t* fun) {
       O(gc_statistics_list) = new_cons;
     }
     /* Done. */
-    if (danger) { dynamic_unbind(S(gc_statistics_stern)); }
+    if (danger) { dynamic_unbind(S(gc_statistics_star)); }
     dynamic_unbind(S(recurse_count_gc_statistics));
     skipSTACK(locals.structure_classes.count + locals.standard_classes.count);
     done_hs_locals(locals);

@@ -1,3 +1,11 @@
+2008-06-27  Sam Steingold  <sds@gnu.org>
+
+	* constsym.d, control.d, eval.d, fsubr.d, io.d, lisparit.d:
+	* package.d, predtype.d, spvw.d, spvw_allocate.d, spvw_language.d
+	(let*, *package*, *readtable*, *evalhook*, *applyhook*)
+	(*gc-statistics*, *random-state*):
+	use "star" instead of "stern" for C names
+
 2008-06-26  Sam Steingold  <sds@gnu.org>
 
 	* utils/modprep.lisp (print-tables-1): use "..._of_list" instead
@@ -707,11 +715,11 @@
 
 2008-05-13  Bruno Haible  <bruno@clisp.org>
 
-	* src/m4/pkg.m4: New file, from pkg-config-0.23.
+	* m4/pkg.m4: New file, from pkg-config-0.23.
 
 2008-05-13  Bruno Haible  <bruno@clisp.org>
 
-	* src/m4/bold.m4 (BOLD_MSG): Fix underquoting.
+	* m4/bold.m4 (BOLD_MSG): Fix underquoting.
 
 2008-05-13  Sam Steingold  <sds@gnu.org>
 
@@ -1123,7 +1131,7 @@
 	* modules/syscalls/calls.c (GETGROUPS, %SETGROUPS): implemented
 	* modules/syscalls/posix.lisp (GETGROUPS): export, add DEFSETF
 	* modules/syscalls/configure.in: check for getgroups and setgroups
-	* src/lispbibl.d (llength1): export to clisp.h
+	* lispbibl.d (llength1): export to clisp.h
 
 2008-03-29  Sam Steingold  <sds@gnu.org>
 
@@ -1322,8 +1330,8 @@
 
 2008-03-12  Sam Steingold  <sds@gnu.org>
 
-	* src/glm4/lib-link.m4: updated from gnulib, discarding my changes
-	* src/m4/ffcall.m4 (CL_FFCALL): updated for the new AC_LIB_LINKFLAGS
+	* glm4/lib-link.m4: updated from gnulib, discarding my changes
+	* m4/ffcall.m4 (CL_FFCALL): updated for the new AC_LIB_LINKFLAGS
 
 2008-03-12  Sam Steingold  <sds@gnu.org>
 
@@ -1561,8 +1569,8 @@
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
 	* Makefile.devel (GTK2_SVN_ROOT): New variable.
-	(src/m4/gtk-2.0.m4): New rule.
-	(src/aclocal.m4): Depend on it.
+	(m4/gtk-2.0.m4): New rule.
+	(aclocal.m4): Depend on it.
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>
 
@@ -1592,7 +1600,7 @@
 	(build-aux-update): Depend on src/build-aux/ltmain.sh.
 	(LIBTOOL_VERSION, LIBTOOL_SOURCE_FILE, LIBTOOL_SOURCE_URL): New
 	variables.
-	(src/build-aux/ltmain.sh src/m4/libtool.m4): New rule.
+	(build-aux/ltmain.sh m4/libtool.m4): New rule.
 	(EXCLUDE): Also exclude the LIBTOOL_SOURCE_FILE and its predecessors.
 
 2008-02-24  Bruno Haible  <bruno@clisp.org>

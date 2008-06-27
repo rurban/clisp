@@ -667,7 +667,7 @@ LISPSPECFORM(let, 1,0,body)
   }
 }
 
-LISPSPECFORM(letstern, 1,0,body)
+LISPSPECFORM(letstar, 1,0,body)
 { /* (LET* ({varspec}) {decl} {form}), CLTL p. 111 */
   /* separate {decl} {form} : */
   if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
@@ -678,7 +678,7 @@ LISPSPECFORM(letstern, 1,0,body)
     /* build variable binding frame, extend VAR_ENV : */
     var gcv_object_t *bind_ptr, *spec_ptr;
     var uintC bind_count, spec_count;
-    make_variable_frame(S(letstern),popSTACK(),&bind_ptr,&bind_count,
+    make_variable_frame(S(letstar),popSTACK(),&bind_ptr,&bind_count,
                         &spec_ptr,&spec_count);
     /* Then, evaluate the initialization forms and activate the bindings */
     if (bind_count > 0) {

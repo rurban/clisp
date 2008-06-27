@@ -1589,18 +1589,17 @@ global maygc bool parse_dd (object formlist)
  > applyhook_value: value for *APPLYHOOK*
  changes STACK */
 global void bindhooks (object evalhook_value, object applyhook_value) {
-  /* build frame: */
-  {
-    var gcv_object_t* top_of_frame = STACK;    /* Pointer to Frame */
-    pushSTACK(Symbol_value(S(evalhookstern))); /* old value of *EVALHOOK* */
-    pushSTACK(S(evalhookstern));               /* *EVALHOOK* */
-    pushSTACK(Symbol_value(S(applyhookstern))); /* old value of *APPLYHOOK* */
-    pushSTACK(S(applyhookstern));               /* *APPLYHOOK* */
+  { /* build frame: */
+    var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
+    pushSTACK(Symbol_value(S(evalhookstar))); /* old value of *EVALHOOK* */
+    pushSTACK(S(evalhookstar));               /* *EVALHOOK* */
+    pushSTACK(Symbol_value(S(applyhookstar))); /* old value of *APPLYHOOK* */
+    pushSTACK(S(applyhookstar));               /* *APPLYHOOK* */
     finish_frame(DYNBIND);
   }
   /* Frame got ready, now change the values of the variables: */
-  Symbol_value(S(evalhookstern)) = evalhook_value; /* (SETQ *EVALHOOK* evalhook_value) */
-  Symbol_value(S(applyhookstern)) = applyhook_value; /* (SETQ *APPLYHOOK* applyhook_value) */
+  Symbol_value(S(evalhookstar)) = evalhook_value; /* (SETQ *EVALHOOK* evalhook_value) */
+  Symbol_value(S(applyhookstar)) = applyhook_value; /* (SETQ *APPLYHOOK* applyhook_value) */
 }
 
 /* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to NIL.
@@ -2936,8 +2935,7 @@ global maygc Values eval (object form)
     goto start;
   });
   var sp_jmp_buf my_jmp_buf;
-  /* build EVAL-frame: */
-  {
+  { /* build EVAL-frame: */
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
     pushSTACK(form);                        /* Form */
     finish_entry_frame(EVAL,my_jmp_buf,,
@@ -2949,12 +2947,11 @@ global maygc Values eval (object form)
         }
       });
   }
-  /* Test for *EVALHOOK*: */
-  {
-    var object evalhook_value = Symbol_value(S(evalhookstern)); /* *EVALHOOK* */
+  { /* Test for *EVALHOOK*: */
+    var object evalhook_value = Symbol_value(S(evalhookstar)); /* *EVALHOOK* */
     if (nullp(evalhook_value)) { /* *EVALHOOK* = NIL ? */
       /* yes -> continue evaluation normally */
-      pushSTACK(Symbol_value(S(applyhookstern))); eval1(form);
+      pushSTACK(Symbol_value(S(applyhookstar))); eval1(form);
     } else {
       /* bind *EVALHOOK*, *APPLYHOOK* to NIL: */
       bindhooks_NIL();

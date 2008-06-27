@@ -60,7 +60,7 @@ LISPSYM(progn,"PROGN",lisp)
 LISPSYM(prog1,"PROG1",lisp)
 LISPSYM(prog2,"PROG2",lisp)
 LISPSYM(let,"LET",lisp)
-LISPSYM(letstern,"LET*",lisp)
+LISPSYM(letstar,"LET*",lisp)
 LISPSYM(locally,"LOCALLY",lisp)
 LISPSYM(compiler_let,"COMPILER-LET",ext)
 LISPSYM(progv,"PROGV",lisp)
@@ -1419,7 +1419,7 @@ LISPSYM(Kexternal,"EXTERNAL",keyword) /* INTERN result in PACKAGE */
 LISPSYM(Kinherited,"INHERITED",keyword) /* INTERN result in PACKAGE */
 LISPSYM(do_symbols,"DO-SYMBOLS",lisp) /* error reporter in PACKAGE */
 LISPSYM(do_external_symbols,"DO-EXTERNAL-SYMBOLS",lisp) /* error reporter in PACKAGE */
-LISPSYM(packagestern,"*PACKAGE*",lisp) /* variable in PACKAGE */
+LISPSYM(packagestar,"*PACKAGE*",lisp) /* variable in PACKAGE */
 LISPSYM(internal_time_units_per_second,"INTERNAL-TIME-UNITS-PER-SECOND",lisp) /* constant in TIME */
 LISPSYM(encode_universal_time,"ENCODE-UNIVERSAL-TIME",lisp) /* function in TIME */
 LISPSYM(use_clcs,"*USE-CLCS*",system) /* variable in ERROR */
@@ -1584,7 +1584,7 @@ LISPSYM(reader_error,"READER-ERROR",lisp) /* type for IO */
 LISPSYM(read_base,"*READ-BASE*",lisp) /* IO variable */
 LISPSYM(read_suppress,"*READ-SUPPRESS*",lisp) /* IO variable */
 LISPSYM(read_eval,"*READ-EVAL*",lisp) /* IO variable */
-LISPSYM(readtablestern,"*READTABLE*",lisp) /* IO variable */
+LISPSYM(readtablestar,"*READTABLE*",lisp) /* IO variable */
 LISPSYM(features,"*FEATURES*",lisp) /* IO variable */
 LISPSYM(read_preserve_whitespace,"*READ-PRESERVE-WHITESPACE*",system) /* IO variable */
 LISPSYM(read_line_number,"*READ-LINE-NUMBER*",system) /* IO variable */
@@ -1678,8 +1678,8 @@ LISPSYM(compile,"COMPILE",lisp) /* declaration-specifier and function for EVAL *
 #ifdef DEBUG_EVAL
 LISPSYM(funcall_trace_output,"*FUNCALL-TRACE-OUTPUT*",system) /* variable in EVAL */
 #endif
-LISPSYM(evalhookstern,"*EVALHOOK*",custom) /* variable in EVAL */
-LISPSYM(applyhookstern,"*APPLYHOOK*",custom) /* variable in EVAL */
+LISPSYM(evalhookstar,"*EVALHOOK*",custom)   /* variable in EVAL */
+LISPSYM(applyhookstar,"*APPLYHOOK*",custom) /* variable in EVAL */
 LISPSYM(macroexpand_hook,"*MACROEXPAND-HOOK*",lisp) /* variable in EVAL */
 LISPSYM(lambda_parameters_limit,"LAMBDA-PARAMETERS-LIMIT",lisp) /* constant in EVAL */
 LISPSYM(call_arguments_limit,"CALL-ARGUMENTS-LIMIT",lisp) /* constant in EVAL */
@@ -1776,7 +1776,7 @@ LISPSYM(typep,"TYPEP",lisp) /* function for PREDTYPE */
 LISPSYM(deftype_expander,"DEFTYPE-EXPANDER",system) /* property in PREDTYPE */
 LISPSYM(deftype_depth_limit,"*DEFTYPE-DEPTH-LIMIT*",custom) /* PREDTYPE variable */
 LISPSYM(coerce_fixnum_char_ansi,"*COERCE-FIXNUM-CHAR-ANSI*",custom) /* variable for PREDTYPE */
-LISPSYM(gc_statistics_stern,"*GC-STATISTICS*",system) /* variable for PREDTYPE */
+LISPSYM(gc_statistics_star,"*GC-STATISTICS*",system) /* variable for PREDTYPE */
 LISPSYM(recurse_count_gc_statistics,"*RECURSE-COUNT-GC-STATISTICS*",system) /* variable in PREDTYPE */
 LISPSYM(traced_definition,"TRACED-DEFINITION",system) /* property in SYMBOL */
 LISPSYM(gensym_counter,"*GENSYM-COUNTER*",lisp) /* variable in SYMBOL */
@@ -1824,7 +1824,7 @@ LISPSYM(long_float_negative_epsilon,"LONG-FLOAT-NEGATIVE-EPSILON",lisp) /* varia
 LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",custom) /* variable in LISPARIT */
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) /* variable in LISPARIT */
 LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) /* function for LISPARIT */
-LISPSYM(random_state_stern,"*RANDOM-STATE*",lisp) /* variable in LISPARIT */
+LISPSYM(random_state_star,"*RANDOM-STATE*",lisp) /* variable in LISPARIT */
 #ifdef UNICODE
 LISPSYM(base64,"BASE64",charset)
 LISPSYM(unicode_16,"UNICODE-16",charset)

@@ -1165,7 +1165,7 @@ local void init_symbol_values (void) {
   /* common: */
   define_constant(S(nil),S(nil)); /* NIL := NIL */
   define_constant(S(t),S(t));     /* T := T */
-  define_variable(S(gc_statistics_stern),Fixnum_minus1); /* SYS::*GC-STATISTICS* := -1 */
+  define_variable(S(gc_statistics_star),Fixnum_minus1); /* SYS::*GC-STATISTICS* := -1 */
   /* for EVAL/CONTROL: */
   define_constant_UL1(S(lambda_parameters_limit),lp_limit_1); /* LAMBDA-PARAMETERS-LIMIT := lp_limit_1 + 1 */
   define_constant_UL1(S(call_arguments_limit),ca_limit_1); /* CALL-ARGUMENTS-LIMIT := ca_limit_1 + 1 */
@@ -1173,15 +1173,15 @@ local void init_symbol_values (void) {
   define_constant(S(jmpbuf_size),fixnum(jmpbufsize)); /* SYS::*JMPBUF-SIZE* := size of a jmp_buf */
   define_constant(S(big_endian),(BIG_ENDIAN_P ? T : NIL)); /* SYS::*BIG-ENDIAN* := NIL resp. T */
   define_variable(S(macroexpand_hook),L(funcall)); /* *MACROEXPAND-HOOK* := #'FUNCALL */
-  define_variable(S(evalhookstern),NIL);           /* *EVALHOOK* */
-  define_variable(S(applyhookstern),NIL);          /* *APPLYHOOK* */
+  define_variable(S(evalhookstar),NIL);            /* *EVALHOOK* */
+  define_variable(S(applyhookstar),NIL);           /* *APPLYHOOK* */
   /* for HASHTABL: */
   define_variable(S(eq_hashfunction),S(fasthash_eq)); /* EXT:*EQ-HASHFUNCTION* := 'EXT:FASTHASH-EQ */
   define_variable(S(eql_hashfunction),S(fasthash_eql)); /* EXT:*EQL-HASHFUNCTION* := 'EXT:FASTHASH-EQL */
   define_variable(S(equal_hashfunction),S(fasthash_equal)); /* EXT:*EQUAL-HASHFUNCTION* := 'EXT:FASTHASH-EQUAL */
   define_variable(S(warn_on_hashtable_needing_rehash_after_gc),NIL); /* CUSTOM:*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC* := NIL */
   /* for PACKAGE: */
-  define_variable(S(packagestern),Car(O(all_packages))); /* *PACKAGE* := '#<PACKAGE LISP> */
+  define_variable(S(packagestar),Car(O(all_packages))); /* *PACKAGE* := '#<PACKAGE LISP> */
   /* for SYMBOL: */
   define_variable(S(gensym_counter),Fixnum_1); /* *GENSYM-COUNTER* := 1 */
   /* for PATHNAME: */
@@ -1262,7 +1262,7 @@ local void init_symbol_values (void) {
    define_variable(S(read_base),);               - *READ-BASE* := 10
    define_variable(S(read_suppress),);           - *READ-SUPPRESS* := NIL
    define_variable(S(read_eval),);               - *READ-EVAL* := T
-   define_variable(S(readtablestern),);          - *READTABLE* */
+   define_variable(S(readtablestar),);           - *READTABLE* */
   define_variable(S(read_preserve_whitespace),unbound); /* SYS::*READ-PRESERVE-WHITESPACE* */
   define_variable(S(read_recursive_p),unbound); /* SYS::*READ-RECURSIVE-P* */
   define_variable(S(read_reference_table),unbound); /* SYS::*READ-REFERENCE-TABLE* */
@@ -1323,8 +1323,8 @@ local void init_symbol_values (void) {
   define_variable(S(device_prefix),NIL); /* CUSTOM:*DEVICE-PREFIX* */
  #endif
   /* for EVAL: */
-  define_variable(S(evalhookstern),NIL);  /* *EVALHOOK* := NIL */
-  define_variable(S(applyhookstern),NIL); /* *APPLYHOOK* := NIL */
+  define_variable(S(evalhookstar),NIL);  /* *EVALHOOK* := NIL */
+  define_variable(S(applyhookstar),NIL); /* *APPLYHOOK* := NIL */
   /* for MISC: */
   define_constant(S(internal_time_units_per_second), /* INTERNAL-TIME-UNITS-PER-SECOND */
                   fixnum(ticks_per_second) ); /* := 200 resp. 1000000 */
@@ -3058,7 +3058,7 @@ local inline void main_actions (struct argv_actions *p) {
   }
   if (p->argv_modern) {
     /* (IN-PACKAGE "CS-COMMON-LISP-USER") */
-    Symbol_value(S(packagestern)) = O(modern_user_package);
+    Symbol_value(S(packagestar)) = O(modern_user_package);
     /* (SETQ *PRINT-CASE* :DOWNCASE) */
     Symbol_value(S(print_case)) = S(Kdowncase);
   }
@@ -3205,7 +3205,7 @@ local inline void main_actions (struct argv_actions *p) {
     pushSTACK(packname);
     var object package = find_package(packname);
     if (!nullp(package)) {
-      Symbol_value(S(packagestern)) = package;
+      Symbol_value(S(packagestar)) = package;
     } else {
       pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B));
       terpri(&STACK_0);
