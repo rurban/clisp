@@ -1700,12 +1700,12 @@ local maygc void unuse_package (object packlist, object pack) {
  < result: current package
  can trigger GC */
 global maygc object get_current_package (void) {
-  var object pack = Symbol_value(S(packagestern)); /* value of *PACKAGE* */
+  var object pack = Symbol_value(S(packagestar)); /* value of *PACKAGE* */
   if (packagep(pack) && !pack_deletedp(pack)) {
     return pack;
   } else {
     var object newpack = /* reset *PACKAGE* */
-      Symbol_value(S(packagestern)) = O(default_package);
+      Symbol_value(S(packagestar)) = O(default_package);
     /* get_current_package() is often called by the reader,
        so we need to save and restore the read buffers */
     pushSTACK(O(token_buff_1)); O(token_buff_1) = NIL;
@@ -1724,7 +1724,7 @@ global maygc object get_current_package (void) {
     funcall(L(cerror_of_type),9);
     O(token_buff_2) = popSTACK(); /* restore read buffers */
     O(token_buff_1) = popSTACK();
-    return Symbol_value(S(packagestern));
+    return Symbol_value(S(packagestar));
   }
 }
 
@@ -2005,11 +2005,11 @@ LISPFUNN(set_package_lock,2) {
    being modified from a non-home package.
    See compiler.lisp:set-check-lock.
    can trigger GC */
-#define SYM_VAL_LOCK(symbol,pack)                                         \
-  (!nullp(pack) && !eq(pack,Symbol_value(S(packagestern))) /* non-home */ \
-   && special_var_p(TheSymbol(symbol))  /* special */                     \
-   && !externalp(symbol,pack) /* for IN-PACKAGE forms */                  \
-   && !accessiblep(symbol,Symbol_value(S(packagestern)))) /* accessible */
+#define SYM_VAL_LOCK(symbol,pack)                                       \
+  (!nullp(pack) && !eq(pack,Symbol_value(S(packagestar))) /* non-home */ \
+   && special_var_p(TheSymbol(symbol))  /* special */                   \
+   && !externalp(symbol,pack) /* for IN-PACKAGE forms */                \
+   && !accessiblep(symbol,Symbol_value(S(packagestar)))) /* accessible */
 global maygc void symbol_value_check_lock (object caller, object symbol) {
   var object pack = Symbol_package(symbol);
   if (SYM_VAL_LOCK(symbol,pack))
