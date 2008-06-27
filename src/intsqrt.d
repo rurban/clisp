@@ -276,7 +276,7 @@
         # b_MSDptr = Pointer auf b[n], b_ptr = Pointer hinter b[n-j].
         # a_mptr = Pointer auf a[2n-j], a_lptr = Pointer hinter a[2n-2j].
         # Bestimme b* :
-        var uintD b_stern;
+        var uintD b_star;
         {
           var uintD a_1d = a_mptr[0]; # a[2n-j], =0 oder =1
           var uintD a_2d = a_mptr[1]; # a[2n-j-1]
@@ -287,30 +287,30 @@
             var uintDD a_123dd = highlowDD(a_2d,a_3d);
             a_123dd = a_123dd>>1; if (!(a_1d==0)) { a_123dd |= bit(2*intDsize-1); }
             if (highD(a_123dd) >= b_msd)
-              b_stern = bitm(intDsize)-1; # bei Überlauf: beta-1
+              b_star = bitm(intDsize)-1; # bei Überlauf: beta-1
             else
-              divuD(a_123dd,b_msd, b_stern=,);
+              divuD(a_123dd,b_msd, b_star=,);
           #else
             a_3d = a_3d>>1; if (!((a_2d & bit(0)) ==0)) { a_3d |= bit(intDsize-1); }
             a_2d = a_2d>>1; if (!(a_1d==0)) { a_2d |= bit(intDsize-1); }
             if (a_2d >= b_msd)
-              b_stern = bitm(intDsize)-1; # bei Überlauf: beta-1
+              b_star = bitm(intDsize)-1; # bei Überlauf: beta-1
             else
-              divuD(a_2d,a_3d,b_msd, b_stern=,);
+              divuD(a_2d,a_3d,b_msd, b_star=,);
           #endif
         }
-        # b_stern = b* in der ersten Schätzung.
+        # b_star = b* in der ersten Schätzung.
         a_lptr++; # Pointer hinter a[2n-2j-1]
         # Subtraktion [a[2n-j],...,a[2n-2j-1]] -= b* * [b[n],b[n-1],...,b[n-j]] :
         {
-          var uintD carry = mulusub_loop_down(b_stern,b_ptr,a_lptr,j+1);
+          var uintD carry = mulusub_loop_down(b_star,b_ptr,a_lptr,j+1);
           if (a_mptr[0] >= carry) {
             a_mptr[0] -= carry;
           } else {
             a_mptr[0] -= carry; # a[2n-j] wird <0
             # negativer Übertrag -> b* nach unten korrigieren:
             while (1) {
-              b_stern = b_stern-1; # b* := b* - 1
+              b_star = b_star-1; # b* := b* - 1
               # erhöhe [a[2n-j],...,a[2n-2j-1]] um [b[n],...,b[n-j]]:
               if (!(( addto_loop_down(b_ptr,a_lptr,j+1) ==0)))
                 if ((a_mptr[0] += 1) ==0) # Übertrag zu a[2n-j]
@@ -318,61 +318,61 @@
             }
           }
         }
-        # b_stern = b* in der zweiten Schätzung.
+        # b_star = b* in der zweiten Schätzung.
         a_mptr++; # Pointer auf a[2n-j-1]
         a_lptr++; # Pointer hinter a[2n-2j-2]
         # Ziehe b* ^ 2 von [a[2n-j],...,a[2n-2j-2]] ab:
         #if HAVE_DD
         {
-          var uintDD b_stern_2 = muluD(b_stern,b_stern);
+          var uintDD b_star_2 = muluD(b_star,b_star);
           var uintDD a_12dd = highlowDD(a_lptr[-2],a_lptr[-1]); # a[2n-2j-1]*beta+a[2n-2j-2]
-          var uintDD a_12dd_new = a_12dd - b_stern_2;
+          var uintDD a_12dd_new = a_12dd - b_star_2;
           a_lptr[-2] = highD(a_12dd_new); a_lptr[-1] = lowD(a_12dd_new);
-          if (a_12dd >= b_stern_2)
-            goto b_stern_ok;
+          if (a_12dd >= b_star_2)
+            goto b_star_ok;
         }
         #else
         {
-          var uintD b_stern_2_hi;
-          var uintD b_stern_2_lo;
-          muluD(b_stern,b_stern, b_stern_2_hi=,b_stern_2_lo=);
+          var uintD b_star_2_hi;
+          var uintD b_star_2_lo;
+          muluD(b_star,b_star, b_star_2_hi=,b_star_2_lo=);
           var uintD a_1d = a_lptr[-2]; # a[2n-2j-1]
           var uintD a_2d = a_lptr[-1]; # a[2n-2j-2]
-          var uintD a_1d_new = a_1d - b_stern_2_hi;
-          var uintD a_2d_new = a_2d - b_stern_2_lo;
-          if (a_2d < b_stern_2_lo)
+          var uintD a_1d_new = a_1d - b_star_2_hi;
+          var uintD a_2d_new = a_2d - b_star_2_lo;
+          if (a_2d < b_star_2_lo)
             a_1d_new -= 1;
           a_lptr[-2] = a_1d_new; a_lptr[-1] = a_2d_new;
-          if ((a_1d > b_stern_2_hi)
-              || ((a_1d == b_stern_2_hi) && (a_2d >= b_stern_2_lo))
+          if ((a_1d > b_star_2_hi)
+              || ((a_1d == b_star_2_hi) && (a_2d >= b_star_2_lo))
              )
-            goto b_stern_ok;
+            goto b_star_ok;
         }
         #endif
         if (true) {
           # muss noch [a[2n-j],...,a[2n-2j]] um 1 erniedrigen:
           if ( dec_loop_down(&a_lptr[-2],j+1) ==0)
-            goto b_stern_ok;
+            goto b_star_ok;
           # Subtraktion von b*^2 lieferte negativen Carry
-          b_stern = b_stern-1; # b* := b* - 1
+          b_star = b_star-1; # b* := b* - 1
           # Workaround gcc-2.7.0 bug on i386 and gcc-2.5.8 bug on hppa.
             #if defined(__GNUC__) && (__GNUC__ == 2) && (__GNUC_MINOR__ <= 7)
-              *&b_stern = *&b_stern;
+              *&b_star = *&b_star;
             #endif
           # erhöhe [a[2n-j-1],...,a[2n-2j-2]] um [b[n],...,b[n-j],0] + 2 * b* + 1
-          if ((sintD)b_stern < 0)
+          if ((sintD)b_star < 0)
             b_ptr[-1] |= bit(0); # höchstes Bit von b* in b[n-j] ablegen
-          b_ptr[0] = (uintD)(b_stern<<1)+1; # niedrige Bits von b* und eine 1 als b[n-j-1] ablegen
+          b_ptr[0] = (uintD)(b_star<<1)+1; # niedrige Bits von b* und eine 1 als b[n-j-1] ablegen
           addto_loop_down(&b_ptr[1],a_lptr,j+2);
           # (a[2n-j] wird nicht mehr gebraucht.)
           b_ptr[0] -= 1; # niedrige Bits von b* in b[n-j-1] ablegen
           b_ptr++;
         } else {
-         b_stern_ok:
+         b_star_ok:
           # b* als b[n-j-1] ablegen:
-          if ((sintD)b_stern < 0)
+          if ((sintD)b_star < 0)
             b_ptr[-1] |= bit(0); # höchstes Bit von b* in b[n-j] ablegen
-          b_ptr[0] = (uintD)(b_stern<<1); # niedrige Bits von b* als b[n-j-1] ablegen
+          b_ptr[0] = (uintD)(b_star<<1); # niedrige Bits von b* als b[n-j-1] ablegen
           b_ptr++;
         }
       }
