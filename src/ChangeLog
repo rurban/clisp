@@ -5,6 +5,7 @@
 	(let*, *package*, *readtable*, *evalhook*, *applyhook*)
 	(*gc-statistics*, *random-state*):
 	use "star" instead of "stern" for C names
+	* intdiv.d (UDS_divide_): rename local variable q_stern -> q_star
 
 2008-06-26  Sam Steingold  <sds@gnu.org>
 
