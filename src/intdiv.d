@@ -177,18 +177,18 @@
       # r_MSDptr = Pointer auf r[n+j] = Pointer auf q[j],
       # r_ptr = Pointer oberhalb von r[j].
       do {
-        var uintD q_stern;
+        var uintD q_star;
         var uintD c1;
         if (r_MSDptr[0] < b_msd) { # r[j+n] < b[n-1] ?
           # Dividiere r[j+n]*beta+r[j+n-1] durch b[n-1], ohne Überlauf:
           #if HAVE_DD
-            divuD(highlowDD(r_MSDptr[0],r_MSDptr[1]),b_msd, q_stern=,c1=);
+            divuD(highlowDD(r_MSDptr[0],r_MSDptr[1]),b_msd, q_star=,c1=);
           #else
-            divuD(r_MSDptr[0],r_MSDptr[1],b_msd, q_stern=,c1=);
+            divuD(r_MSDptr[0],r_MSDptr[1],b_msd, q_star=,c1=);
           #endif
         } else {
           # Überlauf, also r[j+n]*beta+r[j+n-1] >= beta*b[n-1]
-          q_stern = bitm(intDsize)-1; # q* = beta-1
+          q_star = bitm(intDsize)-1; # q* = beta-1
           # Teste ob r[j+n]*beta+r[j+n-1] - (beta-1)*b[n-1] >= beta
           # <==> r[j+n]*beta+r[j+n-1] + b[n-1] >= beta*b[n-1]+beta
           # <==> b[n-1] < floor((r[j+n]*beta+r[j+n-1]+b[n-1])/beta) {<= beta !} ist.
@@ -201,21 +201,21 @@
             goto subtract; # ja -> direkt in die Subtraktion
           }
         }
-        # q_stern = q*,
+        # q_star = q*,
         # c1 = (r[j+n]*beta+r[j+n-1]) - q* * b[n-1] (>=0, <beta).
         #if HAVE_DD
           {
             var uintDD c2 = highlowDD(c1,r_MSDptr[2]); # c1*beta+r[j+n-2]
-            var uintDD c3 = muluD(b_2msd,q_stern); # b[n-2] * q*
+            var uintDD c3 = muluD(b_2msd,q_star); # b[n-2] * q*
             # Solange c2 < c3, c2 erhöhen, c3 erniedrigen:
             # Rechne dabei mit c3-c2:
             # solange >0, um b[n-1]*beta+b[n-2] erniedrigen.
             # Dies kann wegen b[n-1]*beta+b[n-2] >= beta^2/2
             # höchstens zwei mal auftreten.
             if (c3 > c2) {
-              q_stern = q_stern-1; # q* := q* - 1
+              q_star = q_star-1; # q* := q* - 1
               if (c3-c2 > b_msdd)
-                q_stern = q_stern-1; # q* := q* - 1
+                q_star = q_star-1; # q* := q* - 1
             }
           }
         #else
@@ -225,32 +225,32 @@
             var uintD c2lo = r_MSDptr[2]; # c2hi*beta+c2lo = c1*beta+r[j+n-2]
             var uintD c3hi;
             var uintD c3lo;
-            muluD(b_2msd,q_stern, c3hi=,c3lo=); # c3hi*beta+c3lo = b[n-2] * q*
+            muluD(b_2msd,q_star, c3hi=,c3lo=); # c3hi*beta+c3lo = b[n-2] * q*
             if ((c3hi > c2hi) || ((c3hi == c2hi) && (c3lo > c2lo))) {
-              q_stern = q_stern-1; # q* := q* - 1
+              q_star = q_star-1; # q* := q* - 1
               c3hi -= c2hi; if (c3lo < c2lo) c3hi--; c3lo -= c2lo; # c3 := c3-c2
               if ((c3hi > b_msd) || ((c3hi == b_msd) && (c3lo > b_2msd)))
-                q_stern = q_stern-1; # q* := q* - 1
+                q_star = q_star-1; # q* := q* - 1
             }
           }
           #undef c2hi
         #endif
-        if (!(q_stern==0))
+        if (!(q_star==0))
          subtract:
           {
             # Subtraktionsschleife: r := r - b * q* * beta^j
-            var uintD carry = mulusub_loop_down(q_stern,b_LSDptr,r_ptr,b_len);
+            var uintD carry = mulusub_loop_down(q_star,b_LSDptr,r_ptr,b_len);
             # Noch r_ptr[-b_len-1] -= carry, d.h. r_MSDptr[0] -= carry
             # durchführen und danach r_MSDptr[0] vergessen:
             if (carry > r_MSDptr[0]) {
               # Subtraktion ergab Übertrag
-              q_stern = q_stern-1; # q* := q* - 1
+              q_star = q_star-1; # q* := q* - 1
               addto_loop_down(b_LSDptr,r_ptr,b_len); # Additionsschleife
               # r[n+j] samt Carry kann vergessen werden...
             }
           }
         # Berechnung von q* ist fertig.
-        *r_MSDptr++ = q_stern; # als q[j] ablegen
+        *r_MSDptr++ = q_star; # als q[j] ablegen
         r_ptr++;
       } while (--j != 0);
       # Nun ist q = [q[m-n],..,q[0]] = q_MSDptr/q_len/r_MSDptr
