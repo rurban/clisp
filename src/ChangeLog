@@ -6,6 +6,7 @@
 	(*gc-statistics*, *random-state*):
 	use "star" instead of "stern" for C names
 	* intdiv.d (UDS_divide_): rename local variable q_stern -> q_star
+	* intsqrt.d (UDS_sqrt_): rename local variable b_stern -> b_star
 
 2008-06-26  Sam Steingold  <sds@gnu.org>
 
