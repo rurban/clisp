@@ -25,9 +25,9 @@ local void* mymalloc (uintM need);
 /* error-message because of full memory */
 nonreturning_function(local, error_speicher_voll, (void)) {
   dynamic_bind(S(use_clcs),NIL); /* bind SYS::*USE-CLCS* to NIL */
-  if (posfixnump(Symbol_value(S(gc_statistics_stern)))) {
-     /* bind SYS::*GC-STATISTICS* to 0 */
-    dynamic_bind(S(gc_statistics_stern),Fixnum_0);
+  if (posfixnump(Symbol_value(S(gc_statistics_star)))) {
+    /* bind SYS::*GC-STATISTICS* to 0 */
+    dynamic_bind(S(gc_statistics_star),Fixnum_0);
   }
   error(storage_condition,GETTEXT("No more room for LISP objects"));
 }

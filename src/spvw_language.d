@@ -285,8 +285,8 @@ global maygc object CLSTEXT (const char* asciz) {
 }
 
 global maygc object CLOTEXT (const char* asciz) {
-  dynamic_bind(S(packagestern),O(default_package)); /* bind *PACKAGE* */
+  dynamic_bind(S(packagestar),O(default_package)); /* bind *PACKAGE* */
   pushSTACK(CLSTEXT(asciz)); funcall(L(read_from_string),1);
-  dynamic_unbind(S(packagestern));
+  dynamic_unbind(S(packagestar));
   return value1;
 }

@@ -453,7 +453,7 @@ local maygc object copy_readtable (object from_readtable) {
  error_bad_readtable(); */
 nonreturning_function(local, error_bad_readtable, (void)) {
   /* correct *READTABLE*: */
-  var object sym = S(readtablestern); /* Symbol *READTABLE* */
+  var object sym = S(readtablestar); /* Symbol *READTABLE* */
   var object oldvalue = Symbol_value(sym);
   Symbol_value(sym) = O(standard_readtable); /* := CL standard readtable */
   /* and report the error: */
@@ -469,13 +469,13 @@ nonreturning_function(local, error_bad_readtable, (void)) {
  < readtable : the current readtable */
 #if 0
   #define get_readtable(assignment)                     \
-    { if (!readtablep(Symbol_value(S(readtablestern)))) \
+    { if (!readtablep(Symbol_value(S(readtablestar))))  \
         { error_bad_readtable(); }                      \
-      assignment Symbol_value(S(readtablestern)); }
+      assignment Symbol_value(S(readtablestar)); }
 #else  /* or (optimized): */
   #define get_readtable(assignment)                                     \
-    { if (!(orecordp(Symbol_value(S(readtablestern)))                   \
-        && (Record_type( assignment Symbol_value(S(readtablestern)) )   \
+    { if (!(orecordp(Symbol_value(S(readtablestar)))                    \
+        && (Record_type( assignment Symbol_value(S(readtablestar)) )    \
             == Rectype_Readtable)))                                     \
         { error_bad_readtable(); }}
 #endif
@@ -503,7 +503,7 @@ global maygc void init_reader (void) {
     var object readtable = orig_readtable();
     O(standard_readtable) = readtable; /* that is the standard-readtable, */
     readtable = copy_readtable(readtable);        /* one copy of it */
-    define_variable(S(readtablestern),readtable); /* =: *READTABLE* */
+    define_variable(S(readtablestar),readtable); /* =: *READTABLE* */
   }
   /* initialize token_buff_1 and token_buff_2: */
   O(token_buff_1) = NIL;
@@ -3775,9 +3775,9 @@ LISPFUNNR(featurep,1) {
 local maygc Values feature (uintWL demandvalue) {
   var gcv_object_t* stream_ = test_no_infix(); /* n must be NIL */
   dynamic_bind(S(read_suppress),NIL); /* bind *READ-SUPPRESS* to NIL */
-  dynamic_bind(S(packagestern),O(keyword_package)); /* bind *PACKAGE* to #<PACKAGE KEYWORD> */
+  dynamic_bind(S(packagestar),O(keyword_package)); /* bind *PACKAGE* to #<PACKAGE KEYWORD> */
   var object expr = read_recursive_no_dot(stream_); /* read Feature-Expression */
-  dynamic_unbind(S(packagestern));
+  dynamic_unbind(S(packagestar));
   dynamic_unbind(S(read_suppress));
   /* interpret Feature-Expression: */
   expr = make_references(expr); /* first unentangle references */
@@ -4152,9 +4152,9 @@ LISPFUNN(closure_reader,3) {    /* read #Y */
     } else {
       unread_char(stream_,ch);
       dynamic_bind(S(read_suppress),NIL); /* bind *READ-SUPPRESS* to NIL */
-      dynamic_bind(S(packagestern),O(charset_package)); /* bind *PACKAGE* to #<PACKAGE CHARSET> */
+      dynamic_bind(S(packagestar),O(charset_package)); /* bind *PACKAGE* to #<PACKAGE CHARSET> */
       var object expr = read_recursive_no_dot(stream_); /* read expression */
-      dynamic_unbind(S(packagestern));
+      dynamic_unbind(S(packagestar));
       dynamic_unbind(S(read_suppress));
       expr = make_references(expr); /* unentangle references */
       pushSTACK(*stream_); pushSTACK(expr); pushSTACK(S(Kinput));
