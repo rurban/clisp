@@ -366,8 +366,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                   #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
                   #+(or CLISP LISPWORKS) "weakhash2"))
       (push (run-test ff) res))
-    (unless disable-risky ; fails on amd64 - disable for now...
-      (push (run-test "bind" :eval-method :eval :logname "bind-eval") res))
+    (push (run-test "bind" :eval-method :eval :logname "bind-eval") res)
     (push (run-test "bind" :eval-method :compile :logname "bind-compile") res)
     #+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
     (let ((tmp (list "weakptr" 0 0)))
