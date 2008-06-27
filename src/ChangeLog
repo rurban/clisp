@@ -1,5 +1,11 @@
 2008-06-27  Sam Steingold  <sds@gnu.org>
 
+	fix special bindings in evaluated code on 64bit platforms
+	* control.d (specdecled_) [!NO_symbolflags]: use
+	symbol_without_flags when comparing symbols
+
+2008-06-27  Sam Steingold  <sds@gnu.org>
+
 	* constsym.d, control.d, eval.d, fsubr.d, io.d, lisparit.d:
 	* package.d, predtype.d, spvw.d, spvw_allocate.d, spvw_language.d
 	(let*, *package*, *readtable*, *evalhook*, *applyhook*)
