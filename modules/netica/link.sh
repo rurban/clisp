@@ -7,7 +7,7 @@ ${MAKE-make} clisp-module \
   INCLUDES="$absolute_linkkitdir"
 NEW_FILES="$file_list"
 # netica 3.25 requires g++
-NEW_LIBS="$file_list -lnetica -L${NETICA_C_API}/lib -lstdc++"
+NEW_LIBS="$file_list -lnetica -L${NETICA_C_API}/lib -lstdc++ -lpthread"
 NEW_MODULES="netica"
 TO_LOAD='netica wrap'
 CLFLAGS="${CLFLAGS}"

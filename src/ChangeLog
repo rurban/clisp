@@ -1,5 +1,9 @@
 2008-06-28  Sam Steingold  <sds@gnu.org>
 
+	* modules/netica/link.sh (NEW_LIBS): add -lpthread
+
+2008-06-28  Sam Steingold  <sds@gnu.org>
+
 	* utils/modprep.lisp (init-to-tag):
 	bind *PRINT-LINES* when printing huge tags
 
