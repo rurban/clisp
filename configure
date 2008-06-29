@@ -164,6 +164,15 @@ exec_prefix=${prefix}
 
 getarg(){ echo "$1" | sed 's,^[-_a-zA-Z0-9]*=,,'; }
 
+ffi_modules=''
+note_module(){
+  case "$1" in
+    libsvm | wildcard | postgresql | fastcgi | oracle | netica | pari | zlib | bindings/* | gtk2)
+      ffi_modules=${ffi_modules}" $1" ;;
+  esac
+  makemake_args=${makemake_args}" --with-module=$1"
+}
+
 for arg # in "$@"
 do
   # If the previous option needs an argument, assign it.
@@ -175,6 +184,7 @@ do
       makemake) makemake_args="$makemake_args$arg" ;;
       both) makemake_args="$makemake_args$arg"
         subdir_configure_args="$subdir_configure_args $arg" ;;
+      with-module) note_module $arg ;;
       *) eval "$prev=\$arg" ;;
     esac
     passnext=''
@@ -446,13 +456,11 @@ do
         CC="${CC:-gcc} -mno-cygwin"; export CC;
         makemake_args="$makemake_args --win32gcc" ;;
 
-      --with-module=*)
-        makemake_args="$makemake_args $arg" ;;
+      --with-module=*) note_module `getarg $arg` ;;
 
       --with-module)
-        makemake_args="$makemake_args --with-module="
         prev=with-module
-        passnext=makemake ;;
+        passnext=with-module ;;
 
       --with-* | --without-*)
         subdir_configure_args="$subdir_configure_args $arg"
@@ -633,19 +641,12 @@ if test -n "$do_config"; then
   cd modules;
   for d in *; do
     if [ "$d" != CVS ] ; then
-      if [ -d "$d" ]; then ../src/lndir "$d" "$ABS_DIRNAME/$d"
-      # else link "$d" "$ABS_DIRNAME/$d"
-      fi
+      test -d "$d" && ../src/lndir "$d" "$ABS_DIRNAME/$d"
     fi
   done
   cd ..;
   # Prepare the configure files.
   chmod a+x "$ABS_DIRNAME/configure"
-  for subdir in ${FFI_DIRS}; do
-    if test -d "$ABS_DIRNAME/$subdir"; then
-      chmod a+x "$ABS_DIRNAME/$subdir/configure"
-    fi
-  done
   # Start the configurations.
   if test -n "$INPLACE"; then
     subdir_srcdir_args=''
@@ -670,6 +671,12 @@ Configure findings:
   readline:   ${ac_cv_have_readline} (user requested: ${ac_cv_use_readline})
   libsigsegv: ${cl_cv_lib_sigsegv}
 EOF
+if test -n "${ffi_modules}"; then
+  test ${do_ffi} = no && \
+    fail "$0: --without-ffcall is incompatible with modules${ffi_modules}"
+  test ${cl_cv_have_ffcall} = no && \
+    fail "$0: modules${ffi_modules} require FFI"
+fi
 if [ ${do_ffi} != no -a ${cl_cv_have_ffcall} = yes ]; then
   makemake_args="--with-dynamic-ffi ${makemake_args}"
 fi
