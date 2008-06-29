@@ -11,7 +11,11 @@ User visible changes
 
 * Modules MIT-CLX and NEW-CLX export a new macro XLIB:WITH-OPEN-DISPLAY.
 
-* Updated the netica module to the Netica C API version 3.25 (from 2.15).
+* Module netica has been upgraded to the Netica C API version 3.25 (from 2.15).
+  See <http://clisp.cons.org/impnotes/netica.html> for details.
+
+* Module libsvm has been upgraded to the upstream version 2.86.
+  See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * Bug fixes:
   + Work around the absence of tgamma() on solaris. [ 1966375 ]
