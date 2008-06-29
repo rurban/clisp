@@ -7195,7 +7195,7 @@ static object check_kbdmap_mx (object data) {
 }
 
 DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key :END FIRST-KEYCODE :START)
-{
+{ /* http://www.linuxmanpages.com/man3/XChangeKeyboardMapping.3x.php */
   int start = check_uint_defaulted(popSTACK(),0), end;
   int first_keycode = check_uint_defaulted(popSTACK(),start);
   uintL offset = 0, dims[KBD_MAP_RANK];
@@ -7211,7 +7211,7 @@ DEFUN(XLIB:CHANGE-KEYBOARD-MAPPING, dpy keysyms &key :END FIRST-KEYCODE :START)
 }
 
 DEFUN(XLIB:KEYBOARD-MAPPING, dpy &key FIRST-KEYCODE :START :END DATA)
-{ /*  http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
+{ /* http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
   Display *dpy = get_display(STACK_4);
   int first_keycode, min_keycode, max_keycode, keysyms_per_keycode;
   KeySym *map;
@@ -7338,7 +7338,7 @@ DEFUN(XLIB:KEYSYM-NAME, keysym)
  (xlib:keysym->keycode dpy 65) --> 38
  (xlib:keysym->keycode dpy #xFF52) --> 148 ; 98 ; 80 ; #xFF52 keysym for <up> */
 
-DEFUN(XLIB:KEYSYM->KEYCODES, display keysym) /* NIM */
+DEFUN(XLIB:KEYSYM->KEYCODES, display keysym)
 { /* http://www.linuxmanpages.com/man3/XGetKeyboardMapping.3x.php */
   uint32 keysym = get_uint32(popSTACK());
   Display *dpy = pop_display();
