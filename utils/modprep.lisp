@@ -359,8 +359,9 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
                              (write-char #\_ s)
                              (write-string-c-style (cdr el) s)))))))))
     (when (< *tag-length-limit* (length base))
-      (warn "truncated a very long tag (from ~:d to ~:d) for ~s"
-            (length base) *tag-length-limit* init)
+      (let ((*print-lines* 5))
+        (warn "truncated a very long tag (from ~:d to ~:d) for ~s"
+              (length base) *tag-length-limit* init))
       (setq base (subseq base 0 *tag-length-limit*)))
     (when (funcall already-present-p base)
       (loop :for ii :upfrom 0 :for new = (format nil "~a_~d" base ii)
