@@ -366,6 +366,8 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 release : distrib upload tag-release
 
 # 2-3 weeks before a release
+# manually: cheeck for new versions of
+#  libsvm, netica api, postgresql, berkeley-db
 pre-release : gnulib-imported build-aux-update tp-mail
 
 ## RELEASE TODO:
@@ -376,7 +378,7 @@ pre-release : gnulib-imported build-aux-update tp-mail
 # === src/configure must be regenerated after version.sh is updated
 # web pages to be updated:
 # * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
-# dates to be updated:
+# dates to be updated (1st release each calendar year):
 # * banner in src/spvw.d
 # * COPYRIGHT
 # * clisp-doc-copyright in doc/impent.xml
