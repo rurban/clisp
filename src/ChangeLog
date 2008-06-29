@@ -1,5 +1,10 @@
 2008-06-27  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (nobject_out1): use symbol_without_flags when
+	printing a symbol
+
+2008-06-27  Sam Steingold  <sds@gnu.org>
+
 	fix special bindings in evaluated code on 64bit platforms
 	* control.d (specdecled_) [!NO_symbolflags]: use
 	symbol_without_flags when comparing symbols
