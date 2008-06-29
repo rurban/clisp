@@ -3,7 +3,7 @@ The library routines fnmatch.[ch] come from the GNU gnulib.
 
 To use it, add "wildcard" to MODULES in Makefile in your build directory
 and type
-    $ make wildcard && make full
+    $ make wildcard full
 there.
 Try it with
     $ ./clisp -K full
