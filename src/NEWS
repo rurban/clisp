@@ -19,7 +19,7 @@ User visible changes
   + Improve module portability to systems with non-GNU make. [ 1970141 ]
   + Fix GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE. [ 1975798 ]
   + Fix the remaining bugs in special bindings in evaluated code on
-    64-bit platforms.
+    TYPECODES (64-bit) platforms.
 
 
 2.45 (2008-05-15)
