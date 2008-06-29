@@ -1,5 +1,14 @@
 2008-06-28  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: new version number convention: VERSION_NUMBER is
+	  = MAJOR.MINOR for release,
+	  = MAJOR.MINOR+ for development, and
+	  = MAJOR.MINOR++ for pretest
+	RELEASE_DATE is the date when VERSION_NUMBER was modified.
+	Set to 2.45+/2008-06-28
+
+2008-06-28  Sam Steingold  <sds@gnu.org>
+
 	* configure: fail if FFI modules are specified
 	but FFCALL is not available
 
