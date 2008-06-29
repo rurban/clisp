@@ -19,7 +19,20 @@
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
-gl_MODULES([fnmatch-gnu gettext havelib link-follow localcharset regex stdbool stdint streq uniname/uniname unitypes uniwidth/width])
+gl_MODULES([
+  fnmatch-gnu
+  gettext
+  havelib
+  link-follow
+  localcharset
+  regex
+  stdbool
+  stdint
+  streq
+  uniname/uniname
+  unitypes
+  uniwidth/width
+])
 gl_AVOID([])
 gl_SOURCE_BASE([src/gllib])
 gl_M4_BASE([src/glm4])
