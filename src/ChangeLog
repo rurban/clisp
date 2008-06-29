@@ -1,3 +1,8 @@
+2008-06-28  Sam Steingold  <sds@gnu.org>
+
+	* utils/modprep.lisp (init-to-tag):
+	bind *PRINT-LINES* when printing huge tags
+
 2008-06-27  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out1): use symbol_without_flags when
