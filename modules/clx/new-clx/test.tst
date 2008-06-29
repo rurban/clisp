@@ -281,39 +281,37 @@ NIL
          (funcall f window))))))
 MAP-WINDOWS
 
-(let ((window-count 0) (hint-count 0))
-  (map-windows (lambda (window)
-                 (let ((wmh (xlib:wm-hints window)))
-                   (incf window-count)
-                   (when wmh
-                     (incf hint-count)
-                     (show (list window-count hint-count window wmh)
-                           :pretty t)
-                     (setf (xlib:wm-hints window) wmh)))))
-  (length (show (list 'window-count window-count 'hint-count hint-count))))
+(defun iter-windows (getter &optional setter (name getter))
+  (let ((window-count 0) (value-count 0))
+    (map-windows (lambda (window)
+                   (let ((value (funcall getter window)))
+                     (incf window-count)
+                     (when value
+                       (incf value-count)
+                       (show (list window-count value-count window value)
+                             :pretty t)
+                       (when setter
+                         (funcall setter window value))))))
+    (length (show (list 'window-count window-count name value-count)))))
+ITER-WINDOWS
+
+(iter-windows 'xlib:wm-hints (lambda (window hints)
+                               (setf (xlib:wm-hints window) hints)))
 4
 
-(let ((window-count 0) (wmc-count 0))
-  (map-windows (lambda (window)
-                 (multiple-value-bind (name class) (xlib:get-wm-class window)
-                   (incf window-count)
-                   (when name
-                     (incf wmc-count)
-                     (show (list window-count wmc-count window name class)
-                           :pretty t)
-                     (xlib:set-wm-class window name class)))))
-  (length (show (list 'window-count window-count 'wmc-count wmc-count))))
+(iter-windows (lambda (window)
+                (multiple-value-bind (name class) (xlib:get-wm-class window)
+                  (when name (list name class))))
+              (lambda (window name-class)
+                (apply #'xlib:set-wm-class window name-class))
+              'get-wm-class)
 4
 
-(let ((window-count 0) (cmd-count 0))
-  (map-windows (lambda (window)
-                 (let ((cmd (xlib:wm-command window)))
-                   (incf window-count)
-                   (when cmd
-                     (incf cmd-count)
-                     (show (list window-count cmd-count window cmd)
-                           :pretty t)))))
-  (length (show (list 'window-count window-count 'cmd-count cmd-count))))
+(iter-windows 'xlib:wm-command) 4
+
+(iter-windows 'xlib:wm-protocols
+              (lambda (window protocols)
+                (setf (xlib:wm-protocols window) protocols)))
 4
 
 (xlib:with-open-display (dpy)
