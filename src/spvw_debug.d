@@ -12,9 +12,9 @@
 local const char hex_table[] = "0123456789ABCDEF";
 local void mem_hex_out (const void* buf, uintL count) {
   if (count > 0) {
-    var DYNAMIC_ARRAY(cbuf,char,3*count+1);
-    var const uintB* ptr1 = (const uintB*) buf;
-    var char* ptr2 = &cbuf[0];
+    DYNAMIC_ARRAY(cbuf,char,3*count+1);
+    const uintB* ptr1 = (const uintB*) buf;
+    char* ptr2 = &cbuf[0];
     dotimespL(count,count, {
       *ptr2++ = ' ';
       *ptr2++ = hex_table[floor(*ptr1,16)]; *ptr2++ = hex_table[*ptr1 % 16];
@@ -80,24 +80,25 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     string_out(out,obj);
     fputc('"',out);
   } else if (charp(obj)) {
-    var object name = char_name(char_code(obj));
+    object name = char_name(char_code(obj));
     fprintf(out,"[%c]",as_cint(char_code(obj)));
     if (!nullp(name)) {
       fputs("=#\\",out);
       string_out(out,name);
     }
   } else if (symbolp(obj)) {
-    var object pack = Symbol_package(obj);
+    object symbol = symbol_without_flags(obj);
+    object pack = Symbol_package(symbol);
     if (nullp(pack)) fputs("#:",out); /* uninterned symbol */
     else if (eq(pack,O(keyword_package))) fputc(':',out);
     else {
       string_out(out,ThePackage(pack)->pack_shortest_name);
       fputs("::",out);
     }
-    string_out(out,Symbol_name(obj));
+    string_out(out,Symbol_name(symbol));
   } else if (simple_vector_p(obj)) {
-    var uintL len = vector_length(obj);
-    var uintL elt_index = 0;
+    uintL len = vector_length(obj);
+    uintL elt_index = 0;
     fputs("#(",out);
     while (elt_index < len) {
       if (elt_index) fputc(' ',out);
@@ -223,7 +224,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     string_out(out,O(printstring_fpointer));
     fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
   } else if (structurep(obj)) {
-    var uintL ii;
+    uintL ii;
     fputs("#<structure",out);
     for(ii=0; ii<Structure_length(obj); ii++) {
       fputc(' ',out);
@@ -343,9 +344,9 @@ global object nobject_out (FILE* out, object obj) {
 /* use (struct backtrace_t*) and not p_backtrace_t
    so that this is useable from the p_backtrace_t C++ definition */
 local int back_trace_depth (const struct backtrace_t *bt) {
-  var uintL bt_index = 0;
-  var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
-  var const struct backtrace_t *bt_slow = bt_fast;
+  uintL bt_index = 0;
+  const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
+  const struct backtrace_t *bt_slow = bt_fast;
   while (bt_fast) {
     bt_fast = bt_fast->bt_next; bt_index++;
     if (bt_fast == bt_slow) return -bt_index;
@@ -372,9 +373,9 @@ local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
 
 /* print the whole backtrace stack */
 local uintL back_trace_out (FILE* out, const struct backtrace_t *bt) {
-  var uintL bt_index = 0;
-  var const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
-  var const struct backtrace_t *bt_slow = bt_fast;
+  uintL bt_index = 0;
+  const struct backtrace_t *bt_fast = (bt ? bt : back_trace);
+  const struct backtrace_t *bt_slow = bt_fast;
   if (out == NULL) out = stdout;
   begin_system_call();
   while (bt_fast) {
