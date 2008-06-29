@@ -4,5 +4,10 @@ The free version operates as a full-feature version
 but is limited in model size.
 
 To build this module:
+
 $ export NETICA_C_API=/usr/local/src/Netica_C_API
 $ ./configure --with-module=netica --cbc build-netica
+
+If you have built clisp already
+
+$ cd build-dir && make MODULES=netica
