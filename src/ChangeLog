@@ -1,5 +1,9 @@
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (correctable_error): export to clisp.h
+
+2008-06-30  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2007052 ] socket-connect with :timeout to a dead port
 	* socket.d (connect_via_ip): use getsockopt() to check the status
 	of the socket before returning it, as described in the linux man page
