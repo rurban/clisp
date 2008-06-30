@@ -24,6 +24,7 @@ User visible changes
   + Fix GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE. [ 1975798 ]
   + Fix the remaining bugs in special bindings in evaluated code on
     TYPECODES (64-bit) platforms.
+  + Fix SOCKET:SOCKET-CONNECT with timeout to a dead port. [ 2007052 ]
 
 
 2.45 (2008-05-15)

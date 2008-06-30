@@ -512,6 +512,14 @@ T
 (multiple-value-list (socket-status *server* 0)) (NIL 0)
 (socket-server-close *server*) NIL
 
+;; no one should be listening on 12345
+;; <http://article.gmane.org/gmane.lisp.clisp.general/12286>
+(socket:socket-connect 12345 "localhost" :timeout 30) ERROR ; ECONNREFUSED
+(open-stream-p (setq *socket-1* (socket:socket-connect
+                                 12345 "localhost" :timeout 0))) T
+(read-line *socket-1*) ERROR ; ECONNREFUSED
+(close *socket-1*) T
+
 (let ((interfaces '(nil "localhost" "0.0.0.0" "127.0.0.1")))
   (mapcar (lambda (i)
             (let ((s (socket-server 0 :interface i)))
