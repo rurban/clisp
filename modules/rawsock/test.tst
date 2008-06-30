@@ -329,7 +329,7 @@ NIL
 
 #+unix                          ; for Don Cohen
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
-           (zerop (posix:getuid))) ; root?
+           (zerop (posix:uid))) ; root?
   (show (setq *sock* (rawsock:socket :INET :PACKET 3)))
   (show (setq *sa-local* (rawsock:make-sockaddr :PACKET)))
   (my-recvfrom *sock* *buffer* *sa-local*)
@@ -338,7 +338,7 @@ NIL
 
 #+unix           ; http://article.gmane.org/gmane.lisp.clisp.devel:14852
 (when (and (string-equal (posix:uname-sysname (posix:uname)) "linux")
-           (zerop (posix:getuid))) ; root?
+           (zerop (posix:uid))) ; root?
   (show (setq *sock* (rawsock:socket :INET :RAW :IPPROTO-ICMP)))
   (shell "ping -c 1 localhost") ; generate one icmp packet
   (show (setq *sa-local* (rawsock:make-sockaddr :PACKET 20)))
