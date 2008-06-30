@@ -1008,6 +1008,14 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
           if (sock_errno_is(EINTR)) goto restart_select;
           saving_sock_errno(CLOSESOCKET(fd)); return INVALID_SOCKET;
         }
+       #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
+        var CLISP_SOCKLEN_T len = sizeof(ret);
+        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&ret,&len) < 0) OS_error();
+        if (ret) {
+          CLOSESOCKET(fd); sock_set_errno(ret);
+          return INVALID_SOCKET;
+        }
+       #endif
       }
      #endif
       if (ret == 0) {

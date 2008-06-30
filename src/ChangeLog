@@ -1,3 +1,9 @@
+2008-06-30  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2007052 ] socket-connect with :timeout to a dead port
+	* socket.d (connect_via_ip): use getsockopt() to check the status
+	of the socket before returning it, as described in the linux man page
+
 2008-06-29  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: 2.45++: pretest [+ gnulib-imported build-aux-update]
