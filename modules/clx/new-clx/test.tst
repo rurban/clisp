@@ -374,10 +374,14 @@ T
                          (t (princ "  "))))
                  (format t "window: ~s~%" w)
                  (assert (xlib:window-p w)))))))
-  (ext:appease-cerrors
-   (xlib:with-open-display (dpy)
-     (first-pass dpy)
-     (second-pass dpy))))
+  (handler-bind ((error (lambda (c)
+                          (princ c)
+                          (let ((r (find-restart :all c)))
+                            (if r (invoke-restart r) (error c))))))
+    (ext:appease-cerrors
+     (xlib:with-open-display (dpy)
+       (first-pass dpy)
+       (second-pass dpy)))))
 NIL
 
 ;; cleanup

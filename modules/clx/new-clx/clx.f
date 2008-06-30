@@ -889,6 +889,36 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     set_resource_id(&STACK_1,xid,&STACK_0); /* enter it into the hashtable */
     VALUES1(popSTACK());        /* return freshly allocated structure */
     skipSTACK(4);               /* remove saved prealloc, type, dpy, ht */
+  } else if (xid) {             /* allow returning NIL for any object */
+    pushSTACK(value1);          /* save because of typep_classname() */
+    if (!typep_classname(value1,type)) { /* invalid cache entry */
+      pushSTACK(prealloc); pushSTACK(type); pushSTACK(dpy); /* save */
+      pushSTACK(NIL);           /* options */
+      pushSTACK(type); pushSTACK(STACK_(0+5)/*value1*/);
+      pushSTACK(make_uint29(xid)); pushSTACK(TheSubr(subr_self)->name);
+      /* fill options */
+      pushSTACK(`:ONE`); /* restart name */
+      pushSTACK(`"Invalidate this cache entry"`);
+      value1 = listof(2); Cdr(Cdr(value1)) = Fixnum_0; pushSTACK(value1);
+      pushSTACK(`:ALL`); /* restart name */
+      pushSTACK(`"Invalidate all display cache"`);
+      value1 = listof(2); Cdr(Cdr(value1)) = Fixnum_1; pushSTACK(value1);
+      value1 = listof(2); STACK_4 = value1; /* options list */
+      correctable_error(error_condition,"~S: Xid ~S is cached as ~S which is not of type ~S");
+      STACK_3 = value1;         /* save */
+      pushSTACK(display_hash_table(STACK_0));
+      value1 = STACK_(3+1);      /* restore */
+      if (eq(value1,Fixnum_0)) { /* ONE */
+        delete_resource_id(&STACK_0,xid);
+        skipSTACK(1);                   /* drop ht */
+      } else if (eq(value1,Fixnum_1)) { /* ALL */
+        funcall(L(clrhash),1);
+      } else NOTREACHED;
+      dpy = popSTACK(); type = popSTACK(); prealloc = popSTACK();
+      skipSTACK(1);             /*  drop value1 */
+      return make_xid_obj_2(type,dpy,xid,prealloc); /* try again */
+    }
+    value1 = popSTACK();        /* restore */
   }
   return value1;
 }
@@ -2799,8 +2829,8 @@ static object coerce_result_type (unsigned int stack_count,
 
 DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
 {
-  Window win;
   Display *dpy;
+  Window win = get_window_and_display (STACK_1, &dpy);
   gcv_object_t *dpy_objf, *res_type = &STACK_0;
   Window root;
   Window parent;
@@ -2808,7 +2838,6 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
   unsigned int nchilds, i;
   int status;
 
-  win = get_window_and_display (STACK_1, &dpy);
   pushSTACK(get_display_obj (STACK_1));
   dpy_objf = &(STACK_0);
 
