@@ -436,14 +436,13 @@ T
 #+ffi (os:fclose *foo*) #+ffi NIL
 #+ffi (finish-file "foo") #+ffi 1
 
-;; this should be run in the C domain for (search "unknown" ...) to make sense
+;; unknown errnos are reported differently on different platforms.
+;; linux: "unknown error 47"
+;; cygwin: "error 47"
+;; win32: some localized abomination
 #+ffi (loop :with all = (os:errno t)
         :for e :from 0 :to (loop :for p :in all :maximize (car p))
-        :for c = (os:errno e) :for s = (os:strerror)
-	:for k = (not (search "unknown" s :test #'char-equal))
-	:when (and (null s) (not (eq e c))) :collect (list e c) :end
-	:when (and s k) :do (show (list e c s)) :end
-        :when (and s (eq e c) k) :collect (list e s) :end
+        :do (show (list e (os:errno e) (os:strerror)))
         :finally (os:errno nil))
 #+ffi ()
 
