@@ -14380,8 +14380,8 @@ extern maygc void check_value (condition_t errortype, const char * errorstring);
    At every tilde-S, a LISP-object is taken from the STACK and printed
    instead of the tilde-S.
  > on the STACK: list of alternatives
-   ((restart-name restart-help-string . value-returned-by-the-restart)*), then
-   the initial values for the Condition, depending on error-type
+   ((restart-name restart-help-string . value-returned-by-the-restart)*),
+   then the initial values for the Condition, depending on error-type
  < value1: return value from CORRECTABLE-ERROR, one of the CDDRs of the
    alternatives
  < STACK: cleaned up
