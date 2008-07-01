@@ -498,13 +498,19 @@ extern void disable_sigpipe(void);
 static inline object funcall1 (object fun, object arg)
 { pushSTACK(arg); funcall(fun,1); return value1; }
 
-nonreturning_function(static,my_type_error,(object type, object datum))
+nonreturning_function(static, x_type_error,
+                      (object type, object datum, object type_string))
 {
-  pushSTACK(datum);             /* TYPE-ERROR slot DATUM */
-  pushSTACK(type);              /* TYPE-ERROR slot TYPE */
-  pushSTACK(type); pushSTACK(datum); pushSTACK(TheSubr(subr_self)->name);
-  error (type_error, ("~S: ~S is not of type ~S"));
+  pushSTACK(`XLIB::X-TYPE-ERROR`);
+  pushSTACK(`:CALLER`); pushSTACK(TheSubr(subr_self)->name);
+  pushSTACK(S(Kdatum)); pushSTACK(datum);
+  pushSTACK(S(Kexpected_type)); pushSTACK(type);
+  pushSTACK(`:TYPE-STRING`); pushSTACK(type_string);
+  funcall(L(error),9);
+  abort(); /* ERROR does not return: avoid a compiler warning */
 }
+#define my_type_error(t,d)  x_type_error(t,d,NIL)
+
 nonreturning_function (static, error_closed_display,
                        (object caller, object dpy)) {
   pushSTACK(`XLIB::CLOSED-DISPLAY`);
@@ -522,7 +528,7 @@ nonreturning_function (static, error_closed_display,
       (symbolp(obj) ? (object)Symbol_name (obj) : (object)(obj));      \
     if (stringp (wsa0_temp)) {                                         \
       with_string_0 (wsa0_temp, encoding, cvar, body);                 \
-    } else my_type_error(`(OR STRING SYMBOL)`,obj);                    \
+    } else x_type_error(`(OR STRING SYMBOL)`,obj,`"stringable"`);      \
   } while(0)
 
 
@@ -591,7 +597,7 @@ static uint32 get_aint32 (object obj)
     return I_to_uint32 (obj);
   if (sint32_p (obj))
     return (uint32)I_to_sint32 (obj);
-  else my_type_error(`(OR XLIB::INT32 XLIB::CARD32)`,obj);
+  else x_type_error(`(OR XLIB::INT32 XLIB::CARD32)`,obj,`"32-bit integer"`);
 }
 
 
@@ -887,7 +893,7 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     set_resource_id(&STACK_1,xid,&STACK_0); /* enter it into the hashtable */
     VALUES1(popSTACK()); /* return freshly allocated structure or prealloc */
     skipSTACK(4);        /* remove saved prealloc, type, dpy, ht */
-  } else if (xid) {             /* allow returning NIL for any object */
+  } else if (xid) {             /* allow returning NIL for any type */
     pushSTACK(value1);          /* save because of typep_classname() */
     if (!typep_classname(value1,type)) { /* invalid cache -> lookup-error */
       /* the error is not continuable because the situation is dangerous */
