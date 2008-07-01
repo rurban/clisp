@@ -33,8 +33,8 @@
 
 (defvar *image-unit* 32)
 (defvar *image-pad* 32)
-(defvar *image-bit-lsb-first-p* t)      ;what about these on big-endian systems? --GB
-(defvar *image-byte-lsb-first-p* t)
+(defvar *image-bit-lsb-first-p* (not sys::*big-endian*))
+(defvar *image-byte-lsb-first-p* (not sys::*big-endian*))
 (deftype buffer-bytes () `(simple-array (unsigned-byte 8) (*)))
 
 (deftype pixarray-1-element-type ()  'bit)

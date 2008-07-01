@@ -2,6 +2,8 @@
 
 	* modules/clx/new-clx/clx.f (make_xid_obj_low): check that
 	prealloc is of the correct type
+	* modules/clx/new-clx/image.lisp (*image-bit-lsb-first-p*)
+	(*image-byte-lsb-first-p*): default to (NOT SYS::*BIG-ENDIAN*)
 
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
