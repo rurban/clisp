@@ -1,5 +1,10 @@
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (make_xid_obj_low): check that
+	prealloc is of the correct type
+
+2008-06-30  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2002364 ]: XID reuse causes clx cache to get out of sync
 	* modules/clx/new-clx/clx.f (make_xid_obj_2): when the cached
 	object is of the wrong type, signal a continuable error and offer
