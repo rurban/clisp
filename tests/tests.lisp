@@ -17,7 +17,7 @@
   (kill-down name)
   (format t "~&removing ~S~%" name)
   (ext:delete-directory name))
-(defun prepare-dir (name)
+(defun prepare-directory (name)
   (ensure-directories-exist name :verbose t)
   (kill-down name))
 )
