@@ -892,6 +892,7 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
   } else if (xid) {             /* allow returning NIL for any object */
     pushSTACK(value1);          /* save because of typep_classname() */
     if (!typep_classname(value1,type)) { /* invalid cache entry */
+      /* the error is not continuable because the situation is dangerous */
       pushSTACK(prealloc); pushSTACK(type); pushSTACK(dpy); /* save */
       pushSTACK(NIL);           /* options */
       pushSTACK(type); pushSTACK(STACK_(0+5)/*value1*/);
