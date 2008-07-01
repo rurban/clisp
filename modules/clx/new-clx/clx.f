@@ -889,21 +889,26 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     skipSTACK(4);        /* remove saved prealloc, type, dpy, ht */
   } else if (xid) {             /* allow returning NIL for any object */
     pushSTACK(value1);          /* save because of typep_classname() */
-    if (!typep_classname(value1,type)) { /* invalid cache entry */
+    if (!typep_classname(value1,type)) { /* invalid cache -> lookup-error */
       /* the error is not continuable because the situation is dangerous */
       pushSTACK(prealloc); pushSTACK(type); pushSTACK(dpy); /* save */
-      pushSTACK(NIL);           /* options */
-      pushSTACK(type); pushSTACK(STACK_(0+5)/*value1*/);
-      pushSTACK(make_uint29(xid)); pushSTACK(TheSubr(subr_self)->name);
-      /* fill options */
+      /* options argument to SYS::CORRECTABLE-ERROR */
       pushSTACK(`:ONE`); /* restart name */
       pushSTACK(`"Invalidate this cache entry"`);
       value1 = listof(2); Cdr(Cdr(value1)) = Fixnum_0; pushSTACK(value1);
-      pushSTACK(`:ALL`); /* restart name */
+      pushSTACK(S(Kall)); /* restart name */
       pushSTACK(`"Invalidate all display cache"`);
       value1 = listof(2); Cdr(Cdr(value1)) = Fixnum_1; pushSTACK(value1);
-      value1 = listof(2); STACK_4 = value1; /* options list */
-      correctable_error(error_condition,"~S: Xid ~S is cached as ~S which is not of type ~S");
+      value1 = listof(2); pushSTACK(value1);
+      /* condition argument to SYS::CORRECTABLE-ERROR */
+      pushSTACK(`XLIB::LOOKUP-ERROR`);
+      pushSTACK(`:CALLER`); pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(`:ID`); pushSTACK(make_uint29(xid));
+      pushSTACK(`:DISPLAY`); pushSTACK(STACK_(0+7));
+      pushSTACK(S(Ktype)); pushSTACK(STACK_(1+9));
+      pushSTACK(S(Kobject)); pushSTACK(STACK_(3+11));
+      funcall(`MAKE-CONDITION`,11); pushSTACK(value1);
+      funcall(S(correctable_error),2);
       STACK_3 = value1;         /* save */
       pushSTACK(display_hash_table(STACK_0));
       value1 = STACK_(3+1);      /* restore */

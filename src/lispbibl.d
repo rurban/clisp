@@ -14388,7 +14388,6 @@ extern maygc void check_value (condition_t errortype, const char * errorstring);
  can trigger GC */
 extern maygc void correctable_error (condition_t errortype, const char* errorstring);
 /* use by PACKAGE, new-clx */
-%% puts("extern void correctable_error (condition_t errortype, const char* errorstring);");
 
 /* Just like OS_error, but signal a FILE-ERROR.
  OS_file_error(pathname);
