@@ -326,6 +326,19 @@ ITER-WINDOWS
     (eq pm (xlib:wm-hints-icon-pixmap (xlib:wm-hints win)))))
 T
 
+(handler-case
+    (xlib:with-open-display (dpy)
+      (let ((s (first (xlib:display-roots dpy))))
+        (xlib:create-window
+         :window s :parent (xlib:screen-root s)
+         :x 0 :y 0 :width 50 :height 50)))
+  (xlib::x-type-error (c)
+    (list (xlib::x-error-caller c)
+          (type-of (type-error-datum c))
+          (type-error-expected-type c)
+          (xlib::x-type-error-type-string c))))
+(XLIB:CREATE-WINDOW XLIB:SCREEN XLIB:WINDOW NIL)
+
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/18431>
 ;; From: "Shawn Betts" <sabetts@vcn.bc.ca>
 (labels ((parent (dpy) (xlib:screen-root (first (xlib:display-roots dpy))))
