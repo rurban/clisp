@@ -1,3 +1,7 @@
+2008-07-01  Reini Urban  <rurban@x-ray.at>
+
+	* tests.lisp (kill-down, rmrf): ext:delete-dir is deprecated
+
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
 	* socket.tst: check socket-connect with timeout to a dead port
