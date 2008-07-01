@@ -874,15 +874,8 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
                               object prealloc)
 { /* NOTES:
  - This code is not reentrant :-( But hence it saves consing
- - may be we want to check the most significant 3 bits in xid, since
-   GC inquiry functions return those values, if slot has an unknown value.
- - We could add even more safety here:
-    bark if lookup succeed and prealloc was specified.
-    [But this situation should not be able to occurr, since a
-     prealloc is only given upon creation requests.]
-    However MIT-CLX does this check and raises a hash-error,
-    if something is not o.k. with the hash table.
-    [But only if you set a debug flag somewhere].  */
+ - maybe we want to check the most significant 3 bits in xid, since
+   GC inquiry functions return those values, if slot has an unknown value. */
   object ht = lookup_xid(dpy,xid);
   if (!eq(ht,nullobj)) { /* allocate and enter object into the hashtable */
     pushSTACK(prealloc);        /* save is save */
@@ -893,8 +886,8 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     set_resource_id(&STACK_1,xid,&STACK_0); /* enter it into the hashtable */
     VALUES1(popSTACK()); /* return freshly allocated structure or prealloc */
     skipSTACK(4);        /* remove saved prealloc, type, dpy, ht */
-  } else if (xid) {             /* allow returning NIL for any type */
-    pushSTACK(value1);          /* save because of typep_classname() */
+  } else if (xid) {      /* allow returning NIL for any type */
+    pushSTACK(value1); /* save cached object because of typep_classname() */
     if (!typep_classname(value1,type)) { /* invalid cache -> lookup-error */
       /* the error is not continuable because the situation is dangerous */
       pushSTACK(prealloc); pushSTACK(type); pushSTACK(dpy); /* save */
@@ -927,8 +920,9 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
       dpy = popSTACK(); type = popSTACK(); prealloc = popSTACK();
       skipSTACK(1);             /*  drop value1 */
       return make_xid_obj_2(type,dpy,xid,prealloc); /* try again */
-    }
-    value1 = popSTACK();        /* restore */
+    } else if (!nullp(prealloc))
+      NOTREACHED;               /* no prealloc for cached objects! */
+    value1 = popSTACK();        /* restore the found cached object */
   }
   return value1;
 }
