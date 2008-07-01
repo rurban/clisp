@@ -40,8 +40,8 @@ nil
 
 ;;; preparations
 
-(prepare-dir "bdb-home/") NIL
-(prepare-dir "bdb-data/") NIL
+(prepare-directory "bdb-home/") NIL
+(prepare-directory "bdb-data/") NIL
 (progn (delete-file "bdb-errors") (delete-file "bdb-msg") NIL) NIL
 
 ;;; creation
