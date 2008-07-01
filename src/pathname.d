@@ -7775,7 +7775,7 @@ LISPFUNN(rename_directory,2)
               (when verbose
                 (format *standard-output* "~&Creating directory: ~A~%"
                         namestring))
-              (ignore-errors (ext:make-dir namestring))
+              (ignore-errors (ext:make-directory namestring))
               (unless (directory newpath)
                  (error (make-condition (quote file-error)
                                         :pathname pathspec))))))
