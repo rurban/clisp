@@ -3,8 +3,9 @@
 	* modules/clx/new-clx/clx.f (make_xid_obj_2): signal a
 	LOOKUP-ERROR instead of an ERROR; use MAKE-CONDITION &
 	SYS::CORRECTABLE-ERROR instead of correctable_error()
-	(x_type_error): new function
+	((x_type_error): new function
 	(my_type_error, with_stringable_0_tc, get_aint32): use it
+	(make_xid_obj_2): no prealloc for cached objects!
 	* lispbibl.d (correctable_error): do NOT export to clisp.h
 
 2008-06-30  Sam Steingold  <sds@gnu.org>
