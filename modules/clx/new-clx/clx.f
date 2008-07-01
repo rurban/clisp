@@ -790,8 +790,9 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
     funcall(S(make_instance),5);
     return value1;
   } else {
-    /* TODO: We should check the type of the preallocated object?!
-             [Is is a bug or a feature?] */
+    if (!typep_classname(*prealloc,*type))
+      my_type_error(*type,*prealloc);
+
     pushSTACK(*prealloc);
     pushSTACK(`XLIB::DISPLAY`);
     pushSTACK(*dpy);
@@ -865,20 +866,17 @@ static Values delete_resource_id (gcv_object_t *ht, XID xid) {
 
 static object make_xid_obj_2 (object type, object dpy, XID xid,
                               object prealloc)
-{ /* NOTE: - This code is not reentrant :-( But hence it saves consing
-         - may be we want to check the most significant 3 bits in xid, since
-           GC inquiry functions return those values, if slot has an unknown
-           value.
-         - We could add even more safty here
-           1. bark if lookup succeed and prealloc was specified.
-              [But this  situation  should  not be able  to   occurr,  since a
-              prealloc is only given upon creation requests.]  However MIT-CLX
-              does this  check  and raises a hash-error,   if something is not
-              o.k.  with the  hash  table. [But only if  you  set a debug flag
-              somewhere].
-           2. If lookup succeeds we could also check the type.
-           3. We should check the type of the preallocated object?!
-              [Compare to make_ptr_obj] */
+{ /* NOTES:
+ - This code is not reentrant :-( But hence it saves consing
+ - may be we want to check the most significant 3 bits in xid, since
+   GC inquiry functions return those values, if slot has an unknown value.
+ - We could add even more safety here:
+    bark if lookup succeed and prealloc was specified.
+    [But this situation should not be able to occurr, since a
+     prealloc is only given upon creation requests.]
+    However MIT-CLX does this check and raises a hash-error,
+    if something is not o.k. with the hash table.
+    [But only if you set a debug flag somewhere].  */
   object ht = lookup_xid(dpy,xid);
   if (!eq(ht,nullobj)) { /* allocate and enter object into the hashtable */
     pushSTACK(prealloc);        /* save is save */
@@ -887,8 +885,8 @@ static object make_xid_obj_2 (object type, object dpy, XID xid,
     pushSTACK(ht);              /* hashtable */
     pushSTACK(make_xid_obj_low (&STACK_3, &STACK_2, &STACK_1, xid));
     set_resource_id(&STACK_1,xid,&STACK_0); /* enter it into the hashtable */
-    VALUES1(popSTACK());        /* return freshly allocated structure */
-    skipSTACK(4);               /* remove saved prealloc, type, dpy, ht */
+    VALUES1(popSTACK()); /* return freshly allocated structure or prealloc */
+    skipSTACK(4);        /* remove saved prealloc, type, dpy, ht */
   } else if (xid) {             /* allow returning NIL for any object */
     pushSTACK(value1);          /* save because of typep_classname() */
     if (!typep_classname(value1,type)) { /* invalid cache entry */
