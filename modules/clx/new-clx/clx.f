@@ -499,8 +499,7 @@ static inline object funcall1 (object fun, object arg)
 { pushSTACK(arg); funcall(fun,1); return value1; }
 
 nonreturning_function(static, x_type_error,
-                      (object type, object datum, object type_string))
-{
+                      (object type, object datum, object type_string)) {
   pushSTACK(`XLIB::X-TYPE-ERROR`);
   pushSTACK(`:CALLER`); pushSTACK(TheSubr(subr_self)->name);
   pushSTACK(S(Kdatum)); pushSTACK(datum);
