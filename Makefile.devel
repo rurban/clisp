@@ -363,6 +363,7 @@ gnulib-imported : update-gnulib force
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
 
+# start gpg agent before "make release"!
 release : distrib upload tag-release
 
 # 2-3 weeks before a release
