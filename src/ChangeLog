@@ -1,5 +1,10 @@
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
+	* m4/ffcall-codeexec.m4, m4/ffcall-ireg.m4, m4/ffcall-pccstruct.m4:
+        * m4/ffcall-smallstruct.m4: remove libffcall-specific files
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (make_terminal_io): pipe, not just file, i/o handles
 	imply non-terminal standard i/o; this should somewhat simplify
 	scripting by not requiring the users to resort to make-stream
