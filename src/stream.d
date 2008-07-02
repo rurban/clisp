@@ -3647,6 +3647,7 @@ local void clear_tty_output (Handle handle) {
   end_system_call();
 }
 
+
 #endif
 
 /* UP: Determines, if a Handle refers to a (static) File.
@@ -14743,13 +14744,11 @@ local maygc object make_terminal_io (void) {
   var bool stdin_file = regular_handle_p(stdin_handle);
   var bool stdout_file = regular_handle_p(stdout_handle);
   if (stdin_file || stdout_file) {
-    /* Input side: */
-    var object istream =
-      (stdin_file ? get_standard_input_file_stream() : make_terminal_stream());
+    var object istream = stdin_file ? /* Input side */
+      get_standard_input_file_stream() : make_terminal_stream();
     pushSTACK(istream);
-    /* Output side: */
-    var object ostream =
-      (stdout_file ? get_standard_output_file_stream() : make_terminal_stream());
+    var object ostream = stdout_file ? /* Output side */
+      get_standard_output_file_stream() : make_terminal_stream();
     /* Build a two-way-stream: */
     return make_twoway_stream(popSTACK(),ostream);
   }
@@ -14866,11 +14865,14 @@ global maygc void init_streamvars (bool batch_p) {
     define_variable(S(debug_io),stream);         /* *DEBUG-IO* */
     define_variable(S(trace_output),stream);     /* *TRACE-OUTPUT* */
     define_variable(S(standard_input),           /* *STANDARD-INPUT* */
-      batch_p ? get_standard_input_file_stream() : terminal_io_input_stream(stream));
+                    batch_p ? get_standard_input_file_stream()
+                    : terminal_io_input_stream(stream));
     define_variable(S(standard_output),          /* *STANDARD-OUTPUT* */
-      batch_p ? get_standard_output_file_stream() : terminal_io_output_stream(stream));
+                    batch_p ? get_standard_output_file_stream()
+                    : terminal_io_output_stream(stream));
     define_variable(S(error_output),             /* *ERROR-OUTPUT* */
-      batch_p ? get_standard_error_file_stream() : (object)Symbol_value(S(standard_output)));
+                    batch_p ? get_standard_error_file_stream()
+                    : (object)Symbol_value(S(standard_output)));
   }
   #ifdef KEYBOARD
   /* Initialize the *KEYBOARD-INPUT* stream. This can fail in some cases,
