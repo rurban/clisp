@@ -28,29 +28,6 @@ support perseverances also on write side
 change wr_by_array_iau8_buffered to use persev instead of persev_full
 
 
-binary stdio
-<http://article.gmane.org/gmane.lisp.clisp.devel:12268>
-one of the common issues with CLISP is
-*** - (SETF STREAM-ELEMENT-TYPE) on #<IO TERMINAL-STREAM> is illegal
-i.e., inability to use binary IO in stdio.
-it all boils down to regular_handle_p(FD):
-when the handle is found to be "regular", the appropriate
-*STANDARD-*PUT* stream becomes a handle stream whose element type can be
-changed, otherwise a TERMINAL-STREAM is used.
-Right now, `regular' means "file on disk", as in
-[unix] (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode))
-[win32] (filetype == FILE_TYPE_DISK)
-what about pipes?
-while MAKE-STREAM should provide a universal solution to these issues,
-it still might make sense to change regular_handle_p().
-Note that this runs into the FRESH-LINE/same_handle_p issues.
-Maybe (SETF STREAM-ELEMENT-TYPE) should work on TERMINAL-STREAMs?
-Maybe all streams should be bivalent?
-Related issue: LISTEN works on binary streams in all Lisps except CLISP.
-LISTEN should work on all streams and READ-CHAR-WILL-HANG-P should be
-merged with READ-BYTE-WILL-HANG-P into WILL-HANG-P.
-
-
 Changes to Unicode standard
 (Bruno and Jörg discussing issues Nov. 2006)
 Eliminate surrogates D800-DFFF from characters
