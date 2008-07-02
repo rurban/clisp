@@ -3650,25 +3650,69 @@ local void clear_tty_output (Handle handle) {
 
 #endif
 
-/* UP: Determines, if a Handle refers to a (static) File.
- regular_handle_p(handle)
- > handle: Handle of the opened File
- < result: true if it is a (static) File */
-local bool regular_handle_p (Handle handle) {
+/* UP: Return platform-specific file type
+ handle_type(handle)
+ > handle: open handle (file or pipe)
+ < result: an integer, identifying the type */
  #if defined(UNIX)
+#define handle_type_t mode_t
+local handle_type_t handle_type (Handle handle) {
   var struct stat statbuf;
   begin_system_call();
   if (!( fstat(handle,&statbuf) ==0)) { OS_error(); }
   end_system_call();
-  return (S_ISREG(statbuf.st_mode) || S_ISBLK(statbuf.st_mode));
- #endif
- #ifdef WIN32_NATIVE
+  return statbuf.st_mode;
+}
+#elif defined(WIN32_NATIVE)
+#define handle_type_t DWORD
+local handle_type_t handle_type (Handle handle) {
   var DWORD filetype;
   begin_system_call();
   filetype = GetFileType(handle);
   end_system_call();
-  return (filetype == FILE_TYPE_DISK);
+  return filetype;
+}
+#else
+#error handle_type() and handle_type_t are not defined
  #endif
+
+/* UP: Determines, if a Handle refers to a (static) File.
+ regular_handle_p(handle)
+ > handle: Handle of the opened File
+ < result: true if it is a (static) File */
+local inline bool regular_handle_type_p (handle_type_t mode) {
+ #if defined(UNIX)
+  return S_ISREG(mode) || S_ISBLK(mode);
+ #elif defined(WIN32_NATIVE)
+  return mode == FILE_TYPE_DISK;
+ #endif
+}
+#define regular_handle_p(h)  regular_handle_type_p(handle_type(h))
+
+/* UP: Determines, if a Handle refers to a pipe or a socket
+ pipe_handle_p(handle)
+ > handle: Handle of the opened File
+ < result: true if it is a socket or a pipe */
+local inline bool pipe_handle_type_p (handle_type_t mode) {
+ #if defined(UNIX)
+  return S_ISFIFO(mode)
+   #if defined(S_ISSOCK)
+    || S_ISSOCK(mode)
+   #endif
+    ;
+ #elif defined(WIN32_NATIVE)
+  return mode == FILE_TYPE_PIPE;
+ #endif
+}
+#define pipe_handle_p(h)  pipe_handle_type_p(handle_type(h))
+
+/* UP: Determines, if a Handle refers to a pipe, socket, file
+ pipe_handle_p(handle)
+ > handle: Handle of the opened File
+ < result: true if it is a socket/pipe/file */
+local inline bool pipe_file_handle_p (Handle handle) {
+  handle_type_t mode = handle_type(handle);
+  return regular_handle_type_p(mode) || pipe_handle_type_p(mode);
 }
 
 /* UP: Determines if two Handle refer to the same file or device.
@@ -14741,8 +14785,8 @@ local maygc object make_terminal_io (void) {
   /* If stdin or stdout is a file, use a buffered stream instead of an
    unbuffered terminal stream. For the ud2cd program used as filter,
    this reduces the runtime on Solaris from 165 sec to 47 sec. */
-  var bool stdin_file = regular_handle_p(stdin_handle);
-  var bool stdout_file = regular_handle_p(stdout_handle);
+  var bool stdin_file = pipe_file_handle_p(stdin_handle);
+  var bool stdout_file = pipe_file_handle_p(stdout_handle);
   if (stdin_file || stdout_file) {
     var object istream = stdin_file ? /* Input side */
       get_standard_input_file_stream() : make_terminal_stream();
