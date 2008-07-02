@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host nyc-qws-005 as the output of the command:
+# This file was created on host loiso as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6
 
 # -------------- Start of configurable section --------------------
@@ -15,8 +15,8 @@ MFLAGS=
 !endif
 
 # The official version number
-PACKAGE_VERSION=2.45
-VERSION=2.45
+PACKAGE_VERSION=2.46
+VERSION=2.46
 # The official package name
 PACKAGE_NAME=@PACKAGE_NAME@
 # If you want to distribute a modified version of CLISP,
@@ -68,7 +68,7 @@ DESTDIR =
 MODULES = 
 
 # Command line options passed to the configure files of add-on modules
-MODULE_CONFIGURE_FLAGS = --with-dynamic-ffi
+MODULE_CONFIGURE_FLAGS = --disable-option-checking
 
 # Programs used by "make":
 CC = cl
@@ -694,14 +694,14 @@ intparam.h : intparam.c config.h
 	echo '#include "config.h"' > tmp.c
 	cat 'intparam.c' >> tmp.c
 	$(CC) tmp.c /Feintparam.exe
-	intparam.exe > intparam.h
+	intparam.exe intparam.h
 	$(RM) intparam.exe tmp.c
 
 floatparam.h : floatparam.c config.h
 	echo '#include "config.h"' > tmp.c
 	cat 'floatparam.c' >> tmp.c
 	$(CC) tmp.c /Fefloatparam.exe
-	floatparam.exe > floatparam.h
+	floatparam.exe floatparam.h
 	$(RM) floatparam.exe tmp.c
 
 UTILCC=$(CC)
@@ -1151,13 +1151,13 @@ control.s : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.
 control.obj : control.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gllib/stdbool.h gllib/stdint.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c control.c
 
-encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
+encoding.i : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) encoding.c > encoding.i
 
-encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
+encoding.s : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -S encoding.c
 
-encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_nextstep.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
+encoding.obj : encoding.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c nls_ascii.c nls_iso8859_1.c nls_iso8859_2.c nls_iso8859_3.c nls_iso8859_4.c nls_iso8859_5.c nls_iso8859_6.c nls_iso8859_7.c nls_iso8859_8.c nls_iso8859_9.c nls_iso8859_10.c nls_iso8859_13.c nls_iso8859_14.c nls_iso8859_15.c nls_iso8859_16.c nls_koi8_r.c nls_koi8_u.c nls_mac_arabic.c nls_mac_centraleurope.c nls_mac_croatian.c nls_mac_cyrillic.c nls_mac_dingbat.c nls_mac_greek.c nls_mac_hebrew.c nls_mac_iceland.c nls_mac_roman.c nls_mac_romania.c nls_mac_symbol.c nls_mac_thai.c nls_mac_turkish.c nls_mac_ukraine.c nls_cp437_ms.c nls_cp437_ibm.c nls_cp737.c nls_cp775.c nls_cp850.c nls_cp852_ms.c nls_cp852_ibm.c nls_cp855.c nls_cp857.c nls_cp860_ms.c nls_cp860_ibm.c nls_cp861_ms.c nls_cp861_ibm.c nls_cp862_ms.c nls_cp862_ibm.c nls_cp863_ms.c nls_cp863_ibm.c nls_cp864_ms.c nls_cp864_ibm.c nls_cp865_ms.c nls_cp865_ibm.c nls_cp866.c nls_cp869_ms.c nls_cp869_ibm.c nls_cp874_ms.c nls_cp874_ibm.c nls_cp1250.c nls_cp1251.c nls_cp1252.c nls_cp1253.c nls_cp1254.c nls_cp1256.c nls_cp1257.c nls_hp_roman8.c nls_jisx0201.c gllib/stdbool.h gllib/stdint.h localcharset.h localcharset.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c encoding.c
 
 pathname.i : pathname.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gllib/stdbool.h gllib/stdint.h localcharset.h execname.c w32shell.c
@@ -1477,7 +1477,7 @@ lisp.exe : $(OBJECTS) modules.obj   data
 config.lisp : cfgwin32.lisp
 	$(CP) cfgwin32.lisp config.lisp
 
-RUN= lisp.exe -B . -E UTF-8 -Epathname 1:1 -norc
+RUN= lisp.exe -B . -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc
 
 modprep.fas : ..\utils\modprep.lisp lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -q -c ../utils/modprep.lisp -o ./
@@ -2209,27 +2209,27 @@ anymodule $(BASE_MODULES) $(MODULES) : lisp.exe lispinit.mem force modprep.fas c
 	    else $(SHELL) ./configure --srcdir=$$m $(MODULE_CONFIGURE_FLAGS); \
 	    fi ) ;\
 	fi
-	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E UTF-8 -Epathname 1:1 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
+	CLISP="`pwd`\lisp.exe -M `pwd`\lispinit.mem -B `pwd` -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc" ; cd $@ ; dots=`echo $@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/$$,,g'` ; $(MAKE) clisp-module CC="$(CC)" CPPFLAGS="$(CPPFLAGS)" CFLAGS="$(CFLAGS)" INCLUDES="$$dots" CLFLAGS="$(CLFLAGS)" LIBS="$(LIBS)" RANLIB="$(RANLIB)" CLISP="$$CLISP -q"
 
 base : modular boot $(BASE_MODULES)
 	$(RMRF) base
-	CLISP_LINKKIT=. clisp-link add-module-sets boot base $(BASE_MODULES) || ($(RMRF) base ; exit 1)
+	CLISP_LINKKIT=. MAKE=$(MAKE) clisp-link add-module-sets boot base $(BASE_MODULES) || ($(RMRF) base ; exit 1)
 
 full : modular base $(MODULES)
 	$(RMRF) full
-	CLISP_LINKKIT=. clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
+	CLISP_LINKKIT=. MAKE=$(MAKE) clisp-link add-module-sets base full $(MODULES) || ($(RMRF) full ; exit 1)
 
 base-mod-check : clisp.exe tests # base
 	for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
-	z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp  -E UTF-8 -Epathname 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp  -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 mod-check : base-mod-check # full
 	for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done
-	z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full  -E UTF-8 -Epathname 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
+	z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full  -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc -C -i tests/tests -x "(ext:exit (plusp (or (run-some-tests :dirlist '($$z)) 0)))"
 
 READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es
-IMPNOTES = impnotes.html impnotes.css clisp.png clisp.ico
-MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES)
+IMPNOTES_FILES = impnotes.html impnotes.css clisp.png clisp.ico
+MANUALS = clisp.1 clisp.html $(TXTFILES) $(IMPNOTES_FILES)
 
 impnotes.html : ..\doc\impnotes.html
 	$(LN_S) ..\doc\impnotes.html impnotes.html
@@ -2358,7 +2358,7 @@ distrib : install.lisp install.bat clisp.man clisp.html COPYRIGHT.rtf add_to_pat
 	cp -p data/UnicodeDataFull.txt $$distdir/data/UnicodeDataFull.txt ; \
 	cp -p data/Symbol-Table.text $$distdir/data/Symbol-Table.text ; \
 	mkdir $$distdir/doc ; \
-	for f in clisp.1 clisp.man clisp.html $(TXTFILES) $(IMPNOTES) ; do \
+	for f in clisp.1 clisp.man clisp.html $(TXTFILES) $(IMPNOTES_FILES) ; do \
 	  if test -f $$f ; then cp -p $$f $$distdir/doc/$$f ; else cp -p `echo $$f | tr '[A-Z]' '[a-z]'` $$distdir/doc/$$f ; fi ; \
 	done ; \
 	mkdir $$distdir/emacs; \
@@ -2392,7 +2392,7 @@ clean1 : clean0
 	-$(RMRF) ansi-tests
 	-$(RMRF) sacla-tests
 	-$(RMRF) boot base full
-	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html $(IMPNOTES) clisp.c distmakefile $(TXTFILES) COPYRIGHT.rtf install.nsi
+	-$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html $(IMPNOTES_FILES) clisp.c distmakefile $(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp.exe
 # is recompiled without changing the bytecode format.
