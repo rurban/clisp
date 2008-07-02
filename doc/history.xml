@@ -514,4 +514,13 @@
    <listitem><simpara>Fixed cross-compilation.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.46</revnumber><date>2008-07-02</date>
+ <authorinitials>sds</authorinitials>
+ <revdescription><itemizedlist>
+   <listitem><simpara><constant>:WORD-SIZE=64</constant> in
+     &features-my; on 64-bit platforms.</simpara></listitem>
+   <listitem><simpara><xref linkend="errno"/>.</simpara></listitem>
+   <listitem><simpara>Macro <function>XLIB:WITH-OPEN-DISPLAY</function>.
+</simpara></listitem></itemizedlist></revdescription></revision>
+
 </revhistory>
