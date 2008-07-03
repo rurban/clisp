@@ -1948,6 +1948,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbstate_t.m4
   m4/nls.m4
+  m4/nocrash.m4
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
@@ -3673,6 +3674,109 @@ AC_DEFUN([AM_NLS],
   AC_MSG_RESULT($USE_NLS)
   AC_SUBST(USE_NLS)
 ])
+
+# nocrash.m4 serial 1
+dnl Copyright (C) 2005 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl Based on libsigsegv, from Bruno Haible and Paolo Bonzini.
+
+AC_PREREQ(2.13)
+
+dnl Expands to some code for use in .c programs that will cause the configure
+dnl test to exit instead of crashing. This is useful to avoid triggering
+dnl action from a background debugger and to avoid core dumps.
+dnl Usage:   ...
+dnl          ]GL_NOCRASH[
+dnl          ...
+dnl          int main() { nocrash_init(); ... }
+AC_DEFUN([GL_NOCRASH],[[
+#include <stdlib.h>
+#if defined __MACH__ && defined __APPLE__
+/* Avoid a crash on MacOS X.  */
+#include <mach/mach.h>
+#include <mach/mach_error.h>
+#include <mach/thread_status.h>
+#include <mach/exception.h>
+#include <mach/task.h>
+#include <pthread.h>
+/* The exception port on which our thread listens.  */
+static mach_port_t our_exception_port;
+/* The main function of the thread listening for exceptions of type
+   EXC_BAD_ACCESS.  */
+static void *
+mach_exception_thread (void *arg)
+{
+  /* Buffer for a message to be received.  */
+  struct {
+    mach_msg_header_t head;
+    mach_msg_body_t msgh_body;
+    char data[1024];
+  } msg;
+  mach_msg_return_t retval;
+  /* Wait for a message on the exception port.  */
+  retval = mach_msg (&msg.head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof (msg),
+                     our_exception_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
+  if (retval != MACH_MSG_SUCCESS)
+    abort ();
+  exit (1);
+}
+static void
+nocrash_init (void)
+{
+  mach_port_t self = mach_task_self ();
+  /* Allocate a port on which the thread shall listen for exceptions.  */
+  if (mach_port_allocate (self, MACH_PORT_RIGHT_RECEIVE, &our_exception_port)
+      == KERN_SUCCESS) {
+    /* See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_insert_right.html.  */
+    if (mach_port_insert_right (self, our_exception_port, our_exception_port,
+                                MACH_MSG_TYPE_MAKE_SEND)
+        == KERN_SUCCESS) {
+      /* The exceptions we want to catch.  Only EXC_BAD_ACCESS is interesting
+         for us.  */
+      exception_mask_t mask = EXC_MASK_BAD_ACCESS;
+      /* Create the thread listening on the exception port.  */
+      pthread_attr_t attr;
+      pthread_t thread;
+      if (pthread_attr_init (&attr) == 0
+          && pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED) == 0
+          && pthread_create (&thread, &attr, mach_exception_thread, NULL) == 0) {
+        pthread_attr_destroy (&attr);
+        /* Replace the exception port info for these exceptions with our own.
+           Note that we replace the exception port for the entire task, not only
+           for a particular thread.  This has the effect that when our exception
+           port gets the message, the thread specific exception port has already
+           been asked, and we don't need to bother about it.
+           See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/task_set_exception_ports.html.  */
+        task_set_exception_ports (self, mask, our_exception_port,
+                                  EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
+      }
+    }
+  }
+}
+#else
+/* Avoid a crash on POSIX systems.  */
+#include <signal.h>
+/* A POSIX signal handler.  */
+static void
+exception_handler (int sig)
+{
+  exit (1);
+}
+static void
+nocrash_init (void)
+{
+#ifdef SIGSEGV
+  signal (SIGSEGV, exception_handler);
+#endif
+#ifdef SIGBUS
+  signal (SIGBUS, exception_handler);
+#endif
+}
+#endif
+]])
 
 # po.m4 serial 15 (gettext-0.17)
 dnl Copyright (C) 1995-2007 Free Software Foundation, Inc.
@@ -6411,22 +6515,6 @@ AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])dnl
 AC_CHECK_HEADERS(time.h sys/time.h)
 ])
 
-AC_DEFUN([CL_FFCALL_COMMON_LIBTOOL],
-[AC_REQUIRE([AM_DISABLE_SHARED])dnl
-AC_REQUIRE([AM_PROG_LIBTOOL])dnl
-])
-
-AC_DEFUN([CL_FFCALL_COMMON_TRAMPOLINE],
-[AC_REQUIRE([AC_HEADER_STDC])dnl
-AC_REQUIRE([CL_GETPAGESIZE])dnl
-AC_REQUIRE([CL_MACH_VM])dnl
-AC_REQUIRE([CL_MMAP])dnl
-AC_REQUIRE([CL_MPROTECT])dnl
-AC_REQUIRE([CL_SHM_H])dnl
-AC_REQUIRE([CL_SHM])dnl
-AC_REQUIRE([CL_CODEEXEC])dnl
-])
-
 AC_DEFUN([CL_CHECK],[dnl
   AC_CACHE_CHECK([for $2],[$3],
     [$1([AC_LANG_PROGRAM([$4],[$5])],[$3=yes],[$3=no])])
@@ -6557,119 +6645,6 @@ dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
 cat >> confdefs.h <<EOF
 #ifndef __${host_cpu_instructionset}__
 #define __${host_cpu_instructionset}__ 1
-#endif
-EOF
-])
-
-AC_DEFUN([CL_CANONICAL_HOST_CPU_FOR_FFCALL],
-[AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
-case "$host_cpu" in
-changequote(,)dnl
-  i[4567]86 )
-    host_cpu_abi=i386
-    ;;
-  alphaev[4-8] | alphaev56 | alphapca5[67] | alphaev6[78] )
-    host_cpu_abi=alpha
-    ;;
-  hppa1.0 | hppa1.1 | hppa2.0* | hppa64 )
-    host_cpu_abi=hppa
-    ;;
-  rs6000 )
-    host_cpu_abi=powerpc
-    ;;
-  c1 | c2 | c32 | c34 | c38 | c4 )
-    host_cpu_abi=convex
-    ;;
-  arm* )
-    host_cpu_abi=arm
-    ;;
-changequote([,])dnl
-  mips )
-    AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
-AC_EGREP_CPP(yes,
-[#if defined(_MIPS_SZLONG)
-#if (_MIPS_SZLONG == 64)
-/* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
-  yes
-#endif
-#endif
-], cl_cv_host_mips64=yes, cl_cv_host_mips64=no)
-])
-if test $cl_cv_host_mips64 = yes; then
-  host_cpu_abi=mips64
-else
-  AC_CACHE_CHECK([for MIPS with n32 ABI], cl_cv_host_mipsn32, [
-dnl Strictly speaking, the MIPS ABI (-32 or -n32) is independent from the CPU
-dnl identification (-mips[12] or -mips[34]). But -n32 is commonly used together
-dnl with -mips3, and it's easier to test the CPU identification.
-AC_EGREP_CPP(yes,
-[#if __mips >= 3
-  yes
-#endif
-], cl_cv_host_mipsn32=yes, cl_cv_host_mipsn32=no)
-])
-if test $cl_cv_host_mipsn32 = yes; then
-  host_cpu_abi=mipsn32
-else
-  host_cpu_abi=mips
-fi
-fi
-    ;;
-dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
-  powerpc64 )
-    AC_CACHE_CHECK([for 64-bit PowerPC], cl_cv_host_powerpc64, [
-AC_EGREP_CPP(yes,
-[#if defined(__powerpc64__) || defined(_ARCH_PPC64)
-  yes
-#endif
-], cl_cv_host_powerpc64=yes, cl_cv_host_powerpc64=no)
-])
-if test $cl_cv_host_powerpc64 = yes; then
-  host_cpu_abi=powerpc64
-else
-  host_cpu_abi=powerpc
-fi
-    ;;
-dnl UltraSPARCs running Linux have `uname -m` = "sparc64", but the C compiler
-dnl still generates 32-bit code.
-  sparc | sparc64 )
-    AC_CACHE_CHECK([for 64-bit SPARC], cl_cv_host_sparc64, [
-AC_EGREP_CPP(yes,
-[#if defined(__sparcv9) || defined(__arch64__)
-  yes
-#endif
-], cl_cv_host_sparc64=yes, cl_cv_host_sparc64=no)
-])
-if test $cl_cv_host_sparc64 = yes; then
-  host_cpu_abi=sparc64
-else
-  host_cpu_abi=sparc
-fi
-    ;;
-dnl On x86_64 systems, the C compiler may still be generating 32-bit code.
-  x86_64 )
-    AC_CACHE_CHECK([for 64-bit x86_64], cl_cv_host_x86_64, [
-AC_EGREP_CPP(yes,
-[#if defined(__LP64__) || defined(__x86_64__) || defined(__amd64__)
-  yes
-#endif
-], cl_cv_host_x86_64=yes, cl_cv_host_x86_64=no)
-])
-if test $cl_cv_host_x86_64 = yes; then
-  host_cpu_abi=x86_64
-else
-  host_cpu_abi=i386
-fi
-    ;;
-  *)
-    host_cpu_abi=$host_cpu
-    ;;
-esac
-AC_SUBST(host_cpu_abi)
-dnl was AC_DEFINE_UNQUOTED(__${host_cpu}__) but KAI C++ 3.2d doesn't like this
-cat >> confdefs.h <<EOF
-#ifndef __${host_cpu_abi}__
-#define __${host_cpu_abi}__ 1
 #endif
 EOF
 ])
@@ -14454,110 +14429,6 @@ if test -z "$no_mmap"; then
 AC_CHECK_FUNCS(munmap)dnl
 fi
 ])
-
-dnl Copyright (C) 2005 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl Based on libsigsegv, from Bruno Haible and Paolo Bonzini.
-
-AC_PREREQ(2.13)
-
-dnl Expands to some code for use in .c programs that will cause the configure
-dnl test to exit instead of crashing. This is useful to avoid triggering
-dnl action from a background debugger and to avoid core dumps.
-dnl Usage:   ...
-dnl          ]GL_NOCRASH[
-dnl          ...
-dnl          int main() { nocrash_init(); ... }
-AC_DEFUN([GL_NOCRASH],[[
-#include <stdlib.h>
-#if defined __MACH__ && defined __APPLE__
-/* Avoid a crash on MacOS X.  */
-#include <mach/mach.h>
-#include <mach/mach_error.h>
-#include <mach/thread_status.h>
-#include <mach/exception.h>
-#include <mach/task.h>
-#include <pthread.h>
-/* The exception port on which our thread listens.  */
-static mach_port_t our_exception_port;
-/* The main function of the thread listening for exceptions of type
-   EXC_BAD_ACCESS.  */
-static void *
-mach_exception_thread (void *arg)
-{
-  /* Buffer for a message to be received.  */
-  struct {
-    mach_msg_header_t head;
-    mach_msg_body_t msgh_body;
-    char data[1024];
-  } msg;
-  mach_msg_return_t retval;
-  /* Wait for a message on the exception port.  */
-  retval = mach_msg (&msg.head, MACH_RCV_MSG | MACH_RCV_LARGE, 0, sizeof (msg),
-                     our_exception_port, MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL);
-  if (retval != MACH_MSG_SUCCESS)
-    abort ();
-  exit (1);
-}
-static void
-nocrash_init (void)
-{
-  mach_port_t self = mach_task_self ();
-  /* Allocate a port on which the thread shall listen for exceptions.  */
-  if (mach_port_allocate (self, MACH_PORT_RIGHT_RECEIVE, &our_exception_port)
-      == KERN_SUCCESS) {
-    /* See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/mach_port_insert_right.html.  */
-    if (mach_port_insert_right (self, our_exception_port, our_exception_port,
-                                MACH_MSG_TYPE_MAKE_SEND)
-        == KERN_SUCCESS) {
-      /* The exceptions we want to catch.  Only EXC_BAD_ACCESS is interesting
-         for us.  */
-      exception_mask_t mask = EXC_MASK_BAD_ACCESS;
-      /* Create the thread listening on the exception port.  */
-      pthread_attr_t attr;
-      pthread_t thread;
-      if (pthread_attr_init (&attr) == 0
-          && pthread_attr_setdetachstate (&attr, PTHREAD_CREATE_DETACHED) == 0
-          && pthread_create (&thread, &attr, mach_exception_thread, NULL) == 0) {
-        pthread_attr_destroy (&attr);
-        /* Replace the exception port info for these exceptions with our own.
-           Note that we replace the exception port for the entire task, not only
-           for a particular thread.  This has the effect that when our exception
-           port gets the message, the thread specific exception port has already
-           been asked, and we don't need to bother about it.
-           See http://web.mit.edu/darwin/src/modules/xnu/osfmk/man/task_set_exception_ports.html.  */
-        task_set_exception_ports (self, mask, our_exception_port,
-                                  EXCEPTION_DEFAULT, MACHINE_THREAD_STATE);
-      }
-    }
-  }
-}
-#else
-/* Avoid a crash on POSIX systems.  */
-#include <signal.h>
-/* A POSIX signal handler.  */
-static void
-exception_handler (int sig)
-{
-  exit (1);
-}
-static void
-nocrash_init (void)
-{
-#ifdef SIGSEGV
-  signal (SIGSEGV, exception_handler);
-#endif
-#ifdef SIGBUS
-  signal (SIGBUS, exception_handler);
-#endif
-}
-#endif
-]])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
