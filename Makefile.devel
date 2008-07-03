@@ -348,7 +348,8 @@ gnulib-imported : update-gnulib force
 	$(GNULIB_CHECKOUT)/gnulib-tool --import --source-base=src/gllib \
 		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
 		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
-		uniwidth/width streq uniname/uniname unitypes link-follow
+		uniwidth/width streq uniname/uniname unitypes link-follow \
+		nocrash
 	$(RM) configure.ac
 	rm -fv src/build-aux/.cvsignore src/glm4/.cvsignore
 	cd src/glm4; \
