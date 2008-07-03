@@ -1,5 +1,9 @@
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-imported): also get nocrash
+
+2008-07-02  Sam Steingold  <sds@gnu.org>
+
 	* m4/ffcall-codeexec.m4, m4/ffcall-ireg.m4, m4/ffcall-pccstruct.m4:
         * m4/ffcall-smallstruct.m4: remove libffcall-specific files
 	* m4/general.m4 (CL_FFCALL_COMMON_LIBTOOL, CL_FFCALL_COMMON_TRAMPOLINE)
