@@ -521,6 +521,8 @@
      &features-my; on 64-bit platforms.</simpara></listitem>
    <listitem><simpara><xref linkend="errno"/>.</simpara></listitem>
    <listitem><simpara>Macro <function>XLIB:WITH-OPEN-DISPLAY</function>.
+   </simpara></listitem><listitem><simpara>Fixed the remaining bugs in
+     &special-dec; bindings in evaluated code on &typecodes; platforms.
 </simpara></listitem></itemizedlist></revdescription></revision>
 
 </revhistory>
