@@ -666,6 +666,13 @@ If your modules do not work (clisp.h does not define "object" type),
 install GNU sed.
 
 
+* On ppc and ppc64 running Linux:
+
+If you get a crash during loading of the first few lisp file (first GC),
+add "-DNO_GENERATIONAL_GC" to CFLAGS.
+
+
+
 Hints for porting to new platforms:
 -----------------------------------
 
