@@ -15,7 +15,7 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu gettext havelib link-follow localcharset regex stdbool stdint streq uniname/uniname unitypes uniwidth/width
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu gettext havelib link-follow localcharset nocrash regex stdbool stdint streq uniname/uniname unitypes uniwidth/width
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
@@ -25,6 +25,7 @@ gl_MODULES([
   havelib
   link-follow
   localcharset
+  nocrash
   regex
   stdbool
   stdint

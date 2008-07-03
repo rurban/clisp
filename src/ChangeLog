@@ -1,6 +1,7 @@
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (gnulib-imported): also get nocrash
+	updated from the gnulib repository
 
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
