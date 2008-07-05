@@ -55,10 +55,6 @@
 <arg><option><link linkend="opt-memfile">-M
    <replaceable>mem-file</replaceable></link></option></arg>
 <arg><option><link linkend="opt-memsize">-m &mems-r;</link></option></arg>
-<!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
-<arg><option><link linkend="opt-tempdir">-t
-   <replaceable>temp-dir</replaceable></link></option></arg>
-<!-- #endif -->
 <arg><option><link linkend="opt-lang">-L &lang-r;</link></option></arg>
 <arg><option><link linkend="opt-locale">-N &ld;</link></option></arg>
 <arg><option><link linkend="opt-enc">-E&dom-r; &encoding-r;</link></option></arg>
@@ -215,15 +211,6 @@ compiles the specified lisp files to a platform-independent
    (except that it determines the Lisp &STACK; size).
 <!-- #endif -->
 </simpara></listitem></varlistentry>
-
-<!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
-<varlistentry id="opt-tempdir"><term><option>-t</option>
-  <replaceable>temp-dir</replaceable></term>
- <listitem><simpara>Specifies the directory where the temporary core
-   file is to be held.  This option takes precedence over the
-   &env-var; <envar>TMPDIR</envar>.
-</simpara></listitem></varlistentry>
-<!-- #endif -->
 
 <varlistentry id="opt-lang"><term><option>-L</option> &lang-r;</term>
  <listitem><para>Specifies the
@@ -655,12 +642,6 @@ compiles the specified lisp files to a platform-independent
 <varlistentry><term><envar>TERM</envar></term>
  <listitem><simpara>determines the screen size recognized by the pretty
    printer.</simpara></listitem></varlistentry>
-<!-- #endif -->
-
-<!-- #ifdef MULTIMAP_MEMORY_VIA_FILE -->
-<varlistentry><term><envar>TMPDIR</envar></term>
- <listitem><simpara>specifies the directory where the temporary core
-   file is to be held.</simpara></listitem></varlistentry>
 <!-- #endif -->
 
 <varlistentry><term><envar>ORGANIZATION</envar></term>
