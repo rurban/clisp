@@ -1,6 +1,6 @@
 /*
  * Information about the build environment
- * Bruno Haible 2004-2005
+ * Bruno Haible 2004-2008
  * Sam Steingold 2004-2008
  */
 
@@ -66,10 +66,7 @@ global object built_flags (void) {
    #ifdef MULTIMAP_MEMORY_VIA_SHM
     " MULTIMAP_MEMORY_VIA_SHM"
    #endif
-   #ifdef MULTIMAP_MEMORY_VIA_FILE
-    " MULTIMAP_MEMORY_VIA_FILE"
-   #endif
-   #endif
+  #endif
   #ifdef SINGLEMAP_MEMORY
     " SINGLEMAP_MEMORY"
   #endif

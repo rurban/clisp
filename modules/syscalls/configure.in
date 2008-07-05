@@ -48,6 +48,21 @@ crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid)
 AC_FUNC_CHOWN
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 CL_STAT
+AC_CHECK_HEADERS(sys/statvfs.h sys/statfs.h)
+if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
+ AC_MSG_CHECKING([whether f_fsid is scalar])
+ AC_TRY_COMPILE([#include <sys/statvfs.h>], [struct statvfs x; x.f_fsid = 0;],
+  ac_cv_struct_fsid_scalar=yes, ac_cv_struct_fsid_scalar=no)
+ AC_MSG_RESULT([$]ac_cv_struct_fsid_scalar)
+ if test "$ac_cv_struct_fsid_scalar" = yes; then
+  AC_DEFINE([HAVE_SCALAR_FSID], 1,
+    [Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.])
+ fi
+ AC_CHECK_SIZEOF(fsblkcnt_t,,[#include <stdio.h>
+#include <sys/statvfs.h>])
+ AC_CHECK_SIZEOF(fsfilcnt_t,,[#include <stdio.h>
+#include <sys/statvfs.h>])
+fi
 CL_RUSAGE
 gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
 if test "$ac_cv_func_setpgrp" = "yes"; then

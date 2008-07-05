@@ -1622,9 +1622,6 @@ local void usage (void) {
  #endif
   printf(GETTEXTL(" -M memfile    - use this memory image\n"));
   printf(GETTEXTL(" -m size       - memory size (size = nB or nKB or nMB)\n"));
- #ifdef MULTIMAP_MEMORY_VIA_FILE
-  printf(GETTEXTL(" -t tmpdir     - temporary directory for memmap\n"));
- #endif
   printf(GETTEXTL("Internationalization:\n"));
   printf(GETTEXTL(" -L language   - set user language\n"));
   printf(GETTEXTL(" -N nlsdir     - NLS catalog directory\n"));
@@ -1897,9 +1894,6 @@ struct argv_init_c {
 /* Parameters needed to initialize Lisp memory. */
 struct argv_initparams {
   uintM argv_memneed;
- #ifdef MULTIMAP_MEMORY_VIA_FILE
-  const char* argv_tmpdir;
- #endif
   const char* argv_memfile;
 };
 
@@ -1997,9 +1991,6 @@ local inline int parse_options (int argc, const char* const* argv,
   p0->argv_language = NULL;
   p0->argv_localedir = NULL;
   p1->argv_memneed = 0;
- #ifdef MULTIMAP_MEMORY_VIA_FILE
-  p1->argv_tmpdir = NULL;
- #endif
   p1->argv_memfile = NULL;
   p2->argv_memfile = NULL;
   p2->argv_verbose = 2;
@@ -2129,17 +2120,8 @@ local inline int parse_options (int argc, const char* const* argv,
             if (asciz_equal(arg,"-traditional"))
               p2->argv_ansi = 2; /* traditional */
             else {
-             #ifdef MULTIMAP_MEMORY_VIA_FILE
-              OPTION_ARG;
-              if (!(p1->argv_tmpdir == NULL)) {
-                arg_error(GETTEXTL("multiple -t"),arg);
-                return 1;
-              }
-              p1->argv_tmpdir = arg;
-             #else
               INVALID_ARG(arg);
               return 1;
-             #endif
             }
             break;
           case 'd': /* developer mode */
@@ -2449,14 +2431,6 @@ local inline int parse_options (int argc, const char* const* argv,
       p1->argv_memneed = 768*1024*sizeof(gcv_object_t); /* 768 KW = 3 MB Default */
      #endif
     }
-   #ifdef MULTIMAP_MEMORY_VIA_FILE
-    if (p1->argv_tmpdir == NULL) {
-      p1->argv_tmpdir = getenv("TMPDIR"); /* try environment-variable */
-      if (p1->argv_tmpdir == NULL) {
-        p1->argv_tmpdir = "/tmp";
-      }
-    }
-   #endif
     if (!p2->argv_compile) {
       /* Some options are useful only together with '-c' : */
       if (p2->argv_compile_listing) {
@@ -2634,11 +2608,7 @@ local inline int init_memory (struct argv_initparams *p) {
     /* the memory region [memblock,memblock+memneed-1] is now free,
      and its boundaries are located on page boundaries. */
    #ifdef MULTIMAP_MEMORY
-    #ifdef MULTIMAP_MEMORY_VIA_FILE
-    if ( initmap(p->argv_tmpdir) <0) return -1;
-    #else
     if ( initmap() <0) return -1;
-    #endif
     multimap(case_machine: MM_TYPECASES, memblock, memneed, false);
     #ifdef MAP_MEMORY_TABLES
     {                           /* set symbol_tab to address 0: */

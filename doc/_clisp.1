@@ -1,11 +1,11 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\fI\%http://www.haible.de/bruno/\fR>
 .\" Generator: DocBook XSL Stylesheets vsnapshot_7566 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2008-07-02
+.\"      Date: Last modified: 2008-07-05
 .\"    Manual: Platform: @PLATFORM@
 .\"    Source: CLISP 2.46
 .\"
-.TH "CLISP" "1" "Last modified: 2008\-07\-02" "CLISP 2.46" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2008\-07\-05" "CLISP 2.46" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -14,11 +14,7 @@
 clisp - ANSI Common Lisp compiler, interpreter and debugger.
 .SH "SYNOPSIS"
 .HP 6
-\fBclisp\fR [[\fB\-h\fR] | [\fB\-\-help\fR]] [\fB\-\-version\fR] [\fB\-\-license\fR] [\fB\-help\-image\fR] [\fB\-B\ \fIlisp\-lib\-dir\fR\fR] [\fB\-K\ \fIlinking\-set\fR\fR] [\fB\-M\ \fImem\-file\fR\fR] [\fB\-m\ \fImemory\-size\fR\fR]
-#ifdef MULTIMAP_MEMORY_VIA_FILE
-[\fB\-t\ \fItemp\-dir\fR\fR]
-#endif
-[\fB\-L\ \fIlanguage\fR\fR] [\fB\-N\ \fIlocale\-dir\fR\fR] [\fB\-E\fIdomain\fR\ \fIencoding\fR\fR] [[\fB\-q\fR] | [\fB\-\-quiet\fR] | [\fB\-\-silent\fR] | [\fB\-v\fR] | [\fB\-\-verbose\fR]] [\fB\-on\-error\ \fIaction\fR\fR] [\fB\-repl\fR] [\fB\-w\fR] [\fB\-I\fR] [[\fB\-ansi\fR] | [\fB\-traditional\fR]] [\fB\-modern\fR] [\fB\-p\ \fIpackage\fR\fR] [\fB\-C\fR] [\fB\-norc\fR] [\fB\-lp\ \fIdirectory\fR\fR...] [\fB\-i\ \fIinit\-file\fR\fR...] [\fB\-c\fR\ [\fB\-l\fR]\ \fIlisp\-file\fR\ [\fB\-o\fR\fB\ \fR\fB\fIoutput\-file\fR\fR]...] [\fB\-x\ \fIexpressions\fR\fR...] [\fB\fIlisp\-file\fR\fR\ [\fB\fIargument\fR\fR...]]
+\fBclisp\fR [[\fB\-h\fR] | [\fB\-\-help\fR]] [\fB\-\-version\fR] [\fB\-\-license\fR] [\fB\-help\-image\fR] [\fB\-B\ \fIlisp\-lib\-dir\fR\fR] [\fB\-K\ \fIlinking\-set\fR\fR] [\fB\-M\ \fImem\-file\fR\fR] [\fB\-m\ \fImemory\-size\fR\fR] [\fB\-L\ \fIlanguage\fR\fR] [\fB\-N\ \fIlocale\-dir\fR\fR] [\fB\-E\fIdomain\fR\ \fIencoding\fR\fR] [[\fB\-q\fR] | [\fB\-\-quiet\fR] | [\fB\-\-silent\fR] | [\fB\-v\fR] | [\fB\-\-verbose\fR]] [\fB\-on\-error\ \fIaction\fR\fR] [\fB\-repl\fR] [\fB\-w\fR] [\fB\-I\fR] [[\fB\-ansi\fR] | [\fB\-traditional\fR]] [\fB\-modern\fR] [\fB\-p\ \fIpackage\fR\fR] [\fB\-C\fR] [\fB\-norc\fR] [\fB\-lp\ \fIdirectory\fR\fR...] [\fB\-i\ \fIinit\-file\fR\fR...] [\fB\-c\fR\ [\fB\-l\fR]\ \fIlisp\-file\fR\ [\fB\-o\fR\fB\ \fR\fB\fIoutput\-file\fR\fR]...] [\fB\-x\ \fIexpressions\fR\fR...] [\fB\fIlisp\-file\fR\fR\ [\fB\fIargument\fR\fR...]]
 .SH "DESCRIPTION"
 .PP
 Invokes the
@@ -195,15 +191,6 @@ STACK
 size)\.
 #endif
 .RE
-#ifdef MULTIMAP_MEMORY_VIA_FILE
-.PP
-\fB\-t\fR \fItemp\-dir\fR
-.RS 4
-Specifies the directory where the temporary core file is to be held\. This option takes precedence over the
-\fIenvironment variable\fR\&[12]
-\fBTMPDIR\fR\.
-.RE
-#endif
 .PP
 \fB\-L\fR \fIlanguage\fR
 .RS 4
@@ -912,13 +899,6 @@ determines the screen size recognized by the pretty printer\.
 .RE
 #endif
 
-#ifdef MULTIMAP_MEMORY_VIA_FILE
-.PP
-\fBTMPDIR\fR
-.RS 4
-specifies the directory where the temporary core file is to be held\.
-.RE
-#endif
 .PP
 \fBORGANIZATION\fR
 .RS 4
