@@ -86,28 +86,6 @@ extern_C char* strerror (int errnum);
       memory at addresses >= 0x06000000 or more than 6 times to attach,
       we must use SINGLEMAP_MEMORY */
   #endif
-  #ifdef HAVE_MSYNC
-    #ifdef MS_INVALIDATE
-      /* tested only on UNIX_LINUX, not UNIX_SUNOS5, not UNIX_FREEBSD. ?? */
-      /* for MULTIMAP_MEMORY_VIA_FILE: */
-      /* extern_C int msync (void* addr, size_t len, int flags); */
-    #else
-      /* NetBSD has a 2-argument msync(), unusable for our purposes. */
-      #undef HAVE_MSYNC
-    #endif
-  #endif
-  /* for MULTIMAP_MEMORY_VIA_FILE: */
-  #if defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
-    #if HAVE_SYS_STATVFS_H
-      #include <sys/statvfs.h>
-    #elif HAVE_SYS_STATFS_H
-      #include <sys/statfs.h>
-    #else
-      /* Old BSDs define struct statfs in <sys/mount.h>. */
-      #include <sys/param.h>
-      #include <sys/mount.h>
-    #endif
-  #endif
 #endif
 #ifdef HAVE_MACH_VM /* vm_allocate(), task_self(), ... available */
   /* the headers for UNIX_NEXTSTEP must look indescribable ... */

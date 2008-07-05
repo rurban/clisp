@@ -33,9 +33,9 @@
    Object representation (on 32-bit platforms only):
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
    Advanced memory management:
-     NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_FILE, NO_MULTIMAP_SHM,
-     NO_VIRTUAL_MEMORY, CONS_HEAP_GROWS_DOWN, CONS_HEAP_GROWS_UP,
-     NO_MORRIS_GC, NO_GENERATIONAL_GC
+     NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_SHM, NO_VIRTUAL_MEMORY,
+     CONS_HEAP_GROWS_DOWN, CONS_HEAP_GROWS_UP, NO_MORRIS_GC,
+     NO_GENERATIONAL_GC
    String representation:
      NO_SMALL_SSTRING
 
@@ -3005,13 +3005,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
      memory page can be accessed at several addresses. */
       #define MULTIMAP_MEMORY
       #define MULTIMAP_MEMORY_VIA_SHM
-  #endif
-
-  #if (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_FILE)
-     /* Access to Lisp-objects is done through memory-mapping: Each
-      memory page can be accessed at several addresses. */
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_FILE
   #endif
 
 #endif
