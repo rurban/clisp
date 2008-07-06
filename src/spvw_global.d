@@ -463,12 +463,6 @@ local inline void init_mem_heapnr_from_type (void)
 {
   var uintL type;
   for (type = 0; type < typecount; type++) {
-   #ifdef MULTIMAP_MEMORY
-    switch (type) {
-      MM_TYPECASES break;
-      default: mem.heapnr_from_type[type] = -1; continue;
-    }
-   #endif
     switch (type) {
       case_pair: mem.heapnr_from_type[type] = 1; break;
       default:   mem.heapnr_from_type[type] = 0; break;

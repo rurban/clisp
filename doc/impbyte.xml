@@ -1196,7 +1196,7 @@ There are no small objects in pages belonging to a big object.</para>
 <tgroup cols="6" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry><xref linkend="MMC-A"/></entry>
  <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-C"/></entry>
- <entry><xref linkend="MMC-D"/></entry><entry><xref linkend="MMC-E"/></entry>
+ <entry><xref linkend="MMC-E"/></entry>
 </row></thead>
 <tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry><entry>1</entry>
       <entry>10</entry><entry/><entry>2</entry><entry>9</entry></row>
@@ -1229,7 +1229,6 @@ There are no small objects in pages belonging to a big object.</para>
  <listitem id="MMC-A"><simpara>no MAP_MEMORY</simpara></listitem>
  <listitem id="MMC-B"><simpara>TRIVIALMAP_MEMORY</simpara></listitem>
  <listitem id="MMC-C"><simpara>SINGLEMAP_MEMORY</simpara></listitem>
- <listitem id="MMC-D"><simpara>MULTIMAP_MEMORY</simpara></listitem>
  <listitem id="MMC-E"><simpara>GENERATIONAL_GC</simpara></listitem>
 </orderedlist>
 

@@ -47,7 +47,7 @@ local void rebuild_old_generation_cache (uintL heapnr);
 #ifdef SPVW_PURE_BLOCKS
 /* Set the protections as in build_old_generation_cache(),
  but don't need to rebuild the cache. */
-local inline void xmmprotect_old_generation_cache (uintL heapnr);
+local inline void xmprotect_old_generation_cache (uintL heapnr);
 #endif
 
 /* Prepare the old generation for GC. */
@@ -65,13 +65,13 @@ local void prepare_old_generation (void);
 #ifdef GENERATIONAL_GC
   #ifdef SPVW_PURE_BLOCKS
     #define in_old_generation(obj,type,heapnr)  \
-      (canonaddr(obj) < mem.heaps[type].heap_start)
+      ((aint)ThePointer(obj) < mem.heaps[type].heap_start)
   #else  /* SPVW_MIXED_BLOCKS */
     #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
       #define in_old_generation_0(obj)  \
-        (canonaddr(obj) < mem.varobjects.heap_start)
+        ((aint)ThePointer(obj) < mem.varobjects.heap_start)
       #define in_old_generation_1(obj)  \
-        (canonaddr(obj) >= mem.conses.heap_end)
+        ((aint)ThePointer(obj) >= mem.conses.heap_end)
       #define in_old_generation_general(obj)  \
         (in_old_generation_0(obj) || in_old_generation_1(obj))
       #ifdef GNU
@@ -86,7 +86,7 @@ local void prepare_old_generation (void);
       #endif
     #else  /* SPVW_MIXED_BLOCKS_STAGGERED */
       #define in_old_generation(obj,type,heapnr)  \
-        (canonaddr(obj) < mem.heaps[heapnr].heap_start)
+        ((aint)ThePointer(obj) < mem.heaps[heapnr].heap_start)
     #endif
   #endif
 #else
@@ -378,7 +378,7 @@ local void build_old_generation_cache (uintL heapnr)
       if (!(heap->physpages==NULL)) {
         /* When we are finished, both the cache and the memory content
          will be valid: */
-        xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
+        xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
         /* fill heap->physpages[0..physpage_count-1] : */
         {
           var physpage_state_t* physpage = heap->physpages;
@@ -926,7 +926,7 @@ local void rebuild_old_generation_cache (uintL heapnr)
               var old_new_pointer_t* ptr2 = physpage->cache;
               dotimespL(cache_size,cache_size, { *ptr2++ = *ptr1++; } );
             }
-            xmmprotect(heap,gen0_start,physpagesize,PROT_READ);
+            xmprotect(gen0_start,physpagesize,PROT_READ);
             physpage->protection = PROT_READ;
           } else {
             xfree(physpage->cache); physpage->cache = NULL;
@@ -942,14 +942,14 @@ local void rebuild_old_generation_cache (uintL heapnr)
 }
 
 #ifdef SPVW_PURE_BLOCKS
-local inline void xmmprotect_old_generation_cache (uintL heapnr)
+local inline void xmprotect_old_generation_cache (uintL heapnr)
 {
   if (is_heap_containing_objects(heapnr)) {
     var Heap* heap = &mem.heaps[heapnr];
     if (!(heap->physpages==NULL)) {
       var aint gen0_start_pa = heap->heap_gen0_start & -physpagesize;
       var aint gen0_end_pa = (heap->heap_gen0_end + (physpagesize-1)) & -physpagesize;
-      xmmprotect(heap, gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
+      xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
       var uintL physpage_count = (gen0_end_pa-gen0_start_pa)>>physpageshift;
       var physpage_state_t* physpage = heap->physpages;
       var uintL count;
@@ -976,7 +976,7 @@ local void prepare_old_generation (void)
       if (gen0_start < gen0_end) {
         if (!(heap->physpages==NULL)) {
           /* first superimpose read-write: */
-          xmmprotect(heap, gen0_start, gen0_end-gen0_start, PROT_READ_WRITE);
+          xmprotect(gen0_start, gen0_end-gen0_start, PROT_READ_WRITE);
           /* then empty the cache: */
           var physpage_state_t* physpage = heap->physpages;
           var uintL physpagecount;
@@ -1071,7 +1071,7 @@ local bool gc_check_at (gcv_object_t* objptr)
     return false;
   heapnr = nonimmediate_heapnr(obj);
   #endif
-  var aint addr = canonaddr(obj);
+  var aint addr = (aint)ThePointer(obj);
   var Heap* heap = &mem.heaps[heapnr];
   if ((addr >= heap->heap_gen0_start) && (addr < heap->heap_gen0_end))
     return false;

@@ -681,9 +681,7 @@ local var offset_pages_t *offset_pages;
 #endif
 #if !defined(SINGLEMAP_MEMORY)
 local var oint offset_symbols_o;
-#if !defined(MULTIMAP_MEMORY_SYMBOL_TAB)
 local var oint old_symbol_tab_o;
-#endif
 #endif
 typedef struct { oint low_o; oint high_o; oint offset_o; } offset_subrs_t;
 local var offset_subrs_t* offset_subrs;
@@ -712,19 +710,11 @@ local void loadmem_update (gcv_object_t* objptr)
     #ifdef TYPECODES
     case_symbol: /* symbol */
      #ifndef SPVW_PURE_BLOCKS
-      #if !defined(MULTIMAP_MEMORY_SYMBOL_TAB)
       if (as_oint(*objptr) - old_symbol_tab_o
           < ((oint)sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))) {
         /* symbol from symbol_tab */
         *objptr = as_object(as_oint(*objptr) + offset_symbols_o); break;
       }
-      #else
-      if (as_oint(*objptr) - (oint)(&symbol_tab)
-          < (sizeof(symbol_tab)<<(oint_addr_shift-addr_shift))) {
-        /* symbol from symbol_tab experiences no displacement */
-        break;
-      }
-      #endif
       /* other symbols are objects of variable length. */
      #endif
     #endif
@@ -1120,15 +1110,11 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     if ((aint)(&symbol_tab) != header._symbol_tab_addr) ABORT_INI;
    #else
     offset_symbols_o = ((oint)(aint)(&symbol_tab) - (oint)header._symbol_tab_addr) << (oint_addr_shift-addr_shift);
-    #ifdef MULTIMAP_MEMORY_SYMBOL_TAB
-    if (offset_symbols_o != 0) ABORT_INI;
-    #else
-     #ifdef TYPECODES
+    #ifdef TYPECODES
     old_symbol_tab_o = as_oint(type_pointer_object(symbol_type,header._symbol_tab_addr));
-     #else
+    #else
     old_symbol_tab_o = (oint)header._symbol_tab_addr;
-     #endif  /* TYPECODES */
-    #endif  /* MULTIMAP_MEMORY_SYMBOL_TAB */
+    #endif  /* TYPECODES */
    #endif  /* SPVW_PURE_BLOCKS */
     /* initialize offset-of-SUBRs-table: */
     offset_subrs_count = 1+header._module_count;
@@ -1637,7 +1623,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        #endif  /* SPVW_MIXED_BLOCKS_OPPOSITE */
        #ifdef SPVW_PURE_BLOCKS
         /* Don't need to rebuild the cache. */
-        xmmprotect_old_generation_cache(heapnr);
+        xmprotect_old_generation_cache(heapnr);
        #else
         if (!is_unused_heap(heapnr))
           build_old_generation_cache(heapnr);

@@ -1,3 +1,37 @@
+2008-07-06  Bruno Haible  <bruno@clisp.org>
+
+	Remove MULTIMAP_MEMORY_VIA_SHM and MULTIMAP_MEMORY. It cannot compete
+	with SINGLEMAP_MEMORY because it 1. consumes a lot more memory for page
+	tables, and 3. hampers swapping in kernels without reverse mapping
+	pointers.
+	* lispbibl.d (MULTIMAP_MEMORY_VIA_SHM, MULTIMAP_MEMORY): Don't define.
+	* spvw.d (canonaddr, canon): Remove macros.
+	(MULTIMAP_MEMORY_SYMBOL_TAB); Remove macro.
+	(init_memory, main): Update.
+	* spvw_fault.d (xmmprotect): Remove macro/function.
+	(handle_read_fault, handle_readwrite_fault, handle_fault,
+	handle_fault_range): Update.
+	* spvw_genera1.d (xmprotect_old_generation_cache): Renamed from
+	xmmprotect_old_generation_cache.
+	(in_old_generation_0, in_old_generation_1, in_old_generation,
+	build_old_generation_cache, rebuild_old_generation_cache, gc_check_at):
+	Update.
+	* spvw_genera3.d (update_old_generation): Update.
+	* spvw_global.d (init_mem_heapnr_from_type): Update.
+	* spvw_memfile.d (old_symbol_tab_o, loadmem_update,
+	loadmem_from_handle): Update.
+	* spvw_weak.d (MARK, add_watchable): Update.
+	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_SHM and
+	MULTIMAP_MEMORY.
+	* makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_SHM.
+	(SPVW_INCLUDES): Remove spvw_multimap.
+	* po/Makefile.devel (DSOURCES): Remove spvw_multimap.
+	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages,
+	build-linux-x86-noexec-spvw_mixed_pages,
+	build-darwin-powerpc-standard-spvw_mixed_pages,
+	build-darwin-powerpc-noexec-spvw_mixed_pages): Remove option
+	-DNO_MULTIMAP_SHM.
+
 2008-07-05  Bruno Haible  <bruno@clisp.org>
 
 	Remove MULTIMAP_MEMORY_VIA_FILE. It cannot compete with
@@ -15,7 +49,7 @@
 	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_FILE.
 	* m4/stat.m4 (CL_STAT): Move tests for statvfs, statfs...
 	* modules/syscalls/configure.in: ... to here.
-	* src/makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_FILE.
+	* makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_FILE.
 	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages,
 	build-linux-x86-noexec-spvw_mixed_pages,
 	build-darwin-powerpc-standard-spvw_mixed_pages,
