@@ -143,12 +143,6 @@ extern_C char* strerror (int errnum);
   #if defined(UNIX_LINUX) && !defined(UNIX_GNU)
     #include <asm/page.h> /* for SHMLBA on Linux 2.0 */
   #endif
-  #ifdef UNIX_SUNOS5
-    #define SHMMAX  0x100000 /* maximum shared memory segment size = 1 MB */
-  #endif
-  #ifndef SHMMAX
-    #define SHMMAX  0xFFFFFFFFUL /* maximum shared memory segment size accepted to mean infinite */
-  #endif
 /* <sys/shm.h> declares shmget(), shmat(), shmdt(), shmctl() */
 #endif
 /* used by SPVW, STREAM */
