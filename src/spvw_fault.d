@@ -29,10 +29,6 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address);
  Aborts if unsuccessful. */
 local void xmprotect (aint addr, uintM len, int prot);
 
-/* Applies mprotect to all (multi-)mappings of an address range.
- Aborts if unsuccessful. */
-local void xmmprotect (Heap* heap, aint addr, uintM len, int prot);
-
 #endif
 
 /* -------------------------- Implementation --------------------------- */
@@ -75,10 +71,8 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
     var uintL count = physpage->cache_size;
     if (count > 0) {
       var old_new_pointer_t* ptr = physpage->cache;
-      #if !defined(MULTIMAP_MEMORY)
       if (mprotect((void*)address, physpagesize, PROT_READ_WRITE) < 0)
         return -1;
-      #endif
       dotimespL(count,count, {
         DEBUG_SPVW_ASSERT(consp(*(ptr->p))
                           ? consp(ptr->o) && is_valid_cons_address(as_oint(ptr->o))
@@ -89,21 +83,8 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
     }
   }
   /* superimpose page read-only: */
-  #if !defined(MULTIMAP_MEMORY)
   if (mprotect((void*)address, physpagesize, PROT_READ) < 0)
     return -1;
-  #else  /* MULTIMAP_MEMORY */
-  #if !defined(WIDE_SOFT)
-  ASSERT(address == upointer(address));
-  #endif
-  {
-    var uintL type;
-    for (type = 0; type < typecount; type++)
-      if (mem.heapnr_from_type[type] >= 0) /* type listed in MM_TYPECASES? */
-        if (mprotect((void*)combine(type,address), physpagesize, PROT_READ) < 0)
-          return -1;
-  }
-  #endif
   physpage->protection = PROT_READ;
   return 0;
 }
@@ -112,19 +93,8 @@ local int handle_read_fault (aint address, physpage_state_t* physpage)
 local int handle_readwrite_fault (aint address, physpage_state_t* physpage)
 {
   /* superimose page read-write: */
-  #if !defined(MULTIMAP_MEMORY)
   if (mprotect((void*)address, physpagesize, PROT_READ_WRITE) < 0)
     return -1;
-  #else  /* MULTIMAP_MEMORY */
-  ASSERT(address == upointer(address));
-  {
-    var uintL type;
-    for (type = 0; type < typecount; type++)
-      if (mem.heapnr_from_type[type] >= 0) /* type listed in MM_TYPECASES? */
-        if (mprotect((void*)combine(type,address), physpagesize, PROT_READ_WRITE) < 0)
-          return -1;
-  }
-  #endif
   physpage->protection = PROT_READ_WRITE;
   return 0;
 }
@@ -144,37 +114,36 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
 {
   var uintL heapnr;
   var object obj = as_object((oint)address << oint_addr_shift);
-  var aint uaddress = canon(address); /* hopefully = canonaddr(obj); */
-  var aint pa_uaddress = uaddress & -physpagesize; /* page aligned address */
+  var aint pa_address = address & -physpagesize; /* page aligned address */
   #ifdef SPVW_PURE_BLOCKS
   heapnr = typecode(obj);
   #elif defined(SPVW_MIXED_BLOCKS_STAGGERED)
-  heapnr = (uaddress >= mem.heaps[1].heap_mgen_start ? 1 : 0);
+  heapnr = (address >= mem.heaps[1].heap_mgen_start ? 1 : 0);
   #else  /* SPVW_MIXED_BLOCKS_OPPOSITE */
-  heapnr = (uaddress >= mem.heaps[1].heap_start ? 1 : 0);
+  heapnr = (address >= mem.heaps[1].heap_start ? 1 : 0);
   #endif
   {
     #ifdef GENERATIONAL_GC
     var Heap* heap = &mem.heaps[heapnr];
     if (!is_heap_containing_objects(heapnr))
       goto error1;
-    if (!((heap->heap_gen0_start <= uaddress) && (uaddress < heap->heap_gen0_end)))
+    if (!((heap->heap_gen0_start <= address) && (address < heap->heap_gen0_end)))
       goto error2;
     if (heap->physpages == NULL)
       goto error5;
     {
-      var uintL pageno = (pa_uaddress>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
+      var uintL pageno = (pa_address>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
       {
         var physpage_state_t* physpage = &heap->physpages[pageno];
         switch (physpage->protection) {
           case PROT_NONE:
             /* protection: PROT_NONE -> PROT_READ */
-            if (handle_read_fault(pa_uaddress,physpage) < 0)
+            if (handle_read_fault(pa_address,physpage) < 0)
               goto error6;
             return handler_done;
           case PROT_READ:
             /* protection: PROT_READ -> PROT_READ_WRITE */
-            if (handle_readwrite_fault(pa_uaddress,physpage) < 0)
+            if (handle_readwrite_fault(pa_address,physpage) < 0)
               goto error7;
             return handler_done;
           case PROT_READ_WRITE:
@@ -232,8 +201,6 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
  handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable. */
 global bool handle_fault_range (int prot, aint start_address, aint end_address)
 {
-  start_address = canon(start_address);
-  end_address = canon(end_address);
   if (!(start_address < end_address))
     return true;
   var Heap* heap = &mem.heaps[0]; /* varobject_heap */
@@ -247,24 +214,24 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
     return false;
   }
   {
-    var aint pa_uaddress;
-    for (pa_uaddress = start_address & -physpagesize;
-         pa_uaddress < end_address; pa_uaddress += physpagesize)
-      if ((heap->heap_gen0_start <= pa_uaddress)
-          && (pa_uaddress < heap->heap_gen0_end)) {
-        var uintL pageno = (pa_uaddress>>physpageshift)
+    var aint pa_address;
+    for (pa_address = start_address & -physpagesize;
+         pa_address < end_address; pa_address += physpagesize)
+      if ((heap->heap_gen0_start <= pa_address)
+          && (pa_address < heap->heap_gen0_end)) {
+        var uintL pageno = (pa_address>>physpageshift)
           -(heap->heap_gen0_start>>physpageshift);
         var physpage_state_t* physpage = &heap->physpages[pageno];
         if ((physpage->protection == PROT_NONE)
             && (prot == PROT_READ || prot == PROT_READ_WRITE)) {
           /* protection: PROT_NONE -> PROT_READ */
-          if (handle_read_fault(pa_uaddress,physpage) < 0)
+          if (handle_read_fault(pa_address,physpage) < 0)
             return false;
         }
         if (!(physpage->protection == PROT_READ_WRITE)
             && (prot == PROT_READ_WRITE)) {
           /* protection: PROT_READ -> PROT_READ_WRITE */
-          if (handle_readwrite_fault(pa_uaddress,physpage) < 0)
+          if (handle_readwrite_fault(pa_address,physpage) < 0)
             return false;
         }
       }
@@ -285,18 +252,5 @@ local void xmprotect (aint addr, uintM len, int prot) {
     abort();
   }
 }
-
-#ifdef MULTIMAP_MEMORY
-local void xmmprotect (Heap* heap, aint addr, uintM len, int prot)
-{
-  unused heap;
-  var uintL type;
-  for (type = 0; type < typecount; type++)
-    if (mem.heapnr_from_type[type] >= 0) /* type listed in MM_TYPECASES? */
-      xmprotect((aint)combine(type,addr),len,prot);
-}
-#else
-  #define xmmprotect(heap,addr,len,prot)  xmprotect(addr,len,prot)
-#endif
 
 #endif  /* GENERATIONAL_GC */

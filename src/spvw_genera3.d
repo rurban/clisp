@@ -52,7 +52,7 @@ local void update_old_generation (void) {
                   ptr++;
                 } while (--count > 0);
                 if (!(physpage->protection == PROT_NONE)) {
-                  xmmprotect(heap, gen0_start,physpagesize,PROT_NONE);
+                  xmprotect(gen0_start,physpagesize,PROT_NONE);
                   physpage->protection = PROT_NONE;
                 }
               }
