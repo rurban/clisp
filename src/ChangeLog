@@ -21,6 +21,7 @@
 	* spvw_memfile.d (old_symbol_tab_o, loadmem_update,
 	loadmem_from_handle): Update.
 	* spvw_weak.d (MARK, add_watchable): Update.
+	* unix.d (SHMMAX): Remove macro fallback.
 	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_SHM and
 	MULTIMAP_MEMORY.
 	* makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_SHM.
