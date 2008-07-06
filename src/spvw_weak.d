@@ -1,6 +1,6 @@
 /*
  * Garbage collection with weak references in CLISP
- * Bruno Haible 2004-2005
+ * Bruno Haible 2004-2008
  */
 
 /* An array that contains the addresses of those objects whose mark bit is
@@ -93,8 +93,8 @@ local void markwatch_enqueue (markwatch_t* entry) {
    that are held in memory only through weak mappings. */
 #define gc_mark gc_mark_with_watchset
 #define MARK(obj)  \
-  { mark(obj);                                                  \
-    markwatch_enqueue(markwatchset_lookup(canon((aint)(obj)))); \
+  { mark(obj);                                           \
+    markwatch_enqueue(markwatchset_lookup((aint)(obj))); \
   }
 #include "spvw_gcmark.c"
 #undef MARK
@@ -155,7 +155,7 @@ local inline void add_watchable (markwatch_t** accumulatorp, object obj, uintL i
   /* NB: For ptr = unbound, nothing is done, because unbound is gcinvariant. */
   if (!gcinvariant_object_p(ptr))
     if (!marked(ThePointer(ptr))) {
-      (*accumulatorp)->address = canonaddr(ptr);
+      (*accumulatorp)->address = (aint)ThePointer(ptr);
       (*accumulatorp)->weakobj = obj;
       (*accumulatorp)->weakindex = index;
       (*accumulatorp)->q_next = NULL;

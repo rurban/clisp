@@ -175,7 +175,7 @@ build-linux-x86-standard-spvw_mixed_blocks-opposite-fixedmemsize:
 build-linux-x86-standard-spvw_mixed_pages:
 	rm -rf $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_SHM" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-noexec-spvw_mixed_blocks-staggered:
 	rm -rf $@
@@ -195,7 +195,7 @@ build-linux-x86-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
 build-linux-x86-noexec-spvw_mixed_pages:
 	rm -rf $@
 	CFLAGS="-O -falign-functions=4 $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_SHM" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-linux-x86-spvw_pure_blocks:
 	rm -rf $@
@@ -237,7 +237,7 @@ build-darwin-powerpc-standard-spvw_mixed_blocks-opposite-fixedmemsize:
 build-darwin-powerpc-standard-spvw_mixed_pages:
 	rm -rf $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_SHM" \
+	CPPFLAGS="-DSTANDARD_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-noexec-spvw_mixed_blocks-staggered:
 	rm -rf $@
@@ -257,7 +257,7 @@ build-darwin-powerpc-noexec-spvw_mixed_blocks-opposite-fixedmemsize:
 build-darwin-powerpc-noexec-spvw_mixed_pages:
 	rm -rf $@
 	CFLAGS="-O $(MULTIBUILD_CFLAGS)" \
-	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP -DNO_MULTIMAP_SHM" \
+	CPPFLAGS="-DLINUX_NOEXEC_HEAPCODES -DNO_SINGLEMAP -DNO_TRIVIALMAP" \
 	  ./configure --cbc $(MULTIBUILD_OPTIONS) $@
 build-darwin-powerpc-spvw_pure_blocks:
 	rm -rf $@

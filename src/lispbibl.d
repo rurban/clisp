@@ -33,9 +33,8 @@
    Object representation (on 32-bit platforms only):
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
    Advanced memory management:
-     NO_SINGLEMAP, NO_TRIVIALMAP, NO_MULTIMAP_SHM, NO_VIRTUAL_MEMORY,
-     CONS_HEAP_GROWS_DOWN, CONS_HEAP_GROWS_UP, NO_MORRIS_GC,
-     NO_GENERATIONAL_GC
+     NO_SINGLEMAP, NO_TRIVIALMAP, NO_VIRTUAL_MEMORY, CONS_HEAP_GROWS_DOWN,
+     CONS_HEAP_GROWS_UP, NO_MORRIS_GC, NO_GENERATIONAL_GC
    String representation:
      NO_SMALL_SSTRING
 
@@ -2993,23 +2992,16 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 /* If the address bits are the lower ones and not WIDE_SOFT,
  memory mapping may be possible. */
 
-  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !defined(MULTIMAP_MEMORY) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
+  #if (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM)) && !(defined(UNIX_SINIX) || defined(UNIX_AIX)) && !defined(NO_SINGLEMAP)
     /* Access to LISP-objects is made easier by putting each LISP-object
      to an address that already contains its type information.
      But this does not work on SINIX and AIX. */
       #define SINGLEMAP_MEMORY
   #endif
 
-  #if defined(HAVE_SHM) && !defined(MULTIMAP_MEMORY) && !defined(SINGLEMAP_MEMORY) && !defined(NO_MULTIMAP_SHM)
-    /* Access to Lisp-objects is done through memory-mapping: Each
-     memory page can be accessed at several addresses. */
-      #define MULTIMAP_MEMORY
-      #define MULTIMAP_MEMORY_VIA_SHM
-  #endif
-
 #endif
 
-#if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)
+#if defined(SINGLEMAP_MEMORY)
   #define MAP_MEMORY
 #endif
 
@@ -3027,7 +3019,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 
 
 /* Flavor of the garbage collection: normal or generational. */
-#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || (defined(MULTIMAP_MEMORY) && (defined(UNIX_LINUX) || defined(UNIX_FREEBSD)))) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
+#if defined(VIRTUAL_MEMORY) && (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)) && defined(HAVE_WORKING_MPROTECT) && defined(HAVE_SIGSEGV_RECOVERY) && !defined(UNIX_IRIX) && !defined(WIDE_SOFT_LARGEFIXNUM) && (SAFETY < 3) && !defined(NO_GENERATIONAL_GC)
   /* "generational garbage collection" has some requirements.
    With Linux, it will only work with 1.1.52, and higher, which will be checked in makemake.
    On IRIX 6, it worked in the past, but leads to core dumps now. Reason unknown. FIXME! */
@@ -4258,10 +4250,7 @@ extern bool inside_gc;
 #else
   #define SPVW_BLOCKS
 #endif
-#if defined(MULTIMAP_MEMORY)
-  /* MULTIMAP_MEMORY -> Mixed pages allow a better usage of memory. */
-  #define SPVW_MIXED
-#elif defined(SINGLEMAP_MEMORY)
+#if defined(SINGLEMAP_MEMORY)
   /* SINGLEMAP_MEMORY -> Ony pure pages/blocks make sense, since
    the address of a page determines the type of the objects it contains. */
   #define SPVW_PURE
@@ -4299,10 +4288,8 @@ extern bool inside_gc;
   #define MORRIS_GC
 #endif
 
-/* Put subr_tab and symbol_tab to given addresses through memory-mapping.
- (The Morris-GC uses the macro upointer() for MULTIMAP_MEMORY. For
- &symbol_tab = 0x20000000 it'd be upointer(NIL)=0. Darn!) */
-#if defined(MAP_MEMORY) && !defined(WIDE_SOFT) && !(defined(MULTIMAP_MEMORY) && defined(MORRIS_GC))
+/* Put subr_tab and symbol_tab to given addresses through memory-mapping. */
+#if defined(MAP_MEMORY) && !defined(WIDE_SOFT)
   #define MAP_MEMORY_TABLES
 #endif
 
@@ -10741,7 +10728,6 @@ static inline bool gcinvariant_symbol_p (object obj) {
            as_oint(obj) - varobject_bias
          #endif
        #else
-         /* FIXME: MAP_MEMORY_TABLES possibly uses MULTIMAP_MEMORY_SYMBOL_TAB. */
          as_oint(obj)
        #endif
        - (aint)&symbol_tab < sizeof(symbol_tab))

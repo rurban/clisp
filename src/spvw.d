@@ -202,20 +202,6 @@ local int exitcode;
   #define SPVW_PURE_PAGES
 #endif
 
-/* canonical addresses:
- With MULTIMAP_MEMORY, the same spot in memory can be accessed with different
- pointers-types. The management of the heaps needs a "canonical"
- pointer. Via this pointer access takes place, and comparisons occur
- via >=, <=. heap_start and heap_end are canonical addresses. */
-#ifdef MULTIMAP_MEMORY
-  #define canonaddr(obj)  upointer(obj)
-  #define canon(address)  ((address) & oint_addr_mask)
-#else
-  #define canonaddr(obj)  (aint)ThePointer(obj)
-  #define canon(address)  (address)
-#endif
-/* canonaddr(obj) == canon((aint)ThePointer(obj)). */
-
 /* --------------------------------------------------------------------------
                           Page-Allocation */
 
@@ -224,18 +210,6 @@ local int exitcode;
 #include "spvw_mmap.c"
 
 #endif  /* SINGLEMAP_MEMORY || TRIVIALMAP_MEMORY || MULTITHREAD */
-
-#ifdef MULTIMAP_MEMORY
-
-#include "spvw_multimap.c"
-
-#if defined(MAP_MEMORY_TABLES)
-  /* symbol_tab is multi-mapped, always at the same address.
-   This speeds up loadmem() a little. */
-  #define MULTIMAP_MEMORY_SYMBOL_TAB
-#endif
-
-#endif  /* MULTIMAP_MEMORY */
 
 #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
 
@@ -2487,7 +2461,7 @@ local inline int init_memory (struct argv_initparams *p) {
  #if (defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) || defined(MULTITHREAD)) && (defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
   mmap_init_pagesize();
  #endif
- #if defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
+ #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY)
   init_map_pagesize();
  #endif
  #if defined(LINUX_NOEXEC_HEAPCODES) && defined(HAVE_MMAP_ANON)
@@ -2526,9 +2500,7 @@ local inline int init_memory (struct argv_initparams *p) {
       #define teile_objects    0
     #endif
     var uintL pagesize =        /* size of a page */
-     #if defined(MULTIMAP_MEMORY)
-      map_pagesize
-     #elif defined(GENERATIONAL_GC)
+     #if defined(GENERATIONAL_GC)
       mmap_pagesize
      #else  /* if the system-pagesize does not play a role */
       teile*varobject_alignment
@@ -2551,23 +2523,6 @@ local inline int init_memory (struct argv_initparams *p) {
     if (memneed > RESERVE_FOR_MALLOC*3/4) { memneed = RESERVE_FOR_MALLOC*3/4; }
     VAROUT(memneed);
    #endif
-   #if defined(MULTIMAP_MEMORY_VIA_SHM) && defined(UNIX_SUNOS5)
-    /* SunOS 4 refuses to shmat() into a previously malloc-ed region,
-     even if there is a munmap() inbetween:
-     errno = EINVAL. Also the reverse, first to shmat() and then to
-     merge the occupied region with sbrk() or brk()  into the
-     data segment, fails with errno = ENOMEM.
-     The only way out is to fetch the necessary memory from far,
-     if possible, out of reach of malloc() .
-     SunOS 5 is probably the same. */
-    {
-      var uintM memhave = round_down(bit(oint_addr_len)-(aint)sbrk(0),SHMLBA);
-      VAROUT(memhave);
-      if (memhave < memneed) { memneed = memhave; }
-      memblock = round_down(bit(oint_addr_len) - memneed,SHMLBA);
-      VAROUT(memblock);
-    }
-   #else
     while (1) {
       memblock = (aint)mymalloc(memneed); /* try to allocate memory */
       VAROUT(memneed); VAROUT(memblock);
@@ -2590,11 +2545,6 @@ local inline int init_memory (struct argv_initparams *p) {
       fputs("\n",stderr);
       return -1;
     }
-   #endif
-   #ifdef MULTIMAP_MEMORY
-    /* Though we only need this address space and not its content, we must
-     not free it, as it must stay under our control. */
-   #endif
     {                       /* round to the next lower page boundary: */
       var uintL unaligned = (uintL)(-memblock) % pagesize;
       memblock += unaligned; memneed -= unaligned;
@@ -2607,45 +2557,6 @@ local inline int init_memory (struct argv_initparams *p) {
     }
     /* the memory region [memblock,memblock+memneed-1] is now free,
      and its boundaries are located on page boundaries. */
-   #ifdef MULTIMAP_MEMORY
-    if ( initmap() <0) return -1;
-    multimap(case_machine: MM_TYPECASES, memblock, memneed, false);
-    #ifdef MAP_MEMORY_TABLES
-    {                           /* set symbol_tab to address 0: */
-      var uintL memneed = round_up(sizeof(symbol_tab),pagesize); /* round up length */
-      multimap(case_symbolflagged: , 0, memneed, false);
-      VAROUT(memneed);
-    }
-    /* set subr_tab to address 0: */
-    if (zeromap(&subr_tab,round_up(varobjects_misaligned+total_subr_count*sizeof(subr_t),pagesize)) <0)
-      return -1;
-    #else
-    /* multimap symbol_tab and subr_tab:
-     symbol_tab and subr_tab keep their address. The region, they
-     are located in (in the data segment of the program!!), becomes
-     Shared Memory resp. shared-mmap-attach . What a hack!
-     This is irreconcilable with the existence of external modules
-     (DYNAMIC_MODULES) ! ?? */
-    {
-      var aint symbol_tab_start = round_down((aint)&symbol_tab,pagesize);
-      var aint symbol_tab_end = round_up((aint)&symbol_tab+sizeof(symbol_tab),pagesize);
-      var aint subr_tab_start = round_down((aint)&subr_tab,pagesize);
-      var aint subr_tab_end = round_up((aint)&subr_tab+sizeof(subr_tab),pagesize);
-      if ((symbol_tab_end <= subr_tab_start)
-          || (subr_tab_end <= symbol_tab_start)) {
-        /* two distinct intervals */
-        multimap(case_machine: case_symbolflagged: , symbol_tab_start, symbol_tab_end-symbol_tab_start, true);
-        multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
-      } else {                  /* the tables have overlap! */
-        var aint tab_start = (symbol_tab_start < subr_tab_start ? symbol_tab_start : subr_tab_start);
-        var aint tab_end = (symbol_tab_end > subr_tab_end ? symbol_tab_end : subr_tab_end);
-        multimap(case_machine: case_symbolflagged: case_subr: , tab_start, tab_end-tab_start, true);
-      }
-    }
-    #endif  /* MAP_MEMORY_TABLES */
-    if (false)
-     no_mem: return -1;
-   #endif  /* MULTIMAP_MEMORY */
    #if defined(SINGLEMAP_MEMORY) || defined(TRIVIALMAP_MEMORY) /* <==> SPVW_PURE_BLOCKS || TRIVIALMAP_MEMORY */
     if ( initmap() <0) return -1;
     #ifdef SINGLEMAP_MEMORY
@@ -3404,9 +3315,6 @@ global int main (argc_t argc, char* argv[]) {
   /*NOTREACHED*/
   /* termination of program via quit_instantly(): */
   end_of_main:
- #ifdef MULTIMAP_MEMORY
-  exitmap();
- #endif
   free_argv_initparams(&argv1);
   free_argv_actions(&argv2);
   fini_lowest_level();
@@ -3688,7 +3596,7 @@ global void dynload_modules (const char * library, uintC modcount,
           add_module(module);
           /* pre-initialization, cf. init_subr_tab_1. */
           if (*module->stab_size > 0) module_set_argtypes(module);
-         #if (defined(MULTIMAP_MEMORY) || defined(SINGLEMAP_MEMORY)) && defined(MAP_MEMORY_TABLES)
+         #if defined(SINGLEMAP_MEMORY) && defined(MAP_MEMORY_TABLES)
           {
             var subr_t* newptr = (subr_t*)((char*)&subr_tab+varobjects_misaligned) + total_subr_count;
             var uintC count = *module->stab_size;
@@ -3713,19 +3621,6 @@ global void dynload_modules (const char * library, uintC modcount,
               }
               total_subr_count += *module->stab_size;
             }
-          }
-         #elif defined(MULTIMAP_MEMORY)
-          if (*module->stab_size > 0) {
-            /* multimap the subr_tab of the loaded module .
-             the pages to be mapped belong to the data segment of the
-             newly loaded Shared-Library, so are surely not yet
-             multi-mapped. */
-            var aint subr_tab_start = round_down((aint)module->stab,pagesize);
-            var aint subr_tab_end = round_up((aint)module->stab+(*module->stab_size)*sizeof(subr_t),pagesize);
-            multimap(case_machine: case_subr: , subr_tab_start, subr_tab_end-subr_tab_start, true);
-            if (false)
-             no_mem:
-              error_dlerror("multimap",NULL,"out of memory for subr_tab");
           }
          #endif
           /* main initialization. */

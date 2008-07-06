@@ -61,12 +61,6 @@ global object built_flags (void) {
   #ifdef SPVW_PURE
     " SPVW_PURE"
   #endif
-  #ifdef MULTIMAP_MEMORY
-    " MULTIMAP_MEMORY"
-   #ifdef MULTIMAP_MEMORY_VIA_SHM
-    " MULTIMAP_MEMORY_VIA_SHM"
-   #endif
-  #endif
   #ifdef SINGLEMAP_MEMORY
     " SINGLEMAP_MEMORY"
   #endif
