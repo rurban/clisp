@@ -12,7 +12,7 @@ AC_PREREQ(2.57)
 
 AC_DEFUN([CL_SHM_RMID],
 [AC_REQUIRE([CL_SHM])dnl
-if test -n "$have_shm"; then
+if "$cl_cv_sys_shm_works" = "yes"; then
 AC_CACHE_CHECK(for attachability of removed shared memory, cl_cv_func_shmctl_attachable, [
 AC_TRY_RUN([
 #include <stdlib.h>

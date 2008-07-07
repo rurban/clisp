@@ -1,5 +1,12 @@
 2008-07-07  Sam Steingold  <sds@gnu.org>
 
+	* m4/shm.m4 (CL_SHM_H): run before CL_SHM
+	(CL_SHM): require CL_SHM_H, do not set have_shm
+	* m4/shm-rmid.m4 (CL_SHM_RMID): use cl_cv_sys_shm_works
+	instead of have_shm
+
+2008-07-07  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (main): "-t"[raditional] does not take an argument
 
 2008-07-06  Bruno Haible  <bruno@clisp.org>
