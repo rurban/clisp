@@ -21,7 +21,7 @@ User visible changes
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
 * Bug fixes:
-  + Work around the absence of tgamma() on solaris. [ 1966375 ]
+  + Work around the absence of tgamma on solaris. [ 1966375 ]
   + Avoid a rare segfault on SIGHUP. [ 1956715 ]
   + Improve module portability to systems with non-GNU make. [ 1970141 ]
   + Fix GRAY:STREAM-READ-SEQUENCE and GRAY:STREAM-WRITE-SEQUENCE. [ 1975798 ]
