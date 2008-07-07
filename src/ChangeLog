@@ -1,25 +1,29 @@
+2008-07-07  Sam Steingold  <sds@gnu.org>
+
+	* _clisp.c (main): "-t"[raditional] does not take an argument
+
 2008-07-06  Bruno Haible  <bruno@clisp.org>
 
-	Remove MULTIMAP_MEMORY_VIA_SHM and MULTIMAP_MEMORY. It cannot compete
-	with SINGLEMAP_MEMORY because it 1. consumes a lot more memory for page
-	tables, and 3. hampers swapping in kernels without reverse mapping
-	pointers.
+	Remove MULTIMAP_MEMORY_VIA_SHM and MULTIMAP_MEMORY.
+	It cannot compete with SINGLEMAP_MEMORY because it
+	1. consumes a lot more memory for page tables, and
+	2. hampers swapping in kernels without reverse mapping pointers.
 	* lispbibl.d (MULTIMAP_MEMORY_VIA_SHM, MULTIMAP_MEMORY): Don't define.
 	* spvw.d (canonaddr, canon): Remove macros.
-	(MULTIMAP_MEMORY_SYMBOL_TAB); Remove macro.
+	(MULTIMAP_MEMORY_SYMBOL_TAB): Remove macro.
 	(init_memory, main): Update.
 	* spvw_fault.d (xmmprotect): Remove macro/function.
-	(handle_read_fault, handle_readwrite_fault, handle_fault,
-	handle_fault_range): Update.
+	(handle_read_fault, handle_readwrite_fault, handle_fault)
+	(handle_fault_range): Update.
 	* spvw_genera1.d (xmprotect_old_generation_cache): Renamed from
 	xmmprotect_old_generation_cache.
-	(in_old_generation_0, in_old_generation_1, in_old_generation,
-	build_old_generation_cache, rebuild_old_generation_cache, gc_check_at):
-	Update.
+	(in_old_generation_0, in_old_generation_1, in_old_generation)
+	(build_old_generation_cache, rebuild_old_generation_cache)
+	(gc_check_at): Update.
 	* spvw_genera3.d (update_old_generation): Update.
 	* spvw_global.d (init_mem_heapnr_from_type): Update.
-	* spvw_memfile.d (old_symbol_tab_o, loadmem_update,
-	loadmem_from_handle): Update.
+	* spvw_memfile.d (old_symbol_tab_o, loadmem_update)
+	(loadmem_from_handle): Update.
 	* spvw_weak.d (MARK, add_watchable): Update.
 	* unix.d (SHMMAX): Remove macro fallback.
 	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_SHM and
@@ -27,34 +31,35 @@
 	* makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_SHM.
 	(SPVW_INCLUDES): Remove spvw_multimap.
 	* po/Makefile.devel (DSOURCES): Remove spvw_multimap.
-	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages,
-	build-linux-x86-noexec-spvw_mixed_pages,
-	build-darwin-powerpc-standard-spvw_mixed_pages,
-	build-darwin-powerpc-noexec-spvw_mixed_pages): Remove option
-	-DNO_MULTIMAP_SHM.
+	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages)
+	(build-linux-x86-noexec-spvw_mixed_pages)
+	(build-darwin-powerpc-standard-spvw_mixed_pages)
+	(build-darwin-powerpc-noexec-spvw_mixed_pages):
+	Remove option -DNO_MULTIMAP_SHM.
 
 2008-07-05  Bruno Haible  <bruno@clisp.org>
 
-	Remove MULTIMAP_MEMORY_VIA_FILE. It cannot compete with
-	SINGLEMAP_MEMORY because it 1. periodically flushes the working memory
-	to disk, 2. consumes a lot more memory for page tables, and 3. hampers
-	swapping in kernels without reverse mapping pointers.
+	Remove MULTIMAP_MEMORY_VIA_FILE.
+	It cannot compete with SINGLEMAP_MEMORY because it
+	1. periodically flushes the working memory to disk,
+	2. consumes a lot more memory for page tables, and
+	3. hampers swapping in kernels without reverse mapping pointers.
 	* lispbibl.d (MULTIMAP_MEMORY_VIA_FILE): Don't define.
 	* spvw.d (usage): Don't mention option -t.
 	(argv_initparams): Remove argv_tmpdir field.
 	(parse_options): Don't recognize option -t.
 	(init_memory): Update.
 	* spvw_multimap.d [MULTIMAP_MEMORY_VIA_FILE]: Remove code.
-	* unix.d: Don't undefine HAVE_MSYNC. Don't include headers for statvfs
-	or statfs.
+	* unix.d: Don't undefine HAVE_MSYNC.
+	Don't include headers for statvfs or statfs.
 	* built.d (built_flags): Remove MULTIMAP_MEMORY_VIA_FILE.
 	* m4/stat.m4 (CL_STAT): Move tests for statvfs, statfs...
 	* modules/syscalls/configure.in: ... to here.
 	* makemake.in (XCFLAGS): Remove option -DNO_MULTIMAP_FILE.
-	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages,
-	build-linux-x86-noexec-spvw_mixed_pages,
-	build-darwin-powerpc-standard-spvw_mixed_pages,
-	build-darwin-powerpc-noexec-spvw_mixed_pages): Likewise.
+	* Makefile.devel (build-linux-x86-standard-spvw_mixed_pages)
+	(build-linux-x86-noexec-spvw_mixed_pages)
+	(build-darwin-powerpc-standard-spvw_mixed_pages)
+	(build-darwin-powerpc-noexec-spvw_mixed_pages): Likewise.
 
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
