@@ -1193,28 +1193,27 @@ There are no small objects in pages belonging to a big object.</para>
 
 <table id="mem-models-comb-typecodes" frame="all">
  <title>Memory models with &typecodes;</title>
-<tgroup cols="6" colsep="1" rowsep="1" align="center">
+<tgroup cols="5" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry><xref linkend="MMC-A"/></entry>
  <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-C"/></entry>
- <entry><xref linkend="MMC-E"/></entry>
-</row></thead>
+ <entry><xref linkend="MMC-D"/></entry></row></thead>
 <tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry><entry>1</entry>
-      <entry>10</entry><entry/><entry>2</entry><entry>9</entry></row>
+      <entry>9</entry><entry/><entry>8</entry></row>
 <row><entry>SPVW_MIXED_BLOCKS_STAGGERED</entry>
-     <entry/><entry>7</entry><entry/><entry/><entry>8</entry></row>
+     <entry/><entry>6</entry><entry/><entry>7</entry></row>
 <row><entry>SPVW_PURE_BLOCKS</entry>
-     <entry/><entry/><entry>5</entry><entry/><entry>6</entry></row>
+     <entry/><entry/><entry>4</entry><entry>5</entry></row>
 <row><entry>SPVW_MIXED_PAGES</entry>
-     <entry>3</entry><entry/><entry/><entry/><entry/></row>
+     <entry>2</entry><entry/><entry/><entry/></row>
 <row><entry>SPVW_PURE_PAGES</entry>
-     <entry>4</entry><entry/><entry/><entry/><entry/></row>
+     <entry>3</entry><entry/><entry/><entry/></row>
 </tbody></tgroup></table>
 
 <table id="mem-models-comb-heapcodes" frame="all">
  <title>Memory models with &heapcodes;</title>
 <tgroup cols="4" colsep="1" rowsep="1" align="center">
 <thead><row><entry/><entry><xref linkend="MMC-A"/></entry>
- <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-E"/></entry>
+ <entry><xref linkend="MMC-B"/></entry><entry><xref linkend="MMC-D"/></entry>
 </row></thead>
 <tbody><row><entry>SPVW_MIXED_BLOCKS_OPPOSITE</entry>
       <entry>*</entry><entry>*</entry><entry>*</entry></row>
@@ -1229,7 +1228,7 @@ There are no small objects in pages belonging to a big object.</para>
  <listitem id="MMC-A"><simpara>no MAP_MEMORY</simpara></listitem>
  <listitem id="MMC-B"><simpara>TRIVIALMAP_MEMORY</simpara></listitem>
  <listitem id="MMC-C"><simpara>SINGLEMAP_MEMORY</simpara></listitem>
- <listitem id="MMC-E"><simpara>GENERATIONAL_GC</simpara></listitem>
+ <listitem id="MMC-D"><simpara>GENERATIONAL_GC</simpara></listitem>
 </orderedlist>
 
 </section>
