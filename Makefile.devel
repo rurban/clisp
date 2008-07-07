@@ -368,7 +368,7 @@ distrib : fixperms src-distrib doc-distrib gnu-distrib
 release : distrib upload tag-release
 
 # 2-3 weeks before a release
-# manually: cheeck for new versions of
+# manually: check for new versions of
 #  libsvm, netica api, postgresql, berkeley-db
 pre-release : gnulib-imported build-aux-update tp-mail
 
