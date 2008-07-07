@@ -233,6 +233,7 @@ int main (int argc, char* argv[])
           case 'C':
           case 'l':
           case 'a':
+          case 't':
           case 'w':
           case 'n': /* -norc */
           case 'r': /* -repl */
@@ -243,7 +244,6 @@ int main (int argc, char* argv[])
             else break;   /* GNU-style long options --help, --version */
           /* Skippable options with arguments. */
           case 'm':
-          case 't':
           case 'L':
           case 'o':
           case 'p':
