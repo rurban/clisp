@@ -581,6 +581,7 @@ case $# in
      fi
      TSYS=$1
      COMPILER=$2
+     module_configure_flags=${module_configure_flags}" --build=${TSYS}"
      # TSYS should be (master|sun3|sun4|i[3456]86|mips|vax|win32msvc).
      # COMPILER should be <host...>-gcc or cc
      case ${TSYS} in
