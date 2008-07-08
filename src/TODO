@@ -19,6 +19,7 @@ Unix pathnames are not strictly in any particular character encoding:
 they are merely byte strings in which only slash and NUL have special
 significance.
 Should *PATHNAME-ENCODING* be 1:1?
+See also <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>
 
 
 Inefficiency of class redefinition when old or new class is unfinalizable
