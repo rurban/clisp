@@ -153,7 +153,7 @@ You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
 space.</para>
 
-<warning id="image-portability"><title>Image Portability</title>
+<section id="image-portability"><title>Image Portability</title>
  <para>Memory images are &not-e; portable across different platforms
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
@@ -161,7 +161,7 @@ space.</para>
 &sh-prompt; clisp -K full -x '(&savemem;)'
 &sh-prompt; clisp -K base -M lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
-See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parmbx02.ilog.biz"/>/<ulink role="gmane" url="devel/17757"/>.</para></warning>
+See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parmbx02.ilog.biz"/>/<ulink role="gmane" url="devel/17757"/>.</para></section>
 
 </section>
 
@@ -183,15 +183,15 @@ See also <ulink role="sfmail" url="BF6EFF38DF3FA647BBD932720D8BED650BAA11%40parm
 
 <section id="i18n"><title>Internationalization of &clisp;</title>
 
-<variablelist><varlistentry><term>Internationalization
-   (<quote>i18n</quote>)</term>
+<variablelist><title>Glossary</title>
+ <varlistentry><term>Internationalization (<quote>i18n</quote>)</term>
   <listitem><simpara>preparing a program so that it can use multiple
     national languages and national cultural conventions without requiring
     further source code changes.</simpara></listitem></varlistentry>
-<varlistentry><term>Localization (<quote>l10n</quote>)</term>
- <listitem><simpara>providing the data - mostly textual translations -
-   necessary for an internationalized program to work in a particular
-   language and with particular cultural conventions.
+ <varlistentry><term>Localization (<quote>l10n</quote>)</term>
+  <listitem><simpara>providing the data - mostly textual translations -
+    necessary for an internationalized program to work in a particular
+    language and with particular cultural conventions.
 </simpara></listitem></varlistentry></variablelist>
 
 <para>&clisp; is internationalized, and is localized for the languages
@@ -221,7 +221,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <firstterm>&curr-lang;<indexterm id="curr-lang" significance="preferred">
    <primary><varname>*CURRENT-LANGUAGE*</varname>
  </primary></indexterm></firstterm>,
- which can be set at run time as well as using the &opt-L; start-up option.
+ which can be set at run time as well as using the &opt-L; command line option.
  If you wish to change the
  <olink targetdoc="man" targetptr="opt-locale">locale directory</olink>
  at run time too, you can do that by setting &curr-lang; to a &cons-t;
@@ -234,7 +234,8 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <code>(&deflang; &lang-r;)</code>.
  For such an additional language to take effect, you must install the
  corresponding message catalog, or translate the messages yourself,
- using &ggettext; and &emacs; (or &xemacs;) po-mode.</para>
+ using &ggettext; and &emacs; (or &xemacs;)
+ <ulink url="google">po-mode</ulink>.</para>
 
 <para>This works only for strings.  For arbitrary language-dependent
  Lisp objects, you define one through the macro
