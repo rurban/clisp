@@ -1,6 +1,7 @@
 2008-07-08  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (srcdir) [CROSS]: do not overwrite
+	(module_configure_flags) [CROSS]: add --build=${TSYS}
 	Reported by Luca Capello <luca@pca.it>
 
 2008-07-08  Sam Steingold  <sds@gnu.org>
