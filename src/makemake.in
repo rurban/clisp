@@ -576,7 +576,6 @@ case $# in
   *) if [ "$1" = cross ] ; then
        CROSS=true
        shift
-       srcdir='../src'
      else
        CROSS=false
      fi
