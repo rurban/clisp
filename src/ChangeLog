@@ -1,5 +1,10 @@
 2008-07-08  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (srcdir) [CROSS]: do not overwrite
+	Reported by Luca Capello <luca@pca.it>
+
+2008-07-08  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.46+ (2008-07-08)
 
 2008-07-07  Sam Steingold  <sds@gnu.org>
