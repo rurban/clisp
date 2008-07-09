@@ -1,3 +1,9 @@
+2008-07-09  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (symbol-cleanup): new helper
+	* bind.tst, clos.tst, eval20.tst, format.tst, iofkts.tst:
+	* macro8.tst, number2.tst, setf.tst, weakptr.tst: use it
+
 2008-07-01  Reini Urban  <rurban@x-ray.at>
 
 	* tests.lisp (kill-down, rmrf): ext:delete-dir is deprecated

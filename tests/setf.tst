@@ -684,8 +684,8 @@ T
 (documentation 'foo 'function) "docstring"
 
 ;; Clean up.
-(progn (unintern 'x)
-       (fmakunbound 'func01) (unintern 'func01)
-       (fmakunbound 'func03) (unintern 'func03)
-       (fmakunbound 'foo) (unintern 'foo))
+(progn (symbol-cleanup 'x)
+       (symbol-cleanup 'func01)
+       (symbol-cleanup 'func03)
+       (symbol-cleanup 'foo))
 T

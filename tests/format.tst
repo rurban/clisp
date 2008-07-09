@@ -1227,18 +1227,18 @@ def"
 def")
 
 
-(progn ; Cleanup.
-  (fmakunbound 'format-blocksatz) (unintern 'format-blocksatz)
-  (fmakunbound 'type-clash-error) (unintern 'type-clash-error)
-  (fmakunbound 'foo) (makunbound 'foo) (unintern 'foo)
-  (makunbound 'x) (unintern 'x)
-  (makunbound 'y) (unintern 'y)
-  (makunbound 'n) (unintern 'n)
-  (makunbound 'liste) (unintern 'liste)
-  (makunbound 'donestr) (unintern 'donestr)
-  (makunbound 'tellstr) (unintern 'tellstr)
-  (setf (find-class 'gray-string-output-stream) nil))
-NIL
+(progn
+  (symbol-cleanup 'format-blocksatz) 
+  (symbol-cleanup 'type-clash-error)
+  (symbol-cleanup 'foo) 
+  (symbol-cleanup 'x)
+  (symbol-cleanup 'y) 
+  (symbol-cleanup 'n) 
+  (symbol-cleanup 'liste) 
+  (symbol-cleanup 'donestr) 
+  (symbol-cleanup 'tellstr) 
+  (symbol-cleanup 'gray-string-output-stream))
+T
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)

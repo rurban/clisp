@@ -539,3 +539,9 @@ NIL
 (+ (log most-positive-long-float) (log least-positive-long-float))
 -0.69314718060195446014L0
 (mapcar #'log '(1.0s0 1.0 1.0d0 1.0L0)) (0.0s0 0.0 0.0d0 0.0L0)
+
+(progn (symbol-cleanup 'check-xgcd)
+       (symbol-cleanup 'check-sqrt)
+       (symbol-cleanup 'check-mult)
+       (symbol-cleanup 'test-function))
+T

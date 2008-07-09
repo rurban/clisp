@@ -900,27 +900,26 @@ T
 	
 yyy"
 
-;; cleanup
-(flet ((kill (s) (makunbound s) (fmakunbound s) (unintern s)))
-  (kill 'bs)
-  (kill 'str1)
-  (kill 's1)
-  (kill 'string1)
-  (kill 'string2)
-  (kill 'a)
-  (kill 'aa)
-  (kill 'b)
-  (kill 'c)
-  (kill 'd)
-  (kill 'j)
-  (kill 'x)
-  (kill 'ask)
-  (kill 'my-pprint-reverse)
-  (kill 'my-pprint-logical)
-  (kill 'foo-printer)
-  (setf (find-class 'c1) nil
-        (find-class 'c2) nil))
-NIL
+(progn ; cleanup
+  (symbol-cleanup 'bs)
+  (symbol-cleanup 'str1)
+  (symbol-cleanup 's1)
+  (symbol-cleanup 'string1)
+  (symbol-cleanup 'string2)
+  (symbol-cleanup 'a)
+  (symbol-cleanup 'aa)
+  (symbol-cleanup 'b)
+  (symbol-cleanup 'c)
+  (symbol-cleanup 'd)
+  (symbol-cleanup 'j)
+  (symbol-cleanup 'x)
+  (symbol-cleanup 'ask)
+  (symbol-cleanup 'my-pprint-reverse)
+  (symbol-cleanup 'my-pprint-logical)
+  (symbol-cleanup 'foo-printer)
+  (symbol-cleanup 'c1)
+  (symbol-cleanup 'c2))
+T
 
 ;; local variables:
 ;; eval: (make-local-variable 'write-file-functions)
