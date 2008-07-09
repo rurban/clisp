@@ -6938,22 +6938,22 @@ typedef struct {
     if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj)
           || obj.allocstamp == alloccount || nonimmsubrp(obj)))
       abort();
-    nonimmprobe(obj.one_o);
+    nonimmprobe(pointable_address_unchecked(obj.one_o));
     return obj.one_o;
   }
   static inline aint pgci_pointable (gcv_object_t obj) {
-    nonimmprobe(obj.one_o);
+    nonimmprobe(pointable_address_unchecked(obj.one_o));
     return obj.one_o;
   }
   static inline aint ngci_pointable (object obj) {
     if (!(gcinvariant_symbol_p(obj)
           || obj.allocstamp == alloccount || nonimmsubrp(obj)))
       abort();
-    nonimmprobe(obj.one_o);
+    nonimmprobe(pointable_address_unchecked(obj.one_o));
     return obj.one_o;
   }
   static inline aint ngci_pointable (gcv_object_t obj) {
-    nonimmprobe(obj.one_o);
+    nonimmprobe(pointable_address_unchecked(obj.one_o));
     return obj.one_o;
   }
 #elif defined(WIDE_AUXI)
@@ -6968,10 +6968,10 @@ typedef struct {
 %% #if defined(DEBUG_GCSAFETY)
 %%   puts("static inline aint cgci_pointable (object obj) { return obj.one_o; }");
 %%   puts("static inline aint cgci_pointable (gcv_object_t obj) { return obj.one_o; }");
-%%   puts("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }");
-%%   puts("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }");
-%%   puts("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(obj.one_o); return obj.one_o; }");
-%%   puts("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(obj.one_o); return obj.one_o; }");
+%%   puts("static inline aint pgci_pointable (object obj) { if (!(gcinvariant_object_p(obj) || gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(pointable_address_unchecked(obj.one_o)); return obj.one_o; }");
+%%   puts("static inline aint pgci_pointable (gcv_object_t obj) { nonimmprobe(pointable_address_unchecked(obj.one_o)); return obj.one_o; }");
+%%   puts("static inline aint ngci_pointable (object obj) { if (!(gcinvariant_symbol_p(obj) || obj.allocstamp == alloccount || nonimmsubrp(obj))) abort(); nonimmprobe(pointable_address_unchecked(obj.one_o)); return obj.one_o; }");
+%%   puts("static inline aint ngci_pointable (gcv_object_t obj) { nonimmprobe(pointable_address_unchecked(obj.one_o)); return obj.one_o; }");
 %% #else
 %%   export_def(cgci_pointable(obj));
 %%   export_def(pgci_pointable(obj));
@@ -6983,9 +6983,9 @@ typedef struct {
  The other type conversions are similar. */
 #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
-    #define cgci_types_pointable(ORed_types,obj)  cgci_pointable(obj)
-    #define pgci_types_pointable(ORed_types,obj)  pgci_pointable(obj)
-    #define ngci_types_pointable(ORed_types,obj)  ngci_pointable(obj)
+    #define cgci_types_pointable(ORed_types,obj)  pointable_address_unchecked(cgci_pointable(obj))
+    #define pgci_types_pointable(ORed_types,obj)  pointable_address_unchecked(pgci_pointable(obj))
+    #define ngci_types_pointable(ORed_types,obj)  pointable_address_unchecked(ngci_pointable(obj))
   #else
     #define cgci_types_pointable(ORed_types,obj)  types_pointable(ORed_types,obj)
     #define pgci_types_pointable(ORed_types,obj)  types_pointable(ORed_types,obj)
