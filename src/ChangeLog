@@ -1,3 +1,9 @@
+2008-07-09  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2014262 ]: float/rational comparison underflows
+	* realelem.d (R_R_comp): inhibit floating-point-underflow when
+	converting to a rational
+
 2008-07-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw_sigcld.d (end_want_sigcld): avoid the gcc warning:

@@ -702,7 +702,9 @@ local maygc signean R_R_comp (object x, object y)
       return RA_RA_comp(x,y);
     else { /* x rational, y Float -> convert x into a float */
       pushSTACK(x); pushSTACK(y);
+      dynamic_bind(S(inhibit_floating_point_underflow),T);
       var object xf = RA_F_float_F(x,y,false); /* convert x into a float */
+      dynamic_unbind(S(inhibit_floating_point_underflow));
       if (eq(xf,nullobj)) { /* overflow? */
         skipSTACK(1); return RA_RA_comp(popSTACK(),Fixnum_0);
       }
@@ -714,7 +716,9 @@ local maygc signean R_R_comp (object x, object y)
   } else {
     if (R_rationalp(y)) { /* x Float, y rational -> convert y into a float */
       pushSTACK(y); pushSTACK(x);
+      dynamic_bind(S(inhibit_floating_point_underflow),T);
       var object yf = RA_F_float_F(y,x,false); /* convert y into a float */
+      dynamic_unbind(S(inhibit_floating_point_underflow));
       if (eq(yf,nullobj)) { /* overflow? */
         skipSTACK(1); return RA_RA_comp(Fixnum_0,popSTACK());
       }
