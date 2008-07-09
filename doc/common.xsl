@@ -101,8 +101,7 @@
 <!-- ============================== / Gmane ============================== -->
 
 <!-- =============================== SF mail =============================== -->
-<xsl:param name="sfmail.top"
-           select="'http://sourceforge.net/mailarchive/message.php?msg_name='"/>
+<xsl:param name="sfmail.top" select="'https://sourceforge.net/mailarchive/message.php?msg_name='"/>
 <xsl:template match="ulink[@role='sfmail']">
  <a class="{@role}" href="{$sfmail.top}{@url}"><code>
    <xsl:choose><xsl:when test=".=''"><xsl:text>SFmail/</xsl:text>
@@ -435,8 +434,8 @@ set       toc,title
  <div class="custom-footer"><hr /><table width="100%">
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
-    <td align="center"><a href="http://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
-    <td align="right"><a href="http://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
+    <td align="center"><a href="https://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
+    <td align="right"><a href="https://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
  </tr></table></div><hr />
  <!-- https://sourceforge.net/tracker/?func=detail&atid=200001&aid=1878997&group_id=1 -->
  <form method="get" action="http://www.google.com/custom" target="_top">
