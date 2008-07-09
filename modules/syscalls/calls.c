@@ -4145,7 +4145,7 @@ DEFUN(POSIX::%FGETC, fp) { FILE_FUNCTION(fgetc,VALUES1(sint_to_I(ret))); }
   STACK_0 = check_fpointer(STACK_0,1);                               \
   STACK_1 = check_sint(STACK_1);                                     \
   begin_system_call();                                               \
-  ret = fun(I_to_sint(STACK_1),TheFpointer(STACK_0)->fp_pointer);    \
+  ret = fun(I_to_sint(STACK_1),(FILE*)TheFpointer(STACK_0)->fp_pointer); \
   end_system_call();                                                 \
   VALUES1(sint_to_I(ret)); skipSTACK(2)
 DEFUN(POSIX::%FPUTC, c fp) { FILE_FUNCTION2(fputc); }
