@@ -2224,7 +2224,7 @@ DEFUN(POSIX::STAT-VFS, file)
   pushBSLOT(buf.f_bavail); /* # of free blocks available to
                               non-privileged processes */
 #undef pushBSLOT
-#if defined(SIZEOF_FSBLKCNT_T) && SIZEOF_FSBLKCNT_T == 8
+#if defined(SIZEOF_FSFILCNT_T) && SIZEOF_FSFILCNT_T == 8
 # define pushFSLOT(s) pushSTACK(s==(fsfilcnt_t)-1 ? NIL : uint64_to_I(s))
 #else
 # define pushFSLOT(s) pushSTACK(s==(fsfilcnt_t)-1 ? NIL : uint32_to_I(s))
