@@ -34,11 +34,11 @@ makefiles : win32msvc/makefile.msvc7 win32msvc/makefile.msvc6
 	$(RM) $(MAKEMAKE_TMP)
 
 win32msvc/makefile.msvc6 : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
+	cd src && ./makemake --with-dynamic-ffi \
 		win32msvc msvc6 > ../win32msvc/makefile.msvc6
 
 win32msvc/makefile.msvc7 : $(MAKEMAKE_TMP)
-	cd src; ./makemake --with-dynamic-ffi \
+	cd src && ./makemake --with-dynamic-ffi \
 		win32msvc msvc7 > ../win32msvc/makefile.msvc7
 
 $(MAKEMAKE_TMP) : src/makemake.in version.sh
@@ -77,10 +77,10 @@ AUTOCONF_CACHE = autom4te.cache
 AUTOHEADER = autoheader
 
 $(CONFIGURES) : %/configure : %/configure.in $(AUTOCONF_FILES) version.sh
-	cd $*; $(AUTOCONF) --include=$(CURDIR)/src
+	cd $* && $(AUTOCONF) --include=$(CURDIR)/src
 
 $(CONFIG_H_IN) : %/config.h.in : %/configure.in $(AUTOCONF_FILES)
-	cd $*; $(AUTOHEADER) --include=$(CURDIR)/src
+	cd $* && $(AUTOHEADER) --include=$(CURDIR)/src
 
 # syntax check
 check-configures : configures
