@@ -31,6 +31,8 @@
   (delete-file file)
   (delete-file (compile-file-pathname file))
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
+(defun symbol-cleanup (s)
+  (setf (find-class s) nil) (makunbound s) (fmakunbound s) (unintern s))
 ;;; end helpers
 
 #+OLD-CLISP

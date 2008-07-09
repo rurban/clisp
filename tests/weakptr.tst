@@ -76,6 +76,9 @@ weakptr-test
 #+LISPWORKS "#1=#(#(#1#))"
 #-(or CLISP CMU LISPWORKS) UNKNOWN
 
-(progn (makunbound 'co) (makunbound 'wp) (makunbound 'wpp) (gc)
-       (fmakunbound 'weakptr-test))
-weakptr-test
+(progn (symbol-cleanup 'co)
+       (symbol-cleanup 'wp)
+       (symbol-cleanup 'wpp)
+       (gc)
+       (symbol-cleanup 'weakptr-test))
+T

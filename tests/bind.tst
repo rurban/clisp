@@ -305,8 +305,7 @@ ERROR
         (foo 'bar))))
   (testfn))
 ERROR
-(fmakunbound 'symbol-type-fn)
-SYMBOL-TYPE-FN
+(symbol-cleanup 'symbol-type-fn) T
 
 ;; The scope of a "free" declaration in DO* contains the step-forms.
 (block done
