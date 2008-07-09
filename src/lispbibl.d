@@ -16079,9 +16079,7 @@ extern maygc object L_to_I (sint32 val);
  can trigger GC */
 #if (intLsize<=oint_data_len)
   #ifdef DEBUG_GCSAFETY
-    static inline maygc object UL_to_I (uintL val) {
-      return fixnum(val);
-    }
+    static inline maygc object UL_to_I (uintL val) { return fixnum(val); }
   #else
     #define UL_to_I(val)  fixnum((uintL)(val))
   #endif
@@ -16090,7 +16088,11 @@ extern maygc object L_to_I (sint32 val);
 #endif
 /* is used by MISC, TIME, STREAM, PATHNAME, HASHTABL, SPVW, ARRAY */
 %% #if (intLsize<=oint_data_len)
-%%   export_def(UL_to_I(val));
+%%   #ifdef DEBUG_GCSAFETY
+%%    puts("static inline object UL_to_I (uintL val) { return fixnum(val); }");
+%%   #else
+%%     export_def(UL_to_I(val));
+%%   #endif
 %% #else
 %%   puts("extern object UL_to_I (uintL val);");
 %% #endif

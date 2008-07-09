@@ -1,5 +1,10 @@
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (UL_to_I) [DEBUG_GCSAFETY & intLsize<=oint_data_len]:
+	fix export the definition to clisp.h
+
+2008-07-09  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (STAT-VFS):
 	use the right SIZEOF_* conditionals
 	(FILE_FUNCTION2): add a cast to fix g++ compilation
