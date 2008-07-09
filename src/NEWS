@@ -1,3 +1,10 @@
+Important notes
+---------------
+
+* Bug fixes:
+  + Comparison of floats and rationals never underflows. [ 2014262 ]
+
+
 2.46 (2008-07-02)
 =================
 

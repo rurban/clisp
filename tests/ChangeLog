@@ -1,5 +1,9 @@
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
+	* number2.tst (float-rational-cmp): check float/rational comparison
+
+2008-07-09  Sam Steingold  <sds@gnu.org>
+
 	* tests.lisp (symbol-cleanup): new helper
 	* bind.tst, clos.tst, eval20.tst, format.tst, iofkts.tst:
 	* macro8.tst, number2.tst, setf.tst, weakptr.tst: use it
