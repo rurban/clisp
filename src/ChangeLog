@@ -1,5 +1,14 @@
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1385641 ]: g++ debug_gcsafety amd64 build is broken
+	* lispbibl.d (pgci_pointable, ngci_pointable) [DEBUG_GCSAFETY]:
+	pass obj.one_o through pointable_address_unchecked before nonimmprobe
+	(cgci_types_pointable, pgci_types_pointable, ngci_types_pointable)
+	[TYPECODES & DEBUG_GCSAFETY]: wrap ?gci_pointable in
+	pointable_address_unchecked
+
+2008-07-09  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (UL_to_I) [DEBUG_GCSAFETY & intLsize<=oint_data_len]:
 	fix export the definition to clisp.h
 
