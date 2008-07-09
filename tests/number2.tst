@@ -540,8 +540,40 @@ NIL
 -0.69314718060195446014L0
 (mapcar #'log '(1.0s0 1.0 1.0d0 1.0L0)) (0.0s0 0.0 0.0d0 0.0L0)
 
+(< (expt 10 -100) least-positive-short-float)
+T
+(#+clisp without-floating-point-underflow #-clisp progn
+         (= (+ least-positive-short-float (expt 10 -100))
+            least-positive-short-float))
+T
+(defun float-rational-cmp (x &optional (scale 10))
+  (let* ((r (rational x))
+         (n (numerator r))
+         (d (denominator r))
+         (y (/ (1+ (* scale n)) (1+ (* scale d)))))
+    (list (= y x)               ; nil
+          (or (< 1 y x) (> 1 y x))))) ; t
+float-rational-cmp
+
+(float-rational-cmp pi) (NIL T)
+(float-rational-cmp (float pi 1d0)) (NIL T)
+(float-rational-cmp (float pi 1f0)) (NIL T)
+(float-rational-cmp (float pi 1s0)) (NIL T)
+(float-rational-cmp (/ pi)) (NIL T)
+(float-rational-cmp (float (/ pi) 1d0)) (NIL T)
+(float-rational-cmp (float (/ pi) 1f0)) (NIL T)
+(float-rational-cmp (float (/ pi) 1s0)) (NIL T)
+
+(float-rational-cmp most-positive-short-float) (NIL T)
+(float-rational-cmp least-positive-short-float) (NIL T)
+(float-rational-cmp most-positive-single-float) (NIL T)
+(float-rational-cmp least-positive-single-float) (NIL T)
+(float-rational-cmp most-positive-double-float) (NIL T)
+(float-rational-cmp least-positive-double-float) (NIL T)
+
 (progn (symbol-cleanup 'check-xgcd)
        (symbol-cleanup 'check-sqrt)
        (symbol-cleanup 'check-mult)
+       (symbol-cleanup 'float-rational-cmp)
        (symbol-cleanup 'test-function))
 T
