@@ -2,6 +2,7 @@
 
 	* modules/syscalls/calls.c (STAT-VFS):
 	use the right SIZEOF_* conditionals
+	(FILE_FUNCTION2): add a cast to fix g++ compilation
 
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
@@ -2240,9 +2241,9 @@
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
-	* pathname.d (open_file): fix G++ compilation
+	* pathname.d (open_file): fix g++ compilation
 	* charstrg.d (uc_width): remove the global inline declaration of
-	the gnulib function to avoid a G++ warning
+	the gnulib function to avoid a g++ warning
 
 2008-01-16  Sam Steingold  <sds@gnu.org>
 
@@ -3627,7 +3628,7 @@
 
 2007-10-18  Sam Steingold  <sds@gnu.org>
 
-	* modules/gdbm/gdbm.c (check_gdbm, open_gdbm): support g++ compilation
+	* modules/gdbm/gdbm.c (check_gdbm, open_gdbm): fix g++ compilation
 
 2007-10-18  Sam Steingold  <sds@gnu.org>
 
