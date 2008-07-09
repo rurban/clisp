@@ -196,8 +196,4 @@ NIL
 
 
 ;; Clean up.
-(flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
-  (kill 'setf-foo)
-  (kill 'bar)
-  (kill 'x))
-T
+(progn (symbol-cleanup 'setf-foo) (symbol-cleanup 'bar) (symbol-cleanup 'x)) T

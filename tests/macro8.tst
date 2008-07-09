@@ -1166,25 +1166,24 @@ check-const-fold
 
 (funcall (COMPILE NIL (LAMBDA (B C) (BLOCK B3 (IF (IF B (NOT NIL) C) (RETURN-FROM B3 124))))) 1 2) 124
 
-(progn 
+(progn
   (defmacro test-macro-dotted-args (&rest f) `',f)
   (list (test-macro-dotted-args 123)
         (test-macro-dotted-args . 123)
         (test-macro-dotted-args 1 2 . 3)))
 ((123) 123 (1 2 . 3))
 
-; Clean up.
-(flet ((kill (s) (fmakunbound s) (makunbound s) (unintern s)))
-  (kill 'test-macro-arglist)
-  (kill 'test-fun-arglist)
-  (kill 'circularity-in-code)
-  (kill 'test-constant-folding)
-  (kill 'test-compiler)
-  (kill 'test-compile-time-value-c)
-  (kill 'test-compile-time-value-f)
-  (kill 'test-compile-time-value-v)
-  (kill 'add-crlf)
-  (kill 'test-macro-dotted-args)
-  (kill '*z*) (kill '*c*) (kill '*v*)
-  (kill 'x))
+(progn ; Clean up.
+  (symbol-cleanup 'test-macro-arglist)
+  (symbol-cleanup 'test-fun-arglist)
+  (symbol-cleanup 'circularity-in-code)
+  (symbol-cleanup 'test-constant-folding)
+  (symbol-cleanup 'test-compiler)
+  (symbol-cleanup 'test-compile-time-value-c)
+  (symbol-cleanup 'test-compile-time-value-f)
+  (symbol-cleanup 'test-compile-time-value-v)
+  (symbol-cleanup 'add-crlf)
+  (symbol-cleanup 'test-macro-dotted-args)
+  (symbol-cleanup '*z*) (symbol-cleanup '*c*) (symbol-cleanup '*v*)
+  (symbol-cleanup 'x))
 T

@@ -71,8 +71,7 @@ foo
 (foo a)
 11
 
-(fmakunbound 'foo)
-foo
+(symbol-cleanup 'foo) T
 
 (x-val (reinitialize-instance a :x 20))
 20
