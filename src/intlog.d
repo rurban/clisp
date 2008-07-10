@@ -575,21 +575,26 @@ global maygc object I_I_ash_I (object x, object y)
     SAVE_NUM_STACK /* save num_stack */
     if (!R_minusp(y)) { /* y>0 */
       if (I_bignump(y) /* y a bignum */
-          || ((log2_intDsize+intWCsize < oint_data_len) /* intDsize*2^intWCsize < 2^oint_data_len ? */
-              && (as_oint(y) >= as_oint(fixnum(intDsize*vbitm(intWCsize)))))) { /* a fixnum > bitlength of all integers */
+          /* we use intWsize(16) instead of intWCsize(32) to avoid
+             __builtin_alloca running out of stack and causing a segfault */
+          || ((log2_intDsize+intWsize < oint_data_len) /* intDsize*2^intWsize < 2^oint_data_len ? */
+              && (as_oint(y) >= as_oint(fixnum(intDsize*vbitm(intWsize)))))) { /* a fixnum > bitlength of all integers */
         /* y so large, that even (ASH 1 y) would cause an overflow. */
         goto badamount;
       } else {
-        var uintV y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; /* value of y, >=0, <intDsize*2^intWCsize */
+        var uintV y_ = (as_oint(y)-as_oint(Fixnum_0))>>oint_data_shift; /* value of y, >=0, <intDsize*2^intWsize */
         var uintL i = y_%intDsize; /* i = y mod intDsize, >=0, <intDsize */
-        var uintV k = floor(y_,intDsize); /* k = y div intDsize, >=0, <2^intWCsize */
+        var uintV k = floor(y_,intDsize); /* k = y div intDsize, >=0, <2^intWsize */
         var uintD* LSDptr;
         var uintC len;
         var uintD* x_LSDptr;
         I_to_NDS_nocopy(x, _EMA_,len=,x_LSDptr=); /* build DS for x. */
-        if (len >= (uintWC)(~(uintWC)k)) /* can len+k+1 cause an overflow? */
+        /* it is important to have a strict check here because num_stack_need_1
+           will call __builtin_alloca which does NOT check its argument and
+           the next operation after it will segfault if len+k is too large */
+        if (len >= (uintW)(~(uintW)k)) /* can len+k+1 cause an overflow? */
           goto badamount; /* yes -> error */
-        num_stack_need_1(len+(uintC)k,_EMA_,LSDptr=);
+        num_stack_need_1(len+(uintW)k,_EMA_,LSDptr=);
         LSDptr = clear_loop_down(LSDptr,k); /* k Nulldigits */
         var uintD* MSDptr = copy_loop_down(x_LSDptr,LSDptr,len);
         /* Now, MSDptr/len/LSDptr is the DS for x.
@@ -652,7 +657,7 @@ global maygc object I_I_ash_I (object x, object y)
    badamount:
     RESTORE_NUM_STACK /* restore num_stack */
       pushSTACK(y); pushSTACK(S(ash));
-    error(arithmetic_error,GETTEXT("~S: too large shift amount ~S"));
+    error(arithmetic_error,GETTEXT("~S: shift ~S is too large"));
   }
 }
 

@@ -1293,3 +1293,9 @@ undefined-function
 
 (proclaim '(integer . foo))
 type-error
+
+(ash 1 66610000) arithmetic-error
+(rational most-positive-long-float) arithmetic-error
+(rational least-positive-long-float) arithmetic-error
+(rational most-negative-long-float) arithmetic-error
+(rational least-negative-long-float) arithmetic-error
