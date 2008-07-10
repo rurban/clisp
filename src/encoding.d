@@ -1591,7 +1591,8 @@ nonreturning_function(local, error_nls_invalid, (object encoding, uintB b)) {
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b&0x0F]));
   pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
-  error(error_condition,GETTEXT("invalid byte #x~C~C in ~S conversion"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(error_condition,GETTEXT("~S: invalid byte #x~C~C in ~S conversion"));
 }
 
 global uintL nls_mblen (object encoding, const uintB* src,

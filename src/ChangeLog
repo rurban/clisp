@@ -1,5 +1,9 @@
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (error_nls_invalid): print function name
+
+2008-07-10  Sam Steingold  <sds@gnu.org>
+
 	* debug.d (read_form): fix a GC-safety bug
 	 (save function before subsstring)
 	* foreign.d (check_faddress_valid): fix a GC-safety bug
