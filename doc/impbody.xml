@@ -1221,12 +1221,17 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <section id="cond-nl"><title>Embedded Newlines in Condition Reports
   <ulink role="clhs" url="sec_9-1-3-1-3"/></title>
-
 <para>The error message prefix for the first line is <quote>*** - </quote>.
  All subsequent lines are indented by 6 characters.
  Long lines are broken on &whitespace;
  (see <xref linkend="fill-stream"/>).</para>
+</section>
 
+<section id="cond-fname"><title>Mentioning Containing Function in
+  Condition Reports <ulink role="clhs" url="sec_9-1-3-1-5"/></title>
+<para>Contrary to the recommendation of the standard, &clisp; usually
+ does print the name of the containing function to simplify debugging
+ in batch mode, see &exit-on-error;.</para>
 </section>
 
 <section id="restarts"><title>Interfaces to Restarts
