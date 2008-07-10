@@ -256,10 +256,11 @@ local maygc Values read_form(void)
               { var chart ch = schar(line,len);
                 if (cint_white_p(as_cint(ch))) goto found;
               }
-              if (false) {
-               found:
+              if (false) { found:
+                pushSTACK(Cdr(Car(alist))); /* save the function */
                 pushSTACK(subsstring(line,len,input_len));
-                funcall(Cdr(Car(alist)),1); /* call the appropriate function */
+                funcall(STACK_1,1); /* call the appropriate function */
+                skipSTACK(1);       /* drop the function */
                 dynamic_unbind(S(key_bindings));
                 goto eof;
               }
