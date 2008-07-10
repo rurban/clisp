@@ -660,8 +660,10 @@ local inline maygc void validate_fpointer (object obj);
 global maygc object check_faddress_valid (object fa) {
   object fp = TheFaddress(fa)->fa_base;
   if (!fp_validp(TheFpointer(fp))) {
-    pushSTACK(fa); validate_fpointer(fp); fa=popSTACK();
-    check_fpointer(TheFaddress(fa)->fa_base,false);
+    pushSTACK(fa);              /* save */
+    validate_fpointer(fp);
+    check_fpointer(TheFaddress(STACK_0/*fa*/)->fa_base,false);
+    fa = popSTACK();            /* restore */
   }
   return fa;
 }
