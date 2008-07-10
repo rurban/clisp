@@ -1,5 +1,10 @@
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (read_form): fix a GC-safety bug (save function before
+	subsstring)
+
+2008-07-10  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2015118 ]: (ash 1 huge) blows SP instead of signaling
 	an arithmetic-error
 	* intlog.d (I_I_ash_I): tighten the shift check (use 16-bit intW
