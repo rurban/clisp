@@ -1,5 +1,10 @@
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (search-file <final def>): do not use DIRECTORY when
+	the pathname is non-wild to avoid the denial-of-service attack
+
+2008-07-10  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (error_nls_invalid): print function name
 	* pathname.d (check_no_wildcards): ditto
 
