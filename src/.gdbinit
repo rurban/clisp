@@ -23,7 +23,7 @@ define full
   # -i ../tests/tests -x '(run-test "***/test")'
   # -i clx/new-clx/demos/clx-demos.lisp -x '(clx-demos:run-all-demos)'
   break xlib_error_handler
-  break my_type_error
+  break x_type_error
   break error_closed_display
   break error_bdb
   break error_gdbm
