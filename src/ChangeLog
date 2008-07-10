@@ -1,3 +1,12 @@
+2008-07-10  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2015118 ]: (ash 1 huge) blows SP instead of signaling
+	an arithmetic-error
+	* intlog.d (I_I_ash_I): tighten the shift check (use 16-bit intW
+	instead of 32-bit intWC) so that the "shift is too large"
+	error is signaled instead of a SP overflow which results from
+	__builtin_alloca not checking its argument and overwriting stack
+
 2008-07-09  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1385641 ]: g++ debug_gcsafety amd64 build is broken
