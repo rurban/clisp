@@ -5,6 +5,8 @@ Important notes
   + Comparison of floats and rationals never underflows. [ 2014262 ]
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an
     ARITHMETIC-ERROR instead of blowing the stack. [ 2015118 ]
+  + Restored TYPECODES g++ compilation [ 2015118 ], which allowed fixing
+    a few GC-safety bugs.
 
 
 2.46 (2008-07-02)
