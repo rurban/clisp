@@ -4,6 +4,9 @@
 	 (save function before subsstring)
 	* foreign.d (check_faddress_valid): fix a GC-safety bug
 	 (check_fpointer can trigger GC!)
+	(validate_fpointer): return the argument
+	(convert_to_foreign): fix a GC-safety bug
+	 (validate_fpointer can trigger GC)
 	* modules/clx/new-clx/clx.f (XLIB:SCREEN-SAVER): fix a GC-safety bug
 	 (defcheckers are GC-unsafe)
 

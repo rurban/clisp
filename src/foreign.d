@@ -656,13 +656,12 @@ local object convert_function_from_foreign (void* address, object resulttype,
 /* ensure that the Faddress is valid
  < fa: foreign address
  can trigger GC */
-local inline maygc void validate_fpointer (object obj);
+local inline maygc object validate_fpointer (object obj);
 global maygc object check_faddress_valid (object fa) {
   object fp = TheFaddress(fa)->fa_base;
   if (!fp_validp(TheFpointer(fp))) {
     pushSTACK(fa);              /* save */
-    validate_fpointer(fp);
-    check_fpointer(TheFaddress(STACK_0/*fa*/)->fa_base,false);
+    check_fpointer(validate_fpointer(fp),false);
     fa = popSTACK();            /* restore */
   }
   return fa;
@@ -1927,7 +1926,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
         obj = TheFvariable(obj)->fv_address;
       else if (nullp(obj)) { *(void**)data = NULL; return; }
       else if (fpointerp(obj)) {
-        validate_fpointer(obj); *(void**)data = Fpointer_value(obj); return;
+        *(void**)data = Fpointer_value(validate_fpointer(obj)); return;
       } else if (!faddressp(obj)) goto bad_obj;
       obj = check_faddress_valid(obj);
       *(void**)data = Faddress_value(obj);
@@ -4420,10 +4419,10 @@ LISPFUNN(close_foreign_library,1) {
   mv_count = 1;
 }
 
-/* Try to make a Foreign-Pointer valid again.
+/* Try to make a Foreign-Pointer valid again, returning the argument.
  validate_fpointer(obj);
  can trigger GC */
-local maygc void validate_fpointer (object obj)
+local maygc object validate_fpointer (object obj)
 { /* If the foreign pointer belongs to a foreign library from a previous
      session, we reopen the library. */
   pushSTACK(obj);
@@ -4432,11 +4431,11 @@ local maygc void validate_fpointer (object obj)
     var object acons = Car(STACK_0); STACK_0 = Cdr(STACK_0);
     if (eq(Car(Cdr(acons)),STACK_1)) {
       update_library(acons);
-      skipSTACK(2); return;
+      skipSTACK(1); return popSTACK();
     }
   }
   skipSTACK(1);                 /* drop tail */
-  check_fpointer(popSTACK()/*obj*/,false);
+  return check_fpointer(popSTACK()/*obj*/,false);
 }
 
 /* return the foreign address of the foreign object named 'name'
@@ -4548,9 +4547,9 @@ local maygc object foreign_library_function
 
 /* Try to make a Foreign-Pointer valid again.
  validate_fpointer(obj); */
-local inline void validate_fpointer (object obj)
+local inline object validate_fpointer (object obj)
 { /* Can't do anything. */
-  check_fpointer(obj,false);
+  return check_fpointer(obj,false);
 }
 
 /* error-message about lack of dlsym */
