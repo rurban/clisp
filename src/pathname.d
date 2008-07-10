@@ -3861,8 +3861,8 @@ local void check_no_wildcards (object pathname) {
     return;
   /* error-message, if the pathname contains wildcards: */
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(pathname);
-  error(file_error,GETTEXT("wildcards are not allowed here: ~S"));
+  pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: wildcards are not allowed here: ~S"));
 }
 
 LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
