@@ -1820,8 +1820,8 @@ Portability
 * Removed support for DOS. Not to worry, OS/2 and Win32 are still supported.
 
 
-2000-03-06
-==========
+2.24 (2000-03-06)
+=================
 
 User visible changes
 --------------------
@@ -1864,8 +1864,8 @@ Other modifications
 * Speed up ADJUST-ARRAY.
 
 
-1999-07-22
-==========
+2.23 (1999-07-22)
+=================
 
 User visible changes
 --------------------
@@ -2070,8 +2070,8 @@ Other modifications
 * Speed up compiled calls to LDB, LDB-TEST, MASK-FIELD, DPB, DEPOSIT-FIELD.
 
 
-1999-01-08
-==========
+2.22 (1999-01-08)
+=================
 
 Important note
 --------------
@@ -2214,8 +2214,8 @@ Other modifications
 -------------------
 
 
-9 September 1998
-================
+2.21 (9 September 1998)
+=======================
 
 Important note
 --------------
@@ -2434,8 +2434,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-6 December 1997
-===============
+2.20.1 (6 December 1997)
+========================
 
 User visible changes
 --------------------
@@ -2449,8 +2449,8 @@ Other modifications
 * The implementation notes now also exist in HTML format.
 
 
-25 September 1997
-=================
+2.20 (25 September 1997)
+========================
 
 User visible changes
 --------------------
@@ -2532,8 +2532,8 @@ Other modifications
   Thanks to Karl M. Hegbloom <karlheg@inetarena.com>.
 
 
-7 August 1997
-=============
+2.19 (7 August 1997)
+====================
 
 User visible changes
 --------------------
@@ -2590,8 +2590,8 @@ Other modifications
 * Overall speedup by 13% on i386.
 
 
-3 May 1997
-==========
+2.18 (3 May 1997)
+=================
 
 User visible changes
 --------------------
@@ -2760,8 +2760,8 @@ Other modifications
 * Reduced the startup time by 20-30%.
 
 
-21 July 1996
-============
+2.17 (21 July 1996)
+===================
 
 Important note
 --------------
@@ -2894,8 +2894,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-23 June 1995
-============
+2.16 (23 June 1995)
+===================
 
 Important note
 --------------
@@ -2994,8 +2994,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-25 April 1995
-=============
+2.15 (25 April 1995)
+====================
 
 User visible changes
 --------------------
@@ -3088,8 +3088,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-4 April 1995
-============
+2.14 (4 April 1995)
+===================
 
 User visible changes
 --------------------
@@ -3218,8 +3218,8 @@ Generational GC works on
   * DEC Alpha AXP, OSF/1 3.0
 
 
-1 January 1995
-==============
+2.13.1 (1 January 1995)
+=======================
 
 Important note
 --------------
@@ -3274,8 +3274,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-26 October 1994
-===============
+2.13 (26 October 1994)
+======================
 
 Important note
 --------------
@@ -3360,8 +3360,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-1 September 1994
-================
+2.12.1 (1 September 1994)
+=========================
 
 User visible changes
 --------------------
@@ -3385,8 +3385,8 @@ Portability
 * GNU malloc for HP-UX now works.
 
 
-23 August 1994
-==============
+2.12 (23 August 1994)
+=====================
 
 User visible changes
 --------------------
@@ -3462,8 +3462,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-4 July 1994
-===========
+2.11 (4 July 1994)
+==================
 
 User visible changes
 --------------------
@@ -3501,8 +3501,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-22 June 1994
-============
+2.10 (22 June 1994)
+===================
 
 User visible changes
 --------------------
@@ -3668,8 +3668,8 @@ CLISP now compiles and runs on
   * Atari ST/TT, MiNT
 
 
-7 January 1994
-==============
+2.9 (7 January 1994)
+====================
 
 Important note
 --------------
@@ -3798,8 +3798,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-8 November 1993
-===============
+2.8 (8 November 1993)
+=====================
 
 User visible changes
 --------------------
@@ -3864,8 +3864,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-27 September 1993
-=================
+2.7 (27 September 1993)
+=======================
 
 User visible changes
 --------------------
@@ -3924,8 +3924,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-1 September 1993
-================
+2.6.1 (1 September 1993)
+========================
 
 Important note
 --------------
@@ -3965,8 +3965,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-22 August 1993
-==============
+2.6 (22 August 1993)
+====================
 
 Important note
 --------------
@@ -4056,8 +4056,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-17 July 1993
-============
+2.5.1 (17 July 1993)
+====================
 
 User visible changes
 --------------------
@@ -4098,8 +4098,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-29 June 1993
-============
+2.5 (29 June 1993)
+==================
 
 User visible changes
 --------------------
@@ -4143,8 +4143,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-24 May 1993
-===========
+2.4 (24 May 1993)
+=================
 
 User visible changes
 --------------------
@@ -4211,8 +4211,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-5 April 1993
-============
+2.3.1 (5 April 1993)
+====================
 
 Portability
 -----------
@@ -4223,8 +4223,8 @@ Portability
 * Improved efficiency of the WIDE tagging scheme.
 
 
-30 March 1993
-=============
+2.3 (30 March 1993)
+===================
 
 User visible changes
 --------------------
@@ -4258,8 +4258,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-19 March 1993
-=============
+2.2.2 (19 March 1993)
+=====================
 
 User visible changes
 --------------------
@@ -4295,8 +4295,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-4 March 1993
-============
+2.2.1 (4 March 1993)
+====================
 
 User visible changes
 --------------------
@@ -4325,8 +4325,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-21 February 1993
-================
+2.2 (21 February 1993)
+======================
 
 User visible changes
 --------------------
@@ -4359,8 +4359,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-3 February 1993
-===============
+2.1.3 (3 February 1993)
+=======================
 
 Portability
 -----------
@@ -4378,8 +4378,8 @@ Other modifications
 * Remove init streams. Use string input streams instead.
 
 
-1 February 1993
-===============
+2.1.2 (1 February 1993)
+=======================
 
 User visible changes
 --------------------
@@ -4422,8 +4422,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-11 January 1993
-===============
+2.1.1 (11 January 1993)
+=======================
 
 User visible changes
 --------------------
@@ -4488,8 +4488,8 @@ Other modifications
 * Miscellaneous documentation updates.
 
 
-1 January 1993
-==============
+2.1 (1 January 1993)
+====================
 
 Release of the first portable version of CLISP.
 It now compiles and runs under
