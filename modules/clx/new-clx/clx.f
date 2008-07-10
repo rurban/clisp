@@ -7655,12 +7655,12 @@ DEFUN(XLIB:SCREEN-SAVER, display)
   X_CALL(XGetScreenSaver (dpy, &timeout, &interval, &prefer_blanking,
                           &allow_exposures));
 
-  value1 = make_sint16 (timeout);
-  value2 = make_sint16 (interval);
-  value3 = check_yes_no_reverse(prefer_blanking);
-  value4 = check_yes_no_reverse(allow_exposures);
+  pushSTACK(make_sint16(timeout));
+  pushSTACK(make_sint16(interval));
+  pushSTACK(check_yes_no_reverse(prefer_blanking));
+  pushSTACK(check_yes_no_reverse(allow_exposures));
   /* The manual says :YES/:NO but the implementation does :ON/:OFF! */
-  mv_count = 4;
+  STACK_to_mv(4);
 }
 
 DEFUN(XLIB:SET-SCREEN-SAVER, display timeout period blanking exposures)
