@@ -1,3 +1,16 @@
+2008-07-11  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (error_directory): extracted from the unix version of
+	assure_dir_exists
+	(assure_dir_exists) [WIN32_NATIVE]: use it instead of
+	OS_file_error for consistency with unix
+	(struct file_status) [WIN32_NATIVE]: new slot fs_fileattr
+	(file_status_is_dir): new function
+	(get_path_info) [PATHNAME_UNIX]: extracted from assure_dir_exists
+	(assure_dir_exists) [PATHNAME_UNIX]: use it
+	(if_HAVE_LSTAT): remove
+	(access0) [WIN32_NATIVE]: set fs_fileattr
+
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (search-file <final def>): do not use DIRECTORY when
