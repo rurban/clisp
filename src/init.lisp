@@ -335,7 +335,7 @@
    proper-list-p elastic-newline absolute-pathname default-directory cd dir
    probe-directory make-directory delete-directory rename-directory
    xgcd exquo mod-expt ! evalhook applyhook substring string-concat
-   string-char make-char string-width char-width
+   string-char make-char string-width char-width probe-pathname
    int-char char-bits char-font char-bit set-char-bit char-key
    base-char-code-limit char-font-limit char-bits-limit char-control-bit
    char-meta-bit char-super-bit char-hyper-bit string-char-p
@@ -2129,6 +2129,9 @@
 ;; The return value is a list of all matching files from the ALL directories
 ;; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
 ;; (i.e. from new to old), or NIL if no matching file was found.
+(defun ppn-fwd (f)               ; probe-pathname + file-write-date
+  (let ((f (probe-pathname f)))
+    (and f (pathname-name f) (cons f (file-write-date f)))))
 (defun search-file (filename extensions)
   ;; <http://article.gmane.org/gmane.lisp.clisp.general:9893>
   ;; <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>
@@ -2159,15 +2162,13 @@
                                     (directory (make-pathname :type nil :defaults search-filename)
                                                :if-does-not-exist :ignore
                                                :full t :circle t)))
-                              (let ((f (probe-file search-filename))
+                              (let ((f (ppn-fwd search-filename))
                                     (e (and use-extensions extensions
                                             (mapcan #'(lambda (ext)
-                                                        (let ((f (probe-file (make-pathname :type ext :defaults search-filename))))
-                                                          (and f (list (cons f (file-write-date f))))))
+                                                        (let ((f (ppn-fwd (make-pathname :type ext :defaults search-filename))))
+                                                          (and f (list f))))
                                                     extensions))))
-                                (if f
-                                    (acons f (file-write-date f) e)
-                                    e)))))
+                                (if f (cons f e) e)))))
                      (when (and wild-p use-extensions extensions)
                        ;; filter the extensions
                        (setq xpathnames
