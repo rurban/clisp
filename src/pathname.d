@@ -5013,6 +5013,14 @@ nonreturning_function(local, error_file_exists, (void)) {
   error(file_error,GETTEXT("~S: file ~S already exists"));
 }
 
+/* error, if the pathname is a directory */
+nonreturning_function(local, error_directory, (object pathname)) {
+  pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
+  pushSTACK(whole_namestring(pathname));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: ~S names a directory, not a file"));
+}
+
 #ifdef LOGICAL_PATHNAMES
 /* An "absolute pathname" is always a non-logical pathname, poss.
  with further restrictions. */
@@ -5409,10 +5417,15 @@ static BOOL FullName (LPCSTR shortname, LPSTR fullname) {
 struct file_status {
   gcv_object_t *fs_pathname; /* pointer into STACK */
   object fs_namestring; /* usually returned by assure_dir_exists() */
+  DWORD fs_fileattr;
 };
+local inline void file_status_is_dir (struct file_status *fs)
+{ return fs->fs_fileattr == 0xFFFFFFFF
+    || !(fs->fs_fileattr & FILE_ATTRIBUTE_DIRECTORY); }
 local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
   fs->fs_pathname = path;
   fs->fs_namestring = nullobj;
+  fs->fs_fileattr = 0;
 }
 local maygc void assure_dir_exists (struct file_status *fs,
                                     bool links_resolved, bool tolerantp) {
@@ -5447,14 +5460,12 @@ local maygc void assure_dir_exists (struct file_status *fs,
             path[lastslashpos + 1] = '\0'; /* leave only path without name */
             if (real_path(path,resolved)) {
               /* substitute only directory part */
-              var DWORD fileattr = GetFileAttributes(resolved);
+              fs.fs_fileattr = GetFileAttributes(resolved);
               /* resolved to a file ? Only directories allowed
                  - nonmaskable error */
-              if (fileattr == 0xFFFFFFFF
-                  || !(fileattr & FILE_ATTRIBUTE_DIRECTORY)) {
-                SetLastError(ERROR_DIRECTORY);
-                end_system_call(); OS_file_error(*(fs->fs_pathname));
-              }
+              if (fs.fs_fileattr == 0xFFFFFFFF
+                  || !(fs.fs_fileattr & FILE_ATTRIBUTE_DIRECTORY))
+                error_directory(*(fs.fs_pathname));
               pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
               /* substitute immediately - w/o substitute flag
                turn it into a pathname and use it with old name: */
@@ -5584,19 +5595,13 @@ struct file_status {
   bool fs_stat_validp;
   struct stat fs_stat;
 };
+local inline bool file_status_is_dir (struct file_status *fs)
+{ return S_ISDIR(fs->fs_stat.st_mode); }
 local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
   fs->fs_pathname = path;
   fs->fs_namestring = nullobj;
   fs->fs_stat_validp = false;
 }
-
-/* this has to be done this ugly way since C does not allow conditionals
- (like #ifdef HAVE_LSTAT) inside macros (like with_sstring_0) */
-#ifdef HAVE_LSTAT
-  #define if_HAVE_LSTAT(statement)  statement
-#else
-  #define if_HAVE_LSTAT(statement)
-#endif
 
 local char* realpath_obj (object namestring, char *path_buffer) {
   char* ret;
@@ -5606,6 +5611,66 @@ local char* realpath_obj (object namestring, char *path_buffer) {
     end_system_call();
   });
   return ret;
+}
+/* return true if assure_dir_exists is done */
+local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
+                                int *allowed_links) {
+  begin_system_call();
+  if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
+    if (!(errno==ENOENT))
+      { end_system_call(); OS_file_error(*(fs->fs_pathname)); }
+    /* file does not exist. */
+    end_system_call();
+    FREE_DYNAMIC_ARRAY(namestring_asciz);
+    fs->fs_stat_validp = false; return true;
+  }
+  end_system_call();
+  /* file exists. */
+  if (S_ISDIR(fs->fs_stat.st_mode))
+    error_directory(*(fs->fs_pathname));
+ #ifdef HAVE_LSTAT
+  else if (possible_symlink(namestring_asciz)
+           && S_ISLNK(fs->fs_stat.st_mode)) {
+    /* is it a symbolic link? yes -> continue resolving: */
+    if (*allowed_links == 0) { /* no more links allowed? */
+      /* yes -> simulate UNIX-Error ELOOP */
+      begin_system_call();
+      errno = ELOOP_VALUE;
+      end_system_call();
+      OS_file_error(*(fs->fs_pathname));
+    }
+    --*allowed_links; /* after that, one link less is allowed */
+    var uintL linklen = fs->fs_stat.st_size; /* presumed length of the link-content */
+   retry_readlink: {
+      var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
+      /* read link-content: */
+      begin_system_call();
+      { var int result = readlink(namestring_asciz,linkbuf,linklen);
+        end_system_call();
+        if (result<0)
+          OS_file_error(*(fs->fs_pathname));
+        if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
+          FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
+        }
+      }
+      /* turn it into a pathname:
+         (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
+      pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
+      FREE_DYNAMIC_ARRAY(linkbuf);
+    }
+    funcall(L(parse_namestring),1);
+    pushSTACK(value1);
+    var object pathname = copy_pathname(*(fs->fs_pathname));
+    ThePathname(pathname)->pathname_name = NIL;
+    ThePathname(pathname)->pathname_type = NIL;
+    pushSTACK(pathname);
+    funcall(L(merge_pathnames),2);
+    *(fs->fs_pathname) = value1;
+  }
+ #endif /* HAVE_LSTAT */
+  else /* normal file */
+    return ((fs->fs_stat_validp = true));
+  return false;
 }
 local maygc void assure_dir_exists (struct file_status *fs,
                                     bool links_resolved, bool tolerantp) {
@@ -5659,68 +5724,8 @@ local maygc void assure_dir_exists (struct file_status *fs,
     fs->fs_namestring = whole_namestring(*(fs->fs_pathname)); /* concat */
     /* get information: */
     with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
-      begin_system_call();
-      if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
-        if (!(errno==ENOENT))
-          { end_system_call(); OS_file_error(*(fs->fs_pathname)); }
-        /* file does not exist. */
-        end_system_call();
-        FREE_DYNAMIC_ARRAY(namestring_asciz);
-        fs->fs_stat_validp = false; return;
-      }
-      end_system_call();
-      /* file exists. */
-      if (S_ISDIR(fs->fs_stat.st_mode)) { /* is it a directory? */
-        pushSTACK(*(fs->fs_pathname)); /* FILE-ERROR slot PATHNAME */
-        pushSTACK(whole_namestring(*(fs->fs_pathname)));
-        pushSTACK(TheSubr(subr_self)->name);
-        error(file_error,GETTEXT("~S: ~S names a directory, not a file"));
-      }
-     if_HAVE_LSTAT(
-      else if (possible_symlink(namestring_asciz)
-               && S_ISLNK(fs->fs_stat.st_mode)) {
-        /* is it a symbolic link?
-           yes -> continue resolving: */
-        if (allowed_links==0) { /* no more links allowed? */
-          /* yes -> simulate UNIX-Error ELOOP */
-          begin_system_call();
-          errno = ELOOP_VALUE;
-          end_system_call();
-          OS_file_error(*(fs->fs_pathname));
-        }
-        allowed_links--; /* after that, one link less is allowed */
-        var uintL linklen = fs->fs_stat.st_size; /* presumed length of the link-content */
-       retry_readlink: {
-          var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
-          /* read link-content: */
-          begin_system_call();
-          {
-            var int result = readlink(namestring_asciz,linkbuf,linklen);
-            end_system_call();
-            if (result<0)
-              OS_file_error(*(fs->fs_pathname));
-            if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
-              FREE_DYNAMIC_ARRAY(linkbuf); linklen = result; goto retry_readlink;
-            }
-          }
-          /* turn it into a pathname:
-             (MERGE-PATHNAMES (PARSE-NAMESTRING linkbuf) pathname-without-name&type) */
-          pushSTACK(n_char_to_string(linkbuf,linklen,O(pathname_encoding)));
-          FREE_DYNAMIC_ARRAY(linkbuf);
-        }
-        funcall(L(parse_namestring),1);
-        pushSTACK(value1);
-        var object pathname = copy_pathname(*(fs->fs_pathname));
-        ThePathname(pathname)->pathname_name = NIL;
-        ThePathname(pathname)->pathname_type = NIL;
-        pushSTACK(pathname);
-        funcall(L(merge_pathnames),2);
-        *(fs->fs_pathname) = value1;
-      }
-     ) /* HAVE_LSTAT */
-      else { /* normal file */
-        fs->fs_stat_validp = true; return;
-      }
+      if (get_path_info(fs,namestring_asciz,&allowed_links))
+        return;
     });
   }
 }
@@ -5829,8 +5834,8 @@ nonreturning_function(local, error_notdir, (object pathname)) {
 #ifdef WIN32_NATIVE
   local inline int access0 (const char* path, struct file_status *fs) {
     begin_system_call();
-    var DWORD fileattr = GetFileAttributes(path);
-    if (fileattr == 0xFFFFFFFF) {
+    fs->fs_fileattr = GetFileAttributes(path);
+    if (fs->fs_fileattr == 0xFFFFFFFF) {
       if (WIN32_ERROR_NOT_FOUND) {
         end_system_call(); return -1;
       }
@@ -5906,8 +5911,7 @@ LISPFUNNR(truename,1)
   skipSTACK(1);
 }
 
-LISPFUNNR(probe_file,1)
-{ /* (PROBE-FILE filename), CLTL p. 424 */
+local maygc Values probe_common (bool barf_on_dir) {
   var object pathname = popSTACK(); /* pathname-argument */
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
     /* must be file-stream: */
