@@ -1,5 +1,15 @@
 2008-07-11  Sam Steingold  <sds@gnu.org>
 
+	new function PROBE-PATHNAME
+	* pathname.d (probe_path_from_stream): extracted from PROBE-FILE
+	(PROBE-FILE): use it
+	(PROBE-PATHNAME): implemented
+	* constsym.d, subr.d (probe_pathname): declare
+	* init.lisp (probe-pathname): export
+	(search-file): use it instead of probe-file
+
+2008-07-11  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (error_directory): extracted from the unix version of
 	assure_dir_exists
 	(assure_dir_exists) [WIN32_NATIVE]: use it instead of
@@ -1332,7 +1342,7 @@
 
 	fix bug #[ 1790496 ]: float format directive ~ve prints spurious digits
 	* lisparit.d (FLOAT-SCALE-EXPONENT): implement
-	* constsym.d, subr.f (float_scale_exponent): declare
+	* constsym.d, subr.d (float_scale_exponent): declare
 	* format.lisp (format-scale-exponent-aux, format-scale-exponent): remove
 	(format-float-for-e, format-general-float): use
 	FLOAT-SCALE-EXPONENT instead of FORMAT-SCALE-EXPONENT

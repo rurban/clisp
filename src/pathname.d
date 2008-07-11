@@ -5911,25 +5911,28 @@ LISPFUNNR(truename,1)
   skipSTACK(1);
 }
 
+/* Probe filename referred to by the stream
+ > stream : a built-in stream
+ < stream : its strm_file_truename (or error is not a file stream)
+ < true if the stream was open and thus no further checks are necessary */
+local bool probe_path_from_stream (gcv_object_t *stream) {
+  /* must be file-stream: */
+  *stream = as_file_stream(*stream);
+  test_file_stream_named(*stream);
+  /* streamtype file-stream -> take truename: */
+  var uintB flags = TheStream(*stream)->strmflags;
+  *stream = TheStream(*stream)->strm_file_truename;
+  return flags & strmflags_open_B;
+}
+
 LISPFUNNR(probe_file,1)
 { /* (PROBE-FILE filename), CLTL p. 424 */
-  var object pathname = popSTACK(); /* pathname-argument */
-  if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
-    /* must be file-stream: */
-    pathname = as_file_stream(pathname);
-    test_file_stream_named(pathname);
-    /* streamtype file-stream -> take truename: */
-    var uintB flags = TheStream(pathname)->strmflags;
-    pathname = TheStream(pathname)->strm_file_truename;
-    if (flags & strmflags_open_B) { /* file opened? */
-      /* yes -> truename instantly as result: */
-      VALUES1(pathname); return;
-    }
-    /* no -> yet to test, if the file for the truename exists. */
+  if (builtin_stream_p(STACK_0)) { /* stream -> treat extra: */
+    if (probe_path_from_stream(&STACK_0))
+      { VALUES1(popSTACK()); return; }
   } else /* turn into a pathname */
-    pathname = merge_defaults(coerce_pathname(pathname));
-  /* pathname is now a Pathname. */
-  pushSTACK(pathname);
+    STACK_0 = merge_defaults(coerce_pathname(STACK_0));
+  /* STACK_0 is a pathname */
   var struct file_status fs; file_status_init(&fs,&STACK_0);
   true_namestring(&fs,true,true);
   if (eq(fs.fs_namestring,nullobj)) {
@@ -5940,6 +5943,48 @@ LISPFUNNR(probe_file,1)
     VALUES1(*(fs.fs_pathname)); /* file exists -> pathname as value */
   else VALUES1(NIL); /* else NIL as value */
   skipSTACK(1);
+}
+
+LISPFUNNR(probe_pathname,1)
+{ /* a perfectly safe way to distinguish between files and dirs:
+     "dir", "dir/" ==> #p"dir/"
+     "file", "file/" ==> #p"file"
+     "none", "none/" ==> NIL */
+  if (builtin_stream_p(STACK_0)) { /* stream -> treat extra: */
+    if (probe_path_from_stream(&STACK_0))
+      { VALUES1(popSTACK()); return; }
+  } else /* turn into a pathname */
+    STACK_0 = merge_defaults(coerce_pathname(STACK_0));
+  check_no_wildcards(STACK_0);
+  /* STACK_0 is a non-wild pathname */
+  /* parent dir: drop the last part: foo/bar -> foo/; foo/bar/ -> foo/ */
+  pushSTACK(copy_pathname(STACK_0));
+  if (namenullp(STACK_0)) {     /* foo/bar/ */
+    object dir = ThePathname(STACK_0)->pathname_directory;
+    while (!nullp(Cdr(dir))) dir = Cdr(dir);
+    pushSTACK(Car(dir)); Cdr(dir) = NIL; /* drop last dir component */
+  } else {
+    uintC count = file_namestring_parts(STACK_0);
+    object name_type = string_concat(count);
+    ThePathname(STACK_0)->pathname_name = NIL;
+    ThePathname(STACK_0)->pathname_type = NIL;
+    ThePathname(STACK_0)->pathname_version = NIL;
+    pushSTACK(name_type);
+  }
+  ASSERT(stringp(STACK_0));
+  /* STACK layout: argument, parent, last component as a string */
+  var struct file_status fs; file_status_init(&fs,&STACK_1);
+  true_namestring(&fs,false,true);
+  if (eq(fs.fs_namestring,nullobj)) {
+    /* path to the parent does not exist -> NIL as value: */
+    skipSTACK(3); VALUES1(NIL); return;
+  }
+  pushSTACK(fs.fs_namestring);
+  pushSTACK(STACK_1);           /* last component */
+  var namestring = string_concat(2);
+  /* FIXME: unfinished */
+  skipSTACK(3);
+  VALUES1(NIL);
 }
 
 /* call stat(2) on the object and return its return value

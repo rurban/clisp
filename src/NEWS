@@ -1,6 +1,15 @@
 Important notes
 ---------------
 
+* New function EXT:PROBE-PATHNAME can figure out whether the existing
+  pathname refers to a file or a directory.
+  See <http://clisp.cons.org/impnotes/files.html#probe-path> for details.
+
+* LOAD uses DIRECTORY only for wild *LOAD-PATHS* components, thus
+  speeding up the most common cases and preventing the denial-of-service
+  attack whereas CLISP would not start if a file with a name
+  incompatible with *PATHNAME-ENCODING* is present in USER-HOMEDIR-PATHNAME.
+
 * Bug fixes:
   + Comparison of floats and rationals never underflows. [ 2014262 ]
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an
