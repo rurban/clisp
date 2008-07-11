@@ -5911,7 +5911,8 @@ LISPFUNNR(truename,1)
   skipSTACK(1);
 }
 
-local maygc Values probe_common (bool barf_on_dir) {
+LISPFUNNR(probe_file,1)
+{ /* (PROBE-FILE filename), CLTL p. 424 */
   var object pathname = popSTACK(); /* pathname-argument */
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
     /* must be file-stream: */
