@@ -332,6 +332,7 @@
 <!ENTITY pr-indent '<link linkend="pr-indent"><varname>CUSTOM:*PRINT-INDENT-LISTS*</varname></link>'>
 <!ENTITY pr-rpars '<link linkend="pr-rpars"><varname>CUSTOM:*PRINT-RPARS*</varname></link>'>
 <!ENTITY probe-dir '<link linkend="probe-dir"><function>EXT:PROBE-DIRECTORY</function></link>'>
+<!ENTITY probe-path '<link linkend="probe-path"><function>EXT:PROBE-PATHNAME</function></link>'>
 <!ENTITY prompt-start '<link linkend="prompt-start"><varname>CUSTOM:*PROMPT-START*</varname></link>'>
 <!ENTITY prompt-step '<link linkend="prompt-step"><varname>CUSTOM:*PROMPT-STEP*</varname></link>'>
 <!ENTITY prompt-break '<link linkend="prompt-break"><varname>CUSTOM:*PROMPT-BREAK*</varname></link>'>
