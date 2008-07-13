@@ -5614,7 +5614,7 @@ local char* realpath_obj (object namestring, char *path_buffer) {
 }
 /* return true if assure_dir_exists is done */
 local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
-                                int *allowed_links) {
+                                uintC *allowed_links) {
   begin_system_call();
   if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
     if (!(errno==ENOENT))
@@ -5945,46 +5945,118 @@ LISPFUNNR(probe_file,1)
   skipSTACK(1);
 }
 
-LISPFUNNR(probe_pathname,1)
-{ /* a perfectly safe way to distinguish between files and dirs:
+/* Check whether the file exists
+ > namestring : path
+ < resolved : truename (if return is non-0)
+ < return 0 if namestring does not name an existing file or directory
+    1:  regular file
+   -1:  directory */
+local maygc signean classify_namestring (char* namestring, char *resolved) {
+#if defined(UNIX)
+  struct stat status;
+  int ret;
+  begin_system_call();
+  ret = stat(namestring,&status);
+  end_system_call();
+  if (ret) {
+    if (errno != ENOENT) OS_file_error(STACK_0);
+    return signean_null;         /* does not exist */
+  } else {                       /* file exists. */
+    realpath(namestring,resolved); /* ==> success assured */
+    if (S_ISDIR(status.st_mode)) return signean_minus; /* directory */
+    else return signean_plus;   /* file */
+  }
+#elif defined(WIN32_NATIVE)
+  bool ret;
+  begin_system_call();
+  if (real_path(namestring_asciz,resolved)) {
+    DWORD fileattr;
+    fileattr = GetFileAttributes(resolved);
+    end_system_call();
+    if (fileattr == 0xFFFFFFFF) {
+      /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
+         when file "foo" exists */
+      if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
+        OS_file_error(STACK_0);
+      return signean_null;      /* does not exist */
+    } else {                                   /* file exists. */
+      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return signean_minus;
+      else return signean_plus;   /* file */
+    }
+  } else { end_system_call(); return signean_null; } /* does not exist */
+#else
+  #error classify_namestring is not defined
+#endif
+}
+
+LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
+{ /* a safe way to distinguish between files and dirs:
      "dir", "dir/" ==> #p"dir/"
      "file", "file/" ==> #p"file"
-     "none", "none/" ==> NIL */
+     "none", "none/" ==> NIL
+  the first value is the truename,
+  the second is the "correct" absolute pathname */
   if (builtin_stream_p(STACK_0)) { /* stream -> treat extra: */
     if (probe_path_from_stream(&STACK_0))
       { VALUES1(popSTACK()); return; }
   } else /* turn into a pathname */
     STACK_0 = merge_defaults(coerce_pathname(STACK_0));
   check_no_wildcards(STACK_0);
-  /* STACK_0 is a non-wild pathname */
-  /* parent dir: drop the last part: foo/bar -> foo/; foo/bar/ -> foo/ */
-  pushSTACK(copy_pathname(STACK_0));
-  if (namenullp(STACK_0)) {     /* foo/bar/ */
-    object dir = ThePathname(STACK_0)->pathname_directory;
-    while (!nullp(Cdr(dir))) dir = Cdr(dir);
-    pushSTACK(Car(dir)); Cdr(dir) = NIL; /* drop last dir component */
-  } else {
-    uintC count = file_namestring_parts(STACK_0);
-    object name_type = string_concat(count);
-    ThePathname(STACK_0)->pathname_name = NIL;
-    ThePathname(STACK_0)->pathname_type = NIL;
-    ThePathname(STACK_0)->pathname_version = NIL;
-    pushSTACK(name_type);
+  /* STACK_0 is a non-wild non-logical pathname */
+  var signean classification;
+  var char resolved[MAXPATHLEN];
+  with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),
+                 namestring_asciz, {
+    if (cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
+      namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
+    classification = classify_namestring(namestring_asciz,resolved);
+  });
+  switch (classification) {
+    case signean_null: VALUES1(NIL); skipSTACK(1); return; /* does not exist */
+    case signean_minus: {            /* directory */
+      int len = strlen(resolved);
+      if (!cpslashp(resolved[len-1])) { /* append '/' to truename */
+        resolved[len] = '/'; resolved[len+1]= 0;
+      }
+      if (!namenullp(STACK_0)) { /* make STACK_0 a directory pathname */
+        STACK_0 = copy_pathname(STACK_0);
+        var uintC count = file_namestring_parts(STACK_0);
+        var object tmp = string_concat(count);
+        pushSTACK(tmp);
+        tmp = allocate_cons();
+        Car(tmp) = STACK_0;
+        STACK_0 = tmp;
+        tmp = ThePathname(STACK_1)->pathname_directory;
+        if (consp(tmp)) {
+          while (!nullp(Cdr(tmp))) tmp = Cdr(tmp);
+          Cdr(tmp) = popSTACK();  /* append name.type to directory */
+        } else if (nullp(tmp)) {
+          tmp = ThePathname(STACK_1)->pathname_directory = allocate_cons();
+          Car(tmp) = S(Krelative);
+          Cdr(tmp) = popSTACK(); /* :directory (:relative name.type) */
+        } else NOTREACHED;
+        ThePathname(STACK_0)->pathname_name = NIL; /* drop name... */
+        ThePathname(STACK_0)->pathname_type = NIL; /* ...and type */
+      }
+    } break;
+    case signean_plus:          /* file */
+      if (namenullp(STACK_0)) { /* make STACK_0 a regular file pathname */
+        STACK_0 =  copy_pathname(STACK_0);
+        var object tmp = ThePathname(STACK_0)->pathname_directory;
+        while (!nullp(Cdr(Cdr(tmp)))) tmp = Cdr(tmp);
+        pushSTACK(Car(Cdr(tmp))); Cdr(tmp) = NIL; /* chop off last dir comp */
+        split_name_type(1);
+        ThePathname(STACK_2)->pathname_name = STACK_1;
+        ThePathname(STACK_2)->pathname_type = STACK_0;
+        skipSTACK(2);
+      }
+      break;
   }
-  ASSERT(stringp(STACK_0));
-  /* STACK layout: argument, parent, last component as a string */
-  var struct file_status fs; file_status_init(&fs,&STACK_1);
-  true_namestring(&fs,false,true);
-  if (eq(fs.fs_namestring,nullobj)) {
-    /* path to the parent does not exist -> NIL as value: */
-    skipSTACK(3); VALUES1(NIL); return;
-  }
-  pushSTACK(fs.fs_namestring);
-  pushSTACK(STACK_1);           /* last component */
-  var namestring = string_concat(2);
-  /* FIXME: unfinished */
-  skipSTACK(3);
-  VALUES1(NIL);
+  STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
+  pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
+  funcall(L(truename),1);
+  value2 = popSTACK();
+  mv_count = 2;
 }
 
 /* call stat(2) on the object and return its return value
@@ -6977,41 +7049,11 @@ local maygc void copy_pathname_and_add_subdir (object subdir)
 
 /* Check whether a directory exists and call copy_pathname_and_add_subdir()
    on it; if the directory does not exist or is a file, do nothing */
-local maygc void check_sub_directory (object subdir, char* namestring_asciz) {
-#if defined(UNIX)
-  struct stat status;
-  int ret;
-  begin_system_call(); ret = stat(namestring_asciz,&status); end_system_call();
-  if (ret) {
-    if (errno != ENOENT)        /* subdirectory does not exist -> OK. */
-      OS_file_error(STACK_0);
-  } else {                       /* file exists. */
-    if (S_ISDIR(status.st_mode)) /* is it a directory? */
-      copy_pathname_and_add_subdir(subdir);
-  }
-#elif defined(WIN32_NATIVE)
-  char resolved[MAX_PATH];
-  if (real_path(namestring_asciz,resolved)) {
-    DWORD fileattr;
-    begin_system_call();
-    fileattr = GetFileAttributes(resolved);
-    end_system_call();
-    if (fileattr == 0xFFFFFFFF) {
-      /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
-         when file "foo" exists */
-      if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
-        OS_file_error(STACK_0);
-    } else {                                   /* file exists. */
-      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) /* is it a directory? */
-        copy_pathname_and_add_subdir(subdir);
-    }
-  }
-#endif
-}
-
 local maygc void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    check_sub_directory(subdir,namestring_asciz);
+    char resolved[MAXPATHLEN];
+    if (classify_namestring(namestring_asciz,resolved) == signean_minus)
+      copy_pathname_and_add_subdir(subdir); /* namestring is a directory */
   });
 }
 
