@@ -1521,7 +1521,7 @@
 ;; for the time being the files don't have to be searched:
 (sys::%putd 'search-file
  (sys::make-preliminary
-  (function search-file (lambda (filename extensions)
+  (function search-file (lambda (filename &optional extensions (keep-dirs t))
     (mapcan #'(lambda (directory)
                 (let ((directory (pathname-directory directory)))
                   (mapcan #'(lambda (extension)
@@ -1616,22 +1616,22 @@
                      stream
                      (or (eq *load-obsolete-action* :error)
                          (eq present-files t)
-                     (cdr present-files))
-                   (setq obj (read stream)))
-                 #+compiler
-                 (if (and bad-file (eq *load-obsolete-action* :compile))
-                   ;; assume that BAD-FILE was compiled from STREAM
-                   (let ((compiled-file ; try to compile
-                           (compile-file stream :output-file bad-file)))
-                     (if compiled-file ; ==> compiled-file == bad-file
-                       (progn
-                         (sys::built-in-stream-close stream)
-                         (setq stream (my-open compiled-file)
-                               path compiled-file))
-                       ;; compilation failed - try to load the source
-                       stream))
-                   stream)
-                 #-compiler stream))
+                         (cdr present-files))
+                     (setq obj (read stream)))
+                   #+compiler
+                   (if (and bad-file (eq *load-obsolete-action* :compile))
+                     ;; assume that BAD-FILE was compiled from STREAM
+                     (let ((compiled-file ; try to compile
+                            (compile-file stream :output-file bad-file)))
+                       (if compiled-file ; ==> compiled-file == bad-file
+                         (progn
+                           (sys::built-in-stream-close stream)
+                           (setq stream (my-open compiled-file)
+                                 path compiled-file))
+                         ;; compilation failed - try to load the source
+                         stream))
+                     stream)
+                   #-compiler stream))
         (return-from open-for-load (values stream path)))
       (when (eq present-files t)
         ;; File with precisely this name not present OR bad
@@ -1640,7 +1640,8 @@
         (setq present-files (search-file filename
                                          (append extra-file-types
                                                  *compiled-file-types*
-                                                 *source-file-types*))))
+                                                 *source-file-types*)
+                                         nil)))
       (if present-files
         ;; proceed with the next present file
         (setq path (car present-files) present-files (cdr present-files)
@@ -2133,15 +2134,15 @@
 ;; are compiled into the target directory, not the original one.
 ;;   If the searched filename is a directory, the directory pathname
 ;; is returned, NOT its contents.
-(defun ppn-fwd (f)               ; probe-pathname + file-write-date
+(defun ppn-fwd (f keep-dirs)    ; probe-pathname + file-write-date
   (multiple-value-bind (true-name phys-name) (probe-pathname f)
-    (when true-name
+    (when (and true-name (or keep-dirs (pathname-name true-name)))
       (cons phys-name
             (if (pathname-name true-name)
                 (file-write-date true-name)
                 (apply #'encode-universal-time
                        (third (car (directory true-name :full t)))))))))
-(defun search-file (filename extensions)
+(defun search-file (filename &optional extensions (keep-dirs t))
   ;; <http://article.gmane.org/gmane.lisp.clisp.general:9893>
   ;; <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>
   ;; <http://article.gmane.org/gmane.lisp.clisp.devel/18532>
@@ -2171,24 +2172,30 @@
                                     (directory (make-pathname :type nil :defaults search-filename)
                                                :if-does-not-exist :ignore
                                                :full t :circle t)))
-                              (let ((f (ppn-fwd search-filename))
+                              (let ((f (ppn-fwd search-filename keep-dirs))
                                     (e (and use-extensions extensions
                                             (mapcan #'(lambda (ext)
-                                                        (let ((f (ppn-fwd (make-pathname :type ext :defaults search-filename))))
+                                                        (let ((f (ppn-fwd (make-pathname :type ext :defaults search-filename) keep-dirs)))
                                                           (and f (list f))))
                                                     extensions))))
                                 (if f (cons f e) e)))))
-                     (when (and wild-p use-extensions extensions)
-                       ;; filter the extensions
-                       (setq xpathnames
-                             (delete-if-not
-                              #'(lambda (xpathname)
-                                  (let ((ext (pathname-type (first xpathname))))
-                                    (or (null ext) ; no extension - good!
-                                        (member ext extensions
-                                                :test #-WIN32 #'string=
-                                                      #+WIN32 #'string-equal))))
-                              xpathnames)))
+                     (when wild-p
+                       (unless keep-dirs
+                         (setq xpathnames
+                               (delete-if-not #'pathname-name xpathnames
+                                              :key #'car)))
+                       (when (and use-extensions extensions)
+                         ;; filter the extensions
+                         (setq xpathnames
+                               (delete-if-not
+                                #'(lambda (xpathname)
+                                    (let ((ext (pathname-type
+                                                (first xpathname))))
+                                      (or (null ext) ; no extension - good!
+                                          (member ext extensions
+                                                  :test #+WIN32 #'string-equal
+                                                        #-WIN32 #'string=))))
+                                xpathnames))))
                      (if wild-p
                          (dolist (xpathname xpathnames)
                            (setf (rest xpathname)
