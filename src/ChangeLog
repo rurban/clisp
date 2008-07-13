@@ -1,3 +1,8 @@
+2008-07-13  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (error_file_stream_unnamed, error_dir_not_exists)
+	(error_noname, error_notdir): print caller
+
 2008-07-12  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (classify_namestring): extracted from check_sub_directory
