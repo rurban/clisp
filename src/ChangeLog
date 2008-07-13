@@ -1,5 +1,14 @@
 2008-07-12  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (classify_namestring): extracted from check_sub_directory
+	(check_sub_directory): remove
+	(directory_search_1subdir): use classify_namestring instead
+	(PROBE-PATHNAME): also return the physical pathname as the 2nd value
+	* init.lisp (ppn-fwd): use the second value of PROBE-PATHNAME
+	* win32.d (MAXPATHLEN): define (needed for classify_namestring)
+
+2008-07-12  Sam Steingold  <sds@gnu.org>
+
 	* spvw_debug.d (ThePackage_, ThePathname_) [DEBUG_SPVW]: add
 
 2008-07-11  Sam Steingold  <sds@gnu.org>

@@ -2121,17 +2121,26 @@
 
 ;; A piece of "DO-WHAT-I-MEAN":
 ;; Searches for a program file.
-;; We search in the current directory and then in the directories
+;;   We search in the current directory and then in the directories
 ;; listed in *load-paths*.
-;; If an extension is specified in the filename, we search only for
+;;   If an extension is specified in the filename, we search only for
 ;; files with this extension. If no extension is specified, we additionally
 ;; search for files with an extension from the given list.
-;; The return value is a list of all matching files from the ALL directories
+;;   The return value is a list of all matching files from the ALL directories
 ;; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
 ;; (i.e. from new to old), or NIL if no matching file was found.
+;;   The file names are NOT truenames, this is important so that symlinks
+;; are compiled into the target directory, not the original one.
+;;   If the searched filename is a directory, the directory pathname
+;; is returned, NOT its contents.
 (defun ppn-fwd (f)               ; probe-pathname + file-write-date
-  (let ((f (probe-pathname f)))
-    (and f (pathname-name f) (cons f (file-write-date f)))))
+  (multiple-value-bind (true-name phys-name) (probe-pathname f)
+    (when true-name
+      (cons phys-name
+            (if (pathname-name true-name)
+                (file-write-date true-name)
+                (apply #'encode-universal-time
+                       (third (car (directory true-name :full t)))))))))
 (defun search-file (filename extensions)
   ;; <http://article.gmane.org/gmane.lisp.clisp.general:9893>
   ;; <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>

@@ -153,6 +153,9 @@ extern_C char *setlocale (int category, const char *locale);
 #ifndef _MAX_PATH
   #define _MAX_PATH 1024
 #endif
+#ifndef MAXPATHLEN
+  #define MAXPATHLEN _MAX_PATH
+#endif
 /* used by pathname.d */
 
 /* Retrieve information about a file
