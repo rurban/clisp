@@ -1522,6 +1522,7 @@
 (sys::%putd 'search-file
  (sys::make-preliminary
   (function search-file (lambda (filename &optional extensions (keep-dirs t))
+    (declare (ignore keep-dirs))
     (mapcan #'(lambda (directory)
                 (let ((directory (pathname-directory directory)))
                   (mapcan #'(lambda (extension)
@@ -2127,7 +2128,8 @@
 ;;   If an extension is specified in the filename, we search only for
 ;; files with this extension. If no extension is specified, we additionally
 ;; search for files with an extension from the given list.
-;;   The return value is a list of all matching files from the ALL directories
+;;   The return value is a list of all matching files from the FIRST directory
+;; [because otherwise every load will mean a full traversal of ~/lisp/**/]
 ;; containing any matching file, sorted according to decreasing FILE-WRITE-DATE
 ;; (i.e. from new to old), or NIL if no matching file was found.
 ;;   The file names are NOT truenames, this is important so that symlinks
@@ -2151,63 +2153,61 @@
   ;; with a name incompatible with *PATHNAME-ENCODING* prevents CLISP from
   ;; starting up (unless -norc or -E 1:1 is passed)
   ;; because (DIRECTORY "~/*") fails
-  (let* ((already-searched nil)
+  (let* ((already-searched nil) found
          (path-nonW (merge-pathnames filename))
          (path-wild (merge-pathnames path-nonW '#P"*.*"))
-         (use-extensions (null (pathname-type path-nonW)))
-         (found
-          (mapcan
-           #'(lambda (dir)
-               (let* ((wild-p (wild-pathname-p dir))
-                      (search-filename
-                       (merge-pathnames (if wild-p path-wild path-nonW) dir)))
-                 (unless (member search-filename already-searched :test #'equal)
-                   (push search-filename already-searched)
-                   (let ((xpathnames
-                          (if wild-p
-                              (nconc
-                               (directory search-filename :full t :circle t
-                                          :if-does-not-exist :ignore)
-                               (and (eq :wild (pathname-type search-filename))
-                                    (directory (make-pathname :type nil :defaults search-filename)
-                                               :if-does-not-exist :ignore
-                                               :full t :circle t)))
-                              (let ((f (ppn-fwd search-filename keep-dirs))
-                                    (e (and use-extensions extensions
-                                            (mapcan #'(lambda (ext)
-                                                        (let ((f (ppn-fwd (make-pathname :type ext :defaults search-filename) keep-dirs)))
-                                                          (and f (list f))))
-                                                    extensions))))
-                                (if f (cons f e) e)))))
-                     (when wild-p
-                       (unless keep-dirs
-                         (setq xpathnames
-                               (delete-if-not #'pathname-name xpathnames
-                                              :key #'car)))
-                       (when (and use-extensions extensions)
-                         ;; filter the extensions
-                         (setq xpathnames
-                               (delete-if-not
-                                #'(lambda (xpathname)
-                                    (let ((ext (pathname-type
-                                                (first xpathname))))
-                                      (or (null ext) ; no extension - good!
-                                          (member ext extensions
-                                                  :test #+WIN32 #'string-equal
-                                                        #-WIN32 #'string=))))
-                                xpathnames))))
-                     (if wild-p
-                         (dolist (xpathname xpathnames)
-                           (setf (rest xpathname)
-                                 (apply #'encode-universal-time
-                                        (third xpathname))))
-                         xpathnames)))))
-           (cons '#P""
-                 ;; when filename has "..", ignore *load-paths*
-                 ;; (to avoid errors with "**/../foo"):
-                 (if (memq :UP (pathname-directory path-nonW))
-                     '()
-                     (mapcar #'pathname *load-paths*))))))
+         (use-extensions (null (pathname-type path-nonW))))
+    (dolist (dir (cons '#P""
+                       ;; when filename has "..", ignore *load-paths*
+                       ;; (to avoid errors with "**/../foo"):
+                       (if (memq :UP (pathname-directory path-nonW))
+                           '()
+                           (mapcar #'pathname *load-paths*))))
+      (let* ((wild-p (wild-pathname-p dir))
+             (search-filename
+              (merge-pathnames (if wild-p path-wild path-nonW) dir)))
+        (unless (member search-filename already-searched :test #'equal)
+          (push search-filename already-searched)
+          (let ((xpathnames
+                 (if wild-p
+                     (nconc
+                      (directory search-filename :full t :circle t
+                                 :if-does-not-exist :ignore)
+                      (and (eq :wild (pathname-type search-filename))
+                           (directory (make-pathname
+                                       :type nil :defaults search-filename)
+                                      :if-does-not-exist :ignore
+                                      :full t :circle t)))
+                     (let ((f (ppn-fwd search-filename keep-dirs))
+                           (e (and use-extensions extensions
+                                   (mapcan #'(lambda (ext)
+                                               (let ((f (ppn-fwd (make-pathname :type ext :defaults search-filename) keep-dirs)))
+                                                 (and f (list f))))
+                                           extensions))))
+                       (if f (cons f e) e)))))
+            (when wild-p
+              (unless keep-dirs ; filter the directories
+                (setq xpathnames
+                      (delete-if-not #'pathname-name xpathnames :key #'car)))
+              (when (and use-extensions extensions) ; filter the extensions
+                (setq xpathnames
+                      (delete-if-not
+                       #'(lambda (xpathname)
+                           (let ((ext (pathname-type (first xpathname))))
+                             (or (null ext) ; no extension - good!
+                                 (member ext extensions
+                                         :test #+WIN32 #'string-equal
+                                               #-WIN32 #'string=))))
+                       xpathnames))))
+            (when xpathnames
+              (setq found
+                    (if wild-p
+                      (dolist (xpathname xpathnames)
+                        (setf (rest xpathname)
+                              (apply #'encode-universal-time
+                                     (third xpathname))))
+                      xpathnames))
+              (return))))))
     (mapcar #'car (sort (delete-duplicates found :test #'equal)
                         #'> :key #'cdr))))
 
