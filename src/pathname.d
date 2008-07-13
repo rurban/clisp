@@ -890,8 +890,7 @@ nonreturning_function(local, error_pathname_designator, (object thing)) {
   pushSTACK(O(type_designator_pathname));
   pushSTACK(thing);
   pushSTACK(TheSubr(subr_self)->name);
-  error(type_error,
-         GETTEXT("~S: argument ~S should be a pathname designator ~S"));
+  error(type_error,GETTEXT("~S: Argument ~S should be a pathname designator ~S"));
 }
 
 /* Tracks a chain of Synonym-Streams, so long as a File-Stream
@@ -923,9 +922,8 @@ local object as_file_stream (object stream) {
   } while(0)
 nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
   pushSTACK(stream); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(stream);
-  pushSTACK(TheSubr(subr_self)->name);
-  error(file_error,GETTEXT("~S: filename for ~S is unknown"));
+  pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: Filename for ~S is unknown"));
 }
 
 #if defined(UNIX) || defined(WIN32_NATIVE)
@@ -5000,8 +4998,8 @@ global maygc object physical_namestring (object thing) {
  > obj: pathname or (better) erroneous component */
 nonreturning_function(local, error_dir_not_exists, (object obj)) {
   pushSTACK(obj); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(obj);
-  error(file_error,GETTEXT("nonexistent directory: ~S"));
+  pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: Directory ~S does not exist"));
 }
 
 /* error, if a file already exits
@@ -5010,7 +5008,7 @@ nonreturning_function(local, error_file_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
-  error(file_error,GETTEXT("~S: file ~S already exists"));
+  error(file_error,GETTEXT("~S: File ~S already exists"));
 }
 
 /* error, if the pathname is a directory */
@@ -5809,8 +5807,8 @@ LISPFUNNR(namestring,1) { /* (NAMESTRING pathname), CLTL p. 417 */
  > pathname: pathname */
 nonreturning_function(local, error_noname, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(pathname);
-  error(file_error,GETTEXT("no file name given: ~S"));
+  pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: No file name given: ~S"));
 }
 #define check_noname(pathname)                                          \
   do { if (namenullp(pathname)) { error_noname(pathname); } } while(0)
@@ -5820,8 +5818,8 @@ nonreturning_function(local, error_noname, (object pathname)) {
  > pathname: pathname */
 nonreturning_function(local, error_notdir, (object pathname)) {
   pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
-  pushSTACK(pathname);
-  error(file_error,GETTEXT("not a directory: ~S"));
+  pushSTACK(pathname); pushSTACK(TheSubr(subr_self)->name);
+  error(file_error,GETTEXT("~S: Not a directory: ~S"));
 }
 #define check_notdir(pathname)                                  \
   do { if (!(nullp(ThePathname(pathname)->pathname_name)        \
@@ -5864,7 +5862,7 @@ nonreturning_function(local, error_file_not_exists, (void)) {
   /* STACK_0 = FILE-ERROR slot PATHNAME */
   pushSTACK(STACK_0); /* pathname */
   pushSTACK(TheSubr(subr_self)->name);
-  error(file_error,GETTEXT("~S: file ~S does not exist"));
+  error(file_error,GETTEXT("~S: File ~S does not exist"));
 }
 
 /* TRUENAME for a pathname
