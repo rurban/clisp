@@ -1064,7 +1064,7 @@ T
 (translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
 
 ;; one file - one host (CMUCL style)
-(let* ((dir (second *load-logical-pathname-translations-database*))
+(let* ((dir (make-pathname :directory (list :relative (pathname-name (first *load-logical-pathname-translations-database*)))))
        (file (merge-pathnames "FOO" dir)))
   (unwind-protect
        (let ((*load-paths* nil) (*load-verbose* t))

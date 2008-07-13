@@ -472,8 +472,7 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 (ext:re-export "CUSTOM" "EXT")
 #+LOGICAL-PATHNAMES
 (progn
-  (defvar *load-logical-pathname-translations-database*
-    '(#p"loghosts" #p"loghosts/"))
+  (defvar *load-logical-pathname-translations-database* '(#p"loghosts"))
   (defun logical-pathname-translations (host)
     (setq host (string-upcase host))
     (or (gethash host *logical-pathname-translations*) ; :test #'equal !
@@ -524,17 +523,18 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
                 host (read-from-string (getenv ho)))
                (return-from load-logical-pathname-translations t))
               ((dolist (file *load-logical-pathname-translations-database*)
-                 (if (pathname-name file)
-                   (dolist (ff (search-file file '(nil "host")))
-                     (when (load-lpt-many ff host) ; successfully defined?
-                       (return-from load-logical-pathname-translations t)))
-                   (dolist (ff (search-file file nil))
-                     (and (string-equal host (pathname-name ff))
-                          (or (null (pathname-type ff))
-                              (string-equal "host" (pathname-type ff)))
-                          (load-lpt-one ff host) ; successfully defined?
-                          (return-from load-logical-pathname-translations
-                            t))))))))
+                 (dolist (f (search-file file '(nil "host")))
+                   (if (pathname-name f)
+                     (when (load-lpt-many f host) ; host defined?
+                       (return-from load-logical-pathname-translations t))
+                     (dolist (f1 (nconc (directory (make-pathname
+                                                    :name host :defaults f))
+                                        (directory (make-pathname
+                                                    :name host :type "host"
+                                                    :defaults f))))
+                       (when (load-lpt-one f1 host) ; host defined?
+                         (return-from load-logical-pathname-translations
+                           t)))))))))
       (error (TEXT "No translations for logical host ~S found") host)))
   (set-logical-pathname-translations "SYS"
     '((";*.LISP" "*.lisp") (";*" "*") ("*" "/*"))))
