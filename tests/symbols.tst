@@ -5,6 +5,7 @@
 
 (PROGN (SETQ *GENSYM-COUNTER* 32) (GENSYM) T) T
 
+;; the following two tests assume that tests.lisp has been compiled
 (PRIN1-TO-STRING (GENSYM "FOO-"))
 "#:FOO-33"
 
