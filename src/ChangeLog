@@ -6,6 +6,8 @@
 	(load-logical-pathname-translations): updated for the search-file
 	changes: when the search finds a directory, it is returned as is
 	instead of its contents
+	* init.lisp (search-file): EXTENSIONS is optional, also accept KEEP-DIRS
+	(load): pass KEEP-DIRS=NIL to search-file
 
 2008-07-13  Sam Steingold  <sds@gnu.org>
 
