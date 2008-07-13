@@ -2,6 +2,8 @@
 
 	* pathname.d (error_file_stream_unnamed, error_dir_not_exists)
 	(error_noname, error_notdir): print caller
+	(FILE-NAMESTRING, DIRECTORY-NAMESTRING, ABSOLUTE-PATHNAME)
+	(physical_namestring): simplify code
 
 2008-07-12  Sam Steingold  <sds@gnu.org>
 

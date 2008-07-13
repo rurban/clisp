@@ -2565,14 +2565,12 @@ local maygc inline object file_namestring (object pathname) {
 
 LISPFUNNR(file_namestring,1)
 { /* (FILE-NAMESTRING pathname), CLTL p. 417 */
-  var object pathname = coerce_xpathname(popSTACK());
-  VALUES1(file_namestring(pathname));
+  VALUES1(file_namestring(coerce_xpathname(popSTACK())));
 }
 
 LISPFUNNR(directory_namestring,1)
 { /* (DIRECTORY-NAMESTRING pathname), CLTL p. 417 */
-  var object pathname = coerce_xpathname(popSTACK());
-  VALUES1(directory_namestring(pathname));
+  VALUES1(directory_namestring(coerce_xpathname(popSTACK())));
 }
 
 LISPFUNNR(host_namestring,1)
@@ -4963,28 +4961,20 @@ LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
   skipSTACK(5+1);
 }
 
-/* (ABSOLUTE-PATHNAME pathname) converts pathname to a physical pathname, if
-   necessary, and makes it absolute (using clisp's notion of default
-   directory). */
+/* (ABSOLUTE-PATHNAME pathname) converts pathname to a physical pathname,
+ if necessary, and makes it absolute
+ (using clisp's notion of default directory). */
 LISPFUNN(absolute_pathname,1)
-{
-  var object thing = popSTACK();
-  var object pathname = coerce_pathname(thing);
-  pathname = use_default_dir(pathname); /* insert default-directory */
-  VALUES1(pathname);
-}
+{ VALUES1(use_default_dir(coerce_pathname(popSTACK()))); }
 
 /* Converts an object into an absolute physical pathname and returns its
-   namestring.
+ namestring (merge in default-directory).
  physical_namestring(thing)
  > thing: an object
  < result: the namestring of the pathname denoted by thing
  can trigger GC */
-global maygc object physical_namestring (object thing) {
-  var object pathname = coerce_pathname(thing);
-  pathname = use_default_dir(pathname); /* insert default-directory */
-  return whole_namestring(pathname);
-}
+global maygc object physical_namestring (object thing)
+{ return whole_namestring(use_default_dir(coerce_pathname(thing))); }
 
 /* UP: tests, if the name of a pathname is =NIL.
  namenullp(pathname)
