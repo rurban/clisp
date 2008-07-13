@@ -1102,6 +1102,31 @@ NIL
 (directory "bar/" :full t) NIL
 (pathname-version (car (directory "./"))) NIL
 
+#+clisp
+(let ((f "my-file") tn)
+  (unwind-protect
+       (progn (setq tn (truename
+                        (open f :direction :probe :if-does-not-exist :create)))
+              (list (equal tn (probe-file f))
+                    (equal tn (ext:probe-pathname f))
+                    (equal tn (ext:probe-pathname (concatenate 'string f "/")))
+                    (equal tn (ext:probe-pathname
+                               (concatenate 'string f "///")))))
+    (delete-file tn)))
+#+clisp (T T T T)
+
+#+clisp
+(let* ((d "my-dir") (d1 (concatenate 'string d "/")) tn)
+  (unwind-protect
+       (progn (make-directory d1)
+              (setq tn (truename d1))
+              (list (equal tn (ext:probe-pathname d))
+                    (equal tn (ext:probe-pathname d1))
+                    (equal tn (ext:probe-pathname
+                               (concatenate 'string d "///")))))
+    (ext:delete-directory tn)))
+#+clisp (T T T)
+
 (flet ((kill (s) (makunbound s) (unintern s)))
   (kill '*dir*)
   (makunbound 'string)
