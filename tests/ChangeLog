@@ -1,3 +1,7 @@
+2008-07-12  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test PROBE-PATHNAME
+
 2008-07-10  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: add tests for bug #[ 2015118 ]: huge shifts cause
