@@ -669,7 +669,7 @@ cat <<EOF
 Configure findings:
   FFI:        ${cl_cv_have_ffcall} (user requested: ${do_ffi})
   readline:   ${ac_cv_have_readline} (user requested: ${ac_cv_use_readline})
-  libsigsegv: ${cl_cv_lib_sigsegv}
+  libsigsegv: ${gl_cv_lib_sigsegv}
 EOF
 if test -n "${ffi_modules}"; then
   test ${do_ffi} = no && \
@@ -680,7 +680,7 @@ fi
 if [ ${do_ffi} != no -a ${cl_cv_have_ffcall} = yes ]; then
   makemake_args="--with-dynamic-ffi ${makemake_args}"
 fi
-if [ "${cl_cv_lib_sigsegv}" != "yes" ]; then
+if [ "${gl_cv_lib_sigsegv}" != "yes" ]; then
   if [ "${ignore_absence_of_libsigsegv}" = "yes" ]; then
     echo "As you requested, we will proceed without libsigsegv..."
   else

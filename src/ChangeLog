@@ -1,3 +1,16 @@
+2008-07-14  Sam Steingold  <sds@gnu.org>
+
+	src/m4/sigsegv.m4 --> src/glm4/libsigsegv.m4
+	* Makefile.devel (gnulib-imported): also import libsigsegv
+	* configure: use gl_cv_lib_sigsegv instead of cl_cv_lib_sigsegv
+	* configure.in: use gl_LIBSIGSEGV instead of CL_SIGSEGV
+	* lispbibl.d: use HAVE_LIBSIGSEGV instead of NO_SIGSEGV
+	* makemake.in (XCFLAGS): do not add NO_SIGSEGV
+	* src/m4/sigsegv.m4: remove
+	* src/glm4/libsigsegv.m4: add
+	* gllib/Makefile.am, glm4/gnulib-cache.m4, glm4/gnulib-comp.m4:
+	regenerate
+
 2008-07-13  Sam Steingold  <sds@gnu.org>
 
 	* error.d (error_illegal_arg): new function
