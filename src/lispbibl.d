@@ -14741,6 +14741,15 @@ extern maygc object check_encoding (object obj, const gcv_object_t* e_default,
                                     bool keyword_p);
 /* used by ENCODING, FOREIGN */
 
+/* Signal an Error on illegal argument
+ > arg: bad object
+ > typ: expected type (may be nullobj to signal a regular error
+        instead of a type-error)
+ > key: the argument name (usually a keyword) */
+nonreturning_function(global, error_illegal_arg,
+                      (object arg, object typ, object key));
+/* used by ENCODING, PATHNAME, STREAM */
+
 /* Error when the property list has odd length
  error_plist_odd(caller,plist);
  > plist: bad plist */

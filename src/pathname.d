@@ -1267,7 +1267,7 @@ local maygc object simplify_directory (object dir) {
   pushSTACK(O(empty_string)); /* FILE-ERROR slot PATHNAME */
   pushSTACK(dir); pushSTACK(S(Kdirectory));
   pushSTACK(TheSubr(subr_self)->name);
-  error(file_error,GETTEXT("~S: illegal ~S argument ~S"));
+  error(file_error,GETTEXT("~S: Illegal ~S argument ~S"));
 }
 
 /* Parses a logical pathname.
@@ -3602,7 +3602,7 @@ LISPFUN(make_pathname,seclass_read,0,0,norest,key,8,
   }
  error_arg: /* error-message: */
   pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
+  error(error_condition,GETTEXT("~S: Illegal ~S argument ~S"));
 }
 #undef COERCE_PATHNAME_SLOT
 
@@ -6515,13 +6515,7 @@ global direction_t check_direction (object dir) {
     return DIRECTION_IO;
   else if (eq(dir,S(Kprobe)))
     return DIRECTION_PROBE;
-  else {
-    pushSTACK(dir);               /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_direction)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(dir); pushSTACK(S(Kdirection));
-    pushSTACK(TheSubr(subr_self)->name);
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-  }
+  else error_illegal_arg(dir,O(type_direction),S(Kdirection));
 }
 
 local object direction_symbol (direction_t direction) {
@@ -6546,13 +6540,8 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
     return IF_DOES_NOT_EXIST_NIL;
   else if (eq(if_not_exist,S(Kcreate)))
     return IF_DOES_NOT_EXIST_CREATE;
-  else {
-    pushSTACK(if_not_exist);              /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_if_does_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(if_not_exist); pushSTACK(S(Kif_does_not_exist));
-    pushSTACK(S(open));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-  }
+  else error_illegal_arg(if_not_exist,O(type_if_does_not_exist),
+                         S(Kif_does_not_exist));
 }
 
 /* Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
@@ -6586,12 +6575,7 @@ global if_exists_t check_if_exists (object if_exists) {
     return IF_EXISTS_APPEND;
   else if (eq(if_exists,S(Koverwrite)))
     return IF_EXISTS_OVERWRITE;
-  else {
-    pushSTACK(if_exists);         /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_if_exists)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(if_exists); pushSTACK(S(Kif_exists)); pushSTACK(S(open));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-  }
+  else error_illegal_arg(if_exists,O(type_if_exists),S(Kif_exists));
 }
 
 /* Converts a :IF-EXISTS enum item to a symbol.
@@ -7675,13 +7659,8 @@ LISPFUN(directory,seclass_read,1,0,norest,key,3,
     dsp.if_none = DIR_IF_NONE_KEEP;
   else if (eq(STACK_2,S(Kignore)))
     dsp.if_none = DIR_IF_NONE_IGNORE;
-  else {
-    pushSTACK(STACK_2); /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_directory_not_exist)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(STACK_(2+2)); /* :IF-DOES-NOT-EXIST argument */
-    pushSTACK(S(Kif_does_not_exist)); pushSTACK(S(directory));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
-  }
+  else error_illegal_arg(STACK_2,O(type_directory_not_exist),
+                         S(Kif_does_not_exist));
   dsp.circle_p = !missingp(STACK_1); /* :CIRCLE argument defaults to NIL */
   dsp.full_p = !missingp(STACK_0); /* :FULL argument defaults to NIL */
   skipSTACK(3);
@@ -8608,7 +8587,7 @@ local maygc sintL interpret_launch_priority (object priority_arg) {
   pushSTACK(priority_arg);
   pushSTACK(S(Kpriority));
   pushSTACK(TheSubr(subr_self)->name);
-  check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+  check_value(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
   priority_arg = value1;
   goto restart_priority;
 }

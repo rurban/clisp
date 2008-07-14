@@ -2024,7 +2024,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
             pushSTACK(O(type_hashtable_test)); /* TYPE-ERROR slot EXPECTED-TYPE */
             pushSTACK(test); pushSTACK(S(Ktest));
             pushSTACK(S(make_hash_table));
-            check_value(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+            check_value(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
             STACK_3 = value1;
             goto check_test_restart;
           }
