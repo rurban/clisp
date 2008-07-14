@@ -12,8 +12,6 @@
      NO_TERMCAP_NCURSES
    Internationalization:
      NO_GETTEXT, UNICODE
-   Fault handling:
-     NO_SIGSEGV
    Foreign function interface:
      DYNAMIC_FFI
    Dynamic loading of modules:
@@ -2003,7 +2001,7 @@ typedef enum {
 
 #endif /* UNIX || WIN32 */
 
-#if (defined(UNIX) || defined(WIN32_NATIVE)) && !defined(NO_SIGSEGV)
+#if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_LIBSIGSEGV)
   /* Support for fault handling. */
   #include <sigsegv.h>
   #if defined(UNIX_CYGWIN32)

@@ -1537,10 +1537,6 @@ else
   XCL_GETTEXTLIB=$XCL_GETTEXTLIB' locale'
 fi
 
-if test -z "$LIBSIGSEGV"; then
-  XCFLAGS=$XCFLAGS' -DNO_SIGSEGV'
-fi
-
 FILES='lisp.a '$FILES
 
 CPARTS='        spvw spvwtabf spvwtabs spvwtabo'
