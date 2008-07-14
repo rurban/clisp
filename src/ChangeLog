@@ -1,5 +1,17 @@
 2008-07-13  Sam Steingold  <sds@gnu.org>
 
+	* error.d (error_illegal_arg): new function
+	* lispbibl.d (error_illegal_arg): declare
+	* constobj.d (type_buffered_arg): add for stream.d:test_buffered_arg
+	* stream.d (test_buffered_arg, test_eltype_arg, check_float_eltype):
+	use error_illegal_arg
+	* encoding.d (MAKE-ENCODING): ditto
+	* pathname.d (check_direction, check_if_does_not_exist)
+	(check_if_exists, DIRECTORY): ditto
+	* hashtabl.d: fix an error message case
+
+2008-07-13  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (base64_wcstombs): set CHARSET-TYPE-ERROR slots DATUM
 	and EXPECTED-TYPE
 	(error_incomplete, error_uni32_invalid, error_utf8_invalid1)

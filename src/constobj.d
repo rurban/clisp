@@ -410,7 +410,7 @@
   LISPOBJ(type_if_exists,"(MEMBER :ERROR :NEW-VERSION :RENAME :RENAME-AND-DELETE :OVERWRITE :APPEND :SUPERSEDE NIL)")
   LISPOBJ(type_if_does_not_exist,"(MEMBER :ERROR :CREATE NIL)")
   LISPOBJ(type_directory_not_exist,"(MEMBER :DISCARD :ERROR :KEEP :IGNORE)")
-  LISPOBJ(type_external_format,"(OR (MEMBER :DEFAULT) EXT::ENCODING (MEMBER :UNIX :MAC :DOS))")
+  LISPOBJ(type_external_format,"(OR EXT::ENCODING (MEMBER :DEFAULT :UNIX :MAC :DOS))")
   LISPOBJ(type_pathname_field_key,"(MEMBER :HOST :DEVICE :DIRECTORY :NAME :TYPE :VERSION NIL)")
  #ifdef SOCKET_STREAMS
   LISPOBJ(type_socket_option,"(MEMBER :SO-DEBUG : SO-ACCEPTCONN :SO-BROADCAST :SO-REUSEADDR :SO-DONTROUTE :SO-KEEPALIVE :SO-ERROR :SO-LINGER :SO-OOBINLINE :SO-TYPE :SO-RCVBUF :SO-SNDBUF :SO-RCVLOWAT :SO-SNDLOWAT :SO-RCVTIMEO :SO-SNDTIMEO)")
@@ -508,6 +508,7 @@
   LISPOBJ(standard_input_file_stream,"NIL")
   LISPOBJ(standard_output_file_stream,"NIL")
   LISPOBJ(standard_error_file_stream,"NIL")
+  LISPOBJ(type_buffered_arg,"(MEMBER :DEFAULT T NIL)")
 /* for IO.D:
    four readtable-case-values: */
   LISPOBJ(rtcase_0,":UPCASE")

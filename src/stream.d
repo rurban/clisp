@@ -3291,9 +3291,7 @@ local signean test_buffered_arg (object arg) {
     return -1;
   if (eq(arg,T))
     return 1;
-  pushSTACK(arg); pushSTACK(S(Kbuffered));
-  pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
+  error_illegal_arg(arg,O(type_buffered_arg),S(Kbuffered));
 }
 
 /* Classification of possible :ELEMENT-TYPEs. */
@@ -3399,9 +3397,7 @@ local maygc void test_eltype_arg (gcv_object_t* eltype_, decoded_el_t* decoded)
   decoded->size = posfixnum_to_V(eltype_size);
   return;
  bad_eltype:
-  pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
-  pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
+  error_illegal_arg(*eltype_,nullobj,S(Kelement_type));
 }
 
 /* evaluate the appropriate forms */
@@ -16585,9 +16581,7 @@ local uintL check_float_eltype (gcv_object_t* eltype_) {
     if (is_dfloat_subtype)
       return sizeof(dfloatjanus);
   }
-  pushSTACK(*eltype_); pushSTACK(S(Kelement_type));
-  pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: illegal ~S argument ~S"));
+  error_illegal_arg(*eltype_,nullobj,S(Kelement_type));
 }
 
 /* UP: Check an endianness argument.

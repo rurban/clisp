@@ -1251,10 +1251,27 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
   if (keyword_p) pushSTACK(S(Kexternal_format));
   pushSTACK(TheSubr(subr_self)->name);
   check_value(type_error,
-              keyword_p ? GETTEXT("~S: illegal ~S argument ~S")
-              : GETTEXT("~S: argument ~S is not a character set"));
+              keyword_p ? GETTEXT("~S: Illegal ~S argument ~S")
+              : GETTEXT("~S: Argument ~S is not a character set"));
   arg = value1;
   goto restart;
+}
+
+/* Signal an Error on illegal argument
+ > arg: bad object
+ > typ: expected type (may be nullobj to signal a regular error
+        instead of a type-error)
+ > key: the argument name (usually a keyword) */
+nonreturning_function(global, error_illegal_arg,
+                      (object arg, object typ, object key)) {
+  condition_t errtype = error_condition;
+  if (!eq(typ,nullobj)) {
+    pushSTACK(arg); /* TYPE-ERROR slot DATUM */
+    pushSTACK(typ); /* TYPE-ERROR slot EXPECTED-TYPE */
+    errtype = type_error;
+  }
+  pushSTACK(arg); pushSTACK(key); pushSTACK(TheSubr(subr_self)->name);
+  error(errtype,GETTEXT("~S: Illegal ~S argument ~S"));
 }
 
 /* Error when the property list has odd length
