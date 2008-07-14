@@ -257,6 +257,9 @@
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
+/* Define if you have the libsigsegv library. */
+#undef HAVE_LIBSIGSEGV
+
 /* Define to 1 if you have the <lightning.h> header file. */
 #undef HAVE_LIGHTNING_H
 
@@ -408,9 +411,6 @@
 
 /* Define to 1 if 'wint_t' is a signed integer type. */
 #undef HAVE_SIGNED_WINT_T
-
-/* Define if you have the libsigsegv library. */
-#undef HAVE_SIGSEGV
 
 /* `struct sockaddr_un' from <sys/un.h> has a `sun_len' field */
 #undef HAVE_SOCKADDR_UN_LEN
