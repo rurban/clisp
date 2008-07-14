@@ -292,12 +292,15 @@ nonreturning_function(global, error_unencodable,
 /* used in CONVERT-STRING-FROM-BYTES, so must not depend on UNICODE */
 /* missing bytes at the end */
 nonreturning_function(local, error_incomplete, (object encoding)) {
+  pushSTACK(NIL);     /* <end-of-file?> CHARSET-TYPE-ERROR slot DATUM */
 #ifdef UNICODE
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
 #else
-  pushSTACK(encoding);         /* no enc_charset slot without UNICODE */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
+  pushSTACK(encoding);       /* no enc_charset slot without UNICODE */
 #endif
-  error(error_condition,GETTEXT("incomplete byte sequence at end of buffer for ~S"));
+  error(charset_type_error,GETTEXT("incomplete byte sequence at end of buffer for ~S"));
 }
 #ifdef UNICODE
 local void handle_incomplete (object encoding, chart* *destp) {
@@ -547,13 +550,15 @@ global void uni32le_wcstombs (object encoding, object stream,
  error_uni32_invalid(encoding,code); */
 nonreturning_function(local, error_uni32_invalid,
                       (object encoding, uint32 code)) {
-  var uintC count;
+  pushSTACK(uint32_to_I(code)); /* CHARSET-TYPE-ERROR slot datum */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
+  var uintC count;
   dotimespC(count,8, {
     pushSTACK(ascii_char(hex_table[code&0x0F]));
     code = code>>4;
   });
-  error(error_condition,GETTEXT("character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
+  error(charset_type_error,GETTEXT("character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
 }
 
 global uintL uni32be_mblen (object encoding, const uintB* src,
@@ -747,43 +752,64 @@ global void utf8_wcstombs (object encoding, object stream, const chart* *srcp,
  error_utf8_invalid1(encoding,b1); */
 nonreturning_function(local, error_utf8_invalid1,
                       (object encoding, uintB b1)) {
+  pushSTACK(fixnum(b1));        /* CHARSET-TYPE-ERROR slot DATUM */
+  pushSTACK(encoding);          /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,GETTEXT("invalid byte #x~C~C in ~S conversion, not a Unicode-16"));
+  error(charset_type_error,GETTEXT("invalid byte #x~C~C in ~S conversion, not a Unicode-16"));
 }
 
 /* Error when an invalid 2-byte sequence was encountered.
  error_utf8_invalid2(encoding,b1,b2); */
 nonreturning_function(local, error_utf8_invalid2,
                       (object encoding, uintB b1, uintB b2)) {
-  pushSTACK(TheEncoding(encoding)->enc_charset);
+  pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
+  STACK_1 = allocate_bit_vector(Atype_8Bit,2);
+  TheSbvector(STACK_1)->data[0] = b1;
+  TheSbvector(STACK_1)->data[1] = b2;
+  pushSTACK(TheEncoding(STACK_0/*encoding*/)->enc_charset);
   pushSTACK(ascii_char(hex_table[b2&0x0F]));
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,GETTEXT("invalid byte sequence #x~C~C #x~C~C in ~S conversion"));
+  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C in ~S conversion"));
 }
 
 /* Error when an invalid 3-byte sequence was encountered.
  error_utf8_invalid3(encoding,b1,b2,b3); */
 nonreturning_function(local, error_utf8_invalid3,
                       (object encoding, uintB b1, uintB b2, uintB b3)) {
-  pushSTACK(TheEncoding(encoding)->enc_charset);
+  pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
+  STACK_1 = allocate_bit_vector(Atype_8Bit,3);
+  TheSbvector(STACK_1)->data[0] = b1;
+  TheSbvector(STACK_1)->data[1] = b2;
+  TheSbvector(STACK_1)->data[2] = b3;
+  pushSTACK(TheEncoding(STACK_0/*encoding*/)->enc_charset);
   pushSTACK(ascii_char(hex_table[b3&0x0F]));
   pushSTACK(ascii_char(hex_table[(b3>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b2&0x0F]));
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 /* Error when an invalid 4-byte sequence was encountered.
  error_utf8_invalid4(encoding,b1,b2,b3,b4); */
 nonreturning_function(local, error_utf8_invalid4,
-                      (object encoding, uintB b1, uintB b2, uintB b3, uintB b4)) {
-  pushSTACK(TheEncoding(encoding)->enc_charset);
+                      (object encoding, uintB b1, uintB b2, uintB b3, uintB b4))
+{
+  pushSTACK(NIL);            /* CHARSET-TYPE-ERROR slot DATUM */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
+  STACK_1 = allocate_bit_vector(Atype_8Bit,4);
+  TheSbvector(STACK_1)->data[0] = b1;
+  TheSbvector(STACK_1)->data[1] = b2;
+  TheSbvector(STACK_1)->data[2] = b3;
+  TheSbvector(STACK_1)->data[3] = b4;
+  pushSTACK(TheEncoding(STACK_0/*encoding*/)->enc_charset);
   pushSTACK(ascii_char(hex_table[b4&0x0F]));
   pushSTACK(ascii_char(hex_table[(b4>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b3&0x0F]));
@@ -792,7 +818,7 @@ nonreturning_function(local, error_utf8_invalid4,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(error_condition,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 global uintL utf8_mblen (object encoding, const uintB* src,
@@ -1592,11 +1618,13 @@ global object nls_range (object encoding, uintL start, uintL end, uintL maxinter
 /* Error when an invalid byte was encountered.
  error_nls_invalid(encoding,b); */
 nonreturning_function(local, error_nls_invalid, (object encoding, uintB b)) {
+  pushSTACK(fixnum(b));      /* CHARSET-TYPE-ERROR slot DATUM */
+  pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b&0x0F]));
   pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
   pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition,GETTEXT("~S: invalid byte #x~C~C in ~S conversion"));
+  error(charset_type_error,GETTEXT("~S: invalid byte #x~C~C in ~S conversion"));
 }
 
 global uintL nls_mblen (object encoding, const uintB* src,
