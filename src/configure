@@ -47698,7 +47698,7 @@ done
         ;;
   *) ;;
 esac
-      if "$cl_cv_sys_shm_works" = "yes"; then
+      if test "$cl_cv_sys_shm_works" = "yes"; then
 { $as_echo "$as_me:$LINENO: checking for attachability of removed shared memory" >&5
 $as_echo_n "checking for attachability of removed shared memory... " >&6; }
 if test "${cl_cv_func_shmctl_attachable+set}" = set; then
