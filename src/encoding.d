@@ -236,9 +236,13 @@ global void base64_wcstombs (object encoding, object stream,
   *destp += base64_to_bytes(*srcp,srcend,*destp,&error_p);
   if (error_p) {
     if (error_p == srcend) {
+      pushSTACK(NIL);   /* <end-of-file?> slot DATUM */
+      pushSTACK(S(base64));     /* slot EXPECTED-TYPE */
       pushSTACK(fixnum(error_p-*srcp));
       error(charset_type_error,GETTEXT("Invalid base64 encoding termination at position ~S"));
     } else {
+      pushSTACK(code_char(*error_p)); /* slot DATUM */
+      pushSTACK(S(base64));     /* slot EXPECTED-TYPE */
       pushSTACK(fixnum(srcend-*srcp));
       pushSTACK(fixnum((error_p-*srcp)+1));
       pushSTACK(code_char(*error_p));

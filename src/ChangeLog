@@ -1,5 +1,10 @@
 2008-07-13  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (base64_wcstombs): set CHARSET-TYPE-ERROR slots DATUM
+	and EXPECTED-TYPE
+
+2008-07-13  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (search-file): list matching files from the FIRST
 	directory containing any matching file, because otherwise every
 	load will mean a full traversal of ~/lisp/**/
