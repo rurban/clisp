@@ -1741,6 +1741,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_LIBSIGSEGV
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
@@ -1758,10 +1759,10 @@ AC_SUBST([LTALLOCA])
   gl_WCHAR_H
   gl_WCTYPE_H
   m4_ifval(gl_LIBSOURCES_LIST, [
-    m4_syscmd([test ! -d ]gl_LIBSOURCES_DIR[ ||
+    m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]gl_LIBSOURCES_LIST[ ; do
-        if test ! -r ]gl_LIBSOURCES_DIR[/$gl_file ; then
-          echo "missing file ]gl_LIBSOURCES_DIR[/$gl_file" >&2
+        if test ! -r ]m4_defn([gl_LIBSOURCES_DIR])[/$gl_file ; then
+          echo "missing file ]m4_defn([gl_LIBSOURCES_DIR])[/$gl_file" >&2
           exit 1
         fi
       done])dnl
@@ -1797,10 +1798,10 @@ AC_SUBST([LTALLOCA])
   gl_COMMON
   gl_source_base='tests'
   m4_ifval(gltests_LIBSOURCES_LIST, [
-    m4_syscmd([test ! -d ]gltests_LIBSOURCES_DIR[ ||
+    m4_syscmd([test ! -d ]m4_defn([gltests_LIBSOURCES_DIR])[ ||
       for gl_file in ]gltests_LIBSOURCES_LIST[ ; do
-        if test ! -r ]gltests_LIBSOURCES_DIR[/$gl_file ; then
-          echo "missing file ]gltests_LIBSOURCES_DIR[/$gl_file" >&2
+        if test ! -r ]m4_defn([gltests_LIBSOURCES_DIR])[/$gl_file ; then
+          echo "missing file ]m4_defn([gltests_LIBSOURCES_DIR])[/$gl_file" >&2
           exit 1
         fi
       done])dnl
@@ -1941,6 +1942,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/lib-ld.m4
   m4/lib-link.m4
   m4/lib-prefix.m4
+  m4/libsigsegv.m4
   m4/link-follow.m4
   m4/localcharset.m4
   m4/lock.m4
@@ -3379,6 +3381,57 @@ AC_DEFUN([AC_LIB_PREPARE_MULTILIB],
     done
     IFS="$acl_save_IFS"
   fi
+])
+
+# libsigsegv.m4 serial 1
+dnl Copyright (C) 2002-2003, 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible, Sam Steingold.
+
+AC_PREREQ(2.61)
+
+AC_DEFUN([gl_LIBSIGSEGV],
+[
+  dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
+  AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
+  AC_REQUIRE([AC_LIB_RPATH])
+
+  dnl Search for libsigsegv and define LIBSIGSEGV, LTLIBSIGSEGV and INCSIGSEGV
+  dnl accordingly.
+  AC_LIB_LINKFLAGS_BODY([sigsegv])
+
+  dnl Add $INCSIGSEGV to CPPFLAGS before performing the following checks,
+  dnl because if the user has installed libsigsegv and not disabled its use
+  dnl via --without-libsigsegv-prefix, he wants to use it.
+  gl_save_CPPFLAGS="$CPPFLAGS"
+  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCSIGSEGV])
+
+  AC_CACHE_CHECK([for libsigsegv], gl_cv_lib_sigsegv, [
+    gl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
+    gl_save_LIBS="$LIBS"
+    LIBS="$LIBS $LIBSIGSEGV"
+    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <sigsegv.h>]],
+      [sigsegv_deinstall_handler();])],
+      [gl_cv_lib_sigsegv=yes])
+    LIBS="$gl_save_LIBS"
+  ])
+  if test "$gl_cv_lib_sigsegv" = yes; then
+    AC_DEFINE([HAVE_LIBSIGSEGV], 1,
+      [Define if you have the libsigsegv library.])
+    AC_MSG_CHECKING([how to link with libsigsegv])
+    AC_MSG_RESULT([$LIBSIGSEGV])
+  else
+    dnl If $LIBSIGSEGV didn't lead to a usable library, we don't need
+    dnl $INCSIGSEGV either.
+    CPPFLAGS="$gl_save_CPPFLAGS"
+    LIBSIGSEGV=
+    LTLIBSIGSEGV=
+  fi
+  AC_SUBST(LIBSIGSEGV)
+  AC_SUBST(LTLIBSIGSEGV)
 ])
 
 #serial 9
@@ -15208,7 +15261,7 @@ AC_PREREQ(2.57)
 
 AC_DEFUN([CL_SHM_RMID],
 [AC_REQUIRE([CL_SHM])dnl
-if test -n "$have_shm"; then
+if "$cl_cv_sys_shm_works" = "yes"; then
 AC_CACHE_CHECK(for attachability of removed shared memory, cl_cv_func_shmctl_attachable, [
 AC_TRY_RUN([
 #include <stdlib.h>
@@ -15263,7 +15316,7 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 AC_PREREQ(2.57)
 
 AC_DEFUN([CL_SHM_H],
-[AC_BEFORE([$0], [CL_SHM_RMID])dnl
+[AC_BEFORE([$0], [CL_SHM])dnl
 AC_CHECK_HEADERS(sys/shm.h)
 if test $ac_cv_header_sys_shm_h = yes; then
 AC_CHECK_HEADERS(sys/ipc.h)
@@ -15272,6 +15325,7 @@ fi
 
 AC_DEFUN([CL_SHM],
 [AC_BEFORE([$0], [CL_SHM_RMID])dnl
+AC_REQUIRE([CL_SHM_H])dnl
 if test "$ac_cv_header_sys_shm_h" = yes -a "$ac_cv_header_sys_ipc_h" = yes; then
 # This test is from Marcus Daniels
 AC_CACHE_CHECK(for working shared memory, cl_cv_sys_shm_works, [
@@ -15297,8 +15351,7 @@ cl_cv_sys_shm_works="guessing no")
 ])
 fi
 case "$cl_cv_sys_shm_works" in
-  *yes) have_shm=1
-        AC_DEFINE(HAVE_SHM,,[have <sys/shm.h> and <sys/ipc.h> and shared memory works])
+  *yes) AC_DEFINE(HAVE_SHM,,[have <sys/shm.h> and <sys/ipc.h> and shared memory works])
         AC_CHECK_HEADERS(sys/sysmacros.h)
         ;;
   *) ;;
@@ -15658,56 +15711,6 @@ esac
   *) ;;
 esac
 fi
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 2002-2008 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Sam Steingold.
-
-AC_PREREQ(2.61)
-
-AC_DEFUN([CL_SIGSEGV], [dnl
-  dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
-  AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
-  AC_REQUIRE([AC_LIB_RPATH])
-
-  dnl Search for libsigsegv and define LIBSIGSEGV, LTLIBSIGSEGV and INCSIGSEGV
-  dnl accordingly.
-  AC_LIB_LINKFLAGS_BODY([sigsegv])
-
-  dnl Add $INCSIGSEGV to CPPFLAGS before performing the following checks,
-  dnl because if the user has installed libsigsegv and not disabled its use
-  dnl via --without-libsigsegv-prefix, he wants to use it.
-  cl_save_CPPFLAGS="$CPPFLAGS"
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCSIGSEGV])
-
-  AC_CACHE_CHECK(for libsigsegv, cl_cv_lib_sigsegv, [dnl
-    cl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
-    cl_save_LIBS="$LIBS"
-    LIBS="$LIBS $LIBSIGSEGV"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <sigsegv.h>],
-      [sigsegv_deinstall_handler();])], [cl_cv_lib_sigsegv=yes])
-    LIBS="$cl_save_LIBS"
-  ])
-  if test "$cl_cv_lib_sigsegv" = yes; then
-    AC_DEFINE(HAVE_SIGSEGV, 1, [Define if you have the libsigsegv library.])
-    AC_MSG_CHECKING([how to link with libsigsegv])
-    AC_MSG_RESULT([$LIBSIGSEGV])
-  else
-    dnl If $LIBSIGSEGV didn't lead to a usable library, we don't need
-    dnl $INCSIGSEGV either.
-    CPPFLAGS="$cl_save_CPPFLAGS"
-    LIBSIGSEGV=
-    LTLIBSIGSEGV=
-  fi
-  AC_SUBST(LIBSIGSEGV)
-  AC_SUBST(LTLIBSIGSEGV)
 ])
 
 dnl Copyright (C) 1993-2002 Free Software Foundation, Inc.
