@@ -2,6 +2,9 @@
 
 	* encoding.d (base64_wcstombs): set CHARSET-TYPE-ERROR slots DATUM
 	and EXPECTED-TYPE
+	(error_incomplete, error_uni32_invalid, error_utf8_invalid1)
+	(error_utf8_invalid2, error_utf8_invalid3, error_utf8_invalid4)
+	(error_nls_invalid): signal CHARSET-TYPE-ERROR instead of ERROR
 
 2008-07-13  Sam Steingold  <sds@gnu.org>
 
