@@ -2057,50 +2057,26 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
       }
     }
     #else
-    else
-      goto bad_arg;
+    else error_illegal_arg(arg,S(encoding),S(Kcharset));
     #endif
   }
  #endif
-  else {
-   bad_arg:
-    pushSTACK(arg); /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(arg); pushSTACK(S(Kcharset)); pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
-  }
+  else error_illegal_arg(arg,S(encoding),S(Kcharset));
   STACK_3 = arg;
   /* Check the :LINE-TERMINATOR argument. */
   arg = STACK_2;
-  if (!(!boundp(arg)
-        || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos)))) {
-    pushSTACK(arg); /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_line_terminator)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(arg); pushSTACK(S(Kline_terminator));
-    pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
-  }
+  if (!(!boundp(arg) || eq(arg,S(Kunix)) || eq(arg,S(Kmac)) || eq(arg,S(Kdos))))
+    error_illegal_arg(arg,O(type_line_terminator),S(Kline_terminator));
   /* Check the :INPUT-ERROR-ACTION argument. */
   arg = STACK_1;
-  if (!(!boundp(arg)
-        || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg))) {
-    pushSTACK(arg); /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_input_error_action)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(arg); pushSTACK(S(Kinput_error_action));
-    pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
-  }
+  if (!(!boundp(arg) || eq(arg,S(Kerror)) || eq(arg,S(Kignore)) || charp(arg)))
+    error_illegal_arg(arg,O(type_input_error_action),S(Kinput_error_action));
   /* Check the :OUTPUT-ERROR-ACTION argument. */
   arg = STACK_0;
   if (!(!boundp(arg)
         || eq(arg,S(Kerror)) || eq(arg,S(Kignore))
-        || charp(arg) || uint8_p(arg))) {
-    pushSTACK(arg); /* TYPE-ERROR slot DATUM */
-    pushSTACK(O(type_output_error_action)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(arg); pushSTACK(S(Koutput_error_action));
-    pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
-  }
+        || charp(arg) || uint8_p(arg)))
+    error_illegal_arg(arg,O(type_output_error_action),S(Koutput_error_action));
   /* Create a new encoding. */
   if (nullp(STACK_3) /* illegal charset & :IF-DOES-NOT-EXIST NIL */
       || ((!boundp(STACK_2) || eq(STACK_2,TheEncoding(STACK_3)->enc_eol))
