@@ -239,14 +239,16 @@ global void base64_wcstombs (object encoding, object stream,
       pushSTACK(NIL);   /* <end-of-file?> slot DATUM */
       pushSTACK(S(base64));     /* slot EXPECTED-TYPE */
       pushSTACK(fixnum(error_p-*srcp));
-      error(charset_type_error,GETTEXT("Invalid base64 encoding termination at position ~S"));
+      pushSTACK(TheSubr(subr_self)->name);
+      error(charset_type_error,GETTEXT("~S: Invalid base64 encoding termination at position ~S"));
     } else {
       pushSTACK(code_char(*error_p)); /* slot DATUM */
       pushSTACK(S(base64));     /* slot EXPECTED-TYPE */
       pushSTACK(fixnum(srcend-*srcp));
       pushSTACK(fixnum((error_p-*srcp)+1));
       pushSTACK(code_char(*error_p));
-      error(charset_type_error,GETTEXT("Invalid base64 encoding at ~S (character ~S of ~S)"));
+      pushSTACK(TheSubr(subr_self)->name);
+      error(charset_type_error,GETTEXT("~S: Invalid base64 encoding at ~S (character ~S of ~S)"));
     }
   }
   *srcp = srcend;
@@ -279,12 +281,14 @@ nonreturning_function(global, error_unencodable,
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>8)&0x0F]));
   pushSTACK(ascii_char(hex_table[(as_cint(ch)>>12)&0x0F]));
-  if (as_cint(ch) < 0x10000)
-    error(charset_type_error,GETTEXT("Character #\\u~C~C~C~C cannot be represented in the character set ~S"));
-  else {
+  if (as_cint(ch) < 0x10000) {
+    pushSTACK(TheSubr(subr_self)->name);
+    error(charset_type_error,GETTEXT("~S: Character #\\u~C~C~C~C cannot be represented in the character set ~S"));
+  } else {
     pushSTACK(ascii_char(hex_table[(as_cint(ch)>>16)&0x0F]));
     pushSTACK(ascii_char(hex_table[(as_cint(ch)>>20)&0x0F]));
-    error(charset_type_error,GETTEXT("Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"));
+    pushSTACK(TheSubr(subr_self)->name);
+    error(charset_type_error,GETTEXT("~S: Character #\\u00~C~C~C~C~C~C cannot be represented in the character set ~S"));
   }
 }
 
@@ -300,7 +304,8 @@ nonreturning_function(local, error_incomplete, (object encoding)) {
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(encoding);       /* no enc_charset slot without UNICODE */
 #endif
-  error(charset_type_error,GETTEXT("incomplete byte sequence at end of buffer for ~S"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Incomplete byte sequence at end of buffer for ~S"));
 }
 #ifdef UNICODE
 local void handle_incomplete (object encoding, chart* *destp) {
@@ -558,7 +563,8 @@ nonreturning_function(local, error_uni32_invalid,
     pushSTACK(ascii_char(hex_table[code&0x0F]));
     code = code>>4;
   });
-  error(charset_type_error,GETTEXT("character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Character #x~C~C~C~C~C~C~C~C in ~S conversion, not an UTF-32 character"));
 }
 
 global uintL uni32be_mblen (object encoding, const uintB* src,
@@ -757,7 +763,8 @@ nonreturning_function(local, error_utf8_invalid1,
   pushSTACK(TheEncoding(encoding)->enc_charset);
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(charset_type_error,GETTEXT("invalid byte #x~C~C in ~S conversion, not a Unicode-16"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Invalid byte #x~C~C in ~S conversion, not a Unicode-16"));
 }
 
 /* Error when an invalid 2-byte sequence was encountered.
@@ -774,7 +781,8 @@ nonreturning_function(local, error_utf8_invalid2,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C in ~S conversion"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Invalid byte sequence #x~C~C #x~C~C in ~S conversion"));
 }
 
 /* Error when an invalid 3-byte sequence was encountered.
@@ -794,7 +802,8 @@ nonreturning_function(local, error_utf8_invalid3,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Invalid byte sequence #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 /* Error when an invalid 4-byte sequence was encountered.
@@ -818,7 +827,8 @@ nonreturning_function(local, error_utf8_invalid4,
   pushSTACK(ascii_char(hex_table[(b2>>4)&0x0F]));
   pushSTACK(ascii_char(hex_table[b1&0x0F]));
   pushSTACK(ascii_char(hex_table[(b1>>4)&0x0F]));
-  error(charset_type_error,GETTEXT("invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(charset_type_error,GETTEXT("~S: Invalid byte sequence #x~C~C #x~C~C #x~C~C #x~C~C in ~S conversion"));
 }
 
 global uintL utf8_mblen (object encoding, const uintB* src,
@@ -1624,7 +1634,7 @@ nonreturning_function(local, error_nls_invalid, (object encoding, uintB b)) {
   pushSTACK(ascii_char(hex_table[b&0x0F]));
   pushSTACK(ascii_char(hex_table[(b>>4)&0x0F]));
   pushSTACK(TheSubr(subr_self)->name);
-  error(charset_type_error,GETTEXT("~S: invalid byte #x~C~C in ~S conversion"));
+  error(charset_type_error,GETTEXT("~S: Invalid byte #x~C~C in ~S conversion"));
 }
 
 global uintL nls_mblen (object encoding, const uintB* src,
@@ -2057,7 +2067,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     pushSTACK(arg); /* TYPE-ERROR slot DATUM */
     pushSTACK(S(encoding)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(S(Kcharset)); pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
   }
   STACK_3 = arg;
   /* Check the :LINE-TERMINATOR argument. */
@@ -2068,7 +2078,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     pushSTACK(O(type_line_terminator)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(S(Kline_terminator));
     pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
   }
   /* Check the :INPUT-ERROR-ACTION argument. */
   arg = STACK_1;
@@ -2078,7 +2088,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     pushSTACK(O(type_input_error_action)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(S(Kinput_error_action));
     pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
   }
   /* Check the :OUTPUT-ERROR-ACTION argument. */
   arg = STACK_0;
@@ -2089,7 +2099,7 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
     pushSTACK(O(type_output_error_action)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(arg); pushSTACK(S(Koutput_error_action));
     pushSTACK(S(make_encoding));
-    error(type_error,GETTEXT("~S: illegal ~S argument ~S"));
+    error(type_error,GETTEXT("~S: Illegal ~S argument ~S"));
   }
   /* Create a new encoding. */
   if (nullp(STACK_3) /* illegal charset & :IF-DOES-NOT-EXIST NIL */
