@@ -63,7 +63,7 @@ dnl USE_NLS CPPFLAGS LIBINTL
 dnl Set of all available languages [this is also a /bin/sh/ command!]
 ALL_LINGUAS="en da de fr es nl ru"
 AM_GNU_GETTEXT([external], [need-ngettext])
-CL_SIGSEGV          dnl set variable LIBSIGSEGV
+gl_LIBSIGSEGV       dnl set variable LIBSIGSEGV
 CL_FFCALL           dnl set variables LIBAVCALL LIBCALLBACK
 CL_LIGHTNING
 if test x$with_jitc = xlightning -a $ac_cv_header_lightning_h = no; then
