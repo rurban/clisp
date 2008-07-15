@@ -1299,3 +1299,6 @@ type-error
 (rational least-positive-long-float) arithmetic-error
 (rational most-negative-long-float) arithmetic-error
 (rational least-negative-long-float) arithmetic-error
+
+#+clisp (convert-string-from-bytes #(1) charset:ucs-4)
+#+clisp charset-type-error
