@@ -1,3 +1,10 @@
+2008-07-15  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (number_of_conditions_defined_in_c): rename from
+	condition_for_broken_compilers_that_dont_like_trailing_commas
+	* error.d (SYSTEM::%DEFCLCS): use it to check whether the argument
+	is consistent with constsym.d
+
 2008-07-14  Sam Steingold  <sds@gnu.org>
 
 	src/m4/sigsegv.m4 --> src/glm4/libsigsegv.m4
