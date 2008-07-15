@@ -1,5 +1,10 @@
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (nobject_out1): updated hash-table output for the
+	removal of the ht_freelist (2004-05-09 1.49 2004/06/04)
+
+2008-07-15  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d (CONVERT-STRING-FROM-BYTES): check (cptr == cendptr)
 	after (bptr == bendptr)
 
