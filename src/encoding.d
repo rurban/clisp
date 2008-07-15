@@ -2777,10 +2777,10 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     var const uintB* bendptr = &TheSbvector(array)->data[end];
     var chart* cendptr = cptr+clen;
     Encoding_mbstowcs(STACK_1)(STACK_1,nullobj,&bptr,bendptr,&cptr,cendptr);
-    ASSERT(cptr == cendptr);
     if ((bptr != bendptr)       /* some bytes were unused! */
         && eq(TheEncoding(STACK_1)->enc_towcs_error,S(Kerror)))
       error_incomplete(STACK_1);
+    ASSERT(cptr == cendptr);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
