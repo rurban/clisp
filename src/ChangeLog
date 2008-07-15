@@ -1,3 +1,8 @@
+2008-07-15  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (clean4): Don't remove all the $SUBDIRS but only the built
+	files inside them.
+
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out1): updated hash-table output for the
