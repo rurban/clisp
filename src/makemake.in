@@ -3962,11 +3962,10 @@ cat <<!!
 	-\$(RMRF) locale
 !!
 fi
-if [ -n "${SUBDIRS}" ]; then
-cat <<!!
-	-\$(RMRF) ${SUBDIRS}
-!!
-fi
+for dir in ${SUBDIRS}; do
+  echotab "test ! -d ${dir} || (cd ${dir} && \$(MAKE) clean CFLAGS=\"\$(SUBDIR_CFLAGS)\")"
+done
+echol
 
 echol '# clean5 even undoes "make init".'
 echol "clean5 : clean4"
