@@ -1,5 +1,10 @@
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d (CONVERT-STRING-FROM-BYTES): check (cptr == cendptr)
+	after (bptr == bendptr)
+
+2008-07-15  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (number_of_conditions_defined_in_c): rename from
 	condition_for_broken_compilers_that_dont_like_trailing_commas
 	* error.d (SYSTEM::%DEFCLCS): use it to check whether the argument

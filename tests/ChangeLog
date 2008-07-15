@@ -1,3 +1,7 @@
+2008-07-15  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst: (convert-string-from-bytes #(1) charset:ucs-4)
+
 2008-07-12  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: test PROBE-PATHNAME
