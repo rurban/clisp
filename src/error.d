@@ -501,7 +501,13 @@ LISPFUN(error,seclass_default,1,0,rest,nokey,0,NIL)
    sets the data needed for ERROR-OF-TYPE. */
 LISPFUNN(defclcs,1)
 {
-  O(error_types) = popSTACK();
+  O(error_types) = check_vector(popSTACK());
+  var int i;
+  var Symbol conditions = &(symbol_tab_data.S_simple_condition);
+  var gcv_object_t* et_data = TheSvector(O(error_types))->data;
+  for (i=0; i < number_of_conditions_defined_in_c; i++)
+    ASSERT(eq(Symbol_name(Cdr(et_data[i])),conditions[i].pname));
+  ASSERT(Svector_length(O(error_types)) == number_of_conditions_defined_in_c);
   VALUES0;
 }
 
