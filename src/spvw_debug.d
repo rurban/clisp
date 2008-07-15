@@ -184,11 +184,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
    #endif
   } else if (hash_table_p(obj)) {
     fputs("#(",out); XOUT(S(hash_table));
-    fprintf(out," size=%u maxcount=%u mincount=%u free=",
+    fprintf(out," size=%u maxcount=%u mincount=%u\n",
             TheHashtable(obj)->ht_size,
             (uintL)posfixnum_to_V(TheHashtable(obj)->ht_maxcount),
             (uintL)posfixnum_to_V(TheHashtable(obj)->ht_mincount));
-    fputs("\n  test=",out);
+    fputs("  test=",out);
     if (ht_test_code_user_p(ht_test_code(record_flags(TheHashtable(obj))))) {
       XOUT(TheHashtable(obj)->ht_test); fputc('/',out);
       XOUT(TheHashtable(obj)->ht_hash);
