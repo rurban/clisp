@@ -1,5 +1,12 @@
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
+	* alltest.tst: lambda-parameters-limit is exclusive;
+	instead of disabling the test on win32/g++,
+	reduce the g++ limit to 256 on all platforms
+	Reported by Vladimir Tzankov <vtzankov@gmail.com>
+
+2008-07-15  Sam Steingold  <sds@gnu.org>
+
 	* excepsit.tst: (convert-string-from-bytes #(1) charset:ucs-4)
 
 2008-07-12  Sam Steingold  <sds@gnu.org>

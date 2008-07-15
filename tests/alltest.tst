@@ -604,12 +604,14 @@ NIL
              (funcall cons 1 2))))
 (KONS (1 . 2) 3)
 
-(or #+win32 (string= "g++" (software-type) :end2 3)
-    (let* ((n (min lambda-parameters-limit 1024))
-           (vars (loop repeat n collect (gensym))))
-      (eval
-       `(= ,n (flet ((%f ,vars (+ ,@vars)))
-                (%f ,@(loop for e in vars collect 1)))))))
+(let* ((n (min (1- lambda-parameters-limit)
+               (if (string= "g++" (software-type) :end2 3)
+                   256
+                   1024)))
+       (vars (loop repeat n collect (gensym))))
+  (eval
+   `(= ,n (flet ((%f ,vars (+ ,@vars)))
+            (%f ,@(loop for e in vars collect 1))))))
 T
 
 ;TAGBODY, GO, MULTIPLE-VALUE-LIST, MULTIPLE-VALUE-CALL, MULTIPLE-VALUE-PROG1,
