@@ -7105,7 +7105,9 @@ local void handle_directory_encoding_error
 (void *sp, gcv_object_t* frame, object label, object condition) {
   sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
   value1 = condition;
+  begin_longjmp_call();
   longjmpspl(*returner,(aint)returner); /* return non-0! */
+  NOTREACHED;
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
@@ -7113,7 +7115,6 @@ local maygc object direntry_to_string (char* string, int len) {
   var object encoding = O(pathname_encoding);
  restart_direntry_to_string:
   /* build UNWIND-PROTECT-frame: */
-  var gcv_object_t* top_of_frame = STACK;
   var sp_jmp_buf returner; /* return point */
   make_HANDLER_entry_frame(O(handler_for_charset_type_error),
                            handle_directory_encoding_error,returner,
