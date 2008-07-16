@@ -1,7 +1,7 @@
 /*
  * Encodings (character sets and conversions) for CLISP
  * Bruno Haible 1998-2008
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  */
 
 #include "lispbibl.c"

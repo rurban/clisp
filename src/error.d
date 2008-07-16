@@ -2,7 +2,7 @@
  * Error-Handling for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 

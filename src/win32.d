@@ -1,7 +1,7 @@
 /*
  * Include file for WIN32_NATIVE version of CLISP
  * Bruno Haible 1997-2008
- * Sam Steingold 1999-2007
+ * Sam Steingold 1999-2008
  */
 
 /* control characters constants */
