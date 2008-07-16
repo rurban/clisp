@@ -7136,7 +7136,7 @@ local maygc object direntry_to_string (char* string, int len) {
   funcall(S(check_value),2);
   if (nullp(value1)) return NIL; /* CONTINUE restart */
   encoding = check_encoding(value1,&O(pathname_encoding),false);
-  if (eq(value2,T)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
+  if (eq(T,value2)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
   goto restart_direntry_to_string;
 }
 

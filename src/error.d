@@ -1508,7 +1508,7 @@ nonreturning_function(global, error_too_few_args,
  > symbol_: unbound symbol
  > restart_p: false if nonreturning
  < value1: bound value
- < value2: non-NIL if STORE-VALUE was selected
+ < value2: T if STORE-VALUE was selected, NIL otherwise
  can trigger GC */
 global maygc void check_variable_value_replacement (gcv_object_t *symbol_,
                                                     bool restart_p) {
