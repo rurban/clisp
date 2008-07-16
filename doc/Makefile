@@ -38,6 +38,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 OLINK=man.tdb pile.tdb chunk.tdb olink-pile.xml olink-chunk.xml
 
 RM=/bin/rm -f
+CURDIR=$(shell pwd)
 
 # what to do when there is no local system-wide DTD & XSL?
 DOWNLOAD=yes
@@ -209,6 +210,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	mv -f ../build/clisp-1.html $@/clisp.html
 	rm -f _clisp-1.html
 	$(CHECK_IDS)
+	cd html; cd ..; $(CURDIR)/../utils/fix-perms.sh
 	(test -n "$(DIST)" && rsync -av $@/*.html $@/id-href.map \
 	 impnotes.css $(DIST)/impnotes/;) || true
 
