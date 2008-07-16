@@ -750,9 +750,9 @@ global maygc void invoke_handlers (object cond) {
               fun(arg);
               NOTREACHED;
             });
-            /* deactivate Handler: */
-            inactive_handlers = &new_range;
             if (!nullp(Cdr(FRAME_(frame_handlers)))) {
+              /* deactivate Handler: */
+              inactive_handlers = &new_range;
               /* make information available for Handler: */
               handler_args.condition = STACK_(0+2);
               handler_args.stack = FRAME STACKop 4;
@@ -764,7 +764,9 @@ global maygc void invoke_handlers (object cond) {
               var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + (uintL)posfixnum_to_V(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
               interpret_bytecode(closure,codevec,index);
-            } else { /* call C-Handler: */
+              /* reactivate Handler: */
+              inactive_handlers = saved_inactive_handlers;
+            } else { /* call C-Handler - it must deactivate itself! */
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
               ((void (*) (void*, gcv_object_t*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
@@ -772,8 +774,6 @@ global maygc void invoke_handlers (object cond) {
                  STACK_(0+2));
             }
             skipSTACK(2); /* unwind Unwind-Protect-Frame */
-            /* reactivate Handler: */
-            inactive_handlers = saved_inactive_handlers;
           }
           cond = popSTACK(); /* cond back */
           i += 2;
