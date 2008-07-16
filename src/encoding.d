@@ -1,6 +1,6 @@
 /*
  * Encodings (character sets and conversions) for CLISP
- * Bruno Haible 1998-2005
+ * Bruno Haible 1998-2008
  * Sam Steingold 1998-2007
  */
 
@@ -373,9 +373,9 @@ global void uni16le_wcstombs (object encoding, object stream,
 global uintL uni16_mblen (object encoding, const uintB* src,
                           const uintB* srcend) {
   var uintL len = srcend-src;
-  var bool error_p = len & 1; /* odd-p */
-  var uintL count = len >> 1; /* mod 2 */
-  if (error_p && !eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
+  var bool incomplete_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* div 2 */
+  if (incomplete_p && !eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
     return count+1;
   else return count;
 }
@@ -386,8 +386,8 @@ global void uni16be_mbstowcs (object encoding, object stream,
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
-  var bool error_p = len & 1; /* odd-p */
-  var uintL count = len >> 1; /* mod 2 */
+  var bool incomplete_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* div 2 */
   if (count > destend-dest)
     count = destend-dest;
   if (count > 0) {
@@ -397,7 +397,7 @@ global void uni16be_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (error_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -407,8 +407,8 @@ global void uni16le_mbstowcs (object encoding, object stream,
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
-  var bool error_p = len & 1; /* odd-p */
-  var uintL count = len >> 1; /* mod 2 */
+  var bool incomplete_p = len & 1; /* odd-p */
+  var uintL count = len >> 1; /* div 2 */
   if (count > destend-dest)
     count = destend-dest;
   if (count > 0) {
@@ -418,7 +418,7 @@ global void uni16le_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (error_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -570,10 +570,10 @@ nonreturning_function(local, error_uni32_invalid,
 global uintL uni32be_mblen (object encoding, const uintB* src,
                             const uintB* srcend) {
   var uintL len = srcend-src;
-  var bool error_p = ((len & 3) != 0); /* rem 4 */
-  var uintL count = len >> 2; /* mod 4 */
+  var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
+  var uintL count = len >> 2; /* div 4 */
   if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return count + error_p;
+    return count + incomplete_p;
   else {
     var uintL result = 0;
     dotimesL(count,count, {
@@ -591,10 +591,10 @@ global uintL uni32be_mblen (object encoding, const uintB* src,
 global uintL uni32le_mblen (object encoding, const uintB* src,
                             const uintB* srcend) {
   var uintL len = srcend-src;
-  var bool error_p = ((len & 3) != 0); /* rem 4 */
-  var uintL count = len >> 2; /* mod 4 */
+  var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
+  var uintL count = len >> 2; /* div 4 */
   if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return count + error_p;
+    return count + incomplete_p;
   else {
     var uintL result = 0;
     dotimesL(count,count, {
@@ -615,8 +615,8 @@ global void uni32be_mbstowcs (object encoding, object stream,
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
-  var bool error_p = ((len & 3) != 0); /* rem 4 */
-  var uintL scount = len >> 2; /* mod 4 */
+  var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
+  var uintL scount = len >> 2; /* div 4 */
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
     do {
@@ -638,7 +638,7 @@ global void uni32be_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (error_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp);
   }
 }
 
@@ -648,8 +648,8 @@ global void uni32le_mbstowcs (object encoding, object stream,
   var const uintB* src = *srcp;
   var chart* dest = *destp;
   var uintL len = srcend-src;
-  var bool error_p = ((len & 3) != 0); /* rem 4 */
-  var uintL scount = len >> 2; /* mod 4 */
+  var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
+  var uintL scount = len >> 2; /* div 4 */
   var uintL dcount = destend-dest;
   if (scount > 0 && dcount > 0) {
     do {
@@ -671,7 +671,7 @@ global void uni32le_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (error_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp);
   }
 }
 
