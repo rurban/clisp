@@ -1,3 +1,12 @@
+2008-07-15  Bruno Haible  <bruno@clisp.org>
+
+	Fix bug introduced on 2003-03-11.
+	* encoding.d (uni16_mblen): Make consistent with uni16be_mbstowcs and
+	uni16le_mbstowcs.
+	(uni32be_mblen): Make consistent with uni32be_mbstowcs.
+	(uni32le_mblen): Make consistent with uni32le_mbstowcs.
+	(CONVERT-STRING-FROM-BYTES): Revert last commit.
+
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (fixperms): undo the 2008-05-15 patch:

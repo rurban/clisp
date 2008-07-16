@@ -375,9 +375,10 @@ global uintL uni16_mblen (object encoding, const uintB* src,
   var uintL len = srcend-src;
   var bool incomplete_p = len & 1; /* odd-p */
   var uintL count = len >> 1; /* div 2 */
-  if (incomplete_p && !eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return count+1;
-  else return count;
+  if (eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
+    return count;
+  else
+    return (count > 0 ? count + incomplete_p : 0);
 }
 
 global void uni16be_mbstowcs (object encoding, object stream,
@@ -572,9 +573,7 @@ global uintL uni32be_mblen (object encoding, const uintB* src,
   var uintL len = srcend-src;
   var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
   var uintL count = len >> 2; /* div 4 */
-  if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return count + incomplete_p;
-  else {
+  if (eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore))) {
     var uintL result = 0;
     dotimesL(count,count, {
       var uint32 ch =
@@ -585,6 +584,8 @@ global uintL uni32be_mblen (object encoding, const uintB* src,
       src += 4;
     });
     return result;
+  } else {
+    return (count > 0 ? count + incomplete_p : 0);
   }
 }
 
@@ -593,9 +594,7 @@ global uintL uni32le_mblen (object encoding, const uintB* src,
   var uintL len = srcend-src;
   var bool incomplete_p = ((len & 3) != 0); /* mod 4 */
   var uintL count = len >> 2; /* div 4 */
-  if (!eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore)))
-    return count + incomplete_p;
-  else {
+  if (eq(TheEncoding(encoding)->enc_towcs_error,S(Kignore))) {
     var uintL result = 0;
     dotimesL(count,count, {
       var uint32 ch =
@@ -606,6 +605,8 @@ global uintL uni32le_mblen (object encoding, const uintB* src,
       src += 4;
     });
     return result;
+  } else {
+    return (count > 0 ? count + incomplete_p : 0);
   }
 }
 
@@ -2781,10 +2782,10 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     var const uintB* bendptr = &TheSbvector(array)->data[end];
     var chart* cendptr = cptr+clen;
     Encoding_mbstowcs(STACK_1)(STACK_1,nullobj,&bptr,bendptr,&cptr,cendptr);
+    ASSERT(cptr == cendptr);
     if ((bptr != bendptr)       /* some bytes were unused! */
         && eq(TheEncoding(STACK_1)->enc_towcs_error,S(Kerror)))
       error_incomplete(STACK_1);
-    ASSERT(cptr == cendptr);
    #else
     dotimespL(clen,clen, { *cptr++ = as_chart(*bptr++); } );
    #endif
