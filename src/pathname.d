@@ -7101,9 +7101,8 @@ local maygc bool directory_search_direntry_ok (object namestring,
  < value1 : lisp string or NIL if string is "." or ".."
    OR if the conversion failed and the CONTINUE restart was selected
  can trigger GC */
-local void handle_directory_encoding_error
+local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 (void *sp, gcv_object_t* frame, object label, object condition) {
-  /* cf. enter_frame_at_STACK */
   sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
   unwind_back_trace(back_trace,frame);
   value1 = condition;
@@ -7130,10 +7129,10 @@ local maygc object direntry_to_string (char* string, int len) {
   pushSTACK(value1);               /* condition - for CHECK-VALUE */
   /* set condition $DATUM slot to string (as a byte vector) */
   pushSTACK(value1/*condition*/); pushSTACK(S(datum));
-  pushSTACK(allocate_bit_vector(Atype_8Bit,len-1)); /* slot DATUM */
+  pushSTACK(allocate_bit_vector(Atype_8Bit,len)); /* slot DATUM */
   var int pos;                 /* fill DATUM: string as a byte vector */
   for (pos = 0; pos < len; pos++)
-    TheSbvector(STACK_1)->data[pos] = string[pos];
+    TheSbvector(STACK_0)->data[pos] = string[pos];
   funcall(L(set_slot_value),3);
   funcall(S(check_value),2);
   if (nullp(value1)) return NIL; /* CONTINUE restart */
