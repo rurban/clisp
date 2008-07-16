@@ -1513,10 +1513,9 @@ nonreturning_function(global, error_too_few_args,
 global maygc void check_variable_value_replacement (gcv_object_t *symbol_,
                                                     bool restart_p) {
   do {
-    pushSTACK(*symbol_); /* PLACE */
+    if (restart_p) pushSTACK(*symbol_); /* PLACE */
     pushSTACK(*symbol_); /* CELL-ERROR Slot NAME */
-    pushSTACK(*symbol_);
-    pushSTACK(TheSubr(subr_self)->name);
+    pushSTACK(*symbol_); pushSTACK(TheSubr(subr_self)->name);
     if (restart_p)
       check_value(unbound_variable,GETTEXT("~S: variable ~S has no value"));
     else error(unbound_variable,GETTEXT("~S: variable ~S has no value"));
