@@ -1,3 +1,7 @@
+2008-07-15  Bruno Haible  <bruno@clisp.org>
+
+	* excepsit.tst: Change expected condition type in last commit.
+
 2008-07-15  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: lambda-parameters-limit is exclusive;
