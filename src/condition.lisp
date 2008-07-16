@@ -1345,6 +1345,15 @@
 (defun check-value (place condition)
   (let ((restarts
          (nconc
+          (when (eq place 'SYSTEM::PATHNAME-ENCODING)
+            (setq place '*pathname-encoding*) ; make it look nicer
+            (list (make-restart ; for direntry_to_string
+                   :name 'CONTINUE
+                   :report (lambda (stream)
+                             (format stream
+                                     (TEXT "Discard this directory entry")))
+                   :invoke-function
+                     (lambda () (return-from check-value (values nil 0))))))
           (list (make-restart
                  :name 'USE-VALUE
                  :report
