@@ -727,7 +727,7 @@ global maygc void invoke_handlers (object cond) {
           pushSTACK(TheSvector(Car(FRAME_(frame_handlers)))->data[i]); /* typei */
           funcall(S(safe_typep),2); /* execute (SYS::SAFE-TYPEP cond typei) */
           if (!nullp(value1)) { /* found a suitable handler */
-            /* CLtL2 S. 873, 884:
+            /* CLtL2 p. 873, 884:
                "A handler is executed in the dynamic context
                of the signaler, except that the set of available condition
                handlers will have been rebound to the value that was active
@@ -764,8 +764,7 @@ global maygc void invoke_handlers (object cond) {
               var uintL index = (TheCodevec(codevec)->ccv_flags & bit(7) ? CCV_START_KEY : CCV_START_NONKEY)
                 + (uintL)posfixnum_to_V(TheSvector(Car(FRAME_(frame_handlers)))->data[i+1]);
               interpret_bytecode(closure,codevec,index);
-            } else {
-              /* call C-Handler: */
+            } else { /* call C-Handler: */
               void* handler_fn = TheMachineCode(FRAME_(frame_closure));
               ((void (*) (void*, gcv_object_t*, object, object)) handler_fn)
                 ((void*)(aint)as_oint(FRAME_(frame_SP)),FRAME,
@@ -4445,7 +4444,7 @@ nonreturning_function(local, error_closure_toofew, (object closure, object tail)
  and returns the values.
  apply_closure(fun,args_on_stack,other_args);
  > fun: function, a Closure
- > Argumente: args_on_stack arguments on STACK,
+ > Arguments: args_on_stack arguments on STACK,
               remaining argument-list in other_args
  < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
  < mv_count/mv_space: values
@@ -4463,8 +4462,7 @@ local maygc Values apply_closure (object closure, uintC args_on_stack, object ar
     var gcv_object_t* rest_args_pointer; /* Pointer to the remaining arguments */
     var uintL argcount;         /* number of remaining arguments */
     check_SP(); check_STACK();
-    /* put argumente in STACK:
-     first a Dispatch for the most important cases: */
+    /* put arguments in STACK: first a Dispatch for the most important cases: */
     switch (TheCodevec(codevec)->ccv_signature) {
       /* Macro for a required-argument: */
       #define REQ_ARG()  \
@@ -4838,7 +4836,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
 /* UP: Applies a function to its arguments.
  funcall(function,argcount);
  > function: function
- > Argumente: argcount arguments on STACK
+ > Arguments: argcount arguments on STACK
  < STACK: cleaned up (i.e. STACK is increased by argcount)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
@@ -5233,7 +5231,7 @@ local maygc Values funcall_subr (object fun, uintC args_on_stack)
  and returns the values.
  funcall_closure(fun,args_on_stack);
  > fun: function, a Closure
- > Argumente: args_on_stack Arguments on STACK
+ > Arguments: args_on_stack arguments on STACK
  < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
