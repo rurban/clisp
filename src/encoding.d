@@ -1977,6 +1977,10 @@ extern object iconv_range (object encoding, uintL start, uintL end,
 
 #if defined(GNU_LIBICONV) || (__GLIBC__ > 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 2))
 
+#ifndef HAVE_GOOD_ICONV
+#error HAVE_GOOD_ICONV should be defined in this configuration!
+#endif
+
 #ifdef GNU_LIBICONV
 #define iconv_first_sym  S(koi8_ru)
 #define iconv_last_sym  S(utf_7)
