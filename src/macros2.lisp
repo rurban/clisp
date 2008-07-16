@@ -29,9 +29,9 @@
     (TEXT "The value of ~S should be ~:[of type ~S~;~:*~A~].")
     place string typespec))
 (defun report-one-new-value-string () ; ABI
-  (TEXT "You may input a new value for ~S."))
+  (TEXT "Input a new value for ~S."))
 (defun report-one-new-value-string-instead ()
-  (TEXT "You may input a value to be used instead~@[ of ~S~]."))
+  (TEXT "Input a value to be used instead~@[ of ~S~]."))
 (defun prompt-for-new-value-string () ; ABI
   (concatenate 'string "~&" (TEXT "New ~S: ")))
 (predefmacro check-type (place typespec &optional (string nil))
@@ -52,7 +52,7 @@
 (defun report-no-new-value-string () ; ABI
   (TEXT "Retry"))
 (defun report-new-values-string () ; ABI
-  (TEXT "You may input new values for ~@{~S~^, ~}."))
+  (TEXT "Input new values for ~@{~S~^, ~}."))
 (defun assert-error-string (test-form) ; ABI
   (format nil
     (TEXT "~S must evaluate to a non-NIL value.")
