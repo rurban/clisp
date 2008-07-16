@@ -1,5 +1,10 @@
 2008-07-16  Sam Steingold  <sds@gnu.org>
 
+	* error.d (check_variable_value_replacement): do not pushSTACK
+	PLACE unless check_value is to be called
+
+2008-07-16  Sam Steingold  <sds@gnu.org>
+
 	DIRECTORY signals correctable errors on bad pathnames [1st draft]
 	* pathname.d (handle_directory_encoding_error): new function:
 	ignore the error, pass condition in value1 back to the caller
