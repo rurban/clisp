@@ -1300,5 +1300,5 @@ type-error
 (rational most-negative-long-float) arithmetic-error
 (rational least-negative-long-float) arithmetic-error
 
-#+clisp (convert-string-from-bytes #(1) charset:ucs-4)
-#+clisp charset-type-error
+#+clisp (ext:convert-string-from-bytes #(1) charset:ucs-4)
+#+clisp simple-charset-type-error
