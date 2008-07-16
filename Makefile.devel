@@ -110,7 +110,6 @@ potfiles :
 
 fixperms :
 	./utils/fix-perms.sh
-	for f in `find .. -name propaganda.html`; do ./utils/fix-perms.sh `dirname $$f` ; done
 
 
 view-man :
