@@ -7095,6 +7095,7 @@ local maygc bool directory_search_direntry_ok (object namestring,
 #define DEFAULT_VERSION  S(Knewest)
 
 /* Convert a directory entry to a string
+ direntry_to_string (char* string, int len)
  > string : asciz
  > len : its length (if it is -1, asciz_length is used)
  < value1 : lisp string or NIL if string is "." or ".."
@@ -7104,7 +7105,7 @@ local void handle_directory_encoding_error
 (void *sp, gcv_object_t* frame, object label, object condition) {
   sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
   value1 = condition;
-  longjmpspl(*returner,1);      /* return non-0! */
+  longjmpspl(*returner,(aint)returner); /* return non-0! */
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
@@ -7124,7 +7125,7 @@ local maygc object direntry_to_string (char* string, int len) {
   unwind_HANDLER_frame();
   pushSTACK(S(pathname_encoding)); /* PLACE */
   pushSTACK(value1);               /* condition */
-#if 0
+#if 1
   /* set condition $DATUM slot to string (as a byte vector) */
   pushSTACK(value1/*condition*/); pushSTACK(S(datum));
   pushSTACK(allocate_bit_vector(Atype_8Bit,len-1)); /* slot DATUM */
