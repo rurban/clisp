@@ -1,3 +1,16 @@
+2008-07-16  Sam Steingold  <sds@gnu.org>
+
+	DIRECTORY signals correctable errors on bad pathnames [1st draft]
+	* pathname.d (handle_directory_encoding_error): new function:
+	ignore the error, pass condition in value1 back to the caller
+	(direntry_to_string): new function: call n_char_to_string, catch
+	charset-type-error, re-signal it with restarts
+	(directory_search_scandir): use direntry_to_string
+	* condition.lisp (check-value): accommodate direntry_to_string:
+	when place is SYSTEM::PATHNAME-ENCODING, add a CONTINUE restart
+	* constobj.d (handler_for_charset_type_error): always enable
+	* constsym.d (datum): add
+
 2008-07-15  Bruno Haible  <bruno@clisp.org>
 
 	Avoid buffer overrun.

@@ -7094,6 +7094,52 @@ local maygc bool directory_search_direntry_ok (object namestring,
  this must be :NEWEST [but then they will not be printable readably!] */
 #define DEFAULT_VERSION  S(Knewest)
 
+/* Convert a directory entry to a string
+ > string : asciz
+ > len : its length (if it is -1, asciz_length is used)
+ < value1 : lisp string or NIL if string is "." or ".."
+   OR if the conversion failed and the CONTINUE restart was selected
+ can trigger GC */
+local void handle_directory_encoding_error
+(void *sp, gcv_object_t* frame, object label, object condition) {
+  sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
+  value1 = condition;
+  longjmpspl(*returner,1);      /* return non-0! */
+}
+local maygc object direntry_to_string (char* string, int len) {
+  if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
+  len = (len == -1 ? asciz_length(string) : len);
+  var object encoding = O(pathname_encoding);
+ restart_direntry_to_string:
+  /* build UNWIND-PROTECT-frame: */
+  var gcv_object_t* top_of_frame = STACK;
+  var sp_jmp_buf returner; /* return point */
+  make_HANDLER_entry_frame(O(handler_for_charset_type_error),
+                           handle_directory_encoding_error,returner,
+                           goto signal_encoding_error; );
+  value1 = n_char_to_string(string,len,encoding);
+  unwind_HANDLER_frame();
+  return value1;
+ signal_encoding_error:         /* value1 = condition */
+  unwind_HANDLER_frame();
+  pushSTACK(S(pathname_encoding)); /* PLACE */
+  pushSTACK(value1);               /* condition */
+#if 0
+  /* set condition $DATUM slot to string (as a byte vector) */
+  pushSTACK(value1/*condition*/); pushSTACK(S(datum));
+  pushSTACK(allocate_bit_vector(Atype_8Bit,len-1)); /* slot DATUM */
+  var int pos;                 /* fill DATUM: string as a byte vector */
+  for (pos = 0; pos < len; pos++)
+    TheSbvector(STACK_1)->data[pos] = string[pos];
+  funcall(L(set_slot_value),3);
+#endif
+  funcall(S(check_value),2);
+  if (nullp(value1)) return NIL; /* CONTINUE restart */
+  encoding = check_encoding(value1,&O(pathname_encoding),false);
+  if (eq(value2,T)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
+  goto restart_direntry_to_string;
+}
+
 /* Scans an entire directory.
  directory_search_scandir(recursively,next_task);
  stack layout: result-list, pathname, name&type, subdir-list, pathname-list,
@@ -7150,11 +7196,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
        #else
         direntry_len = dp->d_namlen;
        #endif
-        direntry = n_char_to_string(&dp->d_name[0],direntry_len,O(pathname_encoding));
+        direntry = direntry_to_string(dp->d_name,direntry_len);
       }
-      /* skip "." and ".." : */
-      if (!(equal(direntry,O(dot_string))
-            || equal(direntry,O(dotdot_string)))) {
+      if (!nullp(direntry)) {
         pushSTACK(direntry);
         /* stack layout: ..., pathname, dir_namestring, direntry.
          determine, if it is a directory or a file: */
@@ -7299,10 +7343,8 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
         while (1) {
           end_system_call();
           /* convert directory-entry into string: */
-          var object direntry = asciz_to_string(READDIR_entry_name(),O(pathname_encoding));
-          /* skip "." and "..": */
-          if (!(equal(direntry,O(dot_string))
-                || equal(direntry,O(dotdot_string)))) {
+          var object direntry = direntry_to_string(READDIR_entry_name(),-1);
+          if (!nullp(direntry)) {
             var shell_shortcut_target_t rresolved = shell_shortcut_notresolved;
             pushSTACK(direntry);
             /* stack layout: ..., pathname, dir_namestring, direntry. */

@@ -1,3 +1,7 @@
+2008-07-16  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test DIRECTORY on poorly encoded names
+
 2008-07-15  Bruno Haible  <bruno@clisp.org>
 
 	* excepsit.tst: Change expected condition type in last commit.
