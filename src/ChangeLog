@@ -4,7 +4,7 @@
 	only around lisp-compiled handlers, not C handlers, who must
 	deactivate themselves (this is necessary because the C handlers
 	which call longjmp do not abide by the HANDLER_FRAME)
-	* pathname.d (handle_directory_encoding_error): desctivate when
+	* pathname.d (handle_directory_encoding_error): deactivate when
 	already running; reset STACK
 	(direntry_to_string): check STACK
 
