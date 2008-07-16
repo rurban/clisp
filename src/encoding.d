@@ -293,6 +293,7 @@ nonreturning_function(global, error_unencodable,
 }
 
 #endif  /* UNICODE */
+
 /* used in CONVERT-STRING-FROM-BYTES, so must not depend on UNICODE */
 /* missing bytes at the end */
 nonreturning_function(local, error_incomplete, (object encoding)) {
@@ -307,14 +308,17 @@ nonreturning_function(local, error_incomplete, (object encoding)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(charset_type_error,GETTEXT("~S: Incomplete byte sequence at end of buffer for ~S"));
 }
+
 #ifdef UNICODE
-local void handle_incomplete (object encoding, chart* *destp) {
+local void handle_incomplete (object encoding, chart* *destp, chart* destend) {
   var object action = TheEncoding(encoding)->enc_towcs_error;
   if (eq(action,S(Kignore))) {
   } else if (eq(action,S(Kerror))) {
     error_incomplete(encoding);
-  } else
-    *(*destp)++ = char_code(action);
+  } else {
+    if (*destp < destend)
+      *(*destp)++ = char_code(action);
+  }
 }
 
 /* The range function for an encoding covering all of Unicode. */
@@ -398,7 +402,7 @@ global void uni16be_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (incomplete_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp,destend);
   }
 }
 
@@ -419,7 +423,7 @@ global void uni16le_mbstowcs (object encoding, object stream,
     } while (--count);
     *srcp = src;
     *destp = dest;
-    if (incomplete_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp,destend);
   }
 }
 
@@ -639,7 +643,7 @@ global void uni32be_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (incomplete_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp,destend);
   }
 }
 
@@ -672,7 +676,7 @@ global void uni32le_mbstowcs (object encoding, object stream,
     } while (scount > 0 && dcount > 0);
     *srcp = src;
     *destp = dest;
-    if (incomplete_p) handle_incomplete(encoding,destp);
+    if (incomplete_p) handle_incomplete(encoding,destp,destend);
   }
 }
 

@@ -1,5 +1,12 @@
 2008-07-15  Bruno Haible  <bruno@clisp.org>
 
+	Avoid buffer overrun.
+	* encoding.d (handle_incomplete): Add destend argument.
+	(uni16be_mbstowcs, uni16le_mbstowcs, uni32be_mbstowcs,
+	uni32le_mbstowcs): Update callers.
+
+2008-07-15  Bruno Haible  <bruno@clisp.org>
+
 	Fix bug introduced on 2003-03-11.
 	* encoding.d (uni16_mblen): Make consistent with uni16be_mbstowcs and
 	uni16le_mbstowcs.
