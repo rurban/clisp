@@ -3024,7 +3024,7 @@ local maygc Values eval1 (object form)
       } else {
         if (!boundp(value1)) {
           check_variable_value_replacement(&(STACK_(frame_form+1)),true);
-          if (!nullp(value2)) /* STORE-VALUE */
+          if (eq(T,value2)) /* STORE-VALUE */
             value1 = setq(STACK_(frame_form+1),value1);
         }
         mv_count=1; /* value1 as value */
