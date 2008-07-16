@@ -1,5 +1,12 @@
 2008-07-15  Bruno Haible  <bruno@clisp.org>
 
+	* makemake.in (interpreted.mem, halfcompiled.mem): Depend on
+	config.lisp.
+	(clean5): Don't remove config.lisp.
+	(clean6): Remove config.lisp.
+
+2008-07-15  Bruno Haible  <bruno@clisp.org>
+
 	* encoding.d: Verify already at compile time that HAVE_GOOD_ICONV is set
 	rather than crashing at initialization time.
 

@@ -2920,7 +2920,7 @@ if [ $CROSS = false ] ; then
   else SAFE_SRCDIR=${SRCDIR}
   fi
 
-  echol "interpreted.mem : lisp${LEXE} \$(LISPFILES)"
+  echol "interpreted.mem : lisp${LEXE} \$(LISPFILES) config.lisp"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) interpreted.mem"
   fi
@@ -2968,7 +2968,7 @@ fi
 
 if [ $CROSS = false ] ; then
 
-  echol "halfcompiled.mem : lisp${LEXE} \$(LISPFILES) compiler.fas"
+  echol "halfcompiled.mem : lisp${LEXE} \$(LISPFILES) config.lisp compiler.fas"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) halfcompiled.mem"
   fi
@@ -3983,8 +3983,6 @@ if [ -n "${SRCDIR}" ] ; then
   if [ $HOS = unix -a $CROSS = false ] ; then
     echotab "-\$(RM) .gdbinit"
   fi
-else
-  echotab "-\$(RM) config.lisp"
 fi
 if [ $TOS = unix ] ; then
   echotab "-\$(RM) MAGIC.add"
@@ -3997,6 +3995,7 @@ echol
 cat <<!!
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
+	-\$(RM) config.lisp
 	-\$(RM) Makefile
 
 # clean7 lets us go back to the main "configure".
