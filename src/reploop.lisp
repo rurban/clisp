@@ -278,9 +278,9 @@ Use the usual editing capabilities.
    (TEXT "
 Commands may be abbreviated as shown in the second column.
 COMMAND        ABBR     DESCRIPTION
-Help           :h, ?    this command list
-Error          :e       Print the last error message
-Inspect        :i       Inspect the last error
+Help           :h, ?    print this command list
+Error          :e       print the last error message
+Inspect        :i       inspect the last error
 Abort          :a       abort to the next recent input loop
 Unwind         :uw      abort to the next recent input loop
 Reset          :re      toggle *PACKAGE* and *READTABLE* between the

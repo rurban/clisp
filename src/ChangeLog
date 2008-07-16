@@ -5,6 +5,7 @@
 	remove the leading "You may " from the message: the message
 	describes the action of the user, such as "Abort main loop" or
 	"inspect this frame", cf. reploop.lisp
+	* reploop.lisp (commands1): more uniform message capitalization
 
 2008-07-16  Sam Steingold  <sds@gnu.org>
 
