@@ -7101,10 +7101,14 @@ local maygc bool directory_search_direntry_ok (object namestring,
  < value1 : lisp string or NIL if string is "." or ".."
    OR if the conversion failed and the CONTINUE restart was selected
  can trigger GC */
+local per_thread bool running_handle_directory_encoding_error = false;
 local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 (void *sp, gcv_object_t* frame, object label, object condition) {
+  /* avoid nested handle_directory_encoding_error calls */
+  if (running_handle_directory_encoding_error) return;
+  else running_handle_directory_encoding_error = true;
   sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
-  unwind_back_trace(back_trace,frame);
+  unwind_back_trace(back_trace,frame); setSTACK(STACK = frame);
   value1 = condition;
   LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); begin_longjmp_call();
   longjmpspl(*returner,(aint)returner); /* return non-0! */
@@ -7112,9 +7116,11 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
+  var gcv_object_t *stack_save = STACK;
   len = (len == -1 ? asciz_length(string) : len);
   var object encoding = O(pathname_encoding);
  restart_direntry_to_string:
+  running_handle_directory_encoding_error = false;
   /* build UNWIND-PROTECT-frame: */
   var sp_jmp_buf returner; /* return point */
   make_HANDLER_entry_frame(O(handler_for_charset_type_error),
@@ -7122,6 +7128,9 @@ local maygc object direntry_to_string (char* string, int len) {
                            goto signal_encoding_error; );
   value1 = n_char_to_string(string,len,encoding);
   unwind_HANDLER_frame();
+ direntry_to_string_done:
+  running_handle_directory_encoding_error = false;
+  if (stack_save != STACK) abort();
   return value1;
  signal_encoding_error:         /* value1 = condition */
   unwind_HANDLER_frame();
@@ -7135,7 +7144,7 @@ local maygc object direntry_to_string (char* string, int len) {
     TheSbvector(STACK_0)->data[pos] = string[pos];
   funcall(L(set_slot_value),3);
   funcall(S(check_value),2);
-  if (nullp(value1)) return NIL; /* CONTINUE restart */
+  if (nullp(value1)) goto direntry_to_string_done; /* CONTINUE restart */
   encoding = check_encoding(value1,&O(pathname_encoding),false);
   if (eq(T,value2)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
   goto restart_direntry_to_string;
