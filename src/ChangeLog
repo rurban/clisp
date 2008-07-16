@@ -1,5 +1,13 @@
 2008-07-16  Sam Steingold  <sds@gnu.org>
 
+	* macros2.lisp (report-one-new-value-string)
+	(report-one-new-value-string-instead, report-new-values-string):
+	remove the leading "You may " from the message: the message
+	describes the action of the user, such as "Abort main loop" or
+	"inspect this frame", cf. reploop.lisp
+
+2008-07-16  Sam Steingold  <sds@gnu.org>
+
 	* control.d (SYMBOL-VALUE): tighten identification of STORE-VALUE
 	selection in CHECK-VALUE: value2 is T, not just non-NIL
 	* eval.d (eval1): ditto
