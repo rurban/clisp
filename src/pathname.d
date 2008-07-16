@@ -7125,8 +7125,7 @@ local maygc object direntry_to_string (char* string, int len) {
  signal_encoding_error:         /* value1 = condition */
   unwind_HANDLER_frame();
   pushSTACK(S(pathname_encoding)); /* PLACE */
-  pushSTACK(value1);               /* condition */
-#if 1
+  pushSTACK(value1);               /* condition - for CHECK-VALUE */
   /* set condition $DATUM slot to string (as a byte vector) */
   pushSTACK(value1/*condition*/); pushSTACK(S(datum));
   pushSTACK(allocate_bit_vector(Atype_8Bit,len-1)); /* slot DATUM */
@@ -7134,7 +7133,6 @@ local maygc object direntry_to_string (char* string, int len) {
   for (pos = 0; pos < len; pos++)
     TheSbvector(STACK_1)->data[pos] = string[pos];
   funcall(L(set_slot_value),3);
-#endif
   funcall(S(check_value),2);
   if (nullp(value1)) return NIL; /* CONTINUE restart */
   encoding = check_encoding(value1,&O(pathname_encoding),false);
