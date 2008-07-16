@@ -1,5 +1,12 @@
 2008-07-16  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (invoke_handlers): reactivate and deactivate handlers
+	only around lisp-compiled handlers, not C handlers, who must
+	deactivate themselves (this is necessary because the C handlers
+	which call longjmp do not abide by the HANDLER_FRAME)
+
+2008-07-16  Sam Steingold  <sds@gnu.org>
+
 	* macros2.lisp (report-one-new-value-string)
 	(report-one-new-value-string-instead, report-new-values-string):
 	remove the leading "You may " from the message: the message
