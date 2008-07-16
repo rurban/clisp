@@ -90,7 +90,7 @@ LISPFUNNR(symbol_value,1)
   value1 = Symbol_value(STACK_0);
   if (!boundp(value1)) {
     check_variable_value_replacement(&STACK_0,true); /* sets value1 */
-    if (!nullp(value2)) /* STORE-VALUE */
+    if (eq(T,value2)) /* STORE-VALUE */
       Symbol_value(STACK_0) = value1;
   }
   skipSTACK(1); mv_count = 1;
