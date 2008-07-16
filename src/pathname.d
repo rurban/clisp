@@ -7103,9 +7103,11 @@ local maygc bool directory_search_direntry_ok (object namestring,
  can trigger GC */
 local void handle_directory_encoding_error
 (void *sp, gcv_object_t* frame, object label, object condition) {
+  /* cf. enter_frame_at_STACK */
   sp_jmp_buf *returner = (sp_jmp_buf*)(aint)sp;
+  unwind_back_trace(back_trace,frame);
   value1 = condition;
-  begin_longjmp_call();
+  LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count(); begin_longjmp_call();
   longjmpspl(*returner,(aint)returner); /* return non-0! */
   NOTREACHED;
 }
