@@ -8040,7 +8040,7 @@ global maygc void init_pathnames (void) {
   #endif
  #endif
  #ifdef HAVE_SHELL
-  #ifdef UNIX
+  #if defined(UNIX)
   /* the command-shell O(command_shell) remains unchanged, otherwise
    we get too many portability problems. */
   { /* search the environment for variable SHELL: */
@@ -8052,8 +8052,7 @@ global maygc void init_pathnames (void) {
     }
     /* else O(user_shell) remains on the default value "/bin/csh". */
   }
-  #endif
-  #ifdef WIN32_NATIVE
+  #elif defined(WIN32_NATIVE)
   { /* search in the environment for variable COMSPEC: */
     begin_system_call();
     var const char* shell = getenv("COMSPEC");
@@ -8073,6 +8072,8 @@ global maygc void init_pathnames (void) {
       O(command_shell) = ascii_to_string(shell); /* enter */
     }
   }
+  #else
+  #error HAVE_SHELL is defined - extend init_pathnames
   #endif
  #endif
 }
@@ -8377,7 +8378,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   VALUES_IF(exitcode == 0);
 }
 
-#else /* UNIX || ... */
+#elif defined(UNIX)
 
 LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   var object command = popSTACK();
@@ -8394,9 +8395,11 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   }
 }
 
+#else
+#error HAVE_SHELL is defined but EXT:SHELL definition is missing
 #endif
 
-#endif
+#endif  /* HAVE_SHELL */
 
 /* stringlist_to_asciizlist (stringlist, encoding)
  convert a stringlist to list of asciz strings
