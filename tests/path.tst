@@ -1137,12 +1137,12 @@ NIL
         (equal (directory "weird*") dir)
         (letf ((*pathname-encoding* charset:ascii))
           (list (appease-cerrors (directory "weird*"))
-                (handler-bind ((charset-type-error
+                (handler-bind ((simple-charset-type-error
                                 (lambda (c)
                                   (use-value charset:iso-8859-1))))
                   (equal (directory "weird*") dir))
                 (eq *pathname-encoding* charset:ascii)
-                (handler-bind ((charset-type-error
+                (handler-bind ((simple-charset-type-error
                                 (lambda (c)
                                   (store-value charset:iso-8859-1))))
                   (equal (directory "weird*") dir))
