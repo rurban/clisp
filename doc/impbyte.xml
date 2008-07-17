@@ -220,7 +220,8 @@
  <listitem><simpara>Auxiliary functions (&win32; version only).
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/foreign.d</filename></term>
- <listitem><simpara>&ffi-pac; support.</simpara></listitem></varlistentry>
+ <listitem><simpara>&ffi-pac; implementation.
+</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/lisparit.d</filename></term>
  <listitem><simpara>Functions dealing with numbers (arithmetic), see
    <xref linkend="src-arith"/>.</simpara></listitem></varlistentry>
@@ -492,8 +493,8 @@
 </simpara></listitem></varlistentry>
 <varlistentry id="macros3-lisp">
  <term><filename role="clisp-cvs">src/macros3.lisp</filename> (optional)</term>
- <listitem><simpara>the macros &letf;, &letf-star; and &ethe;
-</simpara></listitem></varlistentry>
+ <listitem><simpara>macros &letf;, &letf-star;, &ethe;, &with-collect;,
+   function &compiled-file-p;.</simpara></listitem></varlistentry>
 <varlistentry id="config-lisp">
  <term><filename role="clisp-cvs">src/config.lisp</filename></term>
  <listitem><para>(user written) site-dependent configuration,
@@ -705,7 +706,7 @@
    see <xref linkend="gstream"/></simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/foreign1.lisp</filename></term>
- <listitem><simpara>&ffi-pac; interface
+ <listitem><simpara>&ffi-pac; implementation.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/screen.lisp</filename></term>
  <listitem><simpara>the screen access package, see <xref linkend="screen"/>
