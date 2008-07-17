@@ -1,5 +1,9 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d: more robust HAVE_SHELL conditional handling
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* error.d (check_c_integer_replacement): use the appropriate
 	[su]int(8|16|32|64)_p test instead of always using uint8_p
 
