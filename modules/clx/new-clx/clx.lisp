@@ -172,6 +172,7 @@
    ;; extensions
    open-default-display with-open-display
    display-get-default display-resource-manager-string screen-resource-string
+   *canonicalize-encoding*
    ;;; Only when using libXt:
    ;; last-event-processed last-timestamp-processed
    ;;; Only when using the native resource database, not resource.lisp:
@@ -1768,3 +1769,15 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 (undefined TRANSLATE-DEFAULT)
 (undefined QUEUE-EVENT)
 )
+
+;; canonicalize encodings supplied by X, see clx.f:get_font_info_and_display()
+(defvar *canonicalize-encoding*
+  ;; this encoding canonicalization was requested by
+  ;; Pascal J.Bourguignon <pjb@informatimago.com>
+  ;; in <http://article.gmane.org/gmane.lisp.clisp.general:7794>
+  `(,(lambda (s)
+       (if (and (<= 4 (length s))
+                (string-equal s "iso" :end1 3)
+                (not (char= #\- (char s 3))))
+           (concatenate 'string "ISO-" (subseq s 3))
+           s))))

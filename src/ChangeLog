@@ -1,5 +1,12 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.lisp (*canonicalize-encoding*):
+	defvar and export from XLIB
+	* modules/clx/new-clx/clx.f (get_font_info_and_display): use it
+	together with EXT:CANONICALIZE instead of the C ad-hoc-ery
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* dfloat.d (RA_to_DF): clean up the STACK before error_overflow()
 	* ffloat.d (RA_to_FF): ditto
 	* sfloat.d (RA_to_SF): ditto

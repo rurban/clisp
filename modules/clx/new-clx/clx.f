@@ -1124,18 +1124,16 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
           status = XGetAtomNames (dpy, xatoms, 2, names); /* X11R6 */
 #        endif
           if (status) {
-            /* this encoding canonicalization was requested by
-               Pascal J.Bourguignon <pjb@informatimago.com>
-               in <http://article.gmane.org/gmane.lisp.clisp.general:7794> */
-            char* whole = (char*) alloca(strlen(names[0])+strlen(names[1])+3);
-            if (!strncasecmp(names[0],"iso",3) && names[0][3] != '-') {
-              strcpy(whole,"ISO-");
-              strcat(whole,names[0]+3);
-            } else strcpy(whole,names[0]);
+            char* whole = (char*) alloca(strlen(names[0])+strlen(names[1])+2);
+            strcpy(whole,names[0]);
             strcat(whole,"-");
             strcat(whole,names[1]);
             end_x_call();
-            pushSTACK(S(Kcharset));
+            pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
+            pushSTACK(Symbol_value(`XLIB:*CANONICALIZE-ENCODING*`));
+            pushSTACK(S(Ktest)); pushSTACK(S(equal));
+            funcall(`EXT:CANONICALIZE`,4);
+            pushSTACK(S(Kcharset)); pushSTACK(value1);
             pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
             pushSTACK(S(Koutput_error_action));
             pushSTACK(fixnum(info->default_char));
