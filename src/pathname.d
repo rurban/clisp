@@ -5711,10 +5711,13 @@ local maygc void assure_dir_exists (struct file_status *fs,
     }
     fs->fs_namestring = whole_namestring(*(fs->fs_pathname)); /* concat */
     /* get information: */
+    pushSTACK(fs->fs_namestring); /* save for get_path_info() */
+    var bool done;
     with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
-      if (get_path_info(fs,namestring_asciz,&allowed_links))
-        return;
+      done = get_path_info(fs,namestring_asciz,&allowed_links);
     });
+    fs->fs_namestring = popSTACK(); /* restore */
+    if (done) return;
   }
 }
 
@@ -5939,7 +5942,7 @@ LISPFUNNR(probe_file,1)
  < return 0 if namestring does not name an existing file or directory
     1:  regular file
    -1:  directory */
-local maygc signean classify_namestring (char* namestring, char *resolved) {
+local signean classify_namestring (char* namestring, char *resolved) {
 #if defined(UNIX)
   struct stat status;
   int ret;
