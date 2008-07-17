@@ -1,12 +1,12 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
-(setf string "test-pathname.abc" symbol 'test-pathname.abc)
+(setf my-string "test-pathname.abc" my-symbol 'test-pathname.abc)
 test-pathname.abc
 
 ;; PATHNAME: argument type: pathname,string,symbol,stream
 ;;           result: pathname
 
-(SETF PATHSTRING (PATHNAME STRING))
+(SETF PATHSTRING (PATHNAME MY-STRING))
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL
 SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
@@ -15,7 +15,7 @@ TYPE "ABC" SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
 
-(SETF PATHSYMBOL (PATHNAME symbol))
+(SETF PATHSYMBOL (PATHNAME my-symbol))
 #+XCL
 #S(PATHNAME SYSTEM::HOST
 NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
@@ -33,11 +33,11 @@ TYPE "ABC" SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
 
-(SETF STREAM (OPEN STRING :DIRECTION :OUTPUT #+(or CMU SBCL) :IF-EXISTS #+(or CMU SBCL) :SUPERSEDE)
+(SETF MY-STREAM (OPEN MY-STRING :DIRECTION :OUTPUT #+(or CMU SBCL) :IF-EXISTS #+(or CMU SBCL) :SUPERSEDE)
       a nil)
 nil
 
-;(SETF PATHSTREAM (PATHNAME STREAM))
+;(SETF PATHSTREAM (PATHNAME MY-STREAM))
 ;"test-pathname.lsp"
 
 (MAPCAR (FUNCTION PATHNAMEP)
@@ -49,7 +49,7 @@ nil
 
 ;; function truename returns filename for pathname or stream
 ;
-;(MAPCAR (FUNCTION TRUENAME) (LIST PATHSTRING PATHSYMBOL PATHPATH STREAM
+;(MAPCAR (FUNCTION TRUENAME) (LIST PATHSTRING PATHSYMBOL PATHPATH MY-STREAM
 ;                                                               ;PATHSTREAM
 ;                                                                 ))
 ;  ERROR
@@ -71,7 +71,7 @@ nil
 #+UNIX "./"
 #-(OR WIN32 UNIX) UNKNOWN
 
-(PARSE-NAMESTRING STRING)
+(PARSE-NAMESTRING MY-STRING)
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL
 SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
@@ -80,7 +80,7 @@ TYPE "ABC" SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
 
-(PARSE-NAMESTRING SYMBOL)
+(PARSE-NAMESTRING MY-SYMBOL)
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL
 SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
@@ -233,11 +233,11 @@ SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
 SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
 "BABYLON" TYPE "C" SYSTEM::VERSION 5)
 
-;(MERGE-PATHNAME "test$$" SYMBOL 10)   ERROR
+;(MERGE-PATHNAME "test$$" MY-SYMBOL 10)   ERROR
 ;;
-;(MERGE-PATHNAME "test$$" SYMBOL)   ERROR
+;(MERGE-PATHNAME "test$$" MY-SYMBOL)   ERROR
 ;
-;(MERGE-PATHNAME "test$$" PATH)   ERROR
+;(MERGE-PATHNAME "test$$" MY-PATHNAME)   ERROR
 ;
 ;(MERGE-PATHNAME "test$$")   ERROR
 
@@ -249,35 +249,35 @@ SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
 SYSTEM::VERSION :NEWEST)
 
 #+XCL
-(MERGE-PATHNAMES "test$$" SYMBOL)
+(MERGE-PATHNAMES "test$$" MY-SYMBOL)
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE
 "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST$$" TYPE "ABC"
 SYSTEM::VERSION :NEWEST)
 
 #+XCL
-(MERGE-PATHNAMES "test$$" SYMBOL 2)
+(MERGE-PATHNAMES "test$$" MY-SYMBOL 2)
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL
 SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST$$" TYPE
 "ABC" SYSTEM::VERSION 2)
 
 #+XCL
-(MERGE-PATHNAMES "test$$" (PATHNAME SYMBOL) 2)
+(MERGE-PATHNAMES "test$$" (PATHNAME MY-SYMBOL) 2)
 #+XCL
 #S(PATHNAME SYSTEM::HOST NIL
 SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST$$" TYPE
 "ABC" SYSTEM::VERSION 2)
 
 #+XCL
-(MERGE-PATHNAMES "test$$" STREAM 2)
+(MERGE-PATHNAMES "test$$" MY-STREAM 2)
 #+XCL
 #S(PATHNAME SYSTEM::HOST 16 SYSTEM::DEVICE
 "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST$$" TYPE :ESCAPE
 SYSTEM::VERSION 2)
 
 
-;(MERGE-PATHNAME STRING SYMBOL)   ERROR
+;(MERGE-PATHNAME MY-STRING MY-SYMBOL)   ERROR
 
 #+XCL
 (MAKE-PATHNAME :NAME "a" :HOST (QUOTE ORION))
@@ -355,28 +355,28 @@ DIRECTORY "[heicking.comlisp]" SYSTEM::NAME "a" TYPE "raf" SYSTEM::VERSION 3)
 (T T T)
 
 #+XCL
-(SETF PATH (TEST A))
+(SETF MY-PATH (TEST A))
 #+XCL
 #S(PATHNAME SYSTEM::HOST "sirius" SYSTEM::DEVICE
 "disk00$abt43" DIRECTORY "[heicking.comlisp]" SYSTEM::NAME "a" TYPE "raf"
 SYSTEM::VERSION 3)
 
 #+XCL
-(MAPCAR (FUNCTION PATHNAME-HOST) (LIST SYMBOL STRING STREAM PATH))
+(MAPCAR (FUNCTION PATHNAME-HOST) (LIST MY-SYMBOL MY-STRING MY-STREAM MY-PATHNAME))
 #+XCL
 (NIL NIL NIL NIL)
 
 #+XCL
-(MAPCAR (FUNCTION PATHNAME-DEVICE) (LIST SYMBOL STRING STREAM PATH))
+(MAPCAR (FUNCTION PATHNAME-DEVICE) (LIST MY-SYMBOL MY-STRING MY-STREAM MY-PATHNAME))
 #+XCL
 ("DISK00$ABT43" "DISK00$ABT43" "DISK00$ABT43" "DISK00$ABT43")
 
 #+XCL
-(MAPCAR (FUNCTION PATHNAME-DIRECTORY) (LIST SYMBOL STRING STREAM PATH))
+(MAPCAR (FUNCTION PATHNAME-DIRECTORY) (LIST MY-SYMBOL MY-STRING MY-STREAM MY-PATHNAME))
 #+XCL
 ("XCL.MAIN" "XCL.MAIN" "XCL.MAIN" "XCL.MAIN")
 
-(PROGN (CLOSE STREAM) T)
+(PROGN (CLOSE MY-STREAM) T)
 T
 
 #+XCL
@@ -394,118 +394,118 @@ DIRECTORY "HEICKING" SYSTEM::NAME "*" TYPE :WILD SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME :WILD :TYPE :WILD :VERSION NIL)
 
-(progn (setf file (open "non-existent-file.non"
-                        :direction :input
-                        :element-type 'string-char
-                        :if-does-not-exist :create)) t)
+(progn (setf my-file (open "non-existent-file.non"
+                           :direction :input
+                           :element-type 'string-char
+                           :if-does-not-exist :create)) t)
 t
 
 (null (probe-file "non-existent-file.non"))
 NIL
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :error))
+(setf my-file (open "non-existent-file.non"
+                    :direction :io
+                    :element-type 'string-char
+                    :if-exists :error))
 error
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :new-version)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :new-version)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :rename)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :rename)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :rename-and-delete)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :rename-and-delete)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :overwrite)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :overwrite)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :append)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :append)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists :supersede)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-exists :supersede)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-exists nil))
+(setf my-file (open "non-existent-file.non"
+                    :direction :io
+                    :element-type 'string-char
+                    :if-exists nil))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 error
 
-(setf file (open "non-existent-file.new"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-does-not-exist :error))
+(setf my-file (open "non-existent-file.new"
+                    :direction :io
+                    :element-type 'string-char
+                    :if-does-not-exist :error))
 error
 
-(progn (close file) t)
+(progn (close my-file) t)
 error
 
 (truename "~/no/ such / path /  non-existent-file.new")
 error
 
-(null (setf file (open "non-existent-file.new"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-does-not-exist :create)))
+(null (setf my-file (open "non-existent-file.new"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-does-not-exist :create)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
-(null (setf file (open "non-existent-file.non"
-                        :direction :io
-                        :element-type 'string-char
-                        :if-does-not-exist nil)))
+(null (setf my-file (open "non-existent-file.non"
+                          :direction :io
+                          :element-type 'string-char
+                          :if-does-not-exist nil)))
 nil
 
-(progn (close file) t)
+(progn (close my-file) t)
 t
 
 (let ((*default-pathname-defaults* #p""))
@@ -1152,11 +1152,15 @@ NIL
 
 (flet ((kill (s) (makunbound s) (unintern s)))
   (kill '*dir*)
-  (makunbound 'string)
-  (makunbound 'symbol)
+  (kill 'a)
+  (kill 'test)
+  (kill 'my-string)
+  (kill 'my-symbol)
   (kill 'pathstring)
   (kill 'pathsymbol)
   (kill 'pathpath)
-  (makunbound 'stream)
-  (kill 'file))
+  (kill 'my-path)
+  (kill 'path=)
+  (kill 'my-stream)
+  (kill 'my-file))
 t
