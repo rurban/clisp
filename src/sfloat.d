@@ -726,7 +726,7 @@ local maygc object I_to_SF (object x, bool signal_overflow)
     var sintL lendiff = I_integer_length(x) # (integer-length a)
                         - I_integer_length(STACK_1); # (integer-length b)
     if (lendiff > SF_exp_high-SF_exp_mid) { # Exponent >= n-m > Obergrenze ?
-      error_overflow(); # -> Overflow
+      skipSTACK(2); error_overflow();       /* -> Overflow */
     }
     if (lendiff < SF_exp_low-SF_exp_mid-2) { # Exponent <= n-m+2 < Untergrenze ?
       if (underflow_allowed()) {

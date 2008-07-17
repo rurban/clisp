@@ -1506,8 +1506,9 @@ local maygc object RA_to_DF (object x, bool signal_overflow) {
   /* stack layout: b, a. */
   var sintL lendiff = I_integer_length(x) /* (integer-length a) */
     - I_integer_length(STACK_1); /* (integer-length b) */
-  if (lendiff > DF_exp_high-DF_exp_mid) /* exponent >= n-m > upper limit ? */
-    error_overflow(); /* -> Overflow */
+  if (lendiff > DF_exp_high-DF_exp_mid) { /* exponent >= n-m > upper limit ? */
+    skipSTACK(2); error_overflow();       /* -> Overflow */
+  }
   if (lendiff < DF_exp_low-DF_exp_mid-2) { /* Exponent <= n-m+2 < lower limit ? */
     if (underflow_allowed()) {
       error_underflow(); /* -> Underflow */
