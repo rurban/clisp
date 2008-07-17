@@ -1127,10 +1127,11 @@ NIL
     (ext:delete-directory tn)))
 #+clisp (T T T)
 
-#+(or)
+#+clisp
 (letf* ((*pathname-encoding* charset:iso-8859-1) ; 1:1
         (weird (concatenate 'string "weird" (string (code-char 160))))
-        (dir (list (pathname weird))))
+        (dir (list (make-pathname :version :newest
+                                  :defaults (absolute-pathname weird)))))
   (open weird :direction :probe :if-does-not-exist :create) ; touch
   (unwind-protect
        (cons
@@ -1139,16 +1140,12 @@ NIL
           (list (appease-cerrors (directory "weird*"))
                 (handler-bind ((simple-charset-type-error
                                 (lambda (c)
-                                  (use-value charset:iso-8859-1))))
-                  (equal (directory "weird*") dir))
-                (eq *pathname-encoding* charset:ascii)
-                (handler-bind ((simple-charset-type-error
-                                (lambda (c)
+                                  (princ-error c)
                                   (store-value charset:iso-8859-1))))
                   (equal (directory "weird*") dir))
                 (eq *pathname-encoding* charset:iso-8859-1))))
     (delete-file weird)))
-#+(or) (T NIL T T T T)
+#+clisp (T NIL T T)
 
 (flet ((kill (s) (makunbound s) (unintern s)))
   (kill '*dir*)
