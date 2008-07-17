@@ -1,5 +1,12 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* error.d (caller_name): new function
+	(check_symbol_replacement, check_variable_value_replacement):
+	use it when the caller maybe either Subr or Fsubr
+	Reported by Vladimir Tzankov <vtzankov@gmail.com>
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (directory_search_scandir) [WIN32_NATIVE]: use
 	direntry_to_string in one more place
 

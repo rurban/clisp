@@ -900,18 +900,23 @@ nonreturning_function(global, error_proper_list_circular, (object caller, object
   error(type_error,GETTEXT("~S: A proper list must not be circular: ~S"));
 }
 
+/* return the name of the current caller (subr or fsubr)
+ this is only necessary for error signaled from both. */
+local inline object caller_name (void) {
+  var object caller = subr_self;
+  return subrp(caller) ? TheSubr(caller)->name : TheFsubr(caller)->name;
+}
+
 /* check_symbol_replacement(obj)
  > obj: not a symbol
  < result: a symbol, a replacement
  can trigger GC */
 global maygc object check_symbol_replacement (object obj) {
   do {
-    var object caller = subr_self;
-    caller = (subrp(caller) ? TheSubr(caller)->name : TheFsubr(caller)->name);
     pushSTACK(NIL); /* no PLACE */
     pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
     pushSTACK(S(symbol)); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(obj); pushSTACK(caller);
+    pushSTACK(obj); pushSTACK(caller_name());
     check_value(type_error,GETTEXT("~S: ~S is not a symbol"));
     obj = value1;
   } while (!symbolp(obj));
@@ -1515,7 +1520,7 @@ global maygc void check_variable_value_replacement (gcv_object_t *symbol_,
   do {
     if (restart_p) pushSTACK(*symbol_); /* PLACE */
     pushSTACK(*symbol_); /* CELL-ERROR Slot NAME */
-    pushSTACK(*symbol_); pushSTACK(TheSubr(subr_self)->name);
+    pushSTACK(*symbol_); pushSTACK(caller_name());
     if (restart_p)
       check_value(unbound_variable,GETTEXT("~S: variable ~S has no value"));
     else error(unbound_variable,GETTEXT("~S: variable ~S has no value"));
