@@ -1755,7 +1755,13 @@ additionally binds &cont-r; to the content length.</para>
  If no <literal role="data">#\:</literal> is present,
  &pass-r; (or &port-r;) is &nil;.</para>
 <para>Use function <code>(EXT:HTTP-PROXY &optional-amp; (&string-t;
-  (&getenv; "http_proxy")))</code> to reset &http-proxy;.</para></section>
+  (&getenv; "http_proxy")))</code> to reset
+  &http-proxy;.</para></section>
+
+<section id="canonicalize"><title>Function &canonicalize;</title>
+<para>If you want to canonicalize a value before further processing it,
+ you can pass it to &canonicalize; together with a list of canonicalizers.
+</para></section>
 </section>
 
 <section id="customize"><title>Customizing &clisp; behavior</title>

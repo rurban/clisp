@@ -1,5 +1,6 @@
 (in-package "EXT")
-(export '(ethe letf letf* with-collect compiled-file-p compile-time-value))
+(export '(ethe letf letf* with-collect compiled-file-p compile-time-value
+          canonicalize))
 (in-package "SYSTEM")
 ;;; ---------------------------------------------------------------------------
 ;;; Wie THE, nur dass auch im compilierten Code der Typtest durchgeführt wird.
@@ -371,7 +372,7 @@ on other lisps (which is 1.5-2 times as fast as push/nreverse there)."
 
 ;;; ---------------------------------------------------------------------------
 (defun compiled-file-p (file-name)
-  "Return non-NIL is FILE-NAME names a CLISP-compiled file
+  "Return non-NIL if FILE-NAME names a CLISP-compiled file
 with compatible bytecodes."
   (with-open-file (in file-name :direction :input :if-does-not-exist nil)
     (handler-bind ((error (lambda (c) (declare (ignore c))
@@ -397,3 +398,24 @@ with compatible bytecodes."
        (eval-when (compile load eval)
          (macrolet ((ctv () ,result))
            (eval-when (load eval) (ctv)))))))
+
+;;; ---------------------------------------------------------------------------
+(defun canonicalize (value functions &key (test 'eql) (max-iter 1024))
+  "Call FUNCTIONS on VALUE until it stabilizes according to TEST.
+TEST should be a avalid HASH-TABLE-TEST.
+MAX-ITER limits the number of iteration over the FUNCTIONS (defaults to 1024).
+Returns the canonicalized value and the number of iterations it required."
+  (if functions
+      (let ((ht (make-hash-table :test test)) (prev value) next (count 0))
+        (setf (gethash value ht) 0)
+        (loop (setq next (reduce (lambda (v f) (funcall f v)) functions
+                                 :initial-value prev))
+          (when (funcall test next prev) (return (values next count)))
+          (let ((old (gethash next ht)))
+            (when old
+              (error "~S(~S ~S): circular computation: value ~S appears at steps ~:D and ~:D" 'canonicalize value functions next old (1+ count))))
+          (when (and max-iter (= count max-iter))
+            (error "~S(~S ~S): maximum number of iterations exceeded ~:D, last two values were ~S and ~S" 'canonicalize value functions max-iter prev next))
+          (setq prev next)
+          (setf (gethash next ht) (incf count))))
+      value))

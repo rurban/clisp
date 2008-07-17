@@ -1,7 +1,11 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* macros3.lisp (canonicalize): new function
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (assure_dir_exists) [PATHNAME_UNIX]: fix a GC-safety
-	bug introduced on 2008-07-11 (get_path_info is gc-unsafe)
+	bug introduced on 2008-07-11 (get_path_info is GC-unsafe)
 	(classify_namestring): GC-safe
 
 2008-07-17  Sam Steingold  <sds@gnu.org>
