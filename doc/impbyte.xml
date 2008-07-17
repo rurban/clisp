@@ -872,6 +872,12 @@
  <title>Automatic configuration on &unix; and &mingw;</title>
 
 <variablelist>
+<varlistentry><term><filename role="clisp-cvs">configure</filename></term>
+ <listitem><simpara>the main configuration script
+</simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">version.sh</filename></term>
+ <listitem><simpara>specifies the current &clisp; version
+</simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/configure.in</filename></term>
  <listitem><simpara>lists features to be checked
@@ -1298,7 +1304,7 @@ is illegal.</para></warning>
 <para>Run-time GC-safety checking is available when you build &clisp;
  with a C++ compiler, e.g.:
 <screen id="clisp-config-gxx">
-&sh-prompt; CC=g++ ./configure --with-debug build-g-gxx
+&sh-prompt; ./configure 'CC=g++' --with-debug build-g-gxx
 </screen>
 When built like this, &clisp; will <function role="unix">abort</function>
 when you reference GC-unsafe data after an allocation (which could have
