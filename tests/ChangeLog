@@ -1,5 +1,10 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* number2.tst (float-rational-cmp): also compare x with ~10x to
+	check the overflow handling
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* ext-clisp.tst: test canonicalize
 
 2008-07-16  Sam Steingold  <sds@gnu.org>
