@@ -849,6 +849,13 @@
 
 <section id="src-i18n"><title>Internationalization</title>
 
+<para>These files are usually updated a couple of weeks before a &clisp;
+ release using <command>make -f Makefile.devel tp-mail</command>,
+ see also <link linkend="src-external"/>.</para>
+<para>We use the
+ <ulink url="http://translationproject.org/domain/clisp.html">Translation
+  project</ulink> and the above command sends the updated files to the
+  translators.</para>
 <variablelist>
 <varlistentry><term><filename>src/po/*.pot</filename></term>
  <listitem><simpara>list of translatable messages (<quote>portable
@@ -861,17 +868,14 @@
     objects</quote>)</simpara></listitem></varlistentry>
 </variablelist></section>
 
-<section id="src-conf-unix"><title>Automatic configuration on &unix;</title>
+<section id="src-conf-unix">
+ <title>Automatic configuration on &unix; and &mingw;</title>
 
 <variablelist>
 <varlistentry>
  <term><filename role="clisp-cvs">src/configure.in</filename></term>
  <listitem><simpara>lists features to be checked
 </simpara></listitem></varlistentry>
-<varlistentry>
- <term><filename role="clisp-cvs">src/autoconf/autoconf.m4</filename></term>
- <listitem><simpara><command>autoconf</command>'s driver macros.
-   Part of &autoconf; 2.57</simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/m4/</filename></term>
  <listitem><simpara>a repertoire of features.
    Use with &autoconf; 2.57</simpara></listitem></varlistentry>
@@ -888,11 +892,11 @@
    (rounding, epsilons etc.)</simpara></listitem></varlistentry>
 <varlistentry>
  <term><filename role="clisp-cvs">src/config.h.in</filename></term>
- <listitem><simpara>header file master, generated
-   from <filename role="clisp-cvs">src/configure.in</filename>.
+ <listitem><simpara>header file master, generated from
+   <filename role="clisp-cvs">src/configure.in</filename>.
    <filename><replaceable>build-dir</replaceable>/config.h</filename>
-   contains the values of the features
-   discovered by <filename role="clisp-cvs">src/configure</filename>.
+   contains the values of the features discovered by
+   <filename role="clisp-cvs">src/configure</filename>.
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/makemake.in</filename></term>
  <listitem><simpara>makefile construction script master
@@ -905,6 +909,26 @@
  <listitem><simpara>master for the distribution's Makefile
 </simpara></listitem></varlistentry>
 </variablelist></section>
+
+<section id="src-external"><title>Externally maintained files</title>
+
+<para>The externally maintained files are usually updated a couple of
+ weeks before a &clisp; release using
+ <command>make -f Makefile.devel pre-release</command>,
+ see also <link linkend="src-i18n"/>.</para>
+
+<variablelist>
+<varlistentry><term><filename role="clisp-cvs">src/gllib/</filename></term>
+ <term><filename role="clisp-cvs">src/glm4/</filename></term>
+ <listitem><simpara>&c-lang; and &autoconf; files from &gnulib;;
+   updated using <command>make -f Makefile.devel gnulib-imported</command>
+   at top level.</simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">src/build-aux/</filename></term>
+ <listitem><simpara>various shell scripts, updated using
+   <command>make -f Makefile.devel build-aux-update</command>
+   at top level.</simpara></listitem></varlistentry>
+</variablelist>
+</section>
 </section>
 </chapter>
 
