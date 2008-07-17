@@ -879,8 +879,8 @@ MAKE_CHECK_REPLACEMENT(list,S(list),listp,GETTEXT("~S: ~S is not a list"))
  error_proper_list_dotted(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
-nonreturning_function(global, error_proper_list_dotted, (object caller, object obj))
-{
+nonreturning_function(global, error_proper_list_dotted,
+                      (object caller, object obj)) {
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(caller);
@@ -891,8 +891,8 @@ nonreturning_function(global, error_proper_list_dotted, (object caller, object o
  error_proper_list_circular(caller,obj);
  > caller: the caller (a symbol)
  > obj: circular list */
-nonreturning_function(global, error_proper_list_circular, (object caller, object obj))
-{
+nonreturning_function(global, error_proper_list_circular,
+                      (object caller, object obj)) {
   dynamic_bind(S(print_circle),T); /* bind *PRINT-CIRCLE* to T */
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -928,8 +928,8 @@ global maygc object check_symbol_replacement (object obj) {
  > caller: a symbol
  < result: a non-constant symbol, a replacement
  can trigger GC */
-global maygc object check_symbol_non_constant_replacement (object obj, object caller)
-{
+global maygc object check_symbol_non_constant_replacement
+(object obj, object caller) {
   for (;;) {
     obj = check_symbol(obj);
     if (constant_var_p(TheSymbol(obj))) {
@@ -948,8 +948,7 @@ global maygc object check_symbol_non_constant_replacement (object obj, object ca
 /* UP: signal an error if a non-symbol was declared special
  returns the symbol
  can trigger GC */
-global maygc object check_symbol_special (object obj, object caller)
-{
+global maygc object check_symbol_special (object obj, object caller) {
   while (!symbolp(obj)) {
     pushSTACK(caller);
     pushSTACK(NIL); /* no PLACE */
@@ -1028,8 +1027,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
  error_no_svector(caller,obj);
  > caller: caller (a symbol)
  > obj: non-Svector */
-nonreturning_function(global, error_no_svector, (object caller, object obj))
-{
+nonreturning_function(global, error_no_svector, (object caller, object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
@@ -1434,7 +1432,8 @@ global maygc object check_fdefinition (object funname, object caller)
  > obj: not a function name
  < result: a function name, either the same as obj or a replacement
  can trigger GC */
-global maygc object check_funname_replacement (condition_t errtype, object caller, object obj) {
+global maygc object check_funname_replacement
+(condition_t errtype, object caller, object obj) {
   pushSTACK(caller); /* save */
   do {
     caller = STACK_0;
