@@ -274,6 +274,7 @@
 <!ENTITY lalist '<link linkend="lalist">lambda list</link>'>
 <!ENTITY letf '<link linkend="letf"><function>EXT:LETF</function></link>'>
 <!ENTITY letf-star '<link linkend="letf"><function>EXT:LETF*</function></link>'>
+<!ENTITY with-collect '<link linkend="with-collect"><function>EXT:WITH-COLLECT</function></link>'>
 <!ENTITY lfd '<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>'>
 <!ENTITY lfd-l '<code>(<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>'>
 <!ENTITY line-term '<link linkend="newline">line terminator</link>'>
