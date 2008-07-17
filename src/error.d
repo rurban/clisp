@@ -1553,12 +1553,22 @@ nonreturning_function(global, error_c_integer,
  can trigger GC */
 global maygc object check_c_integer_replacement (object obj, int tcode,
                                                  bool signedp) {
-  do {
+  while (1) {
     pushSTACK(NIL); /* no PLACE */
     check_value(type_error,prepare_c_integer_signal(obj,tcode,signedp));
     obj = value1;
-  } while (!uint8_p(obj));
-  return obj;
+    switch (signedp ? tcode : tcode + 4) {
+      case 0: if (sint8_p(obj)) return obj; else break;
+      case 1: if (sint16_p(obj)) return obj; else break;
+      case 2: if (sint32_p(obj)) return obj; else break;
+      case 3: if (sint64_p(obj)) return obj; else break;
+      case 4: if (uint8_p(obj)) return obj; else break;
+      case 5: if (uint16_p(obj)) return obj; else break;
+      case 6: if (uint32_p(obj)) return obj; else break;
+      case 7: if (uint64_p(obj)) return obj; else break;
+      default: NOTREACHED;
+    }
+  };
 }
 
 /* error, if argument is not an integer in the range of the C type 'uint'.
