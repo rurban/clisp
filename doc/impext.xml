@@ -1633,8 +1633,7 @@ is approximately equivalent to
  memoizes the &pri-val; of &form-r; from its first evaluation.
 </para></section>
 
-<section id="with-collect">
- <title>Macro <function>EXT:WITH-COLLECT</function></title>
+<section id="with-collect"><title>Macro &with-collect;</title>
 <para>Similar to the &loop;'s
  <ulink role="clhs" url="sec_6-1-3"><literal>COLLECT</literal></ulink>
  construct, except that it is looks more "Lispy" and can appear
@@ -1645,9 +1644,7 @@ is approximately equivalent to
   (dotimes (i 10) (if (oddp i) (c0 i) (c1 i))))
 <computeroutput>(1 3 5 7 9)</computeroutput> ;
 <computeroutput>(0 2 4 6 8)</computeroutput>
-</programlisting> returns two &list-t;s <returnvalue>(1 3 5 7 9)</returnvalue>
-and <returnvalue>(0 2 4 6 8)</returnvalue> as &mul-val;.
-</para></section>
+</programlisting> returns two &list-t;s as &mul-val;.</para></section>
 
 <section id="compile-time-value">
  <title>Macro <function>EXT:COMPILE-TIME-VALUE</function></title>
