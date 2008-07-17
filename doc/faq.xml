@@ -627,7 +627,7 @@ following command:
   <olink targetdoc="man" targetptr="opt-enc"/>.</para>
 
 <para>This may also be caused by filesystem access.
- If you have files names incompatible with your &path-enc;,
+ If you have files with names incompatible with your &path-enc;,
  filesystem access (e.g., &directory;) will signal this error.
  You will need to set &path-enc; or pass &opt-E; to &clisp;.
  Using a <quote>1:1</quote> encoding, such as &iso-8859-1;,
@@ -642,7 +642,7 @@ following command:
 </programlisting> If instead you type <programlisting language="lisp">
 (&with-open-file; (s "foo" :direction :input &extfmt; &iso-8859-1;)
   (&setq; l (&read-line; s))
-  &nil; )
+  &nil;)
 </programlisting> &clisp; will just print &nil; and signal the error
  when you type <literal>l</literal>.</para></answer></qandaentry>
 
