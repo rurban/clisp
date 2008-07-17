@@ -7381,9 +7381,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
             {
               var char resolved[MAX_PATH];
               var char * full_resolved = resolved;
-              with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciiz, {
+              with_sstring_0(whole_namestring(STACK_(3)),O(pathname_encoding),linkfile_asciz, {
                 rresolved =
-                  resolve_shell_shortcut_more(linkfile_asciiz,resolved);
+                  resolve_shell_shortcut_more(linkfile_asciz,resolved);
                 if (rresolved != shell_shortcut_notresolved) {
                   var char resolved_f[MAX_PATH];
                   if (FullName(resolved,resolved_f))
@@ -8401,20 +8401,20 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
 
 #endif  /* HAVE_SHELL */
 
-/* stringlist_to_asciizlist (stringlist, encoding)
+/* stringlist_to_ascizlist (stringlist, encoding)
  convert a stringlist to list of asciz strings
  and places it on the stack.
- returns total length of all asciiz strings including zeros
+ returns total length of all asciz strings including zeros
    and listlength (if the pointer is not NULL)
  adds one element to STACK
  can trigger GC */
 #if !defined(UNICODE)
-#define stringlist_to_asciizlist(s,e,l) stringlist_to_asciizlist_(s,l)
-local maygc int stringlist_to_asciizlist_ (object stringlist,uintL *listlength)
+#define stringlist_to_ascizlist(s,e,l) stringlist_to_ascizlist_(s,l)
+local maygc int stringlist_to_ascizlist_ (object stringlist,uintL *listlength)
 #else
-local maygc int stringlist_to_asciizlist (object stringlist,
-                                          gcv_object_t *encoding_,
-                                          uintL *listlength)
+local maygc int stringlist_to_ascizlist (object stringlist,
+                                         gcv_object_t *encoding_,
+                                         uintL *listlength)
 #endif
 {
   var int length = 0;
@@ -8466,8 +8466,8 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
       O(misc_encoding)));
   filename_len = Sbvector_length(STACK_0);
   var int parameters_len =
-    stringlist_to_asciizlist(parameters_arg,&O(misc_encoding),NULL);
-  /* list of asciiz strings is in the STACK */
+    stringlist_to_ascizlist(parameters_arg,&O(misc_encoding),NULL);
+  /* list of asciz strings is in the STACK */
   var DYNAMIC_ARRAY(parameters,char,parameters_len*2);
   var int parameter_pos = 0;
   while (!nullp(STACK_0)) {
@@ -8712,13 +8712,13 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     ParaClose(hnull);
     end_system_call();
   }
-  /* convert command and args to one asciiz string list */
+  /* convert command and args to one asciz string list */
   pushSTACK(allocate_cons());
   Car(STACK_0) = STACK_(9+1); /* command_arg */
   Cdr(STACK_0) = STACK_(5+1); /* arguments_arg */
   var uintL arglist_count = 0;
   var uintL argbuf_len = 1 +
-    stringlist_to_asciizlist(STACK_0,&O(misc_encoding),&arglist_count);
+    stringlist_to_ascizlist(STACK_0,&O(misc_encoding),&arglist_count);
   /* STACK: cmdlist, ascizcmdlist */
   STACK_1 = STACK_0;
   skipSTACK(1);
