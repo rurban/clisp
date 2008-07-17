@@ -1354,15 +1354,17 @@
                                      (TEXT "Discard this directory entry")))
                    :invoke-function
                      (lambda () (return-from check-value (values nil 0))))))
-          (list (make-restart
-                 :name 'USE-VALUE
-                 :report
-                   (lambda (stream)
-                     (format stream (report-one-new-value-string-instead)
-                             place))
-                 :interactive (lambda () (prompt-for-new-value place 1 t))
-                 :invoke-function
-                   (lambda (val) (return-from check-value (values val nil)))))
+          (unless (eq place '*pathname-encoding*)
+            (list (make-restart
+                   :name 'USE-VALUE
+                   :report
+                     (lambda (stream)
+                       (format stream (report-one-new-value-string-instead)
+                               place))
+                     :interactive (lambda () (prompt-for-new-value place 1 t))
+                     :invoke-function
+                       (lambda (val)
+                         (return-from check-value (values val nil))))))
           (when (and (consp place) (eq 'fdefinition (car place)))
             (list (make-restart ; for check_fdefinition() only!
                    :name 'RETRY

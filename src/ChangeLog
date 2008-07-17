@@ -1,3 +1,9 @@
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
+	* condition.lisp (check-value): disable USE-VALUE when place is
+	*PATHNAME-ENCODING* because O(pathname_encoding) is used multiple
+	times for the same directory entry
+
 2008-07-16  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (invoke_handlers): reactivate and deactivate handlers
