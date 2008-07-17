@@ -5,7 +5,7 @@ Important notes
   pathname refers to a file or a directory.
   See <http://clisp.cons.org/impnotes/files.html#probe-path> for details.
 
-* LOAD uses DIRECTORY only for wild *LOAD-PATHS* components, thus
+* LOAD now uses DIRECTORY only for wild *LOAD-PATHS* components, thus
   speeding up the most common cases and preventing the denial-of-service
   attack whereas CLISP would not start if a file with a name
   incompatible with *PATHNAME-ENCODING* is present in USER-HOMEDIR-PATHNAME.
@@ -16,6 +16,9 @@ Important notes
     ARITHMETIC-ERROR instead of blowing the stack. [ 2015118 ]
   + Restored TYPECODES g++ compilation [ 2015118 ], which allowed fixing
     a few GC-safety bugs.
+  + Fixed a segfault when signaling some UNBOUND-VARIABLE errors in some
+    interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]
+    Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
 
 
 2.46 (2008-07-02)
