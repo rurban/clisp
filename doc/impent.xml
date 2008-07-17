@@ -461,6 +461,7 @@
 <!ENTITY err-pr-bt '<olink targetdoc="impnotes" targetptr="err-pr-bt"><varname>CUSTOM:*REPORT-ERROR-PRINT-BACKTRACE*</varname></olink>'>
 <!ENTITY http-proxy '<link linkend="http-proxy"><varname>CUSTOM:*HTTP-PROXY*</varname></link>'>
 <!ENTITY argv '<link linkend="argv"><function>EXT:ARGV</function></link>'>
+<!ENTITY canonicalize '<link linkend="canonicalize"><function>EXT:CANONICALIZE</function></link>'>
 <!ENTITY mod-expt '<link linkend="mod-expt"><function>EXT:MOD-EXPT</function></link>'>
 <!ENTITY compiled-file-p '<link linkend="compiled-file-p"><function>EXT:COMPILED-FILE-P</function></link>'>
 <!ENTITY help '<olink targetdoc="impnotes" targetptr="debugger-main-deb-step"><command>help</command></olink>'>

@@ -5,6 +5,10 @@ Important notes
   pathname refers to a file or a directory.
   See <http://clisp.cons.org/impnotes/files.html#probe-path> for details.
 
+* New function EXT:CANONICALIZE lets you easily canonicalize a value
+  before processing it.
+  See <http://clisp.cons.org/impnotes/macros3.html#canonicalize> for details.
+
 * LOAD now uses DIRECTORY only for wild *LOAD-PATHS* components, thus
   speeding up the most common cases and preventing the denial-of-service
   attack whereas CLISP would not start if a file with a name

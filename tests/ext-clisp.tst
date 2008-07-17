@@ -234,3 +234,15 @@ ERROR
 
 (locally (declare (compile)) (ethe (values float integer) (truncate 3.2 2)))
 ERROR
+
+(canonicalize 1 `(,#'1+)) ERROR
+(canonicalize "foo" `(,#'string-upcase) :test 'equal) "FOO"
+(canonicalize "iso1234"
+ `(,(lambda (s)
+      (if (and (<= 4 (length s))
+               (string-equal s "iso" :end1 3)
+               (not (char= #\- (char s 3))))
+          (concatenate 'string "ISO-" (subseq s 3))
+          s)))
+ :test 'equal)
+"ISO-1234"
