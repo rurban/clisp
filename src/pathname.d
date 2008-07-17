@@ -7088,7 +7088,6 @@ local maygc bool directory_search_direntry_ok (object namestring,
   return exists;
 }
 #endif
-
 /* the version of files returned by DIRECTORY
  Since all pathnames returned by DIRECTORY must be truenames,
  this must be :NEWEST [but then they will not be printable readably!] */
@@ -7403,7 +7402,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                   if (rresolved == shell_shortcut_notexists)
                     STACK_(2) = STACK_(3); /* use symbolic names as a result when target is not found */
                   else {
-                    STACK_(2) = coerce_pathname(asciz_to_string(full_resolved,O(pathname_encoding)));
+                    STACK_(2) = coerce_pathname(direntry_to_string(full_resolved,-1));
                     ThePathname(STACK_(2))->pathname_version = DEFAULT_VERSION;
                   }
                 }

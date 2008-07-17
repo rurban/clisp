@@ -1,5 +1,10 @@
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (directory_search_scandir) [WIN32_NATIVE]: use
+	direntry_to_string in one more place
+
+2008-07-17  Sam Steingold  <sds@gnu.org>
+
 	* condition.lisp (check-value): disable USE-VALUE when place is
 	*PATHNAME-ENCODING* because O(pathname_encoding) is used multiple
 	times for the same directory entry
