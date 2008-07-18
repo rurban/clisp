@@ -1,6 +1,7 @@
 2008-07-18  Sam Steingold  <sds@gnu.org>
 
 	* io.d (paren_open): a minor simplification
+	(print): remove an unused static function
 
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
