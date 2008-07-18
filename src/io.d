@@ -9903,19 +9903,6 @@ global maygc void prin1 (const gcv_object_t* stream_, object obj) {
   pr_enter(stream_,obj,&prin_object);
 }
 
-/* UP: print Newline first, then print an object to stream.
- print(&stream,obj);
- > obj: Object
- > stream: Stream
- < stream: Stream
- can trigger GC */
-local maygc void print (const gcv_object_t* stream_, object obj) {
-  pushSTACK(obj);               /* save Object */
-  write_ascii_char(stream_,NL); /* print #\Newline */
-  obj = popSTACK();
-  prin1(stream_,obj);           /* print Object */
-}
-
 /* ----------------------- Helper-functions of the Printer -----------------
 
  UP: Check the output-stream argument.
