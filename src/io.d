@@ -5759,7 +5759,7 @@ local void justify_start (const gcv_object_t* stream_, uintL traillength) {
   }
 }
 
-/* UP: empties the content of Pretty-Print-Hilfsstream into the Variable
+/* UP: empties the content of Pretty-Print-Help-Stream into the Variable
  SYS::*PRIN-JBLOCKS*.
  justify_empty_2(&stream);
  > stream: Stream
