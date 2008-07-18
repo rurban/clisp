@@ -304,10 +304,6 @@ directly through tast_break(), bypassing ERROR and SIGNAL) is horrible.
 Introduce a class of SERIOUS-CONDITION and then remove BATCHMODE-BREAK-DRIVER.
 
 
-Distribute impnotes.html in the form of CLAHS, as an annotation against
-Harlequin's HyperSpec. See http://clisp.cons.org/~haible/clahs/.
-
-
 FFI: Actually support :language :cc/:gcc by passing appropriate flags
 to the avcall/vacall macros. The default should be the same compiler
 as the one used to compile clisp.
