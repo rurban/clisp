@@ -5767,17 +5767,16 @@ local void justify_start (const gcv_object_t* stream_, uintL traillength) {
  can trigger GC */
 local maygc void justify_empty_2 (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  var object new_cons;
+  var object new_cons = TheStream(stream)->strm_pphelp_strings;
   /* extend SYS::*PRIN-JBLOCKS* by the content of the Stream: */
-  if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler)) { /* multi-liner. */
+  if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler) /* multi-liner. */
+      || !nullp(Cdr(new_cons))) {    /* many strings in the stream */
     /* (push strings SYS::*PRIN-JBLOCKS*) */
     new_cons = allocate_cons(); /* new Cons */
     Car(new_cons) = TheStream(*stream_)->strm_pphelp_strings;
-  } else {     /* single-liner. */
-    /* (push (first strings) SYS::*PRIN-JBLOCKS*), or shorter:
-     (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*)) */
-    new_cons = TheStream(stream)->strm_pphelp_strings;
-  }
+  } /* else: single-liner & single string in the stream
+       (push (first strings) SYS::*PRIN-JBLOCKS*), or shorter:
+       (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*)) */
   Cdr(new_cons) = Symbol_value(S(prin_jblocks));
   Symbol_value(S(prin_jblocks)) = new_cons;
 }

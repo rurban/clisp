@@ -2,6 +2,8 @@
 
 	* io.d (paren_open): a minor simplification
 	(print): remove an unused static function
+	(justify_empty_2): never drop any strm_pphelp_strings (this fixes
+	the "risky" test in iofkts.tst)
 
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
