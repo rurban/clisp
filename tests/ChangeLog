@@ -1,3 +1,7 @@
+2008-07-18  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: enable the formerly risky test
+
 2008-07-17  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst (float-rational-cmp): also compare x with ~10x to
