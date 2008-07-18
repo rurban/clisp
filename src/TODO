@@ -317,13 +317,6 @@ Looks at GCL CLCS (debugger.lsp top-patches.lsp condition-definitions.lsp)
 whether it contains something clisp could profit from.
 
 
-Debugger (reploop.lisp, debug.d): Implement backtrace-? commands with a limit,
-such that  BACKTRACE-1 20  will show the 20 newest frames. Good for people
-without an xterm with logging. sys::debug-backtrace already takes a limit
-as optional argument; the hard part is to make the debugger accept commands
-with arguments, instead of just single-word commands.
-
-
 More CLtL2 compliance:
 ; List of X3J13 votes that may be implemented in CLISP
 ;
