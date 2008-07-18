@@ -5602,16 +5602,14 @@ local maygc void pphelp_newline (const gcv_object_t* stream_) {
  can trigger GC */
 local maygc void paren_open (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  if (!PPHELP_STREAM_P(stream)) { /* normal Stream */
-    write_ascii_char(stream_,'(');
-  } else {                      /* Pretty-Print-Help-Stream */
+  if (PPHELP_STREAM_P(stream))  { /* Pretty-Print-Help-Stream */
     var object pos =            /* position for closing parenthesis */
       (!nullpSv(print_rpars) /* *PRINT-RPARS* /= NIL ? */
        ? (object)TheStream(stream)->strm_pphelp_lpos /* yes -> current Position (Fixnum>=0) */
        : NIL);                                       /* no -> NIL */
     dynamic_bind(S(prin_rpar),pos); /* bind SYS::*PRIN-RPAR* to it */
-    write_ascii_char(stream_,'(');
   }
+  write_ascii_char(stream_,'(');
 }
 
 /* UP: Prints parenthesis ')' to the Stream, possibly at the memorized
@@ -6422,7 +6420,7 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
       pr_xxx(&STACK_0,STACK_1);
       var bool skip_first_nl = false;
       var bool modus_single_p;
-      {         /* print content of the new stream to the old stream: */
+      { /* print content of the new stream to the old stream: */
         var object ppstream = popSTACK(); /* the new stream */
         STACK_0 = nreverse(TheStream(ppstream)->strm_pphelp_strings);
         TheStream(ppstream)->strm_pphelp_strings = STACK_0;
@@ -6538,7 +6536,8 @@ local maygc void pr_enter_1 (const gcv_object_t* stream_, object obj,
   }
 }
 /* the same procedure with treatment of *PRINT-CIRCLE* and *PRINT-PRETTY* : */
-local void pr_enter_2 (const gcv_object_t* stream_, object obj, pr_routine_t* pr_xxx) {
+local void pr_enter_2 (const gcv_object_t* stream_, object obj,
+                       pr_routine_t* pr_xxx) {
   /* if *PRINT-CIRCLE* /= NIL, search in obj for circularities. */
   if (!nullpSv(print_circle) || !nullpSv(print_readably)) {
     /* search circularities: */
