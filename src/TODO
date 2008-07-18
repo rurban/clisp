@@ -88,6 +88,7 @@ to fix this we need to, first, replace LOAD with REQUIRE in foo.lisp,
 and, second, change c-REQUIRE to write the REQUIRE form into *.lib.
 unfortunately, this means that each foo?.lisp must PROVIDE "foo?" which
 is quite ugly.
+Alternatively, c-LOAD could write (LOAD "*.lib") into the LIB file.
 
 
 Review all macros and tighten the runtime interface of the macros.
