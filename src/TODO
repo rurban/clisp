@@ -6,10 +6,6 @@ URGENT PROBLEMS
 Should handle these soon.
 
 
-Many pretty-printer ansi test failures.
-(sds - but bruno has to fix the risky-test in iofkts.tst first)
-
-
 Inefficiency of class redefinition when old or new class is unfinalizable
 
 
