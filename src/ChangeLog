@@ -1,3 +1,8 @@
+2008-07-20  Sam Steingold  <sds@gnu.org>
+
+	* io.d (justify_empty_2): concatenate all strings in a single-liner
+	into one string instead of pushing all the compoments into the block
+
 2008-07-18  Sam Steingold  <sds@gnu.org>
 
 	* io.d (paren_open): a minor simplification

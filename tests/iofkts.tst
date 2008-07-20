@@ -839,7 +839,7 @@ T
 (write-to-string (list (make-instance 'c2 'a 45 'bb 17 'aa 12)
                        (make-instance 'c2 'b 123 'cc 42))
                  :pretty t)
-"(#[C2 AA 12 BB 17 A 45] #[C2 CC 42 B 123])"
+"(#[C2 A 45 AA 12 BB 17] #[C2 B 123 CC 42])"
 
 (let ((*print-readably* t))
   (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
