@@ -1,3 +1,9 @@
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: add a test for bug #[ 2022362 ]: after a ((setf
+	stream-element-type) '(unsigned-byte 8)) after read-line on a :dos
+	stream an NL byte (10) is read from the stream
+
 2008-07-20  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: (copy-pprint-dispatch) returns a fresh object

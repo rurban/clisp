@@ -27,6 +27,7 @@ Important notes
   + Fixed a segfault when signaling some UNBOUND-VARIABLE errors in some
     interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]
     Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
+  + Fixed input after switching a :DOS stream to binary. [ 2022362 ]
 
 
 2.46 (2008-07-02)

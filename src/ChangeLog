@@ -1,5 +1,15 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 2022362 ]: Problem :external-format :dos and (setf
+	stream-element-type): after a ((setf stream-element-type)
+	'(unsigned-byte 8)) after read-line on a :dos stream
+	an NL byte (10) is read from the stream
+	* stream.d (rd_by_iau8_unbuffered, rd_by_array_iau8_unbuffered)
+	(rd_by_iau8_buffered, rd_by_array_iau8_buffered): respect
+	ChannelStream_ignore_next_LF
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (check_file_reopen): when *REOPEN-OPEN-FILE* is WARN,
 	issue a warning instead of signaling an error
 	* constsym.d (check_file_reopen): declare

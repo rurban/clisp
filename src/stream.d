@@ -5100,9 +5100,15 @@ local object rd_by_ias_unbuffered (object stream) {
 
 /* READ-BYTE - Pseudo-Function for Handle-Streams, Type au, bitsize = 8 : */
 local object rd_by_iau8_unbuffered (object stream) {
+ rd_by_iau8_unbuffered_retry:
   var sintL b = UnbufferedStreamLow_read(stream)(stream);
   if (b < 0)
     return eof_value;
+  if (b == LF && ChannelStream_ignore_next_LF(stream)) {
+    /* see comment in rd_by_array_iau8_unbuffered */
+    ChannelStream_ignore_next_LF(stream) = false;
+    goto rd_by_iau8_unbuffered_retry;
+  }
   return fixnum((uintB)b);
 }
 
@@ -5110,13 +5116,25 @@ local object rd_by_iau8_unbuffered (object stream) {
 local uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                          const gcv_object_t* bytearray_,
                                          uintL start, uintL len,
-                                         perseverance_t persev)
-{
+                                         perseverance_t persev) {
+
   var object stream = *stream_;
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr =
     UnbufferedStreamLow_read_array(stream)(stream,startptr,len,persev);
-  return endptr-startptr;
+  if (startptr < endptr && *startptr == LF
+      && ChannelStream_ignore_next_LF(stream)) {
+    /* if we switch from character to byte input after a NL,
+       we need to drop the next CR
+       https://sourceforge.net/tracker/index.php?func=detail&aid=2022362&group_id=1355&atid=101355 */
+    var uintL len = endptr-startptr-1;
+    /* shift the whole array down by one, dropping CR */
+    var uintL count = len;
+    for (; count--; startptr++) startptr[0] = startptr[1];
+    ChannelStream_ignore_next_LF(stream) = false;
+    endptr = UnbufferedStreamLow_read_array(stream)(stream,startptr,1,persev);
+    return len + (endptr - startptr);
+  } else return endptr-startptr;
 }
 
 /* Determines, if  a Byte is available on an Unbuffered-Channel-Stream.
@@ -7295,11 +7313,16 @@ local object rd_by_ics_buffered (object stream) {
 
 /* READ-BYTE - Pseudo-Function for File-Streams of Integers, Type au, bitsize = 8 : */
 local object rd_by_iau8_buffered (object stream) {
+ rd_by_iau8_buffered_retry:
   var uintB* ptr = buffered_nextbyte(stream,persev_partial);
   if (!(ptr == (uintB*)NULL)) {
-    var object obj = fixnum(*ptr);
-    /* increment index and position */
     BufferedStream_index(stream) += 1;
+    if (*ptr == LF && ChannelStream_ignore_next_LF(stream)) {
+      /* see comment in rd_by_array_iau8_unbuffered */
+      ChannelStream_ignore_next_LF(stream) = false;
+      goto rd_by_iau8_buffered_retry;
+    }
+    var object obj = fixnum(*ptr);
     BufferedStream_position(stream) += 1;
     return obj;
   } else {
@@ -7310,10 +7333,19 @@ local object rd_by_iau8_buffered (object stream) {
 /* READ-BYTE-SEQUENCE for File-Streams of Integers, Type au, bitsize = 8 : */
 local uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
                                        const gcv_object_t* bytearray_,
-                                       uintL start, uintL len, perseverance_t persev) {
+                                       uintL start, uintL len,
+                                       perseverance_t persev) {
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len,persev);
   var uintL result = endptr-startptr;
+  if (result && *startptr == LF && ChannelStream_ignore_next_LF(*stream_)) {
+    /* see comment in rd_by_array_iau8_unbuffered */
+    var uintL count = --result;
+    for (; count--; startptr++) startptr[0] = startptr[1];
+    ChannelStream_ignore_next_LF(*stream_) = false;
+    endptr = read_byte_array_buffered(*stream_,startptr,1,persev);
+    result += endptr - startptr;  /* 0 or 1 */
+  }
   /* increment position: */
   BufferedStream_position(*stream_) += result;
   return result;
