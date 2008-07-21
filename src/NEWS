@@ -9,6 +9,10 @@ Important notes
   before processing it.
   See <http://clisp.cons.org/impnotes/macros3.html#canonicalize> for details.
 
+* New user variable CUSTOM:*REOPEN-OPEN-FILE* controls CLISP behavior
+  when opening an already open file.
+  See <http://clisp.cons.org/impnotes/open.html#reopen> for details.
+
 * LOAD now uses DIRECTORY only for wild *LOAD-PATHS* components, thus
   speeding up the most common cases and preventing the denial-of-service
   attack whereas CLISP would not start if a file with a name

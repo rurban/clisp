@@ -260,6 +260,10 @@
 ;; for the pretty-printer
 (setq custom:*pprint-first-newline* nil)
 
+;; for READ-BYTE.ERROR.3 READ-BYTE.ERROR.4 READ-BYTE.ERROR.6
+;;  WRITE-BYTE.ERROR.3 OPEN.66 OPEN.OUTPUT.30
+(setq custom:*reopen-open-file* 'warn)
+
 ;; For ENSURE-DIRECTORIES-EXIST.8
 (when (ext:probe-directory "scratch/")
   (mapc #'delete-file (directory "scratch/*"))
