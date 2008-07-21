@@ -1,5 +1,12 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	fix "-x ... -repl", broken since 2008-01-06
+	* reploop.lisp (main-loop): accept an optional exit argument
+	* spvw.d (main_actions): pass !p->argv_repl to MAIN-LOOP
+	* makemake.in (check-script): test "-x ... -repl"
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (ANSI_CLISP): add "-p CL-TEST"
 	(check-ansi-tests, check-ansi-tests-debug, check-ansi-tests-compiled)
 	(check-ansi-tests-compiled-debug): remove IN-PACKAGE from -x

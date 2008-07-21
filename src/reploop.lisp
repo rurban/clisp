@@ -410,7 +410,7 @@ Continue       :c       switch off single step mode, continue evaluation
        ,@body)))
 
 ;; Main-Loop with additional help-command
-(defun main-loop ()
+(defun main-loop (&optional (exit t))
   (setq *break-count* 0)
   (driver                 ; build driver-frame; do #'lambda "infinitely"
    #'(lambda ()
@@ -422,7 +422,13 @@ Continue       :c       switch off single step mode, continue evaluation
            ;; T -> #<EOF>
            ;; NIL -> form is already evaluated
            ;;        result has been printed
-           (exit))))))
+           (if exit
+               ;; if you want to change this logic, you need to make sure that
+               ;; 1. "clisp -x (1+ 2) -repl" prints "3" and then the prompt
+               ;; 2. "cat script | clisp" and "clisp < script" do not hang
+               (exit)
+               (progn (setq *command-index* 0) ; reset *command-index*
+                      (return-from main-loop))))))))
 
 (setq *driver* #'main-loop)
 
