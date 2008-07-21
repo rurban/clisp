@@ -885,7 +885,8 @@ T
 "FOO:(123.)"
 
 ;; http://article.gmane.org/gmane.lisp.clisp.devel:17529
-(eq *print-pprint-dispatch* (copy-pprint-dispatch)) T
+;; required by ANSI, tested by COPY-PPRINT-DISPATCH.[145]
+(eq *print-pprint-dispatch* (copy-pprint-dispatch)) NIL
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1834193&group_id=1355
 (with-output-to-string (s)

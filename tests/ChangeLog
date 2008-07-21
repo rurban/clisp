@@ -1,3 +1,7 @@
+2008-07-20  Sam Steingold  <sds@gnu.org>
+
+	* iofkts.tst: (copy-pprint-dispatch) returns a fresh object
+
 2008-07-18  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: enable the formerly risky test
