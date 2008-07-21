@@ -1,3 +1,7 @@
+2008-07-21  Bruno Haible  <bruno@clisp.org>
+
+	* makemake.in (LIBS): Remove special code for Solaris 2.1.
+
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
 	fix "-x ... -repl", broken since 2008-01-06

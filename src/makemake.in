@@ -1421,26 +1421,10 @@ fi
 if [ $CROSS = false ] ; then
   case "$host_os" in
     solaris*)
-      # Distinguish good SunOS 4 from the SunOS 5 garbage called "Solaris 2":
-      # We need a lot of libraries. To check which libraries are necessary, do
-      #   % cd /usr/lib
-      #   % foreach f (lib*.a)
-      #   % echo $f ; nm $f | grep gethostbyname
-      #   % end
-      # We conclude that
-      # - for gethostname() we need libnsl.a,
-      # - for connect() and socket() we need libsocket.a,
-      # - for these we need libdl_stubs.a and everything required by this one,
-      # - a second pass through the libraries is needed to satisfy circular
-      #   dependencies.
-      if test -f /usr/lib/libdl_stubs.a; then
-        LIBS=$LIBS' -lnsl -lsocket -ldl_stubs -lnswfiles -lnswnis -lnswnisplus -ltcpip -lswitch -lnswcompat -lstraddr -lintl'
-      else
-        # Newer versions of Solaris (Solaris 2.2 and newer) don't have
-        # libdl_stubs.a any more. This means that you cannot link -static !
-        XCLFLAGS=`echol "$XCLFLAGS" | sed -e 's/-B*static//g'`
-        SOLARIS_LINKING=1 # Even more hacks needed??
-      fi
+      # Newer versions of Solaris (Solaris 2.2 and newer) don't have
+      # libdl_stubs.a any more. This means that you cannot link -static !
+      XCLFLAGS=`echol "$XCLFLAGS" | sed -e 's/-B*static//g'`
+      SOLARIS_LINKING=1 # Even more hacks needed??
       BINARY_DISTRIB=1
     ;;
     hpux*)
