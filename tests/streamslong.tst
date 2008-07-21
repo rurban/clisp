@@ -174,3 +174,34 @@ nil
         (fmakunbound 'with-g-o)))
 #+CLISP ("a" "abc" gray:stream-write-char-sequence
          "abc" gray:stream-write-sequence "abc" NIL WITH-G-O)
+
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=2022362&group_id=1355&atid=101355
+(let ((fname "foo") (vec (make-array 5 :element-type '(unsigned-byte 8))))
+  (flet ((foo (l)
+           (unwind-protect
+                (list
+                 (with-open-file (f fname :external-format :dos :direction :io)
+                   (dolist (s l) (write-line s f))
+                   (file-position f 0)
+                   (read-line f)
+                   (setf (stream-element-type f) '(unsigned-byte 8))
+                   (read-byte f nil))
+                 (mapcar (lambda (b)
+                           (with-open-file (f fname :direction :input
+                                              :buffered b)
+                             (read-line f)
+                             (setf (stream-element-type f) '(unsigned-byte 8))
+                             (list b (read-byte f nil))))
+                         '(t nil))
+                 (mapcar (lambda (b)
+                           (with-open-file (f fname :direction :input
+                                              :buffered b)
+                             (read-line f)
+                             (setf (stream-element-type f) '(unsigned-byte 8))
+                             (list b (subseq vec 0 (read-sequence vec f)))))
+                         '(t nil)))
+             (delete-file fname))))
+    (list (foo '("1"))
+          (foo '("1" "2")))))
+((NIL ((T NIL) (NIL NIL)) ((T #()) (NIL #())))
+ (50 ((T 50) (NIL 50)) ((T #(50 13 10)) (NIL #(50 13 10)))))
