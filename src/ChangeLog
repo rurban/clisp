@@ -1,5 +1,11 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (ANSI_CLISP): add "-p CL-TEST"
+	(check-ansi-tests, check-ansi-tests-debug, check-ansi-tests-compiled)
+	(check-ansi-tests-compiled-debug): remove IN-PACKAGE from -x
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2022362 ]: Problem :external-format :dos and (setf
 	stream-element-type): after a ((setf stream-element-type)
 	'(unsigned-byte 8)) after read-line on a :dos stream
