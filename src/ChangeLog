@@ -1,7 +1,16 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (check_file_reopen): when *REOPEN-OPEN-FILE* is WARN,
+	issue a warning instead of signaling an error
+	* constsym.d (check_file_reopen): declare
+	* spvw.d (init_symbol_values): init *REOPEN-OPEN-FILE* to ERROR
+	* utils/clispload.lsp (*reopen-open-file*): set to WARN to pacify
+	6 tests
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp (*pprint-first-newline*): set to NIL to
-	conform to Paul's expenctations
+	conform to Paul's expectations
 
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
