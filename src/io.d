@@ -5767,20 +5767,44 @@ local void justify_start (const gcv_object_t* stream_, uintL traillength) {
  can trigger GC */
 local maygc void justify_empty_2 (const gcv_object_t* stream_) {
   var object stream = *stream_;
-  var object new_cons = TheStream(stream)->strm_pphelp_strings;
+  var object new_cons;
   /* extend SYS::*PRIN-JBLOCKS* by the content of the Stream: */
-  if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler) /* multi-liner. */
-      || !nullp(Cdr(new_cons))) {    /* many strings in the stream */
+  if (eq(TheStream(stream)->strm_pphelp_modus,mehrzeiler)) { /* multi-liner. */
     /* (push strings SYS::*PRIN-JBLOCKS*) */
     new_cons = allocate_cons(); /* new Cons */
     Car(new_cons) = TheStream(*stream_)->strm_pphelp_strings;
-  } /* else: single-liner & single string in the stream
-       (push (first strings) SYS::*PRIN-JBLOCKS*), or shorter:
-       (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*)) */
+  } else {     /* single-liner. */
+    /* collect all constituent strings into one */
+    var uintL needed_len = 0;
+    var uintL string_count = 0;
+    new_cons = TheStream(stream)->strm_pphelp_strings;
+    for (; consp(new_cons); new_cons = Cdr(new_cons))
+      if (stringp(Car(new_cons))) {
+        pushSTACK(Car(new_cons));
+        needed_len += vector_length(STACK_0);
+        string_count++;
+      }
+    if (--string_count) { /* more than 1 string */
+      STACK_0 = ssstring_extend(STACK_0,needed_len);
+      var cint32* ptr = TheS32string(TheIarray(STACK_0)->data)->data
+        + vector_length(STACK_0);
+      do {              /* append STACK_1 to STACK_0 and drop STACK_1 */
+        var uintL len = vector_length(STACK_1);
+        var cint32* ptr1 = TheS32string(TheIarray(STACK_1)->data)->data;
+        while (len--) *ptr++ = *ptr1++;
+        STACK_1 = STACK_0;
+        skipSTACK(1);
+      } while (--string_count);
+      TheIarray(STACK_0)->dims[1] = needed_len;
+      Car(TheStream(*stream_)->strm_pphelp_strings) = popSTACK();
+    } else skipSTACK(1);        /* drop the only string */
+    /* (push (first strings) SYS::*PRIN-JBLOCKS*), or shorter:
+     (setq SYS::*PRIN-JBLOCKS* (rplacd strings SYS::*PRIN-JBLOCKS*)) */
+    new_cons = TheStream(*stream_)->strm_pphelp_strings;
+  }
   Cdr(new_cons) = Symbol_value(S(prin_jblocks));
   Symbol_value(S(prin_jblocks)) = new_cons;
 }
-
 /* UP: prints space, which can be stretched with Justify.
  justify_space(&stream);
  > stream: Stream
