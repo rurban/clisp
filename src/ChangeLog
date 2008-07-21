@@ -1,5 +1,10 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	* utils/clispload.lsp (*pprint-first-newline*): set to NIL to
+	conform to Paul's expenctations
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d: do not #include <stdio.h>, it is already done by lispbibl
 
 2008-07-20  Sam Steingold  <sds@gnu.org>
