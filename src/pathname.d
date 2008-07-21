@@ -6600,9 +6600,9 @@ global object if_exists_symbol (if_exists_t if_exists) {
 /* UP: check that the file we are about to open has not been opened yet
  > object truename - the name of the file that is being opened
  > direction_t direction - the direction of the pending OPEN
- can trigger GC - if CERROR is signaled */
+ can trigger GC - if CERROR or WARNING is signaled */
 extern void* find_open_file (struct file_id *fid, void* data);
-local maygc void check_file_re_open (object truename, direction_t direction) {
+local maygc void check_file_reopen (object truename, direction_t direction) {
   var uintB flags;
   switch (direction) {
     case DIRECTION_INPUT_IMMUTABLE: case DIRECTION_INPUT:
@@ -6621,18 +6621,29 @@ local maygc void check_file_re_open (object truename, direction_t direction) {
     if (ret) bad_stream = popSTACK();
   });
   if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
-    pushSTACK(NIL);              /* 8: continue-format-string */
-    pushSTACK(S(file_error));    /* 7: error type */
-    pushSTACK(S(Kpathname));     /* 6: :PATHNAME */
-    pushSTACK(truename);         /* 5: the offending pathname */
-    pushSTACK(NIL);              /* 4: error-format-string */
-    pushSTACK(TheSubr(subr_self)->name);       /* 3: caller */
-    pushSTACK(bad_stream);                     /* 2: bad stream */
-    pushSTACK(truename);                       /* 1: truename */
-    pushSTACK(direction_symbol(direction));    /* 0: direction */
-    STACK_8 = CLSTEXT("Open the file anyway"); /* continue-format-string */
-    STACK_4 = CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results"); /* error-format-string */
-    funcall(L(cerror_of_type),9);
+   #define error_format_string CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results")
+    if (eq(Symbol_value(S(reopen_open_file)),S(error))) {
+      pushSTACK(NIL);              /* 8: continue-format-string */
+      pushSTACK(S(file_error));    /* 7: error type */
+      pushSTACK(S(Kpathname));     /* 6: :PATHNAME */
+      pushSTACK(truename);         /* 5: the offending pathname */
+      pushSTACK(NIL);              /* 4: error-format-string */
+      pushSTACK(TheSubr(subr_self)->name);       /* 3: caller */
+      pushSTACK(bad_stream);                     /* 2: bad stream */
+      pushSTACK(truename);                       /* 1: truename */
+      pushSTACK(direction_symbol(direction));    /* 0: direction */
+      STACK_8 = CLSTEXT("Open the file anyway"); /* continue-format-string */
+      STACK_4 = error_format_string;
+      funcall(L(cerror_of_type),9);
+    } else if (eq(Symbol_value(S(reopen_open_file)),S(warn))) {
+      pushSTACK(error_format_string);         /* 0 */
+      pushSTACK(TheSubr(subr_self)->name);    /* 1: caller */
+      pushSTACK(bad_stream);                  /* 2: bad stream */
+      pushSTACK(truename);                    /* 3: truename */
+      pushSTACK(direction_symbol(direction)); /* 4: direction */
+      funcall(S(warn),5);
+    }
+   #undef error_format_string
   }
 }
 
@@ -6670,7 +6681,8 @@ local maygc object open_file (object filename, direction_t direction,
   *namestring_ = fs.fs_namestring;
   /* stack layout: Namestring, Pathname, Truename
    check filename and get the handle: */
-  check_file_re_open(*namestring_,direction);
+  if (!nullpSv(reopen_open_file))
+    check_file_reopen(*namestring_,direction);
   var object handle;
  {var bool append_flag = false;
   var bool wronly_flag = false;

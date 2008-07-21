@@ -1847,6 +1847,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&prompt-finish;</member>
   <member>&prompt-start;</member>
   <member>&prompt-step;</member>
+  <member>&reopen;</member>
   <member>&err-pr-bt;</member>
   <member>&savemem-verbose;</member>
   <member>&count-ansi;</member>

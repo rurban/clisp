@@ -4497,10 +4497,21 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </para></listitem></varlistentry>
 </variablelist>
 
-<para>When an already opened file is opened again, a &cont-err; is
- &signal;ed, unless both the existing and the new &stream-t;s are read-only
- (i.e., &direction-k; is &input-k; or <constant>:INPUT-IMMUTABLE</constant>).
-</para>
+<simplesect id="reopen"><title>Variable &reopen;</title>
+<para>When an already opened file is opened again, and &not-e; both the
+ existing and the new &stream-t;s are read-only (i.e., &direction-k; is
+ &input-k; or <constant>:INPUT-IMMUTABLE</constant>), the streams can
+ mess up each other and produce unexpected results.
+ The user variable <firstterm>&reopen;</firstterm> controls how &clisp;
+ handles the situation and can take 3 values: <variablelist>
+  <varlistentry><term>&nil;</term><listitem><simpara>
+     do nothing: do not even check that there are other stream pointing
+     to the same file</simpara></listitem></varlistentry>
+  <varlistentry><term>&warn;</term><listitem><simpara>&signal; a
+     &warning-t; and proceed</simpara></listitem></varlistentry>
+  <varlistentry><term>&error;</term><listitem><simpara>&signal; a &cont-err;;
+     this is the default</simpara></listitem></varlistentry>
+</variablelist></para></simplesect>
 
 </section>
 
