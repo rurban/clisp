@@ -3161,17 +3161,12 @@ local inline void main_actions (struct argv_actions *p) {
       finish_entry_frame(DRIVER,returner,,;);
     here */
     var object main_loop_function = Symbol_function(S(main_loop));
-    if (closurep(main_loop_function)) {
+    if (closurep(main_loop_function)) { /* see reploop.lisp:main-loop ! */
       dynamic_bind(S(standard_input),value1);
-      /* (PROGN
-           (MAIN-LOOP)
-           ; Normally this will exit by itself once the string has reached EOF,
-           ; but to be sure:
-           (UNLESS argv_repl (EXIT))) */
-      funcall(main_loop_function,0);
+      /* (MAIN-LOOP !p->argv_repl) */
+      pushSTACK(p->argv_repl ? NIL : T);
+      funcall(main_loop_function,1);
       dynamic_unbind(S(standard_input));
-      if (!p->argv_repl)
-        return;
     } else /* no *DRIVER* => bootstrap, no -repl */
       Symbol_value(S(standard_input)) = value1;
   }
