@@ -257,6 +257,9 @@
 
 ))
 
+;; for the pretty-printer
+(setq custom:*pprint-first-newline* nil)
+
 ;; For ENSURE-DIRECTORIES-EXIST.8
 (when (ext:probe-directory "scratch/")
   (mapc #'delete-file (directory "scratch/*"))
