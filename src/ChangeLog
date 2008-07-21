@@ -1,7 +1,12 @@
 2008-07-20  Sam Steingold  <sds@gnu.org>
 
+	* pprint.lisp (copy-pprint-dispatch): as per ANSI, when no table
+	is specified, return a COPY of *PRINT-PPRINT-DISPATCH*, not its value
+
+2008-07-20  Sam Steingold  <sds@gnu.org>
+
 	* io.d (justify_empty_2): concatenate all strings in a single-liner
-	into one string instead of pushing all the compoments into the block
+	into one string instead of pushing all the components into the block
 
 2008-07-18  Sam Steingold  <sds@gnu.org>
 
