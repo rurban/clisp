@@ -1,5 +1,9 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (SUBR-INFO): use STACK_to_mv instead of L(values)
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d: fix bug #[ 2011096 ]: unicode in comments causes
 	compile errors when LANG=ja_JP.eucJP
 
