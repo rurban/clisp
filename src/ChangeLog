@@ -1,5 +1,10 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/pcre/cpcre.c (PCRE-COMPILE): fix a typo: UNGREADY->UNGREEDY
+	Reported by Todd Kirby <ffmpeg.php@gmail.com>
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-script): many more tests
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
