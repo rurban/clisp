@@ -14994,10 +14994,11 @@ local void error_value_stream (object sym) {
     pushSTACK(S(stream));         /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(Symbol_value(sym)); /* variable value */
     pushSTACK(sym); /* variable */
+    pushSTACK(TheSubr(subr_self)->name);
     if (!streamp(Symbol_value(sym))) {
-      error(type_error,GETTEXT("The value of ~S is not a stream: ~S"));
+      error(type_error,GETTEXT("~S: The value of ~S is not a stream: ~S"));
     } else {
-      error(type_error,GETTEXT("The value of ~S is not an appropriate stream: ~S"));
+      error(type_error,GETTEXT("~S: The value of ~S is not an appropriate stream: ~S"));
     }
   }
   sym = popSTACK();
@@ -15009,7 +15010,8 @@ local void error_value_stream (object sym) {
   pushSTACK(stream); /* new variable value */
   pushSTACK(oldvalue); /* old variable value */
   pushSTACK(sym); /* Variable */
-  error(type_error,GETTEXT("The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."));
+  pushSTACK(TheSubr(subr_self)->name);
+  error(type_error,GETTEXT("~S: The value of ~S was not an appropriate stream: ~S. It has been changed to ~S."));
 }
 
 #ifdef GNU_READLINE
