@@ -9566,13 +9566,13 @@ extern maygc object object_out (object obj);
  this can trigger GC, but will save and restore OBJ */
 #define OBJECT_OUT(obj,label)                                           \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
-   obj=object_out(obj))
+   fflush(stdout), obj=object_out(obj))
 /* print the object to a C stream - not all objects can be handled yet!
  non-consing, STACK non-modifying */
 extern maygc object nobject_out (FILE* out, object obj);
 #define NOBJECT_OUT(obj,label)                                         \
   (printf("[%s:%d] %s: %s: ",__FILE__,__LINE__,STRING(obj),label),     \
-   nobject_out(stdout,obj), printf("\n"))
+   nobject_out(stdout,obj), printf("\n"), fflush(stdout))
 /* used for debugging purposes */
 %% puts("extern object object_out (object obj);");
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
