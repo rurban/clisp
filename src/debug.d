@@ -1568,7 +1568,7 @@ LISPFUNN(proom,0)
  #ifdef intQsize
   pushSTACK(UQ_to_I(gc_space));
  #else
-  pushSTACK(UL2_to_I(gc_space));
+  pushSTACK(UL2_to_I(gc_space.hi,gc_space.lo));
  #endif
   pushSTACK(internal_time_to_I(&gc_time));
   STACK_to_mv(6);
