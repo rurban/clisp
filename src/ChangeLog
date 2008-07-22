@@ -2,6 +2,7 @@
 
 	* eval.d (SUBR-INFO): use STACK_to_mv instead of L(values)
 	* stream.d (MAKE-PIPE-IO-STREAM): ditto
+	* time.d (%%TIME): ditto
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 

@@ -835,7 +835,7 @@ LISPFUNNR(time,0)
  #endif
   /* last value: GC count */
   pushSTACK(fixnum(tm.gccount));
-  funcall(L(values),9);       /* return 9 values */
+  STACK_to_mv(9);               /* return 9 values */
 }
 
 /* (SYS::DELTA4 n1 n2 o1 o2 shift)
