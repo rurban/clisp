@@ -389,7 +389,7 @@ LISPFUNNR(subr_info,1)
   /* keyword-vector as list (during bootstrap: vector) */
   pushSTACK(eq(value1,nullobj) ? (object)TheSubr(obj)->keywords : value1);
   pushSTACK(TheSubr(obj)->key_flag == subr_key_allow ? T : NIL); /* allow-other-keys */
-  funcall(L(values),6); /* 6 values */
+  STACK_to_mv(6);               /* 6 values */
 }
 
 
