@@ -26,7 +26,7 @@
  <varlistentry id="pcre-compile">
   <term><code>(PCRE:PCRE-COMPILE &string-r; &key-amp; :STUDY
     :IGNORE-CASE :MULTILINE :DOTALL :EXTENDED :ANCHORED :DOLLAR-ENDONLY
-    :EXTRA :NOTBOL :NOTEOL :UNGREADY :NOTEMPTY :NO-AUTO-CAPTURE)</code></term>
+    :EXTRA :NOTBOL :NOTEOL :UNGREEDY :NOTEMPTY :NO-AUTO-CAPTURE)</code></term>
   <listitem><simpara>Compile a pattern, optionally study it.
  </simpara></listitem></varlistentry>
  <varlistentry id="pattern-info"><term>
