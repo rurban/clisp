@@ -825,3 +825,49 @@ NIL
           two-way-stream type-error unbound-slot unbound-variable
           undefined-function unsigned-byte vector warning))
 (ATOM BIT FIXNUM INTEGER NUMBER RATIONAL REAL SIGNED-BYTE T UNSIGNED-BYTE)
+
+
+;;; http://www.lisp.org/HyperSpec/Body/dec_type.html
+;;;   A symbol cannot be both the name of a type and the name of a
+;;;   declaration. Defining a symbol as the name of a class, structure,
+;;;   condition, or type, when the symbol has been declared as a
+;;;   declaration name, or vice versa, signals an error.
+(let ((sym (gensym)))
+  (proclaim `(declaration ,sym))
+  (eval `(deftype ,sym () t)))
+error
+
+(let ((sym (gensym)))
+  (proclaim `(declaration ,sym))
+  (eval `(defstruct ,sym a b c)))
+error
+
+(let ((sym (gensym)))
+  (proclaim `(declaration ,sym))
+  (eval `(defclass ,sym () (a b c))))
+error
+
+(let ((sym (gensym)))
+  (proclaim `(declaration ,sym))
+  (eval `(define-condition ,sym (condition) (a b c))))
+error
+
+(let ((sym (gensym)))
+  (eval `(deftype ,sym () t))
+  (proclaim `(declaration ,sym)))
+error
+
+(let ((sym (gensym)))
+  (eval `(defstruct ,sym a b c))
+  (proclaim `(declaration ,sym)))
+error
+
+(let ((sym (gensym)))
+  (eval `(defclass ,sym () (a b c)))
+  (proclaim `(declaration ,sym)))
+error
+
+(let ((sym (gensym)))
+  (eval `(define-condition ,sym (condition) (a b c)))
+  (proclaim `(declaration ,sym)))
+error

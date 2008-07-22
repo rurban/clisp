@@ -169,12 +169,7 @@
 ;; ----------------------------------------------------------------------------
 (defmacro deftype (&whole whole-form
                    name lambdalist &body body)
-  (unless (symbolp name)
-    (error-of-type 'source-program-error
-      :form whole-form
-      :detail name
-      (TEXT "type name should be a symbol, not ~S")
-      name))
+  (setq name (check-not-declaration name 'deftype))
   (if (or (get name 'TYPE-SYMBOL) (get name 'TYPE-LIST))
     (error-of-type 'source-program-error
       :form whole-form

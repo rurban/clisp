@@ -3359,8 +3359,8 @@ for-value   NIL or T
       (OPTIMIZE (note-optimize (cdr declspec)))
       (DECLARATION
         (dolist (var (cdr declspec))
-          (when (symbolp var) (pushnew var *user-declaration-types*
-                                       :test #'eq)))))))
+          (pushnew (sys::check-not-type var 'proclaim)
+                   *user-declaration-types* :test #'eq))))))
 
 ;; DEFCONSTANT when compiling
 (defun c-PROCLAIM-CONSTANT (symbol initial-value-form) ; ABI
