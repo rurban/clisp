@@ -20,7 +20,7 @@
      SAFETY={0,1,2,3}
    Exploit GCC global register variables:
      USE_GCC_REGISTER_VARIABLES
-   Debugging (turned on by --with-debug configure option):
+   Debugging (turned on by the --with-debug configure option):
      DEBUG_GCSAFETY (requires G++)
      DEBUG_OS_ERROR
      DEBUG_SPVW
@@ -1025,7 +1025,7 @@
    - maygc, if (1) all callers must assume the worst case: that it triggers GC,
             and (2) the function uses only the 'object's passed as arguments and
             on the STACK, but no objects stored in other non-GCsafe locations.
-   - ／＊maygc＊／ otherwise. If (1) is not fulfilled, the functions begins
+   - / * maygc * / otherwise. If (1) is not fulfilled, the functions begins
                    with an appropriate GCTRIGGER_IF statement. If (2) is not
                    fulfilled, the GCTRIGGER call needs to mention all other
                    non-GCsafe locations whose values are used by the function,
@@ -6504,7 +6504,7 @@ typedef struct {
   gcv_object_t slotdef_allocation         _attribute_aligned_object_;
   gcv_object_t slotdef_inheritable_initer _attribute_aligned_object_;
   gcv_object_t slotdef_inheritable_doc    _attribute_aligned_object_;
-  /* from here on only for class ⊆ <effective-slot-definition> */
+  /* from here on only for subclasses of <effective-slot-definition> */
   gcv_object_t slotdef_location           _attribute_aligned_object_;
   gcv_object_t slotdef_efm_svuc           _attribute_aligned_object_;
   gcv_object_t slotdef_efm_ssvuc          _attribute_aligned_object_;
@@ -6520,7 +6520,7 @@ typedef struct {
   gcv_object_t direct_methods           _attribute_aligned_object_; /* set of methods that use this specializer */
   gcv_object_t classname                _attribute_aligned_object_; /* a symbol */
   gcv_object_t direct_subclasses        _attribute_aligned_object_; /* weak-list or weak-hash-table of all direct subclasses */
-  /* from here on only for metaclass ⊆ <defined-class> */
+  /* from here on only for subclasses of <defined-class> */
   gcv_object_t direct_superclasses      _attribute_aligned_object_; /* direct superclasses */
   gcv_object_t all_superclasses         _attribute_aligned_object_; /* all superclasses, including itself */
   gcv_object_t precedence_list          _attribute_aligned_object_; /* ordered list of all superclasses */
@@ -6532,13 +6532,13 @@ typedef struct {
   gcv_object_t documentation            _attribute_aligned_object_; /* string or NIL */
   gcv_object_t listeners                _attribute_aligned_object_; /* list of objects to be notified upon a change */
   gcv_object_t initialized              _attribute_aligned_object_; /* describes which parts of the class are initialized */
-  /* from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class> or metaclass ⊆ <structure-class> */
+  /* from here on only for subclasses of <standard-class> or <funcallable-standard-class> or <structure-class> */
   gcv_object_t subclass_of_stablehash_p _attribute_aligned_object_; /* true if <standard-stablehash> or <structure-stablehash> is among the superclasses */
   gcv_object_t generic_accessors        _attribute_aligned_object_;
   gcv_object_t direct_accessors         _attribute_aligned_object_;
   gcv_object_t valid_initargs_from_slots _attribute_aligned_object_;
   gcv_object_t instance_size            _attribute_aligned_object_;
-  /* from here on only for metaclass ⊆ <standard-class> or metaclass ⊆ <funcallable-standard-class> */
+  /* from here on only for subclasses of <standard-class> or <funcallable-standard-class> */
   gcv_object_t current_version          _attribute_aligned_object_; /* most recent class-version, points back to this class */
   gcv_object_t funcallablep             _attribute_aligned_object_;
   gcv_object_t fixed_slot_locations     _attribute_aligned_object_;
@@ -6546,7 +6546,7 @@ typedef struct {
   gcv_object_t direct_instance_specializers _attribute_aligned_object_;
   gcv_object_t finalized_direct_subclasses _attribute_aligned_object_; /* weak-list or weak-hash-table of all finalized direct subclasses */
   gcv_object_t prototype                _attribute_aligned_object_; /* class prototype - an instance or NIL */
-  /* from here on only for metaclass ⊆ <standard-class> */
+  /* from here on only for subclasses of <standard-class> */
   gcv_object_t other[unspecified]       _attribute_aligned_object_;
 } *  Class;
 

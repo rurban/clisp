@@ -166,6 +166,18 @@ than the comments, and much harder to handle.  Use babelfish.
 Remember: "fehler" == "error"; "zustand" == "state"
 (this is where the 'z' suffix often comes from).
 
+Please avoid "clever" tricks with Unicode in comments.
+E.g., using #\SUBSET_OF_OR_EQUAL_TO (Unicode #x2286) instead of the
+plain words "subclass of" or #\FULLWIDTH_SOLIDUS (Unicode #xff0f) &
+#\FULLWIDTH_ASTERISK (Unicode #xff0a) to emulate nested C comments
+breaks compilation in some language environments:
+$ LANG=ja_JP.eucJP make clisp.h
+...
+../src/lispbibl.d:1028: error: stray '\217' in program
+...
+Remember, ASCII rules!
+
+
                              Variable names
                              --------------
 
