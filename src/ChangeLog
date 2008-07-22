@@ -1,5 +1,9 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script): many more tests
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (error_value_stream): print the caller
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
