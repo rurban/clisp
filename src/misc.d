@@ -1,7 +1,7 @@
 /*
  * Miscellaneous CLISP functions
  * Bruno Haible 1990-2008
- * Sam Steingold 1999-2007
+ * Sam Steingold 1999-2008
  */
 
 #include "lispbibl.c"
