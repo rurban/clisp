@@ -13193,7 +13193,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
   /* 3 values:
    (make-two-way-stream input-stream output-stream), input-stream, output-stream. */
   STACK_2 = make_twoway_stream(STACK_1,STACK_0);
-  funcall(L(values),3);
+  STACK_to_mv(3);
   skipSTACK(4);
 }
 
