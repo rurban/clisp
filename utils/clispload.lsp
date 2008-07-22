@@ -85,10 +85,6 @@
   ;; None of these approaches is perfect: Either you cannot assume that
   ;; conversion from integer to floating-point always works, or you cannot
   ;; assume that conversion from floating-point to integer always works.
-  BIGNUM.FLOAT.COMPARE.1A BIGNUM.FLOAT.COMPARE.1B BIGNUM.FLOAT.COMPARE.2A
-  BIGNUM.FLOAT.COMPARE.2B BIGNUM.FLOAT.COMPARE.3A BIGNUM.FLOAT.COMPARE.3B
-  BIGNUM.FLOAT.COMPARE.4A BIGNUM.FLOAT.COMPARE.4B BIGNUM.FLOAT.COMPARE.5A
-  BIGNUM.FLOAT.COMPARE.5B BIGNUM.FLOAT.COMPARE.6A BIGNUM.FLOAT.COMPARE.6B
   BIGNUM.FLOAT.COMPARE.7 BIGNUM.FLOAT.COMPARE.8
 
   ;; In CLISP (atan 1L0) is more than long-float-epsilon apart from (/ pi 4).
@@ -100,28 +96,7 @@
 
   ;; CLISP supports complex numbers with realpart and imagpart of different
   ;; types.
-  COMPLEX.2 COMPLEX.4 COMPLEX.5 IMAGPART.4
-
-  ;; Paul Dietz assumes that the classes STREAM and CONDITION are disjoint.
-  ;; In CLISP they are not, because the user can create subclasses inheriting
-  ;; from FUNDAMENTAL-STREAM and any other class with metaclass STANDARD-CLASS.
-  ;; ANSI CL 4.2.2.(1) allows such classes.
-  TYPES.7B TYPES.7C
-
-  ;; Paul Dietz assumes that the class STREAM is disjoint from user-defined
-  ;; classes with metaclass STANDARD-CLASS.
-  ;; In CLISP this is not the case, because the user can create subclasses
-  ;; inheriting from FUNDAMENTAL-STREAM and any other class with metaclass
-  ;; STANDARD-CLASS. ANSI CL 4.2.2. allows such classes.
-  USER-CLASS-DISJOINTNESS
-
-  ;; Paul Dietz assumes that two user-defined classes with metaclass
-  ;; STANDARD-CLASS that don't inherit from each other are disjoint.
-  ;; In CLISP this is not the case, because the user can create subclasses
-  ;; inheriting from both classes. ANSI CL 4.2.2.(3) allows such classes.
-  ;; We don't want SUBTYPEP to depend on the existence or absence of
-  ;; subclasses.
-  USER-CLASS-DISJOINTNESS-2 TAC-3.16
+  COMPLEX.2 COMPLEX.4 COMPLEX.5
 
   ;; Paul Dietz assumes that when a WITH-INPUT-FROM-STRING form terminates
   ;; through a transfer of control, the index place is not updated.
@@ -131,9 +106,8 @@
   ;; Paul Dietz assumes that binding *PRINT-READABLY* to T has no effect on
   ;; how integers are printed.
   ;; In CLISP *PRINT-READABLY* = T implies the effects of *PRINT-RADIX* = T.
-  WRITE.2 WRITE.3 WRITE.4 WRITE.5 WRITE.6 WRITE.7 PRINT.2 PRINT.3 PPRINT.2
-  PPRINT.3 PRIN1.2 PRIN1.3 WRITE-TO-STRING.2 WRITE-TO-STRING.3
-  WRITE-TO-STRING.4 PRIN1-TO-STRING.2
+  PRINT.2 PRINT.3 PPRINT.2 PPRINT.3 PRIN1.2 PRIN1.3
+  WRITE-TO-STRING.2 WRITE-TO-STRING.3 WRITE-TO-STRING.4 PRIN1-TO-STRING.2
 
   ;; Paul Dietz assumes that structure objects without slots are printed like
   ;; atoms.
@@ -159,10 +133,8 @@
   ;; CLISP treats all gap types equally.
   FORMAT.JUSTIFY.8
 
-  ;; Paul Dietz assumes that FORMAT ~V[ consumes two arguments.
-  ;; However, ANSI CL 22.3.7.2. says that "the parameter is used instead of
-  ;; an argument"; so only one argument is consumed (by the V, not by ~[).
-  FORMAT.COND.14 FORMATTER.COND.14 |FORMAT.COND:.7| |FORMATTER.COND:.7|
+  ;; CLISP bugs
+  FORMATTER.COND.14 |FORMATTER.COND:.7|
 
   ;; Paul Dietz assumes that the reader constructs an array of element type T
   ;; for #1a"abcd" and #1a#*000110. This could be what ANSI CL 2.4.8.12 is
@@ -234,8 +206,7 @@
   FORMAT./.12 FORMAT./.13 FORMAT./.14 FORMAT./.15 FORMAT./.16 FORMAT./.17
   FORMAT./.18 |FORMAT.:T.5| |FORMAT.:T.5A| |FORMAT.:T.7| |FORMAT.:T.8|
   |FORMAT.:T.9| |FORMAT.:T.10| |FORMAT.:T.12| |FORMAT.:T.ERROR.1|
-  |FORMAT.:T.ERROR.2| |FORMAT.:T.ERROR.3| |FORMAT.:@T.1| |FORMAT.:@T.1A|
-  |FORMAT.:@T.1B| |FORMAT.:@T.1C| |FORMAT.:@T.1D| |FORMAT.:@T.2| |FORMAT.:@T.3|
+  |FORMAT.:T.ERROR.2| |FORMAT.:T.ERROR.3| |FORMAT.:@T.2| |FORMAT.:@T.3|
   |FORMAT.:@T.4| |FORMAT.:@T.5| FORMAT.JUSTIFY.ERROR.W.1
   FORMAT.JUSTIFY.ERROR.W.2 FORMAT.JUSTIFY.ERROR.W.3 FORMAT.JUSTIFY.ERROR._.1
   FORMAT.JUSTIFY.ERROR._.2 FORMAT.JUSTIFY.ERROR._.3 FORMAT.JUSTIFY.ERROR.I.1
