@@ -2086,7 +2086,9 @@ LISPFUNN(proclaim,1)
     }
   } else if (eq(decltype,S(declaration))) { /* DECLARATION */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {
-      var object symbol = check_symbol(Car(STACK_0/*declspec*/));
+      pushSTACK(Car(STACK_0/*declspec*/)); pushSTACK(TheSubr(subr_self)->name);
+      funcall(S(check_not_type),2);
+      var object symbol = value1;
       /* (PUSHNEW symbol (cdr declaration-types)) : */
       if (nullp(memq(symbol,Cdr(O(declaration_types))))) {
         pushSTACK(symbol);

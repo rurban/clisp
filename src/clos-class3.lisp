@@ -44,12 +44,7 @@
 
 (defmacro defclass (&whole whole-form
                     name superclass-specs slot-specs &rest options)
-  (unless (symbolp name)
-    (error-of-type 'ext:source-program-error
-      :form whole-form
-      :detail name
-      (TEXT "~S: class name ~S should be a symbol")
-      'defclass name))
+  (setq name (sys::check-not-declaration name 'defclass))
   (let* ((superclass-forms
            (progn
              (unless (listp superclass-specs)

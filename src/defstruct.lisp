@@ -619,12 +619,7 @@
       (setq name (first name-and-options))
       (setq options (rest name-and-options)))
     ;; otherwise, name and options are already correct.
-    (unless (symbolp name)
-      (error-of-type 'source-program-error
-        :form whole-form
-        :detail name
-        (TEXT "~S: invalid syntax for name and options: ~S")
-        'defstruct name-and-options))
+    (setq name (check-not-declaration name 'defstruct))
     ;; name is a symbol, options is the list of options.
     ;; processing the options:
     (dolist (option options)

@@ -1,5 +1,10 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	* type.tst: check that the sets of declaration and type names are
+	disjoint (see http://www.lisp.org/HyperSpec/Body/dec_type.html)
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	* streamslong.tst: add a test for bug #[ 2022362 ]: after a ((setf
 	stream-element-type) '(unsigned-byte 8)) after read-line on a :dos
 	stream an NL byte (10) is read from the stream
