@@ -1,5 +1,10 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d: fix bug #[ 2011096 ]: unicode in comments causes
+	compile errors when LANG=ja_JP.eucJP
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp (*expected-failures*): drop tests that we pass
 
 2008-07-21  Sam Steingold  <sds@gnu.org>
