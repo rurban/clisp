@@ -1,5 +1,11 @@
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (get_font_info_and_display): prefix
+	*CANONICALIZE-ENCODING* with XLIB:: for bootstrap when is has not
+	been exported yet
+
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
 	the sets of declaration and type names are disjoint, as per ANSI
 	(see http://www.lisp.org/HyperSpec/Body/dec_type.html)
 	* condition.lisp (check-not-type, check-not-declaration): define

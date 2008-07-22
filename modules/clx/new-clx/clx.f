@@ -1130,7 +1130,7 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
             strcat(whole,names[1]);
             end_x_call();
             pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
-            pushSTACK(Symbol_value(`XLIB:*CANONICALIZE-ENCODING*`));
+            pushSTACK(Symbol_value(`XLIB::*CANONICALIZE-ENCODING*`));
             pushSTACK(S(Ktest)); pushSTACK(S(equal));
             funcall(`EXT:CANONICALIZE`,4);
             pushSTACK(S(Kcharset)); pushSTACK(value1);
