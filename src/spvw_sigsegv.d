@@ -20,6 +20,37 @@ local void install_stackoverflow_handler (uintL size);
 
 #if defined(GENERATIONAL_GC) || defined(NOCOST_SP_CHECK)
 local void print_mem_stats (void) {
+  var timescore_t tm;
+  get_running_times(&tm);
+  fprintf(stderr,GETTEXTL("GC count: %lu"),tm.gccount);
+  fputs("\n",stderr);
+  fputs(GETTEXTL("Space collected by GC:"),stderr);
+ #if defined(intQsize)
+  fprintf(stderr," %lu",tm.gcfreed);
+ #else
+  fprintf(stderr," %lu %lu",tm.gcfreed.hi,tm.gcfreed.lo);
+ #endif
+  fputs("\n",stderr);
+#if TIME_METHOD == 1
+ #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu",t)
+#elif  TIME_METHOD == 2
+ #if defined(TIME_UNIX)
+  #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",t.tv_sec,t.tv_usec)
+ #elif defined(TIME_WIN32)
+  #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",t.dwHighDateTime,t.dwLowDateTime)
+ #else
+  #error print_mem_stats: TIME_METHOD == 2
+ #endif
+#else
+ #error print_mem_stats: TIME_METHOD == ???
+#endif
+  fputs(GETTEXTL("Run time:"),stderr);
+  PRINT_INTERNAL_TIME(tm.runtime); fputs("\n",stderr);
+  fputs(GETTEXTL("Real time:"),stderr);
+  PRINT_INTERNAL_TIME(tm.realtime); fputs("\n",stderr);
+  fputs(GETTEXTL("GC time:"),stderr);
+  PRINT_INTERNAL_TIME(tm.gctime); fputs("\n",stderr);
+ #undef PRINT_INTERNAL_TIME
   fprintf(stderr,GETTEXTL("Permanently allocated: %lu bytes."),
           (unsigned long) static_space());
   fputs("\n",stderr);
