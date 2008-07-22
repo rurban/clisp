@@ -1847,7 +1847,7 @@ Returns the added or removed method(s)."
                          :interactive
                           (lambda () (prompt-for-new-value symbol 1 t))
                          (setq symbol new-value)))
-        (error "~S: ~S defines a type, cannot be declared a ~S"
+        (error (TEXT "~S: ~S defines a type, cannot be declared a ~S")
                caller symbol 'declaration)))))
 
 (defun check-not-declaration (symbol caller)
@@ -1863,5 +1863,5 @@ Returns the added or removed method(s)."
                        :interactive
                         (lambda () (prompt-for-new-value symbol 1 t))
                        (setq symbol new-value)))
-      (error "~S: ~S names a ~S, cannot name a type"
+      (error (TEXT "~S: ~S names a ~S, cannot name a type")
              caller symbol 'declaration))))
