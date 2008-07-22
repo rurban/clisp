@@ -18,6 +18,9 @@ Important notes
   attack whereas CLISP would not start if a file with a name
   incompatible with *PATHNAME-ENCODING* is present in USER-HOMEDIR-PATHNAME.
 
+* ROOM now prints some GC statistics and returns the same values as GC.
+  See <http://clisp.cons.org/impnotes/environment-enq.html#room> for details.
+
 * Bug fixes:
   + Comparison of floats and rationals never underflows. [ 2014262 ]
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an

@@ -1553,18 +1553,25 @@ LISPFUNN(crash,0)
 }
 
 LISPFUNN(proom,0)
-{ /* (SYSTEM::%ROOM), returns 3 values:
+{ /* (SYSTEM::%ROOM), returns 6 values:
      - room occupied by LISP-objects
      - room free for LISP-objects
      - room statically occupied by LISP-objects
+     - GC count
+     - total space freed by GC
+     - total time spent in GC
      do it in more detail at SPVW_PAGES?? */
-  var uintM n1 = used_space();
-  var uintM n2 = free_space();
-  var uintM n3 = static_space();
-  pushSTACK(uintM_to_I(n1));
-  pushSTACK(uintM_to_I(n2));
-  pushSTACK(uintM_to_I(n3));
-  STACK_to_mv(3);
+  pushSTACK(uintM_to_I(used_space()));
+  pushSTACK(uintM_to_I(free_space()));
+  pushSTACK(uintM_to_I(static_space()));
+  pushSTACK(UL_to_I(gc_count));
+ #ifdef intQsize
+  pushSTACK(UQ_to_I(gc_space));
+ #else
+  pushSTACK(UL2_to_I(gc_space));
+ #endif
+  pushSTACK(internal_time_to_I(&gc_time));
+  STACK_to_mv(6);
 }
 
 LISPFUN(gc,seclass_default,0,1,norest,nokey,0,NIL)

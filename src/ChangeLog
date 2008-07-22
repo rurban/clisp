@@ -1,5 +1,12 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* debug.d (%ROOM): additionally return gc_count, gc_space, gc_time
+	* lispbibl.d (internal_time_to_I): declare extern
+	* time.d (internal_time_to_I): make global
+	* room.lisp (room): return the same values as gc, print gc stats
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (SUBR-INFO): use STACK_to_mv instead of L(values)
 	* stream.d (MAKE-PIPE-IO-STREAM): ditto
 	* time.d (%%TIME): ditto

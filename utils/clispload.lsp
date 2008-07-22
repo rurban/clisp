@@ -145,10 +145,6 @@
   SYNTAX.SHARP-A.4 SYNTAX.SHARP-A.6 SYNTAX.SHARP-A.7 SYNTAX.SHARP-A.22
   SYNTAX.SHARP-A.23
 
-  ;; Paul Dietz assumes that (ROOM NIL) prints non-empty information.
-  ;; In CLISP, it prints an empty information and returns some values.
-  ROOM.2
-
   ;; The interaction between TRACE and generic functions needs to be fixed.
   TRACE.13 TRACE.14
 

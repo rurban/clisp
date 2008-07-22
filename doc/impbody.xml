@@ -5904,9 +5904,19 @@ exhaust the available line length.</para></simplesect>
 <para>The function <firstterm>&room;
   <indexterm id="room-func" significance="preferred">
    <primary><function>ROOM</function></primary></indexterm></firstterm>
-  returns two values: the number of bytes currently occupied by Lisp
-  objects, and the number of bytes that can be allocated before the next
-  regular &gc;ion occurs.</para>
+  returns five values:<orderedlist>
+  <listitem><simpara>space occupied by Lisp objects (in
+    bytes)</simpara></listitem>
+  <listitem><simpara>space available for allocating Lisp objects until
+    the next &gc;ion is triggered (in bytes)</simpara></listitem>
+  <listitem><simpara>space permanently allocated (in
+    bytes)</simpara></listitem>
+  <listitem><simpara>the number of times &gc;ion was done in this
+    &clisp; session</simpara></listitem>
+  <listitem><simpara>the cumulative space freed by all the &gc;ions in
+    this &clisp; session (in bytes)</simpara></listitem>
+  <listitem><simpara>the total time (in &internal-time-units-per-second;)
+    spent collecting garbage</simpara></listitem></orderedlist></para>
 </section>
 
 <section id="gc-sect"><title>Function <function>EXT:GC</function></title>
@@ -5914,11 +5924,7 @@ exhaust the available line length.</para></simplesect>
  <firstterm><link linkend="gc"><function>EXT:GC</function></link>
   <indexterm id="gc-func" significance="preferred">
    <primary><function>GC</function></primary></indexterm></firstterm>
- starts a global &gc;ion and returns three values:<orderedlist>
-  <listitem><simpara>room occupied by Lisp objects</simpara></listitem>
-  <listitem><simpara>room available for Lisp objects</simpara></listitem>
-  <listitem><simpara>room permanently allocated</simpara></listitem>
-</orderedlist></para>
+ starts a global &gc;ion and returns the same values as &room;.</para>
 <para>When the optional parameter is non-&nil; also invalidates
  just-in-time compiled objects.</para>
 </section>
