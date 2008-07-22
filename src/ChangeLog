@@ -1,5 +1,9 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* spvw_sigsegv.d (print_mem_stats): also print a timescore_t
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* debug.d (%ROOM): additionally return gc_count, gc_space, gc_time
 	* lispbibl.d (internal_time_to_I): declare extern
 	* time.d (internal_time_to_I): make global
