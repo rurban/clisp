@@ -8766,6 +8766,11 @@ typedef struct {
 extern void get_running_times (timescore_t*);
 /* is used by TIME */
 
+/* Converts an internal_time_t to a Lisp integer.
+ internal_time_to_I(&it) */
+extern object internal_time_to_I (const internal_time_t* tp);
+/* used by TIME, DEBUG */
+
 /* UP: yields the run-time
  get_running_time(runtime);
  < runtime: Run-time (in Ticks) */

@@ -282,11 +282,11 @@ global void get_running_times (timescore_t* tm)
   tm->gcfreed = gc_space;
 }
 
-#if TIME_METHOD == 2
 /* Converts an internal_time_t to a Lisp integer.
  internal_time_to_I(&it) */
-local object internal_time_to_I (const internal_time_t* tp)
+global object internal_time_to_I (const internal_time_t* tp)
 {
+#if TIME_METHOD == 2
  #ifdef TIME_UNIX
   /* Convert to microseconds: tp->tv_sec * ticks_per_second + tp->tv_usec */
   #ifdef intQsize
@@ -302,8 +302,12 @@ local object internal_time_to_I (const internal_time_t* tp)
  #ifdef TIME_WIN32
   return L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
  #endif
-}
+#elif TIME_METHOD = 1
+  return UL_to_I(*tp);
+#else
+#error internal_time_to_I: invalid TIME_METHOD
 #endif
+}
 
 LISPFUNNR(get_internal_real_time,0)
 { /* (GET-INTERNAL-REAL-TIME), CLTL p. 446 */
