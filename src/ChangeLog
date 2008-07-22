@@ -1,5 +1,9 @@
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (OBJECT_OUT, NOBJECT_OUT): fflush stdout
+
+2008-07-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/pcre/cpcre.c (PCRE-COMPILE): fix a typo: UNGREADY->UNGREEDY
 	Reported by Todd Kirby <ffmpeg.php@gmail.com>
 
