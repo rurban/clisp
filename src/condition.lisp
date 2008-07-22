@@ -87,12 +87,7 @@
 ;; DEFINE-CONDITION, CLtL2 p. 898
 (defmacro define-condition (&whole whole-form
                             name parent-types slot-specs &rest options)
-  (unless (symbolp name)
-    (error-of-type 'source-program-error
-      :form whole-form
-      :detail name
-      (TEXT "~S: the name of a condition must be a symbol, not ~S")
-      'define-condition name))
+  (setq name (check-not-declaration name 'define-condition))
   (unless (and (listp parent-types) (every #'symbolp parent-types))
     (error-of-type 'source-program-error
       :form whole-form
@@ -1414,7 +1409,7 @@
       :report (lambda (out)
                 (format out (TEXT "skip "))
                 (if (compiled-function-p obj)
-                  (write (sys::closure-name obj) :stream out
+                  (write (closure-name obj) :stream out
                          :pretty nil :escape nil)
                   (write obj :stream out :pretty nil :escape nil
                          :level 2 :length 3)))
@@ -1831,3 +1826,42 @@ Returns the added or removed method(s)."
     `(let ((,handlers (set-global-handler nil nil)))
        (unwind-protect (progn ,@body)
          (set-global-handler ,handlers nil)))))
+
+;;; <http://www.lisp.org/HyperSpec/Body/dec_type.html>:
+;;;   A symbol cannot be both the name of a type and the name of a
+;;;   declaration. Defining a symbol as the name of a class, structure,
+;;;   condition, or type, when the symbol has been declared as a
+;;;   declaration name, or vice versa, signals an error.
+(defun check-not-type (symbol caller)
+  (loop
+    (setq symbol (check-symbol symbol caller))
+    (when (handler-bind ((error #'(lambda (c)
+                                    (declare (ignore c))
+                                    (return-from check-not-type symbol))))
+            (type-expand symbol))
+      (with-restarts ((use-value (new-value)
+                        :report
+                         (lambda (stream)
+                           (format stream (report-one-new-value-string-instead)
+                                   symbol))
+                         :interactive
+                          (lambda () (prompt-for-new-value symbol 1 t))
+                         (setq symbol new-value)))
+        (error "~S: ~S defines a type, cannot be declared a ~S"
+               caller symbol 'declaration)))))
+
+(defun check-not-declaration (symbol caller)
+  (loop
+    (setq symbol (check-symbol symbol caller))
+    (unless (memq symbol (cdar *toplevel-denv*))
+      (return-from check-not-declaration symbol))
+    (with-restarts ((use-value (new-value)
+                      :report
+                       (lambda (stream)
+                         (format stream (report-one-new-value-string-instead)
+                                 symbol))
+                       :interactive
+                        (lambda () (prompt-for-new-value symbol 1 t))
+                       (setq symbol new-value)))
+      (error "~S: ~S names a ~S, cannot name a type"
+             caller symbol 'declaration))))

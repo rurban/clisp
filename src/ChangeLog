@@ -1,3 +1,19 @@
+2008-07-21  Sam Steingold  <sds@gnu.org>
+
+	the sets of declaration and type names are disjoint, as per ANSI
+	(see http://www.lisp.org/HyperSpec/Body/dec_type.html)
+	* condition.lisp (check-not-type, check-not-declaration): define
+	(define-condition): use CHECK-NOT-DECLARATION
+	* clos-class3.lisp (defclass): use CHECK-NOT-DECLARATION
+	* compiler.lisp (c-PROCLAIM): use CHECK-NOT-TYPE
+	* constsym.d (check_not_type): declare
+	* control.d (PROCLAIM): use CHECK-NOT-TYPE for DECLARATION
+	* defstruct.lisp (defstruct): use CHECK-NOT-DECLARATION
+	* init.lisp (check-not-declaration): predefine
+	* macros2.lisp (deftype): use CHECK-NOT-DECLARATION
+	* utils/clispload.lsp (*expected-failures*): remove
+	DECLARATION.([4-9]|1[01]) (i.e. tests 4..11 now pass)
+
 2008-07-21  Bruno Haible  <bruno@clisp.org>
 
 	* makemake.in (LIBS): Remove special code for Solaris 2.1.

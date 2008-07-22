@@ -2076,6 +2076,9 @@
 (let ((sys::*current-source-file* "init"))
   (sys::check-redefinition 'defun 'defmacro nil))
 
+;; see condition.lisp for the final definition
+(predefun check-not-declaration (symbol caller) (check-symbol symbol caller))
+
 (VALUES) )
 
 ;; from now on DEFMACRO and DEFUN are operational.
