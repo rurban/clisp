@@ -285,7 +285,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
   (if (zerop error-count)
       (delete-file logfile)
       (format t "~s: see ~a~%" 'run-test logfile))
-  (list testname total-count error-count))
+  (list logname total-count error-count))
 
 (defun report-results (res)
   "res = list of RUN-TEST return values (testname total-count error-count)"
