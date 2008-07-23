@@ -886,6 +886,9 @@
     (values (cons expf expr) t)
     (values form nil)))
 
+;; cons specs on top of *fenv*
+(defun cons-*fenv* (specs) (apply #'vector (nreverse (cons *fenv* specs))))
+
 ;; (%expand-form form) expands a whole Form. returns 2 values.
 (defun %expand-form (form &aux (%whole-form form))
   (if (atom form)
@@ -1090,8 +1093,7 @@
                         :detail L1
                         (TEXT "code after MACROLET contains a dotted list, ending with ~S")
                         L1)
-                      (let ((*fenv* (apply #'vector
-                                           (nreverse (cons *fenv* L2)))))
+                      (let ((*fenv* (cons-*fenv* L2)))
                         (values (%expand-form (cons 'PROGN (cddr form))) t))))
                  (let ((macrodef (car L1)))
                    (if (and (consp macrodef)
