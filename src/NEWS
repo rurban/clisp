@@ -31,7 +31,10 @@ Important notes
     interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]
     Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
   + Fixed input after switching a :DOS stream to binary. [ 2022362 ]
-  + ANSI compliance: the sets of declaration and type names are disjoint.
+
+* ANSI compliance:
+  + The sets of declaration and type names are disjoint.
+  + FLET, LABELS and MACROLET respect declarations.
 
 
 2.46 (2008-07-02)
