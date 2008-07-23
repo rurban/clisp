@@ -433,7 +433,7 @@ global gcv_object_t* specdecled_ (object symbol, gcv_object_t* spec_pointer,
  < uintC bind_count: number of "genuine" bindings.
  < gcv_object_t* spec_ptr: pointer to the first SPECDECL binding.
  < uintC spec_count: number of SPECDECL bindings.
- changes STACK
+ changes STACK (STACK_0<-value1=({form}) + bindings requiring 2 unwind calls)
  can trigger GC */
 local /*maygc*/ void make_variable_frame
 (object caller, object varspecs, gcv_object_t** bind_ptr_, uintC* bind_count_,
@@ -710,6 +710,24 @@ LISPSPECFORM(letstar, 1,0,body)
   }
 }
 
+/* call make_variable_frame + activate_bindings + activate_specdecls
+ Analyzes the variables and declarations, builds up a variable binding-
+ frame and extends VENV and poss. also DENV by a frame.
+ make_variable_frame(caller,varspecs,&bind_ptr,&bind_count,&spec_ptr,&spec_count)
+ call it after parse_doc_decl, then the inputs are correct:
+ > object value2: list of declaration-specifiers
+ > object value1: list ({form}) of forms
+ changes STACK (STACK_0<-value1=({form}) + 2 bindings requiring 2 unwind calls)
+ can trigger GC */
+local maygc void make_vframe_activate (void) {
+  var gcv_object_t *bind_ptr, *spec_ptr;
+  var uintC bind_count, spec_count;
+  make_variable_frame(TheFsubr(subr_self)->name,NIL,&bind_ptr,&bind_count,
+                      &spec_ptr,&spec_count);
+  if (bind_count) activate_bindings(bind_ptr,bind_count);
+  if (spec_count) activate_specdecls(spec_ptr,spec_count);
+}
+
 LISPSPECFORM(locally, 0,0,body)
 { /* (LOCALLY {decl} {form}), CLTL2 p. 221 */
   /* separate {decl} {form} : */
@@ -718,14 +736,8 @@ LISPSPECFORM(locally, 0,0,body)
   if (to_compile) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
     return_Values compile_eval_form();
-  } else {
-    /* build variable binding frame, extend VAR_ENV : */
-    var gcv_object_t *bind_ptr, *spec_ptr;
-    var uintC bind_count, spec_count;
-    make_variable_frame(S(locally),NIL,&bind_ptr,&bind_count,
-                        &spec_ptr,&spec_count);
-    if (bind_count) activate_bindings(bind_ptr,bind_count);
-    if (spec_count) activate_specdecls(spec_ptr,spec_count);
+  } else { /* build variable binding frame, extend VAR_ENV : */
+    make_vframe_activate();
     /* interpret body: */
     implicit_progn(popSTACK(),NIL);
     /* unwind frames: */
@@ -839,17 +851,20 @@ local void skip_declarations (object* body) {
 }
 
 /* UP: Finishes a FLET/MACROLET.
- finish_flet(top_of_frame,body);
+ finish_flet(top_of_frame,body,ignore_declarations);
  > stack layout: [top_of_frame] def1 name1 ... defn namen [STACK]
  > top_of_frame: pointer to frame
  > body: list of forms
+ > ignore_declarations: flag: if true, declarations are ignored
+     (for FUNCTION-MACRO-LET) otherwise respected (for FLET & MACROLET)
  < mv_count/mv_space: values
  can trigger GC */
-local maygc Values finish_flet (gcv_object_t* top_of_frame, object body) {
+local maygc Values finish_flet (gcv_object_t* top_of_frame, object body,
+                                bool ignore_declarations) {
   {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
-      pushSTACK(aktenv.fun_env); /* current FUN_ENV as NEXT_ENV */
+    pushSTACK(aktenv.fun_env); /* current FUN_ENV as NEXT_ENV */
     pushSTACK(fake_gcv_object(bindcount));
     finish_frame(FUN);
   }
@@ -865,9 +880,17 @@ local maygc Values finish_flet (gcv_object_t* top_of_frame, object body) {
     aktenv.fun_env = make_framepointer(top_of_frame);
   }
   /* allow declarations, as per ANSI CL */
-  skip_declarations(&body);
+  if (!ignore_declarations) {
+    parse_doc_decl(body,false); /* ignore to_compile */
+    make_vframe_activate();
+    body = popSTACK();
+  } else skip_declarations(&body);
   /* execute forms: */
   implicit_progn(body,NIL);
+  if (!ignore_declarations) {
+    unwind(); /* unwind VENV-binding frame */
+    unwind(); /* unwind variable binding frame */
+  }
   unwind(); /* unwind FENV binding frame */
   unwind(); /* unwind function binding frame */
 }
@@ -906,7 +929,7 @@ LISPSPECFORM(flet, 1,0,body)
     pushSTACK(fun); /* as "value" the closure */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body);
+  return_Values finish_flet(top_of_frame,body,false);
 }
 
 LISPSPECFORM(labels, 1,0,body)
@@ -978,11 +1001,13 @@ LISPSPECFORM(labels, 1,0,body)
     }
   }
   skipSTACK(1); /* forget vector */
-  body = popSTACK();
   /* allow declarations, as per ANSI CL */
-  skip_declarations(&body);
+  parse_doc_decl(popSTACK(),false); /* ignore to_compile */
+  make_vframe_activate();
   /* execute forms: */
-  implicit_progn(body,NIL);
+  implicit_progn(popSTACK(),NIL);
+  unwind(); /* unwind VENV-binding frame */
+  unwind(); /* unwind variable binding frame */
   unwind(); /* unwind FENV binding frame */
 }
 
@@ -1040,7 +1065,7 @@ LISPSPECFORM(macrolet, 1,0,body)
     pushSTACK(value1); /* as "value" the cons with the expander */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body);
+  return_Values finish_flet(top_of_frame,body,false);
 }
 
 LISPSPECFORM(function_macro_let, 1,0,body)
@@ -1098,7 +1123,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
     pushSTACK(value1); /* as "value" the FunctionMacro */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body);
+  return_Values finish_flet(top_of_frame,body,true);
 }
 
 LISPSPECFORM(symbol_macrolet, 1,0,body)

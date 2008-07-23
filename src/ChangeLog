@@ -1,5 +1,20 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (%expand-form): FLET, LABELS, MACROLET
+	respect the SPECIAL declarations, as per ANSI
+	NOTE: FUNCTION-MACRO-LET still does NOT - it is our internal operator
+	* control.d (make_vframe_activate): extracted from LOCALLY
+	(LOCALLY, LABELS): use it
+	(finish_flet): accept an extra argument ignore_declarations
+	(FLET, MACROLET): pass ignore_declarations=false to finish_flet
+	(FUNCTION-MACRO-LET): pass ignore_declarations=true to finish_flet
+	* compiler.lisp (skip-declarations): remove
+	(with-bindings, with-bindings-lite): add local macros
+	(c-FLET, c-LABELS): use with-bindings
+	(c-MACROLET): use with-bindings-lite
+
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (cons-*fenv*, illegal-syntax): add
 	(%expand-form, %expand-fundefs-1, %expand-funmacdefs-1): use them
 	* macros3.lisp (expand-LETF*, expand-LETF): use ILLEGAL-SYNTAX

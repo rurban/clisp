@@ -1069,8 +1069,10 @@
                      (%expand-list (rest form))))))
               ((FLET) ; expand function definitions
                (if (null (second form))
-                 (values (%expand-form (cons 'PROGN (cddr form))) t)
-                 (let ((newfenv (%expand-fundefs-1 (second form))))
+                 (values (%expand-form (cons 'LOCALLY (cddr form))) t)
+                 (let ((newfenv (%expand-fundefs-1 (second form)))
+                       (*venv* *venv*))
+                   (%expand-special-declarations (cddr form))
                    (multiple-value-call #'%expand-cons form
                      (first form) nil
                      (multiple-value-call #'%expand-cons (rest form)
@@ -1081,8 +1083,10 @@
                ;; expand function definitions and body
                ;; in the extended environment
                (if (null (second form))
-                 (values (%expand-form (cons 'PROGN (cddr form))) t)
-                 (let ((newfenv (%expand-fundefs-1 (second form))))
+                 (values (%expand-form (cons 'LOCALLY (cddr form))) t)
+                 (let ((newfenv (%expand-fundefs-1 (second form)))
+                       (*venv* *venv*))
+                   (%expand-special-declarations (cddr form))
                    (let ((*fenv* (apply #'vector newfenv)))
                      (multiple-value-call #'%expand-cons form
                        (first form) nil
@@ -1099,7 +1103,9 @@
                         :detail L1
                         (TEXT "code after MACROLET contains a dotted list, ending with ~S")
                         L1)
-                      (let ((*fenv* (cons-*fenv* L2)))
+                      (let ((*fenv* (cons-*fenv* L2))
+                            (*venv* *venv*))
+                        (%expand-special-declarations (cddr form))
                         (values (%expand-form (cons 'PROGN (cddr form))) t))))
                  (let ((macrodef (car L1)))
                    (if (and (consp macrodef)
