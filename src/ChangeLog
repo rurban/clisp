@@ -7,6 +7,9 @@
 	(c-GENERIC-FLET, c-MACROLET): use CONS-*FENV*
 	(c-illegal-syntax): add
 	(analyze-letlist, c-COMPILER-LET): use it
+	(mk-var): add local macro
+	(c-FLET, c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
+	(c-GENERIC-LABELS): use it
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
