@@ -1,8 +1,9 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
-	* compiler.lisp (cons-*fenv*): add
-	(add-fenv, c-FLET, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
-	(c-MACROLET): use it
+	* init.lisp (cons-*fenv*): add
+	(%expand-form): use it
+	* compiler.lisp (add-fenv, c-FLET, c-FUNCTION-MACRO-LET)
+	(c-GENERIC-FLET, c-MACROLET): ditto
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
