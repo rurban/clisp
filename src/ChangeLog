@@ -1,3 +1,9 @@
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (cons-*fenv*): add
+	(add-fenv, c-FLET, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
+	(c-MACROLET): use it
+
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (OBJECT_OUT, NOBJECT_OUT): fflush stdout
