@@ -3117,6 +3117,9 @@ if [ $CROSS = false ] ; then
   echotab "\$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp"
   # ??? echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp | cat\` = 42 || exit 1"
   echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp | cat\` = 42 || exit 1"
+  echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) s) (values))' > script.lisp"
+  echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp\` = 42 || exit 1"
+  echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp\` = 42 || exit 1"
   echotab "\$(RM) script.lisp"
   echol
 
