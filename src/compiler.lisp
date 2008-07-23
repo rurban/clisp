@@ -1571,6 +1571,8 @@ for-value   NIL or T
 (defun push-*denv* (declspecs)
   (setq *denv* (nreconc declspecs *denv*)))
 
+;; cons specs on top of *fenv*
+(defun cons-*fenv* (specs) (apply #'vector (nreverse (cons *fenv* specs))))
 
 ;;;;****             FUNCTION   MANAGEMENT
 
@@ -5354,7 +5356,7 @@ for-value   NIL or T
                    (fenvconslistr ,fenvconslist (cdr fenvconslistr))
                    (L nil))
                   ((null namelistr)
-                   (apply #'vector (nreverse (cons *fenv* L))))
+                   (cons-*fenv* L))
                 (push (car namelistr) L)
                 (push (car fenvconslistr) L)))
            (get-anode (type)
@@ -5415,7 +5417,7 @@ for-value   NIL or T
                 ((null namelistr)
                  (values (nreverse vfnodelist) (nreverse varlist)
                          (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))))
+                         (cons-*fenv* fenv)))
               (push (car namelistr) fenv)
               (let ((fnode (car fnodelistr)))
                 (if (zerop (fnode-keyword-offset fnode))
@@ -5598,7 +5600,7 @@ for-value   NIL or T
                 ((null namelistr)
                  (values (nreverse vfnodelist) (nreverse varlist)
                          (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))))
+                         (cons-*fenv* fenv)))
               (push (car namelistr) fenv)
               (let ((fnode (car fnodelistr))
                     (macro (car macrolistr)))
@@ -5668,7 +5670,7 @@ for-value   NIL or T
                  (fenv '()))
                 ((null namelistr)
                  (values (nreverse varlist) (nreverse anodelist)
-                         (apply #'vector (nreverse (cons *fenv* fenv)))))
+                         (cons-*fenv* fenv)))
               (push (car namelistr) fenv)
               (push (c-form (car formlistr) 'ONE) anodelist)
               (push 1 *stackz*)
@@ -5750,7 +5752,7 @@ for-value   NIL or T
   (do ((L1 (second *form*) (cdr L1))
        (L2 '()))
       ((null L1)
-       (let ((*fenv* (apply #'vector (nreverse (cons *fenv* L2)))))
+       (let ((*fenv* (cons-*fenv* L2)))
          ;; compile the remaining forms:
          (funcall c `(PROGN ,@(skip-declarations (cddr *form*))))))
     (let* ((macrodef (car L1))
