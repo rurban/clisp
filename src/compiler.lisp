@@ -5339,12 +5339,6 @@ for-value   NIL or T
                   :seclass (anodes-seclass-or anode1 anode2)
                   :code `(,anode1 (PUSH) ,anode2 (CONS))))))
 
-;; skip (ignore) all declarations in the beginning of BODY
-(defun skip-declarations (body)
-  (do ((bo body (cdr bo)))
-      ((not (and (consp bo) (consp (car bo)) (eq (caar bo) 'declare)))
-       bo)))
-
 (macrolet ((err-syntax (specform fdef)
              `(c-error-c
                (TEXT "Illegal function definition syntax in ~S: ~S")
@@ -5362,6 +5356,27 @@ for-value   NIL or T
                :usedp t :for-value-usedp t :really-usedp nil
                :closurep nil ; later poss. set to T
                :stackz *stackz* :venvc *venvc* :fnode *func*))
+           (with-bindings-lite ((body body-rest) &body forms)
+             `(multiple-value-bind (,body-rest declarations) (parse-body ,body)
+                (let ((*denv* *denv*) (*venv* *venv*))
+                  (multiple-value-bind
+                        (*specials* *ignores* *ignorables* *readonlys* others)
+                      (process-declarations declarations)
+                    (push-specials) (push-*denv* others)
+                    ,@forms))))
+           (with-bindings ((body body-rest) &body forms)
+             `(multiple-value-bind (,body-rest declarations) (parse-body ,body)
+                (let ((oldstackz *stackz*)
+                      (*stackz* *stackz*)
+                      (*denv* *denv*)
+                      (*venvc* *venvc*)
+                      (*venv* *venv*))
+                  (multiple-value-bind
+                        (*specials* *ignores* *ignorables* *readonlys* others)
+                      (process-declarations declarations)
+                    (push 0 *stackz*) (push nil *venvc*) ; for Closure-Dummyvar
+                    (push-specials) (push-*denv* others)
+                    ,@forms))))
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list varlist anodelist))
                      (anode
@@ -5403,11 +5418,7 @@ for-value   NIL or T
               (push fnode L2))
             (err-syntax 'FLET fdef))))
     ;; namelist = list of names, fnodelist = list of fnodes of the functions
-    (let ((oldstackz *stackz*)
-          (*stackz* *stackz*)
-          (*venvc* *venvc*)
-          (*venv* *venv*))
-      (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
+    (with-bindings ((cddr *form*) body-rest)
       (let ((closuredummy-stackz *stackz*)
             (closuredummy-venvc *venvc*))
         (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
@@ -5434,8 +5445,7 @@ for-value   NIL or T
                       (push (cons (list fnode) var) fenv)
                       (push var varlist))))))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
-          (let ((body-anode ; compile remaining forms
-                  (c-form `(PROGN ,@(skip-declarations (cddr *form*))))))
+          (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile body
             (unless *no-code*
               (mapc #'(lambda (var fnode)
                         (when (var-really-usedp var)
@@ -5447,11 +5457,7 @@ for-value   NIL or T
 (defun c-LABELS ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (let ((oldstackz *stackz*)
-        (*stackz* *stackz*)
-        (*venvc* *venvc*)
-        (*venv* *venv*))
-    (push 0 *stackz*) (push nil *venvc*) ; room for Closure-Dummyvar
+  (with-bindings ((cddr *form*) body-rest)
     (let ((closuredummy-stackz *stackz*)
           (closuredummy-venvc *venvc*))
       (multiple-value-bind
@@ -5509,8 +5515,7 @@ for-value   NIL or T
                    (mapcar #'(lambda (fnode var)
                                (c-fnode-function fnode (cdr (var-stackz var))))
                            fnodelist varlist))
-                 (body-anode ; compile remaining forms
-                   (c-form `(PROGN ,@(skip-declarations (cddr *form*))))))
+                 (body-anode (c-form `(PROGN ,@body-rest)))) ; compile body
             ;; the variables, for which the function was autonomous, are
             ;; additionally declared as constants:
             (do ((varlistr varlist (cdr varlistr))
@@ -5720,8 +5725,6 @@ for-value   NIL or T
                    (c-form `(PROGN ,@(cddr *form*)))))
             (get-anode CLOS:GENERIC-LABELS)))))))
 
-) ; macrolet
-
 ;; compile (MACROLET ({macrodef}*) {form}*)
 (defun c-MACROLET (&optional (c #'c-form))
   (test-list *form* 2)
@@ -5729,13 +5732,16 @@ for-value   NIL or T
   (do ((L1 (second *form*) (cdr L1))
        (L2 '()))
       ((null L1)
-       (let ((*fenv* (sys::cons-*fenv* L2)))
-         ;; compile the remaining forms:
-         (funcall c `(PROGN ,@(skip-declarations (cddr *form*))))))
+       (with-bindings-lite ((cddr *form*) body-rest)
+         (let ((*fenv* (sys::cons-*fenv* L2)))
+           ;; compile the remaining forms:
+           (funcall c `(PROGN ,@body-rest)))))
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
       (push (make-macro-expander macrodef *form*) L2))))
+
+) ; macrolet
 
 ;; compile (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
 (defun c-SYMBOL-MACROLET (&optional (c #'c-form))
