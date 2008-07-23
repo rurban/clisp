@@ -82,12 +82,7 @@
                 (setq place (third place) form `(THE ,(second place) ,form))
                 (return)
           ) ) )
-          (error-of-type 'source-program-error
-            :form whole-form
-            :detail bind
-            (TEXT "illegal syntax in LETF* binding: ~S")
-            bind
-      ) ) )
+          (illegal-syntax bind 'LETF* whole-form)))
       (multiple-value-bind (rest-expanded flag)
           (expand-LETF* (cdr bindlist) declare body whole-form env)
         (if (and (atom place)
@@ -261,12 +256,7 @@
                 (setq place (third place) form `(THE ,(second place) ,form))
                 (return)
           ) ) )
-          (error-of-type 'source-program-error
-            :form whole-form
-            :detail bind
-            (TEXT "illegal syntax in LETF binding: ~S")
-            bind
-      ) ) )
+          (illegal-syntax bind 'LETF whole-form)))
       (multiple-value-bind (L1 L2 L3 L4) (expand-LETF (cdr bindlist) whole-form env)
         (if (and (atom place)
                  (not (and (symbolp place) (nth-value 1 (macroexpand-1 place env))))
