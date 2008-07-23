@@ -4343,6 +4343,13 @@ Let us consider different criteria:<orderedlist numeration="arabic">
  &stream-element-type;)</code> are &generic-function-t;s, see
  <xref linkend="gray"/>.</para>
 
+<warning id="stream-eltype-stdio"><simpara>&clisp; expects to be able to
+  do &character-t; i/o on standard streams like &terminal-io-var;,
+  &standard-output-var;, &standard-input-var;, &error-output-var;,
+  &query-io-var; et al, thus is is a <emphasis>very</emphasis> bad idea
+  to change their &stream-element-type; even when you can. Use
+  &make-stream; instead, see <xref linkend="bin-stdio"/>.</simpara></warning>
+
 <section id="bin-stdio"><title>Binary input from &standard-input-var;</title>
 
 <para>Note that you cannot change &stream-element-type; for some
