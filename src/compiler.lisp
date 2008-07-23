@@ -5357,6 +5357,11 @@ for-value   NIL or T
                    (sys::cons-*fenv* L))
                 (push (car namelistr) L)
                 (push (car fenvconslistr) L)))
+           (mk-var ()
+             '(make-var :name (gensym) :specialp nil :constantp nil
+               :usedp t :for-value-usedp t :really-usedp nil
+               :closurep nil ; later poss. set to T
+               :stackz *stackz* :venvc *venvc* :fnode *func*))
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list varlist anodelist))
                      (anode
@@ -5425,12 +5430,7 @@ for-value   NIL or T
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
                     (push 1 *stackz*)
-                    (let ((var (make-var :name (gensym) :specialp nil
-                                 :constantp nil
-                                 :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; later poss. set to T
-                                 :stackz *stackz* :venvc *venvc*
-                                 :fnode *func*)))
+                    (let ((var (mk-var)))
                       (push (cons (list fnode) var) fenv)
                       (push var varlist))))))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
@@ -5471,13 +5471,7 @@ for-value   NIL or T
                 (let ((name (car fdef)))
                   (push name L1)
                   (push 1 *stackz*)
-                  (push (make-var :name (gensym) :specialp nil
-                                  :constantp nil
-                                  :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; later poss. set to T
-                                  :stackz *stackz* :venvc *venvc*
-                                  :fnode *func*)
-                        L2)
+                  (push (mk-var) L2)
                   (push (symbol-suffix (fnode-name *func*) name) L3)
                   (push (cdr fdef) L4)
                   (push
@@ -5609,12 +5603,7 @@ for-value   NIL or T
                     (push fnode vfnodelist)
                     (push (c-fnode-function fnode) anodelist)
                     (push 1 *stackz*)
-                    (let ((var (make-var :name (gensym) :specialp nil
-                                 :constantp nil
-                                 :usedp t :for-value-usedp t :really-usedp nil
-                                 :closurep nil ; later poss. set to T
-                                 :stackz *stackz* :venvc *venvc*
-                                 :fnode *func*)))
+                    (let ((var (mk-var)))
                       (push (cons macro (cons (list fnode) var)) fenv)
                       (push var varlist))))))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
@@ -5672,11 +5661,7 @@ for-value   NIL or T
               (push (car namelistr) fenv)
               (push (c-form (car formlistr) 'ONE) anodelist)
               (push 1 *stackz*)
-              (let ((var (make-var :name (gensym) :specialp nil
-                           :constantp nil
-                           :usedp t :for-value-usedp t :really-usedp nil
-                           :closurep nil ; later poss. set to T
-                           :stackz *stackz* :venvc *venvc* :fnode *func*)))
+              (let ((var (mk-var)))
                 (push (cons (list* nil 'GENERIC (car signlistr)) var) fenv)
                 (push var varlist)))
           (apply #'push-*venv* varlist) ; activate auxiliary variables
@@ -5710,13 +5695,7 @@ for-value   NIL or T
                 (let ((name (first fdef)))
                   (push name L1)
                   (push 1 *stackz*)
-                  (push (make-var :name (gensym) :specialp nil
-                                  :constantp nil
-                                  :usedp t :for-value-usedp t :really-usedp nil
-                                  :closurep nil ; later poss. set to T
-                                  :stackz *stackz* :venvc *venvc*
-                                  :fnode *func*)
-                        L2)
+                  (push (mk-var) L2)
                   (push (cons
                           ;; fdescr
                           (list* nil 'GENERIC
