@@ -5,6 +5,8 @@
 	* macros3.lisp (expand-LETF*, expand-LETF): use ILLEGAL-SYNTAX
 	* compiler.lisp (add-fenv, c-FLET, c-FUNCTION-MACRO-LET)
 	(c-GENERIC-FLET, c-MACROLET): use CONS-*FENV*
+	(c-illegal-syntax): add
+	(analyze-letlist, c-COMPILER-LET): use it
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 

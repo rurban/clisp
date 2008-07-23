@@ -3442,6 +3442,9 @@ for-value   NIL or T
 
 ;; Syntax-Analysis:
 
+(defun c-illegal-syntax (form caller)
+  (c-error-c (TEXT "Illegal syntax in ~A: ~S") caller form))
+
 ;; analyzes a parameter-list of LET/LET*, returns:
 ;; the List of Symbols,
 ;; the List of Forms.
@@ -3455,8 +3458,7 @@ for-value   NIL or T
                 (or (null (cdar L))
                     (and (consp (cdar L)) (null (cddar L)))))
            (push (caar L) symbols) (push (cadar L) forms))
-          (t (c-error-c (TEXT "Illegal syntax in LET/LET*: ~S")
-                        (car L))))))
+          (t (c-illegal-syntax (car L) "LET/LET*")))))
 
 ;; Analyzes a lambda-list of a function (CLtL2 p. 76, ANSI CL 3.4.1.).
 ;; Returns 13 values:
@@ -5022,8 +5024,7 @@ for-value   NIL or T
                 (or (null (cdar L))
                     (and (consp (cdar L)) (null (cddar L)))))
            (push (caar L) varlist) (push (eval (cadar L)) valueslist))
-          (t (c-error-c (TEXT "Illegal syntax in COMPILER-LET: ~S")
-                        (car L))))))
+          (t (c-illegal-syntax (car L) 'COMPILER-LET)))))
 
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
