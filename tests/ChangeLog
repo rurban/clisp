@@ -1,5 +1,11 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
+	* tests.lisp (run-test): return logname instead of testname to
+	clarify the output when the same test (e.g., bind) is run in both
+	compiled and interpreted variants
+
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
 	* eval20.tst: add examples from
 	http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html
 
