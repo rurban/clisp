@@ -610,6 +610,11 @@ executes a compiled version of &form-r;.</para>
     (&values; #'inc #'dec)))</programlisting>
  returns two functions.  The first is compiled and increments &x-r;, the
  second is interpreted (slower) and decrements the same &x-r;.</para>
+
+<note><para>The declaration &compile-decl; is ignored in the following
+  special forms: <simplelist><member>&labels;</member>
+   <member>&flet;</member><member>&macrolet;</member>
+</simplelist></para></note>
 </section>
 
 <section id="space-decl"><title>Declaration &space-dec;</title>
