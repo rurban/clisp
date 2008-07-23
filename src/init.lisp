@@ -889,6 +889,12 @@
 ;; cons specs on top of *fenv*
 (defun cons-*fenv* (specs) (apply #'vector (nreverse (cons *fenv* specs))))
 
+(defun illegal-syntax (detail form-name &optional (whole-form %whole-form))
+  (error-of-type 'source-program-error
+    :form whole-form :detail detail
+    (TEXT "Illegal syntax in ~A: ~S")
+    form-name detail))
+
 ;; (%expand-form form) expands a whole Form. returns 2 values.
 (defun %expand-form (form &aux (%whole-form form))
   (if (atom form)
@@ -1101,11 +1107,7 @@
                             (consp (cdr macrodef)))
                      (setq L2 (list* (make-macro-expander macrodef form)
                                      (car macrodef) L2))
-                     (error-of-type 'source-program-error
-                       :form form
-                       :detail macrodef
-                       (TEXT "illegal syntax in MACROLET: ~S")
-                       macrodef)))))
+                     (illegal-syntax macrodef 'MACROLET)))))
               ((FUNCTION-MACRO-LET)
                ;; expand function-definitions,
                ;; expand body in extended environment
@@ -1155,11 +1157,7 @@
                            'symbol-macrolet symbol)
                          (setq L2 (list* (make-symbol-macro expansion)
                                          symbol L2))))
-                     (error-of-type 'source-program-error
-                       :form form
-                       :detail symdef
-                       (TEXT "illegal syntax in SYMBOL-MACROLET: ~S")
-                       symdef)))))
+                     (illegal-syntax symdef 'SYMBOL-MACROLET)))))
               (t (cond ((and (symbolp f) (special-operator-p f))
                         ;; other Special-forms,
                         ;; e.g. IF, CATCH, THROW, PROGV, UNWIND-PROTECT, PROGN,
@@ -1436,11 +1434,7 @@
       (if (and (consp fundef) (function-name-p (car fundef))
                (consp (cdr fundef)))
         (list* (car fundef) nil (%expand-fundefs-1 (cdr fundefs)))
-        (error-of-type 'source-program-error
-          :form %whole-form
-          :detail fundef
-          (TEXT "illegal syntax in FLET/LABELS: ~S")
-          fundef)))))
+        (illegal-syntax fundef "FLET/LABELS")))))
 ;; (%expand-fundefs-2 fundefs) expands a function-definition-list,
 ;; like in FLET, LABELS. returns 2 values.
 (defun %expand-fundefs-2 (fundefs)
@@ -1469,11 +1463,7 @@
                (consp (cddr funmacdef)) (consp (third funmacdef))
                (null (cdddr funmacdef)))
         (list* (car funmacdef) nil (%expand-funmacdefs-1 (cdr funmacdefs)))
-        (error-of-type 'source-program-error
-          :form %whole-form
-          :detail funmacdef
-          (TEXT "illegal syntax in FUNCTION-MACRO-LET: ~S")
-          funmacdef)))))
+        (illegal-syntax funmacdef 'FUNCTION-MACRO-LET)))))
 ;; (%expand-funmacdefs-2 funmacdefs) expands a function-macro-
 ;; definition-list, like in FUNCTION-MACRO-LET. returns 2 values.
 (defun %expand-funmacdefs-2 (funmacdefs)
