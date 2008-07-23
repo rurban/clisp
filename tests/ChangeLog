@@ -1,3 +1,8 @@
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
+	* eval20.tst: add examples from
+	http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html
+
 2008-07-21  Sam Steingold  <sds@gnu.org>
 
 	* type.tst: check that the sets of declaration and type names are

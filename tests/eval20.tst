@@ -194,6 +194,80 @@ NIL
     (list (let ((y 25)) (makunbound 'y) (list (symbol-value 'y) y)) y)))
 ((251 25) 1)
 
+;;; http://www.lisp.org/HyperSpec/Body/speope_fletcm_scm_macrolet.html
+(flet ((flet1 (n) (+ n n)))
+  (flet ((flet1 (n) (+ 2 (flet1 n))))
+    (flet1 2)))
+6
+
+(progn
+  (defun dummy-function () 'top-level)
+  (list
+   (funcall #'dummy-function)
+   (flet ((dummy-function () 'shadow))
+     (funcall #'dummy-function))
+   (eq (funcall #'dummy-function) (funcall 'dummy-function))
+   (flet ((dummy-function () 'shadow))
+     (eq (funcall #'dummy-function)
+         (funcall 'dummy-function)))))
+(TOP-LEVEL SHADOW T NIL)
+
+(progn (defun recursive-times (k n)
+         (labels ((temp (n)
+                    (if (zerop n) 0 (+ k (temp (1- n))))))
+           (temp n)))
+       (recursive-times 2 3))
+6
+
+(progn
+  (defmacro mlets (x &environment env)
+    (let ((form `(babbit ,x)))
+      (macroexpand form env)))
+  (macrolet ((babbit (z) `(+ ,z ,z))) (mlets 5)))
+10
+
+(flet ((safesqrt (x) (sqrt (abs x))))
+  ;; The safesqrt function is used in two places.
+  (safesqrt (apply #'+ (map 'list #'safesqrt '(1 2 3 4 5 6)))))
+3.2911735
+
+(progn
+  (defun integer-power (n k)
+    (declare (integer n))
+    (declare (type (integer 0 *) k))
+    (labels ((expt0 (x k a)
+               (declare (integer x a) (type (integer 0 *) k))
+               (cond ((zerop k) a)
+                     ((evenp k) (expt1 (* x x) (floor k 2) a))
+                     (t (expt0 (* x x) (floor k 2) (* x a)))))
+             (expt1 (x k a)
+               (declare (integer x a) (type (integer 0 *) k))
+               (cond ((evenp k) (expt1 (* x x) (floor k 2) a))
+                     (t (expt0 (* x x) (floor k 2) (* x a))))))
+      (expt0 n k 1)))
+  (integer-power 3 5))
+243
+
+(progn
+  (defun example (y l)
+    (flet ((attach (x)
+             (setq l (append l (list x)))))
+      (declare (inline attach))
+      (dolist (x y)
+        (unless (null (cdr x))
+          (attach x)))
+      l))
+  (example '((a apple apricot) (b banana) (c cherry) (d) (e))
+           '((1) (2) (3) (4 2) (5) (6 3 2))))
+((1) (2) (3) (4 2) (5) (6 3 2) (A APPLE APRICOT) (B BANANA) (C CHERRY))
 
 ;; Clean up.
-(progn (symbol-cleanup 'setf-foo) (symbol-cleanup 'bar) (symbol-cleanup 'x)) T
+(progn (symbol-cleanup 'setf-foo)
+       (symbol-cleanup 'bar)
+       (symbol-cleanup 'x)
+       (symbol-cleanup 'dummy-function)
+       (symbol-cleanup 'recursive-times)
+       (symbol-cleanup 'mlets)
+       (symbol-cleanup 'integer-power)
+       (symbol-cleanup 'example))
+T
