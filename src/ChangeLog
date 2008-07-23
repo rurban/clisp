@@ -1,9 +1,10 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
-	* init.lisp (cons-*fenv*): add
-	(%expand-form): use it
+	* init.lisp (cons-*fenv*, illegal-syntax): add
+	(%expand-form, %expand-fundefs-1, %expand-funmacdefs-1): use them
+	* macros3.lisp (expand-LETF*, expand-LETF): use ILLEGAL-SYNTAX
 	* compiler.lisp (add-fenv, c-FLET, c-FUNCTION-MACRO-LET)
-	(c-GENERIC-FLET, c-MACROLET): ditto
+	(c-GENERIC-FLET, c-MACROLET): use CONS-*FENV*
 
 2008-07-22  Sam Steingold  <sds@gnu.org>
 
