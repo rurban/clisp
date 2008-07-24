@@ -1,5 +1,10 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-LABELS, c-FLET, c-MACROLET): rework the "ANSI
+	SPECIAL declarations" patch to fix a LABELS flaw
+
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (check-fdef-name): add local macro
 	(c-FLET, c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
 	(c-GENERIC-LABELS): use it

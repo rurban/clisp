@@ -408,7 +408,7 @@ t
       (%m (t)))))
 nil
 
-;; macrolet.47
+;; macrolet.47, labels.47
 (let ((x :special))
   (declare (special x))
   (let ((x :lexical))
@@ -420,6 +420,13 @@ nil
   (declare (special x))
   (let ((x :lexical))
     (flet ((f () x))
+      (declare (special x))
+      (list x (f)))))
+(:SPECIAL :LEXICAL)
+(let ((x :special))
+  (declare (special x))
+  (let ((x :lexical))
+    (labels ((f () x))
       (declare (special x))
       (list x (f)))))
 (:SPECIAL :LEXICAL)
