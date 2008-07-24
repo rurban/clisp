@@ -1,3 +1,8 @@
+2008-07-24  Sam Steingold  <sds@gnu.org>
+
+	* utils/clispload.lsp (*expected-failures*): add eval-when.15 and
+	eval-when.17 (/= EVAL :EXECUTE) & (/= LOAD :LOAD-TOPLEVEL)
+
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-LABELS, c-FLET, c-MACROLET): rework the "ANSI
