@@ -5393,10 +5393,14 @@ for-value   NIL or T
                                            varlist anodelist)
                                  ,body-anode
                                  (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-               (closuredummy-add-stack-slot closurevars
-                                            closuredummy-stackz closuredummy-venvc)
+               (closuredummy-add-stack-slot closurevars closuredummy-stackz
+                                            closuredummy-venvc)
                (optimize-var-list varlist)
                anode)))
+  (macrolet ((check-fdef-name (caller fdef)
+               `(unless (and (consp ,fdef) (function-name-p (car ,fdef))
+                             (consp (cdr ,fdef)))
+                  (err-syntax ',caller ,fdef))))
 
 ;; compile (FLET ({fundef}*) {form}*)
 (defun c-FLET ()
@@ -5408,15 +5412,13 @@ for-value   NIL or T
            (L2 '()))
           ((null fdefsr) (values (nreverse L1) (nreverse L2)))
         (let ((fdef (car fdefsr)))
-          (if (and (consp fdef) (function-name-p (car fdef))
-                   (consp (cdr fdef)))
-            (let* ((name (car fdef))
-                   (fnode (c-lambdabody
-                            (symbol-suffix (fnode-name *func*) name)
-                            (add-implicit-block name (cdr fdef)))))
-              (push name L1)
-              (push fnode L2))
-            (err-syntax 'FLET fdef))))
+          (check-fdef-name FLET fdef)
+          (let* ((name (car fdef))
+                 (fnode (c-lambdabody
+                         (symbol-suffix (fnode-name *func*) name)
+                         (add-implicit-block name (cdr fdef)))))
+            (push name L1)
+            (push fnode L2))))
     ;; namelist = list of names, fnodelist = list of fnodes of the functions
     (with-bindings ((cddr *form*) body-rest)
       (let ((closuredummy-stackz *stackz*)
@@ -5472,29 +5474,27 @@ for-value   NIL or T
                (values (nreverse L1) (nreverse L2) (nreverse L3)
                        (nreverse L4) (nreverse L5)))
             (let ((fdef (car fdefsr)))
-              (if (and (consp fdef) (function-name-p (car fdef))
-                       (consp (cdr fdef)))
-                (let ((name (car fdef)))
-                  (push name L1)
-                  (push 1 *stackz*)
-                  (push (mk-var) L2)
-                  (push (symbol-suffix (fnode-name *func*) name) L3)
-                  (push (cdr fdef) L4)
-                  (push
-                    (cons
-                      ;; fdescr, consisting of:
-                      (cons nil ; room for the FNODE
-                        (cons 'LABELS
-                          (multiple-value-list ; values from c-analyze-lambdalist
-                            (c-analyze-lambdalist
-                             (if *defun-accept-specialized-lambda-list*
-                               (sys::specialized-lambda-list-to-ordinary
-                                 (cadr fdef) 'compile)
-                               (cadr fdef))))))
-                      ;; Variable
-                      (car L2))
-                    L5))
-                (err-syntax 'LABELS fdef))))
+              (check-fdef-name LABELS fdef)
+              (let ((name (car fdef)))
+                (push name L1)
+                (push 1 *stackz*)
+                (push (mk-var) L2)
+                (push (symbol-suffix (fnode-name *func*) name) L3)
+                (push (cdr fdef) L4)
+                (push
+                  (cons
+                    ;; fdescr, consisting of:
+                    (cons nil ; room for the FNODE
+                      (cons 'LABELS
+                        (multiple-value-list ; values from c-analyze-lambdalist
+                          (c-analyze-lambdalist
+                           (if *defun-accept-specialized-lambda-list*
+                             (sys::specialized-lambda-list-to-ordinary
+                               (cadr fdef) 'compile)
+                             (cadr fdef))))))
+                    ;; Variable
+                    (car L2))
+                  L5))))
         ;; namelist = list of names, varlist = list of variables,
         ;; lambdanamelist = list of Dummy-names of the functions,
         ;; lambdabodylist = list of Lambda-bodies of the functions,
@@ -5562,20 +5562,20 @@ for-value   NIL or T
           ((null funmacdefsr)
            (values (nreverse L1) (nreverse L2) (nreverse L3)))
         (let ((funmacdef (car funmacdefsr)))
-          (if (and (consp funmacdef)
-                   (symbolp (car funmacdef))
-                   (consp (cdr funmacdef)) (consp (second funmacdef))
-                   (consp (cddr funmacdef)) (consp (third funmacdef))
-                   (null (cdddr funmacdef)))
-            (let* ((name (car funmacdef))
-                   (fnode (c-lambdabody
-                            (symbol-suffix (fnode-name *func*) name)
-                            (second funmacdef)))
-                   (macro (make-funmacro-expander name (third funmacdef))))
-              (push name L1)
-              (push fnode L2)
-              (push macro L3))
-            (err-syntax 'SYSTEM::FUNCTION-MACRO-LET funmacdef))))
+          (unless (and (consp funmacdef)
+                       (symbolp (car funmacdef))
+                       (consp (cdr funmacdef)) (consp (second funmacdef))
+                       (consp (cddr funmacdef)) (consp (third funmacdef))
+                       (null (cdddr funmacdef)))
+            (err-syntax 'SYSTEM::FUNCTION-MACRO-LET funmacdef))
+          (let* ((name (car funmacdef))
+                 (fnode (c-lambdabody
+                         (symbol-suffix (fnode-name *func*) name)
+                         (second funmacdef)))
+                 (macro (make-funmacro-expander name (third funmacdef))))
+            (push name L1)
+            (push fnode L2)
+            (push macro L3))))
     ;; namelist  = list of names,
     ;; fnodelist = list of fnodes of the functions,
     ;; macrolist = list of Macro-Objects of the functions.
@@ -5632,17 +5632,15 @@ for-value   NIL or T
            (L3 '()))
           ((null fdefsr) (values (nreverse L1) (nreverse L2) (nreverse L3)))
         (let ((fdef (car fdefsr)))
-          (if (and (consp fdef) (function-name-p (car fdef))
-                   (consp (cdr fdef)))
-            (let ((name (first fdef)))
-              (push name L1)
-              (push (clos::defgeneric-lambdalist-callinfo 'clos:generic-flet
+          (check-fdef-name CLOS:GENERIC-FLET fdef)
+          (let ((name (first fdef)))
+            (push name L1)
+            (push (clos::defgeneric-lambdalist-callinfo 'clos:generic-flet
                       *form* name (second fdef))
-                    L2)
-              (push (clos::make-generic-function-form 'clos:generic-flet
-                      *form* name (second fdef) (cddr fdef))
-                    L3))
-            (err-syntax 'CLOS:GENERIC-FLET fdef))))
+                  L2)
+            (push (clos::make-generic-function-form
+                   'clos:generic-flet *form* name (second fdef) (cddr fdef))
+                  L3))))
     ;; namelist = list of Names,
     ;; signlist = list of Signatures of the generic functions,
     ;; formlist = list of Constructor-forms of the generic functions.
@@ -5695,24 +5693,23 @@ for-value   NIL or T
                (values (nreverse L1) (nreverse L2) (nreverse L3)
                        (nreverse L4)))
             (let ((fdef (car fdefsr)))
-              (if (and (consp fdef) (function-name-p (car fdef))
-                       (consp (cdr fdef)))
-                (let ((name (first fdef)))
-                  (push name L1)
-                  (push 1 *stackz*)
-                  (push (mk-var) L2)
-                  (push (cons
-                          ;; fdescr
-                          (list* nil 'GENERIC
-                                 (clos::defgeneric-lambdalist-callinfo
-                                   'clos:generic-labels *form* name (second fdef)))
-                          ;; Variable
-                          (car L2))
-                        L3)
-                  (push (clos::make-generic-function-form 'clos:generic-labels
-                          *form* name (second fdef) (cddr fdef))
-                        L4))
-                (err-syntax 'CLOS:GENERIC-LABELS fdef))))
+              (check-fdef-name CLOS:GENERIC-LABELS fdef)
+              (let ((name (first fdef)))
+                (push name L1)
+                (push 1 *stackz*)
+                (push (mk-var) L2)
+                (push (cons
+                        ;; fdescr
+                        (list* nil 'GENERIC
+                               (clos::defgeneric-lambdalist-callinfo
+                                 'clos:generic-labels *form* name (second fdef)))
+                        ;; Variable
+                        (car L2))
+                      L3)
+                (push (clos::make-generic-function-form
+                       'clos:generic-labels *form* name (second fdef)
+                       (cddr fdef))
+                      L4))))
         ;; namelist = liste of Names, varlist = list of Variables,
         ;; fenvconslist = list of Conses (fdescr . var) for *fenv*,
         ;; formlist = list of Constructor-Forms of the generic functions.
@@ -5741,7 +5738,7 @@ for-value   NIL or T
       (push name L2)
       (push (make-macro-expander macrodef *form*) L2))))
 
-) ; macrolet
+)) ; macrolet
 
 ;; compile (SYMBOL-MACROLET ({symdef}*) {declaration}* {form}*)
 (defun c-SYMBOL-MACROLET (&optional (c #'c-form))
