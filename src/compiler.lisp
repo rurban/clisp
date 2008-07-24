@@ -5356,27 +5356,27 @@ for-value   NIL or T
                :usedp t :for-value-usedp t :really-usedp nil
                :closurep nil ; later poss. set to T
                :stackz *stackz* :venvc *venvc* :fnode *func*))
-           (with-bindings-lite ((body body-rest) &body forms)
-             `(multiple-value-bind (,body-rest declarations) (parse-body ,body)
-                (let ((*denv* *denv*) (*venv* *venv*))
-                  (multiple-value-bind
-                        (*specials* *ignores* *ignorables* *readonlys* others)
-                      (process-declarations declarations)
-                    (push-specials) (push-*denv* others)
-                    ,@forms))))
-           (with-bindings ((body body-rest) &body forms)
-             `(multiple-value-bind (,body-rest declarations) (parse-body ,body)
+           (c-declarations (c declarations body-rest)
+             `(multiple-value-bind
+                    (*specials* *ignores* *ignorables* *readonlys* other-decls)
+                  (process-declarations ,declarations)
+                (push-specials) (push-*denv* other-decls)
+                ;; compile the remaining forms:
+                (funcall ,c `(PROGN ,@body-rest))))
+           (with-bindings ((body body-rest declarations mvb-var)
+                           mvb-form &body forms)
+             `(multiple-value-bind (,body-rest ,declarations)
+                  (parse-body ,body)
                 (let ((oldstackz *stackz*)
                       (*stackz* *stackz*)
                       (*denv* *denv*)
                       (*venvc* *venvc*)
                       (*venv* *venv*))
-                  (multiple-value-bind
-                        (*specials* *ignores* *ignorables* *readonlys* others)
-                      (process-declarations declarations)
-                    (push 0 *stackz*) (push nil *venvc*) ; for Closure-Dummyvar
-                    (push-specials) (push-*denv* others)
-                    ,@forms))))
+                  (push 0 *stackz*) (push nil *venvc*) ; for Closure-Dummyvar
+                  (let ((closuredummy-stackz *stackz*)
+                        (closuredummy-venvc *venvc*))
+                    (multiple-value-bind ,mvb-var ,mvb-form
+                      ,@forms)))))
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list varlist anodelist))
                      (anode
@@ -5406,148 +5406,141 @@ for-value   NIL or T
 (defun c-FLET ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (multiple-value-bind (namelist fnodelist)
-      (do ((fdefsr (second *form*) (cdr fdefsr))
-           (L1 '())
-           (L2 '()))
-          ((null fdefsr) (values (nreverse L1) (nreverse L2)))
-        (let ((fdef (car fdefsr)))
-          (check-fdef-name FLET fdef)
-          (let* ((name (car fdef))
-                 (fnode (c-lambdabody
-                         (symbol-suffix (fnode-name *func*) name)
-                         (add-implicit-block name (cdr fdef)))))
-            (push name L1)
-            (push fnode L2))))
-    ;; namelist = list of names, fnodelist = list of fnodes of the functions
-    (with-bindings ((cddr *form*) body-rest)
-      (let ((closuredummy-stackz *stackz*)
-            (closuredummy-venvc *venvc*))
-        (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
-            (do ((namelistr namelist (cdr namelistr))
-                 (fnodelistr fnodelist (cdr fnodelistr))
-                 (vfnodelist '())
-                 (varlist '())
-                 (anodelist '())
-                 (fenv '()))
-                ((null namelistr)
-                 (values (nreverse vfnodelist) (nreverse varlist)
-                         (nreverse anodelist)
-                         (sys::cons-*fenv* fenv)))
-              (push (car namelistr) fenv)
-              (let ((fnode (car fnodelistr)))
-                (if (zerop (fnode-keyword-offset fnode))
-                  ;; function-definition is autonomous
-                  (push (cons (list fnode) (new-const fnode)) fenv)
-                  (progn
-                    (push fnode vfnodelist)
-                    (push (c-fnode-function fnode) anodelist)
-                    (push 1 *stackz*)
-                    (let ((var (mk-var)))
-                      (push (cons (list fnode) var) fenv)
-                      (push var varlist))))))
-          (apply #'push-*venv* varlist) ; activate auxiliary variables
-          (let ((body-anode (c-form `(PROGN ,@body-rest)))) ; compile body
-            (unless *no-code*
-              (mapc #'(lambda (var fnode)
-                        (when (var-really-usedp var)
-                          (propagate-far-used fnode)))
-                    varlist vfnodelist))
-            (get-anode FLET)))))))
+  ;; namelist = list of names, fnodelist = list of fnodes of the functions
+  (with-bindings ((cddr *form*) body-rest declarations (namelist fnodelist))
+    (do ((fdefsr (second *form*) (cdr fdefsr))
+         (L1 '())               ; namelist
+         (L2 '()))              ; fnodelist
+        ((null fdefsr) (values (nreverse L1) (nreverse L2)))
+      (let ((fdef (car fdefsr)))
+        (check-fdef-name FLET fdef)
+        (let* ((name (car fdef))
+               (fnode (c-lambdabody
+                       (symbol-suffix (fnode-name *func*) name)
+                       (add-implicit-block name (cdr fdef)))))
+          (push name L1)
+          (push fnode L2))))
+    (multiple-value-bind (vfnodelist varlist anodelist *fenv*)
+        (do ((namelistr namelist (cdr namelistr))
+             (fnodelistr fnodelist (cdr fnodelistr))
+             (vfnodelist '())
+             (varlist '())
+             (anodelist '())
+             (fenv '()))
+            ((null namelistr)
+             (values (nreverse vfnodelist) (nreverse varlist)
+                     (nreverse anodelist)
+                     (sys::cons-*fenv* fenv)))
+          (push (car namelistr) fenv)
+          (let ((fnode (car fnodelistr)))
+            (if (zerop (fnode-keyword-offset fnode))
+              ;; function-definition is autonomous
+              (push (cons (list fnode) (new-const fnode)) fenv)
+              (progn
+                (push fnode vfnodelist)
+                (push (c-fnode-function fnode) anodelist)
+                (push 1 *stackz*)
+                (let ((var (mk-var)))
+                  (push (cons (list fnode) var) fenv)
+                  (push var varlist))))))
+      (apply #'push-*venv* varlist) ; activate auxiliary variables
+      (let ((body-anode (c-declarations #'c-form declarations body-rest)))
+        (unless *no-code*
+          (mapc #'(lambda (var fnode)
+                    (when (var-really-usedp var)
+                      (propagate-far-used fnode)))
+                varlist vfnodelist))
+        (get-anode FLET)))))
 
 ;; compile (LABELS ({fundef}*) {form}*)
 (defun c-LABELS ()
   (test-list *form* 2)
   (test-list (second *form*) 0)
-  (with-bindings ((cddr *form*) body-rest)
-    (let ((closuredummy-stackz *stackz*)
-          (closuredummy-venvc *venvc*))
-      (multiple-value-bind
-            (namelist varlist lambdanamelist lambdabodylist fenvconslist)
-          (do ((fdefsr (second *form*) (cdr fdefsr))
-               (L1 '())
-               (L2 '())
-               (L3 '())
-               (L4 '())
-               (L5 '()))
-              ((null fdefsr)
-               (values (nreverse L1) (nreverse L2) (nreverse L3)
-                       (nreverse L4) (nreverse L5)))
-            (let ((fdef (car fdefsr)))
-              (check-fdef-name LABELS fdef)
-              (let ((name (car fdef)))
-                (push name L1)
-                (push 1 *stackz*)
-                (push (mk-var) L2)
-                (push (symbol-suffix (fnode-name *func*) name) L3)
-                (push (cdr fdef) L4)
-                (push
-                  (cons
-                    ;; fdescr, consisting of:
-                    (cons nil ; room for the FNODE
-                      (cons 'LABELS
-                        (multiple-value-list ; values from c-analyze-lambdalist
-                          (c-analyze-lambdalist
-                           (if *defun-accept-specialized-lambda-list*
-                             (sys::specialized-lambda-list-to-ordinary
-                               (cadr fdef) 'compile)
-                             (cadr fdef))))))
-                    ;; Variable
-                    (car L2))
-                  L5))))
-        ;; namelist = list of names, varlist = list of variables,
-        ;; lambdanamelist = list of Dummy-names of the functions,
-        ;; lambdabodylist = list of Lambda-bodies of the functions,
-        ;; fenvconslist = list of Conses (fdescr . var) for *fenv*
-        ;; (fdescr still without fnode, which is inserted later).
-        (let ((*fenv* ; activate function-name
-                (add-fenv namelist fenvconslist)))
-          (apply #'push-*venv* varlist) ; activate auxiliary variables
-          (let* ((fnodelist ; compile functions
-                   (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
-                               (c-lambdabody
-                                 lambdaname
-                                 (add-implicit-block name lambdabody)
-                                 fenvcons))
-                           namelist lambdanamelist lambdabodylist
-                           fenvconslist))
-                 (anodelist
-                   (mapcar #'(lambda (fnode var)
-                               (c-fnode-function fnode (cdr (var-stackz var))))
-                           fnodelist varlist))
-                 (body-anode (c-form `(PROGN ,@body-rest)))) ; compile body
-            ;; the variables, for which the function was autonomous, are
-            ;; additionally declared as constants:
-            (do ((varlistr varlist (cdr varlistr))
-                 (fnodelistr fnodelist (cdr fnodelistr)))
-                ((null varlistr))
-              (let ((var (car varlistr))
-                    (fnode (car fnodelistr)))
-                (when (zerop (fnode-keyword-offset fnode))
-                  ;; function-definition is autonomous
-                  (setf (var-constantp var) t)
-                  (setf (var-constant var) (new-const fnode)))))
-            ;; Determine the functions which are really used.
-            ;; Functions with closure variables can pull in other functions.
-            (unless *no-code*
-              (let ((last-count 0))
-                (loop
-                  ;; Iterate as long as at least one function has been
-                  ;; pulled in.
-                  (when (eql last-count
-                             (setq last-count (count-if #'var-really-usedp
-                                                        varlist)))
-                    (return))
-                  (do ((varlistr varlist (cdr varlistr))
-                       (fnodelistr fnodelist (cdr fnodelistr)))
-                      ((null varlistr))
-                    (let ((var (car varlistr))
-                          (fnode (car fnodelistr)))
-                      (unless (zerop (fnode-keyword-offset fnode))
-                        ;; function with closure variables
-                        (when (var-really-usedp var)
-                          (propagate-far-used fnode))))))))
-            (get-anode LABELS)))))))
+  (with-bindings ((cddr *form*) body-rest declarations
+                  (namelist varlist lambdanamelist lambdabodylist fenvconslist))
+    (do ((fdefsr (second *form*) (cdr fdefsr))
+         (L1 '())               ; namelist
+         (L2 '())               ; varlist
+         (L3 '())               ; lambdanamelist
+         (L4 '())               ; lambdabodylist
+         (L5 '()))              ; fenvconslist
+        ((null fdefsr)
+         (values (nreverse L1) (nreverse L2) (nreverse L3)
+                 (nreverse L4) (nreverse L5)))
+      (let ((fdef (car fdefsr)))
+        (check-fdef-name LABELS fdef)
+        (let ((name (car fdef)))
+          (push name L1)
+          (push 1 *stackz*)
+          (push (mk-var) L2)
+          (push (symbol-suffix (fnode-name *func*) name) L3)
+          (push (cdr fdef) L4)
+          (push
+           (cons
+            ;; fdescr, consisting of:
+            (cons nil ; room for the FNODE
+              (cons 'LABELS
+                (multiple-value-list ; values from c-analyze-lambdalist
+                 (c-analyze-lambdalist
+                  (if *defun-accept-specialized-lambda-list*
+                      (sys::specialized-lambda-list-to-ordinary
+                       (cadr fdef) 'compile)
+                      (cadr fdef))))))
+            ;; Variable
+            (car L2))
+           L5))))
+    ;; namelist = list of names, varlist = list of variables,
+    ;; lambdanamelist = list of Dummy-names of the functions,
+    ;; lambdabodylist = list of Lambda-bodies of the functions,
+    ;; fenvconslist = list of Conses (fdescr . var) for *fenv*
+    ;; (fdescr still without fnode, which is inserted later).
+    (let ((*fenv* ; activate function-name
+           (add-fenv namelist fenvconslist)))
+      (apply #'push-*venv* varlist) ; activate auxiliary variables
+      (let* ((fnodelist ; compile functions
+              (mapcar #'(lambda (name lambdaname lambdabody fenvcons)
+                          (c-lambdabody
+                           lambdaname
+                           (add-implicit-block name lambdabody)
+                           fenvcons))
+                      namelist lambdanamelist lambdabodylist
+                      fenvconslist))
+             (anodelist
+              (mapcar #'(lambda (fnode var)
+                          (c-fnode-function fnode (cdr (var-stackz var))))
+                      fnodelist varlist))
+             (body-anode (c-declarations #'c-form declarations body-rest)))
+        ;; the variables, for which the function was autonomous, are
+        ;; additionally declared as constants:
+        (do ((varlistr varlist (cdr varlistr))
+             (fnodelistr fnodelist (cdr fnodelistr)))
+            ((null varlistr))
+          (let ((var (car varlistr))
+                (fnode (car fnodelistr)))
+            (when (zerop (fnode-keyword-offset fnode))
+              ;; function-definition is autonomous
+              (setf (var-constantp var) t)
+              (setf (var-constant var) (new-const fnode)))))
+        ;; Determine the functions which are really used.
+        ;; Functions with closure variables can pull in other functions.
+        (unless *no-code*
+          (let ((last-count 0))
+            (loop
+              ;; Iterate as long as at least one function has been pulled in.
+              (when (eql last-count
+                         (setq last-count (count-if #'var-really-usedp
+                                                    varlist)))
+                (return))
+              (do ((varlistr varlist (cdr varlistr))
+                   (fnodelistr fnodelist (cdr fnodelistr)))
+                  ((null varlistr))
+                (let ((var (car varlistr))
+                      (fnode (car fnodelistr)))
+                  (unless (zerop (fnode-keyword-offset fnode))
+                    ;; function with closure variables
+                    (when (var-really-usedp var)
+                      (propagate-far-used fnode))))))))
+        (get-anode LABELS)))))
 
 ;; compile
 ;; (SYS::FUNCTION-MACRO-LET ({(name fun-lambdabody macro-lambdabody)}) {form})
@@ -5729,10 +5722,10 @@ for-value   NIL or T
   (do ((L1 (second *form*) (cdr L1))
        (L2 '()))
       ((null L1)
-       (with-bindings-lite ((cddr *form*) body-rest)
-         (let ((*fenv* (sys::cons-*fenv* L2)))
-           ;; compile the remaining forms:
-           (funcall c `(PROGN ,@body-rest)))))
+       (multiple-value-bind (body-rest declarations) (parse-body (cddr *form*))
+         (let ((*denv* *denv*) (*venv* *venv*)
+               (*fenv* (sys::cons-*fenv* L2)))
+           (c-declarations c declarations body-rest))))
     (let* ((macrodef (car L1))
            (name (car macrodef)))
       (push name L2)
