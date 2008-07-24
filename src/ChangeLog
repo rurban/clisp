@@ -1,5 +1,9 @@
 2008-07-24  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp (format-logical-block-parse): uniform error messages
+
+2008-07-24  Sam Steingold  <sds@gnu.org>
+
 	* utils/clispload.lsp (*expected-failures*): add eval-when.15 and
 	eval-when.17 (/= EVAL :EXECUTE) & (/= LOAD :LOAD-TOPLEVEL)
 

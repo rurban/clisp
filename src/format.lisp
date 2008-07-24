@@ -1685,7 +1685,7 @@
                                   (csd-data (car csdl))))
              (pop csdl))
             (t (format-error 'error *FORMAT-CS* (csd-cs-index (car csdl))
-                 (TEXT "Prefix for logical block must be constant")))))
+                 (TEXT "Logical block prefix must be constant")))))
     (setq body-csdl (cdr csdl))
     (setq temp (csd-clause-chain (car csdl)))
     (unless (eq (csd-data (car temp)) 'FORMAT-JUSTIFICATION-END)
