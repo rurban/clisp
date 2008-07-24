@@ -3280,7 +3280,7 @@ global int main (argc_t argc, char* argv[]) {
   init_ffi();
  #endif
   init_other_modules_2();     /* initialize modules yet uninitialized */
-  {                           /* final module initializations: */
+  { /* final module initializations: */
     var module_t* module;     /* loop over modules */
     for_modules(all_other_modules,{
       if (module->initfunction2)
@@ -3289,8 +3289,7 @@ global int main (argc_t argc, char* argv[]) {
     });
   }
   run_hooks(Symbol_value(S(init_hooks)));
-  /* Init O(argv). */
-  {
+  { /* Init O(argv). */
     O(argv) = allocate_vector(argc);
     var argc_t count;
     for (count = 0; count < argc; count++) {
