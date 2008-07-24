@@ -78,6 +78,35 @@ nil
   (LET :COMPILE-TOPLEVEL :EXECUTE)
   (LET :COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)))
 
+;; eval-when.15: in CLISP LOAD is not the same as :LOAD-TOPLEVEL
+(let ((f "eval-when-test.lisp") (ret ()))
+  (dolist (situation '(load :load-toplevel) (nreverse ret))
+    (let ((*collector* ()))
+      (with-open-file (o f :direction :output)
+        (prin1 `(let ((x :let))
+                  (push (list (eval-when (,situation) (setq x :eval-when)) x)
+                        *collector*))
+               o))
+      (load f) (load (compile-file f))
+      (post-compile-file-cleanup f)
+      (push (nreverse *collector*) ret))))
+(((NIL :LET) (:EVAL-WHEN :EVAL-WHEN)) ((NIL :LET) (NIL :LET)))
+
+;; eval-when.17: in CLISP EVAL is not the same as :EXECUTE
+(let ((f "eval-when-test.lisp") (ret ()))
+  (dolist (situation '(eval :execute) (nreverse ret))
+    (let ((*collector* ()))
+      (with-open-file (o f :direction :output)
+        (prin1 `(let ((x :let))
+                  (push (list (eval-when (,situation) (setq x :eval-when)) x)
+                        *collector*))
+               o))
+      (load f) (load (compile-file f))
+      (post-compile-file-cleanup f)
+      (push (nreverse *collector*) ret))))
+(((:EVAL-WHEN :EVAL-WHEN) (NIL :LET))
+ ((:EVAL-WHEN :EVAL-WHEN) (:EVAL-WHEN :EVAL-WHEN)))
+
 ;; constantp
 
 (constantp 2)
@@ -265,6 +294,7 @@ NIL
 (progn (symbol-cleanup 'setf-foo)
        (symbol-cleanup 'bar)
        (symbol-cleanup 'x)
+       (symbol-cleanup '*collector*)
        (symbol-cleanup 'dummy-function)
        (symbol-cleanup 'recursive-times)
        (symbol-cleanup 'mlets)
