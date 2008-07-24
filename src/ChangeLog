@@ -1,5 +1,11 @@
 2008-07-23  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (check-fdef-name): add local macro
+	(c-FLET, c-LABELS, c-FUNCTION-MACRO-LET, c-GENERIC-FLET)
+	(c-GENERIC-LABELS): use it
+
+2008-07-23  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (%expand-form): FLET, LABELS, MACROLET
 	respect the SPECIAL declarations, as per ANSI
 	NOTE: FUNCTION-MACRO-LET still does NOT - it is our internal operator
