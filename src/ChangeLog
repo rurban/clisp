@@ -1,3 +1,11 @@
+2008-07-25  Sam Steingold  <sds@gnu.org>
+
+	* fill-out.lisp (stream-write-char): treat #\NO-BREAK_SPACE
+	specially: output a #\Space and reset PENDING-SPACE
+	* format.lisp (format-error): use #\NO-BREAK_SPACE instead of ~VT
+	for error message indentation (this fixes format error messages
+	broken by the introduction of fill-out.lisp on 2004-04-07)
+
 2008-07-24  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (format-logical-block-parse): uniform error messages

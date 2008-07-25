@@ -1,6 +1,6 @@
 ;;; filling/indenting stream
 ;;;
-;;; Copyright (C) 2004-2006 by Sam Steingold
+;;; Copyright (C) 2004-2008 by Sam Steingold
 ;;; Copyright (C) 2004 by Bruno Haible
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
@@ -120,6 +120,9 @@ T (same indentation as the text, i.e., the same effect as #'IDENTITY).")
         (vector-push-extend ch buffer)
         (case ch
           (#\Newline (fill-stream-flush-buffer stream t))
+          (#\NO-BREAK_SPACE ; force indentation (see format.lisp:format-error)
+           (vector-push-extend #\Space buffer)
+           (setq pending-space nil))
           ((#\Space #\Tab)
            (when (plusp (length buffer))
              (fill-stream-flush-buffer stream nil))
