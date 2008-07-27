@@ -1,3 +1,8 @@
+2008-07-27  Sam Steingold  <sds@gnu.org>
+
+	* hashtabl.d (hashcode_pathname): extracted
+	(hashcode3_atom, hashcode3stable_atom): use it
+
 2008-07-26  Sam Steingold  <sds@gnu.org>
 
 	* control.d (skip_declarations): remove
