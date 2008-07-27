@@ -1489,7 +1489,8 @@ global /*maygc*/ bool hash_lookup_builtin_with_rehash (object ht, object obj, bo
              or an arbitrary element of the "list" starting there
  can trigger GC - if allowgc is true */
 global maygc bool hash_lookup_user (object ht, object obj, bool allowgc,
-                                    gcv_object_t** KVptr_, gcv_object_t** Iptr_) {
+                                    gcv_object_t** KVptr_, gcv_object_t** Iptr_)
+{
   ASSERT(allowgc);
   pushSTACK(ht); pushSTACK(obj);
   if (!ht_validp(TheHashtable(ht))) /* hash-table must be reorganized */
