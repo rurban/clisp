@@ -547,7 +547,8 @@ local uint32 hashcode_pathname (object obj) { /* obj is a pathname! */
 #undef hashcode_pathcomp
 
 /* atom -> differentiation by type */
-local uint32 hashcode3_atom (object obj) {
+local uint32 hashcode3_atom (object obj, int level) {
+  unused(level); /* recursion is possible only on conses, not HTs & arrays */
  #ifdef TYPECODES
   if (symbolp(obj)) {           /* a symbol? */
     return hashcode1(obj);      /* yes -> take EQ-hashcode */
@@ -605,39 +606,40 @@ local uint32 hashcode3_atom (object obj) {
  > need : how many objects are still needed
  > level : the current distance from the root, to avoid circularity
  > hashcode_atom : how to compute the hash code of a leaf */
-#define HASHCODE_TREE_MAX_LEVEL 16
-#define HASHCODE_TREE_NEED_LEAVES 16
+#define HASHCODE_MAX_LEVEL 16
+#define HASHCODE_NEED_LEAVES 16
 local inline uint32 hashcode_tree_rec (object obj, int* need, int level,
-                                       uint32 (hashcode_leaf) (object)) {
+                                       uint32 (hashcode_leaf) (object, int)) {
   if (atomp(obj)) {
     (*need)--;
-    return hashcode_leaf(obj);
-  } else if (level > HASHCODE_TREE_MAX_LEVEL || *need == 0) {
+    return hashcode_leaf(obj,level+1);
+  } else if (level > HASHCODE_MAX_LEVEL || *need == 0) {
     return 1;
   } else {
     var local const uint8 shifts[4] = { 16 , 7 , 5 , 3 };
-    var uint32 car_code = hashcode_tree_rec(Car(obj),need,level+1,hashcode_leaf);
+    var uint32 car_code =
+      hashcode_tree_rec(Car(obj),need,level+1,hashcode_leaf);
     var uint32 cdr_code = *need == 0 ? 1 :
       hashcode_tree_rec(Cdr(obj),need,level+1,hashcode_leaf);
     return rotate_left(shifts[level & 3],car_code) ^ cdr_code;
   }
 }
-local inline uint32 hashcode_tree (object obj,  uint32 (hashcode_leaf) (object))
-{
-  int need = HASHCODE_TREE_NEED_LEAVES;
-  return hashcode_tree_rec(obj,&need,0,hashcode_leaf);
+local inline uint32 hashcode_tree (object obj, int level,
+                                   uint32 (hashcode_leaf) (object, int)) {
+  int need = HASHCODE_NEED_LEAVES;
+  return hashcode_tree_rec(obj,&need,level,hashcode_leaf);
 }
 
 /* similar to hashcode_tree
- NB: use the SAME top-level need initial value (e.g., HASHCODE_TREE_NEED_LEAVES)
-     for the corresponding hashcode_tree and gcinvariant_hashcode_tree_p calls */
+ NB: use the SAME top-level need initial value (e.g., HASHCODE_NEED_LEAVES)
+   for the corresponding hashcode_tree and gcinvariant_hashcode_tree_p calls */
 local inline bool gcinvariant_hashcode_tree_p_rec
 (object obj, int* need, int level,
  bool (gcinvariant_hashcode_leaf_p) (object)) {
   if (atomp(obj)) {
     (*need)--;
     return gcinvariant_hashcode_leaf_p(obj);
-  } else if (level > HASHCODE_TREE_MAX_LEVEL || *need == 0) {
+  } else if (level > HASHCODE_MAX_LEVEL || *need == 0) {
     return true;
   } else {
     return gcinvariant_hashcode_tree_p_rec(Car(obj),need,level+1,
@@ -649,15 +651,13 @@ local inline bool gcinvariant_hashcode_tree_p_rec
 }
 local inline bool gcinvariant_hashcode_tree_p
 (object obj, bool (gcinvariant_hashcode_leaf_p) (object)) {
-  int need = HASHCODE_TREE_NEED_LEAVES;
+  int need = HASHCODE_NEED_LEAVES;
   return gcinvariant_hashcode_tree_p_rec(obj,&need,0,
                                          gcinvariant_hashcode_leaf_p);
 }
-#undef HASHCODE_TREE_MAX_LEVEL
-#undef HASHCODE_TREE_NEED_LEAVES
 
 global uint32 hashcode3 (object obj)
-{ return hashcode_tree(obj,hashcode3_atom); }
+{ return hashcode_tree(obj,0,hashcode3_atom); }
 
 /* Tests whether hashcode3 of an object is guaranteed to be GC-invariant. */
 global bool gcinvariant_hashcode3_p (object obj);
@@ -709,7 +709,8 @@ global bool gcinvariant_hashcode3_p (object obj)
  < result: hashcode, a 32-Bit-number */
 global uint32 hashcode3stable (object obj);
 /* atom -> differentiation by type */
-local uint32 hashcode3stable_atom (object obj) {
+local uint32 hashcode3stable_atom (object obj, int level) {
+  unused(level); /* recursion is possible only on conses, not HTs & arrays */
  #ifdef TYPECODES
   if (symbolp(obj)) {           /* a symbol? */
     return hashcode1stable(obj); /* yes -> take EQ-hashcode */
@@ -760,7 +761,7 @@ local uint32 hashcode3stable_atom (object obj) {
 }
 
 global uint32 hashcode3stable (object obj)
-{ return hashcode_tree(obj,hashcode3stable_atom); }
+{ return hashcode_tree(obj,0,hashcode3stable_atom); }
 
 /* Tests whether hashcode3stable of an object is guaranteed to be
    GC-invariant. */
@@ -809,6 +810,7 @@ global bool gcinvariant_hashcode3stable_p (object obj)
  of the object.
  (equalp X Y) implies (= (hashcode4 X) (hashcode4 Y)). */
 global uint32 hashcode4 (object obj);
+#define hashcode4_(obj)  hashcode_tree(obj,level+1,hashcode4_atom);
 /* auxiliary functions for known type:
  character -> case-insensitive. */
 #define hashcode4_char(c)  (0xCAAEACEFUL + (uint32)as_cint(up_case(c)))
@@ -816,9 +818,10 @@ global uint32 hashcode4 (object obj);
 extern uint32 hashcode4_real (object obj); /* see REALELEM.D */
 extern uint32 hashcode4_uint32 (uint32 x); /* see REALELEM.D */
 extern uint32 hashcode4_uint4 [16];        /* see REALELEM.D */
+local uint32 hashcode4_atom (object obj, int level);
 /* vectors: look at them component-wise */
 local uint32 hashcode4_vector_T (object dv, uintL index,
-                                 uintL count, uint32 bish_code);
+                                 uintL count, uint32 bish_code, int level);
 local uint32 hashcode4_vector_Char (object dv, uintL index,
                                     uintL count, uint32 bish_code);
 local uint32 hashcode4_vector_Bit (object dv, uintL index,
@@ -834,14 +837,14 @@ local uint32 hashcode4_vector_16Bit (object dv, uintL index,
 local uint32 hashcode4_vector_32Bit (object dv, uintL index,
                                      uintL count, uint32 bish_code);
 local uint32 hashcode4_vector (object dv, uintL index,
-                               uintL count, uint32 bish_code);
+                               uintL count, uint32 bish_code, int level);
 local uint32 hashcode4_vector_T (object dv, uintL index,
-                                 uintL count, uint32 bish_code) {
+                                 uintL count, uint32 bish_code, int level) {
   if (count > 0) {
     check_SP();
     var const gcv_object_t* ptr = &TheSvector(dv)->data[index];
     dotimespL(count,count, {
-      var uint32 next_code = hashcode4(*ptr++); /* next component's hashcode */
+      var uint32 next_code = hashcode4_(*ptr++); /* next component's hashcode */
       bish_code = misch(bish_code,next_code);   /* add */
     });
   }
@@ -936,10 +939,11 @@ local uint32 hashcode4_vector_32Bit (object dv, uintL index,
   return bish_code;
 }
 local uint32 hashcode4_vector (object dv, uintL index,
-                               uintL count, uint32 bish_code) {
+                               uintL count, uint32 bish_code, int level) {
+  if (count > HASHCODE_NEED_LEAVES) count = HASHCODE_NEED_LEAVES;
   switch (Array_type(dv)) {
     case Array_type_svector:    /* simple-vector */
-      return hashcode4_vector_T(dv,index,count,bish_code);
+      return hashcode4_vector_T(dv,index,count,bish_code,level);
     case Array_type_sbvector:   /* simple-bit-vector */
       return hashcode4_vector_Bit(dv,index,count,bish_code);
     case Array_type_sb2vector:
@@ -962,7 +966,7 @@ local uint32 hashcode4_vector (object dv, uintL index,
   }
 }
 /* atom -> differentiation by type */
-local uint32 hashcode4_atom (object obj) {
+local uint32 hashcode4_atom (object obj, int level) {
  #ifdef TYPECODES
   if (symbolp(obj)) {           /* a symbol? */
     return hashcode1(obj);      /* yes -> take EQ-hashcode */
@@ -1004,11 +1008,13 @@ local uint32 hashcode4_atom (object obj) {
     case_vector: {              /* (VECTOR T), (VECTOR NIL) */
       /* look at it component-wise: */
       var uintL len = vector_length(obj); /* length */
-      var uintL index = 0;
-      var object dv = array_displace_check(obj,len,&index);
-      /* dv is the data-vector, index is the index into the data-vector. */
       var uint32 bish_code = 0x724BD24EUL + len; /* utilize length */
-      return hashcode4_vector(dv,index,len,bish_code);
+      if (level <= HASHCODE_MAX_LEVEL) {
+        var uintL index = 0;
+        var object dv = array_displace_check(obj,len,&index);
+        /* dv is the data-vector, index is the index into the data-vector. */
+        return hashcode4_vector(dv,index,len,bish_code,level+1);
+      } else return bish_code;
     }
     case_mdarray: {             /* array with rank /=1 */
       /* rank and dimensions, then look at it component-wise: */
@@ -1025,12 +1031,12 @@ local uint32 hashcode4_atom (object obj) {
           });
         }
       }
-      {
+      if (level <= HASHCODE_MAX_LEVEL) {
         var uintL len = TheIarray(obj)->totalsize;
         var uintL index = 0;
         var object dv = iarray_displace_check(obj,len,&index);
-        return hashcode4_vector(dv,index,len,bish_code);
-      }
+        return hashcode4_vector(dv,index,len,bish_code,level+1);
+      } else return bish_code;
     }
    #ifdef TYPECODES
     _case_structure
@@ -1065,19 +1071,18 @@ local uint32 hashcode4_atom (object obj) {
        #endif
         default: ;
       }
-    /* FIXME: The case that obj is a hash-table should be handled specially. */
-    {                           /* look at flags, type, components: */
+    { /* look at flags, type, components: */
       var uintC len = SXrecord_nonweak_length(obj);
       var uint32 bish_code =
         0x03168B8D + (Record_flags(obj) << 24) + (Record_type(obj) << 16) + len;
-      if (len > 0) {
+      if (level <= HASHCODE_MAX_LEVEL && len > 0) {
         check_SP();
         var const gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
-        var uintC count;
-        dotimespC(count,len, {
-          var uint32 next_code = hashcode4(*ptr++); /* next component's hashcode */
+        var uintC count = MIN(len,HASHCODE_NEED_LEAVES);
+        do {
+          var uint32 next_code = hashcode4_(*ptr++); /* next component's hashcode */
           bish_code = misch(bish_code,next_code);   /* add */
-        });
+        } while (--count);
       }
       if (Record_type(obj) >= rectype_limit) {
         var uintC xlen = Xrecord_xlength(obj);
@@ -1108,9 +1113,11 @@ local uint32 hashcode4_atom (object obj) {
     default: NOTREACHED;
   }
 }
+#undef HASHCODE_MAX_LEVEL
+#undef HASHCODE_NEED_LEAVES
 
 global uint32 hashcode4 (object obj)
-{ return hashcode_tree(obj,hashcode4_atom); }
+{ return hashcode_tree(obj,0,hashcode4_atom); }
 
 /* Tests whether hashcode4 of an object is guaranteed to be GC-invariant. */
 global bool gcinvariant_hashcode4_p (object obj);
@@ -2723,7 +2730,8 @@ LISPFUN(class_tuple_gethash,seclass_default,2,0,rest,nokey,0,NIL) {
 local uint32 sxhash (object obj);
 /* auxiliary functions for known type:
  atom -> fall differentiation by type */
-local uint32 sxhash_atom (object obj) {
+local uint32 sxhash_atom (object obj, int level) {
+  unused(level); /* recursion is possible only on conses, not HTs & arrays */
   #ifdef TYPECODES
   switch (typecode(obj))        /* per type */
   #else
@@ -2910,7 +2918,7 @@ local uint32 sxhash_atom (object obj) {
   }
 }
 local uint32 sxhash (object obj)
-{ return hashcode_tree(obj,sxhash_atom); }
+{ return hashcode_tree(obj,0,sxhash_atom); }
 
 LISPFUNN(sxhash,1)
 { /* (SXHASH object), CLTL p. 285 */

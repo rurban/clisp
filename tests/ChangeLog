@@ -1,3 +1,7 @@
+2008-07-27  Sam Steingold  <sds@gnu.org>
+
+	* hashtable.tst: test support for circular keys
+
 2008-07-24  Sam Steingold  <sds@gnu.org>
 
 	* eval20.tst: add tests based on ansi-tests eval-when.15 & eval-when.17
