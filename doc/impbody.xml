@@ -2890,6 +2890,19 @@ etc.</para>
 
 <chapter id="hash"><title>Hash Tables <ulink role="clhs" url="chap-18"/></title>
 
+<section id="hash-mod-key"><title>Modifying Hash Table Keys
+  <ulink role="clhs" url="sec_18-1-2"/></title>
+<para>If you <quote>visibly modify</quote> a key, consequences are
+ unpredictable:<programlisting language="lisp">
+(&let; ((&ht-r; (&make-hash-table; :test '&equalp;)))
+  (&setf; (&gethash; &ht-r; &ht-r;) &t;)
+  (&gethash; &ht-r; &ht-r;))
+<computeroutput>&nil;</computeroutput>
+<computeroutput>&nil;</computeroutput></programlisting>
+ because <code>(&setf; &gethash;)</code> modifies &ht-r;, the very next
+ &gethash; does not find inside itself.</para>
+</section>
+
 <section id="make-hash"><title>Function &make-hash-table;</title>
 
 <para>&make-hash-table; accepts two additional keyword arguments
