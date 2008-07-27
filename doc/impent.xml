@@ -707,6 +707,7 @@
 <!ENTITY gid-r '<replaceable>gid</replaceable>'>
 <!ENTITY hash-f '<replaceable>hash-function</replaceable>'>
 <!ENTITY host-r '<replaceable>host</replaceable>'>
+<!ENTITY ht-r '<replaceable>hash-table</replaceable>'>
 <!ENTITY hw '<replaceable>hardware</replaceable>'>
 <!ENTITY i-r '<replaceable>i</replaceable>'>
 <!ENTITY ident1-r '<replaceable>ident&sub-1;</replaceable>'>
