@@ -1,3 +1,11 @@
+2008-07-26  Sam Steingold  <sds@gnu.org>
+
+	* control.d (skip_declarations): remove
+	(finish_flet): rename the last argument and revert its meaning
+	(FLET, MACROLET, FUNCTION-MACRO-LET): update finish_flet calls
+	NB: FUNCTION-MACRO-LET now barfs on declarations in both compiled
+	and interpreted code
+
 2008-07-25  Sam Steingold  <sds@gnu.org>
 
 	* fill-out.lisp (stream-write-char): treat #\NO-BREAK_SPACE
@@ -5143,8 +5151,8 @@
 
 	fix bug #[ 1482465 ]: confusing format error report, cause fill-stream
 	* format.lisp (format-error): use ~T for indentation and ~S to
-	print format string so thhat the spacing is preserved
-	* constsym.d (stream_start_s_expression, stream_end_s_expression): added
+	print format string so that the spacing is preserved
+	* constsym.d (stream_start_s_expression, stream_end_s_expression): add
 	* io.d (write_spaces): use check_posfixnum
 	(FORMAT-TABULATE): use check_posfixnum
 	call STREAM-START-S-EXPRESSION and STREAM-END-S-EXPRESSION around
