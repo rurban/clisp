@@ -533,6 +533,19 @@ global uint32 hashcode4 (object obj);
 #else
 #define hashcode_pathcomp(obj)  hashcode3(obj)
 #endif
+local uint32 hashcode_pathname (object obj) { /* obj is a pathname! */
+  check_SP();
+  var uint32 bish_code = 0xB0DD939EUL;
+  var const gcv_object_t* ptr = ((Record)ThePathname(obj))->recdata;
+  var uintC count = Xrecord_length(obj);
+  do {
+    var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
+    bish_code = misch(bish_code,next_code);           /* add */
+  } while (--count);
+  return bish_code;
+}
+#undef hashcode_pathcomp
+
 /* atom -> differentiation by type */
 local uint32 hashcode3_atom (object obj) {
  #ifdef TYPECODES
@@ -548,17 +561,8 @@ local uint32 hashcode3_atom (object obj) {
       return hashcode_bvector(obj); /* look at it component-wise */
     if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
       return hashcode_string(obj); /* look at it component-wise */
-    if (xpathnamep(obj)) { /* -> look at it component-wise: */
-      check_SP();
-      var uint32 bish_code = 0xB0DD939EUL;
-      var const gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
-      var uintC count;
-      dotimespC(count,Xrecord_length(obj), {
-        var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
-        bish_code = misch(bish_code,next_code);           /* add */
-      });
-      return bish_code;
-    }
+    if (xpathnamep(obj))           /* look at it component-wise */
+      return hashcode_pathname(obj);
     /* else: take EQ-hashcode (for characters: EQL == EQ) */
     return hashcode1(obj);
   }
@@ -581,17 +585,8 @@ local uint32 hashcode3_atom (object obj) {
      #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
      #endif
-      case Rectype_Pathname: { /* pathname -> look at it component-wise: */
-        check_SP();
-        var uint32 bish_code = 0xB0DD939EUL;
-        var gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
-        var uintC count;
-        dotimespC(count,Xrecord_length(obj), {
-          var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
-          bish_code = misch(bish_code,next_code);           /* add */
-        });
-        return bish_code;
-      }
+      case Rectype_Pathname:    /* look at it component-wise */
+        return hashcode_pathname(obj);
       default:
         break;
     }
@@ -728,17 +723,8 @@ local uint32 hashcode3stable_atom (object obj) {
       return hashcode_bvector(obj); /* look at it component-wise */
     if (type == (sstring_type & ~bit(notsimple_bit_t))) /* string ? */
       return hashcode_string(obj); /* look at it component-wise */
-    if (xpathnamep(obj)) { /* -> look at it component-wise: */
-      check_SP();
-      var uint32 bish_code = 0xB0DD939EUL;
-      var const gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
-      var uintC count;
-      dotimespC(count,Xrecord_length(obj), {
-        var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
-        bish_code = misch(bish_code,next_code);           /* add */
-      });
-      return bish_code;
-    }
+    if (xpathnamep(obj))           /* look at it component-wise */
+      return hashcode_pathname(obj);
     /* else: take EQ-hashcode (for characters: EQL == EQ) */
     return hashcode1stable(obj);
   }
@@ -761,17 +747,8 @@ local uint32 hashcode3stable_atom (object obj) {
      #ifdef LOGICAL_PATHNAMES
       case Rectype_Logpathname:
      #endif
-      case Rectype_Pathname: { /* pathname -> look at it component-wise: */
-        check_SP();
-        var uint32 bish_code = 0xB0DD939EUL;
-        var gcv_object_t* ptr = &((Record)ThePathname(obj))->recdata[0];
-        var uintC count;
-        dotimespC(count,Xrecord_length(obj), {
-          var uint32 next_code = hashcode_pathcomp(*ptr++); /* hashcode of the next component */
-          bish_code = misch(bish_code,next_code);           /* add */
-        });
-        return bish_code;
-      }
+      case Rectype_Pathname:    /* look at it component-wise */
+        return hashcode_pathname(obj);
       default:
         break;
     }
