@@ -1,5 +1,23 @@
 2008-07-27  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 2029069 ]: stack overflow with gethash
+	* hashtabl.d (hashcode3_atom, hashcode3stable_atom, sxhash_atom):
+	accept level argument (ignore it because EQUAL hash code does not
+	recurse on atoms)
+	(HASHCODE_MAX_LEVEL): rename from HASHCODE_TREE_MAX_LEVEL
+	(HASHCODE_NEED_LEAVES): rename from HASHCODE_TREE_NEED_LEAVES
+	(hashcode_tree_rec): pass level+1 to hashcode_leaf
+	(hashcode_tree): accept level argument
+	(hashcode3, hashcode3stable, hashcode4, sxhash): pass level=0 to
+	hashcode_tree()
+	(hashcode4_): new macro: like hashcode4(), but pass level+1 to
+	hashcode_tree()
+	(hashcode4_atom, hashcode4_vector, hashcode4_vector_T): accept
+	level argument
+	(hashcode4_vector): limit count to HASHCODE_NEED_LEAVES
+
+2008-07-27  Sam Steingold  <sds@gnu.org>
+
 	* hashtabl.d (hashcode_pathname): extracted
 	(hashcode3_atom, hashcode3stable_atom): use it
 

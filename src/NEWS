@@ -31,6 +31,7 @@ Important notes
     interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]
     Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
   + Fixed input after switching a :DOS stream to binary. [ 2022362 ]
+  + Support circular objects in EQUAL and EQUALP hash-tables. [ 2029069 ]
 
 * ANSI compliance:
   + The sets of declaration and type names are disjoint.
