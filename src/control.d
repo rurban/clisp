@@ -842,25 +842,17 @@ nonreturning_function(local, error_funspec, (object caller, object obj)) {
   error(source_program_error,GETTEXT("~S: ~S is not a function specification"));
 }
 
-/* skip all declarations from the body:
- descructively modifies BODY to remove (DECLARE ...)
- statements from its beginning */
-local void skip_declarations (object* body) {
-  while (consp(*body) && consp(Car(*body)) && eq(S(declare),Car(Car(*body))))
-    *body = Cdr(*body);
-}
-
 /* UP: Finishes a FLET/MACROLET.
  finish_flet(top_of_frame,body,ignore_declarations);
  > stack layout: [top_of_frame] def1 name1 ... defn namen [STACK]
  > top_of_frame: pointer to frame
  > body: list of forms
- > ignore_declarations: flag: if true, declarations are ignored
-     (for FUNCTION-MACRO-LET) otherwise respected (for FLET & MACROLET)
+ > accept_declarations: flag: if true, declarations are respected
+     (for FLET & MACROLET), otherwise C_declare barfs (for FUNCTION-MACRO-LET)
  < mv_count/mv_space: values
  can trigger GC */
 local maygc Values finish_flet (gcv_object_t* top_of_frame, object body,
-                                bool ignore_declarations) {
+                                bool accept_declarations) {
   {
     var uintL bindcount = /* number of bindings */
       STACK_item_count(STACK,top_of_frame) / 2;
@@ -880,14 +872,14 @@ local maygc Values finish_flet (gcv_object_t* top_of_frame, object body,
     aktenv.fun_env = make_framepointer(top_of_frame);
   }
   /* allow declarations, as per ANSI CL */
-  if (!ignore_declarations) {
+  if (accept_declarations) {
     parse_doc_decl(body,false); /* ignore to_compile */
     make_vframe_activate();
     body = popSTACK();
-  } else skip_declarations(&body);
+  }
   /* execute forms: */
   implicit_progn(body,NIL);
-  if (!ignore_declarations) {
+  if (accept_declarations) {
     unwind(); /* unwind VENV-binding frame */
     unwind(); /* unwind variable binding frame */
   }
@@ -929,7 +921,7 @@ LISPSPECFORM(flet, 1,0,body)
     pushSTACK(fun); /* as "value" the closure */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body,false);
+  return_Values finish_flet(top_of_frame,body,true);
 }
 
 LISPSPECFORM(labels, 1,0,body)
@@ -1065,7 +1057,7 @@ LISPSPECFORM(macrolet, 1,0,body)
     pushSTACK(value1); /* as "value" the cons with the expander */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body,false);
+  return_Values finish_flet(top_of_frame,body,true);
 }
 
 LISPSPECFORM(function_macro_let, 1,0,body)
@@ -1123,7 +1115,7 @@ LISPSPECFORM(function_macro_let, 1,0,body)
     pushSTACK(value1); /* as "value" the FunctionMacro */
     pushSTACK(name); /* name, binding is automatically active */
   }
-  return_Values finish_flet(top_of_frame,body,true);
+  return_Values finish_flet(top_of_frame,body,false);
 }
 
 LISPSPECFORM(symbol_macrolet, 1,0,body)
