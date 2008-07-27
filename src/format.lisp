@@ -301,9 +301,6 @@
 (defvar *FORMAT-NEXT-ARGLIST*) ; pointer to next sublist in ~:{ iteration
 (defvar *FORMAT-UP-AND-OUT* nil) ; reason for up-and-out
 
-;; see fill-out.lisp:stream-write-char
-(defun nbsp (len) (make-string len :initial-element #\NO-BREAK_SPACE))
-
 ;; (format-error type {keyword value}* control-string errorpos errorstring . arguments)
 ;; signals an Error of the given type, that occurred in FORMAT. The position
 ;; in the Control-string is marked with an arrow.
@@ -326,13 +323,12 @@
           (loop
             (setq pos2 (or (position #\Newline control-string :start pos1)
                            (length control-string)))
-            (setq errorstring (string-concat errorstring "~%" (nbsp 2) "~S"))
+            (setq errorstring (string-concat errorstring "~%~2T~S"))
             (setq arguments
               (nconc arguments (list (substring control-string pos1 pos2))))
             (when (<= pos1 errorpos pos2)
-              (setq errorstring
-                    (string-concat errorstring "~%"
-                                   (nbsp (+ (- errorpos pos1) 3)) "|")))
+              (setq errorstring (string-concat errorstring "~%~VT" "|"))
+              (setq arguments (nconc arguments (list (+ (- errorpos pos1) 3)))))
             (when (= pos2 (length control-string)) (return))
             (setq pos1 (+ pos2 1)))))
       (apply #'error-of-type
