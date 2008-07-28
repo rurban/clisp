@@ -237,6 +237,17 @@
   <listitem><simpara>Call <function role="unix">fcntl</function>,
     &command-r; can be <constant>:FD</constant> or <constant>:FL</constant>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="file-size">
+  <term><code>(OS:FILE-SIZE &file-r;)</code></term>
+  <term><code>(&setf; (OS:FILE-SIZE &file-r;) &size-r;)</code></term>
+  <listitem><simpara>Extend &file-length; to operate on &path-des;s.</simpara>
+   <simpara>Set the &size-r; of a &file-r; using
+    <function role="unix">ftruncate</function> (if &file-r; is an open
+    &file-stream-t;) or <function role="unix">truncate</function> (if
+    &file-r; is a &path-des;).</simpara>
+   <simpara>Use <function role="win32">SetFilePointerEx</function>
+    and <function role="win32">SetEndOfFile</function> on &win32;.
+ </simpara></listitem></varlistentry>
  <varlistentry id="mknod"><term><code>(<function>POSIX:MKNOD</function>
     &path-r; &type-r; &mode-r;)</code></term>
  <listitem><simpara>Create a special file using
