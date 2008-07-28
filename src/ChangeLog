@@ -1,3 +1,8 @@
+2008-07-28 Reini Urban  <rurban@x-ray.at>
+
+	<37_runprog>
+	* runprog.lisp: Translate comments to English.
+
 2008-07-28  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (builtin_stream_p): do not export

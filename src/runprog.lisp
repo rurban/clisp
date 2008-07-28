@@ -181,8 +181,8 @@
       (setf command (string-concat "start " command)))
     #+UNIX
     (when may-exec
-      ; Wenn die ausführende Shell die "/bin/sh" ist und command eine
-      ; "simple command" im Sinne von sh(1), können wir ein wenig optimieren:
+      ;; If the executing shell is "/bin/sh" and command is a
+      ;; "simple command" in the sense of sh(1), we can optimize it a bit:
       (setq command (string-concat "exec " command))
     )
     #+WIN32
@@ -196,8 +196,8 @@
       )
       (if (eq output ':STREAM)
         (make-pipe-input-stream command)
-        (shell command) ; unter UNIX evtl. " &" anfügen, um Hintergrund-Prozess zu bekommen
-    ) )
+        (shell command) ; TODO: under UNIX we could eventually add a " &"
+    ) )                 ; to run it as a background process.
   )
   (defun run-program (program &key (arguments '())
                                    (input ':terminal) (output ':terminal)
