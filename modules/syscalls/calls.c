@@ -404,13 +404,14 @@ DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
      http://msdn.microsoft.com/en-us/library/aa365531(VS.85).aspx */
   off_t length = I_to_offset(STACK_0);
   Handle fd;
-  STACK_0 = open_file_stream_handle(STACK_1,&fd,true);
+  /* both path_truncate & stream_truncate use STACK_0 for error reporting */
+  pushSTACK(open_file_stream_handle(STACK_1,&fd,true));
   if (eq(nullobj,STACK_0)) {    /* not a stream - use path */
-    with_string_0(STACK_0 = physical_namestring(STACK_1),
+    with_string_0(STACK_0 = physical_namestring(STACK_2),
                   GLO(pathname_encoding), namez,
         { path_truncate(namez,length); });
   } else stream_truncate(fd,length); /* stream - use fd */
-  skipSTACK(2); VALUES0;
+  VALUES1(STACK_1); skipSTACK(3);
 }
 
 #if defined(HAVE_STAT)
