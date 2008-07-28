@@ -2893,14 +2893,14 @@ etc.</para>
 <section id="hash-mod-key"><title>Modifying Hash Table Keys
   <ulink role="clhs" url="sec_18-1-2"/></title>
 <para>If you <quote>visibly modify</quote> a key, consequences are
- unpredictable:<programlisting language="lisp">
+ <emphasis>unpredictable</emphasis>:<programlisting language="lisp">
 (&let; ((&ht-r; (&make-hash-table; :test '&equalp;)))
   (&setf; (&gethash; &ht-r; &ht-r;) &t;)
   (&gethash; &ht-r; &ht-r;))
-<computeroutput>&nil;</computeroutput>
+<computeroutput>&nil;</computeroutput> ;
 <computeroutput>&nil;</computeroutput></programlisting>
  because <code>(&setf; &gethash;)</code> modifies &ht-r;, the very next
- &gethash; does not find inside itself.</para>
+ &gethash; does &not-e; find it in itself.</para>
 </section>
 
 <section id="make-hash"><title>Function &make-hash-table;</title>
