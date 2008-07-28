@@ -250,7 +250,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
     fd = (Handle)I_to_uint(STACK_5);
     stream = nullobj;
   } else
-    stream = open_file_stream_handle(STACK_5,&fd);
+    stream = open_file_stream_handle(STACK_5,&fd,false);
   if (missingp(STACK_0)) {     /* no :LENGTH => use file size */
     /* we use OS to get file size instead of calling FILE-LENGTH because
        on win32 FILE-LENGTH will fail with ERROR_LOCK_VIOLATION when the
@@ -351,6 +351,108 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
   skipSTACK(3);
 }
 #endif
+
+/* =========================== file truncate =========================== */
+/* truncate a file, STACK_0 = path */
+static void path_truncate (const char *path, off_t length) {
+  begin_system_call();
+#if 1 /*defined(HAVE_TRUNCATE)*/
+  if (truncate(path,length))
+    OS_file_error(STACK_0);
+#elif defined(WIN32_NATIVE)
+  HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                         FILE_ATTRIBUTE_NORMAL,NULL);
+  if (fd == INVALID_HANDLE_VALUE)
+    OS_file_error(STACK_0);
+  if (0 == SetFilePointerEx(fd,length,NULL,FILE_BEGIN))
+    OS_file_error(STACK_0);
+  if (0 == SetEndOfFile(fd))
+    OS_file_error(STACK_0);
+  if (0 == CloseHandle(fd))
+    OS_file_error(STACK_0);
+#else
+#error FILE-SIZE: no truncate and not woe32
+#endif
+  end_system_call();
+}
+
+/* truncate a stream, STACK_0 = stream */
+static void stream_truncate (Handle fd, off_t length) {
+  begin_system_call();
+#if 1 /*defined(HAVE_FTRUNCATE)*/
+  if (ftruncate(fd,length)) OS_file_error(STACK_0);
+#elif defined(WIN32_NATIVE)
+  LARGE_INTEGER cur_pos;
+  if (0 == SetFilePointerEx(fd,0,&cur_pos,FILE_CURRENT))
+    OS_filestream_error(STACK_0);
+  if (0 == SetFilePointerEx(fd,length,NULL,FILE_BEGIN))
+    OS_filestream_error(STACK_0);
+  if (0 == SetEndOfFile(fd))
+    OS_filestream_error(STACK_0);
+  if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
+    OS_filestream_error(STACK_0);
+#else
+#error FILE-SIZE: no ftruncate and not woe32
+#endif
+  end_system_call();
+}
+
+DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
+  /* http://www.opengroup.org/onlinepubs/009695399/functions/truncate.html
+     http://www.opengroup.org/onlinepubs/009695399/functions/ftruncate.html
+     http://msdn.microsoft.com/en-us/library/aa365542(VS.85).aspx
+     http://msdn.microsoft.com/en-us/library/aa365531(VS.85).aspx */
+  off_t length = I_to_offset(STACK_0);
+  Handle fd;
+  STACK_0 = open_file_stream_handle(STACK_1,&fd,true);
+  if (eq(nullobj,STACK_0)) {    /* not a stream - use path */
+    with_string_0(STACK_0 = physical_namestring(STACK_1),
+                  GLO(pathname_encoding), namez,
+        { path_truncate(namez,length); });
+  } else stream_truncate(fd,length); /* stream - use fd */
+  skipSTACK(2); VALUES0;
+}
+
+#if defined(HAVE_STAT)
+/* call stat() on the pathname
+ return the value returned by stat()
+ value1 = the actual pathname on which stat was called
+ can trigger GC */
+static int stat_obj (object path, struct stat *buf) {
+  int ret;
+  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
+      begin_system_call(); ret = stat(pathz,buf); end_system_call(); });
+  return ret;
+}
+#endif
+
+DEFUN(POSIX:FILE-SIZE, file) {
+  /* we could implement this in Lisp like this:
+     (defun file-size (file)
+       (handler-case (file-length file)
+         (file-error (c) (with-open-file (s file) (file-length s))))) */
+  off_t length;
+  Handle fd;
+  object stream = open_file_stream_handle(STACK_0,&fd,true);
+  if (eq(nullobj,stream)) {    /* not a stream - use path */
+   #if defined(HAVE_STAT)
+    struct stat stat;
+    if (stat_obj(STACK_0,&stat))
+      OS_file_error(value1);
+    length = stat.st_size;
+   #elif defined(WIN32_NATIVE)
+    with_string_0(value1 = physical_namestring(STACK_0),
+                  GLO(pathname_encoding), namez,
+        { if (GetFileSizeEx(namez,&length)) OS_file_error(value1); });
+   #else
+    #error FILE-SIZE: no stat and not woe32
+   #endif
+    skipSTACK(1); VALUES1(off_to_I(length));
+  } else {                      /* stream - use FILE-LENGTH */
+    STACK_0 = stream;
+    funcall(L(file_length),1);
+  }
+}
 
 /* ============================== syslog ============================== */
 #if defined(HAVE_SYSLOG)
@@ -1650,19 +1752,6 @@ DEFUN(POSIX::%SETGROUPS, groups) {
    (rawsock:convert-address :inet 2204740633) ==> "25.172.105.131"
    but (rawsock:resolve-host-ipaddr :default) ==> "172.25.131.105" */
 DEFUN(POSIX:GETHOSTID,) { GETTER(unsigned long,ulong,gethostid); }
-#endif
-
-#if defined(HAVE_STAT)
-/* call stat() on the pathname
- return the value returned by stat()
- value1 = the actual pathname on which stat was called
- can trigger GC */
-static int stat_obj (object path, struct stat *buf) {
-  int ret;
-  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
-      begin_system_call(); ret = stat(pathz,buf); end_system_call(); });
-  return ret;
-}
 #endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)

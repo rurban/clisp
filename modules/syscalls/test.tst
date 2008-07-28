@@ -419,6 +419,17 @@ T
     (delete-file file)))
 (T T)
 
+(let ((s (floor (os:file-size *tmp1*) 2)))
+  (setf (os:file-size *tmp1*) s)
+  (= s (os:file-size *tmp1*)))
+T
+
+(with-open-file (s *tmp2* :direction :io)
+  (let ((l (floor (file-length s) 2)))
+    (setf (os:file-size s) l)
+    (= l (file-length s))))
+T
+
 #+ffi (defparameter *foo* (os:fopen "foo" "w")) #+ffi *foo*
 #+ffi (os::%fputc 65 *foo*) #+ffi 65
 #+ffi (os:feof *foo*) #+ffi NIL

@@ -1,3 +1,14 @@
+2008-07-28  Sam Steingold  <sds@gnu.org>
+
+	new SETFable function POSIX:FILE-SIZE
+	* modules/syscalls/configure.in: check for truncate & ftruncate
+	* modules/syscalls/calls.c (FILE-SIZE, %SET-FILE-SIZE): implement
+	* modules/syscalls/posix.lisp (FILE-SIZE): defsetf & export
+	* stream.d (check_open_file_stream): replace strict_p with
+	permissive_p to allow retuning nullobj instead of signaling an error
+	(open_file_stream_handle): accept permissive_p
+	* lispbibl.d (open_file_stream_handle): update the prototype
+
 2008-07-27  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2029069 ]: stack overflow with gethash

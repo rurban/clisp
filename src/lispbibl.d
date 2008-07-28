@@ -15709,11 +15709,13 @@ extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int 
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream
  < fd: OS file handle
+ > permissive_p: return nullobj instead of signaling an error
  < result: either stream, or a corrected stream in case stream was invalid
+           or nullobj if permissive_p was true and the stream was invalid
  for syscall module
  can trigger GC */
-extern maygc object open_file_stream_handle (object stream, Handle *fd);
-%% puts("extern object open_file_stream_handle (object stream, Handle *fd);");
+extern maygc object open_file_stream_handle (object stream, Handle *fd, bool permissive_p);
+%% puts("extern object open_file_stream_handle (object stream, Handle *fd, bool permissive_p);");
 
 /* return the OS's idea of the stream length for the file stream
  > stream: for error reporting
