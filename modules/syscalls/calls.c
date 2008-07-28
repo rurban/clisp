@@ -356,7 +356,7 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 /* truncate a file, STACK_0 = path */
 static void path_truncate (const char *path, off_t length) {
   begin_system_call();
-#if 1 /*defined(HAVE_TRUNCATE)*/
+#if defined(HAVE_TRUNCATE)
   if (truncate(path,length))
     OS_file_error(STACK_0);
 #elif defined(WIN32_NATIVE)
@@ -379,7 +379,7 @@ static void path_truncate (const char *path, off_t length) {
 /* truncate a stream, STACK_0 = stream */
 static void stream_truncate (Handle fd, off_t length) {
   begin_system_call();
-#if 1 /*defined(HAVE_FTRUNCATE)*/
+#if defined(HAVE_FTRUNCATE)
   if (ftruncate(fd,length)) OS_file_error(STACK_0);
 #elif defined(WIN32_NATIVE)
   LARGE_INTEGER cur_pos;
