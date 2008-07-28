@@ -7759,7 +7759,7 @@ typedef struct {
   #define builtin_stream_p(obj)  \
     (orecordp(obj) && (Record_type(obj) == Rectype_Stream))
 #endif
-%% export_def(builtin_stream_p(obj));
+/* %% export_def(builtin_stream_p(obj)); */
 
 /* Test for Stream */
 #define streamp(obj)  \

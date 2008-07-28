@@ -185,7 +185,7 @@ static Handle stream_get_handle (gcv_object_t *stream_) {
 
 /* signal the appropriate error error */
 nonreturning_function(static, error_OS_stream, (object stream)) {
-  if (eq(stream,nullobj)) OS_error();
+  if (eq(nullobj,stream)) OS_error();
   else OS_filestream_error(stream);
 }
 
@@ -1201,59 +1201,41 @@ DEFCHECKER(pathconf_arg,prefix=_PC,default=,FILESIZEBITS LINK-MAX MAX-CANON \
            REC-INCR-XFER-SIZE REC-MAX-XFER-SIZE REC-MIN-XFER-SIZE       \
            REC-XFER-ALIGN SYMLINK-MAX CHOWN-RESTRICTED NO-TRUNC VDISABLE \
            ASYNC-IO PRIO-IO SYNC-IO SOCK-MAXBUF)
+#define DO_PATHCONF(f,spec,what)                                \
+  if (missingp(what)) { /* all possible values */               \
+    unsigned int pos = 0;                                       \
+    for (; pos < pathconf_arg_map.size; pos++) {                \
+      long res;                                                 \
+      begin_system_call();                                      \
+      res = f(spec,pathconf_arg_map.table[pos].c_const);        \
+      end_system_call();                                        \
+      pushSTACK(*pathconf_arg_map.table[pos].l_const);          \
+      pushSTACK(res == -1 ? S(Kerror) : L_to_I(res));           \
+    }                                                           \
+    VALUES1(listof(2*pathconf_arg_map.size));                   \
+  } else {                                                      \
+    long res;                                                   \
+    begin_system_call();                                        \
+    if ((res = f(spec,pathconf_arg(what))) == -1) OS_error();   \
+    end_system_call();                                          \
+    VALUES1(L_to_I(res));                                       \
+  }
 DEFUN(POSIX::PATHCONF, pathspec &optional what)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/pathconf.html */
   Handle fd;
-  if (builtin_stream_p(STACK_1)) {
-    pushSTACK(STACK_1); funcall(L(built_in_stream_open_p),1);
-    if (!nullp(value1)) { /* open stream ==> use FD */
-      fd = stream_get_handle(&STACK_1);
-     pathconf_fd:
-      if (missingp(STACK_0)) { /* all possible values */
-        unsigned int pos = 0;
-        for (; pos < pathconf_arg_map.size; pos++) {
-          long res;
-          begin_system_call();
-          res = fpathconf(fd,pathconf_arg_map.table[pos].c_const);
-          end_system_call();
-          pushSTACK(*pathconf_arg_map.table[pos].l_const);
-          pushSTACK(res == -1 ? S(Kerror) : L_to_I(res));
-        }
-        VALUES1(listof(2*pathconf_arg_map.size));
-      } else {
-        long res;
-        begin_system_call();
-        if ((res = fpathconf(fd,pathconf_arg(STACK_0))) == -1)
-          integerp(STACK_1) ? OS_error() : error_OS_stream(STACK_1);
-        end_system_call();
-        VALUES1(L_to_I(res));
-      }
-    } else goto pathconf_path; /* not an open stream ==> use truename */
-  } else if (integerp(STACK_1)) {
-    fd = I_to_L(STACK_1);
+  if (integerp(STACK_1)) {
+    fd = I_to_UL(STACK_1);
     goto pathconf_fd;
-  } else pathconf_path:
-    with_string_0(STACK_1 = physical_namestring(STACK_1),
-                  GLO(pathname_encoding), namez, {
-      if (missingp(STACK_0)) { /* all possible values */
-        unsigned int pos = 0;
-        for (; pos < pathconf_arg_map.size; pos++) {
-          long res;
-          begin_system_call();
-          res = pathconf(namez,pathconf_arg_map.table[pos].c_const);
-          end_system_call();
-          pushSTACK(*pathconf_arg_map.table[pos].l_const);
-          pushSTACK(res == -1 ? S(Kerror) : L_to_I(res));
-        }
-        VALUES1(listof(2*pathconf_arg_map.size));
-      } else {
-        long res;
-        begin_system_call();
-        if ((res = pathconf(namez,pathconf_arg(STACK_0))) == -1) OS_error();
-        end_system_call();
-        VALUES1(L_to_I(res));
-      }
-    });
+  } else {
+    object file = open_file_stream_handle(STACK_1,&fd,true);
+    if (eq(nullobj,file)) {    /* not an open stream ==> use truename */
+      with_string_0(STACK_1 = physical_namestring(STACK_1),
+                    GLO(pathname_encoding), namez,
+          { DO_PATHCONF(pathconf,namez,STACK_0); });
+    } else { pathconf_fd:       /* open stream ==> use fd */
+      DO_PATHCONF(fpathconf,fd,STACK_0);
+    }
+  }
   skipSTACK(2);
 }
 #endif  /* HAVE_PATHCONF && HAVE_FPATHCONF */
@@ -1764,20 +1746,31 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
  the first arg can be a pathname designator or a file descriptor designator
  the return value is the FILE-STAT structure */
   bool link_p = missingp(STACK_0);
-  object file = STACK_1;
   struct stat buf;
+  object file;
 
-  if (builtin_stream_p(file)) {
+  if (integerp(file)) {
+    begin_system_call();
+    if (fstat(I_to_UL(file),&buf) < 0) OS_error();
+    end_system_call();
+  } else {
     Handle fd;
-    pushSTACK(file); funcall(L(built_in_stream_open_p),1);
-    file = STACK_1;             /* restore */
-    if (!nullp(value1)) {       /* open stream ==> use FD */
+    file = open_file_stream_handle(STACK_1,&fd,true);
+    if (eq(nullobj,file)) {     /* not a stream - treat as a pathname */
+      file = physical_namestring(STACK_1);
+      with_string_0(file,GLO(pathname_encoding),namez, {
+          begin_system_call();
+          if ((link_p ? stat(namez,&buf) : lstat(namez,&buf)) < 0)
+            OS_error();
+          end_system_call();
+        });
+    } else {                    /* file is a stream, fd is valid */
 #    if defined(WIN32_NATIVE)
       /* woe32 does have fstat(), but it does not accept a file handle,
          only an integer of an unknown nature */
       BY_HANDLE_FILE_INFORMATION fi;
       begin_system_call();
-      if (!GetFileInformationByHandle(fd=stream_get_handle(&STACK_1),&fi))
+      if (!GetFileInformationByHandle(fd,&fi))
         error_OS_stream(STACK_1);
       end_system_call();
       pushSTACK(STACK_1);       /* file */
@@ -1794,24 +1787,12 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       pushSTACK(convert_time_to_universal(&(fi.ftCreationTime)));
       goto call_make_file_stat;
 #    else
-      if (fstat(fd=stream_get_handle(&STACK_1),&buf) < 0)
+      if (fstat(fd,&buf) < 0)
         error_OS_stream(STACK_1);
       end_system_call();
-      file = eq(STACK_1,nullobj) ? fixnum(fd) : (object)STACK_1; /* restore */
+      file = eq(nullobj,STACK_1) ? fixnum(fd) : (object)STACK_1; /* restore */
 #    endif
-    } else goto stat_pathname;
-  } else if (integerp(file)) {
-    begin_system_call();
-    if (fstat(I_to_UL(file),&buf) < 0) OS_error();
-    end_system_call();
-  } else { stat_pathname:
-    file = physical_namestring(file);
-    with_string_0(file,GLO(pathname_encoding),namez, {
-      begin_system_call();
-      if ((link_p ? stat(namez,&buf) : lstat(namez,&buf)) < 0)
-        OS_error();
-      end_system_call();
-    });
+    }
   }
 
   pushSTACK(file);                    /* the object stat'ed */
@@ -2269,38 +2250,36 @@ DEFUN(POSIX::STAT-VFS, file)
 { /* Lisp interface to statvfs(2), fstatvfs(2)
  the first arg can be a pathname designator or a file descriptor designator
  the return value is the STAT-VFS structure */
-  object file = popSTACK();
+  object file = STACK_0;
   struct statvfs buf;
 
 #if defined(HAVE_FSTATVFS)
-  if (builtin_stream_p(file)) {
-    pushSTACK(file);            /* save */
-    pushSTACK(file); funcall(L(built_in_stream_open_p),1);
-    file = popSTACK();          /* restore */
-    if (!nullp(value1)) { /* open stream ==> use FD */
-      Handle fd;
-      pushSTACK(file);          /* save */
-      begin_system_call();
-      if (fstatvfs(fd=stream_get_handle(&STACK_0),&buf) < 0)
-        error_OS_stream(STACK_0);
-      end_system_call();
-      file = eq(STACK_0,nullobj) ? fixnum(fd) : (object)STACK_0; /* restore */
-      skipSTACK(1);
-    } else goto stat_pathname;
-  } else if (integerp(file)) {
+  if (integerp(file)) {
     begin_system_call();
     if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
     end_system_call();
-  } else stat_pathname:
-#endif
-    with_string_0(file = physical_namestring(file),GLO(pathname_encoding),
-                  namez, {
+  } else {
+    Handle fd;
+    file = open_file_stream_handle(file,&fd,true);
+    if (!eq(nullobj,file)) { /* an open stream */
       begin_system_call();
-      if (statvfs(namez,&buf) < 0) OS_error();
+      if (fstatvfs(fd,&buf) < 0)
+        error_OS_stream(STACK_0);
       end_system_call();
-    });
+      STACK_0 = file;
+    } else
+#endif
+      with_string_0(STACK_0 = physical_namestring(STACK_0),
+                    GLO(pathname_encoding), namez, {
+        begin_system_call();
+        if (statvfs(namez,&buf) < 0) OS_error();
+        end_system_call();
+      });
+#if defined(HAVE_FSTATVFS)
+  }
+#endif
 
-  pushSTACK(file);                  /* the object statvfs'ed */
+  /* STACK_0 is already the object statvfs'ed */
 #define pushSLOT(s) pushSTACK(s==(unsigned long)-1 ? NIL : ulong_to_I(s))
   pushSLOT(buf.f_bsize);  /* file system block size */
   pushSLOT(buf.f_frsize); /* fundamental file system block size */
