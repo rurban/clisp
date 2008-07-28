@@ -1,5 +1,12 @@
 2008-07-28  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (builtin_stream_p): do not export
+	* modules/syscalls/calls.c (PATHCONF, FILE-STAT, STAT-VFS):
+	use open_file_stream_handle instead of
+	builtin_stream_p + SYS::BUILT-IN-STREAM-OPEN-P
+
+2008-07-28  Sam Steingold  <sds@gnu.org>
+
 	new SETFable function POSIX:FILE-SIZE
 	* modules/syscalls/configure.in: check for truncate & ftruncate
 	* modules/syscalls/calls.c (FILE-SIZE, %SET-FILE-SIZE): implement
