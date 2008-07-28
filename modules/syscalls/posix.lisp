@@ -31,12 +31,12 @@
 ;;; ============================================================
 #+unix (progn
 (export '(uid gid euid egid pgid groups))
-(defsetf uid posix::%setuid)
-(defsetf gid posix::%setgid)
-(defsetf euid posix::%seteuid)
-(defsetf egid posix::%setegid)
-(defsetf pgid posix::%setpgid)
-(defsetf groups posix::%setgroups)
+(defsetf uid %setuid)
+(defsetf gid %setgid)
+(defsetf euid %seteuid)
+(defsetf egid %setegid)
+(defsetf pgid %setpgid)
+(defsetf groups %setgroups)
 )
 ;;; ============================================================
 (defmacro with-stream-lock ((stream &rest options) &body body)
@@ -397,9 +397,9 @@
 #+FFI (progn
 (export '(fopen fdopen freopen fclose fflush ; fgetc fputc ungetc
           clearerr feof ferror fileno stdin stdout stderr))
-(defconstant stdin (posix::%stdio 0))
-(defconstant stdout (posix::%stdio 1))
-(defconstant stderr (posix::%stdio 2))
+(defconstant stdin (%stdio 0))
+(defconstant stdout (%stdio 1))
+(defconstant stderr (%stdio 2))
 )
 ;;;--------------------------------------------------------------------------
 (defun ffs (n) (integer-length (logand n (- n))))
