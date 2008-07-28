@@ -17063,14 +17063,15 @@ LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
 /* UP: Checks, if an Argument is an open File-Stream.
  check_open_file_stream(obj);
  > obj: Argument
- < result: open File-Stream */
-local object check_open_file_stream (object obj, bool strict_p) {
+ > permissive_p: return nullobj instead of signaling an error
+ < result: open File-Stream (or maybe nullobj if permissive_p was true) */
+local object check_open_file_stream (object obj, bool permissive_p) {
  check_open_file_stream_restart:
   obj = resolve_synonym_stream(obj);
   if (streamp(obj) && TheStream(obj)->strmtype == strmtype_broad) {
     var object last_stream = broadcast_stream_last(obj);
     if (eq(last_stream,nullobj)) {
-      if (strict_p) goto error_bad_obj;
+      if (permissive_p) return nullobj;
       else return last_stream;
     } else obj = last_stream;
     goto check_open_file_stream_restart;
@@ -17085,6 +17086,7 @@ local object check_open_file_stream (object obj, bool strict_p) {
     goto error_bad_obj;
   return obj; /* yes -> OK */
  error_bad_obj:
+  if (permissive_p) return nullobj;
   pushSTACK(obj);                      /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_open_file_stream)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj);
@@ -17095,12 +17097,16 @@ local object check_open_file_stream (object obj, bool strict_p) {
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream
  < fd: OS file handle
+ > permissive_p: return nullobj instead of signaling an error
  < result: either stream, or a corrected stream in case stream was invalid
+           or nullobj if permissive_p was true and the stream was invalid
  for syscall module
  can trigger GC */
-global maygc object open_file_stream_handle (object stream, Handle *fd) {
-  stream = check_open_file_stream(stream,true);
-  *fd = ChannelStream_ihandle(stream);
+global maygc object open_file_stream_handle (object stream, Handle *fd,
+                                             bool permissive_p) {
+  stream = check_open_file_stream(stream,permissive_p);
+  if (!eq(stream,nullobj))
+    *fd = ChannelStream_ihandle(stream);
   return stream;
 }
 

@@ -13,6 +13,10 @@ Important notes
   when opening an already open file.
   See <http://clisp.cons.org/impnotes/open.html#reopen> for details.
 
+* New SETFable function OS:FILE-SIZE extends FILE-LENGTH to pathname
+  designators and lets you change file size.
+  See <http://clisp.cons.org/impnotes/syscalls.html#file-size> for details.
+
 * LOAD now uses DIRECTORY only for wild *LOAD-PATHS* components, thus
   speeding up the most common cases and preventing the denial-of-service
   attack whereas CLISP would not start if a file with a name
