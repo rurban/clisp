@@ -1134,7 +1134,6 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
             pushSTACK(S(Ktest)); pushSTACK(S(equal));
             funcall(`EXT:CANONICALIZE`,4);
             pushSTACK(S(Kcharset)); pushSTACK(value1);
-            pushSTACK(asciz_to_string(whole,GLO(misc_encoding)));
             pushSTACK(S(Koutput_error_action));
             pushSTACK(fixnum(info->default_char));
             funcall(L(make_encoding),4);
