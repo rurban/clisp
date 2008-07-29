@@ -397,6 +397,8 @@ static void stream_truncate (Handle fd, off_t length) {
   end_system_call();
 }
 
+/* separate from SET-FILE-STAT because it works only on paths
+   while (setf file-size) supports streams as well */
 DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
   /* http://www.opengroup.org/onlinepubs/009695399/functions/truncate.html
      http://www.opengroup.org/onlinepubs/009695399/functions/ftruncate.html
