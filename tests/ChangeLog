@@ -1,3 +1,8 @@
+2008-07-30  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (kill-down): kill files at all levels down
+	(rmrf): kill directories at all levels down
+
 2008-07-27  Sam Steingold  <sds@gnu.org>
 
 	* hashtable.tst: test support for circular keys
