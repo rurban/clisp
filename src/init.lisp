@@ -2203,7 +2203,7 @@
             (when xpathnames
               (setq found
                     (if wild-p
-                      (dolist (xpathname xpathnames)
+                      (dolist (xpathname xpathnames xpathnames)
                         (setf (rest xpathname)
                               (apply #'encode-universal-time
                                      (third xpathname))))
