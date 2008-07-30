@@ -430,6 +430,17 @@ T
           (= l (file-length s)))))
 (T T)
 
+(let ((file "foo.bar") s)
+  (unwind-protect
+       (progn (setq s (open file :direction :probe :if-does-not-exist :create))
+              (list (os:file-size file)
+                    (setf (os:file-size s) 100)
+                    (os:file-size file)
+                    (setf (os:file-size file) 1000)
+                    (os:file-size s)))
+    (delete-file file)))
+(0 100 100 1000 1000)
+
 #+ffi (defparameter *foo* (os:fopen "foo" "w")) #+ffi *foo*
 #+ffi (os::%fputc 65 *foo*) #+ffi 65
 #+ffi (os:feof *foo*) #+ffi NIL
