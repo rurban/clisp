@@ -3,6 +3,7 @@
 ;; Many tests already in alltest.tst, map.tst etc., but
 ;; here we avoid using #+clisp all over the place.
 ;; Jörg Höhle, 2007
+;; Sam Steingold, 2007-2008
 
 ;(setf if) 5.1.6
 (mapcar (lambda (x &aux a b) (list (setf (if x a b) 2) a b)) '(t nil))
@@ -246,3 +247,22 @@ ERROR
           s)))
  :test 'equal)
 "ISO-1234"
+
+(defun check-load (file)
+  (let* ((dir (ext:string-concat (second (pathname-directory file)) "/"))
+         (*load-paths* (list '#p"" (pathname (ext:string-concat dir "**/")))))
+    (unwind-protect
+         (progn
+           (prepare-directory file)
+           (with-open-file (s file :direction :output)
+             (prin1 '(setf (cdr *load-paths*) nil) s))
+           (load (pathname-name file))
+           *load-paths*)
+      (rmrf dir))))
+CHECK-LOAD
+
+(check-load "foo/bar/baz/zot.lisp") (#p"")
+(check-load "foo/bar/baz/zot") (#p"")
+
+(progn (symbol-cleanup 'check-load))
+T
