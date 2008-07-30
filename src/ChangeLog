@@ -1,3 +1,8 @@
+2008-07-29  Sam Steingold  <sds@gnu.org>
+
+	* init.lisp (search-file): fix a bug in "wild" code which caused
+	SEARCH-FILE to return NIL even when it found something
+
 2008-07-28 Reini Urban  <rurban@x-ray.at>
 
 	<37_runprog>
