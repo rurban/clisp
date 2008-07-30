@@ -326,5 +326,5 @@ nil
 
 (finish-file "bdb-errors") 2    ; just the two start and stop messages
 (finish-file "bdb-msg") 2
-(rmrf "bdb-home/") T
-(rmrf "bdb-data/") T
+(rmrf "bdb-home/") NIL
+(rmrf "bdb-data/") NIL
