@@ -1087,7 +1087,8 @@
 (def-c-const DBUS_BIG_ENDIAN ; ('B')
   (:documentation "Code marking MSB-first byte order in the wire protocol."))
 
-(def-c-const DBUS_MAJOR_PROTOCOL_VERSION (:documentation "Protocol version."))
+(def-c-const DBUS_MAJOR_PROTOCOL_VERSION ; 1
+  (:documentation "Protocol version."))
 
 (def-c-const DBUS_TYPE_INVALID ; ((int) '\0')
   (:documentation "Type code that is never equal to a legitimate type code"))
