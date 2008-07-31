@@ -1215,22 +1215,39 @@
 
 ;; ===========================================================================
 
+(defun form-1+ (form name)
+  "if form is a number, return a number, otherwise return `(1+ ,form)"
+  (typecase form
+    (number (1+ form))
+    (symbol `(1+ ,form))
+    (cons (case (first form)
+            (1+ `(+ 2 ,@(rest form)))
+            (+ (if (numberp (second form))
+                   `(+ ,(1+ (second form)) ,@(cddr form))
+                   `(+ 1 ,@(rest form))))
+            (t `(1+ ,form))))
+    (t (error "~S(~S): invalid value ~S" 'def-c-enum name form))))
+
 (defmacro def-c-enum (&whole whole-form name &rest items)
   (setq name (check-symbol name (first whole-form)))
-  (let ((forms '()) (ht (make-hash-table :key-type 'fixnum :value-type 'symbol))
-        (next-value 0) (this-val 0))
+  (let ((forms '()) (next-value 0) (this-val 0)
+        (ht (make-hash-table :test 'equal :key-type 'fixnum
+                             :value-type 'symbol)))
     (dolist (item items)
       (when (consp item)
         (when (rest item)
-          (setq next-value (second item)
-                this-val (second item)))
+          (let ((value (second item)))
+            (when (constantp value)
+              (setq value (eval value)))
+            (setq next-value value
+                  this-val value)))
         (setq item (first item)))
       (push `(DEFCONSTANT ,item ,next-value) forms)
       (when (gethash this-val ht)
         (warn (TEXT "~S (~S): value ~S will be assigned to both ~S and ~S")
               'def-c-enum name this-val (gethash this-val ht) item))
       (setf (gethash this-val ht) item)
-      (setq next-value `(1+ ,item) this-val (1+ this-val)))
+      (setq next-value `(1+ ,item) this-val (form-1+ this-val name)))
     `(PROGN ,@(nreverse forms) (setf (get ',name 'def-c-enum) ,ht)
             (def-c-type ,name int))))
 

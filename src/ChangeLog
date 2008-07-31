@@ -1,6 +1,10 @@
 2008-07-31  Sam Steingold  <sds@gnu.org>
 
-	* modules/gtk2/configure.in: fail is FFI is not present
+	* foreign1.lisp (def-c-enum): accept non-numeric-literal values
+
+2008-07-31  Sam Steingold  <sds@gnu.org>
+
+	* modules/gtk2/configure.in: fail if FFI is not present
 
 2008-07-31  Sam Steingold  <sds@gnu.org>
 
