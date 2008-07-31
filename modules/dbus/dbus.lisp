@@ -299,7 +299,7 @@
 ;; dbus_bool_t dbus_message_get_path_decomposed (DBusMessage *message, char ***path);
 (def-call-out dbus_message_get_path_decomposed (:return-type dbus_bool_t)
   (:arguments (message DBusMessage*)
-              (path (c-ptr (c-array-ptr c-string)) :out))) ; ???
+              (path (c-ptr (c-array-ptr c-string)) :out)))
 
 
 ;; dbus_bool_t dbus_message_append_args (DBusMessage *message, int first_arg_type, ...);
@@ -430,38 +430,58 @@
   )
 
 ;; Bus names
-(def-c-const DBUS_SERVICE_DBUS (:type c-string) (:documentation "The bus name used to talk to the bus itself."))
+(def-c-const DBUS_SERVICE_DBUS (:type c-string) ; "org.freedesktop.DBus"
+  (:documentation "The bus name used to talk to the bus itself."))
 
 ;; Paths
-(def-c-const DBUS_PATH_DBUS (:type c-string) (:documentation "The object path used to talk to the bus itself."))
-(def-c-const DBUS_PATH_LOCAL (:type c-string) (:documentation "The object path used in local/in-process-generated messages."))
+(def-c-const DBUS_PATH_DBUS (:type c-string) ; "/org/freedesktop/DBus"
+  (:documentation "The object path used to talk to the bus itself."))
+(def-c-const DBUS_PATH_LOCAL (:type c-string) ; "/org/freedesktop/DBus/Local"
+  (:documentation "The object path used in local/in-process-generated messages."))
 
 ;; Interfaces, these #define don't do much other than catch typos at compile time
-(def-c-const DBUS_INTERFACE_DBUS (:type c-string) (:documentation "The interface exported by the object with #DBUS_SERVICE_DBUS and #DBUS_PATH_DBUS"))
-(def-c-const DBUS_INTERFACE_INTROSPECTABLE (:type c-string) (:documentation "The interface supported by introspectable objects."))
-(def-c-const DBUS_INTERFACE_PROPERTIES (:type c-string) (:documentation "The interface supported by objects with properties."))
-(def-c-const DBUS_INTERFACE_PEER (:type c-string) (:documentation "The interface supported by most dbus peers."))
-(def-c-const DBUS_INTERFACE_LOCAL (:type c-string) (:documentation "This is a special interface whose methods can only be invoked by the local implementation (messages from remote apps aren't allowed to specify this interface)."))
+(def-c-const DBUS_INTERFACE_DBUS (:type c-string) ; "org.freedesktop.DBus"
+  (:documentation "The interface exported by the object with #DBUS_SERVICE_DBUS and #DBUS_PATH_DBUS"))
+(def-c-const DBUS_INTERFACE_INTROSPECTABLE (:type c-string) ; "org.freedesktop.DBus.Introspectable"
+  (:documentation "The interface supported by introspectable objects."))
+(def-c-const DBUS_INTERFACE_PROPERTIES (:type c-string) ; "org.freedesktop.DBus.Properties"
+  (:documentation "The interface supported by objects with properties."))
+(def-c-const DBUS_INTERFACE_PEER (:type c-string) ; "org.freedesktop.DBus.Peer"
+  (:documentation "The interface supported by most dbus peers."))
+(def-c-const DBUS_INTERFACE_LOCAL (:type c-string) ; "org.freedesktop.DBus.Local"
+  (:documentation "This is a special interface whose methods can only be invoked by the local implementation (messages from remote apps aren't allowed to specify this interface)."))
 
 ;; Owner flags
-(def-c-const DBUS_NAME_FLAG_ALLOW_REPLACEMENT (:documentation "Allow another service to become the primary owner if requested"))
-(def-c-const DBUS_NAME_FLAG_REPLACE_EXISTING (:documentation "Request to replace the current primary owner"))
-(def-c-const DBUS_NAME_FLAG_DO_NOT_QUEUE (:documentation "If we can not become the primary owner do not place us in the queue"))
+(def-c-const DBUS_NAME_FLAG_ALLOW_REPLACEMENT ; 0x1
+  (:documentation "Allow another service to become the primary owner if requested"))
+(def-c-const DBUS_NAME_FLAG_REPLACE_EXISTING ; 0x2
+  (:documentation "Request to replace the current primary owner"))
+(def-c-const DBUS_NAME_FLAG_DO_NOT_QUEUE ; 0x4
+  (:documentation "If we can not become the primary owner do not place us in the queue"))
 
 ;; Replies to request for a name
-(def-c-const DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER (:documentation "Service has become the primary owner of the requested name"))
-(def-c-const DBUS_REQUEST_NAME_REPLY_IN_QUEUE (:documentation "Service could not become the primary owner and has been placed in the queue"))
-(def-c-const DBUS_REQUEST_NAME_REPLY_EXISTS (:documentation "Service is already in the queue"))
-(def-c-const DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER (:documentation "Service is already the primary owner"))
+(def-c-const DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER ; 1
+  (:documentation "Service has become the primary owner of the requested name"))
+(def-c-const DBUS_REQUEST_NAME_REPLY_IN_QUEUE ; 2
+  (:documentation "Service could not become the primary owner and has been placed in the queue"))
+(def-c-const DBUS_REQUEST_NAME_REPLY_EXISTS ; 3
+  (:documentation "Service is already in the queue"))
+(def-c-const DBUS_REQUEST_NAME_REPLY_ALREADY_OWNER ; 4
+  (:documentation "Service is already the primary owner"))
 
 ;; Replies to releasing a name
-(def-c-const DBUS_RELEASE_NAME_REPLY_RELEASED (:documentation "Service was released from the given name"))
-(def-c-const DBUS_RELEASE_NAME_REPLY_NON_EXISTENT (:documentation "The given name does not exist on the bus"))
-(def-c-const DBUS_RELEASE_NAME_REPLY_NOT_OWNER (:documentation "Service is not an owner of the given name"))
+(def-c-const DBUS_RELEASE_NAME_REPLY_RELEASED ; 1
+  (:documentation "Service was released from the given name"))
+(def-c-const DBUS_RELEASE_NAME_REPLY_NON_EXISTENT ; 2
+  (:documentation "The given name does not exist on the bus"))
+(def-c-const DBUS_RELEASE_NAME_REPLY_NOT_OWNER ; 3
+  (:documentation "Service is not an owner of the given name"))
 
 ;; Replies to service starts
-(def-c-const DBUS_START_REPLY_SUCCESS (:documentation "Service was auto started"))
-(def-c-const DBUS_START_REPLY_ALREADY_RUNNING (:documentation "Service was already running"))
+(def-c-const DBUS_START_REPLY_SUCCESS ; 1
+  (:documentation "Service was auto started"))
+(def-c-const DBUS_START_REPLY_ALREADY_RUNNING ; 2
+  (:documentation "Service was already running"))
 
 ;; === dbus-connection.h
 
@@ -589,7 +609,8 @@
 ;; typedef dbus_bool_t (* DBusAllowUnixUserFunction) (DBusConnection *connection, unsigned long uid, void *data);
 (def-c-type DBusAllowUnixUserFunction
   (c-function (:return-type dbus_bool_t)
-              (:arguments (connection DBusConnection*) (uid unsigned long) (data c-pointer))))
+              (:arguments (connection DBusConnection*) (uid ulong)
+                          (data c-pointer))))
 (def-c-type DBusAllowUnixUserFunction* (c-pointer DBusAllowUnixUserFunction))
 
 
@@ -881,10 +902,10 @@
 ;; dbus_bool_t dbus_connection_list_registered (DBusConnection *connection, const char *parent_path, char ***child_entries);
 (def-call-out dbus_connection_list_registered (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (parent_path c-string)
-              (child_entries (c-array-ptr c-string) :out))) ; ???
+              (child_entries (c-ptr (c-array-ptr c-string)) :out)))
 
 ;;  dbus_bool_t dbus_connection_get_unix_fd (DBusConnection *connection, int *fd);
-(def-call-out dbus_connection_get_unix_fd (:return-type  dbus_bool_t)
+(def-call-out dbus_connection_get_unix_fd (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (fd (c-ptr int) :out)))
 
 ;; dbus_bool_t dbus_connection_get_socket (DBusConnection *connection, int *fd);
@@ -969,14 +990,14 @@
   (:arguments (connection DBusConnection*)))
 
 ;; unsigned long dbus_bus_get_unix_user (DBusConnection *connection, const char *name, DBusError *error);
-(def-call-out dbus_bus_get_unix_user (:return-type unsigned long)
+(def-call-out dbus_bus_get_unix_user (:return-type ulong)
   (:arguments (connection DBusConnection*) (name c-string)
               (error (c-ptr DBusError) :out)))
 
 ;; int dbus_bus_request_name (DBusConnection *connection, const char *name, unsigned int flags, DBusError *error);
 (def-call-out dbus_bus_request_name (:return-type int)
   (:arguments (connection DBusConnection*) (name c-string)
-              (flags unsigned int) (error (c-ptr DBusError) :out)))
+              (flags uint) (error (c-ptr DBusError) :out)))
 
 ;; int dbus_bus_release_name (DBusConnection *connection, const char *name, DBusError *error);
 (def-call-out dbus_bus_release_name (:return-type int)
@@ -1070,67 +1091,67 @@
 
 (def-c-const DBUS_TYPE_INVALID ; ((int) '\0')
   (:documentation "Type code that is never equal to a legitimate type code"))
-(def-c-const DBUS_TYPE_INVALID_AS_STRING (:type string) ; "\0"
+(def-c-const DBUS_TYPE_INVALID_AS_STRING (:type c-string) ; "\0"
   (:documentation "#DBUS_TYPE_INVALID as a string literal instead of a int literal"))
 
 ;; Primitive types
 (def-c-const DBUS_TYPE_BYTE ; ((int) 'y')
   (:documentation "Type code marking an 8-bit unsigned integer"))
-(def-c-const DBUS_TYPE_BYTE_AS_STRING (:type string) ; "y"
+(def-c-const DBUS_TYPE_BYTE_AS_STRING (:type c-string) ; "y"
   (:documentation "#DBUS_TYPE_BYTE as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_BOOLEAN ; ((int) 'b')
   (:documentation "Type code marking a boolean"))
-(def-c-const DBUS_TYPE_BOOLEAN_AS_STRING (:type string) ; "b"
+(def-c-const DBUS_TYPE_BOOLEAN_AS_STRING (:type c-string) ; "b"
   (:documentation "#DBUS_TYPE_BOOLEAN as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_INT16 ; ((int) 'n')
   (:documentation "Type code marking a 16-bit signed integer"))
-(def-c-const DBUS_TYPE_INT16_AS_STRING (:type string) ; "n"
+(def-c-const DBUS_TYPE_INT16_AS_STRING (:type c-string) ; "n"
   (:documentation "#DBUS_TYPE_INT16 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_UINT16 ; ((int) 'q')
   (:documentation "Type code marking a 16-bit unsigned integer"))
-(def-c-const DBUS_TYPE_UINT16_AS_STRING (:type string) ; "q"
+(def-c-const DBUS_TYPE_UINT16_AS_STRING (:type c-string) ; "q"
   (:documentation "#DBUS_TYPE_UINT16 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_INT32 ; ((int) 'i')
   (:documentation "Type code marking a 32-bit signed integer"))
-(def-c-const DBUS_TYPE_INT32_AS_STRING (:type string) ; "i"
+(def-c-const DBUS_TYPE_INT32_AS_STRING (:type c-string) ; "i"
   (:documentation "#DBUS_TYPE_INT32 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_UINT32 ; ((int) 'u')
   (:documentation "Type code marking a 32-bit unsigned integer"))
-(def-c-const DBUS_TYPE_UINT32_AS_STRING (:type string) ; "u"
+(def-c-const DBUS_TYPE_UINT32_AS_STRING (:type c-string) ; "u"
   (:documentation "#DBUS_TYPE_UINT32 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_INT64 ; ((int) 'x')
   (:documentation "Type code marking a 64-bit signed integer"))
-(def-c-const DBUS_TYPE_INT64_AS_STRING (:type string) ; "x"
+(def-c-const DBUS_TYPE_INT64_AS_STRING (:type c-string) ; "x"
   (:documentation "#DBUS_TYPE_INT64 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_UINT64 ; ((int) 't')
   (:documentation "Type code marking a 64-bit unsigned integer"))
-(def-c-const DBUS_TYPE_UINT64_AS_STRING (:type string) ; "t"
+(def-c-const DBUS_TYPE_UINT64_AS_STRING (:type c-string) ; "t"
   (:documentation "#DBUS_TYPE_UINT64 as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_DOUBLE ; ((int) 'd')
   (:documentation "Type code marking an 8-byte double in IEEE 754 format"))
-(def-c-const DBUS_TYPE_DOUBLE_AS_STRING (:type string) ; "d"
+(def-c-const DBUS_TYPE_DOUBLE_AS_STRING (:type c-string) ; "d"
   (:documentation "#DBUS_TYPE_DOUBLE as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_STRING ; ((int) 's')
   (:documentation "Type code marking a UTF-8 encoded, nul-terminated Unicode string"))
-(def-c-const DBUS_TYPE_STRING_AS_STRING (:type string) ; "s"
+(def-c-const DBUS_TYPE_STRING_AS_STRING (:type c-string) ; "s"
   (:documentation "#DBUS_TYPE_STRING as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_OBJECT_PATH ; ((int) 'o')
   (:documentation "Type code marking a D-Bus object path"))
-(def-c-const DBUS_TYPE_OBJECT_PATH_AS_STRING (:type string) ; "o"
+(def-c-const DBUS_TYPE_OBJECT_PATH_AS_STRING (:type c-string) ; "o"
   (:documentation "#DBUS_TYPE_OBJECT_PATH as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_SIGNATURE ; ((int) 'g')
   (:documentation "Type code marking a D-Bus type signature"))
-(def-c-const DBUS_TYPE_SIGNATURE_AS_STRING (:type string) ; "g"
+(def-c-const DBUS_TYPE_SIGNATURE_AS_STRING (:type c-string) ; "g"
   (:documentation "#DBUS_TYPE_SIGNATURE as a string literal instead of a int literal"))
 
 ;; Compound types
 (def-c-const DBUS_TYPE_ARRAY ; ((int) 'a')
   (:documentation "Type code marking a D-Bus array type"))
-(def-c-const DBUS_TYPE_ARRAY_AS_STRING (:type string) ; "a"
+(def-c-const DBUS_TYPE_ARRAY_AS_STRING (:type c-string) ; "a"
   (:documentation "#DBUS_TYPE_ARRAY as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_VARIANT ; ((int) 'v')
   (:documentation "Type code marking a D-Bus variant type"))
-(def-c-const DBUS_TYPE_VARIANT_AS_STRING (:type string) ; "v"
+(def-c-const DBUS_TYPE_VARIANT_AS_STRING (:type c-string) ; "v"
   (:documentation "#DBUS_TYPE_VARIANT as a string literal instead of a int literal"))
 
 ;; STRUCT and DICT_ENTRY are sort of special since their codes can't appear
@@ -1141,14 +1162,14 @@
 however, this type code does not appear in type signatures,
 instead #DBUS_STRUCT_BEGIN_CHAR and #DBUS_STRUCT_END_CHAR
 will appear in a signature."))
-(def-c-const DBUS_TYPE_STRUCT_AS_STRING (:type string) ; "r"
+(def-c-const DBUS_TYPE_STRUCT_AS_STRING (:type c-string) ; "r"
   (:documentation "#DBUS_TYPE_STRUCT as a string literal instead of a int literal"))
 (def-c-const DBUS_TYPE_DICT_ENTRY ; ((int) 'e')
   (:documentation "Type code used to represent a dict entry; \
 however, this type code does not appear in type signatures,
 instead #DBUS_DICT_ENTRY_BEGIN_CHAR and #DBUS_DICT_ENTRY_END_CHAR
 will appear in a signature."))
-(def-c-const DBUS_TYPE_DICT_ENTRY_AS_STRING (:type string) ; "e"
+(def-c-const DBUS_TYPE_DICT_ENTRY_AS_STRING (:type c-string) ; "e"
   (:documentation "#DBUS_TYPE_DICT_ENTRY as a string literal instead of a int literal"))
 
 (def-c-const DBUS_NUMBER_OF_TYPES ; (16)
@@ -1161,19 +1182,19 @@ characters that may appear in a type signature."))
 
 (def-c-const DBUS_STRUCT_BEGIN_CHAR ; ((int) '(')
   (:documentation "Code marking the start of a struct type in a type signature"))
-(def-c-const DBUS_STRUCT_BEGIN_CHAR_AS_STRING (:type string) ; "("
+(def-c-const DBUS_STRUCT_BEGIN_CHAR_AS_STRING (:type c-string) ; "("
   (:documentation "#DBUS_STRUCT_BEGIN_CHAR as a string literal instead of a int literal"))
 (def-c-const DBUS_STRUCT_END_CHAR ; ((int) ')')
   (:documentation "Code marking the end of a struct type in a type signature"))
-(def-c-const DBUS_STRUCT_END_CHAR_AS_STRING (:type string) ; ")"
+(def-c-const DBUS_STRUCT_END_CHAR_AS_STRING (:type c-string) ; ")"
   (:documentation "#DBUS_STRUCT_END_CHAR a string literal instead of a int literal"))
 (def-c-const DBUS_DICT_ENTRY_BEGIN_CHAR ; ((int) '{')
   (:documentation "Code marking the start of a dict entry type in a type signature"))
-(def-c-const DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING (:type string) ; "{"
+(def-c-const DBUS_DICT_ENTRY_BEGIN_CHAR_AS_STRING (:type c-string) ; "{"
   (:documentation "#DBUS_DICT_ENTRY_BEGIN_CHAR as a string literal instead of a int literal"))
 (def-c-const DBUS_DICT_ENTRY_END_CHAR ; ((int) '}')
   (:documentation "Code marking the end of a dict entry type in a type signature"))
-(def-c-const DBUS_DICT_ENTRY_END_CHAR_AS_STRING (:type string) ; "}"
+(def-c-const DBUS_DICT_ENTRY_END_CHAR_AS_STRING (:type c-string) ; "}"
   (:documentation "#DBUS_DICT_ENTRY_END_CHAR as a string literal instead of a int literal"))
 
 
@@ -1279,7 +1300,7 @@ can be used to determine the size of an array indexed by header field code.
 Remember though that unknown codes must be ignored,
 so check for that before indexing the array."))
 
-(def-c-const DBUS_HEADER_SIGNATURE
+(def-c-const DBUS_HEADER_SIGNATURE (:type c-string)
     ;; DBUS_TYPE_BYTE_AS_STRING
     ;; DBUS_TYPE_BYTE_AS_STRING
     ;; DBUS_TYPE_BYTE_AS_STRING
@@ -1316,85 +1337,85 @@ necessary/logical outcome of the header signature."))
 ;; Thus, if you change the order it breaks the ABI. Keep them in order.
 ;; Also, don't change the formatting since that will break the sed script.
 
-(def-c-const DBUS_ERROR_FAILED ; "org.freedesktop.DBus.Error.Failed"
+(def-c-const DBUS_ERROR_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Failed"
   (:documentation "A generic error; \"something went wrong\" - see the error message for more."))
-(def-c-const DBUS_ERROR_NO_MEMORY ; "org.freedesktop.DBus.Error.NoMemory"
+(def-c-const DBUS_ERROR_NO_MEMORY (:type c-string) ; "org.freedesktop.DBus.Error.NoMemory"
   (:documentation "There was not enough memory to complete an operation."))
-(def-c-const DBUS_ERROR_SERVICE_UNKNOWN ; "org.freedesktop.DBus.Error.ServiceUnknown"
+(def-c-const DBUS_ERROR_SERVICE_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.ServiceUnknown"
   (:documentation "The bus doesn't know how to launch a service to supply the bus name you wanted."))
-(def-c-const DBUS_ERROR_NAME_HAS_NO_OWNER ; "org.freedesktop.DBus.Error.NameHasNoOwner"
+(def-c-const DBUS_ERROR_NAME_HAS_NO_OWNER (:type c-string) ; "org.freedesktop.DBus.Error.NameHasNoOwner"
   (:documentation "The bus name you referenced doesn't exist (i.e. no application owns it)."))
-(def-c-const DBUS_ERROR_NO_REPLY ; "org.freedesktop.DBus.Error.NoReply"
+(def-c-const DBUS_ERROR_NO_REPLY (:type c-string) ; "org.freedesktop.DBus.Error.NoReply"
   (:documentation "No reply to a message expecting one, usually means a timeout occurred."))
-(def-c-const DBUS_ERROR_IO_ERROR ; "org.freedesktop.DBus.Error.IOError"
+(def-c-const DBUS_ERROR_IO_ERROR (:type c-string) ; "org.freedesktop.DBus.Error.IOError"
   (:documentation "Something went wrong reading or writing to a socket, for example."))
-(def-c-const DBUS_ERROR_BAD_ADDRESS ; "org.freedesktop.DBus.Error.BadAddress"
+(def-c-const DBUS_ERROR_BAD_ADDRESS (:type c-string) ; "org.freedesktop.DBus.Error.BadAddress"
   (:documentation "A D-Bus bus address was malformed."))
-(def-c-const DBUS_ERROR_NOT_SUPPORTED ; "org.freedesktop.DBus.Error.NotSupported"
+(def-c-const DBUS_ERROR_NOT_SUPPORTED (:type c-string) ; "org.freedesktop.DBus.Error.NotSupported"
   (:documentation "Requested operation isn't supported (like ENOSYS on UNIX)."))
-(def-c-const DBUS_ERROR_LIMITS_EXCEEDED ; "org.freedesktop.DBus.Error.LimitsExceeded"
+(def-c-const DBUS_ERROR_LIMITS_EXCEEDED (:type c-string) ; "org.freedesktop.DBus.Error.LimitsExceeded"
   (:documentation "Some limited resource is exhausted."))
-(def-c-const DBUS_ERROR_ACCESS_DENIED ; "org.freedesktop.DBus.Error.AccessDenied"
+(def-c-const DBUS_ERROR_ACCESS_DENIED (:type c-string) ; "org.freedesktop.DBus.Error.AccessDenied"
   (:documentation "Security restrictions don't allow doing what you're trying to do."))
-(def-c-const DBUS_ERROR_AUTH_FAILED ; "org.freedesktop.DBus.Error.AuthFailed"
+(def-c-const DBUS_ERROR_AUTH_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.AuthFailed"
   (:documentation "Authentication didn't work."))
-(def-c-const DBUS_ERROR_NO_SERVER ; "org.freedesktop.DBus.Error.NoServer"
+(def-c-const DBUS_ERROR_NO_SERVER (:type c-string) ; "org.freedesktop.DBus.Error.NoServer"
   (:documentation "Unable to connect to server (probably caused by ECONNREFUSED on a socket)."))
-(def-c-const DBUS_ERROR_TIMEOUT ; "org.freedesktop.DBus.Error.Timeout"
+(def-c-const DBUS_ERROR_TIMEOUT (:type c-string) ; "org.freedesktop.DBus.Error.Timeout"
   (:documentation "Certain timeout errors, possibly ETIMEDOUT on a socket.
 Note that #DBUS_ERROR_NO_REPLY is used for message reply timeouts.
 @warning this is confusingly-named given that #DBUS_ERROR_TIMED_OUT also exists.
 We can't fix it for compatibility reasons so just be careful."))
-(def-c-const DBUS_ERROR_NO_NETWORK ; "org.freedesktop.DBus.Error.NoNetwork"
+(def-c-const DBUS_ERROR_NO_NETWORK (:type c-string) ; "org.freedesktop.DBus.Error.NoNetwork"
   (:documentation "No network access (probably ENETUNREACH on a socket)."))
-(def-c-const DBUS_ERROR_ADDRESS_IN_USE ; "org.freedesktop.DBus.Error.AddressInUse"
+(def-c-const DBUS_ERROR_ADDRESS_IN_USE (:type c-string) ; "org.freedesktop.DBus.Error.AddressInUse"
   (:documentation "Can't bind a socket since its address is in use (i.e. EADDRINUSE)."))
-(def-c-const DBUS_ERROR_DISCONNECTED ; "org.freedesktop.DBus.Error.Disconnected"
+(def-c-const DBUS_ERROR_DISCONNECTED (:type c-string) ; "org.freedesktop.DBus.Error.Disconnected"
   (:documentation "The connection is disconnected and you're trying to use it."))
-(def-c-const DBUS_ERROR_INVALID_ARGS ; "org.freedesktop.DBus.Error.InvalidArgs"
+(def-c-const DBUS_ERROR_INVALID_ARGS (:type c-string) ; "org.freedesktop.DBus.Error.InvalidArgs"
   (:documentation "Invalid arguments passed to a method call."))
-(def-c-const DBUS_ERROR_FILE_NOT_FOUND ; "org.freedesktop.DBus.Error.FileNotFound"
+(def-c-const DBUS_ERROR_FILE_NOT_FOUND (:type c-string) ; "org.freedesktop.DBus.Error.FileNotFound"
   (:documentation "Missing file."))
-(def-c-const DBUS_ERROR_FILE_EXISTS ; "org.freedesktop.DBus.Error.FileExists"
+(def-c-const DBUS_ERROR_FILE_EXISTS (:type c-string) ; "org.freedesktop.DBus.Error.FileExists"
   (:documentation "Existing file and the operation you're using does not silently overwrite."))
-(def-c-const DBUS_ERROR_UNKNOWN_METHOD ; "org.freedesktop.DBus.Error.UnknownMethod"
+(def-c-const DBUS_ERROR_UNKNOWN_METHOD (:type c-string) ; "org.freedesktop.DBus.Error.UnknownMethod"
   (:documentation "Method name you invoked isn't known by the object you invoked it on."))
-(def-c-const DBUS_ERROR_TIMED_OUT ; "org.freedesktop.DBus.Error.TimedOut"
+(def-c-const DBUS_ERROR_TIMED_OUT (:type c-string) ; "org.freedesktop.DBus.Error.TimedOut"
   (:documentation "Certain timeout errors, e.g. while starting a service.
 @warning this is confusingly-named given that #DBUS_ERROR_TIMEOUT also exists.
 We can't fix it for compatibility reasons so just be careful."))
-(def-c-const DBUS_ERROR_MATCH_RULE_NOT_FOUND ; "org.freedesktop.DBus.Error.MatchRuleNotFound"
+(def-c-const DBUS_ERROR_MATCH_RULE_NOT_FOUND (:type c-string) ; "org.freedesktop.DBus.Error.MatchRuleNotFound"
   (:documentation "Tried to remove or modify a match rule that didn't exist."))
-(def-c-const DBUS_ERROR_MATCH_RULE_INVALID ; "org.freedesktop.DBus.Error.MatchRuleInvalid"
+(def-c-const DBUS_ERROR_MATCH_RULE_INVALID (:type c-string) ; "org.freedesktop.DBus.Error.MatchRuleInvalid"
   (:documentation "The match rule isn't syntactically valid."))
-(def-c-const DBUS_ERROR_SPAWN_EXEC_FAILED ; "org.freedesktop.DBus.Error.Spawn.ExecFailed"
+(def-c-const DBUS_ERROR_SPAWN_EXEC_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ExecFailed"
   (:documentation "While starting a new process, the exec() call failed."))
-(def-c-const DBUS_ERROR_SPAWN_FORK_FAILED ; "org.freedesktop.DBus.Error.Spawn.ForkFailed"
+(def-c-const DBUS_ERROR_SPAWN_FORK_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ForkFailed"
   (:documentation "While starting a new process, the fork() call failed."))
-(def-c-const DBUS_ERROR_SPAWN_CHILD_EXITED ; "org.freedesktop.DBus.Error.Spawn.ChildExited"
+(def-c-const DBUS_ERROR_SPAWN_CHILD_EXITED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ChildExited"
   (:documentation "While starting a new process, the child exited with a status code."))
-(def-c-const DBUS_ERROR_SPAWN_CHILD_SIGNALED ; "org.freedesktop.DBus.Error.Spawn.ChildSignaled"
+(def-c-const DBUS_ERROR_SPAWN_CHILD_SIGNALED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ChildSignaled"
   (:documentation "While starting a new process, the child exited on a signal."))
-(def-c-const DBUS_ERROR_SPAWN_FAILED ; "org.freedesktop.DBus.Error.Spawn.Failed"
+(def-c-const DBUS_ERROR_SPAWN_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.Failed"
   (:documentation "While starting a new process, something went wrong."))
-(def-c-const DBUS_ERROR_UNIX_PROCESS_ID_UNKNOWN ; "org.freedesktop.DBus.Error.UnixProcessIdUnknown"
+(def-c-const DBUS_ERROR_UNIX_PROCESS_ID_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.UnixProcessIdUnknown"
   (:documentation "Tried to get a UNIX process ID and it wasn't available."))
-(def-c-const DBUS_ERROR_INVALID_SIGNATURE ; "org.freedesktop.DBus.Error.InvalidSignature"
+(def-c-const DBUS_ERROR_INVALID_SIGNATURE (:type c-string) ; "org.freedesktop.DBus.Error.InvalidSignature"
   (:documentation "A type signature is not valid."))
-(def-c-const DBUS_ERROR_INVALID_FILE_CONTENT ; "org.freedesktop.DBus.Error.InvalidFileContent"
+(def-c-const DBUS_ERROR_INVALID_FILE_CONTENT (:type c-string) ; "org.freedesktop.DBus.Error.InvalidFileContent"
   (:documentation "A file contains invalid syntax or is otherwise broken."))
-(def-c-const DBUS_ERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN ; "org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown"
+(def-c-const DBUS_ERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown"
   (:documentation "Asked for SELinux security context and it wasn't available."))
 
 ;; XML introspection format
 
-(def-c-const DBUS_INTROSPECT_1_0_XML_NAMESPACE ; "http://www.freedesktop.org/standards/dbus"
+(def-c-const DBUS_INTROSPECT_1_0_XML_NAMESPACE (:type c-string) ; "http://www.freedesktop.org/standards/dbus"
   (:documentation "XML namespace of the introspection format version 1.0"))
-(def-c-const DBUS_INTROSPECT_1_0_XML_PUBLIC_IDENTIFIER ; "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+(def-c-const DBUS_INTROSPECT_1_0_XML_PUBLIC_IDENTIFIER (:type c-string) ; "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
   (:documentation "XML public identifier of the introspection format version 1.0"))
-(def-c-const DBUS_INTROSPECT_1_0_XML_SYSTEM_IDENTIFIER ; "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd"
+(def-c-const DBUS_INTROSPECT_1_0_XML_SYSTEM_IDENTIFIER (:type c-string) ; "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd"
   (:documentation "XML system identifier of the introspection format version 1.0"))
-(def-c-const DBUS_INTROSPECT_1_0_XML_DOCTYPE_DECL_NODE ; "<!DOCTYPE node PUBLIC \""DBUS_INTROSPECT_1_0_XML_PUBLIC_IDENTIFIER"\"\n\""DBUS_INTROSPECT_1_0_XML_SYSTEM_IDENTIFIER"\">\n"
+(def-c-const DBUS_INTROSPECT_1_0_XML_DOCTYPE_DECL_NODE (:type c-string) ; "<!DOCTYPE node PUBLIC \""DBUS_INTROSPECT_1_0_XML_PUBLIC_IDENTIFIER"\"\n\""DBUS_INTROSPECT_1_0_XML_SYSTEM_IDENTIFIER"\">\n"
   (:documentation "XML document type declaration of the introspection format version 1.0"))
 
 ;; === dbus-server.h
@@ -1463,11 +1484,11 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; dbus_bool_t dbus_server_allocate_data_slot (dbus_int32_t *slot_p);
 (def-call-out dbus_server_allocate_data_slot (:return-type dbus_bool_t)
-  (:arguments (slot_p dbus_int32_t*)))
+  (:arguments (slot_p (c-pointer dbus_int32_t))))
 
 ;; void dbus_server_free_data_slot (dbus_int32_t *slot_p);
 (def-call-out dbus_server_free_data_slot (:return-type nil)
-  (:arguments (slot_p dbus_int32_t*)))
+  (:arguments (slot_p (c-pointer dbus_int32_t))))
 
 ;; dbus_bool_t dbus_server_set_data (DBusServer *server, int slot, void *data, DBusFreeFunction free_data_func);
 (def-call-out dbus_server_set_data (:return-type dbus_bool_t)
@@ -1491,17 +1512,17 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; int dbus_signature_iter_get_current_type (const DBusSignatureIter *iter);
 (def-call-out dbus_signature_iter_get_current_type (:return-type int)
-  (:arguments (iter const DBusSignatureIter*)))
+  (:arguments (iter DBusSignatureIter*)))
 
 
 ;; char * dbus_signature_iter_get_signature (const DBusSignatureIter *iter);
-(def-call-out dbus_signature_iter_get_signature (:return-type char*)
-  (:arguments (iter const DBusSignatureIter*)))
+(def-call-out dbus_signature_iter_get_signature (:return-type c-string)
+  (:arguments (iter DBusSignatureIter*)))
 
 
 ;; int dbus_signature_iter_get_element_type (const DBusSignatureIter *iter);
 (def-call-out dbus_signature_iter_get_element_type (:return-type int)
-  (:arguments (iter const DBusSignatureIter*)))
+  (:arguments (iter DBusSignatureIter*)))
 
 
 ;; dbus_bool_t dbus_signature_iter_next (DBusSignatureIter *iter);
@@ -1511,7 +1532,7 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; void dbus_signature_iter_recurse (const DBusSignatureIter *iter, DBusSignatureIter *subiter);
 (def-call-out dbus_signature_iter_recurse (:return-type nil)
-  (:arguments (iter const DBusSignatureIter*) (subiter DBusSignatureIter*)))
+  (:arguments (iter DBusSignatureIter*) (subiter DBusSignatureIter*)))
 
 
 ;; dbus_bool_t dbus_signature_validate (const char *signature, DBusError *error);
@@ -1529,11 +1550,11 @@ We can't fix it for compatibility reasons so just be careful."))
   (:arguments (typecode int)))
 
 ;; dbus_bool_t dbus_type_is_container (int typecode);
-(def-call-out dbus_type_is_container (:return-type bus_bool_t)
+(def-call-out dbus_type_is_container (:return-type dbus_bool_t)
   (:arguments (typecode int)))
 
 ;; dbus_bool_t dbus_type_is_fixed (int typecode);
-(def-call-out dbus_type_is_fixed (:return-type bus_bool_t)
+(def-call-out dbus_type_is_fixed (:return-type dbus_bool_t)
   (:arguments (typecode int)))
 
 
@@ -1741,7 +1762,7 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; dbus_bool_t dbus_threads_init (const DBusThreadFunctions *functions);
 (def-call-out dbus_threads_init (:return-type dbus_bool_t)
-  (:arguments (functions const DBusThreadFunctions*)))
+  (:arguments (functions (c-pointer DBusThreadFunctions))))
 
 ;; dbus_bool_t dbus_threads_init_default (void);
 (def-call-out dbus_threads_init_default (:return-type dbus_bool_t)
