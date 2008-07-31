@@ -498,6 +498,7 @@
 <!ENTITY wildcard-mod '<filename role="module" path="wildcard">wildcard</filename>'>
 <!ENTITY zlib-mod '<filename role="module" path="zlib">zlib</filename>'>
 <!ENTITY rawsock-mod '<filename role="module" path="rawsock">rawsock</filename>'>
+<!ENTITY dbus-mod '<filename role="module" path="dbus">dbus</filename>'>
 <!ENTITY fastcgi-mod '<filename role="module" path="fastcgi">fastcgi</filename>'>
 <!ENTITY mit-clx '<filename role="module">clx/mit-clx</filename>'>
 <!ENTITY new-clx '<filename role="module">clx/new-clx</filename>'>
@@ -547,6 +548,9 @@
 
 <!-- *** rawsock *** -->
 <!ENTITY convert-address '<link linkend="rawsock-convert-address"><function>RAWSOCK:CONVERT-ADDRESS</function></link>'>
+
+<!-- *** dbus *** -->
+<!ENTITY d-bus '<ulink url="http://www.freedesktop.org/Software/dbus">D-Bus</ulink>'>
 
 <!-- *** FFI *** -->
 <!ENTITY allocate-deep '<link linkend="foreign-heap"><function>FFI:ALLOCATE-DEEP</function></link>'>

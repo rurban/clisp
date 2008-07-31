@@ -50,7 +50,7 @@ $(MAKEMAKE_TMP) : src/makemake.in version.sh
 
 CURDIR=$(shell pwd)
 
-MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre \
+MODULES=berkeley-db clx/new-clx dirkey fastcgi i18n oracle pari pcre dbus \
 	postgresql rawsock readline regexp syscalls wildcard zlib gtk2 gdbm
 CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))

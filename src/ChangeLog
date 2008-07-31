@@ -1,3 +1,8 @@
+2008-07-31  Sam Steingold  <sds@gnu.org>
+
+	* modules/dbus: new module
+	* Makefile.devel (MODULES): add dbus
+
 2008-07-29  Sam Steingold  <sds@gnu.org>
 
 	* init.lisp (search-file): fix a bug in "wild" code which caused

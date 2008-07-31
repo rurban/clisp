@@ -2581,9 +2581,11 @@ to the 3 (or 4) <link linkend="base-modules">base modules</link>.</para>
  </simpara></listitem></varlistentry>
 </variablelist></section>
 
-<section id="incmod-net"><title>Networking</title>
+<section id="incmod-net"><title>Communication, Networking</title>
 <variablelist><varlistentry><term>&rawsock-mod;</term>
   <listitem><simpara>Raw socket access.</simpara></listitem></varlistentry>
+<varlistentry><term>&dbus-mod;</term>
+  <listitem><simpara>Interface to &d-bus;.</simpara></listitem></varlistentry>
  <varlistentry><term>&fastcgi-mod;</term>
   <listitem><simpara>Access
     <ulink url="http://www.fastcgi.com/">FastCGI</ulink> from &clisp;;
