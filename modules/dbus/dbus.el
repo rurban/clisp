@@ -97,7 +97,7 @@
     (search-forward "#define ")
     (replace-match "(def-c-const ")
     (if (search-forward "[A-Za-z0-9_]*_STRING" (line-end-position) t)
-        (insert " (:type string)")
+        (insert " (:type c-string)")
         (forward-sexp))
     (just-one-space)
     (insert "; ") ; (comment-indent)
