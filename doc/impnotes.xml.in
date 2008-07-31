@@ -23,6 +23,7 @@
   <!ENTITY % ent-bdb-file SYSTEM "../modules/berkeley-db/ent-bdb.xml">
   %ent-bdb-file;
   <!ENTITY berkeley-db-file SYSTEM "../modules/berkeley-db/berkeley-db.xml">
+  <!ENTITY dbus-file SYSTEM "../modules/dbus/dbus.xml">
   <!ENTITY dirkey-file SYSTEM "../modules/dirkey/dirkey.xml">
   <!ENTITY fastcgi-file SYSTEM "../modules/fastcgi/fastcgi.xml">
   <!ENTITY gdbm-file SYSTEM "../modules/gdbm/gdbm.xml">
@@ -197,9 +198,10 @@
 &wildcard-file;
 &zlib-file;
 
-<!-- networking -->
+<!-- communications, networking -->
 &rawsock-file;
 &fastcgi-file;
+&dbus-file;
 
 <!-- gui -->
 &gtk-file;
