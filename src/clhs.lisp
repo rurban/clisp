@@ -272,7 +272,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (setf (gethash id table) destination)
     :finally (format t "~:D ID~:P~%" total))
   table)
-(let ((impnotes-map-source nil) (impnotes-map-good nil)
+(let ((impnotes-map-source nil) (impnotes-map-good nil) id-href
       (dest (lambda (id) (string-concat "#" id))))
   ;; if impnotes-map-source is the same as (impnotes-root), do nothing
   ;; and return (and impnotes-map-good (impnotes-root));
@@ -286,9 +286,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
         (setq impnotes-map-source impnotes-root)
         (case (char impnotes-root (1- (length impnotes-root)))
           ((#\/ #+win32 #\\) ; chunked impnotes ==> get id-href
-           (with-open-stream (s (open-url (string-concat impnotes-root
-                                                         "id-href.map")
-                                          :if-does-not-exist nil))
+           (setq id-href (string-concat impnotes-root "id-href.map"))
+           (with-open-stream (s (open-url id-href :if-does-not-exist nil))
              (unless s
                #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
                         'impnotes-root impnotes-root '(getenv "IMPNOTES")
@@ -325,7 +324,10 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   (defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
     (let ((doc (sys::package-documentation obj)))
       (and (consp doc) (ensure-impnotes-map)
-           (string-concat (impnotes-root) (funcall dest (second doc)))))))
+           (let ((suffix (funcall dest (second doc))))
+             (if suffix (string-concat (impnotes-root) suffix)
+                 (cerror (TEXT "Ignore") (TEXT "~S(~S): ~S does not know about ~S; the Implementation Notes must be regenerated")
+                         'documentation obj id-href (second doc))))))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
   (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
