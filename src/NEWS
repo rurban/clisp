@@ -1,6 +1,9 @@
 Important notes
 ---------------
 
+* New module DBUS interfaces to the D-Bus message bus system.
+  See <http://clisp.cons.org/impnotes/dbus.html> for details.
+
 * New function EXT:PROBE-PATHNAME can figure out whether the existing
   pathname refers to a file or a directory.
   See <http://clisp.cons.org/impnotes/files.html#probe-path> for details.
