@@ -8,6 +8,9 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([GTK2 (Common)])
+if test $cl_cv_have_ffcall = no; then
+  AC_MSG_ERROR([module GTK2 requires FFI])
+fi
 CL_MODULE_COMMON_CHECKS
 
 AM_PATH_GTK_2_0(,,[AC_MSG_ERROR([cannot find GTK2])],)
