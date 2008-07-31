@@ -3,6 +3,10 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
+# defined by PKG_CHECK_MODULES
+DBUS_CFLAGS = @DBUS_CFLAGS@
+DBUS_LIBS = @DBUS_LIBS@
+
 INCLUDES= ..
 
 CLISP = clisp -q -norc
@@ -22,7 +26,7 @@ dbus.c dbus.fas : dbus.lisp
 	$(CLISP) -c dbus.lisp
 
 dbus.o : dbus.c $(INCLUDES)/clisp.h config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dbus.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(DBUS_CFLAGS) -c dbus.c
 
 # Make a module
 clisp-module : all
