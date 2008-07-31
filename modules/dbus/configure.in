@@ -18,8 +18,6 @@ BOLD_MSG([Dbus (Headers and Libraries)])
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0,,[AC_MSG_ERROR([cannot find D-Bus])])
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
-AC_LIB_APPENDTOVAR([LIBS], [$DBUS_LIBS])
-AC_LIB_APPENDTOVAR([CFLAGS], [$DBUS_CFLAGS])
 
 BOLD_MSG([Dbus (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
