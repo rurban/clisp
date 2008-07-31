@@ -14,22 +14,12 @@ if test $cl_cv_have_ffcall = no; then
 fi
 CL_MODULE_COMMON_CHECKS
 
-dnl Search for libdbus and define LIBDBUS, LTLIBDBUS and INCDBUS.
-AC_CONFIG_AUX_DIR(../../src/build-aux)
-AC_LIB_LINKFLAGS([dbus])
-
-BOLD_MSG([Dbus (Headers)])
-AC_CHECK_HEADERS(dbus.h dbus/dbus.h)
-if test "$ac_cv_header_dbus_h" = "no" -a "$ac_cv_header_dbus_dbus_h" = "no" ;
-then AC_MSG_ERROR([cannot find DBUS headers])
-fi
-
-BOLD_MSG([Dbus (Functions)])
-AC_LIB_APPENDTOVAR([LIBS], [$LIBDBUS])
-AC_SEARCH_LIBS(dbus_shutdown, dbus)
-if test "$ac_cv_search_dbus_shutdown" = "no"; then
-  AC_MSG_ERROR([cannot find DBUS library])
-fi
+BOLD_MSG([Dbus (Headers and Libraries)])
+PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0,,[AC_MSG_ERROR([cannot find D-Bus])])
+AC_SUBST(DBUS_CFLAGS)
+AC_SUBST(DBUS_LIBS)
+AC_LIB_APPENDTOVAR([LIBS], [$DBUS_LIBS])
+AC_LIB_APPENDTOVAR([CFLAGS], [$DBUS_CFLAGS])
 
 BOLD_MSG([Dbus (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
