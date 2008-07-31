@@ -1,5 +1,10 @@
 2008-07-31  Sam Steingold  <sds@gnu.org>
 
+	* clhs.lisp (documentation@package): fail gracefully when id-href
+	is missing the package and impnotes must be regenerated
+
+2008-07-31  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (def-c-enum): accept non-numeric-literal values
 
 2008-07-31  Sam Steingold  <sds@gnu.org>
