@@ -4,6 +4,13 @@
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
+;; synced with dbus-1.2.1
+;; to update to a new release:
+;; git clone git://anongit.freedesktop.org/git/dbus/dbus
+;; cd dbus/dbus
+;; git diff dbus-1.2.1 dbus-<latest> dbus-types.h
+;; etc
+
 (defpackage "DBUS"
   (:modern t)
   (:use "CL" "FFI")
@@ -17,7 +24,9 @@
 
 ;;; foreign function definitions
 (default-foreign-language :stdc)
+(eval-when (compile) (setq *foreign-guard* t))
 
+(c-lines "#include <config.h>~%") ; local dbus config
 (c-lines "#include <dbus/dbus.h>~%")
 
 ;; === dbus-types.h
@@ -31,7 +40,15 @@
 ;; === dbus-macros.h - nothing
 
 ;; === dbus-errors.h
-(def-c-struct DBusError (name c-string) (message c-string))
+(def-c-struct DBusError
+  (name c-string)    ; public error name field
+  (message c-string) ; public error message field
+  (dummy1 uint)
+  (dummy2 uint)
+  (dummy3 uint)
+  (dummy4 uint)
+  (dummy5 uint)
+  (padding c-pointer))
 
 ;; void dbus_error_init (DBusError *error);
 (def-call-out dbus_error_init (:return-type nil)
@@ -415,6 +432,17 @@
 (def-call-out dbus_message_type_to_string (:return-type c-string)
   (:arguments (type int)))
 
+;; dbus_bool_t dbus_message_marshal (DBusMessage *msg, char **marshalled_data_p, int *len_p);
+(def-call-out dbus_message_marshal (:return-type dbus_bool_t)
+  (:arguments (msg DBusMessage*)
+              (marshalled_data_p (c-ptr c-pointer) :out)
+              (len_p (c-ptr int) :out)))
+
+;; DBusMessage* dbus_message_demarshal (const char *str, int len, DBusError *error);
+(def-call-out dbus_message_demarshal (:return-type DBusMessage*)
+  (:arguments (str c-pointer) (len int) (error (c-ptr DBusError) :out)))
+
+
 
 ;; === dbus-shared.h
 
@@ -603,16 +631,28 @@
 (def-c-type DBusWakeupMainFunction* (c-pointer DBusWakeupMainFunction))
 
 
-;; Called during authentication on UNIX systems to check whether the given
-;; user ID is allowed to connect. Never called on Windows. Set with
-;; dbus_connection_set_unix_user_function().
+;; Called during authentication to check whether the given UNIX user
+;; ID is allowed to connect, if the client tried to auth as a UNIX user ID.
+;; Normally on Windows this would never happen.
+;; Set with dbus_connection_set_unix_user_function().
 ;; typedef dbus_bool_t (* DBusAllowUnixUserFunction) (DBusConnection *connection, unsigned long uid, void *data);
 (def-c-type DBusAllowUnixUserFunction
   (c-function (:return-type dbus_bool_t)
-              (:arguments (connection DBusConnection*) (uid ulong)
-                          (data c-pointer))))
+              (:arguments (connection DBusConnection*)
+                          (uid ulong) (data c-pointer))))
 (def-c-type DBusAllowUnixUserFunction* (c-pointer DBusAllowUnixUserFunction))
 
+
+;; Called during authentication to check whether the given Windows user
+;; ID is allowed to connect, if the client tried to auth as a Windows user ID.
+;; Normally on UNIX this would never happen.
+;; Set with dbus_connection_set_windows_user_function().
+;; typedef dbus_bool_t (* DBusAllowWindowsUserFunction) (DBusConnection *connection, const char *user_sid, void *data);
+(def-c-type DBusAllowWindowsUserFunction
+  (c-function (:return-type dbus_bool_t)
+              (:arguments (connection DBusConnection*)
+                          (user_sid c-string) (data c-pointer))))
+(def-c-type DBusAllowWindowsUserFunction* (c-pointer DBusAllowWindowsUserFunction))
 
 ;; Called when a pending call now has a reply available.
 ;; Set with dbus_pending_call_set_notify().
@@ -661,6 +701,14 @@
 
 ;; dbus_bool_t dbus_connection_get_is_authenticated (DBusConnection *connection);
 (def-call-out dbus_connection_get_is_authenticated (:return-type dbus_bool_t)
+  (:arguments (connection DBusConnection*)))
+
+;; dbus_bool_t dbus_connection_get_is_anonymous (DBusConnection *connection);
+(def-call-out dbus_connection_get_is_anonymous (:return-type dbus_bool_t)
+  (:arguments (connection DBusConnection*)))
+
+;; char* dbus_connection_get_server_id (DBusConnection *connection);
+(def-call-out dbus_connection_get_server_id (:return-type c-string)
   (:arguments (connection DBusConnection*)))
 
 ;; void dbus_connection_set_exit_on_disconnect (DBusConnection *connection, dbus_bool_t exit_on_disconnect);
@@ -763,6 +811,21 @@
 (def-call-out dbus_connection_set_unix_user_function (:return-type nil)
   (:arguments (connection DBusConnection*) (function DBusAllowUnixUserFunction)
               (data c-pointer) (free_data_function DBusFreeFunction)))
+
+;; dbus_bool_t dbus_connection_get_windows_user (DBusConnection *connection, char **windows_sid_p);
+(def-call-out dbus_connection_get_windows_user (:return-type dbus_bool_t)
+  (:arguments (connection DBusConnection*)
+              (windows_sid_p (c-ptr c-string) :out)))
+
+;; void dbus_connection_set_windows_user_function (DBusConnection *connection, DBusAllowWindowsUserFunction function, void *data, DBusFreeFunction free_data_function);
+(def-call-out dbus_connection_set_windows_user_function (:return-type nil)
+  (:arguments (connection DBusConnection*)
+              (function DBusAllowWindowsUserFunction) (data c-pointer)
+              (free_data_function DBusFreeFunction)))
+
+;; void dbus_connection_set_allow_anonymous (DBusConnection *connection, dbus_bool_t value);
+(def-call-out dbus_connection_set_allow_anonymous (:return-type nil)
+  (:arguments (connection DBusConnection*) (value dbus_bool_t)))
 
 ;; void dbus_connection_set_route_peer_messages (DBusConnection *connection, dbus_bool_t value);
 (def-call-out dbus_connection_set_route_peer_messages (:return-type nil)
@@ -875,13 +938,29 @@
 ;; dbus_connection_register_fallback().
 (def-c-struct DBusObjectPathVTable
   (unregister_function DBusObjectPathUnregisterFunction) ; Function to unregister this handler
-  (message_function DBusObjectPathMessageFunction); Function to handle messages
+  (message_function DBusObjectPathMessageFunction) ; Function to handle messages
+  (dbus_internal_pad1 c-pointer) ; Reserved for future expansion
+  (dbus_internal_pad2 c-pointer) ; Reserved for future expansion
+  (dbus_internal_pad3 c-pointer) ; Reserved for future expansion
+  (dbus_internal_pad4 c-pointer) ; Reserved for future expansion
   )
+
+;; dbus_bool_t dbus_connection_try_register_object_path (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data, DBusError *error);
+(def-call-out dbus_connection_try_register_object_path (:return-type dbus_bool_t)
+  (:arguments (connection DBusConnection*) (path c-string)
+              (vtable DBusObjectPathVTable*) (user_data c-pointer)
+              (error (c-ptr DBusError) :out)))
 
 ;; dbus_bool_t dbus_connection_register_object_path (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data);
 (def-call-out dbus_connection_register_object_path (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (path c-string)
               (vtable DBusObjectPathVTable*) (user_data c-pointer)))
+
+;; dbus_bool_t dbus_connection_try_register_fallback (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data, DBusError *error);
+(def-call-out dbus_connection_try_register_fallback (:return-type dbus_bool_t)
+  (:arguments (connection DBusConnection*) (path c-string)
+              (vtable DBusObjectPathVTable*) (user_data c-pointer)
+              (error (c-ptr DBusError) :out)))
 
 ;; dbus_bool_t dbus_connection_register_fallback (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data);
 (def-call-out dbus_connection_register_fallback (:return-type dbus_bool_t)
@@ -913,12 +992,20 @@
   (:arguments (connection DBusConnection*) (fd (c-ptr int) :out)))
 
 
-;; char* dbus_get_local_machine_id (void);
+;; [removed in 1.2.1] char* dbus_get_local_machine_id (void);
 (def-call-out dbus_get_local_machine_id (:return-type c-string)
   (:arguments))
 
-;; int dbus_watch_get_fd (DBusWatch *watch);
+;; [deprecated in 1.2.1] int dbus_watch_get_fd (DBusWatch *watch);
 (def-call-out dbus_watch_get_fd (:return-type int)
+  (:arguments (watch DBusWatch*)))
+
+;; int dbus_watch_get_unix_fd (DBusWatch *watch);
+(def-call-out dbus_watch_get_unix_fd (:return-type int)
+  (:arguments (watch DBusWatch*)))
+
+;; int dbus_watch_get_socket (DBusWatch *watch);
+(def-call-out dbus_watch_get_socket (:return-type int)
   (:arguments (watch DBusWatch*)))
 
 ;; unsigned int dbus_watch_get_flags (DBusWatch *watch);
@@ -993,6 +1080,10 @@
 (def-call-out dbus_bus_get_unix_user (:return-type ulong)
   (:arguments (connection DBusConnection*) (name c-string)
               (error (c-ptr DBusError) :out)))
+
+;; char* dbus_bus_get_id (DBusConnection *connection, DBusError *error);
+(def-call-out dbus_bus_get_id (:return-type char*)
+  (:arguments (connection DBusConnection*) (error (c-ptr DBusError) :out)))
 
 ;; int dbus_bus_request_name (DBusConnection *connection, const char *name, unsigned int flags, DBusError *error);
 (def-call-out dbus_bus_request_name (:return-type int)
@@ -1399,6 +1490,20 @@ We can't fix it for compatibility reasons so just be careful."))
   (:documentation "While starting a new process, the child exited on a signal."))
 (def-c-const DBUS_ERROR_SPAWN_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.Failed"
   (:documentation "While starting a new process, something went wrong."))
+(def-c-const DBUS_ERROR_SPAWN_SETUP_FAILED (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.FailedToSetup"
+  (:documentation "We failed to setup the environment correctly."))
+(def-c-const DBUS_ERROR_SPAWN_CONFIG_INVALID (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ConfigInvalid"
+  (:documentation "We failed to setup the config parser correctly."))
+(def-c-const DBUS_ERROR_SPAWN_SERVICE_INVALID (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ServiceNotValid"
+  (:documentation "Bus name was not valid."))
+(def-c-const DBUS_ERROR_SPAWN_SERVICE_NOT_FOUND (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.ServiceNotFound"
+  (:documentation "Service file not found in system-services directory."))
+(def-c-const DBUS_ERROR_SPAWN_PERMISSIONS_INVALID (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.PermissionsInvalid"
+  (:documentation "Permissions are incorrect on the setuid helper."))
+(def-c-const DBUS_ERROR_SPAWN_FILE_INVALID (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.FileInvalid"
+  (:documentation "Service file invalid (Name, User or Exec missing)."))
+(def-c-const DBUS_ERROR_SPAWN_NO_MEMORY (:type c-string) ; "org.freedesktop.DBus.Error.Spawn.NoMemory"
+  (:documentation "Tried to get a UNIX process ID and it wasn't available."))
 (def-c-const DBUS_ERROR_UNIX_PROCESS_ID_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.UnixProcessIdUnknown"
   (:documentation "Tried to get a UNIX process ID and it wasn't available."))
 (def-c-const DBUS_ERROR_INVALID_SIGNATURE (:type c-string) ; "org.freedesktop.DBus.Error.InvalidSignature"
@@ -1407,6 +1512,8 @@ We can't fix it for compatibility reasons so just be careful."))
   (:documentation "A file contains invalid syntax or is otherwise broken."))
 (def-c-const DBUS_ERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown"
   (:documentation "Asked for SELinux security context and it wasn't available."))
+(def-c-const DBUS_ERROR_OBJECT_PATH_IN_USE (:type c-string) ; "org.freedesktop.DBus.Error.ObjectPathInUse"
+  (:documentation "There's already an object with the requested object path."))
 
 ;; XML introspection format
 
@@ -1457,6 +1564,10 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; char* dbus_server_get_address (DBusServer *server);
 (def-call-out dbus_server_get_address (:return-type c-string)
+  (:arguments (server DBusServer*)))
+
+;; char* dbus_server_get_id (DBusServer *server);
+(def-call-out dbus_server_get_id (:return-type c-string)
   (:arguments (server DBusServer*)))
 
 ;; void dbus_server_set_new_connection_function (DBusServer *server, DBusNewConnectionFunction function, void *data, DBusFreeFunction free_data_function);
@@ -1759,6 +1870,10 @@ We can't fix it for compatibility reasons so just be careful."))
   (recursive_mutex_free DBusRecursiveMutexFreeFunction) ; Function to free a recursive mutex
   (recursive_mutex_lock DBusRecursiveMutexLockFunction) ; Function to lock a recursive mutex
   (recursive_mutex_unlock DBusRecursiveMutexUnlockFunction) ; Function to unlock a recursive mutex
+  (padding1 c-pointer) ; Reserved for future expansion
+  (padding2 c-pointer) ; Reserved for future expansion
+  (padding3 c-pointer) ; Reserved for future expansion
+  (padding4 c-pointer) ; Reserved for future expansion
   )
 
 ;; dbus_bool_t dbus_threads_init (const DBusThreadFunctions *functions);
