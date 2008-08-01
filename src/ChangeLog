@@ -1,3 +1,9 @@
+2008-08-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/dbus/dbus.lisp: support dbus 1.2.1
+	(*foreign-guard*): set to T
+	* modules/dbus/configure.in: check all functions
+
 2008-07-31  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (documentation@package): fail gracefully when id-href
