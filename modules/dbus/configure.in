@@ -21,6 +21,7 @@ AC_SUBST(DBUS_LIBS)
 
 BOLD_MSG([Dbus (Functions)])
 dbus_save_LIB=$LIBS
+AC_LIB_APPENDTOVAR([LIBS], [$DBUS_LIBS])
 AC_CHECK_FUNCS(dnl ;; === dbus-types.h
 dbus_error_init dbus_error_free dbus_set_error dbus_set_error_const dnl
 dbus_move_error dbus_error_has_name dbus_error_is_set dnl
