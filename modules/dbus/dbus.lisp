@@ -1082,7 +1082,7 @@
               (error (c-ptr DBusError) :out)))
 
 ;; char* dbus_bus_get_id (DBusConnection *connection, DBusError *error);
-(def-call-out dbus_bus_get_id (:return-type char*)
+(def-call-out dbus_bus_get_id (:return-type c-string)
   (:arguments (connection DBusConnection*) (error (c-ptr DBusError) :out)))
 
 ;; int dbus_bus_request_name (DBusConnection *connection, const char *name, unsigned int flags, DBusError *error);
