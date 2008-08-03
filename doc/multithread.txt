@@ -126,6 +126,12 @@ It is also consistent with the usual Common Lisp approach of
         The consequences are undefined when code executed during an
         object-traversing operation destructively modifies the object in
         a way that might affect the ongoing traversal operation...
+   http://www.lisp.org/HyperSpec/Body/sec_18-1-2.html
+        If an object O1 is used as a key in a hash table H and is then
+        visibly modified with regard to the equivalence test of H, then
+        the consequences are unspecified if O1 is used as a key in
+        further operations on H...
+I.e., if you want to shoot yourself, it is YOUR responsibility to wear armor.
 
 Garbage Collector
 -----------------
