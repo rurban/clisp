@@ -1,5 +1,10 @@
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
+	* analyse-funtab.lisp (map-calls): turn into a generic function to
+	support generic functions (map over fast functions in methods)
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
 	* control.d (make_vframe_activate): use GCTRIGGER2(value1,value2)
 	instead of a global maygc similar to make_variable_frame() which
 	is the only GC-unsafe call in make_vframe_activate()
