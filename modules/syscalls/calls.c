@@ -1227,16 +1227,14 @@ DEFUN(POSIX::PATHCONF, pathspec &optional what)
   Handle fd;
   if (integerp(STACK_1)) {
     fd = I_to_UL(STACK_1);
-    goto pathconf_fd;
+   pathconf_fd: DO_PATHCONF(fpathconf,fd,STACK_0);
   } else {
     object file = open_file_stream_handle(STACK_1,&fd,true);
     if (eq(nullobj,file)) {    /* not an open stream ==> use truename */
       with_string_0(STACK_1 = physical_namestring(STACK_1),
                     GLO(pathname_encoding), namez,
           { DO_PATHCONF(pathconf,namez,STACK_0); });
-    } else { pathconf_fd:       /* open stream ==> use fd */
-      DO_PATHCONF(fpathconf,fd,STACK_0);
-    }
+    } else goto pathconf_fd;       /* open stream ==> use fd */
   }
   skipSTACK(2);
 }

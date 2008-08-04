@@ -1,5 +1,9 @@
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (PATHCONF): fix g++ compilation
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (check_file_reopen): fix a GC-safety bug; check the
 	value of *REOPEN-OPEN-FILE* and change it to ERROR if it is invalid
 
