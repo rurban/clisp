@@ -6623,6 +6623,7 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
   if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
    #define error_format_string CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results")
     if (eq(Symbol_value(S(reopen_open_file)),S(error))) {
+     check_file_reopen_error:
       pushSTACK(NIL);              /* 8: continue-format-string */
       pushSTACK(S(file_error));    /* 7: error type */
       pushSTACK(S(Kpathname));     /* 6: :PATHNAME */
@@ -6643,6 +6644,17 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       pushSTACK(direction_symbol(direction)); /* 0: direction */
       STACK_4 = error_format_string;
       funcall(S(warn),5);
+    } else {
+      pushSTACK(bad_stream);    /* save */
+      pushSTACK(CLSTEXT("~S: The value of ~S should be one of ~S, ~S, or ~S, not ~S. It has been changed to ~S."));
+      pushSTACK(TheSubr(subr_self)->name);
+      pushSTACK(S(reopen_open_file));
+      pushSTACK(S(error)); pushSTACK(S(warn)); pushSTACK(NIL);
+      pushSTACK(Symbol_value(S(reopen_open_file))); pushSTACK(S(error));
+      funcall(S(warn),8);
+      Symbol_value(S(reopen_open_file)) = S(error);
+      bad_stream = popSTACK();  /* restore */
+      goto check_file_reopen_error;
     }
    #undef error_format_string
   }
