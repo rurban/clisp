@@ -713,13 +713,14 @@ LISPSPECFORM(letstar, 1,0,body)
 /* call make_variable_frame + activate_bindings + activate_specdecls
  Analyzes the variables and declarations, builds up a variable binding-
  frame and extends VENV and poss. also DENV by a frame.
- make_variable_frame(caller,varspecs,&bind_ptr,&bind_count,&spec_ptr,&spec_count)
+ make_vframe_activate(void)
  call it after parse_doc_decl, then the inputs are correct:
  > object value2: list of declaration-specifiers
  > object value1: list ({form}) of forms
  changes STACK (STACK_0<-value1=({form}) + 2 bindings requiring 2 unwind calls)
  can trigger GC */
-local maygc void make_vframe_activate (void) {
+local /*maygc*/ void make_vframe_activate (void) {
+  GCTRIGGER2(value1,value2);
   var gcv_object_t *bind_ptr, *spec_ptr;
   var uintC bind_count, spec_count;
   make_variable_frame(TheFsubr(subr_self)->name,NIL,&bind_ptr,&bind_count,
