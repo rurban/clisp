@@ -1,3 +1,8 @@
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (thread_length): define to 3 because Thread contains
+	3 gcv_object_t fields
+
 2008-08-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/dbus/dbus.lisp: support dbus 1.2.1
