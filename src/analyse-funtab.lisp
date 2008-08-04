@@ -78,34 +78,38 @@ i.e. (car pair) = (length (cdr pair))")
              *closures*))))
 
 ;; map-calls is by far the trickiest part of the code
-(defun map-calls (f closure)
-  "Call F on each function call in the CLOSURE."
-  (multiple-value-bind (req-num opt-num rest-p
-                        key-p keyword-list allow-other-keys-p
-                        byte-list const-list)
-      (sys::signature closure)
-    (declare (ignore req-num opt-num rest-p
-                     key-p keyword-list allow-other-keys-p))
-    (let ((lap-list (sys::disassemble-LAP byte-list const-list))
-          (caller (sys::closure-name closure)))
-      (dolist (L lap-list)
-        (let* ((instr (cdr L))
-               (const (when (consp instr)
-                        (case (first instr)
-                          ((SYS::CALL SYS::CALL&PUSH)
-                           (nth (third instr) const-list))
-                          ((SYS::CALL0 SYS::CALL1 SYS::CALL1&PUSH
-                            SYS::CALL1&JMPIFNOT SYS::CALL1&JMPIF
-                            SYS::CALL2 SYS::CALL2&PUSH SYS::CALL2&JMPIFNOT
-                            SYS::CALL2&JMPIF
-                            SYS::CONST&SYMBOL-FUNCTION&PUSH
-                            SYS::CONST&SYMBOL-FUNCTION
-                            SYS::COPY-CLOSURE&PUSH SYS::COPY-CLOSURE
-                            SYS::CONST&SYMBOL-FUNCTION&STORE
-                            SYS::TAGBODY-OPEN SYS::HANDLER-OPEN)
-                           (nth (second instr) const-list))))))
-          (when (and const (symbolp const))
-            (funcall f caller const)))))))
+(defgeneric map-calls (f closure)
+  (:documentation "Call F on each function call in the CLOSURE.")
+  (:method ((f t) (closure function))
+    (multiple-value-bind (req-num opt-num rest-p
+                          key-p keyword-list allow-other-keys-p
+                          byte-list const-list)
+        (sys::signature closure)
+      (declare (ignore req-num opt-num rest-p
+                       key-p keyword-list allow-other-keys-p))
+      (let ((lap-list (sys::disassemble-LAP byte-list const-list))
+            (caller (sys::closure-name closure)))
+        (dolist (L lap-list)
+          (let* ((instr (cdr L))
+                 (const (when (consp instr)
+                          (case (first instr)
+                            ((SYS::CALL SYS::CALL&PUSH)
+                             (nth (third instr) const-list))
+                            ((SYS::CALL0 SYS::CALL1 SYS::CALL1&PUSH
+                              SYS::CALL1&JMPIFNOT SYS::CALL1&JMPIF
+                              SYS::CALL2 SYS::CALL2&PUSH SYS::CALL2&JMPIFNOT
+                              SYS::CALL2&JMPIF
+                              SYS::CONST&SYMBOL-FUNCTION&PUSH
+                              SYS::CONST&SYMBOL-FUNCTION
+                              SYS::COPY-CLOSURE&PUSH SYS::COPY-CLOSURE
+                              SYS::CONST&SYMBOL-FUNCTION&STORE
+                              SYS::TAGBODY-OPEN SYS::HANDLER-OPEN)
+                             (nth (second instr) const-list))))))
+            (when (and const (symbolp const))
+              (funcall f caller const)))))))
+  (:method ((f t) (gf generic-function))
+    (dolist (m (generic-function-methods gf))
+      (map-calls f (clos::std-method-fast-function m)))))
 
 #+(or) (progn
 
