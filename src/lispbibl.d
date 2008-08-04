@@ -6870,7 +6870,7 @@ typedef struct {
   struct backtrace_t *xth_bt;          /* the backtrace */
   xthread_t xth_system;                /* OS object */
 } * Thread;
-#define thread_length  2
+#define thread_length  3
 #define thread_xlength (sizeof(*(Thread)0)-offsetofa(record_,recdata)-thread_length*sizeof(gcv_object_t))
 
 typedef struct {
