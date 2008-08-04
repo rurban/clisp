@@ -1,5 +1,9 @@
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (check_file_reopen): fix a GC-safety bug
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
 	* analyse-funtab.lisp (map-calls): turn into a generic function to
 	support generic functions (map over fast functions in methods)
 
