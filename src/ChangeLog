@@ -1,5 +1,12 @@
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
+	* control.d (make_vframe_activate): use GCTRIGGER2(value1,value2)
+	instead of a global maygc similar to make_variable_frame() which
+	is the only GC-unsafe call in make_vframe_activate()
+	Reported by Vladimir Tzankov <vtzankov@gmail.com>
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
 	* clos-class6.lisp (class-prototype@built-in-class): finish last
 	patch: (SYS::%UNBOUND) should be the first argument to EQ
 
