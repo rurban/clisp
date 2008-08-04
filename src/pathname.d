@@ -6636,11 +6636,12 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       STACK_4 = error_format_string;
       funcall(L(cerror_of_type),9);
     } else if (eq(Symbol_value(S(reopen_open_file)),S(warn))) {
-      pushSTACK(error_format_string);         /* 0 */
-      pushSTACK(TheSubr(subr_self)->name);    /* 1: caller */
+      pushSTACK(NIL);                         /* 4: error_format_string */
+      pushSTACK(TheSubr(subr_self)->name);    /* 3: caller */
       pushSTACK(bad_stream);                  /* 2: bad stream */
-      pushSTACK(truename);                    /* 3: truename */
-      pushSTACK(direction_symbol(direction)); /* 4: direction */
+      pushSTACK(truename);                    /* 1: truename */
+      pushSTACK(direction_symbol(direction)); /* 0: direction */
+      STACK_4 = error_format_string;
       funcall(S(warn),5);
     }
    #undef error_format_string
