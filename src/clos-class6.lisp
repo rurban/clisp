@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part n-1: Generic functions specified in the MOP.
 ;;;; Bruno Haible 2004-05-25
-;;;; Sam Steingold 2005, 2007
+;;;; Sam Steingold 2005-2008
 
 (in-package "CLOS")
 
@@ -384,7 +384,7 @@
                   (setf (class-instantiated class) old-instantiated))))))
   (:method ((class built-in-class))
     (let ((prototype (sys::%record-ref class *<built-in-class>-prototype-location*)))
-      (if (eq prototype (sys::%unbound))
+      (if (eq (sys::%unbound) prototype)
         (error (TEXT "~S: ~S is an abstract class and therefore does not have a direct instance")
                'class-prototype class)
         prototype)))
