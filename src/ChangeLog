@@ -1,5 +1,10 @@
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
+	* clos-class6.lisp (class-prototype@built-in-class): finish last
+	patch: (SYS::%UNBOUND) should be the first argument to EQ
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (thread_length): define to 3 because Thread contains
 	3 gcv_object_t fields
 
