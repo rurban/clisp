@@ -9,9 +9,9 @@
           ver-num ver-num ver-num))
 nil
 
-(integerp (show (readline:gnu-readline-p))) T
-(stringp (show (readline:terminal-name))) T
-(integerp (show (readline:prefer-env-winsize))) T
+(integerp (show readline:gnu-readline-p)) T
+(typep (show readline:terminal-name) '(or null string)) T
+(integerp (show readline:prefer-env-winsize)) T
 
 (if (boundp 'readline:editing-mode) readline:editing-mode 1) 1
 (if (boundp 'readline:insert-mode)  readline:insert-mode 1)  1
