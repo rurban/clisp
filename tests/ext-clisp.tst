@@ -264,5 +264,35 @@ CHECK-LOAD
 (check-load "foo/bar/baz/zot.lisp") (#p"")
 (check-load "foo/bar/baz/zot") (#p"")
 
-(progn (symbol-cleanup 'check-load))
+(defparameter *s1* (open "abazonk" :direction :output)) *s1*
+(open "abazonk" :direction :output) ERROR
+(defparameter *s2* (appease-cerrors (open "abazonk"))) *s2*
+(equal (truename *s1*) (truename *s2*)) T
+(open-stream-p *s1*) T
+(open-stream-p *s2*) T
+(defparameter *s3* (let ((*reopen-open-file* 'warn)) (open "abazonk"))) *s3*
+(open-stream-p *s1*) T
+(open-stream-p *s2*) T
+(open-stream-p *s3*) T
+(equal (truename *s1*) (truename *s3*)) T
+(defparameter *s4* (let ((*reopen-open-file* 'close)) (open "abazonk"))) *s4*
+(open-stream-p *s1*) NIL
+(open-stream-p *s2*) T
+(open-stream-p *s3*) T
+(open-stream-p *s4*) T
+(equal (truename *s1*) (truename *s4*)) T
+(defparameter *s1* (let ((*reopen-open-file* 'close))
+                     (open "abazonk" :direction :output))) *s1*
+(open-stream-p *s1*) T
+(open-stream-p *s2*) NIL
+(open-stream-p *s3*) NIL
+(open-stream-p *s4*) NIL
+(equal (truename *s1*) (truename *s4*)) T
+(let ((*reopen-open-file* 0)) (open "abazonk")) ERROR
+(close *s1*) T
+(pathnamep (delete-file *s1*)) T
+
+(progn (symbol-cleanup 'check-load)
+       (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
+       (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))
 T
