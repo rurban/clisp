@@ -49,8 +49,8 @@ NIL
   (readline:set-screen-size rows cols))
 NIL
 
-(equalp (merge-pathnames (readline:tilde-expand "~/foo"))
-        (merge-pathnames "foo" (user-homedir-pathname)))
+(equal (merge-pathnames (readline:tilde-expand "~/foo"))
+       (merge-pathnames "foo" (user-homedir-pathname)))
 T
 
 ;;; This tests readline-from-string, and indirectly getc-function
