@@ -6613,6 +6613,7 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       break;
     default: return;            /* PROBE: nothing to check */
   }
+ check_file_reopen_restart_search:
   var object bad_stream = nullobj;
   with_string_0(truename,O(pathname_encoding),namez, {
     begin_system_call();
@@ -6644,16 +6645,22 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
       pushSTACK(direction_symbol(direction)); /* 0: direction */
       STACK_4 = error_format_string;
       funcall(S(warn),5);
+    } else if (eq(Symbol_value(S(reopen_open_file)),S(close))) {
+      pushSTACK(truename);      /* save */
+      pushSTACK(bad_stream); builtin_stream_close(&STACK_0,1); skipSTACK(1);
+      truename = popSTACK();    /* restore */
+      goto check_file_reopen_restart_search;
     } else {
-      pushSTACK(bad_stream);    /* save */
-      pushSTACK(CLSTEXT("~S: The value of ~S should be one of ~S, ~S, or ~S, not ~S. It has been changed to ~S."));
+      pushSTACK(bad_stream); pushSTACK(truename); /* save */
+      pushSTACK(CLSTEXT("~S: The value of ~S should be one of ~S, ~S, ~S, or ~S, not ~S. It has been changed to ~S."));
       pushSTACK(TheSubr(subr_self)->name);
       pushSTACK(S(reopen_open_file));
-      pushSTACK(S(error)); pushSTACK(S(warn)); pushSTACK(NIL);
+      pushSTACK(S(error)); pushSTACK(S(warn));
+      pushSTACK(S(close)); pushSTACK(NIL);
       pushSTACK(Symbol_value(S(reopen_open_file))); pushSTACK(S(error));
-      funcall(S(warn),8);
+      funcall(S(warn),9);
       Symbol_value(S(reopen_open_file)) = S(error);
-      bad_stream = popSTACK();  /* restore */
+      truename = popSTACK(); bad_stream = popSTACK();  /* restore */
       goto check_file_reopen_error;
     }
    #undef error_format_string
