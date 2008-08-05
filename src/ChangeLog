@@ -1,3 +1,8 @@
+2008-08-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (Rectype_Thread, Rectype_Mutex, Rectype_Exemption):
+	move above rectype_longlimit because these are XRECORDs, not LRECORDs
+
 2008-08-05  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (check_file_reopen): *REOPEN-OPEN-FILE* can also be CLOSE

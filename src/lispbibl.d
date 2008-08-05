@@ -4869,6 +4869,16 @@ enum {
 %% printf("#define Rectype_Socket_Server %d\n",Rectype_Socket_Server);
 %% #endif
 #endif  /* SOCKET_STREAMS */
+#ifdef MULTITHREAD
+%% #ifdef MULTITHREAD
+  Rectype_Thread,
+%%  printf("#define Rectype_Thread %d\n",Rectype_Thread);
+  Rectype_Mutex,
+%%  printf("#define Rectype_Mutex %d\n",Rectype_Mutex);
+  Rectype_Exemption,
+%%  printf("#define Rectype_Exemption %d\n",Rectype_Exemption);
+%% #endif
+#endif
 #ifdef YET_ANOTHER_RECORD
 %% #ifdef YET_ANOTHER_RECORD
   Rectype_Yetanother,
@@ -4902,17 +4912,7 @@ enum {
 %% printf("#define Rectype_WeakHashedAlist_Either %d\n",Rectype_WeakHashedAlist_Either);
   Rectype_WeakHashedAlist_Both,
 %% printf("#define Rectype_WeakHashedAlist_Both %d\n",Rectype_WeakHashedAlist_Both);
-#ifdef MULTITHREAD
-%% #ifdef MULTITHREAD
-  Rectype_Thread,
-%%  printf("#define Rectype_Thread %d\n",Rectype_Thread);
-  Rectype_Mutex,
-%%  printf("#define Rectype_Mutex %d\n",Rectype_Mutex);
-  Rectype_Exemption,
-%%  printf("#define Rectype_Exemption %d\n",Rectype_Exemption);
-%% #endif
-#endif
-  rectype_for_broken_compilers_that_dont_like_trailing_commas
+ rectype_for_broken_compilers_that_dont_like_trailing_commas
 };
 
 /* -------------------------- the various types -------------------------- */
