@@ -85,6 +85,10 @@
    don't. */
 #undef HAVE_DECL_RL_POINT
 
+/* Define to 1 if you have the declaration of `rl_prefer_env_winsize', and to
+   0 if you don't. */
+#undef HAVE_DECL_RL_PREFER_ENV_WINSIZE
+
 /* Define to 1 if you have the declaration of `rl_pre_input_hook', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_PRE_INPUT_HOOK
@@ -344,6 +348,9 @@
 /* Define to 1 if you have the `rl_reset_line_state' function. */
 #undef HAVE_RL_RESET_LINE_STATE
 
+/* Define to 1 if you have the `rl_reset_screen_size' function. */
+#undef HAVE_RL_RESET_SCREEN_SIZE
+
 /* Define to 1 if you have the `rl_reset_terminal' function. */
 #undef HAVE_RL_RESET_TERMINAL
 
@@ -398,6 +405,9 @@
 /* Define to 1 if you have the `rl_variable_dumper' function. */
 #undef HAVE_RL_VARIABLE_DUMPER
 
+/* Define to 1 if you have the `rl_variable_value' function. */
+#undef HAVE_RL_VARIABLE_VALUE
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -421,6 +431,9 @@
 
 /* Define to 1 if you have the <sys/types.h> header file. */
 #undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the `tilde_expand' function. */
+#undef HAVE_TILDE_EXPAND
 
 /* Define to 1 if you have the <time.h> header file. */
 #undef HAVE_TIME_H
