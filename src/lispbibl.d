@@ -4049,6 +4049,8 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %%  #else
 %%   emit_define("pointable(obj)","pointable_unchecked(obj)");
 %%  #endif
+%% #else /* HEAPCODES */
+%%  export_def(pointable_address_unchecked(obj_o));
 %% #endif
 
 
