@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for readline
-dnl Sam Steingold 2005-2007
+dnl Sam Steingold 2005-2008
 
 AC_PREREQ(2.57)
 AC_INIT(readline, 1.0, clisp-list)
@@ -20,6 +20,7 @@ rl_insert_mode, rl_readline_state, rl_line_buffer, rl_point, rl_end, dnl
 rl_mark, rl_done, rl_num_chars_to_read, rl_pending_input, rl_dispatching, dnl
 rl_erase_empty_line, rl_prompt, rl_terminal_name, dnl
 rl_instream, rl_outstream, rl_last_func, rl_startup_hook, rl_pre_input_hook, dnl
+rl_prefer_env_winsize, dnl
 rl_event_hook, rl_getc_function],,,[#include <stdio.h>
  #include <readline/readline.h>])
 AC_CHECK_FUNCS(dnl do not check readline() - redefines global HAVE_READLINE
@@ -105,6 +106,7 @@ rl_extend_line_buffer dnl
 rl_ding dnl
 rl_display_match_list dnl
 dnl Miscellaneous functions
+rl_variable_value dnl
 rl_variable_bind dnl
 rl_macro_dumper dnl
 rl_variable_dumper dnl
@@ -114,6 +116,7 @@ dnl Signal Handling
 rl_resize_terminal dnl
 rl_set_screen_size dnl
 rl_get_screen_size dnl
+rl_reset_screen_size dnl
 dnl Alternate interface
 rl_callback_handler_install dnl
 rl_callback_read_char dnl
@@ -139,7 +142,10 @@ read_history dnl
 read_history_range dnl
 write_history dnl
 append_history dnl
-history_truncate_file)
+history_truncate_file dnl
+dnl tilde expansion
+tilde_expand dnl
+)
 
 BOLD_MSG([Readline (Output)])
 AC_CONFIG_FILES(Makefile link.sh)

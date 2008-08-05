@@ -1,3 +1,11 @@
+2008-08-05  Sam Steingold  <sds@gnu.org>
+
+	* modules/readline/readline.lisp: upgrade from readline 5.0 to 5.2
+	(variable-value, reset-screen-size, prefer-env-winsize, readerr)
+	(state-callback, state-vimotion, state-multikey, state-vicmdonce)
+	(default-inputrc, sys-inputrc, tilde-expand): add
+	* modules/readline/configure.in: check for the new features
+
 2008-08-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (pointable_address_unchecked) [HEAPCODES]:
