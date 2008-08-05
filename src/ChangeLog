@@ -1,3 +1,8 @@
+2008-08-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (pointable_address_unchecked) [HEAPCODES]:
+	export to clisp.h
+
 2008-08-04  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (PATHCONF): fix g++ compilation
