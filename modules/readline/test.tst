@@ -9,6 +9,10 @@
           ver-num ver-num ver-num))
 nil
 
+(integerp (show (readline:gnu-readline-p))) T
+(stringp (show (readline:terminal-name))) T
+(integerp (show (readline:prefer-env-winsize))) T
+
 (if (boundp 'readline:editing-mode) readline:editing-mode 1) 1
 (if (boundp 'readline:insert-mode)  readline:insert-mode 1)  1
 (if (boundp 'readline:readline-name) readline:readline-name "CLISP") "CLISP"
@@ -38,10 +42,16 @@ NIL
 
 (readline:resize-terminal) NIL
 
+(readline:reset-screen-size) NIL
+
 (multiple-value-bind (rows cols) (readline:get-screen-size)
   (show (list rows cols))
   (readline:set-screen-size rows cols))
 NIL
+
+(equalp (merge-pathnames (readline:tilde-expand "~/foo"))
+        (merge-pathnames "foo" (user-homedir-pathname)))
+T
 
 ;;; This tests readline-from-string, and indirectly getc-function
 (progn

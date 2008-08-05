@@ -2,9 +2,12 @@
 ;;; http://tiswww.case.edu/php/chet/readline/readline.html
 ;;; http://tiswww.case.edu/php/chet/readline/history.html
 ;;;
-;;; Copyright (C) 2005 by Sam Steingold
-;;; This is Free Software, covered by the GNU GPL (v2)
+;;; Copyright (C) 2005-2008 by Sam Steingold
+;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
+;;;
+;;; based on readline 5.2
+;;; to upgrade: download readline source distributions an diff headers
 
 (defpackage "READLINE"
   (:use "CL" "EXT" "FFI")
@@ -349,6 +352,10 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 ;;; Miscellaneous functions
 
+(def-call-out variable-value (:name "rl_variable_value")
+  (:arguments (variable c-string))
+  (:return-type c-string))
+
 (def-call-out variable-bind (:name "rl_variable_bind")
   (:arguments (variable c-string) (value c-string))
   (:return-type int))
@@ -379,6 +386,9 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 (def-call-out get-screen-size (:name "rl_get_screen_size")
   (:arguments (rows (c-ptr int) :out) (cols (c-ptr int) :out))
   (:return-type nil))
+
+(def-call-out reset-screen-size (:name "rl_reset_screen_size")
+  (:arguments) (:return-type nil))
 
 ;;; Alternate interface
 (def-call-out callback-handler-install (:name "rl_callback_handler_install")
@@ -430,6 +440,11 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-c-var instream (:name "rl_instream") (:type c-pointer))
 (def-c-var outstream (:name "rl_outstream") (:type c-pointer))
+(def-c-var prefer-env-winsize (:name "rl_prefer_env_winsize") (:type int)
+  (:documentation
+   "If non-zero, Readline gives values of LINES and COLUMNS from the environment
+greater precedence than values fetched from the kernel when computing the
+screen dimensions."))
 (def-c-var last-func (:name "rl_last_func") (:type command-func-t))
 (def-c-var startup-hook (:name "rl_startup_hook")
    (:type readline-hook-function))
@@ -445,27 +460,70 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:type c-string) (:alloc :malloc-free))
 (def-c-var readline-state (:name "rl_readline_state") (:type int))
 
-(def-c-const state-none (:name "RL_STATE_NONE"))
-(def-c-const state-initializing (:name "RL_STATE_INITIALIZING"))
-(def-c-const state-initialized (:name "RL_STATE_INITIALIZED"))
-(def-c-const state-termprepped (:name "RL_STATE_TERMPREPPED"))
-(def-c-const state-readcmd (:name "RL_STATE_READCMD"))
-(def-c-const state-metanext (:name "RL_STATE_METANEXT"))
-(def-c-const state-dispatching (:name "RL_STATE_DISPATCHING"))
-(def-c-const state-moreinput (:name "RL_STATE_MOREINPUT"))
-(def-c-const state-isearch (:name "RL_STATE_ISEARCH"))
-(def-c-const state-nsearch (:name "RL_STATE_NSEARCH"))
-(def-c-const state-search (:name "RL_STATE_SEARCH"))
-(def-c-const state-numericarg (:name "RL_STATE_NUMERICARG"))
-(def-c-const state-macroinput (:name "RL_STATE_MACROINPUT"))
-(def-c-const state-macrodef (:name "RL_STATE_MACRODEF"))
-(def-c-const state-overwrite (:name "RL_STATE_OVERWRITE"))
-(def-c-const state-completing (:name "RL_STATE_COMPLETING"))
-(def-c-const state-sighandler (:name "RL_STATE_SIGHANDLER"))
-(def-c-const state-undoing (:name "RL_STATE_UNDOING"))
-(def-c-const state-inputpending (:name "RL_STATE_INPUTPENDING"))
-(def-c-const state-ttycsaved (:name "RL_STATE_TTYCSAVED"))
-(def-c-const state-done (:name "RL_STATE_DONE"))
+(def-c-const state-none (:name "RL_STATE_NONE") ; 0x000000
+  (:documentation "no state; before first call"))
+(def-c-const state-initializing (:name "RL_STATE_INITIALIZING") ; 0x000001
+  (:documentation "initializing"))
+(def-c-const state-initialized (:name "RL_STATE_INITIALIZED") ; 0x000002
+  (:documentation "initialization done"))
+(def-c-const state-termprepped (:name "RL_STATE_TERMPREPPED") ; 0x000004
+  (:documentation "terminal is prepped"))
+(def-c-const state-readcmd (:name "RL_STATE_READCMD") ; 0x000008
+  (:documentation "reading a command key"))
+(def-c-const state-metanext (:name "RL_STATE_METANEXT") ; 0x000010
+  (:documentation "reading input after ESC"))
+(def-c-const state-dispatching (:name "RL_STATE_DISPATCHING") ; 0x000020
+  (:documentation "dispatching to a command"))
+(def-c-const state-moreinput (:name "RL_STATE_MOREINPUT") ; 0x000040
+  (:documentation "reading more input in a command function"))
+(def-c-const state-isearch (:name "RL_STATE_ISEARCH") ; 0x000080
+  (:documentation "doing incremental search"))
+(def-c-const state-nsearch (:name "RL_STATE_NSEARCH") ; 0x000100
+  (:documentation "doing non-inc search"))
+(def-c-const state-search (:name "RL_STATE_SEARCH") ; 0x000200
+  (:documentation "doing a history search"))
+(def-c-const state-numericarg (:name "RL_STATE_NUMERICARG") ; 0x000400
+  (:documentation "reading numeric argument"))
+(def-c-const state-macroinput (:name "RL_STATE_MACROINPUT") ; 0x000800
+  (:documentation "getting input from a macro"))
+(def-c-const state-macrodef (:name "RL_STATE_MACRODEF") ; 0x001000
+  (:documentation "defining keyboard macro"))
+(def-c-const state-overwrite (:name "RL_STATE_OVERWRITE") ; 0x002000
+  (:documentation "overwrite mode"))
+(def-c-const state-completing (:name "RL_STATE_COMPLETING") ; 0x004000
+  (:documentation "doing completion"))
+(def-c-const state-sighandler (:name "RL_STATE_SIGHANDLER") ; 0x008000
+  (:documentation "in readline sighandler"))
+(def-c-const state-undoing (:name "RL_STATE_UNDOING") ; 0x010000
+  (:documentation "doing an undo"))
+(def-c-const state-inputpending (:name "RL_STATE_INPUTPENDING") ; 0x020000
+  (:documentation "rl_execute_next called"))
+(def-c-const state-ttycsaved (:name "RL_STATE_TTYCSAVED") ; 0x040000
+  (:documentation "tty special chars saved"))
+(def-c-const state-callback (:name "RL_STATE_CALLBACK") ; 0x080000
+  (:documentation "using the callback interface"))
+(def-c-const state-vimotion (:name "RL_STATE_VIMOTION") ; 0x100000
+  (:documentation "reading vi motion arg"))
+(def-c-const state-multikey (:name "RL_STATE_MULTIKEY") ; 0x200000
+  (:documentation "reading multiple-key command"))
+(def-c-const state-vicmdonce (:name "RL_STATE_VICMDONCE") ; 0x400000
+  (:documentation "entered vi command mode at least once"))
+(def-c-const state-done (:name "RL_STATE_DONE") ; 0x800000
+  (:documentation "done; accepted line"))
+
+(def-c-const readerr ; (-2)
+  (:documentation " Input error; can be returned by (*rl_getc_function)
+if readline is reading a top-level command (RL_ISSTATE (RL_STATE_READCMD))."))
+
+(def-c-const default-inputrc (:name "DEFAULT_INPUTRC")
+  (:type c-string)              ; "~/.inputrc"
+  (:documentation
+   "The next-to-last-ditch effort file name for a user-specific init file."))
+
+(def-c-const sys-inputrc (:name "SYS_INPUTRC")
+  (:type c-string) ; "/etc/inputrc"
+  (:documentation
+   "The ultimate last-ditch filenname for an init file -- system-wide."))
 
 ;;; ------ history ------
 
@@ -531,6 +589,11 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out history-truncate-file (:name "history_truncate_file")
   (:arguments (file c-string) (nlines int)) (:return-type int))
+
+;; tilde.h
+
+(def-call-out tilde-expand (:name "tilde_expand")
+  (:arguments (string c-string)) (:return-type c-string))
 
 ;;; done with ffi
 
