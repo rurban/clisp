@@ -1,3 +1,7 @@
+2008-08-05  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: many *REOPEN-OPEN-FILE* tests
+
 2008-07-30  Sam Steingold  <sds@gnu.org>
 
 	* ext-clisp.tst (check-load): test wildcards in *load-paths*

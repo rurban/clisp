@@ -1,5 +1,10 @@
 2008-08-05  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (check_file_reopen): *REOPEN-OPEN-FILE* can also be CLOSE
+	* constsym.d (close): declare
+
+2008-08-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/readline/readline.lisp: upgrade from readline 5.0 to 5.2
 	(variable-value, reset-screen-size, prefer-env-winsize, readerr)
 	(state-callback, state-vimotion, state-multikey, state-vicmdonce)
