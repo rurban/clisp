@@ -20,6 +20,10 @@ Important notes
   designators and lets you change file size.
   See <http://clisp.cons.org/impnotes/syscalls.html#file-size> for details.
 
+* Module readline has been upgraded to readline 5.2
+  (older versions 5.0 and 5.1 are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
+
 * LOAD now uses DIRECTORY only for wild *LOAD-PATHS* components, thus
   speeding up the most common cases and preventing the denial-of-service
   attack whereas CLISP would not start if a file with a name
