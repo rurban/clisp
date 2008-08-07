@@ -644,14 +644,15 @@ static void init_iteration_node (object state, object subkey,
   test_dir_key(ITST_DKEY(STACK_4),true);
  {object dk = test_dir_key(ITST_DKEY(STACK_4/*state*/),true);
   gcv_object_t *slots = dir_key_slots(dk);
-  FOREIGN *fp = &(TheFpointer(STACK_0/*handle*/)->fp_pointer);
+  FOREIGN fp;
   with_string_0(*new_path,GLO(misc_encoding),pathz,{
     open_reg_key((HKEY)SLOT_HANDLE(slots),pathz,check_direction(slots[DK_DIR]),
-                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)fp);
+                 IF_DOES_NOT_EXIST_UNBOUND/*ignore*/,(HKEY*)&fp);
   });
-  if (*fp) {
+  TheFpointer(STACK_0/*handle*/)->fp_pointer = fp;
+  if (fp) {
     DWORD k_size, a_size, d_size;
-    SYSCALL_WIN32(RegQueryInfoKey((HKEY)*fp,NULL,NULL,NULL,NULL,&k_size,
+    SYSCALL_WIN32(RegQueryInfoKey((HKEY)fp,NULL,NULL,NULL,NULL,&k_size,
                                   NULL,NULL,&a_size,&d_size,NULL,NULL));
     NODE_KEY_S(STACK_1) = fixnum(k_size+1); /* node */
     NODE_ATT_S(STACK_1) = fixnum(a_size+1); /* node */
