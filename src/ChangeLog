@@ -1,3 +1,9 @@
+2008-08-06  Sam Steingold  <sds@gnu.org>
+
+	* fill-out.lisp (fill-stream-flush-buffer):
+	remove the "one-line sexp on its own line" special case,
+	see <http://article.gmane.org/gmane.lisp.clisp.devel/18759>
+
 2008-08-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/dirkey/dirkey.c (init_iteration_node): do not pass

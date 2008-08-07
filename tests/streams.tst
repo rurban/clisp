@@ -751,6 +751,21 @@ T
 (CHARACTER CHARACTER CHARACTER)
 
 #+clisp
+(let ((*print-right-margin* 15) (*print-pretty* t))
+  (with-output-to-string (out)
+    (with-fill-stream (fill out :text-indent 3)
+      (format fill "~%~S, ~S, ~S, ~S, ~S, ~S, ~S, ~S, ~S, ~S,~%"
+              'a 'bb 'ccc 'dddd 'eeeee 'ffffff 'gggg 'hhh 'ii 'j))))
+#+clisp "
+   A, BB, CCC,
+    DDDD
+   , EEEEE,
+    FFFFFF
+   , GGGG, HHH
+   , II, J,
+"
+
+#+clisp
 (progn
   (defvar *my-indent-level*)
   (with-output-to-string (out)
