@@ -392,7 +392,8 @@ and is supported by most &cl; implementations currently in use.</para>
       (force-output fill)
       (let ((*my-indent-level* 5))
         (format fill "~%and    properly indented to the level specified by the ~S argument which can be a ~S or an ~S - cool!"
-                :TEXT-INDENT 'symbol 'integer))
+                :TEXT-INDENT 'symbol 'integer)
+        (force-output fill))
       (format fill "~%Don't forget  to call ~S on it, and/or use ~S   Pretty formatting of the  S-expressions    printed with ~~S is  preserved: ~S"
               'force-output 'with-fill-stream '(defun foo (x y z) (if x (+ y z) (* y z)))))))
 <computeroutput>"
@@ -404,24 +405,26 @@ and is supported by most &cl; implementations currently in use.</para>
      indented to
      the level
      specified by
-     the :TEXT-INDENT
+     the
+     :TEXT-INDENT
      argument which
      can be a
-SYMBOL
-     or an INTEGER
-     - cool!
+     SYMBOL or an
+     INTEGER -
+     cool!
   Don't forget to
   call FORCE-OUTPUT
   on it, and/or use
-WITH-FILL-STREAM
+  WITH-FILL-STREAM
   Pretty formatting
   of the
   S-expressions
   printed with ~S
   is preserved:
-(DEFUN FOO (X Y Z)
- (IF X (+ Y Z)
-  (* Y Z)))
+   (DEFUN FOO
+    (X Y Z)
+    (IF X (+ Y Z)
+     (* Y Z)))
 "</computeroutput></programlisting>
 </example>
 </section>
