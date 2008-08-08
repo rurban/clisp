@@ -8692,6 +8692,13 @@ local maygc sintL interpret_launch_priority (object priority_arg) {
    Can be NIL (/dev/null), :pipe (pipe streams are created) or :terminal.
  :element-type, :external-format, :buffered : parameters for created
    pipe-stream if one or more of :input, :output, :error is :pipe.
+
+ FIXME: this is wrong: it does not allow different pipe types for i/o.
+   The correct arguments should be:
+     :input, :output, :error should take list arguments like this:
+       (:buffered t :element-type (unsigned-byte 8))
+     :PIPE should be removed from constobj.d
+
  :priority : :HIGH/:LOW/:NORMAL or fixnum
    on UNIX - see nice(2)
    on Windows - see CreateProcess dwCreationFlags parameter.
