@@ -5407,7 +5407,7 @@ struct file_status {
   object fs_namestring; /* usually returned by assure_dir_exists() */
   DWORD fs_fileattr;
 };
-local inline void file_status_is_dir (struct file_status *fs)
+local inline bool file_status_is_dir (struct file_status *fs)
 { return fs->fs_fileattr == 0xFFFFFFFF
     || !(fs->fs_fileattr & FILE_ATTRIBUTE_DIRECTORY); }
 local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
@@ -5448,12 +5448,12 @@ local maygc void assure_dir_exists (struct file_status *fs,
             path[lastslashpos + 1] = '\0'; /* leave only path without name */
             if (real_path(path,resolved)) {
               /* substitute only directory part */
-              fs.fs_fileattr = GetFileAttributes(resolved);
+              fs->fs_fileattr = GetFileAttributes(resolved);
               /* resolved to a file ? Only directories allowed
                  - nonmaskable error */
-              if (fs.fs_fileattr == 0xFFFFFFFF
-                  || !(fs.fs_fileattr & FILE_ATTRIBUTE_DIRECTORY))
-                error_directory(*(fs.fs_pathname));
+              if (fs->fs_fileattr == 0xFFFFFFFF
+                  || !(fs->fs_fileattr & FILE_ATTRIBUTE_DIRECTORY))
+                error_directory(*(fs->fs_pathname));
               pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
               /* substitute immediately - w/o substitute flag
                turn it into a pathname and use it with old name: */
@@ -5960,7 +5960,7 @@ local signean classify_namestring (char* namestring, char *resolved) {
 #elif defined(WIN32_NATIVE)
   bool ret;
   begin_system_call();
-  if (real_path(namestring_asciz,resolved)) {
+  if (real_path(namestring,resolved)) {
     DWORD fileattr;
     fileattr = GetFileAttributes(resolved);
     end_system_call();
@@ -6050,6 +6050,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   mv_count = 2;
 }
 
+#ifdef UNIX
 /* call stat(2) on the object and return its return value
  > namestring: string
  > status: pointer to a stat
@@ -6063,6 +6064,7 @@ local int stat_obj (object namestring, struct stat *status) {
   });
   return ret;
 }
+#endif
 
 /* tests, if a directory exists.
  directory_exists(pathname)
