@@ -1,3 +1,8 @@
+2008-08-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (check-script): use PRINC instead of PRINT for cygwin
+	Reported by Reini Urban <rurban@x-ray.at>
+
 2008-08-09  Sam Steingold  <sds@gnu.org>
 
 	fix patches 2008-07-11 & 2008-07-12 for Woe32
