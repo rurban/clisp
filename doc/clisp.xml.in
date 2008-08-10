@@ -511,10 +511,7 @@ compiles the specified lisp files to a platform-independent
      <ulink url="http://www.gnu.org/software/bash/">bash</ulink>-style.
    </simpara></listitem>
    <listitem><simpara>If you have not typed anything yet, you will get
-     a help message, as if by the
-     <olink targetdoc="impnotes" targetptr="debugger-main-deb-step"
-            ><command>Help</command></olink>
-     command.</simpara></listitem>
+     a help message, as if by the &help; command.</simpara></listitem>
    <listitem><simpara>If you have not started typing the next symbol
      (i.e., you are at a whitespace), the current function or macro is
      &describe-my;d.</simpara></listitem>
