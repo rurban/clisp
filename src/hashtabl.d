@@ -1078,7 +1078,8 @@ local uint32 hashcode4_atom (object obj, int level) {
       if (level <= HASHCODE_MAX_LEVEL && len > 0) {
         check_SP();
         var const gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
-        var uintC count = MIN(len,HASHCODE_NEED_LEAVES);
+        var uintC count = len < HASHCODE_NEED_LEAVES
+          ? len : HASHCODE_NEED_LEAVES; /* MIN(len,HASHCODE_NEED_LEAVES) */
         do {
           var uint32 next_code = hashcode4_(*ptr++); /* next component's hashcode */
           bish_code = misch(bish_code,next_code);   /* add */
