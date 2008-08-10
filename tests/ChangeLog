@@ -1,3 +1,7 @@
+2008-08-09  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: fix tests for the 2008-08-06 FILL-STREAM change
+
 2008-08-05  Sam Steingold  <sds@gnu.org>
 
 	* ext-clisp.tst: many *REOPEN-OPEN-FILE* tests
