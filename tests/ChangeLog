@@ -1,3 +1,8 @@
+2008-08-10  Sam Steingold  <sds@gnu.org>
+
+	* path.tst (test-weird-pathnames): work around systems which only
+	accept ASCII pathnames (e.g., OSX PPC 10.4.11 (Darwin 8.11.0)
+
 2008-08-09  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: fix tests for the 2008-08-06 FILL-STREAM change;
