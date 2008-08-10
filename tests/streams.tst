@@ -758,11 +758,10 @@ T
               'a 'bb 'ccc 'dddd 'eeeee 'ffffff 'gggg 'hhh 'ii 'j))))
 #+clisp "
    A, BB, CCC,
-    DDDD
-   , EEEEE,
-    FFFFFF
-   , GGGG, HHH
-   , II, J,
+   DDDD, EEEEE
+   , FFFFFF,
+   GGGG, HHH,
+   II, J,
 "
 
 #+clisp
@@ -789,16 +788,16 @@ T
      the level
      specified by
      the
-      :TEXT-INDENT
+     :TEXT-INDENT
      argument which
      can be a
-      SYMBOL
-     or an INTEGER
-     - cool!
+     SYMBOL or an
+     INTEGER -
+  cool!
   Don't forget to
   call FORCE-OUTPUT
   on it, and/or use
-   WITH-FILL-STREAM
+  WITH-FILL-STREAM
   Pretty formatting
   of the
   S-expressions
@@ -808,7 +807,6 @@ T
     (IF X (+ Y Z)
      (* Y Z)))
 "
-
 
 #+clisp
 (with-output-to-string (*error-output*)
@@ -830,14 +828,13 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-   (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) and
+         can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
          month nor next year
 
@@ -851,10 +848,9 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-                    (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
                     (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
@@ -873,14 +869,13 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-\(NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-\(NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) and
+         can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
          month nor next year
 
@@ -894,14 +889,13 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-         (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) and
+         can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
          month nor next year
 
@@ -915,14 +909,13 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-          (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-          (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) and
+         can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
          month nor next year
 
@@ -936,14 +929,13 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-        (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-        (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
+         (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL) and
+         can therefore not be correctly interpreted,
          neither today nor tomorrow nor next week nor next
          month nor next year
 
@@ -957,10 +949,9 @@ WARNING: This form contains an error, a mistake, a bug, a
          nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
-                  (NIL NIL NIL NIL NIL NIL)
-         and can therefore not be correctly interpreted,
-         neither today nor tomorrow nor next week nor next
-         month nor next year
+         (NIL NIL NIL NIL NIL NIL) and can therefore not be
+         correctly interpreted, neither today nor tomorrow
+         nor next week nor next month nor next year
 WARNING: This form contains an error, a mistake, a bug, a
          blunder, a bungle, a blooper:
                   (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL
