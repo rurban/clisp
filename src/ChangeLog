@@ -1,3 +1,12 @@
+2008-08-09  Sam Steingold  <sds@gnu.org>
+
+	fix patches 2008-07-11 & 2008-07-12 for Woe32
+	* pathname.d (file_status_is_dir) [WIN32_NATIVE]: return bool
+	(assure_dir_exists) [WIN32_NATIVE]: fix var field access
+	(classify_namestring) [WIN32_NATIVE]: fix var name
+	(stat_obj): guard with "#ifdef UNIX"
+	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by>
+
 2008-08-06  Sam Steingold  <sds@gnu.org>
 
 	* fill-out.lisp (fill-stream-flush-buffer):
