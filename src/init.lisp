@@ -2138,13 +2138,9 @@
 ;;   If the searched filename is a directory, the directory pathname
 ;; is returned, NOT its contents.
 (defun ppn-fwd (f keep-dirs)    ; probe-pathname + file-write-date
-  (multiple-value-bind (true-name phys-name) (probe-pathname f)
+  (multiple-value-bind (true-name phys-name fwd) (probe-pathname f)
     (when (and true-name (or keep-dirs (pathname-name true-name)))
-      (cons phys-name
-            (if (pathname-name true-name)
-                (file-write-date true-name)
-                (apply #'encode-universal-time
-                       (third (car (directory true-name :full t)))))))))
+      (cons phys-name fwd))))
 (defun search-file (filename &optional extensions (keep-dirs t))
   ;; <http://article.gmane.org/gmane.lisp.clisp.general:9893>
   ;; <http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=443520>

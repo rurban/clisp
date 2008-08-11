@@ -1,5 +1,19 @@
 2008-08-11  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (FIND_DATA_FWD, FIND_DATA_FSIZE, find_first_file)
+	[WIN32_NATIVE]: add
+	(classify_namestring): also accept ans return fwd & fsize; use
+	find_first_file for WIN32_NATIVE
+	(PROBE-PATHNAME): return 4 values for existing paths (+ fwd + fsize)
+	(READDIR_entry_timedate): use FIND_DATA_FWD
+	(READDIR_entry_size): use FIND_DATA_FSIZE
+	(copy_pathname_and_add_subdir): pass NULLs as fwd/fsize to
+	classify_namestring()
+	(FILE-WRITE-DATE): use find_first_file & FIND_DATA_FWD
+	* init.lisp (ppn-fwd): no need to call FILE-WRITE-DATE or DIRECTORY
+
+2008-08-11  Sam Steingold  <sds@gnu.org>
+
 	* gllib/regex_internal.h, glm4/libsigsegv.m4: updated from gnulib
 
 2008-08-10  Sam Steingold  <sds@gnu.org>
