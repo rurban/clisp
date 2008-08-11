@@ -1,3 +1,7 @@
+2008-08-11  Sam Steingold  <sds@gnu.org>
+
+	* gllib/regex_internal.h, glm4/libsigsegv.m4: updated from gnulib
+
 2008-08-10  Sam Steingold  <sds@gnu.org>
 
 	* hashtabl.d (hashcode4_atom): avoid MIN which is not defined on woe32
