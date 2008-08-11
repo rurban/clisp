@@ -84,8 +84,16 @@ MYHOSTNAME4
 (string= (myhostname1) (myhostname3)) T
 (equalp (myhostname2) (myhostname4)) T
 
-(let ((n1 (show (myhostname1))))
-  (string= n1 (show (machine-instance)) :end2 (length n1)))
+(let ((n1 (show (myhostname1)))
+      (mi (show (machine-instance))))
+  (or (string= n1 mi :end2 (length n1))
+      ;; n1 /= mi ==> HAVE_GETHOSTBYNAME, see socket.d:MACHINE-INSTANCE
+      (progn
+        (def-call-out gethostbyname (:name "gethostbyname")
+          (:arguments (name c-string))  (:language :stdc) (:library :default)
+          (:return-type (c-ptr (c-struct list (name c-string)))))
+        (setq n1 (first (show (gethostbyname n1))))
+        (string= n1 mi :end2 (length n1)))))
 T
 
 (string= (myhostname1)
