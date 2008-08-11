@@ -3654,13 +3654,6 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  <listitem><simpara>Otherwise a list of all matching files is returned.
   E.g., <code>(&directory; "/etc/*")</code> lists all
   regular files in the directory <filename>#P"/etc/"</filename>.
-  If the <constant>:FULL</constant> argument is non-&nil;,
-  additional information is returned: for each matching file you get a
-  &list-t; of at least four elements
-   <returnvalue>(<replaceable>file-pathname</replaceable>
-    <replaceable>file-truename</replaceable>
-    <replaceable>file-write-date-as-decoded-time</replaceable>
-    <replaceable>file-length</replaceable>)</returnvalue>.
 </simpara></listitem></itemizedlist>
 
 If you want <emphasis role="strong">all</emphasis> the files &and-e;
@@ -3668,38 +3661,43 @@ subdirectories in the current directory, you should use
 <code>(&nconc; (&directory; "*/") (&directory; "*"))</code>.
 If you want all the files and subdirectories in all the subdirectories
 under the current directory (similar to the <command role="unix">ls
- <option>-R</option></command> &unix; command),
-use <code>(&nconc; (&directory; "**/") (&directory; "**/*"))</code>.
+ <option>-R</option></command> &unix; command), use
+<code>(&nconc; (&directory; "**/") (&directory; "**/*"))</code>.</para>
 
-<!-- #ifdef UNIX -->
-<variablelist>
-<varlistentry><term>&unix-only;</term>
-<listitem><simpara>If the <constant>:CIRCLE</constant> argument is
- non-&nil;, the function avoids endless loops that may result from
- symbolic links.</simpara></listitem></varlistentry>
-</variablelist>
-<!-- #endif -->
-
-The argument &if-does-not-exist; controls the treatment of links
-pointing to non-existent files and can take the following values:
-<variablelist>
-<varlistentry><term><constant>:DISCARD</constant> (default)</term>
- <listitem><simpara>discard the bad directory entries
+<variablelist><varlistentry><term><constant>:FULL</constant></term>
+ <listitem><simpara>If this argument is non-&nil;, additional
+  information is returned: for each matching file you get a &list-t; of
+  at least four elements <returnvalue>(<replaceable>file-pathname</replaceable>
+    <replaceable>file-truename</replaceable>
+    <replaceable>file-write-date-as-decoded-time</replaceable>
+    <replaceable>file-length</replaceable>)</returnvalue>.
 </simpara></listitem></varlistentry>
-<varlistentry><term>&error-k;</term>
- <listitem><simpara>an &err-sig; on bad directory entries
-   (this corresponds to the default behavior of &directory; in &cmucl;)
+<varlistentry><term><constant>:CIRCLE</constant></term>
+<listitem><simpara>If this argument is non-&nil;, &directory; avoids
+ endless loops that may result from symbolic links.
 </simpara></listitem></varlistentry>
-<varlistentry><term><constant>:KEEP</constant></term>
- <listitem><simpara>keep bad directory entries in the returned list
-   (this roughly corresponds to the <code>(&directory;
-    ... <constant>:TRUNAMEP</constant> &nil;)</code> call in &cmucl;)
-</simpara></listitem></varlistentry>
-<varlistentry><term><constant>:IGNORE</constant></term>
- <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also
-   do not signal an error when a directory is unaccessible (contrary to
-   the &ansi-cl; specification).</simpara></listitem></varlistentry>
-</variablelist></para></simplesect>
+<varlistentry><term>&if-does-not-exist;</term>
+<listitem><para>This argument controls the treatment of links
+  pointing to non-existent files and can take the following values:
+  <variablelist>
+   <varlistentry><term><constant>:DISCARD</constant> (default)</term>
+    <listitem><simpara>discard the bad directory entries
+   </simpara></listitem></varlistentry>
+   <varlistentry><term>&error-k;</term>
+    <listitem><simpara>an &err-sig; on bad directory entries
+      (this corresponds to the default behavior of &directory; in &cmucl;)
+   </simpara></listitem></varlistentry>
+   <varlistentry><term><constant>:KEEP</constant></term>
+    <listitem><simpara>keep bad directory entries in the returned list
+      (this roughly corresponds to the <code>(&directory;
+       ... <constant>:TRUNAMEP</constant> &nil;)</code> call in &cmucl;)
+   </simpara></listitem></varlistentry>
+   <varlistentry><term><constant>:IGNORE</constant></term>
+    <listitem><simpara>Similar to <constant>:DISCARD</constant>, but also
+      do not signal an error when a directory is unaccessible (contrary to
+      the &ansi-cl; specification).</simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry></variablelist>
+</simplesect>
 
 <simplesect id="dir"><title>Function <function>EXT:DIR</function></title>
 <para><code>(<function>EXT:DIR</function> &optional-amp;
