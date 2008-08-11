@@ -1,7 +1,7 @@
 /*
  * The include file for the UNIX version of CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  */
 
 /* control character constants: */
