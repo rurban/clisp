@@ -1,3 +1,9 @@
+2008-08-11  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: fix the gethostname=machine-instance case for systems
+	where gethostbyname(gethostname) /= gethostname (NetBSD 4.99.72 i386)
+	Reported by Aleksej Saushev <asau@inbox.ru>
+
 2008-08-10  Sam Steingold  <sds@gnu.org>
 
 	* path.tst (test-weird-pathnames): work around systems which only
