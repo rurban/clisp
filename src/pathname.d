@@ -5936,13 +5936,46 @@ LISPFUNNR(probe_file,1)
   skipSTACK(1);
 }
 
+#if defined(WIN32_NATIVE)
+#define FIND_DATA_FWD(filedata)                                 \
+  ((filedata.ftLastWriteTime.dwLowDateTime == 0                 \
+    && filedata.ftLastWriteTime.dwHighDateTime)                 \
+   ? &(filedata.ftCreationTime) : &(filedata.ftLastWriteTime))
+#define FIND_DATA_FSIZE(filedata)                               \
+  (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
+
+/* call FindFirstFile with all checks
+ > namestring_asciz : asciz path
+ < filedata : file data
+ STACK_0 = FILE-ERROR slot PATHNAME */
+local void find_first_file (const char *namestring_asciz,
+                            WIN32_FIND_DATA *filedata) {
+  var HANDLE search_handle;
+  begin_system_call();
+  search_handle = FindFirstFile(namestring_asciz,&filedata);
+  if (search_handle == INVALID_HANDLE_VALUE) {
+    if (WIN32_ERROR_NOT_FOUND) {
+      end_system_call(); error_file_not_exists();
+    }
+    end_system_call(); OS_file_error(STACK_0);
+  } else if (!FindClose(search_handle)) {
+    end_system_call(); OS_file_error(STACK_0);
+  }
+  end_system_call();
+}
+#endif
+
 /* Check whether the file exists
  > namestring : path
+ > STACK_0 = FILE-ERROR slot PATHNAME
  < resolved : truename (if return is non-0)
+ < fwd: file write date (if return is non-0 and address is supplied)
+ < fsize: file size (if return is non-0 and address is supplied)
  < return 0 if namestring does not name an existing file or directory
     1:  regular file
    -1:  directory */
-local signean classify_namestring (char* namestring, char *resolved) {
+local signean classify_namestring (char* namestring, char *resolved,
+                                   gcv_object_t *fwd, gcv_object_t* fsize) {
 #if defined(UNIX)
   struct stat status;
   int ret;
@@ -5954,6 +5987,8 @@ local signean classify_namestring (char* namestring, char *resolved) {
     return signean_null;         /* does not exist */
   } else {                       /* file exists. */
     realpath(namestring,resolved); /* ==> success assured */
+    if (fwd) *fwd = convert_time_to_universal(&(status.st_mtime));
+    if (fsize) *fsize = off_to_I(status.st_size);
     if (S_ISDIR(status.st_mode)) return signean_minus; /* directory */
     else return signean_plus;   /* file */
   }
@@ -5971,6 +6006,12 @@ local signean classify_namestring (char* namestring, char *resolved) {
         OS_file_error(STACK_0);
       return signean_null;      /* does not exist */
     } else {                                   /* file exists. */
+      if (fwd || fsize) {
+        WIN32_FIND_DATA filedata;
+        find_first_file(resolved,&filedata); /* success is assured */
+        if (fwd) *fwd = convert_time_to_universal(FIND_DATA_FWD(filedata));
+        if (fsize) *fsize = off_to_I(FIND_DATA_FSIZE(filedata));
+      }
       if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return signean_minus;
       else return signean_plus;   /* file */
     }
@@ -5996,14 +6037,16 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   /* STACK_0 is a non-wild non-logical pathname */
   var signean classification;
   var char resolved[MAXPATHLEN];
+  pushSTACK(NIL); pushSTACK(STACK_1); /* space for FWD & FSIZE */
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),
                  namestring_asciz, {
     if (cpslashp(namestring_asciz[namestring_asciz_bytelen-1]))
       namestring_asciz[namestring_asciz_bytelen-1] = 0; /* strip last slash */
-    classification = classify_namestring(namestring_asciz,resolved);
+    classification = classify_namestring(namestring_asciz,resolved,
+                                         &STACK_1/*fwd*/,&STACK_2/*fsize*/);
   });
   switch (classification) {
-    case signean_null: VALUES1(NIL); skipSTACK(1); return; /* does not exist */
+    case signean_null: VALUES1(NIL); skipSTACK(3); return; /* does not exist */
     case signean_minus: {            /* directory */
       int len = strlen(resolved);
       if (!cpslashp(resolved[len-1])) { /* append '/' to truename */
@@ -6047,7 +6090,9 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
   funcall(L(truename),1);
   value2 = popSTACK();
-  mv_count = 2;
+  value3 = popSTACK();
+  value4 = popSTACK();
+  mv_count = 4;
 }
 
 #ifdef UNIX
@@ -6926,13 +6971,8 @@ local maygc void pack_full_info (decoded_time_t *timepoint, off_t *entry_size) {
   #define READDIR_entry_name()  (&filedata.cFileName[0])
   #define READDIR_entry_ISDIR()  (filedata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
   #define READDIR_entry_timedate(timepointp)  \
-    { var FILETIME* pftimepoint = &filedata.ftLastWriteTime;               \
-      if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0) \
-        pftimepoint = &filedata.ftCreationTime;                            \
-      convert_time(pftimepoint,timepointp);                                \
-    }
-  #define READDIR_entry_size()  \
-    (((uint64)filedata.nFileSizeHigh<<32)|filedata.nFileSizeLow)
+    convert_time(FIND_DATA_FWD(filedata),timepointp)
+  #define READDIR_entry_size() FIND_DATA_FSIZE(filedata)
 
 /* UP: get mtime and size from filesystem
  > pathname: absolute pathname, links resolved
@@ -7061,7 +7101,8 @@ local maygc void copy_pathname_and_add_subdir (object subdir)
 local maygc void directory_search_1subdir (object subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAXPATHLEN];
-    if (classify_namestring(namestring_asciz,resolved) == signean_minus)
+    if (classify_namestring(namestring_asciz,resolved,NULL,NULL)
+        == signean_minus)
       copy_pathname_and_add_subdir(subdir); /* namestring is a directory */
   });
 }
@@ -8176,18 +8217,7 @@ LISPFUNNR(file_write_date,1)
      #ifdef WIN32_NATIVE
       /* Only a directory search gives us the times. */
       with_sstring_0(fs.fs_namestring,O(pathname_encoding),namestring_asciz, {
-        var HANDLE search_handle;
-        begin_system_call();
-        search_handle = FindFirstFile(namestring_asciz,&filedata);
-        if (search_handle==INVALID_HANDLE_VALUE) {
-          if (WIN32_ERROR_NOT_FOUND) {
-            end_system_call(); error_file_not_exists();
-          }
-          end_system_call(); OS_file_error(STACK_0);
-        } else if (!FindClose(search_handle)) {
-          end_system_call(); OS_file_error(STACK_0);
-        }
-        end_system_call();
+        find_first_file(namestring_asciz,&filedata);
       });
      #endif
       skipSTACK(1);
@@ -8199,10 +8229,7 @@ LISPFUNNR(file_write_date,1)
   VALUES1(convert_time_to_universal(&file_datetime));
  #endif
  #ifdef WIN32_NATIVE
-  var FILETIME* pftimepoint = &filedata.ftLastWriteTime;
-  if (pftimepoint->dwLowDateTime==0 && pftimepoint->dwHighDateTime==0)
-    pftimepoint = &filedata.ftCreationTime;
-  VALUES1(convert_time_to_universal(pftimepoint));
+  VALUES1(convert_time_to_universal(FIND_DATA_FWD(filedata)));
  #endif
 }
 

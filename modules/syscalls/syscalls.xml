@@ -237,9 +237,8 @@
   <listitem><simpara>Call <function role="unix">fcntl</function>,
     &command-r; can be <constant>:FD</constant> or <constant>:FL</constant>.
  </simpara></listitem></varlistentry>
- <varlistentry id="file-size">
-  <term><code>(OS:FILE-SIZE &file-r;)</code></term>
-  <term><code>(&setf; (OS:FILE-SIZE &file-r;) &size-r;)</code></term>
+ <varlistentry id="file-size"><term><code>(&file-size; &file-r;)</code></term>
+  <term><code>(&setf; (&file-size; &file-r;) &size-r;)</code></term>
   <listitem><simpara>Extend &file-length; to operate on &path-des;s.</simpara>
    <simpara>Set the &size-r; of a &file-r; using
     <function role="unix">ftruncate</function> (if &file-r; is an open

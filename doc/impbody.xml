@@ -3569,37 +3569,58 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  (&win32-only;).</para></simplesect>
 
 <simplesect id="probe-path"><title>Function &probe-path;</title>
-<para>Function &probe-path; returns the &truename; and the
- &absolute-pathname; for its argument or &nil; if it does not exist.
- It figures out whether the argument refers to a directory or a regular
- file, e.g., if you have a file &file-r;, a directory &directory-r;,
+<para>Function &probe-path; figures out whether the argument refers to
+ an existing directory or an existing regular file, and returns 4 values
+ if the filesystem object exists: <orderedlist>
+  <listitem><simpara>&truename;</simpara></listitem>
+  <listitem><simpara>&absolute-pathname;</simpara></listitem>
+  <listitem><simpara>&file-write-date;</simpara></listitem>
+  <listitem><simpara>&file-size;</simpara></listitem>
+ </orderedlist> or &nil; if it does not exist.
+ E.g., if you have a file &file-r;, a directory &directory-r;,
  a symbolic link <filename>link-file</filename> pointing to &file-r;
  and a symbolic link <filename>link-dir</filename> pointing to &directory-r;,
  then<programlisting language="lisp">
 (&probe-path; #P"filename")
 <computeroutput>#P"/.../filename"</computeroutput>
 <computeroutput>#P"/.../filename"</computeroutput>
+<computeroutput>3427467015</computeroutput>
+<computeroutput>3171976</computeroutput>
 (&probe-path; #P"filename/")
 <computeroutput>#P"/.../filename"</computeroutput>
 <computeroutput>#P"/.../filename"</computeroutput>
+<computeroutput>3427467015</computeroutput>
+<computeroutput>3171976</computeroutput>
 (&probe-path; #P"directory")
 <computeroutput>#P"/.../directory/"</computeroutput>
 <computeroutput>#P"/.../directory/"</computeroutput>
+<computeroutput>3426940352</computeroutput>
+<computeroutput>1024</computeroutput>
 (&probe-path; #P"directory/")
 <computeroutput>#P"/.../directory/"</computeroutput>
 <computeroutput>#P"/.../directory/"</computeroutput>
+<computeroutput>3426940352</computeroutput>
+<computeroutput>1024</computeroutput>
 (&probe-path; #P"link-file")
 <computeroutput>#P"/.../filename"</computeroutput>
 <computeroutput>#P"/.../link-file"</computeroutput>
+<computeroutput>3427467015</computeroutput>
+<computeroutput>3171976</computeroutput>
 (&probe-path; #P"link-file/")
 <computeroutput>#P"/.../filename"</computeroutput>
 <computeroutput>#P"/.../link-file"</computeroutput>
+<computeroutput>3427467015</computeroutput>
+<computeroutput>3171976</computeroutput>
 (&probe-path; #P"link-dir")
 <computeroutput>#P"/.../directory/"</computeroutput>
 <computeroutput>#P"/.../link-dir/"</computeroutput>
+<computeroutput>3426940352</computeroutput>
+<computeroutput>1024</computeroutput>
 (&probe-path; #P"link-dir/")
 <computeroutput>#P"/.../directory/"</computeroutput>
 <computeroutput>#P"/.../link-dir/"</computeroutput>
+<computeroutput>3426940352</computeroutput>
+<computeroutput>1024</computeroutput>
 </programlisting></para></simplesect>
 
 <simplesect id="probe-dir"><title>Function &probe-dir;</title>

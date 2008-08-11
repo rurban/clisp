@@ -1105,27 +1105,35 @@ NIL
 #+clisp
 (let ((f "my-file") tn)
   (unwind-protect
-       (progn (setq tn (truename
-                        (open f :direction :probe :if-does-not-exist :create)))
-              (list (equal tn (probe-file f))
-                    (equal tn (ext:probe-pathname f))
-                    (equal tn (ext:probe-pathname (concatenate 'string f "/")))
-                    (equal tn (ext:probe-pathname
-                               (concatenate 'string f "///")))))
+       (progn
+         (setq tn (truename
+                   (open f :direction :probe :if-does-not-exist :create)))
+         (multiple-value-bind (tn1 _ fwd) (ext:probe-pathname f)
+           (list (equal tn (probe-file f))
+                 (equal tn tn1)
+                 (= (file-write-date tn) fwd)
+                 (equal tn (ext:probe-pathname (concatenate 'string f "/")))
+                 (equal tn (ext:probe-pathname
+                            (concatenate 'string f "///"))))))
     (delete-file tn)))
-#+clisp (T T T T)
+#+clisp (T T T T T)
 
 #+clisp
 (let* ((d "my-dir") (d1 (concatenate 'string d "/")) tn)
   (unwind-protect
-       (progn (make-directory d1)
-              (setq tn (truename d1))
-              (list (equal tn (ext:probe-pathname d))
-                    (equal tn (ext:probe-pathname d1))
-                    (equal tn (ext:probe-pathname
-                               (concatenate 'string d "///")))))
+       (progn
+         (make-directory d1)
+         (multiple-value-bind (tn1 d2 fwd) (ext:probe-pathname d)
+           (setq tn (truename d1)
+                 d2 (directory tn :full t))
+           (list (equal tn tn1)
+                 (equal tn (ext:probe-pathname d1))
+                 (null (cdr d2)) (not (null (car d2)))
+                 (= (apply #'encode-universal-time (third (car d2))) fwd)
+                 (equal tn (ext:probe-pathname
+                            (concatenate 'string d "///"))))))
     (ext:delete-directory tn)))
-#+clisp (T T T)
+#+clisp (T T T T T T)
 
 #+clisp
 (block test-weird-pathnames

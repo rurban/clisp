@@ -514,6 +514,7 @@
 <!ENTITY stream-options '<link linkend="fcntl"><function>POSIX:STREAM-OPTIONS</function></link>'>
 <!ENTITY stream-lock '<link linkend="stream-lock"><function>POSIX:STREAM-LOCK</function></link>'>
 <!ENTITY copy-file '<link linkend="copy-file"><function>POSIX:COPY-FILE</function></link>'>
+<!ENTITY file-size '<link linkend="file-size"><function>POSIX:FILE-SIZE</function></link>'>
 <!ENTITY dup-handle '<link linkend="dup-handle"><function>POSIX:DUPLICATE-HANDLE</function></link>'>
 
 <!-- *** netica *** -->
