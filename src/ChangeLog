@@ -1,5 +1,9 @@
 2008-08-11  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d: regularize #ifdef UNIX/WIN32 to #if/#elif/#else #error
+
+2008-08-11  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (FIND_DATA_FWD, FIND_DATA_FSIZE, find_first_file)
 	[WIN32_NATIVE]: add
 	(classify_namestring): also accept ans return fwd & fsize; use
