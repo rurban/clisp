@@ -3763,63 +3763,6 @@ done
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
-  { $as_echo "$as_me:$LINENO: checking for sys/utsname.h and struct utsname" >&5
-$as_echo_n "checking for sys/utsname.h and struct utsname... " >&6; }
-if test "${cl_cv_struct_utsname+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <sys/utsname.h>
-int
-main ()
-{
-struct utsname u;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (ac_try="$ac_compile"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_compile") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest.$ac_objext; then
-  cl_cv_struct_utsname=yes
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	cl_cv_struct_utsname=no
-fi
-
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:$LINENO: result: $cl_cv_struct_utsname" >&5
-$as_echo "$cl_cv_struct_utsname" >&6; }
-  if test $cl_cv_struct_utsname = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_SYS_UTSNAME_H /**/
-_ACEOF
-
-fi
 
 
 
@@ -3841,8 +3784,7 @@ fi
 
 
 
-
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h sys/utsname.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
