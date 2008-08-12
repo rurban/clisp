@@ -667,7 +667,6 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 /* determine MACHINE-TYPE and MACHINE-VERSION and MACHINE-INSTANCE: */
 #ifdef HAVE_SYS_UTSNAME_H
   #include <sys/utsname.h>
-  extern_C int uname (struct utsname * buf); /* UNAME(2V) */
 #endif
 /* used by MISC */
 

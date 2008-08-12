@@ -114,38 +114,20 @@ LISPFUN(version,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(machinetype,0)
 { /* (MACHINE-TYPE), CLTL S. 447 */
   var object ret = O(machine_type_string);
-  if (nullp(ret)) { /* not yet known? */
-    /* yes -> compute */
- #ifdef UNIX
-  #ifdef HAVE_SYS_UTSNAME_H
+  if (nullp(ret)) { /* not yet known? -> compute */
+  #if defined(UNIX)
+   #ifdef HAVE_UNAME            /* all known platforms have uname(2) */
     var struct utsname utsname;
     begin_system_call();
-    if ( uname(&utsname) <0) { OS_error(); }
+    if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
     end_system_call();
     pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
     funcall(L(nstring_upcase),1); /* convert to uppercase */
     ret = value1;
-  #else
-    /* Call OS command 'uname -m' resp. 'arch' and
-       redirect the output into a string:
-       (string-upcase
-         (with-open-stream (stream (make-pipe-input-stream "/bin/arch"))
-                           (read-line stream nil nil))) */
-    pushSTACK(ascii_to_string("uname -m"));
-    funcall(L(make_pipe_input_stream),1); /* (MAKE-PIPE-INPUT-STREAM "/bin/arch") */
-    pushSTACK(value1); /* save stream */
-    pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
-    funcall(L(read_line),3); /* (READ-LINE stream NIL NIL) */
-    pushSTACK(value1); /* save result (can also be NIL) */
-    builtin_stream_close(&STACK_1,0); /* close stream */
-    if (!nullp(STACK_0))
-      ret = string_upcase(STACK_0); /* convert to uppercase */
-    else
-      ret = NIL;
-    skipSTACK(2);
-  #endif
- #endif
- #ifdef WIN32_NATIVE
+   #else
+    #error MACHINE-TYPE: uname is missing
+   #endif
+  #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
       begin_system_call();
@@ -155,7 +137,9 @@ LISPFUNN(machinetype,0)
         ret = ascii_to_string("PC/386");
       }
     }
- #endif
+  #else
+    #error MACHINE-TYPE is not defined
+  #endif
     /* Store away the result for the next call: */
     O(machine_type_string) = ret;
   }
@@ -165,41 +149,28 @@ LISPFUNN(machinetype,0)
 LISPFUNN(machine_version,0)
 { /* (MACHINE-VERSION), CLTL S. 447 */
   var object ret = O(machine_version_string);
-  if (nullp(ret)) { /* not yet known? */
-    /* yes -> compute */
- #ifdef UNIX
-  #ifdef HAVE_SYS_UTSNAME_H
+  if (nullp(ret)) { /* not yet known? -> compute */
+  #if defined(UNIX)
+   #ifdef HAVE_UNAME            /* all known platforms have uname(2) */
     var struct utsname utsname;
     begin_system_call();
-    if ( uname(&utsname) <0) { OS_error(); }
+    if (uname(&utsname) < 0) { end_system_call(); OS_error(); }
     end_system_call();
     pushSTACK(asciz_to_string(utsname.machine,O(misc_encoding)));
     funcall(L(nstring_upcase),1); /* convert to uppercase */
-  #else
-    /* Call OS command 'uname -m' resp. 'arch -k' and
-       redirect the output into a string:
-       (string-upcase
-         (with-open-stream (stream (make-pipe-input-stream "/bin/arch -k"))
-                           (read-line stream nil nil))) */
-    pushSTACK(ascii_to_string("uname -m"));
-    funcall(L(make_pipe_input_stream),1); /* (MAKE-PIPE-INPUT-STREAM "/bin/arch -k") */
-    pushSTACK(value1); /* save stream */
-    pushSTACK(value1); pushSTACK(NIL); pushSTACK(NIL);
-    funcall(L(read_line),3); /* (READ-LINE stream NIL NIL) */
-    pushSTACK(value1); /* save result (can also be NIL) */
-    builtin_stream_close(&STACK_1,0); /* close stream */
-    funcall(L(string_upcase),1); skipSTACK(1); /* convert to uppercase */
-  #endif
     ret = value1;
- #endif
- #ifdef WIN32_NATIVE
+   #else
+    #error MACHINE-VERSION: uname is missing
+   #endif
+  #endif
+  #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
       var OSVERSIONINFO v;
       begin_system_call();
       GetSystemInfo(&info);
       v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-      if (!GetVersionEx(&v)) { OS_error(); }
+      if (!GetVersionEx(&v)) { end_system_call(); OS_error(); }
       end_system_call();
       if (info.wProcessorArchitecture==PROCESSOR_ARCHITECTURE_INTEL) {
         ret = ascii_to_string("PC/386");
@@ -217,7 +188,9 @@ LISPFUNN(machine_version,0)
         }
       }
     }
- #endif
+  #else
+    #error MACHINE-VERSION is not defined
+  #endif
     /* Store away the result for the next call: */
     O(machine_version_string) = ret;
   }
@@ -464,7 +437,7 @@ LISPFUNN(registry,2)
           VALUES1(NIL);
           goto none;
         }
-        SetLastError(err); OS_error();
+        SetLastError(err); end_system_call(); OS_error();
       }
       err = RegQueryValueEx(key,namez,NULL,&type, NULL,&size);
       if (!(err == ERROR_SUCCESS)) {
@@ -473,15 +446,17 @@ LISPFUNN(registry,2)
           VALUES1(NIL);
           goto none;
         }
-        SetLastError(err); OS_error();
+        SetLastError(err); end_system_call(); OS_error();
       }
       switch (type) {
         case REG_SZ: {
           var char* buf = (char*)alloca(size);
           err = RegQueryValueEx(key,namez,NULL,&type, (BYTE*)buf,&size);
-          if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
+          if (!(err == ERROR_SUCCESS))
+            { SetLastError(err); end_system_call(); OS_error(); }
           err = RegCloseKey(key);
-          if (!(err == ERROR_SUCCESS)) { SetLastError(err); OS_error(); }
+          if (!(err == ERROR_SUCCESS))
+            { SetLastError(err); end_system_call(); OS_error(); }
           end_system_call();
           VALUES1(asciz_to_string(buf,O(misc_encoding)));
         }
