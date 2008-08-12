@@ -1,5 +1,9 @@
 2008-08-12  Sam Steingold  <sds@gnu.org>
 
+	* socket.d: all known unix (and woe32) systems have gethostname
+
+2008-08-12  Sam Steingold  <sds@gnu.org>
+
 	all known unix systems have uname
 	* unix.d (uname): remove prototype
 	* m4/utsname.m4: remove
