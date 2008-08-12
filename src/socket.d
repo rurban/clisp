@@ -54,19 +54,9 @@
 
 #include <string.h> /* declares strcmp(), strlen(), strcpy(), memset() */
 
-/* ============ hostnames and IP addresses only (no sockets) ============ */
+/* ============ hostnames and IP addresses only (no sockets) ============
 
-#ifndef WIN32
-  #ifdef HAVE_GETHOSTNAME
-    /* extern_C int gethostname (char* name, size_t namelen); */
-  #endif
-  #ifdef HAVE_SYS_UTSNAME_H
-    #include <sys/utsname.h>
-    extern_C int uname (struct utsname * buf);
-  #endif
-#endif
-
-/* Fetches the machine's host name.
+ Fetches the machine's host name.
  get_hostname(host =);
  The name is allocated on the stack, with dynamic extent.
  < const char* host: The host name.
@@ -76,6 +66,7 @@
  But this seems not worth the trouble to think about it.)
  sds: never: you will always get localhost/127.0.0.1 - what's the point? */
 #if defined(HAVE_GETHOSTNAME)
+/* present on all supported unix systems and on woe32 */
   #define get_hostname(host_assignment)                                 \
     do {  var char hostname[MAXHOSTNAMELEN+1];                          \
       begin_system_call();                                              \
@@ -84,16 +75,8 @@
       hostname[MAXHOSTNAMELEN] = '\0';                                  \
       host_assignment &hostname[0];                                     \
     } while(0)
-#elif defined(HAVE_SYS_UTSNAME_H)
-  #define get_hostname(host_assignment)         \
-    do { var struct utsname utsname;            \
-      begin_system_call();                      \
-      if ( uname(&utsname) <0) { OS_error(); }  \
-      end_system_call();                        \
-      host_assignment utsname.nodename;         \
-    } while(0)
 #else
-  #define get_hostname(host_assignment)    ??
+  #error get_hostname is not defined
 #endif
 
 #ifndef WIN32
