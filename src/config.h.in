@@ -493,7 +493,7 @@
 /* Define to 1 if you have the <sys/un.h> header file. */
 #undef HAVE_SYS_UN_H
 
-/* have <sys/utsname.h> and it defines struct utsname */
+/* Define to 1 if you have the <sys/utsname.h> header file. */
 #undef HAVE_SYS_UTSNAME_H
 
 /* have tcgetattr(), either as a function or as a macro defined by <termios.h>
@@ -518,6 +518,9 @@
 
 /* Define to 1 if you have the `ualarm' function. */
 #undef HAVE_UALARM
+
+/* Define to 1 if you have the `uname' function. */
+#undef HAVE_UNAME
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H

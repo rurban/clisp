@@ -375,7 +375,7 @@
 /* Define to 1 if you have the <sys/unistd.h> header file. */
 #undef HAVE_SYS_UNISTD_H
 
-/* have <sys/utsname.h> and it defines struct utsname */
+/* Define to 1 if you have the <sys/utsname.h> header file. */
 #undef HAVE_SYS_UTSNAME_H
 
 /* Define to 1 if you have the `tempnam' function. */
