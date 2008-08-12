@@ -3664,7 +3664,8 @@ under the current directory (similar to the <command role="unix">ls
  <option>-R</option></command> &unix; command), use
 <code>(&nconc; (&directory; "**/") (&directory; "**/*"))</code>.</para>
 
-<variablelist><varlistentry><term><constant>:FULL</constant></term>
+<variablelist><title>Keyword arguments accepted by &directory;</title>
+<varlistentry><term><constant>:FULL</constant></term>
  <listitem><simpara>If this argument is non-&nil;, additional
   information is returned: for each matching file you get a &list-t; of
   at least four elements <returnvalue>(<replaceable>file-pathname</replaceable>
