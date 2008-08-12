@@ -76,8 +76,8 @@ CL_BUILTIN_STRLEN   dnl DEFS HAVE_BUILTIN_STRLEN
 AC_TYPE_LONG_LONG_INT dnl HAVE_LONG_LONG_INT
 dnl
 BOLD_MSG([checks for header files])
-AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h time.h sys/time.h)
-CL_UTSNAME     dnl DEFS HAVE_SYS_UTSNAME_H
+AC_CHECK_HEADERS(sys/inttypes.h unistd.h sys/file.h time.h sys/time.h dnl
+sys/utsname.h)
 CL_SHM_H       dnl DEFS HAVE_SYS_IPC_H, HAVE_SYS_SHM_H
 CL_TERM        dnl DEFS HAVE_TERMIOS_H, HAVE_TERMIO_H, ..., HAVE_SGTTY_H
 AC_PATH_XTRA   dnl sets variables X_CFLAGS, X_LIBS
@@ -107,7 +107,7 @@ CL_SIGACTION_UNBLOCK   dnl DEFS SIGACTION_NEED_UNBLOCK
 CL_SIGINTERRUPT        dnl DEFS HAVE_SIGINTERRUPT
 AC_CHECK_FUNCS(strerror sysconf getdtablesize memset setsid setpgid fchmod dnl
 fsync flock gethostent shutdown usleep ualarm setitimer nice ftime realpath dnl
-gethostname readlink getcwd)
+gethostname readlink getcwd uname)
 CL_PUTENV dnl DEFS HAVE_PUTENV, HAVE_SETENV
 gt_LC_MESSAGES dnl DEFS HAVE_LC_MESSAGES
 CL_RLIMIT dnl DEFS HAVE_GETRLIMIT, HAVE_SETRLIMIT, RLIMIT_RESOURCE_T, SETRLIMIT_CONST
