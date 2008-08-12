@@ -1,3 +1,11 @@
+2008-08-12  Sam Steingold  <sds@gnu.org>
+
+	all known unix systems have uname
+	* unix.d (uname): remove prototype
+	* m4/utsname.m4: remove
+	* configure.in, syscalls/configure.in: do not use CL_UTSNAME
+	* misc.d (MACHINE-TYPE, MACHINE-VERSION) [UNIX]: assume uname()
+
 2008-08-11  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d: regularize #ifdef UNIX/WIN32 to #if/#elif/#else #error
