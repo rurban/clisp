@@ -2072,7 +2072,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <varlistentry><term><filename>modules.o</filename></term>
  <listitem><simpara>the compiled list of modules contained in this &linkset;
 </simpara></listitem></varlistentry>
-<varlistentry><term>all the <filename>FILES</filename></term>
+<varlistentry><term>all the <envar>FILES</envar></term>
  <listitem><simpara>listed in <filename>makevars</filename>
 </simpara></listitem></varlistentry>
 <varlistentry><term>&lisp-run;</term>
