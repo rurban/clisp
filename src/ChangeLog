@@ -1,5 +1,11 @@
 2008-08-12  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (PROBE-PATHNAME): call use_default_dir before
+	classify_namestring because the win32 real_path requires an
+	absolute pathname
+
+2008-08-12  Sam Steingold  <sds@gnu.org>
+
 	* socket.d: all known unix (and woe32) systems have gethostname
 
 2008-08-12  Sam Steingold  <sds@gnu.org>
