@@ -471,9 +471,12 @@
     missing or &nil;, by calling <function role="unix">getrlimit</function>.
  </simpara></listitem></varlistentry>
  <varlistentry id="set-rlimit"><term><code>(&setf; (&rlimit; &what-r;)
-    (&values; cur max))</code></term>
-  <term><code>(&setf; (&rlimit; &what-r;) rlimit)</code></term>
-  <term><code>(&setf; (&rlimit;) rlimit-alist)</code></term>
+    (&values; <replaceable>cur</replaceable>
+    <replaceable>max</replaceable>))</code></term>
+  <term><code>(&setf; (&rlimit; &what-r;)
+    <replaceable>rlimit</replaceable>)</code></term>
+  <term><code>(&setf; (&rlimit;)
+    <replaceable>rlimit-alist</replaceable>)</code></term>
   <listitem><para>Set the limits using
     <function role="unix">setrlimit</function>.<orderedlist>
      <listitem><simpara>In the first form, <replaceable>cur</replaceable>
