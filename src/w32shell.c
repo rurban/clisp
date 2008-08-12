@@ -187,7 +187,7 @@ resolve_shell_symlink (LPCSTR filename, LPSTR resolved)
 
 /* the ultimate shortcut megaresolver
    style inspired by directory_search_scandir
- > namein: filename pointing to file or directory
+ > namein: absolute filename pointing to file or directory
             wildcards (only asterisk) may appear only as filename
  < nameout: filename with directory and file shortcuts resolved
              on failure holds filename resolved so far
