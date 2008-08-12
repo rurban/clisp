@@ -74,7 +74,7 @@
 <arg>&opt-C;</arg>
 <arg>&opt-norc;</arg>
 <arg rep="repeat"><option><link linkend="opt-load-paths">-lp
-   &directory-r;</link></option></arg>
+   &dir-r;</link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-init">-i
    <replaceable>init-file</replaceable></link></option></arg>
 <arg rep="repeat"><option><link linkend="opt-compile">-c</link></option>
@@ -383,8 +383,7 @@ compiles the specified lisp files to a platform-independent
    This option, &opt-norc;, prevents loading of the &RC-file;.
 </simpara></listitem></varlistentry>
 
-<varlistentry id="opt-load-paths"><term><option>-lp</option>
-  &directory-r;</term>
+<varlistentry id="opt-load-paths"><term><option>-lp</option> &dir-r;</term>
  <listitem><simpara>Specifies directories to be added to &load-paths;
    at startup.  This is done &after-e; loading the &RC-file; (so that
    it does not override the command-line option) but &before-e; loading

@@ -3264,7 +3264,7 @@ checks whether the &hash-table-t; is weak.</para>
 <para>Instead of &file-bsla; one may use &file-slash;, as usual for DOS
  calls.</para>
 
-<para>If &host-r; is non-&nil; and the &directory-r;'s &startpoint-r;
+<para>If &host-r; is non-&nil; and the &dir-r;'s &startpoint-r;
  is not &absolute-k;, <code>(&parse-namestring; (&namestring;
  &path-r;))</code> will not be the same as &path-r;.</para>
 
@@ -3577,9 +3577,9 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
   <listitem><simpara>&file-write-date;</simpara></listitem>
   <listitem><simpara>&file-size;</simpara></listitem>
  </orderedlist> or &nil; if it does not exist.
- E.g., if you have a file &file-r;, a directory &directory-r;,
+ E.g., if you have a file &file-r;, a directory &dir-r;,
  a symbolic link <filename>link-file</filename> pointing to &file-r;
- and a symbolic link <filename>link-dir</filename> pointing to &directory-r;,
+ and a symbolic link <filename>link-dir</filename> pointing to &dir-r;,
  then<programlisting language="lisp">
 (&probe-path; #P"filename")
 <computeroutput>#P"/.../filename"</computeroutput>
@@ -3729,17 +3729,16 @@ under the current directory (similar to the <command role="unix">ls
 
 <simplesect id="make-dir">
  <title>Function <function>EXT:MAKE-DIRECTORY</function></title>
-<para><code>(<function>EXT:MAKE-DIRECTORY</function>
- <replaceable>directory-pathname</replaceable>)</code>
+<para><code>(<function>EXT:MAKE-DIRECTORY</function> &dir-r;)</code>
  creates a new subdirectory.</para></simplesect>
 
 <simplesect id="delete-dir"><title>Function &delete-dir;</title>
-<para><code>(&delete-dir; <replaceable>directory-pathname</replaceable>)</code>
+<para><code>(&delete-dir; &dir-r;)</code>
  removes an (empty) subdirectory.</para></simplesect>
 
 <simplesect id="rename-dir"><title>Function &rename-dir;</title>
-<para><code>(&rename-dir; <replaceable>old-directory-pathname</replaceable>
-  <replaceable>new-directory-pathname</replaceable>)</code> renames a
+<para><code>(&rename-dir; <replaceable>old-directory</replaceable>
+  <replaceable>new-directory</replaceable>)</code> renames a
  subdirectory to a new name.</para></simplesect>
 
 </chapter>

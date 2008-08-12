@@ -916,14 +916,14 @@
 <!ENTITY file-letter-uc '<filename>A</filename>|...|<filename>Z</filename>'>
 <!ENTITY defaults-r '<replaceable>defaults</replaceable>'>
 <!ENTITY device-r '<replaceable>device</replaceable>'>
-<!ENTITY directory-r '<replaceable>directory</replaceable>'>
+<!ENTITY dir-r '<replaceable>directory</replaceable>'>
 <!ENTITY startpoint-r '<replaceable>startpoint</replaceable>'>
 <!ENTITY subdir-r '<replaceable>subdir</replaceable>'>
 <!ENTITY version-r '<replaceable>version</replaceable>'>
 <!ENTITY always-nil '<listitem><simpara>always &nil;</simpara></listitem>'>
 <!ENTITY path-comps '<title>Pathname components</title>'>
 <!ENTITY unix-win32-dir-name-type-version
- '<varlistentry><term><code>&directory-r; = (&startpoint-r;
+ '<varlistentry><term><code>&dir-r; = (&startpoint-r;
   . <replaceable>subdirs</replaceable>)</code></term>
  <listitem><informaltable frame="all">
  <tgroup cols="2" colsep="1" rowsep="1" align="center">
