@@ -1,3 +1,9 @@
+2008-08-12  Sam Steingold  <sds@gnu.org>
+
+	* alltest.tst: add tests for LISP-IMPLEMENTATION-TYPE,
+	LISP-IMPLEMENTATION-VERSION, MACHINE-INSTANCE, MACHINE-TYPE,
+	MACHINE-VERSION
+
 2008-08-11  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: fix the gethostname=machine-instance case for systems
