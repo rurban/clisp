@@ -162,7 +162,6 @@ LISPFUNN(machine_version,0)
    #else
     #error MACHINE-VERSION: uname is missing
    #endif
-  #endif
   #elif defined(WIN32_NATIVE)
     {
       var SYSTEM_INFO info;
