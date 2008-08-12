@@ -3539,7 +3539,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 
 <chapter id="files"><title>Files <ulink role="clhs" url="chap-20"/></title>
 
-<simplesect id="dir-is-not-file"><title>Directory is &not-e; a file</title>
+<section id="dir-is-not-file"><title>Directory is &not-e; a file</title>
 <para>&clisp; has traditionally taken the view that a directory is a
  separate object and &not-e; a special kind of file, so whenever the
  standard says that a function operates on <emphasis>files</emphasis>
@@ -3547,26 +3547,9 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  <emphasis>directories</emphasis>, &clisp; &sig-err; when passed a
  directory.</para>
 <para>&clisp; provides separate directory functions, such as
- &delete-dir;, &rename-dir; et al.</para></simplesect>
-
-<simplesect id="probe-file"><title>Function &probe-file;</title>
-<para>&probe-file; cannot be used to check whether a directory exists.
- Use functions &probe-dir;, &probe-path; or &directory; for this.
-</para></simplesect>
-
-<simplesect id="file-author"><title>Function &file-author;</title>
-<para>&file-author; always returns &nil;, because the operating systems
- &clisp; is ported to do not store a file's author in the file system.
- Some operating systems, such as &unix;, have the notion of a file's
- <emphasis>owner</emphasis>, and some other &cl; implementations return
- the user name of the file owner.  &clisp; does not do this, because
- <emphasis>owner</emphasis> and <emphasis>author</emphasis> are not the
- same; in particular, authorship is preserved by copying, while
- ownership is not.</para>
-<para>Use <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
- to find the owner of the file.  See also
- <link linkend="file-properties"><function>OS:FILE-PROPERTIES</function></link>
- (&win32-only;).</para></simplesect>
+ &delete-dir;, &rename-dir; et al.</para>
+<para>You can use &directory; or &probe-path; to figure out whether a
+ given namestring refers to a file or a directory.</para>
 
 <simplesect id="probe-path"><title>Function &probe-path;</title>
 <para>Function &probe-path; figures out whether the argument refers to
@@ -3621,13 +3604,28 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <computeroutput>#P"/.../link-dir/"</computeroutput>
 <computeroutput>3426940352</computeroutput>
 <computeroutput>1024</computeroutput>
-</programlisting></para></simplesect>
+</programlisting></para></simplesect></section>
 
-<simplesect id="probe-dir"><title>Function &probe-dir;</title>
-<para><code>(&probe-dir; &path-r;)</code> tests whether &path-r; exists
- and is a directory.
- It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
- if the parent directory of &path-r; does not exist.</para></simplesect>
+<section id="file-func"><title>File functions</title>
+
+<simplesect id="probe-file"><title>Function &probe-file;</title>
+<para>&probe-file; cannot be used to check whether a directory exists.
+ Use functions &probe-dir;, &probe-path; or &directory; for this.
+</para></simplesect>
+
+<simplesect id="file-author"><title>Function &file-author;</title>
+<para>&file-author; always returns &nil;, because the operating systems
+ &clisp; is ported to do not store a file's author in the file system.
+ Some operating systems, such as &unix;, have the notion of a file's
+ <emphasis>owner</emphasis>, and some other &cl; implementations return
+ the user name of the file owner.  &clisp; does not do this, because
+ <emphasis>owner</emphasis> and <emphasis>author</emphasis> are not the
+ same; in particular, authorship is preserved by copying, while
+ ownership is not.</para>
+<para>Use <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
+ to find the owner of the file.  See also
+ <link linkend="file-properties"><function>OS:FILE-PROPERTIES</function></link>
+ (&win32-only;).</para></simplesect>
 
 <simplesect id="del-file"><title>Function &delete-file;</title>
 <para><code>(&delete-file; &path-r;)</code> deletes the pathname
@@ -3640,6 +3638,16 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <simplesect id="rename-file"><title>Function &rename-file;</title>
  <para>This function cannot operate on directories,
   use &rename-dir; to rename a directory.</para></simplesect>
+
+</section>
+
+<section id="dir-func"><title>Directory functions</title>
+
+<simplesect id="probe-dir"><title>Function &probe-dir;</title>
+<para><code>(&probe-dir; &path-r;)</code> tests whether &path-r; exists
+ and is a directory.
+ It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
+ if the parent directory of &path-r; does not exist.</para></simplesect>
 
 <simplesect id="directory"><title>Function &directory;</title>
 
@@ -3740,7 +3748,7 @@ under the current directory (similar to the <command role="unix">ls
 <para><code>(&rename-dir; <replaceable>old-directory</replaceable>
   <replaceable>new-directory</replaceable>)</code> renames a
  subdirectory to a new name.</para></simplesect>
-
+</section>
 </chapter>
 
 
