@@ -6037,7 +6037,8 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   } else /* turn into a pathname */
     STACK_0 = merge_defaults(coerce_pathname(STACK_0));
   check_no_wildcards(STACK_0);
-  /* STACK_0 is a non-wild non-logical pathname */
+  STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
+  /* STACK_0 is a non-wild non-logical absolute pathname */
   var signean classification;
   var char resolved[MAXPATHLEN];
   pushSTACK(NIL); pushSTACK(STACK_1); /* space for FWD & FSIZE */
@@ -6089,7 +6090,6 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
       }
       break;
   }
-  STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
   pushSTACK(asciz_to_string(resolved,O(pathname_encoding)));
   funcall(L(truename),1);
   value2 = popSTACK();
