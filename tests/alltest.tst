@@ -2551,6 +2551,12 @@ NIL
 ;internal-time-units-per-second, SLEEP, LISP-IMPLEMENTATION-TYPE,
 ;LISP-IMPLEMENTATION-VERSION, MACHINE-INSTANCE, MACHINE-TYPE, MACHINE-VERSION,
 
+(stringp (show (lisp-implementation-type))) T
+(stringp (show (lisp-implementation-version))) T
+(stringp (show (machine-instance))) T
+(stringp (show (machine-type))) T
+(stringp (show (machine-version))) T
+
 ;SOFTWARE-TYPE, SOFTWARE-VERSION, SHORT-SITE-NAME, LONG-SITE-NAME, *features*,
 ;IDENTITY
 
