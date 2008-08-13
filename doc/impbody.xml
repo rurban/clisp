@@ -3551,7 +3551,7 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <para>You can use &directory; or &probe-path; to figure out whether a
  given namestring refers to a file or a directory.</para>
 
-<simplesect id="probe-path"><title>Function &probe-path;</title>
+<section id="probe-path"><title>Function &probe-path;</title>
 <para>Function &probe-path; figures out whether the argument refers to
  an existing directory or an existing regular file, and returns 4 values
  if the filesystem object exists: <orderedlist>
@@ -3604,16 +3604,16 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <computeroutput>#P"/.../link-dir/"</computeroutput>
 <computeroutput>3426940352</computeroutput>
 <computeroutput>1024</computeroutput>
-</programlisting></para></simplesect></section>
+</programlisting></para></section></section>
 
 <section id="file-func"><title>File functions</title>
 
-<simplesect id="probe-file"><title>Function &probe-file;</title>
+<section id="probe-file"><title>Function &probe-file;</title>
 <para>&probe-file; cannot be used to check whether a directory exists.
  Use functions &probe-dir;, &probe-path; or &directory; for this.
-</para></simplesect>
+</para></section>
 
-<simplesect id="file-author"><title>Function &file-author;</title>
+<section id="file-author"><title>Function &file-author;</title>
 <para>&file-author; always returns &nil;, because the operating systems
  &clisp; is ported to do not store a file's author in the file system.
  Some operating systems, such as &unix;, have the notion of a file's
@@ -3625,31 +3625,31 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
 <para>Use <link linkend="file-owner"><function>OS:FILE-OWNER</function></link>
  to find the owner of the file.  See also
  <link linkend="file-properties"><function>OS:FILE-PROPERTIES</function></link>
- (&win32-only;).</para></simplesect>
+ (&win32-only;).</para></section>
 
-<simplesect id="del-file"><title>Function &delete-file;</title>
+<section id="del-file"><title>Function &delete-file;</title>
 <para><code>(&delete-file; &path-r;)</code> deletes the pathname
  &path-r;, not its &truename;, and returns the absolute pathname it
  actually removed or &nil; if &path-r; did not exist.
  When &path-r; points to a file which is currently open in &clisp;,
  an &err-sig;.
- To remove a directory, use &delete-dir; instead.</para></simplesect>
+ To remove a directory, use &delete-dir; instead.</para></section>
 
-<simplesect id="rename-file"><title>Function &rename-file;</title>
+<section id="rename-file"><title>Function &rename-file;</title>
  <para>This function cannot operate on directories,
-  use &rename-dir; to rename a directory.</para></simplesect>
+  use &rename-dir; to rename a directory.</para></section>
 
 </section>
 
 <section id="dir-func"><title>Directory functions</title>
 
-<simplesect id="probe-dir"><title>Function &probe-dir;</title>
+<section id="probe-dir"><title>Function &probe-dir;</title>
 <para><code>(&probe-dir; &path-r;)</code> tests whether &path-r; exists
  and is a directory.
  It will, unlike &probe-file; or &truename;, not &signal; an &error-t;
- if the parent directory of &path-r; does not exist.</para></simplesect>
+ if the parent directory of &path-r; does not exist.</para></section>
 
-<simplesect id="directory"><title>Function &directory;</title>
+<section id="directory"><title>Function &directory;</title>
 
 <para><code>(&directory; &optional-amp; &path-r; &key-amp;
   :FULL :CIRCLE &if-does-not-exist;)</code> can run in two modes:
@@ -3706,15 +3706,15 @@ under the current directory (similar to the <command role="unix">ls
       do not signal an error when a directory is unaccessible (contrary to
       the &ansi-cl; specification).</simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry></variablelist>
-</simplesect>
+</section>
 
-<simplesect id="dir"><title>Function <function>EXT:DIR</function></title>
+<section id="dir"><title>Function <function>EXT:DIR</function></title>
 <para><code>(<function>EXT:DIR</function> &optional-amp;
  &path-r;)</code> is like &directory;, but displays the pathnames
  instead of returning them. <code>(EXT:DIR)</code>
- shows the contents of the current directory.</para></simplesect>
+ shows the contents of the current directory.</para></section>
 
-<simplesect id="cd"><title>Function &cd;</title>
+<section id="cd"><title>Function &cd;</title>
 <para><code>(&cd; &path-r;)</code> sets the current working directory,
  <code>(&cd;)</code> returns it.
 <variablelist>
@@ -3728,26 +3728,26 @@ under the current directory (similar to the <command role="unix">ls
    manages the current device and the current directory.
    </simpara></listitem></varlistentry>
 <!-- #endif -->
-</variablelist></para></simplesect>
+</variablelist></para></section>
 
-<simplesect id="default-dir"><title>Function &default-dir;</title>
+<section id="default-dir"><title>Function &default-dir;</title>
 <para><code>(&default-dir;)</code> is equivalent to <code>(&cd;)</code>.
  <code>(&setf; (&default-dir;) &path-r;)</code> is equivalent to
- <code>(&cd; &path-r;)</code>, except for the return value.</para></simplesect>
+ <code>(&cd; &path-r;)</code>, except for the return value.</para></section>
 
-<simplesect id="make-dir">
+<section id="make-dir">
  <title>Function <function>EXT:MAKE-DIRECTORY</function></title>
 <para><code>(<function>EXT:MAKE-DIRECTORY</function> &dir-r;)</code>
- creates a new subdirectory.</para></simplesect>
+ creates a new subdirectory.</para></section>
 
-<simplesect id="delete-dir"><title>Function &delete-dir;</title>
+<section id="delete-dir"><title>Function &delete-dir;</title>
 <para><code>(&delete-dir; &dir-r;)</code>
- removes an (empty) subdirectory.</para></simplesect>
+ removes an (empty) subdirectory.</para></section>
 
-<simplesect id="rename-dir"><title>Function &rename-dir;</title>
+<section id="rename-dir"><title>Function &rename-dir;</title>
 <para><code>(&rename-dir; <replaceable>old-directory</replaceable>
   <replaceable>new-directory</replaceable>)</code> renames a
- subdirectory to a new name.</para></simplesect>
+ subdirectory to a new name.</para></section>
 </section>
 </chapter>
 
