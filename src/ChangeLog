@@ -1,3 +1,8 @@
+2008-08-13  Frederik  <freggy@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/postgresql/configure.in: fix a typo in header detection
+
 2008-08-12  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PROBE-PATHNAME): call use_default_dir before

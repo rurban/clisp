@@ -22,7 +22,7 @@ BOLD_MSG([PostgreSQL (Headers)])
 AC_CHECK_HEADERS(postgres_ext.h postgresql/postgres_ext.h pgsql/postgres_ext.h)
 if test "$ac_cv_header_postgres_ext_h" = "no" \
      -a "$ac_cv_header_postgresql_postgres_ext_h" = "no" \
-     -a "$ac_cv_header_pgsql_postgres_ext_h"; then
+     -a "$ac_cv_header_pgsql_postgres_ext_h" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL headers])
 fi
 
