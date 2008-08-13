@@ -520,8 +520,8 @@ ignored by the interpreter.</para>
  he does &not-e; want to re-evaluate all &defun;s that use the variable.</para>
 <para>&ansi-cl; gives the implementation freedom regarding
  interpreted evaluation, how much it wants to remember / cache, and how
- much it wants to evaluate according the current environment, if the
- environment has changed. &clisp; implements <emphasis>ad-hoc
+ much it wants to re-evaluate according the current &environment;,
+ if it has changed. &clisp; implements <emphasis>ad-hoc
   look-up</emphasis> for variables (but &not-e; for macros, see
  <xref linkend="minimal-compilation"/>).</para>
 </simplesect>
@@ -570,7 +570,8 @@ ignored by the interpreter.</para>
  <para>Constants defined by &defconstant; but proclaimed &constnotin;
   will not be inlined by the compiler. This is useful for variables
   which remain constant within an a single Lisp process but may vary
-  between processed and machines, such as endianness or word size.
+  between processes and machines (such as endianness or word size) thus
+  they should be written to &fasl-file;s as symbols, not values.
 </para></section>
 
 <section id="constantp"><title>Function &constantp;</title>
@@ -601,7 +602,7 @@ compile-time. See also <xref linkend="compile-time-value"/>.
  form is compiled prior to execution.  Examples:
 <programlisting language="lisp">
 (&locally; (&declare; (compile)) &form-r;)</programlisting>
-executes a compiled version of &form-r;.</para>
+executes the compiled version of &form-r;.</para>
 
 <para><programlisting language="lisp">
 (&let; ((x 0))
