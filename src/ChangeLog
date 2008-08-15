@@ -1,10 +1,16 @@
 2008-08-15  Sam Steingold  <sds@gnu.org>
 
-	* modules/syscalls/calls.c (path_truncate, stream_truncate):
+	* modules/syscalls/calls.c (path_truncate, stream_truncate, FILE-SIZE):
 	handle WIN32_NATIVE before HAVE_TRUNCATE & HAVE_FTRUNCATE because
 	WIN32_NATIVE has a broken ftruncate (similar to fstat: accept some
 	unknown int instead of a handle)
 	(I_to_offset, STREAM-LOCK, %SETHOSTID): check arg type before conversion
+	(file_offset_t): new type, necessary because file offset in win32
+	is represented by a non-integer type LARGE_INTEGER
+	(I_to_file_offset): convert from an integer
+	(path_truncate, stream_truncate): accept length of type file_offset_t
+	(%SET-FILE-SIZE): use I_to_file_offset
+	(FILE-SIZE): use L2_to_I for WIN32_NATIVE
 
 2008-08-15  Sam Steingold  <sds@gnu.org>
 
