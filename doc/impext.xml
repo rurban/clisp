@@ -2413,7 +2413,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 <para>When deciding how to write a module: whether to use &ffi-pac;  or
  to stick with &c-lang; and &modprep;, one has to take into account
  several issues: <variablelist>
-  <varlistentry><term>Speed: &c-lang; wins</term>
+<varlistentry><term>Speed: &c-lang; wins</term>
  <listitem><para>&ffi-pac; has a noticeable overhead:
    compare <function>RAWSOCK:HTONS</function> (defined
    in <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>)
@@ -2428,19 +2428,20 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    many times, in which case it would make sense to put the loop itself
    into &c-lang;.</para></listitem></varlistentry>
 <varlistentry><term>Portability: &c-lang; wins</term>
- <listitem><simpara>First of all, &ffi-pac; is &not-e; as widely ported
-   as &clisp;, so it is possible that you will face a platform where
-   &clisp; runs but &ffi-pac; is not present.</simpara>
-  <simpara>Second, it is much easier to handle portability in &c-lang;:
-   observe the alternative implementations
-   of <function role="unix">htonl</function> et al in
-   <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.</simpara>
-  <simpara>Third, certain &c-lang; structures have different layout on
-   different platforms, and functions may take 64-bit arguments on some
-   platforms and 32-bit arguments on others; so the &ffi-pac; code has
-   to track those differences, while &c-lang; will mostly take care of
-   these things for you.</simpara>
-</listitem></varlistentry>
+ <listitem><orderedlist><listitem><simpara>&ffi-pac; is &not-e; as widely
+     ported as &clisp;, so it is possible that you will face a platform
+     where &clisp; runs but &ffi-pac; is not present.</simpara></listitem>
+   <listitem><simpara>It is much easier to handle portability in
+     &c-lang;: observe the alternative implementations
+     of <function role="unix">htonl</function> et al in
+     <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.
+   </simpara></listitem>
+   <listitem><simpara>Third, certain &c-lang; structures have different
+     layout on different platforms, and functions may take 64-bit
+     arguments on some platforms and 32-bit arguments on others; so the
+     &ffi-pac; code has to track those differences, while &c-lang; will
+     mostly take care of these things for you.</simpara></listitem>
+</orderedlist></listitem></varlistentry>
 <varlistentry><term>Code size: &ffi-pac; wins</term>
  <listitem><simpara>You need to type much fewer characters with &ffi-pac;,
    and, if you use the &library-k; argument to &def-call-out; and
@@ -2493,14 +2494,14 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  particular <emphasis>binary</emphasis> distribution).</para>
 
 <para>To use modules, read <filename role="clisp-cvs">unix/INSTALL</filename>
- and build &clisp; in directory <filename>build-dir</filename> with,
+ and build &clisp; in a directory <filename>build-dir</filename> with,
  e.g.,<screen>
-&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --cbc build-dir</screen>then run it with
+&sh-prompt; ./configure --with-module=pcre --with-module=clx/new-clx --cbc build-dir</screen> then run it with
 <screen>&sh-prompt; ./build-dir/clisp &opt-K; full</screen>
 This will create a &base; &linkset; with modules
 &i18n-mod;, &regexp-mod; and &syscalls-mod; (and maybe &readline-mod;);
 and a &full; &linkset; with modules &new-clx; and &pcre-mod; in addition
-to the 3 (or 4) <link linkend="base-modules">base modules</link>.</para>
+to the 3 (or 4) &base; modules.</para>
 
 <para>Here we list the included modules by their general theme.
  See <xref linkend="ext-modules"/> for individual module documentation.</para>
