@@ -359,7 +359,7 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 
 #if defined(WIN32_NATIVE)
 typedef LARGE_INTEGER file_offset_t;
-static inline  I_to_file_offset (object obj, file_offset_t *length) {
+static inline void I_to_file_offset (object obj, file_offset_t *length) {
   sint64 off = I_to_sint64(check_sint64(obj));
   length->HighPart = (LONG)(off >> 32);
   length->LowPart = (DWORD)off;
@@ -373,7 +373,7 @@ static inline void I_to_file_offset (object obj, file_offset_t *length)
 #endif
 
 /* truncate a file, STACK_0 = path */
-static void path_truncate (const char *path, file_offset_t length) {
+static void path_truncate (const char *path, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
@@ -387,7 +387,7 @@ static void path_truncate (const char *path, file_offset_t length) {
   if (0 == CloseHandle(fd))
     OS_file_error(STACK_0);
 #elif defined(HAVE_TRUNCATE)
-  if (truncate(path,length))
+  if (truncate(path,*length))
     OS_file_error(STACK_0);
 #else
 #error FILE-SIZE: no truncate and not woe32
@@ -396,7 +396,7 @@ static void path_truncate (const char *path, file_offset_t length) {
 }
 
 /* truncate a stream, STACK_0 = stream */
-static void stream_truncate (Handle fd, file_offset_t length) {
+static void stream_truncate (Handle fd, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   LARGE_INTEGER cur_pos;
@@ -409,7 +409,8 @@ static void stream_truncate (Handle fd, file_offset_t length) {
   if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
     OS_filestream_error(STACK_0);
 #elif defined(HAVE_FTRUNCATE)
-  if (ftruncate(fd,length)) OS_file_error(STACK_0);
+  if (ftruncate(fd,*length))
+    OS_file_error(STACK_0);
 #else
 #error FILE-SIZE: no ftruncate and not woe32
 #endif
@@ -431,8 +432,8 @@ DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
   if (eq(nullobj,STACK_0)) {    /* not a stream - use path */
     with_string_0(STACK_0 = physical_namestring(STACK_2),
                   GLO(pathname_encoding), namez,
-        { path_truncate(namez,length); });
-  } else stream_truncate(fd,length); /* stream - use fd */
+        { path_truncate(namez,&length); });
+  } else stream_truncate(fd,&length); /* stream - use fd */
   VALUES1(STACK_1); skipSTACK(3);
 }
 
