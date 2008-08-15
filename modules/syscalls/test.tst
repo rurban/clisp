@@ -468,7 +468,11 @@ T
         :finally (os:errno nil))
 #+ffi ()
 
-(and (fboundp 'os:gethostid) (not (integerp (show (os:gethostid))))) NIL
+(and (fboundp 'os:hostid) (not (integerp (show (os:hostid))))) NIL
+#+unix (and (fboundp 'os::%sethostid)
+            (zerop (os:euid))
+            (not (= (setf (os:hostid) (os:hostid)) (os:hostid))))
+#+unix NIL
 
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))

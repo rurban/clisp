@@ -13,7 +13,7 @@
    #+(or :win32 :cygwin) #:file-properties #+unix #:make-xterm-io-stream
    #:priority #:openlog #:setlogmask #:syslog #:closelog #:process-id #:getppid
    #:getsid #:setsid #:getpgrp #:setpgrp #:setreuid #:setregid #:kill #:sync
-   #:errno #:strerror #:gethostid #:file-size
+   #:errno #:strerror #:hostid #:file-size
    #:erf #:erfc #:j0 #:j1 #:jn #:y0 #:y1 #:yn #:tgamma #:lgamma #:ffs))
 
 (pushnew :syscalls *features*)
@@ -45,6 +45,7 @@
      (stream-lock ,stream nil ,@options)))
 ;;; ============================================================
 (defsetf file-size %set-file-size)
+(defsetf hostid %sethostid)
 ;;; ============================================================
 (defun syslog (severity facility format &rest args)
   (%syslog severity facility (apply #'format nil format args)))
