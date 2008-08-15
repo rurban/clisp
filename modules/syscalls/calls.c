@@ -138,12 +138,13 @@ extern object nobject_out (FILE* stream, object obj);
   begin_system_call(); ret=call(id); end_system_call(); \
   if (ret==(type##_t)-1) OS_error();                    \
   VALUES1(type##_to_I(ret)); skipSTACK(1)
-#define SETTER(type,call)                                       \
-  type##_t id = I_to_##type(STACK_0);                           \
+#define SETTER(type,conv,call)                                  \
+  type val = conv(STACK_0);                                     \
   int status;                                                   \
-  begin_system_call(); status = call(id); end_system_call();    \
+  begin_system_call(); status = call(val); end_system_call();   \
   if (status) OS_error();                                       \
   VALUES1(popSTACK())
+#define SETTER1(type,call)  SETTER(type##_t,I_to_##type,call)
 #define SETTER2(type,call)                                              \
   type##_t eid = I_to_##type(STACK_0);                                  \
   type##_t rid = I_to_##type(STACK_1);                                  \
@@ -1678,25 +1679,25 @@ DEFUN(POSIX::USER-INFO, &optional user)
 DEFUN(POSIX:UID,){ GETTER0(uid,getuid); }
 #endif
 #if defined(HAVE_SETUID)
-DEFUN(POSIX::%SETUID, uid) { SETTER(uid,setuid); }
+DEFUN(POSIX::%SETUID, uid) { SETTER1(uid,setuid); }
 #endif
 #if defined(HAVE_GETGID)
 DEFUN(POSIX:GID,){ GETTER0(gid,getgid); }
 #endif
 #if defined(HAVE_SETGID)
-DEFUN(POSIX::%SETGID, gid) { SETTER(gid,setgid); }
+DEFUN(POSIX::%SETGID, gid) { SETTER1(gid,setgid); }
 #endif
 #if defined(HAVE_GETEUID)
 DEFUN(POSIX:EUID,){ GETTER0(uid,geteuid); }
 #endif
 #if defined(HAVE_SETEUID)
-DEFUN(POSIX::%SETEUID, euid) { SETTER(uid,seteuid); }
+DEFUN(POSIX::%SETEUID, euid) { SETTER1(uid,seteuid); }
 #endif
 #if defined(HAVE_GETEGID)
 DEFUN(POSIX:EGID,){ GETTER0(gid,getegid); }
 #endif
 #if defined(HAVE_SETEGID)
-DEFUN(POSIX::%SETEGID, egid) { SETTER(gid,setegid); }
+DEFUN(POSIX::%SETEGID, egid) { SETTER1(gid,setegid); }
 #endif
 #if defined(HAVE_GETGROUPS)
 DEFUN(POSIX:GROUPS,) {
@@ -1734,7 +1735,10 @@ DEFUN(POSIX::%SETGROUPS, groups) {
    (rawsock:htonl 430729603) ==> 2204740633
    (rawsock:convert-address :inet 2204740633) ==> "25.172.105.131"
    but (rawsock:resolve-host-ipaddr :default) ==> "172.25.131.105" */
-DEFUN(POSIX:GETHOSTID,) { GETTER(unsigned long,ulong,gethostid); }
+DEFUN(POSIX:HOSTID,) { GETTER(unsigned long,ulong,gethostid); }
+#endif
+#if defined(HAVE_SETHOSTID)
+DEFUN(POSIX::%SETHOSTID, hostid) { SETTER(unsigned long,I_to_ulong,sethostid); }
 #endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
