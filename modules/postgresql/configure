@@ -4748,7 +4748,7 @@ done
 
 if test "$ac_cv_header_postgres_ext_h" = "no" \
      -a "$ac_cv_header_postgresql_postgres_ext_h" = "no" \
-     -a "$ac_cv_header_pgsql_postgres_ext_h"; then
+     -a "$ac_cv_header_pgsql_postgres_ext_h" = "no"; then
   { { $as_echo "$as_me:$LINENO: error: cannot find PostgreSQL headers" >&5
 $as_echo "$as_me: error: cannot find PostgreSQL headers" >&2;}
    { (exit 1); exit 1; }; }
