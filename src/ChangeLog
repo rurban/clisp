@@ -1,3 +1,10 @@
+2008-08-14  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (HOSTID): rename from GETHOSTID
+	(%SETHOSTID) [HAVE_SETHOSTID]: add
+	* modules/syscalls/posix.lisp (hostid): add a defsetf
+	* modules/syscalls/configure.in (sethostid): add a check
+
 2008-08-13  Frederik  <freggy@gmail.com>
 	Sam Steingold  <sds@gnu.org>
 
