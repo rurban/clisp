@@ -5955,7 +5955,7 @@ local void find_first_file (const char *namestring_asciz,
                             WIN32_FIND_DATA *filedata) {
   var HANDLE search_handle;
   begin_system_call();
-  search_handle = FindFirstFile(namestring_asciz,&filedata);
+  search_handle = FindFirstFile(namestring_asciz,filedata);
   if (search_handle == INVALID_HANDLE_VALUE) {
     if (WIN32_ERROR_NOT_FOUND) {
       end_system_call(); error_file_not_exists();
