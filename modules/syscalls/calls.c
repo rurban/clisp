@@ -354,13 +354,13 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 #endif
 
 /* =========================== file truncate =========================== */
+/* NB: woe32 has ftruncate, but, just like fstat, it does not accept a Handle,
+   just an integer of an unknown nature */
+
 /* truncate a file, STACK_0 = path */
 static void path_truncate (const char *path, off_t length) {
   begin_system_call();
-#if defined(HAVE_TRUNCATE)
-  if (truncate(path,length))
-    OS_file_error(STACK_0);
-#elif defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
   HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                          FILE_ATTRIBUTE_NORMAL,NULL);
   if (fd == INVALID_HANDLE_VALUE)
@@ -371,6 +371,9 @@ static void path_truncate (const char *path, off_t length) {
     OS_file_error(STACK_0);
   if (0 == CloseHandle(fd))
     OS_file_error(STACK_0);
+#elif defined(HAVE_TRUNCATE)
+  if (truncate(path,length))
+    OS_file_error(STACK_0);
 #else
 #error FILE-SIZE: no truncate and not woe32
 #endif
@@ -380,9 +383,7 @@ static void path_truncate (const char *path, off_t length) {
 /* truncate a stream, STACK_0 = stream */
 static void stream_truncate (Handle fd, off_t length) {
   begin_system_call();
-#if defined(HAVE_FTRUNCATE)
-  if (ftruncate(fd,length)) OS_file_error(STACK_0);
-#elif defined(WIN32_NATIVE)
+#if defined(WIN32_NATIVE)
   LARGE_INTEGER cur_pos;
   if (0 == SetFilePointerEx(fd,0,&cur_pos,FILE_CURRENT))
     OS_filestream_error(STACK_0);
@@ -392,6 +393,8 @@ static void stream_truncate (Handle fd, off_t length) {
     OS_filestream_error(STACK_0);
   if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
     OS_filestream_error(STACK_0);
+#elif defined(HAVE_FTRUNCATE)
+  if (ftruncate(fd,length)) OS_file_error(STACK_0);
 #else
 #error FILE-SIZE: no ftruncate and not woe32
 #endif

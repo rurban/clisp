@@ -1,5 +1,12 @@
 2008-08-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (path_truncate, stream_truncate):
+	handle WIN32_NATIVE before HAVE_TRUNCATE & HAVE_FTRUNCATE because
+	WIN32_NATIVE has a broken ftruncate (similar to fstat: accept some
+	unknown int instead of a handle)
+
+2008-08-15  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (find_first_file): fix FindFirstFile call
 
 2008-08-14  Sam Steingold  <sds@gnu.org>
