@@ -357,8 +357,23 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 /* NB: woe32 has ftruncate, but, just like fstat, it does not accept a Handle,
    just an integer of an unknown nature */
 
+#if defined(WIN32_NATIVE)
+typedef LARGE_INTEGER file_offset_t;
+static inline  I_to_file_offset (object obj, file_offset_t *length) {
+  sint64 off = I_to_sint64(check_sint64(obj));
+  length->HighPart = (LONG)(off >> 32);
+  length->LowPart = (DWORD)off;
+}
+#elif defined(UNIX)
+typedef off_t file_offset_t;
+static inline void I_to_file_offset (object obj, file_offset_t *length)
+{ *length = I_to_offset(obj); }
+#else
+# error file_offset_t is not defined
+#endif
+
 /* truncate a file, STACK_0 = path */
-static void path_truncate (const char *path, off_t length) {
+static void path_truncate (const char *path, file_offset_t length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
@@ -381,7 +396,7 @@ static void path_truncate (const char *path, off_t length) {
 }
 
 /* truncate a stream, STACK_0 = stream */
-static void stream_truncate (Handle fd, off_t length) {
+static void stream_truncate (Handle fd, file_offset_t length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   LARGE_INTEGER cur_pos;
@@ -408,8 +423,9 @@ DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
      http://www.opengroup.org/onlinepubs/009695399/functions/ftruncate.html
      http://msdn.microsoft.com/en-us/library/aa365542(VS.85).aspx
      http://msdn.microsoft.com/en-us/library/aa365531(VS.85).aspx */
-  off_t length = I_to_offset(STACK_0);
+  file_offset_t length;
   Handle fd;
+  I_to_file_offset(STACK_0,&length);
   /* both path_truncate & stream_truncate use STACK_0 for error reporting */
   pushSTACK(open_file_stream_handle(STACK_1,&fd,true));
   if (eq(nullobj,STACK_0)) {    /* not a stream - use path */
@@ -438,23 +454,24 @@ DEFUN(POSIX:FILE-SIZE, file) {
      (defun file-size (file)
        (handler-case (file-length file)
          (file-error (c) (with-open-file (s file) (file-length s))))) */
-  off_t length;
   Handle fd;
   object stream = open_file_stream_handle(STACK_0,&fd,true);
   if (eq(nullobj,stream)) {    /* not a stream - use path */
-   #if defined(HAVE_STAT)
-    struct stat stat;
-    if (stat_obj(STACK_0,&stat))
-      OS_file_error(value1);
-    length = stat.st_size;
-   #elif defined(WIN32_NATIVE)
+   #if defined(WIN32_NATIVE)
+    LARGE_INTEGER length;
     with_string_0(value1 = physical_namestring(STACK_0),
                   GLO(pathname_encoding), namez,
         { if (GetFileSizeEx(namez,&length)) OS_file_error(value1); });
+    VALUES1(L2_to_I(length.HighPart,length.LowPart));
+   #elif defined(HAVE_STAT)
+    struct stat stat;
+    if (stat_obj(STACK_0,&stat))
+      OS_file_error(value1);
+    VALUES1(off_to_I(stat.st_size));
    #else
     #error FILE-SIZE: no stat and not woe32
    #endif
-    skipSTACK(1); VALUES1(off_to_I(length));
+    skipSTACK(1);
   } else {                      /* stream - use FILE-LENGTH */
     STACK_0 = stream;
     funcall(L(file_length),1);
