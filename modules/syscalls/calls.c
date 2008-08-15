@@ -222,16 +222,16 @@ static BOOL my_UnlockFileEx
 #endif
 
 #if defined(SIZEOF_OFF_T) && SIZEOF_OFF_T == 8
-# define I_to_offset(x)  I_to_uint64(x)
+# define I_to_offset(x)  I_to_uint64(check_uint64(x))
 #else
-# define I_to_offset(x)  I_to_uint32(x)
+# define I_to_offset(x)  I_to_uint32(check_uint32(x))
 #endif
 DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
 { /* the interface to fcntl(2) */
   Handle fd = (Handle)-1;
   bool lock_p = !nullp(STACK_4), failed_p;
   object stream;
-  uintL start = missingp(STACK_1) ? 0 : I_to_UL(STACK_1);
+  uintL start = missingp(STACK_1) ? 0 : I_to_UL(check_ulong(STACK_1));
 #if defined(WIN32_NATIVE)
   uint64 length;
   DWORD flags = !lock_p ? 0 :
@@ -1741,7 +1741,8 @@ DEFUN(POSIX::%SETGROUPS, groups) {
 DEFUN(POSIX:HOSTID,) { GETTER(unsigned long,ulong,gethostid); }
 #endif
 #if defined(HAVE_SETHOSTID)
-DEFUN(POSIX::%SETHOSTID, hostid) { SETTER(unsigned long,I_to_ulong,sethostid); }
+#define I_to_hid(x)   I_to_ulong(check_ulong(x))
+DEFUN(POSIX::%SETHOSTID, hostid) { SETTER(unsigned long,I_to_hid,sethostid); }
 #endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)

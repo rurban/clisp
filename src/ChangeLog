@@ -4,6 +4,7 @@
 	handle WIN32_NATIVE before HAVE_TRUNCATE & HAVE_FTRUNCATE because
 	WIN32_NATIVE has a broken ftruncate (similar to fstat: accept some
 	unknown int instead of a handle)
+	(I_to_offset, STREAM-LOCK, %SETHOSTID): check arg type before conversion
 
 2008-08-15  Sam Steingold  <sds@gnu.org>
 
