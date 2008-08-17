@@ -376,19 +376,20 @@ static inline void I_to_file_offset (object obj, file_offset_t *length)
 static void path_truncate (const char *path, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
-  HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-                         FILE_ATTRIBUTE_NORMAL,NULL);
-  if (fd == INVALID_HANDLE_VALUE)
-    OS_file_error(STACK_0);
-  if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
-    OS_file_error(STACK_0);
-  if (0 == SetEndOfFile(fd))
-    OS_file_error(STACK_0);
-  if (0 == CloseHandle(fd))
-    OS_file_error(STACK_0);
+  { HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                           FILE_ATTRIBUTE_NORMAL,NULL);
+    if (fd == INVALID_HANDLE_VALUE)
+      { end_system_call(); OS_file_error(STACK_0); }
+    if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
+      { end_system_call(); OS_file_error(STACK_0); }
+    if (0 == SetEndOfFile(fd))
+      { end_system_call(); OS_file_error(STACK_0); }
+    if (0 == CloseHandle(fd))
+      { end_system_call(); OS_file_error(STACK_0); }
+  }
 #elif defined(HAVE_TRUNCATE)
   if (truncate(path,*length))
-    OS_file_error(STACK_0);
+    { end_system_call(); OS_file_error(STACK_0); }
 #else
 #error FILE-SIZE: no truncate and not woe32
 #endif
@@ -399,18 +400,19 @@ static void path_truncate (const char *path, file_offset_t *length) {
 static void stream_truncate (Handle fd, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
-  LARGE_INTEGER cur_pos;
-  if (0 == SetFilePointerEx(fd,{0;0},&cur_pos,FILE_CURRENT))
-    OS_filestream_error(STACK_0);
-  if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
-    OS_filestream_error(STACK_0);
-  if (0 == SetEndOfFile(fd))
-    OS_filestream_error(STACK_0);
-  if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
-    OS_filestream_error(STACK_0);
+  { LARGE_INTEGER cur_pos;
+    if (0 == SetFilePointerEx(fd,{0;0},&cur_pos,FILE_CURRENT))
+      { end_system_call(); OS_filestream_error(STACK_0); }
+    if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
+      { end_system_call(); OS_filestream_error(STACK_0); }
+    if (0 == SetEndOfFile(fd))
+      { end_system_call(); OS_filestream_error(STACK_0); }
+    if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
+      { end_system_call(); OS_filestream_error(STACK_0); }
+  }
 #elif defined(HAVE_FTRUNCATE)
   if (ftruncate(fd,*length))
-    OS_file_error(STACK_0);
+    { end_system_call(); OS_file_error(STACK_0); }
 #else
 #error FILE-SIZE: no ftruncate and not woe32
 #endif
