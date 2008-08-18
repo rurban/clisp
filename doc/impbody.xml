@@ -4698,6 +4698,16 @@ Let us consider different criteria:<orderedlist numeration="arabic">
  and the next object will be printed on several lines,
  and it does not start with a &nl-s;,
  then a &nl-s; is printed before the object.
+ E.g., when you type <code>(&format; &t; "return value: ~S~%" &v-r;)</code>
+ you want want to see a terse one-line output when &v-r; is something
+ short (like &zero; or &nil; or &t;), but you probably want to see
+ something nice, like <screen>
+return value:
+(long list which does not fit
+ on one line)</screen>
+instead of <screen>
+return value: (long list which does not fit
+ on one line)</screen> when it does not.
  &ppr-first-newline; has no effect if &print-pretty-var; is &nil;.
  &ppr-first-newline; is initially set to &t;.</para></formalpara>
 
