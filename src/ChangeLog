@@ -2,6 +2,8 @@
 
 	* modules/syscalls/calls.c (path_truncate, stream_truncate): call
 	end_system_call(); before signaling errors
+	(I_to_file_offset, FILE-SIZE) [WIN32_NATIVE]: use LARGE_INTEGER.QuadPart
+	(stream_truncate) [WIN32_NATIVE]: fix LARGE_INTEGER literal
 
 2008-08-15  Sam Steingold  <sds@gnu.org>
 
