@@ -323,14 +323,12 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
         cmd = F_SETFL; break;
       default: NOTREACHED;
     }
-    begin_system_call();
-    if (-1 == fcntl(fd,cmd,value)) error_OS_stream(STACK_2);
-    end_system_call();
+    begin_system_call(); value = fcntl(fd,cmd,value); end_system_call();
+    if (-1 == value) error_OS_stream(STACK_2);
     VALUES0;
   } else {                      /* GET */
-    begin_system_call();
-    if (-1 == (value = fcntl(fd,cmd))) error_OS_stream(STACK_2);
-    end_system_call();
+    begin_system_call(); value = fcntl(fd,cmd); end_system_call();
+    if (-1 == value) error_OS_stream(STACK_2);
     switch (cmd) {
       case F_GETFD: value1 = check_fd_flags_to_list(value); break;
       case F_GETFL:
@@ -375,13 +373,10 @@ static void path_truncate (const char *path, file_offset_t *length) {
 #if defined(WIN32_NATIVE)
   { HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                            FILE_ATTRIBUTE_NORMAL,NULL);
-    if (fd == INVALID_HANDLE_VALUE)
-      { end_system_call(); OS_file_error(STACK_0); }
-    if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
-      { end_system_call(); OS_file_error(STACK_0); }
-    if (0 == SetEndOfFile(fd))
-      { end_system_call(); OS_file_error(STACK_0); }
-    if (0 == CloseHandle(fd))
+    if (fd == INVALID_HANDLE_VALUE
+        || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+        || 0 == SetEndOfFile(fd)
+        || 0 == CloseHandle(fd))
       { end_system_call(); OS_file_error(STACK_0); }
   }
 #elif defined(HAVE_TRUNCATE)
@@ -399,13 +394,10 @@ static void stream_truncate (Handle fd, file_offset_t *length) {
 #if defined(WIN32_NATIVE)
   { LARGE_INTEGER cur_pos;
     if (0 == SetFilePointerEx(fd,(LARGE_INTEGER){QuadPart:0},
-                              &cur_pos,FILE_CURRENT))
-      { end_system_call(); OS_filestream_error(STACK_0); }
-    if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
-      { end_system_call(); OS_filestream_error(STACK_0); }
-    if (0 == SetEndOfFile(fd))
-      { end_system_call(); OS_filestream_error(STACK_0); }
-    if (0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
+                              &cur_pos,FILE_CURRENT)
+        || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+        || 0 == SetEndOfFile(fd)
+        || 0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
       { end_system_call(); OS_filestream_error(STACK_0); }
   }
 #elif defined(HAVE_FTRUNCATE)
@@ -592,9 +584,10 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
     tm.tm_wday = (posfixnum_to_V(value7) + 1) % 7;
     tm.tm_isdst = !nullp(value8); /* Daylight Savings flag. */
     /* tm.tm_yday == Day of year [0,365]. -- use mkime() */
-    begin_system_call();
-    if (mktime(&tm) == (time_t)-1) OS_error();
-    end_system_call();
+    { time_t ret;
+      begin_system_call(); ret = mktime(&tm); end_system_call();
+      if (ret == (time_t)-1) OS_error();
+    }
     with_string_0(STACK_0,GLO(misc_encoding),format, {
         /* at least 4 characters per each format char + safety */
         size_t bufsize = 4 * format_bytelen + 64;
@@ -624,9 +617,11 @@ static object temp_name (char *dir, char *prefix) {
 #elif defined(WIN32_NATIVE)
 static object temp_name (char *dir, char *prefix) {
   char path[MAX_PATH];
+  int ret;
   begin_system_call();
-  if (0 == GetTempFileName(dir,prefix,0,path)) OS_error();
+  ret = GetTempFileName(dir,prefix,0,path);
   end_system_call();
+  if (0 == ret) OS_error();
   return asciz_to_string(path,GLO(pathname_encoding));
 }
 #endif
@@ -842,13 +837,15 @@ DEFUN(POSIX:SYNC, &optional file) {
 #  endif
   } else {                      /* fsync() */
     Handle fd = stream_get_handle(&STACK_0);
+    bool failed_p;
     begin_system_call();
 #  if defined(HAVE_FSYNC)
-    if (-1 == fsync(fd)) error_OS_stream(STACK_0);
+    failed_p = (-1 == fsync(fd));
 #  elif defined(WIN32_NATIVE)
-    if (!FlushFileBuffers(fd)) error_OS_stream(STACK_0);
+    failed_p = (!FlushFileBuffers(fd));
 #  endif
     end_system_call();
+    if (failed_p) error_OS_stream(STACK_0);
   }
   VALUES0; skipSTACK(1);
 }
@@ -867,43 +864,54 @@ DEFUN(OS:PRIORITY, pid &optional which) {
   int which = check_priority_which(popSTACK());
   int pid = I_to_uint32(check_uint32(popSTACK()));
   int res;
+  bool failed_p;
 #if defined(HAVE_GETPRIORITY)
+  begin_system_call();
   errno = 0;
-  begin_system_call();
   res = getpriority(which,pid);
+  failed_p = (errno != 0);
   end_system_call();
-  if (errno) OS_error();
 #elif defined(WIN32_NATIVE)
-  HANDLE handle;
-  begin_system_call();
-  handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
-  if (handle == NULL) OS_error();
-  res = (int)GetPriorityClass(handle);
-  CloseHandle(handle);
-  end_system_call();
+  {
+    HANDLE handle;
+    begin_system_call();
+    handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
+    if (handle != NULL) {
+      res = (int)GetPriorityClass(handle);
+      CloseHandle(handle);
+    } else failed_p = true;
+    end_system_call();
+  }
 #else
   NOTREACHED;
 #endif
+  if (failed_p) OS_error();
   VALUES1(check_priority_value_reverse(res));
 }
 DEFUN(OS::%SET-PRIORITY, value pid which) {
   int which = check_priority_which(popSTACK());
   int pid = I_to_uint32(check_uint32(popSTACK()));
   int value = check_priority_value(STACK_0);
-  begin_system_call();
+  bool failed_p = true;
 #if defined(HAVE_SETPRIORITY)
-  if (setpriority(which,pid,value)) OS_error();
+  begin_system_call();
+  failed_p = (0 != setpriority(which,pid,value));
+  end_system_call();
 #elif defined(WIN32_NATIVE)
   {
-    HANDLE handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
-    if (handle == NULL) OS_error();
-    if (!SetPriorityClass(handle,value)) OS_error();
-    CloseHandle(handle);
+    HANDLE handle;
+    begin_system_call();
+    handle = OpenProcess(PROCESS_QUERY_INFORMATION,FALSE,pid);
+    if (handle != NULL) {
+      failed_p = !SetPriorityClass(handle,value);
+      CloseHandle(handle);
+    }
+    end_system_call();
   }
 #else
   NOTREACHED;
 #endif
-  end_system_call();
+  if (failed_p) OS_error();
   VALUES1(popSTACK());
 }
 
@@ -1070,11 +1078,12 @@ static void set_block (char block[64], object vector) {
 DEFUN(POSIX::ENCRYPT, block flag) {
   int flag = nullp(popSTACK());
   char block[64];
+  bool failed_p;
   get_block(block,STACK_0);
   begin_system_call();
-  errno = 0; encrypt(block,flag);
-  if (errno) OS_error();
+  errno = 0; encrypt(block,flag); failed_p = (errno != 0);
   end_system_call();
+  if (failed_p) OS_error();
   set_block(block,STACK_0);
   VALUES1(popSTACK());
 }
@@ -1082,11 +1091,12 @@ DEFUN(POSIX::ENCRYPT, block flag) {
 #if defined(HAVE_SETKEY) && !defined(WIN32_NATIVE)
 DEFUN(POSIX::SETKEY, key) {
   char block[64];
+  bool failed_p;
   get_block(block,popSTACK());
   begin_system_call();
-  errno = 0; setkey(block);
-  if (errno) OS_error();
+  errno = 0; setkey(block); failed_p = (errno != 0);
   end_system_call();
+  if (failed_p) OS_error();
   VALUES0;
 }
 #endif
@@ -1572,6 +1582,7 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 { /* return the GROUP-INFO for the group or a list thereof if it is NIL. */
   object group = popSTACK();
   struct group *gr = NULL;
+  bool failed_p;
  group_info_restart:
 
 # if defined(HAVE_GETGRENT) && defined(HAVE_SETGRENT) && defined(HAVE_ENDGRENT)
@@ -1603,10 +1614,11 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
   } else {
     end_system_call(); error_string_integer(group);
   }
+  failed_p = (errno != 0);
   end_system_call();
 
   if (NULL == gr) {
-    if (errno == 0) {
+    if (!failed_p) {
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(group); pushSTACK(TheSubr(subr_self)->name);
       check_value(error_condition,GETTEXT("~S(~S): No such group"));
@@ -1641,6 +1653,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
 { /* return the USER-INFO for the user or a list thereof if user is NIL. */
   object user = popSTACK();
   struct passwd *pwd = NULL;
+  bool failed_p;
  user_info_restart:
 
 # if defined(HAVE_GETPWENT) && defined(HAVE_SETPWENT) && defined(HAVE_ENDPWENT)
@@ -1676,10 +1689,11 @@ DEFUN(POSIX::USER-INFO, &optional user)
   } else {
     end_system_call(); error_string_integer(user);
   }
+  failed_p = (errno != 0);
   end_system_call();
 
   if (NULL == pwd) {
-    if (errno == 0) {
+    if (!failed_p) {
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(user); pushSTACK(TheSubr(subr_self)->name);
       check_value(error_condition,GETTEXT("~S(~S): No such user"));
@@ -2127,9 +2141,9 @@ DEFUN(POSIX::MKNOD, path type mode)
 #endif                          /* no mknod() */
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
-      begin_system_call();
-      if (mknod(path,mode,0)) OS_file_error(value1);
-      end_system_call();
+      int ret;
+      begin_system_call(); ret = mknod(path,mode,0); end_system_call();
+      if (ret) OS_file_error(value1);
     });
   VALUES0;
 }
@@ -2157,8 +2171,9 @@ DEFUN(POSIX:MKDTEMP, template) {
         strcpy(c_template,namez);
         strcat(c_template,"XXXXXX");
       }
-      if (NULL == mkdtemp(c_template)) OS_error();
+      c_template = mkdtemp(c_template);
       end_system_call();
+      if (NULL == c_template) OS_error();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
   pushSTACK(fname);
@@ -2236,8 +2251,8 @@ static int statvfs (const char *fname, struct statvfs *sfs) {
   *rootp = 0;
 
   if (!GetDiskFreeSpace(root,&spc,&bps,&freec,&totalc))
-    return -1;                  /* bytes per sector */
-  bpc = spc*bps;
+    return -1;               /* bytes per sector, sectors per cluster */
+  bpc = spc*bps;             /* bytes per cluster */
   if (GetDiskFreeSpaceEx(root,&availb,&totalb,&freeb)) {
     availc = availb.QuadPart / bpc;
     totalc = totalb.QuadPart / bpc;
@@ -2716,27 +2731,27 @@ static inline int my_link (const char* source, const char* destination) {
 #endif
 #if defined(HAVE_LINK)
 static void hardlink_file (char* old_pathstring, char* new_pathstring) {
+  gcv_object_t *failed = NULL;
   begin_system_call();
 # if defined(WIN32_NATIVE)
   if (MkHardLink(old_pathstring,new_pathstring) == FALSE)
-    if (GetLastError() == ERROR_FILE_NOT_FOUND)
+    failed = (GetLastError() == ERROR_FILE_NOT_FOUND ? &STACK_3 : &STACK_1);
 # else
   if (my_link(old_pathstring,new_pathstring) < 0)
-    if (errno==ENOENT)
+    failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
 # endif
-      OS_file_error(STACK_3);
-    else OS_file_error(STACK_1);
   end_system_call();
+  if (failed) OS_file_error(*failed);
 }
 #endif
 #if defined(HAVE_SYMLINK)
 static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
+  gcv_object_t *failed = NULL;
   begin_system_call();
-  if (symlink(old_pathstring,new_pathstring) < 0) { /* symlink file */
-    if (errno==ENOENT) OS_file_error(STACK_3);
-    else OS_file_error(STACK_1);
-  }
+  if (symlink(old_pathstring,new_pathstring) < 0) /* symlink file */
+    failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
   end_system_call();
+  if (failed) OS_file_error(*failed);
 }
 #endif
 
@@ -3480,10 +3495,12 @@ DEFUN(POSIX::SYSTEM-INFO,)
 DEFUN(POSIX::VERSION,)
 { /* interface to GetVersionEx() */
   OSVERSIONINFOEX vi;
+  bool status;
   vi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
   begin_system_call();
-  if (!GetVersionEx((OSVERSIONINFO*)&vi)) OS_error();
+  status = GetVersionEx((OSVERSIONINFO*)&vi);
   end_system_call();
+  if (!status) OS_error();
 
   pushSTACK(UL_to_I(vi.dwMajorVersion));
   pushSTACK(UL_to_I(vi.dwMinorVersion));
@@ -3530,10 +3547,12 @@ DEFUN(POSIX::MEMORY-STATUS,)
 { /* interface to GlobalMemoryStatus() */
 #ifdef HAVE_GLOBALMEMORYSTATUSEX
   MEMORYSTATUSEX ms;
+  bool status;
   ms.dwLength = sizeof(MEMORYSTATUSEX);
   begin_system_call();
-  if (!GlobalMemoryStatusEx(&ms)) OS_error();
+  status = GlobalMemoryStatusEx(&ms);
   end_system_call();
+  if (!status) OS_error();
   pushSTACK(UQ_to_I(ms.ullTotalPhys));
   pushSTACK(UQ_to_I(ms.ullAvailPhys));
   pushSTACK(UQ_to_I(ms.ullTotalPageFile));
@@ -5310,8 +5329,10 @@ DEFUN(OS::STRERROR, &optional error_code) {
   VALUES1(status == 0 ? NIL : safe_to_string(ret));
   begin_system_call(); LocalFree(ret); end_system_call();
 # else
-  int error_code = missingp(STACK_0) ? errno : check_errno(STACK_0);
-  begin_system_call(); ret = strerror(error_code); end_system_call();
+  int error_code = missingp(STACK_0) ? -1 : check_errno(STACK_0);
+  begin_system_call();
+  ret = strerror(error_code == -1 ? errno : error_code);
+  end_system_call();
   VALUES1(safe_to_string(ret));
 # endif
   skipSTACK(1);
