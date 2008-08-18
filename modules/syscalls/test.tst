@@ -394,12 +394,18 @@ T
 #-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s nil)"))
 #-:no-stream-lock NIL           ; released
 
+(progn (proc-send *proc1* "(close s)(ext:quit)")
+       (close (two-way-stream-input-stream *proc1*))
+       (close (two-way-stream-output-stream *proc1*))
+       (close *proc1*) (symbol-cleanup '*proc1*)
+       (proc-send *proc2* "(close s)(ext:quit)" )
+       (close (two-way-stream-input-stream *proc2*))
+       (close (two-way-stream-output-stream *proc2*))
+       (close *proc2*) (symbol-cleanup '*proc2*))
+T
+
 (multiple-value-list (os:sync)) ()
 
-;; check :rename-and-delete
-;; woe32 signals ERROR_SHARING_VIOLATION
-;; when renaming a file opened by a different process
-#-win32
 (let ((inode (show (posix:file-stat-ino (posix:file-stat *tmp1*)))))
   (with-open-stream (s (ext:run-program
                         "tail" :arguments (list "-f" (namestring *tmp1*)
@@ -409,7 +415,7 @@ T
     (with-open-file (new *tmp1* :direction :output
                          :if-exists :rename-and-delete)
       (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
-#-win32 NIL
+NIL
 
 (let ((file "foo.bar") (dates '(3141592653 3279321753)))
   (unwind-protect
@@ -474,15 +480,7 @@ T
             (not (= (setf (os:hostid) (os:hostid)) (os:hostid))))
 #+unix NIL
 
-(progn (proc-send *proc1* "(close s)(ext:quit)")
-       (close (two-way-stream-input-stream *proc1*))
-       (close (two-way-stream-output-stream *proc1*))
-       (close *proc1*) (symbol-cleanup '*proc1*)
-       (proc-send *proc2* "(close s)(ext:quit)" )
-       (close (two-way-stream-input-stream *proc2*))
-       (close (two-way-stream-output-stream *proc2*))
-       (close *proc2*) (symbol-cleanup '*proc2*)
-       (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
+(progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)
        (symbol-cleanup 'proc-send)
