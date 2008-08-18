@@ -394,6 +394,8 @@ T
 #-:no-stream-lock (read-from-string (proc-send *proc1* "(stream-lock s nil)"))
 #-:no-stream-lock NIL           ; released
 
+;; reap *proc1* & *proc2* as soon as we do not need them to avoid
+;; woe32 ERROR_SHARING_VIOLATION in accessing *TMP1* & *TMP2*
 (progn (proc-send *proc1* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))
