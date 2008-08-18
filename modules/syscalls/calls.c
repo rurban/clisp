@@ -359,11 +359,8 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 
 #if defined(WIN32_NATIVE)
 typedef LARGE_INTEGER file_offset_t;
-static inline void I_to_file_offset (object obj, file_offset_t *length) {
-  sint64 off = I_to_sint64(check_sint64(obj));
-  length->HighPart = (LONG)(off >> 32);
-  length->LowPart = (DWORD)off;
-}
+static inline void I_to_file_offset (object obj, file_offset_t *length)
+{ length->QuadPart = I_to_sint64(check_sint64(obj)); }
 #elif defined(UNIX)
 typedef off_t file_offset_t;
 static inline void I_to_file_offset (object obj, file_offset_t *length)
@@ -401,7 +398,8 @@ static void stream_truncate (Handle fd, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   { LARGE_INTEGER cur_pos;
-    if (0 == SetFilePointerEx(fd,{0;0},&cur_pos,FILE_CURRENT))
+    if (0 == SetFilePointerEx(fd,(LARGE_INTEGER){QuadPart:0},
+                              &cur_pos,FILE_CURRENT))
       { end_system_call(); OS_filestream_error(STACK_0); }
     if (0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN))
       { end_system_call(); OS_filestream_error(STACK_0); }
@@ -465,7 +463,7 @@ DEFUN(POSIX:FILE-SIZE, file) {
     with_string_0(value1 = physical_namestring(STACK_0),
                   GLO(pathname_encoding), namez,
         { if (GetFileSizeEx(namez,&length)) OS_file_error(value1); });
-    VALUES1(L2_to_I(length.HighPart,length.LowPart));
+    VALUES1(off_to_I(length.QuadPart));
    #elif defined(HAVE_STAT)
     struct stat stat;
     if (stat_obj(STACK_0,&stat))
