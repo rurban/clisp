@@ -365,9 +365,9 @@ NIL
   len)
 256
 
-;; os:gethostid sometimes appears to be a mangled IP address
-(and (fboundp 'os:gethostid)
-     (listp (show (cons (rawsock:convert-address :inet (os:gethostid))
+;; os:hostid sometimes appears to be a mangled IP address
+(and (fboundp 'os:hostid)
+     (listp (show (cons (rawsock:convert-address :inet (os:hostid))
                         (os:hostent-addr-list
                          (os:resolve-host-ipaddr :default))))))
 T
