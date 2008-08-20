@@ -18,6 +18,11 @@ BOLD_MSG([Dbus (Headers and Libraries)])
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0,,[AC_MSG_ERROR([cannot find D-Bus])])
 AC_SUBST(DBUS_CFLAGS)
 AC_SUBST(DBUS_LIBS)
+dbus_save_CFLAGS=$CFLAGS
+AC_LIB_APPENDTOVAR([CFLAGS], [$DBUS_CFLAGS])
+AC_CHECK_TYPES([dbus_int64_t, dbus_int32_t, dbus_uint32_t, dbus_int16_t,
+dbus_unichar_t, dbus_bool_t],,,[#include <dbus/dbus.h>])
+CFLAGS=$dbus_save_CFLAGS
 
 BOLD_MSG([Dbus (Functions)])
 dbus_save_LIB=$LIBS
