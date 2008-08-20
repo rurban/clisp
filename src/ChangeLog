@@ -1,5 +1,10 @@
 2008-08-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/dbus/configure.in (dbus_int64_t, dbus_int32_t, dbus_uint32_t)
+	(dbus_int16_t, dbus_unichar_t, dbus_bool_t): check types
+
+2008-08-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-script): use ${TRCRLF} to delete '\r' from
 	output in addition to replacing '\n' with '_' to fix woe32
 
