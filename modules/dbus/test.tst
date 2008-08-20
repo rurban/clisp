@@ -94,7 +94,7 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (dbus:dbus_message_iter_init *dbus-msg* *dbus-args*) 1
 (= dbus:DBUS_TYPE_STRING (dbus:dbus_message_iter_get_arg_type *dbus-args*)) T
 
-(ffi:with-foreign-object (param '(c-array-max character 256))
+(ffi:with-foreign-object (param '(ffi:c-array-max character 256))
   (dbus:dbus_message_iter_get_basic *dbus-args* param)
   ;; "The name test.method.server was not provided by any .service files"
   (stringp (show (ffi:foreign-value param)))) T
@@ -152,7 +152,8 @@ POP-MESSAGE
                       (dbus:dbus_message_iter_get_arg_type *dbus-args*))
                   (format t "~& = Argument is not string!~%"))
                  (t
-                  (ffi:with-foreign-object (param '(c-array-max character 256))
+                  (ffi:with-foreign-object
+                      (param '(ffi:c-array-max character 256))
                     (dbus:dbus_message_iter_get_basic *dbus-args* param)
                     (format t "~& = Got Signal with value ~S~%"
                             (ffi:foreign-value param)))))
