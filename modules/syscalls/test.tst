@@ -414,6 +414,7 @@ T
                                                 (format nil "--pid=~D"
                                                         (os:process-id)))
                         :output :stream))
+    (sleep 1)                   ; let tail open file
     (with-open-file (new *tmp1* :direction :output
                          :if-exists :rename-and-delete)
       (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
