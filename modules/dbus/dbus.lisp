@@ -16,7 +16,8 @@
   (:use "CL" "FFI")
   (:shadowing-import-from "EXPORTING"
     #:defconstant #:defvar #:defun #:defmacro #:define-symbol-macro
-    #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var #:def-call-out))
+    #:def-c-const #:def-c-type #:def-c-enum #:def-c-struct #:def-c-var
+    #:def-call-out))
 
 (in-package "DBUS")
 
@@ -52,34 +53,34 @@
 
 ;; void dbus_error_init (DBusError *error);
 (def-call-out dbus_error_init (:return-type nil)
-  (:arguments (error (c-ptr DBusError))))
+  (:arguments (error (c-pointer DBusError))))
 
 ;; void dbus_error_free (DBusError *error);
 (def-call-out dbus_error_free (:return-type nil)
-  (:arguments (error (c-ptr DBusError))))
+  (:arguments (error (c-pointer DBusError))))
 
 ;; void dbus_set_error (DBusError *error, const char *name, const char *message, ...);
 (def-call-out dbus_set_error (:return-type nil)
-  (:arguments (error (c-ptr DBusError) :in-out)
+  (:arguments (error (c-pointer DBusError))
               (name c-string) (message c-string)))
 
 ;; void dbus_set_error_const (DBusError *error, const char *name, const char *message);
 (def-call-out dbus_set_error_const (:return-type nil)
-  (:arguments (error (c-ptr DBusError) :in-out)
+  (:arguments (error (c-pointer DBusError))
               (name c-string) (message c-string)))
 
 ;; void dbus_move_error (DBusError *src, DBusError *dest);
 (def-call-out dbus_move_error (:return-type nil)
-  (:arguments (src (c-ptr DBusError) :in)
-              (dst (c-ptr DBusError) :out)))
+  (:arguments (src (c-pointer DBusError))
+              (dst (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_error_has_name (const DBusError *error, const char *name);
 (def-call-out dbus_error_has_name (:return-type dbus_bool_t)
-  (:arguments (error (c-ptr DBusError) :in) (name c-string)))
+  (:arguments (error (c-pointer DBusError)) (name c-string)))
 
 ;; dbus_bool_t dbus_error_is_set (const DBusError *error);
 (def-call-out dbus_error_is_set (:return-type dbus_bool_t)
-  (:arguments (error (c-ptr DBusError) :in)))
+  (:arguments (error (c-pointer DBusError))))
 
 ;; === dbus-address.h
 ;; Opaque type representing one of the semicolon-separated items in an address
@@ -91,7 +92,7 @@
   (:arguments (address c-string)
               (entry (c-ptr (c-pointer DBusAddressEntry*)) :out)
               (array_len (c-ptr int) :out)
-              (error (c-ptr DBusError) :in-out)))
+              (error (c-pointer DBusError))))
 
 ;; const char *dbus_address_entry_get_value (DBusAddressEntry *entry, const char *key);
 (def-call-out dbus_address_entry_get_value (:return-type c-string)
@@ -111,7 +112,7 @@
 
 ;; char* dbus_address_unescape_value (const char *value, DBusError *error);
 (def-call-out dbus_address_unescape_value (:return-type c-string)
-  (:arguments (value c-string) (error (c-ptr DBusError) :in-out)))
+  (:arguments (value c-string) (error (c-pointer DBusError))))
 
 ;; === dbus-memory.h
 
@@ -146,7 +147,8 @@
 ;; needs to be freed and can be allocated on the stack.
 ;; typedef struct DBusMessageIter DBusMessageIter;
 (def-c-type DBusMessage* c-pointer)
-(def-c-type DBusMessageIter* c-pointer)
+(def-c-type DBusMessageIter c-pointer)
+(def-c-type DBusMessageIter* (c-pointer DBusMessageIter))
 
 ;; DBusMessage* dbus_message_new (int message_type);
 (def-call-out dbus_message_new (:return-type DBusMessage*)
@@ -329,11 +331,11 @@
 
 ;; dbus_bool_t dbus_message_get_args (DBusMessage *message, DBusError *error, int first_arg_type, ...);
 ;(def-call-out dbus_message_get_args (:return-type dbus_bool_t)
-;  (:arguments (message DBusMessage*) (error (c-ptr DBusError) :out) (first_arg_type int) (... )))
+;  (:arguments (message DBusMessage*) (error (c-pointer DBusError)) (first_arg_type int) (... )))
 
 ;; dbus_bool_t dbus_message_get_args_valist (DBusMessage *message, DBusError *error, int first_arg_type, va_list var_args);
 ;(def-call-out dbus_message_get_args_valist (:return-type dbus_bool_t)
-;  (:arguments (message DBusMessage*) (error (c-ptr DBusError) :out) (first_arg_type int) (var_args va_list)))
+;  (:arguments (message DBusMessage*) (error (c-pointer DBusError)) (first_arg_type int) (var_args va_list)))
 
 
 
@@ -402,7 +404,7 @@
 
 ;; dbus_bool_t dbus_set_error_from_message (DBusError *error, DBusMessage *message);
 (def-call-out dbus_set_error_from_message (:return-type dbus_bool_t)
-  (:arguments (error (c-ptr DBusError) :out) (message DBusMessage*)))
+  (:arguments (error (c-pointer DBusError)) (message DBusMessage*)))
 
 
 
@@ -440,7 +442,7 @@
 
 ;; DBusMessage* dbus_message_demarshal (const char *str, int len, DBusError *error);
 (def-call-out dbus_message_demarshal (:return-type DBusMessage*)
-  (:arguments (str c-pointer) (len int) (error (c-ptr DBusError) :out)))
+  (:arguments (str c-pointer) (len int) (error (c-pointer DBusError))))
 
 
 
@@ -677,11 +679,11 @@
 
 ;; DBusConnection* dbus_connection_open (const char *address, DBusError *error);
 (def-call-out dbus_connection_open (:return-type DBusConnection*)
-  (:arguments (address c-string) (error (c-ptr DBusError) :out)))
+  (:arguments (address c-string) (error (c-pointer DBusError))))
 
 ;; DBusConnection* dbus_connection_open_private (const char *address, DBusError *error);
 (def-call-out dbus_connection_open_private (:return-type DBusConnection*)
-  (:arguments (address c-string) (error (c-ptr DBusError) :out)))
+  (:arguments (address c-string) (error (c-pointer DBusError))))
 
 ;; DBusConnection* dbus_connection_ref (DBusConnection *connection);
 (def-call-out dbus_connection_ref (:return-type DBusConnection*)
@@ -769,7 +771,7 @@
 ;; DBusMessage * dbus_connection_send_with_reply_and_block (DBusConnection *connection, DBusMessage *message, int timeout_milliseconds, DBusError *error);
 (def-call-out dbus_connection_send_with_reply_and_block (:return-type DBusMessage*)
   (:arguments (connection DBusConnection*) (message DBusMessage*)
-              (timeout_milliseconds int) (error (c-ptr DBusError) :out)))
+              (timeout_milliseconds int) (error (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_connection_set_watch_functions (DBusConnection *connection, DBusAddWatchFunction add_function, DBusRemoveWatchFunction remove_function, DBusWatchToggledFunction toggled_function, void *data, DBusFreeFunction free_data_function);
 (def-call-out dbus_connection_set_watch_functions (:return-type dbus_bool_t)
@@ -949,7 +951,7 @@
 (def-call-out dbus_connection_try_register_object_path (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (path c-string)
               (vtable DBusObjectPathVTable*) (user_data c-pointer)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_connection_register_object_path (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data);
 (def-call-out dbus_connection_register_object_path (:return-type dbus_bool_t)
@@ -960,7 +962,7 @@
 (def-call-out dbus_connection_try_register_fallback (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (path c-string)
               (vtable DBusObjectPathVTable*) (user_data c-pointer)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_connection_register_fallback (DBusConnection *connection, const char *path, const DBusObjectPathVTable *vtable, void *user_data);
 (def-call-out dbus_connection_register_fallback (:return-type dbus_bool_t)
@@ -1057,16 +1059,16 @@
 
 ;; DBusConnection *dbus_bus_get (DBusBusType type, DBusError *error);
 (def-call-out dbus_bus_get (:return-type DBusConnection*)
-  (:arguments (type DBusBusType) (error (c-ptr DBusError) :out)))
+  (:arguments (type DBusBusType) (error (c-pointer DBusError))))
 
 ;; DBusConnection *dbus_bus_get_private (DBusBusType type, DBusError *error);
 (def-call-out dbus_bus_get_private (:return-type DBusConnection*)
-  (:arguments (type DBusBusType) (error (c-ptr DBusError) :out)))
+  (:arguments (type DBusBusType) (error (c-pointer DBusError))))
 
 
 ;; dbus_bool_t dbus_bus_register (DBusConnection *connection, DBusError *error);
 (def-call-out dbus_bus_register (:return-type dbus_bool_t)
-  (:arguments (connection DBusConnection*) (error (c-ptr DBusError) :out)))
+  (:arguments (connection DBusConnection*) (error (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_bus_set_unique_name (DBusConnection *connection, const char *unique_name);
 (def-call-out dbus_bus_set_unique_name (:return-type dbus_bool_t)
@@ -1079,44 +1081,44 @@
 ;; unsigned long dbus_bus_get_unix_user (DBusConnection *connection, const char *name, DBusError *error);
 (def-call-out dbus_bus_get_unix_user (:return-type ulong)
   (:arguments (connection DBusConnection*) (name c-string)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 ;; char* dbus_bus_get_id (DBusConnection *connection, DBusError *error);
 (def-call-out dbus_bus_get_id (:return-type c-string)
-  (:arguments (connection DBusConnection*) (error (c-ptr DBusError) :out)))
+  (:arguments (connection DBusConnection*) (error (c-pointer DBusError))))
 
 ;; int dbus_bus_request_name (DBusConnection *connection, const char *name, unsigned int flags, DBusError *error);
 (def-call-out dbus_bus_request_name (:return-type int)
   (:arguments (connection DBusConnection*) (name c-string)
-              (flags uint) (error (c-ptr DBusError) :out)))
+              (flags uint) (error (c-pointer DBusError))))
 
 ;; int dbus_bus_release_name (DBusConnection *connection, const char *name, DBusError *error);
 (def-call-out dbus_bus_release_name (:return-type int)
   (:arguments (connection DBusConnection*) (name c-string)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 ;; dbus_bool_t dbus_bus_name_has_owner (DBusConnection *connection, const char *name, DBusError *error);
 (def-call-out dbus_bus_name_has_owner (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (name c-string)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 
 ;; dbus_bool_t dbus_bus_start_service_by_name (DBusConnection *connection, const char *name, dbus_uint32_t flags, dbus_uint32_t *reply, DBusError *error);
 (def-call-out dbus_bus_start_service_by_name (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (name c-string)
               (flags dbus_uint32_t) (reply (c-ptr dbus_uint32_t) :out)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 
 ;; void dbus_bus_add_match (DBusConnection *connection, const char *rule, DBusError *error);
 (def-call-out dbus_bus_add_match (:return-type nil)
   (:arguments (connection DBusConnection*) (rule c-string)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 ;; void dbus_bus_remove_match (DBusConnection *connection, const char *rule, DBusError *error);
 (def-call-out dbus_bus_remove_match (:return-type nil)
   (:arguments (connection DBusConnection*) (rule c-string)
-              (error (c-ptr DBusError) :out)))
+              (error (c-pointer DBusError))))
 
 
 ;; === dbus-pending-call.h
@@ -1544,7 +1546,7 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; DBusServer* dbus_server_listen (const char *address, DBusError *error);
 (def-call-out dbus_server_listen (:return-type DBusServer*)
-  (:arguments (address c-string) (error (c-ptr DBusError) :out)))
+  (:arguments (address c-string) (error (c-pointer DBusError))))
 
 ;; DBusServer* dbus_server_ref (DBusServer *server);
 (def-call-out dbus_server_ref (:return-type DBusServer*)
@@ -1649,12 +1651,12 @@ We can't fix it for compatibility reasons so just be careful."))
 
 ;; dbus_bool_t dbus_signature_validate (const char *signature, DBusError *error);
 (def-call-out dbus_signature_validate (:return-type dbus_bool_t)
-  (:arguments (signature c-string) (error (c-ptr DBusError) :out)))
+  (:arguments (signature c-string) (error (c-pointer DBusError))))
 
 
 ;; dbus_bool_t dbus_signature_validate_single (const char *signature, DBusError *error);
 (def-call-out dbus_signature_validate_single (:return-type dbus_bool_t)
-  (:arguments (signature c-string) (error (c-ptr DBusError) :out)))
+  (:arguments (signature c-string) (error (c-pointer DBusError))))
 
 
 ;; dbus_bool_t dbus_type_is_basic (int typecode);
