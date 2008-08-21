@@ -22,6 +22,12 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (null *dbus-conn*) NIL
 (dbus:dbus_error_is_set *dbus-error*) 0 ; connection success
 
+(defparameter *dbus-iter* (show (ffi:allocate-shallow 'dbus:DBusMessageIter)))
+*DBUS-ITER*
+(defparameter *dbus-args*
+  (show (ffi:c-var-address (ffi:foreign-value *dbus-iter*))))
+*DBUS-ARGS*
+
 ;; == Sending a Signal
 (defparameter *dbus-msg*        ; create a signal
   (dbus:dbus_message_new_signal
@@ -31,6 +37,13 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 *DBUS-MSG*
 (null *dbus-msg*) NIL
 
+;; append arguments
+(multiple-value-list
+ (dbus:dbus_message_iter_init_append *dbus-msg* *dbus-args*)) ()
+(ffi:with-foreign-object (param 'dbus:dbus_uint32_t 123)
+  (dbus:dbus_message_iter_append_basic
+   *dbus-args* dbus:DBUS_TYPE_UINT32 param)) 1
+
 ;; send the message and flush the connection
 (multiple-value-list (dbus:dbus_connection_send *dbus-conn* *dbus-msg*)) (1 2)
 (multiple-value-list (dbus:dbus_connection_flush *dbus-conn*)) ()
@@ -38,7 +51,6 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (multiple-value-list (dbus:dbus_message_unref *dbus-msg*)) ()
 
 ;; == Calling a Method
-#+(or) (progn                   ; crash in dbus_connection_send_with_reply
 (defparameter *dbus-msg*
   (dbus:dbus_message_new_method_call
    "test.method.server"         ; target for the method call
@@ -48,22 +60,12 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 *DBUS-MSG*
 (null *dbus-msg*) NIL
 
-(defparameter *dbus-args* (ffi:allocate-shallow 'dbus:DBusMessageIter))
-*DBUS-ARGS*
-(defparameter *dbus-param*
-  (ffi:allocate-deep '(ffi:c-array-max character 256) "abazonk"))
-*DBUS-PARAM*
-(defparameter *dbus-param-addr*
-  (ffi:allocate-deep 'ffi:c-pointer
-                     (ffi:c-var-address (ffi:foreign-value *dbus-param*))))
-*DBUS-PARAM-ADDR*
-
 ;; append arguments
 (multiple-value-list
  (dbus:dbus_message_iter_init_append *dbus-msg* *dbus-args*)) ()
-(dbus:dbus_message_iter_append_basic
- *dbus-args* dbus:DBUS_TYPE_STRING *dbus-param-addr*)
-1
+(ffi:with-foreign-object (param 'ffi:c-string "abazonk")
+  (dbus:dbus_message_iter_append_basic
+   *dbus-args* dbus:DBUS_TYPE_STRING param)) 1
 
 (defparameter *dbus-pending*
   (multiple-value-bind (status pending)
@@ -83,9 +85,7 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (multiple-value-list (dbus:dbus_pending_call_block *dbus-pending*)) ()
 
 ;; get the reply message
-(defparameter *dbus-msg* (dbus:dbus_pending_call_steal_reply *dbus-pending*))
-*DBUS-MSG*
-(null *dbus-msg*) NIL
+(null (setq *dbus-msg* (dbus:dbus_pending_call_steal_reply *dbus-pending*))) NIL
 
 ;; free the pending message handle
 (multiple-value-list (dbus:dbus_pending_call_unref *dbus-pending*)) ()
@@ -103,8 +103,6 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 
 ;; free reply and close connection
 (multiple-value-list (dbus:dbus_message_unref *dbus-msg*)) ()
-
-) ;; disable the crashing code
 
 ;; == Receiving a Signal
 
@@ -224,10 +222,9 @@ T
        (symbol-cleanup '*dbus-error*)
        (symbol-cleanup '*dbus-conn*)
        (symbol-cleanup '*dbus-msg*)
-       ;; (ffi:foreign-free *dbus-args*)
+       (ffi:foreign-free *dbus-iter*)
+       (symbol-cleanup '*dbus-iter*)
        (symbol-cleanup '*dbus-args*)
        (symbol-cleanup '*dbus-pending*)
-       ;; (ffi:foreign-free *dbus-param*)
-       (symbol-cleanup '*dbus-param*)
        )
 T

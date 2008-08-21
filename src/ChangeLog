@@ -1,5 +1,9 @@
 2008-08-21  Sam Steingold  <sds@gnu.org>
 
+	* modules/dbus/dbus.lisp (DBusMessageIter): c-struct, not c-pointer
+
+2008-08-21  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (foreign_with_pointers_p): support inttypes (return false)
 
 2008-08-20  Sam Steingold  <sds@gnu.org>
