@@ -1,5 +1,10 @@
 2008-08-20  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (I_to_ulong, I_to_slong): define regardless of HAVE_FFI
+	for the sake of the syscalls module
+
+2008-08-20  Sam Steingold  <sds@gnu.org>
+
 	* modules/dbus/configure.in (dbus_int64_t, dbus_int32_t, dbus_uint32_t)
 	(dbus_int16_t, dbus_unichar_t, dbus_bool_t): check types
 	* modules/dbus/dbus.lisp (def-c-const): import from EXPORTING;
