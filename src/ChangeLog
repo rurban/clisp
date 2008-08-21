@@ -1,7 +1,10 @@
 2008-08-20  Sam Steingold  <sds@gnu.org>
 
-	* lispbibl.d (I_to_ulong, I_to_slong): define regardless of HAVE_FFI
-	for the sake of the syscalls module
+	* lispbibl.d (I_to_ulong, I_to_slong): define regardless of
+	HAVE_FFI for the sake of the syscalls module
+	* modules/syscalls/calls.c (%SETHOSTID): sethostid does not return
+	a value on *BSD, use errno to check for errors
+	Reported by José H. Espinosa <jose.h.espinosa@gmail.com>
 
 2008-08-20  Sam Steingold  <sds@gnu.org>
 
