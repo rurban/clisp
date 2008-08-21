@@ -22,6 +22,7 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (null *dbus-conn*) NIL
 (dbus:dbus_error_is_set *dbus-error*) 0 ; connection success
 
+;; prepare for argument parsing
 (defparameter *dbus-iter* (show (ffi:allocate-shallow 'dbus:DBusMessageIter)))
 *DBUS-ITER*
 (defparameter *dbus-args*
@@ -94,7 +95,7 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 (dbus:dbus_message_iter_init *dbus-msg* *dbus-args*) 1
 (= dbus:DBUS_TYPE_STRING (dbus:dbus_message_iter_get_arg_type *dbus-args*)) T
 
-(ffi:with-foreign-object (param '(ffi:c-array-max character 256))
+(ffi:with-foreign-object (param 'ffi:c-string)
   (dbus:dbus_message_iter_get_basic *dbus-args* param)
   ;; "The name test.method.server was not provided by any .service files"
   (stringp (show (ffi:foreign-value param)))) T
@@ -111,8 +112,8 @@ dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
  (dbus:dbus_bus_add_match *dbus-conn* ; see signals from the given interface
                           "type='signal',interface='test.signal.Type'"
                           *dbus-error*)) ()
+(dbus:dbus_error_is_set *dbus-error*) 0 ; success
 (multiple-value-list (dbus:dbus_connection_flush *dbus-conn*)) ()
-(dbus:dbus_error_is_set *dbus-error*) 0 ; connection success
 
 (defun show-message (msg)
   (if msg
@@ -150,8 +151,7 @@ POP-MESSAGE
                       (dbus:dbus_message_iter_get_arg_type *dbus-args*))
                   (format t "~& = Argument is not string!~%"))
                  (t
-                  (ffi:with-foreign-object
-                      (param '(ffi:c-array-max character 256))
+                  (ffi:with-foreign-object (param 'ffi:c-string)
                     (dbus:dbus_message_iter_get_basic *dbus-args* param)
                     (format t "~& = Got Signal with value ~S~%"
                             (ffi:foreign-value param)))))
@@ -165,14 +165,14 @@ NIL
 
 (defun reply-to-method-call (msg conn)
   (ffi:with-foreign-object (args 'dbus:DBusMessageIter)
-    (ffi:with-foreign-object (param 'ffi:c-string)
-      ;; read the arguments
-      (cond ((= 0 (dbus:dbus_message_iter_init msg args))
-             (format t "~& = Message has no arguments!~%"))
-            ((/= dbus:DBUS_TYPE_STRING
-                 (dbus:dbus_message_iter_get_arg_type args))
-             (format t "~& = Argument is not string!~%"))
-            (t
+    ;; read the arguments
+    (cond ((= 0 (dbus:dbus_message_iter_init msg args))
+           (format t "~& = Message has no arguments!~%"))
+          ((/= dbus:DBUS_TYPE_STRING
+               (dbus:dbus_message_iter_get_arg_type args))
+           (format t "~& = Argument is not string!~%"))
+          (t
+           (ffi:with-foreign-object (param 'ffi:c-string)
              (dbus:dbus_message_iter_get_basic args param)
              (format t "~& = Method called with ~S~%"
                      (ffi:foreign-value param)))))
