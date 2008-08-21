@@ -1774,7 +1774,13 @@ DEFUN(POSIX:HOSTID,) { GETTER(unsigned long,ulong,gethostid); }
 #endif
 #if defined(HAVE_SETHOSTID)
 #define I_to_hid(x)   I_to_ulong(check_ulong(x))
-DEFUN(POSIX::%SETHOSTID, hostid) { SETTER(unsigned long,I_to_hid,sethostid); }
+DEFUN(POSIX::%SETHOSTID, hostid) {
+  unsigned long hid = I_to_ulong(check_ulong(STACK_0 = STACK_0));
+  int e;
+  begin_system_call(); errno = 0; sethostid(hid); e = errno; end_system_call();
+  if (e) OS_error();
+  VALUES1(popSTACK());
+}
 #endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
