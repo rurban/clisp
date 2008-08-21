@@ -16347,14 +16347,12 @@ extern sintL I_to_L (object obj);
   #define I_to_uint  I_to_uint32
   #define I_to_sint  I_to_sint32
 #endif
-#if defined(HAVE_FFI)
-  #if (long_bitsize==32)
-    #define I_to_ulong  I_to_uint32
-    #define I_to_slong  I_to_sint32
-  #else /* (long_bitsize==64) */
-    #define I_to_ulong  I_to_uint64
-    #define I_to_slong  I_to_sint64
-  #endif
+#if (long_bitsize==32)
+  #define I_to_ulong  I_to_uint32
+  #define I_to_slong  I_to_sint32
+#else /* (long_bitsize==64) */
+  #define I_to_ulong  I_to_uint64
+  #define I_to_slong  I_to_sint64
 #endif
 /* used by FFI, STREAM, modules */
 %% export_def(I_to_uint8(obj));
