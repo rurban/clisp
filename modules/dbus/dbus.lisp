@@ -147,7 +147,22 @@
 ;; needs to be freed and can be allocated on the stack.
 ;; typedef struct DBusMessageIter DBusMessageIter;
 (def-c-type DBusMessage* c-pointer)
-(def-c-type DBusMessageIter c-pointer)
+(def-c-type DBusMessageIter (c-struct DBusMessageIter
+  (dummy1 c-pointer)            ; Don't use this
+  (dummy2 c-pointer)            ; Don't use this
+  (dummy3 dbus_uint32_t)        ; Don't use this
+  (dummy4 int)                  ; Don't use this
+  (dummy5 int)                  ; Don't use this
+  (dummy6 int)                  ; Don't use this
+  (dummy7 int)                  ; Don't use this
+  (dummy8 int)                  ; Don't use this
+  (dummy9 int)                  ; Don't use this
+  (dummy10 int)                 ; Don't use this
+  (dummy11 int)                 ; Don't use this
+  (pad1 int)                    ; Don't use this
+  (pad2 int)                    ; Don't use this
+  (pad3 c-pointer)              ; Don't use this
+  ))
 (def-c-type DBusMessageIter* (c-pointer DBusMessageIter))
 
 ;; DBusMessage* dbus_message_new (int message_type);
