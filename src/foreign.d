@@ -1463,6 +1463,8 @@ local bool foreign_with_pointers_p (object fvd)
     if (eq(fvd,S(c_string)))
       return true;
     return false;
+  } else if (stringp(fvd)) {
+    return false; /* inttype */
   } else if (simple_vector_p(fvd)) {
     var uintL fvdlen = Svector_length(fvd);
     if (fvdlen > 0) {
