@@ -100,29 +100,8 @@ local void install_segv_handler (void) {
 
 #ifdef NOCOST_SP_CHECK
 
-local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
-  if (emergency) {
-    fprintf(stderr,GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"));
-    fputs("\n",stderr);
-    print_mem_stats();
-  }
-  /* Libsigsegv requires handlers to restore the normal signal mask
-   prior to resuming the application from the stack overflow handler. */
- #ifdef UNIX
-  /* Unblock signals blocked by libsigsegv/src/handler-unix.c:install_for()
-   Alternatively unblock all signals */
-  { var sigset_t sigblock_mask;
-    /* sigemptyset(&sigblock_mask);
-     sigaddset(&sigblock_mask,SIGSEGV);
-     sigaddset(&sigblock_mask,SIGBUS);
-     sigaddset(&sigblock_mask,SIGINT);
-     sigaddset(&sigblock_mask,SIGHUP);
-     and QUIT, TERM, PIPE, ALRM, IO and many more */
-    sigfillset(&sigblock_mask);
-    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
-  }
- #endif
-  sigsegv_leave_handler();
+local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg3) {
+  stackoverflow_context_t scp = (stackoverflow_context_t) arg1;
  #ifdef HAVE_SAVED_STACK
   /* Assign a reasonable value to STACK: */
   if (saved_STACK != NULL) {
@@ -201,6 +180,36 @@ local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
   }
  #endif
   SP_ueber();
+}
+
+local void stackoverflow_handler (int emergency, stackoverflow_context_t scp) {
+  if (emergency) {
+    fprintf(stderr,GETTEXTL("Apollo 13 scenario: Stack overflow handling failed. On the next stack overflow we will crash!!!"));
+    fputs("\n",stderr);
+    print_mem_stats();
+  }
+  /* Libsigsegv requires handlers to restore the normal signal mask
+   prior to resuming the application from the stack overflow handler. */
+ #ifdef UNIX
+  /* Unblock signals blocked by libsigsegv/src/handler-unix.c:install_for()
+   Alternatively unblock all signals */
+  { var sigset_t sigblock_mask;
+    /* sigemptyset(&sigblock_mask);
+     sigaddset(&sigblock_mask,SIGSEGV);
+     sigaddset(&sigblock_mask,SIGBUS);
+     sigaddset(&sigblock_mask,SIGINT);
+     sigaddset(&sigblock_mask,SIGHUP);
+     and QUIT, TERM, PIPE, ALRM, IO and many more */
+    sigfillset(&sigblock_mask);
+    sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
+  }
+ #endif
+ #if LIBSIGSEGV_VERSION >= 0x0206
+  sigsegv_leave_handler(stackoverflow_handler_continuation,scp,NULL,NULL);
+ #else
+  sigsegv_leave_handler();
+  stackoverflow_handler_continuation(scp,NULL,NULL);
+ #endif
 }
 
 /* Must allocate room for a substitute stack for the stack overflow

@@ -1,3 +1,10 @@
+2008-08-24  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_sigsegv.d (stackoverflow_handler_continuation): New function,
+	extracted from stackoverflow_handler.
+	(stackoverflow_handler): Invoke it. Adapt to sigsegv_leave_handler API
+	change in libsigsegv-2.6.
+
 2008-08-21  Sam Steingold  <sds@gnu.org>
 
 	* modules/dbus/dbus.lisp (DBusMessageIter): c-struct, not c-pointer
