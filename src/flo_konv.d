@@ -16,7 +16,7 @@ local maygc object SF_to_FF (object x)
   /* So also 31-sign_bit_o = 31-SF_exp_len-SF_exp_shift
                            = 31-FF_exp_len-SF_mant_len-SF_mant_shift
                            = FF_mant_len-SF_mant_len-SF_mant_shift */
-  returnAllocate _ffloat(((uint32)(as_oint(x) >> SF_mant_shift)
+  return allocate_ffloat(((uint32)(as_oint(x) >> SF_mant_shift)
                           << (FF_mant_len-SF_mant_len)));
 #else
   /* unpack x: */
