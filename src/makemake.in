@@ -3102,7 +3102,7 @@ if [ $CROSS = false ] ; then
   TRCRLF="tr '\n' '_' | tr -d '\r'"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl | ${TRCRLF}\`\" = '99_[1]> _110_' || exit 1"
   echotab "echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' | \$(RUN) -q -M lispinit.mem -; test \$\$? = 42 || exit 1"
-  echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | ./lisp.run -B . -N locale -E UTF-8 -Epathname 1:1 -Emisc 1:1 -norc -q -M lispinit.mem - | cat\` = 42 || exit 1"
+  echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - | cat\` = 42 || exit 1"
   echotab "\$(RM) script.lisp; echo '(+ 11 99)' > script.lisp"
   echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp\` = 110 || exit 1"
   echotab "\$(RM) script.lisp; echo '(princ (+ 11 99))' > script.lisp"
