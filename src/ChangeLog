@@ -1,3 +1,7 @@
+2008-09-02  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (check-script): use $(RUN) instead of lisp.run
+
 2008-08-25  Bruno Haible  <bruno@clisp.org>
 
 	* configure (SIGSEGV): Set to libsigsegv-2.6.
