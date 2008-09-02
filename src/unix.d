@@ -492,7 +492,7 @@ extern_C int isatty (int fd); /* TTYNAME(3V) */
     #define NCCS  sizeof(((struct termio *)0)->c_cc)
   #endif
 #elif defined(HAVE_SGTTY_H)
-  /* compatibel to V7 or 4BSD, TIOC form ioctls.... */
+  /* compatible with V7 or 4BSD, TIOC form ioctls.... */
   #define UNIX_TERM_SGTTY
   #include <sgtty.h>
   #include <sys/ioctl.h> /* TTY(4) */
