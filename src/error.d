@@ -503,7 +503,7 @@ LISPFUNN(defclcs,1)
 {
   O(error_types) = check_vector(popSTACK());
   var int i;
-  var Symbol conditions = &(symbol_tab_data.S_simple_condition);
+  var Symbol conditions = &(symbol_tab.S_simple_condition);
   var gcv_object_t* et_data = TheSvector(O(error_types))->data;
   for (i=0; i < number_of_conditions_defined_in_c; i++)
     ASSERT(eq(Symbol_name(Cdr(et_data[i])),conditions[i].pname));
