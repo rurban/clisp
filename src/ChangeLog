@@ -1,5 +1,11 @@
 2008-09-02  Sam Steingold  <sds@gnu.org>
 
+	* error.d (%DEFCLCS): use symbol_tab instead of symbol_tab_data
+	to support TYPECODES on 32 bit platforms
+	Reported by Vladimir Tzankov <vtzankov@gmail.com>
+
+2008-09-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-script): use $(RUN) instead of lisp.run
 
 2008-08-25  Bruno Haible  <bruno@clisp.org>
