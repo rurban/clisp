@@ -688,7 +688,7 @@ compiles the specified lisp files to a platform-independent
    before <command role="unix">make</command>).</simpara></listitem>
  <listitem><simpara>If you are reporting a <quote>hard crash</quote>
    (segmentation fault, bus error, core dump etc), please do
-   <command>./configure --with-debug --cbc build-g ; cd build-g; gdb
+   <command>./configure &with-debug; --cbc build-g ; cd build-g; gdb
     lisp.run</command>, then load the appropriate &linkset; by either
    &base; or &full; &gdb; command, and report the backtrace (see also
    <olink targetdoc="impnotes" targetptr="faq-debug"/>).</simpara></listitem>

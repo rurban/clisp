@@ -227,9 +227,22 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
    debug &clisp;?</simpara></question>
-<answer><formalpara id="faq-debug-core"><title>Debugging the core</title>
+<answer><formalpara id="with-debug"><title>Configuring for debugging</title>
+<para>Passing &with-debug; to the top-level <command>configure</command>
+ script does not just replace <option>-O</option> with <option>-g</option>
+ in the &gcc; invocation, it also disables some optimizations
+ (registers, assembly, generational &gc;or) and enables
+ some <function role="unix">printf</function> calls (mostly before error
+ messages caused by system calls). This means that some bugs might be
+ exhibited by the normal build but &not-e; by the &with-debug; one.
+ If that is the case, please <command>configure</command> normally but
+ edit the <filename>Makefile</filename> and replace the &gcc; optimization
+ options (<option>-O</option> et al) with <option>-g</option> before
+ running <command role="unix">make</command>.</para></formalpara>
+
+<formalpara id="faq-debug-core"><title>Debugging the core</title>
 <para><screen>
-&sh-prompt; ./configure --with-debug --cbc build-g
+&sh-prompt; ./configure &with-debug; --cbc build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> boot
@@ -238,7 +251,7 @@ further explanations of the issues could be provided).</para>
 
 <formalpara id="faq-debug-module"><title>Debugging
   module <literal>foo</literal></title><para><screen>
-&sh-prompt; ./configure --with-debug --with-module=foo --cbc build-g
+&sh-prompt; ./configure &with-debug; --with-module=foo --cbc build-g
 &sh-prompt; cd build-g
 &sh-prompt; gdb full/lisp.run <lineannotation>;; or lisp.exe on windows and cygwin</lineannotation>
 <prompt>(gdb)</prompt> full
