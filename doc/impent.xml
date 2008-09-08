@@ -29,6 +29,7 @@
 <!ENTITY without '<emphasis role="strong">without</emphasis>'>
 <!ENTITY typecodes '<link linkend="typecodes"><emphasis role="strong"><option>TYPECODES</option></emphasis></link>'>
 <!ENTITY heapcodes '<link linkend="typecodes"><emphasis role="strong"><option>HEAPCODES</option></emphasis></link>'>
+<!ENTITY with-debug '<olink targetdoc="impnotes" targetptr="with-debug"><option>--with-debug</option></olink>'>
 
 <!-- *** literals *** -->
 <!ENTITY abort-k '<constant>:ABORT</constant>'>

@@ -1291,12 +1291,14 @@ first and do the rest of the computation with &c-lang; variables,
 without calling unsafe routines, and without worrying about &gc;ion.</para>
 
 <para>Alternatively, you can save a lisp &object-t; on the &STACK; using
-macros <function>pushSTACK()</function> and <function>popSTACK()</function>.
-</para>
-<warning><para>One should not mix these macros in one statement because &c-lang;
-may execute different parts of the statement out of order.
-E.g.,<programlisting language="C">pushSTACK(listof(4));</programlisting>
-is illegal.</para></warning>
+ macros <function>pushSTACK()</function> and <function>popSTACK()</function>.
+</para><warning><para>One should &not-e; mix these macros with functions
+  which modify &STACK; in one statement because &c-lang; may execute
+  different parts of the statement out of order.
+  E.g.,<programlisting language="C">pushSTACK(listof(4));</programlisting>
+  is <emphasis>illegal</emphasis> while
+  <programlisting language="C">pushSTACK(STACK_0);</programlisting>
+  is <emphasis>legal</emphasis>.</para></warning>
 </section>
 
 <section id="gc-alloccount"><title>Run-time GC-safety checks</title>
@@ -1304,7 +1306,7 @@ is illegal.</para></warning>
 <para>Run-time GC-safety checking is available when you build &clisp;
  with a C++ compiler, e.g.:
 <screen id="clisp-config-gxx">
-&sh-prompt; ./configure 'CC=g++' --with-debug build-g-gxx
+&sh-prompt; ./configure 'CC=g++' &with-debug; build-g-gxx
 </screen>
 When built like this, &clisp; will <function role="unix">abort</function>
 when you reference GC-unsafe data after an allocation (which could have
