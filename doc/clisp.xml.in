@@ -724,6 +724,7 @@ compiles the specified lisp files to a platform-independent
    functions.</simpara></listitem>
  <listitem><simpara>Add Multi-Threading capabilities, via OS
    threads.</simpara></listitem>
+ <listitem><simpara>Embed &clisp; in &vim;.</simpara></listitem>
 </itemizedlist>
 </refsection>
 
