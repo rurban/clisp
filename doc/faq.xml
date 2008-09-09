@@ -533,7 +533,7 @@ following command:
  <screen>&sh-prompt; foo -- -a -b -h -v</screen></para>
 <para>This is done to enable your users to get to the &clisp; prompt
  even if your application does not offer it:
-<screen>&sh-prompt; foo -x '(&savemem; "bar")
+<screen>&sh-prompt; foo -x '(&savemem; "bar" :executable t)'
 &sh-prompt; ./bar
 [1]&gt; (! 20)
 2432902008176640000</screen></para></answer></qandaentry>
