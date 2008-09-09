@@ -851,7 +851,7 @@
 
 <para>These files are usually updated a couple of weeks before a &clisp;
  release using <command>make -f Makefile.devel tp-mail</command>,
- see also <link linkend="src-external"/>.</para>
+ see also <xref linkend="src-external"/>.</para>
 <para>We use the
  <ulink url="http://translationproject.org/domain/clisp.html">Translation
   project</ulink> and the above command sends the updated files to the
@@ -921,7 +921,7 @@
 <para>The externally maintained files are usually updated a couple of
  weeks before a &clisp; release using
  <command>make -f Makefile.devel pre-release</command>,
- see also <link linkend="src-i18n"/>.</para>
+ see also <xref linkend="src-i18n"/>.</para>
 
 <variablelist>
 <varlistentry><term><filename role="clisp-cvs">src/gllib/</filename></term>
