@@ -1558,8 +1558,7 @@ In addition, once finalization is complete, any dependents of the
       others are processed during initialization of the &c-mo;
       (as described in <xref linkend="mop-cl-init-mo"/>).
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Value</term>
- <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&a-cmo;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This function is called to define or redefine a
    class with the specified name, and can be called by the user or the
@@ -1606,8 +1605,7 @@ In addition, once finalization is complete, any dependents of the
    <varlistentry><term>additional keyword arguments</term>
     <listitem><simpara>See <xref linkend="mop-cl-init-mo"/>
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Value</term>
- <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&a-cmo;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to define or modify
    the definition of a named class.  It is called by the &ensure-class;
@@ -1816,8 +1814,7 @@ In addition, once finalization is complete, any dependents of the
     &superclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>&class-mo-arg;
-   <varlistentry><term>&superclass-r;</term>
-    <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
+   <varlistentry><term>&superclass-r;</term>&a-cmo;</varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term>Value</term>
  <listitem><simpara>&boolean-t;.</simpara></listitem></varlistentry>
@@ -2190,10 +2187,8 @@ In addition, once finalization is complete, any dependents of the
     &subclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
-   <varlistentry><term>&superclass-r;</term>
-    <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
-   <varlistentry><term>&subclass-r;</term>
-    <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
+   <varlistentry><term>&superclass-r;</term>&a-cmo;</varlistentry>
+   <varlistentry><term>&subclass-r;</term>&a-cmo;</varlistentry>
 </variablelist></listitem></varlistentry>
 &values-unspecified;
 <varlistentry><term>Purpose</term>
@@ -2229,10 +2224,8 @@ In addition, once finalization is complete, any dependents of the
     &subclass-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
-   <varlistentry><term>&superclass-r;</term>
-    <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
-   <varlistentry><term>&subclass-r;</term>
-    <listitem><simpara>a &c-mo;.</simpara></listitem></varlistentry>
+   <varlistentry><term>&superclass-r;</term>&a-cmo;</varlistentry>
+   <varlistentry><term>&subclass-r;</term>&a-cmo;</varlistentry>
 </variablelist></listitem></varlistentry>
 &values-unspecified;
 <varlistentry><term>Purpose</term>
@@ -4238,8 +4231,7 @@ initialization.</para>
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>alternating initialization argument names and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Value</term>
- <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&a-cmo;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    class of reader methods created during class initialization and
@@ -4276,8 +4268,7 @@ initialization.</para>
    <varlistentry><term>&initargs-r;</term>
     <listitem><simpara>a list of initialization arguments and values.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
-<varlistentry><term>Value</term>
- <listitem><simpara>A &c-mo;.</simpara></listitem></varlistentry>
+<varlistentry><term>Value</term>&a-cmo;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function is called to determine the
    class of writer methods created during class initialization and
