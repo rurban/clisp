@@ -132,7 +132,7 @@
    methods beyond that which is specified for their respective generic
    functions.</simpara>'>
 <!ENTITY values-unspecified '<varlistentry><term>Values</term><listitem>
- <simpara>The values returned by this generic function is unspecified.
+ <simpara>The values returned by this generic function are unspecified.
  </simpara></listitem></varlistentry>'>
 <!ENTITY also-must-override 'This method cannot be overridden unless the
  following methods are overridden as well:'>
@@ -177,3 +177,4 @@
 <!ENTITY mcmo '<link linkend="mop-meth-comp-mo">method combination metaobject</link>'>
 <!ENTITY sdmo '<link linkend="mop-slot-def-mo">slot definition metaobject</link>'>
 <!ENTITY an-object '<listitem><simpara>an object</simpara></listitem>'>
+<!ENTITY a-cmo '<listitem><simpara>a &c-mo;.</simpara></listitem>'>
