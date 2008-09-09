@@ -4884,15 +4884,8 @@ objects linked, for example, by hash tables.)
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&slot-value-UC; &class-r;
     &object-r; &slot-r;)</code></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a &c-mo; - the class of the
-      &object-r; argument</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
-   <varlistentry><term>&slot-r;</term>
-    <listitem><simpara>an &esdmo;</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+<varlistentry><term>Arguments</term><listitem><variablelist>
+   &class-obj-slot-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Values</term>&an-object;</varlistentry>
 <varlistentry><term>Purpose</term>
  <listitem><simpara>This generic function implements the behavior of the
@@ -4928,13 +4921,7 @@ objects linked, for example, by hash tables.)
 <varlistentry><term>Arguments</term>
  <listitem><variablelist>
    <varlistentry><term>&nval-r;</term>&an-object;</varlistentry>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a &c-mo; - the class of the
-      &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
-   <varlistentry><term>&slot-r;</term>
-    <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+   &class-obj-slot-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Value</term>
  <listitem><simpara>The &nval-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
@@ -4967,15 +4954,8 @@ objects linked, for example, by hash tables.)
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&slot-boundp-UC; &class-r; &object-r;
     &slot-r;)</code></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a &c-mo; - the class of the
-      &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
-   <varlistentry><term>&slot-r;</term>
-    <listitem><simpara> an &esdmo;.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+<varlistentry><term>Arguments</term><listitem><variablelist>
+   &class-obj-slot-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Value</term>
  <listitem><simpara>&boolean-t;</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
@@ -5012,15 +4992,8 @@ unbound slots, true should be returned.</para></formalpara>
 <variablelist><varlistentry><term>Syntax</term>
  <listitem><simpara><code>(&slot-makunbound-UC; &class-r; &object-r;
     &slot-r;)</code></simpara></listitem></varlistentry>
-<varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&class-r;</term>
-    <listitem><simpara>a &c-mo; - the class of the
-      &object-r; argument.</simpara></listitem></varlistentry>
-   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
-   <varlistentry><term>&slot-r;</term>
-    <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>
-</variablelist></listitem></varlistentry>
+<varlistentry><term>Arguments</term><listitem><variablelist>
+   &class-obj-slot-arg;</variablelist></listitem></varlistentry>
 <varlistentry><term>Value</term>
  <listitem><simpara>The &object-r; argument.</simpara></listitem></varlistentry>
 <varlistentry><term>Purpose</term>
