@@ -1208,7 +1208,7 @@ functions are presented below.</para>
    <xref linkend="mop-ov-impl-and-user-spec"/>.</simpara></listitem>
  <listitem id="CRM-8"><simpara>This method returns the name of the
    built-in class.</simpara></listitem>
- <listitem id="CRM-9"><simpara>This methods returns a value which is
+ <listitem id="CRM-9"><simpara>This method returns a value which is
    maintained by <literal role="method">&add-direct-subclass;(&class;
     &class;)</literal> and <literal role="method">&remove-direct-subclass;
     (&class; &class;)</literal>.
@@ -4288,7 +4288,7 @@ initialization.</para>
     (&class-r; &funcallable-standard-class;)
     (<replaceable>direct-slot</replaceable> &standard-dsd-t;)
     &rest-amp; &initargs-r;)</literal></term>
-<listitem><simpara>These methods returns the class
+<listitem><simpara>These methods return the class
   &standard-writer-method-t;.</simpara>
  &overridables;</listitem></varlistentry></variablelist>
 </section><!-- writer-method-class -->
