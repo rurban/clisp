@@ -528,7 +528,7 @@ following command:
   line options to end up in &args; for
   your <function>start-me</function> function to process.</para>
 <para>This is &not-e; the case. The options are still processed by
- &clisp; (see <link linkend="cradle-grave"/>). Your users will have to
+ &clisp; (see <xref linkend="cradle-grave"/>). Your users will have to
  pass <option>--</option> to <command>foo</command>:
  <screen>&sh-prompt; foo -- -a -b -h -v</screen></para>
 <para>This is done to enable your users to get to the &clisp; prompt
