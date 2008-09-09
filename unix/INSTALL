@@ -64,6 +64,18 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
                --with-module=libsvm --with-module=rawsock  \
                --cbc my-build-directory
 
+   Note that on bi-arch systems, such as sparc, the 64-bit libraries are
+   searched for in $prefix/lib64, not in $prefix/lib.
+   This means that if you want to build a 64-bit CLISP on such a system,
+   you will need to build, say, libsigsegv, like this:
+
+   ./configure CC='gcc -m64' --prefix=<prefix> --libdir='${exec_prefix}/lib64'
+   make && make check && make install
+
+   and then build CLISP like this:
+
+   ./configure CC='gcc -m64' --with-libsigsegv-prefix=<prefix> ...
+
 3. Choose the name of a directory in which to build CLISP.
    (This allows you to build CLISP with different compilers on the same
    machine or for different architectures in the same filesystem, sharing
