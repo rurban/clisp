@@ -178,3 +178,9 @@
 <!ENTITY sdmo '<link linkend="mop-slot-def-mo">slot definition metaobject</link>'>
 <!ENTITY an-object '<listitem><simpara>an object</simpara></listitem>'>
 <!ENTITY a-cmo '<listitem><simpara>a &c-mo;.</simpara></listitem>'>
+<!ENTITY class-obj-slot-arg '<varlistentry><term>&class-r;</term>
+  <listitem><simpara>a &c-mo; - the class of the
+    &object-r; argument.</simpara></listitem></varlistentry>
+  <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
+  <varlistentry><term>&slot-r;</term>
+    <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>'>
