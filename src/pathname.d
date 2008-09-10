@@ -8339,9 +8339,18 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       end_system_call();
       /* finished. */
       set_args_end_pointer(args_pointer); /* clean up STACK */
-      VALUES1(((status & 0xFF) == 0000) /* process ended normally (without signal, without core-dump) ? */
-             ? fixnum((status & 0xFF00) >> 8) /* yes -> exit-status as value: */
-             : NIL); /* no -> NIL as value */
+     #if defined(WIFEXITED) && defined(WEXITSTATUS) && defined(WIFSIGNALED) && defined(WTERMSIG) && defined(WSTOPSIG)
+      if (WIFEXITED(status)) {
+        /* process ended normally (without signal, without core-dump) */
+        int exitcode = WEXITSTATUS(status);
+        VALUES1(exitcode ? fixnum(exitcode) : NIL); /* exit-status as value */
+      } else /* minus signal as value */
+        VALUES1(WIFSIGNALED(status)
+                ? negfixnum(- WTERMSIG(status))
+                : negfixnum(- WSTOPSIG(status)));
+     #else
+      VALUES1(status ? fixnum(status) : NIL);
+     #endif
     }
     FREE_DYNAMIC_ARRAY(argvdata);
     FREE_DYNAMIC_ARRAY(argv);

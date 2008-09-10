@@ -3,6 +3,7 @@
 	* pathname.d (SHELL) [WIN32_NATIVE]: return NIL on success and
 	exitcode on failure, just like on Unix and as documented
 	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by>
+	(EXECUTE) [UNIX]: use WEXITSTATUS et al to parse status
 
 2008-09-02  Sam Steingold  <sds@gnu.org>
 
