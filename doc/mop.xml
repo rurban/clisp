@@ -111,9 +111,8 @@ A <firstterm>metaobject class<indexterm id="mo-cl" significance="preferred">
 is a subclass of exactly one of these classes.
 The results are undefined if an attempt is made to define a &class;
 that is a subclass of more than one basic metaobject class.
-A <firstterm>metaobject<indexterm id="mop-mo" significance="preferred">
-   <primary>metaobject</primary></indexterm></firstterm>
-is an instance of a metaobject class.</para>
+A <firstterm>metaobject<indexterm id="mop-mo" significance="preferred">&mo-prim;
+ </indexterm></firstterm> is an instance of a metaobject class.</para>
 
 <para>Each metaobject represents one program element.  Associated with
 each metaobject is the information required to serve its role.  This
@@ -134,9 +133,8 @@ presented later.</para>
 <section id="mop-mo-classes"><title>Classes</title>
 
 <para>A <firstterm>class metaobject
-  <indexterm id="mop-class-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>class</secondary>
- </indexterm></firstterm>
+  <indexterm id="mop-class-mo" significance="preferred">&mo-prim;
+   <secondary>class</secondary></indexterm></firstterm>
 determines the structure and the default behavior of its instances.
 The following information is associated with &c-mo;s:
 
@@ -158,18 +156,17 @@ The following information is associated with &c-mo;s:
 <section id="mop-mo-slot-defs"><title>Slot Definitions</title>
 
 <para>A <firstterm>slot definition metaobject
-  <indexterm id="mop-slot-def-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>slot definition</secondary>
- </indexterm></firstterm>
+  <indexterm id="mop-slot-def-mo" significance="preferred">&mo-prim;
+   <secondary>slot definition</secondary></indexterm></firstterm>
  contains information about the definition of a slot.
 There are two kinds of &sdmo;s:
 A <firstterm>direct<indexterm id="mop-dsd-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>slot definition</secondary>
+   &mo-prim;<secondary>slot definition</secondary>
    <tertiary>direct</tertiary></indexterm></firstterm>
  &sdmo; is used to represent the direct definition of a slot in a class.
 This corresponds roughly to the slot specifiers found in &defclass; forms.
 An <firstterm>effective<indexterm id="mop-esd-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>slot definition</secondary>
+   &mo-prim;<secondary>slot definition</secondary>
    <tertiary>effective</tertiary></indexterm></firstterm>
  &sdmo; is used to represent information, including inherited
  information, about a slot which is accessible in instances of a
@@ -218,9 +215,8 @@ slot in instances of the class is available.
 <section id="mop-mo-gen-funs"><title>Generic Functions</title>
 
 <para>A <firstterm>generic function metaobject
-  <indexterm id="mop-gen-fun-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>generic function</secondary>
- </indexterm></firstterm>
+  <indexterm id="mop-gen-fun-mo" significance="preferred">&mo-prim;
+   <secondary>generic function</secondary></indexterm></firstterm>
  contains information about a generic function over and above the
  information associated with each of the generic function's methods.
 <itemizedlist><listitem><simpara>The name is available as a function name.
@@ -249,9 +245,9 @@ slot in instances of the class is available.
 <section id="mop-mo-methods"><title>Methods</title>
 
 <para>A <firstterm>method metaobject
-  <indexterm id="mop-method-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>method</secondary>
- </indexterm></firstterm> contains information about a specific &method-t;.
+  <indexterm id="mop-method-mo" significance="preferred">&mo-prim;
+   <secondary>method</secondary></indexterm></firstterm>
+ contains information about a specific &method-t;.
 <itemizedlist><listitem><simpara>The qualifiers are available as a
    &list-t; of of non-&nil; atoms.</simpara></listitem>
  <listitem><simpara>The &lalist; is available as a &list-t;.
@@ -271,9 +267,9 @@ slot in instances of the class is available.
 <section id="mop-mo-spec"><title>Specializers</title>
 
 <para>A <firstterm>specializer metaobject
-  <indexterm id="spec-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>specializer</secondary>
- </indexterm></firstterm> represents the specializers of a &method-t;.
+  <indexterm id="spec-mo" significance="preferred">&mo-prim;
+   <secondary>specializer</secondary></indexterm></firstterm>
+ represents the specializers of a &method-t;.
  &c-mo;s are themselves specializer metaobjects.  A special
  kind of specializer metaobject is used for &eql-t; specializers.</para>
 <simpara>See also <xref linkend="mop-specializers"/></simpara>
@@ -282,9 +278,8 @@ slot in instances of the class is available.
 <section id="mop-mo-meth-combs"><title>Method Combinations</title>
 
 <para>A <firstterm>method combination metaobject
-  <indexterm id="mop-meth-comp-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>method combination</secondary>
- </indexterm></firstterm>
+  <indexterm id="mop-meth-comp-mo" significance="preferred">&mo-prim;
+   <secondary>method combination</secondary></indexterm></firstterm>
  represents the information about the method combination being used by a
  generic function.</para>
 
@@ -395,9 +390,8 @@ has a <quote>no</quote> in this column.</para>
  &standard-method-t;, &standard-reader-method-t;,
  &standard-writer-method-t; and &standard-generic-function-t; are called
  <firstterm>standard metaobject
-  <indexterm id="std-mo" significance="preferred">
-   <primary>metaobject</primary><secondary>standard</secondary>
- </indexterm></firstterm> classes.
+  <indexterm id="std-mo" significance="preferred">&mo-prim;
+   <secondary>standard</secondary></indexterm></firstterm> classes.
  For each kind of metaobject, this is the class the user interface
  macros presented in the &clos; use by default.  These are also the
  classes on which user specializations are normally based.</para>

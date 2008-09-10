@@ -184,3 +184,4 @@
   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
   <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>'>
+<!ENTITY mo-prim '<primary>metaobject</primary>'>
