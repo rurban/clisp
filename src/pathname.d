@@ -8439,8 +8439,8 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   if (!GetExitCodeProcess(prochandle,&exitcode)) { OS_error(); }
   if (!CloseHandle(prochandle)) { OS_error(); }
   end_system_call();
-  /* utilize return value: =0 (OK) -> T, >0 (not OK) -> NIL : */
-  VALUES_IF(exitcode == 0);
+  /* use return value: =0 (OK) -> NIL, >0 (not OK) -> exitcode */
+  VALUES1(exitcode == 0 ? NIL : fixnum(exitcode));
 }
 
 #elif defined(UNIX)

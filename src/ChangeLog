@@ -1,3 +1,9 @@
+2008-09-10  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (SHELL) [WIN32_NATIVE]: return NIL on success and
+	exitcode on failure, just like on Unix and as documented
+	Reported by Yaroslav Kavenchuk <kavenchuk@tut.by>
+
 2008-09-02  Sam Steingold  <sds@gnu.org>
 
 	* error.d (%DEFCLCS): use symbol_tab instead of symbol_tab_data
