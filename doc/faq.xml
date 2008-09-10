@@ -233,8 +233,9 @@ further explanations of the issues could be provided).</para>
  in the &gcc; invocation, it also disables some optimizations
  (registers, assembly, generational &gc;or) and enables
  some <function role="unix">printf</function> calls (mostly before error
- messages caused by system calls). This means that some bugs might be
- exhibited by the normal build but &not-e; by the &with-debug; one.
+ messages caused by system calls).
+ This means that some bugs might be exhibited by the normal build but
+ &not-e; by the &with-debug; one (and vice versa).
  If that is the case, please <command>configure</command> normally but
  edit the <filename>Makefile</filename> and replace the &gcc; optimization
  options (<option>-O</option> et al) with <option>-g</option> before
