@@ -8326,9 +8326,9 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
       }
       /* this program part is executed by the caller: */
       if (child==-1) {
-        /* something failed, either on vfork or on execv.
-         in both cases errno was set. */
-        end_want_sigcld(); OS_error();
+        /* something failed, either in vfork or in execv.
+           either way errno was set. */
+        end_want_sigcld();  end_system_call(); OS_error();
       }
       /* wait, until the child-process is finished: */
       var int status = wait2(child);
