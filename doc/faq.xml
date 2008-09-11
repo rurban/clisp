@@ -61,8 +61,8 @@ further explanations of the issues could be provided).</para>
    &clisp; uses &readline;</ulink>.</para>
 <para>Note that this does not necessarily prevent you from distributing
  your proprietary products based on &clisp;. See <emphasis>Note</emphasis>
- in <filename role="clisp-cvs">COPYRIGHT</filename>.
-</para></answer></qandaentry>
+ in <filename role="clisp-cvs">COPYRIGHT</filename> and
+ <xref linkend="faq-licensing"/>.</para></answer></qandaentry>
 
 <qandaentry id="faq-ansi"><question id="faq-ansi-q"><simpara>What about
    &ansi-cl; compliance?</simpara></question>
