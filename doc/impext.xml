@@ -2657,7 +2657,9 @@ allows one to call a function implemented in &c-lang; from inside &clisp;
 and to do many related things, like inspect and modify foreign memory,
 define a <quote>callback</quote> (i.e., make a lisp function available
 to the &c-lang; world), etc.
-To use this facility, one writes a foreign function description into an
+To use this facility, one writes a <firstterm>foreign function
+  <indexterm id="dffi-ff"><primary>foreign function</primary>
+ </indexterm></firstterm> description into an
 ordinary Lisp file, which is then compiled and loaded as usual;
 or just evaluates the appropriate form in the &repl;.</para>
 
@@ -3542,8 +3544,9 @@ and possibly the calling convention.</para>
 
 <section id="dffi-variables"><title>Foreign variables</title>
 
-<para>Foreign variables are variables whose storage is allocated in the
- foreign language module.
+<para><firstterm>Foreign variables<indexterm id="dffi-fv"><primary>foreign
+    variable</primary></indexterm></firstterm> are variables whose
+ storage is allocated in the foreign language module.
  They can nevertheless be evaluated and modified through &setq;,
  just as normal variables can, except that the range of allowed values
  is limited according to the variable's foreign type.</para>
@@ -3579,11 +3582,11 @@ and possibly the calling convention.</para>
 <section id="dffi-functions"><title>Foreign functions</title>
 
 <para>Foreign functions are functions which are defined in the foreign language.
- There are <firstterm>named foreign functions<indexterm id="dffi-ff-a">
+ There are <firstterm>named foreign functions<indexterm id="dffi-ff-n">
    <primary>foreign function</primary><secondary>named</secondary>
  </indexterm></firstterm>
  (imported via &def-call-out; or created via &def-call-in;) and
- <firstterm>anonymous foreign functions<indexterm id="dffi-ff-n">
+ <firstterm>anonymous foreign functions<indexterm id="dffi-ff-a">
    <primary>foreign function</primary><secondary>anonymous</secondary>
  </indexterm></firstterm>; they arise through conversion of function
  pointers using &foreign-function;.</para>
