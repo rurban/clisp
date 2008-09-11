@@ -5126,9 +5126,7 @@ cache of the dependent when it is updated.</para>
  <listitem><simpara><code>(&add-dependent; &metaobject-r;
     &dependent-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&metaobject-r;</term>
-    <listitem><simpara>a class or &gfmo;</simpara></listitem></varlistentry>
+ <listitem><variablelist>&mo-gfmo;
    <varlistentry><term>&dependent-r;</term>&an-object;</varlistentry>
 </variablelist></listitem></varlistentry>
 &values-unspecified;
@@ -5184,9 +5182,7 @@ cache of the dependent when it is updated.</para>
   <listitem><simpara><code>(&remove-dependent; &metaobject-r;
      &dependent-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&metaobject-r;</term>
-    <listitem><simpara>a class or &gfmo;</simpara></listitem></varlistentry>
+ <listitem><variablelist>&mo-gfmo;
    <varlistentry><term>&dependent-r;</term>&an-object;</varlistentry>
 </variablelist></listitem></varlistentry>
 &values-unspecified;
@@ -5201,7 +5197,7 @@ cache of the dependent when it is updated.</para>
    &add-dependent; or &remove-dependent; while a call to
    &map-dependents; on the same class or generic function is in progress
    is unspecified.</simpara>
-  <simpara> The situations in which &remove-dependent; is called are not
+  <simpara>The situations in which &remove-dependent; is called are not
    specified.</simpara></listitem></varlistentry></variablelist>
 
 <variablelist><title>Methods</title>
@@ -5241,9 +5237,7 @@ cache of the dependent when it is updated.</para>
  <listitem><simpara><code>(&map-dependents; &metaobject-r;
     &func-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&metaobject-r;</term>
-    <listitem><simpara>a class or &gfmo;.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&mo-gfmo;
    <varlistentry><term>&func-r;</term>
     <listitem><simpara>a function which accepts one argument.
 </simpara></listitem></varlistentry></variablelist></listitem></varlistentry>
