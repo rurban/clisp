@@ -66,10 +66,9 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-ansi"><question id="faq-ansi-q"><simpara>What about
    &ansi-cl; compliance?</simpara></question>
-<answer><para>&clisp;
-  <ulink url="&clhs;/Body/glo_p.html#purports_to_conform"><emphasis>purports
-    to conform</emphasis></ulink> to the &ansi-cl; specification,
-  so all deviations in <screen>&sh-prompt; clisp &opt-ansi;</screen>
+<answer><para>&clisp; <ulink url="clhs/glo"><emphasis>purports to
+    conform</emphasis></ulink> to the &ansi-cl; specification, so all
+  deviations in <screen>&sh-prompt; clisp &opt-ansi;</screen>
   from the &ansi-cl; are bugs and are not (yet) fixed only due
   to lack of resources.</para>
 
@@ -100,7 +99,7 @@ further explanations of the issues could be provided).</para>
   (listed in the order of decreasing audience size):<variablelist>
    <varlistentry><term>USENET group <ulink url="http://groups.google.com/groups?as_ugroup=comp.lang.lisp">comp.lang.lisp</ulink></term>
     <listitem><simpara>This is the right place to ask all general Lisp
-      questions, such as <ulink url="&clhs;/Body/acc_charcm_schar.html">"how
+      questions, such as <ulink role="clhs" url="acc_charcm_schar">"how
        do I access a character in a string?"</ulink></simpara>
    </listitem></varlistentry>
    <varlistentry><term>&clisp; User Mailing
@@ -915,7 +914,7 @@ ABORT          :R1      ABORT
  you should search the &clisp; implementation notes for "DIRECTORY".</para>
 <para>Alternatively, since the implementation notes are organized in
  parallel to the &ansi-cl;, and &directory; belongs to the
- <ulink url="&clhs;/Body/chap-20.html">Chapter 20</ulink> in &ansi-cl;,
+ <ulink role="clhs" url="chap-20.html">Chapter 20</ulink> in &ansi-cl;,
  you can just go to <xref linkend="files"/> in impnotes and look
  for "DIRECTORY" <link linkend="directory">there</link>.
 </para></answer></qandaentry>
