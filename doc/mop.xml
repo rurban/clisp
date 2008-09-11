@@ -381,7 +381,7 @@ has a <quote>no</quote> in this column.</para>
   precedence list contains &function-t; before &standard-object-t;, not
   after &standard-object-t;.
   This is the most transparent way to realize the &ansi-cl; requirement
-  (see the &ansi-cl; section <ulink url="&clhs;/Body/sec_4-2-2.html">4.2.2
+  (see the &ansi-cl; section <ulink role="clhs" url="sec_4-2-2">4.2.2
    <quote>Type Relationships</quote></ulink>)
   that &generic-function-t;'s class precedence list contains
   &function-t; before &standard-object-t;.</simpara></note>
@@ -1742,7 +1742,7 @@ In addition, once finalization is complete, any dependents of the
    &funcallable-standard-class;) &rest-amp; &initargs-r;)</literal></term>
  <listitem><simpara>These methods implement the behavior of
    &make-instance; described in the &ansi-cl; section
-   <ulink url="&clhs;/Body/sec_7-1.html">7.1
+   <ulink role="clhs" url="sec_7-1">7.1
     <quote>Object Creation and Initialization</quote></ulink>.
 </simpara></listitem></varlistentry></variablelist>
 </section><!-- mop-make-instance -->
@@ -1950,7 +1950,7 @@ In addition, once finalization is complete, any dependents of the
    &class;))</literal></term>
  <listitem><simpara>This method computes the class precedence list
    according to the rules described in the &ansi-cl; section
-   <ulink url="&clhs;/Body/sec_4-3-5.html">4.3.5 <quote>Determining the
+   <ulink role="clhs" url="sec_4-3-5">4.3.5 <quote>Determining the
      Class Precedence List</quote></ulink>.</simpara>
  <simpara>This method &sig-err; if &class-r; or any of its superclasses
   is a forward referenced class.</simpara>
@@ -2160,7 +2160,7 @@ In addition, once finalization is complete, any dependents of the
    (&class-r; &funcallable-standard-class;))</literal></term>
  <listitem><simpara>These methods compute the default initialization
    arguments according to the rules described in the &ansi-cl; section
-   <ulink url="&clhs;/Body/sec_7-1-3.html">7.1.3 <quote>Defaulting
+   <ulink role="clhs" url="sec_7-1-3">7.1.3 <quote>Defaulting
      of Initialization Arguments</quote></ulink>.</simpara>
   <simpara>These methods signal an error if &class-r; or any of its
    superclasses is a forward referenced class.</simpara>
@@ -3118,7 +3118,7 @@ restrictions.</para>
    generic function on parameter specializers and qualifiers, the
    existing method is removed by calling &remove-method; before the
    new method is added.  See the &ansi-cl; section
-   <ulink url="&clhs;/Body/sec_7-6-3.html">7.6.3 <quote>Agreement on
+   <ulink role="clhs" url="sec_7-6-3">7.6.3 <quote>Agreement on
      Parameter Specializers and Qualifiers</quote></ulink>
    for a definition of agreement in this context.</simpara>
   <para>Associating the method with the generic function then
@@ -3241,7 +3241,7 @@ restrictions.</para>
    &eql-t; specializer metaobject.</simpara>
   <simpara>Otherwise, this method computes the sorted list of applicable
    methods according to the rules described in the &ansi-cl; section
-   <ulink url="&clhs;/Body/sec_7-6-6.html">7.6.6 <quote>Method Selection
+   <ulink role="clhs" url="sec_7-6-6">7.6.6 <quote>Method Selection
      and Combination</quote></ulink></simpara>
   <simpara>This method can be overridden.  Because of the consistency
    requirements between this generic function and
