@@ -2775,15 +2775,15 @@ The new discriminating function is then stored with
 
 <para>Discriminating functions call &compute-applicable-methods-mop;
 and &compute-applicable-methods-UC; to compute the methods
-applicable to the generic functions arguments.  Applicable methods are
-combined by &compute-effective-method; to produce
-an <firstterm>effective method</firstterm>.
+applicable to the generic functions arguments.
+Applicable methods are combined by &compute-effective-method; to
+produce an <firstterm>effective method</firstterm>.
 Provisions are made to allow memoization of the method applicability and
 effective methods computations.  (See the description of
 &compute-discriminating-function; for details.)</para>
 
-<para>The body of method definitions are processed by
-&make-method-lambda;.  The result of this generic function is a &lambda-expr;
+<para>The body of method definitions are processed by &make-method-lambda;.
+The result of this generic function is a &lambda-expr;
 which is processed by either &compile; or &compile-file; to produce
 a <firstterm>method function</firstterm>.  The arguments received by the
 method function are controlled by the &call-method; forms appearing in
@@ -3218,14 +3218,7 @@ restrictions.</para>
    precedence order with the most specific method appearing first.  If
    no methods are applicable to the supplied arguments the empty list is
    returned.</simpara>
-  <simpara>When a generic function is invoked, the discriminating
-   function must determine the ordered list of methods applicable to the
-   arguments.  Depending on the generic function and the arguments, this
-   is done in one of three ways: using a memoized value; calling
-   &compute-applicable-methods-UC;; or calling
-   &compute-applicable-methods-mop;.
-   (Refer to the description of &compute-discriminating-function; for
-   the details of this process.)</simpara>
+  &cam-cdf;
   <simpara>The &args-r; argument is permitted to contain more elements
    than the generic function accepts required arguments; in these cases
    the extra arguments will be ignored.  An &err-sig; if &args-r;
@@ -3285,14 +3278,8 @@ restrictions.</para>
    list of applicable methods based only on the supplied classes, this
    generic function returns an unspecified &pri-val; and false as its
    second value.</simpara>
-  <simpara>When a generic function is invoked, the discriminating
-   function must determine the ordered list of methods applicable to the
-   arguments.  Depending on the generic function and the arguments, this
-   is done in one of three ways: using a memoized value; calling
-   &compute-applicable-methods-UC;; or calling
-   &compute-applicable-methods-mop;.  (Refer to the description of
-   &compute-discriminating-function; for the details of this process.)
-  </simpara><simpara>The following consistency relationship between
+  &cam-cdf;
+  <simpara>The following consistency relationship between
    &compute-applicable-methods-UC; and &compute-applicable-methods-mop; must
    be maintained: for any given generic function and set of arguments,
    if &compute-applicable-methods-UC; returns a second value of true,

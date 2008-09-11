@@ -185,3 +185,11 @@
   <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>'>
 <!ENTITY mo-prim '<primary>metaobject</primary>'>
+<!ENTITY cam-cdf '<simpara>When a generic function is invoked, the
+   discriminating function must determine the ordered list of methods
+   applicable to the arguments.  Depending on the generic function and
+   the arguments, this is done in one of three ways: using a memoized
+   value; calling &compute-applicable-methods-UC;; or calling
+   &compute-applicable-methods-mop;.
+   (Refer to the description of &compute-discriminating-function; for
+   the details of this process.)</simpara>'>
