@@ -1,3 +1,7 @@
+2008-09-11  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: test ARGV, RUN-PROGRAM, and EXIT
+
 2008-08-12  Sam Steingold  <sds@gnu.org>
 
 	* alltest.tst: add tests for LISP-IMPLEMENTATION-TYPE,
