@@ -1280,8 +1280,8 @@ forward-referenced class.</para>
 
 <para>Initialization of a &c-mo; must be done by calling &make-instance;
 and allowing it to call &initialize-instance;.  Reinitialization of a
-&c-mo; must be done by calling &reinitialize-instance;.  Portable
-programs must &not-e; <itemizedlist>
+&c-mo; must be done by calling &reinitialize-instance;.
+ Portable programs must &not-e;<itemizedlist>
   <listitem><simpara>... call &initialize-instance; directly to
     initialize a &c-mo;;</simpara></listitem>
   <listitem><simpara>... call &shared-initialize; directly to
@@ -1320,9 +1320,7 @@ to define default initialization arguments for specified &c-mo; classes.
 Portable programs are free to define default initialization arguments
 for portable subclasses of the class &class;.</para>
 
-<para>Unless there is a specific note to the contrary, then during
-reinitialization, if an initialization argument is not supplied, the
-previously stored value is left unchanged.</para>
+&reinit-keep-value;
 
 <itemizedlist>
  <listitem><simpara>The &direct-default-initargs-k; argument is a list
@@ -2810,8 +2808,8 @@ Some classes of &gfmo; do not support redefinition; in these cases,
 
 <para>Initialization of a &gfmo; must be done by calling &make-instance;
 and allowing it to call &initialize-instance;.  Reinitialization of a
-generic-function metaobject must be done by calling
-&reinitialize-instance;.  Portable programs must &not-e;<itemizedlist>
+&gfmo; must be done by calling &reinitialize-instance;.
+ Portable programs must &not-e;<itemizedlist>
   <listitem><simpara>... call &initialize-instance; directly to
     initialize a &gfmo;;</simpara></listitem>
   <listitem><simpara>... call &shared-initialize; directly to
@@ -2848,18 +2846,16 @@ to define default initialization arguments for specified &gfmo; classes.
 Portable programs are free to define default initialization arguments
 for portable subclasses of the class &generic-function-t;.</para>
 
-<para>Unless there is a specific note to the contrary, then during
-reinitialization, if an initialization argument is not supplied, the
-previously stored value is left unchanged.</para>
+&reinit-keep-value;
 
 <itemizedlist>
  <listitem><simpara>The &argument-precedence-order-k; argument is a list
    of symbols.</simpara>
   <simpara>An &err-sig; if this argument appears but the &lambda-list-k;
-   argument does not appear.  An &err-sig; if this value is not a &proper-list-glo;
-   or if this value is not a permutation of the symbols from the
-   required arguments part of the &lambda-list-k; initialization
-   argument.</simpara>
+   argument does not appear.  An &err-sig; if this value is not a
+   &proper-list-glo; or if this value is not a permutation of the
+   symbols from the required arguments part of the &lambda-list-k;
+   initialization argument.</simpara>
   <simpara>When the generic function is being initialized or
    reinitialized, and this argument is not supplied, but the
    &lambda-list-k; argument is supplied, this value defaults to the

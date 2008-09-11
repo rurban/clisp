@@ -193,3 +193,6 @@
    &compute-applicable-methods-mop;.
    (Refer to the description of &compute-discriminating-function; for
    the details of this process.)</simpara>'>
+<!ENTITY reinit-keep-value '<para>Unless there is a specific note to the
+  contrary, then during reinitialization, if an initialization argument
+  is not supplied, the previously stored value is left unchanged.</para>'>
