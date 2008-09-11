@@ -292,6 +292,11 @@ CHECK-LOAD
 (close *s1*) T
 (pathnamep (delete-file *s1*)) T
 
+(destructuring-bind (cmd . args) (coerce (ext:argv) 'list)
+  (cons (ext:run-program cmd :arguments (append args '("-x" "(exit 42)")))
+        (ext:run-program cmd :arguments (append args '("-x" "(exit)")))))
+(42)
+
 (progn (symbol-cleanup 'check-load)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))
