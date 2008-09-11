@@ -911,6 +911,7 @@
 <!ENTITY ctrl '<keycap>Control</keycap>'>
 <!ENTITY ctrl-c '<keycombo>&ctrl;<keysym>C</keysym></keycombo>'>
 <!ENTITY shift '<keycap>Shift</keycap>'>
+<!ENTITY enter '<keycap>Enter</keycap>'>
 <!ENTITY fasl-file '<filename>#P".fas"</filename>'>
 <!ENTITY lisp-file '<filename>#P".lisp"</filename>'>
 <!ENTITY mem-file '<filename>#P".mem"</filename>'>

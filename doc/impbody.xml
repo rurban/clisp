@@ -15,7 +15,7 @@
      at the beginning of a line</simpara></listitem></varlistentry>
   <varlistentry><term>&win32;</term>
    <listitem><simpara>type <keycombo>&ctrl;<keysym>Z</keysym></keycombo>,
-     followed by <keycap>Return</keycap></simpara></listitem>
+     followed by &enter;</simpara></listitem>
  </varlistentry></variablelist>
  This final delimiter is never actually seen by programs; no need to
  test for <keysym>#\^D</keysym> or <keysym>#\^Z</keysym> - use
@@ -24,8 +24,7 @@
  thus making it available for further input.</para>
 
 <para>A newline character can be entered by the user by pressing the
- <keycap>Newline</keycap> key or, on the numeric keypad, the
- <keycap>Enter</keycap> key.</para>
+ &enter; key.</para>
 
 </section>
 
