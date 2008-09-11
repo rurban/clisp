@@ -176,7 +176,7 @@
 <!ENTITY m-mo '<link linkend="mop-mo-methods">method metaobject</link>'>
 <!ENTITY mcmo '<link linkend="mop-mo-meth-combs">method combination metaobject</link>'>
 <!ENTITY sdmo '<link linkend="mop-mo-slot-defs">slot definition metaobject</link>'>
-<!ENTITY an-object '<listitem><simpara>an object</simpara></listitem>'>
+<!ENTITY an-object '<listitem><simpara>an object.</simpara></listitem>'>
 <!ENTITY a-cmo '<listitem><simpara>a &c-mo;.</simpara></listitem>'>
 <!ENTITY class-obj-slot-arg '<varlistentry><term>&class-r;</term>
   <listitem><simpara>a &c-mo; - the class of the
@@ -184,6 +184,8 @@
   <varlistentry><term>&object-r;</term>&an-object;</varlistentry>
   <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>'>
+<!ENTITY mo-gfmo '<varlistentry><term>&metaobject-r;</term>
+  <listitem><simpara>a class or a &gfmo;.</simpara></listitem></varlistentry>'>
 <!ENTITY mo-prim '<primary>metaobject</primary>'>
 <!ENTITY cam-cdf '<simpara>When a generic function is invoked, the
    discriminating function must determine the ordered list of methods
