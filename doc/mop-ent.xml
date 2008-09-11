@@ -185,7 +185,7 @@
   <varlistentry><term>&slot-r;</term>
     <listitem><simpara>an &esdmo;.</simpara></listitem></varlistentry>'>
 <!ENTITY mo-gfmo '<varlistentry><term>&metaobject-r;</term>
-  <listitem><simpara>a class or a &gfmo;.</simpara></listitem></varlistentry>'>
+  <listitem><simpara>a &c-mo; or a &gfmo;.</simpara></listitem></varlistentry>'>
 <!ENTITY mo-prim '<primary>metaobject</primary>'>
 <!ENTITY cam-cdf '<simpara>When a generic function is invoked, the
    discriminating function must determine the ordered list of methods
