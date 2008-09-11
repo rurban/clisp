@@ -1332,8 +1332,8 @@ for portable subclasses of the class &class;.</para>
  <listitem><simpara> The &direct-slots-k; argument is a list of
    &canonicalized-slot-spec;s.</simpara>
   <simpara>An &err-sig; if this value is not a &proper-list-glo; or if any
-   element of the list is not a &canonicalized-slot-spec;.
-  </simpara><para>After error checking, this value is converted to a
+   element of the list is not a &canonicalized-slot-spec;.</simpara>
+  <para>After error checking, this value is converted to a
    list of &dsdmo;s before it is associated with the &c-mo;.  Conversion
    of each &canonicalized-slot-spec; to a &dsdmo; is a two-step process.
    First, the generic function &dsd-class; is called with the &c-mo; and
