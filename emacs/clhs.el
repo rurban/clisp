@@ -33,10 +33,9 @@
 (require 'thingatpt)
 (require 'url)
 
-(defcustom common-lisp-hyperspec-root "http://www.lisp.org/HyperSpec/"
+(defcustom common-lisp-hyperspec-root
+  "http://www.lispworks.com/documentation/HyperSpec/"
   ;; "http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/"
-  ;; "http://www.lispworks.com/documentation/HyperSpec/"
-  ;; "http://www.xanalys.com/software_tools/reference/HyperSpec/"
   "*The root of the Common Lisp HyperSpec URL.
 If you copy the HyperSpec to your local system, set this variable to
 something like \"file:/usr/local/doc/HyperSpec/\"."
