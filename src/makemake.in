@@ -6,7 +6,7 @@
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
 
-HSDEFAULT="http://www.lisp.org/HyperSpec"
+HSDEFAULT="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec"
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
 info_help () {

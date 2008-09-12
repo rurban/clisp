@@ -1,3 +1,8 @@
+2008-09-12  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (HSDEFAULT): "http://www.lisp.org/HyperSpec" is dead,
+	use "http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec"
+
 2008-09-10  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (SHELL) [WIN32_NATIVE]: return NIL on success and
