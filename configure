@@ -89,9 +89,9 @@ options: The following options are recognized:
                         so FFI will be turned on if its checks pass
   --help-modules        list the modules included in the distribution
                         and information on building them
-  --hyperspec=URL       the path to the Common Lisp HyperSpec
-                        (the default is http://www.lisp.org/HyperSpec/ or the
-                        value of the environment variable CLHSROOT, if set)
+  --hyperspec=URL       the path to the Common Lisp HyperSpec (the default is
+         http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/
+         or the value of the environment variable CLHSROOT, if set)
   --with-debug          pass "debug" to makemake (CFLAGS+=g &c)
   --with-gmalloc        use the GNU malloc instead of of the libc one
                         (needed on HP-UX and OpenBSD)
