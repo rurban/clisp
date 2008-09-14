@@ -76,7 +76,7 @@ if QUALIFIERS or SPECIALIZERS is given, OBJECT should be a generic function.")
 #+UNIX
 (defun disassemble-machine-code (program-name pid function address)
   ;; This uses gdb.
-  (unless (= (shell "gdb --version > /dev/null 2>&1") 0)
+  (when (shell "gdb --version > /dev/null 2>&1") ; failed
     (when function
       ;; Show at least some basic information about the function.
       (describe function))
