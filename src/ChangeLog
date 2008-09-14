@@ -1,3 +1,8 @@
+2008-09-13  Sam Steingold  <sds@gnu.org>
+
+	* disassem.lisp (disassemble-machine-code): update for the
+	2008-09-10 change: SHELL on success returns NIL
+
 2008-09-12  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (HSDEFAULT): "http://www.lisp.org/HyperSpec" is dead,
