@@ -1,6 +1,11 @@
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
-	* ../modules/syscalls/calls.c
+	* modules/syscalls/calls.c (POSIX:USER-SHELLS): implement
+	* modules/syscalls/posix.lisp (USER-SHELLS): export
+
+2008-09-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c
 	(grp_to_lisp): use gid_to_I instead of UL_to_I
 	(GROUP-INFO): use integerp instead of uint32_p
 
