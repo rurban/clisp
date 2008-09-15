@@ -1,5 +1,11 @@
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
+	* ../modules/syscalls/calls.c
+	(grp_to_lisp): use gid_to_I instead of UL_to_I
+	(GROUP-INFO): use integerp instead of uint32_p
+
+2008-09-15  Sam Steingold  <sds@gnu.org>
+
 	* configure: fix bug #[ 2110337 ]: libsigsegv configure hints
 	suggest "rm -f ${DIRNAME}/config.cache"
 
