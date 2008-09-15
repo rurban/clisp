@@ -1,5 +1,10 @@
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
+	* configure: fix bug #[ 2110337 ]: libsigsegv configure hints
+	suggest "rm -f ${DIRNAME}/config.cache"
+
+2008-09-15  Sam Steingold  <sds@gnu.org>
+
 	* clhs.lisp (*http-log-stream*): defvar
 	(open-http): accept :LOG argument
 	(http-proxy, open-http, get-clhs-map, get-string-map)
