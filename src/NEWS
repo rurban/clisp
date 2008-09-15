@@ -20,6 +20,9 @@ Important notes
   designators and lets you change file size.
   See <http://clisp.cons.org/impnotes/syscalls.html#file-size> for details.
 
+* New function OS:USER-SHELLS returns the list of legal user shells.
+  See <http://clisp.cons.org/impnotes/syscalls.html#user-shells> for details.
+
 * Module readline has been upgraded to readline 5.2
   (older versions 5.0 and 5.1 are, of course, still supported).
   See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
