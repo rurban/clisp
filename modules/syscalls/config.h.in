@@ -43,6 +43,9 @@
 /* Define to 1 if you have the `endservent' function. */
 #undef HAVE_ENDSERVENT
 
+/* Define to 1 if you have the `endusershell' function. */
+#undef HAVE_ENDUSERSHELL
+
 /* Define to 1 if you have the `endutxent' function. */
 #undef HAVE_ENDUTXENT
 
@@ -81,6 +84,9 @@
 
 /* Define to 1 if you have the `ftruncate' function. */
 #undef HAVE_FTRUNCATE
+
+/* Define to 1 if you have the `getdomainname' function. */
+#undef HAVE_GETDOMAINNAME
 
 /* Define to 1 if you have the `getegid' function. */
 #undef HAVE_GETEGID
@@ -158,6 +164,9 @@
 /* Define to 1 if you have the `getuid' function. */
 #undef HAVE_GETUID
 
+/* Define to 1 if you have the `getusershell' function. */
+#undef HAVE_GETUSERSHELL
+
 /* Define to 1 if you have the `getutxent' function. */
 #undef HAVE_GETUTXENT
 
@@ -233,6 +242,9 @@
 /* Define to 1 if the f_fsid member of 'struct statvfs' has a integral type.
    */
 #undef HAVE_SCALAR_FSID
+
+/* Define to 1 if you have the `setdomainname' function. */
+#undef HAVE_SETDOMAINNAME
 
 /* Define to 1 if you have the `setegid' function. */
 #undef HAVE_SETEGID
