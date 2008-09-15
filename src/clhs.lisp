@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2006, 2008 by Sam Steingold
+;;; Copyright (C) 2000-2008 by Sam Steingold
 ;;; This file is a part of CLISP (http://clisp.cons.org), and, as such,
 ;;; is distributed under the GNU GPL (http://www.gnu.org/copyleft/gpl.html)
 
@@ -92,6 +92,7 @@ The keyword argument REPEAT specifies how many objects to read:
           (t (format t "~s: no browser specified; please point your browser at
  --> <URL:~a>~%" 'browse-url url)))))
 
+(defvar *http-log-stream* (make-synonym-stream '*terminal-io*))
 ;;; keep in sync with clocc/cllib/url.lisp
 (defvar *http-proxy* nil
   "A list of 3 elements (user:password host port), parsed from $http_proxy
@@ -116,7 +117,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                   (if colon
                       (parse-integer proxy-string :start (1+ colon) :end slash)
                       *http-port*)))
-      (format t "~&;; ~S=~S~%" '*http-proxy* *http-proxy*)))
+      (format *http-log-stream* "~&;; ~S=~S~%" '*http-proxy* *http-proxy*)))
   *http-proxy*)
 
 (defmacro with-http-input ((var url) &body body)
@@ -129,11 +130,13 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                 (MULTIPLE-VALUE-PROG1 (PROGN ,@body-rest)
                   (when ,(first var) (CLOSE ,(first var))))
              (when ,(first var) (CLOSE ,(first var) :ABORT T)))))))
-(defun open-http (url &key (if-does-not-exist :error))
+(defun open-http (url &key (if-does-not-exist :error)
+                  ((:log *http-log-stream*) *http-log-stream*))
   (unless (string-equal #1="http://" url
                         :end2 (min (length url) #2=#.(length #1#)))
     (error "~S: ~S is not an HTTP URL" 'open-http url))
-  (format t "~&;; connecting to ~S..." url) (force-output)
+  (format *http-log-stream* "~&;; connecting to ~S..." url)
+  (force-output *http-log-stream*)
   (http-proxy)
   (let* ((host-port-end (position #\/ url :start #2#))
          (port-start (position #\: url :start #2# :end host-port-end))
@@ -154,7 +157,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                                          (return-from open-http nil)))))
                  (socket:socket-connect port host :external-format :dos)))
          status code content-length)
-    (format t "connected...") (force-output)
+    (format *http-log-stream* "connected...") (force-output *http-log-stream*)
     (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%"
             path (lisp-implementation-type) host) ; request
     #+unicode ; base64 requires unicode for some weird infrastructure reasons
@@ -172,7 +175,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (when (>= code 400)
       ;; dump headers
       (loop :for line = (read-line sock nil nil) :while line
-        :do (format t "~&;; ~S~%" line))
+        :do (format *http-log-stream* "~&;; ~S~%" line))
       (case if-does-not-exist
         (:error (error (TEXT "~S: error ~D: ~S") 'open-http code status))
         (t (close sock)
@@ -182,7 +185,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           :until (string-equal #3="Location: " res
                                :end2 (min (length res) #4=#.(length #3#)))
           :finally (let ((new-url (subseq res #4#)))
-                     (format t " --> ~S~%" new-url)
+                     (format *http-log-stream* " --> ~S~%" new-url)
                      (unless (string-equal #1# new-url
                                            :end2 (min (length new-url) #2#))
                        (setq new-url (string-concat #1# host new-url)))
@@ -191,7 +194,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
         (loop :for line = (read-line sock) :while (plusp (length line)) :do
           (when (string-equal #5="Content-Length: " line
                               :end2 (min (length line) #6=#.(length #5#)))
-            (format t "...~:D bytes"
+            (format *http-log-stream* "...~:D bytes"
                     (setq content-length (parse-integer line :start #6#))))
           :finally (terpri)))
     (values sock content-length)))
@@ -225,7 +228,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
 
 (defun get-clhs-map (stream)
   "Download and install the CLHS map."
-  (format t "~&;; ~S(~S)..." 'get-clhs-map stream) (force-output)
+  (format *http-log-stream* "~&;; ~S(~S)..." 'get-clhs-map stream)
+  (force-output *http-log-stream*)
   (loop :with good = 0 :for symbol-name = (read-line stream nil nil)
     :and destination = (read-line stream nil nil)
     :and total :upfrom 0
@@ -236,7 +240,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
              (setf (documentation symbol 'sys::clhs)
                    (subseq destination #.(length "../"))))
             (t (warn (TEXT "~S is not found") symbol-name))))
-    :finally (format t "~:D/~:D symbol~:P~%" good total)))
+    :finally (format *http-log-stream* "~:D/~:D symbol~:P~%" good total)))
 (let ((clhs-map-source nil) (clhs-map-good nil))
   ;; if clhs-map-source is the same as (clhs-root), do nothing and
   ;; return (clhs-root); otherwise set clhs-map-source to (clhs-root)
@@ -258,7 +262,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
         (setq clhs-map-good t))
       (and clhs-map-good clhs-root))))
 (defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
-  (format t "~&;; ~S(~S)..." 'get-string-map stream) (force-output)
+  (format *http-log-stream* "~&;; ~S(~S)..." 'get-string-map stream)
+  (force-output *http-log-stream*)
   (loop :for total :upfrom 0 :and id = (read-line stream nil nil)
     :and destination = (read-line stream nil nil)
     :while (and id destination) :do
@@ -270,7 +275,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
           (when old (warn "~S: remapping ~S: ~S --> ~S"
                           'get-string-map id old destination)))
     (setf (gethash id table) destination)
-    :finally (format t "~:D ID~:P~%" total))
+    :finally (format *http-log-stream* "~:D ID~:P~%" total))
   table)
 (let ((impnotes-map-source nil) (impnotes-map-good nil) id-href
       (dest (lambda (id) (string-concat "#" id))))
@@ -298,8 +303,9 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                  #2# (return-from ensure-impnotes-map))
                (setq dest (lambda (id) (gethash id table)))))))
         (with-open-file (in (clisp-data-file "Symbol-Table.text"))
-          (format t "~&;; ~S(~S)..." 'ensure-impnotes-map (truename in))
-          (force-output)
+          (format *http-log-stream* "~&;; ~S(~S)..."
+                  'ensure-impnotes-map (truename in))
+          (force-output *http-log-stream*)
           (loop :for count :upfrom 0
             :and symbol-printname = (read-line in nil nil)
             :and id = (read-line in nil nil)
@@ -318,7 +324,7 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                                    id error))))
                   (warn (TEXT "~S: invalid id ~S for symbol ~S")
                         'ensure-impnotes-map id symbol-printname)))
-            :finally (format t "~:D ID~:P~%" count)))
+            :finally (format *http-log-stream* "~:D ID~:P~%" count)))
         (setq impnotes-map-good t)) ; success
       (and impnotes-map-good impnotes-root)))
   (defmethod documentation ((obj package) (type (eql 'sys::impnotes)))

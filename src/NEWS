@@ -32,6 +32,9 @@ Important notes
 * ROOM now prints some GC statistics and returns the same values as GC.
   See <http://clisp.cons.org/impnotes/environment-enq.html#room> for details.
 
+* New user variable CUSTOM:*HTTP-LOG-STREAM* controls EXT:OPEN-HTTP logging.
+  See <http://clisp.cons.org/impnotes/macros3.html#http-log-stream> for details.
+
 * Bug fixes:
   + Comparison of floats and rationals never underflows. [ 2014262 ]
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an

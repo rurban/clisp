@@ -5549,6 +5549,10 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  implementation notes will point your web browser to the appropriate
  page.</para>
 
+<para>To do this, &describe; will retrieve the appropriate tables from
+ &clhs-root; and &impnotes-root; on the first invocation.
+ These operations are logged to &http-log-stream;.</para>
+
 <formalpara id="clhs-root"><title>Function &clhs-root;</title>
 <para>Function &clhs-root; is defined in &config-lisp;.  By default it
  looks at <code>(&getenv; "CLHSROOT")</code> and &clhs-root-default;,
