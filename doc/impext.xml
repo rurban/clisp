@@ -1736,7 +1736,7 @@ to the &socket-stream; returned by &open-http; and executes the &body-r;.
 additionally binds &cont-r; to the content length.</para>
 <para>&open-http; will check &http-proxy; on startup and parse the &env-var;
  <envar>HTTP_PROXY</envar> if &http-proxy; is &nil;.</para>
-<para>The <constant>:LOG</constant> argument binds &http-log-stream.</para>
+<para>The <constant>:LOG</constant> argument binds &http-log-stream;.</para>
 </section>
 
 <section id="http-log-stream"><title>Variable &http-log-stream;</title>
