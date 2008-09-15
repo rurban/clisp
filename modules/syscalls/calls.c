@@ -1710,6 +1710,19 @@ DEFUN(POSIX::USER-INFO, &optional user)
  http://msdn.microsoft.com/library/en-us/netmgmt/netmgmt/netuserenum.asp */
 #endif  /* user-info */
 
+#if defined(HAVE_GETUSERSHELL) && defined(HAVE_ENDUSERSHELL)
+DEFUN(POSIX:USER-SHELLS,) {
+  int count = 0;
+  char *shell;
+  begin_system_call();
+  for (;(shell = getusershell()); count++)
+    pushSTACK(asciz_to_string(shell,GLO(misc_encoding)));
+  endusershell();
+  end_system_call();
+  VALUES1(listof(count));
+}
+#endif  /* HAVE_GETUSERSHELL & HAVE_ENDUSERSHELL */
+
 #if defined(HAVE_GETUID)
 DEFUN(POSIX:UID,){ GETTER0(uid,getuid); }
 #endif

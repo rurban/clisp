@@ -42,7 +42,7 @@ mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
 setreuid setregid getgroups setgroups dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
-ftruncate truncate dnl
+ftruncate truncate getusershell endusershell dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid sethostid)
 AC_FUNC_CHOWN
