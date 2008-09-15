@@ -1726,7 +1726,7 @@ here <function>WITH-FOO</function> does not receive the
 <para>Defined in
  <link linkend="clhs-lisp"><filename>clhs.lisp</filename></link>,
  they allow downloading data over the Internet using the &http; protocol.
- <code>(&open-http; url &key-amp; &if-does-not-exist;)</code> opens
+ <code>(&open-http; url &key-amp; &if-does-not-exist; :LOG)</code> opens
  a &sock; connection to the <replaceable>url</replaceable> host,
  sends the <command>GET</command> request,
  and returns two values: the &socket-stream; and content length.
@@ -1735,7 +1735,9 @@ to the &socket-stream; returned by &open-http; and executes the &body-r;.
 <code>(EXT:WITH-HTTP-INPUT ((&var-r; &cont-r;) url) &body-amp; body)</code>
 additionally binds &cont-r; to the content length.</para>
 <para>&open-http; will check &http-proxy; on startup and parse the &env-var;
- <envar>HTTP_PROXY</envar> if &http-proxy; is &nil;.</para></section>
+ <envar>HTTP_PROXY</envar> if &http-proxy; is &nil;.</para>
+<para>The <constant>:LOG</constant> argument binds &http-log-stream.</para>
+</section>
 
 <section id="http-log-stream"><title>Variable &http-log-stream;</title>
  <para>Function &open-http; logs its actions to &http-log-stream;
