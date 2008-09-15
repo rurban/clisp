@@ -1,5 +1,11 @@
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX:DOMAINNAME)
+	(POSIX::%SETDOMAINNAME): add
+	* modules/syscalls/posix.lisp (domainname): add defsetf and export
+
+2008-09-15  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (POSIX:USER-SHELLS): implement
 	* modules/syscalls/posix.lisp (USER-SHELLS): export
 
