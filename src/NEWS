@@ -22,6 +22,8 @@ Important notes
 
 * New function OS:USER-SHELLS returns the list of legal user shells.
   See <http://clisp.cons.org/impnotes/syscalls.html#user-shells> for details.
+  New SETFable functions OS:HOSTID and OS:DOMAINNAME.
+  See <http://clisp.cons.org/impnotes/syscalls.html#hostid> for details.
 
 * Module readline has been upgraded to readline 5.2
   (older versions 5.0 and 5.1 are, of course, still supported).
