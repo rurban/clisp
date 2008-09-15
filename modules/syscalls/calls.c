@@ -1573,7 +1573,7 @@ DEFUN(POSIX:SERVICE, &optional service-name protocol) {
  can trigger GC */
 static Values grp_to_lisp (struct group *group) {
   pushSTACK(safe_to_string(group->gr_name));
-  pushSTACK(UL_to_I(group->gr_gid));
+  pushSTACK(gid_to_I(group->gr_gid));
   push_string_array(group->gr_mem);
   funcall(`POSIX::MAKE-GROUP-INFO`,3);
 }
@@ -1604,8 +1604,8 @@ DEFUN(POSIX::GROUP-INFO, &optional group)
 
   begin_system_call();
   errno = 0;
-  if (uint32_p(group))
-    gr = getgrgid(I_to_uint32(group));
+  if (integerp(group))
+    gr = getgrgid(I_to_gid(group));
   else if (symbolp(group)) {
     group = Symbol_name(group);
     goto group_info_string;
