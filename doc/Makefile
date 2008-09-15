@@ -241,8 +241,9 @@ docbook-dtd :
 	  wget -O docbook-xml.zip $(DTD_DOWNLOAD) && \
 	  unzip docbook-xml.zip && $(RM) docbook-xml.zip
 
-docbook-xsl :
+docbook-xsl : force
 	rsync -av --port=5873 docbook.xml-doc.org::xsl docbook-xsl
+	grep '<fm:Version>' docbook-xsl/VERSION 
 
 SEARCH=
 search: force
