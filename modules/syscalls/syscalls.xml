@@ -520,7 +520,7 @@
  <varlistentry id="phys-mem"><term><code>(OS:PHYSICAL-MEMORY)</code></term>
   <listitem><simpara>Return 2 values: total and available physical memory.
    </simpara><simpara>&unix-w32-only;</simpara></listitem></varlistentry>
- <varlistentry id="gethostid"><term><code>(OS:HOSTID)</code></term>
+ <varlistentry id="hostid"><term><code>(OS:HOSTID)</code></term>
   <term><code>(&setf; (OS:HOSTID) &value-r;)</code></term>
   <listitem><simpara>Call <function role="unix">gethostid</function> and
     return a (hopefully) universally unique &integer-t; identifier of
@@ -534,7 +534,12 @@
 course, means that <quote>universally unique</quote> it is &not-e;.
    </para></warning><simpara>Superuser can also set host identifier
     using &setf; which calls <function role="bsd">sethostid</function>.
-   </simpara><simpara>&unix-w32-only;</simpara></listitem>
+   </simpara><simpara>&unix-w32-only;</simpara></listitem></varlistentry>
+ <varlistentry id="domainname">
+  <term><code>(<function>OS:DOMAINNAME</function>)</code></term>
+  <term><code>(&setf; (<function>OS:DOMAINNAME</function>) &dom-r;</code></term>
+  <listitem><simpara>Call <function role="bsd">getdomainname</function>
+    and <function role="bsd">setdomainname</function>.</simpara></listitem>
 </varlistentry></variablelist></section>
 
 <section id="posix-math"><title>Mathematical functions</title>

@@ -1795,6 +1795,32 @@ DEFUN(POSIX::%SETHOSTID, hostid) {
   VALUES1(popSTACK());
 }
 #endif
+#ifndef MAXHOSTNAMELEN
+# define MAXHOSTNAMELEN 64 /* see <sys/param.h> */
+#endif
+#if 1                           /* defined(HAVE_GETDOMAINNAME) */
+DEFUN(POSIX:DOMAINNAME,) {
+  char domain[MAXHOSTNAMELEN];
+  int e;
+  begin_system_call();
+  e = getdomainname(domain,MAXHOSTNAMELEN);
+  end_system_call();
+  if (e) OS_error();
+  VALUES1(asciz_to_string(domain,GLO(misc_encoding)));
+}
+#endif
+#if 1                           /* defined(HAVE_SETDOMAINNAME) */
+DEFUN(POSIX::%SETDOMAINNAME, domain) {
+  int e;
+  with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),domain, {
+      begin_system_call();
+      e = setdomainname(domain,MAXHOSTNAMELEN);
+      end_system_call();
+    });
+  if (e) OS_error();
+  VALUES1(popSTACK());    /* return the argument for the sake of SETF */
+}
+#endif
 
 #if defined(HAVE_FSTAT) && defined(HAVE_STAT)
 # if !defined(HAVE_LSTAT)

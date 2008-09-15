@@ -485,6 +485,12 @@ NIL
             (zerop (os:euid))
             (not (= (setf (os:hostid) (os:hostid)) (os:hostid))))
 #+unix NIL
+(and (fboundp 'os:domainname) (not (stringp (show (os:domainname))))) NIL
+#+unix (and (fboundp 'os::%setdomainname)
+            (zerop (os:euid))
+            (not (= (setf (os:domainname) (os:domainname)) (os:domainname))))
+#+unix NIL
+
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
