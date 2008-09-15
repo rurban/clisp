@@ -1737,6 +1737,10 @@ additionally binds &cont-r; to the content length.</para>
 <para>&open-http; will check &http-proxy; on startup and parse the &env-var;
  <envar>HTTP_PROXY</envar> if &http-proxy; is &nil;.</para></section>
 
+<section id="http-log-stream"><title>Variable &http-log-stream;</title>
+ <para>Function &open-http; logs its actions to &http-log-stream;
+  which is initially set to &terminal-io-var;.</para></section>
+
 <section id="browse-url"><title>Function &browse-url;</title>
  <para>Function <code>(&browse-url; url &key-amp; &browser-k; &out-k;)</code>
   calls a browser on the URL. <replaceable>browser</replaceable>
@@ -1807,6 +1811,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&flocont;</member>
   <member>&floratcont;</member>
   <member>&foreign-enc;</member>
+  <member>&http-log-stream;</member>
   <member>&http-proxy;</member>
   <member>&impnotes-root;</member>
   <member>&impnotes-root-default;</member>
