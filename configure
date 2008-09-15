@@ -693,7 +693,7 @@ $0: libsigsegv was not detected, thus some features, such as
   generational garbage collection and
   stack overflow detection in interpreted Lisp code
 cannot be provided.
-Please do this:
+Please install libsigsegv like this:
 EOF
     if [ "${CC+set}" = "set" ]; then
       echo "  CC='$CC'; export CC" 1>&2
@@ -705,11 +705,14 @@ EOF
   cd ${SIGSEGV}
   ./configure${host_arg} --prefix=\${prefix} && make && make check && make install
   cd ../..
+  rm -f ${DIRNAME}/config.cache
   ./configure --with-libsigsegv-prefix=\${prefix} $*
 If you insist on building without libsigsegv, please pass
   --ignore-absence-of-libsigsegv
 to this script:
   ./configure --ignore-absence-of-libsigsegv $*
+If you have installed libsigsegv, but clisp does not detect it,
+you might have installed it incorrectly, see section 2 in in unix/INSTALL.
 EOF
     exit 1;
   fi
