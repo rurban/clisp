@@ -35,9 +35,8 @@
    <function role="unix">gethostbyname</function>,
    and <function role="unix">gethostbyaddr</function>.</simpara>
  </listitem></varlistentry>
- <varlistentry id="service"><term><code>(<function>OS:SERVICE</function>
-    &optional-amp; <replaceable>service-name</replaceable>
-    &proto-r;)</code></term>
+ <varlistentry id="service"><term><code>(OS:SERVICE &optional-amp;
+    <replaceable>service-name</replaceable> &proto-r;)</code></term>
  <listitem><simpara>A convenience function for looking up a port given
    the service name, such as <quote>WWW</quote> or <quote>FTP</quote>.
    It returns the <type>SERVICE</type> structure
@@ -52,7 +51,7 @@
 
 <section id="file-system"><title>File system</title>
 <variablelist>
- <varlistentry id="file-stat"><term><code>(<function>POSIX:FILE-STAT</function>
+ <varlistentry id="file-stat"><term><code>(POSIX:FILE-STAT
     &path-r; &optional-amp; <replaceable>link-p</replaceable>)</code></term>
   <listitem><para>Return the <type>FILE-STAT</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
@@ -129,15 +128,14 @@
      fills the <type>FILE-STAT</type> return value based on that.
  </para></note></listitem></varlistentry>
  <varlistentry id="set-file-stat">
-  <term><code>(<function>POSIX:SET-FILE-STAT</function> &path-r;
-    &key-amp; :ATIME :MTIME :MODE :UID :GID)</code></term>
+  <term><code>(POSIX:SET-FILE-STAT &path-r; &key-amp; :ATIME :MTIME
+    :MODE :UID :GID)</code></term>
   <listitem><simpara>Set some file attributes using
     <function role="unix">chmod</function>,
     <function role="unix">chown</function>,
     and <function role="unix">utime</function>.
  </simpara></listitem></varlistentry>
- <varlistentry id="stat-vfs"><term><code>(<function>POSIX:STAT-VFS</function>
-    &path-r;)</code></term>
+ <varlistentry id="stat-vfs"><term><code>(POSIX:STAT-VFS &path-r;)</code></term>
  <listitem><para>Return a <type>STAT-VFS</type> structure.
    &path-r; can be a &stream-t;, a &pathname-t;, a &string-t; or a
    &number-t; (on a &unix; system, meaning &file-des;).
@@ -186,8 +184,8 @@
    </simpara></listitem></varlistentry></variablelist>
    All slots are read-only.
  </para></listitem></varlistentry>
- <varlistentry id="file-info"><term><code>(<function>OS:FILE-INFO</function>
-    &path-r; &optional-amp; all)</code></term>
+ <varlistentry id="file-info"><term><code>(OS:FILE-INFO &path-r;
+    &optional-amp; all)</code></term>
   <listitem><para>Return the <type>FILE-INFO</type> structure.
     &path-r; should be a &path-des;. The 7 slots are<simplelist columns="1">
      <member><structfield>attributes</structfield></member>
@@ -201,8 +199,7 @@
     unless the second (optional) argument is non-&nil;, in which case a
     &list-t; of objects is returned, one for each match.
  </para></listitem></varlistentry>
- <varlistentry id="stream-lock"><term>
-   <code>(<function>POSIX:STREAM-LOCK</function> &stream-r;
+ <varlistentry id="stream-lock"><term><code>(POSIX:STREAM-LOCK &stream-r;
     <replaceable>lock-p</replaceable> &key-amp;
     (:BLOCK &t;) (:SHARED &nil;) (:START 0) (:END &nil;))</code></term>
   <listitem><simpara>Set or remove a file lock for the (portion of the)
@@ -226,9 +223,8 @@
      is free to ignore it, but on some &unix; systems one can mount some
      file system with <emphasis>mandatory</emphasis> locks.</simpara></warning>
  </listitem></varlistentry>
- <varlistentry id="with-stream-lock"><term>
-   <code>(<function>POSIX:WITH-STREAM-LOCK</function> (&stream-r;
-    &rest-amp; &options-r;) &body-amp; &body-r;)</code></term>
+ <varlistentry id="with-stream-lock"><term><code>(POSIX:WITH-STREAM-LOCK
+    (&stream-r; &rest-amp; &options-r;) &body-amp; &body-r;)</code></term>
   <listitem><simpara>Lock the &stream-r;, execute the &body-r;, unlock
     the &stream-r;.  Pass &options-r; to &stream-lock;.
  </simpara></listitem></varlistentry>
@@ -247,20 +243,19 @@
    <simpara>Use <function role="win32">SetFilePointerEx</function>
     and <function role="win32">SetEndOfFile</function> on &win32;.
  </simpara></listitem></varlistentry>
- <varlistentry id="mknod"><term><code>(<function>POSIX:MKNOD</function>
-    &path-r; &type-r; &mode-r;)</code></term>
+ <varlistentry id="mknod"><term><code>(POSIX:MKNOD &path-r; &type-r;
+    &mode-r;)</code></term>
  <listitem><simpara>Create a special file using
    <function role="unix">mknod</function>.
    Use <constant>:FIFO</constant> to create pipes
    and <constant>:SOCK</constant> to create sockets.
  </simpara></listitem></varlistentry>
  <varlistentry id="convert-mode">
-  <term><code>(<function>POSIX:CONVERT-MODE</function> &mode-r;)</code></term>
+  <term><code>(POSIX:CONVERT-MODE &mode-r;)</code></term>
   <listitem><simpara>Convert between numeric, (e.g., <literal>0644</literal>)
     and symbolic (e.g., <literal role="data">(:RUSR :WUSR :RGRP
      :ROTH)</literal>) file modes.</simpara></listitem></varlistentry>
- <varlistentry id="umask"><term><code>(<function>POSIX:UMASK</function>
-    &mode-r;)</code></term>
+ <varlistentry id="umask"><term><code>(POSIX:UMASK &mode-r;)</code></term>
  <listitem><simpara>Change process mask using
    <function role="unix">umask</function>.
  </simpara></listitem></varlistentry>
@@ -419,7 +414,7 @@
 
 <section id="user-group"><title>Users and Groups</title>
 <variablelist>
- <varlistentry id="user-info"><term><code>(<function>POSIX:USER-INFO</function>
+ <varlistentry id="user-info"><term><code>(POSIX:USER-INFO
     &optional-amp; &user-r;)</code></term>
  <listitem><simpara>Return the <type>USER-INFO</type> structure (name,
    encoded password, UID, GID, full name, home directory, shell).
@@ -431,7 +426,7 @@
    When &user-r; is &default-k;, return the information about the current user
    (using <function role="unix">getlogin</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
-<varlistentry id="group-info"><term><code>(<function>POSIX:GROUP-INFO</function>
+<varlistentry id="group-info"><term><code>(POSIX:GROUP-INFO
     &optional-amp; <replaceable>group</replaceable>)</code></term>
  <listitem><simpara>Return the <type>GROUP-INFO</type> structure (name,
    GID, member &list-t;). <replaceable>group</replaceable> should be a
@@ -440,28 +435,25 @@
    When <replaceable>group</replaceable> is missing or &nil;, return all
    groups (using <function role="unix">getgrent</function>).</simpara>
   <simpara>&unix-only;</simpara></listitem></varlistentry>
-<varlistentry id="user-shells">
- <term><code>(<function>POSIX:USER-SHELLS</function>)</code></term>
+<varlistentry id="user-shells"><term><code>(POSIX:USER-SHELLS)</code></term>
  <listitem><simpara>Call <function role="bsd">getusershell</function>.
 </simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="sysinfo"><title>System Information</title>
 <variablelist>
- <varlistentry><term><code>(<function>POSIX:UNAME</function>)</code></term>
+ <varlistentry><term><code>(POSIX:UNAME)</code></term>
   <listitem><simpara>Return a structure describing the OS, derived from
     <function role="unix">uname</function>.</simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>POSIX:SYSCONF</function>
-    &optional-amp; &what-r;)</code></term>
-  <term><code>(<function>POSIX:CONFSTR</function>
-    &optional-amp; &what-r;)</code></term>
+ <varlistentry><term><code>(POSIX:SYSCONF &optional-amp; &what-r;)</code></term>
+  <term><code>(POSIX:CONFSTR &optional-amp; &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
     &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">sysconf</function>
     and <function role="unix">confstr</function> respectively.
  </simpara></listitem></varlistentry>
- <varlistentry><term><code>(<function>POSIX:PATHCONF</function>
-    &path-r; &optional-amp; &what-r;)</code></term>
+ <varlistentry><term><code>(POSIX:PATHCONF &path-r; &optional-amp;
+    &what-r;)</code></term>
   <listitem><simpara>Return the specified configuration parameter or a
     &plist; of all available parameters (when &what-r; is missing or
     &nil;), by calling <function role="unix">fpathconf</function> on
@@ -492,8 +484,7 @@
        <replaceable>rlimit-alist</replaceable> is an &alist;, as returned by
        <code>(&rlimit;)</code>.</simpara></listitem>
  </orderedlist></para></listitem></varlistentry>
- <varlistentry id="usage">
-  <term><code>(<function>POSIX:USAGE</function>)</code></term>
+ <varlistentry id="usage"><term><code>(POSIX:USAGE)</code></term>
   <listitem><simpara>Return 2 structures describing the resource usage
     by the lisp process and its children, using
     <function role="unix">getrusage</function>.
