@@ -77,7 +77,9 @@
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
 #endif
-#include <sys/param.h>
+#if defined(HAVE_SYS_PARAM_H)   /* might not be present on woe32 */
+# include <sys/param.h>
+#endif
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
