@@ -77,6 +77,7 @@
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
 #endif
+#include <sys/param.h>
 
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
 #include <initguid.h>
@@ -1795,8 +1796,8 @@ DEFUN(POSIX::%SETHOSTID, hostid) {
   VALUES1(popSTACK());
 }
 #endif
-#ifndef MAXHOSTNAMELEN
-# define MAXHOSTNAMELEN 64 /* see <sys/param.h> */
+#ifndef MAXHOSTNAMELEN          /* see unix.d */
+# define MAXHOSTNAMELEN 256     /* see <sys/param.h> */
 #endif
 #if defined(HAVE_GETDOMAINNAME)
 DEFUN(POSIX:DOMAINNAME,) {
@@ -2765,7 +2766,7 @@ static inline int MkHardLink (char* old_pathstring, char* new_pathstring) {
 #elif !defined(LINK_FOLLOWS_SYMLINKS) && defined(HAVE_REALPATH)
 static inline int my_link (const char* source, const char* destination) {
 # ifndef MAXPATHLEN             /* see unix.d */
-#  define MAXPATHLEN  1024      /* <sys/param.h> */
+#  define MAXPATHLEN  4096      /* see <sys/param.h> */
 # endif
   char path_buffer[MAXPATHLEN];
   if (NULL == realpath(source,path_buffer)) OS_file_error(STACK_3);
