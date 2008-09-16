@@ -615,7 +615,6 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
   extern_C int getrusage (RUSAGE_WHO_T who, struct rusage * rusage); /* GETRUSAGE(2) */
   /* prototype useless, there 'struct rusage' /= 'struct rusage' */
 #elif defined(HAVE_SYS_TIMES_H)
-  #include <sys/param.h> /* define HZ, unit is 1/HZ seconds */
   #include <sys/times.h>
   extern_C clock_t times (struct tms * buffer); /* TIMES(3V) */
 #endif
@@ -680,7 +679,7 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 /* gethostbyname() is declared in the above files */
 #endif
 #ifndef MAXHOSTNAMELEN
-  #define MAXHOSTNAMELEN 64 /* see <sys/param.h> */
+  #define MAXHOSTNAMELEN 256    /* see <sys/param.h> */
 #endif
 /* used by MISC */
 

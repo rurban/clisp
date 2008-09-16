@@ -3,6 +3,8 @@
 	* modules/syscalls/calls.c: include <sys/param.h>
 	(MAXHOSTNAMELEN): fall back to 256 (not 64)
 	(MAXPATHLEN): fall back to 4096 (not 1024)
+	* unix.d: include <sys/param.h> just once
+	(MAXHOSTNAMELEN): fall back to 256 (not 64)
 
 2008-09-15  Sam Steingold  <sds@gnu.org>
 
