@@ -3,6 +3,7 @@
 	* modules/syscalls/calls.c: include <sys/param.h>
 	(MAXHOSTNAMELEN): fall back to 256 (not 64)
 	(MAXPATHLEN): fall back to 4096 (not 1024)
+	* modules/syscalls/configure.in: check for <sys/param.h> (for woe32)
 	* unix.d: include <sys/param.h> just once
 	(MAXHOSTNAMELEN): fall back to 256 (not 64)
 
