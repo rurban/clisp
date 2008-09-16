@@ -1817,7 +1817,7 @@ DEFUN(POSIX::%SETDOMAINNAME, domain) {
   int e;
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),domain, {
       begin_system_call();
-      e = setdomainname(domain,MAXHOSTNAMELEN);
+      e = setdomainname(domain,domain_len);
       end_system_call();
     });
   if (e) OS_error();
