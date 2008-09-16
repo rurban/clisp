@@ -99,7 +99,7 @@ int main (int argc, char* argv[])
 # if ENABLE_RELOCATABLE
   /* Put this executable's absolute path into executable_name. */
   if (find_executable(program_name) < 0) {
-    fprintf(stderr,"%s: cannot figure out the absolute executable path",
+    fprintf(stderr,"%s: cannot figure out the absolute executable path\n",
             program_name);
     return 1;
   }
