@@ -1,3 +1,10 @@
+2008-09-17  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (cmd-args): new function
+	* ext-clisp.tst (ext:run-program): use it;
+	avoid the potential of a dotted result list which breaks PRETTY-COMPARE
+	* modules/syscalls/test.tst: use CMD-ARGS and starting *PROC1* & *PROC2*
+
 2008-09-11  Sam Steingold  <sds@gnu.org>
 
 	* ext-clisp.tst: test ARGV, RUN-PROGRAM, and EXIT
