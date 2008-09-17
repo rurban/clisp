@@ -456,9 +456,14 @@ DEFUN(POSIX:FILE-SIZE, file) {
    #if defined(WIN32_NATIVE)
     LARGE_INTEGER length;
     with_string_0(value1 = physical_namestring(STACK_0),
-                  GLO(pathname_encoding), namez,
-        { if (GetFileSizeEx(namez,&length)) OS_file_error(value1); });
-    VALUES1(off_to_I(length.QuadPart));
+                  GLO(pathname_encoding), namez, {
+        BOOL status;
+        begin_system_call();
+        status = GetFileSizeEx(namez,&length);
+        end_system_call();
+        if (!status) OS_file_error(value1);
+      });
+    VALUES1(sint64_to_I(length.QuadPart));
    #elif defined(HAVE_STAT)
     struct stat stat;
     if (stat_obj(STACK_0,&stat))
