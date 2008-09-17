@@ -1554,7 +1554,7 @@ for f in $EVERY_INCLUDES ; do
 done
 
 EVERY_INCLUDES_H=''
-if [ ${TOS} = "unix" -o ${HSYS} = "win32gcc" ] ; then
+if [ ${TOS} = unix -o ${HSYS} = win32gcc ] ; then
   for h in '' @STDBOOL_H@ @STDINT_H@; do
     test -n "$h" && EVERY_INCLUDES_H=${EVERY_INCLUDES_H}" gllib/${h}"
   done
@@ -1563,7 +1563,7 @@ else
 fi
 # on UNIX and MINGW PACKAGE_* (and OS capabilities!) is in config.h,
 # otherwise PACKAGE_* is in version.h and OS capabilities are in win32.c
-if [ ${TSYS} = unix -o ${TSYS} = win32gcc ]; then
+if [ ${TOS} = unix -o ${HSYS} = win32gcc ]; then
   EVERY_INCLUDES_H=$EVERY_INCLUDES_H' config.h'
   SPVW_VERSION=''
 else
