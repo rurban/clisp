@@ -1,5 +1,11 @@
 2008-09-17  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (POSIX:FILE-SIZE) [WIN32_NATIVE]:
+	surround the GetFileSizeEx call with begin/end_system_call;
+	use sint64_to_I instead of off_to_I for the return value
+
+2008-09-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (EVERY_INCLUDES_H): fix the logic for adding config.h
 
 2008-09-16  Sam Steingold  <sds@gnu.org>
