@@ -297,9 +297,9 @@ CHECK-LOAD
   (loop :for tail :on args :do (print tail)
     (loop :while (member (cadr tail) '("-i" "-x" "-c") :test #'string=)
       :do (setf (cdr tail) (cdddr tail))))
-  (cons (ext:run-program cmd :arguments (append args '("-x" "(exit 42)")))
+  (list (ext:run-program cmd :arguments (append args '("-x" "(exit 42)")))
         (ext:run-program cmd :arguments (append args '("-x" "(exit)")))))
-(42)
+(42 NIL)
 
 (progn (symbol-cleanup 'check-load)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
