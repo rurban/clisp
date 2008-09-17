@@ -355,10 +355,8 @@ FLUSH-CLISP
   (flush-clisp proc))
 PROC-SEND
 
-(let* ((argv (ext:argv)) (run (aref argv 0))
-       (args (list "-M" (aref argv (1+ (position "-M" argv :test #'string=)))
-                   "-B" (aref argv (1+ (position "-B" argv :test #'string=)))
-                   "-norc" "-q" "-on-error" "abort")))
+(multiple-value-bind (run args) (cmd-args)
+  (push "abort" args) (push "-on-error" args)
   (show (cons run args) :pretty t)
   (defparameter *proc1* (ext:run-program run :arguments args
                                          :input :stream :output :stream))
