@@ -20,6 +20,13 @@
 (defun prepare-directory (name)
   (ensure-directories-exist name :verbose t)
   (kill-down name))
+(defun cmd-args ()
+  "command and arg list for cloning this clisp process"
+  (let* ((argv (ext:argv))
+         (lispinit (aref argv (1+ (position "-M" argv :test #'string=)))))
+    (values (aref argv 0)
+            (list "-q" "-norc" "-B" (namestring *lib-directory*) "-M"
+                  (namestring (merge-pathnames lispinit *lib-directory*))))))
 )
 (defun show-file (file)         ; return line count
   (with-open-file (st file :direction :input)

@@ -292,11 +292,7 @@ CHECK-LOAD
 (close *s1*) T
 (pathnamep (delete-file *s1*)) T
 
-(destructuring-bind (cmd . args) (coerce (ext:argv) 'list)
-  ;; remove action arguments ("-x", "-c" and "-i")
-  (loop :for tail :on args :do (print tail)
-    (loop :while (member (cadr tail) '("-i" "-x" "-c") :test #'string=)
-      :do (setf (cdr tail) (cdddr tail))))
+(multiple-value-bind (cmd args) (cmd-args)
   (list (ext:run-program cmd :arguments (append args '("-x" "(exit 42)")))
         (ext:run-program cmd :arguments (append args '("-x" "(exit)")))))
 (42 NIL)
