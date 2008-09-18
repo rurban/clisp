@@ -1,5 +1,9 @@
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/dbi.lisp (close@db): pass :ABORT as :NOSYNC
+
+2008-09-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (on_pnamestring): generalize ...
 	(stat_obj): removed
 	(path_truncate): do not do begin/end_system_call and error
