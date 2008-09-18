@@ -1,4 +1,4 @@
-;;; Copyright (C) 2003-2005 by Sam Steingold
+;;; Copyright (C) 2003-2008 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -332,8 +332,7 @@
   (declare (ignore abort))
   (dbe-close dbe))
 (defmethod close ((db db) &key abort)
-  (declare (ignore abort))
-  (db-close db))
+  (db-close db :nosync abort))
 (defmethod close ((cu dbc) &key abort)
   (declare (ignore abort))
   (dbc-close cu))
