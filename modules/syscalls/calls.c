@@ -354,6 +354,23 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 }
 #endif
 
+/* call f on physical namestring of path and data
+ > path: a pathname designator
+ > f: system call
+ < data: anything which f accepts
+ < value1: the physical namestring of path (for error reporting)
+ < returns whatever f returns
+ NB: on success, unix functions return 0, while woe32 functions return 1 !
+ can trigger GC */
+static void* on_pnamestring (object path, void* (*f) (const char*,void*),
+                             void* data) {
+  void* ret;
+  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,
+      { begin_system_call(); ret = (*f)(pathz,data); end_system_call(); });
+  return ret;
+}
+#define ON_PNAMESTRING(p,f,d)  on_pnamestring(p,(void*(*)(const char*,void*))&(f),(void*)(d))
+
 /* =========================== file truncate =========================== */
 /* NB: woe32 has ftruncate, but, just like fstat, it does not accept a Handle,
    just an integer of an unknown nature */
@@ -371,24 +388,19 @@ static inline void I_to_file_offset (object obj, file_offset_t *length)
 #endif
 
 /* truncate a file, STACK_0 = path */
-static void path_truncate (const char *path, file_offset_t *length) {
-  begin_system_call();
+static void* path_truncate (const char *path, file_offset_t *length) {
 #if defined(WIN32_NATIVE)
-  { HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
-                           FILE_ATTRIBUTE_NORMAL,NULL);
-    if (fd == INVALID_HANDLE_VALUE
-        || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
-        || 0 == SetEndOfFile(fd)
-        || 0 == CloseHandle(fd))
-      { end_system_call(); OS_file_error(STACK_0); }
-  }
+  HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                         FILE_ATTRIBUTE_NORMAL,NULL);
+  return (void*)!(fd == INVALID_HANDLE_VALUE
+                  || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+                  || 0 == SetEndOfFile(fd)
+                  || 0 == CloseHandle(fd));
 #elif defined(HAVE_TRUNCATE)
-  if (truncate(path,*length))
-    { end_system_call(); OS_file_error(STACK_0); }
+  return (void*)(uintP)truncate(path,*length);
 #else
 #error FILE-SIZE: no truncate and not woe32
 #endif
-  end_system_call();
 }
 
 /* truncate a stream, STACK_0 = stream */
@@ -422,28 +434,14 @@ DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
   file_offset_t length;
   Handle fd;
   I_to_file_offset(STACK_0,&length);
-  /* both path_truncate & stream_truncate use STACK_0 for error reporting */
+  /* stream_truncate uses STACK_0 for error reporting */
   pushSTACK(open_file_stream_handle(STACK_1,&fd,true));
   if (eq(nullobj,STACK_0)) {    /* not a stream - use path */
-    with_string_0(STACK_0 = physical_namestring(STACK_2),
-                  GLO(pathname_encoding), namez,
-        { path_truncate(namez,&length); });
+    if (ON_PNAMESTRING(STACK_2,path_truncate,&length))
+      OS_file_error(value1);
   } else stream_truncate(fd,&length); /* stream - use fd */
   VALUES1(STACK_1); skipSTACK(3);
 }
-
-#if defined(HAVE_STAT)
-/* call stat() on the pathname
- return the value returned by stat()
- value1 = the actual pathname on which stat was called
- can trigger GC */
-static int stat_obj (object path, struct stat *buf) {
-  int ret;
-  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
-      begin_system_call(); ret = stat(pathz,buf); end_system_call(); });
-  return ret;
-}
-#endif
 
 DEFUN(POSIX:FILE-SIZE, file) {
   /* we could implement this in Lisp like this:
@@ -455,20 +453,14 @@ DEFUN(POSIX:FILE-SIZE, file) {
   if (eq(nullobj,stream)) {    /* not a stream - use path */
    #if defined(WIN32_NATIVE)
     LARGE_INTEGER length;
-    with_string_0(value1 = physical_namestring(STACK_0),
-                  GLO(pathname_encoding), namez, {
-        BOOL status;
-        begin_system_call();
-        status = GetFileSizeEx(namez,&length);
-        end_system_call();
-        if (!status) OS_file_error(value1);
-      });
+    if (!ON_PNAMESTRING(STACK_0,GetFileSizeEx,&length))
+      OS_file_error(value1);
     VALUES1(sint64_to_I(length.QuadPart));
    #elif defined(HAVE_STAT)
-    struct stat stat;
-    if (stat_obj(STACK_0,&stat))
+    struct stat buf;
+    if (ON_PNAMESTRING(STACK_0,stat,&buf))
       OS_file_error(value1);
-    VALUES1(off_to_I(stat.st_size));
+    VALUES1(off_to_I(buf.st_size));
    #else
     #error FILE-SIZE: no stat and not woe32
    #endif
@@ -1850,13 +1842,9 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
     Handle fd;
     file = open_file_stream_handle(STACK_1,&fd,true);
     if (eq(nullobj,file)) {     /* not a stream - treat as a pathname */
-      file = physical_namestring(STACK_1);
-      with_string_0(file,GLO(pathname_encoding),namez, {
-          begin_system_call();
-          if ((link_p ? stat(namez,&buf) : lstat(namez,&buf)) < 0)
-            OS_error();
-          end_system_call();
-        });
+      if (ON_PNAMESTRING(STACK_1,*(link_p ? &stat : &lstat),&buf))
+        OS_file_error(value1);
+      file = value1;
     } else {                    /* file is a stream, fd is valid */
 #    if defined(WIN32_NATIVE)
       /* woe32 does have fstat(), but it does not accept a file handle,
@@ -2013,15 +2001,12 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct a_m_time *tm) {
  < value1 - the actual path used
  can trigger GC */
 static void find_first_file (object path, WIN32_FIND_DATA *wfd, HANDLE *sh) {
-  HANDLE s_h;
-  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,{
-      begin_system_call(); s_h = FindFirstFile(pathz,wfd); end_system_call();
-    });
+  HANDLE s_h = ON_PNAMESTRING(path,FindFirstFile,wfd);
   if (s_h == INVALID_HANDLE_VALUE) OS_file_error(value1);
   if (sh) *sh = s_h;
   else { begin_system_call(); FindClose(s_h); begin_system_call(); }
 }
-/* get file times from an object (like stat_obj())
+/* get file times from an object
  can trigger GC */
 static void get_file_time (object path, FILETIME *atime, FILETIME *mtime) {
   WIN32_FIND_DATA wfd;
@@ -2063,7 +2048,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
       get_file_time(STACK_0,NULL,&(utb.modtime));
 #    else
       struct stat st;
-      if (stat_obj(STACK_0,&st)) OS_file_error(value1);
+      if (ON_PNAMESTRING(STACK_0,stat,&st)) OS_file_error(value1);
       utb.modtime = st.st_mtime;
 #    endif
     }
@@ -2080,7 +2065,7 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
       get_file_time(STACK_0,&(utb.actime),NULL);
 #    else
       struct stat st;
-      if (stat_obj(STACK_1,&st)) OS_file_error(value1);
+      if (ON_PNAMESTRING(STACK_1,stat,&st)) OS_file_error(value1);
       utb.actime = st.st_atime;
 #    endif
    }
@@ -2363,12 +2348,8 @@ DEFUN(POSIX::STAT-VFS, file)
       STACK_0 = file;
     } else
 #endif
-      with_string_0(STACK_0 = physical_namestring(STACK_0),
-                    GLO(pathname_encoding), namez, {
-        begin_system_call();
-        if (statvfs(namez,&buf) < 0) OS_error();
-        end_system_call();
-      });
+      if (ON_PNAMESTRING(STACK_0,statvfs,&buf))
+        OS_file_error(value1);
 #if defined(HAVE_FSTATVFS)
   }
 #endif
@@ -2612,16 +2593,7 @@ static const char * get_owner (const char *filename) { return ""; }
 #endif
 
 DEFUN(OS::FILE-OWNER, file) {
-  object file;
-  const char *result;
-  file = physical_namestring(STACK_0);
-  with_string_0(file,GLO(pathname_encoding),filename, {
-    begin_system_call();
-    result = get_owner(filename);
-    end_system_call();
-  });
-  VALUES1(safe_to_string(result));
-  skipSTACK(1);
+  VALUES1(safe_to_string((char*)ON_PNAMESTRING(popSTACK(),get_owner,NULL)));
 }
 
 /* end of FILE-OWNER */
@@ -2830,11 +2802,11 @@ static void copy_attributes_and_close () {
   }
   end_system_call();
 # elif defined(HAVE_STAT)
-  if (stat_obj(STACK_1, &source_sb) == -1) {
+  if (ON_PNAMESTRING(STACK_1,stat,&source_sb)) {
     pushSTACK(file_stream_truename(STACK_1));
     goto close_and_err;
   }
-  if (stat_obj(STACK_0, &dest_sb) == -1) {
+  if (ON_PNAMESTRING(STACK_0,stat,&dest_sb) == -1) {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
@@ -2852,12 +2824,7 @@ static void copy_attributes_and_close () {
       pushSTACK(file_stream_truename(STACK_1));
       goto close_and_err;
     }
-    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
-        begin_system_call();
-        ret = SetFileAttributes(destz,fi.dwFileAttributes);
-        end_system_call();
-      });
-    if (!ret) {
+    if (!ON_PNAMESTRING(STACK_0,SetFileAttributes,fi.dwFileAttributes)) {
       pushSTACK(file_stream_truename(STACK_0));
       goto close_and_err;
     }
@@ -2872,17 +2839,10 @@ static void copy_attributes_and_close () {
   }
   end_system_call();
 # elif defined(HAVE_CHMOD)
-  if ((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777)) {
-    int ret;
-    with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
-        begin_system_call();
-        ret = chmod(destz, source_sb.st_mode & 0777);
-        end_system_call();
-      });
-    if (ret == -1) {
-      pushSTACK(file_stream_truename(STACK_0));
-      goto close_and_err;
-    }
+  if ((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777)
+      && ON_PNAMESTRING(STACK_0,chmod,source_sb.st_mode & 0777)) {
+    pushSTACK(file_stream_truename(STACK_0));
+    goto close_and_err;
   }
 # endif
 
@@ -2915,18 +2875,12 @@ static void copy_attributes_and_close () {
   builtin_stream_close(&STACK_1,0);
   { /*** access/mod times ***/
     struct utimbuf utb;
-    int utime_ret;
     /* first element of the array is access time, second is mod time. set
        both tv_usec to zero since the file system can't gurantee that
        kind of precision anyway. */
     utb.actime  = source_sb.st_atime;
     utb.modtime = source_sb.st_mtime;
-    with_string_0(physical_namestring(STACK_0), GLO(pathname_encoding), destz,{
-        begin_system_call();
-        utime_ret = utime(destz, &utb);
-        end_system_call();
-      });
-    if (utime_ret == -1) {
+    if (ON_PNAMESTRING(STACK_0,utime,&utb)) {
       pushSTACK(file_stream_truename(STACK_0));
       goto close_and_err;
     }
