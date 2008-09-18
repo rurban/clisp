@@ -1,5 +1,10 @@
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (my_check_argument): remove (not used
+	since DEFCHECKERs were introduced in 1.10 on 2004-05-14)
+
+2008-09-18  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp (close@db): pass :ABORT as :NOSYNC
 
 2008-09-18  Sam Steingold  <sds@gnu.org>
