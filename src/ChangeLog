@@ -1,3 +1,8 @@
+2008-09-18  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp (open-http): "user-agent" includes version;
+	link to http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
+
 2008-09-17  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX:FILE-SIZE) [WIN32_NATIVE]:

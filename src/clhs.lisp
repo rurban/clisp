@@ -158,15 +158,20 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                  (socket:socket-connect port host :external-format :dos)))
          status code content-length)
     (format *http-log-stream* "connected...") (force-output *http-log-stream*)
-    (format sock "GET ~A HTTP/1.0~%User-agent: ~A~%Host: ~A~%"
-            path (lisp-implementation-type) host) ; request
+    ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.23
+    ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.43
+    (format sock "GET ~A HTTP/1.0~%User-agent: ~A ~A~%Host: ~A~%" path
+            (lisp-implementation-type) (lisp-implementation-version) host)
     #+unicode ; base64 requires unicode for some weird infrastructure reasons
     (when (first *http-proxy*) ; auth: http://www.ietf.org/rfc/rfc1945.txt
+      ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.34
       (format sock "Proxy-Authorization: Basic ~A~%"
               (convert-string-from-bytes
                (convert-string-to-bytes (first *http-proxy*)
                                         *http-encoding*)
                charset:base64)))
+    ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.1
+    ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.10
     (format sock "Accept: */*~%Connection: close~2%") ; finish request
     (write-string (setq status (read-line sock))) (force-output)
     (let* ((pos1 (position #\Space status))
