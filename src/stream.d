@@ -9425,7 +9425,6 @@ local char * strip_white (char *string) {
  cannot have the whole thing here since they need rl_memory_abort()
  which calls make_terminal_stream() which is not yet defined */
 local char* xmalloc (int count);
-local char* xrealloc (void* ptr, int count);
 #endif
 
 /* In the implementation of rd_ch_terminal3 and listen_char_terminal3, we
@@ -10059,7 +10058,7 @@ global void terminal_sane (void) {
 }
 
 LISPFUN(terminal_raw,seclass_default,2,1,norest,nokey,0,NIL) {
-  var object errorp = popSTACK();
+  skipSTACK(1); /* ignore errorp */
   var object flag = popSTACK();
   var object stream = check_stream(popSTACK());
   stream = resolve_synonym_stream(stream);
@@ -15032,13 +15031,6 @@ local char* xmalloc (int count) {
   if (tmp) return tmp;
   else     rl_memory_abort();
 }
-
-local char* xrealloc (void* ptr, int count) {
-  char* tmp = (ptr==NULL ? (char*)malloc(count) :
-               (char*)realloc((char*)ptr,count));
-  if (tmp) return tmp;
-  else     rl_memory_abort();
-}
 #endif
 
 LISPFUNNR(built_in_stream_open_p,1)
@@ -15873,7 +15865,6 @@ global maygc bool read_line (const gcv_object_t* stream_,
       if (!push_ch(TheStream(stream)->strm_rd_ch_last,*buffer_))
         return false;
     }
-    var uintL oldfillptr = TheIarray(*buffer_)->dims[1];
     var bool eofp;
     switch (TheStream(stream)->strmtype) {
       case strmtype_synonym:
@@ -16839,7 +16830,7 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
   test_eltype_arg(&STACK_3,&eltype);
   check_multiple8_eltype(&eltype);
   var bool endianness = check_endianness_arg(STACK_2); /* check Endianness */
-  var object stream = check_stream(STACK_4);
+  STACK_4 = check_stream(STACK_4);
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
@@ -16888,7 +16879,7 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
 LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
   var uintL bytesize = check_float_eltype(&STACK_3); /* check Element-Type */
   var bool endianness = check_endianness_arg(STACK_2); /* check Endianness */
-  var object stream = check_stream(STACK_4);
+  STACK_4 = check_stream(STACK_4);
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   /* Stack layout: stream, element-type, endianness, eof-error-p, eof-value, bitbuffer.
@@ -16996,7 +16987,7 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
 LISPFUN(write_float,seclass_default,3,1,norest,nokey,0,NIL) {
   var uintL bytesize = check_float_eltype(&STACK_1); /* check Element-Type */
   var bool endianness = check_endianness_arg(STACK_0); /* check Endianness */
-  var object stream = check_stream(STACK_2);
+  STACK_2 = check_stream(STACK_2);
   /* check Float: */
   var object obj = STACK_3;
   switch (bytesize) {
