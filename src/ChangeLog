@@ -8,6 +8,9 @@
 	(emit_typedef_test): use "%ld" for sizeof
 	* spvw_debug.d (nobject_out1, bt_out): cast pointers to (uintP)
 	before printing, print long ints as "%ld"
+	* stream.d (xrealloc): remove unused function
+	(TERMINAL-RAW, read_line, READ-INTEGER, READ-FLOAT)
+	(WRITE-INTEGER): remove unused variable
 
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
