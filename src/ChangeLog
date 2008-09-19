@@ -3,6 +3,9 @@
 	* modules/i18n/gettext.c (SET-TEXTDOMAINDIR): remove unused variable
 	* modules/syscalls/calls.c (STREAM-OPTIONS): ditto
 	* modules/rawsock/rawsock.c (MAKE-SOCKADDR): ditto
+	* genclisph.d (Lsuffix): remove unused global static
+	(ULLsuffix): declare only when used
+	(emit_typedef_test): use "%ld" for sizeof
 
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
