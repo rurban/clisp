@@ -315,7 +315,7 @@ DEFCHECKER(check_fd_flags, prefix=FD,bitmasks=both,CLOEXEC)
 DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/fcntl.html */
   int cmd = check_fcntl_cmd(STACK_1);
-  HANDLE fd = stream_get_handle(&STACK_2);
+  Handle fd = stream_get_handle(&STACK_2);
   int value;
   if (boundp(STACK_0)) {        /* SET */
     switch (cmd) {
