@@ -182,17 +182,18 @@ DEFUN(I18N:TEXTDOMAINDIR, domain)
 
 DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 { /* sets the message catalog directory for the given domain. */
-  object domain = (STACK_1=check_string(STACK_1));
+  STACK_1 = check_string(STACK_1);
  #ifdef GNU_GETTEXT
-  /* Check and use default directory, because the bindtextdomain()
-     documentation recommends that the argument be an absolute pathname,
-     to protect against later chdir() calls. */
-  object directory = pathname_to_OSdir(STACK_0,true);
-  with_string_0(STACK_1/*domain*/,Symbol_value(S(ascii)),domain_asciz, {
-    begin_system_call();
-    bindtextdomain(domain_asciz,TheAsciz(directory));
-    end_system_call();
-  });
+  { /* Check and use default directory, because the bindtextdomain()
+       documentation recommends that the argument be an absolute pathname,
+       to protect against later chdir() calls. */
+    object directory = pathname_to_OSdir(STACK_0,true);
+    with_string_0(STACK_1/*domain*/,Symbol_value(S(ascii)),domain_asciz, {
+        begin_system_call();
+        bindtextdomain(domain_asciz,TheAsciz(directory));
+        end_system_call();
+      });
+  }
  #endif
   VALUES1(STACK_0);
   skipSTACK(2);

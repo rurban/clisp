@@ -1,3 +1,7 @@
+2008-09-19  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (SET-TEXTDOMAINDIR): remove unused variable
+
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (my_check_argument): remove (not used
