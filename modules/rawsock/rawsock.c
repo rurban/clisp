@@ -258,8 +258,7 @@ void coerce_into_bytes (void *arg, object element) {
 
 DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
   int family = check_socket_domain(STACK_1);
-  struct sockaddr sa;
-  unsigned char *buffer, *data;
+  unsigned char *buffer;
   size_t buffer_len, data_start = offsetof(struct sockaddr,sa_data);
   struct pos arg;
   if (missingp(STACK_0)) {      /* standard size */
@@ -1489,6 +1488,7 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
 
 void module__rawsock__init_function_2 (module_t* module);
 void module__rawsock__init_function_2 (module_t* module) {
+  (unused)module;
 #if defined(WIN32_NATIVE)
   HMODULE ws2 = LoadLibrary("ws2_32.dll");
   if (ws2 != NULL) {
