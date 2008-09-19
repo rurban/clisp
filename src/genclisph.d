@@ -1,7 +1,7 @@
 /*
  * Export CLISP internals for modules
  * Bruno Haible 1994-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  */
 
 #include "lispbibl.c"
@@ -43,9 +43,8 @@ typedef struct {
     else abort();
 #endif
 
-static const char* Lsuffix = "L";
 static const char* ULsuffix = "UL";
-#ifdef HAVE_LONG_LONG_INT
+#if defined(HAVE_LONG_LONG_INT) && !(long_bitsize == 64)
 static const char* ULLsuffix = "ULL";
 #endif
 
@@ -153,6 +152,8 @@ static void printf_with_args (const char* string, int argcount,
     printf_with_args(string,7,args); \
   }
 
+#if 0
+/* an alternative for "#include <fname>" */
 static void print_file (const char* fname) {
   char buf[BUFSIZ];
   FILE* includefile = fopen(fname,"r");
@@ -162,12 +163,13 @@ static void print_file (const char* fname) {
     fputs(line,stdout);
   if (ferror(includefile) || fclose(includefile)) { perror(fname); exit(1); }
 }
+#endif
 
 static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0, define_count = 0;
 
 static void emit_typedef_test (const char *new_type) {
-  fprintf(test_f,"  printf(\"sizeof(%s)=%%d\\n\",sizeof(%s));\n",
+  fprintf(test_f,"  printf(\"sizeof(%s)=%%ld\\n\",sizeof(%s));\n",
           new_type,new_type);
   test_count++;
 }
