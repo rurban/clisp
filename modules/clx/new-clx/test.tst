@@ -171,7 +171,8 @@ T
 (xlib:warp-pointer *window* (first *window-position*)
                    (second *window-position*))
 NIL
-(equal *window-position* (multiple-value-list (xlib:pointer-position *window*)))
+(equal (show *window-position*)
+       (show (multiple-value-list (xlib:pointer-position *window*))))
 T
 (dolist (selection '("PRIMARY" "SECONDARY" "CLIPBOARD"))
   (let ((w (xlib:selection-owner *dpy* selection)))
