@@ -2,6 +2,7 @@
 
 	* modules/i18n/gettext.c (SET-TEXTDOMAINDIR): remove unused variable
 	* modules/syscalls/calls.c (STREAM-OPTIONS): ditto
+	* modules/rawsock/rawsock.c (MAKE-SOCKADDR): ditto
 
 2008-09-18  Sam Steingold  <sds@gnu.org>
 
