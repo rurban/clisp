@@ -6,6 +6,8 @@
 	* genclisph.d (Lsuffix): remove unused global static
 	(ULLsuffix): declare only when used
 	(emit_typedef_test): use "%ld" for sizeof
+	* spvw_debug.d (nobject_out1, bt_out): cast pointers to (uintP)
+	before printing, print long ints as "%ld"
 
 2008-09-18  Sam Steingold  <sds@gnu.org>
 

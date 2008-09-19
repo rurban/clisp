@@ -222,7 +222,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputs("#<",out);
     if (!fp_validp(TheFpointer(obj))) string_out(out,O(printstring_invalid));
     string_out(out,O(printstring_fpointer));
-    fprintf(out," 0x%lx>",TheFpointer(obj)->fp_pointer);
+    fprintf(out," 0x%lx>",(uintP)TheFpointer(obj)->fp_pointer);
   } else if (structurep(obj)) {
     uintL ii;
     fputs("#<structure",out);
@@ -235,7 +235,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputs("#<instance ",out);
     XOUT(TheInstance(obj)->inst_class_version);
     fprintf(out," 0x%lx>",as_oint(obj));
-  } else if (fixnump(obj)) fprintf(out,"%d",fixnum_to_V(obj));
+  } else if (fixnump(obj)) fprintf(out,"%ld",fixnum_to_V(obj));
   else if (eq(obj,unbound))   string_out(out,O(printstring_unbound));
   else if (eq(obj,nullobj))   fputs("#<NULLOBJ>",out);
   else if (eq(obj,disabled))  string_out(out,O(printstring_disabled_pointer));
@@ -286,7 +286,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fprintf(out," %d>",STACK_item_count(uTheFramepointer(obj),
                                         (gcv_object_t*)STACK_start));
   } else if (builtin_stream_p(obj)) {
-    fprintf(out,"#<built-in-stream type=%d flags=%d len=%d xlen=%d slen=%d",
+    fprintf(out,"#<built-in-stream type=%d flags=%d len=%d xlen=%d slen=%ld",
             TheStream(obj)->strmtype,TheStream(obj)->strmflags,
             Stream_length(obj),Stream_xlength(obj),strm_len);
     switch (TheStream(obj)->strmtype) {
@@ -324,9 +324,9 @@ local void nobject_out1 (FILE* out, object obj, int level) {
   #ifndef TYPECODES
   else if (varobjectp(obj))
     fprintf(out,"#<varobject type=%d address=0x%lx>",
-            varobject_type(TheVarobject(obj)),ThePointer(obj));
+            varobject_type(TheVarobject(obj)),(uintP)ThePointer(obj));
   #endif
-  else fprintf(out,"#<huh?! address=0x%lx>",ThePointer(obj));
+  else fprintf(out,"#<huh?! address=0x%lx>",(uintP)ThePointer(obj));
  #undef XOUT
 }
 
@@ -360,14 +360,17 @@ local int back_trace_depth (const struct backtrace_t *bt) {
 /* print a single struct backtrace_t object
  the caller must do begin_system_call()/end_system_call() ! */
 local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
-  fprintf(out,"[%d/0x%lx]%s ",bt_index,bt,bt_beyond_stack_p(bt,STACK)?"<":">");
+  fprintf(out,"[%d/0x%lx]%s ",bt_index,(uintP)bt,
+          bt_beyond_stack_p(bt,STACK)?"<":">");
   nobject_out(out,bt->bt_function);
   if (bt->bt_num_arg >= 0)
     fprintf(out," %d args",bt->bt_num_arg);
   if (bt->bt_next)
-    fprintf(out," delta: STACK=%d; SP=%d",
-            STACK_item_count(top_of_back_trace_frame(bt),top_of_back_trace_frame(bt->bt_next)),
-            (((long)((char*)(bt->bt_next) - (char*)bt) ^ SPoffset) - SPoffset) / sizeof(SPint));
+    fprintf(out," delta: STACK=%ud; SP=%ld",
+            STACK_item_count(top_of_back_trace_frame(bt),
+                             top_of_back_trace_frame(bt->bt_next)),
+            (((long)((char*)(bt->bt_next) - (char*)bt) ^ SPoffset) - SPoffset)
+            / sizeof(SPint));
   fputc('\n',out);
 }
 
