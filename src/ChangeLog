@@ -28294,7 +28294,7 @@
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
 	* configure: link all modules/* files, not just directories
-	* modules/exporting.lisp: new files, abstracted from linux.lisp
+	* modules/exporting.lisp: new file, abstracted from linux.lisp
 	* makemake.in: compile exporting.lisp
 	* modules/bindings/glibc/linux.lisp, modules/netica/netica.lisp:
 	* modules/postgresql/postgresql.lisp: load exporting.lisp
@@ -28311,7 +28311,7 @@
 
 2003-08-06  Sam Steingold  <sds@gnu.org>
 
-	the demo now works just fine
+	the netica demo now works just fine
 	* modules/netica/demo.lisp: use DEFPARAMETER
 	* modules/netica/wrap.lisp (null-pointer): remove (use NIL instead)
 	(check-errors): use CERROR
