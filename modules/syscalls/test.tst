@@ -401,7 +401,7 @@ T
        (close (two-way-stream-input-stream *proc1*))
        (close (two-way-stream-output-stream *proc1*))
        (close *proc1*) (symbol-cleanup '*proc1*)
-       (proc-send *proc2* "(close s)(ext:quit)" )
+       (proc-send *proc2* "(close s)(ext:quit)")
        (close (two-way-stream-input-stream *proc2*))
        (close (two-way-stream-output-stream *proc2*))
        (close *proc2*) (symbol-cleanup '*proc2*))
@@ -410,15 +410,18 @@ T
 (multiple-value-list (os:sync)) ()
 
 (let ((inode (show (posix:file-stat-ino (posix:file-stat *tmp1*)))))
-  (with-open-stream (s (ext:run-program
-                        "tail" :arguments (list "-f" (namestring *tmp1*)
-                                                (format nil "--pid=~D"
-                                                        (os:process-id)))
-                        :output :stream))
-    (sleep 1)                   ; let tail open file
-    (with-open-file (new *tmp1* :direction :output
-                         :if-exists :rename-and-delete)
-      (= inode (show (posix:file-stat-ino (posix:file-stat new)))))))
+  (multiple-value-bind (run args) (cmd-args)
+    (push "abort" args) (push "-on-error" args)
+    (show (cons run args) :pretty t)
+    (with-open-stream (s (ext:run-program run :arguments args
+                                          :input :stream :output :stream))
+      (flush-clisp s)
+      (proc-send s (format nil "(setq s (open ~S))" (namestring *tmp1*)))
+      (unwind-protect
+           (with-open-file (new *tmp1* :direction :output
+                                :if-exists :rename-and-delete)
+             (= inode (show (posix:file-stat-ino (posix:file-stat new)))))
+        (proc-send s "(close s)(ext:quit)")))))
 NIL
 
 (let ((file "foo.bar") (dates '(3141592653 3279321753)))
