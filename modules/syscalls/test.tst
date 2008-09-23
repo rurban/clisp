@@ -170,13 +170,19 @@ FLOAT~
   :for l! = (handler-case (log (float (! (1- n)) lg))
               (floating-point-overflow () 'floating-point-overflow))
   :unless (and (floatp lg) (floatp l!) (= 1 (float (/ l! lg) 0f0)))
-  :return (list n lg l!))
-(172 711.71472580229d0 FLOATING-POINT-OVERFLOW)
+  ;; round off at single precision: different gamma implementations have
+  ;; very different levels of accuracy
+  ;; <http://thread.gmane.org/gmane.lisp.clisp.devel/19047>
+  :return (list n (float lg 0f0) l!))
+(172 711.7147f0 FLOATING-POINT-OVERFLOW)
 
+;; tgamma has widely varying precisions on different platforms:
+;; win32 really wins : 34
+;; glibc: 5
+;; solaris: 4
 (loop :for n :upfrom 3 :for tg = (os:tgamma n)
-  :unless (= 1 (/ (! (1- n)) tg)) :return n)
-#+win32 34            ; win32 really wins here:
-#-win32 5             ; OUCH! tgamma is not precise at double precision!
+  :while (= 1 (/ (! (1- n)) tg)) :finally (show n))
+NIL
 
 (loop :for n :upfrom 3
   :for tg = (handler-case (os:tgamma n)
