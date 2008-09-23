@@ -109,10 +109,10 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key BOOLEAN :START :END NOTBOL NOTEOL)
     status = regexec(re,stringz,re->re_nsub+1,ret,eflags);
     end_system_call();
   });
-  if (status) {
+  if (bool_p) {
+    VALUES_IF(!status);         /* success indicator */
+  } else if (status) {
     VALUES0;
-  } else if (bool_p) {
-    VALUES1(T);                 /* success indicator */
   } else {
     int count;
     for (count = 0; count <= re->re_nsub; count++)
