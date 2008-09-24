@@ -391,10 +391,10 @@ static void* path_truncate (const char *path, file_offset_t *length) {
 #if defined(WIN32_NATIVE)
   HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                          FILE_ATTRIBUTE_NORMAL,NULL);
-  return (void*)!(fd == INVALID_HANDLE_VALUE
-                  || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
-                  || 0 == SetEndOfFile(fd)
-                  || 0 == CloseHandle(fd));
+  return (void*)(fd == INVALID_HANDLE_VALUE
+                 || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+                 || 0 == SetEndOfFile(fd)
+                 || 0 == CloseHandle(fd));
 #elif defined(HAVE_TRUNCATE)
   return (void*)(uintP)truncate(path,*length);
 #else

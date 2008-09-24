@@ -1,3 +1,7 @@
+2008-09-24  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (path_truncate) [WIN32_NATIVE]: fix logic
+
 2008-09-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-EXEC): when :BOOLEAN is T but
