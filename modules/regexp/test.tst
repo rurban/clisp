@@ -4,9 +4,17 @@
 (listp (show (multiple-value-list (ext:module-info "regexp" t)) :pretty t)) T
 
 (let ((rc (regexp:regexp-compile "a(a)*" :extended t)))
-  (prog1 (multiple-value-list (regexp:regexp-exec rc "a"))
+  (prog1 (list (multiple-value-list (regexp:regexp-exec rc "a"))
+               (regexp:regexp-exec rc "a" :return-type 'list)
+               (regexp:regexp-exec rc "a" :return-type 'vector)
+               (multiple-value-list (regexp:regexp-exec rc "z"))
+               (regexp:regexp-exec rc "z" :return-type 'list)
+               (regexp:regexp-exec rc "z" :return-type 'vector))
     (gc) (gc)))
-(#S(REGEXP:MATCH :START 0 :END 1) NIL)
+((#S(REGEXP:MATCH :START 0 :END 1) NIL)
+ (#S(REGEXP:MATCH :START 0 :END 1) NIL)
+ #(#S(REGEXP:MATCH :START 0 :END 1) NIL)
+ () () #())
 
 (ext:letf ((*apropos-matcher* #'regexp:regexp-matcher)
            #+UNICODE(*misc-encoding* charset:utf-8)) ; handle non-ASCII symbols
