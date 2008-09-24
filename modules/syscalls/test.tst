@@ -274,12 +274,19 @@ T
      (not (os:stat-vfs-p (show (os:stat-vfs *tmp2*) :pretty t))))
 NIL
 
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/19074>:
+;; (FILE-OWNER *TMP1*) ==> "BUILTIN\\Administrators"
+;; - local group name, which actually owns the file and includes
+;; "OFFICE_DOMAIN\\Kavenchuk_Yaroslav" - a member of a windows NT domain.
+;; so, if the user is not local - the test will broken always,
+;; but all functions are working correctly (in terms of MS).
+#+unix
 (string= (show #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
                                           (ext:getenv "USERNAME"))
                #+unix (ext:getenv "USER")
                #-(or unix win32) ERROR)
          (show (os:file-owner *tmp1*)))
-T
+#+unix T
 
 (progn (close *tmp1*) (close *tmp2*) T) T
 
@@ -415,6 +422,13 @@ T
 
 (multiple-value-list (os:sync)) ()
 
+;; We are testing that the inode number is different for a file created with
+;; :IF-EXISTS :RENAME-AND-DELETE.
+;; For that, the file has to be open by another process so that the
+;; inode is not immediately reused.
+;; This test cannot work on woe32: a file which is open by another process
+;; cannot be renamed or removed.
+#-win32
 (let ((inode (show (posix:file-stat-ino (posix:file-stat *tmp1*)))))
   (multiple-value-bind (run args) (cmd-args)
     (push "abort" args) (push "-on-error" args)
@@ -428,7 +442,7 @@ T
                                 :if-exists :rename-and-delete)
              (= inode (show (posix:file-stat-ino (posix:file-stat new)))))
         (proc-send s "(close s)(ext:quit)")))))
-NIL
+#-win32 NIL
 
 (let ((file "foo.bar") (dates '(3141592653 3279321753)))
   (unwind-protect
