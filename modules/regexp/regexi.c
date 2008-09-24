@@ -70,18 +70,20 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
 }
 
 DEFFLAGSET(regexp_exec_flags, REG_NOTBOL REG_NOTEOL)
-DEFUN(REGEXP::REGEXP-EXEC,pattern string &key BOOLEAN :START :END NOTBOL NOTEOL)
+DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
+      RETURN-TYPE BOOLEAN :START :END NOTBOL NOTEOL)
 { /* match the compiled pattern against the string */
   int eflags = regexp_exec_flags();
-  object string = (STACK_3 = check_string(STACK_3));
+  object string = (STACK_4 = check_string(STACK_4));
   unsigned int length = vector_length(string);
   unsigned int start = check_uint_defaulted(STACK_1,0);
   unsigned int end = check_uint_defaulted(STACK_0,length);
   int status;
   bool bool_p = !missingp(STACK_2);
+  int rettype = (eq(STACK_3,S(list)) ? 1 : eq(STACK_3,S(vector)) ? 2 : 0);
   regex_t *re;
   regmatch_t *ret;
-  skipSTACK(3);                 /* drop all options */
+  skipSTACK(4);                 /* drop all options */
   for (;;) {
     STACK_1 = check_fpointer(STACK_1,true);
     re = (regex_t*)TheFpointer(STACK_1)->fp_pointer;
@@ -112,16 +114,34 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key BOOLEAN :START :END NOTBOL NOTEOL)
   if (bool_p) {
     VALUES_IF(!status);         /* success indicator */
   } else if (status) {
-    VALUES0;
+    switch (rettype) {
+      case 0: VALUES0; break;                     /* VALUES => no values */
+      case 1: VALUES1(NIL); break;                /* LIST => () */
+      case 2: VALUES1(allocate_vector(0)); break; /* VECTOR => #() */
+      default: NOTREACHED;
+    }
   } else {
-    int count;
-    for (count = 0; count <= re->re_nsub; count++)
-      if (ret[count].rm_so >= 0 && ret[count].rm_eo >= 0) {
-        pushSTACK(posfixnum(start+ret[count].rm_so));
-        pushSTACK(posfixnum(start+ret[count].rm_eo));
+    uintL re_count;
+    for (re_count = 0; re_count <= re->re_nsub; re_count++)
+      if (ret[re_count].rm_so >= 0 && ret[re_count].rm_eo >= 0) {
+        pushSTACK(posfixnum(start+ret[re_count].rm_so));
+        pushSTACK(posfixnum(start+ret[re_count].rm_eo));
         funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
       } else pushSTACK(NIL);
-    funcall(L(values),re->re_nsub+1);
+    switch (rettype) {
+      case 0:                   /* VALUES */
+        if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
+          STACK_to_mv(re_count);
+          break;
+        } /* else FALLTHROUGH */
+      case 1:                   /* LIST */
+        VALUES1(listof(re_count));
+        break;
+      case 2:                   /* VECTOR */
+        VALUES1(vectorof(re_count));
+        break;
+      default: NOTREACHED;
+    }
   }
   skipSTACK(2);                 /* drop pattern & string */
 }

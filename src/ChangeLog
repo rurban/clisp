@@ -1,7 +1,10 @@
 2008-09-23  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-EXEC): when :BOOLEAN is T but
-	match failed, return 1 value NIL instead of 0 values
+	match failed, return 1 value NIL instead of 0 values;
+	accept :RETURN-TYPE to return a LIST or a VECTOR instead of
+	multiple values; also return a list when the number of match
+	groups is more than MULTIPLE-VALUES-LIMIT
 
 2008-09-23  Sam Steingold  <sds@gnu.org>
 
