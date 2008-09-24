@@ -160,8 +160,9 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (format *http-log-stream* "connected...") (force-output *http-log-stream*)
     ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.23
     ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.43
-    (format sock "GET ~A HTTP/1.0~%User-agent: ~A ~A~%Host: ~A~%" path
-            (lisp-implementation-type) (lisp-implementation-version) url-host)
+    (format sock "GET ~A HTTP/1.0~%User-agent: ~A ~A~%Host: ~A:~D~%" path
+            (lisp-implementation-type) (lisp-implementation-version)
+            url-host url-port)
     #+unicode ; base64 requires unicode for some weird infrastructure reasons
     (when (first *http-proxy*) ; auth: http://www.ietf.org/rfc/rfc1945.txt
       ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.34
