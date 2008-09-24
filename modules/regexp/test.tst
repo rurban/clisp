@@ -25,10 +25,22 @@
 (REGEXP:REGEXP-EXEC (ffi:foreign-pointer (ffi:unsigned-foreign-address 0)) "a")
 #+ffi ERROR
 
+(let* ((s "abcdefghijklmnopqrstuvwxyz") (r "") p m
+       (s3 (concatenate 'string s s s)))
+  (loop :repeat 3 :do
+    (loop :for c :across s :do
+      (setq r (concatenate 'string "\\(" r "\\)\\(" (string c) "\\)"))))
+  (setq p (regexp:regexp-compile r))
+  (setq m (regexp:regexp-exec p s3))
+  (list (length m)
+        (string= s3 (regexp:match-string s3 (car m)))))
+(157 T)
+
 ;;; SDS: WARNING: the following tests are checking the underlying regexp
 ;;; implementation rather than CLISP regexp interface.
 ;;; a test failure should be reported to the regexp maintainer.
-;;; a segmentation fault should be reported to <clisp-list>
+;;; a segmentation fault should be reported to the clisp maintainers
+;;; at <http://clisp.cons.org/impnotes/faq.html#faq-bugs>
 
 ;;; note also that some original tests had empty alternatives in grouping
 ;;; which is forbidden by POSIX
