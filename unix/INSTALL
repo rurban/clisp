@@ -251,7 +251,8 @@ Additional Information for Maintainers of Binary Packages:
    <http://www.gnu.org/software/autoconf/manual/html_node/C-Compiler.html>.
    This means that if your distribution's policy is to minimize executables'
    size at the expense of debuggability you should configure CLISP like this:
-        CFLAGS="-O" ./configure ...
+        ./configure CFLAGS='' ...
+   and let CLISP choose the optimization options.
    The often used alternative - to strip the executables before packaging -
    breaks DISASSEMBLE on functions written in C: (DISASSEMBLE #'CAR) prints
    the disassembly of the whole executable instead of just a few lines
