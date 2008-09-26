@@ -87,7 +87,7 @@ changequote(,)dnl
     host_cpu_instructionset=arm
     ;;
 changequote([,])dnl
-  mips )
+  mips* )
     AC_CACHE_CHECK([for 64-bit MIPS], cl_cv_host_mips64, [
 AC_EGREP_CPP(yes,
 [#if defined(_MIPS_SZLONG)
@@ -100,6 +100,8 @@ AC_EGREP_CPP(yes,
 ])
 if test $cl_cv_host_mips64 = yes; then
   host_cpu_instructionset=mips64
+else
+  host_cpu_instructionset=mips
 fi
     ;;
 dnl On powerpc64 systems, the C compiler may still be generating 32-bit code.
