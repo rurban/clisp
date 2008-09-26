@@ -391,10 +391,10 @@ static void* path_truncate (const char *path, file_offset_t *length) {
 #if defined(WIN32_NATIVE)
   HANDLE fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
                          FILE_ATTRIBUTE_NORMAL,NULL);
-  return (void*)(fd == INVALID_HANDLE_VALUE
-                 || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
-                 || 0 == SetEndOfFile(fd)
-                 || 0 == CloseHandle(fd));
+  return (void*)(!(fd != INVALID_HANDLE_VALUE
+                   && SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+                   && SetEndOfFile(fd)
+                   && CloseHandle(fd)));
 #elif defined(HAVE_TRUNCATE)
   return (void*)(uintP)truncate(path,*length);
 #else
@@ -407,11 +407,11 @@ static void stream_truncate (Handle fd, file_offset_t *length) {
   begin_system_call();
 #if defined(WIN32_NATIVE)
   { LARGE_INTEGER cur_pos;
-    if (0 == SetFilePointerEx(fd,(LARGE_INTEGER){QuadPart:0},
-                              &cur_pos,FILE_CURRENT)
-        || 0 == SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
-        || 0 == SetEndOfFile(fd)
-        || 0 == SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN))
+    if (!(SetFilePointerEx(fd,(LARGE_INTEGER){QuadPart:0},
+                           &cur_pos,FILE_CURRENT)
+          && SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
+          && SetEndOfFile(fd)
+          && SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN)))
       { end_system_call(); OS_filestream_error(STACK_0); }
   }
 #elif defined(HAVE_FTRUNCATE)
