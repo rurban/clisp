@@ -15,8 +15,8 @@ MFLAGS=
 !endif
 
 # The official version number
-PACKAGE_VERSION=2.46
-VERSION=2.46
+PACKAGE_VERSION=2.46++
+VERSION=2.46++
 # The official package name
 PACKAGE_NAME=@PACKAGE_NAME@
 # If you want to distribute a modified version of CLISP,
@@ -68,7 +68,7 @@ DESTDIR =
 MODULES = 
 
 # Command line options passed to the configure files of add-on modules
-MODULE_CONFIGURE_FLAGS = --disable-option-checking
+MODULE_CONFIGURE_FLAGS = --disable-option-checking --build=win32msvc
 
 # Programs used by "make":
 CC = cl
@@ -237,7 +237,6 @@ spvw_module.c \
 spvw_debug.c \
 spvw_alloca.c \
 spvw_mmap.c \
-spvw_multimap.c \
 spvw_singlemap.c \
 spvw_page.c \
 spvw_heap.c \
@@ -886,9 +885,6 @@ spvw_alloca.c : spvw_alloca.d comment5.exe gctrigger.exe varbrace.exe deema.exe
 spvw_mmap.c : spvw_mmap.d comment5.exe gctrigger.exe varbrace.exe deema.exe
 	$(COMMENT5) spvw_mmap.d | $(GCTRIGGER) | $(VARBRACE) | $(DEEMA) > spvw_mmap.c
 
-spvw_multimap.c : spvw_multimap.d comment5.exe gctrigger.exe varbrace.exe deema.exe
-	$(COMMENT5) spvw_multimap.d | $(GCTRIGGER) | $(VARBRACE) | $(DEEMA) > spvw_multimap.c
-
 spvw_singlemap.c : spvw_singlemap.d comment5.exe gctrigger.exe varbrace.exe deema.exe
 	$(COMMENT5) spvw_singlemap.d | $(GCTRIGGER) | $(VARBRACE) | $(DEEMA) > spvw_singlemap.c
 
@@ -1097,13 +1093,13 @@ alls : allc spvw.s spvwtabf.s spvwtabs.s spvwtabo.s eval.s control.s encoding.s 
 # Normally not used (just for debugging).
 alli : allc spvw.i spvwtabf.i spvwtabs.i spvwtabo.i eval.i control.i encoding.i pathname.i stream.i socket.i io.i funarg.i array.i hashtabl.i list.i package.i record.i weak.i sequence.i charstrg.i debug.i error.i misc.i time.i predtype.i symbol.i lisparit.i i18n.i foreign.i win32aux.i built.i
 
-spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
+spvw.i : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
 	$(CPP) $(CPPFLAGS) $(CFLAGS) spvw.c > spvw.i
 
-spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
+spvw.s : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -S spvw.c
 
-spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_multimap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
+spvw.obj : spvw.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c constpack.c avl.c spvw_module.c spvw_debug.c spvw_alloca.c spvw_mmap.c spvw_singlemap.c spvw_page.c spvw_heap.c spvw_global.c spvw_gcstat.c spvw_space.c spvw_mark.c spvw_objsize.c spvw_update.c spvw_fault.c spvw_sigsegv.c spvw_sigcld.c spvw_sigpipe.c spvw_sigint.c spvw_sigwinch.c spvw_sigterm.c spvw_garcol.c spvw_genera1.c spvw_gcmark.c spvw_genera2.c spvw_weak.c spvw_genera3.c spvw_allocate.c spvw_typealloc.c spvw_circ.c spvw_walk.c spvw_ctype.c spvw_language.c spvw_memfile.c sort.c subrkw.c spvw_calendar.c arilev0.c aridecl.c gllib/stdbool.h gllib/stdint.h localcharset.h version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c spvw.c
 
 spvwtabf.i : spvwtabf.c lispbibl.c fsubr.c subr.c pseudofun.c constsym.c constobj.c win32.c xthread.c gllib/stdbool.h gllib/stdint.h localcharset.h
@@ -1487,7 +1483,7 @@ modprep.lisp : ..\utils\modprep.lisp
 	-$(LN_S) ..\utils\modprep.lisp modprep.lisp
 
 
-interpreted.mem : lisp.exe $(LISPFILES)
+interpreted.mem : lisp.exe $(LISPFILES) config.lisp
 	-$(RM) interpreted.mem
 	$(RUN) -m 2MW -lp  -x '(and (load "init.lisp") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)'
 	$(MV) lispimag.mem interpreted.mem
@@ -1777,7 +1773,7 @@ deprecated.fas : deprecated.lisp lisp.exe halfcompiled.mem
 config.fas : config.lisp lisp.exe halfcompiled.mem
 	$(RUN) -m 2MW -M halfcompiled.mem -q -c config.lisp
 
-halfcompiled.mem : lisp.exe $(LISPFILES) compiler.fas
+halfcompiled.mem : lisp.exe $(LISPFILES) config.lisp compiler.fas
 	-$(RM) halfcompiled.mem
 	$(RUN) -m 2MW -lp  -x '(and (load "init.lisp") (sys::%%saveinitmem) (ext::exit)) (ext::exit t)'
 	$(MV) lispimag.mem halfcompiled.mem
@@ -2139,7 +2135,21 @@ check-fresh-line : lisp.exe lispinit.mem
 	$(RM) fresh-line.out
 
 check-script : lisp.exe lispinit.mem
-	test `echo '(print (+ 11 99))' | $(RUN) -q -M lispinit.mem -` = 110 || exit 1
+	test `echo '(princ (+ 11 99))' | $(RUN) -q -M lispinit.mem -` = 110 || exit 1
+	test "`echo '(+ foo bar)' | $(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl | tr '\n' '_' | tr -d '\r'`" = '99_[1]> _110_' || exit 1
+	test `echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes "42" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | $(RUN) -q -M lispinit.mem - | cat` = 42 || exit 1
+	$(RM) script.lisp; echo '(+ 11 99)' > script.lisp
+	test `$(RUN) -q -M lispinit.mem < script.lisp` = 110 || exit 1
+	$(RM) script.lisp; echo '(princ (+ 11 99))' > script.lisp
+	test `$(RUN) -q -M lispinit.mem script.lisp` = 110 || exit 1
+	$(RM) script.lisp; echo '(+ foo bar)' > script.lisp
+	test `$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl < script.lisp | tr '\n' '_' | tr -d '\r'` = 99_110_ || exit 1
+	$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes "42" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp
+	test `$(RUN) -q -M lispinit.mem script.lisp | cat` = 42 || exit 1
+	$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence (convert-string-to-bytes "42" charset:ascii) s) (values))' > script.lisp
+	test `$(RUN) -q -M lispinit.mem < script.lisp` = 42 || exit 1
+	test `$(RUN) -q -M lispinit.mem script.lisp` = 42 || exit 1
+	$(RM) script.lisp
 
 check-exec-image: lisp.exe lispinit.mem
 	$(RUN) -M lispinit.mem -x "(saveinitmem \"foo\" :executable t :norc t)"
@@ -2412,16 +2422,17 @@ clean3 : clean2
 clean4 : clean3
 	-$(RM) cflags.h cflags.h.stamp
 	-$(RM) $(CFILES)
-	-$(RMRF) gllib
+	test ! -d gllib || (cd gllib && $(MAKE) clean CFLAGS="$(SUBDIR_CFLAGS)")
+
 # clean5 even undoes "make init".
 clean5 : clean4
 	-$(RM) ANNOUNCE COPYRIGHT GNU-GPL SUMMARY
-	-$(RM) config.lisp
 	-$(RMRF) data
 	-$(RM) clisp.exe clisp.rc comment5.exe gctrigger.exe varbrace.exe deema.exe txt2c.exe ccmp2c.exe
 
 # clean6 lets us go back to "makemake > Makefile".
 clean6 : clean5
+	-$(RM) config.lisp
 	-$(RM) Makefile
 
 # clean7 lets us go back to the main "configure".
