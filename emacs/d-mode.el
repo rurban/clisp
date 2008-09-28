@@ -205,7 +205,9 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-mode-font-lock-defaults
   (d-mode-add-font-locking
-   (if (boundp 'running-xemacs) (get 'c-mode 'font-lock-defaults)
+   (if (boundp 'running-xemacs)
+       (get 'c-mode 'font-lock-defaults)
+       ;; for pre-21 emacs; newer versions inherit font lock automatically
        (cdr (assq 'c-mode font-lock-defaults-alist))))
   "The `font-lock-defaults' for `d-mode'.")
 
