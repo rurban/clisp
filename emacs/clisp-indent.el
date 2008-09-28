@@ -38,10 +38,11 @@
 (defmacro defindent (operator indentation)
   `(put ',operator 'common-lisp-indent-function ',indentation))
 
-(setq lisp-body-indent 2)       ; default
-(setq lisp-indent-maximum-backtracking 4) ; needed for flet/labels
-(setq lisp-tag-body-indentation 2) ; for tagbody/prog/prog*
-(setq lisp-tag-indentation 2)   ; for tagbody/prog/prog*
+(custom-set-variables
+ '(lisp-body-indent 2)                 ; default
+ '(lisp-indent-maximum-backtracking 4) ; needed for flet/labels
+ '(lisp-tag-body-indentation 2)        ; for tagbody/prog/prog*
+ '(lisp-tag-indentation 2))            ; for tagbody/prog/prog*
 
 (defindent and (&rest 2))
 (defindent appease-cerrors (&rest 2))
