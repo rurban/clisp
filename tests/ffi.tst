@@ -699,8 +699,7 @@ T
 (progn
   (defparameter *x* 0)
   (defun callback (x)
-    (the (unsigned-byte 16) x)
-    (setf *x* x)
+    (setf *x* (the (unsigned-byte 16) x))
     (the (unsigned-byte 16) (1+ (* 2 x))))
   *x*)
 0
