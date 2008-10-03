@@ -5063,8 +5063,7 @@ cache of the dependent when it is updated.</para>
 <programlisting language="lisp">
 (defclass flush-cache-updater (updater) ())
 
-(defmethod update-dependent (dependee (updater flush-cache-updater)
-                             &rest-amp; args)
+(defmethod update-dependent (dependee (updater flush-cache-updater) &rest-amp; args)
   (declare (ignore args))
   (flush-cache (dependent updater)))
 </programlisting></informalexample>
@@ -5110,12 +5109,10 @@ cache of the dependent when it is updated.</para>
    &update-dependent; on each of the dependents.  So, for example, the
    update of a generic function's dependents when a method is added
    could be performed by the following code:<programlisting language="lisp">
-  (&map-dependents; &gf-r;
-                  #'(lambda (dep)
-                      (&update-dependent; &gf-r;
-                                        dep
-                                        'add-method
-                                        new-method)))
+(&map-dependents; &gf-r;
+                     #'(lambda (dep)
+                         (&update-dependent; &gf-r;
+                                                dep 'add-method new-method)))
 </programlisting></para></listitem></varlistentry></variablelist>
 &see-dep-maint;
 </section><!-- update-dependent -->
