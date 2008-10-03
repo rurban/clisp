@@ -1,3 +1,7 @@
+2008-10-03  Sam Steingold  <sds@gnu.org>
+
+	* foreign.d: use BEGIN_DECLS & END_DECLS
+
 2008-09-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/matlab/wrap.lisp (matfile-content): use MEMORY-AS
