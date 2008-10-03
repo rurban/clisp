@@ -10,16 +10,10 @@
 
 #ifdef DYNAMIC_FFI
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+BEGIN_DECLS
 #include <avcall.h>        /* Low level support for call-out */
 #include <callback.h>      /* Low level support for call-in */
-
-#ifdef __cplusplus
-}
-#endif
+END_DECLS
 
 /* complain about non-foreign object */
 nonreturning_function(local, error_foreign_object, (object arg)) {
