@@ -30,7 +30,7 @@ DEFUN(REGEXP::REGEXP-COMPILE, pattern &key EXTENDED IGNORE-CASE NEWLINE NOSUB)
   int status;
   regex_t* re;
  restart_regcomp:
-  re = (regex_t*)my_malloc(sizeof(regex_t));
+  re = (regex_t*)clisp_malloc(sizeof(regex_t));
   with_string_0(pattern,GLO(misc_encoding),patternz, {
     begin_system_call();
     status = regcomp(re,patternz,cflags);

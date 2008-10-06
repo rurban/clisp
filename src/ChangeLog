@@ -1,3 +1,12 @@
+2008-10-06  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2146126 ]: name conflict with libmysqlclient
+	* spvw.d, lispbibl.d (clisp_malloc): rename from my_malloc
+	(clisp_realloc): rename from my_realloc
+	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
+        * modules/i18n/gettext.c, modules/regexp/regexi.c:
+        * modules/syscalls/calls.c, foreign.d, spvw_weak.d: update callers
+
 2008-10-03  Sam Steingold  <sds@gnu.org>
 
 	* foreign.d: use BEGIN_DECLS & END_DECLS

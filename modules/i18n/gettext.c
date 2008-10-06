@@ -386,7 +386,7 @@ static void locale_bool_to_STACK (int what, char**res, int* res_size) {
 DEFUN(I18N:LOCALE-CONV,)
 { /* call GetLocaleInfo(3) */
   int res_size = GET_LOCALE_INFO_BUF_SIZE;
-  char *res = my_malloc(res_size);
+  char *res = clisp_malloc(res_size);
   locale_string_to_STACK(LOCALE_SDECIMAL,&res,&res_size);
   locale_string_to_STACK(LOCALE_STHOUSAND,&res,&res_size);
   thousands_sep_to_STACK(LOCALE_SGROUPING,&res,&res_size);
@@ -481,7 +481,7 @@ DEFCHECKER(check_nl_item,CODESET                                        \
 #elif defined(WIN32_NATIVE)
 # define get_lang_info(what)  get_locale_info(what,&res,&res_size)
 # define res_to_obj() (asciz_to_string(res,GLO(misc_encoding)))
-# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)my_malloc(res_size)
+# define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)clisp_malloc(res_size)
 # define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #endif
 DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
