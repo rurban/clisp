@@ -4204,7 +4204,7 @@ static XImage* create_image (Display *dpy, unsigned int depth, int bitmap_p,
                              unsigned int width, unsigned int height,
                              int bytes_per_line) {
   /* Allocate memory */
-  char *data = (char*) my_malloc (bytes_per_line * height);
+  char *data = (char*)clisp_malloc(bytes_per_line * height);
   XImage *im;
 
   /* Actually create the image */
@@ -4515,7 +4515,7 @@ void coerce_into_path (void *arg, object element) {
   if (stringp(element)) { coerce_into_path_string:
     with_string_0 (element, GLO(pathname_encoding), frob, {
         uintL j = frob_bytelen+1;
-        char *path = (char*)my_malloc(j);
+        char *path = (char*)clisp_malloc(j);
         while (j--) path[j] = frob[j];
         *(rec->path++) = path;
       });

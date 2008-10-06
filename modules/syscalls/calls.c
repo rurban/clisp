@@ -486,7 +486,7 @@ DEFUN(POSIX:OPENLOG,ident &key PID CONS NDELAY ODELAY NOWAIT FACILITY) {
   with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
       begin_system_call();
       if (log_ident) { free(log_ident); }
-      log_ident = (char*)my_malloc(strlen(ident)+1);
+      log_ident = (char*)clisp_malloc(strlen(ident)+1);
       strcpy(log_ident,ident);
       openlog(log_ident,logopt,facility);
       end_system_call();
@@ -1201,7 +1201,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
        for sizes > BUFSIZ. */                                           \
     char *tmp;                                                          \
     begin_system_call();                                                \
-    tmp = (char*)my_malloc(res);                                        \
+    tmp = (char*)clisp_malloc(res);                                     \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
@@ -3852,7 +3852,7 @@ static void PropSpecSetStr (object str, PROPSPEC * pspec) {
     unpack_sstring_alloca(str_string,str_len,str_offset, ptr1=);
     { uintL str_bytelen =
         cslen(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len);
-      pspec->lpwstr = (LPOLESTR)my_malloc(str_bytelen+2);
+      pspec->lpwstr = (LPOLESTR)clisp_malloc(str_bytelen+2);
       begin_system_call();
       cstombs(Symbol_value(S(unicode_16_little_endian)),ptr1,str_len,
               (uintB *)pspec->lpwstr,str_bytelen);
@@ -4095,13 +4095,13 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     error(file_error,GETTEXT("~S: unable to open ~S IPropertySetStorage of ~S: error ~S"));
   }
   /* fill the specifiers, init the variables */
-  pspecrd =   (PROPSPEC *)my_malloc(sizeof(PROPSPEC)    * nproprd);
-  pvarrd = (PROPVARIANT *)my_malloc(sizeof(PROPVARIANT) * nproprd);
-  pspecwr =   (PROPSPEC *)my_malloc(sizeof(PROPSPEC)    * npropwr);
-  pvarwr = (PROPVARIANT *)my_malloc(sizeof(PROPVARIANT) * npropwr);
+  pspecrd =   (PROPSPEC *)clisp_malloc(sizeof(PROPSPEC)    * nproprd);
+  pvarrd = (PROPVARIANT *)clisp_malloc(sizeof(PROPVARIANT) * nproprd);
+  pspecwr =   (PROPSPEC *)clisp_malloc(sizeof(PROPSPEC)    * npropwr);
+  pvarwr = (PROPVARIANT *)clisp_malloc(sizeof(PROPVARIANT) * npropwr);
   if (use_wpn) {
-    propidwpnvec = (PROPID *)my_malloc(sizeof(PROPID)*use_wpn);
-    lpwstrwpnvec = (LPWSTR *)my_malloc(sizeof(LPWSTR)*use_wpn);
+    propidwpnvec = (PROPID *)clisp_malloc(sizeof(PROPID)*use_wpn);
+    lpwstrwpnvec = (LPWSTR *)clisp_malloc(sizeof(LPWSTR)*use_wpn);
   }
   for(i=0;i<argcount;i+=2) {
     /* i+1 - specifier, i - value */

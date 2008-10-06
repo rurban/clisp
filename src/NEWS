@@ -51,6 +51,7 @@ Important notes
     Thanks to Vladimir Tzankov <vtzankov@gmail.com>.
   + Fixed input after switching a :DOS stream to binary. [ 2022362 ]
   + Support circular objects in EQUAL and EQUALP hash-tables. [ 2029069 ]
+  + Avoid C namespace pollution. [ 2146126 ]
 
 * ANSI compliance:
   + The sets of declaration and type names are disjoint.

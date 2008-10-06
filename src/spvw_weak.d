@@ -1039,7 +1039,7 @@ global void activate_weak (object obj) {
       var uintM new_markwatchset_allocated = markwatchset_allocated + markwatchset_allocated/2;
       if (new_markwatchset_allocated < new_markwatchset_size)
         new_markwatchset_allocated = new_markwatchset_size;
-      var markwatch_t* new_markwatchset = (markwatch_t*)my_malloc(new_markwatchset_allocated*sizeof(markwatch_t));
+      var markwatch_t* new_markwatchset = (markwatch_t*)clisp_malloc(new_markwatchset_allocated*sizeof(markwatch_t));
       /* Now that malloc() succeeded, we can free the old markwatchset and
          update the variables. */
       var markwatch_t* old_markwatchset = markwatchset;

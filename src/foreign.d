@@ -2401,7 +2401,7 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
  free_foreign() is called on it.)
  can trigger GC */
 global void* mallocing (void* old_data, uintL size, uintL alignment)
-{ return my_malloc(size); }
+{ return clisp_malloc(size); }
 
 /* Convert Lisp data to foreign data.
  The foreign data storage is reused.
@@ -3087,7 +3087,7 @@ LISPFUN(foreign_allocate,seclass_default,1,0,norest,key,3,
   var uintL arg_alignment = sas.alignment;
   if (arg_size == 0) { error_eltype_zero_size(arg_fvd); }
   /* Perform top-level allocation of sizeof(fvd), sublevel allocations follow */
-  var void* arg_address = my_malloc(arg_size);
+  var void* arg_address = clisp_malloc(arg_size);
   blockzero(arg_address,arg_size);
   /* Create FOREIGN-VARIABLE now so that it may be used in error message */
   pushSTACK(make_faddress(allocate_fpointer(arg_address),0));

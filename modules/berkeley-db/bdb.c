@@ -48,7 +48,7 @@
 /* #define DEBUG */
 #if defined(DEBUG)
 # include <dmalloc.h>
-# define my_malloc malloc
+# define clisp_malloc malloc
 extern object nobject_out (FILE* stream, object obj);
 # define XOUT(obj,label)                                                \
   (printf("[%s:%d] %s: %s:\n",__FILE__,__LINE__,STRING(obj),label),     \
@@ -162,7 +162,7 @@ static void error_callback (const char *errpfx, char *msg)
     data = error_message + len;
   } else {
     int offset = errpfx ? strlen(errpfx)+4 : 0;
-    data = error_message = (char*)my_malloc(1 + offset + strlen(msg));
+    data = error_message = (char*)clisp_malloc(1 + offset + strlen(msg));
     if (errpfx) {
       data[0] = '[';
       strcpy(data+1,errpfx);
@@ -210,7 +210,7 @@ struct messages { int max; int len; char* msgs[unspecified]; };
 /* allocate the struct+space for max pointers */
 static struct messages * make_messages (int max) {
   struct messages * data = (struct messages*)
-    my_malloc(sizeof(struct messages) + (max-unspecified)*sizeof(char*));
+    clisp_malloc(sizeof(struct messages) + (max-unspecified)*sizeof(char*));
   if (max<1) abort();
   data->len = 0;
   data->max = max;
@@ -255,7 +255,7 @@ static void add_message (struct messages* *data_, const char* msg) {
   }
   { /* now max>len */
     int len = strlen(msg);
-    (*data_)->msgs[++(*data_)->len] = (char*)my_malloc(len+1);
+    (*data_)->msgs[++(*data_)->len] = (char*)clisp_malloc(len+1);
     strcpy((*data_)->msgs[(*data_)->len],msg);
   }
 }
@@ -606,7 +606,7 @@ static void reset_errpfx (DB_ENV *dbe) {
     begin_system_call(); dbe->set_errpfx(dbe,NULL); end_system_call();
   } else
     with_string_0(check_string(STACK_0),GLO(misc_encoding), prefix, {
-        char *errpfx = (char*)my_malloc(prefix_bytelen+1);
+        char *errpfx = (char*)clisp_malloc(prefix_bytelen+1);
         strcpy(errpfx,prefix);
         begin_system_call(); dbe->set_errpfx(dbe,errpfx); end_system_call();
       });
@@ -1287,13 +1287,13 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
   init_dbt(key,DB_DBT_MALLOC);
   if (re_len==-1) {
     db_recno_t value = I_to_db_recno(obj);
-    key->data = my_malloc(key->ulen = key->size = sizeof(db_recno_t));
+    key->data = clisp_malloc(key->ulen = key->size = sizeof(db_recno_t));
     *(db_recno_t*)key->data = value;
     return DBT_INTEGER;
   } else if (stringp(obj)) {
     with_string_0(obj,GLO(misc_encoding),linez, {
         key->ulen = key->size = linez_bytelen;
-        key->data = my_malloc(linez_bytelen);
+        key->data = clisp_malloc(linez_bytelen);
         begin_system_call();
         memcpy(key->data,linez,linez_bytelen);
         end_system_call();
@@ -1306,7 +1306,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     obj = array_displace_check(obj,key->size,&idx);
     data_start = TheSbvector(obj)->data + idx;
     handle_fault_range(PROT_READ,(aint)data_start,(aint)data_start + key->size);
-    key->data = my_malloc(key->size);
+    key->data = clisp_malloc(key->size);
     begin_system_call();
     memcpy(key->data,data_start,key->size);
     end_system_call();
@@ -1324,7 +1324,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
       } else bytesize = re_len;
     }
     key->ulen = key->size = bytesize;
-    key->data = my_malloc(bytesize);
+    key->data = clisp_malloc(bytesize);
     if (I_to_LEbytes(obj,8*bytesize,(uintB*)key->data))
       NOTREACHED;               /* there must not be an overflow! */
 #  if defined(DEBUG)
@@ -2312,9 +2312,9 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key NOWAIT)
   DB_LOCK *dblock;
   int status;
   /* fill_dbt() might not return,
-     so my_malloc() must be called after it to avoid a memory leak */
+     so clisp_malloc() must be called after it to avoid a memory leak */
   fill_dbt(STACK_0,&obj,0);
-  dblock = (DB_LOCK*)my_malloc(sizeof(DB_LOCK));
+  dblock = (DB_LOCK*)clisp_malloc(sizeof(DB_LOCK));
   begin_system_call();
   status = dbe->lock_get(dbe,locker,flags,&obj,mode,dblock);
   free(obj.data);
@@ -2695,7 +2695,7 @@ DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
   int status, ii;
   long retnum;
   SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
-  preplist = (DB_PREPLIST*)my_malloc(tx_max * sizeof(DB_PREPLIST));
+  preplist = (DB_PREPLIST*)clisp_malloc(tx_max * sizeof(DB_PREPLIST));
   begin_system_call();
   status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
   if (status) {

@@ -583,7 +583,7 @@ global bool asciz_equal (const char * asciz1, const char * asciz2) {
                   Other Global Helper Functions */
 
 /* malloc() with error check. */
-global void* my_malloc (size_t size)
+global void* clisp_malloc (size_t size)
 {
   begin_system_call();
   var void* ptr = malloc(size);
@@ -594,7 +594,7 @@ global void* my_malloc (size_t size)
   error(storage_condition,GETTEXT("~S: malloc() failed"));
 }
 /* realloc() with error check. */
-global void* my_realloc (void* ptr, size_t size)
+global void* clisp_realloc (void* ptr, size_t size)
 {
   begin_system_call();
   ptr = realloc(ptr,size);
@@ -3550,7 +3550,7 @@ global void dynload_modules (const char * library, uintC modcount,
       } while (--count);
     }
     {                        /* Make room for the module descriptors. */
-      var module_t* modules = (module_t*) my_malloc(modcount*sizeof(module_t)+total_modname_length);
+      var module_t* modules = (module_t*)clisp_malloc(modcount*sizeof(module_t)+total_modname_length);
       {
         var char* modnamebuf = (char*)(&modules[modcount]);
         var const char * const * modnameptr = modnames;

@@ -10353,14 +10353,14 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 %% #endif
 
 /* allocate memory and check for success */
-extern void* my_malloc (size_t size);
+extern void* clisp_malloc (size_t size);
 /* used by FOREIGN and modules */
-%% puts("extern void* my_malloc (size_t size);");
+%% puts("extern void* clisp_malloc (size_t size);");
 
 /* reallocate memory and check for success */
-extern void* my_realloc (void* ptr, size_t size);
+extern void* clisp_realloc (void* ptr, size_t size);
 /* used by modules */
-%% puts("extern void* my_realloc (void *ptr, size_t size);");
+%% puts("extern void* clisp_realloc (void *ptr, size_t size);");
 
 /* UP: Returns a Table of all circularities within an Object.
  (A circularity is a Sub-Object contained within this Object,
