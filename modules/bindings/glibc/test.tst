@@ -20,6 +20,9 @@
 (= linux:DT_DIR (linux:dirent-d_type (show (linux:readdir *d*)))) T
 (linux:closedir *d*) 0
 
+(listp (show (loop :for i :from 0 :to 140
+               :collect (cons i (linux:strerror i))) :pretty t)) T
+
 ;;; signal handling examples:
 ;;; changing signal handlers:
 (defparameter *sigact* (show (linux:signal-action-retrieve linux:SIGINT)))
