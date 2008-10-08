@@ -161,131 +161,131 @@
 
 ; ---------------------------- <asm/errno.h> ----------------------------------
 
-(def-c-const EPERM (:documentation "Operation not permitted"))
-(def-c-const ENOENT (:documentation "No such file or directory"))
-(def-c-const ESRCH (:documentation "No such process"))
-(def-c-const EINTR (:documentation "Interrupted system call"))
-(def-c-const EIO (:documentation "I/O error"))
-(def-c-const ENXIO (:documentation "No such device or address"))
-(def-c-const E2BIG (:documentation "Arg list too long"))
-(def-c-const ENOEXEC (:documentation "Exec format error"))
-(def-c-const EBADF (:documentation "Bad file number"))
-(def-c-const ECHILD (:documentation "No child processes"))
-(def-c-const EAGAIN (:documentation "Try again"))
-(def-c-const ENOMEM (:documentation "Out of memory"))
-(def-c-const EACCES (:documentation "Permission denied"))
-(def-c-const EFAULT (:documentation "Bad address"))
-(def-c-const ENOTBLK (:documentation "Block device required"))
-(def-c-const EBUSY (:documentation "Device or resource busy"))
-(def-c-const EEXIST (:documentation "File exists"))
-(def-c-const EXDEV (:documentation "Cross-device link"))
-(def-c-const ENODEV (:documentation "No such device"))
-(def-c-const ENOTDIR (:documentation "Not a directory"))
-(def-c-const EISDIR (:documentation "Is a directory"))
-(def-c-const EINVAL (:documentation "Invalid argument"))
-(def-c-const ENFILE (:documentation "File table overflow"))
-(def-c-const EMFILE (:documentation "Too many open files"))
-(def-c-const ENOTTY (:documentation "Not a typewriter"))
-(def-c-const ETXTBSY (:documentation "Text file busy"))
-(def-c-const EFBIG (:documentation "File too large"))
-(def-c-const ENOSPC (:documentation "No space left on device"))
-(def-c-const ESPIPE (:documentation "Illegal seek"))
-(def-c-const EROFS (:documentation "Read-only file system"))
-(def-c-const EMLINK (:documentation "Too many links"))
-(def-c-const EPIPE (:documentation "Broken pipe"))
-(def-c-const EDOM (:documentation "Math argument out of domain of func"))
-(def-c-const ERANGE (:documentation "Math result not representable"))
-(def-c-const EDEADLK (:documentation "Resource deadlock would occur"))
-(def-c-const ENAMETOOLONG (:documentation "File name too long"))
-(def-c-const ENOLCK (:documentation "No record locks available"))
-(def-c-const ENOSYS (:documentation "Function not implemented"))
-(def-c-const ENOTEMPTY (:documentation "Directory not empty"))
-(def-c-const ELOOP (:documentation "Too many symbolic links encountered"))
-(def-c-const EWOULDBLOCK (:documentation "Operation would block"))
-(def-c-const ENOMSG (:documentation "No message of desired type"))
-(def-c-const EIDRM (:documentation "Identifier removed"))
-(def-c-const ECHRNG (:documentation "Channel number out of range"))
-(def-c-const EL2NSYNC (:documentation "Level 2 not synchronized"))
-(def-c-const EL3HLT (:documentation "Level 3 halted"))
-(def-c-const EL3RST (:documentation "Level 3 reset"))
-(def-c-const ELNRNG (:documentation "Link number out of range"))
-(def-c-const EUNATCH (:documentation "Protocol driver not attached"))
-(def-c-const ENOCSI (:documentation "No CSI structure available"))
-(def-c-const EL2HLT (:documentation "Level 2 halted"))
-(def-c-const EBADE (:documentation "Invalid exchange"))
-(def-c-const EBADR (:documentation "Invalid request descriptor"))
-(def-c-const EXFULL (:documentation "Exchange full"))
-(def-c-const ENOANO (:documentation "No anode"))
-(def-c-const EBADRQC (:documentation "Invalid request code"))
-(def-c-const EBADSLT (:documentation "Invalid slot"))
-(def-c-const EDEADLOCK (:documentation "File locking deadlock error"))
-(def-c-const EBFONT (:documentation "Bad font file format"))
-(def-c-const ENOSTR (:documentation "Device not a stream"))
-(def-c-const ENODATA (:documentation "No data available"))
-(def-c-const ETIME (:documentation "Timer expired"))
-(def-c-const ENOSR (:documentation "Out of streams resources"))
-(def-c-const ENONET (:documentation "Machine is not on the network"))
-(def-c-const ENOPKG (:documentation "Package not installed"))
-(def-c-const EREMOTE (:documentation "Object is remote"))
-(def-c-const ENOLINK (:documentation "Link has been severed"))
-(def-c-const EADV (:documentation "Advertise error"))
-(def-c-const ESRMNT (:documentation "Srmount error"))
-(def-c-const ECOMM (:documentation "Communication error on send"))
-(def-c-const EPROTO (:documentation "Protocol error"))
-(def-c-const EMULTIHOP (:documentation "Multihop attempted"))
-(def-c-const EDOTDOT (:documentation "RFS specific error"))
-(def-c-const EBADMSG (:documentation "Not a data message"))
-(def-c-const EOVERFLOW (:documentation "Value too large for defined data type"))
-(def-c-const ENOTUNIQ (:documentation "Name not unique on network"))
-(def-c-const EBADFD (:documentation "File descriptor in bad state"))
-(def-c-const EREMCHG (:documentation "Remote address changed"))
-(def-c-const ELIBACC (:documentation "Can not access a needed shared library"))
-(def-c-const ELIBBAD (:documentation "Accessing a corrupted shared library"))
-(def-c-const ELIBSCN (:documentation ".lib section in a.out corrupted"))
-(def-c-const ELIBMAX (:documentation "Attempting to link in too many shared libraries"))
-(def-c-const ELIBEXEC (:documentation "Cannot exec a shared library directly"))
-(def-c-const EILSEQ (:documentation "Illegal byte sequence"))
-(def-c-const ERESTART (:documentation "Interrupted system call should be restarted"))
-(def-c-const ESTRPIPE (:documentation "Streams pipe error"))
-(def-c-const EUSERS (:documentation "Too many users"))
-(def-c-const ENOTSOCK (:documentation "Socket operation on non-socket"))
-(def-c-const EDESTADDRREQ (:documentation "Destination address required"))
-(def-c-const EMSGSIZE (:documentation "Message too long"))
-(def-c-const EPROTOTYPE (:documentation "Protocol wrong type for socket"))
-(def-c-const ENOPROTOOPT (:documentation "Protocol not available"))
-(def-c-const EPROTONOSUPPORT (:documentation "Protocol not supported"))
-(def-c-const ESOCKTNOSUPPORT (:documentation "Socket type not supported"))
-(def-c-const EOPNOTSUPP (:documentation "Operation not supported on transport endpoint"))
-(def-c-const EPFNOSUPPORT (:documentation "Protocol family not supported"))
-(def-c-const EAFNOSUPPORT (:documentation "Address family not supported by protocol"))
-(def-c-const EADDRINUSE (:documentation "Address already in use"))
-(def-c-const EADDRNOTAVAIL (:documentation "Cannot assign requested address"))
-(def-c-const ENETDOWN (:documentation "Network is down"))
-(def-c-const ENETUNREACH (:documentation "Network is unreachable"))
-(def-c-const ENETRESET (:documentation "Network dropped connection because of reset"))
-(def-c-const ECONNABORTED (:documentation "Software caused connection abort"))
-(def-c-const ECONNRESET (:documentation "Connection reset by peer"))
-(def-c-const ENOBUFS (:documentation "No buffer space available"))
-(def-c-const EISCONN (:documentation "Transport endpoint is already connected"))
-(def-c-const ENOTCONN (:documentation "Transport endpoint is not connected"))
-(def-c-const ESHUTDOWN (:documentation "Cannot send after transport endpoint shutdown"))
-(def-c-const ETOOMANYREFS (:documentation "Too many references: cannot splice"))
-(def-c-const ETIMEDOUT (:documentation "Connection timed out"))
-(def-c-const ECONNREFUSED (:documentation "Connection refused"))
-(def-c-const EHOSTDOWN (:documentation "Host is down"))
-(def-c-const EHOSTUNREACH (:documentation "No route to host"))
-(def-c-const EALREADY (:documentation "Operation already in progress"))
-(def-c-const EINPROGRESS (:documentation "Operation now in progress"))
-(def-c-const ESTALE (:documentation "Stale NFS file handle"))
-(def-c-const EUCLEAN (:documentation "Structure needs cleaning"))
-(def-c-const ENOTNAM (:documentation "Not a XENIX named type file"))
-(def-c-const ENAVAIL (:documentation "No XENIX semaphores available"))
-(def-c-const EISNAM (:documentation "Is a named type file"))
-(def-c-const EREMOTEIO (:documentation "Remote I/O error"))
-(def-c-const EDQUOT (:documentation "Quota exceeded"))
-(def-c-const ENOMEDIUM (:documentation "No medium found"))
-(def-c-const EMEDIUMTYPE (:documentation "Wrong medium type"))
-(def-c-const ECANCELED (:documentation "Operation Canceled")) ; 125
+(def-c-const EPERM (:documentation "Operation not permitted"))    ; 1
+(def-c-const ENOENT (:documentation "No such file or directory")) ; 2
+(def-c-const ESRCH (:documentation "No such process"))            ; 3
+(def-c-const EINTR (:documentation "Interrupted system call"))    ; 4
+(def-c-const EIO (:documentation "I/O error"))                    ; 5
+(def-c-const ENXIO (:documentation "No such device or address"))  ; 6
+(def-c-const E2BIG (:documentation "Arg list too long"))          ; 7
+(def-c-const ENOEXEC (:documentation "Exec format error"))        ; 8
+(def-c-const EBADF (:documentation "Bad file number"))            ; 9
+(def-c-const ECHILD (:documentation "No child processes"))        ; 10
+(def-c-const EAGAIN (:documentation "Try again"))                 ; 11
+(def-c-const ENOMEM (:documentation "Out of memory"))             ; 12
+(def-c-const EACCES (:documentation "Permission denied"))         ; 13
+(def-c-const EFAULT (:documentation "Bad address"))               ; 14
+(def-c-const ENOTBLK (:documentation "Block device required"))    ; 15
+(def-c-const EBUSY (:documentation "Device or resource busy"))    ; 16
+(def-c-const EEXIST (:documentation "File exists"))               ; 17
+(def-c-const EXDEV (:documentation "Cross-device link"))          ; 18
+(def-c-const ENODEV (:documentation "No such device"))            ; 19
+(def-c-const ENOTDIR (:documentation "Not a directory"))          ; 20
+(def-c-const EISDIR (:documentation "Is a directory"))            ; 21
+(def-c-const EINVAL (:documentation "Invalid argument"))          ; 22
+(def-c-const ENFILE (:documentation "File table overflow"))       ; 23
+(def-c-const EMFILE (:documentation "Too many open files"))       ; 24
+(def-c-const ENOTTY (:documentation "Not a typewriter"))          ; 25
+(def-c-const ETXTBSY (:documentation "Text file busy"))           ; 26
+(def-c-const EFBIG (:documentation "File too large"))             ; 27
+(def-c-const ENOSPC (:documentation "No space left on device"))   ; 28
+(def-c-const ESPIPE (:documentation "Illegal seek"))              ; 29
+(def-c-const EROFS (:documentation "Read-only file system"))      ; 30
+(def-c-const EMLINK (:documentation "Too many links"))            ; 31
+(def-c-const EPIPE (:documentation "Broken pipe"))                ; 32
+(def-c-const EDOM (:documentation "Math argument out of domain of func")) ; 33
+(def-c-const ERANGE (:documentation "Math result not representable")) ; 34
+(def-c-const EDEADLK (:documentation "Resource deadlock would occur")) ; 35
+(def-c-const ENAMETOOLONG (:documentation "File name too long"))       ; 36
+(def-c-const ENOLCK (:documentation "No record locks available"))      ; 37
+(def-c-const ENOSYS (:documentation "Function not implemented"))       ; 38
+(def-c-const ENOTEMPTY (:documentation "Directory not empty"))         ; 39
+(def-c-const ELOOP (:documentation "Too many symbolic links encountered")) ; 40
+(def-c-const EWOULDBLOCK (:documentation "Operation would block")) ; EAGAIN
+(def-c-const ENOMSG (:documentation "No message of desired type")) ; 42
+(def-c-const EIDRM (:documentation "Identifier removed"))          ; 43
+(def-c-const ECHRNG (:documentation "Channel number out of range")) ; 44
+(def-c-const EL2NSYNC (:documentation "Level 2 not synchronized"))  ; 45
+(def-c-const EL3HLT (:documentation "Level 3 halted"))              ; 46
+(def-c-const EL3RST (:documentation "Level 3 reset"))               ; 47
+(def-c-const ELNRNG (:documentation "Link number out of range"))    ; 48
+(def-c-const EUNATCH (:documentation "Protocol driver not attached")) ; 49
+(def-c-const ENOCSI (:documentation "No CSI structure available"))    ; 50
+(def-c-const EL2HLT (:documentation "Level 2 halted"))                ; 51
+(def-c-const EBADE (:documentation "Invalid exchange"))               ; 52
+(def-c-const EBADR (:documentation "Invalid request descriptor"))     ; 53
+(def-c-const EXFULL (:documentation "Exchange full"))                 ; 54
+(def-c-const ENOANO (:documentation "No anode"))                      ; 55
+(def-c-const EBADRQC (:documentation "Invalid request code"))         ; 56
+(def-c-const EBADSLT (:documentation "Invalid slot"))                 ; 57
+(def-c-const EDEADLOCK (:documentation "File locking deadlock error")) ; EDEADLK
+(def-c-const EBFONT (:documentation "Bad font file format"))           ; 59
+(def-c-const ENOSTR (:documentation "Device not a stream"))            ; 60
+(def-c-const ENODATA (:documentation "No data available"))             ; 61
+(def-c-const ETIME (:documentation "Timer expired"))                   ; 62
+(def-c-const ENOSR (:documentation "Out of streams resources"))        ; 63
+(def-c-const ENONET (:documentation "Machine is not on the network"))  ; 64
+(def-c-const ENOPKG (:documentation "Package not installed"))          ; 65
+(def-c-const EREMOTE (:documentation "Object is remote"))              ; 66
+(def-c-const ENOLINK (:documentation "Link has been severed"))         ; 67
+(def-c-const EADV (:documentation "Advertise error"))                  ; 68
+(def-c-const ESRMNT (:documentation "Srmount error"))                  ; 69
+(def-c-const ECOMM (:documentation "Communication error on send"))     ; 70
+(def-c-const EPROTO (:documentation "Protocol error"))                 ; 71
+(def-c-const EMULTIHOP (:documentation "Multihop attempted"))          ; 72
+(def-c-const EDOTDOT (:documentation "RFS specific error"))            ; 73
+(def-c-const EBADMSG (:documentation "Not a data message"))            ; 74
+(def-c-const EOVERFLOW (:documentation "Value too large for defined data type")) ; 75
+(def-c-const ENOTUNIQ (:documentation "Name not unique on network")) ; 76
+(def-c-const EBADFD (:documentation "File descriptor in bad state")) ; 77
+(def-c-const EREMCHG (:documentation "Remote address changed"))      ; 78
+(def-c-const ELIBACC (:documentation "Can not access a needed shared library")) ; 79
+(def-c-const ELIBBAD (:documentation "Accessing a corrupted shared library")) ; 80
+(def-c-const ELIBSCN (:documentation ".lib section in a.out corrupted")) ; 81
+(def-c-const ELIBMAX (:documentation "Attempting to link in too many shared libraries")) ; 82
+(def-c-const ELIBEXEC (:documentation "Cannot exec a shared library directly")) ; 83
+(def-c-const EILSEQ (:documentation "Illegal byte sequence")) ; 84
+(def-c-const ERESTART (:documentation "Interrupted system call should be restarted")) ; 85
+(def-c-const ESTRPIPE (:documentation "Streams pipe error")) ; 86
+(def-c-const EUSERS (:documentation "Too many users"))       ; 87
+(def-c-const ENOTSOCK (:documentation "Socket operation on non-socket")) ; 88
+(def-c-const EDESTADDRREQ (:documentation "Destination address required")) ; 89
+(def-c-const EMSGSIZE (:documentation "Message too long")) ; 90
+(def-c-const EPROTOTYPE (:documentation "Protocol wrong type for socket")) ; 91
+(def-c-const ENOPROTOOPT (:documentation "Protocol not available")) ; 92
+(def-c-const EPROTONOSUPPORT (:documentation "Protocol not supported")) ; 93
+(def-c-const ESOCKTNOSUPPORT (:documentation "Socket type not supported")) ; 94
+(def-c-const EOPNOTSUPP (:documentation "Operation not supported on transport endpoint")) ; 95
+(def-c-const EPFNOSUPPORT (:documentation "Protocol family not supported")) ; 96
+(def-c-const EAFNOSUPPORT (:documentation "Address family not supported by protocol")) ; 97
+(def-c-const EADDRINUSE (:documentation "Address already in use")) ; 98
+(def-c-const EADDRNOTAVAIL (:documentation "Cannot assign requested address")) ; 99
+(def-c-const ENETDOWN (:documentation "Network is down")) ; 100
+(def-c-const ENETUNREACH (:documentation "Network is unreachable")) ; 101
+(def-c-const ENETRESET (:documentation "Network dropped connection because of reset")) ; 102
+(def-c-const ECONNABORTED (:documentation "Software caused connection abort")) ; 103
+(def-c-const ECONNRESET (:documentation "Connection reset by peer")) ; 104
+(def-c-const ENOBUFS (:documentation "No buffer space available"))   ; 105
+(def-c-const EISCONN (:documentation "Transport endpoint is already connected")) ; 106
+(def-c-const ENOTCONN (:documentation "Transport endpoint is not connected")) ; 107
+(def-c-const ESHUTDOWN (:documentation "Cannot send after transport endpoint shutdown")) ; 108
+(def-c-const ETOOMANYREFS (:documentation "Too many references: cannot splice")) ; 109
+(def-c-const ETIMEDOUT (:documentation "Connection timed out")) ; 110
+(def-c-const ECONNREFUSED (:documentation "Connection refused")) ; 111
+(def-c-const EHOSTDOWN (:documentation "Host is down"))          ; 112
+(def-c-const EHOSTUNREACH (:documentation "No route to host"))   ; 113
+(def-c-const EALREADY (:documentation "Operation already in progress")) ; 114
+(def-c-const EINPROGRESS (:documentation "Operation now in progress")) ; 115
+(def-c-const ESTALE (:documentation "Stale NFS file handle"))          ; 116
+(def-c-const EUCLEAN (:documentation "Structure needs cleaning"))      ; 117
+(def-c-const ENOTNAM (:documentation "Not a XENIX named type file"))   ; 118
+(def-c-const ENAVAIL (:documentation "No XENIX semaphores available")) ; 119
+(def-c-const EISNAM (:documentation "Is a named type file"))           ; 120
+(def-c-const EREMOTEIO (:documentation "Remote I/O error"))            ; 121
+(def-c-const EDQUOT (:documentation "Quota exceeded"))                 ; 122
+(def-c-const ENOMEDIUM (:documentation "No medium found"))             ; 123
+(def-c-const EMEDIUMTYPE (:documentation "Wrong medium type"))         ; 124
+(def-c-const ECANCELED (:documentation "Operation Canceled"))      ; 125
 (def-c-const ENOKEY (:documentation "Required key not available")) ; 126
 (def-c-const EKEYEXPIRED (:documentation "Key has expired"))       ; 127
 (def-c-const EKEYREVOKED (:documentation "Key has been revoked"))  ; 128
