@@ -27,6 +27,8 @@
 (listp (show (loop :for i :from 0 :to linux:_NSIG
                :collect (cons i (linux:strsignal i))) :pretty t)) T
 
+linux:SIGSET_NWORDS #+:WORD-SIZE=64 16 #-:WORD-SIZE=64 32
+
 ;;; changing signal handlers:
 (defparameter *sigact* (show (linux:signal-action-retrieve linux:SIGINT)))
 *SIGACT*
