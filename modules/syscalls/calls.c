@@ -5335,6 +5335,7 @@ DEFUN(OS::STRERROR, &optional error_code) {
   VALUES1(status == 0 ? NIL : safe_to_string(ret));
   begin_system_call(); LocalFree(ret); end_system_call();
 # else
+  /* errno access must be guarded with begin/end_system_call */
   int error_code = missingp(STACK_0) ? -1 : check_errno(STACK_0);
   begin_system_call();
   ret = strerror(error_code == -1 ? errno : error_code);
