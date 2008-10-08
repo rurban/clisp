@@ -2,6 +2,8 @@
 
 	* modules/bindings/glibc/linux.lisp (strsignal, _NSIG): add;
 	use DEF-C-CONST instead of DEFCONSTANT for signals
+	(ECANCELED, ENOKEY, EKEYEXPIRED, EKEYREVOKED, EKEYREJECTED)
+	(EOWNERDEAD, ENOTRECOVERABLE): add errnos
 
 2008-10-06  Sam Steingold  <sds@gnu.org>
 

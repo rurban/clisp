@@ -285,6 +285,14 @@
 (def-c-const EDQUOT (:documentation "Quota exceeded"))
 (def-c-const ENOMEDIUM (:documentation "No medium found"))
 (def-c-const EMEDIUMTYPE (:documentation "Wrong medium type"))
+(def-c-const ECANCELED (:documentation "Operation Canceled")) ; 125
+(def-c-const ENOKEY (:documentation "Required key not available")) ; 126
+(def-c-const EKEYEXPIRED (:documentation "Key has expired"))       ; 127
+(def-c-const EKEYREVOKED (:documentation "Key has been revoked"))  ; 128
+(def-c-const EKEYREJECTED (:documentation "Key was rejected by service")) ; 129
+;; for robust mutexes
+(def-c-const EOWNERDEAD (:documentation "Owner died")) ; 130
+(def-c-const ENOTRECOVERABLE (:documentation "State not recoverable")) ; 131
 
 ; -------------------------- <bits/errno.h> -----------------------------------
 
