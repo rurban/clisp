@@ -24,6 +24,9 @@
                :collect (cons i (linux:strerror i))) :pretty t)) T
 
 ;;; signal handling examples:
+(listp (show (loop :for i :from 0 :to 70
+               :collect (cons i (linux:strsignal i))) :pretty t)) T
+
 ;;; changing signal handlers:
 (defparameter *sigact* (show (linux:signal-action-retrieve linux:SIGINT)))
 *SIGACT*

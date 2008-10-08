@@ -2277,6 +2277,7 @@ typedef __off64_t clisp_dirent_off_t;
 (c-lines "#include <string.h>~%")
 
 (def-call-out strerror (:arguments (errnum int)) (:return-type c-string :none))
+(def-call-out strsignal (:arguments (sig int)) (:return-type c-string :none))
 
 ;;; ============================= <sys/ioctl.h> ==============================
 (c-lines "#include <sys/ioctl.h>~%")
