@@ -2344,41 +2344,44 @@ typedef __off64_t clisp_dirent_off_t;
 ;;;  --- Posix sigaction ---
 ;;;  Peter Wood 2002
 
-(defconstant SIGHUP             1) ; Hangup (POSIX).
-(defconstant SIGINT             2) ; Interrupt (ANSI).
-(defconstant SIGQUIT            3) ; quit (POSIX).
-(defconstant SIGILL             4) ; Illegal instruction (ANSI).
-(defconstant SIGTRAP            5) ; Trace trap (POSIX).
-(defconstant SIGABRT            6) ; Abort (ANSI).
-(defconstant SIGIOT             6) ; IOT trap (4.2 BSD).
-(defconstant SIGBUS             7) ; BUS error (4.2 BSD).
-(defconstant SIGFPE             8) ; Floating-point exception (ANSI).
-(defconstant SIGKILL            9) ; Kill, unblockable (POSIX).
-(defconstant SIGUSR1            10) ; User-defined signal 1 (POSIX).
-(defconstant SIGSEGV            11) ; Segmentation violation (ANSI).
-(defconstant SIGUSR2            12) ; User-defined signal 2 (POSIX).
-(defconstant SIGPIPE            13) ; Broken pipe (POSIX).
-(defconstant SIGALRM            14) ; Alarm clock (POSIX).
-(defconstant SIGTERM            15) ; Termination (ANSI).
-(defconstant SIGSTKFLT          16) ; Stack fault.
-(defconstant SIGCHLD            17) ; Child status has changed (POSIX).
-(defconstant SIGCLD             SIGCHLD) ; Same as SIGCHLD (System V).
-(defconstant SIGCONT            18) ; Continue (POSIX).
-(defconstant SIGSTOP            19) ; Stop, unblockable (POSIX).
-(defconstant SIGTSTP            20) ; Keyboard stop (POSIX).
-(defconstant SIGTTIN            21) ; Background read from tty (POSIX).
-(defconstant SIGTTOU            22) ; Background write to tty (POSIX).
-(defconstant SIGURG             23) ; Urgent condition on socket (4.2 BSD).
-(defconstant SIGXCPU            24) ; CPU limit exceeded (4.2 BSD).
-(defconstant SIGXFSZ            25) ; File size limit exceeded (4.2 BSD).
-(defconstant SIGVTALRM          26) ; Virtual alarm clock (4.2 BSD).
-(defconstant SIGPROF            27) ; Profiling alarm clock (4.2 BSD).
-(defconstant SIGWINCH           28) ; Window size change (4.3 BSD, Sun).
-(defconstant SIGIO              29) ; I/O now possible (4.2 BSD).
-(defconstant SIGPOLL            SIGIO) ; Pollable event occurred (System V).
-(defconstant SIGPWR             30) ; Power failure restart (System V).
-(defconstant SIGSYS             31) ; Bad system call.
-(defconstant SIGUNUSED          31)
+(def-c-const SIGHUP #|1|# (:documentation "Hangup (POSIX)."))
+(def-c-const SIGINT #|2|# (:documentation "Interrupt (ANSI)."))
+(def-c-const SIGQUIT #|3|# (:documentation "quit (POSIX)."))
+(def-c-const SIGILL #|4|# (:documentation "Illegal instruction (ANSI)."))
+(def-c-const SIGTRAP #|5|# (:documentation "Trace trap (POSIX)."))
+(def-c-const SIGABRT #|6|# (:documentation "Abort (ANSI)."))
+(def-c-const SIGIOT #|6|# (:documentation "IOT trap (4.2 BSD)."))
+(def-c-const SIGBUS #|7|# (:documentation "BUS error (4.2 BSD)."))
+(def-c-const SIGFPE #|8|# (:documentation "Floating-point exception (ANSI)."))
+(def-c-const SIGKILL #|9|# (:documentation "Kill, unblockable (POSIX)."))
+(def-c-const SIGUSR1 #|10|# (:documentation "User-defined signal 1 (POSIX)."))
+(def-c-const SIGSEGV #|11|# (:documentation "Segmentation violation (ANSI)."))
+(def-c-const SIGUSR2 #|12|# (:documentation "User-defined signal 2 (POSIX)."))
+(def-c-const SIGPIPE #|13|# (:documentation "Broken pipe (POSIX)."))
+(def-c-const SIGALRM #|14|# (:documentation "Alarm clock (POSIX)."))
+(def-c-const SIGTERM #|15|# (:documentation "Termination (ANSI)."))
+(def-c-const SIGSTKFLT #|16|# (:documentation "Stack fault."))
+(def-c-const SIGCHLD #|17|# (:documentation "Child status has changed (POSIX)."))
+(def-c-const SIGCLD #|SIGCHLD|# (:documentation "Same as SIGCHLD (System V)."))
+(def-c-const SIGCONT #|18|# (:documentation "Continue (POSIX)."))
+(def-c-const SIGSTOP #|19|# (:documentation "Stop, unblockable (POSIX)."))
+(def-c-const SIGTSTP #|20|# (:documentation "Keyboard stop (POSIX)."))
+(def-c-const SIGTTIN #|21|# (:documentation "Background read from tty (POSIX)."))
+(def-c-const SIGTTOU #|22|# (:documentation "Background write to tty (POSIX)."))
+(def-c-const SIGURG #|23|# (:documentation "Urgent condition on socket (4.2 BSD)."))
+(def-c-const SIGXCPU #|24|# (:documentation "CPU limit exceeded (4.2 BSD)."))
+(def-c-const SIGXFSZ #|25|# (:documentation "File size limit exceeded (4.2 BSD)."))
+(def-c-const SIGVTALRM #|26|# (:documentation "Virtual alarm clock (4.2 BSD)."))
+(def-c-const SIGPROF #|27|# (:documentation "Profiling alarm clock (4.2 BSD)."))
+(def-c-const SIGWINCH #|28|# (:documentation "Window size change (4.3 BSD, Sun)."))
+(def-c-const SIGIO #|29|# (:documentation "I/O now possible (4.2 BSD)."))
+(def-c-const SIGPOLL #|SIGIO|# (:documentation "Pollable event occurred (System V)."))
+(def-c-const SIGPWR #|30|# (:documentation "Power failure restart (System V)."))
+(def-c-const SIGSYS #|31|# (:documentation "Bad system call."))
+(def-c-const SIGUNUSED #|31|#)
+
+(def-c-const _NSIG ; 65
+  (:documentation "Biggest signal number + 1 (including real-time signals)."))
 
 #|
 ;pseudo sigs :-(
