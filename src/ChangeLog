@@ -1,6 +1,7 @@
 2008-10-08  Sam Steingold  <sds@gnu.org>
 
-	* modules/bindings/glibc/linux.lisp (strsignal): add
+	* modules/bindings/glibc/linux.lisp (strsignal, _NSIG): add;
+	use DEF-C-CONST instead of DEFCONSTANT for signals
 
 2008-10-06  Sam Steingold  <sds@gnu.org>
 
