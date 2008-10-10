@@ -261,7 +261,7 @@ static void get_locale_info (int what, char**res, int *res_size) {
   end_system_call();
   if (val == 0) OS_error();
   if (val > *res_size) {
-    *res = (char*)my_realloc(*res,val);
+    *res = (char*)clisp_realloc(*res,val);
     if (*res == NULL) OS_error();
     *res_size = val;
     begin_system_call();

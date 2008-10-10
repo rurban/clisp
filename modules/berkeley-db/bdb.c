@@ -156,7 +156,7 @@ static void error_callback (const char *errpfx, char *msg)
   char *data;
   if (error_message) { /* append the new message to the previous ones */
     int len = strlen(error_message);
-    error_message = (char*)my_realloc(error_message,3 + strlen(msg) + len);
+    error_message = (char*)clisp_realloc(error_message,3 + strlen(msg) + len);
     error_message[len++] = ';';
     error_message[len++] = ' ';
     data = error_message + len;
@@ -249,8 +249,8 @@ static void add_message (struct messages* *data_, const char* msg) {
   if ((*data_)->max = (*data_)->len) {  /* double the space */
     int new_max = 2*(*data_)->max;
     (*data_) = (struct messages*)
-      my_realloc((*data_), (sizeof(struct messages) +
-                            (new_max-unspecified)*sizeof(char*)));
+      clisp_realloc((*data_), (sizeof(struct messages) +
+                               (new_max-unspecified)*sizeof(char*)));
     (*data_)->max = new_max;
   }
   { /* now max>len */
