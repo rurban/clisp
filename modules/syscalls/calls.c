@@ -442,6 +442,15 @@ DEFUN(POSIX::%SET-FILE-SIZE, file new-size) {
   VALUES1(STACK_1); skipSTACK(3);
 }
 
+#if defined(WIN32_NATIVE)
+static void* get_file_size (const char *path, file_offset_t *length) {
+  Handle fd = CreateFile(path,GENERIC_WRITE,0,NULL,OPEN_EXISTING,
+                         FILE_ATTRIBUTE_NORMAL,NULL);
+  return (void*)(!(fd != INVALID_HANDLE_VALUE
+                   && GetFileSizeEx(fd,length)
+                   && CloseHandle(fd)));
+}
+#endif
 DEFUN(POSIX:FILE-SIZE, file) {
   /* we could implement this in Lisp like this:
      (defun file-size (file)
@@ -452,7 +461,7 @@ DEFUN(POSIX:FILE-SIZE, file) {
   if (eq(nullobj,stream)) {    /* not a stream - use path */
    #if defined(WIN32_NATIVE)
     LARGE_INTEGER length;
-    if (!ON_PNAMESTRING(STACK_0,GetFileSizeEx,&length))
+    if (ON_PNAMESTRING(STACK_0,get_file_size,&length))
       OS_file_error(value1);
     VALUES1(sint64_to_I(length.QuadPart));
    #elif defined(HAVE_STAT)
@@ -2805,7 +2814,7 @@ static void copy_attributes_and_close () {
     pushSTACK(file_stream_truename(STACK_1));
     goto close_and_err;
   }
-  if (ON_PNAMESTRING(STACK_0,stat,&dest_sb) == -1) {
+  if (ON_PNAMESTRING(STACK_0,stat,&dest_sb) == (void*)-1) {
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
