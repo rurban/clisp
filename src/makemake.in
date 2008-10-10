@@ -618,9 +618,6 @@ case $# in
      ;;
 esac
 
-# for systems that lack stdint (or have a broken stdin) [e.g., solaris9]
-CPPFLAGS=${CPPFLAGS}' -Igllib'
-
 if [ "${with_gmalloc}" = yes ]; then GMALLOC=gmalloc; else GMALLOC=""; fi
 
 if [ $CROSS = true ] ; then
@@ -646,6 +643,9 @@ fi
 
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
+
+# for systems that lack stdint (or have a broken stdin) [e.g., solaris9]
+CPPFLAGS=${CPPFLAGS}' -Igllib'
 
 # now set appropriate MSVC cflags
 if [ $TSYS = win32msvc ] ; then
@@ -1884,6 +1884,7 @@ if [ $CROSS = true ] ; then
   echol "CLFLAGS = ${CLFLAGS}"
   echol "CPP = ${CPP}"
   echol "XCC = ${XCC}"
+  echol "XCPPFLAGS = ${XCPPFLAGS}"
   echol "XCFLAGS = ${XCFLAGS}"
   echol "XCPP = ${XCPP}"
   echol "XCLFLAGS = ${XCLFLAGS}"
@@ -2370,7 +2371,7 @@ elif [ $CROSS = true ]; then
   echol "UTILCC=cc"
 else echol "UTILCC=\$(CC)"
 fi
-UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
+UTILCOMPILE="\$(UTILCC) \$(XCPPFLAGS) \$(XCFLAGS) \$(XCLFLAGS)"
 for util in ${UTILS} ; do
   case ${util} in
     comment5 )
@@ -2577,7 +2578,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = built ] ; then
     dependsc=${dependsc}' cflags.h'
   fi
-  flags="$XCPPFLAGS $XCFLAGS"
+  flags='$(CPPFLAGS) $(CFLAGS)'
   if [ $f = foreign ] ; then
     if [ $HOS = win32 ] ; then
       flags=$flags" -I${SRCTOPDIR}ffcall"
