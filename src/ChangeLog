@@ -1,5 +1,10 @@
 2008-10-10  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (UTILCOMPILE): use XCPPFLAGS XCFLAGS XCLFLAGS and
+	omit EXTRAOBJ to avoid mingw __errno linking problems
+
+2008-10-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: finish the 2007-10-29 (1.690) patch:
 	remove all mentions of XCC_UNUSABLE_CPP and gcc-cccp
 
