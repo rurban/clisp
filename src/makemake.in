@@ -643,7 +643,6 @@ else
   XCC_GCC="${CC_GCC}"
   XCC_NEED_DEEMA="${CC_NEED_DEEMA}"
 fi
-XCC_UNUSABLE_CPP=false
 
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
@@ -1223,11 +1222,6 @@ else
   if [ "$TSYSOS" = ultrix ] ; then
     # Ultrix cc needs this for compiling spvw.d.
     XCFLAGS="$XCFLAGS -Olimit 1000"
-  fi
-  if [ $XCC_UNUSABLE_CPP = true ] ; then
-    # GNU cpp has restricted command line flags. Pass them only to XCC.
-    XCC="$XCC $XCFLAGS"
-    XCFLAGS=''
   fi
   XCLFLAGS=''
   case $TSYS in mips | ip*)
@@ -2339,9 +2333,6 @@ for parf in ${PARAMS}; do
   fi
   PARAMS_H=${PARAMS_H}" "${parf}.h
 done
-if [ $XCC_UNUSABLE_CPP = true ] ; then
-  line=$line" ${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE}"
-fi
 if [ $CROSS = true ] ; then
   line=$line" config.h"
 fi
@@ -2371,17 +2362,6 @@ for parf in ${PARAMS}; do
   fi
   echol
 done
-if [ $XCC_UNUSABLE_CPP = true ] ; then
-  echol "${SRCTOPDIR}utils/gcc-cccp/cccp${HEXE} :"
-  if [ $HOS = unix ] ; then
-    if [ "$TSYSOS" = aix ] ; then
-      echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE) ALLOCA=alloca.o"
-    else
-      echotab "cd ${SRCTOPDIR}utils/gcc-cccp && \$(MAKE)"
-    fi
-  fi
-  echol
-fi
 if [ ${HSYS} = "win32gcc" ]; then
   echol "# **HACK**: avoid -mno-cygwin so that utilities understand symbolic links"
   echol "UTILCC=gcc"
@@ -2628,43 +2608,12 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   echol "${f}.i : ${f}.c${dependsc}"
   echotab "${XCPP} ${flags} ${f}.c > ${f}.i"
   echol
-  if [ $XCC_UNUSABLE_CPP = true ] ; then
-    if [ $HSYS = win32msvc ] ; then
-      echol "${f}.s : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
-      echotab "${XCC} ${flags2} -c ${f}.i.c /FAs /Fa${f}.s"
-      echotab "\$(RM) ${f}.i${TOBJ}"
-      echotab "\$(RM) ${f}.i.c"
-      echol
-      echol "${f}${TOBJ} : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c > ${f}.i.c"
-      echotab "${XCC} ${flags2} -c ${f}.i.c"
-      echotab "\$(RM) ${f}${TOBJ}"
-      echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
-      echotab "\$(RM) ${f}.i.c"
-      echol
-    else
-      echol "${f}.s : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c${XCPP_POSTPROCESS} > ${f}.i.c"
-      echotab "${XCC} ${flags2} -S ${f}.i.c"
-      echotab "\$(MV) ${f}.i.s ${f}.s"
-      echotab "\$(RM) ${f}.i.c"
-      echol
-      echol "${f}${TOBJ} : ${f}.c${dependsc}"
-      echotab "${XCPP} ${flags} ${f}.c${XCPP_POSTPROCESS} > ${f}.i.c"
-      echotab "${XCC} ${flags2} -c ${f}.i.c"
-      echotab "\$(MV) ${f}.i${TOBJ} ${f}${TOBJ}"
-      echotab "\$(RM) ${f}.i.c"
-      echol
-    fi
-  else
-    echol "${f}.s : ${f}.c${dependsc}"
-    echotab "${XCC} ${flags2} -S ${f}.c"
-    echol
-    echol "${f}${TOBJ} : ${f}.c${dependsc}"
-    echotab "${XCC} ${flags2} -c ${f}.c"
-    echol
-  fi
+  echol "${f}.s : ${f}.c${dependsc}"
+  echotab "${XCC} ${flags2} -S ${f}.c"
+  echol
+  echol "${f}${TOBJ} : ${f}.c${dependsc}"
+  echotab "${XCC} ${flags2} -c ${f}.c"
+  echol
 done
 
 if [ "${with_gmalloc}" = yes ]; then
@@ -3444,16 +3393,7 @@ for f in $TXT_FILES ; do
   esac
   echol "${f} : ${sourcedir}_${f}${TXT_INCLUDES}${depends} txt2c${HEXE}"
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
-  if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
-    echotab "${XCPP} ${XCPPFLAGS} ${XCFLAGS}${flags} txt.c${XCPP_POSTPROCESS} > txt.i.c"
-    echotab_to_HEXE "${XCC} ${XCPPFLAGS} ${XCFLAGS} ${XCLFLAGS}${XCC_NOOPTFLAGS}" "txt.i.c" "txt"
-    echotab "\$(RM) txt.i.c"
-    if [ $HSYS = win32msvc ] ; then
-      echotab "\$(RM) txt.i${TOBJ}"
-    fi
-  else
-    echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
-  fi
+  echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
   line="${HERE}txt"
   if [ $f = clisp.1 ] ; then
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
@@ -3472,9 +3412,6 @@ for f in $TXT_FILES ; do
   echol
 done
 OBSOLETE=$OBSOLETE" txt.c txt${HEXE}"
-if [ $CROSS = false -a $XCC_UNUSABLE_CPP = true ] ; then
-  OBSOLETE=$OBSOLETE" txt.i.c"
-fi
 
 if test -n "$GROFF"; then
   echol "clisp.dvi : clisp.1"
