@@ -1,5 +1,10 @@
 2008-10-10  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in: finish the 2007-10-29 (1.690) patch:
+	remove all mentions of XCC_UNUSABLE_CPP and gcc-cccp
+
+2008-10-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (get_file_size) [WIN32_NATIVE]: add
 	(FILE-SIZE) [WIN32_NATIVE]: use it instead of GetFileSizeEx
 	which takes a handle and not a pathname
