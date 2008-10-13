@@ -1,5 +1,10 @@
 2008-10-13  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script): strip CR (\r) from all output for woe32
+	Suggested by Michael Kappert <michael.kappert@gmx.net>.
+
+2008-10-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in, configure: remove --enable-maintainer-mode and
 	never create the autoconf target because configure really depends
 	on m4/*, glm4/* &c and to implement this properly we would need to
