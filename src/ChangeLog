@@ -1,3 +1,12 @@
+2008-10-13  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in, configure: remove --enable-maintainer-mode and
+	never create the autoconf target because configure really depends
+	on m4/*, glm4/* &c and to implement this properly we would need to
+	check in makemake for autoconf 2.61+ in path, and then generate
+	much of Makefile.devel in makemake.in (IOW, I can no longer recall
+	when was the last time this target was useful as opposed to a nuisance)
+
 2008-10-10  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (UTILCOMPILE): use XCPPFLAGS XCFLAGS XCLFLAGS and

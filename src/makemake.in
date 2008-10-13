@@ -2227,24 +2227,6 @@ echol "${GLLIB_O}: gllib"
 echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 
-# developer targets
-if [ -z "${enable_maintainer_mode}" ]; then # not supplied
-  if [ ! $TSYS = win32msvc -a -d "${SRCTOPDIR}CVS" ] ; then
-    enable_maintainer_mode=yes;
-  else enable_maintainer_mode=no;
-  fi
-fi
-if [ "${enable_maintainer_mode}" = yes ]; then
-  if [ "${GNU_MAKE}" = no ]; then
-    echol 'makemake: --enable-maintainer-mode requires GNU make' >&2
-    echol 'makemake: set ${MAKE} and try again' >&2
-    exit 1
-  fi
-  echol "${SRCDIR}configure : ${SRCDIR}configure.in"
-  echotab "cd ${SRCTOPDIR_} && \$(MAKE) -f Makefile.devel src${NEXT_}configure"
-  echol
-fi
-
 # in the toplevel Makefile.devel, makemake depends also on version.sh.
 # we do not need that here because makemake depends on config.status -
 # depends on src/configure - depends on version.sh in Makefile.devel
