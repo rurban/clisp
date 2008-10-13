@@ -64,11 +64,6 @@ options: The following options are recognized:
                         documentation in PostScript format
   --elispdir=DIR        sets the installation directory for Emacs Lisp files
   --vimdir=DIR          sets the installation directory for VIM files
-  --enable-maintainer-mode   enable make rules and dependencies not useful
-                             (and sometimes confusing) to the casual installer
-                        The default is determined by the presence of the
-                         CVS directories: if you are working from the CVS,
-                         you probably do want maintainer-mode enabled.
   --with-PACKAGE        use PACKAGE
   --without-PACKAGE     do not use PACKAGE
     PACKAGEs available (the default is the opposite of the following):
