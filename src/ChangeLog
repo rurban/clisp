@@ -1,7 +1,7 @@
-2008-10-13  Sam Steingold  <sds@gnu.org>
+2008-10-13  Michael Kappert  <michael.kappert@gmx.net>
+	Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-script): strip CR (\r) from all output for woe32
-	Suggested by Michael Kappert <michael.kappert@gmx.net>.
 
 2008-10-13  Sam Steingold  <sds@gnu.org>
 
