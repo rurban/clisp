@@ -4328,22 +4328,24 @@ Now you can sum doubles:
 
 <section id="socket-intro"><title>Introduction</title>
 
-<para>Sockets are used for interprocess communications by processes
- running on the same host as well as by processes running on different
- hosts over a computer network.
+<para><ulink url="http://www.freesoft.org/CIE/Topics/20.htm">Sockets</ulink>
+ are used for interprocess communications by processes running on the
+ same host as well as by processes running on different hosts over a
+ computer network.
  The most common kind of sockets is Internet stream sockets, and a
  high-level interface to them is described here.
  A more low level interface that closely follows the &c-lang; system
  calls is also available, see <xref linkend="rawsock"/>.</para>
 
 <para>Two main varieties of sockets are interfaced to:
- <itemizedlist><listitem><simpara><quote>active</quote> sockets
-    correspond to &socket-stream;s which are &bidir-s; &stream-t;s
-  </simpara></listitem>
-  <listitem><simpara><quote>passive</quote> sockets correspond to
-    &socket-server;s which are a special kind of objects that are used
-    to allow the other side to initiate interaction with lisp.
-</simpara></listitem></itemizedlist></para>
+ <variablelist><varlistentry><term><quote>active</quote> sockets</term>
+   <listitem><simpara>correspond to &socket-stream;s which are &bidir-s;
+     &stream-t;s</simpara></listitem></varlistentry>
+  <varlistentry><term><quote>passive</quote> sockets</term>
+   <listitem><simpara>correspond to &socket-server;s which are a special
+     kind of objects that are used to allow the other side to initiate
+     interaction with lisp.</simpara></listitem></varlistentry>
+</variablelist></para>
 
 <example id="socket-ex-server"><title>Lisp &repl; server</title>
 <para>Here is a simple lisp &repl; server that waits for a remote
