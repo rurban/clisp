@@ -409,7 +409,7 @@ NIL
          (my-back-store (xlib:create-pixmap
                          :drawable top-win :width 10 :height 10
                          :depth (xlib:drawable-depth top-win))))
-    (show (list top-win my-back-store))
+    (show (list top-win my-back-store) :pretty t)
     (xlib:map-window top-win)
     (xlib:draw-line top-win gc 3 3 20 20)
     (xlib:display-force-output dpy)
@@ -418,7 +418,8 @@ NIL
                         (lambda (&rest event-data &key display
                                  event-key send-event-p &allow-other-keys)
                           (show (list event-data display event-key
-                                      send-event-p)))
+                                      send-event-p)
+                                :pretty t))
                         :timeout 1 :discard-p t))
   t) T
 
