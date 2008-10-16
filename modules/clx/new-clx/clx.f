@@ -684,6 +684,8 @@ static object lookup_display (Display *dpy) {
   return display;
 }
 
+#define CHECK_TYPE(o,t)   if (!typep_classname(o,t)) my_type_error(t,o)
+
 static Bool ensure_living_display (gcv_object_t *objf)
 { /* ensures that the object pointed to by 'objf' is really a display.
  Also the display must be 'alive', meaning that it does not contain
@@ -691,13 +693,11 @@ static Bool ensure_living_display (gcv_object_t *objf)
  If all that does not hold an error is signaled.
  Finally, returns an indicator of whether the display has been closed.
  'objf' should point into the stack due to GC. */
-  if (typep_classname (*objf, `XLIB::DISPLAY`)) { /* Is it a display at all? */
-    object fptr = TheStructure(*objf)->recdata[slot_DISPLAY_FOREIGN_POINTER];
+  CHECK_TYPE(*objf,`XLIB::DISPLAY`); /* Is it a display at all? */
+  { object fptr = TheStructure(*objf)->recdata[slot_DISPLAY_FOREIGN_POINTER];
     return (fpointerp(fptr) && fp_validp(TheFpointer(fptr))
             && (TheFpointer(fptr)->fp_pointer != NULL));
   }
-  /* Fall through -- raise type error */
-  my_type_error(`XLIB::DISPLAY`,*(objf));
 }
 
 DEFUN(XLIB:CLOSED-DISPLAY-P, display)
@@ -769,17 +769,16 @@ static void *get_ptr_object_and_display (object type, object obj,
   pushSTACK(type);
   pushSTACK(obj);
 
-  if (typep_classname (STACK_0, STACK_1)) {
-    if (dpyf) { /* do we want the display? */
-      pushSTACK(STACK_0); pushSTACK(`XLIB::DISPLAY`);
-      funcall(L(slot_value), 2); pushSTACK(value1);
-      *dpyf = pop_display ();
-    }
-    { void * ret = foreign_slot(STACK_0/* 'obj' */,`XLIB::PTR`);
-      skipSTACK(2);                    /* clean up */
-      return ret;
-    }
-  } else my_type_error(STACK_1/*type*/,STACK_0/*obj*/);
+  CHECK_TYPE(STACK_0,STACK_1);
+  if (dpyf) { /* do we want the display? */
+    pushSTACK(STACK_0); pushSTACK(`XLIB::DISPLAY`);
+    funcall(L(slot_value), 2); pushSTACK(value1);
+    *dpyf = pop_display ();
+  }
+  { void * ret = foreign_slot(STACK_0/* 'obj' */,`XLIB::PTR`);
+    skipSTACK(2);                    /* clean up */
+    return ret;
+  }
 }
 
 /* Now the XID objects */
@@ -795,8 +794,7 @@ static object make_xid_obj_low (gcv_object_t *prealloc, gcv_object_t *type,
     funcall(S(make_instance),5);
     return value1;
   } else {
-    if (!typep_classname(*prealloc,*type))
-      my_type_error(*type,*prealloc);
+    CHECK_TYPE(*prealloc,*type);
 
     pushSTACK(*prealloc);
     pushSTACK(`XLIB::DISPLAY`);
@@ -931,27 +929,25 @@ static XID get_xid_object_and_display (object type, object obj, Display **dpyf)
   pushSTACK(type);
   pushSTACK(obj);
 
-  if (typep_classname (STACK_0, STACK_1)) {
-    if (dpyf) {                 /* do we want the display? */
-      pushSTACK(STACK_0); pushSTACK(`XLIB::DISPLAY`);
-      funcall(L(slot_value), 2); pushSTACK(value1);
-      *dpyf = pop_display();
-    }
+  CHECK_TYPE(STACK_0, STACK_1);
+  if (dpyf) {                 /* do we want the display? */
+    pushSTACK(STACK_0); pushSTACK(`XLIB::DISPLAY`);
+    funcall(L(slot_value), 2); pushSTACK(value1);
+    *dpyf = pop_display();
+  }
 
-    pushSTACK(STACK_0); /* obj already on stack */ pushSTACK(`XLIB::ID`);
-    funcall(L(slot_value), 2);
-    ASSERT(integerp (value1)); /* FIXME */
-    skipSTACK(2);                                      /* clean up */
-    return (XID)(get_uint29 (value1));                 /* all done */
-  } else my_type_error(STACK_1/*type*/,STACK_0/*obj*/);
+  pushSTACK(STACK_0); /* obj already on stack */ pushSTACK(`XLIB::ID`);
+  funcall(L(slot_value), 2);
+  ASSERT(integerp (value1)); /* FIXME */
+  skipSTACK(2);                                      /* clean up */
+  return (XID)(get_uint29 (value1));                 /* all done */
 }
 
 static object get_display_obj_tc (object type, object obj)
 {
-  if (typep_classname (obj, type)) {
-    pushSTACK(obj); pushSTACK(`XLIB::DISPLAY`);
-    funcall(L(slot_value), 2); return value1;
-  } else my_type_error(type,obj);
+  CHECK_TYPE(obj,type);
+  pushSTACK(obj); pushSTACK(`XLIB::DISPLAY`); funcall(L(slot_value), 2);
+  return value1;
 }
 
 static object get_display_obj (object obj)
@@ -1675,10 +1671,8 @@ static object make_color (XColor *color)
  > STACK_0 the object in question */
 static void general_plist_reader (object type)
 { /* the XLIB object in question is already on the stack */
-  if (typep_classname (STACK_0, type)) {
-    pushSTACK(`XLIB::PLIST`);
-    funcall(L(slot_value), 2);
-  } else my_type_error(type,STACK_0);
+  CHECK_TYPE(STACK_0,type);
+  pushSTACK(`XLIB::PLIST`); funcall(L(slot_value), 2);
 }
 
 /* general_plist_writer (type) -- used by the various xxx-plist functions
@@ -1687,12 +1681,12 @@ static void general_plist_reader (object type)
   > STACK_0 the new value for plist */
 static void general_plist_writer (object type)
 { /* the XLIB object and the new value are already on the stack */
-  if (typep_classname (STACK_1, type)) {
-    object new_value = popSTACK();
+  CHECK_TYPE(STACK_1,type);
+  { object new_value = popSTACK();
     pushSTACK(`XLIB::PLIST`);                   /* the slot */
     pushSTACK(new_value);                       /* new value */
     funcall (L(set_slot_value), 3);
-  } else my_type_error(type,STACK_0);
+  }
 }
 
 static void general_lookup (object type)
@@ -8174,8 +8168,7 @@ DEFUN(XLIB:SET-WM-HINTS, window hints) {
   Window win = get_window_and_display(STACK_1,&dpy);
   XWMHints hints;
   X_CALL(memset((void*)&hints,0,sizeof(hints)));
-  if (!typep_classname(STACK_0,`XLIB::WM-HINTS`))
-    my_type_error(`XLIB::WM-HINTS`,STACK_0);
+  CHECK_TYPE(STACK_0,`XLIB::WM-HINTS`);
 # define SLOT TheStructure(STACK_0)->recdata
   if (!nullp(SLOT[slot_WM_FLAGS]))
     hints.flags = check_wmh_flag_of_list(SLOT[slot_WM_FLAGS]);
