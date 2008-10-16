@@ -1,3 +1,9 @@
+2008-10-16  Drutsa Pavel  <rawlik@users.sourceforge.net>
+
+	fix bug #[ 2164603 ]: Error: should have been a WINDOW, but was PIXMAP
+	* modules/clx/new-clx/clx.f (make_drawable): use
+	"make_xid_obj (`XLIB::DRAWABLE`...)" instead of "make_window()"
+
 2008-10-13  Michael Kappert  <michael.kappert@gmx.net>
 	Sam Steingold  <sds@gnu.org>
 
