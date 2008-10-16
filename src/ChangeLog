@@ -1,3 +1,10 @@
+2008-10-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (CHECK_TYPE): add
+	(ensure_living_display, get_ptr_object_and_display)
+	(make_xid_obj_low, get_xid_object_and_display, get_display_obj_tc)
+	(general_plist_reader, general_plist_writer, SET-WM-HINTS): use it
+
 2008-10-16  Drutsa Pavel  <rawlik@users.sourceforge.net>
 
 	fix bug #[ 2164603 ]: Error: should have been a WINDOW, but was PIXMAP
