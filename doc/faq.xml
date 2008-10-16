@@ -766,22 +766,6 @@ the second invocation will produce a <ulink url="clhs/glo">circular
 </answer></qandaentry>
 
 
-<qandaentry id="faq-autoconf"><question id="faq-autoconf-q"><simpara>Why
-   is &autoconf; invoked during build?</simpara></question>
-<answer><para>When building from the &cvs; HEAD development sources, you
-  will sometimes get errors when <command role="unix">make</command>
-  tries to regenerate some <filename>configure</filename> scripts for you.
- <emphasis role="strong">This is never necessary!</emphasis>
- (and will not happen in an officially released source distribution).
- Please just <command role="unix">touch</command> the target, e.g.:
- <screen>&sh-prompt; touch src/configure</screen>
- and re-run <command role="unix">make</command>.</para>
-<para>You can also pass <option>--disable-maintainer-mode</option>
- to the top-level <filename role="clisp-cvs">configure</filename> script
- (this is the default when you are &not-e; working from the &cvs;).</para>
-</answer></qandaentry>
-
-
 <qandaentry id="faq-fp">
  <blockinfo><title>Is floating point arithmetic broken?</title></blockinfo>
  <question id="faq-fp-q"><para>Why don't floating point arithmetic
