@@ -1006,7 +1006,7 @@ static object get_display_obj (object obj)
 
 #define make_window(dpy,win)   (make_window_2(dpy,win,NIL))
 #define make_pixmap(dpy,pix)   (make_pixmap_2(dpy,pix,NIL))
-#define make_drawable(dpy,da)  (make_window (dpy, da))
+#define make_drawable(dpy,da)  (make_xid_obj (`XLIB::DRAWABLE`,dpy, da))
 #define make_cursor(dpy,cur)   (make_xid_obj (`XLIB::CURSOR`, dpy, cur))
 #define make_colormap(dpy,cm)  (make_xid_obj (`XLIB::COLORMAP`, dpy, cm))
 #define make_gcontext(dpy,gc)  (make_ptr_obj (`XLIB::GCONTEXT`, dpy, gc))
