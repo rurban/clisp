@@ -398,6 +398,30 @@ T
        (second-pass dpy)))))
 NIL
 
+;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2164603&group_id=1355
+(xlib:with-open-display (dpy)
+  (let* ((top-win (xlib:create-window
+                   :parent (xlib:screen-root (first (xlib:display-roots dpy)))
+                   :x 100 :y 100 :width 250 :height 250
+                   :bit-gravity :north-west :background 11111111))
+         (gc (xlib:create-gcontext
+              :drawable top-win :foreground 0 :line-width 2))
+         (my-back-store (xlib:create-pixmap
+                         :drawable top-win :width 10 :height 10
+                         :depth (xlib:drawable-depth top-win))))
+    (show (list top-win my-back-store))
+    (xlib:map-window top-win)
+    (xlib:draw-line top-win gc 3 3 20 20)
+    (xlib:display-force-output dpy)
+    (xlib:copy-area top-win gc 5 5 10 10 my-back-store 0 0)
+    (xlib:process-event dpy :handler
+                        (lambda (&rest event-data &key display
+                                 event-key send-event-p &allow-other-keys)
+                          (show (list event-data display event-key
+                                      send-event-p)))
+                        :timeout 1 :discard-p t))
+  t) T
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
