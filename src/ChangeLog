@@ -1,3 +1,11 @@
+2008-10-17  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: partially reverted the 2008-10-10 (revision 1.775) patch
+	which broke Solaris 8 which requires gllib/stdint.h.
+	CPPFLAGS is for host (and this goes into UTILCOMPILE) while
+	XCPPFLAGS is for target (and thus is used to compile *.d)
+	Reported by Raymond Toy <raymond.toy@ericsson.com>
+
 2008-10-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (USER-INFO): for :DEFAULT,

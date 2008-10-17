@@ -645,7 +645,7 @@ fi
 DEBUGGING=$1
 
 # for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
-CPPFLAGS=${CPPFLAGS}' -Igllib'
+XCPPFLAGS=${XCPPFLAGS}' -Igllib'
 
 # now set appropriate MSVC cflags
 if [ $TSYS = win32msvc ] ; then
@@ -2353,7 +2353,7 @@ elif [ $CROSS = true ]; then
   echol "UTILCC=cc"
 else echol "UTILCC=\$(CC)"
 fi
-UTILCOMPILE="\$(UTILCC) \$(XCPPFLAGS) \$(XCFLAGS) \$(XCLFLAGS)"
+UTILCOMPILE="\$(UTILCC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) ${EXTRAOBJ}"
 for util in ${UTILS} ; do
   case ${util} in
     comment5 )
@@ -2560,7 +2560,7 @@ for f in $CPARTS genclisph modules $EXTRA_CPARTS ; do
   if [ $f = built ] ; then
     dependsc=${dependsc}' cflags.h'
   fi
-  flags='$(CPPFLAGS) $(CFLAGS)'
+  flags="$XCPPFLAGS $XCFLAGS"
   if [ $f = foreign ] ; then
     if [ $HOS = win32 ] ; then
       flags=$flags" -I${SRCTOPDIR}ffcall"
