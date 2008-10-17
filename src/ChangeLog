@@ -1,5 +1,10 @@
 2008-10-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (USER-INFO): for :DEFAULT,
+	use getpwuid(getuid()) if getlogin() fails
+
+2008-10-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (CHECK_TYPE): add
 	(ensure_living_display, get_ptr_object_and_display)
 	(make_xid_obj_low, get_xid_object_and_display, get_display_obj_tc)
