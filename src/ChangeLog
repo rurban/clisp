@@ -1,5 +1,13 @@
 2008-10-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (docdir): defaults in configure to
+	${datarootdir}/doc/${PACKAGE_TARNAME},
+	not ${datarootdir}/doc/${PACKAGE}
+	Reported by "Jose A. Ortega Ruiz" <jao@gnu.org>
+	in <http://article.gmane.org/gmane.lisp.clisp.general/12471>
+
+2008-10-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: partially reverted the 2008-10-10 (revision 1.775) patch
 	which broke Solaris 8 which requires gllib/stdint.h.
 	CPPFLAGS is for host (and this goes into UTILCOMPILE) while
