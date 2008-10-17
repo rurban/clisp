@@ -545,3 +545,23 @@ v6
 (progn (mapc #'unintern '(v1 v2 v3 v4 v5 v6)) t)
 T
 
+;; reading keywords
+(eval (read-from-string ":abazonk-does-not-exist-yet-0"))
+:ABAZONK-DOES-NOT-EXIST-YET-0
+:abazonk-does-not-exist-yet-0a
+:ABAZONK-DOES-NOT-EXIST-YET-0A
+
+(eval (read-from-string "keyword::abazonk-does-not-exist-yet-1"))
+:ABAZONK-DOES-NOT-EXIST-YET-1
+keyword::abazonk-does-not-exist-yet-1a
+:ABAZONK-DOES-NOT-EXIST-YET-1A
+
+(handler-case (read-from-string "keyword:abazonk-does-not-exist-yet-2")
+  (package-error () t)
+  (:no-error () nil))
+T
+
+(let ((l (apropos-list "ABAZONK-DOES-NOT-EXIST-YET")))
+  (mapc #'unintern l)
+  (length l))
+4
