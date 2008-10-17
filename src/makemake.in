@@ -644,7 +644,7 @@ fi
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
 
-# for systems that lack stdint (or have a broken stdin) [e.g., solaris9]
+# for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
 CPPFLAGS=${CPPFLAGS}' -Igllib'
 
 # now set appropriate MSVC cflags
