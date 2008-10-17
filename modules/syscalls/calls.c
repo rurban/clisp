@@ -1689,6 +1689,7 @@ DEFUN(POSIX::USER-INFO, &optional user)
     char *username = getlogin();
     if (username != NULL)
       pwd = getpwnam(username);
+    else pwd = getpwuid(getuid());
   } else if (symbolp(user)) {
     user = Symbol_name(user);
     goto user_info_string;
