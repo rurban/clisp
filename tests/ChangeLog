@@ -1,3 +1,7 @@
+2008-10-16  Sam Steingold  <sds@gnu.org>
+
+	* symbol10.tst: check keyword reading
+
 2008-09-17  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (cmd-args): new function
