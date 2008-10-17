@@ -804,11 +804,11 @@ fi
 # and the implied value from fsstnd overrides the default.
 if [ -z "$docdir" ] ; then
   if [ $HOS = unix ] ; then
-    docdir='@docdir@' # usually '${datarootdir}/doc/${PACKAGE}'
-    if [ "$docdir" = '${datarootdir}/doc/${PACKAGE}' ] ; then
+    docdir='@docdir@' # usually '${datarootdir}/doc/${PACKAGE_TARNAME}'
+    if [ "$docdir" = '${datarootdir}/doc/${PACKAGE_TARNAME}' ] ; then
       docdir=
     else
-      PACKAGE=clisp ; eval docdir=\"$docdir\"
+      PACKAGE_TARNAME=clisp ; eval docdir=\"$docdir\"
     fi
     DOCDIR=`echo "$docdir" | sed -e "$brace_to_paren"`
   fi
