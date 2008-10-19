@@ -616,12 +616,10 @@
 (defun set-wm-class (window resource-name resource-class)
   (set-string-property window :WM_CLASS
                        (ext:string-concat
-                        (string (or resource-name ""))
-                        (load-time-value
-                         (make-string 1 :initial-element (card8->char 0)))
-                        (string (or resource-class ""))
-                        (load-time-value
-                         (make-string 1 :initial-element (card8->char 0)))))
+                        (string (or resource-name #1=""))
+                        #2=#,(string #\Null)
+                        (string (or resource-class #1#))
+                        #2#))
   (values))
 
 (defun wm-command (window)
@@ -634,7 +632,7 @@
         (end 0)
         (len (length command-string)))
        ((>= start len) (nreverse command))
-    (setq end (position (load-time-value (card8->char 0)) command-string :start start))
+    (setq end (position #\Null command-string :start start))
     (push (subseq command-string start end) command)))
 
 (defsetf wm-command set-wm-command)
@@ -650,7 +648,7 @@
       (with-standard-io-syntax
         (dolist (c command)
           (prin1 c stream)
-          (write-char (load-time-value (card8->char 0)) stream)))))
+          (write-char #\Null stream)))))
   command)
 
 ;;-----------------------------------------------------------------------------
