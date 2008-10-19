@@ -605,11 +605,19 @@
   `(set-string-property ,window :WM_CLIENT_MACHINE ,name))
 
 (defun get-wm-class (window)
-  (let ((value (get-property window :WM_CLASS :type :STRING :result-type 'string :transform #'card8->char)))
+  (let ((value (get-property window :WM_CLASS :type :STRING
+                             :result-type 'string :transform #'card8->char)))
     (when value
-      (let* ((name-len (position (load-time-value (card8->char 0)) (the string value)))
-             (name (subseq (the string value) 0 name-len))
-             (class (subseq (the string value) (1+ name-len) (1- (length value)))))
+      ;; Buggy clients may not comply with the format,
+      ;; so deal with the unexpected.
+      (let* ((first-zero (position #\Null (the string value)))
+             (second-zero (and first-zero
+                               (position #\Null (the string value)
+                                         :start (1+ first-zero))))
+             (name (subseq (the string value) 0 first-zero))
+             (class (and first-zero
+                         (subseq (the string value) (1+ first-zero)
+                                 second-zero))))
         (values (and (plusp (length name)) name)
                 (and (plusp (length class)) class))))))
 

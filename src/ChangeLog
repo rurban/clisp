@@ -1,3 +1,9 @@
+2008-10-18  Shawn Betts  <sabetts@gmail.com>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.lisp (get-wm-class): expect the
+	unexpected: there may be many Nulls in WM_CLASS
+
 2008-10-18  Adam Warner  <awarner@users.sourceforge.net>
 
 	fix bug #[ 2175937 ] Patch --without-unicode build failure
