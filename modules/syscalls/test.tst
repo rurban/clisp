@@ -512,6 +512,20 @@ T
             (not (= (setf (os:domainname) (os:domainname)) (os:domainname))))
 #+unix NIL
 
+(defun ipaddr-closure (address)
+  (let ((ht (make-hash-table :test 'equalp)))
+    (labels ((handle (s)
+               (unless (gethash s ht)
+                 (let ((he (os:resolve-host-ipaddr s)))
+                   (setf (gethash s ht) he)
+                   (handle (os:hostent-name he))
+                   (mapc #'handle (os:hostent-aliases he))
+                   (mapc #'handle (os:hostent-addr-list he))))))
+      (handle address))
+    ht))
+IPADDR-CLOSURE
+(hash-table-p (show (ipaddr-closure "localhost") :pretty t)) T
+(hash-table-p (show (ipaddr-closure :default) :pretty t)) T
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
