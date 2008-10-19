@@ -1,3 +1,9 @@
+2008-10-18  Adam Warner  <awarner@users.sourceforge.net>
+
+	fix bug #[ 2175937 ] Patch --without-unicode build failure
+	* pathname.d (direntry_to_string) [!UNICODE]: restore non-UNICODE
+	build by using n_char_to_string()
+
 2008-10-17  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (docdir): defaults in configure to
