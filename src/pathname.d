@@ -7194,6 +7194,7 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
+#ifdef UNICODE
   var gcv_object_t *stack_save = STACK;
   len = (len == -1 ? asciz_length(string) : len);
   var object encoding = O(pathname_encoding);
@@ -7226,6 +7227,9 @@ local maygc object direntry_to_string (char* string, int len) {
   encoding = check_encoding(value1,&O(pathname_encoding),false);
   if (eq(T,value2)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
   goto restart_direntry_to_string;
+#else
+  n_char_to_string(string,len,O(pathname_encoding));
+#endif
 }
 
 /* Scans an entire directory.
