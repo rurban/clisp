@@ -150,8 +150,7 @@ NIL
 
 ;; locks - will NOT be automatically closed by DBE-CLOSE
 (defparameter *locker* (show (bdb:lock-id *dbe*))) *locker*
-(defparameter *lock* (show (bdb:lock-get *dbe* "foo" *locker* :READ)))
-*lock*
+(defparameter *lock* (show (bdb:lock-get *dbe* "foo" *locker* :READ))) *lock*
 
 (close *dbe*) T
 
