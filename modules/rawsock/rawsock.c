@@ -568,7 +568,7 @@ DEFUN(RAWSOCK:IFADDRS,&key flags-and flags-or) {
   begin_system_call(); if(-1==getifaddrs(&ifap)) OS_error(); end_system_call();
   for (; ifap; ifap=ifap->ifa_next)
     if ((flags_or & ifap->ifa_flags)
-        && (flags_and & ifap->ifa_flags == flags_and)) {
+        && ((flags_and & ifap->ifa_flags) == flags_and)) {
       pushSTACK(asciz_to_string(ifap->ifa_name,GLO(misc_encoding)));
       pushSTACK(check_iff_to_list(ifap->ifa_flags));
       pushSTACK_sockaddr(ifap->ifa_addr);
