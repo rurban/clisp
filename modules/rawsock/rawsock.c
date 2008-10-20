@@ -202,7 +202,7 @@ DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   VALUES2(fixnum(sa->sa_family),fixnum(size)); skipSTACK(1);
 }
 DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
-  /* return offset & size of the slo in SOCKADDR */
+  /* return offset & size of the slot in SOCKADDR */
  restart_sockaddr_slot:
   if (missingp(STACK_0)) {
     VALUES1(fixnum(sizeof(struct sockaddr)));
