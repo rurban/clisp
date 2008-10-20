@@ -1108,7 +1108,13 @@ commas and parentheses."
             (formatln out "  ~A_table," c-name)
             (formatln out "  (sizeof(~A_table)/sizeof(c_lisp_pair_t))-1,"
                       c-name)
-            (cond ((and (not enum-p) (stringp default))
+            (cond ((and (not enum-p) (stringp default)
+                        ;; check that default a valid for CPP: [_A-Za-z0-9]*
+                        ;; "(unsigned)~0" should not be protected with #ifdef
+                        (every (lambda (c)
+                                 (or (char= c #\_)
+                                     (digit-char-p c 36)))
+                               default))
                    (formatln out "# if defined(~A)" default)
                    (formatln out "  ~A,true," default)
                    (formatln out "# else")
