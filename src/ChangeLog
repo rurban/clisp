@@ -2,6 +2,7 @@
 
 	* modules/rawsock/rawsock.c (check_iff): default=(unsigned)~0
 	(IFADDRS): accept :FLAGS-AND and :FLAGS-OR to filter out some interfaces
+	(pushSTACK_sockaddr): replaces sockaddr_to_lisp1
 
 2008-10-20  Sam Steingold  <sds@gnu.org>
 

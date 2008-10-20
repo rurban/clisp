@@ -243,7 +243,7 @@ static object sockaddr_to_lisp (struct sockaddr *sa, uintL size) {
   end_system_call();
   funcall(`RAWSOCK::MAKE-SA`,1); return value1;
 }
-#define sockaddr_to_lisp1(sa)  sockaddr_to_lisp(sa,sizeof(*sa))
+#define pushSTACK_sockaddr(sa)  pushSTACK(sa ? sockaddr_to_lisp(sa,sizeof(*sa)) : NIL)
 
 struct pos {
   gcv_object_t *vector;
@@ -571,18 +571,16 @@ DEFUN(RAWSOCK:IFADDRS,&key flags-and flags-or) {
         && (flags_and & ifap->ifa_flags == flags_and)) {
       pushSTACK(asciz_to_string(ifap->ifa_name,GLO(misc_encoding)));
       pushSTACK(check_iff_to_list(ifap->ifa_flags));
-      pushSTACK(ifap->ifa_addr ? sockaddr_to_lisp1(ifap->ifa_addr) : NIL);
-      pushSTACK(ifap->ifa_netmask ? sockaddr_to_lisp1(ifap->ifa_netmask) : NIL);
+      pushSTACK_sockaddr(ifap->ifa_addr);
+      pushSTACK_sockaddr(ifap->ifa_netmask);
       if (ifap->ifa_flags & IFF_BROADCAST)
         if (ifap->ifa_flags & IFF_POINTOPOINT) {
           pushSTACK(STACK_3);   /* ifa_name */
           pushSTACK(TheSubr(subr_self)->name);
           error(error_condition,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set for ~S"));
-        } else pushSTACK(ifap->ifa_broadaddr
-                         ? sockaddr_to_lisp1(ifap->ifa_broadaddr) : NIL);
+        } else pushSTACK_sockaddr(ifap->ifa_broadaddr);
       else if (ifap->ifa_flags & IFF_POINTOPOINT)
-        pushSTACK(ifap->ifa_dstaddr
-                  ? sockaddr_to_lisp1(ifap->ifa_dstaddr) : NIL);
+        pushSTACK_sockaddr(ifap->ifa_dstaddr);
       else pushSTACK(NIL);
       pushSTACK(ifap->ifa_data ? allocate_fpointer(ifap->ifa_data) : NIL);
       funcall(`RAWSOCK::MAKE-IFADDRS`,6);
