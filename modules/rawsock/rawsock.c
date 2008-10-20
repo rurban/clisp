@@ -553,33 +553,41 @@ DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
 #endif  /* net/if.h */
 /* ================== ifaddrs.h interface ================== */
 #if defined(HAVE_NET_IF_H) && defined(HAVE_IFADDRS_H) && defined(HAVE_GETIFADDRS) && defined(HAVE_FREEIFADDRS)
-DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,:UP BROADCAST DEBUG LOOPBACK \
+DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,default=(unsigned)~0,     \
+           :UP BROADCAST DEBUG LOOPBACK                                 \
            POINTOPOINT NOTRAILERS RUNNING NOARP PROMISC ALLMULTI        \
-           OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC MONITOR \
-           STATICARP NEEDSGIANT                                         \
-           MASTER SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC)
-DEFUN(RAWSOCK:IFADDRS,) {
+           OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC   \
+           MONITOR STATICARP NEEDSGIANT                                 \
+           MASTER SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC LOWER-UP DORMANT)
+DEFUN(RAWSOCK:IFADDRS,&key flags-and flags-or) {
   struct ifaddrs *ifap;
-  int count;
+  int count = 0;
+  unsigned int flags_or = check_iff_of_list(popSTACK());
+  unsigned int flags_and = missingp(STACK_0) ? 0 : check_iff_of_list(STACK_0);
+  skipSTACK(1);                 /* drop flags_and */
   begin_system_call(); if(-1==getifaddrs(&ifap)) OS_error(); end_system_call();
-  for (count=0; ifap; ifap=ifap->ifa_next, count++) {
-    pushSTACK(asciz_to_string(ifap->ifa_name,GLO(misc_encoding)));
-    pushSTACK(check_iff_to_list(ifap->ifa_flags));
-    pushSTACK(ifap->ifa_addr ? sockaddr_to_lisp1(ifap->ifa_addr) : NIL);
-    pushSTACK(ifap->ifa_netmask ? sockaddr_to_lisp1(ifap->ifa_netmask) : NIL);
-    if (ifap->ifa_flags & IFF_BROADCAST)
-      if (ifap->ifa_flags & IFF_POINTOPOINT) {
-        pushSTACK(TheSubr(subr_self)->name);
-        error(error_condition,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set"));
-      } else pushSTACK(ifap->ifa_broadaddr
-                       ? sockaddr_to_lisp1(ifap->ifa_broadaddr) : NIL);
-    else if (ifap->ifa_flags & IFF_POINTOPOINT)
-      pushSTACK(ifap->ifa_dstaddr ? sockaddr_to_lisp1(ifap->ifa_dstaddr) : NIL);
-    else pushSTACK(NIL);
-    pushSTACK(ifap->ifa_data ? allocate_fpointer(ifap->ifa_data) : NIL);
-    funcall(`RAWSOCK::MAKE-IFADDRS`,6);
-    pushSTACK(value1);
-  }
+  for (; ifap; ifap=ifap->ifa_next)
+    if ((flags_or & ifap->ifa_flags)
+        && (flags_and & ifap->ifa_flags == flags_and)) {
+      pushSTACK(asciz_to_string(ifap->ifa_name,GLO(misc_encoding)));
+      pushSTACK(check_iff_to_list(ifap->ifa_flags));
+      pushSTACK(ifap->ifa_addr ? sockaddr_to_lisp1(ifap->ifa_addr) : NIL);
+      pushSTACK(ifap->ifa_netmask ? sockaddr_to_lisp1(ifap->ifa_netmask) : NIL);
+      if (ifap->ifa_flags & IFF_BROADCAST)
+        if (ifap->ifa_flags & IFF_POINTOPOINT) {
+          pushSTACK(STACK_3);   /* ifa_name */
+          pushSTACK(TheSubr(subr_self)->name);
+          error(error_condition,GETTEXT("~S: both IFF_BROADCAST and IFF_POINTOPOINT set for ~S"));
+        } else pushSTACK(ifap->ifa_broadaddr
+                         ? sockaddr_to_lisp1(ifap->ifa_broadaddr) : NIL);
+      else if (ifap->ifa_flags & IFF_POINTOPOINT)
+        pushSTACK(ifap->ifa_dstaddr
+                  ? sockaddr_to_lisp1(ifap->ifa_dstaddr) : NIL);
+      else pushSTACK(NIL);
+      pushSTACK(ifap->ifa_data ? allocate_fpointer(ifap->ifa_data) : NIL);
+      funcall(`RAWSOCK::MAKE-IFADDRS`,6);
+      pushSTACK(value1); count++;
+    }
   begin_system_call(); freeifaddrs(ifap); end_system_call();
   VALUES1(listof(count));
 }

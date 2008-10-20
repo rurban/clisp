@@ -257,9 +257,14 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    pairs <literal role="data">(&index-r; . &name-r;)</literal>
    using <function role="unix">if_nameindex</function>.
 </simpara></listitem></varlistentry>
-<varlistentry id="rawsock-ifaddrs"><term><code>(RAWSOCK:IFADDRS)</code></term>
+<varlistentry id="rawsock-ifaddrs"><term><code>(RAWSOCK:IFADDRS
+   &key-amp; :FLAGS-OR :FLAGS-AND)</code></term>
  <listitem><simpara>Call <function role="bsd">getifaddrs</function>
-   and return a &list-t; of <type>ifaddrs</type> objects.
+   and return a &list-t; of <type>ifaddrs</type> objects, optionally
+   filtered using flags, e.g., <code>(ifaddrs :flags-or '(a b)
+    :flags-and '(c d))</code> will return a list of objects which have
+   flags <literal>c</literal> &and-e; <literal>d</literal> &and-e; at
+   least one of <literal>a</literal> or <literal>b</literal> set.
 </simpara></listitem></varlistentry>
 <varlistentry id="rawsock-sockopt"><term><code>(RAWSOCK:SOCKET-OPTION
    &sock-r; &name-r; &key-amp; :LEVEL)</code></term>

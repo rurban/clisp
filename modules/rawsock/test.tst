@@ -315,6 +315,17 @@ NIL
 
 (or (not (fboundp 'rawsock:ifaddrs))
     (listp (show (rawsock:ifaddrs) :pretty t))) T
+(or (not (fboundp 'rawsock:ifaddrs))
+    (listp (show (rawsock:ifaddrs :flags-and '(:BROADCAST)) :pretty t))) T
+(or (not (fboundp 'rawsock:ifaddrs))
+    (equalp (rawsock:ifaddrs :flags-and '(:BROADCAST))
+            (rawsock:ifaddrs :flags-or '(:BROADCAST)))) T
+(or (not (fboundp 'rawsock:ifaddrs))
+    (listp (show (rawsock:ifaddrs :flags-or '(:BROADCAST :MULTICAST)
+                                  :flags-and '(:UP :RUNNING)) :pretty t))) T
+(or (not (fboundp 'rawsock:ifaddrs))
+    (null (rawsock:ifaddrs :flags-and '(:LOOPBACK :BROADCAST)))) T
+
 (or (not (fboundp 'rawsock:getaddrinfo))
     (listp (show (rawsock:getaddrinfo :node "localhost") :pretty t))) T
 (or (not (fboundp 'rawsock:getaddrinfo))
