@@ -7,40 +7,62 @@
 
 (progn
   (defun to-bytes (string)
-    (ext:convert-string-to-bytes string #+UNICODE charset:ascii #-UNICODE :default))
+    (ext:convert-string-to-bytes
+     string #+UNICODE charset:ascii #-UNICODE :default))
   (defun from-bytes (vec &key (start 0) end)
-    (ext:convert-string-from-bytes vec #+UNICODE charset:ascii #-UNICODE :default
-                                   :start start :end end))
+    (ext:convert-string-from-bytes
+     vec #+UNICODE charset:ascii #-UNICODE :default :start start :end end))
   (defun make-byte-vector (len)
     (make-array (etypecase len
                   (integer len)
                   (sequence (length len)))
                 :element-type '(unsigned-byte 8) :initial-element 0))
+  (defun show-he (he &aux (type (os:hostent-addrtype he)))
+    (show (cons he
+                (mapcar (lambda (ip)
+                          (let* ((numeric (rawsock:convert-address type ip))
+                                 (dotted (rawsock:convert-address
+                                          type numeric)))
+                            (assert (string= ip dotted))
+                            (list :address ip numeric
+                                  (os:resolve-host-ipaddr numeric))))
+                        (posix:hostent-addr-list he)))
+          :pretty t))
+  (defun ip->ve (ip)
+    (read-from-string
+     (concatenate 'string "#(" (substitute #\Space #\. ip) ")")) )
+  (defun host->ip (host)
+    (let* ((he (os:resolve-host-ipaddr host)) all
+           (host1 (os:hostent-name he)))
+      (show-he he)
+      (or (loop :for ip :in (os:hostent-addr-list he)
+            :for h1 = (os:resolve-host-ipaddr ip)
+            :do (show-he h1) (push h1 all)
+            :when (string-equal host1 (os:hostent-name h1))
+            :return (show (cons (ip->ve ip) (os:hostent-addrtype h1))))
+          (if (eq host :default)
+              (let ((sa (rawsock:ifaddrs-address
+                         (or (find 2 (rawsock:ifaddrs
+                                      :flags-and '(:up :running :broadcast))
+                                   :key (lambda (i)
+                                          (rawsock:sockaddr-family
+                                           (rawsock:ifaddrs-address i))))
+                             (error "~S: no running broadcast INET interface"
+                                    'host->ip)))))
+                (cons (subseq (rawsock:sockaddr-data sa) 2 6) 2))
+              (error "~S(~S): no match in ~S and ~S" 'host->ip host he all)))))
   (defun host->sa (host &optional (port 0))
-    (let* ((he (posix:resolve-host-ipaddr host)) sa
-           (ip (first (posix:hostent-addr-list he)))
-           (type (posix:hostent-addrtype he))
-           (li (read-from-string
-                (concatenate 'string "(" (substitute #\Space #\. ip) ")")))
-           (ve (make-byte-vector (nth-value 1 (rawsock::sockaddr-slot :data)))))
-      (show he :pretty t)
+    (let ((ip+type (host->ip host)) sa
+          (ve (make-byte-vector (nth-value 1 (rawsock::sockaddr-slot :data)))))
       (setf port (rawsock:htons port)
             (aref ve 0) (ldb #.(byte 8 0) port)
             (aref ve 1) (ldb #.(byte 8 8) port))
-      (replace ve li :start1 2)
+      (replace ve (car ip+type) :start1 2)
       (show ve)
-      (setq sa (show (rawsock:make-sockaddr type ve)))
+      (setq sa (show (rawsock:make-sockaddr (cdr ip+type) ve)))
       (assert (equalp ve (rawsock:sockaddr-data sa)))
       (show (list 'rawsock:sockaddr-family
                   (multiple-value-list (rawsock:sockaddr-family sa))))
-      (show (mapcar (lambda (addr)
-                      (let* ((numeric (rawsock:convert-address type addr))
-                             (dotted (rawsock:convert-address type numeric)))
-                        (show (list :address addr numeric dotted
-                                    (posix:resolve-host-ipaddr numeric))
-                              :pretty t)
-                        (assert (string= addr dotted))))
-                    (posix:hostent-addr-list he)))
       sa))
   (defun local-sa-check (sock sa-local)
     (let* ((sa (rawsock:getsockname sock T))
@@ -66,6 +88,10 @@
     (assert (eq status (show (socket:socket-status so))))
     (rawsock:sock-close *sock*)
     size)
+  (defun my-bind (sock sa)
+    (handler-case (rawsock:bind sock sa)
+      (:no-error () (show (list 'my-bind sock sa) :pretty t) nil)
+      (error (e) (show (list 'my-bind sock sa e (princ-to-string e)) :pretty t))))
   T) T
 
 (progn (setq *sa-remote* (host->sa "ftp.gnu.org" 21)) T) T
@@ -318,8 +344,11 @@ NIL
 (or (not (fboundp 'rawsock:ifaddrs))
     (listp (show (rawsock:ifaddrs :flags-and '(:BROADCAST)) :pretty t))) T
 (or (not (fboundp 'rawsock:ifaddrs))
-    (equalp (rawsock:ifaddrs :flags-and '(:BROADCAST))
-            (rawsock:ifaddrs :flags-or '(:BROADCAST)))) T
+    (flet ((drop-data (l)
+             (dolist (i l l)
+               (setf (rawsock:ifaddrs-data i) nil))))
+      (equalp (drop-data (rawsock:ifaddrs :flags-and '(:BROADCAST)))
+              (drop-data (rawsock:ifaddrs :flags-or '(:BROADCAST)))))) T
 (or (not (fboundp 'rawsock:ifaddrs))
     (listp (show (rawsock:ifaddrs :flags-or '(:BROADCAST :MULTICAST)
                                   :flags-and '(:UP :RUNNING)) :pretty t))) T
