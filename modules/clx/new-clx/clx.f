@@ -6072,7 +6072,7 @@ DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER :TIMEOUT PEEK-P DISCARD-P \
   int force_output_p = (boundp(STACK_0) ? get_bool(STACK_0) : 1);
   int discard_p = !missingp(STACK_1), peek_p = !missingp(STACK_2);
   struct timeval tv;
-  struct timeval *timeout = sec_usec(STACK_3,NIL,&tv);
+  struct timeval *timeout = sec_usec(STACK_3,unbound,&tv);
 
   if (!boundp(STACK_4))
     NOTIMPLEMENTED;
@@ -6232,7 +6232,7 @@ DEFUN(XLIB:DISCARD-CURRENT-EVENT, display)
 DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
 {
   struct timeval tv;
-  struct timeval *timeout = sec_usec(popSTACK(),NIL,&tv);
+  struct timeval *timeout = sec_usec(popSTACK(),unbound,&tv);
   Display *dpy = pop_display();
   int r;
   XEvent trashcan;
