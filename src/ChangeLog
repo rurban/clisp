@@ -2,11 +2,15 @@
 
 	* version.sh: 2.47 (2008-10-23)
 
+2008-10-23  Sam Steingold  <sds@gnu.org>
+
+	* configure (maybe_mkdir): remove
+	* makemake.in: restore --datadir for compatibility with configure
+
 2008-10-23  Stelian Ionescu  <sionescu@common-lisp.net>
-	Sam Steingold  <sds@gnu.org>
 
 	* configure, makemake.in: accept --infodir for compatibility with
-	generated configure scripts; restore --datadir in makemake.in
+	generated configure scripts
 
 2008-10-23  Sam Steingold  <sds@gnu.org>
 
