@@ -256,7 +256,7 @@
    <listitem><simpara>&probe-dir;,
      &ensure-directories-exist;</simpara></listitem>
    <listitem><simpara> &print-right-margin-var;,
-     &array-displacement;,</simpara></listitem>
+     &array-displacement;</simpara></listitem>
    <listitem><simpara>&boolean-t;, &copy-structure;,
      &generic-function-t;, &structure-object-t;, &class;, &method-t;,
      &special-operator-p;</simpara></listitem>
@@ -381,8 +381,8 @@
 <revision><revnumber>2.33</revnumber><date>2004-03-17</date>
  <authorinitials>sds</authorinitials>
  <revdescription><itemizedlist><listitem><simpara>&apropos-matcher;,
-     &mod-expt;, &argv; &st-position;</simpara></listitem>
-   <listitem><simpara>&define-method-combination;,</simpara></listitem>
+     &mod-expt;, &argv;, &st-position;</simpara></listitem>
+   <listitem><simpara>&define-method-combination;</simpara></listitem>
    <listitem><simpara>Portability: removed &acorn; and &amiga; support,
      fixed UNIXes.</simpara></listitem>
 </itemizedlist></revdescription></revision>
@@ -485,9 +485,9 @@
 
 <revision><revnumber>2.43.1</revnumber><date>2008-02-24</date>
  <authorinitials>bruno</authorinitials>
- <revdescription><itemizedlist><listitem><simpara>Portability: work around &gcc;
- <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
- 34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara>Portability: work around
+     &gcc; <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
+      34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.44</revnumber><date>2008-02-02</date>
@@ -497,9 +497,9 @@
 
 <revision><revnumber>2.44.1</revnumber><date>2008-02-24</date>
  <authorinitials>bruno</authorinitials>
- <revdescription><itemizedlist><listitem><simpara>Portability: work around &gcc;
- <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
- 34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
+ <revdescription><itemizedlist><listitem><simpara>Portability: work around
+     &gcc; <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
+      34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
 <revision><revnumber>2.45</revnumber><date>2008-05-15</date>
