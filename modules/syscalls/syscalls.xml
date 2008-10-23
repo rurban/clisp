@@ -518,7 +518,7 @@
     this machine.</simpara>
    <warning><para>On &linux; this number appears to be the IPv4 32-bit
      address with the first 2 bytes and the last 2 bytes swapped:
-<programlisting language="lisp">(&convert-address; :inet (os:gethostid))
+<programlisting language="lisp">(&convert-address; :inet (os:hostid))
 <computeroutput>"7.3.192.168"</computeroutput>
 (first (posix:hostent-addr-list (&resolve-host; :default)))
 <computeroutput>"192.168.7.3"</computeroutput></programlisting>This, of
