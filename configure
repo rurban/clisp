@@ -557,8 +557,6 @@ fi
 
 abs_path_pwd () { cd "$1" > /dev/null; ${ABSPATHPWD}; }
 
-maybe_mkdir() { test -d "$1" || mkdir -p "$1"; }
-
 INPLACE=''
 if test -n "$srcdir" ; then
   test -d "$srcdir" || fail "$0: srcdir: ($srcdir) nonexistent"
@@ -566,7 +564,7 @@ if test -n "$srcdir" ; then
   if [ "$DIRNAME" = "" ] ; then
     DIRNAME='.'
   fi
-  maybe_mkdir "${DIRNAME}";
+  mkdir -p "${DIRNAME}";
   REL_SRCDIR="$ABS_SRCDIR"
 else
   if test -f ./ANNOUNCE -a -f ./SUMMARY; then
@@ -584,7 +582,7 @@ else
       DIRNAME='.'
     fi
   fi
-  maybe_mkdir "${DIRNAME}";
+  mkdir -p "${DIRNAME}";
   if test `abs_path_pwd "$DIRNAME"/..` = `abs_path_pwd "$srcdir"` ; then
     REL_SRCDIR='..'
   else
@@ -621,7 +619,7 @@ if test -n "$do_config"; then
     # Create the po subdirectory and fill it
     for f in po; do
       if [ -d src/$f ] ; then
-        maybe_mkdir "${ABS_DIRNAME}/${f}";
+        mkdir -p "${ABS_DIRNAME}/${f}";
         ( cd src
           for g in $f/* ; do maybe_link $g "$ABS_DIRNAME/$g"; done; )
       fi
@@ -634,7 +632,7 @@ if test -n "$do_config"; then
   # The modules outright assume that $(srcdir)='.',
   # hence all files need to be linked over.
   #for subdir in `cd modules > /dev/null ; find . -type d -print`; do
-  #  maybe_mkdir "${ABS_DIRNAME}/${f}";
+  #  mkdir -p "${ABS_DIRNAME}/${f}";
   #done
   #for f in `cd modules > /dev/null ; find . '!' -type d -print`; do
   #  link $f $ABS_DIRNAME/$f
