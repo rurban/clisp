@@ -393,8 +393,8 @@ pre-release : gnulib-imported build-aux-update tp-mail
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
 
-VER=$(shell . version.sh ; echo $$VERSION_NUMBER)
-REL=$(shell . version.sh ; echo $$RELEASE_DATE)
+VER=$(shell . ./version.sh ; echo $$VERSION_NUMBER)
+REL=$(shell . ./version.sh ; echo $$RELEASE_DATE)
 ARCHIVE=../archives/$(VER)
 SUFFIX=
 # The distribution's top directory is called TOPDIR here.
