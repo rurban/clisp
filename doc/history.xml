@@ -525,4 +525,14 @@
      &special-dec; bindings in evaluated code on &typecodes; platforms.
 </simpara></listitem></itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.47</revnumber><date>2008-10-23</date>
+ <authorinitials>sds</authorinitials>
+ <revdescription><itemizedlist>
+   <listitem><simpara>New module: &dbus-mod;</simpara></listitem>
+   <listitem><simpara>&probe-path;</simpara></listitem>
+   <listitem><simpara>&canonicalize;</simpara></listitem>
+   <listitem><simpara>&reopen;</simpara></listitem>
+   <listitem><simpara>&file-size;</simpara></listitem>
+</itemizedlist></revdescription></revision>
+
 </revhistory>
