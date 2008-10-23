@@ -84,10 +84,7 @@ install-data-yes: all force
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*$$,,'`; \
-	  test -d "$$datarootdir" || mkdir "$$datarootdir" ; \
-	  test -d "$$destdir" || mkdir "$$destdir" ; \
-	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
-	  test -d "$$dir" || mkdir "$$dir" ; \
+	  mkdir -p "$$datarootdir" "$$destdir/$$lang" "$$dir" ; \
 	  if test -r $$cat; then \
 	    echo "installing $$cat as $$dir/$(PACKAGE).mo"; \
 	    $(INSTALL_DATA) $$cat "$$dir/$(PACKAGE).mo"; \
@@ -112,10 +109,7 @@ installdirs: force
 	  lang=`echo $$cat | sed 's/\.gmo$$//'`; \
 	  dir="$$destdir/$$lang/LC_MESSAGES"; \
 	  datarootdir=`echo "$$destdir" | sed -e 's,/[^/]*,,'`; \
-	  test -d "$$datarootdir" || mkdir "$$datarootdir" ; \
-	  test -d "$$destdir" || mkdir "$$destdir" ; \
-	  test -d "$$destdir/$$lang" || mkdir "$$destdir/$$lang" ; \
-	  test -d "$$dir" || mkdir "$$dir" ; \
+	  mkdir -p "$$datarootdir" "$$destdir/$$lang" "$$dir" ; \
 	done
 
 uninstall:
