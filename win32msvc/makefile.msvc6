@@ -1,6 +1,6 @@
 # -*- Makefile -*- for the CLISP binaries
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# This file was created on host loiso as the output of the command:
+# This file was created on host nyc-qws-005 as the output of the command:
 # ./makemake --with-dynamic-ffi win32msvc msvc6
 
 # -------------- Start of configurable section --------------------
