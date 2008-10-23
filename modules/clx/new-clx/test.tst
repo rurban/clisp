@@ -459,6 +459,26 @@ NIL
                         :timeout 1 :discard-p t))
   t) T
 
+;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2188102&group_id=1355
+(defun check-timeout (timeout &aux
+                      (itups (float internal-time-units-per-second 0d0)))
+  (xlib:with-open-display (dpy)
+    (let* ((start (/ (get-internal-real-time) itups)))
+      (xlib:process-event dpy :handler
+                          (lambda (&rest event-data &key display
+                                   event-key send-event-p &allow-other-keys)
+                            (show (list event-data display event-key
+                                        send-event-p)
+                                  :pretty t))
+                          :timeout timeout :discard-p t)
+      (<= (/ timeout 2)
+          (show (- (/ (get-internal-real-time) itups) start))
+          (* timeout 2)))))
+CHECK-TIMEOUT
+(check-timeout 0.01) T
+(check-timeout 0.1) T
+(check-timeout 1) T
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
