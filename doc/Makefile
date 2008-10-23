@@ -51,7 +51,7 @@ FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
 DTD_PATH=$(firstword $(wildcard \
 	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
-XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets1*/))
+XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets-1*/))
 FOP=../../../fop/fop
 endif
 
