@@ -15,8 +15,8 @@ MFLAGS=
 !endif
 
 # The official version number
-PACKAGE_VERSION=2.46++
-VERSION=2.46++
+PACKAGE_VERSION=2.47
+VERSION=2.47
 # The official package name
 PACKAGE_NAME=@PACKAGE_NAME@
 # If you want to distribute a modified version of CLISP,
@@ -2134,20 +2134,20 @@ check-fresh-line : lisp.exe lispinit.mem
 	$(RM) fresh-line.out
 
 check-script : lisp.exe lispinit.mem
-	test `echo '(princ (+ 11 99))' | $(RUN) -q -M lispinit.mem -` = 110 || exit 1
-	test "`echo '(+ foo bar)' | $(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl | tr '\n' '_' | tr -d '\r'`" = '99_[1]> _110_' || exit 1
-	test `echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes "42" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | $(RUN) -q -M lispinit.mem - | cat` = 42 || exit 1
+	test `echo '(princ (+ 11 99))' | $(RUN) -q -M lispinit.mem - | tr -d '\r'` = 110 || exit 1
+	test "`echo '(+ foo bar)' | $(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl | tr -d '\r'| tr '\n' '_'`" = '99_[1]> _110_' || exit 1
+	test `echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes "42" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | $(RUN) -q -M lispinit.mem - | tr -d '\r'` = 42 || exit 1
 	$(RM) script.lisp; echo '(+ 11 99)' > script.lisp
-	test `$(RUN) -q -M lispinit.mem < script.lisp` = 110 || exit 1
+	test `$(RUN) -q -M lispinit.mem < script.lisp | tr -d '\r'` = 110 || exit 1
 	$(RM) script.lisp; echo '(princ (+ 11 99))' > script.lisp
-	test `$(RUN) -q -M lispinit.mem script.lisp` = 110 || exit 1
+	test `$(RUN) -q -M lispinit.mem script.lisp | tr -d '\r'` = 110 || exit 1
 	$(RM) script.lisp; echo '(+ foo bar)' > script.lisp
-	test `$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl < script.lisp | tr '\n' '_' | tr -d '\r'` = 99_110_ || exit 1
+	test `$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl < script.lisp | tr -d '\r'| tr '\n' '_'` = 99_110_ || exit 1
 	$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes "42" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp
-	test `$(RUN) -q -M lispinit.mem script.lisp | cat` = 42 || exit 1
+	test `$(RUN) -q -M lispinit.mem script.lisp | tr -d '\r'` = 42 || exit 1
 	$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence (convert-string-to-bytes "42" charset:ascii) s) (values))' > script.lisp
-	test `$(RUN) -q -M lispinit.mem < script.lisp` = 42 || exit 1
-	test `$(RUN) -q -M lispinit.mem script.lisp` = 42 || exit 1
+	test `$(RUN) -q -M lispinit.mem < script.lisp | tr -d '\r'` = 42 || exit 1
+	test `$(RUN) -q -M lispinit.mem script.lisp | tr -d '\r'` = 42 || exit 1
 	$(RM) script.lisp
 
 check-exec-image: lisp.exe lispinit.mem
