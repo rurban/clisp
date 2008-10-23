@@ -2,6 +2,7 @@
 
 	* po/Makefile.in.in (install-data-yes, installdirs): use "mkdir -p",
 	just like on 2007-12-05
+	* Makefile.devel (VER, REL): use "./version.sh" instead of "version.sh"
 
 2008-10-20  Sam Steingold  <sds@gnu.org>
 
