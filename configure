@@ -54,6 +54,8 @@ options: The following options are recognized:
   --docdir=DIR          sets the installation directory for documentation
   --mandir=DIR          sets the installation directory for
                         documentation in man page format
+  --infodir=DIR         sets the installation directory for
+                        documentation in GNU Info format
   --htmldir=DIR         sets the installation directory for
                         documentation in HTML format
   --dvidir=DIR          sets the installation directory for
@@ -343,6 +345,16 @@ do
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --mandir="
         prev=mandir
+        passnext=both ;;
+
+      --infodir=* | --infodi=* | --infod=* | --info=* | --inf=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --infodir="`getarg "$arg"` ;;
+
+      --infodir | --infodi | --infod | --info | --inf)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --infodir="
+        prev=infodir
         passnext=both ;;
 
       --htmldir=* | --htmldi=* | --htmld=* | --html=* | --htm=* | --ht=*)
