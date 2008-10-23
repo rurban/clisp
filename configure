@@ -40,32 +40,28 @@ options: The following options are recognized:
   --srcdir=SRCDIR       sets the source directory to SRCDIR
  The following options are passed to subordinate `configure' scripts:
   --quiet, --silent     do not print `checking...' messages
+ Installation directories:
   --prefix=PREFIX       base directory for files to be installed
   --exec-prefix=PREFIX  base directory for architecture-dependent
                         files to be installed
   --fsstnd=STYLE        specify file system standard for installation
-  --bindir=DIR          sets the installation directory for executables
-  --libdir=DIR          sets the installation directory for libraries
-  --includedir=DIR      sets the installation directory for C header files
-  --datarootdir=DIR     sets the installation directory for ...
+ Fine tuning of the installation directories:
+  --bindir=DIR          user executables
+  --libdir=DIR          object code libraries
+  --includedir=DIR      C header files
+  --datarootdir=DIR     read-only arch.-independent data root
   --datadir=DIR         read-only architecture-independent data
-  --localedir=DIR       sets the installation directory for
-                        locale-dependent architecture-independent data
-  --docdir=DIR          sets the installation directory for documentation
-  --mandir=DIR          sets the installation directory for
-                        documentation in man page format
-  --infodir=DIR         sets the installation directory for
-                        documentation in GNU Info format
-  --htmldir=DIR         sets the installation directory for
-                        documentation in HTML format
-  --dvidir=DIR          sets the installation directory for
-                        documentation in TeX DVI format
-  --pdfdir=DIR          sets the installation directory for
-                        documentation in PDF format
-  --psdir=DIR           sets the installation directory for
-                        documentation in PostScript format
-  --elispdir=DIR        sets the installation directory for Emacs Lisp files
-  --vimdir=DIR          sets the installation directory for VIM files
+  --localedir=DIR       locale-dependent data
+  --mandir=DIR          man documentation
+  --infodir=DIR         info documentation
+  --docdir=DIR          documentation root
+  --htmldir=DIR         html documentation
+  --dvidir=DIR          TeX DVI documentation
+  --pdfdir=DIR          PDF documentation
+  --psdir=DIR           PostScript documentation
+  --elispdir=DIR        Emacs Lisp files
+  --vimdir=DIR          VIM files
+ Enable and disable specific packages
   --with-PACKAGE        use PACKAGE
   --without-PACKAGE     do not use PACKAGE
     PACKAGEs available (the default is the opposite of the following):
@@ -82,8 +78,6 @@ options: The following options are recognized:
              The only flavor at this time is lightning
                (GNU lightning must be installed in the standard place).
   --with-module=MODULE  build with add-on MODULE
-                        some modules require dynamic FFI,
-                        so FFI will be turned on if its checks pass
   --help-modules        list the modules included in the distribution
                         and information on building them
   --hyperspec=URL       the path to the Common Lisp HyperSpec (the default is

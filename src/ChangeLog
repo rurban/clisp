@@ -3,9 +3,10 @@
 	* version.sh: 2.47 (2008-10-23)
 
 2008-10-23  Stelian Ionescu  <sionescu@common-lisp.net>
+	Sam Steingold  <sds@gnu.org>
 
 	* configure, makemake.in: accept --infodir for compatibility with
-	generated configure scripts
+	generated configure scripts; restore --datadir in makemake.in
 
 2008-10-23  Sam Steingold  <sds@gnu.org>
 

@@ -27,34 +27,25 @@ options:
                                redhat - RedHat
                                debian - Debian, Slackware
                                *bsd - NetBSD, OpenBSD, FreeBSD
-       --bindir=DIR            sets the installation directory for executables
-       --libdir=DIR            sets the installation directory for libraries
-       --includedir=DIR        sets the installation directory for C header
-                                 files
-       --datarootdir=DIR       sets the installation directory for
-                                 read-only architecture-independent data
-       --localedir=DIR         sets the installation directory for
-                                 locale-dependent architecture-independent data
-       --docdir=DIR            sets the installation directory for
-                                 documentation
-       --mandir=DIR            sets the installation directory for
-                                 documentation in man page format
-       --infodir=DIR           sets the installation directory for
-                                 documentation in GNU Info format
-       --htmldir=DIR           sets the installation directory for
-                                 documentation in HTML format
-       --dvidir=DIR            sets the installation directory for
-                                 documentation in TeX DVI format
-       --psdir=DIR             sets the installation directory for
-                                 documentation in PostScript format
-       --pdfdir=DIR            sets the installation directory for
-                                 documentation in PDF format
-       --elispdir=DIR          sets the installation directory for
-                                 Emacs Lisp files
-       --vimdir=DIR            sets the installation directory for VIM files
        --hyperspec=URL         the path to the Common Lisp HyperSpec
            (the default is ${HSDEFAULT}
             or the value of the environment variable CLHSROOT, if set).
+      Fine tuning of the installation directories:
+       --bindir=DIR            user executables
+       --libdir=DIR            object code libraries
+       --includedir=DIR        C header files
+       --datarootdir=DIR       read-only arch.-independent data root
+       --datadir=DIR           read-only architecture-independent data
+       --localedir=DIR         locale-dependent data
+       --docdir=DIR            documentation root
+       --mandir=DIR            man documentation
+       --infodir=DIR           GNU Info documentation
+       --htmldir=DIR           html documentation
+       --dvidir=DIR            TeX DVI documentation
+       --psdir=DIR             PostScript documentation
+       --pdfdir=DIR            PDF documentation
+       --elispdir=DIR          Emacs Lisp files
+       --vimdir=DIR            VIM files
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
        --with-noreadline       do not use readline library (even when present)
@@ -183,6 +174,7 @@ bindir=''
 libdir=''
 includedir=''
 datarootdir=''
+datadir=''
 localedir=''
 docdir=''
 mandir=''
@@ -372,6 +364,14 @@ EOF
       shift
       if test -z "$datarootdir" ; then
         datarootdir=$1
+        shift
+      fi
+      ;;
+    -datadir* | --datadir*)
+      datadir=`echol "$1" | sed 's/-*datadir=*//'`
+      shift
+      if test -z "$datadir" ; then
+        datadir=$1
         shift
       fi
       ;;
