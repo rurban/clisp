@@ -2,6 +2,12 @@
 
 	* version.sh: 2.47 (2008-10-23)
 
+2008-10-23  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2188102 ]: new-clx timeout precision is limited
+	* modules/clx/new-clx/clx.f (PROCESS-EVENT, EVENT-LISTEN): pass
+	unbound instead of NIL as the usec argument to sec_usec()
+
 2008-10-22  Sam Steingold  <sds@gnu.org>
 
 	* po/Makefile.in.in (install-data-yes, installdirs): use "mkdir -p",
