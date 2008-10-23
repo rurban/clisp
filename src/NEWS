@@ -1,3 +1,6 @@
+2.47 (2008-10-23)
+=================
+
 Important notes
 ---------------
 
@@ -19,8 +22,7 @@ Important notes
 * New SETFable function OS:FILE-SIZE extends FILE-LENGTH to pathname
   designators and lets you change file size.
   See <http://clisp.cons.org/impnotes/syscalls.html#file-size> for details.
-
-* New function OS:USER-SHELLS returns the list of legal user shells.
+  New function OS:USER-SHELLS returns the list of legal user shells.
   See <http://clisp.cons.org/impnotes/syscalls.html#user-shells> for details.
   New SETFable functions OS:HOSTID and OS:DOMAINNAME.
   See <http://clisp.cons.org/impnotes/syscalls.html#hostid> for details.
