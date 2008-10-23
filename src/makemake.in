@@ -39,6 +39,8 @@ options:
                                  documentation
        --mandir=DIR            sets the installation directory for
                                  documentation in man page format
+       --infodir=DIR           sets the installation directory for
+                                 documentation in GNU Info format
        --htmldir=DIR           sets the installation directory for
                                  documentation in HTML format
        --dvidir=DIR            sets the installation directory for
@@ -184,6 +186,7 @@ datarootdir=''
 localedir=''
 docdir=''
 mandir=''
+infodir=''
 htmldir=''
 dvidir=''
 psdir=''
@@ -393,6 +396,14 @@ EOF
       shift
       if test -z "$mandir" ; then
         mandir=$1
+        shift
+      fi
+      ;;
+    -infodir* | --infodir*)
+      infodir=`echol "$1" | sed 's/-*infodir=*//'`
+      shift
+      if test -z "$infodir" ; then
+        infodir=$1
         shift
       fi
       ;;
