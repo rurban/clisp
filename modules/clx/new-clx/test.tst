@@ -460,10 +460,10 @@ NIL
   t) T
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=2188102&group_id=1355
-(defun check-timeout (timeout &aux
-                      (itups (float internal-time-units-per-second 0d0)))
+(defun check-timeout (timeout)
   (xlib:with-open-display (dpy)
-    (let* ((start (/ (get-internal-real-time) itups)))
+    (let* ((itups (float internal-time-units-per-second 0d0))
+           (start (/ (get-internal-real-time) itups)))
       (xlib:process-event dpy :handler
                           (lambda (&rest event-data &key display
                                    event-key send-event-p &allow-other-keys)
