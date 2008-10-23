@@ -255,6 +255,42 @@ NIL
   (show (cons ext (multiple-value-list (xlib:query-extension *dpy* ext)))))
 NIL
 
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/19241>
+(defparameter *window*
+  (xlib:create-window :parent (xlib:screen-root *screen*)
+                      :x 0 :y 0 :width 100 :height 100
+                      :background (xlib:screen-white-pixel *screen*)))
+*WINDOW*
+(defun check-wm-class (&rest strings)
+  (xlib:change-property
+   *window* :WM_CLASS (apply #'concatenate '(vector xlib:card8)
+                             (mapcar (lambda (s)
+                                       (etypecase s
+                                         (string
+                                          (map #1='(vector xlib:card8)
+                                               #'xlib:char->card8 s))
+                                         (vector (coerce s #1#))))
+                                     strings))
+   :string 8)
+  (multiple-value-list (xlib:get-wm-class *window*)))
+CHECK-WM-CLASS
+(check-wm-class "string 1" #(0) "string 2" #(0))
+("string 1" "string 2")
+(check-wm-class "Manifold X" #(0) "Powercoupling Y" #(0) "Magistrate Z" #(0))
+("Manifold X" "Powercoupling Y")
+(check-wm-class #(0))
+(NIL NIL)
+(check-wm-class)
+(NIL NIL)
+(check-wm-class #(0) "checkity checkfoo")
+(NIL "checkity checkfoo")
+(check-wm-class "ohh bother" #(0) "Magic Fudge")
+("ohh bother" "Magic Fudge")
+(check-wm-class "You Gellin?" #(0))
+("You Gellin?" NIL)
+(check-wm-class "Blinky The Cloon")
+("Blinky The Cloon" NIL)
+
 (defparameter *rdb-tmp* (show (xlib:make-resource-database))) *RDB-TMP*
 ;; (stringp (show (xlib:resource-database-locale *rdb-tmp*))) T
 (xlib:add-resource *rdb-tmp* '("Foo" "Bar" "Baz") "ZoT") "ZoT"
@@ -422,63 +458,6 @@ NIL
                                 :pretty t))
                         :timeout 1 :discard-p t))
   t) T
-
-;; <http://article.gmane.org/gmane.lisp.clisp.devel/19241>
-(defun test-wm-class (map-p)
-  "Test the robustness of CLX's wm-class function.
-If MAP-P is T then map the window.
-Useful if you want to test the running window manager."
-  (flet ((test-it (w &rest strings)
-           (xlib:change-property
-            w :WM_CLASS (apply #'concatenate '(vector xlib:card8)
-                               (mapcar (lambda (s)
-                                         (etypecase s
-                                           (string
-                                            (map #1='(vector xlib:card8)
-                                                 #'xlib:char->card8 s))
-                                           (vector (coerce s #1#))))
-                                       strings))
-            :string 8)
-           (show (multiple-value-list (xlib:get-wm-class w)))
-           ;; give the wm a chance to try out the value
-           (when map-p (sleep 1))))
-    (xlib:with-open-display (dpy)
-      (let* ((screen (first (xlib:display-roots dpy)))
-             (win (xlib:create-window
-                   :parent (xlib:screen-root screen)
-                   :x 0 :y 0 :width 100 :height 100
-                   :background (xlib:screen-white-pixel screen))))
-        (when map-p (xlib:map-window win))
-        (test-it win
-                 "string 1"
-                 #(0)
-                 "string 2"
-                 #(0))
-        (test-it win
-                 "Manifold X"
-                 #(0)
-                 "Powercoupling Y"
-                 #(0)
-                 "Magistrate Z"
-                 #(0))
-        (test-it win
-                 #(0))
-        (test-it win)
-        (test-it win
-                 #(0)
-                 "checkity checkfoo")
-        (test-it win
-                 "ohh bother"
-                 #(0)
-                 "Magic Fudge")
-        (test-it win
-                 "You Gellin?"
-                 #(0))
-        (test-it win
-                 "Blinky The Cloon")
-        (values)))))
-TEST-WM-CLASS
-(test-wm-class nil) NIL
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
