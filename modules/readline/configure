@@ -686,6 +686,14 @@ GREP
 EGREP
 LIBTERMCAP
 INCTERMCAP
+build
+build_cpu
+build_vendor
+build_os
+host
+host_cpu
+host_vendor
+host_os
 LIBOBJS
 LTLIBOBJS'
 ac_subst_files=''
@@ -1312,6 +1320,10 @@ Fine tuning of the installation directories:
 _ACEOF
 
   cat <<\_ACEOF
+
+System types:
+  --build=BUILD     configure for building on BUILD [guessed]
+  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
 _ACEOF
 fi
 
@@ -3889,24 +3901,183 @@ fi
 
 
 
+ac_aux_dir=
+for ac_dir in "$srcdir" "$srcdir/.." "$srcdir/../.."; do
+  if test -f "$ac_dir/install-sh"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install-sh -c"
+    break
+  elif test -f "$ac_dir/install.sh"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/install.sh -c"
+    break
+  elif test -f "$ac_dir/shtool"; then
+    ac_aux_dir=$ac_dir
+    ac_install_sh="$ac_aux_dir/shtool install -c"
+    break
+  fi
+done
+if test -z "$ac_aux_dir"; then
+  { { $as_echo "$as_me:$LINENO: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&5
+$as_echo "$as_me: error: cannot find install-sh or install.sh in \"$srcdir\" \"$srcdir/..\" \"$srcdir/../..\"" >&2;}
+   { (exit 1); exit 1; }; }
+fi
 
-                  acl_libdirstem=lib
-  searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
-  if test -n "$searchpath"; then
-    acl_save_IFS="${IFS= 	}"; IFS=":"
-    for searchdir in $searchpath; do
-      if test -d "$searchdir"; then
-        case "$searchdir" in
-          */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
-          *) searchdir=`cd "$searchdir" && pwd`
-             case "$searchdir" in
-               */lib64 ) acl_libdirstem=lib64 ;;
-             esac ;;
+# These three variables are undocumented and unsupported,
+# and are intended to be withdrawn in a future Autoconf release.
+# They can cause serious problems if a builder's source tree is in a directory
+# whose full name contains unusual characters.
+ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
+ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
+ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
+
+
+# Make sure we can run config.sub.
+$SHELL "$ac_aux_dir/config.sub" sun4 >/dev/null 2>&1 ||
+  { { $as_echo "$as_me:$LINENO: error: cannot run $SHELL $ac_aux_dir/config.sub" >&5
+$as_echo "$as_me: error: cannot run $SHELL $ac_aux_dir/config.sub" >&2;}
+   { (exit 1); exit 1; }; }
+
+{ $as_echo "$as_me:$LINENO: checking build system type" >&5
+$as_echo_n "checking build system type... " >&6; }
+if test "${ac_cv_build+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  ac_build_alias=$build_alias
+test "x$ac_build_alias" = x &&
+  ac_build_alias=`$SHELL "$ac_aux_dir/config.guess"`
+test "x$ac_build_alias" = x &&
+  { { $as_echo "$as_me:$LINENO: error: cannot guess build type; you must specify one" >&5
+$as_echo "$as_me: error: cannot guess build type; you must specify one" >&2;}
+   { (exit 1); exit 1; }; }
+ac_cv_build=`$SHELL "$ac_aux_dir/config.sub" $ac_build_alias` ||
+  { { $as_echo "$as_me:$LINENO: error: $SHELL $ac_aux_dir/config.sub $ac_build_alias failed" >&5
+$as_echo "$as_me: error: $SHELL $ac_aux_dir/config.sub $ac_build_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_build" >&5
+$as_echo "$ac_cv_build" >&6; }
+case $ac_cv_build in
+*-*-*) ;;
+*) { { $as_echo "$as_me:$LINENO: error: invalid value of canonical build" >&5
+$as_echo "$as_me: error: invalid value of canonical build" >&2;}
+   { (exit 1); exit 1; }; };;
+esac
+build=$ac_cv_build
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_build
+shift
+build_cpu=$1
+build_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+build_os=$*
+IFS=$ac_save_IFS
+case $build_os in *\ *) build_os=`echo "$build_os" | sed 's/ /-/g'`;; esac
+
+
+{ $as_echo "$as_me:$LINENO: checking host system type" >&5
+$as_echo_n "checking host system type... " >&6; }
+if test "${ac_cv_host+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  if test "x$host_alias" = x; then
+  ac_cv_host=$ac_cv_build
+else
+  ac_cv_host=`$SHELL "$ac_aux_dir/config.sub" $host_alias` ||
+    { { $as_echo "$as_me:$LINENO: error: $SHELL $ac_aux_dir/config.sub $host_alias failed" >&5
+$as_echo "$as_me: error: $SHELL $ac_aux_dir/config.sub $host_alias failed" >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_host" >&5
+$as_echo "$ac_cv_host" >&6; }
+case $ac_cv_host in
+*-*-*) ;;
+*) { { $as_echo "$as_me:$LINENO: error: invalid value of canonical host" >&5
+$as_echo "$as_me: error: invalid value of canonical host" >&2;}
+   { (exit 1); exit 1; }; };;
+esac
+host=$ac_cv_host
+ac_save_IFS=$IFS; IFS='-'
+set x $ac_cv_host
+shift
+host_cpu=$1
+host_vendor=$2
+shift; shift
+# Remember, the first character of IFS is used to create $*,
+# except with old shells:
+host_os=$*
+IFS=$ac_save_IFS
+case $host_os in *\ *) host_os=`echo "$host_os" | sed 's/ /-/g'`;; esac
+
+
+
+
+  acl_libdirstem=lib
+  acl_libdirstem2=
+  case "$host_os" in
+    solaris*)
+                                    { $as_echo "$as_me:$LINENO: checking for 64-bit host" >&5
+$as_echo_n "checking for 64-bit host... " >&6; }
+if test "${gl_cv_solaris_64bit+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#ifdef _LP64
+sixtyfour bits
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "sixtyfour bits" >/dev/null 2>&1; then
+  gl_cv_solaris_64bit=yes
+else
+  gl_cv_solaris_64bit=no
+fi
+rm -f conftest*
+
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_solaris_64bit" >&5
+$as_echo "$gl_cv_solaris_64bit" >&6; }
+      if test $gl_cv_solaris_64bit = yes; then
+        acl_libdirstem=lib/64
+        case "$host_cpu" in
+          sparc*)        acl_libdirstem2=lib/sparcv9 ;;
+          i*86 | x86_64) acl_libdirstem2=lib/amd64 ;;
         esac
       fi
-    done
-    IFS="$acl_save_IFS"
-  fi
+      ;;
+    *)
+      searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
+      if test -n "$searchpath"; then
+        acl_save_IFS="${IFS= 	}"; IFS=":"
+        for searchdir in $searchpath; do
+          if test -d "$searchdir"; then
+            case "$searchdir" in
+              */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
+              *) searchdir=`cd "$searchdir" && pwd`
+                 case "$searchdir" in
+                   */lib64 ) acl_libdirstem=lib64 ;;
+                 esac ;;
+            esac
+          fi
+        done
+        IFS="$acl_save_IFS"
+      fi
+      ;;
+  esac
+  test -n "$acl_libdirstem2" || acl_libdirstem2="$acl_libdirstem"
 
 
 # Check whether --with-readline was given.
@@ -3965,6 +4136,10 @@ if test "${with_libreadline_prefix+set}" = set; then
       else
         additional_includedir="$withval/include"
         additional_libdir="$withval/$acl_libdirstem"
+        if test "$acl_libdirstem2" != "$acl_libdirstem" \
+           && ! test -d "$withval/$acl_libdirstem"; then
+          additional_libdir="$withval/$acl_libdirstem2"
+        fi
       fi
     fi
 
@@ -4116,7 +4291,9 @@ fi
           if test "X$found_dir" != "X"; then
                         LTLIBREADLINE="${LTLIBREADLINE}${LTLIBREADLINE:+ }-L$found_dir -l$name"
             if test "X$found_so" != "X"; then
-                                                        if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
+                                                        if test "$enable_rpath" = no \
+                 || test "X$found_dir" = "X/usr/$acl_libdirstem" \
+                 || test "X$found_dir" = "X/usr/$acl_libdirstem2"; then
                                 LIBREADLINE="${LIBREADLINE}${LIBREADLINE:+ }$found_so"
               else
                                                                                 haveit=
@@ -4186,6 +4363,11 @@ fi
                 LIBREADLINE_PREFIX="$basedir"
                 additional_includedir="$basedir/include"
                 ;;
+              */$acl_libdirstem2 | */$acl_libdirstem2/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
+                LIBREADLINE_PREFIX="$basedir"
+                additional_includedir="$basedir/include"
+                ;;
             esac
             if test "X$additional_includedir" != "X"; then
                                                                                                                 if test "X$additional_includedir" != "X/usr/include"; then
@@ -4232,9 +4414,11 @@ fi
                 case "$dep" in
                   -L*)
                     additional_libdir=`echo "X$dep" | sed -e 's/^X-L//'`
-                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
+                                                                                                                                                                if test "X$additional_libdir" != "X/usr/$acl_libdirstem" \
+                       && test "X$additional_libdir" != "X/usr/$acl_libdirstem2"; then
                       haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem" \
+                         || test "X$additional_libdir" = "X/usr/local/$acl_libdirstem2"; then
                         if test -n "$GCC"; then
                           case $host_os in
                             linux* | gnu* | k*bsd*-gnu) haveit=yes;;

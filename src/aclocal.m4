@@ -1593,7 +1593,27 @@ AC_DEFUN([gl_GLIBC21],
   ]
 )
 
-# gnulib-common.m4 serial 5
+# Determine whether recent-enough GNU Make is being used.
+
+# Copyright (C) 2007 Free Software Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Paul Eggert.
+
+# Set GNU_MAKE if we are using a recent-enough version of GNU make.
+
+# Use --version AND trailing junk, because SGI Make doesn't fail on --version.
+
+AC_DEFUN([gl_GNU_MAKE],
+[
+  AM_CONDITIONAL([GNU_MAKE],
+    [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
+])
+
+# gnulib-common.m4 serial 6
 dnl Copyright (C) 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -1616,6 +1636,16 @@ AC_DEFUN([gl_COMMON_BODY], [
 #if defined __APPLE__ && defined __MACH__ && __APPLE_CC__ >= 5465 && !defined __cplusplus && __STDC_VERSION__ >= 199901L && !defined __GNUC_STDC_INLINE__
 # define __GNUC_STDC_INLINE__ 1
 #endif])
+  AH_VERBATIM([unused_parameter],
+[/* Define as a marker that can be attached to function parameter declarations
+   for parameters that are not used.  This helps to reduce warnings, such as
+   from GCC -Wunused-parameter.  */
+#if __GNUC__ >= 3 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+# define _UNUSED_PARAMETER_ __attribute__ ((__unused__))
+#else
+# define _UNUSED_PARAMETER_
+#endif
+])
 ])
 
 # gl_MODULE_INDICATOR([modulename])
@@ -1741,6 +1771,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_GNU_MAKE
   gl_LIBSIGSEGV
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
@@ -1928,6 +1959,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gettext.m4
   m4/glibc2.m4
   m4/glibc21.m4
+  m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/iconv.m4
   m4/include_next.m4
@@ -1961,6 +1993,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint.m4
   m4/stdint_h.m4
   m4/stdlib_h.m4
+  m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
   m4/visibility.m4
@@ -2152,13 +2185,28 @@ size_t iconv();
   fi
 ])
 
-# include_next.m4 serial 6
+# include_next.m4 serial 8
 dnl Copyright (C) 2006-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Paul Eggert and Derek Price.
+
+dnl Sets INCLUDE_NEXT and PRAGMA_SYSTEM_HEADER.
+dnl
+dnl INCLUDE_NEXT expands to 'include_next' if the compiler supports it, or to
+dnl 'include' otherwise.
+dnl
+dnl PRAGMA_SYSTEM_HEADER can be used in files that contain #include_next,
+dnl so as to avoid GCC warnings when the gcc option -pedantic is used.
+dnl '#pragma GCC system_header' has the same effect as if the file was found
+dnl through the include search path specified with '-isystem' options (as
+dnl opposed to the search path specified with '-I' options). Namely, gcc
+dnl does not warn about some things, and on some systems (Solaris and Interix)
+dnl __STDC__ evaluates to 0 instead of to 1. The latter is an undesired side
+dnl effect; we are therefore careful to use 'defined __STDC__' or '1' instead
+dnl of plain '__STDC__'.
 
 AC_DEFUN([gl_INCLUDE_NEXT],
 [
@@ -2167,8 +2215,12 @@ AC_DEFUN([gl_INCLUDE_NEXT],
     [gl_cv_have_include_next],
     [rm -rf conftestd1 conftestd2
      mkdir conftestd1 conftestd2
+     dnl The include of <stdio.h> is because IBM C 9.0 on AIX 6.1 supports
+     dnl include_next when used as first preprocessor directive in a file,
+     dnl but not when preceded by another include directive.
      cat <<EOF > conftestd1/conftest.h
 #define DEFINED_IN_CONFTESTD1
+#include <stdio.h>
 #include_next <conftest.h>
 #ifdef DEFINED_IN_CONFTESTD2
 int foo;
@@ -2190,18 +2242,17 @@ EOF
      CPPFLAGS="$save_CPPFLAGS"
      rm -rf conftestd1 conftestd2
     ])
+  PRAGMA_SYSTEM_HEADER=
   if test $gl_cv_have_include_next = yes; then
-
-    dnl FIXME: Remove HAVE_INCLUDE_NEXT and update everything that uses it
-    dnl to use @INCLUDE_NEXT@ instead.
-    AC_DEFINE([HAVE_INCLUDE_NEXT], 1,
-	      [Define if your compiler supports the #include_next directive.])
-
     INCLUDE_NEXT=include_next
+    if test -n "$GCC"; then
+      PRAGMA_SYSTEM_HEADER='#pragma GCC system_header'
+    fi
   else
     INCLUDE_NEXT=include
   fi
   AC_SUBST([INCLUDE_NEXT])
+  AC_SUBST([PRAGMA_SYSTEM_HEADER])
 ])
 
 # gl_CHECK_NEXT_HEADERS(HEADER1 HEADER2 ...)
@@ -2457,7 +2508,7 @@ test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 15 (gettext-0.18)
+# lib-link.m4 serial 16 (gettext-0.18)
 dnl Copyright (C) 2001-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2653,6 +2704,10 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
       else
         additional_includedir="$withval/include"
         additional_libdir="$withval/$acl_libdirstem"
+        if test "$acl_libdirstem2" != "$acl_libdirstem" \
+           && ! test -d "$withval/$acl_libdirstem"; then
+          additional_libdir="$withval/$acl_libdirstem2"
+        fi
       fi
     fi
 ])
@@ -2811,7 +2866,9 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
               dnl Linking with a shared library. We attempt to hardcode its
               dnl directory into the executable's runpath, unless it's the
               dnl standard /usr/lib.
-              if test "$enable_rpath" = no || test "X$found_dir" = "X/usr/$acl_libdirstem"; then
+              if test "$enable_rpath" = no \
+                 || test "X$found_dir" = "X/usr/$acl_libdirstem" \
+                 || test "X$found_dir" = "X/usr/$acl_libdirstem2"; then
                 dnl No hardcoding is needed.
                 LIB[]NAME="${LIB[]NAME}${LIB[]NAME:+ }$found_so"
               else
@@ -2902,6 +2959,11 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                 LIB[]NAME[]_PREFIX="$basedir"
                 additional_includedir="$basedir/include"
                 ;;
+              */$acl_libdirstem2 | */$acl_libdirstem2/)
+                basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
+                LIB[]NAME[]_PREFIX="$basedir"
+                additional_includedir="$basedir/include"
+                ;;
             esac
             if test "X$additional_includedir" != "X"; then
               dnl Potentially add $additional_includedir to $INCNAME.
@@ -2960,9 +3022,11 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
                     dnl   3. if it's already present in $LDFLAGS or the already
                     dnl      constructed $LIBNAME,
                     dnl   4. if it doesn't exist as a directory.
-                    if test "X$additional_libdir" != "X/usr/$acl_libdirstem"; then
+                    if test "X$additional_libdir" != "X/usr/$acl_libdirstem" \
+                       && test "X$additional_libdir" != "X/usr/$acl_libdirstem2"; then
                       haveit=
-                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem"; then
+                      if test "X$additional_libdir" = "X/usr/local/$acl_libdirstem" \
+                         || test "X$additional_libdir" = "X/usr/local/$acl_libdirstem2"; then
                         if test -n "$GCC"; then
                           case $host_os in
                             linux* | gnu* | k*bsd*-gnu) haveit=yes;;
@@ -3143,7 +3207,8 @@ AC_DEFUN([AC_LIB_LINKFLAGS_FROM_LIBS],
         if test -n "$next"; then
           dir="$next"
           dnl No need to hardcode the standard /usr/lib.
-          if test "X$dir" != "X/usr/$acl_libdirstem"; then
+          if test "X$dir" != "X/usr/$acl_libdirstem" \
+             && test "X$dir" != "X/usr/$acl_libdirstem2"; then
             rpathdirs="$rpathdirs $dir"
           fi
           next=
@@ -3152,7 +3217,8 @@ AC_DEFUN([AC_LIB_LINKFLAGS_FROM_LIBS],
             -L) next=yes ;;
             -L*) dir=`echo "X$opt" | sed -e 's,^X-L,,'`
                  dnl No need to hardcode the standard /usr/lib.
-                 if test "X$dir" != "X/usr/$acl_libdirstem"; then
+                 if test "X$dir" != "X/usr/$acl_libdirstem" \
+                    && test "X$dir" != "X/usr/$acl_libdirstem2"; then
                    rpathdirs="$rpathdirs $dir"
                  fi
                  next= ;;
@@ -3197,8 +3263,8 @@ AC_DEFUN([AC_LIB_LINKFLAGS_FROM_LIBS],
   AC_SUBST([$1])
 ])
 
-# lib-prefix.m4 serial 5 (gettext-0.15)
-dnl Copyright (C) 2001-2005 Free Software Foundation, Inc.
+# lib-prefix.m4 serial 6 (gettext-0.18)
+dnl Copyright (C) 2001-2005, 2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3352,35 +3418,71 @@ AC_DEFUN([AC_LIB_WITH_FINAL_PREFIX],
   prefix="$acl_save_prefix"
 ])
 
-dnl AC_LIB_PREPARE_MULTILIB creates a variable acl_libdirstem, containing
-dnl the basename of the libdir, either "lib" or "lib64".
+dnl AC_LIB_PREPARE_MULTILIB creates
+dnl - a variable acl_libdirstem, containing the basename of the libdir, either
+dnl   "lib" or "lib64" or "lib/64",
+dnl - a variable acl_libdirstem2, as a secondary possible value for
+dnl   acl_libdirstem, either the same as acl_libdirstem or "lib/sparcv9" or
+dnl   "lib/amd64".
 AC_DEFUN([AC_LIB_PREPARE_MULTILIB],
 [
-  dnl There is no formal standard regarding lib and lib64. The current
-  dnl practice is that on a system supporting 32-bit and 64-bit instruction
-  dnl sets or ABIs, 64-bit libraries go under $prefix/lib64 and 32-bit
-  dnl libraries go under $prefix/lib. We determine the compiler's default
-  dnl mode by looking at the compiler's library search path. If at least
-  dnl of its elements ends in /lib64 or points to a directory whose absolute
-  dnl pathname ends in /lib64, we assume a 64-bit ABI. Otherwise we use the
-  dnl default, namely "lib".
+  dnl There is no formal standard regarding lib and lib64.
+  dnl On glibc systems, the current practice is that on a system supporting
+  dnl 32-bit and 64-bit instruction sets or ABIs, 64-bit libraries go under
+  dnl $prefix/lib64 and 32-bit libraries go under $prefix/lib. We determine
+  dnl the compiler's default mode by looking at the compiler's library search
+  dnl path. If at least one of its elements ends in /lib64 or points to a
+  dnl directory whose absolute pathname ends in /lib64, we assume a 64-bit ABI.
+  dnl Otherwise we use the default, namely "lib".
+  dnl On Solaris systems, the current practice is that on a system supporting
+  dnl 32-bit and 64-bit instruction sets or ABIs, 64-bit libraries go under
+  dnl $prefix/lib/64 (which is a symlink to either $prefix/lib/sparcv9 or
+  dnl $prefix/lib/amd64) and 32-bit libraries go under $prefix/lib.
+  AC_REQUIRE([AC_CANONICAL_HOST])
   acl_libdirstem=lib
-  searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
-  if test -n "$searchpath"; then
-    acl_save_IFS="${IFS= 	}"; IFS=":"
-    for searchdir in $searchpath; do
-      if test -d "$searchdir"; then
-        case "$searchdir" in
-          */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
-          *) searchdir=`cd "$searchdir" && pwd`
-             case "$searchdir" in
-               */lib64 ) acl_libdirstem=lib64 ;;
-             esac ;;
+  acl_libdirstem2=
+  case "$host_os" in
+    solaris*)
+      dnl See Solaris 10 Software Developer Collection > Solaris 64-bit Developer's Guide > The Development Environment
+      dnl <http://docs.sun.com/app/docs/doc/816-5138/dev-env?l=en&a=view>.
+      dnl "Portable Makefiles should refer to any library directories using the 64 symbolic link."
+      dnl But we want to recognize the sparcv9 or amd64 subdirectory also if the
+      dnl symlink is missing, so we set acl_libdirstem2 too.
+      AC_CACHE_CHECK([for 64-bit host], [gl_cv_solaris_64bit],
+        [AC_EGREP_CPP([sixtyfour bits], [
+#ifdef _LP64
+sixtyfour bits
+#endif
+           ], [gl_cv_solaris_64bit=yes], [gl_cv_solaris_64bit=no])
+        ])
+      if test $gl_cv_solaris_64bit = yes; then
+        acl_libdirstem=lib/64
+        case "$host_cpu" in
+          sparc*)        acl_libdirstem2=lib/sparcv9 ;;
+          i*86 | x86_64) acl_libdirstem2=lib/amd64 ;;
         esac
       fi
-    done
-    IFS="$acl_save_IFS"
-  fi
+      ;;
+    *)
+      searchpath=`(LC_ALL=C $CC -print-search-dirs) 2>/dev/null | sed -n -e 's,^libraries: ,,p' | sed -e 's,^=,,'`
+      if test -n "$searchpath"; then
+        acl_save_IFS="${IFS= 	}"; IFS=":"
+        for searchdir in $searchpath; do
+          if test -d "$searchdir"; then
+            case "$searchdir" in
+              */lib64/ | */lib64 ) acl_libdirstem=lib64 ;;
+              *) searchdir=`cd "$searchdir" && pwd`
+                 case "$searchdir" in
+                   */lib64 ) acl_libdirstem=lib64 ;;
+                 esac ;;
+            esac
+          fi
+        done
+        IFS="$acl_save_IFS"
+      fi
+      ;;
+  esac
+  test -n "$acl_libdirstem2" || acl_libdirstem2="$acl_libdirstem"
 ])
 
 # libsigsegv.m4 serial 2
@@ -5131,7 +5233,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # indent-tabs-mode: nil
 # End:
 
-# stdlib_h.m4 serial 7
+# stdlib_h.m4 serial 11
 dnl Copyright (C) 2007, 2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5155,31 +5257,42 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_MALLOC_POSIX=0;  AC_SUBST([GNULIB_MALLOC_POSIX])
   GNULIB_REALLOC_POSIX=0; AC_SUBST([GNULIB_REALLOC_POSIX])
   GNULIB_CALLOC_POSIX=0;  AC_SUBST([GNULIB_CALLOC_POSIX])
+  GNULIB_ATOLL=0;         AC_SUBST([GNULIB_ATOLL])
+  GNULIB_GETLOADAVG=0;    AC_SUBST([GNULIB_GETLOADAVG])
   GNULIB_GETSUBOPT=0;     AC_SUBST([GNULIB_GETSUBOPT])
   GNULIB_MKDTEMP=0;       AC_SUBST([GNULIB_MKDTEMP])
   GNULIB_MKSTEMP=0;       AC_SUBST([GNULIB_MKSTEMP])
   GNULIB_PUTENV=0;        AC_SUBST([GNULIB_PUTENV])
+  GNULIB_RANDOM_R=0;      AC_SUBST([GNULIB_RANDOM_R])
   GNULIB_RPMATCH=0;       AC_SUBST([GNULIB_RPMATCH])
   GNULIB_SETENV=0;        AC_SUBST([GNULIB_SETENV])
   GNULIB_STRTOD=0;        AC_SUBST([GNULIB_STRTOD])
+  GNULIB_STRTOLL=0;       AC_SUBST([GNULIB_STRTOLL])
+  GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
   GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
   dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_ATOLL=1;           AC_SUBST([HAVE_ATOLL])
   HAVE_CALLOC_POSIX=1;    AC_SUBST([HAVE_CALLOC_POSIX])
   HAVE_GETSUBOPT=1;       AC_SUBST([HAVE_GETSUBOPT])
   HAVE_MALLOC_POSIX=1;    AC_SUBST([HAVE_MALLOC_POSIX])
   HAVE_MKDTEMP=1;         AC_SUBST([HAVE_MKDTEMP])
   HAVE_REALLOC_POSIX=1;   AC_SUBST([HAVE_REALLOC_POSIX])
+  HAVE_RANDOM_R=1;        AC_SUBST([HAVE_RANDOM_R])
   HAVE_RPMATCH=1;         AC_SUBST([HAVE_RPMATCH])
   HAVE_SETENV=1;          AC_SUBST([HAVE_SETENV])
   HAVE_STRTOD=1;          AC_SUBST([HAVE_STRTOD])
+  HAVE_STRTOLL=1;         AC_SUBST([HAVE_STRTOLL])
+  HAVE_STRTOULL=1;        AC_SUBST([HAVE_STRTOULL])
+  HAVE_SYS_LOADAVG_H=0;   AC_SUBST([HAVE_SYS_LOADAVG_H])
   HAVE_UNSETENV=1;        AC_SUBST([HAVE_UNSETENV])
+  HAVE_DECL_GETLOADAVG=1; AC_SUBST([HAVE_DECL_GETLOADAVG])
   REPLACE_MKSTEMP=0;      AC_SUBST([REPLACE_MKSTEMP])
   REPLACE_PUTENV=0;       AC_SUBST([REPLACE_PUTENV])
   REPLACE_STRTOD=0;       AC_SUBST([REPLACE_STRTOD])
   VOID_UNSETENV=0;        AC_SUBST([VOID_UNSETENV])
 ])
 
-# unistd_h.m4 serial 11
+# unistd_h.m4 serial 16
 dnl Copyright (C) 2006-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5213,22 +5326,37 @@ AC_DEFUN([gl_UNISTD_MODULE_INDICATOR],
 
 AC_DEFUN([gl_UNISTD_H_DEFAULTS],
 [
-  GNULIB_CHOWN=0;         AC_SUBST([GNULIB_CHOWN])
-  GNULIB_DUP2=0;          AC_SUBST([GNULIB_DUP2])
-  GNULIB_ENVIRON=0;       AC_SUBST([GNULIB_ENVIRON])
-  GNULIB_FCHDIR=0;        AC_SUBST([GNULIB_FCHDIR])
-  GNULIB_FTRUNCATE=0;     AC_SUBST([GNULIB_FTRUNCATE])
-  GNULIB_GETCWD=0;        AC_SUBST([GNULIB_GETCWD])
-  GNULIB_GETLOGIN_R=0;    AC_SUBST([GNULIB_GETLOGIN_R])
-  GNULIB_GETPAGESIZE=0;   AC_SUBST([GNULIB_GETPAGESIZE])
-  GNULIB_LCHOWN=0;        AC_SUBST([GNULIB_LCHOWN])
-  GNULIB_LSEEK=0;         AC_SUBST([GNULIB_LSEEK])
-  GNULIB_READLINK=0;      AC_SUBST([GNULIB_READLINK])
-  GNULIB_SLEEP=0;         AC_SUBST([GNULIB_SLEEP])
+  GNULIB_CHOWN=0;            AC_SUBST([GNULIB_CHOWN])
+  GNULIB_CLOSE=0;            AC_SUBST([GNULIB_CLOSE])
+  GNULIB_DUP2=0;             AC_SUBST([GNULIB_DUP2])
+  GNULIB_ENVIRON=0;          AC_SUBST([GNULIB_ENVIRON])
+  GNULIB_EUIDACCESS=0;       AC_SUBST([GNULIB_EUIDACCESS])
+  GNULIB_FCHDIR=0;           AC_SUBST([GNULIB_FCHDIR])
+  GNULIB_FSYNC=0;            AC_SUBST([GNULIB_FSYNC])
+  GNULIB_FTRUNCATE=0;        AC_SUBST([GNULIB_FTRUNCATE])
+  GNULIB_GETCWD=0;           AC_SUBST([GNULIB_GETCWD])
+  GNULIB_GETDOMAINNAME=0;    AC_SUBST([GNULIB_GETDOMAINNAME])
+  GNULIB_GETDTABLESIZE=0;    AC_SUBST([GNULIB_GETDTABLESIZE])
+  GNULIB_GETHOSTNAME=0;      AC_SUBST([GNULIB_GETHOSTNAME])
+  GNULIB_GETLOGIN_R=0;       AC_SUBST([GNULIB_GETLOGIN_R])
+  GNULIB_GETPAGESIZE=0;      AC_SUBST([GNULIB_GETPAGESIZE])
+  GNULIB_GETUSERSHELL=0;     AC_SUBST([GNULIB_GETUSERSHELL])
+  GNULIB_LCHOWN=0;           AC_SUBST([GNULIB_LCHOWN])
+  GNULIB_LSEEK=0;            AC_SUBST([GNULIB_LSEEK])
+  GNULIB_READLINK=0;         AC_SUBST([GNULIB_READLINK])
+  GNULIB_SLEEP=0;            AC_SUBST([GNULIB_SLEEP])
+  GNULIB_UNISTD_H_SIGPIPE=0; AC_SUBST([GNULIB_UNISTD_H_SIGPIPE])
+  GNULIB_WRITE=0;            AC_SUBST([GNULIB_WRITE])
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_DUP2=1;            AC_SUBST([HAVE_DUP2])
+  HAVE_EUIDACCESS=1;      AC_SUBST([HAVE_EUIDACCESS])
+  HAVE_FSYNC=1;           AC_SUBST([HAVE_FSYNC])
   HAVE_FTRUNCATE=1;       AC_SUBST([HAVE_FTRUNCATE])
+  HAVE_GETDOMAINNAME=1;   AC_SUBST([HAVE_GETDOMAINNAME])
+  HAVE_GETDTABLESIZE=1;   AC_SUBST([HAVE_GETDTABLESIZE])
+  HAVE_GETHOSTNAME=1;     AC_SUBST([HAVE_GETHOSTNAME])
   HAVE_GETPAGESIZE=1;     AC_SUBST([HAVE_GETPAGESIZE])
+  HAVE_GETUSERSHELL=1;    AC_SUBST([HAVE_GETUSERSHELL])
   HAVE_READLINK=1;        AC_SUBST([HAVE_READLINK])
   HAVE_SLEEP=1;           AC_SUBST([HAVE_SLEEP])
   HAVE_DECL_ENVIRON=1;    AC_SUBST([HAVE_DECL_ENVIRON])
@@ -5236,23 +5364,26 @@ AC_DEFUN([gl_UNISTD_H_DEFAULTS],
   HAVE_OS_H=0;            AC_SUBST([HAVE_OS_H])
   HAVE_SYS_PARAM_H=0;     AC_SUBST([HAVE_SYS_PARAM_H])
   REPLACE_CHOWN=0;        AC_SUBST([REPLACE_CHOWN])
+  REPLACE_CLOSE=0;        AC_SUBST([REPLACE_CLOSE])
   REPLACE_FCHDIR=0;       AC_SUBST([REPLACE_FCHDIR])
   REPLACE_GETCWD=0;       AC_SUBST([REPLACE_GETCWD])
   REPLACE_GETPAGESIZE=0;  AC_SUBST([REPLACE_GETPAGESIZE])
   REPLACE_LCHOWN=0;       AC_SUBST([REPLACE_LCHOWN])
   REPLACE_LSEEK=0;        AC_SUBST([REPLACE_LSEEK])
+  REPLACE_WRITE=0;        AC_SUBST([REPLACE_WRITE])
+  UNISTD_H_HAVE_WINSOCK2_H=0; AC_SUBST([UNISTD_H_HAVE_WINSOCK2_H])
 ])
 
 dnl A placeholder for ISO C99 <wchar.h>, for platforms that have issues.
 
-dnl Copyright (C) 2007 Free Software Foundation, Inc.
+dnl Copyright (C) 2007-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 dnl Written by Eric Blake.
 
-# wchar.m4 serial 4
+# wchar.m4 serial 6
 
 AC_DEFUN([gl_WCHAR_H],
 [
@@ -5263,7 +5394,16 @@ AC_DEFUN([gl_WCHAR_H],
 wchar_t w;]],
       [gl_cv_header_wchar_h_standalone=yes],
       [gl_cv_header_wchar_h_standalone=no])])
-  if test $gl_cv_header_wchar_h_standalone != yes; then
+
+  AC_REQUIRE([gt_TYPE_WINT_T])
+  if test $gt_cv_c_wint_t = yes; then
+    HAVE_WINT_T=1
+  else
+    HAVE_WINT_T=0
+  fi
+  AC_SUBST([HAVE_WINT_T])
+
+  if test $gl_cv_header_wchar_h_standalone != yes || test $gt_cv_c_wint_t != yes; then
     WCHAR_H=wchar.h
   fi
 
@@ -5281,6 +5421,13 @@ wchar_t w;]],
   gl_CHECK_NEXT_HEADERS([wchar.h])
 ])
 
+dnl Unconditionally enables the replacement of <wchar.h>.
+AC_DEFUN([gl_REPLACE_WCHAR_H],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+  WCHAR_H=wchar.h
+])
+
 AC_DEFUN([gl_WCHAR_MODULE_INDICATOR],
 [
   dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
@@ -5294,8 +5441,7 @@ AC_DEFUN([gl_WCHAR_H_DEFAULTS],
   dnl Assume proper GNU behavior unless another module says otherwise.
   HAVE_DECL_WCWIDTH=1; AC_SUBST([HAVE_DECL_WCWIDTH])
   REPLACE_WCWIDTH=0;   AC_SUBST([REPLACE_WCWIDTH])
-  WCHAR_H=
-  AC_SUBST([WCHAR_H])
+  WCHAR_H='';          AC_SUBST([WCHAR_H])
 ])
 
 # wctype.m4 serial 2
@@ -14177,33 +14323,6 @@ AC_DEFUN([CL_MACH_VM],
  , [vm_allocate(); task_self();],
 AC_DEFINE(HAVE_MACH_VM,,[have vm_allocate() and task_self() functions])dnl
 )])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 2005 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Sam Steingold
-
-AC_PREREQ(2.13)
-
-dnl check for MAKE and figure out whether it is GNU make
-AC_DEFUN([CL_PROG_MAKE],[AC_CHECK_PROGS(MAKE,gmake make,make)
-AC_PROG_MAKE_SET
-AC_MSG_CHECKING(for GNU make)
-AC_CACHE_VAL(cl_cv_gnu_make,[
-if eval "${MAKE}"' -v 2>&5 | grep -i gnu 1>&5 2>&5';
-then cl_cv_gnu_make=yes
-else cl_cv_gnu_make=no
-fi
-])
-AC_MSG_RESULT($cl_cv_gnu_make)
-GNU_MAKE="$cl_cv_gnu_make"
-AC_SUBST(GNU_MAKE)dnl
-])
 
 dnl -*- Autoconf -*-
 dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
