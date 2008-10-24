@@ -81,6 +81,11 @@ dnl http://www.oracle.com/technology/products/berkeley-db/db/update/4.4.20/if.4.
 dnl *DIRTY* -> DB_READ_UNCOMMITTED; DEGREE_2 -> DB_READ_COMMITTED
 AC_CHECK_DECLS([DB_LOCK_READ_UNCOMMITTED],,,[#include <db.h>])
 
+dnl http://www.oracle.com/technology/documentation/berkeley-db/db/ref/upgrade.4.7/log.html
+dnl http://www.oracle.com/technology/documentation/berkeley-db/db/ref/upgrade.4.7/interdir.html
+AC_CHECK_MEMBERS([DB_ENV.log_set_config, DB_ENV.get_intermediate_dir_mode],
+,,[#include <db.h>])
+
 BOLD_MSG([Berkeley-DB (Output)])
 AC_CONFIG_FILES(Makefile link.sh)
 AC_OUTPUT

@@ -652,7 +652,8 @@ DEFCHECKER(check_lk_detect,prefix=DB_LOCK, default=DB_LOCK_DEFAULT, NORUN \
            :DEFAULT EXPIRE MAXLOCKS MINLOCKS MINWRITE OLDEST RANDOM YOUNGEST)
 DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT TIMEOUT \
-      SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR      \
+      SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR \
+      INTERMEDIATE-DIR-MODE                                      \
       LG-BSIZE LG-DIR LG-MAX LG-REGIONMAX NCACHE CACHESIZE CACHE \
       LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS \
       AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE \
@@ -775,6 +776,13 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
                   { SYSCALL(dbe->set_lg_dir,(dbe,dirz)); });
   } else skipSTACK(1);
   DBE_SET(lg_bsize,u_int32_t,I_to_uint32(check_uint32(STACK_0)));
+#if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
+  if (!missingp(STACK_0)) {     /* DB_ENV.get_intermediate_dir_mode */
+    with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),idm,
+                  { SYSCALL(dbe->set_intermediate_dir_mode,(dbe,idm)); });
+  } else
+#endif
+    skipSTACK(1);                 /* drop intermediate_dir_mode */
   if (!missingp(STACK_0)) {     /* TMP_DIR */
     with_string_0(physical_namestring(popSTACK()),GLO(pathname_encoding),tmpz,
                   { SYSCALL(dbe->set_tmp_dir,(dbe,tmpz)); });
@@ -966,6 +974,10 @@ DEFINE_DBE_GETTER1(get_lg_max,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_lg_regionmax,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tmp_dir,const char *,
                    asciz_to_string0(value,GLO(pathname_encoding)))
+#if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
+DEFINE_DBE_GETTER1(get_intermediate_dir_mode,const char *,
+                   asciz_to_string0(value,GLO(misc_encoding)))
+#endif
 DEFINE_DBE_GETTER1(get_tx_max,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tx_timestamp,time_t,convert_time_to_universal(&value))
 
@@ -1021,6 +1033,9 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(value1); count++;
     pushSTACK(`:TIMESTAMP`); pushSTACK(dbe_get_tx_timestamp(dbe)); count++;
     pushSTACK(`:TX-MAX`); pushSTACK(dbe_get_tx_max(dbe)); count++;
+#  if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
+    pushSTACK(`:INTERMEDIATE-DIR-MODE`); pushSTACK(dbe_get_intermediate_dir_mode)); count++;
+#  endif
     pushSTACK(`:TMP-DIR`); pushSTACK(dbe_get_tmp_dir(dbe)); count++;
     pushSTACK(`:DATA-DIR`); value1 = dbe_get_data_dirs(dbe);
     pushSTACK(value1); count++;
@@ -1132,6 +1147,10 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     VALUES1(dbe_get_data_dirs(dbe));
   } else if (eq(what,`:TMP-DIR`)) {
     VALUES1(dbe_get_tmp_dir(dbe));
+#if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
+  } else if (eq(what,`:INTERMEDIATE-DIR-MODE`)) {
+    VALUES1(dbe_get_intermediate_dir_mode(dbe));
+#endif
   } else if (eq(what,`:TAS-SPINS`)) {
     VALUES1(dbe_get_tas_spins(dbe));
   } else if (eq(what,`:SHM-KEY`)) {
