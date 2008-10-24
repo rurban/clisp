@@ -1,5 +1,15 @@
 2008-10-24  Sam Steingold  <sds@gnu.org>
 
+	* build-aux/config.rpath, gllib/Makefile.am, gllib/stdint.in.h,
+	* gllib/stdlib.in.h, gllib/unistd.in.h, gllib/wchar.in.h,
+	* gllib/wctype.in.h, gllib/uniwidth/width.c, glm4/gnulib-cache.m4,
+	* glm4/gnulib-common.m4, glm4/gnulib-comp.m4, glm4/include_next.m4,
+	* glm4/lib-link.m4, glm4/lib-prefix.m4, glm4/lock.m4,
+	* glm4/stdlib_h.m4, glm4/unistd_h.m4, glm4/wchar.m4: sync with gnulib
+	* glm4/threadlib.m4: add (pulled in by gettext 0.17)
+
+2008-10-24  Sam Steingold  <sds@gnu.org>
+
 	replace m4/make.m4 with glm4/gnu-make.m4
 	* Makefile.devel (gnulib-imported): add gnu-make
 	* m4/make.m4: remove
