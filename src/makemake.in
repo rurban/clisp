@@ -2696,15 +2696,16 @@ if [ -n "$USE_GETTEXT" ] ; then
     echotab "(cd po && \$(MAKE) && \$(MAKE) install datarootdir=.. localedir='\$\$(datarootdir)/locale' INSTALL_DATA='\$(LN_HARD)') || (rm -rf locale ; exit 1)"
   else
     echotab "mkdir locale"
-    if test -f src/configure.in; then
-      # makemake being called in top-srcdir.
-      src_configure_file=src/configure.in
-    else
-      # makemake being called in build dir.
-      src_configure_file=${srcdir}/configure.in
+    for d in src ${srcdir}; do
+      if test -f $d/po/LINGUAS; then
+        LINGUAS=`sed 's/#.*//' $d/po/LINGUAS`
+        break
+      fi
+    done
+    if test -z "${LINGUAS}"; then
+      echol "makemake: missing ${srcdir}/po/LINGUAS" >&2; exit 1
     fi
-    my_eval `grep ALL_LINGUAS= ${src_configure_file}`
-    for lang in ${ALL_LINGUAS:-en de fr es nl ru}; do
+    for lang in ${LINGUAS}; do
       echotab "mkdir -p locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
       echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done

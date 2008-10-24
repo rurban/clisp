@@ -60,8 +60,6 @@ BOLD_MSG([check for add-ons])
 gl_INIT
 AM_ICONV dnl DEFS HAVE_ICONV, ICONV_CONST, set variable LIBICONV
 dnl USE_NLS CPPFLAGS LIBINTL
-dnl Set of all available languages [this is also a /bin/sh command!]
-ALL_LINGUAS="en da de fr es nl ru"
 AM_GNU_GETTEXT([external], [need-ngettext])
 gl_LIBSIGSEGV       dnl set variable LIBSIGSEGV
 CL_FFCALL           dnl set variables LIBAVCALL LIBCALLBACK
