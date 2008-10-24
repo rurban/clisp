@@ -54,6 +54,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_GNU_MAKE
   gl_LIBSIGSEGV
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
@@ -241,6 +242,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/gettext.m4
   m4/glibc2.m4
   m4/glibc21.m4
+  m4/gnu-make.m4
   m4/gnulib-common.m4
   m4/iconv.m4
   m4/include_next.m4
@@ -274,6 +276,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint.m4
   m4/stdint_h.m4
   m4/stdlib_h.m4
+  m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
   m4/visibility.m4
