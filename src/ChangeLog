@@ -1,5 +1,14 @@
 2008-10-24  Sam Steingold  <sds@gnu.org>
 
+	Support Berkeley-DB 2.7
+	* modules/berkeley-db/configure.in: check for
+	DB_ENV.log_set_config and DB_ENV.get_intermediate_dir_mode
+	* modules/berkeley-db/bdb.c (DBE-SET-OPTIONS, DBE-GET-OPTIONS)
+	[HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE]: accept :INTERMEDIATE-DIR-MODE
+	(dbe_get_intermediate_dir_mode): add DEFINE_DBE_GETTER1
+
+2008-10-24  Sam Steingold  <sds@gnu.org>
+
 	ensure that all module configures have aux build dir set up
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): call AC_CONFIG_AUX_DIR here
 	* modules/berkeley-db/configure.in, modules/gdbm/configure.in,

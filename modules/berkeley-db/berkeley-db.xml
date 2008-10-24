@@ -11,6 +11,7 @@
   <member><ulink role="bdb" url="ref/upgrade.4.4/toc.html">4.4</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.5/toc.html">4.5</ulink></member>
   <member><ulink role="bdb" url="ref/upgrade.4.6/toc.html">4.6</ulink></member>
+  <member><ulink role="bdb" url="ref/upgrade.4.7/toc.html">4.7</ulink></member>
 </simplelist></para>
 
 <simpara>When this module is present, &features-my; contains the
@@ -123,7 +124,8 @@
 <variablelist>
 <varlistentry id="dbe-set-options"><term><code>(BDB:DBE-SET-OPTIONS dbe
    &key-amp; MSGFILE ERRFILE ERRPFX PASSWORD ENCRYPT LOCK-TIMEOUT TXN-TIMEOUT
-   SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR LG-BSIZE LG-DIR
+   SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR
+   INTERMEDIATE-DIR-MODE LG-BSIZE LG-DIR
    LG-MAX LG-REGIONMAX NCACHE CACHESIZE CACHE LK-CONFLICTS LK-DETECT
    LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB
    DSYNC-LOG LOG-AUTOREMOVE LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC
@@ -133,6 +135,7 @@
  <listitem><para>Set some environment options using <simplelist columns="3">
     <member><function role="bdb">DB_ENV-&gt;set_flags</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_verbose</function></member>
+    <member><function role="bdb">DB_ENV-&gt;set_intermediate_dir_mode</function> (v4.7+)</member>
     <member><function role="bdb">DB_ENV-&gt;set_tmp_dir</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_data_dir</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_tx_max</function></member>
@@ -179,6 +182,11 @@
      <listitem><simpara>temporary directory
        (<function role="bdb">DB_ENV-&gt;get_tmp_dir</function>).
        May be &nil;.</simpara></listitem></varlistentry>
+    <varlistentry><term><constant>:INTERMEDIATE-DIR-MODE</constant></term>
+     <listitem><simpara>mode for creating intermediate directories
+       during recovery (v4.7+)
+       (<function role="bdb">DB_ENV-&gt;get_intermediate_dir_mode</function>).
+    </simpara></listitem></varlistentry>
     <varlistentry><term>&verbose-k;</term>
      <listitem><simpara>the &list-t; of verbosity settings
        (<function role="bdb">DB_ENV-&gt;get_verbose</function>).
