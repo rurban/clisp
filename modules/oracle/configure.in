@@ -16,7 +16,7 @@ BOLD_MSG([Oracle (Common)])
 if test $cl_cv_have_ffcall = no; then
   AC_MSG_ERROR([module Oracle requires FFI])
 fi
-CL_MODULE_COMMON_CHECKS
+CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 
 BOLD_MSG([Oracle (Programs)])
 AC_PROG_LN_S
