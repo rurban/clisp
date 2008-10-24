@@ -6703,13 +6703,14 @@ dnl AC_xxx_IFELSE(PROGRAM, ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID, PROGRAM,
 dnl              ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 
-dnl 3 next macros avoid aclocal warnings about wrong macro order
+dnl the next macro avoids aclocal warnings about wrong macro order
 AC_DEFUN([CL_MODULE_COMMON_CHECKS],
 [AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_CPP])dnl
 AC_REQUIRE([AC_GNU_SOURCE])dnl
 AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS])dnl
-AC_CHECK_HEADERS(time.h sys/time.h)
+AC_CHECK_HEADERS(time.h sys/time.h)dnl
+AC_CONFIG_AUX_DIR($1)dnl
 ])
 
 AC_DEFUN([CL_CHECK],[dnl
