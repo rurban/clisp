@@ -1,11 +1,11 @@
 .\"     Title: clisp
 .\"    Author: Bruno Haible <\fI\%http://www.haible.de/bruno/\fR>
-.\" Generator: DocBook XSL Stylesheets vsnapshot_7566 <http://docbook.sf.net/>
-.\"      Date: Last modified: 2008-07-05
+.\" Generator: DocBook XSL Stylesheets v1.73.2 <http://docbook.sf.net/>
+.\"      Date: Last modified: 2008-10-23
 .\"    Manual: Platform: @PLATFORM@
-.\"    Source: CLISP 2.46
+.\"    Source: CLISP 2.47
 .\"
-.TH "CLISP" "1" "Last modified: 2008\-07\-05" "CLISP 2.46" "Platform: @PLATFORM@"
+.TH "CLISP" "1" "Last modified: 2008\-10\-23" "CLISP 2.47" "Platform: @PLATFORM@"
 .\" disable hyphenation
 .nh
 .\" disable justification (adjust text to left margin only)
@@ -444,7 +444,7 @@ library treats
 TAB
 (see
 TAB key) as a normal self\-inserting character (see
-Q:\ A.4.5)\.
+Q:\ A.4.6)\.
 .RE
 #endif
 .RE
@@ -716,7 +716,7 @@ Context sensitive:
 .sp
 .RS 4
 \h'-04'\(bu\h'+03'If you have not typed anything yet, you will get a help message, as if by the
-\fBHelp\fR
+\fBhelp\fR
 command\.
 .RE
 .sp
@@ -898,7 +898,6 @@ is used to find the interactive command interpreter called by
 determines the screen size recognized by the pretty printer\.
 .RE
 #endif
-
 .PP
 \fBORGANIZATION\fR
 .RS 4
@@ -981,7 +980,7 @@ before
 \h'-04' 2.\h'+02'If you are reporting a
 \(lqhard crash\(rq
 (segmentation fault, bus error, core dump etc), please do
-\fB\./configure \-\-with\-debug \-\-cbc build\-g ; cd build\-g; gdb lisp\.run\fR, then load the appropriate
+\fB\./configure \fR\fB\fB\-\-with\-debug\fR\fR\fB \-\-cbc build\-g ; cd build\-g; gdb lisp\.run\fR, then load the appropriate
 linking set
 by either
 \fBbase\fR
@@ -1010,9 +1009,8 @@ version (on
 .RE
 .sp
 .RS 4
-\h'-04' 2.\h'+02'Where did you get the sources or binaries? When? (Absolute dates \- like
-\(lq2006\-01\-17\(rq
-\- are preferred over the relative ones \- like
+\h'-04' 2.\h'+02'Where did you get the sources or binaries? When? (Absolute dates, e\.g\.,
+\(lq2006\-01\-17\(rq, are preferred over the relative ones, e\.g\.,
 \(lq2 days ago\(rq)\.
 .RE
 .sp
@@ -1038,24 +1036,34 @@ version (on
 .RS 4
 \h'-04'\(bu\h'+03'Add Multi\-Threading capabilities, via OS threads\.
 .RE
+.sp
+.RS 4
+\h'-04'\(bu\h'+03'Embed
+\fI\fBCLISP\fR\fR\&[6]
+in
+\fIVIM\fR\&[53]\.
+.RE
 .SH "AUTHORS"
 .PP
 \fBBruno Haible\fR <\&\fI\%http://www.haible.de/bruno/\fR\&>
 .sp -1n
 .IP "" 4
-Author.
+The original author and long\-time maintainer\.
 .PP
 \fBMichael Stoll\fR <\&\fI\%http://www.faculty.iu-bremen.de/mstoll/\fR\&>
 .sp -1n
 .IP "" 4
-Author.
+The original author\.
 .PP
 \fBSam Steingold\fR <\&\fI\%http://sds.podval.org/\fR\&>
 .sp -1n
 .IP "" 4
-Author.
+Co\-maintainer since 1998\.
 .PP
-\fBSee \fI\fICOPYRIGHT\fR (file in the CLISP sources) \fR for the list of other contributors and the license\.\fR
+\fBOthers\fR
+.sp -1n
+.IP "" 4
+See \fI\fICOPYRIGHT\fR (file in the CLISP sources) \fR for the list of other contributors and the license\.
 .SH "COPYRIGHT"
 Copyright \(co 1992-2008 Bruno Haible
 .br
@@ -1319,4 +1327,9 @@ libc
 \fILinux\fR
 .RS 4
 \%http://www.linux.org/
+.RE
+.IP "53." 4
+VIM
+.RS 4
+\%http://www.vim.org
 .RE
