@@ -12,7 +12,7 @@ dnl          makemake.in --->> makemake
 dnl
 dnl  makemake     ---<sh>--->> Makefile
 dnl
-dnl  Makefile     ---<make>--->> lisp.run, lispinit.mem
+dnl  Makefile   ---<make>--->> lisp.run, lispinit.mem
 dnl
 dnl
 AC_PREREQ(2.61)
@@ -44,7 +44,7 @@ AC_CHECK_PROG(GROFF,groff,groff)
 AC_CHECK_PROG(DVIPDF,dvipdf,dvipdf)
 AC_CHECK_PROGS(COMPRESS,gzip zip compress)
 CL_TEST_NT dnl sets variable TEST_NT
-CL_PROG_MAKE dnl sets variables MAKE GNU_MAKE
+gl_GNU_MAKE dnl sets variable GNU_MAKE
 dnl
 BOLD_MSG([checks for system features])
 AC_SYS_LARGEFILE    dnl DEFS _FILE_OFFSET_BITS, _LARGE_FILES
