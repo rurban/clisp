@@ -656,14 +656,14 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       INTERMEDIATE-DIR-MODE                                      \
       LG-BSIZE LG-DIR LG-MAX LG-REGIONMAX NCACHE CACHESIZE CACHE \
       LK-CONFLICTS LK-DETECT LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS \
-      AUTO-COMMIT CDB-ALLDB DIRECT-DB DSYNC-LOG LOG-AUTOREMOVE \
-      LOG-INMEMORY DIRECT-LOG NOLOCKING                              \
+      LOG-DIRECT LOG-DSYNC LOG-AUTO-REMOVE LOG-IN-MEMORY LOG-ZERO \
+      AUTO-COMMIT CDB-ALLDB DIRECT-DB NOLOCKING                      \
       NOMMAP NOPANIC :OVERWRITE PANIC-ENVIRONMENT REGION-INIT        \
       TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU                           \
       VERB-CHKPOINT VERB-DEADLOCK VERB-RECOVERY VERB-REPLICATION    \
       VERB-WAITSFOR :VERBOSE MSGFILE)
 { /* set many options */
-  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(48),`BDB::DBE`,BH_VALID);
+  DB_ENV *dbe = (DB_ENV*)bdb_handle(STACK_(50),`BDB::DBE`,BH_VALID);
   if (!missingp(STACK_0)) reset_msgfile(dbe);
   skipSTACK(1);                 /* drop :MSGFILE */
   { object arg = popSTACK();
@@ -695,7 +695,22 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
     set_flags(popSTACK(),&flags_on,&flags_off,DB_NOPANIC);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_NOMMAP);
     set_flags(popSTACK(),&flags_on,&flags_off,DB_NOLOCKING);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_LOG);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_DB);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_CDB_ALLDB);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_AUTO_COMMIT);
+# if defined(HAVE_DB_ENV_LOG_SET_CONFIG)
+    if (flags_off) SYSCALL(dbe->set_flags,(dbe,flags_off,0));
+    if (flags_on)  SYSCALL(dbe->set_flags,(dbe,flags_on,1));
+    flags_on = 0; flags_off = 0;
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_ZERO);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_IN_MEMORY);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_AUTO_REMOVE);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_DSYNC);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_DIRECT);
+    if (flags_off) SYSCALL(dbe->log_set_config,(dbe,flags_off,0));
+    if (flags_on)  SYSCALL(dbe->log_set_config,(dbe,flags_on,1));
+# else
+    skipSTACK(1);               /* skip :LOG-ZERO */
 #  if defined(DB_LOG_INMEMORY)
     set_flags(popSTACK(),&flags_on,&flags_off,DB_LOG_INMEMORY);
 #  else
@@ -707,11 +722,10 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
 #  else
     skipSTACK(1);               /* skip :DSYNC-LOG */
 #  endif
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_DB);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_CDB_ALLDB);
-    set_flags(popSTACK(),&flags_on,&flags_off,DB_AUTO_COMMIT);
+    set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_LOG);
     if (flags_off) SYSCALL(dbe->set_flags,(dbe,flags_off,0));
     if (flags_on)  SYSCALL(dbe->set_flags,(dbe,flags_on,1));
+# endif  /* HAVE_DB_ENV_LOG_SET_CONFIG */
   }
 #define DBE_SET1(what,type,get,how)    do {        \
     if (!missingp(STACK_0)) {                      \
@@ -935,14 +949,6 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
   if (flags & DB_NOPANIC) { pushSTACK(`:NOPANIC`); count++; }
   if (flags & DB_NOMMAP) { pushSTACK(`:NOMMAP`); count++; }
   if (flags & DB_NOLOCKING) { pushSTACK(`:NOLOCKING`); count++; }
-#if defined(DB_LOG_INMEMORY)
-  if (flags & DB_LOG_INMEMORY) { pushSTACK(`:LOG-INMEMORY`); count++; }
-#endif
-  if (flags & DB_LOG_AUTOREMOVE) { pushSTACK(`:LOG-AUTOREMOVE`); count++; }
-#if defined(DB_DSYNC_LOG)
-  if (flags & DB_DSYNC_LOG) { pushSTACK(`:DSYNC-LOG`); count++; }
-#endif
-  if (flags & DB_DIRECT_LOG) { pushSTACK(`:DIRECT-LOG`); count++; }
   if (flags & DB_CDB_ALLDB) { pushSTACK(`:CDB-ALLDB`); count++; }
   if (flags & DB_AUTO_COMMIT) { pushSTACK(`:AUTO-COMMIT`); count++; }
   SYSCALL(dbe->get_encrypt_flags,(dbe,&flags));
@@ -951,6 +957,23 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
     case 0: break;
     default: NOTREACHED;
   }
+#if defined(HAVE_DB_ENV_LOG_SET_CONFIG)
+  SYSCALL(dbe->log_get_config,(dbe,&flags));
+  if (flags & DB_LOG_DIRECT) { pushSTACK(`:LOG-DIRECT`); count++; }
+  if (flags & DB_LOG_DSYNC) { pushSTACK(`:LOG-DSYNC`); count++; }
+  if (flags & DB_LOG_AUTO_REMOVE) { pushSTACK(`:LOG-AUTO-REMOVE`); count++; }
+  if (flags & DB_LOG_IN_MEMORY) { pushSTACK(`:LOG-IN-MEMORY`); count++; }
+  if (flags & DB_LOG_ZERO) { pushSTACK(`:LOG-ZERO`); count++; }
+#else
+# if defined(DB_LOG_INMEMORY)
+  if (flags & DB_LOG_INMEMORY) { pushSTACK(`:LOG-IN-MEMORY`); count++; }
+# endif
+  if (flags & DB_LOG_AUTOREMOVE) { pushSTACK(`:LOG-AUTO-REMOVE`); count++; }
+# if defined(DB_DSYNC_LOG)
+  if (flags & DB_DSYNC_LOG) { pushSTACK(`:LOG-DSYNC`); count++; }
+# endif
+  if (flags & DB_DIRECT_LOG) { pushSTACK(`:LOG-DIRECT`); count++; }
+#endif  /* HAVE_DB_ENV_LOG_SET_CONFIG */
   return listof(count);
 }
 #define DEFINE_GETTER1(handle,handle_type,getter,type,finish)   \

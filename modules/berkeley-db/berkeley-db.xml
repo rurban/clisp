@@ -127,13 +127,15 @@
    SHM-KEY TAS-SPINS TX-TIMESTAMP TX-MAX DATA-DIR TMP-DIR
    INTERMEDIATE-DIR-MODE LG-BSIZE LG-DIR
    LG-MAX LG-REGIONMAX NCACHE CACHESIZE CACHE LK-CONFLICTS LK-DETECT
-   LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS AUTO-COMMIT CDB-ALLDB DIRECT-DB
-   DSYNC-LOG LOG-AUTOREMOVE LOG-INMEMORY DIRECT-LOG NOLOCKING NOMMAP NOPANIC
+   LK-MAX-LOCKERS LK-MAX-LOCKS LK-MAX-OBJECTS
+   LOG-DIRECT LOG-DSYNC LOG-AUTO-REMOVE LOG-IN-MEMORY LOG-ZERO
+   AUTO-COMMIT CDB-ALLDB DIRECT-DB NOLOCKING NOMMAP NOPANIC
    OVERWRITE PANIC-ENVIRONMENT REGION-INIT TXN-NOSYNC TXN-WRITE-NOSYNC YIELDCPU
    VERB-CHKPOINT VERB-DEADLOCK VERB-RECOVERY VERB-REPLICATION VERB-WAITSFOR
    VERBOSE)</code></term>
  <listitem><para>Set some environment options using <simplelist columns="3">
     <member><function role="bdb">DB_ENV-&gt;set_flags</function></member>
+    <member><function role="bdb">DB_ENV-&gt;log_set_config</function> (v4.7+)</member>
     <member><function role="bdb">DB_ENV-&gt;set_verbose</function></member>
     <member><function role="bdb">DB_ENV-&gt;set_intermediate_dir_mode</function> (v4.7+)</member>
     <member><function role="bdb">DB_ENV-&gt;set_tmp_dir</function></member>
@@ -194,10 +196,11 @@
     <varlistentry><term><constant>:AUTO-COMMIT</constant></term>
      <term><constant>:CDB-ALLDB</constant></term>
      <term><constant>:DIRECT-DB</constant></term>
-     <term><constant>:DSYNC-LOG</constant></term>
-     <term><constant>:LOG-AUTOREMOVE</constant></term>
-     <term><constant>:LOG-INMEMORY</constant></term>
-     <term><constant>:DIRECT-LOG</constant></term>
+     <term><constant>:LOG-DIRECT</constant></term>
+     <term><constant>:LOG-DSYNC</constant></term>
+     <term><constant>:LOG-AUTO-REMOVE</constant></term>
+     <term><constant>:LOG-IN-MEMORY</constant></term>
+     <term><constant>:LOG-ZERO</constant></term>
      <term><constant>:NOLOCKING</constant></term>
      <term><constant>:NOMMAP</constant></term>
      <term><constant>:NOPANIC</constant></term>
@@ -214,8 +217,9 @@
      <term><constant>:VERB-WAITSFOR</constant></term>
      <listitem><simpara>a &boolean-t; indicator of whether this
        option is set or not
-       (<function role="bdb">DB_ENV-&gt;get_verbose</function> and
-       <function role="bdb">DB_ENV-&gt;get_flags</function>).
+       (<function role="bdb">DB_ENV-&gt;get_verbose</function>,
+       <function role="bdb">DB_ENV-&gt;get_flags</function>, and
+       <function role="bdb">DB_ENV-&gt;log_get_config</function>).
     </simpara></listitem></varlistentry>
     <varlistentry><term><constant>:LG-BSIZE</constant></term>
      <listitem><simpara>log buffer size
