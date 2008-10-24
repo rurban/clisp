@@ -6,6 +6,12 @@
 /* Define to 1 if `get_home' is member of `DB_ENV'. */
 #undef HAVE_DB_ENV_GET_HOME
 
+/* Define to 1 if `get_intermediate_dir_mode' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE
+
+/* Define to 1 if `log_set_config' is member of `DB_ENV'. */
+#undef HAVE_DB_ENV_LOG_SET_CONFIG
+
 /* Define to 1 if `mutex_get_align' is member of `DB_ENV'. */
 #undef HAVE_DB_ENV_MUTEX_GET_ALIGN
 
