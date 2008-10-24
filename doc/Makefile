@@ -50,8 +50,10 @@ XSL_PATH=$(firstword $(wildcard /usr/share/docbook-xsl*/))
 FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
 DTD_PATH=$(firstword $(wildcard \
-	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd))
-XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets-1*/))
+	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd \
+	/usr/share/xml/docbook/schema/dtd/$(DTDVER)*/docbookx.dtd))
+XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets-1*/ \
+	/usr/share/xml/docbook/stylesheet/nwalsh*/))
 FOP=../../../fop/fop
 endif
 
@@ -243,7 +245,7 @@ docbook-dtd :
 
 docbook-xsl : force
 	rsync -av --port=5873 docbook.xml-doc.org::xsl docbook-xsl
-	grep '<fm:Version>' docbook-xsl/VERSION 
+	grep '<fm:Version>' docbook-xsl/VERSION
 
 SEARCH=
 search: force
