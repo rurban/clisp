@@ -1,5 +1,13 @@
 2008-10-24  Sam Steingold  <sds@gnu.org>
 
+	replace m4/make.m4 with glm4/gnu-make.m4
+	* Makefile.devel (gnulib-imported): add gnu-make
+	* m4/make.m4: remove
+	* glm4/gnu-make.m4: add
+	* configure.in: use gl_GNU_MAKE instead of CL_PROG_MAKE
+
+2008-10-24  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.47+ (2008-10-24)
 
 2008-10-23  Sam Steingold  <sds@gnu.org>
