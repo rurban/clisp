@@ -4,7 +4,10 @@
 	* modules/berkeley-db/configure.in: check for
 	DB_ENV.log_set_config and DB_ENV.get_intermediate_dir_mode
 	* modules/berkeley-db/bdb.c (DBE-SET-OPTIONS, DBE-GET-OPTIONS)
-	[HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE]: accept :INTERMEDIATE-DIR-MODE
+	[HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE]: accept :INTERMEDIATE-DIR-MODE;
+	[HAVE_DB_ENV_LOG_SET_CONFIG]:
+	accept LOG-DIRECT LOG-DSYNC LOG-AUTO-REMOVE LOG-IN-MEMORY LOG-ZERO
+	instead of DSYNC-LOG LOG-AUTOREMOVE LOG-INMEMORY DIRECT-LOG (1 extra)
 	(dbe_get_intermediate_dir_mode): add DEFINE_DBE_GETTER1
 
 2008-10-24  Sam Steingold  <sds@gnu.org>

@@ -1,3 +1,9 @@
+Important notes
+---------------
+
+* Module Berkeley-DB now supports Berkeley DB 4.7.
+
+
 2.47 (2008-10-23)
 =================
 
@@ -264,7 +270,7 @@ User visible changes
     This includes AIX 4.2, Coherent386, Ultrix, MSVC4, MSVC5.
   + NeXT application (GUI) code has been removed. Plain TTY is still supported.
 
-* Module berkeley-db now supports Berkeley DB 4.5 & 4.6.
+* Module Berkeley-DB now supports Berkeley DB 4.5 & 4.6.
 
 * Bug fixes:
   + FORCE-OUTPUT breakage on MacOS X when stdout is not a terminal. [ 1827572 ]
@@ -502,7 +508,7 @@ User visible changes
 
 * Fixed a crash on woe32 in opening files with names longer than MAX_PATH.
 
-* Module berkeley-db now supports Berkeley DB 4.4.
+* Module Berkeley-DB now supports Berkeley DB 4.4.
 
 
 2.37 (2006-01-02)
@@ -1051,7 +1057,7 @@ Modules
 * Module syscalls is significantly expanded.
   See <http://clisp.cons.org/impnotes.html#syscalls> for details.
 
-* Module berkeley-db is vastly expanded.
+* Module Berkeley-DB is vastly expanded.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
   Added support for Berkeley DB 4.3.
 
@@ -1180,7 +1186,7 @@ User visible changes
 * Support files larger than 2 GB or 4 GB on platforms with LFS
   (Large File Support).
 
-* New module berkeley-db interfaces to
+* New module Berkeley-DB interfaces to
   <http://www.sleepycat.com/docs/api_c/frame.html>
   and allows working with Berkeley DB databases.
   See <http://clisp.cons.org/impnotes.html#berkeley-db> for details.
