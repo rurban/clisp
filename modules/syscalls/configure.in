@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([System Calls (Common)])
-CL_MODULE_COMMON_CHECKS
+CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 
 BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl

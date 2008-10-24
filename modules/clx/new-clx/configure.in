@@ -9,6 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([NEW CLX])
+CL_MODULE_COMMON_CHECKS(../../../src/build-aux)
 AC_HEADER_TIME
 AC_CHECK_HEADERS([sys/socket.h netdb.h netinet/in.h])
 dnl find a path to X11 - set X_LIBS and X_CFLAGS

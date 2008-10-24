@@ -5,12 +5,11 @@ dnl Sam Steingold 2003-2008
 AC_PREREQ(2.58)
 AC_INIT(regexp, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(regexp.lisp)
-AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Regexp (Common)])
-CL_MODULE_COMMON_CHECKS
+CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 AC_CHECK_HEADERS(string.h sys/types.h)
 AC_C_RESTRICT
 

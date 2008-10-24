@@ -9,7 +9,7 @@ BOLD_MSG([FastCGI (Common)])
 if test $cl_cv_have_ffcall = no; then
   AC_MSG_ERROR([module FastCGI requires FFI])
 fi
-CL_MODULE_COMMON_CHECKS
+CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 
 BOLD_MSG([FastCGI (Programs)])
 AC_PROG_LN_S
