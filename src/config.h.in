@@ -215,9 +215,6 @@
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
-/* Define if your compiler supports the #include_next directive. */
-#undef HAVE_INCLUDE_NEXT
-
 /* Define to 1 if you have the `inet_addr' function. */
 #undef HAVE_INET_ADDR
 
@@ -927,6 +924,16 @@
 
 /* Define as a signed type of the same size as size_t. */
 #undef ssize_t
+
+/* Define as a marker that can be attached to function parameter declarations
+   for parameters that are not used.  This helps to reduce warnings, such as
+   from GCC -Wunused-parameter.  */
+#if __GNUC__ >= 3 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+# define _UNUSED_PARAMETER_ __attribute__ ((__unused__))
+#else
+# define _UNUSED_PARAMETER_
+#endif
+
 
 /* Define as `fork' if `vfork' does not work. */
 #undef vfork
