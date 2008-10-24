@@ -400,7 +400,7 @@ compiles the specified lisp files to a platform-independent
    files will be loaded in order.</simpara></listitem></varlistentry>
 
 <varlistentry id="opt-compile"><term><option>-c</option> &lf;</term>
- <listitem><simpara>Compiles the specified &lf;s to bytecode
+ <listitem><simpara>Compiles the specified &lf;s to &bytecode;
    (<filename>*.fas</filename>).  The compiled files can then be
    &load;ed instead of the sources to gain efficiency.
 </simpara></listitem></varlistentry>
@@ -412,7 +412,7 @@ compiles the specified lisp files to a platform-independent
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-list"><term><option>-l</option></term>
- <listitem><simpara>Produce a bytecode &disassemble; listing
+ <listitem><simpara>Produce a &bytecode; &disassemble; listing
    (<filename>*.lis</filename>) of the files being compiled.
    Useful only for debugging.
    See <olink targetdoc="impnotes" targetptr="compilefile"/> for details.
