@@ -1,5 +1,22 @@
 2008-10-24  Sam Steingold  <sds@gnu.org>
 
+	ensure that all module configures have aux build dir set up
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): call AC_CONFIG_AUX_DIR here
+	* modules/berkeley-db/configure.in, modules/gdbm/configure.in,
+	* modules/pari/configure.in, modules/pcre/configure.in,
+	* modules/postgresql/configure.in, modules/regexp/configure.in,
+	* modules/zlib/configure.in: do not call AC_CONFIG_AUX_DIR,
+	pass argument to CL_MODULE_COMMON_CHECKS instead
+	* modules/clx/new-clx/configure.in, modules/dirkey/configure.in,
+	* modules/fastcgi/configure.in, modules/gtk2/configure.in,
+	* modules/i18n/configure.in, modules/oracle/configure.in,
+	* modules/dbus/configure.in, modules/rawsock/configure.in,
+	* modules/readline/configure.in, modules/syscalls/configure.in,
+	* modules/wildcard/configure.in:
+	pass argument to CL_MODULE_COMMON_CHECKS
+
+2008-10-24  Sam Steingold  <sds@gnu.org>
+
 	* build-aux/config.rpath, gllib/Makefile.am, gllib/stdint.in.h,
 	* gllib/stdlib.in.h, gllib/unistd.in.h, gllib/wchar.in.h,
 	* gllib/wctype.in.h, gllib/uniwidth/width.c, glm4/gnulib-cache.m4,

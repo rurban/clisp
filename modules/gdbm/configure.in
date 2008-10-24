@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for Gdbm
 dnl Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
-dnl Copyright (C) 2007  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2007-2008  Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -10,10 +10,9 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Gdbm (Common)])
-CL_MODULE_COMMON_CHECKS
+CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 
 dnl Search for libgdbm and define LIBGDBM, INCGDBM.
-AC_CONFIG_AUX_DIR(../../src/build-aux)
 AC_LIB_LINKFLAGS([gdbm])
 
 BOLD_MSG([Gdbm (Headers)])
