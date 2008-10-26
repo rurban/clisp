@@ -151,9 +151,8 @@
 </xsl:template>
 <!-- =========================== / CLISP CVS =========================== -->
 
-<!-- =========== The Open Group Base Specifications Issue 6 ============ -->
-<xsl:param name="unix.top"
-           select="'http://www.opengroup.org/onlinepubs/009695399/'"/>
+<!-- ======= The Open Group Base Specifications Issue 6 (SUS v3) ======= -->
+<xsl:param name="unix.top" select="'http://www.opengroup.org/susv3/'"/>
 <xsl:template match="function[@role='unix'] | varname[@role='unix']">
  <a class="{@role}" href="{$unix.top}functions/{.}.html"
     ><xsl:apply-imports/></a>
@@ -172,7 +171,7 @@
     >&lt;<xsl:apply-imports/>&gt;</a> <!-- formatting for &lt;/&gt;? -->
  <!-- xsl:call-template name="filename">&lt;<xsl:value-of select="."/>&gt;</xsl:call-template -->
 </xsl:template>
-<!-- ========== / The Open Group Base Specifications Issue 6 =========== -->
+<!-- ====== / The Open Group Base Specifications Issue 6 (SUS v3) ====== -->
 
 <!-- =========== BSD functions ============ -->
 <xsl:template match="function[@role='bsd'] | varname[@role='bsd']">
