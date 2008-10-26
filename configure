@@ -538,13 +538,6 @@ fi
 }
 maybe_link () { if [ -f "$1" ]; then link "$1" "$2"; fi; }
 
-conf_dir () {
-  cd "$1"; shift;
-  echo "executing `pwd`/configure $*"
-  ${CONFIG_SHELL} configure $*;
-  cd ..;
-}
-
 # Note that we would need to call `/bin/pwd` if we wanted to compare two
 # directories for equality. But here we only need to get _some_ absolute
 # pathnames, hence `pwd` is enough.
@@ -652,7 +645,9 @@ if test -n "$do_config"; then
   else
     subdir_srcdir_args="--srcdir=$REL_SRCDIR/src"
   fi
-  conf_dir "$ABS_DIRNAME" $subdir_srcdir_args \
+  cd "${ABS_DIRNAME}";
+  echo "executing `pwd`/configure $*"
+  ${CONFIG_SHELL} configure $subdir_srcdir_args \
     $subdir_configure_args --cache-file=config.cache
 fi
 
