@@ -1841,7 +1841,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
  the return value is the FILE-STAT structure */
   bool link_p = missingp(STACK_0);
   struct stat buf;
-  object file;
+  object file = STACK_1;
 
   if (integerp(file)) {
     begin_system_call();
