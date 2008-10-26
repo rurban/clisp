@@ -1,7 +1,9 @@
 2008-10-26  Sam Steingold  <sds@gnu.org>
 
-	* configure (conf_dir): remove and inline (called just once)
-	fix redirections to avoid the "/bin/sh: Illegal option --" error
+	* configure (conf_dir): remove and inline (called just once);
+	fix redirections to avoid the "/bin/sh: Illegal option --" error;
+	check whether requested modules require FFI by looking at
+	configure.in, Makefile, *.lisp instead of listing modules explicitly
 
 2008-10-25  Sam Steingold  <sds@gnu.org>
 
