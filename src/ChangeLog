@@ -1,5 +1,9 @@
 2008-10-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (FILE-STAT): init file variable
+
+2008-10-25  Sam Steingold  <sds@gnu.org>
+
 	separate potentially blocking system calls from heap access
 	* pathname.d (check_file_reopen): use namestring_file_id instead
 	of with_file_id
