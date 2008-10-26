@@ -7794,13 +7794,12 @@ local maygc object add_to_open_streams (object stream) {
 
 /* Find an open file that matches the given file ID
  > struct file_id fid = file ID to match
- > uintB* data = open flags to filter
+ > uintB flags = open flags to filter
  < pointer to the stream saved on STACK or NULL
    i.e., on success, adds 1 element to STACK */
-global void* find_open_file (struct file_id *fid, void* data);
-global void* find_open_file (struct file_id *fid, void* data) {
+global void* find_open_file (struct file_id *fid, uintB flags);
+global void* find_open_file (struct file_id *fid, uintB flags) {
   var object tail = O(open_files);
-  var uintB flags = *(uintB*)data;
   while (consp(tail)) {
     var object stream = Car(tail); tail = Cdr(tail);
     if (TheStream(stream)->strmtype == strmtype_file

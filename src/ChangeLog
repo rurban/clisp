@@ -1,3 +1,13 @@
+2008-10-25  Sam Steingold  <sds@gnu.org>
+
+	separate potentially blocking system calls from heap access
+	* pathname.d (check_file_reopen): use namestring_file_id instead
+	of with_file_id
+	* stream.d (find_open_file): second argument is uintB flags (this
+	is not used as a callback anymore)
+	* unix.d, unixaux.d, win32.d, win32aux.d (namestring_file_id):
+	replaces with_file_id
+
 2008-10-24  Sam Steingold  <sds@gnu.org>
 
 	Support Berkeley-DB 2.7

@@ -1123,18 +1123,14 @@ global void DumpProcessMemoryMap (void)
 }
 
 /* file identification for check_file_re_open() */
-/* if file NAMESTRING exists, fill file_id and call function on it,
-   otherwise return NULL */
-global void* with_file_id (char * namestring, void *data,
-                           void* (*func) (struct file_id *, void *data)) {
+/* fill FI for an exiting namestring */
+global errno_t namestring_file_id (char * namestring, struct file_id *fi) {
   var HANDLE fh = CreateFile(namestring,0,FILE_SHARE_READ | FILE_SHARE_WRITE,
                              NULL,OPEN_EXISTING,OPEN_EXISTING,NULL);
-  if (fh == INVALID_HANDLE_VALUE) return NULL;
-  var struct file_id fi;
-  var errno_t status = handle_file_id(fh,&fi);
-  var void* ret = status ? NULL : (*func)(&fi,data);
+  if (fh == INVALID_HANDLE_VALUE) return GetLastError();
+  var errno_t status = handle_file_id(fh,fi);
   CloseHandle(fh);
-  return ret;
+  return status;
 }
 
 /* fill FI for an existing file handle */
