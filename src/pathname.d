@@ -6651,7 +6651,7 @@ global object if_exists_symbol (if_exists_t if_exists) {
  > object truename - the name of the file that is being opened
  > direction_t direction - the direction of the pending OPEN
  can trigger GC - if CERROR or WARNING is signaled */
-extern void* find_open_file (struct file_id *fid, void* data);
+extern void* find_open_file (struct file_id *fid, uintB flags);
 local maygc void check_file_reopen (object truename, direction_t direction) {
   var uintB flags;
   switch (direction) {
@@ -6665,12 +6665,16 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
   }
  check_file_reopen_restart_search:
   var object bad_stream = nullobj;
+  var struct file_id fi;
+  var errno_t status;
   with_string_0(truename,O(pathname_encoding),namez, {
     begin_system_call();
-    var void *ret = with_file_id(namez,(void*)&flags,&find_open_file);
+    status = namestring_file_id(namez,&fi);
     end_system_call();
-    if (ret) bad_stream = popSTACK();
   });
+  if (status == 0 /* file exists - see if it is already open */
+      && find_open_file(&fi,flags))
+    bad_stream = popSTACK();
   if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
    #define error_format_string CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results")
     if (eq(Symbol_value(S(reopen_open_file)),S(error))) {
