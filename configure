@@ -13,9 +13,9 @@
 # bash whose config.cache cannot be loaded by /bin/sh
 if test -n "${CONFIG_SHELL}"; then
   # ensure that CONFIG_SHELL is compatible with /bin/sh:
-  # if CONFIG_SHELL us bash, but /bin/sh is not, restart with bash
-  if test -n "`${CONFIG_SHELL} --version | grep bash 2>/dev/null`"; then
-    # CONFIG_SHELL is bash
+  # if CONFIG_SHELL is bash, but /bin/sh is not, restart with bash
+  if test -n "`${CONFIG_SHELL} --version 2>/dev/null | grep bash 2>/dev/null`"
+  then # CONFIG_SHELL is bash
     test -n "${BASH_VERSION}" || exec ${CONFIG_SHELL} $0 $*
   fi
 else CONFIG_SHELL=/bin/sh
