@@ -1,3 +1,7 @@
+2008-10-26  Sam Steingold  <sds@gnu.org>
+
+	* configure (conf_dir): remove and inline (called just once)
+
 2008-10-25  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (FILE-STAT): init file variable
