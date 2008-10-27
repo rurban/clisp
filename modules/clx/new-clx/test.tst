@@ -182,7 +182,8 @@ NIL
 (defparameter *gcontext*
   (xlib:create-gcontext :drawable *window* :font *font*))
 *GCONTEXT*
-(integerp (show (xlib:text-width *gcontext* "abazonk"))) T
+(< (show (xlib:text-width *gcontext* "abazonk" :start 1 :end 6))
+   (show (xlib:text-width *gcontext* "abazonk"))) T
 
 (xlib:free-gcontext *gcontext*) NIL
 (xlib:close-font *font*) NIL
@@ -478,6 +479,41 @@ CHECK-TIMEOUT
 (check-timeout 0.01) T
 (check-timeout 0.1) T
 (check-timeout 1) T
+
+;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2159172&group_id=1355
+(xlib:with-open-display (dpy)
+  (let* ((top-win (xlib:create-window
+                   :parent (xlib:screen-root (first (xlib:display-roots dpy)))
+                   :x 300 :y 300 :width 300 :height 70
+                   :bit-gravity :north-west :background 1617116666
+                   :event-mask (xlib:make-event-mask :exposure)))
+         (font (xlib:open-font dpy "fixed"))
+         (timeout 0.1) (start 0) (end 1)
+         (message "these three lines should grow together in sync")
+         (m1 (make-array (length message) :element-type 'character
+                         :displaced-to (ext:string-concat #1="abazonk" message)
+                         :displaced-index-offset (length #1#))))
+    (assert (string= message m1))
+    (flet ((events (&rest event-data
+                    &key display event-key send-event-p window
+                    &allow-other-keys)
+             (when (eq event-key :exposure)
+               (let ((gc (xlib:create-gcontext
+                          :drawable window :foreground 0 :font font)))
+                 (xlib:draw-glyphs window gc 10 10
+                                   (subseq message start end))
+                 (xlib:draw-glyphs window gc 10 30
+                                   message :start start :end end)
+                 (xlib:draw-glyphs window gc 10 50
+                                   m1 :start start :end end)
+                 ))))
+      (xlib:map-window top-win)
+      (xlib:display-force-output dpy)
+      (loop
+        (xlib:process-event dpy :handler #'events :timeout timeout :discard-p t)
+        (incf end)
+        (if (> end (length message)) (return))
+        (xlib:clear-area top-win :exposures-p t))))) NIL
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
