@@ -13827,7 +13827,7 @@ extern maygc object test_string_limits_ro (stringarg* arg);
 extern void test_vector_limits (stringarg* arg);
 /* used by ENCODING */
 %% puts("extern void test_vector_limits (stringarg* arg);");
-/* used by RAWSOCK */
+/* used by RAWSOCK, NEW-CLX */
 
 /* UP: checks a string/symbol/character-argument
  test_stringsymchar_arg(obj,invert)
