@@ -1,3 +1,11 @@
+2008-10-27  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2159172 ]: text drawing functions ignore :start & :end
+	* modules/clx/new-clx/clx.f (get_substring_arg)
+	(unpack_stringarg_alloca): add
+	(general_draw_text, TEXT-EXTENTS, TEXT-WIDTH): use
+	unpack_stringarg_alloca
+
 2008-10-26  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: when re-creating gllib subdir,
