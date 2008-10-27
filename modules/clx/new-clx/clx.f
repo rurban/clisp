@@ -3931,6 +3931,19 @@ static int to_XChar2b (object font, XFontStruct* font_info, const chart* src,
   return 2;
 }
 
+/* do not call this directly - use unpack_stringarg_alloca */
+static void get_substring_arg (gcv_object_t *string, gcv_object_t *start,
+                               gcv_object_t *end, stringarg *sa) {
+  *string = check_string(*string);
+  sa->offset = 0; sa->index = 0; sa->len = 0;
+  sa->string = unpack_string_ro(*string,&sa->len,&sa->offset);
+  pushSTACK(*start); pushSTACK(*end); test_vector_limits(sa);
+}
+#define unpack_stringarg_alloca(string_pos,start_pos,end_pos,sa,charptr) \
+  get_substring_arg(&(STACK_(string_pos)),&(STACK_(start_pos)),         \
+                    &(STACK_(end_pos)),&sa);                            \
+  unpack_sstring_alloca(sa.string,sa.len,sa.offset + sa.index,charptr=)
+
 static void general_draw_text (int image_p)
 { /* General text drawing routine to not to have to duplicate code for
      DRAW-GLYPHS and DRAW-IMAGE-GLYPHS. */
@@ -4008,24 +4021,19 @@ static void general_draw_text (int image_p)
   GC gcon = get_gcontext (STACK_8);
   int x = get_sint16 (STACK_7);
   int y = get_sint16 (STACK_6);
-  STACK_5 = check_string(STACK_5);
-
-  {
-    object font;
-    XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,NULL);
-    uintL len, offset;
-    object s_string = unpack_string_ro(STACK_5,&len,&offset);
-    const chart* charptr;
-    unpack_sstring_alloca(s_string,len,offset,charptr=);
-    { DYNAMIC_ARRAY(str,XChar2b,len);
-      if (to_XChar2b(font,font_info,charptr,str,len) == 1)
-        X_CALL((image_p ? XDrawImageString : XDrawString)
-               (dpy, da, gcon, x, y, (char*)str, len));
-      else
-        X_CALL((image_p ? XDrawImageString16 : XDrawString16)
-               (dpy, da, gcon, x, y, str, len));
-      FREE_DYNAMIC_ARRAY(str);
-    }
+  object font;
+  XFontStruct* font_info = get_font_info_and_display(STACK_8,&font,NULL);
+  const chart* charptr;
+  stringarg sa;
+  unpack_stringarg_alloca(5,4,3,sa,charptr);
+  { DYNAMIC_ARRAY(str,XChar2b,sa.len);
+    if (to_XChar2b(font,font_info,charptr,str,sa.len) == 1)
+      X_CALL((image_p ? XDrawImageString : XDrawString)
+             (dpy, da, gcon, x, y, (char*)str, sa.len));
+    else
+      X_CALL((image_p ? XDrawImageString16 : XDrawString16)
+             (dpy, da, gcon, x, y, str, sa.len));
+    FREE_DYNAMIC_ARRAY(str);
   }
 
   VALUES0;
@@ -4755,21 +4763,15 @@ DEFUN(XLIB:TEXT-EXTENTS, font obj &key :START :END TRANSLATE)
   int dir;
   int font_ascent, font_descent;
   XCharStruct overall;
-  uintL len, offset;
-  object s_string = unpack_string_ro(STACK_3=check_string(STACK_3),
-                                     &len,&offset);
   const chart* charptr;
-  int end = missingp(STACK_1) ? len : get_uint16(STACK_1);
-  /* START/END handling should be done via test_string_limits_ro ... */
-  if (end > len) end = len;
-  if (start > end) start = end;
-  unpack_sstring_alloca(s_string,end-start,start+offset,charptr=);
-  { DYNAMIC_ARRAY(str,XChar2b,end-start);
-    if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
-      X_CALL(XTextExtents (font_info, (char*)str, end-start, &dir,
+  stringarg sa;
+  unpack_stringarg_alloca(3,2,1,sa,charptr);
+  { DYNAMIC_ARRAY(str,XChar2b,sa.len);
+    if (to_XChar2b(font,font_info,charptr,str,sa.len) == 1)
+      X_CALL(XTextExtents (font_info, (char*)str, sa.len, &dir,
                            &font_ascent, &font_descent, &overall));
     else
-      X_CALL(XTextExtents16 (font_info, str, end-start, &dir,
+      X_CALL(XTextExtents16 (font_info, str, sa.len, &dir,
                              &font_ascent, &font_descent, &overall));
     FREE_DYNAMIC_ARRAY(str);
   }
@@ -4807,19 +4809,14 @@ DEFUN(XLIB:TEXT-WIDTH, font sequence &key :START :END TRANSLATE)
   if (stringp(STACK_3)) {
     int start = get_uint16_0 (STACK_2);
     int w;
-    uintL len, offset;
-    object s_string = unpack_string_ro(STACK_3,&len,&offset);
     const chart* charptr;
-    int end = missingp(STACK_1) ? len : get_uint16(STACK_1);
-    /* START/END handling should be done via test_string_limits_ro ... */
-    if (end > len) end = len;
-    if (start > end) start = end;
-    unpack_sstring_alloca(s_string,end-start,start+offset,charptr=);
-    { DYNAMIC_ARRAY(str,XChar2b,end-start);
-      if (to_XChar2b(font,font_info,charptr,str,end-start) == 1)
-        X_CALL(w = XTextWidth (font_info, (char*)str, end-start));
+    stringarg sa;
+    unpack_stringarg_alloca(3,2,1,sa,charptr);
+    { DYNAMIC_ARRAY(str,XChar2b,sa.len);
+      if (to_XChar2b(font,font_info,charptr,str,sa.len) == 1)
+        X_CALL(w = XTextWidth (font_info, (char*)str, sa.len));
       else
-        X_CALL(w = XTextWidth16 (font_info, str, end-start));
+        X_CALL(w = XTextWidth16 (font_info, str, sa.len));
       FREE_DYNAMIC_ARRAY(str);
     }
     VALUES2(make_sint32 (w),NIL);

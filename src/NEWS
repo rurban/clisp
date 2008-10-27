@@ -3,6 +3,9 @@ Important notes
 
 * Module Berkeley-DB now supports Berkeley DB 4.7.
 
+* Bug fixes:
+  + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
+
 
 2.47 (2008-10-23)
 =================
