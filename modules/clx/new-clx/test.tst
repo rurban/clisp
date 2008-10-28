@@ -313,6 +313,37 @@ CHECK-WM-CLASS
 ;; (string= (show (xlib::display-resource-manager-string *dpy*))
 ;;          (show (xlib:resource-database-to-string *rdb-dpy*))) T
 
+;; https://sourceforge.net/tracker/?func=detail&atid=351355&aid=2202304&group_id=1355
+(defparameter *white-color* (show (xlib:make-color :red 1 :green 1 :blue 1)))
+*WHITE-COLOR*
+(defparameter *black-color* (show (xlib:make-color :red 0 :green 0 :blue 0)))
+*BLACK-COLOR*
+(defparameter *font* (show (xlib:open-font *dpy* "cursor"))) *FONT*
+
+(defun create-font-cursor (shape)
+  (xlib:create-glyph-cursor :source-font *font*
+                            :source-char shape
+                            :mask-font *font*
+                            :mask-char (1+ shape)
+                            :foreground *white-color*
+                            :background *black-color*))
+CREATE-FONT-CURSOR
+
+(loop :for shape :from 0 :to 20 :for cursor = (create-font-cursor shape) :do
+  (format t "~&~:D ~S~%" shape cursor)
+  (setf (xlib:window-cursor *root*) cursor)
+  (xlib:display-finish-output *dpy*)
+  (sleep 1) (xlib:free-cursor cursor))
+NIL
+
+(let ((cursor (create-font-cursor 2))) ; default
+  (setf (xlib:window-cursor *root*) cursor)
+  (xlib:display-finish-output *dpy*)
+  (xlib:free-cursor cursor))
+NIL
+
+(xlib:close-font *font*) NIL
+
 (xlib:bell *dpy* 50) NIL        ; signal that we are almost done
 
 (xlib:display-force-output *dpy*) NIL
@@ -538,5 +569,6 @@ CHECK-TIMEOUT
   (del '*gcontext*)
   (del 'c2s)
   (del '*access-hosts*)
+  (del '*white-color*) (del '*black-color*)
   (del '*rdb-tmp*))
 T
