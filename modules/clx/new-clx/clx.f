@@ -6562,16 +6562,16 @@ DEFUN(XLIB:CHANGE-ACTIVE-POINTER-GRAB, dpy event-mask &optional cursor time)
 DEFUN(XLIB:GRAB-BUTTON, window button event-mask &key MODIFIERS \
       OWNER-P SYNC-POINTER-P SYNC-KEYBOARD-P CONFINE-TO CURSOR)
 {
-  Display             *dpy;
-  Window               win = get_window_and_display (STACK_8, &dpy);
-  int               button = !(eq (STACK_7, `:ANY`) ? AnyButton : get_uint8 (STACK_7));
+  Display *dpy;
+  Window win = get_window_and_display (STACK_8, &dpy);
+  int button = (eq (STACK_7, `:ANY`) ? AnyButton : get_uint8 (STACK_7));
   unsigned long event_mask = get_event_mask (STACK_6);
-  unsigned int   modifiers = get_modifier_mask(STACK_5);
-  Bool             owner_p = !missingp(STACK_4);
-  Bool        sync_pointer = missingp(STACK_3);
-  Bool       sync_keyboard = missingp(STACK_2);
-  Window        confine_to = boundp(STACK_1) ? get_window(STACK_1) : None;
-  Cursor            cursor = boundp(STACK_0) ? get_cursor(STACK_0) : None;
+  unsigned int modifiers = get_modifier_mask(STACK_5);
+  Bool owner_p = !missingp(STACK_4);
+  Bool sync_pointer = missingp(STACK_3);
+  Bool sync_keyboard = missingp(STACK_2);
+  Window confine_to = boundp(STACK_1) ? get_window(STACK_1) : None;
+  Cursor cursor = boundp(STACK_0) ? get_cursor(STACK_0) : None;
 
   X_CALL(XGrabButton (dpy, button, modifiers, win, owner_p, event_mask,
                       sync_pointer, sync_keyboard, confine_to, cursor));
@@ -6580,14 +6580,14 @@ DEFUN(XLIB:GRAB-BUTTON, window button event-mask &key MODIFIERS \
   skipSTACK(9);
 }
 
-DEFUN(XLIB:UNGRAB-BUTTON, window code &key MODIFIERS)
+DEFUN(XLIB:UNGRAB-BUTTON, window button &key MODIFIERS)
 {
-  Display           *dpy;
-  Window             win = get_window_and_display (STACK_2, &dpy);
-  int               code = (eq (STACK_1, `:ANY`) ? AnyKey : get_uint8(STACK_1));
+  Display *dpy;
+  Window win = get_window_and_display (STACK_2, &dpy);
+  int button = (eq (STACK_1, `:ANY`) ? AnyButton : get_uint8(STACK_1));
   unsigned int modifiers = get_modifier_mask(STACK_0);
 
-  X_CALL(XUngrabButton (dpy, code, modifiers, win));
+  X_CALL(XUngrabButton (dpy, button, modifiers, win));
 
   VALUES1(NIL);
   skipSTACK(3);

@@ -1,3 +1,8 @@
+2008-10-27  Philippe Brochard  <hocwp@free.fr>
+
+	* modules/clx/new-clx/clx.f (GRAB-BUTTON, UNGRAB-BUTTON): fix
+	button argument handlingxs
+
 2008-10-27  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2159172 ]: text drawing functions ignore :start & :end
@@ -10,7 +15,7 @@
 
 	* makemake.in: when re-creating gllib subdir,
 	use "config.status $@/Makefile depfiles"
-	instead of "config.status --file=$@/Makefile depfiles" as suggesed
+	instead of "config.status --file=$@/Makefile depfiles" as suggested
 	in <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/15449>
 	to work around an autoconf bug
 
