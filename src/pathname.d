@@ -6066,8 +6066,10 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         STACK_0 = tmp;
         tmp = ThePathname(STACK_1)->pathname_directory;
         if (consp(tmp)) {
+          /* do NOT modify the argument! */
+          tmp = ThePathname(STACK_1)->pathname_directory = copy_list(tmp);
           while (!nullp(Cdr(tmp))) tmp = Cdr(tmp);
-          Cdr(tmp) = popSTACK();  /* append name.type to directory */
+          Cdr(tmp) = popSTACK(); /* append name.type to directory */
         } else if (nullp(tmp)) {
           tmp = ThePathname(STACK_1)->pathname_directory = allocate_cons();
           Car(tmp) = S(Krelative);
