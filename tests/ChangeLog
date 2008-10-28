@@ -1,3 +1,9 @@
+2008-10-28  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: add 2 tests for bug #[ 2198109 ]:
+	LOAD-LOGICAL-PATHNAME-TRANSLATIONS confuses "many" and "one"
+	when *LOAD-PATHS* is wild
+
 2008-10-16  Sam Steingold  <sds@gnu.org>
 
 	* symbol10.tst: check keyword reading
