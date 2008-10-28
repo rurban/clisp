@@ -329,14 +329,15 @@ CHECK-WM-CLASS
                             :background *black-color*))
 CREATE-FONT-CURSOR
 
-(loop :for shape :from 0 :to 20 :for cursor = (create-font-cursor shape) :do
+(format t "~&==== move mouse off of windows and watch it morph! ===~%") NIL
+(loop :for shape :from 0 :to 200 :for cursor = (create-font-cursor shape) :do
   (format t "~&~:D ~S~%" shape cursor)
   (setf (xlib:window-cursor *root*) cursor)
   (xlib:display-finish-output *dpy*)
-  (sleep 1) (xlib:free-cursor cursor))
+  (sleep 0.1) (xlib:free-cursor cursor))
 NIL
 
-(let ((cursor (create-font-cursor 2))) ; default
+(let ((cursor (create-font-cursor 68))) ; default
   (setf (xlib:window-cursor *root*) cursor)
   (xlib:display-finish-output *dpy*)
   (xlib:free-cursor cursor))
