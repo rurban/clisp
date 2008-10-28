@@ -5,6 +5,8 @@ Important notes
 
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
+  + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
+    wild pathnames (introduced in 2.47). [ 2198109 ]
 
 
 2.47 (2008-10-23)

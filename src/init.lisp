@@ -2153,7 +2153,10 @@
   ;; because (DIRECTORY "~/*") fails
   (let* ((already-searched nil) found
          (path-nonW (merge-pathnames filename))
-         (path-wild (merge-pathnames path-nonW '#P"*.*"))
+         (path-wild (if (pathname-name path-nonW)
+                        (merge-pathnames path-nonW '#P"*.*")
+                        ;; do not append *.* to directories
+                        path-nonW))
          (use-extensions (null (pathname-type path-nonW))))
     (dolist (dir (cons '#P""
                        ;; when filename has "..", ignore *load-paths*
@@ -2172,10 +2175,17 @@
                       (directory search-filename :full t :circle t
                                  :if-does-not-exist :ignore)
                       (and (eq :wild (pathname-type search-filename))
-                           (directory (make-pathname
-                                       :type nil :defaults search-filename)
-                                      :if-does-not-exist :ignore
-                                      :full t :circle t)))
+                           (nconc
+                            (directory (make-pathname
+                                        :type nil :defaults search-filename)
+                                       :if-does-not-exist :ignore
+                                       :full t :circle t)
+                            (directory (make-pathname
+                                        :type nil :name nil
+                                        :directory (append (pathname-directory search-filename) (list (pathname-name search-filename)))
+                                        :defaults search-filename)
+                                       :if-does-not-exist :ignore
+                                       :full t :circle t))))
                      (let ((f (ppn-fwd search-filename keep-dirs))
                            (e (and use-extensions extensions
                                    (mapcan #'(lambda (ext)
@@ -2184,9 +2194,6 @@
                                            extensions))))
                        (if f (cons f e) e)))))
             (when wild-p
-              (unless keep-dirs ; filter the directories
-                (setq xpathnames
-                      (delete-if-not #'pathname-name xpathnames :key #'car)))
               (when (and use-extensions extensions) ; filter the extensions
                 (setq xpathnames
                       (delete-if-not
