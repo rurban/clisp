@@ -1089,6 +1089,46 @@ NIL
 (make-pathname :directory '(:absolute :wild-inferiors "subdir"))
 #P"/**/subdir/"
 
+;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2198109&group_id=1355
+;; wild subdirectory
+(let* ((lpd (pathname "load-path-dir/"))
+       (custom:*merge-pathnames-ansi* t)
+       (file (merge-pathnames
+              (first *load-logical-pathname-translations-database*)
+              lpd)))
+  (unwind-protect
+       (let ((*load-paths* (list (merge-pathnames "**/" lpd)))
+             (*load-verbose* t))
+         (ext:make-directory lpd)
+         (setf (logical-pathname-translations "FOO") nil)
+         (with-open-file (f file :direction :output)
+           (format f "~S~%~S~%" "FOO" ''(("FOO:**;*" "/foo/**/*"))))
+         (and (load-logical-pathname-translations "FOO")
+              (cadar (logical-pathname-translations "FOO"))))
+    (delete-file file)
+    (ext:delete-directory lpd))) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+(let* ((lpd (pathname "load-path-dir/"))
+       (custom:*merge-pathnames-ansi* t)
+       (dir (make-pathname :directory (append (pathname-directory lpd) (list (pathname-name (first *load-logical-pathname-translations-database*))))))
+       (file (merge-pathnames "FOO" dir)))
+  (unwind-protect
+       (let ((*load-paths* (list (merge-pathnames "**/" lpd)))
+             (*load-verbose* t))
+         (setf (logical-pathname-translations "FOO") nil)
+         (ext:make-directory lpd)
+         (ext:make-directory dir)
+         (with-open-file (f file :direction :output)
+           (format f "~S~%" '(("FOO:**;*" "/foo/**/*"))))
+         (and (load-logical-pathname-translations "FOO")
+              (cadar (logical-pathname-translations "FOO"))))
+    (delete-file file)
+    (ext:delete-directory dir)
+    (ext:delete-directory lpd))) "/foo/**/*"
+(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+
+
 (ext:make-directory "foo/") T
 (defparameter *dir* (directory "foo/" :full t)) *DIR*
 (cdr *dir*) NIL
