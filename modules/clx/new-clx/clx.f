@@ -3446,15 +3446,11 @@ static void query_best_X (Status (*query) (Display*, Drawable,
   skipSTACK(5);
 }
 
-DEFUN(XLIB:QUERY-BEST-STIPPLE, arg1 arg2 arg3)
-{
-  query_best_X (XQueryBestStipple);
-}
+DEFUN(XLIB:QUERY-BEST-STIPPLE, x y drawable)
+{ query_best_X (XQueryBestStipple); }
 
-DEFUN(XLIB:QUERY-BEST-TILE, arg1 arg2 arg3)
-{
-  query_best_X (XQueryBestTile);
-}
+DEFUN(XLIB:QUERY-BEST-TILE, x y drawable)
+{ query_best_X (XQueryBestTile); }
 
 /* 5.3  Copying Graphics Contexts */
 DEFUN(XLIB:COPY-GCONTEXT, arg1 arg2)
@@ -5347,10 +5343,8 @@ DEFUN(XLIB:FREE-CURSOR, cursor)
 }
 
 /* 10.3  Cursor Functions */
-DEFUN(XLIB:QUERY-BEST-CURSOR, arg1 arg2 arg3)
-{
-  query_best_X (XQueryBestCursor);
-}
+DEFUN(XLIB:QUERY-BEST-CURSOR, x y drawable)
+{ query_best_X (XQueryBestCursor); }
 
 /* FIXME? Are color names also OK here? */
 DEFUN(XLIB:RECOLOR-CURSOR, cursor foreground background)

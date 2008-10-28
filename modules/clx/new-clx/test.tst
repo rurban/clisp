@@ -179,6 +179,14 @@ T
     (or (null w) (xlib:window-p w) (error "~S is not a window" w))))
 NIL
 
+(defun check-query-best (f &optional (w *window*))
+  (let ((l (show (multiple-value-list (funcall f 10 10 w)))))
+    (list (length l) (every #'integerp l))))
+CHECK-QUERY-BEST
+(check-query-best #'xlib:query-best-stipple) (2 T)
+(check-query-best #'xlib:query-best-tile) (2 T)
+(check-query-best #'xlib:query-best-cursor) (2 T)
+
 (defparameter *gcontext*
   (xlib:create-gcontext :drawable *window* :font *font*))
 *GCONTEXT*
