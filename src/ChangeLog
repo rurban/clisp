@@ -12,7 +12,7 @@
 2008-10-27  Philippe Brochard  <hocwp@free.fr>
 
 	* modules/clx/new-clx/clx.f (GRAB-BUTTON, UNGRAB-BUTTON): fix
-	button argument handlingxs
+	button argument handling
 
 2008-10-27  Sam Steingold  <sds@gnu.org>
 
