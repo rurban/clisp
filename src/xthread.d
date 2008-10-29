@@ -449,6 +449,7 @@ typedef DWORD              xthread_key_t;
 #if (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC))
 
   typedef int spinlock_t; /* A value 0 means unlocked, != 0 means locked. */
+  #define SPINLOCK_INIT =0
 
   /* The following atomic operations are borrowed from LinuxThreads-0.6
    and were mostly written by Richard Henderson <rth@tamu.edu>.
@@ -585,6 +586,7 @@ typedef DWORD              xthread_key_t;
 
   typedef int spinlock_t __attribute__((__aligned__(16)));
   /* A value -1 means unlocked, 0 means locked. */
+  #define SPINLOCK_INIT =0
 
   /* testandset(spinlock) tries to acquire the spinlock. It returns
    0 if it succeeded (i.e. the old value was -1, the new one is 0).
@@ -614,6 +616,7 @@ typedef DWORD              xthread_key_t;
   /* Slow, but portable. */
 
   typedef xmutex_t spinlock_t;
+  #define SPINLOCK_INIT         /* nothing? */
 
   static inline void spinlock_init (spinlock_t* spinlock)
   { int err = xmutex_init(spinlock); if (err) OS_error(); }

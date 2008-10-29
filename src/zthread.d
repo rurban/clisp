@@ -208,7 +208,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
 }
 
 /* lock for the timeout_call_chain */
-global spinlock_t timeout_call_chain_lock=0;
+global spinlock_t timeout_call_chain_lock SPINLOCK_INIT;
 /* chain of sorted by expire time timeout_calls */
 global timeout_call *timeout_call_chain=NULL;
 
