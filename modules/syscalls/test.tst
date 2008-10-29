@@ -176,12 +176,16 @@ FLOAT~
   :return (list n (float lg 0f0) l!))
 (172 711.7147f0 FLOATING-POINT-OVERFLOW)
 
-;; tgamma has widely varying precisions on different platforms:
-;; win32 really wins : 34
+;; tgamma has widely varying accuracy on different platforms:
+;; solaris 8: 4
 ;; glibc: 5
-;; solaris: 4
-(loop :for n :upfrom 3 :for tg = (os:tgamma n)
-  :while (= 1 (/ (! (1- n)) tg)) :finally (show n))
+;; win32: 34
+;; solaris 10: (172 FLOATING-POINT-OVERFLOW)
+(loop :for n :upfrom 3
+  :for tg = (handler-case (os:tgamma n)
+              (floating-point-overflow () 'floating-point-overflow))
+  :while (and (floatp tg) (= 1 (/ (! (1- n)) tg)))
+  :finally (show (list n tg)))
 NIL
 
 (loop :for n :upfrom 3
@@ -189,7 +193,7 @@ NIL
               (floating-point-overflow () 'floating-point-overflow))
   :unless (and (floatp tg) (= 1 (float (/ (! (1- n)) tg) 0f0)))
   :return (list n tg))
-(172 FLOATING-POINT-OVERFLOW) ; ... but it IS precise at single precision!
+(172 FLOATING-POINT-OVERFLOW) ; ... but it IS accurate at single precision!
 
 #+unix (= (show (os:process-id)) (show (os:getppid))) #+unix NIL
 #+unix (let ((id (show (os:uid)))) (= id (setf (os:uid) id))) T
