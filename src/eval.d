@@ -487,7 +487,7 @@ global /*maygc*/ void unwind (void)
                   if (as_oint(*(bindingptr STACKop 0)) & wbit(active_bit_o)) {
                     /* binding static or inactive -> nothing to do
                        binding dynamic and active -> write back value: */
-                    TheSymbolflagged(*(bindingptr STACKop varframe_binding_sym))->symvalue =
+                    Symbolflagged_value(*(bindingptr STACKop varframe_binding_sym)) =
                       *(bindingptr STACKop varframe_binding_value);
                   }
                 bindingptr skipSTACKop varframe_binding_size; /* next binding */
@@ -2527,9 +2527,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         /* activate dynamic Binding: */                                 \
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
         *(markptr STACKop varframe_binding_value) = /* old value in frame */ \
-          TheSymbolflagged(sym)->symvalue;                              \
+          Symbolflagged_value(sym);     \
         /* new value in value-cell: */                                  \
-        TheSymbolflagged(sym)->symvalue = (value);                      \
+        Symbolflagged_value(sym) = (value);                             \
         activate_specdecl(sym,spec_ptr,spec_count);                     \
       } else { /* activate static binding: */                           \
         /* new value in frame: */                                       \
@@ -6412,6 +6412,16 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
     CASE cod_bind: {            /* (BIND n) */
       var uintL n;
       U_operand(n);
+#if defined(MULTITHREAD)
+      var Symbol sym=TheSymbol(TheCclosure(closure)->clos_consts[n]);
+      if (sym->tls_index == SYMBOL_TLS_INDEX_NONE &&
+          !special_var_p(sym)) {
+        /* if it is special - it may be special global (i.e.*features*) so
+           we do not want to make it per thread. */
+        add_per_thread_special_var(TheCclosure(closure)->clos_consts[n]);
+        closure = *closureptr; /* restore from stack in case of GC */
+      }
+#endif
       dynamic_bind(TheCclosure(closure)->clos_consts[n],value1);
     } goto next_byte;
     CASE cod_unbind1:           /* (UNBIND1) */

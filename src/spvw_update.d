@@ -112,7 +112,7 @@
   do {                                                                  \
     gcv_object_t* p = (gcv_object_t*)pointerplus(ptr,symbol_objects_offset); \
     uintC count;                                                        \
-    dotimespC(count,((sizeof(symbol_)-symbol_objects_offset)/sizeof(gcv_object_t)), { \
+    dotimespC(count,symbol_length, { \
       update(p); p++;                                                   \
     });                                                                 \
   } while(0)

@@ -259,19 +259,19 @@ local char* realpath (const char* path, char* resolved_path) {
  make_directory(pathstring);
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
-local inline void make_directory (char* pathstring) {
+local maygc inline void make_directory (char* pathstring) {
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   if (mkdir(pathstring,0777)) { /* create sub-directory */
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (! CreateDirectory(pathstring,NULL) ) { /* create sub-directory */
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #else
   #error make_directory is not defined
  #endif
@@ -281,19 +281,19 @@ local inline void make_directory (char* pathstring) {
  delete_directory(pathstring);
  > pathstring: result of shorter_directory(...)
  > STACK_0: pathname */
-local inline void delete_directory (char* pathstring) {
+local maygc inline void delete_directory (char* pathstring) {
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   if (rmdir(pathstring)) { /* delete sub-directory */
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (! RemoveDirectory(pathstring) ) { /* delete sub-directory */
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #else
   #error delete_directory is not defined
  #endif
@@ -304,12 +304,12 @@ local inline void delete_directory (char* pathstring) {
  change_directory(pathstring);
  > pathstring: directory, ASCIZ-String
  > STACK_0: pathname */
-local inline void change_current_directory (char* pathstring) {
-  begin_system_call();
+local maygc inline void change_current_directory (char* pathstring) {
+  begin_blocking_system_call();
   if (!SetCurrentDirectory(pathstring)) {
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
 }
 #endif
 
@@ -318,19 +318,19 @@ local inline void change_current_directory (char* pathstring) {
  It is known that the file exists.
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
-local inline void delete_existing_file (char* pathstring) {
+local maygc inline void delete_existing_file (char* pathstring) {
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   if (!( unlink(pathstring) ==0)) {
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (! DeleteFile(pathstring) ) {
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #else
   #error delete_existing_file is not defined
  #endif
@@ -346,32 +346,32 @@ local inline void delete_existing_file (char* pathstring) {
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname
  < result: whether the file existed */
-local inline bool delete_file_if_exists (char* pathstring) {
+local maygc inline bool delete_file_if_exists (char* pathstring) {
   var bool exists = true;
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   if (!( unlink(pathstring) ==0)) {
     if (!(errno==ENOENT)) { /* not found -> OK */
-      end_system_call(); OS_file_error(STACK_0); /* report other error */
+      end_blocking_system_call(); OS_file_error(STACK_0); /* report other error */
     }
     exists = false;
   }
-  end_system_call();
+  end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (! DeleteFile(pathstring) ) {
     if (!WIN32_ERROR_NOT_FOUND) {
-      end_system_call(); OS_file_error(STACK_0);
+      end_blocking_system_call(); OS_file_error(STACK_0);
     }
     exists = false;
   }
-  end_system_call();
+  end_blocking_system_call();
  #else
   #error delete_file_if_exists is not defined
  #endif
   return exists;
 }
-local bool delete_file_if_exists_obj (object namestring) {
+local maygc bool delete_file_if_exists_obj (object namestring) {
   bool ret;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     ret = delete_file_if_exists(namestring_asciz);
@@ -384,7 +384,7 @@ local bool delete_file_if_exists_obj (object namestring) {
  No error is signaled if the file does not exist.
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
-local inline void delete_file_before_rename (char* pathstring) {
+local maygc inline void delete_file_before_rename (char* pathstring) {
  #if !defined(UNIX) /* rename() on Unix does it automatically */
   delete_file_if_exists(pathstring);
  #endif
@@ -397,20 +397,20 @@ local inline void delete_file_before_rename (char* pathstring) {
  > old_pathstring: old file name, ASCIZ-String
  > new_pathstring: new file name, ASCIZ-String
  > STACK_0: pathname */
-local inline void rename_existing_file (char* old_pathstring,
-                                        char* new_pathstring) {
+local maygc inline void rename_existing_file (char* old_pathstring,
+                                              char* new_pathstring) {
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   if ( rename(old_pathstring,new_pathstring) <0) { /* rename file */
-    end_system_call(); OS_file_error(STACK_0); /* report error */
+    end_blocking_system_call(); OS_file_error(STACK_0); /* report error */
   }
-  end_system_call();
+  end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (! MoveFile(old_pathstring,new_pathstring) ) {
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
  #else
   #error rename_existing_file is not defined
  #endif
@@ -5037,38 +5037,38 @@ local maygc object OSnamestring (object dir_namestring) {
 /* UP: tests, if a drive exists.
  > uintB drive: drive-(capital-)letter
  < bool result: if this drive exists and is responsive */
-local bool good_drive (uintB drive);
+local maygc bool good_drive (uintB drive);
 #ifdef WIN32_NATIVE
-local bool good_drive (uintB drive) {
+local maygc bool good_drive (uintB drive) {
   var char rootpath[4];
   var DWORD result;
   rootpath[0] = drive;
   rootpath[1] = ':';
   rootpath[2] = '\\';
   rootpath[3] = '\0';
-  begin_system_call();
+  begin_blocking_system_call();
   result = GetDriveType(rootpath);
   switch (result) {
     case DRIVE_UNKNOWN:
-      end_system_call();
+      end_blocking_system_call();
       return false;
     case DRIVE_NO_ROOT_DIR:
       /* Distinguish NFS mounts from nonassigned drive letters: */
       result = GetFileAttributes(rootpath);
-      end_system_call();
+      end_blocking_system_call();
       return !(result==0xFFFFFFFF);
     default:
-      end_system_call();
+      end_blocking_system_call();
       return true;
   }
 }
 #if 0
 /* The following fails to recognize some (but not all) NFS mounts on WinNT. */
-local bool good_drive_notsogood (uintB drive) {
+local maygc bool good_drive_notsogood (uintB drive) {
   var DWORD drives_bitmask;
-  begin_system_call();
+  begin_blocking_system_call();
   drives_bitmask = GetLogicalDrives();
-  end_system_call();
+  end_blocking_system_call();
   return ((drives_bitmask & ((DWORD)1 << (drive-'A'))) != 0);
 }
 #endif
@@ -5076,20 +5076,20 @@ local bool good_drive_notsogood (uintB drive) {
 
 /* UP: returns the current drive.
  < char drive: drive-(capital-)letter */
-local char default_drive (void) {
+local maygc char default_drive (void) {
 #ifdef WIN32_NATIVE
   var DWORD path_buflen = _MAX_PATH;
   var char* path_buffer = (char*)alloca(path_buflen);
   var DWORD result;
-  begin_system_call();
-  result = GetCurrentDirectory(path_buflen,path_buffer);
+  result = GC_SAFE_SYSTEM_CALL(DWORD,
+                               GetCurrentDirectory(path_buflen,path_buffer));
   if (!result) { OS_error(); }
   if (result >= path_buflen) {
     path_buflen = result; path_buffer = (char*)alloca(path_buflen);
-    result = GetCurrentDirectory(path_buflen,path_buffer);
+    result = GC_SAFE_SYSTEM_CALL(DWORD,
+                                 GetCurrentDirectory(path_buflen,path_buffer));
     if (!result) { OS_error(); }
   }
-  end_system_call();
   if (path_buffer[1]==':') { /* local device */
     ASSERT(path_buffer[2]=='\\');
     return as_cint(up_case(as_chart(path_buffer[0])));
@@ -5118,25 +5118,28 @@ local maygc object default_directory_of (uintB drive, object pathname) {
     currpath[1] = ':';
     currpath[2] = '.'; /* this dot is actually not needed */
     currpath[3] = '\0';
-    begin_system_call();
-    result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
-    if (!result) { end_system_call(); OS_file_error(pathname); }
+    begin_blocking_system_call();
+    result =
+      GC_SAFE_SYSTEM_CALL(DWORD,
+                          GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
+    if (!result) { OS_file_error(pathname); }
     if (result >= path_buflen) {
       path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
-      result = GetFullPathName(currpath,path_buflen,path_buffer,&dummy);
-      if (!result) { end_system_call(); OS_file_error(pathname); }
-    }
-    end_system_call();
-  } else {                      /* network path */
-    begin_system_call();
-    result = GetCurrentDirectory(path_buflen,path_buffer);
-    if (!result) { end_system_call(); OS_file_error(pathname); }
-    if (result >= path_buflen) {
-      path_buflen = result; path_buffer = (char*)alloca(path_buflen);
-      result = GetCurrentDirectory(path_buflen,path_buffer);
+      result =
+        GC_SAFE_SYSTEM_CALL(DWORD,
+                            GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
       if (!result) { OS_file_error(pathname); }
     }
-    end_system_call();
+  } else {                      /* network path */
+    result =
+      GC_SAFE_SYSTEM_CALL(DWORD,GetCurrentDirectory(path_buflen,path_buffer));
+    if (!result) { OS_file_error(pathname); }
+    if (result >= path_buflen) {
+      path_buflen = result; path_buffer = (char*)alloca(path_buflen);
+      result =
+        GC_SAFE_SYSTEM_CALL(DWORD,GetCurrentDirectory(path_buflen,path_buffer));
+      if (!result) { OS_file_error(pathname); }
+    }
   }
   { /* poss. add a '\' at the end: */
     var char* path_end = &path_buffer[asciz_length(path_buffer)];
@@ -5146,9 +5149,9 @@ local maygc object default_directory_of (uintB drive, object pathname) {
   var char path_buffer[3+MAXPATHLEN]; /* cf. GETWD(3) */
   path_buffer[0] = drive; path_buffer[1] = ':';
   /* file working directory in path_buffer: */
-  begin_system_call();
+  begin_blocking_system_call();
   getwd_of(&path_buffer[2],drive);
-  end_system_call();
+  end_blocking_system_call();
  #endif
   /* Hack by DJ (see GO32/EXPHDLR.C) and EM (see LIB/MISC/_GETCWD1.C):
    converts all '\' to '/' and all captial- to small letters (only cosmetics,
@@ -5512,14 +5515,14 @@ local maygc void assure_dir_exists (struct file_status *fs,
 local maygc object default_directory (void) {
   var char path_buffer[MAXPATHLEN]; /* cf. GETWD(3) */
   /* store Working Directory in path_buffer: */
-  begin_system_call();
+  begin_blocking_system_call();
   if ( getwd(&path_buffer[0]) ==NULL) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(O(dot_string)); /* FILE-ERROR slot PATHNAME */
     pushSTACK(asciz_to_string(&path_buffer[0],O(pathname_encoding))); /* message */
     error(file_error,GETTEXT("UNIX error while GETWD: ~S"));
   }
-  end_system_call();
+  end_blocking_system_call();
   /* It must start with '/' : */
   if (!(path_buffer[0] == '/')) {
     pushSTACK(O(dot_string)); /* FILE-ERROR slot PATHNAME */
@@ -5593,28 +5596,28 @@ local inline void file_status_init(struct file_status *fs,gcv_object_t *path) {
   fs->fs_stat_validp = false;
 }
 
-local char* realpath_obj (object namestring, char *path_buffer) {
+local maygc char* realpath_obj (object namestring, char *path_buffer) {
   char* ret;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    begin_system_call();
+    begin_blocking_system_call();
     ret = realpath(namestring_asciz,path_buffer);
-    end_system_call();
+    end_blocking_system_call();
   });
   return ret;
 }
 /* return true if assure_dir_exists is done */
 local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
                                 uintC *allowed_links) {
-  begin_system_call();
+  begin_blocking_system_call();
   if (!( lstat(namestring_asciz,&(fs->fs_stat)) ==0)) {
     if (!(errno==ENOENT))
-      { end_system_call(); OS_file_error(*(fs->fs_pathname)); }
+      { end_blocking_system_call(); OS_file_error(*(fs->fs_pathname)); }
     /* file does not exist. */
-    end_system_call();
+    end_blocking_system_call();
     FREE_DYNAMIC_ARRAY(namestring_asciz);
     fs->fs_stat_validp = false; return true;
   }
-  end_system_call();
+  end_blocking_system_call();
   /* file exists. */
   if (S_ISDIR(fs->fs_stat.st_mode))
     error_directory(*(fs->fs_pathname));
@@ -5634,9 +5637,8 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
    retry_readlink: {
       var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
       /* read link-content: */
-      begin_system_call();
-      { var int result = readlink(namestring_asciz,linkbuf,linklen);
-        end_system_call();
+      { var int result =
+          GC_SAFE_SYSTEM_CALL(int,readlink(namestring_asciz,linkbuf,linklen));
         if (result<0)
           OS_file_error(*(fs->fs_pathname));
         if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
@@ -5785,9 +5787,12 @@ local maygc void change_default (void) {
   var object string = directory_namestring(STACK_0);
   with_sstring_0(string,O(pathname_encoding),asciz, {
     /* change default-directory: */
-    begin_system_call();
-    if (!( chdir(asciz) ==0)) { end_system_call(); OS_file_error(STACK_0); }
-    end_system_call();
+    begin_blocking_system_call();
+    if (!( chdir(asciz) ==0)) {
+      end_blocking_system_call();
+      OS_file_error(STACK_0);
+    }
+    end_blocking_system_call();
   });
 }
 #endif
@@ -5825,19 +5830,17 @@ nonreturning_function(local, error_notdir, (object pathname)) {
  file_exists(file_status)
  > only after: assure_dir_exists() */
 #if defined(WIN32_NATIVE)
-  local inline int access0 (const char* path, struct file_status *fs) {
-    begin_system_call();
-    fs->fs_fileattr = GetFileAttributes(path);
+  local maygc inline int access0 (const char* path, struct file_status *fs) {
+    fs->fs_fileattr = GC_SAFE_SYSTEM_CALL(DWORD,GetFileAttributes(path));
     if (fs->fs_fileattr == 0xFFFFFFFF) {
       if (WIN32_ERROR_NOT_FOUND) {
-        end_system_call(); return -1;
+        return -1;
       }
-      end_system_call(); OS_file_error(*(fs->fs_pathname));
+      OS_file_error(*(fs->fs_pathname));
     }
-    end_system_call();
     return 0;
   }
-  local bool file_exists (struct file_status *fs) {
+  local maygc bool file_exists (struct file_status *fs) {
     var bool exists;
     with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
       exists = (access0(namestring_asciz,fs)==0);
@@ -5954,17 +5957,17 @@ LISPFUNNR(probe_file,1)
 local void find_first_file (const char *namestring_asciz,
                             WIN32_FIND_DATA *filedata) {
   var HANDLE search_handle;
-  begin_system_call();
+  begin_blocking_system_call();
   search_handle = FindFirstFile(namestring_asciz,filedata);
   if (search_handle == INVALID_HANDLE_VALUE) {
     if (WIN32_ERROR_NOT_FOUND) {
-      end_system_call(); error_file_not_exists();
+      end_blocking_system_call(); error_file_not_exists();
     }
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   } else if (!FindClose(search_handle)) {
-    end_system_call(); OS_file_error(STACK_0);
+    end_blocking_system_call(); OS_file_error(STACK_0);
   }
-  end_system_call();
+  end_blocking_system_call();
 }
 #endif
 
@@ -5977,14 +5980,12 @@ local void find_first_file (const char *namestring_asciz,
  < return 0 if namestring does not name an existing file or directory
     1:  regular file
    -1:  directory */
-local signean classify_namestring (char* namestring, char *resolved,
-                                   gcv_object_t *fwd, gcv_object_t* fsize) {
+local maygc signean classify_namestring (char* namestring, char *resolved,
+                                         gcv_object_t *fwd, gcv_object_t* fsize) {
 #if defined(UNIX)
   struct stat status;
   int ret;
-  begin_system_call();
-  ret = stat(namestring,&status);
-  end_system_call();
+  ret = GC_SAFE_SYSTEM_CALL(int,stat(namestring,&status));
   if (ret) {
     if (errno != ENOENT) OS_file_error(STACK_0);
     return signean_null;         /* does not exist */
@@ -5997,11 +5998,11 @@ local signean classify_namestring (char* namestring, char *resolved,
   }
 #elif defined(WIN32_NATIVE)
   bool ret;
-  begin_system_call();
+  begin_blocking_system_call();
   if (real_path(namestring,resolved)) {
     DWORD fileattr;
     fileattr = GetFileAttributes(resolved);
-    end_system_call();
+    end_blocking_system_call();
     if (fileattr == 0xFFFFFFFF) {
       /* you get ERROR_INVALID_NAME on GetFileAttributes("foo/")
          when file "foo" exists */
@@ -6018,7 +6019,7 @@ local signean classify_namestring (char* namestring, char *resolved,
       if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return signean_minus;
       else return signean_plus;   /* file */
     }
-  } else { end_system_call(); return signean_null; } /* does not exist */
+  } else { end_blocking_system_call(); return signean_null; } /* does not exist */
 #else
   #error classify_namestring is not defined
 #endif
@@ -6105,12 +6106,10 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
  > namestring: string
  > status: pointer to a stat
  < status */
-local int stat_obj (object namestring, struct stat *status) {
+local maygc int stat_obj (object namestring, struct stat *status) {
   int ret;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    begin_system_call();
-    ret = stat(namestring_asciz,status);
-    end_system_call();
+    ret = GC_SAFE_SYSTEM_CALL(int,stat(namestring_asciz,status));
   });
   return ret;
 }
@@ -6133,18 +6132,17 @@ local maygc bool directory_exists (object pathname) {
       ASSERT((len > 0) && cpslashp(dir_namestring_asciz[len-1]));
       dir_namestring_asciz[len-1] = '\0'; /* replace '\' at the end with nullbyte */
     }
-    begin_system_call();
-    var DWORD fileattr = GetFileAttributes(dir_namestring_asciz);
+    var DWORD fileattr =
+      GC_SAFE_SYSTEM_CALL(DWORD,GetFileAttributes(dir_namestring_asciz));
     if (fileattr == 0xFFFFFFFF) {
       if (!WIN32_ERROR_NOT_FOUND) {
-        end_system_call(); OS_file_error(STACK_0);
+        OS_file_error(STACK_0);
       }
       exists = false;
     } else {
       if (!(fileattr & FILE_ATTRIBUTE_DIRECTORY)) /* found file is no subdirectory ? */
         exists = false;
     }
-    end_system_call();
   });
  #elif defined(PATHNAME_UNIX)
   pushSTACK(dir_namestring);
@@ -6220,16 +6218,35 @@ global maygc object OSdir_to_pathname (const char* path) {
              of symbolic links */
 #endif
 /* < result: true, if an opened file-stream exits for this file. */
-local bool openp (object pathname) {
+local maygc bool openp (object pathname) {
+ #if defined(MULTITHREAD)
+  pushSTACK(pathname);
+  /* get the lock */
+  begin_blocking_system_call();
+  xmutex_lock(&open_files_lock);
+  end_blocking_system_call();
+  pathname = popSTACK();
+ #endif
   var object flist = O(open_files); /* traverse list of all open files */
   while (consp(flist)) {
     var object f = Car(flist); /* next open stream */
     if (TheStream(f)->strmtype == strmtype_file) { /* file-stream ? */
-      if (equal(TheStream(f)->strm_file_truename,pathname))
+      if (equal(TheStream(f)->strm_file_truename,pathname)) {
+       #if defined(MULTITHREAD)
+        begin_system_call();
+        xmutex_unlock(&open_files_lock);
+        end_system_call();
+       #endif
         return true;
+      }
     }
     flist = Cdr(flist);
   }
+ #if defined(MULTITHREAD)
+  begin_system_call();
+  xmutex_unlock(&open_files_lock);
+  end_system_call();
+ #endif
   return false;
 }
 
@@ -6305,7 +6322,9 @@ local void rename_file (void) {
     pushSTACK(STACK_1);
     var struct file_status fs; file_status_init(&fs,&STACK_0);
     true_namestring(&fs,true,false);
+    pushSTACK(fs.fs_namestring);
     check_rename_open(*(fs.fs_pathname)); /* do not rename open files! */
+    fs.fs_namestring = popSTACK();
     if (!file_exists(&fs))
       error_file_not_exists();
     pushSTACK(fs.fs_namestring);
@@ -6369,24 +6388,24 @@ LISPFUNN(rename_file,2) {
  It is known that the file does not already exist.
  > pathstring: file name, ASCIZ-String
  > STACK_0: pathname */
-local inline void create_new_file (char* pathstring) {
+local maygc inline void create_new_file (char* pathstring) {
  #if defined(WIN32_NATIVE)
-  begin_system_call();
-  var Handle handle = CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+  var Handle handle =
+    GC_SAFE_SYSTEM_CALL(Handle,CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE)
-    { end_system_call(); OS_file_error(STACK_0); }
+    { OS_file_error(STACK_0); }
   /* file was created, handle is the Handle.
    close file again: */
-  if (!CloseHandle(handle)) { end_system_call(); OS_file_error(STACK_0); }
-  end_system_call();
+  if (!GC_SAFE_SYSTEM_CALL(BOOL,CloseHandle(handle)))
+    { OS_file_error(STACK_0); }
  #elif defined(UNIX)
-  begin_system_call();
-  var int result = OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask);
-  if (result<0) { end_system_call(); OS_file_error(STACK_0); } /* report error */
+  var int result =
+    GC_SAFE_SYSTEM_CALL(int,OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask));
+  if (result<0) { OS_file_error(STACK_0); } /* report error */
   /* file was created, result is the Handle.
    close file again: */
-  if (!(CLOSE(result)==0)) { end_system_call(); OS_file_error(STACK_0); } /* report error */
-  end_system_call();
+  if (!GC_SAFE_SYSTEM_CALL(int,CLOSE(result)==0))
+    { OS_file_error(STACK_0); } /* report error */
  #else
   #error create_new_file is not defined
  #endif
@@ -6401,8 +6420,8 @@ local inline void create_new_file (char* pathstring) {
  > STACK_0: pathname
  < handle: open file handle
  < result: whether the file could be opened (necessarily true if create_if_not_exists) */
-local inline bool open_input_file (struct file_status *fs, char* pathstring,
-                                   bool create_if_not_exists, Handle* handle_) {
+local maygc inline bool open_input_file (struct file_status *fs, char* pathstring,
+                                         bool create_if_not_exists, Handle* handle_) {
  #if defined(UNIX)
   var int result;
   #ifdef FILE_EXISTS_TRIVIAL
@@ -6413,23 +6432,19 @@ local inline bool open_input_file (struct file_status *fs, char* pathstring,
     /* create file with open: */
     oflags |= O_CREAT;
   }
-  begin_system_call();
-  result = OPEN(pathstring,oflags,my_open_mask);
-  end_system_call();
+  result = GC_SAFE_SYSTEM_CALL(int, OPEN(pathstring,oflags,my_open_mask));
   if (result<0) { OS_file_error(STACK_0); }
   #else
   var int oflags = O_RDONLY | O_BINARY;
   if (create_if_not_exists) { oflags |= O_CREAT; }
-  begin_system_call();
-  result = OPEN(pathstring,oflags,my_open_mask);
+  result = GC_SAFE_SYSTEM_CALL(int, OPEN(pathstring,oflags,my_open_mask));
   if (result<0) {
     if (errno == ENOENT) { /* not found? */
       /* file does not exist */
-      if (!create_if_not_exists) { end_system_call(); return false; }
+      if (!create_if_not_exists) { return false; }
     }
-    end_system_call(); OS_file_error(STACK_0); /* report error */
+    OS_file_error(STACK_0); /* report error */
   }
-  end_system_call();
   #endif
   *handle_ = result; return true;
  #elif defined(WIN32_NATIVE)
@@ -6441,27 +6456,27 @@ local inline bool open_input_file (struct file_status *fs, char* pathstring,
     /* create file with CreateFile: */
     flag = OPEN_ALWAYS;
   }
-  begin_system_call();
-  handle = CreateFile(pathstring, GENERIC_READ,
-                      FILE_SHARE_READ | FILE_SHARE_WRITE,
-                      NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
-  end_system_call();
+  handle =
+    GC_SAFE_SYSTEM_CALL(Handle,
+                        CreateFile(pathstring, GENERIC_READ,
+                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                   NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   #else
   var DWORD flag = OPEN_EXISTING;
   if (create_if_not_exists) { flag = OPEN_ALWAYS; }
-  begin_system_call();
-  handle = CreateFile(pathstring, GENERIC_READ,
-                      FILE_SHARE_READ | FILE_SHARE_WRITE,
-                      NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL);
+  handle =
+    GC_SAFE_SYATEM_CALL(Handle,
+                        CreateFile(pathstring, GENERIC_READ,
+                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                   NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE) {
     if (WIN32_ERROR_NOT_FOUND) { /* not found? */
       /* file does not exist */
-      if (!create_if_not_exists) { end_system_call(); return false; }
+      if (!create_if_not_exists) { return false; }
     }
-    end_system_call(); OS_file_error(STACK_0); /* report Error */
+    OS_file_error(STACK_0); /* report Error */
   }
-  end_system_call();
   #endif
   *handle_ = handle; return true;
  #else
@@ -6475,10 +6490,10 @@ local inline bool open_input_file (struct file_status *fs, char* pathstring,
  > truncate_if_exists: if true, the file is truncated to zero size
  > STACK_0: pathname
  < result: open file handle */
-local inline Handle open_output_file (char* pathstring, bool wronly,
-                                      bool truncate_if_exists) {
+local maygc inline Handle open_output_file (char* pathstring, bool wronly,
+                                            bool truncate_if_exists) {
  #if defined(UNIX)
-  begin_system_call();
+  begin_blocking_system_call();
   var int flags = O_BINARY | O_CREAT | (truncate_if_exists ? O_TRUNC : 0);
   /* regular file or !wronly => O_RDWR
    i.e., for the handle to be O_WRONLY, it must be opened :DIRECTION :OUTPUT
@@ -6493,25 +6508,25 @@ local inline Handle open_output_file (char* pathstring, bool wronly,
     else flags |= O_WRONLY;     /* special => write-only */
   } else flags |= O_RDWR;
   var int result = OPEN(pathstring,flags,my_open_mask);
-  end_system_call();
+  end_blocking_system_call();
   if (result<0) { OS_file_error(STACK_0); } /* report error */
   return result;
  #elif defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   var Handle handle = /* ignore wronly: no "special" files where it may hurt */
     CreateFile(pathstring, GENERIC_READ | GENERIC_WRITE,
                FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                (truncate_if_exists ? CREATE_ALWAYS : OPEN_ALWAYS),
                FILE_ATTRIBUTE_NORMAL, NULL);
-  end_system_call();
+  end_blocking_system_call();
   if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
   return handle;
  #else
   #error open_output_file is nore defined
  #endif
 }
-local inline Handle open_output_file_obj (object namestring, bool wronly,
-                                          bool truncate_if_exists) {
+local maygc inline Handle open_output_file_obj (object namestring, bool wronly,
+                                                bool truncate_if_exists) {
   Handle ret;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     ret = open_output_file(namestring_asciz,wronly,truncate_if_exists);
@@ -6528,8 +6543,8 @@ local inline Handle open_output_file_obj (object namestring, bool wronly,
 Can trigger GC */
 local inline maygc void create_backup_file (char* pathstring,
                                             bool delete_backup_file) {
+  check_rename_open(STACK_0); /* do not rename open files! */
   var object filename = STACK_0;
-  check_rename_open(filename); /* do not rename open files! */
   var object new_namestring;
   /* extend truename with "%" resp. ".bak" resp. "~" :
    filename := (parse-namestring (concatenate 'string (namestring filename) "%")) : */
@@ -6539,7 +6554,9 @@ local inline maygc void create_backup_file (char* pathstring,
   pushSTACK(filename); /* save */
   pushSTACK(filename); /* save */
   filename = coerce_pathname(filename); /* again as filename */
-  check_delete_open(filename);
+  pushSTACK(filename);
+  check_delete_open(filename); /* maygc */
+  filename = popSTACK();
   STACK_1 = filename;
   /* directory already exists. Do not resolve further links here. */
   new_namestring = popSTACK(); /* filename for the operating system */
@@ -6653,7 +6670,7 @@ global object if_exists_symbol (if_exists_t if_exists) {
  > object truename - the name of the file that is being opened
  > direction_t direction - the direction of the pending OPEN
  can trigger GC - if CERROR or WARNING is signaled */
-extern void* find_open_file (struct file_id *fid, uintB flags);
+extern maygc void* find_open_file (struct file_id *fid, uintB flags);
 local maygc void check_file_reopen (object truename, direction_t direction) {
   var uintB flags;
   switch (direction) {
@@ -6670,13 +6687,13 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
   var struct file_id fi;
   var errno_t status;
   with_string_0(truename,O(pathname_encoding),namez, {
-    begin_system_call();
-    status = namestring_file_id(namez,&fi);
-    end_system_call();
+    status = GC_SAFE_SYSTEM_CALL(errno_t, namestring_file_id(namez,&fi));
   });
+  pushSTACK(truename); /* save for find_open_file. */
   if (status == 0 /* file exists - see if it is already open */
       && find_open_file(&fi,flags))
     bad_stream = popSTACK();
+  truename = popSTACK();
   if (!eq(bad_stream,nullobj)) { /* found an existing open stream */
    #define error_format_string CLSTEXT("~S: ~S already points to file ~S, opening the file again for ~S may produce unexpected results")
     if (eq(Symbol_value(S(reopen_open_file)),S(error))) {
@@ -6996,12 +7013,14 @@ local maygc void get_time_size (gcv_object_t *pathname,
        see http://msdn2.microsoft.com/en-us/library/aa364418.aspx */
     if (resolved_asciz[resolved_asciz_bytelen - 1] == '\\')
       resolved_asciz[resolved_asciz_bytelen - 1] = 0;
-    begin_system_call();
+    begin_blocking_system_call();
     READDIR_findfirst(resolved_asciz, notfound = true; , notfound = true; );
-    end_system_call();
+    end_blocking_system_call();
     if (notfound) /* just to be paranoid */
       OS_file_error(*pathname);
-    begin_system_call(); FindClose(search_handle); end_system_call();
+    begin_blocking_system_call();
+    FindClose(search_handle);
+    end_blocking_system_call();
     READDIR_entry_timedate(timepoint);
     *entry_size = READDIR_entry_size();
   });
@@ -7018,14 +7037,14 @@ local maygc void with_stat_info_computed (struct file_status *fs) {
 #ifdef UNIX
 /* Just like stat(), except that directories or files which would lead
  to problems are silently hidden. */
-local inline int stat_for_search (char* pathstring, struct stat * statbuf) {
+local maygc inline int stat_for_search (char* pathstring, struct stat * statbuf) {
  #ifdef UNIX_LINUX
   /* Avoid searching /proc: It is a zoo containing strange animals:
    directories which go away constantly, pseudo-regular files which
    are really pipes, etc. */
   if (asciz_equal(pathstring,"/proc")) { errno = ENOENT; return -1; }
  #endif
-  var int result = stat(pathstring,statbuf);
+  var int result = GC_SAFE_SYSTEM_CALL(int,stat(pathstring,statbuf));
  #ifdef UNIX_CYGWIN32
   if ((result < 0) && (errno == EACCES)) { errno = ENOENT; }
  #endif
@@ -7105,12 +7124,12 @@ local maygc void copy_pathname_and_add_subdir (object subdir)
 
 /* Check whether a directory exists and call copy_pathname_and_add_subdir()
    on it; if the directory does not exist or is a file, do nothing */
-local maygc void directory_search_1subdir (object subdir, object namestring) {
+local maygc void directory_search_1subdir (gcv_object_t *subdir, object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAXPATHLEN];
     if (classify_namestring(namestring_asciz,resolved,NULL,NULL)
         == signean_minus)
-      copy_pathname_and_add_subdir(subdir); /* namestring is a directory */
+      copy_pathname_and_add_subdir(*subdir); /* namestring is a directory */
   });
 }
 
@@ -7160,15 +7179,12 @@ local maygc bool directory_search_direntry_ok (object namestring,
                                                struct stat * statbuf) {
   var bool exists = true;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    begin_system_call();
     if (!( stat_for_search(namestring_asciz,statbuf) ==0)) {
       if (!((errno==ENOENT) || (errno==ELOOP_VALUE))) {
-        end_system_call(); OS_file_error(STACK_2);
+        OS_file_error(STACK_2);
       }
-      end_system_call();
       exists = false;
     }
-    end_system_call();
   });
   return exists;
 }
@@ -7185,7 +7201,10 @@ local maygc bool directory_search_direntry_ok (object namestring,
  < value1 : lisp string or NIL if string is "." or ".."
    OR if the conversion failed and the CONTINUE restart was selected
  can trigger GC */
-local per_thread bool running_handle_directory_encoding_error = false;
+#if !defined(MULTITHREAD)
+/* should be per thread - moved to clisp_thread_t in MT */
+local bool running_handle_directory_encoding_error = false;
+#endif
 local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 (void *sp, gcv_object_t* frame, object label, object condition) {
   /* avoid nested handle_directory_encoding_error calls */
@@ -7255,9 +7274,8 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
     var DIR* dirp;
     set_break_sem_4();
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-      begin_system_call();
-      dirp = opendir(namestring_asciz); /* open directory */
-      end_system_call();
+      /* open directory */
+      dirp = GC_SAFE_SYSTEM_CALL(DIR *,opendir(namestring_asciz));
     });
     if (dirp == (DIR*)NULL) {
       if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
@@ -7265,15 +7283,13 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
     }
     while (1) {
       var struct dirent * dp;
-      begin_system_call();
       errno = 0;
-      dp = readdir(dirp); /* fetch next directory-entry */
+      /* fetch next directory-entry */
+      dp = GC_SAFE_SYSTEM_CALL(struct dirent *,readdir(dirp));
       if (dp == (struct dirent *)NULL) { /* error or directory finished */
-        if (!(errno==0)) { end_system_call(); OS_file_error(STACK_1); }
-        end_system_call();
+        if (!(errno==0)) { OS_file_error(STACK_1); }
         break;
       }
-      end_system_call();
       /* convert directory-entry into string: */
       var object direntry;
       {
@@ -7414,9 +7430,9 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
         skipSTACK(1); /* forget direntry */
       }
     }
-    begin_system_call();
-    if (CLOSEDIR(dirp)) { end_system_call(); OS_file_error(STACK_1); }
-    end_system_call();
+    begin_blocking_system_call();
+    if (CLOSEDIR(dirp)) { end_blocking_system_call(); OS_file_error(STACK_1); }
+    end_blocking_system_call();
     clr_break_sem_4();
   }
  #elif defined(WIN32_NATIVE)
@@ -7428,17 +7444,17 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       /* scan directory, according to DOS- resp. Win32-convention: */
       READDIR_var_declarations;
       /* start of search, search for folders and normal files: */
-      begin_system_call();
+      begin_blocking_system_call();
       do {
         /* readdir in resolved directory. directory was resolved earlier */
         READDIR_findfirst(namestring_asciz,{
-          end_system_call();
+          end_blocking_system_call();
           if (dsp->if_none == DIR_IF_NONE_IGNORE) {
             FREE_DYNAMIC_ARRAY(namestring_asciz); return;
           } else OS_file_error(STACK_1);
         }, break; );
         while (1) {
-          end_system_call();
+          end_blocking_system_call();
           /* convert directory-entry into string: */
           var object direntry = direntry_to_string(READDIR_entry_name(),-1);
           if (!nullp(direntry)) {
@@ -7560,11 +7576,11 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
             skipSTACK(4); /* forget all up to dir_namestring */
           }
           /* next file: */
-          begin_system_call();
-          READDIR_findnext({ end_system_call(); OS_file_error(STACK_1); }, break; );
+          begin_blocking_system_call();
+          READDIR_findnext({ end_blocking_system_call(); OS_file_error(STACK_1); }, break; );
         }
       } while (false);
-      end_system_call();
+      end_blocking_system_call();
       READDIR_end_declarations;
     });
   }
@@ -7719,7 +7735,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
               fs.fs_namestring = string_concat(2);
              #endif
               /* get information: */
-              directory_search_1subdir(Car(STACK_(1+4+1)),fs.fs_namestring);
+              directory_search_1subdir(&Car(STACK_(1+4+1)),fs.fs_namestring);
             }
             skipSTACK(1);
             goto next_pathname;
@@ -8172,36 +8188,36 @@ LISPFUNNR(file_write_date,1)
  #else
   #error FILE-WRITE-DATE is not defined
  #endif
-  var object pathname = popSTACK(); /* pathname-argument */
-  if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
+  var gcv_object_t *pathname = &STACK_0; /* pathname-argument */
+  if (builtin_stream_p(*pathname)) { /* stream -> treat extra: */
     /* must be file-stream: */
-    pathname = as_file_stream(pathname);
+    *pathname = as_file_stream(*pathname);
     /* streamtype file-stream */
-    if ((TheStream(pathname)->strmflags & strmflags_open_B)
-        && (!nullp(TheStream(pathname)->strm_buffered_channel))) {
+    if ((TheStream(*pathname)->strmflags & strmflags_open_B)
+        && (!nullp(TheStream(*pathname)->strm_buffered_channel))) {
       /* open file-stream
        work with the handle directly: */
      #if defined(UNIX)
       var struct stat status;
-      begin_system_call();
-      if (!( fstat(TheHandle(TheStream(pathname)->strm_buffered_channel),&status) ==0)) {
-        end_system_call(); OS_filestream_error(pathname);
+      begin_blocking_system_call();
+      if (!( fstat(TheHandle(TheStream(*pathname)->strm_buffered_channel),&status) ==0)) {
+        end_blocking_system_call(); OS_filestream_error(*pathname);
       }
-      end_system_call();
+      end_blocking_system_call();
       file_datetime = status.st_mtime;
      #elif defined(WIN32_NATIVE)
       var BY_HANDLE_FILE_INFORMATION fileinfo;
       var BOOL result;
-      begin_system_call();
-      result = GetFileInformationByHandle(TheHandle(TheStream(pathname)->strm_buffered_channel),&fileinfo);
-      end_system_call();
+      begin_blocking_system_call();
+      result = GetFileInformationByHandle(TheHandle(TheStream(*pathname)->strm_buffered_channel),&fileinfo);
+      end_blocking_system_call();
       if (result) {
         filedata.ftCreationTime   = fileinfo.ftCreationTime;
         filedata.ftLastAccessTime = fileinfo.ftLastAccessTime;
         filedata.ftLastWriteTime  = fileinfo.ftLastWriteTime;
       } else { /* If that failed, try the full pathname. */
-        test_file_stream_named(pathname);
-        pathname = TheStream(pathname)->strm_file_truename;
+        test_file_stream_named(*pathname);
+        *pathname = TheStream(*pathname)->strm_file_truename;
         goto is_pathname;
       }
      #else
@@ -8209,14 +8225,13 @@ LISPFUNNR(file_write_date,1)
      #endif
     } else {
       /* closed file-stream -> use truename as pathname */
-      test_file_stream_named(pathname);
-      pathname = TheStream(pathname)->strm_file_truename;
+      test_file_stream_named(*pathname);
+      *pathname = TheStream(*pathname)->strm_file_truename;
       goto is_pathname;
     }
   } else { /* turn into a pathname */
-    pathname = merge_defaults(coerce_pathname(pathname));
+    *pathname = merge_defaults(coerce_pathname(*pathname));
    is_pathname: { /* pathname is now really a pathname */
-      pushSTACK(pathname);
       var struct file_status fs; file_status_init(&fs,&STACK_0);
       true_namestring(&fs,true,false);
      #if defined(UNIX)
@@ -8230,9 +8245,9 @@ LISPFUNNR(file_write_date,1)
      #else
       #error FILE-WRITE-DATE is not defined
      #endif
-      skipSTACK(1);
     }
   }
+  skipSTACK(1); /* pathname */
   /* date/time no is in the buffer file_datetime.
    convert into Universal-Time-Format: */
  #if defined(UNIX)
@@ -8341,7 +8356,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
         end_want_sigcld();  end_system_call(); OS_error();
       }
       /* wait, until the child-process is finished: */
-      var int status = wait2(child);
+      var int status = GC_SAFE_CALL(int,wait2(child));
       /* cf. WAIT(2V) and #include <sys/wait.h> :
          WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
          WEXITSTATUS(status)  == ((status & 0xFF00) >> 8) */
@@ -8448,7 +8463,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   });
   /* Wait until it terminates, get its exit status code. */
   var DWORD exitcode;
-  switch (WaitForSingleObject(prochandle,INFINITE)) {
+  switch (GC_SAFE_SYSTEM_CALL(DWORD,WaitForSingleObject(prochandle,INFINITE))) {
     case WAIT_FAILED:
       OS_error();
     case WAIT_OBJECT_0:
@@ -8579,14 +8594,14 @@ LISPFUN(shell_execute,seclass_default,0,4,norest,nokey,0,NIL) {
   for (sp=TheAsciz(STACK_1),dp=filename;(*dp = *sp);sp++,dp++);
   if (!nullp(STACK_0))
     for (sp=TheAsciz(STACK_0),dp=defaultdir;(*dp = *sp);sp++,dp++);
-  begin_system_call();
+  begin_blocking_system_call();
   var DWORD result = (DWORD) ShellExecute(NULL,
                                           nullp(STACK_2)?NULL:verb,
                                           filename,
                                           parameters_len?parameters:NULL,
                                           nullp(STACK_0)?NULL:defaultdir,
                                           SW_SHOWNORMAL);
-  end_system_call();
+  end_blocking_system_call();
   if (result <= 32) OS_error();
   FREE_DYNAMIC_ARRAY(defaultdir);
   FREE_DYNAMIC_ARRAY(filename);
@@ -8875,7 +8890,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   }
   var int exit_code = 0;
   if (wait_p) {
-    var int status = wait2(child_id);
+    var int status = GC_SAFE_SYSTEM_CALL(int,wait2(child_id));
     exit_code = WEXITSTATUS(status);
   }
   end_want_sigcld();
@@ -8927,7 +8942,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   var DWORD exit_code = 0;
   if (wait_p) {
     /* Wait until it terminates, get its exit status code. */
-    switch (WaitForSingleObject(prochandle,INFINITE)) {
+    switch (GC_SAFE_SYSTEM_CALL(DWORD,WaitForSingleObject(prochandle,INFINITE))) {
       case WAIT_FAILED:
         end_system_call(); OS_error();
       case WAIT_OBJECT_0:

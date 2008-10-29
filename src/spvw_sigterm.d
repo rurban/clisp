@@ -1,4 +1,5 @@
 /* Handling of terminating signals. */
+#if !defined(MULTITHREAD)
 
 /* --------------------------- Specification ----------------------------- */
 
@@ -83,3 +84,4 @@ local void install_sigterm_handler (void) {
 #endif
 }
 #endif
+#endif /* !MULTITHREAD */

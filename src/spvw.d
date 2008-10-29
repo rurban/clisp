@@ -127,7 +127,10 @@ local struct pseudofun_tab_ { object pointer[pseudofun_count]; } pseudofun_tab;
 /* Semaphores: decide, if a break is effectless (/=0) or
  effectual (all = 0) .
  Are set with set_break_sem_x and deleted with clr_break_sem_x again. */
+#if !defined(MULTITHREAD)
+/* in MT these semaphores are per thread */
 global break_sems_ break_sems;
+#endif
 /* break_sem_0 == break_sems.einzeln[0]
      set, as long as a page-fault-handling is in progress
    break_sem_1 == break_sems.einzeln[1]
@@ -225,59 +228,61 @@ local int exitcode;
 
 /* Global variables. */
 
+#ifndef MULTITHREAD
+
 /* the STACK: */
 #if !defined(STACK_register)
-global per_thread gcv_object_t* STACK;
+global gcv_object_t* STACK;
 #endif
 #ifdef HAVE_SAVED_STACK
-global per_thread gcv_object_t* saved_STACK;
+global gcv_object_t* saved_STACK;
 #endif
 
 /* MULTIPLE-VALUE-SPACE: */
 #if !defined(mv_count_register)
-global per_thread uintC mv_count;
+global uintC mv_count;
 #endif
 #ifdef NEED_temp_mv_count
-global per_thread uintC temp_mv_count;
+global uintC temp_mv_count;
 #endif
 #ifdef HAVE_SAVED_mv_count
-global per_thread uintC saved_mv_count;
+global uintC saved_mv_count;
 #endif
-global per_thread object mv_space [mv_limit-1];
+global object mv_space [mv_limit-1];
 #ifdef NEED_temp_value1
-global per_thread object temp_value1;
+global object temp_value1;
 #endif
 #ifdef HAVE_SAVED_value1
-global per_thread object saved_value1;
+global object saved_value1;
 #endif
 
 /* During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR */
 #if !defined(back_trace_register)
-global per_thread p_backtrace_t back_trace = NULL;
+global p_backtrace_t back_trace = NULL;
 #endif
 #ifdef HAVE_SAVED_back_trace
-global per_thread p_backtrace_t saved_back_trace;
+global p_backtrace_t saved_back_trace;
 #endif
 
 /* during callbacks, the saved registers: */
 #if defined(HAVE_SAVED_REGISTERS)
-global per_thread struct registers * callback_saved_registers = NULL;
+global struct registers * callback_saved_registers = NULL;
 #endif
 
 /* stack-limits: */
 #ifndef NO_SP_CHECK
-global per_thread void* SP_bound;          /* SP-growth-limit */
+global void* SP_bound;          /* SP-growth-limit */
 #endif
-global per_thread void* STACK_bound;       /* STACK-growth-limit */
-global per_thread void* STACK_start;       /* STACK initial value */
+global void* STACK_bound;       /* STACK-growth-limit */
+global void* STACK_start;       /* STACK initial value */
 
 /* the lexical environment: */
-global per_thread gcv_environment_t aktenv;
+global gcv_environment_t aktenv;
 
-global per_thread unwind_protect_caller_t unwind_protect_to_save;
+global unwind_protect_caller_t unwind_protect_to_save;
 
 /* variables for passing of information to the top of the handler: */
-global per_thread handler_args_t handler_args;
+global handler_args_t handler_args;
 
 /* As only whole regions of handlers are deactivated and activated again,
  we treat the handlers on deactivation separately, but we maintain
@@ -285,12 +290,10 @@ global per_thread handler_args_t handler_args;
  A handler counts as inactive if and only if:
  low_limit <= handler < high_limit
  is true for one of the regions listed in inactive_handlers */
-global per_thread stack_range_t* inactive_handlers = NULL;
+global stack_range_t* inactive_handlers = NULL;
 
 /* --------------------------------------------------------------------------
                            Multithreading */
-
-#ifndef MULTITHREAD
 
 #define for_all_threadobjs(statement)                                   \
   do { var gcv_object_t* objptr = (gcv_object_t*)&aktenv;               \
@@ -309,99 +312,541 @@ global per_thread stack_range_t* inactive_handlers = NULL;
     { statement;  }                         \
   } while(0)
 
+/* #if MULTITHREAD*/
 #else
+
+/* forward decalration of MT signal handler */
+local void *signal_handler_thread(void *arg);
 
 /* Mutex protecting the set of threads. */
 local xmutex_t allthreads_lock;
 
 /* Set of threads. */
+#define THREAD_SYMVALUES_ALLOCATION_SIZE 4096
+#define SYMVALUES_PER_PAGE (THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t))
 #define MAXNTHREADS  128
 local uintC nthreads = 0;
 local clisp_thread_t* allthreads[MAXNTHREADS];
+global xthread_t thr_signal_handler; /* the id of the signal handling thread */
+
+/* POSIX threads with no recursive mutex support */
+#if (defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)) && !defined(PTHREAD_MUTEX_RECURSIVE_NP)
+/* cache the global mutex attribute for recursive mutex creation */
+global pthread_mutexattr_t recursive_mutexattr;
+#endif
 
 /* Number of symbol values currently in use in every thread. */
-local uintL num_symvalues = 0;
+/* The first symvalue in thread is dummy - for faster Symbol_value*/
+local uintL num_symvalues = 1;
 /* Maximum number of symbol values in every thread before new thread-local
  storage must be added.
- = floor(round_up(thread_size(num_symvalues),mmap_pagesize)
-         -offsetofa(clisp_thread_t,_symvalues),sizeof(gcv_object_t)) */
-local uintL maxnum_symvalues;
+ = THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t) */
+global uintL maxnum_symvalues;
 
-/* Initialization. */
+#ifdef DEBUG_GCSAFETY
+/* used during static initialization (before main() is called)
+   at that time the multithreading has not been initialized and
+   there is no current thread. */
+local uintL dummy_alloccount=0;
+local bool use_dummy_alloccount=true;
+global uintL* current_thread_alloccount()
+{
+  /* if MT is initialized - return the real alloccount.
+     otherwise (during subr_tab static initialization and signal handling) -
+     the dummy one - simple there is no current lisp thread */
+  return !use_dummy_alloccount ? &current_thread()->_alloccount : &dummy_alloccount;
+}
+#endif
+
+#ifdef per_thread
+ global per_thread clisp_thread_t *_current_thread;
+#else
+ #if USE_CUSTOM_TLS == 1
+  global xthread_key_t current_thread_tls_key;
+ #elif USE_CUSTOM_TLS == 2
+
+  global tsd threads_tls;
+
+  /* A thread-specific data entry which will never    */
+  /* appear valid to a reader.  Used to fill in empty */
+  /* cache entries to avoid a check for 0.          */
+  local tse invalid_tse = {INVALID_QTID, 0, 0, 0};
+
+  local void tsd_initialize()
+  {
+    var int i;
+    xmutex_init(&(threads_tls.lock));
+    for (i = 0; i < TS_CACHE_SIZE; ++i) {
+      threads_tls.cache[i] = &invalid_tse;
+    }
+    memset(threads_tls.hash,0,sizeof(threads_tls.hash));
+  }
+
+  /* entry should be allocated by the caller (or reside on
+     the stack at a location that will survive the thread
+     lifespan) */
+  global void tsd_setspecific(tse *entry, void *value)
+  {
+    var xthread_t self = xthread_self();
+    var int hash_val = TSD_HASH(self);
+    xmutex_lock(&(threads_tls.lock));
+    /* Could easily check for an existing entry here.   */
+    entry -> next = threads_tls.hash[hash_val];
+    entry -> thread = self;
+    entry -> value = value;
+    entry -> qtid = INVALID_QTID;
+    /* There can only be one writer at a time, but this needs to be     */
+    /* atomic with respect to concurrent readers.                       */
+    /****** TODO TODO TODO TODO: WAS ATOMIC *******/
+    /* since we call it only during thread creation - we even may go without
+      atomic operation - but I am not sure - should check it carefully */
+    /*AO_store_release((volatile AO_t *)(threads_tls.hash + hash_val), (AO_t)entry);*/
+    *(threads_tls.hash + hash_val)=entry;
+    xmutex_unlock(&(threads_tls.lock));
+  }
+
+  /* Remove thread-specific data for this thread.  Should be called on  */
+  /* thread exit.                                                   */
+  global void tsd_remove_specific()
+  {
+    xthread_t self = xthread_self();
+    unsigned hash_val = TSD_HASH(self);
+    tse *entry;
+    tse **link = threads_tls.hash + hash_val;
+    xmutex_lock(&(threads_tls.lock));
+    entry = *link;
+    while (entry != NULL && entry->thread != self) {
+      link = &(entry->next);
+      entry = *link;
+    }
+    /* Invalidate qtid field, since qtids may be reused, and a later    */
+    /* cache lookup could otherwise find this entry.                    */
+    entry -> qtid = INVALID_QTID;
+    if (entry != NULL) {
+      *link = entry->next;
+      /* Atomic! concurrent accesses still work.        */
+      /* They must, since readers don't lock.           */
+      /* We shouldn't need a volatile access here,      */
+      /* since both this and the preceding write        */
+      /* should become visible no later than            */
+      /* the pthread_mutex_unlock() call.               */
+    }
+    xmutex_unlock(&(threads_tls.lock));
+  }
+
+  /* Note that even the slow path doesn't lock. */
+  global void* tsd_slow_getspecific(unsigned long qtid,
+                                  tse * volatile *cache_ptr)
+  {
+    xthread_t self = xthread_self();
+    unsigned hash_val = TSD_HASH(self);
+    tse *entry = threads_tls.hash[hash_val];
+    ASSERT(qtid != INVALID_QTID);
+    while (entry != NULL && entry->thread != self) {
+      entry = entry->next;
+    }
+    if (entry == NULL) return NULL;
+    /* Set cache_entry.         */
+    entry->qtid = qtid;
+    /* It's safe to do this asynchronously.  Either value       */
+    /* is safe, though may produce spurious misses.             */
+    /* We're replacing one qtid with another one for the        */
+    /* same thread.                                             */
+    *cache_ptr = entry;
+    /* Again this is safe since pointer assignments are         */
+    /* presumed atomic, and either pointer is valid.    */
+    return entry->value;
+  }
+ #elif USE_CUSTOM_TLS == 3
+  /* Currently only POSIX_THREADS and Win32 are supported.
+     For other platforms we have to find a way to locate the
+     current thread's stack base and size. These two functions
+     are useful not only for threading but for general stack
+     checking (but currently defined only in this case).
+  */
+  /* libsigsegv can be used to obtain the stack region (stack-vma).
+   I do not use it since:
+     1. No exported interface to use stackvma-xxx functions.
+     2. It may not be available - for some reason no generational GC is needed.
+     3. There is a problem on linux. /proc may not exist if we are running
+        as a chroot program, so reading /proc/self/maps could fail.
+  */
+
+  #if defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)
+  /* there is difference between the main thread stack base/size and
+   the ones created via pthread_create(). For the latter we will use
+   pthread_getattr_np(), however it returns bogus values for the main thread
+   (seems only with LinuxThreads).
+   So we have to find out whether the current thread is the main one and
+   get values in other way.*/
+
+  /* helper function for threads created by pthread_create() */
+  local bool get_stack_region(aint *base, size_t *size)
+  {
+    #ifdef UNIX_DARWIN
+     var pthread_t self_id;
+     self_id = pthread_self();
+     *base = (aint)pthread_get_stackaddr_np(self_id);
+     *size = pthread_get_stacksize_np(self_id);
+     return true;
+    #else /* assume fairly recent pthreads implementation */
+     var pthread_attr_t attr;
+     var void *start;
+     pthread_getattr_np(pthread_self(), &attr);
+     pthread_attr_getstack(&attr, &start, size);
+     /* the start is the top of the stack (at least on x86) */
+     *base=(aint)start + *size;
+     return true;
+    #endif
+    return false;
+  }
+
+  local aint current_stack_base()
+  {
+    if (!nthreads) { /* main thread ? */
+      /* for practical reasons - not to have too much code that anyway will
+         not make big difference - just use the current SP. This is basically
+         good guess. It may fail if the threads globals are accessed by
+         the caller of this function and the SP is exactly/near page border.
+         The caller here may be only main() - so it should be safe.
+         In any case there is STACK_PAGE_THRESHOLD (1 page is just a guess -
+         works fine. even if later on another thread stack should intefere
+         with this page - during the creation of the thread it will
+         fix the mapping - this threshold is used only for the main thread) */
+     #define STACK_PAGE_THRESHOLD 4096
+     #ifdef SP_UP
+      return roughly_SP() - STACK_PAGE_THRESHOLD;
+     #else /* SP_DOWN */
+      return roughly_SP() + STACK_PAGE_THRESHOLD;
+     #endif
+     #undef STACK_PAGE_THRESHOLD
+    } else {
+      /* created by pthread_create. */
+      var aint base;
+      var size_t size;
+      if (get_stack_region(&base,&size))
+        return base;
+    }
+    fprintf(stderr,"FATAL: current_stack_base(): cannot find stack base address.");
+    return 0; /* certinaly will cause problems */
+  }
+  /* should return maximum possible thread stack size */
+  local size_t current_stack_size()
+  {
+    var size_t stack_size=0;
+    if (!nthreads) {
+      /* This is the main thread - the only one that is initialized
+       before being registered (and thus nthreads=0). Use getrlimit().
+      What to do if we do not have getrlimit()? Currently we will crash.*/
+      var struct rlimit rl;
+      if (getrlimit(RLIMIT_STACK, &rl) == 0)
+        stack_size = (rl.rlim_max == RLIM_INFINITY) ? rl.rlim_cur : rl.rlim_max;
+        /*NB: there is a chance this value to be larger that needed and to
+          fill more items in threads_map. However since we are the first thread
+          there is no problem - other threads will overwrite these mapping later.*/
+    } else {
+      /* we are in a thread created by pthread_create() */
+      var aint base;
+      var size_t size;
+      if (get_stack_region(&base,&size))
+        return stack_size=size;
+    }
+
+    /* after all "computation"/guessing about the stack size let's check*/
+    if (stack_size <= TLS_PAGE_SIZE) {
+      fprintf(stderr,"FATAL: current_stack_size(): cannot find stack size.");
+      abort();
+    }
+
+    return stack_size - TLS_PAGE_SIZE;
+  }
+  #endif /* POSIX_THREADS */
+  #ifdef WIN32_THREADS
+  /* taken from Sun's Hotspot JVM */
+  local aint current_stack_base()
+  {
+    MEMORY_BASIC_INFORMATION minfo;
+    aint stack_bottom;
+    size_t stack_size;
+    VirtualQuery(&minfo, &minfo, sizeof(minfo));
+    stack_bottom =  (aint)minfo.AllocationBase;
+    stack_size = minfo.RegionSize;
+    /* Add up the sizes of all the regions with the same */
+    /* AllocationBase. */
+    while( 1 ) {
+      VirtualQuery(stack_bottom+stack_size, &minfo, sizeof(minfo));
+      if ( stack_bottom == (aint)minfo.AllocationBase )
+        stack_size += minfo.RegionSize;
+      else
+        break;
+    }
+    return stack_bottom + stack_size;
+  }
+  local size_t current_stack_size()
+  {
+    size_t sz;
+    MEMORY_BASIC_INFORMATION minfo;
+    VirtualQuery(&minfo, &minfo, sizeof(minfo));
+    sz = (size_t)current_stack_base() - (size_t)minfo.AllocationBase;
+    return sz;
+  }
+  #endif /* WIN32_THREADS */
+
+  global clisp_thread_t *threads_map[1UL << (32 - TLS_SP_SHIFT)]={0};
+  global void set_current_thread(clisp_thread_t *thr)
+  {
+    /* we should initialize the threads_map items in the
+     stack range of the current thread to point to thr. */
+    var aint stack_top = current_stack_base(),p;
+    var size_t stack_size = current_stack_size(), mapped=0;
+    var int page_size=TLS_PAGE_SIZE ,signed_ps;
+    signed_ps=page_size;
+    #ifdef SP_DOWN
+     signed_ps*=-1;
+    #endif
+    for (p=stack_top, mapped=0;
+         mapped < stack_size;
+         p+=signed_ps, mapped+=page_size) {
+      threads_map[(unsigned long)p >> TLS_SP_SHIFT] = thr;
+    }
+  }
+ #else /* bad value for USE_CUSTOM_TLS */
+  #error "USE_CUSTOM_TLS should be defined as 1,2 or 3."
+ #endif
+#endif /* !per_thread */
+
+/* Initialization. Called at the beginning of main(). */
 local void init_multithread (void) {
   xthread_init();
-  xmutex_init(&allthreads_lock);
-  maxnum_symvalues = floor(((thread_size(0)+mmap_pagesize-1)&-mmap_pagesize)
-                           -offsetofa(clisp_thread_t,_symvalues),
-                           sizeof(gcv_object_t));
+  xmutex_init(&allthreads_lock); /* threads lock */
+  xmutex_init(&open_files_lock); /* open files lock i.e. O(open_files) */
+  maxnum_symvalues = SYMVALUES_PER_PAGE;
+  #if !defined(per_thread)
+   #if USE_CUSTOM_TLS == 1
+    xthread_key_create(&current_thread_tls_key);
+   #elif USE_CUSTOM_TLS == 2
+    tsd_initialize();
+   #elif USE_CUSTOM_TLS == 3
+   #endif
+  #endif
 }
 
-/* Create a new thread. */
-local clisp_thread_t* create_thread (void* sp) {
-  var clisp_thread_t* thread;
+/* Last stage of MT initialization. Called after the LISP heap and  symbols
+   are initialized. Initialize per thread special symbols */
+local void init_multithread_special_symbols()
+{
+  /* currently there is just a single thread. get it.*/
+  var clisp_thread_t *thr=current_thread();
+  for_all_constsyms({
+    gcv_object_t p=symbol_tab_ptr_as_object(ptr);
+    if (special_var_p(TheSymbol(p))) {
+      /* Also we do not care about possibility to exceed the already allocated
+         space for _symvalues - we have enough space for the standard symbols.
+      */
+      thr->_ptr_symvalues[num_symvalues]=SYMVALUE_EMPTY;
+      TheSymbol(p)->tls_index=num_symvalues++;
+    }
+  });
+}
+
+/* VTZ: allocates a LISP stack for new thread (except for the main one)
+ The stack_size parameters is in bytes.
+ It is always called with main thread lock - so we are not going to call
+ begin/end_system_call.*/
+local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_depth)
+{
+  var uintM low,high;
+  begin_system_call();
+  low=(uintM)malloc(stack_depth*sizeof(gcv_object_t)+0x40);
+  end_system_call();
+  if (!low) return NULL;
+  high=low+stack_depth*sizeof(gcv_object_t)+0x40;
+  #ifdef STACK_DOWN
+   thread->_STACK_bound=(gcv_object_t *)(low + 0x40);
+   thread->_STACK=(gcv_object_t *)high;
+  #endif
+  #ifdef STACK_UP
+   thread->_STACK_bound=(gcv_object_t *)(high - 0x40);
+   thread->_STACK=(gcv_object_t *)low;
+  #endif
+  thread->_STACK_start=thread->_STACK;
+  return thread->_STACK;
+}
+
+/* locks the global thread array */
+global void lock_threads()
+{
+  begin_system_call(); /* ! blocking */
   xmutex_lock(&allthreads_lock);
-  if (nthreads >= MAXNTHREADS) { thread = NULL; goto done; }
-  thread = sp_to_thread(sp);
-  if (mmap_zeromap(thread,(thread_size(num_symvalues)+mmap_pagesize-1)&-mmap_pagesize) < 0)
-    { thread = NULL; goto done; }
-  thread->_index = nthreads;
-  {
-    var gcv_object_t* objptr =
-      (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues));
-    var uintC count;
-    dotimespC(count,thread_objects_count(num_symvalues),
-      { *objptr++ = NIL; objptr++; });
-  }
+  end_system_call();
+}
+/* unlocks global thread array */
+global void unlock_threads()
+{
+  begin_system_call();
+  xmutex_unlock(&allthreads_lock);
+  end_system_call();
+}
+
+/* register a clisp-thread_t in global thread array
+ thread - the newly allocated thread.
+ The called party shoul hold the global thread lock */
+global int register_thread(clisp_thread_t *thread)
+{
+  /* register lisp_thread to global thread list. */
+  if (nthreads >= MAXNTHREADS) return -1;
+  thread->_index=nthreads;
   allthreads[nthreads] = thread;
   nthreads++;
- done:
-  xmutex_unlock(&allthreads_lock);
+  return thread->_index;
+}
+
+/* creates new cisp_thread_t structure and allocates LISP stack.
+ It is always called with the main thread mutex locked.
+ when the lisp_stack_size is 0 - it means this is the very first thread,
+ so we may(should not) perform some initializations (lisp_stack_size is
+ the count of gcv_object_t that can be put in the newly allocated
+ stack)*/
+global clisp_thread_t* create_thread(uintM lisp_stack_depth)
+{
+  var clisp_thread_t* thread;
+  begin_system_call();
+  thread=(clisp_thread_t *)malloc(sizeof(clisp_thread_t));
+  end_system_call();
+  if (!thread) return NULL;
+  begin_system_call();
+  memset(thread,0,sizeof(clisp_thread_t)); /* zero-up everything */
+  /* init _symvalues "proxy" */
+  thread->_ptr_symvalues = (gcv_object_t *)malloc(sizeof(gcv_object_t)*
+                                                  maxnum_symvalues);
+  if (!thread->_ptr_symvalues) {
+    free(thread);
+    end_system_call();
+    return NULL;
+  }
+  end_system_call();
+  {
+    var gcv_object_t* objptr = thread->_ptr_symvalues;
+    var uintC count;
+    dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
+  }
+  if (lisp_stack_depth) {
+    /* allocate the LISP stack */
+    if (!allocate_lisp_thread_stack(thread,lisp_stack_depth)) {
+      begin_system_call();
+      free(thread->_ptr_symvalues);
+      free(thread);
+      end_system_call();
+      return NULL;
+    }
+    /* we own the stack and should free it on return */
+    thread->_own_stack=true;
+  }
+  spinlock_init(&thread->_gc_suspend_request); spinlock_acquire(&thread->_gc_suspend_request);
+  spinlock_init(&thread->_gc_suspend_ack); spinlock_acquire(&thread->_gc_suspend_ack);
+  xmutex_init(&thread->_gc_suspend_lock);
+#ifdef HAVE_SIGNALS
+  spinlock_init(&thread->_signal_reenter_ok);
+#endif
+  /* initialize the environment*/
+  thread->_aktenv.var_env   = NIL;
+  thread->_aktenv.fun_env   = NIL;
+  thread->_aktenv.block_env = NIL;
+  thread->_aktenv.go_env    = NIL;
+  thread->_aktenv.decl_env  = O(top_decl_env);
+  /* VTZ:TODO. get the right SP_bound (pthreads and win32 can provide it ??).
+   in USE_CUSTOM_TLS we have the functions. */
+#ifndef NO_SP_CHECK
+  thread->_SP_bound=0;
+#endif
   return thread;
 }
 
-  /* Delete a thread. */
-local void delete_thread (clisp_thread_t* thread) {
-  xmutex_lock(&allthreads_lock);
+  /* Releases current_thread resources */
+global void delete_thread (clisp_thread_t *thread, bool full) {
+  /* first give up any locks that the thread holds.
+   if GC is suspending threads - we do not want to block it
+   anyway we are going away.*/
+  begin_system_call();
+  xmutex_destroy(&thread->_gc_suspend_lock);
+  end_system_call();
+  spinlock_release(&thread->_gc_suspend_ack);
+  lock_threads(); /* lock all threads */
+
+  if (nthreads==1) {
+    /* this was the last LISP thread in the process - we are quiting */
+    unlock_threads();
+    quit();
+    return; /* quit will unwind the stack and call hooks */
+  }
+
   ASSERT(thread->_index < nthreads);
   ASSERT(allthreads[thread->_index] == thread);
+  allthreads[nthreads-1]->_index = thread->_index;;
   allthreads[thread->_index] = allthreads[nthreads-1];
   nthreads--;
-  xmutex_unlock(&allthreads_lock);
+  xmutex_destroy(&thread->_gc_suspend_lock);
+  thread->_index=MAXNTHREADS+1; /* mark as exitted */
+  /* VTZ: The LISP stack should be unwound so no
+     interesting stuff on it. Let's deallocate it.*/
+  begin_system_call();
+  if (thread->_own_stack)
+    free(THREAD_LISP_STACK_START(thread));
+  thread->_STACK = NULL;  /* marks thread as non active */
+  thread->_thread_exit_tag = NULL;
+  /* VTZ: the clisp_thread_t itself will be deallocated during
+     finalization phase of GC - when the thread record is discarded.
+     why? (somebody may want to inspect the mv_space for "thread return
+     value")*/
+  if (full) {
+    free(thread->_ptr_symvalues);
+    free(thread);
+  }
+  end_system_call();
+  unlock_threads();
 }
-
-  #define for_all_threads(statement)                             \
-    do { var clisp_thread_t** _pthread = &allthreads[nthreads];  \
-      while (_pthread != &allthreads[0])                         \
-        { var clisp_thread_t* thread = *--_pthread; statement; } \
+  #define for_all_threads(statement)                                    \
+    do { var clisp_thread_t** _pthread = &allthreads[0];                 \
+      var clisp_thread_t **endt=&allthreads[nthreads];                  \
+      while (_pthread != endt)                                          \
+        { var clisp_thread_t* thread = *_pthread++; statement; }        \
     } while(0)
 
-  /* Add a new symbol value.
-   > value: the default value in all threads
-   < returns: the index in the every thread's _symvalues[] array */
-local uintL make_symvalue_perthread (object value) {
-  var uintL symbol_index;
-  xmutex_lock(&allthreads_lock);
-  if (num_symvalues == maxnum_symvalues) {
-    for_all_threads({
-      if (mmap_zeromap((void*)((uintP)thread+((thread_size(num_symvalues)+mmap_pagesize-1)&-mmap_pagesize)),mmap_pagesize) < 0)
-        goto failed;
-    });
-    maxnum_symvalues += mmap_pagesize/sizeof(gcv_object_t);
+/* reallocate _ptr_symvalues in such a way that there is a place for
+   nsyms per thread symbol values.*/
+local bool realloc_thread_symvalues(clisp_thread_t *thr, uintL nsyms)
+{
+  if (nsyms <= maxnum_symvalues) /* we already have enough place */
+    return true;
+  gcv_object_t *p=(gcv_object_t *)realloc(thr->_ptr_symvalues,
+                                          nsyms*sizeof(gcv_object_t));
+  if (p)
+    thr->_ptr_symvalues=p;
+  return p!=NULL;
+}
+
+/* Clears any per thread value for symbol. Also set tls_index
+   of the symbol to invalid. */
+global void clear_per_thread_symvalues(object symbol)
+{
+  var uintL idx=TheSymbol(symbol)->tls_index;
+  if (idx != SYMBOL_TLS_INDEX_NONE) {
+    TheSymbol(symbol)->tls_index = SYMBOL_TLS_INDEX_NONE;
+    /* also remove all per thread symbols for the index - we do not want
+       any memory leaks. No locking duringthis operation the caller
+       is responsible for any race conditions. */
+    for_all_threads({ thread->_ptr_symvalues[idx] = SYMVALUE_EMPTY; });
   }
-  symbol_index = num_symvalues++;
-  for_all_threads({ thread->_symvalues[symbol_index] = value; });
-  xmutex_unlock(&allthreads_lock);
-  return symbol_index;
- failed:
-  xmutex_unlock(&allthreads_lock);
-  error(error_condition,GETTEXT("could not make symbol value per-thread"));
 }
 
   #define for_all_threadobjs(statement)  \
     for_all_threads({                                     \
-      var gcv_object_t* objptr = (gcv_object_t*)((uintP)thread+thread_objects_offset(num_symvalues)); \
+      var gcv_object_t* objptr = (gcv_object_t*)(&thread->_aktenv); \
       var uintC count;                                     \
-      dotimespC(count,thread_objects_count(num_symvalues), \
+      dotimespC(count,sizeof(thread->_aktenv)/sizeof(gcv_object_t),     \
+        { statement; objptr++; });                         \
+      objptr=thread->_ptr_symvalues; \
+      dotimespC(count,num_symvalues,     \
         { statement; objptr++; });                         \
     })
 
@@ -527,7 +972,11 @@ nonreturning_function(global, STACK_ueber, (void)) {
 /* --------------------------------------------------------------------------
                        Garbage-Collector */
 
-#include "spvw_garcol.c"
+#if defined(MULTITHREAD) || !defined(NO_MULTITHREAD_GC)
+  #include "spvw_garcol.c"
+#else
+  #include "spvw_garcol_old.c"
+#endif
 
 /* --------------------------------------------------------------------------
                  Memory Allocation Functions */
@@ -618,8 +1067,12 @@ global void* getSP (void) {
 }
 #endif
 
+/* VTZ: moved SP_anchor to clisp_thread_t. in MT it is part of the thread
+ Seems it is used only for debugging/checking purposes. */
+#if !defined(MULTITHREAD)
 /* The initial value of SP() during main(). */
 global void* SP_anchor;
+#endif
 
 /* error-message when a location of the program is reached that is (should be)
  unreachable. Does not return.
@@ -1349,7 +1802,7 @@ local void init_symbol_values (void) {
    On FreeBSD 4.0, if set to T, gdb stops the clisp process.
    On Linux ppc64 (sf cf openpower-linux1), if set to T, clisp hangs until C-c.
    On Woe32, the debugging APIs are flawed, the Cygwin developers say. */
-  #if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN32) || (defined(UNIX_LINUX) && defined(POWERPC))
+#if defined(UNIX_FREEBSD) || defined(UNIX_CYGWIN32) || (defined(UNIX_LINUX) && defined(POWERPC))
   define_variable(S(disassemble_use_live_process),NIL);
   #else
   define_variable(S(disassemble_use_live_process),T);
@@ -1485,6 +1938,10 @@ local void initmem (void) {
   init_symbol_functions();
   /* constants/variables: enter value into the symbols: */
   init_symbol_values();
+#if defined(MULTITHREAD)
+  /* initialize standard per thread special symbols */
+  init_multithread_special_symbols();
+#endif
   /* create other objects: */
   init_object_tab();
 }
@@ -2445,7 +2902,6 @@ local inline void free_argv_actions (struct argv_actions *p) {
 #endif
 extern char *get_executable_name (void);
 local inline int init_memory (struct argv_initparams *p) {
-  back_trace = NULL;
   {                  /* Initialize the table of relocatable pointers: */
     var object* ptr2 = &pseudofun_tab.pointer[0];
     { var const Pseudofun* ptr1 = (const Pseudofun*)&pseudocode_tab;
@@ -2479,11 +2935,9 @@ local inline int init_memory (struct argv_initparams *p) {
   init_mem_heapnr_from_type();
  #endif
   init_modules_0();             /* assemble the list of modules */
- #ifdef MULTITHREAD
-  init_multithread();
-  create_thread((void*)roughly_SP());
- #endif
   end_system_call();
+
+  back_trace = NULL;
  #ifdef MAP_MEMORY_TABLES
   {                             /* calculate total_subr_count: */
     var uintC total = 0;
@@ -2811,6 +3265,12 @@ local inline int init_memory (struct argv_initparams *p) {
       }
     }
   }
+#if defined(MULTITHREAD)
+  /* initialize the THREAD:*DEFAULT-VALUE-STACK-DEPTH* based on the
+     calculated STACK size */
+  Symbol_value(S(default_value_stack_depth)) =
+    uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
+#endif
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
     var uintM stack_depth =
@@ -2842,6 +3302,22 @@ local inline int init_memory (struct argv_initparams *p) {
   else if (!loadmem_from_executable())
     p->argv_memfile = get_executable_name();
   else initmem();               /* manual initialization */
+#if defined(MULTITHREAD)
+  /* "FIX"
+     VTZ:TODO. list threads records currently are saved into the lisp image
+     but are not re-created when the image is restored.
+     the records themeselves are tottally invalid - since they point to
+     nowhere - no clisp_threat_t for them.
+     We should be able to re-create the saved threads - save the all
+     relevant data from clisp_thread_t and re-create new threads from it.
+  */
+  O(all_threads) = NIL;
+
+  /* initialize again THREAD:*DEFAULT-VALUE-STACK-DEPTH* based on the
+     calculated STACK size, since the memory image may change it */
+  Symbol_value(S(default_value_stack_depth)) =
+    uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
+#endif
   /* init O(current_language) */
   O(current_language) = current_language_o(language);
   /* set current evaluator-environments to the toplevel-value: */
@@ -3171,8 +3647,42 @@ local inline void main_actions (struct argv_actions *p) {
       Symbol_value(S(standard_input)) = value1;
   }
   /* call read-eval-print-loop: */
+#if defined(MULTITHREAD)
+  /* create a CATCH frame here for thread exit */
+  pushSTACK(unbound);
+  funcall(S(gensym),1);
+  pushSTACK(value1);
+  current_thread()->_thread_exit_tag=&STACK_0;
+  var gcv_object_t* top_of_frame = STACK STACKop 1;
+  var sp_jmp_buf returner; /* return point */
+  finish_entry_frame(CATCH,returner,,{skipSTACK(3);return;});
+#endif
   driver();
 }
+
+#if defined(MULTITHREAD)
+local void* mt_main_actions (void *param) {
+  #if USE_CUSTOM_TLS == 2
+  tse __tse_entry;
+  tse *__thread_tse_entry=&__tse_entry;
+  #endif
+  clisp_thread_t *me=(clisp_thread_t *)param;
+  /* dummy way to pass arguments :(*/
+  struct argv_actions *args = (struct argv_actions *)me->_SP_anchor;
+  set_current_thread(me); /* initialize TLS */
+
+  me->_SP_anchor=(void*)SP();
+  /* reinitialize the system thread id */
+  TheThread(me->_lthread)->xth_system = xthread_self();
+  /* now we are ready to start main_actions()*/
+  main_actions(args);
+  delete_thread(me,false); /* just delete ourselves */
+  /* NB: the LISP stack is "leaked" - in a sense nobody will
+     ever use it anymore !!!*/
+  xthread_exit(0);
+  return NULL; /* keep compiler happy */
+}
+#endif
 
 static struct argv_initparams argv1;
 static struct argv_actions argv2;
@@ -3192,6 +3702,24 @@ global int main (argc_t argc, char* argv[]) {
    print banner.
    jump into the driver.
   This is also described in <doc/impext.xml#cradle-grave>! */
+#if defined(MULTITHREAD)
+/* if on 32 bit machine, no per_thread and asked by the user*/
+  #if USE_CUSTOM_TLS == 2
+  tse __tse_entry;
+  tse *__thread_tse_entry=&__tse_entry;
+  #endif
+  /* initialize main thread */
+  {
+    init_multithread();
+    init_heap_locks();
+    set_current_thread(create_thread(0));
+    register_thread(current_thread());
+    #ifdef DEBUG_GCSAFETY
+      use_dummy_alloccount=false; /* now we have threads */
+      current_thread()->_alloccount=1;
+    #endif
+  }
+#endif
   init_lowest_level(argv);
   var struct argv_init_c argv0;
   {
@@ -3211,10 +3739,41 @@ global int main (argc_t argc, char* argv[]) {
  #ifndef LANGUAGE_STATIC
   init_language(argv0.argv_language,argv0.argv_localedir);
  #endif
-  SP_anchor = (void*)SP();
+
   if (!(setjmp(original_context) == 0)) goto end_of_main;
   /* Initialize memory and load a memory image (if specified). */
   if (init_memory(&argv1) < 0) goto no_mem;
+  SP_anchor = (void*)SP(); /* VTZ: in MT current_thread() should be initialized */
+#if defined(MULTITHREAD)
+  /* after heap is initialized - allocate thread record for main thread.
+     no locking is needed here*/
+  {
+    /* VTZ:TODO when we are loaded from mem file - we should restore the
+     threads from there.
+     Currently we just register our main thread and do not care what we have in
+     mem file!!! Threads do not survive mem file save/restore - just create
+     garbage in it :( */
+    /* TODO: give better name :)*/
+    var object thr_name = coerce_imm_ss(asciz_to_string("main thread"
+ #ifdef UNICODE
+                                                        ,Symbol_value(S(utf_8))
+#endif
+                                                        ));
+    pushSTACK(thr_name);
+    pushSTACK(allocate_thread(&STACK_0));
+    var object new_cons=allocate_cons();
+    var object lthr;
+    /* add to all_threads global */
+    Car(new_cons) = lthr = popSTACK();
+    Cdr(new_cons) = O(all_threads);
+    O(all_threads) = new_cons;
+    /* initialize the thread references */
+    current_thread()->_lthread=lthr;
+    TheThread(lthr)->xth_globals=current_thread();
+    TheThread(lthr)->xth_system=xthread_self();
+    popSTACK();
+  }
+#endif
   /* if the image was read from the executable, argv1.argv_memfile was
      set to exec name and now it has to be propagated to argv2.argv_memfile
      to avoid the beginner warning */
@@ -3230,14 +3789,7 @@ global int main (argc_t argc, char* argv[]) {
   back_trace = &bt;
   clear_break_sems(); set_break_sem_1();
   begin_system_call();
-  /* establish interrupt-handler: */
- #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
-  install_sigwinch_handler();
- #endif
-  /* query the size of the terminal-window also now on program start: */
- #if defined(HAVE_SIGNALS)
-  update_linelength();
- #endif
+
  #if defined(WIN32_NATIVE)
   /* cannot do it in init_win32 - too early */
   if (isatty(stdout_handle)) {
@@ -3249,17 +3801,36 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
  #endif
+  /* handling of async interrupts with single thread */
+#if !defined(MULTITHREAD)
+  /* establish interrupt-handler: */
+ #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
+  install_sigwinch_handler();
+ #endif
+  /* query the size of the terminal-window also now on program start: */
+ #if defined(HAVE_SIGNALS)
+  update_linelength();
+ #endif
  #if (defined(HAVE_SIGNALS) && defined(UNIX)) || defined(WIN32_NATIVE)
   /* install Ctrl-C-Handler: */
   install_sigint_handler();
  #endif
- #if defined(GENERATIONAL_GC)
-  /* insatll Page-Fault-Handler: */
-  install_segv_handler();
- #endif
  #ifdef HAVE_SIGNALS
   install_sigcld_handler();
   install_sigterm_handler();    /* install SIGTERM &c handlers */
+ #endif
+#else
+ #ifdef HAVE_SIGNALS
+  install_sigcld_handler(); /* TODO: probably not good. */
+  install_async_signal_handlers();
+ #endif
+ #ifdef WIN32_NATIVE
+  #warning "thread-interrupt and \"signal\" handlers for Win32 are still not implemented."
+ #endif
+#endif
+ #if defined(GENERATIONAL_GC)
+  /* insatll Page-Fault-Handler: */
+  install_segv_handler();
  #endif
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   install_sigpipe_handler();
@@ -3298,8 +3869,24 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
   /* Perform the desired actions (compilations, read-eval-print loop etc.): */
+#if defined(MULTITHREAD)
+  /* may be set it as command line  parameter  - it should be big enough */
+  #define MAIN_THREAD_C_STACK (1024*1024*16)
+  SP_anchor=(void *)&argv2;
+  {
+    var xthread_t thr;
+    xthread_create(&thr,mt_main_actions,current_thread(), MAIN_THREAD_C_STACK);
+  }
+  /* IMPORTANT: set the current tls thread to NULL */
+  set_current_thread(NULL);
+  thr_signal_handler = xthread_self();
+  /* let's handle signals now :)*/
+  signal_handler_thread(0);
+  /* NOTREACHED */
+#else
   main_actions(&argv2);
   quit();
+#endif
   /*NOTREACHED*/
  } /* end var bt */
   /* if the memory does not suffice: */
@@ -3635,5 +4222,306 @@ global void dynload_modules (const char * library, uintC modcount,
     }
   }
 }
+
+#endif
+
+
+/* --------------------------------------------------------------------------
+                      Multithreading signal handling  */
+#if defined(MULTITHREAD)
+#ifdef HAVE_SIGNALS
+
+/* creates mask of of signals that we do not want to be delivered
+   directly to threads. The same signals are handled by special non
+   lisp thread */
+local sigset_t async_signal_mask()
+{
+  /* TODO: SIGCLD needs special handling - it's possible
+     to leave some zombie probably. */
+  var sigset_t sigblock_mask;
+  sigemptyset(&sigblock_mask);
+  sigaddset(&sigblock_mask,SIGINT);
+  sigaddset(&sigblock_mask,SIGALRM);
+  sigaddset(&sigblock_mask,SIG_TIMEOUT_CALL);
+  #ifdef SIGHUP
+   sigaddset(&sigblock_mask,SIGHUP);
+  #endif
+  #ifdef SIGQUIT
+   sigaddset(&sigblock_mask,SIGQUIT);
+  #endif
+  #ifdef SIGILL
+   sigaddset(&sigblock_mask,SIGILL);
+  #endif
+  #ifdef SIGABRT
+   sigaddset(&sigblock_mask,SIGABRT);
+  #endif
+  #ifdef SIGKILL
+   sigaddset(&sigblock_mask,SIGKILL);
+  #endif
+  #ifdef SIGTERM
+   sigaddset(&sigblock_mask,SIGTERM);
+  #endif
+  #if defined(SIGWINCH)
+    sigaddset(&sigblock_mask,SIGWINCH);
+  #endif
+  return sigblock_mask;
+}
+
+/* SIG_THREAD_INTERRUPT handler */
+local void interrupt_thread_signal_handler (int sig) {
+  signal_acknowledge(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
+  /* have to unblock SIG_THREAD_INTERRUPT since
+     our funcall may exit non-locally with longjmp(). */
+  var sigset_t mask;
+  sigemptyset(&mask);
+  sigaddset(&mask,SIG_THREAD_INTERRUPT);
+  xthread_sigmask(SIG_UNBLOCK,&mask,NULL);
+  clisp_thread_t *thr=current_thread();
+  spinlock_release(&thr->_signal_reenter_ok); /* release the signal reentry */
+
+  GC_SAFE_REGION_END(); /* end the safe region at which we are*/
+  /* BACK IN LISP LAND HERE */
+  var object fun=popSTACK();
+  var uintC args=posfixnum_to_V(popSTACK());
+  /* NB: IT IS REALLY, REALLY NOT SAFE DO THIS ACCORDING POSIX - BUT SEEMS
+     TO WORK QUITE WELL (OF COURSE ANY USER LOCKS MAY INTEFERE VERY BADLY).
+     (PROBABLY IT IS RELATED WITH THE FACT THAT WE CANNOT BE INTERRUPTED AT
+     ARBITRARY PLACE IN THE PROGRAM - WHEN WE ARE IN LISP LAND - I DO NO SEE
+     PROBLEMS, WHEN WE ARE IN BLOCKED SYSTEM CALL - IT'S OS SPECIFIC)
+
+     The initial plan was to handle the interrupt in the normal thread
+     execution. Since the thread can be safely stopped at only two places -
+     allocate_xxxx and in blocking system call - i had the intention to
+     execute the handler after we are unblocked. And here came the problem:
+     All I/O (unixaux.d) is done by retrying on EINTR - so with the above
+     scheme we cannot interrupt the system calls - our GC_SAFE_REGIONs are
+     placed above the low level stuff in unixaux.d.
+
+     It's tested on osx and debian 32 bit. */
+  funcall(fun,args);
+  GC_SAFE_REGION_BEGIN();
+}
+
+/* acquires both heap and threads lock from signal handler thread
+   without causing deadlock with the GC in the lisp world*/
+local void lock_heap_from_signal()
+{
+  while (1) {
+    while (!spinlock_tryacquire(&mem.alloc_lock))
+      xthread_yield();
+    /* we got the heap lock, let's check that there is no GC in progress */
+    if (!gc_suspend_count)
+      break; /* no GC in progress */
+    /* give chance to GC to finish */
+    spinlock_release(&mem.alloc_lock);
+    xthread_yield();
+  }
+}
+
+/* Subtract the `struct timeval' values X and Y,
+   storing the result in RESULT.
+   Return 1 if the difference is negative, otherwise 0.  */
+local int timeval_subtract(struct timeval *result,
+                           struct timeval *x,struct timeval *y)
+{
+  /* Perform the carry for the later subtraction by updating y. */
+  if (x->tv_usec < y->tv_usec) {
+    int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+      y->tv_usec -= 1000000 * nsec;
+    y->tv_sec += nsec;
+  }
+  if (x->tv_usec - y->tv_usec > 1000000) {
+    int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+      y->tv_usec += 1000000 * nsec;
+    y->tv_sec -= nsec;
+  }
+  /* Compute the time remaining to wait.
+     tv_usec is certainly positive. */
+  result->tv_sec = x->tv_sec - y->tv_sec;
+  result->tv_usec = x->tv_usec - y->tv_usec;
+  /* Return 1 if result is negative. */
+  return x->tv_sec < y->tv_sec;
+}
+
+local void *signal_handler_thread(void *arg)
+{
+  int sig;
+  var sigset_t sig_mask=async_signal_mask();
+  while (1) {
+    if (sigwait(&sig_mask, &sig)) {
+      /* strange - no way to have bad mask but it happens sometimes
+        (observed on 32 bit debian during (disaseemble 'car) and
+        CTRL-Z and "fg" later) */
+      continue;
+    }
+    /* before proceeding we have to be sure that there is no GC
+       in progress at the moment. This is the only situation in
+       which we have to delay the signal. */
+    lock_heap_from_signal();
+    switch (sig) {
+    case SIGALRM:
+    case SIG_TIMEOUT_CALL:
+      /* we got and alarm or just a new CALL-WITH-TIMEOUT call has been
+         inserrted in the front of the chain. */
+      spinlock_acquire(&timeout_call_chain_lock);
+      {
+        timeout_call *chain=timeout_call_chain;
+        var struct timeval now;
+        gettimeofday(&now,NULL);
+        /* let's "timeout" first threads if needed */
+        /* with DEBUG_GCSAFETY we stop all threads and use the dummy
+           alloccount. Generally with DEBUG_GCSAFETY we cannot suspend
+           single thread from signal handler without interfering other
+           threads allocacounts */
+#ifdef DEBUG_GCSAFETY
+        use_dummy_alloccount=true;
+        WITH_STOPPED_WORLD(false,{
+#endif
+        while (chain && timeval_less(chain->expire,&now)) {
+#ifndef DEBUG_GCSAFETY
+          WITH_STOPPED_THREAD
+            (chain->thread,false,{
+#endif
+              if (chain->thread->_STACK) { /* alive ? */
+                spinlock_acquire(&chain->thread->_signal_reenter_ok);
+                gcv_object_t *saved_stack=chain->thread->_STACK;
+                NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
+                NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
+                NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
+                if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
+                                   SIG_THREAD_INTERRUPT)) {
+                  /* hmm - signal send failed. restore the stack and spinlock,
+                     and mark the timeout as failed. The next time when we come
+                     here we will retry it - if not reported as warning to the user.
+                     The user will always get a warning.
+                    */
+                  chain->failed=true;
+                  chain->thread->_STACK=saved_stack;
+                  spinlock_release(&chain->thread->_signal_reenter_ok);
+                }
+              }
+#ifndef DEBUG_GCSAFETY
+            });
+#endif
+          chain=chain->next;
+        }
+#ifdef DEBUG_GCSAFETY
+        });
+        use_dummy_alloccount=false;
+#endif
+        /* should we set new alarm ? */
+        if (chain) {
+          var struct timeval diff;
+          timeval_subtract(&diff, chain->expire, &now);
+          if (diff.tv_sec > 10) {
+            /* if we have more that 10 secs - schedule for 10 sec. */
+            ualarm(10000000,0);
+          } else {
+            ualarm(diff.tv_sec*1000000+diff.tv_usec,0);
+          }
+        }
+        /* release the chain spinlock */
+        spinlock_release(&timeout_call_chain_lock);
+      }
+      break;
+    case SIGINT:
+      WITH_STOPPED_WORLD
+        (false,{
+          var bool signal_sent=false;
+          #ifdef DEBUG_GCSAFETY
+           use_dummy_alloccount=true;
+          #endif
+          for_all_threads({
+            if (thread->_STACK) { /* still alive ?*/
+              spinlock_acquire(&thread->_signal_reenter_ok);
+              gcv_object_t *saved_stack=thread->_STACK;
+              /* line below is not needed but detects bugs */
+              NC_pushSTACK(thread->_STACK,O(thread_break_description));
+              NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
+              NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
+              NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
+              signal_sent =
+                (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
+                                     SIG_THREAD_INTERRUPT));
+              if (!signal_sent) {
+                thread->_STACK=saved_stack;
+                spinlock_release(&thread->_signal_reenter_ok);
+              } else
+                break;
+            }
+          });
+          if (!signal_sent) {
+            fprintf(stderr, "*** SIGINT will be missed.\n"); abort();
+          }
+          #ifdef DEBUG_GCSAFETY
+           use_dummy_alloccount=false;
+          #endif
+        });
+      break;
+#if defined(SIGWINCH)
+    case SIGWINCH:
+      /* TODO: imlpement. */
+      break;
+#endif
+#ifdef SIGTTOU
+    case SIGTTOU:
+      break; /* just ignore it */
+#endif
+#ifdef UNIX_MACOSX
+      /* TODO: vfork()-ed processes cause SIGHUP/SIGCONT on OSX.
+         currently - ignore them - but it's TODO item. .*/
+    case SIGHUP:
+    case SIGCONT:
+      break;
+#endif
+    default:
+      /* just terminate all threads - the last one will
+         kill the process from delete_thread */
+      WITH_STOPPED_WORLD
+        (false,{
+          var bool some_failed=false;
+          #ifdef DEBUG_GCSAFETY
+           use_dummy_alloccount=true;
+          #endif
+          for_all_threads({
+            if (thread->_STACK) {
+              /* be sure the signal handler can be reentered */
+              spinlock_acquire(&thread->_signal_reenter_ok);
+              NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
+              NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
+              NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
+              some_failed |=
+                (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
+                                   SIG_THREAD_INTERRUPT));
+            }
+          });
+          if (some_failed) {
+            fprintf(stderr,"*** some threads were not signaled to terminate.");
+            quit(); /* force quit from here. lisp stacks will not be unwound */
+          }
+          #ifdef DEBUG_GCSAFETY
+           use_dummy_alloccount=false;
+          #endif
+        });
+      break;
+    }
+    spinlock_release(&mem.alloc_lock);
+  }
+  return NULL;
+}
+
+global void install_async_signal_handlers()
+{
+  /* 1. disable all async signals
+     2. install SIG_THREAD_INTERRUPT handler */
+  var sigset_t sigblock_mask=async_signal_mask();
+  /* since we are called from the main thread - all threads
+   in the process will inherit this mask !!*/
+  sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
+  /* install SIG_THREAD_INTERRUPT */
+  SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
+}
+
+#endif /* HAVE_SIGNALS */
 
 #endif

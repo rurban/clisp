@@ -716,6 +716,7 @@ LISPFUNN(invoke_debugger,1)
  changes STACK, can trigger GC */
 global maygc void tast_break (void)
 {
+#if !defined(MULTITHREAD)
   cancel_interrupts();
  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
   writing_to_subprocess = false;
@@ -738,6 +739,13 @@ global maygc void tast_break (void)
     funcall(L(cerror_of_type),4); /* (SYS::CERROR-OF-TYPE "..." 'SYSTEM::[SIMPLE-]INTERRUPT-CONDITION "..." caller) */
     skipSTACK(1);
   }
+#else
+  /* in MT - just clear the STACK */
+  /* it will be very rare to get called here - since the interruptp()
+     does not expand to anything in MT and most use of tast_break() was
+     from it.*/
+  skipSTACK(1); 
+#endif
 }
 
 LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
