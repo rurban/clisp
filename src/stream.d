@@ -5064,7 +5064,7 @@ local maygc uintB* low_read_array_unbuffered_handle (object stream,
    #if !defined(WIN32_NATIVE)
     begin_system_call();
     if (errno==EINTR) /* Interrupt (poss. by Ctrl-C) ? */
-      interruptp({ end_system_call(); error_interrupt(); });
+      { interruptp({ end_system_call(); error_interrupt(); }) };
    #endif
    #ifdef WIN32_NATIVE
     begin_system_call();
