@@ -22,6 +22,31 @@
   #define HAVE_HEAPNR_FROM_TYPE
 #endif
 
+/*
+  VTZ:
+  MT memory heap changes proposal
+  GC.
+  The GC will be protected with spinlock (possibly more efficient than mutex).
+  During GC all thread will be suspended at "safe" points
+  (suspension will be through mutex or spinlock - per thread).
+  The suspension and GC will be performed in the context of the thread that caused the GC.
+
+  Allocations.
+  1. single spinlock protects the whole mem structure (all heaps).
+  2. every thread should acqiure it in order to allocate anything
+  3. the thread that causes the GC will suspend all others before invoking it.
+  4. every thread should define so called "safe" points at which
+    it can be suspended with no risk. these places will be:
+     4.1. any call to allocate_xxxxxx()
+     4.2. begin_system_call (what happens if pointers to LISP heap are passed?)
+     4.3. (*) we need some other place in order to be able to suspend
+          forms like: (loop). Probably the interrupt() macro is good candidate?
+
+  "safe" points concept is similar to the cancellation points
+  (pthread_testcancel()) in pthreads.
+*/
+
+
 /* Global memory management data structures. */
 local struct {
   /* Lower limit of big allocated memory block. */
@@ -30,6 +55,11 @@ local struct {
   /* now comes the Lisp STACK */
   /* now room for the heaps containing Lisp objects. */
   Heap heaps[heapcount];
+#if defined(MULTITHREAD)
+  /*VTZ:  we can live with just single lock for allocation and GC.
+    The alloc_lock will guard the GC as well.*/
+  spinlock_t alloc_lock;
+#endif
  #ifdef SPVW_PURE
   sintB heaptype[heapcount];
   /* for every typecode:
@@ -79,7 +109,13 @@ local struct {
 #endif
   #define MINIMUM_SPACE 0x10000L /* 64 KByte as minimal memory for LISP-data */
 #ifdef TRIVIALMAP_MEMORY
+#if defined(MULTITHREAD)
+/* in MT we malloc() the lisp stacks - let's have more memory until we find
+   a better way to allocate the stacks */
+  #define RESERVE_FOR_MALLOC 0x400000L /* leave 4 MByte address space free, for malloc */
+#else
   #define RESERVE_FOR_MALLOC 0x100000L /* leave 1 MByte address space free, for malloc */
+#endif
 #endif
 
 /* Iteration through all heaps.
@@ -468,5 +504,205 @@ local inline void init_mem_heapnr_from_type (void)
       default:   mem.heapnr_from_type[type] = 0; break;
     }
   }
+}
+#endif
+
+#if defined(MULTITHREAD)
+
+#define ACQUIRE_HEAP_LOCK() GC_SAFE_SPINLOCK_ACQUIRE(&mem.alloc_lock)
+#define RELEASE_HEAP_LOCK() spinlock_release(&mem.alloc_lock)
+
+/* since the GC may be re-entrant we should keep track how many times
+ we have been called. Only the first time we have to really suspend other threads.*/
+local uintC gc_suspend_count=0;
+
+/* Suspends all running threads /besides the current/ on GC safe points/regions.
+   if lock_heap is true the heap is locked first.
+   (this is needed since GC may be called from allocation or explicitly - when
+   the heap lock is not held - the same for lock_thr) */
+global void gc_suspend_all_threads(bool lock_heap)
+{
+  /* flags for indicating whether a thread acknowedge the suspension */
+  var uint8 *acklocked;
+  var bool all_suspended;
+  var clisp_thread_t *me=current_thread();
+  /*fprintf(stderr,"VTZ: GC_SUSPEND(): %0x, %d\n",me,gc_suspend_count);*/
+  if (lock_heap) ACQUIRE_HEAP_LOCK();
+  if (gc_suspend_count == 0) { /* first time here */
+    lock_threads();
+    begin_system_call();
+    acklocked=(uint8 *)alloca(nthreads*sizeof(uint8));
+    memset(acklocked,0,sizeof(uint8)*nthreads);
+    end_system_call();
+    for_all_threads({
+      if (thread == me) continue; /* skip ourself */
+      if (!thread->_suspend_count) {  /* if not already suspended */
+        xmutex_lock(&thread->_gc_suspend_lock); /* enable thread waiting */
+        spinlock_release(&thread->_gc_suspend_request); /* request */
+      } else {
+        acklocked[thread->_index]=1;
+      }
+      /* increase the suspend count */
+      thread->_suspend_count++;
+    });
+    do {
+      all_suspended=true;
+      for_all_threads({
+        /* skip ourself and all already suspended (ACK acquired) threads */
+        if ((acklocked[thread->_index]) || (thread == me)) continue;
+        if (spinlock_tryacquire(&thread->_gc_suspend_ack)) {
+          acklocked[thread->_index]=1;
+          /* try to get the suspend request lock. In case the thread is in
+             blocking system call - this is important. */
+          spinlock_tryacquire(&thread->_gc_suspend_request);
+        } else {
+          all_suspended=false;
+          break; /* yield - give chance the threads to reach safe point*/
+        }
+      });
+      if (!all_suspended) xthread_yield(); else break;
+    } while (1);
+    unlock_threads();
+  }
+  gc_suspend_count++; /* increase the suspend count */
+  /* keep the lock on threads, but release the heap lock.
+     no other threads are running now, so no new allocations may
+     happen - only the ones from GC. Also no new thread can be created.*/
+  RELEASE_HEAP_LOCK();
+}
+
+/* Resumes all suspended threads /besides the current/
+ should match a call to suspend_all_threads()*/
+global void gc_resume_all_threads(bool unlock_heap)
+{
+  /* thread lock is locked. heap lock is free. */
+  var clisp_thread_t *me=current_thread();
+  /*fprintf(stderr,"VTZ: GC_RESUME(): %0x, %d\n",me, gc_suspend_count);*/
+
+  /* before resuming let's report if any timeout call has failed. no need
+     to acquire any lock - since no other thread LISP is running (and the
+     signal handling thread will wait on the heap lock/gc_suspend_count
+     anyway). It's important to do this before we get the heap lock since
+     WARN may/will cause allocations. */
+  var timeout_call *tc=timeout_call_chain;
+  while (tc && tc->failed) {
+    pushSTACK(CLSTEXT("CALL-WITH-TIMEOUT has failed in thread ~S."));
+    pushSTACK(tc->thread->_lthread);
+    /* not to warn twice in case of nested GC (not really likely) */
+    timeout_call_chain = tc = tc->next;
+    funcall(S(warn),2);
+  }
+  /* get the heap lock. in case we are called from allocate_xxx
+     we should not allow any other thread that will be resumed shortly
+     to acquire it. Also it guards the gc_suspend_count when accessed
+     from the signal handling thread */
+  ACQUIRE_HEAP_LOCK();
+  if (--gc_suspend_count) {
+    RELEASE_HEAP_LOCK();
+    return;
+  }
+  for_all_threads({
+    if (thread == me) continue; /* skip ourself */
+    /* currently all ACK locks belong to us as well the mutex lock */
+    if (! --thread->_suspend_count) { /* only if suspend count goes to zero */
+      spinlock_release(&thread->_gc_suspend_ack); /* release the ACK lock*/
+      xmutex_unlock(&thread->_gc_suspend_lock); /* enable thread */
+    }
+  });
+  if (unlock_heap) RELEASE_HEAP_LOCK();
+}
+
+/* resumes suspended thread (or just decreases the _suspend_count)
+ lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
+{
+  /* should never be called on ourselves */
+  ASSERT(thr != current_thread());
+  if (lock_heap) ACQUIRE_HEAP_LOCK();
+  /* we do not want the thread that we try try to suspend to exit
+     (if running at all) until we finish the whole process. So lock threads.*/
+  lock_threads(); /* blocks the GC - but not a problem */
+  if (thr->_STACK != NULL) {  /* only if thread is alive */
+    if (!thr->_suspend_count) { /* first suspend ? */
+      xmutex_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
+      spinlock_release(&thr->_gc_suspend_request); /* request */
+      /* wait for the thread to come to safe point. */
+      while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
+        xthread_yield();
+    }
+    thr->_suspend_count++;
+  }
+  unlock_threads();
+  RELEASE_HEAP_LOCK();
+}
+/* resumes suspended thread (or just decreases the _suspend_count)
+ lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+global void resume_thread(clisp_thread_t *thr, bool unlock_heap)
+{
+  /* should never be called on ourselves */
+  ASSERT(thr != current_thread());
+  ACQUIRE_HEAP_LOCK();
+  lock_threads(); /* blocks the GC - but not a problem */
+  if (thr->_STACK != NULL) {  /* only if thread is alive */
+    if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
+      spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
+      xmutex_unlock(&thr->_gc_suspend_lock); /* enable thread */
+    }
+  }
+  unlock_threads();
+  if (unlock_heap) RELEASE_HEAP_LOCK();
+}
+
+
+/* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
+ symbol: the symbol
+ returns: the new index in the _symvalues thread array */
+global maygc uintL add_per_thread_special_var(object symbol)
+{
+  pushSTACK(symbol);
+  /* lock threads (also this disables GC) */
+  begin_blocking_call();
+  lock_threads();
+  end_blocking_call();
+  symbol=popSTACK();
+  var uintL symbol_index = TheSymbol(symbol)->tls_index;
+  /* check whether till we have been waiting for the threads lock
+     another thread has already done the job !!! */
+  if (symbol_index != SYMBOL_TLS_INDEX_NONE) {
+    goto leave;
+  }
+  if (num_symvalues == maxnum_symvalues) {
+    /* we have to reallocate the _ptr_symvalues storage in all
+     threads in order to have enough space. since it is possible other
+    threads to access at the same time _ptr_symvalues (via Symbol_value)
+    it is not safe at all to reallocate it. We have two choices:
+    1. add locking to the _ptr_symvalue access (per thread).
+    2. "stop the world" during this reallocation (as in GC).
+    Since this will be relatively rear event - we prefer the second way.*/
+    var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
+    WITH_STOPPED_WORLD
+      (true, {
+        for_all_threads({
+          if (!realloc_thread_symvalues(thread,nsyms)) {
+            fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
+            abort();
+          }
+        });
+      });
+    maxnum_symvalues = nsyms;
+  }
+  symbol_index=num_symvalues++;
+  TheSymbol(symbol)->tls_index=symbol_index;
+  for_all_threads({ thread->_ptr_symvalues[symbol_index] = SYMVALUE_EMPTY; });
+ leave:
+  unlock_threads();
+  if (symbol_index == SYMBOL_TLS_INDEX_NONE)
+    error(error_condition,GETTEXT("could not make symbol value per-thread"));
+  return symbol_index;
+}
+
+local void init_heap_locks()
+{
+  spinlock_init(&mem.alloc_lock);
 }
 #endif

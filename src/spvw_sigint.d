@@ -2,11 +2,6 @@
 
 /* -------------------------- Specification ---------------------------- */
 
-#ifdef PENDING_INTERRUPTS
-/* Flag telling whether a Ctrl-C has been seen and is waiting to be handled. */
-extern uintB interrupt_pending;
-#endif
-
 #ifdef HAVE_SIGNALS
 /* Installs the Ctrl-C handler. */
 local void install_sigint_handler (void);
@@ -18,12 +13,13 @@ extern void install_sigint_handler (void);
 
 /* -------------------------- Implementation --------------------------- */
 
-#ifdef PENDING_INTERRUPTS
+#if defined(PENDING_INTERRUPTS) && !defined(MULTITHREAD)
 /* Flag, if an interrupt is pending. */
 global uintB interrupt_pending = false;
 #endif
 
 #ifdef HAVE_SIGNALS
+#if !defined(MULTITHREAD)
 
 /* this must be done by signal handler before entering lisp.
  also used in spvw_sigterm.d */
@@ -117,7 +113,7 @@ local void interrupt_handler (int sig) { /* sig = SIGINT */
 #define install_sigint_handler()  \
     SIGNAL(SIGINT,&interrupt_handler)
 #endif  /* PENDING_INTERRUPTS */
-
+#endif /* !MULTITHREAD */
 #endif  /* HAVE_SIGNALS */
 
 #ifdef WIN32_NATIVE

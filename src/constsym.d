@@ -13,6 +13,12 @@
  > package: home-package of the symbol, either lisp or system or keyword.
  >          it is exported automatically from package lisp. */
 
+#if defined(MULTITHREAD)
+  #define SYM_TLS_INDEX_INIT SYMBOL_TLS_INDEX_NONE
+#else
+  #define SYM_TLS_INDEX_INIT
+#endif
+
 /* expander for the declaration of the symbol table: */
 #define LISPSYM_A(name,printname,package)       \
   symbol_ S_##name;
@@ -21,20 +27,20 @@
 #ifdef TYPECODES
   #ifdef DEBUG_GCSAFETY
     #define LISPSYM_B(name,printname,package)  \
-      { S(name), unbound, unbound, unbound, NIL, NIL, NIL, },
+      { S(name), unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
   #else
     #define LISPSYM_B(name,printname,package)  \
-      { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, },
+      { {S(name)}, unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
   #endif
 #else
-  #if defined(LINUX_NOEXEC_HEAPCODES) && 0
+  #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
     #define LISPSYM_B(name,printname,package)  \
       { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
-        unbound, unbound, unbound, NIL, NIL, NIL, unbound, },
+        unbound, unbound, unbound, NIL, NIL, NIL, unbound, SYM_TLS_INDEX_INIT},
   #else
     #define LISPSYM_B(name,printname,package)  \
       { S(name), xrecord_tfl(Rectype_Symbol,0,symbol_length,0), \
-        unbound, unbound, unbound, NIL, NIL, NIL, },
+        unbound, unbound, unbound, NIL, NIL, NIL, SYM_TLS_INDEX_INIT},
   #endif
 #endif
 #define LISPSYM_C(name,printname,package)  printname,
@@ -1193,13 +1199,13 @@ LISPSYM(foreign_pointer_info,"FOREIGN-POINTER-INFO",ffi)
 #endif  /* DYNAMIC_FFI */
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
+LISPSYM(thread,"THREAD",mt) /* type for THREAD */
 LISPSYM(make_thread,"MAKE-THREAD",mt)
 LISPSYM(thread_wait,"THREAD-WAIT",mt)
 LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt) /* ABI */
 LISPSYM(thread_yield,"THREAD-YIELD",mt)
 LISPSYM(thread_kill,"THREAD-KILL",mt)
 LISPSYM(thread_interrupt,"THREAD-INTERRUPT",mt)
-LISPSYM(thread_restart,"THREAD-RESTART",mt)
 LISPSYM(threadp,"THREADP",mt)
 LISPSYM(thread_name,"THREAD-NAME",mt)
 LISPSYM(thread_active_p,"THREAD-ACTIVE-P",mt)
@@ -1207,9 +1213,18 @@ LISPSYM(thread_state,"THREAD-STATE",mt)
 LISPSYM(thread_whostate,"THREAD-WHOSTATE",mt)
 LISPSYM(current_thread,"CURRENT-THREAD",mt)
 LISPSYM(list_threads,"LIST-THREADS",mt)
+LISPSYM(thread_throw_tag,"%THROW-TAG",mt)
 LISPSYM(make_lock,"MAKE-LOCK",mt)
 LISPSYM(thread_lock,"THREAD-LOCK",mt)
 LISPSYM(thread_unlock,"THREAD-UNLOCK",mt)
+LISPSYM(symbol_value_thread,"SYMBOL-VALUE-THREAD",mt)
+LISPSYM(set_symbol_value_thread,"SET-SYMBOL-VALUE-THREAD",mt)
+LISPSYM(default_special_bindings,"*DEFAULT-SPECIAL-BINDINGS*",mt)
+LISPSYM(default_control_stack_size,"*DEFAULT-CONTROL-STACK-SIZE*",mt)
+LISPSYM(default_value_stack_depth,"*DEFAULT-VALUE-STACK-DEPTH*",mt)
+LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
+LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
+LISPSYM(Kvstack_depth,"VSTACK-DEPTH",keyword)
 #endif
 
 /* Keywords: */

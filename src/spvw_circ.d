@@ -32,9 +32,17 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 
 /* -------------------------- Implementation --------------------------- */
 
+/*#if defined(MULTITHREAD) || defined(VIRTUAL_MEMORY)*/
+
+#if defined(MULTITHREAD)
+#define USE_MULTI_LEVEL_BITMAP
+/* TBD: Should we stop the threads while inspecting for circularities?
+   This may introduce quite bad behavior of printer. */
+#endif
+
 /* Common subroutines. */
 
-#ifdef MULTITHREAD
+#ifdef USE_MULTI_LEVEL_BITMAP
 
 /* Multi-level bit map, used as a hash set. This is a (slower, but reentrant)
  alternative to using the GC's mark bit.
@@ -117,7 +125,7 @@ local uintP mlb_expand (mlbitmap* bitmap, uintL newsize)
   if (newsize < 2*bitmap->alloc_size)
     newsize = 2*bitmap->alloc_size;
   begin_system_call();
-  var char* newbase = (bitmap->base==NULL ? malloc(newsize) : realloc((char*)bitmap->base,newsize));
+  var char* newbase = (char *) (bitmap->base==NULL ? malloc(newsize) : realloc((char*)bitmap->base,newsize));
   end_system_call();
   if (newbase==NULL)
     longjmp(bitmap->oom_context,true);
@@ -374,7 +382,7 @@ local void mlb_free (mlbitmap* bitmap)
 
 /* Implementation of get_circularities. */
 
-#ifdef MULTITHREAD
+#ifdef USE_MULTI_LEVEL_BITMAP
 
 /* get_circularities(obj,pr_array,pr_closure)
  Method:
@@ -650,6 +658,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* for the case of an abort */
   set_break_sem_1();             /* make Break impossible */
+  /* suspend all threads - we do not want anybody to mess obj */
   if (!setjmp(my_global.abort_context)) { /* save context */
     bcopy(my_global.abort_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
     mlb_alloc(&my_global.bitmap); /* allocate bitmap */
@@ -684,7 +693,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
   }
 }
 
-#else  /* !MULTITHREAD */
+#else  /* !USE_MULTI_LEVEL_BITMAP */
 
 /* get_circularities(obj,pr_array,pr_closure)
  Method:
@@ -1226,7 +1235,7 @@ local void get_circ_unmark (object obj, get_circ_global* env)
 
 /* Implementation of subst_circ. */
 
-#ifdef MULTITHREAD
+#ifdef USE_MULTI_LEVEL_BITMAP
 
 /* Global variables during subst_circ. */
 typedef struct {
@@ -1428,7 +1437,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
   }
 }
 
-#else  /* !MULTITHREAD */
+#else  /* !USE_MULTI_LEVEL_BITMAP */
 
 #if 0                       /* without consideration of circularities */
 

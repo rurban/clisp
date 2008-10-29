@@ -32,9 +32,13 @@
      TYPECODES, HEAPCODES, STANDARD_HEAPCODES, LINUX_NOEXEC_HEAPCODES, WIDE
    Advanced memory management:
      NO_SINGLEMAP, NO_TRIVIALMAP, NO_VIRTUAL_MEMORY, CONS_HEAP_GROWS_DOWN,
-     CONS_HEAP_GROWS_UP, NO_MORRIS_GC, NO_GENERATIONAL_GC
+     CONS_HEAP_GROWS_UP, NO_MORRIS_GC, NO_GENERATIONAL_GC,
+     NO_MULTITHREAD_GC (only when MULTITHREAD is defined)
    String representation:
      NO_SMALL_SSTRING
+   Thread local storage storage when no compiler support is available (32 bit
+   platforms only). The SP is mapped to clisp_thread_t pointer:
+     USE_CUSTOM_TLS={1,2,3}  - see comments for the options
 
 
  Implementation is prepared for the following computers,
@@ -206,7 +210,12 @@
     #define S390
   #endif
 #endif
-
+/* this signals the xthread.d not to try to deduce the CPU again.
+ (since xthread.d is included from modules as  well and because of the
+ spinlock implementation - it should know the CPU. )*/
+#if defined(MULTITHREAD)
+ #define TARGET_CPU_DEFINED
+#endif
 
 /* Selection of the operating system */
 #ifdef WIN32
@@ -537,24 +546,10 @@
   #define log2_C_CODE_ALIGNMENT  0
 #endif
 
-
 /* Flags for the system's include files. */
-#ifdef MULTITHREAD
-  #if defined(UNIX_GNU) || defined(UNIX_SUNOS5)
-    #define _REENTRANT
-  #endif
-  #if defined(__GNUC__)
-    #define per_thread __thread
-  #else
-    #error how does your compiler specify per-thread storage class?
-  #endif
-#else
-  #define per_thread
-#endif
-
 
 /* Width of object representation:
- WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
+   WIDE means than an object (pointer) occupies 64 bits (instead of 32 bits).
  WIDE_HARD means on a 64-bit platform.
  WIDE_SOFT means on a 32-bit platform, each object pointer occupies 2 words.
  WIDE_AUXI means on a 32-bit platform, each object occupies 2 words, the
@@ -746,7 +741,7 @@
         long back_trace_register_contents;
       #endif
     };
-    extern per_thread struct registers * callback_saved_registers;
+    extern  struct registers * callback_saved_registers;
     #ifdef STACK_register
       #define SAVE_STACK_register(registers)     \
               registers->STACK_register_contents = STACK_reg
@@ -1994,8 +1989,14 @@ typedef enum {
    a continuable manner in that time. After this time has passed, the
    program will be interrupted and cannot be continued. */
   #define PENDING_INTERRUPTS
-  extern uintB interrupt_pending;
-  #define interruptp(statement)  if (interrupt_pending) { statement; }
+  #if !defined(MULTITHREAD)
+   extern uintB interrupt_pending;
+   #define interruptp(statement)  if (interrupt_pending) { statement; }
+  #else
+   /* In MT interrupt_pending and interuptp are not used at all.
+      actually even tast_break() is obsolete.*/
+   #define interruptp(statement)
+  #endif
 #endif
 /* used by EVAL, IO, SPVW, STREAM */
 
@@ -2069,16 +2070,6 @@ typedef enum {
   nonreturning_function(extern, ANSIC_error, (void));
 #endif
 /* used by SPVW, STREAM */
-
-#ifdef MULTITHREAD
-
-#include "xthread.c"
-
-#if !(defined(HAVE_MMAP_ANON) || defined(HAVE_MMAP_DEVZERO) || defined(HAVE_MACH_VM) || defined(HAVE_WIN32_VM))
-  #error Multithreading requires memory mapping facilities!
-#endif
-
-#endif
 
 /* ##################### Further system-dependencies #################### */
 
@@ -3071,8 +3062,14 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #ifdef DEBUG_GCSAFETY
   /* A counter that is incremented each time an allocation occurs that could
    trigger GC. */
-  extern uintL alloccount;
-
+  #if defined(MULTITHREAD)
+    /* VTZ: this is slow but there will be need of many forward declarations
+     in order to compile. Also in GCSAFETY we do not care about peformance. */
+    extern uintL* current_thread_alloccount();
+    #define alloccount (*current_thread_alloccount())
+  #else
+    extern uintL alloccount;
+  #endif
   /* A register-allocated object contains, if not GC-invariant, the timestamp
    of when it was fetched from a GC-visible location. */
   struct object {
@@ -3086,7 +3083,12 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #define INIT_ALLOCSTAMP
 #endif
 %% #ifdef DEBUG_GCSAFETY
-%%   puts("extern uintL alloccount;");
+%%   #if defined(MULTITHREAD)
+%%     puts("extern uintL* current_thread_alloccount();");
+%%     export_def(alloccount);
+%%   #else
+%%     puts("extern uintL alloccount;");
+%%   #endif
 %% #else
 %%   emit_typedef("gcv_object_t","object");
 %% #endif
@@ -4053,7 +4055,6 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 %%  export_def(pointable_address_unchecked(obj_o));
 %% #endif
 
-
 #if defined(SINGLEMAP_MEMORY) && (((system_type*1UL << oint_type_shift) & addressbus_mask) == 0)
   /* The STACK resides in a singlemap-area as well, Typinfo system_type. */
   #define SINGLEMAP_MEMORY_STACK
@@ -4283,7 +4284,7 @@ extern bool inside_gc;
 #endif
 
 /* Algorithm by Morris, that compacts Conses without mixing them up: */
-#if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !defined(NO_MORRIS_GC)
+#if defined(SPVW_BLOCKS) && defined(VIRTUAL_MEMORY) && !defined(NO_MORRIS_GC) /*  && !defined(MULTITHREAD) */
   /* Morris-GC is recommended, as it preserves the locality. */
   #define MORRIS_GC
 #endif
@@ -4912,7 +4913,7 @@ enum {
 %% printf("#define Rectype_WeakHashedAlist_Either %d\n",Rectype_WeakHashedAlist_Either);
   Rectype_WeakHashedAlist_Both,
 %% printf("#define Rectype_WeakHashedAlist_Both %d\n",Rectype_WeakHashedAlist_Both);
- rectype_for_broken_compilers_that_dont_like_trailing_commas
+  rectype_for_broken_compilers_that_dont_like_trailing_commas
 };
 
 /* -------------------------- the various types -------------------------- */
@@ -4976,8 +4977,16 @@ typedef struct {
   gcv_object_t homepackage _attribute_aligned_object_; /* Home-Package or NIL */
   /* If necessary, add fillers here to ensure sizeof(subr_t) is a multiple of
    varobject_alignment. */
-  #if defined(LINUX_NOEXEC_HEAPCODES) && 0
+  #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
+  /* filler is put here is it is gcv_object_t - so may be easily included in
+     symbol_length if needed. */
   gcv_object_t filler      _attribute_aligned_object_;
+  #endif
+  #if defined(MULTITHREAD)
+    /* the first symvalue in thread is dummy - for faster Symbol_value*/
+    #define SYMBOL_TLS_INDEX_NONE ((uintL)0)
+    #define SYMVALUE_EMPTY make_system(0xEEEEEFUL)
+    uintL tls_index _attribute_aligned_object_; /* TLS index */
   #endif
 } symbol_;
 typedef symbol_ *  Symbol;
@@ -4987,10 +4996,16 @@ typedef symbol_ *  Symbol;
 #endif
 #define symbol_objects_offset  offsetof(symbol_,symvalue)
 #define symbol_length  6
-%% #if defined(LINUX_NOEXEC_HEAPCODES) && 0
-%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; gcv_object_t filler%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+#define symbol_xlength (sizeof(*(Symbol)0)-symbol_objects_offset-symbol_length*sizeof(gcv_object_t))
+%% #if defined(LINUX_NOEXEC_HEAPCODES) && defined(MULTITHREAD)
+%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; gcv_object_t filler%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
 %% #else
-%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; }",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% #endif
+%% #if defined(MULTITHREAD)
+%%   sprintf(buf+strlen(buf)," uintL tls_index%s;}",attribute_aligned_object);
+%% #else
+%%   sprintf(buf+strlen(buf),"}");
 %% #endif
 %% emit_typedef(buf,"symbol_");
 %% emit_typedef("symbol_ *","Symbol");
@@ -6862,17 +6877,18 @@ typedef enum {
 
 #ifdef MULTITHREAD
 
+#include "xthread.c"
+
+/* forward declaration */
+struct clisp_thread_t;
+
 typedef struct {
   XRECORD_HEADER
   gcv_object_t xth_name _attribute_aligned_object_; /* name */
-  gcv_object_t xth_next _attribute_aligned_object_; /* next thread */
-  gcv_object_t xth_prev _attribute_aligned_object_; /* previous thread */
-  gcv_object_t *xth_tlvs;              /* thread-local values */
-  gcv_object_t *xth_stack;             /* the thread stack */
-  struct backtrace_t *xth_bt;          /* the backtrace */
-  xthread_t xth_system;                /* OS object */
+  struct clisp_thread_t *xth_globals; /* all thread specific things */
+  xthread_t xth_system;               /* OS object */
 } * Thread;
-#define thread_length  3
+#define thread_length  1
 #define thread_xlength (sizeof(*(Thread)0)-offsetofa(record_,recdata)-thread_length*sizeof(gcv_object_t))
 
 typedef struct {
@@ -7266,7 +7282,28 @@ typedef struct {
 #define Car(obj)  (TheCons(obj)->car)
 #define Cdr(obj)  (TheCons(obj)->cdr)
 /* Access to objects that are symbols: */
-#define Symbol_value(obj)  (TheSymbol(obj)->symvalue)
+#if defined(MULTITHREAD)
+  #define Symbol_value(obj) \
+    *({var Symbol s=TheSymbol(obj);  \
+       var clisp_thread_t *thr=current_thread();\
+       var gcv_object_t *r;         \
+       r=(s->tls_index && !eq(SYMVALUE_EMPTY,thr->_ptr_symvalues[s->tls_index]) ? \
+          thr->_ptr_symvalues+s->tls_index : &s->symvalue); \
+       r;})
+  #define Symbol_value_helper(sym) \
+    *({var Symbol s=sym;  \
+       var clisp_thread_t *thr=current_thread();\
+       var gcv_object_t *r;         \
+       r=(s->tls_index ? \
+          thr->_ptr_symvalues+s->tls_index : &s->symvalue); \
+       r;})
+  #define Symbol_thread_value(obj) Symbol_value_helper(TheSymbol(obj))
+  #define Symbolflagged_value(obj) Symbol_value_helper(TheSymbolflagged(obj))
+#else
+  #define Symbol_value(obj)  (TheSymbol(obj)->symvalue)
+  #define Symbol_thread_value(obj) Symbol_value(obj)
+  #define Symbolflagged_value(obj) (TheSymbolflagged(obj)->symvalue)
+#endif
 #define Symbol_function(obj)  (TheSymbol(obj)->symfunction)
 #define Symbol_plist(obj)  (TheSymbol(obj)->proplist)
 #define Symbol_name(obj)  (TheSymbol(obj)->pname)
@@ -7881,6 +7918,11 @@ typedef struct {
     (orecordp(obj) && (Record_type(obj) == Rectype_Socket_Server))
   #define socket_stream_p(obj)  \
     (builtin_stream_p(obj) && (TheStream(obj)->strmtype==strmtype_socket))
+#endif
+
+#if defined(MULTITHREAD)
+  #define threadp(obj) \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Thread))
 #endif
 
 #ifdef YET_ANOTHER_RECORD
@@ -8966,7 +9008,7 @@ All other long words on the LISP-Stack are LISP-objects.
     #define ASM_get_SP_register(resultvar)  ("or %0,#r0,#r31" : "=r" (resultvar) : )
   #endif
   #ifdef POWERPC
-    #define ASM_get_SP_register(resultvar)  ("mr %0,1" : "=r" (resultvar) : )
+    #define ASM_get_SP_register(resultvar)  ("mr %0,r1" : "=r" (resultvar) : )
   #endif
   #ifdef ARM
     #define ASM_get_SP_register(resultvar)  ("mov\t%0, sp" : "=r" (resultvar) : )
@@ -9137,7 +9179,7 @@ extern void* SP_anchor;
 /* LISP-Stack: STACK */
 #if !defined(STACK_register)
   /* a global variable */
-  extern per_thread gcv_object_t* STACK;
+  extern  gcv_object_t* STACK;
 #else
   /* a global register variable */
   register gcv_object_t* STACK __asm__(STACK_register);
@@ -9291,7 +9333,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
  and
    end_callback(); */
 #ifdef HAVE_SAVED_mv_count
-  extern per_thread uintC saved_mv_count;
+  extern  uintC saved_mv_count;
   #define SAVE_mv_count()     saved_mv_count = mv_count
   #define RESTORE_mv_count()  mv_count = saved_mv_count
 #else
@@ -9299,7 +9341,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define RESTORE_mv_count()
 #endif
 #ifdef HAVE_SAVED_value1
-  extern per_thread object saved_value1;
+  extern  object saved_value1;
   #define SAVE_value1()     saved_value1 = value1
   #define RESTORE_value1()  value1 = saved_value1
 #else
@@ -9307,7 +9349,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define RESTORE_value1()
 #endif
 #ifdef HAVE_SAVED_back_trace
-  extern per_thread p_backtrace_t saved_back_trace;
+  extern  p_backtrace_t saved_back_trace;
   #define SAVE_back_trace()     saved_back_trace = back_trace
   #define RESTORE_back_trace()  back_trace = saved_back_trace
 #else
@@ -9317,7 +9359,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 #define SAVE_GLOBALS()     SAVE_mv_count(); SAVE_value1(); SAVE_back_trace();
 #define RESTORE_GLOBALS()  RESTORE_mv_count(); RESTORE_value1(); RESTORE_back_trace();
 #if defined(HAVE_SAVED_STACK)
-  extern per_thread gcv_object_t* saved_STACK;
+  extern  gcv_object_t* saved_STACK;
   #define begin_call()  SAVE_GLOBALS(); saved_STACK = STACK
   #define end_call()  RESTORE_GLOBALS(); saved_STACK = (gcv_object_t*)NULL
   #define begin_callback()  SAVE_REGISTERS( STACK = saved_STACK; ); end_call()
@@ -9361,8 +9403,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define begin_system_call()
   #define end_system_call()
 #else
-  #define begin_system_call()  begin_call()
-  #define end_system_call()  end_call()
+#define begin_system_call()  begin_call()
+#define end_system_call()  end_call()
 #endif
 /* The same holds for setjmp()/longjmp(). Here we avoid an unneeded overhead
  if at all possible.
@@ -9400,6 +9442,72 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% export_def(begin_system_call());
 %% export_def(end_system_call());
 
+#if defined(MULTITHREAD)
+  /* no_gc statement is executed in case the thread should not be suspended for GC.*/
+  #define GC_SAFE_POINT_ELSE(no_gc) \
+    do{ \
+      var clisp_thread_t *thr=current_thread();              \
+      if (spinlock_tryacquire(&thr->_gc_suspend_request)) {  \
+        spinlock_release(&thr->_gc_suspend_ack);             \
+        xmutex_lock(&thr->_gc_suspend_lock);              \
+        spinlock_acquire(&thr->_gc_suspend_ack);          \
+        xmutex_unlock(&thr->_gc_suspend_lock);            \
+      } else {no_gc;}                                     \
+    }while(0)
+  #define GC_SAFE_POINT() GC_SAFE_POINT_ELSE(;)
+/* Giving up suspend ack during we are in system call. So we can be considered
+ suspended for GC. */
+  #define GC_SAFE_REGION_BEGIN() \
+    do { \
+      GCTRIGGER(); \
+      spinlock_release(&current_thread()->_gc_suspend_ack); \
+    }while(0)
+/* If we cannot get the suspend ack lock again - it means there is/was GC -
+ so try to wait for it's end if it is not already finished. */
+  #define GC_SAFE_REGION_END() \
+    do { \
+      GCTRIGGER(); \
+      var clisp_thread_t *thr=current_thread();          \
+      if (!spinlock_tryacquire(&thr->_gc_suspend_ack)) { \
+        xmutex_lock(&thr->_gc_suspend_lock);             \
+        spinlock_acquire(&thr->_gc_suspend_ack);          \
+        xmutex_unlock(&thr->_gc_suspend_lock);            \
+      } \
+    }while(0)
+#else
+  #define GC_SAFE_POINT_ELSE(no_gc)
+  #define GC_SAFE_POINT()
+  #define GC_SAFE_REGION_BEGIN()
+  #define GC_SAFE_REGION_END()
+#endif
+
+#define begin_blocking_system_call() begin_system_call();GC_SAFE_REGION_BEGIN()
+#define end_blocking_system_call() end_system_call();GC_SAFE_REGION_END()
+
+/* when we are in big region that is already marked as system call - we would like
+   just to enable GC on some blocking calls*/
+#define begin_blocking_call() GC_SAFE_REGION_BEGIN()
+#define end_blocking_call() GC_SAFE_REGION_END()
+
+#define GC_SAFE_CALL(type,statement)            \
+  ({var type ret; begin_blocking_call();        \
+    ret=statement;                              \
+    end_blocking_call();                        \
+    ret;})
+#define GC_SAFE_SYSTEM_CALL(type,statement)     \
+  ({var type ret;                               \
+    begin_blocking_system_call();               \
+    ret=statement;                              \
+    end_blocking_system_call();                 \
+    ret;})
+
+%% export_def(begin_blocking_system_call());
+%% export_def(end_blocking_system_call());
+%% export_def(begin_blocking_call());
+%% export_def(end_blocking_call());
+%% export_def(GC_SAFE_CALL(type,statement));
+%% export_def(GC_SAFE_SYSTEM_CALL(type,statement));
+
 #if defined(HAVE_STACK_OVERFLOW_RECOVERY)
   /* Detection of SP-overflow through a Guard-Page or other mechanisms. */
   #define NOCOST_SP_CHECK
@@ -9435,7 +9543,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     #endif
   #endif
 #endif
-extern per_thread void* SP_bound;
+extern  void* SP_bound;
 nonreturning_function(extern, SP_ueber, (void));
 #ifdef UNIX
   #define check_SP_notUNIX()
@@ -9452,8 +9560,8 @@ nonreturning_function(extern, SP_ueber, (void));
 #ifdef STACK_UP
   #define STACK_overflow()  ( (aint)STACK > (aint)STACK_bound )
 #endif
-extern per_thread void* STACK_bound;
-extern per_thread void* STACK_start;
+extern  void* STACK_bound;
+extern  void* STACK_start;
 nonreturning_function(extern, STACK_ueber, (void));
 %% #if notused
 %% export_def(check_STACK());
@@ -10408,7 +10516,7 @@ extern uintM varobject_bytelength (object obj);
  - Non-reentrant Data-Structures (like e.g. DTA_buffer) can not
    be used recursively. */
 typedef union {uintB einzeln[8]; uintL gesamt[2]; } break_sems_;
-extern break_sems_ break_sems;
+
 #define break_sem_0  break_sems.einzeln[0]
 #define break_sem_1  break_sems.einzeln[1]
 #define break_sem_2  break_sems.einzeln[2]
@@ -10419,79 +10527,97 @@ extern break_sems_ break_sems;
 #define break_sem_7  break_sems.einzeln[7]
 /* is used by SPVW, Macros set/clr_break_sem_0/1/2/3/4/5/6/7 */
 
-/* Tests whether all break-semaphores have been cleared. */
-#define break_sems_cleared()  \
-  (break_sems.gesamt[0] == 0 && break_sems.gesamt[1] == 0)
-/* is used by SPVW, WIN32AUX */
-
-/* clears all break-semaphores. Very dangerous! */
-#define clear_break_sems()  \
-  (break_sems.gesamt[0] = 0, break_sems.gesamt[1] = 0)
-/* is used by SPVW */
+/* MULTITHREAD:
+   Semaphores are not used. Async signals may come only on two
+   points - immediately after the world is resumed and when
+   inside blocking system calls. So there is no way to
+   interrupt critical initialization of lisp objects.
+   Of course it is possible a thread to access others threads
+   objects - but this is responsibility of the threads themsleves
+   not of the runtime (and break_sems cannot prevent it as well).
+ */
+#if defined(MULTITHREAD)
+   #define SEMA_(statement)
+   #define SEGV_SEMA_(statement)
+   #define break_sems_cleared()
+   #define clear_break_sems()
+#else /* !MULTITHREAD*/
+   extern break_sems_ break_sems;
+   #define SEMA_(statement) (statement)
+   #define SEGV_SEMA_(statement) SEMA_(statement)
+   /* Tests whether all break-semaphores have been cleared. */
+   #define break_sems_cleared()                                 \
+     (break_sems.gesamt[0] == 0 && break_sems.gesamt[1] == 0)
+   /* is used by SPVW, WIN32AUX */
+   /* clears all break-semaphores. Very dangerous! */
+   #define clear_break_sems()  \
+     (break_sems.gesamt[0] = 0, break_sems.gesamt[1] = 0)
+   /* is used by SPVW */
+#endif
 
 /* sets break-semaphore 0 and thus protects against interrupts
  set_break_sem_0(); */
-#define set_break_sem_0()  (break_sem_0 = 1)
+#define set_break_sem_0()  SEGV_SEMA_(break_sem_0 = 1)
 /* is used by SPVW */
 
 /* clears the break-semaphore 0 and thus releases the interrupts
  clr_break_sem_0(); */
-#define clr_break_sem_0()  (break_sem_0 = 0)
+#define clr_break_sem_0()  SEGV_SEMA_(break_sem_0 = 0)
 /* is used by SPVW */
 
 /* sets break-semaphore 1 and thus protects against interrupts
  set_break_sem_1(); */
-#define set_break_sem_1()  (break_sem_1 = 1)
+#define set_break_sem_1()  SEMA_(break_sem_1 = 1)
 /* is used by SPVW, ARRAY */
 
 /* clears the break-semaphore 1 and thus releases the interrupts
  clr_break_sem_1(); */
-#define clr_break_sem_1()  (break_sem_1 = 0)
+#define clr_break_sem_1()  SEMA_(break_sem_1 = 0)
 /* is used by SPVW, ARRAY */
 
 /* sets break-semaphore 2 and thus protects against interrupts
  set_break_sem_2(); */
-#define set_break_sem_2()  (break_sem_2 = 1)
+#define set_break_sem_2()  SEMA_(break_sem_2 = 1)
 /* is used by PACKAGE, HASHTABL */
 
 /* clears the break-semaphore 2 and thus releases the interrupts
  clr_break_sem_2(); */
-#define clr_break_sem_2()  (break_sem_2 = 0)
+#define clr_break_sem_2()  SEMA_(break_sem_2 = 0)
 /* is used by PACKAGE, HASHTABL */
 
 /* sets break-semaphore 3 and thus protects against interrupts
  set_break_sem_3(); */
-#define set_break_sem_3()  (break_sem_3 = 1)
+#define set_break_sem_3()  SEMA_(break_sem_3 = 1)
 /* is used by PACKAGE */
 
 /* clears the break-semaphore 3 and thus releases the interrupts
  clr_break_sem_3(); */
-#define clr_break_sem_3()  (break_sem_3 = 0)
+#define clr_break_sem_3()  SEMA_(break_sem_3 = 0)
 /* is used by PACKAGE */
 
 /* sets break-semaphore 4 and thus protects against interrupts
  set_break_sem_4(); */
-#define set_break_sem_4()  (break_sem_4 = 1)
+#define set_break_sem_4()  SEMA_(break_sem_4 = 1)
 /* is used by STREAM, PATHNAME */
 
 /* clears the break-semaphore 4 and thus releases the interrupts
  clr_break_sem_4(); */
-#define clr_break_sem_4()  (break_sem_4 = 0)
+#define clr_break_sem_4()  SEMA_(break_sem_4 = 0)
 /* is used by STREAM, PATHNAME */
 
 /* increments break-semaphore 5 and thus protects against interrupts
  inc_break_sem_5(); */
-#define inc_break_sem_5()  (break_sem_5++)
+#define inc_break_sem_5()  SEMA_(break_sem_5++)
 /* is used by SPVW */
 
 /* decrements break-semaphore 5 and thus releases interrupts
  dec_break_sem_5(); */
-#define dec_break_sem_5()  (break_sem_5--)
+#define dec_break_sem_5()  SEMA_(break_sem_5--)
 /* is used by SPVW */
 
 /* clears the break-semaphore 5 and thus releases the interrupts
  clr_break_sem_5(); */
-#define clr_break_sem_5()  (break_sem_5 = 0)
+#define clr_break_sem_5()  SEMA_(break_sem_5 = 0)
 /* is used by SPVW */
 
 /* Flag, whether SYS::READ-FORM should behave compatible to ILISP */
@@ -10525,7 +10651,7 @@ extern maygc off_t savemem (object stream, bool exec_p);
 /* is used by PATHNAME */
 #endif
 
-#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+#if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
   /* Set ONLY during write() calls to pipes directed to subprocesses. */
 extern bool writing_to_subprocess;
 #endif
@@ -11476,20 +11602,24 @@ re-enters the corresponding top-level loop.
 
  Highest number of multiple values + 1 */
 #define mv_limit  128
+
 /* Values are always passed in the MULTIPLE_VALUE_SPACE mv_space:
  uintC mv_count : number of values, >=0, <mv_limit
  object mv_space [mv_limit-1] : the values.
    For mv_count>0 the first mv_count elements are occupied.
    For mv_count=0 the first value = NIL.
    The values in mv_space are not subject to the Garbage Collection! */
-#if !defined(mv_count_register)
-  /* a global Variable */
-  extern per_thread uintC mv_count;
-#else
-  /* a global register */
-  register uintC mv_count __asm__(mv_count_register);
+/* VTZ: g++ is very strict about forward declarations. */
+#if !defined(MULTITHREAD)
+  #if !defined(mv_count_register)
+    /* a global Variable */
+    extern  uintC mv_count;
+  #else
+    /* a global register */
+    register uintC mv_count __asm__(mv_count_register);
+  #endif
+  extern  object mv_space [mv_limit-1];
 #endif
-extern per_thread object mv_space [mv_limit-1];
 /* Synonyms: */
 #if !defined(value1_register)
     #define value1  mv_space[0]
@@ -11509,7 +11639,7 @@ extern per_thread object mv_space [mv_limit-1];
 #define value9  mv_space[8]
 /* You might need global variables to pass with setjmp/longjmp: */
 #ifdef NEED_temp_mv_count
-  extern per_thread uintC temp_mv_count;
+  extern  uintC temp_mv_count;
   #define LONGJMP_SAVE_mv_count()  temp_mv_count = mv_count
   #define LONGJMP_RESTORE_mv_count()  mv_count = temp_mv_count
 #else
@@ -11517,7 +11647,7 @@ extern per_thread object mv_space [mv_limit-1];
   #define LONGJMP_RESTORE_mv_count()
 #endif
 #ifdef NEED_temp_value1
-  extern per_thread object temp_value1;
+  extern  object temp_value1;
   #define LONGJMP_SAVE_value1()  temp_value1 = value1
   #define LONGJMP_RESTORE_value1()  value1 = temp_value1
 #else
@@ -11526,6 +11656,7 @@ extern per_thread object mv_space [mv_limit-1];
 #endif
 /* is used by EVAL, CONTROL,
                     Macros LIST_TO_MV, MV_TO_LIST, STACK_TO_MV, MV_TO_STACK */
+%% #if !defined(MULTITHREAD)
 %% #if notused
 %% export_def(mv_limit);
 %% #endif
@@ -11548,18 +11679,7 @@ extern per_thread object mv_space [mv_limit-1];
 %%   for (; i <=9 ; i++)
 %%     printf("#define value%d  mv_space[%d]\n",i,i-1);
 %% }
-
-#ifdef DEBUG_GCSAFETY
-  /* Add support for the 'mv_space' expression to the GCTRIGGER1/2/... macros. */
-  inline void inc_allocstamp (object (&mvsp)[mv_limit-1]) {
-    inc_allocstamp(value1);
-    var uintC count = mv_count;
-    if (count > 1) {
-      var object* mvp = &mv_space[1];
-      dotimespC(count,count-1, { inc_allocstamp(*mvp++); });
-    }
-  }
-#endif
+%% #endif
 
 /* Returns the bottom objects from the STACK as multiple values.
  STACK_to_mv(count)
@@ -11688,7 +11808,7 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
 %% #endif
 
 #if !defined(back_trace_register)
-  extern per_thread p_backtrace_t back_trace;
+  extern  p_backtrace_t back_trace;
 #else
   register p_backtrace_t back_trace __asm__(back_trace_register);
 #endif
@@ -11749,6 +11869,7 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
  but without changing the value of pointer. */
 #define Next(pointer)  (*(STACKpointable(pointer) STACKop -1))
 #define Before(pointer)  (*(STACKpointable(pointer) STACKop 0))
+%% #if !defined(MULTITHREAD)
 %% emit_define("args_end_pointer","STACK");
 %% #if notused
 %% emit_define("set_args_end_pointer(new_args_end_pointer)","STACK = (new_args_end_pointer)");
@@ -11756,6 +11877,7 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
 %% export_def(BEFORE(argpointer));
 %% emit_define("Next(pointer)","(*(STACKpointable(pointer) STACKop -1))");
 %% emit_define("Before(pointer)","(*(STACKpointable(pointer) STACKop 0))");
+%% #endif
 %% #endif
 
 /* Environments: */
@@ -11776,7 +11898,7 @@ typedef struct {
 } gcv_environment_t;
 
 /* The current Environment: */
-extern per_thread gcv_environment_t aktenv;
+extern  gcv_environment_t aktenv;
 
 /* Macro: Puts five single Environments on the STACK
  and makes a single Environment out of them.
@@ -12355,7 +12477,7 @@ typedef struct {
   restartf_t fun;
   gcv_object_t* upto_frame;
 } unwind_protect_caller_t;
-extern per_thread unwind_protect_caller_t unwind_protect_to_save;
+extern  unwind_protect_caller_t unwind_protect_to_save;
 extern /*maygc*/ void unwind (void);
 /* is used by CONTROL, DEBUG, SPVW */
 
@@ -12403,13 +12525,13 @@ typedef struct {
   SPint* sp;
   object spdepth;
 } handler_args_t;
-extern per_thread handler_args_t handler_args;
+extern  handler_args_t handler_args;
 typedef struct stack_range_t {
   struct stack_range_t * next;
   gcv_object_t* low_limit;
   gcv_object_t* high_limit;
 } stack_range_t;
-extern per_thread stack_range_t* inactive_handlers;
+extern  stack_range_t* inactive_handlers;
 /* is used by ERROR */
 
 /* UP: Determines, whether an Object is a function name, ie. a Symbol or
@@ -12562,11 +12684,11 @@ extern maygc object coerce_function (object obj);
   do { var gcv_object_t* top_of_frame = STACK; \
     var object sym_to_bind = (variable);       \
     /* Create frame :                            */\
-    pushSTACK(Symbol_value(sym_to_bind));      \
+    pushSTACK(Symbol_thread_value(sym_to_bind));      \
     pushSTACK(sym_to_bind);                    \
     finish_frame(DYNBIND);                     \
     /* modify value                              */\
-    Symbol_value(sym_to_bind) = (val_to_use);  \
+    Symbol_thread_value(sym_to_bind) = (val_to_use);  \
   } while(0)
 /* is used by IO, EVAL, DEBUG, ERROR */
 
@@ -15725,8 +15847,8 @@ extern maygc object open_file_stream_handle (object stream, Handle *fd, bool per
  < result: the length of the stream
  should be wrapped in begin_system_call()/end_system_call()
  for gdbm module */
-extern off_t handle_length (object stream, Handle fd);
-%% puts("extern off_t handle_length (object stream, Handle fd);");
+extern maygc off_t handle_length (gcv_object_t *stream_, Handle fd);
+%% puts("extern off_t handle_length (gcv_object_t *stream_, Handle fd);");
 
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
@@ -16747,114 +16869,506 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 /* ######################## THREADBIBL for THREAD.D ######################## */
 
 #ifdef MULTITHREAD
+%% #ifdef MULTITHREAD
+  /* every thread keeps chain of pinned objects.
+     usually there will be just a single one (if any), but it is
+     possible with signal handlers to have real chain.*/
+  typedef struct pinned_chain_t {
+    gcv_object_t _o; /* pinned object - will not move during GC */
+    struct pinned_chain_t *_next;
+  } pinned_chain_t;
 
-/* Structure containing all the per-thread global variables.
- (We could use a single instance of this structure also in the single-thread
- model, but it would make debugging less straightforward.) */
-  typedef struct {
-    /* Most often used: */
-      #if !defined(STACK_register)
-        gcv_object_t* _STACK;
-      #endif
-      #if !defined(mv_count_register)
-        uintC _mv_count;
-      #endif
-      #if !defined(value1_register)
-        object _value1;
-      #endif
-      #if !defined(back_trace_register)
-        p_backtrace_t _back_trace;
-      #endif
-    /* Less often used: */
-      #ifndef NO_SP_CHECK
-        void* _SP_bound;
-      #endif
-      void* _STACK_bound;
-      unwind_protect_caller_t _unwind_protect_to_save;
-      #ifdef NEED_temp_mv_count
-        uintC _temp_mv_count;
-      #endif
-      #ifdef NEED_temp_value1
-        object _temp_value1;
-      #endif
-      #ifdef HAVE_SAVED_STACK
-        gcv_object_t* _saved_STACK;
-      #endif
-      #ifdef HAVE_SAVED_mv_count
-        uintC _saved_mv_count;
-      #endif
-      #ifdef HAVE_SAVED_value1
-        object _saved_value1;
-      #endif
-      #ifdef HAVE_SAVED_back_trace
-        p_backtrace_t _saved_back_trace;
-      #endif
-      #if defined(HAVE_SAVED_REGISTERS)
-        struct registers * _callback_saved_registers;
-      #endif
-      uintC _index; /* this thread's index in allthreads[] */
+  /* Structure containing all the per-thread global variables.*/
+  typedef struct clisp_thread_t {
+    /* Most often used (also used by modules - so should be exported) : */
+      gcv_object_t* _STACK;
+      uintC _mv_count;
+      p_backtrace_t _back_trace;
+#ifdef DEBUG_GCSAFETY
+    uintL _alloccount; /* alloccount for this thread */
+#endif
+      /* GC suspend/resume machinery */
+      spinlock_t _gc_suspend_request; /*always signalled unless there is a suspend request. */
+      spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
+      xmutex_t _gc_suspend_lock; /* the mutex on which the thread waits. */
+      uintC _suspend_count; /* how many times this thread has been suspended ? */
+      /* The values of per-thread symbols: */
+      gcv_object_t *_ptr_symvalues; /* allocated separately */
+      object _mv_space [mv_limit-1];
+    /* The lexical environment: */
+      gcv_environment_t _aktenv;
     /* Used for exception handling only: */
       handler_args_t _handler_args;
       stack_range_t* _inactive_handlers;
-    /* Big, rarely used arrays come last: */
-      object _mv_space [mv_limit-1];
-    /* Now the lisp objects (seen by the GC). */
-      /* The Lisp object representing this thread: */
-      object _lthread;
-      /* The lexical environment: */
-      gcv_environment_t _aktenv;
-      /* The values of per-thread symbols: */
-      object _symvalues[unspecified];
-  } clisp_thread_t;
-  #define thread_size(nsymvalues)  \
-    (offsetofa(clisp_thread_t,_symvalues)+nsymvalues*sizeof(gcv_object_t))
-  #define thread_objects_offset(nsymvalues)  \
-    (offsetof(clisp_thread_t,_lthread))
-  #define thread_objects_count(nsymvalues)  \
-    ((offsetofa(clisp_thread_t,_symvalues)-offsetof(clisp_thread_t,_lthread))/sizeof(gcv_object_t)+(nsymvalues))
-
-/* Size of a single thread's stack region. Must be a power of 2. */
-  #define THREAD_SP_SHIFT  22  /* 4 MB should be sufficient, and leaves room */
-                               /* for about 128 threads. */
-  #define THREAD_SP_SIZE  bit(THREAD_SP_SHIFT)
-/* Returns the stack pointer, or some address near the stack pointer. */
-  /* Important for efficiency: Multiple calls to this function within a single
-   function must be combined to a single, inlined call. To reach this, we
-   use __asm__, not __asm__ __volatile__, and we don't use a global register
-   variable. */
-  #if defined(ASM_get_SP_register)
-    #define roughly_SP()  \
-      ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
-  #else
-    #define roughly_SP()  (aint)__builtin_frame_address(0)
-    /* Note: If (__GNUC__ == 2) && (__GNUC_MINOR__ >= 8) && (__GNUC_MINOR__ < 95)
-     one can write
-       #define roughly_SP()  (aint)__builtin_sp()
-     but this isn't efficient because gcc somehow knows that the stack pointer
-     varies across the function (maybe because of our register declaration?). */
-  #endif
-/* Returns a pointer to the thread structure, given the thread's stack pointer. */
-  #ifdef SP_DOWN
-    #ifndef MORRIS_GC
-      #define sp_to_thread(sp)  \
-        (clisp_thread_t*)((aint)(sp) & minus_bit(THREAD_SP_SHIFT))
-    #else
-      /* Morris GC doesn't like the backpointers to have garcol_bit set. */
-      #define sp_to_thread(sp)  \
-        (clisp_thread_t*)((aint)(sp) & (minus_bit(THREAD_SP_SHIFT) & ~wbit(garcol_bit_o)))
-    #endif
-  #endif
-  #ifdef SP_UP
-    #define sp_to_thread(sp)  \
-      (clisp_thread_t*)(((aint)(sp) | (bit(THREAD_SP_SHIFT)-1)) - 0x1FFFF)
-  #endif
-/* Returns a pointer to the current thread structure. */
-  typedef clisp_thread_t* current_thread_function_t (void);
-  local inline const current_thread_function_t current_thread;
-  local inline clisp_thread_t* current_thread (void)
-  { return sp_to_thread(roughly_SP()); }
-
+      unwind_protect_caller_t _unwind_protect_to_save;
+      #ifndef NO_SP_CHECK
+        void* _SP_bound;
+      #endif
+      void* _SP_anchor;
+      gcv_object_t* _STACK_bound;
+      gcv_object_t* _STACK_start;
+      pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
+      uintC _index; /* this thread's index in allthreads[] */
+    /* signal handling stuff - NOT USED actually */
+      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+      /* Set ONLY during IO calls to pipes directed to subprocesses. */
+       bool _writing_to_subprocess;
+      #endif
+      #if defined(PENDING_INTERRUPTS)
+       uintB _interrupt_pending;
+      #endif
+    /* moved here from pathname.d */
+      bool _running_handle_directory_encoding_error;
+#ifdef HAVE_SIGNALS
+    /* do not rely on SA_NODEFER for signal nesting */
+      spinlock_t _signal_reenter_ok;
 #endif
+    /* pointer to the the lisp stack where the CATCH tag for
+       thread termination is located. */
+      gcv_object_t *_thread_exit_tag;
+      bool _own_stack; /* who owns our lisp stack. should it be freed? */
+    /* the current thread. NOT GC VISIBLE. */
+      gcv_object_t _lthread;
+  } clisp_thread_t;
+
+  #define GC_SAFE_SPINLOCK_ACQUIRE(s)                   \
+  do {                                                  \
+    while (!spinlock_tryacquire(s)) {                   \
+      GC_SAFE_POINT_ELSE(xthread_yield());              \
+    }                                                   \
+  } while(0)
+
+
+  /* try to use the compiler support for thread local storage */
+  #if defined(__GNUC__)
+    #if defined (UNIX_LINUX) /* && defined() - add more - the GCC should have built-in support for TLS */
+      #define per_thread __thread
+    #endif
+  #elif defined(__WIN32__) && defined (MICROSOFT)
+    #define  per_thread __declspec(thread)
+  #endif
+  /* If asked for USE_CUSTOM_TLS - it overrides the compiler TLS
+   support - if any. Warn the user. */
+  #if defined(per_thread) && defined(USE_CUSTOM_TLS)
+   #warning "USE_CUSTOM_TLS overrides the compiler per_thread support."
+   #undef per_thread
+  #endif
+
+  #ifdef per_thread
+    extern per_thread clisp_thread_t* _current_thread; /* current_thread pointer */
+    #define current_thread() _current_thread
+    #define set_current_thread(thread) _current_thread=thread
+  #else
+   /* We want MT, but our compiler does not provide built in support for TLS. */
+   /*
+     USE_CUSTOM_TLS={1,2,3}
+     1 - using xthread_key_get/set - slowest one (and probably safest)
+     2 - using slightly modified version of TLS found in Boehm GC for C/C++.
+     3 - using full page map of address space (4 MB).
+     Basically it is trade-off between performance/memory usage:
+     {1} - xthread_key_get/set is 200-500% slower then native compiler TLS.
+     {2} is about 50-100% slower than compiler TLS support and uses
+     just 8 KB.
+     {3} is almost as fast as single threaded and compiler TLS but uses 4 MB.
+
+     NB: {2} and {3} assume 32 bit address space and 4 KB page size (anything other
+     will cause problems).
+   */
+
+   /* If there is no prefered way to perform TLS - fall back to the slowest
+      one (and probably safest).*/
+   #if !defined(USE_CUSTOM_TLS)
+    #define USE_CUSTOM_TLS 1
+   #endif
+
+   /* custom TLS > 1 is available only on 32 bit platforms */
+   #if USE_CUSTOM_TLS > 1 && defined(WIDE_HARD)
+    #error "USE_CUSTOM_TLS > 1  asked on 64 bit machine."
+   #endif
+
+   /* for {2} and {3} we will need access to the stack pointer */
+   #if USE_CUSTOM_TLS >=2
+    #define TLS_SP_SHIFT  12
+    #define TLS_PAGE_SIZE 4096
+    #if defined(ASM_get_SP_register)
+     #define roughly_SP()  \
+        ({ var aint __SP; __asm__ ASM_get_SP_register(__SP); __SP; })
+    #else
+     /* TODO: Win32 MSVC implementation should be here as well (when NO_ASM) */
+     #define roughly_SP()  (aint)__builtin_frame_address(0)
+    #endif
+   #endif
+
+   /* xthread_key_get/set - slowest way to do things.*/
+   #if USE_CUSTOM_TLS == 1
+     extern xthread_key_t current_thread_tls_key;
+     #define current_thread() \
+       ({clisp_thread_t *__thr=(clisp_thread_t *)xthread_key_get(current_thread_tls_key); __thr;})
+     #define set_current_thread(thread) \
+       xthread_key_set(current_thread_tls_key,(void *)thread)
+
+   /* modified version of the code in Boehm C/C++ GC.
+      much faster just 16 KB mem usage.*/
+   #elif USE_CUSTOM_TLS == 2
+     #define TS_CACHE_SIZE 1024
+     #define TSD_CACHE_HASH(n) (((((long)n) >> 8) ^ (long)n) & (TS_CACHE_SIZE - 1))
+     #define TS_HASH_SIZE 1024
+     #define TSD_HASH(n) (((((long)n) >> 8) ^ (long)n) & (TS_HASH_SIZE - 1))
+     #define INVALID_QTID ((unsigned long)0)
+
+     typedef struct thread_specific_entry {
+       volatile long qtid; /*quick thread id, only for cache - atomic store*/
+       void *value; /* clisp_thread_t actually */
+       struct thread_specific_entry *next;
+       xthread_t thread;
+     } tse;
+     typedef struct thread_specific_data {
+       /* A faster index to the hash table */
+       tse * volatile cache[TS_CACHE_SIZE];
+       tse *hash[TS_HASH_SIZE];
+       xmutex_t lock;
+     } tsd;
+     /* global variable the keeps all active threads TLS values */
+     extern tsd threads_tls;
+     /* the slow version for accessing the TLS when the quick cache
+        misses (when the thread stack crosses the VM page boundary). */
+     global void* tsd_slow_getspecific(unsigned long qtid,
+                                       tse * volatile *cache_ptr);
+     /* removes the TLS - should be called on thread exit.
+        NB: It seems not a big deal if not called - but should
+        be tested.*/
+     global void tsd_remove_specific();
+     /* initializes the current thread storage with supplied value.
+       entry should be pre-allocated. May reside on the stack as
+       well - but we have to be sure that it will be valid during
+       the thread lifespan. */
+     global void tsd_setspecific(tse *entry, void *value);
+     /* quick TLS lookup. If there is cache miss - falls back to the slow
+       version (which updates the cache as well). */
+     static inline void *tsd_getspecific()
+     {
+       long qtid = roughly_SP() >> TLS_SP_SHIFT;
+       unsigned hash_val = TSD_CACHE_HASH(qtid);
+       tse * volatile * entry_ptr = threads_tls.cache + hash_val;
+       tse * entry = *entry_ptr;   /* Must be loaded only once. */
+       if (entry->qtid == qtid) {
+         return entry->value;
+       }
+       return tsd_slow_getspecific(qtid, entry_ptr);
+     }
+     #define current_thread() \
+       ({clisp_thread_t *__thr=(clisp_thread_t *)tsd_getspecific(); __thr;})
+     /* NB: really nasty thing in order to have nice build.
+      the __thread_tse_entry should be declared before using the
+      set_current_thread macro !!!! So actually on the entry point of
+      any LISP thread we have to declare it if needed. Fortunately there
+      are just 3 places and no plans for more. */
+     #define set_current_thread(thread)         \
+       tsd_setspecific(__thread_tse_entry,(void *)thread)
+
+    /* fastest TLS - almost matches compiler provided TLS support.
+      maps the SP >> 12 to clisp_thread_t. */
+   #elif USE_CUSTOM_TLS == 3
+     /* the array below is indexed by SP >> 12 (TLS_SP_SHIFT)*/
+     extern clisp_thread_t *threads_map[];
+     #define current_thread() threads_map[roughly_SP() >> TLS_SP_SHIFT]
+     global void set_current_thread(clisp_thread_t *thr);
+   #else
+     #error "USE_CUSTOM_TLS should be defined as 1,2 or 3. See comment."
+   #endif
+  #endif /* !defined(per_thread)*/
+
+  #ifdef STACK_DOWN
+    #define THREAD_LISP_STACK_START(thread) \
+      ((gcv_object_t *)thread->_STACK_bound-0x40)
+  #endif
+  #ifdef STACK_UP
+    #define THREAD_LISP_STACK_START(thread) \
+      ((gcv_object_t *)thread->_STACK_start)
+  #endif
+
+%% puts("#include \"xthread.c\"");
+
+/* VTZ: just the beginning of the structure is exported - what modules want to know about
+   (in order to build) */
+%%  puts("typedef struct {");
+%%  puts("     gcv_object_t* _STACK;");
+%%  puts("     uintC _mv_count;");
+%%  puts("     p_backtrace_t _back_trace;");
+%%  #ifdef DEBUG_GCSAFETY
+%%    puts("     uintL _alloccount;");
+%%  #endif
+%%  puts("     spinlock_t _gc_suspend_request;");
+%%  puts("     spinlock_t _gc_suspend_ack;");
+%%  puts("     xmutex_t _gc_suspend_lock;");
+%%  puts("     uintC _suspend_count;");
+%%  puts("     gcv_object_t *_ptr_symvalues;");
+%%  puts("     object _mv_space [unspecified];");
+%%  puts("} clisp_thread_t;");
+
+%% #ifdef per_thread
+%%  export_def(per_thread);
+%%  puts("extern per_thread clisp_thread_t* _current_thread;");
+%% #else
+%%  #if USE_CUSTOM_TLS == 1
+%%   puts("extern xthread_key_t current_thread_tls_key;");
+%%  #elif USE_CUSTOM_TLS == 2
+%%   export_def(TS_CACHE_SIZE);
+%%   export_def(TS_HASH_SIZE);
+%%   export_def(TSD_CACHE_HASH(qtid));
+%%   export_def(roughly_SP());
+%%   export_def(TLS_SP_SHIFT);
+%%   puts("typedef struct thread_specific_entry {");
+%%   puts("  volatile long qtid;");
+%%   puts("  void *value; ");
+%%   puts("  struct thread_specific_entry *next;");
+%%   puts("  xthread_t thread;");
+%%   puts("} tse;");
+%%   puts("typedef struct thread_specific_data {");
+%%   puts("  tse * volatile cache[TS_CACHE_SIZE];");
+%%   puts("  tse *hash[TS_HASH_SIZE];");
+%%   puts("  xmutex_t lock;");
+%%   puts("} tsd;");
+%%   puts("extern tsd threads_tls;");
+%%   puts("extern void tsd_setspecific(tse *entry, void *value);");
+%%   puts("extern void* tsd_slow_getspecific(unsigned long qtid,tse * volatile *cache_ptr);");
+%%   puts("static inline void *tsd_getspecific() {");
+%%   puts("  long qtid = roughly_SP() >> 12;");
+%%   puts("  unsigned hash_val = TSD_CACHE_HASH(qtid);");
+%%   puts("  tse * volatile * entry_ptr = threads_tls.cache + hash_val;");
+%%   puts("  tse * entry = *entry_ptr;");
+%%   puts("  if (entry->qtid == qtid) {");
+%%   puts("    return entry->value;");
+%%   puts("  }");
+%%   puts("  return tsd_slow_getspecific(qtid, entry_ptr);");
+%%   puts("}");
+%%  #elif USE_CUSTOM_TLS == 3
+%%   export_def(TLS_SP_SHIFT);
+%%   puts("extern clisp_thread_t *threads_map[];");
+%%  #endif
+%% #endif
+
+  #define inactive_handlers current_thread()->_inactive_handlers
+  #define handler_args current_thread()->_handler_args
+  #define unwind_protect_to_save current_thread()->_unwind_protect_to_save
+  #define aktenv current_thread()->_aktenv
+  #define STACK_bound current_thread()->_STACK_bound
+  #define STACK_start current_thread()->_STACK_start
+  #define mv_space current_thread()->_mv_space
+  #define STACK current_thread()->_STACK
+  #define mv_count current_thread()->_mv_count
+  #define back_trace current_thread()->_back_trace
+  #define SP_bound current_thread()->_SP_bound
+  #define SP_anchor current_thread()->_SP_anchor
+  #define break_sems current_thread()->_break_sems
+  #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+   #define writing_to_subprocess current_thread()->_writing_to_subprocess
+  #endif
+  #if defined(PENDING_INTERRUPTS)
+   #define interrupt_pending current_thread()->_interrupt_pending
+  #endif
+  #define running_handle_directory_encoding_error \
+     current_thread()->_running_handle_directory_encoding_error
+
+/* needed for building modules */
+%% export_def(current_thread());
+%% export_def(value1);
+%% export_def(value2);
+%% export_def(value3);
+%% export_def(value4);
+%% export_def(value5);
+%% export_def(value6);
+%% export_def(value7);
+%% export_def(value8);
+%% export_def(value9);
+%% export_def(mv_count);
+%% export_def(back_trace);
+%% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+%%  export_def(writing_to_subprocess);
+%% #endif
+
+
+/* allocates,initializes and returns clisp_thread_t structure.
+   Does not register it in the global thread array.
+   When called the global thread lock should be held.*/
+global clisp_thread_t* create_thread(uintM lisp_stack_depth);
+/* removes the current_thread from the list (array) of threads.
+   Also frees any allocated resource. */
+global void delete_thread(clisp_thread_t *thread, bool full);
+/* register a clisp-thread_t in global thread array
+   thread - the new allocated thread.
+   When called the global thread lock should be held. */
+global int register_thread(clisp_thread_t *thread);
+/* locks the global thread array */
+global void lock_threads();
+/* unlocks global thread array */
+global void unlock_threads();
+/* Suspends all running threads /besides the current/ on GC safe points/regions.
+   if lock_heap is true the heap is locked first.
+   if lock_thr is true - the threads lock is obtained (otherwise it is
+   assumed that the calling thread already has it).
+   (this is needed since GC may be called from allocation or explicitly - when
+   the heap lock is not held - the same for lock_thr) */
+global void gc_suspend_all_threads(bool lock_heap);
+/* Resumes all suspended threads /besides the current/
+   should match a call to suspend_all_threads() */
+global void gc_resume_all_threads(bool unlock_heap);
+/* suspends at safe point and increases the _suspend_count of the thread
+ lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+global void suspend_thread(clisp_thread_t *thr, bool lock_heap);
+/* resumes suspended thread (or just decreases the _suspend_count)
+ lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+global void resume_thread(clisp_thread_t *thr, bool unlock_heap);
+/* releases the clisp_thread_t memory of the list of Thread records */
+global void release_threads (object list);
+/* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
+ symbol: the symbol
+ returns: the new index in the _symvalues thread array */
+global maygc uintL add_per_thread_special_var(object symbol);
+/* Clears any per thread value for symbol. Also set tls_index
+   of the symbol to invalid. */
+global void clear_per_thread_symvalues(object symbol);
+/* O(open_files) needs a global locks when accessed/modified */
+extern xmutex_t open_files_lock;
+
+/* operations on a lisp stack that is not the current one (NC)
+   - ie. belongs to other not yet started threads */
+#ifdef STACK_DOWN
+  #define NC_STACK_(non_current_stack,n)  (non_current_stack[(sintP)(n)])
+#endif
+#ifdef STACK_UP
+  #define NC_STACK_(non_current_stack,n)  (non_current_stack[-1-(sintP)(n)])
+#endif
+#define NC_pushSTACK(non_current_stack,obj)  \
+  (NC_STACK_(non_current_stack,-1) = (obj), non_current_stack skipSTACKop -1)
+
+/* every CALL-WITH-TIMEOUT adds an item in the chain below.
+   upon timeout the thread is interrupted with (THROW TAG) */
+typedef struct timeout_call {
+  clisp_thread_t *thread; /* thread to be interrupted */
+  gcv_object_t *throw_tag; /* pointer to thread STACK */
+  bool failed; /* true if the thread signal has failed */
+  struct timeval *expire;  /* timeout expire time */
+  struct timeout_call *next; /* next timeout call */
+} timeout_call;
+/* lock for the timeout_call_chain */
+extern spinlock_t timeout_call_chain_lock;
+/* chain of sorted by expire time timeout_calls */
+extern timeout_call *timeout_call_chain;
+/* returns true if p1 is before p2 */
+global bool timeval_less(struct timeval *p1, struct timeval *p2);
+
+#if defined(HAVE_SIGNALS)
+  /* SIGUSR1 is used for thread interrupt */
+  #define SIG_THREAD_INTERRUPT SIGUSR1
+  /* SIGUSR2 WILL BE used for CALL-WITH-TIMEOUT */
+  #define SIG_TIMEOUT_CALL SIGUSR2
+  /* installs the global "synchronous" signal handler for async
+   POSIX signals. */
+  global void install_async_signal_handlers();
+ /* the id of the signal handling thread.
+    on linux raise(sig) does not deliver the signal with pthreads.
+    pthread_kill()/xthread_signal() work fine.
+ */
+  extern xthread_t thr_signal_handler;
+#endif
+
+#define WITH_STOPPED_THREAD(thread,lock_heap,statement) \
+  do {                                                  \
+    var bool lh=lock_heap;                              \
+    suspend_thread(thread,lh);                          \
+    statement;                                          \
+    resume_thread(thread,lh);                           \
+  } while(0)
+
+#define GC_STOP_WORLD(lock_heap) \
+  gc_suspend_all_threads(lock_heap)
+#define GC_RESUME_WORLD(unlock_heap) \
+  gc_resume_all_threads(unlock_heap)
+
+/* all calls to GC should be via this macro.
+ The statement is executed. If lock_heap is true the heap is locked first.
+ (this is needed since GC may be called from allocation or explicitly - when
+ the heap lock is not held). */
+#define WITH_STOPPED_WORLD(lock_heap,statement) \
+    do {         \
+      var bool lh=lock_heap; \
+      GC_STOP_WORLD(lh);   \
+      statement;        \
+      GC_RESUME_WORLD(lh);                      \
+    } while(0)
+
+  #ifndef DEBUG_GCSAFETY
+    #define PERFORM_GC(statement,lock_heap) \
+      WITH_STOPPED_WORLD(lock_heap,statement)
+  #else /* DEBUG_GCSAFETY */
+    /* if we trigger GC from allocate_xxxx, than we already have
+     stopped the world and will resume it at exit.*/
+    #define PERFORM_GC(statement,lock_heap) \
+      do {\
+        if (lock_heap) WITH_STOPPED_WORLD(true,statement); else statement; \
+      }while(0)
+    extern uintL* current_thread_alloccount();
+  #endif
+
+  /* pin/unpin varobject in lisp heap. pin is protected
+     with unwind-protect frame. */
+  #define unpin_varobject_i(vo) \
+    do {\
+      var pinned_chain_t **p=&(current_thread()->_pinned); \
+      while (*p && !eq((*p)->_o, vo)) *p = (*p)->_next;    \
+      if (*p) *p=(*p)->_next;                              \
+    } while(0)
+  #define unpin_varobject(vo) \
+    do {\
+      skipSTACK(3);\
+      unpin_varobject_i(vo);\
+    } while(0)
+  /* not quite good styled macro, but since it should be paired with
+     unpin_varobject() - we cannot "indent" it in a block {} */
+  #define pin_varobject(vo)\
+    pushSTACK(vo);                                      \
+    var gcv_object_t* top_of_frame = STACK;\
+    var sp_jmp_buf returner;\
+    finish_entry_frame(UNWIND_PROTECT,returner,, {\
+      var restartf_t fun = unwind_protect_to_save.fun;\
+      var gcv_object_t* upto = unwind_protect_to_save.upto_frame;\
+      var gcv_object_t po;\
+      skipSTACK(2);\
+      po=popSTACK();\
+      unpin_varobject_i(po);\
+      fun(upto); \
+    });\
+    var pinned_chain_t pc;\
+    pc._o=vo;\
+    pc._next=current_thread()->_pinned;\
+    current_thread()->_pinned=&pc;
+
+#else /* ! MULTITHREAD */
+%% #else
+  #define pin_varobject(vo)
+  #define unpin_varobject(vo)
+  #define GC_STOP_WORLD(lock_heap)
+  #define GC_RESUME_WORLD(unlock_heap)
+  #define PERFORM_GC(statement,lock_heap) statement
+#endif
+%% #endif
+
+%% export_def(pin_varobject(vo));
+%% export_def(unpin_varobject(vo));
+
+#ifdef DEBUG_GCSAFETY
+  /* Add support for the 'mv_space' expression to the GCTRIGGER1/2/... macros.*/
+  inline void inc_allocstamp (object (&mvsp)[mv_limit-1]) {
+    inc_allocstamp(value1);
+    var uintC count = mv_count;
+    if (count > 1) {
+      var object* mvp = &mv_space[1];
+      dotimespC(count,count-1, { inc_allocstamp(*mvp++); });
+    }
+  }
+#endif
+
 
 /* ######################## BUILTBIBL for BUILT.D ######################## */
 

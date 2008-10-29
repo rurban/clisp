@@ -468,6 +468,22 @@ local /*maygc*/ void make_variable_frame
             /* store special-declared symbol in stack: */
             pushSTACK(specdecl); /* SPECDECL as "value" */
             pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
+            #if defined(MULTITHREAD)
+             /* this is locally declared special variable. make it per thread
+                if not already.*/
+             if (TheSymbol(declsym)->tls_index == SYMBOL_TLS_INDEX_NONE) {
+               /* this call is may gc now */
+               pushSTACK(value1); pushSTACK(value2);          /* save */
+               pushSTACK(caller); pushSTACK(varspecs);        /* save */
+               pushSTACK(declarations); pushSTACK(declspecs); /* save */
+               pushSTACK(declspec);                           /* save */
+               add_per_thread_special_var(declsym);
+               declspec = popSTACK();
+               declspecs = popSTACK(); declarations = popSTACK(); /* restore */
+               varspecs = popSTACK(); caller = popSTACK();        /* restore */
+               value2 = popSTACK(); value1 = popSTACK();          /* restore */
+             }
+            #endif
             check_STACK();
             spec_count++;
           }
@@ -617,8 +633,8 @@ local void activate_bindings (gcv_object_t* frame_pointer, uintC count) {
     if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
       var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
       var object newval = *(markptr STACKop varframe_binding_value); /* new value */
-      *(markptr STACKop varframe_binding_value) = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-      TheSymbolflagged(symbol)->symvalue = newval; /* new value */
+      *(markptr STACKop varframe_binding_value) = Symbolflagged_value(symbol); /* save old value in frame */
+      Symbolflagged_value(symbol) = newval; /* new value */
     }
     *markptr = SET_BIT(*markptr,active_bit_o); /* activate binding */
   } while (--count);
@@ -692,8 +708,8 @@ LISPSPECFORM(letstar, 1,0,body)
         var object newval = (!boundp(init) ? NIL : (eval(init),value1)); /* evaluate, NIL as default */
         if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* binding dynamic? */
           var object symbol = *(markptr STACKop varframe_binding_sym); /* variable */
-          *initptr = TheSymbolflagged(symbol)->symvalue; /* save old value in frame */
-          TheSymbolflagged(symbol)->symvalue = newval; /* new value */
+          *initptr = Symbolflagged_value(symbol); /* save old value in frame */
+          Symbolflagged_value(symbol) = newval; /* new value */
           activate_specdecl(symbol,spec_ptr,spec_count);
         } else {
           *initptr = newval; /* new value into the frame */
@@ -1782,8 +1798,8 @@ LISPSPECFORM(multiple_value_bind, 2,0,body)
      {var gcv_object_t* markptr = &Before(frame_pointer);               \
        if (as_oint(*markptr) & wbit(dynam_bit_o)) { /* dynamic binding: */ \
         var object sym = *(markptr STACKop varframe_binding_sym); /* var */ \
-        *valptr = TheSymbolflagged(sym)->symvalue; /* old val into the frame */ \
-        TheSymbolflagged(sym)->symvalue = (value); /* new value into the value cell */ \
+        *valptr = Symbolflagged_value(sym); /* old val into the frame */ \
+        Symbolflagged_value(sym) = (value); /* new value into the value cell */ \
         activate_specdecl(sym,spec_ptr,spec_count);                     \
       } else /* static binding : */                                     \
         *valptr = (value); /* new value into the frame */               \
@@ -2095,6 +2111,11 @@ LISPFUNN(proclaim,1)
       if (!keywordp(symbol))
         clear_const_flag(TheSymbol(symbol));
       set_special_flag(TheSymbol(symbol));
+      #if defined(MULTITHREAD)
+       /* MT: add to the threads (empty) if not already there */
+       if (TheSymbol(symbol)->tls_index == SYMBOL_TLS_INDEX_NONE)
+         add_per_thread_special_var(symbol);
+      #endif
     }
   } else if (eq(decltype,S(notspecial))) { /* NOTSPECIAL */
     while (!endp( STACK_0/*declspec*/ = Cdr(STACK_0/*declspec*/) )) {

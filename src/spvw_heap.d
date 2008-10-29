@@ -61,6 +61,11 @@ typedef struct {
                      PROT_READ_WRITE : only the page is valid. */
   uintL cache_size;         /* number of cached pointers */
   old_new_pointer_t* cache; /* cache of all pointers into the new generation */
+#if defined(MULTITHREAD)
+  /* during fault handling we have to allow a single thread to 
+     change this page cache */
+  spinlock_t cache_lock;
+#endif
 } physpage_state_t;
 #endif
 
