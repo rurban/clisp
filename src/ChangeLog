@@ -1,5 +1,12 @@
 2008-10-29  Sam Steingold  <sds@gnu.org>
 
+	* configure: replace "grep -e" with "grep" because Solaris 10
+	/usr/bin/grep does not support this option even though it is
+	standardized by http://www.opengroup.org/susv3/utilities/grep.html
+	Reported by Raymond Toy <raymond.toy@ericsson.com>
+
+2008-10-29  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): avoid a compilation warning;
 	use ascii_to_string() instead of asciz_to_string() for simplicity
 
