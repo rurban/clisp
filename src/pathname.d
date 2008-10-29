@@ -7253,7 +7253,7 @@ local maygc object direntry_to_string (char* string, int len) {
   if (eq(T,value2)) O(pathname_encoding) = encoding; /* STORE-VALUE restart */
   goto restart_direntry_to_string;
 #else
-  n_char_to_string(string,len,O(pathname_encoding));
+  return n_char_to_string(string,len,O(pathname_encoding));
 #endif
 }
 
