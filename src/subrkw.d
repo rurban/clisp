@@ -216,7 +216,7 @@ v(1, (kw(full)))
 s(foreign_free)
 #endif
 #ifdef MULTITHREAD
-v(1, (kw(name)))
+v(4, (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_depth)))
 s(make_thread)
 #endif
 v(7, (kw(name),kw(code),kw(constants),kw(seclass),kw(lambda_list),kw(documentation),kw(jitc_p)) )

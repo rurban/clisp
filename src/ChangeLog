@@ -1,3 +1,18 @@
+2008-10-29  Sam Steingold  <sds@gnu.org>
+
+	Merge the [threads] branch into the trunk
+	* constobj.d, constsym.d, control.d, debug.d, error.d, eval.d,
+	* lispbibl.d, makemake.in, package.d, pathname.d, savemem.lisp,
+	* spvw.d, spvw_allocate.d, spvw_circ.d, spvw_fault.d, spvw_garcol.d,
+	* spvw_gcmark.d, spvw_genera1.d, spvw_global.d, spvw_heap.d,
+	* spvw_memfile.d, spvw_sigint.d, spvw_sigpipe.d, spvw_sigterm.d,
+	* spvw_typealloc.d, spvw_update.d, stream.d, subr.d, subrkw.d,
+	* symbol.d, threads.lisp, time.d, xthread.d, zthread.d: merge
+	* spvw_garcol_old.d: the pre-MT garbage collector, enabled by
+	NO_MULTITHREAD_GC in lispbibl.d
+	* makemake.in (SPVW_INCLUDES): add spvw_garcol_old
+	* po/Makefile.devel (DSOURCES): ditto
+
 2008-10-28  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2198109 ]: LOAD-LOGICAL-PATHNAME-TRANSLATIONS
@@ -666,6 +681,1027 @@
 	permissive_p to allow retuning nullobj instead of signaling an error
 	(open_file_stream_handle): accept permissive_p
 	* lispbibl.d (open_file_stream_handle): update the prototype
+
+2008-10-27  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Code cleanup
+	* lispbibl.d (unpin_varobject_i): remove just a single
+	pinned object from the chain (anyway it was not possible
+	to remove more).
+	* zthread.d (remove_timeout_call): iterate with single
+	variable over the timeout_call_chain.
+
+2008-10-27  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Fix single thread build
+	* pathname.d (openp): use open_files_lock only in MT.
+	* stream.d (add_to_open_streams): use open_files_lock only in MT.
+	(find_open_file): use open_files_lock only in MT.
+
+2008-10-26  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GC safe regions on system calls in pathname.d
+	* lispbibl.d (clisp_thread_t): reordered the fields. Most used
+	are first. added _running_handle_directory_encoding_error - global
+	variable in pathname.d
+	(open_files_lock): global mutex guarding access/modifications of
+	O(open_files).
+	* spvw.d (init_multithreading): initialize open_files_lock.
+	* stream.d (open_files_lock): declaration.
+	(add_to_open_streams): serialize calls via open_files_lock.
+	(find_open_file): maygc. serialize calls via open_files_lock.
+	* pathname.d: added GC safe regions around possibly blocking
+	system calls.
+	(openp): maygc. serialize calls via open_files_lock.
+
+2008-10-20  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Code cleanup.
+	* spvw.d (signal_handler_thread): better comment.
+	* spvw_global.d (gc_resume_all_threads): code cleanup (removed
+	garbage code).
+
+2008-10-20  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	CALL-WITH-TIMEOUT bugfix and user warning on failure.
+	* lispbibl.d (struct timeout_call): added new member - failed -
+	set to true if thread has failed to be interrupted.
+	* spvw.d (signal_handler_thread): on SIGINT abort if no thread can
+	be interrupted. on SIGALRM (CALL-WITH-TIMEOUT) just mark the
+	timeout_call as failed if xthread_signal() fails. on termination
+	signals - call quit() if some thread cannot be signaled.
+	* spvw_global.d (gc_resume_all_threads): before resuming threads -
+	report failed timeout_calls if any.
+	* zthread.d (remove_timeout_call): is maygc now. acquires the
+	timeout_call_chain lock before executing. If the timeout_call has
+	failed - reports it as warning.
+	(CALL-WITH-TIMEOUT): bugfix when the timeout is fraction number and
+	there is overflow in microseconds.
+	* pathname.d: sync with CVS head.
+
+2008-10-17  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	CALL-WITH-TIMEOUT fix on linux. Code cleanup
+	* lispbibl.d (main_threadp): removed. no more special LISP threads.
+	(thr_signal_handler): declaration of the id of the signal handling
+	thread (needed for process signal raising).
+	* spvw.d (main): initialize thr_signal_handler.
+	(signal_handling_thread): SIGALRM and SIG_TIMEOUT_CALL handled the
+	same way. May be abandon SIG_TIMEOUT_CALL in future.
+	* spvw_garcol.d (gar_col_normal): fix the single threaded build.
+	* zthread.d: comments added.
+	(CALL-WITH-TIMEOUT): use pthread_kill()/xthread_signal() instead of
+	raise(sig). On 32 bit Debian(2.6 kernel) the raise()-ed signals are
+	not delivered to the sigwait().
+
+2008-10-16  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Fix declaration of timeout_call_chain and timeout_call_chain_lock.
+	* lispbibl.d: timeout_call_chain and timeout_call_chain_lock
+	declared as extern.
+
+2008-10-16  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	CALL-WITH-TIMEOUT implemented. CATCH frame for THREAD-KILL.
+	* lispbibl.d (clisp_thread_t): _dummy_stack_end is replaced by
+	_thread_exit_tag. for immediate thread exit (with stack unwind)
+	the tag pointed by it should be thrown in the thread context.
+	(struct timeout_call): structure for describing CALL-WITH-TIMEOUT call
+	in progress.
+	(timeout_call_chain): global chain of timeout_call(s) sorted by their
+	expiration time.
+	(timeout_call_chain_lock): spinlock for guarding the access to
+	timeout_call_chain.
+	(timeval_less): compares two timeval structures.
+	* spvw.d (main_actions): establish CATCH frame for thread exit
+	before calling driver().
+	(acquire_heap_and_threads_locks): renamed to lock_heap_from_signal. Now
+	it acquires only the heap lock and ensures that there is no GC in
+	progress (and will not be possible until signal handler releases it).
+	(timeval_subtract): subtracts two timeval structures. used for
+	computing SIGALRM time.
+	(signal_handler_thread): handle SIGALRM and SIG_TIMEOUT_CALL signals
+	i.e. CALL-WITH-TIMEOUT without spawning new OS thread.
+	* spvw_global.d (gc_suspend/resume_all_threads): no need to keep
+	the threads lock while all threads are suspended. Makes signals
+	handler thread easier.
+	(gc_suspend_count): now it is guarded by the heap lock ("guarded" from
+	the signal handler thread).
+	* time.d (SYSTEM::%SLEEP): do not use sleep()/usleep() in
+	multithread builds since.
+	* eval.d (reset): restored it. no more "dummy stack end" for
+	thread exit.
+	* threads.lisp (%THROW_TAG): throws it's argument. Needed in order
+	to interrupt thread by from signal handler. (THROW is special form
+	and cannot be funcall-ed).
+	* constsym.d (thread_throw_tag): symbol for accessing the
+	%THROW_TAG function from THREADS package.
+	* zthread.d (ensure_uint32): removed - not need for it.
+	(thread_stub): establish CATCH frame for thread exit before the
+	driver frame.
+	(MAKE-THREAD): initialize the _thread_exit_tag for the newly created
+	thread.
+	(insert_timeout_call): inserts new timeout call into the sorted chain
+	of pending ones (timeout_call_chain). Should be called with lock held.
+	(remove_timeout_call): removes an item from timeout_call_chain. Should
+	be called with the lock held.
+	(CALL-WITH-TIMEOUT): implemented without spawning OS threads.
+	(THREAD-KILL): use THREAD-INTERRUPT and %THROW_TAG.
+
+2008-10-15  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Fix possible race condition during SIGINT handling.
+	* spvw.d (acquire_heap_and_threads_locks): acquires global locks
+	from signal handler without causing deadlock.
+	(signal_handler_thread): fix possible race condition in SIGINT
+	handling. use acquire_heap_and_threads_locks.
+
+2008-10-15  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	DEBUG_GCSAFETY fixes in signal handler thread.
+	* spvw.d (signal_handler_thread): use_dummy_alloccount can be
+	used only when the LISP threads are suspended.
+
+2008-10-14  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Signal handling code cleanup.
+	* lispbibl.d: export updated (with _suspend_count) clisp_thread_t
+	to modules. Suspend and resume always lock the threads and do not
+	care anymore whether the lock has been already acquired (since all
+	mutexes are recursive now).
+	(gc_suspend/resume_all_threads): does not take lock_threads anymore.
+	(GC_STOP/RESUME_WORLD): does not take lock_threads anymore.
+	(WITH_STOPPED_WORLD): does not take lock_threads anymore. parameters
+	reordered.
+	* spvw.d (for_all_threads): traverse the threads array in
+	ascending order (most of the time gives more natural SIGINT handling).
+	(interrupt_thread_signal_handler): release the "ok to reenter" spinlock
+	before "entering LISP land".
+	(signal_handler_thread): more sane signal handling. No signal will be
+	missed due to GC in progress.
+	* spvw_global.d (gc_suspend/resume_all_threads): does not take
+	lock_thread parameter anymore. always acquires threads lock (it's
+	safe due to the fact that all mutexes are recursive now).
+	(add_per_thread_special_var): code cleanup.
+	* spvw_allocate.d: changes due to GC_STOP/RESUME_WORLD parameter change.
+	* spvw_garcol.d (gc_sweep1_varobject_page): assert and abort on
+	impossible case (that will lead to segfault shortly if happens).
+	(fill_varobject_heap_holes): assert if the created object for hole
+	filling does not have the same length as the heap hole.
+	* zthread.d (MAKE-THREAD): clisp_thread_t allocation is guarded
+	by the threads lock (because of add_per_thread_special_var()
+	possible race condition).
+	(THREAD-INTERRUPT): returns two values - the thread itself and T/NIL
+	depending whether it has really tryed to interrupt the thread (in case
+	the thread has terminated or there is some OS error - the second
+	return value is NIL).
+	(THREAD-KILL): same as THREAD-INTERRUPT.
+	* xthread.d (xmutex_init): make it recursive on Solaris.
+	(xmutext_trylock): define it on Solaris.
+
+2008-10-14  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Pinned varobjects and signal handling fixes.
+	* lispbibl.d (WITH_STOPPED_WORLD): parameters reordered.
+	* spvw.d (signal_handler_thread): fixed race condition between GC
+	and signal handler.
+	(lock_heap_from_signal_thread): removed
+	* spvw_garcol.d (gc_sweep1_varobject_page): fixed the pinned
+	objects handling.
+	(fill_varobject_heap_holes): checks for heap corruption.
+	TODO: fill holes in string heap in SPVW_PURE.
+	(gar_col_normal): compute the number of possible heap holes before
+	allocation of varobj_mem_region arrays.
+	* spvw_global.d (add_per_thread_special_var): reorder parameters
+	to  WITH_STOPPED_WORLD.
+	* zthread.d (ensure_uint32): fixed missing return type.
+
+2008-10-10  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Per thread suspend/resume as GC safe points.
+	* lispbibl.d (struct clisp_thread_t): new member - _suspend_count.
+	Specifies how many times the thread has been suspended.
+	(WITH_STOPPED_THREAD): macro for executing statement ensuring that
+	a thread is either terminated or suspended at safe point (used by
+	THREAD-INTERRUPT and THREAD-KILL).
+	(suspend_thread/resume_thread): global functions declaration.
+	* spvw.d: comments added
+	(lock_heap_from_signal_thread): function for locking the LISP heap
+	when executing in the signal handling thread (should wait for GC to
+	finish if in progress).
+	(signal_handler_thread): use lock_heap_from_signal_thread().
+	* spvw_global.d (suspend_thread/resume_thread): suspend/resume
+	LISP thread execution at/from GC safe point.
+	(gc_suspend_all_threads/gc_resume_all_threads): changed in order to take
+	into account the threads _suspend_count(s).
+	* zthread.d (THREAD-INTERRUPT): use WITH_STOPPED_THREAD instead of
+	WITH_STOPPED_WORLD.
+	(THREAD-KILL): use WITH_STOPPED_THREAD instead of WITH_STOPPED_WORLD.
+
+2008-10-09  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Signals loss fix. Docs update. :VSTACK-SIZE --> :VSTACK_DEPTH
+	* zthread.d/subr.d/subrkw.d/constsym.d/threads.lisp/spvw.d:
+	*DEFAULT-VALUE-STACK-SIZE* and :VSTACK-SIZE renamed
+	to *DEFAULT-VALUE-STACK-DEPTH* and :VSTACK-DEPTH.
+	* lispbibl.d (clisp_thread_t): new spinlock: _signal_reenter_ok
+	preventing loss of SIG_THREAD_INTERRUPT signal (a signal is sent
+	only when this lock is held).
+	(GC_SAFE_SPINLOCK_ACQUIRE): macro for GC friendly spinlock acquire.
+	* spvw.d (allocate_list_thread_stack): the parameter is stack depth now.
+	(create_thread): the parameter is stack depth now.
+	(main): after creating main_actions() thread - set the current
+	TLS clisp_thread_t to NULL - not in LISP world anymore.
+	(interrupt_thread_signal_handler): release the "ok to reenter" spinlock
+	after signal re-establishment.
+	* spvw_global.d (ACQUIRE_HEAP_LOCK): use GC_SAFE_SPINLOCK_ACQUIRE.
+	* zthread.d (MAKE-THREAD): :VSTACK-DEPTH change.
+	(THREAD-KILL): fixed. there was race condition problem (many calls for
+	the same thread).
+	(THREAD-INTERRUPT): be sure that the signal will be received before
+	sending it (i.e. "ok to reenter" spinlock).
+	* threads.lisp (*DEFAULT-CONTROL-STACK-SIZE*): initialized to 1 MB.
+
+2008-10-08  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	All threads equal citizens (main not special). Stack sizes settable.
+	* lispbibl.d: do not use break_sems in MT builds.
+	* spvw.d: main thread is not different than ones created by
+	MAKE-THREAD anymore (almost - LISP stack is "leaked" on exit).
+	fixed signal handler with DEBUG_GCSAFETY.
+	(init_memory): initialize THREADS::*DEFAULT-VALUE-STACK-SIZE*.
+	(mt_main_actions): wrapper for main_actions() executed in it's own
+	thread.
+	(main): the thread (C thread) executing  main() does the signal
+	handling - after creating mt_main_actions() thread.
+	(signal_handler_thread): fix DEBUG_GCSAFETY. ignore SIGHUP and
+	SIGCONT on UNIX_MACOSX until I know how to handle them (vfork()
+	causes SIGHUP and may be SIGCONT).
+	(install_async_signal_handlers): do not start thread for signal
+	handling - now it is done from main().
+	* spvw_global.d (RESERVE_FOR_MALLOC): in MT build increased to 4
+	MB (LISP stacks and symvalues are allocated - currently - via malloc().
+	Probably completely different way for stack allocation is needed).
+	* constsym.d: added THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C stack) and
+	THREADS::*DEFAULT-VALUE-STACK-SIZE* (LISP stack).
+	* subr.d, subrkw.d (make_thread): add :CSTACK-SIZE and
+	:VSTACK-SIZE keywords parameters
+	* threads.lisp: added THREADS::*DEFAULT-CONTROL-STACK-SIZE* (C
+	stack) and THREADS::*DEFAULT-VALUE-STACK-SIZE* (LISP stack)
+	* zthread.d (ensure_uint32): ensures that its integer argument
+	 (object) can fit in uint32
+	(MAKE-THREAD): added :CSTACK-SIZE and :VSTACK-SIZE keywords parameters.
+	(THREAD-KILL): do not wait on the killed thread to exit.
+	* xthread.d (xthread_create): POSIX - create detached threads and
+	sets the stack size.
+	(xthread_wait): removed - no thread join.
+	* pathname.d: added to CVS "threads" branch
+	(EXECUTE): wait2 surrounded by GC safe region (many other places
+	have the same requirement).
+
+2008-10-07  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	debug.d added to threads branch.
+	* debug.d: added (there is a call to GC that has to stop the  world).
+
+2008-10-07  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Implementation of THREAD-INTERRUPT, THREAD-KILL and SIGTERM signals.
+	* lispbibl.d (clisp_thread_t): two new members. _own_stack -
+	whether the thread should release the memory for the LISP stack on exit.
+	_dummy_stack_end - pointer in the stack of the thread used for hiding
+	the top level driver frame (revealed on thread termination).
+	* spvw.d (create_thread): sets the _own_stack depending whether
+	the memory for the stack was allocated in it.
+	(delete_thread): calls quit() on exiting from the last thread.
+	(signal_handler_thread): implement termination signals.
+	(main): never exits - even on main thread termination (see comment).
+	(main_actions): create the top level driver and hide it via the
+	"dummy stack end" - will be revealed only on forced termination.
+	* eval.d (reset): reveal the stack beyond the "dummy stack end" if
+	needed - the top level driver frame.
+	* zthread.d (thread_stub): mark the "dummy stack end" after the
+	driver frame.
+	(THREAD-INTERRUPT): implemented.
+	(THREAD-KILL): implemented (via THREAD-INTERRUPT and dummy stack end).
+
+2008-10-07  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Signal handling implementation of SIGINT and SIG_THREAD_INTERRUP
+	* lispbibl.d: synced with CVS head
+	(interruptp): not used in MT.
+	* error.d: added to threads branch.
+	(tast_break): do nothing in MT.
+	* constsym.d (THREAD-RESTART): removed.
+	* constobj.d (thread_break_description): string "CTRL-C: User
+	break", since from the signal handler thread we cannot allocate
+	any lisp object.
+	* subr.d (THREAD-RESTART): removed.
+	* spvw.d: synced with CVS head
+	(signal_handler_thread): implemented CTRL-C signal handler.
+	(interrupt_thread_signal_handler): implemented.
+	* spvw_sigint.d: use it only in single thread builds
+	* spvw_sigterm.d: use it only in single thread builds
+	* spvw_typealloc.d (allocate_thread): do not initialize the xth_system.
+	* spvw_weak.d: sync with CVS head
+	* time.d (%SLEEP): end_blocking_call() in case of error in select().
+	* xthread.d (xthread_init): use pthread_mutexattr_settype instead
+	of "np" version.
+	(xthread_signal): wrapper for pthread_kill().
+	* zthread.d (THREAD-RESTART): removed.
+	(thread_symbol_place): use eq() for checking  empty symvalue.
+	(CALL-WITH-TIMEOUT): removed broken implementation.
+	* threads.lisp (THREAD-RESTART): removed from export list.
+	(THREADS::*THREAD-WHOSTATE*): special variable for thread's whostate.
+
+2008-10-06  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	SYMBOL-VALUE-THREAD implementation.
+	* spvw.d (main): give name to first thread - "main thread".
+	* subr.d: removed SYMBOL-GLOBAL-VALUE and SYMBOL-THREAD-VALUE.
+	added SYMBOL-VALUE-THREAD.
+	* constsym.d: removed SYMBOL-GLOBAL-VALUE and SYMBOL-THREAD-VALUE.
+	added SYMBOL-VALUE-THREAD and SET-SYMBOL-VALUE-THREAD.
+	* zthread.d (SYMBOL-VALUE-THREAD): returns two values - global/per
+	thread symbol binding and BOUND-P boolean (as of -
+	http://article.gmane.org/gmane.lisp.clisp.devel/19153)
+	(SET-SYMBOL-VALUE-THREAD): used for SETF of the SYMBOL-THREAD-VALUE.
+	(thread_symbol_place): helper function returning pointer to symbol
+	binding (in thread or global).
+	(MAKE-THREAD): make :NAME parameter is required - every thread
+	should have name.
+	(check-thread): thread argument replacement (when not a thread is
+	passed).
+	* threads.lisp: export SYMBOL-VALUE-THREAD and define SETF for it.
+
+2008-10-05  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	MT signal handling partial implementation.
+	* lispbibl.d (NC_STACK_): moved here from zthread.d.
+	(NC_pushSTACK): moved here from zthread.d.
+	(SIG_THREAD_INTERRUPT): signal used for interrupting thread
+	execution (SIGUSR1).
+	* spvw.d: MT signal processing machinery moved here from
+	zthread.d (needs macros like for_all_threads() and we do not want
+	to expose the threads internals - i.e. allthreads[] array).
+	(async_signal_mask): returns the signal mask including all async
+	signals that have to be handled/blocked.
+	(install_async_signal_handlers): implemented.
+	(signal_handler_thread): the signal handling thread. partially
+	implemented.
+	(interrupt_thread_signal_handler): SIG_THREAD_INTERRUPT handler.
+	just a stub - to be implemented.
+	* zthread.d: MT signal processing stuff moved to spvw.d. "Foreign"
+	stack access macros moved to lispbibl.d.
+
+2008-10-05  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Small fixes
+	* constsym.d (LISPSYM_B): initialize the filler member for
+	LINUX_NOEXEC_HEAPCODES and MULTITHREAD.
+	* xthread.d: better handling of pthreads with recursive mutex
+	support.
+
+2008-10-05  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Small fixes and initial signal handling routines.
+	* lispbibl.d (install_async_signal_handlers): install global async
+	signal handlers in MT (starts non-lisp thread waiting with
+	sigwait() for masked signals)
+	* spvw.d (main): do not install normal handlers for async signals in MT.
+	(recursive_mutexattr): cached global mutex attribute for recursive
+	mutex creation (if supported by pthreads).
+	* spvw_allocate.d: just formatting
+	* spvw_global.d (add_per_thread_special_var): symbol_index was
+	declared twice.
+	* constsym.d (symbol-thread-value): added.
+	* subr.d (symbol-thread-value): added.
+	* zthread.d (thread_stub): initialize thread backtrace (important
+	on errors). fix the lisp stack handling in case of errors.
+	(symbol-thread-value): added and implemented.
+	(install_async_signal_handlers): added - still not implemented.
+	* xthread.d: xmutex_t should be recursive mutex - because of WIN32
+	CRITICAL_SECTION that is always recursive (we want to have same
+	behavior on all platforms).
+	Implemented for POSIX_THREADS in case the pthreads implementation
+	does not already support it.
+	* threads.lisp (symbol-thread-value): exported from MT package.
+
+2008-10-03  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+	Driver frame for new threads and initial special vars bindings
+
+	* lispbibl.d (threadp): macro for testing if an object is lisp
+	thread object.
+	* spvw.d (delete_thread): do not free per thread symvalues - leave
+	them to release_threads (during GC).
+	* zthread.d: some comments
+	(release_threads): release the per thread symvalues.
+	(error_thread): signal type_error for it's argument (as error_list).
+	(thread_stub): create a driver frame before calling thread function.
+	compute initial special variables bindings before calling thread
+	function.
+	(MAKE-THREAD): additional &key parameter - initial bindings. defaults
+	to mt:*default-special-bindings*.
+	(THREADP): implemented.
+	(THREAD-NAME): implemented.
+	(THREAD-ACTIVE-P): implemented.
+	(SYMBOL-GLOBAL-VALUE): new function - returns the global symbol value.
+	* constsym.d (symbol_global_value): added.
+	(default_special_bindings): added.
+	(initial_bindings): keyword added.
+	* subr.d (MT:MAKE-THREAD): add :initial-bindings keyword parameter.
+	(MT:SYMBOL-GLOBAL-VALUE): added.
+	* subrkw.d: change MAKE-THREAD definition to accept :initial-bindings.
+	* threads.lisp (SYMBOL-GLOBAL-VALUE): exported.
+	(*DEFAULT-SPECIAL-BINDINGS*): exported and initialized.
+
+2008-09-26  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Status update and (delete-package) per thread symbols release
+	* spvw.d (clear_per_thread_symvalues): is not maygc.
+	* symbol.d (proclaim_constant): because of clear_per_thread_symvalues().
+	* package.d (delete_package_aux): remove possible per thread
+	bindings of package symbols.
+
+2008-09-26  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Thread safety fixes (for special variables)
+	* lispbibl.d (clear_per_thread_symvalues): maygc while waiting for
+	threads lock.
+	(GC_STOP/RESUME_WORLD): additional parameter indicating whether we
+	already own the threads lock.
+	(WITH_STOPPED_WORLD): previously was _PERFORM_GC. added parameter.
+	(PERFORM_GC): use WITH_STOPPED_WORLD
+	* spvw.d (lock/unlock_threads): mutex locking surrounded with
+	begin/end_system_call().
+	(add_per_thread_special_var): moved to spvw_global.d (since it may
+	"stop the world").
+	(clear_per_thread_symvalues): maygc while waiting for threads lock.
+	* spvw_global.d (add_per_thread_special_var): moved here from
+	spvw.d. will "stop the world" when reallocating threads symvalues.
+	(gc_suspend/resume_all_threads): additional parameter indicating
+	whether to acquire the thread lock (it's not recursive and the
+	caller may already own it).
+	* spvw_allocate.d: pass additional parameter to GC_STOP/RESUME_WORLD().
+	* eval.d (interpret_bytecode_): fix GCSAFETY in cod_bind.
+	* symbol.d (proclaim_constant): fix GCSAFETY.
+	* zthread.d: replace begin/end blocking system calls with
+	begin/end blocking calls while locking threads.
+	* savemem.lisp (saveinitmem): do not bind global symbols before
+	saving since this will create per thread bindings that will not
+	survive loadmem().
+
+2008-09-25  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Per thread "local special variables" and compiled closures support.
+	* lispbibl.d (Symbol_thread_value): new macro used by
+	dynamic_bind.  Empty per thread symvalues can be bound.
+	(dynamic_bind): use Symbol_thread_value instead of Symbol_value.
+	* spvw.d (add_per_thread_special_var): maygc. fix possible race
+	condition.
+	(initmem): allocate per thread variables before init_object_tab() -
+	so *features* is not defined as per thread.
+	* eval.d (interpret_bytecode_): handle special variables (cod_bind)
+	* control.d (make_variable_frame): handle local special variables
+	* spvw_garcol.d (gc_sweep2_varobject_page): add special case:
+	!defined(NO_symbolflags) and !(SPVW_PURE) - not clear whether such
+	combination is possible.
+	* spvw_debug.d: sync with CVS head
+	* stream.d: sync with CVS head
+
+2008-09-24  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Add per thread symvalue only once.
+	* control.d (PROCLAIM): Fix: add per thread symvalue only once.
+
+2008-09-24  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Per thread special variables
+	* lispbibl.d (struct symbol_):  add tls_index for per thread
+	symbol value.
+	(SYMBOL_TLS_INDEX_NONE): empty value for the tls_index.
+	(SYMVALUE_EMPTY): non existing symvalue in per thread TLS.
+	(Symbol_value): redefined in MT
+	(Symbolflagged_value): new macro for accessing the symbol value
+	of flagged symbols. It creates the per thread entries.
+	(clisp_thread_t): removed _symvalues from the end. The clisp_thread_t
+	structure once allocated do not move. Added _ptr_symvalues - accessible
+	for modules - where the per thread symvalues are stored.
+	(thread_size): removed (clisp_thread_t has const size now)
+	(thread_objects_offset): removed
+	(thread_objects_count): removed
+	(add_per_thread_special_var): adds symvalues (empty) in all threads
+	for the specified symbol (called from PROCLAIM).
+	(clear_per_thread_symvalues): makes all per thread symvalues empty for
+	the specified symbol (used when special var is redefined as constant)
+	(realloc_thread_symvalues): reallocates the storage for symvalues -
+	_ptr_symvalues in a thread.
+	* constsym.d: initialize the tls_index of symbol in MT builds
+	* spvw.d (init_multithread_special_symbols): creates per thread
+	symvalues for all standard special variables (used when not
+	loading image file).
+	(add_per_thread_special_var): implementation. adds symvalues (empty) in
+	all threads for the specified symbol (called from PROCLAIM).
+	(clear_per_thread_symvalues): implementation. makes all per thread
+	symvalues empty for the specified symbol (used when special var is
+	redefined as constant).
+	(realloc_thread_symvalues): implementation. reallocates the storage for
+	symvalues - _ptr_symvalues in a thread.
+	(for_all_threadobj): redefined to iterate over _ptr_symvalues.
+	* spvw_typealloc.d (make_symbol): allocate enough space for the
+	symbol and initialize the tls_index.
+	* spvw_update.d (do_update_symbol): use symbol_length when
+	iterating over symbol_ objects (in MT symbols are more like an xrecord).
+	* spvw_gcmark.d (gc_mark): use symbol_length when iterating over
+	symbol_ objects.
+	* spvw_memfile.d (memflags): added bit(21) for MULTITHREAD image
+	 (symbols are larger).
+	(memdump_header_t): added _per_thread_symvalues - stores how many cells
+	for symvalues should be allocated (global num_symvalues value).
+	(loadmem_from_handle): initializes all per thread symvalues (of the only
+	running thread) to empty.
+	* zthread.d: small changes caused by thread_size() removal.
+	* eval.d (unwind): use Symbolflagged_value(obj).
+	(bind_next_var): use Symbolflagged_value(obj).
+	* control.d (proclaim): adds per thread symvalue for special
+	declarations.
+	(activate_bindings): use Symbolflagged_value(obj).
+	(letstar): use Symbolflagged_value(obj).
+	(bind_next_var): use Symbolflagged_value(obj).
+	* symbol.d (proclaim_constant): clear the per thread symvalues if any.
+
+2008-09-24  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GCSAFETY bug in SOCKET-SERVER-CLOSE
+	* stream.d (socket_server_close): fixed GCSAFETY bug.
+
+2008-09-18  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Move globals to clisp_thread_t structure.
+	* lispbibl.d (interrupt_pending): make it per thread.
+	(writing_to_subprocess): make it per thread.
+	* spvw.d (create_thread): initialize the new thread environment.
+	* spvw_sigint.d (interrupt_pending): make it per thread.
+	* spvw_sigpipe.d (writing_to_subprocess): make it per thread.
+	* spvw_circ.d (USE_MULTI_LEVEL_BITMAP): was #ifdef MULTITHREAD.
+	* zthread.d (make_thread): do not share aktenv with creating thread.
+
+2008-09-16  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Per thread break semaphores.
+	* lispbibl.d: make break_sems to be per thread.
+	(clisp_thread_t): added _break_sems to thread's data
+	(break_sems): macro for accessing current thread semaphores.
+	* spvw.d: remove global break_sems when building with threads.
+	* zthread.d (disable_thread_async_signals): make it void (also
+	fixes compilation problem on linux).
+
+2008-09-14  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Unwind-protect for pinned objects. Pinned object chains per thread.
+	* lispbibl.d: removed HAVE_PINNED_BIT
+	(pinned_chain_t): all pinned objects within a thread are chained.
+	(pin_varobject): make unwind-protect frame and add to the thread chain.
+	(unpin_varobject_i): removes all elements from pinned chain until
+	it reaches it's argument
+	(unpin_varobject): unpin already pinned object.
+	* spvw.d (main): leave the pinned chain empty.
+	* spvw_sigint.d (react_on_sigint): do not unpin any object.
+	unwind-protect will do this.
+	* spvw_garcol.d: removed HAVE_PINNED_BIT cases.
+	(fill_relocation_memory_regions): add all pinned objects from the
+	threads chains.
+	(page_contains_pinned_object): scan chains of pinned object of all
+	threads.
+	* stream.d: adjust pin/unpin_varobject to match the unwind-protect
+	nature of pin_varobject().
+	* zthread.d (make_thread): initialize pinned object chain.
+
+2008-09-14  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Signal handling fixes.
+	* lispbibl.d (interruptp): in multithreading - act only if called
+	within the main thread (all async signals are handled in main thread).
+	* spvw.d (STACK_PAGE_THRESHOLD): make it 4K. Sometimes debug
+	builds happened to sigsegv depending on default stack address
+	 (USE_CUSTOM_TLS=3).
+	* spvw_sigint.d: comments added
+	* xthread.d (xthread_sigmask): sets/gets current thread signal mask
+	* zthread.d: use xthread_sigmask().
+
+2008-09-13  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	SIGINT fix. Finish GC safe region (if interrupted in one).
+	* spvw_sigint.d (react_on_sigint): Finish GC safe region
+	before calling error() (if we are interrupted in GC safe
+	region).
+
+2008-09-13  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	MT signal handling. Streams system calls safe for GC.
+	* lispbibl.d: disabled multithreading when NO_ASYNC_INTERRUPTS.
+	(handle_length): maygc, accepts pointer to gcv_object_t.
+	(main_threadp): macro - true if we are in the main thread.
+	(SEMA_/SEGV_SEMA_): macro for conditional expansion of signal
+	"semaphores" depending on the platform/build (for OSX is wrong).
+	* zthread.d: disable the asynchronous signals for newly created threads.
+	(disable_thread_async_signals): disables the async signals for the
+	current thread.
+	(thread_stub/exec_timeout_call): disable async signals at beginning.
+	* spvw_sigint.d
+	(react_on_sigint): unpin possibly pinned object for the main thread.
+	* stream.d: make all system calls "safe for gc". GC may run while
+	waiting for input.
+	* spvw_memfile.d (savemem): handle_length() expects pointer to
+	stream now.
+
+2008-09-08  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	DEBUG_GCSAFETY fixes.
+	* lispbibl.d: include xthread.d in clisp.h for proper module build.
+	(TARGET_CPU_DEFINED): if defined - the inclusion of xthread.d will
+	not try to deduce the CPU type.
+	* spvw.d (current_thread_alloccount): moved from
+	spvw_global.d. Special case when called before main() (from C++
+	statics initializations).
+	* spvw_global.d (current_thread_alloccount): moved to spvw.d
+	* xthread.d: define the CPU from compiler supplied definitions if not
+	already done in lispbibl.d. Needed for spinlock_t functions when
+	included from modules.
+
+2008-09-03  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Fast thread local storage w/o compiler support (32 bit platforms only).
+	* lispbibl.d: new CFLAGS - USE_CUSTOM_TLS={1,2,3}
+	(set_current_thread): redefined for different types of TLS.
+	(current_thread): redefined for different types of TLS.
+	(roughly_SP): returns the current stack pointer (used when
+	USE_CUSTOM_TLS=2,3).
+	(thread_specific_entry/thread_specific_data): cache/hash for
+	SP to clisp_thread_t pointer mapping.
+	(tsd_getspecific): fast lookup for TLS when USE_CUSTOM_TLS=2
+	* spvw.d (threads_tls): global variable holding pointers to
+	threads local storage.
+	(tsd_initialize): initialize TLS when USE_CUSTOM_TLS=2
+	(tsd_setspecific): adds per thread variable to global storage when
+	USE_CUSTOM_TLS=2
+	(tsd_remove_specific): removes thread specific data for the calling
+	thread (USE_CUSTOM_TLS=2).
+	(tsd_slow_getspecific): gets the per thread variable value when there
+	is cache miss in the fast version  (USE_CUSTOM_TLS=2).
+	(current_stack_base): returns the stack bottom of the current thread.
+	Used when USE_CUSTOM_TLS=3.
+	(current_stack_size): returns the max. stack size of the current thread.
+	Used when USE_CUSTOM_TLS=3.
+	(get_stack_region): helper function when POSIX_THREADS are defined. Gets
+	the stack regions of threads created via pthreads.
+	(set_current_thread): implemented as function when USE_CUSTOM_TLS=3
+	(threads_maps): global table mapping stack pointer to appropriate
+	clisp_thread_t (indexed with  SP shifted by page size - 12 bits).
+	(init_multithread): initialize the custom thread local storage (if any).
+	(get_reserved_memory_regions): removed.
+	(is_safe_region): removed.
+	(main): special declaration when USE_CUSTOM_TLS=2
+	* zthread.d (thread_stub/exec_timeout_call): special declaration
+	when USE_CUSTOM_TLS=2
+	* constobj.d: initial commit (added all_threads and
+	threads_to_release).
+
+2008-08-31  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GC fixes for CLOS/SMALL_SSTRING forward pointers and SPVW_PURE.
+	* spvw_garcol.d
+	(instance_p): returns true if the argument points to CLOS instance.
+	(sstring_p): return true if the argument points to sstring (and
+	HAVE_SMALL_SSTRINGS is defined).
+	(gc_sweep1_varobject_page): do not reserve memory for
+	forwarded/reallocated objects (CLOS instances/small strings). Use
+	sstring_p/instance_p instead of many ifdefs.
+	(gc_sweep2_varobject_page): do not relocate marked objects that
+	have been forwarded (CLOS instances and small strings). Special case
+	for symbols heap in SPVW_PURE memory model.
+	(gar_col_normal): fixed multiple iteration bug over varobject heaps when
+	GENERATIONAL_GC is defined and generation is 1.
+	* lispbibl.d: added TODO for pin_varobject
+
+2008-08-31  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GC fixes. SPVW_PAGES pinned varobjects support.
+	* spvw_garcol.d (gc_sweep1_varobject_page): code cleanup. fixed
+	the case of multiple holes at the end of memory regions.
+	(gc_sweep2_varobject_page): code cleanup and fix. moves the objects
+	to calculated addresses in sweep1 phase (not by fill pointer anymore).
+	(fill_relocation_memory_regions): fixed sorting of memory regions
+	(page_contains_pinned_object): returns true if there is a pinned
+	object in the page.
+	(gc_compact_from_varobject_page): do no compact pages that contain
+	pinned varobjects.
+
+2008-08-30  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GC fixes.
+	* lispbibl.d: enabled multithreading when NO_ASYNC_INTERRUPTS.
+	* spvw_garcol.d: comments cleanup
+	(gc_sweep1_varobject_page): mark the last pinned object in case
+	we have not iterated through it.
+	(fill_varobject_heap_holes): implementation for simple bit
+	vectors (1/2/4/8/16/32) with SPVW_PURE memory model.
+
+2008-08-26  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Fixed TYPECODES build
+	* spvw_garcol.d (fill_relocation_memory_regions): fixed TYPECODES
+	compliation problem (varobjectp is not defined with TYPECODES).
+	(varobj_mem_region): fixed typo in definition (SVPW_PURE --> SPVW_PURE).
+
+2008-08-25  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Support for "pinned" varobjects.
+	* lispbibl.d: sync with CVS head
+	(Thread): removed xth_next and xth_prev from Thread xrecord
+	(clisp_thread_t): added _pinned object - in case there is no
+	HAVE_PINNED_BIT defined.
+	(clisp_thread_t): removed the _lthread object.
+	(thread_objects_offset/count): thread GC visible objects start from
+	_aktenv.
+	(delete_thread): additional parameter - full. If true - frees all
+	resources (memory) previously allocated.
+	(release_threads): releases the threads that have terminated and there
+	are no references to them. Called from GC.
+	(pin/unpin_varobject): macros that pin/unpin varobject. Currently
+	implemented only if HAVE_PINNED_BIT is undefined.
+	* spvw.d (push_threads_on_stack): removed
+	(delete_thread): additional parameter - full. Implementation.
+	(init_memory/main): fixed/add (main) threads initialization.
+	* spvw_garcol.d (varobj_mem_region): struct defining memory region
+	in varobject heap that can be used for compaction. Also the same
+	struct is used for describing the holes in heap that should be
+	filled after the compaction.
+	(ACCEPTABLE_VAROBJECT_HEAP_HOLE): defines the "acceptable" size of
+	the hole in the heap. If there is less place than this constant in
+	front of pinned object - new hole is added.
+	(gc_sweep1_varobject_page): entirely rewritten in order to take
+	care of pinned objects.
+	(gc_sweep2_varobject_page): changed in order not to move pinned
+	objects - addresses are already calculated in gc_sweep1_varobject_page.
+	(fill_relocation_memory_regions): fills a list (array actually) of
+	memory regions in varobject heap that can/should be filled during
+	compaction. Takes care to keep pinned objects out of these regions.
+	(fill_varobject_heap_holes): fills the holes in all varobject heaps,
+	caused by the existence (if any) of pinned objects.
+	(gar_col_normal): implements the thread xrecords life cycle. All
+	terminated threads without references to them are released (the same
+	as open files).
+	(gar_col_normal): re-factored to use the new pinned object support
+	during the sweep phase.
+	(gar_col_done): calls release_threads() if needed.
+	* spvw_sigsegv.d: sync with CVS head
+	* spvw_typealloc.d: comments cleanup
+	* zthread.d (release_threads): implementation
+	(make-thread): "re-factored" for thread safety and new threads
+	life cycle (O(all-threads))
+	(list-threads): implemented correctly.
+
+2008-08-18  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Added GC safe points
+	* lispbibl.d (GC_SAFE_CALL/GC_SAFE_SYSTEM_CALL): macros for easing
+	encapsulation of blocking system calls which are safe for GC
+	(clisp_thread_t): changed typedef. C++ does not like forward
+	declarations of "anonymous" typedef-ed structures.
+	* stream.d (low_clear_input_unbuffered_handle): added maygc
+	(listen_char_unbuffered): added maygc
+	(clear_input_unbuffered): added maygc
+	(socket-status): blocking select() is safe for GC
+	* spvw_fault.d
+	(handle_fault_range): implement locking around cache and page
+	protection change (the bulk i/o is still not safe for GC)
+
+2008-08-18  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Make the GC re-entrant
+	* spvw_global.d (gc_suspend_count): re-entry counter
+	(gc_suspend_all_threads/gc_resume_all_threads): implement the
+	GC re-entrancy
+
+2008-08-17  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GENERATIONAL_GC support. Thread xrecord changes.
+	* lispbibl.d
+	(Thread): the record contains now a pointer (xth_globals) to the
+	clisp_thread_t structure (instead of separate pointers
+	to LISP stack, backtrace and TLS).
+	(push_threads_on_stack): global function to push all active
+	threads (in allthreads[] array) to the current thread LISP stack.
+	* spvw.d (push_threads_on_stack): implementation.
+	(delete_thread): big TODO here. See the comment at the end.
+	* spvw_heap.d
+	(physpage_state_t): added a cache_lock spinlock. During fault
+	handling single thread may manipulate the protection and cache.
+	* spvw_genera1.d (build_old_generation_cache): initialize the
+	cache_lock of physpage_state_t structures.
+	* spvw_fault.d (handle_fault): implement locking around cache and
+	page protection changes. PROT_READ_WRITE pages always return
+	success now (it means other fault has handled it before us).
+	* zthreads.d (list_threads): implemented
+	(thread_yield): added safe for GC point.
+	(make_thread): initialize the xth_global of the Thread record.
+
+2008-08-14  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	DEBUG_GCSSAFETY implementation + REPL GC safe point.
+	Builds with GENERATIONAL_GC will experience segfaults.
+	* lispbibl.d: added GCSAFETY for MT as discussed in
+	http://article.gmane.org/gmane.lisp.clisp.devel/18750
+	(GC_STOP_WORLD): macro for stopping all threads for GC
+	(GC_RESUME_WORLD): macro for resuming all suspended during GC
+	threads.
+	(alloccount): redefined as macro when build with MT and GCSAFETY.
+	(clisp_thread_t): added _alloccount for each thread
+	(PERFORM_GC/_PERFORM_GC): refactored in order to take into
+	account DEBUG_GCSAFETY
+	(current_thread_alloccount): returns a pointer to the
+	current thread _alloccount
+	(GC_SAFE_REGION_END): fixed possible race condition
+	(begin/end_blocking_call): pair macro for defining safe for GC
+	regions when the execution is already in system call
+	* spvw.d (create_thread): do not initialize the main (first)
+	clisp_thread_t fields.
+	* spvw_global.d
+	(current_thread_alloccount): implementation
+	(gc_suspend_all_threads): keep the heap/threads lock on exit
+	(gc_resume_all_threads): do not acquire threads lock and
+	handle properly heap lock.
+	* spvw_allocate.d: added DEBUG_GCSAFETY support
+	(LOCK_ALLOCATE): stops the "world" on each allocation in GCSAFETY
+	(RETURN_OBJ): resumes the "world" after successful allocation
+	in GCSAFETY
+	(inc_alloccount): increases the _allocount in all threads (not
+	efficient - see comments).
+	* zthread.d
+	(thread_stub): now it is /*maygc*/ (in GCSAFETY we still do
+	not have current_thread() set).
+	* stream.d: added GC safe region for REPL. the patch is located at:
+	http://code.brumbar.com/stream.d-patch
+	(low_read_unbuffered_handle): maygc now.
+	(rd_ch_unbuffered): maygc now. the encoding re-acquired from stream
+	for each character (since low_read_unbuffered_handle is maygc now).
+	(rd_ch_terminal1): maygc now
+	* time.d: the patch is located at:
+	http://code.brumbar.com/time.d-patch
+	(sleep): added safe for GC region arround the system call
+
+2008-08-08  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	GC_SAFE_REGION_END fix + blocking system calls macros.
+	* lispbibl.d (GC_SAFE_REGION_END): fixed possible race condition
+	(begin/end_blocking_system_call): macros for marking possibly
+	blocking system calls.
+	* zthread.d (make-thread): use STACK_item_count() macro for computing
+	stack size. use begin/end_blocking_system_call.
+
+2008-08-06  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Heap/GC changes
+	* lispbibl.d (pointable_address_unchecked): exported to
+	clisp.h (present in CVS head as well)
+	(Rectype_Thread,Rectype_Mutex,Rectype_Exemption): moved to
+	xrecord area in the declarations (present in CVS head as well)
+	(GC_SAFE_REGION_BEGIN/END): now they make GCTRIGGER() for
+	debugging purposes.
+	(clisp_thread_t): _lthread type changed to gcv_object_t.
+	(clisp_thread_t): renamed the spinlocks and mutex for GC
+	suspend/resume (now begin with _gc_xxx).
+	(thread_objects_offset): does not need parameter. Also include
+	again the _lthread.
+	(PERFORM_GC): now takes second parameter - whether to lock
+	the heap operation before performing GC (since it can be
+	called explicitly, not only from allocations).
+	(inc_allocstamp): the specialization for mv_space moved after
+	the definition of clisp_thread_t.
+	* spvw.d: fixed some comments
+	(create_thread): takes single parameter - the list stack size.
+	(delete_thread): takes a single parameter - the clisp_thread_t
+	to be deleted.
+	(gc_suspend_all_threads): moved to spvw_global.d
+	(gc_resume_all_threads): moved to spvw_global.d
+	(main): allocates Thread record for the main thread (done after the
+	heap is initialized).
+	* spvw_global.d (gc_suspend_all_threads): moved here from
+	spvw.d. added second parameter whether to acquire the heap/GC
+	lock (in case we are called not from allocate_xxxx but explicitly).
+	(gc_resume_all_threads): moved here from spvw.d
+	(ACQUIRE_HEAP_LOCK): macro for locking the heap (and GC as well)
+	(RELEASE_HEAP_LOCK): macro for releasing the heap lock.
+	* spiv_allocate.d
+	(all): use ACQUIRE/RELEASE_HEAP_LOCK for locking/releasing the heap
+	(all): add second parameter "false" to all PERFORM_GC calls (since
+	we already hold the alloc/GC lock).
+	* spvw_memfile.d (savemem): calls PERFORM_GC with second parameter
+	"true" (alloc/GC lock should be acquired)
+	* debug.d (gc): calls PERFORM_GC with second parameter "true"
+	 (alloc/GC lock should be acquired)
+	* spvw_circ.d (mlb_expand): added a typecast (g++ complains).
+	* zthread.d (thread_stub): re-factored.
+	(make_thread): re-factored. removed possible deadlock.
+
+2008-08-04  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (thread_length): define to 3 because Thread contains
+	3 gcv_object_t fields (sync from HEAD)
+
+2008-08-02  Vladimir Tzankov  <vtzankov@gmail.com>  [threads]
+
+	Heap/GC changes for multithreading
+	* lispbibl.d (struct clisp_thread_t): added fields for
+	thread suspend/resume support (used for GC).
+	(GC_SAFE_POINT, GC_SAFE_POINT_ELSE): macros that define a safe
+	point for GC in thread execution.
+	(GC_SAFE_REGION_BEGIN,GC_SAFE_REGION_END): macros defining safe
+	for GC regions (in begin/end_system_call)
+	(PERFORM_GC): macro used for "safe" performing of GC. suspends/resumes
+	threads before/after the GC.
+	* xthread.d (spinlock_t): enabled spinlocks. added asm implementation
+	for POWERPC and fixed the one for x86.
+	(xcodition_t): finished native win32 implementation (not tested).
+	(xthread_cancel): removed.
+	(xthread_wait): added. waits for thread termination
+	(xmutex_trylock): added
+	(spinlock_tryacquire): added
+	* zthread.d
+	(make_thread,thread_stub): re-factored the thread creation.
+	(call-with-timeout): removed usage of xthread_cancel (not GC safe).
+	the spawned thread is not terminated in any way now.
+	* spvw.d
+	removed the MT dependency on the mmap.
+	(main): initialization of MT in the very beginning
+	(create_thread): just creates and initializes a clisp_thread. does not
+	registers the new thread any more (since it still does not run)
+	(delete_thread): fixed bug with thread indexing
+	(lock_threads): obtains global thread operations mutex
+	(unlock_threads): releases the global thread operation mutex
+	(register_thread): register a clisp_thread_t in the global thread array
+	(the clisp_thread_t should be running at that time - because of GC).
+	(gc_suspend_all_threads): suspends all running threads at points
+	"safe" for GC.
+	(gc_resume_all_threads): resumes the suspended (for GC) threads.
+	* spvw_global.d
+	(struct mem): added alloc_lock (spinlock_t) guarding both
+	allocation and GC.
+	(init_heap_locks): initializes heap locks(s). currently just alloc_lock.
+	* spvw_allocate.d
+	(LOCK_ALLOCATE, RETURN_OBJ): All heap allocation begin with
+	LOCK_ALLOCATE and return via RETURN_OBJ.
+	These macros manage the heap/GC lock(s).
+	* spvw_memfile.d: calls to GC enclosed in PERFORM_GC.
+	* debug.d: calls to GC enclosed in PERFORM_GC.
+
+2008-07-28  vlado tzankov  <vtzankov@gmail.com>  [threads]
+
+	Initial commit of multithreading. Lisp globals are implemented via
+	TLS (with or without compiler support)
+	* lispbibl.d (struct clisp_thread_t): reordered the fields.
+	the structure starts with the ones
+	that have to be accesses from modules (STACK, mv_spaces, etc).
+	Added _SP_anchor (was global in spvw.d)
+	(current_thread, _current_thread, current_thread_tls_key): macro
+	current_thread() provides access to the current clisp_thread_t via
+	per_thread variable _current_thread (in presence of compiler support)
+	or through xthread_key_get (slow).
+	(THREAD_SYMVALUES_ALLOCATION_SIZE): initial allocation size of
+	clisp_thread_t structure - at the end symvalues will be appended
+	(before the change the size depended on the mmap_pagesize)
+	(per_thread): removed all qualifiers from global variables in single
+	thread builds.  in MT builds - there is single global per thread
+	variable for CLISP internals.
+	(thread_objects_offset, thread_objects_count): excluded _lthread from
+	the returned offset/count. seems to cause problems with GC sometimes.
+	(set_current_thread): the first thing a new thread should call
+	- assigns the clisp_thread_t to the TLS.
+	(create_thread,delete_thread,maxnum_symvalues): made global
+	* spvw.d (create_thread): changed to accept size of LISP stack.
+	(delete_thread): frees the allocated LISP stack.
+	(allocate_lisp_thread_stack): allocates LISP stack.
+	currently with malloc()
+	(get_reserved_memory_region, is_safe_region): ensure that address range
+	for LISP stack is safe (was used in the version with SP tweaking
+	- probably will be needed later).
+	(init_memory, main): "globals" initialization moved after
+	current_thread() is valid.
+	* spvw_typealloc.d (allocate_thread): xth_system will be
+	initialized on thread creation. what to do with the other fields?
+	* xthread.d (xthread_cancel): after cancellation wait the thread to exit
+	* zthread.d (NC_STACK_,NC_pushSTACK): macros for filling
+	non-current(NC) LISP stacks of not yet started threads.
+	(thread_stub): the main entry point of threads created by MAKE-THREAD.
+	(MAKE-THREAD): implemented. creates a new OS thread and
+	LISP record for it.
+	(exec_timeout_call): the entry point of threads created
+	by CALL-WITH-TIMEOUT
+	(CALL-WITH-TIMEOUT): reimplemented.
+	creates OS thread bu NO LISP record for it.
+	* thread.lisp (TIMEOUT-MESSAGE): convert to string the default
+	answer (y-or-n provides list(s) with characters).
 
 2008-07-27  Sam Steingold  <sds@gnu.org>
 

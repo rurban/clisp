@@ -3,12 +3,13 @@
 (defpackage "THREADS"
   (:nicknames "MT" "MP")
   (:use "COMMON-LISP" "EXT")
-  (:export "MAKE-THREAD" "THREAD-WAIT"
+  (:export "THREAD" "MAKE-THREAD" "THREAD-WAIT"
            "WITHOUT-INTERRUPTS" "THREAD-YIELD" "THREAD-KILL"
-           "THREAD-INTERRUPT" "THREAD-RESTART" "THREADP" "THREAD-NAME"
+           "THREAD-INTERRUPT" "THREADP" "THREAD-NAME"
            "THREAD-ACTIVE-P" "THREAD-STATE" "CURRENT-THREAD" "LIST-THREADS"
            "MAKE-LOCK" "THREAD-LOCK" "THREAD-UNLOCK" "WITH-LOCK"
-           "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"))
+           "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
+            "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
 
 (in-package "MT")
 
@@ -17,6 +18,30 @@
 
 ;; definitions
 
+;; default value (lisp stack) size is very small -  1MB
+;; 0 - leaves the OS to decide (basically bad option)
+(defvar *DEFAULT-CONTROL-STACK-SIZE* 1048576 "C stack in bytes")
+;; the vstack size will be inherited from the parent thread.
+;; this is the number of gcv_object_t on the stack
+;; 0 - means - inherit from creation thread.
+;; the value will be initialized from the runtime
+(defvar *DEFAULT-VALUE-STACK-DEPTH*)
+
+;; declare special variable for thread's whostate
+(defvar *THREAD-WHOSTATE* nil)
+
+;; TODO: add more variables (something should done about the
+;; standartd input/output streams.
+(defvar *DEFAULT-SPECIAL-BINDINGS*
+  '((*random-state* . (make-random-state nil))
+    (*print-base* . 10)
+    (*gensym-counter* . 0)
+    (ext:*command-index* . 0)
+    (*thread-whostate* . nil)
+    (*readtable* . (copy-readtable nil))))
+
+(defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
+
 (defmacro with-timeout ((seconds &body timeout-forms) &body body)
   "Execute BODY; if execution takes more than SECONDS seconds,
 terminate and evaluate TIMEOUT-FORMS."
@@ -24,7 +49,7 @@ terminate and evaluate TIMEOUT-FORMS."
 
 (defun timeout-message (default localinfo)
   (write-string (SYS::TEXT "[Timed out] "))
-  (write-string (car (funcall (if default #'cdr #'car) localinfo)))
+  (write-string (string (car (funcall (if default #'cdr #'car) localinfo))))
   (terpri)
   default)
 
@@ -62,3 +87,7 @@ terminate and evaluate TIMEOUT-FORMS."
     `(let ((,lk ,lock))
       (unwind-protect (progn (thread-lock ,lk) ,@body)
         (thread-unlock ,lk)))))
+
+;; helper function for thread interruption
+(defun %throw-tag (tag)
+  (throw tag tag))

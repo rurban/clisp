@@ -2558,7 +2558,15 @@ LISPFUNN(delete_package,1) {
  can trigger GC */
 local maygc void delete_package_aux (void* data, object sym) {
   var gcv_object_t* localptr = (gcv_object_t*)data; /* pointer to pack */
-  pushSTACK(sym); unintern(&STACK_0,localptr); skipSTACK(1);
+  pushSTACK(sym); unintern(&STACK_0,localptr);
+#if defined(MULTITHREAD)
+  /* clear per thread symvalues if any.
+     FIXME: The symvalue cell pointed from clisp_thread_t will remain
+     as a memory leak !!! It is possible with exhaustive scan of all
+     symbols to "compact" the threads symvalues cells. */
+  clear_per_thread_symvalues(STACK_0);
+#endif
+  skipSTACK(1);
 }
 
 /* (FIND-ALL-SYMBOLS name) and its case-inverted variant */

@@ -104,28 +104,56 @@
 
 #if defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)
 
+/* The default pthreads mutex is not recursive. This is not a problem however
+ the Win32 critical section (used for mutex) is recursive and there is no way
+ to disable this behavior. In order the xmutex_t to be cosistent we wrap the
+ default pthread_mutex_t in a "recursive" shell.
+ (we can use later on pthread mutex attributes for this where available) */
+
 #include <pthread.h>
 #include <sched.h>
 
 typedef pthread_t         xthread_t;
 typedef pthread_cond_t    xcondition_t;
+/* on some platforms PTHREAD_MUTEXT_RECURSIVE_NP is not macrop but in an enum */
+#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
 typedef pthread_mutex_t   xmutex_t;
+/* cache the global mutex attribute for recursive mutex creation */
+extern pthread_mutexattr_t recursive_mutexattr;
+#define xthread_init() \
+  do {                 \
+    pthread_mutexattr_init(&recursive_mutexattr);\
+    pthread_mutexattr_settype(&recursive_mutexattr,PTHREAD_MUTEX_RECURSIVE_NP);\
+  } while (0)
+#else
+typedef struct xmutex_t {
+  pthread_mutex_t cs;
+  int count;
+  xthread_t owner;
+} xmutex_t;
+#define xthread_init()
+#endif
 typedef pthread_key_t     xthread_key_t;
 
-#define xthread_init()
 #define xthread_self()  pthread_self()
 #ifdef POSIX_THREADS
-#define xthread_create(thread,startroutine,arg)  \
-  pthread_create(thread,NULL,startroutine,arg)
-#endif
-#ifdef POSIXOLD_THREADS
-#define xthread_create(thread,startroutine,arg)  \
-  pthread_create(thread,pthread_attr_default,startroutine,arg)
+#define xthread_create(thread,startroutine,arg,stacksize)       \
+  ({                                                            \
+    int r;                                                      \
+    pthread_attr_t attr;                                        \
+    pthread_attr_init(&attr);                                   \
+    if (stacksize)                                              \
+      pthread_attr_setstacksize(&attr,stacksize);               \
+    pthread_attr_setdetachstate(&attr,PTHREAD_CREATE_DETACHED); \
+    r=pthread_create(thread,&attr,startroutine,arg);            \
+    pthread_attr_destroy(&attr);                                \
+    r;})
 #endif
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
-#define xthread_cancel(t) pthread_cancel(t)
+#define xthread_signal(t,sig) pthread_kill(t,sig)
+#define xthread_sigmask(how,iset,oset) pthread_sigmask(how,iset,oset)
 
 #ifdef POSIX_THREADS
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
@@ -139,15 +167,38 @@ typedef pthread_key_t     xthread_key_t;
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 
-#ifdef POSIX_THREADS
-#define xmutex_init(m)  pthread_mutex_init(m,NULL)
+#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
+ #ifdef POSIX_THREADS
+  #define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
+ #endif
+ #ifdef POSIXOLD_THREADS
+  #define xmutex_init(m)  pthread_mutex_init(m,FIXME: pthread_mutexattr_default)
+ #endif
+ #define xmutex_destroy(m)  pthread_mutex_destroy(m)
+ #define xmutex_lock(m)  pthread_mutex_lock(m)
+ #define xmutex_trylock(m) (pthread_mutex_trylock(m)==0)
+ #define xmutex_unlock(m)  pthread_mutex_unlock(m)
+#else /* no recursive pthread mutex */
+ #ifdef POSIX_THREADS
+  #define xmutex_init(m) \
+   ((m)->count=0,(m)->owner=0,pthread_mutex_init(&(m)->cs,NULL))
+ #endif
+ #ifdef POSIXOLD_THREADS
+  #define xmutex_init(m)  pthread_mutex_init(m,FIXME: pthread_mutexattr_default)
+ #endif
+ #define xmutex_destroy(m)  pthread_mutex_destroy(&(m)->cs)
+ #define xmutex_lock(m)  \
+  do {\
+    var xthread_t self=xthread_self();\
+    if ((m)->owner != self) { pthread_mutex_lock(&(m)->cs); (m)->owner = self; } \
+    (m)->count++;                                                       \
+  } while(0)
+ #define xmutex_trylock(m) \
+  (xthread_self()==(m)->owner ? ++(m)->count :                          \
+   ((pthread_mutex_trylock(&(m)->cs)==0) ? (m)->owner=pthread_self, ++(m)->count : 0))
+ #define xmutex_unlock(m)  \
+  if (--(m)->count == 0) { (m)->owner = 0; pthread_mutex_unlock(&(m)->cs); }
 #endif
-#ifdef POSIXOLD_THREADS
-#define xmutex_init(m)  pthread_mutex_init(m,pthread_mutexattr_default)
-#endif
-#define xmutex_destroy(m)  pthread_mutex_destroy(m)
-#define xmutex_lock(m)  pthread_mutex_lock(m)
-#define xmutex_unlock(m)  pthread_mutex_unlock(m)
 
 #ifdef POSIX_THREADS
 #define xthread_key_create(key)  pthread_key_create(key,NULL)
@@ -164,23 +215,25 @@ typedef pthread_key_t     xthread_key_t;
 
 #endif  /* POSIX*_THREADS */
 
-
 #if defined(SOLARIS_THREADS)
 
 #include <thread.h>
 #include <synch.h>
 
-typedef clisp_thread_t    xthread_t;
+typedef thread_t          xthread_t;
 typedef cond_t            xcondition_t;
+/* TODO: ensure that xmutex_t is recursive !!!! */
 typedef mutex_t           xmutex_t;
 typedef thread_key_t      xthread_key_t;
 
 #define xthread_init()
 #define xthread_self()  thr_self()
-#define xthread_create(thread,startroutine,arg) thr_create(NULL,0,startroutine,arg,THR_NEW_LWP|THR_DETACHED,thread)
+#define xthread_create(thread,startroutine,arg,stacksize) \
+  thr_create(NULL,stacksize,startroutine,arg,THR_NEW_LWP|THR_DETACHED,thread)
 #define xthread_exit(v)  thr_exit(v)
 #define xthread_yield()  thr_yield()
 #define xthread_equal(t1,t2)  ((t1)==(t2))
+#define xthread_signal(t,sig) thr_kill(t,sig)
 
 #define xcondition_init(c)  cond_init(c,USYNC_THREAD,0)
 #define xcondition_destroy(c)  cond_destroy(c)
@@ -188,16 +241,19 @@ typedef thread_key_t      xthread_key_t;
 #define xcondition_signal(c)  cond_signal(c)
 #define xcondition_broadcast(c)  cond_broadcast(c)
 
-#define xmutex_init(m)  mutex_init(m,USYNC_THREAD,0)
+#define xmutex_init(m)  mutex_init(m,USYNC_THREAD|LOCK_RECURSIVE|LOCK_ERRORCHECK,0)
 #define xmutex_destroy(m)  mutex_destroy(m)
+#define xmutex_trylock(m) mutex_trylock(m)
 #define xmutex_lock(m)  mutex_lock(m)
 #define xmutex_unlock(m)  mutex_unlock(m)
+
 
 #define xthread_key_create(key)  thr_keycreate(key,NULL)
 #define xthread_key_delete(key)  0
 #define xthread_key_get(key)  \
   ({ void* _tmp; thr_getspecific(key,&_tmp); _tmp; })
 #define xthread_key_set(key,val)  thr_setspecific(key,val)
+#define xthread_sigmask(how,iset,oset) thr_sigmask(how,iset,oset) CHECKME
 
 #endif  /* SOLARIS_THREADS */
 
@@ -208,15 +264,19 @@ typedef thread_key_t      xthread_key_t;
 
 typedef cthread_t         xthread_t;
 typedef struct condition  xcondition_t;
+/* TODO: ensure that xmutex_t is recursive !!!! */
 typedef struct mutex      xmutex_t;
 /* not available:          xthread_key_t; */
 
 #define xthread_init()  cthread_init()
 #define xthread_self()  cthread_self()
-#define xthread_create(thread,startroutine,arg)  *thread = ?? cthread_fork(startroutine,arg)
+#define xthread_create(thread,startroutine,arg,stacksize) \
+ *thread = ?? cthread_fork(startroutine,arg)
 #define xthread_exit(v)  cthread_exit(v)
 #define xthread_yield()  cthread_yield()
 #define xthread_equal(t1,t2)  ((t1)==(t2))
+#define xthread_signal(t,sig) CHECKME: kill(t,sig)
+#define xthread_sigmask(how,iset,oset) sigprocmask(how,iset,oset) CHECKME
 
 #define xcondition_init(c)  condition_init(c)
 #define xcondition_destroy(c)  condition_clear(c)
@@ -227,23 +287,21 @@ typedef struct mutex      xmutex_t;
 #define xmutex_init(m)  mutex_init(m)
 #define xmutex_destroy(m)  mutex_clear(m)
 #define xmutex_lock(m)  mutex_lock(m)
+#define xmutex_trylock() FIXME
 #define xmutex_unlock(m)  mutex_unlock(m)
 
 #endif  /* C_THREADS */
 
-
 #if defined(WIN32_THREADS)
 
 /* include <windows.h>  -- already included by win32.d */
+#define MAX_SEMAPHORE_COUNT  128
 
 typedef DWORD              xthread_t;
-struct _xthread_waiter {
-  HANDLE sem;
-  struct _xthread_waiter * next;
-};
 struct _xcondition {
   CRITICAL_SECTION cs;
-  struct _xthread_waiter * waiters;
+  HANDLE sem;
+  int waiting_count;
 };
 typedef struct _xcondition xcondition_t;
 typedef CRITICAL_SECTION   xmutex_t;
@@ -251,47 +309,54 @@ typedef DWORD              xthread_key_t;
 
 #define xthread_init()
 #define xthread_self()  GetCurrentThreadId()
-#define xthread_create(thread,startroutine,arg)  \
-  CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread)
+/* xthread_create() should return 0 on success */
+#define xthread_create(thread,startroutine,arg,stacksize)                       \
+  (!CreateThread(NULL,stacksize,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread))
 #define xthread_exit(v)  ExitThread((DWORD)(v))
-#define xthread_yield()  Sleep(0)FIXME
+#define xthread_yield()  Sleep(0)
+#define xthread_signal(t,sig) TODO
 #define xthread_equal(t1,t2)  ((t1)==(t2))
+#define xthread_sigmask(how,iset,oset)
 
-#define xcondition_init(c)                                              \
-  do { InitializeCriticalSection(&(c)->cs); (c)->waiters = NULL; } while(0)
-#define xcondition_destroy(c)                   \
-  DeleteCriticalSection(&(c)->cs);
-#define xcondition_wait(c,m)                                        \
-  do { struct _xthread_waiter self_waiting;                         \
-    InitializeSemaphore(self_waiting.sem,FIXME);                    \
-    EnterCriticalSection(&(c)->cs);                                 \
-    self_waiting.next = (c)->waiters; (c)->waiters = &self_waiting; \
-    LeaveCriticalSection(&(c)->cs);                                 \
-    LeaveCriticalSection(m);                                        \
-    WaitForSingleObject(self_waiting.sem,INFINITE);                 \
-    EnterCriticalSection(m);                                        \
-    DeleteSemaphore(self_waiting.sem,FIXME);                        \
-  } while(0)
-#define xcondition_signal(c)                                           \
-  do { EnterCriticalSection(&(c)->cs);                                 \
-    if ((c)->waiters != NULL) {                                        \
-      ReleaseSemaphore((c)->waiters->sem,1,NULL);                      \
-      (c)->waiters = (c)->waiters->next;                               \
-    }                                                                  \
-    LeaveCriticalSection(&(c)->cs);                                    \
-  } while(0)
-#define xcondition_broadcast(c)                                        \
-  do { EnterCriticalSection(&(c)->cs);                                 \
-    while ((c)->waiters != NULL) {                                     \
-      ReleaseSemaphore((c)->waiters->sem,1,NULL);                      \
-      (c)->waiters = (c)->waiters->next;                               \
-    }                                                                  \
-    LeaveCriticalSection(&(c)->cs);                                    \
-  } while(0)
+#define xcondition_init(c)   do {                                  \
+  InitializeCriticalSection(&(c)->cs);                             \
+  (c)->sem=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL);       \
+  (c)->waiting_count=0;                                            \
+ } while(0)
+#define xcondition_destroy(c)  do {             \
+  DeleteCriticalSection(&(c)->cs);              \
+  CloseHandle((c)->sem);                        \
+ } while (0)
+
+#define xcondition_wait(c,m)  do {                                  \
+  EnterCriticalSection(&(c)->cs);                                   \
+  (c)->waiting_count++;                                             \
+  LeaveCriticalSection(&(c)->cs);                                   \
+  LeaveCriticalSection(m);                                          \
+  WaitForSingleObject((c)->sem,INFINITE);                           \
+  EnterCriticalSection(m);                                          \
+ } while(0)
+#define xcondition_signal(c)  do {                                     \
+  EnterCriticalSection(&(c)->cs);                                      \
+  if ((c)->waiting_count > 0) {                                        \
+    ReleaseSemaphore((c)->sem,1,NULL);                                 \
+    (c)->waitintg_count--;                                             \
+  }                                                                    \
+  LeaveCriticalSection(&(c)->cs);                                      \
+ } while(0)
+#define xcondition_broadcast(c)  do {                                   \
+  EnterCriticalSection(&(c)->cs);                                       \
+  if ((c)->waiting_count > 0) {                                         \
+    ReleaseSemaphore((c)->sem,(c)->waiting_count,NULL);                 \
+    (c)->waiting_count=0;                                               \
+  }                                                                     \
+  LeaveCriticalSection(&(c)->cs);                                       \
+ } while(0)
 
 #define xmutex_init(m) (InitializeCriticalSection(m),GetLastError())
 #define xmutex_destroy(m)  (DeleteCriticalSection(m),GetLastError())
 #define xmutex_lock(m)      (EnterCriticalSection(m),GetLastError())
+#define xmutex_trylock(m) (TryEnterCriticalSection(m)!=0)
 #define xmutex_unlock(m)    (LeaveCriticalSection(m),GetLastError())
 
 #define xthread_key_create(key)  (*(key) = TlsAlloc())
@@ -300,8 +365,6 @@ typedef DWORD              xthread_key_t;
 #define xthread_key_set(key,val)  TlsSetValue(key,val)
 
 #endif  /* WIN32_THREADS */
-
-#ifdef FOR_SOME_REASON_WE_ALSO_WANT_SPIN_LOCKS_WHICH_CAUSE_GCC_TO_BARF
 
 /* ==========================================================================
 
@@ -319,7 +382,71 @@ typedef DWORD              xthread_key_t;
  - Acquiring a lock which is previously unlocked, and releasing a lock are
    fast operations. */
 
-#if defined(GNU) && (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA))
+
+#ifndef TARGET_CPU_DEFINED
+#if defined(__vax__)
+  #define VAX
+#endif
+#if defined(arm) || defined(__arm) || defined(__arm__)
+  #define ARM
+#endif
+#if (defined(_WIN32))
+  #if defined(_M_IX86) || defined(_X86_)
+    #define I80386
+  #endif
+#else /* some unix flavour */
+  #if defined(m68k) || defined(__m68k__) || defined(mc68000)
+    #define MC680X0
+  #endif
+  #if defined(mc68020) || defined(__mc68020__) || (defined(m68k) && defined(NeXT))
+    #define MC680X0
+    #define MC680Y0
+  #endif
+  #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)
+    #define I80386
+  #endif
+  #if defined(sparc) || defined(__sparc__)
+    #define SPARC
+    #if defined(__sparcv9) || defined(__arch64__)
+      #define SPARC64
+    #endif
+  #endif
+  #if defined(mips) || defined(__mips) || defined(__mips__)
+    #define MIPS
+    #if defined(_MIPS_SZLONG)
+      #if (_MIPS_SZLONG == 64)
+        /* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
+        #define MIPS64
+      #endif
+    #endif
+  #endif
+  #if defined(HP8XX) || defined(hppa) || defined(__hppa) || defined(__hppa__)
+    #define HPPA
+  #endif
+  #if defined(m88000) || defined(__m88k__)
+    #define M88000
+  #endif
+  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
+    #define POWERPC
+  #endif
+  #ifdef __alpha
+    #define DECALPHA
+  #endif
+  #ifdef __ia64__
+    #define IA64
+  #endif
+  #if defined(__x86_64__) || defined(__amd64__)
+    #define AMD64
+  #endif
+  #ifdef __s390__
+    #define S390
+  #endif
+#endif
+#define TARGET_CPU_DEFINED
+#endif
+
+
+#if (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC))
 
   typedef int spinlock_t; /* A value 0 means unlocked, != 0 means locked. */
 
@@ -386,16 +513,42 @@ typedef DWORD              xthread_key_t;
     { *spinlock = 0; }
   #endif
   #ifdef I80386
+/* TODO: special version of assembler syntax when compiling with MSVC !!!*/
     static inline long testandset (int* spinlock)
     { int ret;
       __asm__ __volatile__("xchgl %0,%1"
-                           : "=&r" (ret), "=m" (*spinlock)
-                           : "0" (1), "1" (*spinlock)
+                           : "=r" (ret), "=m" (*spinlock)
+                           : "0" (1), "m" (*spinlock)
+                           : "memory"
                           );
       return ret;
     }
     static inline void spinlock_release (int* spinlock)
     { *spinlock = 0; }
+  #endif
+  #ifdef POWERPC
+    static inline long testandset (int* spinlock)
+    { int ret;
+      __asm__ __volatile__(
+                           "0:lwarx %0,0,%1 \n"
+                           " cmpwi %0,0 \n"
+                           " bne- 1f \n"
+                           " stwcx. %2,0,%1 \n"
+                           " bne- 0b \n"
+                           "1:  isync  \n"
+                           : "=&r"(ret)
+                           : "r"(spinlock), "r"(1)
+                           : "cr0", "memory");
+      return ret;
+    }
+
+
+    static inline void spinlock_release (int* spinlock)
+    {
+      __asm__ __volatile__("sync" : : : "memory");
+      *spinlock = 0;
+    }
+
   #endif
   #ifdef DECALPHA
     static inline long testandset (int* spinlock)
@@ -418,6 +571,9 @@ typedef DWORD              xthread_key_t;
     static inline void spinlock_release (int* spinlock)
     { __asm__ __volatile__("mb" : : : "memory"); *spinlock = 0; }
   #endif
+
+  static inline bool spinlock_tryacquire(int* spinlock)
+  { return testandset(spinlock)==0;}
   static inline void spinlock_acquire (int* spinlock)
   { while (testandset(spinlock)) { xthread_yield(); } }
   static inline void spinlock_destroy (int* spinlock)
@@ -444,6 +600,8 @@ typedef DWORD              xthread_key_t;
                         );
     return ret;
   }
+  static inline bool spinlock_tryacquire(int* spinlock)
+  { return testandset(spinlock)==0;}
   static inline void spinlock_acquire (int* spinlock)
   { while (testandset(spinlock)) { xthread_yield(); } }
   static inline void spinlock_release (int* spinlock)
@@ -459,6 +617,8 @@ typedef DWORD              xthread_key_t;
 
   static inline void spinlock_init (spinlock_t* spinlock)
   { int err = xmutex_init(spinlock); if (err) OS_error(); }
+  static inline bool spinlock_tryacquire(spinlock_t* spinlock)
+  { return xmutex_trylock(spinlock); }
   static inline void spinlock_acquire (spinlock_t* spinlock)
   { int err = xmutex_lock(spinlock); if (err) OS_error(); }
   static inline void spinlock_release (spinlock_t* spinlock)
@@ -470,4 +630,4 @@ typedef DWORD              xthread_key_t;
 
 
 /* ====================================================================== */
-#endif  /* FOR_SOME_REASON_WE_ALSO_WANT_SPIN_LOCKS_WHICH_CAUSE_GCC_TO_BARF */
+

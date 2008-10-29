@@ -134,23 +134,50 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
     {
       var uintL pageno = (pa_address>>physpageshift)-(heap->heap_gen0_start>>physpageshift);
       {
+        var int ret;
         var physpage_state_t* physpage = &heap->physpages[pageno];
+        #if defined(MULTITHREAD)
+          spinlock_acquire(&physpage->cache_lock);
+        #endif
         switch (physpage->protection) {
           case PROT_NONE:
             /* protection: PROT_NONE -> PROT_READ */
-            if (handle_read_fault(pa_address,physpage) < 0)
-              goto error6;
+            ret=handle_read_fault(pa_address,physpage);
+            #if defined(MULTITHREAD)
+              spinlock_release(&physpage->cache_lock);
+            #endif
+            if (ret < 0) goto error6;
             return handler_done;
           case PROT_READ:
             /* protection: PROT_READ -> PROT_READ_WRITE */
-            if (handle_readwrite_fault(pa_address,physpage) < 0)
-              goto error7;
+            ret=handle_readwrite_fault(pa_address,physpage);
+            #if defined(MULTITHREAD)
+              spinlock_release(&physpage->cache_lock);
+            #endif
+            if (ret < 0) goto error7;
             return handler_done;
           case PROT_READ_WRITE:
-            goto error8;
+            /* it is very unlikely page that has PROT_READ_WRITE to cause
+               segfault. probably we are here, since a page that has been
+               PROT_READ or PROT_NONE, has changed to PROT_READ_WRITE while
+               we were waiting to be executed.
+               So we just return sucess here - other threads have done
+               what is required.
+            */
+            #if defined(MULTITHREAD)
+              spinlock_release(&physpage->cache_lock);
+            #endif
+            return handler_done;
+            /* goto error8; */
           default:
+            #if defined(MULTITHREAD)
+              spinlock_release(&physpage->cache_lock);
+            #endif
             goto error9;
         }
+        #if defined(MULTITHREAD)
+          spinlock_release(&physpage->cache_lock);
+        #endif
        error6:                  /* handle_read_fault() failed */
         if (verbose) {
           var int saved_errno = OS_errno;
@@ -215,6 +242,7 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
   }
   {
     var aint pa_address;
+    var int ret;
     for (pa_address = start_address & -physpagesize;
          pa_address < end_address; pa_address += physpagesize)
       if ((heap->heap_gen0_start <= pa_address)
@@ -224,15 +252,27 @@ global bool handle_fault_range (int prot, aint start_address, aint end_address)
         var physpage_state_t* physpage = &heap->physpages[pageno];
         if ((physpage->protection == PROT_NONE)
             && (prot == PROT_READ || prot == PROT_READ_WRITE)) {
+          #if defined(MULTITHREAD)
+          spinlock_acquire(&physpage->cache_lock);
+          #endif
           /* protection: PROT_NONE -> PROT_READ */
-          if (handle_read_fault(pa_address,physpage) < 0)
-            return false;
+          ret=handle_read_fault(pa_address,physpage);
+          #if defined(MULTITHREAD)
+          spinlock_release(&physpage->cache_lock);
+          #endif
+          if (ret < 0) return false;
         }
         if (!(physpage->protection == PROT_READ_WRITE)
             && (prot == PROT_READ_WRITE)) {
+          #if defined(MULTITHREAD)
+          spinlock_acquire(&physpage->cache_lock);
+          #endif
           /* protection: PROT_READ -> PROT_READ_WRITE */
-          if (handle_readwrite_fault(pa_address,physpage) < 0)
-            return false;
+          ret=handle_readwrite_fault(pa_address,physpage);
+          #if defined(MULTITHREAD)
+          spinlock_release(&physpage->cache_lock);
+          #endif
+          if (ret < 0) return false;
         }
       }
   }

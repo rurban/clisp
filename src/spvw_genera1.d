@@ -386,6 +386,9 @@ local void build_old_generation_cache (uintL heapnr)
           dotimespL(count,physpage_count, {
             physpage->protection = PROT_READ;
             physpage->cache_size = 0; physpage->cache = NULL;
+           #if defined(MULTITHREAD)
+            spinlock_init(&physpage->cache_lock);
+           #endif
             physpage++;
           });
         }

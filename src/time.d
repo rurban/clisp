@@ -704,20 +704,26 @@ LISPFUNN(sleep,2)
     var struct timeval start_time;
     var struct timeval end_time;
     if (!( gettimeofday(&start_time,NULL) ==0)) { OS_error(); }
+    begin_blocking_call();
    #ifdef HAVE_SELECT
     { /* select erlaubt eine wunderschöne Implementation von usleep(): */
       var struct timeval timeout; /* Zeitintervall */
       timeout.tv_sec = seconds; timeout.tv_usec = useconds;
       var int result;
       result = select(FD_SETSIZE,NULL,NULL,NULL,&timeout);
-      if ((result<0) && !(errno==EINTR)) { OS_error(); }
+      if ((result<0) && !(errno==EINTR)) { end_blocking_call(); OS_error(); }
     }
    #else
-    if (seconds>0) { sleep(seconds); }
-    #ifdef HAVE_USLEEP
-    if (useconds>0) { usleep(useconds); }
+    #if defined(MULTITHREAD) && defined(HAVE_SIGNALS)
+     #error using sleep() will interfere with threads CALL-WITH-TIMEOUT.
+    #else
+     if (seconds>0) { sleep(seconds); }
+     #ifdef HAVE_USLEEP
+     if (useconds>0) { usleep(useconds); }
+     #endif
     #endif
    #endif
+    end_blocking_call();
     interruptp({
       end_system_call();
       pushSTACK(S(sleep)); tast_break(); /* evtl. Break-Schleife aufrufen */
