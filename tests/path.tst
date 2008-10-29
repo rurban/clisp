@@ -789,6 +789,7 @@ T
                                    :defaults (logical-pathname "FOO:")))
 (:ABSOLUTE)
 
+#+clisp
 (let ((f "this-directory-does-not-exist")
       (custom:*merge-pathnames-ansi* t))
   (when (directory f) (delete-file f))
@@ -797,7 +798,7 @@ T
      (when (directory d) (ext:delete-directory d))
      (directory d))
    (directory (ext:string-concat f "/*"))))
-(NIL NIL)
+#+clisp (NIL NIL)
 
 ;; <http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html>
 (pathname-device (logical-pathname "FOO:"))
@@ -917,6 +918,7 @@ T
 
 ;; Check that LOAD can load a file "abazonk.lisp" even if a
 ;; directory "abazonk" exists.
+#+clisp
 (let* ((n "abazonk")
        (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
@@ -927,8 +929,9 @@ T
         (load n)
         (not (null (delete-file f)))
         (ext:probe-directory d)))
-(T T T NIL)
+#+clisp (T T T NIL)
 
+#+clisp
 (let* ((n "abazonk-logical")
        (custom:*parse-namestring-ansi* t)
        (f (ext:string-concat n ".lisp"))
@@ -941,11 +944,11 @@ T
         (load (ext:string-concat "FOO:" n))
         (not (null (delete-file f)))
         (ext:probe-directory d)))
-(T T T NIL)
+#+clisp (T T T NIL)
 
 ;; check that we can compile files in ansi mode
 (let ((f "compile-file-ansi-pathname.lisp")
-      (custom:*print-pathnames-ansi* t))
+      #+clisp (custom:*print-pathnames-ansi* t))
   (with-open-file (s f :direction :output :if-exists :supersede)
     (format s "(defparameter *pathname-var*
   #.(make-pathname :name \"foo.bar\" :type nil))~%"))
@@ -1052,6 +1055,7 @@ T
 (translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
 
 ;; one file - many hosts (Allegro style)
+#+clisp
 (let ((file (first *load-logical-pathname-translations-database*)))
   (unwind-protect
        (let ((*load-paths* nil) (*load-verbose* t))
@@ -1060,10 +1064,13 @@ T
            (format f "~S~%~S~%" "FOO" ''(("FOO:**;*" "/foo/**/*"))))
          (and (load-logical-pathname-translations "FOO")
               (cadar (logical-pathname-translations "FOO"))))
-    (delete-file file))) "/foo/**/*"
-(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+    (delete-file file)))
+#+clisp "/foo/**/*"
+#+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
+#+clisp #P"/foo/bar/baz/zot.txt"
 
 ;; one file - one host (CMUCL style)
+#+clisp
 (let* ((dir (make-pathname :directory (list :relative (pathname-name (first *load-logical-pathname-translations-database*)))))
        (file (merge-pathnames "FOO" dir)))
   (unwind-protect
@@ -1075,8 +1082,10 @@ T
          (and (load-logical-pathname-translations "FOO")
               (cadar (logical-pathname-translations "FOO"))))
     (delete-file file)
-    (ext:delete-directory dir))) "/foo/**/*"
-(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+    (ext:delete-directory dir)))
+#+clisp "/foo/**/*"
+#+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
+#+clisp #P"/foo/bar/baz/zot.txt"
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1550803&group_id=1355
 (dolist (dflt (list #P"/home/" (logical-pathname "CLOCC:SRC;PORT;")))
@@ -1091,6 +1100,7 @@ NIL
 
 ;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2198109&group_id=1355
 ;; wild subdirectory
+#+clisp
 (let* ((lpd (pathname "load-path-dir/"))
        (custom:*merge-pathnames-ansi* t)
        (file (merge-pathnames
@@ -1106,9 +1116,12 @@ NIL
          (and (load-logical-pathname-translations "FOO")
               (cadar (logical-pathname-translations "FOO"))))
     (delete-file file)
-    (ext:delete-directory lpd))) "/foo/**/*"
-(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+    (ext:delete-directory lpd)))
+#+clisp "/foo/**/*"
+#+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
+#+clisp #P"/foo/bar/baz/zot.txt"
 
+#+clisp
 (let* ((lpd (pathname "load-path-dir/"))
        (custom:*merge-pathnames-ansi* t)
        (dir (make-pathname :directory (append (pathname-directory lpd) (list (pathname-name (first *load-logical-pathname-translations-database*))))))
@@ -1125,20 +1138,22 @@ NIL
               (cadar (logical-pathname-translations "FOO"))))
     (delete-file file)
     (ext:delete-directory dir)
-    (ext:delete-directory lpd))) "/foo/**/*"
-(translate-logical-pathname "foo:bar;baz;zot.txt") #P"/foo/bar/baz/zot.txt"
+    (ext:delete-directory lpd)))
+#+clisp "/foo/**/*"
+#+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
+#+clisp #P"/foo/bar/baz/zot.txt"
 
-
-(ext:make-directory "foo/") T
+#+clisp (ext:make-directory "foo/") #+clisp T
 (defparameter *dir* (directory "foo/" :full t)) *DIR*
 (cdr *dir*) NIL
 (length (car *dir*)) 4
 (equal (caar *dir*) (cadar *dir*)) T
 (equal (caar *dir*) (car (directory "foo/"))) T
-(ext:rename-directory "foo/" "bar/") T
+#+clisp (ext:rename-directory "foo/" "bar/") #+clisp T
+#-clisp (rename-file "foo/" "bar/") #-clisp #p"bar/"
 (equal (cddar (directory "bar/" :full t)) (cddar *dir*)) T
 (directory "foo/") NIL
-(ext:delete-directory "bar/") T
+#+clisp (ext:delete-directory "bar/") #-clisp (delete-file "bar/") T
 (directory "bar/" :full t) NIL
 (pathname-version (car (directory "./"))) NIL
 
