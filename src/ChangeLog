@@ -1,5 +1,10 @@
 2008-10-29  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): avoid a compilation warning;
+	use ascii_to_string() instead of asciz_to_string() for simplicity
+
+2008-10-29  Sam Steingold  <sds@gnu.org>
+
 	fix --with-threads compilation on platforms where spinlock_t=xmutex_t
 	* xthread.d (SPINLOCK_INIT): define
 	* zthread.d (timeout_call_chain_lock): use it
