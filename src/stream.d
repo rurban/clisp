@@ -7993,6 +7993,17 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
 #if defined(MULTITHREAD)
 /* O(open_files) is guarded by a global lock */
 global xmutex_t open_files_lock;
+#define get_open_files_lock()                   \
+  begin_blocking_system_call();                 \
+  xmutex_lock(&open_files_lock);                \
+  end_blocking_system_call()
+#define release_open_files_lock()               \
+  begin_system_call();                          \
+  xmutex_unlock(&open_files_lock);              \
+  end_system_call()
+#else
+#define get_open_files_lock()      /*nop*/
+#define release_open_files_lock()  /*nop*/
 #endif
 
 /* UP: add a stream to the list of open streams O(open_files)
@@ -8001,24 +8012,12 @@ global xmutex_t open_files_lock;
  can trigger GC */
 local maygc object add_to_open_streams (object stream) {
   pushSTACK(stream);
+  get_open_files_lock();
   var object new_cons = allocate_cons();
- #if defined(MULTITHREAD)
-  pushSTACK(new_cons);
-  /* get the lock */
-  begin_blocking_system_call();
-  xmutex_lock(&open_files_lock);
-  end_blocking_system_call();
-  new_cons = popSTACK();
- #endif
   Car(new_cons) = stream = popSTACK();
   Cdr(new_cons) = O(open_files);
   O(open_files) = new_cons;
- #if defined(MULTITHREAD)
-  /* release the lock */
-  begin_system_call();
-  xmutex_unlock(&open_files_lock);
-  end_system_call();
- #endif
+  release_open_files_lock();
   return stream;
 }
 
@@ -8030,12 +8029,7 @@ local maygc object add_to_open_streams (object stream) {
 /* TODO: needs global lock */
 global maygc void* find_open_file (struct file_id *fid, uintB flags);
 global maygc void* find_open_file (struct file_id *fid, uintB flags) {
- #if defined(MULTITHREAD)
-  /* get the lock */
-  begin_blocking_system_call();
-  xmutex_lock(&open_files_lock);
-  end_blocking_system_call();
- #endif
+  get_open_files_lock();
   var object tail = O(open_files);
   while (consp(tail)) {
     var object stream = Car(tail); tail = Cdr(tail);
@@ -8043,21 +8037,11 @@ global maygc void* find_open_file (struct file_id *fid, uintB flags) {
         && TheStream(stream)->strmflags & flags
         && file_id_eq(fid,&ChannelStream_file_id(stream))) {
       pushSTACK(stream);
-     #if defined(MULTITHREAD)
-      /* release the lock */
-      begin_system_call();
-      xmutex_unlock(&open_files_lock);
-      end_system_call();
-     #endif
+      release_open_files_lock();
       return (void*)&STACK_0;
     }
   }
- #if defined(MULTITHREAD)
-  /* release the lock */
-  begin_system_call();
-  xmutex_unlock(&open_files_lock);
-  end_system_call();
- #endif
+  release_open_files_lock();
   return NULL;
 }
 

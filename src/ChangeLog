@@ -1,5 +1,10 @@
 2008-10-29  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (get_open_files_lock, release_open_files_lock): define
+	(add_to_open_streams, find_open_file): use them
+
+2008-10-29  Sam Steingold  <sds@gnu.org>
+
 	Merge the [threads] branch into the trunk
 	* constobj.d, constsym.d, control.d, debug.d, error.d, eval.d,
 	* lispbibl.d, makemake.in, package.d, pathname.d, savemem.lisp,
