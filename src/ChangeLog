@@ -1,5 +1,10 @@
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (XCFLAGS): add -Wno-format-nonliteral for gcc
+	because -Wformat=2 is the default on ubuntu 8.10
+
+2008-11-02  Sam Steingold  <sds@gnu.org>
+
 	* spvw_sigsegv.d (print_mem_stats): add casts in
 	PRINT_INTERNAL_TIME to avoid compilation warnings on x86_64
 
