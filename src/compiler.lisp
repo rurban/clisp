@@ -117,6 +117,8 @@
 (defvar *known-special-vars* nil)
 ;; The names and values of constants
 (defvar *constant-special-vars* nil)
+;; The fnode objects created in this lambda compilation unit
+(defvar *fnode-list*)
 
 ;; T if called by COMPILE-FILE or LOAD :COMPILE
 (defvar *compiling-from-file*)
@@ -1436,6 +1438,14 @@ for-value   NIL or T
           (broken (TEXT "~S is not a valid ~S quality.") quality 'optimize))
         (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec)))))
 
+;; check that X is either a SYMBOL or a (FUNCTION FUNCTION-NAME)
+(defun symbol-or-function-p (x)
+  (or (symbolp x)
+      (and (consp x) (eq (car x) 'FUNCTION)
+           (consp (cdr x))
+           (function-name-p (cadr x))
+           (null (cddr x)))))
+
 ;; (process-declarations declspeclist) analyzes the declarations (as they come
 ;; from PARSE-BODY) and returns:
 ;; a fresh list of the Special-declared symbols,
@@ -1469,13 +1479,13 @@ for-value   NIL or T
                            x 'SPECIAL))))
               ((IGNORE)
                (dolist (x (cdr declspec))
-                 (if (symbolp x)
+                 (if (symbol-or-function-p x)
                    (push x ignores)
                    (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
                            x 'IGNORE))))
               ((IGNORABLE)
                (dolist (x (cdr declspec))
-                 (if (symbolp x)
+                 (if (symbol-or-function-p x)
                    (push x ignorables)
                    (c-warn (TEXT "Non-symbol ~S may not be declared ~S.")
                            x 'IGNORABLE))))
@@ -1534,11 +1544,7 @@ for-value   NIL or T
                   (setq declspec
                         (cons declspectype
                               (mapcan #'(lambda (x)
-                                          (if (or (symbolp x)
-                                                  (and (consp x) (eq (car x) 'FUNCTION)
-                                                       (consp (cdr x))
-                                                       (function-name-p (cadr x))
-                                                       (null (cddr x))))
+                                          (if (symbol-or-function-p x)
                                             (list x)
                                             (progn
                                               (c-warn (TEXT "Not a valid ~S specifier: ~S")
@@ -1622,6 +1628,10 @@ for-value   NIL or T
                     ; used by this function
   far-used-tagbodys ; list of (tagbody . tag) defined in enclosing
                     ; functions but used by this function
+  ;; ignore declarations
+  ignore                        ; declared (ignore #'name)
+  ignorable                     ; declared (ignorable #'name)
+  used                          ; actually used (not discarded)
 )
 
 ;; the current function, an FNODE:
@@ -3554,9 +3564,15 @@ for-value   NIL or T
 
 ;; specially declared symbols:
 (defvar *specials*)   ; list of all symbols recently declared special
-(defvar *ignores*)    ; list of all symbols recently declared ignore
-(defvar *ignorables*) ; list of all symbols recently declared ignorable
+(defvar *ignores*)    ; list of all symbols/fnames recently declared ignore
+(defvar *ignorables*) ; list of all symbols/fnames recently declared ignorable
 (defvar *readonlys*)  ; list of all symbols recently declared read-only
+
+;; check whether (FUNCTION FNAME) is in LIST
+(defun fname-ignored-p (fname list)
+  (dolist (n list)
+    (when (and (consp n) (equal fname (second n)))
+      (return t))))
 
 ;; push all symbols for special variables into *venv* :
 (defun push-specials ()
@@ -4011,7 +4027,8 @@ for-value   NIL or T
               key-vars key-dummys key-anodes keys-vars keys-anodes key-stackzs
               aux-vars aux-anodes
               closuredummy-stackz closuredummy-venvc)
-          (multiple-value-setq (*specials* *ignores* *ignorables* *readonlys* other-decls)
+          (multiple-value-setq
+              (*specials* *ignores* *ignorables* *readonlys* other-decls)
             (process-declarations declarations))
           ;; visibility of Closure-Dummyvar:
           (push nil *venvc*)
@@ -4095,6 +4112,7 @@ for-value   NIL or T
             anode))))
     ;; this was the production of the Anode
     )))
+    (push *func* *fnode-list*)
     (setf (fnode-code *func*) anode)
     (when reqoptimflags
       (decf (fnode-req-num *func*) (count 'GONE reqoptimflags)))
@@ -5356,11 +5374,19 @@ for-value   NIL or T
                :usedp t :for-value-usedp t :really-usedp nil
                :closurep nil ; later poss. set to T
                :stackz *stackz* :venvc *venvc* :fnode *func*))
-           (c-declarations (c declarations body-rest)
+           (c-declarations (c declarations body-rest
+                              &optional namelist fnodelist)
              `(multiple-value-bind
                     (*specials* *ignores* *ignorables* *readonlys* other-decls)
                   (process-declarations ,declarations)
                 (push-specials) (push-*denv* other-decls)
+                ,@(when (and namelist fnodelist)
+                    `((mapc #'(lambda (name fnode)
+                                (setf (fnode-ignore fnode)
+                                      (fname-ignored-p name *ignores*)
+                                      (fnode-ignorable fnode)
+                                      (fname-ignored-p name *ignorables*)))
+                            ,namelist ,fnodelist)))
                 ;; compile the remaining forms:
                 (funcall ,c `(PROGN ,@body-rest))))
            (with-bindings ((body body-rest declarations mvb-var)
@@ -5380,23 +5406,23 @@ for-value   NIL or T
            (get-anode (type)
              `(let* ((closurevars (checking-movable-var-list varlist anodelist))
                      (anode
-                       (make-anode
-                         :type ',type
-                         :sub-anodes `(,@anodelist ,body-anode)
-                         :seclass (seclass-without
-                                    (anodelist-seclass-or
-                                      `(,@anodelist ,body-anode))
-                                    varlist)
-                         :code `(,@(c-make-closure closurevars closuredummy-venvc
-                                                   closuredummy-stackz)
-                                 ,@(mapcap #'c-bind-movable-var-anode
-                                           varlist anodelist)
-                                 ,body-anode
-                                 (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
-               (closuredummy-add-stack-slot closurevars closuredummy-stackz
-                                            closuredummy-venvc)
-               (optimize-var-list varlist)
-               anode)))
+                      (make-anode
+                       :type ',type
+                       :sub-anodes `(,@anodelist ,body-anode)
+                       :seclass (seclass-without
+                                 (anodelist-seclass-or
+                                  `(,@anodelist ,body-anode))
+                                 varlist)
+                       :code `(,@(c-make-closure closurevars closuredummy-venvc
+                                                 closuredummy-stackz)
+                               ,@(mapcap #'c-bind-movable-var-anode
+                                         varlist anodelist)
+                               ,body-anode
+                               (UNWIND ,*stackz* ,oldstackz ,*for-value*)))))
+                (closuredummy-add-stack-slot closurevars closuredummy-stackz
+                                             closuredummy-venvc)
+                (optimize-var-list varlist)
+                anode)))
   (macrolet ((check-fdef-name (caller fdef)
                `(unless (and (consp ,fdef) (function-name-p (car ,fdef))
                              (consp (cdr ,fdef)))
@@ -5444,7 +5470,8 @@ for-value   NIL or T
                   (push (cons (list fnode) var) fenv)
                   (push var varlist))))))
       (apply #'push-*venv* varlist) ; activate auxiliary variables
-      (let ((body-anode (c-declarations #'c-form declarations body-rest)))
+      (let ((body-anode (c-declarations #'c-form declarations body-rest
+                                        namelist fnodelist)))
         (unless *no-code*
           (mapc #'(lambda (var fnode)
                     (when (var-really-usedp var)
@@ -5509,7 +5536,8 @@ for-value   NIL or T
               (mapcar #'(lambda (fnode var)
                           (c-fnode-function fnode (cdr (var-stackz var))))
                       fnodelist varlist))
-             (body-anode (c-declarations #'c-form declarations body-rest)))
+             (body-anode (c-declarations #'c-form declarations body-rest
+                                         namelist fnodelist)))
         ;; the variables, for which the function was autonomous, are
         ;; additionally declared as constants:
         (do ((varlistr varlist (cdr varlistr))
@@ -5594,6 +5622,7 @@ for-value   NIL or T
               (push (car namelistr) fenv)
               (let ((fnode (car fnodelistr))
                     (macro (car macrolistr)))
+                (setf (fnode-ignorable fnode) t)
                 (if (zerop (fnode-keyword-offset fnode))
                   ;; function-definition is autonomous
                   (push (list* macro (list fnode) (new-const fnode)) fenv)
@@ -7990,6 +8019,11 @@ New Operations:
 ;; form is a Form with this value or NIL,
 ;; horizon = :value (then form = NIL) or :all or :form.
 (defun value-form-index (value form ltv-form horizon &optional (func *func*))
+  (when (fnode-p value)
+    (setf (fnode-used value) t)
+    (when (fnode-ignore value)
+      (c-style-warn (TEXT "function ~S used despite IGNORE declaration.")
+                    (fnode-name value))))
   (let ((const-list (fnode-consts func))
         (forms-list (fnode-consts-forms func))
         (ltv-forms-list (fnode-consts-ltv-forms func))
@@ -10721,7 +10755,8 @@ The function make-closure is required.
 
 ;;; compile a lambdabody and return its code.
 (defun compile-lambdabody (name lambdabody)
-  (let ((fnode (c-lambdabody name lambdabody)))
+  (let* ((*fnode-list* '())
+         (fnode (c-lambdabody name lambdabody)))
     (assert (null (fnode-far-used-vars fnode)))
     (assert (null (fnode-far-assigned-vars fnode)))
     (assert (null (fnode-far-used-blocks fnode)))
@@ -10734,6 +10769,15 @@ The function make-closure is required.
         (let ((kf (assoc name *known-functions* :test #'equal)))
           (when kf ; save seclass for other functions in the file
             (setf (fourth kf) (function-side-effect (fnode-code fnode))))))
+      (dolist (fnode *fnode-list*)
+        (let ((name (fnode-name fnode)))
+          (unless (or (null (fnode-enclosing fnode))
+                      (null (symbol-package (if (atom name)
+                                                name (second name))))
+                      (fnode-used fnode)
+                      (fnode-ignore fnode)
+                      (fnode-ignorable fnode))
+            (c-style-warn (TEXT "function ~S is not used.~%Misspelled or missing IGNORE declaration?") name))))
       (fnode-code fnode))))
 
 ;; COMPILE-LAMBDA & COMPILE-FORM are "top-level", i.e., they bind all

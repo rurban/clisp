@@ -1,5 +1,21 @@
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
+	implement the ANSI (IGNORE #'FUNCTION) declaration.
+	* compiler.lisp (*fnode-list*): new dynamic variable
+	(symbol-or-function-p): extracted from ...
+	(process-declarations): use it for IGNORE & IGNORABLE too
+	(fnode): add slots: IGNORE, IGNORABLE, USED
+	(fname-ignored-p): add
+	(c-LAMBDABODY): push *FUNC* onto *FNODE-LIST*
+	(c-declarations): acept NAMELIST & FNODELIST to set IGNORE & IGNORABLE
+	(c-FLET, c-LABELS): pass NAMELIST & FNODELIST to c-declarations
+	(c-FUNCTION-MACRO-LET): make fnode IGNORABLE
+	(value-form-index): make fnode USED and check if it was declared IGNORE
+	(compile-lambdabody): bind *FNODE-LIST* and check for unused fnodes
+	* timezone.lisp: declare all locals IGNORABLE
+
+2008-11-02  Sam Steingold  <sds@gnu.org>
+
 	* encoding.d, errwin32.d, spvw.d, spvw_alloca.d, spvw_allocate.d,
 	* spvw_memfile.d, spvw_mmap.d, spvw_sigsegv.d, win32aux.d: avoid
 	"warning: format not a string literal and no format arguments"
