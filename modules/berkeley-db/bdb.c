@@ -720,7 +720,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
 #  if defined(DB_DSYNC_LOG)
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DSYNC_LOG);
 #  else
-    skipSTACK(1);               /* skip :DSYNC-LOG */
+    skipSTACK(1);               /* skip :LOG-DSYNC */
 #  endif
     set_flags(popSTACK(),&flags_on,&flags_off,DB_DIRECT_LOG);
     if (flags_off) SYSCALL(dbe->set_flags,(dbe,flags_off,0));
@@ -958,12 +958,16 @@ static object dbe_get_flags_list (DB_ENV *dbe) {
     default: NOTREACHED;
   }
 #if defined(HAVE_DB_ENV_LOG_SET_CONFIG)
-  SYSCALL(dbe->log_get_config,(dbe,&flags));
-  if (flags & DB_LOG_DIRECT) { pushSTACK(`:LOG-DIRECT`); count++; }
-  if (flags & DB_LOG_DSYNC) { pushSTACK(`:LOG-DSYNC`); count++; }
-  if (flags & DB_LOG_AUTO_REMOVE) { pushSTACK(`:LOG-AUTO-REMOVE`); count++; }
-  if (flags & DB_LOG_IN_MEMORY) { pushSTACK(`:LOG-IN-MEMORY`); count++; }
-  if (flags & DB_LOG_ZERO) { pushSTACK(`:LOG-ZERO`); count++; }
+ #define LGC(c,l) do {                                          \
+    int onoff; SYSCALL(dbe->log_get_config,(dbe,c,&onoff));     \
+    if (onoff) { pushSTACK(l); count++; }                       \
+  } while(0)
+  LGC(DB_LOG_DIRECT,`:LOG-DIRECT`);
+  LGC(DB_LOG_DSYNC,`:LOG-DSYNC`);
+  LGC(DB_LOG_AUTO_REMOVE,`:LOG-AUTO-REMOVE`);
+  LGC(DB_LOG_IN_MEMORY,`:LOG-IN-MEMORY`);
+  LGC(DB_LOG_ZERO,`:LOG-ZERO`);
+ #undef LGC
 #else
 # if defined(DB_LOG_INMEMORY)
   if (flags & DB_LOG_INMEMORY) { pushSTACK(`:LOG-IN-MEMORY`); count++; }
@@ -998,8 +1002,7 @@ DEFINE_DBE_GETTER1(get_lg_regionmax,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tmp_dir,const char *,
                    asciz_to_string0(value,GLO(pathname_encoding)))
 #if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
-DEFINE_DBE_GETTER1(get_intermediate_dir_mode,const char *,
-                   asciz_to_string0(value,GLO(misc_encoding)))
+DEFINE_DBE_GETTER1(get_intermediate_dir_mode,const char *,safe_to_string(value))
 #endif
 DEFINE_DBE_GETTER1(get_tx_max,u_int32_t,UL_to_I(value))
 DEFINE_DBE_GETTER1(get_tx_timestamp,time_t,convert_time_to_universal(&value))
@@ -1057,7 +1060,7 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
     pushSTACK(`:TIMESTAMP`); pushSTACK(dbe_get_tx_timestamp(dbe)); count++;
     pushSTACK(`:TX-MAX`); pushSTACK(dbe_get_tx_max(dbe)); count++;
 #  if defined(HAVE_DB_ENV_GET_INTERMEDIATE_DIR_MODE)
-    pushSTACK(`:INTERMEDIATE-DIR-MODE`); pushSTACK(dbe_get_intermediate_dir_mode)); count++;
+    pushSTACK(`:INTERMEDIATE-DIR-MODE`); pushSTACK(dbe_get_intermediate_dir_mode(dbe)); count++;
 #  endif
     pushSTACK(`:TMP-DIR`); pushSTACK(dbe_get_tmp_dir(dbe)); count++;
     pushSTACK(`:DATA-DIR`); value1 = dbe_get_data_dirs(dbe);
@@ -1129,17 +1132,29 @@ DEFUNR(BDB:DBE-GET-OPTIONS, dbe &optional what) {
   } else if (eq(what,`:NOLOCKING`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_NOLOCKING);
 #if defined(DB_LOG_INMEMORY)
-  } else if (eq(what,`:LOG-INMEMORY`)) {
+  } else if (eq(what,`:LOG-IN-MEMORY`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_INMEMORY);
 #endif
-  } else if (eq(what,`:LOG-AUTOREMOVE`)) {
+  } else if (eq(what,`:LOG-AUTO-REMOVE`)) {
+#if defined(DB_LOG_AUTO_REMOVE)
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_AUTO_REMOVE);
+#else
     VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_AUTOREMOVE);
-#if defined(DB_DSYNC_LOG)
-  } else if (eq(what,`:DSYNC-LOG`)) {
-    VALUES_IF(dbe_get_flags_num(dbe) & DB_DSYNC_LOG);
 #endif
-  } else if (eq(what,`:DIRECT-LOG`)) {
+  } else if (eq(what,`:LOG-DSYNC`)) {
+#  if defined(DB_DSYNC_LOG)
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_DSYNC_LOG);
+#  elif defined(DB_LOG_DSYNC)
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_DSYNC);
+#  else
+    VALUES1(NIL);
+#  endif
+  } else if (eq(what,`:LOG-DIRECT`)) {
+#  if defined(DB_LOG_DIRECT)
+    VALUES_IF(dbe_get_flags_num(dbe) & DB_LOG_DIRECT);
+#  else
     VALUES_IF(dbe_get_flags_num(dbe) & DB_DIRECT_LOG);
+#  endif
   } else if (eq(what,`:CDB-ALLDB`)) {
     VALUES_IF(dbe_get_flags_num(dbe) & DB_CDB_ALLDB);
   } else if (eq(what,`:AUTO-COMMIT`)) {
