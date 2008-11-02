@@ -1696,7 +1696,8 @@ fi
 COMMENTS=''
 
 LPARTS='        init defseq backquote defmacro macros1 macros2 defs1'
-LPARTS=$LPARTS' timezone lambdalist places floatprint defpackage type subtypep'
+test ${TOS} = unix -o ${TOS} = win32 || LPARTS=$LPARTS' timezone'
+LPARTS=$LPARTS' lambdalist places floatprint defpackage type subtypep'
 LPARTS=$LPARTS' clos-package clos-macros clos-class0 clos-metaobject1'
 LPARTS=$LPARTS' clos-slotdef1 clos-stablehash1 clos-specializer1 clos-class1'
 LPARTS=$LPARTS' clos-class2 clos-class3 defstruct format'
@@ -1713,17 +1714,11 @@ LPARTS=$LPARTS' clos-dependent clos-print clos-custom documentation'
 LPARTS=$LPARTS' fill-out disassem condition loadform gstream xcharin keyboard'
 LPARTS=$LPARTS' screen runprog query reploop dribble complete'
 LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
-if [ "${with_threads}" != no ]; then
-  LPARTS=$LPARTS' threads'
-fi
+test "${with_threads}" = no || LPARTS=$LPARTS' threads'
 LPARTS=$LPARTS' case-sensitive'
-if [ $TSYS = master -o "${with_dynamic_ffi}" != no ] ; then
-  LPARTS=$LPARTS' foreign1'
-fi
+test $TSYS = master -o "${with_dynamic_ffi}" != no && LPARTS=$LPARTS' foreign1'
 LPARTS=$LPARTS' exporting german'
-if [ "${with_unicode}" != no ] ; then
-  LPARTS=$LPARTS' french spanish russian danish'
-fi
+test "${with_unicode}" = no || LPARTS=$LPARTS' french spanish russian danish'
 LPARTS=$LPARTS' dutch deprecated'
 
 DOC='LISP-tutorial CLOS-guide editors'
