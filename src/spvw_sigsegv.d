@@ -32,10 +32,10 @@ local void print_mem_stats (void) {
  #endif
   fputs("\n",stderr);
 #if TIME_METHOD == 1
- #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu",t)
+ #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu",(unsigned long)t)
 #elif  TIME_METHOD == 2
  #if defined(TIME_UNIX)
-  #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",t.tv_sec,t.tv_usec)
+  #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",(unsigned long)t.tv_sec,(unsigned long)t.tv_usec)
  #elif defined(TIME_WIN32)
   #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",t.dwHighDateTime,t.dwLowDateTime)
  #else
