@@ -2567,12 +2567,12 @@ local maygc object encoding_from_name (const char* name, const char* context) {
     else if (asciz_equal(context,"locale")) { /* e.g., name=ISO8859-1 */
       fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using %s"),
               context,name,DEFAULT_1_1_ENCODING_NAME);
-      fputs("\n",stderr);
+      fputc('\n',stderr);
       pushSTACK(DEFAULT_1_1_ENCODING);
     } else  {
       fprintf(stderr,GETTEXT("WARNING: %s: no encoding %s, using %s"),
               context,name,"locale encoding");
-      fputs("\n",stderr);
+      fputc('\n',stderr);
       pushSTACK(STACK_0);
     }
   }

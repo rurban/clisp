@@ -4145,5 +4145,5 @@ local void errno_out_body (const char* name, const char* msg) {
 global void errno_out_low (DWORD errorcode, const char* file, uintL line) {
   fprintf(stderr,"\n[%s:%d] GetLastError() = 0x%x",file,line,errorcode);
   get_OS_error_info(errorcode,&errno_out_body);
-  fputs("\n",stderr);
+  fputc('\n',stderr);
 }

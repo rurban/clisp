@@ -1116,7 +1116,7 @@ global void DumpProcessMemoryMap (void)
         default:          fputs("MEM_?",stderr); break;
       }
     }
-    fputs("\n",stderr);
+    fputc('\n',stderr);
     address = (aint)info.BaseAddress + info.RegionSize;
   }
   fputs("End of memory dump.\n",stderr);
