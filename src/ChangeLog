@@ -1,5 +1,13 @@
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
+	* encoding.d, errwin32.d, spvw.d, spvw_alloca.d, spvw_allocate.d,
+	* spvw_memfile.d, spvw_mmap.d, spvw_sigsegv.d, win32aux.d: avoid
+	"warning: format not a string literal and no format arguments"
+	by using puts instead of printf when possible;
+	also use fputc instead of fputs for newline
+
+2008-11-02  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCFLAGS): add -Wno-format-nonliteral for gcc
 	because -Wformat=2 is the default on ubuntu 8.10
 
