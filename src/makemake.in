@@ -1102,7 +1102,7 @@ if [ $XCC_GCC = true ] ; then
     case "$XCC_GCC_VERSION" in
       # gcc 2.7 introduced an annoying warning, but gcc 2.8 has a workaround:
       2.[8-9]* | 3.* | 4.* | egcs-2.*)
-        XCFLAGS=$XCFLAGS' -Wno-sign-compare'
+        XCFLAGS=$XCFLAGS' -Wno-sign-compare -Wno-format-nonliteral'
         ;;
       * ) ;;
     esac
