@@ -8,6 +8,9 @@ Important notes
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
     wild pathnames (introduced in 2.47). [ 2198109 ]
 
+* ANSI compliance:
+  + Implement the ANSI (IGNORE #'FUNCTION) declaration.
+
 
 2.47 (2008-10-23)
 =================
