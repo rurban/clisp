@@ -232,7 +232,7 @@ local void* mmap_filemap (void* map_addr, uintM map_len, Handle fd,
   if (resultaddr != map_addr) {
     fprintf(stderr,GETTEXTL("MapViewOfFileEx() returned 0x%x instead of 0x%x."),
             resultaddr,map_addr);
-    fputs("\n",stderr);
+    fputc('\n',stderr);
     UnmapViewOfFile(resultaddr);
     return (void*)(-1);
   }
