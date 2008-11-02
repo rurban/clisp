@@ -1,5 +1,10 @@
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (LPARTS): add timezone only when needed (not unix &
+	not win32), i.e., never
+
+2008-11-02  Sam Steingold  <sds@gnu.org>
+
 	implement the ANSI (IGNORE #'FUNCTION) declaration.
 	* compiler.lisp (*fnode-list*): new dynamic variable
 	(symbol-or-function-p): extracted from ...
