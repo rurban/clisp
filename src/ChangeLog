@@ -1,7 +1,8 @@
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (LPARTS): add timezone only when needed (not unix &
-	not win32), i.e., never
+	not win32), i.e., never; add deflanguage files only when building
+	with_unicode & with_gettext
 
 2008-11-02  Sam Steingold  <sds@gnu.org>
 

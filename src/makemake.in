@@ -1717,9 +1717,10 @@ LPARTS=$LPARTS' pprint describe room edit macros3 clhs inspect gray'
 test "${with_threads}" = no || LPARTS=$LPARTS' threads'
 LPARTS=$LPARTS' case-sensitive'
 test $TSYS = master -o "${with_dynamic_ffi}" != no && LPARTS=$LPARTS' foreign1'
-LPARTS=$LPARTS' exporting german'
-test "${with_unicode}" = no || LPARTS=$LPARTS' french spanish russian danish'
-LPARTS=$LPARTS' dutch deprecated'
+LPARTS=$LPARTS' exporting '
+test "${with_unicode}" = no -o "${with_gettext}" = no || \
+  LPARTS=$LPARTS' german french spanish russian danish dutch'
+LPARTS=$LPARTS' deprecated'
 
 DOC='LISP-tutorial CLOS-guide editors'
 
