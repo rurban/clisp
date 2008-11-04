@@ -50,7 +50,7 @@
 
 <section id="init-hooks"><title>Customizing Initialization</title>
 <para>&init-hooks; is run like this:<programlisting language="lisp">
-(&mapc; #'&funcall; &init-hooks;)
+(&ignore-errors; (&mapc; #'&funcall; &init-hooks;))
 </programlisting></para>
 <section id="init-hooks-function"><title>The difference between
   &init-hooks; and &init-function;</title>
