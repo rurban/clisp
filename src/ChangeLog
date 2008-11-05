@@ -1,3 +1,8 @@
+2008-11-05  Sam Steingold  <sds@gnu.org>
+
+	* clhs.lisp (open-http): write http error to *HTTP-LOG-STREAM*,
+	not *TERMINAL-STREAM*
+
 2008-11-02  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (LPARTS): add timezone only when needed (not unix &

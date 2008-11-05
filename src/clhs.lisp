@@ -151,9 +151,9 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                    (if host-port-end (subseq url host-port-end) "/")))
          (sock (handler-bind ((error (lambda (c)
                                        (unless (eq if-does-not-exist :error)
-                                         (format
-                                          t "cannot connect to ~S:~D: ~A~%"
-                                          host port c)
+                                         (format *http-log-stream*
+                                                 "cannot connect to ~S:~D: ~A~%"
+                                                 host port c)
                                          (return-from open-http nil)))))
                  (socket:socket-connect port host :external-format :dos)))
          status code content-length)
@@ -261,6 +261,8 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
         ;; cf http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
         ;; vs http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
         ;; we support both.
+        ;; is you are scared of the 404 errors on the screen,
+        ;; bind or set *HTTP-LOG-STREAM*
         (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
                                  (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
