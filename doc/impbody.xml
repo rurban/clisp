@@ -5560,6 +5560,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  The return value should be a &string-t; terminated with a &file-slash;,
  e.g., <ulink url="&clhs;/"/> or <filename>/usr/doc/HyperSpec/</filename>.
  If the return value is &nil;, the feature is completely disabled.
+ &clhs-root-default; is initialized in &config-lisp; based on
+ the <option>--hyperspec</option> passed to the
+ top-level <command>configure</command> script when &clisp; was built.
 </para></formalpara>
 
 <formalpara id="impnotes-root"><title>Function &impnotes-root;</title>
