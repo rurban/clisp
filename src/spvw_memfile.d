@@ -3,7 +3,7 @@
 /* --------------------------- Specification ---------------------------- */
 
 /* UP: Saves a memory image on disk.
- savemem(stream);
+ savemem(stream,exec_p);
  > object stream: open file output stream
  > bool exec_p: should the result include runtime?
  < file length
@@ -261,7 +261,7 @@ static void savemem_with_runtime (Handle handle) {
   if (!mem_searched) {
     find_memdump(runtime);      /* search for memdump_header_t */
     lseek(runtime,0,SEEK_SET);  /* reset position */
-  } /* now:  mem_searched == true */
+  } /* now: mem_searched == true */
   if (mem_start != (size_t)-1) { /* ==> have an image - cut it off */
     var uintL remains = mem_start;
     while (remains > 0) {
@@ -367,7 +367,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
 }
 
 /* UP, stores the memory image on disk
- savemem(stream);
+ savemem(stream,exec_p);
  > object stream: open File-Output-Stream, will be closed
  > bool exec_p: should the result include runtime?
  can trigger GC */
@@ -1796,7 +1796,7 @@ local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
     and can increase the startup time by as much as a few seconds
  #endif
  Since we always record mem_start in every executable image we write,
- there is no reason to do search.
+ there is no reason to do the search.
  If "image size" somehow fails, we want a bug report right away.
  > fd : the open file descriptor (its position is changed)
  < set mem_start and mem_searched */
