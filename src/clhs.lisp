@@ -257,6 +257,10 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
     (let ((clhs-root (clhs-root)))
       (when (and clhs-root (string/= clhs-map-source clhs-root))
         (setq clhs-map-source clhs-root)
+        ;; there are two version of CLHS available:
+        ;; cf http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
+        ;; vs http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
+        ;; we support both.
         (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
                                  (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
           (unless s
