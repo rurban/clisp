@@ -10636,7 +10636,7 @@ extern uintM free_space (void);
 /* is used by DEBUG */
 
 /* UP: saves memory image to disc
- savemem(stream);
+ savemem(stream,exec_p);
  > object stream: open File-Output-Stream, will be closed
  > bool exec_p: should the result include runtime?
  < file length
