@@ -1,3 +1,7 @@
+2008-11-06  Sam Steingold  <sds@gnu.org>
+
+	* macro8.tst: check unused function warnings
+
 2008-10-28  Sam Steingold  <sds@gnu.org>
 
 	* path.tst: add 2 tests for bug #[ 2198109 ]:

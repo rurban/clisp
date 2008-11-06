@@ -3982,7 +3982,10 @@ for-value   NIL or T
 ;; compile (name lambdalist {declaration|docstring}* {form}*), return the FNODE
 (defun c-LAMBDABODY (name lambdabody &optional fenv-cons gf-p reqoptimflags)
   (test-list lambdabody 1)
-  (let* ((*func* (make-fnode :name name :enclosing *func* :venvc *venvc*))
+  (let* ((*func* (make-fnode :enclosing *func* :venvc *venvc*
+                             :name (if (integerp name)
+                                       (symbol-suffix (fnode-name *func*) name)
+                                       name)))
          (*stackz* *func*) ; empty stack
          (*venvc* (cons *func* *venvc*))
          (*func-start-label* (make-label 'NIL))
@@ -4112,7 +4115,8 @@ for-value   NIL or T
             anode))))
     ;; this was the production of the Anode
     )))
-    (push *func* *fnode-list*)
+    ;; anonymous functions are ignorable
+    (unless (integerp name) (push *func* *fnode-list*))
     (setf (fnode-code *func*) anode)
     (when reqoptimflags
       (decf (fnode-req-num *func*) (count 'GONE reqoptimflags)))
@@ -5304,8 +5308,7 @@ for-value   NIL or T
                    (c-lambdabody
                      (if (and longp (function-name-p name))
                        name ; specified function-name
-                       (symbol-suffix (fnode-name *func*)
-                                      (incf *anonymous-count*)))
+                       (incf *anonymous-count*))
                      (cdr funname))))
             (unless *no-code* (propagate-far-used fnode))
             (c-fnode-function fnode))
@@ -5318,7 +5321,7 @@ for-value   NIL or T
   (let* ((*no-code* (or *no-code* (null *for-value*)))
          (fnode
            (c-lambdabody
-             (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
+             (incf *anonymous-count*)
              (cdr *form*)
              nil
              t))) ; gf-p = T, build Code for generic function
@@ -5343,7 +5346,7 @@ for-value   NIL or T
          (reqoptimflags (copy-list (second *form*)))
          (fnode
            (c-lambdabody
-             (symbol-suffix (fnode-name *func*) (incf *anonymous-count*))
+             (incf *anonymous-count*)
              (cddr *form*)
              nil nil reqoptimflags)))
     (unless *no-code* (propagate-far-used fnode))
