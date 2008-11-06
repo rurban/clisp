@@ -1,5 +1,10 @@
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f (COPY-GCONTEXT-COMPONENTS):
+	fix handling of the &rest arguments
+
+2008-11-06  Sam Steingold  <sds@gnu.org>
+
 	save "delegating" executable images which only parse --clisp* args
 	* pathname.d (SAVEMEM): second argument EXECUTABLE can be 0 to
 	mean delegate all command line options to the INIT-FUNCTION,
