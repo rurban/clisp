@@ -2032,9 +2032,15 @@ local void init_other_modules_2 (void) {
 }
 
 /* print usage */
-local void usage (void) {
+local void usage (bool delegating) {
   printf(PACKAGE_NAME " (" PACKAGE_BUGREPORT ") ");
   puts(GETTEXTL("is an ANSI Common Lisp implementation."));
+  if (delegating) {
+    printf(GETTEXTL("This image does not process the usual command line arguments.\n"
+                    "To create a normal image \"myclisp\", please do\n"
+                    "%s --clisp-x '(ext:saveinitmem \"myclisp\" :executable t :init-function (function sys::main-loop))'\n"),program_name);
+    return;
+  }
   printf(GETTEXTL("Usage:  %s [options] [lispfile [argument ...]]\n"
                   " When 'lispfile' is given, it is loaded and '*ARGS*' is set\n"
                   " to the list of argument strings. Otherwise, an interactive\n"
@@ -2411,12 +2417,21 @@ local inline int size_arg (const char *arg, const char *docstring, uintM *ret,
   return 0;
 }
 
+local char* delegating_cookie = "should clisp delegate non --clisp args? N";
+local int delegating_cookie_length = -1;
+local bool delegating_p (void) {
+  if (delegating_cookie_length == -1)
+    delegating_cookie_length = asciz_length(delegating_cookie);
+  return delegating_cookie[delegating_cookie_length-1] == 'Y';
+}
+
 /* Parse the command-line options.
  Returns -1 on normal termination, or an exit code >= 0 for immediate exit. */
 local inline int parse_options (int argc, const char* const* argv,
                                 struct argv_init_c* p0,
                                 struct argv_initparams* p1,
                                 struct argv_actions* p2) {
+  var const bool delegating = delegating_p();
   p0->argv_language = NULL;
   p0->argv_localedir = NULL;
   p1->argv_memneed = 0;
@@ -2430,7 +2445,7 @@ local inline int parse_options (int argc, const char* const* argv,
   p2->argv_init_files = (const char**) malloc((uintL)argc*sizeof(const char*)); /* max argc -x/-i options */
   p2->argv_compile = false;
   p2->argv_compile_listing = false;
-  p2->argv_norc = false;
+  p2->argv_norc = delegating; /* application should have its own RC file */
   p2->argv_on_error = ON_ERROR_DEFAULT;
   p2->argv_compile_filecount = 0;
   p2->argv_compile_files = (argv_compile_file_t*) malloc((uintL)argc*sizeof(argv_compile_file_t)); /* max argc file-arguments + -lp arguments */
@@ -2503,6 +2518,8 @@ local inline int parse_options (int argc, const char* const* argv,
     /* loop and process options, replace processed options with NULL: */
     while (argptr < argptr_limit) {
       var const char* arg = *argptr++; /* next argument */
+      if (0 == strncmp(arg,"--clisp",7)) arg += 7;
+      else if (delegating) goto non_option;
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
           case 'h':             /* help */
@@ -2513,7 +2530,7 @@ local inline int parse_options (int argc, const char* const* argv,
               INVALID_ARG(arg);
               return 1;
             } else {
-              usage();
+              usage(delegating);
               return 0;
             }
             /* returns after a one-character token the rest of the
@@ -2755,7 +2772,7 @@ local inline int parse_options (int argc, const char* const* argv,
             if (arg[2] == 0) /* "--" ==> end of options */
               goto done_with_argv;
             else if (asciz_equal(&arg[2],"help")) {
-              usage();
+              usage(delegating);
               return 0;
             } else if (asciz_equal(&arg[2],"version")) {
               p2->argv_expr_count = 0;  /* discard previous -x */
@@ -2811,8 +2828,8 @@ local inline int parse_options (int argc, const char* const* argv,
         p2->argv_execute_args = argptr;
         p2->argv_execute_arg_count = argptr_limit - argptr;
         argptr = argptr_limit; /* abort loop */
-      } else {
-        /* no option -> is interpreted as file to be loaded / compiled / executed */
+      } else {             /* non option -> interpreted as file to be */
+       non_option:         /* loaded / compiled / executed */
         switch (argv_for) {
           case for_init:
             p2->argv_init_files[p2->argv_init_filecount++] = arg;

@@ -3,13 +3,13 @@
 /* --------------------------- Specification ---------------------------- */
 
 /* UP: Saves a memory image on disk.
- savemem(stream,exec_p);
+ savemem(stream,executable);
  > object stream: open file output stream
- > bool exec_p: should the result include runtime?
+ > uintL executable: 0: no runtime; 1: runtime; 2: also delegate command line
  < file length
  As a side effect, the stream is closed.
  can trigger GC */
-global maygc off_t savemem (object stream, bool exec_p);
+global maygc off_t savemem (object stream, uintL executable);
 
 /* UP: Restores a memory image from disk.
  loadmem(filename);
@@ -237,6 +237,28 @@ typedef struct {
     end_system_call();                                                  \
   } while(0)
 
+/* find the marker of given size in the open file handle */
+local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
+  char buf[BUFSIZ];
+  size_t marker_pos = 0;
+  size_t pos = 0;
+  while (1) {
+    size_t result = full_read(handle,(void*)buf,BUFSIZ);
+    size_t i;
+    if (result <= 0)
+      return (size_t)-1;
+    for (i = 0; i < result; i++) {
+      pos++;
+      if (buf[i] == marker[marker_pos]) {
+        if (++marker_pos == marker_len) /* found! */
+          return pos - marker_len;
+      } else
+        marker_pos = 0;
+    }
+  }
+  return (size_t)-1;
+}
+
 /* write the executable into the handle */
 local Handle open_filename (const char* filename);
 local void find_memdump (Handle fd);
@@ -244,7 +266,7 @@ local void find_memdump (Handle fd);
    == the start of memory image in the executable */
 static size_t mem_start = (size_t)-1;
 static bool mem_searched = false; /* have we looked for memdump already */
-static void savemem_with_runtime (Handle handle) {
+static void savemem_with_runtime (Handle handle, bool delegating) {
   var char *executable_name = get_executable_name();
   var char buf[BUFSIZ];
   begin_system_call();
@@ -296,6 +318,22 @@ static void savemem_with_runtime (Handle handle) {
       mem_start += res;
       begin_system_call();
     }
+  }
+  if (delegating != delegating_p()) {
+    /* reset delegating_cookie in handle to delegating
+       (i.e., only handle --clisp-* command line arguments)
+       assume that the current executable has the same cookie as handle */
+    lseek(handle,0,SEEK_SET); /* search from file start */
+    var size_t delegating_cookie_pos = find_marker(handle,delegating_cookie,
+                                                   delegating_cookie_length);
+    if (delegating_cookie_pos == (size_t)-1) {
+      /* FILE-ERROR slot PATHNAME */
+      pushSTACK(asciz_to_string(executable_name,O(pathname_encoding)));
+      error(file_error,GETTEXT("Delegating cookie not found"));
+    }
+    lseek(handle,delegating_cookie_pos+delegating_cookie_length-1,SEEK_SET);
+    write(handle,(delegating ? "Y" : "N"),1); /* reset the cookie */
+    lseek(handle,0,SEEK_END);   /* restore file position */
   }
 #if defined(UNIX) && defined(HAVE_FCHMOD)
   { /* make the saved image executable */
@@ -367,11 +405,11 @@ local uintL fill_memdump_header (memdump_header_t *header) {
 }
 
 /* UP, stores the memory image on disk
- savemem(stream,exec_p);
+ savemem(stream,executable);
  > object stream: open File-Output-Stream, will be closed
- > bool exec_p: should the result include runtime?
+ > uintL executable: 0: no runtime; 1: runtime; 2: also delegate command line
  can trigger GC */
-global maygc off_t savemem (object stream, bool exec_p)
+global maygc off_t savemem (object stream, uintL executable)
 { /* We need the stream only because of the handle provided by it.
      In case of an error we have to close it (the caller makes no
      WITH-OPEN-FILE, but only OPEN). Hence, the whole stream is passed
@@ -392,7 +430,7 @@ global maygc off_t savemem (object stream, bool exec_p)
   }
   /* execute one GC first: */
   PERFORM_GC(gar_col(1),true); /* lock the heap before the GC */
-  if (exec_p) savemem_with_runtime(handle);
+  if (executable>0) savemem_with_runtime(handle, executable>1);
   /* write basic information: */
   var memdump_header_t header;
   var uintL module_names_size = fill_memdump_header(&header);
@@ -652,7 +690,7 @@ global maygc off_t savemem (object stream, bool exec_p)
   }
   #endif
  #endif
-  if (exec_p) WRITE(&mem_start,sizeof(size_t)); /* see find_memdump() */
+  if (executable>0) WRITE(&mem_start,sizeof(size_t)); /* see find_memdump() */
   else { size_t tmp = (size_t)-1; WRITE(&tmp,sizeof(size_t)); }
   /* close stream (stream-buffer is unchanged, but thus also the
      handle at the operating system is closed): */
@@ -1760,30 +1798,6 @@ local void loadmem_from_handle (Handle handle, const char* filename)
   begin_system_call(); CLOSE_HANDLE(handle); end_system_call();
   quit_instantly(1);
 }
-
-#if defined(LOADMEM_TRY_SEARCH)
-/* find the marker of given size in the open file handle */
-local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
-  char buf[BUFSIZ];
-  size_t marker_pos = 0;
-  size_t pos = 0;
-  while (1) {
-    size_t result = full_read(handle,(void*)buf,BUFSIZ);
-    size_t i;
-    if (result <= 0)
-      return (size_t)-1;
-    for (i = 0; i < result; i++) {
-      pos++;
-      if (buf[i] == marker[marker_pos]) {
-        if (++marker_pos == marker_len) /* found! */
-          return pos - marker_len;
-      } else
-        marker_pos = 0;
-    }
-  }
-  return (size_t)-1;
-}
-#endif
 
 /* find the memory image in the file
  there are two methods:

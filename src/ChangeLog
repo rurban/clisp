@@ -1,5 +1,21 @@
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
+	save "delegating" executable images which only parse --clisp* args
+	* pathname.d (SAVEMEM): second argument EXECUTABLE can be 0 to
+	mean delegate all command line options to the INIT-FUNCTION,
+	only parse --clisp - prefixed options
+	* spvw.d (usage): accept delegating argument
+	(delegating_cookie, delegating_cookie_length, delegating_p): add
+	(parse_options): when delegating_p returns true, only handle
+	options prefixed with --clisp
+	* spvw_memfile.d (savemem): second argument is a uintL, not a bool
+	(find_marker): always present
+	(savemem_with_runtime): when the second argument delegating is
+	true, reset the delegating cookie
+	* lispbibl.d (savemem): update the prototype
+
+2008-11-06  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-LAMBDABODY): tweak the 2008-11-02 patch: when
 	NAME is an integer, use SYMBOL-SUFFIX for FNODE-NAME and do NOT
 	save the new *FUNC* in *FNODE-LIST* (i.e., treat it as IGNORABLE)
