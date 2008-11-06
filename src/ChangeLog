@@ -1,3 +1,11 @@
+2008-11-06  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-LAMBDABODY): tweak the 2008-11-02 patch: when
+	NAME is an integer, use SYMBOL-SUFFIX for FNODE-NAME and do NOT
+	save the new *FUNC* in *FNODE-LIST* (i.e., treat it as IGNORABLE)
+	(c-FUNCTION, c-%GENERIC-FUNCTION-LAMBDA, c-%OPTIMIZE-FUNCTION-LAMBDA):
+	pass (incf *anonymous-count*) as name to c-LAMBDABODY
+
 2008-11-05  Sam Steingold  <sds@gnu.org>
 
 	* clhs.lisp (open-http): write http error to *HTTP-LOG-STREAM*,
