@@ -1752,8 +1752,7 @@ STANDARD_PTR_OBJECT_LOOK(GCONTEXT,gcontext)
 DEFUN(XLIB:MAKE-EVENT-KEYS, event)
 { VALUES1(check_event_mask_to_list(get_uint32(popSTACK()))); }
 
-DEFUN(XLIB:MAKE-EVENT-MASK,&rest keys)
-{
+DEFUN(XLIB:MAKE-EVENT-MASK,&rest keys) {
   unsigned long mask = 0;
   while (argcount--) mask |= check_event_mask(popSTACK());
   VALUES1(make_uint32(mask));
@@ -1762,8 +1761,7 @@ DEFUN(XLIB:MAKE-EVENT-MASK,&rest keys)
 DEFUN(XLIB:MAKE-STATE-KEYS, event)
 { VALUES1(check_modifier_to_list(get_uint16(popSTACK()))); }
 
-DEFUN(XLIB:MAKE-STATE-MASK, &rest args)
-{
+DEFUN(XLIB:MAKE-STATE-MASK, &rest args) {
   unsigned int mask = 0;
   while (argcount--) mask |= check_modifier(popSTACK());
   VALUES1(make_uint16(mask));
@@ -1817,7 +1815,7 @@ static Display *x_open_display (char* display_name, int display_number) {
 
 DEFUN(XLIB:OPEN-DISPLAY, &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
-  int  display_number = 0;      /* the display number */
+  int display_number = 0;       /* the display number */
   Display *dpy;
   gcv_object_t *display_arg = NULL;
 
@@ -3465,15 +3463,11 @@ DEFUN(XLIB:COPY-GCONTEXT, arg1 arg2)
 
 DEFUN(XLIB:COPY-GCONTEXT-COMPONENTS, gc1 gc2 &rest rest)
 {
-  unsigned i;
   unsigned long mask = 0;
   GC gcon1, gcon2;
   Display *dpy;
 
-  for (i = 0; i < argcount-2; i++) {
-    mask |= get_gcontext_key (STACK_0);
-    skipSTACK(1);
-  }
+  while (argcount--) mask |= get_gcontext_key (popSTACK());
 
   gcon1 = get_gcontext_and_display (STACK_0, &dpy);
   gcon2 = get_gcontext (STACK_1);

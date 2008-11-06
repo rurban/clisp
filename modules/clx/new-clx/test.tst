@@ -555,6 +555,26 @@ CHECK-TIMEOUT
         (if (> end (length message)) (return))
         (xlib:clear-area top-win :exposures-p t))))) NIL
 
+(xlib:with-open-display (dpy)
+  (let* ((top-win (xlib:screen-root (first (xlib:display-roots dpy))))
+         (gc1 (xlib:create-gcontext :drawable top-win :foreground 0
+                                    :line-width 1))
+         (gc2 (xlib:create-gcontext :drawable top-win :foreground 1
+                                    :line-width 2)))
+    (list (list (xlib:gcontext-foreground gc1) (xlib:gcontext-line-width gc1)
+                (xlib:gcontext-foreground gc2) (xlib:gcontext-line-width gc2))
+          (xlib:copy-gcontext-components gc1 gc2)
+          (list (xlib:gcontext-foreground gc1) (xlib:gcontext-line-width gc1)
+                (xlib:gcontext-foreground gc2) (xlib:gcontext-line-width gc2))
+          (xlib:copy-gcontext-components gc1 gc2 :font :foreground)
+          (list (xlib:gcontext-foreground gc1) (xlib:gcontext-line-width gc1)
+                (xlib:gcontext-foreground gc2) (xlib:gcontext-line-width gc2))
+          (xlib:copy-gcontext-components gc1 gc2 :font :foreground :line-width)
+          (list (xlib:gcontext-foreground gc1) (xlib:gcontext-line-width gc1)
+                (xlib:gcontext-foreground gc2) (xlib:gcontext-line-width gc2))
+          )))
+((0 1 1 2) NIL (0 1 1 2) NIL (0 1 0 2) NIL (0 1 0 1))
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
