@@ -10636,12 +10636,12 @@ extern uintM free_space (void);
 /* is used by DEBUG */
 
 /* UP: saves memory image to disc
- savemem(stream,exec_p);
+ savemem(stream,executable);
  > object stream: open File-Output-Stream, will be closed
- > bool exec_p: should the result include runtime?
+ > uintL executable: 0: no runtime; 1: runtime; 2: also delegate command line
  < file length
  can trigger GC */
-extern maygc off_t savemem (object stream, bool exec_p);
+extern maygc off_t savemem (object stream, uintL executable);
 /* used by PATHNAME */
 
 #ifdef HAVE_SIGNALS

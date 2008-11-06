@@ -143,11 +143,25 @@
     will produce an image without any global handlers inherited
     from the batch mode of the above command.</para></listitem></varlistentry>
  <varlistentry><term><constant>:EXECUTABLE</constant></term>
-  <listitem><simpara>When non-&nil;, the saved file will be an
+  <listitem><simpara>When non-&nil;, the saved file will be a
     standalone executable.
     In this case, the &mem-file; extension is not added.
     On &win32; and &cygwin; the extension <filename>#P".exe"</filename>
-    is added instead.</simpara></listitem></varlistentry>
+    is added instead.</simpara>
+   <para>Additionally, if this argument is &zero;, the standard
+    &clisp; command line options will &not-e; be processed by the
+    executable but will be placed into &args; instead.
+    This is convenient for application delivery, so that your
+    &clisp;-based application can accept, e.g., &opt-x;.
+    To override this feature of the image, you have to prefix the
+    options with <literal>"--clisp"</literal>, e.g.,
+    use <option>--clisp-x</option> instead of &opt-x;.
+    This, given such a &clisp;-based application, you can get to an
+    ordinary &clisp; &repl; by doing <screen>
+&sh-prompt; application --clisp-x '(&savemem; "myclisp" :executable t :init-function (function sys::main-loop))'
+&sh-prompt; ./myclisp
+</screen>These instructions are also printed by
+    <option>--clisp--help</option>.</para></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
