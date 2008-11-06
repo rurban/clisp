@@ -1173,6 +1173,28 @@ check-const-fold
         (test-macro-dotted-args 1 2 . 3)))
 ((123) 123 (1 2 . 3))
 
+;; check unused function warnings
+(multiple-value-list (compile 'x (lambda (x) (when nil (format t "arg=~S" x)))))
+(X NIL NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) (x x)))))
+(X NIL NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) x))))
+(X 1 NIL)
+(multiple-value-list (compile 'x (lambda () (flet ((x (u) (1+ u))) #'x))))
+(X NIL NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) x))))
+(X 1 NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) (declare (ignorable #'x)) x))))
+(X NIL NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) (declare (ignore #'x)) x))))
+(X NIL NIL)
+(multiple-value-list (compile 'x (lambda () (flet ((x (u) (1+ u))) (declare (ignore #'x)) #'x))))
+(X 1 NIL)
+(multiple-value-list (compile 'x (lambda (x) (flet ((x (u) (1+ u))) (declare (ignore #'x)) #'x))))
+(X 2 NIL)
+(multiple-value-list (compile 'x (lambda (x) (declare (ignore x)) (flet ((x (u) (1+ u))) #'x))))
+(X NIL NIL)
+
 (progn ; Clean up.
   (symbol-cleanup 'test-macro-arglist)
   (symbol-cleanup 'test-fun-arglist)
