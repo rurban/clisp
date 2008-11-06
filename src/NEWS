@@ -3,6 +3,11 @@ Important notes
 
 * Module Berkeley-DB now supports Berkeley DB 4.7.
 
+* Passing :EXECUTABLE 0 to EXT:SAVEINITMEM results in an executable
+  image which delegates processing of all the usual CLISP command line
+  options to the :INIT-FUNCTION.
+  See <http://clisp.cons.org/impnotes/image.html> for details.
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
