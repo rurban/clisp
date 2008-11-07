@@ -2,6 +2,7 @@
 
 	* modules/clx/new-clx/clx.f (XLIB:OPEN-DISPLAY): fix the signature
 	and a segfault in (XLIB:OPEN-DISPLAY NIL)
+	(DISPLAY-AUTHORIZATION): move STACK_to_mv past X_CALL
 
 2008-11-06  Sam Steingold  <sds@gnu.org>
 

@@ -1862,8 +1862,8 @@ DEFUN(XLIB:DISPLAY-AUTHORIZATION, display) /* OK */
                                              GLO(misc_encoding)))
     PUSH(address); PUSH(number); PUSH(name); PUSH(data);
 #  undef PUSH
-    STACK_to_mv(5);
     X_CALL(XauDisposeAuth(auth));
+    STACK_to_mv(5);
   } else VALUES0;
 }
 
