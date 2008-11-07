@@ -975,6 +975,9 @@ static object get_display_obj (object obj)
 #define get_colormap(obj) ((Colormap)get_xid_object (`XLIB::COLORMAP`, obj))
 #define get_drawable(obj) ((Drawable)get_xid_object (`XLIB::DRAWABLE`, obj))
 
+#define get_window_0(obj)  (missingp(obj) ? None : get_window(obj))
+#define get_cursor_0(obj)  (missingp(obj) ? None : get_cursor(obj))
+
 /* Combined getters */
 #define get_drawable_and_display(obj, dpyf) ((Drawable)get_xid_object_and_display (`XLIB::DRAWABLE`, obj, dpyf))
 #define get_window_and_display(obj, dpyf)   ((Window)  get_xid_object_and_display (`XLIB::WINDOW`,   obj, dpyf))
@@ -6450,8 +6453,8 @@ DEFUN(XLIB:GRAB-POINTER, window event-mask &key OWNER-P SYNC-POINTER-P \
   Bool             owner_p = !missingp(STACK_5);
   Bool        sync_pointer = missingp(STACK_4);
   Bool       sync_keyboard = missingp(STACK_3);
-  Window        confine_to = boundp(STACK_2) ? get_window(STACK_2) : None;
-  Cursor            cursor = boundp(STACK_1) ? get_cursor(STACK_1) : None;
+  Window        confine_to = get_window_0(STACK_2);
+  Cursor            cursor = get_cursor_0(STACK_1);
   Time                time = get_timestamp (STACK_0);
   int r;
 
@@ -6469,7 +6472,7 @@ DEFUN(XLIB:CHANGE-ACTIVE-POINTER-GRAB, dpy event-mask &optional cursor time)
 {
   Display *dpy = get_display(STACK_3);
   unsigned long event_mask = get_event_mask (STACK_2);
-  Cursor            cursor = boundp(STACK_1) ? get_cursor(STACK_1) : None;
+  Cursor            cursor = get_cursor_0(STACK_1);
   Time                time = get_timestamp (STACK_0);
 
   X_CALL(XChangeActivePointerGrab (dpy, event_mask, cursor, time));
@@ -6492,8 +6495,8 @@ DEFUN(XLIB:GRAB-BUTTON, window button event-mask &key MODIFIERS \
   Bool owner_p = !missingp(STACK_4);
   Bool sync_pointer = missingp(STACK_3);
   Bool sync_keyboard = missingp(STACK_2);
-  Window confine_to = boundp(STACK_1) ? get_window(STACK_1) : None;
-  Cursor cursor = boundp(STACK_0) ? get_cursor(STACK_0) : None;
+  Window confine_to = get_window_0(STACK_1);
+  Cursor cursor = get_cursor_0(STACK_0);
 
   X_CALL(XGrabButton (dpy, button, modifiers, win, owner_p, event_mask,
                       sync_pointer, sync_keyboard, confine_to, cursor));
