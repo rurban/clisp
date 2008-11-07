@@ -4,6 +4,8 @@
 	and a segfault in (XLIB:OPEN-DISPLAY NIL)
 	(DISPLAY-AUTHORIZATION): move STACK_to_mv past X_CALL
 	(CREATE-WINDOW): use macro SLOT
+	(get_event_mask): define as check_event_mask_of_list
+	(make_event_mask): define as make_uint32
 
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
