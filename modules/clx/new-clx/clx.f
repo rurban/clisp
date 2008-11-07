@@ -2932,7 +2932,7 @@ DEFUN(XLIB:CREATE-PIXMAP, &key PIXMAP :WIDTH HEIGHT DEPTH DRAWABLE)
 
   if (!boundp(STACK_0) || !boundp(STACK_1) ||
       !boundp(STACK_2) || !boundp(STACK_3))
-    NOTIMPLEMENTED;
+    error_required_keywords(`(:WIDTH :HEIGHT :DEPTH :DRAWABLE)`);
 
   da     = get_drawable_and_display (STACK_0, &dpy);
   width  = get_uint16 (STACK_3);        /* actually uint15! */
@@ -6029,7 +6029,7 @@ DEFUN(XLIB:PROCESS-EVENT, display &key HANDLER :TIMEOUT PEEK-P DISCARD-P \
   struct timeval *timeout = sec_usec(STACK_3,unbound,&tv);
 
   if (!boundp(STACK_4))
-    NOTIMPLEMENTED;
+    error_required_keywords(`:HANDLER`);
 
   /* Now go into the recursive event queque travel routine */
 
