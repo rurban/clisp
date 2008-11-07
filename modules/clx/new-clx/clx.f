@@ -2474,31 +2474,17 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y :WIDTH HEIGHT          \
 #define SLOT(ofs, type, cslot, mask)\
     if (!missingp(STACK_(ofs))) { attr.cslot = get_##type(STACK_(ofs)); valuemask |= mask; }
 
-#if 0
-  SLOT ( 0, cursor,     cursor,                 CWCursor);
-  SLOT ( 1, colormap,   colormap,               CWColormap);
-  SLOT ( 2, switch,     override_redirect,      CWOverrideRedirect);
-  SLOT ( 3, uint32,     do_not_propagate_mask,  CWDontPropagate);
-  SLOT ( 4, event_mask, event_mask,             CWEventMask);
-  SLOT ( 5, switch,     save_under,             CWSaveUnder);
-  SLOT ( 6, uint32,     backing_pixel,          CWBackingPixel);
-  SLOT ( 7, uint32,     backing_planes,         CWBackingPlanes);
-#endif
-
-  if (!missingp(STACK_0))
-    { attr.cursor = get_cursor(STACK_0); valuemask |= CWCursor; }
-  if (!missingp(STACK_1))
-    { attr.colormap = get_colormap (STACK_1); valuemask |= CWColormap; }
-
-  if (!missingp(STACK_2)) { attr.override_redirect     = get_switch (STACK_2);         valuemask |= CWOverrideRedirect; }
-  if (!missingp(STACK_3)) { attr.do_not_propagate_mask = get_uint32 (STACK_3);         valuemask |= CWDontPropagate; }
-  if (!missingp(STACK_4)) { attr.event_mask            = get_event_mask (STACK_4);     valuemask |= CWEventMask; }
-  if (!missingp(STACK_5)) { attr.save_under            = get_generic_switch (STACK_5); valuemask |= CWSaveUnder; }
-  if (!missingp(STACK_6)) { attr.backing_pixel         = get_uint32 (STACK_6);         valuemask |= CWBackingPixel; }
-  if (!missingp(STACK_7)) { attr.backing_planes        = get_uint32 (STACK_7);         valuemask |= CWBackingPlanes; }
-  if (!missingp(STACK_8)) { attr.backing_store         = get_backing_store (STACK_8);  valuemask |= CWBackingStore; }
-  if (!missingp(STACK_9)) { attr.win_gravity           = get_gravity (STACK_9);        valuemask |= CWWinGravity; }
-  if (!missingp(STACK_10)) { attr.bit_gravity          = get_gravity (STACK_10);       valuemask |= CWBitGravity; }
+  SLOT( 0, cursor,     cursor,                 CWCursor);
+  SLOT( 1, colormap,   colormap,               CWColormap);
+  SLOT( 2, switch,     override_redirect,      CWOverrideRedirect);
+  SLOT( 3, uint32,     do_not_propagate_mask,  CWDontPropagate);
+  SLOT( 4, event_mask, event_mask,             CWEventMask);
+  SLOT( 5, generic_switch, save_under,         CWSaveUnder);
+  SLOT( 6, uint32,     backing_pixel,          CWBackingPixel);
+  SLOT( 7, uint32,     backing_planes,         CWBackingPlanes);
+  SLOT( 8, backing_store, backing_store,       CWBackingStore);
+  SLOT( 9, gravity,    win_gravity,            CWWinGravity);
+  SLOT(10, gravity,    bit_gravity,            CWBitGravity);
 
   if (!missingp(STACK_(11))) { /* :border */
     if (eq(STACK_(11),S(Kcopy))) {
@@ -2508,7 +2494,7 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y :WIDTH HEIGHT          \
       attr.border_pixmap = get_pixmap (STACK_(11));
       valuemask |= CWBorderPixmap;
     } else {
-      attr.border_pixel = get_uint32 (STACK_(11));
+      attr.border_pixel = get_pixel (STACK_(11));
       valuemask |= CWBorderPixel;
     }
   }
@@ -2536,31 +2522,21 @@ DEFUN(XLIB:CREATE-WINDOW, &key WINDOW PARENT X Y :WIDTH HEIGHT          \
   if (!missingp(STACK_(16))) /* :depth */
     depth = get_uint16 (STACK_(16));
 
-  if (!missingp(STACK_(17)))               /* :height */ /* C */
-    height = get_uint16 (STACK_(17));
-  else
-    goto required;
+  if (missingp(STACK_(17))) goto required;         /* :height */ /* C */
+  height = get_uint16 (STACK_(17));
 
-  if (!missingp(STACK_(18)))              /* :width */ /* C */
-    width = get_uint16 (STACK_(18));
-  else
-    goto required;
+  if (missingp(STACK_(18))) goto required;          /* :width */ /* C */
+  width = get_uint16 (STACK_(18));
 
-  if (!missingp(STACK_(19)))          /* :y */ /* C */
-    y = get_sint16 (STACK_(19));
-  else
-    goto required;
+  if (missingp(STACK_(19))) goto required;              /* :y */ /* C */
+  y = get_sint16 (STACK_(19));
 
-  if (!missingp(STACK_(20)))          /* :x */ /* C */
-    x = get_sint16 (STACK_(20));
-  else
-    goto required;
+  if (missingp(STACK_(20))) goto required;              /* :x */ /* C */
+  x = get_sint16 (STACK_(20));
 
-  if (!missingp(STACK_(21))) {               /* :parent */ /* C */
-    parent = get_window_and_display (STACK_(21), &dpy);
-    pushSTACK(get_display_obj (STACK_(21)));
-  } else
-    goto required;
+  if (missingp(STACK_(21))) goto required;         /* :parent */ /* C */
+  parent = get_window_and_display (STACK_(21), &dpy);
+  pushSTACK(get_display_obj (STACK_(21)));
 
   if (!missingp(STACK_(13+1))) /* :visual */
     visual = get_visual (dpy, STACK_(13+1));
