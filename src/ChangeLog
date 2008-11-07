@@ -1,3 +1,8 @@
+2008-11-07  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:OPEN-DISPLAY): fix the signature
+	and a segfault in (XLIB:OPEN-DISPLAY NIL)
+
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (COPY-GCONTEXT-COMPONENTS):
