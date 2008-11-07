@@ -1,7 +1,7 @@
 2008-11-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:OPEN-DISPLAY): fix the signature
-	and a segfault in (XLIB:OPEN-DISPLAY NIL)
+	and a segfault in (XLIB:OPEN-DISPLAY NIL); use grasp()
 	(DISPLAY-AUTHORIZATION): move STACK_to_mv past X_CALL
 	(CREATE-WINDOW): use macro SLOT
 	(get_event_mask): define as check_event_mask_of_list
