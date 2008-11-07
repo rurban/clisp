@@ -330,7 +330,7 @@ CHECK-WM-CLASS
 CREATE-FONT-CURSOR
 
 (format t "~&==== move mouse off of windows and watch it morph! ===~%") NIL
-(loop :for shape :from 0 :to 200 :for cursor = (create-font-cursor shape) :do
+(loop :for shape :from 0 :to 150 :for cursor = (create-font-cursor shape) :do
   (format t "~&~:D ~S~%" shape cursor)
   (setf (xlib:window-cursor *root*) cursor)
   (xlib:display-finish-output *dpy*)
@@ -576,6 +576,14 @@ CHECK-TIMEOUT
 ((0 1 1 2) NIL (0 1 1 2) NIL (0 1 0 2) NIL (0 1 0 1))
 
 (xlib:display-p (xlib:close-display (xlib:open-display nil))) T
+
+;; how do we get this event and check that it is what we sent?
+(xlib:with-open-display (dpy)
+  (xlib:send-event (xlib:screen-root (first (xlib:display-roots dpy)))
+                   :KEY-PRESS
+                   :KEY-PRESS
+                   :code 100))
+T
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
