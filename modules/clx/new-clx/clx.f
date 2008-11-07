@@ -5949,6 +5949,16 @@ static int disassemble_event_on_stack (XEvent *ev, gcv_object_t *dpy_objf)
 #undef ESLOT5
 }
 
+static int dpy_wait (Display *dpy, struct timeval *timeout) {
+  int conn, r;
+  fd_set ifds;
+  conn = ConnectionNumber (dpy); /* this is the fd. */
+  FD_ZERO (&ifds);
+  FD_SET (conn, &ifds);
+  X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
+  return (r > 0) && FD_ISSET (conn, &ifds);
+}
+
 static void travel_queque (Display *dpy, int peek_p, int discard_p,
                            int force_output_p, struct timeval *timeout)
 { /* peek_p == not remove-processed-p
@@ -5976,15 +5986,7 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
     r = QLength (dpy);
 
     if (r == 0) {
-      int conn;
-      fd_set ifds;
-
-      conn = ConnectionNumber (dpy); /* this is the fd. */
-      FD_ZERO (&ifds);
-      FD_SET (conn, &ifds);
-      X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
-
-      if ((r > 0) && FD_ISSET (conn, &ifds)) {
+      if (dpy_wait(dpy,timeout)) {
         /* timeout has to reduce by amount waited here for input;
            -- presumably select does that */
       } else {
@@ -6186,21 +6188,12 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
     value1 = make_uint32 (r);
   } else if ((r = QLength (dpy))) {
     value1 = make_uint32 (r);
-  } else { /* Wait */
-    int conn;
-    fd_set ifds;
-
-    conn = ConnectionNumber (dpy); /* this is the fd. */
-    FD_ZERO (&ifds);
-    FD_SET (conn, &ifds);
-    X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
-    if ((r > 0) && FD_ISSET (conn, &ifds)) {
-      /* RTFS: To flush or not to flush is here the question! */
-      X_CALL(r = XEventsQueued (dpy, QueuedAfterReading));
-      value1 = make_uint32 (r);
-    } else
-      value1 = NIL;
-  }
+  } else if (dpy_wait(dpy,timeout)) {
+    /* RTFS: To flush or not to flush is here the question! */
+    X_CALL(r = XEventsQueued (dpy, QueuedAfterReading));
+    value1 = make_uint32 (r);
+  } else
+    value1 = NIL;
   mv_count = 1;
 }
 

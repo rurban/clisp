@@ -9,6 +9,8 @@
 	(CREATE-PIXMAP, PROCESS-EVENT): use error_required_keywords()
 	instead of NOTIMPLEMENTED
 	(SEND-EVENT): fix the signature and use grasp()
+	(dpy_wait): add
+	(travel_queque, EVENT-LISTEN): use it
 
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
