@@ -8,6 +8,7 @@
 	(make_event_mask): define as make_uint32
 	(CREATE-PIXMAP, PROCESS-EVENT): use error_required_keywords()
 	instead of NOTIMPLEMENTED
+	(SEND-EVENT): fix the signature and use grasp()
 
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
