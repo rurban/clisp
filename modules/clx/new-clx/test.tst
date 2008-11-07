@@ -579,11 +579,13 @@ CHECK-TIMEOUT
 
 ;; how do we get this event and check that it is what we sent?
 (xlib:with-open-display (dpy)
-  (xlib:send-event (xlib:screen-root (first (xlib:display-roots dpy)))
-                   :KEY-PRESS
-                   :KEY-PRESS
-                   :code 100))
-T
+  (list (xlib:send-event (xlib:screen-root (first (xlib:display-roots dpy)))
+                         :KEY-PRESS
+                         :KEY-PRESS
+                         :code 100)
+        (xlib:discard-current-event dpy)
+        (xlib:event-listen dpy 0.01)))
+(T NIL NIL)
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
