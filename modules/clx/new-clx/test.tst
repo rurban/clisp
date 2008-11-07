@@ -575,6 +575,8 @@ CHECK-TIMEOUT
           )))
 ((0 1 1 2) NIL (0 1 1 2) NIL (0 1 0 2) NIL (0 1 0 1))
 
+(xlib:display-p (xlib:close-display (xlib:open-display nil))) T
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)

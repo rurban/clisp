@@ -1813,21 +1813,13 @@ static Display *x_open_display (char* display_name, int display_number) {
   return dpy;
 }
 
-DEFUN(XLIB:OPEN-DISPLAY, &rest args)
+DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
   int display_number = 0;       /* the display number */
   Display *dpy;
-  gcv_object_t *display_arg = NULL;
+  gcv_object_t *display_arg = &STACK_(argcount);
 
-  if (argcount % 2 != 1) error_key_odd(argcount,TheSubr(subr_self)->name);
-
-  if (argcount > 0) {
-    pushSTACK(STACK_(argcount-1)); /* the first argument */
-    if (!nullp(STACK_0) && !stringp(STACK_0))
-      my_type_error(`(OR NULL STRING)`,STACK_0);
-    else display_arg = &STACK_(argcount);
-    skipSTACK(1);
-  }
+  if (argcount % 2) error_key_odd(argcount,TheSubr(subr_self)->name);
 
   { /* Fetch an optional :DISPLAY argument */
     uintC i;
@@ -1839,13 +1831,13 @@ DEFUN(XLIB:OPEN-DISPLAY, &rest args)
       }
   }
 
-  if (display_arg) {
-    with_string_0(*display_arg,GLO(misc_encoding),displayz,
+  if (!nullp(*display_arg)) {
+    with_string_0(check_string(*display_arg),GLO(misc_encoding),displayz,
                   { dpy = x_open_display(displayz,display_number); });
   } else dpy = x_open_display(NULL,display_number);
 
   VALUES1(make_display(dpy, display_number));
-  skipSTACK(argcount);
+  skipSTACK(argcount+1);
 }
 
 static Xauth * my_xau_get_auth_by_name (char *dpy_name) {
