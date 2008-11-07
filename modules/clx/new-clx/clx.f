@@ -6184,28 +6184,22 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
   if (timeout == NULL) { /* Block */
     X_CALL(while (!(r = QLength (dpy))) XPeekEvent (dpy, &trashcan));
     value1 = make_uint32 (r);
-  } else {
-    r = QLength (dpy);
+  } else if ((r = QLength (dpy))) {
+    value1 = make_uint32 (r);
+  } else { /* Wait */
+    int conn;
+    fd_set ifds;
 
-    if (r) {
+    conn = ConnectionNumber (dpy); /* this is the fd. */
+    FD_ZERO (&ifds);
+    FD_SET (conn, &ifds);
+    X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
+    if ((r > 0) && FD_ISSET (conn, &ifds)) {
+      /* RTFS: To flush or not to flush is here the question! */
+      X_CALL(r = XEventsQueued (dpy, QueuedAfterReading));
       value1 = make_uint32 (r);
-    } else {
-      /* Wait */
-      int conn;
-      fd_set ifds;
-
-      conn = ConnectionNumber (dpy); /* this is the fd. */
-      FD_ZERO (&ifds);
-      FD_SET (conn, &ifds);
-      X_CALL(r = select (conn+1, &ifds, NULL, NULL, timeout));
-      if ((r > 0) && FD_ISSET (conn, &ifds)) {
-        /* RTFS: To flush or not to flush is here the question! */
-        X_CALL(r = XEventsQueued (dpy, QueuedAfterReading));
-        value1 = make_uint32 (r);
-      } else {
-        value1 = NIL;
-      }
-    }
+    } else
+      value1 = NIL;
   }
   mv_count = 1;
 }
