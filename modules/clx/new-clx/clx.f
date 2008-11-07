@@ -4004,9 +4004,7 @@ static void general_draw_text (int image_p)
        &key :translate[1] :width[0] */
 DEFUN(XLIB:DRAW-GLYPH, drawable gcontext x y element \
       &key TRANSLATE :WIDTH :SIZE)
-{
-  NOTIMPLEMENTED;
-}
+{ NOTIMPLEMENTED; }
 
 /* XLIB:DRAW-GLPYHS drawable[9] gcontext[8] x[7] y[6] sequence[5]
          &key (:start 0)[4] :end[3]
@@ -4019,7 +4017,7 @@ DEFUN(XLIB:DRAW-GLYPHS, drawable gcontext x y sequence \
 
 DEFUN(XLIB:DRAW-IMAGE-GLYPH, drawable gcontext x y element \
       &key TRANSLATE :WIDTH :SIZE)
-{UNDEFINED;}
+{ NOTIMPLEMENTED; }
 /* XLIB:DRAW-IMAGE-GLPYHS drawable gcontext x y sequence &key (:start 0) :end
        (:translate #'translate-default) :width (:size :default) */
 DEFUN(XLIB:DRAW-IMAGE-GLYPHS, drawable gcontext x y sequence \
@@ -6214,40 +6212,28 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
 
 /* 12.5  Sending Events */
 /*   XLIB:SEND-EVENT window event-key event-mask &rest event-slots
-        &key  propagate-p &allow-other-keys
+        &key propagate-p &allow-other-keys
 
   NOTE: The MIT-CLX interface specifies a :display argument here, which
   is not necessary */
-DEFUN(XLIB:SEND-EVENT, &rest args)
+DEFUN(XLIB:SEND-EVENT, window event-key event-mask &rest args)
 {
-  if (argcount < 3) goto too_few;
-  {
-    XEvent event;
-    Display *dpy;
-    Window window = get_window_and_display (STACK_(argcount-1), &dpy);
-    unsigned long event_mask = get_event_mask (STACK_(argcount-3));
-    int propagate_p = 0;
-    uintC i;
+  XEvent event;
+  Display *dpy;
+  Window window = get_window_and_display (STACK_(argcount+2), &dpy);
+  unsigned long event_mask = get_event_mask (STACK_(argcount));
+  int propagate_p = 0;
 
-    /* hunt for the :propagate-p */
-    for (i = 0; i < argcount; i += 2)
-      if (eq (STACK_(i+1), `:PROPAGATE-P`)) {
-        propagate_p = get_bool (STACK_(i));
-        break;
-      }
+  /* hunt for the :propagate-p */
+  pushSTACK(NIL);
+  if ((propagate_p = grasp(`:PROPAGATE-P`,argcount)))
+    propagate_p = get_bool (STACK_(propagate_p));
 
-    encode_event (argcount-3, STACK_(argcount-2), dpy, &event);
-    X_CALL(XSendEvent (dpy, window, propagate_p, event_mask, &event));
+  encode_event (argcount, STACK_(argcount+1), dpy, &event);
+  X_CALL(propagate_p = XSendEvent(dpy,window,propagate_p,event_mask,&event));
 
-    /* XSendEvent returns also some Status, should we interpret it?
-     If yes: How?! */
-    skipSTACK(argcount);
-    VALUES1(NIL);
-    return;
-  }
-
- too_few:
-  NOTIMPLEMENTED;
+  skipSTACK(argcount+4);
+  VALUES_IF(propagate_p); /* XSendEvent status: 0: failure; non-0: success */
 }
 
 /* 12.6  Pointer Position */
