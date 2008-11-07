@@ -11,6 +11,9 @@
 	(SEND-EVENT): fix the signature and use grasp()
 	(dpy_wait): add
 	(travel_queque, EVENT-LISTEN): use it
+	(get_window_0, get_cursor_0): add
+	(GRAB-POINTER, CHANGE-ACTIVE-POINTER-GRAB, GRAB-BUTTON):
+	use them, thus treat NIL and UNBOUND the same: as None
 
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
