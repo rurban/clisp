@@ -1453,16 +1453,8 @@ DEFCHECKER(check_event_mask,default=, bitmasks=both, type=unsigned long, \
            FOCUS-CHANGE=FocusChangeMask PROPERTY-CHANGE=PropertyChangeMask \
            COLORMAP-CHANGE=ColormapChangeMask                           \
            OWNER-GRAB-BUTTON=OwnerGrabButtonMask)
-static unsigned long get_event_mask (object obj)
-{ /* get_event_mask could handle a numerical and symbolic
-   representation of an event mask */
-  if (uint32_p (obj)) return get_uint32 (obj);
-  if (listp (obj)) return check_event_mask_of_list(obj);
-  my_type_error(`(OR XLIB::CARD32 LIST)`,obj);
-}
-
-static object make_event_mask (unsigned long mask)
-{ return make_uint32 (mask); }
+#define get_event_mask check_event_mask_of_list
+#define make_event_mask make_uint32
 
 
 /* -----------------------------------------------------------------------
