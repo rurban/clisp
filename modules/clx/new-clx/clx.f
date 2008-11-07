@@ -1805,6 +1805,20 @@ static Display *x_open_display (char* display_name, int display_number) {
   return dpy;
 }
 
+/* find key SLOT on the STACK, return the position of the value
+ if you have a DEFUN(FOO, a b c &rest)
+ and you want to find out the value of the :FOO argument, you do this:
+ pushSTACK(NIL);
+ if ((pos = grasp(`:FOO`,argcount)))
+   handle_foo_argument(STACK_(o)); */
+static int grasp (object slot, uintC n) {
+  uintC o;
+  for (o = 1 ; o < n; o += 2)
+    if (eq (STACK_(o+1), slot))
+      return o;
+  return 0;
+}
+
 DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
   int display_number = 0;       /* the display number */
@@ -1813,15 +1827,10 @@ DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
 
   if (argcount % 2) error_key_odd(argcount,TheSubr(subr_self)->name);
 
-  { /* Fetch an optional :DISPLAY argument */
-    uintC i;
-    for (i = 1; i < argcount ; i += 2)
-      if (eq (STACK_(i), `:DISPLAY`)) {
-        /* keyword found; value is in STACK_(i-1) */
-        display_number = get_uint8 (STACK_(i-1));
-        break;
-      }
-  }
+  /* Fetch an optional :DISPLAY argument */
+  pushSTACK(NIL);               /* adjust for grasp */
+  if ((display_number = grasp(`:DISPLAY`,argcount)))
+    display_number = get_uint8(STACK_(display_number));
 
   if (!nullp(*display_arg)) {
     with_string_0(check_string(*display_arg),GLO(misc_encoding),displayz,
@@ -1829,7 +1838,7 @@ DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
   } else dpy = x_open_display(NULL,display_number);
 
   VALUES1(make_display(dpy, display_number));
-  skipSTACK(argcount+1);
+  skipSTACK(argcount+2);
 }
 
 static Xauth * my_xau_get_auth_by_name (char *dpy_name) {
@@ -6053,14 +6062,6 @@ DEFUN(XLIB:LAST-TIMESTAMP-PROCESSED, display) {
 #endif  /* USE_LIBXT */
 
 /* 12.4  Managing the Event Queue */
-
-static int grasp (object slot, uintC n) {
-  uintC o;
-  for (o = 1 ; o < n; o += 2)
-    if (eq (STACK_(o+1), slot))
-      return o;
-  return 0;
-}
 
 static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 { /* encodes an event, which lies in the top /n/ stack locations into ev
