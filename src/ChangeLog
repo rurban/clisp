@@ -1,5 +1,10 @@
 2008-11-08  Sam Steingold  <sds@gnu.org>
 
+	* predtype.d (with_gc_statistics): avoid a format argument type
+	mismatch warning
+
+2008-11-08  Sam Steingold  <sds@gnu.org>
+
 	* errunix.d (errno_out_low): avoid
 	"warning: format not a string literal and no format arguments"
 

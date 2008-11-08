@@ -3154,7 +3154,7 @@ global void with_gc_statistics (gc_function_t* fun) {
     /* Now do the GC. */
     fun();
    #ifdef DEBUG_SPVW
-    fprintf(stderr,"done [%d]\n",free_space());
+    fprintf(stderr,"done [%ld]\n",(long)free_space());
    #endif
     /* Walk through memory again, this time decrementing. */
     locals.decrementing = true;
