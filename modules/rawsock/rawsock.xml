@@ -293,7 +293,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    When omitted, the standard platform-specific size is used.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKADDR-FAMILY &addr-r;)</code></term>
- <listitem><simpara>Return the numeric &family-r; of the
+ <listitem><simpara>Return the symbolic &family-r; of the
    <type>sockaddr</type> object.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:SOCKADDR-DATA &addr-r;)</code></term>
  <listitem><simpara>Return a &fresh; &vector-t; displaced to the

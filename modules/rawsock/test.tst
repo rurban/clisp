@@ -25,7 +25,9 @@
                                           type numeric)))
                             (assert (string= ip dotted))
                             (list :address ip numeric
-                                  (os:resolve-host-ipaddr numeric))))
+                                  (handler-case
+                                      (os:resolve-host-ipaddr numeric)
+                                    (error (e) e)))))
                         (posix:hostent-addr-list he)))
           :pretty t))
   (defun ip->ve (ip)
@@ -35,21 +37,25 @@
     (let* ((he (os:resolve-host-ipaddr host)) all
            (host1 (os:hostent-name he)))
       (show-he he)
-      (or (loop :for ip :in (os:hostent-addr-list he)
-            :for h1 = (os:resolve-host-ipaddr ip)
-            :do (show-he h1) (push h1 all)
-            :when (string-equal host1 (os:hostent-name h1))
-            :return (show (cons (ip->ve ip) (os:hostent-addrtype h1))))
+      (or (handler-case
+              (loop :for ip :in (os:hostent-addr-list he)
+                :for h1 = (os:resolve-host-ipaddr ip)
+                :do (show-he h1) (push h1 all)
+                :when (string-equal host1 (os:hostent-name h1))
+                :return (show (cons (ip->ve ip) (os:hostent-addrtype h1))))
+            (error (e) (princ-error e) nil))
           (if (eq host :default)
-              (let ((sa (rawsock:ifaddrs-address
-                         (or (find 2 (rawsock:ifaddrs
-                                      :flags-and '(:up :running :broadcast))
-                                   :key (lambda (i)
-                                          (rawsock:sockaddr-family
-                                           (rawsock:ifaddrs-address i))))
-                             (error "~S: no running broadcast INET interface"
-                                    'host->ip)))))
-                (cons (subseq (rawsock:sockaddr-data sa) 2 6) 2))
+              (let* ((l (rawsock:ifaddrs :flags-and '(:up :running :broadcast)))
+                     (i (find :INET (show l :pretty t)
+                              :key (lambda (i)
+                                     (rawsock:sockaddr-family
+                                      (rawsock:ifaddrs-address i)))))
+                     (sa (rawsock:ifaddrs-address
+                          (or (show i :pretty t)
+                              (error "~S: no running broadcast INET interface"
+                                     'host->ip)))))
+                (cons (subseq (rawsock:sockaddr-data (show sa :pretty t)) 2 6)
+                      :INET))
               (error "~S(~S): no match in ~S and ~S" 'host->ip host he all)))))
   (defun host->sa (host &optional (port 0))
     (let ((ip+type (host->ip host)) sa
@@ -69,7 +75,7 @@
            (data (rawsock:sockaddr-data sa)))
       (show sa)
       (show (list 'port (+ (aref data 1) (ash (aref data 0) 8))))
-      (and (= (rawsock:sockaddr-family sa) (rawsock:sockaddr-family sa-local))
+      (and (eq (rawsock:sockaddr-family sa) (rawsock:sockaddr-family sa-local))
            (equalp (subseq data 2)
                    (subseq (rawsock:sockaddr-data sa-local) 2)))))
   (dolist (what '(nil :data :family))
