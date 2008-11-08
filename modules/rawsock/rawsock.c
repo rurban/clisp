@@ -199,7 +199,8 @@ static void fill_iovec (object vect, size_t offset, ssize_t veclen,
 DEFUN(RAWSOCK:SOCKADDR-FAMILY, sa) {
   CLISP_SOCKLEN_T size;
   struct sockaddr *sa = CHECK_SOCKADDR(&STACK_0,&size,PROT_READ);
-  VALUES2(fixnum(sa->sa_family),fixnum(size)); skipSTACK(1);
+  VALUES2(check_socket_domain_reverse(sa->sa_family),fixnum(size));
+  skipSTACK(1);
 }
 DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
   /* return offset & size of the slot in SOCKADDR */
