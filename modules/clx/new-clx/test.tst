@@ -300,6 +300,9 @@ CHECK-WM-CLASS
 (check-wm-class "Blinky The Cloon")
 ("Blinky The Cloon" NIL)
 
+(xlib:iconify-window *window* *screen*) NIL
+(xlib:withdraw-window *window* *screen*) NIL
+
 (defparameter *rdb-tmp* (show (xlib:make-resource-database))) *RDB-TMP*
 ;; (stringp (show (xlib:resource-database-locale *rdb-tmp*))) T
 (xlib:add-resource *rdb-tmp* '("Foo" "Bar" "Baz") "ZoT") "ZoT"
