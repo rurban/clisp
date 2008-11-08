@@ -726,7 +726,7 @@ global void errno_out_low (int errorcode, const char* file, uintL line) {
   errormsg.msg = translate(errormsg.msg);
   if (errormsg.name[0] != 0 || errormsg.msg[0] != 0) {
     if (errormsg.name[0] != 0) /* known name? */
-      fprintf(stderr,errormsg.name);
+      fputs(errormsg.name,stderr);
     else
       fprintf(stderr,"%d",errorcode);
     if (errormsg.msg[0] != 0) /* message? */
