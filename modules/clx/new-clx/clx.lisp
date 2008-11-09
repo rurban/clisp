@@ -170,7 +170,7 @@
    display-trace ; for backwards compatibility describe-request describe-event describe-reply
    closed-display-p
    ;; extensions
-   open-default-display with-open-display
+   open-default-display with-open-display events-queued
    display-get-default display-resource-manager-string screen-resource-string
    *canonicalize-encoding*
    ;;; Only when using libXt:
