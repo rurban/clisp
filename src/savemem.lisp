@@ -29,7 +29,8 @@
 (defvar *saveinitmem-verbose* t
   "The default value for the :VERBOSE argument of SAVEINITMEM.")
 (defun saveinitmem (&optional (filename "lispinit.mem")
-                    &key ((:quiet *quiet*) nil) init-function
+                    &key ((:quiet *quiet*) nil)
+                    (init-function nil init-function-p)
                     ((:verbose *saveinitmem-verbose*) *saveinitmem-verbose*)
                     ((:norc *norc*) nil)
                     ((:documentation *image-doc*)
@@ -70,8 +71,14 @@
                     // nil
                     /// nil
                     *command-index* 0
-                    *home-package* nil)
-              (setq *driver* old-driver)
+                    *home-package* nil
+                    ;; must make sure that the user can get clisp repl back
+                    ;; from an executable image:
+                    ;;  ./clisp -K boot -q -norc -x '(saveinitmem "x" :executable 0 :init-function (lambda () (print *args*) (exit)))'
+                    ;; ./x --clisp-x '(ext:saveinitmem "myclisp" :executable t :init-function nil)'
+                    ;; ./myclisp => [1]> ...
+                    *driver* (if (and init-function-p (null init-function))
+                                 #'sys::main-loop old-driver))
               (when init-function (funcall init-function))
               (funcall *driver*)))
     (unless keep-global-handlers
