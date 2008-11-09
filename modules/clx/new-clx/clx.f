@@ -6219,7 +6219,7 @@ DEFUN(XLIB:SEND-EVENT, window event-key event-mask &rest args)
   if ((propagate_p = grasp(`:PROPAGATE-P`,argcount)))
     propagate_p = get_bool (STACK_(propagate_p));
 
-  encode_event (argcount, STACK_(argcount+1), dpy, &event);
+  encode_event (argcount, STACK_(argcount+1+1), dpy, &event);
   X_CALL(propagate_p = XSendEvent(dpy,window,propagate_p,event_mask,&event));
 
   skipSTACK(argcount+4);
