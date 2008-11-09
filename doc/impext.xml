@@ -84,9 +84,9 @@
  <varlistentry><term><constant>:QUIET</constant></term>
   <listitem><simpara>If this argument is not &nil;, the startup banner
     and the good-bye message will be suppressed, as if by &opt-q;.</simpara>
-   <simpara>This is &not-e; recommended for interactive application
-    delivery, please <emphasis>append</emphasis> your banner to ours
-    (using &init-function;) instead of <emphasis>replacing</emphasis> it.
+   <simpara>This is &not-e; recommended for interactive application delivery,
+    please <emphasis>append</emphasis> your banner to ours (using
+    &init-function;) instead of <emphasis>replacing</emphasis> it.
  </simpara></listitem></varlistentry>
  <varlistentry><term><constant>:VERBOSE</constant></term>
   <listitem><simpara>Print a message after writing the file.
@@ -105,7 +105,7 @@
    (this does not prevent &fini-hooks; from being run).</simpara>
    <simpara>See <olink targetdoc="man" targetptr="opt-exec-file">the
      manual</olink> for passing command line arguments to this function.
- </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
+   </simpara><simpara>See also &init-hooks; and &fini-hooks;.</simpara>
  </listitem></varlistentry>
  <varlistentry><term><constant>:SCRIPT</constant></term>
   <listitem><para>This options determines the handling of positional
@@ -142,7 +142,7 @@
     <screen>&sh-prompt; clisp -i myfile -x '(&savemem;)'</screen>
     will produce an image without any global handlers inherited
     from the batch mode of the above command.</para></listitem></varlistentry>
- <varlistentry><term><constant>:EXECUTABLE</constant></term>
+ <varlistentry id="image-exec"><term><constant>:EXECUTABLE</constant></term>
   <listitem><simpara>When non-&nil;, the saved file will be a
     standalone executable.
     In this case, the &mem-file; extension is not added.
@@ -158,9 +158,11 @@
     use <option>--clisp-x</option> instead of &opt-x;.
     This, given such a &clisp;-based application, you can get to an
     ordinary &clisp; &repl; by doing <screen>
-&sh-prompt; application --clisp-x '(&savemem; "myclisp" :executable t :init-function (function sys::main-loop))'
+&sh-prompt; application --clisp-x '(&savemem; "myclisp" :executable t :init-function nil)'
 &sh-prompt; ./myclisp
-</screen>These instructions are also printed by
+[1]&gt; (<link linkend="factorial">!</link> 20)
+2432902008176640000</screen>
+    These instructions are also printed by
     <option>--clisp--help</option>.</para></listitem></varlistentry>
 </variablelist>
 You can use this memory image with the &opt-M; option.

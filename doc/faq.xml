@@ -519,29 +519,9 @@ following command:
 </para></answer></qandaentry>
 
 
-<qandaentry id="faq-cmdopts"><question id="faq-cmdopts-q"><simpara>Why
-   does &clisp; insist on interpreting command line options passed to my
-   executable?</simpara></question>
-<answer><para>When you run a stand-alone executable created with
-  <code>(&savemem; "foo" :executable t :script t :init-function
-   #'start-me)</code>, you might want <emphasis>all</emphasis> command
-  line options to end up in &args; for
-  your <function>start-me</function> function to process.</para>
-<para>This is &not-e; the case. The options are still processed by
- &clisp; (see <xref linkend="cradle-grave"/>). Your users will have to
- pass <option>--</option> to <command>foo</command>:
- <screen>&sh-prompt; foo -- -a -b -h -v</screen></para>
-<para>This is done to enable your users to get to the &clisp; prompt
- even if your application does not offer it:
-<screen>&sh-prompt; foo -x '(&savemem; "bar" :executable t)'
-&sh-prompt; ./bar
-[1]&gt; (<link linkend="factorial">!</link> 20)
-2432902008176640000</screen></para></answer></qandaentry>
-
-
 <qandaentry id="faq-licensing"><question id="faq-licensing-q"><simpara>When
- I deliver my application with &clisp; does it have to be covered by
-   &gnu; &gpl;?</simpara></question>
+   I deliver my application with &clisp;, does it have to be covered by
+   the &gnu; &gpl;?</simpara></question>
 <answer><para>Not necessarily.</para>
 
 <para>&clisp; is <ulink url="http://www.gnu.org/philosophy/free-sw.html">Free

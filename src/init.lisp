@@ -2218,10 +2218,6 @@
 
 (LOAD "room")                   ; room, space
 
-(LOAD "savemem")                ; saveinitmem
-
-;; At this point saveinitmem works.
-
 ;; preliminary definition of CERROR, CLtL2 p. 887
 (predefun cerror (continue-format-string error-format-string &rest args)
   (if *error-handler*
@@ -2309,6 +2305,8 @@
 (LOAD "query")                  ; querying the user
 
 (LOAD "reploop")                ; prompt, debugger, stepper
+
+(LOAD "savemem")                ; saveinitmem
 
 (LOAD "dribble")                ; dribble
 
