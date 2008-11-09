@@ -2174,6 +2174,16 @@ DEFUN(XLIB:DISPLAY-FINISH-OUTPUT, display) /* OK */
   VALUES1(NIL);
 }
 
+DEFCHECKER(get_queued_mode,default=QueuedAlready,ALREADY=QueuedAlready \
+           AFTER-READING=QueuedAfterReading AFTER-FLUSH=QueuedAfterFlush)
+DEFUN(XLIB:EVENTS-QUEUED, display &optional mode) { /* extension */
+  int mode = get_queued_mode(popSTACK());
+  Display *dpy = pop_display();
+  int count;
+  X_CALL(count = XEventsQueued(dpy,mode));
+  VALUES1(UL_to_I(count));
+}
+
 DEFUN(XLIB:CLOSE-DISPLAY, display &key :ABORT) /* OK */
 { /* We can do nothing meaningful with the :abort option ... or could we? */
 
