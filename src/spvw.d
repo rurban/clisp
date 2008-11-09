@@ -2038,7 +2038,7 @@ local void usage (bool delegating) {
   if (delegating) {
     printf(GETTEXTL("This image does not process the usual command line arguments.\n"
                     "To create a normal image \"myclisp\", please do\n"
-                    "%s --clisp-x '(ext:saveinitmem \"myclisp\" :executable t :init-function (function sys::main-loop))'\n"),program_name);
+                    "%s --clisp-x '(ext:saveinitmem \"myclisp\" :executable t :init-function nil)'\n"),program_name);
     return;
   }
   printf(GETTEXTL("Usage:  %s [options] [lispfile [argument ...]]\n"

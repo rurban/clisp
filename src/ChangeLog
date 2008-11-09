@@ -1,3 +1,11 @@
+2008-11-09  Sam Steingold  <sds@gnu.org>
+
+	* savemem.lisp (saveinitmem): when given an explicit
+	:INIT-FUNCTION NIL, reset *DRIVER* to #'SYS::MAIN-LOOP
+	* init.lisp: load savemem.lisp after reploop.lisp
+	* spvw.d (usage): update REPL recover instructions: :INIT-FUNCTION NIL
+	instead of :INIT-FUNCTION (FUNCTION SYS::MAIN-LOOP)
+
 2008-11-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (EVENTS-QUEUED): add (call XEventsQueued)
