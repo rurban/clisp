@@ -7372,7 +7372,7 @@ DEFUN(XLIB:ADD-TO-SAVE-SET, window)
 }
 
 DEFUN(XLIB:CLOSE-DOWN-MODE, display)
-{ /* FIXME: This is wrong -- The close down mode could not been asked from the
+{ /* FIXME: This is wrong -- The close down mode could not be asked from the
          server, but you could store it in the display structure. (Like
          MIT-CLX does it.) */
   pushSTACK(`XLIB::CLOSE-DOWN-MODE`);
