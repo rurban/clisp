@@ -8,7 +8,8 @@
  -->
 
 <!-- *** general references about Common Lisp *** -->
-<!ENTITY clhs 'http://www.lisp.org/HyperSpec'>
+<!-- http://www.lisp.org/HyperSpec is dead -->
+<!ENTITY clhs 'http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec'>
 <!ENTITY clrfi 'http://clrfi.alu.org/clrfi'>
 <!ENTITY mop-home 'http://www.lisp.org/mop/'>
 <!ENTITY cl '<ulink url="http://www.lisp.org"><command>Common Lisp</command></ulink>'>
