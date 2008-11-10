@@ -1,5 +1,11 @@
 2008-11-09  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (main): run *INIT-HOOKS* after initializing O(argv) so
+	that the application can detect --clisp- options and remove setuid
+	http://clisp.podval.org/impnotes/image.html#image-exec
+
+2008-11-09  Sam Steingold  <sds@gnu.org>
+
 	* savemem.lisp (saveinitmem): when given an explicit
 	:INIT-FUNCTION NIL, reset *DRIVER* to #'SYS::MAIN-LOOP
 	* init.lisp: load savemem.lisp after reploop.lisp

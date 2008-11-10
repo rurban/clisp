@@ -3869,7 +3869,6 @@ global int main (argc_t argc, char* argv[]) {
         (*module->initfunction2)(module);
     });
   }
-  run_hooks(Symbol_value(S(init_hooks)));
   { /* Init O(argv). */
     O(argv) = allocate_vector(argc);
     var argc_t count;
@@ -3878,6 +3877,10 @@ global int main (argc_t argc, char* argv[]) {
       TheSvector(O(argv))->data[count] = arg;
     }
   }
+  /* do this after O(argv) is reado so that applications can detect "--clisp-"
+     options and remove setuid bits from the executable image.
+     http://clisp.podval.org/impnotes/image.html#image-exec */
+  run_hooks(Symbol_value(S(init_hooks)));
   /* Perform the desired actions (compilations, read-eval-print loop etc.): */
 #if defined(MULTITHREAD)
   /* may be set it as command line  parameter  - it should be big enough */
