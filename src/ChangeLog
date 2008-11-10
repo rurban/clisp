@@ -1,5 +1,9 @@
 2008-11-09  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (reset): avoid a warning in fprintf
+
+2008-11-09  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (main): run *INIT-HOOKS* after initializing O(argv) so
 	that the application can detect --clisp- options and remove setuid
 	http://clisp.podval.org/impnotes/image.html#image-exec
