@@ -569,8 +569,8 @@ nonreturning_function(global, reset, (uintL count)) {
          does not clean up SP & back_trace, just STACK, see
          https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1448744&group_id=1355
          we probably cannot even do NOTREACHED - the STACK is bad. */
-      fprintf(stderr,"\n[%s:%d] reset() found no driver frame (sp=0x%x-0x%x)\n",
-              __FILE__,__LINE__,(aint)SP_anchor,(aint)SP());
+      fprintf(stderr,"\n[%s:%d] reset() found no driver frame (sp=0x%lx-0x%lx)\n",
+              __FILE__,__LINE__,(unsigned long)SP_anchor,(unsigned long)SP());
       abort();
     }
     if (framecode(STACK_0) & bit(frame_bit_t)) {
