@@ -1,5 +1,11 @@
 2008-11-11  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (PATH_VALUE, LOG_PATH_VALUE, PATH_SLOT): add macros
+	(PATHNAME-HOST, PATHNAME-DEVICE, PATHNAME-DIRECTORY)
+	(PATHNAME-NAME, PATHNAME-TYPE): use them
+
+2008-11-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DEVPREFIX) [cygwin]: restore the definition lost on
 	2005-08-29
 
