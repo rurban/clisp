@@ -2779,17 +2779,7 @@ if [ $TSYS = win32msvc -a "$DEBUGGING" = debug ] ; then
   echol
 fi
 
-if [ $TOS = win32 ] ; then
-  CONFIG=cfgwin32
-fi
-if [ $TOS = unix ] ; then
-  if [ $CROSS = false -a "$HSYSOS" = sunos ] ; then
-    CONFIG=cfgsunux
-  fi
-  if test -z "$CONFIG"; then
-    CONFIG=cfgunix
-  fi
-fi
+CONFIG=cfg${TOS}
 echol "config.lisp : ${SRCDIR}${CONFIG}.lisp"
 echotab "\$(CP) ${SRCDIR}${CONFIG}.lisp config.lisp"
 if [ $TOS = unix ] ; then
