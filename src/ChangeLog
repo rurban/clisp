@@ -1,3 +1,8 @@
+2008-11-11  Sam Steingold  <sds@gnu.org>
+
+	* cfgsunux.lisp: remove file (suntools users can set *EDITOR*)
+	* makemake.in (CONFIG): set to cfg${TOS}
+
 2008-11-09  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (reset): avoid a warning in fprintf
