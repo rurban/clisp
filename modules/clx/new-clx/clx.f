@@ -8394,3 +8394,8 @@ static XID display_resource_base (Display *dpy)
 static XID display_resource_mask (Display *dpy)
 { return ((struct _XDisplay*)dpy)->resource_mask; }
 
+/*
+Local Variables:
+change-log-default-name: "../../../src/ChangeLog"
+End:
+*/

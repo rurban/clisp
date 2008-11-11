@@ -1506,3 +1506,9 @@ void module__rawsock__init_function_2 (module_t* module) {
   }
 #endif
 }
+
+/*
+Local Variables:
+change-log-default-name: "../../src/ChangeLog"
+End:
+*/

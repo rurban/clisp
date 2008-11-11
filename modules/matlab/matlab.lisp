@@ -1,7 +1,7 @@
 ;;; Matlab API interface
 ;;; <http://www.mathworks.com/access/helpdesk/help/techdoc/apiref/apiref.shtml>
 ;;;
-;;; Copyright (C) 2004-2006 by Sam Steingold
+;;; Copyright (C) 2004-2008 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -436,3 +436,7 @@
 (pushnew :matlab *features*)
 (provide "matlab")
 (pushnew "MATLAB" custom:*system-package-list* :test #'string=)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

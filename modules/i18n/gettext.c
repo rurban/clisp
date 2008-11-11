@@ -506,3 +506,9 @@ DEFUNR(I18N:LANGUAGE-INFORMATION,&optional item)
   }
 }
 #endif
+
+/*
+Local Variables:
+change-log-default-name: "../../src/ChangeLog"
+End:
+*/

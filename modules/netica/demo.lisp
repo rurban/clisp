@@ -81,3 +81,7 @@
 (netica:DeleteNet_bn *new*)
 (netica:close-netica)
 (delete-file "asia.dne")
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

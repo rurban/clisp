@@ -1,6 +1,6 @@
 ;; Module for regular expression searching/matching in CLISP
 ;; Bruno Haible 14.4.1995, 18.4.1995 -- 2003
-;; Sam Steingold 1999-10-28 -- 2007
+;; Sam Steingold 1999-10-28 -- 2008
 
 (defpackage "REGEXP"
   (:documentation
@@ -152,3 +152,7 @@ The line is split with REGEXP-SPLIT using PATTERN."
   "A valid value for *APROPOS-MATCHER* in the UTF-8 locale."
   (let ((compiled (regexp-compile pattern :extended t :ignore-case t)))
     (lambda (name) (regexp-exec compiled name :boolean t))))
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

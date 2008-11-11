@@ -1,6 +1,6 @@
 ;;; CLISP i18n module
 ;;; Copyright (C) 1990-2004 Bruno Haible
-;;; Copyright (C) 1998-2007 Sam Steingold
+;;; Copyright (C) 1998-2008 Sam Steingold
 ;;
 ;; Interface to GNU gettext
 ;;
@@ -68,3 +68,7 @@
 (pushnew "I18N" custom:*system-package-list* :test #'string=)
 (pushnew :i18n *features*)
 (provide "i18n")
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:
