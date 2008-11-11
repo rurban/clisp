@@ -81,3 +81,9 @@ void fini_for_clisp (int leaving)
   killallfiles(leaving);
 #endif
 }
+
+/*
+Local Variables:
+change-log-default-name: "../../src/ChangeLog"
+End:
+*/

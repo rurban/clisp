@@ -455,3 +455,9 @@ DEFUN(GDBM:GDBM-SETOPT, dbf option value)
   }
   skipSTACK(3);
 }
+
+/*
+Local Variables:
+change-log-default-name: "../../src/ChangeLog"
+End:
+*/

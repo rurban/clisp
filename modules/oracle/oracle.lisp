@@ -1117,3 +1117,6 @@ Argument: none
   (error message))
 
 ; End of oracle.lisp
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

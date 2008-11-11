@@ -1,6 +1,6 @@
 ;; Module for PCRE / CLISP
 ;; <http://www.pcre.org/>
-;; Sam Steingold 2003-2007
+;; Sam Steingold 2003-2008
 
 (defpackage "PCRE"
   (:documentation
@@ -49,3 +49,7 @@ If which is a name of the sub-pattern, pattern must be supplied."
   "A valid value for *APROPOS-MATCHER*."
   (let ((compiled (pcre-compile pattern :extended t :ignore-case t :study t)))
     (lambda (name) (pcre-exec compiled name :boolean t))))
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:
