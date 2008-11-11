@@ -1,6 +1,6 @@
 ;; Module for wildcard matching in CLISP
 ;; Bruno Haible 18.4.1995
-;; Sam Steingold 2001-2007
+;; Sam Steingold 2001-2008
 
 (defpackage "WILDCARD"
   (:modern t)
@@ -45,3 +45,7 @@
 (defun wildcard-matcher (pattern)
   "A valid value for *APROPOS-MATCHER*."
   (lambda (name) (zerop (fnmatch pattern name FNM_CASEFOLD))))
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

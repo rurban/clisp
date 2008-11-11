@@ -1,7 +1,7 @@
 ;; Module for GDBM / CLISP
 ;; <http://www.gnu.org/gdbm/>
 ;; Copyright (C) 2007  Masayuki Onjo <onjo@lispuser.net>
-;; Copyright (C) 2007  Sam Steingold <sds@gnu.org>
+;; Copyright (C) 2007-2008  Sam Steingold <sds@gnu.org>
 ;; Released under GNU GPL2
 
 (defpackage #:gdbm
@@ -53,3 +53,7 @@
        (unwind-protect (multiple-value-prog1 (progn ,@body-rest)
                          (when ,db (gdbm-close ,db)))
          (when ,db (gdbm-close ,db))))))
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

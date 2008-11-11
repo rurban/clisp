@@ -679,3 +679,7 @@
 (pushnew :netica *features*)
 (provide "netica")
 (pushnew "NETICA" custom:*system-package-list* :test #'string=)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

@@ -96,3 +96,7 @@ if the destination does not exist, it is created."
   lisp-mx)
 
 (pushnew "MATLAB" custom:*system-package-list* :test #'string=)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

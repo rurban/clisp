@@ -1,7 +1,7 @@
 ;;; LIBSVM interface
 ;;; <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>
 ;;;
-;;; Copyright (C) 2006, 2007 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2006-2008 Sam Steingold <sds@gnu.org>
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -292,3 +292,7 @@ You must call (destroy-problem ret) yourself!
 (pushnew :libsvm *features*)
 (provide "libsvm")
 (pushnew "LIBSVM" custom:*system-package-list* :test #'string=)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

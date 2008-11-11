@@ -145,3 +145,9 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
   }
   skipSTACK(2);                 /* drop pattern & string */
 }
+
+/*
+Local Variables:
+change-log-default-name: "../../src/ChangeLog"
+End:
+*/

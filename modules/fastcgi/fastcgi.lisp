@@ -190,3 +190,6 @@
 (def-call-out fcgi_is_cgi_wrapper (:arguments) (:return-type boolean))
 
 ; End of fastcgi.lisp
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

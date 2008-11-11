@@ -704,3 +704,7 @@
     ;; do we need to record the database?
     ;; (setf (display-xdefaults display) rdb)
     ))
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

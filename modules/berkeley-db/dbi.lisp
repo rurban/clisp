@@ -352,3 +352,7 @@
 ;;; restore locks
 (pushnew "BDB" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:

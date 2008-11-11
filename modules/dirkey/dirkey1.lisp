@@ -1,4 +1,4 @@
-;;; Copyright (C) 2000-2005, 2008 by Sam Steingold
+;;; Copyright (C) 2000-2008 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See <http://www.gnu.org/copyleft/gpl.html>
 
@@ -132,3 +132,7 @@ If collect is non-nil, collect all the keys into an a-list."
 
 (pushnew "LDAP" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
+
+;; Local Variables:
+;; change-log-default-name: "../../src/ChangeLog"
+;; End:
