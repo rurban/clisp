@@ -1,5 +1,10 @@
 2008-11-11  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (DEVPREFIX) [cygwin]: restore the definition lost on
+	2005-08-29
+
+2008-11-11  Sam Steingold  <sds@gnu.org>
+
 	* cfgsunux.lisp: remove file (suntools users can set *EDITOR*)
 	* makemake.in (CONFIG): set to cfg${TOS}
 
