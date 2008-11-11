@@ -2041,23 +2041,27 @@ LISPFUNNR(pathname,1) { /* (PATHNAME pathname), CLTL p. 413 */
   VALUES1(coerce_xpathname(popSTACK()));
 }
 
+#define PATH_VALUE(slot,common) do {                    \
+  object ret = ThePathname(pathname)->slot;             \
+  value1 = eq(STACK_0,S(Kcommon)) ? common(ret) : ret;  \
+ } while(0)
+#if defined(LOGICAL_PATHNAMES)
+#define LOG_PATH_VALUE(slot)                                             \
+  if (logpathnamep(pathname)) value1 = TheLogpathname(pathname)->slot; else
+#else
+#define LOG_PATH_VALUE(slot)
+#endif
+
 /* (PATHNAME-HOST pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
 LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case))) {
   var object pathname = coerce_xpathname(STACK_1);
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    VALUES1(TheLogpathname(pathname)->pathname_host);
-  } else
- #endif
-  {
+  LOG_PATH_VALUE(pathname_host)
    #if HAS_HOST
-    var object erg = ThePathname(pathname)->pathname_host;
-    VALUES1(eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg); /* host as value */
+    PATH_VALUE(pathname_host,common_case);
    #else
-    VALUES1(NIL);
+    value1 = NIL;
    #endif
-  }
-  skipSTACK(2);
+  mv_count = 1; skipSTACK(2);
 }
 
 /* (PATHNAME-DEVICE pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
@@ -2066,66 +2070,33 @@ LISPFUN(pathnamedevice,seclass_read,1,0,norest,key,1, (kw(case))) {
  #ifdef LOGICAL_PATHNAMES
   if (logpathnamep(pathname)) {
     /* http://www.lisp.org/HyperSpec/Body/sec_19-3-2-1.html */
-    VALUES1(S(Kunspecific));
+    value1 = S(Kunspecific);
   } else
  #endif
-  {
    #if HAS_DEVICE
-    var object erg = ThePathname(pathname)->pathname_device; /* device as value */
-    VALUES1(eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg);
+    PATH_VALUE(pathname_device,common_case);
    #else
-    VALUES1(NIL);
+    value1 = NIL;
    #endif
-  }
-  skipSTACK(2);
+  mv_count = 1; skipSTACK(2);
 }
+
+#define PATH_SLOT(slot,common)                            \
+  object pathname = coerce_xpathname(STACK_1);            \
+  LOG_PATH_VALUE(slot) PATH_VALUE(slot,common);           \
+  mv_count = 1; skipSTACK(2)
 
 /* (PATHNAME-DIRECTORY pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
-LISPFUN(pathnamedirectory,seclass_read,1,0,norest,key,1, (kw(case))) {
-  var object pathname = coerce_xpathname(STACK_1);
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    VALUES1(TheLogpathname(pathname)->pathname_directory);
-  } else
- #endif
-  {
-    var object erg = ThePathname(pathname)->pathname_directory;
-    VALUES1(eq(STACK_0,S(Kcommon)) ? subst_common_case(erg) : erg);
-  }
-  skipSTACK(2);
-}
+LISPFUN(pathnamedirectory,seclass_read,1,0,norest,key,1, (kw(case)))
+{ PATH_SLOT(pathname_directory,subst_common_case); }
 
 /* (PATHNAME-NAME pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
-LISPFUN(pathnamename,seclass_read,1,0,norest,key,1, (kw(case))) {
-  var object pathname = coerce_xpathname(STACK_1);
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    value1 = TheLogpathname(pathname)->pathname_name;
-  } else
- #endif
-  {
-    var object erg = ThePathname(pathname)->pathname_name;
-    value1 = (eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg);
-  }
-  mv_count=1; /* name as value */
-  skipSTACK(2);
-}
+LISPFUN(pathnamename,seclass_read,1,0,norest,key,1, (kw(case)))
+{ PATH_SLOT(pathname_name,common_case); }
 
 /* (PATHNAME-TYPE pathname [:case]), CLTL p. 417, CLtL2 p. 644 */
-LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case))) {
-  var object pathname = coerce_xpathname(STACK_1);
- #ifdef LOGICAL_PATHNAMES
-  if (logpathnamep(pathname)) {
-    value1 = TheLogpathname(pathname)->pathname_type;
-  } else
- #endif
-  {
-    var object erg = ThePathname(pathname)->pathname_type;
-    value1 = (eq(STACK_0,S(Kcommon)) ? common_case(erg) : erg);
-  }
-  mv_count=1; /* type as value */
-  skipSTACK(2);
-}
+LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case)))
+{ PATH_SLOT(pathname_type,common_case); }
 
 /* (PATHNAME-VERSION pathname), CLTL p. 417, CLtL2 p. 644 */
 LISPFUNNR(pathnameversion,1) {
