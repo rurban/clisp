@@ -1,3 +1,7 @@
+2008-11-11  Philippe Brochard  <hocwp@free.fr>
+
+	* modules/clx/new-clx/clx.f (SEND-EVENT): fix encode_event() call
+
 2008-11-11  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (PATH_VALUE, LOG_PATH_VALUE, PATH_SLOT): add macros

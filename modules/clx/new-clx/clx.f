@@ -6224,12 +6224,13 @@ DEFUN(XLIB:SEND-EVENT, window event-key event-mask &rest args)
   unsigned long event_mask = get_event_mask (STACK_(argcount));
   int propagate_p = 0;
 
+  encode_event (argcount, STACK_(argcount+1), dpy, &event);
+
   /* hunt for the :propagate-p */
   pushSTACK(NIL);
   if ((propagate_p = grasp(`:PROPAGATE-P`,argcount)))
     propagate_p = get_bool (STACK_(propagate_p));
 
-  encode_event (argcount, STACK_(argcount+1+1), dpy, &event);
   X_CALL(propagate_p = XSendEvent(dpy,window,propagate_p,event_mask,&event));
 
   skipSTACK(argcount+4);

@@ -580,15 +580,27 @@ CHECK-TIMEOUT
 
 (xlib:display-p (xlib:close-display (xlib:open-display nil))) T
 
-;; how do we get this event and check that it is what we sent?
+;; <http://article.gmane.org/gmane.lisp.clisp.devel/19459>
 (xlib:with-open-display (dpy)
-  (list (xlib:send-event (xlib:screen-root (first (xlib:display-roots dpy)))
-                         :KEY-PRESS
-                         :KEY-PRESS
-                         :code 100)
-        (xlib:discard-current-event dpy)
-        (xlib:event-listen dpy 0.01)))
-(T NIL NIL)
+  (let* ((screen (first (xlib:display-roots dpy)))
+         (root (xlib:screen-root screen))
+         (window (xlib:create-window
+                  :parent root :x 0 :y 0 :width 200 :height 200
+                  :border-width 1 :event-mask '(:button-press)))
+         (events (xlib:events-queued dpy)))
+    (loop :repeat events :do (xlib:discard-current-event dpy))
+    (format t "~&Discarded ~:D event~:P~&" events)
+    (xlib:send-event window :button-press 0 :x -9999)
+    (format t "~&Sent event, queue is now: ~:D~%" (xlib:events-queued dpy))
+    ;; expect that the sent event is in the top ten events in the queue.
+    (loop :repeat 10 :do
+      (xlib:process-event
+       dpy :handler (lambda (&rest data &key event-key x &allow-other-keys)
+                      (show data :pretty t)
+                      (when (and (eql event-key :button-press) (= x -9999))
+                        (return t)))
+       :timeout 0.1))))
+T
 
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
