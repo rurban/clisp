@@ -497,16 +497,11 @@
    function &compiled-file-p;.</simpara></listitem></varlistentry>
 <varlistentry id="config-lisp">
  <term><filename role="clisp-cvs">src/config.lisp</filename></term>
- <listitem><para>(user written) site-dependent configuration,
-   may be a link to one of the following:<variablelist>
-    <varlistentry>
-     <term><filename role="clisp-cvs">src/cfgsunux.lisp</filename></term>
-     <listitem><simpara>for &unix;, using SunOS
-    </simpara></listitem></varlistentry>
+ <listitem><para>site-dependent configuration, should be a user-modified
+   copy of one of the following:<variablelist>
     <varlistentry>
      <term><filename role="clisp-cvs">src/cfgunix.lisp</filename></term>
-     <listitem><simpara>for any other &unix;
-    </simpara></listitem></varlistentry>
+     <listitem><simpara>for &unix;</simpara></listitem></varlistentry>
     <varlistentry>
      <term><filename role="clisp-cvs">src/cfgwin32.lisp</filename></term>
      <listitem><simpara>for the &win32;
