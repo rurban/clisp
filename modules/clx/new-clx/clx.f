@@ -11,6 +11,13 @@ Sam Steingold 2001-2008
 
 ----------------------------------------------------------------------------
 
+Important: some signatures in this file are emulated
+and the semantics of argcount depends on it:
+DEFUN(f, a b c &rest d) ==> argcount counts the number of &rest arguments
+i.e., you have to skipSTACK(argcount+3) at the end
+DEFUN(f, a b c &allow-other-keys) ==> argcount counts the total number of
+ALL arguments, so you have to skipSTACK(argcount) at the end
+
 Revision 1.24  1999-10-17  bruno
 - Use allocate_bit_vector in place of allocate_byte_vector. Remove ->data
   indirection.
@@ -1822,17 +1829,15 @@ static int grasp (object slot, uintC n) {
   return 0;
 }
 
-DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
+DEFUN(XLIB:OPEN-DISPLAY, host &allow-other-keys)
 { /* (XLIB:OPEN-DISPLAY host &key :display &allow-other-keys) */
   int display_number = 0;       /* the display number */
   Display *dpy;
-  gcv_object_t *display_arg = &STACK_(argcount);
-
-  if (argcount % 2) error_key_odd(argcount,TheSubr(subr_self)->name);
+  gcv_object_t *display_arg = &STACK_(argcount-1);
 
   /* Fetch an optional :DISPLAY argument */
   pushSTACK(NIL);               /* adjust for grasp */
-  if ((display_number = grasp(`:DISPLAY`,argcount)))
+  if ((display_number = grasp(`:DISPLAY`,argcount-1)))
     display_number = get_uint8(STACK_(display_number));
 
   if (!nullp(*display_arg)) {
@@ -1841,7 +1846,7 @@ DEFUN(XLIB:OPEN-DISPLAY, host &rest args)
   } else dpy = x_open_display(NULL,display_number);
 
   VALUES1(make_display(dpy, display_number));
-  skipSTACK(argcount+2);
+  skipSTACK(argcount+1);
 }
 
 static Xauth * my_xau_get_auth_by_name (char *dpy_name) {
@@ -6145,43 +6150,40 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
  and are as specified above with declare-event,
  except that both resource-ids and resource objects are accepted
  in the event components. */
-DEFUN(XLIB:QUEUE-EVENT, display event-key &rest args)
+DEFUN(XLIB:QUEUE-EVENT, display event-key &allow-other-keys)
 {
-  if (argcount % 2 != 0) error_key_odd(argcount,TheSubr(subr_self)->name);
-  {
-    XEvent event;
-    Display *dpy = get_display(STACK_(argcount+1));
-    int append_p = 0, argpos;
+  XEvent event;
+  Display *dpy = get_display(STACK_(argcount-1));
+  int append_p = 0, argpos;
 
-    encode_event (argcount, STACK_(argcount), dpy, &event);
+  encode_event (argcount-2, STACK_(argcount-2), dpy, &event);
 
-    pushSTACK(NIL);             /* adjust STACK for grasp() */
-    /* hunt for the :append-p */
-    if ((argpos = grasp(`:APPEND-P`,argcount)))
-      append_p = get_bool (STACK_(argpos));
+  pushSTACK(NIL);               /* adjust STACK for grasp() */
+  /* hunt for the :append-p */
+  if ((argpos = grasp(`:APPEND-P`,argcount-2)))
+    append_p = get_bool (STACK_(argpos));
 
-    /* hunt for the :send-event-p */
-    if ((argpos = grasp(`:SEND-EVENT-P`,argcount)))
-      event.xany.send_event = get_bool (STACK_(argpos));
+  /* hunt for the :send-event-p */
+  if ((argpos = grasp(`:SEND-EVENT-P`,argcount-2)))
+    event.xany.send_event = get_bool (STACK_(argpos));
 
-    begin_x_call();
-    if (append_p) {
-      int n_event = XEventsQueued (dpy, QueuedAlready), i;
-      DYNAMIC_ARRAY(queued_events, XEvent, n_event);
-      /* Fetch events already in the queue */
-      for (i = 0; i < n_event; i++) XNextEvent (dpy, &queued_events[i]);
-      /* Push the new event */
-      XPutBackEvent (dpy, &event);
-      /* Push back events previously in the queue */
-      for (i = n_event-1; i >= 0; i--) XPutBackEvent (dpy, &queued_events[i]);
-      FREE_DYNAMIC_ARRAY(queued_events);
-    } else
-      X_CALL(XPutBackEvent (dpy, &event));
-    end_x_call();
+  begin_x_call();
+  if (append_p) {
+    int n_event = XEventsQueued (dpy, QueuedAlready), i;
+    DYNAMIC_ARRAY(queued_events, XEvent, n_event);
+    /* Fetch events already in the queue */
+    for (i = 0; i < n_event; i++) XNextEvent (dpy, &queued_events[i]);
+    /* Push the new event */
+    XPutBackEvent (dpy, &event);
+    /* Push back events previously in the queue */
+    for (i = n_event-1; i >= 0; i--) XPutBackEvent (dpy, &queued_events[i]);
+    FREE_DYNAMIC_ARRAY(queued_events);
+  } else
+    X_CALL(XPutBackEvent (dpy, &event));
+  end_x_call();
 
-    skipSTACK(argcount+3);
-    VALUES1(NIL);
-  }
+  skipSTACK(argcount+1);
+  VALUES1(NIL);
 }
 
 /*  -->   discarded-p -- Type boolean
@@ -6244,24 +6246,24 @@ DEFUN(XLIB:EVENT-LISTEN, display &optional timeout)
 
   NOTE: The MIT-CLX interface specifies a :display argument here, which
   is not necessary */
-DEFUN(XLIB:SEND-EVENT, window event-key event-mask &rest args)
+DEFUN(XLIB:SEND-EVENT, window event-key event-mask &allow-other-keys)
 {
   XEvent event;
   Display *dpy;
-  Window window = get_window_and_display (STACK_(argcount+2), &dpy);
-  unsigned long event_mask = get_event_mask (STACK_(argcount));
+  Window window = get_window_and_display (STACK_(argcount-1), &dpy);
+  unsigned long event_mask = get_event_mask (STACK_(argcount-3));
   int propagate_p = 0;
 
-  encode_event (argcount, STACK_(argcount+1), dpy, &event);
+  encode_event (argcount-3, STACK_(argcount-2), dpy, &event);
 
+  pushSTACK(NIL);             /* adjust STACK for grasp() */
   /* hunt for the :propagate-p */
-  pushSTACK(NIL);
-  if ((propagate_p = grasp(`:PROPAGATE-P`,argcount)))
+  if ((propagate_p = grasp(`:PROPAGATE-P`,argcount-3)))
     propagate_p = get_bool (STACK_(propagate_p));
 
   X_CALL(propagate_p = XSendEvent(dpy,window,propagate_p,event_mask,&event));
 
-  skipSTACK(argcount+4);
+  skipSTACK(argcount+1);
   VALUES_IF(propagate_p); /* XSendEvent status: 0: failure; non-0: success */
 }
 
