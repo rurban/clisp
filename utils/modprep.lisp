@@ -22,9 +22,10 @@ The input file is normal C code, modified like this:
 - The definition of Lisp functions is done using the macro
     DEFUN(function_name, lambda_list)
   for example
-    DEFUN(foo::bar, x y [&optional z] [&rest foo | &key a b c] )
+    DEFUN(foo::bar, x y [&optional z] [&rest foo | &key a b c | &allow-other-keys] )
   &rest and &key cannot be combined (this is a restriction for SUBRs).
   &key requires at least one keyword (this is a restriction for SUBRs too).
+  &allow-other-keys is the same as &rest, but argcount is checked for being even
   if keywords are named with colon (:FOO), they are assumed to preexist in core.
 - Variables containing Lisp objects (known to the garbage collector) are
   defined using the macro
@@ -432,7 +433,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
   "must be in sync with src/lispbibl.d:seclass_t")
 (defstruct signature
   (seclass (1- (length *seclass*)))
-  req opt rest-p key-p keywords
+  req opt rest keywords
   (cond-stack (make-array 5 :adjustable t :fill-pointer 0)))
 
 (defconstant *valid-signatures*
@@ -458,18 +459,18 @@ The last feature is disabled because &S() does not work in non-debug builds."
    (make-signature :req 2 :opt 3)
    (make-signature :req 0 :opt 4)
    (make-signature :req 0 :opt 5)
-   (make-signature :req 0 :opt 0 :rest-p t)
-   (make-signature :req 1 :opt 0 :rest-p t)
-   (make-signature :req 2 :opt 0 :rest-p t)
-   (make-signature :req 3 :opt 0 :rest-p t)
-   (make-signature :req 0 :opt 0 :key-p t)
-   (make-signature :req 1 :opt 0 :key-p t)
-   (make-signature :req 2 :opt 0 :key-p t)
-   (make-signature :req 3 :opt 0 :key-p t)
-   (make-signature :req 4 :opt 0 :key-p t)
-   (make-signature :req 0 :opt 1 :key-p t)
-   (make-signature :req 1 :opt 1 :key-p t)
-   (make-signature :req 1 :opt 2 :key-p t))
+   (make-signature :req 0 :opt 0 :rest '&rest)
+   (make-signature :req 1 :opt 0 :rest '&rest)
+   (make-signature :req 2 :opt 0 :rest '&rest)
+   (make-signature :req 3 :opt 0 :rest '&rest)
+   (make-signature :req 0 :opt 0 :rest '&key)
+   (make-signature :req 1 :opt 0 :rest '&key)
+   (make-signature :req 2 :opt 0 :rest '&key)
+   (make-signature :req 3 :opt 0 :rest '&key)
+   (make-signature :req 4 :opt 0 :rest '&key)
+   (make-signature :req 0 :opt 1 :rest '&key)
+   (make-signature :req 1 :opt 1 :rest '&key)
+   (make-signature :req 1 :opt 2 :rest '&key))
   "must be in sync with src/lispbibl.d:subr_argtype_t")
 
 (defvar *must-close-next-defun* nil
@@ -480,11 +481,14 @@ The last feature is disabled because &S() does not work in non-debug builds."
 (defun parse-signature (fname line &key (start 0) (end (length line)))
   (unless end
     (error "~S:~D: unterminated signature ~S" *input-file* *lineno* line))
-  (loop :with seen-opt :and seen-key :and seen-rest :and keys
+  (loop :with seen-opt :and seen-key :and seen-rest :and seen-aok :and keys
     :and opt = 0 :and req = 0 :and pos2 = start
     :for pos1 = (next-non-blank line pos2)
     :while (and pos1 (< pos1 end))
     :do (setq pos2 (min end (or (next-blank line pos1) end)))
+    (when seen-aok
+      (error "~S:~D: bad signature ~S between ~S and ~S"
+             *input-file* *lineno* line pos1 pos2))
     (cond ((string-equal line "&optional" :start1 pos1 :end1 pos2)
            (when (or seen-opt seen-key seen-rest)
              (error "~S:~D: bad signature ~S between ~S and ~S"
@@ -500,8 +504,13 @@ The last feature is disabled because &S() does not work in non-debug builds."
              (error "~S:~D: bad signature ~S between ~S and ~S"
                     *input-file* *lineno* line pos1 pos2))
            (setq seen-rest 0))
+          ((string-equal line "&allow-other-keys" :start1 pos1 :end1 pos2)
+           (when (or seen-key seen-rest)
+             (error "~S:~D: bad signature ~S between ~S and ~S"
+                    *input-file* *lineno* line pos1 pos2))
+           (setq seen-aok t))
           (seen-rest
-           (if (zerop seen-rest) (setq seen-rest t)
+           (if (zerop seen-rest) (setq seen-rest '&rest)
                (error "~S:~D: bad signature ~S between ~S and ~S"
                       *input-file* *lineno* line pos1 pos2)))
           (seen-key (push (mk-objdef line :start pos1 :end pos2) keys))
@@ -509,26 +518,24 @@ The last feature is disabled because &S() does not work in non-debug builds."
           ((incf req)))
     :finally (return (check-signature fname
                       (make-signature
-                       :req req :opt opt :rest-p seen-rest
-                       :key-p seen-key :keywords (nreverse keys))))))
+                       :req req :opt opt :keywords (nreverse keys)
+                       :rest (cond (seen-aok '&allow-other-keys)
+                                   (seen-key '&key)
+                                   (seen-rest)))))))
 
 (defun check-signature (fname sig)
   (if (find sig *valid-signatures* :test #'signature-match)
     (values sig nil)
-    (values (load-time-value (make-signature :req 0 :opt 0 :rest-p t))
+    (values (load-time-value (make-signature :req 0 :opt 0 :rest '&rest))
       (with-output-to-string (out) ; emulate signature
-        (warn "~S:~D:~A: emulating signature (~A ~A~:[~; &rest~]~:[~; &key~])"
+        (warn "~S:~D:~A: emulating signature (~A ~A~@[ ~S~])"
               *input-file* *lineno* fname
-              (signature-req sig) (signature-opt sig)
-              (signature-rest-p sig) (signature-key-p sig))
+              (signature-req sig) (signature-opt sig) (signature-rest sig))
         (incf *emulation-count*)
-        (when (signature-rest-p sig) ; why?!
-          (error "~S:~D:~A: cannot emulate &rest" *input-file* *lineno* fname))
         (let* ((min-arg (signature-req sig))
                (req+opt (+ min-arg (signature-opt sig)))
-               (max-arg
-                (unless (or (signature-rest-p sig) (signature-key-p sig))
-                  req+opt))
+               (rest (signature-rest sig))
+               (max-arg (unless rest req+opt))
                (kwds (signature-keywords sig)) (n-kwds (length kwds))
                (kwd-list
                  (with-output-to-string (kwd-s)
@@ -540,9 +547,9 @@ The last feature is disabled because &S() does not work in non-debug builds."
                    (write-char #\) kwd-s))))
           (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); error(source_program_error,GETTEXT(\"EVAL/APPLY: too few arguments given to ~~S\")); } " min-arg)
           (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); error(source_program_error,GETTEXT(\"EVAL/APPLY: too many arguments given to ~~S\")); } " max-arg))
+          (when (or (eq '&key rest) (eq '&allow-other-keys rest)) (format out "if ((argcount-~D)%2) error_key_odd(argcount,TheSubr(subr_self)->name); " req+opt))
           (unless (zerop (signature-opt sig)) (format out "for (;argcount < ~D; argcount++) pushSTACK(unbound); " req+opt))
-          (when (signature-key-p sig)
-            (format out "if ((argcount-~D)%2) error_key_odd(argcount,TheSubr(subr_self)->name); " req+opt)
+          (when (eq '&key rest)
             (when (zerop n-kwds) (warn "~A: &key without any keywords" fname))
             (format out "{ uintC i; skipSTACK((-~D)); ~
   for (i = 0; i<argcount-~D; i++) STACK_(i) = STACK_(i+~D); "
@@ -561,8 +568,7 @@ The last feature is disabled because &S() does not work in non-debug builds."
 (defun signature-match (s1 s2)
   (and (= (signature-req s1) (signature-req s2))
        (= (signature-opt s1) (signature-opt s2))
-       (eq (signature-rest-p s1) (signature-rest-p s2))
-       (eq (signature-key-p s1) (signature-key-p s2))))
+       (eq (signature-rest s1) (signature-rest s2))))
 
 (defun signature= (s1 s2)
   (and (signature-match s1 s2)
@@ -629,12 +635,12 @@ The last feature is disabled because &S() does not work in non-debug builds."
           (push sig (fundef-signatures fdef))))
     fdef))
 
-(defun fundef-lispfun (fundef sig)
+(defun fundef-lispfun (fundef sig &aux (rest (signature-rest sig)))
   "Print a signature in a form suitable as argument list for LISPFUN."
   (format nil "(~a,~a,~d,~d,~:[no~;~]rest,~:[no~;~]key,~d,NIL)"
           (fundef-tag fundef) (aref *seclass* (signature-seclass sig))
           (signature-req sig) (signature-opt sig)
-          (signature-rest-p sig) (signature-key-p sig)
+          (or (eq '&rest rest) (eq '&allow-other-keys rest)) (eq '&key rest)
           (length (signature-keywords sig))))
 
 (defvar *brace-depth* 0)
@@ -1176,7 +1182,7 @@ commas and parentheses."
     (formatln out "{")
     (loop :for fd :across *fundefs* :for tag = (fundef-tag fd) :do
       (loop :for sig :in (fundef-signatures fd) :do
-        (when (signature-key-p sig)
+        (when (eq '&key (signature-rest sig))
           (with-conditional (out (signature-cond-stack sig))
             (dolist (kw (signature-keywords sig))
               (formatln out "  pushSTACK(~A);" (objdef-object kw)))
