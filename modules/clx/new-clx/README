@@ -93,7 +93,6 @@ Functions which are not defined at all:
   - DRAW-GLYPH
   - GET-IMAGE
   - DISPLAY-TRACE
-  - QUEUE-EVENT
 
 
 Installation

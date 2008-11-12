@@ -12,6 +12,8 @@ Important notes
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
     wild pathnames (introduced in 2.47). [ 2198109 ]
+  + Module NEW-CLX now has the XLIB:QUEUE-EVENT function,
+    implemented by Philippe Brochard <hocwp@free.fr>.
 
 * ANSI compliance:
   + Implement the ANSI (IGNORE #'FUNCTION) declaration.

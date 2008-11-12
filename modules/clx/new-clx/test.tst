@@ -602,6 +602,54 @@ CHECK-TIMEOUT
        :timeout 0.1))))
 T
 
+(xlib:with-open-display (dpy)
+  (let* ((screen (first (xlib:display-roots dpy)))
+	 (root (xlib:screen-root screen))
+	 (events (xlib:events-queued dpy))
+	 acc)
+    (loop :repeat events :do (xlib:discard-current-event dpy))
+    (format t "~&Discarded ~:D event~:P~&" events)
+    (xlib:queue-event dpy :button-press :x -66)
+    (xlib:queue-event dpy :button-press :x -77)
+    (xlib:queue-event dpy :button-press :x -88)
+    (xlib:queue-event dpy :button-press :x -99)
+    (format t "~&Queue event, queue is now: ~:D~%" (xlib:events-queued dpy))
+    ;; expect that queued events are in the top ten events in the queue.
+    (loop :repeat 10 :do
+      (xlib:process-event
+       dpy :handler (lambda (&rest data &key event-key x send-event-p
+                             &allow-other-keys)
+                      (show data :pretty t)
+                      (when (eql event-key :button-press)
+                        (push `(,x ,send-event-p) acc)))
+       :timeout 0.1))
+    (nreverse acc)))
+((-99 NIL) (-88 NIL) (-77 NIL) (-66 NIL))
+
+(xlib:with-open-display (dpy)
+  (let* ((screen (first (xlib:display-roots dpy)))
+	 (root (xlib:screen-root screen))
+	 (events (xlib:events-queued dpy))
+	 acc)
+    (loop :repeat events :do (xlib:discard-current-event dpy))
+    (format t "~&Discarded ~:D event~:P~&" events)
+    (xlib:queue-event dpy :button-press :x -66 :append-p t :send-event-p t)
+    (xlib:queue-event dpy :button-press :x -77 :append-p t :send-event-p t)
+    (xlib:queue-event dpy :button-press :x -88 :append-p t :send-event-p t)
+    (xlib:queue-event dpy :button-press :x -99 :append-p t :send-event-p t)
+    (format t "~&Queue event, queue is now: ~:D~%" (xlib:events-queued dpy))
+    ;; expect that queued events are in the top ten events in the queue.
+    (loop :repeat 10 :do
+      (xlib:process-event
+       dpy :handler (lambda (&rest data &key event-key x send-event-p
+                             &allow-other-keys)
+                      (show data :pretty t)
+                      (when (eql event-key :button-press)
+                        (push `(,x ,send-event-p) acc)))
+       :timeout 0.1))
+    (nreverse acc)))
+((-66 T) (-77 T) (-88 T) (-99 T))
+
 ;; cleanup
 (flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
   (del '*dpy*)
