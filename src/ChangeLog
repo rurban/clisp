@@ -1,3 +1,9 @@
+2008-11-12  Philippe Brochard  <hocwp@free.fr>
+	Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:QUEUE-EVENT): implement
+	* modules/clx/new-clx/clx.lisp (QUEUE-EVENT): not UNDEFINED
+
 2008-11-11  Philippe Brochard  <hocwp@free.fr>
 
 	* modules/clx/new-clx/clx.f (SEND-EVENT): fix encode_event() call

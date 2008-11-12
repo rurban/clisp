@@ -1773,7 +1773,6 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 (undefined DRAW-GLYPH)
 (undefined DRAW-IMAGE-GLYPH)
 (undefined TRANSLATE-DEFAULT)
-(undefined QUEUE-EVENT)
 )
 
 ;; canonicalize encodings supplied by X, see clx.f:get_font_info_and_display()
