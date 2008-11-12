@@ -1,5 +1,17 @@
 2008-11-12  Sam Steingold  <sds@gnu.org>
 
+	new module DEFUN keyword: &allow-other-keys
+	* utils/modprep.lisp (signature): replace REST-P & KEY-P with REST
+	(*valid-signatures*): update
+	(parse-signature): accept &allow-other-keys
+	(check-signature): output error_key_odd test for &allow-other-keys
+	(signature-match, fundef-lispfun, print-tables-2): update
+	* modules/clx/new-clx/clx.f (OPEN-DISPLAY, QUEUE-EVENT, SEND-EVENT):
+	use &allow-other-keys and update argcount usage: it now counts the
+	total number of arguments, not the number of &rest arguments
+
+2008-11-12  Sam Steingold  <sds@gnu.org>
+
 	* modules/gdbm/gdbm.c (GDBM:GDBM-FILE-SIZE): update the
 	handle_length call for the 2008-09-13 change
 
