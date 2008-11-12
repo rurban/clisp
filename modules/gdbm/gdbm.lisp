@@ -53,7 +53,3 @@
        (unwind-protect (multiple-value-prog1 (progn ,@body-rest)
                          (when ,db (gdbm-close ,db)))
          (when ,db (gdbm-close ,db))))))
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

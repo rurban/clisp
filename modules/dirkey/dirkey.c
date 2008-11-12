@@ -927,9 +927,3 @@ DEFUN(LDAP::DKEY-INFO,key) {
 
 #undef SYSCALL_WIN32
 #undef SYSCALL_LDAP
-
-/*
-Local Variables:
-change-log-default-name: "../../src/ChangeLog"
-End:
-*/

@@ -512,7 +512,3 @@
   (:arguments (encoding int)))
 
 (provide "postgresql")
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

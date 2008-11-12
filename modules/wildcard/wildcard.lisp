@@ -45,7 +45,3 @@
 (defun wildcard-matcher (pattern)
   "A valid value for *APROPOS-MATCHER*."
   (lambda (name) (zerop (fnmatch pattern name FNM_CASEFOLD))))
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

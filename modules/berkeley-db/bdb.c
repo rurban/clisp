@@ -2828,9 +2828,3 @@ void module__bdb__init_function_2 (module_t* module)
   printf("dmalloc options: %s\n",options);
 #endif
 }
-
-/*
-Local Variables:
-change-log-default-name: "../../src/ChangeLog"
-End:
-*/

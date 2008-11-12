@@ -5381,9 +5381,3 @@ void module__syscalls__init_function_2 (module_t* module) {
   init_stdio();
 #endif
 }
-
-/*
-Local Variables:
-change-log-default-name: "../../src/ChangeLog"
-End:
-*/

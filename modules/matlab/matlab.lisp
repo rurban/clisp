@@ -436,7 +436,3 @@
 (pushnew :matlab *features*)
 (provide "matlab")
 (pushnew "MATLAB" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

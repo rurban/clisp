@@ -113,7 +113,3 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
   (:documentation "getaddrinfo()/getnameinfo() error, see <netdb.h>")
   (:report (lambda (c out)
              (format out "[~S]: ~A" (eai-code c) (eai-message c)))))
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

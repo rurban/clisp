@@ -404,9 +404,3 @@ void module__pcre__init_function_2 (module_t* module)
   pcre_malloc = malloc;
   pcre_free = free;
 }
-
-/*
-Local Variables:
-change-log-default-name: "../../src/ChangeLog"
-End:
-*/

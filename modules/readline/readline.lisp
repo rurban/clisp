@@ -619,7 +619,3 @@ if readline is reading a top-level command (RL_ISSTATE (RL_STATE_READCMD))."))
 (pushnew :readline *features*)
 (provide "readline")
 (pushnew "READLINE" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

@@ -572,7 +572,3 @@ signal specific parameters, but not a data parameter."
 (pushnew :gtk *features*)
 (provide "gtk")
 (pushnew "GTK" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

@@ -422,7 +422,3 @@
 (ext:re-export "POSIX" "EXT")
 (pushnew "POSIX" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:
