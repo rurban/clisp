@@ -200,7 +200,7 @@ DEFUN(GDBM:GDBM-FILE-SIZE, dbf)
 {
   GDBM_FILE dbf = check_gdbm(&STACK_0,NULL,NULL,true);
   off_t ret;
-  SYSCALL(ret = handle_length(NIL,gdbm_fdesc(dbf)));
+  SYSCALL(ret = handle_length(NULL,gdbm_fdesc(dbf)));
   VALUES1(off_to_I(ret)); skipSTACK(1);
 }
 #endif  /* HAVE_GDBM_FDESC */
