@@ -6140,21 +6140,49 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
 
 /* (queue-event display event-key &rest args &key append-p send-event-p
                 &allow-other-keys)
- The event is put at the head of the queue if append-p is nil, else
- the tail.  Additional arguments depend on event-key, and are as
- specified above with declare-event, except that both resource-ids and
- resource objects are accepted in the event components. */
-DEFUN(XLIB:QUEUE-EVENT, &rest args)
-{UNDEFINED;}
-/* Take a look at XPutBackEvent, but that functions seems only to
- put events on the head of the queue!
- Maybe we should go and build our own event queque?
- Or we fight with the internals of libX?
- But we could travel the whole event queque until we come to a point,
- where the queque has ended; XPutBackEvent the event to be added at end
- and XputBack all other event above that. [Not very fast, but portable]
- also send-event-p is not in the manual. */
+ The event is put at the head of the queue if append-p is nil, else the tail.
+ Additional arguments depend on event-key,
+ and are as specified above with declare-event,
+ except that both resource-ids and resource objects are accepted
+ in the event components. */
+DEFUN(XLIB:QUEUE-EVENT, display event-key &rest args)
+{
+  if (argcount % 2 != 0) error_key_odd(argcount,TheSubr(subr_self)->name);
+  {
+    XEvent event;
+    Display *dpy = get_display(STACK_(argcount+1));
+    int append_p = 0, argpos;
 
+    encode_event (argcount, STACK_(argcount), dpy, &event);
+
+    pushSTACK(NIL);             /* adjust STACK for grasp() */
+    /* hunt for the :append-p */
+    if ((argpos = grasp(`:APPEND-P`,argcount)))
+      append_p = get_bool (STACK_(argpos));
+
+    /* hunt for the :send-event-p */
+    if ((argpos = grasp(`:SEND-EVENT-P`,argcount)))
+      event.xany.send_event = get_bool (STACK_(argpos));
+
+    begin_x_call();
+    if (append_p) {
+      int n_event = XEventsQueued (dpy, QueuedAlready), i;
+      DYNAMIC_ARRAY(queued_events, XEvent, n_event);
+      /* Fetch events already in the queue */
+      for (i = 0; i < n_event; i++) XNextEvent (dpy, &queued_events[i]);
+      /* Push the new event */
+      XPutBackEvent (dpy, &event);
+      /* Push back events previously in the queue */
+      for (i = n_event-1; i >= 0; i--) XPutBackEvent (dpy, &queued_events[i]);
+      FREE_DYNAMIC_ARRAY(queued_events);
+    } else
+      X_CALL(XPutBackEvent (dpy, &event));
+    end_x_call();
+
+    skipSTACK(argcount+3);
+    VALUES1(NIL);
+  }
+}
 
 /*  -->   discarded-p -- Type boolean
    Discard the current event for DISPLAY.
