@@ -1,5 +1,11 @@
 2008-11-12  Sam Steingold  <sds@gnu.org>
 
+	* utils/modprep.lisp (check-signature): use program_error instead
+	of source_program_error for argument count checks because the
+	latter requires a DETAIL slot which we do not provide
+
+2008-11-12  Sam Steingold  <sds@gnu.org>
+
 	new module DEFUN keyword: &allow-other-keys
 	* utils/modprep.lisp (signature): replace REST-P & KEY-P with REST
 	(*valid-signatures*): update
