@@ -545,8 +545,8 @@ The last feature is disabled because &S() does not work in non-debug builds."
                      ;; cannot have conditionals in this init
                      (write-string (objdef-init k) kwd-s))
                    (write-char #\) kwd-s))))
-          (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); error(source_program_error,GETTEXT(\"EVAL/APPLY: too few arguments given to ~~S\")); } " min-arg)
-          (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); error(source_program_error,GETTEXT(\"EVAL/APPLY: too many arguments given to ~~S\")); } " max-arg))
+          (format out "{ if (argcount < ~D) { pushSTACK(TheSubr(subr_self)->name); error(program_error,GETTEXT(\"EVAL/APPLY: too few arguments given to ~~S\")); } " min-arg)
+          (when max-arg (format out "if (argcount > ~D) { pushSTACK(TheSubr(subr_self)->name); error(program_error,GETTEXT(\"EVAL/APPLY: too many arguments given to ~~S\")); } " max-arg))
           (when (or (eq '&key rest) (eq '&allow-other-keys rest)) (format out "if ((argcount-~D)%2) error_key_odd(argcount,TheSubr(subr_self)->name); " req+opt))
           (unless (zerop (signature-opt sig)) (format out "for (;argcount < ~D; argcount++) pushSTACK(unbound); " req+opt))
           (when (eq '&key rest)
