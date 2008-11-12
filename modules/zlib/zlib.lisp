@@ -81,7 +81,3 @@
 (pushnew :zlib *features*)
 (provide "zlib")
 (pushnew "ZLIB" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

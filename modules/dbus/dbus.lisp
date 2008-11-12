@@ -1906,7 +1906,3 @@ We can't fix it for compatibility reasons so just be careful."))
 (pushnew :dbus *features*)
 (provide "dbus")
 (pushnew "DBUS" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

@@ -2380,5 +2380,4 @@
 ;; eval: (put 'pari-call-out 'common-lisp-indent-function 'defun)
 ;; eval: (put 'pari-call-out-prec 'common-lisp-indent-function 'defun)
 ;; eval: (font-lock-add-keywords nil '(("(\\(pari-call-out\\(-prec\\)?\\)\\s *\\(\\(\\s_\\|\\sw\\)*\\)" (1 font-lock-keyword-face) (3 font-lock-function-name-face)) ("(\\(pari-call-out\\(-prec\\)?\\)\\s *(\\(\\(\\s_\\|\\sw\\)*\\)\\s *\\(\\(\\s_\\|\\sw\\)*\\).*)" (1 font-lock-keyword-face) (3 font-lock-function-name-face) (5 font-lock-type-face))))
-;; change-log-default-name: "../../src/ChangeLog"
 ;; end:

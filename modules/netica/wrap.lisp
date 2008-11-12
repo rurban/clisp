@@ -325,7 +325,3 @@ X & Y are coordinates; both or neither must be supplied."
       net)))
 
 (pushnew "NETICA" custom:*system-package-list* :test #'string=)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

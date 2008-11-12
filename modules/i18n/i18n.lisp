@@ -68,7 +68,3 @@
 (pushnew "I18N" custom:*system-package-list* :test #'string=)
 (pushnew :i18n *features*)
 (provide "i18n")
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:
