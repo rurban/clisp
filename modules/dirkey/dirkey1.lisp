@@ -132,7 +132,3 @@ If collect is non-nil, collect all the keys into an a-list."
 
 (pushnew "LDAP" custom:*system-package-list* :test #'string=)
 (setf (package-lock custom:*system-package-list*) t)
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

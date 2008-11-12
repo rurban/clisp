@@ -306,8 +306,3 @@
       (incf image-height image-height))
     (unless gcontext (free-gcontext gc))
     pixmap))
-
-
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

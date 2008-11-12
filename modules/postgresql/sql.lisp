@@ -83,6 +83,3 @@
 (pushnew "SQL" custom:*system-package-list* :test #'string=)
 
 ;;; file sql.lisp ends here
-;; Local Variables:
-;; change-log-default-name: "../../src/ChangeLog"
-;; End:

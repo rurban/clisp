@@ -1787,8 +1787,3 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
                 (not (char= #\- (char s 3))))
            (concatenate 'string "ISO-" (subseq s 3))
            s))))
-
-
-;; Local Variables:
-;; change-log-default-name: "../../../src/ChangeLog"
-;; End:

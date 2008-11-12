@@ -1240,6 +1240,3 @@ commas and parentheses."
 (modprep (first *args*) (or (second *args*) (mod-file (first *args*))))
 
 ;;; file modprep.lisp ends here
-;; Local Variables:
-;; change-log-default-name: "../src/ChangeLog"
-;; End:
