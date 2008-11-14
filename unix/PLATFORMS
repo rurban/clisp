@@ -672,6 +672,10 @@ If you get a crash during loading of the first few lisp file (first GC),
 add "-DNO_GENERATIONAL_GC" to CFLAGS.
 
 
+* On Sparc running Solaris 8, 9, 10:
+
+Use gcc 3.3.* because gcc 4.* miscompiles at least io.d.
+
 
 Hints for porting to new platforms:
 -----------------------------------
