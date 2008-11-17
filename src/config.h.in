@@ -655,9 +655,6 @@
 /* return type of getpagesize() */
 #undef RETGETPAGESIZETYPE
 
-/* return type of signal handlers (int or void) */
-#undef RETSIGTYPE
-
 /* return type of inet_addr() */
 #undef RET_INET_ADDR_TYPE
 
@@ -712,9 +709,6 @@
 /* SIGNALBLOCK_BSD is defined above and other signals need to be unblocked
    when signal handlers are left */
 #undef SIGNAL_NEED_UNBLOCK_OTHERS
-
-/* declaration of the signal handler function type needs dots */
-#undef SIGTYPE_DOTS
 
 /* Define to l, ll, u, ul, ull, etc., as suitable for constants of type
    'sig_atomic_t'. */
