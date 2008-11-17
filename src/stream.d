@@ -9591,23 +9591,22 @@ local maygc signean listen_char_terminal2 (object stream) {
 /* UP: Deletes already entered interactive Input from a Terminal-Stream.
  clear_input_terminal2(stream);
  > stream: Terminal-Stream
- < result: true if Input was deleted, else false */
+ < result: true if Input was deleted, else false
+ can trigger GC */
 local maygc bool clear_input_terminal2 (object stream) {
   if (nullp(TheStream(stream)->strm_terminal_isatty)) /* File -> do nothing */
     return false;
   /* Terminal */
-  pushSTACK(stream);
+  pushSTACK(stream);              /* save */
   clear_input_unbuffered(stream); /* forget about past EOF, call clear_tty_input */
-  stream=popSTACK();
  #if TERMINAL_LINEBUFFERED
-  TheStream(stream)->strm_terminal_index = Fixnum_0; /* index := 0 */
-  TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
+  TheStream(STACK_0)->strm_terminal_index = Fixnum_0; /* index := 0 */
+  TheIarray(TheStream(STACK_0)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
  #endif
-  pushSTACK(stream);
   while (ls_avail_p(listen_char_terminal2(STACK_0))) {
     read_char(&STACK_0);
   }
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop */
   return true;
 }
 
@@ -9846,21 +9845,22 @@ local signean listen_char_terminal3 (object stream) {
 /* UP: Deletes already entered interactive Input from a Terminal-Stream.
  clear_input_terminal3(stream);
  > stream: Terminal-Stream
- < result: true if Input was deleted, else false */
-local bool clear_input_terminal3 (object stream) {
+ < result: true if Input was deleted, else false
+ can trigger GC */
+local maygc bool clear_input_terminal3 (object stream) {
   if (nullp(TheStream(stream)->strm_terminal_isatty)) /* File -> do nothing */
     return false;
   /* Terminal */
+  pushSTACK(stream);              /* save */
   clear_input_unbuffered(stream); /* forget about past EOF, call clear_tty_input */
  #if TERMINAL_LINEBUFFERED
-  TheStream(stream)->strm_terminal_index = Fixnum_0; /* index := 0 */
-  TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
+  TheStream(STACK_0)->strm_terminal_index = Fixnum_0; /* index := 0 */
+  TheIarray(TheStream(STACK_0)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
  #endif
-  pushSTACK(stream);
   while (ls_avail_p(listen_char_terminal3(STACK_0))) {
     read_char(&STACK_0);
   }
-  skipSTACK(1);
+  skipSTACK(1);                 /* drop */
   return true;
 }
 
