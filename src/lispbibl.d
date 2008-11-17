@@ -2032,10 +2032,6 @@ typedef enum {
 #undef CBLOCK
 /* AIX 3.2.5 does "#define hz 100". Grr... */
 #undef hz
-/* MacOS X does "#define TIME_ABSOLUTE 0x00" and "#define TIME_RELATIVE 0x01".
- Grr... */
-#undef TIME_ABSOLUTE
-#undef TIME_RELATIVE
 
 #ifdef UNIX
   /* Handling of UNIX errors
@@ -2191,31 +2187,12 @@ typedef enum {
 /* When changed: do nothing */
 
 /* How time is measured: */
-#ifdef UNIX
-  #if defined(HAVE_GETTIMEOFDAY) || defined(HAVE_FTIME)
-    #define TIME_UNIX
-  #elif defined(HAVE_TIMES_CLOCK)
-    #define TIME_UNIX_TIMES
-  #endif
-#endif
-#ifdef WIN32_NATIVE
+#if defined(UNIX)
+  #define TIME_UNIX
+#elif defined(WIN32_NATIVE)
   #define TIME_WIN32
-#endif
-#if defined(TIME_UNIX_TIMES)
-  /* There's only a medium time resolution, so you can use 32-bit numbers
-   to store the time-differences without any problems. */
-  #define TIME_METHOD 1
-  /* We fetch the time once on system sart. All further times are taken
-   relatively to that one. */
-  #define TIME_RELATIVE
-#elif defined(TIME_UNIX) || defined(TIME_WIN32)
-  /* The time resolution is so high that you need two 32-bit numbers to
-   measure time differences: seconds and and fractions of seconds. */
-  #define TIME_METHOD 2
-  /* In this case we can use absolute and relative times for measurements. */
-  #define TIME_ABSOLUTE
 #else
-  #error TIME_METHOD is not defined
+  #error how do you measure time on this system
 #endif
 /* When changed: extend time.d */
 
@@ -8719,50 +8696,41 @@ typedef struct {
 %% export_def(UNIX_LISP_TIME_DIFF);
 
 /* Type which is used for 'Internal Time': */
-#if TIME_METHOD == 1
-typedef uintL internal_time_t; /* measured value of the ticking counter */
-  #if defined(TIME_UNIX_TIMES)
-    #define ticks_per_second  CLK_TCK
-  #endif
-  #define sub_internal_time(x,y, z)  z = (x) - (y)
-  #define add_internal_time(x,y, z)  z = (x) + (y)
-#elif TIME_METHOD == 2
-  #ifdef TIME_UNIX
+#ifdef TIME_UNIX
 typedef struct {
   uintL tv_sec;    /* number of seconds since 1.1.1970 00:00 GMT,
                       'uintL' for tv_sec is good for 136 years. */
   uintL tv_usec;   /* additional microseconds */
 } internal_time_t;
-    #define ticks_per_second  1000000UL /* 1 Tick = 1 mu-sec */
-    #define sub_internal_time(x,y, z)   /* z:=x-y */ \
-      do { (z).tv_sec = (x).tv_sec - (y).tv_sec;                \
-        if ((x).tv_usec < (y).tv_usec)                          \
-          { (x).tv_usec += ticks_per_second; (z).tv_sec -= 1; } \
-        (z).tv_usec = (x).tv_usec - (y).tv_usec;                \
-      } while(0)
-    #define add_internal_time(x,y, z)   /* z:=x+y */ \
-      do { (z).tv_sec = (x).tv_sec + (y).tv_sec;                \
-        (z).tv_usec = (x).tv_usec + (y).tv_usec;                \
-        if ((z).tv_usec >= ticks_per_second)                    \
-          { (z).tv_usec -= ticks_per_second; (z).tv_sec += 1; } \
-      } while(0)
-  #endif
-  #ifdef TIME_WIN32
+  #define ticks_per_second  1000000UL /* 1 Tick = 1 mu-sec */
+  #define sub_internal_time(x,y, z)   /* z:=x-y */ \
+    do { (z).tv_sec = (x).tv_sec - (y).tv_sec;                \
+      if ((x).tv_usec < (y).tv_usec)                          \
+        { (x).tv_usec += ticks_per_second; (z).tv_sec -= 1; } \
+      (z).tv_usec = (x).tv_usec - (y).tv_usec;                \
+    } while(0)
+  #define add_internal_time(x,y, z)   /* z:=x+y */ \
+    do { (z).tv_sec = (x).tv_sec + (y).tv_sec;                \
+      (z).tv_usec = (x).tv_usec + (y).tv_usec;                \
+      if ((z).tv_usec >= ticks_per_second)                    \
+        { (z).tv_usec -= ticks_per_second; (z).tv_sec += 1; } \
+    } while(0)
+#endif
+#ifdef TIME_WIN32
 typedef /* struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } */
   FILETIME /* number of 0.1 mu-sec since 1.1.1601 00:00 GMT. */
   internal_time_t;
-    #define ticks_per_second  10000000UL /* 1 Tick = 0.1 mu-sec */
-    #define sub_internal_time(x,y, z)    /* z:=x-y */ \
-      do { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;      \
-        if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
-        (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;            \
-      } while(0)
-    #define add_internal_time(x,y, z)    /* z:=x+y */ \
-      do { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;      \
-        (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;            \
-        if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1;}\
-      } while(0)
-  #endif
+  #define ticks_per_second  10000000UL /* 1 Tick = 0.1 mu-sec */
+  #define sub_internal_time(x,y, z)    /* z:=x-y */ \
+    do { (z).dwHighDateTime = (x).dwHighDateTime - (y).dwHighDateTime;      \
+      if ((x).dwLowDateTime < (y).dwLowDateTime) { (z).dwHighDateTime -= 1;}\
+      (z).dwLowDateTime = (x).dwLowDateTime - (y).dwLowDateTime;            \
+    } while(0)
+  #define add_internal_time(x,y, z)    /* z:=x+y */ \
+    do { (z).dwHighDateTime = (x).dwHighDateTime + (y).dwHighDateTime;      \
+      (z).dwLowDateTime = (x).dwLowDateTime + (y).dwLowDateTime;            \
+      if ((z).dwLowDateTime < (x).dwLowDateTime) { (z).dwHighDateTime += 1;}\
+    } while(0)
 #endif
 
 #ifndef HAVE_RUN_TIME
@@ -8781,23 +8749,11 @@ typedef /* struct _FILETIME { DWORD dwLowDateTime; DWORD dwHighDateTime; } */
   #define run_time_restart()
 #endif
 
-#if TIME_METHOD == 1
-
-/* UP: Yields the real-time
- get_real_time()
- < uintL result: time since LISP-system-start (in 1/200 sec resp. in 1/50 sec resp. in 1/100 sec resp. in 1/CLK_TCK sec) */
-  extern uintL get_real_time (void);
-/* is used by STREAM, LISPARIT */
-
-#elif TIME_METHOD == 2
-
 /* UP: yields the real-time
  get_real_time()
  < internal_time_t* result: absolute time */
   extern void get_real_time (internal_time_t*);
 /* is used by LISPARIT */
-
-#endif
 
 /* UP: Yields the run-time
  get_running_times(&timescore);
@@ -8828,13 +8784,10 @@ extern object internal_time_to_I (const internal_time_t* tp);
     #define get_running_time(runtime)  runtime = get_time()
     extern uintL get_time (void);
   #endif
-  #if defined(TIME_UNIX) || defined(TIME_WIN32) || defined(TIME_UNIX_TIMES)
+  #if defined(TIME_UNIX) || defined(TIME_WIN32)
     #define get_running_time(runtime)  get_run_time(&runtime)
     #if defined(TIME_UNIX) || defined(TIME_WIN32)
       extern void get_run_time (internal_time_t* runtime);
-    #endif
-    #ifdef TIME_UNIX_TIMES
-      extern uintL get_run_time (internal_time_t* runtime);
     #endif
   #endif
 /* is used by SPVW */

@@ -31,19 +31,13 @@ local void print_mem_stats (void) {
   fprintf(stderr," %lu %lu",tm.gcfreed.hi,tm.gcfreed.lo);
  #endif
   fputc('\n',stderr);
-#if TIME_METHOD == 1
- #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu",(unsigned long)t)
-#elif  TIME_METHOD == 2
  #if defined(TIME_UNIX)
   #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",(unsigned long)t.tv_sec,(unsigned long)t.tv_usec)
  #elif defined(TIME_WIN32)
   #define PRINT_INTERNAL_TIME(t) fprintf(stderr," %lu %lu",t.dwHighDateTime,t.dwLowDateTime)
  #else
-  #error print_mem_stats: TIME_METHOD == 2
+  #error print_mem_stats not implemented
  #endif
-#else
- #error print_mem_stats: TIME_METHOD == ???
-#endif
   fputs(GETTEXTL("Run time:"),stderr);
   PRINT_INTERNAL_TIME(tm.runtime); fputc('\n',stderr);
   fputs(GETTEXTL("Real time:"),stderr);

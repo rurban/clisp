@@ -576,29 +576,8 @@ extern_C const char* tgetstr (const char* id, char** area); /* TERMCAP(3X) */
 #endif
 /* used by SPVW, STREAM */
 
-/* process date/time of day: */
-#if defined(HAVE_GETTIMEOFDAY)
-  /* gettimeofday is declared in <sys/time.h> - included above */
-  /* extern_C int gettimeofday (struct timeval * tp, struct timezone *tzp); */ /* GETTIMEOFDAY(2) */
-#elif defined(HAVE_FTIME)
-  #include <sys/timeb.h>
-  extern_C int ftime (struct timeb * tp); /* TIME(3V) */
-  /* emulate gettimeofday() in unixaux.d: */
-  #define NEED_OWN_GETTIMEOFDAY
-  #ifndef _EMUL_SYS_TIME_H
-    #define _EMUL_SYS_TIME_H
-    struct timeval { long tv_sec; long tv_usec; };
-    struct timezone { int tz_minuteswest; int tz_dsttime; };
-  #endif
-  extern int gettimeofday (struct timeval * tp, struct timezone * tzp); /* see unixaux.d */
-#elif defined(HAVE_TIMES_CLOCK)
-  #include <sys/times.h>
-  extern_C clock_t times (struct tms * buffer); /* TIMES(3V) */
-  extern_C time_t time (time_t* tloc); /* TIME(3V) */
-#else
-  #error Cannot access real time with resolution finer than 1 second.
-#endif
-/* used by SPVW, MISC */
+/* process date/time of day:
+ get gettimeofday() from gnulib */
 
 /* inquire used time of the process: */
 #if defined(HAVE_GETRUSAGE)
