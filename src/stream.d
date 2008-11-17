@@ -12837,10 +12837,10 @@ local maygc void low_flush_buffered_pipe (object stream, uintL bufflen) {
   var uintB* buff = BufferedStream_buffer_address(stream,0);
   pin_varobject(BufferedStream_buffer(stream));
   pushSTACK(stream);
-  writing_to_subprocess = true;
+  START_WRITING_TO_SUBPROCESS;
   var ssize_t result;
   GC_SAFE_CALL(result=, full_write(fd,buff,bufflen));
-  writing_to_subprocess = false;
+  STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
   if (result == bufflen) { /* everything was written correctly */
@@ -13039,10 +13039,10 @@ local maygc void low_write_unbuffered_pipe (object stream, uintB b) {
   begin_system_call();
   /* Try to output the byte. */
   pushSTACK(stream);
-  writing_to_subprocess = true;
+  START_WRITING_TO_SUBPROCESS;
   var int result;
   GC_SAFE_CALL(result=, write(handle,&b,1));
-  writing_to_subprocess = false;
+  STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   if (result<0) {
     if (errno==EINTR) { /* Break (poss. by Ctrl-C) ? */
@@ -13060,14 +13060,15 @@ local maygc void low_write_unbuffered_pipe (object stream, uintB b) {
 local maygc const uintB* low_write_array_unbuffered_pipe (object stream,
                                                           const uintB* byteptr,
                                                           uintL len,
-                                                          perseverance_t persev) {
+                                                          perseverance_t persev)
+{
   var Handle handle = TheHandle(TheStream(stream)->strm_ochannel);
   begin_system_call();
   pushSTACK(stream);
-  writing_to_subprocess = true;
+  START_WRITING_TO_SUBPROCESS;
   var ssize_t result;
   GC_SAFE_CALL(result=, fd_write(handle,byteptr,len,persev));
-  writing_to_subprocess = false;
+  STOP_WRITING_TO_SUBPROCESS;
   stream = popSTACK();
   if (result<0) { OS_error(); }
   end_system_call();
@@ -13870,9 +13871,7 @@ local maygc uintL low_fill_buffered_socket (object stream,
  changed in stream: index */
 local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
   begin_system_call();
- #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-  writing_to_subprocess = true;
- #endif
+  START_WRITING_TO_SUBPROCESS;
   var SOCKET handle=TheSocket(BufferedStream_channel(stream));
   var uintB *buff=BufferedStream_buffer_address(stream,0);
   pin_varobject(BufferedStream_buffer(stream));
@@ -13881,9 +13880,7 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
   GC_SAFE_CALL(result=, sock_write(handle,buff,bufflen,persev_full));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
- #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-  writing_to_subprocess = false;
- #endif
+  STOP_WRITING_TO_SUBPROCESS;
   if (result==bufflen) {
     /* everything written correctly */
     end_system_call(); BufferedStream_modified(stream) = false;

@@ -481,20 +481,11 @@ static inline Display *get_display (object dpy)
 /* it is not clear whether we can rely on `writing_to_subprocess' or
  must actually disable SIGPIPE - see src/spvw_sigpipe.d */
 #define RELY_ON_WRITING_TO_SUBPROCESS
-#if defined(RELY_ON_WRITING_TO_SUBPROCESS)
-/* including <signal.h> just for the sake of SIGPIPE
-   (which is always there anyway) is a total waste */
-# if defined(HAVE_SIGNALS) /* && defined(SIGPIPE) */
-extern
-# endif
-bool writing_to_subprocess;
-# define begin_x_call() writing_to_subprocess=true;begin_call()
-# define end_x_call()   end_call();writing_to_subprocess=false
-#else
-# define begin_x_call() begin_call()
-# define end_x_call()   end_call()
+#if !defined(RELY_ON_WRITING_TO_SUBPROCESS)
 extern void disable_sigpipe(void);
 #endif
+#define begin_x_call() START_WRITING_TO_SUBPROCESS;begin_call()
+#define end_x_call()   end_call();STOP_WRITING_TO_SUBPROCESS
 #define X_CALL(f) do{ begin_x_call(); f; end_x_call(); }while(0)
 
 /* -------------------------------------------------------------------------
