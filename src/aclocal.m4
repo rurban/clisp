@@ -1562,6 +1562,108 @@ AC_DEFUN([AM_GNU_GETTEXT_NEED],
 dnl Usage: AM_GNU_GETTEXT_VERSION([gettext-version])
 AC_DEFUN([AM_GNU_GETTEXT_VERSION], [])
 
+#serial 11
+
+# Copyright (C) 2001, 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+dnl From Jim Meyering.
+
+AC_DEFUN([gl_FUNC_GETTIMEOFDAY],
+[
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_REQUIRE([gl_HEADER_SYS_TIME_H])
+  AC_CHECK_FUNCS_ONCE([gettimeofday])
+
+  AC_CACHE_CHECK([for gettimeofday with POSIX signature],
+    [gl_cv_func_gettimeofday_posix_signature],
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[#include <sys/time.h>
+	    struct timeval c;
+	  ]],
+	  [[
+	    int (*f) (struct timeval *restrict, void *restrict) = gettimeofday;
+	    int x = f (&c, 0);
+	    return !(x | c.tv_sec | c.tv_usec);
+	  ]])],
+	[gl_cv_func_gettimeofday_posix_signature=yes],
+	[gl_cv_func_gettimeofday_posix_signature=no])])
+
+  gl_FUNC_GETTIMEOFDAY_CLOBBER
+
+  if test $gl_cv_func_gettimeofday_posix_signature != yes; then
+    REPLACE_GETTIMEOFDAY=1
+    SYS_TIME_H=sys/time.h
+    if test $gl_cv_func_gettimeofday_clobber != yes; then
+      AC_LIBOBJ(gettimeofday)
+      gl_PREREQ_GETTIMEOFDAY
+    fi
+  fi
+])
+
+
+dnl See if gettimeofday clobbers the static buffer that localtime uses
+dnl for its return value.  The gettimeofday function from Mac OS X 10.0.4
+dnl (i.e., Darwin 1.3.7) has this problem.
+dnl
+dnl If it does, then arrange to use gettimeofday and localtime only via
+dnl the wrapper functions that work around the problem.
+
+AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
+[
+ AC_REQUIRE([gl_HEADER_SYS_TIME_H])
+
+ AC_CACHE_CHECK([whether gettimeofday clobbers localtime buffer],
+  [gl_cv_func_gettimeofday_clobber],
+  [AC_RUN_IFELSE(
+     [AC_LANG_PROGRAM(
+	[[#include <string.h>
+	  #include <sys/time.h>
+	  #include <time.h>
+	  #include <stdlib.h>
+	]],
+	[[
+	  time_t t = 0;
+	  struct tm *lt;
+	  struct tm saved_lt;
+	  struct timeval tv;
+	  lt = localtime (&t);
+	  saved_lt = *lt;
+	  gettimeofday (&tv, NULL);
+	  return memcmp (lt, &saved_lt, sizeof (struct tm)) != 0;
+	]])],
+     [gl_cv_func_gettimeofday_clobber=no],
+     [gl_cv_func_gettimeofday_clobber=yes],
+     dnl When crosscompiling, assume it is broken.
+     [gl_cv_func_gettimeofday_clobber=yes])])
+
+ if test $gl_cv_func_gettimeofday_clobber = yes; then
+   REPLACE_GETTIMEOFDAY=1
+   SYS_TIME_H=sys/time.h
+   gl_GETTIMEOFDAY_REPLACE_LOCALTIME
+   AC_DEFINE([GETTIMEOFDAY_CLOBBERS_LOCALTIME], 1,
+     [Define if gettimeofday clobbers the localtime buffer.])
+ fi
+])
+
+AC_DEFUN([gl_GETTIMEOFDAY_REPLACE_LOCALTIME], [
+  AC_LIBOBJ(gettimeofday)
+  gl_PREREQ_GETTIMEOFDAY
+  AC_DEFINE([gmtime], [rpl_gmtime],
+    [Define to rpl_gmtime if the replacement function should be used.])
+  AC_DEFINE([localtime], [rpl_localtime],
+    [Define to rpl_localtime if the replacement function should be used.])
+])
+
+# Prerequisites of lib/gettimeofday.c.
+AC_DEFUN([gl_PREREQ_GETTIMEOFDAY], [
+  AC_CHECK_HEADERS([sys/timeb.h])
+  AC_CHECK_FUNCS([_ftime])
+])
+
 # glibc21.m4 serial 3
 dnl Copyright (C) 2000-2002, 2004 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
@@ -1771,6 +1873,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_FUNC_GETTIMEOFDAY
   gl_GNU_MAKE
   gl_LIBSIGSEGV
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
@@ -1786,6 +1889,8 @@ AC_SUBST([LTALLOCA])
   AM_STDBOOL_H
   gl_STDINT_H
   gl_STDLIB_H
+  gl_HEADER_SYS_TIME_H
+  AC_PROG_MKDIR_P
   gl_UNISTD_H
   gl_WCHAR_H
   gl_WCTYPE_H
@@ -1926,6 +2031,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
   lib/gettext.h
+  lib/gettimeofday.c
   lib/localcharset.c
   lib/localcharset.h
   lib/malloc.c
@@ -1941,6 +2047,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
+  lib/sys_time.in.h
   lib/uniname.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
@@ -1957,6 +2064,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/extensions.m4
   m4/fnmatch.m4
   m4/gettext.m4
+  m4/gettimeofday.m4
   m4/glibc2.m4
   m4/glibc21.m4
   m4/gnu-make.m4
@@ -1993,6 +2101,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint.m4
   m4/stdint_h.m4
   m4/stdlib_h.m4
+  m4/sys_time_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
@@ -2185,7 +2294,7 @@ size_t iconv();
   fi
 ])
 
-# include_next.m4 serial 8
+# include_next.m4 serial 9
 dnl Copyright (C) 2006-2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -2274,6 +2383,7 @@ EOF
 AC_DEFUN([gl_CHECK_NEXT_HEADERS],
 [
   AC_REQUIRE([gl_INCLUDE_NEXT])
+  AC_REQUIRE([AC_CANONICAL_HOST])
   AC_CHECK_HEADERS_ONCE([$1])
 
   m4_foreach_w([gl_HEADER_NAME], [$1],
@@ -2292,11 +2402,22 @@ AC_DEFUN([gl_CHECK_NEXT_HEADERS],
 	      [AC_LANG_SOURCE(
 		 [[#include <]]m4_dquote(m4_defn([gl_HEADER_NAME]))[[>]]
 	       )])
-	    dnl eval is necessary to expand ac_cpp.
+	    dnl AIX "xlc -E" and "cc -E" omit #line directives for header files
+	    dnl that contain only a #include of other header files and no
+	    dnl non-comment tokens of their own. This leads to a failure to
+	    dnl detect the absolute name of <dirent.h>, <signal.h>, <poll.h>
+	    dnl and others. The workaround is to force preservation of comments
+	    dnl through option -C. This ensures all necessary #line directives
+	    dnl are present. GCC supports option -C as well.
+	    case "$host_os" in
+	      aix*) gl_absname_cpp="$ac_cpp -C" ;;
+	      *)    gl_absname_cpp="$ac_cpp" ;;
+	    esac
+	    dnl eval is necessary to expand gl_absname_cpp.
 	    dnl Ultrix and Pyramid sh refuse to redirect output of eval,
 	    dnl so use subshell.
 	    AS_VAR_SET([gl_next_header],
-	      ['"'`(eval "$ac_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD |
+	      ['"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&AS_MESSAGE_LOG_FD |
 	       sed -n '\#/]m4_quote(m4_defn([gl_HEADER_NAME]))[#{
 		 s#.*"\(.*/]m4_quote(m4_defn([gl_HEADER_NAME]))[\)".*#\1#
 		 s#^/[^/]#//&#
@@ -5233,7 +5354,7 @@ m4_ifdef([AC_COMPUTE_INT], [], [
 # indent-tabs-mode: nil
 # End:
 
-# stdlib_h.m4 serial 11
+# stdlib_h.m4 serial 13
 dnl Copyright (C) 2007, 2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
@@ -5243,6 +5364,9 @@ AC_DEFUN([gl_STDLIB_H],
 [
   AC_REQUIRE([gl_STDLIB_H_DEFAULTS])
   gl_CHECK_NEXT_HEADERS([stdlib.h])
+  AC_CHECK_TYPES([struct random_data],
+    [], [HAVE_STRUCT_RANDOM_DATA=0],
+    [[#include <stdlib.h>]])
 ])
 
 AC_DEFUN([gl_STDLIB_MODULE_INDICATOR],
@@ -5271,25 +5395,84 @@ AC_DEFUN([gl_STDLIB_H_DEFAULTS],
   GNULIB_STRTOULL=0;      AC_SUBST([GNULIB_STRTOULL])
   GNULIB_UNSETENV=0;      AC_SUBST([GNULIB_UNSETENV])
   dnl Assume proper GNU behavior unless another module says otherwise.
-  HAVE_ATOLL=1;           AC_SUBST([HAVE_ATOLL])
-  HAVE_CALLOC_POSIX=1;    AC_SUBST([HAVE_CALLOC_POSIX])
-  HAVE_GETSUBOPT=1;       AC_SUBST([HAVE_GETSUBOPT])
-  HAVE_MALLOC_POSIX=1;    AC_SUBST([HAVE_MALLOC_POSIX])
-  HAVE_MKDTEMP=1;         AC_SUBST([HAVE_MKDTEMP])
-  HAVE_REALLOC_POSIX=1;   AC_SUBST([HAVE_REALLOC_POSIX])
-  HAVE_RANDOM_R=1;        AC_SUBST([HAVE_RANDOM_R])
-  HAVE_RPMATCH=1;         AC_SUBST([HAVE_RPMATCH])
-  HAVE_SETENV=1;          AC_SUBST([HAVE_SETENV])
-  HAVE_STRTOD=1;          AC_SUBST([HAVE_STRTOD])
-  HAVE_STRTOLL=1;         AC_SUBST([HAVE_STRTOLL])
-  HAVE_STRTOULL=1;        AC_SUBST([HAVE_STRTOULL])
-  HAVE_SYS_LOADAVG_H=0;   AC_SUBST([HAVE_SYS_LOADAVG_H])
-  HAVE_UNSETENV=1;        AC_SUBST([HAVE_UNSETENV])
-  HAVE_DECL_GETLOADAVG=1; AC_SUBST([HAVE_DECL_GETLOADAVG])
-  REPLACE_MKSTEMP=0;      AC_SUBST([REPLACE_MKSTEMP])
-  REPLACE_PUTENV=0;       AC_SUBST([REPLACE_PUTENV])
-  REPLACE_STRTOD=0;       AC_SUBST([REPLACE_STRTOD])
-  VOID_UNSETENV=0;        AC_SUBST([VOID_UNSETENV])
+  HAVE_ATOLL=1;              AC_SUBST([HAVE_ATOLL])
+  HAVE_CALLOC_POSIX=1;       AC_SUBST([HAVE_CALLOC_POSIX])
+  HAVE_GETSUBOPT=1;          AC_SUBST([HAVE_GETSUBOPT])
+  HAVE_MALLOC_POSIX=1;       AC_SUBST([HAVE_MALLOC_POSIX])
+  HAVE_MKDTEMP=1;            AC_SUBST([HAVE_MKDTEMP])
+  HAVE_REALLOC_POSIX=1;      AC_SUBST([HAVE_REALLOC_POSIX])
+  HAVE_RANDOM_R=1;           AC_SUBST([HAVE_RANDOM_R])
+  HAVE_RPMATCH=1;            AC_SUBST([HAVE_RPMATCH])
+  HAVE_SETENV=1;             AC_SUBST([HAVE_SETENV])
+  HAVE_STRTOD=1;             AC_SUBST([HAVE_STRTOD])
+  HAVE_STRTOLL=1;            AC_SUBST([HAVE_STRTOLL])
+  HAVE_STRTOULL=1;           AC_SUBST([HAVE_STRTOULL])
+  HAVE_STRUCT_RANDOM_DATA=1; AC_SUBST([HAVE_STRUCT_RANDOM_DATA])
+  HAVE_SYS_LOADAVG_H=0;      AC_SUBST([HAVE_SYS_LOADAVG_H])
+  HAVE_UNSETENV=1;           AC_SUBST([HAVE_UNSETENV])
+  HAVE_DECL_GETLOADAVG=1;    AC_SUBST([HAVE_DECL_GETLOADAVG])
+  REPLACE_MKSTEMP=0;         AC_SUBST([REPLACE_MKSTEMP])
+  REPLACE_PUTENV=0;          AC_SUBST([REPLACE_PUTENV])
+  REPLACE_STRTOD=0;          AC_SUBST([REPLACE_STRTOD])
+  VOID_UNSETENV=0;           AC_SUBST([VOID_UNSETENV])
+])
+
+# Configure a replacement for <sys/time.h>.
+
+# Copyright (C) 2007 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Paul Eggert and Martin Lambers.
+
+AC_DEFUN([gl_HEADER_SYS_TIME_H],
+[
+  dnl Use AC_REQUIRE here, so that the REPLACE_GETTIMEOFDAY=0 statement
+  dnl below is expanded once only, before all REPLACE_GETTIMEOFDAY=1
+  dnl statements that occur in other macros.
+  AC_REQUIRE([gl_HEADER_SYS_TIME_H_BODY])
+])
+
+AC_DEFUN([gl_HEADER_SYS_TIME_H_BODY],
+[
+  AC_REQUIRE([AC_C_RESTRICT])
+  gl_CHECK_NEXT_HEADERS([sys/time.h])
+
+  if test $ac_cv_header_sys_time_h = yes; then
+    HAVE_SYS_TIME_H=1
+  else
+    HAVE_SYS_TIME_H=0
+  fi
+  AC_SUBST([HAVE_SYS_TIME_H])
+
+  AC_CACHE_CHECK([for struct timeval], [gl_cv_sys_struct_timeval],
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[#if HAVE_SYS_TIME_H
+	     #include <sys/time.h>
+	    #endif
+	    #include <time.h>
+	  ]],
+	  [[static struct timeval x; x.tv_sec = x.tv_usec;]])],
+       [gl_cv_sys_struct_timeval=yes],
+       [gl_cv_sys_struct_timeval=no])])
+  if test $gl_cv_sys_struct_timeval = yes; then
+    HAVE_STRUCT_TIMEVAL=1
+  else
+    HAVE_STRUCT_TIMEVAL=0
+  fi
+  AC_SUBST([HAVE_STRUCT_TIMEVAL])
+
+  dnl Assume POSIX behavior unless another module says otherwise.
+  REPLACE_GETTIMEOFDAY=0
+  AC_SUBST([REPLACE_GETTIMEOFDAY])
+  if test $HAVE_SYS_TIME_H = 0 || test $HAVE_STRUCT_TIMEVAL = 0; then
+    SYS_TIME_H=sys/time.h
+  else
+    SYS_TIME_H=
+  fi
+  AC_SUBST([SYS_TIME_H])
 ])
 
 # unistd_h.m4 serial 16
@@ -6904,23 +7087,6 @@ dnl Otherwise we use PAGESIZE defined in <sys/param.h>.
 dnl But mingw32 doesn't have <sys/param.h>.
 AC_CHECK_HEADERS(sys/param.h)
 fi
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
-AC_DEFUN([CL_GETTIMEOFDAY],
-[AC_BEFORE([$0], [CL_TIMES_CLOCK])
-AC_CHECK_FUNCS(gettimeofday)dnl
 ])
 
 # Configure paths for GTK+
@@ -16077,55 +16243,6 @@ rm -f conftestfile1
 ])
 TEST_NT=${cl_cv_test_nt-no}
 AC_SUBST(TEST_NT)dnl
-])
-
-dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2003 Free Software Foundation, Inc.
-dnl This file is free software, distributed under the terms of the GNU
-dnl General Public License.  As a special exception to the GNU General
-dnl Public License, this file may be distributed as part of a program
-dnl that contains a configuration script generated by Autoconf, under
-dnl the same distribution terms as the rest of that program.
-
-dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
-
-AC_PREREQ(2.57)
-
-AC_DEFUN([CL_TIMES_CLOCK],
-[AC_REQUIRE([CL_GETTIMEOFDAY])dnl
-if test $ac_cv_func_gettimeofday = no -a $ac_cv_func_ftime = no; then
-AC_CHECK_FUNC(times, , no_times=1)dnl
-if test -z "$no_times"; then
-AC_CACHE_CHECK(for times return value, cl_cv_func_times_return, [
-AC_TRY_RUN([
-#include <sys/types.h>
-#include <time.h> /* needed for CLK_TCK */
-#ifndef CLK_TCK
-#include <sys/time.h> /* needed for CLK_TCK on SYSV PTX */
-#endif
-#include <sys/times.h>
-int main ()
-{ struct tms buffer;
-  clock_t result1;
-  clock_t result2;
-  int ticks;
-  result1 = times(&buffer);
-  if ((result1 == (clock_t)0) || (result1 == (clock_t)(-1))) exit(1);
-  sleep(1);
-  result2 = times(&buffer);
-  if ((result2 == (clock_t)0) || (result2 == (clock_t)(-1))) exit(1);
-  ticks = result2 - result1;
-  exit(!((ticks >= CLK_TCK/2) && (ticks <= 3*CLK_TCK/2)));
-}], cl_cv_func_times_return=yes, cl_cv_func_times_return=no,
-dnl When cross-compiling, don't assume anything.
-cl_cv_func_times_return="guessing no")
-])
-case "$cl_cv_func_times_return" in
-  *yes) AC_DEFINE(HAVE_TIMES_CLOCK,,[have the times() function and it returns the real time, but do not have the gettimeofday() or ftime() function]) ;;
-  *no)  ;;
-esac
-fi
-fi
 ])
 
 dnl -*- Autoconf -*-
