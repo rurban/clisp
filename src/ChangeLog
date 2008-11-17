@@ -16,6 +16,7 @@
 	* lispbibl.d (clisp_thread_t): move _writing_to_subprocess up
 	before _mv_space and export it to clisp.h
 	(mv_space) [MULTITHREAD]: export to clisp.h
+	(HAVE_SIGNALS): no need to export to clisp.h anymore
 	(START_WRITING_TO_SUBPROCESS, STOP_WRITING_TO_SUBPROCESS):
 	define and export to clisp.h
 	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
