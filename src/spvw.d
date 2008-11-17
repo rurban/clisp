@@ -615,11 +615,16 @@ global uintL* current_thread_alloccount()
  #endif
 #endif /* !per_thread */
 
+/* forward definition */
+extern void initialize_circ_detection();
+
 /* Initialization. Called at the beginning of main(). */
 local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock); /* threads lock */
   xmutex_init(&open_files_lock); /* open files lock i.e. O(open_files) */
+  initialize_circ_detection(); /* initialize the circ detection */
+  spinlock_init(&timeout_call_chain_lock);
   maxnum_symvalues = SYMVALUES_PER_PAGE;
   #if !defined(per_thread)
    #if USE_CUSTOM_TLS == 1

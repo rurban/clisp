@@ -1056,12 +1056,12 @@ local inline bool instance_p(aint ptr)
 local aint gc_sweep1_varobject_page(uintL heapnr, aint start, aint end, 
 				    gcv_object_t *firstmarked, 
 				    varobj_mem_region *dest, uintC dest_count, 
-				    varobj_mem_region *holes, aint *holes_count)
+				    varobj_mem_region *holes, uintC *holes_count)
 #else
 local aint gc_sweep1_varobject_page(aint start, aint end, 
 				    gcv_object_t *firstmarked, 
 				    varobj_mem_region *dest, uintC dest_count,
-				    varobj_mem_region *holes, aint *holes_count)
+				    varobj_mem_region *holes, uintC *holes_count)
 #endif
 {
   var bool last_was_marked=false;
@@ -1084,22 +1084,6 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
   while (1) {
     if (p2==end) break; /* we have finished */
     objlen=objsize((Varobject)p2);
-    /* Check for pinned object. Currently we assume that it is
-       possible to have pinned object that is not marked !!!
-       This is quite unlikely (at least I do not see normal
-       case in which this may occur). moving this after the mark is checked
-       will improve the performance of course. */
-    if (p2==next_pinned) { /* is the current object pinned? */
-      cur_used=NULL; /* no current memory region */       
-      /* advance to next pinned object */
-      pin_watch++; next_pinned=pin_watch->start+pin_watch->size;
-      new_loc=p2; /* stay here */
-      /* mark the pinned object if not already. it is possible becuase
-	 of signal handling to have pinned object that has not been put 
-	 in GC visible location. */
-      mark(p2); 
-      goto advance;
-    }
     if (!marked(p2)) { 
       /* in the original implementation the loops were unrolled
 	 but here we will pay the price for pin object support :( 
@@ -1110,6 +1094,15 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
       } 
       p2+=objlen; 
       continue; 
+    }
+    /* Check for pinned object. */
+    if (p2==next_pinned) { /* is the current object pinned? */
+      cur_used=NULL; /* no current memory region */       
+      /* advance to next pinned object */
+      pin_watch++; next_pinned=pin_watch->start+pin_watch->size;
+      new_loc=p2; /* stay here */
+      /* p2 is marked since before pinning it is pushed in the stack */
+      goto advance;
     }
     /* we have marked object that is not pinned. 
        we should calculate the new address at which we will move it */
@@ -1720,7 +1713,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
       case_sbvector: ((Sbvector)ptr)->length = len<<=3; break;
       case_sb2vector: ((Sbvector)ptr)->length = len<<=2; break;
       case_sb4vector: ((Sbvector)ptr)->length = len<<=1; break;
-      case_sb8vector:  ((Sbvector)ptr)->length = len break;
+      case_sb8vector:  ((Sbvector)ptr)->length = len; break;
       case_sb16vector: ((Sbvector)ptr)->length = len>>=1; break;
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
@@ -2388,9 +2381,9 @@ local bool page_contains_pinned_object(Page *page)
 {
 var_prepare_objsize;
   for_all_threads({
-    chain = thread->_pinned;
+    var pinned_chain_t *chain = thread->_pinned;
     while (chain) {
-      vs=(aint)TheVarobject(chain->_o);
+      var aint vs=(aint)TheVarobject(chain->_o);
       /* are we inside range? */
       if (page->page_start<=vs && page->page_end>vs) 
 	return true;
