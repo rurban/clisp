@@ -44,15 +44,7 @@ global uintL2 gc_space =
     } while(0)
 #endif
 
-global internal_time_t gc_time =
- #if TIME_METHOD == 1
-  0
- #elif TIME_METHOD == 2
-  {0,0}
- #else
-  #error bad TIME_METHOD
- #endif
-  ;
+global internal_time_t gc_time = {0,0};
 
 #define gc_timer_on()                                                   \
   { var internal_time_t gcstart_time;                                   \

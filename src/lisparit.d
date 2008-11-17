@@ -1716,9 +1716,6 @@ local maygc object make_random_state (object r)
     get_real_time(&real_time);
     seed_lo = highlow32(real_time.tv_sec,real_time.tv_usec); /* 16+16 random bits */
     #endif
-    #ifdef TIME_UNIX_TIMES
-    seed_lo = get_real_time(); /* time, CLK_TCK Hz */
-    #endif
     begin_system_call();
     seed_hi = (rand() /* random 31 bits (on UNIX_BSD) resp. 16 bits (on UNIX_SYSV) */
                << 8) ^ (uintL)(getpid()); /* ca. 8 bits from the Process ID */

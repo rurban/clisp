@@ -1,5 +1,26 @@
 2008-11-17  Sam Steingold  <sds@gnu.org>
 
+	Remove TIME_RELATIVE, TIME_UNIX_TIMES, TIME_METHOD=1;
+	assume either gettimeofday or ftime is present on a Unix system
+	* Makefile.devel (gnulib-imported): also get gettimeofday
+	* m4/gettimeofday.m4, m4/times.m4: remove
+	* configure.in: call AC_PROG_MKDIR_P, gl_FUNC_GETTIMEOFDAY,
+	gl_HEADER_SYS_TIME_H; do not call CL_GETTIMEOFDAY and CL_TIMES_CLOCK
+	* constobj.d (start_UT) [TIME_RELATIVE]: remove
+	* lisparit.d (make_random_state) [TIME_UNIX_TIMES]: drop get_real_time
+	* lispbibl.d (TIME_ABSOLUTE, TIME_RELATIVE, TIME_UNIX_TIMES)
+	(TIME_METHOD): remove
+	* spvw_gcstat.d (gc_time): remove TIME_METHOD conditionals
+	* spvw_sigsegv.d (print_mem_stats): ditto
+	* time.d (TIME_RELATIVE, TIME_UNIX_TIMES, TIME_METHOD==1):
+	remove all code for these conditionals
+	* unixaux.d (gettimeofday): remove emulation (rely on gnulib)
+	* unix.d: assume HAVE_GETTIMEOFDAY
+	* gllib/gettimeofday.c, sys_time.in.h, gettimeofday.m4, sys_time_h.m4:
+	add
+
+2008-11-17  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (stream_lend_handle): fix a GC-safety bug
 
 2008-11-17  Sam Steingold  <sds@gnu.org>

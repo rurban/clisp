@@ -75,27 +75,6 @@ global int select (int width, fd_set* readfds, fd_set* writefds,
 
 /* ======================================================================== */
 
-#ifdef NEED_OWN_GETTIMEOFDAY
-/* an emulation of gettimeofday(3). */
-global int gettimeofday (struct timeval * tp, struct timezone * tzp) {
-  if ((tp != NULL) || (tzp != NULL)) {
-    var struct timeb timebuf;
-    ftime(&timebuf);
-    if (tp != NULL) {
-      tp->tv_sec = timebuf.time;
-      tp->tv_usec = (long)(timebuf.millitm) * (1000000/1000);
-    }
-    if (tzp != NULL) {
-      tzp->tz_minuteswest = timebuf.timezone;
-      tzp->tz_dsttime = 0;      /* ?? */
-    }
-  }
-  return 0;
-}
-#endif
-
-/* ======================================================================== */
-
 #ifdef EINTR
 
 #ifdef UNIX
