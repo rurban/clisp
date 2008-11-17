@@ -382,27 +382,25 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
       funcall-ed, since it is not very nice to get errors
       in interrupted thread (but basically this is not a
       problem)*/
-    WITH_STOPPED_THREAD
-      (clt,true,
-       {
-         /* be sure that the signal we send will be received */
-         spinlock_acquire(&clt->_signal_reenter_ok);
-         var gcv_object_t *saved_stack=clt->_STACK;
-         if (clt->_STACK != NULL) { /* thread is alive ? */
-           while (rest_args_pointer != args_end_pointer) {
-             var object arg = NEXT(rest_args_pointer);
-             NC_pushSTACK(clt->_STACK,arg);
-           }
-           NC_pushSTACK(clt->_STACK,posfixnum(argcount));
-           NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
-           signal_sent = (0 == xthread_signal(systhr,SIG_THREAD_INTERRUPT));
-           if (!signal_sent) {
-             /* for some reason we were unable to send the signal */
-             clt->_STACK=saved_stack;
-             spinlock_release(&clt->_signal_reenter_ok);
-           }
-         }
-       });
+    WITH_STOPPED_THREAD(clt,true,{
+      var gcv_object_t *saved_stack=clt->_STACK;
+      if (clt->_STACK != NULL) { /* thread is alive ? */
+        /* be sure that the signal we send will be received */
+        spinlock_acquire(&clt->_signal_reenter_ok);
+        while (rest_args_pointer != args_end_pointer) {
+          var object arg = NEXT(rest_args_pointer);
+          NC_pushSTACK(clt->_STACK,arg);
+        }
+        NC_pushSTACK(clt->_STACK,posfixnum(argcount));
+        NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
+        signal_sent = (0 == xthread_signal(systhr,SIG_THREAD_INTERRUPT));
+        if (!signal_sent) {
+          /* for some reason we were unable to send the signal */
+          clt->_STACK=saved_stack;
+          spinlock_release(&clt->_signal_reenter_ok);
+        }
+      }
+    });
     skipSTACK(2 + (uintL)argcount);
     /* TODO: may be signal an error if we try to interrupt
        terminated thread ???*/
