@@ -48,10 +48,6 @@
 #undef size_t
 #endif
 
-/* AC_RETSIGTYPE */
-/* Define as the return type of signal handlers (int or void). */
-#define RETSIGTYPE void
-
 #endif
 
 
@@ -65,7 +61,7 @@
 #endif
 
 #include <signal.h>
-typedef RETSIGTYPE (*signal_handler_t) ();
+typedef void (*signal_handler_t) ();
 extern signal_handler_t signal (int sig, signal_handler_t handler);
 /* forward */ void install_signal (int sig, signal_handler_t handler);
 
@@ -236,7 +232,7 @@ char* fault_address;
 typedef void* (*something) [20];
 void do_nothing();
 
-RETSIGTYPE fault_handler (sig, arg1, arg2, arg3, arg4, arg5, arg6)
+void fault_handler (sig, arg1, arg2, arg3, arg4, arg5, arg6)
   int sig;
   something arg1, arg2, arg3, arg4, arg5, arg6;
 { /* Set a breakpoint here! */
