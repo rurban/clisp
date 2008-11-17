@@ -37,9 +37,7 @@ local void begin_error (void)
 {
   end_system_call(); /* there is no system call running anymore */
   cancel_interrupts();
- #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-  writing_to_subprocess = false;
- #endif
+  STOP_WRITING_TO_SUBPROCESS;
   if (!posfixnump(Symbol_value(S(recursive_error_count)))) /* should be a fixnum >=0 */
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* otherwise emergency correction */
   /* increase error-count, if >3 abort output: */
@@ -718,9 +716,7 @@ global maygc void tast_break (void)
 {
 #if !defined(MULTITHREAD)
   cancel_interrupts();
- #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-  writing_to_subprocess = false;
- #endif
+  STOP_WRITING_TO_SUBPROCESS;
   if (!nullpSv(error_handler) || nullpSv(use_clcs)) {
     /* simulate begin_error(), 7 elements on the STACK: */
     pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL);
@@ -744,7 +740,7 @@ global maygc void tast_break (void)
   /* it will be very rare to get called here - since the interruptp()
      does not expand to anything in MT and most use of tast_break() was
      from it.*/
-  skipSTACK(1); 
+  skipSTACK(1);
 #endif
 }
 

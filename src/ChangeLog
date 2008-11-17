@@ -1,5 +1,16 @@
 2008-11-17  Sam Steingold  <sds@gnu.org>
 
+	fix module compilation after [threads1] merge
+	* lispbibl.d (clisp_thread_t): move _writing_to_subprocess up
+	before _mv_space and export it to clisp.h
+	(mv_space) [MULTITHREAD]: export to clisp.h
+	(START_WRITING_TO_SUBPROCESS, STOP_WRITING_TO_SUBPROCESS):
+	define and export to clisp.h
+	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
+	* error.d, stream.d: use them instead of setting writing_to_subprocess
+
+2008-11-17  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (clear_input_terminal2): simplify code
 	(clear_input_terminal3): fix a GC-safety bug
 
