@@ -6,6 +6,7 @@
 
 	assume POSIX signal()
 	* m4/signal.m4 (CL_TYPE_SIGNAL): remove
+	(CL_SIGACTION_REINSTALL, CL_SIGACTION_UNBLOCK): do not require it
 	* configure.in: do not call it
 	* unix.d (signal_handler_t): use a POSIX-compatible declaration
 
