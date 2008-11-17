@@ -1,5 +1,9 @@
 2008-11-17  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (stream_lend_handle): fix a GC-safety bug
+
+2008-11-17  Sam Steingold  <sds@gnu.org>
+
 	assume POSIX signal()
 	* m4/signal.m4 (CL_TYPE_SIGNAL): remove
 	* configure.in: do not call it
