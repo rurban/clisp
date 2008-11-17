@@ -145,8 +145,7 @@ AC_BEFORE([$0], [CL_SIGINTERRUPT])
 AC_CHECK_FUNCS(sigaction)])
 
 AC_DEFUN([CL_SIGACTION_REINSTALL],
-[AC_REQUIRE([CL_TYPE_SIGNAL])dnl
-AC_REQUIRE([CL_SIGACTION])dnl
+[AC_REQUIRE([CL_SIGACTION])dnl
 AC_BEFORE([$0], [CL_SIGACTION_UNBLOCK])dnl
 if test -n "$have_sigaction"; then
 AC_CACHE_CHECK(whether sigaction handlers need to be reinstalled, cl_cv_func_sigaction_reinstall, [
@@ -191,8 +190,7 @@ fi
 ])
 
 AC_DEFUN([CL_SIGACTION_UNBLOCK],
-[AC_REQUIRE([CL_TYPE_SIGNAL])dnl
-AC_REQUIRE([CL_SIGACTION])dnl
+[AC_REQUIRE([CL_SIGACTION])dnl
 AC_REQUIRE([CL_SIGACTION_REINSTALL])dnl
 if test -n "$have_sigaction"; then
 case "$signalblocks" in
