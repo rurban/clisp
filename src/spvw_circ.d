@@ -32,12 +32,46 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 
 /* -------------------------- Implementation --------------------------- */
 
-/*#if defined(MULTITHREAD) || defined(VIRTUAL_MEMORY)*/
+/* basically in MT we would like to have reentrant ciruclar detection. 
+currently two implementations are available: MLB and HASHTABLES.
+1. MLB - it mallocs (esp. on 64 bit - huge amount of memory)
+2. HASHSTABLES - it is slow.
+That's the reason by default - we will use the GCMARK in MT as well.
+We will guard it with mutex - so single thread can execute it at a 
+time. Also the GC will not be able to run during the GC mark 
+circulat detection.
+ */
+#if 0
+ #ifdef MULTITHREAD
+  #define CIRC_DETECTION_REENTRANT
+ #endif
+#endif
 
-#if defined(MULTITHREAD)
-#define USE_MULTI_LEVEL_BITMAP
-/* TBD: Should we stop the threads while inspecting for circularities?
-   This may introduce quite bad behavior of printer. */
+#ifdef CIRC_DETECTION_REENTRANT
+/* use MLB for 32 bit and hash table for 64 bit ??
+   hashtable is much slower (about 50% - overall) */
+ #if 0
+  #if (oint_addr_len <= 32)
+   #define USE_MULTI_LEVEL_BITMAP
+  #else
+   #define USE_LISP_HASHTABLE
+  #endif
+ #endif
+ /* by default use the HASHTABLE - since it will work on 64 bit platforms. */
+ #define USE_LISP_HASHTABLE
+ #ifdef MULTITHREAD
+  /* to be called from init_multithread(). does not do anything. */
+  global void initialize_circ_detection() {}
+ #endif
+#else /* use GC marks for detection */
+ #ifdef MULTITHREAD
+  /* lock for allowing just a single thread in circ detection at a time.*/
+  xmutex_t circ_detection_lock;
+  /* to be called from init_multithread(). initialize the mutex */
+  global void initialize_circ_detection() {
+    xmutex_init(&circ_detection_lock);
+  }
+ #endif
 #endif
 
 /* Common subroutines. */
@@ -352,7 +386,7 @@ local bool mlb_add (mlbitmap* bitmap, object obj)
     *p5 = (uintL*****)room; room += bit(mlbs4)*sizeof(uintL****);
     var uintL***** p4 = &(*p5)[(addr >> mlb4) & (bit(mlbs4)-1)];
     *p4 = (uintL****)room; room += bit(mlbs3)*sizeof(uintL***);
-    var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
+     var uintL**** p3 = &(*p4)[(addr >> mlb3) & (bit(mlbs3)-1)];
     *p3 = (uintL***)room; room += bit(mlbs2)*sizeof(uintL**);
     var uintL*** p2 = &(*p3)[(addr >> mlb2) & (bit(mlbs2)-1)];
     *p2 = (uintL**)room; room += bit(mlbs1)*sizeof(uintL*);
@@ -377,12 +411,100 @@ local void mlb_free (mlbitmap* bitmap)
   }
 }
 
+#define HASHSET mlbitmap
+#define HASHSET_INIT(pb) mlb_alloc(&pb)
+#define HASHSET_FREE(pb,aborted) mlb_free(&pb)
+#define HASHSET_ADD(pb,obj) mlb_add(&pb,obj)
+#define STORE_CIRCULAR(env,obj) pushSTACK(obj)
+#define CIRC_MAYGC_DECL
+
+#endif
+
+#ifdef USE_LISP_HASHTABLE
+
+/* This implementation of hashset is maygc - so the 
+circularitites cannot be stored on the STACK as we run. 
+ht_initialize() pushes 2 thing on the STACK:
+1. empty list of circularities that will be filled 
+(in reverse order)
+2. hashtable with "known/met" objects.
+
+ht_store_free() - cleans up the STACK and pushes (in correct)
+order the circularities found (if not aborted).
+*/
+
+/* create hash table and push it on the stack.
+   "create" list that stores circularities and push it on t
+   he stack before the hash table */
+local maygc void ht_initialize(gcv_object_t **ht)
+{
+  pushSTACK(NIL); /* the circularities list */
+  pushSTACK(S(Ktest)); pushSTACK(S(fasthash_eq));
+  /* do not warn on rehash - no need to bother users.
+     btw: no big difference with stablehash_eq */
+  pushSTACK(S(Kwarn_if_needs_rehash_after_gc)); pushSTACK(NIL);
+  funcall(L(make_hash_table),4);
+  pushSTACK(value1);
+  *ht = &STACK_0;
+}
+
+/* adds circularity to the list on the stack */
+local maygc void ht_list_store(gcv_object_t *ht, object obj)
+{
+  pushSTACK(obj);
+  var object kons = allocate_cons();
+  Car(kons) = popSTACK();
+  Cdr(kons) = *(ht STACKop 1);
+  *(ht STACKop 1) = kons;
+}
+
+/* "frees" the STACK from objects pushed by ht_initialize() and 
+   if not aborted - pushes the circularities in the correct order
+   expected by the caller. */
+local void ht_store_free(gcv_object_t *ht, bool aborted)
+{
+  ASSERT(ht == &STACK_0);
+  skipSTACK(1); /* skip the HT. *ht still points to it. */
+  var object list = popSTACK();
+  if (!aborted) {
+    list = nreverse(list);
+    while (!endp(list)) {
+      pushSTACK(Car(list));
+      list = Cdr(list);
+    } 
+  }
+}
+
+/* adds an object to the hashset. if already here - returns true.
+   otherwise - false.*/
+local maygc bool ht_add(gcv_object_t *ht, object obj)
+{
+  var object present = gethash(obj,*ht,false);  
+  var bool ret = !eq(present, nullobj);
+  if (!ret) { /* not found */
+    /* add to hashtable */
+    pushSTACK(obj);
+    pushSTACK(*ht);
+    pushSTACK(T); /* some immediate value? */
+    funcall(S(puthash),3);
+  } 
+  return ret;
+}
+
+#define HASHSET gcv_object_t *
+#define HASHSET_INIT(ht) ht_initialize(&ht)
+#define HASHSET_FREE(ht,aborted) ht_store_free(ht,aborted)
+#define HASHSET_ADD(ht,obj) ht_add(ht,obj)
+#define STORE_CIRCULAR(ht,obj) ht_list_store(ht,obj)
+#define CIRC_MAYGC 
+#define CIRC_MAYGC_DECL maygc
+
 #endif
 
 
 /* Implementation of get_circularities. */
 
-#ifdef USE_MULTI_LEVEL_BITMAP
+#ifdef CIRC_DETECTION_REENTRANT
 
 /* get_circularities(obj,pr_array,pr_closure)
  Method:
@@ -394,7 +516,7 @@ local void mlb_free (mlbitmap* bitmap)
 
 /* Global variables during get_circularities. */
 typedef struct {
-  mlbitmap bitmap;
+  HASHSET bitmap;
   bool pr_array;
   bool pr_closure;
   uintL counter;
@@ -404,8 +526,15 @@ typedef struct {
 
 /* UP: marks the object obj, pushes occurring circularities on the STACK
  and counts them in env->counter. */
-local void get_circ_mark (object obj, get_circ_global* env)
+local CIRC_MAYGC_DECL void get_circ_mark (object objarg, get_circ_global* env)
 {
+#ifdef CIRC_MAYGC
+  pushSTACK(objarg);
+  var gcv_object_t *pobj=&STACK_0;
+  #define obj *pobj
+#else
+  #define obj objarg
+#endif
  entry:
   #ifdef TYPECODES
   switch (typecode(obj))        /* according to type */
@@ -421,18 +550,16 @@ local void get_circ_mark (object obj, get_circ_global* env)
   #endif
   {
     case_cons:
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       {
-        var object obj_cdr = Cdr(obj); /* components */
-        var object obj_car = Car(obj);
         if (SP_overflow())                  /* check SP-depth */
           longjmp(env->abort_context,true); /* abort */
-        get_circ_mark(obj_car,env);         /* mark CAR (recursive) */
-        obj = obj_cdr; goto entry; /* mark CDR (tail-end-recursive) */
+        get_circ_mark(Car(obj),env); /* mark CAR (recursive) */
+        obj = Cdr(obj); goto entry; /* mark CDR (tail-end-recursive) */
       }
     case_symbol:
-      if (mlb_add(&env->bitmap,obj))    /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj))    /* marked? */
         if (nullp(Symbol_package(obj))) /* uninterned symbol? */
           goto m_schon_da;      /* yes -> was already there, memorize */
         else
@@ -454,27 +581,32 @@ local void get_circ_mark (object obj, get_circ_global* env)
     case_ratio:            /* Ratio */
     case_complex:          /* Complex */
       /* Object without components that are printed: */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       goto m_end;
     case_svector:                    /* Simple-Vector */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       if (env->pr_array) {      /* track components? */
         var uintL count = Svector_length(obj);
         if (!(count==0)) {
-          /* mark count>0 components */
-          var gcv_object_t* ptr = &TheSvector(obj)->data[0];
           if (SP_overflow())                  /* check SP-depth */
             longjmp(env->abort_context,true); /* abort */
-          dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+          /* mark count>0 components */
+	  #ifdef CIRC_MAYGC
+	   for (count=0;count < Svector_length(obj);count++) 
+	     get_circ_mark(TheSvector(obj)->data[count],env);
+	  #else
+           var gcv_object_t* ptr = &TheSvector(obj)->data[0];
+           dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+	  #endif
         }
       }
       goto m_end;
     case_mdarray: case_ovector:
       /* non-simple Array with components, that are objects: */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       if (env->pr_array) {                      /* track components? */
@@ -482,7 +614,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
       } else
         goto m_end;
     case_closure:                    /* Closure */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       if (env->pr_closure)        /* track components? */
@@ -491,12 +623,12 @@ local void get_circ_mark (object obj, get_circ_global* env)
         obj = Closure_name(obj); goto entry;
       }
     case_structure:                  /* Structure */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       goto m_record_components;
     case_stream:                     /* Stream */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       switch (TheStream(obj)->strmtype) {
@@ -507,7 +639,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
           goto m_end;
       }
     case_instance:                   /* CLOS-instance */
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       goto m_record_components;
@@ -538,7 +670,7 @@ local void get_circ_mark (object obj, get_circ_global* env)
         case_Rectype_Instance_above;
         default: ;
       }
-      if (mlb_add(&env->bitmap,obj)) /* marked? */
+      if (HASHSET_ADD(env->bitmap,obj)) /* marked? */
         goto m_schon_da;
       /* so far unmarked */
       switch (Record_type(obj)) {
@@ -571,10 +703,15 @@ local void get_circ_mark (object obj, get_circ_global* env)
           {
             var uintL count = Lrecord_length(obj)-2;
             if (count > 0) {
-              var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
               if (SP_overflow())                  /* check SP-depth */
                 longjmp(env->abort_context,true); /* abort */
-              dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark elements (recursive) */
+	      #ifdef CIRC_MAYGC
+	       for (count=0;count < Lrecord_length(obj)-2;count++) 
+                 get_circ_mark(TheWeakList(obj)->wl_elements[count],env);
+              #else
+               var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
+               dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark elements (recursive) */
+              #endif
             }
           }
           goto m_end;
@@ -602,11 +739,16 @@ local void get_circ_mark (object obj, get_circ_global* env)
         case Rectype_WeakHashedAlist_Both:
           {
             var uintL count = Lrecord_length(obj)-1; /* don't mark wp_cdr */
-            /* mark count>0 components, starting from recdata[1] */
-            var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
             if (SP_overflow())                  /* check SP-depth */
               longjmp(env->abort_context,true); /* abort */
-            dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+	    #ifdef CIRC_MAYGC
+	     for (count=1;count < Lrecord_length(obj);count++) 
+               get_circ_mark(TheRecord(obj)->recdata[count],env);
+            #else
+             /* mark count>0 components, starting from recdata[1] */
+             var gcv_object_t* ptr = &TheLrecord(obj)->recdata[1];
+             dotimespL(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+            #endif
           }
           goto m_end;
         default: break;
@@ -619,10 +761,15 @@ local void get_circ_mark (object obj, get_circ_global* env)
         var uintC count = Record_length(obj);
         if (!(count==0)) {
           /* mark count>0 components */
-          var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
           if (SP_overflow())                  /* check SP-depth */
             longjmp(env->abort_context,true); /* abort */
-          dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+	  #ifdef CIRC_MAYGC
+	   for (count=0;count < Record_length(obj);count++) 
+             get_circ_mark(TheRecord(obj)->recdata[count],env);
+	  #else
+           var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
+           dotimespC(count,count, { get_circ_mark(*ptr++,env); } ); /* mark components (recursive) */
+	  #endif
         }
       }
       goto m_end;
@@ -631,8 +778,8 @@ local void get_circ_mark (object obj, get_circ_global* env)
        It is a circularity. */
       if (STACK_overflow())  /* check STACK-depth */
         longjmp(env->abort_context,true); /* abort */
-      /* store object in STACK: */
-      pushSTACK(obj);
+      /* store object in STACK (maybe): */
+      STORE_CIRCULAR(env->bitmap,obj);
       env->counter++;           /* and count */
       goto m_end;
     #ifdef TYPECODES
@@ -651,6 +798,10 @@ local void get_circ_mark (object obj, get_circ_global* env)
       goto m_end;
     m_end: ;                   /* finished */
   }
+#undef obj
+#ifdef CIRC_MAYGC
+  skipSTACK(1);
+#endif
 }
 
 global maygc object get_circularities (object obj, bool pr_array, bool pr_closure)
@@ -658,21 +809,25 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* for the case of an abort */
   set_break_sem_1();             /* make Break impossible */
-  /* suspend all threads - we do not want anybody to mess obj */
   if (!setjmp(my_global.abort_context)) { /* save context */
+#ifdef USE_MULTI_LEVEL_BITMAP
     bcopy(my_global.abort_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
-    mlb_alloc(&my_global.bitmap); /* allocate bitmap */
+#endif
+    pushSTACK(obj); /* save it in case we use HASHSET that may GC */
+    var gcv_object_t *pobj = &STACK_0;
+    HASHSET_INIT(my_global.bitmap); /* allocate bitmap - maygc sometimes */
     my_global.pr_array = pr_array;
     my_global.pr_closure = pr_closure;
     my_global.counter = 0;      /* counter := 0 */
     my_global.abort_STACK = STACK;
     /* the context-backup my_global is now ready. */
-    get_circ_mark(obj,&my_global);   /* mark object, push multiple */
+    get_circ_mark(*pobj,&my_global);   /* mark object, push multiple */
              /* structures on the STACK count in my_global.counter */
-    mlb_free(&my_global.bitmap);     /* free Bitmap */
+    HASHSET_FREE(my_global.bitmap,false);     /* free Bitmap */
     clr_break_sem_1();               /* allow Break again */
     var uintL n = my_global.counter; /* number of objects on the STACK */
     if (n==0) {
+      skipSTACK(1); /* saved argument: obj  */
       return NIL;            /* none there -> return NIL and finished */
     } else {
       var object vector = allocate_vector(n+1); /* vector with n+1 elements */
@@ -681,19 +836,21 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
       *ptr++ = Fixnum_0;      /* first element = Fixnum 0 */
       /* store remaining elements (at least one): */
       dotimespL(n,n, { *ptr++ = popSTACK(); } );
+      skipSTACK(1); /* saved argument: obj */
       return vector;            /* vector as result */
     }
   } else {
     /* after abort because of SP- or STACK-overflow */
     setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* the context is now reestablished. */
-    mlb_free(&my_global.bitmap); /* free Bitmap */
+    HASHSET_FREE(my_global.bitmap,true); /* free Bitmap */
+    skipSTACK(1); /* saved argument: obj */
     clr_break_sem_1();           /* Break again possible */
     return T;                    /* T as result */
   }
 }
 
-#else  /* !USE_MULTI_LEVEL_BITMAP */
+#else  /* !CIRC_DETECTION_REENTRANT */
 
 /* get_circularities(obj,pr_array,pr_closure)
  Method:
@@ -715,7 +872,13 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
 {
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* in case of an abort */
-  set_break_sem_1();             /* make Break impossible */
+  #ifdef MULTITHREAD
+   pushSTACK(obj);
+   GC_SAFE_SYSTEM_CALL(,xmutex_lock(&circ_detection_lock));
+   obj = popSTACK();
+  #else
+   set_break_sem_1();             /* make Break impossible */
+  #endif
   if (!setjmp(my_global.abort_context)) { /* save context */
     my_global.pr_array = pr_array;
     my_global.pr_closure = pr_closure;
@@ -725,7 +888,13 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     get_circ_mark(obj,&my_global);   /* mark object, push multiple */
              /* structures on the STACK count in my_global.counter */
     get_circ_unmark(obj,&my_global); /* delete marks again */
-    clr_break_sem_1();               /* make Break possible again */
+    #ifdef MULTITHREAD
+     begin_system_call();
+     xmutex_unlock(&circ_detection_lock);
+     end_system_call();
+    #else
+     clr_break_sem_1();          /* allow Break again */
+    #endif
     var uintL n = my_global.counter; /* number of objects on the STACK */
     if (n==0) {
       return NIL;            /* none there -> return NIL and finished */
@@ -743,7 +912,13 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* the context is now reestablished. */
     get_circ_unmark(obj,&my_global); /* delete marks again */
-    clr_break_sem_1();               /* Break is possible again */
+    #ifdef MULTITHREAD
+     begin_system_call();
+     xmutex_unlock(&circ_detection_lock);
+     end_system_call();
+    #else
+     clr_break_sem_1();               /* Break is possible again */
+    #endif
     return T;                        /* T as result */
   }
 }
@@ -1235,18 +1410,20 @@ local void get_circ_unmark (object obj, get_circ_global* env)
 
 /* Implementation of subst_circ. */
 
-#ifdef USE_MULTI_LEVEL_BITMAP
+#ifdef CIRC_DETECTION_REENTRANT 
 
 /* Global variables during subst_circ. */
 typedef struct {
-  mlbitmap bitmap;
-  object alist;
+  HASHSET bitmap;
+  gcv_object_t *alist;
   jmp_buf abort_context;
+  gcv_object_t* abort_STACK;
   object bad;
 } subst_circ_global;
 
-local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
+local CIRC_MAYGC_DECL void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
 {
+  #define obj *ptr
   #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
   if (SP_overflow()) {        /* check SP-depth */
     env->bad = nullobj; longjmp(env->abort_context,true); /* abort */
@@ -1254,7 +1431,6 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
   #endif
  enter_subst:
   {
-    var object obj = *ptr;
     /* fall differentiation by type:
      Objects without sub-objects (machine pointers, bit-vectors,
      strings, characters, subrs, integers, floats) contain no
@@ -1286,23 +1462,38 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
     #endif
     {
       case_svector:                    /* Simple-Vector */
-        if (mlb_add(&env->bitmap,obj)) /* Object already marked? */
+        if (HASHSET_ADD(env->bitmap,obj)) /* Object already marked? */
           return;
         /* traverse all elements: */
         {
           var uintL len = Svector_length(obj);
           if (!(len==0)) {
+	   #ifdef CIRC_MAYGC
+            for (len=0;len < Svector_length(obj);len++) {
+              pushSTACK(TheSvector(obj)->data[len]);
+              subst_circ_mark(&STACK_0,env);
+              /* hope the len is still valid index in the vector :)*/
+              TheSvector(obj)->data[len] = popSTACK();
+            }
+	   #else
             var gcv_object_t* objptr = &TheSvector(obj)->data[0];
             dotimespL(len,len, { subst_circ_mark(&(*objptr++),env); } );
+	   #endif
           }
         }
         return;
       case_mdarray: case_ovector:
         /* non-simple array, no string or bit-vector */
-        if (mlb_add(&env->bitmap,obj)) /* object already marked? */
+        if (HASHSET_ADD(env->bitmap,obj)) /* object already marked? */
           return;
-        /* traverse data-vector: end-recursive subst_circ_mark(data-vector) */
-        ptr = &TheIarray(obj)->data; goto enter_subst;
+        #ifdef CIRC_MAYGC
+         pushSTACK(TheIarray(obj)->data);
+         subst_circ_mark(&STACK_0,env);
+         TheIarray(obj)->data = popSTACK();
+        #else
+         /* traverse data-vector: end-recursive subst_circ_mark(data-vector) */
+         ptr = &TheIarray(obj)->data; goto enter_subst;
+        #endif
       case_instance: /* Record */
       case_closure: _case_structure _case_stream case_orecord: case_lrecord:
         #ifndef TYPECODES
@@ -1325,7 +1516,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
         if (Record_type(obj) == Rectype_BigReadLabel) {
           /* BigReadLabel
            Search read-label obj in the alist: */
-          var object alist = env->alist;
+          var object alist = *env->alist;
           while (consp(alist)) {
             var object acons = Car(alist);
             if (eq(Car(acons),obj)) {
@@ -1341,7 +1532,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
           env->bad = obj;
           longjmp(env->abort_context,true);
         }
-        if (mlb_add(&env->bitmap,obj)) /* object already marked? */
+        if (HASHSET_ADD(env->bitmap,obj)) /* object already marked? */
           return;
         /* On replacement of Read-Labels in Hash-Tables their structure
          is invalidated (because the hash-function of the objects stored
@@ -1352,8 +1543,16 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
         {
           var uintC len = Record_nonweak_length(obj);
           if (!(len==0)) {
-            var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
-            dotimespC(len,len, { subst_circ_mark(&(*objptr++),env); } );
+	   #ifdef CIRC_MAYGC
+            for (len=0;len < Record_nonweak_length(obj);len++) {
+              pushSTACK(TheRecord(obj)->recdata[len]);
+              subst_circ_mark(&STACK_0,env);
+              TheRecord(obj)->recdata[len] = popSTACK();
+            }
+	   #else
+             var gcv_object_t* objptr = &TheRecord(obj)->recdata[0];
+             dotimespC(len,len, { subst_circ_mark(&(*objptr++),env); } );
+	   #endif
           }
         }
         return;
@@ -1369,7 +1568,7 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
       #endif
           case_small_read_label: { /* Small-Read-Label */
             /* Search read-label obj in the alist: */
-            var object alist = env->alist;
+            var object alist = *env->alist;
             while (consp(alist)) {
               var object acons = Car(alist);
               if (eq(Car(acons),obj)) {
@@ -1387,12 +1586,21 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
           }
         return;
       case_cons:                       /* Cons */
-        if (mlb_add(&env->bitmap,obj)) /* Object already marked? */
+        if (HASHSET_ADD(env->bitmap,obj)) /* Object already marked? */
           return;
-        /* recursive: subst_circ_mark(&Car(obj)) */
-        subst_circ_mark(&TheCons(obj)->car,env);
-        /* end-recursive: subst_circ_mark(&Cdr(obj)) */
-        ptr = &TheCons(obj)->cdr; goto enter_subst;
+        #ifdef CIRC_MAYGC
+         pushSTACK(Car(obj));
+         subst_circ_mark(&STACK_0,env);
+         Car(obj) = popSTACK();
+         pushSTACK(Cdr(obj));
+         subst_circ_mark(&STACK_0,env);
+         Cdr(obj) = popSTACK();
+        #else
+         /* recursive: subst_circ_mark(&Car(obj)) */
+         subst_circ_mark(&TheCons(obj)->car,env);
+         /* end-recursive: subst_circ_mark(&Cdr(obj)) */
+         ptr = &TheCons(obj)->cdr; goto enter_subst;
+        #endif
       case_machine:        /* Machine Pointer */
       case_bvector:        /* Bit-Vector */
       case_b2vector:       /* 2Bit-Vector */
@@ -1410,24 +1618,33 @@ local void subst_circ_mark (gcv_object_t* ptr, subst_circ_global* env)
       default: NOTREACHED;
     }
   }
+ #undef obj
 }
 
 global object subst_circ (gcv_object_t* ptr, object alist)
 {
   var subst_circ_global my_global;
-  my_global.alist = alist;
+  pushSTACK(alist);
+  my_global.alist = &STACK_0;
   set_break_sem_1();            /* disable Break */
   if (!setjmp(my_global.abort_context)) {
+#ifdef USE_MULTI_LEVEL_BITMAP
     bcopy(my_global.abort_context,my_global.bitmap.oom_context,sizeof(jmp_buf));
-    mlb_alloc(&my_global.bitmap);
+#endif
+    HASHSET_INIT(my_global.bitmap);
+    my_global.abort_STACK = STACK;
     subst_circ_mark(ptr,&my_global); /* mark and substitute */
-    mlb_free(&my_global.bitmap);
+    HASHSET_FREE(my_global.bitmap,true);
     clr_break_sem_1();          /* allow Break again */
+    skipSTACK(1);
     return nullobj;
   } else {
+    /* after abort because of SP- or STACK-overflow */
+    setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* abort from within subst_circ_mark() */
-    mlb_free(&my_global.bitmap);
+    HASHSET_FREE(my_global.bitmap,true);
     clr_break_sem_1();          /* allow Break again */
+    skipSTACK(1);    
     #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
     if (eq(my_global.bad,nullobj)) {
       SP_ueber();
@@ -1437,7 +1654,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
   }
 }
 
-#else  /* !USE_MULTI_LEVEL_BITMAP */
+#else  /* !CIRC_DETECTION_REENTRANT */
 
 #if 0                       /* without consideration of circularities */
 
@@ -1619,17 +1836,35 @@ local jmp_buf subst_circ_jmpbuf;
 local object subst_circ_bad;
 global object subst_circ (gcv_object_t* ptr, object alist)
 {
+  #ifdef MULTITHREAD
+   pushSTACK(alist);
+   GC_SAFE_SYSTEM_CALL(,xmutex_lock(&circ_detection_lock));
+   alist = popSTACK();
+  #else
+   set_break_sem_1();             /* make Break impossible */
+  #endif
   subst_circ_alist = alist;
-  set_break_sem_1();          /* disable Break */
   if (!setjmp(subst_circ_jmpbuf)) {
     subst_circ_mark(ptr);       /* mark and substitute */
     subst_circ_unmark(ptr);     /* delete marks again */
-    clr_break_sem_1();          /* allow Break again */
+    #ifdef MULTITHREAD
+     begin_system_call();
+     xmutex_unlock(&circ_detection_lock);
+     end_system_call();
+    #else
+     clr_break_sem_1();          /* allow Break again */
+    #endif
     return nullobj;
   } else {
     /* abort from within subst_circ_mark() */
     subst_circ_unmark(ptr);     /* first unmark everything */
-    clr_break_sem_1();          /* allow Break again */
+    #ifdef MULTITHREAD
+     begin_system_call();
+     xmutex_unlock(&circ_detection_lock);
+     end_system_call();
+    #else
+     clr_break_sem_1();          /* allow Break again */
+    #endif
     #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
     if (eq(subst_circ_bad,nullobj)) {
       SP_ueber();
@@ -1915,5 +2150,15 @@ local void subst_circ_unmark (gcv_object_t* ptr)
 }
 
 #endif
+#endif
 
+#if defined(CIRC_DETECTION_REENTRANT)
+/* undef all macros */
+#undef HASHSET
+#undef HASHSET_INIT(pb)
+#undef HASHSET_FREE(pb,aborted)
+#undef HASHSET_ADD(pb,pobj)
+#undef STORE_CIRCULAR(obj)
+#undef CIRC_MAYGC 
+#undef CIRC_MAYGC_DECL
 #endif

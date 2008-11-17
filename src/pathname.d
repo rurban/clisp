@@ -5052,13 +5052,11 @@ local maygc char default_drive (void) {
   var DWORD path_buflen = _MAX_PATH;
   var char* path_buffer = (char*)alloca(path_buflen);
   var DWORD result;
-  result = GC_SAFE_SYSTEM_CALL(DWORD,
-                               GetCurrentDirectory(path_buflen,path_buffer));
+  GC_SAFE_SYSTEM_CALL(result=, GetCurrentDirectory(path_buflen,path_buffer));
   if (!result) { OS_error(); }
   if (result >= path_buflen) {
     path_buflen = result; path_buffer = (char*)alloca(path_buflen);
-    result = GC_SAFE_SYSTEM_CALL(DWORD,
-                                 GetCurrentDirectory(path_buflen,path_buffer));
+    GC_SAFE_SYSTEM_CALL(result=, GetCurrentDirectory(path_buflen,path_buffer));
     if (!result) { OS_error(); }
   }
   if (path_buffer[1]==':') { /* local device */
@@ -5089,26 +5087,21 @@ local maygc object default_directory_of (uintB drive, object pathname) {
     currpath[1] = ':';
     currpath[2] = '.'; /* this dot is actually not needed */
     currpath[3] = '\0';
-    begin_blocking_system_call();
-    result =
-      GC_SAFE_SYSTEM_CALL(DWORD,
-                          GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
+    GC_SAFE_SYSTEM_CALL(result=,
+			GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
     if (!result) { OS_file_error(pathname); }
     if (result >= path_buflen) {
       path_buflen = result; path_buffer = (char*)alloca(path_buflen+1);
-      result =
-        GC_SAFE_SYSTEM_CALL(DWORD,
-                            GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
+      GC_SAFE_SYSTEM_CALL(result=,
+			  GetFullPathName(currpath,path_buflen,path_buffer,&dummy));
       if (!result) { OS_file_error(pathname); }
     }
   } else {                      /* network path */
-    result =
-      GC_SAFE_SYSTEM_CALL(DWORD,GetCurrentDirectory(path_buflen,path_buffer));
+    GC_SAFE_SYSTEM_CALL(result=, GetCurrentDirectory(path_buflen,path_buffer));
     if (!result) { OS_file_error(pathname); }
     if (result >= path_buflen) {
       path_buflen = result; path_buffer = (char*)alloca(path_buflen);
-      result =
-        GC_SAFE_SYSTEM_CALL(DWORD,GetCurrentDirectory(path_buflen,path_buffer));
+      GC_SAFE_SYSTEM_CALL(result=, GetCurrentDirectory(path_buflen,path_buffer));
       if (!result) { OS_file_error(pathname); }
     }
   }
@@ -5608,8 +5601,8 @@ local maygc bool get_path_info (struct file_status *fs, char *namestring_asciz,
    retry_readlink: {
       var DYNAMIC_ARRAY(linkbuf,char,linklen+1); /* buffer for the Link-content */
       /* read link-content: */
-      { var int result =
-          GC_SAFE_SYSTEM_CALL(int,readlink(namestring_asciz,linkbuf,linklen));
+      { var int result;
+	GC_SAFE_SYSTEM_CALL(result=, readlink(namestring_asciz,linkbuf,linklen));
         if (result<0)
           OS_file_error(*(fs->fs_pathname));
         if (!(result == (int)linklen)) { /* sometimes (AIX, NFS) status.st_size is incorrect */
@@ -5802,7 +5795,7 @@ nonreturning_function(local, error_notdir, (object pathname)) {
  > only after: assure_dir_exists() */
 #if defined(WIN32_NATIVE)
   local maygc inline int access0 (const char* path, struct file_status *fs) {
-    fs->fs_fileattr = GC_SAFE_SYSTEM_CALL(DWORD,GetFileAttributes(path));
+    GC_SAFE_SYSTEM_CALL(fs->fs_fileattr=, GetFileAttributes(path));
     if (fs->fs_fileattr == 0xFFFFFFFF) {
       if (WIN32_ERROR_NOT_FOUND) {
         return -1;
@@ -5956,7 +5949,7 @@ local maygc signean classify_namestring (char* namestring, char *resolved,
 #if defined(UNIX)
   struct stat status;
   int ret;
-  ret = GC_SAFE_SYSTEM_CALL(int,stat(namestring,&status));
+  GC_SAFE_SYSTEM_CALL(ret=, stat(namestring,&status));
   if (ret) {
     if (errno != ENOENT) OS_file_error(STACK_0);
     return signean_null;         /* does not exist */
@@ -6080,7 +6073,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
 local maygc int stat_obj (object namestring, struct stat *status) {
   int ret;
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
-    ret = GC_SAFE_SYSTEM_CALL(int,stat(namestring_asciz,status));
+    GC_SAFE_SYSTEM_CALL(ret=, stat(namestring_asciz,status));
   });
   return ret;
 }
@@ -6103,8 +6096,8 @@ local maygc bool directory_exists (object pathname) {
       ASSERT((len > 0) && cpslashp(dir_namestring_asciz[len-1]));
       dir_namestring_asciz[len-1] = '\0'; /* replace '\' at the end with nullbyte */
     }
-    var DWORD fileattr =
-      GC_SAFE_SYSTEM_CALL(DWORD,GetFileAttributes(dir_namestring_asciz));
+    var DWORD fileattr;
+    GC_SAFE_SYSTEM_CALL(fileattr=, GetFileAttributes(dir_namestring_asciz));
     if (fileattr == 0xFFFFFFFF) {
       if (!WIN32_ERROR_NOT_FOUND) {
         OS_file_error(STACK_0);
@@ -6361,21 +6354,25 @@ LISPFUNN(rename_file,2) {
  > STACK_0: pathname */
 local maygc inline void create_new_file (char* pathstring) {
  #if defined(WIN32_NATIVE)
-  var Handle handle =
-    GC_SAFE_SYSTEM_CALL(Handle,CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
+  var Handle handle;
+  GC_SAFE_SYSTEM_CALL(handle=, CreateFile(pathstring, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE)
     { OS_file_error(STACK_0); }
   /* file was created, handle is the Handle.
    close file again: */
-  if (!GC_SAFE_SYSTEM_CALL(BOOL,CloseHandle(handle)))
+  var BOOL closed;
+  GC_SAFE_SYSTEM_CALL(closed=, CloseHandle(handle));
+  if (!closed)
     { OS_file_error(STACK_0); }
  #elif defined(UNIX)
-  var int result =
-    GC_SAFE_SYSTEM_CALL(int,OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask));
+  var int result;
+  GC_SAFE_SYSTEM_CALL(result=, OPEN(pathstring, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC, my_open_mask));
   if (result<0) { OS_file_error(STACK_0); } /* report error */
   /* file was created, result is the Handle.
    close file again: */
-  if (!GC_SAFE_SYSTEM_CALL(int,CLOSE(result)==0))
+  var int closed;
+  GC_SAFE_SYSTEM_CALL(closed=, CLOSE(result));
+  if (!(closed == 0))
     { OS_file_error(STACK_0); } /* report error */
  #else
   #error create_new_file is not defined
@@ -6403,12 +6400,12 @@ local maygc inline bool open_input_file (struct file_status *fs, char* pathstrin
     /* create file with open: */
     oflags |= O_CREAT;
   }
-  result = GC_SAFE_SYSTEM_CALL(int, OPEN(pathstring,oflags,my_open_mask));
+  GC_SAFE_SYSTEM_CALL(result=, OPEN(pathstring,oflags,my_open_mask));
   if (result<0) { OS_file_error(STACK_0); }
   #else
   var int oflags = O_RDONLY | O_BINARY;
   if (create_if_not_exists) { oflags |= O_CREAT; }
-  result = GC_SAFE_SYSTEM_CALL(int, OPEN(pathstring,oflags,my_open_mask));
+  GC_SAFE_SYSTEM_CALL(result=, OPEN(pathstring,oflags,my_open_mask));
   if (result<0) {
     if (errno == ENOENT) { /* not found? */
       /* file does not exist */
@@ -6427,20 +6424,18 @@ local maygc inline bool open_input_file (struct file_status *fs, char* pathstrin
     /* create file with CreateFile: */
     flag = OPEN_ALWAYS;
   }
-  handle =
-    GC_SAFE_SYSTEM_CALL(Handle,
-                        CreateFile(pathstring, GENERIC_READ,
-                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                   NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
+  GC_SAFE_SYSTEM_CALL(handle=,
+		      CreateFile(pathstring, GENERIC_READ,
+				 FILE_SHARE_READ | FILE_SHARE_WRITE,
+				 NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE) { OS_file_error(STACK_0); }
-  #else
+#else
   var DWORD flag = OPEN_EXISTING;
   if (create_if_not_exists) { flag = OPEN_ALWAYS; }
-  handle =
-    GC_SAFE_SYATEM_CALL(Handle,
-                        CreateFile(pathstring, GENERIC_READ,
-                                   FILE_SHARE_READ | FILE_SHARE_WRITE,
-                                   NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
+  GC_SAFE_SYATEM_CALL(handle=,
+		      CreateFile(pathstring, GENERIC_READ,
+				 FILE_SHARE_READ | FILE_SHARE_WRITE,
+				 NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
   if (handle==INVALID_HANDLE_VALUE) {
     if (WIN32_ERROR_NOT_FOUND) { /* not found? */
       /* file does not exist */
@@ -6657,10 +6652,10 @@ local maygc void check_file_reopen (object truename, direction_t direction) {
   var object bad_stream = nullobj;
   var struct file_id fi;
   var errno_t status;
+  pushSTACK(truename); /* save for find_open_file & namestring_file_id. */
   with_string_0(truename,O(pathname_encoding),namez, {
-    status = GC_SAFE_SYSTEM_CALL(errno_t, namestring_file_id(namez,&fi));
+    GC_SAFE_SYSTEM_CALL(status=, namestring_file_id(namez,&fi));
   });
-  pushSTACK(truename); /* save for find_open_file. */
   if (status == 0 /* file exists - see if it is already open */
       && find_open_file(&fi,flags))
     bad_stream = popSTACK();
@@ -7015,7 +7010,8 @@ local maygc inline int stat_for_search (char* pathstring, struct stat * statbuf)
    are really pipes, etc. */
   if (asciz_equal(pathstring,"/proc")) { errno = ENOENT; return -1; }
  #endif
-  var int result = GC_SAFE_SYSTEM_CALL(int,stat(pathstring,statbuf));
+  var int result;
+  GC_SAFE_SYSTEM_CALL(result=, stat(pathstring,statbuf));
  #ifdef UNIX_CYGWIN32
   if ((result < 0) && (errno == EACCES)) { errno = ENOENT; }
  #endif
@@ -7246,7 +7242,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
     set_break_sem_4();
     with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
       /* open directory */
-      dirp = GC_SAFE_SYSTEM_CALL(DIR *,opendir(namestring_asciz));
+      GC_SAFE_SYSTEM_CALL(dirp=, opendir(namestring_asciz));
     });
     if (dirp == (DIR*)NULL) {
       if (dsp->if_none == DIR_IF_NONE_IGNORE) return;
@@ -7256,7 +7252,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       var struct dirent * dp;
       errno = 0;
       /* fetch next directory-entry */
-      dp = GC_SAFE_SYSTEM_CALL(struct dirent *,readdir(dirp));
+      GC_SAFE_SYSTEM_CALL(dp=, readdir(dirp));
       if (dp == (struct dirent *)NULL) { /* error or directory finished */
         if (!(errno==0)) { OS_file_error(STACK_1); }
         break;
@@ -8327,7 +8323,8 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
         end_want_sigcld();  end_system_call(); OS_error();
       }
       /* wait, until the child-process is finished: */
-      var int status = GC_SAFE_CALL(int,wait2(child));
+      var int status;
+      GC_SAFE_CALL(status=, wait2(child));
       /* cf. WAIT(2V) and #include <sys/wait.h> :
          WIFSTOPPED(status)  ==  ((status & 0xFF) == 0177)
          WEXITSTATUS(status)  == ((status & 0xFF00) >> 8) */
@@ -8434,7 +8431,8 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
   });
   /* Wait until it terminates, get its exit status code. */
   var DWORD exitcode;
-  switch (GC_SAFE_SYSTEM_CALL(DWORD,WaitForSingleObject(prochandle,INFINITE))) {
+  GC_SAFE_CALL(exitcode=,WaitForSingleObject(prochandle,INFINITE));
+  switch (exitcode) {
     case WAIT_FAILED:
       OS_error();
     case WAIT_OBJECT_0:
@@ -8861,7 +8859,8 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   }
   var int exit_code = 0;
   if (wait_p) {
-    var int status = GC_SAFE_SYSTEM_CALL(int,wait2(child_id));
+    var int status;
+    GC_SAFE_CALL(status=, wait2(child_id));
     exit_code = WEXITSTATUS(status);
   }
   end_want_sigcld();
@@ -8913,7 +8912,9 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   var DWORD exit_code = 0;
   if (wait_p) {
     /* Wait until it terminates, get its exit status code. */
-    switch (GC_SAFE_SYSTEM_CALL(DWORD,WaitForSingleObject(prochandle,INFINITE))) {
+    var DWORD waitret;
+    GC_SAFE_CALL(waitret=, WaitForSingleObject(prochandle,INFINITE))
+    switch (waitret) {
       case WAIT_FAILED:
         end_system_call(); OS_error();
       case WAIT_OBJECT_0:

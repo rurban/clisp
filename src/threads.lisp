@@ -36,7 +36,7 @@
   '((*random-state* . (make-random-state nil))
     (*print-base* . 10)
     (*gensym-counter* . 0)
-    (ext:*command-index* . 0)
+    (ext::*command-index* . 0)
     (*thread-whostate* . nil)
     (*readtable* . (copy-readtable nil))))
 
