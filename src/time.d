@@ -17,13 +17,6 @@
    day-of-week, daylight-saving-time, time zone.
  Universal time =
    seconds since 1900-01-01 */
-#ifdef TIME_UNIX_TIMES
-  /* Two small bugs:
-   - Wrap-around of internal_time_t after many days.
-   - LISP clock may be up to 1 sec behind the true clock.
-   Internal time =
-     1/CLK_TCK sec since session start */
-#endif
 #ifdef TIME_UNIX
   /* A small bug:
    - %%TIME works only for time differences <= 194 days.
@@ -44,10 +37,6 @@
  using internal_time_t. */
 
 /* Variables: */
-#ifdef TIME_UNIX_TIMES
-  /* (The unit is ca. 1/60 sec or 1/100 sec, a 32 bit counter therefore
-   suffices for a long while.) */
-#endif
 #ifdef TIME_UNIX
   /* The unit is 1 µsec.
    (Independently whether the system clock is 60 Hz or 50 Hz or better.) */
@@ -65,71 +54,6 @@ local uintL runstop_time;       /* if the stop watch is running:
 local bool run_flag = false; /* true if the stop watch is running */
 #endif
 
-
-#ifdef TIME_RELATIVE
-
-/* Returns the current hi-res time.
- get_time() */
- #ifdef TIME_UNIX_TIMES
-/* < uintL result: current value of the CLK_TCK Hz counter */
-local uintL get_time(void)
-{
-  var struct tms buffer;
-  return (uintL)times(&buffer);
-}
- #endif
-
-#ifndef HAVE_RUN_TIME
-
-/* Stops the swop-watch.
- run_time_stop(); */
-global void run_time_stop (void)
-{
-  if (!run_flag) return;        /* stop-watch already stopped -> OK */
-  /* Add the now consumed runtime to the total runtime: */
-  run_time += get_time()-runstop_time;
-  run_flag = false;             /* stop-watch now stopped */
-}
-
-/* Lets the stop-watch run again.
- run_time_restart(); */
-global void run_time_restart (void)
-{
-  if (run_flag) return;         /* stop-watch already running -> OK */
-  runstop_time = get_time();    /* save current time */
-  run_flag = true;              /* stop-watch now running */
-}
-
-#endif
-
-/* Returns the real time counter.
- get_real_time()
- < uintL result: Time since start of LISP session (in 1/50 sec or in 1/100 sec
-                 or in 1/CLK_TCK sec) */
-global uintL get_real_time (void)
-{ return get_time()-realstart_time; }
-
-#endif
-
-#ifdef TIME_UNIX_TIMES
-
-/* Returns the run time counter.
- get_run_time(&runtime);
- < internal_time_t runtime: consumed run time since session start (in ticks)
- < uintL result: same as for get_time() */
-global uintL get_run_time (internal_time_t* runtime)
-{
-  var struct tms tms;
-  var uintL now_time;
-  begin_system_call();
-  now_time = times(&tms);
-  end_system_call();
-  *runtime = tms.tms_utime + tms.tms_stime; /* user time + system time */
-  return now_time;                          /* cf. get_time() */
-}
-
-#endif
-
 #ifdef TIME_UNIX
 
 /* Returns the real time counter.
@@ -137,7 +61,6 @@ global uintL get_run_time (internal_time_t* runtime)
  < internal_time_t* result: absolute time */
 global void get_real_time (internal_time_t* it)
 {
- #ifdef HAVE_GETTIMEOFDAY
   begin_system_call();
   if (long_bitsize == 32
       && sizeof(struct timeval) == sizeof(internal_time_t)
@@ -153,14 +76,6 @@ global void get_real_time (internal_time_t* it)
     it->tv_sec = tmp.tv_sec; it->tv_usec = tmp.tv_usec;
   }
   end_system_call();
- #elif defined(HAVE_FTIME)
-  var struct timeb timebuf;
-  begin_system_call();
-  ftime(&timebuf);
-  end_system_call();
-  it->tv_sec = timebuf.time;
-  it->tv_usec = (uintL)(timebuf.millitm) * (ticks_per_second/1000);
- #endif
 }
 
 /* Returns the run time counter.
@@ -265,10 +180,6 @@ global void get_running_times (timescore_t* tm)
   /* Get run time: */
   get_run_time(&tm->runtime);
  #endif
- #ifdef TIME_UNIX_TIMES
-  /* Get run time and real time both together: (vgl. get_real_time()) */
-  tm->realtime = get_run_time(&tm->runtime) - realstart_time;
- #endif
  #ifdef TIME_WIN32
   /* Get real time: */
   var internal_time_t real_time;
@@ -286,8 +197,7 @@ global void get_running_times (timescore_t* tm)
  internal_time_to_I(&it) */
 global object internal_time_to_I (const internal_time_t* tp)
 {
-#if TIME_METHOD == 2
- #ifdef TIME_UNIX
+ #if defined(TIME_UNIX)
   /* Convert to microseconds: tp->tv_sec * ticks_per_second + tp->tv_usec */
   #ifdef intQsize
   return UQ_to_I((uintQ)(tp->tv_sec)*ticks_per_second + (uintQ)(tp->tv_usec));
@@ -298,37 +208,25 @@ global object internal_time_to_I (const internal_time_t* tp)
   if ((lo += tp->tv_usec) < tp->tv_usec) { hi += 1; }
   return L2_to_I(hi,lo);
   #endif
- #endif
- #ifdef TIME_WIN32
+ #elif defined(TIME_WIN32)
   return L2_to_I(tp->dwHighDateTime,tp->dwLowDateTime);
+ #else
+  #error internal_time_to_I: neither TIME_UNIX nor TIME_WIN32
  #endif
-#elif TIME_METHOD = 1
-  return UL_to_I(*tp);
-#else
-#error internal_time_to_I: invalid TIME_METHOD
-#endif
 }
 
 LISPFUNNR(get_internal_real_time,0)
 { /* (GET-INTERNAL-REAL-TIME), CLTL p. 446 */
- #if TIME_METHOD == 1
-  VALUES1(UL_to_I(get_real_time())); /* get real time since start of session */
- #elif TIME_METHOD == 2
   var internal_time_t tp;       /* absolute real time */
   get_real_time(&tp);
   VALUES1(internal_time_to_I(&tp)); /* convert to integer */
- #endif
 }
 
 LISPFUNNR(get_internal_run_time,0)
 { /* (GET-INTERNAL-RUN-TIME), CLTL p. 446 */
   var timescore_t tm;
   get_running_times(&tm); /* get run time since start of session */
- #if TIME_METHOD == 1
-  VALUES1(UL_to_I(tm.runtime)); /* convert to integer */
- #elif TIME_METHOD == 2
   VALUES1(internal_time_to_I(&tm.runtime)); /* convert to integer */
- #endif
 }
 
 /* ------------------------------------------------------------------------
@@ -381,25 +279,6 @@ global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
   timepoint->day     = fixnum(ltm.wDay);
   timepoint->month   = fixnum(ltm.wMonth);
   timepoint->year    = fixnum(ltm.wYear);
-}
-#endif
-
-#ifdef TIME_RELATIVE
-/* Converts a decoded time to universal time.
- encode_universal_time(&timepoint)
- > decoded_time_t timepoint: decoded time
- < result: universal time
- can trigger GC */
-local maygc object encode_universal_time (const decoded_time_t* timepoint)
-{ /* (ENCODE-UNIVERSAL-TIME seconds minutes hours day month year): */
-  pushSTACK(timepoint->seconds);
-  pushSTACK(timepoint->minutes);
-  pushSTACK(timepoint->hours);
-  pushSTACK(timepoint->day);
-  pushSTACK(timepoint->month);
-  pushSTACK(timepoint->year);
-  funcall(S(encode_universal_time),6);
-  return value1;
 }
 #endif
 
@@ -466,24 +345,12 @@ global void convert_time_from_universal (object universal, FILETIME* time) {
 Returns the wall clock time in seconds (since session start or 1900-01-01).*/
 local uintL real_time_sec (void)
 {
- #if TIME_METHOD == 1
-  var uintL real_time = get_real_time();
-  /* real_time := floor(real_time,ticks_per_second) : */
-  #if (ticks_per_second == 1000000UL)
-  divu_3216_3216(real_time>>6,ticks_per_second>>6,real_time=,);
-  #elif (ticks_per_second < bit(16))
-  divu_3216_3216(real_time,ticks_per_second,real_time=,);
-  #else
-  divu_3232_3232(real_time,ticks_per_second,real_time=,);
-  #endif
- #elif TIME_METHOD == 2
-  #ifdef TIME_UNIX
+ #if defined(TIME_UNIX)
   var uintL real_time;     /* seconds */
   var internal_time_t it;
   get_real_time(&it);
   real_time = UNIX_LISP_TIME_DIFF + it.tv_sec;
-  #endif
-  #ifdef TIME_WIN32
+ #elif defined(TIME_WIN32)
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
    #ifdef HAVE_LONG_LONG_INT
     { (ULONG)((ULONGLONG)109207 *
@@ -501,67 +368,15 @@ local uintL real_time_sec (void)
                  internal_real_time.dwLowDateTime,
                  ticks_per_second,
                  real_time=,);
-  #endif
+ #else
+  #error real_time_sec neither TIME_UNIX nor TIME_WIN32
  #endif
   return real_time;
 }
 
-#ifdef TIME_RELATIVE
-
-/* Time and date at the LISP session start: */
-local decoded_time_t realstart_datetime;
-
-/* Sets the time of the start of the session.
- set_start_time(&timepoint);
- > timepoint: time at LISP session start
- >   timepoint.seconds in {0,...,59},
- >   timepoint.minutes in {0,...,59},
- >   timepoint.hours in {0,...,23},
- >   timepoint.day in {1,...,31},
- >   timepoint.month in {1,...,12},
- >   timepoint.year in {1980,...,2999},
- >   jeweils als Fixnums.
- can trigger GC */
-local maygc void set_start_time (const decoded_time_t* timepoint)
-{ /* save start time: */
-  realstart_datetime = *timepoint;
-  /* and, if possible, convert to universal time: */
-  if (boundp(Symbol_function(S(encode_universal_time)))) {
-    /* If ENCODE-UNIVERSAL-TIME is defined -> convert immediately into UT: */
-    O(start_UT) = encode_universal_time(timepoint);
-  }
-}
-
-/* Returns the time of the start of the session.
- get_start_time()
- can trigger GC */
-local maygc uintL get_start_time (void)
-{
-  var object start_time = O(start_UT);
-  if (nullp(start_time)) {  /* Start-Universal-Time still NIL ? */
-    /* no -> already calculated.
-       yes -> calculated anew: */
-    start_time = O(start_UT) = encode_universal_time(&realstart_datetime);
-  }
-  return I_to_UL(start_time);
-}
-
-#endif
-
-/* Returns the wall clock time in seconds (since 1900-01-01).
- can trigger GC */
-local maygc uintL universal_time_sec (void);
-#ifdef TIME_RELATIVE
-local maygc uintL universal_time_sec()
-{ return get_start_time() + real_time_sec(); }
-#endif
-#ifdef TIME_ABSOLUTE
-#define universal_time_sec() real_time_sec()
-#endif
-
 LISPFUNNR(get_universal_time,0)
 { /* (get-universal-time), CLTL p. 445 */
-  VALUES1(UL_to_I(universal_time_sec()));
+  VALUES1(UL_to_I(real_time_sec()));
 }
 
 /* UP: Initialises the time variables at the LISP session start.
@@ -571,9 +386,6 @@ global void init_time (void)
      gc_count=0;
      gc_time=0;
      gc_space=0; */
- #ifdef TIME_RELATIVE
-  realstart_time = get_time(); /* Current time counter, now at the session start */
- #endif
  #ifndef HAVE_RUN_TIME
   /* run_time = 0; -- no run-time used, */
   run_flag = false;         /* because system is not yet running. */
@@ -581,21 +393,6 @@ global void init_time (void)
  #endif
  #if defined(TIME_UNIX) || defined(TIME_WIN32)
   get_real_time(&realstart_time); /* Current time counter, now at the session start */
- #endif
- #ifdef TIME_RELATIVE
-  { /* Get start time and save: */
-    var decoded_time_t timepoint;
-   #ifdef UNIX /* TIME_UNIX_TIMES */
-    {
-      var time_t real_time;
-      begin_system_call();
-      time(&real_time);     /* current time */
-      end_system_call();
-      convert_time(&real_time,&timepoint); /* convert to Decoded-Time */
-    }
-   #endif
-    set_start_time(&timepoint); /* save start time */
-  }
  #endif
 }
 
@@ -797,26 +594,21 @@ LISPFUNNR(time,0)
    GC-Count (number of garbage collections in this session so far). */
   var timescore_t tm;
   get_running_times(&tm);     /* get run-time */
- #if TIME_METHOD == 1
-  #define as_2_values(time)                \
-    pushSTACK(fixnum(high16(time)));       \
-    pushSTACK(fixnum(low16(time)));
- #elif TIME_METHOD == 2
-  #ifdef TIME_UNIX
-   #define as_2_values(time)                 \
-     pushSTACK(fixnum(time.tv_sec));         \
-     pushSTACK(fixnum(time.tv_usec));
-  #endif
-  #ifdef TIME_WIN32
-    #define as_2_values(time)               \
-      { var uintL tv_sec;                       \
-        var uintL tv_usec;                                              \
-        divu_6432_3232(time.dwHighDateTime,time.dwLowDateTime,ticks_per_second, tv_sec=, tv_usec=); \
-        pushSTACK(fixnum(tv_sec));                                      \
-        pushSTACK(fixnum(tv_usec));                                     \
-      }
-  #endif
- #endif                     /* TIME_METHOD */
+ #if defined(TIME_UNIX)
+  #define as_2_values(time)                 \
+    pushSTACK(fixnum(time.tv_sec));         \
+    pushSTACK(fixnum(time.tv_usec));
+ #elif defined(TIME_WIN32)
+  #define as_2_values(time)               \
+    { var uintL tv_sec;                       \
+      var uintL tv_usec;                                              \
+      divu_6432_3232(time.dwHighDateTime,time.dwLowDateTime,ticks_per_second, tv_sec=, tv_usec=); \
+      pushSTACK(fixnum(tv_sec));                                      \
+      pushSTACK(fixnum(tv_usec));                                     \
+    }
+ #else
+  #error SYSTEM::%%TIME: neither TIME_UNIX nor TIME_WIN32
+ #endif
   as_2_values(tm.realtime);   /* first two values: Real-Time */
   as_2_values(tm.runtime);    /* next two values: Run-Time */
   as_2_values(tm.gctime);     /* next two values: GC-Time */
@@ -833,7 +625,7 @@ LISPFUNNR(time,0)
   }
   /* Now tm.gcfreed = so far required space at all */
   #if (oint_data_len<24)
-  #error Fix function SYS::%%TIME!
+  #error SYSTEM::%%TIME: oint_data_len too small
   #endif
   /* decode into 24 bits pieces: */
  #ifdef intQsize

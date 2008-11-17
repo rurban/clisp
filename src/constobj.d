@@ -346,11 +346,6 @@
 /* for I18N.D: */
   LISPOBJ(current_language,".")
   LISPOBJ(ansi,"NIL")
-/* for TIME.D: */
- #ifdef TIME_RELATIVE
-  /* start-universal-time: */
-  LISPOBJ(start_UT,"NIL")
- #endif
 /* for ERROR.D:
    error-message-startstring: */
   LISPOBJ_S(error_string1,"*** - ")
