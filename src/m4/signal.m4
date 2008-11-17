@@ -10,54 +10,6 @@ dnl From Bruno Haible, Marcus Daniels, Sam Steingold.
 
 AC_PREREQ(2.57)
 
-AC_DEFUN([CL_TYPE_SIGNAL],
-[AC_CACHE_CHECK([return type of signal handlers], cl_cv_type_signal,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <signal.h>
-#ifdef signal
-#undef signal
-#endif
-extern
-#ifdef __cplusplus
-"C" void (*signal (int, void (*)(int)))(int);
-#else
-void (*signal ()) ();
-#endif
-],
-[], cl_cv_type_signal=void, [
-AC_TRY_COMPILE([#include <sys/types.h>
-#include <signal.h>
-#ifdef signal
-#undef signal
-#endif
-extern
-#ifdef __cplusplus
-"C" void (*signal (...))(...);
-#else
-void (*signal ()) ();
-#endif
-],
-[], cl_cv_type_signal=void, cl_cv_type_signal=int)])])
-AC_DEFINE_UNQUOTED(RETSIGTYPE, $cl_cv_type_signal, [return type of signal handlers (int or void)])
-AC_CACHE_CHECK([whether the signal handler function type needs dots], cl_cv_proto_signal_dots,
-[AC_TRY_COMPILE([#include <sys/types.h>
-#include <signal.h>
-#ifdef signal
-#undef signal
-#endif
-extern
-#ifdef __cplusplus
-"C" $cl_cv_type_signal (*signal (int, $cl_cv_type_signal (*)(int)))(int);
-#else
-$cl_cv_type_signal (*signal ()) ();
-#endif
-],
-[], cl_cv_proto_signal_dots=no, cl_cv_proto_signal_dots=yes)])
-if test $cl_cv_proto_signal_dots = yes; then
-AC_DEFINE(SIGTYPE_DOTS,,[declaration of the signal handler function type needs dots])
-fi
-])
-
 AC_DEFUN([CL_SIGNAL_REINSTALL],
 [AC_BEFORE([$0], [CL_SIGNAL_UNBLOCK])dnl
 AC_BEFORE([$0], [CL_SIGNAL_BLOCK_OTHERS])dnl
@@ -74,17 +26,9 @@ AC_TRY_RUN([
 #error "better fail than hang"
 #endif
 volatile int gotsig=0;
-RETSIGTYPE sigalrm_handler() { gotsig=1; }
+void sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
-#ifdef __cplusplus
-#ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler_t) (...);
-#else
-typedef RETSIGTYPE (*signal_handler_t) (int);
-#endif
-#else
-typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
+typedef void (*signal_handler_t) (int);
 int main() { /* returns 0 if they need not to be reinstalled */
   signal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
   exit(!( (signal_handler_t)signal(SIGALRM,(signal_handler_t)sigalrm_handler)
@@ -118,16 +62,8 @@ AC_TRY_RUN([
 #endif
 volatile int gotsig=0;
 volatile int wasblocked=0;
-#ifdef __cplusplus
-#ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler_t) (...);
-#else
-typedef RETSIGTYPE (*signal_handler_t) (int);
-#endif
-#else
-typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
-RETSIGTYPE sigalrm_handler()
+typedef void (*signal_handler_t) (int);
+void sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
   signal(SIGALRM,(signal_handler_t)sigalrm_handler);
@@ -172,16 +108,8 @@ AC_TRY_RUN([
 #endif
 volatile int gotsig=0;
 volatile int somewereblocked=0;
-#ifdef __cplusplus
-#ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler_t) (...);
-#else
-typedef RETSIGTYPE (*signal_handler_t) (int);
-#endif
-#else
-typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
-RETSIGTYPE sigalrm_handler()
+typedef void (*signal_handler_t) (int);
+void sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
   signal(SIGALRM,(signal_handler_t)sigalrm_handler);
@@ -234,15 +162,7 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#ifdef __cplusplus
-#ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler_t) (...);
-#else
-typedef RETSIGTYPE (*signal_handler_t) (int);
-#endif
-#else
-typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
+typedef void (*signal_handler_t) (int);
 signal_handler_t mysignal (int sig, signal_handler_t handler)
 { struct sigaction old_sa;
   struct sigaction new_sa;
@@ -252,7 +172,7 @@ signal_handler_t mysignal (int sig, signal_handler_t handler)
   return (signal_handler_t)old_sa.sa_handler;
 }
 volatile int gotsig=0;
-RETSIGTYPE sigalrm_handler() { gotsig=1; }
+void sigalrm_handler() { gotsig=1; }
 int got_sig () { return gotsig; }
 int main() { /* returns 0 if they need not to be reinstalled */
   mysignal(SIGALRM,(signal_handler_t)sigalrm_handler); alarm(1); while (!got_sig());
@@ -289,15 +209,7 @@ AC_TRY_RUN([
  * Let it fail instead. */
 #error "better fail than hang"
 #endif
-#ifdef __cplusplus
-#ifdef SIGTYPE_DOTS
-typedef RETSIGTYPE (*signal_handler_t) (...);
-#else
-typedef RETSIGTYPE (*signal_handler_t) (int);
-#endif
-#else
-typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
+typedef void (*signal_handler_t) (int);
 signal_handler_t mysignal (int sig, signal_handler_t handler)
 { struct sigaction old_sa;
   struct sigaction new_sa;
@@ -308,7 +220,7 @@ signal_handler_t mysignal (int sig, signal_handler_t handler)
 }
 volatile int gotsig=0;
 volatile int wasblocked=0;
-RETSIGTYPE sigalrm_handler()
+void sigalrm_handler()
 { gotsig=1;
 #ifdef SIGNAL_NEED_REINSTALL
   mysignal(SIGALRM,(signal_handler_t)sigalrm_handler);
