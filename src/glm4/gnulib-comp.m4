@@ -54,6 +54,7 @@ AC_SUBST([LTALLOCA])
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
   AC_SUBST([LTLIBINTL])
+  gl_FUNC_GETTIMEOFDAY
   gl_GNU_MAKE
   gl_LIBSIGSEGV
   gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
@@ -69,6 +70,8 @@ AC_SUBST([LTALLOCA])
   AM_STDBOOL_H
   gl_STDINT_H
   gl_STDLIB_H
+  gl_HEADER_SYS_TIME_H
+  AC_PROG_MKDIR_P
   gl_UNISTD_H
   gl_WCHAR_H
   gl_WCTYPE_H
@@ -209,6 +212,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
   lib/gettext.h
+  lib/gettimeofday.c
   lib/localcharset.c
   lib/localcharset.h
   lib/malloc.c
@@ -224,6 +228,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
+  lib/sys_time.in.h
   lib/uniname.h
   lib/uniname/gen-uninames.lisp
   lib/uniname/uniname.c
@@ -240,6 +245,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/extensions.m4
   m4/fnmatch.m4
   m4/gettext.m4
+  m4/gettimeofday.m4
   m4/glibc2.m4
   m4/glibc21.m4
   m4/gnu-make.m4
@@ -276,6 +282,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint.m4
   m4/stdint_h.m4
   m4/stdlib_h.m4
+  m4/sys_time_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4
   m4/unistd_h.m4
