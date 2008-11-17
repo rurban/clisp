@@ -10667,6 +10667,9 @@ extern maygc off_t savemem (object stream, uintL executable);
 /* Set ONLY during write() calls to pipes directed to subprocesses. */
 extern bool writing_to_subprocess;
 #endif
+%% #if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
+%% puts("extern bool writing_to_subprocess;");
+%% #endif
 
 
 /* Declaration of the FSUBRs.
