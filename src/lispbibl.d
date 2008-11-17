@@ -16906,6 +16906,10 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     uintC _suspend_count; /* how many times this thread has been suspended ? */
     /* The values of per-thread symbols: */
     gcv_object_t *_ptr_symvalues; /* allocated separately */
+   #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+    /* Set ONLY during IO calls to pipes directed to subprocesses. */
+    bool _writing_to_subprocess;
+   #endif
     object _mv_space [mv_limit-1];
     /* The lexical environment: */
     gcv_environment_t _aktenv;
@@ -16922,10 +16926,6 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
     uintC _index; /* this thread's index in allthreads[] */
     /* signal handling stuff - NOT USED actually */
-   #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-    /* Set ONLY during IO calls to pipes directed to subprocesses. */
-    bool _writing_to_subprocess;
-   #endif
    #if defined(PENDING_INTERRUPTS)
     uintB _interrupt_pending;
    #endif
@@ -16942,6 +16942,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     /* the current thread. NOT GC VISIBLE. */
     gcv_object_t _lthread;
   } clisp_thread_t;
+
 
   #define GC_SAFE_SPINLOCK_ACQUIRE(s)                   \
   do {                                                  \
@@ -17108,22 +17109,26 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 
 %% puts("#include \"xthread.c\"");
 
+
 /* VTZ: just the beginning of the structure is exported -
    what modules want to know about (in order to build) */
-%%  puts("typedef struct {");
-%%  puts("     gcv_object_t* _STACK;");
-%%  puts("     uintC _mv_count;");
-%%  puts("     p_backtrace_t _back_trace;");
-%%  #ifdef DEBUG_GCSAFETY
-%%    puts("     uintL _alloccount;");
-%%  #endif
-%%  puts("     spinlock_t _gc_suspend_request;");
-%%  puts("     spinlock_t _gc_suspend_ack;");
-%%  puts("     xmutex_t _gc_suspend_lock;");
-%%  puts("     uintC _suspend_count;");
-%%  puts("     gcv_object_t *_ptr_symvalues;");
-%%  puts("     object _mv_space [unspecified];");
-%%  puts("} clisp_thread_t;");
+%% puts("typedef struct {");
+%% puts("  gcv_object_t* _STACK;");
+%% puts("  uintC _mv_count;");
+%% puts("  p_backtrace_t _back_trace;");
+%% #ifdef DEBUG_GCSAFETY
+%%  puts(" uintL _alloccount;");
+%% #endif
+%% puts("  spinlock_t _gc_suspend_request;");
+%% puts("  spinlock_t _gc_suspend_ack;");
+%% puts("  xmutex_t _gc_suspend_lock;");
+%% puts("  uintC _suspend_count;");
+%% puts("  gcv_object_t *_ptr_symvalues;");
+%% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+%%  puts(" bool _writing_to_subprocess;");
+%% #endif
+%% puts("  object _mv_space [unspecified];");
+%% puts("} clisp_thread_t;");
 
 %% #ifdef per_thread
 %%  export_def(per_thread);
@@ -17200,6 +17205,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 %% export_def(value7);
 %% export_def(value8);
 %% export_def(value9);
+%% export_def(mv_space);
 %% export_def(mv_count);
 %% export_def(back_trace);
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
@@ -17375,6 +17381,16 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 
 %% export_def(pin_varobject(vo));
 %% export_def(unpin_varobject(vo));
+
+#if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+#define START_WRITING_TO_SUBPROCESS  writing_to_subprocess=true
+#define STOP_WRITING_TO_SUBPROCESS  writing_to_subprocess=false
+#else
+#define START_WRITING_TO_SUBPROCESS /*noop*/
+#define STOP_WRITING_TO_SUBPROCESS /*noop*/
+#endif
+%% export_def(START_WRITING_TO_SUBPROCESS);
+%% export_def(STOP_WRITING_TO_SUBPROCESS);
 
 #ifdef DEBUG_GCSAFETY
   /* Add support for the 'mv_space' expression to the GCTRIGGER1/2/... macros.*/

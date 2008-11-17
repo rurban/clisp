@@ -284,14 +284,8 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 }
 
 /* ================== SIGPIPE handling ================== */
-#if defined(HAVE_SIGNALS)
-extern bool writing_to_subprocess;
-# define begin_sock_call()  writing_to_subprocess=true;  begin_system_call()
-# define end_sock_call()    writing_to_subprocess=false; end_system_call()
-#else
-# define begin_sock_call()  begin_system_call()
-# define end_sock_call()    end_system_call()
-#endif
+#define begin_sock_call()  START_WRITING_TO_SUBPROCESS;  begin_system_call()
+#define end_sock_call()    end_system_call(); STOP_WRITING_TO_SUBPROCESS
 
 /* invoke system call C, place return value in R, report error on socket S */
 #define SYSCALL(r,s,c)                                  \
