@@ -2244,10 +2244,6 @@ typedef enum {
 #if defined(UNIX)
   #define HAVE_SIGNALS
 #endif
-/* pass on for clx/new-clx */
-%% #ifdef HAVE_SIGNALS
-%%   puts("#define HAVE_SIGNALS");
-%% #endif
 /* Whether we can even react to asynchronous signals:
  (If WIDE && !WIDE_HARD, writing a pointer is usually no elementary
  operation anymore!) */
