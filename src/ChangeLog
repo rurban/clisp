@@ -1,5 +1,12 @@
 2008-11-17  Sam Steingold  <sds@gnu.org>
 
+	assume POSIX signal()
+	* m4/signal.m4 (CL_TYPE_SIGNAL): remove
+	* configure.in: do not call it
+	* unix.d (signal_handler_t): use a POSIX-compatible declaration
+
+2008-11-17  Sam Steingold  <sds@gnu.org>
+
 	fix module compilation after [threads1] merge
 	* lispbibl.d (clisp_thread_t): move _writing_to_subprocess up
 	before _mv_space and export it to clisp.h

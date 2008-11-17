@@ -168,15 +168,7 @@ nonreturning_function(extern_C, exit, (int status)); /* EXIT(2V) */
 /* signal handling */
 #include <signal.h>
 /* a signal handler is a non-returning function. */
-#ifdef __cplusplus
-  #ifdef SIGTYPE_DOTS
-    typedef RETSIGTYPE (*signal_handler_t) (...);
-  #else
-    typedef RETSIGTYPE (*signal_handler_t) (int);
-  #endif
-#else
-  typedef RETSIGTYPE (*signal_handler_t) ();
-#endif
+typedef void (*signal_handler_t) (int);
 /* install a signal cleanly: */
 extern_C signal_handler_t signal (int sig, signal_handler_t handler); /* SIGNAL(3V) */
 #if defined(SIGNAL_NEED_UNBLOCK_OTHERS) && defined(HAVE_SIGACTION)
