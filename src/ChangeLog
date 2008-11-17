@@ -1,3 +1,8 @@
+2008-11-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (THREAD-INTERRUPT): avoid a deadlock when a terminated
+	thread is interrupted multiple times
+
 2008-11-17  Sam Steingold  <sds@gnu.org>
 
 	Remove TIME_RELATIVE, TIME_UNIX_TIMES, TIME_METHOD=1;
