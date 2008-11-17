@@ -187,6 +187,80 @@
 	standardized by http://www.opengroup.org/susv3/utilities/grep.html
 	Reported by Raymond Toy <raymond.toy@ericsson.com>
 
+2008-11-16  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	circularity detection with GC marks in MT builds.
+	* spvw_circ.d (initialize_circ_detection): initializes the
+	global lock for running inside circularity detection.
+	(circ_detection_lock): global circularity detection mutex.
+	(get_circularities): use it.
+	(subst_circ): use it.
+	* spvw.d (init_multithread): use initialize_circ_detection.
+
+2008-11-15  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	circularity detection using LISP hashtables
+	* spvw_circ.d: circularity detection using LISP hashtables.
+
+2008-11-11  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* spvw_garcol.d (fill_varobject_heap_holes): fix build for SPVW_PURE.
+	* threads.lisp (*DEFAULT-SPECIAL-BINDINGS*): EXT::*COMMAND-INDEX*
+	is not exported at the time threads.lisp is loaded.
+
+2008-10-31  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* spvw_garcol.d (page_contains_pinned_object): fix SPVW_PAGES build.
+
+2008-10-31  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* xthread.d: AMD64 spinlocks are the same as I80386
+
+2008-10-30  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* xthread.d: add AMD64 spinlock implementation.
+	(xthread_create): do not use gcc extensions for POSIX_THREADS.
+
+2008-10-30  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* lispbibl.d (Symbol_value): do not use gcc extensions.
+	(Symbol_thread_value): do not use gcc extensions.
+	(Symbolflagged_value): do not use gcc extensions.
+	(symbol_value_i / symbol_value_h): helper static inline
+	functions for preventing multiple time argument execution.
+	(roughly_SP): define "generic" version that does not use gcc
+	extensions.
+
+2008-10-30  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* lispbibl.d (GC_SAFE_SYSTEM_CALL): do not use gcc extensions.
+	(GC_SAFE_CALL): do not use gcc extensions.
+	(current_thread): do not use gcc extensions.
+	* pathname.d: use new GC_SAFE_SYSTEM_CALL()/GC_SAFE_CALL().
+	(check_file_reopen): fix GCSAFETY bug.
+	* stream.d: use new GC_SAFE_SYSTEM_CALL()/GC_SAFE_CALL().
+
+2008-10-30  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* spvw_garcol.d (gc_sweep1_varobject_page): pinned objects
+	are always marked.
+	* xthread.d: do not check for errors when spinlock_t=mutex_t.
+
+2008-10-29  Vladimir Tzankov  <vtzankov@gmail.com>  [threads1]
+
+	* spvw.d (init_multithreading): initialize timeout_call_chain_lock
+	spinlock.
+	* zthread.d (timeout_call_chain_lock): just declare it - do not
+	initialize.
+	* xthread.d (SPINLOCK_INIT): remove it.
+	spinlocks should be initialized with spinlock_init().
+	(xmutex_lock): do not use "var" for local variables.
+	(xmutex_trylock): fix typo error.
+	(spinlock_acquire): do not check for errors when spinlock_t=xmutex_t
+	(spinlock_release): do not check for errors when spinlock_t=xmutex_t
+	* spvw_garcol.d (gc_sweep1_varobject_page): holes_count should be
+	pointer to uintC. Do not mark explicitly pinned objects.
+
 2008-10-29  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (main): avoid a compilation warning;
