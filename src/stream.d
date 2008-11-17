@@ -16970,7 +16970,7 @@ global maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp,
           if (handletype) *handletype = 1;
           if (ChannelStream_buffered(stream)) {
             sync_file_buffered(stream);
-            return TheHandle(TheStream(stream)->strm_buffered_channel);
+            return TheHandle(TheStream(*stream_)->strm_buffered_channel);
           }
           return TheHandle(TheStream(stream)->strm_ichannel);
         } else if (!inputp && TheStream(stream)->strmflags & strmflags_wr_B) {
@@ -16978,7 +16978,7 @@ global maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp,
           if (ChannelStream_buffered(stream)) {
             /* reposition index back to not yet read position */
             sync_file_buffered(stream);
-            return TheHandle(TheStream(stream)->strm_buffered_channel);
+            return TheHandle(TheStream(*stream_)->strm_buffered_channel);
           }
           return TheHandle(TheStream(stream)->strm_ochannel);
         } else {
