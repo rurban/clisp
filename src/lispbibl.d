@@ -7346,7 +7346,7 @@ typedef struct {
 /* Symbol_value() definition moved here - since in MT we need eq() to be defined. */
 /* Access to objects that are symbols: */
 #if defined(MULTITHREAD)
-  /* helper inline functions to keep ANSI compliance and prevent multiple 
+  /* helper inline functions to keep ANSI compliance and prevent multiple
      time arguments evaluation. Should we __forceinline them ? */
   static inline gcv_object_t *symbol_value_i(Symbol s, gcv_object_t *thrsyms) {
     return (s->tls_index && !eq(SYMVALUE_EMPTY,thrsyms[s->tls_index]) ?
@@ -10664,7 +10664,7 @@ extern maygc off_t savemem (object stream, uintL executable);
 #endif
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
-  /* Set ONLY during write() calls to pipes directed to subprocesses. */
+/* Set ONLY during write() calls to pipes directed to subprocesses. */
 extern bool writing_to_subprocess;
 #endif
 
@@ -16883,8 +16883,8 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 #ifdef MULTITHREAD
 %% #ifdef MULTITHREAD
   /* every thread keeps chain of pinned objects.
-     usually there will be just a single one (if any), but it is
-     possible with signal handlers to have real chain.*/
+   usually there will be just a single one (if any), but it is
+   possible with signal handlers to have real chain.*/
   typedef struct pinned_chain_t {
     gcv_object_t _o; /* pinned object - will not move during GC */
     struct pinned_chain_t *_next;
@@ -16893,54 +16893,54 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
   /* Structure containing all the per-thread global variables.*/
   typedef struct clisp_thread_t {
     /* Most often used (also used by modules - so should be exported) : */
-      gcv_object_t* _STACK;
-      uintC _mv_count;
-      p_backtrace_t _back_trace;
-#ifdef DEBUG_GCSAFETY
+    gcv_object_t* _STACK;
+    uintC _mv_count;
+    p_backtrace_t _back_trace;
+   #ifdef DEBUG_GCSAFETY
     uintL _alloccount; /* alloccount for this thread */
-#endif
-      /* GC suspend/resume machinery */
-      spinlock_t _gc_suspend_request; /*always signalled unless there is a suspend request. */
-      spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
-      xmutex_t _gc_suspend_lock; /* the mutex on which the thread waits. */
-      uintC _suspend_count; /* how many times this thread has been suspended ? */
-      /* The values of per-thread symbols: */
-      gcv_object_t *_ptr_symvalues; /* allocated separately */
-      object _mv_space [mv_limit-1];
+   #endif
+    /* GC suspend/resume machinery */
+    spinlock_t _gc_suspend_request; /*always signalled unless there is a suspend request. */
+    spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
+    xmutex_t _gc_suspend_lock; /* the mutex on which the thread waits. */
+    uintC _suspend_count; /* how many times this thread has been suspended ? */
+    /* The values of per-thread symbols: */
+    gcv_object_t *_ptr_symvalues; /* allocated separately */
+    object _mv_space [mv_limit-1];
     /* The lexical environment: */
-      gcv_environment_t _aktenv;
+    gcv_environment_t _aktenv;
     /* Used for exception handling only: */
-      handler_args_t _handler_args;
-      stack_range_t* _inactive_handlers;
-      unwind_protect_caller_t _unwind_protect_to_save;
-      #ifndef NO_SP_CHECK
-        void* _SP_bound;
-      #endif
-      void* _SP_anchor;
-      gcv_object_t* _STACK_bound;
-      gcv_object_t* _STACK_start;
-      pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
-      uintC _index; /* this thread's index in allthreads[] */
+    handler_args_t _handler_args;
+    stack_range_t* _inactive_handlers;
+    unwind_protect_caller_t _unwind_protect_to_save;
+   #ifndef NO_SP_CHECK
+    void* _SP_bound;
+   #endif
+    void* _SP_anchor;
+    gcv_object_t* _STACK_bound;
+    gcv_object_t* _STACK_start;
+    pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
+    uintC _index; /* this thread's index in allthreads[] */
     /* signal handling stuff - NOT USED actually */
-      #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-      /* Set ONLY during IO calls to pipes directed to subprocesses. */
-       bool _writing_to_subprocess;
-      #endif
-      #if defined(PENDING_INTERRUPTS)
-       uintB _interrupt_pending;
-      #endif
+   #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
+    /* Set ONLY during IO calls to pipes directed to subprocesses. */
+    bool _writing_to_subprocess;
+   #endif
+   #if defined(PENDING_INTERRUPTS)
+    uintB _interrupt_pending;
+   #endif
     /* moved here from pathname.d */
-      bool _running_handle_directory_encoding_error;
-#ifdef HAVE_SIGNALS
+    bool _running_handle_directory_encoding_error;
+   #ifdef HAVE_SIGNALS
     /* do not rely on SA_NODEFER for signal nesting */
-      spinlock_t _signal_reenter_ok;
-#endif
+    spinlock_t _signal_reenter_ok;
+   #endif
     /* pointer to the the lisp stack where the CATCH tag for
        thread termination is located. */
-      gcv_object_t *_thread_exit_tag;
-      bool _own_stack; /* who owns our lisp stack. should it be freed? */
+    gcv_object_t *_thread_exit_tag;
+    bool _own_stack; /* who owns our lisp stack. should it be freed? */
     /* the current thread. NOT GC VISIBLE. */
-      gcv_object_t _lthread;
+    gcv_object_t _lthread;
   } clisp_thread_t;
 
   #define GC_SAFE_SPINLOCK_ACQUIRE(s)                   \
@@ -16971,9 +16971,8 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     #define current_thread() _current_thread
     #define set_current_thread(thread) _current_thread=thread
   #else
-   /* We want MT, but our compiler does not provide built in support for TLS. */
-   /*
-     USE_CUSTOM_TLS={1,2,3}
+   /* We want MT, but our compiler does not provide built in support for TLS.
+   USE_CUSTOM_TLS={1,2,3}
      1 - using xthread_key_get/set - slowest one (and probably safest)
      2 - using slightly modified version of TLS found in Boehm GC for C/C++.
      3 - using full page map of address space (4 MB).
@@ -17109,8 +17108,8 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 
 %% puts("#include \"xthread.c\"");
 
-/* VTZ: just the beginning of the structure is exported - what modules want to know about
-   (in order to build) */
+/* VTZ: just the beginning of the structure is exported -
+   what modules want to know about (in order to build) */
 %%  puts("typedef struct {");
 %%  puts("     gcv_object_t* _STACK;");
 %%  puts("     uintC _mv_count;");
