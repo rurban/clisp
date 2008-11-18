@@ -12,17 +12,12 @@
 local maygc object check_thread(object obj)
 {
   while (!threadp(obj)) {
-    pushSTACK(NIL); /* no PLACE */
-    pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(thread)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(thread));       /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(subr_self);
     check_value(type_error,GETTEXT("~S: ~S is not a thread"));
-    /* NB:  since the reader cannot read thread objects - let's eval
-       what the user has entered. It does not look nice - TBD.
-       may be allow just symbols and take their value or look for thread
-       name ??? */
-    eval(value1);
-    obj=value1;
+    obj = value1;
   }
   return obj;
 }
