@@ -658,14 +658,14 @@ local void init_multithread_special_symbols()
  The stack_size parameters is in bytes.
  It is always called with main thread lock - so we are not going to call
  begin/end_system_call.*/
-local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_depth)
+local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_size)
 {
   var uintM low,high;
   begin_system_call();
-  low=(uintM)malloc(stack_depth*sizeof(gcv_object_t)+0x40);
+  low=(uintM)malloc(stack_size*sizeof(gcv_object_t)+0x40);
   end_system_call();
   if (!low) return NULL;
-  high=low+stack_depth*sizeof(gcv_object_t)+0x40;
+  high=low+stack_size*sizeof(gcv_object_t)+0x40;
   #ifdef STACK_DOWN
    thread->_STACK_bound=(gcv_object_t *)(low + 0x40);
    thread->_STACK=(gcv_object_t *)high;
@@ -712,7 +712,7 @@ global int register_thread(clisp_thread_t *thread)
  so we may(should not) perform some initializations (lisp_stack_size is
  the count of gcv_object_t that can be put in the newly allocated
  stack)*/
-global clisp_thread_t* create_thread(uintM lisp_stack_depth)
+global clisp_thread_t* create_thread(uintM lisp_stack_size)
 {
   var clisp_thread_t* thread;
   begin_system_call();
@@ -735,9 +735,9 @@ global clisp_thread_t* create_thread(uintM lisp_stack_depth)
     var uintC count;
     dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
   }
-  if (lisp_stack_depth) {
+  if (lisp_stack_size) {
     /* allocate the LISP stack */
-    if (!allocate_lisp_thread_stack(thread,lisp_stack_depth)) {
+    if (!allocate_lisp_thread_stack(thread,lisp_stack_size)) {
       begin_system_call();
       free(thread->_ptr_symvalues);
       free(thread);
@@ -3285,16 +3285,16 @@ local inline int init_memory (struct argv_initparams *p) {
     }
   }
 #if defined(MULTITHREAD)
-  /* initialize the THREAD:*DEFAULT-VALUE-STACK-DEPTH* based on the
+  /* initialize the THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
      calculated STACK size */
-  Symbol_value(S(default_value_stack_depth)) =
+  Symbol_value(S(default_value_stack_size)) =
     uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
 #endif
  #ifdef DEBUG_SPVW
   { /* STACK & SP are settled - check that we have enough STACK */
-    var uintM stack_depth =
+    var uintM stack_size =
       STACK_item_count((gcv_object_t*)STACK_bound,STACK);
-    fprintf(stderr,"STACK depth: %lu [0x%lx 0x%lx]\n",stack_depth,
+    fprintf(stderr,"STACK size: %lu [0x%lx 0x%lx]\n",stack_size,
             (aint)STACK_bound,(aint)STACK);
    #ifndef NO_SP_CHECK
     if (SP_bound != 0) {
@@ -3307,8 +3307,8 @@ local inline int init_memory (struct argv_initparams *p) {
              );
     }
    #endif
-    if (stack_depth < ca_limit_1) {
-      fprintf(stderr,"STACK depth is less than CALL-ARGUMENTS-LIMIT (%d)\n",
+    if (stack_size < ca_limit_1) {
+      fprintf(stderr,"STACK size is less than CALL-ARGUMENTS-LIMIT (%d)\n",
               ca_limit_1);
       abort();
     }
@@ -3332,9 +3332,9 @@ local inline int init_memory (struct argv_initparams *p) {
   */
   O(all_threads) = NIL;
 
-  /* initialize again THREAD:*DEFAULT-VALUE-STACK-DEPTH* based on the
+  /* initialize again THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
      calculated STACK size, since the memory image may change it */
-  Symbol_value(S(default_value_stack_depth)) =
+  Symbol_value(S(default_value_stack_size)) =
     uint32_to_I(STACK_item_count(STACK_bound,STACK_start));
 #endif
   /* init O(current_language) */
