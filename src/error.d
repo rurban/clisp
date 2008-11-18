@@ -361,7 +361,10 @@ nonreturning_function(global, error, (condition_t errortype,
  > on the STACK: PLACE (form to be shown to the user) or NIL, then
    the initial values for the Condition, depending on error-type
  < value1, value2: return values from CHECK-VALUE:
-   value1 = value supplied by the user,
+   value1 = value supplied by the user, as is, not evaluated.
+     This does present a problem when the object does not have a readable
+     syntax (e.g., a stream or a CLOS object). The workaround is to use [#.].
+     We can discuss calling eval1(value1) at the end of this function.
    value2 = indicates whether PLACE should be filled
  < STACK: cleaned up
  can trigger GC */
