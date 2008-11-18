@@ -99,32 +99,30 @@ local /*maygc*/ void *thread_stub(void *arg)
 }
 
 LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
-        (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_depth)))
+        (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
 { /* (MAKE-THREAD function
                   &key name
                   (initial-bindings THREADS:*default-special-bindings*)
                   (cstack-size THREADS::*DEFAULT-CONTROL-STACK-SIZE*)
-                  (vstack-depth THREADS::*DEFAULT-VALUE-STACK-DEPTH*)) */
+                  (vstack-size THREADS::*DEFAULT-VALUE-STACK-SIZE*)) */
   var clisp_thread_t *new_thread;
   /* init the stack size if not specified */
-  if (missingp(STACK_0)) STACK_0 = Symbol_value(S(default_value_stack_depth));
+  if (missingp(STACK_0)) STACK_0 = Symbol_value(S(default_value_stack_size));
   if (missingp(STACK_1)) STACK_1 = Symbol_value(S(default_control_stack_size));
-  /* vstack_size */
-  var uintM vstack_depth = I_to_uint32(check_uint32(popSTACK()));
-  /* cstack_size */
+  var uintM vstack_size = I_to_uint32(check_uint32(popSTACK()));
   var uintM cstack_size = I_to_uint32(check_uint32(popSTACK()));
-  if (!vstack_depth) { /* lisp stack empty ? */
+  if (!vstack_size) { /* lisp stack empty ? */
     /* use the same as the caller */
-    vstack_depth=STACK_item_count(STACK_bound,STACK_start);
+    vstack_size=STACK_item_count(STACK_bound,STACK_start);
   }
   if (cstack_size > 0 && cstack_size < 0x10000) { /* cstack too small ? */
     /* TODO: or may be signal an error */
-    /* lets allocate at least 64K */
+    /* let's allocate at least 64K */
     cstack_size = 0x10000;
   }
-  if (vstack_depth < ca_limit_1) {
+  if (vstack_size < ca_limit_1) {
     /* TODO: may be signal an error */
-    vstack_depth=ca_limit_1;
+    vstack_size = ca_limit_1;
   }
   /* check initial bindings */
   if (!boundp(STACK_0)) /* if not bound set to mt:*default-special-bidnings* */
@@ -151,7 +149,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   lock_threads();
   end_blocking_call();
   /* create clsp_thread_t */
-  new_thread=create_thread(vstack_depth);
+  new_thread=create_thread(vstack_size);
   if (!new_thread) {
     unlock_threads();
     skipSTACK(6); VALUES1(NIL); return;

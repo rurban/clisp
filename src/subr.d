@@ -1423,7 +1423,7 @@ LISPFUNN(foreign_pointer_info,1)
 /* ---------- ZTHREAD ---------- */
 #ifdef MULTITHREAD
 LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
-        (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_depth)))
+        (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
 LISPFUN(thread_wait,seclass_default,3,0,rest,nokey,0,NIL)
 LISPFUNN(call_with_timeout,3)
 LISPFUNN(thread_yield,0)

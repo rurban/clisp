@@ -25,7 +25,7 @@
 ;; this is the number of gcv_object_t on the stack
 ;; 0 - means - inherit from creation thread.
 ;; the value will be initialized from the runtime
-(defvar *DEFAULT-VALUE-STACK-DEPTH*)
+(defvar *DEFAULT-VALUE-STACK-SIZE*)
 
 ;; declare special variable for thread's whostate
 (defvar *THREAD-WHOSTATE* nil)
