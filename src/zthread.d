@@ -17,11 +17,10 @@ local maygc object check_thread(object obj)
     pushSTACK(S(thread)); /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(subr_self);
     check_value(type_error,GETTEXT("~S: ~S is not a thread"));
-    /*NB:  since the reader cannot read thread objects - let's eval
-     what the user has entered. It does not look nice - TBD.
-     may be allow just symbols and take their value or look for thread
-     name ???
-    */
+    /* NB:  since the reader cannot read thread objects - let's eval
+       what the user has entered. It does not look nice - TBD.
+       may be allow just symbols and take their value or look for thread
+       name ??? */
     eval(value1);
     obj=value1;
   }
@@ -63,8 +62,7 @@ local /*maygc*/ void *thread_stub(void *arg)
   var gcv_object_t* top_of_frame = STACK STACKop 1;
   var sp_jmp_buf returner; /* return point */
   finish_entry_frame(CATCH,returner,,{skipSTACK(3);goto end_of_thread;});
-  {
-    /* make "top" driver frame */
+  { /* make "top" driver frame */
     var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
     var sp_jmp_buf returner; /* remember entry point */
     /* driver frame in order to be able to kill the thread and unwind the stack
@@ -111,8 +109,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
                   &key name
                   (initial-bindings THREADS:*default-special-bindings*)
                   (cstack-size THREADS::*DEFAULT-CONTROL-STACK-SIZE*)
-                  (vstack-depth THREADS::*DEFAULT-VALUE-STACK-DEPTH*))
-   */
+                  (vstack-depth THREADS::*DEFAULT-VALUE-STACK-DEPTH*)) */
   var clisp_thread_t *new_thread;
   /* init the stack size if not specified */
   if (missingp(STACK_0)) STACK_0 = Symbol_value(S(default_value_stack_depth));
@@ -301,15 +298,13 @@ LISPFUNN(call_with_timeout,3)
       /* funcall in UNWIND_PROTECT frame in order to cleanup the chain */
       var gcv_object_t* top_of_frame = STACK;
       var sp_jmp_buf returner; /* return point */
-      finish_entry_frame
-        (UNWIND_PROTECT,returner,,
-         {
-           var restartf_t fun = unwind_protect_to_save.fun;
-           var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
-           remove_timeout_call(&tc);
-           skipSTACK(2); /* unwind the frame */
-           fun(arg); /* jump further */
-         });
+      finish_entry_frame(UNWIND_PROTECT,returner,,{
+        var restartf_t fun = unwind_protect_to_save.fun;
+        var gcv_object_t* arg = unwind_protect_to_save.upto_frame;
+        remove_timeout_call(&tc);
+        skipSTACK(2); /* unwind the frame */
+        fun(arg); /* jump further */
+      });
       funcall(STACK_5,0); /* call the body function */
       remove_timeout_call(&tc); /* everything seems fine - no timeout */
       skipSTACK(2 + 3); /* unwind_protect frame + CATCH frame*/
@@ -378,10 +373,9 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
   } else {
     /* we want ot interrupt different thread. */
     STACK_(argcount+1)=thr; /* gc may happen */
-    /*TODO: may be check that the function argument can be
-      funcall-ed, since it is not very nice to get errors
-      in interrupted thread (but basically this is not a
-      problem)*/
+    /* TODO: may be check that the function argument can be funcall-ed,
+       since it is not very nice to get errors in interrupted thread
+       (but basically this is not a problem)*/
     WITH_STOPPED_THREAD(clt,true,{
       var gcv_object_t *saved_stack=clt->_STACK;
       if (clt->_STACK != NULL) { /* thread is alive ? */
@@ -451,7 +445,7 @@ LISPFUNN(list_threads,0)
      and while we hold the threads lock - deadlock will occur. */
   var uintC count=0;
   begin_blocking_call();
-  lock_threads(); /* stop GC and thread creation*/
+  lock_threads(); /* stop GC and thread creation */
   end_blocking_call();
   var object list=O(all_threads);
   while (!endp(list)) {
