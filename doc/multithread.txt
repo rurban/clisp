@@ -166,17 +166,17 @@ however it is not clear whether it even compiles.
              &key name
              (initial-bindings THREADS:*DEFAULT-SPECIAL-BINDINGS*)
              (cstack-size THREADS::*DEFAULT-CONTROL-STACK-SIZE*)
-             (vstack-depth THREADS::*DEFAULT-VALUE-STACK-DEPTH*))
+             (vstack-size THREADS::*DEFAULT-VALUE-STACK-SIZE*))
 Parameters:
 function and name - required and obvious.
 :initial-bindings - see below
 :cstack-size - the size in bytes of the control stack (C stack)
                if passed 0 whatever the OS decides for it.
-:vstack-depth - the size of the LISP stack in gcv_object_t.
-                Default value is calculated based on the -m option
-                used when CLISP was started (hmm am i right)?
-                If passed 0 - the value stack will be the same
-                as the calling threads'.
+:vstack-size - the size of the LISP stack in gcv_object_t.
+               Default value is calculated based on the -m option
+               used when CLISP was started (hmm am i right)?
+               If passed 0 - the value stack will be the same
+               as the calling thread's.
 
 3. Symbol values - ready.
 The implementation follows the explanation above. For a good description see:

@@ -17168,7 +17168,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 /* allocates,initializes and returns clisp_thread_t structure.
    Does not register it in the global thread array.
    When called the global thread lock should be held.*/
-global clisp_thread_t* create_thread(uintM lisp_stack_depth);
+global clisp_thread_t* create_thread(uintM lisp_stack_size);
 /* removes the current_thread from the list (array) of threads.
    Also frees any allocated resource. */
 global void delete_thread(clisp_thread_t *thread, bool full);
