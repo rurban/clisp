@@ -623,6 +623,7 @@ local void init_multithread (void) {
   xthread_init();
   xmutex_init(&allthreads_lock); /* threads lock */
   xmutex_init(&open_files_lock); /* open files lock i.e. O(open_files) */
+  xmutex_init(&all_finalizers_lock); /* finalizer lock */
   initialize_circ_detection(); /* initialize the circ detection */
   spinlock_init(&timeout_call_chain_lock);
   maxnum_symvalues = SYMVALUES_PER_PAGE;
@@ -3693,6 +3694,8 @@ local void* mt_main_actions (void *param) {
   me->_SP_anchor=(void*)SP();
   /* reinitialize the system thread id */
   TheThread(me->_lthread)->xth_system = xthread_self();
+  /* initialize the *thread-whostate* */
+  Symbol_thread_value(S(thread_whostate_symbol)) = NIL;
   /* now we are ready to start main_actions()*/
   main_actions(args);
   delete_thread(me,false); /* just delete ourselves */
