@@ -55,8 +55,7 @@ options:
        --with-dynamic-ffi      a foreign language interface
        --with-dynamic-modules  dynamic loading of foreign language modules
        --with-threads=FLAVOR   MT [_experimental_!]
-                               FLAVOR: POSIX_THREADS POSIXOLD_THREADS
-                                       SOLARIS_THREADS C_THREADS WIN32_THREADS
+                      FLAVOR: POSIX_THREADS SOLARIS_THREADS WIN32_THREADS
        --with-jitc=FLAVOR      use a given Just-In-Time Compiler.
                 The only flavor at this time is lightning
                   (GNU lightning must be installed in the standard place).
