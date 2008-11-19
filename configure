@@ -71,9 +71,8 @@ options: The following options are recognized:
    --without-unicode       no UNICODE support: character=8bit
    --without-readline      do not link with GNU readline
    --with-threads=FLAVOR   support multiple threads in one CLISP image
-             via OS threads [highly experimental - use at your own risk]
-             FLAVORs = POSIX_THREADS POSIXOLD_THREADS SOLARIS_THREADS
-                       C_THREADS WIN32_THREADS
+                  via OS threads [highly experimental - use at your own risk]
+                  FLAVOR: POSIX_THREADS SOLARIS_THREADS WIN32_THREADS
   --with-jitc=FLAVOR   use a given Just-In-Time Compiler.
              The only flavor at this time is lightning
                (GNU lightning must be installed in the standard place).

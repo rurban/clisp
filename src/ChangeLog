@@ -1,5 +1,10 @@
 2008-11-19  Sam Steingold  <sds@gnu.org>
 
+	* configure, makemake.in (--with-threads):
+	remove POSIXOLD_THREADS and C_THREADS
+
+2008-11-19  Sam Steingold  <sds@gnu.org>
+
 	drop privileges when running suid root and receive a --clisp- superarg
 	* unix.d (drop_privileges): declare
 	* unixaux.d (drop_privileges): implement, based on
