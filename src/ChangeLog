@@ -1,5 +1,17 @@
 2008-11-19  Sam Steingold  <sds@gnu.org>
 
+	drop privileges when running suid root and receive a --clisp- superarg
+	* unix.d (drop_privileges): declare
+	* unixaux.d (drop_privileges): implement, based on
+	http://www.usenix.org/events/sec02/full_papers/chen/chen.pdf
+	* spvw.d (parse_options): call it when receive a --clisp- superarg
+	(main): run *init-hooks* _before_ initializing O(argv) so that
+	applications cannot detect and thus disable "--clisp-" superarg
+	* configure.in: check for
+	getresuid setresuid getresgid setresgid setreuid setregid
+
+2008-11-19  Sam Steingold  <sds@gnu.org>
+
 	* zthread.d (MAKE-THREAD): use check_list instead of error_list
 	and check_string instead of check_string_replacement
 	(MAKE-MUTEX, MAKE-EXEMPTION): use check_string instead of

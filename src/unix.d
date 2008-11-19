@@ -729,3 +729,6 @@ extern int wait2 (PID_T pid); /* see unixaux.d */
 
 /* close all file descriptors before exec() */
 global void close_all_fd (void);
+
+/* remove the effects of the setuid bit on the executable */
+global void drop_privileges (void);

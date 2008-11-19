@@ -2431,6 +2431,12 @@ local bool delegating_p (void) {
   return delegating_cookie[delegating_cookie_length-1] == 'Y';
 }
 
+#if defined(UNIX)
+ #define DROP_PRIVILEGES drop_privileges()
+#else
+ #define DROP_PRIVILEGES /*noop*/
+#endif
+
 /* Parse the command-line options.
  Returns -1 on normal termination, or an exit code >= 0 for immediate exit. */
 local inline int parse_options (int argc, const char* const* argv,
@@ -2520,12 +2526,14 @@ local inline int parse_options (int argc, const char* const* argv,
     var const char* const* argptr = &argv[1];
     var const char* const* argptr_limit = &argv[argc];
     var enum { for_exec, for_init, for_compile, for_expr, for_load_path }
-    argv_for = for_exec;
+      argv_for = for_exec;
+    var bool clisp_superarg_used = false;
     /* loop and process options, replace processed options with NULL: */
     while (argptr < argptr_limit) {
       var const char* arg = *argptr++; /* next argument */
-      if (0 == strncmp(arg,"--clisp",7)) arg += 7;
-      else if (delegating) goto non_option;
+      if (0 == strncmp(arg,"--clisp",7)) {
+        arg += 7; clisp_superarg_used = true;
+      } else if (delegating) goto non_option;
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
           case 'h':             /* help */
@@ -2868,6 +2876,7 @@ local inline int parse_options (int argc, const char* const* argv,
         argv_for = for_exec;
       }
     }
+    if (clisp_superarg_used) DROP_PRIVILEGES;
     p2->argv_batchmode_p = /* '-c' or '-x' or file => batch-mode: */
       ((p2->argv_compile || p2->argv_expr_count || p2->argv_execute_file != NULL)
        && p2->argv_on_error != ON_ERROR_DEBUG
@@ -3877,6 +3886,10 @@ global int main (argc_t argc, char* argv[]) {
         (*module->initfunction2)(module);
     });
   }
+  /* do this before O(argv) is ready so that applications cannot
+     detect and thus disable "--clisp-" superarg
+     http://clisp.podval.org/impnotes/image.html#image-exec */
+  run_hooks(Symbol_value(S(init_hooks)));
   { /* Init O(argv). */
     O(argv) = allocate_vector(argc);
     var argc_t count;
@@ -3885,10 +3898,6 @@ global int main (argc_t argc, char* argv[]) {
       TheSvector(O(argv))->data[count] = arg;
     }
   }
-  /* do this after O(argv) is reado so that applications can detect "--clisp-"
-     options and remove setuid bits from the executable image.
-     http://clisp.podval.org/impnotes/image.html#image-exec */
-  run_hooks(Symbol_value(S(init_hooks)));
   /* Perform the desired actions (compilations, read-eval-print loop etc.): */
 #if defined(MULTITHREAD)
   /* may be set it as command line  parameter  - it should be big enough */
