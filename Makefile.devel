@@ -392,6 +392,7 @@ pre-release : gnulib-imported build-aux-update tp-mail
 # news:comp.os.linux.announce (linux-announce@news.ornl.gov)
 # http://freshmeat.net/projects/clisp/
 # https://sourceforge.net/news/submit.php?group_id=1355
+# WIKIs to be updated: http://en.wikipedia.org/wiki/CLISP
 
 VER=$(shell . ./version.sh ; echo $$VERSION_NUMBER)
 REL=$(shell . ./version.sh ; echo $$RELEASE_DATE)
