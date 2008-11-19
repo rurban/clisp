@@ -164,18 +164,11 @@
 2432902008176640000</screen>
     These instructions are also printed by
     <option>--clisp--help</option>.</para>
-   <para>Of course, this feature opens a security hole if the
-    application is running <function role="unix">setuid</function> root.
-    In that case you need to also do this:<programlisting language="lisp">
-(&push; (&lambda-m; ()
-        (&when; (&find-if; (&lambda-m; (o)
-                         (&and-m; (&leq; #1=(length #2="--clisp-") (&length; o))
-                              (&string-eq; o #2# :end1 #1#)))
-                       (&argv;))
-          (&setf; (<link linkend="getuid">POSIX:UID</link>)
-                (POSIX:USER-INFO-UID (<link linkend="user-info">POSIX:USER-INFO</link> :DEFAULT)))))
-      &init-hooks;)</programlisting></para></listitem></varlistentry>
-</variablelist>
+   <simpara>Of course, this feature opens a <emphasis>security hole</emphasis>
+    if the application is running <function role="unix">setuid</function> root,
+    therefore &clisp; resets the effective group and user IDs to the real
+    ones if it sees a <literal>"--clisp-*"</literal> option.
+</simpara></listitem></varlistentry></variablelist>
 You can use this memory image with the &opt-M; option.
 On &unix; systems, you may compress it with &gnu; &gzip; to save disk
 space.</para>
