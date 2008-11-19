@@ -30,7 +30,7 @@ local maygc object check_mutex(object obj)
   while (!mutexp(obj)) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
-    pushSTACK(S(mutex));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(S(mutex));        /* TYPE-ERROR slot EXPECTED-TYPE */
     pushSTACK(obj); pushSTACK(subr_self);
     check_value(type_error,GETTEXT("~S: ~S is not a mutex"));
     obj = value1;
@@ -158,11 +158,8 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* check initial bindings */
   if (!boundp(STACK_0)) /* if not bound set to mt:*default-special-bidnings* */
     STACK_0 = Symbol_value(S(default_special_bindings));
-  if (!listp(STACK_0))
-    error_list(STACK_0);
-  /* check thread name */
-  if (!stringp(STACK_1))
-    STACK_1 = check_string_replacement(STACK_1);
+  STACK_0 = check_list(STACK_0);
+  STACK_1 = check_string(STACK_1); /* check thread name */
 
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
@@ -543,12 +540,11 @@ LISPFUNN(mutexp,1)
 
 LISPFUNN(make_mutex,1)
 { /* (MAKE-MUTEX name) */
-  if (!missingp(STACK_0)) 
-    STACK_0 = check_string_replacement(STACK_0);
+  STACK_0 = check_string(STACK_0);
   /* overwrite the name on the STACK with the newly allocated object */
   var object mx = allocate_mutex(&STACK_0);
   STACK_0 = mx;
-  /* TBD: may be signal an error if OS mutex object cannot be created. 
+  /* TBD: may be signal an error if OS mutex object cannot be created.
      currently NIL is returned and really soon it will show itself. */
   /* add it for finalization */
   if (!eq(mx,NIL)) {
@@ -585,8 +581,7 @@ LISPFUNN(mutex_lock,1)
 
 LISPFUNN(mutex_unlock,1)
 { /* (MUTEX-UNLOCK object) */
-  /* no need for begin_blocking_system_call() - but 
-     not wrong either */
+  /* no need for begin_blocking_system_call() - but not wrong either */
   MUTEX_OP_ON_STACK_0(xmutex_unlock);
 }
 
@@ -598,8 +593,7 @@ LISPFUNN(exemptionp,1)
 
 LISPFUNN(make_exemption,1)
 { /* (MAKE-EXEMPTION name) */
-  if (!missingp(STACK_0)) 
-    STACK_0 = check_string_replacement(STACK_0);
+  STACK_0 = check_string(STACK_0);
   /* overwrite the name on the STACK with the newly allocated object */
   var object ex = allocate_exemption(&STACK_0);
   STACK_0 = ex;
@@ -655,6 +649,5 @@ LISPFUNN(exemption_broadcast,1)
 { /* (EXEMPTION-BROADCAST exemption) */
   EXEMPTION_OP_ON_STACK_0(xcondition_broadcast);
 }
-
 
 #endif  /* MULTITHREAD */
