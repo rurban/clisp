@@ -672,7 +672,8 @@ global maygc object allocate_mutex (gcv_object_t *name_) {
                                        mutex_xlength,orecord_type);
   TheMutex(result)->xmu_name = *name_;
   begin_system_call();
-  xmutex_init(&(TheMutex(result)->xmu_system));
+  if (xmutex_init(&(TheMutex(result)->xmu_system)))
+    result = NIL; /* in failure return NIL */
   end_system_call();
   return result;
 }
@@ -687,7 +688,8 @@ global maygc object allocate_exemption (gcv_object_t *name_) {
                                        exemption_xlength,orecord_type);
   TheExemption(result)->xco_name = *name_;
   begin_system_call();
-  xcondition_init(&(TheExemption(result)->xco_system));
+  if (0 != xcondition_init(&(TheExemption(result)->xco_system)))
+    result = NIL; /* in failure - return NIL */
   end_system_call();
   return result;
 }

@@ -155,7 +155,11 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
-#define xcondition_wait(c,m)  pthread_cond_wait(c,m)
+#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
+ #define xcondition_wait(c,m)  pthread_cond_wait(c,m)
+#else
+ #define xcondition_wait(c,m)  pthread_cond_wait(c,&(m)->cs)
+#endif
 #define xcondition_timedwait(c,m,to)  pthread_cond_timedwait(c,m,to)
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)

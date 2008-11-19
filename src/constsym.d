@@ -1210,7 +1210,7 @@ LISPSYM(threadp,"THREADP",mt)
 LISPSYM(thread_name,"THREAD-NAME",mt)
 LISPSYM(thread_active_p,"THREAD-ACTIVE-P",mt)
 LISPSYM(thread_state,"THREAD-STATE",mt)
-LISPSYM(thread_whostate,"THREAD-WHOSTATE",mt)
+LISPSYM(thread_whostate_symbol,"*THREAD-WHOSTATE*",mt)
 LISPSYM(current_thread,"CURRENT-THREAD",mt)
 LISPSYM(list_threads,"LIST-THREADS",mt)
 LISPSYM(thread_throw_tag,"%THROW-TAG",mt)
@@ -1225,6 +1225,20 @@ LISPSYM(default_value_stack_size,"*DEFAULT-VALUE-STACK-SIZE*",mt)
 LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
+LISPSYM(mutex,"MUTEX",mt) /* type for MUTEX */
+LISPSYM(mutexp,"MUTEXP",mt)
+LISPSYM(make_mutex,"MAKE-MUTEX",mt)
+/* destroys the underlying OS mutex */
+LISPSYM(mutex_os_destroy,"%MUTEX-DESTROY",mt)
+LISPSYM(mutex_lock,"MUTEX-LOCK",mt)
+LISPSYM(mutex_unlock,"MUTEX-UNLOCK",mt)
+LISPSYM(exemption,"EXEMPTION",mt) /* type for EXEMPTION */
+LISPSYM(exemptionp,"EXEMPTIONP",mt)
+LISPSYM(make_exemption,"MAKE-EXEMPTION",mt)
+LISPSYM(exemption_os_destroy,"%EXEMPTION-DESTROY",mt)
+LISPSYM(exemption_wait,"EXEMPTION-WAIT",mt)
+LISPSYM(exemption_signal,"EXEMPTION-SIGNAL",mt)
+LISPSYM(exemption_broadcast,"EXEMPTION-BROADCAST",mt)
 #endif
 
 /* Keywords: */

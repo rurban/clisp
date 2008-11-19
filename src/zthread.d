@@ -8,6 +8,8 @@
 
 #ifdef MULTITHREAD
 
+/* TODO: move check_xxxx() to error.d and use MAKE_CHECK_REPLACEMENT ?*/
+
 /* signals an error of obj is not thread. returns the thread*/
 local maygc object check_thread(object obj)
 {
@@ -21,6 +23,35 @@ local maygc object check_thread(object obj)
   }
   return obj;
 }
+
+/* signals an error of obj is not mutex. returns the mutex*/
+local maygc object check_mutex(object obj)
+{
+  while (!mutexp(obj)) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(mutex));       /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(subr_self);
+    check_value(type_error,GETTEXT("~S: ~S is not a mutex"));
+    obj = value1;
+  }
+  return obj;
+}
+
+/* signals an error of obj is not exemption (POSIX condition).*/
+local maygc object check_exemption(object obj)
+{
+  while (!exemptionp(obj)) {
+    pushSTACK(NIL);             /* no PLACE */
+    pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
+    pushSTACK(S(exemption));    /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(obj); pushSTACK(subr_self);
+    check_value(type_error,GETTEXT("~S: ~S is not an exemption"));
+    obj = value1;
+  }
+  return obj;
+}
+
 
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list) {
@@ -422,11 +453,6 @@ LISPFUNN(thread_state,1)
   NOTREACHED;
 }
 
-LISPFUNN(thread_whostate,1)
-{ /* (THREAD-WHOSTATE thread) */
-  NOTREACHED;
-}
-
 LISPFUNN(current_thread,0)
 { /* (CURRENT-THREAD) */
   VALUES1(current_thread()->_lthread);
@@ -507,6 +533,127 @@ LISPFUNN(set_symbol_value_thread,3)
     VALUES1(*symval);
   }
   skipSTACK(3);
+}
+
+LISPFUNN(mutexp,1)
+{ /* (MUTEXP object) */
+  var object obj = popSTACK();
+  VALUES_IF(mutexp(obj));
+}
+
+LISPFUNN(make_mutex,1)
+{ /* (MAKE-MUTEX name) */
+  if (!missingp(STACK_0)) 
+    STACK_0 = check_string_replacement(STACK_0);
+  /* overwrite the name on the STACK with the newly allocated object */
+  var object mx = allocate_mutex(&STACK_0);
+  STACK_0 = mx;
+  /* TBD: may be signal an error if OS mutex object cannot be created. 
+     currently NIL is returned and really soon it will show itself. */
+  /* add it for finalization */
+  if (!eq(mx,NIL)) {
+    pushSTACK(mx);
+    pushSTACK(S(mutex_os_destroy));
+    pushSTACK(unbound);
+    funcall(S(finalize),3);
+  }
+  VALUES1(popSTACK());
+}
+
+LISPFUNN(mutex_os_destroy,1)
+{ /* (%MUTEX-DESTROY mutex) */
+  var object mx = check_mutex(popSTACK());
+  begin_system_call();
+  xmutex_destroy(&TheMutex(mx)->xmu_system);
+  end_system_call();
+  VALUES1(NIL); /* no need to return anything */
+}
+
+#define MUTEX_OP_ON_STACK_0(op)                 \
+  do {                                          \
+    STACK_0 = check_mutex(STACK_0);             \
+    begin_blocking_system_call();               \
+    op(&TheMutex(STACK_0)->xmu_system);         \
+    end_blocking_system_call();                 \
+    VALUES1(popSTACK());                        \
+  } while(0)
+
+LISPFUNN(mutex_lock,1)
+{ /* (MUTEX-LOCK object) */
+  MUTEX_OP_ON_STACK_0(xmutex_lock);
+}
+
+LISPFUNN(mutex_unlock,1)
+{ /* (MUTEX-UNLOCK object) */
+  /* no need for begin_blocking_system_call() - but 
+     not wrong either */
+  MUTEX_OP_ON_STACK_0(xmutex_unlock);
+}
+
+LISPFUNN(exemptionp,1)
+{ /* (EXEMPTIONP object) */
+  var object obj = popSTACK();
+  VALUES_IF(exemptionp(obj));
+}
+
+LISPFUNN(make_exemption,1)
+{ /* (MAKE-EXEMPTION name) */
+  if (!missingp(STACK_0)) 
+    STACK_0 = check_string_replacement(STACK_0);
+  /* overwrite the name on the STACK with the newly allocated object */
+  var object ex = allocate_exemption(&STACK_0);
+  STACK_0 = ex;
+  /* TBD:may be signal an error if POSIX condition variable cannot be created.
+     currently NIL is returned and really soon it will show itself. */
+  /* add it for finalization */
+  if (!eq(ex,NIL)) {
+    pushSTACK(ex);
+    pushSTACK(S(exemption_os_destroy));
+    pushSTACK(unbound);
+    funcall(S(finalize),3);
+  }
+  VALUES1(popSTACK());
+}
+
+LISPFUNN(exemption_os_destroy,1)
+{ /* (%EXEMPTION-DESTROY exemption) */
+  var object ex = check_exemption(popSTACK());
+  begin_system_call();
+  xcondition_destroy(&TheExemption(ex)->xco_system);
+  end_system_call();
+  VALUES1(NIL); /* no need to return anything */
+}
+
+LISPFUNN(exemption_wait,2)
+{ /* (EXEMPTION-WAIT exemption mutex) */
+  STACK_0 = check_mutex(STACK_0);
+  STACK_1 = check_exemption(STACK_1);
+  begin_blocking_system_call();
+  xcondition_wait(&(TheExemption(STACK_1)->xco_system),
+                  &(TheMutex(STACK_0)->xmu_system));
+  end_blocking_system_call();
+  skipSTACK(1);
+  VALUES1(popSTACK());
+}
+
+#define EXEMPTION_OP_ON_STACK_0(op)                     \
+  do {                                                  \
+    STACK_0 = check_exemption(STACK_0);                 \
+    begin_system_call();                                \
+    op(&TheExemption(STACK_0)->xco_system);             \
+    end_system_call();                                  \
+    VALUES1(popSTACK());                                \
+  } while(0)
+
+
+LISPFUNN(exemption_signal,1)
+{ /* (EXEMPTION-SIGNAL exemption) */
+  EXEMPTION_OP_ON_STACK_0(xcondition_signal);
+}
+
+LISPFUNN(exemption_broadcast,1)
+{ /* (EXEMPTION-BROADCAST exemption) */
+  EXEMPTION_OP_ON_STACK_0(xcondition_broadcast);
 }
 
 

@@ -870,6 +870,10 @@ LISPFUNN(function_macro_expander,1) {
 /* ===========================================================================
  * Finalizer: */
 
+#ifdef MULTITHREAD
+global xmutex_t all_finalizers_lock;
+#endif
+
 /* (FINALIZE object function &optional alive)
  records that function is called if object dies through GC, with
  object and poss. alive as argument. If alive dies before object dies,
@@ -881,8 +885,18 @@ LISPFUN(finalize,seclass_default,2,1,norest,nokey,0,NIL) {
     TheFinalizer(f)->fin_trigger = STACK_2;
     TheFinalizer(f)->fin_function = STACK_1;
     TheFinalizer(f)->fin_alive = STACK_0; /* The default #<UNBOUND> lives forever. */
+   #ifdef MULTITHREAD
+    pushSTACK(f);
+    GC_SAFE_SYSTEM_CALL(,xmutex_lock(&all_finalizers_lock));
+    f = popSTACK();
+   #endif
     TheFinalizer(f)->fin_cdr = O(all_finalizers);
     O(all_finalizers) = f;
+   #ifdef MULTITHREAD
+    begin_system_call();
+    xmutex_unlock(&all_finalizers_lock);
+    end_system_call();
+   #endif
   }
   skipSTACK(3); VALUES1(NIL);
 }

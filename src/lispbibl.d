@@ -7906,6 +7906,11 @@ typedef struct {
 #if defined(MULTITHREAD)
   #define threadp(obj) \
     (orecordp(obj) && (Record_type(obj) == Rectype_Thread))
+  #define mutexp(obj) \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Mutex))
+  #define exemptionp(obj) \
+    (orecordp(obj) && (Record_type(obj) == Rectype_Exemption))
+
 #endif
 
 #ifdef YET_ANOTHER_RECORD
@@ -17207,6 +17212,9 @@ global maygc uintL add_per_thread_special_var(object symbol);
 global void clear_per_thread_symvalues(object symbol);
 /* O(open_files) needs a global locks when accessed/modified */
 extern xmutex_t open_files_lock;
+/* O(open_files) needs a global locks when accessed/modified */
+extern xmutex_t all_finalizers_lock;
+
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */
