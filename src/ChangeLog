@@ -1,3 +1,10 @@
+2008-11-19  Sam Steingold  <sds@gnu.org>
+
+	* zthread.d (MAKE-THREAD): use check_list instead of error_list
+	and check_string instead of check_string_replacement
+	(MAKE-MUTEX, MAKE-EXEMPTION): use check_string instead of
+	check_string_replacement
+
 2008-11-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	Add mutexes and POSIX condition variables (exemptions)
@@ -7,12 +14,12 @@
 	* spvw.d (init_multithread): initialize all_finalizers_lock
 	* spvw_typealloc.d (allocate_mutex): return NIL in case the OS mutex
 	creation fails
-	(allocate_exemption): return NIL in case OS condition variable 
+	(allocate_exemption): return NIL in case OS condition variable
 	creation fails
 	(mt_main_actions): bind the *thread-whostate* for the first thread
 	* constsym.d, subr.d: add mutex and exemption functions
 	* record.d (finalize): use all_finalizers_lock
-	* xthread.d (xcondition_wait): implementation for pthreads with 
+	* xthread.d (xcondition_wait): implementation for pthreads with
 	no recursive mutex support
 	* zthread.d (MUTEXP, MAKE-MUTEX, MUTEX-LOCK, MUTEX-UNLOCK): mutex
 	functions available in lisp
