@@ -1,7 +1,6 @@
 2008-11-19  Sam Steingold  <sds@gnu.org>
 
-	* configure, makemake.in (--with-threads):
-	remove POSIXOLD_THREADS and C_THREADS
+	* configure, makemake.in, spvw.d: remove POSIXOLD_THREADS and C_THREADS
 
 2008-11-19  Sam Steingold  <sds@gnu.org>
 
