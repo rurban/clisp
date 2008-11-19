@@ -4,12 +4,15 @@
   (:nicknames "MT" "MP")
   (:use "COMMON-LISP" "EXT")
   (:export "THREAD" "MAKE-THREAD" "THREAD-WAIT"
-           "WITHOUT-INTERRUPTS" "THREAD-YIELD" "THREAD-KILL"
+           "THREADP" "THREAD-YIELD" "THREAD-KILL"
            "THREAD-INTERRUPT" "THREADP" "THREAD-NAME"
-           "THREAD-ACTIVE-P" "THREAD-STATE" "CURRENT-THREAD" "LIST-THREADS"
+           "THREAD-ACTIVE-P" "THREAD-WHOSTATE" "CURRENT-THREAD" "LIST-THREADS"
+           "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK" 
+           "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL" 
+           "EXEMPTION-WAIT" "EXEMPTION-BROADCAST" 
            "MAKE-LOCK" "THREAD-LOCK" "THREAD-UNLOCK" "WITH-LOCK"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
-            "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
+           "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
 
 (in-package "MT")
 
@@ -41,6 +44,9 @@
     (*readtable* . (copy-readtable nil))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
+
+(defun thread-whostate (thread)
+  (symbol-value-thread *thread-whostate* thread))
 
 (defmacro with-timeout ((seconds &body timeout-forms) &body body)
   "Execute BODY; if execution takes more than SECONDS seconds,

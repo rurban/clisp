@@ -1,5 +1,33 @@
 2008-11-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	Add mutexes and POSIX condition variables (exemptions)
+	* lispbibl.d (mutexp): macro "predicate" for mutex records
+	(exemptionp): macro predicate for POSIX conditions records
+	(all_finalizers_lock): mutex protecting the all_finalizers list
+	* spvw.d (init_multithread): initialize all_finalizers_lock
+	* spvw_typealloc.d (allocate_mutex): return NIL in case the OS mutex
+	creation fails
+	(allocate_exemption): return NIL in case OS condition variable 
+	creation fails
+	(mt_main_actions): bind the *thread-whostate* for the first thread
+	* constsym.d, subr.d: add mutex and exemption functions
+	* record.d (finalize): use all_finalizers_lock
+	* xthread.d (xcondition_wait): implementation for pthreads with 
+	no recursive mutex support
+	* zthread.d (MUTEXP, MAKE-MUTEX, MUTEX-LOCK, MUTEX-UNLOCK): mutex
+	functions available in lisp
+	(%MUTEX-DESTROY): GC finalizer for mutex records
+	(EXEMPTIONP, MAKE-EXEMPTION, EXEMPTION-WAIT/SIGNAL/BRAODACAST): POSIX
+	condition variables in lisp
+	(%EXEMPTION-DESTROY): GC finalizer for exemption records
+	(THREAD-WHOSTATE): move to threads.lisp
+	(check_mutex): ensure object is mutex record
+	(check_exemption): ensure object is exemption record
+	* threads.lisp: export mutex and exemption functions
+	(THREAD-WHOSTATE): moved here from zthread.d
+
+2008-11-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	Remove obsolete threads flavours
 	* xthread.d: remove POSIXOLD_THREADS and C_THREADS
 
