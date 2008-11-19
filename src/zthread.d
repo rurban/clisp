@@ -159,7 +159,8 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (!boundp(STACK_0)) /* if not bound set to mt:*default-special-bidnings* */
     STACK_0 = Symbol_value(S(default_special_bindings));
   STACK_0 = check_list(STACK_0);
-  STACK_1 = check_string(STACK_1); /* check thread name */
+  if (boundp(STACK_1))
+    STACK_1 = check_string(STACK_1); /* check thread name */
 
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
