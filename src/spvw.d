@@ -330,7 +330,7 @@ local clisp_thread_t* allthreads[MAXNTHREADS];
 global xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
 /* POSIX threads with no recursive mutex support */
-#if (defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)) && !defined(PTHREAD_MUTEX_RECURSIVE_NP)
+#if defined(POSIX_THREADS) && !defined(PTHREAD_MUTEX_RECURSIVE_NP)
 /* cache the global mutex attribute for recursive mutex creation */
 global pthread_mutexattr_t recursive_mutexattr;
 #endif
@@ -472,7 +472,7 @@ global uintL* current_thread_alloccount()
         as a chroot program, so reading /proc/self/maps could fail.
   */
 
-  #if defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)
+  #if defined(POSIX_THREADS)
   /* there is difference between the main thread stack base/size and
    the ones created via pthread_create(). For the latter we will use
    pthread_getattr_np(), however it returns bogus values for the main thread
