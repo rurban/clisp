@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on UNIX
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2005
+ * Sam Steingold 1998-2008
  */
 
 #include "lispbibl.c"
@@ -837,3 +837,72 @@ global errno_t handle_file_id (int fd, struct file_id *fi) {
 /* if the file IDs are identical, return 1, otherwise return 0 */
 global int file_id_eq (struct file_id *fi1, struct file_id *fi2)
 { return (fi1->device == fi2->device) && (fi1->inode == fi2->inode); }
+
+/* ======================================================================== */
+/*  http://www.usenix.org/events/sec02/full_papers/chen/chen.pdf */
+#define SYSCALL(f,a) if (f a < 0) {             \
+  perror(STRING(f));                            \
+  abort();                                      \
+ }
+global void drop_privileges (void) {
+  { /* first group, then user */
+    var gid_t gid = getgid(), r, e, s;
+    if (gid != getegid()) {
+     #if defined(HAVE_GETRESGID) && defined(HAVE_SETRESGID)
+      SYSCALL(setresgid,(gid,gid,gid));
+      SYSCALL(getresgid,(&r,&e,&s));
+      if (gid != r || gid != e || gid != s) {
+        fprintf(stderr,"Failed to drop group privileges(%ld): %ld %ld %ld\n",
+                (long)gid,(long)r,(long)e,(long)s);
+        abort();
+      }
+     #elif defined(HAVE_SETREGID)
+      SYSCALL(setregid,(gid,gid));
+      r = getgid(); e = getegid();
+      if (gid != r || gid != e) {
+        fprintf(stderr,"Failed to drop group privileges(%ld): %ld %ld\n",
+                (long)gid,(long)r,(long)e);
+        abort();
+      }
+     #else
+      SYSCALL(setegid,(gid)); SYSCALL(setgid,(gid));
+      r = getgid(); e = getegid();
+      if (gid != r || gid != e) {
+        fprintf(stderr,"Failed to drop group privileges(%ld): %ld %ld\n",
+                (long)gid,(long)r,(long)e);
+        abort();
+      }
+     #endif
+    }
+  }
+  {
+    var uid_t uid = getuid(), r, e, s;
+    if (uid != geteuid()) {
+     #if defined(HAVE_GETRESUID) && defined(HAVE_SETRESUID)
+      SYSCALL(setresuid,(uid,uid,uid));
+      SYSCALL(getresuid,(&r,&e,&s));
+      if (uid != r || uid != e || uid != s) {
+        fprintf(stderr,"Failed to drop user privileges(%ld): %ld %ld %ld\n",
+                (long)uid,(long)r,(long)e,(long)s);
+        abort();
+      }
+     #elif defined(HAVE_SETREUID)
+      SYSCALL(setreuid,(uid,uid));
+      r = getuid(); e = geteuid();
+      if (uid != r || uid != e) {
+        fprintf(stderr,"Failed to drop user privileges(%ld): %ld %ld\n",
+                (long)uid,(long)r,(long)e);
+        abort();
+      }
+     #else
+      SYSCALL(seteuid,(uid)); SYSCALL(setuid,(uid));
+      r = getuid(); e = geteuid();
+      if (uid != r || uid != e) {
+        fprintf(stderr,"Failed to drop user privileges(%ld): %ld %ld\n",
+                (long)uid,(long)r,(long)e);
+        abort();
+      }
+     #endif
+    }
+  }
+}
