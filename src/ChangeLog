@@ -1,3 +1,8 @@
+2008-11-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	Remove obsolete threads flavours
+	* xthread.d: remove POSIXOLD_THREADS and C_THREADS
+
 2008-11-18  Sam Steingold  <sds@gnu.org>
 
 	STACK: depth=in frames, size=in objects (Bruno)

@@ -33,9 +33,7 @@
 
  Upon entry to this file, one of these symbols shall be defined:
  POSIX_THREADS       POSIX.1c            pthread_*
- POSIXOLD_THREADS    POSIX.1c draft 4    pthread_*
  SOLARIS_THREADS     Solaris 2.4, 2.5    thr_*
- C_THREADS           Mach(?), AIX        cthread_*
  WIN32_THREADS       Win32               *Thread
 
  This file defines the following types:
@@ -93,7 +91,7 @@
 */
 
 
-#if !(defined(POSIX_THREADS) || defined(POSIXOLD_THREADS) || defined(SOLARIS_THREADS) || defined(C_THREADS) || defined(WIN32_THREADS))
+#if !(defined(POSIX_THREADS) || defined(SOLARIS_THREADS) || defined(WIN32_THREADS))
   #error Define your flavour of multithreading
 #endif
 
@@ -102,7 +100,7 @@
 
  NOTE 2: Some of the macros in this file require gcc. */
 
-#if defined(POSIX_THREADS) || defined(POSIXOLD_THREADS)
+#if defined(POSIX_THREADS) 
 
 /* The default pthreads mutex is not recursive. This is not a problem however
  the Win32 critical section (used for mutex) is recursive and there is no way
@@ -136,7 +134,6 @@ typedef pthread_cond_t    xcondition_t;
 typedef pthread_key_t     xthread_key_t;
 
 #define xthread_self()  pthread_self()
-#ifdef POSIX_THREADS
 static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *),
 				 void *arg, size_t stacksize)
 {
@@ -150,20 +147,13 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
   pthread_attr_destroy(&attr);
   return r;
 } 
-#endif
-/*TODO: who will create thread for POSIXOLD_THREADS? Do we need them at all ? */
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
 #define xthread_signal(t,sig) pthread_kill(t,sig)
 #define xthread_sigmask(how,iset,oset) pthread_sigmask(how,iset,oset)
 
-#ifdef POSIX_THREADS
-  #define xcondition_init(c)  pthread_cond_init(c,NULL)
-#endif
-#ifdef POSIXOLD_THREADS
-  #define xcondition_init(c)  pthread_cond_init(c,pthread_condattr_default)
-#endif
+#define xcondition_init(c)  pthread_cond_init(c,NULL)
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
 #define xcondition_wait(c,m)  pthread_cond_wait(c,m)
 #define xcondition_timedwait(c,m,to)  pthread_cond_timedwait(c,m,to)
@@ -171,24 +161,14 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 
 #if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
- #ifdef POSIX_THREADS
-  #define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
- #endif
- #ifdef POSIXOLD_THREADS
-  #define xmutex_init(m)  pthread_mutex_init(m,FIXME: pthread_mutexattr_default)
- #endif
+ #define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
  #define xmutex_destroy(m)  pthread_mutex_destroy(m)
  #define xmutex_lock(m)  pthread_mutex_lock(m)
  #define xmutex_trylock(m) (pthread_mutex_trylock(m)==0)
  #define xmutex_unlock(m)  pthread_mutex_unlock(m)
-#else /* no recursive pthread mutex */
- #ifdef POSIX_THREADS
-  #define xmutex_init(m) \
-   ((m)->count=0,(m)->owner=0,pthread_mutex_init(&(m)->cs,NULL))
- #endif
- #ifdef POSIXOLD_THREADS
-  #define xmutex_init(m)  pthread_mutex_init(m,FIXME: pthread_mutexattr_default)
- #endif
+#else /* no recursive pthread mutex - implement one */
+ #define xmutex_init(m)                                                  \
+  ((m)->count=0,(m)->owner=0,pthread_mutex_init(&(m)->cs,NULL))
  #define xmutex_destroy(m)  pthread_mutex_destroy(&(m)->cs)
  #define xmutex_lock(m)  \
   do {\
@@ -203,17 +183,9 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
   if (--(m)->count == 0) { (m)->owner = 0; pthread_mutex_unlock(&(m)->cs); }
 #endif
 
-#ifdef POSIX_THREADS
-  #define xthread_key_create(key)  pthread_key_create(key,NULL)
-  #define xthread_key_delete(key)  pthread_key_delete(key)
-  #define xthread_key_get(key)  pthread_getspecific(key)
-#endif
-#ifdef POSIXOLD_THREADS
-  #define xthread_key_create(key)  pthread_keycreate(key,NULL)
-  #define xthread_key_delete(key)  0
-  #define xthread_key_get(key)  \
-    ({ void* _tmp; pthread_getspecific(key,&_tmp); _tmp; })
-#endif
+#define xthread_key_create(key)  pthread_key_create(key,NULL)
+#define xthread_key_delete(key)  pthread_key_delete(key)
+#define xthread_key_get(key)  pthread_getspecific(key)
 #define xthread_key_set(key,val)  pthread_setspecific(key,val)
 
 #endif  /* POSIX*_THREADS */
@@ -225,7 +197,6 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 
 typedef thread_t          xthread_t;
 typedef cond_t            xcondition_t;
-/* TODO: ensure that xmutex_t is recursive !!!! */
 typedef mutex_t           xmutex_t;
 typedef thread_key_t      xthread_key_t;
 
@@ -257,44 +228,9 @@ typedef thread_key_t      xthread_key_t;
 #define xthread_key_get(key)  \
   ({ void* _tmp; thr_getspecific(key,&_tmp); _tmp; })
 #define xthread_key_set(key,val)  thr_setspecific(key,val)
-#define xthread_sigmask(how,iset,oset) thr_sigmask(how,iset,oset) CHECKME
+#define xthread_sigmask(how,iset,oset) thr_sigmask(how,iset,oset)
 
 #endif  /* SOLARIS_THREADS */
-
-
-#if defined(C_THREADS)
-
-#include <cthreads.h>
-
-typedef cthread_t         xthread_t;
-typedef struct condition  xcondition_t;
-/* TODO: ensure that xmutex_t is recursive !!!! */
-typedef struct mutex      xmutex_t;
-/* not available:          xthread_key_t; */
-
-#define xthread_init()  cthread_init()
-#define xthread_self()  cthread_self()
-#define xthread_create(thread,startroutine,arg,stacksize) \
- *thread = ?? cthread_fork(startroutine,arg)
-#define xthread_exit(v)  cthread_exit(v)
-#define xthread_yield()  cthread_yield()
-#define xthread_equal(t1,t2)  ((t1)==(t2))
-#define xthread_signal(t,sig) CHECKME: kill(t,sig)
-#define xthread_sigmask(how,iset,oset) sigprocmask(how,iset,oset) CHECKME
-
-#define xcondition_init(c)  condition_init(c)
-#define xcondition_destroy(c)  condition_clear(c)
-#define xcondition_wait(c,m)  condition_wait(c,m)
-#define xcondition_signal(c)  condition_signal(c)
-#define xcondition_broadcast(c)  condition_broadcast(c)
-
-#define xmutex_init(m)  mutex_init(m)
-#define xmutex_destroy(m)  mutex_clear(m)
-#define xmutex_lock(m)  mutex_lock(m)
-#define xmutex_trylock() FIXME
-#define xmutex_unlock(m)  mutex_unlock(m)
-
-#endif  /* C_THREADS */
 
 #if defined(WIN32_THREADS)
 
