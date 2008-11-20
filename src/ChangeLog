@@ -1,5 +1,10 @@
 2008-11-20  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (rd_ch_terminal3): wrap readline() call in
+	begin_blocking_system_call()/end_blocking_system_call()
+
+2008-11-20  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-tests-parallel) [with_threads]: new target
 
 2008-11-20  Vladimir Tzankov  <vtzankov@gmail.com>
