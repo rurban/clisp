@@ -1,4 +1,4 @@
-;; -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
 
 (with-timeout (10 t) nil) NIL
 (with-timeout (1 t) (sleep 100)) T
