@@ -16908,6 +16908,13 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     }                                                   \
   } while(0)
 
+  #define GC_SAFE_MUTEX_LOCK(m) GC_SAFE_SYSTEM_CALL(,xmutex_lock(m))
+  #define GC_SAFE_MUTEX_UNLOCK(m)          \
+   do {                                    \
+     begin_system_call();                  \
+     xmutex_unlock(m);                     \
+     end_system_call();                    \
+   } while (0)
 
   /* try to use the compiler support for thread local storage */
   #if defined(__GNUC__)
@@ -17187,22 +17194,24 @@ global void lock_threads();
 global void unlock_threads();
 /* Suspends all running threads /besides the current/ on GC safe points/regions.
    if lock_heap is true the heap is locked first.
-   if lock_thr is true - the threads lock is obtained (otherwise it is
-   assumed that the calling thread already has it).
    (this is needed since GC may be called from allocation or explicitly - when
-   the heap lock is not held - the same for lock_thr) */
+   the heap lock is not held) */
 global void gc_suspend_all_threads(bool lock_heap);
 /* Resumes all suspended threads /besides the current/
    should match a call to suspend_all_threads() */
 global void gc_resume_all_threads(bool unlock_heap);
 /* suspends at safe point and increases the _suspend_count of the thread
- lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+ lock_heap specifies whether the caller DOES NOT own the heap spinlock */
 global void suspend_thread(clisp_thread_t *thr, bool lock_heap);
 /* resumes suspended thread (or just decreases the _suspend_count)
  lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
 global void resume_thread(clisp_thread_t *thr, bool unlock_heap);
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
+/* releases the OS mutexes for mutex objects in the list */
+global void release_mutexes(object list);
+/* releases the OS condition variables for exemption objects in the list */
+global void release_exemptions(object list);
 /* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
  symbol: the symbol
  returns: the new index in the _symvalues thread array */
@@ -17214,7 +17223,10 @@ global void clear_per_thread_symvalues(object symbol);
 extern xmutex_t open_files_lock;
 /* O(open_files) needs a global locks when accessed/modified */
 extern xmutex_t all_finalizers_lock;
-
+/* mutex for guarding access to O(all_mutexes) */
+extern xmutex_t all_mutexes_lock;
+/* mutex for guarding access to O(all_exemptions) */
+extern xmutex_t all_exemptions_lock;
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */
