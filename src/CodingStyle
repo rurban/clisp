@@ -14,7 +14,7 @@ A common coding style is a compromise for all participants, and it is also
 an exercise in tolerance. When I contribute code to Linux, I adhere to the
 Linux coding style (/usr/src/linux/Documentation/CodingStyle - very
 recommended reading). When I contribute to GCC, I follow the GNU coding style
-("info standards"), although I get nauseas when I look at the result.
+("info standards"), although I get nauseous when I look at the result.
 When I write for XFree86, I follow their style; it's a somewhat neutral one.
 
 As a general rule, don't reformat entire files other people have written;
@@ -47,6 +47,15 @@ to your <$HOME/.emacs> file:
 
     ;; Tabs are anachronistic.
     (setq-default indent-tabs-mode nil)
+
+                          Trailing whitespace
+                          -------------------
+
+Trailing whitespace pollutes diffs and should be avoided.
+Emacs will highlight it if you do
+  (setq-default show-trailing-whitespace t)
+and remove it if you do
+  (add-hook 'write-file-functions 'delete-trailing-whitespace)
 
                Lisp indentation and parentheses placement
                ------------------------------------------
