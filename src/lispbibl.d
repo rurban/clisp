@@ -9407,7 +9407,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% export_def(end_system_call());
 
 #if defined(MULTITHREAD)
-  /* no_gc statement is executed in case the thread should not be suspended for GC.*/
+  /* no_gc statement is executed in case the thread should not be
+     suspended for GC.*/
   #define GC_SAFE_POINT_ELSE(no_gc) \
     do{ \
       var clisp_thread_t *thr=current_thread();              \
@@ -9419,15 +9420,15 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       } else {no_gc;}                                     \
     }while(0)
   #define GC_SAFE_POINT() GC_SAFE_POINT_ELSE(;)
-/* Giving up suspend ack during we are in system call. So we can be considered
- suspended for GC. */
+/* Giving up suspend ack during we are in system call.
+   So we can be considered suspended for GC. */
   #define GC_SAFE_REGION_BEGIN() \
     do { \
       GCTRIGGER(); \
       spinlock_release(&current_thread()->_gc_suspend_ack); \
     }while(0)
 /* If we cannot get the suspend ack lock again - it means there is/was GC -
- so try to wait for it's end if it is not already finished. */
+   so try to wait for it's end if it is not already finished. */
   #define GC_SAFE_REGION_END() \
     do { \
       GCTRIGGER(); \
@@ -9448,8 +9449,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 #define begin_blocking_system_call() begin_system_call();GC_SAFE_REGION_BEGIN()
 #define end_blocking_system_call() end_system_call();GC_SAFE_REGION_END()
 
-/* when we are in big region that is already marked as system call - we would like
-   just to enable GC on some blocking calls*/
+/* when we are in big region that is already marked as system call -
+   we would like just to enable GC on some blocking calls */
 #define begin_blocking_call() GC_SAFE_REGION_BEGIN()
 #define end_blocking_call() GC_SAFE_REGION_END()
 
