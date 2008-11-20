@@ -1,3 +1,10 @@
+2008-11-20  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (*all-tests*, test-weakptr): extracted from run-all-tests
+	(run-all-tests): use them
+	(run-all-tests-parallel) [(and CLISP MT)]: add
+	* Makefile (parallel): new target (calls run-all-tests-parallel)
+
 2008-11-06  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst: check unused function warnings
