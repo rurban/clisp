@@ -24,7 +24,7 @@ tests : force tests.fas
 	$(LISP) -i tests -x "(time (run-all-tests))"
 
 complete : force tests.fas
-	$(LISP) -i tests -x "(time (run-all-tests nil))"
+	$(LISP) -i tests -x "(time (run-all-tests :disable-risky nil))"
 
 parallel: force tests.fas
 	$(LISP) -i tests -x "(time (run-all-tests-parallel))"
