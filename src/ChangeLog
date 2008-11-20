@@ -1,5 +1,9 @@
 2008-11-20  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit (run_all_tests_parallel): add
+
+2008-11-20  Sam Steingold  <sds@gnu.org>
+
 	* io.d (release_buffers): new macro, should be paired with get_buffers
 	(read_token_1, STRING-READER, READ-LINE, pr_symbol_part): use it
 
