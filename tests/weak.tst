@@ -1,4 +1,5 @@
-;; Tests for datatypes containing weak references -*- Lisp -*-
+;; -*- Lisp -*- vim:filetype=lisp
+;; Tests for datatypes containing weak references
 ;; Bruno Haible 2004-05-05
 
 ;; Type tests
