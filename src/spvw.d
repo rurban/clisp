@@ -621,9 +621,14 @@ extern void initialize_circ_detection();
 /* Initialization. Called at the beginning of main(). */
 local void init_multithread (void) {
   xthread_init();
+  /* TODO: put all global locks in some table. Soon we will have too many
+     of them and the things will become unmanageble. */
   xmutex_init(&allthreads_lock); /* threads lock */
   xmutex_init(&open_files_lock); /* open files lock i.e. O(open_files) */
   xmutex_init(&all_finalizers_lock); /* finalizer lock */
+  xmutex_init(&all_mutexes_lock); /* O(all_mutexes) lock */
+  xmutex_init(&all_exemptions_lock); /* O(all_exemptions) lock */
+
   initialize_circ_detection(); /* initialize the circ detection */
   spinlock_init(&timeout_call_chain_lock);
   maxnum_symvalues = SYMVALUES_PER_PAGE;

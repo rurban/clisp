@@ -1228,14 +1228,11 @@ LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(mutex,"MUTEX",mt) /* type for MUTEX */
 LISPSYM(mutexp,"MUTEXP",mt)
 LISPSYM(make_mutex,"MAKE-MUTEX",mt)
-/* destroys the underlying OS mutex */
-LISPSYM(mutex_os_destroy,"%MUTEX-DESTROY",mt)
 LISPSYM(mutex_lock,"MUTEX-LOCK",mt)
 LISPSYM(mutex_unlock,"MUTEX-UNLOCK",mt)
 LISPSYM(exemption,"EXEMPTION",mt) /* type for EXEMPTION */
 LISPSYM(exemptionp,"EXEMPTIONP",mt)
 LISPSYM(make_exemption,"MAKE-EXEMPTION",mt)
-LISPSYM(exemption_os_destroy,"%EXEMPTION-DESTROY",mt)
 LISPSYM(exemption_wait,"EXEMPTION-WAIT",mt)
 LISPSYM(exemption_signal,"EXEMPTION-SIGNAL",mt)
 LISPSYM(exemption_broadcast,"EXEMPTION-BROADCAST",mt)
