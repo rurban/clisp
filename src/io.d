@@ -1140,6 +1140,10 @@ local maygc void get_buffers (void) {
     pushSTACK(make_ssbvector(SEMI_SIMPLE_DEFAULT_SIZE));
   }
 }
+/* free Buffers for reuse, reverting the effects of get_buffers() */
+#define release_buffers() do {                                \
+  O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK(); \
+ } while(0)
 
 /* UP: Reads an Extended Token.
  read_token(&stream);
@@ -1270,8 +1274,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
  ende:
   /* now token is finished, multiple_escape_flag = false. */
   token_escape_flag = escape_flag; /* store Escape-Flag */
-  O(token_buff_2) = popSTACK();    /* Attributecode-Buffer */
-  O(token_buff_1) = popSTACK();    /* Character-Buffer */
+  release_buffers();               /* free Buffers for reuse */
   if (terminal_stream_p(*stream_))
     dynamic_unbind(S(terminal_read_open_object));
 }
@@ -2599,8 +2602,7 @@ LISPFUNN(string_reader,2) {     /* reads " */
         string = copy_string(STACK_1);
       VALUES1(string);
     }
-    /* free Buffer for reuse: */
-    O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+    release_buffers();          /* free Buffers for reuse */
   }
   if (terminal_stream_p(*stream_)) {
     skipSTACK(2);
@@ -4466,26 +4468,22 @@ LISPFUN(read_line,seclass_default,0,4,norest,nokey,0,NIL) {
   check_istream(stream_);       /* check input-stream */
   get_buffers();                /* two empty Buffers on Stack */
   if (!read_line(stream_,&STACK_1)) { /* read line */
-    /* End of Line
-     copy Buffer and convert into Simple-String: */
+    /* End of Line => copy Buffer and convert into Simple-String: */
     VALUES2(copy_string(STACK_1), NIL); /* NIL as 2nd value */
-    /* free Buffer for reuse: */
-    O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+    release_buffers();                  /* free Buffers for reuse */
     skipSTACK(4); return;
   } else {
     /* End of File
      Buffer empty? */
     if (TheIarray(STACK_1)->dims[1] == 0) { /* Length (Fill-Pointer) = 0 ? */
-      /* free Buffer for reuse: */
-      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+      release_buffers();                    /* free Buffers for reuse */
       /* treat EOF specially: */
       value2 = T;
       return_Values eof_handling(2);
     } else {
       /* copy Buffer and convert into Simple-String: */
       VALUES2(copy_string(STACK_1), T); /* T as 2nd value */
-      /* free Buffer for reuse: */
-      O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK();
+      release_buffers(); /* free Buffers for reuse */
       skipSTACK(4); return;
     }
   }
@@ -7060,8 +7058,7 @@ local maygc void pr_symbol_part (const gcv_object_t* stream_, object string,
         ssbvector_push_extend(STACK_0,attribute_of(c)); /* und into the Attributcode-Buffer */
       }
     });
-    O(token_buff_2) = popSTACK(); /* Attributcode-Buffer */
-    O(token_buff_1) = popSTACK(); /* Character-Buffer */
+    release_buffers();            /* free Buffers for reuse */
     string = popSTACK();          /* move string back */
     if (test_dots())              /* only dots -> must use |...| */
       goto surround;
