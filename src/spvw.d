@@ -4406,39 +4406,36 @@ local void *signal_handler_thread(void *arg)
         /* let's "timeout" first threads if needed */
         /* with DEBUG_GCSAFETY we stop all threads and use the dummy
            alloccount. Generally with DEBUG_GCSAFETY we cannot suspend
-           single thread from signal handler without interfering other
-           threads allocacounts */
+           single thread from signal handler without interfering with
+           other threads allocacounts */
 #ifdef DEBUG_GCSAFETY
         use_dummy_alloccount=true;
         WITH_STOPPED_WORLD(false,{
 #endif
-        while (chain && timeval_less(chain->expire,&now)) {
+          for(;chain && timeval_less(chain->expire,&now); chain=chain->next) {
 #ifndef DEBUG_GCSAFETY
-          WITH_STOPPED_THREAD
-            (chain->thread,false,{
+          WITH_STOPPED_THREAD(chain->thread,false,{
 #endif
-              if (chain->thread->_STACK) { /* alive ? */
-                spinlock_acquire(&chain->thread->_signal_reenter_ok);
-                gcv_object_t *saved_stack=chain->thread->_STACK;
-                NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
-                NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
-                NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
-                if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
-                                   SIG_THREAD_INTERRUPT)) {
-                  /* hmm - signal send failed. restore the stack and spinlock,
-                     and mark the timeout as failed. The next time when we come
-                     here we will retry it - if not reported as warning to the user.
-                     The user will always get a warning.
-                    */
-                  chain->failed=true;
-                  chain->thread->_STACK=saved_stack;
-                  spinlock_release(&chain->thread->_signal_reenter_ok);
-                }
+            if (chain->thread->_STACK) { /* alive ? */
+              spinlock_acquire(&chain->thread->_signal_reenter_ok);
+              gcv_object_t *saved_stack=chain->thread->_STACK;
+              NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
+              NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
+              NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
+              if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
+                                 SIG_THREAD_INTERRUPT)) {
+                /* hmm - signal send failed. restore the stack and spinlock,
+                   and mark the timeout as failed. The next time when we come
+                   here we will retry it - if not reported as warning to the
+                   user. The user will always get a warning. */
+                chain->failed=true;
+                chain->thread->_STACK=saved_stack;
+                spinlock_release(&chain->thread->_signal_reenter_ok);
               }
+            }
 #ifndef DEBUG_GCSAFETY
-            });
+          });
 #endif
-          chain=chain->next;
         }
 #ifdef DEBUG_GCSAFETY
         });
