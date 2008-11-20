@@ -1101,14 +1101,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
 
    #if defined(MULTITHREAD)
     /* reallocate the current thread to have required number of
-     per thread symvalues and initialize all of them to SYMVALUE_EMPTY.
+       per thread symvalues and initialize all of them to SYMVALUE_EMPTY.
     */
     {
       num_symvalues=header._per_thread_symvalues;
-      maxnum_symvalues=(uintL)((num_symvalues/SYMVALUES_PER_PAGE)+1) *
+      var uintL max_symvalues=(uintL)((num_symvalues/SYMVALUES_PER_PAGE)+1) *
         SYMVALUES_PER_PAGE;
-      if (!realloc_thread_symvalues(current_thread(),maxnum_symvalues))
+      if (!realloc_thread_symvalues(current_thread(),max_symvalues))
         goto abort_mem;
+      if (maxnum_symvalues < max_symvalues)
+        maxnum_symvalues = max_symvalues;
       var gcv_object_t* objptr = current_thread()->_ptr_symvalues;
       var uintC count;
       dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });

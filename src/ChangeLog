@@ -1,5 +1,11 @@
 2008-11-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	fix memory corruption on thread symvalues initialization 
+	* spvw_memfile.d (loadmem_from_handle): storage per thread symvalues
+	is reallocated correctly.
+
+2008-11-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	Do not use GC finalization for mutexes and exemptions
 	* constobj.d: add O(all_mutexes), O(mutexes_to_release), 
 	O(all_exemptions) and O(exemptions_to_release)
