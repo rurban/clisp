@@ -4460,84 +4460,82 @@ local void *signal_handler_thread(void *arg)
       }
       break;
     case SIGINT:
-      WITH_STOPPED_WORLD
-        (false,{
-          var bool signal_sent=false;
-          #ifdef DEBUG_GCSAFETY
-           use_dummy_alloccount=true;
-          #endif
-          for_all_threads({
-            if (thread->_STACK) { /* still alive ?*/
-              spinlock_acquire(&thread->_signal_reenter_ok);
-              gcv_object_t *saved_stack=thread->_STACK;
-              /* line below is not needed but detects bugs */
-              NC_pushSTACK(thread->_STACK,O(thread_break_description));
-              NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
-              NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
-              NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
-              signal_sent =
-                (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
-                                     SIG_THREAD_INTERRUPT));
-              if (!signal_sent) {
-                thread->_STACK=saved_stack;
-                spinlock_release(&thread->_signal_reenter_ok);
-              } else
-                break;
-            }
-          });
-          if (!signal_sent) {
-            fputs("*** SIGINT will be missed.\n",stderr); abort();
+      WITH_STOPPED_WORLD(false,{
+        var bool signal_sent=false;
+       #ifdef DEBUG_GCSAFETY
+        use_dummy_alloccount=true;
+       #endif
+        for_all_threads({
+          if (thread->_STACK) { /* still alive ?*/
+            spinlock_acquire(&thread->_signal_reenter_ok);
+            gcv_object_t *saved_stack=thread->_STACK;
+            /* line below is not needed but detects bugs */
+            NC_pushSTACK(thread->_STACK,O(thread_break_description));
+            NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
+            NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
+            NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
+            signal_sent =
+              (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
+                                   SIG_THREAD_INTERRUPT));
+            if (!signal_sent) {
+              thread->_STACK=saved_stack;
+              spinlock_release(&thread->_signal_reenter_ok);
+            } else
+              break;
           }
-          #ifdef DEBUG_GCSAFETY
-           use_dummy_alloccount=false;
-          #endif
         });
+        if (!signal_sent) {
+          fputs("*** SIGINT will be missed.\n",stderr); abort();
+        }
+       #ifdef DEBUG_GCSAFETY
+        use_dummy_alloccount=false;
+       #endif
+      });
       break;
-#if defined(SIGWINCH)
+   #if defined(SIGWINCH)
     case SIGWINCH:
       /* TODO: imlpement. */
       break;
-#endif
-#ifdef SIGTTOU
+   #endif
+   #ifdef SIGTTOU
     case SIGTTOU:
       break; /* just ignore it */
-#endif
-#ifdef UNIX_MACOSX
+   #endif
+   #ifdef UNIX_MACOSX
       /* TODO: vfork()-ed processes cause SIGHUP/SIGCONT on OSX.
          currently - ignore them - but it's TODO item. .*/
     case SIGHUP:
     case SIGCONT:
       break;
-#endif
+   #endif
     default:
       /* just terminate all threads - the last one will
          kill the process from delete_thread */
-      WITH_STOPPED_WORLD
-        (false,{
-          var bool some_failed=false;
-          #ifdef DEBUG_GCSAFETY
-           use_dummy_alloccount=true;
-          #endif
-          for_all_threads({
-            if (thread->_STACK) {
-              /* be sure the signal handler can be reentered */
-              spinlock_acquire(&thread->_signal_reenter_ok);
-              NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
-              NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
-              NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
-              some_failed |=
-                (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
-                                   SIG_THREAD_INTERRUPT));
-            }
-          });
-          if (some_failed) {
-            fputs("*** some threads were not signaled to terminate.",stderr);
-            quit(); /* force quit from here. lisp stacks will not be unwound */
+      WITH_STOPPED_WORLD(false,{
+        var bool some_failed=false;
+       #ifdef DEBUG_GCSAFETY
+        use_dummy_alloccount=true;
+       #endif
+        for_all_threads({
+          if (thread->_STACK) {
+            /* be sure the signal handler can be reentered */
+            spinlock_acquire(&thread->_signal_reenter_ok);
+            NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
+            NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
+            NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
+            some_failed |=
+              (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
+                                 SIG_THREAD_INTERRUPT));
           }
-          #ifdef DEBUG_GCSAFETY
-           use_dummy_alloccount=false;
-          #endif
         });
+        if (some_failed) {
+          fputs("*** some threads were not signaled to terminate.",stderr);
+          quit(); /* force quit from here. lisp stacks will not be unwound */
+        }
+       #ifdef DEBUG_GCSAFETY
+        use_dummy_alloccount=false;
+       #endif
+      });
       break;
     }
     spinlock_release(&mem.alloc_lock);

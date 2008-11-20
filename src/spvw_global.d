@@ -680,15 +680,14 @@ global maygc uintL add_per_thread_special_var(object symbol)
     2. "stop the world" during this reallocation (as in GC).
     Since this will be relatively rear event - we prefer the second way.*/
     var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
-    WITH_STOPPED_WORLD
-      (true, {
-        for_all_threads({
-          if (!realloc_thread_symvalues(thread,nsyms)) {
-            fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
-            abort();
-          }
-        });
+    WITH_STOPPED_WORLD(true, {
+      for_all_threads({
+        if (!realloc_thread_symvalues(thread,nsyms)) {
+          fprintf(stderr,"*** could not make symbol value per-thread. aborting\n");
+          abort();
+        }
       });
+    });
     maxnum_symvalues = nsyms;
   }
   symbol_index=num_symvalues++;
