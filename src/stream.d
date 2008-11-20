@@ -9747,10 +9747,10 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
       rl_basic_quote_characters = "\"|";
       rl_completer_quote_characters = "\\|";
       run_time_stop(); /* hold run time clock */
-      begin_call();
+      begin_blocking_system_call();
       rl_already_prompted = true;
       var char* line = strip_white(readline(prompt==NULL ? "" : prompt));
-      end_call();
+      begin_blocking_system_call();
       run_time_restart(); /* resume run time clock */
       if (!(prompt==NULL)) {
         begin_system_call(); free(prompt); end_system_call();
