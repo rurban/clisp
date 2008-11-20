@@ -72,6 +72,14 @@ document run_all_tests
          run the whole test suite
 end
 
+define run_all_tests_parallel
+  run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -i tests/tests -x "(cd \"tests/\") (run-all-tests-parallel)"
+end
+document run_all_tests_parallel
+         run the whole test suite, each file in its own thread
+end
+
+
 define ansi_tests
   run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
@@ -112,29 +120,35 @@ break funcall
 commands
   xout fun
 end
+disable
 
 break apply
 commands
   xout fun
 end
+disable
 
 break eval
 commands
   xout form
 end
+disable
 
 break interpret_bytecode_
 commands
   xout closure
 end
+disable
 
 break gar_col
+disable
 
-watch back_trace
-commands
-  zbacktrace
-  continue
-end
+# not available with MULTITHREAD
+#watch back_trace
+#commands
+#  zbacktrace
+#  continue
+#end
 
 break register_foreign_inttype
 commands
@@ -149,9 +163,6 @@ commands
   call check_funtab()
   continue
 end
-
-# disable all the above breaks
-disable 1 2 3 4 5 6
 
 break fehler_notreached
 break SP_ueber
