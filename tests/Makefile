@@ -26,6 +26,9 @@ tests : force tests.fas
 complete : force tests.fas
 	$(LISP) -i tests -x "(time (run-all-tests nil))"
 
+parallel: force tests.fas
+	$(LISP) -i tests -x "(time (run-all-tests-parallel))"
+
 compare : force
 	(echo *.erg | grep '*' >/dev/null) || (echo "Test failed:" ; ls -l *erg; echo "To see which tests failed, type" ; echo "    cat "`pwd`"/*.erg" ; exit 1)
 	echo "Test passed."

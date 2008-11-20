@@ -3082,6 +3082,12 @@ if [ $CROSS = false ] ; then
   echol "check-tests-all : ${TESTSDIR} lisp${LEXE} lispinit.mem"
   echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE} clean complete compare"
   echol
+  if [ "${with_threads}" != no ]; then
+    CHECK_DEPS=${CHECK_DEPS}" check-tests-parallel"
+    echol "check-tests-parallel : ${TESTSDIR} lisp${LEXE} lispinit.mem"
+    echotab "cd ${TESTSDIR} && \$(MAKE) SHELL='\$(SHELL)' LEXE=${LEXE} clean parallel compare"
+    echol
+  fi
   echol "${TESTSDIR} :"
   echotab "-mkdir ${TESTSDIR}"
   # on win32, LN_S=copy and it accepts exactly 2 arguments

@@ -316,77 +316,102 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
     (if files (report-results (mapcar #'run-test files))
         (warn "no ~S files in directories ~S" *run-test-type* dirlist))))
 
+(defparameter *all-tests*
+  '(#-(or AKCL ECL)   ("alltest")
+                      ("array")
+    #-OpenMCL         ("backquot")
+    #+CLISP           ("bin-io")
+    #-(and AKCL (not GCL)) ("characters")
+    #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) ("clos")
+    #+CLISP           ("defhash")
+    #+(and CLISP UNICODE) ("encoding")
+                      ("eval20")
+    #+CLISP           ("ext-clisp")
+    #+(and CLISP FFI) ("ffi")
+                      ("floeps")
+    #-OpenMCL         ("format")
+    #+CLISP           ("genstream")
+    #+XCL             ("hash")
+                      ("hashlong")
+    #+CLISP           ("hashtable")
+                      ("iofkts")
+                      ("lambda")
+                      ("lists151")
+    #-(or GCL OpenMCL) ("lists152")
+                      ("lists153")
+                      ("lists154")
+                      ("lists155")
+                      ("lists156")
+                      ("list-set")
+    #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) ("loop")
+                      ("macro8")
+                      ("map")
+    #+(or CLISP ALLEGRO OpenMCL LISPWORKS) ("mop")
+                      ("number")
+    #+CLISP           ("number2")
+    #-(or AKCL ALLEGRO CMU OpenMCL) ("pack11")
+    #+(or XCL CLISP)  ("path")
+    #+XCL             ("readtable")
+    #-CMU             ("setf")
+    #+(and CLISP SOCKETS) ("socket")
+                      ("steele7")
+    #-ALLEGRO         ("streams")
+                      ("streamslong")
+                      ("strings")
+    #-(or AKCL ECL)   ("symbol10")
+                      ("symbols")
+                      ("time")
+    #+XCL             ("tprint")
+    #+XCL             ("tread")
+                      ("type")
+    #-(or)            ("unportable")
+    #+(and CLISP mt)  ("mt")
+    #+CLISP           ("weak")
+    #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) ("weakhash")
+    #+(or CLISP LISPWORKS) ("weakhash2")
+                      ("bind" :eval-method :eval :logname "bind-eval")
+                      ("bind" :eval-method :compile :logname "bind-compile")
+    #+(or CLISP ALLEGRO CMU LISPWORKS) ("conditions" :ignore-errors nil)
+    #+CLISP           ("restarts" :ignore-errors nil)
+                      ("excepsit" :tester do-errcheck)
+    ))
+
+(defun test-weakptr ()
+  (let ((tmp (list "weakptr" 0 0)))
+    (dotimes (i 20 tmp)
+      (let ((weak-res (run-test "weakptr")))
+        (incf (second tmp) (second weak-res))
+        (incf (third tmp) (third weak-res))))))
+
 (defun run-all-tests (&key (disable-risky t)
                       ((:eval-method *eval-method*) *eval-method*))
   (let ((res ())
         #+CLISP (custom:*load-paths* nil)
         (*features* (if disable-risky *features*
                         (cons :enable-risky-tests *features*))))
-    (dolist (ff '(#-(or AKCL ECL)   "alltest"
-                                    "array"
-                  #-OpenMCL         "backquot"
-                  #+CLISP           "bin-io"
-                  #-(and AKCL (not GCL)) "characters"
-                  #+(or CLISP ALLEGRO CMU OpenMCL LISPWORKS) "clos"
-                  #+CLISP           "defhash"
-                  #+(and CLISP UNICODE) "encoding"
-                                    "eval20"
-                  #+CLISP           "ext-clisp"
-                  #+(and CLISP FFI) "ffi"
-                                    "floeps"
-                  #-OpenMCL         "format"
-                  #+CLISP           "genstream"
-                  #+XCL             "hash"
-                                    "hashlong"
-                  #+CLISP           "hashtable"
-                                    "iofkts"
-                                    "lambda"
-                                    "lists151"
-                  #-(or GCL OpenMCL) "lists152"
-                                    "lists153"
-                                    "lists154"
-                                    "lists155"
-                                    "lists156"
-                                    "list-set"
-                  #+(or CLISP GCL ALLEGRO CMU SBCL OpenMCL LISPWORKS) "loop"
-                                    "macro8"
-                                    "map"
-                  #+(or CLISP ALLEGRO OpenMCL LISPWORKS) "mop"
-                                    "number"
-                  #+CLISP           "number2"
-                  #-(or AKCL ALLEGRO CMU OpenMCL) "pack11"
-                  #+(or XCL CLISP)  "path"
-                  #+XCL             "readtable"
-                  #-CMU             "setf"
-                  #+(and CLISP SOCKETS) "socket"
-                                    "steele7"
-                  #-ALLEGRO         "streams"
-                                    "streamslong"
-                                    "strings"
-                  #-(or AKCL ECL)   "symbol10"
-                                    "symbols"
-                                    "time"
-                  #+XCL             "tprint"
-                  #+XCL             "tread"
-                                    "type"
-                  #-(or)            "unportable"
-                  #+(and CLISP mt)  "mt"
-                  #+CLISP           "weak"
-                  #+(or CLISP ALLEGRO CMU19 OpenMCL LISPWORKS) "weakhash"
-                  #+(or CLISP LISPWORKS) "weakhash2"))
-      (push (run-test ff) res))
-    (push (run-test "bind" :eval-method :eval :logname "bind-eval") res)
-    (push (run-test "bind" :eval-method :compile :logname "bind-compile") res)
+    (dolist (args *all-tests*)
+      (push (apply #'run-test args) res))
     #+(or CLISP ALLEGRO CMU SBCL LISPWORKS)
-    (let ((tmp (list "weakptr" 0 0)))
-      (push tmp res)
-      (dotimes (i 20)
-        (let ((weak-res (run-test "weakptr")))
-          (incf (second tmp) (second weak-res))
-          (incf (third tmp) (third weak-res)))))
-    #+(or CLISP ALLEGRO CMU LISPWORKS)
-    (push (run-test "conditions" :ignore-errors nil) res)
-    #+CLISP
-    (push (run-test "restarts" :ignore-errors nil) res)
-    (push (run-test "excepsit" :tester #'do-errcheck) res)
+    (push (test-weakptr) res)
     (report-results (nreverse res))))
+
+#+(and clisp mt)
+(defun run-all-tests-parallel (&key (disable-risky t)
+                               ((:eval-method *eval-method*) *eval-method*))
+  (let ((res ()) (lock (mt:make-mutex "res"))
+        (total (1+ (length *all-tests*)))
+        (custom:*load-paths* nil)
+        (*features* (if disable-risky *features*
+                        (cons :enable-risky-tests *features*))))
+    (macrolet ((run (body)
+                 `(mt:make-thread
+                   (lambda ()
+                     (let ((ans ,body))
+                       (mt:mutex-lock lock)
+                       (push ans res)
+                       (mt:mutex-unlock lock))))))
+      (dolist (args *all-tests*)
+        (run (apply #'run-test args)))
+      (run (test-weakptr))
+      (loop :until (= total (length res)) :do (sleep 1))
+      (report-results (nreverse res)))))
