@@ -1,3 +1,26 @@
+2008-11-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	Do not use GC finalization for mutexes and exemptions
+	* constobj.d: add O(all_mutexes), O(mutexes_to_release), 
+	O(all_exemptions) and O(exemptions_to_release)
+	* constsym.d, subr.d: remove %MUTEX-DESTROY and %EXEMPTION-DESTROY
+	* lispbibl.d: add locks for O(all_exemptions) and O(all_mutexes)
+	(GC_SAFE_MUTEX_LOCK / UNLOCK): helper macros for locking xmutex_t
+	* spvw.d (init_multithread): initialize locks for O(all_mutexes) and 
+	O(all_exemptions)
+	* spvw_garcol.d (gar_col_normal): handle O(all_mutexes) and 
+	O(all_exemptions) - like O(open_files)
+	(gar_col_done): release non-referenced mutexes and exemptions.
+	(SPLIT_REF_LISTS): helper macro for splitting O(open_files), 
+	O(all_mutexes), etc into referenced and non-referenced lists.
+	* zthread.d: remove mutex_os_detroy and exemption_os_destroy
+	(release_mutexes): destroys the OS mutex objects for 
+	non-referenced Mutex records
+	(release_exemptions): destroys the POSIX condition variables for 
+	non-referenced Exemption records
+	(MAKE-MUTEX): add the created mutex to O(all_mutexes)
+	(MAKE-EXEMPTION): add the created exemption to O(all_exemption)
+	
 2008-11-19  Sam Steingold  <sds@gnu.org>
 
 	* configure, makemake.in, spvw.d: remove POSIXOLD_THREADS and C_THREADS

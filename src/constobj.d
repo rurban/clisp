@@ -641,6 +641,10 @@
   LISPOBJ_S(thread_break_description,"Ctrl-C: User break")
   LISPOBJ(all_threads,"NIL")
   LISPOBJ(threads_to_release,"NIL")
+  LISPOBJ(all_mutexes,"NIL")
+  LISPOBJ(mutexes_to_release,"NIL")
+  LISPOBJ(all_exemptions,"NIL")
+  LISPOBJ(exemptions_to_release,"NIL")
 #endif
 /* for LISPARIT.D:
    various constant numbers: */

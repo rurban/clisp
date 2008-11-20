@@ -8,6 +8,12 @@
 
 #ifdef MULTITHREAD
 
+/* mutex for guarding access to O(all_mutexes) */
+global xmutex_t all_mutexes_lock;
+/* mutex for guarding access to O(all_exemptions) */
+global xmutex_t all_exemptions_lock;
+
+
 /* TODO: move check_xxxx() to error.d and use MAKE_CHECK_REPLACEMENT ?*/
 
 /* signals an error of obj is not thread. returns the thread*/
@@ -52,7 +58,6 @@ local maygc object check_exemption(object obj)
   return obj;
 }
 
-
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list) {
   while (!endp(list)) {
@@ -62,6 +67,28 @@ global void release_threads (object list) {
     free(thread);
     end_system_call();
     list = Cdr(list);
+  }
+}
+
+/* releases the OS mutexes for mutex objects in the list */
+global void release_mutexes(object list)
+{
+ while (!endp(list)) {
+   begin_system_call();
+   xmutex_destroy(&TheMutex(Car(list))->xmu_system);
+   end_system_call();
+   list = Cdr(list);
+  }
+}
+
+/* releases the OS condition variables for exemption objects in the list */
+global void release_exemptions(object list)
+{
+ while (!endp(list)) {
+   begin_system_call();
+   xcondition_destroy(&TheExemption(Car(list))->xco_system);
+   end_system_call();
+   list = Cdr(list);
   }
 }
 
@@ -545,25 +572,17 @@ LISPFUNN(make_mutex,1)
   /* overwrite the name on the STACK with the newly allocated object */
   var object mx = allocate_mutex(&STACK_0);
   STACK_0 = mx;
-  /* TBD: may be signal an error if OS mutex object cannot be created.
-     currently NIL is returned and really soon it will show itself. */
-  /* add it for finalization */
   if (!eq(mx,NIL)) {
-    pushSTACK(mx);
-    pushSTACK(S(mutex_os_destroy));
-    pushSTACK(unbound);
-    funcall(S(finalize),3);
+    /* add it to the O(all_mutexes) list */
+    pushSTACK(allocate_cons());
+    GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
+    var object kons = popSTACK();
+    Car(kons) = STACK_0;
+    Cdr(kons) = O(all_mutexes);
+    O(all_mutexes) = kons;
+    GC_SAFE_MUTEX_UNLOCK(&all_mutexes_lock);
   }
   VALUES1(popSTACK());
-}
-
-LISPFUNN(mutex_os_destroy,1)
-{ /* (%MUTEX-DESTROY mutex) */
-  var object mx = check_mutex(popSTACK());
-  begin_system_call();
-  xmutex_destroy(&TheMutex(mx)->xmu_system);
-  end_system_call();
-  VALUES1(NIL); /* no need to return anything */
 }
 
 #define MUTEX_OP_ON_STACK_0(op)                 \
@@ -598,25 +617,17 @@ LISPFUNN(make_exemption,1)
   /* overwrite the name on the STACK with the newly allocated object */
   var object ex = allocate_exemption(&STACK_0);
   STACK_0 = ex;
-  /* TBD:may be signal an error if POSIX condition variable cannot be created.
-     currently NIL is returned and really soon it will show itself. */
-  /* add it for finalization */
   if (!eq(ex,NIL)) {
-    pushSTACK(ex);
-    pushSTACK(S(exemption_os_destroy));
-    pushSTACK(unbound);
-    funcall(S(finalize),3);
+    /* add it to the O(all_exemptions) list */
+    pushSTACK(allocate_cons());
+    GC_SAFE_MUTEX_LOCK(&all_exemptions_lock);
+    var object kons = popSTACK();
+    Car(kons) = STACK_0;
+    Cdr(kons) = O(all_exemptions);
+    O(all_exemptions) = kons;
+    GC_SAFE_MUTEX_UNLOCK(&all_exemptions_lock);
   }
   VALUES1(popSTACK());
-}
-
-LISPFUNN(exemption_os_destroy,1)
-{ /* (%EXEMPTION-DESTROY exemption) */
-  var object ex = check_exemption(popSTACK());
-  begin_system_call();
-  xcondition_destroy(&TheExemption(ex)->xco_system);
-  end_system_call();
-  VALUES1(NIL); /* no need to return anything */
 }
 
 LISPFUNN(exemption_wait,2)

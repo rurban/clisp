@@ -1727,6 +1727,27 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 #endif
 }
 
+
+/* FIXME: This use of marked() and gc_mark() doesn't integrate well with
+   the weak-pointer handling.*/
+#define SPLIT_REF_LISTS(items,ref_items,noref_items,type_accessor,condition) \
+  do {                                                                  \
+    var object Lu = items;                                              \
+    var gcv_object_t* L1 = &ref_items;                                  \
+    var gcv_object_t* L2 = &noref_items;                                \
+    while (consp(Lu)) {                                                 \
+      if (in_old_generation(Car(Lu),stream_type,0)                      \
+          || marked(type_accessor(Car(Lu)))                             \
+          || condition) {                                               \
+        *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1;                              \
+      } else {                                                          \
+        *L2 = Lu; L2 = &Cdr(Lu); Lu = *L2;                              \
+      }                                                                 \
+    }                                                                   \
+    *L1 = NIL; *L2 = NIL;                                               \
+  } while (0)
+
+
 /* perform normal Garbage Collection: */
 local void gar_col_normal (void)
 {
@@ -1739,6 +1760,8 @@ local void gar_col_normal (void)
   #endif
   #if defined(MULTITHREAD)
   var object threads_to_go; /* list of threads to be released */
+  var object mutexes_to_go; /* list of mutexes to be released */
+  var object exemptions_to_go; /* list of exemptions to be released */
   #endif
   set_break_sem_1();       /* disable BREAK during Garbage Collection */
   gc_signalblock_on();   /* disable Signals during Garbage Collection */
@@ -1785,6 +1808,8 @@ local void gar_col_normal (void)
   #endif
   #if defined(MULTITHREAD)
   threads_to_go = O(all_threads); O(all_threads) = NIL;
+  mutexes_to_go = O(all_mutexes); O(all_mutexes) = NIL;
+  exemptions_to_go = O(all_exemptions); O(all_exemptions) = NIL;
   #endif
   gc_markphase();
   gc_mark_weakpointers(all_weakpointers);
@@ -1819,50 +1844,21 @@ local void gar_col_normal (void)
   }
   gc_mark(O(all_finalizers)); gc_mark(O(pending_finalizers)); /* mark both lists now */
  #ifdef GC_CLOSES_FILES
-  /* FIXME: This use of marked() and gc_mark() doesn't integrate well with
-   the weak-pointer handling.
-   Split (still unmarked) list files_to_close into two lists: */
-  {
-    var object Lu = files_to_close;
-    var gcv_object_t* L1 = &O(open_files);
-    var gcv_object_t* L2 = &O(files_to_close);
-    while (consp(Lu)) {
-      if (in_old_generation(Car(Lu),stream_type,0)
-          || marked(TheStream(Car(Lu)))) { /* (car Lu) marked? */
-        /* yes -> take over in O(open_files) : */
-        *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1;
-      } else {
-        /* no -> take over in O(files_to_close) : */
-        *L2 = Lu; L2 = &Cdr(Lu); Lu = *L2;
-      }
-    }
-    *L1 = NIL; *L2 = NIL;
-  }
+  /* Split (still unmarked) list files_to_close into two lists: */
+  SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close),TheStream,false);
   gc_mark(O(open_files)); gc_mark(O(files_to_close)); /* mark both lists now */
  #endif
-  /* VTZ: ugly copy&paste from above. */
  #if defined(MULTITHREAD)
-  {
-    /* if we want to keep the lisp stack of terminated threads
-       we should mark them as well (and should free the stack in 
-       delete_thread() of course) */
-    var object Lu = threads_to_go;
-    var gcv_object_t* L1 = &O(all_threads);
-    var gcv_object_t* L2 = &O(threads_to_release);
-    while (consp(Lu)) {
-      if (in_old_generation(Car(Lu),orecord_type,0)
-          || marked(TheThread(Car(Lu))) /* (car Lu) marked? */
-	  || TheThread(Car(Lu))->xth_globals->_index < MAXNTHREADS) { 
-        /* yes -> take over in O(all_threads) : */
-        *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1;
-      } else {
-        /* no -> take over in O(threads_to_release) : */
-        *L2 = Lu; L2 = &Cdr(Lu); Lu = *L2;
-      }
-    }
-    *L1 = NIL; *L2 = NIL;
-  }
+  /* prepare for release terminated, non-referenced threads */
+  SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),TheThread,
+                  (TheThread(Car(Lu))->xth_globals->_index < MAXNTHREADS));
   gc_mark(O(all_threads)); gc_mark(O(threads_to_release));
+  /* prepare for release non-referenced mutexes */
+  SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),TheMutex,false);
+  gc_mark(O(all_mutexes)); gc_mark(O(mutexes_to_release));
+  /* prepare for release non-referenced exemptions */
+  SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release),TheExemption,false);
+  gc_mark(O(all_exemptions)); gc_mark(O(exemptions_to_release));
  #endif
   /* No more gc_mark operations from here on. */
   clean_weakpointers(all_weakpointers);
@@ -2302,6 +2298,8 @@ local void gar_col_normal (void)
   clr_break_sem_1();            /* allow BREAK again */
 }
 
+#undef SPLIT_REF_LISTS
+
 /* end of one Garbage Collection.
  can trigger GC! */
 local maygc void gar_col_done (void)
@@ -2311,7 +2309,13 @@ local maygc void gar_col_done (void)
   O(files_to_close) = NIL;
   #endif
   #if defined(MULTITHREAD)
-  /* release terminated threads */
+  /* release non-referenced mutexes */
+  release_mutexes(O(mutexes_to_release));
+  O(mutexes_to_release) = NIL;
+  /* release non-referenced exemptions */
+  release_exemptions(O(exemptions_to_release));
+  O(exemptions_to_release) = NIL;
+  /* release terminated, non-referenced threads */
   release_threads(O(threads_to_release));
   O(threads_to_release) = NIL;
   /* set the new addresses of _lthread record in clisp_thread_t*/
