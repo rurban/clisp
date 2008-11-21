@@ -6867,10 +6867,16 @@ typedef struct {
 typedef struct {
   XRECORD_HEADER
   gcv_object_t xmu_name _attribute_aligned_object_; /* name */
+  gcv_object_t xmu_owner _attribute_aligned_object_; /* owner (thread) */
+  uintL xmu_flags; /* mutex flags - recursive? (by default - no)*/
+  uintL xmu_recurse_count; /* how many times we have obtained the mutex */
   xmutex_t xmu_system;                              /* OS object */
 } * Mutex;
-#define mutex_length  1
+#define mutex_length  2
 #define mutex_xlength (sizeof(*(Mutex)0)-offsetofa(record_,recdata)-mutex_length*sizeof(gcv_object_t))
+
+#define mutex_flag_recursive  0x0001
+#define mutex_recursivep(obj) (TheMutex(obj)->xmu_flags & mutex_flag_recursive)
 
 typedef struct {
   XRECORD_HEADER

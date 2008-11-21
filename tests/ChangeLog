@@ -1,3 +1,8 @@
+2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* tests.lisp (run-all-tests-parallel): use keyword argument for mutex
+	name and WITH-LOCK for locking.
+
 2008-11-20  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (*all-tests*, test-weakptr): extracted from run-all-tests
