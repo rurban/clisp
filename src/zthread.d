@@ -566,13 +566,18 @@ LISPFUNN(mutexp,1)
   VALUES_IF(mutexp(obj));
 }
 
-LISPFUNN(make_mutex,1)
-{ /* (MAKE-MUTEX name) */
+LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
+        (kw(name),kw(recursive_p)))
+{ /* (MAKE-MUTEX &key name (recursive-p nil) ) */
+  var bool recursive = ! missingp(STACK_0);
+  skipSTACK(1); /* ditch the recursive_p */
   STACK_0 = check_string(STACK_0);
   /* overwrite the name on the STACK with the newly allocated object */
   var object mx = allocate_mutex(&STACK_0);
   STACK_0 = mx;
   if (!eq(mx,NIL)) {
+    if (recursive)
+      TheMutex(STACK_0)->xmu_flags |= mutex_flag_recursive;
     /* add it to the O(all_mutexes) list */
     pushSTACK(allocate_cons());
     GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
@@ -585,24 +590,64 @@ LISPFUNN(make_mutex,1)
   VALUES1(popSTACK());
 }
 
-#define MUTEX_OP_ON_STACK_0(op)                 \
-  do {                                          \
-    STACK_0 = check_mutex(STACK_0);             \
-    begin_blocking_system_call();               \
-    op(&TheMutex(STACK_0)->xmu_system);         \
-    end_blocking_system_call();                 \
-    VALUES1(popSTACK());                        \
-  } while(0)
-
 LISPFUNN(mutex_lock,1)
 { /* (MUTEX-LOCK object) */
-  MUTEX_OP_ON_STACK_0(xmutex_lock);
+  STACK_0 = check_mutex(STACK_0);
+  /* do we already hold the mutex */
+  if (eq(TheMutex(STACK_0)->xmu_owner, current_thread()->_lthread)) {
+    if (!mutex_recursivep(STACK_0)) {
+      /* non-recursive mutex already owned by the current thread.
+         signal error */
+      var object mx = STACK_0;
+      pushSTACK(mx); /* CELL-ERROR Slot NAME */
+      pushSTACK(current_thread()->_lthread);
+      pushSTACK(mx); pushSTACK(S(mutex_lock));
+      error(control_error,GETTEXT("~S: non-recursive mutex ~S is already owned by thread ~S"));
+    } else {
+      /* just increase the recurse counter */
+      TheMutex(STACK_0)->xmu_recurse_count++;
+    }
+  } else {
+    /* obtain the lock */
+    GC_SAFE_MUTEX_LOCK(&TheMutex(STACK_0)->xmu_system);
+    TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
+    ASSERT(TheMutex(STACK_0)->xmu_recurse_count == 0);
+    TheMutex(STACK_0)->xmu_recurse_count++;
+  }
+  VALUES1(popSTACK());
 }
 
 LISPFUNN(mutex_unlock,1)
 { /* (MUTEX-UNLOCK object) */
-  /* no need for begin_blocking_system_call() - but not wrong either */
-  MUTEX_OP_ON_STACK_0(xmutex_unlock);
+  STACK_0 = check_mutex(STACK_0);
+  /* do we own the mutex ? */
+  if (!eq(TheMutex(STACK_0)->xmu_owner, current_thread()->_lthread)) {
+    /* trying to unlock mutex not owned by the current thread.
+       signal an error.*/
+    var object mx = STACK_0;
+    pushSTACK(mx); /* CELL-ERROR Slot NAME */
+    pushSTACK(current_thread()->_lthread);
+    pushSTACK(mx); pushSTACK(S(mutex_unlock));
+    error(control_error,GETTEXT("~S: mutex ~S is not owned by thread ~S"));
+  }
+  /* decrease the recurse count. if last - unlock really. */
+  if ((--TheMutex(STACK_0)->xmu_recurse_count) == 0) {
+    GC_SAFE_MUTEX_UNLOCK(&TheMutex(STACK_0)->xmu_system);
+    TheMutex(STACK_0)->xmu_owner = NIL;
+  }
+  VALUES1(popSTACK());
+}
+
+LISPFUNN(mutex_recursive_p,1)
+{ /* (MUTEX-RECURSIVE-P object) */
+  var object mx = check_mutex(popSTACK());
+  VALUES_IF(mutex_recursivep(mx));
+}
+
+LISPFUNN(mutex_owner,1)
+{ /* (MUTEX-OWNER onject) */
+  var object mx = check_mutex(popSTACK());
+  VALUES1(TheMutex(mx)->xmu_owner);
 }
 
 LISPFUNN(exemptionp,1)
@@ -611,8 +656,8 @@ LISPFUNN(exemptionp,1)
   VALUES_IF(exemptionp(obj));
 }
 
-LISPFUNN(make_exemption,1)
-{ /* (MAKE-EXEMPTION name) */
+LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
+{ /* (MAKE-EXEMPTION &key name) */
   STACK_0 = check_string(STACK_0);
   /* overwrite the name on the STACK with the newly allocated object */
   var object ex = allocate_exemption(&STACK_0);
@@ -634,10 +679,22 @@ LISPFUNN(exemption_wait,2)
 { /* (EXEMPTION-WAIT exemption mutex) */
   STACK_0 = check_mutex(STACK_0);
   STACK_1 = check_exemption(STACK_1);
+  if (!eq(TheMutex(STACK_0)->xmu_owner, current_thread()->_lthread)) {
+    /* the mutex should be owned by the calling thread. */
+    var object mx = STACK_0;
+    pushSTACK(mx); /* CELL-ERROR Slot NAME */
+    pushSTACK(current_thread()->_lthread);
+    pushSTACK(mx); pushSTACK(S(exemption_wait));
+    error(control_error,GETTEXT("~S: mutex ~S should be owned by ~S"));
+  }
+  /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
+  TheMutex(STACK_0)->xmu_owner = NIL;
   begin_blocking_system_call();
   xcondition_wait(&(TheExemption(STACK_1)->xco_system),
                   &(TheMutex(STACK_0)->xmu_system));
   end_blocking_system_call();
+  /* set again the owner. even in case of error - this should be fine. */
+  TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
   skipSTACK(1);
   VALUES1(popSTACK());
 }

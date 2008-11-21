@@ -7,9 +7,10 @@
            "THREADP" "THREAD-YIELD" "THREAD-KILL"
            "THREAD-INTERRUPT" "THREADP" "THREAD-NAME"
            "THREAD-ACTIVE-P" "THREAD-WHOSTATE" "CURRENT-THREAD" "LIST-THREADS"
-           "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK" 
-           "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL" 
-           "EXEMPTION-WAIT" "EXEMPTION-BROADCAST" 
+           "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK"
+           "MUTEX-OWNER" "MUTEX-RECURSIVE-P"
+           "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL"
+           "EXEMPTION-WAIT" "EXEMPTION-BROADCAST"
            "MAKE-LOCK" "THREAD-LOCK" "THREAD-UNLOCK" "WITH-LOCK"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
            "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
@@ -73,26 +74,12 @@ terminate and evaluate TIMEOUT-FORMS."
 
 ;;; locks
 
-(defstruct (lock (:constructor make-lock (name)))
-  name owner)
-
-(defun thread-lock (lock &optional whostate timeout)
-  (thread-wait whostate timeout lock)
-  (setf (lock-owner lock) (current-thread)))
-
-(defun thread-unlock (lock)
-  (let ((self (current-thread)) (owner (lock-owner lock)))
-    (when owner
-      (unless (eq owner self)
-        (error (SYS::TEXT "~S: ~S does not own ~S") 'thread-unlock self lock))
-      (setf (lock-owner lock) nil))))
-
-(defmacro with-lock ((lock) &body body)
-  "Execute BODY with LOCK locked."
+(defmacro with-lock ((mutex) &body body)
+  "Execute BODY with MUTEX locked."
   (let ((lk (gensym "WL-")))
-    `(let ((,lk ,lock))
-      (unwind-protect (progn (thread-lock ,lk) ,@body)
-        (thread-unlock ,lk)))))
+    `(let ((,lk ,mutex))
+      (unwind-protect (progn (mutex-lock ,lk) ,@body)
+        (mutex-unlock ,lk)))))
 
 ;; helper function for thread interruption
 (defun %throw-tag (tag)
