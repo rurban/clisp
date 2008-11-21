@@ -1,5 +1,11 @@
 2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* tests.lisp (run-all-tests-parallel): allow "approximately"
+	:concurrency threads to run simultaneously (default 5) and initialize
+	the C stack size to 16 MB
+
+2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* tests.lisp (run-all-tests-parallel): use keyword argument for mutex
 	name and WITH-LOCK for locking.
 
