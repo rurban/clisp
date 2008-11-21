@@ -32,16 +32,16 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 
 /* -------------------------- Implementation --------------------------- */
 
-/* basically in MT we would like to have reentrant ciruclar detection. 
+/* basically in MT we would like to have reentrant ciruclar detection.
 currently two implementations are available: MLB and HASHTABLES.
 1. MLB - it mallocs (esp. on 64 bit - huge amount of memory)
 2. HASHSTABLES - it is slow.
 That's the reason by default - we will use the GCMARK in MT as well.
-We will guard it with mutex - so single thread can execute it at a 
-time. Also the GC will not be able to run during the GC mark 
-circulat detection.
+Since GC mark interfere very badly with cons heap - we are stopping the
+world (all lisp threads which execute in lisp) during the operation.
+This is bad - but otherwise segfault is guaranteed.
  */
-#if 0
+#if 1
  #ifdef MULTITHREAD
   #define CIRC_DETECTION_REENTRANT
  #endif
@@ -57,7 +57,6 @@ circulat detection.
    #define USE_LISP_HASHTABLE
   #endif
  #endif
- /* by default use the HASHTABLE - since it will work on 64 bit platforms. */
  #define USE_LISP_HASHTABLE
  #ifdef MULTITHREAD
   /* to be called from init_multithread(). does not do anything. */
@@ -65,12 +64,8 @@ circulat detection.
  #endif
 #else /* use GC marks for detection */
  #ifdef MULTITHREAD
-  /* lock for allowing just a single thread in circ detection at a time.*/
-  xmutex_t circ_detection_lock;
-  /* to be called from init_multithread(). initialize the mutex */
-  global void initialize_circ_detection() {
-    xmutex_init(&circ_detection_lock);
-  }
+  /* to be called from init_multithread(). do nothing. */
+  global void initialize_circ_detection() {}
  #endif
 #endif
 
@@ -422,10 +417,10 @@ local void mlb_free (mlbitmap* bitmap)
 
 #ifdef USE_LISP_HASHTABLE
 
-/* This implementation of hashset is maygc - so the 
-circularitites cannot be stored on the STACK as we run. 
+/* This implementation of hashset is maygc - so the
+circularitites cannot be stored on the STACK as we run.
 ht_initialize() pushes 2 thing on the STACK:
-1. empty list of circularities that will be filled 
+1. empty list of circularities that will be filled
 (in reverse order)
 2. hashtable with "known/met" objects.
 
@@ -458,7 +453,7 @@ local maygc void ht_list_store(gcv_object_t *ht, object obj)
   *(ht STACKop 1) = kons;
 }
 
-/* "frees" the STACK from objects pushed by ht_initialize() and 
+/* "frees" the STACK from objects pushed by ht_initialize() and
    if not aborted - pushes the circularities in the correct order
    expected by the caller. */
 local void ht_store_free(gcv_object_t *ht, bool aborted)
@@ -471,7 +466,7 @@ local void ht_store_free(gcv_object_t *ht, bool aborted)
     while (!endp(list)) {
       pushSTACK(Car(list));
       list = Cdr(list);
-    } 
+    }
   }
 }
 
@@ -479,7 +474,7 @@ local void ht_store_free(gcv_object_t *ht, bool aborted)
    otherwise - false.*/
 local maygc bool ht_add(gcv_object_t *ht, object obj)
 {
-  var object present = gethash(obj,*ht,false);  
+  var object present = gethash(obj,*ht,false);
   var bool ret = !eq(present, nullobj);
   if (!ret) { /* not found */
     /* add to hashtable */
@@ -487,7 +482,7 @@ local maygc bool ht_add(gcv_object_t *ht, object obj)
     pushSTACK(*ht);
     pushSTACK(T); /* some immediate value? */
     funcall(S(puthash),3);
-  } 
+  }
   return ret;
 }
 
@@ -496,7 +491,7 @@ local maygc bool ht_add(gcv_object_t *ht, object obj)
 #define HASHSET_FREE(ht,aborted) ht_store_free(ht,aborted)
 #define HASHSET_ADD(ht,obj) ht_add(ht,obj)
 #define STORE_CIRCULAR(ht,obj) ht_list_store(ht,obj)
-#define CIRC_MAYGC 
+#define CIRC_MAYGC
 #define CIRC_MAYGC_DECL maygc
 
 #endif
@@ -595,7 +590,7 @@ local CIRC_MAYGC_DECL void get_circ_mark (object objarg, get_circ_global* env)
             longjmp(env->abort_context,true); /* abort */
           /* mark count>0 components */
 	  #ifdef CIRC_MAYGC
-	   for (count=0;count < Svector_length(obj);count++) 
+	   for (count=0;count < Svector_length(obj);count++)
 	     get_circ_mark(TheSvector(obj)->data[count],env);
 	  #else
            var gcv_object_t* ptr = &TheSvector(obj)->data[0];
@@ -706,7 +701,7 @@ local CIRC_MAYGC_DECL void get_circ_mark (object objarg, get_circ_global* env)
               if (SP_overflow())                  /* check SP-depth */
                 longjmp(env->abort_context,true); /* abort */
 	      #ifdef CIRC_MAYGC
-	       for (count=0;count < Lrecord_length(obj)-2;count++) 
+	       for (count=0;count < Lrecord_length(obj)-2;count++)
                  get_circ_mark(TheWeakList(obj)->wl_elements[count],env);
               #else
                var gcv_object_t* ptr = &TheWeakList(obj)->wl_elements[0];
@@ -742,7 +737,7 @@ local CIRC_MAYGC_DECL void get_circ_mark (object objarg, get_circ_global* env)
             if (SP_overflow())                  /* check SP-depth */
               longjmp(env->abort_context,true); /* abort */
 	    #ifdef CIRC_MAYGC
-	     for (count=1;count < Lrecord_length(obj);count++) 
+	     for (count=1;count < Lrecord_length(obj);count++)
                get_circ_mark(TheRecord(obj)->recdata[count],env);
             #else
              /* mark count>0 components, starting from recdata[1] */
@@ -764,7 +759,7 @@ local CIRC_MAYGC_DECL void get_circ_mark (object objarg, get_circ_global* env)
           if (SP_overflow())                  /* check SP-depth */
             longjmp(env->abort_context,true); /* abort */
 	  #ifdef CIRC_MAYGC
-	   for (count=0;count < Record_length(obj);count++) 
+	   for (count=0;count < Record_length(obj);count++)
              get_circ_mark(TheRecord(obj)->recdata[count],env);
 	  #else
            var gcv_object_t* ptr = &TheRecord(obj)->recdata[0];
@@ -874,7 +869,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
                                  /* in case of an abort */
   #ifdef MULTITHREAD
    pushSTACK(obj);
-   GC_SAFE_SYSTEM_CALL(,xmutex_lock(&circ_detection_lock));
+   gc_suspend_all_threads(true);
    obj = popSTACK();
   #else
    set_break_sem_1();             /* make Break impossible */
@@ -889,9 +884,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
              /* structures on the STACK count in my_global.counter */
     get_circ_unmark(obj,&my_global); /* delete marks again */
     #ifdef MULTITHREAD
-     begin_system_call();
-     xmutex_unlock(&circ_detection_lock);
-     end_system_call();
+     gc_resume_all_threads(true);
     #else
      clr_break_sem_1();          /* allow Break again */
     #endif
@@ -913,9 +906,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     /* the context is now reestablished. */
     get_circ_unmark(obj,&my_global); /* delete marks again */
     #ifdef MULTITHREAD
-     begin_system_call();
-     xmutex_unlock(&circ_detection_lock);
-     end_system_call();
+     gc_resume_all_threads(true);
     #else
      clr_break_sem_1();               /* Break is possible again */
     #endif
@@ -1644,7 +1635,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
     /* abort from within subst_circ_mark() */
     HASHSET_FREE(my_global.bitmap,true);
     clr_break_sem_1();          /* allow Break again */
-    skipSTACK(1);    
+    skipSTACK(1);
     #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
     if (eq(my_global.bad,nullobj)) {
       SP_ueber();
@@ -1838,7 +1829,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
 {
   #ifdef MULTITHREAD
    pushSTACK(alist);
-   GC_SAFE_SYSTEM_CALL(,xmutex_lock(&circ_detection_lock));
+   gc_suspend_all_threads(true);
    alist = popSTACK();
   #else
    set_break_sem_1();             /* make Break impossible */
@@ -1848,9 +1839,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
     subst_circ_mark(ptr);       /* mark and substitute */
     subst_circ_unmark(ptr);     /* delete marks again */
     #ifdef MULTITHREAD
-     begin_system_call();
-     xmutex_unlock(&circ_detection_lock);
-     end_system_call();
+     gc_resume_all_threads(true);
     #else
      clr_break_sem_1();          /* allow Break again */
     #endif
@@ -1859,9 +1848,7 @@ global object subst_circ (gcv_object_t* ptr, object alist)
     /* abort from within subst_circ_mark() */
     subst_circ_unmark(ptr);     /* first unmark everything */
     #ifdef MULTITHREAD
-     begin_system_call();
-     xmutex_unlock(&circ_detection_lock);
-     end_system_call();
+     gc_resume_all_threads(true);
     #else
      clr_break_sem_1();          /* allow Break again */
     #endif
@@ -2159,6 +2146,6 @@ local void subst_circ_unmark (gcv_object_t* ptr)
 #undef HASHSET_FREE(pb,aborted)
 #undef HASHSET_ADD(pb,pobj)
 #undef STORE_CIRCULAR(obj)
-#undef CIRC_MAYGC 
+#undef CIRC_MAYGC
 #undef CIRC_MAYGC_DECL
 #endif

@@ -1,5 +1,9 @@
 2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_circ.d: use hash table for circularirty detection in MT builds.
+
+2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	add recursive mutexes
 	* constsym.d, subr.d, subrkw.d: MAKE-MUTEX accepts keyword arguments
 	:NAME and :RECURSIVE-P. MAKE-EXEMPTIION accepts :NAME.
