@@ -261,8 +261,8 @@ global timeout_call *timeout_call_chain=NULL;
 /* returns true if p1 is before p2 (or equal) */
 global bool timeval_less(struct timeval *p1, struct timeval *p2)
 {
-  return p1->tv_sec < p2->tv_sec ? true :
-    (p1->tv_sec == p2->tv_sec) ? ((p1->tv_usec <= p2->tv_usec)) : false;
+  return p1->tv_sec < p2->tv_sec
+    || ((p1->tv_sec == p2->tv_sec) && ((p1->tv_usec <= p2->tv_usec)));
 }
 
 /* insert into sorted chain of timeout calls.
