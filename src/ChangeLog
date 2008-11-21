@@ -1,3 +1,23 @@
+2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	add recursive mutexes
+	* constsym.d, subr.d, subrkw.d: MAKE-MUTEX accepts keyword arguments
+	:NAME and :RECURSIVE-P. MAKE-EXEMPTIION accepts :NAME.
+	* zthread.d (MAKE-MUTEX): create appropriate type of mutex.
+	non-recursive by default
+	(MUTEX-LOCK): handle recursive mutexes. signal error on re-locking
+	non-recursive one
+	(MUTEX-UNLOCK): handle recursive mutexes. signal an error if the
+	calling thread does not own the mutex
+	(MUTEX-OWNER): returns the thread owning the mutex
+	(MUTEX-RECURSIVE-P): returns whether the mutex is recursive
+	(MAKE-EXEMPTION): use keyword :NAME argument
+	(EXEMPTION-WAIT): signal an error if the calling thread does not own
+	the mutex
+	* lispbibl.d (Mutex): add flags and recurse count
+	* threads.lisp: export MUTEX-OWNER and MUTEX-RECURSIVE-P
+	(WITH-LOCK): use mutex
+
 2008-11-20  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit (run_all_tests_parallel): add
