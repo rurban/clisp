@@ -196,7 +196,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
    but have to be sure that special variables for GENSYM counter are per
    thread bound. since the user may pass initial-bindings - it is possible
    to get an error/condition/etc while evaluating them and at that time we
-   will not have valid exit tag. So allocte it here. */
+   will not have valid exit tag. So allocate it here. */
   pushSTACK(unbound);
   funcall(S(gensym),1);
   pushSTACK(value1);
