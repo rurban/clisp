@@ -411,12 +411,13 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                          (push ans res))))
                    :cstack-size 16777216)))
       (dolist (args *all-tests*)
-        ;; this is "poor man" concurrency control - not exact at all
-        (loop until
-             (>= concurrency
-                 (count t (mapcar #'mt:thread-active-p (mt:list-threads))))
-           :do (sleep 1))
-        (run (apply #'run-test args)))
+        (let ((args args))
+          ;; this is "poor man" concurrency control - not exact at all
+          (loop until
+               (>= concurrency
+                   (count t (mapcar #'mt:thread-active-p (mt:list-threads))))
+             :do (sleep 1))
+          (run (apply #'run-test args))))
       (run (test-weakptr))
       (loop :until (= total (length res)) :do (sleep 1))
       (report-results (nreverse res)))))
