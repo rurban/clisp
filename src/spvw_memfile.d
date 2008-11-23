@@ -333,7 +333,7 @@ static void savemem_with_runtime (Handle handle, bool delegating) {
       error(file_error,GETTEXT("Delegating cookie not found"));
     }
     lseek(handle,delegating_cookie_pos+delegating_cookie_length-1,SEEK_SET);
-    write(handle,(delegating ? "Y" : "N"),1); /* reset the cookie */
+    WRITE((delegating ? "Y" : "N"),1); /* reset the cookie */
     lseek(handle,0,SEEK_END);   /* restore file position */
   }
 #if defined(UNIX) && defined(HAVE_FCHMOD)
