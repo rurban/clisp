@@ -173,7 +173,7 @@
   LISPOBJ(class_array,"ARRAY")           /* ---+ */
   LISPOBJ(class_bit_vector,"BIT-VECTOR") /*    |   order */
   LISPOBJ(class_character,"CHARACTER")   /*    |   coordinated */
-  LISPOBJ(class_complex,"COMPLEX")       /*    |   with clos.lisp! */
+  LISPOBJ(class_complex,"COMPLEX")       /*    |   with clos-class3.lisp! */
   LISPOBJ(class_cons,"CONS")
   LISPOBJ(class_float,"FLOAT")
   LISPOBJ(class_function,"FUNCTION")

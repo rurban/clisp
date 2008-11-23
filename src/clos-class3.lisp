@@ -2,7 +2,7 @@
 ;;;; Class metaobjects
 ;;;; Part 3: Class definition and redefinition.
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2007
+;;;; Sam Steingold 1998 - 2008
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -26,7 +26,7 @@
   *<built-in-class>-class-version*
   'defined-class
   'class
-  ;; built-in-classes for CLASS-OF
+  ;; built-in-classes for CLASS-OF - order in sync with constobj.d
   (vector 'array 'bit-vector 'character 'complex 'cons 'float 'function
           'hash-table 'integer 'list 'null 'package 'pathname
           #+LOGICAL-PATHNAMES 'logical-pathname
@@ -2676,7 +2676,7 @@
   *<built-in-class>-class-version*
   <defined-class>
   <potential-class>
-  ;; built-in-classes for CLASS-OF
+  ;; built-in-classes for CLASS-OF - order in sync with constobj.d
   (vector <array> <bit-vector> <character> <complex> <cons> <float> <function>
           <hash-table> <integer> <list> <null> <package> <pathname>
           #+LOGICAL-PATHNAMES <logical-pathname>
