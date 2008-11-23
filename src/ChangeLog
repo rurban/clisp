@@ -1,3 +1,7 @@
+2008-11-23  Sam Steingold  <sds@gnu.org>
+
+	* eval.d (check_funtab): use %ld in printf to avoid a gcc warning
+
 2008-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_circ.d: use hash table for circularirty detection in MT builds.
