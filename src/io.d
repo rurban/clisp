@@ -510,7 +510,7 @@ global maygc void init_reader (void) {
   /* token_buff_1 and token_buff_2 will be initialized
    with a semi-simple-string and a semi-simple-byte-vector
    at the first call of get_buffers (see below).
-   Displaced-String initialisieren:
+   Initialize Displaced-String:
    new array (with data-vector NIL), Displaced, rank=1 */
   O(displaced_string) =
     allocate_iarray(bit(arrayflags_displaced_bit)|
