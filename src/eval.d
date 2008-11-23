@@ -233,9 +233,9 @@ local void check_funtab (void) {
       nobject_out(stdout,FUNTABR[i]->name);
       printf("=FUNTABR[%d] does NOT accept &rest\n",i);
     }
-  printf("FUNTAB_length=%d\n",FUNTAB_length);
+  printf("FUNTAB_length=%ld\n",(long)FUNTAB_length);
   if (FUNTAB_length > 512) printf(" *** - > 512!\n");
-  printf("FUNTABR_length=%d\n",FUNTABR_length);
+  printf("FUNTABR_length=%ld\n",(long)FUNTABR_length);
   if (FUNTABR_length > 256) printf(" *** - > 256!\n");
 }
 #endif
