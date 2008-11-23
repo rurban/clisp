@@ -8842,7 +8842,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
    #ifdef HAVE_NICE
     errno = 0; nice(priority);
     if (errno) {
-      fprintf(stderr,"clisp/child: cannot set priority to %d: %s\n",
+      fprintf(stderr,"clisp/child: cannot set priority to %ld: %s\n",
               priority,strerror(errno));
       _exit(-1);
     }
