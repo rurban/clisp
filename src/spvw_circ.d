@@ -1401,7 +1401,7 @@ local void get_circ_unmark (object obj, get_circ_global* env)
 
 /* Implementation of subst_circ. */
 
-#ifdef CIRC_DETECTION_REENTRANT 
+#ifdef CIRC_DETECTION_REENTRANT
 
 /* Global variables during subst_circ. */
 typedef struct {
@@ -2142,10 +2142,10 @@ local void subst_circ_unmark (gcv_object_t* ptr)
 #if defined(CIRC_DETECTION_REENTRANT)
 /* undef all macros */
 #undef HASHSET
-#undef HASHSET_INIT(pb)
-#undef HASHSET_FREE(pb,aborted)
-#undef HASHSET_ADD(pb,pobj)
-#undef STORE_CIRCULAR(obj)
+#undef HASHSET_INIT
+#undef HASHSET_FREE
+#undef HASHSET_ADD
+#undef STORE_CIRCULAR
 #undef CIRC_MAYGC
 #undef CIRC_MAYGC_DECL
 #endif
