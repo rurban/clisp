@@ -1,5 +1,12 @@
 2008-11-23  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (delegating_cookie): declare "const" to avoid g++ warning
+	"deprecated conversion from string constant to 'char*'"
+	* spvw_memfile.d (find_marker): second argument is "const"
+	(find_memdump): cast second argument to "const char*"
+
+2008-11-23  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (check_funtab): use %ld in printf to avoid a gcc warning
 	* pathname.d (LAUNCH): ditto
 

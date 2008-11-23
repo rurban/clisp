@@ -2428,7 +2428,8 @@ local inline int size_arg (const char *arg, const char *docstring, uintM *ret,
   return 0;
 }
 
-local char* delegating_cookie = "should clisp delegate non --clisp args? N";
+local const char* delegating_cookie =
+  "should clisp delegate non --clisp args? N";
 local int delegating_cookie_length = -1;
 local bool delegating_p (void) {
   if (delegating_cookie_length == -1)
