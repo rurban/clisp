@@ -238,7 +238,8 @@ typedef struct {
   } while(0)
 
 /* find the marker of given size in the open file handle */
-local size_t find_marker (Handle handle, char* marker, size_t marker_len) {
+local size_t find_marker (Handle handle, const char* marker, size_t marker_len)
+{
   char buf[BUFSIZ];
   size_t marker_pos = 0;
   size_t pos = 0;
@@ -1834,7 +1835,7 @@ local void find_memdump (Handle fd) {
    #if defined(LOADMEM_TRY_SEARCH)
     /* lseek+read does not work ==> use marker */
     lseek(fd,0,SEEK_SET);
-    mem_start = find_marker(fd,(char*)&header,header_size);
+    mem_start = find_marker(fd,(const char*)&header,header_size);
     if (mem_start != (size_t)-1)
       /* image size failed, but header is found -- this is fishy! */
       fprintf(stderr,GETTEXTL("%s: 'image size' method failed, but found image header at %d\n"),get_executable_name(),mem_start);
