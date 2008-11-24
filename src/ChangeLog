@@ -1,3 +1,8 @@
+2008-11-24  Sam Steingold  <sds@gnu.org>
+
+	* _clisp.c (main): avoid g++ warning:
+	"deprecated conversion from string constant to 'char*'"
+
 2008-11-23  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (delegating_cookie): declare "const" to avoid g++ warning
