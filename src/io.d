@@ -487,6 +487,7 @@ nonreturning_function(local, error_bad_readtable, (void)) {
 
 /* UP: Initializes the reader.
  init_reader();
+ init_reader_low();
  can trigger GC */
 global maygc void init_reader (void) {
   /* initialize *READ-BASE*: */
@@ -505,14 +506,17 @@ global maygc void init_reader (void) {
     readtable = copy_readtable(readtable);        /* one copy of it */
     define_variable(S(readtablestar),readtable); /* =: *READTABLE* */
   }
+  init_reader_low();
+}
+global maygc void init_reader_low (void) {
   /* initialize token_buff_1 and token_buff_2: */
-  O(token_buff_1) = NIL;
+  TLO(token_buff_1) = NIL;
   /* token_buff_1 and token_buff_2 will be initialized
    with a semi-simple-string and a semi-simple-byte-vector
    at the first call of get_buffers (see below).
    Initialize Displaced-String:
    new array (with data-vector NIL), Displaced, rank=1 */
-  O(displaced_string) =
+  TLO(displaced_string) =
     allocate_iarray(bit(arrayflags_displaced_bit)|
                     bit(arrayflags_dispoffset_bit)|
                     Atype_Char,
@@ -878,9 +882,9 @@ local uintL get_base (object symbol) {
  Syntax code 'constituent' starts a new (extended) token.
  For every character in the token, its attribute a_xxxx is looked up by use
  of the attribute table, cf. CLTL table 22-3.
- O(token_buff_1) is a semi-simple-string, which contains the characters of
+ TLO(token_buff_1) is a semi-simple-string, which contains the characters of
  the currently read extended-token.
- O(token_buff_2) is a semi-simple-byte-vektor, which contains the attributes
+ TLO(token_buff_2) is a semi-simple-byte-vektor, which contains the attributes
  of the currently read extended-token.
  Both have the same length (in characters respectively bytes).
 
@@ -1109,29 +1113,29 @@ local const uintB attribute_table[small_char_code_limit] = {
 local bool token_escape_flag;
 
 /* UP: delivers two buffers.
- if two buffers are available in the reservoir O(token_buff_1), O(token_buff_2),
- they are extracted. Otherwise new ones are allocated.
+ if two buffers are available in the reservoir TLO(token_buff_1),
+ TLO(token_buff_2), they are extracted. Otherwise new ones are allocated.
  If the buffers are not needed anymore, they can be written back to
- O(token_buff_1) and O(token_buff_2).
+ TLO(token_buff_1) and TLO(token_buff_2).
  < STACK_1: a Semi-Simple String with Fill-Pointer 0
  < STACK_0: a Semi-Simple Byte-Vector with Fill-Pointer 0
  < STACK: decreased by 2
  can trigger GC */
 local maygc void get_buffers (void) {
   /* Mechanism:
-   O(token_buff_1) and O(token_buff_2) hold a Semi-Simple-String
+   TLO(token_buff_1) and TLO(token_buff_2) hold a Semi-Simple-String
    and a Semi-Simple-Byte-Vector, which are extracted if necessary (and marked
-   with O(token_buff_1) := NIL as extracted)
+   with TLO(token_buff_1) := NIL as extracted)
    After use, they can be stored back again. Reentrant! */
-  var object buff_1 = O(token_buff_1);
+  var object buff_1 = TLO(token_buff_1);
   if (!nullp(buff_1)) {
     /* extract buffer and empty: */
     TheIarray(buff_1)->dims[1] = 0; /* Fill-Pointer:=0 */
     pushSTACK(buff_1);              /* 1. buffer finished */
-    var object buff_2 = O(token_buff_2);
+    var object buff_2 = TLO(token_buff_2);
     TheIarray(buff_2)->dims[1] = 0; /* Fill-Pointer:=0 */
     pushSTACK(buff_2);              /* 2. buffer finished */
-    O(token_buff_1) = NIL;          /* mark buffer as extracted */
+    TLO(token_buff_1) = NIL;          /* mark buffer as extracted */
   } else {
     /* buffers are extracted. New ones must be allocated:
      new Semi-Simple-String with Fill-Pointer=0 : */
@@ -1141,16 +1145,16 @@ local maygc void get_buffers (void) {
   }
 }
 /* free Buffers for reuse, reverting the effects of get_buffers() */
-#define release_buffers() do {                                \
-  O(token_buff_2) = popSTACK(); O(token_buff_1) = popSTACK(); \
+#define release_buffers() do {                                    \
+  TLO(token_buff_2) = popSTACK(); TLO(token_buff_1) = popSTACK(); \
  } while(0)
 
 /* UP: Reads an Extended Token.
  read_token(&stream);
  > stream: Stream
  < stream: Stream
- < O(token_buff_1): read Characters
- < O(token_buff_2): their Attributcodes
+ < TLO(token_buff_1): read Characters
+ < TLO(token_buff_2): their Attributcodes
  < token_escape_flag: Escape-Character-Flag
  can trigger GC */
 local maygc void read_token (const gcv_object_t* stream_);
@@ -1160,8 +1164,8 @@ local maygc void read_token (const gcv_object_t* stream_);
  > stream: Stream
  > ch, scode: first character and its syntaxcode
  < stream: Stream
- < O(token_buff_1): read characters
- < O(token_buff_2): their attributcodes
+ < TLO(token_buff_1): read characters
+ < TLO(token_buff_2): their attributcodes
  < token_escape_flag: Escape-character-Flag
  can trigger GC */
 local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode);
@@ -1185,9 +1189,9 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
    (thus read_char can call read recursively...)
    Afterwards (during test_potential_number_syntax, test_number_syntax,
    test_dots, read_internal up to the end of read_internal)
-   the buffers lie in O(token_buff_1) and O(token_buff_2). After the return of
-   read_internal their content is useless, and they can be used for further
-   read-operations. */
+   the buffers lie in TLO(token_buff_1) and TLO(token_buff_2).
+   After the return of read_internal their content is useless,
+   and they can be used for further read-operations. */
   var bool multiple_escape_flag = false;
   var bool escape_flag = false;
   var bool fasl_stream = stream_get_fasl(*stream_); /* don't need to save ch */
@@ -1284,11 +1288,11 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
 /* UP: checks, if the token-buffer contains a potential-number, and
  transforms Attributecodes as preparation on read-routines for digits.
  test_potential_number_syntax(&base,&token_info_t);
- > O(token_buff_1): read characters
- > O(token_buff_2): their attributecodes
+ > TLO(token_buff_1): read characters
+ > TLO(token_buff_2): their attributecodes
  > base: base of number-system (value of *READ-BASE* or *PRINT-BASE*)
  < base: base of number-system (= 10 or old base)
- conversion takes place within O(token_buff_2):
+ conversion takes place within TLO(token_buff_2):
    if potential number:
      >=a_letter below the base of number-system -> a_letterdigit, a_expodigit
    if not potential number:
@@ -1330,10 +1334,10 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
   var uintB* attrptr0;          /* Pointer to the attributes */
   var uintL len;                /* Length of token */
   { /* initialize: */
-    var object buff = O(token_buff_1); /* Semi-Simple String */
+    var object buff = TLO(token_buff_1); /* Semi-Simple String */
     len = TheIarray(buff)->dims[1];    /* length = Fill-Pointer */
     charptr0 = &TheSnstring(TheIarray(buff)->data)->data[0]; /* characters from this point on */
-    buff = O(token_buff_2);     /* Semi-Simple Byte-Vektor */
+    buff = TLO(token_buff_2);     /* Semi-Simple Byte-Vektor */
     attrptr0 = &TheSbvector(TheIarray(buff)->data)->data[0]; /* attributecodes from this point on */
   }
   { /* 1. search, if there is a dot: */
@@ -1417,8 +1421,8 @@ local bool test_potential_number_syntax (uintWL* base_, token_info_t* info) {
  CLTL Table 22-2), and provides the parameters which are necessary for
  the translation into a number, where necessary.
  test_number_syntax(&base,&string,&info)
- > O(token_buff_1): read characters
- > O(token_buff_2): their attributecodes
+ > TLO(token_buff_1): read characters
+ > TLO(token_buff_2): their attributecodes
  > token_escape_flag: Escape-Character-Flag
  > base: number-system-base (value of *READ-BASE* or *PRINT-BASE*)
  < base: number-system-base
@@ -1501,7 +1505,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
     attrptr0 = info.attrptr;
     len = info.len;
   }
-  *string_ = TheIarray(O(token_buff_1))->data; /* Normal-Simple-String */
+  *string_ = TheIarray(TLO(token_buff_1))->data; /* Normal-Simple-String */
   var uintL index0 = 0;
   /* read 2. sign and store: */
   info->sign = 0;               /* sign:=positiv */
@@ -1650,12 +1654,12 @@ local void signal_reader_error (void* sp, gcv_object_t* frame, object label,
 
 /* UP: checks, if a token consists only of Dots.
  test_dots()
- > O(token_buff_1): read characters
- > O(token_buff_2): their attributcodes
+ > TLO(token_buff_1): read characters
+ > TLO(token_buff_2): their attributcodes
  < result: true, if token is empty or consists only of dots */
 local bool test_dots (void) {
   /* search for attributecode /= a_dot: */
-  var object bvec = O(token_buff_2); /* Semi-Simple-Byte-Vector */
+  var object bvec = TLO(token_buff_2); /* Semi-Simple-Byte-Vector */
   var uintL len = TheIarray(bvec)->dims[1]; /* Fill-Pointer */
   if (len > 0) {
     var uintB* attrptr = &TheSbvector(TheIarray(bvec)->data)->data[0];
@@ -1671,10 +1675,10 @@ local bool test_dots (void) {
 
 /* UP: converts a number-token into capitals.
  upcase_token();
- > O(token_buff_1): read characters
- > O(token_buff_2): their attributecodes */
+ > TLO(token_buff_1): read characters
+ > TLO(token_buff_2): their attributecodes */
 local void upcase_token (void) {
-  var object string = O(token_buff_1);        /* Semi-Simple-String */
+  var object string = TLO(token_buff_1);      /* Semi-Simple-String */
   var uintL len = TheIarray(string)->dims[1]; /* Fill-Pointer */
   if (len > 0) {
     var chart* charptr = &TheSnstring(TheIarray(string)->data)->data[0];
@@ -1684,17 +1688,17 @@ local void upcase_token (void) {
 
 /* UP: converts a piece of the read Tokens into upper or lower case letters.
  case_convert_token(start_index,end_index,direction);
- > O(token_buff_1): read characters
- > O(token_buff_2): their attributecodes
+ > TLO(token_buff_1): read characters
+ > TLO(token_buff_2): their attributecodes
  > uintL start_index: startindex of range to be converted
  > uintL end_index: endindex of the range to be converted
  > uintW direction: direction of the conversion */
 local void case_convert_token (uintL start_index, uintL end_index,
                                uintW direction) {
   var chart* charptr =
-    &TheSnstring(TheIarray(O(token_buff_1))->data)->data[start_index];
+    &TheSnstring(TheIarray(TLO(token_buff_1))->data)->data[start_index];
   var uintB* attrptr =
-    &TheSbvector(TheIarray(O(token_buff_2))->data)->data[start_index];
+    &TheSbvector(TheIarray(TLO(token_buff_2))->data)->data[start_index];
   var uintL len = end_index - start_index;
   if (len == 0)
     return;
@@ -1756,7 +1760,7 @@ local void case_convert_token_1 (void) {
   var object readtable;
   get_readtable(readtable = );
   var uintW direction = RTCase(readtable);
-  var uintL len = TheIarray(O(token_buff_1))->dims[1]; /* Length = Fill-Pointer */
+  var uintL len = TheIarray(TLO(token_buff_1))->dims[1]; /* Length = Fill-Pointer */
   case_convert_token(0,len,direction);
 }
 
@@ -1913,11 +1917,11 @@ local maygc object read_internal (const gcv_object_t* stream_) {
   if (!nullpSv(read_suppress)) /* *READ-SUPPRESS* /= NIL ? */
     return NIL;        /* yes -> don't interprete Token, NIL as value */
   /* Token must be interpreted
-   the Token is in O(token_buff_1), O(token_buff_2), token_escape_flag. */
+   the Token is in TLO(token_buff_1), TLO(token_buff_2), token_escape_flag. */
   if ((!token_escape_flag) && test_dots()) {
     /* Token is a sequence of Dots, read without escape-characters
      thus Length is automatically >0. */
-    var uintL len = TheIarray(O(token_buff_1))->dims[1]; /* length of Token */
+    var uintL len = TheIarray(TLO(token_buff_1))->dims[1]; /* length of Token */
     if (len > 1) {              /* Length>1 -> error */
       pushSTACK(*stream_);      /* STREAM-ERROR slot STREAM */
       pushSTACK(*stream_);
@@ -1982,7 +1986,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       get_readtable(readtable = );
       direction = RTCase(readtable);
     }
-    var object buff_2 = O(token_buff_2); /* Attributecode-Buffer */
+    var object buff_2 = TLO(token_buff_2); /* Attributecode-Buffer */
     var uintL len = TheIarray(buff_2)->dims[1]; /* length = Fill-Pointer */
     var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
     var uintL index = 0;
@@ -2030,41 +2034,41 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     }
     { /* error message */
       pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
-      pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
+      pushSTACK(copy_string(TLO(token_buff_1))); /* copy Character-Buffer */
       pushSTACK(*stream_);                     /* Stream */
       pushSTACK(S(read));
       error(reader_error,GETTEXT("~S from ~S: too many colons in token ~S"));
     }
    found_illg: { /* error message */
       pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
-      pushSTACK(copy_string(O(token_buff_1))); /* copy Character-Buffer */
+      pushSTACK(copy_string(TLO(token_buff_1))); /* copy Character-Buffer */
       pushSTACK(*stream_);                     /* Stream */
       pushSTACK(S(read));
       error(reader_error,GETTEXT("~S from ~S: token ~S contains an invalid constituent character (see ANSI CL 2.1.4.2.)"));
     }
     /* search Symbol or create it: */
    current: {                /* search Symbol in the current package. */
-      /* Symbolname = O(token_buff_1) = (subseq O(token_buff_1) 0 len)
+      /* Symbolname = TLO(token_buff_1) = (subseq TLO(token_buff_1) 0 len)
          is a non-simple String. */
       var object pack = get_current_package();
       if (!pack_casesensitivep(pack))
         case_convert_token(0,len,direction);
       /* intern Symbol (and copy String, if the Symbol must be created freshly): */
       var object sym;
-      intern(O(token_buff_1),pack_caseinvertedp(pack),pack,&sym);
+      intern(TLO(token_buff_1),pack_caseinvertedp(pack),pack,&sym);
       return sym;
     }
   ex_in_ternal:                 /* build external/internal Symbol */
-    /* Packagename = (subseq O(token_buff_1) 0 pack_end_index),
-     Symbolname = (subseq O(token_buff_1) name_start_index len). */
+    /* Packagename = (subseq TLO(token_buff_1) 0 pack_end_index),
+     Symbolname = (subseq TLO(token_buff_1) name_start_index len). */
     case_convert_token(0,pack_end_index,direction);
     if (pack_end_index==0) {
       /* colon(s) at the beginning -> build Keyword:
-       Symbolname = (subseq O(token_buff_1) name_start_index len). */
+       Symbolname = (subseq TLO(token_buff_1) name_start_index len). */
       case_convert_token(name_start_index,len,direction);
       /* adjust auxiliary-String: */
-      var object hstring = O(displaced_string);
-      TheIarray(hstring)->data = O(token_buff_1);     /* Data-vector */
+      var object hstring = TLO(displaced_string);
+      TheIarray(hstring)->data = TLO(token_buff_1); /* Data-vector */
       TheIarray(hstring)->dims[0] = name_start_index; /* Displaced-Offset */
       TheIarray(hstring)->totalsize =
         TheIarray(hstring)->dims[1] = len - name_start_index; /* length */
@@ -2072,10 +2076,10 @@ local maygc object read_internal (const gcv_object_t* stream_) {
          if the Symbol must be created newly): */
       return intern_keyword(hstring);
     }
-    { /* Packagename = (subseq O(token_buff_1) 0 pack_end_index). */
+    { /* Packagename = (subseq TLO(token_buff_1) 0 pack_end_index). */
       /* adjust Auxiliary-String: */
-      var object hstring = O(displaced_string);
-      TheIarray(hstring)->data = O(token_buff_1); /* Data-vector */
+      var object hstring = TLO(displaced_string);
+      TheIarray(hstring)->data = TLO(token_buff_1); /* Data-vector */
       TheIarray(hstring)->dims[0] = 0;            /* Displaced-Offset */
       TheIarray(hstring)->totalsize =
         TheIarray(hstring)->dims[1] = pack_end_index; /* length */
@@ -2840,10 +2844,10 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
       error(reader_error,GETTEXT("~S from ~S: font number ~S for character is too large, should be = 0"));
     }
   /* Font ready. */
-  var object token = O(token_buff_1); /* read Token as Semi-Simple-String */
+  var object token = TLO(token_buff_1); /* read Token as Semi-Simple-String */
   var uintL len = TheIarray(token)->dims[1]; /* lengh = Fill-Pointer */
-  var object hstring = O(displaced_string);  /* auxiliary string */
-  TheIarray(hstring)->data = token; /* Data-vector := O(token_buff_1) */
+  var object hstring = TLO(displaced_string); /* auxiliary string */
+  TheIarray(hstring)->data = token; /* Data-vector := TLO(token_buff_1) */
   token = TheIarray(token)->data; /* Normal-Simple-String with Token */
   var uintL pos = 0;              /* current Position in Token */
   /* do not search for bits since this interferes with
@@ -2922,7 +2926,7 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
    radix_2(base)
    > base: Basis (>=2, <=36)
    > stack layout: Stream, sub-char, base.
-   > O(token_buff_1), O(token_buff_2), token_escape_flag: read Token
+   > TLO(token_buff_1), TLO(token_buff_2), token_escape_flag: read Token
    < STACK: cleaned up
    < mv_space/mv_count: values
    can trigger GC */
@@ -2955,7 +2959,7 @@ local maygc Values radix_2 (uintWL base) {
         pushSTACK(STACK_2);     /* STREAM-ERROR slot STREAM */
         pushSTACK(STACK_(0+1)); /* base */
         pushSTACK(STACK_(1+2)); /* sub-char */
-        pushSTACK(copy_string(O(token_buff_1))); /* Token */
+        pushSTACK(copy_string(TLO(token_buff_1))); /* Token */
         pushSTACK(STACK_(2+4));                  /* Stream */
         pushSTACK(S(read));
         error(reader_error,GETTEXT("~S from ~S: token ~S after #~C is not a rational number in base ~S"));
@@ -3119,9 +3123,9 @@ LISPFUNN(uninterned_reader,3) {     /* reads #: */
   if (!nullp(popSTACK()))       /* n/=NIL -> Error */
     error_dispatch_number();
   /* copy Token and convert into Simple-String: */
-  var object string = coerce_imm_ss(O(token_buff_1));
+  var object string = coerce_imm_ss(TLO(token_buff_1));
   { /* test for Package-Marker: */
-    var object buff_2 = O(token_buff_2); /* Attribut-Code-Buffer */
+    var object buff_2 = TLO(token_buff_2); /* Attribut-Code-Buffer */
     var uintL len = TheIarray(buff_2)->dims[1]; /* length = Fill-Pointer */
     if (len > 0) {
       var uintB* attrptr = &TheSbvector(TheIarray(buff_2)->data)->data[0];
@@ -3232,7 +3236,7 @@ LISPFUNN(bit_vector_reader,3) { /* reads #* */
     error(reader_error, /* ANSI CL 2.4.8.4. wants a reader-error here */
           GETTEXT("~S from ~S: only zeroes and ones are allowed after #*"));
   }
-  var object buff_1 = O(token_buff_1);        /* Character-Buffer */
+  var object buff_1 = TLO(token_buff_1);      /* Character-Buffer */
   var uintL len = TheIarray(buff_1)->dims[1]; /* length = Fill-Pointer */
   if (len > 0) {
     var const chart* charptr = &TheSnstring(TheIarray(buff_1)->data)->data[0];
@@ -3248,7 +3252,7 @@ LISPFUNN(bit_vector_reader,3) { /* reads #* */
   /* create new Bit-Vector with length n: */
   var object bv = allocate_bit_vector(Atype_Bit,n);
   /* and fill the Bits into it: */
-  buff_1 = O(token_buff_1);
+  buff_1 = TLO(token_buff_1);
   {
     var const chart* charptr = &TheSnstring(TheIarray(buff_1)->data)->data[0];
     var chart ch;               /* last character ('0' or '1') */

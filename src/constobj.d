@@ -517,10 +517,6 @@
   LISPOBJ(dispatch_reader_index,"0")
   /* prefix for character-names: */
   LISPOBJ(charname_prefix,"\"Code\"")
-  /* internal variables of the reader: */
-  LISPOBJ(token_buff_1,".")
-  LISPOBJ(token_buff_2,".")
-  LISPOBJ(displaced_string,".")
   /* handler-types: */
   LISPOBJ(handler_for_arithmetic_error,"(#(ARITHMETIC-ERROR NIL))")
   LISPOBJ_S(tildeA,"~A")
@@ -709,3 +705,8 @@
   LISPOBJ(foreign_callin_table,"#.(make-hash-table :test #'eq)")
   LISPOBJ(foreign_callin_vector,"#.(let ((array (make-array 1 :adjustable t :fill-pointer 1))) (sys::store array 0 0) array)")
  #endif
+
+#if !defined(MULTITHREAD)
+#define LISPOBJ_TL(n)  LISPOBJ(n,".")
+#include "constobj_tl.c"
+#endif
