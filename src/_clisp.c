@@ -71,9 +71,9 @@ int main (int argc, char* argv[])
   char* localedir;
   char* argv_lisplibdir = NULL;
 #if defined(WIN32_NATIVE) && !defined(__MINGW32__)
-  char* argv_linkingset = "";
+  char* argv_linkingset = (char*)"";
 #else
-  char* argv_linkingset = "base";
+  char* argv_linkingset = (char*)"base";
 #endif
   char* argv_memfile = NULL;
   char* argv_localedir = NULL;
@@ -293,9 +293,9 @@ int main (int argc, char* argv[])
     }
     { /* Compute executable's name. */
 #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
-      char* execname = "lisp.exe";
+      const char* execname = "lisp.exe";
 #else
-      char* execname = "lisp.run";
+      const char* execname = "lisp.run";
 #endif
       executable = (char*)malloc(strlen(linkingsetdir)+1+strlen(execname)+1);
       if (!executable) goto oom;
@@ -311,22 +311,22 @@ int main (int argc, char* argv[])
       char** argptr_limit = &argv[argc];
       char** new_argptr = &new_argv[1];
       if (!argv_lisplibdir) {
-        *new_argptr++ = "-B";
+        *new_argptr++ = (char*)"-B";
         *new_argptr++ = lisplibdir;
       }
       if (!argv_memfile) {
-        char* filename = "lispinit.mem";
+        const char* filename = "lispinit.mem";
         argv_memfile =
           (char*)malloc(strlen(linkingsetdir)+1+strlen(filename)+1);
         if (!argv_memfile) goto oom;
         strcpy(argv_memfile, linkingsetdir);
         strcat(argv_memfile, "/");
         strcat(argv_memfile, filename);
-        *new_argptr++ = "-M";
+        *new_argptr++ = (char*)"-M";
         *new_argptr++ = argv_memfile;
       }
       if (!argv_localedir) {
-        *new_argptr++ = "-N";
+        *new_argptr++ = (char*)"-N";
         *new_argptr++ = localedir;
       }
       while (argptr < argptr_limit) { *new_argptr++ = *argptr++; }
