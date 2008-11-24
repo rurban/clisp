@@ -1555,7 +1555,7 @@ if [ "${with_threads}" != no ]; then
 fi
 CPARTS=$CPARTS' built'
 
-EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj '$OS_INCLUDES
+EVERY_INCLUDES='lispbibl fsubr subr pseudofun constsym constobj constobj_tl '$OS_INCLUDES
 
 EVERY_INCLUDES_C=''
 for f in $EVERY_INCLUDES ; do

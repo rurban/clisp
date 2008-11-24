@@ -10888,6 +10888,9 @@ extern struct object_tab_ {
 
 /* Abbreviation for other LISP-object with a given Name: */
 #define O(name)  (object_tab.name)
+#if !defined(MULTITHREAD)
+#define TLO O
+#endif
 %% /* FIXME: Difference between lispbibl.d and clisp.h */
 %% puts("#define GLO(name)  (object_tab.name)");
 
@@ -14133,6 +14136,7 @@ extern maygc object hash_table_test (object ht);
  init_reader();
  can trigger GC */
 extern maygc void init_reader (void);
+extern maygc void init_reader_low (void);
 /* is used by SPVW */
 
 /* UP:
@@ -16846,6 +16850,14 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 
 #ifdef MULTITHREAD
 %% #ifdef MULTITHREAD
+
+/* thread-local object table */
+struct object_tab_tl_ {
+ #define LISPOBJ_TL(name)  gcv_object_t name;
+  #include "constobj_tl.c"
+ #undef LISPOBJ_TL
+};
+
   /* every thread keeps chain of pinned objects.
    usually there will be just a single one (if any), but it is
    possible with signal handlers to have real chain.*/
@@ -16860,6 +16872,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
     gcv_object_t* _STACK;
     uintC _mv_count;
     p_backtrace_t _back_trace;
+    struct object_tab_tl_ _object_tab;
    #ifdef DEBUG_GCSAFETY
     uintL _alloccount; /* alloccount for this thread */
    #endif
@@ -17083,10 +17096,16 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 
 /* VTZ: just the beginning of the structure is exported -
    what modules want to know about (in order to build) */
+%% puts("struct object_tab_tl_ {");
+%% #define LISPOBJ_TL(name)  printf("  gcv_object_t %s;\n",STRING(name));
+%%  #include "constobj_tl.c"
+%% #undef LISPOBJ_TL
+%% puts("};");
 %% puts("typedef struct {");
 %% puts("  gcv_object_t* _STACK;");
 %% puts("  uintC _mv_count;");
 %% puts("  p_backtrace_t _back_trace;");
+%% puts("  struct object_tab_tl_ _object_tab;");
 %% #ifdef DEBUG_GCSAFETY
 %%  puts(" uintL _alloccount;");
 %% #endif
@@ -17151,6 +17170,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
   #define STACK_start current_thread()->_STACK_start
   #define mv_space current_thread()->_mv_space
   #define STACK current_thread()->_STACK
+  #define TLO(name)  current_thread()->_object_tab.name
   #define mv_count current_thread()->_mv_count
   #define back_trace current_thread()->_back_trace
   #define SP_bound current_thread()->_SP_bound

@@ -1,5 +1,26 @@
 2008-11-24  Sam Steingold  <sds@gnu.org>
 
+	allow thread-local constant objects
+	* constobj_tl.d (token_buff_1, token_buff_2, displaced_string):
+	define there thread-local constant objects in this new file
+	* constobj.d: include constobj_tl instead of defining these objects
+	* lispbibl.d (TLO): define
+	(clisp_thread_t): add _object_tab field
+	* io.d (init_reader_low): extract from init_reader
+	(init_reader): call it
+	(read_token_1, test_potential_number_syntax, test_number_syntax)
+	(signal_reader_error, test_dots, upcase_token, case_convert_token)
+	(case_convert_token, case_convert_token_1, read_internal)
+	(CHAR-READER, radix_2, UNINTERNED-READER, BIT-VECTOR-READER): use
+	TLO() instead of O() for token_buff_[12] and displaced_string
+	* package.d (get_current_package): ditto
+	* makemake.in (EVERY_INCLUDES): add constobj_tl
+	* spvw.d (for_all_threadobjs): iterate over thread->_object_tab too
+	(main): call init_reader_low()
+	* zthread.d (MAKE-THREAD): ditto
+
+2008-11-24  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (position_file_i_buffered): fix a GC-safety bug
 
 2008-11-24  Sam Steingold  <sds@gnu.org>

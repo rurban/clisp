@@ -1708,8 +1708,8 @@ global maygc object get_current_package (void) {
       Symbol_value(S(packagestar)) = O(default_package);
     /* get_current_package() is often called by the reader,
        so we need to save and restore the read buffers */
-    pushSTACK(O(token_buff_1)); O(token_buff_1) = NIL;
-    pushSTACK(O(token_buff_2)); O(token_buff_2) = NIL;
+    pushSTACK(TLO(token_buff_1)); TLO(token_buff_1) = NIL;
+    pushSTACK(TLO(token_buff_2)); TLO(token_buff_2) = NIL;
     pushSTACK(NIL);             /* 8: "Proceed with the new value." */
     pushSTACK(S(type_error));   /* 7: error type */
     pushSTACK(S(Kdatum));       /* 6: :DATUM */
@@ -1722,8 +1722,8 @@ global maygc object get_current_package (void) {
     STACK_2 = CLSTEXT("The value of *PACKAGE* was not a package and was reset. The old value was ~S. The new value is ~S.");
     STACK_8 = CLSTEXT("Proceed with the new value.");
     funcall(L(cerror_of_type),9);
-    O(token_buff_2) = popSTACK(); /* restore read buffers */
-    O(token_buff_1) = popSTACK();
+    TLO(token_buff_2) = popSTACK(); /* restore read buffers */
+    TLO(token_buff_1) = popSTACK();
     return Symbol_value(S(packagestar));
   }
 }
