@@ -230,6 +230,10 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
     skipSTACK(5);
     return;
   }
+
+  /* initialize the reader */
+  init_reader_low();
+
   var object new_cons=popSTACK();
   var object lthr=popSTACK();
   skipSTACK(3);

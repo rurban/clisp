@@ -850,27 +850,28 @@ global void clear_per_thread_symvalues(object symbol)
   }
 }
 
-  #define for_all_threadobjs(statement)  \
-    for_all_threads({                                     \
-      var gcv_object_t* objptr = (gcv_object_t*)(&thread->_aktenv); \
-      var uintC count;                                     \
-      dotimespC(count,sizeof(thread->_aktenv)/sizeof(gcv_object_t),     \
-        { statement; objptr++; });                         \
-      objptr=thread->_ptr_symvalues; \
-      dotimespC(count,num_symvalues,     \
-        { statement; objptr++; });                         \
-    })
+#define for_all_threadobjs(statement)                                   \
+  for_all_threads({                                                     \
+    var gcv_object_t* objptr = (gcv_object_t*)(&thread->_aktenv);       \
+    var uintC count;                                                    \
+    dotimespC(count,sizeof(thread->_aktenv)/sizeof(gcv_object_t),       \
+              { statement; objptr++; });                                \
+    objptr=thread->_ptr_symvalues;                                      \
+    dotimespC(count,num_symvalues,{ statement; objptr++; });            \
+    objptr=(gcv_object_t*)&(thread->_object_tab);                       \
+    dotimespC(count,sizeof(thread->_object_tab),{ statement; objptr++; }); \
+  })
 
-  #define for_all_STACKs(statement)  \
-    for_all_threads({                                            \
-      var gcv_object_t* objptr = STACKpointable(thread->_STACK); \
-      { statement; }                                             \
-    })
+#define for_all_STACKs(statement)                                \
+  for_all_threads({                                              \
+    var gcv_object_t* objptr = STACKpointable(thread->_STACK);   \
+    { statement; }                                               \
+  })
 
-  #define for_all_back_traces(statement)   \
-    for_all_threads({ var p_backtrace_t bt = thread->_back_trace; \
-      { statement; }                                              \
-    })
+#define for_all_back_traces(statement)                            \
+  for_all_threads({ var p_backtrace_t bt = thread->_back_trace;   \
+    { statement; }                                                \
+  })
 
 #endif
 
@@ -3874,6 +3875,7 @@ global int main (argc_t argc, char* argv[]) {
   init_dependent_encodings();
   /* initialize stream-variables: */
   init_streamvars(argv2.argv_batchmode_p);
+  init_reader_low();            /* token buffers */
   /* make break possible: */
   end_system_call();
   clr_break_sem_1();
