@@ -7262,7 +7262,7 @@ local maygc void position_file_i_buffered (object stream, uoff_t position) {
        && (buffered_nextbyte(stream,persev_partial) == (uintB*)NULL))
        /* Is the addressed position situated in the last byte too far? */
       || ((bitsize < 8)
-          && (position > BufferedStream_eofposition(stream)))) {
+          && (position > BufferedStream_eofposition(STACK_0/*stream*/)))) {
     /* Error. But first position back to the old Position: */
     stream = popSTACK();
     var uoff_t oldposition = BufferedStream_position(stream);
@@ -7270,7 +7270,7 @@ local maygc void position_file_i_buffered (object stream, uoff_t position) {
     position_file_i_buffered(stream,oldposition); /* positioning back */
     error_position_beyond_EOF(stream);
   }
-  skipSTACK(1);
+  stream = popSTACK();
   BufferedStream_bitindex(stream) = position_bits%8;
 }
 
@@ -9677,7 +9677,7 @@ local char * strip_white (char *string) {
   if (beg == NULL) return NULL;
   /* while (ch_blank_p(*beg)) beg++; */
   if (*beg == 0) return beg;
-  for (end = beg + strlen (beg) - 1; end > beg && (*end == '\r'); end--);
+  for (end = beg + strlen (beg) - 1; end > beg && (*end == '\r'); end--) ;
   *++end = '\0';
   return beg;
 }

@@ -1,5 +1,9 @@
 2008-11-24  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (position_file_i_buffered): fix a GC-safety bug
+
+2008-11-24  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (main): avoid g++ warning:
 	"deprecated conversion from string constant to 'char*'"
 
