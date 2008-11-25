@@ -417,8 +417,9 @@ type-error
 ;; into pathname.d.
 #-BeOS
 (progn
-  (with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede))
-  (delete-file "./foo35.tmp/bar"))
+  (with-open-file (s "./excepsit-tst-foo35.tmp" :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede))
+  (delete-file "./excepsit-tst-foo35.tmp/bar"))
 #-BeOS
 file-error
 
@@ -488,19 +489,21 @@ file-error
 (file-length *terminal-io*)
 type-error
 
-(with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+(with-open-file (s "./excepsit-tst-foo35.tmp" :direction :output
+                   #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
   (file-position s 0.0))
 error
 
-(with-open-file (s "./foo35.tmp" :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+(with-open-file (s "./excepsit-tst-foo35.tmp" :direction :output
+                   #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
   (file-position s -1))
 error
 
-(with-open-file (s "./foo35.tmp" :direction :input)
+(with-open-file (s "./excepsit-tst-foo35.tmp" :direction :input)
   (file-position s (+ (file-length s) 1000)))
 error
 
-(delete-file "./foo35.tmp")
+(delete-file "./excepsit-tst-foo35.tmp")
 null
 
 (file-write-date "*")
@@ -954,35 +957,35 @@ type-error
 (read-byte (make-string-input-stream "abc"))
 error
 
-(let ((filename "./foo51.bin"))
-  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
-                              :if-exists :overwrite
-                              :if-does-not-exist :create))
+(let ((filename "./excepsit-tst-foo51.bin"))
+  (with-open-file (s filename :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                     :if-exists :overwrite :if-does-not-exist :create))
   (with-open-file (s filename :direction :input
-                              :element-type '(unsigned-byte 8))
+                     :element-type '(unsigned-byte 8))
     (read-byte s t)))
 end-of-file
-(delete-file "./foo51.bin")
+(delete-file "./excepsit-tst-foo51.bin")
 null
 
-(let ((filename "./foo52.txt"))
-  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
-                              :if-exists :overwrite
-                              :if-does-not-exist :create))
+(let ((filename "./excepsit-tst-foo52.txt"))
+  (with-open-file (s filename :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                     :if-exists :overwrite :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)
     (read-char s t)))
 end-of-file
-(delete-file "./foo52.txt")
+(delete-file "./excepsit-tst-foo52.txt")
 null
 
-(let ((filename "./foo53.txt"))
-  (with-open-file (s filename :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
-                              :if-exists :overwrite
-                              :if-does-not-exist :create))
+(let ((filename "./excepsit-tst-foo53.txt"))
+  (with-open-file (s filename :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                     :if-exists :overwrite :if-does-not-exist :create))
   (with-open-file (s filename :direction :input)
     (read-char-no-hang s t)))
 end-of-file
-(delete-file "./foo53.txt")
+(delete-file "./excepsit-tst-foo53.txt")
 null
 
 (read-from-string "((a b))" nil nil :end 6)

@@ -768,7 +768,7 @@ T
 T
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1612313&group_id=1355
-(let ((f "pack-test.lisp"))
+(let ((f "pack11-tst.lisp"))
   (unwind-protect
        (progn
          (with-open-file (out f :direction :output)

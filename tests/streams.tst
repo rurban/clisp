@@ -971,7 +971,7 @@ WARNING: This form contains an error, a mistake, a bug, a
 #+clisp (with-output-to-string (s) (with-fill-stream (f s) (format f "~5T")))
 #+clisp "     "
 
-(let ((f "foo.bar") fwd1 fwd2)
+(let ((f "streams-tst-foo.bar") fwd1 fwd2)
   (unwind-protect
        (progn ; FILE-WRITE-DATE should work on :PROBE streams
          (with-open-file (s f :direction :output
@@ -988,7 +988,7 @@ WARNING: This form contains an error, a mistake, a bug, a
 (T NIL)
 
 #+clisp
-(let ((f "foo.bar") fwd size dir decoded)
+(let ((f "streams-tst-foo.bar") fwd size dir decoded)
   (unwind-protect
        (progn (with-open-file (s f :direction :output)
                 (write s :stream s)
@@ -1008,7 +1008,7 @@ WARNING: This form contains an error, a mistake, a bug, a
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1399709&group_id=1355&atid=101355
 ;; test :if-exists :append
-(let ((f "foo.bar") pos)
+(let ((f "streams-tst-foo.bar") pos)
   (unwind-protect
        (progn (with-open-file (s f :direction :output :if-exists :supersede
                                  #+clisp :external-format #+clisp :unix)
@@ -1074,7 +1074,10 @@ T
 (file-string-length (make-broadcast-stream) "foo") 1
 (stream-element-type (make-broadcast-stream))      T
 
-(let ((o (open "foo.bin" :direction :output #+(or CMU SBCL LISPWORKS) :if-exists #+(or CMU SBCL LISPWORKS) :supersede :element-type '(unsigned-byte 8)))
+(let ((o (open "streams-tst-foo.bin" :direction :output
+               #+(or CMU SBCL LISPWORKS) :if-exists
+               #+(or CMU SBCL LISPWORKS) :supersede
+               :element-type '(unsigned-byte 8)))
       (i (make-string-input-stream "foo")))
   (unwind-protect (stream-element-type (make-two-way-stream i o))
     (close o) (delete-file o)
@@ -1158,7 +1161,7 @@ T
 ;; https://sourceforge.net/tracker/index.php?func=detail&aid=1623179&group_id=1355&atid=101355
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1483762&group_id=1355
 #+clisp
-(let ((if "tmp-input-file") (of "tmp-output-file"))
+(let ((if "streams-tst-tmp-input-file") (of "streams-tst-tmp-output-file"))
   (open if :direction :probe :if-does-not-exist :create)
   (unwind-protect
        (with-open-file (o of :direction :output)
@@ -1183,7 +1186,7 @@ T
 
 ;; file-length on unbuffered streams
 (mapcar (lambda (buf)
-          (let ((f "tmp-file"))
+          (let ((f "streams-tst-tmp-file"))
             (unwind-protect
                  (let ((len (with-open-file (s f :direction :output)
                               (write-line f s)
@@ -1198,7 +1201,7 @@ T
 
 ;; file-position on unbuffered streams
 (mapcar (lambda (buf)
-          (let ((f "tmp-file"))
+          (let ((f "streams-tst-tmp-file"))
             (unwind-protect
                  (progn (with-open-file (s f :direction :output
                                            #+clisp :buffered #+clisp buf)
