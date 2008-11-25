@@ -282,9 +282,9 @@
   LISPOBJ(hs_socket_server,"SOCKET::SOCKET-SERVER")
   #endif
   #ifdef MULTITHREAD
-  LISPOBJ(hs_thread,"MT::THREAD")
-  LISPOBJ(hs_mutex,"MT::MUTEX")
-  LISPOBJ(hs_exemption,"MT::EXEMPTION")
+  LISPOBJ(hs_thread,"THREADS::THREAD")
+  LISPOBJ(hs_mutex,"THREADS::MUTEX")
+  LISPOBJ(hs_exemption,"THREADS::EXEMPTION")
   #endif
   #ifdef YET_ANOTHER_RECORD
   LISPOBJ(hs_yetanother,"SYS::YETANOTHER")
