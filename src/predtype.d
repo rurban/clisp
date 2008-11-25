@@ -1689,6 +1689,11 @@ LISPFUNNR(type_of,1)
         case Rectype_Socket_Server: /* Socket-Server */
           { value1 = S(socket_server); break; }
        #endif
+       #ifdef MULTITHREAD
+        case Rectype_Thread: { value1 = S(thread); break; }
+        case Rectype_Mutex: { value1 = S(mutex); break; }
+        case Rectype_Exemption: { value1 = S(exemption); break; }
+       #endif
        #ifdef YET_ANOTHER_RECORD
         case Rectype_Yetanother: /* Yetanother -> YET-ANOTHER */
           { value1 = S(yet_another); break; }
@@ -1985,6 +1990,11 @@ LISPFUNNR(class_of,1)
         case Rectype_Finalizer: /* Finalizer -> <t> */
        #ifdef SOCKET_STREAMS
         case Rectype_Socket_Server: /* Socket-Server -> <t> */
+       #endif
+       #ifdef MULTITHREAD
+        case Rectype_Thread:
+        case Rectype_Mutex:
+        case Rectype_Exemption:
        #endif
           { value1 = O(class_t); break; }
        #ifdef DYNAMIC_FFI
@@ -2630,6 +2640,11 @@ enum { /* The values of this enumeration are 0,1,2,...
  #ifdef SOCKET_STREAMS
   enum_hs_socket_server,
  #endif
+ #ifdef MULTITHREAD
+  enum_hs_thread,
+  enum_hs_mutex,
+  enum_hs_exemption,
+ #endif
  #ifdef YET_ANOTHER_RECORD
   enum_hs_yetanother,
  #endif
@@ -2980,6 +2995,14 @@ local void heap_statistics_mapper (void* arg, object obj, uintM bytelen)
        #ifdef SOCKET_STREAMS
         case Rectype_Socket_Server: /* Socket-Server */
           pighole = &locals->builtins[(int)enum_hs_socket_server]; break;
+       #endif
+       #ifdef MULTITHREAD
+        case Rectype_Thread:
+          pighole = &locals->builtins[(int)enum_hs_thread]; break;
+        case Rectype_Mutex:
+          pighole = &locals->builtins[(int)enum_hs_mutex]; break;
+        case Rectype_Exemption:
+          pighole = &locals->builtins[(int)enum_hs_exemption]; break;
        #endif
        #ifdef YET_ANOTHER_RECORD
         case Rectype_Yetanother: /* Yetanother */
