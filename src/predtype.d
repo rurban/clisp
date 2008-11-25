@@ -1992,18 +1992,12 @@ LISPFUNNR(class_of,1)
         case Rectype_Socket_Server: /* Socket-Server -> <t> */
        #endif
        #ifdef MULTITHREAD
-        case Rectype_Thread:
-        case Rectype_Mutex:
-        case Rectype_Exemption:
-       #endif
-          { value1 = O(class_t); break; }
-       #ifdef DYNAMIC_FFI
-        case Rectype_Ffunction: /* Foreign-Function -> <function> */
-          { value1 = O(class_function); break; }
+        case Rectype_Thread: /* Thread -> <t> */
+        case Rectype_Mutex: /* Mutex -> <t> */
+        case Rectype_Exemption: /* Exemption -> <t> */
        #endif
        #ifdef YET_ANOTHER_RECORD
         case Rectype_Yetanother: /* Yetanother -> <t> */
-          { value1 = O(class_t); break; }
        #endif
         case Rectype_WeakList: /* Weak-List -> <t> */
         case Rectype_WeakAnd: /* Weak-And-Relation -> <t> */
@@ -2019,6 +2013,10 @@ LISPFUNNR(class_of,1)
         case Rectype_WeakHashedAlist_Either: /* Weak-Hashed-Alist -> <t> */
         case Rectype_WeakHashedAlist_Both: /* Weak-Hashed-Alist -> <t> */
           { value1 = O(class_t); break; }
+       #ifdef DYNAMIC_FFI
+        case Rectype_Ffunction: /* Foreign-Function -> <function> */
+          { value1 = O(class_function); break; }
+       #endif
         default: goto unknown;
       }
       break;
