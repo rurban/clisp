@@ -14,7 +14,8 @@ global xmutex_t all_mutexes_lock;
 global xmutex_t all_exemptions_lock;
 
 
-/* TODO: move check_xxxx() to error.d and use MAKE_CHECK_REPLACEMENT ?*/
+/* TODO: move check_xxxx() to error.d and use MAKE_CHECK_REPLACEMENT ?
+ sds: probably not because these 3 functions are only used in this file */
 
 /* signals an error of obj is not thread. returns the thread*/
 local maygc object check_thread(object obj)
@@ -136,7 +137,7 @@ local /*maygc*/ void *thread_stub(void *arg)
             Symbol_thread_value(Car(pair)) = value1;
           }
         }
-      *initial_bindings = Cdr(*initial_bindings);
+        *initial_bindings = Cdr(*initial_bindings);
       }
     }
     funcall(*funptr,0); /* call fun */

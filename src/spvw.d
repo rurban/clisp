@@ -782,7 +782,9 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   return thread;
 }
 
-/* Releases current_thread resources */
+/* UP: Releases current_thread resources
+ > thread: the clisp thread object to be released
+ > full: if true, also release self and thread-local symbol table */
 global void delete_thread (clisp_thread_t *thread, bool full) {
   /* first give up any locks that the thread holds.
    if GC is suspending threads - we do not want to block it
@@ -814,10 +816,10 @@ global void delete_thread (clisp_thread_t *thread, bool full) {
     free(THREAD_LISP_STACK_START(thread));
   thread->_STACK = NULL;  /* marks thread as non active */
   thread->_thread_exit_tag = NULL;
-  /* VTZ: the clisp_thread_t itself will be deallocated during
-     finalization phase of GC - when the thread record is discarded.
-     why? (somebody may want to inspect the mv_space for "thread return
-     value")*/
+  /* VTZ: the clisp_thread_t itself will be deallocated during finalization
+     phase of GC - when the thread record is discarded. why?
+     (somebody may want to inspect the mv_space for "thread return value")
+     sds: mv_space does not survive a GC, so there is nothing to inspect */
   if (full) {
     free(thread->_ptr_symvalues);
     free(thread);
