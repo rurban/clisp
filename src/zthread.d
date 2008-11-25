@@ -232,7 +232,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   }
 
   /* initialize the reader */
-  init_reader_low();
+  init_reader_low(new_thread);
 
   var object new_cons=popSTACK();
   var object lthr=popSTACK();

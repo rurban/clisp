@@ -14136,7 +14136,16 @@ extern maygc object hash_table_test (object ht);
  init_reader();
  can trigger GC */
 extern maygc void init_reader (void);
-extern maygc void init_reader_low (void);
+#if defined(MULTITHREAD)
+#define INIT_READER_LOW_ARGS  struct clisp_thread_t* thr
+#define INIT_READER_LOW_OTAB  thr->_object_tab
+#define INIT_READER_LOW()  init_reader_low(current_thread())
+#else
+#define INIT_READER_LOW_ARGS  void
+#define INIT_READER_LOW_OTAB  object_tab
+#define INIT_READER_LOW()  init_reader_low()
+#endif
+extern maygc void init_reader_low (INIT_READER_LOW_ARGS);
 /* is used by SPVW */
 
 /* UP:

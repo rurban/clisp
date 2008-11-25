@@ -506,17 +506,17 @@ global maygc void init_reader (void) {
     readtable = copy_readtable(readtable);        /* one copy of it */
     define_variable(S(readtablestar),readtable); /* =: *READTABLE* */
   }
-  init_reader_low();
+  INIT_READER_LOW();
 }
-global maygc void init_reader_low (void) {
+global maygc void init_reader_low (INIT_READER_LOW_ARGS) {
   /* initialize token_buff_1 and token_buff_2: */
-  TLO(token_buff_1) = NIL;
+  INIT_READER_LOW_OTAB.token_buff_1 = NIL;
   /* token_buff_1 and token_buff_2 will be initialized
    with a semi-simple-string and a semi-simple-byte-vector
    at the first call of get_buffers (see below).
    Initialize Displaced-String:
    new array (with data-vector NIL), Displaced, rank=1 */
-  TLO(displaced_string) =
+  INIT_READER_LOW_OTAB.displaced_string =
     allocate_iarray(bit(arrayflags_displaced_bit)|
                     bit(arrayflags_dispoffset_bit)|
                     Atype_Char,

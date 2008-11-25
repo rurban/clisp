@@ -3875,7 +3875,7 @@ global int main (argc_t argc, char* argv[]) {
   init_dependent_encodings();
   /* initialize stream-variables: */
   init_streamvars(argv2.argv_batchmode_p);
-  init_reader_low();            /* token buffers */
+  INIT_READER_LOW();            /* token buffers */
   /* make break possible: */
   end_system_call();
   clr_break_sem_1();
