@@ -264,7 +264,7 @@ UNKNOWN
 UNKNOWN
 
 ;;; http://sourceforge.net/tracker/index.php?func=detail&aid=1603260&group_id=1355&atid=101355
-(let ((file "function-lambda-expression-test.lisp")
+(let ((file "lambda-tst-function-lambda-expression-test.lisp")
       (fle (function-lambda-expression #'foo))
       (res ()))
   (unwind-protect

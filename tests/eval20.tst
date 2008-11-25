@@ -19,7 +19,7 @@ ERROR
 3
 
 ;; eval-when
-(let ((ff "eval-when-test.lisp"))
+(let ((ff "eval20-tst-eval-when-test.lisp"))
   (with-open-file (foo ff :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (format foo "~%(eval-when (compile eval)
   ;; note that LAMBDA is not externalizable
@@ -32,7 +32,7 @@ nil
 (defvar *collector*)
 *collector*
 
-(let ((forms nil) all (ff "eval-when-test.lisp"))
+(let ((forms nil) all (ff "eval20-tst-eval-when-test.lisp"))
   (dolist (c '(nil (:compile-toplevel)))
     (dolist (l '(nil (:load-toplevel)))
       (dolist (x '(nil (:execute)))
@@ -79,7 +79,7 @@ nil
   (LET :COMPILE-TOPLEVEL :LOAD-TOPLEVEL :EXECUTE)))
 
 ;; eval-when.15: in CLISP LOAD is not the same as :LOAD-TOPLEVEL
-(let ((f "eval-when-test.lisp") (ret ()))
+(let ((f "eval20-tst-eval-when-test.lisp") (ret ()))
   (dolist (situation '(load :load-toplevel) (nreverse ret))
     (let ((*collector* ()))
       (with-open-file (o f :direction :output)
@@ -93,7 +93,7 @@ nil
 (((NIL :LET) (:EVAL-WHEN :EVAL-WHEN)) ((NIL :LET) (NIL :LET)))
 
 ;; eval-when.17: in CLISP EVAL is not the same as :EXECUTE
-(let ((f "eval-when-test.lisp") (ret ()))
+(let ((f "eval20-tst-eval-when-test.lisp") (ret ()))
   (dolist (situation '(eval :execute) (nreverse ret))
     (let ((*collector* ()))
       (with-open-file (o f :direction :output)
@@ -143,9 +143,10 @@ T
 NIL
 
 ;; <http://www.lisp.org/HyperSpec/Issues/iss146-writeup.html>
-(let ((src "foo.lisp") (zz (cons 1 2)))
+(let ((src "eval20-tst.lisp") (zz (cons 1 2)))
   (defun setf-foo (u v) (setf (car u) v))
-  (with-open-file (s src :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+  (with-open-file (s src :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (format s "(progn~%  (defsetf foo setf-foo)
   (defun bar (u v) (setf (foo u) v)))~%"))
   (load src #+CLISP :compiling #+CLISP t)

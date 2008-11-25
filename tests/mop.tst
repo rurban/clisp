@@ -2447,7 +2447,7 @@ T
 #+CLISP ((STRUCT04ROV-SLOT1) NIL)
 
 ;; check that there are no redefinition warnings
-(let* ((f "defstruct-test.lisp")
+(let* ((f "mop-tst-defstruct-test.lisp")
        #+CLISP (custom:*suppress-check-redefinition* nil)
        (*break-on-signals* t))
   (with-open-file (s f :direction :output :if-exists :supersede)

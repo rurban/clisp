@@ -1,40 +1,43 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
-(setf my-string "test-pathname.abc" my-symbol 'test-pathname.abc)
-test-pathname.abc
+(setf my-string "path-tst-test-pathname.abc"
+      my-symbol 'path-tst-test-pathname.abc)
+path-tst-test-pathname.abc
 
 ;; PATHNAME: argument type: pathname,string,symbol,stream
 ;;           result: pathname
 
 (SETF PATHSTRING (PATHNAME MY-STRING))
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
-TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
 (SETF PATHSYMBOL (PATHNAME my-symbol))
 #+XCL
-#S(PATHNAME SYSTEM::HOST
-NIL SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME
-"TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME
+            "PATH-TST-TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
 (SETF PATHPATH (PATHNAME PATHSYMBOL))
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
-TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
-(SETF MY-STREAM (OPEN MY-STRING :DIRECTION :OUTPUT #+(or CMU SBCL) :IF-EXISTS #+(or CMU SBCL) :SUPERSEDE)
-      a nil)
+(progn
+  (SETF MY-STREAM (OPEN MY-STRING :DIRECTION :OUTPUT
+                        #+(or CMU SBCL) :IF-EXISTS #+(or CMU SBCL) :SUPERSEDE))
+  nil)
 nil
 
 ;(SETF PATHSTREAM (PATHNAME MY-STREAM))
@@ -73,60 +76,60 @@ nil
 
 (PARSE-NAMESTRING MY-STRING)
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
-TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
 (PARSE-NAMESTRING MY-SYMBOL)
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
-TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
 #+XCL
 (PARSE-NAMESTRING "bab:test-pathname.abc")
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "$1$DUA70" DIRECTORY "43.BABYLON.REL2" SYSTEM::NAME
-"TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "$1$DUA70"
+            DIRECTORY "43.BABYLON.REL2" SYSTEM::NAME
+            "TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION NIL)
 
 #+XCL
 (PARSE-NAMESTRING "bab:test-pathname.abc;3")
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "$1$DUA70" DIRECTORY "43.BABYLON.REL2" SYSTEM::NAME
-"TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION 3)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "$1$DUA70"
+            DIRECTORY "43.BABYLON.REL2" SYSTEM::NAME
+            "TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION 3)
 
 (PARSE-NAMESTRING PATHSTRING)
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE
-"DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME" TYPE "ABC"
-SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
-(PARSE-NAMESTRING "test-pathname.abc" NIL)
+(PARSE-NAMESTRING "path-tst-test-pathname.abc" NIL)
 #+XCL
-#S(PATHNAME SYSTEM::HOST NIL
-SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "XCL.MAIN" SYSTEM::NAME "TEST-PATHNAME"
-TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST NIL SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "XCL.MAIN" SYSTEM::NAME "PATH-TST-TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 #+CLISP
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
-            :NAME "test-pathname" :TYPE "abc" :VERSION NIL)
+            :NAME "path-tst-test-pathname" :TYPE "abc" :VERSION NIL)
 
 #+XCL
 (PARSE-NAMESTRING "sirius::disk00$abt43:[heicking]test-pathname.abc")
 #+XCL
-#S(PATHNAME
-SYSTEM::HOST "SIRIUS" SYSTEM::DEVICE "DISK00$ABT43" DIRECTORY "HEICKING"
-SYSTEM::NAME "TEST-PATHNAME" TYPE "ABC" SYSTEM::VERSION NIL)
+#S(PATHNAME SYSTEM::HOST "SIRIUS" SYSTEM::DEVICE "DISK00$ABT43"
+            DIRECTORY "HEICKING" SYSTEM::NAME "TEST-PATHNAME"
+            TYPE "ABC" SYSTEM::VERSION NIL)
 
 #+XCL
 (PARSE-NAMESTRING "sirius::disk00$abt43:[heicking]test-pathname.abc" "sirius")
@@ -394,19 +397,19 @@ DIRECTORY "HEICKING" SYSTEM::NAME "*" TYPE :WILD SYSTEM::VERSION NIL)
 #S(PATHNAME :HOST NIL :DEVICE NIL :DIRECTORY NIL
             :NAME :WILD :TYPE :WILD :VERSION NIL)
 
-(progn (setf my-file (open "non-existent-file.non"
+(progn (setf my-file (open "path-tst-non-existent-file.non"
                            :direction :input
                            :element-type 'string-char
                            :if-does-not-exist :create)) t)
 t
 
-(null (probe-file "non-existent-file.non"))
+(null (probe-file "path-tst-non-existent-file.non"))
 NIL
 
 (progn (close my-file) t)
 t
 
-(setf my-file (open "non-existent-file.non"
+(setf my-file (open "path-tst-non-existent-file.non"
                     :direction :io
                     :element-type 'string-char
                     :if-exists :error))
@@ -415,7 +418,7 @@ error
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :new-version)))
@@ -424,7 +427,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :rename)))
@@ -433,7 +436,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :rename-and-delete)))
@@ -442,7 +445,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :overwrite)))
@@ -451,7 +454,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :append)))
@@ -460,7 +463,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-exists :supersede)))
@@ -469,7 +472,7 @@ nil
 (progn (close my-file) t)
 t
 
-(setf my-file (open "non-existent-file.non"
+(setf my-file (open "path-tst-non-existent-file.non"
                     :direction :io
                     :element-type 'string-char
                     :if-exists nil))
@@ -499,7 +502,7 @@ nil
 (progn (close my-file) t)
 t
 
-(null (setf my-file (open "non-existent-file.non"
+(null (setf my-file (open "path-tst-non-existent-file.non"
                           :direction :io
                           :element-type 'string-char
                           :if-does-not-exist nil)))
@@ -510,23 +513,23 @@ t
 
 (let ((*default-pathname-defaults* #p""))
   (multiple-value-bind (new-name pathname truename)
-      (rename-file "non-existent-file.non" "file.da")
+      (rename-file "path-tst-non-existent-file.non" "path-tst-file.da")
     (list (namestring new-name) (null pathname) (null truename))))
-("file.da" NIL NIL)
+("path-tst-file.da" NIL NIL)
 
-(close (open "file.da" :direction :output :if-exists :rename-and-delete))
+(close (open "path-tst-file.da" :direction :output :if-exists :rename-and-delete))
 t
 
-(pathnamep (probe-file "test-pathname.abc"))
+(pathnamep (probe-file "path-tst-test-pathname.abc"))
 t
 
-(progn (delete-file "test-pathname.abc") t)
+(progn (delete-file "path-tst-test-pathname.abc") t)
 t
 
 (progn (mapc #'delete-file (directory "non-existent-file.*")) t)
 t
 
-(progn (delete-file "file.da") t)
+(progn (delete-file "path-tst-file.da") t)
 t
 
 (progn
@@ -804,7 +807,7 @@ T
 (pathname-device (logical-pathname "FOO:"))
 :UNSPECIFIC
 
-(let* ((old "foo-bar.old")
+(let* ((old "path-tst-foo-bar.old")
        (new (make-pathname :type "new" :defaults old)))
   (with-open-file (s old :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede) (write-line "to be renamed" s))
   (unwind-protect
@@ -832,7 +835,7 @@ T
                                          :version :wild)))
 NIL
 
-(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+(let ((file "path-tst-this-is-a-temp-file-to-be-removed-immediately"))
   (unwind-protect
        (let ((d (directory (make-pathname
                             :defaults (open file :direction :probe
@@ -848,7 +851,7 @@ NIL
                             "foo/bar/baz" #p"" #p"" :absolute t)))
 :ABSOLUTE
 
-(let ((file "this-is-a-temp-file-to-be-removed-immediately.lisp"))
+(let ((file "path-tst-this-is-a-temp-file-to-be-removed-immediately.lisp"))
   (unwind-protect
        (let* ((p (pathname (open file :direction :probe
                                  :if-does-not-exist :create)))
@@ -862,7 +865,7 @@ NIL
     (delete-file file)))
 (T T T)
 
-(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+(let ((file "path-tst-this-is-a-temp-file-to-be-removed-immediately"))
   (unwind-protect
        (let* ((p (pathname (open file :direction :probe
                                  :if-does-not-exist :create))))
@@ -876,7 +879,7 @@ NIL
     (delete-file file)))
 (T T)
 
-(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+(let ((file "path-tst-this-is-a-temp-file-to-be-removed-immediately"))
   (unwind-protect
        (with-open-file (s file :direction :output)
          (list (not (null (probe-file file)))
@@ -885,7 +888,7 @@ NIL
     (delete-file file)))
 (T T T)
 
-(let ((file "this-is-a-temp-file-to-be-removed-immediately"))
+(let ((file "path-tst-this-is-a-temp-file-to-be-removed-immediately"))
   (unwind-protect
        (with-open-file (s file :direction :output)
          (path= (truename (enough-namestring s))
@@ -919,7 +922,7 @@ T
 ;; Check that LOAD can load a file "abazonk.lisp" even if a
 ;; directory "abazonk" exists.
 #+clisp
-(let* ((n "abazonk")
+(let* ((n "path-tst-abazonk")
        (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
   (with-open-file (s f :direction :output)
@@ -932,7 +935,7 @@ T
 #+clisp (T T T NIL)
 
 #+clisp
-(let* ((n "abazonk-logical")
+(let* ((n "path-tst-abazonk-logical")
        (custom:*parse-namestring-ansi* t)
        (f (ext:string-concat n ".lisp"))
        (d (ext:string-concat n "/")))
@@ -947,7 +950,7 @@ T
 #+clisp (T T T NIL)
 
 ;; check that we can compile files in ansi mode
-(let ((f "compile-file-ansi-pathname.lisp")
+(let ((f "path-tst-compile-file-ansi-pathname.lisp")
       #+clisp (custom:*print-pathnames-ansi* t))
   (with-open-file (s f :direction :output :if-exists :supersede)
     (format s "(defparameter *pathname-var*
@@ -959,7 +962,7 @@ T
     (post-compile-file-cleanup f)))
 "foo.bar"
 
-(let ((f "compile-file-pathname.lisp") cf cfp)
+(let ((f "path-tst-compile-file-pathname.lisp") cf cfp)
   (with-open-file (s f :direction :output :if-exists :supersede)
     (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
   (setq cf (compile-file f)
@@ -971,7 +974,7 @@ T
     (post-compile-file-cleanup f)))
 (T T)
 
-(let ((f (logical-pathname "FOO:compile-file-pathname.lisp")) cf cfp)
+(let ((f (logical-pathname "FOO:path-tst-compile-file-pathname.lisp")) cf cfp)
   (with-open-file (s f :direction :output :if-exists :supersede)
     (type-of (truename s))
     (format s "(defun cfp-test () #.*compile-file-truename*)~%"))
@@ -984,7 +987,7 @@ T
     (post-compile-file-cleanup f)))
 (T T)
 
-(let ((f "compile-file-pathname.lisp"))
+(let ((f "path-tst-compile-file-pathname.lisp"))
   (with-open-file (s f :direction :output :if-exists :supersede
                      :if-does-not-exist :create)
     (format s "(defun cfp-test () #.*compile-file-pathname*)~%"))
@@ -1004,7 +1007,7 @@ T
 #-CLISP UNKNOWN
 
 ;; ensure that when "foo" is a file, (directory "foo/") returns NIL
-(let* ((f "foo") r (f1 (concatenate 'string f "/")))
+(let* ((f "path-tst-foo") r (f1 (concatenate 'string f "/")))
   (delete-file f)
   (push (directory f) r)
   (push (directory f1) r)
@@ -1101,7 +1104,7 @@ NIL
 ;; https://sourceforge.net/tracker2/?func=detail&atid=101355&aid=2198109&group_id=1355
 ;; wild subdirectory
 #+clisp
-(let* ((lpd (pathname "load-path-dir/"))
+(let* ((lpd (pathname "path-tst-load-path-dir/"))
        (custom:*merge-pathnames-ansi* t)
        (file (merge-pathnames
               (first *load-logical-pathname-translations-database*)
@@ -1122,7 +1125,7 @@ NIL
 #+clisp #P"/foo/bar/baz/zot.txt"
 
 #+clisp
-(let* ((lpd (pathname "load-path-dir/"))
+(let* ((lpd (pathname "path-tst-load-path-dir/"))
        (custom:*merge-pathnames-ansi* t)
        (dir (make-pathname :directory (append (pathname-directory lpd) (list (pathname-name (first *load-logical-pathname-translations-database*))))))
        (file (merge-pathnames "FOO" dir)))
@@ -1143,22 +1146,23 @@ NIL
 #+clisp (translate-logical-pathname "foo:bar;baz;zot.txt")
 #+clisp #P"/foo/bar/baz/zot.txt"
 
-#+clisp (ext:make-directory "foo/") #+clisp T
-(defparameter *dir* (directory "foo/" :full t)) *DIR*
+#+clisp (ext:make-directory "path-tst-foo/") #+clisp T
+(defparameter *dir* (directory "path-tst-foo/" :full t)) *DIR*
 (cdr *dir*) NIL
 (length (car *dir*)) 4
 (equal (caar *dir*) (cadar *dir*)) T
-(equal (caar *dir*) (car (directory "foo/"))) T
-#+clisp (ext:rename-directory "foo/" "bar/") #+clisp T
-#-clisp (rename-file "foo/" "bar/") #-clisp #p"bar/"
-(equal (cddar (directory "bar/" :full t)) (cddar *dir*)) T
-(directory "foo/") NIL
-#+clisp (ext:delete-directory "bar/") #-clisp (delete-file "bar/") T
-(directory "bar/" :full t) NIL
+(equal (caar *dir*) (car (directory "path-tst-foo/"))) T
+#+clisp (ext:rename-directory "path-tst-foo/" "path-tst-bar/") #+clisp T
+#-clisp (rename-file "path-tst-foo/" "path-tst-bar/") #-clisp #p"path-tst-bar/"
+(equal (cddar (directory "path-tst-bar/" :full t)) (cddar *dir*)) T
+(directory "path-tst-foo/") NIL
+#+clisp (ext:delete-directory "path-tst-bar/")
+#-clisp (delete-file "path-tst-bar/") T
+(directory "path-tst-bar/" :full t) NIL
 (pathname-version (car (directory "./"))) NIL
 
 #+clisp
-(let ((f "my-file") tn)
+(let ((f "path-tst-my-file") tn)
   (unwind-protect
        (progn
          (setq tn (truename
@@ -1174,7 +1178,7 @@ NIL
 #+clisp (T T T T T)
 
 #+clisp
-(let* ((d "my-dir") (d1 (concatenate 'string d "/")) tn)
+(let* ((d "path-tst-my-dir") (d1 (concatenate 'string d "/")) tn)
   (unwind-protect
        (progn
          (make-directory d1)
