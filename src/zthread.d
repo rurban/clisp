@@ -230,10 +230,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
     skipSTACK(5);
     return;
   }
-
-  /* initialize the reader */
-  init_reader_low(new_thread);
-
   var object new_cons=popSTACK();
   var object lthr=popSTACK();
   skipSTACK(3);
@@ -245,6 +241,14 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   Cdr(new_cons) = O(all_threads);
   O(all_threads) = new_cons;
   unlock_threads(); /* allow GC and other thread creation. */
+
+  /* initialize the reader, after we release the threads lock.
+     Otherwise deadlock may occur (if other thread triggers GC).
+     While holding the threads lock - we should never try to allocate anything
+     on the heap (unless we are sure we are the only running thread).
+  */
+  init_reader_low(new_thread);
+
   /* create the OS thread */
   if (xthread_create(&TheThread(lthr)->xth_system, &thread_stub,new_thread,cstack_size)) {
     /* side effect - we return NIL but the not started thread is
