@@ -245,14 +245,14 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* initialize the reader, after we release the threads lock.
      Otherwise deadlock may occur (if other thread triggers GC).
      While holding the threads lock - we should never try to allocate anything
-     on the heap (unless we are sure we are the only running thread).
-  */
+     on the heap (unless we are sure we are the only running thread). */
   init_reader_low(new_thread);
 
   /* create the OS thread */
-  if (xthread_create(&TheThread(lthr)->xth_system, &thread_stub,new_thread,cstack_size)) {
-    /* side effect - we return NIL but the not started thread is
-       present in all_threads (will not survive GC since no references to it). */
+  if (xthread_create(&TheThread(lthr)->xth_system,
+                     &thread_stub,new_thread,cstack_size)) {
+    /* side effect - we return NIL but the not started thread is present in
+       all_threads (will not survive GC since no references to it). */
     pushSTACK(lthr);
     delete_thread(new_thread,false);
     lthr=popSTACK();
@@ -512,9 +512,8 @@ LISPFUNN(list_threads,0)
 /* helper function that returns pointer to the symbol's symvalue
    in a thread. If the symbol is not bound in the thread - NULL is
    returned */
-local maygc gcv_object_t* thread_symbol_place(gcv_object_t *symbol,
-                                              gcv_object_t *thread)
-{
+local maygc gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
+                                               gcv_object_t *thread) {
   var object sym=check_symbol(*symbol);
   if (eq(*thread,NIL)) {
     /* global value */

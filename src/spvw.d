@@ -536,14 +536,14 @@ global uintL* current_thread_alloccount()
     var size_t stack_size=0;
     if (!nthreads) {
       /* This is the main thread - the only one that is initialized
-       before being registered (and thus nthreads=0). Use getrlimit().
-      What to do if we do not have getrlimit()? Currently we will crash.*/
+         before being registered (and thus nthreads=0). Use getrlimit().
+         What to do if we do not have getrlimit()? Currently we will crash.*/
       var struct rlimit rl;
       if (getrlimit(RLIMIT_STACK, &rl) == 0)
         stack_size = (rl.rlim_max == RLIM_INFINITY) ? rl.rlim_cur : rl.rlim_max;
-        /*NB: there is a chance this value to be larger that needed and to
-          fill more items in threads_map. However since we are the first thread
-          there is no problem - other threads will overwrite these mapping later.*/
+      /*NB: there is a chance this value to be larger that needed and to fill
+        more items in threads_map. However since we are the first thread there
+        is no problem - other threads will overwrite these mapping later.*/
     } else {
       /* we are in a thread created by pthread_create() */
       var aint base;
@@ -660,18 +660,19 @@ local void init_multithread_special_symbols()
   });
 }
 
-/* VTZ: allocates a LISP stack for new thread (except for the main one)
- The stack_size parameters is in bytes.
- It is always called with main thread lock - so we are not going to call
- begin/end_system_call.*/
+/* UP: allocates a LISP stack for new thread (except for the main one)
+ > thread: the CLISP thread object for which we are allocating STACK
+ > stack_size: the number of gcv_object_t that the STACK will be able to hold
+ Always called with main thread lock - so we are not going to call
+ begin/end_system_call. */
 local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_size)
 {
-  var uintM low,high;
+  var uintM low,high,byte_size = stack_size*sizeof(gcv_object_t)+0x40;
   begin_system_call();
-  low=(uintM)malloc(stack_size*sizeof(gcv_object_t)+0x40);
+  low = (uintM)malloc(byte_size);
   end_system_call();
   if (!low) return NULL;
-  high=low+stack_size*sizeof(gcv_object_t)+0x40;
+  high = low + byte_size;
   #ifdef STACK_DOWN
    thread->_STACK_bound=(gcv_object_t *)(low + 0x40);
    thread->_STACK=(gcv_object_t *)high;
@@ -699,9 +700,12 @@ global void unlock_threads()
   end_system_call();
 }
 
-/* register a clisp-thread_t in global thread array
- thread - the newly allocated thread.
- The called party shoul hold the global thread lock */
+/* UP: register a clisp-thread_t in global thread array
+ > thread: a newly allocated thread
+ < allthreads: modified (thread appended)
+ < new thread's index or -1 on failure
+     (if more than MAXNTHREADS are already present)
+ The caller should hold the global thread lock */
 global int register_thread(clisp_thread_t *thread)
 {
   /* register lisp_thread to global thread list. */
@@ -712,12 +716,12 @@ global int register_thread(clisp_thread_t *thread)
   return thread->_index;
 }
 
-/* creates new cisp_thread_t structure and allocates LISP stack.
- It is always called with the main thread mutex locked.
- when the lisp_stack_size is 0 - it means this is the very first thread,
- so we may(should not) perform some initializations (lisp_stack_size is
- the count of gcv_object_t that can be put in the newly allocated
- stack)*/
+/* UP: creates new cisp_thread_t structure and allocates LISP stack.
+ > lisp_stack_size: the size of Lisp STACK to allocate (in gcv_object_t)
+      when 0 - this is the very first thread, so we may(should not)
+      perform some initializations
+ < clisp thread object
+ It is always called with the main thread mutex locked. */
 global clisp_thread_t* create_thread(uintM lisp_stack_size)
 {
   var clisp_thread_t* thread;
@@ -736,8 +740,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
     return NULL;
   }
   end_system_call();
-  {
-    /* initialize the per thread special vars bindings to be "empty" */
+  { /* initialize the per thread special vars bindings to be "empty" */
     var gcv_object_t* objptr = thread->_ptr_symvalues;
     var uintC count;
     dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
@@ -779,7 +782,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   return thread;
 }
 
-  /* Releases current_thread resources */
+/* Releases current_thread resources */
 global void delete_thread (clisp_thread_t *thread, bool full) {
   /* first give up any locks that the thread holds.
    if GC is suspending threads - we do not want to block it
@@ -865,7 +868,8 @@ global void clear_per_thread_symvalues(object symbol)
     objptr=thread->_ptr_symvalues;                                      \
     dotimespC(count,num_symvalues,{ statement; objptr++; });            \
     objptr=(gcv_object_t*)&(thread->_object_tab);                       \
-    dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),{ statement; objptr++; }); \
+    dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),   \
+              { statement; objptr++; });                                \
   })
 
 #define for_all_STACKs(statement)                                \
