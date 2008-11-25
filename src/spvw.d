@@ -737,9 +737,15 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   }
   end_system_call();
   {
+    /* initialize the per thread special vars bindings to be "empty" */
     var gcv_object_t* objptr = thread->_ptr_symvalues;
     var uintC count;
     dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
+    /* fill thread _object_tab with NIL-s in case GC is triggered before
+       they are really initialized.*/
+    objptr=(gcv_object_t*)&(thread->_object_tab);
+    dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),
+              { *objptr++=NIL; });
   }
   if (lisp_stack_size) {
     /* allocate the LISP stack */
@@ -859,7 +865,7 @@ global void clear_per_thread_symvalues(object symbol)
     objptr=thread->_ptr_symvalues;                                      \
     dotimespC(count,num_symvalues,{ statement; objptr++; });            \
     objptr=(gcv_object_t*)&(thread->_object_tab);                       \
-    dotimespC(count,sizeof(thread->_object_tab),{ statement; objptr++; }); \
+    dotimespC(count,sizeof(thread->_object_tab)/sizeof(gcv_object_t),{ statement; objptr++; }); \
   })
 
 #define for_all_STACKs(statement)                                \
