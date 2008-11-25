@@ -1,5 +1,9 @@
 2008-11-25  Sam Steingold  <sds@gnu.org>
 
+	* predtype.d (CLASS-OF): simplify switch (Record_type(arg))
+
+2008-11-25  Sam Steingold  <sds@gnu.org>
+
 	* predtype.d (TYPE-OF, CLASS-OF, heap_statistics_mapper) [MULTITHREAD]:
 	support THREAD, MUTEX, EXEMPTION
 	* constsym.d (hs_thread, hs_mutex, hs_exemption) [MULTITHREAD]: add
