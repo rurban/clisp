@@ -125,6 +125,15 @@ to print the corresponding values, or T for all of them.")
 (clos:defgeneric describe-object (obj stream)
   (:method ((obj t) (stream stream))
     (ecase (type-of obj)
+      #+MT
+      (MT:THREAD
+       (format stream (TEXT "a thread object.")))
+      #+MT
+      (MT:MUTEX
+       (format stream (TEXT "a mutually exclusive thread lock.")))
+      #+MT
+      (MT:EXEMPTION
+       (format stream (TEXT "a thread condition variable.")))
       #+(or UNIX FFI WIN32)
       (EXT::FOREIGN-POINTER
        (format stream (TEXT "a foreign pointer.")))
