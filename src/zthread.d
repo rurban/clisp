@@ -126,7 +126,7 @@ local /*maygc*/ void *thread_stub(void *arg)
     /* create special vars initial dynamic bindings.
        do not create DYNBIND frame since anyway we are at the
        "top level" of the thread. */
-    if (boundp(*initial_bindings) && !endp(*initial_bindings)) {
+    if (!missingp(*initial_bindings)) {
       while (!endp(*initial_bindings)) {
         var object pair=Car(*initial_bindings);
         if (consp(pair) && symbolp(Car(pair))) {
