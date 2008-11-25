@@ -1,5 +1,10 @@
 2008-11-25  Sam Steingold  <sds@gnu.org>
 
+	* mt.tst: check that DESCRIBE and TIMES work on
+	THREAD/MUTEX/EXEMPTION objects
+
+2008-11-25  Sam Steingold  <sds@gnu.org>
+
 	* bin-io.tst, clos.tst, encoding.tst, eval20.tst, excepsit.tst,
 	* ext-clisp.tst, lambda.tst, macro8.tst, mop.tst, pack11.tst,
 	* path.tst, socket.tst, streams.tst, streamslong.tst:
