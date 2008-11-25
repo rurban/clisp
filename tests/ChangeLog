@@ -1,3 +1,11 @@
+2008-11-25  Sam Steingold  <sds@gnu.org>
+
+	* bin-io.tst, clos.tst, encoding.tst, eval20.tst, excepsit.tst,
+	* ext-clisp.tst, lambda.tst, macro8.tst, mop.tst, pack11.tst,
+	* path.tst, socket.tst, streams.tst, streamslong.tst:
+	prefix all open file names with the test file name to avoid
+	conflicts when run in parallel
+
 2008-11-22  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* tests.lisp (run-all-tests-parallel): do not share args between threads

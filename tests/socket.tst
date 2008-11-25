@@ -21,7 +21,7 @@ coerce-byte-array
 
 ;;; * Reading from files
 
-(defparameter *file* "file.test") *file*
+(defparameter *file* "socket-tst-file.test") *file*
 (with-open-file (s *file* :direction :output)
   (loop :repeat 3 :do (write-line "abcdefghijklmnopqrstuvwxyz" s)))
 NIL

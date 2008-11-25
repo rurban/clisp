@@ -485,7 +485,8 @@ T
 T
 
 ;; make-load-form
-(defun mlf-tester (symbol &optional (lisp-file "make-load-form-demo.lisp"))
+(defun mlf-tester (symbol &optional
+                   (lisp-file "clos-tst-make-load-form-demo.lisp"))
   (unwind-protect
        (let (compiled-file)
          (with-open-file (stream lisp-file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
@@ -530,7 +531,7 @@ FOO
 (progn
   (defmethod make-load-form ((x foo) &optional env)
     (make-load-form-saving-slots x :environment env))
-  (defparameter *tmp-file* "mlf-tmp.lisp")
+  (defparameter *tmp-file* "clos-tst-mlf-tmp.lisp")
   (with-open-file (s *tmp-file* :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (format s "(defparameter *foo* '#S(FOO :A BAR-CONST))~%"))
   (load (compile-file *tmp-file*))
@@ -630,7 +631,7 @@ FOO
 ;; From: Kaz Kylheku <kaz@ashi.footprints.net>
 ;; Date: Sat, 3 Jan 2004 14:47:25 -0800 (PST)
 ;; <http://article.gmane.org/gmane.lisp.clisp.general:7853>
-(let ((file "foo.lisp") c)
+(let ((file "clos-tst.lisp") c)
   (unwind-protect
        (progn
          (makunbound '*foo*)

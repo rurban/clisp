@@ -13,7 +13,7 @@
 #+XCL (SYS::CHECK-STREAM-SYSTEM) #+XCL T
 
 (defun bin-stream-test (&key (size (integer-length most-positive-fixnum))
-                        (type 'unsigned-byte) (file-name "./foocl")
+                        (type 'unsigned-byte) (file-name "streamslong-tst-foo")
                         (num-bytes 10)
                         (bytes (if (eq type 'signed-byte)
                                    (loop :repeat num-bytes :collect
@@ -49,7 +49,7 @@ nil
 (let ((noticed '()) file-written)
   (flet ((notice (x) (push x noticed) x))
     (unwind-protect (progn
-         (with-open-file (s "test.bin"
+         (with-open-file (s "streamslong-tst-footest.bin"
                             :element-type '(unsigned-byte 8)
                             :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
                             :if-exists :error)
@@ -122,7 +122,7 @@ nil
 
 ;; <https://sourceforge.net/tracker/?func=detail&aid=959549&group_id=1355&atid=101355>
 #+CLISP
-(let ((f "foo") (s "12345") l)
+(let ((f "streamslong-tst-foo") (s "12345") l)
   (with-open-file (o f :direction :output) (write-string s o))
   (with-open-file (i f :buffered t) (listen i) (push (read-char i) l))
   (with-open-file (i f :buffered nil) (listen i) (push (read-char i) l))
@@ -132,7 +132,7 @@ nil
 (#\1 #\1)
 
 #+CLISP
-(let ((file "foo") s1 s2)
+(let ((file "streamslong-tst-foo") s1 s2)
   (with-open-file (out file :direction :output)
     (write out :stream out) (terpri out)
     (setq s1 (write-to-string out))
@@ -176,7 +176,8 @@ nil
          "abc" gray:stream-write-sequence "abc" NIL WITH-G-O)
 
 ;; https://sourceforge.net/tracker/index.php?func=detail&aid=2022362&group_id=1355&atid=101355
-(let ((fname "foo") (vec (make-array 5 :element-type '(unsigned-byte 8))))
+(let ((fname "streamslong-tst-foo")
+      (vec (make-array 5 :element-type '(unsigned-byte 8))))
   (flet ((foo (l)
            (unwind-protect
                 (list

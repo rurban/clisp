@@ -257,10 +257,11 @@ TEST-COMPILER
 ;; the bug was fixed by bruno in compiler.lisp 1.80
 (progn
   (defun stem (&key (obj (error "missing OBJ")))
-    (with-open-file (stream obj :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+    (with-open-file (stream obj :direction :output #+(or CMU SBCL)
+                            :if-exists #+(or CMU SBCL) :supersede)
       (truename stream)))
   (compile 'stem)
-  (delete-file (stem :obj "foo-bar-zot"))
+  (delete-file (stem :obj "lambda-tst-foo-bar-zot"))
   t)
 t
 
@@ -631,7 +632,7 @@ dm2b
   (list (notinline-test-func-2 12) *notinline-test-var*))
 (12 22)
 
-(let ((file "tmp.lisp"))
+(let ((file "macro8-tst-tmp.lisp"))
   (with-open-file (o file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun caller (a b) (foo a b))" o)
     (write-line "(defun foo (a b c) (list a b c))" o))
@@ -642,11 +643,13 @@ dm2b
     (delete-file file)))
 (1 2 3)
 
-(let ((file1 "tmp1.lisp") (file2 "tmp2.lisp"))
-  (with-open-file (o file1 :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+(let ((file1 "macro8-tst-tmp1.lisp") (file2 "macro8-tst-tmp2.lisp"))
+  (with-open-file (o file1 :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun foo (a b c) (cons b c a))" o)
     (format o "(load ~S)~%" file2))
-  (with-open-file (o file2 :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+  (with-open-file (o file2 :direction :output
+                     #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-line "(defun bar (a b) (sin (1+ a) (1- b a)))" o))
   (unwind-protect
       (progn
@@ -680,8 +683,9 @@ dm2b
 (T 513972305 513972305)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
-(let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+(let ((file "macro8-tst-tmp.lisp"))
+  (with-open-file (out file :direction :output
+                       #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write '(eval-when (load compile eval)
              (+ (funcall (compile nil (lambda () (load-time-value (+ 2 3)))))
               120))
@@ -693,9 +697,11 @@ nil
 
 ;; compile-file is allowed to collapse different occurrences of the same
 ;; LOAD-TIME-VALUE form, and in fact, CLISP does so.
-(let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
-    (write-string "(defun ltv1 () (eq #1=(load-time-value (cons nil nil)) #1#))" out))
+(let ((file "macro8-tst-tmp.lisp"))
+  (with-open-file (out file :direction :output
+                       #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+    (write-string
+     "(defun ltv1 () (eq #1=(load-time-value (cons nil nil)) #1#))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
     (post-compile-file-cleanup file))
@@ -705,8 +711,9 @@ nil
 
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms
 ;; even if the inner form is the same.
-(let ((file "tmp.lisp"))
-  (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
+(let ((file "macro8-tst-tmp.lisp"))
+  (with-open-file (out file :direction :output
+                       #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-string "(defun ltv2 () (eq (load-time-value #1=(cons nil nil)) (load-time-value #1#)))" out))
   (unwind-protect
       (progn (compile-file file) (load (compile-file-pathname file)))
@@ -715,7 +722,7 @@ nil
 NIL
 
 ;; compile-file is not allowed to collapse different LOAD-TIME-VALUE forms.
-(let ((file "tmp.lisp"))
+(let ((file "macro8-tst-tmp.lisp"))
   (with-open-file (out file :direction :output #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede)
     (write-string "(defun ltv3 () (eq (load-time-value (cons nil nil)) (load-time-value (cons nil nil))))" out))
   (unwind-protect
@@ -920,11 +927,10 @@ T
 ((0 1 2 3 4) (5 6 7 8 9) (e d c b a))
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/10566>
-(let ((fname "donc.lisp") (results '()) compiled)
+(let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
-                             #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
-                             :if-exists :overwrite
-                             :if-does-not-exist :create)
+                       #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                       :if-exists :overwrite :if-does-not-exist :create)
     (write '(defparameter *donc* nil) :stream out)
     (terpri out)
     (write '(eval-when (:load-toplevel :compile-toplevel :execute)
@@ -943,11 +949,10 @@ T
 (5 5 5)
 
 ;; <http://article.gmane.org/gmane.lisp.clisp.devel/13127>
-(let ((fname "donc.lisp") (results '()) compiled)
+(let ((fname "macro8-tst-donc.lisp") (results '()) compiled)
   (with-open-file (out fname :direction :output
-                             #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
-                             :if-exists :overwrite
-                             :if-does-not-exist :create)
+                       #+(or CMU SBCL) :if-exists #+(or CMU SBCL) :supersede
+                       :if-exists :overwrite :if-does-not-exist :create)
     (write '(defmacro m1 (x)
              (compile x (lambda nil (load-time-value (+ 2 3)))) 4)
            :stream out)
@@ -967,7 +972,7 @@ T
   (nreverse results))
 (5 4 5 4 5 4)
 
-(let* ((f "test-compile-file-output-argument.lisp")
+(let* ((f "macro8-tst-test-compile-file-output-argument.lisp")
        (c (open (make-pathname :type "fas" :defaults f)
                 :direction :probe :if-does-not-exist :create)))
   (with-open-file (s f :direction :output :if-exists :supersede
@@ -1003,7 +1008,7 @@ NIL
 (ONE TWO THREE MANY MANY MANY MANY)
 
 #+clisp
-(let* ((f "test-compiled-file-p.lisp") (c (compile-file-pathname f)))
+(let* ((f "macro8-tst-test-compiled-file-p.lisp") (c (compile-file-pathname f)))
   (open f :direction :probe :if-does-not-exist :create)
   (delete-file c)
   (list (multiple-value-list (ext:compiled-file-p c))
@@ -1015,7 +1020,7 @@ NIL
 ((NIL) (NIL) (T))
 
 #+clisp
-(let ((f "test-compile-time-value.lisp"))
+(let ((f "macro8-tst-test-compile-time-value.lisp"))
   (defparameter test-compile-time-value-c 0)
   (with-open-file (*standard-output* f :direction :output)
     (write '(defun test-compile-time-value-f ()
@@ -1035,7 +1040,7 @@ NIL
 #+clisp ((0 NIL) (1 NIL) (1 TEST-COMPILE-TIME-VALUE))
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1578179&group_id=1355&atid=101355
-(let* ((f "test-crlf-print-read.lisp")
+(let* ((f "macro8-tst-test-crlf-print-read.lisp")
        (v #(#\a #\return #\newline #\null #\b))
        (s (coerce v 'string)))
   (unwind-protect
@@ -1054,7 +1059,7 @@ NIL
     (makunbound '*s*) (unintern '*s*)))
 (T T T)
 
-(let ((f "test-crlf-print-read.lisp")
+(let ((f "macro8-tst-test-crlf-print-read.lisp")
       (code '(defmacro add-crlf (string)
               (with-output-to-string (o)
                 (write-string string o)
@@ -1072,7 +1077,7 @@ NIL
     (unintern '*z*)))
 (3 3)
 
-(let* ((f "test-crlf-print-read.lisp")
+(let* ((f "macro8-tst-test-crlf-print-read.lisp")
        #+clisp (*package* (find-package "CS-COMMON-LISP-USER"))
        (c (read-from-string "*c*")))
   (unwind-protect
@@ -1086,7 +1091,7 @@ NIL
     (makunbound c) (unintern c)))
 0
 
-(let ((f "test-pr-kw.lisp"))
+(let ((f "macro8-tst-test-pr-kw.lisp"))
   (with-open-file (o f :direction :output)
     (format o "(defpackage m (:modern t))~%(in-package m)~%~
 \(defparameter p #.(make-pathname :type \"mem\"))~%"))

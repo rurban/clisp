@@ -181,7 +181,7 @@ NIL
 T
 
 ;; http://clisp.cons.org/impnotes/clhs-newline.html
-(let ((file "foo"))
+(let ((file "encoding-tst"))
   (unwind-protect
        (progn
          (with-open-file (out file :direction :output
@@ -202,7 +202,8 @@ T
 ("foo" "bar" :EOF)
 
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1564818&group_id=1355&atid=101355
-(let* ((f "crlf-test-file") (l1 "line1") (l2 "line2") (all (list f l1 l2)))
+(let* ((f "encoding-tst-crlf-test-file")
+       (l1 "line1") (l2 "line2") (all (list f l1 l2)))
   (unwind-protect
        (loop :for s :being :each :external-symbol :in "CHARSET"
          :for e-dos = (ext:make-encoding :charset s :line-terminator :dos)
