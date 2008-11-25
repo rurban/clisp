@@ -111,7 +111,7 @@ declarations of multiple variables on the same line hard to read and hard
 to edit. 'var' is a preprocessor symbol which expands to nothing.
 Writing 'var' not only makes it easier for a human reader to understand
 the code; it also allows you to mix declarations and statements freely,
-without the need for additional braces.
+without the need for additional braces (see utils/varbrace.c).
 
                              C indentation
                              -------------
@@ -138,11 +138,17 @@ VIM users should put <clisp/emacs/d.vim> into <$HOME/.vim/syntax/>.
                                 --------
 
 Comments in front of a function definition describe the function's
-specification, i.e. all a caller of the function needs to know. Describe
-the function's behavior in a sentence with implicit subject "this
-function", not as a command. For algorithmic functions with non obvious
-complexity, the (worst-case) complexity (= running time) is part of the
-function's specification.
+specification, i.e. all a caller of the function needs to know.
+Describe the function's behavior in a sentence with implicit subject
+"this function", not as a command.
+For algorithmic functions with non obvious complexity, the (worst-case)
+complexity (= running time) is part of the function's specification.
+Please follow the common format (UP stands for "Unterprogram"):
+/* UP: brief description
+ > 1st input parameter
+ > 2nd input parameter
+ < return value */
+Do not forget to list global variables accessed and modified, including STACK.
 
 Comments about the inner working of a function belong inside the function.
 
