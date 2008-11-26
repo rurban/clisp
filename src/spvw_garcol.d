@@ -1665,11 +1665,10 @@ local void fill_relocation_memory_regions(aint start,aint end,
       regs[j+1]=val;
     }
   }
-  /* it's possible to have the same object pinned several times from different
-     threads. we have to remove the duplicates. */
-  {
-    var int i;
-    for (i=0;i<*count-1;) {
+  { /* it's possible to have the same object pinned several times from
+       different threads. we have to remove the duplicates. */
+    var int i = 0;
+    while (i<*count-1) {
       if (regs[i].start == regs[i+1].start) {
         /* no way the sizes to differ */
         DEBUG_SPVW_ASSERT(regs[i].size == regs[i+1].size);
@@ -1693,7 +1692,9 @@ local void fill_relocation_memory_regions(aint start,aint end,
   regs->size=end-regs->start;
 #endif
 }
-/* fills all holes specified by holes structures.*/
+/* UP: fills all holes specified by holes structures.
+ > holes   FIXME: Vladimir, please fix the code docs
+ > holes_count */
 local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 					    uintC holes_count)
 {
