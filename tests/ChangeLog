@@ -1,3 +1,12 @@
+2008-11-26  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-test): accept :OWN-PACKAGE (defaults to T) to
+	run tests in an ad hoc package to avoid symbol value conflicts
+	in run-all-tests-parallel
+	* ffi.tst: do not create FTEST package
+	* iofkts.tst, streams.tst, symbol10.tst: remove IN-PACKAGE forms
+	* pack11.tst: prefix all package names with PACK11
+
 2008-11-25  Sam Steingold  <sds@gnu.org>
 
 	* mt.tst: check that DESCRIBE and TIMES work on

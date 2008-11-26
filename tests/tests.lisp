@@ -27,6 +27,7 @@
     (values (aref argv 0)
             (list "-q" "-norc" "-B" (namestring *lib-directory*) "-M"
                   (namestring (merge-pathnames lispinit *lib-directory*))))))
+(export '(kill-down rmrf prepare-directory cmd-args))
 )
 (defun show-file (file)         ; return line count
   (with-open-file (st file :direction :input)
@@ -40,6 +41,10 @@
   #+clisp (delete-file (make-pathname :type "lib" :defaults file)))
 (defun symbol-cleanup (s)
   (setf (find-class s) nil) (makunbound s) (fmakunbound s) (unintern s))
+(defvar *run-test-truename*)
+;; export symbols used by tests
+(export '(princ-error show show-file finish-file post-compile-file-cleanup
+          symbol-cleanup *run-test-truename* with-ignored-errors))
 ;;; end helpers
 
 #+OLD-CLISP
@@ -261,13 +266,15 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
 (defvar *run-test-tester* #'do-test)
 (defvar *run-test-type* "tst")
 (defvar *run-test-erg* "erg")
-(defvar *run-test-truename*)
+(defvar *run-test-own-package* t)
 (defun run-test (testname
                  &key ((:tester *run-test-tester*) *run-test-tester*)
                       ((:ignore-errors *test-ignore-errors*)
                         *test-ignore-errors*)
                       ((:eval-method *eval-method*) *eval-method*)
                       (logname testname)
+                      ((:own-package *run-test-own-package*)
+                       *run-test-own-package*)
                  &aux (logfile (merge-extension *run-test-erg* logname))
                       error-count total-count *run-test-truename*)
   (with-open-file (s (merge-extension *run-test-type* testname)
@@ -279,14 +286,24 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                                  #+(or CMU SBCL) :supersede
                                  #+ANSI-CL :if-exists #+ANSI-CL :new-version)
       (setq logfile (truename log))
-      (let* ((*package* *package*) (*print-circle* t) (*print-pretty* nil)
+      (let* ((*package*
+              (if *run-test-own-package*
+                  (make-package (namestring *run-test-truename*)
+                                :use (cons *package*
+                                           (package-use-list *package*)))
+                  *package*))
+             (*print-circle* t) (*print-pretty* nil)
              (*eval-err* (make-string-output-stream))
              (*error-output* (make-broadcast-stream *error-output* *eval-err*))
              (*eval-out* (make-string-output-stream))
              (*standard-output* (make-broadcast-stream *standard-output*
                                                        *eval-out*)))
         (setf (values total-count error-count)
-              (funcall *run-test-tester* s log)))))
+              (funcall *run-test-tester* s log))
+        (when (plusp error-count)
+          (break))
+        (when *run-test-own-package*
+          (delete-package *package*)))))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
           'run-test testname error-count total-count)
   (if (zerop error-count)

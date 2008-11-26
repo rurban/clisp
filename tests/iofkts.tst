@@ -3,9 +3,6 @@
 ;;*      Test the I/O functions                                              *
 ;;****************************************************************************
 
-(PROGN (IN-PACKAGE #-(or SBCL OpenMCL) "USER" #+(or SBCL OpenMCL) "COMMON-LISP-USER") T)
-T
-
 ;;--- let test ---------------------------------------------------------------
 ;; always compiler error
 
@@ -842,7 +839,8 @@ T
 "(#[C2 A 45 AA 12 BB 17] #[C2 B 123 CC 42])"
 
 (let ((*print-readably* t))
-  (with-output-to-string (out) (pprint-linear out (list 'a 'b 'c))))
+  (with-output-to-string (out)
+    (pprint-linear out (list 'cl-user::a 'cl-user::b 'cl-user::c))))
 #+CLISP "(|COMMON-LISP-USER|::|A| |COMMON-LISP-USER|::|B| |COMMON-LISP-USER|::|C|)"
 #+CMU "(A . (B C))"
 #-(or CLISP CMU) "(A B C)"

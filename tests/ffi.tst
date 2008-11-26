@@ -6,12 +6,7 @@
 #+unicode (ext:encoding-charset *default-file-encoding*)
 #+unicode charset:utf-8
 
-(progn
-  (defpackage "FTEST"
-    (:use "FFI" "COMMON-LISP")
-    (:import-from "CL-USER" #:show #:princ-error))
-  (in-package "FTEST")
-  T)
+(use-package "FFI")
 T
 
 (multiple-value-list (sizeof 'uint8))
@@ -1269,5 +1264,3 @@ TOUPPER
     (:library :default) (:language :stdc) (:arguments) (:return-type c-string))
   (not (stringp (show (pcre-version)))))
 NIL
-
-(progn (in-package "USER") (delete-package "FTEST") T) T
