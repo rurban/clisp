@@ -1,3 +1,10 @@
+2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (fill_relocation_memory_regions): handle the case
+	of multiple times pinned object (from many threads).
+	* streams.d (rd_ch_terminal3): fix a typo - end_blocking_system_call()
+	instead of begin_blocking_system_call().
+
 2008-11-25  Sam Steingold  <sds@gnu.org>
 
 	* predtype.d (CLASS-OF): simplify switch (Record_type(arg))
@@ -12,7 +19,7 @@
 
 2008-11-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* spvw.d (create_thread): fill thread's _objec_tab with NILs.
+	* spvw.d (create_thread): fill thread's _object_tab with NILs.
 	(for_all_threadobjs): fix _object_tab iteration.
 	* zthread (MAKE-THREAD): initialize the reader after the threads
 	lock is released (prevents deadlock if other thread tries to trigger

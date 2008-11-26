@@ -987,7 +987,7 @@ typedef struct varobj_mem_region {
   aint size;
 } varobj_mem_region;
 
-/* returns whether ptr points to simple string 
+/* returns whether ptr points to simple string
    (that can be possibly reallocated).
    used by gc_sweep1_varobject_page/gc_sweep2_varobject_page*/
 #ifdef SPVW_PURE
@@ -1009,7 +1009,7 @@ local inline bool sstring_p(aint ptr)
     return ((uintB)(record_type((Record)ptr) - Rectype_S16string)
 	    <= Rectype_reallocstring - Rectype_S16string);
    #endif
-  #endif 
+  #endif
  #endif
   return false;
 }
@@ -1053,13 +1053,13 @@ local inline bool instance_p(aint ptr)
  object is unmarked, then its first pointer is oriented to the address
  of the next marked object. */
 #ifdef SPVW_PURE
-local aint gc_sweep1_varobject_page(uintL heapnr, aint start, aint end, 
-				    gcv_object_t *firstmarked, 
-				    varobj_mem_region *dest, uintC dest_count, 
+local aint gc_sweep1_varobject_page(uintL heapnr, aint start, aint end,
+				    gcv_object_t *firstmarked,
+				    varobj_mem_region *dest, uintC dest_count,
 				    varobj_mem_region *holes, uintC *holes_count)
 #else
-local aint gc_sweep1_varobject_page(aint start, aint end, 
-				    gcv_object_t *firstmarked, 
+local aint gc_sweep1_varobject_page(aint start, aint end,
+				    gcv_object_t *firstmarked,
 				    varobj_mem_region *dest, uintC dest_count,
 				    varobj_mem_region *holes, uintC *holes_count)
 #endif
@@ -1084,36 +1084,36 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
   while (1) {
     if (p2==end) break; /* we have finished */
     objlen=objsize((Varobject)p2);
-    if (!marked(p2)) { 
+    if (!marked(p2)) {
       /* in the original implementation the loops were unrolled
-	 but here we will pay the price for pin object support :( 
+	 but here we will pay the price for pin object support :(
          Later on we will optimize it.*/
       if (last_was_marked) {
 	last_open_ptr = (gcv_object_t*)p2;
 	last_was_marked = false;
-      } 
-      p2+=objlen; 
-      continue; 
+      }
+      p2+=objlen;
+      continue;
     }
     /* Check for pinned object. */
     if (p2==next_pinned) { /* is the current object pinned? */
-      cur_used=NULL; /* no current memory region */       
+      cur_used=NULL; /* no current memory region */
       /* advance to next pinned object */
       pin_watch++; next_pinned=pin_watch->start+pin_watch->size;
       new_loc=p2; /* stay here */
       /* p2 is marked since before pinning it is pushed in the stack */
       goto advance;
     }
-    /* we have marked object that is not pinned. 
+    /* we have marked object that is not pinned.
        we should calculate the new address at which we will move it */
   relocate:
     /* we should have space for at least vrecord_ before the pinned object */
-    if ((cur->size == objlen) || (cur->size >= objlen + min_hole_len)) { 
+    if ((cur->size == objlen) || (cur->size >= objlen + min_hole_len)) {
       /* we still have place in this region */
       new_loc=cur->start;
       /* shrink current region */
       cur->start+=objlen; cur->size-=objlen;
-      cur_used=cur; /* will use the current destination buffer */ 
+      cur_used=cur; /* will use the current destination buffer */
     } else {
       /* no place in current region. */
       /* if the whole remaining area is small enough - just create new hole
@@ -1152,14 +1152,14 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
     #endif
     /* object marked
      Elimination of forward pointers: */
-     /* smart compiler should eliminate this branch when 
+     /* smart compiler should eliminate this branch when
       HAVE_SMALL_SSTRINGS is not defined. */
     #ifdef SPVW_PURE
-     if (sstring_p(heapnr,p2)) 
+     if (sstring_p(heapnr,p2))
     #else
-     if (sstring_p(p2)) 
+     if (sstring_p(p2))
     #endif
-     {	 
+     {
        if (sstring_reallocatedp((Sstring)p2)) {
 	 /* A forward pointer. */
 	 gc_sweep1_sstring_forward(p2);
@@ -1171,12 +1171,12 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
 	 /* Possibly the target of a forward pointer. */
 	 gc_sweep1_sstring_target(p2,new_loc);
        }
-     } 
-     else 
+     }
+     else
     #ifdef SPVW_PURE
-     if (instance_p(heapnr,p2)) 
+     if (instance_p(heapnr,p2))
     #else
-     if (instance_p(p2)) 
+     if (instance_p(p2))
     #endif
      {
        if (record_flags((Instance)p2) & instflags_forwarded_B) {
@@ -1197,18 +1197,18 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
         mark(p2);
        #endif
      }
-     DEBUG_SPVW_ASSERT(new_loc <= p2); 
+     DEBUG_SPVW_ASSERT(new_loc <= p2);
      if (!last_was_marked) {
        last_was_marked = true;
        *last_open_ptr = pointer_as_object(p2); /* store address */
      }
-     p2 += objlen;               /* source address for next object */    
+     p2 += objlen;               /* source address for next object */
   }
   /* add the last link if needed. */
   if (!last_was_marked) {
-      *last_open_ptr = pointer_as_object(p2); 
+      *last_open_ptr = pointer_as_object(p2);
   }
-  /* did we reach the end of mem regions? 
+  /* did we reach the end of mem regions?
      if not - there are holes to be filled. */
   var varobj_mem_region *last=dest+dest_count-1;
   while (cur != last) {
@@ -1427,11 +1427,11 @@ local void gc_sweep2_varobject_page (Page* page)
   var aint fill_end=page->page_start;
   var_prepare_objsize;
 
-  /* special case for symbols heap in SPVW_PURE model. 
+  /* special case for symbols heap in SPVW_PURE model.
    The lower two bits of the typecode in GCself are used for marking special
    symbols, constants or symbol-macros. So the address is not valid for direct use.
-   In order to avoid many if statements in the loop for unmasking the GCself and since 
-   symbol cannot/should not be pinned (so no holes in the heap) - 
+   In order to avoid many if statements in the loop for unmasking the GCself and since
+   symbol cannot/should not be pinned (so no holes in the heap) -
    we have special case for it here.*/
   #ifdef SPVW_PURE
     if (heapnr == symbol_type) {
@@ -1455,7 +1455,7 @@ local void gc_sweep2_varobject_page (Page* page)
       return;
     }
   #endif
-    /* here goes the general case */  
+    /* here goes the general case */
   while (p1!=p1end) {           /* upper bound reached -> finished */
     /* next object has address p1 */
     if (marked(p1)) {           /* marked? */
@@ -1465,9 +1465,9 @@ local void gc_sweep2_varobject_page (Page* page)
 
       /* do not relocate the forwarded objects */
      #ifdef SPVW_PURE
-      if (sstring_p(heapnr,p1)) 
+      if (sstring_p(heapnr,p1))
      #else
-      if (sstring_p(p1)) 
+      if (sstring_p(p1))
      #endif
       {
 	if (sstring_reallocatedp((Sstring)p1)) {
@@ -1476,9 +1476,9 @@ local void gc_sweep2_varobject_page (Page* page)
       }
       /* do not relocate the forwarded objects */
      #ifdef SPVW_PURE
-      if (instance_p(heapnr,p1)) 
+      if (instance_p(heapnr,p1))
      #else
-      if (instance_p(p1)) 
+      if (instance_p(p1))
      #endif
       {
 	if (record_flags((Instance)p1) & instflags_forwarded_B) {
@@ -1614,7 +1614,7 @@ local void free_some_unused_pages (void)
 }
 #endif
 
-/* checks whether there are pinned objects in the start/end rannge. 
+/* checks whether there are pinned objects in the start/end rannge.
  fills the appropriate varobj_mem_regions and count based on this. */
 #ifdef SPVW_PURE
 local void fill_relocation_memory_regions(uintL heapnr, aint start,aint end,
@@ -1630,10 +1630,10 @@ local void fill_relocation_memory_regions(aint start,aint end,
   *count=1;
 #else
   /* iterate through all active threads
-     and check whether there are pinned objects and whether they are in the 
+     and check whether there are pinned objects and whether they are in the
      specified range.
      TODO: can be implemented better. In SPVW_PURE - it will be called for each
-     heap. It will be better to have sorted list of pinned regions and while 
+     heap. It will be better to have sorted list of pinned regions and while
      iterating over heaps to construct mem_region array for each heap.
   */
   var pinned_chain_t *chain;
@@ -1654,9 +1654,9 @@ local void fill_relocation_memory_regions(aint start,aint end,
     }});
   regs->start=start; /* set the first region */
   if (*count > 2) {
-    /* SORT(stable - because of the fist element) the regions by their 
-       start address. Since we do not expect to have too many items here - 
-       simple insertion sort is probably the fastest option ??? */
+    /* sort  the regions by their start address. Since we do not expect to
+       have too many items here - simple insertion sort is probably the
+       fastest option */
     var int i,j;
     var varobj_mem_region val;
     for (i=1;i<*count;i++) {
@@ -1665,6 +1665,22 @@ local void fill_relocation_memory_regions(aint start,aint end,
       regs[j+1]=val;
     }
   }
+  /* it's possible to have the same object pinned several times from different
+     threads. we have to remove the duplicates. */
+  {
+    var int i;
+    for (i=0;i<*count-1;) {
+      if (regs[i].start == regs[i+1].start) {
+        /* no way the sizes to differ */
+        DEBUG_SPVW_ASSERT(regs[i].size == regs[i+1].size);
+        memmove(regs+i+1,regs+i+2,(*count-i-2)*sizeof(varobj_mem_region));
+        (*count)--;
+        continue;
+      }
+      i++;
+    }
+  }
+
   /* create free region list - available for relocation */
   while (regs != mit-1) {
     /* current region size */
@@ -1674,7 +1690,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
     regs->start+=regs->size;
   }
   /* fix the last size*/
-  regs->size=end-regs->start; 
+  regs->size=end-regs->start;
 #endif
 }
 /* fills all holes specified by holes structures.*/
@@ -1696,10 +1712,10 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
      #endif
      DEBUG_SPVW_ASSERT(holes->size == objsize(ptr));
     #else  /* SPVW_PURE ==> TYPECODES */
-      /* depending on the heap type we have to allocate differently. since 
+      /* depending on the heap type we have to allocate differently. since
 	 all varobjects have length/type encoded in their header - we will
-	 look at the type of the pinned object (the one after the end of 
-	 the hole). We have to "allocate" the same type with length of the 
+	 look at the type of the pinned object (the one after the end of
+	 the hole). We have to "allocate" the same type with length of the
 	 hole.*/
       /*VTZ: TODO: currently only simple vectors are implemented */
       var bool vector=true;
@@ -1718,7 +1734,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
 	/* TODO: HANDLE STRIGS */
-	fprintf(stderr,"VTZ: unsupported type of pinned object !!!\n"); 
+	fprintf(stderr,"VTZ: unsupported type of pinned object !!!\n");
 	abort();
       }
     #endif
