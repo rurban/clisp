@@ -4,13 +4,8 @@
 	* spvw.d: allocate per thread symvalues in pages of 1024 object.
 	(main): initialize per thread symbol indexes after streams
 	special variables are defined (init_streamvars()).
-	(initmem): do not initialize per thread symbol indexes - it is too early.
-	stream variables are not defined special yet.
-
-2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
-
-	* spvw_garcol.d (fill_relocation_memory_regions): fix removal of multiple
-	times pinned objects.
+	(initmem): do not initialize per thread symbol indexes - it is too
+	early.  stream variables are not declared special yet.
 
 2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
