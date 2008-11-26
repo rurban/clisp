@@ -321,9 +321,12 @@ local void *signal_handler_thread(void *arg);
 /* Mutex protecting the set of threads. */
 local xmutex_t allthreads_lock;
 
-/* Set of threads. */
-#define THREAD_SYMVALUES_ALLOCATION_SIZE 4096
+/* per thread symvalues of special variables are allocated on "pages" of
+   1024 gcv_object_t each. Freshly new build clisp image contains less
+   than 900 special symbols. */
+#define THREAD_SYMVALUES_ALLOCATION_SIZE (1024*sizeof(gcv_object_t))
 #define SYMVALUES_PER_PAGE (THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t))
+/* Set of threads. */
 #define MAXNTHREADS  128
 local uintC nthreads = 0;
 local clisp_thread_t* allthreads[MAXNTHREADS];
@@ -334,10 +337,11 @@ global xthread_t thr_signal_handler; /* the id of the signal handling thread */
 /* cache the global mutex attribute for recursive mutex creation */
 global pthread_mutexattr_t recursive_mutexattr;
 #endif
-
+/* the first index in _ptr_symvalues used for per thread symbol bindings */
+#define FIRST_SYMVALUE_INDEX 1
 /* Number of symbol values currently in use in every thread. */
 /* The first symvalue in thread is dummy - for faster Symbol_value*/
-local uintL num_symvalues = 1;
+local uintL num_symvalues = FIRST_SYMVALUE_INDEX;
 /* Maximum number of symbol values in every thread before new thread-local
  storage must be added.
  = THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t) */
@@ -1962,10 +1966,6 @@ local void initmem (void) {
   init_symbol_functions();
   /* constants/variables: enter value into the symbols: */
   init_symbol_values();
-#if defined(MULTITHREAD)
-  /* initialize standard per thread special symbols */
-  init_multithread_special_symbols();
-#endif
   /* create other objects: */
   init_object_tab();
 }
@@ -3888,6 +3888,15 @@ global int main (argc_t argc, char* argv[]) {
   /* initialize stream-variables: */
   init_streamvars(argv2.argv_batchmode_p);
   INIT_READER_LOW();            /* token buffers */
+ #ifdef MULTITHREAD
+  /* now we can initialize all per thread special variables. till now
+     we did this in initmem() and we missed the streams specials. */
+  /* NB: currently *FEATURES* is not treated differently */
+  if (num_symvalues == FIRST_SYMVALUE_INDEX) {
+    /* only if we did not already loaded from image */
+    init_multithread_special_symbols();
+  }
+ #endif
   /* make break possible: */
   end_system_call();
   clr_break_sem_1();
