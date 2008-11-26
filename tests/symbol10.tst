@@ -1,7 +1,5 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 
-(progn (in-package "CL-USER") nil)
-NIL
 ;; Test der neuen Valuezelle
 
 ;;; 1. ungebundenes Symbol

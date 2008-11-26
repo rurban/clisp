@@ -1,5 +1,4 @@
 ;; -*- Lisp -*- vim:filetype=lisp
-(progn (in-package "COMMON-LISP-USER") t) t
 
 #-(or AKCL ECL ALLEGRO SBCL OpenMCL) (PRIN1-TO-STRING (MAKE-BROADCAST-STREAM))
 #+XCL "#<%TYPE-STRUCTURE-STREAM NIL>"
