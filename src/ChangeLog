@@ -1,5 +1,10 @@
 2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_garcol.d (fill_relocation_memory_regions): fix removal of multiple
+	times pinned objects.
+
+2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_garcol.d (fill_relocation_memory_regions): handle the case
 	of multiple times pinned object (from many threads).
 	* streams.d (rd_ch_terminal3): fix a typo - end_blocking_system_call()

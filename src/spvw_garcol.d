@@ -1674,7 +1674,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
         /* no way the sizes to differ */
         DEBUG_SPVW_ASSERT(regs[i].size == regs[i+1].size);
         memmove(regs+i+1,regs+i+2,(*count-i-2)*sizeof(varobj_mem_region));
-        (*count)--;
+        (*count)--; mit--;
         continue;
       }
       i++;
@@ -1959,7 +1959,7 @@ local void gar_col_normal (void)
 				 holes_to_fill,&holes_count)}});
   } else
   #endif
-    for_each_varobject_page(page, { 
+    for_each_varobject_page(page, {
       fill_relocation_memory_regions(heapnr,
 				     page->page_start,page->page_end,
 				     regions,&regions_count);
@@ -1999,7 +1999,7 @@ local void gar_col_normal (void)
 				 holes_to_fill,&holes_count);}});
   } else
  #endif
-    for_each_varobject_page(page, { 
+    for_each_varobject_page(page, {
       fill_relocation_memory_regions(page->page_start,page->page_end,
 				     regions,&regions_count);
       gc_sweep1_varobject_page(page->page_start,page->page_end,
@@ -2405,7 +2405,7 @@ var_prepare_objsize;
     while (chain) {
       var aint vs=(aint)TheVarobject(chain->_o);
       /* are we inside range? */
-      if (page->page_start<=vs && page->page_end>vs) 
+      if (page->page_start<=vs && page->page_end>vs)
 	return true;
       chain = chain->_next;
     }});
@@ -2424,7 +2424,7 @@ local void gc_compact_from_varobject_page (Heap* heapptr, Page* page)
   if (page_contains_pinned_object(heapnr,page))
  #else /* SPVW_MIXED */
   if (page_contains_pinned_object(page))
- #endif  
+ #endif
     { page->page_gcpriv.d=0;return; }
 #endif /* MULTITHREAD */
 
