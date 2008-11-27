@@ -1,3 +1,8 @@
+2008-11-27  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (REPLACE_GETTIMEOFDAY): get from configure
+	(GLLIB_O, GLLIB): add gllib/gettimeofday when REPLACE_GETTIMEOFDAY=1
+
 2008-11-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	do not pass heap pointers to potentially blocking system calls

@@ -546,6 +546,7 @@ host_os='@host_os@'                 # something like 'sunos4'
 MAKE='@MAKE@'                       # gmake or make
 GNU_MAKE='@GNU_MAKE@'               # yes or no
 HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
+REPLACE_GETTIMEOFDAY='@REPLACE_GETTIMEOFDAY@' # 1 or 0
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
 # 2. New operating systems are emerging at every corner.
@@ -1495,6 +1496,10 @@ if [ ${HAVE_MALLOC_POSIX} = 0 -o ${CROSS} = true ]; then
   GLLIB_O=gllib/malloc${TOBJ}; GLLIB=gllib/malloc
   EXTRAOBJ=" gllib/malloc${TOBJ}"
 else GLLIB_O=""; GLLIB=""; EXTRAOBJ="";
+fi
+if [ "${REPLACE_GETTIMEOFDAY}" = 1 ]; then
+  GLLIB_O=${GLLIB_O}' gllib/gettimeofday${TOBJ}'
+  GLLIB=${GLLIB}' gllib/gettimeofday'
 fi
 for f in localcharset uniname/uniname uniwidth/width; do
   GLLIB_O=gllib/${f}${TOBJ}' '${GLLIB_O};
