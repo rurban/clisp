@@ -13730,10 +13730,11 @@ LISPFUNN(make_x11socket_stream,2) {
     error(type_error,
            GETTEXT("display should be a small nonnegative integer, not ~S"));
   }
-  var const char* host = TheAsciz(string_to_asciz(STACK_1,O(misc_encoding)));
   var int display = I_to_uint16(STACK_0);
   var SOCKET handle;
-  GC_SAFE_SYSTEM_CALL(handle=, connect_to_x_server(host,display));
+  with_string_0(STACK_1,O(misc_encoding),host, {
+    GC_SAFE_SYSTEM_CALL(handle=, connect_to_x_server(host,display));
+  });
   if (handle == INVALID_SOCKET) { SOCK_error(); }
   /* build list: */
   { var object list = listof(2); pushSTACK(list); }
@@ -14284,21 +14285,21 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
   /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
   STACK_1 = test_external_format_arg(STACK_1);
 
-  var char *hostname;
+  /* ensure that we have host name*/
   if (missingp(STACK_3))
-    hostname = (char*)"localhost";
-  else
-    hostname = TheAsciz(string_to_asciz(check_string(STACK_3),
-                                        O(misc_encoding)));
+    STACK_3 = asciz_to_string("localhost",O(misc_encoding));
 
+  var SOCKET handle;
   begin_blocking_system_call();
-  var SOCKET handle = create_client_socket(hostname,I_to_uint16(STACK_4),tvp);
+  /* instead to pin the host name object in the heap - let's allocate it
+     on the stack.*/
+  with_string_0(STACK_3,O(misc_encoding),hostname, {
+    handle = create_client_socket(hostname,I_to_uint16(STACK_4),tvp);
+  });
   end_blocking_system_call();
   if (handle == INVALID_SOCKET) { SOCK_error(); }
 
-  value1 = make_socket_stream(handle,&eltype,buffered,
-                              asciz_to_string(hostname,O(misc_encoding)),
-                              STACK_4);
+  value1 = make_socket_stream(handle,&eltype,buffered,STACK_3,STACK_4);
   VALUES1(add_to_open_streams(value1));
   skipSTACK(5);
 }

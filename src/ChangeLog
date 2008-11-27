@@ -1,3 +1,9 @@
+2008-11-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	do not pass heap pointers to potentially blocking system calls
+	* stream.d (SOCKET-CONNECT, SYS::MAKE-SOCKET-STREAM): use
+	with_string_0 instead of TheAsciz().
+
 2008-11-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	allow I/O customization variables to be per thread bound
