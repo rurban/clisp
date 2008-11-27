@@ -404,13 +404,14 @@ global uintL* current_thread_alloccount()
     /****** TODO TODO TODO TODO: WAS ATOMIC *******/
     /* since we call it only during thread creation - we even may go without
       atomic operation - but I am not sure - should check it carefully */
-    /*AO_store_release((volatile AO_t *)(threads_tls.hash + hash_val), (AO_t)entry);*/
+    /*AO_store_release((volatile AO_t *)(threads_tls.hash + hash_val),
+      (AO_t)entry);*/
     *(threads_tls.hash + hash_val)=entry;
     xmutex_unlock(&(threads_tls.lock));
   }
 
-  /* Remove thread-specific data for this thread.  Should be called on  */
-  /* thread exit.                                                   */
+  /* UP: Remove thread-specific data for this thread.  Should be called on
+     thread exit */
   global void tsd_remove_specific()
   {
     xthread_t self = xthread_self();
@@ -622,7 +623,7 @@ global uintL* current_thread_alloccount()
 /* forward definition */
 extern void initialize_circ_detection();
 
-/* Initialization. Called at the beginning of main(). */
+/* UP: Initialization of multithreading. Called at the beginning of main().*/
 local void init_multithread (void) {
   xthread_init();
   /* TODO: put all global locks in some table. Soon we will have too many
@@ -646,8 +647,11 @@ local void init_multithread (void) {
   #endif
 }
 
-/* Last stage of MT initialization. Called after the LISP heap and  symbols
-   are initialized. Initialize per thread special symbols */
+/* UP: Makes per thread bindings (symvalues) for all standard special
+   variables. Called after the LISP heap and symbols are initialized.
+ < num_symvalues: modified.
+ < allthreads: _ptr_symvalues up to num_symvalues initialized.
+ < symbol_tab: tls_index of all special symbols initialized.*/
 local void init_multithread_special_symbols()
 {
   /* currently there is just a single thread. get it.*/
@@ -689,14 +693,40 @@ local void* allocate_lisp_thread_stack(clisp_thread_t* thread, uintM stack_size)
   return thread->_STACK;
 }
 
-/* locks the global thread array */
+/* UP: locks the global thread array. may block the GC. */
 global void lock_threads()
 {
+  /* We do not use begin_blocking_system_call so call here may block the GC.
+     If this is not wanted the caller should surround lock_threads() in
+     begin_blocking_call()/end_blocking_call().
+     In order to perform GC - two locks should be acquired:
+     1. heap spinlock - so nobody can allocate new object (and thus probably
+     cause again GC).
+     2. threads lock - while waiting for all threads to get suspended at safe
+     points - we do not want new thread(s) to be spawned.
+
+     There are 3 places where lock_threads() is used without possibly blocking
+     "enclosure":
+     1. In gc_suspend_all_threads() - after we already own the heap lock - in
+     order to prevent new threads spawning.
+     2. suspend_thread() - in order to be sure that the thread will not exit
+     while we try to suspend it (or it already has exited).
+     3. delete_thread() - it is called from a thread that terminates or for a
+     thread that will never be started. The first thing that  delete_thread()
+     does is to ensure that anybody interested in this  particular thread (and
+     those are the two functions above - for suspending) - will consider it as
+     already suspended - so even if we  block here - it will not cause any harm
+     to the GC.
+     All other places enclose the lock_threads() in begin_blocking_call().
+
+     Also note that while the threads are locked - no heap allocation should
+     be performed - since it may cause deadlock. */
   begin_system_call(); /* ! blocking */
   xmutex_lock(&allthreads_lock);
   end_system_call();
 }
-/* unlocks global thread array */
+
+/* UP: unlocks global thread array */
 global void unlock_threads()
 {
   begin_system_call();
@@ -838,8 +868,11 @@ global void delete_thread (clisp_thread_t *thread, bool full) {
         { var clisp_thread_t* thread = *_pthread++; statement; }        \
     } while(0)
 
-/* reallocate _ptr_symvalues in such a way that there is a place for
-   nsyms per thread symbol values.*/
+/* UP: reallocates _ptr_symvalues in a thread - so there is a place for
+   nsyms per thread symbol values.
+ > thr: the thread
+ > nsyms: number od symvalues to be available.
+ < true if reallocation succeeded. */
 local bool realloc_thread_symvalues(clisp_thread_t *thr, uintL nsyms)
 {
   if (nsyms <= maxnum_symvalues) /* we already have enough place */
@@ -851,8 +884,12 @@ local bool realloc_thread_symvalues(clisp_thread_t *thr, uintL nsyms)
   return p!=NULL;
 }
 
-/* Clears any per thread value for symbol. Also set tls_index
-   of the symbol to invalid. */
+/* UP: Clears any per thread value for symbol. Also sets tls_index of the
+   symbol to invalid (SYMBOL_TLS_INDEX_NONE).
+ > symbol: the symbol that should not have per thread bindings anymore
+ < symbol: (modified).
+ < allthreads: all threads symvalues for this symbol set to
+ SYMVALUE_EMPTY */
 global void clear_per_thread_symvalues(object symbol)
 {
   var uintL idx=TheSymbol(symbol)->tls_index;
@@ -3709,6 +3746,8 @@ local inline void main_actions (struct argv_actions *p) {
 }
 
 #if defined(MULTITHREAD)
+/* UP: main_actions() replacement in MT.
+ > param: clisp_thread_t structure of the first lisp thread */
 local void* mt_main_actions (void *param) {
   #if USE_CUSTOM_TLS == 2
   tse __tse_entry;
@@ -4290,7 +4329,7 @@ global void dynload_modules (const char * library, uintC modcount,
 #if defined(MULTITHREAD)
 #ifdef HAVE_SIGNALS
 
-/* creates mask of of signals that we do not want to be delivered
+/* UP: creates mask of signals that we do not want to be delivered
    directly to threads. The same signals are handled by special non
    lisp thread */
 local sigset_t async_signal_mask()
@@ -4326,7 +4365,8 @@ local sigset_t async_signal_mask()
   return sigblock_mask;
 }
 
-/* SIG_THREAD_INTERRUPT handler */
+/* UP: SIG_THREAD_INTERRUPT handler
+ > sig: always equals to SIG_THREAD_INTERRUPT */
 local void interrupt_thread_signal_handler (int sig) {
   signal_acknowledge(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
   /* have to unblock SIG_THREAD_INTERRUPT since
@@ -4361,8 +4401,8 @@ local void interrupt_thread_signal_handler (int sig) {
   GC_SAFE_REGION_BEGIN();
 }
 
-/* acquires both heap and threads lock from signal handler thread
-   without causing deadlock with the GC in the lisp world*/
+/* UP: acquires both heap and threads lock from signal handler thread
+   without causing deadlock with the GC in the lisp world. */
 local void lock_heap_from_signal()
 {
   while (1) {
@@ -4377,9 +4417,11 @@ local void lock_heap_from_signal()
   }
 }
 
-/* Subtract the `struct timeval' values X and Y,
-   storing the result in RESULT.
-   Return 1 if the difference is negative, otherwise 0.  */
+/* UP: Subtract the `struct timeval' values.
+ > x: first value
+ > y: second value
+ < result: result of substraction.
+ < returns 1 if the difference is negative, otherwise 0.*/
 local int timeval_subtract(struct timeval *result,
                            struct timeval *x,struct timeval *y)
 {
@@ -4402,6 +4444,8 @@ local int timeval_subtract(struct timeval *result,
   return x->tv_sec < y->tv_sec;
 }
 
+/* UP: The signal handler in MT build.
+ > arg: not used. */
 local void *signal_handler_thread(void *arg)
 {
   int sig;
