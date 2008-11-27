@@ -1,5 +1,9 @@
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
+	* utils/varbrace.c: use {} for empty `for' body to avoid a g++ warning
+
+2008-11-27  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (REPLACE_GETTIMEOFDAY): get from configure
 	(GLLIB_O, GLLIB): add gllib/gettimeofday when REPLACE_GETTIMEOFDAY=1
 
