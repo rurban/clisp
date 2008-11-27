@@ -1614,8 +1614,13 @@ local void free_some_unused_pages (void)
 }
 #endif
 
-/* checks whether there are pinned objects in the start/end rannge.
- fills the appropriate varobj_mem_regions and count based on this. */
+/* UP: checks whether there are pinned objects in the start/end range.
+   fills the appropriate varobj_mem_regions and count.
+ > start: heap start address
+ > end: heap end address
+ < regs: array memory regions available for relocations (this is the whole heap
+         without pinned objects)
+ < count: number of regions filled */
 #ifdef SPVW_PURE
 local void fill_relocation_memory_regions(uintL heapnr, aint start,aint end,
 					  varobj_mem_region *regs, uintC *count)
@@ -1639,7 +1644,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
   var pinned_chain_t *chain;
   var varobj_mem_region *mit=regs+1;
   var aint vs; /* start address of varobject*/
-  var_prepare_objsize; /* TODO: heapnr for SPVW_PURE */
+  var_prepare_objsize;
   *count=1;
   for_all_threads({
     chain = thread->_pinned;
@@ -1692,9 +1697,10 @@ local void fill_relocation_memory_regions(aint start,aint end,
   regs->size=end-regs->start;
 #endif
 }
+
 /* UP: fills all holes specified by holes structures.
- > holes   FIXME: Vladimir, please fix the code docs
- > holes_count */
+ > holes: array of memory regions in the heap left as holes
+ > holes_count: number of holes */
 local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 					    uintC holes_count)
 {
