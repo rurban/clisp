@@ -2,6 +2,7 @@
 
 	* utils/varbrace.c: use {} for empty `for' body to avoid a g++ warning
 	(outbuffer_off_insert): make `insert' a `const' to avoid a g++ warning
+	* utils/comment5.c: use {} for empty `while' body to avoid a g++ warning
 
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
