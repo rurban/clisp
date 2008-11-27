@@ -288,7 +288,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
       (setq logfile (truename log))
       (let* ((*package*
               (if *run-test-own-package*
-                  (make-package (namestring *run-test-truename*)
+                  (make-package (namestring logfile)
                                 :use (cons *package*
                                            (package-use-list *package*)))
                   *package*))
@@ -431,8 +431,8 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
         (let ((args args))
           ;; this is "poor man" concurrency control - not exact at all
           (loop until
-               (>= concurrency
-                   (count t (mapcar #'mt:thread-active-p (mt:list-threads))))
+            (>= concurrency
+                (count t (mapcar #'mt:thread-active-p (mt:list-threads))))
              :do (sleep 1))
           (run (apply #'run-test args))))
       (run (test-weakptr))
