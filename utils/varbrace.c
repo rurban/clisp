@@ -599,22 +599,22 @@ static const char* is_if (const char* line)
   uintL n = strlen(line);
   uintL i = 0;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return NULL;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Check for "if". */
   if (i+2 < n
       && line[i+0] == 'i'
       && line[i+1] == 'f'
       && is_whitespace(line[i+2])) {
     i += 3;
-    for (; i < n && is_whitespace(line[i]); i++);
-    for (; n > i && is_whitespace(line[n-1]); n--);
+    for (; i < n && is_whitespace(line[i]); i++) {}
+    for (; n > i && is_whitespace(line[n-1]); n--) {}
     return substring(line,i,n);
   }
   /* Check for "ifdef". */
@@ -626,8 +626,8 @@ static const char* is_if (const char* line)
       && line[i+4] == 'f'
       && is_whitespace(line[i+5])) {
     i += 6;
-    for (; i < n && is_whitespace(line[i]); i++);
-    for (; n > i && is_whitespace(line[n-1]); n--);
+    for (; i < n && is_whitespace(line[i]); i++) {}
+    for (; n > i && is_whitespace(line[n-1]); n--) {}
     { char* term = substring(line,i,n);
       const char* result = concat3("defined(",term,")");
       xfree(term);
@@ -643,8 +643,8 @@ static const char* is_if (const char* line)
       && line[i+5] == 'f'
       && is_whitespace(line[i+6])) {
     i += 7;
-    for (; i < n && is_whitespace(line[i]); i++);
-    for (; n > i && is_whitespace(line[n-1]); n--);
+    for (; i < n && is_whitespace(line[i]); i++) {}
+    for (; n > i && is_whitespace(line[n-1]); n--) {}
     { char* term = substring(line,i,n);
       const char* result = concat3("!defined(",term,")");
       xfree(term);
@@ -658,14 +658,14 @@ static boolean is_else (const char* line)
   uintL n = strlen(line);
   uintL i = 0;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return FALSE;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Check for "else". */
   if (i+4 <= n
       && line[i+0] == 'e'
@@ -683,14 +683,14 @@ static const char* is_elif (const char* line)
   uintL n = strlen(line);
   uintL i = 0;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return NULL;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Check for "elif". */
   if (i+4 < n
       && line[i+0] == 'e'
@@ -699,8 +699,8 @@ static const char* is_elif (const char* line)
       && line[i+3] == 'f'
       && is_whitespace(line[i+4])) {
     i += 5;
-    for (; i < n && is_whitespace(line[i]); i++);
-    for (; n > i && is_whitespace(line[n-1]); n--);
+    for (; i < n && is_whitespace(line[i]); i++) {}
+    for (; n > i && is_whitespace(line[n-1]); n--) {}
     return substring(line,i,n);
   }
   return NULL;
@@ -711,14 +711,14 @@ static boolean is_endif (const char* line)
   uintL n = strlen(line);
   uintL i = 0;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return FALSE;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Check for "endif". */
   if (i+5 <= n
       && line[i+0] == 'e'
@@ -867,14 +867,14 @@ static int decode_line_directive (const char* line)
   uintL n = strlen(line);
   uintL i = 0;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Parse a '#'. */
   if (i < n && line[i] == '#')
     i++;
   else
     return -1;
   /* Skip whitespace. */
-  for (; i < n && is_whitespace(line[i]); i++);
+  for (; i < n && is_whitespace(line[i]); i++) {}
   /* Check for "line". */
   if (i+4 < n
       && line[i+0] == 'l'
@@ -883,13 +883,13 @@ static int decode_line_directive (const char* line)
       && line[i+3] == 'e'
       && is_whitespace(line[i+4])) {
     i += 4;
-    for (; i < n && is_whitespace(line[i]); i++);
+    for (; i < n && is_whitespace(line[i]); i++) {}
   }
   /* Check for a digit. */
   if (!(i < n && is_digit(line[i])))
     return -1;
   { uintL i1 = i;
-    for (; i < n && is_digit(line[i]); i++);
+    for (; i < n && is_digit(line[i]); i++) {}
     { uintL i2 = i;
       /* Convert digit string to a `long'. */
       char* digits = substring(line,i1,i2);
@@ -899,12 +899,12 @@ static int decode_line_directive (const char* line)
         if (errno != 0) return -1;
         if (result < 0) abort();
         /* Check for a source file name. */
-        for (; i < n && is_whitespace(line[i]); i++);
+        for (; i < n && is_whitespace(line[i]); i++) {}
         if (i < n && line[i] == '"') {
           uintL i3;
           i++;
           i3 = i;
-          for (; i < n && line[i] != '"'; i++);
+          for (; i < n && line[i] != '"'; i++) {}
           if (i < n && line[i] == '"') {
             uintL i4 = i;
             input_filename = substring(line,i3,i4);
