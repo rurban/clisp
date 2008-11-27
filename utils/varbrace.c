@@ -945,7 +945,7 @@ static void outbuffer_off (void)
 }
 
 /* Turn off output buffering, inserting a string at a given place. */
-static void outbuffer_off_insert (uintL insertpoint, char* insert)
+static void outbuffer_off_insert (uintL insertpoint, const char* insert)
 {
   if (out.mode==buffered) {
     uintL index = 0;
