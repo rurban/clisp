@@ -1493,17 +1493,15 @@ fi
 
 if [ ${HAVE_MALLOC_POSIX} = 0 -o ${CROSS} = true ]; then
   # gnulib/stdlib.h will define malloc to rpl_malloc, so we need this
-  GLLIB_O=gllib/malloc${TOBJ}; GLLIB=gllib/malloc
-  EXTRAOBJ=" gllib/malloc${TOBJ}"
-else GLLIB_O=""; GLLIB=""; EXTRAOBJ="";
+  GLLIB_O=gllib/malloc${TOBJ}
+  EXTRAOBJ=" ${GLLIB_O}"
+else GLLIB_O=""; EXTRAOBJ="";
 fi
 if [ "${REPLACE_GETTIMEOFDAY}" = 1 ]; then
-  GLLIB_O=${GLLIB_O}' gllib/gettimeofday${TOBJ}'
-  GLLIB=${GLLIB}' gllib/gettimeofday'
+  GLLIB_O=${GLLIB_O}" gllib/gettimeofday${TOBJ}"
 fi
 for f in localcharset uniname/uniname uniwidth/width; do
   GLLIB_O=gllib/${f}${TOBJ}' '${GLLIB_O};
-  GLLIB=gllib/${f}' '${GLLIB};
 done
 FILES=${GLLIB_O}' '${FILES}
 
@@ -2194,7 +2192,7 @@ echol
 echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
-echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC $GLLIB" "${TOBJ}"
+echolist "OBJECTS = ${GLLIB_O}" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
 echol
 
 echolist "LISPFILES =" "$LPARTS" ".lisp" "${SRCDIR}"
