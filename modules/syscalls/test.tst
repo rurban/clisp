@@ -255,7 +255,7 @@ T
 #+unix (= (os:gid) (os:user-info-gid (os:user-info (os:uid)))) T
 
 (and (fboundp 'os:user-shells)
-     (notevery #'stringp (os:user-shells))) NIL
+     (notevery #'stringp (show (os:user-shells)))) NIL
 
 (os:file-stat-p (show (os:file-stat *tmp1*) :pretty t)) T
 (os:file-stat-p (show (os:file-stat (pathname *tmp1*)) :pretty t)) T
