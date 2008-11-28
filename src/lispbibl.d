@@ -9737,13 +9737,13 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
   /* No way to allocate a Lisp object on the stack. */
   #define DYNAMIC_8BIT_VECTOR(objvar,len)  \
     var uintL objvar##_len = (len);               \
-    var object objvar = O(dynamic_8bit_vector);   \
-    O(dynamic_8bit_vector) = NIL;                 \
+    var object objvar = TLO(dynamic_8bit_vector); \
+    TLO(dynamic_8bit_vector) = NIL;               \
     if (!(simple_bit_vector_p(Atype_8Bit,objvar) && (Sbvector_length(objvar) >= objvar##_len))) \
       objvar = allocate_bit_vector(Atype_8Bit,objvar##_len); \
     GCTRIGGER1(objvar)
   #define FREE_DYNAMIC_8BIT_VECTOR(objvar)  \
-    O(dynamic_8bit_vector) = objvar
+    TLO(dynamic_8bit_vector) = objvar
 #else
   /* Careful: Fill GCself with pointers to itself, so that GC will leave
    pointers to this object untouched. */
@@ -9876,8 +9876,8 @@ extern maygc object allocate_imm_s32string (uintL len);
   /* No way to allocate a Lisp object on the stack. */
   #define DYNAMIC_STRING(objvar,len)  \
     var uintL objvar##_len = (len);           \
-    var object objvar = O(dynamic_string);    \
-    O(dynamic_string) = NIL;                  \
+    var object objvar = TLO(dynamic_string);  \
+    TLO(dynamic_string) = NIL;                \
     if (!(simple_string_p(objvar) && (Sstring_length(objvar) >= objvar##_len))) { \
       if (objvar##_len > stringsize_limit_1)  \
         error_stringsize(objvar##_len);      \
@@ -9885,7 +9885,7 @@ extern maygc object allocate_imm_s32string (uintL len);
     }                                         \
     GCTRIGGER1(objvar)
   #define FREE_DYNAMIC_STRING(objvar)  \
-    O(dynamic_string) = objvar;
+    TLO(dynamic_string) = objvar;
 #else
   /* Careful: Fill GCself with pointers to itself, so that GC will leave
    pointers to this object untouched. */
@@ -16862,7 +16862,7 @@ extern void convert_to_foreign (object fvd, object obj, void* data, converter_ma
 
 /* thread-local object table */
 struct object_tab_tl_ {
- #define LISPOBJ_TL(name)  gcv_object_t name;
+#define LISPOBJ_TL(name,initstring)  gcv_object_t name;
   #include "constobj_tl.c"
  #undef LISPOBJ_TL
 };
@@ -17106,7 +17106,7 @@ struct object_tab_tl_ {
 /* VTZ: just the beginning of the structure is exported -
    what modules want to know about (in order to build) */
 %% puts("struct object_tab_tl_ {");
-%% #define LISPOBJ_TL(name)  printf("  gcv_object_t %s;\n",STRING(name));
+%% #define LISPOBJ_TL(name,initstring) printf("  gcv_object_t %s;\n",STRING(name));
 %%  #include "constobj_tl.c"
 %% #undef LISPOBJ_TL
 %% puts("};");

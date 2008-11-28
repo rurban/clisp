@@ -1,3 +1,16 @@
+2008-11-28  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	define O(dynamic_8bit_vector), O(dynamic_c_string) as thread-local
+	constant objects
+	* constobj_tl.d (dynamic_8bit_vector, dynamic_c_string): define as
+	per thread objects
+	* constobj.d (dynamic_8bit_vector, dynamic_c_string): remove from here
+	* lispbibi.d (DYNAMICIC_8BIT_VECTOR, FREE_DYNAMIC_8BIT_VECTOR): use
+	TLO() instead of O()
+	(DYNAMIC_STRING, FREE_DYNAMIC_STRING): use TLO() instead of O()
+	(LISPOBJ_TL): takes initstring parameter
+	* stream.d (WRITE-INTEGER): fix a GC-safety bug
+
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2354265 ]: hang computing log of complex zero

@@ -488,10 +488,6 @@
   LISPOBJ(compiled_file_type,"#\".fas\"")
   LISPOBJ(listing_file_type,"#\".lis\"")
 /* for STREAM.D: */
-  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
-  LISPOBJ(dynamic_8bit_vector,"NIL") /* cache for macro DYNAMIC_8BIT_VECTOR */
-  LISPOBJ(dynamic_string,"NIL") /* cache for macro DYNAMIC_STRING */
-  #endif
   LISPOBJ(class_fundamental_stream,"NIL") /* #<STANDARD-CLASS FUNDAMENTAL-STREAM> */
   LISPOBJ(class_fundamental_input_stream,"NIL") /* #<STANDARD-CLASS FUNDAMENTAL-INPUT-STREAM> */
   LISPOBJ(class_fundamental_output_stream,"NIL") /* #<STANDARD-CLASS FUNDAMENTAL-OUTPUT-STREAM> */
@@ -712,6 +708,6 @@
  #endif
 
 #if !defined(MULTITHREAD)
-#define LISPOBJ_TL(n)  LISPOBJ(n,".")
+#define LISPOBJ_TL(n,initstring)  LISPOBJ(n,initstring)
 #include "constobj_tl.c"
 #endif
