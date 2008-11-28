@@ -272,10 +272,10 @@ static void message_callback (const DB_ENV* dbe, const char *msg) {
 
 #define SYSCALL1(caller,args,cleanup)     do {                  \
     int db_error_code;                                          \
-    begin_system_call();                                        \
+    begin_blocking_system_call();                               \
     db_error_code = caller args; cleanup                        \
     if (db_error_code) error_bdb(db_error_code,#caller);        \
-    end_system_call();                                          \
+    end_blocking_system_call();                                 \
   } while(0)
 #define SYSCALL(caller,args)     SYSCALL1(caller,args,)
 
@@ -360,7 +360,7 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
 { /* Create an environment handle */
   DB_ENV *dbe, *dbe_cl;
   bool remote_p = boundp(STACK_2); /* host ==> remote */
-  int status, cl_timeout = 0, sv_timeout = 0;
+  int cl_timeout = 0, sv_timeout = 0;
 # if defined(DB_RPCCLIENT)      /* 4.2 and later */
   SYSCALL(db_env_create,(&dbe,remote_p ? DB_RPCCLIENT : 0));
 # elif defined(DB_CLIENT)       /* 4.1 and before */
@@ -374,17 +374,13 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
    host_restart:
     if (stringp(STACK_2)) {     /* string host */
       with_string_0(STACK_2,GLO(misc_encoding),hostz, {
-          begin_system_call();
-          status = dbe->set_rpc_server(dbe,NULL,hostz,cl_timeout,sv_timeout,0);
-          end_system_call();
+          SYSCALL(dbe->set_rpc_server,(dbe,NULL,hostz,cl_timeout,sv_timeout,0));
         });
     } else if ((dbe_cl = (DB_ENV*)bdb_handle(STACK_2,`BDB::DBE`,
                                              BH_NIL_IS_NULL))) {
       /* reuse client */
-      begin_system_call();
-      status = dbe->set_rpc_server(dbe,dbe_cl->cl_handle,NULL,
-                                   cl_timeout,sv_timeout,0);
-      end_system_call();
+      SYSCALL(dbe->set_rpc_server,(dbe,dbe_cl->cl_handle,NULL,
+                                   cl_timeout,sv_timeout,0));
     } else {                    /* bad host */
       pushSTACK(NIL);           /* no PLACE */
       pushSTACK(STACK_(2+1));   /* TYPE-ERROR slot DATUM */
@@ -396,7 +392,6 @@ DEFUN(BDB:DBE-CREATE,&key PASSWORD ENCRYPT :HOST CLIENT-TIMEOUT SERVER-TIMEOUT)
       STACK_2 = value1;
       goto host_restart;
     }
-    if (status) error_bdb(status,"dbe->set_rpc_server");
   }
   if (!missingp(STACK_4))       /* :PASSWD */
     dbe_set_encryption(dbe,&STACK_3,&STACK_4);
@@ -428,11 +423,11 @@ static void time_stamp (FILE* out, char* prefix) {
 static FILE* my_fopen (object path) {
   FILE *ret;
   with_string_0(path=physical_namestring(path),GLO(pathname_encoding),pathz,{
-      begin_system_call();
+      begin_blocking_system_call();
       ret = fopen(pathz,"w");
       if (ret == NULL) OS_file_error(path);
       time_stamp(ret,"opened");
-      end_system_call();
+      end_blocking_system_call();
     });
   return ret;
 }
@@ -446,13 +441,13 @@ static FILE* my_fopen (object path) {
 #define CLOSE_FILE(which)                               \
   static void close_##which##file (DB_ENV *dbe) {       \
     FILE *file;                                         \
-    begin_system_call();                                \
+    begin_blocking_system_call();                       \
     dbe->get_##which##file(dbe,&file);                  \
     if (file && (file != stdout) && (file != stderr)) { \
       time_stamp(file,"closed");                        \
       fclose(file);                                     \
     }                                                   \
-    end_system_call();                                  \
+    end_blocking_system_call();                         \
   }
 CLOSE_FILE(err)
 /* set :ERRFILE to STACK_0
@@ -607,8 +602,10 @@ static void reset_errpfx (DB_ENV *dbe) {
   } else
     with_string_0(check_string(STACK_0),GLO(misc_encoding), prefix, {
         char *errpfx = (char*)clisp_malloc(prefix_bytelen+1);
+        begin_system_call();
         strcpy(errpfx,prefix);
-        begin_system_call(); dbe->set_errpfx(dbe,errpfx); end_system_call();
+        dbe->set_errpfx(dbe,errpfx);
+        end_system_call();
       });
 }
 /* extract errpfx
@@ -1522,9 +1519,9 @@ DEFUN(BDB:DB-GET, db key &key ACTION AUTO-COMMIT READ-COMMITTED \
   fill_dbt(STACK_0,&key,db_key_type(db,action));
   init_dbt(&val,DB_DBT_MALLOC);
   skipSTACK(2);
-  begin_system_call();
+  begin_blocking_system_call();
   status = db->get(db,txn,&key,&val,flags | action);
-  end_system_call();
+  end_blocking_system_call();
   if (status) {
     free_dbt(&key);
     if (no_error) {
@@ -1737,10 +1734,10 @@ DEFUN(BDB:DB-PUT, db key val &key AUTO-COMMIT ACTION TRANSACTION)
     switch (action) {
       case DB_NODUPDATA: case DB_NOOVERWRITE: {
         int status;
-        begin_system_call();
+        begin_blocking_system_call();
         status = db->put(db,txn,&key,&val,action | flags);
         free(val.data); free(key.data);
-        end_system_call();
+        end_blocking_system_call();
         switch (status) {
           case 0: VALUES0; break;
           case DB_KEYEXIST: VALUES1(`:KEYEXIST`); error_message_reset(); break;
@@ -1818,7 +1815,6 @@ DEFUN(BDB:DB-VERIFY, db file &key DATABASE SALVAGE AGGRESSIVE PRINTABLE \
   u_int32_t flags = db_verify_flags();
   DB *db = (DB*)bdb_handle(STACK_3,`BDB::DB`,BH_VALID);
   FILE *outfile = NULL;
-  int status;
   if (!missingp(STACK_0)) {     /* SALVAGE */
     outfile = my_fopen(STACK_0);
     flags |= DB_SALVAGE;
@@ -1829,21 +1825,15 @@ DEFUN(BDB:DB-VERIFY, db file &key DATABASE SALVAGE AGGRESSIVE PRINTABLE \
     flags |= DB_ORDERCHKONLY;
   }
   with_string_0(STACK_2,GLO(pathname_encoding),file,{
-      if (!missingp(STACK_1)) {
+      if (!missingp(STACK_1))
         with_string_0(STACK_1,GLO(misc_encoding),database,{
-            begin_system_call();
-            status = db->verify(db,file,database,outfile,flags);
-            if (outfile) fclose(outfile);
-            end_system_call();
+            SYSCALL1(db->verify,(db,file,database,outfile,flags),
+                     { if (outfile) fclose(outfile); });
           });
-      } else {
-        begin_system_call();
-        status = db->verify(db,file,NULL,outfile,flags);
-        if (outfile) fclose(outfile);
-        end_system_call();
-      }
+      else
+        SYSCALL1(db->verify,(db,file,NULL,outfile,flags),
+                 { if (outfile) fclose(outfile); });
     });
-  if (status) error_bdb(status,"db->verify");
   VALUES0; skipSTACK(3);
 }
 
@@ -2300,9 +2290,9 @@ DEFUN(BDB:DBC-GET, cursor key data action &key READ-COMMITTED \
   dbt_o_t key_type = fill_or_init(popSTACK(),&key,db_log_key);
   int status;
   skipSTACK(1);                 /* drop cursor */
-  begin_system_call();
+  begin_blocking_system_call();
   status = cursor->c_get(cursor,&key,&val,flag | action);
-  end_system_call();
+  end_blocking_system_call();
   if (status) {
     free_dbt(&key); free_dbt(&val);
     if (no_error) {
@@ -2372,14 +2362,14 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key NOWAIT)
      so clisp_malloc() must be called after it to avoid a memory leak */
   fill_dbt(STACK_0,&obj,0);
   dblock = (DB_LOCK*)clisp_malloc(sizeof(DB_LOCK));
-  begin_system_call();
+  begin_blocking_system_call();
   status = dbe->lock_get(dbe,locker,flags,&obj,mode,dblock);
   free(obj.data);
   if (status) {
     free(dblock);
     error_bdb(status,"dbe->lock_get");
   }
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(allocate_fpointer(dblock)); pushSTACK(STACK_2);
   funcall(`BDB::MKDBLOCK`,2); STACK_0 = STACK_1 = value1;
   pushSTACK(``BDB:LOCK-CLOSE``); funcall(L(finalize),2);
@@ -2613,9 +2603,9 @@ DEFUN(BDB:LOGC-GET, logc action &key :TYPE :ERROR)
     check_lsn(&STACK_0,&lsn);
   }
   init_dbt(&data,DB_DBT_MALLOC);
-  begin_system_call();
+  begin_blocking_system_call();
   status = logc->get(logc,&lsn,&data,action);
-  end_system_call();
+  end_blocking_system_call();
   if (status) {
     if (no_error) {
       switch (status) {
@@ -2753,13 +2743,13 @@ DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
   long retnum;
   SYSCALL(dbe->get_tx_max,(dbe,&tx_max));
   preplist = (DB_PREPLIST*)clisp_malloc(tx_max * sizeof(DB_PREPLIST));
-  begin_system_call();
+  begin_blocking_system_call();
   status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
   if (status) {
-    free(preplist); end_system_call();
+    free(preplist); end_blocking_system_call();
     error_bdb(status,"dbe->txn_recover");
   }
-  end_system_call();
+  end_blocking_system_call();
   for (ii=0; ii<retnum; ii++) {
     pushSTACK(allocate_fpointer(preplist[ii].txn));
     funcall(`BDB::MKTXN`,1); pushSTACK(value1);

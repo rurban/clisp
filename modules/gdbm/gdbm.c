@@ -71,7 +71,7 @@ DEFCHECKER(check_gdbm_errno, prefix=GDBM, NO-ERROR MALLOC-ERROR              \
            REORGANIZE-FAILED CANNOT-REPLACE ILLEGAL-DATA OPT-ALREADY-SET     \
            OPT-ILLEGAL)
 nonreturning_function(static, error_gdbm, (char *fatal_message)) {
-  end_system_call(); /* in case we are called from _gdbm_fatal() */
+  end_blocking_system_call(); /* in case we are called from _gdbm_fatal() */
   pushSTACK(`GDBM::GDBM-ERROR`);
   pushSTACK(`:MESSAGE`);
   if (fatal_message) {
@@ -122,7 +122,7 @@ static GDBM_FILE check_gdbm (gcv_object_t *gdbm, gdbm_data_t *key,
   }
 }
 
-#define SYSCALL(statement) begin_system_call(); statement; end_system_call()
+#define SYSCALL(statement) begin_blocking_system_call(); statement; end_blocking_system_call()
 
 static object open_gdbm (object path, int bsize, int rw, int mode) {
   GDBM_FILE gdbm;
