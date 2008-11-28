@@ -1,3 +1,7 @@
+2008-11-27  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: check (log 0) in all incarnations (bug [ 2354265 ])
+
 2008-11-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* tests.lisp (run-test): use log file name as package name
