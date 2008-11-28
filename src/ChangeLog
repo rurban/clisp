@@ -1,5 +1,11 @@
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 2354265 ]: hang computing log of complex zero
+	* comptran.d (N_log_abs_R): check complex argument for 0;
+	bug was introduced when fixing bug [ 1934968 ]
+
+2008-11-27  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (GLLIB): remove variable, use GLLIB_O instead
 
 2008-11-27  Sam Steingold  <sds@gnu.org>
