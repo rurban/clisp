@@ -17268,16 +17268,16 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
   test_eltype_arg(&STACK_1,&eltype);
   check_multiple8_eltype(&eltype);
   var bool endianness = check_endianness_arg(STACK_0); /* check Endianness */
-  var object stream = check_stream(STACK_2);
+  STACK_2 = check_stream(STACK_2);
   /* check Integer: */
   var uintL bitsize = eltype.size;
   var uintL bytesize = bitsize/8;
-  var object obj = STACK_3;
-  ASSERT_wr_int(stream,obj);
+  ASSERT_wr_int(STACK_2,STACK_3);
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   /* Stack layout: obj, stream, element-type, endianness, bitbuffer. */
-  obj = STACK_4;
+  var object obj = STACK_4;
+  var object stream = check_stream(STACK_3);
   /* Copy the integer's data into the buffer. */
   switch (eltype.kind) {
     case eltype_iu:
