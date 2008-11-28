@@ -1,5 +1,13 @@
 2008-11-28  Sam Steingold  <sds@gnu.org>
 
+        * modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c,
+	* modules/gdbm/gdbm.c, modules/i18n/gettext.c,
+	* modules/rawsock/rawsock.c, modules/syscalls/calls.c:
+	use begin/end_blocking_system_call instead of begin/end_system_call
+	for all file and network operations
+
+2008-11-28  Sam Steingold  <sds@gnu.org>
+
 	* gllib/stdint.in.h, gllib/sys_time.in.h, glm4/include_next.m4:
 	update from gnulib to fix the rpl_gettimeofday problem
 

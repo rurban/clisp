@@ -284,8 +284,8 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 }
 
 /* ================== SIGPIPE handling ================== */
-#define begin_sock_call()  START_WRITING_TO_SUBPROCESS;  begin_system_call()
-#define end_sock_call()    end_system_call(); STOP_WRITING_TO_SUBPROCESS
+#define begin_sock_call()  START_WRITING_TO_SUBPROCESS;  begin_blocking_system_call()
+#define end_sock_call()    end_blocking_system_call(); STOP_WRITING_TO_SUBPROCESS
 
 /* invoke system call C, place return value in R, report error on socket S */
 #define SYSCALL(r,s,c)                                  \
@@ -1129,9 +1129,9 @@ DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
   uint32 ipaddress = I_to_UL(check_uint32(STACK_0));
   rawsock_t sock = I_to_uint(check_uint(STACK_2));
   with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),name, {
-      begin_system_call();
+      begin_blocking_system_call();
       configdev(sock, name, ipaddress, flags);
-      end_system_call();
+      end_blocking_system_call();
     });
   VALUES0; skipSTACK(3);
 }
