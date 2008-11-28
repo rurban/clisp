@@ -1,3 +1,8 @@
+2008-11-28  Sam Steingold  <sds@gnu.org>
+
+	* gllib/stdint.in.h, gllib/sys_time.in.h, glm4/include_next.m4:
+	update from gnulib to fix the rpl_gettimeofday problem
+
 2008-11-27  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: check (log 0) in all incarnations (bug [ 2354265 ])
