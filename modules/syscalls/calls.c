@@ -262,19 +262,19 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
 #  if defined(WIN32_NATIVE)
     uint32 size_hi;
     uint32 size_lo;
-    begin_system_call();
+    begin_blocking_system_call();
     size_lo = GetFileSize(fd,(DWORD*)&size_hi);
     /* Value returned can be (LONG) -1 even on success,
        check the last error code */
     failed_p = (size_lo == INVALID_FILE_SIZE) && (GetLastError() != 0);
-    end_system_call();
+    end_blocking_system_call();
     if (failed_p) goto stream_lock_error;
     length = ((uint64)size_hi << 32) | (uint64)size_lo;
 #  elif defined(HAVE_FSTAT)
     struct stat st;
-    begin_system_call();
+    begin_blocking_system_call();
     failed_p = (-1 == fstat(fd,&st));
-    end_system_call();
+    end_blocking_system_call();
     if (failed_p) goto stream_lock_error;
     length = st.st_size;
 #  else
@@ -282,7 +282,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
 #  endif
   } else
     length = I_to_offset(STACK_0);
-  begin_system_call();
+  begin_blocking_system_call();
 #if defined(WIN32_NATIVE)
   if (lock_p) {
     failed_p = !(*LockFileExFunc)(fd,flags,0,length,0,&ol);
@@ -296,7 +296,7 @@ DEFUN(POSIX::STREAM-LOCK, stream lockp &key :BLOCK SHARED :START :LENGTH)
       && lock_p && (cmd == F_SETLK) && (errno == EACCES || errno == EAGAIN))
     failed_p = lock_p = false; /* failed to lock, :BLOCK NIL */
 #endif
-  end_system_call();
+  end_blocking_system_call();
   if (failed_p) stream_lock_error:
     error_OS_stream(stream);
   skipSTACK(6);
@@ -325,11 +325,15 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
         cmd = F_SETFL; break;
       default: NOTREACHED;
     }
-    begin_system_call(); value = fcntl(fd,cmd,value); end_system_call();
+    begin_blocking_system_call();
+    value = fcntl(fd,cmd,value);
+    end_blocking_system_call();
     if (-1 == value) error_OS_stream(STACK_2);
     VALUES0;
   } else {                      /* GET */
-    begin_system_call(); value = fcntl(fd,cmd); end_system_call();
+    begin_blocking_system_call();
+    value = fcntl(fd,cmd);
+    end_blocking_system_call();
     if (-1 == value) error_OS_stream(STACK_2);
     switch (cmd) {
       case F_GETFD: value1 = check_fd_flags_to_list(value); break;
@@ -365,7 +369,9 @@ static void* on_pnamestring (object path, void* (*f) (const char*,void*),
                              void* data) {
   void* ret;
   with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,
-      { begin_system_call(); ret = (*f)(pathz,data); end_system_call(); });
+      { begin_blocking_system_call();
+        ret = (*f)(pathz,data);
+        end_blocking_system_call(); });
   return ret;
 }
 #define ON_PNAMESTRING(p,f,d)  on_pnamestring(p,(void*(*)(const char*,void*))&(f),(void*)(d))
@@ -404,7 +410,7 @@ static void* path_truncate (const char *path, file_offset_t *length) {
 
 /* truncate a stream, STACK_0 = stream */
 static void stream_truncate (Handle fd, file_offset_t *length) {
-  begin_system_call();
+  begin_blocking_system_call();
 #if defined(WIN32_NATIVE)
   { LARGE_INTEGER cur_pos;
     if (!(SetFilePointerEx(fd,(LARGE_INTEGER){QuadPart:0},
@@ -412,15 +418,15 @@ static void stream_truncate (Handle fd, file_offset_t *length) {
           && SetFilePointerEx(fd,*length,NULL,FILE_BEGIN)
           && SetEndOfFile(fd)
           && SetFilePointerEx(fd,cur_pos,NULL,FILE_BEGIN)))
-      { end_system_call(); OS_filestream_error(STACK_0); }
+      { end_blocking_system_call(); OS_filestream_error(STACK_0); }
   }
 #elif defined(HAVE_FTRUNCATE)
   if (ftruncate(fd,*length))
-    { end_system_call(); OS_file_error(STACK_0); }
+    { end_blocking_system_call(); OS_file_error(STACK_0); }
 #else
 #error FILE-SIZE: no ftruncate and not woe32
 #endif
-  end_system_call();
+  end_blocking_system_call();
 }
 
 /* separate from SET-FILE-STAT because it works only on paths
@@ -493,12 +499,12 @@ DEFUN(POSIX:OPENLOG,ident &key PID CONS NDELAY ODELAY NOWAIT FACILITY) {
   int facility = check_syslog_facility(popSTACK());
   int logopt = syslog_opt_flags();
   with_string_0(check_string(popSTACK()),GLO(misc_encoding),ident, {
-      begin_system_call();
+      begin_blocking_system_call();
       if (log_ident) { free(log_ident); }
       log_ident = (char*)clisp_malloc(strlen(ident)+1);
       strcpy(log_ident,ident);
       openlog(log_ident,logopt,facility);
-      end_system_call();
+      end_blocking_system_call();
     });
   VALUES0;
 }
@@ -518,22 +524,22 @@ DEFUN(POSIX::%SYSLOG, severity facility message) {
   int priority =
     check_syslog_severity(STACK_2) | check_syslog_facility(STACK_1);
   with_string_0(STACK_0 = check_string(STACK_0),GLO(misc_encoding),mesg, {
-      begin_system_call();
+      begin_blocking_system_call();
       /* disable %m but avoid surprises with % special handling
          http://www.opengroup.org/onlinepubs/009695399/functions/syslog.html */
       syslog(priority,"%s",mesg);
-      end_system_call();
+      end_blocking_system_call();
     });
   VALUES0; skipSTACK(3);
 }
 #if defined(HAVE_CLOSELOG)
 DEFUN(POSIX:CLOSELOG,) {
-  begin_system_call();
+  begin_blocking_system_call();
   closelog();
 #if defined(HAVE_OPENLOG)
   if(log_ident) { free(log_ident); log_ident=NULL; }
 #endif
-  end_system_call();
+  end_blocking_system_call();
   VALUES0;
 }
 #endif
@@ -616,7 +622,9 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
 #if defined(HAVE_TEMPNAM)
 static object temp_name (char *dir, char *prefix) {
   char *ret_s; object ret_o;
-  begin_system_call(); ret_s = tempnam(dir,prefix); end_system_call();
+  begin_blocking_system_call();
+  ret_s = tempnam(dir,prefix);
+  end_blocking_system_call();
   if (ret_s == NULL) OS_error();
   ret_o = asciz_to_string(ret_s,GLO(pathname_encoding));
   begin_system_call(); free(ret_s); end_system_call();
@@ -626,9 +634,9 @@ static object temp_name (char *dir, char *prefix) {
 static object temp_name (char *dir, char *prefix) {
   char path[MAX_PATH];
   int ret;
-  begin_system_call();
+  begin_blocking_system_call();
   ret = GetTempFileName(dir,prefix,0,path);
-  end_system_call();
+  end_blocking_system_call();
   if (0 == ret) OS_error();
   return asciz_to_string(path,GLO(pathname_encoding));
 }
@@ -643,7 +651,7 @@ DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
   Handle fd;
   with_string_0(fname,GLO(pathname_encoding),namez,{
       char *c_template;
-      begin_system_call();
+      begin_blocking_system_call();
       if (namez_bytelen > 6
           && namez[namez_bytelen-1]=='X'
           && namez[namez_bytelen-2]=='X'
@@ -658,7 +666,7 @@ DEFUN(POSIX:MKSTEMP, template &key :DIRECTION :BUFFERED :EXTERNAL-FORMAT \
         strcat(c_template,"XXXXXX");
       }
       fd = mkstemp(c_template);
-      end_system_call();
+      end_blocking_system_call();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
   pushSTACK(fname);  funcall(L(pathname),1); STACK_4=value1; /* filename */
@@ -726,14 +734,15 @@ static Values utmpx_to_lisp (struct utmpx *utmpx, gcv_object_t *utmpx_o) {
 }
 #if defined(HAVE_ENDUTXENT)
 DEFUN(POSIX::ENDUTXENT,) {
-  begin_system_call(); endutxent(); end_system_call(); VALUES0;
+  begin_blocking_system_call(); endutxent(); end_blocking_system_call();
+  VALUES0;
 }
 #endif
 #if defined(HAVE_GETUTXENT)
 DEFUN(POSIX::GETUTXENT, &optional utmpx) {
   struct utmpx *utmpx;
   if (!missingp(STACK_0)) STACK_0 = check_classname(STACK_0,`POSIX::UTMPX`);
-  begin_system_call(); utmpx=getutxent(); end_system_call();
+  begin_blocking_system_call(); utmpx=getutxent(); end_blocking_system_call();
   if (utmpx) utmpx_to_lisp(utmpx,missingp(STACK_0) ? NULL : &STACK_0);
   else VALUES1(NIL);
   skipSTACK(1);
@@ -743,7 +752,9 @@ DEFUN(POSIX::GETUTXENT, &optional utmpx) {
 DEFUN(POSIX::GETUTXID, id) {
   struct utmpx utmpx, *utmpx_p;
   utmpx.ut_type = check_utmpx(&STACK_0);
-  begin_system_call(); utmpx_p = getutxid(&utmpx); end_system_call();
+  begin_blocking_system_call();
+  utmpx_p = getutxid(&utmpx);
+  end_blocking_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else VALUES1(NIL);
   skipSTACK(1);
@@ -753,7 +764,9 @@ DEFUN(POSIX::GETUTXID, id) {
 DEFUN(POSIX::GETUTXLINE, line) {
   struct utmpx utmpx, *utmpx_p;
   utmpx.ut_type = check_utmpx(&STACK_0);
-  begin_system_call(); utmpx_p = getutxline(&utmpx); end_system_call();
+  begin_blocking_system_call();
+  utmpx_p = getutxline(&utmpx);
+  end_blocking_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else VALUES1(NIL);
   skipSTACK(1);
@@ -763,7 +776,9 @@ DEFUN(POSIX::GETUTXLINE, line) {
 DEFUN(POSIX::PUTUTXLINE, utmpx) {
   struct utmpx utmpx, *utmpx_p;
   utmpx.ut_type = check_utmpx(&STACK_0);
-  begin_system_call(); utmpx_p = pututxline(&utmpx); end_system_call();
+  begin_blocking_system_call();
+  utmpx_p = pututxline(&utmpx);
+  end_blocking_system_call();
   if (utmpx_p) utmpx_to_lisp(utmpx_p,&STACK_0);
   else OS_error();
   skipSTACK(1);
@@ -771,7 +786,8 @@ DEFUN(POSIX::PUTUTXLINE, utmpx) {
 #endif
 #if defined(HAVE_SETUTXENT)
 DEFUN(POSIX::SETUTXENT,) {
-  begin_system_call(); setutxent(); end_system_call(); VALUES0;
+  begin_blocking_system_call(); setutxent(); end_blocking_system_call();
+  VALUES0;
 }
 #endif
 #endif  /* HAVE_UTMPX_H */
@@ -841,18 +857,18 @@ DEFUN(POSIX:KILL, pid sig) {
 DEFUN(POSIX:SYNC, &optional file) {
   if (missingp(STACK_0)) {      /* sync() */
 #  if defined(HAVE_SYNC)
-    begin_system_call(); sync(); end_system_call();
+    begin_blocking_system_call(); sync(); end_blocking_system_call();
 #  endif
   } else {                      /* fsync() */
     Handle fd = stream_get_handle(&STACK_0);
     bool failed_p;
-    begin_system_call();
+    begin_blocking_system_call();
 #  if defined(HAVE_FSYNC)
     failed_p = (-1 == fsync(fd));
 #  elif defined(WIN32_NATIVE)
     failed_p = (!FlushFileBuffers(fd));
 #  endif
-    end_system_call();
+    end_blocking_system_call();
     if (failed_p) error_OS_stream(STACK_0);
   }
   VALUES0; skipSTACK(1);
@@ -1208,9 +1224,8 @@ DEFUN(POSIX::CONFSTR, &optional what)
   else {                                                                \
     /* Here we cannot use alloca(), because alloca() is generally unsafe \
        for sizes > BUFSIZ. */                                           \
-    char *tmp;                                                          \
+    char *tmp = (char*)clisp_malloc(res);                               \
     begin_system_call();                                                \
-    tmp = (char*)clisp_malloc(res);                                     \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
@@ -1844,9 +1859,9 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   object file = STACK_1;
 
   if (integerp(file)) {
-    begin_system_call();
+    begin_blocking_system_call();
     if (fstat(I_to_UL(file),&buf) < 0) OS_error();
-    end_system_call();
+    end_blocking_system_call();
   } else {
     Handle fd;
     file = open_file_stream_handle(STACK_1,&fd,true);
@@ -1859,10 +1874,10 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       /* woe32 does have fstat(), but it does not accept a file handle,
          only an integer of an unknown nature */
       BY_HANDLE_FILE_INFORMATION fi;
-      begin_system_call();
+      begin_blocking_system_call();
       if (!GetFileInformationByHandle(fd,&fi))
         error_OS_stream(STACK_1);
-      end_system_call();
+      end_blocking_system_call();
       pushSTACK(STACK_1);       /* file */
       pushSTACK(uint32_to_I(fi.dwVolumeSerialNumber)); /* device */
       pushSTACK(UL2_to_I(fi.nFileIndexHigh,fi.nFileIndexLow)); /* "inode" */
@@ -1879,7 +1894,7 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
 #    else
       if (fstat(fd,&buf) < 0)
         error_OS_stream(STACK_1);
-      end_system_call();
+      end_blocking_system_call();
       file = eq(nullobj,STACK_1) ? fixnum(fd) : (object)STACK_1; /* restore */
 #    endif
     }
@@ -1932,13 +1947,13 @@ static void my_chmod (char *path, mode_t mode) {
 #elif defined(HAVE_CHMOD)
   if (chmod(path,mode)) OS_file_error(STACK_0);
 #else
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S): this platform lacks ~S"));
   pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:MODE`); pushSTACK(fixnum(mode));
   pushSTACK(`"chmod()"`);
   funcall(S(warn),5);
-  begin_system_call();
+  begin_blocking_system_call();
 #endif
 }
 /* error-signalling replacement for chown()
@@ -1948,14 +1963,14 @@ static void my_chown (char *path, uid_t uid, gid_t gid) {
 #if defined(HAVE_CHOWN)
   if (chown(path,uid,gid)) OS_file_error(STACK_0);
 #else
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
   pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:UID`); pushSTACK((uid != (uid_t)-1) ? fixnum(uid) : NIL);
   pushSTACK(`:GID`); pushSTACK((gid != (gid_t)-1) ? fixnum(gid) : NIL);
   pushSTACK(`"chown()"`);
   funcall(S(warn),7);
-  begin_system_call();
+  begin_blocking_system_call();
 #endif
 }
 /* error-signalling replacement for utime()
@@ -1976,7 +1991,7 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
 #if defined(HAVE_UTIME)
   if (utime(path,utb)) OS_file_error(STACK_0);
 #else
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(CLSTEXT("~S(~S ~S ~S ~S ~S): this platform lacks ~S"));
   pushSTACK(TheSubr(subr_self)->name); pushSTACK(STACK_2);
   pushSTACK(`:ATIME`);
@@ -1985,7 +2000,7 @@ static void my_utime (char *path, bool utb_a, bool utb_m, struct utimbuf *utb) {
   pushSTACK(utb_m ? convert_time_to_universal(&(utb->modtime)) : NIL);
   pushSTACK(`"utime()"`);
   funcall(S(warn),7);
-  begin_system_call();
+  begin_blocking_system_call();
 #endif
 }
 #else  /* WIN32_NATIVE */
@@ -2013,7 +2028,11 @@ static void find_first_file (object path, WIN32_FIND_DATA *wfd, HANDLE *sh) {
   HANDLE s_h = ON_PNAMESTRING(path,FindFirstFile,wfd);
   if (s_h == INVALID_HANDLE_VALUE) OS_file_error(value1);
   if (sh) *sh = s_h;
-  else { begin_system_call(); FindClose(s_h); begin_system_call(); }
+  else {
+    begin_blocking_system_call();
+    FindClose(s_h);
+    begin_blocking_system_call();
+  }
 }
 /* get file times from an object
  can trigger GC */
@@ -2083,11 +2102,11 @@ DEFUN(POSIX::SET-FILE-STAT, file &key ATIME MTIME MODE UID GID)
   skipSTACK(2);                 /* drop atime & mtime */
   STACK_0 = physical_namestring(STACK_0);
   with_string_0(STACK_0,GLO(pathname_encoding),path, {
-      begin_system_call();
+      begin_blocking_system_call();
       if (mode != (mode_t)-1) my_chmod(path,mode);
       if ((uid != (uid_t)-1) || (gid != (gid_t)-1)) my_chown(path,uid,gid);
       if (utb_a || utb_m) my_utime(path,utb_a,utb_m,&utb);
-      end_system_call();
+      end_blocking_system_call();
     });
   VALUES0; skipSTACK(1);
 }
@@ -2189,7 +2208,9 @@ DEFUN(POSIX::MKNOD, path type mode)
   funcall(L(namestring),1);     /* drop path from STACK */
   with_string_0(value1,GLO(pathname_encoding),path, {
       int ret;
-      begin_system_call(); ret = mknod(path,mode,0); end_system_call();
+      begin_blocking_system_call();
+      ret = mknod(path,mode,0);
+      end_blocking_system_call();
       if (ret) OS_file_error(value1);
     });
   VALUES0;
@@ -2204,7 +2225,7 @@ DEFUN(POSIX:MKDTEMP, template) {
       char *c_template;
       if (namez[namez_bytelen-1] == '/') /* mkdtemp(".../") --> ENOENT */
         namez[--namez_bytelen] = 0;
-      begin_system_call();
+      begin_blocking_system_call();
       if (namez_bytelen > 6
           && namez[namez_bytelen-1]=='X'
           && namez[namez_bytelen-2]=='X'
@@ -2219,7 +2240,7 @@ DEFUN(POSIX:MKDTEMP, template) {
         strcat(c_template,"XXXXXX");
       }
       c_template = mkdtemp(c_template);
-      end_system_call();
+      end_blocking_system_call();
       if (NULL == c_template) OS_error();
       fname = asciz_to_string(c_template,GLO(pathname_encoding));
     });
@@ -2235,9 +2256,9 @@ DEFUN(POSIX:MKDTEMP, template) {
           /* if no directory ==> use current "." */
           STACK_3 = temp_name(dir[0] ? dir : (char*)".",prefix);
           with_string_0(STACK_3,GLO(pathname_encoding),newdir, {
-              begin_system_call();
+              begin_blocking_system_call();
               if (mkdir1(newdir,0700)) OS_file_error(STACK_2);
-              end_system_call();
+              end_blocking_system_call();
             });
         });
     });
@@ -2343,17 +2364,17 @@ DEFUN(POSIX::STAT-VFS, file)
 
 #if defined(HAVE_FSTATVFS)
   if (integerp(file)) {
-    begin_system_call();
+    begin_blocking_system_call();
     if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
-    end_system_call();
+    end_blocking_system_call();
   } else {
     Handle fd;
     file = open_file_stream_handle(file,&fd,true);
     if (!eq(nullobj,file)) { /* an open stream */
-      begin_system_call();
+      begin_blocking_system_call();
       if (fstatvfs(fd,&buf) < 0)
         error_OS_stream(STACK_0);
-      end_system_call();
+      end_blocking_system_call();
       STACK_0 = file;
     } else
 #endif
@@ -2766,7 +2787,7 @@ static inline int my_link (const char* source, const char* destination) {
 #if defined(HAVE_LINK)
 static void hardlink_file (char* old_pathstring, char* new_pathstring) {
   gcv_object_t *failed = NULL;
-  begin_system_call();
+  begin_blocking_system_call();
 # if defined(WIN32_NATIVE)
   if (MkHardLink(old_pathstring,new_pathstring) == FALSE)
     failed = (GetLastError() == ERROR_FILE_NOT_FOUND ? &STACK_3 : &STACK_1);
@@ -2774,17 +2795,17 @@ static void hardlink_file (char* old_pathstring, char* new_pathstring) {
   if (my_link(old_pathstring,new_pathstring) < 0)
     failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
 # endif
-  end_system_call();
+  end_blocking_system_call();
   if (failed) OS_file_error(*failed);
 }
 #endif
 #if defined(HAVE_SYMLINK)
 static inline void symlink_file (char* old_pathstring, char* new_pathstring) {
   gcv_object_t *failed = NULL;
-  begin_system_call();
+  begin_blocking_system_call();
   if (symlink(old_pathstring,new_pathstring) < 0) /* symlink file */
     failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
-  end_system_call();
+  end_blocking_system_call();
   if (failed) OS_file_error(*failed);
 }
 #endif
@@ -2798,18 +2819,18 @@ static void copy_attributes_and_close () {
   struct stat dest_sb;
 
 # if defined(HAVE_FSTAT) && !defined(WIN32_NATIVE)
-  begin_system_call();
+  begin_blocking_system_call();
   if (fstat(source_fd, &source_sb) == -1) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(file_stream_truename(STACK_1));
     goto close_and_err;
   }
   if (fstat(dest_fd, &dest_sb) == -1) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-  end_system_call();
+  end_blocking_system_call();
 # elif defined(HAVE_STAT)
   if (ON_PNAMESTRING(STACK_1,stat,&source_sb)) {
     pushSTACK(file_stream_truename(STACK_1));
@@ -2826,9 +2847,9 @@ static void copy_attributes_and_close () {
 # if defined(WIN32_NATIVE) /*** file mode ***/
   { BOOL ret;
     BY_HANDLE_FILE_INFORMATION fi;
-    begin_system_call();
+    begin_blocking_system_call();
     ret = GetFileInformationByHandle(source_fd,&fi);
-    end_system_call();
+    end_blocking_system_call();
     if (!ret) {
       pushSTACK(file_stream_truename(STACK_1));
       goto close_and_err;
@@ -2839,14 +2860,14 @@ static void copy_attributes_and_close () {
     }
   }
 # elif defined(HAVE_FCHMOD)
-  begin_system_call();
+  begin_blocking_system_call();
   if (((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777))
       && (fchmod(dest_fd, source_sb.st_mode & 0777) == -1)) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-  end_system_call();
+  end_blocking_system_call();
 # elif defined(HAVE_CHMOD)
   if ((source_sb.st_mode & 0777) != (dest_sb.st_mode & 0777)
       && ON_PNAMESTRING(STACK_0,chmod,source_sb.st_mode & 0777)) {
@@ -2856,19 +2877,19 @@ static void copy_attributes_and_close () {
 # endif
 
 # if defined(HAVE_FCHOWN) /*** owner/group ***/
-  begin_system_call();
+  begin_blocking_system_call();
   if (fchown(dest_fd, source_sb.st_uid, source_sb.st_gid) == -1) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(file_stream_truename(STACK_0));
     goto close_and_err;
   }
-  end_system_call();
+  end_blocking_system_call();
 # elif defined(HAVE_CHOWN)
   { int ret;
     with_string_0(physical_namestring(STACK_0),GLO(pathname_encoding),destz,{
-        begin_system_call();
+        begin_blocking_system_call();
         ret = chown(destz, source_sb.st_uid, source_sb.st_gid);
-        end_system_call();
+        end_blocking_system_call();
       });
     if (ret == -1) {
       pushSTACK(file_stream_truename(STACK_0));
@@ -3182,12 +3203,12 @@ DEFUN(POSIX::DUPLICATE-HANDLE, old &optional new)
 { /* Lisp interface to dup(2)/dup2(2). */
   Handle new_handle = (Handle)check_uint_defaulted(popSTACK(),(uintL)-1);
   Handle old_handle = (Handle)I_to_uint(check_uint(popSTACK()));
-  begin_system_call();
+  begin_blocking_system_call();
   if (new_handle == (Handle)(uintL)-1)
     new_handle = handle_dup(old_handle);
   else
     new_handle = handle_dup2(old_handle,new_handle);
-  end_system_call();
+  end_blocking_system_call();
   VALUES1(fixnum(new_handle));
 }
 
@@ -3232,16 +3253,16 @@ DEFUN(POSIX::FILE-INFO, file &optional all) {
     find_first_file(STACK_1,&wfd,&sh); *phys = value1; /* physical name */
     wfd_to_file_info(&wfd); pushSTACK(value1);
     while (1) {
-      begin_system_call();
+      begin_blocking_system_call();
       if (!FindNextFile(sh,&wfd)) {
         if (GetLastError() == ERROR_NO_MORE_FILES) break;
-        end_system_call();
+        end_blocking_system_call();
         OS_file_error(*phys);
       }
-      end_system_call();
+      end_blocking_system_call();
       wfd_to_file_info(&wfd); pushSTACK(value1); count++;
     }
-    begin_system_call(); FindClose(sh); end_system_call();
+    begin_blocking_system_call(); FindClose(sh); end_blocking_system_call();
     VALUES1(listof(count));
   }
   skipSTACK(2);                 /* drop arguments */
@@ -3255,18 +3276,18 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   gcv_object_t *file = &STACK_7;
 
   /* Get a pointer to the IShellLink interface. */
-  begin_system_call();
+  begin_blocking_system_call();
   hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
-  end_system_call();
+  end_blocking_system_call();
   if (!missingp(STACK_0)) {     /* PATH */
     object path = check_string(STACK_0);
     with_string_0(path,GLO(pathname_encoding),pathz, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = psl->lpVtbl->SetPath(psl,pathz);
       if (!SUCCEEDED(hres)) goto fail_psl;
-      end_system_call();
+      end_blocking_system_call();
     });
   }
   skipSTACK(1);                 /* drop PATH */
@@ -3299,19 +3320,19 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
       pushSTACK(TheSubr(subr_self)->name);
       error(error_condition,GETTEXT("~S: invalid hotkey spec ~S"));
     }
-    begin_system_call();
+    begin_blocking_system_call();
     hres = psl->lpVtbl->SetHotkey(psl,hot_key);
     if (!SUCCEEDED(hres)) goto fail_psl;
-    end_system_call();
+    end_blocking_system_call();
   }
   skipSTACK(1);                 /* drop HOT-KEY */
   if (!missingp(STACK_0)) {     /* DESCRIPTION */
     object desc = check_string(STACK_0);
     with_string_0(desc,GLO(pathname_encoding),descz, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = psl->lpVtbl->SetDescription(psl,descz);
       if (!SUCCEEDED(hres)) goto fail_psl;
-      end_system_call();
+      end_blocking_system_call();
     });
   }
   skipSTACK(1);                 /* drop DESCRIPTION */
@@ -3325,10 +3346,10 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
                                           : Cdr(STACK_0)));
     } else icon_name = check_string(STACK_0);
     with_string_0(icon_name,GLO(pathname_encoding),iconz, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = psl->lpVtbl->SetIconLocation(psl,iconz,icon_idx);
       if (!SUCCEEDED(hres)) goto fail_psl;
-      end_system_call();
+      end_blocking_system_call();
     });
   }
   skipSTACK(1);                 /* drop ICON */
@@ -3348,35 +3369,35 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
       sc = value1;
       goto restart_show_command;
     }
-    begin_system_call();
+    begin_blocking_system_call();
     hres = psl->lpVtbl->SetShowCmd(psl,sci);
     if (!SUCCEEDED(hres)) goto fail_psl;
-    end_system_call();
+    end_blocking_system_call();
   }
   skipSTACK(1);                 /* drop SHOW-COMMAND */
   if (!missingp(STACK_0)) {     /* ARGUMENTS */
     object args = check_string(STACK_0);
     with_string_0(args,GLO(pathname_encoding),argz, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = psl->lpVtbl->SetArguments(psl,argz);
       if (!SUCCEEDED(hres)) goto fail_psl;
-      end_system_call();
+      end_blocking_system_call();
     });
   }
   skipSTACK(1);                 /* drop ARGUMENTS */
   if (!missingp(STACK_0)) {     /* WORKING-DIRECTORY */
     object wd = check_string(STACK_0);
     with_string_0(wd,GLO(pathname_encoding),wdz, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = psl->lpVtbl->SetWorkingDirectory(psl,wdz);
       if (!SUCCEEDED(hres)) goto fail_psl;
-      end_system_call();
+      end_blocking_system_call();
     });
   }
   skipSTACK(1);                 /* drop WORKING-DIRECTORY */
   STACK_0 = physical_namestring(STACK_0); /* pathname */
 
-  begin_system_call();
+  begin_blocking_system_call();
   hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile,(LPVOID*)&ppf);
   if (!SUCCEEDED(hres)) goto fail_psl;
   { /* Ensure that the string is Unicode & Save the shortcut. */
@@ -3389,11 +3410,11 @@ DEFUN(POSIX::MAKE-SHORTCUT, file &key WORKING-DIRECTORY ARGUMENTS \
   }
   ppf->lpVtbl->Release(ppf);
   psl->lpVtbl->Release(psl);
-  end_system_call();
+  end_blocking_system_call();
   VALUES1(popSTACK()); return;
  fail_ppf: ppf->lpVtbl->Release(ppf);
  fail_psl: psl->lpVtbl->Release(psl);
- fail_none: end_system_call(); OS_file_error(*file);
+ fail_none: end_blocking_system_call(); OS_file_error(*file);
 }
 
 DEFUN(POSIX::SHORTCUT-INFO, file) {
@@ -3410,7 +3431,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
   STACK_0 = physical_namestring(STACK_0);
 
   /* Get a pointer to the IShellLink interface. */
-  begin_system_call();
+  begin_blocking_system_call();
   hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
                           &IID_IShellLink, (LPVOID*)&psl);
   if (!SUCCEEDED(hres)) goto fail_none;
@@ -3451,7 +3472,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
   if (!SUCCEEDED(hres)) goto fail_ppf;
   ppf->lpVtbl->Release(ppf);
   psl->lpVtbl->Release(psl);
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(asciz_to_string(path,GLO(pathname_encoding))); /* 1 */
   wfd_to_file_info(&wfd); pushSTACK(value1);               /* 2 */
   pushSTACK(asciz_to_string(wd,GLO(pathname_encoding)));   /* 3 */
@@ -3479,7 +3500,7 @@ DEFUN(POSIX::SHORTCUT-INFO, file) {
   return;
  fail_ppf: ppf->lpVtbl->Release(ppf);
  fail_psl: psl->lpVtbl->Release(psl);
- fail_none: end_system_call(); OS_file_error(*file);
+ fail_none: end_blocking_system_call(); OS_file_error(*file);
 }
 
 DEFUN(POSIX::SYSTEM-INFO,)
@@ -4062,14 +4083,14 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
   }
   STACK_(ifile) = physical_namestring(STACK_(ifile));
   with_string_0w(STACK_(ifile), filename, {
-      begin_system_call();
+      begin_blocking_system_call();
       hres = StgOpenStorageExFunc(filename,
                                   ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
                                   | STGM_SHARE_EXCLUSIVE,
                                   4 /* STGFMT_ANY */, 0, NULL /*&stgOp*/, 0,
                                   &IID_IPropertySetStorage,
                                   (void **)&ppropsetstg);
-      end_system_call();
+      end_blocking_system_call();
   });
   if (FAILED(hres)) {
     pushSTACK(STACK_(ifile));
@@ -4092,11 +4113,11 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     pushSTACK(TheSubr(subr_self)->name);
     error(file_error,GETTEXT("~S: invalid property set specifier ~S"));
   }
-  begin_system_call();
+  begin_blocking_system_call();
   hres = ppropsetstg->lpVtbl->Open(ppropsetstg, fmtid,
                                    ((npropwr||use_wpn)?STGM_READWRITE:STGM_READ)
                                    | STGM_SHARE_EXCLUSIVE, &ppropstg);
-  end_system_call();
+  end_blocking_system_call();
   if (FAILED(hres)) {
     pushSTACK(safe_to_string(DecodeHRESULT(hres)));
     pushSTACK(STACK_(ifile+1));
@@ -4145,10 +4166,10 @@ DEFUN(POSIX::FILE-PROPERTIES, file set &rest pairs)
     error(error_condition,GETTEXT("~S: ReadMultiple error: ~S"));
   }
   if (npropwr > 0) {
-    begin_system_call();
+    begin_blocking_system_call();
     hres = ppropstg->lpVtbl->WriteMultiple(ppropstg,npropwr,pspecwr,pvarwr,
                                            initid);
-    end_system_call();
+    end_blocking_system_call();
     if(FAILED(hres)) {
       pushSTACK(safe_to_string(DecodeHRESULT(hres)));
       pushSTACK(TheSubr(subr_self)->name);
@@ -4205,9 +4226,9 @@ DEFUN(POSIX::FOPEN, path mode) {
   with_string_0(STACK_1, GLO(pathname_encoding), pathz, {
       with_string_0(STACK_0, GLO(misc_encoding), modez, {
           FILE *fp;
-          begin_system_call();
+          begin_blocking_system_call();
           fp = fopen(pathz,modez);
-          end_system_call();
+          end_blocking_system_call();
           if (fp) STACK_0 = allocate_fpointer((FOREIGN)fp);
           else OS_error();
         });
@@ -4219,9 +4240,9 @@ DEFUN(POSIX::FDOPEN, fd mode) {
   STACK_1 = check_sint(STACK_1);
   with_string_0(STACK_0, GLO(misc_encoding), modez, {
       FILE *fp;
-      begin_system_call();
+      begin_blocking_system_call();
       fp = fdopen(I_to_sint(STACK_1),modez);
-      end_system_call();
+      end_blocking_system_call();
       if (fp) STACK_0 = allocate_fpointer((FOREIGN)fp);
       else OS_error();
     });
@@ -4234,22 +4255,22 @@ DEFUN(POSIX::FREOPEN, path mode file) {
   with_string_0(STACK_2, GLO(pathname_encoding), pathz, {
       with_string_0(STACK_1, GLO(misc_encoding), modez, {
           FILE *fp;
-          begin_system_call();
+          begin_blocking_system_call();
           fp = freopen(pathz,modez,(FILE*)TheFpointer(STACK_0)->fp_pointer);
-          end_system_call();
+          end_blocking_system_call();
           if (fp) TheFpointer(STACK_0)->fp_pointer = fp;
           else OS_error();
         });
     });
   VALUES0; skipSTACK(3);
 }
-#define FILE_FUNCTION(fun,finish)                       \
-    int ret;                                            \
-    STACK_0 = check_fpointer(STACK_0,1);                \
-    begin_system_call();                                \
-    ret = fun((FILE*)TheFpointer(STACK_0)->fp_pointer); \
-    end_system_call();                                  \
-    finish; skipSTACK(1)
+#define FILE_FUNCTION(fun,finish)                                \
+  int ret;                                                       \
+  STACK_0 = check_fpointer(STACK_0,1);                           \
+  begin_blocking_system_call();                                  \
+  ret = fun((FILE*)TheFpointer(STACK_0)->fp_pointer);            \
+  end_blocking_system_call();                                    \
+  finish; skipSTACK(1)
 DEFUN(POSIX::FILENO, fp)
 { FILE_FUNCTION(fileno,{ if(ret==-1)OS_error(); VALUES1(sint_to_I(ret)); }); }
 DEFUN(POSIX::FEOF, fp) { FILE_FUNCTION(feof,VALUES_IF(ret)); }
@@ -4261,22 +4282,22 @@ DEFUN(POSIX::FFLUSH, fp)
 /* no fputs & fgets because they will mess with encodings &c */
 DEFUN(POSIX::CLEARERR, fp) {
   STACK_0 = check_fpointer(STACK_0,1);
-  begin_system_call();
+  begin_blocking_system_call();
   clearerr((FILE*)TheFpointer(STACK_0)->fp_pointer);
-  end_system_call();
+  end_blocking_system_call();
   VALUES0; skipSTACK(1);
 }
 
 /* --- testing only! not exported! --- */
 /* fgetc returns -1 on EOF instead of signaling an error. or signal?! */
 DEFUN(POSIX::%FGETC, fp) { FILE_FUNCTION(fgetc,VALUES1(sint_to_I(ret))); }
-#define FILE_FUNCTION2(fun)                                          \
-  int ret;                                                           \
-  STACK_0 = check_fpointer(STACK_0,1);                               \
-  STACK_1 = check_sint(STACK_1);                                     \
-  begin_system_call();                                               \
+#define FILE_FUNCTION2(fun)                                             \
+  int ret;                                                              \
+  STACK_0 = check_fpointer(STACK_0,1);                                  \
+  STACK_1 = check_sint(STACK_1);                                        \
+  begin_blocking_system_call();                                         \
   ret = fun(I_to_sint(STACK_1),(FILE*)TheFpointer(STACK_0)->fp_pointer); \
-  end_system_call();                                                 \
+  end_blocking_system_call();                                           \
   VALUES1(sint_to_I(ret)); skipSTACK(2)
 DEFUN(POSIX::%FPUTC, c fp) { FILE_FUNCTION2(fputc); }
 DEFUN(POSIX::%UNGETC, c fp) { FILE_FUNCTION2(ungetc); }

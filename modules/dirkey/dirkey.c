@@ -60,10 +60,10 @@ typedef enum {
 #if defined(WIN32_REGISTRY)
 # define SYSCALL_WIN32(call)     do {                                  \
     uintL status;                                                      \
-    begin_system_call();                                               \
+    begin_blocking_system_call();                                      \
     status = call;                                                     \
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
-    end_system_call();                                                 \
+    end_blocking_system_call();                                        \
   } while(0)
 #endif
 
@@ -73,10 +73,10 @@ typedef enum {
 #else
 # define SYSCALL_LDAP(call)      do {                                  \
     uintL status;                                                      \
-    begin_system_call();                                               \
+    begin_blocking_system_call();                                      \
     status = call;                                                     \
     if (status != LDAP_SUCCESS) { errno=status; OS_error(); }          \
-    end_system_call();                                                 \
+    end_blocking_system_call();                                        \
   } while(0)
 #endif
 #endif
@@ -330,7 +330,7 @@ static void open_reg_key (HKEY hkey, char* path, direction_t dir,
     default: perms = KEY_READ; break;
   }
  {DWORD status;
-  begin_system_call();
+  begin_blocking_system_call();
   status = RegOpenKeyEx(hkey,path,0,perms,p_hkey);
   if (status != ERROR_SUCCESS) {
     if ((if_not_exists == IF_DOES_NOT_EXIST_UNBOUND /*ignore*/)
@@ -347,14 +347,14 @@ static void open_reg_key (HKEY hkey, char* path, direction_t dir,
       }
     } else { SetLastError(status); OS_error(); }
   }
-  end_system_call();
+  end_blocking_system_call();
 }}
 #endif
 
 #if defined(ACCESS_LDAP)
 nonreturning_function(static, error_ldap,
                       (object dk, object path, char* errmsg)) {
-  end_system_call();
+  end_blocking_system_call();
   pushSTACK(NIL); pushSTACK(path); pushSTACK(dk);
   pushSTACK(TheSubr(subr_self)->name);
   STACK_3 = CLSTEXT(errmsg);
@@ -409,20 +409,20 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
   if (eq(type,`:LDAP`)) {
     if (NULL != slots) {
       root = test_dir_key(root,true);
-      begin_system_call();
+      begin_blocking_system_call();
       with_string_0(path,GLO(misc_encoding),pathz,{
         status = ldap_simple_bind_s((LDAP*)ret_handle,pathz,NULL);
       });
       if (status != LDAP_SUCCESS)
         LDAP_ERR2STR(root,path,status);
-      end_system_call();
+      end_blocking_system_call();
     } else { /* :LDAP */
       struct ldap_url_desc* ldap_url = NULL;
-      begin_system_call();
+      begin_blocking_system_call();
       with_string_0(path,GLO(misc_encoding),pathz,
                     { status = ldap_url_parse(pathz,&ldap_url); });
       if (status != 0) {
-        end_system_call();
+        end_blocking_system_call();
         pushSTACK(path);
         pushSTACK(TheSubr(subr_self)->name);
         error(error_condition,GETTEXT("~S: ~S is not an LDAP URL"));
@@ -437,7 +437,7 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
         LDAP_ERR2STR(path,dn,status);
       }}
       ldap_free_urldesc(ldap_url);
-      end_system_call();
+      end_blocking_system_call();
     }
   } else
 # endif
@@ -491,10 +491,10 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
   DWORD n_obj;                                                          \
   DWORD maxlen;                                                         \
   HKEY hkey = (HKEY)SLOT_HANDLE(dir_key_slots(dkey));                   \
-  begin_system_call();                                                  \
+  begin_blocking_system_call();                                         \
   status = (COUNT_EXPR);                                                \
   if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }    \
-  end_system_call();                                                    \
+  end_blocking_system_call();                                           \
   if (n_obj > 0) {                                                      \
     unsigned int ii;                                                    \
     char* buf = (char*)alloca(maxlen+1); /* one extra char for '\0' */  \
@@ -502,10 +502,10 @@ DEFUN(LDAP::DIR-KEY-OPEN, key path &key DIRECTION IF-DOES-NOT-EXIST) {
     for (ii = 0; ii < n_obj; ii++) {                                    \
       DWORD len = maxlen;                                               \
       DWORD status;                                                     \
-      begin_system_call();                                              \
+      begin_blocking_system_call();                                     \
       status = (GET_NEXT_OBJ_EXPR);                                     \
       if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); } \
-      end_system_call();                                                \
+      end_blocking_system_call();                                       \
       { object new_cons = allocate_cons();                              \
         Cdr(new_cons) = STACK_0;                                        \
         STACK_0 = new_cons; }                                           \
@@ -807,12 +807,12 @@ DEFUN(LDAP::DIR-KEY-VALUE, key name &optional default) {
     DWORD size;
     char* buffer = NULL;
     HKEY hk = (HKEY)SLOT_HANDLE(dir_key_slots(dkey));
-    begin_system_call();
+    begin_blocking_system_call();
     status = RegQueryValueEx(hk,namez,NULL,NULL,NULL,&size);
     if (status != ERROR_SUCCESS) {
       if ((status == ERROR_FILE_NOT_FOUND) && boundp(default_value)) {
         value1 = default_value;
-        end_system_call();
+        end_blocking_system_call();
         goto end;
       }
       SetLastError(status); OS_error();
@@ -821,7 +821,7 @@ DEFUN(LDAP::DIR-KEY-VALUE, key name &optional default) {
     buffer = (char*)alloca(size);
     status = RegQueryValueEx(hk,namez,NULL,&type,(BYTE*)buffer,&size);
     if (status != ERROR_SUCCESS) { SetLastError(status); OS_error(); }
-    end_system_call();
+    end_blocking_system_call();
     value1 = registry_value_to_object(type,size,buffer);
   end:;
   });

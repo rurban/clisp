@@ -42,13 +42,13 @@ static inline object do_gettext (const char* msgid,
   if (msgid[0] == '\0') {
     translated_msg = "";  /* Don't return the catalog's header entry. */
   } else {
-    begin_system_call();
+    begin_blocking_system_call();
 #  ifdef CLISP_UNICODE
     if (domain != NULL)
       bind_textdomain_codeset(domain,"UTF-8");
 #  endif
     translated_msg = dcgettext(domain,msgid,category);
-    end_system_call();
+    end_blocking_system_call();
   }
   return asciz_to_string(translated_msg,Symbol_value(S(utf_8)));
 }
@@ -57,13 +57,13 @@ static inline object do_ngettext (const char* msgid, const char* msgid_plural,
                                   const char* domain, uint32 n, int category)
 {
   const char* translated_msg;
-  begin_system_call();
+  begin_blocking_system_call();
 # ifdef CLISP_UNICODE
   if (domain != NULL)
     bind_textdomain_codeset(domain,"UTF-8");
 # endif
   translated_msg = dcngettext(domain,msgid,msgid_plural,n,category);
-  end_system_call();
+  end_blocking_system_call();
   return asciz_to_string(translated_msg,Symbol_value(S(utf_8)));
 }
 
