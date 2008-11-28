@@ -98,7 +98,7 @@ local maygc object R_R_norm2_1_R (object x, object y) {
 }
 local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
   if (N_realp(z)) {
-    z = N_abs_R(z);
+    z = R_abs_R(z);
     if (R_zerop(z))
       divide_0();
     return R_ln_R(z,end_p);
@@ -106,6 +106,8 @@ local maygc object N_log_abs_R (object z, gcv_object_t *end_p) {
     pushSTACK(z);
     pushSTACK(R_abs_R(TheComplex(z)->c_real));
     pushSTACK(R_abs_R(TheComplex(STACK_1)->c_imag));
+    if (R_zerop(STACK_0) && R_zerop(STACK_1))
+      divide_0();
     if (   R_R_comp(STACK_0,SF_two_thirds) < 0
         && R_R_comp(STACK_1,SF_two_thirds) < 0) {
       /* z is small ==> log(x^2 + y^2) */
