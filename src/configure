@@ -929,6 +929,7 @@ FNMATCH_H
 LIBINTL
 LTLIBINTL
 INCLUDE_NEXT
+INCLUDE_NEXT_AS_FIRST_DIRECTIVE
 PRAGMA_SYSTEM_HEADER
 NEXT_SYS_TIME_H
 HAVE_SYS_TIME_H
@@ -7050,7 +7051,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 7053 "configure"' > conftest.$ac_ext
+  echo '#line 7054 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -9962,11 +9963,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9965: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:9966: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9969: \$? = $ac_status" >&5
+   echo "$as_me:9970: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10252,11 +10253,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10255: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10256: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10259: \$? = $ac_status" >&5
+   echo "$as_me:10260: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10356,11 +10357,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10359: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10360: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10363: \$? = $ac_status" >&5
+   echo "$as_me:10364: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12756,7 +12757,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12759 "configure"
+#line 12760 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12856,7 +12857,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12859 "configure"
+#line 12860 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15265,11 +15266,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15268: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15269: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15272: \$? = $ac_status" >&5
+   echo "$as_me:15273: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15369,11 +15370,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15372: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15373: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15376: \$? = $ac_status" >&5
+   echo "$as_me:15377: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16952,11 +16953,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16955: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16956: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16959: \$? = $ac_status" >&5
+   echo "$as_me:16960: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17056,11 +17057,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17059: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17060: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17063: \$? = $ac_status" >&5
+   echo "$as_me:17064: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19271,11 +19272,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19274: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19275: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19278: \$? = $ac_status" >&5
+   echo "$as_me:19279: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19561,11 +19562,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19564: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19565: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19568: \$? = $ac_status" >&5
+   echo "$as_me:19569: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19665,11 +19666,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19668: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19669: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:19672: \$? = $ac_status" >&5
+   echo "$as_me:19673: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -24270,9 +24271,18 @@ $as_echo_n "checking whether the preprocessor supports include_next... " >&6; }
 if test "${gl_cv_have_include_next+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  rm -rf conftestd1 conftestd2
-     mkdir conftestd1 conftestd2
-                    cat <<EOF > conftestd1/conftest.h
+  rm -rf conftestd1a conftestd1b conftestd2
+     mkdir conftestd1a conftestd1b conftestd2
+                                             cat <<EOF > conftestd1a/conftest.h
+#define DEFINED_IN_CONFTESTD1
+#include_next <conftest.h>
+#ifdef DEFINED_IN_CONFTESTD2
+int foo;
+#else
+#error "include_next doesn't work"
+#endif
+EOF
+     cat <<EOF > conftestd1b/conftest.h
 #define DEFINED_IN_CONFTESTD1
 #include <stdio.h>
 #include_next <conftest.h>
@@ -24288,8 +24298,8 @@ EOF
 #endif
 #define DEFINED_IN_CONFTESTD2
 EOF
-     save_CPPFLAGS="$CPPFLAGS"
-     CPPFLAGS="$CPPFLAGS -Iconftestd1 -Iconftestd2"
+     gl_save_CPPFLAGS="$CPPFLAGS"
+     CPPFLAGS="$gl_save_CPPFLAGS -Iconftestd1b -Iconftestd2"
      cat >conftest.$ac_ext <<_ACEOF
 #include <conftest.h>
 _ACEOF
@@ -24316,12 +24326,43 @@ else
   $as_echo "$as_me: failed program was:" >&5
 sed 's/^/| /' conftest.$ac_ext >&5
 
+	CPPFLAGS="$gl_save_CPPFLAGS -Iconftestd1a -Iconftestd2"
+        cat >conftest.$ac_ext <<_ACEOF
+#include <conftest.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  gl_cv_have_include_next=buggy
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
 	gl_cv_have_include_next=no
 fi
 
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-     CPPFLAGS="$save_CPPFLAGS"
-     rm -rf conftestd1 conftestd2
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     CPPFLAGS="$gl_save_CPPFLAGS"
+     rm -rf conftestd1a conftestd1b conftestd2
 
 fi
 { $as_echo "$as_me:$LINENO: result: $gl_cv_have_include_next" >&5
@@ -24329,12 +24370,20 @@ $as_echo "$gl_cv_have_include_next" >&6; }
   PRAGMA_SYSTEM_HEADER=
   if test $gl_cv_have_include_next = yes; then
     INCLUDE_NEXT=include_next
+    INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include_next
     if test -n "$GCC"; then
       PRAGMA_SYSTEM_HEADER='#pragma GCC system_header'
     fi
   else
-    INCLUDE_NEXT=include
+    if test $gl_cv_have_include_next = buggy; then
+      INCLUDE_NEXT=include
+      INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include_next
+    else
+      INCLUDE_NEXT=include
+      INCLUDE_NEXT_AS_FIRST_DIRECTIVE=include
+    fi
   fi
+
 
 
 
