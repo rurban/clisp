@@ -1,5 +1,9 @@
 2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* eval.d (interpret_bytecode_): fix a GC-safety bug (cod_bind)
+
+2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	fix possible multithreading deadlocks
 	* spvw.d (thread_symvalues_lock): new mutex guarding the per thread
 	symvalues arrays in threads
