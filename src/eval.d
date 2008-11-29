@@ -6414,11 +6414,12 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       U_operand(n);
 #if defined(MULTITHREAD)
       var Symbol sym=TheSymbol(TheCclosure(closure)->clos_consts[n]);
-      if (sym->tls_index == SYMBOL_TLS_INDEX_NONE &&
-          !special_var_p(sym)) {
+      if (sym->tls_index == SYMBOL_TLS_INDEX_NONE && !special_var_p(sym)) {
         /* if it is special - it may be special global (i.e.*features*) so
            we do not want to make it per thread. */
+        pushSTACK(value1);
         add_per_thread_special_var(TheCclosure(closure)->clos_consts[n]);
+        value1 = popSTACK();
         closure = *closureptr; /* restore from stack in case of GC */
       }
 #endif
