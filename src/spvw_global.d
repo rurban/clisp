@@ -661,9 +661,7 @@ global maygc uintL add_per_thread_special_var(object symbol)
 {
   pushSTACK(symbol);
   /* lock threads (also this disables GC) */
-  begin_blocking_call();
-  lock_threads();
-  end_blocking_call();
+  GC_SAFE_MUTEX_LOCK(&thread_symvalues_lock);
   symbol=popSTACK();
   var uintL symbol_index = TheSymbol(symbol)->tls_index;
   /* check whether till we have been waiting for the threads lock
@@ -694,7 +692,7 @@ global maygc uintL add_per_thread_special_var(object symbol)
   TheSymbol(symbol)->tls_index=symbol_index;
   for_all_threads({ thread->_ptr_symvalues[symbol_index] = SYMVALUE_EMPTY; });
  leave:
-  unlock_threads();
+  GC_SAFE_MUTEX_UNLOCK(&thread_symvalues_lock);
   if (symbol_index == SYMBOL_TLS_INDEX_NONE)
     error(error_condition,GETTEXT("could not make symbol value per-thread"));
   return symbol_index;

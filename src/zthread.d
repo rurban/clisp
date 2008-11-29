@@ -1,3 +1,4 @@
+
 /*
  * CLISP thread functions - multiprocessing
  * Distributed under the GNU GPL as a part of GNU CLISP
@@ -123,6 +124,8 @@ local /*maygc*/ void *thread_stub(void *arg)
        via reset(0) call. It discards the CATCH frame as well. Useful when an
        error (error xxx) happens in the thread. */
     finish_entry_frame(DRIVER,returner,,{skipSTACK(2+3);goto end_of_thread;});
+    /* initialize the low level i/o stuff for this thread*/
+    init_reader_low(me);
     /* create special vars initial dynamic bindings.
        do not create DYNBIND frame since anyway we are at the
        "top level" of the thread. */
@@ -242,12 +245,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   Cdr(new_cons) = O(all_threads);
   O(all_threads) = new_cons;
   unlock_threads(); /* allow GC and other thread creation. */
-
-  /* initialize the reader, after we release the threads lock.
-     Otherwise deadlock may occur (if other thread triggers GC).
-     While holding the threads lock - we should never try to allocate anything
-     on the heap (unless we are sure we are the only running thread). */
-  init_reader_low(new_thread);
 
   /* create the OS thread */
   if (xthread_create(&TheThread(lthr)->xth_system,
