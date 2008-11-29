@@ -1,3 +1,7 @@
+2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* stream.d (WRITE-INTEGER): fix a GC-safety bug
+
 2008-11-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	define O(dynamic_8bit_vector), O(dynamic_c_string) as thread-local
