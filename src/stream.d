@@ -17276,21 +17276,19 @@ LISPFUN(write_integer,seclass_default,3,1,norest,nokey,0,NIL) {
   var DYNAMIC_8BIT_VECTOR(bitbuffer,bytesize);
   pushSTACK(bitbuffer);
   /* Stack layout: obj, stream, element-type, endianness, bitbuffer. */
-  var object obj = STACK_4;
-  var object stream = check_stream(STACK_3);
   /* Copy the integer's data into the buffer. */
   switch (eltype.kind) {
     case eltype_iu:
-      bitbuff_ixu_sub(STACK_3,bitbuffer,bitsize,obj);
+      bitbuff_ixu_sub(STACK_3,STACK_0,bitsize,STACK_4);
       break;
     case eltype_is:
-      bitbuff_ixs_sub(STACK_3,bitbuffer,bitsize,obj);
+      bitbuff_ixs_sub(STACK_3,STACK_0,bitsize,STACK_4);
       break;
     default: NOTREACHED;
   }
   /* The data is now in little-endian order. */
   if (endianness) /* byte swap */
-    elt_nreverse(bitbuffer,0,bytesize);
+    elt_nreverse(STACK_0,0,bytesize);
   /* Write the data. */
   write_byte_array(&STACK_3,&STACK_0,0,bytesize,persev_full);
   FREE_DYNAMIC_8BIT_VECTOR(STACK_0);
