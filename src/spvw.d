@@ -346,6 +346,8 @@ local uintL num_symvalues = FIRST_SYMVALUE_INDEX;
  storage must be added.
  = THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t) */
 global uintL maxnum_symvalues;
+/* lock guarding the addition of new per thread special variables. */
+local xmutex_t thread_symvalues_lock;
 
 #ifdef DEBUG_GCSAFETY
 /* used during static initialization (before main() is called)
@@ -629,6 +631,7 @@ local void init_multithread (void) {
   /* TODO: put all global locks in some table. Soon we will have too many
      of them and the things will become unmanageble. */
   xmutex_init(&allthreads_lock); /* threads lock */
+  xmutex_init(&thread_symvalues_lock); /* for adding new thread symvalues */
   xmutex_init(&open_files_lock); /* open files lock i.e. O(open_files) */
   xmutex_init(&all_finalizers_lock); /* finalizer lock */
   xmutex_init(&all_mutexes_lock); /* O(all_mutexes) lock */
@@ -657,11 +660,12 @@ local void init_multithread_special_symbols()
   /* currently there is just a single thread. get it.*/
   var clisp_thread_t *thr=current_thread();
   for_all_constsyms({
+    /* some g++ version should use the commented. */
+    /* gcv_object_t p=(gcv_object_t)symbol_tab_ptr_as_object(ptr); */
     gcv_object_t p=symbol_tab_ptr_as_object(ptr);
     if (special_var_p(TheSymbol(p))) {
       /* Also we do not care about possibility to exceed the already allocated
-         space for _symvalues - we have enough space for the standard symbols.
-      */
+         space for _symvalues - we have enough space for standard symbols.*/
       thr->_ptr_symvalues[num_symvalues]=SYMVALUE_EMPTY;
       TheSymbol(p)->tls_index=num_symvalues++;
     }

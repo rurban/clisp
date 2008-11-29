@@ -1,5 +1,19 @@
 2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	fix possible multithreading deadlocks
+	* spvw.d (thread_symvalues_lock): new mutex guarding the per thread
+	symvalues arrays in threads
+	(init_multithread): initialize it
+	* spvw_global.d (add_per_thread_special_var): use it. threads lock
+	used before may lead to deadlock in certain cases
+	* zthread.d (thread_stub): call init_reader_low() in the context of
+	the new thread
+	(MAKE-THREAD): remove init_reader_low() call (may cause deadlock if
+	it triggers GC - new thread is registered but not started - so it
+	cannot respond to the suspend request).
+
+2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* stream.d (WRITE-INTEGER): fix a GC-safety bug
 
 2008-11-28  Vladimir Tzankov  <vtzankov@gmail.com>
