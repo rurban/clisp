@@ -1,3 +1,10 @@
+2008-12-01  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d [UNIX_CHARNAMES]: add the standard ASCII names "Lf"
+	for "Linefeed" (10) and "Ff" for "Page" (12)
+	* charstrg.d (charname_table_length, charname_table_codes)
+	[UNIX_CHARNAMES]: updated for the above
+
 2008-11-29  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* eval.d (interpret_bytecode_): fix a GC-safety bug (cod_bind)

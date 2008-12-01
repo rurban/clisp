@@ -81,22 +81,24 @@
     LISPOBJ(charname_27,"\"Escape\"")
     LISPOBJ(charname_32,"\"Space\"")
     LISPOBJ(charname_127,"\"Rubout\"")
-    LISPOBJ(charname_10bis,"\"Linefeed\"")
-    LISPOBJ(charname_27bis,"\"Esc\"")
+    LISPOBJ(charname_10_1,"\"Linefeed\"")
+    LISPOBJ(charname_27_1,"\"Esc\"")
   #endif
   #ifdef UNIX_CHARNAMES
-    LISPOBJ(charname_0bis,"\"Null\"")
-    LISPOBJ(charname_7bis,"\"Bell\"")
-    LISPOBJ(charname_8bis,"\"Backspace\"")
-    LISPOBJ(charname_9bis,"\"Tab\"")
-    LISPOBJ(charname_10bis,"\"Newline\"")
-    LISPOBJ(charname_10tris,"\"Linefeed\"")
-    LISPOBJ(charname_12bis,"\"Page\"")
-    LISPOBJ(charname_13bis,"\"Return\"")
-    LISPOBJ(charname_27bis,"\"Escape\"")
-    LISPOBJ(charname_32bis,"\"Space\"")
-    LISPOBJ(charname_127bis,"\"Rubout\"")
-    LISPOBJ(charname_127tris,"\"Delete\"")
+    LISPOBJ(charname_0_1,"\"Null\"")
+    LISPOBJ(charname_7_1,"\"Bell\"")
+    LISPOBJ(charname_8_1,"\"Backspace\"")
+    LISPOBJ(charname_9_1,"\"Tab\"")
+    LISPOBJ(charname_10_1,"\"Newline\"")
+    LISPOBJ(charname_10_2,"\"Linefeed\"")
+    LISPOBJ(charname_10_3,"\"Lf\"")
+    LISPOBJ(charname_12_1,"\"Page\"")
+    LISPOBJ(charname_12_2,"\"Ff\"")
+    LISPOBJ(charname_13_1,"\"Return\"")
+    LISPOBJ(charname_27_1,"\"Escape\"")
+    LISPOBJ(charname_32_1,"\"Space\"")
+    LISPOBJ(charname_127_1,"\"Rubout\"")
+    LISPOBJ(charname_127_2,"\"Delete\"")
     LISPOBJ(charname_0,"\"Nul\"")
     LISPOBJ(charname_1,"\"Soh\"")
     LISPOBJ(charname_2,"\"Stx\"")
@@ -133,7 +135,7 @@
     LISPOBJ(charname_127,"\"Del\"")
     /* The proposal to add:
       constobj.d (UNIX_CHARNAMES): #\Erik is a synonym for #\Null.
-      LISPOBJ(charname_0tris,"\"Erik\"") - special "honour" for Mr. Nutgum
+      LISPOBJ(charname_0_2,"\"Erik\"") - special "honour" for Mr. Nutgum
      has been rejected because of a seriousness attack. */
   #endif
 /* for ARRAY.D: */
