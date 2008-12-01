@@ -44,6 +44,7 @@
 (defvar *run-test-truename*)
 ;; export symbols used by tests
 (export '(princ-error show show-file finish-file post-compile-file-cleanup
+          type-error-handler
           symbol-cleanup *run-test-truename* with-ignored-errors diff-seq))
 ;;; end helpers
 
