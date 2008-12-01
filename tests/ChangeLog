@@ -1,3 +1,7 @@
+2008-12-01  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (diff-seq): export for new-clx
+
 2008-11-28  Sam Steingold  <sds@gnu.org>
 
         * modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c,
