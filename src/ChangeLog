@@ -1,5 +1,14 @@
 2008-12-01  Sam Steingold  <sds@gnu.org>
 
+	Better keysym->char conversion for the sake of McCLIM
+	* modules/clx/new-clx/clx.f (keysym2char): new function; use
+	int_char for 8-bit ascii and special-case 6 control keysyms;
+	return NIL otherwise (see a long comment in the code)
+	(KEYSYM->CHARACTER, KEYCODE->CHARACTER): use it instead if int_char
+	Reported by Philippe Brochard <hocwp@free.fr>
+
+2008-12-01  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d [UNIX_CHARNAMES]: add the standard ASCII names "Lf"
 	for "Linefeed" (10) and "Ff" for "Page" (12)
 	* charstrg.d (charname_table_length, charname_table_codes)
