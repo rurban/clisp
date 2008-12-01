@@ -44,7 +44,7 @@
 (defvar *run-test-truename*)
 ;; export symbols used by tests
 (export '(princ-error show show-file finish-file post-compile-file-cleanup
-          symbol-cleanup *run-test-truename* with-ignored-errors))
+          symbol-cleanup *run-test-truename* with-ignored-errors diff-seq))
 ;;; end helpers
 
 #+OLD-CLISP
