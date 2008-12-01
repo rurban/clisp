@@ -7323,13 +7323,13 @@ static object keysym2char (KeySym keysym) {
   if (keysym < 0xFF) /* 8-bit ASCII: assime Xlib = Unicode */
     return int_char(keysym);
   else switch (keysym) {
-      case 65288: return int_char(8); /* BackSpace */
-      case 65289: return int_char(9); /* Tab */
-      case 65290: return int_char(10); /* Linefeed */
-      case 65293: return int_char(13); /* Return */
-      case 65307: return int_char(27); /* Escape */
-      case 65535: return int_char(127); /* Delete */
-      default: return NIL;              /* needed for McCLIM! */
+      case 0xFF08: return int_char(0x08); /* BackSpace */
+      case 0xFF09: return int_char(0x09); /* Tab */
+      case 0xFF0A: return int_char(0x0A); /* Linefeed */
+      case 0xFF0D: return int_char(0x0D); /* Return */
+      case 0xFF1B: return int_char(0x1B); /* Escape */
+      case 0xFFFF: return int_char(0x7F); /* Delete */
+      default: return NIL;                /* needed for McCLIM! */
     }
 }
 DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
