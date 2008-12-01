@@ -1218,8 +1218,8 @@ global object coerce_char (object obj) {
   #define charname_table  ((gcv_object_t*)(&object_tab.charname_0)) /* table starts with charname_0 */
 #endif
 #ifdef UNIX_CHARNAMES
-  #define charname_table_length  46  /* length of the table */
-  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0bis)) /* table starts with charname_0bis */
+  #define charname_table_length  48  /* length of the table */
+  #define charname_table  ((gcv_object_t*)(&object_tab.charname_0_1)) /* table starts with charname_0_1 */
 #endif
 /* table of codes for this name: */
 local const uintB charname_table_codes [charname_table_length]
@@ -1227,7 +1227,7 @@ local const uintB charname_table_codes [charname_table_length]
     = { 0,BEL,BS,TAB,NL,11,PG,CR,26,ESC,' ',RUBOUT,LF,27, };
   #endif
   #ifdef UNIX_CHARNAMES
-    = { 0,7,BS,TAB,NL,LF,PG,CR,27,32,RUBOUT,127,
+    = { 0,7,BS,TAB,NL,LF,LF,PG,PG,CR,27,32,RUBOUT,127,
         0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,
         20,21,22,23,24,25,26,27,28,29,30,31,32,127,
       };
