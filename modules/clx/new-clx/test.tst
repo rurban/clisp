@@ -222,8 +222,13 @@ CHECK-QUERY-BEST
 (xlib:keysym->character *dpy* 65)    #\A
 (xlib:keysym->character *dpy* 65 4)  #\A
 (xlib:keysym->character *dpy* 65 8)  #\A
-(xlib:keysym->character *dpy* #xFF52) ; #xFF52 is <up>
-#+unicode #\FULLWIDTH_LATIN_SMALL_LETTER_R #-unicode NIL
+;; for McCLIM:
+(xlib:keysym->character *dpy* #xFF08) #\BackSpace
+(xlib:keysym->character *dpy* #xFF09) #\Tab
+(xlib:keysym->character *dpy* #xFF0A) #\Linefeed
+(xlib:keysym->character *dpy* #xFF0D) #\Return
+(xlib:keysym->character *dpy* #xFF1B) #\Escape
+(xlib:keysym->character *dpy* #xFFFF) #\Delete
 
 (listp (show (loop :for i :from 0 :to 255
                :collect (xlib:keycode->character *dpy* i 0))
