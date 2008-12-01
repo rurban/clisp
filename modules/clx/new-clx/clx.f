@@ -7287,6 +7287,51 @@ DEFUN(XLIB:KEYCODE->KEYSYM, display keycode keysym-index)
  and unicode?!
   I really want unicode support. */
 
+static object keysym2char (KeySym keysym) {
+  /* how about just int_char ?! - won't work for things like #xFFFF=#\Rubout
+   In general, the lunacy is staggering:
+   There are 1255 named keysyms:
+     (loop :for keysym :from 0 :to #xffff :count (xlib:keysym-name keysym))
+   Out of them, only 10 have the correct Unicode name:
+     (loop :for keysym :from 0 :to #xffff
+       :for kname = (xlib:keysym-name keysym)
+       :for cname = (char-name (int-char keysym))
+       :when (and kname (string-equal kname cname))
+       :collect (list keysym kname cname))
+   However, there are 47 keysyms (including the 10 mentioned above!)
+   for which there are Unicode characters with the right name:
+     (loop :for keysym :from 0 :to #xffff
+       :for kname = (xlib:keysym-name keysym)
+       :for nchar = (and kname (name-char kname))
+       :when nchar :collect (list keysym kname nchar (char-code nchar)))
+   Out of those we can only be interested in these 12:
+     (2530 "ht" #\Tab 9)
+     (2531 "ff" #\Page 12)
+     (2532 "cr" #\Return 13)
+     (2533 "lf" #\Newline 10)
+     (2536 "nl" #\Newline 10)
+     (2537 "vt" #\Vt 11)
+     (65288 "BackSpace" #\Backspace 8)
+     (65289 "Tab" #\Tab 9)
+     (65290 "Linefeed" #\Newline 10)
+     (65293 "Return" #\Return 13)
+     (65307 "Escape" #\Escape 27)
+     (65535 "Delete" #\Rubout 127)
+   6 of which are also specially handled at the end of mit-clx/keysyms.lisp
+   Therefore we handle the latter 6 here (because these are the keysyms
+   generated key the keyboard) but not the former 6 (they are not!) */
+  if (keysym < 0xFF) /* 8-bit ASCII: assime Xlib = Unicode */
+    return int_char(keysym);
+  else switch (keysym) {
+      case 65288: return int_char(8); /* BackSpace */
+      case 65289: return int_char(9); /* Tab */
+      case 65290: return int_char(10); /* Linefeed */
+      case 65293: return int_char(13); /* Return */
+      case 65307: return int_char(27); /* Escape */
+      case 65535: return int_char(127); /* Delete */
+      default: return NIL;              /* needed for McCLIM! */
+    }
+}
 DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
 {
   Display *dpy;
@@ -7298,7 +7343,7 @@ DEFUN(XLIB:KEYSYM->CHARACTER, display keysym &optional state)
   keysym = get_uint32 (popSTACK());
   dpy = pop_display ();
   /* Too wired -- I have to browse some more in the manuals ... Back soon. */
-  VALUES1(int_char(keysym)); /* how about just int_char ?! */
+  VALUES1(keysym2char(keysym));
 }
 
 DEFUN(XLIB:KEYSYM-NAME, keysym)
@@ -7378,7 +7423,7 @@ DEFUN(XLIB:KEYCODE->CHARACTER, display keycode state \
     skipSTACK(5);
   }
   /* state is ignored, just like in keysym->character */
-  VALUES1(int_char(keycode2keysym(dpy,keycode,index)));
+  VALUES1(keysym2char(keycode2keysym(dpy,keycode,index)));
 }
 
 /* 14.5  Client Termination */
