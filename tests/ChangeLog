@@ -1,6 +1,7 @@
 2008-12-01  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (diff-seq): export for new-clx
+	(type-error-handler): export for rawsock
 
 2008-11-28  Sam Steingold  <sds@gnu.org>
 
