@@ -1,3 +1,11 @@
+2008-12-02  Philippe Brochard  <hocwp@free.fr>
+
+	* modules/clx/new-clx/demos/greynetic.lisp (greynetic):
+	use (xlib:screen-root-depth screen) for the :depth argument
+	* modules/clx/new-clx/demos/bball.lisp (bball): ditto
+	* modules/clx/new-clx/demos/clx-demos.lisp (*demos*):
+	enable greynetic and bball
+
 2008-12-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:DRAW-ARC): use modprep signature
