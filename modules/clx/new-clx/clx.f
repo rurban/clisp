@@ -3794,28 +3794,23 @@ DEFUN(XLIB:DRAW-RECTANGLES, drawable gcontext rectangles &optional fill-p)
 }
 
 /* 6.6  Drawing Arcs */
-/* XLIB:DRAW-ARC drawable gcontext x y width height angle1 angle2
-       &optional fill-p */
-DEFUN(XLIB:DRAW-ARC, &rest args)
-{
-  int fill_p, x,y,w,h, ang1, ang2;
-  GC gcon;
+
+DEFUN(XLIB:DRAW-ARC, drawable gcontext x y width height angle1 angle2   \
+      &optional fill-p) {
+  int fill_p = missingp(STACK_0);
+  int ang2 = get_angle (STACK_1);
+  int ang1 = get_angle (STACK_2);
+  int h = get_sint16 (STACK_3);
+  int w = get_sint16 (STACK_4);
+  int y = get_sint16 (STACK_5);
+  int x = get_sint16 (STACK_6);
+  GC gcon = get_gcontext (STACK_7);
   Display *dpy;
-  Drawable da;
+  Drawable da = get_drawable_and_display (STACK_8, &dpy);
 
-  ASSERT ((argcount >= 8) && (argcount <= 9));
-  fill_p = (argcount == 9) ? (!nullp (popSTACK())) : 0;
-  x = get_sint16 (STACK_5); y = get_sint16 (STACK_4);
-  w = get_sint16 (STACK_3); h = get_sint16 (STACK_2);
-  ang1 = get_angle (STACK_1); ang2 = get_angle (STACK_0);
+  X_CALL((fill_p ? XFillArc : XDrawArc) (dpy,da,gcon,x,y,w,h,ang1,ang2));
 
-  gcon = get_gcontext (STACK_6);
-  da = get_drawable_and_display (STACK_7, &dpy);
-
-  X_CALL((fill_p ? XFillArc : XDrawArc) (dpy, da, gcon, x, y, w, h,
-                                         ang1, ang2));
-
-  skipSTACK(8);
+  skipSTACK(9);
   VALUES0;
 }
 
