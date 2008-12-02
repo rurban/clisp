@@ -1669,9 +1669,9 @@ static void general_plist_reader (object type)
 }
 
 /* general_plist_writer (type) -- used by the various xxx-plist functions
-  > type the type the argument should have
-  > STACK_1 the object in question
-  > STACK_0 the new value for plist */
+ > type the type the argument should have
+ > STACK_1 the object in question
+ > STACK_0 the new value for plist */
 static void general_plist_writer (object type)
 { /* the XLIB object and the new value are already on the stack */
   CHECK_TYPE(STACK_1,type);
