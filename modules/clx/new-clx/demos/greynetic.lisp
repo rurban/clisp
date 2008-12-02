@@ -37,25 +37,23 @@
            (root (xlib:screen-root screen))
            (white-pixel (xlib:screen-white-pixel screen))
            (black-pixel (xlib:screen-black-pixel screen))
+           (depth (xlib:screen-root-depth screen))
            (window (xlib:create-window
                     :parent root :width width :height height :x x :y y
                     :event-mask '(:exposure :button-press :button-release
                                   :key-press :key-release)
                     :background white-pixel))
-           (pixmap (xlib:create-pixmap :width 32 :height 32 :depth 1
-                                       :drawable window))
+           (pixmap (xlib:create-pixmap :width 32 :height 32
+                                       :depth depth :drawable window))
            (gcontext (xlib:create-gcontext
                       :drawable window :tile pixmap :fill-style :tiled
                       :foreground black-pixel :background white-pixel)))
-      (print 'map)
       (xlib:map-window window)
-      (print 'finish)
       (xlib:display-finish-output dpy)
-      (print 'loop)
       (dotimes (i duration)
         (let* ((pixmap-data (greynetic-pixmapper))
                (image (xlib:create-image :width 32 :height 32
-                                         :depth 1 :data pixmap-data)))
+                                         :depth depth :data pixmap-data)))
           (xlib:put-image pixmap gcontext image :x 0 :y 0 :width 32 :height 32)
           (xlib:draw-rectangle window gcontext
                                (- (random width) 5)
@@ -64,13 +62,9 @@
                                (+ 4 (random (truncate height 3)))
                                t))
         (xlib:display-force-output dpy))
-      (print 'free-gc)
       (xlib:free-gcontext gcontext)
-      (print 'free-pm)
       (xlib:free-pixmap pixmap)
-      (print 'unmap)
       (xlib:unmap-window window)
-      (print 'finish)
       (xlib:display-finish-output dpy))))
 
 (provide "greynetic")

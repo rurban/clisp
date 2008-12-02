@@ -1,5 +1,5 @@
 ;;; Common stuff for the demos
-;;; Copyright (C) 1999-2007 by Sam Steingold (sds@gnu.org)
+;;; Copyright (C) 1999-2008 by Sam Steingold (sds@gnu.org)
 ;;; GPL2 is applicable
 
 (defpackage "CLX-DEMOS"
@@ -11,8 +11,8 @@
 
 (defparameter *demos*
   ;; (demo-name [package requirements])
-  '((koch) (qix) (sokoban #:xpm) (greynetic #:broken!) (petal) (hanoi)
-    (recurrence) (plaid) (clclock) (bball #:broken!) (bwindow)))
+  '((koch) (qix) (sokoban #:xpm) (greynetic) (petal) (hanoi)
+    (recurrence) (plaid) (clclock) (bball) (bwindow)))
 
 (defmacro do-demos ((fun-var) &body body)
   (let ((demo (gensym "DO-DEMOS-DEMO-")) (reqs (gensym "DO-DEMOS-REQS-")))
