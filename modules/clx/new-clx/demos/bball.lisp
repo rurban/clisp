@@ -111,23 +111,19 @@
                                            :exposures :off))
            (bounce-pixmap (xlib:create-pixmap
                            :width +bball-size-x+ :height +bball-size-y+
-                           :depth 1 :drawable window))
+                           :depth (xlib:screen-root-depth screen)
+                           :drawable window))
            (pixmap-gc (xlib:create-gcontext :drawable bounce-pixmap
                                             :foreground white-pixel
                                             :background black-pixel))
            (balls (loop :repeat nballs :collect (make-ball))))
-      (print 'map)
       (xlib:map-window window)
-      (print 'finish)
       (xlib:display-finish-output dpy)
-      (print 'put-image)
       (xlib:put-image bounce-pixmap pixmap-gc +bball-image+
                       :x 0 :y 0 :width +bball-size-x+ :height +bball-size-y+)
-      #+(or)
       (xlib:free-gcontext pixmap-gc)
       (dolist (ball balls)
         (xor-ball bounce-pixmap window gcontext (ball-x ball) (ball-y ball)))
-      (print 'finish)
       (xlib:display-force-output dpy)
       (dotimes (i duration)
         (dolist (ball balls)
