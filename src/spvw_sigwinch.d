@@ -89,7 +89,7 @@ local void sigwinch_handler (int sig) { /* sig = SIGWINCH */
 
 #endif
 
-#if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
+#if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS) && !defined(MULTITHREAD)
   /* block signal SIGWINCH, because we do not want the value
    of SYS::*PRIN-LINELENGTH* to be changed during the GC.
    Then allow signal SIGWINCH again. */

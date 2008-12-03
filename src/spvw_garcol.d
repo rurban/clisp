@@ -1639,8 +1639,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
      specified range.
      TODO: can be implemented better. In SPVW_PURE - it will be called for each
      heap. It will be better to have sorted list of pinned regions and while
-     iterating over heaps to construct mem_region array for each heap.
-  */
+     iterating over heaps to construct mem_region array for each heap. */
   var pinned_chain_t *chain;
   var varobj_mem_region *mit=regs+1;
   var aint vs; /* start address of varobject*/
@@ -1657,6 +1656,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
       }
       chain = chain->_next;
     }});
+
   regs->start=start; /* set the first region */
   if (*count > 2) {
     /* sort  the regions by their start address. Since we do not expect to
@@ -1684,7 +1684,6 @@ local void fill_relocation_memory_regions(aint start,aint end,
       i++;
     }
   }
-
   /* create free region list - available for relocation */
   while (regs != mit-1) {
     /* current region size */
@@ -1706,32 +1705,39 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 {
 #if defined(MULTITHREAD) /* only in MT we may have pinned objects */
   while (holes_count--) {
-    var Sbvector ptr=(Sbvector)holes->start;
-     /* we always have a place in the hole for at least the varobject header*/
+    /* there is place in the hole for at least a varobject header*/
     #ifdef SPVW_MIXED
-    /* single heap for varobjects - so just reserve simple-8bit-vector */
-     set_GCself(ptr,Array_type_simple_bit_vector(Atype_8Bit),ptr);
-     var uintL len = holes->size - offsetofa(sbvector_,data);
+    /* single heap for varobjects - so just reserve simple-8bit-vectors.
+       if the holes happens to be large (more than *array-total-size-limit*
+       elements) - "allocate" few vectors. */
+    do {
+      var Sbvector ptr=(Sbvector)holes->start;
+      /* be sure to leave a place for at least a header of the next
+         vector in case of too big hole. */
+      var uintL len = MIN(holes->size - offsetofa(sbvector_,data),
+                          arraysize_limit_1 - offsetofa(sbvector_,data));
+      set_GCself(ptr,Array_type_simple_bit_vector(Atype_8Bit),ptr);
      #ifdef TYPECODES
       ptr->length = len;
      #else
       ptr->tfl = vrecord_tfl(Rectype_Sb8vector,len);
      #endif
-     DEBUG_SPVW_ASSERT(holes->size == objsize(ptr));
+      DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));
+      holes->start += (len+offsetofa(sbvector_,data));
+      holes->size -= (len+offsetofa(sbvector_,data));
+    } while (holes->size != 0);
     #else  /* SPVW_PURE ==> TYPECODES */
       /* depending on the heap type we have to allocate differently. since
 	 all varobjects have length/type encoded in their header - we will
 	 look at the type of the pinned object (the one after the end of
 	 the hole). We have to "allocate" the same type with length of the
 	 hole.*/
-      /*VTZ: TODO: currently only simple vectors are implemented */
+      /*TODO: currently only simple vectors are implemented */
       var bool vector=true;
       var Varobject ptr=(Varobject)holes->start;
       var Varobject pinned=(Varobject)(holes->start+holes->size);
       uintL len = holes->size - sizeof(vrecord_);
       set_GCself(holes->start,mtypecode(pinned->GCself),holes->start);
-      /* hmm there will be mess with alignments of VAROBJECT_HEADER ???*/
-
       switch (typecode_at(holes->start)) {
       case_sbvector: ((Sbvector)ptr)->length = len<<=3; break;
       case_sb2vector: ((Sbvector)ptr)->length = len<<=2; break;
@@ -1741,9 +1747,12 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
 	/* TODO: HANDLE STRIGS */
-	fprintf(stderr,"VTZ: unsupported type of pinned object !!!\n");
+	fprintf(stderr,"unsupported type of pinned object !!!\n");
 	abort();
       }
+      /* in SPVW_PURE there are not problems of too big
+       (> *array-total-size-limit*) */
+      DEBUG_SPVW_ASSERT(holes->size == objsize(ptr));
     #endif
     holes++;
   }
