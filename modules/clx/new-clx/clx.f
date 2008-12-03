@@ -2943,8 +2943,9 @@ DEFUN(XLIB:CREATE-PIXMAP, &key PIXMAP :WIDTH HEIGHT DEPTH DRAWABLE)
 
   if (!boundp(STACK_0))
     error_required_keywords(`(:DRAWABLE)`);
-
   da = get_drawable_and_display (STACK_0, &dpy);
+
+  /* mit-clx requires width, height, depth, but the manual does not */
   if (!boundp(STACK_1) || !boundp(STACK_2) || !boundp(STACK_3))
     X_CALL(XGetGeometry (dpy, da, &root, &x, &y, &width, &height,
                          &border_width, &depth));
