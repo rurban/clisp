@@ -1,9 +1,16 @@
 2008-12-03  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_garcol.d (fill_varobject_heap_holes): handle large heap holes
+	in SPVW_MIXED (greater than *ARRAY-TOTAL-SIZE-LIMIT*)
+	* spvw_sigwinch.d (gc_signalblock_on/off): not used in multithread
+	builds
+
+2008-12-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* pathname.d (directory_search_scandir): use readdir_r() instead of
-	readdir() in multithread builds.
+	readdir() in multithread builds
 	(dirent_buf_size): calculate the size required for struct dirent
-	that is passed to readdir_r().
+	that is passed to readdir_r()
 
 2008-12-02  Sam Steingold  <sds@gnu.org>
 
