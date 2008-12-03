@@ -1,3 +1,10 @@
+2008-12-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* pathname.d (directory_search_scandir): use readdir_r() instead of
+	readdir() in multithread builds.
+	(dirent_buf_size): calculate the size required for struct dirent
+	that is passed to readdir_r().
+
 2008-12-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (XLIB:CREATE-PIXMAP): do not require
