@@ -5981,7 +5981,7 @@ static void travel_queque (Display *dpy, int peek_p, int discard_p,
   - I want this routine to be interruptible by user in a continueable fashion.
  Way to go:
   interruptp( { pushSTACK( <subr name> ); tast_break(); goto <continue>; } );
- Hmm... It may be better to use the appropriate XIf... function.
+ Hmm... It may be better to use the appropriate XIfEvent function.
  [What happens if we throw out of `em? Also they also seem to block?! RTFM] */
   XEvent ev;
   int cnt;
