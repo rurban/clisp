@@ -37,14 +37,12 @@
            (root (xlib:screen-root screen))
            (white-pixel (xlib:screen-white-pixel screen))
            (black-pixel (xlib:screen-black-pixel screen))
-           (depth (xlib:screen-root-depth screen))
            (window (xlib:create-window
                     :parent root :width width :height height :x x :y y
                     :event-mask '(:exposure :button-press :button-release
                                   :key-press :key-release)
                     :background white-pixel))
-           (pixmap (xlib:create-pixmap :width 32 :height 32
-                                       :depth depth :drawable window))
+           (pixmap (xlib:create-pixmap :width 32 :height 32 :drawable window))
            (gcontext (xlib:create-gcontext
                       :drawable window :tile pixmap :fill-style :tiled
                       :foreground black-pixel :background white-pixel)))
@@ -53,7 +51,7 @@
       (dotimes (i duration)
         (let* ((pixmap-data (greynetic-pixmapper))
                (image (xlib:create-image :width 32 :height 32
-                                         :depth depth :data pixmap-data)))
+                                         :data pixmap-data)))
           (xlib:put-image pixmap gcontext image :x 0 :y 0 :width 32 :height 32)
           (xlib:draw-rectangle window gcontext
                                (- (random width) 5)
