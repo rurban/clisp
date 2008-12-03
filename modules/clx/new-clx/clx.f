@@ -2937,16 +2937,20 @@ DEFUN(XLIB:CREATE-PIXMAP, &key PIXMAP :WIDTH HEIGHT DEPTH DRAWABLE)
   Display *dpy;
   Drawable da;
   Pixmap pm;
-  int width,height,depth;
+  int x, y;
+  unsigned int width, height, depth, border_width;
+  Window root;
 
-  if (!boundp(STACK_0) || !boundp(STACK_1) ||
-      !boundp(STACK_2) || !boundp(STACK_3))
-    error_required_keywords(`(:WIDTH :HEIGHT :DEPTH :DRAWABLE)`);
+  if (!boundp(STACK_0))
+    error_required_keywords(`(:DRAWABLE)`);
 
-  da     = get_drawable_and_display (STACK_0, &dpy);
-  width  = get_uint16 (STACK_3);        /* actually uint15! */
-  height = get_uint16 (STACK_2);
-  depth  = get_uint16 (STACK_1);
+  da = get_drawable_and_display (STACK_0, &dpy);
+  if (!boundp(STACK_1) || !boundp(STACK_2) || !boundp(STACK_3))
+    X_CALL(XGetGeometry (dpy, da, &root, &x, &y, &width, &height,
+                         &border_width, &depth));
+  if (boundp(STACK_3)) width = get_uint16 (STACK_3); /* actually uint15! */
+  if (boundp(STACK_2)) height = get_uint16 (STACK_2);
+  if (boundp(STACK_1)) depth = get_uint16 (STACK_1);
 
   X_CALL(pm = XCreatePixmap (dpy, da, width, height, depth));
 

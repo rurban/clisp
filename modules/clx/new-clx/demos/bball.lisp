@@ -111,7 +111,6 @@
                                            :exposures :off))
            (bounce-pixmap (xlib:create-pixmap
                            :width +bball-size-x+ :height +bball-size-y+
-                           :depth (xlib:screen-root-depth screen)
                            :drawable window))
            (pixmap-gc (xlib:create-gcontext :drawable bounce-pixmap
                                             :foreground white-pixel
