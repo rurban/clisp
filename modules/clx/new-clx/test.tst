@@ -492,8 +492,7 @@ NIL
          (gc (xlib:create-gcontext
               :drawable top-win :foreground 0 :line-width 2))
          (my-back-store (xlib:create-pixmap
-                         :drawable top-win :width 10 :height 10
-                         :depth (xlib:drawable-depth top-win))))
+                         :drawable top-win :width 10 :height 10)))
     (show (list top-win my-back-store) :pretty t)
     (xlib:map-window top-win)
     (xlib:draw-line top-win gc 3 3 20 20)
@@ -656,20 +655,20 @@ T
 ((-66 T) (-77 T) (-88 T) (-99 T))
 
 ;; cleanup
-(flet ((del (s) (makunbound s) (fmakunbound s) (unintern s)))
-  (del '*dpy*)
-  (del '*font-count*)
-  (del '*screen*)
-  (del '*visual*)
-  (del '*root*)
-  (del '*colormap*)
-  (del '*color*)
-  (del '*font*)
-  (del '*window*)
-  (del '*window-position*)
-  (del '*gcontext*)
-  (del 'c2s)
-  (del '*access-hosts*)
-  (del '*white-color*) (del '*black-color*)
-  (del '*rdb-tmp*))
+(progn
+  (symbol-cleanup '*dpy*)
+  (symbol-cleanup '*font-count*)
+  (symbol-cleanup '*screen*)
+  (symbol-cleanup '*visual*)
+  (symbol-cleanup '*root*)
+  (symbol-cleanup '*colormap*)
+  (symbol-cleanup '*color*)
+  (symbol-cleanup '*font*)
+  (symbol-cleanup '*window*)
+  (symbol-cleanup '*window-position*)
+  (symbol-cleanup '*gcontext*)
+  (symbol-cleanup 'c2s)
+  (symbol-cleanup '*access-hosts*)
+  (symbol-cleanup '*white-color*) (symbol-cleanup '*black-color*)
+  (symbol-cleanup '*rdb-tmp*))
 T
