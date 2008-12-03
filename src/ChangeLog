@@ -1,3 +1,11 @@
+2008-12-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:CREATE-PIXMAP): do not require
+	WIDTH, HEIGHT and DEPTH, get them from XGetGeometry if missing
+	* modules/clx/new-clx/demos/greynetic.lisp (greynetic):
+	omit the :DEPTH argument
+	* modules/clx/new-clx/demos/bball.lisp (bball): ditto
+
 2008-12-02  Philippe Brochard  <hocwp@free.fr>
 
 	* modules/clx/new-clx/demos/greynetic.lisp (greynetic):
