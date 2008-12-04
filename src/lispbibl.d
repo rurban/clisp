@@ -1988,8 +1988,8 @@ typedef enum {
    is pending for one second. It can be treated with 'interruptp' in
    a continuable manner in that time. After this time has passed, the
    program will be interrupted and cannot be continued. */
-  #define PENDING_INTERRUPTS
   #if !defined(MULTITHREAD)
+   #define PENDING_INTERRUPTS
    extern uintB interrupt_pending;
    #define interruptp(statement)  if (interrupt_pending) { statement; }
   #else
@@ -16911,10 +16911,6 @@ struct object_tab_tl_ {
     gcv_object_t* _STACK_start;
     pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
     uintC _index; /* this thread's index in allthreads[] */
-    /* signal handling stuff - NOT USED actually */
-   #if defined(PENDING_INTERRUPTS)
-    uintB _interrupt_pending;
-   #endif
     /* moved here from pathname.d */
     bool _running_handle_directory_encoding_error;
    #ifdef HAVE_SIGNALS
@@ -17187,9 +17183,6 @@ struct object_tab_tl_ {
   #define break_sems current_thread()->_break_sems
   #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
    #define writing_to_subprocess current_thread()->_writing_to_subprocess
-  #endif
-  #if defined(PENDING_INTERRUPTS)
-   #define interrupt_pending current_thread()->_interrupt_pending
   #endif
   #define running_handle_directory_encoding_error \
      current_thread()->_running_handle_directory_encoding_error
