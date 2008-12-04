@@ -1,5 +1,14 @@
 2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	no PENDING_INTERRUPTS when MULTITHREAD (fixes also CALL-WITH-TIMEOUT)
+	* lispbibl.d (PENDING_INTERRUPTS): do not define it when MULTITHREAD.
+	it is not needed and also fixes problem with CALL-WITH-TIMEOUT when
+	error is signalled (ualarm()/SIGALRM is called in error.d)
+	(clisp_thread_t): remove _interrupt_pending
+	* zthread.d (CALL-WITH-TIMEOUT): simplify code
+
+2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* stream.d (remove_from_open_streams): add function. removes stream
 	from O(open_files). use open_files_lock when MULTITHREAD
 	(close_buffered): use it
