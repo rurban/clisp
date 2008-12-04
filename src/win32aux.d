@@ -508,7 +508,8 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
     SetLastError(ERROR_IO_PENDING);
     return 0;
   }
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   handle_fault_range(PROT_READ_WRITE,(aint)bufarea,(aint)bufarea+nbyte);
  #endif
   var char* buf = (char*) bufarea;
@@ -658,7 +659,8 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
     SetLastError(ERROR_IO_PENDING);
     return 0;
   }
-#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;
@@ -788,7 +790,8 @@ local int lowlevel_sock_read (SOCKET fd, void* b, size_t nbyte, perseverance_t p
     sock_set_errno(EAGAIN);
     return 0;
   }
-#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   handle_fault_range(PROT_READ_WRITE,(aint)b,(aint)b+nbyte);
 #endif
   var char* buf = (char*) b;
@@ -898,7 +901,8 @@ local int lowlevel_sock_write (SOCKET fd, const void* b, size_t nbyte, persevera
     sock_set_errno(EAGAIN);
     return 0;
   }
-#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+#if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;

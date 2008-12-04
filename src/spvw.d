@@ -636,6 +636,7 @@ local void init_multithread (void) {
   xmutex_init(&all_finalizers_lock); /* finalizer lock */
   xmutex_init(&all_mutexes_lock); /* O(all_mutexes) lock */
   xmutex_init(&all_exemptions_lock); /* O(all_exemptions) lock */
+  xmutex_init(&all_weakpointers_lock); /* O(all_weakpointers) lock */
 
   initialize_circ_detection(); /* initialize the circ detection */
   spinlock_init(&timeout_call_chain_lock);
@@ -3401,7 +3402,18 @@ local inline int init_memory (struct argv_initparams *p) {
      relevant data from clisp_thread_t and re-create new threads from it.
   */
   O(all_threads) = NIL;
+  O(all_mutexes) = NIL;
+  O(all_exemptions) = NIL;
 
+  /*FIXME: TLO() objects are not loaded properly from memfile when linked with
+    modules. will cause problems on first GC (or other places if dynamic_xxx
+    are used). reader vars will be initialized anyway later. */
+  {
+    var uintC count;
+    var gcv_object_t* objptr = (gcv_object_t*)&(current_thread()->_object_tab);
+    dotimespC(count,sizeof(current_thread()->_object_tab)/sizeof(gcv_object_t),
+              { *objptr++=NIL; });
+  }
   /* initialize again THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
      calculated STACK size, since the memory image may change it */
   Symbol_value(S(default_value_stack_size)) =

@@ -17263,6 +17263,9 @@ extern xmutex_t all_finalizers_lock;
 extern xmutex_t all_mutexes_lock;
 /* mutex for guarding access to O(all_exemptions) */
 extern xmutex_t all_exemptions_lock;
+/* mutex for guarding access to O(all_weakpointers) */
+extern xmutex_t all_weakpointers_lock;
+
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */
@@ -17344,42 +17347,59 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     extern uintL* current_thread_alloccount();
   #endif
 
+  /* warn about current issue with generational GC */
+  #if defined(GENERATIONAL_GC)
+   #warning GENERATIONAL_GC has problems with threads builds ("random" EFAULT errors). TODO: preserve the VM protection of pages with pinned objects after GC
+  #endif
+
+  #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+   #define unprotect_heap_range(vo,write_access) \
+     handle_fault_range(write_access == true ? PROT_READ_WRITE : PROT_READ, \
+                        (aint)TheVarobject(vo),  (aint)TheVarobject(vo) +\
+                        varobject_bytelength(vo))
+  #else
+   #define unprotect_heap_range(vo,write_access)
+  #endif
+
   /* pin/unpin varobject in lisp heap. pin is protected
      with unwind-protect frame. */
-  #define unpin_varobject_i(vo) \
-    do {\
+  #define unpin_varobject_i(vo)                            \
+    do {                                                   \
       var pinned_chain_t **p=&(current_thread()->_pinned); \
       while (*p && !eq((*p)->_o, vo)) *p = (*p)->_next;    \
       if (*p) *p=(*p)->_next;                              \
     } while(0)
   #define unpin_varobject(vo) \
-    do {\
-      skipSTACK(3);\
-      unpin_varobject_i(vo);\
+    do {                      \
+      skipSTACK(3);           \
+      unpin_varobject_i(vo);  \
     } while(0)
   /* not quite good styled macro, but since it should be paired with
-     unpin_varobject() - we cannot "indent" it in a block {} */
-  #define pin_varobject(vo)\
-    pushSTACK(vo);                                      \
-    var gcv_object_t* top_of_frame = STACK;\
-    var sp_jmp_buf returner;\
-    finish_entry_frame(UNWIND_PROTECT,returner,, {\
-      var restartf_t fun = unwind_protect_to_save.fun;\
-      var gcv_object_t* upto = unwind_protect_to_save.upto_frame;\
-      var gcv_object_t po;\
-      skipSTACK(2);\
-      po=popSTACK();\
-      unpin_varobject_i(po);\
-      fun(upto); \
-    });\
-    var pinned_chain_t pc;\
-    pc._o=vo;\
-    pc._next=current_thread()->_pinned;\
-    current_thread()->_pinned=&pc;
+     unpin_varobject() - we cannot "indent" it in a block {}.
+     vo: the varobject to be pinned
+     write_access: true if the memory will be written - false otherwise  */
+  #define pin_varobject(vo,write_access)                                \
+    pushSTACK(vo);                                                      \
+    var gcv_object_t* top_of_frame = STACK;                             \
+    var sp_jmp_buf returner;                                            \
+    finish_entry_frame(UNWIND_PROTECT,returner,, {                      \
+      var restartf_t fun = unwind_protect_to_save.fun;                  \
+      var gcv_object_t* upto = unwind_protect_to_save.upto_frame;       \
+      var gcv_object_t po;                                              \
+      skipSTACK(2);                                                     \
+      po=popSTACK();                                                    \
+      unpin_varobject_i(po);                                            \
+      fun(upto);                                                        \
+    });                                                                 \
+    var pinned_chain_t pc;                                              \
+    pc._o=vo;                                                           \
+    pc._next=current_thread()->_pinned;                                 \
+    current_thread()->_pinned=&pc;                                      \
+    unprotect_heap_range(vo,write_access)
 
 #else /* ! MULTITHREAD */
 %% #else
-  #define pin_varobject(vo)
+#define pin_varobject(vo,write_access)
   #define unpin_varobject(vo)
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
@@ -17387,7 +17407,8 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 #endif
 %% #endif
 
-%% export_def(pin_varobject(vo));
+%% export_def(unprotect_heap_range(vo,write_access));
+%% export_def(pin_varobject(vo,write_access));
 %% export_def(unpin_varobject(vo));
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)

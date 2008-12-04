@@ -210,6 +210,20 @@ nonreturning_function(local, signal_and_debug, (object condition)) {
  (when start_driver_p is true)
  can trigger GC */
 local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
+#ifdef MULTITHREAD
+  /* NB: just for debugging - but for now in the release as well.
+     this code is for checking whether there is no part of the runtime
+     that will signal an error while it is considered to be in safe for GC
+     region. Seems there are such possibilities in the xxxuax.d and socket.d.
+     Hope to catch all of them here (it is possible to miss some cases
+     however). */
+  if (spinlock_tryacquire(&current_thread()->_gc_suspend_ack)) {
+    /* this should never happen - we always hold this lock unless we are in
+       blocking system call (or waiting for the GC)*/
+    fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call();");
+    abort();
+  }
+#endif
   elastic_newline(&STACK_0);
   if (nullp(STACK_1)) {
     /* *ERROR-HANDER* = NIL, SYS::*USE-CLCS* = NIL */
