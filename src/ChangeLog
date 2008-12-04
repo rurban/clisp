@@ -1,3 +1,11 @@
+2008-12-03  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (dirent_buf_size) [MULTITHREAD & HAVE_READDIR_R]:
+	define only when needed
+	(directory_search_scandir): use readdir_r only when present and
+	necessary, i.e., when MULTITHREAD & HAVE_READDIR_R
+	* configure.in: check for readdir_r
+
 2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	threads fixes
