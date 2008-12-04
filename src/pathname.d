@@ -7224,42 +7224,42 @@ local maygc object direntry_to_string (char* string, int len) {
 #endif
 }
 
- #if defined(UNIX)
+#if defined(MULTITHREAD) && defined(HAVE_READDIR_R)
 /* UP: Calculate the required buffer size (in bytes) for directory
-   entries read from the given directory handle.  Return -1 if this
-   this cannot be done.
-   http://womble.decadentplace.org.uk/readdir_r-advisory.html
-  > dirp: open directory handle
-  < returns the size in bytes needed for struct dirent buffer
+ entries read from the given directory handle.  Return -1 if this
+ this cannot be done.
+ http://womble.decadentplace.org.uk/readdir_r-advisory.html
+ > dirp: open directory handle
+ < returns the size in bytes needed for struct dirent buffer
 
-   This code does not trust values of NAME_MAX that are less than
-   255, since some systems (including at least HP-UX) incorrectly
-   define it to be a smaller value.
-   If you use autoconf, include fpathconf and dirfd in your
-   AC_CHECK_FUNCS list.  Otherwise use some other method to detect
-   and use them where available. */
+ This code does not trust values of NAME_MAX that are less than
+ 255, since some systems (including at least HP-UX) incorrectly
+ define it to be a smaller value.
+ If you use autoconf, include fpathconf and dirfd in your
+ AC_CHECK_FUNCS list.  Otherwise use some other method to detect
+ and use them where available. */
 local size_t dirent_buf_size(DIR * dirp)
 {
   var long name_max;
   var size_t name_end;
-  #if defined(HAVE_FPATHCONF) && defined(HAVE_DIRFD)  && defined(_PC_NAME_MAX)
-   name_max = fpathconf(dirfd(dirp), _PC_NAME_MAX);
-   if (name_max == -1)
-     #if defined(NAME_MAX)
-      name_max = (NAME_MAX > 255) ? NAME_MAX : 255;
-     #else
-      return (size_t)(-1);
-     #endif
-  #else
+ #if defined(HAVE_FPATHCONF) && defined(HAVE_DIRFD)  && defined(_PC_NAME_MAX)
+  name_max = fpathconf(dirfd(dirp), _PC_NAME_MAX);
+  if (name_max == -1)
    #if defined(NAME_MAX)
     name_max = (NAME_MAX > 255) ? NAME_MAX : 255;
    #else
-    #error "buffer size for readdir_r cannot be determined"
+    return (size_t)(-1);
    #endif
+ #else
+  #if defined(NAME_MAX)
+  name_max = (NAME_MAX > 255) ? NAME_MAX : 255;
+  #else
+   #error "buffer size for readdir_r cannot be determined"
   #endif
+ #endif
   name_end = (size_t)offsetof(struct dirent, d_name) + name_max + 1;
   return (name_end > sizeof(struct dirent)
-            ? name_end : sizeof(struct dirent));
+          ? name_end : sizeof(struct dirent));
 }
 #endif
 
@@ -7288,12 +7288,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       else OS_file_error(STACK_1);
     }
     while (1) {
-     #ifndef MULTITHREAD
-      var struct dirent * dp;
-      errno = 0;
-      /* fetch next directory-entry */
-      GC_SAFE_SYSTEM_CALL(dp=, readdir(dirp));
-     #else /* MULTITHREAD */
+     #if defined(MULTITHREAD) && defined(HAVE_READDIR_R)
       /* we should use readdir_r(). it is thread safe (but optional in POSIX)
          TODO: some config scripts for it ? Is there thread safe, portable
          implementation in GNULIB? */
@@ -7304,6 +7299,11 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
       GC_SAFE_SYSTEM_CALL(rdr=, readdir_r(dirp,(struct dirent *)dp_buf,&dp));
       if (dp == (struct dirent *)NULL) FREE_DYNAMIC_ARRAY(dp_buf);
       errno = rdr;
+     #else
+      var struct dirent * dp;
+      errno = 0;
+      /* fetch next directory-entry */
+      GC_SAFE_SYSTEM_CALL(dp=, readdir(dirp));
      #endif
       if (dp == (struct dirent *)NULL) { /* error or directory finished */
         if (!(errno==0)) { OS_file_error(STACK_1); }
