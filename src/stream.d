@@ -8025,6 +8025,17 @@ local maygc object add_to_open_streams (object stream) {
   return stream;
 }
 
+/* UP: removes a stream from the list of open streams O(open_files)
+ > stream
+ maygc GC in MT builds */
+local maygc void remove_from_open_streams(object stream)
+{
+  pushSTACK(stream);
+  get_open_files_lock();
+  O(open_files) = deleteq(O(open_files),popSTACK());
+  release_open_files_lock();
+}
+
 /* Find an open file that matches the given file ID
  > struct file_id fid = file ID to match
  > uintB flags = open flags to filter
@@ -8373,7 +8384,7 @@ local maygc void close_buffered (object stream, uintB abort) {
   /* make Components invalid (close_dummys comes later): */
   closed_buffered(stream);
   /* remove stream from the List of all open File-Streams: */
-  O(open_files) = deleteq(O(open_files),stream);
+  remove_from_open_streams(stream);
 }
 
 LISPFUNNF(file_stream_p,1)
@@ -16074,7 +16085,7 @@ global maygc void builtin_stream_close (const gcv_object_t* stream_,
         else
           close_ichannel(stream,abort);
         /* remove stream from the List of all open File-Streams: */
-        O(open_files) = deleteq(O(open_files),*stream_);
+        remove_from_open_streams(*stream_);
       }
       break;
     #ifdef SOCKET_STREAMS
@@ -16122,12 +16133,15 @@ global maygc void close_some_files (object list) {
  close_all_files();
  can trigger GC */
 global maygc void close_all_files (void) {
+  /* NB: no locking on O(open_files). it is used only when exitting process.*/
   close_some_files(O(open_files)); /* list of all open File-Streams */
 }
 
 /* UP: Declares all open File-Streams as closed.
  closed_all_files(); */
 global void closed_all_files (void) {
+  /* NB: no locking on O(open_files). it is used only during runtime
+     initialization (loadmem()). */
   var object streamlist = O(open_files); /* list of all open File-Streams */
   while (consp(streamlist)) {
     var object stream = Car(streamlist); /* a Stream from the list */
