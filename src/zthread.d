@@ -288,21 +288,20 @@ local bool insert_timeout_call(timeout_call *tc)
 local maygc void remove_timeout_call(timeout_call *tc)
 {
   GC_SAFE_SPINLOCK_ACQUIRE(&timeout_call_chain_lock);
-   timeout_call **chain=&timeout_call_chain;
-   while (*chain && *chain != tc) {
-     *chain = (*chain)->next;
-   }
-   /* it's possible not to find the item here - if it has been
-      already removed by the signal handling thread */
-   if (*chain)
-     *chain = (*chain)->next;
-   spinlock_release(&timeout_call_chain_lock);
-   /* tc is on the current thread stack */
-   if (chain && tc->failed) { /* tc == chain, if chain != NULL*/
-     pushSTACK(CLSTEXT("CALL-WITH-TIMEOUT has failed in thread ~S."));
-     pushSTACK(current_thread()->_lthread); /* tc->thread->_lthread */
-     funcall(S(warn),2);
-   }
+  timeout_call **lastnextp=&timeout_call_chain,*chain=timeout_call_chain;
+  while (chain != NULL && chain != tc) {
+    lastnextp=&chain->next; chain=chain->next;
+  }
+  if (chain) { /* found - chain next */
+    *lastnextp = chain->next;
+  }
+  spinlock_release(&timeout_call_chain_lock);
+  /* tc is on the current thread stack */
+  if (chain && tc->failed) { /* tc == chain, if chain != NULL*/
+    pushSTACK(CLSTEXT("CALL-WITH-TIMEOUT has failed in thread ~S."));
+    pushSTACK(current_thread()->_lthread); /* tc->thread->_lthread */
+    funcall(S(warn),2);
+  }
 }
 
 LISPFUNN(call_with_timeout,3)
