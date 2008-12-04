@@ -251,7 +251,8 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
     errno = EAGAIN;
     return 0;
   }
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   /* Must adjust the memory permissions before calling read().
    - On SunOS4 a missing write permission causes the read() call to hang
      in an endless loop.
@@ -399,7 +400,8 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
     errno = EAGAIN;
     return 0;
   }
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   /* Must adjust the memory permissions before calling write(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
  #endif
@@ -511,7 +513,8 @@ global ssize_t sock_read (int fd, void* bufarea, size_t nbyte, perseverance_t pe
     errno = EAGAIN;
     return 0;
   }
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   /* Must adjust the memory permissions before calling recv(). */
   handle_fault_range(PROT_READ_WRITE,(aint)buf,(aint)buf+nbyte);
  #endif
@@ -592,7 +595,8 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
     errno = EAGAIN;
     return 0;
   }
- #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
+  /* in MT builds the heap protection is managed by pin_varobject() */
+ #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED) && !defined(MULTITHREAD)
   /* Must adjust the memory permissions before calling send(). */
   handle_fault_range(PROT_READ,(aint)buf,(aint)buf+nbyte);
  #endif

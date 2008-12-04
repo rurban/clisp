@@ -1,3 +1,27 @@
+2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	threads fixes
+	* error.d (end_error): abort on error signalled from region considered
+	"safe for GC". these cases should be fixed - otherwise the thread
+	will be treated as safe for GC while it is not
+	* spvw.d (init_memory): O(all_mutexes) and O(all_exemptions) do not
+	survive memory image loading - initialize them. TLO() objects also.
+	* spvw_fault.d (handle_fault_range): guard with page spinlock all
+	page accesses/modifications
+	* lispbibl.d: warning for problems with threads & GENERATIONAL_GC
+	builds
+	(all_weakpointers_lock): O(all_weakpointers) lock. synchronize
+	modifications of O(all_weakpointers)
+	(unprotect_heap_range): macro calling handle_fault_range() for
+	pinned varobjects with (PROT_READ or PROT_READ_WRITE access)
+	(pin_varobject): accepts additional argument - what access is desired
+	for varobject's memory. use unprotect_heap_range() - thus prevents race
+	condition between GC and handle_fault_range()
+	* unixaux.d: in threads builds do not call handle_fault_range()
+	* win32aux.d: in threads builds do not call handle_fault_range()
+	* stream.d: call pin_varobject() with desired access
+	* spvw_weak.d (activate_weak): use all_weakpointers_lock
+
 2008-12-03  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_garcol.d (fill_varobject_heap_holes): handle large heap holes
