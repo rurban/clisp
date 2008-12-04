@@ -316,9 +316,8 @@ LISPFUNN(call_with_timeout,3)
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(STACK_2,unbound,&tv);
   if (tvp) {
-    pushSTACK(unbound);
-    funcall(S(gensym),1);
-    pushSTACK(value1);
+    /* create the throw tag */
+    pushSTACK(unbound); funcall(S(gensym),1); pushSTACK(value1);
     var gcv_object_t* top_of_frame = STACK STACKop 1;
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(CATCH,returner,,{skipSTACK(3);goto timeout_function;});
@@ -336,18 +335,6 @@ LISPFUNN(call_with_timeout,3)
       timeout.tv_usec -= 1000000;
     }
     var timeout_call tc={current_thread(),&STACK_2,false,&timeout,NULL};
-    /* insert in sorted chain and signal if needed */
-    var bool to_signal=insert_timeout_call(&tc);
-    spinlock_release(&timeout_call_chain_lock); /* release the lock */
-    if (to_signal) {
-      begin_system_call();
-      xthread_signal(thr_signal_handler,SIG_TIMEOUT_CALL);
-      /* on linux raise(sig) does not deliver the signal to the signal handling
-         thread !!! so we use xthread_signal()/pthread_kill() which works fine.
-      */
-      /* raise(SIG_TIMEOUT_CALL);*/
-      end_system_call();
-    }
     {
       /* funcall in UNWIND_PROTECT frame in order to cleanup the chain */
       var gcv_object_t* top_of_frame = STACK;
@@ -359,6 +346,13 @@ LISPFUNN(call_with_timeout,3)
         skipSTACK(2); /* unwind the frame */
         fun(arg); /* jump further */
       });
+      /* insert in sorted chain and signal if needed */
+      if (insert_timeout_call(&tc)) {
+        begin_system_call();
+        xthread_signal(thr_signal_handler,SIG_TIMEOUT_CALL);
+        end_system_call();
+      }
+      spinlock_release(&timeout_call_chain_lock); /* release the lock */
       funcall(STACK_5,0); /* call the body function */
       remove_timeout_call(&tc); /* everything seems fine - no timeout */
       skipSTACK(2 + 3); /* unwind_protect frame + CATCH frame*/
