@@ -349,6 +349,9 @@
 /* Define if you have the putenv() function. */
 #undef HAVE_PUTENV
 
+/* Define to 1 if you have the `readdir_r' function. */
+#undef HAVE_READDIR_R
+
 /* have a working modern GNU readline */
 #undef HAVE_READLINE
 
