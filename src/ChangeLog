@@ -1,5 +1,10 @@
 2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* zthread.d (remove_timeout_call): remove only the requested timeout
+	call
+
+2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	no PENDING_INTERRUPTS when MULTITHREAD (fixes also CALL-WITH-TIMEOUT)
 	* lispbibl.d (PENDING_INTERRUPTS): do not define it when MULTITHREAD.
 	it is not needed and also fixes problem with CALL-WITH-TIMEOUT when
