@@ -1,3 +1,10 @@
+2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* stream.d (remove_from_open_streams): add function. removes stream
+	from O(open_files). use open_files_lock when MULTITHREAD
+	(close_buffered): use it
+	(builtin_stream_close): use it
+
 2008-12-03  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (dirent_buf_size) [MULTITHREAD & HAVE_READDIR_R]:
