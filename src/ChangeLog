@@ -1,3 +1,7 @@
+2008-12-05  Sam Steingold  <sds@gnu.org>
+
+	* zthread.d (MAKE-THREAD, CALL-WITH-TIMEOUT): simplify (GENSYM) funcall
+
 2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (remove_timeout_call): remove only the requested timeout
