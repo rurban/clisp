@@ -3569,7 +3569,7 @@ local inline void main_actions (struct argv_actions *p) {
       pushSTACK(S(Kname));
       pushSTACK(ascii_to_string(".clisprc"));
       pushSTACK(S(Kdefaults));
-      funcall(S(user_homedir_pathname),0);
+      funcall(L(user_homedir_pathname),0);
       pushSTACK(value1);
       funcall(L(make_pathname),4);
       pushSTACK(value1);

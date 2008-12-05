@@ -2153,12 +2153,6 @@ typedef enum {
 #endif
 /* When changed: do nothing */
 
-/* Whether the function USER-HOMEDIR-PATHNAME exists: */
-#if defined(UNIX) || defined(WIN32)
-  #define USER_HOMEDIR
-#endif
-/* When changed: extend pathname.d */
-
 /* Whether the operating system manages an environment that associates Strings
  with Strings */
 #if defined(UNIX) || defined(WIN32)

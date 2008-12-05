@@ -1707,7 +1707,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
      ..., Datenvektor, Pathname, (last (pathname-directory Pathname)).
      parse subdirectories: */
     {
-     #if defined(USER_HOMEDIR) && defined(PATHNAME_UNIX)
+     #if defined(PATHNAME_UNIX)
       /* if there is a '~' immediately, a username is read up to the next '/'
        or string-end and the Home-Directory of this user is inserted: */
       if ((z.count != 0) && chareq(schar(STACK_2,z.index),ascii('~'))) {
@@ -1770,7 +1770,7 @@ LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
         /* skip character: */
         Z_SHIFT(z,1);
       } else
-     #endif /* USER_HOMEDIR & PATHNAME_UNIX */
+     #endif /* PATHNAME_UNIX */
      #if defined(PATHNAME_UNIX) && 0
         /* What is this needed for, except for $HOME ?
          If a '$' follows immediately, an Environment-Variable is read up
@@ -3603,7 +3603,6 @@ LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
 
 #endif
 
-#ifdef USER_HOMEDIR
 /* (USER-HOMEDIR-PATHNAME [host]), CLTL p. 418 */
 LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
   DOUT("user-homedir-pathname:[host]",STACK_0);
@@ -3611,9 +3610,8 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
   STACK_0 = test_optional_host(STACK_0,false); /* check Host */
   if (!nullp(STACK_0)) {
    #if defined(PATHNAME_WIN32)
-    /* This is very primitive. Does Windows have the notion of homedirs on
-     remote hosts?? */
-    {
+    { /* This is very primitive.
+         Does Windows have the notion of homedirs on remote hosts?? */
       var object pathname = allocate_pathname(); /* new Pathname */
       ThePathname(pathname)->pathname_host      = popSTACK();
      #if HAS_DEVICE
@@ -3626,7 +3624,7 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
       VALUES1(pathname);
     }
    #else
-      ??; /* FIXME for HAS_HOST & not WIN32 */
+    #error user-homedir-pathname: HAS_HOST & !WIN32
    #endif
   } else { /* no host given */
     skipSTACK(1);
@@ -3638,7 +3636,6 @@ LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL) {
  #endif
   DOUT("user-homedir-pathname:[ret]",value1);
 }
-#endif
 
 /* UP: copies a pathname.
  copy_pathname(pathname)
@@ -8104,8 +8101,7 @@ global maygc void init_pathnames (void) {
  #endif
   /* initialize *DEFAULT-PATHNAME-DEFAULTS* : */
   recalc_defaults_pathname();
- #ifdef USER_HOMEDIR
-  #ifdef UNIX
+ #if defined(UNIX)
   /* we retrieve the home-directory and the usable shell from the
    environment. It contains (almost) always at least the following variables:
      LOGNAME = Username at the first login ("true" identity of the user)
@@ -8131,12 +8127,10 @@ global maygc void init_pathnames (void) {
       }
     }
   }
-  #endif
-  #ifdef WIN32
+ #elif defined(WIN32)
   /* WinNT defines HOMEDRIVE and HOMEPATH. Win95 (which is actually not a
    multiuser OS) lets the user set HOME himself.
-   In any case, we give preference to HOME, because the user can change
-   this. */
+   In any case, we give preference to HOME, because the user can change this. */
   {
     var const char * home;
     begin_system_call();
@@ -8160,7 +8154,8 @@ global maygc void init_pathnames (void) {
       }
     }
   }
-  #endif
+ #else  /* !UNIX & !WIN32 */
+  #error O(user_homedir) not initialized
  #endif
  #ifdef HAVE_SHELL
   #if defined(UNIX)
