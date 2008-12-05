@@ -3750,9 +3750,7 @@ local inline void main_actions (struct argv_actions *p) {
   /* call read-eval-print-loop: */
 #if defined(MULTITHREAD)
   /* create a CATCH frame here for thread exit */
-  pushSTACK(unbound);
-  funcall(S(gensym),1);
-  pushSTACK(value1);
+  funcall(L(gensym),0); pushSTACK(value1);
   current_thread()->_thread_exit_tag=&STACK_0;
   var gcv_object_t* top_of_frame = STACK STACKop 1;
   var sp_jmp_buf returner; /* return point */
