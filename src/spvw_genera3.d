@@ -35,6 +35,25 @@ local void update_old_generation (void) {
           do {
             if ((physpage->protection == PROT_NONE)
                 || (physpage->protection == PROT_READ)) {
+             #ifdef MULTITHREAD
+              /* in single thread following "if" should be removed by compiler
+                 but let's ifdef it it anyway */
+              if (physpage_pin_marked(physpage)) {
+                DEBUG_SPVW_ASSERT(physpage->protection == PROT_READ);
+                /* We are not sure whether just the thread that has
+                   pinned object accesses this page (or other threads as well).
+                   Protection PROT_READ should be kept because of the pinned
+                   object but also we have to update all references to other
+                   objects because of the uncertainty above.
+                   So we change protection to PROT_READ_WRITE.
+                   (Another option is to change it to PROT_READ_WRITE, update
+                   the page and cache and return to PROT_READ - but this seems
+                   more costly) */
+                xmprotect(gen0_start,physpagesize,PROT_READ_WRITE);
+                physpage->protection = PROT_READ_WRITE;
+                goto update_all;
+              }
+             #endif
               /* take advantage of cache, update cached pointers: */
               var uintL count = physpage->cache_size;
               if (count > 0) {
@@ -57,6 +76,7 @@ local void update_old_generation (void) {
                 }
               }
             } else {
+            update_all:
               /* update the entire page-content: */
               walk_physpage_(heapnr,physpage,gen0_start+physpagesize,gen0_end,update_at);
             }

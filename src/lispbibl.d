@@ -17334,15 +17334,10 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     extern uintL* current_thread_alloccount();
   #endif
 
-  /* warn about current issue with generational GC */
-  #if defined(GENERATIONAL_GC)
-   #warning GENERATIONAL_GC has problems with threads builds ("random" EFAULT errors). TODO: preserve the VM protection of pages with pinned objects after GC
-  #endif
-
   #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
    #define unprotect_heap_range(vo,write_access) \
      handle_fault_range(write_access == true ? PROT_READ_WRITE : PROT_READ, \
-                        (aint)TheVarobject(vo),  (aint)TheVarobject(vo) +\
+                        (aint)TheVarobject(vo),  (aint)TheVarobject(vo) +   \
                         varobject_bytelength(vo))
   #else
    #define unprotect_heap_range(vo,write_access)
