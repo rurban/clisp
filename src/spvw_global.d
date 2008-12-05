@@ -522,17 +522,18 @@ local uintC gc_suspend_count=0;
    the heap lock is not held - the same for lock_thr) */
 global void gc_suspend_all_threads(bool lock_heap)
 {
-  /* flags for indicating whether a thread acknowedge the suspension */
-  var uint8 *acklocked;
-  var bool all_suspended;
   var clisp_thread_t *me=current_thread();
   /*fprintf(stderr,"VTZ: GC_SUSPEND(): %0x, %d\n",me,gc_suspend_count);*/
   if (lock_heap) ACQUIRE_HEAP_LOCK();
+  /* the heap lock should be held always */
+  ASSERT(!spinlock_tryacquire(&mem.alloc_lock));
   if (gc_suspend_count == 0) { /* first time here */
     lock_threads();
+    var bool all_suspended;
+    /* flags for indicating whether a thread acknowedge the suspension */
+    var DYNAMIC_ARRAY(acklocked,uint8,nthreads);
     begin_system_call();
-    acklocked=(uint8 *)alloca(nthreads*sizeof(uint8));
-    memset(acklocked,0,sizeof(uint8)*nthreads);
+    memset(acklocked,0,nthreads);
     end_system_call();
     for_all_threads({
       if (thread == me) continue; /* skip ourself */
@@ -541,10 +542,13 @@ global void gc_suspend_all_threads(bool lock_heap)
         spinlock_release(&thread->_gc_suspend_request); /* request */
       } else {
         acklocked[thread->_index]=1;
+        /* increase the suspend count */
+        thread->_suspend_count++;
       }
-      /* increase the suspend count */
-      thread->_suspend_count++;
     });
+    /* TODO: this way of waiting for threads to acknowledge the suspend
+       request is ugly and cause form of starvation sometimes.
+       We need semaphore here */
     do {
       all_suspended=true;
       for_all_threads({
@@ -552,6 +556,8 @@ global void gc_suspend_all_threads(bool lock_heap)
         if ((acklocked[thread->_index]) || (thread == me)) continue;
         if (spinlock_tryacquire(&thread->_gc_suspend_ack)) {
           acklocked[thread->_index]=1;
+          /* increase the suspend count */
+          thread->_suspend_count++;
           /* try to get the suspend request lock. In case the thread is in
              blocking system call - this is important. */
           spinlock_tryacquire(&thread->_gc_suspend_request);
@@ -562,6 +568,7 @@ global void gc_suspend_all_threads(bool lock_heap)
       });
       if (!all_suspended) xthread_yield(); else break;
     } while (1);
+    FREE_DYNAMIC_ARRAY(acklocked);
     unlock_threads();
   }
   gc_suspend_count++; /* increase the suspend count */

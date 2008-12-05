@@ -1,5 +1,11 @@
 2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_global.d (gc_suspend_all_threads): increase thread's suspend
+	count after received acknowledge. use DYNAMIC_ARRAY() instead of
+	alloca()
+
+2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* error.d (end_error): abort on error in case the current thread
 	is supposed to be suspended
 
