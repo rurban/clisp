@@ -652,9 +652,7 @@ LISPSYM(make_pathname,"MAKE-PATHNAME",lisp)
 #ifdef LOGICAL_PATHNAMES
 LISPSYM(make_logical_pathname,"MAKE-LOGICAL-PATHNAME",system)
 #endif
-#ifdef USER_HOMEDIR
 LISPSYM(user_homedir_pathname,"USER-HOMEDIR-PATHNAME",lisp)
-#endif
 LISPSYM(wild_pathname_p,"WILD-PATHNAME-P",lisp)
 LISPSYM(pathname_match_p,"PATHNAME-MATCH-P",lisp)
 LISPSYM(translate_pathname,"TRANSLATE-PATHNAME",lisp)
