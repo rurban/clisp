@@ -1,3 +1,8 @@
+2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* error.d (end_error): abort on error in case the current thread
+	is supposed to be suspended
+
 2008-12-05  Sam Steingold  <sds@gnu.org>
 
 	* check-lispfun.lisp (get-lisp-defs): also check for funcall(S())
