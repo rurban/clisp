@@ -1,5 +1,11 @@
 2008-12-05  Sam Steingold  <sds@gnu.org>
 
+	* check-lispfun.lisp (get-lisp-defs): also check for funcall(S())
+	for subrs (which should be called using funcall(L()) instead)
+	"make check-sources" is your friend!
+
+2008-12-05  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (pin_varobject): objects of type gcv_object_t are
 	verboten outside of GC
 
