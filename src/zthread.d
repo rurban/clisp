@@ -396,7 +396,7 @@ LISPFUNN(thread_kill,1)
     pushSTACK(S(thread_throw_tag));
     pushSTACK(*exit_tag);
     unlock_threads();
-    funcall(S(thread_interrupt),3);
+    funcall(L(thread_interrupt),3);
   } else { /* thread has gone */
     unlock_threads();
     skipSTACK(1);
