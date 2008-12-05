@@ -1,5 +1,9 @@
 2008-12-05  Sam Steingold  <sds@gnu.org>
 
+	* check-lispfun.lisp (*const-decls*): add "constobj_tl"
+
+2008-12-05  Sam Steingold  <sds@gnu.org>
+
 	remove USER_HOMEDIR - assume that all supported platforms have it
 	* pathname.d (USER-HOMEDIR-PATHNAME): define unconditionally
 	* constobj.d (user_homedir): ditto

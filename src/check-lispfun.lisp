@@ -1,4 +1,4 @@
-;;; Copyright (C) 2002 by Sam Steingold
+;;; Copyright (C) 2002-2008 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
@@ -18,7 +18,7 @@
     (values li fn)))
 
 (defvar *form-decls* '("subr" "fsubr"))
-(defvar *const-decls* '("constsym" "constobj" "constpack"))
+(defvar *const-decls* '("constsym" "constobj" "constobj_tl" "constpack"))
 
 (defun get-lisp-defs (file)
   (with-open-file (st file :direction :input :external-format charset:utf-8)
