@@ -823,9 +823,7 @@ LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
         (kw(defaults),kw(case),kw(host),kw(device),kw(directory),
          kw(name),kw(type),kw(version)) )
 #endif
-#ifdef USER_HOMEDIR
 LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL)
-#endif
 LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUNNR(pathname_match_p,2)
 LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,

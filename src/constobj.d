@@ -466,9 +466,7 @@
   LISPOBJ_S(wildwild_string,"**")
   LISPOBJ(directory_absolute,"(:ABSOLUTE)") /* directory of the empty absolute pathname */
  #endif
- #ifdef USER_HOMEDIR
   LISPOBJ(user_homedir,"#\".\"") /* user-homedir-pathname */
- #endif
  #ifdef HAVE_SHELL
  #ifdef UNIX
   LISPOBJ(command_shell,"\""SHELL"\"") /* command-shell as string */
