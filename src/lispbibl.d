@@ -17386,7 +17386,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 
 #else /* ! MULTITHREAD */
 %% #else
-#define pin_varobject(vo,write_access)
+  #define pin_varobject(vo,write_access)
   #define unpin_varobject(vo)
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
@@ -17399,11 +17399,11 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 %% export_def(unpin_varobject(vo));
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-#define START_WRITING_TO_SUBPROCESS  writing_to_subprocess=true
-#define STOP_WRITING_TO_SUBPROCESS  writing_to_subprocess=false
+ #define START_WRITING_TO_SUBPROCESS  writing_to_subprocess=true
+ #define STOP_WRITING_TO_SUBPROCESS  writing_to_subprocess=false
 #else
-#define START_WRITING_TO_SUBPROCESS /*noop*/
-#define STOP_WRITING_TO_SUBPROCESS /*noop*/
+ #define START_WRITING_TO_SUBPROCESS /*noop*/
+ #define STOP_WRITING_TO_SUBPROCESS /*noop*/
 #endif
 %% export_def(START_WRITING_TO_SUBPROCESS);
 %% export_def(STOP_WRITING_TO_SUBPROCESS);
