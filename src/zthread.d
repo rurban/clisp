@@ -200,9 +200,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
    thread bound. since the user may pass initial-bindings - it is possible
    to get an error/condition/etc while evaluating them and at that time we
    will not have valid exit tag. So allocate it here. */
-  pushSTACK(unbound);
-  funcall(S(gensym),1);
-  pushSTACK(value1);
+  funcall(L(gensym),0); pushSTACK(value1);
   /* let's lock in order to create and register */
   begin_blocking_call(); /* give chance the GC to work while we wait*/
   lock_threads();
@@ -316,7 +314,7 @@ LISPFUNN(call_with_timeout,3)
   var struct timeval *tvp = sec_usec(STACK_2,unbound,&tv);
   if (tvp) {
     /* create the throw tag */
-    pushSTACK(unbound); funcall(S(gensym),1); pushSTACK(value1);
+    funcall(L(gensym),0); pushSTACK(value1);
     var gcv_object_t* top_of_frame = STACK STACKop 1;
     var sp_jmp_buf returner; /* return point */
     finish_entry_frame(CATCH,returner,,{skipSTACK(3);goto timeout_function;});
