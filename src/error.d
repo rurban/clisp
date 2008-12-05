@@ -223,6 +223,12 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
     fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call();");
     abort();
   }
+  if (current_thread()->_suspend_count) {
+    /* hmm aren't we supposed to be suspended? if we are here - there
+     is GC running NOW */
+    fprintf(stderr,"*** thread is going into lisp land while GC in progress.");
+    abort();
+  }
 #endif
   elastic_newline(&STACK_0);
   if (nullp(STACK_1)) {
