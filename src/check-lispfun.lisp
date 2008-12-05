@@ -20,29 +20,33 @@
 (defvar *form-decls* '("subr" "fsubr"))
 (defvar *const-decls* '("constsym" "constobj" "constobj_tl" "constpack"))
 
-(defun get-lisp-defs (file)
+(defun get-lisp-defs (file &optional decs &aux (pos 0) (error-count 0))
   (with-open-file (st file :direction :input :external-format charset:utf-8)
     (format t "~&~s: file ~s~%" 'get-lisp-defs file)
-    (with-collect (keep)
-      (loop (let ((line (read-line st nil nil)))
-              (unless line (return))
-              (when (sys::string-beg-with "LISP" line)
-                (multiple-value-bind (li fn) (get-lisp-def line st)
-                  (push fn (cdr li))
-                  (keep li))))))))
+    (values (ext:with-collect (keep)
+              (loop (let ((line (read-line st nil nil)) p s)
+                      (unless line (return)) (incf pos)
+                      (when (and decs (setq p (search #1="funcall(S(" line)))
+                        (let ((fn (subseq line (+ p #.(length #1#))
+                                          (position #\) line :start p))))
+                          (when (and (setq s (find fn decs :test #'string-equal
+                                                   :key #'car))
+                                     ;; load is called as S(load) because
+                                     ;; it is redefined in init.lisp
+                                     (sys::subr-info (car s)))
+                            (cerror "proceed with checks"
+                                    "~a:~d: funcall(S(~a)) for a subr ~s"
+                                    file pos fn s)
+                            (incf error-count))))
+                      (when (sys::string-beg-with "LISP" line)
+                        (multiple-value-bind (li fn) (get-lisp-def line st)
+                          (push fn (cdr li))
+                          (keep li))))))
+            error-count)))
 
 (defun check-lisp-defs (dir)
   (format t "~&~s: ~s~%" 'check-lisp-defs dir)
-  (let* ((exclude (append *const-decls* *form-decls*))
-         (def-forms
-          (delete-duplicates
-           (sort (mapcan #'get-lisp-defs
-                         (delete-if (lambda (fi)
-                                      (member (pathname-name fi) exclude
-                                              :test #'string-equal))
-                                    (directory (merge-pathnames "*.d" dir))))
-                 #'string< :key #'car)
-           :test #'equal))
+  (let* ((exclude (append *const-decls* *form-decls*)) kwd (error-count 0)
          (dec-forms
           (delete-duplicates
            (sort (mapcan #'get-lisp-defs
@@ -52,7 +56,19 @@
                                  *form-decls*))
                  #'string< :key #'car)
            :test #'equal))
-         kwd (error-count 0))
+         (def-forms
+          (delete-duplicates
+           (sort (mapcan (lambda (f)
+                           (multiple-value-bind (forms errors)
+                               (get-lisp-defs f dec-forms)
+                             (incf error-count errors)
+                             forms))
+                         (delete-if (lambda (fi)
+                                      (member (pathname-name fi) exclude
+                                              :test #'string-equal))
+                                    (directory (merge-pathnames "*.d" dir))))
+                 #'string< :key #'car)
+           :test #'equal)))
     (cond ((= (length def-forms) (length dec-forms))
            (format t "~d forms~%" (length def-forms)))
           (t (cerror "proceed with checks"
