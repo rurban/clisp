@@ -481,7 +481,7 @@ local maygc bool ht_add(gcv_object_t *ht, object obj)
     pushSTACK(obj);
     pushSTACK(*ht);
     pushSTACK(T); /* some immediate value? */
-    funcall(S(puthash),3);
+    funcall(L(puthash),3);
   }
   return ret;
 }
