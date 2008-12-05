@@ -62,11 +62,28 @@ typedef struct {
   uintL cache_size;         /* number of cached pointers */
   old_new_pointer_t* cache; /* cache of all pointers into the new generation */
 #if defined(MULTITHREAD)
-  /* during fault handling we have to allow a single thread to 
-     change this page cache */
+  /* during fault handling we have to allow a single thread to  change this page cache */
   spinlock_t cache_lock;
 #endif
 } physpage_state_t;
+
+#if defined(MULTITHREAD)
+/* during GC GEN1 the highest bit of cache_size marks whether the
+   protection of the page should be preserved (becasue it contains
+   pinned objects).
+   Used only during GEN1 of GC !!! Never set outside GC. */
+ #define physpage_pinned_mask  ((uintL)(bit(intLsize-1)))
+ #define physpage_pin_marked(p) ((p)->cache_size & physpage_pinned_mask)
+ #define physpage_pin_mark(p) p->cache_size |= physpage_pinned_mask
+/* during GC GEN0 we are going to use the memory of heap->physpages to
+   store the addresses of the pages that should be preserved as
+   PROT_READ_WRITE. */
+typedef struct read_write_region {
+  aint addr; /* VM page aligned address */
+  aint page_count; /* count of VM pages starting at the address above */
+} read_write_region;
+#endif
+
 #endif
 
 typedef struct {

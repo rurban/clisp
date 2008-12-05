@@ -1644,6 +1644,15 @@ local void fill_relocation_memory_regions(aint start,aint end,
   var varobj_mem_region *mit=regs+1;
   var aint vs; /* start address of varobject*/
   var_prepare_objsize;
+#ifdef GENERATIONAL_GC
+  /* find the heap. we are going to mark physical pages that containg
+     pinned objects */
+  #ifdef SPVW_PURE
+  var Heap* heap = &mem.heaps[heapnr];
+  #else /* SPVW_MIXED */
+  var Heap* heap = &mem.varobjects;
+  #endif
+#endif
   *count=1;
   for_all_threads({
     chain = thread->_pinned;
@@ -1652,6 +1661,34 @@ local void fill_relocation_memory_regions(aint start,aint end,
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
+#ifdef GENERATIONAL_GC
+        if (generation == 0) { /* do we perform "full" GC? */
+          /* heap->physpage array will be re-created at the end
+             of GC and will not be used at all during it. So we can reuse
+             "badly" it a little bit :). do not want new memory
+             allocations.
+             Here we are interested only in pages with PROT_READ_WRITE
+             from the old generation and all from generation 1. */
+
+          /* TODO: currently the whole old generation will be with
+             PROT_READ_WRITE after GEN0 GC. however probably this will
+             change shorty. So do nothing here. */
+
+        } else {
+          /* is the object in the old generation ?*/
+          if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
+              (heap->physpages != NULL)) {  /* GC on generation 1 only */
+            /* let's mark the physical pages to preserve VM protection */
+            var aint es = vs + mit->size; /* end address */
+            for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {
+              var uintL pageno = (vs>>physpageshift) -
+                (heap->heap_gen0_start>>physpageshift);
+              var physpage_state_t* physpage = &heap->physpages[pageno];
+              physpage_pin_mark(physpage);
+            }
+          }
+        }
+#endif
 	mit++; (*count)++;
       }
       chain = chain->_next;
@@ -1708,11 +1745,11 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
     /* there is place in the hole for at least a varobject header*/
     #ifdef SPVW_MIXED
     /* single heap for varobjects - so just reserve simple-8bit-vectors.
-       if the holes happens to be large (more than *array-total-size-limit*
+       if the holes happens to be large (more than array-total-size-limit
        elements) - "allocate" few vectors. */
     do {
       var Sbvector ptr=(Sbvector)holes->start;
-      /* be sure to leave a place for at least a header of the next
+      /* be sure to leave a place for at least the header of next
          vector in case of too big hole. */
       var uintL len = MIN(holes->size - offsetofa(sbvector_,data),
                           arraysize_limit_1 - offsetofa(sbvector_,data));
@@ -1722,7 +1759,14 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
      #else
       ptr->tfl = vrecord_tfl(Rectype_Sb8vector,len);
      #endif
-      DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));
+     /* DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));*/
+     /* it ASSERTED once but I (vtz) cannot reproduce it. That's the reason
+        I'll leave it in the release as well and will dump the hole. */
+      if ((len+offsetofa(sbvector_,data)) != objsize(ptr)) {
+        fprintf(stderr,"*** BUGBUG: WRONG HEAP HOLE SIZE. PLEASE REPORT AS BUG. ");
+        fprintf(stderr,"*** BUGBUG: HOLE: %0x, %0x. OBJ: %0x\n", holes->start,holes->size,objsize(ptr));
+        abort();
+      }
       holes->start += (len+offsetofa(sbvector_,data));
       holes->size -= (len+offsetofa(sbvector_,data));
     } while (holes->size != 0);
@@ -1750,8 +1794,6 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 	fprintf(stderr,"unsupported type of pinned object !!!\n");
 	abort();
       }
-      /* in SPVW_PURE there are not problems of too big
-       (> *array-total-size-limit*) */
       DEBUG_SPVW_ASSERT(holes->size == objsize(ptr));
     #endif
     holes++;
@@ -1928,12 +1970,11 @@ local void gar_col_normal (void)
   #define pinned_count 0
 #endif
   /* every pinned object may introduce a hole in the heap. */
-  /* large objects that cannot be moved becasue of the pinned objects
-     mill be treated as pinned. */
-  var varobj_mem_region *regions=
-    (varobj_mem_region *)alloca((pinned_count+1)*sizeof(varobj_mem_region));
-  var varobj_mem_region *holes_to_fill=
-    (varobj_mem_region *)alloca((pinned_count+1)*sizeof(varobj_mem_region));
+  /* regions contain all heap excluding the pinned objects */
+  var DYNAMIC_ARRAY(regions,varobj_mem_region,pinned_count+1);
+  /* after sweep1 phase holes_to_fill (holes_count) contain the
+     holes in the heap that have to be filled with dummy object(s)*/
+  var DYNAMIC_ARRAY(holes_to_fill,varobj_mem_region,pinned_count+1);
   var uintC holes_count=0, regions_count;
 #if !defined(MULTITHREAD)
   #undef pinned_count
@@ -2191,6 +2232,8 @@ local void gar_col_normal (void)
   for_each_cons_heap(heap, { heap->lastused = dummy_lastused; } );
   /* treat .reserve?? */
  #endif
+  FREE_DYNAMIC_ARRAY(regions);
+  FREE_DYNAMIC_ARRAY(holes_to_fill);
   CHECK_AVL_CONSISTENCY();
   CHECK_GC_CONSISTENCY();
   CHECK_GC_UNMARKED();
