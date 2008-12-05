@@ -1,5 +1,10 @@
 2008-12-05  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (pin_varobject): objects of type gcv_object_t are
+	verboten outside of GC
+
+2008-12-05  Sam Steingold  <sds@gnu.org>
+
 	* check-lispfun.lisp (*const-decls*): add "constobj_tl"
 
 2008-12-05  Sam Steingold  <sds@gnu.org>
