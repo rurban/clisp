@@ -378,13 +378,46 @@ local void build_old_generation_cache (uintL heapnr)
       if (!(heap->physpages==NULL)) {
         /* When we are finished, both the cache and the memory content
          will be valid: */
+       #ifdef MULTITHREAD
+        xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ_WRITE);
+       #else
         xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
+       #endif
+        /* VTZ:
+           TBD: Currently the whole heap is set to PROT_READ_WRITE in MT
+           at the end of GEN0.
+           TODO: Alternatively - in MT we can set to PROT_READ_WRITE only
+           the pages that contain pinned objects (actually that's what I
+           started to do but ended with this).
+
+           Drawback of using PROT_READ_WRITE for all pages is
+           that the next GC will be slower. The whole heap will be scanned
+           again in order to build cache for all pages (and set their
+           protection to PROT_READ) regardless whether they were accesses
+           for writing (also these caches consume more memory).
+           Some of the pages may never be accessed for writting - so this is
+           useless work.
+
+           PROT_READ_WRITE is fine in single thread - but since PROT_READ
+           was used - I assume it gives better performance.
+           How much slower is overall performance (it is a use-case - but
+           for the most common use)? for exmaple I see make check-tests times
+           a little bit lower with PROT_READ_WRITE - but this is not good
+           indication.
+
+           we may let the user choose this.
+        */
+
         /* fill heap->physpages[0..physpage_count-1] : */
         {
           var physpage_state_t* physpage = heap->physpages;
           var uintL count;
           dotimespL(count,physpage_count, {
+            #ifdef MULTITHREAD
+            physpage->protection = PROT_READ_WRITE;
+            #else
             physpage->protection = PROT_READ;
+            #endif
             physpage->cache_size = 0; physpage->cache = NULL;
            #if defined(MULTITHREAD)
             spinlock_init(&physpage->cache_lock);
@@ -884,6 +917,18 @@ local void rebuild_old_generation_cache (uintL heapnr)
       gen0_start &= -physpagesize;
       do {
         if (physpage->protection == PROT_READ_WRITE) {
+         #ifdef MULTITHREAD
+          if (physpage_pin_marked(physpage)) {
+            /* if the page is pinned with PROT_READ_WRITE there is no sense
+               to create the cache - since it will never be used (even if there
+               is possibility to be useful in future GCs) */
+            physpage->cache_size=0; /* unpins as well */
+            if (physpage->cache) {
+              xfree(physpage->cache); physpage->cache = NULL;
+            }
+            goto no_cache;
+          }
+         #endif
           var old_new_pointer_t* cache_ptr = &cache_buffer[0];
           #ifdef TYPECODES
             #define cache_at(obj)                                     \
@@ -995,7 +1040,6 @@ local void prepare_old_generation (void)
             xfree(physpage->cache); physpage->cache = NULL;
             physpage++;
           });
-          /* xfree(heap->physpages); heap->physpages = NULL; */
         }
         /* then, fill the gap between the old and the new generation,
          in order to have the compaction-algorithms functional: */

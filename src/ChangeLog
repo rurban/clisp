@@ -1,5 +1,28 @@
 2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	threads and GENERATIONAL_GC
+	* lispbibl.d: remove the warning about threads and GENERATIONAL_GC
+	problems
+	* spvw_heap.d (physpage_pin_marked, physpage_pin_mark): macros for
+	checking/marking VM memory page which should preserve their protection
+	after GC. used only during GC (generation == 1)
+	(struct read_write_region): contains VM regions that have to be left
+	with PROT_READ_WRITE after GC (generation == 0). not used currently
+	* spvw_garcol.d (fill_relocation_memory_regions): mark the VM pages
+	that have to preserve their protection while traversing the pinned
+	objects in threads.
+	(fill_varobject_heap_holes): abort wrong heap hole size. dump the
+	hole for bug reporting
+	(gar_col_normal): use DYNAMIC_ARRAY() instead of alloca()
+	* spvw_genera3.d (update_old_generation): treat PROT_READ VM pages
+	with pinned objects as PROT_READ_WRITE and update objects in them
+	* spvw_genera1.d (build_old_generation_cache): use PROT_READ_WRITE
+	for the whole heap instead of PROT_READ (TBD: see the comment)
+	(rebuild_old_generation_cache): do not create/update the cache for
+	PROT_READ_WRITE pages containing pinned objects.
+
+2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_global.d (gc_suspend_all_threads): increase thread's suspend
 	count after received acknowledge. use DYNAMIC_ARRAY() instead of
 	alloca()
