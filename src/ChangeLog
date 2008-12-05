@@ -2,6 +2,7 @@
 
 	* zthread.d (MAKE-THREAD, CALL-WITH-TIMEOUT): simplify (GENSYM) funcall
 	(THREAD-KILL): use L(thread_interrupt) instead of S() in funcall
+	* spvw_circ.d (ht_add): use L(puthash) instead of S() in funcall
 
 2008-12-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
