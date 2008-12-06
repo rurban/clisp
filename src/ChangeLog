@@ -1,3 +1,8 @@
+2008-12-06  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (fill_relocation_memory_regions): fix marking of VM
+	pages from old generation
+
 2008-12-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	threads and GENERATIONAL_GC

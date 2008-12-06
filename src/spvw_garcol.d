@@ -1661,7 +1661,11 @@ local void fill_relocation_memory_regions(aint start,aint end,
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
+	mit++; (*count)++;
+      }
 #ifdef GENERATIONAL_GC
+      if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
+          (heap->physpages != NULL)) {  /* is the object on old gen? */
         if (generation == 0) { /* do we perform "full" GC? */
           /* heap->physpage array will be re-created at the end
              of GC and will not be used at all during it. So we can reuse
@@ -1673,24 +1677,18 @@ local void fill_relocation_memory_regions(aint start,aint end,
           /* TODO: currently the whole old generation will be with
              PROT_READ_WRITE after GEN0 GC. however probably this will
              change shorty. So do nothing here. */
-
-        } else {
-          /* is the object in the old generation ?*/
-          if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
-              (heap->physpages != NULL)) {  /* GC on generation 1 only */
-            /* let's mark the physical pages to preserve VM protection */
-            var aint es = vs + mit->size; /* end address */
-            for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {
-              var uintL pageno = (vs>>physpageshift) -
-                (heap->heap_gen0_start>>physpageshift);
-              var physpage_state_t* physpage = &heap->physpages[pageno];
-              physpage_pin_mark(physpage);
-            }
+        } else { /* gen 1 */
+          /* let's mark the physical pages to preserve VM protection */
+          var aint es = vs + objsize((Varobject)vs); /* end address */
+          for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {
+            var uintL pageno = (vs>>physpageshift) -
+              (heap->heap_gen0_start>>physpageshift);
+            var physpage_state_t* physpage = &heap->physpages[pageno];
+            physpage_pin_mark(physpage);
           }
         }
-#endif
-	mit++; (*count)++;
       }
+#endif
       chain = chain->_next;
     }});
 
