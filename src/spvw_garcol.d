@@ -983,6 +983,9 @@ local void gc_sweep1_instance_target (aint p2, aint p1) {
 /* defines memory region in the varobject heap page.
  used during sweep phase and holes filling. */
 typedef struct varobj_mem_region {
+#if defined(MULTITHREAD) && defined(SPVW_PURE)
+  uintL heapnr; /* heap where this is located */
+#endif
   aint start;
   aint size;
 } varobj_mem_region;
@@ -1119,11 +1122,10 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
       /* if the whole remaining area is small enough - just create new hole
 	 to be filled after sweep second phase.*/
       if (cur->size < ACCEPTABLE_VAROBJECT_HEAP_HOLE) {
-	if (cur->size) { /* is there really hole? */
-	  holes[*holes_count].start=cur->start;
-	  holes[*holes_count].size=cur->size;
-	  (*holes_count)++;
-	}
+        if (cur->size) { /* really a hole ?*/
+          holes[*holes_count] = *cur;
+          (*holes_count)++;
+        }
 	cur++;  /* advance to next free buffer */
 	goto relocate;
       }
@@ -1212,9 +1214,8 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
      if not - there are holes to be filled. */
   var varobj_mem_region *last=dest+dest_count-1;
   while (cur != last) {
-    if (cur->size) { /* is there a hole really?  */
-      holes[*holes_count].size=cur->size;
-      holes[*holes_count].start=cur->start;
+    if (cur->size) { /* real hole ? */
+      holes[*holes_count] = *cur;
       (*holes_count)++;
     }
     cur++;
@@ -1661,23 +1662,26 @@ local void fill_relocation_memory_regions(aint start,aint end,
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
+       #ifdef SPVW_PURE
+        mit->heapnr = heapnr;
+       #endif
 	mit++; (*count)++;
       }
 #ifdef GENERATIONAL_GC
-      if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
-          (heap->physpages != NULL)) {  /* is the object on old gen? */
-        if (generation == 0) { /* do we perform "full" GC? */
-          /* heap->physpage array will be re-created at the end
-             of GC and will not be used at all during it. So we can reuse
-             "badly" it a little bit :). do not want new memory
-             allocations.
-             Here we are interested only in pages with PROT_READ_WRITE
-             from the old generation and all from generation 1. */
+      if (generation == 0) { /* do we perform "full" GC? */
+        /* heap->physpage array will be re-created at the end
+           of GC and will not be used at all during it. So we can reuse
+           "badly" it a little bit :). do not want new memory
+           allocations.
+           Here we are interested only in pages with PROT_READ_WRITE
+           from the old generation and all from generation 1. */
 
-          /* TODO: currently the whole old generation will be with
-             PROT_READ_WRITE after GEN0 GC. however probably this will
-             change shorty. So do nothing here. */
-        } else { /* gen 1 */
+        /* TODO: currently the whole old generation will be with
+           PROT_READ_WRITE after GEN0 GC. however probably this will
+           change shorty. So do nothing here. */
+      } else { /* gen 1 */
+        if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
+            (heap->physpages != NULL)) {  /* is the object on old gen? */
           /* let's mark the physical pages to preserve VM protection */
           var aint es = vs + objsize((Varobject)vs); /* end address */
           for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {
@@ -1735,13 +1739,19 @@ local void fill_relocation_memory_regions(aint start,aint end,
 /* UP: fills all holes specified by holes structures.
  > holes: array of memory regions in the heap left as holes
  > holes_count: number of holes */
+#ifdef SPVW_PURE
+local inline void fill_varobject_heap_holes(uintL heapnr,
+                                            varobj_mem_region *holes,
+					    uintC holes_count)
+#else
 local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
 					    uintC holes_count)
+#endif
 {
 #if defined(MULTITHREAD) /* only in MT we may have pinned objects */
   while (holes_count--) {
     /* there is place in the hole for at least a varobject header*/
-    #ifdef SPVW_MIXED
+   #ifdef SPVW_MIXED
     /* single heap for varobjects - so just reserve simple-8bit-vectors.
        if the holes happens to be large (more than array-total-size-limit
        elements) - "allocate" few vectors. */
@@ -1757,9 +1767,9 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
      #else
       ptr->tfl = vrecord_tfl(Rectype_Sb8vector,len);
      #endif
-     /* DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));*/
-     /* it ASSERTED once but I (vtz) cannot reproduce it. That's the reason
-        I'll leave it in the release as well and will dump the hole. */
+      /* DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));*/
+      /* it ASSERTED once but I (vtz) cannot reproduce it. That's the reason
+         I'll leave it in the release as well and will dump the hole. */
       if ((len+offsetofa(sbvector_,data)) != objsize(ptr)) {
         fprintf(stderr,"*** BUGBUG: WRONG HEAP HOLE SIZE. PLEASE REPORT AS BUG. ");
         fprintf(stderr,"*** BUGBUG: HOLE: %0x, %0x. OBJ: %0x\n", holes->start,holes->size,objsize(ptr));
@@ -1768,13 +1778,14 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
       holes->start += (len+offsetofa(sbvector_,data));
       holes->size -= (len+offsetofa(sbvector_,data));
     } while (holes->size != 0);
-    #else  /* SPVW_PURE ==> TYPECODES */
-      /* depending on the heap type we have to allocate differently. since
-	 all varobjects have length/type encoded in their header - we will
-	 look at the type of the pinned object (the one after the end of
-	 the hole). We have to "allocate" the same type with length of the
-	 hole.*/
-      /*TODO: currently only simple vectors are implemented */
+   #else  /* SPVW_PURE ==> TYPECODES */
+    /* depending on the heap type we have to allocate differently. since
+       all varobjects have length/type encoded in their header - we will
+       look at the type of the pinned object (the one after the end of
+       the hole). We have to "allocate" the same type with length of the
+       hole.*/
+    /*TODO: currently only simple vectors are implemented */
+    if (heapnr == holes->heapnr) { /* fill only the current heap */
       var bool vector=true;
       var Varobject ptr=(Varobject)holes->start;
       var Varobject pinned=(Varobject)(holes->start+holes->size);
@@ -1788,12 +1799,14 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes,
       case_sb16vector: ((Sbvector)ptr)->length = len>>=1; break;
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
-	/* TODO: HANDLE STRIGS */
+        /* TODO: HANDLE STRIGS */
 	fprintf(stderr,"unsupported type of pinned object !!!\n");
 	abort();
       }
       DEBUG_SPVW_ASSERT(holes->size == objsize(ptr));
-    #endif
+      holes->start += holes->size;
+    }
+   #endif
     holes++;
   }
 #endif
@@ -2011,7 +2024,7 @@ local void gar_col_normal (void)
 				 heap->heap_gen0_start,heap->heap_end,
 				 &heap->pages.page_gcpriv.firstmarked,
 				 regions,regions_count,
-				 holes_to_fill,&holes_count)}});
+				 holes_to_fill,&holes_count);}});
   } else
   #endif
     for_each_varobject_page(page, {
@@ -2154,11 +2167,12 @@ local void gar_col_normal (void)
  #if !defined(GENERATIONAL_GC)
   #ifdef SPVW_MIXED
   for_each_varobject_page(page, { gc_sweep2_varobject_page(page); } );
-  #else  /* SPVW_PURE */
-  for_each_varobject_page(page, { gc_sweep2_varobject_page(page,heapnr); } );
-  #endif
-  /* fill with nullobjects the holes generated by pinned objects */
   fill_varobject_heap_holes(holes_to_fill,holes_count);
+  #else  /* SPVW_PURE */
+  for_each_varobject_page(page, {
+    gc_sweep2_varobject_page(page,heapnr);
+    fill_varobject_heap_holes(heapnr, holes_to_fill,holes_count); } );
+  #endif
  #else  /* defined(GENERATIONAL_GC) */
   {
     var uintL heapnr;
@@ -2168,11 +2182,12 @@ local void gar_col_normal (void)
         if (is_varobject_heap(heapnr)) {
          #ifdef SPVW_MIXED
           gc_sweep2_varobject_page(&heap->pages);
+          /* single varobj heap */
+          fill_varobject_heap_holes(holes_to_fill,holes_count);
          #else  /* SPVW_PURE */
           gc_sweep2_varobject_page(&heap->pages,heapnr);
+          fill_varobject_heap_holes(heapnr,holes_to_fill,holes_count);
          #endif
-	  /* fill with nullobjects the holes generated by pinned objects */
-	  fill_varobject_heap_holes(holes_to_fill,holes_count);
         }
         if (generation == 0) {
           /* The remainder forms the new generation 0. */

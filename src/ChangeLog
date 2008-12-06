@@ -1,5 +1,18 @@
 2008-12-06  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	fix SPVW_PURE build
+	* spvw_garcol.d (struct varobj_mem_region): add heapnr for SPVW_PURE
+	with threads builds
+	(fill_relocation_memory_regions): initialize heapnr of regions
+	(gc_sweep1_varobject_page): fill heapnr of the holes
+	(fill_varobject_heap_holes): fill only holes in the requested heap
+	(gar_col_normal): fix missing semicolon. fill varobject heap holes
+	for each heap in SPVW_PURE
+	* spvw_memfile.d (loadmem_from_handle): initialize the physical page
+	cache locks (GENERATIONAL_GC && SPVW_PURE_BLOCKS)
+
+2008-12-06  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_garcol.d (fill_relocation_memory_regions): fix marking of VM
 	pages from old generation
 

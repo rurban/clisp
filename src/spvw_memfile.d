@@ -1347,6 +1347,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
               physpages[i].firstobject     = _physpages[i].firstobject;
               physpages[i].protection = PROT_READ;
               physpages[i].cache_size = 0; physpages[i].cache = NULL;
+             #ifdef MULTITHREAD
+              spinlock_init(&physpages[i].cache_lock);
+             #endif
             }
           }
           FREE_DYNAMIC_ARRAY(_physpages);
