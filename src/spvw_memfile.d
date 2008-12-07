@@ -1699,7 +1699,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         xmprotect_old_generation_cache(heapnr);
        #else
         if (!is_unused_heap(heapnr))
-          build_old_generation_cache(heapnr);
+          build_old_generation_cache(heapnr,NULL);
        #endif
       }
     }

@@ -75,13 +75,6 @@ typedef struct {
  #define physpage_pinned_mask  ((uintL)(bit(intLsize-1)))
  #define physpage_pin_marked(p) ((p)->cache_size & physpage_pinned_mask)
  #define physpage_pin_mark(p) p->cache_size |= physpage_pinned_mask
-/* during GC GEN0 we are going to use the memory of heap->physpages to
-   store the addresses of the pages that should be preserved as
-   PROT_READ_WRITE. */
-typedef struct read_write_region {
-  aint addr; /* VM page aligned address */
-  aint page_count; /* count of VM pages starting at the address above */
-} read_write_region;
 #endif
 
 #endif
