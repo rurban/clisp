@@ -1,3 +1,19 @@
+2008-12-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	GENERATIONAL_GC (with threads) VM page protection done right
+	* spvw_garcol.d (fill_varobject_heap_holes): remove holes_count
+	parameter. with GENERATIONAL_GC in generation 0 the holes array
+	is filled with memory regions that have to be left with
+	PROT_READ_WRITE protection
+	(gar_col_normal): initialize the end of heap holes array with
+	invalid item.
+	* spvw_genera1.d (build_old_generation_cache): add additional
+	parameter - array of VM paged aligned memory regions that have to
+	be left with PROT_READ_WRITE protection
+	* spvw_memfile.d (loadmem_from_handle): pass NULL to
+	build_old_generation_cache()
+	* spvw_heap.d (struct read_write_region): remove it
+
 2008-12-06  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix SPVW_PURE build
