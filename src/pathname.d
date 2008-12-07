@@ -7074,7 +7074,8 @@ local inline maygc void push (gcv_object_t *head, gcv_object_t *tail) {
  directory_search_1subdir(subdir,namestring);
  > STACK_0 = pathname
  > STACK_(3+1) = new-pathname-list
- > subdir: the new directory component to add to the pathname, if it exists
+ > subdirtail: the tail of the directory list, Car(subdirtail) is the new
+     directory component to add to the pathname, if it exists
  > namestring: the namestring (for the OS)
  < STACK_0: replaced
  < STACK_(3+1): augmented
@@ -7088,12 +7089,13 @@ local maygc void copy_pathname_and_add_subdir (object subdir)
 
 /* Check whether a directory exists and call copy_pathname_and_add_subdir()
    on it; if the directory does not exist or is a file, do nothing */
-local maygc void directory_search_1subdir (gcv_object_t *subdir, object namestring) {
+local maygc void directory_search_1subdir (gcv_object_t *subdirtail,
+                                           object namestring) {
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAXPATHLEN];
     if (classify_namestring(namestring_asciz,resolved,NULL,NULL)
-        == signean_minus)
-      copy_pathname_and_add_subdir(*subdir); /* namestring is a directory */
+        == signean_minus)       /* namestring is a directory */
+      copy_pathname_and_add_subdir(Car(*subdirtail));
   });
 }
 
@@ -7754,7 +7756,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
               fs.fs_namestring = string_concat(2);
              #endif
               /* get information: */
-              directory_search_1subdir(&Car(STACK_(1+4+1)),fs.fs_namestring);
+              directory_search_1subdir(&(STACK_(1+4+1)),fs.fs_namestring);
             }
             skipSTACK(1);
             goto next_pathname;

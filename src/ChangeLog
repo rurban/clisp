@@ -1,5 +1,12 @@
 2008-12-07  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (directory_search_1subdir): accept subdirtail instead
+	of subdir to fix GC-safety bug (&Car(STACK) is not gc-visible)
+	(directory_search): fix directory_search_1subdir invocation
+	Reported by Vladimir Tzankov
+
+2008-12-07  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (XCLFLAGS): remove "-x none" which is no longer necessary
 	<http://article.gmane.org/gmane.lisp.clisp.devel:19684>
 
