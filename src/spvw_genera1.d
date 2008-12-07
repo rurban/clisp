@@ -38,7 +38,7 @@ local void walk_area_ (uintL heapnr, aint physpage_start, aint physpage_end, wal
 /* Builds a cache of all pointers inside the old generation.
  This assumes that the new generation is empty, and therefore there are no
  such pointers! */
-local void build_old_generation_cache (uintL heapnr);
+local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea);
 
 /* Builds a cache of all pointers inside the old generation, pointing into the
  new generation. */
@@ -353,7 +353,7 @@ local void walk_physpage_ (uintL heapnr, const physpage_state_t* physpage,
  #undef walkstep1
 }
 
-local void build_old_generation_cache (uintL heapnr)
+local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
 {
   if (is_heap_containing_objects(heapnr)) { /* objects that contain no pointers, need no cache. */
     var Heap* heap = &mem.heaps[heapnr];
@@ -378,53 +378,80 @@ local void build_old_generation_cache (uintL heapnr)
       if (!(heap->physpages==NULL)) {
         /* When we are finished, both the cache and the memory content
          will be valid: */
-       #ifdef MULTITHREAD
-        xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ_WRITE);
-       #else
-        xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
+
+      #ifdef MULTITHREAD
+        /* cons heap - all read only.*/
+        if (!is_varobject_heap(heapnr)) goto all_ro;
+        /* no read write area - all read only */
+        if (!rwarea) goto all_ro;
+       #ifdef SPVW_PURE
+        /* no read/write regions for this heap */
+        if (rwarea->heapnr != heapnr) goto all_ro;
+       #else /* SPVW_MIXED */
+        /* no read/write regions in the only varoject heap */
+        if (rwarea->start == 0) goto all_ro;
        #endif
-        /* VTZ:
-           TBD: Currently the whole heap is set to PROT_READ_WRITE in MT
-           at the end of GEN0.
-           TODO: Alternatively - in MT we can set to PROT_READ_WRITE only
-           the pages that contain pinned objects (actually that's what I
-           started to do but ended with this).
-
-           Drawback of using PROT_READ_WRITE for all pages is
-           that the next GC will be slower. The whole heap will be scanned
-           again in order to build cache for all pages (and set their
-           protection to PROT_READ) regardless whether they were accesses
-           for writing (also these caches consume more memory).
-           Some of the pages may never be accessed for writting - so this is
-           useless work.
-
-           PROT_READ_WRITE is fine in single thread - but since PROT_READ
-           was used - I assume it gives better performance.
-           How much slower is overall performance (it is a use-case - but
-           for the most common use)? for exmaple I see make check-tests times
-           a little bit lower with PROT_READ_WRITE - but this is not good
-           indication.
-
-           we may let the user choose this.
-        */
-
+        /* if we reach here - we have at least one read-write region
+           which VM protection should be preserved*/
+        var aint start = gen0_start_pa;
+        var aint end = rwarea->start;
+        var int protection = PROT_READ;
+        do {
+          if (start!=end) {
+            xmprotect(start, end - start, protection);
+            /* init pages as well */
+            {
+              var physpage_state_t* physpage =
+                &heap->physpages[(start>>physpageshift)-(gen0_start_pa>>physpageshift)];
+              var uintL pg_area_count = (end - start) >> physpageshift;
+              var uintL count;
+              dotimespL(count,pg_area_count, {
+                physpage->protection = protection;
+                physpage->cache_size = 0; physpage->cache = NULL;
+                spinlock_init(&physpage->cache_lock);
+                physpage++;
+              });
+            }
+          }
+          if (end == gen0_end_pa) break;
+          /* toggle protection */
+          protection = (protection == PROT_READ ? PROT_READ_WRITE : PROT_READ);
+          /* advance */
+          start = end;
+         #ifdef SPVW_PURE
+          if  (rwarea->heapnr != heapnr)
+         #else /* SPVW_MIXED */
+          if (rwarea->start == 0)
+         #endif
+          {
+            DEBUG_SPVW_ASSERT(protection == PROT_READ);
+            end = gen0_end_pa;
+          } else {
+            DEBUG_SPVW_ASSERT((protection == PROT_READ_WRITE) &&
+                              (start == rwarea->start));
+            end = rwarea->start + rwarea->size;
+          }
+          rwarea++;
+        } while (1);
+        goto prot_finished;
+      #endif
+      all_ro:
+        xmprotect(gen0_start_pa, gen0_end_pa-gen0_start_pa, PROT_READ);
         /* fill heap->physpages[0..physpage_count-1] : */
         {
           var physpage_state_t* physpage = heap->physpages;
           var uintL count;
           dotimespL(count,physpage_count, {
-            #ifdef MULTITHREAD
-            physpage->protection = PROT_READ_WRITE;
-            #else
             physpage->protection = PROT_READ;
-            #endif
             physpage->cache_size = 0; physpage->cache = NULL;
-           #if defined(MULTITHREAD)
+           #ifdef MULTITHREAD
             spinlock_init(&physpage->cache_lock);
            #endif
             physpage++;
           });
         }
+      prot_finished:
+
         if (is_cons_heap(heapnr)) {
           /* conses and similar
            from gen0_start to gen0_end everything is a pointer. */
