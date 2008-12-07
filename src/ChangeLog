@@ -1,3 +1,8 @@
+2008-12-07  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCLFLAGS): remove "-x none" which is no longer necessary
+	<http://article.gmane.org/gmane.lisp.clisp.devel:19684>
+
 2008-12-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	GENERATIONAL_GC (with threads) VM page protection done right
