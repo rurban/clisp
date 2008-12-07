@@ -1199,7 +1199,7 @@ if [ $XCC_GCC = true ] ; then
     XCLFLAGS=''
   fi
   # Override any "-x c++" options which may be present in $XCC or $XCFLAGS.
-  XCLFLAGS="$XLDFLAGS $XCLFLAGS -x none"
+  XCLFLAGS="$XLDFLAGS $XCLFLAGS"
   XCC_NOOPTFLAGS=' -O0'
 
   if [ "${with_threads}" = "POSIX_THREADS" ]; then
