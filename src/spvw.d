@@ -4488,8 +4488,8 @@ local void *signal_handler_thread(void *arg)
            single thread from signal handler without interfering with
            other threads allocacounts */
 #ifdef DEBUG_GCSAFETY
-        use_dummy_alloccount=true;
         WITH_STOPPED_WORLD(false,{
+        use_dummy_alloccount=true;
 #endif
           for(;chain && timeval_less(chain->expire,&now); chain=chain->next) {
 #ifndef DEBUG_GCSAFETY
@@ -4515,10 +4515,10 @@ local void *signal_handler_thread(void *arg)
 #ifndef DEBUG_GCSAFETY
           });
 #endif
-        }
+          }
 #ifdef DEBUG_GCSAFETY
+          use_dummy_alloccount=false;
         });
-        use_dummy_alloccount=false;
 #endif
         /* should we set new alarm ? */
         if (chain) {
