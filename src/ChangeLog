@@ -1,3 +1,8 @@
+2008-12-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.lisp (closed-display)
+	(connection-failure, device-busy): remove redefinitions
+
 2008-12-07  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (directory_search_1subdir): accept subdirtail instead
