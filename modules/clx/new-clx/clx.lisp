@@ -1612,13 +1612,6 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 	      (or (x-type-error-type-string condition)
 		  (type-error-expected-type condition))))))
 
-(define-condition closed-display (x-error)
-  ((display :reader closed-display-display :initarg :display))
-  (:report
-    (lambda (condition stream)
-      (format stream "Attempt to use closed display ~s"
-	      (closed-display-display condition)))))
-
 (define-condition lookup-error (x-error)
   ((id :reader lookup-error-id :initarg :id)
    (display :reader lookup-error-display :initarg :display)
@@ -1753,10 +1746,6 @@ default display as given by GET-DEFAULT-DISPLAY otherwise."
 (define-condition window-error (resource-error)())
 
 (define-condition implementation-error (request-error) ())
-
-(define-condition connection-failure (x-error) ())
-
-(define-condition device-busy (x-error) ())
 
 ;; (define-condition server-disconnect (x-error) ())
 
