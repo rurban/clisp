@@ -661,14 +661,11 @@ local void init_multithread_special_symbols()
   /* currently there is just a single thread. get it.*/
   var clisp_thread_t *thr=current_thread();
   for_all_constsyms({
-    /* some g++ version should use the commented. */
-    /* gcv_object_t p=(gcv_object_t)symbol_tab_ptr_as_object(ptr); */
-    gcv_object_t p=symbol_tab_ptr_as_object(ptr);
-    if (special_var_p(TheSymbol(p))) {
+    if (special_var_p(ptr)) {
       /* Also we do not care about possibility to exceed the already allocated
          space for _symvalues - we have enough space for standard symbols.*/
       thr->_ptr_symvalues[num_symvalues]=SYMVALUE_EMPTY;
-      TheSymbol(p)->tls_index=num_symvalues++;
+      ptr->tls_index=num_symvalues++;
     }
   });
 }
