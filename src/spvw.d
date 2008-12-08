@@ -4489,7 +4489,7 @@ local void *signal_handler_thread(void *arg)
            other threads allocacounts */
 #ifdef DEBUG_GCSAFETY
         WITH_STOPPED_WORLD(false,{
-        use_dummy_alloccount=true;
+          use_dummy_alloccount=true;
 #endif
           for(;chain && timeval_less(chain->expire,&now); chain=chain->next) {
 #ifndef DEBUG_GCSAFETY
