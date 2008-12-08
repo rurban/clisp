@@ -1,5 +1,9 @@
 2008-12-08  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (init_multithread_special_symbols): fix g++ compilation
+
+2008-12-08  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.lisp (closed-display)
 	(connection-failure, device-busy): remove redefinitions
 
