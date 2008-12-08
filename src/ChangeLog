@@ -1,3 +1,8 @@
+2008-12-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (signal_handler_thread): fix SIG_TIMEOUT_CALL in g++ threads
+	builds
+
 2008-12-08  Sam Steingold  <sds@gnu.org>
 
 	* spvw.d (init_multithread_special_symbols): fix g++ compilation
