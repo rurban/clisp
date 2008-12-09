@@ -1762,9 +1762,14 @@ additionally binds &cont-r; to the content length.</para>
   &http-proxy;.</para></section>
 
 <section id="canonicalize"><title>Function &canonicalize;</title>
-<para>If you want to canonicalize a value before further processing it,
- you can pass it to &canonicalize; together with a list of canonicalizers.
-</para><para>E.g., &new-clx; uses it together with
+<para>If you want to canonicalize a &value-r; before further processing it, you
+ can pass it to &canonicalize; together with a &sequence-t; of &function-t;s:
+ <code>(&canonicalize; &value-r; <replaceable>functions</replaceable>
+  &key-amp; (test '&eql;) (max-iter 1024))</code> will call &func-r;s on
+ &value-r; until it stabilizes under <replaceable>test</replaceable>
+ (which should be a valid &hash-table-test;) and return the stabilized
+ value and the number of iterations the stabilization required.</para>
+<para>E.g., &new-clx; uses it together with
  <firstterm><varname>XLIB:*CANONICALIZE-ENCODING*</varname></firstterm>
  to fix the broken encoding names returned by the &X; (e.g., convert
  <literal>"iso8859-1"</literal> to <literal>"ISO-8859-1"</literal>)
