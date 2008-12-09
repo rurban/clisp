@@ -1,3 +1,9 @@
+2008-12-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (gc_sweep1_varobject_page): allow zero sized holes in the
+	heap holes array. fixes corner case in gen0 GC
+	(fill_varobject_heap_holes): handle zero sized holes
+
 2008-12-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (signal_handler_thread): fix SIG_TIMEOUT_CALL in g++ threads
