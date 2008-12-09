@@ -274,6 +274,8 @@ Additional Information for Maintainers of Binary Packages:
    regardless of platform or distribution.
    We recommend keeping the base linking set (i18n, regexp, syscalls, readline)
    intact and adding at least rawsock and libsvm to the full linking set.
+   A good option is offering the base linking set with the aforementioned 4
+   modules plus dynamic modules a la carte (configure --with-dynamic-modules).
    See <http://clisp.cons.org/impnotes/modules.html#base-modules>
    and "./configure --help-modules".
 
