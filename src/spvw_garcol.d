@@ -1122,10 +1122,9 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
       /* if the whole remaining area is small enough - just create new hole
 	 to be filled after sweep second phase.*/
       if (cur->size < ACCEPTABLE_VAROBJECT_HEAP_HOLE) {
-        if (cur->size) { /* really a hole ?*/
-          holes[*holes_count] = *cur;
-          (*holes_count)++;
-        }
+        /* allow zero size holes - important for gen0 GC*/
+        holes[*holes_count] = *cur;
+        (*holes_count)++;
 	cur++;  /* advance to next free buffer */
 	goto relocate;
       }
@@ -1214,10 +1213,8 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
      if not - there are holes to be filled. */
   var varobj_mem_region *last=dest+dest_count-1;
   while (cur != last) {
-    if (cur->size) { /* real hole ? */
-      holes[*holes_count] = *cur;
-      (*holes_count)++;
-    }
+    holes[*holes_count] = *cur;
+    (*holes_count)++;
     cur++;
   }
   return cur->start; /* used only if GENERATIONAL_GC || SPVW_PURE */
@@ -1751,7 +1748,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
     /* single heap for varobjects - so just reserve simple-8bit-vectors.
        if the holes happens to be large (more than array-total-size-limit
        elements) - "allocate" few vectors. */
-    do {
+    while (holes->size != 0) {
       var Sbvector ptr=(Sbvector)holes->start;
       /* be sure to leave a place for at least the header of next
          vector in case of too big hole. */
@@ -1773,7 +1770,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       }
       holes->start += (len+offsetofa(sbvector_,data));
       holes->size -= (len+offsetofa(sbvector_,data));
-    } while (holes->size != 0);
+    }
    #else  /* SPVW_PURE ==> TYPECODES */
     /* depending on the heap type we have to allocate differently. since
        all varobjects have length/type encoded in their header - we will
@@ -1781,26 +1778,26 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
        the hole). We have to "allocate" the same type with length of the
        hole.*/
     /*TODO: currently only simple vectors are implemented */
-
-    var bool vector=true;
-    var Varobject ptr=(Varobject)holes->start;
-    var Varobject pinned=(Varobject)(holes->start+holes->size);
-    uintL len = holes->size - sizeof(vrecord_);
-    set_GCself(holes->start,mtypecode(pinned->GCself),holes->start);
-    switch (typecode_at(holes->start)) {
-    case_sbvector: ((Sbvector)ptr)->length = len<<=3; break;
-    case_sb2vector: ((Sbvector)ptr)->length = len<<=2; break;
-    case_sb4vector: ((Sbvector)ptr)->length = len<<=1; break;
-    case_sb8vector:  ((Sbvector)ptr)->length = len; break;
-    case_sb16vector: ((Sbvector)ptr)->length = len>>=1; break;
-    case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
-    default:
-      /* TODO: HANDLE STRIGS */
-      fprintf(stderr,"unsupported type of pinned object !!!\n");
-      abort();
+    while (holes->size != 0) {
+      var bool vector=true;
+      var Varobject ptr=(Varobject)holes->start;
+      var Varobject pinned=(Varobject)(holes->start+holes->size);
+      uintL len = holes->size - sizeof(vrecord_);
+      set_GCself(holes->start,mtypecode(pinned->GCself),holes->start);
+      switch (typecode_at(holes->start)) {
+      case_sbvector: ((Sbvector)ptr)->length = len<<=3; break;
+      case_sb2vector: ((Sbvector)ptr)->length = len<<=2; break;
+      case_sb4vector: ((Sbvector)ptr)->length = len<<=1; break;
+      case_sb8vector:  ((Sbvector)ptr)->length = len; break;
+      case_sb16vector: ((Sbvector)ptr)->length = len>>=1; break;
+      case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
+      default:
+        /* TODO: HANDLE STRIGS */
+        fprintf(stderr,"unsupported type of pinned object !!!\n");
+        abort();
+      }
+      holes->start += holes->size; /* points to the pinned object */
     }
-
-    holes->start += holes->size; /* points to the pinned object */
    #endif
 
    #ifdef GENERATIONAL_GC
