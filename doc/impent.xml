@@ -1015,6 +1015,7 @@
 <!ENTITY charset-ascii '<link linkend="charset-ASCII">ASCII character set</link>'>
 <!ENTITY ascii-pl-ext 'a platform specific extension of the &charset-ascii;'>
 <!ENTITY ascii-iso-ext 'an extension of the &charset-ascii;, suitable for the'>
+<!ENTITY good-for 'meant to be suitable for'>
 <!ENTITY err-sig '&error-t; is &signal;ed'>
 <!ENTITY sig-err '&signal;s an &error-t;'>
 

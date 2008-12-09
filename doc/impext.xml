@@ -420,8 +420,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-ISO-8859-7"><simpara><constant>ISO-8859-7</constant>,
    &ascii-iso-ext; Greek language.</simpara></listitem>
  <listitem id="charset-ISO-8859-8"><simpara><constant>ISO-8859-8</constant>,
-      &ascii-iso-ext; Hebrew language (without punctuation).
- </simpara></listitem>
+   &ascii-iso-ext; Hebrew language (without punctuation).</simpara></listitem>
  <listitem id="charset-ISO-8859-9"><simpara><constant>ISO-8859-9</constant>,
    &ascii-iso-ext; Turkish language.</simpara></listitem>
  <listitem id="charset-ISO-8859-10"><simpara><constant>ISO-8859-10</constant>,
@@ -459,8 +458,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-MAC-CYRILLIC"><simpara><constant>MAC-CYRILLIC</constant>,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-MAC-DINGBAT"><simpara><constant>MAC-DINGBAT</constant>,
-   a platform specific character set.
- </simpara></listitem>
+   a platform specific character set.</simpara></listitem>
  <listitem id="charset-MAC-GREEK"><simpara><constant>MAC-GREEK</constant>,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-MAC-HEBREW"><simpara><constant>MAC-HEBREW</constant>,
@@ -483,14 +481,11 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-CP437"><simpara><constant>CP437</constant>, a DOS oldie,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-CP437-IBM"><simpara><constant>CP437-IBM</constant>,
-   an IBM variant of <constant>CP437</constant>.
- </simpara></listitem>
+   an IBM variant of <constant>CP437</constant>.</simpara></listitem>
  <listitem id="charset-CP737"><simpara><constant>CP737</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Greek language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Greek language.</simpara></listitem>
  <listitem id="charset-CP775"><simpara><constant>CP775</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for some Baltic languages.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; some Baltic languages.</simpara></listitem>
  <listitem id="charset-CP850"><simpara><constant>CP850</constant>, a DOS oldie,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-CP852"><simpara><constant>CP852</constant>, a DOS oldie,
@@ -498,58 +493,44 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-CP852-IBM"><simpara><constant>CP852-IBM</constant>,
    an IBM variant of <constant>CP852</constant>.</simpara></listitem>
  <listitem id="charset-CP855"><simpara><constant>CP855</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Russian language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Russian language.</simpara></listitem>
  <listitem id="charset-CP857"><simpara><constant>CP857</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Turkish language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Turkish language.</simpara></listitem>
  <listitem id="charset-CP860"><simpara><constant>CP860</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Portuguese language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Portuguese language.</simpara></listitem>
  <listitem id="charset-CP860-IBM"><simpara><constant>CP860-IBM</constant>,
-   an IBM variant of <constant>CP860</constant>.
- </simpara></listitem>
+   an IBM variant of <constant>CP860</constant>.</simpara></listitem>
  <listitem id="charset-CP861"><simpara><constant>CP861</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Icelandic language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Icelandic language.</simpara></listitem>
  <listitem id="charset-CP861-IBM"><simpara><constant>CP861-IBM</constant>,
-   an IBM variant of <constant>CP861</constant>.
- </simpara></listitem>
+   an IBM variant of <constant>CP861</constant>.</simpara></listitem>
  <listitem id="charset-CP862"><simpara><constant>CP862</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Hebrew language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Hebrew language.</simpara></listitem>
  <listitem id="charset-CP862-IBM"><simpara><constant>CP862-IBM</constant>,
-   an IBM variant of <constant>CP862</constant>.
- </simpara></listitem>
+   an IBM variant of <constant>CP862</constant>.</simpara></listitem>
  <listitem id="charset-CP863"><simpara><constant>CP863</constant>, a DOS oldie,
    &ascii-pl-ext;.</simpara></listitem>
  <listitem id="charset-CP863-IBM"><simpara><constant>CP863-IBM</constant>,
-   an IBM variant of <constant>CP863</constant>.
- </simpara></listitem>
+   an IBM variant of <constant>CP863</constant>.</simpara></listitem>
  <listitem id="charset-CP864"><simpara><constant>CP864</constant>, a DOS oldie,
-   meant to be suitable for the Arabic language.
- </simpara></listitem>
+   &good-for; the Arabic language.</simpara></listitem>
  <listitem id="charset-CP864-IBM"><simpara><constant>CP864-IBM</constant>,
    an IBM variant of <constant>CP864</constant>.
  </simpara></listitem>
  <listitem id="charset-CP865"><simpara><constant>CP865</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for some Nordic languages.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; some Nordic languages.</simpara></listitem>
  <listitem id="charset-CP865-IBM"><simpara><constant>CP865-IBM</constant>,
    an IBM variant of <constant>CP865</constant>.
  </simpara></listitem>
  <listitem id="charset-CP866"><simpara><constant>CP866</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Russian language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Russian language.</simpara></listitem>
  <listitem id="charset-CP869"><simpara><constant>CP869</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Greek language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Greek language.</simpara></listitem>
  <listitem id="charset-CP869-IBM"><simpara><constant>CP869-IBM</constant>,
    an IBM variant of <constant>CP869</constant>.
  </simpara></listitem>
  <listitem id="charset-CP874"><simpara><constant>CP874</constant>, a DOS oldie,
-   &ascii-pl-ext;, meant to be suitable for the Thai language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Thai language.</simpara></listitem>
  <listitem id="charset-CP874-IBM"><simpara><constant>CP874-IBM</constant>,
    an IBM variant of <constant>CP874</constant>.
  </simpara></listitem>
@@ -560,8 +541,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-WINDOWS-1251"><simpara><constant>WINDOWS-1251</constant>
    &equiv; <constant>CP1251</constant>,
    &ascii-pl-ext;, heavily incompatible with ISO-8859-5,
-   meant to be suitable for the Russian language.
- </simpara></listitem>
+   &good-for; the Russian language.</simpara></listitem>
  <listitem id="charset-WINDOWS-1252"><simpara><constant>WINDOWS-1252</constant>
    &equiv; <constant>CP1252</constant>,
    a platform specific extension of the ISO-8859-1 character set.
@@ -569,8 +549,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  <listitem id="charset-WINDOWS-1253"><simpara><constant>WINDOWS-1253</constant>
    &equiv; <constant>CP1253</constant>,
    &ascii-pl-ext;, gratuitously incompatible with ISO-8859-7,
-   meant to be suitable for the Greek language.
- </simpara></listitem>
+   &good-for; the Greek language.</simpara></listitem>
  <listitem id="charset-WINDOWS-1254"><simpara><constant>WINDOWS-1254</constant>
    &equiv; <constant>CP1254</constant>,
    a platform specific extension of the ISO-8859-9 character set.
@@ -584,16 +563,14 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <!-- #endif /* GNU_LIBICONV */ -->
  <listitem id="charset-WINDOWS-1256"><simpara><constant>WINDOWS-1256</constant>
    &equiv; <constant>CP1256</constant>,
-   &ascii-pl-ext;, meant to be suitable for the Arabic language.
- </simpara></listitem>
+   &ascii-pl-ext;, &good-for; the Arabic language.</simpara></listitem>
  <listitem id="charset-WINDOWS-1257"><simpara><constant>WINDOWS-1257</constant>
    &equiv; <constant>CP1257</constant>,
    &ascii-pl-ext;.</simpara></listitem>
 <!-- #ifdef GNU_LIBICONV -->
  <listitem id="charset-WINDOWS-1258"><simpara><constant>WINDOWS-1258</constant>
-   &equiv; <constant>CP1258</constant>,
-   &ascii-pl-ext;, meant to be suitable for the Vietnamese language.
-   &charset-glibc-libiconv;</simpara></listitem>
+   &equiv; <constant>CP1258</constant>, &ascii-pl-ext;, &good-for; the
+   Vietnamese language. &charset-glibc-libiconv;</simpara></listitem>
 <!-- #endif /* GNU_LIBICONV */ -->
  <listitem id="charset-HP-ROMAN8"><simpara><constant>HP-ROMAN8</constant>,
    &ascii-pl-ext;.</simpara></listitem>
