@@ -2805,23 +2805,23 @@ DEFUN(XLIB:QUERY-TREE, window &key RESULT-TYPE)
   gcv_object_t *dpy_objf, *res_type = &STACK_0;
   Window root;
   Window parent;
-  Window *childs;
-  unsigned int nchilds, i;
+  Window *children;
+  unsigned int nchildren, i;
   int status;
 
   pushSTACK(get_display_obj (STACK_1));
   dpy_objf = &(STACK_0);
 
-  X_CALL(status = XQueryTree(dpy,win,&root,&parent,&childs,&nchilds));
+  X_CALL(status = XQueryTree(dpy,win,&root,&parent,&children,&nchildren));
   if (status) {
     /* Now push all childrens */
-    for (i = 0; i < nchilds; i++)
-      pushSTACK(make_window (*dpy_objf, childs[i]));
+    for (i = 0; i < nchildren; i++)
+      pushSTACK(make_window (*dpy_objf, children[i]));
 
-    if (childs) X_CALL(XFree(childs));
+    if (children) X_CALL(XFree(children));
 
     /* Now cons 'em together */
-    value1 = coerce_result_type(nchilds,res_type);
+    value1 = coerce_result_type(nchildren,res_type);
 
     pushSTACK(value1);
     pushSTACK(make_window (*dpy_objf, parent));
