@@ -301,8 +301,8 @@ program-error
 program-error
 
 ;; redefinition
-(defun ext:! (a b c) (+ a b c))
-PACKAGE-ERROR
+#+CLISP (defun ext:! (a b c) (+ a b c))
+#+CLISP PACKAGE-ERROR
 
 (defun foo11 ((x y 1) z) (list x y z))
 program-error
