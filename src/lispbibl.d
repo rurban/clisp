@@ -6384,7 +6384,7 @@ typedef struct {
    - the name-table in CONSTOBJ.D and
    - the jumptable for PR_STREAM in IO.D and
    - the pseudo-function-table in PSEUDOFUN.D */
-  #
+
 /* more type-specific components: */
   #define strm_eltype          strm_other[0] /* CHARACTER or ([UN]SIGNED-BYTE n) */
   #define strm_encoding        strm_other[1] /* an encoding */
@@ -9289,9 +9289,9 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
    end_call();
  Purpose: The stack, if it resides in a register,
  should be brought to a halfway recent value
- in case of an interrupt during the corresponding timespan. */
-#
-/* If you want to access the STACK while an external function run,
+ in case of an interrupt during the corresponding timespan.
+
+ If you want to access the STACK while an external function run,
  you have to frame the corresponding code with
    begin_callback();
  and
@@ -9357,9 +9357,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
    end_system_call();
  Purpose: The STACK - if it resides in a register -
  should be brought to a halfway recent value,
- if an interrupt happens during the corresponding timespan. */
-#
-/* While a break-semaphore has been set, you don't have to use the macros
+ if an interrupt happens during the corresponding timespan.
+ While a break-semaphore has been set, you don't have to use the macros
  because of that. */
 #ifdef NO_ASYNC_INTERRUPTS
   /* NO_ASYNC_INTERRUPTS: if we don't react to asynchronous Interrupts,
@@ -9367,8 +9366,8 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define begin_system_call()
   #define end_system_call()
 #else
-#define begin_system_call()  begin_call()
-#define end_system_call()  end_call()
+  #define begin_system_call()  begin_call()
+  #define end_system_call()  end_call()
 #endif
 /* The same holds for setjmp()/longjmp(). Here we avoid an unneeded overhead
  if at all possible.
@@ -10997,9 +10996,7 @@ extern module_t* find_module (const char *name);
  can trigger GC */
 extern maygc uintC modules_names_to_stack (void);
 
-/* ####################### EVALBIBL for EVAL.D ############################# */
-
-/*
+/* ####################### EVALBIBL for EVAL.D #############################
 
 Specifications for the Evaluator
 ################################
