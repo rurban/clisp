@@ -97,6 +97,33 @@ add-some
 #+(or cmu sbcl cormanlisp) T
 
 
+(let ((l (list 1 2 3))) (nreverse l) l)
+#+(or clisp) (3 2 1)
+#+(or sbcl cmu) (1)
+#+(or) (1 2 3) ; permitted by standard
+
+;; nreconc is required to be aligned on nreverse behaviour
+(let ((l (list 1 2 3))) (nreconc l 'a) l)
+#+(or clisp) (3 2 1 . a)
+#+(or sbcl cmu) (1 . a)
+#+(or) (1 2 3)
+
+(let ((s (make-string 2)))
+  (setf (char s 0) #\a) (setf (char s 1) #\b)
+  (nreverse s) s)
+#-(or) "ba"
+#+(or) "ab" ; permitted, but nobody seems to do that
+
+;; 14.2 whether or not pushnew actually executes the storing form for
+;; its place in the situation where the item is already a member of
+;; the list held by place.
+(let ((h (make-hash-table)))
+  (pushnew 1 (gethash 2 h '(1)))
+  (multiple-value-list (gethash 2 h)))
+#+(or clisp sbcl cmu) ((1) t) ; executed
+#+(or) (nil nil) ; not executed
+
+
 ;;;;
 ;;;; Undefined Consequences
 ;;;;
@@ -106,27 +133,50 @@ add-some
 #+(or clisp) ERROR
 #+(or sbcl cmu cormanlisp) #(nil nil nil)
 
+
 ;; 5.2
 ;; "The consequences are undefined if an attempt is made to transfer
 ;; control to an exit point whose dynamic extent has ended."
 
 ;; define-symbol-macro
 ;; "If symbol is already defined as a global variable, an error of
-;; type program-error is signaled."  See excepsit.tst foo16-2
+;; type program-error is signaled."  See excepsit.tst foo16-1
 (progn (proclaim '(special first-special-then-macro)) t)
 T
 
 (define-symbol-macro first-special-then-macro *print-case*)
-ERROR ; only excepsit can checks for PROGRAM-ERROR
+ERROR ; only excepsit can check for PROGRAM-ERROR
 
 ;; "The consequences are unspecified if a special declaration is made
-;; for symbol while in the scope of this definition" also in excepsit.tst
+;; for symbol while in the scope of this definition". See excepsit.tst foo16-2
 (define-symbol-macro first-macro-then-special *print-case*)
 first-macro-then-special
 
 (progn (proclaim '(special first-macro-then-special)) t)
 #+(or clisp) ERROR
 #+(or sbcl cmu) t
+
+;; Exit points are abandoned first
+;; "The consequences are undefined if an attempt is made to transfer
+;; control to an exit point whose dynamic extent has ended."
+;; observed 2008 by Kaz Kylheku
+(tagbody
+   (block try-return
+     (unwind-protect (go exit) (return-from try-return)))
+ exit)
+;#+ANSI-CL ERROR
+#+(or clisp allegro) nil
+#-(or clisp allegro) ERROR
+
+(block try-return
+  (tagbody
+     (block try-return
+       (unwind-protect (go exit) (return-from try-return)))
+   exit)
+  (return-from try-return t))
+;#+ANSI-CL nil
+#+(or clisp allegro) t
+#-(or clisp allegro) nil
 
 
 ;;;;
@@ -174,6 +224,7 @@ ERROR                                   ; 6.1.2.1.2 via ENDP
   (list a b c))
 (1 nil 2)
 
+
 ;; 6.1.9
 ;; "The clause repeat n is roughly equivalent to a clause such as
 ;; for downfrom (- n 1) to 0"
@@ -192,6 +243,17 @@ ERROR                                   ; how annoying
 
 (list-length '(1 2 . 3))
 ERROR                                   ; agreed
+
+
+;;;;
+;;;; Completely bogus code, disrespecting the standard
+;;;;
+
+(let ((l (list 1 2 3))) (delete 2 l) l) ; do not depend on such code!
+#-(or) (1 3)
+#+(or) (1 2 3) ; perfectly legitimate, no side-effect is guaranteed
+
+;; By contrast, NCONC's side effects are precisely defined, eg. lists152.tst
 
 
 ;; Paul Dietz' ANSI testsuite (part of gcl) checks some border cases

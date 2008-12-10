@@ -57,6 +57,23 @@ ERROR ; different number of values in if branches
 (ext:! 3/2)
 ERROR
 
+;14.2 push, pop and pushnew operate on multiple VALUES places in parallel
+(multiple-value-list
+ (let (a b)
+   (push (values 1 2) (values a b))))
+((1) (2))
+
+(let (a b)
+  (list (multiple-value-list
+         (pushnew (values 1 2) (values a b)))
+        a b))
+(((1) (2)) (1) (2))
+
+(let ((a '(1)) (b '(2 3)))
+  (list (multiple-value-list
+         (pop (values a b))) a b))
+((1 2) () (3))
+
 ;17.1 ext:doseq
 
 ;18.1.4 ext:dohash
@@ -210,6 +227,25 @@ ERROR
 
 (let ((a '())) (letf (((getf a :key :default) 1))) a)
 (:key :default)
+
+(let* ((x 9) (f (lambda () x)))
+  (letf (((values x y) (floor 7 5)))
+    (list x (funcall f))))
+(1 9) ; use LET, not SETF
+(let* ((x 9) (f (lambda () x)))
+  (letf* (((values x y) (floor 7 5)))
+    (list x (funcall f))))
+(1 9) ; use LET, not SETF
+
+(let* ((x 9) (fx (lambda () x)) (y 3) (fy (lambda () y)))
+  (ext:letf* (((values (values x) y) (floor 7 5)))
+    (list x (funcall fx) y (funcall fy))))
+(1 1 2 2) ; SETF is used, no LET -- for both variables
+
+(let* ((x (list 9)) (y 8) (fy (lambda () y)))
+  (ext:letf* (((values (car x) y) (floor 7 5)))
+    (list y (funcall fy))))
+(2 2) ; SETF is used, no LET at all
 
 ;21.3 read-char-will-hang-p etc.
 

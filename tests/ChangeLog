@@ -349,6 +349,13 @@
 	* macro8.tst ("test-crlf-print-read.lisp"): use
 	sys::set-output-stream-fasl to ensure faithful i/o
 
+2008-02-05  Jörg Höhle  <hoehle@users.sourceforge.net>
+
+	* unportable.tst, exceptsit.tst: more examples of unportable or
+	border-case ANSI-CL code.
+	* ext-clisp.tst: test VALUES places with EXT:LETF/LETF* as well as
+	PUSH, POP and PUSHNEW.
+
 2008-01-30  Sam Steingold  <sds@gnu.org>
 
 	* iofkts.tst: check that (copy-pprint-dispatch)
