@@ -487,6 +487,7 @@ extern void disable_sigpipe(void);
 #define begin_x_call() START_WRITING_TO_SUBPROCESS;begin_call()
 #define end_x_call()   end_call();STOP_WRITING_TO_SUBPROCESS
 #define X_CALL(f) do{ begin_x_call(); f; end_x_call(); }while(0)
+#define SYS_CALL(f) do{ begin_system_call(); f; end_system_call(); }while(0)
 
 /* -------------------------------------------------------------------------
  *  General purpose utilities
@@ -1492,7 +1493,7 @@ static sint32 get_angle (object ang)
 static object make_fill_bit_vector (char *data, int len)
 {
   object ret = allocate_bit_vector (Atype_Bit, len * 8);
-  X_CALL(memcpy (TheSbvector(ret)->data, data, len));
+  SYS_CALL(memcpy (TheSbvector(ret)->data, data, len));
   return ret;
 }
 
@@ -1507,7 +1508,7 @@ static object make_key_vector (char key_vector[32])
 static void get_key_vector (object obj, char key_vector [32])
 {
   check_bitvec_256(obj);
-  X_CALL(memcpy (key_vector, TheSbvector(obj)->data, 32));
+  SYS_CALL(memcpy (key_vector, TheSbvector(obj)->data, 32));
 }
 
 static object make_client_message_format (int format)
@@ -1773,7 +1774,7 @@ static Display *x_open_display (char* display_name, int display_number) {
   /* On one hand fetching the DISPLAY variable if in doubt is a nice
    feature -- on the other hand does it conform to the CLX documentation? */
   if (!display_name)
-    X_CALL(display_name = getenv ("DISPLAY"));
+    SYS_CALL(display_name = getenv ("DISPLAY"));
 
   if (!display_name) { /* Which display should we open?! */
     pushSTACK(TheSubr(subr_self)->name); /* function name */
@@ -3551,7 +3552,7 @@ DEFUN(XLIB:%RESTORE-GCONTEXT-COMPONENTS, gcontext values)
   Display *dpy;
   GC gcontext = get_gcontext_and_display (STACK_1, &dpy);
 
-  X_CALL(memcpy (&values, TheSbvector (STACK_0)->data, sizeof (values)));
+  SYS_CALL(memcpy (&values, TheSbvector (STACK_0)->data, sizeof (values)));
 
   /* do not attempt to restore invalid resource ids
    Probably we want to reinvalidate them, but that seems not to be possible. */
@@ -6079,7 +6080,7 @@ static void encode_event (uintC n, object event_key, Display *dpy, XEvent *ev)
   int ofs;
 
   pushSTACK(event_key);
-  X_CALL(memset(ev, 0, sizeof(XEvent)));
+  SYS_CALL(memset(ev, 0, sizeof(XEvent)));
 
 #define DEF_EVENT(lnam, cnam, ctype, cslot)             \
   } else if (eq (STACK_0, lnam)) {                      \
@@ -6170,7 +6171,7 @@ DEFUN(XLIB:QUEUE-EVENT, display event-key &allow-other-keys)
     for (i = n_event-1; i >= 0; i--) XPutBackEvent (dpy, &queued_events[i]);
     FREE_DYNAMIC_ARRAY(queued_events);
   } else
-    X_CALL(XPutBackEvent (dpy, &event));
+    XPutBackEvent (dpy, &event);
   end_x_call();
 
   skipSTACK(argcount+1);
@@ -6709,7 +6710,7 @@ DEFUN(XLIB:RESOURCE-DATABASE-OF-STRING, string) {
 
 DEFUN(XLIB:MAKE-RESOURCE-DATABASE,) {
   XrmDatabase rdb;
-  X_CALL(rdb=XrmGetStringDatabase(""));
+  X_CALL(rdb = XrmGetStringDatabase(""));
   VALUES1(mk_rdb_fin(rdb));
 }
 
@@ -7562,7 +7563,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
           default:
             pushSTACK(fixnum(ho->family));
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
-            X_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
+            SYS_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
             value1 = listof(2); pushSTACK(value1);
         }
       } else pushSTACK(NIL);
@@ -8166,7 +8167,7 @@ DEFUN(XLIB:SET-WM-HINTS, window hints) {
   Display *dpy;
   Window win = get_window_and_display(STACK_1,&dpy);
   XWMHints hints;
-  X_CALL(memset((void*)&hints,0,sizeof(hints)));
+  SYS_CALL(memset((void*)&hints,0,sizeof(hints)));
   CHECK_TYPE(STACK_0,`XLIB::WM-HINTS`);
 # define SLOT TheStructure(STACK_0)->recdata
   if (!nullp(SLOT[slot_WM_FLAGS]))
