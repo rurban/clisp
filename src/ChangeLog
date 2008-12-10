@@ -1,7 +1,14 @@
+2008-12-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (SYS_CALL): add
+	(make_fill_bit_vector, get_key_vector, x_open_display, encode_event)
+	(%RESTORE-GCONTEXT-COMPONENTS, QUEUE-EVENT, ACCESS-HOSTS)
+	(SET-WM-HINTS): use it instead of X_CALL for memcpy et al
+
 2008-12-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* spvw_garcol.d (gc_sweep1_varobject_page): allow zero sized holes in the
-	heap holes array. fixes corner case in gen0 GC
+	* spvw_garcol.d (gc_sweep1_varobject_page): allow zero sized holes
+	in the heap holes array. fixes corner case in gen0 GC
 	(fill_varobject_heap_holes): handle zero sized holes
 
 2008-12-08  Vladimir Tzankov  <vtzankov@gmail.com>
