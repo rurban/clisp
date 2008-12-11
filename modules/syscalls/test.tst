@@ -513,7 +513,8 @@ T
 (and (fboundp 'os:domainname) (not (stringp (show (os:domainname))))) NIL
 #+unix (and (fboundp 'os::%setdomainname)
             (zerop (os:euid))
-            (not (= (setf (os:domainname) (os:domainname)) (os:domainname))))
+            (not (string= (setf (os:domainname) (os:domainname))
+                          (os:domainname))))
 #+unix NIL
 
 (defun ipaddr-closure (address)
