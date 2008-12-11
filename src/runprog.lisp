@@ -192,13 +192,10 @@
     (if (eq input ':STREAM)
       (if (eq output ':STREAM)
         (make-pipe-io-stream command)
-        (make-pipe-output-stream command)
-      )
+        (make-pipe-output-stream command))
       (if (eq output ':STREAM)
         (make-pipe-input-stream command)
-        (shell command) ; TODO: under UNIX we could eventually add a " &"
-    ) )                 ; to run it as a background process.
-  )
+        (shell command))))
   (defun run-program (program &key (arguments '())
                                    (input ':terminal) (output ':terminal)
                                    (if-output-exists ':overwrite)
