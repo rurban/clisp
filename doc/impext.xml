@@ -2544,9 +2544,8 @@ to the 3 (or 4) &base; modules.</para>
      <email>masayuki.onjo@gmail.com</email></author>.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&berkeley-db-mod;</term>
-  <listitem><simpara><ulink role="bdb" url="index.html">Berkeley DB
-     from Sleepycat Software</ulink> interface.
- </simpara></listitem></varlistentry>
+  <listitem><simpara><ulink role="bdb" url="index.html">Berkeley DB</ulink>
+    interface.</simpara></listitem></varlistentry>
  <varlistentry><term>&dirkey-mod;</term>
   <listitem><simpara>Directory Access (LDAP, &win32; registry etc).
  </simpara></listitem></varlistentry>
@@ -2554,9 +2553,8 @@ to the 3 (or 4) &base; modules.</para>
   <listitem><simpara>Access &postgresql-link; from &clisp;.
   </simpara></listitem></varlistentry>
  <varlistentry><term>&oracle-mod;</term>
-  <listitem><simpara>Access
-    <ulink url="http://www.oracle.com/">Oracle</ulink> from &clisp;;
-    by &hin;.</simpara></listitem></varlistentry>
+  <listitem><simpara>Access &oracle-link; RDBMS from &clisp;; by &hin;.
+ </simpara></listitem></varlistentry>
 </variablelist></section>
 
 <section id="incmod-kdml"><title>Mathematics, Data Mining et al</title>
