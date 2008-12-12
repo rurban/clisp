@@ -661,15 +661,18 @@ global void resume_thread(clisp_thread_t *thr, bool unlock_heap)
 }
 
 
-/* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
- symbol: the symbol
- returns: the new index in the _symvalues thread array */
+/* UP: add per thread special symbol value - initialized to SYMVALUE_EMPTY
+ > symbol: the symbol
+ < new index in the _symvalues thread array
+ A lot of locks are used here. Basically we should use only the
+ thread locks but if we try to stop the world with threads lock held - we
+ may introduce deadlock. So use additional lock. */
 global maygc uintL add_per_thread_special_var(object symbol)
 {
   pushSTACK(symbol);
-  /* lock threads (also this disables GC) */
+  /* lock symvalues lock  */
   GC_SAFE_MUTEX_LOCK(&thread_symvalues_lock);
-  symbol=popSTACK();
+  symbol = STACK_0;
   var uintL symbol_index = TheSymbol(symbol)->tls_index;
   /* check whether till we have been waiting for the threads lock
      another thread has already done the job !!! */
@@ -678,12 +681,10 @@ global maygc uintL add_per_thread_special_var(object symbol)
   }
   if (num_symvalues == maxnum_symvalues) {
     /* we have to reallocate the _ptr_symvalues storage in all
-     threads in order to have enough space. since it is possible other
-    threads to access at the same time _ptr_symvalues (via Symbol_value)
-    it is not safe at all to reallocate it. We have two choices:
-    1. add locking to the _ptr_symvalue access (per thread).
-    2. "stop the world" during this reallocation (as in GC).
-    Since this will be relatively rear event - we prefer the second way.*/
+       threads in order to have enough space. since it is possible other
+       threads to access at the same time _ptr_symvalues (via Symbol_value)
+       it is not safe at all to reallocate it. This will not happen
+       frequently so we are going to stop all threads. */
     var uintL nsyms=num_symvalues + SYMVALUES_PER_PAGE;
     WITH_STOPPED_WORLD(true, {
       for_all_threads({
@@ -692,13 +693,19 @@ global maygc uintL add_per_thread_special_var(object symbol)
           abort();
         }
       });
+      maxnum_symvalues = nsyms;
     });
-    maxnum_symvalues = nsyms;
   }
+  /* lock the threads - we want no new threads to be created/deleted
+     while we iterate over them */
+  begin_blocking_call(); lock_threads(); end_blocking_call();
+  symbol = STACK_0;
   symbol_index=num_symvalues++;
   TheSymbol(symbol)->tls_index=symbol_index;
   for_all_threads({ thread->_ptr_symvalues[symbol_index] = SYMVALUE_EMPTY; });
+  unlock_threads();
  leave:
+  skipSTACK(1); /* saved symbol */
   GC_SAFE_MUTEX_UNLOCK(&thread_symvalues_lock);
   if (symbol_index == SYMBOL_TLS_INDEX_NONE)
     error(error_condition,GETTEXT("could not make symbol value per-thread"));
