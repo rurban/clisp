@@ -1,3 +1,7 @@
+2008-12-12  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/gettext.c (SET-LOCALE, res_to_obj): use safe_to_string
+
 2008-12-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f (SYS_CALL): add
