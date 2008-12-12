@@ -289,6 +289,10 @@ ERROR ; (")("): "Unmatched ( or \\("
 (re-test "a[-]?c" "ac") ("ac")
 (re-test "a[-]?c" "ac") ("ac")
 (re-test "a[-]?c" "ac") ("ac")
+
+;; the following 7 tests require locale=C
+(defparameter *saved-locale* (i18n:set-locale :all)) *saved-locale*
+(i18n:set-locale :all "C")      "C"
 (re-test "[ -~]*" "abc") ("abc")
 (re-test "[ -~ -~]*" "abc") ("abc")
 (re-test "[ -~ -~ -~]*" "abc") ("abc")
@@ -296,6 +300,7 @@ ERROR ; (")("): "Unmatched ( or \\("
 (re-test "[ -~ -~ -~ -~ -~]*" "abc") ("abc")
 (re-test "[ -~ -~ -~ -~ -~ -~]*" "abc") ("abc")
 (re-test "[ -~ -~ -~ -~ -~ -~ -~]*" "abc") ("abc")
+(string= *saved-locale* (i18n:set-locale :all *saved-locale*)) T
 
 ;; Tests from from the Zebu package (originally for nregex.lisp)
 (re-test "(na)x+" "naxna") ("nax" "na")
