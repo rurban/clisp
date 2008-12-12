@@ -201,7 +201,6 @@ DEFUN(I18N:SET-TEXTDOMAINDIR, domain directory)
 
 
 /* ======================== locale ======================== */
-
 DEFUN(I18N:SET-LOCALE, &optional category locale)
 { /* call setlocale(3) */
   gcv_object_t *category = &STACK_1;
@@ -215,7 +214,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
         res = setlocale(check_locale_category_map.table[pos].c_const,NULL);
         end_system_call();
         pushSTACK(*check_locale_category_map.table[pos].l_const);
-        pushSTACK(safe_to_string(res,GLO(misc_encoding)));
+        pushSTACK(safe_to_string(res));
       }
     } else {
       *locale = check_string(*locale);
@@ -225,7 +224,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
             res = setlocale(check_locale_category_map.table[pos].c_const,loc_z);
             end_system_call();
             pushSTACK(*check_locale_category_map.table[pos].l_const);
-            pushSTACK(safe_to_string(res,GLO(misc_encoding)));
+            pushSTACK(safe_to_string(res));
           }
         });
     }
@@ -244,7 +243,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
           end_system_call();
         });
     }
-    VALUES1(safe_to_string(res,GLO(misc_encoding)));
+    VALUES1(safe_to_string(res));
   }
   skipSTACK(2);
 }
@@ -475,7 +474,7 @@ DEFCHECKER(check_nl_item,CODESET                                        \
 #if defined(HAVE_NL_LANGINFO)
 # define get_lang_info(what)                                            \
   begin_system_call(); res = nl_langinfo(what); end_system_call()
-# define res_to_obj() safe_to_string(res,GLO(misc_encoding))
+# define res_to_obj() safe_to_string(res)
 # define DECLARE_RES  char* res
 # define FINISH_RES
 #elif defined(WIN32_NATIVE)
