@@ -979,7 +979,7 @@
 2008-10-23  Sam Steingold  <sds@gnu.org>
 
 	* configure.in (ALL_LINGUAS): remove obsolete variable, use ...
-	* po/LINGUAS: new file, keep the list of languags here
+	* po/LINGUAS: new file, keep the list of languages here
 	* makemake.in: use it
 
 2008-10-23  Sam Steingold  <sds@gnu.org>
