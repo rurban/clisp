@@ -215,7 +215,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
         res = setlocale(check_locale_category_map.table[pos].c_const,NULL);
         end_system_call();
         pushSTACK(*check_locale_category_map.table[pos].l_const);
-        pushSTACK(res ? asciz_to_string(res,GLO(misc_encoding)) : NIL);
+        pushSTACK(safe_to_string(res,GLO(misc_encoding)));
       }
     } else {
       *locale = check_string(*locale);
@@ -225,7 +225,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
             res = setlocale(check_locale_category_map.table[pos].c_const,loc_z);
             end_system_call();
             pushSTACK(*check_locale_category_map.table[pos].l_const);
-            pushSTACK(res ? asciz_to_string(res,GLO(misc_encoding)) : NIL);
+            pushSTACK(safe_to_string(res,GLO(misc_encoding)));
           }
         });
     }
@@ -244,7 +244,7 @@ DEFUN(I18N:SET-LOCALE, &optional category locale)
           end_system_call();
         });
     }
-    VALUES1(res ? asciz_to_string(res,GLO(misc_encoding)) : NIL);
+    VALUES1(safe_to_string(res,GLO(misc_encoding)));
   }
   skipSTACK(2);
 }
@@ -475,12 +475,12 @@ DEFCHECKER(check_nl_item,CODESET                                        \
 #if defined(HAVE_NL_LANGINFO)
 # define get_lang_info(what)                                            \
   begin_system_call(); res = nl_langinfo(what); end_system_call()
-# define res_to_obj() (res ? asciz_to_string(res,GLO(misc_encoding)) : NIL)
+# define res_to_obj() safe_to_string(res,GLO(misc_encoding))
 # define DECLARE_RES  char* res
 # define FINISH_RES
 #elif defined(WIN32_NATIVE)
 # define get_lang_info(what)  get_locale_info(what,&res,&res_size)
-# define res_to_obj() (asciz_to_string(res,GLO(misc_encoding)))
+# define res_to_obj() asciz_to_string(res,GLO(misc_encoding))
 # define DECLARE_RES  int res_size=GET_LOCALE_INFO_BUF_SIZE; char *res=(char*)clisp_malloc(res_size)
 # define FINISH_RES   begin_system_call(); free(res); end_system_call()
 #endif
