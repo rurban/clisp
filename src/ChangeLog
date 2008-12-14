@@ -1,5 +1,9 @@
 2008-12-14  Sam Steingold  <sds@gnu.org>
 
+	* spvw_debug.d (bt_out): fflush out at the end
+
+2008-12-14  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (handle_direction_compatible): extracted from ...
 	(handle_to_stream): use it
 	(make_standard_input_file_stream): if stdin_handle is not an open

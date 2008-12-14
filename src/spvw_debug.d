@@ -371,7 +371,7 @@ local void bt_out (FILE* out, const struct backtrace_t *bt, uintL bt_index) {
                              top_of_back_trace_frame(bt->bt_next)),
             (((long)((char*)(bt->bt_next) - (char*)bt) ^ SPoffset) - SPoffset)
             / sizeof(SPint));
-  fputc('\n',out);
+  fputc('\n',out); fflush(out);
 }
 
 /* print the whole backtrace stack */
