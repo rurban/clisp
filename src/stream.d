@@ -10,6 +10,12 @@
 #include "lispbibl.c"
 #include "arilev0.c"            /* for R_sign */
 
+#if 0
+  #define DEBUG_OUT(x)  do { printf x; fflush(stdout); } while(0)
+#else
+  #define DEBUG_OUT(x)
+#endif
+
 #ifdef GNU_READLINE
   #include <readline/readline.h>
   #include <readline/history.h>
@@ -2757,24 +2763,23 @@ local maygc void wr_ch_array_pphelp (const gcv_object_t* stream_,
                                      uintL start, uintL len) {
   var bool filling = !nullpSv(print_pretty_fill);
   var uintL beg = start;
-  /* if (start) sstring_printf(*chararray_,start+len,0);
-   sstring_printf(*chararray_,start+len,start); */
+  DEBUG_OUT(("s=%d l=%d",start,len));
   while (1) {
     var uintL end = beg;
     var object nl_type = NIL;
-    /* printf(" [%d/",beg); */
+    DEBUG_OUT((" [%d/",beg));
     while (end < start+len) {
       var chart ch = schar(*chararray_,end);
-      if (chareq(ch,ascii(NL))) { /*printf("%d=NL",end);*/break; }
+      if (chareq(ch,ascii(NL))) { DEBUG_OUT(("%d=NL",end)); break; }
       if (filling && (chareq(ch,ascii(' ')) || chareq(ch,ascii('\t')))) {
-        /* printf("%d=SPC",end); */
+        DEBUG_OUT(("%d=SPC",end));
         end++; /* include the space */
         nl_type = S(Kfill);
         break;
       }
       end++;
     }
-    /* printf("/%d]",end); */
+    DEBUG_OUT(("/%d]",end));
     if (beg != end) {
       var uintL count = end-beg;
       var object ssstring = Car(TheStream(*stream_)->strm_pphelp_strings); /* Semi-Simple-String */
@@ -2791,7 +2796,7 @@ local maygc void wr_ch_array_pphelp (const gcv_object_t* stream_,
     if (nullp(nl_type))
       beg++; /* skip the newline */
   }
-  /* printf("\n"); */
+  DEBUG_OUT(("\n"));
 }
 
 /* UP: Returns a Pretty-Printer-Auxiliary-Stream.
@@ -3709,6 +3714,7 @@ local inline bool pipe_handle_type_p (handle_type_t mode) {
  < result: true if it is a socket/pipe/file */
 local inline bool pipe_file_handle_p (Handle handle) {
   handle_type_t mode = handle_type(handle);
+  DEBUG_OUT(("\npipe_file_handle_p(%d): 0x%x\n",handle,mode));
   return regular_handle_type_p(mode) || pipe_handle_type_p(mode);
 }
 
@@ -3717,19 +3723,17 @@ local inline bool pipe_file_handle_p (Handle handle) {
  > handle1: Handle of the first open device
  > handle2: Handle of the second open device
  < result: true if handle1 and handle2 are exchangeable */
-#define SAME_HANDLE_P_OUT(x)  do { /*printf x; fflush(stdout);*/ } while(0)
 local bool same_handle_p (Handle handle1, Handle handle2) {
  #if defined(UNIX)
   var struct stat statbuf1;
   var struct stat statbuf2;
   begin_system_call();
-  SAME_HANDLE_P_OUT(("\nsame_handle_p(%d,%d)\n",handle1,handle2));
+  DEBUG_OUT(("\nsame_handle_p(%d,%d)\n",handle1,handle2));
   if (!( fstat(handle1,&statbuf1) ==0)) { OS_error(); }
   if (!( fstat(handle2,&statbuf2) ==0)) { OS_error(); }
-  SAME_HANDLE_P_OUT(("dev: 0x%lx 0x%lx  ino: 0x%lx 0x%lx  mode: 0x%x 0x%x\n",
-                     statbuf1.st_dev,statbuf2.st_dev,
-                     statbuf1.st_ino,statbuf2.st_ino,
-                     statbuf1.st_mode,statbuf2.st_mode));
+  DEBUG_OUT(("dev: 0x%lx 0x%lx  ino: 0x%lx 0x%lx  mode: 0x%x 0x%x\n",
+             statbuf1.st_dev,statbuf2.st_dev,statbuf1.st_ino,statbuf2.st_ino,
+             statbuf1.st_mode,statbuf2.st_mode));
   if (statbuf1.st_dev == statbuf2.st_dev
       && statbuf1.st_ino == statbuf2.st_ino) {
     /* handle1 and handle2 point to the same inode. */
@@ -3738,10 +3742,10 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       /* handle1 and handle2 are exchangeable only if they are positioned
          at the same file position. */
       var off_t pos1 = lseek(handle1,0,SEEK_CUR);
-      SAME_HANDLE_P_OUT(("pos1: %ld\n",pos1));
+      DEBUG_OUT(("pos1: %ld\n",pos1));
       if (pos1 >= 0) {
         var off_t pos2 = lseek(handle2,0,SEEK_CUR);
-        SAME_HANDLE_P_OUT(("pos2: %ld\n",pos2));
+        DEBUG_OUT(("pos2: %ld\n",pos2));
         if (pos2 >= 0) {
           end_system_call();
           return (pos1 == pos2);
@@ -3757,7 +3761,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
  #endif
  #if defined(WIN32_NATIVE)
   /* Same handle? */
-  SAME_HANDLE_P_OUT(("\nsame_handle_p(0x%lx,0x%lx)\n",handle1,handle2));
+  DEBUG_OUT(("\nsame_handle_p(0x%lx,0x%lx)\n",handle1,handle2));
   if (handle1 == handle2)
     return true;
   /* Same handle type? */
@@ -3766,7 +3770,7 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
   var DWORD filetype2;
   filetype1 = GetFileType(handle1);
   filetype2 = GetFileType(handle2);
-  SAME_HANDLE_P_OUT(("GetFileType: 0x%lx  0x%lx\n",filetype1,filetype2));
+  DEBUG_OUT(("GetFileType: 0x%lx  0x%lx\n",filetype1,filetype2));
   if (filetype1 == filetype2) {
     if (filetype1 == FILE_TYPE_DISK) {
       /* handle1 and handle2 are both files. */
@@ -3774,16 +3778,16 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
       var BY_HANDLE_FILE_INFORMATION fileinfo2;
       if (!GetFileInformationByHandle(handle1,&fileinfo1)) { OS_error(); }
       if (!GetFileInformationByHandle(handle2,&fileinfo2)) { OS_error(); }
-      SAME_HANDLE_P_OUT(("GetFileInformationByHandle:\n vol: 0x%lx  0x%lx\n"
-                         " index: 0x%x,0x%x  0x%x,0x%x\n attr: 0x%lx  0x%lx\n"
-                         " size: 0x%x,0x%x  0x%x,0x%x\n",
-                         fileinfo1.dwVolumeSerialNumber,
-                         fileinfo2.dwVolumeSerialNumber,
-                         fileinfo1.nFileIndexHigh,fileinfo1.nFileIndexLow,
-                         fileinfo2.nFileIndexHigh,fileinfo2.nFileIndexLow,
-                         fileinfo1.dwFileAttributes,fileinfo2.dwFileAttributes,
-                         fileinfo1.nFileSizeHigh,fileinfo1.nFileSizeLow,
-                         fileinfo2.nFileSizeHigh,fileinfo2.nFileSizeLow));
+      DEBUG_OUT(("GetFileInformationByHandle:\n vol: 0x%lx  0x%lx\n"
+                 " index: 0x%x,0x%x  0x%x,0x%x\n attr: 0x%lx  0x%lx\n"
+                 " size: 0x%x,0x%x  0x%x,0x%x\n",
+                 fileinfo1.dwVolumeSerialNumber,
+                 fileinfo2.dwVolumeSerialNumber,
+                 fileinfo1.nFileIndexHigh,fileinfo1.nFileIndexLow,
+                 fileinfo2.nFileIndexHigh,fileinfo2.nFileIndexLow,
+                 fileinfo1.dwFileAttributes,fileinfo2.dwFileAttributes,
+                 fileinfo1.nFileSizeHigh,fileinfo1.nFileSizeLow,
+                 fileinfo2.nFileSizeHigh,fileinfo2.nFileSizeLow));
       end_system_call();
       #define TIME_EQ(ft1,ft2)  \
         ((ft1).dwLowDateTime == (ft2).dwLowDateTime \
@@ -3804,24 +3808,23 @@ local bool same_handle_p (Handle handle1, Handle handle2) {
     } else if (filetype1 == FILE_TYPE_CHAR) {
       /* Same console? */
       var DWORD console_mode;
-      SAME_HANDLE_P_OUT(("FILE_TYPE_CHAR\n"));
+      DEBUG_OUT(("FILE_TYPE_CHAR\n"));
       if (GetConsoleMode(handle1,&console_mode)) {
-        SAME_HANDLE_P_OUT(("console_mode1: 0x%lx\n",console_mode));
+        DEBUG_OUT(("console_mode1: 0x%lx\n",console_mode));
         if (GetConsoleMode(handle2,&console_mode)) {
-          SAME_HANDLE_P_OUT(("console_mode2: 0x%lx\n",console_mode));
+          DEBUG_OUT(("console_mode2: 0x%lx\n",console_mode));
           end_system_call();
           return true;
         }
       }
     } else
-      SAME_HANDLE_P_OUT(("neither FILE_TYPE_CHAR nor FILE_TYPE_DISK\n"));
+      DEBUG_OUT(("neither FILE_TYPE_CHAR nor FILE_TYPE_DISK\n"));
     /* Cannot determine equality. Assume they are different. */
   }
   end_system_call();
   return false;
  #endif
 }
-#undef SAME_HANDLE_P_OUT
 
 
 /* Channel-Streams
@@ -14988,8 +14991,8 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
   var bool ret =
     !(    (READ_P(dir) && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
       || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY)));
-  /*printf("\nhandle_direction_compatible(%d,%d): 0x%x => %d\n",
-    fd,dir,fcntl_flags,ret); fflush(stdout); */
+  DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x => %d\n",
+             fd,dir,fcntl_flags,ret));
   return ret;
  #else
   return true;                  /* assume compatibility */
@@ -15158,6 +15161,7 @@ local maygc object make_terminal_io (void) {
    this reduces the runtime on Solaris from 165 sec to 47 sec. */
   var bool stdin_file = pipe_file_handle_p(stdin_handle);
   var bool stdout_file = pipe_file_handle_p(stdout_handle);
+  DEBUG_OUT(("\nmake_terminal_io: %d %d\n",stdin_file,stdout_file));
   if (stdin_file || stdout_file) {
     var object istream = stdin_file ? /* Input side */
       get_standard_input_file_stream() : make_terminal_stream();
