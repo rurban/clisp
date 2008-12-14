@@ -14972,9 +14972,31 @@ LISPFUNN(socket_stream_shutdown,2) {
 
 
 /* Streams in general
-   ==================
+   ================== */
 
- Create a stream based on a handle
+/* UP: find out whether the direction is compatible with the handle
+ > fd: file handle
+ > dir: direction
+ > true is the direction is compatible with the handle */
+local bool handle_direction_compatible (Handle fd, direction_t dir) {
+ #ifdef UNIX
+  begin_blocking_system_call();
+  var int fcntl_flags = fcntl(fd,F_GETFL,0);
+  end_blocking_system_call();
+  if (fcntl_flags < 0)
+    OS_error();
+  var bool ret =
+    !(    (READ_P(dir) && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
+      || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY)));
+  /*printf("\nhandle_direction_compatible(%d,%d): 0x%x => %d\n",
+    fd,dir,fcntl_flags,ret); fflush(stdout); */
+  return ret;
+ #else
+  return true;                  /* assume compatibility */
+ #endif
+}
+
+/* Create a stream based on a handle
  can trigger GC */
 local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
                                      object ext_fmt, object eltype) {
@@ -14995,18 +15017,10 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
     pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
     STACK_5 = value1;
   }
-  { /* check that direction is compatible with the handle */
-    begin_blocking_system_call();
-    var int fcntl_flags = fcntl(fd,F_GETFL,0);
-    end_blocking_system_call();
-    if (fcntl_flags < 0)
-      OS_error();
-    if (   (READ_P(dir)  && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
-        || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY))) {
-      pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
-      pushSTACK(STACK_0); pushSTACK(direction);
-      error(file_error,GETTEXT("Invalid direction ~S for accessing ~S"));
-    }
+  if (!handle_direction_compatible(fd,dir)) {
+    pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
+    pushSTACK(STACK_0); pushSTACK(direction);
+    error(file_error,GETTEXT("Invalid direction ~S for accessing ~S"));
   }
  #endif
   return make_file_stream(dir,false,dir == DIRECTION_IO);
@@ -15049,6 +15063,9 @@ LISPFUN(make_stream,seclass_default,1,0,norest,key,4,
 /* Allocates the equivalent of the C stream stdin.
  can trigger GC */
 local inline maygc object make_standard_input_file_stream (void) {
+  if (!handle_direction_compatible(stdin_handle,DIRECTION_INPUT))
+    /* no stdin: nohup or embedded */
+    return make_concatenated_stream(NIL); /* empty stream */
   /* This uses the external-format :default, not O(terminal_encoding),
      because this stream is used when *terminal-io* is not interactive. */
   return handle_to_stream(stdin_handle,S(Kinput),S(Kdefault),S(Kdefault),
