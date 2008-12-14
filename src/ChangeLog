@@ -1,3 +1,10 @@
+2008-12-14  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_direction_compatible): extracted from ...
+	(handle_to_stream): use it
+	(make_standard_input_file_stream): if stdin_handle is not an open
+	input handle, return an empty concatenated stream
+
 2008-12-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_global.d (add_per_thread_special_var): sync initialization of
