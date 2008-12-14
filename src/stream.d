@@ -15159,13 +15159,13 @@ local maygc object make_terminal_io (void) {
  < result: a stream that can be used for *STANDARD-INPUT*
  can trigger GC - if preallocated_default is unbound */
 local /*maygc*/ object terminal_io_input_stream (object preallocated_default) {
-  GCTRIGGER_IF(eq(preallocated_default,unbound), GCTRIGGER());
+  GCTRIGGER_IF(!boundp(preallocated_default), GCTRIGGER());
   var object terminal_io = Symbol_value(S(terminal_io));
   /* Optimization: Extract the input side if possible. */
   if (stream_twoway_p(terminal_io))
     return TheStream(terminal_io)->strm_twoway_input;
   /* General case: Use a synonym stream. */
-  return (!eq(preallocated_default,unbound) ? preallocated_default :
+  return (boundp(preallocated_default) ? preallocated_default :
           make_synonym_stream(S(terminal_io)));
 }
 
@@ -15175,13 +15175,13 @@ local /*maygc*/ object terminal_io_input_stream (object preallocated_default) {
  < result: a stream that can be used for *STANDARD-OUTPUT*
  can trigger GC - if preallocated_default is unbound */
 local /*maygc*/ object terminal_io_output_stream (object preallocated_default) {
-  GCTRIGGER_IF(eq(preallocated_default,unbound), GCTRIGGER());
+  GCTRIGGER_IF(!boundp(preallocated_default), GCTRIGGER());
   var object terminal_io = Symbol_value(S(terminal_io));
   /* Optimization: Extract the output side if possible. */
   if (stream_twoway_p(terminal_io))
     return TheStream(terminal_io)->strm_twoway_output;
   /* General case: Use a synonym stream. */
-  return (!eq(preallocated_default,unbound) ? preallocated_default :
+  return (boundp(preallocated_default) ? preallocated_default :
           make_synonym_stream(S(terminal_io)));
 }
 
@@ -17921,7 +17921,7 @@ global maygc void stream_set_fasl (object stream, bool value) {
 LISPFUN(stream_fasl_p,seclass_default,1,1,norest,nokey,0,NIL) {
   var object stream = check_stream(STACK_1);
   var object flag = STACK_0;
-  if (eq(flag,unbound)) {
+  if (!boundp(flag)) {
     value1 = (stream_get_fasl(stream) ? T : NIL);
   } else {
     if (nullp(flag)) {
