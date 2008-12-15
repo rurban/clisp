@@ -1495,8 +1495,9 @@ DEFUN(POSIX::RESOLVE-HOST-IPADDR,&optional host)
     begin_system_call();
     sethostent(1);
     for (; (he = gethostent()); count++) {
-      hostent_to_lisp(he);
-      pushSTACK(value1);
+      end_system_call();
+      hostent_to_lisp(he); pushSTACK(value1);
+      begin_system_call();
     }
     endhostent();
     end_system_call();
@@ -1749,8 +1750,11 @@ DEFUN(POSIX:USER-SHELLS,) {
   int count = 0;
   char *shell;
   begin_system_call();
-  for (;(shell = getusershell()); count++)
+  for (;(shell = getusershell()); count++) {
+    end_system_call();
     pushSTACK(asciz_to_string(shell,GLO(misc_encoding)));
+    begin_system_call();
+  }
   endusershell();
   end_system_call();
   VALUES1(listof(count));
