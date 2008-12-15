@@ -1,5 +1,9 @@
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm: upgraded to upstream 2.88
+
+2008-12-15  Sam Steingold  <sds@gnu.org>
+
 	* m4/ln.m4 (CL_PROG_HLN): use $cl_cv_prog_LN_S_works
 
 2008-12-14  Sam Steingold  <sds@gnu.org>
