@@ -1,5 +1,10 @@
 2008-12-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_global.d (gc_resume_all_threads): fix possible double warning
+	of failed CALL-WITH-TIMEOUT calls
+
+2008-12-15  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_circ.d: remove obsolete code (threads builds are not compatible
 	with GC marking circularity detection)
 
