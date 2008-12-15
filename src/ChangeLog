@@ -1,3 +1,7 @@
+2008-12-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/dirkey/dirkey.c (LDAP::DKEY-INFO): use safe_to_string
+
 2008-12-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_global.d (gc_resume_all_threads): fix possible double warning

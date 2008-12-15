@@ -913,7 +913,7 @@ DEFUN(LDAP::DKEY-INFO,key) {
                                 &max_value_length,
                                 &security_descriptor,
                                 &write_time));
-  value1 = (class_name ? asciz_to_string(class_name,GLO(misc_encoding)) : NIL);
+  value1 = safe_to_string(class_name);
   value2 = L_to_I(num_sub_keys);
   value3 = L_to_I(max_sub_key_length);
   value4 = L_to_I(max_class_length);
