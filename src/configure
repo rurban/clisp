@@ -6462,7 +6462,7 @@ if test "${cl_cv_prog_hln+set}" = set; then
 else
 
 cl_cv_prog_hln="ln"
-if test "$cl_cv_prog_LN_S" = "ln -s"; then
+if test "$cl_cv_prog_LN_S_works" = "yes"; then
 echo "blabla" > conftest.x
 ln -s conftest.x conftest.y
 mkdir conftest.d
