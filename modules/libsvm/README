@@ -62,7 +62,7 @@ value which can be any real number. For one-class SVM, it's not used
 so can be any number.  Except using precomputed kernels (explained in
 another section), <index>:<value> gives a feature (attribute) value.
 <index> is an integer starting from 1 and <value> is a real
-number. Indices must be in an ASCENDING order. Labels in the testing
+number. Indices must be in ASCENDING order. Labels in the testing
 file are only used to calculate accuracy or errors. If they are
 unknown, just fill the first column with any numbers.
 
@@ -207,8 +207,8 @@ in the loss function.
 
 > svm-train -c 10 -w1 1 -w-1 5 data_file
 
-Train a classifier with penalty 10 for class 1 and penalty 50
-for class -1.
+Train a classifier with penalty 10 = 1 * 10 for class 1 and penalty 50
+= 5 * 50 for class -1.
 
 > svm-train -s 0 -c 100 -g 0.1 -v 5 data_file
 
@@ -347,7 +347,8 @@ to classify new data.
 		double value;
 	};
 
-    index = -1 indicates the end of one vector.
+    index = -1 indicates the end of one vector. Note that indices must
+    be in ASCENDING order.
  
     struct svm_parameter describes the parameters of an SVM model:
 
@@ -389,7 +390,7 @@ to classify new data.
     PRECOMPUTED: kernel values in training_set_file
 
     cache_size is the size of the kernel cache, specified in megabytes.
-    C is the cost of constraints violation. (we usually use 1 to 1000)
+    C is the cost of constraints violation. 
     eps is the stopping criterion. (we usually use 0.00001 in nu-SVC,
     0.001 in others). nu is the parameter in nu-SVM, nu-SVR, and
     one-class-SVM. p is the epsilon in epsilon-insensitive loss function
@@ -550,7 +551,7 @@ You may need to increase maximum Java heap size.
 Library usages are similar to the C version. These functions are available:
 
 public class svm {
-	public static final int LIBSVM_VERSION=286; 
+	public static final int LIBSVM_VERSION=288; 
 	public static svm_model svm_train(svm_problem prob, svm_parameter param);
 	public static void svm_cross_validation(svm_problem prob, svm_parameter param, int nr_fold, double[] target);
 	public static int svm_get_svm_type(svm_model model);
