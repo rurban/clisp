@@ -1,5 +1,10 @@
 2008-12-14  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (BUILT-IN-STREAM-SET-ELEMENT-TYPE): support CONCATENATED
+	and BROADCAST streams, just like in SET-STREAM-EXTERNAL-FORMAT
+
+2008-12-14  Sam Steingold  <sds@gnu.org>
+
 	* stream.d: replace SAME_HANDLE_P_OUT with a general DEBUG_OUT
 
 2008-12-14  Sam Steingold  <sds@gnu.org>
