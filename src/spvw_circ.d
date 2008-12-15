@@ -32,15 +32,10 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 
 /* -------------------------- Implementation --------------------------- */
 
-/* basically in MT we would like to have reentrant ciruclar detection.
-currently two implementations are available: MLB and HASHTABLES.
-1. MLB - it mallocs (esp. on 64 bit - huge amount of memory)
-2. HASHSTABLES - it is slow.
-That's the reason by default - we will use the GCMARK in MT as well.
-Since GC mark interfere very badly with cons heap - we are stopping the
-world (all lisp threads which execute in lisp) during the operation.
-This is bad - but otherwise segfault is guaranteed.
- */
+/* In MT we should have reentrant ciruclar detection.
+   currently two implementations are available: MLB and HASHTABLES.
+  1. MLB - it mallocs (esp. on 64 bit - huge amount of memory)
+  2. HASHSTABLES - it is slow. */
 #if 1
  #ifdef MULTITHREAD
   #define CIRC_DETECTION_REENTRANT
@@ -867,13 +862,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
 {
   var get_circ_global my_global; /* counter and context (incl. STACK-value) */
                                  /* in case of an abort */
-  #ifdef MULTITHREAD
-   pushSTACK(obj);
-   gc_suspend_all_threads(true);
-   obj = popSTACK();
-  #else
-   set_break_sem_1();             /* make Break impossible */
-  #endif
+  set_break_sem_1();             /* make Break impossible */
   if (!setjmp(my_global.abort_context)) { /* save context */
     my_global.pr_array = pr_array;
     my_global.pr_closure = pr_closure;
@@ -883,11 +872,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     get_circ_mark(obj,&my_global);   /* mark object, push multiple */
              /* structures on the STACK count in my_global.counter */
     get_circ_unmark(obj,&my_global); /* delete marks again */
-    #ifdef MULTITHREAD
-     gc_resume_all_threads(true);
-    #else
-     clr_break_sem_1();          /* allow Break again */
-    #endif
+    clr_break_sem_1();          /* allow Break again */
     var uintL n = my_global.counter; /* number of objects on the STACK */
     if (n==0) {
       return NIL;            /* none there -> return NIL and finished */
@@ -905,11 +890,7 @@ global maygc object get_circularities (object obj, bool pr_array, bool pr_closur
     setSTACK(STACK = my_global.abort_STACK); /* reset STACK again */
     /* the context is now reestablished. */
     get_circ_unmark(obj,&my_global); /* delete marks again */
-    #ifdef MULTITHREAD
-     gc_resume_all_threads(true);
-    #else
-     clr_break_sem_1();               /* Break is possible again */
-    #endif
+    clr_break_sem_1();               /* Break is possible again */
     return T;                        /* T as result */
   }
 }
@@ -1827,31 +1808,17 @@ local jmp_buf subst_circ_jmpbuf;
 local object subst_circ_bad;
 global object subst_circ (gcv_object_t* ptr, object alist)
 {
-  #ifdef MULTITHREAD
-   pushSTACK(alist);
-   gc_suspend_all_threads(true);
-   alist = popSTACK();
-  #else
-   set_break_sem_1();             /* make Break impossible */
-  #endif
+  set_break_sem_1();             /* make Break impossible */
   subst_circ_alist = alist;
   if (!setjmp(subst_circ_jmpbuf)) {
     subst_circ_mark(ptr);       /* mark and substitute */
     subst_circ_unmark(ptr);     /* delete marks again */
-    #ifdef MULTITHREAD
-     gc_resume_all_threads(true);
-    #else
-     clr_break_sem_1();          /* allow Break again */
-    #endif
+    clr_break_sem_1();          /* allow Break again */
     return nullobj;
   } else {
     /* abort from within subst_circ_mark() */
     subst_circ_unmark(ptr);     /* first unmark everything */
-    #ifdef MULTITHREAD
-     gc_resume_all_threads(true);
-    #else
-     clr_break_sem_1();          /* allow Break again */
-    #endif
+    clr_break_sem_1();          /* allow Break again */
     #if !(defined(NO_SP_CHECK) || defined(NOCOST_SP_CHECK))
     if (eq(subst_circ_bad,nullobj)) {
       SP_ueber();
