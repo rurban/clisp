@@ -413,7 +413,10 @@ NIL
 
 ;; os:hostid sometimes appears to be a mangled IP address
 (and (fboundp 'os:hostid)
-     (listp (show (cons (rawsock:convert-address :inet (os:hostid))
-                        (os:hostent-addr-list
-                         (os:resolve-host-ipaddr :default))))))
+     (let ((id (os:hostid)))
+       (listp (show (cons (if (< 32 (integer-length id))
+                              (rawsock:convert-address :inet6 id)
+                              (rawsock:convert-address :inet id))
+                          (os:hostent-addr-list
+                           (os:resolve-host-ipaddr :default)))))))
 T
