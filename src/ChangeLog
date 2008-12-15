@@ -1,5 +1,12 @@
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (sysconf_arg): updated for SUS7
+	http://www.opengroup.org/onlinepubs/9699919799/functions/sysconf.html
+	(confstr_arg): ditto
+	http://www.opengroup.org/onlinepubs/9699919799/functions/confstr.html
+
+2008-12-15  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm: upgraded to upstream 2.88
 
 2008-12-15  Sam Steingold  <sds@gnu.org>
