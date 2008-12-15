@@ -593,10 +593,11 @@ global void gc_resume_all_threads(bool unlock_heap)
      WARN may/will cause allocations. */
   var timeout_call *tc=timeout_call_chain;
   while (tc && tc->failed) {
+    /* not to warn twice in case of nested GC (CLSTEXT and WARN maygc) */
+    timeout_call_chain = tc->next;
     pushSTACK(CLSTEXT("CALL-WITH-TIMEOUT has failed in thread ~S."));
     pushSTACK(tc->thread->_lthread);
-    /* not to warn twice in case of nested GC (not really likely) */
-    timeout_call_chain = tc = tc->next;
+    tc = tc->next; /* advance */
     funcall(S(warn),2);
   }
   /* get the heap lock. in case we are called from allocate_xxx
