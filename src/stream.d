@@ -15634,6 +15634,26 @@ LISPFUNN(built_in_stream_set_element_type,2) {
         funcall(O(setf_stream_element_type),2);
         return;
       }
+    case strmtype_broad:        /* Recurse. */
+      check_SP(); check_STACK();
+      pushSTACK(TheStream(stream)->strm_broad_list);
+      while (consp(STACK_0)) {
+        pushSTACK(Car(STACK_0)); pushSTACK(STACK_(1+2));
+        C_built_in_stream_set_element_type();
+        STACK_0 = Cdr(STACK_0);
+      }
+      skipSTACK(1);
+      break;
+    case strmtype_concat:       /* Recurse. */
+      check_SP(); check_STACK();
+      pushSTACK(TheStream(stream)->strm_concat_totallist);
+      while (consp(STACK_0)) {
+        pushSTACK(Car(STACK_0)); pushSTACK(STACK_(1+2));
+        C_built_in_stream_set_element_type();
+        STACK_0 = Cdr(STACK_0);
+      }
+      skipSTACK(1);
+      break;
     case strmtype_file:
    #ifdef PIPES
     case strmtype_pipe_in:
