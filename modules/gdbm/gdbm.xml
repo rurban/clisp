@@ -2,7 +2,8 @@
 
 <section id="gdbm"><title>GDBM - The GNU database manager</title>
 
-<para>This is an interface to the &gdbm;.</para>
+<para>This is an interface to the &gdbm;, which extends the standard
+ &unix; <filename role="unix">ndbm.h</filename>.</para>
 <simpara>When this module is present, &features-my; contains the
  symbol <constant>:GDBM</constant>.</simpara>
 
