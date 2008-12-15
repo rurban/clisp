@@ -35,20 +35,20 @@ inline double powi(double base, int times)
 #define TAU 1e-12
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
 #if 1
-void info(const char *fmt,...)
+static void info(const char *fmt,...)
 {
 	va_list ap;
 	va_start(ap,fmt);
 	vprintf(fmt,ap);
 	va_end(ap);
 }
-void info_flush()
+static void info_flush()
 {
 	fflush(stdout);
 }
 #else
-void info(char *fmt,...) {}
-void info_flush() {}
+static void info(char *fmt,...) {}
+static void info_flush() {}
 #endif
 
 //
@@ -67,13 +67,13 @@ public:
 	// return some position p where [p,len) need to be filled
 	// (p >= len if nothing needs to be filled)
 	int get_data(const int index, Qfloat **data, int len);
-	void swap_index(int i, int j);	// future_option
+	void swap_index(int i, int j);	
 private:
 	int l;
 	long int size;
 	struct head_t
 	{
-		head_t *prev, *next;	// a cicular list
+		head_t *prev, *next;	// a circular list
 		Qfloat *data;
 		int len;		// data[0,len) is cached in this entry
 	};
@@ -414,7 +414,7 @@ protected:
 	int *active_set;
 	double *G_bar;		// gradient, if we treat free variables as 0
 	int l;
-	bool unshrinked;	// XXX
+	bool unshrink;	// XXX
 
 	double get_C(int i)
 	{
@@ -437,7 +437,7 @@ protected:
 	virtual double calculate_rho();
 	virtual void do_shrinking();
 private:
-	bool be_shrunken(int i, double Gmax1, double Gmax2);	
+	bool be_shrunk(int i, double Gmax1, double Gmax2);	
 };
 
 void Solver::swap_index(int i, int j)
@@ -458,18 +458,40 @@ void Solver::reconstruct_gradient()
 
 	if(active_size == l) return;
 
-	int i;
-	for(i=active_size;i<l;i++)
-		G[i] = G_bar[i] + p[i];
-	
-	for(i=0;i<active_size;i++)
-		if(is_free(i))
+	int i,j;
+	int nr_free = 0;
+
+	for(j=active_size;j<l;j++)
+		G[j] = G_bar[j] + p[j];
+
+	for(j=0;j<active_size;j++)
+		if(is_free(j))
+			nr_free++;
+
+	if(2*nr_free < active_size)
+		info("\nWarning: using -h 0 may be faster\n");
+
+	if (nr_free*l > 2*active_size*(l-active_size))
+	{
+		for(i=active_size;i<l;i++)
 		{
-			const Qfloat *Q_i = Q->get_Q(i,l);
-			double alpha_i = alpha[i];
-			for(int j=active_size;j<l;j++)
-				G[j] += alpha_i * Q_i[j];
+			const Qfloat *Q_i = Q->get_Q(i,active_size);
+			for(j=0;j<active_size;j++)
+				if(is_free(j))
+					G[i] += alpha[j] * Q_i[j];
 		}
+	}
+	else
+	{
+		for(i=0;i<active_size;i++)
+			if(is_free(i))
+			{
+				const Qfloat *Q_i = Q->get_Q(i,l);
+				double alpha_i = alpha[i];
+				for(j=active_size;j<l;j++)
+					G[j] += alpha_i * Q_i[j];
+			}
+	}
 }
 
 void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
@@ -485,7 +507,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 	this->Cp = Cp;
 	this->Cn = Cn;
 	this->eps = eps;
-	unshrinked = false;
+	unshrink = false;
 
 	// initialize alpha_status
 	{
@@ -792,7 +814,7 @@ int Solver::select_working_set(int &out_i, int &out_j)
 				if (grad_diff > 0)
 				{
 					double obj_diff; 
-					double quad_coef=Q_i[i]+QD[j]-2*y[i]*Q_i[j];
+					double quad_coef=Q_i[i]+QD[j]-2.0*y[i]*Q_i[j];
 					if (quad_coef > 0)
 						obj_diff = -(grad_diff*grad_diff)/quad_coef;
 					else
@@ -816,7 +838,7 @@ int Solver::select_working_set(int &out_i, int &out_j)
 				if (grad_diff > 0)
 				{
 					double obj_diff; 
-					double quad_coef=Q_i[i]+QD[j]+2*y[i]*Q_i[j];
+					double quad_coef=Q_i[i]+QD[j]+2.0*y[i]*Q_i[j];
 					if (quad_coef > 0)
 						obj_diff = -(grad_diff*grad_diff)/quad_coef;
 					else
@@ -840,7 +862,7 @@ int Solver::select_working_set(int &out_i, int &out_j)
 	return 0;
 }
 
-bool Solver::be_shrunken(int i, double Gmax1, double Gmax2)
+bool Solver::be_shrunk(int i, double Gmax1, double Gmax2)
 {
 	if(is_upper_bound(i))
 	{
@@ -897,43 +919,27 @@ void Solver::do_shrinking()
 		}
 	}
 
-	// shrink
+	if(unshrink == false && Gmax1 + Gmax2 <= eps*10) 
+	{
+		unshrink = true;
+		reconstruct_gradient();
+		active_size = l;
+		info("*"); info_flush();
+	}
 
 	for(i=0;i<active_size;i++)
-		if (be_shrunken(i, Gmax1, Gmax2))
+		if (be_shrunk(i, Gmax1, Gmax2))
 		{
 			active_size--;
 			while (active_size > i)
 			{
-				if (!be_shrunken(active_size, Gmax1, Gmax2))
+				if (!be_shrunk(active_size, Gmax1, Gmax2))
 				{
 					swap_index(i,active_size);
 					break;
 				}
 				active_size--;
 			}
-		}
-
-	// unshrink, check all variables again before final iterations
-
-	if(unshrinked || Gmax1 + Gmax2 > eps*10) return;
-	
-	unshrinked = true;
-	reconstruct_gradient();
-
-	for(i=l-1;i>=active_size;i--)
-		if (!be_shrunken(i, Gmax1, Gmax2))
-		{
-			while (active_size < i)
-			{
-				if (be_shrunken(active_size, Gmax1, Gmax2))
-				{
-					swap_index(i,active_size);
-					break;
-				}
-				active_size++;
-			}
-			active_size++;
 		}
 }
 
@@ -995,7 +1001,7 @@ private:
 	SolutionInfo *si;
 	int select_working_set(int &i, int &j);
 	double calculate_rho();
-	bool be_shrunken(int i, double Gmax1, double Gmax2, double Gmax3, double Gmax4);
+	bool be_shrunk(int i, double Gmax1, double Gmax2, double Gmax3, double Gmax4);
 	void do_shrinking();
 };
 
@@ -1112,7 +1118,7 @@ int Solver_NU::select_working_set(int &out_i, int &out_j)
 	return 0;
 }
 
-bool Solver_NU::be_shrunken(int i, double Gmax1, double Gmax2, double Gmax3, double Gmax4)
+bool Solver_NU::be_shrunk(int i, double Gmax1, double Gmax2, double Gmax3, double Gmax4)
 {
 	if(is_upper_bound(i))
 	{
@@ -1161,43 +1167,26 @@ void Solver_NU::do_shrinking()
 		}
 	}
 
-	// shrinking
+	if(unshrink == false && max(Gmax1+Gmax2,Gmax3+Gmax4) <= eps*10) 
+	{
+		unshrink = true;
+		reconstruct_gradient();
+		active_size = l;
+	}
 
 	for(i=0;i<active_size;i++)
-		if (be_shrunken(i, Gmax1, Gmax2, Gmax3, Gmax4))
+		if (be_shrunk(i, Gmax1, Gmax2, Gmax3, Gmax4))
 		{
 			active_size--;
 			while (active_size > i)
 			{
-				if (!be_shrunken(active_size, Gmax1, Gmax2, Gmax3, Gmax4))
+				if (!be_shrunk(active_size, Gmax1, Gmax2, Gmax3, Gmax4))
 				{
 					swap_index(i,active_size);
 					break;
 				}
 				active_size--;
 			}
-		}
-
-	// unshrink, check all variables again before final iterations
-
-	if(unshrinked || max(Gmax1+Gmax2,Gmax3+Gmax4) > eps*10) return;
-	
-	unshrinked = true;
-	reconstruct_gradient();
-
-	for(i=l-1;i>=active_size;i--)
-		if (!be_shrunken(i, Gmax1, Gmax2, Gmax3, Gmax4))
-		{
-			while (active_size < i)
-			{
-				if (be_shrunken(active_size, Gmax1, Gmax2, Gmax3, Gmax4))
-				{
-					swap_index(i,active_size);
-					break;
-				}
-				active_size++;
-			}
-			active_size++;
 		}
 }
 
@@ -1270,10 +1259,10 @@ public:
 	Qfloat *get_Q(int i, int len) const
 	{
 		Qfloat *data;
-		int start;
+		int start, j;
 		if((start = cache->get_data(i,&data,len)) < len)
 		{
-			for(int j=start;j<len;j++)
+			for(j=start;j<len;j++)
 				data[j] = (Qfloat)(y[i]*y[j]*(this->*kernel_function)(i,j));
 		}
 		return data;
@@ -1319,10 +1308,10 @@ public:
 	Qfloat *get_Q(int i, int len) const
 	{
 		Qfloat *data;
-		int start;
+		int start, j;
 		if((start = cache->get_data(i,&data,len)) < len)
 		{
-			for(int j=start;j<len;j++)
+			for(j=start;j<len;j++)
 				data[j] = (Qfloat)(this->*kernel_function)(i,j);
 		}
 		return data;
@@ -1385,10 +1374,10 @@ public:
 	Qfloat *get_Q(int i, int len) const
 	{
 		Qfloat *data;
-		int real_i = index[i];
+		int j, real_i = index[i];
 		if(cache->get_data(real_i,&data,l) < l)
 		{
-			for(int j=0;j<l;j++)
+			for(j=0;j<l;j++)
 				data[j] = (Qfloat)(this->*kernel_function)(real_i,j);
 		}
 
@@ -1397,7 +1386,7 @@ public:
 		next_buffer = 1 - next_buffer;
 		schar si = sign[i];
 		for(int j=0;j<len;j++)
-			buf[j] = si * sign[j] * data[index[j]];
+			buf[j] = (Qfloat) si * (Qfloat) sign[j] * data[index[j]];
 		return buf;
 	}
 
@@ -2704,7 +2693,7 @@ int svm_save_model(const char *model_file_name, const svm_model *model)
 
 svm_model *svm_load_model(const char *model_file_name)
 {
-	FILE *fp = fopen(model_file_name,"r");
+	FILE *fp = fopen(model_file_name,"rb");
 	if(fp==NULL) return NULL;
 	
 	// read parameters
