@@ -58,7 +58,7 @@ dnl To avoid this, use the "hln" program.
 dnl cf gl_AC_FUNC_LINK_FOLLOWS_SYMLINK in gnulib/m4/link-follow.m4
 AC_CACHE_CHECK(how to make hard links to symlinks, cl_cv_prog_hln, [
 cl_cv_prog_hln="ln"
-if test "$cl_cv_prog_LN_S" = "ln -s"; then
+if test "$cl_cv_prog_LN_S_works" = "yes"; then
 echo "blabla" > conftest.x
 ln -s conftest.x conftest.y
 mkdir conftest.d
