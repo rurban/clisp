@@ -1,6 +1,8 @@
 2008-12-15  Sam Steingold  <sds@gnu.org>
 
 	* modules/dirkey/dirkey.c (LDAP::DKEY-INFO): use safe_to_string
+	* modules/syscalls/calls.c (RESOLVE-HOST-IPADDR, USER-SHELLS): add
+	missing begin_system_call/end_system_call pairs
 
 2008-12-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
