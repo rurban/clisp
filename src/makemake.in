@@ -3178,7 +3178,7 @@ if [ $CROSS = false ] ; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: clisp${TEXE} # base"
-    echotab "./clisp ${someflags} -x '(setq *impnotes-root-default* \"${MYIMPROOT}\")' -x '(sys::ensure-impnotes-map t)'"
+    echotab "IMPNOTES=\"${MYIMPROOT}\" ./clisp ${someflags} -x '(sys::ensure-impnotes-map t)'"
     echol
   fi
 
