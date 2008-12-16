@@ -1,3 +1,8 @@
+2008-12-16  Sam Steingold  <sds@gnu.org>
+
+	* streamslong.tst: test (SETF STREAM-ELEMENT-TYPE) and (SETF
+	STREAM-EXTERNAL-FORMAT) on CONCATENATED and BROADCAST streams
+
 2008-02-05  Jörg Höhle  <hoehle@users.sourceforge.net>
 
 	* unportable.tst, exceptsit.tst: more examples of unportable or
