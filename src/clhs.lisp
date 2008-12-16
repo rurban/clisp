@@ -252,27 +252,27 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   ;; return (clhs-root); otherwise set clhs-map-source to (clhs-root)
   ;; and try to get the clhs map from (clhs-root)
   ;; nil return value means no map exists
-  (defun ensure-clhs-map ()
-    "make sure that the CLHS map is present"
-    (let ((clhs-root (clhs-root)))
-      (when (and clhs-root (string/= clhs-map-source clhs-root))
-        (setq clhs-map-source clhs-root)
-        ;; there are two version of CLHS available:
-        ;; cf http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
-        ;; vs http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
-        ;; we support both.
-        ;; is you are scared of the 404 errors on the screen,
-        ;; bind or set *HTTP-LOG-STREAM*
-        (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
-                                 (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
-          (unless s
-            (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
-                  'clhs-root clhs-root '(getenv "CLHSROOT")
-                  '*clhs-root-default* '*http-proxy*)
-            (return-from ensure-clhs-map))
-          (get-clhs-map s))
-        (setq clhs-map-good t))
-      (and clhs-map-good clhs-root))))
+(defun ensure-clhs-map ()
+  "make sure that the CLHS map is present"
+  (let ((clhs-root (clhs-root)))
+    (when (and clhs-root (string/= clhs-map-source clhs-root))
+      (setq clhs-map-source clhs-root)
+      ;; there are two version of CLHS available:
+      ;; cf http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/Data/Symbol-Table.text
+      ;; vs http://www.lispworks.com/documentation/HyperSpec/Data/Map_Sym.txt
+      ;; we support both.
+      ;; is you are scared of the 404 errors on the screen,
+      ;; bind or set *HTTP-LOG-STREAM*
+      (with-open-stream (s (or (open-url (string-concat clhs-root "Data/Map_Sym.txt") :if-does-not-exist nil)
+                               (open-url (string-concat clhs-root "Data/Symbol-Table.text") :if-does-not-exist nil)))
+        (unless s
+          (warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
+                'clhs-root clhs-root '(getenv "CLHSROOT")
+                '*clhs-root-default* '*http-proxy*)
+          (return-from ensure-clhs-map))
+        (get-clhs-map s))
+      (setq clhs-map-good t))
+    (and clhs-map-good clhs-root))))
 (defun get-string-map (stream &aux (table (make-hash-table :test 'equal)))
   (format *http-log-stream* "~&;; ~S(~S)..." 'get-string-map stream)
   (force-output *http-log-stream*)
@@ -296,63 +296,63 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
   ;; otherwise set impnotes-map-source to (impnotes-root) and try to get
   ;; the impnotes map from (impnotes-root)
   ;; nil return value means no map exists
-  (defun ensure-impnotes-map (&optional check-symbol-map)
-    "make sure that the impnotes map is present"
-    (let ((impnotes-root (impnotes-root)))
-      (when (and impnotes-root (string/= impnotes-map-source impnotes-root))
-        (setq impnotes-map-source impnotes-root)
-        (case (char impnotes-root (1- (length impnotes-root)))
-          ((#\/ #+win32 #\\) ; chunked impnotes ==> get id-href
-           (setq id-href (string-concat impnotes-root "id-href.map"))
-           (with-open-stream (s (open-url id-href :if-does-not-exist nil))
-             (unless s
-               #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
-                        'impnotes-root impnotes-root '(getenv "IMPNOTES")
-                        '*impnotes-root-default* '*http-proxy*)
-               (return-from ensure-impnotes-map))
-             (let ((table (get-string-map s)))
-               (unless table   ; no table --> bail out
-                 #2# (return-from ensure-impnotes-map))
-               (setq dest (lambda (id) (gethash id table)))))))
-        (with-open-file (in (clisp-data-file "Symbol-Table.text"))
-          (format *http-log-stream* "~&;; ~S(~S)..."
-                  'ensure-impnotes-map (truename in))
-          (force-output *http-log-stream*)
-          (loop :for count :upfrom 0
-            :and symbol-printname = (read-line in nil nil)
-            :and id = (read-line in nil nil)
-            :while (and symbol-printname id) :do
-            (let ((destination (funcall dest id)))
-              (if destination
-                  (multiple-value-bind (symbol error)
-                      (ignore-errors (read-from-string symbol-printname))
-                    (if (integerp error)
-                        (setf (documentation symbol 'sys::impnotes)
-                              destination)
-                        (and check-symbol-map
-                             (not (gethash symbol-printname
-                                           #S(HASH-TABLE EQUALP
-                                              #-(or win32 cygwin) ("CUSTOM:*DEVICE-PREFIX*" . t)
-                                              #-(or win32 cygwin) ("POSIX:FILE-PROPERTIES" . t)
-                                              ("CUSTOM:*DEFAULT-TIME-ZONE*" . t)
-                                              ("CLOS:MAKE-METHOD-LAMBDA" . t)
-                                              ("SYS::DYNLOAD-MODULES" . t))))
-                             ;; *default-time-zone* sys::dynload-modules ...
-                             (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
-                                   'ensure-impnotes-map symbol-printname
-                                   id error))))
-                  (warn (TEXT "~S: invalid id ~S for symbol ~S")
-                        'ensure-impnotes-map id symbol-printname)))
-            :finally (format *http-log-stream* "~:D ID~:P~%" count)))
-        (setq impnotes-map-good t)) ; success
-      (and impnotes-map-good impnotes-root)))
-  (defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
-    (let ((doc (sys::package-documentation obj)))
-      (and (consp doc) (ensure-impnotes-map)
-           (let ((suffix (funcall dest (second doc))))
-             (if suffix (string-concat (impnotes-root) suffix)
-                 (cerror (TEXT "Ignore") (TEXT "~S(~S): ~S does not know about ~S; the Implementation Notes must be regenerated")
-                         'documentation obj id-href (second doc))))))))
+(defun ensure-impnotes-map (&optional check-symbol-map)
+  "make sure that the impnotes map is present"
+  (let ((impnotes-root (impnotes-root)))
+    (when (and impnotes-root (string/= impnotes-map-source impnotes-root))
+      (setq impnotes-map-source impnotes-root)
+      (case (char impnotes-root (1- (length impnotes-root)))
+        ((#\/ #+win32 #\\) ; chunked impnotes ==> get id-href
+         (setq id-href (string-concat impnotes-root "id-href.map"))
+         (with-open-stream (s (open-url id-href :if-does-not-exist nil))
+           (unless s
+             #2=(warn (TEXT "~S returns invalid value ~S, fix it, ~S, ~S, or ~S")
+                      'impnotes-root impnotes-root '(getenv "IMPNOTES")
+                      '*impnotes-root-default* '*http-proxy*)
+             (return-from ensure-impnotes-map))
+           (let ((table (get-string-map s)))
+             (unless table   ; no table --> bail out
+               #2# (return-from ensure-impnotes-map))
+             (setq dest (lambda (id) (gethash id table)))))))
+      (with-open-file (in (clisp-data-file "Symbol-Table.text"))
+        (format *http-log-stream* "~&;; ~S(~S)..."
+                'ensure-impnotes-map (truename in))
+        (force-output *http-log-stream*)
+        (loop :for count :upfrom 0
+          :and symbol-printname = (read-line in nil nil)
+          :and id = (read-line in nil nil)
+          :while (and symbol-printname id) :do
+          (let ((destination (funcall dest id)))
+            (if destination
+                (multiple-value-bind (symbol error)
+                    (ignore-errors (read-from-string symbol-printname))
+                  (if (integerp error)
+                    (setf (documentation symbol 'sys::impnotes)
+                          destination)
+                    (and check-symbol-map
+                         (not (gethash symbol-printname
+                                       #S(HASH-TABLE EQUALP
+                                          #-(or win32 cygwin) ("CUSTOM:*DEVICE-PREFIX*" . t)
+                                          #-(or win32 cygwin) ("POSIX:FILE-PROPERTIES" . t)
+                                          ("CUSTOM:*DEFAULT-TIME-ZONE*" . t)
+                                          ("CLOS:MAKE-METHOD-LAMBDA" . t)
+                                          ("SYS::DYNLOAD-MODULES" . t))))
+                         ;; *default-time-zone* sys::dynload-modules ...
+                         (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
+                               'ensure-impnotes-map symbol-printname
+                               id error))))
+                (warn (TEXT "~S: invalid id ~S for symbol ~S")
+                      'ensure-impnotes-map id symbol-printname)))
+          :finally (format *http-log-stream* "~:D ID~:P~%" count)))
+      (setq impnotes-map-good t)) ; success
+    (and impnotes-map-good impnotes-root)))
+(defmethod documentation ((obj package) (type (eql 'sys::impnotes)))
+  (let ((doc (sys::package-documentation obj)))
+    (and (consp doc) (ensure-impnotes-map)
+         (let ((suffix (funcall dest (second doc))))
+           (if suffix (string-concat (impnotes-root) suffix)
+               (cerror (TEXT "Ignore") (TEXT "~S(~S): ~S does not know about ~S; the Implementation Notes must be regenerated")
+                       'documentation obj id-href (second doc))))))))
 
 (defmethod documentation ((obj symbol) (type (eql 'sys::clhs)))
   (when (and (eq (symbol-package obj) #,(find-package "CL")) (ensure-clhs-map))
