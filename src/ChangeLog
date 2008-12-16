@@ -2,6 +2,8 @@
 
 	* makemake.in (check-doc): use IMPNOTES instead of
 	*impnotes-root-default* for ${MYIMPROOT}
+	* clhs.lisp (ensure-impnotes-map): avoid barfing on known "invalid
+	symbol"s
 
 2008-12-16  Sam Steingold  <sds@gnu.org>
 
