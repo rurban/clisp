@@ -42,14 +42,10 @@ static void info(const char *fmt,...)
 	va_start(ap,fmt);
 	vprintf(fmt,ap);
 	va_end(ap);
-}
-static void info_flush()
-{
 	fflush(stdout);
 }
 #else
 static void info(char *fmt,...) {}
-static void info_flush() {}
 #endif
 
 //
@@ -562,7 +558,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 		{
 			counter = min(l,1000);
 			if(shrinking) do_shrinking();
-			info("."); info_flush();
+			info(".");
 		}
 
 		int i,j;
@@ -572,7 +568,7 @@ void Solver::Solve(int l, const QMatrix& Q, const double *p_, const schar *y_,
 			reconstruct_gradient();
 			// reset active set size and check
 			active_size = l;
-			info("*"); info_flush();
+			info("*");
 			if(select_working_set(i,j)!=0)
 				break;
 			else
@@ -925,7 +921,7 @@ void Solver::do_shrinking()
 		unshrink = true;
 		reconstruct_gradient();
 		active_size = l;
-		info("*"); info_flush();
+		info("*");
 	}
 
 	for(i=0;i<active_size;i++)

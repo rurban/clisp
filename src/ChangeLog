@@ -1,5 +1,11 @@
 2008-12-16  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/svm.cpp (info): call fflush(stdout)
+	(info_flush): remove
+	patch accepted by upstream
+
+2008-12-16  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm/libsvm.lisp (*libsvm-version*): add DEF-C-VAR
 	* modules/libsvm/svm.cpp, modules/libsvm/svm.h (libsvm_version): add
 	patch accepted by upstream
