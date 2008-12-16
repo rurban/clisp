@@ -3605,9 +3605,7 @@ and possibly the calling convention.</para>
  A <firstterm>call-in function<indexterm id="dffi-ff-call-in">
    <primary>foreign function</primary><secondary>call-in</secondary>
  </indexterm></firstterm>
- (AKA <firstterm>callback
-  <indexterm id="def-call-in-callback-main" significance="preferred">
-   <primary>callback</primary></indexterm></firstterm>)
+ (AKA <firstterm>callback<indexterm id="def-call-in-callback-main" significance="preferred"><primary>callback</primary></indexterm></firstterm>)
  is a Lisp function called from the foreign language:
  control flow temporary enters Lisp.</para>
 
@@ -3616,7 +3614,7 @@ and possibly the calling convention.</para>
   <member>&def-call-out;</member><member>&foreign-function;</member>
 </simplelist></para>
 
-<simplesect id="dffi-callback-mem">
+<section id="dffi-callback-mem">
  <title>Callbacks and memory management</title>
 <para>Callbacks (&c-lang; function calling Lisp function) create
  so-called <firstterm>trampolines<indexterm id="dffi-trampoline">
@@ -3631,8 +3629,8 @@ and possibly the calling convention.</para>
  (unlike with Lisp objects).</para>
 <para>With callbacks to <emphasis>named</emphasis> functions (i.e.,
  created by a &def-call-in; form where &func-r; is a &funname;) this is
- mostly harmless, since &func-r; is unlikely to be redefined.
- With callbacks to <emphasis>anonymous</emphasis> functions (i.e.,
+ mostly harmless, since &func-r; is unlikely to be redefined.</para>
+<para>With callbacks to <emphasis>anonymous</emphasis> functions (i.e.,
  created by &foreign-function; or a &def-call-in; form where &func-r;
  argument is a &lambda-expr;), this might become an issue when they are
  produced dynamically and en masse, e.g. inside a loop, so that many
@@ -3644,7 +3642,7 @@ and possibly the calling convention.</para>
  object, and thus you cannot (trivially) free it.
  Thus you may find it easier to create the &foreign-function-t; object
  first, pass it to the &def-call-out;, and then call &foreign-free;
- manually.</para></simplesect>
+ manually.</para></section>
 
 </section>
 
