@@ -3296,8 +3296,8 @@ or just evaluates the appropriate form in the &repl;.</para>
   &clisp; will guard the &c-lang; statements in the output file with
   &cpp; conditionals to take advantage of &autoconf; feature detection.
   E.g., <programlisting language="lisp">
-(eval-when (compile) (setq *foreign-guard* t))
-(def-call-out some-function (:name "function_name") ...)
+(&eval-when; (compile) (setq *foreign-guard* t))
+(&def-call-out; some-function (:name "function_name") ...)
 </programlisting> will produce <programlisting language="C">
 # if defined(HAVE_FUNCTION_NAME)
   register_foreign_function((void*)&amp;function_name,"function_name",1024);
@@ -3541,7 +3541,7 @@ compiled by a K&amp;R &c-lang; compiler or by an &the-ansi; &c-lang; compiler,
 and possibly the calling convention.</para>
 
 <para>The default language is set using the macro
- <firstterm><function>FFI:DEFAULT-FOREIGN-LANGUAGE</function>
+ <firstterm>&default-foreign-language;
   <indexterm id="dflt-ffi-lang" significance="preferred">
    <primary><function>DEFAULT-FOREIGN-LANGUAGE</function>
  </primary></indexterm></firstterm>.
@@ -3773,7 +3773,7 @@ struct foo {
   struct foo * b[100];
 };
 </programlisting> corresponds to <programlisting language="lisp">
-(def-c-struct foo
+(&def-c-struct; foo
   (a int)
   (b (c-array (c-ptr foo) 100)))
 </programlisting></para>
@@ -3804,7 +3804,7 @@ my_struct-&gt;x++;
 my_struct-&gt;a = 5;
 my_struct = my_struct-&gt;n;
 </programlisting> corresponds to <programlisting language="lisp">
-(def-c-struct bar
+(&def-c-struct; bar
   (x short)
   (y short)
   (a char)
@@ -3812,7 +3812,7 @@ my_struct = my_struct-&gt;n;
   (z int)
   (n (c-ptr bar)))
 
-(def-c-var my_struct (:type (c-ptr bar)))
+(&def-c-var; my_struct (:type (c-ptr bar)))
 
 (setq my_struct (let ((s my_struct)) (incf (slot-value s 'x)) s)) <lineannotation>or</lineannotation>
 (incf (slot my_struct 'x))
@@ -3838,11 +3838,11 @@ extern div_t div (int numer, int denom);
 This translates to
 
 <programlisting language="lisp">
-(def-c-struct (div_t :typedef)
+(&def-c-struct; (div_t :typedef)
   (quot int)
   (rem int))
-(default-foreign-language :stdc)
-(def-call-out div (:arguments (numer int) (denom int))
+(&default-foreign-language; :stdc)
+(&def-call-out; div (:arguments (numer int) (denom int))
   (:return-type div_t))
 </programlisting>
 Sample call from within Lisp (after running &clisp-link;):
@@ -3881,15 +3881,14 @@ It is possible to call this function from Lisp using the file
 <programlisting language="lisp">
 (&defpackage; "TEST-C-CALL" (:use &cl-pac; &ffi-pac;))
 (&in-package; "TEST-C-CALL")
-(eval-when (compile) (setq &ffi-out-fun; t))
-(def-c-struct cfunr (x int) (s c-string))
-(default-foreign-language :stdc)
-(def-call-out cfun
-    (:arguments (i int)
-                (s c-string)
-                (r (c-ptr cfunr) :in :alloca)
-                (a (c-ptr (c-array int 10)) :in :alloca))
-  (:return-type (c-ptr cfunr)))
+(&eval-when; (compile) (setq &ffi-out-fun; t))
+(&def-c-struct; cfunr (x int) (s c-string))
+(&default-foreign-language; :stdc)
+(&def-call-out; cfun (:return-type (c-ptr cfunr))
+  (:arguments (i int)
+              (s c-string)
+              (r (c-ptr cfunr) :in :alloca)
+              (a (c-ptr (c-array int 10)) :in :alloca)))
 (defun call-cfun ()
   (cfun 5 "A Lisp string" (make-cfunr :x 10 :s "Another Lisp string")
         '#(0 1 2 3 4 5 6 7 8 9)))
@@ -3943,7 +3942,7 @@ instead, in conjunction with
 <programlisting language="lisp">
 (defun call-cfun ()
   (let ((data (cfun ...)))
-    (prog1 (&foreign-value; data)
+    (&unwind-protect; (&foreign-value; data)
       (&foreign-free; data :FULL nil))))
 </programlisting></para></example>
 
@@ -4014,11 +4013,11 @@ This is accompanied by <filename>sort2.lisp</filename>:
 <programlisting language="lisp">
 (&defpackage; "FFI-TEST" (:use &cl-pac; &ffi-pac;))
 (&in-package; "FFI-TEST")
-(eval-when (compile) (setq &ffi-out-fun; t))
-(def-call-in lispsort_begin (:arguments (n int))
+(&eval-when; (compile) (setq &ffi-out-fun; t))
+(&def-call-in; lispsort_begin (:arguments (n int))
   (:return-type nil)
   (:language :stdc))
-(def-c-var lispsort_function (:type c-pointer))
+(&def-c-var; lispsort_function (:type c-pointer))
 (defun lispsort_begin (n)
   (setf (cast lispsort_function
               `(c-function
@@ -4034,8 +4033,8 @@ This is accompanied by <filename>sort2.lisp</filename>:
 To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 <programlisting language="lisp">
-(eval-when (compile) (setq &ffi-out-fun; t))
-(def-call-out sort10
+(&eval-when; (compile) (setq &ffi-out-fun; t))
+(&def-call-out; sort10
   (:name "lispsort_double")
   (:language :stdc)
   (:arguments (n int)
@@ -4258,8 +4257,8 @@ double test_dll(struct bar *ptr)
  All pointers depending on this resource can be disabled at once upon
  close by sharing their &foreign-pointer; using &set-foreign-pointer;.
 <programlisting language="lisp">
-(def-c-type PGconn c-pointer)<lineannotation>opaque pointer</lineannotation>
-(def-call-out PQconnectdb (:return-type PGconn)
+(&def-c-type; PGconn c-pointer)<lineannotation>opaque pointer</lineannotation>
+(&def-call-out; PQconnectdb (:return-type PGconn)
   (:arguments (conninfo c-string)))
 (defun sql-connect (conninfo)
   (let ((conn (PQconnectdb conninfo)))
@@ -4281,7 +4280,7 @@ double test_dll(struct bar *ptr)
   is implemented in the &berkeley-db-mod; module,
   see <xref linkend="bdb-close"/>.</para></note></para></example>
 
-<example id="ex-dffi-float"><title>Float point array computations</title>
+<example id="ex-dffi-float"><title>Floating point arrays</title>
 <para>Save this code into <filename>sum.c</filename>:
 <programlisting language="C">
 double sum (int len, double *vec) {
