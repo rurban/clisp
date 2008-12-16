@@ -2,6 +2,8 @@
 ;; some tests for libsvm
 ;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "libsvm/test")'
 
+(integerp (show libsvm:*libsvm-version*)) T
+
 (defparameter f-parameter (libsvm:make-parameter))
 F-PARAMETER
 
