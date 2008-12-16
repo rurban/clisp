@@ -330,6 +330,13 @@ set *HTTP-PROXY*, and return it; otherwise just return *HTTP-PROXY*."
                         (setf (documentation symbol 'sys::impnotes)
                               destination)
                         (and check-symbol-map
+                             (not (gethash symbol-printname
+                                           #S(HASH-TABLE EQUALP
+                                              #-(or win32 cygwin) ("CUSTOM:*DEVICE-PREFIX*" . t)
+                                              #-(or win32 cygwin) ("POSIX:FILE-PROPERTIES" . t)
+                                              ("CUSTOM:*DEFAULT-TIME-ZONE*" . t)
+                                              ("CLOS:MAKE-METHOD-LAMBDA" . t)
+                                              ("SYS::DYNLOAD-MODULES" . t))))
                              ;; *default-time-zone* sys::dynload-modules ...
                              (warn (TEXT "~S: invalid symbol ~S with id ~S: ~A")
                                    'ensure-impnotes-map symbol-printname
