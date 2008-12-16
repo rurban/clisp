@@ -8,7 +8,8 @@
 (defpackage "LIBSVM"
   (:modern t) (:use "CL" "FFI")
   (:shadowing-import-from "EXPORTING"
-    #:def-c-enum #:def-c-struct #:def-call-out #:def-c-type #:defun))
+    #:def-c-enum #:def-c-struct #:def-call-out #:def-c-type #:def-c-var
+    #:defun))
 (in-package "LIBSVM")
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
@@ -19,6 +20,8 @@
 ;;;
 ;;; types and constants
 ;;;
+
+(def-c-var *libsvm-version* (:name "libsvm_version") (:type int))
 
 (def-c-type node (c-struct list (index int) (value double-float)))
 
