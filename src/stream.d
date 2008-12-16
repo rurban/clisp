@@ -15811,6 +15811,13 @@ LISPFUNNR(stream_external_format,1)
       case strmtype_terminal:
      #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
+      case strmtype_concat:
+        stream = TheStream(stream)->strm_concat_list;
+        if (consp(stream)) {
+          pushSTACK(Car(stream)); funcall(L(stream_external_format),1);
+          return;
+        }
+        VALUES1(S(Kdefault)); break;
       case strmtype_broad:
         stream = broadcast_stream_last(stream);
         if (streamp(stream)) {
