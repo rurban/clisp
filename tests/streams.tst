@@ -1096,6 +1096,9 @@ T
         (typep #\a (array-element-type (get-output-stream-string s)))))
 (NIL NIL)
 
+(stream-element-type (make-concatenated-stream)) T
+(stream-element-type (make-broadcast-stream)) T
+
 ;; [ 1412268 ] Buffer overflow in stream handling code
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1412268&group_id=1355
 (open (make-string 5000 :initial-element #\x)) ERROR
