@@ -2084,7 +2084,9 @@ local maygc object read_internal (const gcv_object_t* stream_) {
       TheIarray(hstring)->totalsize =
         TheIarray(hstring)->dims[1] = pack_end_index; /* length */
       /* search Package with this name: */
+      pushSTACK(hstring);
       var object pack = find_package(hstring);
+      hstring = popSTACK();
       if (nullp(pack)) {        /* Package not found? */
         pushSTACK(copy_string(hstring)); /* copy Displaced-String, PACKAGE-ERROR slot PACKAGE */
         pushSTACK(STACK_0);

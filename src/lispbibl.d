@@ -15162,8 +15162,9 @@ extern bool find_external_symbol (object string, bool invert, object pack, objec
 /* UP: locates a package with a given name or nickname
  find_package(string)
  > string: String
- < result: Package with that name or NIL */
-extern object find_package (object string);
+ < result: Package with that name or NIL
+ can trigger GC in threads builds */
+extern maygc object find_package (object string);
 /* is used by IO, EVAL */
 %% puts("extern object find_package (object string);");
 
@@ -17249,7 +17250,8 @@ extern xmutex_t all_mutexes_lock;
 extern xmutex_t all_exemptions_lock;
 /* mutex for guarding access to O(all_weakpointers) */
 extern xmutex_t all_weakpointers_lock;
-
+/* mutex for guarding access to O(all_packages) */
+extern xmutex_t all_packages_lock;
 
 /* operations on a lisp stack that is not the current one (NC)
    - ie. belongs to other not yet started threads */
