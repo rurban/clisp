@@ -8,6 +8,11 @@
 #include "lispbibl.c"
 #include "arilev0.c" /* for hashcode calculation */
 
+#ifdef MULTITHREAD
+/* mutex for guarding access to O(all_packages) */
+global xmutex_t all_packages_lock;
+#endif
+
 /* data structure of the symbols: see LISPBIBL.D
  data structure of the symbol table:
  a vector with 3 Slots:
@@ -470,12 +475,18 @@ local maygc object make_package (object name, object nicknames,
   ensure_pack_shortest_name(pack);
   /* and insert in ALL_PACKAGES: */
   pushSTACK(pack);
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+ #endif
   var object new_cons = allocate_cons();
   pack = popSTACK();
   Car(new_cons) = pack; Cdr(new_cons) = O(all_packages);
   O(all_packages) = new_cons;
   /* finished: */
   clr_break_sem_2();
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
   return pack;
 }
 
@@ -620,27 +631,37 @@ global bool find_external_symbol (object string, bool invert, object pack, objec
  find_package(string)
  > string: string
  < result: package of this name or NIL */
-global object find_package (object string) {
+global maygc object find_package (object string) {
+ #ifdef MULTITHREAD
+  pushSTACK(string);
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+  string = popSTACK();
+ #endif
   var object packlistr = O(all_packages); /* traverse package-list */
   var object pack;
   while (consp(packlistr)) {
     pack = Car(packlistr); /* Package to be tested */
     /* test name: */
     if (string_eq(string,ThePackage(pack)->pack_name))
-      return pack;
+      goto pack_found;
     { /* test nickname: */
       /* traverse nickname-list */
       var object nicknamelistr = ThePackage(pack)->pack_nicknames;
       while (consp(nicknamelistr)) {
         if (string_eq(string,Car(nicknamelistr)))
-          return pack;
+          goto pack_found;
         nicknamelistr = Cdr(nicknamelistr);
       }
     }
     packlistr = Cdr(packlistr); /* next package */
   }
   /* not found */
-  return NIL;
+  pack = NIL;
+ pack_found:
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
+  return pack;
 }
 
 /* UP: Searches a symbol of given printname in a package.
@@ -1749,7 +1770,9 @@ local maygc object test_package_arg (object obj) {
   }
   if (stringp(obj))
   string: { /* string -> search package with name obj: */
+    pushSTACK(obj);
     var object pack = find_package(obj);
+    obj = popSTACK();
     if (!nullp(pack))
       return pack;
     pushSTACK(NIL); /* no PLACE */
@@ -1879,7 +1902,10 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
     var object nicknamelistr = STACK_0;
     /* name loops over the names and all nicknames */
     while (1) { /* find package with this name: */
+      pushSTACK(name); pushSTACK(nicknamelistr); /* save (MT) */
       var object found = find_package(name);
+      nicknamelistr = popSTACK(); name = popSTACK(); /* restore */
+      pack = STACK_2;
       if (!(nullp(found) || eq(found,pack))) {
         /* found, but another one than the given package: */
         pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
@@ -2044,7 +2070,13 @@ LISPFUNN(check_package_lock,3) {
 
 LISPFUNNR(list_all_packages,0)
 { /* (LIST-ALL-PACKAGES) returns a list of all packages, CLTL p. 184 */
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+ #endif
   VALUES1(reverse(O(all_packages))); /* (copy of the list, as a precaution) */
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
 }
 
 /* UP: check the last argument &optional (pack *package*) of
@@ -2305,7 +2337,9 @@ LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL) {
  can trigger GC */
 local maygc object correct_packname (object name, bool nickname_p) {
   var object pack;
+  pushSTACK(name);
   while (!nullp(pack=find_package(name))) {
+    name = popSTACK();
     /* package with this name already exists */
     pushSTACK(NIL);             /* OPTIONS */
     pushSTACK(pack);            /* PACKAGE-ERROR slot package */
@@ -2327,8 +2361,9 @@ local maygc object correct_packname (object name, bool nickname_p) {
     correctable_error(package_error,GETTEXT("~S: a package with name ~S already exists."));
     if (nullp(value1)) return NIL; /* continue */
     name = test_stringsymchar_arg(value1,false);
+    pushSTACK(name);
   }
-  return coerce_imm_ss(name);
+  return coerce_imm_ss(popSTACK());
 }
 
 /* UP for MAKE-PACKAGE and %IN-PACKAGE:
@@ -2402,10 +2437,9 @@ LISPFUN(cs_make_package,seclass_default,1,0,norest,key,4,
 LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
         (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
   /* check name and turn into string: */
-  var object name = test_stringsymchar_arg(STACK_4,false);
-  STACK_4 = name;
+  STACK_4 = test_stringsymchar_arg(STACK_4,false);
   /* find package with this name: */
-  var object pack = find_package(name);
+  var object pack = find_package(STACK_4);
   if (nullp(pack)) { /* package not found, must create a new one */
     in_make_package(false);
   } else { /* package found */
@@ -2486,7 +2520,9 @@ LISPFUNN(delete_package,1) {
     }
   } else if (stringp(pack))
   string: { /* string -> find package with this name: */
+    pushSTACK(pack);
     var object found = find_package(pack);
+    pack = popSTACK();
     if (nullp(found)) {
       /* raise Continuable Error: */
       pushSTACK(NIL); /* "Ignore." */
@@ -2544,12 +2580,18 @@ LISPFUNN(delete_package,1) {
                ThePackage(STACK_0)->pack_external_symbols);
   map_symtab_c(&delete_package_aux,&STACK_0,
                ThePackage(STACK_0)->pack_internal_symbols);
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+ #endif
   pack = popSTACK();
   /* remove pack from the list of all packages and mark as deleted: */
   set_break_sem_2();
   O(all_packages) = deleteq(O(all_packages),pack);
   mark_pack_deleted(pack);
   clr_break_sem_2();
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
   VALUES1(T);
 }
 
@@ -2571,9 +2613,15 @@ local maygc void delete_package_aux (void* data, object sym) {
 
 /* (FIND-ALL-SYMBOLS name) and its case-inverted variant */
 local maygc Values do_find_all_symbols (bool invert) {
+ #ifdef MULTITHREAD
+  /* here we may lock, make a copy of O(all_packages) and process the
+     copy instead (and probably have problems if during processing some
+     package is deleted)*/
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+ #endif
   STACK_0 = test_stringsymchar_arg(STACK_0,invert); /* name as string */
   pushSTACK(NIL); /* (so far empty) symbol-list */
-  pushSTACK(O(all_packages)); /* traverse list of all packages */
+  pushSTACK(O(all_packages));  /* traverse list of all packages */
   while (mconsp(STACK_0)) {
     var object pack = Car(STACK_0); /* next package */
     /* search in its internal and external symbols: */
@@ -2597,6 +2645,9 @@ local maygc Values do_find_all_symbols (bool invert) {
   skipSTACK(1);
   VALUES1(popSTACK()); /* symbol-list as value */
   skipSTACK(1);
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
 }
 
 /* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
@@ -2666,7 +2717,11 @@ LISPFUNN(map_external_symbols,2) {
 
 /* (SYSTEM::MAP-ALL-SYMBOLS fun)
  applies the function fun to all symbols present in any package. */
-LISPFUNN(map_all_symbols,1) {
+LISPFUNN(map_all_symbols,1)
+{
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
+ #endif
   pushSTACK(O(all_packages)); /* traverse package-list */
   while (mconsp(STACK_0)) {
     var object pack = Car(STACK_0); /* next package */
@@ -2680,6 +2735,9 @@ LISPFUNN(map_all_symbols,1) {
   }
   skipSTACK(2);
   VALUES1(NIL);
+ #ifdef MULTITHREAD
+  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
+ #endif
 }
 
 /* UP: Subroutine for EXT:RE-EXPORT.
