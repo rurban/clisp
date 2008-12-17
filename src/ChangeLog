@@ -1,3 +1,17 @@
+2008-12-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	add mutex for O(all_packages) in threads builds
+	* lispbibl.d (find_pacakge): may trigger GC
+	(all_packages_lock): declaration
+	* spvw.d (init_multithread): initialize all_packages_lock
+	* io.d (read_internal): fix GC safety since find_package() is maygc
+	* package.d (make_package, find_package,  do_find_all_symbols)
+	(LIST-ALL-PACKAGES, DELETE-PACKAGE, MAP-ALL-SYMBOLS): guard access
+	to O(all_packages) via the all_packages_lock
+	(RENAME-PACKAGE, %IN-PACKAGE, DELETE-PACKAGE)
+	(test_package_arg, correct_packname): fix GC safety since
+	find_package() is maygc
+
 2008-12-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/svm.cpp (info): call fflush(stdout)
