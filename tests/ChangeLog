@@ -1,3 +1,8 @@
+2008-12-18  Sam Steingold  <sds@gnu.org>
+
+	* tests.lisp (run-test): remove the spurious (break), mistakenly
+	committed on 2008-11-26
+
 2008-12-16  Sam Steingold  <sds@gnu.org>
 
 	* streamslong.tst: test (SETF STREAM-ELEMENT-TYPE) and (SETF
