@@ -97,7 +97,9 @@ LISPFUNN(proclaim_constant,2)
   var object symbol = check_symbol_not_symbol_macro(STACK_1);
   #if defined(MULTITHREAD)
    /* clear per thread symvalues if any */
+   pushSTACK(symbol);
    clear_per_thread_symvalues(symbol);
+   symbol = popSTACK();
   #endif
   var object val = STACK_0; skipSTACK(2);
   set_const_flag(TheSymbol(symbol)); /* make a constant */
