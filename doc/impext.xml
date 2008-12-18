@@ -2844,8 +2844,7 @@ or just evaluates the appropriate form in the &repl;.</para>
 <varlistentry><term><code>(&name-k; &cname-r;)</code></term>
  <listitem><simpara>Any &c-lang; function call to the &c-lang; function
    &cname-r; is redirected to call the &cl; function &func-r;, which
-   should be a <link linkend="path-des">funtion designator</link>
-   (a &funname; or a &lambda-expr;).</simpara></listitem></varlistentry>
+   should be a &funname;.</simpara></listitem></varlistentry>
 <varlistentry><term><code>(&arguments-k;
    {(&arg-r; &ctype-r; [&param-mode; [&allocation;]])}*)</code></term>
  <term><code>(&ret-type-k; &ctype-r; [&allocation;])</code></term>
