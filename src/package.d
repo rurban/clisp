@@ -475,18 +475,14 @@ local maygc object make_package (object name, object nicknames,
   ensure_pack_shortest_name(pack);
   /* and insert in ALL_PACKAGES: */
   pushSTACK(pack);
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
- #endif
+  /* no need to lock O(all_packages) since here we are always called with
+     O(all_packages_lock) held (threads builds). */
   var object new_cons = allocate_cons();
   pack = popSTACK();
   Car(new_cons) = pack; Cdr(new_cons) = O(all_packages);
   O(all_packages) = new_cons;
   /* finished: */
   clr_break_sem_2();
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
   return pack;
 }
 
@@ -1896,38 +1892,40 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
   pushSTACK(NIL); pushSTACK(NIL); pushSTACK(NIL); /* dummies on the stack */
   test_names_args();
   skipSTACK(3);
-  var object pack = STACK_2;
-  { /* test, if a package-name-conflict arises: */
-    var object name = STACK_1;
-    var object nicknamelistr = STACK_0;
-    /* name loops over the names and all nicknames */
-    while (1) { /* find package with this name: */
-      pushSTACK(name); pushSTACK(nicknamelistr); /* save (MT) */
-      var object found = find_package(name);
-      nicknamelistr = popSTACK(); name = popSTACK(); /* restore */
-      pack = STACK_2;
-      if (!(nullp(found) || eq(found,pack))) {
+  WITH_OS_MUTEX_LOCK(3,&all_packages_lock, {
+    var object pack = STACK_2;
+    { /* test, if a package-name-conflict arises: */
+      var object name = STACK_1;
+      var object nicknamelistr = STACK_0;
+      /* name loops over the names and all nicknames */
+      while (1) { /* find package with this name: */
+        pushSTACK(name); pushSTACK(nicknamelistr); /* save (MT) */
+        var object found = find_package(name);
+        nicknamelistr = popSTACK(); name = popSTACK(); /* restore */
+        pack = STACK_2;
+        if (!(nullp(found) || eq(found,pack))) {
         /* found, but another one than the given package: */
-        pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
-        pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
-        error(package_error,GETTEXT("~S: there is already a package named ~S"));
+          pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
+          pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
+          error(package_error,GETTEXT("~S: there is already a package named ~S"));
+        }
+        /* none or only the given package has the Name name ->
+           no conflict with this (nick)name, continue: */
+        if (atomp(nicknamelistr))
+          break;
+        name = Car(nicknamelistr); /* next nickname */
+        nicknamelistr = Cdr(nicknamelistr); /* shorten remaining nicknamelist */
       }
-      /* none or only the given package has the Name name ->
-         no conflict with this (nick)name, continue: */
-      if (atomp(nicknamelistr))
-        break;
-      name = Car(nicknamelistr); /* next nickname */
-      nicknamelistr = Cdr(nicknamelistr); /* shorten remaining nicknamelist */
     }
-  }
-  /* There are no conflicts. */
-  set_break_sem_2();
-  ThePackage(pack)->pack_name = STACK_1;
-  ThePackage(pack)->pack_nicknames = STACK_0;
-  clr_break_sem_2();
-  ensure_pack_shortest_name(pack);
-  skipSTACK(3);
-  VALUES1(pack); /* pack as value */
+    /* There are no conflicts. */
+    set_break_sem_2();
+    ThePackage(pack)->pack_name = STACK_1;
+    ThePackage(pack)->pack_nicknames = STACK_0;
+    clr_break_sem_2();
+    ensure_pack_shortest_name(pack);
+    skipSTACK(3);
+    VALUES1(pack); /* pack as value */
+  });
 }
 
 LISPFUNNR(package_use_list,1) { /* (PACKAGE-USE-LIST package), CLTL p. 184 */
@@ -2070,13 +2068,9 @@ LISPFUNN(check_package_lock,3) {
 
 LISPFUNNR(list_all_packages,0)
 { /* (LIST-ALL-PACKAGES) returns a list of all packages, CLTL p. 184 */
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
- #endif
-  VALUES1(reverse(O(all_packages))); /* (copy of the list, as a precaution) */
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
+  WITH_OS_MUTEX_LOCK(0,&all_packages_lock, {
+    VALUES1(reverse(O(all_packages))); /* (copy of the list, as a precaution) */
+  });
 }
 
 /* UP: check the last argument &optional (pack *package*) of
@@ -2420,14 +2414,18 @@ local maygc void in_make_package (bool case_inverted) {
  CLTL p. 183 */
 LISPFUN(make_package,seclass_default,1,0,norest,key,4,
         (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
-  in_make_package(false);
+  WITH_OS_MUTEX_LOCK(5,&all_packages_lock, {
+    in_make_package(false);
+  });
 }
 
 /* (CS-COMMON-LISP:MAKE-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
                                      [:CASE-SENSITIVE sensitivep] [:CASE-INVERTED invertedp]) */
 LISPFUN(cs_make_package,seclass_default,1,0,norest,key,4,
         (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
-  in_make_package(true);
+  WITH_OS_MUTEX_LOCK(5,&all_packages_lock, {
+    in_make_package(true);
+  });
 }
 
 /* (SYSTEM::%IN-PACKAGE name [:NICKNAMES nicknames] [:USE uselist]
@@ -2441,7 +2439,9 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
   /* find package with this name: */
   var object pack = find_package(STACK_4);
   if (nullp(pack)) { /* package not found, must create a new one */
-    in_make_package(false);
+    WITH_OS_MUTEX_LOCK(5,&all_packages_lock, {
+      in_make_package(false);
+    });
   } else { /* package found */
     STACK_4 = pack; /* save pack */
     /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
@@ -2567,32 +2567,33 @@ LISPFUNN(delete_package,1) {
                             'DELETE-PACKAGE pack used-by-list) */
     funcall(L(cerror_of_type),8);
   }
-  /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
-  set_break_sem_3();
-  while ((pack = STACK_0, mconsp(ThePackage(pack)->pack_used_by_list))) {
-    unuse_1package(Car(ThePackage(pack)->pack_used_by_list),pack);
-  }
-  clr_break_sem_3();
-  /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
-  unuse_package(ThePackage(STACK_0)->pack_use_list,pack);
-  /* apply delete_package_aux to the symbols present in pack: */
-  map_symtab_c(&delete_package_aux,&STACK_0,
-               ThePackage(STACK_0)->pack_external_symbols);
-  map_symtab_c(&delete_package_aux,&STACK_0,
-               ThePackage(STACK_0)->pack_internal_symbols);
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
- #endif
-  pack = popSTACK();
-  /* remove pack from the list of all packages and mark as deleted: */
-  set_break_sem_2();
-  O(all_packages) = deleteq(O(all_packages),pack);
-  mark_pack_deleted(pack);
-  clr_break_sem_2();
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
-  VALUES1(T);
+  WITH_OS_MUTEX_LOCK(1, &all_packages_lock, {
+    /* in thread builds it's possible the other thread to have deleted
+       the package already - so check again with lock held */
+    if (!pack_deletedp(STACK_0)) {
+      /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
+      set_break_sem_3();
+      while ((pack = STACK_0, mconsp(ThePackage(pack)->pack_used_by_list))) {
+        unuse_1package(Car(ThePackage(pack)->pack_used_by_list),pack);
+      }
+      clr_break_sem_3();
+      /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
+      unuse_package(ThePackage(STACK_0)->pack_use_list,STACK_0);
+      /* apply delete_package_aux to the symbols present in pack: */
+      map_symtab_c(&delete_package_aux,&STACK_0,
+                   ThePackage(STACK_0)->pack_external_symbols);
+      map_symtab_c(&delete_package_aux,&STACK_0,
+                   ThePackage(STACK_0)->pack_internal_symbols);
+      /* remove pack from the list of all packages and mark as deleted: */
+      set_break_sem_2();
+      O(all_packages) = deleteq(O(all_packages),STACK_0);
+      mark_pack_deleted(STACK_0);
+      clr_break_sem_2();
+      VALUES1(T);
+    } else
+      VALUES1(NIL);
+    skipSTACK(1);
+  });
 }
 
 /* UP: Auxiliary function for DELETE-PACKAGE:
@@ -2613,12 +2614,6 @@ local maygc void delete_package_aux (void* data, object sym) {
 
 /* (FIND-ALL-SYMBOLS name) and its case-inverted variant */
 local maygc Values do_find_all_symbols (bool invert) {
- #ifdef MULTITHREAD
-  /* here we may lock, make a copy of O(all_packages) and process the
-     copy instead (and probably have problems if during processing some
-     package is deleted)*/
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
- #endif
   STACK_0 = test_stringsymchar_arg(STACK_0,invert); /* name as string */
   pushSTACK(NIL); /* (so far empty) symbol-list */
   pushSTACK(O(all_packages));  /* traverse list of all packages */
@@ -2645,21 +2640,22 @@ local maygc Values do_find_all_symbols (bool invert) {
   skipSTACK(1);
   VALUES1(popSTACK()); /* symbol-list as value */
   skipSTACK(1);
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
 }
 
 /* (FIND-ALL-SYMBOLS name), CLTL p. 187 */
 LISPFUNNR(find_all_symbols,1)
 {
-  do_find_all_symbols(false);
+  WITH_OS_MUTEX_LOCK(1, &all_packages_lock,{
+    do_find_all_symbols(false);
+  });
 }
 
 /* (CS-COMMON-LISP:FIND-ALL-SYMBOLS name) */
 LISPFUNNR(cs_find_all_symbols,1)
 {
-  do_find_all_symbols(true);
+  WITH_OS_MUTEX_LOCK(1, &all_packages_lock,{
+    do_find_all_symbols(true);
+  });
 }
 
 local one_sym_function_t map_symbols_aux;
@@ -2719,25 +2715,21 @@ LISPFUNN(map_external_symbols,2) {
  applies the function fun to all symbols present in any package. */
 LISPFUNN(map_all_symbols,1)
 {
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_LOCK(&all_packages_lock);
- #endif
-  pushSTACK(O(all_packages)); /* traverse package-list */
-  while (mconsp(STACK_0)) {
-    var object pack = Car(STACK_0); /* next package */
-    STACK_0 = Cdr(STACK_0);
-    pushSTACK(pack); /* save */
-    /* apply fun to all internal symbols: */
-    map_symtab(STACK_2,ThePackage(pack)->pack_internal_symbols);
-    pack = popSTACK();
-    /* apply fun to all external symbols: */
-    map_symtab(STACK_1,ThePackage(pack)->pack_external_symbols);
-  }
-  skipSTACK(2);
-  VALUES1(NIL);
- #ifdef MULTITHREAD
-  GC_SAFE_MUTEX_UNLOCK(&all_packages_lock);
- #endif
+  WITH_OS_MUTEX_LOCK(1,&all_packages_lock, {
+    pushSTACK(O(all_packages)); /* traverse package-list */
+    while (mconsp(STACK_0)) {
+      var object pack = Car(STACK_0); /* next package */
+      STACK_0 = Cdr(STACK_0);
+      pushSTACK(pack); /* save */
+      /* apply fun to all internal symbols: */
+      map_symtab(STACK_2,ThePackage(pack)->pack_internal_symbols);
+      pack = popSTACK();
+      /* apply fun to all external symbols: */
+      map_symtab(STACK_1,ThePackage(pack)->pack_external_symbols);
+    }
+    skipSTACK(2);
+    VALUES1(NIL);
+  });
 }
 
 /* UP: Subroutine for EXT:RE-EXPORT.

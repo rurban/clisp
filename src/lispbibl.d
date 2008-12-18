@@ -17378,6 +17378,59 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     current_thread()->_pinned=&pc;                                      \
     unprotect_heap_range(vo,write_access)
 
+/* UP: helper macro for executing body in unwind_protect frame with
+   mutex lock held. body should not call return or goto outside of
+   itself.
+ > stack_count: number of object to copy from the stack after the
+   UNWIND_PROTECT frame is established. at the end this count of
+   objects is removed from the stack.
+ > mutex: the mutex object
+ > locker: statement to execute for locking the mutex
+ > unlocker: statement to execute for unlocking the mutex
+ > body: the statement(s) to be executed with lock held */
+#define WITH_MUTEX_LOCK_HELP_(stack_count,mutex,locker,unlocker,body)   \
+  do {                                                                  \
+    var gcv_object_t* top_of_frame = STACK;                             \
+    var sp_jmp_buf returner;                                            \
+    finish_entry_frame(UNWIND_PROTECT,returner,, {                      \
+      var restartf_t fun = unwind_protect_to_save.fun;                  \
+      var gcv_object_t* upto = unwind_protect_to_save.upto_frame;       \
+      var object po;                                                    \
+      unlocker(mutex);                                                  \
+      skipSTACK(2);                                                     \
+      fun(upto);                                                        \
+    });                                                                 \
+    locker(mutex);                                                      \
+    if (stack_count > 0) {                                              \
+      var gcv_object_t *args=&STACK_(stack_count+1);                    \
+      var uintC count;                                                  \
+      get_space_on_STACK(stack_count);                                  \
+      dotimespC(count,stack_count, { pushSTACK(*args++); });            \
+    }                                                                   \
+    body;                                                               \
+    /* skip the args and unwind_protect frame */                        \
+    skipSTACK(stack_count+2);                                           \
+    unlocker(mutex);                                                    \
+  } while (0)
+
+#define WITH_OS_MUTEX_LOCK(stack_count,mutex,body)                      \
+  WITH_MUTEX_LOCK_HELP_(stack_count,mutex,GC_SAFE_MUTEX_LOCK,GC_SAFE_MUTEX_UNLOCK,body)
+
+#define LISP_MUTEX_LOCK_HELP_(pmutex) \
+  do { pushSTACK(*pmutex); funcall(L(mutex_lock),1); } while(0)
+/* also preserves values */
+#define LISP_MUTEX_UNLOCK_HELP_(pmutex) \
+  do {                                                                  \
+    var uintC cnt=mv_count;                                             \
+    mv_to_STACK(); pushSTACK(*pmutex);                                  \
+    funcall(L(mutex_unlock),1);                                         \
+    STACK_to_mv(cnt);                                                   \
+  } while(0)
+
+/* mutex should be pointer to GC safe location. */
+#define WITH_LISP_MUTEX_LOCK(stack_count,pmutex,body)                   \
+  WITH_MUTEX_LOCK_HELP_(stack_count,pmutex,LISP_MUTEX_LOCK_HELP_,LISP_MUTEX_UNLOCK_HELP_,body)
+
 #else /* ! MULTITHREAD */
 %% #else
   #define pin_varobject(vo,write_access)
@@ -17385,12 +17438,22 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
   #define PERFORM_GC(statement,lock_heap) statement
+  #define WITH_MUTEX_LOCK_HELP_(body)                    \
+    do {                                                 \
+      body;                                              \
+    } while(0);
+  #define WITH_OS_MUTEX_LOCK(stack_count,mutex,body)     \
+    WITH_MUTEX_LOCK_HELP_(body)
+  #define WITH_LISP_MUTEX_LOCK(stack_count,pmutex,body)  \
+    WITH_MUTEX_LOCK_HELP_(body)
 #endif
 %% #endif
 
 %% export_def(unprotect_heap_range(vo,write_access));
 %% export_def(pin_varobject(vo,write_access));
 %% export_def(unpin_varobject(vo));
+%% export_def(WITH_OS_MUTEX_LOCK(stack_count,mutex,body));
+%% export_def(WITH_LISP_MUTEX_LOCK(stack_count,pmutex,body));
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
  #define START_WRITING_TO_SUBPROCESS  writing_to_subprocess=true
