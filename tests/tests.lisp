@@ -301,8 +301,6 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                                                        *eval-out*)))
         (setf (values total-count error-count)
               (funcall *run-test-tester* s log))
-        (when (plusp error-count)
-          (break))
         (when *run-test-own-package*
           (delete-package *package*)))))
   (format t "~&~s: finished ~s (~:d error~:p out of ~:d test~:p)~%"
