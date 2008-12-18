@@ -1,3 +1,14 @@
+2008-12-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	WITH-LOCK in C (WITH_OS_MUTEX_LOCK, WITH_LISP_MUTEX_LOCK)
+	* lispbibl.d (WITH_OS_MUTEX_LOCK, WITH_LISP_MUTEX_LOCK): macros
+	for executing statements with mutex lock held and with established
+	UNWIND_PROTECT frame ensuring that mutex is unlocked at the end
+	* package.d (RENAME-PACKAGE, LIST-ALL-PACKAGES, MAKE-PACKAGE)
+	(%IN-PACKAGE, DELETE-PACKAGE, FIND-ALL-SYMBOLS, MAP-ALL-SYMBOLS): use
+	WITH_OS_MUTEX_LOCK() with all_packages_lock
+	(do_find_all_symbols): do not lock anything - callers hold the lock
+
 2008-12-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	add mutex for O(all_packages) in threads builds
