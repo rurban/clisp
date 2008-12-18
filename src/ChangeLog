@@ -1,5 +1,12 @@
 2008-12-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	fix possible memory corruption
+	* lispbibl.d, spvw.d (clear_per_thread_symvalues): maygc. should
+	acquire threads lock when clears the per thread bindings
+	* symbol.d (%PROCLAIM-CONSTANT): preserve GC safety
+
+2008-12-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	WITH-LOCK in C (WITH_OS_MUTEX_LOCK, WITH_LISP_MUTEX_LOCK)
 	* lispbibl.d (WITH_OS_MUTEX_LOCK, WITH_LISP_MUTEX_LOCK): macros
 	for executing statements with mutex lock held and with established
