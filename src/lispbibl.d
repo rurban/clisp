@@ -17239,7 +17239,7 @@ global void release_exemptions(object list);
 global maygc uintL add_per_thread_special_var(object symbol);
 /* Clears any per thread value for symbol. Also set tls_index
    of the symbol to invalid. */
-global void clear_per_thread_symvalues(object symbol);
+global maygc void clear_per_thread_symvalues(object symbol);
 /* O(open_files) needs a global locks when accessed/modified */
 extern xmutex_t open_files_lock;
 /* O(open_files) needs a global locks when accessed/modified */
