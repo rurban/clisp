@@ -21,6 +21,16 @@ nonreturning_function(local, error_foreign_object, (object arg)) {
   error(error_condition,GETTEXT("~S: argument is not a foreign object: ~S"));
 }
 
+/* foreign address vs foreign pointer
+ - foreign pointers are available even when FFI is not
+   (used by berkeley-db and new-clx modules)
+ - foreign addresses can share the base which enables controlling validity
+   of resources (see impnotes.html#ex-dffi-validity)
+
+ Historically, the heavy weight foreign address objects come from Amiga:
+ A library entry point is a known (negative) offset towards the library
+ base pointer -- much like today's COM objects or vtables. */
+
 /* Allocate a foreign address.
  make_faddress(base,offset)
  > base: base address
@@ -49,7 +59,8 @@ local /*maygc*/ object foreign_address (object obj, bool allocate_p)
         pushSTACK(S(foreign_function));
         pushSTACK(S(foreign_address));
         pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
-        error(error_condition,GETTEXT("~S: argument ~S should be a ~S, ~S or ~S"));
+        error(error_condition,
+              GETTEXT("~S: argument ~S should be a ~S, ~S or ~S"));
       case Rectype_Faddress:
         return obj;
       case Rectype_Fvariable:
