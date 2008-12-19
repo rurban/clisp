@@ -349,6 +349,17 @@ global uintL maxnum_symvalues;
 /* lock guarding the addition of new per thread special variables. */
 local xmutex_t thread_symvalues_lock;
 
+/* UP: checks that the calling thread is the only one running.
+   used only from savemem(). defined here in order not to expose the
+   threads array.
+   no locking is performed. if returns true - the caller may be sure that
+   there is no other running thread (only the caller) */
+global bool single_running_threadp();
+global bool single_running_threadp()
+{
+  return nthreads==1;
+}
+
 #ifdef DEBUG_GCSAFETY
 /* used during static initialization (before main() is called)
    at that time the multithreading has not been initialized and
