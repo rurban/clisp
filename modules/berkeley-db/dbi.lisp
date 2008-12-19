@@ -208,7 +208,7 @@
   ;; The version of the log file type.
   (version 0 :type (unsigned-byte 32) :read-only t)
   ;; The mode of any created log files.
-  (mode 0 :type int :read-only t)
+  (mode 0 :type (unsigned-byte 32) :read-only t)
   ;; The in-memory log record cache size.
   (lg_bsize 0 :type (unsigned-byte 32) :read-only t)
   ;; The current log file size.
