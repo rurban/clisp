@@ -27,7 +27,7 @@ nonreturning_function(local, error_foreign_object, (object arg)) {
  > offset: offset relative to the base address
  < result: Lisp object
  can trigger GC */
-local maygc object make_faddress (object base, uintP offset)
+global maygc object make_faddress (object base, uintP offset)
 {
   pushSTACK(base);
   var object result = allocate_faddress();
@@ -1089,7 +1089,7 @@ nonreturning_function (local, error_eltype_zero_size, (object fvd)) {
   error(error_condition,GETTEXT("~S: element type has size 0: ~S"));
 }
 global maygc object convert_from_foreign (object fvd, const void* data)
-{
+{ /* keep in sync with foreign1.lisp:convert-from-foreign */
   check_SP();
   check_STACK();
   if (NULL == data) {
@@ -1909,7 +1909,7 @@ local maygc void convert_to_foreign_needs (object fvd, object obj,
  can trigger GC */
 global maygc void convert_to_foreign (object fvd, object obj, void* data,
                                       converter_malloc_t *converter_malloc)
-{
+{ /* keep in sync with foreign1.lisp:convert-to-foreign */
   check_SP();
   check_STACK();
   if (NULL == data) {
