@@ -9033,6 +9033,21 @@ LISPFUNN(savemem,2) {
     pushSTACK(subr_self);
     error(control_error,GETTEXT("~S: There are multiple running threads. Currently they do not survive image saving/loading."));
   }
+  /* we are the only one running. let's check mutexes. we do not allow
+     to have locked mutexes saved in the memory image */
+  var object list = O(all_mutexes);
+  while (!endp(list)) {
+    if (!eq(NIL,TheMutex(Car(list))->xmu_owner)) {
+      /* we have a locked mutex. this is an error. */
+      pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+      /* mutex owner (should be eq() to current thread) */
+      pushSTACK(TheMutex(Car(list))->xmu_owner);
+      pushSTACK(Car(list)); /* mutex */
+      pushSTACK(subr_self);
+      error(control_error,GETTEXT("~S: Mutex ~S is locked by thread ~S. Currently locked mutexes are not allowed in memory files."));
+    }
+    list = Cdr(list);
+  }
 #endif
   var uintL executable = nullp(STACK_0) ? 0 : eq(Fixnum_0,STACK_0) ? 2 : 1;
   skipSTACK(1);          /* drop executable */
