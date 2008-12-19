@@ -67,6 +67,9 @@ void svm_destroy_param(struct svm_parameter *param);
 const char *svm_check_parameter(const struct svm_problem *prob, const struct svm_parameter *param);
 int svm_check_probability_model(const struct svm_model *model);
 
+extern void (*print_string) (char *);
+void print_string_stdout (char *);
+
 #ifdef __cplusplus
 }
 #endif
