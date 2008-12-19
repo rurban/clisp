@@ -16458,6 +16458,7 @@ extern sintL I_to_L (object obj);
   #define I_to_uint  I_to_uint32
   #define I_to_sint  I_to_sint32
 #endif
+/* always: long_bitsize > oint_data_len ==> I_to_Xlong checks its argument */
 #if (long_bitsize==32)
   #define I_to_ulong  I_to_uint32
   #define I_to_slong  I_to_sint32
