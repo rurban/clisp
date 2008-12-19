@@ -4,6 +4,8 @@
 
 (integerp (show libsvm:*libsvm-version*)) T
 
+(open-stream-p (setq libsvm:*libsvm-output* (make-string-output-stream))) T
+
 (defparameter f-parameter (libsvm:make-parameter))
 F-PARAMETER
 
@@ -46,7 +48,7 @@ PROBLEM
   (ffi:with-c-place (p-parameter f-parameter)
     (setf (ffi:slot p-parameter 'libsvm::gamma) (float (/ maxindex) 0d0)
           (ffi:slot p-parameter 'libsvm::C) 1d0
-          (ffi:slot p-parameter 'libsvm::kernel_type) libsvm::LINEAR))
+          (ffi:slot p-parameter 'libsvm::kernel_type) libsvm:LINEAR))
   (setf v-parameter (ffi:foreign-value f-parameter))
   (show (libsvm:parameter-alist f-parameter) :pretty t)
   (list (= maxindex (floor (log (1- 1000) 7)))
@@ -145,6 +147,8 @@ T
 (ffi:validp f-parameter) T
 (libsvm:destroy-parameter f-parameter) NIL
 (ffi:validp f-parameter) NIL
+
+(length (get-output-stream-string libsvm:*libsvm-output*)) 10713
 
 (progn (makunbound 'f-parameter)
        (makunbound 'v-parameter)

@@ -9,13 +9,22 @@
   (:modern t) (:use "CL" "FFI")
   (:shadowing-import-from "EXPORTING"
     #:def-c-enum #:def-c-struct #:def-call-out #:def-c-type #:def-c-var
-    #:defun))
+    #:defun #:defvar))
 (in-package "LIBSVM")
 (setf (documentation (find-package "LIBSVM") 'sys::impnotes) "libsvm")
 
 (default-foreign-language :stdc)
 (default-foreign-library
  (namestring (merge-pathnames "svm.so" *load-pathname*)))
+
+(c-lines "#include \"svm.h\"~%")
+
+(defvar *libsvm-output* *standard-output* "The stream for svm.so messages.")
+(cl:defun write-string-to-libsvm-output (s)
+  (write-string s *libsvm-output*) (force-output *libsvm-output*))
+(def-call-in write-string-to-libsvm-output (:name "libsvm_print_string")
+  (:arguments (s c-string)) (:return-type nil))
+(c-lines :init-always "print_string = &libsvm_print_string;~%")
 
 ;;;
 ;;; types and constants
