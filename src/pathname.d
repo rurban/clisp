@@ -9023,6 +9023,17 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
 
 /* (SAVEMEM pathname executable) stores the memory image at pathname. */
 LISPFUNN(savemem,2) {
+#ifdef MULTITHREAD
+  extern bool single_running_threadp();
+  /* ensure that we are the only running thread. currently threads
+     do not survive savemem()/loadmem() */
+  if (!single_running_threadp()) {
+    /* signal an error */
+    pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+    pushSTACK(subr_self);
+    error(control_error,GETTEXT("~S: There are multiple running threads. Currently they do not survive image saving/loading."));
+  }
+#endif
   var uintL executable = nullp(STACK_0) ? 0 : eq(Fixnum_0,STACK_0) ? 2 : 1;
   skipSTACK(1);          /* drop executable */
   /* execute (OPEN pathname :direction :output) :

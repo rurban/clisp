@@ -1,5 +1,14 @@
 2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* pathname.d (SAVEMEM): signal an error if there are multiple
+	running threads
+	* spvw.d (single_running_threadp): returns true if the caller is the
+	only running thread (used only by SAVEMEM)
+	* spvw_memfile.d (loadmem_from_handle): recreate OS mutex and condition
+	objects after memory image is loaded
+
+2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	add lisp mutex to every package in threads builds
 	* lispbibl.d (struct Package): add pack_mutex in threads builds
 	* package.d (make_package): initialize pack_mutex
