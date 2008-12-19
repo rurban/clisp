@@ -1134,8 +1134,52 @@
          (NOTE-C-CALL-IN ',name ',c-name ',alist ',whole-form))
        ',name)))
 
-(defun convert-to-foreign-C (flags)
-  (if (flag-set-p flags ff-flag-malloc-free) "mallocing" "nomalloc"))
+;; convert-from-foreign & convert-to-foreign inline
+;; foreign.d:convert_from_foreign and foreign.d:convert_to_foreign
+;; for callbacks into lisp.
+;; we inline only a few most common cases - those used in the supplied modules.
+(defun convert-from-foreign (argtype argname)
+  ;; keep in sync with foreign.d:convert_from_foreign
+  (case argtype
+    (nil "NIL")
+    (boolean (format nil "~A ? T : NIL" argname))
+    ;; (character ...) too hairy
+    ((char sint8) (format nil "sint8_to_I(~A)" argname))
+    ((uchar uint8) (format nil "uint8_to_I(~A)" argname))
+    (sint16 (format nil "sint16_to_I(~A)" argname))
+    (uint16 (format nil "uint16_to_I(~A)" argname))
+    (sint32 (format nil "sint32_to_I(~A)" argname))
+    (uint32 (format nil "uint32_to_I(~A)" argname))
+    (sint64 (format nil "sint64_to_I(~A)" argname))
+    (uint64 (format nil "uint64_to_I(~A)" argname))
+    (int (format nil "sint_to_I(~A)" argname))
+    (uint (format nil "uint_to_I(~A)" argname))
+    (long (format nil "slong_to_I(~A)" argname))
+    (ulong (format nil "ulong_to_I(~A)" argname))
+    (single-float (format nil "c_float_to_FF((const ffloatjanus*)&~A)" argname))
+    (double-float (format nil "c_double_to_FF((const dfloatjanus*)&~A)" argname))
+    (c-pointer (format nil "~A == NULL ? NIL : make_faddress(GLO(fp_zero),~A)" argname argname))
+    (c-string (format nil "~A == NULL ? NIL : asciz_to_string(~A,GLO(foreign_encoding))" argname argname))
+    (t (format nil "convert_from_foreign(~A,&~A)"
+               (object-to-c-value (pass-object argtype)) argname))))
+
+(defun convert-to-foreign (rettype lispobj retaddr flags)
+  ;; keep in sync with foreign.d:convert_to_foreign
+  (case rettype
+    (int (format nil "if (sint_p(~A)) *~A=I_to_sint(~A); else error_sint(~A)"
+                 lispobj retaddr lispobj lispobj))
+    (uint (format nil "if (uint_p(~A)) *~A=I_to_uint(~A); else error_uint(~A)"
+                  lispobj retaddr lispobj lispobj))
+    (long
+     (format nil "if (slong_p(~A)) *~A=I_to_slong(~A); else error_slong(~A)"
+             lispobj retaddr lispobj lispobj))
+    (ulong
+     (format nil "if (ulong_p(~A)) *~A=I_to_ulong(~A); else error_ulong(~A)"
+             lispobj retaddr lispobj lispobj))
+    (t (format nil "convert_to_foreign(~A,~A,~A,&~A)"
+               (object-to-c-value (pass-object rettype)) lispobj retaddr
+               (if (flag-set-p flags ff-flag-malloc-free)
+                   "mallocing" "nomalloc")))))
 
 (defun note-c-call-in (name c-name alist whole) ; ABI
   (when (compiler::prepare-coutput-file)
@@ -1174,9 +1218,8 @@
             (flag-output (logior ff-flag-out ff-flag-in-out)))
         (mapc #'(lambda (argtype argflag argname)
                   (unless (flag-set-p argflag ff-flag-out)
-                    (format *coutput-stream*
-                            "  pushSTACK(convert_from_foreign(~A,&~A));~%"
-                            (object-to-c-value (pass-object argtype)) argname)
+                    (format *coutput-stream* "  pushSTACK(~A);~%"
+                            (convert-from-foreign argtype argname))
                     (incf inargcount))
                   (when (flag-set-p argflag flag-output)
                     (incf outargcount)))
@@ -1184,28 +1227,24 @@
         (format *coutput-stream* "  funcall(~A,~D);~%"
                 (object-to-c-value (pass-object name)) inargcount)
         (unless (eq rettype 'NIL)
-          (format *coutput-stream* " {~%  ~A;~%~:
-  convert_to_foreign(~A,value1,&retval,&~A);~%"
+          (format *coutput-stream* " {~%  ~A;~%  ~A;~%"
                   (to-c-typedecl rettype "retval")
-                  (object-to-c-value (pass-object rettype))
-                  (convert-to-foreign-C flags)))
+                  (convert-to-foreign rettype "value1" "&retval" flags)))
         (let ((outargcount (if (eq rettype 'NIL) 0 1)))
           (mapc #'(lambda (argtype argflag argname)
                     (when (flag-set-p argflag flag-output)
                       (unless (eq (ctype-type argtype) 'C-PTR)
                         (error (TEXT "~S: :OUT argument is not a pointer: ~S")
                                'DEF-CALL-IN argtype))
-                      (format *coutput-stream*
-                              "  ~Aconvert_to_foreign(~A,~A,~A,&~A);~%"
+                      (format *coutput-stream* "  ~A~A;~%"
                               (if (eql outargcount 0) ""
                                 (format nil "if (mv_count >= ~D) "
                                         (+ outargcount 1)))
-                              (object-to-c-value
-                                (pass-object (svref argtype 1)))
-                              (if (eql outargcount 0)
-                                "value1"
-                                (format nil "mv_space[~D]" outargcount))
-                              argname (convert-to-foreign-C argflag))
+                              (convert-to-foreign
+                               (svref argtype 1)
+                               (if (eql outargcount 0) "value1"
+                                   (format nil "mv_space[~D]" outargcount))
+                               argname argflag))
                       (incf outargcount)))
                 argtypes argflags argnames))
         (format *coutput-stream* "  end_callback();~%")
