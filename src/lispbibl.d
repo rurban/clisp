@@ -5756,6 +5756,9 @@ typedef struct {
   gcv_object_t pack_nicknames         _attribute_aligned_object_;
   gcv_object_t pack_docstring         _attribute_aligned_object_;
   gcv_object_t pack_shortest_name     _attribute_aligned_object_;
+#ifdef MULTITHREAD
+  gcv_object_t pack_mutex             _attribute_aligned_object_;
+#endif
 } *  Package;
 #define package_length  ((sizeof(*(Package)0)-offsetofa(record_,recdata))/sizeof(gcv_object_t))
 /* Some packages are case-sensitive. */
@@ -5774,7 +5777,12 @@ typedef struct {
 #define mark_pack_deleted(obj)  record_flags_set(ThePackage(obj),bit(7))
 #define pack_deletedp(obj)      (record_flags(ThePackage(obj)) & bit(7))
 %% #if notused
-%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t pack_external_symbols%s; gcv_object_t pack_internal_symbols%s; gcv_object_t pack_shadowing_symbols%s; gcv_object_t pack_use_list%s; gcv_object_t pack_used_by_list%s; gcv_object_t pack_name%s; gcv_object_t pack_nicknames%s; gcv_object_t pack_docstring%s; gcv_object_t pack_shortest_name%s; } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
+%% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t pack_external_symbols%s; gcv_object_t pack_internal_symbols%s; gcv_object_t pack_shadowing_symbols%s; gcv_object_t pack_use_list%s; gcv_object_t pack_used_by_list%s; gcv_object_t pack_name%s; gcv_object_t pack_nicknames%s; gcv_object_t pack_docstring%s; gcv_object_t pack_shortest_name%s; %s %s %s %s } *",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,
+%% #ifdef MULTITHREAD
+%% "gcv_object_t", "pack_mutex", attribute_aligned_object, ";");
+%% #else
+%% "", "", "", "");
+%% #endif
 %% emit_typedef(buf,"Package");
 %% #endif
 

@@ -473,10 +473,16 @@ local maygc object make_package (object name, object nicknames,
   ThePackage(pack)->pack_nicknames = popSTACK();
   ThePackage(pack)->pack_docstring = NIL;
   ensure_pack_shortest_name(pack);
-  /* and insert in ALL_PACKAGES: */
   pushSTACK(pack);
-  /* no need to lock O(all_packages) since here we are always called with
-     O(all_packages_lock) held (threads builds). */
+ #ifdef MULTITHREAD
+  /* allocate the package mutex */
+  /* mutex name is the same as the package name */
+  pushSTACK(S(Kname)); pushSTACK(ThePackage(pack)->pack_name);
+  pushSTACK(S(Krecursive_p)); pushSTACK(T); /* recursive  */
+  funcall(L(make_mutex),4);
+  ThePackage(STACK_0)->pack_mutex = value1;
+ #endif
+  /* and insert in ALL_PACKAGES: */
   var object new_cons = allocate_cons();
   pack = popSTACK();
   Car(new_cons) = pack; Cdr(new_cons) = O(all_packages);
