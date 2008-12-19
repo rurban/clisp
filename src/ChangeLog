@@ -1,3 +1,9 @@
+2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	add lisp mutex to every package in threads builds
+	* lispbibl.d (struct Package): add pack_mutex in threads builds
+	* package.d (make_package): initialize pack_mutex
+
 2008-12-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix possible memory corruption
