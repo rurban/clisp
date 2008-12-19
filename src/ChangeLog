@@ -1,5 +1,20 @@
 2008-12-19  Sam Steingold  <sds@gnu.org>
 
+	redirect libsvm output to a lisp stream from C stdout
+	* modules/libsvm/libsvm.lisp (*libsvm-output*): new variable
+	(write-string-to-libsvm-output): new C call-in (callback)
+	set "print_string=&libsvm_print_string" in init_2
+	* modules/libsvm/Makefile, modules/libsvm/link.sh: callbacks
+	require libsvm.c and ...
+	* modules/libsvm/preload.lisp: new file for (make-package "LIBSVM" ...)
+	submitted to upstream but not yet accepted:
+	* modules/libsvm/svm.cpp (print_string_stdout): new function
+	(print_string): new variable, initialized to print_string_stdout
+	(info): use vsprintf and (*print_string)
+	* modules/libsvm/svm.h (print_string, print_string_stdout): declare
+
+2008-12-19  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (make_faddress): declare
 	* foreign.d (make_faddress): make global for ...
 	* foreign1.lisp (convert-from-foreign, convert-to-foreign): new
