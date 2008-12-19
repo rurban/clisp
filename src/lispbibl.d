@@ -16769,6 +16769,16 @@ extern maygc object decimal_string (object x);
   #define Faddress_value(obj)  \
    ((void*)((uintP)Fpointer_value(TheFaddress(obj)->fa_base) + TheFaddress(obj)->fa_offset))
 
+/* Allocate a foreign address.
+ make_faddress(base,offset)
+ > base: base address
+ > offset: offset relative to the base address
+ < result: Lisp object
+ can trigger GC */
+extern maygc object make_faddress (object base, uintP offset);
+/* used by FOREIGN & modules (see foreign1.lisp:convert-from-foreign) */
+%%   puts("extern object make_faddress (object base, uintP offset);");
+
 /* ensure that the Faddress is valid
  < fa: foreign address (not checked!)
  can trigger GC */

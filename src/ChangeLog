@@ -1,5 +1,13 @@
 2008-12-19  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (make_faddress): declare
+	* foreign.d (make_faddress): make global for ...
+	* foreign1.lisp (convert-from-foreign, convert-to-foreign): new
+	functions to partially inline convert_from_foreign & convert_to_foreign
+	(note-c-call-in): use them
+
+2008-12-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/dbi.lisp (db-log-stat): fix type of mode slot
 
 2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
