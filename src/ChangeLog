@@ -1,5 +1,13 @@
 2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* zthread.d (thread_cleanup): performs cleanup just before thread
+	termination. currently releases (and warns) held mutexes
+	(thread_stub): use it
+	* spvw.d (mt_main_actions): call thread_cleanup() for the first thread
+	* pathname.d (SAVEMEM): do not allow locked mutexes in memory image
+
+2008-12-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* pathname.d (SAVEMEM): signal an error if there are multiple
 	running threads
 	* spvw.d (single_running_threadp): returns true if the caller is the
