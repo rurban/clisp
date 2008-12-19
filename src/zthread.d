@@ -93,6 +93,45 @@ global void release_exemptions(object list)
   }
 }
 
+/* UP: called at thread exitting. performs cleanup/checks.
+   currently checks whether the exitting thread doesnot hold any mutex.
+The function is called when the current thread does not have established
+DRIVER frame. If the thread is interrupted and error occurs the unwinding
+will reach the stack bottom and will barf. So we establish a driver
+frame to prevent this case. */
+global maygc void thread_cleanup();
+global maygc void thread_cleanup()
+{
+  var clisp_thread_t *me = current_thread();
+  var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
+  var sp_jmp_buf returner; /* remember entry point */
+  finish_entry_frame(DRIVER,returner,,{skipSTACK(2);return;});
+  WITH_OS_MUTEX_LOCK(0,&all_mutexes_lock,{
+    var object list = O(all_mutexes);
+    while (!endp(list)) {
+      if (eq(TheMutex(Car(list))->xmu_owner, me->_lthread)) {
+        /* we own the mutex. warn and release */
+        pushSTACK(list);
+        pushSTACK(Car(list));
+        {  /* warn */
+          pushSTACK(NIL); pushSTACK(me->_lthread);
+          pushSTACK(Car(list));
+          STACK_2 = CLSTEXT("Thread ~S is exiting while still owning mutex ~S. The mutex will be released.");
+          funcall(S(warn),3);
+        }
+        /* release the mutex */
+        TheMutex(STACK_0)->xmu_recurse_count = 0;
+        GC_SAFE_MUTEX_UNLOCK(&TheMutex(STACK_0)->xmu_system);
+        TheMutex(STACK_0)->xmu_owner = NIL;
+        skipSTACK(1); /* mutex */
+        list = popSTACK();
+      }
+      list = Cdr(list);
+    }
+  });
+  skipSTACK(2); /* driver frame */
+}
+
 /* All newly created threads start here.*/
 local /*maygc*/ void *thread_stub(void *arg)
 {
@@ -152,6 +191,7 @@ local /*maygc*/ void *thread_stub(void *arg)
     /* we should always have empty stack - this is an error. */
     NOTREACHED;
   }
+  thread_cleanup();
   /* just unregister it from the active threads. the allocated memory
      will be released during GC (if there are no references to thread object)*/
   delete_thread(me,false);
@@ -554,6 +594,8 @@ LISPFUNN(set_symbol_value_thread,3)
   }
   skipSTACK(3);
 }
+
+
 
 LISPFUNN(mutexp,1)
 { /* (MUTEXP object) */

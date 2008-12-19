@@ -3774,6 +3774,7 @@ local inline void main_actions (struct argv_actions *p) {
 }
 
 #if defined(MULTITHREAD)
+extern maygc void thread_cleanup(); /* in zthread.d */
 /* UP: main_actions() replacement in MT.
  > param: clisp_thread_t structure of the first lisp thread */
 local void* mt_main_actions (void *param) {
@@ -3793,6 +3794,7 @@ local void* mt_main_actions (void *param) {
   Symbol_thread_value(S(thread_whostate_symbol)) = NIL;
   /* now we are ready to start main_actions()*/
   main_actions(args);
+  thread_cleanup();
   delete_thread(me,false); /* just delete ourselves */
   /* NB: the LISP stack is "leaked" - in a sense nobody will
      ever use it anymore !!!*/
