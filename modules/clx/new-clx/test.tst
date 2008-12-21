@@ -665,7 +665,7 @@ T
          (height 600) (width 800)
          (window (xlib:create-window
                   :parent root :x 100 :y 100 :width width :height height
-                  :background (get-color screen "black") :colormap colormap))
+                  :background black :colormap colormap))
          (gcontext (xlib:create-gcontext :drawable window :font font
                                          :background black :foreground white))
          (colors (map 'vector (lambda (c) (xlib:alloc-color colormap c))
