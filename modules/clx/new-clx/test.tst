@@ -654,6 +654,31 @@ T
     (nreverse acc)))
 ((-66 T) (-77 T) (-88 T) (-99 T))
 
+;; http://article.gmane.org/gmane.lisp.clisp.devel:19745
+(xlib:with-open-display (dpy)
+  (let* ((screen (first (xlib:display-roots dpy)))
+         (root (xlib:screen-root screen))
+         (font (xlib:open-font dpy "fixed"))
+         (colormap (xlib:screen-default-colormap screen))
+         (black (xlib:alloc-color colormap "black"))
+         (white (xlib:alloc-color colormap "white"))
+         (height 600) (width 800)
+         (window (xlib:create-window
+                  :parent root :x 100 :y 100 :width width :height height
+                  :background (get-color screen "black") :colormap colormap))
+         (gcontext (xlib:create-gcontext :drawable window :font font
+                                         :background black :foreground white))
+         (colors (map 'vector (lambda (c) (xlib:alloc-color colormap c))
+                      #("red" "green" "blue" "Darkgreen" "yellow"
+                        "lightblue" "Cyan" "Magenta"))))
+    (xlib:map-window window)
+    (xlib:display-force-output dpy)
+    (dotimes (i 10000)
+      (xlib:with-gcontext (gcontext :foreground (aref colors (random 8)))
+        (xlib:draw-glyphs window gcontext (random width) (random height) "*"))
+      (xlib:display-force-output dpy))))
+NIL
+
 ;; cleanup
 (progn
   (symbol-cleanup '*dpy*)
