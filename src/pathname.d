@@ -6029,11 +6029,13 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         tmp = ThePathname(STACK_1)->pathname_directory;
         if (consp(tmp)) {
           /* do NOT modify the argument! */
-          tmp = ThePathname(STACK_1)->pathname_directory = copy_list(tmp);
+          tmp = copy_list(tmp);
+          ThePathname(STACK_1)->pathname_directory = tmp;
           while (!nullp(Cdr(tmp))) tmp = Cdr(tmp);
           Cdr(tmp) = popSTACK(); /* append name.type to directory */
         } else if (nullp(tmp)) {
-          tmp = ThePathname(STACK_1)->pathname_directory = allocate_cons();
+          tmp = allocate_cons();
+          ThePathname(STACK_1)->pathname_directory = tmp;
           Car(tmp) = S(Krelative);
           Cdr(tmp) = popSTACK(); /* :directory (:relative name.type) */
         } else NOTREACHED;
