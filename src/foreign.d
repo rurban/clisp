@@ -3149,7 +3149,8 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
         free_foreign_callin(address);
         /* make the function invalid */
         pushSTACK(addr_obj);
-        TheFaddress(STACK_0)->fa_base = allocate_fpointer(address);
+        var object fp = allocate_fpointer(address);
+        TheFaddress(STACK_0)->fa_base = fp;
         TheFaddress(STACK_0)->fa_offset = 0;
         mark_fp_invalid(TheFpointer(TheFaddress(popSTACK())->fa_base));
         VALUES1(NIL);
@@ -4338,7 +4339,8 @@ local maygc void update_library (object acons) {
       STACK_0 = Cdr(STACK_0);
     } else {                    /* not found - drop object */
       Cdr(STACK_0) = Cdr(Cdr(STACK_0));
-      TheFaddress(*fa_)->fa_base = allocate_fpointer((void*)0);
+      var object fp = allocate_fpointer((void*)0);
+      TheFaddress(*fa_)->fa_base = fp;
       mark_fp_invalid(TheFpointer(TheFaddress(*fa_)->fa_base));
     }
   }

@@ -1603,15 +1603,20 @@ static object make_visual_info (Visual *vis)
 {
   pushSTACK(`(XLIB::VISUAL-INFO)`); pushSTACK(fixnum(8));
   funcall(L(make_structure),2); pushSTACK(value1);
-  TheStructure(STACK_0)->recdata[1] = make_uint29 (vis->visualid); /* id */
+  value1 = make_uint29 (vis->visualid); /* id */
+  TheStructure(STACK_0)->recdata[1] = value1;
  #ifdef __cplusplus
-  TheStructure(STACK_0)->recdata[2] = make_V_class (vis->c_class); /* class */
+  value1 = make_V_class (vis->c_class); /* class */
  #else
-  TheStructure(STACK_0)->recdata[2] = make_V_class (vis->class); /* class */
+  value1 = make_V_class (vis->class); /* class */
  #endif
-  TheStructure(STACK_0)->recdata[3] = make_pixel (vis->red_mask); /* red-mask */
-  TheStructure(STACK_0)->recdata[4] = make_pixel (vis->green_mask); /* green-mask */
-  TheStructure(STACK_0)->recdata[5] = make_pixel (vis->blue_mask); /* blue-mask */
+  TheStructure(STACK_0)->recdata[2] = value1;
+  value1 = make_pixel (vis->red_mask); /* red-mask */
+  TheStructure(STACK_0)->recdata[3] = value1;
+  value1 = make_pixel (vis->green_mask); /* green-mask */
+  TheStructure(STACK_0)->recdata[4] = value1;
+  value1 = make_pixel (vis->blue_mask); /* blue-mask */
+  TheStructure(STACK_0)->recdata[5] = value1;
   TheStructure(STACK_0)->recdata[6] = make_uint8 (vis->bits_per_rgb); /* bits-per-rgb */
   TheStructure(STACK_0)->recdata[7] = make_uint16 (vis->map_entries); /* colormap-entries */
   return popSTACK();
@@ -1654,9 +1659,9 @@ static object make_color (XColor *color)
 {
   pushSTACK(`(XLIB::COLOR)`); pushSTACK(fixnum(4));
   funcall(L(make_structure),2); pushSTACK(value1);
-  TheStructure(STACK_0)->recdata[1] = make_rgb_val (color->red); /* red */
-  TheStructure(STACK_0)->recdata[2] = make_rgb_val (color->green); /* green */
-  TheStructure(STACK_0)->recdata[3] = make_rgb_val (color->blue); /* blue */
+  value1=make_rgb_val(color->red); TheStructure(STACK_0)->recdata[1]=value1;
+  value1=make_rgb_val(color->green); TheStructure(STACK_0)->recdata[2]=value1;
+  value1=make_rgb_val(color->blue); TheStructure(STACK_0)->recdata[3]=value1;
   return popSTACK();
 }
 
