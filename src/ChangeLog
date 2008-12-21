@@ -1,3 +1,8 @@
+2008-12-21  Sam Steingold  <sds@gnu.org>
+
+	* intparam.c (string_length): avoid g++ warning
+	"deprecated conversion from string constant to 'char*'"
+
 2008-12-19  Sam Steingold  <sds@gnu.org>
 
 	redirect libsvm output to a lisp stream from C stdout

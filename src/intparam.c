@@ -79,7 +79,7 @@ void printf_underscored (const char* string)
 
 /* string_length(string) is the same as strlen(string).
    Better avoid depending on <string.h>. */
-int string_length (char* string)
+int string_length (const char* string)
 { int count = 0;
   while (*string++ != '\0') { count++; }
   return count;
