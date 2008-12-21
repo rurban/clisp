@@ -13266,7 +13266,8 @@ global maygc object mkops_from_handles (Handle opipe, int process_id) {
   STACK_0 = allocate_handle(opipe);
   var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
   pushSTACK(stream);
-  TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
+  var object pid = UL_to_I(process_id);
+  TheStream(STACK_0)->strm_pipe_pid = pid;
   return popSTACK(); /* return stream */
 }
 
@@ -13292,7 +13293,8 @@ global maygc object mkips_from_handles (Handle ipipe, int process_id) {
   STACK_0 = allocate_handle(ipipe);
   var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
   pushSTACK(stream);
-  TheStream(STACK_0)->strm_pipe_pid = UL_to_I(process_id);
+  var object pid = UL_to_I(process_id);
+  TheStream(STACK_0)->strm_pipe_pid = pid;
   return popSTACK(); /* return stream */
 }
 

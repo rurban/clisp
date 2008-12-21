@@ -149,10 +149,11 @@ DEFUN(GDBM::GDBM-OPEN, name &key BLOCKSIZE READ-WRITE OPTION MODE   \
   int rw = rw_opt1 | rw_opt2;
   int bsize = check_uint_defaulted(popSTACK(), 512);
   if (typep_classname(STACK_0,`GDBM::GDBM`)) { /* reuse */
-    if (!check_gdbm(&STACK_0,&default_key_type,&default_value_type,false))
-      TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = /* reopen */
-        open_gdbm(TheStructure(STACK_0)->recdata[GDBM_SLOT_PATH],
-                  bsize, rw, mode);
+    if (!check_gdbm(&STACK_0,&default_key_type,&default_value_type,false)) {
+      value1 = open_gdbm(TheStructure(STACK_0)->recdata[GDBM_SLOT_PATH],
+                         bsize, rw, mode); /* reopen */
+      TheStructure(STACK_0)->recdata[GDBM_SLOT_FILE] = value1;
+    }
     TheStructure(STACK_0)->recdata[GDBM_SLOT_KEY]=fixnum(default_key_type);
     TheStructure(STACK_0)->recdata[GDBM_SLOT_VAL]=fixnum(default_value_type);
     VALUES1(popSTACK());        /* return the argument */
