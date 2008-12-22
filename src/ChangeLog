@@ -1,5 +1,11 @@
 2008-12-22  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (error_eos, HANDLE_EOF): add
+	(READ-N-BYTES, READ-BYTE, READ-BYTE-NO-HANG, READ-INTEGER)
+	(READ-FLOAT): use them
+
+2008-12-22  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm/libsvm.lisp: cast callback libsvm_print_string
 	when setting print_string because...
 	my 2008-12-19 patch is accept by the upstream with changes:
