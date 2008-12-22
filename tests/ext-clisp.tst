@@ -335,6 +335,36 @@ CHECK-LOAD
         (ext:run-program cmd :arguments (append args '("-x" "(exit)")))))
 (42 NIL)
 
+(multiple-value-bind (cmd args) (cmd-args)
+  (with-open-stream (s (ext:make-pipe-input-stream
+                        (with-output-to-string (s)
+                          (princ cmd s)
+                          (dolist (a args) (princ #\space s) (princ a s))
+                          (princ " -x '(quote hello)'" s))))
+    (read-line s)))
+"HELLO"
+
+(multiple-value-bind (cmd args) (cmd-args)
+  (with-open-stream (s (ext:make-pipe-output-stream
+                        (with-output-to-string (s)
+                          (princ cmd s)
+                          (dolist (a args) (princ #\space s) (princ a s)))))
+    (write-line "(quit)" s)))
+"(quit)"
+
+(multiple-value-bind (cmd args) (cmd-args)
+  (multiple-value-bind (pid in out err)
+      (ext::launch cmd :arguments args :input :pipe :output :pipe :error :pipe)
+    (unwind-protect
+         (list (integerp (show pid))
+               (output-stream-p in)
+               (input-stream-p out)
+               (input-stream-p err)
+               (write-line "(quit)" in) (force-output in)
+               (read-line out))
+    (close in) (close out) (close err))))
+(T T T T "(quit)" NIL "[1]> ")
+
 (progn (symbol-cleanup 'check-load)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))

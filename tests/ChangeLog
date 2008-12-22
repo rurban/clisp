@@ -1,3 +1,8 @@
+2008-12-21  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: add tests for MAKE-PIPE-INPUT-STREAM,
+	MAKE-PIPE-OUTPUT-STREAM, LAUNCH
+
 2008-12-18  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (run-test): remove the spurious (break), mistakenly
