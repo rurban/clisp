@@ -1,5 +1,9 @@
 2008-12-21  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (MAKE-WINDOW) [WIN32_NATIVE]: fix a GC-safety bug
+
+2008-12-21  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (mk_pipe_from_handle): replaces mkips_from_handles
 	and mkops_from_handles
 	* stream.d (CHECK_UNBUFFERED_ELTYPE): new macro
