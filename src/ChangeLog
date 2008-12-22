@@ -1,3 +1,8 @@
+2008-12-22  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (prepare-module, finalize-coutput-file):
+	module__~A__object_tab is of type gcv_object_t, not object
+
 2008-12-21  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (MAKE-WINDOW) [WIN32_NATIVE]: fix a GC-safety bug
