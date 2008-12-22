@@ -10775,7 +10775,9 @@ LISPFUNN(make_window,0) {
     console_size.X = 80; console_size.Y = 25;
   }
   console_pos.X = 0;console_pos.Y = 0;
-
+  pushSTACK(stream);            /* save */
+  var handle_object = allocate_handle(handle);
+  stream = popSTACK();          /* restore */
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
   s->strm_wr_ch       = s->strm_wr_ch_npnl       = P(wr_ch_window);       /* WRITE-CHAR Pseudofunction */
@@ -10783,7 +10785,7 @@ LISPFUNN(make_window,0) {
   s->strm_encoding    = O(terminal_encoding);
   s->strm_isatty      = NIL;
   s->strm_ichannel    = NIL;
-  TheStream(stream)->strm_ochannel = allocate_handle(handle);
+  TheStream(stream)->strm_ochannel = handle_object;
   /* non GC-ed fields */
   ConsoleData(stream)->console_size = console_size;
   ConsoleData(stream)->cursor_position = console_pos;
