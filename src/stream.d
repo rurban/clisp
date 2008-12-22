@@ -5913,6 +5913,10 @@ local void check_unbuffered_eltype (const decoded_el_t* eltype) {
     error(error_condition,GETTEXT("Unbuffered streams need an ~S with a bit size being a multiple of 8, not ~S"));
   }
 }
+#define CHECK_UNBUFFERED_ELTYPE(buffered,direction,eltype)              \
+  if ((direction == DIRECTION_INPUT && buffered == signean_minus)       \
+      || (direction == DIRECTION_OUTPUT && buffered != signean_plus))   \
+    check_unbuffered_eltype(&eltype)
 
 /* UP: Fills in the pseudofunctions for an unbuffered stream.
  fill_pseudofuns_unbuffered(stream,&eltype);
@@ -13008,35 +13012,43 @@ local maygc object make_pipe (signean buffered, direction_t direction,
   return add_to_open_streams(stream);
 }
 
-/* (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
- calls a shell, that executes command, whereby its Standard-Output
- is directed into our pipe. */
-LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
-        (kw(element_type),kw(external_format),kw(buffered)) ) {
+/* UP: The common part of MAKE-PIPE-INPUT-STREAM & MAKE-PIPE-OUTPUT-STREAM
+ > STACK_0: :buffered
+ > STACK_1: :external-format
+ > STACK_2: :element-type
+ > STACK_3: command line
+ < value1: pipe stream
+ cleans up the STACK
+ can trigger GC */
+local maygc Values make_pipe_stream (direction_t direction,
+                                     void create_pipe (const char*)) {
   var decoded_el_t eltype;
   var signean buffered;
-  /* check command: */
-  pushSTACK(STACK_3); funcall(L(string),1); /* (STRING command) */
-  STACK_3 = value1;
+  STACK_3 = check_string(STACK_3); /* check command */
   /* Check and canonicalize the :BUFFERED argument: */
   buffered = test_buffered_arg(STACK_0);
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
-  if (buffered < 0) { check_unbuffered_eltype(&eltype); }
+  CHECK_UNBUFFERED_ELTYPE(buffered,direction,eltype);
   /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
   STACK_1 = test_external_format_arg(STACK_1);
   /* Now create the pipe. */
-  with_string_0(STACK_3,O(misc_encoding),command_asciz, {
-    create_input_pipe(command_asciz);
-  });
+  with_string_0(STACK_3,O(misc_encoding),command_asciz,
+                { create_pipe(command_asciz); });
   /* allocate Stream: */
-  var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
+  var object stream = make_pipe(buffered,direction,&eltype);
   TheStream(stream)->strm_pipe_pid = popSTACK(); /* Child-Pid */
   skipSTACK(4);
   VALUES1(stream); /* return stream */
 }
 
+/* (MAKE-PIPE-INPUT-STREAM command [:element-type] [:external-format] [:buffered])
+ calls a shell, that executes command, whereby its Standard-Output
+ is directed into our pipe. */
+LISPFUN(make_pipe_input_stream,seclass_default,1,0,norest,key,3,
+        (kw(element_type),kw(external_format),kw(buffered)) )
+{ make_pipe_stream(DIRECTION_INPUT,create_input_pipe); }
 
 /* Pipe-Output-Stream
  ================== */
@@ -13219,40 +13231,22 @@ local inline void create_output_pipe (const char* command) {
  calls a shell, that executes command, whereby our Pipe is redirected
  into the standard-input of the command. */
 LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
-        (kw(element_type),kw(external_format),kw(buffered)) ) {
-  var decoded_el_t eltype;
-  var signean buffered;
-  /* check command: */
-  pushSTACK(STACK_3); funcall(L(string),1); /* (STRING command) */
-  STACK_3 = value1;
-  /* Check and canonicalize the :BUFFERED argument: */
-  buffered = test_buffered_arg(STACK_0);
-  /* Check and canonicalize the :ELEMENT-TYPE argument: */
-  test_eltype_arg(&STACK_2,&eltype);
-  STACK_2 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
-  /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
-  STACK_1 = test_external_format_arg(STACK_1);
-  /* Now create the pipe. */
-  with_string_0(STACK_3,O(misc_encoding),command_asciz, {
-    create_output_pipe(command_asciz);
-  });
-  /* allocate Stream: */
-  var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
-  TheStream(stream)->strm_pipe_pid = popSTACK(); /* Child-Pid */
-  skipSTACK(4);
-  VALUES1(stream); /* return stream */
-}
+        (kw(element_type),kw(external_format),kw(buffered)) )
+{ make_pipe_stream(DIRECTION_OUTPUT,create_output_pipe); }
 
-/* mkops_from_handles(pipe,process_id)
+/* mk_pipe_from_handle(pipe,process_id,dir)
  Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
  > STACK_0: buffered
  > STACK_1: element-type
  > STACK_2: encoding
+ > pipe: input or output pipe, depending on direction
+ > process_id: PID of the underlying process
+ > direction: pipe stream direction
  < result - a PIPE-OUTPUT-STREAM
  Used in LAUNCH
  can trigger GC */
-global maygc object mkops_from_handles (Handle opipe, int process_id) {
+extern maygc object mk_pipe_from_handle (Handle pipe, int process_id,
+                                         direction_t direction) {
   var decoded_el_t eltype;
   var signean buffered;
   /* Check and canonicalize the :BUFFERED argument: */
@@ -13260,38 +13254,11 @@ global maygc object mkops_from_handles (Handle opipe, int process_id) {
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
   test_eltype_arg(&STACK_1,&eltype);
   STACK_1 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  CHECK_UNBUFFERED_ELTYPE(buffered,direction,eltype);
   /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
   STACK_2 = test_external_format_arg(STACK_2);
-  STACK_0 = allocate_handle(opipe);
-  var object stream = make_pipe(buffered,DIRECTION_OUTPUT,&eltype);
-  pushSTACK(stream);
-  var object pid = UL_to_I(process_id);
-  TheStream(STACK_0)->strm_pipe_pid = pid;
-  return popSTACK(); /* return stream */
-}
-
-/* mkips_from_handles(pipe,process_id)
- Make a PIPE-INPUT-STREAM from pipe handle and a process-id
- > STACK_0: buffered
- > STACK_1: element-type
- > STACK_2: encoding
- < result - a PIPE-INPUT-STREAM
- Used in LAUNCH
- can trigger GC */
-global maygc object mkips_from_handles (Handle ipipe, int process_id) {
-  var decoded_el_t eltype;
-  var signean buffered;
-  /* Check and canonicalize the :BUFFERED argument: */
-  buffered = test_buffered_arg(STACK_0);
-  /* Check and canonicalize the :ELEMENT-TYPE argument: */
-  test_eltype_arg(&STACK_1,&eltype);
-  STACK_1 = canon_eltype(&eltype);
-  if (buffered < 0) { check_unbuffered_eltype(&eltype); }
-  /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
-  STACK_2 = test_external_format_arg(STACK_2);
-  STACK_0 = allocate_handle(ipipe);
-  var object stream = make_pipe(buffered,DIRECTION_INPUT,&eltype);
+  STACK_0 = allocate_handle(pipe);
+  var object stream = make_pipe(buffered,direction,&eltype);
   pushSTACK(stream);
   var object pid = UL_to_I(process_id);
   TheStream(STACK_0)->strm_pipe_pid = pid;

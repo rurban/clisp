@@ -8726,15 +8726,14 @@ local maygc bool init_launch_streamarg
 }
 
 local maygc void make_launch_pipe
-(gcv_object_t *ret, bool parent_inputp, Handle hparent_pipe, int childpid,
+(gcv_object_t *ret, direction_t direction, Handle hparent_pipe, int childpid,
  gcv_object_t *enc, gcv_object_t *eltype, gcv_object_t *buffered) {
   if (hparent_pipe != INVALID_HANDLE) {
     pushSTACK(*enc);            /* encoding */
     pushSTACK(*eltype);         /* element-type */
     pushSTACK(*buffered);       /* buffered */
-    *ret = (parent_inputp ? mkips_from_handles : mkops_from_handles)
-      (hparent_pipe,childpid); /* replace :PIPE with PIPE-x-STREAM */
-    /* stack has been cleaned by callee */
+    *ret = mk_pipe_from_handle(hparent_pipe,childpid,direction);
+    /* stack has been cleaned by mk_pipe_from_handle */
   }
 }
 
@@ -8994,13 +8993,16 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
     gcv_object_t *enc = &STACK_7;    /* :ENCODING */
     gcv_object_t *eltype = &STACK_8; /* :ELEMENT-TYPE */
     /* child's input stream, pipe-output from our side */
-    make_launch_pipe(&(STACK_3),false,hparent_out,child_id,enc,eltype,buff);
+    make_launch_pipe(&(STACK_3),DIRECTION_OUTPUT,hparent_out,
+                     child_id,enc,eltype,buff);
     /* child's output stream, pipe-input from our side
        double analysis of buffered, eltype,encoding
        drawback: slow; advantage: simple iface with stream.d */
-    make_launch_pipe(&(STACK_2),true,hparent_in,child_id,enc,eltype,buff);
+    make_launch_pipe(&(STACK_2),DIRECTION_INPUT,hparent_in,
+                     child_id,enc,eltype,buff);
     /* child's error stream, pipe-input from our side */
-    make_launch_pipe(&(STACK_1),true,hparent_errin,child_id,enc,eltype,buff);
+    make_launch_pipe(&(STACK_1),DIRECTION_INPUT,hparent_errin,
+                     child_id,enc,eltype,buff);
   }
   value1 = wait_p ? fixnum(exit_code) : L_to_I(child_id);
   value2 = (hparent_out   != INVALID_HANDLE) ? (object)STACK_3 : NIL; /*INPUT*/

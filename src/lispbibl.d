@@ -15934,28 +15934,18 @@ extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* i
 %% puts("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);");
 
 #ifdef PIPES
-/* mkops_from_handles(pipe,process_id)
+/* mk_pipe_from_handle(pipe,process_id,dir)
  Make a PIPE-OUTPUT-STREAM from pipe handle and a process-id
  > STACK_0: buffered
  > STACK_1: element-type
  > STACK_2: encoding
+ > pipe: input or output pipe, depending on direction
+ > process_id: PID of the underlying process
+ > direction: pipe stream direction
  < result - a PIPE-OUTPUT-STREAM
  Used in LAUNCH
  can trigger GC */
-extern maygc object mkops_from_handles (Handle opipe, int process_id);
-/* is used by PATHNAME */
-#endif
-
-#ifdef PIPES
-/* mkips_from_handles(pipe,process_id)
- Make a PIPE-INPUT-STREAM from pipe handle and a process-id
- > STACK_0: buffered
- > STACK_1: element-type
- > STACK_2: encoding
- < result - a PIPE-INPUT-STREAM
- Used in LAUNCH
- can trigger GC */
-extern maygc object mkips_from_handles (Handle ipipe, int process_id);
+extern maygc object mk_pipe_from_handle (Handle opipe, int process_id, direction_t direction);
 /* is used by PATHNAME */
 #endif
 
