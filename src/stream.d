@@ -13779,19 +13779,29 @@ local maygc void test_n_bytes_args (uintL* index_, uintL* count_) {
   STACK_0 = array_displace_check(check_byte_vector(STACK_0),*count_,index_);
 }
 
+/* UP: report END-OF-FILE error
+ > stream: the stream that has reached EOS */
+nonreturning_function(local, error_eos, (object stream)) {
+  pushSTACK(stream);            /* STREAM-ERROR slot STREAM */
+  pushSTACK(stream); pushSTACK(TheSubr(subr_self)->name);
+  error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
+}
+#define HANDLE_EOF(eof_e_p,eofval,skip_stack)                           \
+  if (nullp(eof_e_p)) { /* handle EOF: */                               \
+    value1 = eofval;                                                    \
+    if (!boundp(value1)) value1 = NIL; /* Default is NIL */             \
+    mv_count = 1; skipSTACK(skip_stack); /* return eofval */            \
+  } else               /* eof-error-p /= NIL (e.g. = #<UNBOUND>) ? */   \
+    error_eos(STACK_2);
+
 LISPFUNN(read_n_bytes,4) {
   var uintL startindex;
   var uintL totalcount;
   test_n_bytes_args(&startindex,&totalcount);
-  if (!(totalcount==0)) {
-    if (read_byte_array(&STACK_1,&STACK_0,startindex,totalcount,persev_full)
-        != totalcount) {
-      pushSTACK(STACK_1); /* STREAM-ERROR slot STREAM */
-      pushSTACK(STACK_(1+1)); /* Stream */
-      pushSTACK(S(read_n_bytes));
-      error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
-    }
-  }
+  if (totalcount !=0
+      && (read_byte_array(&STACK_1,&STACK_0,startindex,totalcount,persev_full)
+          != totalcount))
+    error_eos(STACK_1);
   skipSTACK(2);
   VALUES1(T);
 }
@@ -17098,18 +17108,7 @@ LISPFUN(read_byte,seclass_default,1,2,norest,nokey,0,NIL) {
   /* read Integer: */
   var object obj = read_byte(stream);
   if (eq(obj,eof_value)) { /* EOF-treatment */
-    if (!nullp(STACK_1)) { /* eof-error-p /= NIL (e.g. = #<UNBOUND>) ? */
-      /* report error: */
-      pushSTACK(STACK_2); /* STREAM-ERROR slot STREAM */
-      pushSTACK(STACK_(2+1)); /* Stream */
-      pushSTACK(S(read_byte));
-      error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
-    } else { /* handle EOF: */
-      var object eofval = STACK_0;
-      if (!boundp(eofval))
-        eofval = NIL; /* Default is NIL */
-      VALUES1(eofval); skipSTACK(3); /* return eofval */
-    }
+    HANDLE_EOF(STACK_1, STACK_0, 3);
   } else {
     VALUES1(obj); skipSTACK(3); /* return obj */
   }
@@ -17155,20 +17154,7 @@ LISPFUN(read_byte_no_hang,seclass_default,1,2,norest,nokey,0,NIL) {
       return;
     }
   }
-  /* EOF handling. */
-  if (!nullp(STACK_1)) { /* eof-error-p /= NIL (e.g. = #<UNBOUND>) ? */
-    /* report error: */
-    pushSTACK(STACK_2); /* STREAM-ERROR slot STREAM */
-    pushSTACK(STACK_(2+1)); /* Stream */
-    pushSTACK(S(read_byte_no_hang));
-    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
-  } else {
-    /* handle EOF: */
-    var object eofval = STACK_0;
-    if (!boundp(eofval))
-      eofval = NIL; /* Default is NIL */
-    VALUES1(eofval); skipSTACK(3); /* return eofval */
-  }
+  HANDLE_EOF(STACK_1, STACK_0, 3);
 }
 
 /* (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
@@ -17207,20 +17193,8 @@ LISPFUN(read_integer,seclass_default,2,3,norest,nokey,0,NIL) {
     skipSTACK(6);
     return;
   }
-  /* EOF-Treatment */
- eof:
-  if (!nullp(STACK_2)) { /* eof-error-p /= NIL (e.g. = #<UNBOUND>) ? */
-    /* report error: */
-    pushSTACK(STACK_5); /* STREAM-ERROR slot STREAM */
-    pushSTACK(STACK_(5+1)); /* Stream */
-    pushSTACK(S(read_integer));
-    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
-  } else { /* handle EOF: */
-    var object eofval = STACK_1;
-    if (!boundp(eofval))
-      eofval = NIL; /* Default is NIL */
-    VALUES1(eofval); skipSTACK(6); /* return eofval */
-  }
+ eof: /* EOF-Treatment */
+  HANDLE_EOF(STACK_2, STACK_1, 6);
 }
 
 /* (READ-FLOAT stream element-type [endianness [eof-error-p [eof-value]]])
@@ -17266,21 +17240,8 @@ LISPFUN(read_float,seclass_default,2,3,norest,nokey,0,NIL) {
   mv_count=1;
   skipSTACK(6);
   return;
-  /* EOF-Treatment */
- eof:
-  if (!nullp(STACK_2)) { /* eof-error-p /= NIL (e.g. = #<UNBOUND>) ? */
-    /* report error: */
-    pushSTACK(STACK_5); /* STREAM-ERROR slot STREAM */
-    pushSTACK(STACK_(5+1)); /* Stream */
-    pushSTACK(S(read_float));
-    error(end_of_file,GETTEXT("~S: input stream ~S has reached its end"));
-  } else {
-    /* handle EOF: */
-    var object eofval = STACK_1;
-    if (!boundp(eofval))
-      eofval = NIL; /* Default is NIL */
-    VALUES1(eofval); skipSTACK(6); /* return eofval */
-  }
+ eof: /* EOF-Treatment */
+  HANDLE_EOF(STACK_2, STACK_1, 6);
 }
 
 /* (WRITE-BYTE integer stream), CLTL p. 385 */
