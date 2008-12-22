@@ -1,12 +1,25 @@
 2008-12-21  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (mk_pipe_from_handle): replaces mkips_from_handles
+	and mkops_from_handles
+	* stream.d (CHECK_UNBUFFERED_ELTYPE): new macro
+	(make_pipe_stream): new function: common part of ...
+	(MAKE-PIPE-INPUT-STREAM, MAKE-PIPE-OUTPUT-STREAM): use it
+	(mk_pipe_from_handle): replaces mkips_from_handles
+	and mkops_from_handles
+	* pathname.d (make_launch_pipe): accept direction instead of
+	parent_inputp
+	(LAUNCH): pass direction_t to make_launch_pipe instead of a bool
+
+2008-12-21  Sam Steingold  <sds@gnu.org>
+
 	* foreign.d (FOREIGN-FREE, update_library):
 	* stream.d (mkops_from_handles, mkips_from_handles):
 	* pathname.d (PROBE-PATHNAME):
 	* modules/gdbm/gdbm.c (gdbm_open_read_write):
 	* modules/clx/new-clx/clx.f (make_visual_info, make_color):
 	fix GC-safety bugs: "TheFoo(STACK_0)->bar = allocate_zot()" is NOT
-	safe because lvalue can be compted BEFORE allocation and the GC
+	safe because lvalue can be computed BEFORE allocation and the GC
 	triggered by the allocation will invalidate the lvalue!
 
 2008-12-21  Sam Steingold  <sds@gnu.org>
