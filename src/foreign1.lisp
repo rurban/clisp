@@ -689,7 +689,7 @@
           (let ((module-name (pathname-name *coutput-file*)))
             (make-ffi-module :name module-name
                              :c-name (to-module-name module-name))))
-    (format *coutput-stream* "extern object module__~A__object_tab[];~%"
+    (format *coutput-stream* "extern gcv_object_t module__~A__object_tab[];~%"
             *c-name*)))
 (defun finalize-coutput-file ()
   (when *ffi-module*
@@ -699,11 +699,11 @@
             *c-name* *c-name* *c-name*)
     (let ((count (hash-table-count *object-table*)))
       (if (zerop count)
-        (format *coutput-stream* "object module__~A__object_tab[1];~%~
+        (format *coutput-stream* "gcv_object_t module__~A__object_tab[1];~%~
                 object_initdata_t module__~A__object_tab_initdata[1];~%"
                 *c-name* *c-name*)
         (let ((v (make-array count)))
-          (format *coutput-stream* "object module__~A__object_tab[~D];~%~
+          (format *coutput-stream* "gcv_object_t module__~A__object_tab[~D];~%~
                   object_initdata_t module__~A__object_tab_initdata[~D] = {~%"
                   *c-name* count *c-name* count)
           (dohash (key value *object-table*)
