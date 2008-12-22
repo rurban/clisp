@@ -35,12 +35,13 @@ inline double powi(double base, int times)
 #define INF HUGE_VAL
 #define TAU 1e-12
 #define Malloc(type,n) (type *)malloc((n)*sizeof(type))
-void print_string_stdout (char *s)
+void print_string_stdout (const char *s);
+void print_string_stdout (const char *s)
 {
 	fputs(s,stdout);
 	fflush(stdout);
 }
-void (*print_string) (char *) = &print_string_stdout;
+void (*print_string) (const char *) = &print_string_stdout;
 #if 1
 static void info(const char *fmt,...)
 {
