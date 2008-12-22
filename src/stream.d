@@ -262,9 +262,9 @@ typedef maygc void (* wr_ch_array_Pseudofun) (const gcv_object_t* stream_, const
   Socket-Stream                           Host, Port
 #endif
 
- Additionally a list of all open File-Streams is maintained (for safety).
+Additionally a list of all open File-Streams is maintained (for safety). */
 
- error-message, if a Stream-Operation on a Stream is not allowed.
+/* error-message, if a Stream-Operation on a Stream is not allowed.
  error_illegal_streamop(caller,stream);
  > caller: Caller (a Symbol)
  > stream: Stream */
@@ -277,15 +277,13 @@ nonreturning_function(global, error_illegal_streamop,
 }
 
 /* Dummy-Pseudo-Functions, that signal errors: */
-local object rd_by_error (object stream) {
-  error_illegal_streamop(S(read_byte),stream);
-}
+local object rd_by_error (object stream)
+{ error_illegal_streamop(S(read_byte),stream); }
 
 local uintL rd_by_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* bytearray_,
-                               uintL start, uintL len, perseverance_t persev) {
-  error_illegal_streamop(S(read_byte),*stream_);
-}
+                               uintL start, uintL len, perseverance_t persev)
+{ error_illegal_streamop(S(read_byte),*stream_); }
 
 local maygc uintL rd_by_array_dummy (const gcv_object_t* stream_,
                                      const gcv_object_t* bytearray_,
@@ -311,15 +309,13 @@ local maygc uintL rd_by_array_dummy (const gcv_object_t* stream_,
   return index - start;
 }
 
-local void wr_by_error (object stream, object obj) {
-  error_illegal_streamop(S(write_byte),stream);
-}
+local void wr_by_error (object stream, object obj)
+{ error_illegal_streamop(S(write_byte),stream); }
 
 local void wr_by_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
-                              uintL start, uintL len, perseverance_t persev) {
-  error_illegal_streamop(S(write_byte),*stream_);
-}
+                              uintL start, uintL len, perseverance_t persev)
+{ error_illegal_streamop(S(write_byte),*stream_); }
 
 local uintL wr_by_array_dummy (const gcv_object_t* stream_,
                               const gcv_object_t* bytearray_,
@@ -336,9 +332,8 @@ local uintL wr_by_array_dummy (const gcv_object_t* stream_,
   return len;
 }
 
-local object rd_ch_error (const gcv_object_t* stream_) {
-  error_illegal_streamop(S(read_char),*stream_);
-}
+local object rd_ch_error (const gcv_object_t* stream_)
+{ error_illegal_streamop(S(read_char),*stream_); }
 
 local object pk_ch_dummy (const gcv_object_t* stream_) {
   var object newch = rd_ch(*stream_)(stream_);
@@ -350,9 +345,8 @@ local object pk_ch_dummy (const gcv_object_t* stream_) {
 
 local uintL rd_ch_array_error (const gcv_object_t* stream_,
                                const gcv_object_t* chararray_,
-                               uintL start, uintL len) {
-  error_illegal_streamop(S(read_char),*stream_);
-}
+                               uintL start, uintL len)
+{ error_illegal_streamop(S(read_char),*stream_); }
 
 local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
                                const gcv_object_t* chararray_,
@@ -371,15 +365,13 @@ local uintL rd_ch_array_dummy (const gcv_object_t* stream_,
   return index - start;
 }
 
-local void wr_ch_error (const gcv_object_t* stream_, object obj) {
-  error_illegal_streamop(S(write_char),*stream_);
-}
+local void wr_ch_error (const gcv_object_t* stream_, object obj)
+{ error_illegal_streamop(S(write_char),*stream_); }
 
 local void wr_ch_array_error (const gcv_object_t* stream_,
                               const gcv_object_t* chararray_,
-                              uintL start, uintL len) {
-  error_illegal_streamop(S(write_char),*stream_);
-}
+                              uintL start, uintL len)
+{ error_illegal_streamop(S(write_char),*stream_); }
 
 local maygc void wr_ch_array_dummy (const gcv_object_t* stream_,
                                     const gcv_object_t* chararray_,
@@ -15667,7 +15659,7 @@ LISPFUNN(built_in_stream_set_element_type,2) {
           pushSTACK(S(Kelement_type));
           pushSTACK(O(setf_stream_element_type));
           error(error_condition,
-                 GETTEXT("~S: The ~S of ~S cannot be changed from ~S to ~S."));
+                GETTEXT("~S: The ~S of ~S cannot be changed from ~S to ~S."));
         }
         /* Transform the lastchar back, if possible. */
         if (TheStream(stream)->strmflags & strmflags_open_B) /* stream open? */
