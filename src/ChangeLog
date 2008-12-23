@@ -1,5 +1,10 @@
 2008-12-23  Sam Steingold  <sds@gnu.org>
 
+	* spvw_garcol.d (page_contains_pinned_object): do not define
+	unless MULTITHREAD is defined to fix the --disable-mmap build
+
+2008-12-23  Sam Steingold  <sds@gnu.org>
+
 	* socket.d (connect_via_ip): fix 2008-06-30 patch: is getsockopt
 	fails, return INVALID_SOCKET instead of calling OS_error() here
 
@@ -3450,7 +3455,7 @@
 
 2008-06-30  Sam Steingold  <sds@gnu.org>
 
-	fix bug #[ 2007052 ] socket-connect with :timeout to a dead port
+	fix bug #[ 2007052 ]: socket-connect with :timeout to a dead port
 	* socket.d (connect_via_ip): use getsockopt() to check the status
 	of the socket before returning it, as described in the linux man page
 
