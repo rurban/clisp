@@ -2502,6 +2502,7 @@ local var Page* delayed_pages = NULL;
     delayed_pages = NULL;                               \
   }
 
+#if defined(MULTITHREAD)
 /* checks whether the page contains pinned object.
    inefficient but working implementation.*/
 #ifdef SPVW_PURE
@@ -2522,6 +2523,7 @@ local bool page_contains_pinned_object(Page *page)
     }});
   return false;
 }
+#endif
 
 /* compacting of a page by "decanting" into other pages of the same kind: */
 #ifdef SPVW_PURE
