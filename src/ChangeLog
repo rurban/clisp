@@ -1,3 +1,8 @@
+2008-12-23  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (check_value_range): extracted from ...
+	(read_byte_array, write_byte_array, read_char_array): use it
+
 2008-12-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (itern, do_shadow, unuse_1package, apply_symbols)
@@ -18,7 +23,7 @@
 
 	* modules/libsvm/libsvm.lisp: cast callback libsvm_print_string
 	when setting print_string because...
-	my 2008-12-19 patch is accept by the upstream with changes:
+	my 2008-12-19 patch is accepted by the upstream with changes:
 	* modules/libsvm/svm.cpp, modules/libsvm/svm.h
 	(print_string_stdout): not exported
 	(print_string): argument is a "const"
