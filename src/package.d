@@ -13,6 +13,31 @@
 global xmutex_t all_packages_lock;
 #endif
 
+/* MT changes
+There is global mutex for O(all_packages) and per package recursive lisp
+mutex. If both of them should be obtained (for any package) - the order
+O(all_packages_lock) --> package lock should be preserved. Otherwise deadlocks
+are possible.
+
+Partially implemented.
+Some high level locking of changes in the package structures.
+(USE-PACKAGE is not safe)
+
+Still not implemented (TODO):
+In order to avoid locking on simple lookups (most common case - but other
+as well) - we will try to implement the Symtabs via lock free hashtables.
+We will need atomic CAS op for gcv_object_t objects (not clear whether always
+possible).
+Probably the same will be useful for hashtables (hashtabl.d).
+
+Currently the Symtab delete & lookup are not safe (and because of this
+the insert as well - regardless that intern() is guarded with mutex. The
+latter lock in intern() helps avoid deadlocks however)
+all this will not lead to crashes (hopefully) but to some weird behavior.
+
+TODO: USE-PACKAGE is not protected in any way.
+*/
+
 /* data structure of the symbols: see LISPBIBL.D
  data structure of the symbol table:
  a vector with 3 Slots:
@@ -791,14 +816,18 @@ global maygc uintBWL intern (object string, bool invert, object pack, object* sy
   if (invert)
     string = string_invertcase(string);
   string = coerce_imm_ss(string); /* string --> immutable simple-string */
-  var object sym = make_symbol(string); /* (make-symbol string) */
-  pack = popSTACK();
+  pushSTACK(make_symbol(string)); /* (make-symbol string) */
+  var gcv_object_t *newsym_ = &STACK_0;
+  var gcv_object_t *pack_ = &STACK_1;
   /* enter this new symbol into the package: */
-  set_break_sem_2(); /* protect against breaks */
-  pushSTACK(sym); /* save symbol */
-  make_present(sym,pack); /* intern into this package */
-  *sym_ = popSTACK();
-  clr_break_sem_2(); /* allow breaks */
+  /* TODO: if we have lock free Symbtabs - this lock will not be needed.*/
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+    set_break_sem_2(); /* protect against breaks */
+    make_present(*newsym_,*pack_); /* intern into this package */
+    clr_break_sem_2(); /* allow breaks */
+  });
+  *sym_ = *newsym_;
+  skipSTACK(2); /* pack & sym */
   return 0;
 }
 
@@ -829,7 +858,8 @@ global maygc object intern_keyword (object string) {
  > pack: package (in STACK)
  < sym: symbol, EQ to the old one
  < pack: package, EQ to the old one
- can trigger GC */
+ can trigger GC.
+ MT: no locking - the caller locks */
 local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(shadowing_import),*pack_,*sym_);
   set_break_sem_2(); /* protect against breaks */
@@ -874,38 +904,41 @@ local maygc void shadowing_import (const gcv_object_t* sym_, const gcv_object_t*
  > invert: whether to implicitly case-invert the string
  > pack: package (in STACK)
  < pack: package, EQ to the old
- can trigger GC */
+ can trigger GC.
+ MT: locks with package mutex */
 local maygc void do_shadow (const gcv_object_t* sym_, bool invert, const gcv_object_t* pack_) {
   check_pack_lock(S(shadow),*pack_,*sym_);
-  set_break_sem_2(); /* protect against breaks */
-  /* Search an internal or external symbol of the same name: */
-  var object string = /* only the name of the symbol counts. */
-    test_stringsymchar_arg(*sym_,invert);
-  var object pack = *pack_;
-  pushSTACK(NIL); /* make room for othersym */
-  pushSTACK(string); /* save string */
-  var object othersym;
-  if (package_lookup(string,invert,pack,&othersym,)) {
-    STACK_1 = othersym;
-  } else {
-    /* not found -> create new symbol of the same name: */
-    if (invert)
-      string = string_invertcase(string);
-    string = coerce_imm_ss(string); /* string --> immutable simple-string */
-    var object othersym = make_symbol(string); /* new symbol */
-    STACK_1 = othersym;
-    make_present(othersym,*pack_); /* enter into the package */
-    /* home-package of the new symbols is pack */
-    Symbol_package(STACK_1) = *pack_;
-  }
-  /* stack-layout: othersym, string
-     In the package, now symbol othersym of the same name is present.
-     remove string from the shadowing-list */
-  shadowing_delete(popSTACK(),invert,*pack_);
-  /* therefore add othersym to the shadowing-list */
-  shadowing_insert(&STACK_0,pack_);
-  skipSTACK(1); /* forget othersym */
-  clr_break_sem_2(); /* allow breaks */
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+    set_break_sem_2(); /* protect against breaks */
+    /* Search an internal or external symbol of the same name: */
+    var object string = /* only the name of the symbol counts. */
+      test_stringsymchar_arg(*sym_,invert);
+    var object pack = *pack_;
+    pushSTACK(NIL); /* make room for othersym */
+    pushSTACK(string); /* save string */
+    var object othersym;
+    if (package_lookup(string,invert,pack,&othersym,)) {
+      STACK_1 = othersym;
+    } else {
+      /* not found -> create new symbol of the same name: */
+      if (invert)
+        string = string_invertcase(string);
+      string = coerce_imm_ss(string); /* string --> immutable simple-string */
+      var object othersym = make_symbol(string); /* new symbol */
+      STACK_1 = othersym;
+      make_present(othersym,*pack_); /* enter into the package */
+      /* home-package of the new symbols is pack */
+      Symbol_package(STACK_1) = *pack_;
+    }
+    /* stack-layout: othersym, string
+       In the package, now symbol othersym of the same name is present.
+       remove string from the shadowing-list */
+    shadowing_delete(popSTACK(),invert,*pack_);
+    /* therefore add othersym to the shadowing-list */
+    shadowing_insert(&STACK_0,pack_);
+    skipSTACK(1); /* forget othersym */
+    clr_break_sem_2(); /* allow breaks */
+  });
 }
 local maygc void shadow (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   do_shadow(sym_,false,pack_);
@@ -923,7 +956,8 @@ local maygc void cs_shadow (const gcv_object_t* sym_, const gcv_object_t* pack_)
  < sym: symbol, EQ to the old
  < pack: package, EQ to the old
  < result: T if found and deleted, NIL if nothing has been done.
- can trigger GC */
+ can trigger GC
+ MT: no locking. caller holds the pack lock */
 local maygc object unintern (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unintern),*pack_,*sym_);
   var object sym = *sym_;
@@ -1065,7 +1099,8 @@ local maygc bool query_intern_conflict (object pack, object sym, object other,
  > sym: symbol (in STACK)
  > pack: package (in STACK)
  < pack: package, EQ to the old
- can trigger GC */
+ can trigger GC
+ MT: pack is locked by the caller. */
 global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   var object sym = *sym_;
   var object pack = *pack_;
@@ -1142,7 +1177,8 @@ global maygc void import (const gcv_object_t* sym_, const gcv_object_t* pack_) {
  > sym: symbol (in STACK)
  > pack: package (in STACK)
  < pack: package, EQ to the old
- can trigger GC */
+ can trigger GC
+ MT: pack is locked by the caller  */
 local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(unexport),*pack_,*sym_);
   var object sym = *sym_;
@@ -1198,7 +1234,8 @@ local maygc void make_external (object sym, object pack) {
  > pack: package (in STACK)
  < sym: symbol, EQ to the old
  < pack: package, EQ to the old
- can trigger GC */
+ can trigger GC
+ MT: pack is locked by the caller. */
 global maygc void export (const gcv_object_t* sym_, const gcv_object_t* pack_) {
   check_pack_lock(S(export),*pack_,*sym_);
   var object sym = *sym_;
@@ -1684,17 +1721,31 @@ local maygc void use_package_aux (void* data, object sym) {
  > qpack: package
  Removes qpack from the use-list of pack
  and pack from the used-by-list of qpack.
- can trigger GC */
+ can trigger GC
+ MT: we lock here both of the packages - one after the other.
+ this is needed since if we try to obtain 2 different mutexes at the
+ same time - we have to establish some order of acquiring them. Otherwise
+ deadlocks are possible.
+ Clearly this is not the most efficient (especially about pack) but
+ is safe. */
 local maygc void unuse_1package (object pack, object qpack) {
   safe_check_pack_lock(S(use_package),pack,qpack);
+  pushSTACK(pack); pushSTACK(qpack);
+  var gcv_object_t *pack_ = &STACK_1;
+  var gcv_object_t *qpack_ = &STACK_0;
   set_break_sem_2();
   /* remove qpack from the use-list of pack: */
-  ThePackage(pack)->pack_use_list =
-    deleteq(ThePackage(pack)->pack_use_list,qpack);
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+    ThePackage(*pack_)->pack_use_list =
+      deleteq(ThePackage(*pack_)->pack_use_list,*qpack_);
+  });
   /* remove pack from the used-by-list of qpack: */
-  ThePackage(qpack)->pack_used_by_list =
-    deleteq(ThePackage(qpack)->pack_used_by_list,pack);
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
+    ThePackage(*qpack_)->pack_used_by_list =
+      deleteq(ThePackage(*qpack_)->pack_used_by_list,*pack_);
+  });
   clr_break_sem_2();
+  skipSTACK(2);
 }
 
 /* UP: Effectuates, that a list of given packages is not USE-ed anymore
@@ -1704,7 +1755,8 @@ local maygc void unuse_1package (object pack, object qpack) {
  > pack: package
  Removes all packages from packlist from the use-list of pack
  and pack from the used-by-lists of all packages from packlist.
- can trigger GC */
+ can trigger GC
+*/
 local maygc void unuse_package (object packlist, object pack) {
   pushSTACK(pack);
   pushSTACK(packlist);
@@ -1924,10 +1976,16 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
       }
     }
     /* There are no conflicts. */
-    set_break_sem_2();
-    ThePackage(pack)->pack_name = STACK_1;
-    ThePackage(pack)->pack_nicknames = STACK_0;
-    clr_break_sem_2();
+    var gcv_object_t *pack_ = &STACK_2;
+    var gcv_object_t *name_ = &STACK_1;
+    var gcv_object_t *nicknamelistr_ = &STACK_0;
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex, {
+      set_break_sem_2();
+      ThePackage(*pack_)->pack_name = *name_;
+      ThePackage(*pack_)->pack_nicknames = *nicknamelistr_;
+      clr_break_sem_2();
+    });
+    pack = STACK_2; /* restore the pack */
     ensure_pack_shortest_name(pack);
     skipSTACK(3);
     VALUES1(pack); /* pack as value */
@@ -2175,7 +2233,11 @@ LISPFUN(unintern,seclass_default,1,1,norest,nokey,0,NIL) {
   /* test package: */
   test_optional_package_arg();
   /* unintern: */
-  VALUES1(unintern(&STACK_1,&STACK_0));
+  var gcv_object_t *pack_ = &STACK_0;
+  var gcv_object_t *sym_ = &STACK_1;
+  WITH_LISP_MUTEX_LOCK(0,true,&ThePackage(*pack_)->pack_mutex,{
+    VALUES1(unintern(sym_,pack_));
+  });
   skipSTACK(2);
 }
 
@@ -2230,20 +2292,30 @@ local maygc Values apply_symbols (sym_pack_function_t* fun) {
     } else {
       /* single symbol */
       /* stack-layout: sym, pack. */
-      (*fun)(&STACK_1,&STACK_0);
+      var gcv_object_t *pack_ = &STACK_0;
+      var gcv_object_t *sym_ = &STACK_1;
+      WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+        (*fun)(sym_,pack_);
+      });
     }
     skipSTACK(2);
   } else {
     /* non-empty symbol-list */
-    pushSTACK(NIL);
-    do {
-      var object symlistr = STACK_2;
-      STACK_2 = Cdr(symlistr);
-      STACK_0 = Car(symlistr); /* symbol */
-      /* stack-layout: symlistr, pack, sym. */
-      (*fun)(&STACK_0,&STACK_1);
-    } while (!matomp(STACK_2));
-    skipSTACK(3);
+    var gcv_object_t *pack_ = &STACK_0;
+    var gcv_object_t *symlist_ = &STACK_1;
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+      pushSTACK(NIL);
+      do {
+        var object symlistr = *symlist_;
+        *symlist_ = Cdr(symlistr);
+        STACK_0 = Car(symlistr); /* symbol */
+        /* stack-layout (single thread) : symlistr, pack, sym. */
+        /* stack-layout (MT) : symlistr, pack, UNWIND_PROTECT frame ,sym. */
+        (*fun)(&STACK_0,pack_);
+      } while (!matomp(*symlist_));
+      skipSTACK(1);
+    });
+    skipSTACK(2); /* pack & symlist */
   }
   /* finish: */
   VALUES1(T);
@@ -2574,7 +2646,7 @@ LISPFUNN(delete_package,1) {
     funcall(L(cerror_of_type),8);
   }
   WITH_OS_MUTEX_LOCK(1, &all_packages_lock, {
-    /* in thread builds it's possible the other thread to have deleted
+    /* in thread builds it's possible another thread to have deleted
        the package already - so check again with lock held */
     if (!pack_deletedp(STACK_0)) {
       /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
@@ -2585,15 +2657,20 @@ LISPFUNN(delete_package,1) {
       clr_break_sem_3();
       /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
       unuse_package(ThePackage(STACK_0)->pack_use_list,STACK_0);
-      /* apply delete_package_aux to the symbols present in pack: */
-      map_symtab_c(&delete_package_aux,&STACK_0,
-                   ThePackage(STACK_0)->pack_external_symbols);
-      map_symtab_c(&delete_package_aux,&STACK_0,
-                   ThePackage(STACK_0)->pack_internal_symbols);
+      /* apply delete_package_aux to the symbols present in pack:
+         in MT we should get the package lock - since delete_package_aux()
+         calls unintern(). */
+      var gcv_object_t *pack_ = &STACK_0;
+      WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+        map_symtab_c(&delete_package_aux,pack_,
+                     ThePackage(*pack_)->pack_external_symbols);
+        map_symtab_c(&delete_package_aux,pack_,
+                     ThePackage(*pack_)->pack_internal_symbols);
+      });
       /* remove pack from the list of all packages and mark as deleted: */
       set_break_sem_2();
-      O(all_packages) = deleteq(O(all_packages),STACK_0);
-      mark_pack_deleted(STACK_0);
+      O(all_packages) = deleteq(O(all_packages),*pack_);
+      mark_pack_deleted(*pack_);
       clr_break_sem_2();
       VALUES1(T);
     } else

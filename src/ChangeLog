@@ -1,5 +1,10 @@
 2008-12-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* package.d (itern, do_shadow, unuse_1package, apply_symbols)
+	(RENAME-PACKAGE, UNINTERN, DELETE-PACKAGE): use package mutex lock
+
+2008-12-23  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* lispbibl.d (WITH_LISP_MUTEX_LOCK): accepts boolean parameter
 	whether to preserve the mv_space. preserve it when unwinding
 
