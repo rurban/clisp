@@ -574,6 +574,27 @@ global maygc object read_byte (object stream) {
   }
 }
 
+/* UP: check that the return value of STREAM-READ-BYTE-SEQUENCE et al
+ > value: the value to be checked
+ > caller: the function which returned the value
+ > minval, maxval: the permissible range
+ < an integer in [minval;maxval]
+ can trigger GC */
+local maygc uintL check_value_range (object value, object caller,
+                                     uintL minval, uintL maxval) {
+  uintV result;
+  if (posfixnump(value)
+      && (result = posfixnum_to_V(value),
+          result >= minval && result <= maxval))
+    return result;
+  /* should we make this continuable? continue == return maxval */
+  pushSTACK(fixnum(maxval));
+  pushSTACK(fixnum(minval));
+  pushSTACK(caller);
+  pushSTACK(value);
+  error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
+}
+
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
  > stream: stream (on the STACK)
@@ -600,17 +621,8 @@ global maygc uintL read_byte_array (const gcv_object_t* stream_,
     pushSTACK(persev == persev_immediate || persev == persev_bonus ? T : NIL);
     pushSTACK(persev == persev_partial ? T : NIL);
     funcall(S(stream_read_byte_sequence),6);
-    var uintV result;
-    if (!(posfixnump(value1)
-          && (result = posfixnum_to_V(value1),
-              result >= start && result <= start+len))) {
-      pushSTACK(fixnum(start+len));
-      pushSTACK(fixnum(start));
-      pushSTACK(S(stream_read_byte_sequence));
-      pushSTACK(value1);
-      error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
-    }
-    return result-start;
+    return check_value_range(value1,S(stream_read_byte_sequence),
+                             start,start+len) - start;
   }
 }
 
@@ -639,7 +651,8 @@ global maygc void write_byte (object stream, object byte) {
  can trigger GC */
 global maygc uintL write_byte_array (const gcv_object_t* stream_,
                                      const gcv_object_t* bytearray_,
-                                     uintL start, uintL len, perseverance_t persev) {
+                                     uintL start, uintL len,
+                                     perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
@@ -653,22 +666,13 @@ global maygc uintL write_byte_array (const gcv_object_t* stream_,
     pushSTACK(persev == persev_immediate || persev == persev_bonus ? T : NIL);
     pushSTACK(persev == persev_partial ? T : NIL);
     funcall(S(stream_write_byte_sequence),6);
-    if (mv_count >= 2) {
+    if (mv_count >= 2)
       /* second return value is index of first unwritten byte
          have to change that here into #bytes written */
-      var uintV result;
-      if (!(posfixnump(value2)
-            && (result = posfixnum_to_V(value2),
-                result >= start && result <= start+len))) {
-        pushSTACK(fixnum(start+len));
-        pushSTACK(fixnum(start));
-        pushSTACK(S(stream_write_byte_sequence));
-        pushSTACK(value2);
-        error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
-      }
-      return result-start;
-    }
-    return len;
+      return check_value_range(value2,S(stream_write_byte_sequence),
+                               start,start+len) - start;
+    else
+      return len;
   }
 }
 
@@ -850,16 +854,8 @@ global maygc uintL read_char_array (const gcv_object_t* stream_,
     pushSTACK(stream); pushSTACK(*chararray_);
     pushSTACK(fixnum(start)); pushSTACK(fixnum(start+len));
     funcall(S(stream_read_char_sequence),4);
-    var uintV result;
-    if (!(posfixnump(value1)
-          && (result = posfixnum_to_V(value1),
-              result >= start && result <= start+len))) {
-      pushSTACK(fixnum(start+len));
-      pushSTACK(fixnum(start));
-      pushSTACK(S(stream_read_char_sequence));
-      pushSTACK(value1);
-      error(error_condition,GETTEXT("Return value ~S of call to ~S should be an integer between ~S and ~S."));
-    }
+    var uintV result =
+      check_value_range(value1,S(stream_read_char_sequence),start,start+len);
     /* Set the stream's $lastchar := last char or #<EOF>: */
     var object lastchar;
     if (result-start == len) {
