@@ -1,3 +1,8 @@
+2008-12-23  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (WITH_LISP_MUTEX_LOCK): accepts boolean parameter
+	whether to preserve the mv_space. preserve it when unwinding
+
 2008-12-22  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (error_eos, HANDLE_EOF): add
