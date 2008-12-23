@@ -993,7 +993,10 @@ local SOCKET connect_via_ip (struct sockaddr * addr, int addrlen,
         }
        #if defined(SOL_SOCKET) && defined(SO_ERROR) && defined(HAVE_GETSOCKOPT)
         var CLISP_SOCKLEN_T len = sizeof(ret);
-        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&ret,&len) < 0) OS_error();
+        if (getsockopt(fd,SOL_SOCKET,SO_ERROR,&ret,&len) < 0) {
+          CLOSESOCKET(fd);
+          return INVALID_SOCKET;
+        }
         if (ret) {
           CLOSESOCKET(fd); sock_set_errno(ret);
           return INVALID_SOCKET;
