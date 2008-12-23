@@ -1,5 +1,9 @@
 2008-12-23  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (check-script): support FreeBSD make
+
+2008-12-23  Sam Steingold  <sds@gnu.org>
+
 	* spvw_garcol.d (page_contains_pinned_object): do not define
 	unless MULTITHREAD is defined to fix the --disable-mmap build
 
