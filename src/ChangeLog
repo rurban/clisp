@@ -1,5 +1,10 @@
 2008-12-23  Sam Steingold  <sds@gnu.org>
 
+	* socket.d (connect_via_ip): fix 2008-06-30 patch: is getsockopt
+	fails, return INVALID_SOCKET instead of calling OS_error() here
+
+2008-12-23  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (check_value_range): extracted from ...
 	(read_byte_array, write_byte_array, read_char_array): use it
 
