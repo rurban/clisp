@@ -2510,7 +2510,7 @@ local bool page_contains_pinned_object(uintL heapnr, Page *page)
 local bool page_contains_pinned_object(Page *page)
 #endif
 {
-var_prepare_objsize;
+  var_prepare_objsize;
   for_all_threads({
     var pinned_chain_t *chain = thread->_pinned;
     while (chain) {
