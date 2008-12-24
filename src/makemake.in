@@ -1121,7 +1121,7 @@ if [ $XCC_GCC = true ] ; then
       * ) ;;
     esac
   fi
-  if [ "${DEBUGGING}" != debug ] ; then # no optimizations
+  if [ "${DEBUGGING}" != debug ] ; then # select optimizations
     if [ "$cpu" = i386 ] ; then
       # gcc <= 2.3.2 may crash when compiling lisparit with -O2
       if [ $CROSS = false ] ; then
@@ -1354,7 +1354,7 @@ if [ "$DEBUGGING" = debug ] ; then
   if [ $TSYS = sun4 -a $XCC_GCC = true ] ; then
     XCFLAGS=$XCFLAGS' -gstabs'
   elif [ ${HSYS} != "win32msvc" ]; then
-    XCFLAGS=$XCFLAGS' -g'
+    XCFLAGS=$XCFLAGS' -g -O0'
   fi
   XCFLAGS=$XCFLAGS' -DDEBUG_OS_ERROR -DDEBUG_SPVW -DDEBUG_BYTECODE -DSAFETY=3'
   case "$CC" in
