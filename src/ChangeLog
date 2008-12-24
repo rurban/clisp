@@ -1,3 +1,7 @@
+2008-12-24  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCFLAGS) [DEBUGGING]: add -O0
+
 2008-12-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-script): support FreeBSD make
