@@ -57,7 +57,7 @@ local void get_errormsg (uintC errcode, os_error_t* errormsg)
     errormsg->name = "EILSEQ";
     errormsg->msg = GETTEXTL("Invalid multibyte or wide character");
   }
-  #endif
+ #endif
   /* Common UNIX errors: */
  #ifdef EPERM
   if (errcode == EPERM) {
