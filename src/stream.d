@@ -14501,8 +14501,10 @@ local maygc object handle_isset (object socket, fd_set *readfds,
        <i1>   <i2>     <i3>
   <o1> :IO    :APPEND  :OUTPUT
   <o2> :INPUT :EOF     NIL
- may cons the list (and thus can trigger GC) if the list does not
- provide space for the return values. */
+ The second value is the number of "actionable" objects, i.e.,
+  the number of arguments for which non-NIL is returned (or set).
+ May cons the list (and thus can trigger GC) if the list does not
+  provide space for the return values. */
 LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
  #if defined(HAVE_SELECT) || defined(WIN32_NATIVE)
   var struct timeval timeout;
