@@ -38,10 +38,20 @@
 ;; standartd input/output streams.
 (defvar *DEFAULT-SPECIAL-BINDINGS*
   '((*random-state* . (make-random-state nil))
-    (*print-base* . 10)
     (*gensym-counter* . 0)
     (ext::*command-index* . 0)
     (*thread-whostate* . nil)
+    (*print-base* . 10)
+    (*print-length* . nil)
+    (*print-level* . nil)
+    (*print-circle* . nil)
+    (*print-radix* . nil)
+    (*print-case* . :upcase)
+    (*print-gensym* . t)
+    (*print-pretty* . t)
+    (*print-readably* . nil)
+    (*read-suppress* . nil)
+    (*read-default-float-format* . 'single-float)
     (*readtable* . (copy-readtable nil))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
