@@ -669,8 +669,9 @@ LISPFUNN(mutex_unlock,1)
   }
   /* decrease the recurse count. if last - unlock really. */
   if ((--TheMutex(STACK_0)->xmu_recurse_count) == 0) {
-    GC_SAFE_MUTEX_UNLOCK(&TheMutex(STACK_0)->xmu_system);
+    /* important to set owner before we really release the lock */
     TheMutex(STACK_0)->xmu_owner = NIL;
+    GC_SAFE_MUTEX_UNLOCK(&TheMutex(STACK_0)->xmu_system);
   }
   VALUES1(popSTACK());
 }
