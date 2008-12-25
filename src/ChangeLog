@@ -1,3 +1,8 @@
+2008-12-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (MUTEX-UNLOCK): reset the mutex owner before releasing
+	the OS mutex
+
 2008-12-24  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCFLAGS) [DEBUGGING]: add -O0
