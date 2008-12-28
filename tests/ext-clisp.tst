@@ -365,6 +365,18 @@ CHECK-LOAD
     (close in) (close out) (close err))))
 (T T T T "(quit)" NIL "[1]> ")
 
+;; c-CONCATENATE
+(let ((args (list (code-char (random char-code-limit))
+                  (user-homedir-pathname)
+                  'args)))
+  (loop :for l :in
+    '((lambda (a b c) (concatenate 'string "[" (symbol-name c) " "
+                                   (namestring b) " " (char-name a) "]")))
+    :for c = (compile nil l) :do (disassemble c)
+    :always (string= (apply (coerce l 'function) args)
+                     (show (apply c args)))))
+T
+
 (progn (symbol-cleanup 'check-load)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))

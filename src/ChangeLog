@@ -1,3 +1,9 @@
+2008-12-28  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (c-form-table): handle CONCATENATE with c-CONCATENATE
+	(c-CONCATENATE): (concatenate 'string ...) ==> (string-concat ...)
+	if all the arguments are certain to be strings
+
 2008-12-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* threads.lisp (*DEFAULT-SPECIAL-BINDINGS*): add more default
