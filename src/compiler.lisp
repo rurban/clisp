@@ -2262,6 +2262,7 @@ for-value   NIL or T
        (NINTERSECTION . c-TEST/TEST-NOT)
        (REMOVE-DUPLICATES . c-TEST/TEST-NOT)
        ;;
+       (CONCATENATE . c-CONCATENATE)
        (LDB . c-LDB)
        (LDB-TEST . c-LDB-TEST)
        (MASK-FIELD . c-MASK-FIELD)
@@ -7731,6 +7732,22 @@ for-value   NIL or T
                                               (second testform)
                                               (nthcdr (+ pos 2) *form*)))))))))
         (c-GLOBAL-FUNCTION-CALL fun)))))
+
+;; (concatenate 'string ...) ==> (string-concat ...)
+(defconstant functions-returning-string
+  '(string symbol-name char-name namestring enough-namestring
+    princ-to-string prin1-to-string write-to-string with-output-to-string
+    get-output-stream-string))
+(defun c-CONCATENATE ()
+  (if (and (equal (second *form*) '(QUOTE STRING))
+           (every (lambda (f)
+                    (or (and (c-constantp f)
+                             (stringp (c-constant-value f)))
+                        (and (consp f)
+                             (memq (car f) functions-returning-string))))
+                  (cddr *form*)))
+      (c-GLOBAL-FUNCTION-CALL-form (cons 'EXT:STRING-CONCAT (cddr *form*)))
+      (c-GLOBAL-FUNCTION-CALL-form *form*)))
 
 ;; Recognizes a constant byte specifier and returns it, or NIL.
 (defun c-constant-byte-p (form)
