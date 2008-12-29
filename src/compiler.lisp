@@ -7734,6 +7734,9 @@ for-value   NIL or T
         (c-GLOBAL-FUNCTION-CALL fun)))))
 
 ;; (concatenate 'string ...) ==> (string-concat ...)
+;; this happens mostly in macros, so it is not clear how valuable this is:
+;; mcclim/Apps/Listener/file-types.lisp:define-mime-type
+;;   (concatenate 'string (symbol-name media-type) "/" (symbol-name subtype))
 (defconstant functions-returning-string
   '(string symbol-name char-name namestring enough-namestring
     princ-to-string prin1-to-string write-to-string with-output-to-string
