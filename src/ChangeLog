@@ -1,3 +1,8 @@
+2008-12-29  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/mit-clx/Makefile (clx.mem): pass file name to
+	saveinitmem instead of using mv
+
 2008-12-28  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-form-table): handle CONCATENATE with c-CONCATENATE
