@@ -14541,7 +14541,6 @@ LISPFUN(socket_status,seclass_default,1,2,norest,nokey,0,NIL) {
          because the buffer contains everything it has got */
       timeout_ptr = &timeout;
       timeout.tv_sec = timeout.tv_usec = 0;
-
     }
     var int selectret;
     GC_SAFE_CALL(selectret=, select(FD_SETSIZE,&readfds,&writefds,&errorfds,timeout_ptr));
