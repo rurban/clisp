@@ -60,8 +60,7 @@ stamp.fas : $(ALLLISP) defsystem.fas
 	touch stamp.fas
 
 clx.mem : defsystem.fas $(ALLFAS)
-	$(LISP) -m 4MB -q -i defsystem -x '(load-clx "" :macrosp t) (saveinitmem)'
-	mv lispinit.mem clx.mem
+	$(LISP) -m 4MB -q -i defsystem -x '(load-clx "" :macrosp t) (saveinitmem "clx")'
 
 
 install : clx.mem
