@@ -1,5 +1,12 @@
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
+	* error.d (OS_filestream_error): when stream is a stream,
+	but not a file stream, signal stream-error instead of os-error
+	* errunix.d, errwin32.d (OS_error_arg): replaces OS_file_error
+	* lispbibl.d (OS_file_error): define using OS_error_arg
+
+2008-12-30  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (task_t): use a dedicated type for
 	directory_search instead of signean
 
