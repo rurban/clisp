@@ -367,7 +367,7 @@ local inline void aktenv_to_stack (void) {
 
 /* UP for LET, LET*, LOCALLY, MULTIPLE-VALUE-BIND, SYMBOL-MACROLET:
  Compiles the current form and executes it in compiled state.
- compile_form()
+ compile_eval_form()
  > in STACK: EVAL-frame with the form
  < mv_count/mv_space: Values
  can trigger GC */
