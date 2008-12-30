@@ -4,7 +4,7 @@
  * Don Cohen, 2003-2004
  * Sam Steingold 2004-2008
  * Bruno Haible 2004-2008
- * <http://www.opengroup.org/onlinepubs/007908799/xns/syssocket.h.html>
+ * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
 
 #if defined(_WIN32)
@@ -412,7 +412,7 @@ static Values protoent_to_protocol (struct protoent *pe) {
 }
 DEFUN(RAWSOCK:PROTOCOL, &optional protocol)
 { /* interface to getprotobyname() et al
-     http://www.opengroup.org/onlinepubs/009695399/functions/getprotoent.html */
+     http://www.opengroup.org/onlinepubs/9699919799/functions/getprotoent.html */
   object proto = popSTACK();
   struct protoent *pe = NULL;
   if (missingp(proto)) {        /* get all protocols */
@@ -459,7 +459,7 @@ static Values netent_to_network (struct netent *ne) {
 }
 DEFUN(RAWSOCK:NETWORK, &optional network type)
 { /* interface to getnetbyname() et al
-     http://www.opengroup.org/onlinepubs/009695399/functions/getnetent.html */
+     http://www.opengroup.org/onlinepubs/9699919799/functions/getnetent.html */
   unsigned int type = check_uint_defaulted(popSTACK(),(unsigned int)-1);
   object net = popSTACK();
   struct netent *ne = NULL;
@@ -500,7 +500,7 @@ DEFUN(RAWSOCK:NETWORK, &optional network type)
 }
 #endif  /* HAVE_NETDB_H */
 /* ================== net/if.h interface ================== */
-/* http://www.opengroup.org/onlinepubs/009695399/basedefs/net/if.h.html */
+/* http://www.opengroup.org/onlinepubs/9699919799/basedefs/net_if.h.html */
 #if defined(HAVE_NET_IF_H)
 DEFUN(RAWSOCK:IF-NAME-INDEX, &optional what) {
   if (missingp(STACK_0)) {
@@ -996,8 +996,8 @@ DEFUN(RAWSOCK:RECVMSG,socket message &key :START :END PEEK OOB WAITALL) {
 #endif  /* HAVE_RECVMSG & HAVE_MSGHDR_MSG_FLAGS & HAVE_MSGHDR_MSG_CONTROL */
 
 DEFUN(RAWSOCK:SOCK-READ,socket buffer &key :START :END)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/read.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/readv.html */
+{ /* http://www.opengroup.org/onlinepubs/9699919799/functions/read.html
+     http://www.opengroup.org/onlinepubs/9699919799/functions/readv.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   ssize_t retval;
   size_t len;
@@ -1067,8 +1067,8 @@ DEFUN(RAWSOCK:SENDTO, socket buffer address &key :START :END OOB EOR) {
 }
 
 DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key :START :END)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/write.html
-     http://www.opengroup.org/onlinepubs/009695399/functions/writev.html */
+{ /* http://www.opengroup.org/onlinepubs/9699919799/functions/write.html
+     http://www.opengroup.org/onlinepubs/9699919799/functions/writev.html */
   rawsock_t sock = I_to_uint(check_uint(STACK_3));
   ssize_t retval;
   size_t len;
@@ -1229,7 +1229,7 @@ static object get_sock_opt (rawsock_t sock, int level, int name, int err_p) {
 }
 #undef GET_SOCK_OPT
 DEFUN(RAWSOCK:SOCKET-OPTION, sock name &key :LEVEL)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/getsockopt.html */
+{ /* http://www.opengroup.org/onlinepubs/9699919799/functions/getsockopt.html */
   int level = sockopt_level(popSTACK());
   int name = sockopt_name(popSTACK());
   rawsock_t sock;
@@ -1364,7 +1364,7 @@ static void set_sock_opt_many (rawsock_t sock, int level, int name,
 }
 
 DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
-{ /* http://www.opengroup.org/onlinepubs/009695399/functions/setsockopt.html */
+{ /* http://www.opengroup.org/onlinepubs/9699919799/functions/setsockopt.html */
   int level = sockopt_level(popSTACK());
   int name = sockopt_name(popSTACK());
   rawsock_t sock;
