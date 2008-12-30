@@ -3261,14 +3261,15 @@ LISPFUNN(generic_stream_p,1) {
  UP: Check a :BUFFERED argument.
  test_buffered_arg(arg)
  > object arg: argument
- < signean buffered: +1 for T, -1 for NIL, 0 for :DEFAULT */
-local signean test_buffered_arg (object arg) {
+ < buffered_t: +1 for T, -1 for NIL, 0 for :DEFAULT */
+typedef enum { BUFFERED_T, BUFFERED_NIL, BUFFERED_DEFAULT } buffered_t;
+local buffered_t test_buffered_arg (object arg) {
   if (!boundp(arg) || eq(arg,S(Kdefault)))
-    return 0;
+    return BUFFERED_DEFAULT;
   if (nullp(arg))
-    return -1;
+    return BUFFERED_NIL;
   if (eq(arg,T))
-    return 1;
+    return BUFFERED_T;
   error_illegal_arg(arg,O(type_buffered_arg),S(Kbuffered));
 }
 
@@ -5881,8 +5882,8 @@ local void check_unbuffered_eltype (const decoded_el_t* eltype) {
   }
 }
 #define CHECK_UNBUFFERED_ELTYPE(buffered,direction,eltype)              \
-  if ((direction == DIRECTION_INPUT && buffered == signean_minus)       \
-      || (direction == DIRECTION_OUTPUT && buffered != signean_plus))   \
+  if ((direction == DIRECTION_INPUT && buffered == BUFFERED_NIL)        \
+      || (direction == DIRECTION_OUTPUT && buffered != BUFFERED_T))     \
     check_unbuffered_eltype(&eltype)
 
 /* UP: Fills in the pseudofunctions for an unbuffered stream.
@@ -8055,7 +8056,7 @@ global maygc void* find_open_file (struct file_id *fid, uintB flags) {
 global maygc object make_file_stream (direction_t direction, bool append_flag,
                                       bool handle_fresh) {
   var decoded_el_t eltype;
-  var signean buffered;
+  var buffered_t buffered;
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
   test_eltype_arg(&STACK_1,&eltype);
   STACK_1 = canon_eltype(&eltype);
@@ -8074,16 +8075,17 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
   buffered = test_buffered_arg(STACK_3);
  #if defined(UNIX)
   /* /proc files are unbuffered by default */
-  if ((buffered == 0) && !nullp(STACK_4)) { /* truename */
+  if ((buffered == BUFFERED_DEFAULT) && !nullp(STACK_4)) { /* truename */
     var object dir = ThePathname(STACK_4)->pathname_directory;
     if (consp(dir) && consp(Cdr(dir)))
       with_sstring_0(Car(Cdr(dir)),O(pathname_encoding),top_dir,
-                     { if (asciz_equal(top_dir,"proc")) buffered = -1; });
+                     { if (asciz_equal(top_dir,"proc"))
+                         buffered = BUFFERED_NIL; });
   }
  #endif
-  if (buffered == 0)
-    buffered = (handle_regular ? 1 : -1);
-  if (buffered < 0) {
+  if (buffered == BUFFERED_DEFAULT)
+    buffered = (handle_regular ? BUFFERED_T : BUFFERED_NIL);
+  if (buffered == BUFFERED_NIL) {
     if (!(eltype.kind == eltype_ch) && !((eltype.size % 8) == 0)) {
       pushSTACK(STACK_4); /* Truename, FILE-ERROR slot PATHNAME */
       pushSTACK(STACK_0);
@@ -8211,7 +8213,7 @@ global maygc object make_file_stream (direction_t direction, bool append_flag,
    the Unix O_APPEND semantics. */
   if (append_flag) {
     pushSTACK(stream);
-    if (buffered < 0) {
+    if (buffered == BUFFERED_NIL) {
       /* position to the End: */
       var Handle output = TheHandle(TheStream(stream)->strm_ochannel);
       begin_blocking_system_call();
@@ -12950,12 +12952,12 @@ local inline void create_input_pipe (const char* command) {
  > eltype
  < stream object
  can trigger GC */
-local maygc object make_pipe (signean buffered, direction_t direction,
+local maygc object make_pipe (buffered_t buffered, direction_t direction,
                               decoded_el_t *eltype) {
   var object stream;
   var uintB type = (direction == DIRECTION_INPUT
                     ? strmtype_pipe_in : strmtype_pipe_out);
-  if (buffered < 0) {
+  if (buffered == BUFFERED_NIL) {
     stream = make_unbuffered_stream(type,direction,eltype,false,false);
     UnbufferedPipeStream_input_init(stream);
   } else {
@@ -12977,7 +12979,7 @@ local maygc object make_pipe (signean buffered, direction_t direction,
 local maygc Values make_pipe_stream (direction_t direction,
                                      void create_pipe (const char*)) {
   var decoded_el_t eltype;
-  var signean buffered;
+  var buffered_t buffered;
   STACK_3 = check_string(STACK_3); /* check command */
   /* Check and canonicalize the :BUFFERED argument: */
   buffered = test_buffered_arg(STACK_0);
@@ -13202,7 +13204,7 @@ LISPFUN(make_pipe_output_stream,seclass_default,1,0,norest,key,3,
 extern maygc object mk_pipe_from_handle (Handle pipe, int process_id,
                                          direction_t direction) {
   var decoded_el_t eltype;
-  var signean buffered;
+  var buffered_t buffered;
   /* Check and canonicalize the :BUFFERED argument: */
   buffered = test_buffered_arg(STACK_0);
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
@@ -13366,7 +13368,7 @@ local inline void create_io_pipe (const char* command) {
 LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
         (kw(element_type),kw(external_format),kw(buffered)) ) {
   var decoded_el_t eltype;
-  var signean buffered;
+  var buffered_t buffered;
   /* check command: */
   pushSTACK(STACK_3); funcall(L(string),1); /* (STRING command) */
   STACK_3 = value1;
@@ -13871,14 +13873,15 @@ local void low_close_socket_nop (object stream, object handle, uintB abort) {}
  > STACK_2: element-type
  > STACK_1: encoding */
 local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
-                                 signean buffered, object host, object port) {
+                                 buffered_t buffered, object host, object port)
+{
   pushSTACK(host);
   pushSTACK(STACK_(1+1)); /* encoding */
   pushSTACK(STACK_(2+2)); /* eltype */
   pushSTACK(allocate_socket(handle));
   /* allocate stream: */
   var object stream;
-  if (buffered < 0) {
+  if (buffered == BUFFERED_NIL) {
     stream = make_unbuffered_stream(strmtype_socket,DIRECTION_IO,
                                     eltype,false,false);
     UnbufferedSocketStream_input_init(stream);
@@ -13898,7 +13901,7 @@ local object make_socket_stream (SOCKET handle, decoded_el_t* eltype,
     pushSTACK(stream);
     /* allocate Output-Stream: */
     pushSTACK(STACK_(2+1)); pushSTACK(STACK_(1+2)); pushSTACK(STACK_(0+3));
-    if (buffered <= 0) {
+    if (buffered != BUFFERED_T) {
       stream = make_unbuffered_stream(strmtype_socket,DIRECTION_OUTPUT,
                                       eltype,false,false);
       UnbufferedSocketStream_output_init(stream);
@@ -14165,13 +14168,13 @@ LISPFUN(socket_accept,seclass_default,1,0,norest,key,4,
   test_socket_server(STACK_3,true);
 
   /* Check and canonicalize the :BUFFERED argument: */
-  var signean buffered = test_buffered_arg(STACK_0);
+  var buffered_t buffered = test_buffered_arg(STACK_0);
 
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
   var decoded_el_t eltype;
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  if (buffered != BUFFERED_T) { check_unbuffered_eltype(&eltype); }
 
   /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
   STACK_1 = test_external_format_arg(STACK_1);
@@ -14220,13 +14223,13 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
   STACK_4 = check_uint16(STACK_4);
 
   /* Check and canonicalize the :BUFFERED argument: */
-  var signean buffered = test_buffered_arg(STACK_0);
+  var buffered_t buffered = test_buffered_arg(STACK_0);
 
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
   var decoded_el_t eltype;
   test_eltype_arg(&STACK_2,&eltype);
   STACK_2 = canon_eltype(&eltype);
-  if (buffered <= 0) { check_unbuffered_eltype(&eltype); }
+  if (buffered != BUFFERED_T) { check_unbuffered_eltype(&eltype); }
 
   /* Check and canonicalize the :EXTERNAL-FORMAT argument: */
   STACK_1 = test_external_format_arg(STACK_1);
