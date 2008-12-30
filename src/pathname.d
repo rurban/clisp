@@ -5938,24 +5938,27 @@ local void find_first_file (const char *namestring_asciz,
  < resolved : truename (if return is non-0)
  < fwd: file write date (if return is non-0 and address is supplied)
  < fsize: file size (if return is non-0 and address is supplied)
- < return 0 if namestring does not name an existing file or directory
-    1:  regular file
-   -1:  directory */
-local maygc signean classify_namestring (char* namestring, char *resolved,
-                                         gcv_object_t *fwd, gcv_object_t* fsize) {
+ < return : */
+typedef enum {
+  NAMESTRING_FILE, /* regular file */
+  NAMESTRING_DIR,  /* directory */
+  NAMESTRING_NONE  /* namestring does not name an existing file or directory */
+} namestring_kind_t;
+local maygc namestring_kind_t classify_namestring
+(char* namestring, char *resolved, gcv_object_t *fwd, gcv_object_t* fsize) {
 #if defined(UNIX)
   struct stat status;
   int ret;
   GC_SAFE_SYSTEM_CALL(ret=, stat(namestring,&status));
   if (ret) {
     if (errno != ENOENT) OS_file_error(STACK_0);
-    return signean_null;         /* does not exist */
-  } else {                       /* file exists. */
+    return NAMESTRING_NONE;        /* does not exist */
+  } else {                         /* file exists. */
     realpath(namestring,resolved); /* ==> success assured */
     if (fwd) *fwd = convert_time_to_universal(&(status.st_mtime));
     if (fsize) *fsize = off_to_I(status.st_size);
-    if (S_ISDIR(status.st_mode)) return signean_minus; /* directory */
-    else return signean_plus;   /* file */
+    if (S_ISDIR(status.st_mode)) return NAMESTRING_DIR;
+    else return NAMESTRING_FILE;
   }
 #elif defined(WIN32_NATIVE)
   bool ret;
@@ -5969,7 +5972,7 @@ local maygc signean classify_namestring (char* namestring, char *resolved,
          when file "foo" exists */
       if (!(WIN32_ERROR_NOT_FOUND || GetLastError() == ERROR_INVALID_NAME))
         OS_file_error(STACK_0);
-      return signean_null;      /* does not exist */
+      return NAMESTRING_NONE;   /* does not exist */
     } else {                                   /* file exists. */
       if (fwd || fsize) {
         WIN32_FIND_DATA filedata;
@@ -5977,10 +5980,10 @@ local maygc signean classify_namestring (char* namestring, char *resolved,
         if (fwd) *fwd = convert_time_to_universal(FIND_DATA_FWD(filedata));
         if (fsize) *fsize = off_to_I(FIND_DATA_FSIZE(filedata));
       }
-      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return signean_minus;
-      else return signean_plus;   /* file */
+      if (fileattr & FILE_ATTRIBUTE_DIRECTORY) return NAMESTRING_DIR;
+      else return NAMESTRING_FILE;
     }
-  } else { end_blocking_system_call(); return signean_null; } /* does not exist */
+  } else { end_blocking_system_call(); return NAMESTRING_NONE; }
 #else
   #error classify_namestring is not defined
 #endif
@@ -6001,7 +6004,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
   check_no_wildcards(STACK_0);
   STACK_0 = use_default_dir(STACK_0); /* absolute pathname */
   /* STACK_0 is a non-wild non-logical absolute pathname */
-  var signean classification;
+  var namestring_kind_t classification;
   var char resolved[MAXPATHLEN];
   pushSTACK(NIL); pushSTACK(STACK_1); /* space for FWD & FSIZE */
   with_sstring_0(whole_namestring(STACK_0),O(pathname_encoding),
@@ -6012,8 +6015,9 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
                                          &STACK_1/*fwd*/,&STACK_2/*fsize*/);
   });
   switch (classification) {
-    case signean_null: VALUES1(NIL); skipSTACK(3); return; /* does not exist */
-    case signean_minus: {            /* directory */
+    case NAMESTRING_NONE:       /* does not exist */
+      VALUES1(NIL); skipSTACK(3); return;
+    case NAMESTRING_DIR: {      /* directory */
       int len = strlen(resolved);
       if (!cpslashp(resolved[len-1])) { /* append '/' to truename */
         resolved[len] = '/'; resolved[len+1]= 0;
@@ -6043,7 +6047,7 @@ LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
         ThePathname(STACK_0)->pathname_type = NIL; /* ...and type */
       }
     } break;
-    case signean_plus:          /* file */
+    case NAMESTRING_FILE:       /* file */
       if (namenullp(STACK_0)) { /* make STACK_0 a regular file pathname */
         STACK_0 =  copy_pathname(STACK_0);
         var object tmp = ThePathname(STACK_0)->pathname_directory;
@@ -7096,7 +7100,7 @@ local maygc void directory_search_1subdir (gcv_object_t *subdirtail,
   with_sstring_0(namestring,O(pathname_encoding),namestring_asciz, {
     char resolved[MAXPATHLEN];
     if (classify_namestring(namestring_asciz,resolved,NULL,NULL)
-        == signean_minus)       /* namestring is a directory */
+        == NAMESTRING_DIR)      /* namestring is a directory */
       copy_pathname_and_add_subdir(Car(*subdirtail));
   });
 }
