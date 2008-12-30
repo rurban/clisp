@@ -7273,7 +7273,16 @@ local size_t dirent_buf_size(DIR * dirp)
  stack layout: result-list, pathname, name&type, subdir-list, pathname-list,
               new-pathname-list, ht, pathname-list-rest, pathnames-to-insert,
               pathname, dir_namestring. */
-local maygc void directory_search_scandir (bool recursively, signean next_task,
+typedef enum {
+  TASK_DONE = 0, /* nothing, finished */
+  TASK_FILE = 1, /* look for a file of given name/type */
+  TASK_DIR = -1, /* look for a subdirectory of given name */
+  TASK_ALL_FILES = 2, /* look for all files matching the given name/type */
+  TASK_ALL_DIRS = -2 /* look for all subdirectories matching the given name */
+} task_t;
+#define TASK_FILE_P(task)  (task>0)
+#define TASK_DIR_P(task)   (task<0)
+local maygc void directory_search_scandir (bool recursively, task_t next_task,
                                            dir_search_param_t *dsp) {
  #if defined(UNIX)
   {
@@ -7352,7 +7361,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
         if (!recursively) {
           /* Try to avoid calling directory_search_direntry_ok(),
              since it is an expensive operation (it calls stat()). */
-          if (next_task < 0) {
+          if (TASK_DIR_P(next_task)) {
             /* match (car subdir-list) with direntry: */
             if (wildcard_match(Car(STACK_(1+4+3)),STACK_0))
               if (directory_search_direntry_ok(namestring,&status)) {
@@ -7368,7 +7377,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                     goto push_matching_file;
                   default: NOTREACHED;
                 }
-          } else if (next_task > 0) { /* match name&type with direntry: */
+          } else if (TASK_FILE_P(next_task)) { /* match name&type with direntry: */
             if (wildcard_match(STACK_(2+4+3),STACK_0))
               if (directory_search_direntry_ok(namestring,&status)) {
                 if (!S_ISDIR(status.st_mode))
@@ -7399,7 +7408,7 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
               PUSH_ON_STACK(0,1+3);
               skipSTACK(1);
             }
-            if (next_task<0) {
+            if (TASK_DIR_P(next_task)) {
               /* match (car subdir-list) with direntry: */
               if (wildcard_match(Car(STACK_(1+4+3)),STACK_0)) {
                push_matching_subdir:
@@ -7411,36 +7420,34 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
                 skipSTACK(1);
               }
             }
-          } else { /* entry is a (halfway) normal File. */
-            if (next_task>0) {
-              /* match name&type with direntry: */
-              if (wildcard_match(STACK_(2+4+3),STACK_0)) {
-               push_matching_file:
-                /* File matches -> turn into a pathname
-                   and push onto result-list: */
-                pushSTACK(STACK_0); /* direntry */
-                split_name_type(1); /* split into Name and Type */
-                {
-                  var object pathname = copy_pathname(STACK_(2+2));
-                  ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
-                  ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
-                  ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
-                  pushSTACK(pathname);
-                  pushSTACK(pathname);
-                }
-                /* form truename (resolve symbolic links): */
-                var struct file_status fs; file_status_init(&fs,&STACK_0);
-                assure_dir_exists(&fs,true,true);
-                if (!eq(nullobj,fs.fs_namestring) && file_exists(&fs)) {
-                  /* if file (still...) exists */
-                  if (dsp->full_p) /* :FULL wanted? */
-                    with_stat_info(&(fs.fs_stat)); /* yes -> extend STACK_0 */
-                  /* and push STACK_0 in front of result-list: */
-                  PUSH_ON_STACK(0,4+4+3+2);
-                } else if (dsp->if_none == DIR_IF_NONE_KEEP)
-                  PUSH_ON_STACK(1/* unresolved pathname */,4+4+3+2);
-                skipSTACK(2);
+          } else if (TASK_FILE_P(next_task)) { /* entry is a (halfway) normal File. */
+            /* match name&type with direntry: */
+            if (wildcard_match(STACK_(2+4+3),STACK_0)) {
+             push_matching_file:
+              /* File matches -> turn into a pathname
+                 and push onto result-list: */
+              pushSTACK(STACK_0); /* direntry */
+              split_name_type(1); /* split into Name and Type */
+              {
+                var object pathname = copy_pathname(STACK_(2+2));
+                ThePathname(pathname)->pathname_type = popSTACK(); /* insert type */
+                ThePathname(pathname)->pathname_name = popSTACK(); /* insert name */
+                ThePathname(pathname)->pathname_version = DEFAULT_VERSION;
+                pushSTACK(pathname);
+                pushSTACK(pathname);
               }
+              /* form truename (resolve symbolic links): */
+              var struct file_status fs; file_status_init(&fs,&STACK_0);
+              assure_dir_exists(&fs,true,true);
+              if (!eq(nullobj,fs.fs_namestring) && file_exists(&fs)) {
+                /* if file (still...) exists */
+                if (dsp->full_p) /* :FULL wanted? */
+                  with_stat_info(&(fs.fs_stat)); /* yes -> extend STACK_0 */
+                /* and push STACK_0 in front of result-list: */
+                PUSH_ON_STACK(0,4+4+3+2);
+              } else if (dsp->if_none == DIR_IF_NONE_KEEP)
+                PUSH_ON_STACK(1/* unresolved pathname */,4+4+3+2);
+              skipSTACK(2);
             }
           }
         } else
@@ -7558,45 +7565,43 @@ local maygc void directory_search_scandir (bool recursively, signean next_task,
             if (rresolved != shell_shortcut_notexists
                 || (dsp->if_none != DIR_IF_NONE_DISCARD
                     && dsp->if_none != DIR_IF_NONE_IGNORE)) {
-              if (READDIR_entry_ISDIR() || rresolved == shell_shortcut_directory) {
+              if (READDIR_entry_ISDIR()
+                  || rresolved == shell_shortcut_directory) {
                 /* nonfound shortcuts are treated as shortcuts to files */
                 if (recursively) /* all recursive subdirectories wanted? */
                   /* yes -> push truename onto pathnames-to-insert
                      (it is inserted in front of pathname-list-rest later): */
                   PUSH_ON_STACK(1,0+6);
-                if (next_task<0) {
+                if (TASK_DIR_P(next_task)) {
                   /* match (car subdir-list) with direntry: */
                   if (wildcard_match(Car(STACK_(1+4+6)),STACK_0))
                     /* Subdirectory matches -> push truename onto new-pathname-list: */
                     PUSH_ON_STACK(1,3+6);
                 }
-              } else {
-                /* entry is a (halfway) normal file. */
-                if (next_task>0) {
-                  if (wildcard_match(STACK_(2+4+6),STACK_0)) {
-                    /* stack layout: ..., pathname, dir_namestring, direntry,
+              } else if (TASK_FILE_P(next_task)) { /* entry is a (halfway) normal file. */
+                if (wildcard_match(STACK_(2+4+6),STACK_0)) {
+                  /* stack layout: ..., pathname, dir_namestring, direntry,
                           direntry-maybhacked-pathname, true-pathname,
                           direntry-name-to-check.
                      test Full-Flag and poss. get more information: */
-                    if (dsp->full_p      /* :FULL wanted? */
-                        && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
-                      var decoded_time_t timepoint;
-                      var off_t entry_size;
-                      pushSTACK(STACK_(2)); /* newpathname as 1st list element */
-                      pushSTACK(STACK_(1+1)); /* resolved pathname as 2nd list element */
-                      /* get file attributes into timepoint & entry_size */
-                      if (rresolved == shell_shortcut_file) {
-                        /* need another readdir here */
-                        get_time_size(&STACK_0,&timepoint,&entry_size);
-                      } else {         /* easy way */
-                        READDIR_entry_timedate(&timepoint);
-                        entry_size = READDIR_entry_size();
-                      }
-                      pack_full_info(&timepoint,&entry_size);
+                  if (dsp->full_p      /* :FULL wanted? */
+                      && rresolved != shell_shortcut_notexists) { /* treat nonexisting as :FULL NIL */
+                    var decoded_time_t timepoint;
+                    var off_t entry_size;
+                    pushSTACK(STACK_(2)); /* newpathname as 1st list element */
+                    pushSTACK(STACK_(1+1)); /* resolved pathname as 2nd list element */
+                    /* get file attributes into timepoint & entry_size */
+                    if (rresolved == shell_shortcut_file) {
+                      /* need another readdir here */
+                      get_time_size(&STACK_0,&timepoint,&entry_size);
+                    } else {         /* easy way */
+                      READDIR_entry_timedate(&timepoint);
+                      entry_size = READDIR_entry_size();
+                    }
+                    pack_full_info(&timepoint,&entry_size);
                       PUSH_ON_STACK(0,4+4+6+2);
                       skipSTACK(2); /* drop newname & full info list */
-                    } else PUSH_ON_STACK(1,4+4+6);
-                  }
+                  } else PUSH_ON_STACK(1,4+4+6);
                 }
               }
             }
@@ -7660,23 +7665,18 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
      only so deep, that afterwards work continues with (cdr subdir-list) .
      process next subdir-level: */
     STACK_1 = Cdr(STACK_1); /* shorten subdir-list */
-    var signean next_task; /* what has to be done with the Dirs from pathname-list: */
-    /* 0: nothing, finished
-       1: look for a file of given name/type
-      -1: look for a subdirectory of given name
-       2: look for all files, that match the given name/type
-      -2: look for all subdirectories, that match the given name */
+    var task_t next_task; /* what has to be done with the Dirs from pathname-list: */
     if (matomp(STACK_1)) { /* subdir-list finished? */
       var object nametype = STACK_2;
       if (nullp(nametype)) /* name=NIL and type=NIL -> do not search files */
-        next_task = 0;
+        next_task = TASK_DONE;
      #if !defined(WIN32_NATIVE)
       else if (!wild_p(nametype,false) && (dsp->if_none != DIR_IF_NONE_IGNORE))
         /* === !(wild_p(name) || ((!nullp(type)) && wild_p(type))) */
-        next_task = 1; /* search file */
+        next_task = TASK_FILE; /* search file */
      #endif
       else
-        next_task = 2; /* search files with wildcards */
+        next_task = TASK_ALL_FILES; /* search files with wildcards */
     } else {
       var object next_subdir = Car(STACK_1);
       if (eq(next_subdir,S(Kwild_inferiors))) { /* '...' ? */
@@ -7684,9 +7684,9 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         recursively = true; goto passed_subdir;
       }
       if (!wild_p(next_subdir,false))
-        next_task = -1; /* search subdir */
+        next_task = TASK_DIR; /* search subdir */
       else
-        next_task = -2; /* search subdirs with wildcards */
+        next_task = TASK_ALL_DIRS; /* search subdirs with wildcards */
     }
     /* traverse pathname-list and construct new list: */
     { pushSTACK(NIL); }
@@ -7715,7 +7715,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
         /* try to shorten the task a little: */
         if (!recursively) {
           switch (next_task) {
-            case 0: { /* return this directory pathname */
+            case TASK_DONE: { /* return this directory pathname */
               ASSERT(namenullp(STACK_0));
               pushSTACK(copy_pathname(STACK_0));
               var struct file_status fs; file_status_init(&fs,&STACK_0);
@@ -7727,7 +7727,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
               skipSTACK(2);
             } goto next_pathname;
            #if !defined(WIN32_NATIVE)
-            case 1: { /* look in this pathname for a file */
+            case TASK_FILE: { /* look in this pathname for a file */
               ThePathname(pathname)->pathname_name = /* insert name (/=NIL) */
                 ThePathname(STACK_(3+4+1))->pathname_name;
               ThePathname(pathname)->pathname_type = /* insert type */
@@ -7747,7 +7747,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
               skipSTACK(2);
             } goto next_pathname;
            #endif
-            case -1: { /* search for a subdirectory in this pathname */
+            case TASK_DIR: { /* search for a subdirectory in this pathname */
               var struct file_status fs; file_status_init(&fs,&STACK_0);
               assure_dir_exists(&fs,true,false); /* resolve links, directory-namestring */
               pushSTACK(fs.fs_namestring); /* directory-namestring */
@@ -7763,9 +7763,9 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
              #endif
               /* get information: */
               directory_search_1subdir(&(STACK_(1+4+1)),fs.fs_namestring);
-            }
-            skipSTACK(1);
-            goto next_pathname;
+              skipSTACK(1);
+            } goto next_pathname;
+            default: ; /* do nothing */
           }
         }
         /* in order to finish the task, all entries in this directory
@@ -7791,7 +7791,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
             skipSTACK(2); goto next_pathname;
           }
         }
-        if (next_task==0) /* push pathname STACK_1 in front of result-list: */
+        if (next_task==TASK_DONE) /* push pathname STACK_1 in front of result-list: */
           PUSH_ON_STACK(1,4+4+2);
         directory_search_scandir(recursively,next_task,dsp);
         skipSTACK(2); /* forget pathname and dir_namestring */
@@ -7816,7 +7816,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
   }
   /* stack layout: result-list pathname name&type subdir-list pathname-list
    subdir-list became =NIL , also pathname-list = NIL (because at the last
-   loop iteration next_task is always =0,1,2, so nothing
+   loop iteration next_task is always DONE, FILE or ALL_FILES, so nothing
    was pushed on new-pathname-list). */
   skipSTACK(4);
   return popSTACK(); /* result-list as result */
