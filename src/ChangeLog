@@ -1,5 +1,11 @@
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
+	* unixaux.d (fd_read): when errno is ECONNRESET, close fd to avoid
+	SIGPIPE on further accesses (see tests/econnreset.lisp)
+	Reported by Don Cohen
+
+2008-12-30  Sam Steingold  <sds@gnu.org>
+
 	* error.d (OS_filestream_error): when stream is a stream,
 	but not a file stream, signal stream-error instead of os-error
 	* errunix.d, errwin32.d (OS_error_arg): replaces OS_file_error
