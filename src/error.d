@@ -419,11 +419,11 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
 }
 
 #undef OS_error
-#undef OS_file_error
+#undef OS_error_arg
 #undef OS_filestream_error
 
 #ifdef UNIX
-  /* Define OS_error, OS_file_error. */
+  /* Define OS_error, OS_error_arg. */
   #include "errunix.c"
 #else
   /* Define just ANSIC_error. */
@@ -443,9 +443,11 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
  > stream: a channel stream
  > end_system_call() already called */
 nonreturning_function(global, OS_filestream_error, (object stream)) {
-  if (streamp(stream) && TheStream(stream)->strmtype == strmtype_file
-      && !nullp(TheStream(stream)->strm_file_truename)) {
-    OS_file_error(TheStream(stream)->strm_file_truename);
+  if (streamp(stream)) {
+    if (TheStream(stream)->strmtype == strmtype_file
+        && !nullp(TheStream(stream)->strm_file_truename))
+      OS_error_arg(S(simple_file_error),TheStream(stream)->strm_file_truename);
+    else OS_error_arg(S(simple_stream_error),stream);
   } else {
     OS_error();
   }

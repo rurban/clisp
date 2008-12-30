@@ -14482,18 +14482,21 @@ extern maygc void check_value (condition_t errortype, const char * errorstring);
 extern maygc void correctable_error (condition_t errortype, const char* errorstring);
 /* use by PACKAGE, new-clx */
 
-/* Just like OS_error, but signal a FILE-ERROR.
+/* Just like OS_error, but signal an error of type ETYPE.
  OS_file_error(pathname);
- > pathname: Pathname
+ > etype: symbolic name of the error type
+ > arg: error argument
  > end_system_call() already called */
-nonreturning_function(extern, OS_file_error, (object pathname));
+nonreturning_function(extern, OS_error_arg, (object etype, object arg));
 #if defined(DEBUG_OS_ERROR)
   /* Show the file and line number of the caller of OS_file_error().
    For debugging. */
-  #define OS_file_error(pathname)  \
-    (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_file_error)(pathname))
+#define OS_error_arg(etype,arg)                                         \
+  (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error_arg)(etype,arg))
 #endif
-%% puts("nonreturning_function(extern, OS_file_error, (object pathname));");
+#define OS_file_error(path)   OS_error_arg(S(simple_file_error),path)
+%% puts("nonreturning_function(extern, OS_error_arg, (object etype, object arg));");
+%% puts("#define OS_file_error(path) OS_error_arg(S(simple_file_error),path)");
 
 /* Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
  OS_filestream_error(stream);
