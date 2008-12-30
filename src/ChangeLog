@@ -1,3 +1,8 @@
+2008-12-30  Sam Steingold  <sds@gnu.org>
+
+	* pathname.d (task_t): use a dedicated type for
+	directory_search instead of signean
+
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (namestring_kind_t): use a dedicated type for
