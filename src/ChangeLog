@@ -1,5 +1,16 @@
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (listen_t): use a dedicated type instead of signean
+	(listen_char, listen_byte): update declarations
+	(ls_avail, ls_eof, ls_wait, ls_avail_p, ls_eof_p, ls_wait_p): remove
+	* debug.d (read_form): update listen_char() calls
+	* io.d (PEEK-CHAR, LISTEN, READ-CHAR-NO-HANG): ditto
+	* sequence.d (READ-BYTE-SEQUENCE): update listen_byte() call
+	* stream.d: update all listen functions and their invocations
+	throughout the file
+
+2008-12-29  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/mit-clx/Makefile (clx.mem): pass file name to
 	saveinitmem instead of using mv
 

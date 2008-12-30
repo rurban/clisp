@@ -15723,20 +15723,19 @@ extern maygc void close_all_files (void);
 extern void closed_all_files (void);
 /* is used by SPVW */
 
+typedef enum {
+  LISTEN_AVAIL,  /* a character is available */
+  LISTEN_EOF,    /* EOF is reached */
+  LISTEN_WAIT,   /* no character is available, but not because of EOF */
+  LISTEN_ERROR   /* stream is broken, e.g., ECONNRESET */
+} listen_t;
+
 /* UP: determines whether a char is available in the Stream stream
  listen_char(stream)
  > stream: Stream
- < result: ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-extern maygc signean listen_char (object stream);
-#define ls_avail  0
-#define ls_eof   -1
-#define ls_wait   1
-#define ls_avail_p(x)  ((x) == 0)
-#define ls_eof_p(x)  ((x) < 0)
-#define ls_wait_p(x)  ((x) > 0)
+extern maygc listen_t listen_char (object stream);
 /* is used by IO, DEBUG */
 
 /* UP: clears an already entered interactive input from a Stream stream.
@@ -15750,11 +15749,9 @@ extern maygc bool clear_input (object stream);
 /* UP: Determines whether a stream has a byte immediately available.
  listen_byte(stream)
  > stream: a stream with element-type ([UN]SIGNED-BYTE 8)
- < result: ls_avail if a byte is available,
-           ls_eof   if EOF is reached,
-           ls_wait  if no byte is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-extern maygc signean listen_byte (object stream);
+extern maygc listen_t listen_byte (object stream);
 /* is used by */
 
 /* UP: Finishes waiting output of a Stream stream
