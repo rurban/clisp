@@ -1,5 +1,9 @@
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (buffered_t): use a dedicated type instead of signean;
+
+2008-12-29  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (listen_t): use a dedicated type instead of signean
 	(listen_char, listen_byte): update declarations
 	(ls_avail, ls_eof, ls_wait, ls_avail_p, ls_eof_p, ls_wait_p): remove
