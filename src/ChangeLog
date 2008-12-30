@@ -1,6 +1,12 @@
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
-	* stream.d (buffered_t): use a dedicated type instead of signean;
+	* pathname.d (namestring_kind_t): use a dedicated type for
+	classify_namestring instead of signean
+
+2008-12-29  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (buffered_t): use a dedicated type for
+	test_buffered_arg instead of signean
 
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
