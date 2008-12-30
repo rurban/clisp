@@ -1304,7 +1304,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
     var object env = env5->block_env;
     var uintL depth = 0; /* recursion depth := 0 */
     /* Pseudo-Recursion: nests a BLOCK_ENV. */
-    /* Input: env, a BLOCK_ENV. Output: env, with Aliste. */
+    /* Input: env, a BLOCK_ENV. Output: env, with Alist. */
    nest_block_start: { /* start of recursion */
       var gcv_object_t* FRAME;
       if (framepointerp(env)) {
@@ -1328,7 +1328,7 @@ global maygc gcv_environment_t* nest_env (gcv_environment_t* env5)
               Cdr(new_cons) = frame;
               pushSTACK(new_cons);
             }
-            /* and prepend to the Aliste: */
+            /* and prepend to the Alist: */
             env = allocate_cons();
             Car(env) = popSTACK(); /* new_cons */
             Cdr(env) = popSTACK(); /* previous Alist */
@@ -1527,7 +1527,7 @@ global maygc bool parse_dd (object formlist)
 {
   pushSTACK(formlist); /* store formlist for error message */
   pushSTACK(NIL); /* preliminary Doc-String */
-  pushSTACK(NIL); /* start of decl-spec-Liste */
+  pushSTACK(NIL); /* start of decl-spec-List */
   /* stack layout: formlist, docstring, declspecs. */
   var bool compile_decl = false; /* flag: (COMPILE)-declaration occurred */
   var object body = formlist; /* rest of the form-list */
@@ -1576,7 +1576,7 @@ global maygc bool parse_dd (object formlist)
     }
   }
   value1 = body;
-  value2 = nreverse(popSTACK()); /* decl-spec-Liste */
+  value2 = nreverse(popSTACK()); /* decl-spec-List */
   value3 = popSTACK(); /* Doc-String */
   skipSTACK(1);
   return compile_decl;
