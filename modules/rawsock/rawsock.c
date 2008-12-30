@@ -287,13 +287,28 @@ DEFUN(RAWSOCK:MAKE-SOCKADDR,family &optional data) {
 #define begin_sock_call()  START_WRITING_TO_SUBPROCESS;  begin_blocking_system_call()
 #define end_sock_call()    end_blocking_system_call(); STOP_WRITING_TO_SUBPROCESS
 
+/* report error on the given socket or OS_error if socket<0 */
+nonreturning_function(static, rawsock_error, (int socket)) {
+  if (socket < 0) OS_error();
+  begin_system_call(); {
+    int ecode = errno;
+    char *msg = strerror(ecode);
+    end_system_call();
+    pushSTACK(`RAWSOCK::RAWSOCK-ERROR`);    /* error type */
+    pushSTACK(S(Kcode));
+    pushSTACK(fixnum(errno)); funcall(`OS::ERRNO`,1); pushSTACK(value1);
+    pushSTACK(`:MESSAGE`); pushSTACK(safe_to_string(msg));
+    pushSTACK(`:SOCKET`); pushSTACK(fixnum(socket));
+    funcall(S(make_instance),7);
+  }
+  pushSTACK(value1); funcall(S(error),1);
+  NOTREACHED;
+}
+
 /* invoke system call C, place return value in R, report error on socket S */
-#define SYSCALL(r,s,c)                                  \
-  do { begin_sock_call(); r = c; end_sock_call();       \
-    if (r == -1) {                                      \
-      if (s<=0) OS_error();                             \
-      else OS_file_error(fixnum(s));                    \
-    }                                                   \
+#define SYSCALL(r,s,c)                                                  \
+  do { begin_sock_call(); r = c; end_sock_call();                       \
+    if (r == -1) rawsock_error(s);                                      \
   } while(0)
 
 /* ================== arpa/inet.h interface ================== */
@@ -789,7 +804,7 @@ nonreturning_function(static, error_eai, (int ecode)) {
   end_system_call();
   pushSTACK(`RAWSOCK::EAI`);    /* error type */
   pushSTACK(S(Kcode)); pushSTACK(check_gai_ecode_reverse(ecode));
-  pushSTACK(`:MESSAGE`); pushSTACK(asciz_to_string(msg,GLO(misc_encoding)));
+  pushSTACK(`:MESSAGE`); pushSTACK(safe_to_string(msg));
   funcall(S(make_instance),5);
   pushSTACK(value1); funcall(S(error),1);
   NOTREACHED;
