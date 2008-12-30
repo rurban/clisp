@@ -294,7 +294,7 @@ local maygc uintL rd_by_array_dummy (const gcv_object_t* stream_,
   do {
     var object stream = *stream_;
     if ((persev == persev_immediate || persev == persev_bonus)
-        && !ls_avail_p(listen_byte(stream)))
+        && LISTEN_AVAIL != listen_byte(stream))
       break;
     var object obj = rd_by(stream)(stream);
     if (eq(obj,eof_value))
@@ -1436,11 +1436,9 @@ local maygc bool read_line_synonym (object stream, const gcv_object_t* buffer_)
 /* Determines, if a character is available on the Synonym-Stream.
  listen_char_synonym(stream)
  > stream : Synonym-Stream
- < result:  ls_avail if a character is available,
-            ls_eof   if EOF is reached,
-            ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_char_synonym (object stream) {
+local maygc listen_t listen_char_synonym (object stream) {
   check_SP();
   var object symbol = TheStream(stream)->strm_synonym_symbol;
   return listen_char(get_synonym_stream(symbol));
@@ -1460,11 +1458,9 @@ local maygc bool clear_input_synonym (object stream) {
 /* Determines, if a Byte is available on a Synonym-Stream.
  listen_byte_synonym(stream)
  > stream : Synonym-Stream
- < result:  ls_avail if a byte is available,
-            ls_eof   if EOF is reached,
-            ls_wait  if no byte is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_byte_synonym (object stream) {
+local maygc listen_t listen_byte_synonym (object stream) {
   check_SP();
   var object symbol = TheStream(stream)->strm_synonym_symbol;
   return listen_byte(get_synonym_stream(symbol));
@@ -1879,17 +1875,15 @@ local maygc uintL rd_ch_array_concat (const gcv_object_t* stream_,
 /* Determines, if a character is available on the Concatenated-Stream.
  listen_char_concat(stream)
  > stream : Concatenated-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_char_concat (object stream) {
+local maygc listen_t listen_char_concat (object stream) {
   pushSTACK(stream);
   var object streamlist = TheStream(stream)->strm_concat_list;
-  var signean result;
+  var listen_t result;
   while (consp(streamlist)) {
     result = listen_char(Car(streamlist));
-    if (!ls_eof_p(result)) /* not EOF ? */
+    if (result != LISTEN_EOF) /* not EOF ? */
       goto OK;
     /* EOF reached -> remove emptied stream from the list: */
     stream = STACK_0;
@@ -1897,7 +1891,7 @@ local maygc signean listen_char_concat (object stream) {
              Cdr(TheStream(stream)->strm_concat_list);
   }
   /* all Streams emptied -> return EOF: */
-  result = ls_eof;
+  result = LISTEN_EOF;
  OK:
   skipSTACK(1);
   return result;
@@ -1924,17 +1918,15 @@ local maygc bool clear_input_concat (object stream) {
 /* Determines, if a Byte is available on the Concatenated-Stream.
  listen_byte_concat(stream)
  > stream : Concatenated-Stream
- < result:   ls_avail if a byte is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no byte is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_byte_concat (object stream) {
+local maygc listen_t listen_byte_concat (object stream) {
   pushSTACK(stream);
   var object streamlist = TheStream(stream)->strm_concat_list;
-  var signean result;
+  var listen_t result;
   while (consp(streamlist)) {
     result = listen_byte(Car(streamlist));
-    if (!ls_eof_p(result)) /* not EOF ? */
+    if (result != LISTEN_EOF) /* not EOF ? */
       goto OK;
     /* EOF reached -> remove emptied stream from the list: */
     stream = STACK_0;
@@ -1942,7 +1934,7 @@ local maygc signean listen_byte_concat (object stream) {
              Cdr(TheStream(stream)->strm_concat_list);
   }
   /* all Streams emptied -> return EOF: */
-  result = ls_eof;
+  result = LISTEN_EOF;
  OK:
   skipSTACK(1);
   return result;
@@ -2045,11 +2037,9 @@ local maygc void wr_ch_array_twoway (const gcv_object_t* stream_,
 /* Determines, if a Character is available on a Two-Way- or Echo-Stream.
  listen_char_twoway(stream)
  > stream : Two-Way- or Echo-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_char_twoway (object stream) {
+local maygc listen_t listen_char_twoway (object stream) {
   check_SP();
   return listen_char(TheStream(stream)->strm_twoway_input);
 }
@@ -2068,11 +2058,9 @@ local maygc bool clear_input_twoway (object stream) {
 /* Determines, if a Byte is available on a Two-Way- or Echo-Stream.
  listen_byte_twoway(stream)
  > stream : Two-Way- or Echo-Stream
- < result:   ls_avail if a byte is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no byte is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_byte_twoway (object stream) {
+local maygc listen_t listen_byte_twoway (object stream) {
   check_SP();
   return listen_byte(TheStream(stream)->strm_twoway_input);
 }
@@ -2451,17 +2439,15 @@ local maygc void close_str_in (object stream, uintB abort) {
 /* Determines, if a character is available on a String-Input-Stream.
  listen_char_str_in(stream)
  > stream : String-Input-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_char_str_in (object stream) {
+local maygc listen_t listen_char_str_in (object stream) {
   var uintV index = posfixnum_to_V(TheStream(stream)->strm_str_in_index);
   var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_str_in_endindex);
   if (index >= endindex)
-    return ls_eof; /* EOF reached */
+    return LISTEN_EOF; /* EOF reached */
   else
-    return ls_avail;
+    return LISTEN_AVAIL;
 }
 
 LISPFUN(make_string_input_stream,seclass_read,1,2,norest,nokey,0,NIL)
@@ -2892,32 +2878,30 @@ local maygc void close_buff_in (object stream, uintB abort) {
 /* Determines, if a character is available on a Buffered-Input-Stream.
  listen_char_buff_in(stream)
  > stream : Buffered-Input-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-local maygc signean listen_char_buff_in (object stream) {
+local maygc listen_t listen_char_buff_in (object stream) {
   var uintV index = posfixnum_to_V(TheStream(stream)->strm_buff_in_index);
   var uintV endindex = posfixnum_to_V(TheStream(stream)->strm_buff_in_endindex);
   if (index < endindex)
-    return ls_avail;
+    return LISTEN_AVAIL;
   var object mode = TheStream(stream)->strm_buff_in_mode;
   if (eq(mode,S(nil))) {
     pushSTACK(stream);
     mode = peek_char(&STACK_0); /* peek_char makes read_char, calls fun */
     skipSTACK(1);
     if (eq(mode,eof_value))
-      return ls_eof; /* EOF reached */
+      return LISTEN_EOF; /* EOF reached */
     else
-      return ls_avail;
+      return LISTEN_AVAIL;
   } else if (eq(mode,S(t))) {
-    return ls_avail;
+    return LISTEN_AVAIL;
   } else {
     funcall(mode,0); /* call mode */
     if (nullp(value1)) /* no more Strings to be expected? */
-      return ls_eof; /* yes -> EOF reached */
+      return LISTEN_EOF; /* yes -> EOF reached */
     else
-      return ls_avail;
+      return LISTEN_AVAIL;
   }
 }
 
@@ -3121,19 +3105,19 @@ local maygc object pk_ch_generic (const gcv_object_t* stream_) {
    (IF (GENERIC-STREAM-PEEK-CHAR c)
      :INPUT-AVAILABLE
      :EOF)) */
-local maygc signean listen_char_generic (object stream) {
+local maygc listen_t listen_char_generic (object stream) {
   pushSTACK(stream);
   pushSTACK(stream); funcall(L(generic_stream_controller),1);
   pushSTACK(value1); funcall(S(generic_stream_read_char_will_hang_p),1);
   if (!nullp(value1)) {
-    skipSTACK(1); return ls_wait;
+    skipSTACK(1); return LISTEN_WAIT;
   }
   var object nextchar = pk_ch_generic(&STACK_0);
   skipSTACK(1);
   if (eq(nextchar,eof_value))
-    return ls_eof;
+    return LISTEN_EOF;
   else
-    return ls_avail;
+    return LISTEN_AVAIL;
 }
 
 /* (CLEAR-INPUT s) == (GENERIC-STREAM-CLEAR-INPUT c) */
@@ -3910,7 +3894,7 @@ typedef struct strm_unbuffered_extrafields_t {
    stream's element type. They cannot cause GC.
    Fields used for the input side only: */
   sintL        (* low_read)        (object stream);
-  signean      (* low_listen)      (object stream);
+  listen_t     (* low_listen)      (object stream);
   bool         (* low_clear_input) (object stream);
   uintB*       (* low_read_array)  (object stream, uintB* byteptr,
                                     uintL len, perseverance_t persev);
@@ -4788,7 +4772,7 @@ local maygc sintL low_read_unbuffered_handle (object stream) {
   }
 }
 
-local signean listen_handle (Handle handle, bool tty_p, int *byte) {
+local listen_t listen_handle (Handle handle, bool tty_p, int *byte) {
 /* Method 1: poll, see POLL(2)
    Method 2: select, see SELECT(2)
    Method 3: ioctl FIONREAD, see FILIO(4)
@@ -4815,10 +4799,10 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       /* revents has POLLIN or some other bits set if read() would return
        without blocking. */
       if (pollfd_bag[0].revents == 0)
-        return ls_wait;
+        return LISTEN_WAIT;
       /* When read() returns a result without blocking, this can also be
        EOF! (Example: Linux and pipes.) We therefore refrain from simply
-       doing  { return ls_avail; }  and instead try methods 3 and 4. */
+       doing  { return LISTEN_AVAIL; }  and instead try methods 3 and 4. */
     }
   }
   #elif defined(HAVE_SELECT) && !defined(UNIX_BEOS)
@@ -4842,11 +4826,11 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       /* result = number of handles in handle_set for which read() would
        return without blocking. */
       if (result==0)
-        return ls_wait;
+        return LISTEN_WAIT;
       /* result=1
        When read() returns a result without blocking, this can also be
        EOF! (Example: Linux and pipes.) We therefore refrain from simply
-       doing  { return ls_avail; }  and instead try methods 3 and 4. */
+       doing  { return LISTEN_AVAIL; }  and instead try methods 3 and 4. */
     }
   }
   #endif
@@ -4875,10 +4859,10 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
       /* Enquiry succeeded, so it was a file */
       end_system_call();
       if (bytes_ready > 0)
-        return ls_avail;
+        return LISTEN_AVAIL;
       #ifdef HAVE_RELIABLE_FIONREAD
       /* else we have reached the file's EOF: */
-      return ls_eof;
+      return LISTEN_EOF;
       #endif
     }
   }
@@ -4909,15 +4893,15 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
          #endif
          )
        #endif
-          return ls_wait;
+          return LISTEN_WAIT;
       OS_error();
     }
     end_system_call();
     if (result==0) {
-      return ls_wait;
+      return LISTEN_WAIT;
     } else {
       *byte = b;
-      return ls_avail;
+      return LISTEN_AVAIL;
     }
     /* If this doesn't work, should use a timer 0.1 sec ?? */
   } else
@@ -4933,23 +4917,23 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
     }
     end_system_call();
     if (result==0) {
-      return ls_eof;
+      return LISTEN_EOF;
     } else {
       *byte = b;
-      return ls_avail;
+      return LISTEN_AVAIL;
     }
   }
   #elif defined(WIN32_NATIVE)
   begin_system_call();
   var int wont_hang = fd_read_wont_hang_p(handle);
   if (wont_hang == 0) {
-    end_system_call(); return ls_wait;
+    end_system_call(); return LISTEN_WAIT;
   }
   if (wont_hang == 2) {
-    end_system_call(); return ls_eof;
+    end_system_call(); return LISTEN_EOF;
   }
   if (wont_hang == 3) {
-    end_system_call(); return ls_avail;
+    end_system_call(); return LISTEN_AVAIL;
   }
   /* try to read a byte */
   var uintB b;
@@ -4959,24 +4943,24 @@ local signean listen_handle (Handle handle, bool tty_p, int *byte) {
   }
   end_system_call();
   if (result==0) {
-    return ls_eof;
+    return LISTEN_EOF;
   } else {
     if (byte) *byte = b;
-    return ls_avail;
+    return LISTEN_AVAIL;
   }
   #endif
 }
 
-local signean low_listen_unbuffered_handle (object stream) {
+local listen_t low_listen_unbuffered_handle (object stream) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
-    return ls_eof;
+    return LISTEN_EOF;
   if (UnbufferedStream_status(stream) > 0) /* bytebuf contains valid bytes? */
-    return ls_avail;
+    return LISTEN_AVAIL;
   var int byte = -1;
-  var signean ret =
+  var listen_t ret =
     listen_handle(TheHandle(TheStream(stream)->strm_ichannel),
                   !nullp(TheStream(stream)->strm_isatty),&byte);
-  if (ls_eof_p(ret)) UnbufferedStream_status(stream) = -1;
+  if (ret == LISTEN_EOF) UnbufferedStream_status(stream) = -1;
   /* Stuff the read byte into the buffer, for next low_read call. */
   if (byte >= 0) { UnbufferedStreamLow_push_byte(stream,byte); }
   return ret;
@@ -4996,7 +4980,7 @@ local maygc bool low_clear_input_unbuffered_handle (object stream) {
      character waiting. My be call directly full_read() without defining
      safe gc region ???*/
   pushSTACK(stream);
-  while (ls_avail_p(low_listen_unbuffered_handle(stream))) {
+  while (LISTEN_AVAIL == low_listen_unbuffered_handle(stream)) {
     #ifdef WIN32_NATIVE
     /* Our low_listen_unbuffered_handle function, when applied to a WinNT
      console, cannot tell when there is an LF pending after the
@@ -5155,10 +5139,8 @@ local maygc uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
 /* Determines, if  a Byte is available on an Unbuffered-Channel-Stream.
  listen_byte_ia8_unbuffered(stream)
  > stream: Unbuffered-Channel-Stream, Type a, bitsize = 8
- < result:   ls_avail if a byte is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no byte is available, but not because of EOF */
-local signean listen_byte_ia8_unbuffered (object stream) {
+ < result: input availability */
+local listen_t listen_byte_ia8_unbuffered (object stream) {
   return UnbufferedStreamLow_listen(stream)(stream);
 }
 
@@ -5232,13 +5214,11 @@ local maygc object rd_ch_unbuffered (const gcv_object_t* stream_) {
 /* Determines, if a character is available on an Unbuffered-Channel-Stream.
  listen_char_unbuffered(stream)
  > stream: Unbuffered-Channel-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
-local maygc signean listen_char_unbuffered (object stream) {
+ < result: input availability */
+local maygc listen_t listen_char_unbuffered (object stream) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) /* already EOF ? */
-    return ls_eof;
-  var signean result;
+    return LISTEN_EOF;
+  var listen_t result;
   pushSTACK(stream); /* save it */
   #ifdef UNICODE
   var chart c;
@@ -5246,9 +5226,9 @@ local maygc signean listen_char_unbuffered (object stream) {
   var uintL buflen = 0;
   while (1) {
     result = UnbufferedStreamLow_listen(stream)(stream);
-    if (ls_eof_p(result))
+    if (result == LISTEN_EOF)
       break;
-    if (!ls_avail_p(result)) {
+    if (result != LISTEN_AVAIL) {
       /* Stop reading.
        Move the buffer into bytebuf. */
       UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
@@ -5258,11 +5238,10 @@ local maygc signean listen_char_unbuffered (object stream) {
        character waiting to be read. However since low_read_unbuffered_handle
        may trigger GC (full_read) so this function also maygc.
        Another option is to call full_read() here without surrounding it
-       in safe for GC ???
-     */
+       in safe for GC ??? */
     var sintL b = UnbufferedStreamLow_read(stream)(stream);
     if (b < 0) {
-      result = ls_eof; break;
+      result = LISTEN_EOF; break;
     }
     stream=STACK_0;
     ASSERT(buflen < max_bytes_per_chart);
@@ -5292,7 +5271,7 @@ local maygc signean listen_char_unbuffered (object stream) {
         /* Move the buffer into bytebuf. */
         UnbufferedStreamLow_pushfront_bytes(stream,&buf[0],buflen);
         ChannelStream_ignore_next_LF(stream) = false;
-        result = ls_avail;
+        result = LISTEN_AVAIL;
         break;
       }
     }
@@ -5300,11 +5279,11 @@ local maygc signean listen_char_unbuffered (object stream) {
   #else
  retry:
   result = UnbufferedStreamLow_listen(stream)(stream);
-  if (ls_avail_p(result) && ChannelStream_ignore_next_LF(stream)) {
+  if (result == LISTEN_AVAIL && ChannelStream_ignore_next_LF(stream)) {
     var sintL b = UnbufferedStreamLow_read(stream)(stream);
     stream=STACK_0;
     if (b < 0)
-      return ls_eof;
+      return LISTEN_EOF;
     ChannelStream_ignore_next_LF(stream) = false;
     if (b == NL)
       goto retry;
@@ -6743,16 +6722,14 @@ local maygc object rd_ch_buffered (const gcv_object_t* stream_) {
 /* Determines, if a character is available on a File-Stream.
  listen_char_buffered(stream)
  > stream: File-Stream of Characters
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
-local maygc signean listen_char_buffered (object stream) {
+ < result: input availability */
+local maygc listen_t listen_char_buffered (object stream) {
  listen_char_buffered_retry:
   pushSTACK(stream);
   var uintB* buf = buffered_nextbyte(stream,persev_immediate);
   stream = popSTACK();
-  if (buf == (uintB*)NULL) return ls_eof; /* EOF */
-  if (buf == (uintB*)-1)   return ls_wait; /* will hang */
+  if (buf == (uintB*)NULL) return LISTEN_EOF; /* EOF */
+  if (buf == (uintB*)-1)   return LISTEN_WAIT; /* will hang */
   if (*buf == '\n' && ChannelStream_ignore_next_LF(stream)) { /* discard LF */
     /* assume that '\n' is LF in all encodings */
     BufferedStream_index(stream) += 1;
@@ -6763,10 +6740,10 @@ local maygc signean listen_char_buffered (object stream) {
        but it seems too much work for little gain */
   }
   /* In case of UNICODE, the presence of a byte does not guarantee the
-   presence of a multi-byte character. Returning ls_avail here is
+   presence of a multi-byte character. Returning LISTEN_AVAIL here is
    therefore not correct. But this doesn't matter since programs seeing
-   ls_avail will call read-char, and this will do the right thing anyway. */
-  return ls_avail;
+   LISTEN_AVAIL will call read-char, and this will do the right thing anyway. */
+  return LISTEN_AVAIL;
 }
 
 /* READ-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters: */
@@ -7532,14 +7509,13 @@ local maygc uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
 /* Determines, if a Byte is available on a File-Stream.
  listen_byte_ia8_buffered(stream)
  > stream: File-Stream of Integers, Type a, bitsize = 8
- < result:   ls_avail if a byte is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no byte is available, but not because of EOF */
-local maygc signean listen_byte_ia8_buffered (object stream) {
+ < result: input availability
+ can trigger GC */
+local maygc listen_t listen_byte_ia8_buffered (object stream) {
   uintB* buf = buffered_nextbyte(stream,persev_immediate);
-  if (buf == (uintB*)NULL) return ls_eof; /* EOF */
-  if (buf == (uintB*)-1)   return ls_wait; /* will hang */
-  return ls_avail;
+  if (buf == (uintB*)NULL) return LISTEN_EOF; /* EOF */
+  if (buf == (uintB*)-1)   return LISTEN_WAIT; /* will hang */
+  return LISTEN_AVAIL;
 }
 
 /* Output side
@@ -8466,11 +8442,9 @@ local object make_key_event (const key_event_t* event) {
 /* Determines, if a Character is available on the Keyboard-Stream.
  listen_char_keyboard(stream)
  > stream: Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
+ < result: input availability */
 #ifdef WIN32_NATIVE
-local signean listen_char_keyboard (object stream) {
+local listen_t listen_char_keyboard (object stream) {
   var Handle handle = TheHandle(TheStream(stream)->strm_keyboard_handle);
   /* See the implementation of listen_char_unbuffered() for consoles. */
   var DWORD nevents;
@@ -8480,7 +8454,7 @@ local signean listen_char_keyboard (object stream) {
   }
   /* It's a console. */
   if (nevents==0) { /* no character available */
-    end_system_call(); return ls_wait;
+    end_system_call(); return LISTEN_WAIT;
   }
   var INPUT_RECORD* events = (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
   var DWORD nevents_read;
@@ -8488,7 +8462,7 @@ local signean listen_char_keyboard (object stream) {
     OS_error();
   }
   if (nevents_read==0) { /* no character available */
-    end_system_call(); return ls_wait;
+    end_system_call(); return LISTEN_WAIT;
   }
   { /* Look out for any Key-Down event. */
     var DWORD i;
@@ -8497,12 +8471,12 @@ local signean listen_char_keyboard (object stream) {
           && events[i].Event.KeyEvent.bKeyDown
           && events[i].Event.KeyEvent.uAsciiChar != 0) {
         /* character available */
-        end_system_call(); return ls_avail;
+        end_system_call(); return LISTEN_AVAIL;
       }
     }
   }
   /* no character available */
-  end_system_call(); return ls_wait;
+  end_system_call(); return LISTEN_WAIT;
 }
 #endif
 #if defined(UNIX)
@@ -8517,9 +8491,8 @@ local bool clear_input_keyboard (object stream) {
  #ifdef WIN32_NATIVE
   clear_tty_input(TheHandle(TheStream(stream)->strm_keyboard_handle));
   pushSTACK(stream);
-  while (ls_avail_p(listen_char_keyboard(STACK_0))) {
+  while (LISTEN_AVAIL == listen_char_keyboard(STACK_0))
     read_char(&STACK_0);
-  }
   skipSTACK(1);
  #endif
  #if defined(UNIX)
@@ -8529,9 +8502,8 @@ local bool clear_input_keyboard (object stream) {
   TheStream(stream)->strm_rd_ch_last = NIL; /* EOF forgotten */
   clear_tty_input(stdin_handle);
   pushSTACK(stream);
-  while (ls_avail_p(listen_char_keyboard(STACK_0))) {
+  while (LISTEN_AVAIL == listen_char_keyboard(STACK_0))
     read_char(&STACK_0);
-  }
   skipSTACK(1);
  #endif
   return true;
@@ -9500,9 +9472,7 @@ local maygc object rd_ch_terminal1 (const gcv_object_t* stream_) {
 /* Determines, if a character is available on a Terminal-Stream.
  listen_char_terminal1(stream)
  > stream: Terminal-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
+ < result: input availability */
 #define listen_char_terminal1  listen_char_unbuffered
 
 /* UP: Deletes already entered interactive Input from a Terminal-Stream.
@@ -9581,16 +9551,14 @@ local maygc object rd_ch_terminal2 (const gcv_object_t* stream_) {
 /* Determines, if a character is available on a Terminal-Stream.
  listen_char_terminal2(stream)
  > stream: Terminal-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
-local maygc signean listen_char_terminal2 (object stream) {
+ < result: input availability */
+local maygc listen_t listen_char_terminal2 (object stream) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) /* EOF already? */
-    return ls_eof;
+    return LISTEN_EOF;
   if (posfixnum_to_V(TheStream(stream)->strm_terminal_index)
       < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
     /* index<count -> there are still characters in the buffer */
-    return ls_avail;
+    return LISTEN_AVAIL;
   return listen_char_unbuffered(stream);
 }
 
@@ -9609,9 +9577,8 @@ local maygc bool clear_input_terminal2 (object stream) {
   TheStream(STACK_0)->strm_terminal_index = Fixnum_0; /* index := 0 */
   TheIarray(TheStream(STACK_0)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
  #endif
-  while (ls_avail_p(listen_char_terminal2(STACK_0))) {
+  while (LISTEN_AVAIL == listen_char_terminal2(STACK_0))
     read_char(&STACK_0);
-  }
   skipSTACK(1);                 /* drop */
   return true;
 }
@@ -9703,12 +9670,12 @@ local char* xmalloc (int count);
 
  However, there is a deeper problem with the rd_ch_terminal3/
  listen_char_terminal3 implementation: readline() terminates when `rl_done'
- gets set to 1, whereas listen_char_unbuffered normally returns ls_avail when
+ gets set to 1, whereas listen_char_unbuffered normally returns LISTEN_AVAIL when
  the user has entered a line of characters followed by #\Newline. Normally
  this is the same condition, but if the user modifies his readline key
  bindings so that newline does not always cause `rl_done' to become 1, then
  rd_ch_terminal3() might block although listen_char_terminal3() returned
- ls_avail. One possible fix would be to use the READLINE_CALLBACK functions,
+ LISTEN_AVAIL. One possible fix would be to use the READLINE_CALLBACK functions,
  see readline.dvi p. 29, but in order to get this right, RUN-PROGRAM and
  MAKE-PIPE-INPUT-STREAM might need to be modified to temporarily turn off
  readline. */
@@ -9835,16 +9802,14 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
 /* Determines, if a character is available on a Terminal-Stream.
  listen_char_terminal3(stream)
  > stream: Terminal-Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF */
-local signean listen_char_terminal3 (object stream) {
+ < result: input availability */
+local listen_t listen_char_terminal3 (object stream) {
   if (eq(TheStream(stream)->strm_rd_ch_last,eof_value)) /* EOF already? */
-    return ls_eof;
+    return LISTEN_EOF;
   if (posfixnum_to_V(TheStream(stream)->strm_terminal_index)
       < TheIarray(TheStream(stream)->strm_terminal_inbuff)->dims[1])
     /* index<count -> there are still characters in the buffer */
-    return ls_avail;
+    return LISTEN_AVAIL;
   return listen_char_unbuffered(stream);
 }
 
@@ -9863,9 +9828,8 @@ local maygc bool clear_input_terminal3 (object stream) {
   TheStream(STACK_0)->strm_terminal_index = Fixnum_0; /* index := 0 */
   TheIarray(TheStream(STACK_0)->strm_terminal_inbuff)->dims[1] = 0; /* count := 0 */
  #endif
-  while (ls_avail_p(listen_char_terminal3(STACK_0))) {
+  while (LISTEN_AVAIL == listen_char_terminal3(STACK_0))
     read_char(&STACK_0);
-  }
   skipSTACK(1);                 /* drop */
   return true;
 }
@@ -13517,11 +13481,11 @@ local maygc sintL low_read_unbuffered_socket (object stream) {
   }
 }
 
-local signean low_listen_unbuffered_socket (object stream) {
+local listen_t low_listen_unbuffered_socket (object stream) {
   if (UnbufferedStream_status(stream) < 0) /* already EOF? */
-    return ls_eof;
+    return LISTEN_EOF;
   if (UnbufferedStream_status(stream) > 0) /* bytebuf contains valid bytes? */
-    return ls_avail;
+    return LISTEN_AVAIL;
   var SOCKET handle = TheSocket(TheStream(stream)->strm_ichannel);
   /* Use select() with readfds = singleton set {handle}
    and timeout = zero interval. */
@@ -13531,8 +13495,7 @@ local signean low_listen_unbuffered_socket (object stream) {
   FD_ZERO(&handle_set); FD_SET(handle,&handle_set);
  restart_select:
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
-  var int result;
-  result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
+  var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
   if (result<0) {
     CHECK_INTERRUPT;
    #ifdef UNIX_BEOS
@@ -13544,7 +13507,7 @@ local signean low_listen_unbuffered_socket (object stream) {
     /* result = number of handles in handle_set for which read() would
      return without blocking. */
     if (result==0) {
-      end_system_call(); return ls_wait;
+      end_system_call(); return LISTEN_WAIT;
     }
     /* result=1
      When read() returns a result without blocking, this can also be EOF!
@@ -13559,11 +13522,11 @@ local signean low_listen_unbuffered_socket (object stream) {
     end_system_call();
     if (result==0) {
       ASSERT(error_eof_p());
-      UnbufferedStream_status(stream) = -1; return ls_eof;
+      UnbufferedStream_status(stream) = -1; return LISTEN_EOF;
     } else {
       /* Stuff the read byte into the buffer, for next low_read call. */
       UnbufferedStreamLow_push_byte(stream,b);
-      return ls_avail;
+      return LISTEN_AVAIL;
     }
   }
 }
@@ -14450,7 +14413,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
   var SOCKET in_sock = INVALID_SOCKET;
   var SOCKET out_sock = INVALID_SOCKET;
   var bool char_p = true, wr = false;
-  var signean rd = ls_wait;
+  var listen_t rd = LISTEN_WAIT;
   stream_handles(sock,true,&char_p,
                  READ_P(dir)  ? &in_sock  : NULL,
                  WRITE_P(dir) ? &out_sock : NULL);
@@ -14461,7 +14424,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
       if (place) *place = ret;
       return ret;
     } else if (uint_p(sock)) {
-      if (FD_ISSET(in_sock,readfds)) rd = ls_avail;
+      if (FD_ISSET(in_sock,readfds)) rd = LISTEN_AVAIL;
     } else {                    /* stream */
       if (FD_ISSET(in_sock,readfds) || (stream_isbuffered(sock) & bit(1)))
         rd = (char_p ? listen_char(sock) : listen_byte(sock));
@@ -14471,10 +14434,12 @@ local maygc object handle_isset (object socket, fd_set *readfds,
     if (FD_ISSET(out_sock,errorfds)) return S(Kerror);
     wr = FD_ISSET(out_sock,writefds);
   }
-  if      (ls_avail_p(rd)) ret = wr ? S(Kio)     : S(Kinput);
-  else if (ls_eof_p(rd))   ret = wr ? S(Kappend) : S(Keof);
-  else if (ls_wait_p(rd))  ret = wr ? S(Koutput) : NIL;
-  else NOTREACHED;
+  switch (rd) {
+    case LISTEN_AVAIL: ret = wr ? S(Kio)     : S(Kinput); break;
+    case LISTEN_EOF:   ret = wr ? S(Kappend) : S(Keof); break;
+    case LISTEN_WAIT:  ret = wr ? S(Koutput) : NIL; break;
+    case LISTEN_ERROR: ret = S(Kerror); break;
+  }
   if (place) *place = ret;
   return ret;
 }
@@ -15969,7 +15934,7 @@ global maygc void set_terminalstream_external_format (object stream,
  interactive_stream_p(stream)
  > stream: Stream
  NB: Relation between clear_input, listen, interactive_stream_p:
-   If ls_wait_p(listen_char(stream)) is true after clear_input(stream)
+   If LISTEN_WAIT==listen_char(stream) after clear_input(stream)
    (i.e. no more character available and no EOF), then
    interactive_stream_p(stream) is true.
    (Because then stream is effectively a Keyboard-Stream, Terminal-Stream,
@@ -15982,7 +15947,7 @@ global maygc void set_terminalstream_external_format (object stream,
    But not vice-versa: For Streams of type strmtype_pipe_in,
    strmtype_x11socket, strmtype_socket (that comply with
    interactive_stream_p(stream)) clear_input(stream) does nothing,
-   and listen_char(stream) can return ls_avail. */
+   and listen_char(stream) can return LISTEN_AVAIL. */
 global bool interactive_stream_p (object stream) {
  start:
   if (!builtin_stream_p(stream)) /* Assume the worst. */
@@ -16269,22 +16234,20 @@ global maygc bool read_line (const gcv_object_t* stream_,
 /* UP: Determines, if a character is instantly available in the Stream stream.
  listen_char(stream)
  > stream: Stream
- < result:   ls_avail if a character is available,
-             ls_eof   if EOF is reached,
-             ls_wait  if no character is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-global maygc signean listen_char (object stream) {
+global maygc listen_t listen_char (object stream) {
   if (builtin_stream_p(stream)) {
     check_SP(); check_STACK();
     if (TheStream(stream)->strmflags & strmflags_unread_B) { /* Char after UNREAD ? */
-      return ls_avail; /* yes -> available */
+      return LISTEN_AVAIL; /* yes -> available */
     } else {
       /* else branch according to Streamtype.
        Each single routine can trigger GC. Except for Keyboard-Stream
        or Terminal-Stream this is a pure EOF-Test. */
       switch (TheStream(stream)->strmtype) {
         case strmtype_synonym:  return listen_char_synonym(stream);
-        case strmtype_broad:    return ls_eof; /* no READ-CHAR */
+        case strmtype_broad:    return LISTEN_EOF; /* no READ-CHAR */
         case strmtype_concat:   return listen_char_concat(stream);
         case strmtype_twoway:
         case strmtype_echo:
@@ -16293,11 +16256,11 @@ global maygc signean listen_char (object stream) {
         #endif
           return listen_char_twoway(stream);
         case strmtype_str_in:   return listen_char_str_in(stream);
-        case strmtype_str_out:  return ls_eof; /* no READ-CHAR */
-        case strmtype_str_push: return ls_eof; /* no READ-CHAR */
-        case strmtype_pphelp:   return ls_eof; /* no READ-CHAR */
+        case strmtype_str_out:  return LISTEN_EOF; /* no READ-CHAR */
+        case strmtype_str_push: return LISTEN_EOF; /* no READ-CHAR */
+        case strmtype_pphelp:   return LISTEN_EOF; /* no READ-CHAR */
         case strmtype_buff_in:  return listen_char_buff_in(stream);
-        case strmtype_buff_out: return ls_eof; /* no READ-CHAR */
+        case strmtype_buff_out: return LISTEN_EOF; /* no READ-CHAR */
         #ifdef GENERIC_STREAMS
         case strmtype_generic:  return listen_char_generic(stream);
         #endif
@@ -16318,7 +16281,7 @@ global maygc signean listen_char (object stream) {
             else
               return listen_char_unbuffered(stream);
           } else {
-            return ls_eof; /* no READ-CHAR */
+            return LISTEN_EOF; /* no READ-CHAR */
           }
         #ifdef KEYBOARD
         case strmtype_keyboard: return listen_char_keyboard(stream);
@@ -16332,10 +16295,10 @@ global maygc signean listen_char (object stream) {
         #endif
           NOTREACHED;
         #ifdef SCREEN
-        case strmtype_window:   return ls_eof; /* no READ-CHAR */
+        case strmtype_window:   return LISTEN_EOF; /* no READ-CHAR */
         #endif
         #ifdef PRINTER
-        case strmtype_printer:  return ls_eof; /* no READ-CHAR */
+        case strmtype_printer:  return LISTEN_EOF; /* no READ-CHAR */
         #endif
         default: /* in general: query only for EOF */
           if (TheStream(stream)->strmflags & strmflags_rd_ch_B) {
@@ -16343,11 +16306,11 @@ global maygc signean listen_char (object stream) {
             var object nextchar = peek_char(&STACK_0);
             skipSTACK(1);
             if (eq(nextchar,eof_value))
-              return ls_eof; /* EOF reached */
+              return LISTEN_EOF; /* EOF reached */
             else
-              return ls_avail;
+              return LISTEN_AVAIL;
           } else {
-            return ls_eof; /* no READ-CHAR */
+            return LISTEN_EOF; /* no READ-CHAR */
           }
       }
     }
@@ -16357,14 +16320,14 @@ global maygc signean listen_char (object stream) {
     pushSTACK(stream);
     pushSTACK(stream); funcall(S(stream_read_char_will_hang_p),1);
     if (!nullp(value1)) {
-      skipSTACK(1); return ls_wait;
+      skipSTACK(1); return LISTEN_WAIT;
     }
     var object nextchar = peek_char(&STACK_0);
     skipSTACK(1);
     if (eq(nextchar,eof_value))
-      return ls_eof;
+      return LISTEN_EOF;
     else
-      return ls_avail;
+      return LISTEN_AVAIL;
   }
 }
 
@@ -16447,11 +16410,9 @@ global maygc bool clear_input (object stream) {
 /* UP: Determines whether a stream has a byte immediately available.
  listen_byte(stream)
  > stream: a stream with element-type ([UN]SIGNED-BYTE 8)
- < result: ls_avail if a byte is available,
-           ls_eof   if EOF is reached,
-           ls_wait  if no byte is available, but not because of EOF
+ < result: input availability
  can trigger GC */
-global maygc signean listen_byte (object stream) {
+global maygc listen_t listen_byte (object stream) {
   if (builtin_stream_p(stream)) {
     if (TheStream(stream)->strmflags & strmflags_rd_B) { /* Input-Stream? */
       check_SP(); check_STACK();
@@ -16460,7 +16421,7 @@ global maygc signean listen_byte (object stream) {
        this is a pure EOF-Test. */
       switch (TheStream(stream)->strmtype) {
         case strmtype_synonym:  return listen_byte_synonym(stream);
-        case strmtype_broad:    return ls_eof; /* no READ-BYTE */
+        case strmtype_broad:    return LISTEN_EOF; /* no READ-BYTE */
         case strmtype_concat:   return listen_byte_concat(stream);
         case strmtype_twoway:
         case strmtype_echo:
@@ -16468,15 +16429,26 @@ global maygc signean listen_byte (object stream) {
         case strmtype_twoway_socket:
         #endif
           return listen_byte_twoway(stream);
-        case strmtype_str_in:   return ls_eof; /* no READ-BYTE */
-        case strmtype_str_out:  return ls_eof; /* no READ-BYTE */
-        case strmtype_str_push: return ls_eof; /* no READ-BYTE */
-        case strmtype_pphelp:   return ls_eof; /* no READ-BYTE */
-        case strmtype_buff_in:  return ls_eof; /* no READ-BYTE */
-        case strmtype_buff_out: return ls_eof; /* no READ-BYTE */
+        case strmtype_str_in:
+        case strmtype_str_out:
+        case strmtype_str_push:
+        case strmtype_pphelp:
+        case strmtype_buff_in:
+        case strmtype_buff_out:
         #ifdef GENERIC_STREAMS
-        case strmtype_generic:  return ls_eof; /* unsupported functionality */
+        case strmtype_generic: /* unsupported functionality */
         #endif
+        #ifdef KEYBOARD
+        case strmtype_keyboard:
+        #endif
+        case strmtype_terminal:
+        #ifdef SCREEN
+        case strmtype_window:
+        #endif
+        #ifdef PRINTER
+        case strmtype_printer:
+        #endif
+          return LISTEN_EOF; /* no READ-BYTE */
         case strmtype_file:
         #ifdef PIPES
         case strmtype_pipe_in:
@@ -16499,31 +16471,21 @@ global maygc signean listen_byte (object stream) {
             else
               return listen_byte_ia8_unbuffered(stream);
           } else {
-            return ls_eof; /* no READ-BYTE */
+            return LISTEN_EOF; /* no READ-BYTE */
           }
-        #ifdef KEYBOARD
-        case strmtype_keyboard: return ls_eof; /* no READ-BYTE */
-        #endif
-        case strmtype_terminal: return ls_eof; /* no READ-BYTE */
-        #ifdef SCREEN
-        case strmtype_window:   return ls_eof; /* no READ-BYTE */
-        #endif
-        #ifdef PRINTER
-        case strmtype_printer:  return ls_eof; /* no READ-BYTE */
-        #endif
         default: NOTREACHED;
       }
     } else {
-      return ls_eof; /* no READ-BYTE */
+      return LISTEN_EOF; /* no READ-BYTE */
     }
   } else { /* Call the generic function (STREAM-READ-BYTE-LOOKAHEAD stream): */
     pushSTACK(stream); funcall(S(stream_read_byte_lookahead),1);
     if (nullp(value1))
-      return ls_wait;
+      return LISTEN_WAIT;
     else if (eq(value1,S(Keof)))
-      return ls_eof;
+      return LISTEN_EOF;
     else
-      return ls_avail;
+      return LISTEN_AVAIL;
   }
 }
 
@@ -17107,13 +17069,12 @@ LISPFUN(read_byte,seclass_default,1,2,norest,nokey,0,NIL) {
 LISPFUNN(read_byte_lookahead,1) {
   var object stream = check_stream(popSTACK());
   /* Query the status: */
-  var signean status = listen_byte(stream);
-  if (ls_wait_p(status))
-    value1 = NIL;
-  else if (ls_eof_p(status))
-    value1 = S(Keof);
-  else /* ls_avail_p(status) */
-    value1 = T;
+  switch (listen_byte(stream)) {
+    case LISTEN_WAIT: value1 = NIL; break;
+    case LISTEN_EOF: value1 = S(Keof); break;
+    case LISTEN_AVAIL: value1 = T; break;
+    case LISTEN_ERROR: OS_filestream_error(stream);
+  }
   mv_count=1;
 }
 
@@ -17121,29 +17082,28 @@ LISPFUNN(read_byte_lookahead,1) {
 LISPFUNN(read_byte_will_hang_p,1) {
   var object stream = check_stream(popSTACK());
   /* Query the status: */
-  var signean status = listen_byte(stream);
-  VALUES_IF(ls_wait_p(status));
+  VALUES_IF(LISTEN_WAIT == listen_byte(stream));
 }
 
 /* (READ-BYTE-NO-HANG stream [eof-error-p [eof-value]]) */
 LISPFUN(read_byte_no_hang,seclass_default,1,2,norest,nokey,0,NIL) {
-  var object stream = check_stream(STACK_2);
+  var object stream = STACK_2 = check_stream(STACK_2);
   /* Query the status: */
-  var signean status = listen_byte(stream);
-  if (ls_wait_p(status)) {
-    /* Return NIL. */
-    VALUES1(NIL); skipSTACK(3);
-    return;
-  } else if (!ls_eof_p(status)) {
-    /* Read a byte: */
-    var object obj = read_byte(stream);
-    if (!eq(obj,eof_value)) {
-      /* Return the read integer. */
-      VALUES1(obj); skipSTACK(3);
+  switch (listen_byte(stream)) {
+    case LISTEN_WAIT: /* Return NIL. */
+      VALUES1(NIL); skipSTACK(3);
       return;
+    case LISTEN_EOF: HANDLE_EOF(STACK_1, STACK_0, 3); break;
+    case LISTEN_AVAIL: { /* Read a byte: */
+      var object obj = read_byte(stream);
+      if (!eq(obj,eof_value)) {
+        /* Return the read integer. */
+        VALUES1(obj); skipSTACK(3);
+        return;
+      }
     }
+    case LISTEN_ERROR: OS_filestream_error(STACK_2);
   }
-  HANDLE_EOF(STACK_1, STACK_0, 3);
 }
 
 /* (READ-INTEGER stream element-type [endianness [eof-error-p [eof-value]]])
