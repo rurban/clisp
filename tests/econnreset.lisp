@@ -1,5 +1,12 @@
 #|
-this cannot be tested automatically because it reuires running clisp on
+If a socket receives an RST packet, select will not discover it,
+it will report that the socket is both readable and writable,
+while, in fact, the next i/o will fail with ECONNRESET.
+However, SOCKET-STATUS does discover this because it calls listen_char()
+on readable sockets which calls read() and fails with ECONNRESET.
+Therefore SOCKET-STATUS may signal an OS STREAM-ERROR.
+
+This cannot be tested automatically because it requires running clisp on
 a separate ("client") host as root:
 server XXX.XXX.XXX.XXX:
  (setf se (socket:socket-server 1234 :interface "XXX.XXX.XXX.XXX"))
