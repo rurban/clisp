@@ -4732,7 +4732,7 @@ LISPFUN(read_byte_sequence,seclass_default,2,0,norest,key,4,
     pushSTACK(value1); /* =: pointer */
     /* Stack layout: sequence, stream, index, end, typdescr, pointer. */
     while (!eql(STACK_3,STACK_2)) { /* index = end (both integers) -> done */
-      if (no_hang && !ls_avail_p(listen_byte(STACK_4)))
+      if (no_hang && LISTEN_AVAIL != listen_byte(STACK_4))
         break;
       var object item = read_byte(STACK_4); /* get an element */
       if (eq(item,eof_value)) /* EOF -> done */

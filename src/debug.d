@@ -145,8 +145,8 @@ local maygc Values read_form(void)
   pushSTACK(STACK_3); pushSTACK(NIL); funcall(L(terminal_raw),2);
   pushSTACK(value1);
   /* stack layout: ostream, istream, prompt, command-list, inputstream, raw. */
-  var signean status = listen_char(STACK_4);
-  if (ls_eof_p(status) && !boundp(Symbol_value(S(terminal_read_stream))))
+  if (listen_char(STACK_4) == LISTEN_EOF
+      && !boundp(Symbol_value(S(terminal_read_stream))))
     goto eof;
   /* already have characters available (and not in ilisp_mode) -> no prompt */
   if (ilisp_mode || interactive_stream_p(STACK_4)) {
@@ -319,7 +319,7 @@ local maygc Values read_form(void)
       /* If not at the beginning of a line, delete input till EOL: */
       if (interactive_stream_p(STACK_(4+1))
           && !eq(stream_get_lastchar(STACK_(4+1)),ascii_char(NL))) {
-        while (ls_avail_p(listen_char(STACK_(4+1)))) {
+        while (LISTEN_AVAIL == listen_char(STACK_(4+1))) {
           var object ch = peek_char(&STACK_(4+1));
           if (eq(ch,eof_value))
             break;

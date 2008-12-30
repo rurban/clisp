@@ -4564,7 +4564,7 @@ LISPFUN(peek_char,seclass_default,0,5,norest,nokey,0,NIL) {
 LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
   check_istream(&STACK_0);      /* check input-stream */
   if (builtin_stream_p(STACK_0))
-    VALUES_IF(ls_avail_p(listen_char(popSTACK())));
+    VALUES_IF(LISTEN_AVAIL == listen_char(popSTACK()));
   else funcall(S(stream_listen),1);
 }
 
@@ -4574,7 +4574,7 @@ LISPFUN(listen,seclass_default,0,1,norest,nokey,0,NIL) {
  thus avoiding the need for UNREAD-CHAR and preventing side effects. */
 LISPFUNN(read_char_will_hang_p,1) {
   check_istream(&STACK_0);      /* check input-stream */
-  VALUES_IF(ls_wait_p(listen_char(popSTACK())));
+  VALUES_IF(LISTEN_WAIT == listen_char(popSTACK()));
 }
 
 /* (READ-CHAR-NO-HANG [input-stream [eof-error-p [eof-value [recursive-p]]]]),
@@ -4587,19 +4587,19 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL) {
       ? !(TheStream(stream)->strmflags & bit(strmflags_rd_ch_bit_B))
       : !instanceof(stream,O(class_fundamental_input_stream)))
     error_illegal_streamop(S(read_char_no_hang),stream);
-  var signean status = listen_char(stream);
-  if (ls_eof_p(status)) {       /* EOF ? */
-    return_Values eof_handling(1);
-  } else if (ls_avail_p(status)) {      /* character available */
-    var object ch = read_char(stream_); /* read Character */
-    if (eq(ch,eof_value)) {     /* query for EOF, for safety reasons */
-      return_Values eof_handling(1);
-    } else {
-      VALUES1(ch); skipSTACK(4); return;
+  switch (listen_char(stream)) {
+    case LISTEN_EOF: return_Values eof_handling(1);
+    case LISTEN_AVAIL: {                  /* character available */
+      var object ch = read_char(stream_); /* read Character */
+      if (eq(ch,eof_value)) {     /* query for EOF, for safety reasons */
+        return_Values eof_handling(1);
+      } else {
+        VALUES1(ch); skipSTACK(4); return;
+      }
     }
-  } else {       /* ls_wait_p(status) - no character available */
-    /* instead of waiting, return NIL as value, immediately: */
-    VALUES1(NIL); skipSTACK(4); return;
+    default:          /* wait, error - no character available */
+      /* instead of waiting, return NIL as value, immediately: */
+      VALUES1(NIL); skipSTACK(4); return;
   }
 }
 
