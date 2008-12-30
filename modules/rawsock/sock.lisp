@@ -17,6 +17,8 @@
            #:sockaddr #:make-sockaddr #:sockaddr-family #:sockaddr-p
            #:htonl #:htons #:ntohl #:ntohs #:convert-address #:if-name-index
            #:configdev #:ipcsum #:icmpcsum #:tcpcsum #:udpcsum #:ifaddrs
+           #:failure #:failure-code #:failure-message #:eai
+           #:rawsock-error #:rawsock-error-socket
            #:open-unix-socket #:open-unix-socket-stream))
 
 (in-package "RAWSOCK")
@@ -107,9 +109,22 @@ Passes :TYPE to SOCKET and all the other options to MAKE-STREAM."
     (multiple-value-bind (node service) (rawsock:getnameinfo addr)
       (format out "sockaddr node: ~S, service: ~S~%" node service))))
 
-(define-condition eai (error)
-  (($ecode :reader eai-code :initarg :code)
-   ($message :reader eai-message :initarg :message))
-  (:documentation "getaddrinfo()/getnameinfo() error, see <netdb.h>")
+(defun report-failure  (c out)
+  (format out "[~S]: ~A" (failure-code c) (failure-message c)))
+
+(define-condition failure (error)
+  (($ecode :reader failure-code :initarg :code)
+   ($message :reader failure-message :initarg :message))
+  (:documentation "OS error")
+  (:report report-failure))
+
+(define-condition eai (failure) ()
+  (:documentation "getaddrinfo()/getnameinfo() error, see <netdb.h>"))
+
+(define-condition rawsock-error (failure)
+  (($socket :reader rawsock-error-socket :initarg :socket))
+  (:documentation "OS error on a raw socket")
   (:report (lambda (c out)
-             (format out "[~S]: ~A" (eai-code c) (eai-message c)))))
+             (format out "OS Error on socket ~S: "
+                     (rawsock-error-socket c))
+             (report-failure c out))))
