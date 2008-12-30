@@ -1,5 +1,12 @@
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/sock.lisp (failure, rawsock-error): new conditions
+	(eai): inherit from FAILURE
+	* modules/rawsock/rawsock.c (rawsock_error): signal RAWSOCK-ERROR
+	(SYSCALL): use it
+
+2008-12-30  Sam Steingold  <sds@gnu.org>
+
 	* unixaux.d (fd_read): when errno is ECONNRESET, close fd to avoid
 	SIGPIPE on further accesses (see tests/econnreset.lisp)
 	Reported by Don Cohen

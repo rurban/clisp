@@ -92,7 +92,7 @@
         (setq size len)
         (show (list len sa-len sa (subseq ve 0 len)) :pretty t)))
     (assert (eq status (show (socket:socket-status so))))
-    (rawsock:sock-close *sock*)
+    (rawsock:sock-close so)
     size)
   (defun my-bind (sock sa)
     (handler-case (rawsock:bind sock sa)
@@ -152,6 +152,16 @@ T
 
 (ext:socket-status *sock*) :OUTPUT
 (ext:socket-stream-shutdown *sock* :io) NIL
+
+(block foo
+  (handler-bind ((rawsock:rawsock-error
+                  (lambda (e)
+                    (princ-error e)
+                    (return-from foo (= (rawsock:rawsock-error-socket e)
+                                        *sock*)))))
+    (rawsock:sock-write *sock* #A((UNSIGNED-BYTE 8) (2) (1 2)))))
+T
+
 (rawsock:sock-close *sock*) 0
 
 ;; re-create the socket after it has been closed
