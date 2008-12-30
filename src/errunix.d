@@ -3,7 +3,7 @@
  > int errno: error code */
 nonreturning_function(global, OS_error, (void));
 #ifdef UNIX
-nonreturning_function(global, OS_file_error, (object pathname));
+nonreturning_function(global, OS_error_arg, (object etype, object arg));
 #endif
 
 /* Problem: many different UNIX variants, each with its own set of error
@@ -689,17 +689,17 @@ nonreturning_function(global, OS_error, (void)) {
   NOTREACHED;
 }
 #ifdef UNIX
-nonreturning_function(global, OS_file_error, (object pathname)) {
+nonreturning_function(global, OS_error_arg, (object etype, object arg)) {
   var uintC errcode; /* positive error number */
   begin_system_call();
   errcode = errno;
   errno = 0; /* reset for the next error */
   end_system_call();
   clr_break_sem_4(); /* no UNIX operation may be active */
-  pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
+  pushSTACK(arg); /* *-ERROR slot */
   begin_error(); /* start error message */
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
-    STACK_3 = S(simple_file_error);
+    STACK_3 = etype;
   OS_error_internal(errcode);
   end_error(args_end_pointer STACKop 7,true); /* finish error */
   NOTREACHED;

@@ -3853,10 +3853,9 @@ local void get_OS_error_info (DWORD errcode, OS_error_info_callback* func)
  OS_error();
  > GetLastError(): error code */
 nonreturning_function(global, OS_error, (void));
-nonreturning_function(global, OS_file_error, (object pathname));
+nonreturning_function(global, OS_error_arg, (object etype, object arg));
 local void OS_error_internal (DWORD errcode);
-local void OS_error_internal_body (const char* name, const char* msg)
-{
+local void OS_error_internal_body (const char* name, const char* msg) {
   if (name != NULL) {           /* known name? */
     write_errorasciz(" (");
     write_errorasciz(name);
@@ -3867,8 +3866,7 @@ local void OS_error_internal_body (const char* name, const char* msg)
     write_errorasciz(msg);
   }
 }
-local void OS_error_internal (DWORD errcode)
-{
+local void OS_error_internal (DWORD errcode) {
   /* print start message: */
   write_errorstring(GETTEXT("Win32 error "));
   /* print error code: */
@@ -3876,8 +3874,7 @@ local void OS_error_internal (DWORD errcode)
   /* maybe more details?*/
   get_OS_error_info(errcode,&OS_error_internal_body);
 }
-nonreturning_function(global, OS_error, (void))
-{
+nonreturning_function(global, OS_error, (void)) {
   var DWORD errcode;
   end_system_call();            /* just in case */
   begin_system_call();
@@ -3891,17 +3888,16 @@ nonreturning_function(global, OS_error, (void))
   end_error(args_end_pointer STACKop 7,true);
   NOTREACHED;
 }
-nonreturning_function(global, OS_file_error, (object pathname))
-{
+nonreturning_function(global, OS_error_arg, (object etype, object arg)) {
   var DWORD errcode;
   begin_system_call();
   errcode = GetLastError();
   end_system_call();
   clr_break_sem_4();   /* no more active Win32 calls */
-  pushSTACK(pathname); /* FILE-ERROR slot PATHNAME */
+  pushSTACK(arg); /* *-ERROR slot */
   begin_error();
   if (!nullp(STACK_3)) /* *ERROR-HANDLER* = NIL, SYS::*USE-CLCS* /= NIL ? */
-    STACK_3 = S(simple_file_error);
+    STACK_3 = etype;
   OS_error_internal(errcode);
   end_error(args_end_pointer STACKop 7,true);
   NOTREACHED;
