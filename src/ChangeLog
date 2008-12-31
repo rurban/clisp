@@ -1,3 +1,30 @@
+2008-12-30  Sam Steingold  <sds@gnu.org>
+
+	Declaration (COMPILE) accepts name argument
+	* eval.d (parse_dd): return compile name, not just a boolean
+	(get_closure): use parse_dd return value over :LAMBDA
+	* control.d (parse_doc_decl): ditto
+	(compile_eval_form): accept closure_name and pass it to COMPILE-FORM
+	(LET, LET*, LOCALLY, SYMBOL-MACROLET, MULTIPLE-VALUE-BIND):
+	pass closure_name to compile_eval_form
+	(PARSE-BODY): return 4th value - closure_name
+	* lispbibl.d (parse_dd): update prototype
+	* clos-class3.lisp (install-class-direct-accessors): pass funname
+	to the COMPILE declaration
+	* clos-genfun2b.lisp (effective-method-function-name): add
+	(compute-effective-method-as-function): use it in COMPILE declaration
+	(compile-no-jitc): new function, replaces *COMPILE-NO-JITC*
+	(compute-discriminating-function-<generic-function>)
+	(finalize-fast-gf): use COMPILE-NO-JITC
+	* clos-method2.lisp (analyze-method-description): use 4th return
+	value of PARSE-BODY for COMPILE declaration
+	* compiler.lisp (process-declarations): allow (COMPILE name)
+	(symbol-suffix): unlock the package around INTERN
+	(compile-form, compile-form-in-toplevel-environment): accept
+	optional NAME argument
+	* foreign1.lisp (c-struct-constructor): pass name to the COMPILE
+	declaration
+
 2008-12-31  Sam Steingold  <sds@gnu.org>
 
 	* macros2.lisp (with-output-to-string): use
