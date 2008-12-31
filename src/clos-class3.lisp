@@ -1599,8 +1599,8 @@
                                         (nconc (method-function-initargs
                                                 method-class
                                                 (eval
-                                                 `(LOCALLY
-                                                      (DECLARE (COMPILE))
+                                                 `(LOCALLY (DECLARE (COMPILE
+                                                                     ,funname))
                                                     (%OPTIMIZE-FUNCTION-LAMBDA
                                                      (T) (#:CONTINUATION OBJECT)
                                                      (DECLARE (COMPILE))
@@ -1612,7 +1612,8 @@
                  funname 'defclass (sys::fbound-string funname))
                 (setf (fdefinition funname)
                       (eval `(FUNCTION ,funname (LAMBDA (OBJECT)
-                               ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                               ,@(if *compile-accessor-functions*
+                                     `((DECLARE (COMPILE ,funname))))
                                (UNLESS (TYPEP OBJECT ',class)
                                  (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
                                ,access-place)))))))
@@ -1643,8 +1644,8 @@
                                         (nconc (method-function-initargs
                                                 method-class
                                                 (eval
-                                                 `(LOCALLY
-                                                      (DECLARE (COMPILE))
+                                                 `(LOCALLY (DECLARE (COMPILE
+                                                                     ,funname))
                                                     (%OPTIMIZE-FUNCTION-LAMBDA
                                                      (T) (#:CONTINUATION NEW-VALUE OBJECT)
                                                      (DECLARE (COMPILE))
@@ -1657,7 +1658,8 @@
                                     (sys::get-funname-symbol funname)))
                 (setf (fdefinition funname)
                       (eval `(FUNCTION ,funname (LAMBDA (NEW-VALUE OBJECT)
-                               ,@(if *compile-accessor-functions* '((DECLARE (COMPILE))))
+                               ,@(if *compile-accessor-functions*
+                                     `((DECLARE (COMPILE ,funname))))
                                (UNLESS (TYPEP OBJECT ',class)
                                  (ERROR-ACCESSOR-TYPECHECK ',funname OBJECT ',class))
                                (SETF ,access-place NEW-VALUE)))))))))))))

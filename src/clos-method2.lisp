@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Methods
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004
+;;;; Sam Steingold 1998 - 2004, 2008
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -137,12 +137,15 @@
                     `(,@(subseq lambda-list 0 index) &ALLOW-OTHER-KEYS
                       ,@(subseq lambda-list index)))))
               (let* ((backpointer (gensym))
-                     (compile nil)
+                     (compile-decl nil)
                      (documentation nil)
                      (lambdabody
-                       (multiple-value-bind (body-rest declarations docstring)
+                       (multiple-value-bind (body-rest declarations docstring compile-name)
                            (sys::parse-body body t)
-                         (setq compile (member '(COMPILE) declarations :test #'equal))
+                         (setq compile-decl
+                               (case compile-name
+                                 (0 '()) (1 '((DECLARE (COMPILE))))
+                                 (t `((DECLARE (COMPILE ,compile-name))))))
                          (setq documentation docstring)
                          (when ignorable-req-vars
                            (push `(IGNORABLE ,@ignorable-req-vars) declarations))
@@ -176,7 +179,7 @@
                                           :keywords keywords :allow-p allowp)))
                 (values
                   `(LAMBDA (,backpointer)
-                     ,@(if compile '((DECLARE (COMPILE))))
+                     ,@compile-decl
                      (%OPTIMIZE-FUNCTION-LAMBDA (T) ,@lambdabody))
                   `(:QUALIFIERS ',qualifiers
                     :LAMBDA-LIST ',lambda-list

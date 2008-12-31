@@ -377,6 +377,18 @@ CHECK-LOAD
                      (show (apply c args)))))
 T
 
+;; (declare (compile [name]))
+(type-of (lambda (x) (declare (compile ident)) x)) COMPILED-FUNCTION
+(sys::closure-name (lambda (x) (declare (compile ident)) x)) IDENT
+(let ((l (let ((x 12))
+           (declare (compile increment))
+           (list (lambda () (incf x))
+                 (lambda () (decf x))))))
+  (list (every #'compiled-function-p l)
+        (mapcar #'sys::closure-name l)
+        (mapcar #'funcall l)))
+(T (INCREMENT-1 INCREMENT-2) (13 12))
+
 (progn (symbol-cleanup 'check-load)
        (symbol-cleanup '*s1*) (symbol-cleanup '*s2*)
        (symbol-cleanup '*s3*) (symbol-cleanup '*s4*))

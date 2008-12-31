@@ -1521,15 +1521,16 @@ global maygc void macroexp0 (object form, object env)
  < value1: body
  < value2: List of decl-specs
  < value3: Doc-String or NIL
- < result: true if one (COMPILE)-declaration occurred, else false
+ < result: name if a (COMPILE name)-declaration occurred,
+           unbound if a (COMPILE)-declaration occurred, else Fixnum_0
  can trigger GC */
-global maygc bool parse_dd (object formlist)
+global maygc object parse_dd (object formlist)
 {
+  pushSTACK(Fixnum_0); /* place for (COMPILE name) */
   pushSTACK(formlist); /* store formlist for error message */
   pushSTACK(NIL); /* preliminary Doc-String */
   pushSTACK(NIL); /* start of decl-spec-List */
   /* stack layout: formlist, docstring, declspecs. */
-  var bool compile_decl = false; /* flag: (COMPILE)-declaration occurred */
   var object body = formlist; /* rest of the form-list */
   while (consp(body)) {
     var object form = Car(body); /* next form */
@@ -1556,9 +1557,16 @@ global maygc bool parse_dd (object formlist)
            Test: (EQUAL d '(COMPILE)) =
                  (and (consp d) (eq (car d) 'COMPILE) (null (cdr d))) */
         if (consp(declspec)
-            && eq(Car(declspec),S(compile))
-            && nullp(Cdr(declspec)))
-          compile_decl = true;
+            && eq(Car(declspec),S(compile))) {
+          if (nullp(Cdr(declspec))) STACK_(3+2) = unbound;
+          else if (consp(Cdr(declspec)) && funnamep(Car(Cdr(declspec))))
+            STACK_(3+2) = Car(Cdr(declspec));
+          else {
+            pushSTACK(STACK_(2+2));  /* SOURCE-PROGRAM-ERROR slot DETAIL */
+            pushSTACK(declspec);
+            error(source_program_error,GETTEXT("Invalid declaration ~S"));
+          }
+        }
         { /* push this declaration onto STACK_(0+2) : */
           pushSTACK(declspec);
           var object new_cons = allocate_cons();
@@ -1579,7 +1587,7 @@ global maygc bool parse_dd (object formlist)
   value2 = nreverse(popSTACK()); /* decl-spec-List */
   value3 = popSTACK(); /* Doc-String */
   skipSTACK(1);
-  return compile_decl;
+  return popSTACK();
 }
 
 /* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to the specified values.
@@ -1757,9 +1765,12 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
   pushSTACK(lambdabody);
   /* stack layout: name, lambdabody.
      decompose ({decl|doc} {form}) */
-  if (parse_dd(Cdr(lambdabody))) {
+  var object compile_name = parse_dd(Cdr(lambdabody));
+  if (!eq(Fixnum_0,compile_name)) {
+    if (boundp(compile_name) && eq(STACK_1/*name*/,S(Klambda)))
+      STACK_1 = compile_name; /* override :LAMBDA with (COMPILE name) */
     /* A (COMPILE)-Declaration occurred.
-       replace Lambdabody by its source (because some Macros
+       replace Lambdabody with its source (because some Macros
        can be compiled more efficiently than their Macro-Expansion): */
     { var object source = lambdabody_source(STACK_0);
       if (!boundp(source)) {

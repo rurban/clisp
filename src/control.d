@@ -330,9 +330,10 @@ LISPSPECFORM(prog2, 2,0,body)
  parse_doc_decl(body);
  > body: whole Body
  can trigger GC */
-local maygc bool parse_doc_decl (object body, bool permit_doc_string) {
+local maygc object parse_doc_decl (object body, bool permit_doc_string) {
+  pushSTACK(NIL);               /* place for (COMPILE name) */
   pushSTACK(body);
-  var bool to_compile = parse_dd(body);
+  STACK_1 = parse_dd(body);
   if (!permit_doc_string && !nullp(value3)) {
     pushSTACK(value1); pushSTACK(value2); pushSTACK(value3); /* save */
     pushSTACK(NIL); pushSTACK(STACK_(0+3+1));
@@ -341,7 +342,7 @@ local maygc bool parse_doc_decl (object body, bool permit_doc_string) {
     value3 = popSTACK(); value2 = popSTACK(); value1 = popSTACK();
   }
   skipSTACK(1);
-  return to_compile;
+  return popSTACK();
 }
 
 /* get the 5 environment objects to the stack
@@ -369,14 +370,20 @@ local inline void aktenv_to_stack (void) {
  Compiles the current form and executes it in compiled state.
  compile_eval_form()
  > in STACK: EVAL-frame with the form
+ > closure_name: name or unbound
  < mv_count/mv_space: Values
  can trigger GC */
-local maygc Values compile_eval_form (void)
+local maygc Values compile_eval_form (object closure_name)
 { /* execute (SYS::COMPILE-FORM form venv fenv benv genv denv) :
      get the whole form from the EVAL-frame in the stack: */
   pushSTACK(STACK_(frame_form)); /* as first argument */
   aktenv_to_stack();
-  funcall(S(compile_form),6);
+  var uintC argcount = 6;
+  if (boundp(closure_name)) {
+    pushSTACK(closure_name);
+    argcount = 7;
+  }
+  funcall(S(compile_form),argcount);
   /* call the freshly compiled closure with 0 arguments: */
   funcall(value1,0);
 }
@@ -651,9 +658,10 @@ global void activate_specdecls (gcv_object_t* spec_ptr, uintC spec_count) {
 LISPSPECFORM(let, 1,0,body)
 { /* (LET ({varspec}) {decl} {form}), CLTL p. 110 */
   /* separate {decl} {form}: */
-  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
+  var object compile_name = parse_doc_decl(STACK_0,false);
+  if (!eq(Fixnum_0,compile_name)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
-    skipSTACK(2); return_Values compile_eval_form();
+    skipSTACK(2); return_Values compile_eval_form(compile_name);
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
@@ -686,9 +694,10 @@ LISPSPECFORM(let, 1,0,body)
 LISPSPECFORM(letstar, 1,0,body)
 { /* (LET* ({varspec}) {decl} {form}), CLTL p. 111 */
   /* separate {decl} {form} : */
-  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
+  var object compile_name = parse_doc_decl(STACK_0,false);
+  if (!eq(Fixnum_0,compile_name)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
-    skipSTACK(2); return_Values compile_eval_form();
+    skipSTACK(2); return_Values compile_eval_form(compile_name);
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
@@ -748,11 +757,11 @@ local /*maygc*/ void make_vframe_activate (void) {
 LISPSPECFORM(locally, 0,0,body)
 { /* (LOCALLY {decl} {form}), CLTL2 p. 221 */
   /* separate {decl} {form} : */
-  var bool to_compile = parse_doc_decl(STACK_0,false);
+  var object compile_name = parse_doc_decl(STACK_0,false);
   skipSTACK(1);
-  if (to_compile) { /* declaration (COMPILE) ? */
+  if (!eq(Fixnum_0,compile_name)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
-    return_Values compile_eval_form();
+    return_Values compile_eval_form(compile_name);
   } else { /* build variable binding frame, extend VAR_ENV : */
     make_vframe_activate();
     /* interpret body: */
@@ -1138,9 +1147,10 @@ LISPSPECFORM(function_macro_let, 1,0,body)
 LISPSPECFORM(symbol_macrolet, 1,0,body)
 { /* (SYMBOL-MACROLET ({(var expansion)}) {decl} {form}), CLTL2 p. 155 */
   /* separate {decl} {form} : */
-  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
+  var object compile_name = parse_doc_decl(STACK_0,false);
+  if (!eq(Fixnum_0,compile_name)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
-    skipSTACK(2); return_Values compile_eval_form();
+    skipSTACK(2); return_Values compile_eval_form(compile_name);
   } else {
     skipSTACK(1);
     /* build variable binding frame, extend VAR_ENV : */
@@ -1773,9 +1783,10 @@ LISPSPECFORM(multiple_value_prog1, 1,0,body)
 LISPSPECFORM(multiple_value_bind, 2,0,body)
 { /* (MULTIPLE-VALUE-BIND ({var}) values-form {decl} {form}), CLTL p. 136 */
   /* separate {decl} {form} : */
-  if (parse_doc_decl(STACK_0,false)) { /* declaration (COMPILE) ? */
+  var object compile_name = parse_doc_decl(STACK_0,false);
+  if (!eq(Fixnum_0,compile_name)) { /* declaration (COMPILE) ? */
     /* yes -> compile form: */
-    skipSTACK(3); return_Values compile_eval_form();
+    skipSTACK(2); return_Values compile_eval_form(compile_name);
   } else {
     var object varlist = STACK_2;
     STACK_2 = STACK_1;
@@ -2382,14 +2393,16 @@ LISPFUNN(check_symbol,2)
 
 LISPFUN(parse_body,seclass_default,1,1,norest,nokey,0,NIL)
 { /* (SYS::PARSE-BODY body [docstring-allowed])
- parses body, recognizes declarations, returns three values:
- 1. body-rest, all forms after the declarations,
+ parses body, recognizes declarations, returns four values:
+ 1. body-rest, all forms after the declarations
  2. list of occurred declspecs
- 3. docstring (only if docstring-allowed=T ) or NIL.
+ 3. docstring (only if docstring-allowed=T ) or NIL
+ 4. (COMPILE name) -> name; (COMPILE) -> Fixnum_1; none -> Fixnum_0
  (docstring-allowed should be = NIL or T) */
-  parse_doc_decl(STACK_1/*body*/,!missingp(STACK_0));
+  value4 = parse_doc_decl(STACK_1/*body*/,!missingp(STACK_0));
+  if (!boundp(value4)) value4 = Fixnum_1;
   /* got 3 values from parse_dd(): ({form}), declspecs, doc */
-  mv_count = 3;
+  mv_count = 4;
   skipSTACK(2);
 }
 

@@ -88,12 +88,18 @@
       (error (TEXT "~S: ~S has ~S required argument~:P")
              'compute-applicable-methods-effective-method-for-set gf req-num))))
 
+(defun effective-method-function-name (gf methods)
+  (sys::symbol-suffix
+   (sys::closure-name gf)
+   (ext:string-concat "<EMF-" (princ-to-string (length methods)) ">")))
+
 (defun compute-effective-method-as-function (gf methods args)
   (when (null methods)
     (return-from compute-effective-method-as-function
       (no-method-caller 'no-applicable-method gf)))
   ;; Apply method combination:
-  (let ((ef-fun (compute-effective-method-as-function-form gf (safe-gf-method-combination gf) methods args)))
+  (let ((ef-fun (compute-effective-method-as-function-form
+                 gf (safe-gf-method-combination gf) methods args)))
     ;; Evaluate or compile the resulting form:
     (if (constantp ef-fun) ; constant or self-evaluating form?
       ;; No need to invoke the compiler for a constant form.
@@ -101,7 +107,9 @@
       ;; For a general form:
       ;; (eval ef-fun)                                 ; interpreted
       ;; (eval `(LOCALLY (DECLARE (COMPILE)) ,ef-fun)) ; compiled
-      (eval `(LET () (DECLARE (COMPILE) (INLINE FUNCALL APPLY))
+      (eval `(LET ()
+               (DECLARE (COMPILE ,(effective-method-function-name gf methods))
+                        (INLINE FUNCALL APPLY))
                ,ef-fun)))))
 
 (defun no-method-caller (no-method-name gf)
@@ -136,13 +144,17 @@
 (predefun compute-discriminating-function (gf)
   (compute-discriminating-function-<generic-function> gf))
 
-(defconstant *compile-no-jitc* '((OPTIMIZE (SPEED 0) (SPACE 3)) (COMPILE)))
+(defun compile-no-jitc (name &optional suffix)
+  (cons `(COMPILE ,(if suffix (sys::symbol-suffix name suffix) name))
+        '((OPTIMIZE (SPEED 0) (SPACE 3)))))
 
 (defun compute-discriminating-function-<generic-function> (gf)
   (multiple-value-bind (bindings lambdabody) (compute-dispatch gf)
     (let ((preliminary
             (eval `(LET ,bindings
-                     (DECLARE ,@(safe-gf-declspecs gf) ,@*compile-no-jitc*)
+                     (DECLARE ,@(safe-gf-declspecs gf)
+                              ,@(compile-no-jitc (sys::closure-name gf)
+                                                 'preliminary))
                      (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
       (assert (<= (sys::%record-length preliminary) 3))
       preliminary)))
@@ -1061,7 +1073,7 @@
                     user-defined-args)))
         (preliminary
          (eval `(LET ()
-                  (DECLARE ,@*COMPILE-NO-JITC*)
+                  (DECLARE ,@(compile-no-jitc name))
                   (%GENERIC-FUNCTION-LAMBDA ,@lambdabody)))))
     (assert (<= (sys::%record-length preliminary) 3))
     (set-funcallable-instance-function final preliminary)
@@ -1085,7 +1097,7 @@
                      user-defined-args)))
          (preliminary
            (eval `(LET ((GF ',final))
-                    (DECLARE ,@*COMPILE-NO-JITC*)
+                    (DECLARE ,@(compile-no-jitc name))
                     (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
                       (DECLARE (INLINE APPLY))
                       (APPLY 'SLOW-FUNCALL-GF GF ARGS))))))
@@ -1095,7 +1107,7 @@
     final))
 
  (flet ((prototype-factory (gf)
-           (declare ,@*COMPILE-NO-JITC*)
+           (declare ,@(compile-no-jitc (sys::closure-name gf)))
            (%generic-function-lambda (&rest args)
              (declare (inline apply))
              (apply 'slow-funcall-gf gf args))))
@@ -1133,11 +1145,11 @@
         (make-hash-table :key-type '(cons fixnum boolean) :value-type '(cons function (simple-array (unsigned-byte 8) (*)))
                          :test 'ext:stablehash-equal :warn-if-needs-rehash-after-gc t))
       (uninitialized-prototype-factory
-        (eval `#'(LAMBDA (GF)
-                   (DECLARE ,@*COMPILE-NO-JITC*)
-                   (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
-                     (DECLARE (INLINE FUNCALL) (IGNORE ARGS))
-                     (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD GF))))))
+       (eval `#'(LAMBDA (GF)
+                  (DECLARE ,@(compile-no-jitc 'uninitialized-prototype-factory))
+                  (%GENERIC-FUNCTION-LAMBDA (&REST ARGS)
+                    (DECLARE (INLINE FUNCALL) (IGNORE ARGS))
+                    (FUNCALL 'NO-METHOD-CALLER 'NO-APPLICABLE-METHOD GF))))))
   (defun finalize-fast-gf (gf)
     (let ((prototype-factory
             (if (safe-gf-undeterminedp gf)
@@ -1153,7 +1165,7 @@
                             (let* ((reqvars (gensym-list reqnum))
                                    (prototype-factory
                                     (eval `#'(LAMBDA (GF)
-                                               (DECLARE ,@*COMPILE-NO-JITC*)
+                                               (DECLARE ,@(compile-no-jitc (sys::closure-name gf) 'prototype-factory))
                                                (%GENERIC-FUNCTION-LAMBDA
                                                 (,@reqvars ,@(if restp '(&REST ARGS) '()))
                                                 (DECLARE (INLINE FUNCALL) (IGNORABLE ,@reqvars ,@(if restp '(ARGS) '())))

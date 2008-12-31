@@ -1,3 +1,7 @@
+2008-12-31  Sam Steingold  <sds@gnu.org>
+
+	* ext-clisp.tst: test (declare (compile [name]))
+
 2008-12-29  Sam Steingold  <sds@gnu.org>
 
 	* econnreset.lisp: new file for testing the ECONNRESET problem in
