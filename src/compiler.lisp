@@ -1563,8 +1563,11 @@ for-value   NIL or T
                                                '())))
                                        (cddr declspec)))))
                  (COMPILE
-                  (when (cdr declspec)
-                    (c-warn (TEXT "The arguments of a COMPILE declaration are ignored: ~S")
+                  (when (and (cdr declspec)
+                             (not (and (consp (cdr declspec))
+                                       (function-name-p (second declspec))
+                                       (null (cddr declspec)))))
+                    (c-warn (TEXT "The argument of a COMPILE declaration must be a function name: ~S")
                             declspec)
                     (setq declspec '(COMPILE)))))
                (push declspec other)))
@@ -1880,7 +1883,13 @@ for-value   NIL or T
         (multiple-value-bind (name pack) (get-funname-string+pack funname)
           ;; build new symbol:
           (let ((new-name (string-concat name "-" suffix)))
-            (if pack (intern new-name pack) (make-symbol new-name))))
+            (if pack
+                (let ((lockp (package-lock pack)) sym)
+                  (setf (package-lock pack) nil)
+                  (setq sym (intern new-name pack))
+                  (setf (package-lock pack) lockp)
+                  sym)
+                (make-symbol new-name))))
         (make-symbol suffix)))))
 
 ;; (C-COMMENT controlstring . args)
@@ -10851,16 +10860,17 @@ The function make-closure is required.
 ;; and returns a functional object, that - called with 0 arguments -
 ;; executes this form.
 (let ((form-count 0))
-  (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%)
-    (compile-lambda (symbol-suffix '#:COMPILED-FORM (incf form-count))
-                    `(() ,form)
+  (defun compile-form (form %venv% %fenv% %benv% %genv% %denv%
+                       &optional (name (symbol-suffix '#:COMPILED-FORM
+                                                      (incf form-count))))
+    (compile-lambda name `(() ,form)
                     %venv% %fenv% %benv% %genv% %denv% nil))
   ;; compiles a form in the Toplevel-Environment - only for LOAD :COMPILING T
   (defun compile-form-in-toplevel-environment
-      (form &aux (env *toplevel-environment*))
+      (form &optional (name (symbol-suffix '#:COMPILED-FORM (incf form-count)))
+       &aux (env *toplevel-environment*))
     (let ((*compiling-from-file* t))
-      (compile-lambda-helper (symbol-suffix '#:COMPILED-FORM (incf form-count))
-                             `(() ,form)
+      (compile-lambda-helper name `(() ,form)
                              (svref env 0)    ; %venv%
                              (svref env 1)    ; %fenv%
                              (svref env 2)    ; %benv%

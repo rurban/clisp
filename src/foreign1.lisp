@@ -158,7 +158,7 @@
                 h)
            (eval `(FUNCTION
                    (LAMBDA ,vars
-                    (DECLARE (COMPILE))
+                    (DECLARE (COMPILE ,(intern (string-concat "MAKE-" (symbol-name class)) (symbol-package class))))
                     ,(if (and (setq h (get class 'clos::closclass))
                               (typep h clos::<structure-class>)
                               (setq h (clos::class-kconstructor h)))

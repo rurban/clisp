@@ -12623,9 +12623,10 @@ extern maygc void macroexp0 (object form, object env);
  < value1: body
  < value2: list of decl-specs
  < value3: Doc-String or NIL
- < result: true if an (COMPILE)-Declaration occurred, else false
+ < result: name if a (COMPILE name)-declaration occurred,
+           unbound if a (COMPILE)-declaration occurred, else Fixnum_0
  can trigger GC */
-extern maygc bool parse_dd (object formlist);
+extern maygc object parse_dd (object formlist);
 /* is used by CONTROL */
 
 /* UP: Creates a corresponding Closure for a Lambda-body by disassembling
