@@ -317,6 +317,8 @@
 (defmacro with-output-to-string ((var &optional (string nil)
                                   &key (element-type ''CHARACTER))
                                  &body body)
+  ;; use SYS::BUILT-IN-STREAM-CLOSE instead of CLOSE for bootstrapping
+  ;; because CLOSE is only defined in gray.lisp - fairly late in the game
   (multiple-value-bind (body-rest declarations) (SYSTEM::PARSE-BODY body)
     (if string
       (let ((ignored-var (gensym "IG")))
@@ -325,12 +327,12 @@
            (DECLARE (READ-ONLY ,var) (IGNORE ,ignored-var) ,@declarations)
            (UNWIND-PROTECT
              (PROGN ,@body-rest)
-             (CLOSE ,var))))
+             (SYS::BUILT-IN-STREAM-CLOSE ,var))))
       `(LET ((,var (MAKE-STRING-OUTPUT-STREAM :ELEMENT-TYPE ,element-type)))
          (DECLARE (READ-ONLY ,var) ,@declarations)
          (UNWIND-PROTECT
            (PROGN ,@body-rest (GET-OUTPUT-STREAM-STRING ,var))
-           (CLOSE ,var))))))
+           (SYS::BUILT-IN-STREAM-CLOSE ,var))))))
 ;; ----------------------------------------------------------------------------
 ;; X3J13 vote <40>
 (defmacro print-unreadable-object
