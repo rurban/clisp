@@ -1,6 +1,7 @@
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
-	Declaration (COMPILE) accepts name argument
+	Declaration (COMPILE) accepts name argument;
+	this fixes bug #[ 2477736 ]: poor error messages from GF funcalls
 	* eval.d (parse_dd): return compile name, not just a boolean
 	(get_closure): use parse_dd return value over :LAMBDA
 	* control.d (parse_doc_decl): ditto
