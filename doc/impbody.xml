@@ -616,7 +616,7 @@ executes the compiled version of &form-r;.<programlisting language="lisp">
 (&function-lambda-expression; &star-var;)
 <computeroutput>&nil;</computeroutput><lineannotation>source is not preserved</lineannotation>
 <computeroutput>&t;</computeroutput> ;
-IDENT
+<computeroutput>IDENT</computeroutput>
 (&fboundp; 'ident)
 <computeroutput>&nil;</computeroutput><lineannotation>sic!</lineannotation>
 </programlisting></para>
