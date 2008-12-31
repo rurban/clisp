@@ -1,3 +1,9 @@
+2008-12-31  Sam Steingold  <sds@gnu.org>
+
+	* macros2.lisp (with-output-to-string): use
+	SYS::BUILT-IN-STREAM-CLOSE instead of CLOSE for bootstrapping
+	because CLOSE is only defined in gray.lisp - fairly late in the game
+
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/sock.lisp (failure, rawsock-error): new conditions
