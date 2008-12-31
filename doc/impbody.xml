@@ -609,22 +609,22 @@ executes the compiled version of &form-r;.<programlisting language="lisp">
  returns two functions.  The first is compiled and increments &x-r;, the
  second is interpreted (slower) and decrements the same &x-r;.</para>
 
-<para>This declaration can also be used to name the compiled form:
+<para>This declaration can also be used to name the resulting compiled closure:
 <programlisting language="lisp">
 (&lambda-m; (x) (&declare; (compile ident)) x)
 <computeroutput>&sharp-lt;&compiled-function-t; IDENT&gt;</computeroutput>
 (&function-lambda-expression; &star-var;)
 <computeroutput>&nil;</computeroutput><lineannotation>source is not preserved</lineannotation>
-<computeroutput>&t;</computeroutput> ;
+<computeroutput>&t;</computeroutput>
 <computeroutput>IDENT</computeroutput>
 (&fboundp; 'ident)
 <computeroutput>&nil;</computeroutput><lineannotation>sic!</lineannotation>
 </programlisting></para>
 
-<note><para>The declaration &compile-decl; is ignored in the following
-  special forms: <simplelist><member>&labels;</member>
-   <member>&flet;</member><member>&macrolet;</member>
-</simplelist></para></note>
+<note><para>The declaration &compile-decl; is ignored by the following
+  <ulink url="clhs/glo">special operator</ulink>s:
+  <simplelist><member>&labels;</member><member>&flet;</member>
+   <member>&macrolet;</member></simplelist></para></note>
 </section>
 
 <section id="space-decl"><title>Declaration &space-dec;</title>
