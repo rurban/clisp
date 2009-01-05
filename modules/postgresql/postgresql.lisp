@@ -1,5 +1,5 @@
 ;; CLISP interface to PostgreSQL <http://www.postgresql.org/>
-;; Copyright (C) 1999-2008 Sam Steingold
+;; Copyright (C) 1999-2009 Sam Steingold
 ;; This is free software, distributed under the GNU GPL 2
 
 ;; this file is in sync with libpq-fe.h 1.141
@@ -26,7 +26,7 @@
 (ffi:default-foreign-language :stdc)
 (eval-when (compile) (setq *foreign-guard* t))
 
-(c-lines "#include <config.h>~%") ; local PostgreSQL config
+(c-lines "#include \"config.h\"~%") ; local PostgreSQL config
 
 (c-lines "#if defined(HAVE_POSTGRES_EXT_H)
 #  include <postgres_ext.h>
