@@ -1,7 +1,7 @@
 # -*- coding: utf-8; mode: shell-script -*- vim:filetype=sh
 # Creation of the Makefile used for compiling CLISP
 # Bruno Haible 1991-2008
-# Sam Steingold 1999-2008
+# Sam Steingold 1999-2009
 
 # Simple usage:
 #        ./makemake [--with-PACKAGE] [debug] > Makefile
@@ -3861,7 +3861,6 @@ cat <<!!
 # clean0 is harmless: removes only superfluous things: temporary files.
 clean0 : force
 	-\$(RM) core *.core *.stackdump${OBSOLETE}
-	-\$(RMRF) linkkit
 
 # clean1 removes everything that becomes obsolete once lisp${LEXE} is recompiled
 # without changing the bytecode format and the tables in
@@ -3872,9 +3871,7 @@ clean1 : clean0
 	-\$(RMRF) ${TESTSDIR}
 	-\$(RMRF) ${ANSITESTSDIR}
 	-\$(RMRF) ${SACLATESTSDIR}
-	-\$(RMRF) boot base full
-!!
-cat <<!!
+	-\$(RMRF) boot base full linkkit
 	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
@@ -3942,19 +3939,18 @@ clean6 : clean5
 	-\$(RM) config.lisp
 	-\$(RM) Makefile
 
+# clean-modules remove the copies of modules, do it if you change modprep and such
+clean-modules :
+	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
+
 # clean7 lets us go back to the main "configure".
-clean7 : clean6
+clean7 : clean6 clean-modules
 	-\$(RM) config.status config.log config.cache ${PARAMS_H} config.h makemake
 !!
 if [ -n "$USE_GETTEXT" ] ; then
 cat <<!!
 	cd po && \$(MAKE) distclean
 	-\$(RMRF) locale
-!!
-fi
-if [ $HOS = unix -a $CROSS = false ] ; then
-cat <<!!
-	-\$(RMRF) \`ls -d ${SRCTOPDIR}modules/*/. | sed -e 's,/\.\$\$,,' -e 's,^.*/,,' | grep -v '^CVS\$\$'\`
 !!
 fi
 if [ -n "${SRCDIR}" ] ; then
