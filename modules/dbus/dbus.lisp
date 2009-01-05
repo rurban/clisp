@@ -1,6 +1,6 @@
 ;;; D-Bus interface <http://www.freedesktop.org/Software/dbus>
 ;;;
-;;; Copyright (C) 2008 by Sam Steingold
+;;; Copyright (C) 2008-2009 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -27,7 +27,7 @@
 (default-foreign-language :stdc)
 (eval-when (compile) (setq *foreign-guard* t))
 
-(c-lines "#include <config.h>~%") ; local dbus config
+(c-lines "#include \"config.h\"~%") ; local dbus config
 (c-lines "#include <dbus/dbus.h>~%")
 
 ;; === dbus-types.h
