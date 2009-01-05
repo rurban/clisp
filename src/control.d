@@ -1,7 +1,7 @@
 /*
  * Special Forms, Control Structures, Evaluator Related Stuff for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-28
  */
 
@@ -377,9 +377,10 @@ local maygc inline void aktenv_to_stack (void) {
 local maygc Values compile_eval_form (object closure_name)
 { /* execute (SYS::COMPILE-FORM form venv fenv benv genv denv) :
      get the whole form from the EVAL-frame in the stack: */
+  var object form = STACK_(frame_form);
   var gcv_object_t *closure_name_ = /* save closure_name */
     boundp(closure_name) ? (pushSTACK(closure_name),&STACK_0) : NULL;
-  pushSTACK(STACK_(frame_form)); /* as first argument */
+  pushSTACK(form); /* as first argument */
   aktenv_to_stack();
   var uintC argcount = 6;
   if (NULL != closure_name_) {
