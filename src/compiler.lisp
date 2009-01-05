@@ -41,7 +41,7 @@
 ;;   - poss. better Optimization by data-flow-analysis
 ;;   - Inline-Compilation of calls of local functions
 
-;; Sam Steingold 1999-2008
+;; Sam Steingold 1999-2009
 ;; German comments translated into English: Stefan Kain 2001-12-18
 ;; "z" at the end of a variable name stands for "zustand" (German for "state")
 
@@ -11410,7 +11410,10 @@ The function make-closure is required.
               (when *coutput-stream*
                 (close *coutput-stream*))
               (unless compilation-successful
-                (delete-file output-file) (delete-file liboutput-file)))))
+                (delete-file output-file)
+                (delete-file liboutput-file)
+                (when *coutput-stream*
+                  (delete-file *coutput-file*))))))
         (when new-listing-stream
           (fresh-line listing-stream)
           (close listing-stream))))))
