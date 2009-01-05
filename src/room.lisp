@@ -51,14 +51,15 @@
                     (/ (float total-bytes 0d0) total-instances)))))
     (terpri)
     (unless (eq kind 'nil)
-      (format t (TEXT "Number of garbage collections: ~12:D~%~
-                       Bytes freed by GC:             ~12:D~%~
-                       Time spent in GC:              ~12:D")
-              gc-count gc-space gc-time)
+      (format t (TEXT "Number of garbage collections: ~16:D~%~
+                       Bytes freed by GC:             ~16:D~%~
+                       Time spent in GC:              ~16F sec")
+              gc-count gc-space
+              (float (/ gc-time internal-time-units-per-second)))
       (terpri))
-    (format t (TEXT "Bytes permanently allocated:   ~12:D~%~
-                     Bytes currently in use:        ~12:D~%~
-                     Bytes available until next GC: ~12:D")
+    (format t (TEXT "Bytes permanently allocated:   ~16:D~%~
+                     Bytes currently in use:        ~16:D~%~
+                     Bytes available until next GC: ~16:D")
             static used room)
     (terpri)
     (values used room static gc-count gc-space gc-time)))

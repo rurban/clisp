@@ -1,5 +1,9 @@
 2009-01-05  Sam Steingold  <sds@gnu.org>
 
+	* room.lisp (room): report GC time in seconds, not internal time units
+
+2009-01-05  Sam Steingold  <sds@gnu.org>
+
 	* control.d (compile_eval_form): aktenv_to_stack may trigger GC
 	Reported by Vladimir Tzankov.
 
