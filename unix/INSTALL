@@ -26,8 +26,8 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
          CC="gcc -Wall"
          export CC
 
-   If you want to build a 64-bit version of CLISP, you will need to set
-   CC to "gcc -m64".
+   On bi-arch systems, such as sparc, you *must* select word size explicitly,
+   by setting CC to "gcc -m64".
 
 2. (Recommended)
    Install a few libraries on which CLISP relies:
