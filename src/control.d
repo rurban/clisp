@@ -346,8 +346,9 @@ local maygc object parse_doc_decl (object body, bool permit_doc_string) {
 }
 
 /* get the 5 environment objects to the stack
- adds 5 elements to the STACK */
-local inline void aktenv_to_stack (void) {
+ adds 5 elements to the STACK
+ can trigger GC */
+local maygc inline void aktenv_to_stack (void) {
   /* nest current environment, push on STACK */
   var gcv_environment_t* stack_env = nest_aktenv();
  #if !defined(STACK_UP)
@@ -376,16 +377,19 @@ local inline void aktenv_to_stack (void) {
 local maygc Values compile_eval_form (object closure_name)
 { /* execute (SYS::COMPILE-FORM form venv fenv benv genv denv) :
      get the whole form from the EVAL-frame in the stack: */
+  var gcv_object_t *closure_name_ = /* save closure_name */
+    boundp(closure_name) ? (pushSTACK(closure_name),&STACK_0) : NULL;
   pushSTACK(STACK_(frame_form)); /* as first argument */
   aktenv_to_stack();
   var uintC argcount = 6;
-  if (boundp(closure_name)) {
-    pushSTACK(closure_name);
+  if (NULL != closure_name_) {
+    pushSTACK(*closure_name_);
     argcount = 7;
   }
   funcall(S(compile_form),argcount);
   /* call the freshly compiled closure with 0 arguments: */
   funcall(value1,0);
+  if (NULL != closure_name_) skipSTACK(1); /* drop closure_name_ */
 }
 
 /* signal a correctable error for a broken LET variable spec
