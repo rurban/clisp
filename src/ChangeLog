@@ -1,5 +1,10 @@
 2009-01-05  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (compile-file): when writing a C file, remove it
+	on failure too, just like we already remove LIB and FAS files
+
+2009-01-05  Sam Steingold  <sds@gnu.org>
+
 	* room.lisp (room): report GC time in seconds, not internal time units
 
 2009-01-05  Sam Steingold  <sds@gnu.org>
