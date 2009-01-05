@@ -4,10 +4,10 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ..
 # MATLAB = /usr/local/matlab/extern/include
 MATLAB = d:/MATLAB7/extern/include
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -23,7 +23,7 @@ all : matlab.fas matlab.o wrap.fas
 matlab.c matlab.fas : matlab.lisp
 	$(CLISP) -c matlab.lisp
 
-matlab.o : matlab.c $(INCLUDES)/clisp.h
+matlab.o : matlab.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(MATLAB) -c matlab.c
 
 %.fas: %.lisp

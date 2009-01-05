@@ -3,8 +3,8 @@
 CC = @CC@
 PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES = ..
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -20,7 +20,7 @@ all : pari.o cpari.o pari.fas
 pari.fas pari.c : pari.lisp
 	$(CLISP) -c pari.lisp
 
-pari.o : pari.c $(INCLUDES)/clisp.h config.h
+pari.o : pari.c config.h
 	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
 
 cpari.o : cpari.c
