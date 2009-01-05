@@ -4,13 +4,10 @@
 CC = gcc -O
 CPPFLAGS =
 CFLAGS = -Wall -fomit-frame-pointer -O2
-INCLUDES=..
 CPP = gcc -O -E -w
 CLFLAGS =
-
-MODPREP = ../modprep.fas
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -26,10 +23,10 @@ all : queens.o callqueens.o
 queens.o : queens.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c queens.c
 
-callqueens.m.c : callqueens.c $(MODPREP)
-	$(CLISP) $(MODPREP) callqueens.c
+callqueens.m.c : callqueens.c
+	$(CLISP) -C $(INCLUDES)/modprep callqueens.c
 
-callqueens.o : callqueens.m.c $(INCLUDES)/clisp.h
+callqueens.o : callqueens.m.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
 
 # Make a module

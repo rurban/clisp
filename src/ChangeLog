@@ -1,5 +1,25 @@
 2009-01-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/berkeley-db/Makefile.in, modules/dbus/Makefile.in:
+	* modules/dirkey/Makefile.in, modules/fastcgi/Makefile.in:
+	* modules/gdbm/Makefile.in, modules/gtk2/Makefile.in:
+	* modules/i18n/Makefile.in, modules/libsvm/Makefile:
+	* modules/matlab/Makefile, modules/netica/Makefile:
+	* modules/oracle/Makefile.in, modules/pari/Makefile.in:
+	* modules/pcre/Makefile.in, modules/postgresql/Makefile.in:
+	* modules/queens/Makefile, modules/rawsock/Makefile.in:
+	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
+	* modules/zlib/Makefile.in: restore buildability by a
+	system-wide clisp, removing all external dependencies,
+	speficically, $(INCLUDES)/clisp.h and modprep
+	(INCLUDES): init to $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
+	(MODPREP): remove; use $(INCLUDES)/modprep instead;
+	$(INCLUDES)/clisp.h and modprep
+	* makemake.in (anymodule): depend on linkkit instead of explicit files
+
+2009-01-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/dbus/dbus.lisp, modules/postgresql/postgresql.lisp:
 	* modules/readline/readline.lisp: include the local "config.h",
 	not the global <config.h>

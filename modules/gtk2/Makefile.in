@@ -11,9 +11,8 @@ GTK_LIBS = @GTK_LIBS@
 LIBGLADE_CFLAGS = @LIBGLADE_CFLAGS@
 LIBGLADE_LIBS = @LIBGLADE_LIBS@
 
-INCLUDES= ..
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -29,7 +28,7 @@ all : gtk.fas gtk.o
 gtk.fas gtk.c : gtk.lisp gtk-server.cfg
 	$(CLISP) -c gtk.lisp
 
-gtk.o : gtk.c $(INCLUDES)/clisp.h config.h
+gtk.o : gtk.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(GTK_CFLAGS) \
 		$(LIBGLADE_CFLAGS) -c gtk.c
 

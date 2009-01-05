@@ -3,9 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -21,7 +20,7 @@ all : readline.o readline.fas
 readline.c readline.fas : readline.lisp
 	$(CLISP) -c readline.lisp
 
-readline.o : readline.c $(INCLUDES)/clisp.h config.h
+readline.o : readline.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c readline.c
 
 # Make a module

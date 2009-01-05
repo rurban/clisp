@@ -3,10 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -22,11 +20,11 @@ all : i18n.fas gettext.o
 i18n.fas : i18n.lisp
 	$(CLISP) -c i18n.lisp
 
-gettext.o : gettext.m.c $(INCLUDES)/clisp.h config.h
+gettext.o : gettext.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
 
-gettext.m.c : gettext.c $(MODPREP)
-	$(CLISP) $(MODPREP) gettext.c
+gettext.m.c : gettext.c
+	$(CLISP) -C $(INCLUDES)/modprep gettext.c
 
 # Make a module
 clisp-module : all

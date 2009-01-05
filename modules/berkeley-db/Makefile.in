@@ -3,9 +3,8 @@
 CC = @CC@
 DBCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -21,10 +20,10 @@ all : bdb.o dbi.fas
 dbi.fas : dbi.lisp
 	$(CLISP) -c dbi.lisp
 
-bdb.m.c: bdb.c $(MODPREP)
-	$(CLISP) $(MODPREP) bdb.c
+bdb.m.c: bdb.c
+	$(CLISP) -C $(INCLUDES)/modprep bdb.c
 
-bdb.o : bdb.m.c $(INCLUDES)/clisp.h config.h
+bdb.o : bdb.m.c config.h
 	$(CC) $(CPPFLAGS) $(DBCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c bdb.m.c -o bdb.o
 
 # Make a module

@@ -3,9 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -21,10 +20,10 @@ all : dirkey.o dirkey1.fas
 dirkey1.fas : dirkey1.lisp
 	$(CLISP) -c dirkey1.lisp
 
-dirkey.m.c: dirkey.c $(MODPREP)
-	$(CLISP) $(MODPREP) dirkey.c
+dirkey.m.c: dirkey.c
+	$(CLISP) -C $(INCLUDES)/modprep dirkey.c
 
-dirkey.o : dirkey.m.c $(INCLUDES)/clisp.h config.h
+dirkey.o : dirkey.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
 
 # Make a module

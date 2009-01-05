@@ -3,9 +3,8 @@
 CC = @CC@
 PQCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-
 CLISP = clisp -q -norc
+INCLUDES= $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -21,7 +20,7 @@ all : postgresql.o postgresql.fas sql.fas
 postgresql.c postgresql.fas : postgresql.lisp
 	$(CLISP) -c postgresql.lisp
 
-postgresql.o : postgresql.c $(INCLUDES)/clisp.h config.h
+postgresql.o : postgresql.c config.h
 	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
 
 sql.fas : sql.lisp

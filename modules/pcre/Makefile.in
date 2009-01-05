@@ -3,10 +3,8 @@
 CC = @CC@
 PCRECPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
-
 CLISP = clisp -q -norc
+INCLUDES= $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -22,11 +20,11 @@ all : pcre.fas cpcre.o
 pcre.fas : pcre.lisp
 	$(CLISP) -c pcre.lisp
 
-cpcre.o : cpcre.m.c $(INCLUDES)/clisp.h config.h
+cpcre.o : cpcre.m.c config.h
 	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
 
-cpcre.m.c : cpcre.c $(MODPREP)
-	$(CLISP) $(MODPREP) cpcre.c
+cpcre.m.c : cpcre.c
+	$(CLISP) -C $(INCLUDES)/modprep cpcre.c
 
 # Make a module
 clisp-module : all

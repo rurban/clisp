@@ -3,10 +3,8 @@
 CC = @CC@
 GDBMCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -22,11 +20,11 @@ all : gdbm.fas gdbm.o
 gdbm.fas : gdbm.lisp
 	$(CLISP) -c gdbm.lisp
 
-gdbm.o : gdbm.m.c $(INCLUDES)/clisp.h config.h
+gdbm.o : gdbm.m.c config.h
 	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gdbm.m.c -o gdbm.o
 
-gdbm.m.c : gdbm.c $(MODPREP)
-	$(CLISP) $(MODPREP) gdbm.c
+gdbm.m.c : gdbm.c
+	$(CLISP) -C $(INCLUDES)/modprep gdbm.c
 
 # Make a module
 clisp-module : all
