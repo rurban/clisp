@@ -4,9 +4,9 @@
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ..
 NETICA = $(NETICA_C_API)/src
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -22,7 +22,7 @@ all : netica.o wrap.fas
 netica.c netica.fas : netica.lisp
 	$(CLISP) -c netica.lisp
 
-netica.o : netica.c $(INCLUDES)/clisp.h
+netica.o : netica.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
 
 %.fas: %.lisp

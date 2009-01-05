@@ -5,9 +5,8 @@ CC = @CC@
 # _REENTRANT is necessary so that the Solaris headers declare lgamma_r().
 CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -23,10 +22,10 @@ all : calls.o posix.fas
 posix.fas : posix.lisp
 	$(CLISP) -c posix.lisp
 
-calls.m.c: calls.c $(MODPREP)
-	$(CLISP) $(MODPREP) calls.c
+calls.m.c: calls.c
+	$(CLISP) -C $(INCLUDES)/modprep calls.c
 
-calls.o : calls.m.c $(INCLUDES)/clisp.h config.h
+calls.o : calls.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
 
 # Make a module

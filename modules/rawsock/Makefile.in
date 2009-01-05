@@ -3,10 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-INCLUDES= ..
-MODPREP = ../modprep.fas
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -22,11 +20,11 @@ all : sock.fas rawsock.o
 sock.fas : sock.lisp
 	$(CLISP) -c sock.lisp
 
-rawsock.o : rawsock.m.c $(INCLUDES)/clisp.h config.h
+rawsock.o : rawsock.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c rawsock.m.c -o rawsock.o
 
-rawsock.m.c : rawsock.c $(MODPREP)
-	$(CLISP) $(MODPREP) rawsock.c
+rawsock.m.c : rawsock.c
+	$(CLISP) -C $(INCLUDES)/modprep rawsock.c
 
 # Make a module
 clisp-module : all

@@ -6,9 +6,8 @@ CC = gcc
 CXX = g++
 CPPFLAGS =
 CXXFLAGS = -O3 -ffast-math -Wall
-INCLUDES= ..
-
 CLISP = clisp -q -norc
+INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
@@ -35,7 +34,7 @@ svm.a : svm.o
 libsvm.c libsvm.fas : libsvm.lisp
 	$(CLISP) -c libsvm.lisp
 
-libsvm.o : libsvm.c $(INCLUDES)/clisp.h svm.h
+libsvm.o : libsvm.c svm.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c libsvm.c
 
 # Make a module
