@@ -124,8 +124,9 @@ FLOAT~
 (float= (os:erfc 22)    1.6219058609334726d-212)  T
 (float= (os:erfc 23)    4.441265948088057d-232)  T
 (float= (os:erfc 24)    1.6489825831519335d-252)  T
-(float= (os:erfc 25)    8.300172571196522d-274)  T
-(float= (os:erfc 26)    5.663192408856143d-296)  T
+;; NetBSD <http://article..gmane.org/gmane.lisp.clisp.general/12716>
+(float~ (os:erfc 25)    8.300172571196522d-274)  T
+(float~ (os:erfc 26)    5.663192408856143d-296)  T
 (float= (os:erfc 30)    0.0d0)  T
 
 (loop :for i :from -10 :to 10
