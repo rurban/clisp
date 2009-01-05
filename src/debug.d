@@ -2,7 +2,7 @@
  * top level loop, aux functions for the debugger, stepper for CLISP
  * Bruno Haible 1990-2005
  * ILISP friendliness: Marcus Daniels 8.4.1994
- * Sam Steingold 2001-2008
+ * Sam Steingold 2001-2009
  * German comments translated into English: Stefan Kain 2004-08-30
  */
 
@@ -1554,12 +1554,12 @@ LISPFUNN(crash,0)
 
 LISPFUNN(proom,0)
 { /* (SYSTEM::%ROOM), returns 6 values:
-     - room occupied by LISP-objects
-     - room free for LISP-objects
-     - room statically occupied by LISP-objects
+     - room occupied by LISP-objects (bytes)
+     - room free for LISP-objects (bytes)
+     - room statically occupied by LISP-objects (bytes)
      - GC count
-     - total space freed by GC
-     - total time spent in GC
+     - total space freed by GC (bytes)
+     - total time spent in GC (internal time units)
      do it in more detail at SPVW_PAGES?? */
   pushSTACK(uintM_to_I(used_space()));
   pushSTACK(uintM_to_I(free_space()));
