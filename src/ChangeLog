@@ -1,5 +1,11 @@
 2009-01-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/dbus/dbus.lisp, modules/postgresql/postgresql.lisp:
+	* modules/readline/readline.lisp: include the local "config.h",
+	not the global <config.h>
+
+2009-01-05  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (compile-file): when writing a C file, remove it
 	on failure too, just like we already remove LIB and FAS files
 
