@@ -1,3 +1,8 @@
+2009-01-05  Sam Steingold  <sds@gnu.org>
+
+	* control.d (compile_eval_form): aktenv_to_stack may trigger GC
+	Reported by Vladimir Tzankov.
+
 2008-12-30  Sam Steingold  <sds@gnu.org>
 
 	Declaration (COMPILE) accepts name argument;
