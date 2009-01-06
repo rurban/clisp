@@ -11,8 +11,9 @@
 	* modules/queens/Makefile, modules/rawsock/Makefile.in:
 	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
 	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
-	* modules/zlib/Makefile.in: use "clisp -b" instead of "(namestring
-	*lib-directory*)" and avoid GNU make-specific syntax
+	* modules/zlib/Makefile.in, modules/clx/new-clx/clx:
+	use "clisp -b" instead of "(namestring *lib-directory*)"
+	and avoid GNU make-specific syntax
 
 2009-01-06  Sam Steingold  <sds@gnu.org>
 
