@@ -1,5 +1,11 @@
 2009-01-06  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 569025 ]: CLISP uses arisparc.d instead of arisparc64.d
+	* makemake.in (cpu) [sparc64]: by default gcc runs in 32-bit mode,
+	so set cpu based on multi-os-directory
+
+2009-01-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (anymodule): eat our own dogfood: use the "clisp"
 	driver instead of an explicit "lisp.run -M lispinit.mem" for $(CLISP)
 	in the module Makefile, do not pass INCLUDES (rely on "clisp -b")

@@ -1052,7 +1052,14 @@ if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
   cpu=sparc
 fi
 if [ "$host_cpu" = sparc64 ] ; then
-  cpu=sparc64
+  # by default gcc runs in 32-bit mode, so we have to respect that
+  if [ "${XCC_GCC}" = yes ]; then
+    case `${XCC} -print-multi-os-directory` in
+      *64) cpu=sparc64 ;;
+      *) cpu=sparc ;;
+    esac
+  else cpu=sparc64
+  fi
 fi
 case $TSYS in mips | r4000)
 # was: case $TSYS in mips | ip* | sgi | risc | r4000)
