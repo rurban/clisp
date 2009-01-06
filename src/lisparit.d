@@ -1314,12 +1314,12 @@ LISPFUNNF(float_scale_exponent,1)
     STACK_0 = F_minus_F(STACK_0);
   } else s = 1;
   /* STACK_0 > 0 */
-  pushSTACK(F_extend_F(STACK_0)); /* increase computational precision to avoid overflow */
+  pushSTACK(F_extend2_F(STACK_0)); /* increase computational precision to avoid overflow; short -> double since single has the same mantissa size as short */
   F_floor_I_F(R_R_log_R(STACK_0,fixnum(10)));
   STACK_1 = I_1_plus_I(STACK_1);
   /* STACK: x, x, q, r */
   STACK_0 = R_I_expt_R(fixnum(10),STACK_1); /* 10^q */
-  STACK_0 = R_R_div_R(STACK_3,STACK_0); /* x/10^q -- NB: original precision! */
+  STACK_0 = R_R_div_R(STACK_2,STACK_0); /* x/10^q -- NB: original precision! */
   /* if the mantissa is one, increase N and divide the mantissa */
   if (N_N_equal(Fixnum_1,STACK_0)) {
     STACK_0 = N_N_div_N(STACK_0,fixnum(10)); /* tmp <- tmp / 10 */
