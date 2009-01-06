@@ -6,7 +6,7 @@ CC = @CC@
 CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
 

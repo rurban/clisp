@@ -7,7 +7,7 @@ CFLAGS = -Wall -fomit-frame-pointer -O2
 CPP = gcc -O -E -w
 CLFLAGS =
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
 
