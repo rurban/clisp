@@ -6,7 +6,7 @@ CPPFLAGS =
 CFLAGS = -Wall -O2
 NETICA = $(NETICA_C_API)/src
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
 

@@ -50,6 +50,7 @@
 <arg><option><link linkend="opt-license">--license</link></option></arg>
 <arg><option><link linkend="opt-help-image">-help-image</link></option></arg>
 <arg><option><link linkend="opt-libdir">-B &lld;</link></option></arg>
+<arg><option><link linkend="opt-printlibdir">-b</link></option></arg>
 <arg><option><link linkend="opt-link-set">-K
    <replaceable>linking-set</replaceable></link></option></arg>
 <arg><option><link linkend="opt-memfile">-M
@@ -132,6 +133,13 @@ compiles the specified lisp files to a platform-independent
    is already built-in into the &clisp-cmd; executable.
    Directory &lld; can be changed dynamically using the
    &symbol-macro; <varname>*LIB-DIRECTORY*</varname>.
+</simpara></listitem></varlistentry>
+
+<varlistentry id="opt-printlibdir"><term><option>-b</option></term>
+ <listitem><simpara>Print the installation directory and exit immediately.
+   The namestring of <varname>*LIB-DIRECTORY*</varname> is printed
+   without any quotes.  This is mostly useful in module Makefiles, see,
+   e.g., <filename role="clisp-cvs">modules/syscalls/Makefile</filename>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-link-set"><term><option>-K</option>

@@ -7,7 +7,7 @@ CFLAGS = -Wall -O2
 # MATLAB = /usr/local/matlab/extern/include
 MATLAB = d:/MATLAB7/extern/include
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
 
