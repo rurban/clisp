@@ -3247,7 +3247,7 @@ echol "boot : modular lispinit.mem"
 echotab "test -d boot || (mkdir boot && cd boot && for f in ${FILES} modules.h modules.o lisp${LEXE} lispinit.mem; do \$(LN_S) ${PARENT_}\$\$f .; done && (\$(GREP) -v '^FILES=' ${PARENT_}makevars; fl=''; for f in ${FILES}; do fl=\$\$fl' '\`basename \$\$f\`; done; echo 'FILES='\"'\"\$\$fl\"'\") > makevars) || (\$(RMRF) boot ; exit 1)"
 echol
 # Some "make"s don't support empty target lists. Hence the "anymodule".
-echol "anymodule \$(BASE_MODULES) \$(MODULES) : lisp${LEXE} lispinit.mem force linkkit"
+echol "anymodule \$(BASE_MODULES) \$(MODULES) : boot clisp linkkit force"
 echotab "${SRCDIR:-${HERE}}lndir ${SRCTOPDIR_}modules/\$@ \$@"
 if [ "@TEST_NT@" = no ]; then # re-making a module requires rm -rf module
   NEED_RECONFIGURE='test -f $@/configure -a '"'!'"' -f $@/config.status'
@@ -3269,7 +3269,7 @@ echotab "      \$(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(
 echotab "    else \$(SHELL) ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi"
-echotab "CLISP=\"${CLISP_}\" ; cd \$@ ; dots="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g' -e 's,/\$\$,,g'"'`'" ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" INCLUDES=\"\$\$dots\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
+echotab "CLISP=\"`pwd`/clisp -K boot ${localeflags}${someflags}\" ; cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\""
 echol
 
 cygwin_finish() {

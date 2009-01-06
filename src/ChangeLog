@@ -1,5 +1,11 @@
 2009-01-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (anymodule): eat our own dogfood: use the "clisp"
+	driver instead of an explicit "lisp.run -M lispinit.mem" for $(CLISP)
+	in the module Makefile, do not pass INCLUDES (rely on "clisp -b")
+
+2009-01-06  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (main): accept "-b" to print the installation directory
 	* modules/berkeley-db/Makefile.in, modules/dbus/Makefile.in:
 	* modules/dirkey/Makefile.in, modules/fastcgi/Makefile.in:
@@ -44,8 +50,7 @@
 	system-wide clisp, removing all external dependencies,
 	specifically, $(INCLUDES)/clisp.h and modprep
 	(INCLUDES): init to $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
-	(MODPREP): remove; use $(INCLUDES)/modprep instead;
-	$(INCLUDES)/clisp.h and modprep
+	(MODPREP): remove; use $(INCLUDES)/modprep instead
 	* makemake.in (anymodule): depend on linkkit instead of explicit files
 
 2009-01-05  Sam Steingold  <sds@gnu.org>
