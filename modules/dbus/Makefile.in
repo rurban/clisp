@@ -8,7 +8,7 @@ DBUS_CFLAGS = @DBUS_CFLAGS@
 DBUS_LIBS = @DBUS_LIBS@
 
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
 

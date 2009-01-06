@@ -209,11 +209,19 @@ int main (int argc, char* argv[])
             { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
           else { arg = &arg[2]; }
           /* Options to which we have to pay attention. */
+          case 'b':             /* this is NOT a lisp.run option!!! */
+            /* we could also use
+                  clisp -q -norc -x '(namestring *lib-directory*)'
+               instead of "clisp -b", but this shortcut saves an exec
+               and really ensures that no debugging output
+               (e.g., "STACK size" in spvw.d) gets in the way. */
+            puts(lisplibdir);
+            return 0;
           case 'B':
             OPTION_ARG;
             lisplibdir = argv_lisplibdir = arg;
             break;
-          case 'K':
+          case 'K':             /* this is NOT a lisp.run option!!! */
             OPTION_ARG;
             argv_linkingset = arg;
             break;

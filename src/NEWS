@@ -8,6 +8,9 @@ Important notes
   options to the :INIT-FUNCTION.
   See <http://clisp.cons.org/impnotes/image.html> for details.
 
+* Driver clisp accepts "-b" to print the installation directory.
+  See <http://clisp.cons.org/impnotes/clisp.html#opt-printlibdir> for details.
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
