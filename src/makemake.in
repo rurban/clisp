@@ -1053,7 +1053,7 @@ if [ "$host_cpu" = sparc -o $TSYS = sun4 ] ; then
 fi
 if [ "$host_cpu" = sparc64 ] ; then
   # by default gcc runs in 32-bit mode, so we have to respect that
-  if [ "${XCC_GCC}" = yes ]; then
+  if [ "${XCC_GCC}" = true ]; then
     case `${XCC} -print-multi-os-directory` in
       *64) cpu=sparc64 ;;
       *) cpu=sparc ;;
