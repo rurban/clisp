@@ -3,9 +3,8 @@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
-INCLUDES= ../..
 CLISP = clisp -q -norc
-MODPREP = ../../modprep.fas
+INCLUDES = $$($(CLISP) -b)/linkkit
 LN = ln
 SHELL = /bin/sh
 
@@ -36,11 +35,11 @@ clx.e: clx.f
 	$(RM) genclx.c
 	$(RM) genclx
 
-clx.c: clx.e $(MODPREP)
+clx.c: clx.e
 	cp clx.e clx.d
-	$(CLISP) $(MODPREP) clx.d clx.c
+	$(CLISP) -C $(INCLUDES)/modprep clx.d clx.c
 
-clx.o: clx.c $(INCLUDES)/clisp.h
+clx.o: clx.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
 
 # Make a module
