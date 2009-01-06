@@ -1,3 +1,9 @@
+2009-01-06  Sam Steingold  <sds@gnu.org>
+
+	* lisparit.d (FLOAT-SCALE-EXPONENT): use F_extend2_F instead of
+	F_extend_F to convert short to double, because single has the same
+	mantissa size as short
+
 2009-01-05  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (clean0): do not remove linkkit here
