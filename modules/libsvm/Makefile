@@ -7,7 +7,7 @@ CXX = g++
 CPPFLAGS =
 CXXFLAGS = -O3 -ffast-math -Wall
 CLISP = clisp -q -norc
-INCLUDES = $(shell $(CLISP) -x '(namestring *lib-directory*)')/linkkit
+INCLUDES = $$($(CLISP) -x '(namestring *lib-directory*)')/linkkit
 
 LN = ln
 
