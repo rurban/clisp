@@ -1,6 +1,6 @@
 2009-01-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	fix bug #[ 1413016 ] amd64 debug build broken (gc aborts)
+	fix bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
 	* spvw_garcol.d (update): use pointable_unchecked() instead of
 	as_oint() for address validation in TYPECODES & SPVW_MIXED builds
 
