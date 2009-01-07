@@ -1928,14 +1928,14 @@ can give problems:
 <warning id="long-float-wider-than-bignum"><para>Since the exponent of a
   &long-float-t; is <link linkend="floating-types-table">32 bits in size</link>,
   &most-positive-long-float; is about
-  <literal>2<superscript>2<superscript>32</superscript></superscript></literal>
+  <literal>2<superscript>2<superscript>32</superscript></superscript></literal>,
   which is <emphasis>much</emphasis> larger that the largest
   representable &bignum-t;, which is <link linkend="bignum-lim">less than</link>
   <literal>2<superscript>2<superscript>21</superscript></superscript></literal>.
   This, obviously, means that &round;, &truncate;, &floor; and &ceiling;
-  will fail on large &long-float-t;s.
+  &sig-err; on large &long-float-t;s.
   Less obviously, this means that <code>(&format; &nil; "&format-e;"
-  &most-positive-long-float;)</code> will also fail.</para></warning>
+  &most-positive-long-float;)</code> also fails.</para></warning>
 
 </section>
 
