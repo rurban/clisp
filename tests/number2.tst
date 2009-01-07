@@ -585,25 +585,6 @@ float-rational-cmp
 (float-rational-cmp most-negative-double-float) (NIL T T)
 (float-rational-cmp least-negative-double-float) (NIL T T)
 
-;; (dolist (lm '("LEAST" "MOST"))
-;;   (dolist (pn '("POSITIVE" "NEGATIVE"))
-;;     (dolist (ty '("DOUBLE" "SINGLE" "SHORT")) ; "LONG"
-;;       (let* ((s (concatenate 'string lm "-" pn "-" ty "-FLOAT")))
-;;         (format t "(format nil \"~~E\" ~A) ~S~%"
-;;                 s (format nil "~E" (symbol-value (find-symbol s))))))))
-(format nil "~E" LEAST-POSITIVE-DOUBLE-FLOAT) "2.2250738585072016d-308"
-(format nil "~E" LEAST-POSITIVE-SINGLE-FLOAT) "1.17549434E-38"
-(format nil "~E" LEAST-POSITIVE-SHORT-FLOAT) "1.17549s-38"
-(format nil "~E" LEAST-NEGATIVE-DOUBLE-FLOAT) "-2.2250738585072016d-308"
-(format nil "~E" LEAST-NEGATIVE-SINGLE-FLOAT) "-1.17549434E-38"
-(format nil "~E" LEAST-NEGATIVE-SHORT-FLOAT) "-1.17549s-38"
-(format nil "~E" MOST-POSITIVE-DOUBLE-FLOAT) "1.7976931348623157d+308"
-(format nil "~E" MOST-POSITIVE-SINGLE-FLOAT) "3.4028238E+38"
-(format nil "~E" MOST-POSITIVE-SHORT-FLOAT) "3.4028s+38"
-(format nil "~E" MOST-NEGATIVE-DOUBLE-FLOAT) "-1.7976931348623157d+308"
-(format nil "~E" MOST-NEGATIVE-SINGLE-FLOAT) "-3.4028238E+38"
-(format nil "~E" MOST-NEGATIVE-SHORT-FLOAT) "-3.4028s+38"
-
 (progn (symbol-cleanup 'check-xgcd)
        (symbol-cleanup 'check-sqrt)
        (symbol-cleanup 'check-mult)
