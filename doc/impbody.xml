@@ -1934,7 +1934,7 @@ can give problems:
   <literal>2<superscript>2<superscript>21</superscript></superscript></literal>.
   This, obviously, means that &round;, &truncate;, &floor; and &ceiling;
   will fail on large &long-float-t;s.
-  Less obviously, this means that <code>(&format; &nil; "~E"
+  Less obviously, this means that <code>(&format; &nil; "&format-e;"
   &most-positive-long-float;)</code> will also fail.</para></warning>
 
 </section>
