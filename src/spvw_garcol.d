@@ -1239,8 +1239,8 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
                      poss. symbol-binding-flag) */                      \
            var object newptr =                                          \
              type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-           DEBUG_SPVW_ASSERT(is_valid_heap_object_address(as_oint(newptr)) \
-                             || is_valid_stack_address(as_oint(newptr))); \
+           DEBUG_SPVW_ASSERT(is_valid_heap_object_address(pointable_unchecked(newptr)) \
+                             || is_valid_stack_address(pointable_unchecked(newptr))); \
            *(gcv_object_t*)objptr = newptr;                             \
          }                                                              \
      }                                                                  \
@@ -1293,8 +1293,8 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
               if (marked(ThePointer(obj))) {             /* marked? */  \
                 var object newptr =                                     \
                   type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-                /*DEBUG_SPVW_ASSERT(is_valid_varobject_address(as_oint(newptr))\
-                  || is_valid_stack_address(as_oint(newptr)));*/        \
+                DEBUG_SPVW_ASSERT(is_valid_varobject_address(pointable_unchecked(newptr))\
+                  || is_valid_stack_address(pointable_unchecked(newptr)));        \
                 *(gcv_object_t*)objptr = newptr;                        \
               }                                                         \
           }                                                             \
