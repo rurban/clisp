@@ -324,6 +324,45 @@ FOO
 (format nil "~21e" 466d17)
 "             4.66d+19"
 
+;; this code generates the following 12 tests
+;; not long, see http://clisp.podval.org/impnotes/num-concepts.html#long-float-wider-than-bignum
+(dolist (lm '("LEAST" "MOST"))
+  (dolist (pn '("POSITIVE" "NEGATIVE"))
+    (dolist (ty '("DOUBLE" "SINGLE" "SHORT")) ; "LONG"
+      (let* ((s (concatenate 'string lm "-" pn "-" ty "-FLOAT"))
+             (v (symbol-value (find-symbol s)))
+             (e (format nil "~E" v)))
+        (format t "(format nil \"~~E\" ~A) ~S~%" s e)
+        (unless (eql v (ignore-errors (read-from-string e)))
+          (princ " === fails: "))
+        (format t "(= ~A (read-from-string ~S)) T~%" s e)))))
+NIL
+
+(format nil "~E" LEAST-POSITIVE-DOUBLE-FLOAT) "2.2250738585072014d-308"
+(= LEAST-POSITIVE-DOUBLE-FLOAT (read-from-string "2.2250738585072014d-308")) T
+(format nil "~E" LEAST-POSITIVE-SINGLE-FLOAT) "1.17549434E-38"
+(= LEAST-POSITIVE-SINGLE-FLOAT (read-from-string "1.17549434E-38")) T
+(format nil "~E" LEAST-POSITIVE-SHORT-FLOAT) "1.1755s-38"
+(= LEAST-POSITIVE-SHORT-FLOAT (read-from-string "1.1755s-38")) T
+(format nil "~E" LEAST-NEGATIVE-DOUBLE-FLOAT) "-2.2250738585072014d-308"
+(= LEAST-NEGATIVE-DOUBLE-FLOAT (read-from-string "-2.2250738585072014d-308")) T
+(format nil "~E" LEAST-NEGATIVE-SINGLE-FLOAT) "-1.17549434E-38"
+(= LEAST-NEGATIVE-SINGLE-FLOAT (read-from-string "-1.17549434E-38")) T
+(format nil "~E" LEAST-NEGATIVE-SHORT-FLOAT) "-1.1755s-38"
+(= LEAST-NEGATIVE-SHORT-FLOAT (read-from-string "-1.1755s-38")) T
+(format nil "~E" MOST-POSITIVE-DOUBLE-FLOAT) "1.7976931348623157d+308"
+(= MOST-POSITIVE-DOUBLE-FLOAT (read-from-string "1.7976931348623157d+308")) T
+(format nil "~E" MOST-POSITIVE-SINGLE-FLOAT) "3.4028235E+38"
+(= MOST-POSITIVE-SINGLE-FLOAT (read-from-string "3.4028235E+38")) T
+(format nil "~E" MOST-POSITIVE-SHORT-FLOAT) "3.4028s+38"
+(= MOST-POSITIVE-SHORT-FLOAT (read-from-string "3.4028s+38")) T
+(format nil "~E" MOST-NEGATIVE-DOUBLE-FLOAT) "-1.7976931348623157d+308"
+(= MOST-NEGATIVE-DOUBLE-FLOAT (read-from-string "-1.7976931348623157d+308")) T
+(format nil "~E" MOST-NEGATIVE-SINGLE-FLOAT) "-3.4028235E+38"
+(= MOST-NEGATIVE-SINGLE-FLOAT (read-from-string "-3.4028235E+38")) T
+(format nil "~E" MOST-NEGATIVE-SHORT-FLOAT) "-3.4028s+38"
+(= MOST-NEGATIVE-SHORT-FLOAT (read-from-string "-3.4028s+38")) T
+
 ;; ~% ~d ~e (v) ---------------------------------------------------------------
 (let (x)
  (dotimes (k 13 x)
