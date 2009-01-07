@@ -1293,12 +1293,11 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
               if (marked(ThePointer(obj))) {             /* marked? */  \
                 var object newptr =                                     \
                   type_untype_object(type,untype(*(gcv_object_t*)ThePointer(obj))); \
-                DEBUG_SPVW_ASSERT(is_valid_varobject_address(pointable_unchecked(newptr))\
-                  || is_valid_stack_address(pointable_unchecked(newptr)));        \
+                DEBUG_SPVW_ASSERT(is_valid_varobject_address(pointable_unchecked(newptr)) \
+                                  || is_valid_stack_address(pointable_unchecked(newptr))); \
                 *(gcv_object_t*)objptr = newptr;                        \
               }                                                         \
-          }                                                             \
-            break;                                                      \
+          } break;                                                      \
           case_pair: {                        /* Two-Pointer-Object */  \
             var object obj = *(gcv_object_t*)objptr;      /* object */  \
             if (!in_old_generation(obj,type,1)) {                       \
@@ -1306,8 +1305,7 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
               *(gcv_object_t*)objptr = *(gcv_object_t*)ThePointer(obj); \
               *(gcv_object_t*)ThePointer(obj) = with_mark_bit(type_pointer_object(type,objptr)); \
             }                                                           \
-          }                                                             \
-            break;                                                      \
+          } break;                                                      \
         }                                                               \
     }
   #else
