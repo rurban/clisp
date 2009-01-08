@@ -165,9 +165,9 @@
     (and e (foreign-value e))))
 
 ;; extern int new_galois_format;
-(def-c-var new_galois_format (:type (c-ptr int)))
+(def-c-var new_galois_format (:type int))
 ;; extern int factor_add_primes;
-(def-c-var factor_add_primes (:type (c-ptr int)))
+(def-c-var factor_add_primes (:type int))
 
 ;; extern ulong DEBUGFILES, DEBUGLEVEL, DEBUGMEM
 (def-c-var debugfiles (:name "DEBUGFILES") (:type ulong))
