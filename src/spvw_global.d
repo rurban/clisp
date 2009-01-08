@@ -341,13 +341,40 @@ local inline void init_mem_heapnr_from_type (void);
     #define is_valid_heap_object_address(address)  \
       (is_valid_varobject_address(address) || is_valid_cons_address(address))
   #endif
-  #ifdef SP_DOWN
-    #define is_valid_stack_address(address)  \
-      ((aint)(address) >= (aint)SP() && (aint)(address) <= (aint)SP_anchor)
-  #endif
-  #ifdef SP_UP
-    #define is_valid_stack_address(address)  \
-      ((aint)(address) <= (aint)SP() && (aint)(address) >= (aint)SP_anchor)
+  #if defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0)
+   /* In case we do not have C stack allocated lisp objects we do not need
+      is_valid_stack_address(). Define to false in order to GC to assert
+      in case of bad object pointer. */
+    #define is_valid_stack_address(address)  false
+  #else /* we have C stack allocated objects */
+    #ifdef SP_DOWN
+      #define is_in_stack_range(address,sp,sp_anchor)               \
+        ((aint)(address) >= (aint)sp && (aint)(address) <= (aint)sp_anchor)
+    #endif
+    #ifdef SP_UP
+      #define is_in_stack_range(addresssp,sp,sp_anchor)              \
+        ((aint)(address) <= (aint)sp && (aint)(address) >= (aint)sp_anchor)
+    #endif
+    #ifdef MULTITHREAD
+     /* In MT builds there is no fast and portable way to get the current
+        stack pointer of suspended threads - so for now it is disabled as
+        well (otherwise gc will abort in debug). This makes the assert in
+        GC useless. */
+      static inline bool is_valid_stack_address_mt(aint address)
+      {
+        for_all_threads({
+          if (is_in_stack_range(address,thread->_SP_before_suspend,
+                                thread->_SP_anchor))
+            return true;
+        });
+        return false;
+      }
+      #define is_valid_stack_address(address) \
+        is_valid_stack_address_mt((aint)address)
+    #else /* single thread builds */
+      #define is_valid_stack_address(address) \
+        is_in_stack_range(address,SP(),SP_anchor)
+    #endif
   #endif
 #else
   #define is_valid_varobject_address(address)  true
@@ -711,6 +738,29 @@ global maygc uintL add_per_thread_special_var(object symbol)
   if (symbol_index == SYMBOL_TLS_INDEX_NONE)
     error(error_condition,GETTEXT("could not make symbol value per-thread"));
   return symbol_index;
+}
+
+/* UP: Clears any per thread value for symbol. Also sets tls_index of the
+   symbol to invalid (SYMBOL_TLS_INDEX_NONE).
+ > symbol: the symbol that should not have per thread bindings anymore
+ < symbol: (modified).
+ < allthreads: all threads symvalues for this symbol set to
+ SYMVALUE_EMPTY
+ maygc because of the threads lock */
+global maygc void clear_per_thread_symvalues(object symbol)
+{
+  var uintL idx=TheSymbol(symbol)->tls_index;
+  if (idx != SYMBOL_TLS_INDEX_NONE) {
+    TheSymbol(symbol)->tls_index = SYMBOL_TLS_INDEX_NONE;
+    /* also remove all per thread symbols for the index - we do not want
+       any memory leaks. threads should be locked. This gets very
+       ugly when we are gettting called for every symbol from DELETE-PACKAGE.
+       but we cannot hold the threads lock for too long - since the GC will
+       be blocked.*/
+    begin_blocking_call(); lock_threads(); end_blocking_call();
+    for_all_threads({ thread->_ptr_symvalues[idx] = SYMVALUE_EMPTY; });
+    unlock_threads();
+  }
 }
 
 local void init_heap_locks()
