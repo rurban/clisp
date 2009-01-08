@@ -38,8 +38,9 @@ further explanations of the issues could be provided).</para>
    If you consider these amounts to be exorbitant, please feel free to ignore
    this blatant extortion and do not pay.</para>
   <para>This should &not-e; discourage you from asking questions, but
-   rather <emphasis>encourage</emphasis> you to read the manual and
-   answer questions from other users.</para>
+   rather <emphasis role="strong">encourage</emphasis> you to
+   <emphasis role="strong">read</emphasis> the manual and
+   <emphasis role="strong">answer</emphasis> questions from other users.</para>
 </answer></qandaentry>
 
 
@@ -49,8 +50,8 @@ further explanations of the issues could be provided).</para>
    <ulink url="http://www.cygwin.com/acronyms/#PTC"><acronym>PTC<alt>Patches
       Thoughtfully Considered</alt></acronym></ulink>.</para>
   <para>Additionally, the nightly builds of the &clisp; implementation
-   notes documenting the current &cvs; HEAD are available at
-   <ulink url="http://clisp.podval.org/impnotes/"/>.
+   notes documenting the current &cvs; <literal>HEAD</literal> are
+   available at <ulink url="http://clisp.podval.org/impnotes/"/>.
    It contains both the documentation for the new features and the
    general improvements in the documentation.</para>
 </answer></qandaentry>
@@ -59,7 +60,7 @@ further explanations of the issues could be provided).</para>
    - why &gnu; &gpl;?</simpara></question>
 <answer><para><ulink role="clisp-cvs" url="doc/Why-CLISP-is-under-GPL">Because
    &clisp; uses &readline;</ulink>.</para>
-<para>Note that this does not necessarily prevent you from distributing
+<para>Note that this does &not-e; necessarily prevent you from distributing
  your proprietary products based on &clisp;. See <emphasis>Note</emphasis>
  in <filename role="clisp-cvs">COPYRIGHT</filename> and
  <xref linkend="faq-licensing"/>.</para></answer></qandaentry>
