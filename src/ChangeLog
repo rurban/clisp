@@ -1,3 +1,21 @@
+2009-01-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	fix is_valid_stack_address() in multithread debug builds
+	* lispbibl.d (clisp_thread_t): add _SP_before_suspend to thread struct
+	in builds that allocate lisp objects on C stack. also export it to
+	modules
+	(SET_SP_BEFORE_SUSPEND): macro for setting _SP_before_suspend just
+	before thread may be considered suspended from GC point of view. used
+	only in debug builds
+	(GC_SAFE_POINT_ELSE, GC_SAFE_REGION_BEGIN): use it
+	* spvw.d (clear_per_thread_symvalues): moved to spvw_global.d (avoid
+	compilation warnings in debug builds)
+	* spvw_global.d (clear_per_thread_symvalues): moved from spvw.d
+	(is_in_stack_range): helper macro to check whether an address is in
+	thhe stack range of a thread
+	(is_valid_stack_address): define it only when it is needed. use
+	threads _SP_before_suspend to check address validity
+
 2009-01-07  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2492106 ]: CLISP 2.47/amd64 can't build "pari" module
