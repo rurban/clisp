@@ -1761,19 +1761,21 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
   }
   #ifdef MULTITHREAD
-   /* mutex and exemption objects are loaded from the mem file but do not
-      represent valid OS objects. We should recreate the OS objects here.
-      This is especially true for mutexes that are part of packages. */
-   var object list = O(all_mutexes);
-   while (!endp(list)) {
-     xmutex_init(&TheMutex(Car(list))->xmu_system);
-     list = Cdr(list);
-   }
-   list = O(all_exemptions);
-   while (!endp(list)) {
-     xcondition_init(&(TheExemption(Car(list))->xco_system));
-     list = Cdr(list);
-   }
+  {
+    /* mutex and exemption objects are loaded from the mem file but do not
+       represent valid OS objects. We should recreate the OS objects here.
+       This is especially true for mutexes that are part of packages. */
+    var object list = O(all_mutexes);
+    while (!endp(list)) {
+      xmutex_init(&TheMutex(Car(list))->xmu_system);
+      list = Cdr(list);
+    }
+    list = O(all_exemptions);
+    while (!endp(list)) {
+      xcondition_init(&(TheExemption(Car(list))->xco_system));
+      list = Cdr(list);
+    }
+  }
   #endif
   CHECK_AVL_CONSISTENCY();
   CHECK_GC_CONSISTENCY();
