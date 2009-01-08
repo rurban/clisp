@@ -898,29 +898,6 @@ local bool realloc_thread_symvalues(clisp_thread_t *thr, uintL nsyms)
   return p!=NULL;
 }
 
-/* UP: Clears any per thread value for symbol. Also sets tls_index of the
-   symbol to invalid (SYMBOL_TLS_INDEX_NONE).
- > symbol: the symbol that should not have per thread bindings anymore
- < symbol: (modified).
- < allthreads: all threads symvalues for this symbol set to
- SYMVALUE_EMPTY
- maygc because of the threads lock */
-global maygc void clear_per_thread_symvalues(object symbol)
-{
-  var uintL idx=TheSymbol(symbol)->tls_index;
-  if (idx != SYMBOL_TLS_INDEX_NONE) {
-    TheSymbol(symbol)->tls_index = SYMBOL_TLS_INDEX_NONE;
-    /* also remove all per thread symbols for the index - we do not want
-       any memory leaks. threads should be locked. This gets very
-       ugly when we are gettting called for every symbol from DELETE-PACKAGE.
-       but we cannot hold the threads lock for too long - since the GC will
-       be blocked.*/
-    begin_blocking_call(); lock_threads(); end_blocking_call();
-    for_all_threads({ thread->_ptr_symvalues[idx] = SYMVALUE_EMPTY; });
-    unlock_threads();
-  }
-}
-
 #define for_all_threadobjs(statement)                                   \
   for_all_threads({                                                     \
     var gcv_object_t* objptr = (gcv_object_t*)(&thread->_aktenv);       \

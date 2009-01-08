@@ -9416,35 +9416,38 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 #if defined(MULTITHREAD)
   /* no_gc statement is executed in case the thread should not be
      suspended for GC.*/
-  #define GC_SAFE_POINT_ELSE(no_gc) \
-    do{ \
+  #define GC_SAFE_POINT_ELSE(no_gc)                          \
+    do{                                                      \
       var clisp_thread_t *thr=current_thread();              \
       if (spinlock_tryacquire(&thr->_gc_suspend_request)) {  \
+        SET_SP_BEFORE_SUSPEND(thr);                          \
         spinlock_release(&thr->_gc_suspend_ack);             \
-        xmutex_lock(&thr->_gc_suspend_lock);              \
-        spinlock_acquire(&thr->_gc_suspend_ack);          \
-        xmutex_unlock(&thr->_gc_suspend_lock);            \
-      } else {no_gc;}                                     \
+        xmutex_lock(&thr->_gc_suspend_lock);                 \
+        spinlock_acquire(&thr->_gc_suspend_ack);             \
+        xmutex_unlock(&thr->_gc_suspend_lock);               \
+      } else {no_gc;}                                        \
     }while(0)
   #define GC_SAFE_POINT() GC_SAFE_POINT_ELSE(;)
 /* Giving up suspend ack during we are in system call.
    So we can be considered suspended for GC. */
   #define GC_SAFE_REGION_BEGIN() \
-    do { \
-      GCTRIGGER(); \
-      spinlock_release(&current_thread()->_gc_suspend_ack); \
+    do {                                                    \
+      GCTRIGGER();                                          \
+      var clisp_thread_t *thr=current_thread();             \
+      SET_SP_BEFORE_SUSPEND(thr);                           \
+      spinlock_release(&thr->_gc_suspend_ack);              \
     }while(0)
 /* If we cannot get the suspend ack lock again - it means there is/was GC -
    so try to wait for it's end if it is not already finished. */
-  #define GC_SAFE_REGION_END() \
-    do { \
-      GCTRIGGER(); \
-      var clisp_thread_t *thr=current_thread();          \
-      if (!spinlock_tryacquire(&thr->_gc_suspend_ack)) { \
-        xmutex_lock(&thr->_gc_suspend_lock);             \
+  #define GC_SAFE_REGION_END()                            \
+    do {                                                  \
+      GCTRIGGER();                                        \
+      var clisp_thread_t *thr=current_thread();           \
+      if (!spinlock_tryacquire(&thr->_gc_suspend_ack)) {  \
+        xmutex_lock(&thr->_gc_suspend_lock);              \
         spinlock_acquire(&thr->_gc_suspend_ack);          \
         xmutex_unlock(&thr->_gc_suspend_lock);            \
-      } \
+      }                                                   \
     }while(0)
 #else
   #define GC_SAFE_POINT_ELSE(no_gc)
@@ -16887,6 +16890,12 @@ struct object_tab_tl_ {
    #ifdef DEBUG_GCSAFETY
     uintL _alloccount; /* alloccount for this thread */
    #endif
+   #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+    /* in debug builds that allocate lisp objects on C stack we want to assert
+       from GC if there is something wrong. So before going in suspend
+       state for GC - the thread will save here the current stack pointer.*/
+    void *_SP_before_suspend;
+   #endif
     /* GC suspend/resume machinery */
     spinlock_t _gc_suspend_request; /*always signalled unless there is a suspend request. */
     spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
@@ -16927,6 +16936,13 @@ struct object_tab_tl_ {
     gcv_object_t _lthread;
   } clisp_thread_t;
 
+  /* following macro is "called" before thread can be suspended in debug
+     builds with possible object allocated on C stack */
+  #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+    #define SET_SP_BEFORE_SUSPEND(thr) thr->_SP_before_suspend = (void *)SP();
+  #else
+    #define SET_SP_BEFORE_SUSPEND(thr)
+  #endif
 
   #define GC_SAFE_SPINLOCK_ACQUIRE(s)                   \
   do {                                                  \
@@ -17100,8 +17116,7 @@ struct object_tab_tl_ {
 
 %% puts("#include \"xthread.c\"");
 
-
-/* VTZ: just the beginning of the structure is exported -
+/* just the beginning of the structure is exported -
    what modules want to know about (in order to build) */
 %% puts("struct object_tab_tl_ {");
 %% #define LISPOBJ_TL(name,initstring) printf("  gcv_object_t %s;\n",STRING(name));
@@ -17115,6 +17130,9 @@ struct object_tab_tl_ {
 %% puts("  struct object_tab_tl_ _object_tab;");
 %% #ifdef DEBUG_GCSAFETY
 %%  puts(" uintL _alloccount;");
+%% #endif
+%% #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
+%%  puts(" void *_SP_before_suspend;");
 %% #endif
 %% puts("  spinlock_t _gc_suspend_request;");
 %% puts("  spinlock_t _gc_suspend_ack;");
@@ -17206,7 +17224,7 @@ struct object_tab_tl_ {
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
 %%  export_def(writing_to_subprocess);
 %% #endif
-
+%% export_def(SET_SP_BEFORE_SUSPEND(thr));
 
 /* allocates,initializes and returns clisp_thread_t structure.
    Does not register it in the global thread array.
