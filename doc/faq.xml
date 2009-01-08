@@ -29,14 +29,14 @@ further explanations of the issues could be provided).</para>
 
 <qandaentry id="faq-fine"><question id="faq-fine-q"><simpara>What is
    <quote>FAQ fine</quote>?</simpara></question>
- <answer><para>We assess a nominal fine of $10 for
+ <answer><para>We levy a fine of 10 zorkmids for
    <link linkend="faq-help">asking a question</link> that is answered
    with a link to this <link linkend="faq">FAQ</link> document.
-   We further assess a fine of $1 for asking a question that is answered
+   We further levy a fine of 1 zorkmid for asking a question that is answered
    with a link to the &clisp; <link linkend="impnotes-top">manual</link>.
-   The fines are payable to the person who answered your questions.
-   If you consider these amounts to be exorbitant, please feel free to ignore
-   this blatant extortion and do not pay.</para>
+   The fines are payable to the person who answered the questions.
+   The definition of a <quote>zorkmid</quote> is left to the sole
+   discretion of the <emphasis>payer</emphasis>.</para>
   <para>This should &not-e; discourage you from asking questions, but
    rather <emphasis role="strong">encourage</emphasis> you to
    <emphasis role="strong">read</emphasis> the manual and
