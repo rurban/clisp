@@ -1,3 +1,9 @@
+2009-01-07  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2492106 ]: CLISP 2.47/amd64 can't build "pari" module
+	* modules/pari/pari.lisp (new_galois_format, factor_add_primes):
+	fix type declarations
+
 2009-01-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix bug #[ 1413016 ]: amd64 debug build broken (gc aborts)
