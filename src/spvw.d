@@ -3384,27 +3384,9 @@ local inline int init_memory (struct argv_initparams *p) {
     p->argv_memfile = get_executable_name();
   else initmem();               /* manual initialization */
 #if defined(MULTITHREAD)
-  /* "FIX"
-     VTZ:TODO. list threads records currently are saved into the lisp image
-     but are not re-created when the image is restored.
-     the records themeselves are tottally invalid - since they point to
-     nowhere - no clisp_threat_t for them.
-     We should be able to re-create the saved threads - save the all
-     relevant data from clisp_thread_t and re-create new threads from it.
-  */
+  /* clear the list of threads. the one that we have loaded contains
+     single thread record which is invalid.*/
   O(all_threads) = NIL;
-  O(all_mutexes) = NIL;
-  O(all_exemptions) = NIL;
-
-  /*FIXME: TLO() objects are not loaded properly from memfile when linked with
-    modules. will cause problems on first GC (or other places if dynamic_xxx
-    are used). reader vars will be initialized anyway later. */
-  {
-    var uintC count;
-    var gcv_object_t* objptr = (gcv_object_t*)&(current_thread()->_object_tab);
-    dotimespC(count,sizeof(current_thread()->_object_tab)/sizeof(gcv_object_t),
-              { *objptr++=NIL; });
-  }
   /* initialize again THREAD:*DEFAULT-VALUE-STACK-SIZE* based on the
      calculated STACK size, since the memory image may change it */
   Symbol_value(S(default_value_stack_size)) =
