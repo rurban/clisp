@@ -1,3 +1,8 @@
+2009-01-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* io.d (READ-CHAR-NO-HANG): fix EOF case when return_Values expands
+	to nothing (g++)
+
 2009-01-09 Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (SET_SP_BEFORE_SUSPEND): do not use SP() since it is not
