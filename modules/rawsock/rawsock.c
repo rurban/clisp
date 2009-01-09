@@ -569,7 +569,7 @@ DEFCHECKER(check_iff,prefix=IFF,bitmasks=both,default=(unsigned)~0,     \
            OACTIVE SIMPLEX LINK0 LINK1 LINK2 ALTPHYS POLLING PPROMISC   \
            MONITOR STATICARP NEEDSGIANT                                 \
            MASTER SLAVE MULTICAST PORTSEL AUTOMEDIA DYNAMIC LOWER-UP DORMANT)
-DEFUN(RAWSOCK:IFADDRS,&key flags-and flags-or) {
+DEFUN(RAWSOCK:IFADDRS,&key FLAGS-AND FLAGS-OR) {
   struct ifaddrs *ifap;
   int count = 0;
   unsigned int flags_or = check_iff_of_list(popSTACK());
