@@ -1,3 +1,7 @@
+2009-01-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (RAWSOCK:IFADDRS): fix keyword arg case
+
 2009-01-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix image loading in multithread builds
