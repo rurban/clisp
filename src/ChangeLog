@@ -1,3 +1,8 @@
+2009-01-09 Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (SET_SP_BEFORE_SUSPEND): do not use SP() since it is not
+	always exported to modules. use the address of dummy local variable
+
 2009-01-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix is_valid_stack_address() in multithread debug builds

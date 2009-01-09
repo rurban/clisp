@@ -16939,7 +16939,11 @@ struct object_tab_tl_ {
   /* following macro is "called" before thread can be suspended in debug
      builds with possible object allocated on C stack */
   #if defined(DEBUG_SPVW) && !(defined(SPVW_PURE) || ((((STACK_ADDRESS_RANGE << addr_shift) >> garcol_bit_o) & 1) != 0))
-    #define SET_SP_BEFORE_SUSPEND(thr) thr->_SP_before_suspend = (void *)SP();
+    #define SET_SP_BEFORE_SUSPEND(thr)                 \
+      do {                                             \
+        var int dummy;                                 \
+        thr->_SP_before_suspend = (void *)&dummy;      \
+      } while(0)
   #else
     #define SET_SP_BEFORE_SUSPEND(thr)
   #endif
