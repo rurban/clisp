@@ -4589,6 +4589,7 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL) {
     error_illegal_streamop(S(read_char_no_hang),stream);
   switch (listen_char(stream)) {
     case LISTEN_EOF: return_Values eof_handling(1);
+      break; /* return_Values expands to nothing sometimes (g++) !!! */
     case LISTEN_AVAIL: {                  /* character available */
       var object ch = read_char(stream_); /* read Character */
       if (eq(ch,eof_value)) {     /* query for EOF, for safety reasons */
