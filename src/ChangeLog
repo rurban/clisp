@@ -1,5 +1,16 @@
 2009-01-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	fix image loading in multithread builds
+	* spvw_memfile.d (loadmem_from_handle): do not update thread objects.
+	they were/will be initialized properly (in single thread it's just
+	aktenv)
+	* spvw.d (init_memory): do not re-initialize the thread objects - they
+	are not modified by loadmem_from_handle(); do not initialize
+	O(all_mutexes) and O(all_exemptions) to NIL - they are loaded properly
+	from image file
+
+2009-01-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* io.d (READ-CHAR-NO-HANG): fix EOF case when return_Values expands
 	to nothing (g++)
 
