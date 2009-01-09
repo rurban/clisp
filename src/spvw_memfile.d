@@ -1568,7 +1568,12 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
     /* update program constants: */
-    update_tables();
+    /* do not update thread objects (in single thread - just aktenv).
+       they were/will be initialized before/later.*/
+    /* update_tables();*/
+    update_subr_tab();
+    update_symbol_tab();
+    for_all_constobjs( update(objptr); );  /* traverse object_tab */
    #ifdef SINGLEMAP_MEMORY_RELOCATE
     if (!offset_heaps_all_zero)
    #endif
