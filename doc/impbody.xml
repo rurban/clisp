@@ -4403,7 +4403,8 @@ Let us consider different criteria:<orderedlist numeration="arabic">
   (&stream-external-format; &stream-r; [&direction-r;]) &encoding-r;)</code>,
  &direction-r; can be &input-k;, &output-k;, or &nil;.
  If no &direction-r; is given, the operation is nonrecursive.</para>
-</section>
+<para>This will &not-e; work on &terminal-io-var; et al, use &term-enc;
+ instead.</para></section>
 
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
