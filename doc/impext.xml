@@ -794,8 +794,10 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    <indexterm id="path-enc" significance="preferred">
     <primary><varname>*PATHNAME-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
- <listitem><simpara>is the encoding used for pathnames in the file
-   system. Normally, this should be a 1:1 encoding.
+ <listitem><simpara>is the encoding used for pathnames in the file system.
+   If this encoding is incompatible with some file names on your system,
+   file system access (e.g., &directory;) may &signal; &error-t;s,
+   thus extreme caution is recommended if this is &not-e; a 1:1 encoding.
    Its &line-term; mode is ignored.</simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">
