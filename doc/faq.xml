@@ -636,9 +636,9 @@ following command:
 
 <para>This may also be caused by filesystem access.
  If you have files with names incompatible with your &path-enc;,
- filesystem access (e.g., &directory;) will signal this error.
+ filesystem access (e.g., &directory;) will &signal; this &error-t;.
  You will need to set &path-enc; or pass &opt-E; to &clisp;.
- Using a <quote>1:1</quote> encoding, such as &iso-8859-1;,
+ Using a &enc1-1;, such as &iso-8859-1;,
  should help you avoid this error.</para>
 
 <para>Note that this error may be signaled by the Print part of the

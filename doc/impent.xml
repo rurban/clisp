@@ -261,6 +261,7 @@
 <!ENTITY enc-built-in '<link linkend="charset-symbols">built-in</link>'> <!-- encoding -->
 <!ENTITY enc-charset '<link linkend="enc-charset"><function>EXT:ENCODING-CHARSET</function></link>'>
 <!ENTITY encoding '<link linkend="encoding"><classname>EXT:ENCODING</classname></link>'>
+<!ENTITY enc1-1 '<link linkend="enc1-1"><quote>1:1</quote> encoding</link>'>
 <!ENTITY endianness '<link linkend="endianness"><replaceable>ENDIANNESS</replaceable></link>'>
 <!ENTITY ethe '<link linkend="ethe"><function>EXT:ETHE</function></link>'>
 <!ENTITY exec '<link linkend="exec"><function>EXT:EXECUTE</function></link>'>
