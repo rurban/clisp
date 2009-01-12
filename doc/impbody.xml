@@ -4399,7 +4399,10 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 
 <section id="stream-extfmt"><title>Function &stream-external-format;</title>
-<para>&stream-external-format; is &setf;able.</para>
+<para>&stream-external-format; is &setf;able: <code>(&setf;
+  (&stream-external-format; &stream-r; [&direction-r;]) &encoding-r;)</code>,
+ &direction-r; can be &input-k;, &output-k;, or &nil;.
+ If no &direction-r; is given, the operation is nonrecursive.</para>
 </section>
 
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
