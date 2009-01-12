@@ -4398,6 +4398,10 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 </section>
 </section>
 
+<section id="stream-extfmt"><title>Function &stream-external-format;</title>
+<para>&stream-external-format; is &setf;able.</para>
+</section>
+
 <section id="stream-eltype"><title>Function &stream-element-type;</title>
 
 <para>&stream-element-type; is &setf;able. The &stream-element-type; of
@@ -4539,16 +4543,18 @@ Let us consider different criteria:<orderedlist numeration="arabic">
     The underlying OS can do input/output only in whole 8-bit bytes.
     Thus the OS will report the size of the file as 3 (8-bit) bytes.
     Without the preamble &clisp; will have no way to know how many
-    3-bit bytes to read from this file - 6, 7 or 8.
-   </simpara></listitem></varlistentry>
+    3-bit bytes to read from this file - 6, 7 or 8.</simpara>
+   <simpara>See also <xref linkend="stream-eltype"/>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="extfmt"><term>&extfmt;</term>
   <listitem><simpara>&encoding;s, (constant) &symbol-t;s in the
     &charset-pac; package, &string-t;s (denoting &iconv;-based encodings),
     the symbol &default-k;, and the &line-term; keywords
     &unix-k;, &mac-k;, &dos-k;.  The default encoding is &def-file-enc;.
     This argument determines how the lisp &character-t; data is
-    converted to/from the 8-bit bytes that the underlying OS uses.
-  </simpara></listitem></varlistentry>
+    converted to/from the 8-bit bytes that the underlying OS uses.</simpara>
+   <simpara>See also <xref linkend="stream-extfmt"/>.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="buffered"><term>&buffered;</term>
   <listitem><para>&nil;, &t;, or &default-k;.
     Have &clisp; manage an internal buffer for input or output (in
