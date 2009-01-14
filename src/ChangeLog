@@ -1,3 +1,9 @@
+2009-01-14  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: remove the long unsupported cross.mem stuff,
+	created for running the clisp compiler inside some non-clisp
+	implementation, such as AKCL
+
 2009-01-09  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (FLOAT-SCALE-EXPONENT): restore the mantissa precision
