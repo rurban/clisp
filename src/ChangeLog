@@ -1,3 +1,12 @@
+2009-01-15  Vladimir Tzankov  <vtzankov@gmail.com>	
+
+	fix mingw build
+	* pathname.d (open_input_file): fix a typo
+	(LAUNCH): fix missing semicolon
+	* stream.d (MAKE-WINDOW): fix bad object declaration
+	(low_close_socket): fix missing semicolon
+	* spvw_garcol.d: define MAX() macro if needed
+
 2009-01-14  Sam Steingold  <sds@gnu.org>
 
 	POSIX:COPY-FILE now accepts :METHOD :HARDLINK-OR-COPY

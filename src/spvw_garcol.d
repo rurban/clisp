@@ -1409,6 +1409,12 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
     } while (count!=0)
 #endif
 
+
+#ifndef MAX
+/* on mingw there is no MAX defined */
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+
 /* the objects of variable length are moved into the preordained
  new places. */
 #ifdef SPVW_PURE
