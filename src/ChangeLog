@@ -1,5 +1,15 @@
 2009-01-14  Sam Steingold  <sds@gnu.org>
 
+	POSIX:COPY-FILE now accepts :METHOD :HARDLINK-OR-COPY
+	* modules/syscalls/calls.c (hardlink_file): accept error_p to
+	indicate whether an error is to be signaled and return status
+	(copy_one_file): when method == COPY_METHOD_HARDLINK_OR_COPY and
+	hardlink_file() fails, fallback to copy_file_low()
+	(check_copy_method): accept :HARDLINK-OR-COPY
+	* utils/hln.lisp: pass :METHOD :HARDLINK-OR-COPY to POSIX:COPY-FILE
+
+2009-01-14  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (AC_CLISP): new file: check for a clisp of a correct
 	version, for packages which use clisp
 	* makemake.in, configure: accept --aclocaldir=DIR

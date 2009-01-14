@@ -21,4 +21,4 @@
   (unless (char= #\/ (char *dest* (1- (length *dest*))))
     (setq *dest* (string-concat *dest* "/"))))
 (dolist (f *args*)
-  (posix:copy-file f *dest* :method :hardlink))
+  (posix:copy-file f *dest* :method :hardlink-or-copy))
