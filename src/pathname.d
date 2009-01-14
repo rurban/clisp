@@ -6435,7 +6435,7 @@ local maygc inline bool open_input_file (struct file_status *fs, char* pathstrin
 #else
   var DWORD flag = OPEN_EXISTING;
   if (create_if_not_exists) { flag = OPEN_ALWAYS; }
-  GC_SAFE_SYATEM_CALL(handle=,
+  GC_SAFE_SYSTEM_CALL(handle=,
 		      CreateFile(pathstring, GENERIC_READ,
 				 FILE_SHARE_READ | FILE_SHARE_WRITE,
 				 NULL, flag, FILE_ATTRIBUTE_NORMAL, NULL));
@@ -8970,7 +8970,7 @@ LISPFUN(launch,seclass_default,1,0,norest,key,9,
   if (wait_p) {
     /* Wait until it terminates, get its exit status code. */
     var DWORD waitret;
-    GC_SAFE_CALL(waitret=, WaitForSingleObject(prochandle,INFINITE))
+    GC_SAFE_CALL(waitret=, WaitForSingleObject(prochandle,INFINITE));
     switch (waitret) {
       case WAIT_FAILED:
         end_system_call(); OS_error();

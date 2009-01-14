@@ -10730,7 +10730,7 @@ LISPFUNN(make_window,0) {
   }
   console_pos.X = 0;console_pos.Y = 0;
   pushSTACK(stream);            /* save */
-  var handle_object = allocate_handle(handle);
+  var object handle_object = allocate_handle(handle);
   stream = popSTACK();          /* restore */
   stream_dummy_fill(stream);
   var Stream s = TheStream(stream);
@@ -13431,7 +13431,7 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
 local void low_close_socket (object stream, object handle, uintB abort) {
   begin_system_call();
   int closed;
-  GC_SAFE_CALL(closed=, closesocket(TheSocket(handle)))
+  GC_SAFE_CALL(closed=, closesocket(TheSocket(handle)));
   if (!(closed == 0) && !abort)
     { SOCK_error(); }
   end_system_call();
