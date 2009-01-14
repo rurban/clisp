@@ -61,6 +61,7 @@ options: The following options are recognized:
   --psdir=DIR           PostScript documentation
   --elispdir=DIR        Emacs Lisp files
   --vimdir=DIR          VIM files
+  --aclocaldir=DIR      autoconf files
  Enable and disable specific packages
   --with-PACKAGE        use PACKAGE
   --without-PACKAGE     do not use PACKAGE
@@ -405,6 +406,16 @@ do
         subdir_configure_args="$subdir_configure_args $arg"
         makemake_args="$makemake_args --vimdir="
         prev=vimdir
+        passnext=both ;;
+
+      --aclocaldir=* | --aclocaldi=* | --aclocald=* | --aclocal=*)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --aclocaldir="`getarg "$arg"` ;;
+
+      --aclocaldir | --aclocaldi | --aclocald | --aclocal)
+        subdir_configure_args="$subdir_configure_args $arg"
+        makemake_args="$makemake_args --aclocaldir="
+        prev=aclocaldir
         passnext=both ;;
 
       --hyperspec=* | --hyperspe=* | --hypersp=* | --hypers=* | --hs=* | --hy=*)

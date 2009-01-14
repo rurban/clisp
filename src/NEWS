@@ -11,6 +11,9 @@ Important notes
 * Driver clisp accepts "-b" to print the installation directory.
   See <http://clisp.cons.org/impnotes/clisp.html#opt-printlibdir> for details.
 
+* Add file clisp.m4 so that the packages which use CLISP can check
+  whether it is properly installed and has the required version.
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
