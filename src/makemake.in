@@ -46,6 +46,7 @@ options:
        --pdfdir=DIR            PDF documentation
        --elispdir=DIR          Emacs Lisp files
        --vimdir=DIR            VIM files
+       --aclocaldir=DIR        autoconf files
     The following options add support for specific separate packages. See the
     main INSTALL file for how to get them.
        --with-noreadline       do not use readline library (even when present)
@@ -185,6 +186,7 @@ pdfdir=''
 MODULES=''
 elispdir=''
 vimdir=''
+aclocaldir=''
 # http://www.gnu.org/software/autoconf/manual/html_node/Option-Checking.html
 module_configure_flags='--disable-option-checking'
 CP='cp -p'
@@ -451,6 +453,14 @@ EOF
       shift
       if test -z "$vimdir" ; then
         vimdir=$1
+        shift
+      fi
+      ;;
+    -aclocaldir* | --aclocaldir*)
+      aclocaldir=`echol "$1" | sed 's/-*aclocaldir=*//'`
+      shift
+      if test -z "$aclocaldir" ; then
+        aclocaldir=$1
         shift
       fi
       ;;
@@ -894,6 +904,14 @@ if [ $HOS = unix ] ; then
 else
   vimdir="\$(datarootdir)/${vimdir_default}"
   VIMDIR="$vimdir"
+fi
+aclocaldir_default='aclocal'
+if [ $HOS = unix ] ; then
+  test -n "$aclocaldir" || aclocaldir='${datarootdir}/'${aclocaldir_default}
+  ACLOCALDIR=`echo "$aclocaldir" | sed -e "$brace_to_paren"`
+else
+  aclocaldir="\$(datarootdir)/${aclocaldir_default}"
+  ACLOCALDIR="$aclocaldir"
 fi
 
 if [ $H_DOS = "true" ] ; then
@@ -1856,6 +1874,7 @@ if [ -n "$USE_GETTEXT" ] ; then
 fi
 echol "elispdir = ${ELISPDIR}"
 echol "vimdir = ${VIMDIR}"
+echol "aclocaldir = ${ACLOCALDIR}"
 echol "# The value of following variable is prepended to all the paths for"
 echol "# installation. This is useful when preparing a binary distribution."
 echol "DESTDIR ="
@@ -3315,6 +3334,7 @@ for f in ${IMPNOTES_FILES} ; do
 done
 EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi.el"
 VIM_FILES="lisp.vim"
+ACLOCAL_FILES="clisp.m4"
 
 # On Unix, clisp.dvi, clisp.ps, clisp.pdf must be built by "make all",
 # because "make install" needs it and "make install" must not create files in
@@ -3478,6 +3498,7 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(datarootdir)"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     echotab "mkdir -p \$(DESTDIR)\$(vimdir)"
+    echotab "mkdir -p \$(DESTDIR)\$(aclocaldir)"
     echotab "mkdir -p \$(DESTDIR)\$(mandir)"
     echotab "mkdir -p \$(DESTDIR)\$(mandir)/man1"
     case "$fsstnd" in
@@ -3538,6 +3559,10 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(vimdir)"
     for f in ${VIM_FILES}; do
       echotab "\$(INSTALL_DATA) ${SRCTOPDIR}emacs/$f \$(DESTDIR)\$(vimdir)/$f"
+    done
+    echotab "mkdir -p \$(DESTDIR)\$(aclocaldir)"
+    for f in ${ACLOCAL_FILES}; do
+      echotab "\$(INSTALL_DATA) ${SRCDIR}m4/$f \$(DESTDIR)\$(aclocaldir)/$f"
     done
     echol
     echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
@@ -3622,7 +3647,10 @@ if [ $CROSS = false ] ; then
       echotab "\$(RMRF) \$(DESTDIR)\$(elispdir)/$f*"
     done
     for f in ${VIM_FILES}; do
-      echotab "\$(RMRF) \$(DESTDIR)\$(vimdir)/$f*"
+      echotab "\$(RMRF) \$(DESTDIR)\$(vimdir)/$f"
+    done
+    for f in ${ACLOCAL_FILES}; do
+      echotab "\$(RMRF) \$(DESTDIR)\$(aclocaldir)/$f"
     done
     echol
     echol
@@ -3762,6 +3790,10 @@ echotab "mkdir \$(TOPDIR)/emacs"
 for f in ${EMACS_FILES} ${VIM_FILES}; do
   echotab "${HLN} ${SRCTOPDIR}emacs/${f} \$(TOPDIR)/emacs/${f}"
 done
+echotab "mkdir \$(TOPDIR)/misc"
+for f in ${ACLOCAL_FILES}; do
+  echotab "${HLN} ${SRCDIR}m4/${f} \$(TOPDIR)/misc/${f}"
+done
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src/"
 echotab "${HLN} clisp-link \$(TOPDIR)/"
@@ -3837,6 +3869,10 @@ elif [ $HOS = win32 ] ; then
   echotab "mkdir \$\$distdir/emacs; \\"
   for f in ${EMACS_FILES} ${VIM_FILES}; do
     echotab "cp -p ${SRCTOPDIR}emacs/${f} \$\$distdir/emacs/${f} ; \\"
+  done
+  echotab "mkdir \$\$distdir/misc; \\"
+  for f in ${ACLOCAL_FILES}; do
+    echotab "cp -p ${SRCDIR}m4/${f} \$\$distdir/misc/${f} ; \\"
   done
   echotab "mkdir \$\$distdir/src ; \\"
   echotab "cp -p \$(LISPFILES) install.lisp \$\$distdir/src/ ; \\"

@@ -1,5 +1,12 @@
 2009-01-14  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (AC_CLISP): new file: check for a clisp of a correct
+	version, for packages which use clisp
+	* makemake.in, configure: accept --aclocaldir=DIR
+	* makemake.in: install clisp.m4 into aclocaldir
+
+2009-01-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: remove the long unsupported cross.mem stuff,
 	created for running the clisp compiler inside some non-clisp
 	implementation, such as AKCL
