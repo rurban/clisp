@@ -2881,21 +2881,6 @@ if [ $CROSS = false ] ; then
   echotab "\$(RUN) ${MEMOPT} -M ${image} -q -c config.lisp"
   echol
 
-else
-
-  for f in $LPARTS ; do
-    echol "${f}.fas : ${SRCDIR}${f}.lisp"
-    echotab "clisp -M cross.mem ${localeflags}${someflags} -q -x "'"(cross:compile-file \"'"${SRCDIR}${f}.lisp"'\" :output-file \"'"./${f}.fas"'\")"'
-    echol
-  done
-  echol "config.fas : config.lisp"
-  echotab "clisp -M cross.mem ${localeflags}${someflags} -q -x "'"(cross:compile-file \"'"config.lisp"'\")"'
-  echol
-
-fi
-
-if [ $CROSS = false ] ; then
-
   echol "halfcompiled.mem : lisp${LEXE} \$(LISPFILES) config.lisp compiler.fas"
   if [ $HOS != unix ] ; then
     echotab "-\$(RM) halfcompiled.mem"
