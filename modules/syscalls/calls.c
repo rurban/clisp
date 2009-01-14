@@ -161,6 +161,7 @@ typedef enum {
   COPY_METHOD_COPY,
   COPY_METHOD_SYMLINK,
   COPY_METHOD_HARDLINK,
+  COPY_METHOD_HARDLINK_OR_COPY, /* EXDEV=>COPY */
   COPY_METHOD_RENAME
 } copy_method_t;
 
@@ -2799,7 +2800,8 @@ static inline int my_link (const char* source, const char* destination) {
 # define my_link link
 #endif
 #if defined(HAVE_LINK)
-static void hardlink_file (char* old_pathstring, char* new_pathstring) {
+static bool hardlink_file (char* old_pathstring, char* new_pathstring,
+                           bool error_p) {
   gcv_object_t *failed = NULL;
   begin_blocking_system_call();
 # if defined(WIN32_NATIVE)
@@ -2810,7 +2812,8 @@ static void hardlink_file (char* old_pathstring, char* new_pathstring) {
     failed = (errno==ENOENT ? &STACK_3 : &STACK_1);
 # endif
   end_blocking_system_call();
-  if (failed) OS_file_error(*failed);
+  if (failed && error_p) OS_file_error(*failed);
+  return failed != NULL;
 }
 #endif
 #if defined(HAVE_SYMLINK)
@@ -3012,7 +3015,7 @@ static void copy_file_low (object source, object dest,
 }
 
 DEFCHECKER(check_copy_method,enum=copy_method_t,default=COPY_METHOD_COPY,\
-           prefix=COPY_METHOD, :COPY SYMLINK HARDLINK :RENAME)
+           prefix=COPY_METHOD, :COPY SYMLINK HARDLINK HARDLINK-OR-COPY :RENAME)
 /* copy just one file: source --> dest (both STRINGs, NIL or PATHNAME)
    can trigger GC */
 static void copy_one_file (object source, object src_path,
@@ -3069,7 +3072,8 @@ static void copy_one_file (object source, object src_path,
 
   pushSTACK(STACK_3); funcall(L(probe_file),1);
   if (nullp(value1)) { /* source does not exist */
-    if (method == COPY_METHOD_RENAME || method == COPY_METHOD_HARDLINK) {
+    if (method == COPY_METHOD_RENAME || method == COPY_METHOD_HARDLINK
+        || method == COPY_METHOD_HARDLINK_OR_COPY) {
       if (if_not_exists == IF_DOES_NOT_EXIST_NIL) {
         skipSTACK(6); return;
       } else { /* delegate error to OPEN */
@@ -3091,6 +3095,20 @@ static void copy_one_file (object source, object src_path,
       pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(rename_file),2);
       source = STACK_4; dest = STACK_1;
       break;
+    case COPY_METHOD_HARDLINK_OR_COPY: {
+#    if defined(HAVE_LINK)
+      bool status;
+      dest = physical_namestring(STACK_1);
+      source = physical_namestring(STACK_0);
+      with_string_0(source, GLO(pathname_encoding), source_asciz, {
+        with_string_0(dest, GLO(pathname_encoding), dest_asciz, {
+          status = hardlink_file(source_asciz,dest_asciz,false);
+        });
+      });
+      if (status) goto copy_one_file_copy;
+      break;
+#    endif
+    } /* FALLTHROUGH if no hardlinks */
     case COPY_METHOD_SYMLINK:
 #    if defined(HAVE_SYMLINK)
       dest = physical_namestring(STACK_1);
@@ -3111,12 +3129,12 @@ static void copy_one_file (object source, object src_path,
       source = physical_namestring(STACK_0);
       with_string_0(source, GLO(pathname_encoding), source_asciz, {
         with_string_0(dest, GLO(pathname_encoding), dest_asciz,
-                      { hardlink_file(source_asciz,dest_asciz); });
+                      { hardlink_file(source_asciz,dest_asciz,true); });
       });
       break;
 #    endif
       /* FALLTHROUGH if no hardlinks */
-    default:
+    default: copy_one_file_copy:
       copy_file_low(STACK_0,STACK_1,preserve_p,if_exists,if_not_exists,retval);
       skipSTACK(6);
       return;

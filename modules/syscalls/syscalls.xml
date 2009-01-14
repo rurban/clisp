@@ -269,6 +269,9 @@
     and <function role="unix">rename</function>
     (when it is <constant>:RENAME</constant>) system calls, as well as,
     you guessed it, a generic file copy utility (when &method-r; is &copy-k;).
+   </simpara><simpara>When &method-r; is <constant>:HARDLINK-OR-COPY</constant>
+    and <function role="unix">link</function> fails (e.g., because the
+    &source-r; and &dest-r; are on different devices), fall back to &copy-k;.
    </simpara><simpara>Both &source-r; and &dest-r; may be wild, in which
     case &translate-pathname; is used.</simpara></listitem></varlistentry>
  <varlistentry id="dup-handle"><term><code>(&dup-handle;
