@@ -59,12 +59,6 @@ AC_MSG_FAILURE([Installation or configuration problem: C compiler cannot create 
 fi
 ])
 
-AC_DEFUN([CL_CONFIG_SUBDIRS],
-[dnl No AC_CONFIG_AUX_DIR_DEFAULT, so we don't need install.sh.
-AC_PROVIDE([AC_CONFIG_AUX_DIR_DEFAULT])
-AC_CONFIG_SUBDIRS([$1])dnl
-])
-
 AC_DEFUN([CL_CANONICAL_HOST_CPU],
 [AC_REQUIRE([AC_CANONICAL_HOST])AC_REQUIRE([AC_PROG_CC])
 case "$host_cpu" in
