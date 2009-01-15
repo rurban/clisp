@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -97,6 +97,7 @@ ACLOCAL = @ACLOCAL@
 ALLOCA = @ALLOCA@
 ALLOCA_H = @ALLOCA_H@
 AMTAR = @AMTAR@
+APPLE_UNIVERSAL_BUILD = @APPLE_UNIVERSAL_BUILD@
 AR = @AR@
 AS = @AS@
 AS_UNDERSCORE = @AS_UNDERSCORE@
@@ -144,6 +145,7 @@ GLIBC21 = @GLIBC21@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
 GNULIB_ATOLL = @GNULIB_ATOLL@
+GNULIB_BTOWC = @GNULIB_BTOWC@
 GNULIB_CALLOC_POSIX = @GNULIB_CALLOC_POSIX@
 GNULIB_CHOWN = @GNULIB_CHOWN@
 GNULIB_CLOSE = @GNULIB_CLOSE@
@@ -165,6 +167,11 @@ GNULIB_GETUSERSHELL = @GNULIB_GETUSERSHELL@
 GNULIB_LCHOWN = @GNULIB_LCHOWN@
 GNULIB_LSEEK = @GNULIB_LSEEK@
 GNULIB_MALLOC_POSIX = @GNULIB_MALLOC_POSIX@
+GNULIB_MBRLEN = @GNULIB_MBRLEN@
+GNULIB_MBRTOWC = @GNULIB_MBRTOWC@
+GNULIB_MBSINIT = @GNULIB_MBSINIT@
+GNULIB_MBSNRTOWCS = @GNULIB_MBSNRTOWCS@
+GNULIB_MBSRTOWCS = @GNULIB_MBSRTOWCS@
 GNULIB_MKDTEMP = @GNULIB_MKDTEMP@
 GNULIB_MKSTEMP = @GNULIB_MKSTEMP@
 GNULIB_PUTENV = @GNULIB_PUTENV@
@@ -179,15 +186,21 @@ GNULIB_STRTOLL = @GNULIB_STRTOLL@
 GNULIB_STRTOULL = @GNULIB_STRTOULL@
 GNULIB_UNISTD_H_SIGPIPE = @GNULIB_UNISTD_H_SIGPIPE@
 GNULIB_UNSETENV = @GNULIB_UNSETENV@
+GNULIB_WCRTOMB = @GNULIB_WCRTOMB@
+GNULIB_WCSNRTOMBS = @GNULIB_WCSNRTOMBS@
+GNULIB_WCSRTOMBS = @GNULIB_WCSRTOMBS@
+GNULIB_WCTOB = @GNULIB_WCTOB@
 GNULIB_WCWIDTH = @GNULIB_WCWIDTH@
 GNULIB_WRITE = @GNULIB_WRITE@
 GREP = @GREP@
 GROFF = @GROFF@
 HAVE_ATOLL = @HAVE_ATOLL@
+HAVE_BTOWC = @HAVE_BTOWC@
 HAVE_CALLOC_POSIX = @HAVE_CALLOC_POSIX@
 HAVE_DECL_ENVIRON = @HAVE_DECL_ENVIRON@
 HAVE_DECL_GETLOADAVG = @HAVE_DECL_GETLOADAVG@
 HAVE_DECL_GETLOGIN_R = @HAVE_DECL_GETLOGIN_R@
+HAVE_DECL_WCTOB = @HAVE_DECL_WCTOB@
 HAVE_DECL_WCWIDTH = @HAVE_DECL_WCWIDTH@
 HAVE_DUP2 = @HAVE_DUP2@
 HAVE_EUIDACCESS = @HAVE_EUIDACCESS@
@@ -203,6 +216,11 @@ HAVE_INTTYPES_H = @HAVE_INTTYPES_H@
 HAVE_ISWCNTRL = @HAVE_ISWCNTRL@
 HAVE_LONG_LONG_INT = @HAVE_LONG_LONG_INT@
 HAVE_MALLOC_POSIX = @HAVE_MALLOC_POSIX@
+HAVE_MBRLEN = @HAVE_MBRLEN@
+HAVE_MBRTOWC = @HAVE_MBRTOWC@
+HAVE_MBSINIT = @HAVE_MBSINIT@
+HAVE_MBSNRTOWCS = @HAVE_MBSNRTOWCS@
+HAVE_MBSRTOWCS = @HAVE_MBSRTOWCS@
 HAVE_MKDTEMP = @HAVE_MKDTEMP@
 HAVE_OS_H = @HAVE_OS_H@
 HAVE_RANDOM_R = @HAVE_RANDOM_R@
@@ -230,11 +248,15 @@ HAVE_UNISTD_H = @HAVE_UNISTD_H@
 HAVE_UNSETENV = @HAVE_UNSETENV@
 HAVE_UNSIGNED_LONG_LONG_INT = @HAVE_UNSIGNED_LONG_LONG_INT@
 HAVE_WCHAR_H = @HAVE_WCHAR_H@
+HAVE_WCRTOMB = @HAVE_WCRTOMB@
+HAVE_WCSNRTOMBS = @HAVE_WCSNRTOMBS@
+HAVE_WCSRTOMBS = @HAVE_WCSRTOMBS@
 HAVE_WCTYPE_H = @HAVE_WCTYPE_H@
 HAVE_WINT_T = @HAVE_WINT_T@
 HAVE__BOOL = @HAVE__BOOL@
 HLN = @HLN@
 INCLUDE_NEXT = @INCLUDE_NEXT@
+INCLUDE_NEXT_AS_FIRST_DIRECTIVE = @INCLUDE_NEXT_AS_FIRST_DIRECTIVE@
 INCTERMCAP = @INCTERMCAP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
@@ -258,6 +280,10 @@ LIBTOOL = @LIBTOOL@
 LN = @LN@
 LN_S = @LN_S@
 LOCALCHARSET_TESTS_ENVIRONMENT = @LOCALCHARSET_TESTS_ENVIRONMENT@
+LOCALE_FR = @LOCALE_FR@
+LOCALE_FR_UTF8 = @LOCALE_FR_UTF8@
+LOCALE_JA = @LOCALE_JA@
+LOCALE_ZH_CN = @LOCALE_ZH_CN@
 LTALLOCA = @LTALLOCA@
 LTLIBAVCALL = @LTLIBAVCALL@
 LTLIBCALLBACK = @LTLIBCALLBACK@
@@ -290,6 +316,7 @@ POSUB = @POSUB@
 PRAGMA_SYSTEM_HEADER = @PRAGMA_SYSTEM_HEADER@
 PTRDIFF_T_SUFFIX = @PTRDIFF_T_SUFFIX@
 RANLIB = @RANLIB@
+REPLACE_BTOWC = @REPLACE_BTOWC@
 REPLACE_CHOWN = @REPLACE_CHOWN@
 REPLACE_CLOSE = @REPLACE_CLOSE@
 REPLACE_FCHDIR = @REPLACE_FCHDIR@
@@ -299,9 +326,18 @@ REPLACE_GETTIMEOFDAY = @REPLACE_GETTIMEOFDAY@
 REPLACE_ISWCNTRL = @REPLACE_ISWCNTRL@
 REPLACE_LCHOWN = @REPLACE_LCHOWN@
 REPLACE_LSEEK = @REPLACE_LSEEK@
+REPLACE_MBRLEN = @REPLACE_MBRLEN@
+REPLACE_MBRTOWC = @REPLACE_MBRTOWC@
+REPLACE_MBSINIT = @REPLACE_MBSINIT@
+REPLACE_MBSNRTOWCS = @REPLACE_MBSNRTOWCS@
+REPLACE_MBSRTOWCS = @REPLACE_MBSRTOWCS@
+REPLACE_MBSTATE_T = @REPLACE_MBSTATE_T@
 REPLACE_MKSTEMP = @REPLACE_MKSTEMP@
 REPLACE_PUTENV = @REPLACE_PUTENV@
 REPLACE_STRTOD = @REPLACE_STRTOD@
+REPLACE_WCRTOMB = @REPLACE_WCRTOMB@
+REPLACE_WCSRTOMBS = @REPLACE_WCSRTOMBS@
+REPLACE_WCTOB = @REPLACE_WCTOB@
 REPLACE_WCWIDTH = @REPLACE_WCWIDTH@
 REPLACE_WRITE = @REPLACE_WRITE@
 SED = @SED@
@@ -399,16 +435,16 @@ noinst_LTLIBRARIES = libgnu.la
 #	http://www.opengroup.org/susv3/utilities/make.html
 #	for the 2004 POSIX specification]
 #endif
-EXTRA_DIST = alloca.c alloca.in.h fnmatch.c fnmatch.in.h \
+EXTRA_DIST = alloca.c alloca.in.h btowc.c fnmatch.c fnmatch.in.h \
 	fnmatch_loop.c $(top_srcdir)/src/build-aux/config.rpath \
 	gettimeofday.c $(top_srcdir)/src/build-aux/config.rpath \
 	$(top_srcdir)/src/build-aux/link-warning.h config.charset \
-	ref-add.sin ref-del.sin malloc.c malloc.c regcomp.c regex.c \
-	regex.h regex_internal.c regex_internal.h regexec.c \
-	stdbool.in.h stdint.in.h stdlib.in.h streq.h sys_time.in.h \
-	uniname.h uniname/gen-uninames.lisp uniname/uninames.h \
-	unistd.in.h unitypes.h localcharset.h uniwidth.h \
-	uniwidth/cjk.h wchar.in.h wctype.in.h
+	ref-add.sin ref-del.sin malloc.c malloc.c mbrtowc.c mbsinit.c \
+	regcomp.c regex.c regex.h regex_internal.c regex_internal.h \
+	regexec.c stdbool.in.h stdint.in.h stdlib.in.h streq.h \
+	sys_time.in.h uniname.h uniname/gen-uninames.lisp \
+	uniname/uninames.h unistd.in.h unitypes.h localcharset.h \
+	uniwidth.h uniwidth/cjk.h wchar.in.h wcrtomb.c wctype.in.h
 BUILT_SOURCES = $(ALLOCA_H) configmake.h $(FNMATCH_H) $(STDBOOL_H) \
 	$(STDINT_H) stdlib.h $(SYS_TIME_H) unistd.h $(WCHAR_H) \
 	$(WCTYPE_H)
@@ -433,12 +469,12 @@ MAINTAINERCLEANFILES =
 # "gettextize --intl".
 AM_CPPFLAGS = -I$(top_builddir)/intl
 libgnu_la_SOURCES = gettext.h localcharset.h localcharset.c \
-	uniname/uniname.c uniwidth/width.c
+	uniname/uniname.c uniwidth/width.c verify.h
 libgnu_la_LIBADD = $(gl_LTLIBOBJS) @LTALLOCA@
 libgnu_la_DEPENDENCIES = $(gl_LTLIBOBJS) @LTALLOCA@
-EXTRA_libgnu_la_SOURCES = alloca.c fnmatch.c fnmatch_loop.c \
-	gettimeofday.c malloc.c malloc.c regcomp.c regex.c \
-	regex_internal.c regexec.c
+EXTRA_libgnu_la_SOURCES = alloca.c btowc.c fnmatch.c fnmatch_loop.c \
+	gettimeofday.c malloc.c malloc.c mbrtowc.c mbsinit.c regcomp.c \
+	regex.c regex_internal.c regexec.c wcrtomb.c
 libgnu_la_LDFLAGS = $(AM_LDFLAGS)
 LINK_WARNING_H = $(top_srcdir)/src/build-aux/link-warning.h
 charset_alias = $(DESTDIR)$(libdir)/charset.alias
@@ -520,15 +556,19 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/alloca.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/alloca.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/btowc.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fnmatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fnmatch_loop.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gettimeofday.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/localcharset.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/malloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mbrtowc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mbsinit.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regcomp.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex_internal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regexec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wcrtomb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@uniname/$(DEPDIR)/uniname.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@uniwidth/$(DEPDIR)/width.Plo@am__quote@
 
@@ -989,6 +1029,7 @@ stdint.h: stdint.in.h
 	      -e 's/@''HAVE_SYS_BITYPES_H''@/$(HAVE_SYS_BITYPES_H)/g' \
 	      -e 's/@''HAVE_LONG_LONG_INT''@/$(HAVE_LONG_LONG_INT)/g' \
 	      -e 's/@''HAVE_UNSIGNED_LONG_LONG_INT''@/$(HAVE_UNSIGNED_LONG_LONG_INT)/g' \
+	      -e 's/@''APPLE_UNIVERSAL_BUILD''@/$(APPLE_UNIVERSAL_BUILD)/g' \
 	      -e 's/@''BITSIZEOF_PTRDIFF_T''@/$(BITSIZEOF_PTRDIFF_T)/g' \
 	      -e 's/@''PTRDIFF_T_SUFFIX''@/$(PTRDIFF_T_SUFFIX)/g' \
 	      -e 's/@''BITSIZEOF_SIG_ATOMIC_T''@/$(BITSIZEOF_SIG_ATOMIC_T)/g' \
@@ -1138,10 +1179,40 @@ wchar.h: wchar.in.h
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
 	      -e 's|@''NEXT_WCHAR_H''@|$(NEXT_WCHAR_H)|g' \
-	      -e 's/@''HAVE_WCHAR_H''@/$(HAVE_WCHAR_H)/g' \
+	      -e 's|@''HAVE_WCHAR_H''@|$(HAVE_WCHAR_H)|g' \
+	      -e 's|@''GNULIB_BTOWC''@|$(GNULIB_BTOWC)|g' \
+	      -e 's|@''GNULIB_WCTOB''@|$(GNULIB_WCTOB)|g' \
+	      -e 's|@''GNULIB_MBSINIT''@|$(GNULIB_MBSINIT)|g' \
+	      -e 's|@''GNULIB_MBRTOWC''@|$(GNULIB_MBRTOWC)|g' \
+	      -e 's|@''GNULIB_MBRLEN''@|$(GNULIB_MBRLEN)|g' \
+	      -e 's|@''GNULIB_MBSRTOWCS''@|$(GNULIB_MBSRTOWCS)|g' \
+	      -e 's|@''GNULIB_MBSNRTOWCS''@|$(GNULIB_MBSNRTOWCS)|g' \
+	      -e 's|@''GNULIB_WCRTOMB''@|$(GNULIB_WCRTOMB)|g' \
+	      -e 's|@''GNULIB_WCSRTOMBS''@|$(GNULIB_WCSRTOMBS)|g' \
+	      -e 's|@''GNULIB_WCSNRTOMBS''@|$(GNULIB_WCSNRTOMBS)|g' \
 	      -e 's|@''GNULIB_WCWIDTH''@|$(GNULIB_WCWIDTH)|g' \
-	      -e 's/@''HAVE_WINT_T''@/$(HAVE_WINT_T)/g' \
+	      -e 's|@''HAVE_WINT_T''@|$(HAVE_WINT_T)|g' \
+	      -e 's|@''HAVE_BTOWC''@|$(HAVE_BTOWC)|g' \
+	      -e 's|@''HAVE_MBSINIT''@|$(HAVE_MBSINIT)|g' \
+	      -e 's|@''HAVE_MBRTOWC''@|$(HAVE_MBRTOWC)|g' \
+	      -e 's|@''HAVE_MBRLEN''@|$(HAVE_MBRLEN)|g' \
+	      -e 's|@''HAVE_MBSRTOWCS''@|$(HAVE_MBSRTOWCS)|g' \
+	      -e 's|@''HAVE_MBSNRTOWCS''@|$(HAVE_MBSNRTOWCS)|g' \
+	      -e 's|@''HAVE_WCRTOMB''@|$(HAVE_WCRTOMB)|g' \
+	      -e 's|@''HAVE_WCSRTOMBS''@|$(HAVE_WCSRTOMBS)|g' \
+	      -e 's|@''HAVE_WCSNRTOMBS''@|$(HAVE_WCSNRTOMBS)|g' \
+	      -e 's|@''HAVE_DECL_WCTOB''@|$(HAVE_DECL_WCTOB)|g' \
 	      -e 's|@''HAVE_DECL_WCWIDTH''@|$(HAVE_DECL_WCWIDTH)|g' \
+	      -e 's|@''REPLACE_MBSTATE_T''@|$(REPLACE_MBSTATE_T)|g' \
+	      -e 's|@''REPLACE_BTOWC''@|$(REPLACE_BTOWC)|g' \
+	      -e 's|@''REPLACE_WCTOB''@|$(REPLACE_WCTOB)|g' \
+	      -e 's|@''REPLACE_MBSINIT''@|$(REPLACE_MBSINIT)|g' \
+	      -e 's|@''REPLACE_MBRTOWC''@|$(REPLACE_MBRTOWC)|g' \
+	      -e 's|@''REPLACE_MBRLEN''@|$(REPLACE_MBRLEN)|g' \
+	      -e 's|@''REPLACE_MBSRTOWCS''@|$(REPLACE_MBSRTOWCS)|g' \
+	      -e 's|@''REPLACE_MBSNRTOWCS''@|$(REPLACE_MBSNRTOWCS)|g' \
+	      -e 's|@''REPLACE_WCRTOMB''@|$(REPLACE_WCRTOMB)|g' \
+	      -e 's|@''REPLACE_WCSRTOMBS''@|$(REPLACE_WCSRTOMBS)|g' \
 	      -e 's|@''REPLACE_WCWIDTH''@|$(REPLACE_WCWIDTH)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	    < $(srcdir)/wchar.in.h; \
