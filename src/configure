@@ -925,6 +925,41 @@ GL_COND_LIBTOOL_FALSE
 LTALLOCA
 ALLOCA
 ALLOCA_H
+GNULIB_BTOWC
+GNULIB_WCTOB
+GNULIB_MBSINIT
+GNULIB_MBRTOWC
+GNULIB_MBRLEN
+GNULIB_MBSRTOWCS
+GNULIB_MBSNRTOWCS
+GNULIB_WCRTOMB
+GNULIB_WCSRTOMBS
+GNULIB_WCSNRTOMBS
+GNULIB_WCWIDTH
+HAVE_BTOWC
+HAVE_MBSINIT
+HAVE_MBRTOWC
+HAVE_MBRLEN
+HAVE_MBSRTOWCS
+HAVE_MBSNRTOWCS
+HAVE_WCRTOMB
+HAVE_WCSRTOMBS
+HAVE_WCSNRTOMBS
+HAVE_DECL_WCTOB
+HAVE_DECL_WCWIDTH
+REPLACE_MBSTATE_T
+REPLACE_BTOWC
+REPLACE_WCTOB
+REPLACE_MBSINIT
+REPLACE_MBRTOWC
+REPLACE_MBRLEN
+REPLACE_MBSRTOWCS
+REPLACE_MBSNRTOWCS
+REPLACE_WCRTOMB
+REPLACE_WCSRTOMBS
+REPLACE_WCWIDTH
+WCHAR_H
+LOCALE_FR
 FNMATCH_H
 LIBINTL
 LTLIBINTL
@@ -976,6 +1011,10 @@ REPLACE_MKSTEMP
 REPLACE_PUTENV
 REPLACE_STRTOD
 VOID_UNSETENV
+LOCALE_JA
+LOCALE_FR_UTF8
+LOCALE_ZH_CN
+APPLE_UNIVERSAL_BUILD
 STDBOOL_H
 HAVE__BOOL
 HAVE_LONG_LONG_INT
@@ -987,16 +1026,16 @@ HAVE_STDINT_H
 HAVE_SYS_INTTYPES_H
 HAVE_SYS_BITYPES_H
 BITSIZEOF_PTRDIFF_T
-BITSIZEOF_SIG_ATOMIC_T
 BITSIZEOF_SIZE_T
+BITSIZEOF_SIG_ATOMIC_T
 BITSIZEOF_WCHAR_T
 BITSIZEOF_WINT_T
 HAVE_SIGNED_SIG_ATOMIC_T
 HAVE_SIGNED_WCHAR_T
 HAVE_SIGNED_WINT_T
 PTRDIFF_T_SUFFIX
-SIG_ATOMIC_T_SUFFIX
 SIZE_T_SUFFIX
+SIG_ATOMIC_T_SUFFIX
 WCHAR_T_SUFFIX
 WINT_T_SUFFIX
 STDINT_H
@@ -1048,10 +1087,6 @@ REPLACE_WRITE
 UNISTD_H_HAVE_WINSOCK2_H
 NEXT_UNISTD_H
 HAVE_UNISTD_H
-GNULIB_WCWIDTH
-HAVE_DECL_WCWIDTH
-REPLACE_WCWIDTH
-WCHAR_H
 HAVE_WINT_T
 HAVE_WCHAR_H
 NEXT_WCHAR_H
@@ -2199,14 +2234,15 @@ ac_func_list="$ac_func_list wmempcpy"
 ac_header_list="$ac_header_list wctype.h"
 ac_header_list="$ac_header_list sys/time.h"
 ac_func_list="$ac_func_list gettimeofday"
-ac_header_list="$ac_header_list locale.h"
+ac_func_list="$ac_func_list mbsinit"
 ac_func_list="$ac_func_list mbrtowc"
-ac_func_list="$ac_func_list wcrtomb"
+ac_header_list="$ac_header_list locale.h"
 ac_func_list="$ac_func_list wcscoll"
 ac_header_list="$ac_header_list stdint.h"
 ac_header_list="$ac_header_list wchar.h"
 ac_header_list="$ac_header_list stdlib.h"
 ac_header_list="$ac_header_list unistd.h"
+ac_func_list="$ac_func_list wcrtomb"
 ac_func_list="$ac_func_list iswcntrl"
 gt_needs="$gt_needs need-ngettext"
 # Check that the precious variables saved in the cache have kept the same
@@ -6082,6 +6118,8 @@ done
 
 
 
+
+
   if test "${ac_cv_header_minix_config_h+set}" = set; then
   { $as_echo "$as_me:$LINENO: checking for minix/config.h" >&5
 $as_echo_n "checking for minix/config.h... " >&6; }
@@ -6238,6 +6276,16 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
   fi
+
+        case "$host_os" in
+    hpux*)
+
+cat >>confdefs.h <<\_ACEOF
+#define _XOPEN_SOURCE 500
+_ACEOF
+
+      ;;
+  esac
 
 
 
@@ -7051,7 +7099,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 7054 "configure"' > conftest.$ac_ext
+  echo '#line 7102 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -9963,11 +10011,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:9966: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10014: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:9970: \$? = $ac_status" >&5
+   echo "$as_me:10018: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10253,11 +10301,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10256: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10304: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10260: \$? = $ac_status" >&5
+   echo "$as_me:10308: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -10357,11 +10405,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10360: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10408: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10364: \$? = $ac_status" >&5
+   echo "$as_me:10412: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12757,7 +12805,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12760 "configure"
+#line 12808 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12857,7 +12905,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12860 "configure"
+#line 12908 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -15266,11 +15314,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15269: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15317: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15273: \$? = $ac_status" >&5
+   echo "$as_me:15321: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -15370,11 +15418,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15373: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15421: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15377: \$? = $ac_status" >&5
+   echo "$as_me:15425: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16953,11 +17001,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16956: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17004: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16960: \$? = $ac_status" >&5
+   echo "$as_me:17008: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17057,11 +17105,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17060: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17108: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17064: \$? = $ac_status" >&5
+   echo "$as_me:17112: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -19272,11 +19320,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19275: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19323: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19279: \$? = $ac_status" >&5
+   echo "$as_me:19327: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19562,11 +19610,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19565: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19613: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:19569: \$? = $ac_status" >&5
+   echo "$as_me:19617: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -19666,11 +19714,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:19669: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:19717: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:19673: \$? = $ac_status" >&5
+   echo "$as_me:19721: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -23850,70 +23898,42 @@ _ACEOF
 
 fi
 
-{ $as_echo "$as_me:$LINENO: checking for mbstate_t" >&5
-$as_echo_n "checking for mbstate_t... " >&6; }
-if test "${ac_cv_type_mbstate_t+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-$ac_includes_default
-#	    include <wchar.h>
-int
-main ()
-{
-mbstate_t x; return sizeof x;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (ac_try="$ac_compile"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_compile") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest.$ac_objext; then
-  ac_cv_type_mbstate_t=yes
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
 
-	ac_cv_type_mbstate_t=no
-fi
+  GNULIB_BTOWC=0;
+  GNULIB_WCTOB=0;
+  GNULIB_MBSINIT=0;
+  GNULIB_MBRTOWC=0;
+  GNULIB_MBRLEN=0;
+  GNULIB_MBSRTOWCS=0;
+  GNULIB_MBSNRTOWCS=0;
+  GNULIB_WCRTOMB=0;
+  GNULIB_WCSRTOMBS=0;
+  GNULIB_WCSNRTOMBS=0;
+  GNULIB_WCWIDTH=0;
+    HAVE_BTOWC=1;
+  HAVE_MBSINIT=1;
+  HAVE_MBRTOWC=1;
+  HAVE_MBRLEN=1;
+  HAVE_MBSRTOWCS=1;
+  HAVE_MBSNRTOWCS=1;
+  HAVE_WCRTOMB=1;
+  HAVE_WCSRTOMBS=1;
+  HAVE_WCSNRTOMBS=1;
+  HAVE_DECL_WCTOB=1;
+  HAVE_DECL_WCWIDTH=1;
+  REPLACE_MBSTATE_T=0;
+  REPLACE_BTOWC=0;
+  REPLACE_WCTOB=0;
+  REPLACE_MBSINIT=0;
+  REPLACE_MBRTOWC=0;
+  REPLACE_MBRLEN=0;
+  REPLACE_MBSRTOWCS=0;
+  REPLACE_MBSNRTOWCS=0;
+  REPLACE_WCRTOMB=0;
+  REPLACE_WCSRTOMBS=0;
+  REPLACE_WCWIDTH=0;
+  WCHAR_H='';
 
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-fi
-{ $as_echo "$as_me:$LINENO: result: $ac_cv_type_mbstate_t" >&5
-$as_echo "$ac_cv_type_mbstate_t" >&6; }
-   if test $ac_cv_type_mbstate_t = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_MBSTATE_T 1
-_ACEOF
-
-   else
-
-cat >>confdefs.h <<\_ACEOF
-#define mbstate_t int
-_ACEOF
-
-   fi
 
 
 
@@ -24018,6 +24038,260 @@ fi
 done
 
 
+
+
+  { $as_echo "$as_me:$LINENO: checking for nl_langinfo and CODESET" >&5
+$as_echo_n "checking for nl_langinfo and CODESET... " >&6; }
+if test "${am_cv_langinfo_codeset+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <langinfo.h>
+int
+main ()
+{
+char* cs = nl_langinfo(CODESET); return !cs;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext && {
+	 test "$cross_compiling" = yes ||
+	 $as_test_x conftest$ac_exeext
+       }; then
+  am_cv_langinfo_codeset=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	am_cv_langinfo_codeset=no
+fi
+
+rm -rf conftest.dSYM
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $am_cv_langinfo_codeset" >&5
+$as_echo "$am_cv_langinfo_codeset" >&6; }
+  if test $am_cv_langinfo_codeset = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_LANGINFO_CODESET 1
+_ACEOF
+
+  fi
+
+
+
+
+  { $as_echo "$as_me:$LINENO: checking for a traditional french locale" >&5
+$as_echo_n "checking for a traditional french locale... " >&6; }
+if test "${gt_cv_locale_fr+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+    macosx=
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_fr=none
+    else
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main () {
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether in the abbreviation of the second month, the second
+     character (should be U+00E9: LATIN SMALL LETTER E WITH ACUTE) is only
+     one byte long. This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%b", &t) < 3 || buf[2] != 'v') return 1;
+  /* Check whether the decimal separator is a comma.
+     On NetBSD 3.0 in the fr_FR.ISO8859-1 locale, localeconv()->decimal_point
+     are nl_langinfo(RADIXCHAR) are both ".".  */
+  if (localeconv () ->decimal_point[0] != ',') return 1;
+  return 0;
+}
+
+_ACEOF
+      if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the usual locale name.
+        if (LC_ALL=fr_FR LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_fr=fr_FR
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=fr_FR.ISO-8859-1 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_fr=fr_FR.ISO-8859-1
+          else
+            # Test for the AIX, OSF/1, FreeBSD, NetBSD, OpenBSD locale name.
+            if (LC_ALL=fr_FR.ISO8859-1 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+              gt_cv_locale_fr=fr_FR.ISO8859-1
+            else
+              # Test for the HP-UX locale name.
+              if (LC_ALL=fr_FR.iso88591 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                gt_cv_locale_fr=fr_FR.iso88591
+              else
+                # Test for the Solaris 7 locale name.
+                if (LC_ALL=fr LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                  gt_cv_locale_fr=fr
+                else
+                  # None found.
+                  gt_cv_locale_fr=none
+                fi
+              fi
+            fi
+          fi
+        fi
+      fi
+      rm -fr conftest*
+    fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gt_cv_locale_fr" >&5
+$as_echo "$gt_cv_locale_fr" >&6; }
+  LOCALE_FR=$gt_cv_locale_fr
+
+
+
+
+   { $as_echo "$as_me:$LINENO: checking for mbstate_t" >&5
+$as_echo_n "checking for mbstate_t... " >&6; }
+if test "${ac_cv_type_mbstate_t+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#	    include <wchar.h>
+int
+main ()
+{
+mbstate_t x; return sizeof x;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_cv_type_mbstate_t=yes
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_type_mbstate_t=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:$LINENO: result: $ac_cv_type_mbstate_t" >&5
+$as_echo "$ac_cv_type_mbstate_t" >&6; }
+   if test $ac_cv_type_mbstate_t = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_MBSTATE_T 1
+_ACEOF
+
+   else
+
+cat >>confdefs.h <<\_ACEOF
+#define mbstate_t int
+_ACEOF
+
+   fi
 
 
 
@@ -24756,71 +25030,6 @@ $as_echo "$gl_cv_solaris_64bit" >&6; }
   esac
   test -n "$acl_libdirstem2" || acl_libdirstem2="$acl_libdirstem"
 
-
-  { $as_echo "$as_me:$LINENO: checking for nl_langinfo and CODESET" >&5
-$as_echo_n "checking for nl_langinfo and CODESET... " >&6; }
-if test "${am_cv_langinfo_codeset+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <langinfo.h>
-int
-main ()
-{
-char* cs = nl_langinfo(CODESET); return !cs;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (ac_try="$ac_link"
-case "(($ac_try" in
-  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
-  *) ac_try_echo=$ac_try;;
-esac
-eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
-$as_echo "$ac_try_echo") >&5
-  (eval "$ac_link") 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } && {
-	 test -z "$ac_c_werror_flag" ||
-	 test ! -s conftest.err
-       } && test -s conftest$ac_exeext && {
-	 test "$cross_compiling" = yes ||
-	 $as_test_x conftest$ac_exeext
-       }; then
-  am_cv_langinfo_codeset=yes
-else
-  $as_echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-	am_cv_langinfo_codeset=no
-fi
-
-rm -rf conftest.dSYM
-rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
-      conftest$ac_exeext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:$LINENO: result: $am_cv_langinfo_codeset" >&5
-$as_echo "$am_cv_langinfo_codeset" >&6; }
-  if test $am_cv_langinfo_codeset = yes; then
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_LANGINFO_CODESET 1
-_ACEOF
-
-  fi
-
 { $as_echo "$as_me:$LINENO: checking whether getc_unlocked is declared" >&5
 $as_echo_n "checking whether getc_unlocked is declared... " >&6; }
 if test "${ac_cv_have_decl_getc_unlocked+set}" = set; then
@@ -25025,6 +25234,428 @@ $as_echo "$gl_cv_func_malloc_posix" >&6; }
 
 
 
+
+
+
+
+
+  { $as_echo "$as_me:$LINENO: checking for a traditional japanese locale" >&5
+$as_echo_n "checking for a traditional japanese locale... " >&6; }
+if test "${gt_cv_locale_ja+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+    macosx=
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_ja=none
+    else
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main ()
+{
+  const char *p;
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether MB_CUR_MAX is > 1.  This excludes the dysfunctional locales
+     on Cygwin 1.5.x.  */
+  if (MB_CUR_MAX == 1)
+    return 1;
+  /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
+     This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+  for (p = buf; *p != '\0'; p++)
+    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+      return 1;
+  return 0;
+}
+
+_ACEOF
+      if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the AIX locale name.
+        if (LC_ALL=ja_JP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_ja=ja_JP
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=ja_JP.EUC-JP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_ja=ja_JP.EUC-JP
+          else
+            # Test for the HP-UX, OSF/1, NetBSD locale name.
+            if (LC_ALL=ja_JP.eucJP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+              gt_cv_locale_ja=ja_JP.eucJP
+            else
+              # Test for the IRIX, FreeBSD locale name.
+              if (LC_ALL=ja_JP.EUC LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                gt_cv_locale_ja=ja_JP.EUC
+              else
+                # Test for the Solaris 7 locale name.
+                if (LC_ALL=ja LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                  gt_cv_locale_ja=ja
+                else
+                  # Special test for NetBSD 1.6.
+                  if test -f /usr/share/locale/ja_JP.eucJP/LC_CTYPE; then
+                    gt_cv_locale_ja=ja_JP.eucJP
+                  else
+                    # None found.
+                    gt_cv_locale_ja=none
+                  fi
+                fi
+              fi
+            fi
+          fi
+        fi
+      fi
+      rm -fr conftest*
+    fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gt_cv_locale_ja" >&5
+$as_echo "$gt_cv_locale_ja" >&6; }
+  LOCALE_JA=$gt_cv_locale_ja
+
+
+
+
+  { $as_echo "$as_me:$LINENO: checking for a french Unicode locale" >&5
+$as_echo_n "checking for a french Unicode locale... " >&6; }
+if test "${gt_cv_locale_fr_utf8+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main () {
+  /* On BeOS and Haiku, locales are not implemented in libc.  Rather, libintl
+     imitates locale dependent behaviour by looking at the environment
+     variables, and all locales use the UTF-8 encoding.  */
+#if !(defined __BEOS__ || defined __HAIKU__)
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+# if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+# endif
+# ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+# endif
+  /* Check whether in the abbreviation of the second month, the second
+     character (should be U+00E9: LATIN SMALL LETTER E WITH ACUTE) is
+     two bytes long, with UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%b", &t) < 4
+      || buf[1] != (char) 0xc3 || buf[2] != (char) 0xa9 || buf[3] != 'v')
+    return 1;
+#endif
+  /* Check whether the decimal separator is a comma.
+     On NetBSD 3.0 in the fr_FR.ISO8859-1 locale, localeconv()->decimal_point
+     are nl_langinfo(RADIXCHAR) are both ".".  */
+  if (localeconv () ->decimal_point[0] != ',') return 1;
+  return 0;
+}
+
+_ACEOF
+    if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && test -s conftest$ac_exeext; then
+      # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+      # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+      # configure script would override the LC_ALL setting. Likewise for
+      # LC_CTYPE, which is also set at the beginning of the configure script.
+      # Test for the usual locale name.
+      if (LC_ALL=fr_FR LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+        gt_cv_locale_fr_utf8=fr_FR
+      else
+        # Test for the locale name with explicit encoding suffix.
+        if (LC_ALL=fr_FR.UTF-8 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_fr_utf8=fr_FR.UTF-8
+        else
+          # Test for the Solaris 7 locale name.
+          if (LC_ALL=fr.UTF-8 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_fr_utf8=fr.UTF-8
+          else
+            # None found.
+            gt_cv_locale_fr_utf8=none
+          fi
+        fi
+      fi
+    fi
+    rm -fr conftest*
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gt_cv_locale_fr_utf8" >&5
+$as_echo "$gt_cv_locale_fr_utf8" >&6; }
+  LOCALE_FR_UTF8=$gt_cv_locale_fr_utf8
+
+
+
+
+
+  { $as_echo "$as_me:$LINENO: checking for a transitional chinese locale" >&5
+$as_echo_n "checking for a transitional chinese locale... " >&6; }
+if test "${gt_cv_locale_zh_CN+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+    macosx=
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_zh_CN=none
+    else
+      cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <stdlib.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main ()
+{
+  const char *p;
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
+     This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+  for (p = buf; *p != '\0'; p++)
+    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+      return 1;
+  /* Check whether a typical GB18030 multibyte sequence is recognized as a
+     single wide character.  This excludes the GB2312 and GBK encodings.  */
+  if (mblen ("\203\062\332\066", 5) != 4)
+    return 1;
+  return 0;
+}
+
+_ACEOF
+      if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the locale name without encoding suffix.
+        if (LC_ALL=zh_CN LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_zh_CN=zh_CN
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=zh_CN.GB18030 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_zh_CN=zh_CN.GB18030
+          else
+            # None found.
+            gt_cv_locale_zh_CN=none
+          fi
+        fi
+      else
+        # If there was a link error, due to mblen(), the system is so old that
+        # it certainly doesn't have a chinese locale.
+        gt_cv_locale_zh_CN=none
+      fi
+      rm -fr conftest*
+    fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gt_cv_locale_zh_CN" >&5
+$as_echo "$gt_cv_locale_zh_CN" >&6; }
+  LOCALE_ZH_CN=$gt_cv_locale_zh_CN
+
+
+
+    gl_cv_c_multiarch=no
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#ifndef __APPLE_CC__
+         not a universal capable compiler
+        #endif
+        typedef int dummy;
+
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+
+               arch=
+     prev=
+     for word in ${CC} ${CFLAGS} ${CPPFLAGS} ${LDFLAGS}; do
+       if test -n "$prev"; then
+         case $word in
+           i?86 | x86_64 | ppc | ppc64)
+             if test -z "$arch" || test "$arch" = "$word"; then
+               arch="$word"
+             else
+               gl_cv_c_multiarch=yes
+             fi
+             ;;
+         esac
+         prev=
+       else
+         if test "x$word" = "x-arch"; then
+           prev=arch
+         fi
+       fi
+     done
+
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  if test $gl_cv_c_multiarch = yes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define AA_APPLE_UNIVERSAL_BUILD 1
+_ACEOF
+
+    APPLE_UNIVERSAL_BUILD=1
+  else
+    APPLE_UNIVERSAL_BUILD=0
+  fi
 
 
 
@@ -25552,12 +26183,6 @@ _ACEOF
 
 
 
-  GNULIB_WCWIDTH=0;
-    HAVE_DECL_WCWIDTH=1;
-  REPLACE_WCWIDTH=0;
-  WCHAR_H='';
-
-
   { $as_echo "$as_me:$LINENO: checking for wint_t" >&5
 $as_echo_n "checking for wint_t... " >&6; }
 if test "${gt_cv_c_wint_t+set}" = set; then
@@ -25624,6 +26249,8 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
   fi
+
+
 
 
 
@@ -25773,6 +26400,132 @@ _ACEOF
     ALLOCA_H=alloca.h
   fi
 
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_btowc = no; then
+    HAVE_BTOWC=0
+  else
+
+
+
+         { $as_echo "$as_me:$LINENO: checking whether btowc(EOF) is correct" >&5
+$as_echo_n "checking whether btowc(EOF) is correct... " >&6; }
+if test "${gl_cv_func_btowc_eof+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                        case "$host_os" in
+                 # Guess no on IRIX.
+          irix*) gl_cv_func_btowc_eof="guessing no" ;;
+                 # Guess yes otherwise.
+          *)     gl_cv_func_btowc_eof="guessing yes" ;;
+        esac
+        if test $LOCALE_FR != none; then
+          if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR") != NULL)
+    {
+      if (btowc (EOF) != WEOF)
+        return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_btowc_eof=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_btowc_eof=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+        fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_btowc_eof" >&5
+$as_echo "$gl_cv_func_btowc_eof" >&6; }
+    case "$gl_cv_func_btowc_eof" in
+      *yes) ;;
+      *) REPLACE_BTOWC=1 ;;
+    esac
+  fi
+  if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
+
+
+  WCHAR_H=wchar.h
+
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS btowc.$ac_objext"
+
+
+  :
+
+  fi
+
+
+
+  GNULIB_BTOWC=1
 
   # No macro. You should also use one of fnmatch-posix or fnmatch-gnu.
 
@@ -26990,12 +27743,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBSIGSEGV_PREFIX="$basedir"
+                if test "$name" = 'sigsegv'; then
+                  LIBSIGSEGV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBSIGSEGV_PREFIX="$basedir"
+                if test "$name" = 'sigsegv'; then
+                  LIBSIGSEGV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -27687,6 +28444,659 @@ _ACEOF
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_mbsinit = yes && test $ac_cv_func_mbrtowc = yes; then
+
+
+
+     { $as_echo "$as_me:$LINENO: checking whether mbrtowc handles incomplete characters" >&5
+$as_echo_n "checking whether mbrtowc handles incomplete characters... " >&6; }
+if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                  case "$host_os" in
+              # Guess no on AIX and OSF/1.
+        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+      esac
+      if test $LOCALE_JA != none; then
+        if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      const char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        if (mbsinit (&state))
+          return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_mbrtowc_incomplete_state=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_mbrtowc_incomplete_state=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+      fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_mbrtowc_incomplete_state" >&5
+$as_echo "$gl_cv_func_mbrtowc_incomplete_state" >&6; }
+
+    case "$gl_cv_func_mbrtowc_incomplete_state" in
+      *yes) REPLACE_MBSTATE_T=0 ;;
+      *)    REPLACE_MBSTATE_T=1 ;;
+    esac
+  else
+    REPLACE_MBSTATE_T=1
+  fi
+  if test $REPLACE_MBSTATE_T = 1; then
+
+
+  WCHAR_H=wchar.h
+
+  fi
+
+  if test $REPLACE_MBSTATE_T = 1; then
+    REPLACE_MBRTOWC=1
+  fi
+
+
+
+
+
+
+  if test $ac_cv_func_mbrtowc = no; then
+    HAVE_MBRTOWC=0
+  fi
+  if test $HAVE_MBRTOWC != 0 && test $REPLACE_MBRTOWC != 1; then
+
+
+
+     { $as_echo "$as_me:$LINENO: checking whether mbrtowc handles a NULL string argument" >&5
+$as_echo_n "checking whether mbrtowc handles a NULL string argument... " >&6; }
+if test "${gl_cv_func_mbrtowc_null_arg+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                  case "$host_os" in
+              # Guess no on OSF/1.
+        osf*) gl_cv_func_mbrtowc_null_arg="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrtowc_null_arg="guessing yes" ;;
+      esac
+      if test $LOCALE_FR_UTF8 != none; then
+        if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      mbstate_t state;
+      wchar_t wc;
+      int ret;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      wc = (wchar_t) 0xBADFACE;
+      mbrtowc (&wc, NULL, 5, &state);
+      /* Check that wc was not modified.  */
+      if (wc != (wchar_t) 0xBADFACE)
+        return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_mbrtowc_null_arg=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_mbrtowc_null_arg=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+      fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_mbrtowc_null_arg" >&5
+$as_echo "$gl_cv_func_mbrtowc_null_arg" >&6; }
+
+
+
+
+
+     { $as_echo "$as_me:$LINENO: checking whether mbrtowc has a correct return value" >&5
+$as_echo_n "checking whether mbrtowc has a correct return value... " >&6; }
+if test "${gl_cv_func_mbrtowc_retval+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                  case "$host_os" in
+                          # Guess no on HP-UX and Solaris.
+        hpux* | solaris*) gl_cv_func_mbrtowc_retval="guessing no" ;;
+                          # Guess yes otherwise.
+        *)                gl_cv_func_mbrtowc_retval="guessing yes" ;;
+      esac
+      if test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none; then
+        if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This fails on Solaris.  */
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      char input[] = "B\303\274\303\237er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrtowc (&wc, input + 2, 5, &state) != 1)
+            return 1;
+        }
+    }
+  /* This fails on HP-UX 11.11.  */
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrtowc (&wc, input + 2, 5, &state) != 2)
+            return 1;
+        }
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_mbrtowc_retval=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_mbrtowc_retval=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+      fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_mbrtowc_retval" >&5
+$as_echo "$gl_cv_func_mbrtowc_retval" >&6; }
+
+
+
+
+     { $as_echo "$as_me:$LINENO: checking whether mbrtowc returns 0 when parsing a NUL character" >&5
+$as_echo_n "checking whether mbrtowc returns 0 when parsing a NUL character... " >&6; }
+if test "${gl_cv_func_mbrtowc_nul_retval+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                  case "$host_os" in
+                    # Guess no on Solaris 9.
+        solaris2.9) gl_cv_func_mbrtowc_nul_retval="guessing no" ;;
+                    # Guess yes otherwise.
+        *)          gl_cv_func_mbrtowc_nul_retval="guessing yes" ;;
+      esac
+      if test $LOCALE_ZH_CN != none; then
+        if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This fails on Solaris 9.  */
+  if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
+    {
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, "", 1, &state) != 0)
+        return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_mbrtowc_nul_retval=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_mbrtowc_nul_retval=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+      fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_mbrtowc_nul_retval" >&5
+$as_echo "$gl_cv_func_mbrtowc_nul_retval" >&6; }
+
+    case "$gl_cv_func_mbrtowc_null_arg" in
+      *yes) ;;
+      *)
+cat >>confdefs.h <<\_ACEOF
+#define MBRTOWC_NULL_ARG_BUG 1
+_ACEOF
+
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+    case "$gl_cv_func_mbrtowc_retval" in
+      *yes) ;;
+      *)
+cat >>confdefs.h <<\_ACEOF
+#define MBRTOWC_RETVAL_BUG 1
+_ACEOF
+
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+    case "$gl_cv_func_mbrtowc_nul_retval" in
+      *yes) ;;
+      *)
+cat >>confdefs.h <<\_ACEOF
+#define MBRTOWC_NUL_RETVAL_BUG 1
+_ACEOF
+
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+  fi
+  if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
+
+
+  WCHAR_H=wchar.h
+
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS mbrtowc.$ac_objext"
+
+
+  :
+
+  fi
+
+
+
+  GNULIB_MBRTOWC=1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_mbsinit = yes && test $ac_cv_func_mbrtowc = yes; then
+
+
+
+     { $as_echo "$as_me:$LINENO: checking whether mbrtowc handles incomplete characters" >&5
+$as_echo_n "checking whether mbrtowc handles incomplete characters... " >&6; }
+if test "${gl_cv_func_mbrtowc_incomplete_state+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                  case "$host_os" in
+              # Guess no on AIX and OSF/1.
+        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+      esac
+      if test $LOCALE_JA != none; then
+        if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      const char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        if (mbsinit (&state))
+          return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_mbrtowc_incomplete_state=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_mbrtowc_incomplete_state=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+      fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_mbrtowc_incomplete_state" >&5
+$as_echo "$gl_cv_func_mbrtowc_incomplete_state" >&6; }
+
+    case "$gl_cv_func_mbrtowc_incomplete_state" in
+      *yes) REPLACE_MBSTATE_T=0 ;;
+      *)    REPLACE_MBSTATE_T=1 ;;
+    esac
+  else
+    REPLACE_MBSTATE_T=1
+  fi
+  if test $REPLACE_MBSTATE_T = 1; then
+
+
+  WCHAR_H=wchar.h
+
+  fi
+
+  if test $REPLACE_MBSTATE_T = 1; then
+    REPLACE_MBSINIT=1
+  fi
+
+
+
+
+
+
+  if test $ac_cv_func_mbsinit = no; then
+    HAVE_MBSINIT=0
+  fi
+  if test $HAVE_MBSINIT = 0 || test $REPLACE_MBSINIT = 1; then
+
+
+  WCHAR_H=wchar.h
+
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS mbsinit.$ac_objext"
+
+
+  :
+
+  fi
+
+
+
+  GNULIB_MBSINIT=1
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Check whether --with-included-regex was given.
 if test "${with_included_regex+set}" = set; then
   withval=$with_included_regex;
@@ -28140,10 +29550,6 @@ _ACEOF
 fi
 
 done
-
-
-
-
 
 
 
@@ -28779,13 +30185,429 @@ done
 
 
 
+  if test $APPLE_UNIVERSAL_BUILD = 0; then
+
+
+
+
+  for gltype in ptrdiff_t size_t ; do
+    { $as_echo "$as_me:$LINENO: checking for bit size of $gltype" >&5
+$as_echo_n "checking for bit size of $gltype... " >&6; }
+if { as_var=gl_cv_bitsizeof_${gltype}; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  if test "$cross_compiling" = yes; then
+  # Depending upon the size, compute the lo and hi bounds.
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+int
+main ()
+{
+static int test_array [1 - 2 * !((sizeof ($gltype) * CHAR_BIT) >= 0)];
+test_array [0] = 0
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_lo=0 ac_mid=0
+  while :; do
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+int
+main ()
+{
+static int test_array [1 - 2 * !((sizeof ($gltype) * CHAR_BIT) <= $ac_mid)];
+test_array [0] = 0
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_hi=$ac_mid; break
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_lo=`expr $ac_mid + 1`
+			if test $ac_lo -le $ac_mid; then
+			  ac_lo= ac_hi=
+			  break
+			fi
+			ac_mid=`expr 2 '*' $ac_mid + 1`
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  done
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+int
+main ()
+{
+static int test_array [1 - 2 * !((sizeof ($gltype) * CHAR_BIT) < 0)];
+test_array [0] = 0
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_hi=-1 ac_mid=-1
+  while :; do
+    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+int
+main ()
+{
+static int test_array [1 - 2 * !((sizeof ($gltype) * CHAR_BIT) >= $ac_mid)];
+test_array [0] = 0
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_lo=$ac_mid; break
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_hi=`expr '(' $ac_mid ')' - 1`
+			if test $ac_mid -le $ac_hi; then
+			  ac_lo= ac_hi=
+			  break
+			fi
+			ac_mid=`expr 2 '*' $ac_mid`
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+  done
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_lo= ac_hi=
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+# Binary search between lo and hi bounds.
+while test "x$ac_lo" != "x$ac_hi"; do
+  ac_mid=`expr '(' $ac_hi - $ac_lo ')' / 2 + $ac_lo`
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+int
+main ()
+{
+static int test_array [1 - 2 * !((sizeof ($gltype) * CHAR_BIT) <= $ac_mid)];
+test_array [0] = 0
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  ac_hi=$ac_mid
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_lo=`expr '(' $ac_mid ')' + 1`
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+done
+case $ac_lo in
+?*) result=$ac_lo;;
+'') result=unknown ;;
+esac
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+#include <limits.h>
+static long int longval () { return sizeof ($gltype) * CHAR_BIT; }
+static unsigned long int ulongval () { return sizeof ($gltype) * CHAR_BIT; }
+#include <stdio.h>
+#include <stdlib.h>
+int
+main ()
+{
+
+  FILE *f = fopen ("conftest.val", "w");
+  if (! f)
+    return 1;
+  if ((sizeof ($gltype) * CHAR_BIT) < 0)
+    {
+      long int i = longval ();
+      if (i != (sizeof ($gltype) * CHAR_BIT))
+	return 1;
+      fprintf (f, "%ld", i);
+    }
+  else
+    {
+      unsigned long int i = ulongval ();
+      if (i != (sizeof ($gltype) * CHAR_BIT))
+	return 1;
+      fprintf (f, "%lu", i);
+    }
+  /* Do not output a trailing newline, as this causes \r\n confusion
+     on some platforms.  */
+  return ferror (f) || fclose (f) != 0;
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  result=`cat conftest.val`
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+result=unknown
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+rm -f conftest.val
+       eval gl_cv_bitsizeof_${gltype}=\$result
+
+fi
+ac_res=`eval 'as_val=${'gl_cv_bitsizeof_${gltype}'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+    eval result=\$gl_cv_bitsizeof_${gltype}
+    if test $result = unknown; then
+                                                result=0
+    fi
+    GLTYPE=`echo "$gltype" | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
+    cat >>confdefs.h <<_ACEOF
+#define BITSIZEOF_${GLTYPE} $result
+_ACEOF
+
+    eval BITSIZEOF_${GLTYPE}=\$result
+  done
+
+
+  fi
 
 
 
 
 
-
-  for gltype in ptrdiff_t sig_atomic_t size_t wchar_t wint_t ; do
+  for gltype in sig_atomic_t wchar_t wint_t ; do
     { $as_echo "$as_me:$LINENO: checking for bit size of $gltype" >&5
 $as_echo_n "checking for bit size of $gltype... " >&6; }
 if { as_var=gl_cv_bitsizeof_${gltype}; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -29283,14 +31105,115 @@ _ACEOF
 
   gl_cv_type_ptrdiff_t_signed=yes
   gl_cv_type_size_t_signed=no
+  if test $APPLE_UNIVERSAL_BUILD = 0; then
+
+
+
+
+  for gltype in ptrdiff_t size_t ; do
+    { $as_echo "$as_me:$LINENO: checking for $gltype integer literal suffix" >&5
+$as_echo_n "checking for $gltype integer literal suffix... " >&6; }
+if { as_var=gl_cv_type_${gltype}_suffix; eval "test \"\${$as_var+set}\" = set"; }; then
+  $as_echo_n "(cached) " >&6
+else
+  eval gl_cv_type_${gltype}_suffix=no
+       eval result=\$gl_cv_type_${gltype}_signed
+       if test "$result" = yes; then
+         glsufu=
+       else
+         glsufu=u
+       fi
+       for glsuf in "$glsufu" ${glsufu}l ${glsufu}ll ${glsufu}i64; do
+         case $glsuf in
+           '')  gltype1='int';;
+           l)	gltype1='long int';;
+           ll)	gltype1='long long int';;
+           i64)	gltype1='__int64';;
+           u)	gltype1='unsigned int';;
+           ul)	gltype1='unsigned long int';;
+           ull)	gltype1='unsigned long long int';;
+           ui64)gltype1='unsigned __int64';;
+         esac
+         cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+  /* BSD/OS 4.0.1 has a bug: <stddef.h>, <stdio.h> and <time.h> must be
+     included before <wchar.h>.  */
+  #include <stddef.h>
+  #include <signal.h>
+  #if HAVE_WCHAR_H
+  # include <stdio.h>
+  # include <time.h>
+  # include <wchar.h>
+  #endif
+
+              extern $gltype foo;
+              extern $gltype1 foo;
+int
+main ()
+{
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (ac_try="$ac_compile"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_compile") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest.$ac_objext; then
+  eval gl_cv_type_${gltype}_suffix=\$glsuf
+else
+  $as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+         eval result=\$gl_cv_type_${gltype}_suffix
+         test "$result" != no && break
+       done
+fi
+ac_res=`eval 'as_val=${'gl_cv_type_${gltype}_suffix'}
+		 $as_echo "$as_val"'`
+	       { $as_echo "$as_me:$LINENO: result: $ac_res" >&5
+$as_echo "$ac_res" >&6; }
+    GLTYPE=`echo $gltype | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
+    eval result=\$gl_cv_type_${gltype}_suffix
+    test "$result" = no && result=
+    eval ${GLTYPE}_SUFFIX=\$result
+    cat >>confdefs.h <<_ACEOF
+#define ${GLTYPE}_SUFFIX $result
+_ACEOF
+
+  done
+
+
+  fi
 
 
 
 
 
-
-
-  for gltype in ptrdiff_t sig_atomic_t size_t wchar_t wint_t ; do
+  for gltype in sig_atomic_t wchar_t wint_t ; do
     { $as_echo "$as_me:$LINENO: checking for $gltype integer literal suffix" >&5
 $as_echo_n "checking for $gltype integer literal suffix... " >&6; }
 if { as_var=gl_cv_type_${gltype}_suffix; eval "test \"\${$as_var+set}\" = set"; }; then
@@ -29789,6 +31712,151 @@ $as_echo "$gl_cv_next_wchar_h" >&6; }
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_func_wcrtomb = no; then
+    HAVE_WCRTOMB=0
+  else
+
+
+
+
+
+
+         { $as_echo "$as_me:$LINENO: checking whether wcrtomb return value is correct" >&5
+$as_echo_n "checking whether wcrtomb return value is correct... " >&6; }
+if test "${gl_cv_func_wcrtomb_retval+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+                        case "$host_os" in
+                           # Guess no on OSF/1 and Solaris.
+          osf* | solaris*) gl_cv_func_wcrtomb_retval="guessing no" ;;
+                           # Guess yes otherwise.
+          *)               gl_cv_func_wcrtomb_retval="guessing yes" ;;
+        esac
+        if test $LOCALE_FR != none || test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
+          if test "$cross_compiling" = yes; then
+  { { $as_echo "$as_me:$LINENO: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&5
+$as_echo "$as_me: error: cannot run test program while cross compiling
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  return 0;
+}
+_ACEOF
+rm -f conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_link") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && { ac_try='./conftest$ac_exeext'
+  { (case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval ac_try_echo="\"\$as_me:$LINENO: $ac_try_echo\""
+$as_echo "$ac_try_echo") >&5
+  (eval "$ac_try") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  gl_cv_func_wcrtomb_retval=yes
+else
+  $as_echo "$as_me: program exited with status $ac_status" >&5
+$as_echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+( exit $ac_status )
+gl_cv_func_wcrtomb_retval=no
+fi
+rm -rf conftest.dSYM
+rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$ac_objext conftest.$ac_ext
+fi
+
+
+        fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_func_wcrtomb_retval" >&5
+$as_echo "$gl_cv_func_wcrtomb_retval" >&6; }
+    case "$gl_cv_func_wcrtomb_retval" in
+      *yes) ;;
+      *) REPLACE_WCRTOMB=1 ;;
+    esac
+  fi
+  if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
+
+
+  WCHAR_H=wchar.h
+
+
+
+
+
+
+
+
+
+  gl_LIBOBJS="$gl_LIBOBJS wcrtomb.$ac_objext"
+
+
+  :
+
+  fi
+
+
+
+  GNULIB_WCRTOMB=1
 
 
 
@@ -30300,12 +32368,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBICONV_PREFIX="$basedir"
+                if test "$name" = 'iconv'; then
+                  LIBICONV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBICONV_PREFIX="$basedir"
+                if test "$name" = 'iconv'; then
+                  LIBICONV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -31985,12 +34057,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBINTL_PREFIX="$basedir"
+                if test "$name" = 'intl'; then
+                  LIBINTL_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBINTL_PREFIX="$basedir"
+                if test "$name" = 'intl'; then
+                  LIBINTL_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -32689,12 +34765,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBSIGSEGV_PREFIX="$basedir"
+                if test "$name" = 'sigsegv'; then
+                  LIBSIGSEGV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBSIGSEGV_PREFIX="$basedir"
+                if test "$name" = 'sigsegv'; then
+                  LIBSIGSEGV_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -33289,12 +35369,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBAVCALL_PREFIX="$basedir"
+                if test "$name" = 'avcall'; then
+                  LIBAVCALL_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBAVCALL_PREFIX="$basedir"
+                if test "$name" = 'avcall'; then
+                  LIBAVCALL_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -33798,12 +35882,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBCALLBACK_PREFIX="$basedir"
+                if test "$name" = 'callback'; then
+                  LIBCALLBACK_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBCALLBACK_PREFIX="$basedir"
+                if test "$name" = 'callback'; then
+                  LIBCALLBACK_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -49912,12 +52000,16 @@ fi
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIBREADLINE_PREFIX="$basedir"
+                if test "$name" = 'readline'; then
+                  LIBREADLINE_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIBREADLINE_PREFIX="$basedir"
+                if test "$name" = 'readline'; then
+                  LIBREADLINE_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac

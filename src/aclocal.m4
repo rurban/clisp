@@ -900,8 +900,8 @@ AC_SUBST([am__tar])
 AC_SUBST([am__untar])
 ]) # _AM_PROG_TAR
 
-# alloca.m4 serial 8
-dnl Copyright (C) 2002-2004, 2006, 2007 Free Software Foundation, Inc.
+# alloca.m4 serial 9
+dnl Copyright (C) 2002-2004, 2006, 2007, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -928,7 +928,7 @@ AC_DEFUN([gl_FUNC_ALLOCA],
     ])
     if test $gl_cv_rpl_alloca = yes; then
       dnl OK, alloca can be implemented through a compiler built-in.
-      AC_DEFINE([HAVE_ALLOCA], 1,
+      AC_DEFINE([HAVE_ALLOCA], [1],
         [Define to 1 if you have 'alloca' after including <alloca.h>,
          a header that may be supplied by this distribution.])
       ALLOCA_H=alloca.h
@@ -947,8 +947,77 @@ AC_DEFUN([gl_FUNC_ALLOCA],
 # STACK_DIRECTION is already handled by AC_FUNC_ALLOCA.
 AC_DEFUN([gl_PREREQ_ALLOCA], [:])
 
-# codeset.m4 serial 2 (gettext-0.16)
-dnl Copyright (C) 2000-2002, 2006 Free Software Foundation, Inc.
+# btowc.m4 serial 3
+dnl Copyright (C) 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_BTOWC],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_CHECK_FUNCS_ONCE([btowc])
+  if test $ac_cv_func_btowc = no; then
+    HAVE_BTOWC=0
+  else
+
+    dnl IRIX 6.5 btowc(EOF) is 0xFF, not WEOF.
+    AC_REQUIRE([AC_PROG_CC])
+    AC_REQUIRE([gt_LOCALE_FR])
+    AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+    AC_CACHE_CHECK([whether btowc(EOF) is correct],
+      [gl_cv_func_btowc_eof],
+      [
+        dnl Initial guess, used when cross-compiling or when no suitable locale
+        dnl is present.
+changequote(,)dnl
+        case "$host_os" in
+                 # Guess no on IRIX.
+          irix*) gl_cv_func_btowc_eof="guessing no" ;;
+                 # Guess yes otherwise.
+          *)     gl_cv_func_btowc_eof="guessing yes" ;;
+        esac
+changequote([,])dnl
+        if test $LOCALE_FR != none; then
+          AC_TRY_RUN([
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR") != NULL)
+    {
+      if (btowc (EOF) != WEOF)
+        return 1;
+    }
+  return 0;
+}],
+            [gl_cv_func_btowc_eof=yes],
+            [gl_cv_func_btowc_eof=no],
+            [])
+        fi
+      ])
+    case "$gl_cv_func_btowc_eof" in
+      *yes) ;;
+      *) REPLACE_BTOWC=1 ;;
+    esac
+  fi
+  if test $HAVE_BTOWC = 0 || test $REPLACE_BTOWC = 1; then
+    gl_REPLACE_WCHAR_H
+    AC_LIBOBJ([btowc])
+    gl_PREREQ_BTOWC
+  fi
+])
+
+# Prerequisites of lib/btowc.c.
+AC_DEFUN([gl_PREREQ_BTOWC], [
+  :
+])
+
+# codeset.m4 serial 4 (gettext-0.18)
+dnl Copyright (C) 2000-2002, 2006, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -957,19 +1026,19 @@ dnl From Bruno Haible.
 
 AC_DEFUN([AM_LANGINFO_CODESET],
 [
-  AC_CACHE_CHECK([for nl_langinfo and CODESET], am_cv_langinfo_codeset,
+  AC_CACHE_CHECK([for nl_langinfo and CODESET], [am_cv_langinfo_codeset],
     [AC_TRY_LINK([#include <langinfo.h>],
       [char* cs = nl_langinfo(CODESET); return !cs;],
-      am_cv_langinfo_codeset=yes,
-      am_cv_langinfo_codeset=no)
+      [am_cv_langinfo_codeset=yes],
+      [am_cv_langinfo_codeset=no])
     ])
   if test $am_cv_langinfo_codeset = yes; then
-    AC_DEFINE(HAVE_LANGINFO_CODESET, 1,
+    AC_DEFINE([HAVE_LANGINFO_CODESET], [1],
       [Define if you have <langinfo.h> and nl_langinfo(CODESET).])
   fi
 ])
 
-# serial 5  -*- Autoconf -*-
+# serial 6  -*- Autoconf -*-
 # Enable extensions on systems that normally disable them.
 
 # Copyright (C) 2003, 2006-2008 Free Software Foundation, Inc.
@@ -995,6 +1064,8 @@ AC_DEFUN([AC_USE_SYSTEM_EXTENSIONS],
 [AC_BEFORE([$0], [AC_COMPILE_IFELSE])dnl
 AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
 
+  AC_REQUIRE([AC_CANONICAL_HOST])
+
   AC_CHECK_HEADER([minix/config.h], [MINIX=yes], [MINIX=])
   if test "$MINIX" = yes; then
     AC_DEFINE([_POSIX_SOURCE], [1],
@@ -1006,6 +1077,16 @@ AC_BEFORE([$0], [AC_RUN_IFELSE])dnl
     AC_DEFINE([_MINIX], [1],
       [Define to 1 if on MINIX.])
   fi
+
+  dnl HP-UX 11.11 defines mbstate_t only if _XOPEN_SOURCE is defined to 500,
+  dnl regardless of whether the flags -Ae or _D_HPUX_SOURCE=1 are already
+  dnl provided.
+  case "$host_os" in
+    hpux*)
+      AC_DEFINE([_XOPEN_SOURCE], [500],
+        [Define to 500 only on HP-UX.])
+      ;;
+  esac
 
   AH_VERBATIM([__EXTENSIONS__],
 [/* Enable extensions on AIX 3, Interix.  */
@@ -1054,8 +1135,7 @@ AC_DEFUN([gl_USE_SYSTEM_EXTENSIONS],
 
 # Check for fnmatch - serial 2.
 
-# Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007 Free Software
-# Foundation, Inc.
+# Copyright (C) 2000-2007, 2009 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -1063,7 +1143,7 @@ AC_DEFUN([gl_USE_SYSTEM_EXTENSIONS],
 # Autoconf defines AC_FUNC_FNMATCH, but that is obsolescent.
 # New applications should use the macros below instead.
 
-# _AC_FUNC_FNMATCH_IF(STANDARD = GNU | POSIX, CACHE_VAR, IF-TRUE, IF-FALSE)
+# _AC_FUNC_FNMATCH_IF([STANDARD = GNU | POSIX], [CACHE_VAR], [IF-TRUE], [IF-FALSE])
 # -------------------------------------------------------------------------
 # If a STANDARD compliant fnmatch is found, run IF-TRUE, otherwise
 # IF-FALSE.  Use CACHE_VAR.
@@ -1180,8 +1260,8 @@ AC_DEFUN([gl_FUNC_FNMATCH_GNU],
   AC_SUBST([FNMATCH_H])
 ])
 
-# gettext.m4 serial 60 (gettext-0.17)
-dnl Copyright (C) 1995-2007 Free Software Foundation, Inc.
+# gettext.m4 serial 62 (gettext-0.18)
+dnl Copyright (C) 1995-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -1305,11 +1385,11 @@ AC_DEFUN([AM_GNU_GETTEXT],
     gt_use_preinstalled_gnugettext=no
     ifelse(gt_included_intl, yes, [
       AC_MSG_CHECKING([whether included gettext is requested])
-      AC_ARG_WITH(included-gettext,
+      AC_ARG_WITH([included-gettext],
         [  --with-included-gettext use the GNU gettext library included here],
         nls_cv_force_use_gnu_gettext=$withval,
         nls_cv_force_use_gnu_gettext=no)
-      AC_MSG_RESULT($nls_cv_force_use_gnu_gettext)
+      AC_MSG_RESULT([$nls_cv_force_use_gnu_gettext])
 
       nls_cv_use_gnu_gettext="$nls_cv_force_use_gnu_gettext"
       if test "$nls_cv_force_use_gnu_gettext" != "yes"; then
@@ -1449,7 +1529,7 @@ return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_a
 
     if test "$gt_use_preinstalled_gnugettext" = "yes" \
        || test "$nls_cv_use_gnu_gettext" = "yes"; then
-      AC_DEFINE(ENABLE_NLS, 1,
+      AC_DEFINE([ENABLE_NLS], [1],
         [Define to 1 if translation of program messages to the user's native language
    is requested.])
     else
@@ -1483,9 +1563,9 @@ return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_a
       fi
 
       dnl For backward compatibility. Some packages may be using this.
-      AC_DEFINE(HAVE_GETTEXT, 1,
+      AC_DEFINE([HAVE_GETTEXT], [1],
        [Define if the GNU gettext() function is already present or preinstalled.])
-      AC_DEFINE(HAVE_DCGETTEXT, 1,
+      AC_DEFINE([HAVE_DCGETTEXT], [1],
        [Define if the GNU dcgettext() function is already present or preinstalled.])
     fi
 
@@ -1501,9 +1581,9 @@ return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_a
     fi
 
     dnl Make all variables we use known to autoconf.
-    AC_SUBST(BUILD_INCLUDED_LIBINTL)
-    AC_SUBST(USE_INCLUDED_LIBINTL)
-    AC_SUBST(CATOBJEXT)
+    AC_SUBST([BUILD_INCLUDED_LIBINTL])
+    AC_SUBST([USE_INCLUDED_LIBINTL])
+    AC_SUBST([CATOBJEXT])
 
     dnl For backward compatibility. Some configure.ins may be using this.
     nls_cv_header_intl=
@@ -1511,36 +1591,36 @@ return * gettext ("")$gt_expression_test_code + _nl_msg_cat_cntr + *_nl_expand_a
 
     dnl For backward compatibility. Some Makefiles may be using this.
     DATADIRNAME=share
-    AC_SUBST(DATADIRNAME)
+    AC_SUBST([DATADIRNAME])
 
     dnl For backward compatibility. Some Makefiles may be using this.
     INSTOBJEXT=.mo
-    AC_SUBST(INSTOBJEXT)
+    AC_SUBST([INSTOBJEXT])
 
     dnl For backward compatibility. Some Makefiles may be using this.
     GENCAT=gencat
-    AC_SUBST(GENCAT)
+    AC_SUBST([GENCAT])
 
     dnl For backward compatibility. Some Makefiles may be using this.
     INTLOBJS=
     if test "$USE_INCLUDED_LIBINTL" = yes; then
       INTLOBJS="\$(GETTOBJS)"
     fi
-    AC_SUBST(INTLOBJS)
+    AC_SUBST([INTLOBJS])
 
     dnl Enable libtool support if the surrounding package wishes it.
     INTL_LIBTOOL_SUFFIX_PREFIX=gt_libtool_suffix_prefix
-    AC_SUBST(INTL_LIBTOOL_SUFFIX_PREFIX)
+    AC_SUBST([INTL_LIBTOOL_SUFFIX_PREFIX])
   ])
 
   dnl For backward compatibility. Some Makefiles may be using this.
   INTLLIBS="$LIBINTL"
-  AC_SUBST(INTLLIBS)
+  AC_SUBST([INTLLIBS])
 
   dnl Make all documented variables known to autoconf.
-  AC_SUBST(LIBINTL)
-  AC_SUBST(LTLIBINTL)
-  AC_SUBST(POSUB)
+  AC_SUBST([LIBINTL])
+  AC_SUBST([LTLIBINTL])
+  AC_SUBST([POSUB])
 ])
 
 
@@ -1562,9 +1642,9 @@ AC_DEFUN([AM_GNU_GETTEXT_NEED],
 dnl Usage: AM_GNU_GETTEXT_VERSION([gettext-version])
 AC_DEFUN([AM_GNU_GETTEXT_VERSION], [])
 
-#serial 11
+# serial 12
 
-# Copyright (C) 2001, 2002, 2003, 2005, 2007 Free Software Foundation, Inc.
+# Copyright (C) 2001-2003, 2005, 2007, 2009 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -1598,7 +1678,7 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY],
     REPLACE_GETTIMEOFDAY=1
     SYS_TIME_H=sys/time.h
     if test $gl_cv_func_gettimeofday_clobber != yes; then
-      AC_LIBOBJ(gettimeofday)
+      AC_LIBOBJ([gettimeofday])
       gl_PREREQ_GETTIMEOFDAY
     fi
   fi
@@ -1644,13 +1724,13 @@ AC_DEFUN([gl_FUNC_GETTIMEOFDAY_CLOBBER],
    REPLACE_GETTIMEOFDAY=1
    SYS_TIME_H=sys/time.h
    gl_GETTIMEOFDAY_REPLACE_LOCALTIME
-   AC_DEFINE([GETTIMEOFDAY_CLOBBERS_LOCALTIME], 1,
+   AC_DEFINE([GETTIMEOFDAY_CLOBBERS_LOCALTIME], [1],
      [Define if gettimeofday clobbers the localtime buffer.])
  fi
 ])
 
 AC_DEFUN([gl_GETTIMEOFDAY_REPLACE_LOCALTIME], [
-  AC_LIBOBJ(gettimeofday)
+  AC_LIBOBJ([gettimeofday])
   gl_PREREQ_GETTIMEOFDAY
   AC_DEFINE([gmtime], [rpl_gmtime],
     [Define to rpl_gmtime if the replacement function should be used.])
@@ -1664,8 +1744,8 @@ AC_DEFUN([gl_PREREQ_GETTIMEOFDAY], [
   AC_CHECK_FUNCS([_ftime])
 ])
 
-# glibc21.m4 serial 3
-dnl Copyright (C) 2000-2002, 2004 Free Software Foundation, Inc.
+# glibc21.m4 serial 4
+dnl Copyright (C) 2000-2002, 2004, 2008 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -1675,8 +1755,8 @@ dnl with or without modifications, as long as this notice is preserved.
 
 AC_DEFUN([gl_GLIBC21],
   [
-    AC_CACHE_CHECK(whether we are using the GNU C Library 2.1 or newer,
-      ac_cv_gnu_library_2_1,
+    AC_CACHE_CHECK([whether we are using the GNU C Library 2.1 or newer],
+      [ac_cv_gnu_library_2_1],
       [AC_EGREP_CPP([Lucky GNU user],
 	[
 #include <features.h>
@@ -1686,11 +1766,11 @@ AC_DEFUN([gl_GLIBC21],
  #endif
 #endif
 	],
-	ac_cv_gnu_library_2_1=yes,
-	ac_cv_gnu_library_2_1=no)
+	[ac_cv_gnu_library_2_1=yes],
+	[ac_cv_gnu_library_2_1=no])
       ]
     )
-    AC_SUBST(GLIBC21)
+    AC_SUBST([GLIBC21])
     GLIBC21="$ac_cv_gnu_library_2_1"
   ]
 )
@@ -1715,8 +1795,8 @@ AC_DEFUN([gl_GNU_MAKE],
     [${MAKE-make} --version /cannot/make/this >/dev/null 2>&1])
 ])
 
-# gnulib-common.m4 serial 6
-dnl Copyright (C) 2007-2008 Free Software Foundation, Inc.
+# gnulib-common.m4 serial 7
+dnl Copyright (C) 2007-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -1780,7 +1860,7 @@ m4_ifdef([AC_PROG_MKDIR_P], [], [
 # works.
 # This definition can be removed once autoconf >= 2.62 can be assumed.
 AC_DEFUN([AC_C_RESTRICT],
-[AC_CACHE_CHECK([for C/C++ restrict keyword], ac_cv_c_restrict,
+[AC_CACHE_CHECK([for C/C++ restrict keyword], [ac_cv_c_restrict],
   [ac_cv_c_restrict=no
    # The order here caters to the fact that C++ does not require restrict.
    for ac_kw in __restrict __restrict__ _Restrict restrict; do
@@ -1818,7 +1898,7 @@ AC_DEFUN([AC_C_RESTRICT],
 ])
 
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -1867,6 +1947,8 @@ LTALLOCA=`echo "$ALLOCA" | sed 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
 changequote([, ])dnl
 AC_SUBST([LTALLOCA])
   gl_FUNC_ALLOCA
+  gl_FUNC_BTOWC
+  gl_WCHAR_MODULE_INDICATOR([btowc])
   # No macro. You should also use one of fnmatch-posix or fnmatch-gnu.
   gl_FUNC_FNMATCH_GNU
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
@@ -1884,6 +1966,11 @@ AC_SUBST([LTALLOCA])
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gl_FUNC_MBRTOWC
+  gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+  gl_FUNC_MBSINIT
+  gl_WCHAR_MODULE_INDICATOR([mbsinit])
+  gl_MULTIARCH
   gl_REGEX
   gt_TYPE_SSIZE_T
   AM_STDBOOL_H
@@ -1893,6 +1980,8 @@ AC_SUBST([LTALLOCA])
   AC_PROG_MKDIR_P
   gl_UNISTD_H
   gl_WCHAR_H
+  gl_FUNC_WCRTOMB
+  gl_WCHAR_MODULE_INDICATOR([wcrtomb])
   gl_WCTYPE_H
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -2026,6 +2115,7 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/link-warning.h
   lib/alloca.c
   lib/alloca.in.h
+  lib/btowc.c
   lib/config.charset
   lib/fnmatch.c
   lib/fnmatch.in.h
@@ -2035,6 +2125,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/localcharset.c
   lib/localcharset.h
   lib/malloc.c
+  lib/mbrtowc.c
+  lib/mbsinit.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -2057,9 +2149,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
+  lib/verify.h
   lib/wchar.in.h
+  lib/wcrtomb.c
   lib/wctype.in.h
   m4/alloca.m4
+  m4/btowc.m4
   m4/codeset.m4
   m4/extensions.m4
   m4/fnmatch.m4
@@ -2085,10 +2180,16 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/libsigsegv.m4
   m4/link-follow.m4
   m4/localcharset.m4
+  m4/locale-fr.m4
+  m4/locale-ja.m4
+  m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
   m4/malloc.m4
+  m4/mbrtowc.m4
+  m4/mbsinit.m4
   m4/mbstate_t.m4
+  m4/multiarch.m4
   m4/nls.m4
   m4/nocrash.m4
   m4/po.m4
@@ -2108,13 +2209,14 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/visibility.m4
   m4/wchar.m4
   m4/wchar_t.m4
+  m4/wcrtomb.m4
   m4/wctype.m4
   m4/wint_t.m4
   m4/xsize.m4
 ])
 
-# iconv.m4 serial AM6 (gettext-0.17)
-dnl Copyright (C) 2000-2002, 2007 Free Software Foundation, Inc.
+# iconv.m4 serial AM7 (gettext-0.18)
+dnl Copyright (C) 2000-2002, 2007-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2149,7 +2251,7 @@ AC_DEFUN([AM_ICONV_LINK],
   am_save_CPPFLAGS="$CPPFLAGS"
   AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCICONV])
 
-  AC_CACHE_CHECK([for iconv], am_cv_func_iconv, [
+  AC_CACHE_CHECK([for iconv], [am_cv_func_iconv], [
     am_cv_func_iconv="no, consider installing GNU libiconv"
     am_cv_lib_iconv=no
     AC_TRY_LINK([#include <stdlib.h>
@@ -2157,7 +2259,7 @@ AC_DEFUN([AM_ICONV_LINK],
       [iconv_t cd = iconv_open("","");
        iconv(cd,NULL,NULL,NULL,NULL);
        iconv_close(cd);],
-      am_cv_func_iconv=yes)
+      [am_cv_func_iconv=yes])
     if test "$am_cv_func_iconv" != yes; then
       am_save_LIBS="$LIBS"
       LIBS="$LIBS $LIBICONV"
@@ -2166,13 +2268,13 @@ AC_DEFUN([AM_ICONV_LINK],
         [iconv_t cd = iconv_open("","");
          iconv(cd,NULL,NULL,NULL,NULL);
          iconv_close(cd);],
-        am_cv_lib_iconv=yes
-        am_cv_func_iconv=yes)
+        [am_cv_lib_iconv=yes]
+        [am_cv_func_iconv=yes])
       LIBS="$am_save_LIBS"
     fi
   ])
   if test "$am_cv_func_iconv" = yes; then
-    AC_CACHE_CHECK([for working iconv], am_cv_func_iconv_works, [
+    AC_CACHE_CHECK([for working iconv], [am_cv_func_iconv_works], [
       dnl This tests against bugs in AIX 5.1 and HP-UX 11.11.
       am_save_LIBS="$LIBS"
       if test $am_cv_lib_iconv = yes; then
@@ -2249,7 +2351,7 @@ int main ()
     am_func_iconv=no am_cv_lib_iconv=no
   fi
   if test "$am_func_iconv" = yes; then
-    AC_DEFINE(HAVE_ICONV, 1,
+    AC_DEFINE([HAVE_ICONV], [1],
       [Define if you have the iconv() function and it works.])
   fi
   if test "$am_cv_lib_iconv" = yes; then
@@ -2262,8 +2364,8 @@ int main ()
     LIBICONV=
     LTLIBICONV=
   fi
-  AC_SUBST(LIBICONV)
-  AC_SUBST(LTLIBICONV)
+  AC_SUBST([LIBICONV])
+  AC_SUBST([LTLIBICONV])
 ])
 
 AC_DEFUN([AM_ICONV],
@@ -2271,7 +2373,7 @@ AC_DEFUN([AM_ICONV],
   AM_ICONV_LINK
   if test "$am_cv_func_iconv" = yes; then
     AC_MSG_CHECKING([for iconv declaration])
-    AC_CACHE_VAL(am_cv_proto_iconv, [
+    AC_CACHE_VAL([am_cv_proto_iconv], [
       AC_TRY_COMPILE([
 #include <stdlib.h>
 #include <iconv.h>
@@ -2284,12 +2386,12 @@ size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, si
 #else
 size_t iconv();
 #endif
-], [], am_cv_proto_iconv_arg1="", am_cv_proto_iconv_arg1="const")
+], [], [am_cv_proto_iconv_arg1=""], [am_cv_proto_iconv_arg1="const"])
       am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"])
     am_cv_proto_iconv=`echo "[$]am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
-    AC_MSG_RESULT([$]{ac_t:-
-         }[$]am_cv_proto_iconv)
-    AC_DEFINE_UNQUOTED(ICONV_CONST, $am_cv_proto_iconv_arg1,
+    AC_MSG_RESULT([${ac_t:-
+         }$am_cv_proto_iconv])
+    AC_DEFINE_UNQUOTED([ICONV_CONST], [$am_cv_proto_iconv_arg1],
       [Define as const if the declaration of iconv() needs const.])
   fi
 ])
@@ -2465,8 +2567,8 @@ AC_DEFUN([gl_CHECK_NEXT_HEADERS],
      AS_VAR_POPDEF([gl_next_header])])
 ])
 
-# intlmacosx.m4 serial 1 (gettext-0.17)
-dnl Copyright (C) 2004-2007 Free Software Foundation, Inc.
+# intlmacosx.m4 serial 3 (gettext-0.18)
+dnl Copyright (C) 2004-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2486,7 +2588,7 @@ AC_DEFUN([gt_INTL_MACOSX],
 [
   dnl Check for API introduced in MacOS X 10.2.
   AC_CACHE_CHECK([for CFPreferencesCopyAppValue],
-    gt_cv_func_CFPreferencesCopyAppValue,
+    [gt_cv_func_CFPreferencesCopyAppValue],
     [gt_save_LIBS="$LIBS"
      LIBS="$LIBS -Wl,-framework -Wl,CoreFoundation"
      AC_TRY_LINK([#include <CoreFoundation/CFPreferences.h>],
@@ -2495,11 +2597,11 @@ AC_DEFUN([gt_INTL_MACOSX],
        [gt_cv_func_CFPreferencesCopyAppValue=no])
      LIBS="$gt_save_LIBS"])
   if test $gt_cv_func_CFPreferencesCopyAppValue = yes; then
-    AC_DEFINE([HAVE_CFPREFERENCESCOPYAPPVALUE], 1,
+    AC_DEFINE([HAVE_CFPREFERENCESCOPYAPPVALUE], [1],
       [Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in the CoreFoundation framework.])
   fi
   dnl Check for API introduced in MacOS X 10.3.
-  AC_CACHE_CHECK([for CFLocaleCopyCurrent], gt_cv_func_CFLocaleCopyCurrent,
+  AC_CACHE_CHECK([for CFLocaleCopyCurrent], [gt_cv_func_CFLocaleCopyCurrent],
     [gt_save_LIBS="$LIBS"
      LIBS="$LIBS -Wl,-framework -Wl,CoreFoundation"
      AC_TRY_LINK([#include <CoreFoundation/CFLocale.h>], [CFLocaleCopyCurrent();],
@@ -2507,7 +2609,7 @@ AC_DEFUN([gt_INTL_MACOSX],
        [gt_cv_func_CFLocaleCopyCurrent=no])
      LIBS="$gt_save_LIBS"])
   if test $gt_cv_func_CFLocaleCopyCurrent = yes; then
-    AC_DEFINE([HAVE_CFLOCALECOPYCURRENT], 1,
+    AC_DEFINE([HAVE_CFLOCALECOPYCURRENT], [1],
       [Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the CoreFoundation framework.])
   fi
   INTL_MACOSX_LIBS=
@@ -2517,8 +2619,8 @@ AC_DEFUN([gt_INTL_MACOSX],
   AC_SUBST([INTL_MACOSX_LIBS])
 ])
 
-# lcmessage.m4 serial 4 (gettext-0.14.2)
-dnl Copyright (C) 1995-2002, 2004-2005 Free Software Foundation, Inc.
+# lcmessage.m4 serial 6 (gettext-0.18)
+dnl Copyright (C) 1995-2002, 2004-2005, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2539,17 +2641,17 @@ dnl   Ulrich Drepper <drepper@cygnus.com>, 1995.
 
 AC_DEFUN([gt_LC_MESSAGES],
 [
-  AC_CACHE_CHECK([for LC_MESSAGES], gt_cv_val_LC_MESSAGES,
+  AC_CACHE_CHECK([for LC_MESSAGES], [gt_cv_val_LC_MESSAGES],
     [AC_TRY_LINK([#include <locale.h>], [return LC_MESSAGES],
-       gt_cv_val_LC_MESSAGES=yes, gt_cv_val_LC_MESSAGES=no)])
+       [gt_cv_val_LC_MESSAGES=yes], [gt_cv_val_LC_MESSAGES=no])])
   if test $gt_cv_val_LC_MESSAGES = yes; then
-    AC_DEFINE(HAVE_LC_MESSAGES, 1,
+    AC_DEFINE([HAVE_LC_MESSAGES], [1],
       [Define if your <locale.h> file defines LC_MESSAGES.])
   fi
 ])
 
-# lib-ld.m4 serial 3 (gettext-0.13)
-dnl Copyright (C) 1996-2003 Free Software Foundation, Inc.
+# lib-ld.m4 serial 4 (gettext-0.18)
+dnl Copyright (C) 1996-2003, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -2560,7 +2662,7 @@ dnl with libtool.m4.
 
 dnl From libtool-1.4. Sets the variable with_gnu_ld to yes or no.
 AC_DEFUN([AC_LIB_PROG_LD_GNU],
-[AC_CACHE_CHECK([if the linker ($LD) is GNU ld], acl_cv_prog_gnu_ld,
+[AC_CACHE_CHECK([if the linker ($LD) is GNU ld], [acl_cv_prog_gnu_ld],
 [# I'd rather use --version here, but apparently some GNU ld's only accept -v.
 case `$LD -v 2>&1 </dev/null` in
 *GNU* | *'with BFD'*)
@@ -2573,7 +2675,7 @@ with_gnu_ld=$acl_cv_prog_gnu_ld
 
 dnl From libtool-1.4. Sets the variable LD.
 AC_DEFUN([AC_LIB_PROG_LD],
-[AC_ARG_WITH(gnu-ld,
+[AC_ARG_WITH([gnu-ld],
 [  --with-gnu-ld           assume the C compiler uses GNU ld [default=no]],
 test "$withval" = no || with_gnu_ld=yes, with_gnu_ld=no)
 AC_REQUIRE([AC_PROG_CC])dnl
@@ -2627,7 +2729,7 @@ elif test "$with_gnu_ld" = yes; then
 else
   AC_MSG_CHECKING([for non-GNU ld])
 fi
-AC_CACHE_VAL(acl_cv_path_LD,
+AC_CACHE_VAL([acl_cv_path_LD],
 [if test -z "$LD"; then
   IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS="${IFS}${PATH_SEPARATOR-:}"
   for ac_dir in $PATH; do
@@ -2651,23 +2753,23 @@ else
 fi])
 LD="$acl_cv_path_LD"
 if test -n "$LD"; then
-  AC_MSG_RESULT($LD)
+  AC_MSG_RESULT([$LD])
 else
-  AC_MSG_RESULT(no)
+  AC_MSG_RESULT([no])
 fi
 test -z "$LD" && AC_MSG_ERROR([no acceptable ld found in \$PATH])
 AC_LIB_PROG_LD_GNU
 ])
 
-# lib-link.m4 serial 16 (gettext-0.18)
-dnl Copyright (C) 2001-2008 Free Software Foundation, Inc.
+# lib-link.m4 serial 18 (gettext-0.18)
+dnl Copyright (C) 2001-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Bruno Haible.
 
-AC_PREREQ(2.54)
+AC_PREREQ([2.54])
 
 dnl AC_LIB_LINKFLAGS(name [, dependencies]) searches for libname and
 dnl the libraries corresponding to explicit and implicit dependencies.
@@ -2775,7 +2877,7 @@ AC_DEFUN([AC_LIB_RPATH],
   AC_REQUIRE([AC_LIB_PROG_LD])            dnl we use $LD, $with_gnu_ld
   AC_REQUIRE([AC_CANONICAL_HOST])         dnl we use $host
   AC_REQUIRE([AC_CONFIG_AUX_DIR_DEFAULT]) dnl we use $ac_aux_dir
-  AC_CACHE_CHECK([for shared library run path origin], acl_cv_rpath, [
+  AC_CACHE_CHECK([for shared library run path origin], [acl_cv_rpath], [
     CC="$CC" GCC="$GCC" LDFLAGS="$LDFLAGS" LD="$LD" with_gnu_ld="$with_gnu_ld" \
     ${CONFIG_SHELL-/bin/sh} "$ac_aux_dir/config.rpath" "$host" > conftest.sh
     . ./conftest.sh
@@ -2792,7 +2894,7 @@ AC_DEFUN([AC_LIB_RPATH],
   acl_hardcode_direct="$acl_cv_hardcode_direct"
   acl_hardcode_minus_L="$acl_cv_hardcode_minus_L"
   dnl Determine whether the user wants rpath handling at all.
-  AC_ARG_ENABLE(rpath,
+  AC_ARG_ENABLE([rpath],
     [  --disable-rpath         do not hardcode runtime library paths],
     :, enable_rpath=yes)
 ])
@@ -3107,12 +3209,16 @@ AC_DEFUN([AC_LIB_LINKFLAGS_BODY],
             case "$found_dir" in
               */$acl_libdirstem | */$acl_libdirstem/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem/"'*$,,'`
-                LIB[]NAME[]_PREFIX="$basedir"
+                if test "$name" = '$1'; then
+                  LIB[]NAME[]_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
               */$acl_libdirstem2 | */$acl_libdirstem2/)
                 basedir=`echo "X$found_dir" | sed -e 's,^X,,' -e "s,/$acl_libdirstem2/"'*$,,'`
-                LIB[]NAME[]_PREFIX="$basedir"
+                if test "$name" = '$1'; then
+                  LIB[]NAME[]_PREFIX="$basedir"
+                fi
                 additional_includedir="$basedir/include"
                 ;;
             esac
@@ -3636,8 +3742,8 @@ sixtyfour bits
   test -n "$acl_libdirstem2" || acl_libdirstem2="$acl_libdirstem"
 ])
 
-# libsigsegv.m4 serial 2
-dnl Copyright (C) 2002-2003, 2008 Free Software Foundation, Inc.
+# libsigsegv.m4 serial 3
+dnl Copyright (C) 2002-2003, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3660,7 +3766,7 @@ AC_DEFUN([gl_LIBSIGSEGV],
   gl_save_CPPFLAGS="$CPPFLAGS"
   AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCSIGSEGV])
 
-  AC_CACHE_CHECK([for libsigsegv], gl_cv_lib_sigsegv, [
+  AC_CACHE_CHECK([for libsigsegv], [gl_cv_lib_sigsegv], [
     gl_cv_lib_sigsegv="no, consider installing GNU libsigsegv"
     gl_save_LIBS="$LIBS"
     LIBS="$LIBS $LIBSIGSEGV"
@@ -3670,7 +3776,7 @@ AC_DEFUN([gl_LIBSIGSEGV],
     LIBS="$gl_save_LIBS"
   ])
   if test "$gl_cv_lib_sigsegv" = yes; then
-    AC_DEFINE([HAVE_LIBSIGSEGV], 1,
+    AC_DEFINE([HAVE_LIBSIGSEGV], [1],
       [Define if you have the libsigsegv library.])
     AC_MSG_CHECKING([how to link with libsigsegv])
     AC_MSG_RESULT([$LIBSIGSEGV])
@@ -3681,15 +3787,15 @@ AC_DEFUN([gl_LIBSIGSEGV],
     LIBSIGSEGV=
     LTLIBSIGSEGV=
   fi
-  AC_SUBST(LIBSIGSEGV)
-  AC_SUBST(LTLIBSIGSEGV)
+  AC_SUBST([LIBSIGSEGV])
+  AC_SUBST([LTLIBSIGSEGV])
 ])
 
-#serial 9
+# serial 10
 dnl Run a program to determine whether link(2) follows symlinks.
 dnl Set LINK_FOLLOWS_SYMLINKS accordingly.
 
-# Copyright (C) 1999, 2000, 2001, 2004, 2005, 2006 Free Software Foundation, Inc.
+# Copyright (C) 1999-2001, 2004-2006, 2009 Free Software Foundation, Inc.
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
 # with or without modifications, as long as this notice is preserved.
@@ -3745,13 +3851,13 @@ AC_DEFUN([gl_AC_FUNC_LINK_FOLLOWS_SYMLINK],
     )
   ])
   if test $gl_ac_cv_func_link_follows_symlink = yes; then
-    AC_DEFINE(LINK_FOLLOWS_SYMLINKS, 1,
+    AC_DEFINE([LINK_FOLLOWS_SYMLINKS], [1],
       [Define if `link(2)' dereferences symbolic links.])
   fi
 ])
 
-# localcharset.m4 serial 5
-dnl Copyright (C) 2002, 2004, 2006 Free Software Foundation, Inc.
+# localcharset.m4 serial 6
+dnl Copyright (C) 2002, 2004, 2006, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3760,15 +3866,459 @@ AC_DEFUN([gl_LOCALCHARSET],
 [
   dnl Prerequisites of lib/localcharset.c.
   AC_REQUIRE([AM_LANGINFO_CODESET])
-  AC_CHECK_DECLS_ONCE(getc_unlocked)
+  AC_CHECK_DECLS_ONCE([getc_unlocked])
 
   dnl Prerequisites of the lib/Makefile.am snippet.
   AC_REQUIRE([AC_CANONICAL_HOST])
   AC_REQUIRE([gl_GLIBC21])
 ])
 
-# longlong.m4 serial 13
-dnl Copyright (C) 1999-2007 Free Software Foundation, Inc.
+# locale-fr.m4 serial 10
+dnl Copyright (C) 2003, 2005-2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+dnl Determine the name of a french locale with traditional encoding.
+AC_DEFUN([gt_LOCALE_FR],
+[
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_REQUIRE([AM_LANGINFO_CODESET])
+  AC_CACHE_CHECK([for a traditional french locale], [gt_cv_locale_fr], [
+    macosx=
+changequote(,)dnl
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+changequote([,])dnl
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_fr=none
+    else
+      AC_LANG_CONFTEST([AC_LANG_SOURCE([
+changequote(,)dnl
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main () {
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether in the abbreviation of the second month, the second
+     character (should be U+00E9: LATIN SMALL LETTER E WITH ACUTE) is only
+     one byte long. This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%b", &t) < 3 || buf[2] != 'v') return 1;
+  /* Check whether the decimal separator is a comma.
+     On NetBSD 3.0 in the fr_FR.ISO8859-1 locale, localeconv()->decimal_point
+     are nl_langinfo(RADIXCHAR) are both ".".  */
+  if (localeconv () ->decimal_point[0] != ',') return 1;
+  return 0;
+}
+changequote([,])dnl
+        ])])
+      if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the usual locale name.
+        if (LC_ALL=fr_FR LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_fr=fr_FR
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=fr_FR.ISO-8859-1 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_fr=fr_FR.ISO-8859-1
+          else
+            # Test for the AIX, OSF/1, FreeBSD, NetBSD, OpenBSD locale name.
+            if (LC_ALL=fr_FR.ISO8859-1 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+              gt_cv_locale_fr=fr_FR.ISO8859-1
+            else
+              # Test for the HP-UX locale name.
+              if (LC_ALL=fr_FR.iso88591 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                gt_cv_locale_fr=fr_FR.iso88591
+              else
+                # Test for the Solaris 7 locale name.
+                if (LC_ALL=fr LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                  gt_cv_locale_fr=fr
+                else
+                  # None found.
+                  gt_cv_locale_fr=none
+                fi
+              fi
+            fi
+          fi
+        fi
+      fi
+      rm -fr conftest*
+    fi
+  ])
+  LOCALE_FR=$gt_cv_locale_fr
+  AC_SUBST([LOCALE_FR])
+])
+
+dnl Determine the name of a french locale with UTF-8 encoding.
+AC_DEFUN([gt_LOCALE_FR_UTF8],
+[
+  AC_REQUIRE([AM_LANGINFO_CODESET])
+  AC_CACHE_CHECK([for a french Unicode locale], [gt_cv_locale_fr_utf8], [
+    AC_LANG_CONFTEST([AC_LANG_SOURCE([
+changequote(,)dnl
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main () {
+  /* On BeOS and Haiku, locales are not implemented in libc.  Rather, libintl
+     imitates locale dependent behaviour by looking at the environment
+     variables, and all locales use the UTF-8 encoding.  */
+#if !(defined __BEOS__ || defined __HAIKU__)
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+# if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+# endif
+# ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+# endif
+  /* Check whether in the abbreviation of the second month, the second
+     character (should be U+00E9: LATIN SMALL LETTER E WITH ACUTE) is
+     two bytes long, with UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%b", &t) < 4
+      || buf[1] != (char) 0xc3 || buf[2] != (char) 0xa9 || buf[3] != 'v')
+    return 1;
+#endif
+  /* Check whether the decimal separator is a comma.
+     On NetBSD 3.0 in the fr_FR.ISO8859-1 locale, localeconv()->decimal_point
+     are nl_langinfo(RADIXCHAR) are both ".".  */
+  if (localeconv () ->decimal_point[0] != ',') return 1;
+  return 0;
+}
+changequote([,])dnl
+      ])])
+    if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
+      # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+      # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+      # configure script would override the LC_ALL setting. Likewise for
+      # LC_CTYPE, which is also set at the beginning of the configure script.
+      # Test for the usual locale name.
+      if (LC_ALL=fr_FR LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+        gt_cv_locale_fr_utf8=fr_FR
+      else
+        # Test for the locale name with explicit encoding suffix.
+        if (LC_ALL=fr_FR.UTF-8 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_fr_utf8=fr_FR.UTF-8
+        else
+          # Test for the Solaris 7 locale name.
+          if (LC_ALL=fr.UTF-8 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_fr_utf8=fr.UTF-8
+          else
+            # None found.
+            gt_cv_locale_fr_utf8=none
+          fi
+        fi
+      fi
+    fi
+    rm -fr conftest*
+  ])
+  LOCALE_FR_UTF8=$gt_cv_locale_fr_utf8
+  AC_SUBST([LOCALE_FR_UTF8])
+])
+
+# locale-ja.m4 serial 6
+dnl Copyright (C) 2003, 2005-2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+dnl Determine the name of a japanese locale with EUC-JP encoding.
+AC_DEFUN([gt_LOCALE_JA],
+[
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_REQUIRE([AM_LANGINFO_CODESET])
+  AC_CACHE_CHECK([for a traditional japanese locale], [gt_cv_locale_ja], [
+    macosx=
+changequote(,)dnl
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+changequote([,])dnl
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_ja=none
+    else
+      AC_LANG_CONFTEST([AC_LANG_SOURCE([
+changequote(,)dnl
+#include <locale.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main ()
+{
+  const char *p;
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether MB_CUR_MAX is > 1.  This excludes the dysfunctional locales
+     on Cygwin 1.5.x.  */
+  if (MB_CUR_MAX == 1)
+    return 1;
+  /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
+     This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+  for (p = buf; *p != '\0'; p++)
+    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+      return 1;
+  return 0;
+}
+changequote([,])dnl
+        ])])
+      if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the AIX locale name.
+        if (LC_ALL=ja_JP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_ja=ja_JP
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=ja_JP.EUC-JP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_ja=ja_JP.EUC-JP
+          else
+            # Test for the HP-UX, OSF/1, NetBSD locale name.
+            if (LC_ALL=ja_JP.eucJP LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+              gt_cv_locale_ja=ja_JP.eucJP
+            else
+              # Test for the IRIX, FreeBSD locale name.
+              if (LC_ALL=ja_JP.EUC LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                gt_cv_locale_ja=ja_JP.EUC
+              else
+                # Test for the Solaris 7 locale name.
+                if (LC_ALL=ja LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+                  gt_cv_locale_ja=ja
+                else
+                  # Special test for NetBSD 1.6.
+                  if test -f /usr/share/locale/ja_JP.eucJP/LC_CTYPE; then
+                    gt_cv_locale_ja=ja_JP.eucJP
+                  else
+                    # None found.
+                    gt_cv_locale_ja=none
+                  fi
+                fi
+              fi
+            fi
+          fi
+        fi
+      fi
+      rm -fr conftest*
+    fi
+  ])
+  LOCALE_JA=$gt_cv_locale_ja
+  AC_SUBST([LOCALE_JA])
+])
+
+# locale-zh.m4 serial 5
+dnl Copyright (C) 2003, 2005-2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Bruno Haible.
+
+dnl Determine the name of a chinese locale with GB18030 encoding.
+AC_DEFUN([gt_LOCALE_ZH_CN],
+[
+  AC_REQUIRE([AC_CANONICAL_HOST])
+  AC_REQUIRE([AM_LANGINFO_CODESET])
+  AC_CACHE_CHECK([for a transitional chinese locale], [gt_cv_locale_zh_CN], [
+    macosx=
+changequote(,)dnl
+    case "$host_os" in
+      darwin[56]*) ;;
+      darwin*) macosx=yes;;
+    esac
+changequote([,])dnl
+    if test -n "$macosx"; then
+      # On Darwin 7 (MacOS X), the libc supports some locales in non-UTF-8
+      # encodings, but the kernel does not support them. The documentation
+      # says:
+      #   "... all code that calls BSD system routines should ensure
+      #    that the const *char parameters of these routines are in UTF-8
+      #    encoding. All BSD system functions expect their string
+      #    parameters to be in UTF-8 encoding and nothing else."
+      # See the comments in config.charset. Therefore we bypass the test.
+      gt_cv_locale_zh_CN=none
+    else
+      AC_LANG_CONFTEST([AC_LANG_SOURCE([
+changequote(,)dnl
+#include <locale.h>
+#include <stdlib.h>
+#include <time.h>
+#if HAVE_LANGINFO_CODESET
+# include <langinfo.h>
+#endif
+#include <stdlib.h>
+#include <string.h>
+struct tm t;
+char buf[16];
+int main ()
+{
+  const char *p;
+  /* Check whether the given locale name is recognized by the system.  */
+  if (setlocale (LC_ALL, "") == NULL) return 1;
+  /* Check whether nl_langinfo(CODESET) is nonempty and not "ASCII" or "646".
+     On MacOS X 10.3.5 (Darwin 7.5) in the fr_FR locale, nl_langinfo(CODESET)
+     is empty, and the behaviour of Tcl 8.4 in this locale is not useful.
+     On OpenBSD 4.0, when an unsupported locale is specified, setlocale()
+     succeeds but then nl_langinfo(CODESET) is "646". In this situation,
+     some unit tests fail.  */
+#if HAVE_LANGINFO_CODESET
+  {
+    const char *cs = nl_langinfo (CODESET);
+    if (cs[0] == '\0' || strcmp (cs, "ASCII") == 0 || strcmp (cs, "646") == 0)
+      return 1;
+  }
+#endif
+#ifdef __CYGWIN__
+  /* On Cygwin, avoid locale names without encoding suffix, because the
+     locale_charset() function relies on the encoding suffix.  Note that
+     LC_ALL is set on the command line.  */
+  if (strchr (getenv ("LC_ALL"), '.') == NULL) return 1;
+#endif
+  /* Check whether in a month name, no byte in the range 0x80..0x9F occurs.
+     This excludes the UTF-8 encoding.  */
+  t.tm_year = 1975 - 1900; t.tm_mon = 2 - 1; t.tm_mday = 4;
+  if (strftime (buf, sizeof (buf), "%B", &t) < 2) return 1;
+  for (p = buf; *p != '\0'; p++)
+    if ((unsigned char) *p >= 0x80 && (unsigned char) *p < 0xa0)
+      return 1;
+  /* Check whether a typical GB18030 multibyte sequence is recognized as a
+     single wide character.  This excludes the GB2312 and GBK encodings.  */
+  if (mblen ("\203\062\332\066", 5) != 4)
+    return 1;
+  return 0;
+}
+changequote([,])dnl
+        ])])
+      if AC_TRY_EVAL([ac_link]) && test -s conftest$ac_exeext; then
+        # Setting LC_ALL is not enough. Need to set LC_TIME to empty, because
+        # otherwise on MacOS X 10.3.5 the LC_TIME=C from the beginning of the
+        # configure script would override the LC_ALL setting. Likewise for
+        # LC_CTYPE, which is also set at the beginning of the configure script.
+        # Test for the locale name without encoding suffix.
+        if (LC_ALL=zh_CN LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+          gt_cv_locale_zh_CN=zh_CN
+        else
+          # Test for the locale name with explicit encoding suffix.
+          if (LC_ALL=zh_CN.GB18030 LC_TIME= LC_CTYPE= ./conftest; exit) 2>/dev/null; then
+            gt_cv_locale_zh_CN=zh_CN.GB18030
+          else
+            # None found.
+            gt_cv_locale_zh_CN=none
+          fi
+        fi
+      else
+        # If there was a link error, due to mblen(), the system is so old that
+        # it certainly doesn't have a chinese locale.
+        gt_cv_locale_zh_CN=none
+      fi
+      rm -fr conftest*
+    fi
+  ])
+  LOCALE_ZH_CN=$gt_cv_locale_zh_CN
+  AC_SUBST([LOCALE_ZH_CN])
+])
+
+# longlong.m4 serial 14
+dnl Copyright (C) 1999-2007, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3815,7 +4365,7 @@ AC_DEFUN([AC_TYPE_LONG_LONG_INT],
 	  [ac_cv_type_long_long_int=yes])],
        [ac_cv_type_long_long_int=no])])
   if test $ac_cv_type_long_long_int = yes; then
-    AC_DEFINE([HAVE_LONG_LONG_INT], 1,
+    AC_DEFINE([HAVE_LONG_LONG_INT], [1],
       [Define to 1 if the system has the type `long long int'.])
   fi
 ])
@@ -3838,7 +4388,7 @@ AC_DEFUN([AC_TYPE_UNSIGNED_LONG_LONG_INT],
        [ac_cv_type_unsigned_long_long_int=yes],
        [ac_cv_type_unsigned_long_long_int=no])])
   if test $ac_cv_type_unsigned_long_long_int = yes; then
-    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], 1,
+    AC_DEFINE([HAVE_UNSIGNED_LONG_LONG_INT], [1],
       [Define to 1 if the system has the type `unsigned long long int'.])
   fi
 ])
@@ -3874,8 +4424,8 @@ AC_DEFUN([_AC_TYPE_LONG_LONG_SNIPPET],
 	      | (ullmax / ull) | (ullmax % ull));]])
 ])
 
-# malloc.m4 serial 8
-dnl Copyright (C) 2007 Free Software Foundation, Inc.
+# malloc.m4 serial 9
+dnl Copyright (C) 2007, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3889,7 +4439,7 @@ AC_DEFUN([gl_FUNC_MALLOC_POSIX],
   AC_REQUIRE([gl_CHECK_MALLOC_POSIX])
   if test $gl_cv_func_malloc_posix = yes; then
     HAVE_MALLOC_POSIX=1
-    AC_DEFINE([HAVE_MALLOC_POSIX], 1,
+    AC_DEFINE([HAVE_MALLOC_POSIX], [1],
       [Define if the 'malloc' function is POSIX compliant.])
   else
     AC_LIBOBJ([malloc])
@@ -3916,8 +4466,365 @@ AC_DEFUN([gl_CHECK_MALLOC_POSIX],
     ])
 ])
 
-# mbstate_t.m4 serial 10
-dnl Copyright (C) 2000-2002, 2008 Free Software Foundation, Inc.
+# mbrtowc.m4 serial 13
+dnl Copyright (C) 2001-2002, 2004-2005, 2008, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_MBRTOWC],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_REQUIRE([AC_TYPE_MBSTATE_T])
+  gl_MBSTATE_T_BROKEN
+  if test $REPLACE_MBSTATE_T = 1; then
+    REPLACE_MBRTOWC=1
+  fi
+  AC_CHECK_FUNCS_ONCE([mbrtowc])
+  if test $ac_cv_func_mbrtowc = no; then
+    HAVE_MBRTOWC=0
+  fi
+  if test $HAVE_MBRTOWC != 0 && test $REPLACE_MBRTOWC != 1; then
+    gl_MBRTOWC_NULL_ARG
+    gl_MBRTOWC_RETVAL
+    gl_MBRTOWC_NUL_RETVAL
+    case "$gl_cv_func_mbrtowc_null_arg" in
+      *yes) ;;
+      *) AC_DEFINE([MBRTOWC_NULL_ARG_BUG], [1],
+           [Define if the mbrtowc function has the NULL string argument bug.])
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+    case "$gl_cv_func_mbrtowc_retval" in
+      *yes) ;;
+      *) AC_DEFINE([MBRTOWC_RETVAL_BUG], [1],
+           [Define if the mbrtowc function returns a wrong return value.])
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+    case "$gl_cv_func_mbrtowc_nul_retval" in
+      *yes) ;;
+      *) AC_DEFINE([MBRTOWC_NUL_RETVAL_BUG], [1],
+           [Define if the mbrtowc function does not return 0 for a NUL character.])
+         REPLACE_MBRTOWC=1
+         ;;
+    esac
+  fi
+  if test $HAVE_MBRTOWC = 0 || test $REPLACE_MBRTOWC = 1; then
+    gl_REPLACE_WCHAR_H
+    AC_LIBOBJ([mbrtowc])
+    gl_PREREQ_MBRTOWC
+  fi
+])
+
+dnl Test whether mbsinit() and mbrtowc() need to be overridden in a way that
+dnl redefines the semantics of the given mbstate_t type.
+dnl Result is REPLACE_MBSTATE_T.
+dnl When this is set to 1, we replace both mbsinit() and mbrtowc(), in order to
+dnl avoid inconsistencies.
+
+AC_DEFUN([gl_MBSTATE_T_BROKEN],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_REQUIRE([AC_TYPE_MBSTATE_T])
+  AC_CHECK_FUNCS_ONCE([mbsinit])
+  AC_CHECK_FUNCS_ONCE([mbrtowc])
+  if test $ac_cv_func_mbsinit = yes && test $ac_cv_func_mbrtowc = yes; then
+    gl_MBRTOWC_INCOMPLETE_STATE
+    case "$gl_cv_func_mbrtowc_incomplete_state" in
+      *yes) REPLACE_MBSTATE_T=0 ;;
+      *)    REPLACE_MBSTATE_T=1 ;;
+    esac
+  else
+    REPLACE_MBSTATE_T=1
+  fi
+  if test $REPLACE_MBSTATE_T = 1; then
+    gl_REPLACE_WCHAR_H
+  fi
+])
+
+dnl Test whether mbrtowc puts the state into non-initial state when parsing an
+dnl incomplete multibyte character.
+dnl Result is gl_cv_func_mbrtowc_incomplete_state.
+
+AC_DEFUN([gl_MBRTOWC_INCOMPLETE_STATE],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_JA])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrtowc handles incomplete characters],
+    [gl_cv_func_mbrtowc_incomplete_state],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+              # Guess no on AIX and OSF/1.
+        osf*) gl_cv_func_mbrtowc_incomplete_state="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrtowc_incomplete_state="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_JA != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      const char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        if (mbsinit (&state))
+          return 1;
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrtowc_incomplete_state=yes],
+          [gl_cv_func_mbrtowc_incomplete_state=no],
+          [])
+      fi
+    ])
+])
+
+dnl Test whether mbrtowc supports a NULL string argument correctly.
+dnl Result is gl_cv_func_mbrtowc_null_arg.
+
+AC_DEFUN([gl_MBRTOWC_NULL_ARG],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_FR_UTF8])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrtowc handles a NULL string argument],
+    [gl_cv_func_mbrtowc_null_arg],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+              # Guess no on OSF/1.
+        osf*) gl_cv_func_mbrtowc_null_arg="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrtowc_null_arg="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_FR_UTF8 != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      mbstate_t state;
+      wchar_t wc;
+      int ret;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      wc = (wchar_t) 0xBADFACE;
+      mbrtowc (&wc, NULL, 5, &state);
+      /* Check that wc was not modified.  */
+      if (wc != (wchar_t) 0xBADFACE)
+        return 1;
+    }
+  return 0;
+}], [gl_cv_func_mbrtowc_null_arg=yes], [gl_cv_func_mbrtowc_null_arg=no], [])
+      fi
+    ])
+])
+
+dnl Test whether mbrtowc, when parsing the end of a multibyte character,
+dnl correctly returns the number of bytes that were needed to complete the
+dnl character (not the total number of bytes of the multibyte character).
+dnl Result is gl_cv_func_mbrtowc_retval.
+
+AC_DEFUN([gl_MBRTOWC_RETVAL],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_FR_UTF8])
+  AC_REQUIRE([gt_LOCALE_JA])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrtowc has a correct return value],
+    [gl_cv_func_mbrtowc_retval],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+                          # Guess no on HP-UX and Solaris.
+        hpux* | solaris*) gl_cv_func_mbrtowc_retval="guessing no" ;;
+                          # Guess yes otherwise.
+        *)                gl_cv_func_mbrtowc_retval="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This fails on Solaris.  */
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      char input[] = "B\303\274\303\237er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrtowc (&wc, input + 2, 5, &state) != 1)
+            return 1;
+        }
+    }
+  /* This fails on HP-UX 11.11.  */
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrtowc (&wc, input + 2, 5, &state) != 2)
+            return 1;
+        }
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrtowc_retval=yes],
+          [gl_cv_func_mbrtowc_retval=no],
+          [])
+      fi
+    ])
+])
+
+dnl Test whether mbrtowc, when parsing a NUL character, correctly returns 0.
+dnl Result is gl_cv_func_mbrtowc_nul_retval.
+
+AC_DEFUN([gl_MBRTOWC_NUL_RETVAL],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_ZH_CN])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrtowc returns 0 when parsing a NUL character],
+    [gl_cv_func_mbrtowc_nul_retval],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+                    # Guess no on Solaris 9.
+        solaris2.9) gl_cv_func_mbrtowc_nul_retval="guessing no" ;;
+                    # Guess yes otherwise.
+        *)          gl_cv_func_mbrtowc_nul_retval="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_ZH_CN != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This fails on Solaris 9.  */
+  if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
+    {
+      mbstate_t state;
+      wchar_t wc;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrtowc (&wc, "", 1, &state) != 0)
+        return 1;
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrtowc_nul_retval=yes],
+          [gl_cv_func_mbrtowc_nul_retval=no],
+          [])
+      fi
+    ])
+])
+
+# Prerequisites of lib/mbrtowc.c.
+AC_DEFUN([gl_PREREQ_MBRTOWC], [
+  :
+])
+
+
+dnl From Paul Eggert
+
+dnl This override of an autoconf macro can be removed when autoconf 2.60 or
+dnl newer can be assumed everywhere.
+
+m4_if(m4_version_compare(m4_defn([m4_PACKAGE_VERSION]),[2.60]),[-1],[
+AC_DEFUN([AC_FUNC_MBRTOWC],
+[
+  dnl Same as AC_FUNC_MBRTOWC in autoconf-2.60.
+  AC_CACHE_CHECK([whether mbrtowc and mbstate_t are properly declared],
+    gl_cv_func_mbrtowc,
+    [AC_LINK_IFELSE(
+       [AC_LANG_PROGRAM(
+            [[#include <wchar.h>]],
+            [[wchar_t wc;
+              char const s[] = "";
+              size_t n = 1;
+              mbstate_t state;
+              return ! (sizeof state && (mbrtowc) (&wc, s, n, &state));]])],
+       gl_cv_func_mbrtowc=yes,
+       gl_cv_func_mbrtowc=no)])
+  if test $gl_cv_func_mbrtowc = yes; then
+    AC_DEFINE([HAVE_MBRTOWC], [1],
+      [Define to 1 if mbrtowc and mbstate_t are properly declared.])
+  fi
+])
+])
+
+# mbsinit.m4 serial 3
+dnl Copyright (C) 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_MBSINIT],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_REQUIRE([AC_TYPE_MBSTATE_T])
+  gl_MBSTATE_T_BROKEN
+  if test $REPLACE_MBSTATE_T = 1; then
+    REPLACE_MBSINIT=1
+  fi
+  AC_CHECK_FUNCS_ONCE([mbsinit])
+  if test $ac_cv_func_mbsinit = no; then
+    HAVE_MBSINIT=0
+  fi
+  if test $HAVE_MBSINIT = 0 || test $REPLACE_MBSINIT = 1; then
+    gl_REPLACE_WCHAR_H
+    AC_LIBOBJ([mbsinit])
+    gl_PREREQ_MBSINIT
+  fi
+])
+
+# Prerequisites of lib/mbsinit.c.
+AC_DEFUN([gl_PREREQ_MBSINIT], [
+  :
+])
+
+# mbstate_t.m4 serial 12
+dnl Copyright (C) 2000-2002, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3931,7 +4838,10 @@ dnl with or without modifications, as long as this notice is preserved.
 # AC_TYPE_MBSTATE_T
 # -----------------
 AC_DEFUN([AC_TYPE_MBSTATE_T],
-  [AC_CACHE_CHECK([for mbstate_t], ac_cv_type_mbstate_t,
+[
+   AC_REQUIRE([AC_USE_SYSTEM_EXTENSIONS]) dnl for HP-UX 11.11
+
+   AC_CACHE_CHECK([for mbstate_t], [ac_cv_type_mbstate_t],
      [AC_COMPILE_IFELSE(
 	[AC_LANG_PROGRAM(
 	   [AC_INCLUDES_DEFAULT[
@@ -3940,15 +4850,91 @@ AC_DEFUN([AC_TYPE_MBSTATE_T],
 	[ac_cv_type_mbstate_t=yes],
 	[ac_cv_type_mbstate_t=no])])
    if test $ac_cv_type_mbstate_t = yes; then
-     AC_DEFINE([HAVE_MBSTATE_T], 1,
+     AC_DEFINE([HAVE_MBSTATE_T], [1],
 	       [Define to 1 if <wchar.h> declares mbstate_t.])
    else
-     AC_DEFINE([mbstate_t], int,
+     AC_DEFINE([mbstate_t], [int],
 	       [Define to a type if <wchar.h> does not define.])
-   fi])
+   fi
+])
 
-# nls.m4 serial 3 (gettext-0.15)
-dnl Copyright (C) 1995-2003, 2005-2006 Free Software Foundation, Inc.
+# multiarch.m4 serial 3
+dnl Copyright (C) 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Determine whether the compiler is or may be producing universal binaries.
+#
+# On MacOS X 10.5 and later systems, the user can create libraries and
+# executables that work on multiple system types--known as "fat" or
+# "universal" binaries--by specifying multiple '-arch' options to the
+# compiler but only a single '-arch' option to the preprocessor.  Like
+# this:
+#
+#     ./configure CC="gcc -arch i386 -arch x86_64 -arch ppc -arch ppc64" \
+#                 CXX="g++ -arch i386 -arch x86_64 -arch ppc -arch ppc64" \
+#                 CPP="gcc -E" CXXCPP="g++ -E"
+#
+# Detect this situation and set the macro AA_APPLE_UNIVERSAL_BUILD at the
+# beginning of config.h and set APPLE_UNIVERSAL_BUILD accordingly.
+
+AC_DEFUN([gl_MULTIARCH],
+[
+  dnl This AC_REQUIRE is not necessary in theory. It works around a bug in
+  dnl autoconf <= 2.63: AC_REQUIRE invocations inside AC_REQUIREd macros are
+  dnl being handled better than AC_REQUIRE invocations inside normally invoked
+  dnl macros.
+  AC_REQUIRE([gl_MULTIARCH_BODY])
+])
+
+AC_DEFUN([gl_MULTIARCH_BODY],
+[
+  dnl Code similar to autoconf-2.63 AC_C_BIGENDIAN.
+  gl_cv_c_multiarch=no
+  AC_COMPILE_IFELSE(
+    [AC_LANG_SOURCE(
+      [[#ifndef __APPLE_CC__
+         not a universal capable compiler
+        #endif
+        typedef int dummy;
+      ]])],
+    [
+     dnl Check for potential -arch flags.  It is not universal unless
+     dnl there are at least two -arch flags with different values.
+     arch=
+     prev=
+     for word in ${CC} ${CFLAGS} ${CPPFLAGS} ${LDFLAGS}; do
+       if test -n "$prev"; then
+         case $word in
+           i?86 | x86_64 | ppc | ppc64)
+             if test -z "$arch" || test "$arch" = "$word"; then
+               arch="$word"
+             else
+               gl_cv_c_multiarch=yes
+             fi
+             ;;
+         esac
+         prev=
+       else
+         if test "x$word" = "x-arch"; then
+           prev=arch
+         fi
+       fi
+     done
+    ])
+  if test $gl_cv_c_multiarch = yes; then
+    AC_DEFINE([AA_APPLE_UNIVERSAL_BUILD], [1],
+      [Define if the compiler is building for multiple architectures of Apple platforms at once.])
+    APPLE_UNIVERSAL_BUILD=1
+  else
+    APPLE_UNIVERSAL_BUILD=0
+  fi
+  AC_SUBST([APPLE_UNIVERSAL_BUILD])
+])
+
+# nls.m4 serial 5 (gettext-0.18)
+dnl Copyright (C) 1995-2003, 2005-2006, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -3966,28 +4952,28 @@ dnl Authors:
 dnl   Ulrich Drepper <drepper@cygnus.com>, 1995-2000.
 dnl   Bruno Haible <haible@clisp.cons.org>, 2000-2003.
 
-AC_PREREQ(2.50)
+AC_PREREQ([2.50])
 
 AC_DEFUN([AM_NLS],
 [
   AC_MSG_CHECKING([whether NLS is requested])
   dnl Default is enabled NLS
-  AC_ARG_ENABLE(nls,
+  AC_ARG_ENABLE([nls],
     [  --disable-nls           do not use Native Language Support],
     USE_NLS=$enableval, USE_NLS=yes)
-  AC_MSG_RESULT($USE_NLS)
-  AC_SUBST(USE_NLS)
+  AC_MSG_RESULT([$USE_NLS])
+  AC_SUBST([USE_NLS])
 ])
 
-# nocrash.m4 serial 1
-dnl Copyright (C) 2005 Free Software Foundation, Inc.
+# nocrash.m4 serial 2
+dnl Copyright (C) 2005, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
 
 dnl Based on libsigsegv, from Bruno Haible and Paolo Bonzini.
 
-AC_PREREQ(2.13)
+AC_PREREQ([2.13])
 
 dnl Expands to some code for use in .c programs that will cause the configure
 dnl test to exit instead of crashing. This is useful to avoid triggering
@@ -4082,8 +5068,8 @@ nocrash_init (void)
 #endif
 ]])
 
-# po.m4 serial 15 (gettext-0.17)
-dnl Copyright (C) 1995-2007 Free Software Foundation, Inc.
+# po.m4 serial 17 (gettext-0.18)
+dnl Copyright (C) 1995-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -4101,7 +5087,7 @@ dnl Authors:
 dnl   Ulrich Drepper <drepper@cygnus.com>, 1995-2000.
 dnl   Bruno Haible <haible@clisp.cons.org>, 2000-2003.
 
-AC_PREREQ(2.50)
+AC_PREREQ([2.50])
 
 dnl Checks for all prerequisites of the po subdirectory.
 AC_DEFUN([AM_PO_SUBDIRS],
@@ -4125,7 +5111,7 @@ AC_DEFUN([AM_PO_SUBDIRS],
     [$ac_dir/$ac_word --statistics /dev/null >&]AS_MESSAGE_LOG_FD[ 2>&1 &&
      (if $ac_dir/$ac_word --statistics /dev/null 2>&1 >/dev/null | grep usage >/dev/null; then exit 1; else exit 0; fi)],
     :)
-  AC_PATH_PROG(GMSGFMT, gmsgfmt, $MSGFMT)
+  AC_PATH_PROG([GMSGFMT], [gmsgfmt], [$MSGFMT])
 
   dnl Test whether it is GNU msgfmt >= 0.15.
 changequote(,)dnl
@@ -4532,8 +5518,8 @@ AC_DEFUN([AM_XGETTEXT_OPTION],
   XGETTEXT_EXTRA_OPTIONS="$XGETTEXT_EXTRA_OPTIONS $1"
 ])
 
-# progtest.m4 serial 4 (gettext-0.14.2)
-dnl Copyright (C) 1996-2003, 2005 Free Software Foundation, Inc.
+# progtest.m4 serial 6 (gettext-0.18)
+dnl Copyright (C) 1996-2003, 2005, 2008, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -4550,7 +5536,7 @@ dnl They are *not* in the public domain.
 dnl Authors:
 dnl   Ulrich Drepper <drepper@cygnus.com>, 1996.
 
-AC_PREREQ(2.50)
+AC_PREREQ([2.50])
 
 # Search path for a program which passes the given test.
 
@@ -4589,7 +5575,7 @@ rm -f conf$$.file
 # Extract the first word of "$2", so it can be a program name with args.
 set dummy $2; ac_word=[$]2
 AC_MSG_CHECKING([for $ac_word])
-AC_CACHE_VAL(ac_cv_path_$1,
+AC_CACHE_VAL([ac_cv_path_$1],
 [case "[$]$1" in
   [[\\/]]* | ?:[[\\/]]*)
     ac_cv_path_$1="[$]$1" # Let the user override the test with a path.
@@ -4618,17 +5604,17 @@ ifelse([$4], , , [  test -z "[$]ac_cv_path_$1" && ac_cv_path_$1="$4"
 esac])dnl
 $1="$ac_cv_path_$1"
 if test ifelse([$4], , [-n "[$]$1"], ["[$]$1" != "$4"]); then
-  AC_MSG_RESULT([$]$1)
+  AC_MSG_RESULT([$][$1])
 else
-  AC_MSG_RESULT(no)
+  AC_MSG_RESULT([no])
 fi
-AC_SUBST($1)dnl
+AC_SUBST([$1])dnl
 ])
 
-#serial 52
+# serial 53
 
 # Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2003, 2004, 2005,
-# 2006, 2007, 2008 Free Software Foundation, Inc.
+# 2006, 2007, 2008, 2009 Free Software Foundation, Inc.
 #
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -4802,7 +5788,7 @@ AC_DEFUN([gl_REGEX],
   esac
 
   if test $ac_use_included_regex = yes; then
-    AC_DEFINE([_REGEX_LARGE_OFFSETS], 1,
+    AC_DEFINE([_REGEX_LARGE_OFFSETS], [1],
       [Define if you want regoff_t to be at least as wide POSIX requires.])
     AC_DEFINE([re_syntax_options], [rpl_re_syntax_options],
       [Define to rpl_re_syntax_options if the replacement should be used.])
@@ -4846,7 +5832,7 @@ AC_DEFUN([gl_PREREQ_REGEX],
   AC_REQUIRE([AC_C_RESTRICT])
   AC_REQUIRE([AC_TYPE_MBSTATE_T])
   AC_CHECK_HEADERS([libintl.h])
-  AC_CHECK_FUNCS_ONCE([isblank iswctype mbrtowc wcrtomb wcscoll])
+  AC_CHECK_FUNCS_ONCE([isblank iswctype wcscoll])
   AC_CHECK_DECLS([isblank], [], [], [#include <ctype.h>])
 ])
 
@@ -4874,7 +5860,7 @@ AC_DEFUN([gt_TYPE_SSIZE_T],
 
 # Check for stdbool.h that conforms to C99.
 
-dnl Copyright (C) 2002-2006 Free Software Foundation, Inc.
+dnl Copyright (C) 2002-2006, 2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -4985,11 +5971,11 @@ AC_DEFUN([AC_HEADER_STDBOOL],
 	[ac_cv_header_stdbool_h=no])])
    AC_CHECK_TYPES([_Bool])
    if test $ac_cv_header_stdbool_h = yes; then
-     AC_DEFINE(HAVE_STDBOOL_H, 1, [Define to 1 if stdbool.h conforms to C99.])
+     AC_DEFINE([HAVE_STDBOOL_H], [1], [Define to 1 if stdbool.h conforms to C99.])
    fi])
 
-# stdint.m4 serial 31
-dnl Copyright (C) 2001-2008 Free Software Foundation, Inc.
+# stdint.m4 serial 33
+dnl Copyright (C) 2001-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -4999,7 +5985,7 @@ dnl Test whether <stdint.h> is supported or must be substituted.
 
 AC_DEFUN([gl_STDINT_H],
 [
-  AC_PREREQ(2.59)dnl
+  AC_PREREQ([2.59])dnl
 
   dnl Check for long long int and unsigned long long int.
   AC_REQUIRE([AC_TYPE_LONG_LONG_INT])
@@ -5219,7 +6205,7 @@ struct s {
     gl_STDINT_TYPE_PROPERTIES
     STDINT_H=stdint.h
   fi
-  AC_SUBST(STDINT_H)
+  AC_SUBST([STDINT_H])
 ])
 
 dnl gl_STDINT_BITSIZEOF(TYPES, INCLUDES)
@@ -5282,7 +6268,7 @@ AC_DEFUN([gl_CHECK_TYPES_SIGNED],
     eval result=\$gl_cv_type_${gltype}_signed
     GLTYPE=`echo $gltype | tr 'abcdefghijklmnopqrstuvwxyz ' 'ABCDEFGHIJKLMNOPQRSTUVWXYZ_'`
     if test "$result" = yes; then
-      AC_DEFINE_UNQUOTED([HAVE_SIGNED_${GLTYPE}], 1)
+      AC_DEFINE_UNQUOTED([HAVE_SIGNED_${GLTYPE}], [1])
       eval HAVE_SIGNED_${GLTYPE}=1
     else
       eval HAVE_SIGNED_${GLTYPE}=0
@@ -5338,7 +6324,7 @@ AC_DEFUN([gl_INTEGER_TYPE_SUFFIX],
     eval result=\$gl_cv_type_${gltype}_suffix
     test "$result" = no && result=
     eval ${GLTYPE}_SUFFIX=\$result
-    AC_DEFINE_UNQUOTED([${GLTYPE}_SUFFIX], $result)
+    AC_DEFINE_UNQUOTED([${GLTYPE}_SUFFIX], [$result])
   done
   m4_foreach_w([gltype], [$1],
     [AC_SUBST(translit(gltype,[abcdefghijklmnopqrstuvwxyz ],[ABCDEFGHIJKLMNOPQRSTUVWXYZ_])[_SUFFIX])])
@@ -5363,13 +6349,22 @@ dnl Compute HAVE_SIGNED_t, BITSIZEOF_t and t_SUFFIX, for all the types t
 dnl of interest to stdint.in.h.
 AC_DEFUN([gl_STDINT_TYPE_PROPERTIES],
 [
-  gl_STDINT_BITSIZEOF([ptrdiff_t sig_atomic_t size_t wchar_t wint_t],
+  AC_REQUIRE([gl_MULTIARCH])
+  if test $APPLE_UNIVERSAL_BUILD = 0; then
+    gl_STDINT_BITSIZEOF([ptrdiff_t size_t],
+      [gl_STDINT_INCLUDES])
+  fi
+  gl_STDINT_BITSIZEOF([sig_atomic_t wchar_t wint_t],
     [gl_STDINT_INCLUDES])
   gl_CHECK_TYPES_SIGNED([sig_atomic_t wchar_t wint_t],
     [gl_STDINT_INCLUDES])
   gl_cv_type_ptrdiff_t_signed=yes
   gl_cv_type_size_t_signed=no
-  gl_INTEGER_TYPE_SUFFIX([ptrdiff_t sig_atomic_t size_t wchar_t wint_t],
+  if test $APPLE_UNIVERSAL_BUILD = 0; then
+    gl_INTEGER_TYPE_SUFFIX([ptrdiff_t size_t],
+      [gl_STDINT_INCLUDES])
+  fi
+  gl_INTEGER_TYPE_SUFFIX([sig_atomic_t wchar_t wint_t],
     [gl_STDINT_INCLUDES])
 ])
 
@@ -5596,7 +6591,7 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl Written by Eric Blake.
 
-# wchar.m4 serial 6
+# wchar.m4 serial 22
 
 AC_DEFUN([gl_WCHAR_H],
 [
@@ -5650,11 +6645,130 @@ AC_DEFUN([gl_WCHAR_MODULE_INDICATOR],
 
 AC_DEFUN([gl_WCHAR_H_DEFAULTS],
 [
-  GNULIB_WCWIDTH=0; AC_SUBST([GNULIB_WCWIDTH])
+  GNULIB_BTOWC=0;      AC_SUBST([GNULIB_BTOWC])
+  GNULIB_WCTOB=0;      AC_SUBST([GNULIB_WCTOB])
+  GNULIB_MBSINIT=0;    AC_SUBST([GNULIB_MBSINIT])
+  GNULIB_MBRTOWC=0;    AC_SUBST([GNULIB_MBRTOWC])
+  GNULIB_MBRLEN=0;     AC_SUBST([GNULIB_MBRLEN])
+  GNULIB_MBSRTOWCS=0;  AC_SUBST([GNULIB_MBSRTOWCS])
+  GNULIB_MBSNRTOWCS=0; AC_SUBST([GNULIB_MBSNRTOWCS])
+  GNULIB_WCRTOMB=0;    AC_SUBST([GNULIB_WCRTOMB])
+  GNULIB_WCSRTOMBS=0;  AC_SUBST([GNULIB_WCSRTOMBS])
+  GNULIB_WCSNRTOMBS=0; AC_SUBST([GNULIB_WCSNRTOMBS])
+  GNULIB_WCWIDTH=0;    AC_SUBST([GNULIB_WCWIDTH])
   dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_BTOWC=1;        AC_SUBST([HAVE_BTOWC])
+  HAVE_MBSINIT=1;      AC_SUBST([HAVE_MBSINIT])
+  HAVE_MBRTOWC=1;      AC_SUBST([HAVE_MBRTOWC])
+  HAVE_MBRLEN=1;       AC_SUBST([HAVE_MBRLEN])
+  HAVE_MBSRTOWCS=1;    AC_SUBST([HAVE_MBSRTOWCS])
+  HAVE_MBSNRTOWCS=1;   AC_SUBST([HAVE_MBSNRTOWCS])
+  HAVE_WCRTOMB=1;      AC_SUBST([HAVE_WCRTOMB])
+  HAVE_WCSRTOMBS=1;    AC_SUBST([HAVE_WCSRTOMBS])
+  HAVE_WCSNRTOMBS=1;   AC_SUBST([HAVE_WCSNRTOMBS])
+  HAVE_DECL_WCTOB=1;   AC_SUBST([HAVE_DECL_WCTOB])
   HAVE_DECL_WCWIDTH=1; AC_SUBST([HAVE_DECL_WCWIDTH])
+  REPLACE_MBSTATE_T=0; AC_SUBST([REPLACE_MBSTATE_T])
+  REPLACE_BTOWC=0;     AC_SUBST([REPLACE_BTOWC])
+  REPLACE_WCTOB=0;     AC_SUBST([REPLACE_WCTOB])
+  REPLACE_MBSINIT=0;   AC_SUBST([REPLACE_MBSINIT])
+  REPLACE_MBRTOWC=0;   AC_SUBST([REPLACE_MBRTOWC])
+  REPLACE_MBRLEN=0;    AC_SUBST([REPLACE_MBRLEN])
+  REPLACE_MBSRTOWCS=0; AC_SUBST([REPLACE_MBSRTOWCS])
+  REPLACE_MBSNRTOWCS=0;AC_SUBST([REPLACE_MBSNRTOWCS])
+  REPLACE_WCRTOMB=0;   AC_SUBST([REPLACE_WCRTOMB])
+  REPLACE_WCSRTOMBS=0; AC_SUBST([REPLACE_WCSRTOMBS])
   REPLACE_WCWIDTH=0;   AC_SUBST([REPLACE_WCWIDTH])
   WCHAR_H='';          AC_SUBST([WCHAR_H])
+])
+
+# wcrtomb.m4 serial 2
+dnl Copyright (C) 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_WCRTOMB],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_REQUIRE([AC_TYPE_MBSTATE_T])
+  AC_CHECK_FUNCS_ONCE([wcrtomb])
+  if test $ac_cv_func_wcrtomb = no; then
+    HAVE_WCRTOMB=0
+  else
+
+    dnl On OSF/1 5.1 and Solaris 10, wcrtomb (NULL, 0, NULL) sometimes
+    dnl returns 0 instead of 1.
+    AC_REQUIRE([AC_PROG_CC])
+    AC_REQUIRE([gt_LOCALE_FR])
+    AC_REQUIRE([gt_LOCALE_FR_UTF8])
+    AC_REQUIRE([gt_LOCALE_JA])
+    AC_REQUIRE([gt_LOCALE_ZH_CN])
+    AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+    AC_CACHE_CHECK([whether wcrtomb return value is correct],
+      [gl_cv_func_wcrtomb_retval],
+      [
+        dnl Initial guess, used when cross-compiling or when no suitable locale
+        dnl is present.
+changequote(,)dnl
+        case "$host_os" in
+                           # Guess no on OSF/1 and Solaris.
+          osf* | solaris*) gl_cv_func_wcrtomb_retval="guessing no" ;;
+                           # Guess yes otherwise.
+          *)               gl_cv_func_wcrtomb_retval="guessing yes" ;;
+        esac
+changequote([,])dnl
+        if test $LOCALE_FR != none || test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none || test $LOCALE_ZH_CN != none; then
+          AC_TRY_RUN([
+#include <locale.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_FR") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
+    {
+      if (wcrtomb (NULL, 0, NULL) != 1)
+        return 1;
+    }
+  return 0;
+}],
+            [gl_cv_func_wcrtomb_retval=yes],
+            [gl_cv_func_wcrtomb_retval=no],
+            [])
+        fi
+      ])
+    case "$gl_cv_func_wcrtomb_retval" in
+      *yes) ;;
+      *) REPLACE_WCRTOMB=1 ;;
+    esac
+  fi
+  if test $HAVE_WCRTOMB = 0 || test $REPLACE_WCRTOMB = 1; then
+    gl_REPLACE_WCHAR_H
+    AC_LIBOBJ([wcrtomb])
+    gl_PREREQ_WCRTOMB
+  fi
+])
+
+# Prerequisites of lib/wcrtomb.c.
+AC_DEFUN([gl_PREREQ_WCRTOMB], [
+  :
 ])
 
 # wctype.m4 serial 2
@@ -5732,8 +6846,8 @@ AC_DEFUN([gl_WCTYPE_H],
   AC_SUBST([REPLACE_ISWCNTRL])
 ])
 
-# wint_t.m4 serial 2 (gettext-0.17)
-dnl Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+# wint_t.m4 serial 4 (gettext-0.18)
+dnl Copyright (C) 2003, 2007-2009 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
@@ -5744,7 +6858,7 @@ dnl Prerequisite: AC_PROG_CC
 
 AC_DEFUN([gt_TYPE_WINT_T],
 [
-  AC_CACHE_CHECK([for wint_t], gt_cv_c_wint_t,
+  AC_CACHE_CHECK([for wint_t], [gt_cv_c_wint_t],
     [AC_TRY_COMPILE([
 /* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
    <wchar.h>.
@@ -5755,9 +6869,9 @@ AC_DEFUN([gt_TYPE_WINT_T],
 #include <time.h>
 #include <wchar.h>
        wint_t foo = (wchar_t)'\0';], ,
-       gt_cv_c_wint_t=yes, gt_cv_c_wint_t=no)])
+       [gt_cv_c_wint_t=yes], [gt_cv_c_wint_t=no])])
   if test $gt_cv_c_wint_t = yes; then
-    AC_DEFINE(HAVE_WINT_T, 1, [Define if you have the 'wint_t' type.])
+    AC_DEFINE([HAVE_WINT_T], [1], [Define if you have the 'wint_t' type.])
   fi
 ])
 

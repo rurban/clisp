@@ -1,5 +1,9 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define if the compiler is building for multiple architectures of Apple
+   platforms at once. */
+#undef AA_APPLE_UNIVERSAL_BUILD
+
 /* symbols are prefixed by an underscore in assembly language */
 #undef ASM_UNDERSCORE
 
@@ -290,6 +294,9 @@
 
 /* Define to 1 if you have the `mbrtowc' function. */
 #undef HAVE_MBRTOWC
+
+/* Define to 1 if you have the `mbsinit' function. */
+#undef HAVE_MBSINIT
 
 /* Define to 1 if you have the `mbsrtowcs' function. */
 #undef HAVE_MBSRTOWCS
@@ -639,6 +646,15 @@
 /* address range of malloc() memory */
 #undef MALLOC_ADDRESS_RANGE
 
+/* Define if the mbrtowc function has the NULL string argument bug. */
+#undef MBRTOWC_NULL_ARG_BUG
+
+/* Define if the mbrtowc function does not return 0 for a NUL character. */
+#undef MBRTOWC_NUL_RETVAL_BUG
+
+/* Define if the mbrtowc function returns a wrong return value. */
+#undef MBRTOWC_RETVAL_BUG
+
 /* need <sys/filio.h> for using ioctl() FIONREAD */
 #undef NEED_SYS_FILIO_H
 
@@ -831,6 +847,9 @@
 
 /* Define if you want regoff_t to be at least as wide POSIX requires. */
 #undef _REGEX_LARGE_OFFSETS
+
+/* Define to 500 only on HP-UX. */
+#undef _XOPEN_SOURCE
 
 /* Define to 1 if type `char' is unsigned and you are not using gcc.  */
 #ifndef __CHAR_UNSIGNED__
