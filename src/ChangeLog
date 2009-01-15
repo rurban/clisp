@@ -8,6 +8,7 @@
 	* gllib/wcrtomb.c, glm4/btowc.m4, glm4/locale-fr.m4, glm4/locale-ja.m4:
 	* glm4/locale-zh.m4, glm4/mbrtowc.m4, glm4/mbsinit.m4:
 	* glm4/multiarch.m4, glm4/wcrtomb.m4: add from gnulib
+	* build-aux/config.guess, build-aux/config.sub, build-aux/missing:
 	* gllib/Makefile.am, gllib/regcomp.c, gllib/regex_internal.c:
 	* gllib/regex_internal.h, gllib/regexec.c, gllib/stdint.in.h:
 	* gllib/stdlib.in.h, gllib/unistd.in.h, gllib/wchar.in.h:
