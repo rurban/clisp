@@ -368,7 +368,7 @@ release : distrib upload tag-release
 
 # 2-3 weeks before a release
 # manually: check for new versions of
-#  libsvm, netica api, postgresql, berkeley-db
+#  libsvm, netica api, postgresql, berkeley-db, dbus
 pre-release : gnulib-imported build-aux-update tp-mail
 
 ## RELEASE TODO:
