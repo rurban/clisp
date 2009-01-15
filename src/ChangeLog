@@ -1,4 +1,28 @@
-2009-01-15  Vladimir Tzankov  <vtzankov@gmail.com>	
+2009-01-14  Sam Steingold  <sds@gnu.org>
+
+	* gllib/btowc.c, gllib/mbrtowc.c, gllib/mbsinit.c, gllib/verify.h:
+	* gllib/wcrtomb.c, glm4/btowc.m4, glm4/locale-fr.m4, glm4/locale-ja.m4:
+	* glm4/locale-zh.m4, glm4/mbrtowc.m4, glm4/mbsinit.m4:
+	* glm4/multiarch.m4, glm4/wcrtomb.m4: add from gnulib
+	* gllib/Makefile.am, gllib/regcomp.c, gllib/regex_internal.c:
+	* gllib/regex_internal.h, gllib/regexec.c, gllib/stdint.in.h:
+	* gllib/stdlib.in.h, gllib/unistd.in.h, gllib/wchar.in.h:
+	* gllib/wctype.in.h, glm4/alloca.m4, glm4/codeset.m4:
+	* glm4/extensions.m4, glm4/fnmatch.m4, glm4/gettext.m4:
+	* glm4/gettimeofday.m4, glm4/glibc2.m4, glm4/glibc21.m4:
+	* glm4/gnulib-cache.m4, glm4/gnulib-common.m4, glm4/gnulib-comp.m4:
+	* glm4/iconv.m4, glm4/intdiv0.m4, glm4/intldir.m4, glm4/intlmacosx.m4:
+	* glm4/intmax.m4, glm4/inttypes-pri.m4, glm4/inttypes_h.m4:
+	* glm4/lcmessage.m4, glm4/lib-ld.m4, glm4/lib-link.m4:
+	* glm4/libsigsegv.m4, glm4/link-follow.m4, glm4/localcharset.m4:
+	* glm4/lock.m4, glm4/longlong.m4, glm4/malloc.m4, glm4/mbstate_t.m4:
+	* glm4/nls.m4, glm4/nocrash.m4, glm4/po.m4, glm4/printf-posix.m4:
+	* glm4/progtest.m4, glm4/regex.m4, glm4/size_max.m4, glm4/stdbool.m4:
+	* glm4/stdint.m4, glm4/stdint_h.m4, glm4/threadlib.m4:
+	* glm4/uintmax_t.m4, glm4/visibility.m4, glm4/wchar.m4:
+	* glm4/wchar_t.m4, glm4/wint_t.m4, glm4/xsize.m4: update from gnulib
+
+2009-01-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	fix mingw build
 	* pathname.d (open_input_file): fix a typo
