@@ -350,7 +350,7 @@ gnulib-imported : update-gnulib force
 		uniwidth/width streq uniname/uniname unitypes link-follow \
 		nocrash libsigsegv gnu-make gettimeofday
 	$(RM) configure.ac
-	rm -fv src/build-aux/.cvsignore src/glm4/.cvsignore
+	rm -fv src/gllib/.cvsignore src/glm4/.cvsignore
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \

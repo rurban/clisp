@@ -1,5 +1,9 @@
 2009-01-14  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-imported): remove src/gllib/.cvsignore
+
+2009-01-14  Sam Steingold  <sds@gnu.org>
+
 	* gllib/btowc.c, gllib/mbrtowc.c, gllib/mbsinit.c, gllib/verify.h:
 	* gllib/wcrtomb.c, glm4/btowc.m4, glm4/locale-fr.m4, glm4/locale-ja.m4:
 	* glm4/locale-zh.m4, glm4/mbrtowc.m4, glm4/mbsinit.m4:
