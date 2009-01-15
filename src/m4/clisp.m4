@@ -11,7 +11,7 @@ dnl From Sam Steingold.
 AC_PREREQ(2.13)
 
 dnl set variable $1 to the result of evaluating in clisp of $2
-AC_DEFUN(CLISP_SET,[$1=`$ac_cv_path_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
+AC_DEFUN([CLISP_SET],[$1=`$ac_cv_path_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
 
 dnl check for a clisp of a correct version
 dnl e.g.: AC_CLISP(2.47) is you want at least version 2.47
