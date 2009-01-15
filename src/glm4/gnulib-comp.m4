@@ -1,5 +1,5 @@
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
-# Copyright (C) 2002-2008 Free Software Foundation, Inc.
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
 #
 # This file is free software, distributed under the terms of the GNU
 # General Public License.  As a special exception to the GNU General
@@ -48,6 +48,8 @@ LTALLOCA=`echo "$ALLOCA" | sed 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
 changequote([, ])dnl
 AC_SUBST([LTALLOCA])
   gl_FUNC_ALLOCA
+  gl_FUNC_BTOWC
+  gl_WCHAR_MODULE_INDICATOR([btowc])
   # No macro. You should also use one of fnmatch-posix or fnmatch-gnu.
   gl_FUNC_FNMATCH_GNU
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
@@ -65,6 +67,11 @@ AC_SUBST([LTALLOCA])
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gl_FUNC_MBRTOWC
+  gl_WCHAR_MODULE_INDICATOR([mbrtowc])
+  gl_FUNC_MBSINIT
+  gl_WCHAR_MODULE_INDICATOR([mbsinit])
+  gl_MULTIARCH
   gl_REGEX
   gt_TYPE_SSIZE_T
   AM_STDBOOL_H
@@ -74,6 +81,8 @@ AC_SUBST([LTALLOCA])
   AC_PROG_MKDIR_P
   gl_UNISTD_H
   gl_WCHAR_H
+  gl_FUNC_WCRTOMB
+  gl_WCHAR_MODULE_INDICATOR([wcrtomb])
   gl_WCTYPE_H
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -207,6 +216,7 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/link-warning.h
   lib/alloca.c
   lib/alloca.in.h
+  lib/btowc.c
   lib/config.charset
   lib/fnmatch.c
   lib/fnmatch.in.h
@@ -216,6 +226,8 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/localcharset.c
   lib/localcharset.h
   lib/malloc.c
+  lib/mbrtowc.c
+  lib/mbsinit.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -238,9 +250,12 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth.h
   lib/uniwidth/cjk.h
   lib/uniwidth/width.c
+  lib/verify.h
   lib/wchar.in.h
+  lib/wcrtomb.c
   lib/wctype.in.h
   m4/alloca.m4
+  m4/btowc.m4
   m4/codeset.m4
   m4/extensions.m4
   m4/fnmatch.m4
@@ -266,10 +281,16 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/libsigsegv.m4
   m4/link-follow.m4
   m4/localcharset.m4
+  m4/locale-fr.m4
+  m4/locale-ja.m4
+  m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
   m4/malloc.m4
+  m4/mbrtowc.m4
+  m4/mbsinit.m4
   m4/mbstate_t.m4
+  m4/multiarch.m4
   m4/nls.m4
   m4/nocrash.m4
   m4/po.m4
@@ -289,6 +310,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/visibility.m4
   m4/wchar.m4
   m4/wchar_t.m4
+  m4/wcrtomb.m4
   m4/wctype.m4
   m4/wint_t.m4
   m4/xsize.m4
