@@ -9428,7 +9428,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       } else {no_gc;}                                        \
     }while(0)
   #define GC_SAFE_POINT() GC_SAFE_POINT_ELSE(;)
-/* Giving up suspend ack during we are in system call.
+/* Giving up suspend ack while we are in system call.
    So we can be considered suspended for GC. */
   #define GC_SAFE_REGION_BEGIN() \
     do {                                                    \
@@ -17033,10 +17033,23 @@ struct object_tab_tl_ {
    /* xthread_key_get/set - slowest way to do things.*/
    #if USE_CUSTOM_TLS == 1
      extern xthread_key_t current_thread_tls_key;
-     #define current_thread() \
-       ((clisp_thread_t *)xthread_key_get(current_thread_tls_key))
      #define set_current_thread(thread) \
        xthread_key_set(current_thread_tls_key,(void *)thread)
+     #ifdef WIN32_NATIVE
+       /* TlsGetValue() changes GetLastError() - this is quite bad and we
+          should preserve the old value. Otherwise GC_SAFE_SYSTEM_CALL()
+          will "return" with bad last error (which causes really weird
+          problems). */
+       static inline clisp_thread_t *current_thread() {
+         DWORD err=GetLastError();
+         clisp_thread_t *thr=((clisp_thread_t *)xthread_key_get(current_thread_tls_key));
+         SetLastError(err);
+         return thr;
+       }
+     #else
+       #define current_thread() \
+         ((clisp_thread_t *)xthread_key_get(current_thread_tls_key))
+     #endif
 
    /* modified version of the code in Boehm C/C++ GC.
       much faster just 16 KB mem usage.*/

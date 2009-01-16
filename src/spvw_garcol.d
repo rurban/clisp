@@ -1409,10 +1409,12 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
     } while (count!=0)
 #endif
 
-
+/* on mingw there are no MIN()/MAX() defined */
 #ifndef MAX
-/* on mingw there is no MAX defined */
 #define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
 #endif
 
 /* the objects of variable length are moved into the preordained

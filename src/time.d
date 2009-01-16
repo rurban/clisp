@@ -559,12 +559,12 @@ LISPFUNN(sleep,2)
  Argument delay-useconds must be a fixnum >=0, <=1000. */
   var uintL mseconds = posfixnum_to_V(popSTACK());
   var uintL seconds = posfixnum_to_V(popSTACK());
-  begin_system_call();
+  begin_blocking_system_call();
   if (!msleep(1000*seconds+mseconds)) {
-    end_system_call();
+    end_blocking_system_call();
     pushSTACK(S(sleep)); tast_break(); /* evtl. call the break loop */
   } else {
-    end_system_call();
+    end_blocking_system_call();
   }
   VALUES1(NIL);
 }
