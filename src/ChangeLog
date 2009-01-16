@@ -1,3 +1,7 @@
+2009-01-16  Sam Steingold  <sds@gnu.org>
+
+	* subr.d (LISPFUN_D): fix a typo in the secfc argument
+
 2009-01-16  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* pathname.d (file_exists, access0) [WIN32_NATIVE]: fix GC-safety bug
