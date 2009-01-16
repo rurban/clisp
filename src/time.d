@@ -1,7 +1,7 @@
 /*
  * Time measuring functions for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2007
+ * Sam Steingold 1998-2008
  * German comments and names translated into English: Reini Urban 2007-12
  */
 
