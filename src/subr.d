@@ -71,10 +71,10 @@
   ptr->key_flag = (uintB)subr_##key_flag_;                              \
   ptr->key_count = key_count_;                                          \
   ptr->seclass = SECFC_SEC(secfc);                                      \
-  ptr->fastcmp = SECFC_FC(sec_fc);                                      \
+  ptr->fastcmp = SECFC_FC(secfc);                                       \
   ptr++;
 #else
-#define LISPFUN_D(name_,sec_fc,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
+#define LISPFUN_D(name_,secfc,req_count_,opt_count_,rest_flag_,key_flag_,key_count_,keywords_) \
   ptr->GCself = subr_tab_ptr_as_object(ptr /* = &subr_tab.D_##name_ */);\
   ptr->tfl = xrecord_tfl(Rectype_Subr,0,subr_length,subr_xlength);      \
   ptr->name = S_help_(S_##name_);                                       \
@@ -87,7 +87,7 @@
   ptr->key_flag = (uintB)subr_##key_flag_;                              \
   ptr->key_count = key_count_;                                          \
   ptr->seclass = SECFC_SEC(secfc);                                      \
-  ptr->fastcmp = SECFC_FC(sec_fc);                                      \
+  ptr->fastcmp = SECFC_FC(secfc);                                       \
   ptr++;
 #endif
 #define LISPFUN_E(name_,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
