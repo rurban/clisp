@@ -85,6 +85,8 @@ global void init_win32 (void)
   }
 }
 
+#ifndef MULTITHREAD
+
 /* Ctrl-C-interruptibility.
  We treat Ctrl-C as under Unix: Enter a break loop, continuable if possible.
  We treat Ctrl-Break as usual under Windows: abort the application, as if
@@ -103,23 +105,6 @@ local LPVOID interruptible_arg;
 local DWORD  interruptible_result;
 local BOOL interruptible_socketp;
 local DWORD interruptible_abort_code;
-
-global void done_win32 (void) {
-  if (winsock_initialized && WSACleanup()) {
-    earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
-  }
-  winsock_initialized = 0;
-  if (com_initialized) {
-    CoUninitialize();
-    com_initialized = false;
-  }
-  if (interruptible_thread) {
-    TerminateThread(interruptible_thread,0);
-    interruptible_thread = NULL;
-    CloseHandle(interruptible_call_event);
-    CloseHandle(interruptible_return_event);
-  }
-}
 
 local BOOL temp_interrupt_handler (DWORD CtrlType)
 {
@@ -212,7 +197,6 @@ local BOOL DoInterruptible(LPTHREAD_START_ROUTINE fn, LPVOID arg, BOOL socketp)
   } else OS_error();
 }
 
-
 /* Sleep a certain time.
  Return true after normal termination, false if interrupted by Ctrl-C. */
 global BOOL msleep (DWORD milliseconds);
@@ -232,7 +216,6 @@ global unsigned int sleep (unsigned int seconds)
   msleep(seconds*1000);
   return 0;                     /* the return value is wrong */
 }
-
 
 /* To catch Ctrl-C events, we use a separate thread which waits for an event,
  and install (using SetConsoleCtrlHandler()) a Ctrl-C handler which sends
@@ -350,6 +333,41 @@ global void install_sigint_handler (void)
     OS_error();
   }
 }
+#else /* MULTITHREAD (WIN32_THREADs) */
+ /* just call it and return success ?*/
+ #define DoInterruptible(pfn,arg,socketp) ((*(LPTHREAD_START_ROUTINE)pfn)(arg),true)
+ global BOOL msleep (DWORD milliseconds)
+ {
+   Sleep(milliseconds);
+   return true;
+ }
+ global unsigned int sleep (unsigned int seconds)
+ {
+   msleep(seconds*1000);
+   return 0;                     /* the return value is wrong */
+ }
+#endif
+
+
+global void done_win32 (void) {
+  if (winsock_initialized && WSACleanup()) {
+    earlylate_asciz_error("\n*** - Failed to shutdown winsock library\n",0);
+  }
+  winsock_initialized = 0;
+  if (com_initialized) {
+    CoUninitialize();
+    com_initialized = false;
+  }
+ #ifndef MULTITHREAD
+  if (interruptible_thread) {
+    TerminateThread(interruptible_thread,0);
+    interruptible_thread = NULL;
+    CloseHandle(interruptible_call_event);
+    CloseHandle(interruptible_return_event);
+  }
+ #endif
+}
+
 
 
 /* Limit for the size of a buffer we pass to WriteFile() and similar calls.

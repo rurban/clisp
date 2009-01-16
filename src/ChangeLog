@@ -1,5 +1,23 @@
 2009-01-16  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	WIN32_THREADS with mingw
+	* lispbibl.d (current_thread) [WIN32_NATIVE]: preserve GetLastError()
+	value when USE_CUSTOM_TLS=1 (since TlsGetValue() changes it)
+	* xthread.d [WIN32_NATIVE]: critical section functions do not change
+	last error nor do they return a value
+	(xthread_signal, xthread_sigmask) [WIN32_NATIVE]: remove
+	(xcondition_init) [WIN32_NATIVE]: make it expression
+	(condition_signal) [WIN32_NATIVE]: fix a typo
+	* spvw_garcol.d (MIN, MAX): define them if not available (mingw)
+	* time.d (%SLEEP) [WIN32_NATIVE]:  allow GC while sleeping (Win32)
+	* win32aux.d (DoInterruptible) [WIN32_NATIVE]: just calls the function
+	in MT builds
+	(sleep, msleep) [WIN32_NATIVE]: do not use DoInterruptible() in MT
+	builds
+	(done_win32) [WIN32_NATIVE]: #ifdef code for CTRL-C/BREAK cleanup
+
+2009-01-16  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw.d (quit_instantly): now function. longjmp() across threads
 	is not good
 	(main): move cleanup code to quit_instantly()
