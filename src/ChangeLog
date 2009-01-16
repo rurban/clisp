@@ -1,3 +1,11 @@
+2009-01-16  Sam Steingold  <sds@gnu.org>
+
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): use AC_REQUIRE for
+	AC_CONFIG_AUX_DIR instead of calling it explicitly because other
+	REQUIREd macros need AC_CONFIG_AUX_DIR's result and REQUIREd
+	macros are called before everyting in the macro is executed.
+	See <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>.
+
 2009-01-15  Sam Steingold  <sds@gnu.org>
 
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): move AC_CONFIG_AUX_DIR up
