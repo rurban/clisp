@@ -100,7 +100,7 @@
 
  NOTE 2: Some of the macros in this file require gcc. */
 
-#if defined(POSIX_THREADS) 
+#if defined(POSIX_THREADS)
 
 /* The default pthreads mutex is not recursive. This is not a problem however
  the Win32 critical section (used for mutex) is recursive and there is no way
@@ -146,7 +146,7 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
   r=pthread_create(thread,&attr,startroutine,arg);
   pthread_attr_destroy(&attr);
   return r;
-} 
+}
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
@@ -258,15 +258,13 @@ typedef DWORD              xthread_key_t;
   (!CreateThread(NULL,stacksize,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread))
 #define xthread_exit(v)  ExitThread((DWORD)(v))
 #define xthread_yield()  Sleep(0)
-#define xthread_signal(t,sig) TODO
 #define xthread_equal(t1,t2)  ((t1)==(t2))
-#define xthread_sigmask(how,iset,oset)
 
-#define xcondition_init(c)   do {                                  \
-  InitializeCriticalSection(&(c)->cs);                             \
-  (c)->sem=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL);       \
-  (c)->waiting_count=0;                                            \
- } while(0)
+#define xcondition_init(c)						\
+  (InitializeCriticalSection(&(c)->cs),                                 \
+   (c)->sem=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL),		\
+   (c)->waiting_count=0,						\
+   GetLastError())
 #define xcondition_destroy(c)  do {             \
   DeleteCriticalSection(&(c)->cs);              \
   CloseHandle((c)->sem);                        \
@@ -284,7 +282,7 @@ typedef DWORD              xthread_key_t;
   EnterCriticalSection(&(c)->cs);                                      \
   if ((c)->waiting_count > 0) {                                        \
     ReleaseSemaphore((c)->sem,1,NULL);                                 \
-    (c)->waitintg_count--;                                             \
+    (c)->waiting_count--;                                              \
   }                                                                    \
   LeaveCriticalSection(&(c)->cs);                                      \
  } while(0)
@@ -297,11 +295,13 @@ typedef DWORD              xthread_key_t;
   LeaveCriticalSection(&(c)->cs);                                       \
  } while(0)
 
-#define xmutex_init(m) (InitializeCriticalSection(m),GetLastError())
-#define xmutex_destroy(m)  (DeleteCriticalSection(m),GetLastError())
-#define xmutex_lock(m)      (EnterCriticalSection(m),GetLastError())
+/* critical section functions do not return values and do not set
+   last error */
+#define xmutex_init(m) (InitializeCriticalSection(m),0)
+#define xmutex_destroy(m)  (DeleteCriticalSection(m),0)
+#define xmutex_lock(m)      (EnterCriticalSection(m),0)
 #define xmutex_trylock(m) (TryEnterCriticalSection(m)!=0)
-#define xmutex_unlock(m)    (LeaveCriticalSection(m),GetLastError())
+#define xmutex_unlock(m)    (LeaveCriticalSection(m),0)
 
 #define xthread_key_create(key)  (*(key) = TlsAlloc())
 #define xthread_key_delete(key)  TlsFree(key)
@@ -318,7 +318,7 @@ typedef DWORD              xthread_key_t;
  Differences between spin-locks and mutexes:
  - Spin-locks have to be locked only for a short time; no blocking system
    calls must be performed with a spin-lock held; no other locks can be
-   acquired while a spin-lock is held.
+   acquired while a spin-lock is held without special care.
  - Therefore spin-locks can be assumed to be unlocked "soon", without any
    particular action to be performed. When trying to acquire a spin-lock which
    is currently locked, all you can do is sit down and spin ("Däumchen drehen"
@@ -457,7 +457,6 @@ typedef DWORD              xthread_key_t;
     { *spinlock = 0; }
   #endif
   #if defined(I80386) || defined(AMD64)
-/* TODO: special version of assembler syntax when compiling with MSVC !!!*/
     static inline long testandset (int* spinlock)
     { int ret;
       __asm__ __volatile__("xchgl %0,%1"
@@ -556,7 +555,7 @@ typedef DWORD              xthread_key_t;
 
   typedef xmutex_t spinlock_t;
 
-  /* do not check for errors from xmutex_xxxx() even if there is 
+  /* do not check for errors from xmutex_xxxx() even if there is
      problem it is too generic in order to be handled properly.*/
   static inline void spinlock_init (spinlock_t* spinlock)
   { xmutex_init(spinlock); }
