@@ -5791,7 +5791,8 @@ nonreturning_function(local, error_notdir, (object pathname)) {
  file_exists(file_status)
  > only after: assure_dir_exists() */
 #if defined(WIN32_NATIVE)
-  local maygc inline int access0 (const char* path, struct file_status *fs) {
+  local /* maygc */ inline int access0 (const char* path, struct file_status *fs) {
+    GCTRIGGER1(fs->fs_namestring);
     GC_SAFE_SYSTEM_CALL(fs->fs_fileattr=, GetFileAttributes(path));
     if (fs->fs_fileattr == 0xFFFFFFFF) {
       if (WIN32_ERROR_NOT_FOUND) {
@@ -5801,7 +5802,8 @@ nonreturning_function(local, error_notdir, (object pathname)) {
     }
     return 0;
   }
-  local maygc bool file_exists (struct file_status *fs) {
+  local /* maygc */ bool file_exists (struct file_status *fs) {
+    GCTRIGGER1(fs->fs_namestring);
     var bool exists;
     with_sstring_0(fs->fs_namestring,O(pathname_encoding),namestring_asciz, {
       exists = (access0(namestring_asciz,fs)==0);
@@ -6743,8 +6745,10 @@ local maygc object open_file (object filename, direction_t direction,
   *namestring_ = fs.fs_namestring;
   /* stack layout: Namestring, Pathname, Truename
    check filename and get the handle: */
-  if (!nullpSv(reopen_open_file))
+  if (!nullpSv(reopen_open_file)) {
     check_file_reopen(*namestring_,direction);
+    fs.fs_namestring = *namestring_;
+  }
   var object handle;
  {var bool append_flag = false;
   var bool wronly_flag = false;

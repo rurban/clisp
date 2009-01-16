@@ -1,5 +1,10 @@
 2009-01-16  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* pathname.d (file_exists, access0) [WIN32_NATIVE]: fix GC-safety bug
+	(open_file): fix GC-safety bug
+
+2009-01-16  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	WIN32_THREADS with mingw
 	* lispbibl.d (current_thread) [WIN32_NATIVE]: preserve GetLastError()
 	value when USE_CUSTOM_TLS=1 (since TlsGetValue() changes it)
