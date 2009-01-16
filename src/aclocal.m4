@@ -8031,8 +8031,13 @@ dnl CL_xxx_CHECK(ECHO-TEXT, CACHE-ID, PROGRAM,
 dnl              ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND])
 
 dnl the next macro avoids aclocal warnings about wrong macro order
+dnl when making aclocal.m4, see Makefile.devel.
+dnl note that this macro cannot call AC_CONFIG_AUX_DIR directly because
+dnl the required macros are evaluated BEFORE the macro itself
+dnl and some of them require AC_CONFIG_AUX_DIR.
+dnl <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
 AC_DEFUN([CL_MODULE_COMMON_CHECKS],[dnl
-AC_CONFIG_AUX_DIR($1)dnl
+AC_REQUIRE([AC_CONFIG_AUX_DIR], [AC_CONFIG_AUX_DIR([$1])])dnl
 AC_REQUIRE([AC_PROG_CC])dnl
 AC_REQUIRE([AC_PROG_CPP])dnl
 AC_REQUIRE([AC_GNU_SOURCE])dnl
