@@ -163,19 +163,7 @@ global break_sems_ break_sems;
 /* --------------------------------------------------------------------------
                          fast program-exit */
 
-/* jmp_buf for return to the original-value of SP on program start: */
-local jmp_buf original_context;
-
-/* leave LISP immediately:
- quit_instantly(exitcode);
- > exitcode: 0 for normal, 1 for abnormal end of program, -signum for signal
-   we must set the SP to the original value.
-   (On some operating systems, the memory occupied by the program is
-   returned with free() , before control is withdrawn from it.
-   For this short span the SP has to be set reasonably.) */
-local int exitcode;
-#define quit_instantly(xcode)  exitcode = xcode; longjmp(original_context,1)
-
+local int quit_instantly(int exitcode);
 /* --------------------------------------------------------------------------
                          memory management, common part */
 
@@ -3803,10 +3791,8 @@ global int main (argc_t argc, char* argv[]) {
   {
     var int parse_result =
       parse_options(argc,(const char**)argv,&argv0,&argv1,&argv2);
-    if (parse_result >= 0) {
-      exitcode = parse_result;
-      goto end_of_main;
-    }
+    if (parse_result >= 0)
+      quit_instantly(parse_result);
   }
   /* The argv_* variables now have their final values.
    Analyze the environment variables determining the locale.
@@ -3818,7 +3804,6 @@ global int main (argc_t argc, char* argv[]) {
   init_language(argv0.argv_language,argv0.argv_localedir);
  #endif
 
-  if (!(setjmp(original_context) == 0)) goto end_of_main;
   /* Initialize memory and load a memory image (if specified). */
   if (init_memory(&argv1) < 0) goto no_mem;
   SP_anchor = (void*)SP(); /* VTZ: in MT current_thread() should be initialized */
@@ -3899,7 +3884,7 @@ global int main (argc_t argc, char* argv[]) {
   install_async_signal_handlers();
  #endif
  #ifdef WIN32_NATIVE
-  #warning "thread-interrupt and \"signal\" handlers for Win32 are still not implemented."
+  #warning "thread-interrupt and "signal" handlers for WIN32_THREADS are still not implemented."
  #endif
 #endif
  #if defined(GENERATIONAL_GC)
@@ -3983,7 +3968,20 @@ global int main (argc_t argc, char* argv[]) {
   quit_instantly(1);
   /*NOTREACHED*/
   /* termination of program via quit_instantly(): */
-  end_of_main:
+  return 0; /* we should never reach here anyway */
+}
+
+/* UP: leave LISP immediately: quit_instantly(exitcode);
+ > exitcode: 0 for normal, 1 for abnormal end of program, -signum for signal
+   we must set the SP to the original value.
+   (On some operating systems, the memory occupied by the program is
+   returned with free() , before control is withdrawn from it.
+   For this short span the SP has to be set reasonably.)
+   In threads builds it is not good to make longjmp() across
+   threads. Since argv1 and argv2 are global now - it's ok to
+   have quit_instantly() as function */
+local int quit_instantly(int exitcode)
+{
   free_argv_initparams(&argv1);
   free_argv_actions(&argv2);
   fini_lowest_level();
@@ -4000,9 +3998,9 @@ global int main (argc_t argc, char* argv[]) {
        sigprocmask(SIG_UNBLOCK,&sigblock_mask,NULL);
      }
      #endif
+     /* Raise the signal. */
+     raise(sig);
     #endif
-    /* Raise the signal. */
-    raise(sig);
     /* If that did not help: use a fake exit code that encodes the signal. */
     exitcode = 128 + sig;
   }
@@ -4312,10 +4310,54 @@ global void dynload_modules (const char * library, uintC modcount,
 
 #endif
 
-
 /* --------------------------------------------------------------------------
                       Multithreading signal handling  */
 #if defined(MULTITHREAD)
+/* UP: acquires both heap and threads lock from signal handler thread
+   without causing deadlock with the GC in the lisp world. */
+local void lock_heap_from_signal()
+{
+  while (1) {
+    while (!spinlock_tryacquire(&mem.alloc_lock))
+      xthread_yield();
+    /* we got the heap lock, let's check that there is no GC in progress */
+    if (!gc_suspend_count)
+      break; /* no GC in progress */
+    /* give chance to GC to finish */
+    spinlock_release(&mem.alloc_lock);
+    xthread_yield();
+  }
+}
+
+/* UP: Subtract the `struct timeval' values.
+ > x: first value
+ > y: second value
+ < result: result of substraction.
+ < returns 1 if the difference is negative, otherwise 0.*/
+local int timeval_subtract(struct timeval *result,
+                           struct timeval *x,struct timeval *y)
+{
+  /* Perform the carry for the later subtraction by updating y. */
+  if (x->tv_usec < y->tv_usec) {
+    int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
+      y->tv_usec -= 1000000 * nsec;
+    y->tv_sec += nsec;
+  }
+  if (x->tv_usec - y->tv_usec > 1000000) {
+    int nsec = (x->tv_usec - y->tv_usec) / 1000000;
+      y->tv_usec += 1000000 * nsec;
+    y->tv_sec -= nsec;
+  }
+  /* Compute the time remaining to wait.
+     tv_usec is certainly positive. */
+  result->tv_sec = x->tv_sec - y->tv_sec;
+  result->tv_usec = x->tv_usec - y->tv_usec;
+  /* Return 1 if result is negative. */
+  return x->tv_sec < y->tv_sec;
+}
+
+/* POSIX_THREADS have signals - the other case is WIN32_NATIVE and
+   WIN32_THREADS*/
 #ifdef HAVE_SIGNALS
 
 /* UP: creates mask of signals that we do not want to be delivered
@@ -4390,48 +4432,6 @@ local void interrupt_thread_signal_handler (int sig) {
   GC_SAFE_REGION_BEGIN();
 }
 
-/* UP: acquires both heap and threads lock from signal handler thread
-   without causing deadlock with the GC in the lisp world. */
-local void lock_heap_from_signal()
-{
-  while (1) {
-    while (!spinlock_tryacquire(&mem.alloc_lock))
-      xthread_yield();
-    /* we got the heap lock, let's check that there is no GC in progress */
-    if (!gc_suspend_count)
-      break; /* no GC in progress */
-    /* give chance to GC to finish */
-    spinlock_release(&mem.alloc_lock);
-    xthread_yield();
-  }
-}
-
-/* UP: Subtract the `struct timeval' values.
- > x: first value
- > y: second value
- < result: result of substraction.
- < returns 1 if the difference is negative, otherwise 0.*/
-local int timeval_subtract(struct timeval *result,
-                           struct timeval *x,struct timeval *y)
-{
-  /* Perform the carry for the later subtraction by updating y. */
-  if (x->tv_usec < y->tv_usec) {
-    int nsec = (y->tv_usec - x->tv_usec) / 1000000 + 1;
-      y->tv_usec -= 1000000 * nsec;
-    y->tv_sec += nsec;
-  }
-  if (x->tv_usec - y->tv_usec > 1000000) {
-    int nsec = (x->tv_usec - y->tv_usec) / 1000000;
-      y->tv_usec += 1000000 * nsec;
-    y->tv_sec -= nsec;
-  }
-  /* Compute the time remaining to wait.
-     tv_usec is certainly positive. */
-  result->tv_sec = x->tv_sec - y->tv_sec;
-  result->tv_usec = x->tv_usec - y->tv_usec;
-  /* Return 1 if result is negative. */
-  return x->tv_sec < y->tv_sec;
-}
 
 /* UP: The signal handler in MT build.
  > arg: not used. */
@@ -4607,6 +4607,19 @@ global void install_async_signal_handlers()
   sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
   /* install SIG_THREAD_INTERRUPT */
   SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
+}
+#else /* !HAVE_SIGNALS i.e. WIN32_THREAD*/
+
+/* UP: this thread will deal with CTRL-C/CTRL-BREAK events and
+   CALL-WITH-TIMEOUT calls.
+   > arg: not used
+ */
+local void *signal_handler_thread(void *arg)
+{
+  /* TODO: implement (together with missing THREAD-INTERRUPT and
+     CALL-WITH-TIMEOUT. */
+  while (1) Sleep(1);
+  return NULL;
 }
 
 #endif /* HAVE_SIGNALS */
