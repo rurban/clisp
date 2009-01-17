@@ -580,7 +580,7 @@ global uintL* current_thread_alloccount()
     /* Add up the sizes of all the regions with the same */
     /* AllocationBase. */
     while( 1 ) {
-      VirtualQuery(stack_bottom+stack_size, &minfo, sizeof(minfo));
+      VirtualQuery((void *)(stack_bottom+stack_size), &minfo, sizeof(minfo));
       if ( stack_bottom == (aint)minfo.AllocationBase )
         stack_size += minfo.RegionSize;
       else
