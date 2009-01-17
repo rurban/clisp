@@ -1,5 +1,11 @@
 2009-01-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* win32aux.d [WIN32_THREADS]: #ifdef the globals not used in MT builds
+	(aux_event): define it to NULL in MT builds (can be done in single
+	thread as well - no file is openned with FILE_FLAG_OVERLAPPED)
+
+2009-01-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw.d (current_stack_base) [WIN32_THREADS] : fix g++ compilation
 	* stream.d (low_close_socket) [WIN32_NATIVE]: fix GC-safety bug
 	(low_fill_buffered_socket) [WIN32_NATIVE]: fix GC-safety bug

@@ -11,9 +11,6 @@ global Handle stdin_handle = INVALID_HANDLE_VALUE;
 global Handle stdout_handle = INVALID_HANDLE_VALUE;
 global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
-/* Auxiliary event for fd_read and fd_write. */
-local HANDLE aux_event;
-
 #ifndef UNICODE
 /* when UNICODE is defined, console i/o is translated through
  the encoding mechanism.
@@ -28,10 +25,6 @@ local char ANSI2OEM_table[256+1];
 
 #endif
 
-/* Auxiliary event for interrupt handling. */
-local HANDLE sigint_event;
-local HANDLE sigbreak_event;
-
 /* Winsock library initialization flag */
 local bool winsock_initialized = false;
 
@@ -45,47 +38,13 @@ local void earlylate_asciz_error (const char * description, bool fatal_p) {
   if (fatal_p) _exit(1); /* FIXME: no finalization, no closing files! */
 }
 
-/* Initialization. */
-global void init_win32 (void)
-{
-  /* Standard input/output handles. */
-  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
-  stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
-  stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
-  /* What to do if one of these is == INVALID_HANDLE_VALUE ?? */
-  /* Auxiliary events. */
-  aux_event = CreateEvent(NULL, true, false, NULL);
-  sigint_event = CreateEvent(NULL, true, false, NULL);
-  sigbreak_event = CreateEvent(NULL, true, false, NULL);
- #ifndef UNICODE
-  { /* Translation table for console input. */
-    var int i;
-    for (i = 0; i < 256; i++)
-      OEM2ANSI_table[i] = i;
-    OEM2ANSI_table[i] = '\0';
-    OemToChar(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
-  }
-  { /* Translation table for console output. */
-    var int i;
-    for (i = 0; i < 256; i++)
-      ANSI2OEM_table[i] = i;
-    ANSI2OEM_table[i] = '\0';
-    CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
-  }
- #endif
-  /* Initialize COM for shell link resolution */
-  if (CoInitialize(NULL) == S_OK)
-    com_initialized = true;
-  { /* Winsock. */
-    var WSADATA data;
-    if (WSAStartup(MAKEWORD(1,1),&data)) {
-      winsock_initialized = 0;
-      earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
-    } else winsock_initialized = true;
-  }
-}
-
 #ifndef MULTITHREAD
+
+/* Auxiliary event for fd_read and fd_write. */
+local HANDLE aux_event;
+/* Auxiliary event for interrupt handling. */
+local HANDLE sigint_event;
+local HANDLE sigbreak_event;
 
 /* Ctrl-C-interruptibility.
  We treat Ctrl-C as under Unix: Enter a break loop, continuable if possible.
@@ -334,6 +293,13 @@ global void install_sigint_handler (void)
   }
 }
 #else /* MULTITHREAD (WIN32_THREADs) */
+
+ /* OVERLAPPED is used with files that are openned without
+    FILE_FLAG_OVERLAPPED - so the operations are still synchronous,
+    just a read can be comined with seek (overlapped offset).
+    no event is needed in single thread as well I think) */
+ #define aux_event NULL
+
  /* just call it and return success ?*/
  #define DoInterruptible(pfn,arg,socketp) ((*(LPTHREAD_START_ROUTINE)pfn)(arg),true)
  global BOOL msleep (DWORD milliseconds)
@@ -348,6 +314,48 @@ global void install_sigint_handler (void)
  }
 #endif
 
+
+/* Initialization. */
+global void init_win32 (void)
+{
+  /* Standard input/output handles. */
+  stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+  stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+  stderr_handle = GetStdHandle(STD_ERROR_HANDLE);
+#ifndef MULTITHREAD
+  /* What to do if one of these is == INVALID_HANDLE_VALUE ?? */
+  /* Auxiliary events. */
+  aux_event = CreateEvent(NULL, true, false, NULL);
+  sigint_event = CreateEvent(NULL, true, false, NULL);
+  sigbreak_event = CreateEvent(NULL, true, false, NULL);
+#endif
+ #ifndef UNICODE
+  { /* Translation table for console input. */
+    var int i;
+    for (i = 0; i < 256; i++)
+      OEM2ANSI_table[i] = i;
+    OEM2ANSI_table[i] = '\0';
+    OemToChar(&OEM2ANSI_table[1],&OEM2ANSI_table[1]);
+  }
+  { /* Translation table for console output. */
+    var int i;
+    for (i = 0; i < 256; i++)
+      ANSI2OEM_table[i] = i;
+    ANSI2OEM_table[i] = '\0';
+    CharToOem(&ANSI2OEM_table[1],&ANSI2OEM_table[1]);
+  }
+ #endif
+  /* Initialize COM for shell link resolution */
+  if (CoInitialize(NULL) == S_OK)
+    com_initialized = true;
+  { /* Winsock. */
+    var WSADATA data;
+    if (WSAStartup(MAKEWORD(1,1),&data)) {
+      winsock_initialized = 0;
+      earlylate_asciz_error("\n*** - Failed to initialize winsock library\n",0);
+    } else winsock_initialized = true;
+  }
+}
 
 global void done_win32 (void) {
   if (winsock_initialized && WSACleanup()) {
