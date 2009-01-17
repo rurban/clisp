@@ -6293,9 +6293,10 @@ local void rename_file (void) {
     true_namestring(&fs,true,false);
     pushSTACK(fs.fs_namestring);
     check_rename_open(*(fs.fs_pathname)); /* do not rename open files! */
-    fs.fs_namestring = popSTACK();
+    fs.fs_namestring = STACK_0;
     if (!file_exists(&fs))
       error_file_not_exists();
+    fs.fs_namestring = popSTACK();
     pushSTACK(fs.fs_namestring);
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
@@ -6308,10 +6309,12 @@ local void rename_file (void) {
     /* stack layout: filename, newname, oldpathname, newpathname,
                   oldtruename, oldnamestring, newtruename.
      4. rename file: */
-    if (file_exists(&fs))
+    pushSTACK(fs.fs_namestring); /* since soon may be invalid */
+    if (file_exists(&fs)) {
+      skipSTACK(1); 
       /* file already exists -> do not delete without forewarn */
       error_file_exists();
-    pushSTACK(fs.fs_namestring);
+    }
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
                 oldtruename, oldnamestring, newtruename, newnamestring.
