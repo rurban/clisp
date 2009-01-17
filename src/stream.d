@@ -13430,8 +13430,9 @@ LISPFUN(make_pipe_io_stream,seclass_default,1,0,norest,key,3,
 #if defined(UNIX_BEOS) || defined(WIN32_NATIVE)
 local void low_close_socket (object stream, object handle, uintB abort) {
   begin_system_call();
-  int closed;
-  GC_SAFE_CALL(closed=, closesocket(TheSocket(handle)));
+  var int closed;
+  var SOCKET socket = TheSocket(handle);
+  GC_SAFE_CALL(closed=, closesocket(socket));
   if (!(closed == 0) && !abort)
     { SOCK_error(); }
   end_system_call();
@@ -13801,10 +13802,7 @@ local maygc uintL low_fill_buffered_socket (object stream,
   pin_varobject(BufferedStream_buffer(stream),true);
   pushSTACK(stream);
   var ssize_t result;
-  SYSCALL(result,sock_read(TheSocket(BufferedStream_channel(stream)),
-                           BufferedStream_buffer_address(stream,0),
-                           strm_buffered_bufflen,
-                           persev));
+  SYSCALL(result,sock_read(handle,buff,strm_buffered_bufflen,persev));
   stream = popSTACK();
   unpin_varobject(BufferedStream_buffer(stream));
   if (result==0 && error_eof_p())
