@@ -1,4 +1,4 @@
-2009-01-18    <vtz@VLADO>
+2009-01-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (quit_instantly): make it nonreturning_function
 
