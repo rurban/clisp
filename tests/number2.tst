@@ -593,6 +593,7 @@ float-rational-cmp
 (log (/ (1+ (ash 1 100000)) (ash 1 1000))) 68621.57f0
 (log (/ (ash 1 100000) (ash 1 1000))) 68621.57f0
 (log (ash 1 100000)) 69314.72f0
+(log (expt 234 108) 10) 255.8753f0
 
 (progn (symbol-cleanup 'check-xgcd)
        (symbol-cleanup 'check-sqrt)
