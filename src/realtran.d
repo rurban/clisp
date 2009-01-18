@@ -798,6 +798,72 @@ local maygc object F_extend2_F (object x)
            );
 }
 
+/* how many digits will be used to compute the log */
+local maygc uintC extend2_digits (void) {
+  defaultfloatcase(S(default_float_format),Fixnum_0,
+                   return 53,
+                   return 53,
+                   return 73,
+                   return lf_len_extend2(I_to_UL(O(LF_digits))),
+                   _EMA_, _EMA_);
+}
+
+/* ln(int): shift right, dropping unnecessary digits,
+ then add them back multiplied by ln2;
+ disregard the rounding errors because we use extend2 anyway;
+ the result has extended precision
+ can trigger GC */
+local maygc object I_ln_F (object x) {
+  if (I_fixnump(x))
+    return F_lnx_F(F_extend2_F(I_float_F(x)));
+  pushSTACK(x);
+  var sintC need_digits = extend2_digits(); /* signed for subtraction below! */
+  var sintL have_digits = I_integer_length(STACK_0);
+  if (have_digits <= need_digits)
+    x = F_lnx_F(F_extend2_F(I_float_F(STACK_0)));
+  else { /* drop have_digits-need_digits extra digits */
+    x = I_I_ash_I(STACK_0,negfixnum(need_digits - have_digits)); /* x/2^(H-N) */
+    STACK_0 = F_lnx_F(F_extend2_F(I_float_F(x))); /* ln(x)-(H-N)ln2 */
+    x = ln2_F_float_F(STACK_0);                   /* ln2 */
+    x = R_R_mult_R(x,posfixnum(have_digits - need_digits)); /* (H-N)ln2 */
+    x = R_R_plus_R(x,STACK_0);                              /* ln(x) */
+  }
+  skipSTACK(1);
+  return x;
+}
+/* ln(rational): int: I_ln_F
+     ratio: I_ln_F(numerator) - I_ln_F(denominator)
+ the result has extended precision
+ can trigger GC */
+local maygc object RA_ln_F (object x) {
+  if (RA_integerp(x))
+    return I_ln_F(x);
+  pushSTACK(x);
+  pushSTACK(I_ln_F(TheRatio(x)->rt_num));      /* ln(N) */
+  STACK_1 = I_ln_F(TheRatio(STACK_1)->rt_den); /* ln(D) */
+  x = R_R_minus_R(STACK_0,STACK_1);            /* ln(N)-ln(D) */
+  skipSTACK(2);
+  return x;
+}
+
+/* extend x and compute ln(x+1) */
+local maygc object F_extend_lnx1_F (object x) {
+  x = F_extend2_F(x); /* increase computational precision */
+  return F_exponent_L(x) < 0 /* |x|<1/2 */
+    ? F_lnx1_F(x) : F_lnx_F(R_R_plus_R(x,Fixnum_1));
+}
+
+local maygc object RA_ln1_F (object x) {
+  if (RA_integerp(x))
+    return I_ln_F(I_1_plus_I(x));
+  pushSTACK(x);
+  x = R_abs_R(TheRatio(x)->rt_num);
+  if (I_I_comp(x,TheRatio(STACK_0)->rt_den) < 0) /* x<1 */
+    x = F_extend2_F(RA_float_F(STACK_0));
+  else x = RA_ln1_F(R_R_plus_R(STACK_0,Fixnum_1));
+  skipSTACK(1);
+  return x;
+}
 
 /* R_ln1_R(x,&end_precision) returns for a real number x>-1 ln(x+1) as number.
  can trigger GC
@@ -813,11 +879,9 @@ local maygc object R_ln1_R (object x, gcv_object_t* end_p)
 {
   if (eq(x,Fixnum_0)) return Fixnum_0; /* x=1 => return 0 */
   if (R_rationalp(x))
-    x = RA_float_F(x); /* convert to float */
-  /* x -- float */
-  x = F_extend2_F(x); /* increase computational precision */
-  x = F_exponent_L(x) < 0 /* |x|<1/2 */
-    ? F_lnx1_F(x) : F_lnx_F(R_R_plus_R(x,Fixnum_1));
+    x = RA_ln1_F(x);
+  else /* x -- float */
+    x = F_extend_lnx1_F(x);
   if (end_p != NULL) /* (float ... x) */
     x = F_R_float_F(x,*end_p);
   return x;
@@ -826,10 +890,11 @@ local inline maygc object R_ln_R (object x, gcv_object_t* end_p)
 {
   if (eq(x,Fixnum_1)) return Fixnum_0; /* x=1 => return 0 */
   if (R_rationalp(x))
-    x = RA_float_F(x); /* convert to float */
-  /* x -- float */
-  x = F_extend2_F(x); /* increase computational precision */
-  x = F_lnx_F(x);
+    x = RA_ln_F(x);
+  else { /* x -- float */
+    x = F_extend2_F(x); /* increase computational precision */
+    x = F_lnx_F(x);
+  }
   if (end_p != NULL) /* (float ... x) */
     x = F_R_float_F(x,*end_p);
   return x;

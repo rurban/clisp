@@ -1,3 +1,7 @@
+2009-01-18  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: test (log VERY-BIG-NUM)
+
 2009-01-07  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: move the ~E + float limits tests to format.tst
