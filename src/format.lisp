@@ -1012,14 +1012,15 @@
                       (rotatef (char mantdigits (- point-pos i))
                                (char mantdigits (- point-pos i 1))))
                     ;; update for the the exponent change
-                    (incf mantwidth (- (length expdigits)
-                                       (length new-expdigits)))
+                    (when mantwidth
+                      (incf mantwidth (- (length expdigits)
+                                         (length new-expdigits))))
                     (setq exponent new-exponent
                           expdigits new-expdigits)
                     ;; update for the trailing point change
                     (when trailingpoint
                       (setq trailingpoint nil)
-                      (incf mantwidth))))
+                      (when mantwidth (incf mantwidth)))))
                 (when (and w (> mantwidth 0))
                   (format-padding mantwidth padchar stream))
                 (if (minusp arg)
