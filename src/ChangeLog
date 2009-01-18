@@ -1,3 +1,8 @@
+2009-01-18  Sam Steingold  <sds@gnu.org>
+
+	* format.lisp (format-float-for-e): before increasing mantwidth,
+	make sure it is not NIL
+
 2009-01-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (quit_instantly): make it nonreturning_function
