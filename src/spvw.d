@@ -163,7 +163,7 @@ global break_sems_ break_sems;
 /* --------------------------------------------------------------------------
                          fast program-exit */
 
-local int quit_instantly(int exitcode);
+nonreturning_function(local, quit_instantly, (int));
 /* --------------------------------------------------------------------------
                          memory management, common part */
 
@@ -3980,7 +3980,7 @@ global int main (argc_t argc, char* argv[]) {
    In threads builds it is not good to make longjmp() across
    threads. Since argv1 and argv2 are global now - it's ok to
    have quit_instantly() as function */
-local int quit_instantly(int exitcode)
+nonreturning_function(local, quit_instantly, (int exitcode))
 {
   free_argv_initparams(&argv1);
   free_argv_actions(&argv2);
@@ -4010,8 +4010,6 @@ local int quit_instantly(int exitcode)
  #ifdef WIN32_NATIVE
   _exit(exitcode);
  #endif
-  /* if that did not help: */
-  return exitcode;
 }
 
 /* leave LISP-interpreter
