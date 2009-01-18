@@ -585,6 +585,15 @@ float-rational-cmp
 (float-rational-cmp most-negative-double-float) (NIL T T)
 (float-rational-cmp least-negative-double-float) (NIL T T)
 
+(log (ash 1 10))  6.931472f0
+(log (ash 1 100)) 69.31472f0
+(log (ash 1 1000)) 693.14716f0
+(log (ash 1 10000)) 6931.4717f0
+(log (ash 1 100000)) 69314.72f0
+(log (/ (1+ (ash 1 100000)) (ash 1 1000))) 68621.57f0
+(log (/ (ash 1 100000) (ash 1 1000))) 68621.57f0
+(log (ash 1 100000)) 69314.72f0
+
 (progn (symbol-cleanup 'check-xgcd)
        (symbol-cleanup 'check-sqrt)
        (symbol-cleanup 'check-mult)

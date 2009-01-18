@@ -1,3 +1,11 @@
+2009-01-18  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 1007358 ]: LOG of large integers is broken
+	* realtran.d (extend2_digits, I_ln_F, RA_ln_F, F_extend_lnx1_F)
+	(RA_ln1_F): add
+	(R_ln1_R): use RA_ln1_F and F_extend_lnx1_F
+	(R_ln_R): use RA_ln_F
+
 2009-01-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* win32aux.d [WIN32_THREADS]: #ifdef the globals not used in MT builds

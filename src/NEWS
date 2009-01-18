@@ -23,6 +23,7 @@ Important notes
     wild pathnames (introduced in 2.47). [ 2198109 ]
   + Module NEW-CLX now has the XLIB:QUEUE-EVENT function,
     implemented by Philippe Brochard <hocwp@free.fr>.
+  + Extend the domain of LOG to larger BIGNUMs and RATIOs. [ 1007358 ]
 
 * ANSI compliance:
   + Implement the ANSI (IGNORE #'FUNCTION) declaration.
