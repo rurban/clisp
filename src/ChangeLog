@@ -1,3 +1,7 @@
+2009-01-18    <vtz@VLADO>
+
+	* spvw.d (quit_instantly): make it nonreturning_function
+
 2009-01-18  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 1007358 ]: LOG of large integers is broken
