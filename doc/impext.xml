@@ -4965,7 +4965,7 @@ EOF
  Lisp &stream-t;s are returned, as for the function &mk-pipe-io;.
  Otherwise, the return value depends on the process termination status:
  if it exited on a signal or a core-dump,
- the signal number is returned as a negative &integer-t;
+ the signal number is returned as a negative &integer-t;,
  else, if it ended normally with 0 exit status, &nil; is returned;
  otherwise, the status is returned as a positive &integer-t;.</para>
 <para>This use of &run-prog; can cause
