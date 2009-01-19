@@ -14971,6 +14971,7 @@ extern maygc void check_variable_value_replacement (gcv_object_t *symbol_,
  > obj: the faulty argument */
 nonreturning_function(global, error_c_integer,
                       (object obj, int tcode, bool signedp));
+%% puts("nonreturning_function(extern, error_c_integer, (object obj, int tcode, bool signedp));");
 #define error_uint8(obj)   error_c_integer(obj,0,true)
 #define error_sint8(obj)   error_c_integer(obj,0,true)
 #define error_uint16(obj)  error_c_integer(obj,1,false)
