@@ -1158,7 +1158,10 @@
     (ulong (format nil "ulong_to_I(~A)" argname))
     (single-float (format nil "c_float_to_FF((const ffloatjanus*)&~A)" argname))
     (double-float (format nil "c_double_to_FF((const dfloatjanus*)&~A)" argname))
-    (c-pointer (format nil "~A == NULL ? NIL : make_faddress(GLO(fp_zero),~A)" argname argname))
+    (c-pointer
+     (let ((addr (format nil "(uintP)(*(void* const *) ~A)" argname)))
+       (format nil "~A == 0 ? NIL : make_faddress(GLO(fp_zero),~A)"
+               addr addr)))
     (c-string (format nil "~A == NULL ? NIL : asciz_to_string(~A,GLO(foreign_encoding))" argname argname))
     (t (format nil "convert_from_foreign(~A,&~A)"
                (object-to-c-value (pass-object argtype)) argname))))

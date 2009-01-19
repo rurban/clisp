@@ -2,6 +2,8 @@
 
 	* lispbibl.d (error_c_integer): export to clisp.h to support
 	error_sint et al
+	* foreign1.lisp (convert-from-foreign): fix C-POINTER handling
+	this fixes the 2008-12-19 patch
 
 2009-01-18  Sam Steingold  <sds@gnu.org>
 
