@@ -758,7 +758,6 @@
                            ; = number of digits in front of the decimal point
              (last-pos nil) ; NIL or position of the last significant digit
                             ;  (if d or width were specified)
-             (halbzahlig nil) ; indicates, if 0.50000 can be dropped at the end
              digit              ; the current digit, >=0, <10
              (round-down-p nil) ; T if last digit is to be rounded off
              (round-up-p nil)) ; T if last digit is to be rounded up
@@ -844,8 +843,8 @@
               ;; changed by exactly 1 at the position last-pos
               (setq round-down-1 (max decimal-1 round-down-1))
               (setq round-up-1 (max decimal-1 round-up-1))
-              ;; now rounding my take place by one (half) decimal-1.
-              (when (= round-up-1 decimal-1) (setq halbzahlig T))))
+              ;; now rounding may take place by one (half) decimal-1.
+              ))
           (when (< (+ (ash numerator 1) round-up-1) (ash denominator 1))
             (return)))
         ;; posn = position of the first significant digit + 1
@@ -867,11 +866,8 @@
           (setq round-down-1 (* round-down-1 10))
           (setq round-up-1 (* round-up-1 10))
           (setq round-down-p (< (ash numerator 1) round-down-1))
-          (if halbzahlig
-            (setq round-up-p
-                  (>= (ash numerator 1) (- (ash denominator 1) round-up-1)))
-            (setq round-up-p
-                  (>= (ash numerator 1) (- (ash denominator 1) round-up-1))))
+          (setq round-up-p
+                (>= (ash numerator 1) (- (ash denominator 1) round-up-1)))
           (when (or round-down-p round-up-p
                     (and last-pos (<= posn last-pos)))
             (return))
