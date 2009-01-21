@@ -1322,12 +1322,12 @@ LISPFUNNF(float_scale_exponent,1)
   /* STACK: x, x', q, r */
   STACK_0 = R_I_expt_R(fixnum(10),STACK_1); /* 10^q */
   STACK_0 = R_R_div_R(STACK_2,STACK_0); /* x/10^q */
+  STACK_0 = F_F_float_F(STACK_0,STACK_3); /* restore the precision */
   /* if the mantissa is one, increase N and divide the mantissa */
   if (N_N_equal(Fixnum_1,STACK_0)) {
     STACK_0 = N_N_div_N(STACK_0,fixnum(10)); /* tmp <- tmp / 10 */
     STACK_1 = I_1_plus_I(STACK_1);   /* q <- q+1 */
   }
-  STACK_0 = F_F_float_F(STACK_0,STACK_3); /* restore the precision */
   VALUES3(STACK_1/*exp*/,STACK_0/*mant*/,sfixnum(s)/*sign*/); skipSTACK(4);
 }
 
