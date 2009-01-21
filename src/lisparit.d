@@ -1332,8 +1332,7 @@ LISPFUNNF(float_scale_exponent,1)
 }
 
 LISPFUNNF(float_radix,1)
-{ /* (FLOAT-RADIX flo
-     at), CLTL p. 218 */
+{ /* (FLOAT-RADIX float), CLTL p. 218 */
   var object f = check_float(popSTACK());
   VALUES1(F_float_radix_I(f));
 }
