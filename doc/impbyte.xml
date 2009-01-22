@@ -879,7 +879,15 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/m4/</filename></term>
  <listitem><simpara>a repertoire of features.
-   Use with &autoconf; 2.57</simpara></listitem></varlistentry>
+   Use with &autoconf; 2.62</simpara><variablelist><varlistentry>
+    <term><filename role="clisp-cvs">src/m4/clisp.m4</filename></term>
+    <listitem><simpara>usually installed in
+      <filename>/usr/share/aclocal</filename>, it defines a macro
+      <function>AC_CLISP</function> which allows a
+      user <command>configure</command> script to check for a specific
+      &clisp; version being installed at the specified location
+   </simpara></listitem></varlistentry>
+</variablelist></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/configure</filename></term>
  <listitem><simpara>configuration script, generated from
    <filename role="clisp-cvs">src/configure.in</filename>
