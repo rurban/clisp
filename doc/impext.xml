@@ -1557,7 +1557,7 @@ In other words, each pair is:
 <section id="ansi"><title>Maximum ANSI CL compliance</title>
 
 <para>Some &ansi-cl; features are turned off by default for convenience and
- for backwards compatibility.
+ backward compatibility.
  They can be switched on, all at once, by setting the &symbol-macro;
  &ansi; to &t;, or they can be switched on individually.
  Setting &ansi; to &t; implies the following:</para>
@@ -1575,7 +1575,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &loop-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &t;.</simpara></listitem>
  <listitem><simpara>Setting &pr-unreadable-ansi; to &t;.</simpara></listitem>
- <listitem><simpara>Setting &defun-accept-spelalist; to &nil;</simpara></listitem>
+ <listitem><simpara>Setting &defun-accept-spelalist; to &nil;.</simpara></listitem>
 </orderedlist>
 
 <note><para>If you run &clisp; with the &opt-ansi; switch or set
@@ -1600,7 +1600,7 @@ In other words, each pair is:
  <listitem><simpara>Setting &loop-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pr-empty-arr-ansi; to &nil;.</simpara></listitem>
  <listitem><simpara>Setting &pr-unreadable-ansi; to &nil;.</simpara></listitem>
- <listitem><simpara>Setting &defun-accept-spelalist; to &t;</simpara></listitem>
+ <listitem><simpara>Setting &defun-accept-spelalist; to &t;.</simpara></listitem>
 </orderedlist>
 
 </section>
@@ -1784,8 +1784,8 @@ additionally binds &cont-r; to the content length.</para>
  <firstterm><varname>XLIB:*CANONICALIZE-ENCODING*</varname></firstterm>
  to fix the broken encoding names returned by the &X; (e.g., convert
  <literal>"iso8859-1"</literal> to <literal>"ISO-8859-1"</literal>)
- before passing them over to &make-encoding;. If you encounter an
- encoding error in &new-clx;, you can augment this variable to avoid it.
+ before passing them over to &make-encoding;. If you encounter an &encoding-t;
+ &error-t; in &new-clx;, you can augment this variable to avoid it.
 </para></section>
 
 </section>
