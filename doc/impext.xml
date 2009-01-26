@@ -1784,7 +1784,7 @@ additionally binds &cont-r; to the content length.</para>
  <firstterm><varname>XLIB:*CANONICALIZE-ENCODING*</varname></firstterm>
  to fix the broken encoding names returned by the &X; (e.g., convert
  <literal>"iso8859-1"</literal> to <literal>"ISO-8859-1"</literal>)
- before passing them over to &make-encoding;. If you encounter an &encoding-t;
+ before passing them over to &make-encoding;. If you encounter an &encoding;
  &error-t; in &new-clx;, you can augment this variable to avoid it.
 </para></section>
 
