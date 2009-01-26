@@ -30,8 +30,10 @@ Installation
 ------------
 
 In the Makefile, define in the CFLAGS the symbol MULTITHREAD and one of
-the symbols POSIX_THREADS, POSIXOLD_THREADS, SOLARIS_THREADS, C_THREADS,
-WIN32_THREADS. (See xthread.d about their meaning.)
+the symbols POSIX_THREADS, SOLARIS_THREADS, WIN32_THREADS.
+(See xthread.d about their meaning.)
+Alternatively, you can pass "--with-threads=flavor" to the top-level
+configure ("flavor" is one of POSIX_THREADS, SOLARIS_THREADS, WIN32_THREADS).
 
 Symbol values
 -------------
