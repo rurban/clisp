@@ -262,7 +262,7 @@ as expected.
 Currently no locks are exposed through MT package - so it is good time
 to practice lock-free multithreading :).
 
-The usable function from MT currently are:
+The usable functions from MT currently are:
 MAKE-THREAD, CURRENT-THREAD, LIST-THREADS, THREADP, THREAD-ACTIVE-P,
 THREAD-INTERRUPT, THREAD-KILL, THREAD-YIELD, THREAD-NAME, SYMBOL-VALUE-THREAD
 
