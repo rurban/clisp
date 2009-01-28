@@ -130,9 +130,10 @@ XSLTPROC=XML_CATALOG_FILES="$(CATALOG_FILE) ${XML_CATALOG_FILES}" xsltproc
 else
 XSLTPROC=xsltproc
 endif
+XMLS_COMMON = --timing --xinclude
 GOOGLEADS=0
 
-MAKE_TDB=$(XSLTPROC) --timing --stringparam collect.xref.targets "only" \
+MAKE_TDB=$(XSLTPROC) $(XMLS_COMMON) --stringparam collect.xref.targets "only" \
 	--stringparam targets.filename
 
 man.tdb: clisp.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
@@ -148,7 +149,7 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
-XMLOUT=$(XSLTPROC) --timing --param google.ads $(GOOGLEADS) \
+XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --param google.ads $(GOOGLEADS) \
 	--stringparam target.database.document
 DOC_MAN=--stringparam current.docid "man"
 DOC_IMP=--stringparam current.docid "impnotes"
@@ -173,8 +174,8 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 	$(FILLIN) $< > $@
 
 check: $(IMPNOTES) $(CHECK_DEPS)
-	xmllint --noout --valid --postvalid --timing --noent clisp.xml
-	xmllint --noout --valid --postvalid --timing --noent impnotes.xml
+	xmllint $(XMLS_COMMON) --noout --postvalid --noent clisp.xml
+	xmllint $(XMLS_COMMON) --noout --postvalid --noent impnotes.xml
 
 impnotes.texi: impnotes.xml $(IMPNOTES)
 	time docbook2texi $<
@@ -199,7 +200,7 @@ impnotes.pdf: impnotes.fo
 	${FOP} $< $@
 
 id-href.map : chunk.tdb
-	$(XSLTPROC) --timing -o $@ id-href-map.xsl $<
+	$(XSLTPROC) $(XMLS_COMMON) -o $@ id-href-map.xsl $<
 
 html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK) id-href.map
 	if [ ! -h $@ ]; then $(RM) -r $@; ln -s ../../sf/www/impnotes $@; fi

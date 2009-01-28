@@ -42,8 +42,6 @@
   <!ENTITY syscalls-file SYSTEM "../modules/syscalls/syscalls.xml">
   <!ENTITY wildcard-file SYSTEM "../modules/wildcard/wildcard.xml">
   <!ENTITY zlib-file SYSTEM "../modules/zlib/zlib.xml">
-  <!ENTITY gfdl-file SYSTEM "http://www.gnu.org/licenses/fdl.xml">
-  <!ENTITY gpl2-file SYSTEM "http://www.gnu.org/licenses/gpl2.xml">
 ]>
 
 <book id="impnotes-top"><title>Implementation Notes for &gnu; &clisp;</title>
@@ -215,8 +213,16 @@
 <part id="appendices"><title>Appendices</title>
 
 &faq-file;
-&gfdl-file;
-&gpl2-file;
+<xi:include href="http://www.gnu.org/licenses/fdl.dbk"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+ <xi:fallback><appendix id="gfdl"><title>GNU Free Documentation License</title>
+   <para>internet connection to the &fsf; is broken</para></appendix>
+</xi:fallback></xi:include>
+<xi:include href="http://www.gnu.org/licenses/gpl2.dbk"
+            xmlns:xi="http://www.w3.org/2001/XInclude">
+ <xi:fallback><appendix id="gpl"><title>GNU General Public License</title>
+   <para>internet connection to the &fsf; is broken</para></appendix>
+</xi:fallback></xi:include>
 
 </part>
 
