@@ -4953,7 +4953,7 @@ typedef struct {
     /* the first symvalue in thread is dummy - for faster Symbol_value*/
     #define SYMBOL_TLS_INDEX_NONE ((uintL)0)
     #define SYMVALUE_EMPTY make_system(0xEEEEEFUL)
-    uintL tls_index _attribute_aligned_object_; /* TLS index */
+    aint tls_index _attribute_aligned_object_; /* TLS index */
   #endif
 } symbol_;
 typedef symbol_ *  Symbol;
@@ -4970,7 +4970,7 @@ typedef symbol_ *  Symbol;
 %%   sprintf(buf,"struct { VAROBJECT_HEADER gcv_object_t symvalue%s; gcv_object_t symfunction%s; gcv_object_t hashcode%s; gcv_object_t proplist%s; gcv_object_t pname%s; gcv_object_t homepackage%s; ",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
 %% #endif
 %% #if defined(MULTITHREAD)
-%%   sprintf(buf+strlen(buf)," uintL tls_index%s;}",attribute_aligned_object);
+%%   sprintf(buf+strlen(buf)," aint tls_index%s;}",attribute_aligned_object);
 %% #else
 %%   sprintf(buf+strlen(buf),"}");
 %% #endif
