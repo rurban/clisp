@@ -4951,7 +4951,7 @@ typedef struct {
   #endif
   #if defined(MULTITHREAD)
     /* the first symvalue in thread is dummy - for faster Symbol_value*/
-    #define SYMBOL_TLS_INDEX_NONE ((uintL)0)
+    #define SYMBOL_TLS_INDEX_NONE ((aint)0)
     #define SYMVALUE_EMPTY make_system(0xEEEEEFUL)
     aint tls_index _attribute_aligned_object_; /* TLS index */
   #endif

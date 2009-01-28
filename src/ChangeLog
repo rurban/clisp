@@ -1,6 +1,10 @@
+2009-01-28  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (SYMBOL_TLS_INDEX_NONE): cast to aint, not uintL
+
 2009-01-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* lispbibl.d (struct symbol_): make it's size always be multiple
+	* lispbibl.d (struct symbol_): make its size always be multiple
 	of varobject_alignment. fixes 64 bit threads (MT) build
 
 2009-01-21  Sam Steingold  <sds@gnu.org>
