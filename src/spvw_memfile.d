@@ -1854,8 +1854,17 @@ local void find_memdump (Handle fd) {
       && lseek(fd,mem_start,SEEK_SET) == mem_start) {
     var memdump_header_t header1;
     full_read(fd,(void*)&header1,header_size);
-    if (memcmp((void*)&header,(void*)&header1,header_size) != 0)
+   #if defined(MULTITHREAD)
+    /* NB: per thread symvalues are not preserved in the image (as well as
+       threads themselves). After image load per thread symvalues count will
+       be equal to the count in the image - so do not fail becasue of this.
+       Later if we implement "persistent" threads - we will have to save/load
+       per thread symvalues. */
+    header._per_thread_symvalues = header1._per_thread_symvalues;
+   #endif
+    if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
       mem_start = (size_t)-1;   /* bad header => no image */
+    }
   } else {
    #if defined(LOADMEM_TRY_SEARCH)
     /* lseek+read does not work ==> use marker */
