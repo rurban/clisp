@@ -3880,7 +3880,7 @@ global int main (argc_t argc, char* argv[]) {
  #endif
 #else
  #ifdef HAVE_SIGNALS
-  install_sigcld_handler(); /* TODO: probably not good. */
+  install_sigcld_handler();
   install_async_signal_handlers();
  #endif
  #ifdef WIN32_NATIVE
@@ -4500,12 +4500,15 @@ local void *signal_handler_thread(void *arg)
         if (chain) {
           var struct timeval diff;
           timeval_subtract(&diff, chain->expire, &now);
-          if (diff.tv_sec > 10) {
-            /* if we have more that 10 secs - schedule for 10 sec. */
-            ualarm(10000000,0);
-          } else {
-            ualarm(diff.tv_sec*1000000+diff.tv_usec,0);
-          }
+	  useconds_t wait =
+	    diff.tv_sec > 10 ? 10000000 : diff.tv_sec*1000000 + diff.tv_usec;
+	  /* Under virtualization (tested on vmware and virtualbox) passing
+	     more than a second causes ualarm() to return -1 and signal is
+	     never delivered !!!. This is strange since according to POSIX no
+             errors are defined for ualarm. If this is the case - just ask for
+	     something less than a second */
+	  if (ualarm(wait,0) == (useconds_t)-1)
+	    ualarm(999999,0);
         }
         /* release the chain spinlock */
         spinlock_release(&timeout_call_chain_lock);
