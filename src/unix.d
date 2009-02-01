@@ -601,13 +601,13 @@ extern_C int pipe (int fd[2]); /* PIPE(2V) */
 #endif
 /* vfork() declared in <vfork.h> or <unistd.h> */
 extern_C int dup2 (int oldfd, int newfd); /* DUP(2V) */
-#if defined(HAVE_SETPGID)
+#if defined(HAVE_SETSID)
+  extern_C pid_t setsid (void); /* SETSID(2V), TERMIO(4) */
+  #define SETSID()  setsid()
+#elif defined(HAVE_SETPGID)
   extern_C pid_t getpid (void); /* GETPID(2V) */
   extern_C int setpgid (pid_t pid, pid_t pgid); /* SETPGID(2V), SETSID(2V), TERMIO(4) */
   #define SETSID()  { register pid_t pid = getpid(); setpgid(pid,pid); }
-#elif defined(HAVE_SETSID)
-  extern_C pid_t setsid (void); /* SETSID(2V), TERMIO(4) */
-  #define SETSID()  setsid()
 #else
   #define SETSID()
 #endif
