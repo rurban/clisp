@@ -1,3 +1,7 @@
+2009-02-01  Vladimir Tzankov  <vtzankov@gmail.com>
+	* unix.d (SETSID): use setsid() if available (do not emulate it via
+	setpgid()). fixes MT builds on some linux distributions.
+
 2009-01-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (signal_handler_thread): handle ualarm() failures when run in
