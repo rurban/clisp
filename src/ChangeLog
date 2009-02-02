@@ -1,4 +1,8 @@
 2009-02-01  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* makemake.in (LINKKIT): add xthread.c in threads builds
+
+2009-02-01  Vladimir Tzankov  <vtzankov@gmail.com>
 	* unix.d (SETSID): use setsid() if available (do not emulate it via
 	setpgid()). fixes MT builds on some linux distributions.
 
