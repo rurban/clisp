@@ -321,7 +321,7 @@ local clisp_thread_t* allthreads[MAXNTHREADS];
 global xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
 /* POSIX threads with no recursive mutex support */
-#if defined(POSIX_THREADS) && !defined(PTHREAD_MUTEX_RECURSIVE_NP)
+#if defined(POSIX_THREADS)
 /* cache the global mutex attribute for recursive mutex creation */
 global pthread_mutexattr_t recursive_mutexattr;
 #endif
