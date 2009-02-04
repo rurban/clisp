@@ -6858,15 +6858,8 @@ typedef enum {
 %%  #endif
 %%  export_def(xthread_t);
 %%  export_def(xthread_key_t);
-%%  export_def(xthread_key_get(k));
 %%  export_def(xmutex_t);
-%%  export_def(xmutex_lock(m));
-%%  export_def(xmutex_unlock(m));
 %%  export_def(spinlock_t);
-%%  export_def(testandset(s));
-%%  export_def(spinlock_acquire(s));
-%%  export_def(spinlock_release(s));
-%%  export_def(spinlock_tryacquire(s));
 %% #endif
 
 /* forward declaration */
@@ -17372,21 +17365,25 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
  (this is needed since GC may be called from allocation or explicitly - when
  the heap lock is not held). */
 #define WITH_STOPPED_WORLD(lock_heap,statement) \
-    do {         \
-      var bool lh=lock_heap; \
-      GC_STOP_WORLD(lh);   \
-      statement;        \
-      GC_RESUME_WORLD(lh);                      \
-    } while(0)
+  do {                                          \
+    var bool lh=lock_heap;                      \
+    GC_STOP_WORLD(lh);                          \
+    statement;                                  \
+    GC_RESUME_WORLD(lh);                        \
+  } while(0)
 
   #ifndef DEBUG_GCSAFETY
-    #define PERFORM_GC(statement,lock_heap) \
-      WITH_STOPPED_WORLD(lock_heap,statement)
+    #define PERFORM_GC(statement,lock_heap)             \
+      do {                                              \
+        SET_SP_BEFORE_SUSPEND(current_thread());        \
+        WITH_STOPPED_WORLD(lock_heap,statement);        \
+      } while(0)
   #else /* DEBUG_GCSAFETY */
     /* if we trigger GC from allocate_xxxx, than we already have
      stopped the world and will resume it at exit.*/
     #define PERFORM_GC(statement,lock_heap) \
-      do {\
+      do {                                  \
+        SET_SP_BEFORE_SUSPEND(current_thread()); \
         if (lock_heap) WITH_STOPPED_WORLD(true,statement); else statement; \
       }while(0)
     extern uintL* current_thread_alloccount();
