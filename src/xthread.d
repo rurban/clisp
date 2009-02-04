@@ -95,43 +95,33 @@
   #error Define your flavour of multithreading
 #endif
 
-/* NOTE: This file is not yet finished. The primary target is POSIX_THREADS.
- For the other targets, the error checking needs to be improved.
-
- NOTE 2: Some of the macros in this file require gcc. */
-
 #if defined(POSIX_THREADS)
 
 /* The default pthreads mutex is not recursive. This is not a problem however
  the Win32 critical section (used for mutex) is recursive and there is no way
- to disable this behavior. In order the xmutex_t to be cosistent we wrap the
- default pthread_mutex_t in a "recursive" shell.
- (we can use later on pthread mutex attributes for this where available) */
+ to disable this behavior. In order the xmutex_t to be cosistent across
+ platforms we use recursive POSIX mutexes as well */
 
 #include <pthread.h>
 #include <sched.h>
 
-typedef pthread_t         xthread_t;
-typedef pthread_cond_t    xcondition_t;
-/* on some platforms PTHREAD_MUTEXT_RECURSIVE_NP is not macro but in an enum */
-#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
-  typedef pthread_mutex_t xmutex_t;
-  /* cache the global mutex attribute for recursive mutex creation */
-  extern pthread_mutexattr_t recursive_mutexattr;
-  #define xthread_init() \
-    do {                 \
-      pthread_mutexattr_init(&recursive_mutexattr);\
-      pthread_mutexattr_settype(&recursive_mutexattr,PTHREAD_MUTEX_RECURSIVE_NP);\
-    } while (0)
-#else
-  typedef struct xmutex_t {
-    pthread_mutex_t cs;
-    int count;
-    xthread_t owner;
-  } xmutex_t;
-  #define xthread_init()
+#define xthread_t  pthread_t
+#define xcondition_t pthread_cond_t
+#define xmutex_t pthread_mutex_t
+#define xthread_key_t pthread_key_t
+
+/* cache the global mutex attribute for recursive mutex creation */
+extern pthread_mutexattr_t recursive_mutexattr;
+/* osx follows posix, linux defines _NP attributes */
+#ifdef UNIX_MACOSX
+ #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #endif
-typedef pthread_key_t     xthread_key_t;
+#define xthread_init()                                                  \
+  do {                                                                  \
+    pthread_mutexattr_init(&recursive_mutexattr);                       \
+    pthread_mutexattr_settype(&recursive_mutexattr,PTHREAD_MUTEX_RECURSIVE_NP); \
+  } while (0)
+
 
 #define xthread_self()  pthread_self()
 static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *),
@@ -148,44 +138,23 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
   return r;
 }
 #define xthread_exit(v)  pthread_exit(v)
-#define xthread_yield()  do { if (sched_yield() < 0) OS_error(); } while(0)
+#define xthread_yield()  sched_yield()
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
 #define xthread_signal(t,sig) pthread_kill(t,sig)
 #define xthread_sigmask(how,iset,oset) pthread_sigmask(how,iset,oset)
 
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
-#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
- #define xcondition_wait(c,m)  pthread_cond_wait(c,m)
-#else
- #define xcondition_wait(c,m)  pthread_cond_wait(c,&(m)->cs)
-#endif
+#define xcondition_wait(c,m)  pthread_cond_wait(c,m)
 #define xcondition_timedwait(c,m,to)  pthread_cond_timedwait(c,m,to)
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 
-#if defined(PTHREAD_MUTEX_RECURSIVE_NP) || defined(PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP)
- #define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
- #define xmutex_destroy(m)  pthread_mutex_destroy(m)
- #define xmutex_lock(m)  pthread_mutex_lock(m)
- #define xmutex_trylock(m) (pthread_mutex_trylock(m)==0)
- #define xmutex_unlock(m)  pthread_mutex_unlock(m)
-#else /* no recursive pthread mutex - implement one */
- #define xmutex_init(m)                                                  \
-  ((m)->count=0,(m)->owner=0,pthread_mutex_init(&(m)->cs,NULL))
- #define xmutex_destroy(m)  pthread_mutex_destroy(&(m)->cs)
- #define xmutex_lock(m)  \
-  do {\
-    xthread_t self=xthread_self();\
-    if ((m)->owner != self) { pthread_mutex_lock(&(m)->cs); (m)->owner = self; } \
-    (m)->count++;                                                       \
-  } while(0)
- #define xmutex_trylock(m) \
-  (xthread_self()==(m)->owner ? ++(m)->count :                          \
-   ((pthread_mutex_trylock(&(m)->cs)==0) ? (m)->owner=xthread_self(), ++(m)->count : 0))
- #define xmutex_unlock(m)  \
-  if (--(m)->count == 0) { (m)->owner = 0; pthread_mutex_unlock(&(m)->cs); }
-#endif
+#define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
+#define xmutex_destroy(m)  pthread_mutex_destroy(m)
+#define xmutex_lock(m)  pthread_mutex_lock(m)
+#define xmutex_trylock(m) (pthread_mutex_trylock(m)==0)
+#define xmutex_unlock(m)  pthread_mutex_unlock(m)
 
 #define xthread_key_create(key)  pthread_key_create(key,NULL)
 #define xthread_key_delete(key)  pthread_key_delete(key)
@@ -199,10 +168,10 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 #include <thread.h>
 #include <synch.h>
 
-typedef thread_t          xthread_t;
-typedef cond_t            xcondition_t;
-typedef mutex_t           xmutex_t;
-typedef thread_key_t      xthread_key_t;
+#define xthread_t thread_t
+#define xcondition_t cond_t
+#define xmutex_t mutex_t
+#define xthread_key_t thread_key_t
 
 #define xthread_init()
 #define xthread_self()  thr_self()
@@ -241,15 +210,15 @@ typedef thread_key_t      xthread_key_t;
 /* include <windows.h>  -- already included by win32.d */
 #define MAX_SEMAPHORE_COUNT  128
 
-typedef DWORD              xthread_t;
-struct _xcondition {
+#define xthread_t DWORD
+typedef struct _xcondition {
   CRITICAL_SECTION cs;
   HANDLE sem;
   int waiting_count;
-};
-typedef struct _xcondition xcondition_t;
-typedef CRITICAL_SECTION   xmutex_t;
-typedef DWORD              xthread_key_t;
+} _xcondition;
+#define xcondition_t _xcondition
+#define xmutex_t CRITICAL_SECTION
+#define xthread_key_t DWORD
 
 #define xthread_init()
 #define xthread_self()  GetCurrentThreadId()
@@ -324,75 +293,17 @@ typedef DWORD              xthread_key_t;
    is currently locked, all you can do is sit down and spin ("Däumchen drehen"
    in German).
  - Acquiring a lock which is previously unlocked, and releasing a lock are
-   fast operations. */
+   fast operations.
+
+   Inline assembly syntax is gcc specific - so we use the gcc extension for
+   block expressions in testandset(). On win32 with MSVC - InterlockedXXX
+   function should be used .*/
 
 
-#ifndef TARGET_CPU_DEFINED
-#if defined(__vax__)
-  #define VAX
-#endif
-#if defined(arm) || defined(__arm) || defined(__arm__)
-  #define ARM
-#endif
-#if (defined(_WIN32))
-  #if defined(_M_IX86) || defined(_X86_)
-    #define I80386
-  #endif
-#else /* some unix flavour */
-  #if defined(m68k) || defined(__m68k__) || defined(mc68000)
-    #define MC680X0
-  #endif
-  #if defined(mc68020) || defined(__mc68020__) || (defined(m68k) && defined(NeXT))
-    #define MC680X0
-    #define MC680Y0
-  #endif
-  #if defined(i386) || defined(__i386) || defined(__i386__) || defined(_I386)
-    #define I80386
-  #endif
-  #if defined(sparc) || defined(__sparc__)
-    #define SPARC
-    #if defined(__sparcv9) || defined(__arch64__)
-      #define SPARC64
-    #endif
-  #endif
-  #if defined(mips) || defined(__mips) || defined(__mips__)
-    #define MIPS
-    #if defined(_MIPS_SZLONG)
-      #if (_MIPS_SZLONG == 64)
-        /* We should also check for (_MIPS_SZPTR == 64), but gcc keeps this at 32. */
-        #define MIPS64
-      #endif
-    #endif
-  #endif
-  #if defined(HP8XX) || defined(hppa) || defined(__hppa) || defined(__hppa__)
-    #define HPPA
-  #endif
-  #if defined(m88000) || defined(__m88k__)
-    #define M88000
-  #endif
-  #if defined(_IBMR2) || defined(__powerpc) || defined(__ppc) || defined(__ppc__) || defined(__powerpc__)
-    #define POWERPC
-  #endif
-  #ifdef __alpha
-    #define DECALPHA
-  #endif
-  #ifdef __ia64__
-    #define IA64
-  #endif
-  #if defined(__x86_64__) || defined(__amd64__)
-    #define AMD64
-  #endif
-  #ifdef __s390__
-    #define S390
-  #endif
-#endif
-#define TARGET_CPU_DEFINED
-#endif
+#if defined(GNU) && (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC) || defined(AMD64))
 
-
-#if (defined(MC680X0) || defined(SPARC) || defined(MIPS) || defined(I80386) || defined(DECALPHA) || defined(POWERPC) || defined(AMD64))
-
-  typedef int spinlock_t; /* A value 0 means unlocked, != 0 means locked. */
+  /* A value 0 means unlocked, != 0 means locked. */
+  #define spinlock_t int
 
   /* The following atomic operations are borrowed from LinuxThreads-0.6
    and were mostly written by Richard Henderson <rth@tamu.edu>.
@@ -401,172 +312,143 @@ typedef DWORD              xthread_key_t;
    0 if it succeeded (i.e. the old value was 0, the new one is != 0).
    It returns != 0 if it failed (i.e. the old value was != 0). */
 
-  static inline void spinlock_init (int* spinlock)
-  { *spinlock = 0; }
+  #define spinlock_init(spinlock)  do { *(spinlock) = 0; } while(0)
+
   #ifdef MC680X0
-    static inline int testandset (int* spinlock)
-    { char ret;
-      __asm__ __volatile__("tas %1; sne %0"
-                           : "=g" (ret), "=m" (*spinlock)
-                           : "1" (*spinlock)
-                           : "cc"
-                          );
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    { *spinlock = 0; }
+    #define testandset(spinlock)                                \
+      ({ char ret;                                              \
+        __asm__ __volatile__("tas %1; sne %0"                   \
+                             : "=g" (ret), "=m" (*(spinlock))   \
+                             : "1" (*(spinlock))                \
+                             : "cc");                           \
+        ret;})
+
+    #define spinlock_release(spinlock)  do { *(spinlock) = 0; } while(0)
   #endif
   #ifdef SPARC
-    static inline int testandset (int* spinlock)
-    { int ret;
-      __asm__ __volatile__("ldstub %1,%0"
-                           : "=r" (ret), "=m" (*spinlock)
-                           : "1" (*spinlock)
-                          );
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    { __asm__ __volatile__("stbar; stb %1,%0"
-                           : "=m" (*spinlock)
-                           : "r" (0)
-                          );
-    }
+    #define testandset(spinlock)                                \
+      ({ int ret;                                               \
+        __asm__ __volatile__("ldstub %1,%0"                     \
+                             : "=r" (ret), "=m" (*(spinlock))   \
+                             : "1" (*(spinlock)));              \
+        ret;})
+    #define spinlock_release(int* spinlock)             \
+      do { __asm__ __volatile__("stbar; stb %1,%0"      \
+                                : "=m" (*(spinlock))    \
+                                : "r" (0));             \
+      } while(0)
   #endif
   #ifdef MIPS
-    static inline long testandset (int* spinlock)
-    { long ret;
-      long temp;
-      __asm__ __volatile__("#Inline spinlock test & set"
-                   "\n\t"  ".set mips2"
-                   "\n" "1: ll %0,%2"
-                   "\n\t"  "bnez %0,2f"
-                   "\n\t"  ".set noreorder"
-                   "\n\t"  "li %1,1"
-                   "\n\t"  ".set reorder"
-                   "\n\t"  "sc %1,%2"
-                   "\n\t"  "beqz %1,1b"
-                   "\n" "2: .set mips0"
-                   "\n\t"  "#End spinlock test & set"
-                           : "=&r" (ret), "=&r" (temp), "=m" (*spinlock)
-                           : "2" (*spinlock)
-                           : "memory"
-                          );
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    { *spinlock = 0; }
+    #define testandset(int* spinlock)                                \
+      ({ long ret;                                                   \
+        long temp;                                                   \
+        __asm__ __volatile__("#Inline spinlock test & set"           \
+                             "\n\t"  ".set mips2"                    \
+                             "\n" "1: ll %0,%2"                      \
+                             "\n\t"  "bnez %0,2f"                    \
+                             "\n\t"  ".set noreorder"                \
+                             "\n\t"  "li %1,1"                       \
+                             "\n\t"  ".set reorder"                  \
+                             "\n\t"  "sc %1,%2"                      \
+                             "\n\t"  "beqz %1,1b"                    \
+                             "\n" "2: .set mips0"                    \
+                             "\n\t"  "#End spinlock test & set"      \
+                             : "=&r" (ret), "=&r" (temp), "=m" (*(spinlock)) \
+                             : "2" (*(spinlock))                     \
+                             : "memory"                              \
+                             );                                      \
+        ret;})
+    #define spinlock_release(spinlock)  do { *(spinlock) = 0; } while(0)
   #endif
   #if defined(I80386) || defined(AMD64)
-    static inline long testandset (int* spinlock)
-    { int ret;
-      __asm__ __volatile__("xchgl %0,%1"
-                           : "=r" (ret), "=m" (*spinlock)
-                           : "0" (1), "m" (*spinlock)
-                           : "memory"
-                          );
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    { *spinlock = 0; }
+    #define testandset(spinlock)                                \
+      ({ int ret;                                               \
+        __asm__ __volatile__("xchgl %0,%1"                      \
+                             : "=r" (ret), "=m" (*(spinlock))   \
+                             : "0" (1), "m" (*(spinlock))       \
+                             : "memory");                       \
+        ret;})
+    #define spinlock_release(spinlock)  do { *(spinlock) = 0; } while(0)
   #endif
   #ifdef POWERPC
-    static inline long testandset (int* spinlock)
-    { int ret;
-      __asm__ __volatile__(
-                           "0:lwarx %0,0,%1 \n"
-                           " cmpwi %0,0 \n"
-                           " bne- 1f \n"
-                           " stwcx. %2,0,%1 \n"
-                           " bne- 0b \n"
-                           "1:  isync  \n"
-                           : "=&r"(ret)
-                           : "r"(spinlock), "r"(1)
-                           : "cr0", "memory");
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    {
-      __asm__ __volatile__("sync" : : : "memory");
-      *spinlock = 0;
-    }
+    #define testandset(spinlock)                        \
+      ({ int ret;                                       \
+        __asm__ __volatile__(                           \
+                             "0:lwarx %0,0,%1 \n"       \
+                             " cmpwi %0,0 \n"           \
+                             " bne- 1f \n"              \
+                             " stwcx. %2,0,%1 \n"       \
+                             " bne- 0b \n"              \
+                             "1:  isync  \n"            \
+                             : "=&r"(ret)               \
+                             : "r"(spinlock), "r"(1)    \
+                             : "cr0", "memory");        \
+        ret;})
+    #define spinlock_release(spinlock)                        \
+       do {                                                   \
+         __asm__ __volatile__("sync" : : : "memory");         \
+         *spinlock = 0;                                       \
+       } while (0)
   #endif
   #ifdef DECALPHA
-    static inline long testandset (int* spinlock)
-    { long ret;
-      long temp;
-      __asm__ __volatile__("/* Inline spinlock test & set */"
-                   "\n" "1: ldl_l %0,%2"
-                   "\n\t"  "bne %0,2f"
-                   "\n\t"  "or $31,1,%1"
-                   "\n\t"  "stl_c %1,%2"
-                   "\n\t"  "beq %1,1b"
-                   "\n" "2: mb"
-                   "\n\t"  "/* End spinlock test & set */"
-                           : "=&r" (ret), "=&r" (temp), "=m" (*spinlock)
-                           : "2" (*spinlock)
-                           : "memory"
-                          );
-      return ret;
-    }
-    static inline void spinlock_release (int* spinlock)
-    { __asm__ __volatile__("mb" : : : "memory"); *spinlock = 0; }
+    #define testandset(spinlock)                                        \
+      { long ret;                                                       \
+        long temp;                                                      \
+        __asm__ __volatile__("/* Inline spinlock test & set */"         \
+                             "\n" "1: ldl_l %0,%2"                      \
+                             "\n\t"  "bne %0,2f"                        \
+                             "\n\t"  "or $31,1,%1"                      \
+                             "\n\t"  "stl_c %1,%2"                      \
+                             "\n\t"  "beq %1,1b"                        \
+                             "\n" "2: mb"                               \
+                             "\n\t"  "/* End spinlock test & set */"    \
+                             : "=&r" (ret), "=&r" (temp), "=m" (*(spinlock)) \
+                             : "2" (*(spinlock))                        \
+                             : "memory");                               \
+      ret;})
+    #define spinlock_release(spinlock) \
+      do { __asm__ __volatile__("mb" : : : "memory"); *(spinlock) = 0; } while(0)
   #endif
 
-  static inline bool spinlock_tryacquire(int* spinlock)
-  { return testandset(spinlock)==0;}
-  static inline void spinlock_acquire (int* spinlock)
-  { while (testandset(spinlock)) { xthread_yield(); } }
-  static inline void spinlock_destroy (int* spinlock)
-  { unused spinlock; }
+  #define spinlock_tryacquire(spinlock) (testandset(spinlock)==0)
+  #define spinlock_acquire(spinlock) while (testandset(spinlock)) { xthread_yield(); }
+  #define spinlock_destroy(spinlock)
 
 #elif defined(GNU) && defined(HPPA)
 
   /* This is borrowed from glibc-2.0.4. */
-
-  typedef int spinlock_t __attribute__((__aligned__(16)));
+  #define spinlock_t int __attribute__((__aligned__(16)))
   /* A value -1 means unlocked, 0 means locked. */
 
   /* testandset(spinlock) tries to acquire the spinlock. It returns
    0 if it succeeded (i.e. the old value was -1, the new one is 0).
    It returns != 0 if it failed (i.e. the old value was 0). */
 
-  static inline void spinlock_init (int* spinlock)
-  { *spinlock = -1; }
-  static inline int testandset (int* spinlock)
-  { int ret;
-    __asm__ __volatile__("ldcws %0,%1"
-                         : "=m" (*spinlock), "=r" (ret)
-                         : "m" (*spinlock)
-                        );
-    return ret;
-  }
-  static inline bool spinlock_tryacquire(int* spinlock)
-  { return testandset(spinlock)==0;}
-  static inline void spinlock_acquire (int* spinlock)
-  { while (testandset(spinlock)) { xthread_yield(); } }
-  static inline void spinlock_release (int* spinlock)
-  { *spinlock = -1; }
-  static inline void spinlock_destroy (int* spinlock)
-  { unused spinlock; }
+  #define spinlock_init(spinlock)  do { *(spinlock) = -1; } while(0)
+  #define testandset(spinlock)                                  \
+    ({ int ret;                                                 \
+      __asm__ __volatile__("ldcws %0,%1"                        \
+                           : "=m" (*(spinlock)), "=r" (ret)     \
+                           : "m" (*(spinlock)));                \
+      ret;})
+  #define spinlock_tryacquire(spinlock) (testandset(spinlock)==0)
+  #define spinlock_acquire(spinlock) while (testandset(spinlock)) { xthread_yield(); }
+  #define spinlock_release(spinlock)  do { *(spinlock) = -1; } while(0)
+  #define spinlock_destroy(spinlock)
 
-#else
-
+#else /* not know architecture with inline asm implementation */
+  #ifdef GENERATIONAL_GC
+    #error Generational GC is not compatible with "slow" spinlocks.
+  #endif
   /* Slow, but portable. */
-
-  typedef xmutex_t spinlock_t;
-
+  #define spinlock_t xmutex_t
   /* do not check for errors from xmutex_xxxx() even if there is
      problem it is too generic in order to be handled properly.*/
-  static inline void spinlock_init (spinlock_t* spinlock)
-  { xmutex_init(spinlock); }
-  static inline bool spinlock_tryacquire(spinlock_t* spinlock)
-  { return xmutex_trylock(spinlock); }
-  static inline void spinlock_acquire (spinlock_t* spinlock)
-  { xmutex_lock(spinlock); }
-  static inline void spinlock_release (spinlock_t* spinlock)
-  { xmutex_unlock(spinlock); }
-  static inline void spinlock_destroy (spinlock_t* spinlock)
-  { xmutex_destroy(spinlock); }
+  #define spinlock_init(spinlock) xmutex_init(spinlock)
+  #define spinlock_tryacquire(spinlock) xmutex_trylock(spinlock)
+  #define spinlock_acquire(spinlock) xmutex_lock(spinlock)
+  #define spinlock_release(spinlock) xmutex_unlock(spinlock)
+  #define spinlock_destroy(spinlock) xmutex_destroy(spinlock)
 
 #endif
 
