@@ -1706,9 +1706,12 @@ local void fill_relocation_memory_regions(aint start,aint end,
     var int i = 0;
     while (i<*count-1) {
       if (regs[i].start == regs[i+1].start) {
-        /* no way the sizes to differ */
-        DEBUG_SPVW_ASSERT(regs[i].size == regs[i+1].size);
-        memmove(regs+i+1,regs+i+2,(*count-i-2)*sizeof(varobj_mem_region));
+        /* no way the sizes to differ unless the pinned object is not
+           at the heap start and it's size is not initialized. in this case
+           we do not care. */
+        DEBUG_SPVW_ASSERT((i==0) || (regs[i].size == regs[i+1].size));
+        /* skip the current */
+        memmove(regs+i,regs+i+1,(*count-i-2)*sizeof(varobj_mem_region));
         (*count)--; mit--;
         continue;
       }
@@ -1873,7 +1876,7 @@ local void gar_col_normal (void)
   var object threads_to_go; /* list of threads to be released */
   var object mutexes_to_go; /* list of mutexes to be released */
   var object exemptions_to_go; /* list of exemptions to be released */
-  #endif
+  #endif /* MULTITHREAD */
   set_break_sem_1();       /* disable BREAK during Garbage Collection */
   gc_signalblock_on();   /* disable Signals during Garbage Collection */
   gc_timer_on();
