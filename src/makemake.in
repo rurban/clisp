@@ -3231,11 +3231,7 @@ echotab "if grep lispbibl.d clisp.h; then false; else true; fi"
 echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
 OBSOLETE="$OBSOLETE clisp-test.c"
 echol
-if [ "${with_threads}" != no ]; then
-  LINKKIT="modules.c clisp.h modprep.lisp xthread.c"
-else
-  LINKKIT="modules.c clisp.h modprep.lisp"
-fi
+LINKKIT="modules.c clisp.h modprep.lisp"
 echol "linkkit : ${LINKKIT}"
 echotab "-\$(RMRF) linkkit"
 echotab "mkdir linkkit"

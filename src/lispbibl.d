@@ -210,12 +210,6 @@
     #define S390
   #endif
 #endif
-/* this signals the xthread.d not to try to deduce the CPU again.
- (since xthread.d is included from modules as  well and because of the
- spinlock implementation - it should know the CPU. )*/
-#if defined(MULTITHREAD)
- #define TARGET_CPU_DEFINED
-#endif
 
 /* Selection of the operating system */
 #ifdef WIN32
@@ -6851,8 +6845,29 @@ typedef enum {
 %% export_def(make_machine(ptr));
 
 #ifdef MULTITHREAD
-
+/* load the multithread stuff and export parts required by modules */
 #include "xthread.c"
+%% #ifdef MULTITHREAD
+%%  #if defined(POSIX_THREADS)
+%%   puts("#include <pthread.h>");
+%%   puts("#include <sched.h>");
+%%   puts("extern pthread_mutexattr_t recursive_mutexattr;");
+%%  #elif defined(SOLARIS_THREADS)
+%%   puts("#include <thread.h>");
+%%   puts("#include <synch.h>");
+%%  #endif
+%%  export_def(xthread_t);
+%%  export_def(xthread_key_t);
+%%  export_def(xthread_key_get(k));
+%%  export_def(xmutex_t);
+%%  export_def(xmutex_lock(m));
+%%  export_def(xmutex_unlock(m));
+%%  export_def(spinlock_t);
+%%  export_def(testandset(s));
+%%  export_def(spinlock_acquire(s));
+%%  export_def(spinlock_release(s));
+%%  export_def(spinlock_tryacquire(s));
+%% #endif
 
 /* forward declaration */
 struct clisp_thread_t;
@@ -17131,8 +17146,6 @@ struct object_tab_tl_ {
     #define THREAD_LISP_STACK_START(thread) \
       ((gcv_object_t *)thread->_STACK_start)
   #endif
-
-%% puts("#include \"xthread.c\"");
 
 /* just the beginning of the structure is exported -
    what modules want to know about (in order to build) */

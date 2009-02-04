@@ -1,3 +1,13 @@
+2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	export low-level threads internals to clisp.h
+	* xthread.d: convert all functions to macros in order to export them to
+	clisp.h. POSIX mutexes code cleanup
+	* spvw.d (recursive_mutexattr): always defined in POSIX_THREADS
+	* lispbibl.d: export to clisp.h required low-level threads macros. do
+	not include xthread.c from clisp.h
+	* makemake.in (LINKKIT): revert last commit
+
 2009-02-01  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* makemake.in (LINKKIT): add xthread.c in threads builds
