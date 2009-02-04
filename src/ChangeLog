@@ -1,5 +1,11 @@
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_genera1.d (build_old_generation_cache) [MULTITHREAD]: fix
+	page protection when multiple heap areas should be left with
+	PROT_READ_WRITE
+
+2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* lispbibl.d [MULTITHREAD]: export to clisp.h only the types
 	(PERFORM_GC)[MULTITHREAD]: set the valid stack range of current
 	thread in debug builds
