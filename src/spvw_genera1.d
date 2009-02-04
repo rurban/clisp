@@ -427,11 +427,14 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
             DEBUG_SPVW_ASSERT(protection == PROT_READ);
             end = gen0_end_pa;
           } else {
-            DEBUG_SPVW_ASSERT((protection == PROT_READ_WRITE) &&
-                              (start == rwarea->start));
-            end = rwarea->start + rwarea->size;
+            if (protection == PROT_READ) {
+              end = rwarea->start;
+            } else { /* PROT_READ_WRITE */
+              DEBUG_SPVW_ASSERT(start == rwarea->start);
+              end = rwarea->start + rwarea->size;
+              rwarea++;
+            }
           }
-          rwarea++;
         } while (1);
         goto prot_finished;
       #endif
