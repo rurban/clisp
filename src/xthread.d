@@ -339,7 +339,7 @@ typedef struct _xcondition {
       } while(0)
   #endif
   #ifdef MIPS
-    #define testandset(int* spinlock)                                \
+    #define testandset(spinlock)                                     \
       ({ long ret;                                                   \
         long temp;                                                   \
         __asm__ __volatile__("#Inline spinlock test & set"           \
