@@ -1,5 +1,12 @@
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* lispbibl.d [MULTITHREAD]: export to clisp.h only the types
+	(PERFORM_GC)[MULTITHREAD]: set the valid stack range of current
+	thread in debug builds
+	* xthread.d (testandset) [MIPS]: fix the macro argument
+
+2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	export low-level threads internals to clisp.h
 	* xthread.d: convert all functions to macros in order to export them to
 	clisp.h. POSIX mutexes code cleanup
