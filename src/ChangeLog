@@ -1,5 +1,10 @@
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_garcol.d (fill_relocation_memory_regions) [MULITHREAD]: fix
+	corner case: multiple times pinned object at the start of the heap
+
+2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_genera1.d (build_old_generation_cache) [MULTITHREAD]: fix
 	page protection when multiple heap areas should be left with
 	PROT_READ_WRITE
