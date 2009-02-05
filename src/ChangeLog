@@ -25,7 +25,7 @@
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d [MULTITHREAD]: export to clisp.h only the types
-	(PERFORM_GC)[MULTITHREAD]: set the valid stack range of current
+	(PERFORM_GC) [MULTITHREAD]: set the valid stack range of current
 	thread in debug builds
 	* xthread.d (testandset) [MIPS]: fix the macro argument
 
@@ -44,6 +44,7 @@
 	* makemake.in (LINKKIT): add xthread.c in threads builds
 
 2009-02-01  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* unix.d (SETSID): use setsid() if available (do not emulate it via
 	setpgid()). fixes MT builds on some linux distributions.
 
