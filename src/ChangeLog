@@ -1,5 +1,11 @@
 2009-02-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_genera1.d (build_old_generation_cache) [MULTITHREAD]: fix
+	page protection when multiple "writeable" (PROT_READ_WRITE) pinned
+	objects share the same physical memory page
+
+2009-02-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_global.d: comments
 	(suspend_thread): release heap lock only if it was acquired by us
 	(resume_thread): acquire heap lock only if not already owned
