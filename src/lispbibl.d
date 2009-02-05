@@ -17265,20 +17265,26 @@ global int register_thread(clisp_thread_t *thread);
 global void lock_threads();
 /* unlocks global thread array */
 global void unlock_threads();
-/* Suspends all running threads /besides the current/ on GC safe points/regions.
-   if lock_heap is true the heap is locked first.
-   (this is needed since GC may be called from allocation or explicitly - when
-   the heap lock is not held) */
+/* UP: Suspends all running threads /besides the current/ at GC safe
+   points/regions.
+ > lock_heap: if false - the caller already owns the heap lock
+ At the end the heap lock is released since the GC itself may want
+ to allocate. */
 global void gc_suspend_all_threads(bool lock_heap);
-/* Resumes all suspended threads /besides the current/
-   should match a call to suspend_all_threads() */
+/* UP: Resumes all suspended threads after GC (or world stop)
+ > unlock_heap: if true - the heap lock will be released at the end
+ should match a call to gc_suspend_all_threads()*/
 global void gc_resume_all_threads(bool unlock_heap);
-/* suspends at safe point and increases the _suspend_count of the thread
- lock_heap specifies whether the caller DOES NOT own the heap spinlock */
+/* UP: Suspends single thread
+ > thr: the thread to be suspended
+ > lock_heap: if false - the caller already owns the heap lock
+ called from signal handler thread and from THREAD-INTERRUPT */
 global void suspend_thread(clisp_thread_t *thr, bool lock_heap);
-/* resumes suspended thread (or just decreases the _suspend_count)
- lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
-global void resume_thread(clisp_thread_t *thr, bool unlock_heap);
+/* UP: Resumes single thread (or just decreases it's _suspend_count).
+ > thr: the thread to be suspended
+ > lock_heap: if false - the caller already owns the heap lock
+ called from signal handler thread and from THREAD-INTERRUPT */
+global void resume_thread(clisp_thread_t *thr, bool lock_heap);
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
 /* releases the OS mutexes for mutex objects in the list */
