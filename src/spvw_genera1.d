@@ -432,7 +432,19 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
             } else { /* PROT_READ_WRITE */
               DEBUG_SPVW_ASSERT(start == rwarea->start);
               end = rwarea->start + rwarea->size;
+              /* advance rwarea. it is possible to have few pinned objects
+                 (and so PROT_READ_WRITE areas) in singe physical page. In this
+                 case we have "duplicated" rwarea items. skip not relevant ones
+                 (or parts of them). */
               rwarea++;
+              while (rwarea->start == (rwarea-1)->start) {
+                if (rwarea->size != (rwarea-1)->size) {
+                  /* shrink it */
+                  rwarea->start += (rwarea-1)->size;
+                  rwarea->size -= (rwarea-1)->size;
+                } else
+                  rwarea++;
+              }
             }
           }
         } while (1);
