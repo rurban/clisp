@@ -540,13 +540,15 @@ local inline void init_mem_heapnr_from_type (void)
 #define RELEASE_HEAP_LOCK() spinlock_release(&mem.alloc_lock)
 
 /* since the GC may be re-entrant we should keep track how many times
- we have been called. Only the first time we have to really suspend other threads.*/
+   we have been called. Only the first time we have to really suspend
+   other threads.*/
 local uintC gc_suspend_count=0;
 
-/* Suspends all running threads /besides the current/ on GC safe points/regions.
-   if lock_heap is true the heap is locked first.
-   (this is needed since GC may be called from allocation or explicitly - when
-   the heap lock is not held - the same for lock_thr) */
+/* UP: Suspends all running threads /besides the current/ at GC safe
+   points/regions.
+ > lock_heap: if false - the caller already owns the heap lock
+ At the end the heap lock is released since the GC itself may want
+ to allocate. */
 global void gc_suspend_all_threads(bool lock_heap)
 {
   var clisp_thread_t *me=current_thread();
@@ -605,8 +607,9 @@ global void gc_suspend_all_threads(bool lock_heap)
   RELEASE_HEAP_LOCK();
 }
 
-/* Resumes all suspended threads /besides the current/
- should match a call to suspend_all_threads()*/
+/* UP: Resumed all suspended threads after GC (or world stop)
+ > unlock_heap: if true - the heap lock will be released at the end
+ should match a call to gc_suspend_all_threads()*/
 global void gc_resume_all_threads(bool unlock_heap)
 {
   /* thread lock is locked. heap lock is free. */
@@ -647,8 +650,10 @@ global void gc_resume_all_threads(bool unlock_heap)
   if (unlock_heap) RELEASE_HEAP_LOCK();
 }
 
-/* resumes suspended thread (or just decreases the _suspend_count)
- lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
+/* UP: Suspends single thread
+ > thr: the thread to be suspended
+ > lock_heap: if false - the caller already owns the heap lock
+ called from signal handler thread and from THREAD-INTERRUPT */
 global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
 {
   /* should never be called on ourselves */
@@ -668,15 +673,18 @@ global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
     thr->_suspend_count++;
   }
   unlock_threads();
-  RELEASE_HEAP_LOCK();
+  if (lock_heap) RELEASE_HEAP_LOCK();
 }
-/* resumes suspended thread (or just decreases the _suspend_count)
- lock_heap specifies whether the caller DOES NOT own  the heap spinlock */
-global void resume_thread(clisp_thread_t *thr, bool unlock_heap)
+
+/* UP: Resumes single thread (or just decreases it's _suspend_count).
+ > thr: the thread to be suspended
+ > lock_heap: if false - the caller already owns the heap lock
+ called from signal handler thread and from THREAD-INTERRUPT */
+global void resume_thread(clisp_thread_t *thr, bool lock_heap)
 {
   /* should never be called on ourselves */
   ASSERT(thr != current_thread());
-  ACQUIRE_HEAP_LOCK();
+  if (lock_heap) ACQUIRE_HEAP_LOCK();
   lock_threads(); /* blocks the GC - but not a problem */
   if (thr->_STACK != NULL) {  /* only if thread is alive */
     if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
@@ -685,7 +693,7 @@ global void resume_thread(clisp_thread_t *thr, bool unlock_heap)
     }
   }
   unlock_threads();
-  if (unlock_heap) RELEASE_HEAP_LOCK();
+  if (lock_heap) RELEASE_HEAP_LOCK();
 }
 
 

@@ -1,6 +1,13 @@
+2009-02-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_global.d: comments
+	(suspend_thread): release heap lock only if it was acquired by us
+	(resume_thread): acquire heap lock only if not already owned
+	* lispbibl.d: comments
+
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* spvw_garcol.d (fill_relocation_memory_regions) [MULITHREAD]: fix
+	* spvw_garcol.d (fill_relocation_memory_regions) [MULTITHREAD]: fix
 	corner case: multiple times pinned object at the start of the heap
 
 2009-02-04  Vladimir Tzankov  <vtzankov@gmail.com>
