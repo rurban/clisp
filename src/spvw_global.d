@@ -548,7 +548,9 @@ local uintC gc_suspend_count=0;
    points/regions.
  > lock_heap: if false - the caller already owns the heap lock
  At the end the heap lock is released since the GC itself may want
- to allocate. */
+ to allocate. locks threads mutex in order to prevent race conditions
+ with threads that are exitting (in delete_thread()). the lock will be
+ released when all threads are resumed */
 global void gc_suspend_all_threads(bool lock_heap)
 {
   var clisp_thread_t *me=current_thread();
@@ -598,7 +600,6 @@ global void gc_suspend_all_threads(bool lock_heap)
       if (!all_suspended) xthread_yield(); else break;
     } while (1);
     FREE_DYNAMIC_ARRAY(acklocked);
-    unlock_threads();
   }
   gc_suspend_count++; /* increase the suspend count */
   /* keep the lock on threads, but release the heap lock.
@@ -615,7 +616,6 @@ global void gc_resume_all_threads(bool unlock_heap)
   /* thread lock is locked. heap lock is free. */
   var clisp_thread_t *me=current_thread();
   /*fprintf(stderr,"VTZ: GC_RESUME(): %0x, %d\n",me, gc_suspend_count);*/
-
   /* before resuming let's report if any timeout call has failed. no need
      to acquire any lock - since no other thread LISP is running (and the
      signal handling thread will wait on the heap lock/gc_suspend_count
@@ -647,6 +647,7 @@ global void gc_resume_all_threads(bool unlock_heap)
       xmutex_unlock(&thread->_gc_suspend_lock); /* enable thread */
     }
   });
+  unlock_threads(); /* locked in gc_suspend_all_threads() */
   if (unlock_heap) RELEASE_HEAP_LOCK();
 }
 

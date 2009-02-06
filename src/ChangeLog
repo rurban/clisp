@@ -1,3 +1,13 @@
+2009-02-06  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_global.d (gc_suspend_all_threads): hold the threads lock while
+	all threads are suspended. prevents race condition between
+	delete_thread() and GC (allthreads[] is changed by delete_thread()
+	while GC may use it)
+	(gc_resume_all_threads): release the threads lock acquired by
+	gc_suspend_all_threads()
+	* spvw.d (delete_thread): do not destroy twice _gc_suspend_lock
+
 2009-02-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_genera1.d (build_old_generation_cache) [MULTITHREAD]: fix
