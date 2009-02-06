@@ -17447,7 +17447,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     finish_entry_frame(UNWIND_PROTECT,returner,, {                      \
       var restartf_t fun = unwind_protect_to_save.fun;                  \
       var gcv_object_t* upto = unwind_protect_to_save.upto_frame;       \
-      var gcv_object_t po;                                              \
+      var object po;                                                    \
       skipSTACK(2);                                                     \
       po=popSTACK();                                                    \
       unpin_varobject_i(po);                                            \
