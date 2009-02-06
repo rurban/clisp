@@ -843,19 +843,21 @@ global void delete_thread (clisp_thread_t *thread, bool full) {
   allthreads[nthreads-1]->_index = thread->_index;;
   allthreads[thread->_index] = allthreads[nthreads-1];
   nthreads--;
-  xmutex_destroy(&thread->_gc_suspend_lock);
   thread->_index=MAXNTHREADS+1; /* mark as exitted */
-  /* VTZ: The LISP stack should be unwound so no
+  /* The LISP stack should be unwound so no
      interesting stuff on it. Let's deallocate it.*/
   begin_system_call();
   if (thread->_own_stack)
     free(THREAD_LISP_STACK_START(thread));
   thread->_STACK = NULL;  /* marks thread as non active */
   thread->_thread_exit_tag = NULL;
-  /* VTZ: the clisp_thread_t itself will be deallocated during finalization
+  /* clisp_thread_t itself will be deallocated during finalization
      phase of GC - when the thread record is discarded. why?
      (somebody may want to inspect the mv_space for "thread return value")
-     sds: mv_space does not survive a GC, so there is nothing to inspect */
+     sds: mv_space does not survive a GC, so there is nothing to inspect.
+     vtz: per thread symvalues are available - SYMBOL-VALUE-THREAD works on
+     terminated threads. this may be helpful for diagnostic purposes.
+     if you think it's not - let's free everything here. */
   if (full) {
     free(thread->_ptr_symvalues);
     free(thread);
@@ -4508,7 +4510,7 @@ local void *signal_handler_thread(void *arg)
              errors are defined for ualarm. If this is the case - just ask for
 	     something less than a second */
 	  if (ualarm(wait,0) == (useconds_t)-1)
-	    ualarm(999999,0);
+            ualarm(999999,0);
         }
         /* release the chain spinlock */
         spinlock_release(&timeout_call_chain_lock);
