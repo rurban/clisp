@@ -17404,14 +17404,32 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
    #define unprotect_heap_range(vo,write_access)
   #endif
 
+  #ifdef DEBUG_SPVW
+    /* aborts if we want to pin object while we are in GC safe region.
+       prevents bad pin_varobject() usage. */
+    #define ASSERT_SAFE_TO_PIN()                                \
+      do {                                                      \
+        if (current_thread()->_gc_suspend_ack == 0) abort();    \
+      } while(0)
+    /* aborts if we want to unpin object that is not in the front of pinned
+       object chain. since we have proper unwind semantic - this should
+       never happen.*/
+    #define ASSERT_VALID_UNPIN(pc,vo)    \
+      do {                               \
+        if (!eq((*pc)->_o, vo)) abort(); \
+      } while(0)
+  #else
+    #define ASSERT_SAFE_TO_PIN()
+    #define ASSERT_VALID_UNPIN(pc,vo)
+  #endif
   /* pin/unpin varobject in lisp heap. pin is protected
      with unwind-protect frame. */
   #define unpin_varobject_i(vo)                            \
     do {                                                   \
       var pinned_chain_t **p=&(current_thread()->_pinned); \
-      while (*p && !eq((*p)->_o, vo)) *p = (*p)->_next;    \
-      if (*p) *p=(*p)->_next;                              \
-    } while(0)
+      ASSERT_VALID_UNPIN(p,vo);                            \
+      *p = (*p)->_next;                                    \
+     } while(0)
   #define unpin_varobject(vo) \
     do {                      \
       skipSTACK(3);           \
@@ -17422,13 +17440,14 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
      vo: the varobject to be pinned
      write_access: true if the memory will be written - false otherwise  */
   #define pin_varobject(vo,write_access)                                \
+    ASSERT_SAFE_TO_PIN();                                               \
     pushSTACK(vo);                                                      \
     var gcv_object_t* top_of_frame = STACK;                             \
     var sp_jmp_buf returner;                                            \
     finish_entry_frame(UNWIND_PROTECT,returner,, {                      \
       var restartf_t fun = unwind_protect_to_save.fun;                  \
       var gcv_object_t* upto = unwind_protect_to_save.upto_frame;       \
-      var object po;                                                    \
+      var gcv_object_t po;                                              \
       skipSTACK(2);                                                     \
       po=popSTACK();                                                    \
       unpin_varobject_i(po);                                            \
