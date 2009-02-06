@@ -1,5 +1,16 @@
 2009-02-06  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* lispbibl.d (ASSERT_SAFE_TO_PIN) [MULTITHREAD]: aborts if
+	pin_varobject() is used when GC can run at the same time (only
+	with DEBUG_SPVW)
+	(pin_varobject) [MULTITHREAD]: use it
+	(ASSERT_VALID_UNPIN) [MULTITHREAD]: checks that the object to be
+	unpinned is at the start of pinned objects chain. this should always
+	be the case (there are unwind-protect frames for every pinned object)
+	(unpin_varobject_i): use it. simplify it
+
+2009-02-06  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_global.d (gc_suspend_all_threads): hold the threads lock while
 	all threads are suspended. prevents race condition between
 	delete_thread() and GC (allthreads[] is changed by delete_thread()
