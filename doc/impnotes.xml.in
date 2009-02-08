@@ -213,12 +213,12 @@
 <part id="appendices"><title>Appendices</title>
 
 &faq-file;
-<xi:include href="http://www.gnu.org/licenses/fdl.dbk"
+<xi:include href="http://www.gnu.org/licenses/fdl-1.3.dbk"
             xmlns:xi="http://www.w3.org/2001/XInclude">
  <xi:fallback><appendix id="gfdl"><title>GNU Free Documentation License</title>
    <para>internet connection to the &fsf; is broken</para></appendix>
 </xi:fallback></xi:include>
-<xi:include href="http://www.gnu.org/licenses/gpl2.dbk"
+<xi:include href="http://www.gnu.org/licenses/gpl-2.0.dbk"
             xmlns:xi="http://www.w3.org/2001/XInclude">
  <xi:fallback><appendix id="gpl"><title>GNU General Public License</title>
    <para>internet connection to the &fsf; is broken</para></appendix>
