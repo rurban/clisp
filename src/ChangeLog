@@ -1,3 +1,13 @@
+2009-02-11  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	avoid preprocessor instructions inside macro invocations
+	* spvw.d (ENABLE_DUMMY_ALLOCCOUNT) [MULTITHREAD & DEBUG_GCSAFETY]:
+	toggle the dummy alloccount when executing in signal handling thread -
+	no lisp thread is associated with it and no real alloccount
+	(signal_handler_thread): use it
+	* spvw_genera1.d (build_old_generation_cache): apply the patch from:
+	http://article.gmane.org/gmane.lisp.clisp.general/12821
+
 2009-02-10  Sam Steingold  <sds@gnu.org>
 
 	avoid preprocessor instructions inside macro invocations

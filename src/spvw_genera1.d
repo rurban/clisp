@@ -456,14 +456,18 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
         {
           var physpage_state_t* physpage = heap->physpages;
           var uintL count;
+          #ifdef MULTITHREAD
+            #define SI(x) spinlock_init(x)
+          #else
+            #define SI(x)
+          #endif
           dotimespL(count,physpage_count, {
             physpage->protection = PROT_READ;
             physpage->cache_size = 0; physpage->cache = NULL;
-           #ifdef MULTITHREAD
-            spinlock_init(&physpage->cache_lock);
-           #endif
+            SI(&physpage->cache_lock);
             physpage++;
           });
+          #undef SI
         }
       prot_finished:
 
