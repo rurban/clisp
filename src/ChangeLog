@@ -5,8 +5,6 @@
 	toggle the dummy alloccount when executing in signal handling thread -
 	no lisp thread is associated with it and no real alloccount
 	(signal_handler_thread): use it
-	* spvw_genera1.d (build_old_generation_cache): apply the patch from:
-	http://article.gmane.org/gmane.lisp.clisp.general/12821
 
 2009-02-10  Sam Steingold  <sds@gnu.org>
 
@@ -15,6 +13,8 @@
 	(check_uint_replacement, check_sint_replacement): use them
 	(ulong_type_object, slong_type_object): add
 	(check_ulong_replacement, check_slong_replacement): use them
+	* spvw_genera1.d (build_old_generation_cache):
+	take #ifdef out of dotimespL
 
 2009-02-06  Vladimir Tzankov  <vtzankov@gmail.com>
 
