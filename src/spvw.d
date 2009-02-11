@@ -4432,6 +4432,11 @@ local void interrupt_thread_signal_handler (int sig) {
   GC_SAFE_REGION_BEGIN();
 }
 
+#ifdef DEBUG_GCSAFETY
+  #define ENABLE_DUMMY_ALLOCCOUNT(enable) { use_dummy_alloccount=enable; }
+#else
+  #define ENABLE_DUMMY_ALLOCCOUNT(enable)
+#endif
 
 /* UP: The signal handler in MT build.
  > arg: not used. */
@@ -4465,39 +4470,39 @@ local void *signal_handler_thread(void *arg)
            alloccount. Generally with DEBUG_GCSAFETY we cannot suspend
            single thread from signal handler without interfering with
            other threads allocacounts */
-#ifdef DEBUG_GCSAFETY
-        WITH_STOPPED_WORLD(false,{
-          use_dummy_alloccount=true;
-#endif
-          for(;chain && timeval_less(chain->expire,&now); chain=chain->next) {
-#ifndef DEBUG_GCSAFETY
-          WITH_STOPPED_THREAD(chain->thread,false,{
-#endif
-            if (chain->thread->_STACK) { /* alive ? */
-              spinlock_acquire(&chain->thread->_signal_reenter_ok);
-              gcv_object_t *saved_stack=chain->thread->_STACK;
-              NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
-              NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
-              NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
-              if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
-                                 SIG_THREAD_INTERRUPT)) {
-                /* hmm - signal send failed. restore the stack and spinlock,
-                   and mark the timeout as failed. The next time when we come
-                   here we will retry it - if not reported as warning to the
-                   user. The user will always get a warning. */
-                chain->failed=true;
-                chain->thread->_STACK=saved_stack;
-                spinlock_release(&chain->thread->_signal_reenter_ok);
-              }
+      #ifdef DEBUG_GCSAFETY
+        gc_suspend_all_threads(false);
+        ENABLE_DUMMY_ALLOCCOUNT(true);
+      #endif
+        for(;chain && timeval_less(chain->expire,&now); chain=chain->next) {
+        #ifndef DEBUG_GCSAFETY
+          suspend_thread(chain->thread,false);
+        #endif
+          if (chain->thread->_STACK) { /* alive ? */
+            spinlock_acquire(&chain->thread->_signal_reenter_ok);
+            gcv_object_t *saved_stack=chain->thread->_STACK;
+            NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
+            NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
+            NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
+            if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
+                               SIG_THREAD_INTERRUPT)) {
+              /* hmm - signal send failed. restore the stack and spinlock,
+                 and mark the timeout as failed. The next time when we come
+                 here we will retry it - if not reported as warning to the
+                 user. The user will always get a warning. */
+              chain->failed=true;
+              chain->thread->_STACK=saved_stack;
+              spinlock_release(&chain->thread->_signal_reenter_ok);
             }
-#ifndef DEBUG_GCSAFETY
-          });
-#endif
           }
-#ifdef DEBUG_GCSAFETY
-          use_dummy_alloccount=false;
-        });
-#endif
+        #ifndef DEBUG_GCSAFETY
+          resume_thread(chain->thread,false);
+        #endif
+        }
+      #ifdef DEBUG_GCSAFETY
+        ENABLE_DUMMY_ALLOCCOUNT(false);
+        gc_resume_all_threads(false);
+      #endif
         /* should we set new alarm ? */
         if (chain) {
           var struct timeval diff;
@@ -4519,9 +4524,7 @@ local void *signal_handler_thread(void *arg)
     case SIGINT:
       WITH_STOPPED_WORLD(false,{
         var bool signal_sent=false;
-       #ifdef DEBUG_GCSAFETY
-        use_dummy_alloccount=true;
-       #endif
+        ENABLE_DUMMY_ALLOCCOUNT(true);
         for_all_threads({
           if (thread->_STACK) { /* still alive ?*/
             spinlock_acquire(&thread->_signal_reenter_ok);
@@ -4544,9 +4547,7 @@ local void *signal_handler_thread(void *arg)
         if (!signal_sent) {
           fputs("*** SIGINT will be missed.\n",stderr); abort();
         }
-       #ifdef DEBUG_GCSAFETY
-        use_dummy_alloccount=false;
-       #endif
+        ENABLE_DUMMY_ALLOCCOUNT(false);
       });
       break;
    #if defined(SIGWINCH)
@@ -4570,9 +4571,7 @@ local void *signal_handler_thread(void *arg)
          kill the process from delete_thread */
       WITH_STOPPED_WORLD(false,{
         var bool some_failed=false;
-       #ifdef DEBUG_GCSAFETY
-        use_dummy_alloccount=true;
-       #endif
+        ENABLE_DUMMY_ALLOCCOUNT(true);
         for_all_threads({
           if (thread->_STACK) {
             /* be sure the signal handler can be reentered */
@@ -4589,9 +4588,7 @@ local void *signal_handler_thread(void *arg)
           fputs("*** some threads were not signaled to terminate.",stderr);
           quit(); /* force quit from here. lisp stacks will not be unwound */
         }
-       #ifdef DEBUG_GCSAFETY
-        use_dummy_alloccount=false;
-       #endif
+        ENABLE_DUMMY_ALLOCCOUNT(false);
       });
       break;
     }
@@ -4599,6 +4596,8 @@ local void *signal_handler_thread(void *arg)
   }
   return NULL;
 }
+
+#undef ENABLE_DUMMY_ALLOCCOUNT
 
 global void install_async_signal_handlers()
 {
