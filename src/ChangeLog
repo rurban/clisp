@@ -1,3 +1,9 @@
+2009-01-26  Sam Steingold  <sds@gnu.org>
+
+	* format.lisp (format-float-to-string): return the 6th value:
+	roundup, meaning that rounding up 9 -> 10 lengthens the number
+	(format-general-float): use it to fix (FORMAT NIL "~G" 1.0d24)
+
 2009-02-11  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	avoid preprocessor instructions inside macro invocations
