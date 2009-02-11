@@ -1600,44 +1600,47 @@ global maygc object check_c_integer_replacement (object obj, int tcode,
   };
 }
 
+#if (int_bitsize==16)
+  #define uint_type_object  O(type_uint16)
+  #define sint_type_object  O(type_sint16)
+#else /* (int_bitsize==32) */
+  #define uint_type_object  O(type_uint32)
+  #define sint_type_object  O(type_sint32)
+#endif
+
 /* error, if argument is not an integer in the range of the C type 'uint'.
  check_uint_replacement(obj)
  > obj: not an integer in the range of uint
  < obj: an integer in the range of uint
  can trigger GC */
-MAKE_CHECK_REPLACEMENT(uint,
-#if (int_bitsize==16)
-                       O(type_uint16),
-#else /* (int_bitsize==32) */
-                       O(type_uint32),
-#endif
-                       uint_p,GETTEXT("~S: ~S is not an `unsigned int' number"))
+MAKE_CHECK_REPLACEMENT(uint,uint_type_object,uint_p,
+                       GETTEXT("~S: ~S is not an `unsigned int' number"))
 
 /* error, if argument is not an integer in the range of the C type 'sint'.
  check_sint_replacement(obj)
  > obj: not an integer in the range of sint
  < obj: an integer in the range of sint
  can trigger GC */
-MAKE_CHECK_REPLACEMENT(sint,
-#if (int_bitsize==16)
-                       O(type_sint16),
-#else /* (int_bitsize==32) */
-                       O(type_sint32),
+MAKE_CHECK_REPLACEMENT(sint,sint_type_object,sint_p,
+                       GETTEXT("~S: ~S is not an `int' number"))
+
+#undef uint_type_object
+#undef sint_type_object
+
+#if (long_bitsize==32)
+  #define ulong_type_object  O(type_uint32)
+  #define slong_type_object  O(type_sint32)
+#else /* (long_bitsize==64) */
+  #define ulong_type_object  O(type_uint64)
+  #define slong_type_object  O(type_sint64)
 #endif
-                       sint_p,GETTEXT("~S: ~S is not an `int' number"))
 
 /* error, if argument is not an integer in the range of the C type 'ulong'.
  check_ulong_replacement(obj)
  > obj: not an integer in the range of ulong
  < obj: an integer in the range of ulong
  can trigger GC */
-MAKE_CHECK_REPLACEMENT(ulong,
-#if (long_bitsize==32)
-                       O(type_uint32),
-#else /* (long_bitsize==64) */
-                       O(type_uint64),
-#endif
-                       ulong_p,
+MAKE_CHECK_REPLACEMENT(ulong,ulong_type_object,ulong_p,
                        GETTEXT("~S: ~S is not a `unsigned long' number"))
 
 /* error, if argument is not an integer in the range of the C type 'slong'.
@@ -1645,13 +1648,11 @@ MAKE_CHECK_REPLACEMENT(ulong,
  > obj: not an integer in the range of slong
  < obj: an integer in the range of slong
  can trigger GC */
-MAKE_CHECK_REPLACEMENT(slong,
-#if (long_bitsize==32)
-                       O(type_sint32),
-#else /* (long_bitsize==64) */
-                       O(type_sint64),
-#endif
-                       slong_p,GETTEXT("~S: ~S is not a `long' number"))
+MAKE_CHECK_REPLACEMENT(slong,slong_type_object,slong_p,
+                       GETTEXT("~S: ~S is not a `long' number"))
+
+#undef ulong_type_object
+#undef slong_type_object
 
 /* error, if argument is not a Single-Float.
  check_ffloat_replacement(obj)

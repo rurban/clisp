@@ -1,3 +1,11 @@
+2009-02-10  Sam Steingold  <sds@gnu.org>
+
+	avoid preprocessor instructions inside macro invocations
+	* error.d (uint_type_object, sint_type_object): add
+	(check_uint_replacement, check_sint_replacement): use them
+	(ulong_type_object, slong_type_object): add
+	(check_ulong_replacement, check_slong_replacement): use them
+
 2009-02-06  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (pin_varobject): oops. revert: objects of type gcv_object_t
