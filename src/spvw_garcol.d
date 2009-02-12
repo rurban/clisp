@@ -1648,7 +1648,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
   var varobj_mem_region *mit=regs+1;
   var aint vs; /* start address of varobject*/
   var_prepare_objsize;
-#ifdef GENERATIONAL_GC
+ #ifdef GENERATIONAL_GC
   /* find the heap. we are going to mark physical pages that containg
      pinned objects */
   #ifdef SPVW_PURE
@@ -1656,8 +1656,29 @@ local void fill_relocation_memory_regions(aint start,aint end,
   #else /* SPVW_MIXED */
   var Heap* heap = &mem.varobjects;
   #endif
-#endif
+  #define MARK_GEN1                                                     \
+      if (generation == 1) { /* gen1 only */                            \
+        if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) && \
+            (heap->physpages != NULL)) {  /* is the object on old gen? */ \
+          /* let's mark the physical pages to preserve VM protection */ \
+          var aint es = vs + objsize((Varobject)vs); /* end address */  \
+          for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {     \
+            var uintL pageno = (vs>>physpageshift) -                    \
+              (heap->heap_gen0_start>>physpageshift);                   \
+            var physpage_state_t* physpage = &heap->physpages[pageno];  \
+            physpage_pin_mark(physpage);                                \
+          }                                                             \
+        }                                                               \
+      }
+ #else
+  #define MARK_GEN1
+ #endif
   *count=1;
+ #ifdef SPVW_PURE
+  #define SET_HEAPNR mit->heapnr = heapnr
+ #else
+  #define SET_HEAPNR
+ #endif
   for_all_threads({
     chain = thread->_pinned;
     while (chain) {
@@ -1665,28 +1686,14 @@ local void fill_relocation_memory_regions(aint start,aint end,
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
-       #ifdef SPVW_PURE
-        mit->heapnr = heapnr;
-       #endif
+        SET_HEAPNR;
 	mit++; (*count)++;
       }
-     #ifdef GENERATIONAL_GC
-      if (generation == 1) { /* gen1 only */
-        if ((heap->heap_gen0_start <= vs) && (vs < heap->heap_gen0_end) &&
-            (heap->physpages != NULL)) {  /* is the object on old gen? */
-          /* let's mark the physical pages to preserve VM protection */
-          var aint es = vs + objsize((Varobject)vs); /* end address */
-          for (vs &= -physpagesize; vs < es; vs +=  physpagesize) {
-            var uintL pageno = (vs>>physpageshift) -
-              (heap->heap_gen0_start>>physpageshift);
-            var physpage_state_t* physpage = &heap->physpages[pageno];
-            physpage_pin_mark(physpage);
-          }
-        }
-      }
-     #endif
+      MARK_GEN1;
       chain = chain->_next;
     }});
+  #undef SET_HEAPNR
+  #undef MARK_GEN1
 
   regs->start=start; /* set the first region */
   if (*count > 2) {

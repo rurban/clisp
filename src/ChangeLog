@@ -1,3 +1,9 @@
+2009-02-12  Sam Steingold  <sds@gnu.org>
+
+	avoid preprocessor instructions inside macro invocations
+	* spvw_garcol.d (fill_relocation_memory_regions): define
+	SET_HEAPNR and MARK_GEN1 for use in for_all_threads()
+
 2009-01-26  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (format-float-to-string): return the 6th value:
