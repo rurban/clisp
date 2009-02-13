@@ -1,3 +1,7 @@
+2009-02-13  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit (error_notreached): replaces fehler_notreached
+
 2009-02-12  Sam Steingold  <sds@gnu.org>
 
 	avoid preprocessor instructions inside macro invocations
