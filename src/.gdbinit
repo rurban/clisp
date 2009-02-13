@@ -164,7 +164,7 @@ commands
   continue
 end
 
-break fehler_notreached
+break error_notreached
 break SP_ueber
 break STACK_ueber
 
