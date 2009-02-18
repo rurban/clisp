@@ -2249,7 +2249,7 @@ can give problems:
 
 <!-- #ifdef UNICODE -->
 <variablelist><varlistentry><term>&unicode-only;</term>
-<listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode; 3.2
+<listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode32;
  character set (ISO 10646, also known as UCS-4).
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
