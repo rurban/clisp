@@ -295,6 +295,7 @@
 <!ENTITY lfd '<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>'>
 <!ENTITY lfd-l '<code>(<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>'>
 <!ENTITY line-term '<link linkend="newline">line terminator</link>'>
+<!ENTITY libdir '<olink targetdoc="man" targetptr="opt-libdir"><varname>CUSTOM:*LIB-DIRECTORY*</varname></olink>'>
 <!ENTITY load-comp '<olink targetdoc="impnotes" targetptr="loadfile"><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>'>
 <!ENTITY load-echo '<olink targetdoc="impnotes" targetptr="loadfile"><varname>CUSTOM:*LOAD-ECHO*</varname></olink>'>
 <!ENTITY load-lpt-db '<olink targetdoc="impnotes" targetptr="load-lpt"><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>'>

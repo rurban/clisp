@@ -131,22 +131,20 @@ compiles the specified lisp files to a platform-independent
    This is the directory containing the linking sets and other data files.
    This option is normally not necessary, because the installation directory
    is already built-in into the &clisp-cmd; executable.
-   Directory &lld; can be changed dynamically using the
-   &symbol-macro; <varname>*LIB-DIRECTORY*</varname>.
+   Directory &lld; can be changed dynamically using the &symbol-macro; &libdir;.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-printlibdir"><term><option>-b</option></term>
  <listitem><simpara>Print the installation directory and exit immediately.
-   The namestring of <varname>*LIB-DIRECTORY*</varname> is printed
-   without any quotes.  This is mostly useful in module Makefiles, see,
+   The namestring of &libdir; is printed without any quotes.
+   This is mostly useful in module Makefiles, see,
    e.g., <filename role="clisp-cvs">modules/syscalls/Makefile</filename>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-link-set"><term><option>-K</option>
   <replaceable>linking-set</replaceable></term>
  <listitem><para>Specifies the &linkset; to be run.
-   This is a directory (relative to the
-   <link linkend="opt-libdir">&lld;</link>)
+   This is a directory (relative to the <link linkend="opt-libdir">&lld;</link>)
    containing at least a main executable (&rt;) and an initial &mem-image;.
    Possible values are
    <variablelist>&varlist-table;<varlistentry><term>&base;</term>
