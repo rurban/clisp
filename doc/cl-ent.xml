@@ -121,7 +121,7 @@
 <!ENTITY defsystem '<ulink url="http://www.cliki.net/defsystem"><function>defsystem</function></ulink>'>
 <!ENTITY gpl '<ulink url="http://www.gnu.org/copyleft/gpl.html">GPL</ulink>'>
 <!ENTITY lgpl '<ulink url="http://www.gnu.org/copyleft/lgpl.html">LGPL</ulink>'>
-<!ENTITY gfdl '<ulink url="http://www.gnu.org/copyleft/fdl.html">GFDL</ulink>'>
+<!ENTITY fdl '<ulink url="http://www.gnu.org/copyleft/fdl.html">FDL</ulink>'>
 
 <!-- *** implementations *** -->
 <!ENTITY abcl '<ulink url="http://armedbear-j.sourceforge.net/"><command>ABCL</command></ulink>'>
