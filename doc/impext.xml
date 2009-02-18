@@ -1837,8 +1837,7 @@ additionally binds &cont-r; to the content length.</para>
   <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LENGTH*</varname></link></member>
   <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LEVEL*</varname></link></member>
   <member><link linkend="inspect"><varname>CUSTOM:*INSPECT-PRINT-LINES*</varname></link></member>
-  <member><olink targetdoc="man" targetptr="opt-libdir"
-                 ><varname>CUSTOM:*LIB-DIRECTORY*</varname></olink></member>
+  <member>&libdir;</member>
   <member>&load-comp;</member>
   <member>&load-echo;</member>
   <member>&load-lpt-db;</member>
