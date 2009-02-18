@@ -69,6 +69,16 @@
  <term><filename role="clisp-cvs">utils/modprep.lisp</filename></term>
 <listitem><simpara>For some modules only, see <xref linkend="modprep"/>.
 </simpara></listitem></varlistentry>
+<varlistentry id="utils-unicode">
+ <term><filename role="clisp-cvs">utils/unicode/</filename></term>
+ <listitem><para>Generate NLS files in
+   <filename role="clisp-cvs">src/</filename>.
+   <variablelist><varlistentry><term>
+      <filename role="clisp-cvs">utils/unicode/UnicodeDataFull.txt</filename>
+     </term><listitem><simpara>Character descriptions from &unicode32;;
+       used by &describe-my; and installed in <filename>data/</filename>
+       under &libdir;.</simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 </variablelist></section>
 
 <section id="src-files"><title>Files</title>
@@ -832,7 +842,8 @@
     <varlistentry>
      <term><filename role="clisp-cvs">doc/Symbol-Table.text</filename></term>
      <listitem><simpara>the mapping between lisp symbols and element IDs
-       in these notes (see &describe-my;).
+       in these notes (see &describe-my;),
+       installed in <filename>data/</filename> under &libdir;.
     </simpara></listitem></varlistentry>
 </variablelist></para></listitem></varlistentry>
 <varlistentry>
