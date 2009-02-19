@@ -1,3 +1,8 @@
+2009-02-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* mt.tst: add tests for mutexes, per thread bindings of special
+	variables, thread interruption
+
 2009-01-18  Sam Steingold  <sds@gnu.org>
 
 	* number2.tst: test (log VERY-BIG-NUM)
