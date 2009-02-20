@@ -34,6 +34,9 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	../modules/syscalls/syscalls.xml	\
 	../modules/wildcard/wildcard.xml	\
 	../modules/zlib/zlib.xml
+# all used stylesheets
+CLISP_XSL = chunk.xsl common.xsl fo.xsl id-href-map.xsl man.xsl pile.xsl
+CLISP_CSS = impnotes.css
 # targets for <olink> resolution
 OLINK=man.tdb pile.tdb chunk.tdb olink-pile.xml olink-chunk.xml
 
@@ -247,6 +250,14 @@ docbook-dtd :
 docbook-xsl : force
 	rsync -av --port=5873 docbook.xml-doc.org::xsl docbook-xsl
 	grep '<fm:Version>' docbook-xsl/VERSION
+
+impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
+		$(CLISP_CSS)
+	$(RM) $@
+	cd ..; ln -s . clisp; \
+	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
+	$(RM) clisp
+	(test -n "$(DIST)" && rsync -av $@ $(DIST)) || true
 
 SEARCH=
 search: force
