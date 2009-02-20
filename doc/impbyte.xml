@@ -736,10 +736,11 @@
  <term><filename role="clisp-cvs">src/threads.lisp</filename></term>
  <listitem><simpara>MT interface</simpara></listitem></varlistentry>
 <varlistentry>
- <term><filename role="clisp-cvs">src/spanish.lisp</filename></term>
  <term><filename role="clisp-cvs">src/german.lisp</filename></term>
  <term><filename role="clisp-cvs">src/french.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/spanish.lisp</filename></term>
  <term><filename role="clisp-cvs">src/russian.lisp</filename></term>
+ <term><filename role="clisp-cvs">src/danish.lisp</filename></term>
  <term><filename role="clisp-cvs">src/dutch.lisp</filename></term>
  <listitem><simpara><link linkend="i18n">i18n</link> user messages
 </simpara></listitem></varlistentry>
