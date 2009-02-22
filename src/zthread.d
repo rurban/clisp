@@ -725,13 +725,16 @@ LISPFUNN(exemption_wait,2)
     pushSTACK(mx); pushSTACK(S(exemption_wait));
     error(control_error,GETTEXT("~S: mutex ~S should be owned by ~S"));
   }
-  if (mutex_recursivep(STACK_0)) {
+  /* we are the owners - let's see how many times we we have locked it */
+  if (TheMutex(STACK_0)->xmu_recurse_count != 1) {
     /* using recursive mutex with condition variables may cause really
-       weird errors that are almost impossible to debug. */
+       weird errors that are almost impossible to debug. Let's check that
+       we have locked it only once */
     var object mx = STACK_0;
     pushSTACK(mx); /* CELL-ERROR Slot NAME */
+    pushSTACK(current_thread()->_lthread);
     pushSTACK(mx); pushSTACK(S(exemption_wait));
-    error(control_error,GETTEXT("~S: recursive mutex ~S cannot be used here"));
+    error(control_error,GETTEXT("~S: recursive mutex ~S is locked multiple times by ~S"));
   }
   /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
   TheMutex(STACK_0)->xmu_owner = NIL; TheMutex(STACK_0)->xmu_recurse_count = 0;
