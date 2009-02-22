@@ -1,3 +1,8 @@
+2009-02-22  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (EXEMPTION-WAIT): allow recursive mutex - but enforce to be
+	locked just once by the calling thread (otherwise error is signaled)
+
 2009-02-22  Vladimir Tzankov   <vtzankov@gmail.com>
 
 	* zthread.d (EXEMPTION-WAIT): do not allow recursive mutexes. this
