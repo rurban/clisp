@@ -725,14 +725,23 @@ LISPFUNN(exemption_wait,2)
     pushSTACK(mx); pushSTACK(S(exemption_wait));
     error(control_error,GETTEXT("~S: mutex ~S should be owned by ~S"));
   }
+  if (mutex_recursivep(STACK_0)) {
+    /* using recursive mutex with condition variables may cause really
+       weird errors that are almost impossible to debug. */
+    var object mx = STACK_0;
+    pushSTACK(mx); /* CELL-ERROR Slot NAME */
+    pushSTACK(mx); pushSTACK(S(exemption_wait));
+    error(control_error,GETTEXT("~S: recursive mutex ~S cannot be used here"));
+  }
   /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
-  TheMutex(STACK_0)->xmu_owner = NIL;
+  TheMutex(STACK_0)->xmu_owner = NIL; TheMutex(STACK_0)->xmu_recurse_count = 0;
   begin_blocking_system_call();
   xcondition_wait(&(TheExemption(STACK_1)->xco_system),
                   &(TheMutex(STACK_0)->xmu_system));
   end_blocking_system_call();
   /* set again the owner. even in case of error - this should be fine. */
   TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
+  TheMutex(STACK_0)->xmu_recurse_count = 1;
   skipSTACK(1);
   VALUES1(popSTACK());
 }

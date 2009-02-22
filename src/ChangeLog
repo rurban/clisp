@@ -1,3 +1,9 @@
+2009-02-22  Vladimir Tzankov   <vtzankov@gmail.com>
+
+	* zthread.d (EXEMPTION-WAIT): do not allow recursive mutexes. this
+	may cause really weird hard to debug errors. see APPLICATION USAGE at:
+	http://opengroup.org/onlinepubs/007908775/xsh/pthread_mutexattr_settype.html
+
 2009-02-13  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit (error_notreached): replaces fehler_notreached
