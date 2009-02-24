@@ -1658,6 +1658,7 @@ LISPSPECFORM(tagbody, 0,0,body)
 
 LISPSPECFORM(go, 1,0,nobody)
 { /* (GO tag), CLTL p. 133 */
+  GC_SAFE_POINT(); /* in case of infinite loops we need a way to break */
   var object tag = popSTACK();
   if (!(numberp(tag) || symbolp(tag))) {
     pushSTACK(tag);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
