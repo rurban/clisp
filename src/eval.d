@@ -6541,7 +6541,8 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       } goto finished;          /* return (jump) to caller */
     }
     #define JMP()                             \
-      { var const uintB* label_byteptr;       \
+      {GC_SAFE_POINT_IF(with_saved_context(GC_SAFE_ACK_SUSPEND_REQUEST_()),;);\
+        var const uintB* label_byteptr;       \
         L_operand(label_byteptr);             \
         DEBUG_CHECK_BYTEPTR(label_byteptr);   \
         byteptr = label_byteptr;              \
