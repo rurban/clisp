@@ -9422,20 +9422,24 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% export_def(end_system_call());
 
 #if defined(MULTITHREAD)
-  /* no_gc statement is executed in case the thread should not be
-     suspended for GC.*/
-  #define GC_SAFE_POINT_ELSE(no_gc)                          \
-    do{                                                      \
-      var clisp_thread_t *thr=current_thread();              \
-      if (spinlock_tryacquire(&thr->_gc_suspend_request)) {  \
-        SET_SP_BEFORE_SUSPEND(thr);                          \
-        spinlock_release(&thr->_gc_suspend_ack);             \
-        xmutex_lock(&thr->_gc_suspend_lock);                 \
-        spinlock_acquire(&thr->_gc_suspend_ack);             \
-        xmutex_unlock(&thr->_gc_suspend_lock);               \
-      } else {no_gc;}                                        \
+  /* acknowledge suspend request and wait for resume */
+  #define GC_SAFE_ACK_SUSPEND_REQUEST_()                \
+    do {                                                \
+      var clisp_thread_t *thr=current_thread();         \
+      SET_SP_BEFORE_SUSPEND(thr);                       \
+      spinlock_release(&thr->_gc_suspend_ack);          \
+      xmutex_lock(&thr->_gc_suspend_lock);              \
+      spinlock_acquire(&thr->_gc_suspend_ack);          \
+      xmutex_unlock(&thr->_gc_suspend_lock);            \
+    } while (0)
+  /* gc statement is executed in case we have to suspend ourselves
+     otherwise no_gc statement is executed. */
+  #define GC_SAFE_POINT_IF(gc,no_gc)                    \
+    do{                                                 \
+      if (spinlock_tryacquire(&(current_thread()->_gc_suspend_request))) \
+        {gc;} else {no_gc;}                             \
     }while(0)
-  #define GC_SAFE_POINT() GC_SAFE_POINT_ELSE(;)
+  #define GC_SAFE_POINT() GC_SAFE_POINT_IF(GC_SAFE_ACK_SUSPEND_REQUEST_(), ;)
 /* Giving up suspend ack while we are in system call.
    So we can be considered suspended for GC. */
   #define GC_SAFE_REGION_BEGIN() \
@@ -9458,7 +9462,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       }                                                   \
     }while(0)
 #else
-  #define GC_SAFE_POINT_ELSE(no_gc)
+  #define GC_SAFE_POINT_IF(gc,no_gc)
   #define GC_SAFE_POINT()
   #define GC_SAFE_REGION_BEGIN()
   #define GC_SAFE_REGION_END()
@@ -16960,7 +16964,7 @@ struct object_tab_tl_ {
   #define GC_SAFE_SPINLOCK_ACQUIRE(s)                   \
   do {                                                  \
     while (!spinlock_tryacquire(s)) {                   \
-      GC_SAFE_POINT_ELSE(xthread_yield());              \
+      GC_SAFE_POINT_IF(GC_SAFE_ACK_SUSPEND_REQUEST_(),xthread_yield()); \
     }                                                   \
   } while(0)
 

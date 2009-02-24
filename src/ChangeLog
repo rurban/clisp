@@ -1,3 +1,15 @@
+2009-02-24  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	add GC safe points before JMP instructions and in GO special form
+	* lispbibl.d (GC_SAFE_ACK_SUSPEND_REQUEST_) [MULTITHREAD]: helper macro
+	that acknowledges suspend request and waits for thread resume
+	(GC_SAFE_POINT_IF): was GC_SAFE_POINT_ELSE. Check for suspend request
+	and executes one of it's parameters
+	(GC_SAFE_SPINLOCK_ACQUIRE): use it
+	* control.d (GO) [MULTITHREAD]: add safe point in order to be possible to
+	interrupt infinite non-consing loop (in interpreter)
+	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: ditto (in bytecode)
+
 2009-02-22  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (EXEMPTION-WAIT): allow recursive mutex - but enforce to be
