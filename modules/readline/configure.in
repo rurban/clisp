@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for readline
-dnl Sam Steingold 2005-2008
+dnl Sam Steingold 2005-2009
 
 AC_PREREQ(2.57)
 AC_INIT(readline, 1.0, clisp-list)
@@ -18,9 +18,17 @@ fi
 AC_CHECK_DECLS([rl_library_version, rl_readline_version, rl_editing_mode, dnl
 rl_insert_mode, rl_readline_state, rl_line_buffer, rl_point, rl_end, dnl
 rl_mark, rl_done, rl_num_chars_to_read, rl_pending_input, rl_dispatching, dnl
-rl_erase_empty_line, rl_prompt, rl_terminal_name, dnl
+rl_erase_empty_line, rl_prompt, rl_terminal_name, rl_display_prompt, dnl
 rl_instream, rl_outstream, rl_last_func, rl_startup_hook, rl_pre_input_hook, dnl
-rl_prefer_env_winsize, dnl
+rl_prefer_env_winsize, rl_gnu_readline_p, rl_readline_name, dnl
+rl_explicit_arg, rl_numeric_arg, rl_executing_macro, rl_completion_type, dnl
+rl_filename_quoting_desired, rl_attempted_completion_over, dnl
+rl_completion_invoking_key, rl_completion_query_items, dnl
+rl_completion_append_character, rl_completion_suppress_append, dnl
+rl_completion_quote_character, rl_completion_found_quote, dnl
+rl_completion_suppress_quote, rl_sort_completion_matches, dnl
+rl_completion_mark_symlink_dirs, rl_ignore_completion_duplicates, dnl
+rl_inhibit_completion, dnl
 rl_event_hook, rl_getc_function],,,[#include <stdio.h>
  #include <readline/readline.h>])
 AC_CHECK_FUNCS(dnl do not check readline() - redefines global HAVE_READLINE
@@ -104,12 +112,15 @@ dnl Utility
 rl_replace_line dnl
 rl_extend_line_buffer dnl
 rl_ding dnl
+rl_alphabetic dnl
+rl_free dnl
 rl_display_match_list dnl
 dnl Miscellaneous functions
 rl_variable_value dnl
 rl_variable_bind dnl
 rl_macro_dumper dnl
 rl_variable_dumper dnl
+rl_echo_signal_char dnl
 rl_set_paren_blink_timeout dnl
 rl_get_termcap dnl
 dnl Signal Handling

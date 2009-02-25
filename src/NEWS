@@ -2,6 +2,12 @@ Important notes
 ---------------
 
 * Module Berkeley-DB now supports Berkeley DB 4.7.
+  (older versions 4.* are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/berkeley-db.html> for details.
+
+* Module readline now supports readline 6.0.
+  (older versions 5.* are, of course, still supported).
+  See <http://clisp.cons.org/impnotes/readline-mod.html> for details.
 
 * Passing :EXECUTABLE 0 to EXT:SAVEINITMEM results in an executable
   image which delegates processing of all the usual CLISP command line
