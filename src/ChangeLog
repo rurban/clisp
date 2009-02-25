@@ -1,3 +1,18 @@
+2009-02-25  Sam Steingold  <sds@gnu.org>
+
+	* modules/readline/readline.lisp: upgrade from readline 5.2 to 6.0
+	(alphabetic, free, echo-signal-char, gnu-readline-p, display-prompt)
+	(editing-mode-emacs, editing-mode-vi, insert-mode-overwrite)
+	(insert-mode-insert, explicit-arg, numeric-arg, executing-macro)
+	(filename-quoting-desired, attempted-completion-over)
+	(completion-type, completion-invoking-key)
+	(completion-query-items, completion-append-character)
+	(completion-suppress-append, completion-quote-character)
+	(completion-found-quote, completion-suppress-quote)
+	(sort-completion-matches, completion-mark-symlink-dirs)
+	(ignore-completion-duplicates, inhibit-completion): add
+	* modules/readline/configure.in: check for the new features
+
 2009-02-24  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	add GC safe points before JMP instructions and in GO special form
@@ -6,8 +21,8 @@
 	(GC_SAFE_POINT_IF): was GC_SAFE_POINT_ELSE. Check for suspend request
 	and executes one of it's parameters
 	(GC_SAFE_SPINLOCK_ACQUIRE): use it
-	* control.d (GO) [MULTITHREAD]: add safe point in order to be possible to
-	interrupt infinite non-consing loop (in interpreter)
+	* control.d (GO) [MULTITHREAD]: add safe point in order to be possible
+	to interrupt infinite non-consing loop (in interpreter)
 	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: ditto (in bytecode)
 
 2009-02-22  Vladimir Tzankov  <vtzankov@gmail.com>
