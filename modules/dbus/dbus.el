@@ -69,7 +69,7 @@
   (comment-region (point-min) (point-max))
   (widen))
 
-(defun dbus-convert-typedeff (beg end)
+(defun dbus-convert-typedef (beg end)
   "convert function typedef to a def-c-type"
   (interactive "r")
   (multiple-value-setq (beg end) (dbus-fix-whitespace-and-copy beg end))
@@ -77,7 +77,7 @@
   (dbus-fix-pointers)
   (goto-char (point-min))
   (unless (looking-at "^typedef \\([^ ]*\\) (\\* \\([A-Za-z_0-9]+\\)) (")
-    (error "no typedeff"))
+    (error "no typedef"))
   (setq beg (match-string 2))
   (replace-match "(def-c-type \\2\n  (c-function (:return-type \\1)\n              (:arguments ")
   (dbus-fix-arglist)
