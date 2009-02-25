@@ -104,3 +104,20 @@
     (insert "; ") ; (comment-indent)
     (beginning-of-line 2)
     (insert "  (:documentation \"" doc "\"))\n")))
+
+;; for readline
+(defun rl-convert-variable (beg end)
+  "convert a variable declaration to a def-c-var"
+  (interactive "r")
+  (goto-char beg)
+  (let ((doc (buffer-substring-no-properties (search-forward "/*")
+                                             (- (search-forward "*/") 2))))
+    (setq doc (replace-regexp-in-string "[ \t\n]+\\'" "" doc))
+    (setq doc (replace-regexp-in-string "\\`[ \t\n]+" "" doc))
+    (re-search-forward "extern \\(.*\\) \\([a-z0-9A-Z_]*\\);")
+    (let ((name (match-string 2)) (type (match-string 1)))
+      (delete-region beg end)
+      (insert "\n(def-c-var "
+              (replace-regexp-in-string "_" "-" name)
+              " (:name \"" name "\") (:type " type
+              ") (:documentation \"" doc "\"))\n"))))
