@@ -99,7 +99,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out discard-keymap (:name "rl_discard_keymap") ; untested
   (:documentation "Discard allocated keymap.")
-  (:arguments (map keymap)) (:return-type))
+  (:arguments (map keymap)) (:return-type nil))
 
 (def-call-out get-keymap (:name "rl_get_keymap") ; untested
   (:documentation "Return current keymap")
@@ -107,7 +107,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out set-keymap (:name "rl_set_keymap") ; untested
   (:documentation "Set keymap as current")
-  (:arguments (map keymap)) (:return-type))
+  (:arguments (map keymap)) (:return-type nil))
 
 (def-call-out get-keymap-by-name (:name "rl_get_keymap_by_name") ; untested
   (:documentation "Get keymap with given name (e.g., emacs, vi)")
@@ -198,17 +198,15 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out function-dumper (:name "rl_function_dumper")
   (:arguments (readable int))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out list-funmap-names (:name "rl_list_funmap_names")
-  (:arguments)
-  (:return-type))
+  (:arguments) (:return-type nil))
 
 ;;; !!! Returned array should be freed, but if I :malloc-free it, clisp
 ;;; tries to free the c-string too. Bad.
 (def-call-out funmap-names (:name "rl_funmap_names") ; FIXME: leaks
-  (:arguments)
-  (:return-type (c-array-ptr c-string)))
+  (:arguments) (:return-type (c-array-ptr c-string)))
 
 (def-call-out add-funmap-entry  (:name "rl_add_funmap_entry") ; untested
   (:arguments (name c-string :in :malloc-free) (callback command-func-t))
@@ -229,10 +227,10 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out add-undo (:name "rl_add_undo") ; untested
   (:arguments (what int) (start int) (end int) (text c-string))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out free-undo-list (:name "rl_free_undo_list") ; untested
-  (:arguments) (:return-type))
+  (:arguments) (:return-type nil))
 
 (def-call-out do-undo  (:name "rl_do_undo") ; untested
   (:arguments) (:return-type int))
@@ -274,10 +272,10 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
   (:arguments) (:return-type int))
 
 (def-call-out save-prompt (:name "rl_save_prompt") ; untested
-  (:arguments) (:return-type))
+  (:arguments) (:return-type nil))
 
 (def-call-out restore-prompt (:name "rl_restore_prompt") ; untested
-  (:arguments) (:return-type))
+  (:arguments) (:return-type nil))
 
 (def-call-out expand-prompt (:name "rl_expand_prompt") ; untested
   (:arguments (prompt c-string)) (:return-type int))
@@ -328,13 +326,13 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 ;;; Terminal management
 
 (def-call-out prep-terminal (:name "rl_prep_terminal") ; untested
-  (:arguments (meta-flag int)) (:return-type))
+  (:arguments (meta-flag int)) (:return-type nil))
 
 (def-call-out deprep-terminal (:name "rl_deprep_terminal") ; untested
-  (:arguments) (:return-type))
+  (:arguments) (:return-type nil))
 
 (def-call-out tty-set-default-bindings (:name "rl_tty_set_default_bindings") ; untested
-  (:arguments (map keymap)) (:return-type))
+  (:arguments (map keymap)) (:return-type nil))
 
 (def-call-out reset-terminal (:name "rl_reset_terminal") ; untested
   (:arguments (terminal-name c-string)) (:return-type int))
@@ -344,7 +342,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out replace-line (:name "rl_replace_line") ; untested
   (:arguments (new-line c-string) (clear-undo int))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out extend-line-buffer (:name "rl_extend_line_buffer") ; untested
   (:arguments (len int))
@@ -361,7 +359,7 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out display-match-list (:name "rl_display_match_list")
   (:arguments (matches (c-array-ptr c-string)) (len int) (max int))
-  (:return-type))
+  (:return-type nil))
 
 ;;; Miscellaneous functions
 
@@ -375,15 +373,15 @@ name in ~/.inputrc. This is preferred way of adding new functions."))
 
 (def-call-out macro-dumper (:name "rl_macro_dumper") ; untested
   (:arguments (readable int))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out variable-dumper (:name "rl_variable_dumper") ; untested
   (:arguments (readable int))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out echo-signal-char (:name "rl_echo_signal_char") ; untested
   (:arguments (readable int))
-  (:return-type))
+  (:return-type nil))
 
 (def-call-out set-paren-blink-timeout (:name "rl_set_paren_blink_timeout") ; untested
   (:arguments (u int))
