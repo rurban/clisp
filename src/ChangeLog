@@ -1,5 +1,10 @@
 2009-02-25  Sam Steingold  <sds@gnu.org>
 
+	* modules/readline/readline.lisp: use (:return-type nil) instead
+	of (:return-type) which works too but is not officially documented
+
+2009-02-25  Sam Steingold  <sds@gnu.org>
+
 	* modules/readline/readline.lisp: upgrade from readline 5.2 to 6.0
 	(alphabetic, free, echo-signal-char, gnu-readline-p, display-prompt)
 	(editing-mode-emacs, editing-mode-vi, insert-mode-overwrite)
