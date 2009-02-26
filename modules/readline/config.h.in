@@ -13,9 +13,53 @@
    if you don't. */
 #undef HAVE_DECL_RL_ALREADY_PROMPTED
 
+/* Define to 1 if you have the declaration of `rl_attempted_completion_over',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_ATTEMPTED_COMPLETION_OVER
+
+/* Define to 1 if you have the declaration of
+   `rl_completion_append_character', and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_APPEND_CHARACTER
+
+/* Define to 1 if you have the declaration of `rl_completion_found_quote', and
+   to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_FOUND_QUOTE
+
+/* Define to 1 if you have the declaration of `rl_completion_invoking_key',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_INVOKING_KEY
+
+/* Define to 1 if you have the declaration of
+   `rl_completion_mark_symlink_dirs', and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_MARK_SYMLINK_DIRS
+
+/* Define to 1 if you have the declaration of `rl_completion_query_items', and
+   to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_QUERY_ITEMS
+
+/* Define to 1 if you have the declaration of `rl_completion_quote_character',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_QUOTE_CHARACTER
+
+/* Define to 1 if you have the declaration of `rl_completion_suppress_append',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_SUPPRESS_APPEND
+
+/* Define to 1 if you have the declaration of `rl_completion_suppress_quote',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_SUPPRESS_QUOTE
+
+/* Define to 1 if you have the declaration of `rl_completion_type', and to 0
+   if you don't. */
+#undef HAVE_DECL_RL_COMPLETION_TYPE
+
 /* Define to 1 if you have the declaration of `rl_dispatching', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_DISPATCHING
+
+/* Define to 1 if you have the declaration of `rl_display_prompt', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_DISPLAY_PROMPT
 
 /* Define to 1 if you have the declaration of `rl_done', and to 0 if you
    don't. */
@@ -37,6 +81,18 @@
    don't. */
 #undef HAVE_DECL_RL_EVENT_HOOK
 
+/* Define to 1 if you have the declaration of `rl_executing_macro', and to 0
+   if you don't. */
+#undef HAVE_DECL_RL_EXECUTING_MACRO
+
+/* Define to 1 if you have the declaration of `rl_explicit_arg', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_EXPLICIT_ARG
+
+/* Define to 1 if you have the declaration of `rl_filename_quoting_desired',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_FILENAME_QUOTING_DESIRED
+
 /* Define to 1 if you have the declaration of `rl_getc_function', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_GETC_FUNCTION
@@ -44,6 +100,14 @@
 /* Define to 1 if you have the declaration of `rl_gnu_readline_p', and to 0 if
    you don't. */
 #undef HAVE_DECL_RL_GNU_READLINE_P
+
+/* Define to 1 if you have the declaration of
+   `rl_ignore_completion_duplicates', and to 0 if you don't. */
+#undef HAVE_DECL_RL_IGNORE_COMPLETION_DUPLICATES
+
+/* Define to 1 if you have the declaration of `rl_inhibit_completion', and to
+   0 if you don't. */
+#undef HAVE_DECL_RL_INHIBIT_COMPLETION
 
 /* Define to 1 if you have the declaration of `rl_insert_mode', and to 0 if
    you don't. */
@@ -68,6 +132,10 @@
 /* Define to 1 if you have the declaration of `rl_mark', and to 0 if you
    don't. */
 #undef HAVE_DECL_RL_MARK
+
+/* Define to 1 if you have the declaration of `rl_numeric_arg', and to 0 if
+   you don't. */
+#undef HAVE_DECL_RL_NUMERIC_ARG
 
 /* Define to 1 if you have the declaration of `rl_num_chars_to_read', and to 0
    if you don't. */
@@ -108,6 +176,10 @@
 /* Define to 1 if you have the declaration of `rl_readline_version', and to 0
    if you don't. */
 #undef HAVE_DECL_RL_READLINE_VERSION
+
+/* Define to 1 if you have the declaration of `rl_sort_completion_matches',
+   and to 0 if you don't. */
+#undef HAVE_DECL_RL_SORT_COMPLETION_MATCHES
 
 /* Define to 1 if you have the declaration of `rl_startup_hook', and to 0 if
    you don't. */
@@ -164,6 +236,9 @@
 
 /* Define to 1 if you have the `rl_add_undo' function. */
 #undef HAVE_RL_ADD_UNDO
+
+/* Define to 1 if you have the `rl_alphabetic' function. */
+#undef HAVE_RL_ALPHABETIC
 
 /* Define to 1 if you have the `rl_begin_undo_group' function. */
 #undef HAVE_RL_BEGIN_UNDO_GROUP
@@ -234,6 +309,9 @@
 /* Define to 1 if you have the `rl_do_undo' function. */
 #undef HAVE_RL_DO_UNDO
 
+/* Define to 1 if you have the `rl_echo_signal_char' function. */
+#undef HAVE_RL_ECHO_SIGNAL_CHAR
+
 /* Define to 1 if you have the `rl_end_undo_group' function. */
 #undef HAVE_RL_END_UNDO_GROUP
 
@@ -251,6 +329,9 @@
 
 /* Define to 1 if you have the `rl_forced_update_display' function. */
 #undef HAVE_RL_FORCED_UPDATE_DISPLAY
+
+/* Define to 1 if you have the `rl_free' function. */
+#undef HAVE_RL_FREE
 
 /* Define to 1 if you have the `rl_free_undo_list' function. */
 #undef HAVE_RL_FREE_UNDO_LIST
