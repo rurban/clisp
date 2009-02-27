@@ -6540,15 +6540,8 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
         skipSTACK(n); funcall(value1,r);
       } goto finished;          /* return (jump) to caller */
     }
-    /* GC_SAFE_POINT_IF() expands to nothing in single thread builds */
     #define JMP()                             \
-      {GC_SAFE_POINT_IF(                      \
-         with_saved_context(                  \
-           {var uintC cnt=mv_count; mv_to_STACK(); \
-             GC_SAFE_ACK_SUSPEND_REQUEST_();  \
-             STACK_to_mv(cnt);                \
-           }),;);                             \
-        var const uintB* label_byteptr;       \
+      {var const uintB* label_byteptr;        \
         L_operand(label_byteptr);             \
         DEBUG_CHECK_BYTEPTR(label_byteptr);   \
         byteptr = label_byteptr;              \
