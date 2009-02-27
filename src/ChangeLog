@@ -1,5 +1,11 @@
 2009-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_genera1.d (build_old_generation_cache) [MULTITHREAD]: merge
+	PROT_READ_WRITE areas. fixes corner cases with pinned objects that
+	share physical memory pages
+
+2009-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: release all thread resources upon termination
 	* lispbibl.d (WITH_STOPPED_THREAD): remove (was used only by
 	THREAD-INTERRUPT and is not suitable anymore)
