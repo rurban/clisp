@@ -1972,7 +1972,7 @@ local void gar_col_normal (void)
  #if defined(MULTITHREAD)
   /* prepare for release terminated, non-referenced threads */
   SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),TheThread,
-                  (TheThread(Car(Lu))->xth_globals->_index < MAXNTHREADS));
+                  (TheThread(Car(Lu))->xth_globals != NULL));
   gc_mark(O(all_threads)); gc_mark(O(threads_to_release));
   /* prepare for release non-referenced mutexes */
   SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),TheMutex,false);
@@ -2465,7 +2465,8 @@ local maygc void gar_col_done (void)
   {
     var object list=O(all_threads);
     while (!endp(list)) {
-      TheThread(Car(list))->xth_globals->_lthread=Car(list);
+      if (TheThread(Car(list))->xth_globals) /* only if alive */
+        TheThread(Car(list))->xth_globals->_lthread=Car(list);
       list=Cdr(list);
     }
   }

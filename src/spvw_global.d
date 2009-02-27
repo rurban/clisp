@@ -663,16 +663,14 @@ global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
   /* we do not want the thread that we try try to suspend to exit
      (if running at all) until we finish the whole process. So lock threads.*/
   lock_threads(); /* blocks the GC - but not a problem */
-  if (thr->_STACK != NULL) {  /* only if thread is alive */
-    if (!thr->_suspend_count) { /* first suspend ? */
-      xmutex_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
-      spinlock_release(&thr->_gc_suspend_request); /* request */
-      /* wait for the thread to come to safe point. */
-      while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
-        xthread_yield();
-    }
-    thr->_suspend_count++;
+  if (!thr->_suspend_count) { /* first suspend ? */
+    xmutex_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
+    spinlock_release(&thr->_gc_suspend_request); /* request */
+    /* wait for the thread to come to safe point. */
+    while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
+      xthread_yield();
   }
+  thr->_suspend_count++;
   unlock_threads();
   if (lock_heap) RELEASE_HEAP_LOCK();
 }
@@ -687,11 +685,9 @@ global void resume_thread(clisp_thread_t *thr, bool lock_heap)
   ASSERT(thr != current_thread());
   if (lock_heap) ACQUIRE_HEAP_LOCK();
   lock_threads(); /* blocks the GC - but not a problem */
-  if (thr->_STACK != NULL) {  /* only if thread is alive */
-    if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
-      spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
-      xmutex_unlock(&thr->_gc_suspend_lock); /* enable thread */
-    }
+  if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
+    spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
+    xmutex_unlock(&thr->_gc_suspend_lock); /* enable thread */
   }
   unlock_threads();
   if (lock_heap) RELEASE_HEAP_LOCK();
