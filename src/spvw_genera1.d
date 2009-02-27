@@ -431,20 +431,19 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
               end = rwarea->start;
             } else { /* PROT_READ_WRITE */
               DEBUG_SPVW_ASSERT(start == rwarea->start);
-              end = rwarea->start + rwarea->size;
               /* advance rwarea. it is possible to have few pinned objects
-                 (and so PROT_READ_WRITE areas) in singe physical page. In this
-                 case we have "duplicated" rwarea items. skip not relevant ones
-                 (or parts of them). */
-              rwarea++;
-              while (rwarea->start == (rwarea-1)->start) {
-                if (rwarea->size != (rwarea-1)->size) {
-                  /* shrink it */
-                  rwarea->start += (rwarea-1)->size;
-                  rwarea->size -= (rwarea-1)->size;
-                } else
-                  rwarea++;
+                 (and so PROT_READ_WRITE areas) in singe physical page. merge
+                 regions. */
+              while (((rwarea+1)->start != 0) &&
+                     (rwarea->start + rwarea->size >= (rwarea+1)->start)) {
+                rwarea++; /* advance */
+                var aint ce=(rwarea-1)->size + (rwarea-1)->start; /* current end */
+                var aint ne=rwarea->size + rwarea->start; /* next end */
+                rwarea->size = MAX(ce,ne) - (rwarea-1)->start;
+                rwarea->start = (rwarea-1)->start;
               }
+              end = rwarea->start + rwarea->size;
+              rwarea++;
             }
           }
         } while (1);
