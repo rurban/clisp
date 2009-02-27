@@ -9437,7 +9437,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define GC_SAFE_POINT_IF(gc,no_gc)                    \
     do{                                                 \
       if (spinlock_tryacquire(&(current_thread()->_gc_suspend_request))) \
-        {gc;} else {no_gc;}                             \
+        {GCTRIGGER();gc;} else {no_gc;}                                 \
     }while(0)
   #define GC_SAFE_POINT() GC_SAFE_POINT_IF(GC_SAFE_ACK_SUSPEND_REQUEST_(), ;)
 /* Giving up suspend ack while we are in system call.
@@ -17258,9 +17258,10 @@ struct object_tab_tl_ {
    Does not register it in the global thread array.
    When called the global thread lock should be held.*/
 global clisp_thread_t* create_thread(uintM lisp_stack_size);
-/* removes the current_thread from the list (array) of threads.
-   Also frees any allocated resource. */
-global void delete_thread(clisp_thread_t *thread, bool full);
+/* UP: removes the current_thread from the list (array) of threads.
+   Also frees any allocated resource.
+ > thread: thread to be removed */
+global void delete_thread(clisp_thread_t *thread);
 /* register a clisp-thread_t in global thread array
    thread - the new allocated thread.
    When called the global thread lock should be held. */
@@ -17356,14 +17357,6 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
  */
   extern xthread_t thr_signal_handler;
 #endif
-
-#define WITH_STOPPED_THREAD(thread,lock_heap,statement) \
-  do {                                                  \
-    var bool lh=lock_heap;                              \
-    suspend_thread(thread,lh);                          \
-    statement;                                          \
-    resume_thread(thread,lh);                           \
-  } while(0)
 
 #define GC_STOP_WORLD(lock_heap) \
   gc_suspend_all_threads(lock_heap)

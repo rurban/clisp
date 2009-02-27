@@ -61,14 +61,16 @@ local maygc object check_exemption(object obj)
 
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list) {
+  /* Nothing to do here actually. In the past the memory of some
+     thread allocated objects was released after the thread records has
+     been GC-ed. Now everything is released upon thread termination.
+     However this may be useful in future - when we will have threads
+     created from foreign code callbacks (maybe). So it is left here. */
+  /*
   while (!endp(list)) {
-    clisp_thread_t *thread = TheThread(Car(list))->xth_globals;
-    begin_system_call();
-    free(thread->_ptr_symvalues);
-    free(thread);
-    end_system_call();
     list = Cdr(list);
   }
+  */
 }
 
 /* releases the OS mutexes for mutex objects in the list */
@@ -191,10 +193,9 @@ local /*maygc*/ void *thread_stub(void *arg)
     /* we should always have empty stack - this is an error. */
     NOTREACHED;
   }
+  me->_thread_exit_tag = NULL; /* prevent double killing while in cleanup */
   thread_cleanup();
-  /* just unregister it from the active threads. the allocated memory
-     will be released during GC (if there are no references to thread object)*/
-  delete_thread(me,false);
+  delete_thread(me);
   xthread_exit(0);
   return NULL;
 }
@@ -266,7 +267,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (register_thread(new_thread)<0) {
     /* total failure */
     unlock_threads();
-    delete_thread(new_thread,true);
+    delete_thread(new_thread);
     VALUES1(NIL);
     skipSTACK(5);
     return;
@@ -286,14 +287,10 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* create the OS thread */
   if (xthread_create(&TheThread(lthr)->xth_system,
                      &thread_stub,new_thread,cstack_size)) {
-    /* side effect - we return NIL but the not started thread is present in
-       all_threads (will not survive GC since no references to it). */
-    pushSTACK(lthr);
-    delete_thread(new_thread,false);
-    lthr=popSTACK();
-    VALUES1(NIL);
-  } else
-    VALUES1(lthr);
+    delete_thread(new_thread);
+    lthr = NIL;;
+  }
+  VALUES1(lthr);
 }
 
 /* lock for the timeout_call_chain */
@@ -325,7 +322,12 @@ local bool insert_timeout_call(timeout_call *tc)
    should be called without holding timeout_scheduler_lock (acquires it) */
 local maygc void remove_timeout_call(timeout_call *tc)
 {
-  GC_SAFE_SPINLOCK_ACQUIRE(&timeout_call_chain_lock);
+  /* we do not use GC safe version here since we want to prevent
+     thread interruption when unwiding the stack. If we do not this
+     it will be possible to be interrupted here and current thread killed.
+     this will leave bad pointer in the chain and will cause SIGSEGV in
+     signal handling thread */
+  spinlock_acquire(&timeout_call_chain_lock);
   timeout_call **lastnextp=&timeout_call_chain,*chain=timeout_call_chain;
   while (chain != NULL && chain != tc) {
     lastnextp=&chain->next; chain=chain->next;
@@ -430,11 +432,11 @@ LISPFUNN(thread_kill,1)
   lock_threads();
   end_blocking_call();
   var object thr=STACK_0; /* thread */
-  /* exit throw tag */
-  var gcv_object_t *exit_tag=(TheThread(thr)->xth_globals->_thread_exit_tag);
-  if (exit_tag) { /* thread is alive */
+  if (TheThread(thr)->xth_globals &&
+      TheThread(thr)->xth_globals->_thread_exit_tag) { /* thread is alive */
+    /* call (thread-interrupt thread  #'%throw-tag exit-tag) */
     pushSTACK(S(thread_throw_tag));
-    pushSTACK(*exit_tag);
+    pushSTACK(*(TheThread(thr)->xth_globals->_thread_exit_tag));
     unlock_threads();
     funcall(L(thread_interrupt),3);
   } else { /* thread has gone */
@@ -449,43 +451,47 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
 #ifdef HAVE_SIGNALS
   var object thr=check_thread(STACK_(argcount+1));
   var xthread_t systhr=TheThread(thr)->xth_system;
-  var clisp_thread_t *clt=TheThread(thr)->xth_globals;
   var bool signal_sent=false;
   if (TheThread(thr)->xth_globals == current_thread()) {
     /* we want to interrupt ourselves ? strange but let's do it */
-    funcall(Before(rest_args_pointer),argcount); skipSTACK(2);
+    funcall(Before(rest_args_pointer),argcount);
     signal_sent=true;
   } else {
     /* we want ot interrupt different thread. */
     STACK_(argcount+1)=thr; /* gc may happen */
-    /* TODO: may be check that the function argument can be funcall-ed,
-       since it is not very nice to get errors in interrupted thread
-       (but basically this is not a problem)*/
-    WITH_STOPPED_THREAD(clt,true,{
+    /* lock the threads - we do not want thread to exit while we try
+       to interrupt it. */
+    begin_blocking_call(); lock_threads(); end_blocking_call();
+    thr = STACK_(argcount+1);
+    var clisp_thread_t *clt = TheThread(thr)->xth_globals;
+    if (clt) { /* still alive ? */
+      /* threads lock is laready owned by us and it is recursive */
+      suspend_thread(clt,true);
+      /* unlock threads - allows GC and prevents deadlock with it */
+      unlock_threads();
       var gcv_object_t *saved_stack=clt->_STACK;
-      if (clt->_STACK != NULL) { /* thread is alive ? */
-        /* be sure that the signal we send will be received */
-        spinlock_acquire(&clt->_signal_reenter_ok);
-        while (rest_args_pointer != args_end_pointer) {
-          var object arg = NEXT(rest_args_pointer);
-          NC_pushSTACK(clt->_STACK,arg);
-        }
-        NC_pushSTACK(clt->_STACK,posfixnum(argcount));
-        NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
-        signal_sent = (0 == xthread_signal(systhr,SIG_THREAD_INTERRUPT));
-        if (!signal_sent) {
-          /* for some reason we were unable to send the signal */
-          clt->_STACK=saved_stack;
-          spinlock_release(&clt->_signal_reenter_ok);
-        }
+      /* be sure that the signal we send will be received */
+      spinlock_acquire(&clt->_signal_reenter_ok);
+      while (rest_args_pointer != args_end_pointer) {
+        var object arg = NEXT(rest_args_pointer);
+        NC_pushSTACK(clt->_STACK,arg);
       }
-    });
-    skipSTACK(2 + (uintL)argcount);
-    /* TODO: may be signal an error if we try to interrupt
-       terminated thread ???*/
+      NC_pushSTACK(clt->_STACK,posfixnum(argcount));
+      NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
+      signal_sent = (0 == xthread_signal(systhr,SIG_THREAD_INTERRUPT));
+      if (!signal_sent) {
+        /* for some reason we were unable to send the signal */
+        clt->_STACK=saved_stack;
+        spinlock_release(&clt->_signal_reenter_ok);
+      }
+      resume_thread(clt,true);
+    } else
+      unlock_threads();
+    skipSTACK((uintL)argcount); /* skip &rest arguments */
   }
   /* return the thread and whether it was really interrupted */
-  VALUES2(clt->_lthread,signal_sent ? T : NIL);
+  VALUES2(STACK_1,signal_sent ? T : NIL);
+  skipSTACK(2); /* thread + function */
 #else
   NOTREACHED; /* win32 not implemented */
 #endif
@@ -506,7 +512,7 @@ LISPFUNN(thread_name,1)
 LISPFUNN(thread_active_p,1)
 { /* (THREAD-ACTIVE-P thread) */
   var object obj=check_thread(popSTACK());
-  VALUES_IF(TheThread(obj)->xth_globals->_STACK != NULL);
+  VALUES_IF(TheThread(obj)->xth_globals != NULL);
 }
 
 LISPFUNN(thread_state,1)
@@ -557,7 +563,12 @@ local maygc gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
       *thread=check_thread(*thread);
       sym = popSTACK();
       thr=TheThread(*thread)->xth_globals;
+      if (!thr)
+        return NULL; /* thread has terminated */
     }
+    /* thread is alive? */
+    if (!thr || !thr->_ptr_symvalues)
+      return NULL;
     *thread=thr->_lthread; /* for error reporting if needed */
     var uintL idx=TheSymbol(sym)->tls_index;
     if (idx == SYMBOL_TLS_INDEX_NONE ||
@@ -569,19 +580,25 @@ local maygc gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
 
 LISPFUNNR(symbol_value_thread,2)
 { /* (MT:SYMBOL-VALUE-THREAD symbol thread) */
-  gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
+  /* lock threads - so thread cannot exit meanwhile (if running at all) */
+  begin_blocking_call(); lock_threads(); end_blocking_call();
+  var gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
   if (!symval || eq(unbound,*symval)) {
     VALUES2(NIL,NIL); /* not bound */
   } else {
     VALUES2(*symval,T);
   }
+  unlock_threads();
   skipSTACK(2);
 }
 
 LISPFUNN(set_symbol_value_thread,3)
 { /* (SETF (MT:SYMBOL-VALUE-THREAD symbol thread) value) */
-  gcv_object_t *symval=thread_symbol_place(&STACK_2, &STACK_1);
+  /* lock threads - so thread cannot exit meanwhile (if running at all) */
+  begin_blocking_call(); lock_threads(); end_blocking_call();
+  var gcv_object_t *symval=thread_symbol_place(&STACK_2, &STACK_1);
   if (!symval) {
+    unlock_threads();
     var object symbol=STACK_2;
     var object thread=STACK_1;
     pushSTACK(symbol); /* CELL-ERROR Slot NAME */
@@ -592,10 +609,9 @@ LISPFUNN(set_symbol_value_thread,3)
     *symval=STACK_0;
     VALUES1(*symval);
   }
+  unlock_threads();
   skipSTACK(3);
 }
-
-
 
 LISPFUNN(mutexp,1)
 { /* (MUTEXP object) */

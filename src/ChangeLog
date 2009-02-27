@@ -1,3 +1,31 @@
+2009-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: release all thread resources upon termination
+	* lispbibl.d (WITH_STOPPED_THREAD): remove (was used only by
+	THREAD-INTERRUPT and is not suitable anymore)
+	(GC_SAFE_POINT_IF): add GCTRIGGER() in case of suspension
+	(delete_thread): remove "full" parameter. all resources are released
+	always
+	* spvw.d (create_thread): initialize _index field of the new thread with
+	invalid value
+	(delete_thread): remove "full" parameter. release all allocated memory.
+	(signal_handler_thread): do not check whether thread to be interrupted
+	is alive (since it is).
+	* spvw_global.d (suspend_thread, resume_thread): ditto
+	* spvw_garcol.d (gar_col_normal): change the condition for checking
+	whether thread is running or terminated
+	(gar_col_done): update new references only of alive threads
+	* zthread.d (release_threads): do nothing (everything is freed by
+	delete_thread). left since in future may be useful
+	(thread_stub): prevent killing while running in thread_cleanup()
+	(remove_timeout_call): do not allow to be interrupted (by not using
+	"GC safe" way for spinlock acquiring
+	(THREAD-KILL): change thread alive check
+	(THREAD-ACTIVE-P): ditto
+	(THREAD-INTERRUPT): reimplement
+	(SYMBOL-VALUE-THREAD, SET-SYMBOL-VALUE-THREAD): lock the threads.
+	prevents thread termination while working with it's symvalues
+
 2009-02-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: preserve mv_space
