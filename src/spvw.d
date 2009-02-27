@@ -707,18 +707,12 @@ global void lock_threads()
      2. threads lock - while waiting for all threads to get suspended at safe
      points - we do not want new thread(s) to be spawned.
 
-     There are 3 places where lock_threads() is used without possibly blocking
+     There are 2 places where lock_threads() is used without possibly blocking
      "enclosure":
      1. In gc_suspend_all_threads() - after we already own the heap lock - in
      order to prevent new threads spawning.
      2. suspend_thread() - in order to be sure that the thread will not exit
      while we try to suspend it (or it already has exited).
-     3. delete_thread() - it is called from a thread that terminates or for a
-     thread that will never be started. The first thing that  delete_thread()
-     does is to ensure that anybody interested in this  particular thread (and
-     those are the two functions above - for suspending) - will consider it as
-     already suspended - so even if we  block here - it will not cause any harm
-     to the GC.
      All other places enclose the lock_threads() in begin_blocking_call().
 
      Also note that while the threads are locked - no heap allocation should
@@ -767,6 +761,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   if (!thread) return NULL;
   begin_system_call();
   memset(thread,0,sizeof(clisp_thread_t)); /* zero-up everything */
+  thread->_index = MAXNTHREADS + 1; /* set to invalid value */
   /* init _symvalues "proxy" */
   thread->_ptr_symvalues = (gcv_object_t *)malloc(sizeof(gcv_object_t)*
                                                   maxnum_symvalues);
@@ -818,18 +813,16 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   return thread;
 }
 
-/* UP: Releases current_thread resources
- > thread: the clisp thread object to be released
- > full: if true, also release self and thread-local symbol table */
-global void delete_thread (clisp_thread_t *thread, bool full) {
-  /* first give up any locks that the thread holds.
-   if GC is suspending threads - we do not want to block it
-   anyway we are going away.*/
+/* UP: removes the current_thread from the list (array) of threads.
+   Also frees any allocated resource.
+ > thread: thread to be removed */
+global void delete_thread (clisp_thread_t *thread) {
+  /* lock the threads mutex. we are going to change allthreads[] */
+  begin_blocking_call(); lock_threads(); end_blocking_call();
+  /* destroy OS mutex */
   begin_system_call();
   xmutex_destroy(&thread->_gc_suspend_lock);
   end_system_call();
-  spinlock_release(&thread->_gc_suspend_ack);
-  lock_threads(); /* lock all threads */
 
   if (nthreads==1) {
     /* this was the last LISP thread in the process - we are quiting */
@@ -837,36 +830,28 @@ global void delete_thread (clisp_thread_t *thread, bool full) {
     quit();
     return; /* quit will unwind the stack and call hooks */
   }
-
-  ASSERT(thread->_index < nthreads);
-  ASSERT(allthreads[thread->_index] == thread);
-  allthreads[nthreads-1]->_index = thread->_index;;
-  allthreads[thread->_index] = allthreads[nthreads-1];
-  nthreads--;
-  thread->_index=MAXNTHREADS+1; /* mark as exitted */
+  if (thread->_index < nthreads) { /* only if registered */
+    ASSERT(allthreads[thread->_index] == thread);
+    allthreads[nthreads-1]->_index = thread->_index;;
+    allthreads[thread->_index] = allthreads[nthreads-1];
+    nthreads--;
+    /* no globals for this thread record anymore */
+    TheThread(thread->_lthread)->xth_globals = NULL;
+    /* DO NOT remove from global list of all threads.  */
+    /* O(all_threads) = deleteq(O(all_threads), thread->_lthread); */
+  }
   /* The LISP stack should be unwound so no
      interesting stuff on it. Let's deallocate it.*/
   begin_system_call();
   if (thread->_own_stack)
     free(THREAD_LISP_STACK_START(thread));
-  thread->_STACK = NULL;  /* marks thread as non active */
-  thread->_thread_exit_tag = NULL;
-  /* clisp_thread_t itself will be deallocated during finalization
-     phase of GC - when the thread record is discarded. why?
-     (somebody may want to inspect the mv_space for "thread return value")
-     sds: mv_space does not survive a GC, so there is nothing to inspect.
-     vtz: per thread symvalues are available - SYMBOL-VALUE-THREAD works on
-     terminated threads. this may be helpful for diagnostic purposes.
-     if you think it's not - let's free everything here. */
-  if (full) {
-    free(thread->_ptr_symvalues);
-    free(thread);
-  }
+  free(thread->_ptr_symvalues); /* free per trread special var bindings */
+  free(thread);
   end_system_call();
   unlock_threads();
 }
   #define for_all_threads(statement)                                    \
-    do { var clisp_thread_t** _pthread = &allthreads[0];                 \
+    do { var clisp_thread_t** _pthread = &allthreads[0];                \
       var clisp_thread_t **endt=&allthreads[nthreads];                  \
       while (_pthread != endt)                                          \
         { var clisp_thread_t* thread = *_pthread++; statement; }        \
@@ -3744,7 +3729,7 @@ local void* mt_main_actions (void *param) {
   /* now we are ready to start main_actions()*/
   main_actions(args);
   thread_cleanup();
-  delete_thread(me,false); /* just delete ourselves */
+  delete_thread(me); /* just delete ourselves */
   /* NB: the LISP stack is "leaked" - in a sense nobody will
      ever use it anymore !!!*/
   xthread_exit(0);
@@ -4478,22 +4463,20 @@ local void *signal_handler_thread(void *arg)
         #ifndef DEBUG_GCSAFETY
           suspend_thread(chain->thread,false);
         #endif
-          if (chain->thread->_STACK) { /* alive ? */
-            spinlock_acquire(&chain->thread->_signal_reenter_ok);
-            gcv_object_t *saved_stack=chain->thread->_STACK;
-            NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
-            NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
-            NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
-            if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
-                               SIG_THREAD_INTERRUPT)) {
-              /* hmm - signal send failed. restore the stack and spinlock,
-                 and mark the timeout as failed. The next time when we come
-                 here we will retry it - if not reported as warning to the
-                 user. The user will always get a warning. */
-              chain->failed=true;
-              chain->thread->_STACK=saved_stack;
-              spinlock_release(&chain->thread->_signal_reenter_ok);
-            }
+          spinlock_acquire(&chain->thread->_signal_reenter_ok);
+          gcv_object_t *saved_stack=chain->thread->_STACK;
+          NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
+          NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
+          NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
+          if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
+                             SIG_THREAD_INTERRUPT)) {
+            /* hmm - signal send failed. restore the stack and spinlock,
+               and mark the timeout as failed. The next time when we come
+               here we will retry it - if not reported as warning to the
+               user. The user will always get a warning. */
+            chain->failed=true;
+            chain->thread->_STACK=saved_stack;
+            spinlock_release(&chain->thread->_signal_reenter_ok);
           }
         #ifndef DEBUG_GCSAFETY
           resume_thread(chain->thread,false);
@@ -4526,23 +4509,21 @@ local void *signal_handler_thread(void *arg)
         var bool signal_sent=false;
         ENABLE_DUMMY_ALLOCCOUNT(true);
         for_all_threads({
-          if (thread->_STACK) { /* still alive ?*/
-            spinlock_acquire(&thread->_signal_reenter_ok);
-            gcv_object_t *saved_stack=thread->_STACK;
-            /* line below is not needed but detects bugs */
-            NC_pushSTACK(thread->_STACK,O(thread_break_description));
-            NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
-            NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
-            NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
-            signal_sent =
-              (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
-                                   SIG_THREAD_INTERRUPT));
-            if (!signal_sent) {
-              thread->_STACK=saved_stack;
-              spinlock_release(&thread->_signal_reenter_ok);
-            } else
-              break;
-          }
+          spinlock_acquire(&thread->_signal_reenter_ok);
+          gcv_object_t *saved_stack=thread->_STACK;
+          /* line below is not needed but detects bugs */
+          NC_pushSTACK(thread->_STACK,O(thread_break_description));
+          NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
+          NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
+          NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
+          signal_sent =
+            (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
+                                 SIG_THREAD_INTERRUPT));
+          if (!signal_sent) {
+            thread->_STACK=saved_stack;
+            spinlock_release(&thread->_signal_reenter_ok);
+          } else
+            break;
         });
         if (!signal_sent) {
           fputs("*** SIGINT will be missed.\n",stderr); abort();
@@ -4573,16 +4554,14 @@ local void *signal_handler_thread(void *arg)
         var bool some_failed=false;
         ENABLE_DUMMY_ALLOCCOUNT(true);
         for_all_threads({
-          if (thread->_STACK) {
-            /* be sure the signal handler can be reentered */
-            spinlock_acquire(&thread->_signal_reenter_ok);
-            NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
-            NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
-            NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
-            some_failed |=
-              (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
-                                 SIG_THREAD_INTERRUPT));
-          }
+          /* be sure the signal handler can be reentered */
+          spinlock_acquire(&thread->_signal_reenter_ok);
+          NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
+          NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
+          NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
+          some_failed |=
+            (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
+                               SIG_THREAD_INTERRUPT));
         });
         if (some_failed) {
           fputs("*** some threads were not signaled to terminate.",stderr);
