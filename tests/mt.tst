@@ -52,7 +52,9 @@ T
 (eq (mutex-owner m1) th) t
 ;; check thread-interrupt
 (thread-active-p (thread-interrupt th #'mutex-unlock m1)) T
-(mutex-owner m1) NIL
+;; thread is interrupted - wait for the mutex m1 to be unlocked and grab it
+(eq (mutex-owner (mutex-lock m1)) (current-thread)) T
+(eq (mutex-unlock m1) m1) T
 (eq (mutex-owner m2) th) T
 
 (thread-active-p
