@@ -756,10 +756,10 @@ the second invocation will produce a <ulink url="clhs/glo">circular
 <computeroutput>0.20000005</computeroutput>
 </programlisting></question>
 <answer><label>inexact</label><para>Floating point arithmetic is
-  inherently <emphasis>inexact</emphasis>, so this not a bug,
+  inherently <emphasis>inexact</emphasis>, so this &not-e; a bug,
   at least not a bug in &clisp;.
   You may argue that this is a bug in &ieee-bfp;,
-  but first please make sure that you do know
+  but, before you do, please make sure that you do know
   <ulink url="http://docs.sun.com/source/806-3568/ncg_goldberg.html">What
    Every Computer Scientist Should Know About Floating-Point Arithmetic</ulink>.
  </para><para>See also <ulink url="ml">clisp-list</ulink>
@@ -786,7 +786,7 @@ the second invocation will produce a <ulink url="clhs/glo">circular
    inserted by the pretty printer?</para></question>
 <answer><para>See <xref linkend="ppr-first-newline"/>.</para>
  <para>For example, here you are pretty-printing two objects: a
-  one-liner <keysym>#\Q</keysym> and a two-liner <literal>CRLF</literal>,
+  one-liner <keysym>#\Q</keysym> and a two-liner &cr-c;+&lf-c;,
   and a line break is inserted between them so that they are printed on
   separate lines: <programlisting language="lisp">
 (defparameter crlf (coerce '(#\Return #\Linefeed) 'string))
@@ -805,10 +805,9 @@ the second invocation will produce a <ulink url="clhs/glo">circular
 <answer><para>&clisp; often issues &warning-t;s when it encounters
   suspicious behavior.  It is best to fix your code rather than to
   suppress them.  To figure out where the warning is coming from, do
-<programlisting language="lisp">
- (&setq; &break-on-signals-var; '&warning-t;)
-</programlisting> and examine the stack (see <xref linkend="debugger"/>)
-to see where the warning is coming from.</para>
+  <code>(&setq; &break-on-signals-var; '&warning-t;)</code> and examine
+  the stack (see <xref linkend="debugger"/>)
+  to see where the warning is coming from.</para>
  <para>If everything else fails, read the
  <link linkend="impnotes-top">manual</link>.</para></answer>
 </qandaentry>
