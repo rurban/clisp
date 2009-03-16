@@ -435,7 +435,7 @@ set       toc,title
    <tr><td align="left"><a href="http://clisp.cons.org">
       <img src="clisp.png" width="48" height="48" alt="[CLISP home]"/></a></td>
     <td align="center"><a href="https://sourceforge.net/donate/index.php?group_id=1355"><img src="http://images.sourceforge.net/images/project-support.jpg" width="88" height="32" alt="[Support CLISP]"/></a></td>
-    <td align="right"><a href="https://sourceforge.net"><img width="125" height="37" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=2&amp;page={@id}"/></a></td>
+    <td align="right"><a href="https://sourceforge.net/projects/clisp"><img width="120" height="30" alt="[SourceForge]" src="http://sflogo.sourceforge.net/sflogo.php?group_id=1355&amp;type=12&amp;page={@id}"/></a></td>
  </tr></table></div><hr />
  <!-- https://sourceforge.net/tracker/?func=detail&atid=200001&aid=1878997&group_id=1 -->
  <form method="get" action="http://www.google.com/custom" target="_top">
