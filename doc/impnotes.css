@@ -42,6 +42,9 @@ img { border-width: 0; }
 /* cmdsynopsis: indent first line */
 .cmdsynopsis { text-indent: -40px; margin-left: 40px; }
 
+/* userinput: highlight */
+.userinput { background-color: lightgreen; color: darkred; font-weight: bold; }
+
 /* larger headings:
  (loop :for i :from 1 :to 6 :do
    (format t "h~d { font-size: ~d%; }~%"
