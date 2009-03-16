@@ -7,6 +7,7 @@
   <contrib>The original author and long-time maintainer.</contrib>
   <address><otheraddr><ulink url="http://www.haible.de/bruno/"/>
   </otheraddr></address></author>'>
+<!ENTITY bruno-a '<authorinitials>bruno</authorinitials>'>
 <!ENTITY gilbert-baumann '<author><firstname>Gilbert</firstname><surname>Baumann</surname>
   <contrib>The NEW-CLX module.</contrib>
   <address><otheraddr><ulink url="http://www.uni-karlsruhe.de/~unk6/"/>
@@ -19,6 +20,7 @@
   <contrib>Co-maintainer since 1998.</contrib>
   <address><otheraddr><ulink url="http://sds.podval.org/"/>
   </otheraddr></address></author>'>
+<!ENTITY sds-a '<authorinitials>sds</authorinitials>'>
 <!ENTITY stoll '<author><firstname>Michael</firstname><surname>Stoll</surname>
   <contrib>The original author.</contrib>
   <address><otheraddr><ulink url="http://www.faculty.iu-bremen.de/mstoll/"/>
