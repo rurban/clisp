@@ -1457,7 +1457,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  your &lispinit; will <emphasis>have</emphasis> to be re-dumped.</para>
 
 <warning id="byte-version"><para>If you change the signature of any
- system function mentioned in the <varname>FUNTAB</varname> arrays in
+ system function mentioned in the &FUNTAB;* arrays in
  file &eval-d;, all the &fasl-file; files will
  become obsolete and will need to be recompiled.
  You will need to add a note to that effect to the &news; file
@@ -1544,7 +1544,7 @@ callee's &STACK;), but a virtual machine implementation may also copy
 outgoing arguments to incoming arguments instead of sharing them.</para>
 
 <para>The virtual machine has a special data structure,
-<varname>values</varname>, containing the <quote>top of stack</quote>,
+&mvalues;, containing the <quote>top of stack</quote>,
 specially adapted to &cl; &mul-val;:
 <variablelist>
  <varlistentry><term>&mv-count;</term>
@@ -1558,7 +1558,7 @@ specially adapted to &cl; &mul-val;:
   objects.</simpara></listitem></varlistentry>
 </variablelist></para>
 
-<para>The contents of <varname>values</varname> is short-lived.
+<para>The contents of &mvalues; is short-lived.
 It does not survive a function call, not even a &gc;ion.</para>
 
 <para>The interpretation of some bytecode instructions depends on a
@@ -1779,17 +1779,17 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="byte">(&nil;)</literal></entry>
-      <entry>Load &nil; into values.</entry>
+      <entry>Load &nil; into &mvalues;.</entry>
       <entry>&value1; := &nil;, &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(PUSH-NIL &n-r;)</literal></entry>
       <entry>Push &n-r; &nil;s into the &STACK;.</entry>
       <entry>&n-r; times do: *--&STACK; := &nil;,
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(&t;)</literal></entry>
-      <entry>Load &t; into values.</entry>
+      <entry>Load &t; into &mvalues;.</entry>
       <entry>&value1; := &t;, &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(CONST &n-r;)</literal></entry>
-      <entry>Load the function's &n-r;th constant into values.</entry>
+      <entry>Load the function's &n-r;th constant into &mvalues;.</entry>
       <entry>&value1; := &consts;[&n-r;],
              &mv-count; := 1</entry></row>
 </tbody></tgroup></informaltable>
@@ -1800,30 +1800,30 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="byte">(LOAD &n-r;)</literal></entry>
-      <entry>Load a directly accessible local variable into values.</entry>
-      <entry>&value1; := *(&STACK;+&n-r;),
-             &mv-count; := 1</entry></row>
+  <entry>Load a directly accessible local variable into &mvalues;.</entry>
+  <entry>&value1; := *(&STACK;+&n-r;),
+         &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(LOADI &k1-r; &k2-r; &n-r;)</literal></entry>
-      <entry>Load an indirectly accessible local variable into values.</entry>
-      <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
-              &value1; := *(*(&SP;+&k-r;)+ &n-r;),
-              &mv-count; := 1</entry></row>
+  <entry>Load an indirectly accessible local variable into &mvalues;.</entry>
+  <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
+         &value1; := *(*(&SP;+&k-r;)+ &n-r;),
+         &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(LOADC &n-r; &m-r;)</literal></entry>
-      <entry>Load a closed-up variable, defined in the same function and
-             directly accessible, into values.</entry>
-      <entry>&value1; := &svref;(*(&STACK;+&n-r;),1+&m-r;),
-             &mv-count; := 1</entry></row>
+  <entry>Load a closed-up variable, defined in the same function and
+         directly accessible, into &mvalues;.</entry>
+  <entry>&value1; := &svref;(*(&STACK;+&n-r;),1+&m-r;),
+         &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(LOADV &k-r; &m-r;)</literal></entry>
-      <entry>Load a closed-up variable, defined in an outer function,
-             into values.</entry>
-      <entry>&v-r; := &venv-const;,
-             &m-r; times do: &v-r; := &svref;(&v-r;,0),
-             &value1; := &svref;(&v-r;,&m-r;),
-             &mv-count; := 1</entry></row>
+  <entry>Load a closed-up variable, defined in an outer function,
+         into &mvalues;.</entry>
+  <entry>&v-r; := &venv-const;,
+         &m-r; times do: &v-r; := &svref;(&v-r;,0),
+         &value1; := &svref;(&v-r;,&m-r;),
+         &mv-count; := 1</entry></row>
  <row><entry><literal
          role="byte">(LOADIC &k1-r; &k2-r; &n-r; &m-r;)</literal></entry>
       <entry>Load a closed-up variable, defined in the same function and
-             indirectly accessible, into values.</entry>
+             indirectly accessible, into &mvalues;.</entry>
       <entry>&k-r; := &k1-r; + &jbs; * &k2-r;,
              &value1; := &svref;(*(*(&SP;+&k-r;)+&n-r;),1+&m-r;),
              &mv-count; := 1</entry></row>
@@ -1864,7 +1864,7 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="byte">(GETVALUE &n-r;)</literal></entry>
-      <entry>Load a symbol's value into values.</entry>
+      <entry>Load a symbol's value into &mvalues;.</entry>
       <entry>&value1; := symbol-value(&consts;[&n-r;]),
              &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(SETVALUE &n-r;)</literal></entry>
@@ -1876,7 +1876,7 @@ letters:
       <entry>Bind the value of the symbol
              &consts;[&n-r;] to &value1;,
              implicitly &STACK; -= 3,
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(UNBIND1)</literal></entry>
       <entry>Dissolve one binding frame.</entry>
       <entry>Unbind the binding frame &STACK; is pointing to,
@@ -1893,7 +1893,7 @@ letters:
              *--&SP; := &STACK;,
              build a single binding frame binding the symbols in
              <replaceable>symbols</replaceable> to the values in &value1;,
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
 </tbody></tgroup></informaltable>
 </section>
 
@@ -1904,9 +1904,9 @@ letters:
  <row><entry><literal role="byte">(PUSH)</literal></entry>
       <entry>Push one object onto the &STACK;.</entry>
       <entry>*--&STACK; := &value1;,
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(POP)</literal></entry>
-      <entry>Pop one object from the &STACK;, into values.</entry>
+      <entry>Pop one object from the &STACK;, into &mvalues;.</entry>
       <entry>&value1; := *&STACK;++, &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(SKIP &n-r;)</literal></entry>
       <entry>Restore a previous &STACK; pointer.
@@ -1971,37 +1971,37 @@ letters:
  <row><entry><literal role="byte">(JMPIFATOM &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is not a cons.</entry>
       <entry>If &value1; is not a cons, PC := &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFCONSP &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is a cons.</entry>
       <entry>If &value1; is a cons, PC := &lab-r;.
-                values undefined</entry></row>
+                &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFEQ &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is &eq; to the top-of-stack.</entry>
       <entry>If eq(&value1;,*&STACK;++), PC := &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFNOTEQ &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if &value1; is not &eq;
              to the top-of-stack.</entry>
       <entry>If not eq(&value1;,*&STACK;++), PC := &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFEQTO &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;,
              if the top-of-stack is &eq; to a constant.</entry>
       <entry>If eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFNOTEQTO &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if the top-of-stack is not &eq;
              to a constant.</entry>
       <entry>If not eq(*&STACK;++,&consts;[&n-r;]), PC := &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPHASH &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;.</entry>
       <entry>Lookup &value1; in the hash table &consts;[&n-r;].
              (The hash table's test is either &eq; or &eql;.)
              If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPHASHV &n-r; &lab-r;)</literal></entry>
       <entry>Table-driven jump, depending on &value1;,
              inside a generic function.</entry>
@@ -2009,11 +2009,11 @@ letters:
              (The hash table's test is either &eq; or &eql;.)
              If found, the hash table value is a signed &fixnum-t;,
              jump to it: PC := PC + value.  Else jump to &lab-r;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JSR &lab-r;)</literal></entry>
       <entry>Subroutine call.</entry>
       <entry>*--&STACK; := function. Then start interpreting the
-             bytecode at &lab-r;, with values undefined.
+             bytecode at &lab-r;, with &mvalues; undefined.
              When a <literal role="byte">(RET)</literal> is encountered,
              program execution is resumed at the instruction after
              <literal role="byte">(JSR &lab-r;)</literal>.</entry></row>
@@ -2026,7 +2026,7 @@ letters:
                {*&STACK;, ..., *(&STACK;+&m-r;-1)}.
              &STACK; += n-m.
              *--&STACK; := function.
-             Then jump to &lab-r;, with values undefined.</entry></row>
+             Then jump to &lab-r;, with &mvalues; undefined.</entry></row>
 </tbody></tgroup></informaltable>
 </section>
 
@@ -2036,7 +2036,7 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="byte">(VENV)</literal></entry>
-      <entry>Load the &venv-const; into values.</entry>
+      <entry>Load the &venv-const; into &mvalues;.</entry>
       <entry>&value1; := &consts;[0], &mv-count; := 1.</entry>
   </row>
  <row><entry><literal
@@ -2044,8 +2044,7 @@ letters:
       <entry>Create a &simple-vector-t; used for closed-up variables.</entry>
       <entry>&v-r; := new &simple-vector-t; of size &n-r;+1.
              &svref;(&v-r;,0) := &value1;.
-             *--&STACK; := &v-r;.
-             values undefined</entry></row>
+             *--&STACK; := &v-r;. &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(COPY-CLOSURE &m-r; &n-r;)</literal></entry>
       <entry>Create a closure by copying the prototype and filling in
              the &lex-env;.</entry>
@@ -2065,74 +2064,65 @@ letters:
       <entry>Calls a constant function with &k-r; arguments.</entry>
       <entry>The function &consts;[&n-r;] is called
              with the arguments *(&STACK;+&k-r;-1), ..., *(&STACK;+0).
-             &STACK; += &k-r;.
-             The returned values go into values.</entry></row>
+             &STACK; += &k-r;. &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALL0 &n-r;)</literal></entry>
       <entry>Calls a constant function with 0 arguments.</entry>
       <entry>The function &consts;[&n-r;] is called with 0 arguments.
-             The returned values go into values.</entry></row>
+             &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALL1 &n-r;)</literal></entry>
       <entry>Calls a constant function with 1 argument.</entry>
       <entry>The function &consts;[&n-r;] is called with one argument *&STACK;.
-             &STACK; += 1. The returned values go into values.</entry></row>
+             &STACK; += 1. &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALL2 &n-r;)</literal></entry>
       <entry>Calls a constant function with 2 arguments.</entry>
       <entry>The function &consts;[&n-r;] is called
              with two arguments *(&STACK;+1) and *(&STACK;+0).
-             &STACK; += 2. The returned values go into values.</entry></row>
+             &STACK; += 2. &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALLS1 &b-r;)</literal></entry>
       <entry>Calls a system function with no &rest-amp;.</entry>
-      <entry>Calls the system function FUNTAB[&b-r;].
+      <entry>Calls the system function &FUNTAB;[&b-r;].
              The right number of arguments is already on the &STACK;
              (including &unbound;s in place of absent &optional-amp; or
               &key-amp; parameters).
-             The arguments are removed from the &STACK;.
-             The returned values go into values.</entry></row>
+             &clear-stack; &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALLS2 &b-r;)</literal></entry>
       <entry>Calls a system function with no &rest-amp;.</entry>
-      <entry>Calls the system function FUNTAB[256+&b-r;].
+      <entry>Calls the system function &FUNTAB;[256+&b-r;].
              The right number of arguments is already on the &STACK;
              (including &unbound;s in place of absent &optional-amp; or
               &key-amp; parameters).
-             The arguments are removed from the &STACK;.
-             The returned values go into values.</entry></row>
+             &clear-stack; &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALLSR &m-r; &b-r;)</literal></entry>
       <entry>Calls a system function with &rest-amp;.</entry>
-      <entry>Calls the system function FUNTABR[&b-r;].
+      <entry>Calls the system function &FUNTAB;R[&b-r;].
              The minimum number of arguments is already on the &STACK;,
              and &m-r; additional arguments as well.
-             The arguments are removed from the &STACK;.
-             The returned values go into values.</entry></row>
+             &clear-stack; &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALLC)</literal></entry>
-      <entry>Calls a computed compiled function with no &key-amp;.</entry>
+      <entry>Calls a computed compiled function with no &key-amp;s.</entry>
       <entry>Calls the compiled function &value1;.
              The right number of arguments is already on the &STACK;
              (including &unbound;s in place of absent &optional-amp;
               parameters).
-             The arguments are removed from the &STACK;.
-             The returned values go into values.</entry></row>
+             &clear-stack; &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(CALLCKEY)</literal></entry>
-      <entry>Calls a computed compiled function with &key-amp;.</entry>
+      <entry>Calls a computed compiled function with &key-amp;s.</entry>
       <entry>Calls the compiled function &value1;.
              The right number of arguments is already on the &STACK;
              (including &unbound;s in place of absent &optional-amp;
               or &key-amp; parameters).
-             The arguments are removed from the &STACK;.
-             The returned values go into values.</entry></row>
+             &clear-stack; &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(FUNCALL &n-r;)</literal></entry>
       <entry>Calls a computed function.</entry>
       <entry>Calls the function *(&STACK;+&n-r;)
              with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0).
-             &STACK; += &n-r;+1.
-             The returned values go into values.</entry></row>
+             &STACK; += &n-r;+1. &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(APPLY &n-r;)</literal></entry>
-      <entry>Calls a computed function with an unknown number of
-             arguments.</entry>
-      <entry>Calls the function *(&STACK;+&n-r;)
-             with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0)
-             and a list of additional arguments &value1;.
-             &STACK; += &n-r;+1.
-             The returned values go into values.</entry></row>
+  <entry>Calls a computed function with an unknown number of arguments.</entry>
+  <entry>Calls the function *(&STACK;+&n-r;)
+         with the arguments *(&STACK;+&n-r;-1), ..., *(&STACK;+0)
+         and a list of additional arguments &value1;.
+         &STACK; += &n-r;+1. &ret-mvalues;</entry></row>
 </tbody></tgroup></informaltable>
 </section>
 
@@ -2144,7 +2134,7 @@ letters:
  <row><entry><literal role="byte">(PUSH-UNBOUND &n-r;)</literal></entry>
       <entry>Push &n-r; &unbound;s into the &STACK;.</entry>
       <entry>&n-r; times do: *--&STACK; := &unbound;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(UNLIST &n-r; &m-r;)</literal></entry>
       <entry>Destructure a proper &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;.
@@ -2154,7 +2144,7 @@ letters:
              may already have reached its end;
              in this case, *--&STACK; := &unbound;.
              At the end, &value1; must be &nil;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(UNLIST* &n-r; &m-r;)</literal></entry>
       <entry>Destructure a proper or dotted &list-t;.</entry>
       <entry>0 &le; &m-r; &le; &n-r;, &n-r; &gt; 0.
@@ -2164,14 +2154,14 @@ letters:
              may already have reached its end;
              in this case, *--&STACK; := &unbound;.
              At the end, after &n-r; &cdr;s, *--&STACK; := &value1;.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(JMPIFBOUNDP &n-r; &lab-r;)</literal></entry>
       <entry>Jump to &lab-r;, if a local variable is not unbound.</entry>
       <entry>If *(&STACK;+&n-r;) is not &unbound;,
                 &value1; := *(&STACK;+&n-r;), &mv-count; := 1, PC := &lab-r;.
-             Else: values undefined.</entry></row>
+             Else: &undef-mvalues;.</entry></row>
  <row><entry><literal role="byte">(BOUNDP &n-r;)</literal></entry>
-      <entry>Load &t; or &nil; into values, depending on whether a local
+      <entry>Load &t; or &nil; into &mvalues;, depending on whether a local
              variable is bound.</entry>
       <entry>If *(&STACK;+&n-r;) is not &unbound;,
                 &value1; := &t;, &mv-count; := 1.
@@ -2189,7 +2179,7 @@ letters:
  <tgroup cols="3" colsep="1" rowsep="1" align="center">&mnem-desc-sem-header;
 <tbody>
  <row><entry><literal role="byte">(VALUES0)</literal></entry>
-      <entry>Load no values into values.</entry>
+      <entry>Load no values into &mvalues;.</entry>
       <entry>&value1; := &nil;, &mv-count; := 0</entry>
   </row>
  <row><entry><literal role="byte">(VALUES1)</literal></entry>
@@ -2197,28 +2187,26 @@ letters:
       <entry>&mv-count; := 1</entry>
   </row>
  <row><entry><literal role="byte">(&STACK;-TO-MV &n-r;)</literal></entry>
-      <entry>Pop the first &n-r; objects from &STACK; into values.</entry>
+      <entry>Pop the first &n-r; objects from &STACK; into &mvalues;.</entry>
       <entry>Load values(*(&STACK;+&n-r;-1),...,*(&STACK;+0)) into
              values. &STACK; += &n-r;.</entry></row>
  <row><entry><literal role="byte">(MV-TO-&STACK;)</literal></entry>
       <entry>Save values on &STACK;.</entry>
       <entry>Push the &mv-count; values onto the &STACK;
              (in order: &value1; comes first).
-             &STACK; -= &mv-count;.
-             values undefined</entry></row>
+             &STACK; -= &mv-count;. &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(NV-TO-&STACK; &n-r;)</literal></entry>
       <entry>Save &n-r; values on &STACK;.</entry>
       <entry>Push the first &n-r; values onto the &STACK;
              (in order: &value1; comes first).
-             &STACK; -= &n-r;.
-             values undefined</entry></row>
+             &STACK; -= &n-r;. &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(MV-TO-LIST)</literal></entry>
       <entry>Convert &mul-val; into a list.</entry>
       <entry>&value1; := list of values, &mv-count; := 1</entry></row>
  <row><entry><literal role="byte">(LIST-TO-MV)</literal></entry>
       <entry>Convert a &list-t; into &mul-val;.</entry>
       <entry>Call the function &values-list; with &value1; as argument.
-             The returned values go into values.</entry></row>
+             &ret-mvalues;</entry></row>
  <row><entry><literal role="byte">(MVCALLP)</literal></entry>
       <entry>Start a &multiple-value-call; invocation.</entry>
       <entry>*--&SP; := &STACK;. *--&STACK; := &value1;.</entry></row>
@@ -2227,8 +2215,7 @@ letters:
       <entry>newSTACK := *&SP;++.
              Call the function *(newSTACK-1), passing it
              *(newSTACK-2), ..., *(&STACK;+0) as arguments.
-             &STACK; := newSTACK.
-             The returned values go into values.</entry></row>
+             &STACK; := newSTACK. &ret-mvalues;</entry></row>
 </tbody></tgroup></informaltable>
 </section>
 
@@ -2243,7 +2230,7 @@ letters:
    The topmost (third) object in the block frame is
    &cons;(&consts;[&n-r;],frame-pointer) (its &bc-r;).
    Upon a &return-from; to this frame, execution will continue at &lab-r;.
-   values undefined.</entry></row>
+   &undef-mvalues;.</entry></row>
  <row><entry><literal role="byte">(BLOCK-CLOSE)</literal></entry>
       <entry>Dissolve a &block; frame.</entry>
       <entry>Dissolve the &block; frame at &STACK;, &STACK; += 3,
@@ -2280,9 +2267,9 @@ letters:
              &cons;(&consts;[&m-r;],frame-pointer) (the &tbc-r;)
              Upon a &go; to tag &lab-r; of this frame, execution
              will continue at <replaceable>label&sub-l;</replaceable>.
-             values undefined</entry></row>
+             &undef-mvalues;</entry></row>
  <row><entry><literal role="byte">(TAGBODY-CLOSE-NIL)</literal></entry>
-      <entry>Dissolve a &tagbody; frame, and load &nil; into values.</entry>
+      <entry>Dissolve a &tagbody; frame, and load &nil; into &mvalues;.</entry>
       <entry>Dissolve the &tagbody; frame at &STACK;,
              &STACK; += 3+&m-r;, &SP; += 1+&jbs;.
              Mark the &tbc-r; as invalid.
@@ -2357,7 +2344,7 @@ letters:
  <row><entry><literal role="byte">(UNWIND-PROTECT-CLOSE)</literal></entry>
       <entry>Terminate the cleanup code.</entry>
       <entry>newSTACK := *&SP;++. Load
-             values(*(newSTACK-1), ..., *(&STACK;+0)) into values.
+             values(*(newSTACK-1), ..., *(&STACK;+0)) into &mvalues;.
              &STACK; := newSTACK. SPword1 := *&SP;++, SPword2 := *&SP;++.
              Continue depending on SPword1 and SPword2.
              If both are 0, simply continue execution.
