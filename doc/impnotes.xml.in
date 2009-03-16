@@ -148,6 +148,9 @@
     <row><entry>External &module;</entry>
      <entry>&libsvm-mod;, &glibc-mod;</entry></row>
     <row><entry>Command line argument</entry><entry>&opt-x;</entry></row>
+    <row><entry>Interaction</entry><entry><screen>Computer output
+<prompt>Prompt:</prompt> <userinput>user input</userinput></screen>
+    </entry></row>
 </tbody></tgroup></table></para></preface>
 
 <part id="clhs-chapters"><title>Chapters or the &hyperspec;</title>
