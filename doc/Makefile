@@ -1,5 +1,5 @@
 # CLISP Implementation Notes generation
-# (c) 2000-2008 Sam Steingold
+# (c) 2000-2009 Sam Steingold
 
 # To generate HTML, you will need xsltproc & xmllint from the libxml2
 # (http://xmlsoft.org/) package in addition to the DocBook DTDs and XSL
