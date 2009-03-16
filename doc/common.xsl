@@ -347,11 +347,9 @@
 </xsl:template>
 
 <xsl:template match="screen/userinput">
- <big><strong><xsl:apply-imports/></strong></big>
-</xsl:template>
+ <big ><xsl:apply-imports/></big></xsl:template>
 <xsl:template match="screen/prompt">
- <strong><xsl:apply-imports/></strong>
-</xsl:template>
+ <strong><xsl:apply-imports/></strong></xsl:template>
 
 <xsl:template match="comment()">  <!-- pass through comments -->
  <xsl:text>&#10;</xsl:text>
