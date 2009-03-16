@@ -665,10 +665,15 @@
    <entry>description</entry><entry>semantics</entry></row></thead>'>
 <!ENTITY mv-count '<link linkend="vm"><varname>mv_count</varname></link>'>
 <!ENTITY mv-space '<link linkend="vm"><varname>mv_space</varname></link>'>
+<!ENTITY mvalues '<link linkend="vm"><varname>values</varname></link>'>
+<!ENTITY ret-mvalues 'The returned values go into &mvalues;.'>
+<!ENTITY undef-mvalues 'Invalidate &mvalues;.'>
+<!ENTITY clear-stack 'The arguments are removed from the &STACK;.'>
 <!ENTITY numreq '<link linkend="comp-fun"><literal>numreq</literal></link>'>
 <!ENTITY other-const '<link linkend="comp-fun"><literal>other-const</literal></link>'>
 <!ENTITY SP '<olink targetdoc="impnotes" targetptr="vm"><literal>SP</literal></olink>'>
 <!ENTITY STACK '<olink targetdoc="impnotes" targetptr="vm"><literal>STACK</literal></olink>'>
+<!ENTITY FUNTAB '<link linkend="byte-version"><varname>FUNTAB</varname></link>'>
 <!ENTITY tagbody-const '<link linkend="comp-fun"><literal>tagbody-const</literal></link>'>
 <!ENTITY unbound '<literal role="data">#&lt;UNBOUND&gt;</literal>'>
 <!ENTITY value1 '<link linkend="vm"><varname>value1</varname></link>'>
