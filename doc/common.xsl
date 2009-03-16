@@ -21,6 +21,9 @@
 <xsl:param name="variablelist.term.separator" select="''"/>
 <xsl:param name="generate.meta.abstract" select="1"/>
 
+<!-- https://sourceforge.net/tracker2/?func=detail&atid=373747&aid=1986587&group_id=21935 -->
+<xsl:param name="index.links.to.section" select="0"/>
+
 <!-- http://thread.gmane.org/gmane.text.docbook.apps/15071/ -->
 <!-- http://www.sagehill.net/docbookxsl/HtmlHead.html -->
 <xsl:variable name="processing.time">
