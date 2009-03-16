@@ -47,22 +47,25 @@ CURDIR=$(shell pwd)
 DOWNLOAD=yes
 
 ifneq (,$(filter Windows%,$(OS)))
-DTD_PATH=/usr/share/docbook-xml$(DTDVER)/docbookx.dtd
+DTD_PATH=$(firstword $(wildcard ./docbook-dtd*/docbookx.dtd \
+	/usr/share/docbook-xml$(DTDVER)/docbookx.dtd))
 # Make sure to use a trailing slash.
-XSL_PATH=$(firstword $(wildcard /usr/share/docbook-xsl*/))
+XSL_PATH=$(firstword $(wildcard ./docbook-xsl*/ \
+	/usr/share/docbook-xsl*/))
 FOP=/cygdrive/c/java/fop-0.20.5/fop.bat
 else
-DTD_PATH=$(firstword $(wildcard \
+DTD_PATH=$(firstword $(wildcard ./docbook-dtd*/docbookx.dtd \
 	/usr/share/sgml/docbook/xml-dtd-$(DTDVER)*/docbookx.dtd \
 	/usr/share/xml/docbook/schema/dtd/$(DTDVER)*/docbookx.dtd))
-XSL_PATH=$(firstword $(wildcard /usr/share/sgml/docbook/xsl-stylesheets-1*/ \
+XSL_PATH=$(firstword $(wildcard ./docbook-xsl*/ \
+	/usr/share/sgml/docbook/xsl-stylesheets-1*/ \
 	/usr/share/xml/docbook/stylesheet/nwalsh*/))
 FOP=../../../fop/fop
 endif
 
 # common dependencies for all checkers
 CHECK_DEPS = impnotes.xml clisp.xml
-ifeq (,$(wildcard $(DTD_PATH))) # system DTD does not exist
+ifeq (,$(wildcard $(DTD_PATH))) # DTD does not exist
 ifeq (yes,$(DOWNLOAD))		# download once
 CHECK_DEPS += docbook-dtd
 DTD_PATH=./docbook-dtd/docbookx.dtd
@@ -75,8 +78,8 @@ endif
 
 # common dependencies for all generators
 GEN_DEPS = common.xsl
-ifeq (,$(wildcard $(XSL_PATH))) # system stylesheets do not exist
-ifeq (yes,$(DOWNLOAD))	       # download once
+ifeq (,$(wildcard $(XSL_PATH))) # stylesheets do not exist
+ifeq (yes,$(DOWNLOAD))	        # download once
 GEN_DEPS += docbook-xsl
 XSL_PATH=./docbook-xsl/
 else # download on each build (you need network-aware tools to use it)
