@@ -11,6 +11,13 @@
                 exclude-result-prefixes="date"
                 version="1.0">
 
+<!-- http://article.gmane.org/gmane.text.docbook.apps/21355 -->
+<!-- side effect of this empty param is to output a message -->
+<xsl:param name="__output.version__"><xsl:message>
+ <xsl:text>DocBook XSL stylesheet VERSION is: </xsl:text>
+ <xsl:value-of select="$VERSION"/>
+</xsl:message></xsl:param>
+
 <!-- http://www.sagehill.net/docbookxsl/HtmlHead.html -->
 <xsl:param name="html.stylesheet" select="'impnotes.css'"/>
 <xsl:param name="link.mailto.url"
