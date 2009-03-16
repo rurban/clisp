@@ -1,84 +1,69 @@
 <revhistory id="clisp-history">
 
-<revision><revnumber>1</revnumber><date>April 1987 - July 1992</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>1</revnumber><date>April 1987 - July 1992</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>The project was
-     started when both original authors, <authorinitials>bruno</authorinitials> and &stoll;, were
+     started when both original authors, &bruno; and &stoll;, were
      students in Germany.</simpara></listitem>
    <listitem><simpara>The original version was for &atari; ST only,
-     written in 68000 assembly language and Common Lisp.</simpara></listitem>
+     written in 68000 assembly language and &cl;.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.0</revnumber><date>1992-10-09</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.0</revnumber><date>1992-10-09</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>comp.os.linux announcement
    (&linux; binaries only)</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.1</revnumber><date>1993-01-01</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.1</revnumber><date>1993-01-01</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>The first portable
      release, with source, released under &gnu; &gpl;.</simpara></listitem>
    <listitem><simpara>Supported platforms: &atari; ST, &amiga; 500-2000, &dos;
      (emx, djgpp), &os2; (emx), Unix (&linux;, Sun4, Sun386, HP9000/800).
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.1.1</revnumber><date>1993-01-11</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.1.1</revnumber><date>1993-01-11</date>&bruno-a;</revision>
 
-<revision><revnumber>2.1.2</revnumber><date>1993-02-01</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.1.2</revnumber><date>1993-02-01</date>&bruno-a;</revision>
 
-<revision><revnumber>2.1.3</revnumber><date>1993-02-03</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.1.3</revnumber><date>1993-02-03</date>&bruno-a;</revision>
 
-<revision><revnumber>2.2</revnumber><date>1993-02-21</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.2</revnumber><date>1993-02-21</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>Add test suite.
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.2.1</revnumber><date>1993-03-04</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.2.1</revnumber><date>1993-03-04</date>&bruno-a;</revision>
 
-<revision><revnumber>2.2.2</revnumber><date>1993-03-19</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.2.2</revnumber><date>1993-03-19</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&editor;
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.3</revnumber><date>1993-03-30</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.3</revnumber><date>1993-03-30</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&load-time-value;</simpara></listitem>
    <listitem><simpara>&default-dir;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.3.1</revnumber><date>1993-04-05</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.3.1</revnumber><date>1993-04-05</date>&bruno-a;</revision>
 
-<revision><revnumber>2.4</revnumber><date>1993-05-24</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.4</revnumber><date>1993-05-24</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&defpackage;</simpara></listitem>
    <listitem><simpara>&function-lambda-expression;</simpara></listitem>
    <listitem><simpara><xref linkend="screen"/></simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.5</revnumber><date>1993-06-29</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.5</revnumber><date>1993-06-29</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&setf; function names.</simpara></listitem>
    <listitem><simpara>&print-unreadable-object;</simpara></listitem>
    <listitem><simpara>&symbol-macrolet;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.5.1</revnumber><date>1993-07-17</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.5.1</revnumber><date>1993-07-17</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>immutable objects</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.6</revnumber><date>1993-08-22</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.6</revnumber><date>1993-08-22</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&clos-pac; package:
      &defclass;, &defmethod;, &defgeneric;, &generic-function-t;,
      &gen-flet;, &gen-labels;, &with-slots;, &with-accessors;,
@@ -94,25 +79,21 @@
      &shared-initialize;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.6.1</revnumber><date>1993-09-01</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.6.1</revnumber><date>1993-09-01</date>&bruno-a;</revision>
 
-<revision><revnumber>2.7</revnumber><date>1993-09-27</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.7</revnumber><date>1993-09-27</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>top-level forms</simpara></listitem>
    <listitem><simpara>&declaim;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.8</revnumber><date>1993-11-08</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.8</revnumber><date>1993-11-08</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&cl-pac;, &clu-pac;</simpara></listitem>
    <listitem><simpara>New module: STDWIN</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.9</revnumber><date>1994-01-08</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.9</revnumber><date>1994-01-08</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&define-condition;,
      &ignore-errors;, &handler-case;, &handler-bind;, &restart-case;,
      &with-restarts;, &with-simple-restart;, &restart-bind;,
@@ -138,15 +119,13 @@
      &print-readably-var;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.10</revnumber><date>1994-06-22</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.10</revnumber><date>1994-06-22</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&rd-ch-seq;, &wr-ch-seq;,
      &rd-by-seq;, &wr-by-seq;</simpara></listitem>
    <listitem><simpara><xref linkend="gstream"/></simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.11</revnumber><date>1994-07-04</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.11</revnumber><date>1994-07-04</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&loop;, &loop-finish;,
      &map-into;</simpara></listitem>
    <listitem><simpara>&least-positive-normalized-short-float;,
@@ -159,37 +138,31 @@
      &least-negative-normalized-long-float;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.12</revnumber><date>1994-08-23</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.12</revnumber><date>1994-08-23</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>generational &gc;ion</simpara></listitem>
    <listitem><simpara>&destructuring-bind;</simpara></listitem>
    <listitem><simpara>&uncompile;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.12.1</revnumber><date>1994-09-01</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.12.1</revnumber><date>1994-09-01</date>&bruno-a;</revision>
 
-<revision><revnumber>2.13</revnumber><date>1994-10-26</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.13</revnumber><date>1994-10-26</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&wild-pathname-p;,
      &pathname-match-p;, &translate-pathname;, &logical-pathname;,
      &logical-pathname-translations;, &translate-logical-pathname;,
      &load-logical-pathname-translations;, &compile-file-pathname;
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.13.1</revnumber><date>1995-01-01</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.13.1</revnumber><date>1995-01-01</date>&bruno-a;</revision>
 
-<revision><revnumber>2.14</revnumber><date>1995-04-04</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.14</revnumber><date>1995-04-04</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&ffi-pac;</simpara></listitem>
    <listitem><simpara>&row-major-aref;, &delete-package;,
      &muffle-cerrors;, &appease-cerrors;, &exit-on-error;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.15</revnumber><date>1995-04-25</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.15</revnumber><date>1995-04-25</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>New modules: &wildcard-mod;,
      &regexp-mod;</simpara></listitem>
@@ -204,8 +177,7 @@
      &print-not-readable-object;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.16</revnumber><date>1995-06-23</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.16</revnumber><date>1995-06-23</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&complement;,
      &with-standard-io-syntax;, &dynamic-extent-dec;, &lambda;,
      &ignorable-dec;, &constantly;</simpara></listitem>
@@ -214,41 +186,34 @@
      &hash-table-size;, &hash-table-test;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.17</revnumber><date>1996-07-21</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.17</revnumber><date>1996-07-21</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&sose;, &sose-close;,
      &sose-port;, &so-wait;, &so-accept;, &so-connect;, &sost-host;,
      &sost-port;, <function>SOCKET:SOCKET-SERVICE-PORT</function>,
      &sost-peer;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.17</revnumber><date>1996-07-22</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.17</revnumber><date>1996-07-22</date>&bruno-a;</revision>
 
-<revision><revnumber>2.18</revnumber><date>1997-05-03</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.18</revnumber><date>1997-05-03</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&deflang;, &def-i-l;, &defloc;</simpara></listitem>
    <listitem><simpara>&load-comp;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.19</revnumber><date>1997-08-07</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.19</revnumber><date>1997-08-07</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&clx;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.20</revnumber><date>1997-09-25</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.20</revnumber><date>1997-09-25</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&read-eval-var;</simpara></listitem>
    <listitem><simpara>&ts;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.20.1</revnumber><date>1997-12-06</date>
- <authorinitials>bruno</authorinitials></revision>
+<revision><revnumber>2.20.1</revnumber><date>1997-12-06</date>&bruno-a;</revision>
 
-<revision><revnumber>2.21</revnumber><date>1998-09-09</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.21</revnumber><date>1998-09-09</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>Removed module STDWIN.</simpara></listitem>
    <listitem><simpara>&warn-fpc;, &flocont;, &floating-point-inexact-t;,
@@ -262,8 +227,7 @@
      &special-operator-p;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.22</revnumber><date>1999-01-08</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.22</revnumber><date>1999-01-08</date>&bruno-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&base-char-t;, &extended-char-t;, &base-string-t;,
      &simple-base-string-t;</simpara></listitem>
@@ -274,8 +238,7 @@
    <listitem><simpara>&sost-local;, &sose-host;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.23</revnumber><date>1999-07-22</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.23</revnumber><date>1999-07-22</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>New module:
      &postgresql-mod;</simpara></listitem>
    <listitem><simpara>&unicode;, &charset-pac;, &def-file-enc;, &path-enc;,
@@ -290,16 +253,14 @@
    <listitem><simpara>&simple-condition-format-control;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.24</revnumber><date>2000-03-06</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.24</revnumber><date>2000-03-06</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&rd-float;,
      &wr-float;</simpara></listitem>
    <listitem><simpara>&char-width;, &string-width;</simpara></listitem>
    <listitem><simpara>&with-compilation-unit;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.25</revnumber><date>2001-03-15</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.25</revnumber><date>2001-03-15</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&inspect;,
     <function>EXT:CLHS</function></simpara></listitem>
    <listitem><simpara>&convert-string-from-bytes;,
@@ -309,11 +270,9 @@
    <listitem><simpara>&win32; improvements (UNC pathnames, registry,
      screen)</simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.25.1</revnumber><date>2001-04-06</date>
- <authorinitials>sds</authorinitials></revision>
+<revision><revnumber>2.25.1</revnumber><date>2001-04-06</date>&sds-a;</revision>
 
-<revision><revnumber>2.26</revnumber><date>2001-05-23</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.26</revnumber><date>2001-05-23</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>dropped CLtL1,
      added <constant>:LISP=CL</constant> to &features-my;</simpara></listitem>
    <listitem><simpara>&define-compiler-macro;</simpara></listitem>
@@ -322,15 +281,13 @@
    <listitem><simpara>compiler checks function call signatures
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.27</revnumber><date>2001-07-17</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.27</revnumber><date>2001-07-17</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara><code>(&setf; &getenv;)</code></simpara></listitem>
    <listitem><simpara><filename role="clisp-cvs">src/install.bat</filename></simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.28</revnumber><date>2002-03-03</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.28</revnumber><date>2002-03-03</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&ansi-cl;
      Pretty-Printer</simpara></listitem>
    <listitem><simpara>&make-load-form;,
@@ -340,14 +297,12 @@
    <listitem><simpara>&gettext;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.29</revnumber><date>2002-07-25</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.29</revnumber><date>2002-07-25</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>Bug-fix/portability:
    &gcc; 3.1 etc</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.30</revnumber><date>2002-09-15</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.30</revnumber><date>2002-09-15</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>Do not bundle
     &libiconv;, &ggettext;, &readline;, &libsigsegv;.</simpara></listitem>
    <listitem><simpara>&ucs-4;</simpara></listitem>
@@ -358,8 +313,7 @@
    <listitem><simpara>New module: &oracle-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.31</revnumber><date>2003-09-01</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.31</revnumber><date>2003-09-01</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>New modules:
      &fastcgi-mod;, &dirkey-mod;, &win32-mod;,
      &syscalls-mod;, &netica-mod;</simpara></listitem>
@@ -370,16 +324,14 @@
    <listitem><simpara>More &ffi-pac; functionality.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.32</revnumber><date>2003-12-29</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.32</revnumber><date>2003-12-29</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>support
      &lfs;</simpara></listitem>
    <listitem><simpara>New modules: &berkeley-db-mod;,
      &pcre-mod;</simpara></listitem></itemizedlist>
 </revdescription></revision>
 
-<revision><revnumber>2.33</revnumber><date>2004-03-17</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.33</revnumber><date>2004-03-17</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&apropos-matcher;,
      &mod-expt;, &argv;, &st-position;</simpara></listitem>
    <listitem><simpara>&define-method-combination;</simpara></listitem>
@@ -387,18 +339,15 @@
      fixed UNIXes.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.33.1</revnumber><date>2004-05-22</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.33.1</revnumber><date>2004-05-22</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>Bug-fixes, portability:
      &gcc; 3.4</simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.33.2</revnumber><date>2004-06-02</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.33.2</revnumber><date>2004-06-02</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>Portability: RedHat Fedora
      &linux;/x86</simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.34</revnumber><date>2005-07-20</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.34</revnumber><date>2005-07-20</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara><xref linkend="mop-chap"/></simpara></listitem>
    <listitem><simpara><xref linkend="weak"/></simpara></listitem>
@@ -411,8 +360,7 @@
      &i18n-mod;, &pari-mod;.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.35</revnumber><date>2005-08-29</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.35</revnumber><date>2005-08-29</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&compiled-file-p;</simpara></listitem>
    <listitem><simpara>&char-invertcase;, &string-invertcase;,
@@ -422,8 +370,7 @@
      <function role="unix">exec</function>.</simpara></listitem></itemizedlist>
 </revdescription></revision>
 
-<revision><revnumber>2.36</revnumber><date>2005-12-04</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.36</revnumber><date>2005-12-04</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&open-http;, &notspec;,
      &def-c-const;, <link linkend="base64"><constant>BASE64</constant></link>
    </simpara></listitem>
@@ -431,40 +378,34 @@
    <listitem><simpara><filename role="clisp-cvs">src/spvw_sigterm.d</filename></simpara></listitem></itemizedlist>
 </revdescription></revision>
 
-<revision><revnumber>2.37</revnumber><date>2006-01-02</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.37</revnumber><date>2006-01-02</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&sose; accepts
      <constant>:INTERFACE</constant> and <constant>:BACKLOG</constant>.
    </simpara></listitem>
    <listitem><simpara>Fixed <code>(&setf; &getenv;)</code>.
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.38</revnumber><date>2006-01-24</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.38</revnumber><date>2006-01-24</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>&savemem; creates standalone
    executables.</simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.39</revnumber><date>2006-07-16</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.39</revnumber><date>2006-07-16</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>Reliable stack
      overflow detection and recovery.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.40</revnumber><date>2006-09-23</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.40</revnumber><date>2006-09-23</date>&sds-a;
  <revdescription><itemizedlist><listitem><simpara>Keep doc string and
      &lalist; in the closure object.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.41</revnumber><date>2006-10-13</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.41</revnumber><date>2006-10-13</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara>&default-foreign-library;</simpara></listitem>
    <listitem><simpara>New module: &libsvm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.42</revnumber><date>2007-10-16</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.42</revnumber><date>2007-10-16</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara><xref linkend="defstruct-mop"/></simpara></listitem>
    <listitem><simpara>&rename-dir;</simpara></listitem>
@@ -474,8 +415,7 @@
    <listitem><simpara>New modules: &gtk2-mod;, &gdbm-mod;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.43</revnumber><date>2007-11-18</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.43</revnumber><date>2007-11-18</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara>The &clisp; build process is now in compliance
      with the GNU standards.</simpara></listitem>
@@ -483,27 +423,23 @@
      with &gnulib;.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.43.1</revnumber><date>2008-02-24</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.43.1</revnumber><date>2008-02-24</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>Portability: work around
      &gcc; <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
       34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.44</revnumber><date>2008-02-02</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.44</revnumber><date>2008-02-02</date>&sds-a;
  <revdescription><simpara>Do not bundle &libffcall;.</simpara>
 </revdescription></revision>
 
-<revision><revnumber>2.44.1</revnumber><date>2008-02-24</date>
- <authorinitials>bruno</authorinitials>
+<revision><revnumber>2.44.1</revnumber><date>2008-02-24</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>Portability: work around
      &gcc; <ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34300">bug
       34300</ulink> present in &gcc; 4.2 and 4.3.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.45</revnumber><date>2008-05-15</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.45</revnumber><date>2008-05-15</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara>Just-In-Time compilation via &gnu;
      <ulink url="http://www.gnu.org/software/lightning/">lightning</ulink>.
@@ -514,8 +450,7 @@
    <listitem><simpara>Fixed cross-compilation.</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.46</revnumber><date>2008-07-02</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.46</revnumber><date>2008-07-02</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara><constant>:WORD-SIZE=64</constant> in
      &features-my; on 64-bit platforms.</simpara></listitem>
@@ -525,8 +460,7 @@
      &special-dec; bindings in evaluated code on &typecodes; platforms.
 </simpara></listitem></itemizedlist></revdescription></revision>
 
-<revision><revnumber>2.47</revnumber><date>2008-10-23</date>
- <authorinitials>sds</authorinitials>
+<revision><revnumber>2.47</revnumber><date>2008-10-23</date>&sds-a;
  <revdescription><itemizedlist>
    <listitem><simpara>New module: &dbus-mod;</simpara></listitem>
    <listitem><simpara>&probe-path;</simpara></listitem>
