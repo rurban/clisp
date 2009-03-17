@@ -276,7 +276,7 @@
 </xsl:template>
 
 <!-- ========================== CLHS ========================== -->
-<xsl:param name="clhs.top" select="'http://www.lisp.org/HyperSpec/'"/>
+<xsl:param name="clhs.top" select="'http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec/'"/>
 <xsl:param name="clhs.body" select="concat($clhs.top, 'Body/')"/>
 <xsl:template match="ulink[@role='clhs']">
  <xsl:choose><xsl:when test=".=''">
