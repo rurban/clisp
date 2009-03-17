@@ -33,34 +33,31 @@ global object subst_circ (gcv_object_t* ptr, object alist);
 /* -------------------------- Implementation --------------------------- */
 
 /* In MT we should have reentrant ciruclar detection.
-   currently two implementations are available: MLB and HASHTABLES.
+   currently three implementations are available: MLB, LISP HASHTABLES and
+   pointer set (default).
   1. MLB - it mallocs (esp. on 64 bit - huge amount of memory)
-  2. HASHSTABLES - it is slow. */
-#if 1
- #ifdef MULTITHREAD
-  #define CIRC_DETECTION_REENTRANT
- #endif
+  2. HASHSTABLES - it is slow.
+  3. Pointer sets - simple open addressing hashtable based on the object's
+  address. Allocates on the C stack room for 256 elements - so in most cases
+  no malloc() will be needed. */
+
+#ifdef MULTITHREAD
+ #define CIRC_DETECTION_REENTRANT
 #endif
 
 #ifdef CIRC_DETECTION_REENTRANT
-/* use MLB for 32 bit and hash table for 64 bit ??
-   hashtable is much slower (about 50% - overall) */
- #if 0
-  #if (oint_addr_len <= 32)
-   #define USE_MULTI_LEVEL_BITMAP
-  #else
-   #define USE_LISP_HASHTABLE
-  #endif
- #endif
+ #define USE_POINTER_SET
+/*
+ #define USE_MULTI_LEVEL_BITMAP
  #define USE_LISP_HASHTABLE
+*/
  #ifdef MULTITHREAD
-  /* to be called from init_multithread(). does not do anything. */
+  /* to be called from init_multithread(). does not do anything currnetly. */
   global void initialize_circ_detection() {}
  #endif
 #else /* use GC marks for detection */
  #ifdef MULTITHREAD
-  /* to be called from init_multithread(). do nothing. */
-  global void initialize_circ_detection() {}
+  #error In MULTITHREAD builds the circularirty detection should be reentrant
  #endif
 #endif
 
@@ -410,8 +407,125 @@ local void mlb_free (mlbitmap* bitmap)
 
 #endif
 
-#ifdef USE_LISP_HASHTABLE
+#ifdef USE_POINTER_SET
 
+/* simple open addressing hash set based on the object address
+   by default 256 slots are statically allocated and this will cover most
+   of the cases. It will enlarged with malloc() when needed. */
+typedef struct pointer_set {
+  uintC log_slots; /* 8 by default */
+  uintC slots_count; /* 2^log_slots */
+  uintC elements_count; /* how many elements we have? */
+  aint *slots;
+  aint initial_slots[256]; /* initial elements - to avoid malloc()  */
+} pointer_set;
+
+/* UP: hash function
+ > p: the address in the lisp heap
+ > max: the size of the hashtable
+ > logmax: 2^logmax = max
+ < returns the hash in the range [0.max)
+based on multiplicative method described in Knuth 6.4*/
+local inline uintC hash1 (const aint p, uintC max, uintC logmax)
+{
+#if oint_addr_len <= 32
+  const aint A = 0x9e3779b9u;
+#else
+  const aint A = 0x9e3779b97f4a7c16ul;
+#endif
+  const aint shift = oint_addr_len - logmax;
+  return ((A * (aint) p) >> shift) & (max - 1);
+}
+
+/* UP: initialize the pointer_set
+ > ps: the structure to be initialized */
+local void pointer_set_init(pointer_set *ps)
+{
+  ps->log_slots = 8; /* 256 slots by default.
+                        most cases will not need to enlarge it*/
+  ps->slots_count = 1 << ps->log_slots;
+  ps->elements_count = 0;
+  ps->slots = ps->initial_slots;
+  bzero(ps->slots,ps->slots_count*sizeof(aint));
+}
+
+/* UP: release memory of pointer_set if needed */
+local void pointer_set_free(pointer_set *ps)
+{
+  if (ps->log_slots != 8)
+    free(ps->slots);
+}
+
+/* UP: Returns the insertion slot for p into an empty element of slots
+ > p: the address in lisp heap
+ > slots: array with addresses of known objects
+ > n_slots: number of slots in the hashtable (size of slots)
+ > log_slots: 2^log_slots = n_slots
+ < returns the index in the slots array where the p should go. Either
+ an empty slot or already occupied by the same p.*/
+local inline uintC
+pointer_set_insert_aux (aint p, aint *slots, uintC n_slots, uintC log_slots)
+{
+  var uintC n = hash1(p,n_slots,log_slots);
+  var uintC slot_mask = ((1 << log_slots)-1);
+  while (true) {
+    if (slots[n] == p || slots[n] == 0)
+      return n;
+    ++n;
+    n &= slot_mask;
+  }
+}
+
+/* UP: Inserts object into pointer_set_t if it wasn't already there
+ > ps: the hash set
+ > obj: lisp object
+ < returns true if obj was already there in the hash set. */
+local bool pointer_set_insert(pointer_set *ps, object obj)
+{
+  var aint p = (aint)ThePointer(obj);
+  var uintC n;
+  /* expand if needed  */
+  if (ps->elements_count > ps->slots_count/2) {
+    var uintC new_log_slots = ps->log_slots + 1;
+    var uintC new_n_slots = ps->slots_count * 2;
+    var aint *new_slots = (aint *)malloc(sizeof(aint)*new_n_slots);
+    bzero(new_slots,new_n_slots*sizeof(aint));
+    var aint *ptr = ps->slots, val;
+    var uintC count;
+    /* rehash */
+    dotimesC(count,ps->slots_count,
+      {
+        if (val = *ptr++) {
+          n = pointer_set_insert_aux(val,new_slots,new_n_slots,new_log_slots);
+          new_slots[n] = val;
+        }
+      });
+    /* free only if it has been malloc()-ed before */
+    if (ps->log_slots != 8)
+      free(ps->slots);
+    ps->slots_count = new_n_slots;
+    ps->log_slots = new_log_slots;
+    ps->slots = new_slots;
+  }
+  /* insert the object */
+  n = pointer_set_insert_aux(p,ps->slots,ps->slots_count,ps->log_slots);
+  if (ps->slots[n])
+    return 1;
+  ps->slots[n] = p;
+  ++ps->elements_count;
+  return false;
+}
+
+#define HASHSET pointer_set
+#define HASHSET_INIT(ps) pointer_set_init(&ps)
+#define HASHSET_FREE(ps,aborted) pointer_set_free(&ps)
+#define HASHSET_ADD(ps,obj) pointer_set_insert(&ps,obj)
+#define STORE_CIRCULAR(ps,obj) pushSTACK(obj)
+#define CIRC_MAYGC_DECL
+
+#endif
+
+#ifdef USE_LISP_HASHTABLE
 /* This implementation of hashset is maygc - so the
 circularitites cannot be stored on the STACK as we run.
 ht_initialize() pushes 2 thing on the STACK:

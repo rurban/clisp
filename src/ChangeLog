@@ -1,3 +1,11 @@
+2009-03-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	faster re-entrant circularity detection
+	* spvw_circ.d (pointer_set, pointer_set_init, pointer_set_free)
+	(pointer_set_insert_aux, pointer_set_insert): add. implements simple
+	open addressing hash set based on the object address in the lisp heap.
+	use it by default
+
 2009-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* eval.d (interpret_bytecode_ JMP) [MULTITHREAD]: remove GC safe
