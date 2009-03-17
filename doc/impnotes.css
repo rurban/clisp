@@ -56,8 +56,8 @@ h4 { font-size: 133%; }
 h5 { font-size: 121%; }
 h6 { font-size: 110%; }
 
-/* necessary when <programlisting> is in a centered table cell */
-.programlisting { text-align: left; }
+/* necessary when <programlisting> or <screen> is in a centered table cell */
+.programlisting, .screen { text-align: left; }
 
 /* platform dependencies */
 .plat-dep { background-color: lightcyan; color: darkred; }
