@@ -124,7 +124,7 @@
     <row><entry>Number</entry><entry>&zero;</entry></row>
     <row><entry>Character</entry><entry>&nl-s;</entry></row>
     <row><entry>Class, type</entry><entry>&match-t;</entry></row>
-    <row><entry>Format instruction</entry><entry>&format-a;</entry></row>
+    <row><entry>&format; instruction</entry><entry>&format-a;</entry></row>
     <row><entry>Standard &lalist; keyword</entry><entry>&key-amp;</entry></row>
     <row><entry>Declaration</entry><entry>&ftype-dec;</entry></row>
     <row><entry>Package</entry><entry>&clu-pac;</entry></row>
@@ -135,12 +135,11 @@
     <row><entry>Data (&clisp; is likely to print it)</entry>
      <entry><literal role="data">#(1 2 3)</literal></entry></row>
     <row><entry>Program listing</entry><entry><programlisting language="lisp">
-(defun cycle-length (n &optional-amp; (len 1) (top 0))
-  (cond ((= n 1) (values len top))
-        ((evenp n) (cycle-length (ash n -1) (1+ len) (max top n)))
-        (t (let ((next (1+ (* 3 n))))
-             (cycle-length next (1+ len) (max top next))))))
-    </programlisting></entry></row>
+(&defun; cycle-length (n &optional-amp; (len 1) (top 0))
+  (&cond; ((&areq; n 1) (&values; len top))
+        ((&evenp; n) (cycle-length (&ash; n -1) (&pl1; len) (&max; top n)))
+        (&t; (&let; ((next (&pl1; (&star; 3 n))))
+             (cycle-length next (&pl1; len) (&max; top next))))))</programlisting></entry></row>
     <row><entry>Bytecode instruction</entry><entry><literal
       role="byte">(STOREV &k-r; &m-r;)</literal></entry></row>
     <row><entry>First mention of an entity</entry>
