@@ -479,47 +479,63 @@ in this section.</para>
 <para>The following additional terminology is used to present these
 restrictions:<itemizedlist>
 <listitem><simpara>Metaobjects are divided into three categories.  Those
-  defined in this document are called <firstterm>specified</firstterm>;
+  defined in this document are called <firstterm>specified
+   <indexterm id="mo-specified" significance="preferred">&mo-prim;
+    <secondary>specified</secondary></indexterm></firstterm>;
   those defined by an implementation but not mentioned in this document
-  are called <firstterm>implementation-specific</firstterm>; and those
-  defined by a portable program are called <firstterm>portable</firstterm>.
+  are called <firstterm>implementation-specific
+   <indexterm id="mo-impl" significance="preferred">&mo-prim;
+    <secondary>implementation-specific</secondary></indexterm></firstterm>;
+  and those defined by a portable program are called <firstterm>portable
+   <indexterm id="mo-portable" significance="preferred">&mo-prim;
+    <secondary>portable</secondary></indexterm></firstterm>.
 </simpara></listitem>
-<listitem><simpara>A class &i-r; is <firstterm>interposed</firstterm>
-  between two other classes &k1-r; and &k2-r; if and only if there is
-  some path, following direct superclasses, from the class &k1-r; to the
-  class &k2-r; which includes &i-r;.</simpara></listitem>
-<listitem><simpara>A method is <firstterm>specialized</firstterm> to a
-  class if and only if that class is in the list of specializers
+<listitem><simpara>A class &i-r; is <firstterm>interposed
+   <indexterm id="class-interposed" significance="preferred">
+    <primary>class</primary><secondary>interposed</secondary></indexterm>
+  </firstterm> between two other classes &k1-r; and &k2-r; if and only
+  if there is some path, following direct superclasses, from the class
+  &k1-r; to the class &k2-r; which includes &i-r;.</simpara></listitem>
+<listitem><simpara>A method is <firstterm>specialized
+   <indexterm id="method-specialized" significance="preferred">
+    &me-prim;<secondary>specialized</secondary></indexterm></firstterm>
+  to a class if and only if that class is in the list of specializers
   associated with the method; and the method is in the list of methods
   associated with some generic function.</simpara></listitem>
 <listitem><simpara>In a given implementation, a specified method is said
-  to have been <firstterm>promoted</firstterm> if and only if the
-  specializers of the method, &x1-r; ... &xn-r;, are defined in this
-  specification as the classes &k1-r; ... &kn-r;, but in the
-  implementation, one or more of the specializers
+  to have been <firstterm>promoted
+   <indexterm id="method-promoted" significance="preferred">
+    &me-prim;<secondary>promoted</secondary></indexterm></firstterm>
+  if and only if the specializers of the method, &x1-r; ... &xn-r;, are
+  defined in this specification as the classes &k1-r; ... &kn-r;, but in
+  the implementation, one or more of the specializers
   <replaceable>x&sub-l;</replaceable>, is a superclass of the class
   given in the specification <replaceable>k&sub-l;</replaceable>.
 </simpara></listitem>
 <listitem><para>For a given generic function and set of arguments, a
-  method &k2-r; <firstterm>extends</firstterm> a method &k1-r; if and
-  only if:
+  method &k2-r; <firstterm>extends
+   <indexterm id="method-extends" significance="preferred">
+    &me-prim;<secondary>extends</secondary></indexterm></firstterm>
+  a method &k1-r; if and only if:
   <orderedlist numeration="lowerroman"><listitem><simpara>&k1-r; and
      &k2-r; are both associated with the given generic function
-     </simpara></listitem>
+   </simpara></listitem>
    <listitem><simpara>&k1-r; and &k2-r; are both applicable to the given
      arguments,</simpara></listitem>
    <listitem><simpara>the specializers and qualifiers of the methods are
      such that when the generic function is called, &k2-r; is executed
      before &k1-r;,</simpara></listitem>
    <listitem><simpara>&k1-r; will be executed if and only if
-   &call-next-method; is invoked from within the body of &k2-r; and
+     &call-next-method; is invoked from within the body of &k2-r; and
    </simpara></listitem>
    <listitem><simpara>&call-next-method; is invoked from within the body
      of &k2-r;, thereby causing &k1-r; to be executed.
-  </simpara></listitem></orderedlist></para></listitem>
+</simpara></listitem></orderedlist></para></listitem>
 <listitem><para>For a given generic function and set of arguments, a
-  method &k2-r; <firstterm>overrides</firstterm> a method &k1-r; if and
-  only if conditions <emphasis>i</emphasis>
+  method &k2-r; <firstterm>overrides
+   <indexterm id="method-overrides" significance="preferred">
+    &me-prim;<secondary>overrides</secondary></indexterm></firstterm>
+  a method &k1-r; if and only if conditions <emphasis>i</emphasis>
   through <emphasis>iv</emphasis> above hold and,
   instead of <emphasis>v</emphasis>,
   <orderedlist numeration="lowerroman" continuation="continues">
@@ -684,8 +700,8 @@ This is discussed in <xref linkend="mop-meth-init-defmethod-body"/>.</para>
 or set of files, to maintain information about the definitions that have
 been compiled so far.  Among other things, this makes it possible to
 ensure that a global macro definition (&defmacro; form) which appears in
-a file will affect uses of the macro later in that file.  This
-information about the state of the compilation is called the
+a file will affect uses of the macro later in that file.
+This information about the state of the compilation is called the
 <firstterm>&compile-file; environment</firstterm>.</para>
 
 <para>When compiling files containing &clos; definitions, it is useful
@@ -1214,15 +1230,19 @@ functions are presented below.</para>
 
 <section id="mop-cl-finalization"><title>Class Finalization Protocol</title>
 
-<para>Class <firstterm>finalization</firstterm> is the process of
-computing the information a class inherits from its superclasses and
-preparing to actually allocate instances of the class.  The class
-finalization process includes computing the class's class precedence
-list, the full set of slots accessible in instances of the class and the
-full set of default initialization arguments for the class.  These
-values are associated with the &c-mo; and can be accessed by calling the
-appropriate reader.  In addition, the class finalization process makes
-decisions about how instances of the class will be implemented.</para>
+<para>Class <firstterm>finalization
+  <indexterm id="class-finalization" significance="preferred">
+   <primary>class</primary><secondary>finalization</secondary></indexterm>
+ </firstterm> is the process of computing the information a class
+ inherits from its superclasses and preparing to actually allocate
+ instances of the class.
+The class finalization process includes computing the class's class
+precedence list, the full set of slots accessible in instances of the
+class and the full set of default initialization arguments for the class.
+These values are associated with the &c-mo; and can be accessed by
+calling the appropriate reader.
+In addition, the class finalization process makes decisions about how
+instances of the class will be implemented.</para>
 
 <para>To support forward-referenced superclasses, and to account for the
 fact that not all classes are actually instantiated, class finalization
@@ -1450,8 +1470,10 @@ has taken effect.</para>
 <section id="mop-cl-init-anon">
  <title>Initialization of Anonymous Classes</title>
 
-<para>&c-mo;s created with &make-instance; are usually
- <firstterm>anonymous</firstterm>; that is, they have no &proper-name-glo;.
+<para>&c-mo;s created with &make-instance; are usually <firstterm>anonymous
+  <indexterm id="class-anonymous" significance="preferred">
+   <primary>class</primary><secondary>anonymous</secondary></indexterm>
+ </firstterm>; that is, they have no &proper-name-glo;.
 An anonymous &c-mo; can be given a &proper-name-glo; using
 <code>(&setf; &find-class;)</code> and
 <code>(&setf; &class-name;)</code>.</para>
@@ -2775,23 +2797,27 @@ The new discriminating function is then stored with
 and &compute-applicable-methods-UC; to compute the methods
 applicable to the generic functions arguments.
 Applicable methods are combined by &compute-effective-method; to
-produce an <firstterm>effective method</firstterm>.
+produce an <firstterm>effective method
+  <indexterm id="effective-method" significance="preferred">
+   &me-prim;<secondary>effective</secondary></indexterm></firstterm>.
 Provisions are made to allow memoization of the method applicability and
 effective methods computations.  (See the description of
 &compute-discriminating-function; for details.)</para>
 
 <para>The body of method definitions are processed by &make-method-lambda;.
 The result of this generic function is a &lambda-expr;
-which is processed by either &compile; or &compile-file; to produce
-a <firstterm>method function</firstterm>.  The arguments received by the
-method function are controlled by the &call-method; forms appearing in
-the effective methods.  By default, method functions accept two
-arguments: a list of arguments to the generic function, and a list of
-next methods.  The list of next methods corresponds to the next methods
-argument to &call-method;.  If &call-method; appears with additional
-arguments, these will be passed to the method functions as well; in
-these cases, &make-method-lambda; must have created the method lambdas
-to expect additional arguments.</para>
+which is processed by either &compile; or &compile-file; to produce a
+ <firstterm>method function<indexterm id="me-func" significance="preferred">
+   &me-prim;<secondary>function</secondary></indexterm></firstterm>.
+The arguments received by the method function are controlled by the
+&call-method; forms appearing in the effective methods.
+By default, method functions accept two arguments: a list of arguments
+to the generic function, and a list of next methods.
+The list of next methods corresponds to the next methods argument to
+&call-method;.
+If &call-method; appears with additional arguments, these will be passed
+to the method functions as well; in these cases, &make-method-lambda;
+must have created the method lambdas to expect additional arguments.</para>
 <note>&clisp-only;
  <simpara>See <xref linkend="no-make-method-lambda"/>.</simpara>
  <simpara>See <xref linkend="method-functions-args"/>.</simpara></note>
@@ -3875,30 +3901,32 @@ not considered by any of the protocols specified in this document.
 
 <para>The first step occurs during macro-expansion of the macro form.
 In this step, the method &lalist;, declarations and body are
-converted to a &lambda-expr; called a <firstterm>method
-lambda</firstterm>.  This conversion is based on information associated
-with the generic function definition in effect at the time the macro
-form is expanded.</para>
+converted to a &lambda-expr; called a <firstterm>method lambda
+  <indexterm id="method-lambda" significance="preferred">
+   &me-prim;<secondary>function</secondary></indexterm></firstterm>.
+This conversion is based on information associated with the generic
+function definition in effect at the time the macro form is expanded.</para>
 
-<para>The generic function definition is obtained by calling &ensure-gf;
-with a first argument of the generic function name specified in the
-macro form.  The &lambda-list-k; keyword argument is not passed in this
-call.</para>
+<para>The generic function definition is obtained by calling &ensure-gf; with
+ a first argument of the generic function name specified in the macro form.
+The &lambda-list-k; keyword argument is not passed in this call.</para>
 
 <para>Given the generic function, production of the method lambda
-proceeds by calling &make-method-lambda;.  The first argument in this
-call is the generic function obtained as described above.  The second
-argument is the result of calling &class-prototype; on the result of
-calling &gf-method-class; on the generic function.  The
-third argument is a &lambda-expr; formed from the method &lalist;,
-declarations and body.  The fourth argument is the macro-expansion
-environment of the macro form; this is the value of the
-&environment-amp; argument to the &defmethod; macro.</para>
+proceeds by calling &make-method-lambda;.
+The first argument in this call is the generic function obtained as
+described above.
+The second argument is the result of calling &class-prototype; on the
+result of calling &gf-method-class; on the generic function.
+The third argument is a &lambda-expr; formed from the method &lalist;,
+declarations and body.
+The fourth argument is the macro-expansion environment of the macro
+form; this is the value of the &environment-amp; argument to the
+&defmethod; macro.</para>
 
-<para>The generic function &make-method-lambda; returns two values.  The
-first is the method lambda itself.  The second is a list of
-initialization arguments and values.  These are included in the
-initialization arguments when the method is created.</para>
+<para>The generic function &make-method-lambda; returns two values.
+The first is the method lambda itself.
+The second is a list of initialization arguments and values.  These are
+included in the initialization arguments when the method is created.</para>
 
 <para>In the second step, the method lambda is converted to a function
 which properly captures the lexical scope of the macro form.  This is
@@ -4611,14 +4639,19 @@ slot access optimizations.</para>
 
 <para>In particular, portable programs can control the implementation
 of, and obtain direct access to, slots with allocation &instance-k; and
-type &t-t;.  These are called <firstterm>directly accessible
-slots</firstterm>.</para>
+type &t-t;.  These are called <firstterm>directly accessible slots
+  <indexterm id="slot-directly-accessible" significance="preferred">
+   <primary>slot</primary><secondary>directly
+    accessible</secondary></indexterm></firstterm>.</para>
 
 <para>The relevant specified around-method on &compute-slots; determines
 the implementation of instances by deciding how each slot in the
 instance will be stored.  For each directly accessible slot, this method
-allocates a <firstterm>location</firstterm> and associates it with the
-&esdmo;.  The location can be accessed by calling the &slotdef-location;
+allocates a <firstterm>location
+  <indexterm id="slot-location" significance="preferred">
+   <primary>slot</primary><secondary>location</secondary></indexterm>
+ </firstterm> and associates it with the &esdmo;.
+The location can be accessed by calling the &slotdef-location;
 generic function.  Locations are non-negative integers.  For a given
 class, the locations increase consecutively, in the order that the
 directly accessible slots appear in the list of effective slots.  (Note

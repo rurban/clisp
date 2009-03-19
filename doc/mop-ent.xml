@@ -187,6 +187,7 @@
 <!ENTITY mo-gfmo '<varlistentry><term>&metaobject-r;</term>
   <listitem><simpara>a &c-mo; or a &gfmo;.</simpara></listitem></varlistentry>'>
 <!ENTITY mo-prim '<primary>metaobject</primary>'>
+<!ENTITY me-prim '<primary>method</primary>'>
 <!ENTITY cam-cdf '<simpara>When a generic function is invoked, the
    discriminating function must determine the ordered list of methods
    applicable to the arguments.  Depending on the generic function and
