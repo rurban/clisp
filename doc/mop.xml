@@ -162,13 +162,13 @@ The following information is associated with &c-mo;s:
 There are two kinds of &sdmo;s:<variablelist>
 <varlistentry><term><firstterm>direct<indexterm id="mop-dsd-mo">
     &mo-prim;<secondary>slot definition</secondary><tertiary>direct</tertiary>
-  </indexterm></firstterm>&sdmo;</term>
+  </indexterm></firstterm> &sdmo;</term>
  <listitem><simpara>Used to represent the direct definition of a slot in
   a class. This corresponds roughly to the slot specifiers found in
   &defclass; forms.</simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>effective<indexterm id="mop-esd-mo">
     &mo-prim;<secondary>slot definition</secondary>
-    <tertiary>effective</tertiary></indexterm></firstterm>&sdmo;</term>
+    <tertiary>effective</tertiary></indexterm></firstterm> &sdmo;</term>
  <listitem><simpara>Used to represent information, including inherited
    information, about a slot which is accessible in instances of a
    particular class.</simpara></listitem></varlistentry></variablelist></para>
@@ -3383,9 +3383,7 @@ their own memoization scheme.</para></simplesect>
  <listitem><simpara><code>(&compute-effective-method-as-function;
     &gf-r; &methods-r; &args-r;)</code></simpara></listitem></varlistentry>
 <varlistentry><term>Arguments</term>
- <listitem><variablelist>
-   <varlistentry><term>&gf-r;</term>
-    <listitem><simpara>a &gfmo;.</simpara></listitem></varlistentry>
+ <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&methods-r;</term>
     <listitem><simpara>a list of &m-mo;s.</simpara></listitem></varlistentry>
    <varlistentry><term>&args-r;</term>
@@ -3419,7 +3417,6 @@ their own memoization scheme.</para></simplesect>
  <listitem><variablelist>&gf-mo-arg;
    <varlistentry><term>&method-r;</term>
     <listitem><simpara>a (possibly uninitialized) &m-mo;.
-      <!-- change to uninitialized????? -->
    </simpara></listitem></varlistentry>
    <varlistentry><term><replaceable>lambda-expression</replaceable></term>
     <listitem><simpara>a &lambda-expr;.</simpara></listitem></varlistentry>
