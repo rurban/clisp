@@ -425,7 +425,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
  <programlisting language="lisp">
 (&or-m; (&geq; 0 &space-dec;) (&leq; 1 &speed-dec;))</programlisting>
  (by &compile; &compile-file-my;, or &compile-decl;) will be
- <firstterm>just-in-time</firstterm> (i.e., on the first execution)
+ <emphasis>just-in-time</emphasis> (i.e., on the first execution)
  compiled to native code using &lightning;.
 </para>
 </section>
@@ -995,12 +995,14 @@ executes the compiled version of &form-r;.<programlisting language="lisp">
  <title>Variable &suppress-similar-const-redef;</title>
 <para>If the variable being defined by &defconstant; is already bound to
  a value which is not &eql; to the new value, a &warning-t; is issued.
- If, however, the new value is <firstterm>visually similar</firstterm>
+ If, however, the new value is <firstterm>visually similar
+  <indexterm id="visually-similar" significance="preferred">
+   <primary>visually similar</primary></indexterm></firstterm>
  (prints to the same string, as is commonly the case when re-loading files)
  to the old one, the warning can be suppressed by setting
  &suppress-similar-const-redef; to a non-&nil; value.</para>
-<para>The initial value of &suppress-similar-const-redef; is
- &nil;.</para></section>
+<para>The initial value of &suppress-similar-const-redef; is &nil;.
+</para></section>
 </section>
 
 <section id="fcase"><title>Macro &fcase;</title>
