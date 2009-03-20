@@ -1,3 +1,11 @@
+2009-03-20  Vladimir Tzankov   <vtzankov@gmail.com>
+
+	[MULTITHREAD]: FreeBSD build fixes
+	* lispbibl.d (per_thread) [MULTITHREAD]: gcc on FreeBSD supports
+	__thread qualifier
+	* xthread.d (PTHREAD_MUTEX_RECURSIVE_NP) [MULTITHREAD]: define it on
+	FreeBSD
+
 2009-03-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	faster re-entrant circularity detection

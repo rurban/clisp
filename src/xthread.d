@@ -113,7 +113,7 @@
 /* cache the global mutex attribute for recursive mutex creation */
 extern pthread_mutexattr_t recursive_mutexattr;
 /* osx follows posix, linux defines _NP attributes */
-#ifdef UNIX_MACOSX
+#if defined(UNIX_MACOSX) || defined(UNIX_FREEBSD)
  #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
 #endif
 #define xthread_init()                                                  \
