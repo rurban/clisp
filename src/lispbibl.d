@@ -16978,7 +16978,7 @@ struct object_tab_tl_ {
 
   /* try to use the compiler support for thread local storage */
   #if defined(__GNUC__)
-    #if defined (UNIX_LINUX) /* && defined() - add more - the GCC should have built-in support for TLS */
+    #if defined(UNIX_LINUX) || defined(UNIX_FREEBSD)
       #define per_thread __thread
     #endif
   #elif defined(__WIN32__) && defined (MICROSOFT)
