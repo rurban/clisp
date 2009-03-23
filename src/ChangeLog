@@ -1,4 +1,10 @@
-2009-03-20  Vladimir Tzankov   <vtzankov@gmail.com>
+2009-03-23  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: Fix uninitialized package mutexes
+	* spvw.d (initmem) [MULTITHREAD]: initialize O(all_mutexes)
+	* constobj.d (all_mutexes) [MULTITHREAD]: do not initialize
+
+2009-03-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: FreeBSD build fixes
 	* lispbibl.d (per_thread) [MULTITHREAD]: gcc on FreeBSD supports

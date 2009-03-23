@@ -638,7 +638,9 @@
   LISPOBJ_S(thread_break_description,"Ctrl-C: User break")
   LISPOBJ(all_threads,"NIL")
   LISPOBJ(threads_to_release,"NIL")
-  LISPOBJ(all_mutexes,"NIL")
+  /* init_package() adds package mutexes here, so later we do
+     not want it re-initialzied */
+  LISPOBJ(all_mutexes,".")
   LISPOBJ(mutexes_to_release,"NIL")
   LISPOBJ(all_exemptions,"NIL")
   LISPOBJ(exemptions_to_release,"NIL")
