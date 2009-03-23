@@ -1965,6 +1965,11 @@ local void initmem (void) {
    finish initialization of subr_tab: */
   init_subr_tab_2();
   /* initialize packages: */
+#ifdef MULTITHREAD
+  /* initialize O(all_mutexes) since every packages creates ones that
+     is added to it */
+  O(all_mutexes) = NIL;
+#endif
   init_packages();
   init_encodings_1(); /* init some encodings (utf_8 for init_symbol_tab_2) */
   /* finish initialization of symbol_tab: */
