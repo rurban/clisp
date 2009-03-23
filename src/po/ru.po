@@ -7463,7 +7463,7 @@ msgstr "Документация в виде ~A:"
 #: describe.lisp:352 describe.lisp:354 describe.lisp:464
 #, lisp-format
 msgid "~%~A Documentation is at~% ~S"
-msgstr "~%~A Документация находится в% ~S"
+msgstr "~%~A Документация находится в~% ~S"
 
 #: describe.lisp:361
 #, lisp-format
@@ -7573,7 +7573,7 @@ msgstr "импортирует внешние символы из ~:D пакет~:*~:[а~;ов~] ~{~A~^, ~} и "
 #: describe.lisp:431
 #, lisp-format
 msgid "exports ~[no symbols~:;~:*~:D symbol~:P~]"
-msgstr "~[не экспортирует символы~:;экспортирует ~:*~:D символ(ов)~:[~;~]~]"
+msgstr "~[не экспортирует символы~:;экспортирует ~:*~:D символ(ов)~]"
 
 #: describe.lisp:434
 #, lisp-format
