@@ -465,7 +465,7 @@ compiles the specified lisp files to a platform-independent
  targetptr="ref-ansi">ANSI Common Lisp standard</olink>,
  see <olink targetdoc="impnotes" targetptr="ansi"/>.</para>
 
-<para><bibliolist>&ansi-cl-bib;</bibliolist></para>
+<bibliolist>&ansi-cl-bib;</bibliolist>
 
 </refsection>
 
