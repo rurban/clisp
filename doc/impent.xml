@@ -234,8 +234,8 @@
 <!ENTITY gen-labels '<link linkend="gen-labels"><function>CLOS:GENERIC-LABELS</function></link>'>
 <!ENTITY symbol-mex '<link linkend="symbol-mex"><function>EXT:SYMBOL-MACRO-EXPAND</function></link>'>
 <!ENTITY compile-decl '<link linkend="compile-decl"><code>(COMPILE)</code></link>'>
-<!ENTITY compile-warn '<link linkend="compilefile"><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>'>
-<!ENTITY compiled-types '<link linkend="loadfile"><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>'>
+<!ENTITY compile-warn '<link linkend="compile-warn"><varname>CUSTOM:*COMPILE-WARNINGS*</varname></link>'>
+<!ENTITY compiled-types '<link linkend="compiled-types"><varname>CUSTOM:*COMPILED-FILE-TYPES*</varname></link>'>
 <!ENTITY count-ansi '<link linkend="count-ansi"><varname>CUSTOM:*SEQUENCE-COUNT-ANSI*</varname></link>'>
 <!ENTITY curr-lang '<olink targetdoc="impnotes" targetptr="language"><varname>CUSTOM:*CURRENT-LANGUAGE*</varname></olink>'>
 <!ENTITY deflang '<link linkend="deflang"><function>I18N:DEFLANGUAGE</function></link>'>
@@ -298,10 +298,10 @@
 <!ENTITY lfd-l '<code>(<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>'>
 <!ENTITY line-term '<link linkend="newline">line terminator</link>'>
 <!ENTITY libdir '<olink targetdoc="man" targetptr="opt-libdir"><varname>CUSTOM:*LIB-DIRECTORY*</varname></olink>'>
-<!ENTITY load-comp '<olink targetdoc="impnotes" targetptr="loadfile"><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>'>
-<!ENTITY load-echo '<olink targetdoc="impnotes" targetptr="loadfile"><varname>CUSTOM:*LOAD-ECHO*</varname></olink>'>
+<!ENTITY load-comp '<olink targetdoc="impnotes" targetptr="load-comp"><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>'>
+<!ENTITY load-echo '<olink targetdoc="impnotes" targetptr="load-echo"><varname>CUSTOM:*LOAD-ECHO*</varname></olink>'>
 <!ENTITY load-lpt-db '<olink targetdoc="impnotes" targetptr="load-lpt"><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>'>
-<!ENTITY load-obs '<link linkend="loadfile"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>'>
+<!ENTITY load-obs '<link linkend="load-obs"><varname>CUSTOM:*LOAD-OBSOLETE-ACTION*</varname></link>'>
 <!ENTITY load-paths '<olink targetdoc="impnotes" targetptr="load-paths"><varname>CUSTOM:*LOAD-PATHS*</varname></olink>'>
 <!ENTITY make-encoding '<link linkend="make-encoding"><function>EXT:MAKE-ENCODING</function></link>'>
 <!ENTITY make-stream '<link linkend="make-stream"><function>EXT:MAKE-STREAM</function></link>'>
@@ -410,7 +410,7 @@
 <!ENTITY sost-peer '<link linkend="sost-peer"><function>SOCKET:SOCKET-STREAM-PEER</function></link>'>
 <!ENTITY sost-port '<link linkend="sost-hopo"><function>SOCKET:SOCKET-STREAM-PORT</function></link>'>
 <!ENTITY sost-shut '<link linkend="sost-shut"><function>SOCKET:SOCKET-STREAM-SHUTDOWN</function></link>'>
-<!ENTITY source-types '<link linkend="loadfile"><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></link>'>
+<!ENTITY source-types '<link linkend="source-types"><varname>CUSTOM:*SOURCE-FILE-TYPES*</varname></link>'>
 <!ENTITY spacecharprint '<link linkend="spacecharprint"><varname>CUSTOM:*PRINT-SPACE-CHAR-ANSI*</varname></link>'>
 <!ENTITY spe-var-p '<link linkend="spe-var-p"><function>EXT:SPECIAL-VARIABLE-P</function></link>'>
 <!ENTITY st-position '<link linkend="st-position"><function>GRAY:STREAM-POSITION</function></link>'>
