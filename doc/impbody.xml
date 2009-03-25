@@ -277,8 +277,7 @@
 
 <para>The function
  <firstterm>&symbol-mex;<indexterm id="symbol-mex" significance="preferred">
-   <primary><function>SYMBOL-MACRO-EXPAND</function>
- </primary></indexterm></firstterm>
+   <primary>SYMBOL-MACRO-EXPAND</primary></indexterm></firstterm>
  tests for a &symbol-macro;: If &symbol-r; is defined as a &symbol-macro;
  in the &glo-env;, <code>(&symbol-mex; &symbol-r;)</code> returns two
  values, &t; and the expansion; otherwise it returns &nil;.</para>
@@ -794,11 +793,9 @@ executes the compiled version of &form-r;.<programlisting language="lisp">
  interpreted code.</para>
 
 <para><firstterm>&gen-flet;<indexterm id="gen-flet" significance="preferred">
-   <primary><function>GENERIC-FLET</function>
- </primary></indexterm></firstterm> and
+   <primary>GENERIC-FLET</primary></indexterm></firstterm> and
  <firstterm>&gen-labels;<indexterm id="gen-labels" significance="preferred">
-   <primary><function>GENERIC-LABELS</function>
- </primary></indexterm></firstterm>
+   <primary>GENERIC-LABELS</primary></indexterm></firstterm>
  are implemented as macros, not as special operators (as permitted by
  <ulink role="clhs" url="sec_3-1-2-1-2-2"/>).
  They are not imported into the packages &clu-pac; and &cl-pac; because
@@ -1104,8 +1101,7 @@ the iteration variable and assign it on each iteration.</para></section>
 
 <para>Generic function
  <firstterm>&no-prim;<indexterm id="no-prim" significance="preferred">
-   <primary><function>NO-PRIMARY-METHOD</function>
- </primary></indexterm></firstterm>
+   <primary>NO-PRIMARY-METHOD</primary></indexterm></firstterm>
  (similar to &no-applicable-method;) is called when there is an
  applicable method but no applicable <emphasis>primary</emphasis>
  method.</para>
@@ -1114,8 +1110,7 @@ the iteration variable and assign it on each iteration.</para></section>
  &no-next-method; &signal; an &error-t; of type
  <firstterm>&meth-call-err;
   <indexterm id="meth-call-err" significance="preferred">
-   <primary><classname>METHOD-CALL-ERROR</classname>
- </primary></indexterm></firstterm>.
+   <primary>METHOD-CALL-ERROR</primary></indexterm></firstterm>.
  You can find out more information about the error using functions
  <function>CLOS:METHOD-CALL-ERROR-GENERIC-FUNCTION</function>,
  <function>CLOS:METHOD-CALL-ERROR-ARGUMENT-LIST</function>, and
@@ -1126,8 +1121,7 @@ the iteration variable and assign it on each iteration.</para></section>
  corresponding parameter specializers are &t-t;), an &error-t; of type
  <firstterm>&meth-call-type-err;
   <indexterm id="meth-call-type-err" significance="preferred">
-   <primary><classname>METHOD-CALL-TYPE-ERROR</classname>
- </primary></indexterm></firstterm>
+   <primary>METHOD-CALL-TYPE-ERROR</primary></indexterm></firstterm>
   is &signal;ed, additionally making &type-error-datum; and
   &type-error-expected-type; available.</para>
 
@@ -1455,10 +1449,10 @@ the iteration variable and assign it on each iteration.</para></section>
   for Conforming Programs - package locking
  <ulink role="clhs" url="sec_11-1-2-1-2"/></title>
 
-<formalpara><title>Function &package-lock;</title>
-<para><indexterm id="pack-lock-f" significance="preferred">
-  <primary><function>PACKAGE-LOCK</function></primary></indexterm>
- Packages can be <quote>locked</quote>.
+<formalpara><title>Function <firstterm>&package-lock;
+   <indexterm id="pack-lock-f" significance="preferred">
+    <primary>PACKAGE-LOCK</primary></indexterm></firstterm></title>
+<para>Packages can be <quote>locked</quote>.
 When a package is locked, attempts to change its symbol table or
 redefine functions which its symbols name result in a &cont-err;
 (continuing overrides locking for this operation).
@@ -1476,8 +1470,7 @@ A package (or a list thereof) can be locked using <code>(&setf;
  you can use
  <firstterm>&without-package-lock;
   <indexterm id="without-pack-lock" significance="preferred">
-   <primary><function>WITHOUT-PACKAGE-LOCK</function>
- </primary></indexterm></firstterm>:
+   <primary>WITHOUT-PACKAGE-LOCK</primary></indexterm></firstterm>:
 <programlisting language="lisp">
 (&without-package-lock; (&cl-pac; &ext-pac; &clos-pac;)
   (defun restart () ...))
@@ -3050,7 +3043,7 @@ checks whether the &hash-table-t; is weak.</para>
  checking the efficiency of a particular &hash-table-t;, the variable
 <firstterm>&warn-on-hashtable-needing-rehash-after-gc;
  <indexterm id="hashtable-gc-rehash-warn" significance="preferred">
-  <primary><varname>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</varname>
+  <primary>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*
 </primary></indexterm></firstterm>
  achieves the same effect for all &hash-table-t;s in the system at once:
  when &warn-on-hashtable-needing-rehash-after-gc; is true and a
@@ -4644,12 +4637,11 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 <section id="stream-buffer"><title>Functions
   <firstterm><function>EXT:MAKE-BUFFERED-INPUT-STREAM</function>
    <indexterm id="stream-buffer-i" significance="preferred">
-    <primary><function>MAKE-BUFFERED-INPUT-STREAM</function>
-  </primary></indexterm></firstterm> and
+    <primary>MAKE-BUFFERED-INPUT-STREAM</primary></indexterm></firstterm> and
   <firstterm><function>EXT:MAKE-BUFFERED-OUTPUT-STREAM</function>
    <indexterm id="stream-buffer-o" significance="preferred">
-    <primary><function>MAKE-BUFFERED-OUTPUT-STREAM</function>
- </primary></indexterm></firstterm></title>
+    <primary>MAKE-BUFFERED-OUTPUT-STREAM</primary></indexterm></firstterm>
+ </title>
 
 <formalpara><title><code>(EXT:MAKE-BUFFERED-OUTPUT-STREAM
    &func-r;)</code></title>
@@ -5027,7 +5019,9 @@ warning, you need to fix the source code of the incriminated method.</para>
 </simpara></listitem></varlistentry>
 </variablelist>
 
-<para>The variables <firstterm>&compile-warn;</firstterm>,
+<para>The variables <firstterm>&compile-warn;
+  <indexterm id="compile-warn" significance="preferred">
+   <primary>*COMPILE-WARNINGS*</primary></indexterm></firstterm>,
  &compile-verbose-var;, &compile-print-var; provide defaults for the
  &warnings-k;, &verbose-k;, &print-k; keyword arguments, respectively,
  and are bound by &compile-file; to the values of the arguments, i.e.,
@@ -5140,21 +5134,29 @@ when being loaded, this is important as well.</para></section>
   <listitem><simpara>causes the input from the file to be echoed to
     &standard-output-var; (normally to the screen).  Should there be an
     error in the file, you can see at one glance where it is.
-    The default is <firstterm>&load-echo;</firstterm>, which is
-    initially &nil;, but can be changed by the &opt-v; option.
+    The default is <firstterm>&load-echo;
+     <indexterm id="load-echo" significance="preferred">
+      <primary>*LOAD-ECHO*</primary></indexterm></firstterm>,
+     which is initially &nil;, but can be changed by the &opt-v; option.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&compiling-k;</term>
   <listitem><simpara>causes each form read to be compiled on the fly.
     The compiled code is executed at once and - in contrast to
     &compile-file-my; - not written to a file.
-    The default is <firstterm>&load-comp;</firstterm>, which is initially
-    &nil;, but can be changed by the &opt-C; option.
+    The default is <firstterm>&load-comp;
+     <indexterm id="load-comp" significance="preferred">
+      <primary>*LOAD-COMPILING*</primary></indexterm></firstterm>,
+     which is initially &nil;, but can be changed by the &opt-C; option.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&extra-file-types-k;</term>
   <listitem><simpara>Specifies the &list-t; of additional file types
-    considered for loading, in addition to <firstterm>&source-types;</firstterm>
+    considered for loading, in addition to <firstterm>&source-types;
+     <indexterm id="source-types" significance="preferred">
+      <primary>*SOURCE-FILE-TYPES*</primary></indexterm></firstterm>
     (which is initially <literal role="data">("lisp" "lsp" "cl")</literal>)
-    and <firstterm>&compiled-types;</firstterm>
+    and <firstterm>&compiled-types;
+      <indexterm id="compiled-types" significance="preferred">
+       <primary>*COMPILED-FILE-TYPES*</primary></indexterm></firstterm>
     (which is initially <literal role="data">("fas")</literal>).
    </simpara><simpara>When &filename-r; does not specify a unique file
     (e.g., &filename-r; is &foo-f; and both &foolisp-f;
@@ -5166,21 +5168,22 @@ when being loaded, this is important as well.</para></section>
     &fasl-file; with a different &bytecode; version from the one
     supported by this &clisp; version.  The possible actions are
     <variablelist><varlistentry><term><constant>:DELETE</constant></term>
-      <listitem><simpara>delete the &fasl-file;
+      <listitem><simpara>delete the &fasl-file; and proceed as with &nil;
      </simpara></listitem></varlistentry>
      <varlistentry><term>&error-k;</term>
       <listitem><simpara>&signal; an &error-t;
      </simpara></listitem></varlistentry>
      <varlistentry><term><constant>:COMPILE</constant></term>
-      <listitem><simpara>recompile the source file
-        (if <link linkend="load-paths">present</link>)
-     </simpara></listitem></varlistentry>
+      <listitem><simpara>recompile the source file (if found in &load-paths;)
+        and &load; the result</simpara></listitem></varlistentry>
      <varlistentry><term>&nil; (default)</term>
       <listitem><simpara>&warn; and <link linkend="load-paths">look
          for another matching file</link>
     </simpara></listitem></varlistentry></variablelist>
     If no file can be loaded and &if-does-not-exist; is non-&nil;, an &err-sig;.
-    The default is <firstterm>&load-obs;</firstterm>,
+    The default is <firstterm>&load-obs;
+     <indexterm id="load-obs" significance="preferred">
+      <primary>*LOAD-OBSOLETE-ACTION*</primary></indexterm></firstterm>,
     which is initially &nil;.</para></listitem></varlistentry>
 </variablelist>
 
@@ -5842,8 +5845,7 @@ exhaust the available line length.</para></simplesect>
 <para>User variable
  <firstterm><varname>CUSTOM:*INSPECT-LENGTH*</varname>
   <indexterm id="inspect-length" significance="preferred">
-   <primary><varname>*INSPECT-LENGTH*</varname></primary>
- </indexterm></firstterm>
+   <primary>*INSPECT-LENGTH*</primary></indexterm></firstterm>
  specifies the number of sequence elements or slots printed in detail
  when a sequence or a structure or a &clos; object is inspected.
 </para></section>
@@ -5861,8 +5863,7 @@ exhaust the available line length.</para></simplesect>
 
 <para>The macro <firstterm>&ts;
   <indexterm id="times" significance="preferred">
-   <primary><function>TIMES</function></primary>
- </indexterm></firstterm> (mnemonic:
+   <primary>TIMES</primary></indexterm></firstterm> (mnemonic:
  <quote><emphasis>TIME</emphasis> and <emphasis>S</emphasis>pace</quote>)
  is like the macro &time;: <code>(&ts; &form-r;)</code> evaluates the
  &form-r;, and, as a side effect, outputs detailed information about the
@@ -5875,7 +5876,7 @@ exhaust the available line length.</para></simplesect>
 <para>The function &ed; calls the external editor specified by the value of
  <code>(&getenv; "EDITOR")</code> or, failing that, the value of the variable
  <firstterm>&editor;<indexterm id="editor" significance="preferred">
-   <primary><varname>*EDITOR*</varname></primary></indexterm></firstterm>
+   <primary>*EDITOR*</primary></indexterm></firstterm>
   (set in &config-lisp;).
  If the argument is a function name which was defined in the current
  session (not loaded from a file), the program text to be edited is a
@@ -6013,7 +6014,7 @@ exhaust the available line length.</para></simplesect>
 
 <para>The function <firstterm>&room;
   <indexterm id="room-func" significance="preferred">
-   <primary><function>ROOM</function></primary></indexterm></firstterm>
+   <primary>ROOM</primary></indexterm></firstterm>
   returns five values:<orderedlist>
   <listitem><simpara>space occupied by Lisp objects (in
     bytes)</simpara></listitem>
@@ -6029,15 +6030,13 @@ exhaust the available line length.</para></simplesect>
     spent collecting garbage</simpara></listitem></orderedlist></para>
 </section>
 
-<section id="gc-sect"><title>Function <function>EXT:GC</function></title>
-<para>The function
- <firstterm><link linkend="gc"><function>EXT:GC</function></link>
-  <indexterm id="gc-func" significance="preferred">
-   <primary><function>GC</function></primary></indexterm></firstterm>
- starts a global &gc;ion and returns the same values as &room;.</para>
+<section id="gc-sect"><title>Function <firstterm><function>EXT:GC</function>
+   <indexterm id="gc-func" significance="preferred">
+    <primary>GC</primary></indexterm></firstterm></title>
+<para>This function starts a global &gc;ion and returns the same values
+ as &room;.</para>
 <para>When the optional parameter is non-&nil; also invalidates
- just-in-time compiled objects.</para>
-</section>
+ just-in-time compiled objects.</para></section>
 
 <section id="machine"><title>Machine</title>
 <variablelist>
