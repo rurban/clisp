@@ -159,7 +159,10 @@
    <variablelist><varlistentry id="bytecode-d">
      <term><filename role="clisp-cvs">src/bytecode.d</filename></term>
      <listitem><simpara>List of &bytecode;s.</simpara></listitem></varlistentry>
-</variablelist></para></listitem></varlistentry>
+    <varlistentry id="lightning-c">
+     <term><filename role="clisp-cvs">src/lightning.c</filename></term>
+     <listitem><simpara>Just-in-time compiler using &lightning;.</simpara>
+</listitem></varlistentry></variablelist></para></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/control.d</filename></term>
  <listitem><simpara>Special operator interpreter.
 </simpara></listitem></varlistentry>
@@ -1510,10 +1513,11 @@ of this approach, compared to native code compilation, are:
 
 <para>The bytecode can be thought of as being interpreted by a virtual
 processor.  The engine which interprets the bytecode (the
- <quote>implementation of the virtual machine</quote>) is actually a
-&c-lang; function, but it could as well be a just-in-time compiler which
-translates a function's bytecode into hardware CPU instructions the
-first time said function is called.</para>
+<quote>implementation of the virtual machine</quote>) is either a
+&c-lang; function (<function>interpret_bytecode</function> in &eval-d;),
+or a just-in-time compiler which translates a function's bytecode into
+hardware CPU instructions the first time said function is called,
+see <link linkend="compile-jit"/>.</para>
 
 <para>The virtual machine is a stack machine with two stacks:
 <variablelist>
