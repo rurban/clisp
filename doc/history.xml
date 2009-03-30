@@ -441,8 +441,7 @@
 
 <revision><revnumber>2.45</revnumber><date>2008-05-15</date>&sds-a;
  <revdescription><itemizedlist>
-   <listitem><simpara>Just-In-Time compilation via &gnu;
-     <ulink url="http://www.gnu.org/software/lightning/">lightning</ulink>.
+   <listitem><simpara>Just-In-Time compilation via &lightning;.
    </simpara></listitem><listitem><simpara>
      &def-call-out; and &def-c-var; accept &version-k;.</simpara></listitem>
    <listitem><simpara>&repl; commands accept arguments.</simpara></listitem>
