@@ -1517,7 +1517,7 @@ processor.  The engine which interprets the bytecode (the
 &c-lang; function (<function>interpret_bytecode</function> in &eval-d;),
 or a just-in-time compiler which translates a function's bytecode into
 hardware CPU instructions the first time said function is called,
-see <link linkend="compile-jit"/>.</para>
+see <xref linkend="compile-jit"/>.</para>
 
 <para>The virtual machine is a stack machine with two stacks:
 <variablelist>
