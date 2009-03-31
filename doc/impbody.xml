@@ -423,7 +423,7 @@ but can be re-enabled by setting &defun-accept-spelalist; explicitly.
 <para>The code compiled to &bytecode;s with optimization levels
  <programlisting language="lisp">
 (&or-m; (&geq; 0 &space-dec;) (&leq; 1 &speed-dec;))</programlisting>
- (by &compile; &compile-file-my;, or &compile-decl;) will be
+ (by &compile;, &compile-file-my;, or &compile-decl;) will be
  <emphasis>just-in-time</emphasis> (i.e., on the first execution)
  compiled to native code using &lightning;.
 </para>
@@ -463,13 +463,13 @@ ignored by the interpreter.</para>
  can produce quite unexpected results, e.g., observable differences
  between <emphasis>compiled</emphasis> and <emphasis>interpreted</emphasis>
  programs:<programlisting language="lisp">
-(defun adder-c (value) (declare (&compile-decl;)) (lambda (x) (+ x value)))
+(defun adder-c (value) (declare &compile-decl;) (lambda (x) (+ x value)))
 <computeroutput>ADDER-C</computeroutput><lineannotation>compiled function; &value-r; is lexical</lineannotation>
 (defun adder-i (value) (lambda (x) (+ x value)))
 <computeroutput>ADDER-I</computeroutput><lineannotation>interpreted function; &value-r; is lexical</lineannotation>
-(setq add-c-10 (adder-c 10))
+(defparameter add-c-10 (adder-c 10))
 <computeroutput>ADD-C-10</computeroutput><lineannotation>compiled function</lineannotation>
-(setq add-i-10 (adder-i 10))
+(defparameter add-i-10 (adder-i 10))
 <computeroutput>ADD-I-10</computeroutput><lineannotation>interpreted function</lineannotation>
 (funcall add-c-10 32)
 <computeroutput>42</computeroutput><lineannotation>as expected</lineannotation>
