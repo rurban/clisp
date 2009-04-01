@@ -242,6 +242,8 @@
  <term><filename role="clisp-cvs">src/noreadline.d</filename></term>
  <listitem><simpara>Dummy plug-in for the &readline; library.
 </simpara></listitem></varlistentry>
+<varlistentry><term><filename role="clisp-cvs">src/zthread.d</filename></term>
+ <listitem><simpara>MT implementation.</simpara></listitem></varlistentry>
 </variablelist>
 </section>
 
