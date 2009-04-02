@@ -1,3 +1,12 @@
+2009-04-02  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: remove functions not suitable for preemptive MT
+	* zthread.d (THREAD-WAIT, THREAD-STATE) [MULTITHREAD]: remove
+	* constsym.d (THREAD-WAIT, THREAD-STATE) [MULTITHREAD]: ditto
+	* subr.d (THREAD-WAIT, THREAD-STATE) [MULTITHREAD]: ditto
+	* threads.lisp (*THREAD-WHOSTATE*, THREAD-WHOSTATE MAKE-LOCK)
+	(THREAD-LOCK, THREAD-UNLOCK) [MULTITHREAD]: remove
+
 2009-03-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: Fix uninitialized package mutexes

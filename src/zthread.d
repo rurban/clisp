@@ -406,15 +406,6 @@ LISPFUNN(call_with_timeout,3)
 #endif
 }
 
-LISPFUN(thread_wait,seclass_default,3,0,rest,nokey,0,NIL)
-{ /* (THREAD-WAIT whostate timeout predicate &rest arguments)
-   predicate may be a LOCK structure in which case we wait for its release
-   timeout maybe NIL in which case we wait forever */
-  /* set whostate! */
-  /* Probbaly this will go entirely in LISP when locks are ready. */
-  NOTREACHED;
-}
-
 LISPFUNN(thread_yield,0)
 { /* (THREAD-YIELD) */
   begin_blocking_system_call(); /* give GC chance */
@@ -513,11 +504,6 @@ LISPFUNN(thread_active_p,1)
 { /* (THREAD-ACTIVE-P thread) */
   var object obj=check_thread(popSTACK());
   VALUES_IF(TheThread(obj)->xth_globals != NULL);
-}
-
-LISPFUNN(thread_state,1)
-{ /* (THREAD-STATE thread) */
-  NOTREACHED;
 }
 
 LISPFUNN(current_thread,0)

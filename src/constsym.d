@@ -1199,7 +1199,6 @@ LISPSYM(foreign_pointer_info,"FOREIGN-POINTER-INFO",ffi)
 #ifdef MULTITHREAD
 LISPSYM(thread,"THREAD",mt) /* type for THREAD */
 LISPSYM(make_thread,"MAKE-THREAD",mt)
-LISPSYM(thread_wait,"THREAD-WAIT",mt)
 LISPSYM(call_with_timeout,"CALL-WITH-TIMEOUT",mt) /* ABI */
 LISPSYM(thread_yield,"THREAD-YIELD",mt)
 LISPSYM(thread_kill,"THREAD-KILL",mt)
@@ -1207,7 +1206,6 @@ LISPSYM(thread_interrupt,"THREAD-INTERRUPT",mt)
 LISPSYM(threadp,"THREADP",mt)
 LISPSYM(thread_name,"THREAD-NAME",mt)
 LISPSYM(thread_active_p,"THREAD-ACTIVE-P",mt)
-LISPSYM(thread_state,"THREAD-STATE",mt)
 LISPSYM(thread_whostate_symbol,"*THREAD-WHOSTATE*",mt)
 LISPSYM(current_thread,"CURRENT-THREAD",mt)
 LISPSYM(list_threads,"LIST-THREADS",mt)
