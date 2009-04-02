@@ -3,15 +3,13 @@
 (defpackage "THREADS"
   (:nicknames "MT" "MP")
   (:use "COMMON-LISP" "EXT")
-  (:export "THREAD" "MAKE-THREAD" "THREAD-WAIT"
-           "THREADP" "THREAD-YIELD" "THREAD-KILL"
-           "THREAD-INTERRUPT" "THREADP" "THREAD-NAME"
-           "THREAD-ACTIVE-P" "THREAD-WHOSTATE" "CURRENT-THREAD" "LIST-THREADS"
+  (:export "THREAD" "MAKE-THREAD" "THREADP" "THREAD-YIELD" "THREAD-KILL"
+           "THREAD-INTERRUPT" "THREADP" "THREAD-NAME" "THREAD-ACTIVE-P"
+           "CURRENT-THREAD" "LIST-THREADS"
            "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK"
-           "MUTEX-OWNER" "MUTEX-RECURSIVE-P"
+           "MUTEX-OWNER" "MUTEX-RECURSIVE-P" "WITH-LOCK"
            "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL"
            "EXEMPTION-WAIT" "EXEMPTION-BROADCAST"
-           "MAKE-LOCK" "THREAD-LOCK" "THREAD-UNLOCK" "WITH-LOCK"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
            "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
 
@@ -31,16 +29,12 @@
 ;; the value will be initialized from the runtime
 (defvar *DEFAULT-VALUE-STACK-SIZE*)
 
-;; declare special variable for thread's whostate
-(defvar *THREAD-WHOSTATE* nil)
-
 ;; TODO: add more variables (something should done about the
 ;; standartd input/output streams.
 (defvar *DEFAULT-SPECIAL-BINDINGS*
   '((*random-state* . (make-random-state nil))
     (*gensym-counter* . 0)
     (ext::*command-index* . 0)
-    (*thread-whostate* . nil)
     (*print-base* . 10)
     (*print-length* . nil)
     (*print-level* . nil)
@@ -55,9 +49,6 @@
     (*readtable* . (copy-readtable nil))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
-
-(defun thread-whostate (thread)
-  (symbol-value-thread *thread-whostate* thread))
 
 (defmacro with-timeout ((seconds &body timeout-forms) &body body)
   "Execute BODY; if execution takes more than SECONDS seconds,
