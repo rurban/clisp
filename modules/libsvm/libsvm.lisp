@@ -1,7 +1,7 @@
 ;;; LIBSVM interface
 ;;; <http://www.csie.ntu.edu.tw/~cjlin/libsvm/>
 ;;;
-;;; Copyright (C) 2006-2008 Sam Steingold <sds@gnu.org>
+;;; Copyright (C) 2006-2009 Sam Steingold <sds@gnu.org>
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
@@ -25,7 +25,7 @@
 (def-call-in write-string-to-libsvm-output (:name "libsvm_print_string")
   (:arguments (s c-string)) (:return-type nil))
 (c-lines :init-always
-         "  print_string = (void (*) (const char*))&libsvm_print_string;")
+         "  svm_print_string = (void (*) (const char*))&libsvm_print_string;")
 
 ;;;
 ;;; types and constants

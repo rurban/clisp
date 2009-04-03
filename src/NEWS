@@ -1,6 +1,9 @@
 Important notes
 ---------------
 
+* Module libsvm has been upgraded to the upstream version 2.89.
+  See <http://clisp.cons.org/impnotes/libsvm.html> for details.
+
 * Module Berkeley-DB now supports Berkeley DB 4.7.
   (older versions 4.* are, of course, still supported).
   See <http://clisp.cons.org/impnotes/berkeley-db.html> for details.
