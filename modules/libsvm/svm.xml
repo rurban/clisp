@@ -2,7 +2,7 @@
 
 <section id="libsvm"><title>LibSVM Interface</title>
 
-<para>This is an &ffi-pac;-based interface to the version 2.88 of
+<para>This is an &ffi-pac;-based interface to the version 2.89 of
  &libsvm-link; (included in the source distribution in the directory
  <filename role="clisp-cvs">modules/libsvm/</filename>,
  so you do not need to install it yourself).</para>

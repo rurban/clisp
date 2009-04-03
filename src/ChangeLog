@@ -1,3 +1,8 @@
+2009-04-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/libsvm/libsvm.lisp: Upgrade libsvm to 2.89
+	(svm_print_string): renamed from print_string
+
 2009-04-02  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: remove functions not suitable for preemptive MT
