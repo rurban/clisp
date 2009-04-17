@@ -1,5 +1,5 @@
 # -*- Autoconf -*-
-# Copyright (C) 2007-2008 Sam Steingold (GNU GPL2+)
+# Copyright (C) 2007-2009 Sam Steingold (GNU GPL2+)
 
 AC_PREREQ(2.61)
 
@@ -38,11 +38,11 @@ if test $cl_use_ffcall = yes -a $cl_cv_have_ffcall = no; then
   if [ "$ac_cv_build" = "$ac_cv_host" ]; then host_arg="";
   else host_arg=" --host=$ac_cv_host";
   fi
-  FFCALL=ffcall-1.8
+  FFCALL=libffcall-1.10
   AC_MSG_ERROR([despite --with-ffcall, FFCALL was not found
  Either call configure without --with-ffcall or do
   mkdir tools; cd tools; prefix=`pwd`/${ac_cv_host}
-  wget http://ftp.gnu.org/pub/gnu/ffcall/${FFCALL}.tar.gz
+  wget http://ftp.gnu.org/pub/gnu/libffcall/${FFCALL}.tar.gz
   tar xfz ${FFCALL}.tar.gz
   cd ${FFCALL}
   ./configure$host_arg --prefix=\${prefix} && make && make check && make install

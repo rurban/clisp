@@ -1,3 +1,7 @@
+2009-04-17  Sam Steingold  <sds@gnu.org>
+
+	* m4/ffcall.m4: fix libffcall download url
+
 2009-04-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/libsvm/libsvm.lisp: Upgrade libsvm to 2.89
