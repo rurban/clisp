@@ -171,15 +171,17 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
 
          make check-tests
 
-   Check whether CLISP passes the Minejima/SACLA test suite:
+   Check whether CLISP passes the Minejima/SACLA test suite
+     (CVS tree only, not in the tar ball):
 
          make check-sacla-tests
 
-   Check whether CLISP passes the Dietz/GCL test suite:
+   Check whether CLISP passes the Dietz/GCL test suite
+     (CVS tree only, not in the tar ball):
 
          make check-ansi-tests
 
-   Or run all four tests with one shot:
+   Or run all available tests with one shot:
 
          make check
 
