@@ -4977,8 +4977,8 @@ local maygc bool low_clear_input_unbuffered_handle (object stream) {
    which clear_tty_input() does nothing: read a byte, as long as listen
    says that a byte is available. */
 
-  /* low_read_unbuffered_handle is not going to block - we are sure we
-     character waiting. My be call directly full_read() without defining
+  /* low_read_unbuffered_handle is not going to block - we are sure there is
+     character waiting. May be call directly full_read() without defining
      safe gc region ???*/
   pushSTACK(stream);
   while (LISTEN_AVAIL == low_listen_unbuffered_handle(stream)) {
@@ -7988,8 +7988,9 @@ global xmutex_t open_files_lock;
  can trigger GC */
 local maygc object add_to_open_streams (object stream) {
   pushSTACK(stream);
+  pushSTACK(allocate_cons()); /* allocate before the lock */
   get_open_files_lock();
-  var object new_cons = allocate_cons();
+  var object new_cons = popSTACK();
   Car(new_cons) = stream = popSTACK();
   Cdr(new_cons) = O(open_files);
   O(open_files) = new_cons;
