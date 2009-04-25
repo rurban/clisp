@@ -1718,7 +1718,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
            we do not care. */
         DEBUG_SPVW_ASSERT((i==0) || (regs[i].size == regs[i+1].size));
         /* skip the current */
-        memmove(regs+i,regs+i+1,(*count-i-2)*sizeof(varobj_mem_region));
+        memmove(regs+i+1,regs+i+2,(*count-i-2)*sizeof(varobj_mem_region));
         (*count)--; mit--;
         continue;
       }
