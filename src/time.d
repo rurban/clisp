@@ -521,6 +521,8 @@ LISPFUNN(sleep,2)
     #endif
    #endif
     end_blocking_call();
+    /* handle async signals if any */
+    handle_pending_interrupts_nogc();
     interruptp({
       end_system_call();
       pushSTACK(S(sleep)); tast_break(); /* evtl. Break-Schleife aufrufen */

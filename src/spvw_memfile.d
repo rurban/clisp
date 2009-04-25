@@ -1772,12 +1772,16 @@ local void loadmem_from_handle (Handle handle, const char* filename)
        This is especially true for mutexes that are part of packages. */
     var object list = O(all_mutexes);
     while (!endp(list)) {
-      xmutex_init(&TheMutex(Car(list))->xmu_system);
+      /* hope none of following to fail */
+      TheMutex(Car(list))->xmu_system = (xmutex_t *)malloc(sizeof(xmutex_t));
+      xmutex_init(TheMutex(Car(list))->xmu_system);
       list = Cdr(list);
     }
     list = O(all_exemptions);
     while (!endp(list)) {
-      xcondition_init(&(TheExemption(Car(list))->xco_system));
+      TheExemption(Car(list))->xco_system =
+        (xcondition_t *)malloc(sizeof(xcondition_t));
+      xcondition_init(TheExemption(Car(list))->xco_system);
       list = Cdr(list);
     }
   }

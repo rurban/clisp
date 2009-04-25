@@ -1,5 +1,58 @@
 2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: POSIX compliant signal handling (and new mutex lock)
+	* lispbibl.d: export to clisp.h xlock_t (for POSIX_THREADS)
+	(Mutex): make xmu_system pointer (malloc()-ed). the system object
+	should be valid across GC (while waiting on mutex GC may run and
+	relocate the Mutex record).
+	(Exemption): ditto (for xco_system)
+	(clisp_thread_t): add _pending_interrupt_count and export it. on async
+	interrupt (POSIX signal) it is incremented (and on the LISP stack we
+	have what has to be executed).
+	(HANDLE_PENDING_INTERRUPTS_NOGC): executes pending interrupts. to be
+	called when GC cannot execute in parallel (in not GC safe regions)
+	(HANDLE_PENDING_INTERRUPTS_GC): executes pending interrupts. to be
+	called while running in GC safe regions (GC may run in parallel).
+	(handle_pending_interrupts_gc,  handle_pending_interrupts_nogc): inline
+	helper functions for the above two
+	(GC_SAFE_MUTEX_LOCK): pass to system functions/macros real pointer
+	to the OS mutex object.
+	* spvw_typealloc.d (allocate_mutex): allocate (via malloc()) the OS
+	xmutex_t (address should be the same across GC)
+	(allocate_exemption): ditto
+	* spvw_memfile.d (loadmem_from_handle): allocate OS object for mutexes
+	and exemption from image
+	* spvw.d (interrupt_thread_signal_handler): just increase thread's
+	_pending_interrupt_count. the interrupt will be handled later
+	(install_async_signal_handlers): let signals cause "slow" system calls
+	return EINTR instead of automatically retrying (TODO: socket.d)
+	(recursive_mutexattr): remove
+	* xthread.d: remove SOLARIS_THREADS (on Solaris POSIX_THREADS should
+	be fine)
+	(struct xlock_t): new xmutex_t representation for POSIX_THREADS. it is
+	recursive lock that allow "interruptible" (via polling) timed waits on
+	pthread_mutex_t
+	(XLOCK_WAIT_MSEC): default poll interval on mutex and exemptions in
+	order to be interruptible. see comments
+	(xlock_init, xlock_destroy, xlock_lock_helper, xlock_unlock_helper):
+	functions for dealing with xlock_t (implemented in zthread.d)
+	(xcondition_wait_helper): "interruptible" waiting on exemption
+	(xmutex_t): define it is as xlock_t
+	(xthread_init) [POSIX_THREADS]: do nothing
+	(xmutex_xxx macros): use xlock_xxx
+	(MAX_SEMAPHORE_COUNT) [WIN32_THREADS]: use maximum allowed value (Win32
+	threads currently do not support interruptions)
+	* zthread.d (release_mutexes): free malloc()-ed memory for the OS object
+	(release_exemptions): ditto
+	(xlock_init, xlock_destroy, xlock_lock_helper, xlock_unlock_helper):
+	implementation of xlock_t operations
+	(xcondition_wait_helper): implementation
+	* unixaux.d: handle EINTR return from system calls by executing pending
+	interrupts (if any)
+	* time.d (SYSTEM::%SLEEP): use handle_pending_interrupts_nogc()
+
+2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	(add_to_open_streams): prevent possible deadlock on async interrupts
 	* stream.d (add_to_open_streams) [MULTITHREAD]: allocate new cons
 	before obtaining the lock. it's possible while allocating new cons to
