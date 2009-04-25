@@ -1,5 +1,13 @@
 2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	(add_to_open_streams): prevent possible deadlock on async interrupts
+	* stream.d (add_to_open_streams) [MULTITHREAD]: allocate new cons
+	before obtaining the lock. it's possible while allocating new cons to
+	get async interrupt that will exit non-locally - thus not releasing
+	open_files_lock
+
+2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: fix removal of multiple times pinned objects
 	* spvw_garcol.d (fill_relocation_memory_regions) [MULTITHREAD]: fix
 	removal of multiple times pinned objects
