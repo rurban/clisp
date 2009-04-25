@@ -1,3 +1,9 @@
+2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix removal of multiple times pinned objects
+	* spvw_garcol.d (fill_relocation_memory_regions) [MULTITHREAD]: fix
+	removal of multiple times pinned objects
+
 2009-04-17  Sam Steingold  <sds@gnu.org>
 
 	* m4/ffcall.m4: fix libffcall download url
