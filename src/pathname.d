@@ -6191,9 +6191,7 @@ local maygc bool openp (object pathname) {
  #if defined(MULTITHREAD)
   pushSTACK(pathname);
   /* get the lock */
-  begin_blocking_system_call();
-  xmutex_lock(&open_files_lock);
-  end_blocking_system_call();
+  GC_SAFE_MUTEX_LOCK(&open_files_lock);
   pathname = popSTACK();
  #endif
   var object flist = O(open_files); /* traverse list of all open files */
@@ -6202,9 +6200,7 @@ local maygc bool openp (object pathname) {
     if (TheStream(f)->strmtype == strmtype_file) { /* file-stream ? */
       if (equal(TheStream(f)->strm_file_truename,pathname)) {
        #if defined(MULTITHREAD)
-        begin_system_call();
-        xmutex_unlock(&open_files_lock);
-        end_system_call();
+        GC_SAFE_MUTEX_UNLOCK(&open_files_lock);
        #endif
         return true;
       }
@@ -6212,9 +6208,7 @@ local maygc bool openp (object pathname) {
     flist = Cdr(flist);
   }
  #if defined(MULTITHREAD)
-  begin_system_call();
-  xmutex_unlock(&open_files_lock);
-  end_system_call();
+  GC_SAFE_MUTEX_UNLOCK(&open_files_lock);
  #endif
   return false;
 }
@@ -6311,7 +6305,7 @@ local void rename_file (void) {
      4. rename file: */
     pushSTACK(fs.fs_namestring); /* since soon may be invalid */
     if (file_exists(&fs)) {
-      skipSTACK(1); 
+      skipSTACK(1);
       /* file already exists -> do not delete without forewarn */
       error_file_exists();
     }
