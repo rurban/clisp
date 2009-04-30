@@ -1,5 +1,13 @@
 2009-04-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: mutex locking cleanup
+	* pathname.d (openp) [MULTITHREAD]: use GC_SAFE_MUTE_(UN)LOCK
+	* stream.d (get_open_files_lock) [MULTITHREAD]: ditto
+	* record.d (FINALIZE) [MULTITHREAD]: ditto
+	* spvw_weak.d (activate_weak) [MULTITHREAD]: ditto
+
+2009-04-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: revert parts of last commit. Signal handling is not POSIX
 	compliant now (too much inconsistencies and race conditions were
 	introduced)

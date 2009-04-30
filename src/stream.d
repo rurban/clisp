@@ -7970,13 +7970,9 @@ local maygc object make_buffered_stream (uintB type, direction_t direction,
 /* O(open_files) is guarded by a global lock */
 global xmutex_t open_files_lock;
 #define get_open_files_lock()                   \
-  begin_blocking_system_call();                 \
-  xmutex_lock(&open_files_lock);                \
-  end_blocking_system_call()
+  GC_SAFE_MUTEX_LOCK(&open_files_lock)
 #define release_open_files_lock()               \
-  begin_system_call();                          \
-  xmutex_unlock(&open_files_lock);              \
-  end_system_call()
+  GC_SAFE_MUTEX_UNLOCK(&open_files_lock)
 #else
 #define get_open_files_lock()      /*nop*/
 #define release_open_files_lock()  /*nop*/
