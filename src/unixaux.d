@@ -83,24 +83,18 @@ global int select (int width, fd_set* readfds, fd_set* writefds,
 global int nonintr_open (const char* path, int flags, mode_t mode)
 {
   var int retval;
- retry:
-  retval = open(path,flags,mode);
-  if ((retval < 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = open(path,flags,mode);
+  } while ((retval < 0) && (errno == EINTR));
   return retval;
 }
 
 /* a wrapper for close(). */
 global int nonintr_close (int fd) {
   var int retval;
- retry:
-  retval = close(fd);
-  if ((retval < 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = close(fd);
+  } while ((retval < 0) && (errno == EINTR));
   return retval;
 }
 
@@ -108,12 +102,9 @@ global int nonintr_close (int fd) {
 #undef ioctl
 global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg) {
   var int retval;
- retry:
-  retval = ioctl(fd,request,arg);
-  if ((retval < 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = ioctl(fd,request,arg);
+  } while ((retval != 0) && (errno == EINTR));
   return retval;
 }
 
@@ -124,36 +115,27 @@ global int nonintr_ioctl (int fd, IOCTL_REQUEST_T request, IOCTL_ARGUMENT_T arg)
 /* a wrapper for tcsetattr(). */
 global int nonintr_tcsetattr (int fd, int optional_actions, struct termios * tp) {
   var int retval;
- retry:
-  retval = tcsetattr(fd,optional_actions,tp);
-  if ((retval != 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = tcsetattr(fd,optional_actions,tp);
+  } while ((retval != 0) && (errno == EINTR));
   return retval;
 }
 
 /* a wrapper for tcdrain(). */
 global int nonintr_tcdrain (int fd) {
   var int retval;
- retry:
-  retval = tcdrain(fd);
-  if ((retval != 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = tcdrain(fd);
+    } while ((retval != 0) && (errno == EINTR));
   return retval;
 }
 
 /* a wrapper for tcflush(). */
 global int nonintr_tcflush (int fd, int flag) {
   var int retval;
- retry:
-  retval = tcflush(fd,flag);
-  if ((retval != 0) && (errno == EINTR)) {
-    handle_pending_interrupts_gc();
-    goto retry;
-  }
+  do {
+    retval = tcflush(fd,flag);
+  } while ((retval != 0) && (errno == EINTR));
   return retval;
 }
 
@@ -213,10 +195,8 @@ local inline int fd_read_will_hang_p (int fd)
    restart_poll:
     var int result = poll(&pollfd_bag[0],1,0);
     if (result<0) {
-      if (errno==EINTR) {
-        handle_pending_interrupts_gc();
+      if (errno==EINTR)
         goto restart_poll;
-      }
       OS_error();
     } else {
       /* revents has POLLIN or some other bits set if read() would return
@@ -240,10 +220,8 @@ local inline int fd_read_will_hang_p (int fd)
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
     var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
     if (result<0) {
-      if (errno==EINTR) {
-        handle_pending_interrupts_gc();
+      if (errno==EINTR)
         goto restart_select;
-      }
       if (errno!=EBADF) { OS_error(); } /*UNIX_LINUX returns EBADF for files!*/
     } else {
       /* result = number of handles in handle_set for which read() would
@@ -326,7 +304,6 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
             buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
             break;
           }
-          handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
         } while (nbyte != 0);
         var int saved_errno = errno;
         END_NO_BLOCK(fd);
@@ -356,7 +333,6 @@ global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t pers
       if (persev != persev_full)
         break;
     }
-    handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
   } while (nbyte != 0);
   return done;
 }
@@ -373,10 +349,8 @@ local inline int fd_write_will_hang_p (int fd)
    restart_poll:
     var int result = poll(&pollfd_bag[0],1,0);
     if (result<0) {
-      if (errno==EINTR) {
-        handle_pending_interrupts_gc();
+      if (errno==EINTR)
         goto restart_poll;
-      }
       OS_error();
     } else {
       /* revents has POLLOUT or some other bits set if write() would return
@@ -400,10 +374,8 @@ local inline int fd_write_will_hang_p (int fd)
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
     var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
     if (result<0) {
-      if (errno==EINTR) {
-        handle_pending_interrupts_gc();
+      if (errno==EINTR)
         goto restart_select;
-      }
       if (errno!=EBADF) { OS_error(); } /*UNIX_LINUX returns EBADF for files!*/
     } else {
       /* result = number of handles in handle_set for which write() would
@@ -478,7 +450,6 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
             buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
             break;
           }
-          handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
         } while (nbyte != 0);
         var int saved_errno = errno;
         END_NO_BLOCK(fd);
@@ -503,7 +474,6 @@ global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance
       if (persev != persev_full)
         break;
     }
-    handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
   } while (nbyte != 0);
   return done;
 }
@@ -525,10 +495,8 @@ local inline int sock_read_will_hang_p (int fd)
   zero_time.tv_sec = 0; zero_time.tv_usec = 0;
   var int result = select(FD_SETSIZE,&handle_set,NULL,NULL,&zero_time);
   if (result<0) {
-    if (errno==EINTR) {
-      handle_pending_interrupts_gc();
+    if (errno==EINTR)
       goto restart_select;
-    }
     OS_error();
   } else {
     /* result = number of handles in handle_set for which read() would
@@ -588,7 +556,6 @@ global ssize_t sock_read (int fd, void* bufarea, size_t nbyte, perseverance_t pe
       if (persev != persev_full)
         break;
     }
-    handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
   } while (nbyte != 0);
   return done;
 }
@@ -607,10 +574,8 @@ local inline int sock_write_will_hang_p (int fd)
     zero_time.tv_sec = 0; zero_time.tv_usec = 0;
     var int result = select(FD_SETSIZE,NULL,&handle_set,NULL,&zero_time);
     if (result<0) {
-      if (errno==EINTR) {
-        handle_pending_interrupts_gc();
+      if (errno==EINTR)
         goto restart_select;
-      }
       OS_error();
     } else {
       /* result = number of handles in handle_set for which write() would
@@ -677,7 +642,6 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
           buf += retval; done += (size_t)retval; nbyte -= (size_t)retval;
           break;
         }
-        handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
       } while (nbyte != 0);
       var int saved_errno = errno;
       END_NO_BLOCK(fd);
@@ -701,7 +665,6 @@ global ssize_t sock_write (int fd, const void* bufarea, size_t nbyte, perseveran
       if (persev != persev_full)
         break;
     }
-    handle_pending_interrupts_gc(); /* in case of EINTR or partial read */
   } while (nbyte != 0);
   return done;
 }
@@ -720,10 +683,8 @@ global int wait2 (PID_T child) {
     var int result = waitpid(child,&status,0);
     if (result != child) {
       if (result<0) {
-        if (errno==EINTR) {
-          handle_pending_interrupts_gc();
+        if (errno==EINTR)
           continue;
-        }
        #ifdef ECHILD
         if (errno==ECHILD) { /* If the Child process is no longer there, */
           status = 0; break;  /* it was probably correctly terminated */
