@@ -320,6 +320,12 @@ local uintC nthreads = 0;
 local clisp_thread_t* allthreads[MAXNTHREADS];
 global xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
+ /* POSIX threads with no recursive mutex support */
+#if defined(POSIX_THREADS)
+ /* cache the global mutex attribute for recursive mutex creation */
+ global pthread_mutexattr_t recursive_mutexattr;
+#endif
+
 /* the first index in _ptr_symvalues used for per thread symbol bindings */
 #define FIRST_SYMVALUE_INDEX 1
 /* Number of symbol values currently in use in every thread. */
@@ -4384,19 +4390,28 @@ local sigset_t async_signal_mask()
 /* UP: SIG_THREAD_INTERRUPT handler
  > sig: always equals to SIG_THREAD_INTERRUPT */
 local void interrupt_thread_signal_handler (int sig) {
-  clisp_thread_t *thr=current_thread();
-  thr->_pending_interrupt_count++; /* another interrupt here */
-  /* do nothing. on the lisp stack we have what should be executed shortly
-     via handle_pending_interrupts_xxx() in the context of the thread */
-
   signal_acknowledge(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
-  /* have to unblock SIG_THREAD_INTERRUPT */
+  /* have to unblock SIG_THREAD_INTERRUPT since
+     our funcall may exit non-locally with longjmp(). */
   var sigset_t mask;
   sigemptyset(&mask);
   sigaddset(&mask,SIG_THREAD_INTERRUPT);
   xthread_sigmask(SIG_UNBLOCK,&mask,NULL);
-
+  clisp_thread_t *thr=current_thread();
   spinlock_release(&thr->_signal_reenter_ok); /* release the signal reentry */
+
+  GC_SAFE_REGION_END(); /* end the safe region at which we are*/
+  /* BACK IN LISP LAND HERE */
+  var object fun=popSTACK();
+  var uintC args=posfixnum_to_V(popSTACK());
+  /* NB: IT IS REALLY, REALLY NOT SAFE DO THIS ACCORDING POSIX - BUT SEEMS
+     TO WORK QUITE WELL (OF COURSE ANY USER LOCKS MAY INTEFERE VERY BADLY).
+     PROBABLY IT IS RELATED TO THE FACT THAT WE CANNOT BE INTERRUPTED AT
+     ARBITRARY PLACE IN THE PROGRAM. THE TWO PLACES ARE: BLOCKING SYSTEMS
+     CALLS AND ON HEAP ALLOCATION. THE LATTER IS FINE, THE FORMER IS OS
+     SPECIFIC.*/
+  funcall(fun,args);
+  GC_SAFE_REGION_BEGIN();
 }
 
 #ifdef DEBUG_GCSAFETY
@@ -4571,7 +4586,7 @@ global void install_async_signal_handlers()
   /* install SIG_THREAD_INTERRUPT */
   SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
   /* we want SIG_THREAD_INTERRUPT to interrupt system calls (EINTR) */
-  siginterrupt(SIG_THREAD_INTERRUPT,1);
+  siginterrupt(SIG_THREAD_INTERRUPT,0);
 }
 #else /* !HAVE_SIGNALS i.e. WIN32_THREAD*/
 

@@ -6851,15 +6851,7 @@ typedef enum {
 %%  #if defined(POSIX_THREADS)
 %%   puts("#include <pthread.h>");
 %%   puts("#include <sched.h>");
-%%   export_def(XLOCK_WAIT_INFINITE);
-%%   puts("typedef struct xlock_t {pthread_mutex_t _m;pthread_cond_t _c;pthread_mutex_t _mr;pthread_t _owner;int _count;} xlock_t;");
-%%   puts("extern int xlock_init(xlock_t *l);");
-%%   puts("extern int xlock_destroy(xlock_t *l);");
-%%   puts("extern int xlock_lock_helper(xlock_t *l, uintL timeout, bool lock_real);");
-%%   puts("extern int xlock_unlock_helper(xlock_t *l, bool unlock_real);");
-%%  #elif defined(SOLARIS_THREADS)
-%%   puts("#include <thread.h>");
-%%   puts("#include <synch.h>");
+%%   puts("extern pthread_mutexattr_t recursive_mutexattr;");
 %%  #endif
 %%  export_def(xthread_t);
 %%  export_def(xthread_key_t);
@@ -9433,31 +9425,6 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% export_def(end_system_call());
 
 #if defined(MULTITHREAD)
-  /* handle any pending interrupts. to be used when GC cannot work in
-     parrallel (not inside safe for GC region). */
-  #define HANDLE_PENDING_INTERRUPTS_NOGC()                 \
-   do {                                                    \
-     clisp_thread_t *thr = current_thread();               \
-     while (thr->_pending_interrupt_count) {               \
-       thr->_pending_interrupt_count--;                    \
-       var object fun=popSTACK();                          \
-       var uintC args=posfixnum_to_V(popSTACK());          \
-       funcall(fun,args);                                  \
-     }                                                     \
-   } while(0)
-
- /* UP: handles any pending interrupts. to be used inside GC safe regions i.e.
-    when the GC may be running in abother thread. */
- #define HANDLE_PENDING_INTERRUPTS_GC()                 \
-    do {                                                \
-      clisp_thread_t *thr = current_thread();           \
-      if (thr->_pending_interrupt_count) {              \
-        GC_SAFE_REGION_END();                           \
-        HANDLE_PENDING_INTERRUPTS_NOGC();               \
-        GC_SAFE_REGION_BEGIN();                         \
-      }                                                 \
-    } while(0)
-
   /* acknowledge suspend request and wait for resume */
   #define GC_SAFE_ACK_SUSPEND_REQUEST_()                \
     do {                                                \
@@ -9467,7 +9434,6 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       xmutex_lock(&thr->_gc_suspend_lock);              \
       spinlock_acquire(&thr->_gc_suspend_ack);          \
       xmutex_unlock(&thr->_gc_suspend_lock);            \
-      HANDLE_PENDING_INTERRUPTS_NOGC();                 \
     } while (0)
   /* gc statement is executed in case we have to suspend ourselves
      otherwise no_gc statement is executed. */
@@ -9496,7 +9462,6 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
         xmutex_lock(&thr->_gc_suspend_lock);              \
         spinlock_acquire(&thr->_gc_suspend_ack);          \
         xmutex_unlock(&thr->_gc_suspend_lock);            \
-        HANDLE_PENDING_INTERRUPTS_NOGC();                 \
       }                                                   \
     }while(0)
 
@@ -16953,7 +16918,6 @@ struct object_tab_tl_ {
     spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
     xmutex_t _gc_suspend_lock; /* the mutex on which the thread waits. */
     uintC _suspend_count; /* how many times this thread has been suspended ? */
-    volatile uintC _pending_interrupt_count; /* number of pending interrupts */
     /* The values of per-thread symbols: */
     gcv_object_t *_ptr_symvalues; /* allocated separately */
    #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
@@ -17210,7 +17174,6 @@ struct object_tab_tl_ {
 %% puts("  spinlock_t _gc_suspend_ack;");
 %% puts("  xmutex_t _gc_suspend_lock;");
 %% puts("  uintC _suspend_count;");
-%% puts("  volatile uintC _pending_interrupt_count;");
 %% puts("  gcv_object_t *_ptr_symvalues;");
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
 %%  puts(" bool _writing_to_subprocess;");
@@ -17279,14 +17242,6 @@ struct object_tab_tl_ {
   #endif
   #define running_handle_directory_encoding_error \
      current_thread()->_running_handle_directory_encoding_error
-
- /* UP: wrappes for HANDLE_PENDING_INTERRUPTS_XXXX */
- static inline void handle_pending_interrupts_gc() {
-   HANDLE_PENDING_INTERRUPTS_GC();
- }
- static inline void handle_pending_interrupts_nogc() {
-   HANDLE_PENDING_INTERRUPTS_NOGC();
- }
 
 /* needed for building modules */
 %% export_def(current_thread());
@@ -17581,8 +17536,6 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     WITH_MUTEX_LOCK_HELP_(body)
   #define WITH_LISP_MUTEX_LOCK(stack_count,keep_mv_space,pmutex,body)     \
     WITH_MUTEX_LOCK_HELP_(body)
-  #define handle_pending_interrupts_gc()
-  #define handle_pending_interrupts_nogc()
 #endif
 %% #endif
 

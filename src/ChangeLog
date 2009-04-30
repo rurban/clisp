@@ -1,3 +1,16 @@
+2009-04-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: revert parts of last commit. Signal handling is not POSIX
+	compliant now (too much inconsistencies and race conditions were
+	introduced)
+	* lispbibl.d [MULTITHREAD]: remove HADLE_PENDING_INTERRUPTS_XXX and
+	it's wrappers
+	* spvw.d [MULTITHREAD]: revert was changes. use restartable system calls
+	* unixaux.d [MULTITHREAD]: do not use handle_pending_interrupts on EINTR
+	* xthread.d: remove xlock_t
+	* zthread.d: ditto
+	* time.d: revert
+
 2009-04-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: POSIX compliant signal handling (and new mutex lock)
