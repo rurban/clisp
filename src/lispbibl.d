@@ -9429,7 +9429,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define GC_SAFE_ACK_SUSPEND_REQUEST_()                \
     do {                                                \
       var clisp_thread_t *thr=current_thread();         \
-      SET_SP_BEFORE_SUSPEND(thr);                       \
+      SET_SP_BEFORE_SUSPEND(thr); /* debug only */      \
       spinlock_release(&thr->_gc_suspend_ack);          \
       xmutex_lock(&thr->_gc_suspend_lock);              \
       spinlock_acquire(&thr->_gc_suspend_ack);          \
@@ -9449,7 +9449,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     do {                                                    \
       GCTRIGGER();                                          \
       var clisp_thread_t *thr=current_thread();             \
-      SET_SP_BEFORE_SUSPEND(thr);                           \
+      SET_SP_BEFORE_SUSPEND(thr);  /* debug only */         \
       spinlock_release(&thr->_gc_suspend_ack);              \
     }while(0)
 /* If we cannot get the suspend ack lock again - it means there is/was GC -
@@ -17061,12 +17061,13 @@ struct object_tab_tl_ {
           should preserve the old value. Otherwise GC_SAFE_SYSTEM_CALL()
           will "return" with bad last error (which causes really weird
           problems). */
-       static inline clisp_thread_t *current_thread() {
+       static inline clisp_thread_t *current_thread_impl() {
          DWORD err=GetLastError();
          clisp_thread_t *thr=((clisp_thread_t *)xthread_key_get(current_thread_tls_key));
          SetLastError(err);
          return thr;
        }
+       #define current_thread() current_thread_impl()
      #else
        #define current_thread() \
          ((clisp_thread_t *)xthread_key_get(current_thread_tls_key))
@@ -17187,6 +17188,12 @@ struct object_tab_tl_ {
 %% #else
 %%  #if USE_CUSTOM_TLS == 1
 %%   puts("extern xthread_key_t current_thread_tls_key;");
+%%   #ifdef WIN32_NATIVE
+%%    puts("static inline clisp_thread_t *current_thread_impl() {");
+%%    puts("DWORD err=GetLastError();");
+%%    puts("clisp_thread_t *thr=((clisp_thread_t *)xthread_key_get(current_thread_tls_key));");
+%%    puts("SetLastError(err); return thr;}");
+%%   #endif
 %%  #elif USE_CUSTOM_TLS == 2
 %%   export_def(TS_CACHE_SIZE);
 %%   export_def(TS_HASH_SIZE);
