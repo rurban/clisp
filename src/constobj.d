@@ -687,7 +687,7 @@
   LISPOBJ_S(showstack_string_DENV_frame,NLstring "  DECL_ENV <--> ")
 /* for SPVW.D: */
  #ifdef WIN32_NATIVE
-  LISPOBJ(load_extra_file_types,"(\".BAT\")")
+  LISPOBJ(load_extra_file_types,"(\"BAT\")")
  #endif
 /* for control & io, function seclass_object(): */
   LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
