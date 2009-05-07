@@ -1,5 +1,10 @@
 2009-05-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* zthread.d (thread_cleanup): fix SIGSEGV if GC happens while
+	O(all_mutexes) is traversed
+
+2009-05-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[WIN32_THREADS]: export current_thread() in clisp.h
 	* lispbibl.d (current_thread_impl) [WIN32_THREADS]: was
 	current_thread(). Also export it to clisp.h
