@@ -109,29 +109,35 @@ global maygc void thread_cleanup()
   var clisp_thread_t *me = current_thread();
   var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
   var sp_jmp_buf returner; /* remember entry point */
+  var uintC locked_mutexes = 0;
   finish_entry_frame(DRIVER,returner,,{skipSTACK(2);return;});
-  WITH_OS_MUTEX_LOCK(0,&all_mutexes_lock,{
-    var object list = O(all_mutexes);
-    while (!endp(list)) {
-      if (eq(TheMutex(Car(list))->xmu_owner, me->_lthread)) {
-        /* we own the mutex. warn and release */
-        pushSTACK(list);
-        pushSTACK(Car(list));
-        {  /* warn */
-          pushSTACK(NIL); pushSTACK(me->_lthread);
-          pushSTACK(Car(list));
-          STACK_2 = CLSTEXT("Thread ~S is exiting while still owning mutex ~S. The mutex will be released.");
-          funcall(S(warn),3);
-        }
-        /* release the mutex */
-        TheMutex(STACK_0)->xmu_recurse_count = 0;
-        GC_SAFE_MUTEX_UNLOCK(TheMutex(STACK_0)->xmu_system);
-        TheMutex(STACK_0)->xmu_owner = NIL;
-        skipSTACK(1); /* mutex */
-        list = popSTACK();
-      }
-      list = Cdr(list);
+  /* traverse all mutexes and check for ownership */
+  GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
+  var object list = O(all_mutexes);
+  while (!endp(list)) {
+    if (eq(TheMutex(Car(list))->xmu_owner, me->_lthread)) {
+      /* we own the mutex. warn and release */
+      pushSTACK(Car(list));
+      locked_mutexes++;
     }
+    list = Cdr(list);
+  }
+  GC_SAFE_MUTEX_UNLOCK(&all_mutexes_lock);
+  /* now report and unlock all locked (by current thread) ones */
+  var uintC count;
+  dotimesC(count, locked_mutexes, {
+    var object mutex = STACK_0;
+    {  /* warn */
+      pushSTACK(NIL); pushSTACK(me->_lthread);
+      pushSTACK(mutex);
+      STACK_2 = CLSTEXT("Thread ~S is exiting while still owning mutex ~S. The mutex will be released.");
+      funcall(S(warn),3);
+    }
+    /* release the mutex */
+    TheMutex(STACK_0)->xmu_recurse_count = 0;
+    GC_SAFE_MUTEX_UNLOCK(TheMutex(STACK_0)->xmu_system);
+    TheMutex(STACK_0)->xmu_owner = NIL;
+    skipSTACK(1); /* mutex */
   });
   skipSTACK(2); /* driver frame */
 }
@@ -334,7 +340,7 @@ local maygc void remove_timeout_call(timeout_call *tc)
   while (chain != NULL && chain != tc) {
     lastnextp=&chain->next; chain=chain->next;
   }
-  if (chain) { /* found - chain next */
+  if (chain) { /* found - chain next. */
     *lastnextp = chain->next;
   }
   spinlock_release(&timeout_call_chain_lock);
@@ -759,7 +765,7 @@ LISPFUNN(exemption_wait,2)
   do {                                                  \
     STACK_0 = check_exemption(STACK_0);                 \
     begin_system_call();                                \
-    op(TheExemption(STACK_0)->xco_system);             \
+    op(TheExemption(STACK_0)->xco_system);              \
     end_system_call();                                  \
     VALUES1(popSTACK());                                \
   } while(0)
