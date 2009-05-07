@@ -1,3 +1,8 @@
+2009-05-07  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (load_extra_file_types): remove the leading dot
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2009-05-04  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (anymodule): use "clisp${TEXE}" instead of "clisp",
