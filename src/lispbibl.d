@@ -17191,7 +17191,7 @@ struct object_tab_tl_ {
 %%   #ifdef WIN32_NATIVE
 %%    puts("static inline clisp_thread_t *current_thread_impl() {");
 %%    puts("DWORD err=GetLastError();");
-%%    puts("clisp_thread_t *thr=((clisp_thread_t *)xthread_key_get(current_thread_tls_key));");
+%%    puts("clisp_thread_t *thr=((clisp_thread_t *)TlsGetValue(current_thread_tls_key));");
 %%    puts("SetLastError(err); return thr;}");
 %%   #endif
 %%  #elif USE_CUSTOM_TLS == 2
