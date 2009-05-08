@@ -1,3 +1,8 @@
+2009-05-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (current_thread_impl) [WIN32_THREADS]: use TlsGetValue()
+	when exported to clisp.h
+
 2009-05-07  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2788209 ]: *args* contains a mix of old args and new args
