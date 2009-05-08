@@ -406,8 +406,10 @@ local sintL seconds_west (time_t *now, int *isdst) {
   var struct tm now_local;
   var struct tm now_gm;
   begin_system_call();
-  now_local = *(localtime(now));
-  now_gm = *(gmtime(now));
+  { struct tm now_ = localtime(now);
+    if (now_ == NULL) OS_error(); else now_local = *now_; }
+  { struct tm now_ = gmtime(now);
+    if (now_ == NULL) OS_error(); else now_gm = *now_; }
   end_system_call();
   /* note that secondswest is NOT the same as
           mktime(&now_gm) - mktime(&now_local);
