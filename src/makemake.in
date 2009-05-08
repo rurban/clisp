@@ -3086,6 +3086,10 @@ if [ $CROSS = false ] ; then
   echotab "${HERE}${EXEIMG}${HEXE}"' -x "(setq zz 10) (saveinitmem \"'"${EXEIMG}"'\")"'
   # check that the executable image still honors -M
   echotab "${HERE}${EXEIMG}${HEXE} -norc -M ${EXEIMG}.mem -x zz"
+  # check that *ARGS* do not seep from image to image (bug #[ 2788209 ])
+  echotab '$(RUN) -M lispinit.mem -x "(saveinitmem \"'"${EXEIMG}"'\" :executable t :norc t :quiet t :init-function (lambda () (prin1 *args*) (exit)))" -- a 1'
+  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b\`\" = '(\"b\")' || exit 1"
+  echotab "test \"\`${HERE}${EXEIMG}${HEXE} b 2\`\" = '(\"b\" \"2\")' || exit 1"
   echotab "-ls -l lisp${LEXE} lispinit.mem ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echotab "\$(RM) ${EXEIMG}${HEXE} ${EXEIMG}.mem"
   echol

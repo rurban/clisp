@@ -3419,7 +3419,7 @@ local inline void main_actions (struct argv_actions *p) {
     do { pushSTACK(asciz_to_string(*execute_arg_ptr++,O(misc_encoding))); }
     while (--count);
     Symbol_value(S(args)) = listof(p->argv_execute_arg_count);
-  }
+  } else Symbol_value(S(args)) = NIL;
   if ((p->argv_memfile == NULL) && (p->argv_expr_count == 0)) {
     /* warning for beginners */
     pushSTACK(var_stream(S(standard_output),strmflags_wr_ch_B)); /* auf *STANDARD-OUTPUT* */
