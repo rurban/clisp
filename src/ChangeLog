@@ -1,3 +1,8 @@
+2009-05-08  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2787617 ] Segfault on encode-universal-time on Windows
+	* time.d (seconds_west): check localtime() & gmtime() return values
+
 2009-05-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (current_thread_impl) [WIN32_THREADS]: use TlsGetValue()
