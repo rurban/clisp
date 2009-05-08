@@ -1,3 +1,9 @@
+2009-05-07  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2788209 ]: *args* contains a mix of old args and new args
+	* spvw.d (main_actions): reset *ARGS* when argv_execute_args is empty
+	* makemake.in (check-exec-image): add two tests for this bug
+
 2009-05-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (thread_cleanup): fix SIGSEGV if GC happens while
