@@ -1,7 +1,7 @@
 /*
  * Time measuring functions for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments and names translated into English: Reini Urban 2007-12
  */
 
@@ -473,23 +473,8 @@ LISPFUNNR(default_time_zone,2)
 }
 #endif  /* UNIX || WIN32 */
 
-#ifdef TIME_UNIX_TIMES
-/* Very bad replacement for the gettimeofday Function.
- Only to be used for time differences! */
-local int gettimeofday (struct timeval * tp, void* tzp)
-{
-  if (!(tp==NULL)) {
-    var uintL realtime = get_real_time();
-    /* convert to seconds and microseconds: */
-    tp->tv_sec = floor(realtime,ticks_per_second);
-    tp->tv_usec = (realtime % ticks_per_second)
-      * floor(2*1000000+ticks_per_second,2*ticks_per_second);
-  }
-  return 0;
-}
-#endif
 LISPFUNN(sleep,2)
-#if defined(TIME_UNIX) || defined(TIME_UNIX_TIMES)
+#if defined(TIME_UNIX)
 { /* (SYSTEM::%SLEEP delay-seconds delay-useconds) waits
  delay-seconds and delay-useconds microseconds.
  Argument delay-seconds must be a fixnum >=0, <=16700000,
@@ -577,10 +562,6 @@ LISPFUNNR(time,0)
    Real-Time (system time since system start) in 2 values,
    Run-Time (used lisp time since system start) in 2 values,
    GC-Time (time in GC since system start) in 2 values,
-   #ifdef TIME_UNIX_TIMES
-     in CLK_TCK-stel seconds,
-     (ldb (byte 16 16) time) and (ldb (byte 16 0) time).
-   #endif
    #ifdef TIME_UNIX
      in microseconds,
      in whole seconds and microseconds.
