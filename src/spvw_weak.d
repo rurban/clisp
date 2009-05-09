@@ -1038,9 +1038,10 @@ global void activate_weak (object obj) {
   if (weak_must_activate(obj)) {
     #ifdef MULTITHREAD
     /* this is the only place where all_weakpointers_lock is used.
-       since we cannot GC here (not we call and blocking system call) -
-       no way to block the GC.  */
-     GC_SAFE_MUTEX_LOCK(&all_weakpointers_lock);
+       we do not allow GC here (no GC safe region) !*/
+     begin_system_call();
+     xmutex_lock(&all_weakpointers_lock);
+     end_system_call();
     #endif
     /* Ensure that markwatchset has enough room for the next GC. */
     var uintL need = 1 + max_watchset_count(obj);
@@ -1064,7 +1065,9 @@ global void activate_weak (object obj) {
     ((Weakpointer)TheRecord(obj))->wp_cdr = O(all_weakpointers);
     O(all_weakpointers) = obj;
     #ifdef MULTITHREAD
-     GC_SAFE_MUTEX_UNLOCK(&all_weakpointers_lock);
+     begin_system_call();
+     xmutex_unlock(&all_weakpointers_lock);
+     end_system_call();
     #endif
   }
 }
