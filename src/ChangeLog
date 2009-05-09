@@ -1,5 +1,10 @@
 2009-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* spvw_garcol.d (SPLIT_REF_LISTS): use alive(). fixes collection of
+	thread/mutex/exemption records with SPVW_PURE
+
+2009-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_weak.d (activate_weak) [MULTITHREAD]: fix gcsafety. do not allow
 	GC while waiting on all_weakpointers_lock
 
