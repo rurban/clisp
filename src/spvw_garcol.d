@@ -1857,8 +1857,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
     var gcv_object_t* L1 = &ref_items;                                  \
     var gcv_object_t* L2 = &noref_items;                                \
     while (consp(Lu)) {                                                 \
-      if (in_old_generation(Car(Lu),stream_type,0)                      \
-          || marked(type_accessor(Car(Lu)))                             \
+      if (alive(Car(Lu))                                                \
           || condition) {                                               \
         *L1 = Lu; L1 = &Cdr(Lu); Lu = *L1;                              \
       } else {                                                          \
