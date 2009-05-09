@@ -1,3 +1,8 @@
+2009-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_weak.d (activate_weak) [MULTITHREAD]: fix gcsafety. do not allow
+	GC while waiting on all_weakpointers_lock
+
 2009-05-08  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2787617 ] Segfault on encode-universal-time on Windows
