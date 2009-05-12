@@ -1,3 +1,8 @@
+2009-05-12  Sam Steingold  <sds@gnu.org>
+
+	* floatprint.lisp (decode-float-decimal): widen [a1;a2] to print
+	1d23 without ...99999...
+
 2009-05-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_garcol.d (SPLIT_REF_LISTS): use alive(). fixes collection of
