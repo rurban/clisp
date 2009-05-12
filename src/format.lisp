@@ -938,13 +938,13 @@
 ;; in Exponential representation to stream.
 ;; (compare CLTL p.392-394)
 ;; partitioning of Mantissa:
-;;   if k<=0,    first 1 zero (if fits in width), then the point,
-;;               then |k| zeros, then d-|k| significant digits;
-;;               which is d digits behind the point, altogether.
-;;   Falls k>0,  first k significant digits, then the point,
-;;               then d-k+1 further significant digits;
-;;               which is d+1 significant digits, altogether.
-;;               no zeros in front.
+;;   if k<=0, first 1 zero (if fits in width), then the point,
+;;            then |k| zeros, then d-|k| significant digits;
+;;            which is d digits behind the point, altogether.
+;;   if k>0,  first k significant digits, then the point,
+;;            then d-k+1 further significant digits;
+;;            which is d+1 significant digits, altogether.
+;;            no zeros in front.
 ;;   (The default in FORMAT-EXPONENTIAL-FLOAT is k=1.)
 ;; the sign in front of the Mantissa (a + only if arg>=0 and plus-sign-flag).
 ;; then the Exponent, prefaced by exponentchar, then sign of the
