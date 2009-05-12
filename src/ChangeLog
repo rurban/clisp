@@ -1,5 +1,10 @@
 2009-05-12  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d (FLOAT-SCALE-EXPONENT): when 10^q=x, return (1/10,q+1)
+	to handle 1d23 properly
+
+2009-04-12  Sam Steingold  <sds@gnu.org>
+
 	* floatprint.lisp (decode-float-decimal): widen [a1;a2] to print
 	1d23 without ...99999...
 
