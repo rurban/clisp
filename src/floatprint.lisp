@@ -236,8 +236,8 @@
                     ;; let a2 be the largest integer a < 2^e * above / 10^d.
                     ;; a1 = 1+floor(below*2^e/(2^belowshift*10^d)),
                     ;; a2 = floor((above*2^e-1)/10^d).
-                    (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift))))
-                    (setq a2 (floor (1- (ash above e)) ten-d)))))
+                    (setq a1 (floor (ash below e) (ash ten-d belowshift)))
+                    (setq a2 (floor (ash above e) ten-d)))))
               ;; e < 0. Estimate d = floor(e*lg(2)) like above.
               ;; |e|<=2*l<2^21.
               (progn
