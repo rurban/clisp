@@ -471,7 +471,7 @@ NIL
 
 (multiple-value-list (integer-decode-float 1d23)) (5960464477539062 24 1)
 (prin1-to-string 1d22) "1.0d22"
-(prin1-to-string 1d23) "9.999999999999999d22"
+(prin1-to-string 1d23) "1.0d23"
 (prin1-to-string 1d24) "1.0d24"
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
