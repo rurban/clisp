@@ -15207,22 +15207,32 @@ global maygc void init_streamvars (bool batch_p) {
   rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
   end_call();
   #endif
+  #ifdef MULTITHREAD
+    /* clear per thread binding */
+    #define def_var(sym,val)                                                \
+      do {                                                                  \
+        define_variable(sym,val);                                           \
+        current_thread()->_ptr_symvalues[TheSymbol(sym)->tls_index]=SYMVALUE_EMPTY; \
+      } while(0)
+  #else
+    #define def_var(sym,val) define_variable(sym,val)
+  #endif
   {
     var object stream = make_terminal_io();
-    define_variable(S(terminal_io),stream);  /* *TERMINAL-IO* */
+    def_var(S(terminal_io),stream);  /* *TERMINAL-IO* */
   }
   {
     var object stream = make_synonym_stream(S(terminal_io));
-    define_variable(S(query_io),stream);         /* *QUERY-IO* */
-    define_variable(S(debug_io),stream);         /* *DEBUG-IO* */
-    define_variable(S(trace_output),stream);     /* *TRACE-OUTPUT* */
-    define_variable(S(standard_input),           /* *STANDARD-INPUT* */
+    def_var(S(query_io),stream);         /* *QUERY-IO* */
+    def_var(S(debug_io),stream);         /* *DEBUG-IO* */
+    def_var(S(trace_output),stream);     /* *TRACE-OUTPUT* */
+    def_var(S(standard_input),           /* *STANDARD-INPUT* */
                     batch_p ? get_standard_input_file_stream()
                     : terminal_io_input_stream(stream));
-    define_variable(S(standard_output),          /* *STANDARD-OUTPUT* */
+    def_var(S(standard_output),          /* *STANDARD-OUTPUT* */
                     batch_p ? get_standard_output_file_stream()
                     : terminal_io_output_stream(stream));
-    define_variable(S(error_output),             /* *ERROR-OUTPUT* */
+    def_var(S(error_output),             /* *ERROR-OUTPUT* */
                     batch_p ? get_standard_error_file_stream()
                     : (object)Symbol_value(S(standard_output)));
   }
@@ -15233,14 +15243,15 @@ global maygc void init_streamvars (bool batch_p) {
   #ifdef UNIX
   /* Building the keyboard stream is a costly operation. Delay it
    until we really need it. */
-  define_variable(S(keyboard_input),NIL);     /* *KEYBOARD-INPUT* */
+  def_var(S(keyboard_input),NIL);     /* *KEYBOARD-INPUT* */
   #else
   {
     var object stream = make_keyboard_stream();
-    define_variable(S(keyboard_input),stream); /* *KEYBOARD-INPUT* */
+    def_var(S(keyboard_input),stream); /* *KEYBOARD-INPUT* */
   }
   #endif
   #endif
+  #undef def_var
 }
 
 /* Returns error-message, if the value of the symbol sym is not a stream. */
