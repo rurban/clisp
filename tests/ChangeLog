@@ -1,3 +1,7 @@
+2009-05-13  Sam Steingold  <sds@gnu.org>
+
+	* format.tst: add a test for (format "~G" 10^N)
+
 2009-02-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: fix thread-interrupt test (upon return from it - it is no
