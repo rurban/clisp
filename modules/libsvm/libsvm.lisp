@@ -15,7 +15,9 @@
 
 (default-foreign-language :stdc)
 (default-foreign-library
- (namestring (merge-pathnames "svm.so" *load-pathname*)))
+    (namestring (make-pathname :name "svm" :defaults *load-pathname*
+                               :type #+win32 "dll" #+unix "so"
+                                     #-(or win32 unix) nil))) ; ???
 
 (c-lines "#include \"svm.h\"~%")
 

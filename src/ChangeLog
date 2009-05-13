@@ -1,3 +1,13 @@
+2009-05-13  Sam Steingold  <sds@gnu.org>
+
+	support win32 in modules which compile to DLLs
+	* modules/libsvm/Makefile (SHREXT): use it instead of literal .so
+	* modules/libsvm/libsvm.lisp (default-foreign-library):
+	type depends on the platform
+	* modules/libsvm/link.sh: pass SHREXT=${SHREXT} to make
+	* makemake.in (anymodule): ditto
+	* clisp-link.in: set SHREXT=@SHREXT@ before calling link.sh
+
 2009-05-12  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (FLOAT-SCALE-EXPONENT): when 10^q=x, return (1/10,q+1)

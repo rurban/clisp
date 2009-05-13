@@ -293,7 +293,7 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir"'
+       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir" SHREXT=${SHREXT}'
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
@@ -333,6 +333,7 @@ case "$1" in
     NEW_MODULES=''
     TO_PRELOAD=''
     TO_LOAD=''
+    SHREXT=@SHREXT@
     cd "$moduledir"
     . ./link.sh
     cd "$absolute_currentdir"
@@ -421,6 +422,7 @@ case "$1" in
         NEW_MODULES=''
         TO_PRELOAD=''
         TO_LOAD=''
+        SHREXT=@SHREXT@
         cd "$moduledir"
         . ./link.sh
         cd "$absolute_currentdir"
@@ -502,6 +504,7 @@ case "$1" in
           NEW_MODULES=''
           TO_PRELOAD=''
           TO_LOAD=''
+          SHREXT=@SHREXT@
           cd "$moduledir"
           . ./link.sh
           cd "$absolute_currentdir"
