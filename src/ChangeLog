@@ -1,3 +1,10 @@
+2009-05-14  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: persist thread (single one) symvalues
+	* spvw_memfile.d (savemem) [MULTITHREAD]: save thread special variables
+	symvalues
+	(loadmem_from_handle) [MULTITHREAD]: load thread symvalues
+
 2009-05-13  Sam Steingold  <sds@gnu.org>
 
 	* format.lisp (format-float-to-string, format-general-float):
