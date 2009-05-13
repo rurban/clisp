@@ -15,14 +15,14 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = svm.so link.sh Makefile libsvm.lisp libsvm.o
+DISTRIBFILES = svm$(SHREXT) link.sh Makefile libsvm.lisp libsvm.o
 distribdir =
 
-all : libsvm.fas svm.so libsvm.o
+all : libsvm.fas svm$(SHREXT) libsvm.o
 
-svm.so : svm.cpp svm.h
+svm$(SHREXT) : svm.cpp svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
-		-fPIC -shared -o svm.so svm.cpp -lm
+		-fPIC -shared -o svm$(SHREXT) svm.cpp -lm
 
 svm.o : svm.cpp svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) -c svm.cpp
