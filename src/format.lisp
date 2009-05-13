@@ -894,14 +894,12 @@
           (dotimes (i (- d (- digit-count point-pos)))
             (incf digit-count)
             (vector-push-extend #\0 digit-string)))
-        (values                     ; 6 values
+        (values                     ; 5 values
           digit-string              ; digits
           (1+ digit-count)          ; number of digits
           (= point-pos 0)           ; leading point?
           (= point-pos digit-count) ; trailing point?
-          point-pos                 ; position of the decimal point
-          (and round-up-p (not round-down-p)
-               (zerop digit))))))) ; rounding up 9 -> 10 lengthens the number
+          point-pos)))))            ; position of the decimal point
 ) ; let
 
 ;; (format-float-for-f w d k overflowchar padchar plus-sign-flag arg stream)
@@ -1267,13 +1265,13 @@
     (let ((n (float-scale-exponent (abs arg))))
       (if (null d)
         (setq d
-          (multiple-value-bind (digits digitslength lp tp dp roundup)
+          (multiple-value-bind (digits digitslength)
               (format-float-to-string (abs arg) nil nil nil nil)
-            (declare (ignore digits lp tp dp))
-            (when roundup (incf n))
+            (declare (ignore digits))
             (max (1- digitslength) 1 (min n 7)))))
       (let* ((ee (if e (+ 2 e) 4))
              (dd (- d n)))
+        (print (list 'ee ee 'e e 'dd dd 'd d 'n n))
         (if (<= 0 dd d)
           (progn
             (format-float-for-f

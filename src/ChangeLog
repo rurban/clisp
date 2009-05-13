@@ -1,5 +1,10 @@
 2009-05-13  Sam Steingold  <sds@gnu.org>
 
+	* format.lisp (format-float-to-string, format-general-float):
+	revert the 2009-01-26 patch (no longer necessary given the latest fixes)
+
+2009-05-13  Sam Steingold  <sds@gnu.org>
+
 	support win32 in modules which compile to DLLs
 	* modules/libsvm/Makefile (SHREXT): use it instead of literal .so
 	* modules/libsvm/libsvm.lisp (default-foreign-library):
