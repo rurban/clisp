@@ -438,6 +438,15 @@ global maygc off_t savemem (object stream, uintL executable)
   header._dumptime = universal_time;
   memcpy(&header._dumphost[0],&hostname[0],DUMPHOST_LEN+1);
   WRITE(&header,sizeof(header));
+  #ifdef MULTITHREAD
+   /* save per thread special variables symvalues.
+      currently just a single thread. instead of:
+    for_all_threads({
+      WRITE(thread->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
+    });
+    we will use: */
+    WRITE(allthreads[0]->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
+  #endif
   { /* write module name: */
     var DYNAMIC_ARRAY(module_names_buffer,char,module_names_size);
     var char* ptr2 = &module_names_buffer[0];
@@ -1101,9 +1110,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
 
    #if defined(MULTITHREAD)
-    /* reallocate the current thread to have required number of
-       per thread symvalues and initialize all of them to SYMVALUE_EMPTY.
-    */
+    /* allocate per thread symvalues for the thread */
     {
       num_symvalues=header._per_thread_symvalues;
       var uintL max_symvalues=(uintL)((num_symvalues/SYMVALUES_PER_PAGE)+1) *
@@ -1112,10 +1119,9 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         goto abort_mem;
       if (maxnum_symvalues < max_symvalues)
         maxnum_symvalues = max_symvalues;
-      var gcv_object_t* objptr = current_thread()->_ptr_symvalues;
-      var uintC count;
-      dotimespC(count,num_symvalues,{ *objptr++ = SYMVALUE_EMPTY; });
     }
+    /* read the thread symvalues for the only thread */
+    READ(allthreads[0]->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
    #endif
 
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -1568,12 +1574,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
     /* update program constants: */
-    /* do not update thread objects (in single thread - just aktenv).
-       they were/will be initialized before/later.*/
-    /* update_tables();*/
-    update_subr_tab();
-    update_symbol_tab();
-    for_all_constobjs( update(objptr); );  /* traverse object_tab */
+    update_tables();
    #ifdef SINGLEMAP_MEMORY_RELOCATE
     if (!offset_heaps_all_zero)
    #endif
@@ -1859,11 +1860,8 @@ local void find_memdump (Handle fd) {
     var memdump_header_t header1;
     full_read(fd,(void*)&header1,header_size);
    #if defined(MULTITHREAD)
-    /* NB: per thread symvalues are not preserved in the image (as well as
-       threads themselves). After image load per thread symvalues count will
-       be equal to the count in the image - so do not fail becasue of this.
-       Later if we implement "persistent" threads - we will have to save/load
-       per thread symvalues. */
+    /* restore the count of symvalues. this field should not be used for
+       validation by compare */
     header._per_thread_symvalues = header1._per_thread_symvalues;
    #endif
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
