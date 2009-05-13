@@ -393,6 +393,13 @@ Scale factor -5: | 0.000003E+06|")
 (format nil "~E" 1d23) "1.0d+23"
 (format nil "~E" 1d24) "1.0d+24"
 
+(loop :for i :from 0 :to 50
+  :for x = (expt 1d1 i)
+  :for s = (format nil "~G" x)
+  :when (char= #\0 (char s (1+ (position #\. s))))
+  :collect x)
+()
+
 ;; http://sourceforge.net/tracker/index.php?func=detail&aid=1928759&group_id=1355&atid=101355
 (format nil "~8e" .8999999d0)  "  9.0d-1"
 (format nil "~8e" .999999d0)   "  1.0d+0"
