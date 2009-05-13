@@ -3192,7 +3192,7 @@ if [ $CROSS = false ] ; then
                && curl --silent ${MYTESTURL} > id-href.map; }; }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
-    echol "check-doc: clisp${TEXE} # base"
+    echol "check-doc: clisp${TEXE} base"
     echotab "IMPNOTES=\"${MYIMPROOT}\" ./clisp ${someflags} -x '(sys::ensure-impnotes-map t)'"
     echol
   fi
