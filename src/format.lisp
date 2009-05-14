@@ -1271,7 +1271,6 @@
             (max (1- digitslength) 1 (min n 7)))))
       (let* ((ee (if e (+ 2 e) 4))
              (dd (- d n)))
-        (print (list 'ee ee 'e e 'dd dd 'd d 'n n))
         (if (<= 0 dd d)
           (progn
             (format-float-for-f
