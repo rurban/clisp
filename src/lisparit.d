@@ -1331,7 +1331,7 @@ LISPFUNNF(float_scale_exponent,1)
   /* if 10^q=X, increase q and set r=1/10 */
   STACK_2 = R_I_expt_R(fixnum(10),STACK_1);
   STACK_2 = RA_F_float_F(STACK_2,STACK_3,false); /* ignore overflows! */
-  if (N_N_equal(STACK_2,STACK_3)) {
+  if (!eq(nullobj,STACK_2) && N_N_equal(STACK_2,STACK_3)) {
     object tmp = make_ratio(Fixnum_1,fixnum(10));
     STACK_0 = RA_F_float_F(tmp,STACK_3,true); /* r <- 1/10 */
     STACK_1 = I_1_plus_I(STACK_1);            /* q <- q+1 */
