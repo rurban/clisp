@@ -1,5 +1,10 @@
 2009-05-14  Sam Steingold  <sds@gnu.org>
 
+	* lisparit.d (FLOAT-SCALE-EXPONENT): fix last patch: RA_F_float_F
+	returns nullobj when overflow is ignored; check its return value
+
+2009-05-14  Sam Steingold  <sds@gnu.org>
+
 	finish last patch
 	* modules/libsvm/Makefile (clean): also remove svm$(SHREXT)
 	* modules/libsvm/link.sh (file_list): use $(SHREXT)
