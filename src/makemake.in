@@ -3761,7 +3761,7 @@ for dir in base full; do
   if test -n "$BINARY_DISTRIB"; then
     echotab "cp ${dir}/lisp${LEXE} \$(TOPDIR)/${dir}/lisp${LEXE}"
     # Don't strip the executable, otherwise (disassemble #'cons)
-    # and saveinitmem/:executable won't work.
+    # and (saveinitmem ... :executable t) won't work.
     # echotab "strip \$(TOPDIR)/${dir}/lisp${LEXE}"
     echotab "chmod a+x \$(TOPDIR)/${dir}/lisp${LEXE}"
   fi
