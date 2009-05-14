@@ -1,13 +1,20 @@
+2009-05-14  Sam Steingold  <sds@gnu.org>
+
+	finish last patch
+	* modules/libsvm/Makefile (clean): also remove svm$(SHREXT)
+	* modules/libsvm/link.sh (file_list): use $(SHREXT)
+	* makemake.in (echo_dist_modules): pass $(SHREXT) to make
+
 2009-05-14  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	* stream.d (init_streamvars) [MULTITHREAD]: clear per thread bindings
-	loaded from image (if any)
+	* stream.d (init_streamvars) [MULTITHREAD]: clear per thread
+	bindings loaded from image (if any)
 
 2009-05-14  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: persist thread (single one) symvalues
-	* spvw_memfile.d (savemem) [MULTITHREAD]: save thread special variables
-	symvalues
+	* spvw_memfile.d (savemem) [MULTITHREAD]: save thread special
+	variables symvalues
 	(loadmem_from_handle) [MULTITHREAD]: load thread symvalues
 
 2009-05-13  Sam Steingold  <sds@gnu.org>

@@ -2107,6 +2107,7 @@ cat <<\!!
 #             RANLIB             the name of the "ranlib" command
 #             CLISP              a command which calls the already built
 #                                "boot" clisp.
+#             SHREXT             the shared object extension (.so or .dll)
 #           Typically, you will have rules like this in your Makefile:
 #               foo.o : foo.c
 #                       $(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c foo.c
@@ -3663,7 +3664,7 @@ fi
 
 echo_dist_modules () {
   echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
-  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) clisp-module-distrib distribdir=\$\${dots}$1/\$\$module/ LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) SHREXT=${SHREXT} clisp-module-distrib distribdir=\$\${dots}$1/\$\$module/ LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
   echotab "fi; done$3"
 }
 if [ ${HSYSOS} = cygwin ]; then
