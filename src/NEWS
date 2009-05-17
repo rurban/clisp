@@ -26,6 +26,9 @@ Important notes
 * POSIX:COPY-FILE now accepts :METHOD :HARDLINK-OR-COPY.
   See <http://clisp.cons.org/impnotes/syscalls.html#copy-file> for details.
 
+* New function EXT:TRIM-IF removes leading and trailing matches.
+  See <http://clisp.cons.org/impnotes/seq-func-ext.html#trim-if> for details.
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains

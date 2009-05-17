@@ -1,6 +1,6 @@
 ;;; ANSI-compatible definitions + some extensions
 ;;; Bruno Haible 21.7.1994 - 2006
-;;; Sam Steingold 1999-2004, 2007-2008
+;;; Sam Steingold 1999-2004, 2007-2009
 
 ;; ============================================================================
 
@@ -8,6 +8,7 @@
 (export '(declaim destructuring-bind complement
           constantly with-standard-io-syntax with-hash-table-iterator
           read-sequence write-sequence))
+(export '(ext::trim-if) "EXT")
 (in-package "SYSTEM")
 
 ;; ----------------------------------------------------------------------------
@@ -284,6 +285,14 @@
   (if (built-in-stream-p stream)
       (apply #'%write-sequence sequence stream rest)
       (apply 'gray::stream-write-sequence sequence stream rest)))
+
+(defun trim-if (predicate sequence)
+  (let ((beg (position-if-not predicate sequence)))
+    (if beg
+        (let ((end (1+ (position-if-not predicate sequence :from-end t))))
+          (if (and (= beg 0) (= end (length sequence))) sequence
+              (subseq sequence beg end)))
+        (subseq sequence 0 0))))  ; empty sequence of the same type as argument
 
 ;; ----------------------------------------------------------------------------
 

@@ -2835,6 +2835,16 @@ etc.</para>
 <chapter id="sequences"><title>Sequences
   <ulink role="clhs" url="chap-17"/></title>
 
+<section id="seq-func-ext"><title>Additional Functions</title>
+
+<section id="trim-if"><title>Function <function>EXT:TRIM-IF</function></title>
+<para>Function <code>(EXT:TRIM-IF &pred-r; &sequence-r;)</code> returns
+ the portion of &sequence-r; without the leading and trailing elements
+ which match &pred-r;.</para>
+</section>
+
+</section>
+
 <section id="seq-macro-ext"><title>Additional Macros</title>
 
 <section id="doseq"><title>Macro &doseq;</title>
