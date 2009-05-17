@@ -5366,6 +5366,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
   &cmd-abbrev-oper-header;<tbody>
  <row><entry>&help;</entry><entry><command>:h</command></entry>
    <entry>prints a list of available commands</entry></row>
+ <row><entry><command>LocalSymbols</command></entry>
+  <entry><command>:ls</command></entry><entry>print the list of
+   &symbol-t;s &intern;ed in a given &package-t;.</entry></row>
 </tbody></tgroup></table>
 
 <table id="debugger-deb-step" frame="all">

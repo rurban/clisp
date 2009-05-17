@@ -1,5 +1,10 @@
 2009-05-17  Sam Steingold  <sds@gnu.org>
 
+	* reploop.lisp (show-local-symbols): new function
+	(commands0, commands1): access it via LocalSymbols and :ls
+
+2009-05-17  Sam Steingold  <sds@gnu.org>
+
 	* defs2.lisp (trim-if): new user function
 
 2009-05-17  Sam Steingold  <sds@gnu.org>
