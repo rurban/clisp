@@ -1251,3 +1251,6 @@ error
 
 #+clisp (string-invertcase "AbCdEfGh" :start 1 :end 5)
 #+clisp "ABcDefGh"
+
+#+clisp (trim-if #'sys::whitespacep "  asdf 	 ")
+#+clisp "asdf"
