@@ -98,6 +98,18 @@
     (when (stringp s)
       (safe-wr-st s #|*debug-io*|#))))
 
+(defun show-local-symbols (argline)
+  (setq argline (ext::trim-if #'whitespacep argline))
+  (let ((l '())
+        (package (if (equal argline "") *package*
+                     (or (find-package argline)
+                         argline)))) ; for error reporting
+    (do-symbols (s package)
+      (when (eq package (symbol-package s))
+        (push s l)))
+    (princ l)
+    (throw 'debug 'continue)))
+
 (defvar *saved-debug-package* *common-lisp-user-package*)
 (defvar *saved-debug-readtable* (copy-readtable nil))
 (defun debug-reset-io (a)
@@ -271,6 +283,9 @@ Use the usual editing capabilities.
 
    (cons "Help"         #'debug-help)
    (cons ":h"           #'debug-help)
+   (cons "?"            #'debug-help)
+   (cons "LocalSymbols" #'show-local-symbols)
+   (cons ":ls"          #'show-local-symbols)
    (wrap-user-commands *user-commands*)))
 
 (defun commands1 ()
@@ -304,6 +319,8 @@ Return value   :rt      leave EVAL frame, prescribing the return values")
    (cons "Help"         #'debug-help  )
    (cons ":h"           #'debug-help  )
    (cons "?"            #'debug-help  )
+   (cons "LocalSymbols" #'show-local-symbols)
+   (cons ":ls"          #'show-local-symbols)
    (cons "Error"        #'debug-print-error)
    (cons ":e"           #'debug-print-error)
    (cons "Inspect"      #'debug-inspect-error)
