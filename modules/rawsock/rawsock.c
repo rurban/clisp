@@ -2,7 +2,7 @@
  * Module for Raw Sockets / CLISP
  * Fred Cohen, 2003-2004
  * Don Cohen, 2003-2004
- * Sam Steingold 2004-2008
+ * Sam Steingold 2004-2009
  * Bruno Haible 2004-2008
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
@@ -219,7 +219,7 @@ DEFUN(RAWSOCK::SOCKADDR-SLOT,&optional slot) {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(STACK_1/*slot*/); /* TYPE-ERROR slot DATUM */
     pushSTACK(`(MEMBER :FAMILY :DATA)`); /* TYPE-ERROR slot EXPECTED-TYPE */
-    pushSTACK(`SOCKADDR`); pushSTACK(STACK_2/*slot*/);
+    pushSTACK(`RAWSOCK::SOCKADDR`); pushSTACK(STACK_2/*slot*/);
     pushSTACK(TheSubr(subr_self)->name);
     check_value(type_error,GETTEXT("~S: unknown slot ~S for ~S"));
     STACK_0 = value1;
