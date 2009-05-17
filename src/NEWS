@@ -29,6 +29,11 @@ Important notes
 * New function EXT:TRIM-IF removes leading and trailing matches.
   See <http://clisp.cons.org/impnotes/seq-func-ext.html#trim-if> for details.
 
+* New user command "LocalSymbols" (abbreviated ":ls").
+  See <http://clisp.cons.org/impnotes/repl.html#debugger-main-deb-step>
+  for details.
+
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
