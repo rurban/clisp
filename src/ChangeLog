@@ -1,3 +1,7 @@
+2009-05-17  Sam Steingold  <sds@gnu.org>
+
+	* io.d (WHITESPACEP): use VALUES1
+
 2009-05-14  Sam Steingold  <sds@gnu.org>
 
 	* lisparit.d (FLOAT-SCALE-EXPONENT): fix last patch: RA_F_float_F
