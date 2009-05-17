@@ -1,3 +1,7 @@
+2009-05-17  Sam Steingold  <sds@gnu.org>
+
+	* strings.tst: add a test for trim-if
+
 2009-05-13  Sam Steingold  <sds@gnu.org>
 
 	* format.tst: add a test for (format "~G" 10^N)

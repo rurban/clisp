@@ -1,5 +1,9 @@
 2009-05-17  Sam Steingold  <sds@gnu.org>
 
+	* defs2.lisp (trim-if): new user function
+
+2009-05-17  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/i18n.lisp (copy-locale-conv): export from I18N
 	instead of keeping it in CL-USER
 
