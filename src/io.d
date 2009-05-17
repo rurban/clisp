@@ -2,7 +2,7 @@
  * Input/Output for CLISP
  * Bruno Haible 1990-2008
  * Marcus Daniels 11.3.1997
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2001-06-12
  */
 
@@ -9950,13 +9950,12 @@ local maygc void check_ostream (gcv_object_t* stream_) {
 
 LISPFUNN(whitespacep,1) {       /* (SYS::WHITESPACEP CHAR) */
   var object ch = popSTACK();
-  value1 = NIL;
+  VALUES1(NIL);
   if (charp(ch)) {
     var cint ci = as_cint(char_code(ch));
     if (cint_white_p(ci))
       value1 = T;
   }
-  mv_count=1;
 }
 
 /* (SYS::WRITE-SPACES num &optional stream) */
