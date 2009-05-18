@@ -1,3 +1,9 @@
+2009-05-18  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (anymodule): augment patch 2006-05-10 to respect
+	CPPFLAGS, CXXFLAGS, and LDFLAGS in addition to CC and CFLAGS
+	Reported by Stelian Ionescu <stelian.ionescu-zeus@poste.it>
+
 2009-05-17  Sam Steingold  <sds@gnu.org>
 
 	* reploop.lisp (show-local-symbols): new function
