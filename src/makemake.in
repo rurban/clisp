@@ -3277,8 +3277,9 @@ echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
 echotab "if ${NEED_RECONFIGURE} ; then cd \$@ ; \\"
 echotab "  ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
 echotab "    if test -f \$\${cache} ; then . \$\${cache}; \\"
-echotab "      if test \"\$\${ac_cv_env_CC_set}\" = set; then CC=\"\$\${ac_cv_env_CC_value}\"; export CC; fi; \\"
-echotab "      if test \"\$\${ac_cv_env_CFLAGS_set}\" = set; then CFLAGS=\"\$\${ac_cv_env_CFLAGS_value}\"; export CFLAGS; fi; \\"
+for var in CC CFLAGS CPPFLAGS CXXFLAGS LDFLAGS; do
+  echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
+done
 # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
 # is bash, config.cache may be unparsable with sh on Solaris
 echotab "      \$(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
