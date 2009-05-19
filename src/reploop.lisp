@@ -99,7 +99,7 @@
       (safe-wr-st s #|*debug-io*|#))))
 
 (defun show-local-symbols (argline)
-  (setq argline (ext::trim-if #'whitespacep argline))
+  (setq argline (trim-if #'whitespacep argline))
   (let ((l '())
         (package (if (equal argline "") *package*
                      (or (find-package argline)
