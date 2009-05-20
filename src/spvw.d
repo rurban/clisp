@@ -320,12 +320,6 @@ local uintC nthreads = 0;
 local clisp_thread_t* allthreads[MAXNTHREADS];
 global xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
- /* POSIX threads with no recursive mutex support */
-#if defined(POSIX_THREADS)
- /* cache the global mutex attribute for recursive mutex creation */
- global pthread_mutexattr_t recursive_mutexattr;
-#endif
-
 /* the first index in _ptr_symvalues used for per thread symbol bindings */
 #define FIRST_SYMVALUE_INDEX 1
 /* Number of symbol values currently in use in every thread. */
@@ -381,7 +375,7 @@ global uintL* current_thread_alloccount()
   local void tsd_initialize()
   {
     var int i;
-    xmutex_init(&(threads_tls.lock));
+    xmutex_raw_init(&(threads_tls.lock));
     for (i = 0; i < TS_CACHE_SIZE; ++i) {
       threads_tls.cache[i] = &invalid_tse;
     }
@@ -395,7 +389,7 @@ global uintL* current_thread_alloccount()
   {
     var xthread_t self = xthread_self();
     var int hash_val = TSD_HASH(self);
-    xmutex_lock(&(threads_tls.lock));
+    xmutex_raw_lock(&(threads_tls.lock));
     /* Could easily check for an existing entry here.   */
     entry -> next = threads_tls.hash[hash_val];
     entry -> thread = self;
@@ -409,7 +403,7 @@ global uintL* current_thread_alloccount()
     /*AO_store_release((volatile AO_t *)(threads_tls.hash + hash_val),
       (AO_t)entry);*/
     *(threads_tls.hash + hash_val)=entry;
-    xmutex_unlock(&(threads_tls.lock));
+    xmutex_raw_unlock(&(threads_tls.lock));
   }
 
   /* UP: Remove thread-specific data for this thread.  Should be called on
@@ -420,7 +414,7 @@ global uintL* current_thread_alloccount()
     unsigned hash_val = TSD_HASH(self);
     tse *entry;
     tse **link = threads_tls.hash + hash_val;
-    xmutex_lock(&(threads_tls.lock));
+    xmutex_raw_lock(&(threads_tls.lock));
     entry = *link;
     while (entry != NULL && entry->thread != self) {
       link = &(entry->next);
@@ -438,7 +432,7 @@ global uintL* current_thread_alloccount()
       /* should become visible no later than            */
       /* the pthread_mutex_unlock() call.               */
     }
-    xmutex_unlock(&(threads_tls.lock));
+    xmutex_raw_unlock(&(threads_tls.lock));
   }
 
   /* Note that even the slow path doesn't lock. */
@@ -796,7 +790,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   }
   spinlock_init(&thread->_gc_suspend_request); spinlock_acquire(&thread->_gc_suspend_request);
   spinlock_init(&thread->_gc_suspend_ack); spinlock_acquire(&thread->_gc_suspend_ack);
-  xmutex_init(&thread->_gc_suspend_lock);
+  xmutex_raw_init(&thread->_gc_suspend_lock);
 #ifdef HAVE_SIGNALS
   spinlock_init(&thread->_signal_reenter_ok);
 #endif
@@ -822,7 +816,7 @@ global void delete_thread (clisp_thread_t *thread) {
   begin_blocking_call(); lock_threads(); end_blocking_call();
   /* destroy OS mutex */
   begin_system_call();
-  xmutex_destroy(&thread->_gc_suspend_lock);
+  xmutex_raw_destroy(&thread->_gc_suspend_lock);
   end_system_call();
 
   if (nthreads==1) {
@@ -4399,19 +4393,72 @@ local void interrupt_thread_signal_handler (int sig) {
   xthread_sigmask(SIG_UNBLOCK,&mask,NULL);
   clisp_thread_t *thr=current_thread();
   spinlock_release(&thr->_signal_reenter_ok); /* release the signal reentry */
+  /* when we are here - we either wait on the thread suspend lock or we are
+     blocked in re-entrant system call. In latter case - it is safe to
+     execute what we have on the stack. In the former - do nothing - just
+     return - we will get executed shortly when the thread is "resumed" */
+  if (!thr->_raw_wait_mutex) {
+    GC_SAFE_REGION_END(); /* end the safe region at which we are*/
+    /* BACK IN LISP LAND HERE */
+    var object fun=popSTACK();
+    var uintC args=posfixnum_to_V(popSTACK());
+    funcall(fun,args);
+    GC_SAFE_REGION_BEGIN(); /* restore GC safe region */
+  } else {
+    thr->_pending_interrupts++; /* just mark that we have interrupt */
+  }
+}
+/* UP: handles any pending interrupt (currently just one).
+   arguments are on the STACK */
+global maygc void handle_pending_interrupts()
+{
+  /* NB: what to do on non-local exit and nested interrupts
+     currently nothing. In the docs we will write not to do such
+     things. */
+  var clisp_thread_t *thr = current_thread();
+  while (thr->_pending_interrupts) {
+    --thr->_pending_interrupts;
+    var object fun=popSTACK();
+    var uintC args=posfixnum_to_V(popSTACK());
+    funcall(fun,args);
+  }
+}
 
-  GC_SAFE_REGION_END(); /* end the safe region at which we are*/
-  /* BACK IN LISP LAND HERE */
-  var object fun=popSTACK();
-  var uintC args=posfixnum_to_V(popSTACK());
-  /* NB: IT IS REALLY, REALLY NOT SAFE DO THIS ACCORDING POSIX - BUT SEEMS
-     TO WORK QUITE WELL (OF COURSE ANY USER LOCKS MAY INTEFERE VERY BADLY).
-     PROBABLY IT IS RELATED TO THE FACT THAT WE CANNOT BE INTERRUPTED AT
-     ARBITRARY PLACE IN THE PROGRAM. THE TWO PLACES ARE: BLOCKING SYSTEMS
-     CALLS AND ON HEAP ALLOCATION. THE LATTER IS FINE, THE FORMER IS OS
-     SPECIFIC.*/
-  funcall(fun,args);
-  GC_SAFE_REGION_BEGIN();
+/* UP: interrupts thread "safely"
+ > thr: the thread
+ The thread should be suspended (safe for GC).
+ Caller should hold the thread _signal_reenter_ok. On failure
+ (or when the thread will not be signalled) it will be released here*/
+global bool interrupt_thread(clisp_thread_t *thr)
+{
+  if (thr->_wait_condition) {
+    /* release the lock - we are not going to send signal really */
+    spinlock_release(&thr->_signal_reenter_ok);
+    /* we wait on condition */
+    thr->_pending_interrupts++;
+    /* wake up all threads */
+    xcondition_broadcast(thr->_wait_condition);
+    return true;
+  }
+  if (thr->_wait_mutex) {
+    /* release the lock - we are not going to send signal really */
+    spinlock_release(&thr->_signal_reenter_ok);
+    /* waiting on mutex - here the things are more complicated */
+    pthread_mutex_lock(&(thr->_wait_mutex->_m)); /* lock the internal mutex */
+    thr->_pending_interrupts++;
+    /* wake up all threads on this condition */
+    xcondition_broadcast(&(thr->_wait_mutex->_c));
+    pthread_mutex_unlock(&(thr->_wait_mutex->_m));
+    return true;
+  }
+  /* the thread may wait on it's gc_suspend_lock or be in */
+  /* the thread is in system re-entrant function */
+  bool r =
+    (0 ==
+     xthread_signal(TheThread(thr->_lthread)->xth_system,SIG_THREAD_INTERRUPT));
+  if (!r)
+    spinlock_release(&thr->_signal_reenter_ok);
+  return r;
 }
 
 #ifdef DEBUG_GCSAFETY
@@ -4465,15 +4512,13 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
           NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
           NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
-          if (xthread_signal(TheThread(chain->thread->_lthread)->xth_system,
-                             SIG_THREAD_INTERRUPT)) {
+          if (!interrupt_thread(chain->thread)) {
             /* hmm - signal send failed. restore the stack and spinlock,
                and mark the timeout as failed. The next time when we come
                here we will retry it - if not reported as warning to the
                user. The user will always get a warning. */
             chain->failed=true;
             chain->thread->_STACK=saved_stack;
-            spinlock_release(&chain->thread->_signal_reenter_ok);
           }
         #ifndef DEBUG_GCSAFETY
           resume_thread(chain->thread,false);
@@ -4513,12 +4558,9 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
           NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
           NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
-          signal_sent =
-            (0 == xthread_signal(TheThread(thread->_lthread)->xth_system,
-                                 SIG_THREAD_INTERRUPT));
-          if (!signal_sent) {
+          signal_sent = interrupt_thread(thread);
+          if (!(signal_sent = interrupt_thread(thread))) {
             thread->_STACK=saved_stack;
-            spinlock_release(&thread->_signal_reenter_ok);
           } else
             break;
         });
@@ -4548,7 +4590,7 @@ local void *signal_handler_thread(void *arg)
       /* just terminate all threads - the last one will
          kill the process from delete_thread */
       WITH_STOPPED_WORLD(false,{
-        var bool some_failed=false;
+        var bool some_failed=true;
         ENABLE_DUMMY_ALLOCCOUNT(true);
         for_all_threads({
           /* be sure the signal handler can be reentered */
@@ -4556,9 +4598,7 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
           NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
           NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
-          some_failed |=
-            (0!=xthread_signal(TheThread(thread->_lthread)->xth_system,
-                               SIG_THREAD_INTERRUPT));
+          some_failed &= interrupt_thread(thread);
         });
         if (some_failed) {
           fputs("*** some threads were not signaled to terminate.",stderr);
@@ -4585,8 +4625,6 @@ global void install_async_signal_handlers()
   sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
   /* install SIG_THREAD_INTERRUPT */
   SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
-  /* we want SIG_THREAD_INTERRUPT to interrupt system calls (EINTR) */
-  siginterrupt(SIG_THREAD_INTERRUPT,0);
 }
 #else /* !HAVE_SIGNALS i.e. WIN32_THREAD*/
 

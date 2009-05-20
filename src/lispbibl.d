@@ -6851,11 +6851,10 @@ typedef enum {
 %%  #if defined(POSIX_THREADS)
 %%   puts("#include <pthread.h>");
 %%   puts("#include <sched.h>");
-%%   puts("extern pthread_mutexattr_t recursive_mutexattr;");
 %%  #endif
 %%  export_def(xthread_t);
 %%  export_def(xthread_key_t);
-%%  export_def(xmutex_t);
+%%  export_def(xmutex_raw_t);
 %%  export_def(spinlock_t);
 %% #endif
 
@@ -9425,15 +9424,24 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
 %% export_def(end_system_call());
 
 #if defined(MULTITHREAD)
+  #define HANDLE_PENDING_INTERRUPTS(thr)       \
+    do {                                       \
+      if (thr->_pending_interrupts)            \
+        handle_pending_interrupts();           \
+    } while (0)
+
   /* acknowledge suspend request and wait for resume */
   #define GC_SAFE_ACK_SUSPEND_REQUEST_()                \
     do {                                                \
       var clisp_thread_t *thr=current_thread();         \
       SET_SP_BEFORE_SUSPEND(thr); /* debug only */      \
       spinlock_release(&thr->_gc_suspend_ack);          \
-      xmutex_lock(&thr->_gc_suspend_lock);              \
+      thr->_raw_wait_mutex = &thr->_gc_suspend_lock;   \
+      xmutex_raw_lock(&thr->_gc_suspend_lock);          \
       spinlock_acquire(&thr->_gc_suspend_ack);          \
-      xmutex_unlock(&thr->_gc_suspend_lock);            \
+      xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
+      thr->_raw_wait_mutex = NULL;                      \
+      HANDLE_PENDING_INTERRUPTS(thr);                   \
     } while (0)
   /* gc statement is executed in case we have to suspend ourselves
      otherwise no_gc statement is executed. */
@@ -9459,9 +9467,12 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       GCTRIGGER();                                        \
       var clisp_thread_t *thr=current_thread();           \
       if (!spinlock_tryacquire(&thr->_gc_suspend_ack)) {  \
-        xmutex_lock(&thr->_gc_suspend_lock);              \
+        thr->_raw_wait_mutex = &thr->_gc_suspend_lock;    \
+        xmutex_raw_lock(&thr->_gc_suspend_lock);          \
         spinlock_acquire(&thr->_gc_suspend_ack);          \
-        xmutex_unlock(&thr->_gc_suspend_lock);            \
+        xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
+        thr->_raw_wait_mutex = NULL;                      \
+        HANDLE_PENDING_INTERRUPTS(thr);                   \
       }                                                   \
     }while(0)
 
@@ -16916,7 +16927,7 @@ struct object_tab_tl_ {
     /* GC suspend/resume machinery */
     spinlock_t _gc_suspend_request; /*always signalled unless there is a suspend request. */
     spinlock_t _gc_suspend_ack; /* always signalled unless it can be assumed the thread is suspended */
-    xmutex_t _gc_suspend_lock; /* the mutex on which the thread waits. */
+    xmutex_raw_t _gc_suspend_lock; /* the mutex on which the thread waits. */
     uintC _suspend_count; /* how many times this thread has been suspended ? */
     /* The values of per-thread symbols: */
     gcv_object_t *_ptr_symvalues; /* allocated separately */
@@ -16945,6 +16956,15 @@ struct object_tab_tl_ {
     /* do not rely on SA_NODEFER for signal nesting */
     spinlock_t _signal_reenter_ok;
    #endif
+    /* Following are related to thread interruption  */
+    /* condvar on which thread waits currently (in GC_SAFE way) */
+    xcondition_t *_wait_condition;
+    /* mutex on which thread waits currently (in GC_SAFE way) */
+    xmutex_t *_wait_mutex;
+    /* is the thread waiting to be resumed? */
+    xmutex_raw_t *_raw_wait_mutex;
+    /* count of pending interrupts */
+    volatile uintC _pending_interrupts;
     /* pointer to the the lisp stack where the CATCH tag for
        thread termination is located. */
     gcv_object_t *_thread_exit_tag;
@@ -16975,8 +16995,13 @@ struct object_tab_tl_ {
   #define GC_SAFE_MUTEX_LOCK(mutex)                            \
     do {                                                       \
       xmutex_t *m=mutex; /* get pointer before we allow GC */  \
-      GC_SAFE_SYSTEM_CALL(,xmutex_lock(m));                    \
+      current_thread()->_wait_mutex = m;                       \
+      begin_blocking_system_call();                            \
+      xmutex_lock(m);                                          \
+      current_thread()->_wait_mutex=NULL;                      \
+      end_blocking_system_call();                              \
     } while(0)
+
   #define GC_SAFE_MUTEX_UNLOCK(m)           \
     do {                                    \
       begin_system_call();                  \
@@ -17092,7 +17117,7 @@ struct object_tab_tl_ {
        /* A faster index to the hash table */
        tse * volatile cache[TS_CACHE_SIZE];
        tse *hash[TS_HASH_SIZE];
-       xmutex_t lock;
+       xmutex_raw_t lock;
      } tsd;
      /* global variable the keeps all active threads TLS values */
      extern tsd threads_tls;
@@ -17173,7 +17198,7 @@ struct object_tab_tl_ {
 %% #endif
 %% puts("  spinlock_t _gc_suspend_request;");
 %% puts("  spinlock_t _gc_suspend_ack;");
-%% puts("  xmutex_t _gc_suspend_lock;");
+%% puts("  xmutex_raw_t _gc_suspend_lock;");
 %% puts("  uintC _suspend_count;");
 %% puts("  gcv_object_t *_ptr_symvalues;");
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
@@ -17305,6 +17330,15 @@ global void suspend_thread(clisp_thread_t *thr, bool lock_heap);
  > lock_heap: if false - the caller already owns the heap lock
  called from signal handler thread and from THREAD-INTERRUPT */
 global void resume_thread(clisp_thread_t *thr, bool lock_heap);
+/* UP: interrupts thread "safely"
+ > thr: the thread
+ The thread should be suspended (safe for GC).
+ Caller should hold the thread _signal_reenter_ok. On failure
+ (or when the thread will not be signalled) it will be released here*/
+global bool interrupt_thread(clisp_thread_t *thr);
+/* UP: handles any pending interrupt (currently just one).
+   arguments are on the STACK */
+global maygc void handle_pending_interrupts();
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
 /* releases the OS mutexes for mutex objects in the list */
