@@ -105,24 +105,36 @@
 #include <pthread.h>
 #include <sched.h>
 
+/* this is the mutex that we are going to use */
+typedef struct xlock_t {
+  /* all lock() op-s will use these two */
+  pthread_mutex_t _m; /* guarding the internals - never wait really on it */
+  pthread_cond_t _c; /* condition to wait on */
+  pthread_mutex_t _mr; /* real mutex */
+  pthread_t _owner; /* who owns the lock */
+  int _count; /* how many times we own the object */
+} xlock_t;
+
 #define xthread_t  pthread_t
 #define xcondition_t pthread_cond_t
-#define xmutex_t pthread_mutex_t
 #define xthread_key_t pthread_key_t
+/* raw mutex used for thread suspension/resume */
+#define xmutex_raw_t pthread_mutex_t
+/* lisp space mutex */
+#define xmutex_t xlock_t
 
-/* cache the global mutex attribute for recursive mutex creation */
-extern pthread_mutexattr_t recursive_mutexattr;
-/* osx follows posix, linux defines _NP attributes */
-#if defined(UNIX_MACOSX) || defined(UNIX_FREEBSD)
- #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
-#endif
-#define xthread_init()                                                  \
-  do {                                                                  \
-    pthread_mutexattr_init(&recursive_mutexattr);                       \
-    pthread_mutexattr_settype(&recursive_mutexattr,PTHREAD_MUTEX_RECURSIVE_NP); \
-  } while (0)
+/* wait forever timeout */
+#define THREAD_WAIT_INFINITE ((uintL)-1)
 
+/* global functions for managing xlock_t. implementations and descriptions are
+   in zthread.d */
+int xlock_init(xlock_t *l);
+int xlock_destroy(xlock_t *l);
+int xlock_lock_helper(xlock_t *l, uintL timeout, bool lock_real);
+int xlock_unlock_helper(xlock_t *l, bool unlock_real);
+int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
 
+#define xthread_init()
 #define xthread_self()  pthread_self()
 static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *),
 				 void *arg, size_t stacksize)
@@ -137,6 +149,7 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
   pthread_attr_destroy(&attr);
   return r;
 }
+
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  sched_yield()
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
@@ -145,16 +158,22 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
-#define xcondition_wait(c,m)  pthread_cond_wait(c,m)
-#define xcondition_timedwait(c,m,to)  pthread_cond_timedwait(c,m,to)
+#define xcondition_wait(c,m) xcondition_wait_helper(c,m,THREAD_WAIT_INFINITE)
+#define xcondition_timedwait(c,m,millis) xcondition_wait_helper(c,m,millis)
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 
-#define xmutex_init(m) pthread_mutex_init(m,&recursive_mutexattr)
-#define xmutex_destroy(m)  pthread_mutex_destroy(m)
-#define xmutex_lock(m)  pthread_mutex_lock(m)
-#define xmutex_trylock(m) (pthread_mutex_trylock(m)==0)
-#define xmutex_unlock(m)  pthread_mutex_unlock(m)
+#define xmutex_init(m)  xlock_init(m)
+#define xmutex_destroy(m)  xlock_destroy(m)
+#define xmutex_lock(m) xlock_lock_helper(m,THREAD_WAIT_INFINITE,true)
+#define xmutex_timedlock(m,millis) xlock_lock_helper(m,millis,true)
+#define xmutex_trylock(m)  xlock_lock_helper(m,0,true)
+#define xmutex_unlock(m)  xlock_unlock_helper(m,true)
+
+#define xmutex_raw_init(m)  pthread_mutex_init(m,NULL)
+#define xmutex_raw_destroy(m)  pthread_mutex_destroy(m)
+#define xmutex_raw_lock(m) pthread_mutex_lock(m)
+#define xmutex_raw_unlock(m)  pthread_mutex_unlock(m)
 
 #define xthread_key_create(key)  pthread_key_create(key,NULL)
 #define xthread_key_delete(key)  pthread_key_delete(key)
@@ -162,48 +181,6 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 #define xthread_key_set(key,val)  pthread_setspecific(key,val)
 
 #endif  /* POSIX*_THREADS */
-
-#if defined(SOLARIS_THREADS)
-
-#include <thread.h>
-#include <synch.h>
-
-#define xthread_t thread_t
-#define xcondition_t cond_t
-#define xmutex_t mutex_t
-#define xthread_key_t thread_key_t
-
-#define xthread_init()
-#define xthread_self()  thr_self()
-#define xthread_create(thread,startroutine,arg,stacksize) \
-  thr_create(NULL,stacksize,startroutine,arg,THR_NEW_LWP|THR_DETACHED,thread)
-#define xthread_exit(v)  thr_exit(v)
-#define xthread_yield()  thr_yield()
-#define xthread_equal(t1,t2)  ((t1)==(t2))
-#define xthread_signal(t,sig) thr_kill(t,sig)
-
-#define xcondition_init(c)  cond_init(c,USYNC_THREAD,0)
-#define xcondition_destroy(c)  cond_destroy(c)
-#define xcondition_wait(c,m)  cond_wait(c,m)
-#define xcondition_signal(c)  cond_signal(c)
-#define xcondition_broadcast(c)  cond_broadcast(c)
-
-#define xmutex_init(m)  mutex_init(m,USYNC_THREAD|LOCK_RECURSIVE|LOCK_ERRORCHECK,0)
-#define xmutex_destroy(m)  mutex_destroy(m)
-#define xmutex_trylock(m) mutex_trylock(m)
-#define xmutex_lock(m)  mutex_lock(m)
-#define xmutex_unlock(m)  mutex_unlock(m)
-
-
-#define xthread_key_create(key)  thr_keycreate(key,NULL)
-#define xthread_key_delete(key)  0
-/* on Solaris - Sun and GNU compilers support "statement expression" */
-#define xthread_key_get(key)  \
-  ({ void* _tmp; thr_getspecific(key,&_tmp); _tmp; })
-#define xthread_key_set(key,val)  thr_setspecific(key,val)
-#define xthread_sigmask(how,iset,oset) thr_sigmask(how,iset,oset)
-
-#endif  /* SOLARIS_THREADS */
 
 #if defined(WIN32_THREADS)
 
@@ -218,6 +195,7 @@ typedef struct _xcondition {
 } _xcondition;
 #define xcondition_t _xcondition
 #define xmutex_t CRITICAL_SECTION
+#define xmutex_raw_t CRITICAL_SECTION
 #define xthread_key_t DWORD
 
 #define xthread_init()
@@ -271,6 +249,11 @@ typedef struct _xcondition {
 #define xmutex_lock(m)      (EnterCriticalSection(m),0)
 #define xmutex_trylock(m) (TryEnterCriticalSection(m)!=0)
 #define xmutex_unlock(m)    (LeaveCriticalSection(m),0)
+
+#define xmutex_raw_init(m)  xmutex_init(m)
+#define xmutex_raw_destroy(m)  xmutex_destroy(m)
+#define xmutex_raw_lock(m)  xmutex_lock(m)
+#define xmutex_raw_unlock(m)  xmutex_unlock(m)
 
 #define xthread_key_create(key)  (*(key) = TlsAlloc())
 #define xthread_key_delete(key)  TlsFree(key)

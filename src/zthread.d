@@ -449,7 +449,6 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (THREAD-INTERRUPT thread function &rest arguments) */
 #ifdef HAVE_SIGNALS
   var object thr=check_thread(STACK_(argcount+1));
-  var xthread_t systhr=TheThread(thr)->xth_system;
   var bool signal_sent=false;
   if (TheThread(thr)->xth_globals == current_thread()) {
     /* we want to interrupt ourselves ? strange but let's do it */
@@ -477,11 +476,9 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
       }
       NC_pushSTACK(clt->_STACK,posfixnum(argcount));
       NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
-      signal_sent = (0 == xthread_signal(systhr,SIG_THREAD_INTERRUPT));
-      if (!signal_sent) {
+      if (!(signal_sent = interrupt_thread(clt))) {
         /* for some reason we were unable to send the signal */
         clt->_STACK=saved_stack;
-        spinlock_release(&clt->_signal_reenter_ok);
       }
       resume_thread(clt,true);
     } else
@@ -751,9 +748,16 @@ LISPFUNN(exemption_wait,2)
   /* get the pointer before we allow the GC to run :) */
   var xmutex_t *m = TheMutex(STACK_0)->xmu_system;
   var xcondition_t *c = TheExemption(STACK_1)->xco_system;
+  clisp_thread_t *thr = current_thread();
+  var int res;
+  thr->_wait_condition = c;
   begin_blocking_system_call();
-  xcondition_wait(c,m);
+  res = xcondition_wait(c,m);
+  thr->_wait_condition = NULL;
   end_blocking_system_call();
+  /* handle (if any) interrupts */
+  HANDLE_PENDING_INTERRUPTS(thr);
+  /* TODO: check for pending interrupts !!!*/
   /* set again the owner. even in case of error - this should be fine. */
   TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
   TheMutex(STACK_0)->xmu_recurse_count = 1;
@@ -781,4 +785,166 @@ LISPFUNN(exemption_broadcast,1)
   EXEMPTION_OP_ON_STACK_0(xcondition_broadcast);
 }
 
-#endif
+/*****************************************************************************/
+/* LOW-LEVEL THREADS STUFF */
+
+/* TODO: not the right place to put these stuff. separate file is better ? */
+#if defined(POSIX_THREADS)
+/* under Linux and OSX getting a signal while in pthread_cond_wait causes
+   spurious wake-up. so no need for polling */
+
+/* UP: fills timespec with millis milliseconds form "now"
+   <> r: timespec to be filled
+   > millis: milliseconds */
+local inline void get_abs_timeout(struct timespec *r, uintL millis) {
+  var struct timeval tv;
+  gettimeofday(&tv, NULL);
+  r->tv_sec = tv.tv_sec + (tv.tv_usec + millis * 1000) / 1000000;
+  r->tv_nsec = 1000 * ((tv.tv_usec + millis*1000) % 1000000);
+}
+
+/* UP: initializes xlock_t
+ <> l: the lock
+ < Returns 0 on success, oherwise the error code returnd from pthreads */
+int xlock_init(xlock_t *l)
+{
+  var int r;
+  if (r=pthread_mutex_init(&l->_m,NULL)) return r;
+  if (r=pthread_mutex_init(&l->_mr,NULL)) {
+    pthread_mutex_destroy(&l->_m);
+    return r;
+  }
+  if (r=pthread_cond_init(&l->_c,NULL)) {
+    pthread_mutex_destroy(&l->_m);
+    pthread_mutex_destroy(&l->_mr);
+    return r;
+  }
+  l->_owner = NULL; /* hmmm */
+  l->_count = 0;
+  return 0;
+}
+
+/* UP: destroys and frees xlock_t resources
+   > l: the lock
+   < returns always 0 (TODO: error checking - but what can it help?) */
+int xlock_destroy(xlock_t *l)
+{
+  pthread_mutex_destroy(&l->_m);
+  pthread_mutex_destroy(&l->_mr);
+  pthread_cond_destroy(&l->_c);
+  return 0; /* no error checking :( */
+}
+
+/* UP: Implements waiting on xlock_t in "polling" mode - so async POSIX signals
+   can be handled if arrive
+   > l: the lock
+   > timeout: wait timeout in milliseconds
+   > lock_read: should we really unlock the mutex or just "mark" it as unlocked
+   < Returns 0 on success, otherwise the error code from pthreads
+   The rationale is: when mutex is passed to pthread_cond_wait() it is
+   automatically acquired on return - so no need to really lock it. */
+int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
+{
+  var int r = 0;
+  if (pthread_equal(l->_owner,pthread_self())) {
+    l->_count++;
+  } else {
+    /* we will never wait here (at least not for a long time) */
+    pthread_mutex_lock(&l->_m);
+    if (lock_real) {
+      var struct timespec ww;
+      var clisp_thread_t *thr = current_thread();
+      if (timeout != THREAD_WAIT_INFINITE) {
+        get_abs_timeout(&ww,timeout);
+      }
+      /* while we cannot get the real lock */
+      while (r = pthread_mutex_trylock(&l->_mr)) {
+        /* check for interrupts before waiting */
+        if (current_thread()->_pending_interrupts) {
+          /* handle them */
+          pthread_mutex_unlock(&l->_m);
+          current_thread()->_wait_mutex=NULL;
+          GC_SAFE_REGION_END(); /* this may will handle the interrupts */
+          /* if not still handled - do it */
+          handle_pending_interrupts();
+          current_thread()->_wait_mutex=l;
+          GC_SAFE_REGION_BEGIN();
+          pthread_mutex_lock(&l->_m);
+        }
+        if (timeout != THREAD_WAIT_INFINITE) {
+          r = pthread_cond_timedwait(&l->_c,&l->_m,&ww);
+        } else {
+          r = pthread_cond_wait(&l->_c,&l->_m);
+        }
+        if (r != 0) break;
+      }
+      if (r == 0) {
+        ASSERT(l->_owner == NULL);
+        l->_owner = pthread_self();
+        l->_count=1;
+      }
+    } else {
+      /* if is not real lock - we own the the real mutex + guarding one */
+      ASSERT(!l->_owner);
+      l->_owner = pthread_self();
+      l->_count=1;
+    }
+    pthread_mutex_unlock(&l->_m);
+  }
+  return r;
+}
+
+/* UP: unlocks (or marks as unlocked) the xlock_t
+ > l: the lock
+ > unlock_real: should we really unlock it or just mark it?
+ < returns 0 if successful, -1 if we the caller does not own the lock
+ The rationale is: if mutex is passed to pthread_cond_wait() it is
+ automatically unlocked - so unlock_real=false will be used to mark
+ the xlock_t as unlocked and pthread_cond_wait() will finish the whole
+ process. */
+int xlock_unlock_helper(xlock_t *l, bool unlock_real)
+{
+  if (pthread_equal(l->_owner,pthread_self())) {
+    if (!--l->_count) {
+      /* we will never wait here (at least not for a long time) */
+      pthread_mutex_lock(&l->_m);
+      if (unlock_real)
+        pthread_mutex_unlock(&l->_mr);
+      l->_owner = NULL; /* hmm */
+      pthread_mutex_unlock(&l->_m); /* before signal */
+      pthread_cond_signal(&l->_c);
+    }
+    return 0;
+  }
+  return -1; /* the caller is not the owner */
+}
+
+/* UP: Implements waiting on xcondition_t in "polling" mode - so async POSIX
+   signals can be handled if arrive
+   > c: the condition variable
+   > m: the mutex /xlock_t/
+   > timeout: timeout in milliseconds
+   < Returns 0 on success, otherwise the error code from pthreads */
+int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout)
+{
+  var int r=-1;
+  var clisp_thread_t *thr = current_thread();
+  /* mutex is owned by us and it is locked just once.
+     our caller assures this */
+  xlock_unlock_helper(m,false); /* mark as unlocked */
+  if (timeout != THREAD_WAIT_INFINITE) {
+    var struct timespec ww;
+    get_abs_timeout(&ww,timeout);
+    r = pthread_cond_timedwait(c,&m->_mr,&ww);
+  } else {
+    r = pthread_cond_wait(c,&m->_m);
+  }
+  /* mark again the mutex as ours */
+  xlock_lock_helper(m,0,false);
+  return r;
+}
+
+#endif /* POSIX_THREADS */
+
+
+#endif /* MULTITHREAD */

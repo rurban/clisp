@@ -569,7 +569,7 @@ global void gc_suspend_all_threads(bool lock_heap)
     for_all_threads({
       if (thread == me) continue; /* skip ourself */
       if (!thread->_suspend_count) {  /* if not already suspended */
-        xmutex_lock(&thread->_gc_suspend_lock); /* enable thread waiting */
+        xmutex_raw_lock(&thread->_gc_suspend_lock); /* enable thread waiting */
         spinlock_release(&thread->_gc_suspend_request); /* request */
       } else {
         acklocked[thread->_index]=1;
@@ -644,7 +644,7 @@ global void gc_resume_all_threads(bool unlock_heap)
     /* currently all ACK locks belong to us as well the mutex lock */
     if (! --thread->_suspend_count) { /* only if suspend count goes to zero */
       spinlock_release(&thread->_gc_suspend_ack); /* release the ACK lock*/
-      xmutex_unlock(&thread->_gc_suspend_lock); /* enable thread */
+      xmutex_raw_unlock(&thread->_gc_suspend_lock); /* enable thread */
     }
   });
   unlock_threads(); /* locked in gc_suspend_all_threads() */
@@ -660,11 +660,11 @@ global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
   /* should never be called on ourselves */
   ASSERT(thr != current_thread());
   if (lock_heap) ACQUIRE_HEAP_LOCK();
-  /* we do not want the thread that we try try to suspend to exit
+  /* we do not want the thread that we try to suspend to exit
      (if running at all) until we finish the whole process. So lock threads.*/
   lock_threads(); /* blocks the GC - but not a problem */
   if (!thr->_suspend_count) { /* first suspend ? */
-    xmutex_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
+    xmutex_raw_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
     spinlock_release(&thr->_gc_suspend_request); /* request */
     /* wait for the thread to come to safe point. */
     while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
@@ -687,7 +687,7 @@ global void resume_thread(clisp_thread_t *thr, bool lock_heap)
   lock_threads(); /* blocks the GC - but not a problem */
   if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
     spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
-    xmutex_unlock(&thr->_gc_suspend_lock); /* enable thread */
+    xmutex_raw_unlock(&thr->_gc_suspend_lock); /* enable thread */
   }
   unlock_threads();
   if (lock_heap) RELEASE_HEAP_LOCK();
