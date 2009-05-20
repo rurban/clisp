@@ -1,3 +1,47 @@
+2009-05-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: POSIX compliant signal handling (again)
+	* xthread.d: remove SOLARIS_THREADS (on Solaris POSIX_THREADS should
+	be fine)
+	(struct xlock_t): new xmutex_t representation for POSIX_THREADS. it is
+	recursive lock that allows "interruptable" timed waits
+	(xlock_init, xlock_destroy, xlock_lock_helper, xlock_unlock_helper):
+	functions for dealing with xlock_t (implemented in zthread.d)
+	(xcondition_wait_helper): "interruptable" waiting on exemption
+	(xmutex_t): define it as xlock_t
+	(xthread_init) [POSIX_THREADS]: do nothing
+	(xmutex_xxx macros): use xlock_xxx
+	(xmutex_raw_t): native pthread_mutex_t. used for thread suspend/resume
+	(xmutex_raw_xxx macros): macros for working with xmutex_raw_t
+	* lispbibl.d (clisp_thread_t): add _wait_condition, _wait_mutex,
+	_raw_wait_mutex. if the thread is blocked on some of these non-reentrant
+	objects - interrupt will be marked as pending. add _pending_interrupts
+	count of pending interrupts. _gc_suspend_lock is xmutex_raw_t now
+	(handle_pending_interrupts): new global function to be called to execute
+	deferred interrupts (if any) at appropriate places
+	(HANLDE_PENDING_INTERRUPTS): helper macro for calling the above. used in
+	GC_SAFE_xxx macros
+	(GC_SAFE_ACK_SUSPEND_REQUEST_,GC_SAFE_REGION_END): use xmutex_raw_xxx
+	and HANLDE_PENDING_INTERRUPTS. set/unset thread's _raw_wait_mutex
+	(interrupt_thread): new global function for interrupting thread based
+	on it's current state
+	(GC_SAFE_MUTEX_LOCK): set/unset thread's _wait_mutex
+	* zthread.d (THREAD-INTERRUPT): use interrupt_thread
+	(EXEMPTION-WAIT): use HANDLE_PENDING_INTERRUPTS. set/unset thread's
+	_wait_condition
+	(xlock_init, xlock_destroy, xlock_lock_helper, xlock_unlock_helper):
+	implementation of xlock_t operations
+	* spvw.d (interrupt_thread): implement it. if the thread is blocked
+	in non-reentrant function (pthreads) mark the interrupt as pending
+	and take appropriate actions
+	(handle_pending_interrupts): implement it
+	(interrupt_thread_signal_handler): execute the interrupt function
+	immediately or mark it as pending in case the thread will be resumed
+	shortly (and is not safe to execute immediately)
+	(signal_handler_thread): use interrupt_thread
+	* spvw_global.d (gc_suspend_all_threads, gc_resume_all_threads)
+	(suspend_thread, resume_thread): use xmutex_raw_xxx macros
+
 2009-05-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (anymodule): augment patch 2006-05-10 to respect
