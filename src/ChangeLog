@@ -1,5 +1,18 @@
 2009-05-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULITHREAD]: keep mutex records consistent in case of interrupts
+	* lispbibl.d (GC_SAFE_REGION_END_i): was GC_SAFE_REGION_END(). added
+	statement to be executed when the control gets to lisp land
+	(GC_SAFE_REGION_END): use the above and handle pending interrupts at
+	the end
+	(GC_SAFE_REGION_END_WITHOUT_INTERRUPTS): ends GC safe regions and does
+	not handle pending interrupts
+	* zthread.d (MUTEX-LOCK): update mutex record before executing (if any)
+	pending interrupts since there may be non-local exit
+	(EXEMPTION-WAIT): ditto
+
+2009-05-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: POSIX compliant signal handling (again)
 	* xthread.d: remove SOLARIS_THREADS (on Solaris POSIX_THREADS should
 	be fine)
