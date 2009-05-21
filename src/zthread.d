@@ -653,10 +653,26 @@ LISPFUNN(mutex_lock,1)
     }
   } else {
     /* obtain the lock */
-    GC_SAFE_MUTEX_LOCK(TheMutex(STACK_0)->xmu_system);
-    TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
-    ASSERT(TheMutex(STACK_0)->xmu_recurse_count == 0);
-    TheMutex(STACK_0)->xmu_recurse_count++;
+    var clisp_thread_t *thr = current_thread();
+    var gcv_object_t *mxrec = &STACK_0; /* in case of interrupt */
+    var xmutex_t *m = TheMutex(STACK_0)->xmu_system;
+
+    /* following is like GC_SAFE_MUTEX_LOCK() but does not possibly
+       handle the pending interrupts at the end */
+    thr->_wait_mutex = m;
+    begin_system_call(); GC_SAFE_REGION_BEGIN();
+    xmutex_lock(m);
+    thr->_wait_mutex = NULL;
+    /* do not (possibly) handle pending interrupts here since on non-local exit
+       from interrupt we may leave the mutex object in inconsistent state*/
+    GC_SAFE_REGION_END_WITHOUT_INTERRUPTS(); end_system_call();
+
+    TheMutex(*mxrec)->xmu_owner = current_thread()->_lthread;
+    ASSERT(TheMutex(*mxrec)->xmu_recurse_count == 0);
+    TheMutex(*mxrec)->xmu_recurse_count++;
+    /* now the mutex record is in consistent state - handle pending
+       interrupts (if any) */
+    HANDLE_PENDING_INTERRUPTS(thr);
   }
   VALUES1(popSTACK());
 }
@@ -745,22 +761,26 @@ LISPFUNN(exemption_wait,2)
   }
   /* pthread_cond_wait() will release the OS mutex - so clear the owner. */
   TheMutex(STACK_0)->xmu_owner = NIL; TheMutex(STACK_0)->xmu_recurse_count = 0;
-  /* get the pointer before we allow the GC to run :) */
+  /* get the pointer before we allow the GC to run */
   var xmutex_t *m = TheMutex(STACK_0)->xmu_system;
   var xcondition_t *c = TheExemption(STACK_1)->xco_system;
+  var gcv_object_t *mxrec = &STACK_0; /*in case of interrupt STACK_0 != mutex*/
   clisp_thread_t *thr = current_thread();
   var int res;
+
   thr->_wait_condition = c;
-  begin_blocking_system_call();
+  begin_system_call(); GC_SAFE_REGION_BEGIN();
   res = xcondition_wait(c,m);
   thr->_wait_condition = NULL;
-  end_blocking_system_call();
+  /* do not (possibly) handle pending interrupts here since on non-local exit
+     from interrupt we may leave the mutex object in inconsistent state*/
+  GC_SAFE_REGION_END_WITHOUT_INTERRUPTS(); end_system_call();
+
+  /* set again the owner. even in case of error - this should be fine. */
+  TheMutex(*mxrec)->xmu_owner = current_thread()->_lthread;
+  TheMutex(*mxrec)->xmu_recurse_count = 1;
   /* handle (if any) interrupts */
   HANDLE_PENDING_INTERRUPTS(thr);
-  /* TODO: check for pending interrupts !!!*/
-  /* set again the owner. even in case of error - this should be fine. */
-  TheMutex(STACK_0)->xmu_owner = current_thread()->_lthread;
-  TheMutex(STACK_0)->xmu_recurse_count = 1;
   skipSTACK(1);
   VALUES1(popSTACK());
 }

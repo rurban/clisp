@@ -9462,7 +9462,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
     }while(0)
 /* If we cannot get the suspend ack lock again - it means there is/was GC -
    so try to wait for it's end if it is not already finished. */
-  #define GC_SAFE_REGION_END()                            \
+  #define GC_SAFE_REGION_END_i(statement)                 \
     do {                                                  \
       GCTRIGGER();                                        \
       var clisp_thread_t *thr=current_thread();           \
@@ -9472,9 +9472,13 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
         spinlock_acquire(&thr->_gc_suspend_ack);          \
         xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
         thr->_raw_wait_mutex = NULL;                      \
-        HANDLE_PENDING_INTERRUPTS(thr);                   \
+        statement;                                        \
       }                                                   \
     }while(0)
+  #define GC_SAFE_REGION_END()  \
+    GC_SAFE_REGION_END_i(HANDLE_PENDING_INTERRUPTS(thr))
+  #define GC_SAFE_REGION_END_WITHOUT_INTERRUPTS() \
+    GC_SAFE_REGION_END_i(;)
 
 #else /* ! MULTITHREAD */
   #define GC_SAFE_POINT_IF(gc,no_gc)
