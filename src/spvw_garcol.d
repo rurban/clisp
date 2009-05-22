@@ -1766,26 +1766,21 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
        elements) - "allocate" few vectors. */
     while (holes->size != 0) {
       var Sbvector ptr=(Sbvector)holes->start;
-      /* be sure to leave a place for at least the header of next
-         vector in case of too big hole. */
-      var uintL len = MIN(holes->size - offsetofa(sbvector_,data),
-                          arraysize_limit_1 - offsetofa(sbvector_,data));
+      var uintL len = holes->size - offsetofa(sbvector_,data);
+      if (len > arraysize_limit_1) {
+        /* In case of very large block (>= arraysize_limit_1) make sure we
+           leave space for the next vector header */
+        len = arraysize_limit_1 -
+          2*round_up(offsetofa(sbvector_,data), varobject_alignment);
+      }
       set_GCself(ptr,Array_type_simple_bit_vector(Atype_8Bit),ptr);
      #ifdef TYPECODES
       ptr->length = len;
      #else
       ptr->tfl = vrecord_tfl(Rectype_Sb8vector,len);
      #endif
-      /* DEBUG_SPVW_ASSERT((len+offsetofa(sbvector_,data)) == objsize(ptr));*/
-      /* it ASSERTED once but I (vtz) cannot reproduce it. That's the reason
-         I'll leave it in the release as well and will dump the hole. */
-      if ((len+offsetofa(sbvector_,data)) != objsize(ptr)) {
-        fprintf(stderr,"*** BUGBUG: WRONG HEAP HOLE SIZE. PLEASE REPORT AS BUG. ");
-        fprintf(stderr,"*** BUGBUG: HOLE: %0x, %0x. OBJ: %0x\n", holes->start,holes->size,objsize(ptr));
-        abort();
-      }
-      holes->start += (len+offsetofa(sbvector_,data));
-      holes->size -= (len+offsetofa(sbvector_,data));
+      len  = objsize(ptr); /* handle alignments */
+      holes->start += len; holes->size -= len; /* shrink the hole */
     }
    #else  /* SPVW_PURE ==> TYPECODES */
     /* depending on the heap type we have to allocate differently. since
