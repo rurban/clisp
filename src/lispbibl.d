@@ -16940,6 +16940,11 @@ struct object_tab_tl_ {
     bool _writing_to_subprocess;
    #endif
     object _mv_space [mv_limit-1];
+    /* is the thread waiting to be resumed (on _gc_suspend_lock) */
+    xmutex_raw_t *_raw_wait_mutex;
+    /* count of pending interrupts */
+    volatile uintC _pending_interrupts;
+    /* everything till here is exported to modules */
     /* The lexical environment: */
     gcv_environment_t _aktenv;
     /* Used for exception handling only: */
@@ -16965,10 +16970,6 @@ struct object_tab_tl_ {
     xcondition_t *_wait_condition;
     /* mutex on which thread waits currently (in GC_SAFE way) */
     xmutex_t *_wait_mutex;
-    /* is the thread waiting to be resumed? */
-    xmutex_raw_t *_raw_wait_mutex;
-    /* count of pending interrupts */
-    volatile uintC _pending_interrupts;
     /* pointer to the the lisp stack where the CATCH tag for
        thread termination is located. */
     gcv_object_t *_thread_exit_tag;
@@ -17209,6 +17210,8 @@ struct object_tab_tl_ {
 %%  puts(" bool _writing_to_subprocess;");
 %% #endif
 %% puts("  object _mv_space [unspecified];");
+%% puts("  xmutex_raw_t *_raw_wait_mutex;");
+%% puts("  volatile uintC _pending_interrupts;");
 %% puts("} clisp_thread_t;");
 
 %% #ifdef per_thread
@@ -17343,6 +17346,7 @@ global bool interrupt_thread(clisp_thread_t *thr);
 /* UP: handles any pending interrupt (currently just one).
    arguments are on the STACK */
 global maygc void handle_pending_interrupts();
+%% puts("extern void handle_pending_interrupts();");
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
 /* releases the OS mutexes for mutex objects in the list */

@@ -1,3 +1,9 @@
+2009-05-23  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (clisp_thread_t) [MULTITHREAD]: export _raw_wait_mutex and
+	_pending_interrupts to clisp.h
+	(handle_pending_interrupts): ditto
+
 2009-05-22  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_garcol.d (fill_varobject_heap_holes) [MULTITHREAD]: fix heap
