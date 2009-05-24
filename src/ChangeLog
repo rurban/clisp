@@ -1,3 +1,8 @@
+2009-05-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* constsym.d (MAKE-LOCK, THREAD-LOCK, THREAD-UNLOCK)
+	(*THREAD-WHOSTATE*) [MULTITHREAD]: remove obsolete symbols
+
 2009-05-24  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: thread-interrupt and thread-kill cleanup
