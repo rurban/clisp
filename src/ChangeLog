@@ -1,3 +1,28 @@
+2009-05-24  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: thread-interrupt and thread-kill cleanup
+	* lispbibl.d (struct clisp_thread_t): remove _thread_exit_tag. use
+	global exit tag (defined in constobj.d). add _thread_is_dying - when
+	true - the thread is in final cleanup state and should not be
+	interrupted (no need for locking when we lookup on it since when we do
+	so - the thread is "suspended").
+	* constobj.d (thread_exit_tag): add global tag used by THREAD-KILL to
+	terminate thread
+	* spvw_global.d (suspend_thread): accept lisp thread record as
+	parameter. return true if the thread is still alive. obtain and hold the
+	threads	lock (allthreads_lock) if asked
+	(resume_thread): accept lisp thread record as parameter and release the
+	threads lock (allthreads_lock) if asked
+	* spvw.d (signal_handler_thread): use new suspend/resume_threads
+	(interrupt_thread): do not interrupt the thread if it is dying
+	* zthread.d (thread_cleanup): mark the thread as dying. clear pending
+	interrupts (if any). do not establish driver frame since we cannot be
+	interrupted here anymore
+	(thread_stub): use the global thread_exit_tag
+	(MAKE-THREAD): ditto (do not create new exit tag)
+	(THREAD-KILL): just call THREAD-INTERRUPT (do not check anything)
+	(THREAD-INTERRUPT): re-implement it. use changed suspend/resume_thread
+
 2009-05-23  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (clisp_thread_t) [MULTITHREAD]: export _raw_wait_mutex and

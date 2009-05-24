@@ -644,6 +644,9 @@
   LISPOBJ(mutexes_to_release,"NIL")
   LISPOBJ(all_exemptions,"NIL")
   LISPOBJ(exemptions_to_release,"NIL")
+  /* tag at the bottom of each thread stack. used for killing thread via
+   (THROW thread_exit_tag) */
+  LISPOBJ(thread_exit_tag,"(GENSYM)")
 #endif
 /* for LISPARIT.D:
    various constant numbers: */

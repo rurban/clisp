@@ -16970,10 +16970,9 @@ struct object_tab_tl_ {
     xcondition_t *_wait_condition;
     /* mutex on which thread waits currently (in GC_SAFE way) */
     xmutex_t *_wait_mutex;
-    /* pointer to the the lisp stack where the CATCH tag for
-       thread termination is located. */
-    gcv_object_t *_thread_exit_tag;
     bool _own_stack; /* who owns our lisp stack. should it be freed? */
+    /* true when thread is in final cleanup and should not be interrupted */
+    bool _thread_is_dying;
     /* the current thread. NOT GC VISIBLE. */
     gcv_object_t _lthread;
   } clisp_thread_t;
@@ -17328,15 +17327,22 @@ global void gc_suspend_all_threads(bool lock_heap);
  should match a call to gc_suspend_all_threads()*/
 global void gc_resume_all_threads(bool unlock_heap);
 /* UP: Suspends single thread
- > thr: the thread to be suspended
- > lock_heap: if false - the caller already owns the heap lock
- called from signal handler thread and from THREAD-INTERRUPT */
-global void suspend_thread(clisp_thread_t *thr, bool lock_heap);
+ > thread: the thread to be suspended
+ > have_locks: is the caller holding the heap and threads locks ?
+ < returns true of the thread has been suspended. false in case it has exited
+   meanwhile
+ Called from signal handler thread and THREAD-INTERRUPT
+ Upon exit we hold threads lock. It is released in resume_thread(). This prevents
+ race condition when several threads try to THREAD-INTERRUPT another thread. */
+global maygc bool suspend_thread(object thread, bool have_locks);
 /* UP: Resumes single thread (or just decreases it's _suspend_count).
- > thr: the thread to be suspended
- > lock_heap: if false - the caller already owns the heap lock
- called from signal handler thread and from THREAD-INTERRUPT */
-global void resume_thread(clisp_thread_t *thr, bool lock_heap);
+ > thread: the thread to be suspended
+ > release_threads_lock: should we unlock threads lock
+ Called from signal handler thread and from THREAD-INTERRUPT
+ When called we should be the owner of threads lock and if specified we should
+ release it.
+ Should match a call to suspend_thread */
+global void resume_thread(object thread, bool release_threads_lock);
 /* UP: interrupts thread "safely"
  > thr: the thread
  The thread should be suspended (safe for GC).
