@@ -97,20 +97,26 @@ global void release_exemptions(object list)
   }
 }
 
-/* UP: called at thread exitting. performs cleanup/checks.
-   currently checks whether the exitting thread doesnot hold any mutex.
-The function is called when the current thread does not have established
-DRIVER frame. If the thread is interrupted and error occurs the unwinding
-will reach the stack bottom and will barf. So we establish a driver
-frame to prevent this case. */
+/* UP: called at thread exiting. performs cleanup/checks.
+   currently checks whether the exiting thread does not hold any mutex and
+   releases them (if any) */
 global maygc void thread_cleanup();
 global maygc void thread_cleanup()
 {
+  /* We are going to die - final cleanup will be performed. We do not want
+   to be interrupted during it (actually no problem to be interrupted but
+   if the interrupt performs non-local exit (incl. THREAD-KILL) we will end
+   with inconsistent stack and various other problems - i.e. SIGSEGV) */
   var clisp_thread_t *me = current_thread();
-  var gcv_object_t* top_of_frame = STACK; /* pointer above frame */
-  var sp_jmp_buf returner; /* remember entry point */
   var uintC locked_mutexes = 0;
-  finish_entry_frame(DRIVER,returner,,{skipSTACK(2);return;});
+  me->_thread_is_dying = true; /* disables interrupts */
+  /* NB: following is nasty hack !!!
+   Basically the problem is: what to do with nested interrupts in case of
+   non-local exit form function executed in the interrupt (THREAD-KILL is such).
+   Currently we should advice users not to do it (THREAD-INTERRUPT should be
+   discouraged at all - but is really useful for debugging deadlocks) but
+   since we expose THREAD-KILL let's handle it here */
+  me->_pending_interrupts = 0; /* many thread-kill may cause > 0 here !!! */
   /* traverse all mutexes and check for ownership */
   GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
   var object list = O(all_mutexes);
@@ -139,7 +145,6 @@ global maygc void thread_cleanup()
     TheMutex(STACK_0)->xmu_owner = NIL;
     skipSTACK(1); /* mutex */
   });
-  skipSTACK(2); /* driver frame */
 }
 
 /* All newly created threads start here.*/
@@ -159,6 +164,8 @@ local /*maygc*/ void *thread_stub(void *arg)
   bt.bt_stack = STACK STACKop -1;
   bt.bt_num_arg = -1;
   back_trace = &bt;
+  /* push the exit tag */
+  pushSTACK(O(thread_exit_tag));
   var gcv_object_t *initial_bindings = &STACK_1;
   var gcv_object_t *funptr = &STACK_2;
   /* create the thread exit CATCH frame */
@@ -201,7 +208,6 @@ local /*maygc*/ void *thread_stub(void *arg)
     /* we should always have empty stack - this is an error. */
     NOTREACHED;
   }
-  me->_thread_exit_tag = NULL; /* prevent double killing while in cleanup */
   thread_cleanup();
   delete_thread(me);
   xthread_exit(0);
@@ -244,12 +250,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
   pushSTACK(allocate_cons());
-  /* create the thread's exit tag - we may do this from the thread body
-   but have to be sure that special variables for GENSYM counter are per
-   thread bound. since the user may pass initial-bindings - it is possible
-   to get an error/condition/etc while evaluating them and at that time we
-   will not have valid exit tag. So allocate it here. */
-  funcall(L(gensym),0); pushSTACK(value1);
   /* let's lock in order to create and register */
   begin_blocking_call(); /* give chance the GC to work while we wait*/
   lock_threads();
@@ -258,19 +258,15 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   new_thread=create_thread(vstack_size);
   if (!new_thread) {
     unlock_threads();
-    skipSTACK(6); VALUES1(NIL); return;
+    skipSTACK(5); VALUES1(NIL); return;
   }
   /* push 2 null objects in the thread stack to mark it's end (bottom) */
   NC_pushSTACK(new_thread->_STACK,nullobj);
   NC_pushSTACK(new_thread->_STACK,nullobj);
   /* push the function to be executed */
-  NC_pushSTACK(new_thread->_STACK,STACK_5);
+  NC_pushSTACK(new_thread->_STACK,STACK_4);
   /* push the initial bindings alist */
-  NC_pushSTACK(new_thread->_STACK,STACK_3);
-  /* push the exit tag */
-  NC_pushSTACK(new_thread->_STACK,popSTACK());
-  /* initialize the exit tag pointer */
-  new_thread->_thread_exit_tag = new_thread->_STACK STACKop 1;
+  NC_pushSTACK(new_thread->_STACK,STACK_2);
 
   if (register_thread(new_thread)<0) {
     /* total failure */
@@ -425,48 +421,24 @@ LISPFUNN(thread_yield,0)
 LISPFUNN(thread_kill,1)
 { /* (THREAD-KILL thread) */
   STACK_0=check_thread(STACK_0);
-  /* locking the threads since _thread_exit_tag may become invalid meanwhile if
-     the thread terminates.*/
-  begin_blocking_call();
-  lock_threads();
-  end_blocking_call();
-  var object thr=STACK_0; /* thread */
-  if (TheThread(thr)->xth_globals &&
-      TheThread(thr)->xth_globals->_thread_exit_tag) { /* thread is alive */
-    /* call (thread-interrupt thread  #'%throw-tag exit-tag) */
-    pushSTACK(S(thread_throw_tag));
-    pushSTACK(*(TheThread(thr)->xth_globals->_thread_exit_tag));
-    unlock_threads();
-    funcall(L(thread_interrupt),3);
-  } else { /* thread has gone */
-    unlock_threads();
-    skipSTACK(1);
-    VALUES2(thr,NIL);
-  }
+  pushSTACK(S(thread_throw_tag));
+  pushSTACK(O(thread_exit_tag));
+  funcall(L(thread_interrupt),3);
 }
 
 LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (THREAD-INTERRUPT thread function &rest arguments) */
 #ifdef HAVE_SIGNALS
-  var object thr=check_thread(STACK_(argcount+1));
   var bool signal_sent=false;
-  if (TheThread(thr)->xth_globals == current_thread()) {
+  STACK_(argcount+1) = check_thread(STACK_(argcount+1));
+  if (TheThread(STACK_(argcount+1))->xth_globals == current_thread()) {
     /* we want to interrupt ourselves ? strange but let's do it */
     funcall(Before(rest_args_pointer),argcount);
     signal_sent=true;
   } else {
-    /* we want ot interrupt different thread. */
-    STACK_(argcount+1)=thr; /* gc may happen */
-    /* lock the threads - we do not want thread to exit while we try
-       to interrupt it. */
-    begin_blocking_call(); lock_threads(); end_blocking_call();
-    thr = STACK_(argcount+1);
-    var clisp_thread_t *clt = TheThread(thr)->xth_globals;
-    if (clt) { /* still alive ? */
-      /* threads lock is already owned by us and it is recursive */
-      suspend_thread(clt,true);
-      /* unlock threads - allows GC and prevents deadlock with it */
-      unlock_threads();
+    /* we want to interrupt different thread. */
+    if (suspend_thread(STACK_(argcount+1),false)) { /* still alive ? */
+      var clisp_thread_t *clt = TheThread(STACK_(argcount+1))->xth_globals;
       var gcv_object_t *saved_stack=clt->_STACK;
       /* be sure that the signal we send will be received */
       spinlock_acquire(&clt->_signal_reenter_ok);
@@ -480,9 +452,8 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
         /* for some reason we were unable to send the signal */
         clt->_STACK=saved_stack;
       }
-      resume_thread(clt,true);
-    } else
-      unlock_threads();
+    }
+    resume_thread(STACK_(argcount+1), true);
     skipSTACK((uintL)argcount); /* skip &rest arguments */
   }
   /* return the thread and whether it was really interrupted */

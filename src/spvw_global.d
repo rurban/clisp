@@ -652,47 +652,66 @@ global void gc_resume_all_threads(bool unlock_heap)
 }
 
 /* UP: Suspends single thread
- > thr: the thread to be suspended
- > lock_heap: if false - the caller already owns the heap lock
- called from signal handler thread and from THREAD-INTERRUPT */
-global void suspend_thread(clisp_thread_t *thr, bool lock_heap)
+ > thread: the thread to be suspended
+ > have_locks: is the caller holding the heap and threads locks ?
+ < returns true of the thread has been suspended. false in case it has exited
+   meanwhile
+ Called from signal handler thread and THREAD-INTERRUPT
+ Upon exit we hold threads lock. It is released in resume_thread(). This prevents
+ race condition when several threads try to THREAD-INTERRUPT another thread. */
+global maygc bool suspend_thread(object thread, bool have_locks)
 {
-  /* should never be called on ourselves */
-  ASSERT(thr != current_thread());
-  if (lock_heap) ACQUIRE_HEAP_LOCK();
-  /* we do not want the thread that we try to suspend to exit
-     (if running at all) until we finish the whole process. So lock threads.*/
-  lock_threads(); /* blocks the GC - but not a problem */
-  if (!thr->_suspend_count) { /* first suspend ? */
-    xmutex_raw_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
-    spinlock_release(&thr->_gc_suspend_request); /* request */
-    /* wait for the thread to come to safe point. */
-    while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
-      xthread_yield();
+  if (!have_locks) {
+    pushSTACK(thread);
+    /* get the locks in this order - GC does the same !!! */
+    ACQUIRE_HEAP_LOCK();
+    lock_threads();
+    thread = popSTACK();
   }
-  thr->_suspend_count++;
-  unlock_threads();
-  if (lock_heap) RELEASE_HEAP_LOCK();
+  var clisp_thread_t *thr = TheThread(thread)->xth_globals;
+  var bool ret = false;
+  if (thr) { /* thread is still alive ?*/
+    /* should never be called on ourselves */
+    DEBUG_SPVW_ASSERT(thr != current_thread());
+    if (!thr->_suspend_count) { /* first suspend ? */
+      xmutex_raw_lock(&thr->_gc_suspend_lock); /* enable thread waiting */
+      spinlock_release(&thr->_gc_suspend_request); /* request */
+      /* wait for the thread to come to safe point. */
+      while (!spinlock_tryacquire(&thr->_gc_suspend_ack))
+        xthread_yield();
+    }
+    thr->_suspend_count++;
+    ret = true;
+  }
+  if (!have_locks) {
+    RELEASE_HEAP_LOCK(); /* allow other threads to allocate but GC is still
+                            blocked due to threads lock */
+  }
+  return ret;
 }
 
 /* UP: Resumes single thread (or just decreases it's _suspend_count).
- > thr: the thread to be suspended
- > lock_heap: if false - the caller already owns the heap lock
- called from signal handler thread and from THREAD-INTERRUPT */
-global void resume_thread(clisp_thread_t *thr, bool lock_heap)
+ > thread: the thread to be suspended
+ > release_threads_lock: should we unlock threads lock
+ Called from signal handler thread and from THREAD-INTERRUPT
+ When called we should be the owner of threads lock and if specified we should
+ release it.
+ Should match a call to suspend_thread */
+global void resume_thread(object thread, bool release_threads_lock)
 {
+  var clisp_thread_t *thr = TheThread(thread)->xth_globals;
   /* should never be called on ourselves */
   ASSERT(thr != current_thread());
-  if (lock_heap) ACQUIRE_HEAP_LOCK();
-  lock_threads(); /* blocks the GC - but not a problem */
-  if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
-    spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
-    xmutex_raw_unlock(&thr->_gc_suspend_lock); /* enable thread */
+  if (thr) { /* thread was alive when it was suspended ? */
+    if (! --thr->_suspend_count) { /* only if suspend count goes to zero */
+      spinlock_release(&thr->_gc_suspend_ack); /* release the ACK lock*/
+      xmutex_raw_unlock(&thr->_gc_suspend_lock); /* enable thread */
+    }
   }
-  unlock_threads();
-  if (lock_heap) RELEASE_HEAP_LOCK();
+  if (release_threads_lock) {
+    xmutex_unlock(&allthreads_lock);
+  }
 }
-
 
 /* UP: add per thread special symbol value - initialized to SYMVALUE_EMPTY
  > symbol: the symbol
