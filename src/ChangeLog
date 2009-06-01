@@ -1,3 +1,15 @@
+2009-06-01  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix SIGSEGV on nested interrupts with non-local exit
+	* spvw.d (interrupt_thread_signal_handler) [MULTITHREAD]: just call
+	handle_pending_interrupts() if it's safe
+	(handle_pending_interrupts) [MULTITHREAD]: do not use clisp_thread_t
+	_pending_interrupts as a counter but zero it
+	(interrupt_thread): always increase thread's _pending_interrupts
+	* zthread.d (thread_cleanup): do not zero _thread_interrupt
+	(xlock_lock_helper): in case of pending interrupt handle it after the
+	control gets into lisp land
+
 2009-05-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* constsym.d (MAKE-LOCK, THREAD-LOCK, THREAD-UNLOCK)
