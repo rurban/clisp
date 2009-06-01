@@ -4394,29 +4394,29 @@ local void interrupt_thread_signal_handler (int sig) {
      execute what we have on the stack. In the former - do nothing - just
      return - we will get executed shortly when the thread is "resumed" */
   if (!thr->_raw_wait_mutex) {
-    GC_SAFE_REGION_END(); /* end the safe region at which we are*/
-    /* BACK IN LISP LAND HERE */
-    var object fun=popSTACK();
-    var uintC args=posfixnum_to_V(popSTACK());
-    funcall(fun,args);
+    GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
+    handle_pending_interrupts();
     GC_SAFE_REGION_BEGIN(); /* restore GC safe region */
-  } else {
-    thr->_pending_interrupts++; /* just mark that we have interrupt */
   }
 }
 /* UP: handles any pending interrupt (currently just one).
-   arguments are on the STACK */
+   arguments are on the STACK
+   It is always called in the context of the thread that has to handle the
+   interrupt and it is safe to do whatever we want here */
 global maygc void handle_pending_interrupts()
 {
-  /* NB: what to do on non-local exit and nested interrupts
-     currently nothing. In the docs we will write not to do such
-     things. */
   var clisp_thread_t *thr = current_thread();
-  while (thr->_pending_interrupts) {
-    --thr->_pending_interrupts;
-    var object fun=popSTACK();
-    var uintC args=posfixnum_to_V(popSTACK());
-    funcall(fun,args);
+  var uintC pend = thr->_pending_interrupts;
+  thr->_pending_interrupts = 0; /* we got all of them */
+  while (pend--) {
+    var object intrfun=popSTACK(); /* interrupt function */
+    var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
+    /* on non-local exit from the interrupt function and nested
+       pending interrupts - some of them will not be handled.
+       In most implementations such non-local exits have undefined
+       behavior and should not be used (actually thread-interrupt is
+       discouraged). */
+    funcall(intrfun,argc);
   }
 }
 
@@ -4432,34 +4432,31 @@ global bool interrupt_thread(clisp_thread_t *thr)
     spinlock_release(&thr->_signal_reenter_ok);
     return false;
   }
+  thr->_pending_interrupts++;
   if (thr->_wait_condition) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
-    /* we wait on condition */
-    thr->_pending_interrupts++;
     /* wake up all threads */
     xcondition_broadcast(thr->_wait_condition);
-    return true;
-  }
-  if (thr->_wait_mutex) {
+  } else if (thr->_wait_mutex) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
     /* waiting on mutex - here the things are more complicated */
     pthread_mutex_lock(&(thr->_wait_mutex->_m)); /* lock the internal mutex */
-    thr->_pending_interrupts++;
     /* wake up all threads on this condition */
     xcondition_broadcast(&(thr->_wait_mutex->_c));
     pthread_mutex_unlock(&(thr->_wait_mutex->_m));
-    return true;
+  } else {
+    /* the thread may wait on it's gc_suspend_lock or in system
+       re-entrant call*/
+    if (xthread_signal(TheThread(thr->_lthread)->xth_system,
+                       SIG_THREAD_INTERRUPT)) {
+      thr->_pending_interrupts--;
+      spinlock_release(&thr->_signal_reenter_ok);
+      return false;
+    }
   }
-  /* the thread may wait on it's gc_suspend_lock or be in */
-  /* the thread is in system re-entrant function */
-  bool r =
-    (0 ==
-     xthread_signal(TheThread(thr->_lthread)->xth_system,SIG_THREAD_INTERRUPT));
-  if (!r)
-    spinlock_release(&thr->_signal_reenter_ok);
-  return r;
+  return true;
 }
 
 #ifdef DEBUG_GCSAFETY
@@ -4559,7 +4556,6 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
           NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
           NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
-          signal_sent = interrupt_thread(thread);
           if (!(signal_sent = interrupt_thread(thread))) {
             thread->_STACK=saved_stack;
           } else
