@@ -110,13 +110,6 @@ global maygc void thread_cleanup()
   var clisp_thread_t *me = current_thread();
   var uintC locked_mutexes = 0;
   me->_thread_is_dying = true; /* disables interrupts */
-  /* NB: following is nasty hack !!!
-   Basically the problem is: what to do with nested interrupts in case of
-   non-local exit form function executed in the interrupt (THREAD-KILL is such).
-   Currently we should advice users not to do it (THREAD-INTERRUPT should be
-   discouraged at all - but is really useful for debugging deadlocks) but
-   since we expose THREAD-KILL let's handle it here */
-  me->_pending_interrupts = 0; /* many thread-kill may cause > 0 here !!! */
   /* traverse all mutexes and check for ownership */
   GC_SAFE_MUTEX_LOCK(&all_mutexes_lock);
   var object list = O(all_mutexes);
@@ -855,8 +848,7 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
           /* handle them */
           pthread_mutex_unlock(&l->_m);
           current_thread()->_wait_mutex=NULL;
-          GC_SAFE_REGION_END(); /* this may will handle the interrupts */
-          /* if not still handled - do it */
+          GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
           handle_pending_interrupts();
           current_thread()->_wait_mutex=l;
           GC_SAFE_REGION_BEGIN();
