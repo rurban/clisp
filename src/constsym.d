@@ -1218,6 +1218,11 @@ LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(Krecursive_p,"RECURSIVE-P",keyword)
+#ifndef SOCKET_STREAMS
+/* socket streams declare :timeout. if for some reason we build without socket
+   streams and with threads we declare it here.*/
+LISPSYM(Ktimeout,"TIMEOUT",keyword)
+#endif
 LISPSYM(mutex,"MUTEX",mt) /* type for MUTEX */
 LISPSYM(mutexp,"MUTEXP",mt)
 LISPSYM(make_mutex,"MAKE-MUTEX",mt)

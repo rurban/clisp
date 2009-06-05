@@ -1,5 +1,27 @@
 2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: add timed wait on mutexes and exemptions
+	* constsym.d: add :TIMEOUT symbol if SOCKET_STREAMS is not defined
+	* spvw.d (interrupt_thread) [POSIX_THREADS]: use xmutex_raw_xxxx()
+	functions instead of pthreads ones. WIN32 will use soon the same
+	function
+	(handle_pending_interrupts) [WIN32_THREADS]: add dummy one. not
+	implemented
+	* subr.d, subrkw.d: (MUTEX-LOCK, EXEMPTION-WAIT): add :TIMEOUT keyword
+	parameter
+	* xthread.d (xlock_t): use it in both - WIN32_THREADS and POSIX_THREADS
+	(xmutex_raw_trylock): added
+	* zthread.d (MUTEX-LOCK, EXEMPTION-WAIT): add :TIMEOUT parameter.
+	Return T on mutex lock/signaled exemption and NIL on timeout
+	(MUTEX-UNLOCK): do not return any value
+	(win32_xcondition_wait) [WIN32_THREADS]: implements timed wait on
+	exemption
+	(xlock_init, xlock_destroy, xlock_lock_helper, xlock_unlock_helper)
+	(xcondition_wait_helper): implement the for both WIN32_THREADS and
+	POSIX_THREADS
+
+2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: do not use MIN()/MAX() macroses
 	* spvw_garcol.d: remove MIN()/MAX() macro definitions
 	(gc_sweep2_varobject_page): do not use MAX() macro

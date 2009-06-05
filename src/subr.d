@@ -1436,13 +1436,15 @@ LISPFUNN(set_symbol_value_thread,3)
 LISPFUNN(mutexp,1)
 LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
         (kw(name),kw(recursive_p)))
-LISPFUNN(mutex_lock,1)
+LISPFUN(mutex_lock,seclass_default,1,0,norest,key,1,
+        (kw(timeout)))
 LISPFUNN(mutex_recursive_p,1)
 LISPFUNN(mutex_owner,1)
 LISPFUNN(mutex_unlock,1)
 LISPFUNN(exemptionp,1)
 LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
 LISPFUNN(exemption_signal,1)
-LISPFUNN(exemption_wait,2)
+LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
+        (kw(timeout)))
 LISPFUNN(exemption_broadcast,1)
 #endif
