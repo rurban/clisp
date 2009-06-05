@@ -12,20 +12,19 @@
 
 ;; non-recursive mutex
 (mutex-owner (setf m1 (make-mutex :name "m1"))) NIL
-(eq (mutex-lock m1) m1) T
+(mutex-lock m1) T
 (mutex-lock m1) ERROR
 (eq (mutex-owner m1) (current-thread)) T
-(eq (mutex-unlock m1) m1) T
+(progn (mutex-unlock m1) (mutex-owner m1)) NIL
 (mutex-unlock m1) ERROR
-(mutex-owner m1) NIL
 ;; recursive mutex
 (mutex-owner (setf m2 (make-mutex :name "m2" :recursive-p t))) NIL
-(eq (mutex-lock m2) m2) T
-(eq (mutex-lock m2) m2) T
+(mutex-lock m2) T
+(mutex-lock m2) T
 (eq (mutex-owner m2) (current-thread)) T
-(eq (mutex-unlock (mutex-unlock m2)) m2) T
+(progn (mutex-unlock m2) (mutex-unlock m2) (mutex-owner m2)) NIL
 (mutex-unlock m2) ERROR
-(mutex-owner m2) NIL
+
 (defvar *thread-special* 1) *thread-special*
 
 ;; thread-interrupt & mutexes
@@ -49,12 +48,15 @@ T
 *thread-special* 2
 ;; get global symbol value
 (symbol-value-thread '*thread-special* nil) 2
-(eq (mutex-owner m1) th) t
+(eq (mutex-owner m1) th) T
+;; check timed wait on mutex
+(mutex-lock m1 :timeout 0.5) NIL
+(mutex-lock m1 :timeout 0) NIL
 ;; check thread-interrupt
 (thread-active-p (thread-interrupt th #'mutex-unlock m1)) T
 ;; thread is interrupted - wait for the mutex m1 to be unlocked and grab it
-(eq (mutex-owner (mutex-lock m1)) (current-thread)) T
-(eq (mutex-unlock m1) m1) T
+(mutex-lock m1) T
+(progn (mutex-unlock m1) (mutex-owner m1)) NIL
 (eq (mutex-owner m2) th) T
 
 (thread-active-p
@@ -80,3 +82,7 @@ T
 (progn (sleep 1) (thread-active-p th)) NIL
 
 (symbol-cleanup '*thread-special*) T
+(symbol-cleanup 'm1) T
+(symbol-cleanup 'm2) T
+(symbol-cleanup 'th) T
+(symbol-cleanup 'th2) T
