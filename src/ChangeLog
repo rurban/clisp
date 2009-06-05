@@ -1,3 +1,10 @@
+2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: do not use MIN()/MAX() macroses
+	* spvw_garcol.d: remove MIN()/MAX() macro definitions
+	(gc_sweep2_varobject_page): do not use MAX() macro
+	* spvw_genera1.d (build_old_generation_cache): ditto
+
 2009-06-01  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: fix SIGSEGV on nested interrupts with non-local exit
