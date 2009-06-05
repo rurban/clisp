@@ -4442,10 +4442,10 @@ global bool interrupt_thread(clisp_thread_t *thr)
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
     /* waiting on mutex - here the things are more complicated */
-    pthread_mutex_lock(&(thr->_wait_mutex->_m)); /* lock the internal mutex */
+    xmutex_raw_lock(&(thr->_wait_mutex->_m)); /* lock the internal mutex */
     /* wake up all threads on this condition */
     xcondition_broadcast(&(thr->_wait_mutex->_c));
-    pthread_mutex_unlock(&(thr->_wait_mutex->_m));
+    xmutex_raw_unlock(&(thr->_wait_mutex->_m));
   } else {
     /* the thread may wait on it's gc_suspend_lock or in system
        re-entrant call*/
@@ -4635,6 +4635,11 @@ local void *signal_handler_thread(void *arg)
      CALL-WITH-TIMEOUT. */
   while (1) Sleep(1);
   return NULL;
+}
+
+global maygc void handle_pending_interrupts()
+{
+  /* TODO: implement */
 }
 
 #endif /* HAVE_SIGNALS */
