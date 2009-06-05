@@ -1,3 +1,8 @@
+2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* mt.tst: add tests for timed mutex wait. fix mutex tests that
+	were using MUTEX-LOCK/MUTEX-UNLOCK return value
+
 2009-05-17  Sam Steingold  <sds@gnu.org>
 
 	* strings.tst: add a test for trim-if
