@@ -97,42 +97,14 @@
 
 #if defined(POSIX_THREADS)
 
-/* The default pthreads mutex is not recursive. This is not a problem however
- the Win32 critical section (used for mutex) is recursive and there is no way
- to disable this behavior. In order the xmutex_t to be cosistent across
- platforms we use recursive POSIX mutexes as well */
-
 #include <pthread.h>
 #include <sched.h>
 
-/* this is the mutex that we are going to use */
-typedef struct xlock_t {
-  /* all lock() op-s will use these two */
-  pthread_mutex_t _m; /* guarding the internals - never wait really on it */
-  pthread_cond_t _c; /* condition to wait on */
-  pthread_mutex_t _mr; /* real mutex */
-  pthread_t _owner; /* who owns the lock */
-  int _count; /* how many times we own the object */
-} xlock_t;
-
 #define xthread_t  pthread_t
-#define xcondition_t pthread_cond_t
-#define xthread_key_t pthread_key_t
+#define xcondition_t  pthread_cond_t
+#define xthread_key_t  pthread_key_t
 /* raw mutex used for thread suspension/resume */
-#define xmutex_raw_t pthread_mutex_t
-/* lisp space mutex */
-#define xmutex_t xlock_t
-
-/* wait forever timeout */
-#define THREAD_WAIT_INFINITE ((uintL)-1)
-
-/* global functions for managing xlock_t. implementations and descriptions are
-   in zthread.d */
-int xlock_init(xlock_t *l);
-int xlock_destroy(xlock_t *l);
-int xlock_lock_helper(xlock_t *l, uintL timeout, bool lock_real);
-int xlock_unlock_helper(xlock_t *l, bool unlock_real);
-int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
+#define xmutex_raw_t  pthread_mutex_t
 
 #define xthread_init()
 #define xthread_self()  pthread_self()
@@ -153,26 +125,18 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 #define xthread_exit(v)  pthread_exit(v)
 #define xthread_yield()  sched_yield()
 #define xthread_equal(t1,t2)  pthread_equal(t1,t2)
-#define xthread_signal(t,sig) pthread_kill(t,sig)
-#define xthread_sigmask(how,iset,oset) pthread_sigmask(how,iset,oset)
+#define xthread_signal(t,sig)  pthread_kill(t,sig)
+#define xthread_sigmask(how,iset,oset)  pthread_sigmask(how,iset,oset)
 
 #define xcondition_init(c)  pthread_cond_init(c,NULL)
 #define xcondition_destroy(c)  pthread_cond_destroy(c)
-#define xcondition_wait(c,m) xcondition_wait_helper(c,m,THREAD_WAIT_INFINITE)
-#define xcondition_timedwait(c,m,millis) xcondition_wait_helper(c,m,millis)
 #define xcondition_signal(c)  pthread_cond_signal(c)
 #define xcondition_broadcast(c)  pthread_cond_broadcast(c)
 
-#define xmutex_init(m)  xlock_init(m)
-#define xmutex_destroy(m)  xlock_destroy(m)
-#define xmutex_lock(m) xlock_lock_helper(m,THREAD_WAIT_INFINITE,true)
-#define xmutex_timedlock(m,millis) xlock_lock_helper(m,millis,true)
-#define xmutex_trylock(m)  xlock_lock_helper(m,0,true)
-#define xmutex_unlock(m)  xlock_unlock_helper(m,true)
-
 #define xmutex_raw_init(m)  pthread_mutex_init(m,NULL)
 #define xmutex_raw_destroy(m)  pthread_mutex_destroy(m)
-#define xmutex_raw_lock(m) pthread_mutex_lock(m)
+#define xmutex_raw_lock(m)  pthread_mutex_lock(m)
+#define xmutex_raw_trylock(m)  pthread_mutex_trylock(m)
 #define xmutex_raw_unlock(m)  pthread_mutex_unlock(m)
 
 #define xthread_key_create(key)  pthread_key_create(key,NULL)
@@ -185,16 +149,17 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 #if defined(WIN32_THREADS)
 
 /* include <windows.h>  -- already included by win32.d */
-#define MAX_SEMAPHORE_COUNT  128
+#define MAX_SEMAPHORE_COUNT  0x7fff
 
 #define xthread_t DWORD
+/* this is inefficient implementation of condition variables on win32.
+   TODO: make it better */
 typedef struct _xcondition {
   CRITICAL_SECTION cs;
   HANDLE sem;
   int waiting_count;
 } _xcondition;
 #define xcondition_t _xcondition
-#define xmutex_t CRITICAL_SECTION
 #define xmutex_raw_t CRITICAL_SECTION
 #define xthread_key_t DWORD
 
@@ -206,6 +171,10 @@ typedef struct _xcondition {
 #define xthread_exit(v)  ExitThread((DWORD)(v))
 #define xthread_yield()  Sleep(0)
 #define xthread_equal(t1,t2)  ((t1)==(t2))
+/* sigmask: nothing to do here - no signals */
+#define xthread_sigmask(how,iset,oset)
+#define xthread_signal(c)  FIXME /* this should just cancel any pending IO -
+                                    not easy on XP but fine on latter */
 
 #define xcondition_init(c)						\
   (InitializeCriticalSection(&(c)->cs),                                 \
@@ -217,14 +186,8 @@ typedef struct _xcondition {
   CloseHandle((c)->sem);                        \
  } while (0)
 
-#define xcondition_wait(c,m)  do {                                  \
-  EnterCriticalSection(&(c)->cs);                                   \
-  (c)->waiting_count++;                                             \
-  LeaveCriticalSection(&(c)->cs);                                   \
-  LeaveCriticalSection(m);                                          \
-  WaitForSingleObject((c)->sem,INFINITE);                           \
-  EnterCriticalSection(m);                                          \
- } while(0)
+/* NB: waiting on xcondition_t is implemented in zthread.d */
+
 #define xcondition_signal(c)  do {                                     \
   EnterCriticalSection(&(c)->cs);                                      \
   if ((c)->waiting_count > 0) {                                        \
@@ -244,16 +207,11 @@ typedef struct _xcondition {
 
 /* critical section functions do not return values and do not set
    last error */
-#define xmutex_init(m) (InitializeCriticalSection(m),0)
-#define xmutex_destroy(m)  (DeleteCriticalSection(m),0)
-#define xmutex_lock(m)      (EnterCriticalSection(m),0)
-#define xmutex_trylock(m) (TryEnterCriticalSection(m)!=0)
-#define xmutex_unlock(m)    (LeaveCriticalSection(m),0)
-
-#define xmutex_raw_init(m)  xmutex_init(m)
-#define xmutex_raw_destroy(m)  xmutex_destroy(m)
-#define xmutex_raw_lock(m)  xmutex_lock(m)
-#define xmutex_raw_unlock(m)  xmutex_unlock(m)
+#define xmutex_raw_init(m)  (InitializeCriticalSection(m),0)
+#define xmutex_raw_destroy(m)  (DeleteCriticalSection(m),0)
+#define xmutex_raw_lock(m)  (EnterCriticalSection(m),0)
+#define xmutex_raw_trylock(m)  (TryEnterCriticalSection(m)==0)
+#define xmutex_raw_unlock(m)  (LeaveCriticalSection(m),0)
 
 #define xthread_key_create(key)  (*(key) = TlsAlloc())
 #define xthread_key_delete(key)  TlsFree(key)
@@ -261,6 +219,43 @@ typedef struct _xcondition {
 #define xthread_key_set(key,val)  TlsSetValue(key,val)
 
 #endif  /* WIN32_THREADS */
+
+/* this is the mutex that we are going to use */
+typedef struct xlock_t {
+  /* all lock() op-s will use these two */
+  xmutex_raw_t _m; /* guarding the internals - never wait really on it */
+  xcondition_t _c; /* condition to wait on */
+  xmutex_raw_t _mr; /* real mutex */
+  xthread_t _owner; /* who owns the lock */
+  int _count; /* how many times we own the object */
+} xlock_t;
+
+/* infinite wait */
+#define THREAD_WAIT_INFINITE ((uintL)-1)
+
+/* global functions for managing xlock_t. implementations and descriptions are
+   in zthread.d */
+int xlock_init(xlock_t *l);
+int xlock_destroy(xlock_t *l);
+int xlock_lock_helper(xlock_t *l, uintL timeout, bool lock_real);
+int xlock_unlock_helper(xlock_t *l, bool unlock_real);
+int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
+
+/* our lisp space mutex */
+#define xmutex_t  xlock_t
+
+/* xmutex_t opertions*/
+#define xmutex_init(m)  xlock_init(m)
+#define xmutex_destroy(m)  xlock_destroy(m)
+#define xmutex_lock(m)  xlock_lock_helper(m,THREAD_WAIT_INFINITE,true)
+#define xmutex_timedlock(m,millis)  xlock_lock_helper(m,millis,true)
+#define xmutex_trylock(m)  xlock_lock_helper(m,0,true)
+#define xmutex_unlock(m)  xlock_unlock_helper(m,true)
+
+/* and some xcondition_t operations  */
+#define xcondition_wait(c,m)  xcondition_wait_helper(c,m,THREAD_WAIT_INFINITE)
+#define xcondition_timedwait(c,m,millis)  xcondition_wait_helper(c,m,millis)
+
 
 /* ==========================================================================
 
