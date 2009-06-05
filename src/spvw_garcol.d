@@ -1409,14 +1409,6 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
     } while (count!=0)
 #endif
 
-/* on mingw there are no MIN()/MAX() defined */
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-
 /* the objects of variable length are moved into the preordained
  new places. */
 #ifdef SPVW_PURE
@@ -1509,7 +1501,7 @@ local void gc_sweep2_varobject_page (Page* page)
       } else {                     /* else only advance: */
         p1 += count; p2 += count;
       }
-      fill_end=MAX(fill_end,p2); /* too slow.*/
+      fill_end= fill_end > p2 ? fill_end : p2; /* MAX(fill_end,p2); */
     } else {
       p1 = (aint)pointer_was_object(*(gcv_object_t*)p1); /* with pointer (typeinfo=0) to the next marked object */
     }

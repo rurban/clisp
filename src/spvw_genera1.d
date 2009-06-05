@@ -439,7 +439,7 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
                 rwarea++; /* advance */
                 var aint ce=(rwarea-1)->size + (rwarea-1)->start; /* current end */
                 var aint ne=rwarea->size + rwarea->start; /* next end */
-                rwarea->size = MAX(ce,ne) - (rwarea-1)->start;
+                rwarea->size = (ce>ne?ce:ne)/*MAX(ce,ne)*/ - (rwarea-1)->start;
                 rwarea->start = (rwarea-1)->start;
               }
               end = rwarea->start + rwarea->size;
