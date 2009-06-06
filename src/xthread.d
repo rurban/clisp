@@ -171,11 +171,7 @@ typedef struct _xcondition {
 #define xthread_exit(v)  ExitThread((DWORD)(v))
 #define xthread_yield()  Sleep(0)
 #define xthread_equal(t1,t2)  ((t1)==(t2))
-/* sigmask: nothing to do here - no signals */
-#define xthread_sigmask(how,iset,oset)
-#define xthread_signal(c)  FIXME /* this should just cancel any pending IO -
-                                    not easy on XP but fine on latter */
-
+/* xthread_sigmask() and xthread_signal() are not needed here */
 #define xcondition_init(c)						\
   (InitializeCriticalSection(&(c)->cs),                                 \
    (c)->sem=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL),		\
