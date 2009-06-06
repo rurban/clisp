@@ -1,3 +1,8 @@
+2009-06-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* mt.tst: reduce the timeout for WITH-TIMEOUT test. Currently on WIN32
+	it will fail anyway - 100 seconds are too much to wait for it
+
 2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: add tests for timed mutex wait. fix mutex tests that
