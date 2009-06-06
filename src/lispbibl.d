@@ -9460,6 +9460,17 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       SET_SP_BEFORE_SUSPEND(thr);  /* debug only */         \
       spinlock_release(&thr->_gc_suspend_ack);              \
     }while(0)
+/* following two macroses are workarround for differences between WIN32 and
+   POSIX "signal" handling. With POSIX signals we really interrupt thread,
+   while with WIN32 threads we should deffer the handling after system call
+   returns */
+  #ifdef HAVE_SIGNALS /* POSIX_THREADS */
+    #define _thr_ptb_(s) s
+    #define _thr_pta_(s)
+  #else /* WIN32_THREADS */
+    #define _thr_ptb_(s)
+    #define _thr_pta_(s) s
+  #endif
 /* If we cannot get the suspend ack lock again - it means there is/was GC -
    so try to wait for it's end if it is not already finished. */
   #define GC_SAFE_REGION_END_i(statement)                 \
@@ -9472,8 +9483,9 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
         spinlock_acquire(&thr->_gc_suspend_ack);          \
         xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
         thr->_raw_wait_mutex = NULL;                      \
-        statement;                                        \
+        _thr_ptb_(statement);                             \
       }                                                   \
+      _thr_pta_(statement);                               \
     }while(0)
   #define GC_SAFE_REGION_END()  \
     GC_SAFE_REGION_END_i(HANDLE_PENDING_INTERRUPTS(thr))
@@ -16961,10 +16973,8 @@ struct object_tab_tl_ {
     uintC _index; /* this thread's index in allthreads[] */
     /* moved here from pathname.d */
     bool _running_handle_directory_encoding_error;
-   #ifdef HAVE_SIGNALS
     /* do not rely on SA_NODEFER for signal nesting */
     spinlock_t _signal_reenter_ok;
-   #endif
     /* Following are related to thread interruption  */
     /* condvar on which thread waits currently (in GC_SAFE way) */
     xcondition_t *_wait_condition;
@@ -17349,6 +17359,9 @@ global void resume_thread(object thread, bool release_threads_lock);
  Caller should hold the thread _signal_reenter_ok. On failure
  (or when the thread will not be signalled) it will be released here*/
 global bool interrupt_thread(clisp_thread_t *thr);
+/* UP: signals that there is new timeout call (CALL-WITH-TIMEOUT)
+   handles both POSIX and WIN32 threads */
+global int signal_timeout_call();
 /* UP: handles any pending interrupt (currently just one).
    arguments are on the STACK */
 global maygc void handle_pending_interrupts();
@@ -17405,21 +17418,6 @@ extern spinlock_t timeout_call_chain_lock;
 extern timeout_call *timeout_call_chain;
 /* returns true if p1 is before p2 */
 global bool timeval_less(struct timeval *p1, struct timeval *p2);
-
-#if defined(HAVE_SIGNALS)
-  /* SIGUSR1 is used for thread interrupt */
-  #define SIG_THREAD_INTERRUPT SIGUSR1
-  /* SIGUSR2 WILL BE used for CALL-WITH-TIMEOUT */
-  #define SIG_TIMEOUT_CALL SIGUSR2
-  /* installs the global "synchronous" signal handler for async
-   POSIX signals. */
-  global void install_async_signal_handlers();
- /* the id of the signal handling thread.
-    on linux raise(sig) does not deliver the signal with pthreads.
-    pthread_kill()/xthread_signal() work fine.
- */
-  extern xthread_t thr_signal_handler;
-#endif
 
 #define GC_STOP_WORLD(lock_heap) \
   gc_suspend_all_threads(lock_heap)

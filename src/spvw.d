@@ -304,6 +304,7 @@ global stack_range_t* inactive_handlers = NULL;
 #else
 
 /* forward decalration of MT signal handler */
+local void install_async_signal_handlers();
 local void *signal_handler_thread(void *arg);
 
 /* Mutex protecting the set of threads. */
@@ -318,7 +319,7 @@ local xmutex_t allthreads_lock;
 #define MAXNTHREADS  128
 local uintC nthreads = 0;
 local clisp_thread_t* allthreads[MAXNTHREADS];
-global xthread_t thr_signal_handler; /* the id of the signal handling thread */
+local xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
 /* the first index in _ptr_symvalues used for per thread symbol bindings */
 #define FIRST_SYMVALUE_INDEX 1
@@ -3864,11 +3865,8 @@ global int main (argc_t argc, char* argv[]) {
 #else
  #ifdef HAVE_SIGNALS
   install_sigcld_handler();
+ #endif
   install_async_signal_handlers();
- #endif
- #ifdef WIN32_NATIVE
-  #warning "thread-interrupt and "signal" handlers for WIN32_THREADS are still not implemented."
- #endif
 #endif
  #if defined(GENERATIONAL_GC)
   /* insatll Page-Fault-Handler: */
@@ -4341,6 +4339,11 @@ local int timeval_subtract(struct timeval *result,
    WIN32_THREADS*/
 #ifdef HAVE_SIGNALS
 
+/* SIGUSR1 is used for thread interrupt */
+#define SIG_THREAD_INTERRUPT SIGUSR1
+/* SIGUSR2 WILL BE used for CALL-WITH-TIMEOUT */
+#define SIG_TIMEOUT_CALL SIGUSR2
+
 /* UP: creates mask of signals that we do not want to be delivered
    directly to threads. The same signals are handled by special non
    lisp thread */
@@ -4377,6 +4380,36 @@ local sigset_t async_signal_mask()
   return sigblock_mask;
 }
 
+/* UP: waits for a signal and returns it
+ < returns signal number */
+local int signal_wait()
+{
+  var int sig;
+  var sigset_t sig_mask=async_signal_mask();
+  while (sigwait(&sig_mask, &sig)) {
+    /* strange - no way to have bad mask but it happens sometimes
+       (observed on 32 bit debian during (disaseemble 'car) and
+       CTRL-Z and "fg" later) */
+  }
+  return sig;
+}
+
+/* UP: signals that new CALL-WITH-TIMEOUT has been issued
+   and it is the first to expire
+ < returns 0 on success */
+global int signal_timeout_call()
+{
+  return xthread_signal(thr_signal_handler,SIG_TIMEOUT_CALL);
+}
+
+/* UP: schedules the next SIGALRM - for the timeout call that is in the
+   beginning of timeout_call_chain. Called from signal handler thread.
+ > useconds: duration after which we want SIGARLM */
+local useconds_t schedule_alarm(uintL useconds)
+{
+  return ualarm(useconds,0);
+}
+
 /* UP: SIG_THREAD_INTERRUPT handler
  > sig: always equals to SIG_THREAD_INTERRUPT */
 local void interrupt_thread_signal_handler (int sig) {
@@ -4399,6 +4432,100 @@ local void interrupt_thread_signal_handler (int sig) {
     GC_SAFE_REGION_BEGIN(); /* restore GC safe region */
   }
 }
+
+local void install_async_signal_handlers()
+{
+  /* 1. disable all async signals
+     2. install SIG_THREAD_INTERRUPT handler */
+  var sigset_t sigblock_mask=async_signal_mask();
+  /* since we are called from the main thread - all threads
+   in the process will inherit this mask !!*/
+  sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
+  /* install SIG_THREAD_INTERRUPT */
+  SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
+}
+
+#else /* WIN32_THREADS */
+
+/* define missing signals IDs  - since we use the same
+   signal handler code fot both POSIX and WIN32*/
+#define SIGALRM          1
+#define SIGINT           2
+#define SIG_TIMEOUT_CALL 3
+#define SIGBREAK         4
+
+local DWORD wait_timeout=INFINITE;
+local HANDLE sigint_semaphore, sigbreak_event;
+local HANDLE timeout_call_semaphore;
+
+/* UP: ConsoleCtrlHandler for Win32 */
+local BOOL WINAPI console_handler(DWORD CtrlType)
+{
+  if (CtrlType == CTRL_C_EVENT || CtrlType == CTRL_BREAK_EVENT) {
+    /* Send an event to the sigint_thread. */
+    if (CtrlType == CTRL_C_EVENT)
+      ReleaseSemaphore(sigint_semaphore,2,NULL);
+    else if (CtrlType == CTRL_BREAK_EVENT)
+      SetEvent(sigbreak_event);
+    /* Don't invoke the other handlers */
+    return TRUE;
+  } else /* Do invoke the other handlers. */
+    return FALSE;
+}
+
+/* UP: installs "async" signal handler on Win32 */
+local void install_async_signal_handlers()
+{
+  wait_timeout=INFINITE;
+  sigint_semaphore=CreateSemaphore(NULL,0,MAXNTHREADS,NULL);
+  sigbreak_event=CreateEvent(NULL,TRUE,FALSE,NULL);
+  timeout_call_semaphore=CreateSemaphore(NULL,0,MAXNTHREADS,NULL);
+  SetConsoleCtrlHandler((PHANDLER_ROUTINE)console_handler,true);
+}
+
+/* UP: waits for a signal and returns it
+ < returns signal number */
+local int signal_wait()
+{
+  var HANDLE sems[]={sigint_semaphore, timeout_call_semaphore, sigbreak_event};
+ retry:
+  /* TODO: have to update the wait_timeout !!! */
+  wait_timeout = INFINITE;
+  switch (WaitForMultipleObjects(3,sems,FALSE,wait_timeout)) {
+  case WAIT_OBJECT_0:
+    return SIGINT;
+  case WAIT_TIMEOUT:
+  case WAIT_OBJECT_0 + 1:
+    wait_timeout=INFINITE; /* in any case */
+    return SIG_TIMEOUT_CALL;
+  case WAIT_OBJECT_0 + 2:
+    return SIGBREAK;
+  default:
+    /* hmm, not good ?? */
+    goto retry;
+  }
+}
+/* UP: signals that new CALL-WITH-TIMEOUT has been issued
+   and it is the first to expire
+ < returns 0 on success. */
+global int signal_timeout_call()
+{
+  ReleaseSemaphore(timeout_call_semaphore,1,NULL);
+  return 0;
+}
+
+/* UP: schedules the next SIGALRM - for the timeout call that is in the
+   beginning of timeout_call_chain. Called from signal handler thread.
+ > useconds: duration after which we want SIGARLM
+ should be called only from signal_handler_thread() */
+local useconds_t schedule_alarm(uintL useconds)
+{
+  wait_timeout = useconds / 1000; /* in milliseconds */
+  return 0;
+}
+
+#endif
+
 /* UP: handles any pending interrupt (currently just one).
    arguments are on the STACK
    It is always called in the context of the thread that has to handle the
@@ -4447,6 +4574,7 @@ global bool interrupt_thread(clisp_thread_t *thr)
     xcondition_broadcast(&(thr->_wait_mutex->_c));
     xmutex_raw_unlock(&(thr->_wait_mutex->_m));
   } else {
+   #ifdef POSIX_THREADS
     /* the thread may wait on it's gc_suspend_lock or in system
        re-entrant call*/
     if (xthread_signal(TheThread(thr->_lthread)->xth_system,
@@ -4455,6 +4583,12 @@ global bool interrupt_thread(clisp_thread_t *thr)
       spinlock_release(&thr->_signal_reenter_ok);
       return false;
     }
+   #else /* WIN32_THREADS */
+    /* TODO: implement it. for now - very trivial - wait for the end of the
+       blocked called */
+    /* in all cases - release the re-enter spinlock */
+    spinlock_release(&thr->_signal_reenter_ok);
+   #endif
   }
   return true;
 }
@@ -4469,15 +4603,8 @@ global bool interrupt_thread(clisp_thread_t *thr)
  > arg: not used. */
 local void *signal_handler_thread(void *arg)
 {
-  int sig;
-  var sigset_t sig_mask=async_signal_mask();
   while (1) {
-    if (sigwait(&sig_mask, &sig)) {
-      /* strange - no way to have bad mask but it happens sometimes
-        (observed on 32 bit debian during (disaseemble 'car) and
-        CTRL-Z and "fg" later) */
-      continue;
-    }
+    var int sig = signal_wait();
     /* before proceeding we have to be sure that there is no GC
        in progress at the moment. This is the only situation in
        which we have to delay the signal. */
@@ -4537,8 +4664,8 @@ local void *signal_handler_thread(void *arg)
 	     never delivered !!!. This is strange since according to POSIX no
              errors are defined for ualarm. If this is the case - just ask for
 	     something less than a second */
-	  if (ualarm(wait,0) == (useconds_t)-1)
-            ualarm(999999,0);
+	  if (schedule_alarm(wait) == (useconds_t)-1)
+            schedule_alarm(999999);
         }
         /* release the chain spinlock */
         spinlock_release(&timeout_call_chain_lock);
@@ -4612,36 +4739,4 @@ local void *signal_handler_thread(void *arg)
 
 #undef ENABLE_DUMMY_ALLOCCOUNT
 
-global void install_async_signal_handlers()
-{
-  /* 1. disable all async signals
-     2. install SIG_THREAD_INTERRUPT handler */
-  var sigset_t sigblock_mask=async_signal_mask();
-  /* since we are called from the main thread - all threads
-   in the process will inherit this mask !!*/
-  sigprocmask(SIG_BLOCK,&sigblock_mask,NULL);
-  /* install SIG_THREAD_INTERRUPT */
-  SIGNAL(SIG_THREAD_INTERRUPT,&interrupt_thread_signal_handler);
-}
-#else /* !HAVE_SIGNALS i.e. WIN32_THREAD*/
-
-/* UP: this thread will deal with CTRL-C/CTRL-BREAK events and
-   CALL-WITH-TIMEOUT calls.
-   > arg: not used
- */
-local void *signal_handler_thread(void *arg)
-{
-  /* TODO: implement (together with missing THREAD-INTERRUPT and
-     CALL-WITH-TIMEOUT. */
-  while (1) Sleep(1);
-  return NULL;
-}
-
-global maygc void handle_pending_interrupts()
-{
-  /* TODO: implement */
-}
-
-#endif /* HAVE_SIGNALS */
-
-#endif
+#endif /* MULTITHREAD */
