@@ -1,3 +1,27 @@
+2009-06-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: add partial support for thread interruption on WIN32
+	* lispbibl.d (GC_SAFE_REGION_END_i): handle pending interrupts depending
+	on thread's flavour
+	(install_async_signal_handlers, thr_signal_handler, SIG_THREAD_INTERRUPT)
+	(SIG_TIMEOUT_CALL): make them local in spvw.d
+	(signal_timeout_call): function to announce new timeout call. used by
+	CALL-WITH-TIMEOUT
+	* zthread.d (CALL-WITH-TIMEOUT): enable WIN32_THREADS. use
+	signal_timeout_call() for queuing timeout call
+	(THREAD-INTERRUPT): enable WIN32_THREADS
+	* xthread.d (xthread_sigmask, xthread_signal) [WIN32_THREADS]: remove
+	* spvw.d: unify POSIX and WIN32 signal handling
+	(signal_wait): waits for asynchronous signal
+	(signal_timeout_call): announce (WIN32 and POSIX) new timeout call
+	(schedule_alarm): schedule next timeout call. NB: to be called only from
+	signal handler thread
+	(console_handler): CTRL-C handler for WIN32_THREADS
+	(interrupt_thread) [WIN32_THREADS]: delay handling in case we are in
+	blocking system call. the interrupt will be executed after the call
+	returns
+	(signal_handler_thread): use signal_wait() and schedule_alarm().
+
 2009-06-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: add timed wait on mutexes and exemptions

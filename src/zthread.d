@@ -348,7 +348,6 @@ LISPFUNN(call_with_timeout,3)
      in our signal handling thread and the body is executed. If the timeout
      elapses - the signal handling thread will interrupt the body
      and the timeout function will be executed. */
-#ifdef HAVE_SIGNALS
   var struct timeval tv;
   var struct timeval *tvp = sec_usec(STACK_2,unbound,&tv);
   if (tvp) {
@@ -384,9 +383,7 @@ LISPFUNN(call_with_timeout,3)
       });
       /* insert in sorted chain and signal if needed */
       if (insert_timeout_call(&tc)) {
-        begin_system_call();
-        xthread_signal(thr_signal_handler,SIG_TIMEOUT_CALL);
-        end_system_call();
+        begin_system_call(); signal_timeout_call(); end_system_call();
       }
       spinlock_release(&timeout_call_chain_lock); /* release the lock */
       funcall(STACK_5,0); /* call the body function */
@@ -398,9 +395,6 @@ LISPFUNN(call_with_timeout,3)
     funcall(STACK_1,0);
   }
   skipSTACK(3);
-#else /* WIN32 has to wait */
-  NOTREACHED;
-#endif
 }
 
 LISPFUNN(thread_yield,0)
@@ -421,7 +415,6 @@ LISPFUNN(thread_kill,1)
 
 LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
 { /* (THREAD-INTERRUPT thread function &rest arguments) */
-#ifdef HAVE_SIGNALS
   var bool signal_sent=false;
   STACK_(argcount+1) = check_thread(STACK_(argcount+1));
   if (TheThread(STACK_(argcount+1))->xth_globals == current_thread()) {
@@ -452,9 +445,6 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
   /* return the thread and whether it was really interrupted */
   VALUES2(STACK_1,signal_sent ? T : NIL);
   skipSTACK(2); /* thread + function */
-#else
-  NOTREACHED; /* win32 not implemented */
-#endif
 }
 
 LISPFUNN(threadp,1)
@@ -903,7 +893,7 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
         } else {
           r = pthread_cond_wait(&l->_c,&l->_m);
         }
-       #else / WIN32 **/
+       #else /* WIN32 */
         r = win32_xcondition_wait(&l->_c,&l->_m,timeout);
        #endif
         if (r != 0) break;
