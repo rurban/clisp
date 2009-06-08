@@ -11,7 +11,8 @@
            "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL"
            "EXEMPTION-WAIT" "EXEMPTION-BROADCAST"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
-           "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"))
+           "SYMBOL-VALUE-THREAD" "*DEFAULT-SPECIAL-BINDINGS*"
+           "WITH-DEFERRED-INTERRUPTS"))
 
 (in-package "MT")
 
@@ -29,10 +30,17 @@
 ;; the value will be initialized from the runtime
 (defvar *DEFAULT-VALUE-STACK-SIZE*)
 
+;; deferred interrupts.
+;; in other implementations it is called without-interrupts
+(defvar *defer-interrupts* nil)
+(defvar *deferred-interrupts* '()) ; list of pending interrupts
+
 ;; TODO: add more variables (something should done about the
 ;; standartd input/output streams.
 (defvar *DEFAULT-SPECIAL-BINDINGS*
-  '((*random-state* . (make-random-state nil))
+  '((*random-state* . (make-random-state t))
+    (*defer-interrupts* . nil)
+    (*deferred-interrupts* . nil)
     (*gensym-counter* . 0)
     (ext::*command-index* . 0)
     (*print-base* . 10)
@@ -47,6 +55,13 @@
     (*read-suppress* . nil)
     (*read-default-float-format* . 'single-float)
     (*readtable* . (copy-readtable nil))))
+
+(defmacro with-deferred-interrupts (&body body)
+  `(let ((*defer-interrupts* t)
+         (*deferred-interrupts* '()))
+     (unwind-protect (progn ,@body)
+       (dolist (i *deferred-interrupts*)
+         (apply (car i) (cdr i))))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
 

@@ -191,6 +191,10 @@ local /*maygc*/ void *thread_stub(void *arg)
         *initial_bindings = Cdr(*initial_bindings);
       }
     }
+    /* to be on the safe side - always set *defer-interrupts* to nil and
+     *deferred-interrupts* to empty list - user may pass bad initial bindings*/
+    Symbol_thread_value(S(defer_interrupts)) = NIL;
+    Symbol_thread_value(S(deferred_interrupts)) = NIL;
     funcall(*funptr,0); /* call fun */
     reset(0);  /* unwind what we have till now */
   }
@@ -432,8 +436,8 @@ LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
         var object arg = NEXT(rest_args_pointer);
         NC_pushSTACK(clt->_STACK,arg);
       }
-      NC_pushSTACK(clt->_STACK,posfixnum(argcount));
       NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
+      NC_pushSTACK(clt->_STACK,posfixnum(argcount));
       if (!(signal_sent = interrupt_thread(clt))) {
         /* for some reason we were unable to send the signal */
         clt->_STACK=saved_stack;

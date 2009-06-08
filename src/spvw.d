@@ -3723,6 +3723,9 @@ local void* mt_main_actions (void *param) {
   me->_SP_anchor=(void*)SP();
   /* reinitialize the system thread id */
   TheThread(me->_lthread)->xth_system = xthread_self();
+  /* initialize deferred interrupts */
+  Symbol_thread_value(S(defer_interrupts)) = NIL;
+  Symbol_thread_value(S(deferred_interrupts)) = NIL;
   /* now we are ready to start main_actions()*/
   main_actions(args);
   thread_cleanup();
@@ -4535,15 +4538,29 @@ global maygc void handle_pending_interrupts()
   var clisp_thread_t *thr = current_thread();
   var uintC pend = thr->_pending_interrupts;
   thr->_pending_interrupts = 0; /* we got all of them */
-  while (pend--) {
-    var object intrfun=popSTACK(); /* interrupt function */
-    var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
-    /* on non-local exit from the interrupt function and nested
-       pending interrupts - some of them will not be handled.
-       In most implementations such non-local exits have undefined
-       behavior and should not be used (actually thread-interrupt is
-       discouraged). */
-    funcall(intrfun,argc);
+  /* It is fine to use Symbol_value() instead of Symbol_thread_value() since
+     we always have per-thread value for defer_interrupts and
+     deferred_interrupts */
+  if (eq(Symbol_thread_value(S(defer_interrupts)), NIL)) {
+    while (pend--) {
+      var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
+      var object intrfun=popSTACK(); /* interrupt function */
+      /* on non-local exit from the interrupt function and nested
+         pending interrupts - some of them will not be handled.
+         In most implementations such non-local exits have undefined
+         behavior and should not be used (actually thread-interrupt is
+         discouraged). */
+      funcall(intrfun,argc);
+    }
+  } else { /* we should defer interrupts */
+    while (pend--) {
+      var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
+      pushSTACK(nreverse(listof(argc+1)));
+      var object kons = allocate_cons();
+      Car(kons) = popSTACK();
+      Cdr(kons) = Symbol_thread_value(S(deferred_interrupts));
+      Symbol_thread_value(S(deferred_interrupts)) = kons;
+    }
   }
 }
 
@@ -4635,8 +4652,8 @@ local void *signal_handler_thread(void *arg)
           spinlock_acquire(&chain->thread->_signal_reenter_ok);
           gcv_object_t *saved_stack=chain->thread->_STACK;
           NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
-          NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
           NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
+          NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
           if (!interrupt_thread(chain->thread)) {
             /* hmm - signal send failed. restore the stack and mark the timeout
                as failed. The next time when we come here we will retry it - if
@@ -4681,8 +4698,8 @@ local void *signal_handler_thread(void *arg)
           /* line below is not needed but detects bugs */
           NC_pushSTACK(thread->_STACK,O(thread_break_description));
           NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
-          NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
           NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
+          NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
           if (!(signal_sent = interrupt_thread(thread))) {
             thread->_STACK=saved_stack;
           } else
@@ -4720,8 +4737,8 @@ local void *signal_handler_thread(void *arg)
           /* be sure the signal handler can be reentered */
           spinlock_acquire(&thread->_signal_reenter_ok);
           NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
-          NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
           NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
+          NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
           some_failed &= interrupt_thread(thread);
         });
         if (some_failed) {
