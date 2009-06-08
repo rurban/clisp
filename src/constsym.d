@@ -1214,14 +1214,19 @@ LISPSYM(set_symbol_value_thread,"SET-SYMBOL-VALUE-THREAD",mt)
 LISPSYM(default_special_bindings,"*DEFAULT-SPECIAL-BINDINGS*",mt)
 LISPSYM(default_control_stack_size,"*DEFAULT-CONTROL-STACK-SIZE*",mt)
 LISPSYM(default_value_stack_size,"*DEFAULT-VALUE-STACK-SIZE*",mt)
+LISPSYM(defer_interrupts,"*DEFER-INTERRUPTS*",mt)
+LISPSYM(deferred_interrupts,"*DEFERRED-INTERRUPTS*",mt)
 LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(Krecursive_p,"RECURSIVE-P",keyword)
 #ifndef SOCKET_STREAMS
-/* socket streams declare :timeout. if for some reason we build without socket
-   streams and with threads we declare it here.*/
-LISPSYM(Ktimeout,"TIMEOUT",keyword)
+  #error MULTITHREAD requires SOCKET_STREAMS
+/* actually two things are needed: :TIMEOUT and sec_usec() function from
+   streams.d. The former can be easily defined. The latter - maybe it is
+   good to move it out of SOCKET_STREAMS?
+   Anyway SOCKET_STREAMS are quite important and probably will/are always
+   available. */
 #endif
 LISPSYM(mutex,"MUTEX",mt) /* type for MUTEX */
 LISPSYM(mutexp,"MUTEXP",mt)
