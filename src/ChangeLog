@@ -1,3 +1,20 @@
+2009-06-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: add WITH-DEFERRED-INTERRUPTS (i.e. WITHOUT-INTERRUPTS)
+	* constsym.d (*DEFER-INTERRUPTS*, *DEFERRED-INTERRUPTS*): declare
+	* threads.lisp (*DEFER-INTERRUPTS*, *DEFERRED-INTERRUPTS*): ditto. also
+	initialize them with *DEFAULT-SPECIAL-BINDINGS*
+	(WITH-DEFERRED-INTERRUPTS): add and export it
+	* zthread.d (thread_stub): initialize per thread values of
+	*DEFER-INTERRUPTS* and *DEFERRED-INTERRUPTS* in case user use some "bad"
+	initial bindings
+	(THREAD-INTERRUPT): reorder the arguments on the foreign stack
+	* spvw.d (mt_main_actions): initialize per thread values of
+	*DEFER-INTERRUPTS* and *DEFERRED-INTERRUPTS*
+	(handle_pending_interrupts): in case we should defer interrupt - add it
+	*DEFERRED-INTERRUPTS*. handle new stack order
+	(signal_handler_thread): reorder the arguments on the foreign stack
+
 2009-06-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: add partial support for thread interruption on WIN32
