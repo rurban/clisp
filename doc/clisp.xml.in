@@ -469,7 +469,7 @@ compiles the specified lisp files to a platform-independent
 
 </refsection>
 
-<refsection id="usage"><title>Usage</title>
+<refsection id="clue"><title>Command Line User Environment</title>
 
 <variablelist>
 <varlistentry><term>&help;</term>
