@@ -2293,7 +2293,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   flag &with-dynmod;.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
-  (<function role="unix">dlopen</function> or equivalent is required).
+  (&dlopen; or equivalent is required).
 </para></note>
 <note><para>&with-dynmod; precludes some optimizations which
   are enabled by default.</para></note>
@@ -2312,7 +2312,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  This serves to register external functions which operate on Lisp-level
  structures with &clisp;.</para>
 
-<para>To use <function role="unix">dlopen</function> with modules,
+<para>To use &dlopen; with modules,
  you should add <option>-fPIC</option> to the module's compilation options.
  Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
  may be needed to produce the shared object file.</para>
@@ -2696,8 +2696,7 @@ ordinary Lisp file, which is then compiled and loaded as usual;
 or just evaluates the appropriate form in the &repl;.</para>
 
 <para>There are two basic ways to do define a foreign function:<orderedlist>
-<listitem><simpara>Use <function role="unix">dlopen</function> and
-  <function role="unix">dlsym</function> to get to the location of the
+<listitem><simpara>Use &dlopen; and &dlsym; to get to the location of the
   function code in a dynamic library.
   To access this facility, pass the &library-k; option to &def-call-out;
   and &def-c-var;.</simpara>
@@ -2712,9 +2711,7 @@ or just evaluates the appropriate form in the &repl;.</para>
   (in addition to a &fasl-file; and a &lib-file;).
   Then you compile (with a &c-lang; compiler) and link it into &clisp;
   (statically, linking it into <filename>lisp.a</filename>, or
-  dynamically, loading it into a running &clisp; using
-  <function role="unix">dlopen</function> and
-  <function role="unix">dlsym</function>).
+  dynamically, loading it into a running &clisp; using &dlopen; and &dlsym;).
   This way you can use any functionality your foreign library exports,
   whether using ordinary functions, <literal>inline</literal> functions,
   or &cpp; macros (see <xref linkend="dffi-ex-macro"/>).
@@ -2908,8 +2905,7 @@ or just evaluates the appropriate form in the &repl;.</para>
  <listitem><simpara>This macro sets the default &library-k; argument for
    &def-call-out; and &def-c-var;.  &lib-name; should be &nil;
    (meaning use the &c-lang; file produced by &compile-file-my;), a
-   &string-t;, or, depending on the
-   underlying <function role="unix">dlsym</function>
+   &string-t;, or, depending on the underlying &dlsym;
    or <function role="bsd">dlvsym</function> implementation,
    &default-k; or <constant>:NEXT</constant>.</simpara>
   <simpara>The default is set separately in each &comp-unit;, so, if you

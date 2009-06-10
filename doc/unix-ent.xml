@@ -27,3 +27,5 @@
 <!ENTITY stdio '<filename role="unix">stdio.h</filename>'>
 <!ENTITY errno '<varname role="unix">errno</varname>'>
 <!ENTITY strerror '<function role="unix">strerror</function>'>
+<!ENTITY dlopen '<function role="unix">dlopen</function>'>
+<!ENTITY dlsym '<function role="unix">dlsym</function>'>
