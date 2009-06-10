@@ -1373,22 +1373,10 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 </section>
 </chapter>
 
-<chapter id="extend"><title>Extending &clisp;</title>
+<chapter id="extend"><title>Extending &clisp; Core</title>
 
-<epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
-  Foderaro</ulink></attribution>
- <para>&cl; is a <emphasis>programmable</emphasis>
-  programming language.</para></epigraph>
-
-<para>&clisp; can be easily extended the same way any other &cl;
- implementation can: create a lisp file with your variables, functions,
- macros, etc.; (optionally) compile it with &compile-file;; &load; it
- into a running &clisp;, and save the &mem-image;.</para>
-
-<para>This method does not work when you need to use some functionality
- not available in &clisp;, e.g., you want to call a &c-lang; function.
- You are urged to use <link linkend="modules">External Modules</link>
- instead of adding built-in functions.</para>
+<para>You are urged to use <link linkend="modules">External
+  Modules</link> instead of adding built-in functions.</para>
 <note><para>&clisp; comes with an &ffi-pac; which allows you
  to access &c-lang; libraries in an easy way (including creating
  &foreign-function;s dynamically).</para></note>
