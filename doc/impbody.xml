@@ -5242,6 +5242,9 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  <listitem><simpara>see <xref linkend="socket"/>
 </simpara></listitem></varlistentry>
 <!-- #endif -->
+<varlistentry><term><constant>:MT</constant></term>
+ <listitem><simpara>see <xref linkend="mt"/>
+</simpara></listitem></varlistentry>
 <!-- #ifdef GENERIC_STREAMS -->
 <varlistentry><term><constant>:GENERIC-STREAMS</constant></term>
  <listitem><simpara>see <xref linkend="gstream"/>
