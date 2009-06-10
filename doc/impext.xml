@@ -4657,6 +4657,104 @@ Now you can sum doubles:
 <!-- #endif -->
 </section>
 
+<section id="mt"><title>Multiple Threads of Execution</title>
+<subtitle><emphasis role="plat-dep">Only in &clisp; built &with;
+  compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
+
+<section id="mt-intro"><title>Introduction</title>
+<para>&clisp; uses the &os; threads.
+ Two flavors are supported: <emphasis>POSIX</emphasis>
+ and <emphasis>WIN32</emphasis>. Both are preemptive.</para>
+<para>All functions and macros are exported from the package &mt-pac;.
+ When this functionality if present, &features-my;
+ contains the symbol <constant>:MT</constant>
+ (for <emphasis>multithreading</emphasis>).</para></section>
+
+<section id="mt-api"><title>Thread API reference</title>
+<variablelist>
+<varlistentry id="thread"><term>&thread;</term>
+ <listitem><simpara>The type of the object returned by &make-thread;.
+</simpara></listitem></varlistentry>
+<varlistentry id="make-thread"><term><code>(&make-thread; &func-r;
+   &key-amp; name initial-bindings cstack-size vstack-size)</code></term>
+ <listitem><simpara>Start a new &thread;.</simpara></listitem></varlistentry>
+<varlistentry id="threadp"><term><code>(&threadp; &object-r;)</code></term>
+ <listitem><simpara>Check whether the object is of type &thread;.
+</simpara></listitem></varlistentry>
+<varlistentry id="thread-yield"><term><code>(&thread-yield; &thr;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
+ <listitem><simpara>Return the name of the &thr;.
+</simpara></listitem></varlistentry>
+<varlistentry id="thread-active-p"><term><code>(&thread-active-p;
+   &thr;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="current-thread"><term><code>(&current-thread;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="list-threads"><term><code>(&list-threads;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="mutex"><term>&mutex;</term>
+ <listitem><simpara>The type of the object return by &make-mutex;.
+</simpara></listitem></varlistentry>
+<varlistentry id="mutexp"><term><code>(&mutexp; &object-r;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="make-mutex"><term><code>(&make-mutex; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="mutex-lock"><term><code>(&mutex-lock; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="mutex-unlock"><term><code>(&mutex-unlock; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="mutex-owner"><term><code>(&mutex-owner; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
+   &mutex;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="with-lock"><term><code>(&with-lock; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="exemption"><term>&exemption;</term>
+ <listitem><simpara>The type of the object returned by &make-exemption;.
+</simpara></listitem></varlistentry>
+<varlistentry id="exemptionp"><term><code>(&exemptionp;
+   &object-r;)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="make-exemption"><term><code>(&make-exemption;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="exemption-signal"><term><code>(&exemption-signal;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="exemption-wait"><term><code>(&exemption-wait;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="yes-or-no-p-timeout"><term><code>(&yes-or-no-p-timeout;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="with-timeout"><term><code>(&with-timeout;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="symbol-value-thread"><term><code>(&symbol-value-thread;
+   ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="default-special-bindings">
+ <term>&default-special-bindings;</term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+<varlistentry id="with-deferred-interrupts"><term>
+  <code>(&with-deferred-interrupts; ...)</code></term>
+ <listitem><simpara></simpara></listitem></varlistentry>
+</variablelist></section>
+</section>
+
 <section id="quickstart"><title>Quickstarting delivery with &clisp;</title>
 
 <para>This section describes three ways to turn &clisp; programs into

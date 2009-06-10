@@ -177,6 +177,7 @@
 <!ENTITY gstream-pac '<link linkend="gstream"><quote role="package">GSTREAM</quote></link>'>
 <!ENTITY i18n-pac '<link linkend="i18n"><quote role="package">I18N</quote></link>'>
 <!ENTITY ldap-pac '<link linkend="dir-key"><quote role="package">LDAP</quote></link>'>
+<!ENTITY mt-pac '<link linkend="mt"><quote role="package">MT</quote></link>'>
 <!ENTITY posix-pac '<link linkend="syscalls"><quote role="package">POSIX</quote></link>'>
 <!ENTITY regexp-pac '<link linkend="regexp-mod"><quote role="package">REGEXP</quote></link>'>
 <!ENTITY screen-pac '<link linkend="screen"><quote role="package">SCREEN</quote></link>'>
@@ -497,6 +498,37 @@
 <!ENTITY nlcBp "<emphasis role='strong'>B'</emphasis>">
 <!ENTITY nlcABp "<emphasis role='strong'>AB'</emphasis>">
 <!ENTITY nlcBpC "<emphasis role='strong'>B'C</emphasis>">
+<!-- *** multithreading *** -->
+<!ENTITY thread '<link linkend="thread"><type>MT:THREAD</type></link>'>
+<!ENTITY make-thread '<link linkend="make-thread"><function>MT:MAKE-THREAD</function></link>'>
+<!ENTITY threadp '<link linkend="threadp"><function>MT:THREADP</function></link>'>
+<!ENTITY thread-yield '<link linkend="thread-yield"><function>MT:THREAD-YIELD</function></link>'>
+<!ENTITY thread-kill '<link linkend="thread-kill"><function>MT:THREAD-KILL</function></link>'>
+<!ENTITY thread-interrupt '<link linkend="thread-interrupt"><function>MT:THREAD-INTERRUPT</function></link>'>
+<!ENTITY thread-name '<link linkend="thread-name"><function>MT:THREAD-NAME</function></link>'>
+<!ENTITY thread-active-p '<link linkend="thread-active-p"><function>MT:THREAD-ACTIVE-P</function></link>'>
+<!ENTITY current-thread '<link linkend="current-thread"><function>MT:CURRENT-THREAD</function></link>'>
+<!ENTITY list-threads '<link linkend="list-threads"><function>MT:LIST-THREADS</function></link>'>
+<!ENTITY mutex '<link linkend="mutex"><type>MT:MUTEX</type></link>'>
+<!ENTITY mutexp '<link linkend="mutexp"><function>MT:MUTEXP</function></link>'>
+<!ENTITY make-mutex '<link linkend="make-mutex"><function>MT:MAKE-MUTEX</function></link>'>
+<!ENTITY mutex-lock '<link linkend="mutex-lock"><function>MT:MUTEX-LOCK</function></link>'>
+<!ENTITY mutex-unlock '<link linkend="mutex-unlock"><function>MT:MUTEX-UNLOCK</function></link>'>
+<!ENTITY mutex-owner '<link linkend="mutex-owner"><function>MT:MUTEX-OWNER</function></link>'>
+<!ENTITY mutex-recursive-p '<link linkend="mutex-recursive-p"><function>MT:MUTEX-RECURSIVE-P</function></link>'>
+<!ENTITY with-lock '<link linkend="with-lock"><function>MT:WITH-LOCK</function></link>'>
+<!ENTITY exemption '<link linkend="exemption"><type>MT:EXEMPTION</type></link>'>
+<!ENTITY exemptionp '<link linkend="exemptionp"><function>MT:EXEMPTIONP</function></link>'>
+<!ENTITY make-exemption '<link linkend="make-exemption"><function>MT:MAKE-EXEMPTION</function></link>'>
+<!ENTITY exemption-signal '<link linkend="exemption-signal"><function>MT:EXEMPTION-SIGNAL</function></link>'>
+<!ENTITY exemption-wait '<link linkend="exemption-wait"><function>MT:EXEMPTION-WAIT</function></link>'>
+<!ENTITY exemption-broadcast '<link linkend="exemption-broadcast"><function>MT:EXEMPTION-BROADCAST</function></link>'>
+<!ENTITY y-or-n-p-timeout '<link linkend="y-or-n-p-timeout"><function>MT:Y-OR-N-P-TIMEOUT</function></link>'>
+<!ENTITY yes-or-no-p-timeout '<link linkend="yes-or-no-p-timeout"><function>MT:YES-OR-NO-P-TIMEOUT</function></link>'>
+<!ENTITY with-timeout '<link linkend="with-timeout"><function>MT:WITH-TIMEOUT</function></link>'>
+<!ENTITY symbol-value-thread '<link linkend="symbol-value-thread"><function>MT:SYMBOL-VALUE-THREAD</function></link>'>
+<!ENTITY default-special-bindings '<link linkend="default-special-bindings"><varname>MT:*DEFAULT-SPECIAL-BINDINGS*</varname></link>'>
+<!ENTITY with-deferred-interrupts '<link linkend="with-deferred-interrupts"><function>MT:WITH-DEFERRED-INTERRUPTS</function></link>'>
 
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
@@ -727,6 +759,7 @@
 <!ENTITY end-r '<replaceable>end</replaceable>'>
 <!ENTITY eof-ep '<replaceable>eof-error-p</replaceable>'>
 <!ENTITY eof-v '<replaceable>eof-value</replaceable>'>
+<!ENTITY exemp-r '<replaceable>exemption</replaceable>'>
 <!ENTITY f-r '<replaceable>f</replaceable>'>
 <!ENTITY family-r '<replaceable>family</replaceable>'>
 <!ENTITY file-r '<replaceable>file</replaceable>'>
@@ -781,6 +814,7 @@
 <!ENTITY mod-r '<replaceable>module</replaceable>'>
 <!ENTITY mode-r '<replaceable>mode</replaceable>'>
 <!ENTITY model-r '<replaceable>model</replaceable>'>
+<!ENTITY mutex-r '<replaceable>mutex</replaceable>'>
 <!ENTITY n-r '<replaceable>n</replaceable>'>
 <!ENTITY name-r '<replaceable>name</replaceable>'>
 <!ENTITY net-r '<replaceable>network</replaceable>'>
@@ -843,6 +877,7 @@
 <!ENTITY target-r '<replaceable>target</replaceable>'>
 <!ENTITY tbc-r '<replaceable>tagbody-cons</replaceable>'>
 <!ENTITY test-f '<replaceable>test-function</replaceable>'>
+<!ENTITY thr '<replaceable>thread</replaceable>'>
 <!ENTITY type-r '<replaceable>type</replaceable>'>
 <!ENTITY uc-r '<replaceable>uc</replaceable>'>
 <!ENTITY uid-r '<replaceable>uid</replaceable>'>
