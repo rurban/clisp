@@ -2045,7 +2045,7 @@ The main building blocks are &modset;s and &linkset;s.</para>
   <listitem><simpara>some &sh; commands, which prepare the directory
     for linking, and set some &env-var;s, see <xref linkend="mod-vars"/>
  </simpara></listitem></varlistentry>
- <varlistentry><term>and any other files</term>
+ <varlistentry><term>all other files that define the module functionality</term>
   <listitem><simpara>needed by &link-sh;</simpara></listitem></varlistentry>
 </variablelist></para>
 <para>In &link-sh; the &modset; directory is referred to
@@ -2062,11 +2062,18 @@ The main building blocks are &modset;s and &linkset;s.</para>
 <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
    <primary>linking set</primary></indexterm></firstterm>
  is a set of files which allows performing two major tasks:
- <orderedlist><listitem><simpara>Running &clisp;</simpara></listitem>
-  <listitem><simpara>Adding a &modset; to create a new
-    &linkset;</simpara></listitem></orderedlist>
- The core &clisp; build directory contains a &linkset;; new &linkset;s
- are created by adding &modset;s to an existing &linkset;.</para>
+ <orderedlist><listitem><para>Running &clisp;: to run a &clisp;
+    contained in some &linkset; &dir-r;, call<screen>
+&sh-prompt; &dir-r;/lisp.run &opt-M; &dir-r;/lispinit.mem</screen>
+ or <screen>&sh-prompt; clisp &opt-K; &dir-r;</screen>
+ (recommended, since it also passes
+ <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
+ to the run-time).</para></listitem>
+  <listitem><simpara>Adding a &modset; to create a new &linkset; which
+    will contain the module functionality</simpara></listitem></orderedlist>
+ The &clisp; build directory contains three &linkset;s in
+ directories <command>boot</command>, &base;, and &full;, and a &clisp;
+ installation normally contains two &linkset;s: &base;, and &full;</para>
 <para>More formally, a &linkset; is a directory containing at least
   these files:<variablelist>
 <varlistentry><term><filename>makevars</filename></term>
@@ -2111,13 +2118,7 @@ The main building blocks are &modset;s and &linkset;s.</para>
 <varlistentry><term>&lispinit;</term>
  <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist></para>
-
-<para>To run a &clisp; contained in some &linkset; &dir-r;, call<screen>
-&sh-prompt; &dir-r;/lisp.run &opt-M; &dir-r;/lispinit.mem</screen>
- or <screen>&sh-prompt; clisp &opt-K; &dir-r;</screen>
- (recommended, since it also passes
- <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
- to the run-time).</para></simplesect>
+</simplesect>
 
 <simplesect id="clisp-link"><title>Operating on &modset;s and &linkset;s</title>
 <para>Adding one or several &modset;s to a &linkset;s produces a new
@@ -2159,12 +2160,6 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  the loading will be performed <link linkend="mod-dynload">dynamically</link>.
  Otherwise - this is much slower - a temporary &linkset; will be created
  and deleted afterwards.</para>
-
-<para>As you can see, you create new &linkset;s by combining existing
- &linkset;s with &modset;s which you create by hand. Your &clisp; build
- directory ontains three &linkset;s in
- directories <command>boot</command>, &base;, and &full;, and a &clisp;
- installation normally contains two &linkset;s: &base;, and &full;.</para>
 
 </simplesect>
 
