@@ -530,16 +530,17 @@ compiles the specified lisp files to a platform-independent
 <refsection id="files"><title>Files</title>
 
 <variablelist>
-<!-- #ifdef UNIX -->
-<varlistentry><term>&clisp-cmd;</term>
- <listitem><simpara>startup driver (a script or an executable)
-</simpara></listitem></varlistentry>
+<varlistentry id="driver">
+<!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
+<term>&clisp-cmd;</term>
 <!-- #endif -->
-<!-- #if defined(WIN32_NATIVE) -->
-<varlistentry><term><command>clisp.exe</command></term>
- <listitem><simpara>startup driver (executable)
-</simpara></listitem></varlistentry>
+<!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
+<term><command>clisp.exe</command></term>
 <!-- #endif -->
+<listitem><simpara>startup driver (an executable or - rarely - a shell script)
+  which remembers the location of the <link linkend="runtime">runtime</link>
+  and starts it with the correct arguments</simpara></listitem>
+</varlistentry>
 
 <varlistentry id="runtime">
 <!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
@@ -551,7 +552,7 @@ compiles the specified lisp files to a platform-independent
 <listitem><simpara>main executable (runtime)
 </simpara></listitem></varlistentry>
 
-<varlistentry><term><filename>lispinit.mem</filename></term>
+<varlistentry id="init-mem"><term><filename>lispinit.mem</filename></term>
 <listitem><simpara>initial &mem-image;</simpara></listitem></varlistentry>
 
 <varlistentry id="config-lisp"><term><filename>config.lisp</filename></term>
