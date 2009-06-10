@@ -537,10 +537,10 @@ compiles the specified lisp files to a platform-independent
 <!-- #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32) -->
 <term><command>clisp.exe</command></term>
 <!-- #endif -->
-<listitem><simpara>startup driver (an executable or - rarely - a shell script)
-  which remembers the location of the <link linkend="runtime">runtime</link>
-  and starts it with the correct arguments</simpara></listitem>
-</varlistentry>
+<listitem><simpara>startup driver (an executable or, rarely, a shell script)
+  which remembers the location of the &rt;
+  and starts it with the appropriate arguments
+</simpara></listitem></varlistentry>
 
 <varlistentry id="runtime">
 <!-- #if defined(UNIX) && !defined(UNIX_CYGWIN32) -->
