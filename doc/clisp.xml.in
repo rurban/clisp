@@ -527,6 +527,36 @@ compiles the specified lisp files to a platform-independent
 </variablelist>
 </refsection>
 
+<refsection id="using"><title>Using and Extending &clisp;</title>
+
+<epigraph><attribution><ulink url="http://www.franz.com/~jkf/">John
+  Foderaro</ulink></attribution>
+ <para>&cl; is a <emphasis>programmable</emphasis>
+  programming language.</para></epigraph>
+
+<para>When &clisp; is invoked, the &rt; loads
+ the <link linkend="init-mem">initial memory image</link> and outputs
+ the <olink targetdoc="impnotes" targetptr="prompt">prompt</olink>;
+ at which one can start typing &defvar;s, &defun;s and &defmacro;s.</para>
+
+<para>To avoid having to re-enter the same definitions by hand in every
+ session, one can create a lisp file with all the variables, functions,
+ macros, etc.; (optionally) compile it with &compile-file;; and &load;
+ it either by hand or from the &RC-file;; or save a &mem-image; to
+ avoid the &load; overhead.</para>
+
+<para>However, sometimes one needs to use some functionality implemented in
+ another language, e.g., call a &c-lang; library function.
+ For that one uses the <olink targetdoc="impnotes" targetptr="dffi">Foreign
+  Function Interface</olink> and/or
+ the <olink targetdoc="impnotes" targetptr="modules">External
+  Modules</olink> facility.
+ Finally, the truly adventurous ones might delve
+ into <olink targetdoc="impnotes" targetptr="extend">Extending the
+  Core</olink>.</para>
+
+</refsection>
+
 <refsection id="files"><title>Files</title>
 
 <variablelist>
