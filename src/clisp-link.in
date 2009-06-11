@@ -1,7 +1,7 @@
 #!/bin/sh
 # Usage: clisp-link command [more args]
 # where
-#   command = link, create-module-set, add-module-set, add-module-sets, run
+#   command = link, create, add, run
 # For more usage information, see <doc/impnotes.html#mod-overview>.
 # Or <http://clisp.cons.org/modules.html#mod-overview>.
 # Bruno Haible 19.10.1994
@@ -14,7 +14,7 @@
 (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 usage () {
-echo "Usage: $0 [ link | create-module-set | add-module-set | add-module-sets | run ] ..." 1>&2
+echo "Usage: $0 [ link | create | add | run ] ..." 1>&2
 exit 1
 }
 
@@ -216,10 +216,10 @@ case "$1" in
     trap '' 1 2 15
     ;;
 
-  create-module-set)
-    # Usage: clisp-link create-module-set moduledir {file}*
+  create)
+    # Usage: clisp-link create moduledir {file}*
     case $# in
-      0 | 1) echo "Usage: $0 create-module-set moduledir file ..." 1>&2
+      0 | 1) echo "Usage: $0 create moduledir file ..." 1>&2
              exit 1 ;;
     esac
     moduledir="$2"
@@ -302,86 +302,10 @@ case "$1" in
     fi
     ;;
 
-  add-module-set)
-    # Usage: clisp-link add-module-set moduledir source-dir destination-dir
-    if [ $# != 4 ] ; then
-      echo "Usage: $0 add-module-set moduledir source-dir destination-dir" 1>&2
-      exit 1
-    fi
-    moduledir="$2"
-    sourcedir="$3"
-    destinationdir="$4"
-    check_dir "$moduledir"
-    check_dir "$sourcedir"
-    make_dest "$destinationdir"
-    absolute_currentdir=`/bin/pwd`
-    absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
-    absolute_destinationdir=`cd "$destinationdir" ; /bin/pwd`
-    installbasedir=`dirname "$sourcedir"`
-    # What to do if we abort.
-    trap 'rm -rf "$absolute_destinationdir"' 1 2 15
-    test "$absolute_sourcedir" = "$absolute_destinationdir" &&
-      fail "directories $sourcedir and $destinationdir may not be the same"
-    check_linkset "$sourcedir"
-    check_module "$moduledir"
-    modulename=`echo "$moduledir" | sed -e 's,^.*/,,'`
-    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
-    . "$sourcedir"/makevars
-    # Prepare the module directory and read the variables NEW_FILES, NEW_LIBS
-    NEW_FILES=''
-    NEW_LIBS=''
-    NEW_MODULES=''
-    TO_PRELOAD=''
-    TO_LOAD=''
-    SHREXT=@SHREXT@
-    cd "$moduledir"
-    . ./link.sh
-    cd "$absolute_currentdir"
-    # Generate new modules.h
-    (cat "$sourcedir"/modules.h
-     for mod in $NEW_MODULES ; do
-       echo 'MODULE('"$mod"')'
-     done) > "$destinationdir"/modules.h
-    # Generate new lisp.a and other libraries and update FILES variable
-    FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`' '`link_some "$moduledir" "$destinationdir" ${NEW_FILES}`
-    # Update the LIBS variable
-    LIBS=${NEW_LIBS}' '${LIBS}
-    start_dir=`pwd`
-    cd "$destinationdir"
-    prepare_dynamic_module
-    make_lisprun
-    cd "${start_dir}"
-    if [ -n "$TO_PRELOAD" ] ; then
-      # Generate new preliminary lispinit.mem
-      to_preload=''
-      for f in $TO_PRELOAD; do
-        to_preload="$to_preload -i $moduledir/$f"
-      done
-      verbose "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem -norc -q $to_preload -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
-      lispinitdir="$destinationdir"
-    else
-      lispinitdir="$sourcedir"
-    fi
-    # Generate new lispinit.mem
-    to_load=''
-    for f in $TO_LOAD; do
-      to_load="$to_load -i $moduledir/$f"
-    done
-    verbose "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$lispinitdir"/lispinit.mem -norc -q $to_load -x "(saveinitmem \"$destinationdir/lispinit.mem\")"
-    # Generate new makevars
-    sed_escape_commas='s/,/\\,/g'
-    LIBS_escaped=`echo "$LIBS" | sed -e "$sed_escape_commas"`
-    sed -e "s,^LIBS=.*\$,LIBS='${LIBS_escaped}'," -e "s,^FILES=.*\$,FILES='${FILES}'," < "$sourcedir"/makevars > "$destinationdir"/makevars
-    # Done.
-    trap '' 1 2 15
-    ;;
-
-  add-module-sets)
-    # This is functionally the same as multiple add-module-set commands,
-    # but is faster and requires less disk space.
-    # Usage: clisp-link add-module-sets source-dir destination-dir moduledir...
+  add)
+    # Usage: clisp-link add source-dir destination-dir moduledir...
     if [ $# -lt 3 ] ; then
-      echo "Usage: $0 add-module-sets source-dir destination-dir moduledir..." 1>&2
+      echo "Usage: $0 add source-dir destination-dir moduledir..." 1>&2
       exit 1
     fi
     sourcedir="$2"
@@ -465,7 +389,7 @@ case "$1" in
     ;;
 
   run)
-    # This is functionally the same as an add-module-sets command, followed
+    # This is functionally the same as an add command, followed
     # by running the resulting linking set, but is faster and requires less
     # disk space if dynamic loading is available.
     # Usage: clisp-link run source-dir moduledir...
@@ -545,7 +469,7 @@ case "$1" in
       # What to do if we abort.
       trap 'rm -rf "$tmp"' 0 1 2 15
       rm -rf $destinationdir # must not exist for make_dest; bug #[ 1469663 ]
-      "$0" add-module-sets "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
+      "$0" add "$sourcedir" "$destinationdir" "$@" && "$destinationdir"/${LISPRUN} -B "$installbasedir" -M "$destinationdir"/lispinit.mem
       rm -rf "$tmp"
       trap '' 0 1 2 15
     fi
