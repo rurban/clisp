@@ -3299,12 +3299,12 @@ cygwin_finish() {
 
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
-echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add-module-sets boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
+echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
 cygwin_finish base
 
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
-echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add-module-sets base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
+echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_finish full
 
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
