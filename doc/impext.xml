@@ -4676,7 +4676,7 @@ Now you can sum doubles:
  <listitem><simpara>The type of the object returned by &make-thread;.
 </simpara></listitem></varlistentry>
 <varlistentry id="make-thread"><term><code>(&make-thread; &func-r;
-   &key-amp; name initial-bindings cstack-size vstack-size)</code></term>
+   &key-amp; &name-k; :INITIAL-BINDINGS :CSTACK-SIZE :VSTACK-SIZE)</code></term>
  <listitem><simpara>Start a new &thread;.</simpara></listitem></varlistentry>
 <varlistentry id="threadp"><term><code>(&threadp; &object-r;)</code></term>
  <listitem><simpara>Check whether the object is of type &thread;.
@@ -4686,10 +4686,10 @@ Now you can sum doubles:
 <varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
-   ...)</code></term>
+   &thr; &func-r; &rest-amp; &args-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
- <listitem><simpara>Return the name of the &thr;.
+ <listitem><simpara>Return the &name-r; of the &thr;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-active-p"><term><code>(&thread-active-p;
    &thr;)</code></term>
@@ -4703,18 +4703,23 @@ Now you can sum doubles:
 </simpara></listitem></varlistentry>
 <varlistentry id="mutexp"><term><code>(&mutexp; &object-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="make-mutex"><term><code>(&make-mutex; ...)</code></term>
+<varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
+   &name-k; :RECURSIVE-P)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="mutex-lock"><term><code>(&mutex-lock; ...)</code></term>
+<varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
+   &key-amp; &timeout-k;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="mutex-unlock"><term><code>(&mutex-unlock; ...)</code></term>
+<varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
+   &mutex-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="mutex-owner"><term><code>(&mutex-owner; ...)</code></term>
+<varlistentry id="mutex-owner"><term><code>(&mutex-owner;
+   &mutex-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
-   &mutex;)</code></term>
+   &mutex-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="with-lock"><term><code>(&with-lock; ...)</code></term>
+<varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
+   &body-amp; &body-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="exemption"><term>&exemption;</term>
  <listitem><simpara>The type of the object returned by &make-exemption;.
@@ -4723,34 +4728,34 @@ Now you can sum doubles:
    &object-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="make-exemption"><term><code>(&make-exemption;
-   ...)</code></term>
+   &key-amp; &name-k;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
-   ...)</code></term>
+   &exemp-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
-   ...)</code></term>
+   &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
-   ...)</code></term>
+   &exemp-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
-   ...)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="yes-or-no-p-timeout"><term><code>(&yes-or-no-p-timeout;
-   ...)</code></term>
+   seconds default &rest-amp; &args-r;)</code></term>
+ <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
+   &args-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
-   ...)</code></term>
+   (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
-<varlistentry id="symbol-value-thread"><term><code>(&symbol-value-thread;
-   ...)</code></term>
+<varlistentry id="symbol-value-thread"><term><code>(&setf;
+   (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
+ <term><code>(&symbol-value-thread; &symbol-r; &thr;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="default-special-bindings">
  <term>&default-special-bindings;</term>
  <listitem><simpara></simpara></listitem></varlistentry>
 <varlistentry id="with-deferred-interrupts"><term>
-  <code>(&with-deferred-interrupts; ...)</code></term>
+  <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>
 </variablelist></section>
 </section>
