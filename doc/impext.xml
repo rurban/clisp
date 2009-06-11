@@ -2318,7 +2318,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  executed in this order.)</para>
 
 <procedure><step><title>Create a new &modset;</title>
-<screen>&sh-prompt; &clisp-link; create linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
+<screen>&sh-prompt; &clisp-link; create linux /&path-r;/bindings/linux.c</screen></step>
 
 <step><title>Modify the newly created
   <filename>linux/&link-sh;</filename></title>
@@ -2327,11 +2327,12 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
     with <screen>NEW_LIBS="$file_list -lm"</screen></para></step>
   <step><title>load <filename>linux.fas</filename> before saving the
     &mem-image;</title><para>replace <screen>TO_LOAD=''</screen> with
-      <screen>TO_LOAD='/<replaceable>somewhere</replaceable>/bindings/linux.fas'</screen></para></step></substeps></step>
+    <screen>TO_LOAD='/&path-r;/bindings/linux.fas'</screen></para></step>
+</substeps></step>
 
 <step><title>Compile <filename>linux.lisp</filename>, creating
   <filename>linux.c</filename></title>
-<screen>&sh-prompt; clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
+<screen>&sh-prompt; clisp -c /&path-r;/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
 <screen>&sh-prompt; &clisp-link; add linux base base+linux</screen></step>
@@ -3148,8 +3149,8 @@ or just evaluates the appropriate form in the &repl;.</para>
   stack, bind respectively a &foreign-variable-t; object or
   a local &symbol-macro; to &var-r; and execute &body-r;.</simpara>
   <simpara>When <replaceable>initarg</replaceable> is not supplied,
-  they allocate space only for <code>(&sizeof;
-  &ctype-r;)</code> bytes.  This space is filled with zeroes.  E.g.,
+  they allocate space only for <code>(&sizeof; &ctype-r;)</code> bytes.
+  This space is filled with zeroes.  E.g.,
   using a &ctype-r; of &c-string; or even <literal role="type">(&c-ptr;
   (&c-array; <type>uint8</type> 32))</literal> (!) both allocate space
   for a single pointer, initialized to &c-NULL;.</simpara>
