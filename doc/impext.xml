@@ -2133,33 +2133,29 @@ The main building blocks are &modset;s and &linkset;s.</para>
 subdirectory <filename>linkkit/</filename> of the current directory.
 This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 
-<para>The command <screen>
-&sh-prompt; &clisp-link; create-module-set &mod-r; <replaceable>file1.c</replaceable> ...</screen> creates a &modset; in &mod-r; directory which refers
- (via symbolic links) to <replaceable>file1.c</replaceable> etc.
- The files are expected to be modules of their own.</para>
-
-<para>The command <screen>
-&sh-prompt; &clisp-link; add-module-set &mod-r; &source-r; &dest-r;</screen>
- combines the &linkset; in directory &source-r; and the &module; in
- directory &mod-r; to a new &linkset;, in the directory
- &dest-r; which is newly created.</para>
-
-<para>The command <screen>
-&sh-prompt; &clisp-link; add-module-sets &source-r; &dest-r; <replaceable>module1</replaceable> ...</screen>
- combines the &linkset; in directory &source-r; and the
- &module;s in directories <replaceable>module1</replaceable>...
- to a new &linkset;, in the directory &dest-r; which is newly created.
- This is equivalent to a sequence of <command>add-module-set</command>
- commands, but is much faster.</para>
-
-<para>The command <screen>
-&sh-prompt; &clisp-link; run &source-r; &mod-r; ...</screen>
- runs the &linkset; in directory &source-r;, with the &module;
- in directory &mod-r; loaded. More than one module can be specified.
- If &clisp; has been built with the configuration option &with-dynmod;,
- the loading will be performed <link linkend="mod-dynload">dynamically</link>.
- Otherwise - this is much slower - a temporary &linkset; will be created
- and deleted afterwards.</para>
+<variablelist><title>&clisp-link; commands</title>
+<varlistentry><term>create</term>
+ <listitem><para>The command
+   <screen>&sh-prompt; &clisp-link; create &mod-r; &file-r;...</screen>
+   creates a &modset; in &mod-r; directory which refers
+   (via symbolic links) to &file-r;...
+   The files are expected to be modules of their own.
+</para></listitem></varlistentry>
+<varlistentry><term>add</term>
+ <listitem><para>The command
+   <screen>&sh-prompt; &clisp-link; add &source-r; &dest-r; &mod-r; ...</screen>
+   combines the &linkset; in directory &source-r; and the &module;s in
+   directories &mod-r;... to a new &linkset;, in the directory &dest-r;
+   which is newly created.</para></listitem></varlistentry>
+<varlistentry><term>run</term>
+ <listitem><para>The command
+   <screen>&sh-prompt; &clisp-link; run &source-r; &mod-r; ...</screen>
+   runs the &linkset; in directory &source-r;, with the &module;s
+   in directories &mod-r;....
+   If &clisp; has been built with the configuration option &with-dynmod;,
+   the loading will be performed <link linkend="mod-dynload">dynamically</link>.
+   Otherwise - this is much slower - a temporary &linkset; will be created
+   and deleted afterwards.</para></listitem></varlistentry></variablelist>
 
 </simplesect>
 
@@ -2322,7 +2318,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  executed in this order.)</para>
 
 <procedure><step><title>Create a new &modset;</title>
-<screen>&sh-prompt; &clisp-link; create-module-set linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
+<screen>&sh-prompt; &clisp-link; create linux /<replaceable>somewhere</replaceable>/bindings/linux.c</screen></step>
 
 <step><title>Modify the newly created
   <filename>linux/&link-sh;</filename></title>
@@ -2338,7 +2334,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <screen>&sh-prompt; clisp -c /<replaceable>somewhere</replaceable>/bindings/linux.lisp</screen></step>
 
 <step><title>Create a new &linkset;</title>
-<screen>&sh-prompt; &clisp-link; add-module-set linux base base+linux</screen></step>
+<screen>&sh-prompt; &clisp-link; add linux base base+linux</screen></step>
 
 <step><title>Run and try it</title>
 <screen>&sh-prompt; base+linux/lisp.run -M base+linux/lispinit.mem -x '(linux:stat "/tmp")'</screen></step>
@@ -3910,14 +3906,14 @@ It is possible to call this function from Lisp using the file
 Use the &module; facility:
 
 <screen>
-&sh-prompt; &clisp-link; create-module-set cfun callcfun.c
+&sh-prompt; &clisp-link; create cfun callcfun.c
 &sh-prompt; cc -O -c cfun.c
 &sh-prompt; cd cfun
 &sh-prompt; ln -s ../cfun.o cfun.o
 Add cfun.o to NEW_LIBS and NEW_FILES in &link-sh;.
 &sh-prompt; cd ..
 &sh-prompt; base/lisp.run -M base/lispinit.mem -c callcfun.lisp
-&sh-prompt; &clisp-link; add-module-set cfun base base+cfun
+&sh-prompt; &clisp-link; add base base+cfun cfun
 &sh-prompt; base+cfun/lisp.run -M base+cfun/lispinit.mem -i callcfun
 &gt; (test-c-call::call-cfun)
 i = 5
@@ -4056,7 +4052,7 @@ To test this, use the following test file <filename>sorttest.lisp</filename>:
 
 Now try
 
-<screen>&sh-prompt; &clisp-link; create-module-set sort sort2.c sorttest.c
+<screen>&sh-prompt; &clisp-link; create sort sort2.c sorttest.c
 &sh-prompt; cc -O -c sort1.c
 &sh-prompt; cd sort
 &sh-prompt; ln -s ../sort1.o sort1.o</screen>
@@ -4071,7 +4067,7 @@ Proceed:
 
 <screen>&sh-prompt; cd ..
 &sh-prompt; base/lisp.run -M base/lispinit.mem -c sort2.lisp sorttest.lisp
-&sh-prompt; &clisp-link; add-module-set sort base base+sort
+&sh-prompt; &clisp-link; add base base+sort sort
 &sh-prompt; base+sort/lisp.run -M base+sort/lispinit.mem -i sort2 sorttest
 &gt; (sort10 10 '#(0.501d0 0.528d0 0.615d0 0.550d0 0.711d0
                 0.523d0 0.585d0 0.670d0 0.271d0 0.063d0))
