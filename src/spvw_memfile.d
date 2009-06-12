@@ -1573,8 +1573,20 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #endif
     /* traverse all LISP-objects and update: */
     #define update  loadmem_update
-    /* update program constants: */
-    update_tables();
+    /* update program constants:
+       we should not update aktenv - it is not initialized.
+       in MT the current thread's _object_tab and _aktenv - they are
+       laready initialized */
+    /* update_tables(); */
+    update_subr_tab();
+    update_symbol_tab();
+    for_all_constobjs( update(objptr); );  /* update object_tab */
+    #ifdef MULTITHREAD
+      /* and now the per thread symbol bindings of the thread */
+      var gcv_object_t* objptr = allthreads[0]->_ptr_symvalues;
+      var uintC count;
+      dotimespC(count,num_symvalues,{ update(objptr); objptr++; });
+    #endif
    #ifdef SINGLEMAP_MEMORY_RELOCATE
     if (!offset_heaps_all_zero)
    #endif
