@@ -1,3 +1,7 @@
+2009-06-12  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: yet another test of printing of round numbers
+
 2009-06-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: reduce the timeout for WITH-TIMEOUT test. Currently on WIN32
