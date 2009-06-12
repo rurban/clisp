@@ -1,3 +1,9 @@
+2009-06-12  Sam Steingold  <sds@gnu.org>
+
+	* floatprint.lisp (decode-float-decimal): only widen [a1;a2] when
+	binmant is even - because of normal IEEE rounding mode when even
+	numbers represent the inclusive intervals
+
 2009-06-11  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (add-module-set): remove command
