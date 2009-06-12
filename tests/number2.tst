@@ -473,6 +473,12 @@ NIL
 (prin1-to-string 1d22) "1.0d22"
 (prin1-to-string 1d23) "1.0d23"
 (prin1-to-string 1d24) "1.0d24"
+(loop :for i :from -200 :upto 200
+  :for s = (format nil "1.0d~d" i)
+  :for x = (read-from-string s)
+  :unless (or (<= -3 i 6) (string= (prin1-to-string x) s))
+  :collect (list i s x))
+NIL
 
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
 (loop :repeat 6400 :for x = -1L2 :then (+ x 0.03125l0)
