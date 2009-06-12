@@ -2469,7 +2469,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
      of <function role="unix">htonl</function> et al in
      <filename role="clisp-cvs">modules/rawsock/rawsock.c</filename>.
    </simpara></listitem>
-   <listitem><simpara>Third, certain &c-lang; structures have different
+   <listitem><simpara>Certain &c-lang; structures have different
      layout on different platforms, and functions may take 64-bit
      arguments on some platforms and 32-bit arguments on others; so the
      &ffi-pac; code has to track those differences, while &c-lang; will
@@ -2499,9 +2499,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 </simpara></listitem></varlistentry>
 <varlistentry><term>Safety: unclear</term>
  <listitem><simpara>One can get a segfault either way: if your
-   &def-call-out; form does not describe the function's expectations
-   with respect to the arguments and return values (including
-   &allocation;), you will probably learn that the hard way.
+   &def-call-out; form does not describe the &c-lang; function's
+   expectations with respect to the arguments and return values
+   (including &allocation;), you will probably learn that the hard way.
    If the module is written in &c-lang;, all the opportunities to shoot
    oneself in the foot (and other body parts) are wide open
    (although well known to most &c-lang; users).
