@@ -177,7 +177,7 @@ space.</para>
  <para>Memory images are &not-e; portable across different platforms
   (in contrast with platform-independent &fasl-file; files).
   They are &not-e; even portable across &linkset;s: image saved using
-  the &full; &linkset; cannot be used with the &base; runtime:<screen>
+  the &full; &linkset; cannot be used with the &base; &rt;:<screen>
 &sh-prompt; clisp -K full -x '(&savemem;)'
 &sh-prompt; clisp -K base -M lispinit.mem
 base/lisp.run: initialization file `lispinit.mem' was not created by this version of CLISP runtime</screen>
@@ -2021,7 +2021,7 @@ additionally binds &cont-r; to the content length.</para>
   extension <filename>exe</filename>.</para>
  <para>For historical reasons, all examples appear to assume &unix; and
   use the <filename>run</filename> file type (<quote>extension</quote>)
-  for the &clisp; run-time.
+  for the &clisp; &rt;.
   This does &not-e; mean that they will not work on &win32;.</para>
 </note>
 
@@ -2068,7 +2068,7 @@ The main building blocks are &modset;s and &linkset;s.</para>
  or <screen>&sh-prompt; clisp &opt-K; &dir-r;</screen>
  (recommended, since it also passes
  <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
- to the run-time).</para></listitem>
+ to the &rt;).</para></listitem>
   <listitem><simpara>Adding a &modset; to create a new &linkset; which
     will contain the module functionality</simpara></listitem></orderedlist>
  The &clisp; build directory contains three &linkset;s in
@@ -2114,7 +2114,7 @@ The main building blocks are &modset;s and &linkset;s.</para>
  <listitem><simpara>listed in <filename>makevars</filename>
 </simpara></listitem></varlistentry>
 <varlistentry><term>&lisp-run;</term>
- <listitem><simpara>the executable</simpara></listitem></varlistentry>
+ <listitem><simpara>the executable &rt;</simpara></listitem></varlistentry>
 <varlistentry><term>&lispinit;</term>
  <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist></para>
@@ -2122,8 +2122,9 @@ The main building blocks are &modset;s and &linkset;s.</para>
 
 <simplesect id="clisp-link"><title>Operating on &modset;s and &linkset;s</title>
 <para>Adding one or several &modset;s to a &linkset;s produces a new
- &linkset; which contains the functionality of those modules. This is
- done by the &clisp-link; shell script.</para>
+ &linkset; which contains the functionality of those modules in addition
+ to all the functionality present in the original &linkset;.
+ This is done by the &clisp-link; shell script.</para>
 <para>&clisp-link; needs a directory containing:
 <itemizedlist>
   <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
@@ -2136,9 +2137,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <variablelist><title>&clisp-link; commands</title>
 <varlistentry><term>create</term>
  <listitem><para>The command
-   <screen>&sh-prompt; &clisp-link; create &mod-r; &file-r;...</screen>
+   <screen>&sh-prompt; &clisp-link; create &mod-r; &file-r; ...</screen>
    creates a &modset; in &mod-r; directory which refers
-   (via symbolic links) to &file-r;...
+   (via symbolic links) to files &file-r;...
    The files are expected to be modules of their own.
 </para></listitem></varlistentry>
 <varlistentry><term>add</term>
@@ -2151,7 +2152,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  <listitem><para>The command
    <screen>&sh-prompt; &clisp-link; run &source-r; &mod-r; ...</screen>
    runs the &linkset; in directory &source-r;, with the &module;s
-   in directories &mod-r;....
+   in directories &mod-r;...
    If &clisp; has been built with the configuration option &with-dynmod;,
    the loading will be performed <link linkend="mod-dynload">dynamically</link>.
    Otherwise - this is much slower - a temporary &linkset; will be created
@@ -2163,19 +2164,19 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
 <para>The following variables should be defined in &link-sh;.</para>
 <variablelist>
 <varlistentry><term><envar>NEW_FILES</envar></term>
- <listitem><simpara>the space-separated list of files that
-  belong to the &modset; and will belong to every new &linkset;.
- </simpara></listitem></varlistentry>
+ <listitem><simpara>the space-separated list of object files that
+  belong to the &modset; and will belong to every new &linkset; linked
+  with this &modset;.</simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_LIBS</envar></term>
- <listitem><simpara>the space-separated list of files or
+ <listitem><simpara>the space-separated list of object files, libraries or
   &c-lang; compiler switches that need to be passed to the &c-lang;
   compiler when linking the &lisp-run; belonging to a new &linkset;.
  </simpara></listitem></varlistentry>
 <varlistentry><term><envar>NEW_MODULES</envar></term>
  <listitem><simpara>the space-separated list of the module names
   belonging to the &modset;.  Normally, every &c-file; file in the
-  &modset; defines a module of its own.  The module name is derived
-  from the file name.</simpara></listitem></varlistentry>
+  &modset; defines a module of its own.  The module name is usually
+  derived from the file name.</simpara></listitem></varlistentry>
 <varlistentry id="mod-load"><term>&mod-load;</term>
  <listitem><simpara>the space-separated list of Lisp files to load
   before building the &lispinit; belonging to a new &linkset;.
@@ -2401,9 +2402,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <listitem><simpara>Variables of this type are invalidated by
    <link linkend="gc-safety">lisp memory allocation</link>
    (<function>allocate_*()</function> functions) - but &not-e; &c-lang;
-   allocations (<function role="unix">malloc</function> et al) -
-   and must be saved on the &STACK; using &cpp; macros
-   <function>pushSTACK()</function>, <function>popSTACK()</function>
+   allocations (&malloc; et al) - and must be saved on the &STACK; using &cpp;
+   macros <function>pushSTACK()</function>, <function>popSTACK()</function>
    and <function>skipSTACK()</function>.</simpara></listitem>
  <listitem><simpara>Access object slots using the
    appropriate <function>TheFoo()</function> macro, e.g.,
@@ -2415,8 +2415,15 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    <literal>begin_system_call()</literal>/<literal>end_system_call()</literal>
    pairs.  These macros, defined in &clisp-h;, save and restore
    registers used by &clisp; which could be clobbered by a system call.
- </simpara></listitem>
-</itemizedlist>
+  </simpara><simpara>If the system call could block
+   (e.g., <function role="unix">read</function>)
+   you need to use <literal>begin_blocking_system_call()</literal> and
+   <literal>end_blocking_system_call()</literal> instead. This will
+   allow other threads to run while yours is inside the system call.
+   This means that &gc;ion could happen while you are inside this system
+   call and, thus, that all objects of type <type>object</type> are
+   invalidated by the call. See also <xref linkend="gc-safety"/>.
+</simpara></listitem></itemizedlist>
 </para>
 
 </section>
@@ -4384,7 +4391,7 @@ Now you can sum doubles:
   remote host to execute arbitrary code with your permissions.
   While functions defined in lisp (like &run-cmd;) can be removed
   (using &fmakunbound;), the built-in functions (like &shell; and &exec;)
-  cannot be permanently removed from the run-time, and an experienced
+  cannot be permanently removed from the &rt;, and an experienced
   hacker will be able to invoke them even if you &fmakunbound; their names.
  </simpara><simpara>You should limit the socket server to local connections
   by passing the &string-t; <literal role="data">"127.0.0.1"</literal>
