@@ -401,12 +401,13 @@ following command:
 
 <qandadiv id="faq-run"><title>Running &clisp;</title>
 
-<qandaentry id="faq-defun"><question id="faq-defun-q"><simpara>Where is
-   &defun;?</simpara></question>
-<answer><para>Pass &opt-M; to the runtime (&lisp-run;
+<qandaentry id="faq-defun"><question id="faq-defun-q">
+  <simpara>Why are floats printed in binary?</simpara>
+  <simpara>Where is &defun;?</simpara></question>
+<answer><para>Pass &opt-M; to the &rt; (&lisp-run;
   or <filename>lisp.exe</filename>).
   Or, better yet, use the driver <filename>clisp</filename> (or
-  <filename>clisp.exe</filename>) instead of invoking the runtime
+  <filename>clisp.exe</filename>) instead of invoking the &rt;
   directly.</para></answer></qandaentry>
 
 <qandaentry id="faq-ide">
