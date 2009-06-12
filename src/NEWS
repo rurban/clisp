@@ -1,6 +1,10 @@
 Important notes
 ---------------
 
+* Multiple threads of execution are now supported.
+  Thanks to  Vladimir Tzankov <vtzankov@gmail.com>.
+  See <http://clisp.cons.org/impnotes/mt.html> for details.
+
 * Module libsvm has been upgraded to the upstream version 2.89.
   See <http://clisp.cons.org/impnotes/libsvm.html> for details.
 
@@ -32,7 +36,6 @@ Important notes
 * New user command "LocalSymbols" (abbreviated ":ls").
   See <http://clisp.cons.org/impnotes/repl.html#debugger-main-deb-step>
   for details.
-
 
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
