@@ -67,8 +67,8 @@
         ;; Therefore, convert 2^e := 2^(binexpo-1) into the decimal system.
         (let* ((e (- binexpo 1))
                (e-gross (> (abs e) (ash l 1))) ; if |e| is very large, >2*l ?
-               g f     ; auxiliary variables in case that |e| is large
-               ten-d  ; auxiliary variable 10^|d| in case that |e| is small
+               g f   ; auxiliary variables in case that |e| is large
+               ten-d ; auxiliary variable 10^|d| in case that |e| is small
                d a1 a2); result variables
           (if e-gross ; is |e| really big?
             ;; As 2^e can work only approximately, we need safety bits.
@@ -158,7 +158,7 @@
               ;; If a1' < a1 or a2 < a2' , then the power-of-2-approximation-
               ;; 10^d * f/2^g for 2^e has not been accurate enough,
               ;; and we have to repeat everything with increased h.
-              ;; Exception (wenn even no higer precision helps):
+              ;; Exception (when even higer precision does not help):
               ;;   If the upper or lower interval boundary (x+x2)/2 resp.
               ;;   (x+x1)/2 has itself the shape 10^d * a with integer a.
               ;;   This is tested via:
@@ -230,15 +230,17 @@
                     ;; Set d = 0 and a1 = a2 = 2^e * 2*binmant / 10^d.
                     (setq d 0)
                     (setq a1 (setq a2 (ash binmant (1+ e)))))
-                  (progn
+                  (if (evenp binmant)
+                    ;; even mantissas represent _inclusive_ intervals
+                    (setq a1 (floor (ash below e) (ash ten-d belowshift))
+                          a2 (floor (ash above e) ten-d))
                     ;; let a1 be the smallest integer
                     ;;      a > 2^(e-belowshift) * below / 10^d,
                     ;; let a2 be the largest integer a < 2^e * above / 10^d.
-                    ;; a1 = [1+]floor(below*2^e/(2^belowshift*10^d)),
-                    ;; a2 = floor((above*2^e[-1])/10^d).
-                    ;; the [1+] and [-1] are removed to accommodate 1d23
-                    (setq a1 (floor (ash below e) (ash ten-d belowshift)))
-                    (setq a2 (floor (ash above e) ten-d)))))
+                    ;; a1 = 1+floor(below*2^e/(2^belowshift*10^d)),
+                    ;; a2 = floor((above*2^e-1)/10^d).
+                    (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift)))
+                          a2 (floor (1- (ash above e)) ten-d)))))
               ;; e < 0. Estimate d = floor(e*lg(2)) like above.
               ;; |e|<=2*l<2^21.
               (progn
