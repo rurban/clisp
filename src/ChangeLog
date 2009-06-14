@@ -1,3 +1,8 @@
+2009-06-14  Sam Steingold  <sds@gnu.org>
+
+	* floatprint.lisp (decode-float-decimal): only widen UP [a1;a2]
+	when binmant is even
+
 2009-06-13  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_memfile.d (loadmem_from_handle): update only the objects loaded

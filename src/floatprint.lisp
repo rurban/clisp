@@ -230,17 +230,17 @@
                     ;; Set d = 0 and a1 = a2 = 2^e * 2*binmant / 10^d.
                     (setq d 0)
                     (setq a1 (setq a2 (ash binmant (1+ e)))))
-                  (if (evenp binmant)
-                    ;; even mantissas represent _inclusive_ intervals
-                    (setq a1 (floor (ash below e) (ash ten-d belowshift))
-                          a2 (floor (ash above e) ten-d))
+                  (progn
                     ;; let a1 be the smallest integer
                     ;;      a > 2^(e-belowshift) * below / 10^d,
                     ;; let a2 be the largest integer a < 2^e * above / 10^d.
                     ;; a1 = 1+floor(below*2^e/(2^belowshift*10^d)),
                     ;; a2 = floor((above*2^e-1)/10^d).
-                    (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift)))
-                          a2 (floor (1- (ash above e)) ten-d)))))
+                    (setq a1 (1+ (floor (ash below e) (ash ten-d belowshift))))
+                    ;; even mantissas represent top-inclusive intervals
+                    (setq a2 (if (evenp binmant)
+                                 (floor (ash above e) ten-d)
+                                 (floor (1- (ash above e)) ten-d))))))
               ;; e < 0. Estimate d = floor(e*lg(2)) like above.
               ;; |e|<=2*l<2^21.
               (progn
