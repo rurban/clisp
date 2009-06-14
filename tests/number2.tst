@@ -480,6 +480,19 @@ NIL
   :collect (list i s x))
 NIL
 
+(defun test-float-io-consistency (&key from to by repeat)
+  (loop :for max = from :then (* by max) :while (< max to) :nconc
+    (loop :repeat repeat :for x = (random max)
+      :for y = (if (zerop (random 2)) x (- x))
+      :unless (= y (read-from-string (prin1-to-string y)))
+      :collect (cons y (multiple-value-list (integer-decode-float y))))))
+TEST-FLOAT-IO-CONSISTENCY
+
+(test-float-io-consistency :from 1s-30 :by 10 :to 1s30 :repeat 100) NIL
+(test-float-io-consistency :from 1f-30 :by 10 :to 1f30 :repeat 100) NIL
+(test-float-io-consistency :from 1d-300 :by 100 :to 1d300 :repeat 10) NIL
+(test-float-io-consistency :from 1L-3000 :by 1000 :to 1L3000 :repeat 10) NIL
+
 ;; https://sourceforge.net/tracker/?func=detail&atid=101355&aid=1589311&group_id=1355
 (loop :repeat 6400 :for x = -1L2 :then (+ x 0.03125l0)
   :for (x1 x2) = (multiple-value-list (round x))
