@@ -27,6 +27,7 @@ DISTCLEANFILES =
 MAINTAINERCLEANFILES =
 
 AM_CPPFLAGS =
+AM_CFLAGS =
 
 noinst_LTLIBRARIES += libgnu.la
 
@@ -93,7 +94,7 @@ EXTRA_libgnu_la_SOURCES += btowc.c
 # The Automake-defined pkg* macros are appended, in the order
 # listed in the Automake 1.10a+ documentation.
 configmake.h: Makefile
-	rm -f $@-t $@
+	rm -f $@-t
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
 	  echo '#define PREFIX "$(prefix)"'; \
 	  echo '#define EXEC_PREFIX "$(exec_prefix)"'; \
@@ -123,7 +124,12 @@ configmake.h: Makefile
 	  echo '#define PKGLIBDIR "$(pkglibdir)"'; \
 	  echo '#define PKGLIBEXECDIR "$(pkglibexecdir)"'; \
 	} | sed '/""/d' > $@-t
-	mv $@-t $@
+	if test -f $@ && cmp $@-t $@ > /dev/null; then \
+	  rm -f $@-t; \
+	else \
+	  rm -f $@; mv $@-t $@; \
+	fi
+
 BUILT_SOURCES += configmake.h
 CLEANFILES += configmake.h configmake.h-t
 
@@ -147,6 +153,15 @@ EXTRA_DIST += fnmatch.c fnmatch.in.h fnmatch_loop.c
 EXTRA_libgnu_la_SOURCES += fnmatch.c fnmatch_loop.c
 
 ## end   gnulib module fnmatch
+
+## begin gnulib module getpagesize
+
+
+EXTRA_DIST += getpagesize.c
+
+EXTRA_libgnu_la_SOURCES += getpagesize.c
+
+## end   gnulib module getpagesize
 
 ## begin gnulib module gettext
 
@@ -222,21 +237,37 @@ all-local: charset.alias ref-add.sed ref-del.sed
 
 charset_alias = $(DESTDIR)$(libdir)/charset.alias
 charset_tmp = $(DESTDIR)$(libdir)/charset.tmp
-install-exec-local: all-local
-	test $(GLIBC21) != no || $(mkinstalldirs) $(DESTDIR)$(libdir)
+install-exec-local: install-exec-localcharset
+install-exec-localcharset: all-local
+	if test $(GLIBC21) = no; then \
+	  case '$(host_os)' in \
+	    darwin[56]*) \
+	      need_charset_alias=true ;; \
+	    darwin* | cygwin* | mingw* | pw32* | cegcc*) \
+	      need_charset_alias=false ;; \
+	    *) \
+	      need_charset_alias=true ;; \
+	  esac ; \
+	else \
+	  need_charset_alias=false ; \
+	fi ; \
+	if $$need_charset_alias; then \
+	  $(mkinstalldirs) $(DESTDIR)$(libdir) ; \
+	fi ; \
 	if test -f $(charset_alias); then \
 	  sed -f ref-add.sed $(charset_alias) > $(charset_tmp) ; \
 	  $(INSTALL_DATA) $(charset_tmp) $(charset_alias) ; \
 	  rm -f $(charset_tmp) ; \
 	else \
-	  if test $(GLIBC21) = no; then \
+	  if $$need_charset_alias; then \
 	    sed -f ref-add.sed charset.alias > $(charset_tmp) ; \
 	    $(INSTALL_DATA) $(charset_tmp) $(charset_alias) ; \
 	    rm -f $(charset_tmp) ; \
 	  fi ; \
 	fi
 
-uninstall-local: all-local
+uninstall-local: uninstall-localcharset
+uninstall-localcharset: all-local
 	if test -f $(charset_alias); then \
 	  sed -f ref-del.sed $(charset_alias) > $(charset_tmp); \
 	  if grep '^# Packages using this file: $$' $(charset_tmp) \
@@ -300,6 +331,24 @@ EXTRA_DIST += mbsinit.c
 EXTRA_libgnu_la_SOURCES += mbsinit.c
 
 ## end   gnulib module mbsinit
+
+## begin gnulib module mbsrtowcs
+
+
+EXTRA_DIST += mbsrtowcs-state.c mbsrtowcs.c
+
+EXTRA_libgnu_la_SOURCES += mbsrtowcs-state.c mbsrtowcs.c
+
+## end   gnulib module mbsrtowcs
+
+## begin gnulib module memchr
+
+
+EXTRA_DIST += memchr.c
+
+EXTRA_libgnu_la_SOURCES += memchr.c
+
+## end   gnulib module memchr
 
 ## begin gnulib module regex
 
@@ -382,6 +431,7 @@ stdlib.h: stdlib.in.h
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
 	      -e 's|@''NEXT_STDLIB_H''@|$(NEXT_STDLIB_H)|g' \
+	      -e 's|@''HAVE_RANDOM_H''@|$(HAVE_RANDOM_H)|g' \
 	      -e 's|@''GNULIB_MALLOC_POSIX''@|$(GNULIB_MALLOC_POSIX)|g' \
 	      -e 's|@''GNULIB_REALLOC_POSIX''@|$(GNULIB_REALLOC_POSIX)|g' \
 	      -e 's|@''GNULIB_CALLOC_POSIX''@|$(GNULIB_CALLOC_POSIX)|g' \
@@ -434,6 +484,92 @@ EXTRA_DIST += stdlib.in.h
 EXTRA_DIST += streq.h
 
 ## end   gnulib module streq
+
+## begin gnulib module string
+
+BUILT_SOURCES += string.h
+
+# We need the following in order to create <string.h> when the system
+# doesn't have one that works with the given compiler.
+string.h: string.in.h
+	rm -f $@-t $@
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
+	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
+	      -e 's|@''NEXT_STRING_H''@|$(NEXT_STRING_H)|g' \
+	      -e 's|@''GNULIB_MBSLEN''@|$(GNULIB_MBSLEN)|g' \
+	      -e 's|@''GNULIB_MBSNLEN''@|$(GNULIB_MBSNLEN)|g' \
+	      -e 's|@''GNULIB_MBSCHR''@|$(GNULIB_MBSCHR)|g' \
+	      -e 's|@''GNULIB_MBSRCHR''@|$(GNULIB_MBSRCHR)|g' \
+	      -e 's|@''GNULIB_MBSSTR''@|$(GNULIB_MBSSTR)|g' \
+	      -e 's|@''GNULIB_MBSCASECMP''@|$(GNULIB_MBSCASECMP)|g' \
+	      -e 's|@''GNULIB_MBSNCASECMP''@|$(GNULIB_MBSNCASECMP)|g' \
+	      -e 's|@''GNULIB_MBSPCASECMP''@|$(GNULIB_MBSPCASECMP)|g' \
+	      -e 's|@''GNULIB_MBSCASESTR''@|$(GNULIB_MBSCASESTR)|g' \
+	      -e 's|@''GNULIB_MBSCSPN''@|$(GNULIB_MBSCSPN)|g' \
+	      -e 's|@''GNULIB_MBSPBRK''@|$(GNULIB_MBSPBRK)|g' \
+	      -e 's|@''GNULIB_MBSSPN''@|$(GNULIB_MBSSPN)|g' \
+	      -e 's|@''GNULIB_MBSSEP''@|$(GNULIB_MBSSEP)|g' \
+	      -e 's|@''GNULIB_MBSTOK_R''@|$(GNULIB_MBSTOK_R)|g' \
+	      -e 's|@''GNULIB_MEMCHR''@|$(GNULIB_MEMCHR)|g' \
+	      -e 's|@''GNULIB_MEMMEM''@|$(GNULIB_MEMMEM)|g' \
+	      -e 's|@''GNULIB_MEMPCPY''@|$(GNULIB_MEMPCPY)|g' \
+	      -e 's|@''GNULIB_MEMRCHR''@|$(GNULIB_MEMRCHR)|g' \
+	      -e 's|@''GNULIB_RAWMEMCHR''@|$(GNULIB_RAWMEMCHR)|g' \
+	      -e 's|@''GNULIB_STPCPY''@|$(GNULIB_STPCPY)|g' \
+	      -e 's|@''GNULIB_STPNCPY''@|$(GNULIB_STPNCPY)|g' \
+	      -e 's|@''GNULIB_STRCHRNUL''@|$(GNULIB_STRCHRNUL)|g' \
+	      -e 's|@''GNULIB_STRDUP''@|$(GNULIB_STRDUP)|g' \
+	      -e 's|@''GNULIB_STRNDUP''@|$(GNULIB_STRNDUP)|g' \
+	      -e 's|@''GNULIB_STRNLEN''@|$(GNULIB_STRNLEN)|g' \
+	      -e 's|@''GNULIB_STRPBRK''@|$(GNULIB_STRPBRK)|g' \
+	      -e 's|@''GNULIB_STRSEP''@|$(GNULIB_STRSEP)|g' \
+	      -e 's|@''GNULIB_STRSTR''@|$(GNULIB_STRSTR)|g' \
+	      -e 's|@''GNULIB_STRCASESTR''@|$(GNULIB_STRCASESTR)|g' \
+	      -e 's|@''GNULIB_STRTOK_R''@|$(GNULIB_STRTOK_R)|g' \
+	      -e 's|@''GNULIB_STRERROR''@|$(GNULIB_STRERROR)|g' \
+	      -e 's|@''GNULIB_STRSIGNAL''@|$(GNULIB_STRSIGNAL)|g' \
+	      -e 's|@''GNULIB_STRVERSCMP''@|$(GNULIB_STRVERSCMP)|g' \
+	      -e 's|@''HAVE_DECL_MEMMEM''@|$(HAVE_DECL_MEMMEM)|g' \
+	      -e 's|@''HAVE_MEMPCPY''@|$(HAVE_MEMPCPY)|g' \
+	      -e 's|@''HAVE_DECL_MEMRCHR''@|$(HAVE_DECL_MEMRCHR)|g' \
+	      -e 's|@''HAVE_RAWMEMCHR''@|$(HAVE_RAWMEMCHR)|g' \
+	      -e 's|@''HAVE_STPCPY''@|$(HAVE_STPCPY)|g' \
+	      -e 's|@''HAVE_STPNCPY''@|$(HAVE_STPNCPY)|g' \
+	      -e 's|@''HAVE_STRCHRNUL''@|$(HAVE_STRCHRNUL)|g' \
+	      -e 's|@''HAVE_DECL_STRDUP''@|$(HAVE_DECL_STRDUP)|g' \
+	      -e 's|@''HAVE_STRNDUP''@|$(HAVE_STRNDUP)|g' \
+	      -e 's|@''HAVE_DECL_STRNDUP''@|$(HAVE_DECL_STRNDUP)|g' \
+	      -e 's|@''HAVE_DECL_STRNLEN''@|$(HAVE_DECL_STRNLEN)|g' \
+	      -e 's|@''HAVE_STRPBRK''@|$(HAVE_STRPBRK)|g' \
+	      -e 's|@''HAVE_STRSEP''@|$(HAVE_STRSEP)|g' \
+	      -e 's|@''HAVE_STRCASESTR''@|$(HAVE_STRCASESTR)|g' \
+	      -e 's|@''HAVE_DECL_STRTOK_R''@|$(HAVE_DECL_STRTOK_R)|g' \
+	      -e 's|@''HAVE_DECL_STRERROR''@|$(HAVE_DECL_STRERROR)|g' \
+	      -e 's|@''HAVE_DECL_STRSIGNAL''@|$(HAVE_DECL_STRSIGNAL)|g' \
+	      -e 's|@''HAVE_STRVERSCMP''@|$(HAVE_STRVERSCMP)|g' \
+	      -e 's|@''REPLACE_MEMCHR''@|$(REPLACE_MEMCHR)|g' \
+	      -e 's|@''REPLACE_MEMMEM''@|$(REPLACE_MEMMEM)|g' \
+	      -e 's|@''REPLACE_STRCASESTR''@|$(REPLACE_STRCASESTR)|g' \
+	      -e 's|@''REPLACE_STRDUP''@|$(REPLACE_STRDUP)|g' \
+	      -e 's|@''REPLACE_STRSTR''@|$(REPLACE_STRSTR)|g' \
+	      -e 's|@''REPLACE_STRERROR''@|$(REPLACE_STRERROR)|g' \
+	      -e 's|@''REPLACE_STRSIGNAL''@|$(REPLACE_STRSIGNAL)|g' \
+	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
+	      < $(srcdir)/string.in.h; \
+	} > $@-t
+	mv $@-t $@
+MOSTLYCLEANFILES += string.h string.h-t
+
+EXTRA_DIST += string.in.h
+
+## end   gnulib module string
+
+## begin gnulib module strnlen1
+
+libgnu_la_SOURCES += strnlen1.h strnlen1.c
+
+## end   gnulib module strnlen1
 
 ## begin gnulib module sys_time
 
@@ -504,6 +640,7 @@ unistd.h: unistd.in.h
 	      -e 's|@''GNULIB_GETPAGESIZE''@|$(GNULIB_GETPAGESIZE)|g' \
 	      -e 's|@''GNULIB_GETUSERSHELL''@|$(GNULIB_GETUSERSHELL)|g' \
 	      -e 's|@''GNULIB_LCHOWN''@|$(GNULIB_LCHOWN)|g' \
+	      -e 's|@''GNULIB_LINK''@|$(GNULIB_LINK)|g' \
 	      -e 's|@''GNULIB_LSEEK''@|$(GNULIB_LSEEK)|g' \
 	      -e 's|@''GNULIB_READLINK''@|$(GNULIB_READLINK)|g' \
 	      -e 's|@''GNULIB_SLEEP''@|$(GNULIB_SLEEP)|g' \
@@ -518,6 +655,7 @@ unistd.h: unistd.in.h
 	      -e 's|@''HAVE_GETHOSTNAME''@|$(HAVE_GETHOSTNAME)|g' \
 	      -e 's|@''HAVE_GETPAGESIZE''@|$(HAVE_GETPAGESIZE)|g' \
 	      -e 's|@''HAVE_GETUSERSHELL''@|$(HAVE_GETUSERSHELL)|g' \
+	      -e 's|@''HAVE_LINK''@|$(HAVE_LINK)|g' \
 	      -e 's|@''HAVE_READLINK''@|$(HAVE_READLINK)|g' \
 	      -e 's|@''HAVE_SLEEP''@|$(HAVE_SLEEP)|g' \
 	      -e 's|@''HAVE_DECL_ENVIRON''@|$(HAVE_DECL_ENVIRON)|g' \
@@ -617,6 +755,7 @@ wchar.h: wchar.in.h
 	      -e 's|@''REPLACE_MBSNRTOWCS''@|$(REPLACE_MBSNRTOWCS)|g' \
 	      -e 's|@''REPLACE_WCRTOMB''@|$(REPLACE_WCRTOMB)|g' \
 	      -e 's|@''REPLACE_WCSRTOMBS''@|$(REPLACE_WCSRTOMBS)|g' \
+	      -e 's|@''REPLACE_WCSNRTOMBS''@|$(REPLACE_WCSNRTOMBS)|g' \
 	      -e 's|@''REPLACE_WCWIDTH''@|$(REPLACE_WCWIDTH)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	    < $(srcdir)/wchar.in.h; \
