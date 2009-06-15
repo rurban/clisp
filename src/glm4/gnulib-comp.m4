@@ -26,7 +26,6 @@ AC_DEFUN([gl_EARLY],
   m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
   AC_REQUIRE([AC_PROG_RANLIB])
   AC_REQUIRE([AM_PROG_CC_C_O])
-  AC_REQUIRE([AC_GNU_SOURCE])
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 ])
 
@@ -50,8 +49,10 @@ AC_SUBST([LTALLOCA])
   gl_FUNC_ALLOCA
   gl_FUNC_BTOWC
   gl_WCHAR_MODULE_INDICATOR([btowc])
-  # No macro. You should also use one of fnmatch-posix or fnmatch-gnu.
+  gl_FUNC_FNMATCH_POSIX
   gl_FUNC_FNMATCH_GNU
+  gl_FUNC_GETPAGESIZE
+  gl_UNISTD_MODULE_INDICATOR([getpagesize])
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
   AM_GNU_GETTEXT_VERSION([0.17])
   AC_SUBST([LIBINTL])
@@ -71,12 +72,17 @@ AC_SUBST([LTALLOCA])
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
   gl_FUNC_MBSINIT
   gl_WCHAR_MODULE_INDICATOR([mbsinit])
+  gl_FUNC_MBSRTOWCS
+  gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
+  gl_FUNC_MEMCHR
+  gl_STRING_MODULE_INDICATOR([memchr])
   gl_MULTIARCH
   gl_REGEX
   gt_TYPE_SSIZE_T
   AM_STDBOOL_H
   gl_STDINT_H
   gl_STDLIB_H
+  gl_HEADER_STRING_H
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
   gl_UNISTD_H
@@ -221,6 +227,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/fnmatch.c
   lib/fnmatch.in.h
   lib/fnmatch_loop.c
+  lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
   lib/localcharset.c
@@ -228,6 +235,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/malloc.c
   lib/mbrtowc.c
   lib/mbsinit.c
+  lib/mbsrtowcs-state.c
+  lib/mbsrtowcs.c
+  lib/memchr.c
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
@@ -240,6 +250,9 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/stdint.in.h
   lib/stdlib.in.h
   lib/streq.h
+  lib/string.in.h
+  lib/strnlen1.c
+  lib/strnlen1.h
   lib/sys_time.in.h
   lib/uniname.h
   lib/uniname/gen-uninames.lisp
@@ -254,11 +267,13 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/wchar.in.h
   lib/wcrtomb.c
   lib/wctype.in.h
+  m4/00gnulib.m4
   m4/alloca.m4
   m4/btowc.m4
   m4/codeset.m4
   m4/extensions.m4
   m4/fnmatch.m4
+  m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
   m4/glibc2.m4
@@ -289,7 +304,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
+  m4/mbsrtowcs.m4
   m4/mbstate_t.m4
+  m4/memchr.m4
+  m4/mmap-anon.m4
   m4/multiarch.m4
   m4/nls.m4
   m4/nocrash.m4
@@ -303,6 +321,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/stdint.m4
   m4/stdint_h.m4
   m4/stdlib_h.m4
+  m4/string_h.m4
   m4/sys_time_h.m4
   m4/threadlib.m4
   m4/uintmax_t.m4

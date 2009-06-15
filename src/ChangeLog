@@ -1,5 +1,26 @@
 2009-06-15  Sam Steingold  <sds@gnu.org>
 
+	* gllib/getpagesize.c, gllib/mbsrtowcs-state.c, gllib/mbsrtowcs.c:
+	* gllib/memchr.c, gllib/string.in.h, gllib/strnlen1.c, gllib/strnlen1.h:
+	* glm4/00gnulib.m4, glm4/getpagesize.m4, glm4/mbsrtowcs.m4:
+	* glm4/memchr.m4, glm4/mmap-anon.m4, glm4/string_h.m4: add from gnulib
+	* build-aux/config.guess, build-aux/config.sub, build-aux/depcomp:
+	* build-aux/install-sh, build-aux/missing, gllib/config.charset:
+	* gllib/gettext.h, gllib/gettimeofday.c, gllib/localcharset.c:
+	* gllib/Makefile.am, gllib/mbrtowc.c, gllib/regex_internal.h:
+	* gllib/stdint.in.h, gllib/stdlib.in.h:
+	* gllib/uniname/gen-uninames.lisp, gllib/uniname/uniname.c:
+	* gllib/uniname/uninames.h, gllib/unistd.in.h, gllib/uniwidth/width.c:
+	* gllib/wchar.in.h, glm4/btowc.m4, glm4/extensions.m4, glm4/fnmatch.m4:
+	* glm4/gnulib-common.m4, glm4/gnulib-comp.m4, glm4/include_next.m4:
+	* glm4/lib-link.m4, glm4/lib-prefix.m4, glm4/libsigsegv.m4:
+	* glm4/link-follow.m4, glm4/locale-fr.m4, glm4/locale-ja.m4:
+	* glm4/locale-zh.m4, glm4/mbrtowc.m4, glm4/multiarch.m4, glm4/regex.m4:
+	* glm4/size_max.m4, glm4/stdint.m4, glm4/stdlib_h.m4, glm4/unistd_h.m4:
+	* glm4/wchar.m4, glm4/wcrtomb.m4: update from gnulib
+
+2009-06-15  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (update-gnulib): use git when it is available
 
 2009-06-15  Sam Steingold  <sds@gnu.org>
