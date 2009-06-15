@@ -1,6 +1,6 @@
                                                Hey Emacs! -*- coding: utf-8 -*-
 
-       Copyright (c) 1992-2008 Bruno Haible, Michael Stoll, Sam Steingold
+       Copyright (c) 1992-2009 Bruno Haible, Michael Stoll, Sam Steingold
                            All Rights Reserved
 
 
@@ -66,13 +66,14 @@ Authors:
   DOS version:   Bruno Haible, Bernhard Degel, Jürgen Weber
   OS/2 version:  Bruno Haible
   Unix version:  Bruno Haible
+  Multithreading: Vladimir Tzankov
 
 Maintenance:
   Bruno Haible, Michael Stoll 1992-1993
   Bruno Haible, Marcus Daniels 1994-1997
   Bruno Haible, Pierpaolo Bernardi, Sam Steingold 1998
   Bruno Haible, Sam Steingold 1999-2001
-  Sam Steingold 2002-2008
+  Sam Steingold 2002-2009
 
 Email addresses (September 1992 or newer):
   Bruno Haible       bruno@clisp.org
