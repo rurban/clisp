@@ -37,6 +37,10 @@ Important notes
   See <http://clisp.cons.org/impnotes/repl.html#debugger-main-deb-step>
   for details.
 
+* Commands "add" and "create" replace "add-module-set", "add-module-sets" and
+  "create-module-set" in clisp-link.
+  See <http://clisp.cons.org/impnotes/modules.html#clisp-link> for details.
+
 * Bug fixes:
   + Better support of :START and :END arguments in NEW-CLX. [ 2159172 ]
   + Fix LOAD-LOGICAL-PATHNAME-TRANSLATIONS when *LOAD-PATHS* contains
