@@ -259,6 +259,8 @@
                 ;; a1 = 1+floor(below*10^(-d)/2^(-e+belowshift)),
                 ;; a2 = floor((above*10^(-d)-1)/2^(-e))
                 (setq a1 (1+ (ash (* below ten-d) (- e belowshift))))
+                ;; for some reason the (evenp binmant) does not make a
+                ;; difference here
                 (setq a2 (ash (1- (* above ten-d)) e)))))
           ;; Now the integer a's with (x+x1)/2 < 10^d * a < (x+x2)/2 are
           ;; exactly the integer a's with a1 <= a <= a2. There are at most 20.
