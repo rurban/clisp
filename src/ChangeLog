@@ -1,3 +1,7 @@
+2009-06-15  Sam Steingold  <sds@gnu.org>
+
+	* modules/dbus/dbus.lisp: sync with dbus-1.2.14
+
 2009-06-14  Sam Steingold  <sds@gnu.org>
 
 	* floatprint.lisp (decode-float-decimal): only widen UP [a1;a2]
