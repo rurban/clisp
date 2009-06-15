@@ -179,7 +179,7 @@
 
 <revision><revnumber>2.16</revnumber><date>1995-06-23</date>&bruno-a;
  <revdescription><itemizedlist><listitem><simpara>&complement;,
-     &with-standard-io-syntax;, &dynamic-extent-dec;, &lambda;,
+     &with-standard-io-syntax;, &dynamic-extent-dec;, &lambda-m;,
      &ignorable-dec;, &constantly;</simpara></listitem>
    <listitem><simpara>&with-hash-table-iterator;,
      &hash-table-rehash-size;, &hash-table-rehash-threshold;,
