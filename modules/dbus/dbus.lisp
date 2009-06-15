@@ -4,12 +4,11 @@
 ;;; This is Free Software, covered by the GNU GPL (v2+)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 
-;; synced with dbus-1.2.1
+;; synced with dbus-1.2.14
 ;; to update to a new release:
-;; git clone git://anongit.freedesktop.org/git/dbus/dbus
-;; cd dbus/dbus
-;; git diff dbus-1.2.1 dbus-<latest> dbus-types.h
-;; etc
+;;    git clone git://anongit.freedesktop.org/git/dbus/dbus ; cd dbus
+;; or cd dbus; git pull
+;; git diff dbus-1.2.14 dbus-<latest> dbus/*.h
 
 (defpackage "DBUS"
   (:modern t)
@@ -312,6 +311,10 @@
 (def-call-out dbus_message_get_serial (:return-type dbus_uint32_t)
   (:arguments (message DBusMessage*)))
 
+;; void dbus_message_set_serial (DBusMessage *message, dbus_uint32_t serial);
+(def-call-out dbus_message_set_serial (:return-type nil)
+  (:arguments (message DBusMessage*) (serial dbus_uint32_t)))
+
 ;; dbus_bool_t dbus_message_set_reply_serial (DBusMessage *message, dbus_uint32_t reply_serial);
 (def-call-out dbus_message_set_reply_serial (:return-type dbus_bool_t)
   (:arguments (message DBusMessage*) (reply_serial dbus_uint32_t)))
@@ -415,7 +418,9 @@
 (def-call-out dbus_message_iter_close_container (:return-type dbus_bool_t)
   (:arguments (iter DBusMessageIter*) (sub DBusMessageIter*)))
 
-
+;; void dbus_message_lock (DBusMessage *message);
+(def-call-out dbus_message_lock (:return-type nil)
+  (:arguments (message DBusMessage*)))
 
 ;; dbus_bool_t dbus_set_error_from_message (DBusError *error, DBusMessage *message);
 (def-call-out dbus_set_error_from_message (:return-type dbus_bool_t)
@@ -459,6 +464,9 @@
 (def-call-out dbus_message_demarshal (:return-type DBusMessage*)
   (:arguments (str c-pointer) (len int) (error (c-pointer DBusError))))
 
+;; int dbus_message_demarshal_bytes_needed (const char *str, int len);
+(def-call-out dbus_message_demarshal_bytes_needed (:return-type int)
+  (:arguments (str c-pointer) (len int)))
 
 
 ;; === dbus-shared.h
@@ -823,6 +831,13 @@
 ;; dbus_bool_t dbus_connection_get_unix_process_id (DBusConnection *connection, unsigned long *pid);
 (def-call-out dbus_connection_get_unix_process_id (:return-type dbus_bool_t)
   (:arguments (connection DBusConnection*) (pid (c-ptr ulong) :out)))
+
+;; dbus_bool_t dbus_connection_get_adt_audit_session_data (DBusConnection *connection, void **data, dbus_int32_t *data_size);
+(def-call-out dbus_connection_get_adt_audit_session_data
+    (:arguments (connection DBusConnection*)
+                (data (c-ptr c-pointer) :out)
+                (data_size (c-ptr dbus_int32_t) :out))
+  (:return-type dbus_bool_t))
 
 ;; void dbus_connection_set_unix_user_function (DBusConnection *connection, DBusAllowUnixUserFunction function, void *data, DBusFreeFunction free_data_function);
 (def-call-out dbus_connection_set_unix_user_function (:return-type nil)
@@ -1529,6 +1544,8 @@ We can't fix it for compatibility reasons so just be careful."))
   (:documentation "A file contains invalid syntax or is otherwise broken."))
 (def-c-const DBUS_ERROR_SELINUX_SECURITY_CONTEXT_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.SELinuxSecurityContextUnknown"
   (:documentation "Asked for SELinux security context and it wasn't available."))
+(def-c-const DBUS_ERROR_ADT_AUDIT_DATA_UNKNOWN (:type c-string) ; "org.freedesktop.DBus.Error.AdtAuditDataUnknown"
+  (:documentation "Asked for ADT audit data and it wasn't available."))
 (def-c-const DBUS_ERROR_OBJECT_PATH_IN_USE (:type c-string) ; "org.freedesktop.DBus.Error.ObjectPathInUse"
   (:documentation "There's already an object with the requested object path."))
 
