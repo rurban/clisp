@@ -1576,7 +1576,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     /* update program constants:
        we should not update aktenv - it is not initialized.
        in MT the current thread's _object_tab and _aktenv - they are
-       laready initialized */
+       already initialized */
     /* update_tables(); */
     update_subr_tab();
     update_symbol_tab();
