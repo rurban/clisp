@@ -1,5 +1,9 @@
 2009-06-15  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.47++ (2009-06-15)
+
+2009-06-15  Sam Steingold  <sds@gnu.org>
+
 	* gllib/getpagesize.c, gllib/mbsrtowcs-state.c, gllib/mbsrtowcs.c:
 	* gllib/memchr.c, gllib/string.in.h, gllib/strnlen1.c, gllib/strnlen1.h:
 	* glm4/00gnulib.m4, glm4/getpagesize.m4, glm4/mbsrtowcs.m4:
