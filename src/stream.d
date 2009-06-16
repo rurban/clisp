@@ -14920,7 +14920,7 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
   var int fcntl_flags = fcntl(fd,F_GETFL,0);
   end_blocking_system_call();
   if (fcntl_flags < 0)
-    OS_error();
+    return false;           /* closed handle? errno is probably EBADF */
   var bool ret =
     !(    (READ_P(dir) && ((fcntl_flags & O_ACCMODE) == O_WRONLY))
       || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY)));
@@ -15008,21 +15008,16 @@ local inline maygc object make_standard_input_file_stream (void) {
                           S(character));
 }
 
-/* Allocates the equivalent of the C stream stdout.
+/* Allocates the equivalent of the C stream stdout/stderr.
+ > handle : file descriptor (stdout_handle or stderr_handle)
  can trigger GC */
-local inline maygc object make_standard_output_file_stream (void) {
+local inline maygc object make_standard_output_file_stream (Handle handle) {
+  if (!handle_direction_compatible(handle,DIRECTION_OUTPUT))
+    /* no stdout/stderr: nohup or embedded */
+    return make_broadcast_stream(NIL); /* empty stream */
   /* This uses the external-format :default, not O(terminal_encoding),
      because this stream is used when *terminal-io* is not interactive. */
-  return handle_to_stream(stdout_handle,S(Koutput),S(Kdefault),S(Kdefault),
-                          S(character));
-}
-
-/* Allocates the equivalent of the C stream stderr.
- can trigger GC */
-local inline maygc object make_standard_error_file_stream (void) {
-  /* This uses the external-format :default, not O(terminal_encoding),
-     because this stream is used when *terminal-io* is not interactive. */
-  return handle_to_stream(stderr_handle,S(Koutput),S(Kdefault),S(Kdefault),
+  return handle_to_stream(handle,S(Koutput),S(Kdefault),S(Kdefault),
                           S(character));
 }
 
@@ -15058,7 +15053,8 @@ local maygc object get_standard_output_file_stream (void) {
   }
   #endif
   if (nullp(O(standard_output_file_stream)))
-    O(standard_output_file_stream) = make_standard_output_file_stream();
+    O(standard_output_file_stream) =
+      make_standard_output_file_stream(stdout_handle);
   return O(standard_output_file_stream);
 }
 
@@ -15082,7 +15078,7 @@ local maygc object get_standard_error_file_stream (void) {
     O(standard_error_file_stream) =
       (same_handle_p(stderr_handle,stdout_handle)
        ? get_standard_output_file_stream()
-       : make_standard_error_file_stream());
+       : make_standard_output_file_stream(stderr_handle));
   return O(standard_error_file_stream);
 }
 
