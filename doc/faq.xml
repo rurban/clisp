@@ -624,8 +624,8 @@ following command:
 
 <qandaentry id="faq-enc-err">
  <blockinfo><title>What do charset errors mean?</title></blockinfo>
- <question id="faq-enc-err-q"><para>What do
-   these messages mean: <quote><computeroutput>invalid byte #x94 in
+ <question id="faq-enc-err-q"><para>What do these error messages
+    mean: <quote><computeroutput>invalid byte #x94 in
     CHARSET:ASCII conversion</computeroutput></quote> and
    <quote><computeroutput>character #\u00B3 cannot be represented in the
     character set CHARSET:ASCII</computeroutput></quote>?</para></question>
