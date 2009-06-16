@@ -4595,7 +4595,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
  &input-k; or <constant>:INPUT-IMMUTABLE</constant>), the streams can
  mess up each other and produce unexpected results.
  The user variable <firstterm>&reopen;</firstterm> controls how &clisp;
- handles the situation and can take 3 values: <variablelist>
+ handles the situation and can take 4 values: <variablelist>
   <varlistentry><term>&nil;</term><listitem><simpara>
      do nothing: do not even check that there are other &stream-t;s
      pointing to the same file</simpara></listitem></varlistentry>
@@ -4605,8 +4605,8 @@ Let us consider different criteria:<orderedlist numeration="arabic">
      the <emphasis>other</emphasis> &stream-t;s and proceed
      (this could be dangerous and is not generally recommended)
   </simpara></listitem></varlistentry>
-  <varlistentry><term>&error;</term><listitem><simpara>&signal; a &cont-err;;
-     this is the default</simpara></listitem></varlistentry>
+  <varlistentry><term>&error; (default)</term><listitem><simpara>&signal;
+     a &cont-err;</simpara></listitem></varlistentry>
 </variablelist></para></simplesect>
 
 </section>
