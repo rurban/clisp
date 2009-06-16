@@ -3047,6 +3047,7 @@ if [ $CROSS = false ] ; then
 
   # check that the scripting works
   echol "check-script : lisp${LEXE} lispinit.mem"
+  echotab "\$(RUN) -q -M lispinit.mem 0>/dev/null" # bug #[ 2805778 ]
   TRCR="| tr -d '\r'"; TRLF="| tr '\n' '_'"
   echotab "test \`echo '(princ (+ 11 99))' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 110 || exit 1"
   echotab "test \"\`echo '(+ foo bar)' | \$(RUN) -q -M lispinit.mem -x '(setq foo 11 bar 99)' -repl ${TRCR}${TRLF}\`\" = '99_[1]> _110_' || exit 1"
