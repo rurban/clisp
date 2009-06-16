@@ -962,7 +962,7 @@ int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout)
     get_abs_timeout(&ww,timeout);
     r = pthread_cond_timedwait(c,&m->_mr,&ww);
   } else {
-    r = pthread_cond_wait(c,&m->_m);
+    r = pthread_cond_wait(c,&m->_mr);
   }
 #else /* WIN32 */
   r = win32_xcondition_wait(c,&m->_m,timeout);
