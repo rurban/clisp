@@ -13,6 +13,7 @@
 	to pipe_file_handle_p() to decide whether to create a terminal or
 	a standard file stream; this fixes bug #[ 2805778 ]: when a
 	standard handle is invalid, an empty stream is used
+	* makemake.in (check-script): add a test for bug #[ 2805778 ]
 
 2009-06-15  Sam Steingold  <sds@gnu.org>
 
