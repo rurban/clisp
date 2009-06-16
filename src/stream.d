@@ -15184,15 +15184,15 @@ local int previous_line_virtual (int count, int key) {
             (deviates from the standard)
  can trigger GC */
 global maygc void init_streamvars (bool batch_p) {
-  #ifdef GNU_READLINE
+ #ifdef GNU_READLINE
   begin_call();
- #if HAVE_DECL_RL_READLINE_NAME
+  #if HAVE_DECL_RL_READLINE_NAME
   { /* we could have used a string literal, but then readline:readline-name
        would have to be read-only because one cannot free() a string literal */
     var char* name = (char*)malloc(6); strcpy(name,"CLISP");
     rl_readline_name = name;
   }
- #endif
+  #endif
   if (ilisp_mode) {
     /* Simulate the following instruction in .inputrc:
        Control-i: self-insert */
@@ -15206,16 +15206,15 @@ global maygc void init_streamvars (bool batch_p) {
   rl_add_defun("next-line-virtual",&next_line_virtual,META('n'));
   rl_add_defun("previous-line-virtual",&previous_line_virtual,META('p'));
   end_call();
-  #endif
-  #ifdef MULTITHREAD
-    /* clear per thread binding */
-    #define def_var(sym,val)                                                \
-      do {                                                                  \
-        define_variable(sym,val);                                           \
-        current_thread()->_ptr_symvalues[TheSymbol(sym)->tls_index]=SYMVALUE_EMPTY; \
-      } while(0)
+ #endif  /* GNU_READLINE */
+ #ifdef MULTITHREAD
+  /* clear per thread binding */
+  #define def_var(sym,val) do {                                         \
+    define_variable(sym,val);                                           \
+    current_thread()->_ptr_symvalues[TheSymbol(sym)->tls_index]=SYMVALUE_EMPTY;\
+  } while(0)
   #else
-    #define def_var(sym,val) define_variable(sym,val)
+  #define def_var(sym,val) define_variable(sym,val)
   #endif
   {
     var object stream = make_terminal_io();
