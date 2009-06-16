@@ -642,8 +642,8 @@ following command:
  Using a &enc1-1;, such as &iso-8859-1;,
  should help you avoid this error.</para>
 
-<para>Note that this error may be signaled by the Print part of the
- &repl; and &not-e; by the function you call.
+<para>Note that this error may be signaled by the <quote>Print</quote>
+ part of the &repl; and &not-e; by the function you call.
  E.g., if file <filename>"foo"</filename> contains non-&ascii; characters,
  you will see such an error when you type<programlisting language="lisp">
 (&with-open-file; (s "foo" :direction :input &extfmt; &iso-8859-1;)
