@@ -1,3 +1,15 @@
+2009-06-16  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_direction_compatible): when fcntl() fails,
+	return false - the handle is likely closed; errno = EBADF
+	(make_standard_output_file_stream): accept handle, call
+	handle_direction_compatible()
+	(make_standard_error_file_stream): remove
+	(get_standard_output_file_stream): pass stdout_handle to
+	make_standard_output_file_stream()
+	(get_standard_error_file_stream): use
+	make_standard_output_file_stream(stderr_handle)
+
 2009-06-15  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: 2.47++ (2009-06-15)
