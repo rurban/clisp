@@ -811,13 +811,14 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    thus extreme caution is recommended if this is &not-e; a &enc1-1;.
    Sometimes it may not be obvious that the encoding is involved at all.
    E.g., on &win32;: <programlisting language="lisp">
-(&parse-namestring; (&string; #\CYRILLIC_CAPITAL_LETTER_IE))
-*** - PARSE-NAMESTRING: syntax error in filename "&#x0415;" at position 0
-</programlisting>when &path-enc; is &utf-8; because then
-   <literal role="data">#\CYRILLIC_CAPITAL_LETTER_IE</literal>
-   corresponds to the 2 byte sequence <literal role="data">#(208 149)</literal>
-   and the byte <literal role="data">149</literal> is &not-e; a valid
-   byte for a &win32; file name.</para>
+(&parse-namestring; (&string; #\ARMENIAN_SMALL_LETTER_RA))
+*** - PARSE-NAMESTRING: syntax error in filename "&#x57C;" at position 0
+</programlisting>when &path-enc; is &utf-16; because then
+   <literal role="data">#\ARMENIAN_SMALL_LETTER_RA</literal> corresponds
+   to the 4 byte sequence <literal role="data">#(255 254 124 5)</literal>
+   and the byte <literal role="data">124</literal> is &not-e; a valid
+   byte for a &win32; file name because it
+   means <literal role="data">|</literal> in &ascii;.</para>
   <simpara>The &line-term; mode of &path-enc; is ignored.
 </simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
