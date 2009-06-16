@@ -3649,7 +3649,7 @@ local handle_type_t handle_type (Handle handle) {
 }
 #else
 #error handle_type() and handle_type_t are not defined
- #endif
+#endif
 
 /* UP: Determines, if a Handle refers to a (static) File.
  regular_handle_p(handle)
@@ -15088,15 +15088,22 @@ local maygc object make_terminal_io (void) {
   /* If stdin or stdout is a file, use a buffered stream instead of an
    unbuffered terminal stream. For the ud2cd program used as filter,
    this reduces the runtime on Solaris from 165 sec to 47 sec. */
-  var bool stdin_file = pipe_file_handle_p(stdin_handle);
-  var bool stdout_file = pipe_file_handle_p(stdout_handle);
-  DEBUG_OUT(("\nmake_terminal_io: %d %d\n",stdin_file,stdout_file));
-  if (stdin_file || stdout_file) {
-    var object istream = stdin_file ? /* Input side */
-      get_standard_input_file_stream() : make_terminal_stream();
+  var bool stdin_terminal =
+    handle_direction_compatible(stdin_handle,DIRECTION_INPUT)
+    && !pipe_file_handle_p(stdin_handle);
+  var bool stdout_terminal =
+    handle_direction_compatible(stdout_handle,DIRECTION_OUTPUT)
+    && !pipe_file_handle_p(stdout_handle);
+  DEBUG_OUT(("\nmake_terminal_io: %d %d\n",stdin_terminal,stdout_terminal));
+  /* note that if a stream is incompatible, handle_direction_compatible
+     will be called again by get_standard_*_file_stream;
+     this is an extra system call on startup; should not be a big deal */
+  if (!stdin_terminal || !stdout_terminal) {
+    var object istream = stdin_terminal ? /* Input side */
+      make_terminal_stream() : get_standard_input_file_stream();
     pushSTACK(istream);
-    var object ostream = stdout_file ? /* Output side */
-      get_standard_output_file_stream() : make_terminal_stream();
+    var object ostream = stdout_terminal ? /* Output side */
+      make_terminal_stream() : get_standard_output_file_stream();
     /* Build a two-way-stream: */
     return make_twoway_stream(popSTACK(),ostream);
   }
