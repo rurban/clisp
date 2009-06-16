@@ -325,7 +325,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 
 <formalpara id="enc1-1"><title><quote>1:1</quote> encodings</title>
 <para>Encodings which define a bijection between character and byte
- sequences are called &enc1-1;s. &iso-8859-1; is an example of such and
+ sequences are called &enc1-1;s. &iso-8859-1; is an example of such an
  encoding: any byte sequence corresponds to some character sequence and
  vice versa.  &ascii;, however, is &not-e; a &enc1-1;: there are no
  characters for bytes in the range [128;255]. &utf-8; is &not-e; a
@@ -803,11 +803,23 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
    <indexterm id="path-enc" significance="preferred">
     <primary><varname>*PATHNAME-ENCODING*</varname>
  </primary></indexterm></firstterm></term>
- <listitem><simpara>is the encoding used for pathnames in the file system.
+ <listitem><para>is the encoding used for converting filenames in the
+   file system (represented with byte sequences by the OS) to lisp
+   &pathname-t; components (&string-t;s).
    If this encoding is incompatible with some file names on your system,
    file system access (e.g., &directory;) may &signal; &error-t;s,
    thus extreme caution is recommended if this is &not-e; a &enc1-1;.
-   Its &line-term; mode is ignored.</simpara></listitem></varlistentry>
+   Sometimes it may not be obvious that the encoding is involved at all.
+   E.g., on &win32;: <programlisting language="lisp">
+(&parse-namestring; (&string; #\CYRILLIC_CAPITAL_LETTER_IE))
+*** - PARSE-NAMESTRING: syntax error in filename "&#x0415;" at position 0
+</programlisting>when with &path-enc; is &utf-8; because then
+   <literal role="data">#\CYRILLIC_CAPITAL_LETTER_IE</literal>
+   corresponds to the 2 byte sequence <literal role="data">#(208 149)</literal>
+   and the byte <literal role="data">149</literal> is &not-e; a valid
+   byte for a &win32; file name.</para>
+  <simpara>The &line-term; mode of &path-enc; is ignored.
+</simpara></listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">
     <primary><varname>*TERMINAL-ENCODING*</varname>
