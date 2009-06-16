@@ -1,3 +1,8 @@
+2009-06-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (xcondition_wait_helper) [POSIX_THREADS]: fix infinite
+	waiting on condition variable (was a typo with bad consequences)
+
 2009-06-16  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_direction_compatible): when fcntl() fails,
