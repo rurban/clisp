@@ -206,7 +206,7 @@
 /* Define to 1 if you have the `gethostname' function. */
 #undef HAVE_GETHOSTNAME
 
-/* have getpagesize() */
+/* Define to 1 if you have the `getpagesize' function. */
 #undef HAVE_GETPAGESIZE
 
 /* Define to 1 if you have the `getresgid' function. */
@@ -273,7 +273,7 @@
 /* Define to 1 if you have the <libintl.h> header file. */
 #undef HAVE_LIBINTL_H
 
-/* Define if you have the lib[]sigsegv library. */
+/* Define if you have the libsigsegv library. */
 #undef HAVE_LIBSIGSEGV
 
 /* Define to 1 if you have the <lightning.h> header file. */
@@ -721,9 +721,6 @@
 /* The readline built-in filename completion function, either
    rl_filename_completion_function() or filename_completion_function() */
 #undef READLINE_FILE_COMPLETE
-
-/* return type of getpagesize() */
-#undef RETGETPAGESIZETYPE
 
 /* return type of inet_addr() */
 #undef RET_INET_ADDR_TYPE
