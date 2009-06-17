@@ -137,7 +137,7 @@ compiles the specified lisp files to a platform-independent
  <listitem><simpara>Print the installation directory and exit immediately.
    The namestring of &libdir; is printed without any quotes.
    This is mostly useful in module Makefiles, see,
-   e.g., <filename role="clisp-cvs">modules/syscalls/Makefile</filename>.
+   e.g., <filename role="clisp-cvs">modules/syscalls/Makefile.in</filename>.
 </simpara></listitem></varlistentry>
 
 <varlistentry id="opt-link-set"><term><option>-K</option>
