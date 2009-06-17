@@ -116,14 +116,6 @@ global int mprotect (void* addr, size_t len, int prot)
 
 #if defined(HAVE_WIN32_VM)
 
-/* Return the hardware page size. (0x1000 on i386.) */
-local DWORD getpagesize (void)
-{
-  var SYSTEM_INFO sinfo;
-  GetSystemInfo(&sinfo);
-  return sinfo.dwPageSize;
-}
-
 local void mmap_init_pagesize (void)
 { mmap_pagesize = getpagesize(); }
 

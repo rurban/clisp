@@ -1,7 +1,7 @@
 /*
  * The include file for the UNIX version of CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  */
 
 /* control character constants: */
@@ -52,11 +52,6 @@ extern_C char* strerror (int errnum);
 #endif
 /* used by ERROR, SPVW, STREAM, PATHNAME */
 
-/* Make the main memory available */
-#ifdef HAVE_GETPAGESIZE
-  extern_C RETGETPAGESIZETYPE getpagesize (void); /* getpagesize(2) */
-#endif
-/* malloc(), free(), realloc() are defined in <stdlib.h> */
 #ifdef UNIX_RHAPSODY
 /* Ignore mmap and friends, because the configure test says no working mmap. */
   #undef HAVE_MMAP
