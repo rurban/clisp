@@ -1065,6 +1065,17 @@ defined using &defhash;), the compiler will be able to optimize the
 <section id="loop"><title>The LOOP Facility
   <ulink role="clhs" url="sec_6-1"/></title>
 
+<section id="loop-termination"><title>Mixing Termination Test Clauses
+  <ulink role="clhs" url="sec_6-1-4"/></title>
+<para>Mixing termination test clauses with different default return
+ values is not allowed because it is not specifed whether
+ <programlisting language="lisp">
+(loop repeat 1 thereis nil never nil)
+</programlisting> should return &t; (the default return value
+ from <literal>NEVER</literal>) of &nil; (the default return value from
+ <literal>THEREIS</literal>).</para>
+</section>
+
 <section id="loop-inter-var-finally">
  <title>Iteration variables in the loop epilogue</title>
 
