@@ -16,6 +16,8 @@
 	* win32.d: include <unistd.h> for getpagesize
 	* spvw_mmap.d (getpagesize) [HAVE_WIN32_VM]: remove, rely on gnulib
 	* m4/getpagesize.m4: remove, rely on glm4/getpagesize.m4
+	* m4/mprotect.m4 (CL_MPROTECT): require gl_FUNC_GETPAGESIZE
+	instead of CL_GETPAGESIZE
 
 2009-06-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
