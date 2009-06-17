@@ -2040,9 +2040,11 @@ additionally binds &cont-r; to the content length.</para>
 
 <section id="mod-overview"><title>Overview</title>
 
-<para>&clisp; has a facility for adding <emphasis>external
- modules</emphasis> (written in &c-lang;, for example).
-The main building blocks are &modset;s and &linkset;s.</para>
+<para><emphasis>External modules</emphasis> are a mechanism to add
+ extensions (written in &c-lang;, for example) to &clisp;.
+ Extending &clisp; using an external module requires creating a &modset;
+ and adding it to an existing &linkset; using &clisp-link; to prodice a
+ new &linkset; which contains the extension. </para>
 
 <simplesect id="modset"><title>Module Set</title>
 <para>A <firstterm>module<indexterm id="module" significance="preferred">
@@ -2074,7 +2076,8 @@ The main building blocks are &modset;s and &linkset;s.</para>
 <simplesect id="linkset"><title>Linking Set</title>
 <para>A <firstterm>&linkset;<indexterm id="linkseti" significance="preferred">
    <primary>linking set</primary></indexterm></firstterm>
- is a set of files which allows performing two major tasks:
+ is a collection of files (&rt;, &mem-image; &amp;c) which allows
+ performing two major tasks:
  <orderedlist><listitem><para>Running &clisp;: to run a &clisp;
     contained in some &linkset; &dir-r;, call<screen>
 &sh-prompt; &dir-r;/lisp.run &opt-M; &dir-r;/lispinit.mem</screen>
@@ -2083,69 +2086,64 @@ The main building blocks are &modset;s and &linkset;s.</para>
  <option><olink targetdoc="man" targetptr="opt-libdir">-B</olink></option>
  to the &rt;).</para></listitem>
   <listitem><simpara>Adding a &modset; to create a new &linkset; which
-    will contain the module functionality</simpara></listitem></orderedlist>
+    will contain the module functionality.</simpara></listitem></orderedlist>
  The &clisp; build directory contains three &linkset;s in
  directories <command>boot</command>, &base;, and &full;, and a &clisp;
  installation normally contains two &linkset;s: &base;, and &full;</para>
 <para>More formally, a &linkset; is a directory containing at least
   these files:<variablelist>
-<varlistentry><term><filename>makevars</filename></term>
- <listitem><para>some &sh; commands, setting the variables
-<variablelist>&varlist-table;<varlistentry><term><envar>CC</envar></term>
-  <listitem><simpara>the &c-lang; compiler
- </simpara></listitem></varlistentry>
- <varlistentry><term><envar>CPPFLAGS</envar></term>
-  <listitem><simpara>flags for the &c-lang; compiler, when preprocessing
-    or compiling</simpara></listitem></varlistentry>
- <varlistentry><term><envar>CFLAGS</envar></term>
-  <listitem><simpara>flags for the &c-lang; compiler, when compiling or
-    linking</simpara></listitem></varlistentry>
- <varlistentry><term><envar>CLFLAGS</envar></term>
-  <listitem><simpara>flags for the &c-lang; compiler, when linking
- </simpara></listitem></varlistentry>
- <varlistentry><term><envar>LIBS</envar></term>
-  <listitem><simpara>libraries to use when linking (either present in
-    the &linkset; directory, or system-wide)
- </simpara></listitem></varlistentry>
- <varlistentry><term><envar>X_LIBS</envar></term>
-  <listitem><simpara>additional &X; libraries to use
- </simpara></listitem></varlistentry>
- <varlistentry><term><envar>RANLIB</envar></term>
-  <listitem><simpara>the ranlib command
- </simpara></listitem></varlistentry>
- <varlistentry><term><envar>FILES</envar></term>
-  <listitem><simpara>the list of files needed when linking
- </simpara></listitem></varlistentry>
-</variablelist></para></listitem></varlistentry>
+<varlistentry><term>&lisp-run;</term>
+ <listitem><simpara>the executable &rt;</simpara></listitem></varlistentry>
+<varlistentry><term>&lispinit;</term>
+ <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 <varlistentry><term><filename>modules.h</filename></term>
  <listitem><simpara>the list of modules contained in this &linkset;
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename>modules.o</filename></term>
  <listitem><simpara>the compiled list of modules contained in this &linkset;
 </simpara></listitem></varlistentry>
+<varlistentry><term><filename>makevars</filename></term>
+ <listitem><para>some &sh; commands, setting the variables
+   <variablelist>&varlist-table;<varlistentry><term><envar>CC</envar></term>
+     <listitem><simpara>the &c-lang; compiler
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><envar>CPPFLAGS</envar></term>
+     <listitem><simpara>flags for the &c-lang; compiler, when preprocessing
+       or compiling</simpara></listitem></varlistentry>
+    <varlistentry><term><envar>CFLAGS</envar></term>
+     <listitem><simpara>flags for the &c-lang; compiler, when compiling or
+       linking</simpara></listitem></varlistentry>
+    <varlistentry><term><envar>CLFLAGS</envar></term>
+     <listitem><simpara>flags for the &c-lang; compiler, when linking
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><envar>LIBS</envar></term>
+     <listitem><simpara>libraries to use when linking (either present in
+       the &linkset; directory, or system-wide)
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><envar>X_LIBS</envar></term>
+     <listitem><simpara>additional &X; libraries to use
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><envar>RANLIB</envar></term>
+     <listitem><simpara>the ranlib command
+    </simpara></listitem></varlistentry>
+    <varlistentry><term><envar>FILES</envar></term>
+     <listitem><simpara>the list of files needed when linking
+    </simpara></listitem></varlistentry>
+</variablelist></para></listitem></varlistentry>
 <varlistentry><term>all the <envar>FILES</envar></term>
  <listitem><simpara>listed in <filename>makevars</filename>
 </simpara></listitem></varlistentry>
-<varlistentry><term>&lisp-run;</term>
- <listitem><simpara>the executable &rt;</simpara></listitem></varlistentry>
-<varlistentry><term>&lispinit;</term>
- <listitem><simpara>the &mem-image;</simpara></listitem></varlistentry>
 </variablelist></para>
 </simplesect>
 
 <simplesect id="clisp-link"><title>Operating on &modset;s and &linkset;s</title>
+
 <para>Adding one or several &modset;s to a &linkset;s produces a new
  &linkset; which contains the functionality of those modules in addition
  to all the functionality present in the original &linkset;.
- This is done by the &clisp-link; shell script.</para>
-<para>&clisp-link; needs a directory containing:
-<itemizedlist>
-  <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
-  <listitem><simpara>&clisp-h;</simpara></listitem>
-</itemizedlist>
-&clisp-link; expects to find these files in a
-subdirectory <filename>linkkit/</filename> of the current directory.
-This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
+ This is done by the &clisp-link; shell script, installed in &libdir;,
+ so that you can invoke it with
+ <screen>&sh-prompt; `&clisp-cmd; &opt-b;`/&clisp-link;</screen></para>
 
 <variablelist><title>&clisp-link; commands</title>
 <varlistentry><term>create</term>
@@ -2171,6 +2169,18 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
    Otherwise - this is much slower - a temporary &linkset; will be created
    and deleted afterwards.</para></listitem></varlistentry></variablelist>
 
+<formalpara id="clisp-link-kit"><title>Requirements</title>
+<para>&clisp-link; needs a <quote>link kit</quote> directory containing:
+ <itemizedlist>
+  <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
+  <listitem><simpara>&clisp-h;</simpara></listitem>
+ </itemizedlist> &clisp-link; expects to find these files in a
+ subdirectory <filename>linkkit/</filename> of the current directory.
+ or in its own installation directory (i.e., &libdir;).
+ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.
+</para></formalpara>
+
+<para>See also <xref linkend="mod-set-example"/>.</para>
 </simplesect>
 
 <simplesect id="mod-vars"><title>Module set variables</title>
@@ -2298,8 +2308,7 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
   flag &with-dynmod;.</emphasis></subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
-  (&dlopen; or equivalent is required).
-</para></note>
+  (&dlopen; or equivalent is required).</para></note>
 <note><para>&with-dynmod; precludes some optimizations which
   are enabled by default.</para></note>
 
@@ -2317,9 +2326,9 @@ This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.</para>
  This serves to register external functions which operate on Lisp-level
  structures with &clisp;.</para>
 
-<para>To use &dlopen; with modules,
- you should add <option>-fPIC</option> to the module's compilation options.
- Something like <command>cc -shared -o &name-r;.so &name-r;.o</command>
+<para>To use &dlopen; with modules, you should add
+ <option>-fPIC</option> to the module's compilation options. Something like
+ <screen>&sh-prompt; cc -shared -o &name-r;.so &name-r;.o</screen>
  may be needed to produce the shared object file.</para>
 
 </section>
