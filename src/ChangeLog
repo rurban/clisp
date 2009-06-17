@@ -1,5 +1,10 @@
 2009-06-17  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (install-bin): install clisp-link using INSTALL_PROGRAM
+	instead of INSTALL_DATA so that it is made executable
+
+2009-06-17  Sam Steingold  <sds@gnu.org>
+
 	* glm4/libsigsegv.m4: reverted to serial 3 because serial 4
 	does not set LIBSIGSEGV properly
 
