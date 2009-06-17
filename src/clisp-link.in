@@ -182,8 +182,10 @@ fi
 # Where is the link kit?
 if [ -n "$CLISP_LINKKIT" ] ; then
   linkkitdir="$CLISP_LINKKIT"
-else
+elif [ -d ./linkkit ]; then
   linkkitdir=./linkkit
+else
+  linkkitdir=`dirname $0`/linkkit
 fi
 
 test -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
