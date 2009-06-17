@@ -1,5 +1,10 @@
 2009-06-17  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (linkkitdir): when ./linkkit is not found, use
+	`dirname $0`/linkkit because there is one in *LIB-DIRECTORY*
+
+2009-06-17  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (install-bin): install clisp-link using INSTALL_PROGRAM
 	instead of INSTALL_DATA so that it is made executable
 
