@@ -532,10 +532,12 @@ LISPFUNNR(symbol_value_thread,2)
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
   var gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
-  if (!symval || eq(unbound,*symval)) {
+  if (!symval) {
     VALUES2(NIL,NIL); /* not bound */
+  } else if (eq(unbound,*symval)) {
+    VALUES2(NIL,S(Kunbound)); /* was bound but later makunbound-ed */
   } else {
-    VALUES2(*symval,T);
+    VALUES2(*symval,T); /* bound */
   }
   unlock_threads();
   skipSTACK(2);

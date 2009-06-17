@@ -1,3 +1,9 @@
+2009-06-17  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (SYMBOL-VALUE-THREAD): return (VALUES NIL :UNBOUND) in case
+	special variable was per thread bound and made unbound via MAKUNBOUND
+	* constsym.d (:UNBOUND) [MULTITHREAD]: define it
+
 2009-06-17  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (linkkitdir): when ./linkkit is not found, use
