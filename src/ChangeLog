@@ -1,3 +1,11 @@
+2009-06-17  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: use gl_FUNC_GETPAGESIZE instead of CL_GETPAGESIZE
+	* unix.d (getpagesize): remove prototype
+	* win32.d: include <unistd.h> for getpagesize
+	* spvw_mmap.d (getpagesize) [HAVE_WIN32_VM]: remove, rely on gnulib
+	* m4/getpagesize.m4: remove, rely on glm4/getpagesize.m4
+
 2009-06-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (xcondition_wait_helper) [POSIX_THREADS]: fix infinite
