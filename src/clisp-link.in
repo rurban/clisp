@@ -187,7 +187,7 @@ else
 fi
 
 test -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
-  fail "No link kit found in $CLISP_LINKKIT"
+  fail "No link kit found in $linkkitdir (is CLISP_LINKKIT set?)"
 absolute_linkkitdir=`cd "$linkkitdir" ; /bin/pwd`
 
 # Dispatch according to the first argument.
