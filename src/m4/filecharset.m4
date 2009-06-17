@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2009 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -31,20 +31,13 @@ AC_RUN_IFELSE([[#include "confdefs.h"
 /* Declare opendir(), readdir(), closedir(). */
 #include <dirent.h>
 /* A small program which checks for each character whether or not it is
- * valid in filenames. */
+ * valid in filenames.
+ * The actual result may depend on OS, its version, and the file system
+ * on which the test is run. */
 #define N 256
 int main ()
 {
   if (freopen("conftest.out", "w", stdout) == NULL) return 1;
-#if defined(__CYGWIN32__) || defined(__MINGW32__)
-  /* The test below would cause a dialog box to pop up (ch == ':'),
-     and create files which cause "rm -rf conftest*" to hang
-     (ch == '"') || (ch == '<') || (ch == '>') || (ch == 197) || (ch == 206).
-     Also, it would make appear that (ch >= 'A') && (ch <= 'Z') doesn't work,
-     because it would create files in lower case. But we don't want to forbid
-     upper case letters in file names. */
-  printf("(ch >= 1) && (ch <= 127) && (ch != 34) && (ch != 42) && (ch != 47) && (ch != 58) && (ch != 60) && (ch != 62) && (ch != 63) && (ch != 92) || (ch == 131) || (ch >= 160) && (ch != 197) && (ch != 206)\n");
-#else
   char legal[N];
   char filename[4];
   int i;
@@ -119,7 +112,6 @@ int main ()
       }
     printf("\n");
   }
-#endif
   return ferror(stdout) || fclose(stdout);
 }]],[cl_cv_os_valid_filename_char=`cat conftest.out`],
 [cl_cv_os_valid_filename_char=''],[cl_cv_os_valid_filename_char=''])
