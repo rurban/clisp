@@ -2,8 +2,7 @@
 
 <section id="zlib"><title>Interface to zlib</title>
 
-<para>This is an &ffi-pac;-based interface to the
- <ulink url="http://zlib.net">zlib</ulink>.</para>
+<para>This is an &ffi-pac;-based interface to the &zlib-link;.</para>
 
 <simpara>When this module is present, &features-my;
  contains the symbol <constant>:ZLIB</constant>.</simpara>
