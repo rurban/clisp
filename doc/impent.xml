@@ -535,7 +535,7 @@
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>
 
-<!-- *** base modules *** -->
+<!-- *** modules *** -->
 <!ENTITY i18n-mod '<filename role="module" path="i18n-mod">i18n</filename>'>
 <!ENTITY regexp-mod '<filename role="module" path="regexp-mod">regexp</filename>'>
 <!ENTITY syscalls-mod '<filename role="module" path="syscalls">syscalls</filename>'>
@@ -606,7 +606,7 @@
 <!ENTITY convert-address '<link linkend="rawsock-convert-address"><function>RAWSOCK:CONVERT-ADDRESS</function></link>'>
 
 <!-- *** dbus *** -->
-<!ENTITY d-bus '<ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>'>
+<!ENTITY d-bus-link '<ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>'>
 
 <!-- *** FFI *** -->
 <!ENTITY allocate-deep '<link linkend="foreign-heap"><function>FFI:ALLOCATE-DEEP</function></link>'>
