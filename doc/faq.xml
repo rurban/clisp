@@ -744,7 +744,7 @@ the second invocation will produce a <ulink url="clhs/glo">circular
  functions.  See <xref linkend="bytecode"/> for the explanation of the
  &disassemble; output.</para>
 
-<para>See <ulink url="http://www.lisp.org/table/style.htm">Lisp Programming
+<para>See <ulink url="http://norvig.com/luv-slides.ps">Lisp Programming
   Style</ulink> for more useful information.</para>
 </answer></qandaentry>
 
@@ -880,7 +880,7 @@ ABORT          :R1      ABORT
  you should search the &clisp; implementation notes for "DIRECTORY".</para>
 <para>Alternatively, since the implementation notes are organized in
  parallel to the &ansi-cl;, and &directory; belongs to the
- <ulink role="clhs" url="chap-20.html">Chapter 20</ulink> in &ansi-cl;,
+ <ulink role="clhs" url="chap-20">Chapter 20</ulink> in &ansi-cl;,
  you can just go to <xref linkend="files"/> in impnotes and look
  for "DIRECTORY" <link linkend="directory">there</link>.
 </para></answer></qandaentry>

@@ -1501,7 +1501,7 @@ temporarily unlocks all packages in &sys-pack-list;.</para></formalpara>
 </para></formalpara>
 
 <formalpara><title>Discussion - see also
-  <ulink url="http://groups.google.com/groups?hl=en&amp;lr=&amp;ie=UTF-8&amp;selm=3C3E7F57.7F80395%40pacbell.net">the USENET posting</ulink> by
+  <ulink url="http://groups.google.com/group/comp.lang.lisp/msg/d87844da9f4d35aa">the USENET posting</ulink> by
   <author><firstname>Steven M.</firstname> <surname>Haflich</surname>
    <email>haflich@pacbell.net</email></author></title>
 <para>This should prevent you from accidentally hosing yourself with

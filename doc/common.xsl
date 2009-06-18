@@ -264,7 +264,7 @@
 <!-- ========================= / Netica C API ========================= -->
 
 <!-- ========================== dictionary ========================== -->
-<xsl:param name="dict.top" select="'http://foldoc.org/?query='"/>
+<xsl:param name="dict.top" select="'http://foldoc.org/'"/>
 <xsl:template match="*[@role='dict']">
  <a class="{@role}" href="{$dict.top}{.}"><xsl:apply-imports/></a>
 </xsl:template>
