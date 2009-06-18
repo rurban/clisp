@@ -109,7 +109,7 @@
 <!ENTITY glibc '&gnu; <ulink url="http://www.gnu.org/software/libc/">libc</ulink>'>
 <!ENTITY libiconv '&gnu; <ulink url="http://www.gnu.org/software/libiconv/">libiconv</ulink>'>
 <!ENTITY libsigsegv '&gnu; <ulink url="http://libsigsegv.sourceforge.net/">libsigsegv</ulink>'>
-<!ENTITY libffcall '&gnu; <ulink url="http://www.gnu.org/software/libffcall">libffcall</ulink>'>
+<!ENTITY libffcall '&gnu; <ulink url="http://www.gnu.org/software/libffcall/">libffcall</ulink>'>
 <!ENTITY readline-link 'http://tiswww.case.edu/php/chet/readline/'>
 <!ENTITY readline '&gnu; <ulink url="&readline-link;readline.html">readline</ulink>'>
 <!ENTITY lightning '&gnu; <ulink url="http://www.gnu.org/software/lightning/">lightning</ulink>'>
