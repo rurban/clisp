@@ -1,3 +1,11 @@
+2009-06-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix possible deadlock in SYMBOL-VALUE-THREAD
+	* zthread.d (thread_symbol_place): do not check arguments. it is called
+	when all_threads lock is held and if GC occurs we will get deadlock
+	(SYMBOL-VALUE-THREAD): check arguments before acquiring all_threads lock
+	(SET-SYMBOL-VALUE-THREAD): ditto
+
 2009-06-17  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (SYMBOL-VALUE-THREAD): return (VALUES NIL :UNBOUND) in case
