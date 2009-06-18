@@ -16,6 +16,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 	history.xml \
 	../modules/berkeley-db/berkeley-db.xml	\
 	../modules/berkeley-db/ent-bdb.xml	\
+	../modules/dbug/dbus.xml		\
 	../modules/dirkey/dirkey.xml		\
 	../modules/fastcgi/fastcgi.xml		\
 	../modules/gdbm/gdbm.xml		\
