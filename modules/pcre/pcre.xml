@@ -2,8 +2,7 @@
 
 <section id="pcre"><title>Perl Compatible Regular Expressions</title>
 
-<para>This is an interface to <ulink url="http://www.pcre.org/">Perl
-  Compatible Regular Expressions</ulink>.</para>
+<para>This is an interface to &pcre-link;.</para>
 <simpara>When this module is present, &features-my; contains the
  symbol <constant>:PCRE</constant>.</simpara>
 

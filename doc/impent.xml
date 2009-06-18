@@ -611,6 +611,9 @@
 <!-- *** zlib *** -->
 <!ENTITY zlib-link '<ulink url="http://zlib.net">ZLIB</ulink>'>
 
+<!-- *** pcre *** -->
+<!ENTITY pcre-link '<ulink url="http://www.pcre.org/">Perl Compatible Regular Expressions</ulink>'>
+
 <!-- *** FFI *** -->
 <!ENTITY allocate-deep '<link linkend="foreign-heap"><function>FFI:ALLOCATE-DEEP</function></link>'>
 <!ENTITY allocate-shallow '<link linkend="foreign-heap"><function>FFI:ALLOCATE-SHALLOW</function></link>'>
