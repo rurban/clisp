@@ -531,7 +531,7 @@ LISPFUNNR(symbol_value_thread,2)
   if (!symval) {
     VALUES2(NIL,NIL); /* not bound */
   } else if (eq(unbound,*symval)) {
-    VALUES2(NIL,S(Kunbound)); /* was bound but later makunbound-ed */
+    VALUES2(NIL,S(makunbound)); /* was bound but later makunbound-ed */
   } else {
     VALUES2(*symval,T); /* bound */
   }
