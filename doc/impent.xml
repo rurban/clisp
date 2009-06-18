@@ -606,7 +606,7 @@
 <!ENTITY convert-address '<link linkend="rawsock-convert-address"><function>RAWSOCK:CONVERT-ADDRESS</function></link>'>
 
 <!-- *** dbus *** -->
-<!ENTITY d-bus '<ulink url="http://www.freedesktop.org/Software/dbus">D-Bus</ulink>'>
+<!ENTITY d-bus '<ulink url="http://www.freedesktop.org/wiki/Software/dbus">D-Bus</ulink>'>
 
 <!-- *** FFI *** -->
 <!ENTITY allocate-deep '<link linkend="foreign-heap"><function>FFI:ALLOCATE-DEEP</function></link>'>

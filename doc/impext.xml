@@ -2631,7 +2631,7 @@ to the 3 (or 4) &base; modules.</para>
  </simpara></listitem></varlistentry>
  <varlistentry><term>&zlib-mod;</term>
   <listitem><simpara>Compress &vector-t;s using
-    <ulink url="http://www.zlib.org">ZLIB</ulink>.
+    <ulink url="http://zlib.net">ZLIB</ulink>.
  </simpara></listitem></varlistentry>
 </variablelist></section>
 
@@ -4980,7 +4980,7 @@ EOF
 "hello, world!"</screen></para>
 
 <para>Please read
- <ulink url="http://www.linuxhq.com/kernel/file/Documentation/binfmt_misc.txt">
+ <ulink url="http://www.kernel.org/doc/Documentation/binfmt_misc.txt">
   <filename>/usr/src/linux/Documentation/binfmt_misc.txt</filename></ulink>
  for details.</para>
 </section>
