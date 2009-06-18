@@ -2949,8 +2949,7 @@ or just evaluates the appropriate form in the &repl;.</para>
     <listitem><simpara>means that the name of this structure is a
       &c-lang; type defined with <function>typedef</function>
       elsewhere.</simpara></listitem></varlistentry>
-   <varlistentry id="def-c-struct-external">
-    <term><constant>:EXTERNAL</constant></term>
+   <varlistentry id="def-c-struct-external"><term>&external-k;</term>
     <listitem><simpara>means that this structure is defined in a
       &c-lang; header file that you include with, e.g.,
       <code>(&c-lines; "#include &lt;filename.h&gt;~%")</code>.
