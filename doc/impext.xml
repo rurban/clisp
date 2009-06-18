@@ -2639,7 +2639,8 @@ to the 3 (or 4) &base; modules.</para>
 <variablelist><varlistentry><term>&rawsock-mod;</term>
   <listitem><simpara>Raw socket access.</simpara></listitem></varlistentry>
 <varlistentry><term>&dbus-mod;</term>
-  <listitem><simpara>Interface to &d-bus;.</simpara></listitem></varlistentry>
+  <listitem><simpara>Interface to &d-bus-link;.
+</simpara></listitem></varlistentry>
  <varlistentry><term>&fastcgi-mod;</term>
   <listitem><simpara>Access &fastcgi-link; from &clisp;;
     by &hin;.</simpara></listitem></varlistentry>
