@@ -1220,7 +1220,6 @@ LISPSYM(Kinitial_bindings,"INITIAL-BINDINGS",keyword)
 LISPSYM(Kcstack_size,"CSTACK-SIZE",keyword)
 LISPSYM(Kvstack_size,"VSTACK-SIZE",keyword)
 LISPSYM(Krecursive_p,"RECURSIVE-P",keyword)
-LISPSYM(Kunbound,"UNBOUND",keyword) /* :UNBOUND for SYMBOL-VALUE-THREAD */
 #ifndef SOCKET_STREAMS
   #error MULTITHREAD requires SOCKET_STREAMS
 /* actually two things are needed: :TIMEOUT and sec_usec() function from

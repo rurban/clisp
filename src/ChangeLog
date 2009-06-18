@@ -1,5 +1,12 @@
 2009-06-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: use CL:MAKUNBOUND instead of :UNBOUND (removed)
+	* zthread.d (SYMBOL-VALUE-THREAD): use CL:MAKUNBOUND instead of :UNBOUND
+	as second return value
+	* constsym.d (:UNBOUND): remove
+
+2009-06-18  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: fix possible deadlock in SYMBOL-VALUE-THREAD
 	* zthread.d (thread_symbol_place): do not check arguments. it is called
 	when all_threads lock is held and if GC occurs we will get deadlock
