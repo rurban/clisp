@@ -2623,9 +2623,8 @@ to the 3 (or 4) &base; modules.</para>
 
 <section id="incmod-match"><title>Matching, File Processing et al</title>
 <variablelist><varlistentry><term>&pcre-mod;</term>
-  <listitem><simpara>The <ulink url="http://www.pcre.org/">Perl
-     Compatible Regular Expressions</ulink> matching, compiling,
-    executing.</simpara></listitem></varlistentry>
+  <listitem><simpara>The &pcre-link; matching, compiling, executing.
+ </simpara></listitem></varlistentry>
  <varlistentry><term>&wildcard-mod;</term>
   <listitem><simpara>Shell (&sh;) globbing (&path-match;).
  </simpara></listitem></varlistentry>
