@@ -492,34 +492,21 @@ LISPFUNN(list_threads,0)
   VALUES1(listof(count));
 }
 
-/* helper function that returns pointer to the symbol's symvalue
-   in a thread. If the symbol is not bound in the thread - NULL is
-   returned */
-local maygc gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
-                                               gcv_object_t *thread) {
-  var object sym=check_symbol(*symbol);
+/* UP: helper function that returns pointer to the symbol's symvalue
+   in a thread.
+   > symbol: pointer to valid symbol
+   > thread: pointer to valid thread or NIL (in case of global symvalue)
+   < Returns pointer to appropriate value cell or NULL */
+local gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
+                                         gcv_object_t *thread) {
   if (eq(*thread,NIL)) {
-    /* global value */
-    return &TheSymbol(sym)->symvalue;
+    return &TheSymbol(*symbol)->symvalue; /* global value */
   } else {
-    var clisp_thread_t *thr;
-    if (eq(*thread,T)) {
-      /* current thread value */
-      thr=current_thread();
-    } else {
-      /* thread object */
-      pushSTACK(sym);
-      *thread=check_thread(*thread);
-      sym = popSTACK();
-      thr=TheThread(*thread)->xth_globals;
-      if (!thr)
-        return NULL; /* thread has terminated */
-    }
-    /* thread is alive? */
-    if (!thr || !thr->_ptr_symvalues)
+    var clisp_thread_t *thr = TheThread(*thread)->xth_globals;
+    if (!thr || !thr->_ptr_symvalues) /* thread is alive? */
       return NULL;
     *thread=thr->_lthread; /* for error reporting if needed */
-    var uintL idx=TheSymbol(sym)->tls_index;
+    var uintL idx=TheSymbol(*symbol)->tls_index;
     if (idx == SYMBOL_TLS_INDEX_NONE ||
         eq(thr->_ptr_symvalues[idx], SYMVALUE_EMPTY))
       return NULL; /* not per thread special, or no bidning in thread */
@@ -529,6 +516,15 @@ local maygc gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
 
 LISPFUNNR(symbol_value_thread,2)
 { /* (MT:SYMBOL-VALUE-THREAD symbol thread) */
+  /* check arguments before locking threads. if error is signaled while
+     holding all_threads lock we may deadlock (if GC happens) */
+  STACK_1 = check_symbol(STACK_1);
+  if (!eq(STACK_0,NIL)) { /* = NIL i.e. global symvalue */
+    if (eq(STACK_0,T)) /* current thread? */
+      STACK_0 = current_thread()->_lthread;
+    else
+      STACK_0 = check_thread(STACK_0);
+  }
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
   var gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
@@ -545,6 +541,15 @@ LISPFUNNR(symbol_value_thread,2)
 
 LISPFUNN(set_symbol_value_thread,3)
 { /* (SETF (MT:SYMBOL-VALUE-THREAD symbol thread) value) */
+  /* check arguments before locking threads. if error is signaled while
+     holding all_threads lock we may deadlock (if GC happens) */
+  STACK_2 = check_symbol(STACK_2);
+  if (!eq(STACK_1,NIL)) { /* = NIL i.e. global symvalue */
+    if (eq(STACK_1,T)) /* current thread? */
+      STACK_1 = current_thread()->_lthread;
+    else
+      STACK_1 = check_thread(STACK_1);
+  }
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
   var gcv_object_t *symval=thread_symbol_place(&STACK_2, &STACK_1);
