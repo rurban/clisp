@@ -1,5 +1,9 @@
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/configure.in: check types Oid and pqbool
+
+2009-06-19  Sam Steingold  <sds@gnu.org>
+
 	* foreign1.lisp (size_t, ssize_t): map to CS-CL:symbol-name in
 	*C-TYPE-TABLE*, not to the symbol, as should be done as per DEF-C-TYPE
 

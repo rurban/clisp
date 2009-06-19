@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for postgresql
-dnl Copyright (C) 2003-2008 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2009 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -31,6 +31,15 @@ AC_SEARCH_LIBS(PQconnectdb, pq)
 if test "$ac_cv_search_PQconnectdb" = "no"; then
   AC_MSG_ERROR([cannot find PostgreSQL library])
 fi
+AC_CHECK_TYPES([Oid, pqbool],,,[#if defined(HAVE_POSTGRES_EXT_H)
+#  include <postgres_ext.h>
+#elif defined(HAVE_POSTGRESQL_POSTGRES_EXT_H)
+#  include <postgresql/postgres_ext.h>
+#elif defined(HAVE_PGSQL_POSTGRES_EXT_H)
+#  include <pgsql/postgres_ext.h>
+#else
+#  error PostgreSQL is not found
+#endif])
 AC_CHECK_FUNCS(PQconnectStart PQconnectPoll PQconnectdb PQsetdbLogin dnl
 PQfinish PQconndefaults PQconninfoFree PQresetStart PQresetPoll PQreset dnl
 PQgetCancel PQfreeCancel PQcancel PQrequestCancel PQdb PQuser PQpass PQhost dnl
