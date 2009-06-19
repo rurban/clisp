@@ -330,6 +330,7 @@
 <!ENTITY opt-K '<option><olink targetdoc="man" targetptr="opt-link-set">-K</olink></option>'>
 <!ENTITY opt-L '<option><olink targetdoc="man" targetptr="opt-lang">-L</olink></option>'>
 <!ENTITY opt-M '<option><olink targetdoc="man" targetptr="opt-memfile">-M</olink></option>'>
+<!ENTITY opt-m '<option><olink targetdoc="man" targetptr="opt-memsize">-m</olink></option>'>
 <!ENTITY opt-v '<option><olink targetdoc="man" targetptr="opt-verbose">-v</olink></option>'>
 <!ENTITY opt-q '<option><olink targetdoc="man" targetptr="opt-verbose">-q</olink></option>'>
 <!ENTITY opt-x '<option><olink targetdoc="man" targetptr="opt-exec-expr">-x</olink></option>'>
