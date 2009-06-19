@@ -3543,7 +3543,7 @@ if [ $CROSS = false ] ; then
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
     echotab "for f in clisp-link linkkit/* base/* full/*; do \\"
     echotab "  case \$\$f in \\"
-    echotab "    */lisp${LEXE} clisp-link) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
+    echotab "    */lisp${LEXE}|clisp-link) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "  esac; \\"
     echotab "done"
