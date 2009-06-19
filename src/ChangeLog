@@ -5644,7 +5644,7 @@
 	* lispbibl.d (HAVE_FFI): export to clisp.h
 	* foreign.d (init_ffi): register size_t and ssize_t
 	* foreign1.lisp (size_t, ssize_t, FILE): add types
-	* modules/bindings/glibc/linux.lisp ((size_t, ssize_t): do not redefine
+	* modules/bindings/glibc/linux.lisp (size_t, ssize_t): do not redefine
 	* modules/pari/pari.lisp (allocatemoremem): use size_t
 	* modules/postgresql/postgresql.lisp (size_t): do not redefine
 	(PQtrace, PQprint, PQdisplayTuples, PQprintTuples):
