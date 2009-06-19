@@ -2444,8 +2444,8 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    allow other threads to run while yours is inside the system call.
    This means that &gc;ion could happen while you are inside this system
    call and, thus, that all objects of type <type>object</type> are
-   invalidated by the call. See also <xref linkend="gc-safety"/>.
-</simpara></listitem></itemizedlist>
+   invalidated by the call. See also <xref linkend="gc-safety"/> and
+   <xref linkend="gc-mt"/>.</simpara></listitem></itemizedlist>
 </para>
 
 </section>
@@ -4691,7 +4691,115 @@ Now you can sum doubles:
 <para>All functions and macros are exported from the package &mt-pac;.
  When this functionality if present, &features-my;
  contains the symbol <constant>:MT</constant>
- (for <emphasis>multithreading</emphasis>).</para></section>
+ (for <emphasis>multithreading</emphasis>).</para>
+<para>See <xref linkend="gc-mt"/> for the &gc;ion issues.</para></section>
+
+<section id="mt-general"><title>General principles</title>
+
+<section id="mt-parallelizability"><title>Parallelizability</title>
+
+<para>A program developed for a single-threaded world which shares no
+ application objects with programs running in other threads must run
+ fine, without problems.</para>
+
+<para>Specfically:
+ if, in a single-threaded world, execution of program A before program B
+ produces semantically the same results as execution of program B before
+ program A, then in a multithreaded world, it is possible to run A and B
+ simultaneously in different threads, and the result will be the same as
+ in the two single-threaded cases (A before B, or B before A).
+ <itemizedlist><listitem><simpara>If A and B have no objects in common,
+    then the implementation ensures by itself that the principle is
+    fulfilled.</simpara></listitem>
+  <listitem><simpara>If A and B shared some objects, the implementation
+    allows the programs to satisfy the principle with little effort.
+</simpara></listitem></itemizedlist></para></section>
+
+<section id="mt-symvalue"><title>Symbol Values</title>
+
+<para>Any symbol can be in one of four states:<variablelist>
+  <varlistentry><term>Global Variable</term><listitem><simpara>This
+     means that &symbol-value; of the symbol accesses the same value
+     cell for all threads.</simpara></listitem></varlistentry>
+  <varlistentry><term>Global Constant</term><listitem><simpara>This is
+     the same as Global Variable, except that the value cell cannot be
+     modified. The compiler can optimize this kind of symbols.
+  </simpara></listitem></varlistentry>
+  <varlistentry><term>Per-Thread Variable</term><listitem><simpara>This
+     means that every thread has its private value cell which is
+     accessed by &symbol-value;. &let;/&let-star;/&multiple-value-bind;
+     bindings of the variable will affect the lexical environment only,
+     not the value cell, unless the variable is locally declared
+     &special-dec;.</simpara></listitem></varlistentry>
+  <varlistentry><term>Per-Thread Special Variable</term><listitem><simpara>
+     This means that every thread has its private value cell which is
+     accessed by &symbol-value;. &let;/&let-star;/&multiple-value-bind;
+     bindings of the variable will affect this value cell.
+</simpara></listitem></varlistentry></variablelist></para>
+
+<para>Once a &symbol-t; is <emphasis>Global</emphasis>
+ or <emphasis>Per-Thread</emphasis>, this cannot change any more.
+ However, a <emphasis>Global Variable</emphasis> can become
+ a <emphasis>Global Constant</emphasis> (by means of a &defconstant;
+ declaration), and a <emphasis>Per-Thread Variable</emphasis> can become
+ a <emphasis>Per-Thread Special Variable</emphasis> (by means of a
+ &special-dec; declaration).</para>
+
+<para>The standard &cl; variables are all <emphasis>Per-Thread</emphasis>,
+ except for &features-my; and &modules-var;, which are
+ <emphasis>Global</emphasis>.</para>
+
+<para><emphasis>Per-Thread</emphasis> values can be accessed and
+ manipulated by &symbol-value-thread;.</para>
+
+<para>Example:<programlisting language="lisp">
+(defvar *global* 1)<lineannotation>create a <emphasis>Global Variable</emphasis></lineannotation>
+(defun thread-1 ()
+  (setq *global* 5)<lineannotation>change the <emphasis>Global Variable</emphasis> value</lineannotation>
+  (let ((*global* 10))<emphasis><emphasis>Per-Thread</emphasis> value cell is allocated and initialized</emphasis>
+    (setq *global* 20)<lineannotation><emphasis>Per-Thread</emphasis> value cell is changed</lineannotation>
+    <lineannotation><emphasis>Global Variable</emphasis> value is no accessible at all here</lineannotation>
+    )
+  (setq *global* 30))<lineannotation><emphasis>Global Variable</emphasis> value is modified again</lineannotation>
+</programlisting></para>
+
+</section>
+
+<section id="mt-package"><title>Packages</title>
+<para>See <filename role="clisp-cvs">doc/multithread.txt</filename></para>
+</section>
+
+<section id="mt-clos"><title>CLOS</title>
+<para>See <filename role="clisp-cvs">doc/multithread.txt</filename></para>
+</section>
+
+<section id="mt-mutable"><title>Hash Tables, Sequences, and other
+  mutable objcts</title>
+
+<para>Nothing is ever locked automatically (automatic locking will
+ impose an unjustifiable penalty on &hash-table-t;s and &sequence-t;s
+ local to threads), so the user must use locks when sharing
+ &hash-table-t;s, &sequence-t;s and user-defined mutable objects between
+ threads.</para>
+<para>This approach is consistent with the usual &cl; approach:
+ <blockquote><attribution><ulink role="clhs" url="sec_3-6"/></attribution>
+  <para>The consequences are undefined when code executed during an
+   object-traversing operation destructively modifies the object in a
+   way that might affect the ongoing traversal operation...
+ </para></blockquote>
+ <blockquote><attribution><ulink role="clhs" url="sec_18-1-2"/></attribution>
+  <para>If an object O1 is used as a key in a hash table H and is then
+   visibly modified with regard to the equivalence test of H, then the
+   consequences are unspecified if O1 is used as a key in further
+   operations on H...</para></blockquote></para>
+<warning><para>If two threads evaluate
+  <code>(&incf; (&gethash; x global-ht 0))</code>
+  the results are undefined.</para>
+ <para>If you want to shoot yourself, it is YOUR responsibility
+  to wear armor.</para></warning>
+</section>
+
+</section>
 
 <section id="mt-api"><title>Thread API reference</title>
 <variablelist>
@@ -4700,7 +4808,25 @@ Now you can sum doubles:
 </simpara></listitem></varlistentry>
 <varlistentry id="make-thread"><term><code>(&make-thread; &func-r;
    &key-amp; &name-k; :INITIAL-BINDINGS :CSTACK-SIZE :VSTACK-SIZE)</code></term>
- <listitem><simpara>Start a new &thread;.</simpara></listitem></varlistentry>
+ <listitem><simpara>Start a new named &thread; running &func-r;.</simpara>
+  <variablelist>
+   <varlistentry><term><constant>:INITIAL-BINDINGS</constant></term>
+    <listitem><simpara>an &alist; of <literal role="data">(&symbol-r;
+       . &form-r;)</literal>.
+      The &form-r;s are &eval;uated in the context of the new thread
+      and &symbol-r;s are bound to the result in the thread.
+      The default value is &default-special-bindings;.
+   </simpara></listitem></varlistentry>
+   <varlistentry><term><constant>:CSTACK-SIZE</constant></term>
+    <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
+      If 0, the value is decided by the OS.</simpara></listitem></varlistentry>
+  <varlistentry><term><constant>:VSTACK-SIZE</constant></term>
+   <listitem><simpara>the size of the &clisp; &STACK; in <type>object</type>.
+     The default value is calculated based on the &opt-m; option
+     used when &clisp; was started.
+     If 0, the value will be the same as that of the calling thread.
+  </simpara></listitem></varlistentry></variablelist>
+</listitem></varlistentry>
 <varlistentry id="threadp"><term><code>(&threadp; &object-r;)</code></term>
  <listitem><simpara>Check whether the object is of type &thread;.
 </simpara></listitem></varlistentry>
@@ -4773,10 +4899,17 @@ Now you can sum doubles:
 <varlistentry id="symbol-value-thread"><term><code>(&setf;
    (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
  <term><code>(&symbol-value-thread; &symbol-r; &thr;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>Access or set the <emphasis>Per-Thread</emphasis>
+   variable value. When &thr; is &t;, use the &current-thread;; if it is
+   &nil;, use the <emphasis>Global</emphasis> binding.
+   Returns two values: the &symbol-r; binding and an indicator: &nil; if
+   not bound in the &thr;, &t; if bound, and &makunbound; if
+   the <emphasis>Per-Thread</emphasis> binding was removed with &makunbound;.
+</simpara></listitem></varlistentry>
 <varlistentry id="default-special-bindings">
  <term>&default-special-bindings;</term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>The default <constant>:INITIAL-BINDINGS</constant>
+   argument of &make-thread;.</simpara></listitem></varlistentry>
 <varlistentry id="with-deferred-interrupts"><term>
   <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
  <listitem><simpara></simpara></listitem></varlistentry>

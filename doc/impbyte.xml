@@ -1371,6 +1371,33 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
 <type>Fpointer</type> (using <function>allocate_fpointer()</function>.)</para>
 
 </section>
+
+<section id="gc-mt"><title>Garbage Collection and Multithreading</title>
+
+<para>While the &gc;ion is executing, all other threads must stop.
+ &clisp; has a copying &gc;or, so anything else would require a write
+ barrier during the scan phase and a read barrier during the move phase.</para>
+
+<formalpara id="gc-mt-pin"><title>Pinned heap objects</title>
+ <para>Heap objects may be <emphasis>pinned</emphasis> - they will not
+  move during &gc;ion.  Used when execution is blocked in a
+  foreign/system call and a pointer into the heap is passed to non-lisp
+  land.  The &gc;or tries to minimize the wholes in the heap introduced
+  by the <emphasis>pinning</emphasis> process.
+  See also the note about system calls in
+  <xref linkend="clisp-h"/>.</para></formalpara>
+
+<formalpara id="gc-mt-safe-points"><title>Safe points</title>
+ <para>The threads may be stopped only at certain safe points.
+  Currently implemented safe points are:<orderedlist>
+   <listitem><simpara>Any heap allocation (actually before the
+     allocation itself).</simpara></listitem>
+   <listitem><simpara>Some "possibly blocking" system call.
+  </simpara></listitem></orderedlist>
+  Basically any thread that conses or can block in a system call will
+  not stop the &gc;ion from executing.</para></formalpara>
+</section>
+
 </chapter>
 
 <chapter id="extend"><title>Extending &clisp; Core</title>
