@@ -1264,3 +1264,9 @@ TOUPPER
     (:library :default) (:language :stdc) (:arguments) (:return-type c-string))
   (not (stringp (show (pcre-version)))))
 NIL
+
+(progn
+  (def-call-out strlen (:arguments (s c-string))
+    (:return-type size_t) (:library :default) (:language :stdc))
+  (strlen "foo"))
+3
