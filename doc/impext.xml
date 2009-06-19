@@ -4796,6 +4796,9 @@ Now you can sum doubles:
 
 </section>
 
+<section id="mt-signal"><title>OS Signal Handling</title><para>FIXME,
+  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
+
 <section id="mt-api"><title>Thread API reference</title>
 <variablelist>
 <varlistentry id="thread"><term>&thread;</term>
@@ -4826,9 +4829,12 @@ Now you can sum doubles:
  <listitem><simpara>Check whether the object is of type &thread;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-yield"><term><code>(&thread-yield; &thr;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>relinquish the CPU.  The &thr; is placed at the end
+   of the run queue and another thread is scheduled to run.
+</simpara></listitem></varlistentry>
 <varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>call &thread-interrupt; telling the &thr; to terminate.
+</simpara></listitem></varlistentry>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
    &thr; &func-r; &rest-amp; &args-r;)</code></term>
  <listitem><simpara>FIXME</simpara></listitem></varlistentry>
@@ -4837,16 +4843,25 @@ Now you can sum doubles:
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-active-p"><term><code>(&thread-active-p;
    &thr;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Return &nil; if the thread has already terminated
+   and &t; otherwise.</simpara>
+  <warning><para>By the time this function returns, &thr; may have
+    already terminated.</para></warning></listitem></varlistentry>
 <varlistentry id="current-thread"><term><code>(&current-thread;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Return the &thread; object encapsulating the caller.
+</simpara></listitem></varlistentry>
 <varlistentry id="list-threads"><term><code>(&list-threads;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Return the &list-t; of all currently running &thread;s.
+  </simpara><warning><para>By the time this function returns, the set of
+    actually running threads may have a single intersection with the
+    return value - the &current-thread;.
+</para></warning></listitem></varlistentry>
 <varlistentry id="mutex"><term>&mutex;</term>
  <listitem><simpara>The type of the object return by &make-mutex;.
 </simpara></listitem></varlistentry>
 <varlistentry id="mutexp"><term><code>(&mutexp; &object-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Check whether the object is of type &mutex;.
+</simpara></listitem></varlistentry>
 <varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
    &name-k; :RECURSIVE-P)</code></term>
  <listitem><simpara>FIXME</simpara></listitem></varlistentry>
