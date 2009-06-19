@@ -1,5 +1,13 @@
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
+	* modules/postgresql/postgresql.lisp (PQexecParams, PQprepare)
+	(PQexecPrepared, PQsendQueryParams, PQsendPrepare)
+	(PQsendQueryPrepared, PQfn): fix the declarations (input
+	parameters were declared as output)
+	Reported by SOS Sukaeto <sukaeto@gmail.com>
+
+2009-06-19  Sam Steingold  <sds@gnu.org>
+
 	* type.lisp (thread, mutex, exemption) [MULTITHREAD]: add atomic types
 
 2009-06-19  Sam Steingold  <sds@gnu.org>
