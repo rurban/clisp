@@ -532,6 +532,8 @@
 <!ENTITY symbol-value-thread '<link linkend="symbol-value-thread"><function>MT:SYMBOL-VALUE-THREAD</function></link>'>
 <!ENTITY default-special-bindings '<link linkend="default-special-bindings"><varname>MT:*DEFAULT-SPECIAL-BINDINGS*</varname></link>'>
 <!ENTITY with-deferred-interrupts '<link linkend="with-deferred-interrupts"><function>MT:WITH-DEFERRED-INTERRUPTS</function></link>'>
+<!ENTITY glob-var '<link linkend="mt-symvalue"><emphasis>Global Variable</emphasis></link>'>
+<!ENTITY thr-var '<link linkend="mt-symvalue"><emphasis>Per-Thread Variable</emphasis></link>'>
 
 <!-- *** pre-processors *** -->
 <!ENTITY modprep '<link linkend="modprep-file"><command>modprep</command></link>'>

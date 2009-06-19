@@ -4685,14 +4685,14 @@ Now you can sum doubles:
   compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
 
 <section id="mt-intro"><title>Introduction</title>
-<para>&clisp; uses the &os; threads.
+<para>&clisp; uses the OS threads.
  Two flavors are supported: <emphasis>POSIX</emphasis>
  and <emphasis>WIN32</emphasis>. Both are preemptive.</para>
 <para>All functions and macros are exported from the package &mt-pac;.
  When this functionality if present, &features-my;
  contains the symbol <constant>:MT</constant>
  (for <emphasis>multithreading</emphasis>).</para>
-<para>See <xref linkend="gc-mt"/> for the &gc;ion issues.</para></section>
+<para>See also <xref linkend="gc-mt"/>.</para></section>
 
 <section id="mt-general"><title>General principles</title>
 
@@ -4708,10 +4708,10 @@ Now you can sum doubles:
  program A, then in a multithreaded world, it is possible to run A and B
  simultaneously in different threads, and the result will be the same as
  in the two single-threaded cases (A before B, or B before A).
- <itemizedlist><listitem><simpara>If A and B have no objects in common,
-    then the implementation ensures by itself that the principle is
-    fulfilled.</simpara></listitem>
-  <listitem><simpara>If A and B shared some objects, the implementation
+ <itemizedlist><listitem><simpara>If A and B have no common objects,
+    then the implementation ensures that the principle is fulfilled.
+  </simpara></listitem>
+  <listitem><simpara>If A and B share some objects, the implementation
     allows the programs to satisfy the principle with little effort.
 </simpara></listitem></itemizedlist></para></section>
 
@@ -4739,39 +4739,34 @@ Now you can sum doubles:
 
 <para>Once a &symbol-t; is <emphasis>Global</emphasis>
  or <emphasis>Per-Thread</emphasis>, this cannot change any more.
- However, a <emphasis>Global Variable</emphasis> can become
- a <emphasis>Global Constant</emphasis> (by means of a &defconstant;
- declaration), and a <emphasis>Per-Thread Variable</emphasis> can become
+ However, a &glob-var; can become a <emphasis>Global Constant</emphasis>
+ (by means of a &defconstant; declaration), and a &thr-var; can become
  a <emphasis>Per-Thread Special Variable</emphasis> (by means of a
  &special-dec; declaration).</para>
 
 <para>The standard &cl; variables are all <emphasis>Per-Thread</emphasis>,
- except for &features-my; and &modules-var;, which are
- <emphasis>Global</emphasis>.</para>
+ except for &features-my; and &modules-var;, which are &glob-var;s.</para>
 
-<para><emphasis>Per-Thread</emphasis> values can be accessed and
- manipulated by &symbol-value-thread;.</para>
+<para>&thr-var; values can be accessed and manipulated by
+ &symbol-value-thread;.</para>
 
 <para>Example:<programlisting language="lisp">
-(defvar *global* 1)<lineannotation>create a <emphasis>Global Variable</emphasis></lineannotation>
+(defvar *global* 1)<lineannotation>create a &glob-var;</lineannotation>
 (defun thread-1 ()
-  (setq *global* 5)<lineannotation>change the <emphasis>Global Variable</emphasis> value</lineannotation>
-  (let ((*global* 10))<emphasis><emphasis>Per-Thread</emphasis> value cell is allocated and initialized</emphasis>
-    (setq *global* 20)<lineannotation><emphasis>Per-Thread</emphasis> value cell is changed</lineannotation>
-    <lineannotation><emphasis>Global Variable</emphasis> value is no accessible at all here</lineannotation>
+  (setq *global* 5)<lineannotation>change the &glob-var; value</lineannotation>
+  (let ((*global* 10))<lineannotation>&thr-var; value is allocated and initialized</lineannotation>
+    (setq *global* 20)<lineannotation>&thr-var; value is changed</lineannotation>
+    <lineannotation>&glob-var; value is not accessible at all here</lineannotation>
     )
-  (setq *global* 30))<lineannotation><emphasis>Global Variable</emphasis> value is modified again</lineannotation>
+  (setq *global* 30))<lineannotation>&glob-var; value is modified again</lineannotation>
 </programlisting></para>
 
 </section>
 
-<section id="mt-package"><title>Packages</title>
-<para>See <filename role="clisp-cvs">doc/multithread.txt</filename></para>
-</section>
-
-<section id="mt-clos"><title>CLOS</title>
-<para>See <filename role="clisp-cvs">doc/multithread.txt</filename></para>
-</section>
+<section id="mt-package"><title>Packages</title><para>FIXME,
+  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
+<section id="mt-clos"><title>CLOS</title><para>FIXME,
+  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
 
 <section id="mt-mutable"><title>Hash Tables, Sequences, and other
   mutable objcts</title>
@@ -4831,79 +4826,79 @@ Now you can sum doubles:
  <listitem><simpara>Check whether the object is of type &thread;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-yield"><term><code>(&thread-yield; &thr;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
    &thr; &func-r; &rest-amp; &args-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
  <listitem><simpara>Return the &name-r; of the &thr;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-active-p"><term><code>(&thread-active-p;
    &thr;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="current-thread"><term><code>(&current-thread;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="list-threads"><term><code>(&list-threads;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="mutex"><term>&mutex;</term>
  <listitem><simpara>The type of the object return by &make-mutex;.
 </simpara></listitem></varlistentry>
 <varlistentry id="mutexp"><term><code>(&mutexp; &object-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
    &name-k; :RECURSIVE-P)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
    &mutex-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="mutex-owner"><term><code>(&mutex-owner;
    &mutex-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
    &mutex-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="exemption"><term>&exemption;</term>
  <listitem><simpara>The type of the object returned by &make-exemption;.
 </simpara></listitem></varlistentry>
 <varlistentry id="exemptionp"><term><code>(&exemptionp;
    &object-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="make-exemption"><term><code>(&make-exemption;
    &key-amp; &name-k;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
    &exemp-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
    seconds default &rest-amp; &args-r;)</code></term>
  <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
    &args-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="symbol-value-thread"><term><code>(&setf;
    (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
  <term><code>(&symbol-value-thread; &symbol-r; &thr;)</code></term>
- <listitem><simpara>Access or set the <emphasis>Per-Thread</emphasis>
-   variable value. When &thr; is &t;, use the &current-thread;; if it is
-   &nil;, use the <emphasis>Global</emphasis> binding.
+ <listitem><simpara>Access or set the &thr-var; value.
+   When &thr; is &t;, use the &current-thread;; if it is &nil;, use the
+   &glob-var; binding.
    Returns two values: the &symbol-r; binding and an indicator: &nil; if
-   not bound in the &thr;, &t; if bound, and &makunbound; if
+   not bound in the &thr;, &t; if bound, and &symbol-t; &makunbound; if
    the <emphasis>Per-Thread</emphasis> binding was removed with &makunbound;.
 </simpara></listitem></varlistentry>
 <varlistentry id="default-special-bindings">
@@ -4912,7 +4907,7 @@ Now you can sum doubles:
    argument of &make-thread;.</simpara></listitem></varlistentry>
 <varlistentry id="with-deferred-interrupts"><term>
   <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
- <listitem><simpara></simpara></listitem></varlistentry>
+ <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 </variablelist></section>
 </section>
 
