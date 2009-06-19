@@ -124,9 +124,11 @@
           '(nil boolean character char uchar short ushort int uint long ulong
             uint8 sint8 uint16 sint16 uint32 sint32 uint64 sint64
             single-float double-float
-            size_t ssize_t      ; see foreign.d:init_ffi()
             c-pointer c-string))
   (setf (gethash c-type *c-type-table*) c-type))
+(dolist (c-type '(size_t ssize_t)) ; see foreign.d:init_ffi()
+  (setf (gethash c-type *c-type-table*)
+        (CS-CL:symbol-name c-type))) ; prefer lower case
 ;; FILE* is used by modern ffi packages
 (setf (gethash '|file| *c-type-table*) 'c-pointer) ; (def-c-type FILE c-pointer)
 
