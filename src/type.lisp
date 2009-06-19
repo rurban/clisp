@@ -341,6 +341,11 @@
 #+(or unix ffi win32)
 (def-atomic-type foreign-pointer
   (lambda (x) (eq 'foreign-pointer (type-of x))))
+;; threads.lisp is loaded after this file,
+;; so these symbols are not external yet
+#+mt (def-atomic-type mt::thread mt::threadp)
+#+mt (def-atomic-type mt::mutex mt::mutexp)
+#+mt (def-atomic-type mt::exemption mt::exemptionp)
 (def-atomic-type VECTOR vectorp)
 (def-atomic-type PLIST
     (lambda (x) (multiple-value-bind (length tail) (list-length-dotted x)

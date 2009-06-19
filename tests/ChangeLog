@@ -1,5 +1,9 @@
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
+	* mt.tst: check that THREAD, MUTEX & EXEMPTION are valid types
+
+2009-06-19  Sam Steingold  <sds@gnu.org>
+
 	* ffi.tst: test size_t
 
 2009-06-14  Sam Steingold  <sds@gnu.org>

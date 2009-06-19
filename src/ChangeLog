@@ -1,5 +1,9 @@
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
+	* type.lisp (thread, mutex, exemption) [MULTITHREAD]: add atomic types
+
+2009-06-19  Sam Steingold  <sds@gnu.org>
+
 	* modules/postgresql/configure.in: check types Oid and pqbool
 
 2009-06-19  Sam Steingold  <sds@gnu.org>

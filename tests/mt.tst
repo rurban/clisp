@@ -12,6 +12,10 @@
 
 ;; non-recursive mutex
 (mutex-owner (setf m1 (make-mutex :name "m1"))) NIL
+(typep m1 'exemption) NIL
+(typep m1 'mutex) T
+(typep m1 'thread) NIL
+(typep m1 'T) T
 (mutex-lock m1) T
 (mutex-lock m1) ERROR
 (eq (mutex-owner m1) (current-thread)) T
@@ -37,6 +41,11 @@
                  (mutex-lock m2) (mutex-lock m2)
                  (loop (sleep 1)))))))
 T
+
+(typep th 'exemption) NIL
+(typep th 'mutex) NIL
+(typep th 'thread) T
+(typep th 'T) T
 
 ;; wait for the global symbol value to change
 (loop until (eql *thread-special* 2) do (sleep 0.1)) NIL
