@@ -4913,13 +4913,13 @@ threads.</para>
      on waiting for &exemp-r;</simpara></listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>Wait on &exemp-r; to become signalled. &mutex-r; should be
-     owned by the caller - if not error is signalled. The function releases
+ <listitem><simpara>Wait on &exemp-r; to become signaled. &mutex-r; should be
+     owned by the caller - if not error is signaled. The function releases
      &mutex-r; ownership and waits on &exemp-r;. On return &mutex-r; is acquired
      again. The function  waits up to &timeout-k; &seconds; (which may be a
      non-negative &real-t; or a  list <literal role="data">(sec usec)</literal>
      or a pair <literal role="data">(sec . usec)</literal>). If timeout is not
-     specified - waits forever. Returns &t; if &exemp-r; was signalled, &nil; -
+     specified - waits forever. Returns &t; if &exemp-r; was signaled, &nil; -
      on timeout.</simpara></listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
    &exemp-r;)</code></term>
