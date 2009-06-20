@@ -1,3 +1,8 @@
+2009-06-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (create_thread) [WIN32_THREADS]: initialize thread's
+	_signal_reenter_ok on Win32 as well
+
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/postgresql.lisp (PQexecParams, PQprepare)
