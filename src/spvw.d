@@ -792,9 +792,7 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   spinlock_init(&thread->_gc_suspend_request); spinlock_acquire(&thread->_gc_suspend_request);
   spinlock_init(&thread->_gc_suspend_ack); spinlock_acquire(&thread->_gc_suspend_ack);
   xmutex_raw_init(&thread->_gc_suspend_lock);
-#ifdef HAVE_SIGNALS
   spinlock_init(&thread->_signal_reenter_ok);
-#endif
   /* initialize the environment*/
   thread->_aktenv.var_env   = NIL;
   thread->_aktenv.fun_env   = NIL;
