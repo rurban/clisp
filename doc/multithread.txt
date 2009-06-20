@@ -1,94 +1,16 @@
                               Multithreading
                               ==============
 
-is currently being developed and does not work yet.
-Current status is described at the end of the file.
+is currently being developed but is usable.
 
 Installation
 ------------
 
 In the Makefile, define in the CFLAGS the symbol MULTITHREAD and one of
-the symbols POSIX_THREADS, SOLARIS_THREADS, WIN32_THREADS.
+the symbols POSIX_THREADS, WIN32_THREADS.
 (See xthread.d about their meaning.)
 Alternatively, you can pass "--with-threads=flavor" to the top-level
-configure ("flavor" is one of POSIX_THREADS, SOLARIS_THREADS, WIN32_THREADS).
-
-
-Packages
---------
-
-PACKAGE objects are LOCKABLE and are locked by INTERN before adding a
-symbol (if FIND-SYMBOL fails).
-(This is a consequence of the Parallelizability Principle.)
-This puts an unknown speed penalty on READ and therefore LOAD.
---NOT IMPLEMENTED YET--
-
-CLOS
-----
-
-DEFCLASS, DEFGENERIC, DEFMETHOD, DEFSTRUCT must get a global "DEF-CLOS"
-lock because they change the global class hierarchy.
-(This is a consequence of the Parallelizability Principle.)
---NOT IMPLEMENTED YET--
-
-
---------------------------------------------------------------------------
-CURRENT STATUS
---------------------------------------------------------------------------
-*** Installation.
-Currently only POSIX_THREADS are tested and all development is done with them.
-There is code for Win32 and Solaris threads -
-however it is not clear whether it even compiles.
-
-
-*** Symbol values - ready.
-The implementation follows the explanation above. For a good description see:
-http://www.franz.com/support/documentation/current/doc/multiprocessing.htm#dynamic-environments-1
-
- TODO:
- savemem/loadmem - per thread binding are lost (and the threads are not
- re-created when an image is loaded anyway). Not sure that something
- special should be done here.
-
-*** Packages & CLOS locks - not ready (not worked at all on it)
-spinlock with GC safe point will be used.
-
-*** Garbage Collector
-
-TO BE DONE:
-a) Not all "possibly blocking" calls are marked as safe (currently all
-   stream operations).
-b) Certain functions that do not cons but may go in infinite loop
-   (length of circular list for example).
-
-*** Signal handling (POSIX - no Win32)
-
-Synchronous signals (SIGSEGV,SIGPIPE) are handled in the threads that
-caused them (after all they are synchronous).
-Asynchronous signals (SIGINT,SIGTERM,SIGHUP,etc) are handled synchronously
-(nice oxymoron - they are asynchronous:)).
-After initialization of the heap - new thread is spawned for the main REPL.
-The "main thread" (where main() is executed) goes into infinite signal
-handling loop (via sigwait()) and does not deal with lisp heap/object
-at all (almost - just prepares the stack for SIG_THREAD_INTERRUPT).
-Thread can be interrupted by sending SIG_THREAD_INTERRUPT (SIGUSR1) to it.
-There are special requirement when sending this signal:
-  1. LISP stack should contain info what to execute.
-  2. The thread should be in GC safe location.
-
-TODO:
-SIGCLD needs special attention - currently it may not to work
-as expected.
-
-*** THREAD package exported functions
-Currently no locks are exposed through MT package - so it is good time
-to practice lock-free multithreading :).
-
-The usable functions from MT currently are:
-MAKE-THREAD, CURRENT-THREAD, LIST-THREADS, THREADP, THREAD-ACTIVE-P,
-THREAD-INTERRUPT, THREAD-KILL, THREAD-YIELD, THREAD-NAME, SYMBOL-VALUE-THREAD
-
-Some docs on them will be helpful (and will come shortly :))
+configure ("flavor" is one of POSIX_THREADS, WIN32_THREADS).
 
 DOCS: impbyte.xml:"gc-mt"; impext.xml:"mt"
 preview: http://clisp.podval.org/impnotes/mt.html
