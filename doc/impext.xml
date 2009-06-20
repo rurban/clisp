@@ -4715,61 +4715,48 @@ Now you can sum doubles:
     allows the programs to satisfy the principle with little effort.
 </simpara></listitem></itemizedlist></para></section>
 
-<section id="mt-symvalue"><title>Symbol Values</title>
-
-<para>Any symbol can be in one of four states:<variablelist>
-  <varlistentry><term>Global Variable</term><listitem><simpara>This
-     means that &symbol-value; of the symbol accesses the same value
-     cell for all threads.</simpara></listitem></varlistentry>
-  <varlistentry><term>Global Constant</term><listitem><simpara>This is
-     the same as Global Variable, except that the value cell cannot be
-     modified. The compiler can optimize this kind of symbols.
-  </simpara></listitem></varlistentry>
-  <varlistentry><term>Per-Thread Variable</term><listitem><simpara>This
-     means that every thread has its private value cell which is
-     accessed by &symbol-value;. &let;/&let-star;/&multiple-value-bind;
-     bindings of the variable will affect the lexical environment only,
-     not the value cell, unless the variable is locally declared
-     &special-dec;.</simpara></listitem></varlistentry>
-  <varlistentry><term>Per-Thread Special Variable</term><listitem><simpara>
-     This means that every thread has its private value cell which is
-     accessed by &symbol-value;. &let;/&let-star;/&multiple-value-bind;
-     bindings of the variable will affect this value cell.
-</simpara></listitem></varlistentry></variablelist></para>
-
-<para>Once a &symbol-t; is <emphasis>Global</emphasis>
- or <emphasis>Per-Thread</emphasis>, this cannot change any more.
- However, a &glob-var; can become a <emphasis>Global Constant</emphasis>
- (by means of a &defconstant; declaration), and a &thr-var; can become
- a <emphasis>Per-Thread Special Variable</emphasis> (by means of a
- &special-dec; declaration).</para>
-
-<para>The standard &cl; variables are all <emphasis>Per-Thread</emphasis>,
- except for &features-my; and &modules-var;, which are &glob-var;s.</para>
-
-<para>&thr-var; values can be accessed and manipulated by
- &symbol-value-thread;.</para>
+<section id="mt-symvalue"><title>Special Variable Values</title>
+<para>Special variables work in very similar/same way as in other
+  implementations.</para>
+<para>Every special variable has global value that can be shared across all
+threads.</para>
+<para>Bindings of special variables (via &let;/&let-star;/&multiple-value-bind;)
+  are local to thread i.e. every symbol has different value cell in each thread.
+  &symbol-value-thread; can be used to inspect/set these local thread bindings.
+</para>
+<para>Threads do not inherit dynamic bindings from the parent thread</para>
 
 <para>Example:<programlisting language="lisp">
 (defvar *global* 1)<lineannotation>create a &glob-var;</lineannotation>
 (defun thread-1 ()
+   <lineannotation>here *global* and (symbol-value *global*) will be 1 not 2!</lineannotation>
   (setq *global* 5)<lineannotation>change the &glob-var; value</lineannotation>
-  (let ((*global* 10))<lineannotation>&thr-var; value is allocated and initialized</lineannotation>
+  (let ((*global* 10))<lineannotation>&thr-var; value is initialized</lineannotation>
     (setq *global* 20)<lineannotation>&thr-var; value is changed</lineannotation>
-    <lineannotation>&glob-var; value is not accessible at all here</lineannotation>
+    <lineannotation>&glob-var; value is not accessible here (only via &symbol-value-thread;)</lineannotation>
     )
   (setq *global* 30))<lineannotation>&glob-var; value is modified again</lineannotation>
+(let ((*global* 2))<lineannotation>&thr-var; value is initialized</lineannotation>
+  (make-thread #'thread-1))
 </programlisting></para>
 
 </section>
 
-<section id="mt-package"><title>Packages</title><para>FIXME,
-  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
-<section id="mt-clos"><title>CLOS</title><para>FIXME,
-  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
+<section id="mt-package"><title>Packages</title><para>
+    PACKAGE objects have internal mutex and are locked by INTERN before adding a
+    symbol (if FIND-SYMBOL fails). All modifications of internal package data
+    are guarded by this mutex.</para>
+  <para>
+    NB: currently there is one exception: &use-package; is not protected and
+    thus not thread safe.
+</para></section>
+<section id="mt-clos"><title>CLOS</title><para>
+    DEFCLASS, DEFGENERIC, DEFMETHOD, DEFSTRUCT must get a global "DEF-CLOS"
+    lock because they change the global class hierarchy.
+    --NOT IMPLEMENTED YET--</para></section>
 
 <section id="mt-mutable"><title>Hash Tables, Sequences, and other
-  mutable objcts</title>
+  mutable objects</title>
 
 <para>Nothing is ever locked automatically (automatic locking will
  impose an unjustifiable penalty on &hash-table-t;s and &sequence-t;s
@@ -4796,9 +4783,6 @@ Now you can sum doubles:
 
 </section>
 
-<section id="mt-signal"><title>OS Signal Handling</title><para>FIXME,
-  See <filename role="clisp-cvs">doc/multithread.txt</filename></para></section>
-
 <section id="mt-api"><title>Thread API reference</title>
 <variablelist>
 <varlistentry id="thread"><term>&thread;</term>
@@ -4812,8 +4796,8 @@ Now you can sum doubles:
     <listitem><simpara>an &alist; of <literal role="data">(&symbol-r;
        . &form-r;)</literal>.
       The &form-r;s are &eval;uated in the context of the new thread
-      and &symbol-r;s are bound to the result in the thread.
-      The default value is &default-special-bindings;.
+      and &symbol-r;s are bound to the result in the thread before &func-r; is
+      called. The default value is &default-special-bindings;.
    </simpara></listitem></varlistentry>
    <varlistentry><term><constant>:CSTACK-SIZE</constant></term>
     <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
@@ -4829,15 +4813,24 @@ Now you can sum doubles:
  <listitem><simpara>Check whether the object is of type &thread;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-yield"><term><code>(&thread-yield; &thr;)</code></term>
- <listitem><simpara>relinquish the CPU.  The &thr; is placed at the end
+ <listitem><simpara>Relinquish the CPU.  The &thr; is placed at the end
    of the run queue and another thread is scheduled to run.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
- <listitem><simpara>call &thread-interrupt; telling the &thr; to terminate.
+ <listitem><simpara>Call &thread-interrupt; telling the &thr; to terminate.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
    &thr; &func-r; &rest-amp; &args-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Interrupt normal execution flow in &thr; and ask it to
+     funcall &func-r; (with parameters). Thread cannot be interrupted at any
+     point - only at ones where GC can run - see <xref linkend="gc-mt"/>.
+   </simpara><simpara>Currently on WIN32 blocking I/O cannot be interrupted. The
+     interrupt will be handled after the call returns (TODO: fix it)
+   </simpara><warning><para> Thread may be interrupted inside
+       &unwind-protect;'s cleanup forms and on non-local exit from &func-r; -
+       they may not execute entirely. In order to prevent this
+       WITH-DEFERRED-INTERRUPTS is provided.</para></warning>
+</listitem></varlistentry>
 <varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
  <listitem><simpara>Return the &name-r; of the &thr;.
 </simpara></listitem></varlistentry>
@@ -4864,40 +4857,74 @@ Now you can sum doubles:
 </simpara></listitem></varlistentry>
 <varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
    &name-k; :RECURSIVE-P)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Create new &mutex; object - not owned by any thread.
+     &name-k; should be string describing the mutex (this really helps debugging
+     deadlocks). When :RECURSIVE-P is non-&nil; - recursive mutex is created i.e.
+     thread can acquire many times the mutex (and should release it for each
+     successful acquire of course).
+</simpara></listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Acquire mutex.  If mutex is owned by another thread - the
+     call blocks and waits up to &timeout-k; &seconds; (which may be a
+     non-negative &real-t; or a  list <literal role="data">(sec usec)</literal>
+     or a pair <literal role="data">(sec . usec)</literal>). If timeout is not
+     specified - waits forever.
+     If mutex is non-recursive and calling thread owns it - error will be
+     signaled (otherwise will deadlock).
+     Return &t; if the thread got ownership of &mutex-r;, &nil; - on timeout.
+</simpara></listitem></varlistentry>
 <varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
    &mutex-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Release &mutex-r; ownership. If the calling thread is not
+     owner of &mutex-r; - error is signaled.
+</simpara></listitem></varlistentry>
 <varlistentry id="mutex-owner"><term><code>(&mutex-owner;
    &mutex-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+  <listitem><simpara>Return &thread; that owns &mutex-r;, &nil; if none.</simpara>
+   <warning><para>By the time this function returns the &mutex-r; ownership may
+       have changed (unless the owner is not the &current-thread;). The function
+       is mostly useful for debugging deadlocks.
+</para></warning></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
    &mutex-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Return whether mutex is recursive</simpara></listitem></varlistentry>
 <varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Execute &body-r; with &mutex-r; owned. Upon exit &mutex-r;
+     ownership is released. Return the values of &body-r; evaluation</simpara>
+</listitem></varlistentry>
 <varlistentry id="exemption"><term>&exemption;</term>
- <listitem><simpara>The type of the object returned by &make-exemption;.
+ <listitem><simpara>The type of the object returned by &make-exemption;. These
+     are POSIX condition variables.
 </simpara></listitem></varlistentry>
 <varlistentry id="exemptionp"><term><code>(&exemptionp;
    &object-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+  <listitem><simpara>Check whether the object is of type &exemption;.
+</simpara></listitem></varlistentry>
 <varlistentry id="make-exemption"><term><code>(&make-exemption;
    &key-amp; &name-k;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Create new &exemption; object. &name-k; should be string
+     describing the exemption (this really helps debugging deadlocks)</simpara>
+</listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Signal &exemp-r; object i.e. wake-up single thread blocked
+     on waiting for &exemp-r;</simpara></listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Wait on &exemp-r; to become signalled. &mutex-r; should be
+     owned by the caller - if not error is signalled. The function releases
+     &mutex-r; ownership and waits on &exemp-r;. On return &mutex-r; is acquired
+     again. The function  waits up to &timeout-k; &seconds; (which may be a
+     non-negative &real-t; or a  list <literal role="data">(sec usec)</literal>
+     or a pair <literal role="data">(sec . usec)</literal>). If timeout is not
+     specified - waits forever. Returns &t; if &exemp-r; was signalled, &nil; -
+     on timeout.</simpara></listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
    &exemp-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Signal &exemp-r; in all thread waiting on it</simpara>
+</listitem></varlistentry>
 <varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
    seconds default &rest-amp; &args-r;)</code></term>
  <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
@@ -4905,7 +4932,12 @@ Now you can sum doubles:
  <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Execute &body-r;. In case it does not finish for up to
+     &seconds; (which can be a non-negative &real-t; or a  list
+     <literal role="data">(sec usec)</literal> or a pair <literal role="data">
+       (sec . usec)</literal>) it is interrupted and timeout-forms are executed.
+     Return value(s) of last evaluated form.
+</simpara></listitem></varlistentry>
 <varlistentry id="symbol-value-thread"><term><code>(&setf;
    (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
  <term><code>(&symbol-value-thread; &symbol-r; &thr;)</code></term>
@@ -4922,7 +4954,10 @@ Now you can sum doubles:
    argument of &make-thread;.</simpara></listitem></varlistentry>
 <varlistentry id="with-deferred-interrupts"><term>
   <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Defer thread interrupts (NB: not thread preemption) while
+     &body-r; is executed. If there is interrupt while &body-r; is run - it is
+     queued and will be executed after &body-r; finishes.
+</simpara></listitem></varlistentry>
 </variablelist></section>
 </section>
 
