@@ -1382,7 +1382,7 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  <para>Heap objects may be <emphasis>pinned</emphasis> - they will not
   move during &gc;ion.  Used when execution is blocked in a
   foreign/system call and a pointer into the heap is passed to non-lisp
-  land.  The &gc;or tries to minimize the wholes in the heap introduced
+  land.  The &gc;or tries to minimize the holes in the heap introduced
   by the <emphasis>pinning</emphasis> process.
   See also the note about system calls in
   <xref linkend="clisp-h"/>.</para></formalpara>
@@ -1392,10 +1392,13 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   Currently implemented safe points are:<orderedlist>
    <listitem><simpara>Any heap allocation (actually before the
      allocation itself).</simpara></listitem>
-   <listitem><simpara>Some "possibly blocking" system call.
-  </simpara></listitem></orderedlist>
-  Basically any thread that conses or can block in a system call will
-  not stop the &gc;ion from executing.</para></formalpara>
+   <listitem><simpara>Possibly blocking system call.</simpara></listitem>
+   <listitem><simpara>Some places that may introduce infinite non-consing
+       loops.</simpara></listitem></orderedlist>
+   Basically any thread that conses or can block in a system call will
+   not stop the &gc;ion from executing. There are still places where infinite
+   non-consing loop without safe point may be reached (TODO: find and fix)</para>
+</formalpara>
 </section>
 
 </chapter>
