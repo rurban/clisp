@@ -4746,9 +4746,15 @@ threads.</para>
     PACKAGE objects have internal mutex and are locked by INTERN before adding a
     symbol (if FIND-SYMBOL fails). All modifications of internal package data
     are guarded by this mutex.</para>
-  <para>
-    NB: currently there is one exception: &use-package; is not protected and
-    thus not thread safe.
+  <para>NB: currently there is one exception: &use-package; is not protected and
+    thus not thread safe.</para>
+  <para>NB: Symbol look-up within package currently is not guarded! This means
+    that in certain cases &find-symbol; may return &nil; even though the symbol
+    is accessible (this may happen when internal package hash tables are
+    re-hashed at the time &find-symbol; performs look-up).
+    TODO: Acquire lock(s) for every symbol look-up (may be very be expensive)?
+    Use rwlock? Better approach may be is to have lock free hash table
+    implementation?
 </para></section>
 <section id="mt-clos"><title>CLOS</title><para>
     DEFCLASS, DEFGENERIC, DEFMETHOD, DEFSTRUCT must get a global "DEF-CLOS"
@@ -4936,8 +4942,11 @@ threads.</para>
      &seconds; (which can be a non-negative &real-t; or a  list
      <literal role="data">(sec usec)</literal> or a pair <literal role="data">
        (sec . usec)</literal>) it is interrupted and timeout-forms are executed.
-     Return value(s) of last evaluated form.
-</simpara></listitem></varlistentry>
+     Return value(s) of last evaluated form.</simpara><warning><para> Since on
+       timeout current thread is interrupted special care may be needed for
+       ensuring proper cleanup in &body-r;. See &thread-interrupt; and
+       WITH-DEFERRED-INTERRUPTS</para></warning>
+</listitem></varlistentry>
 <varlistentry id="symbol-value-thread"><term><code>(&setf;
    (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
  <term><code>(&symbol-value-thread; &symbol-r; &thr;)</code></term>
@@ -4956,8 +4965,13 @@ threads.</para>
   <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
  <listitem><simpara>Defer thread interrupts (NB: not thread preemption) while
      &body-r; is executed. If there is interrupt while &body-r; is run - it is
-     queued and will be executed after &body-r; finishes.
-</simpara></listitem></varlistentry>
+     queued and will be executed after &body-r; finishes.</simpara>
+   <warning><para>
+       Attention is required if waiting/blocking in &body-r; since there
+       is no way to interrupt it (in case of deadlock). The macro was added
+       to avoid partial &unwind-protect;'s cleanup forms evaluation in
+       case they are interrupted with non-local exit.
+</para></warning></listitem></varlistentry>
 </variablelist></section>
 </section>
 
