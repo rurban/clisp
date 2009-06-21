@@ -1,3 +1,8 @@
+2009-06-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* type.lisp (thread, mutex, exemption) [MULTITHREAD]: use THREADS
+	instead of MT as package name
+
 2009-06-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (create_thread) [WIN32_THREADS]: initialize thread's
