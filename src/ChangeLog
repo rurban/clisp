@@ -1,5 +1,15 @@
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 2807311 ]: (expt 10 10000000) segfaults
+	 (cf. 2008-07-10, bug #[ 2015118 ])
+	* intmal.d (I_square_I): tighten the erglen check (use 16-bit intW
+	instead of 32-bit intWC) so that the arithmetic-error
+	"overflow during multiplication of large numbers"
+	is signaled instead of a SP overflow (segfault) which results from
+	__builtin_alloca not checking its argument and overwriting stack
+
+2009-06-22  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: restore gt_LC_MESSAGES: removing it removes
 	#undef HAVE_LC_MESSAGES from src/config.h.in
 

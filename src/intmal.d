@@ -279,7 +279,9 @@
     var uintD* ergLSDptr;
     I_to_NDS_nocopy(x, xMSDptr = , xlen = , xLSDptr = );
     erglen = 2*xlen;
-    if ((intWCsize < 32) && (erglen > (uintL)(bitc(intWCsize)-1)))
+    /* we use intWsize(16) instead of intWCsize(32) to avoid
+       __builtin_alloca running out of stack and causing a segfault */
+    if ((intWsize < 32) && (erglen > (uintL)(bitc(intWsize)-1)))
       mal_ueberlauf();
     {
       SAVE_NUM_STACK # num_stack retten
