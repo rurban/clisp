@@ -57,7 +57,7 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 src/gllib/Makefile.in : src/gllib/Makefile.am
-	cd src; automake gllib/Makefile #  --add-missing ??
+	cd src; automake gllib/Makefile # --add-missing ??
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
 
