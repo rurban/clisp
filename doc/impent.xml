@@ -177,7 +177,7 @@
 <!ENTITY gstream-pac '<link linkend="gstream"><quote role="package">GSTREAM</quote></link>'>
 <!ENTITY i18n-pac '<link linkend="i18n"><quote role="package">I18N</quote></link>'>
 <!ENTITY ldap-pac '<link linkend="dir-key"><quote role="package">LDAP</quote></link>'>
-<!ENTITY mt-pac '<link linkend="mt"><quote role="package">MT</quote></link>'>
+<!ENTITY mt-pac '<link linkend="mt"><quote role="package">THREADS</quote></link>'>
 <!ENTITY posix-pac '<link linkend="syscalls"><quote role="package">POSIX</quote></link>'>
 <!ENTITY regexp-pac '<link linkend="regexp-mod"><quote role="package">REGEXP</quote></link>'>
 <!ENTITY screen-pac '<link linkend="screen"><quote role="package">SCREEN</quote></link>'>
