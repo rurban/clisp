@@ -4947,13 +4947,16 @@ Now you can sum doubles:
    seconds default &rest-amp; &args-r;)</code></term>
  <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
    &args-r;)</code></term>
- <listitem><simpara>FIXME</simpara></listitem></varlistentry>
+ <listitem><simpara>Similar to &y-or-n-p; and &yes-or-no-p;, but use
+   &with-timeout; to return <replaceable>default</replaceable> when no
+   reply is given within timeout &seconds;.</simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
  <listitem><simpara>Execute &body-r;. If it does not finish for up to
    &seconds;, it is interrupted and <replaceable>timeout-forms</replaceable>
    are executed.
-   Return the values of the last evaluated form.</simpara>
+   Return the values of the last evaluated form in either &body-r;
+   or <replaceable>timeout-forms</replaceable>.</simpara>
   <warning><para>Since on timeout the current thread is interrupted,
     special care may be needed for ensuring proper cleanup in &body-r;.
     See &thread-interrupt; and &with-deferred-interrupts;.</para></warning>
