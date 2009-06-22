@@ -4890,12 +4890,12 @@ Now you can sum doubles:
  <listitem><simpara>Return the &thread; that owns (locks) &mutex-r;,
    or &nil; if &mutex-r; is not locked.</simpara>
   <warning><para>By the time this function returns the &mutex-r;
-    ownership may have changed (unless the owner is not the
+    ownership may have changed (unless the owner is the
     &current-thread;). The function is mostly useful for debugging
     deadlocks.</para></warning></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
    &mutex-r;)</code></term>
- <listitem><simpara>Return whether mutex is recursive.
+ <listitem><simpara>Return a indicator whether mutex is recursive.
 </simpara></listitem></varlistentry>
 <varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
