@@ -2849,9 +2849,9 @@ etc.</para>
 <section id="seq-func-ext"><title>Additional Functions</title>
 
 <section id="trim-if"><title>Function <function>EXT:TRIM-IF</function></title>
-<para>Function <code>(EXT:TRIM-IF &pred-r; &sequence-r;)</code> returns
- the portion of &sequence-r; without the leading and trailing elements
- which match &pred-r;.</para>
+<para>Function <code>(<function>EXT:TRIM-IF</function> &pred-r;
+  &sequence-r;)</code> returns the portion of &sequence-r; without the
+ leading and trailing elements which match &pred-r;.</para>
 </section>
 
 </section>
@@ -2864,7 +2864,7 @@ etc.</para>
  similar to &dolist;, may be used instead of &map-f;:</para>
 
 <programlisting language="lisp">
-(&doseq; (&var-r; <replaceable>seqform</replaceable> [<replaceable>resultform</replaceable>])
+(&doseq; (&var-r; <replaceable>sequence-form</replaceable> [<replaceable>result-form</replaceable>])
   {&declaration-r;}*
   {&tag-r;|&form-r;}*)
 </programlisting>
@@ -2987,7 +2987,9 @@ etc.</para>
 
 <para>When the symbol &eq; or the function <literal>#'eq</literal> is
 used as a &test-k; argument, the value of the variable
-<varname>CUSTOM:*EQ-HASHFUNCTION*</varname> is used instead.
+ <firstterm><varname>CUSTOM:*EQ-HASHFUNCTION*</varname>
+  <indexterm id="eq-hashfunction" significance="preferred">
+   <primary>*EQ-HASHFUNCTION*</primary></indexterm></firstterm> is used instead.
 This value must be one of &fasthash-eq;, &stablehash-eq;.</para>
 
 <para>Similarly, the &test-k; argument can also be one
@@ -2998,13 +3000,17 @@ This value must be one of &fasthash-eq;, &stablehash-eq;.</para>
  The same remarks apply as for &fasthash-eq; and &stablehash-eq;.
  When the symbol &eql; or the function <literal>#'eql</literal> is used
  as a &test-k; argument, the value of the variable
- <varname>CUSTOM:*EQL-HASHFUNCTION*</varname> is used instead;
- this value must be one of <constant>EXT:FASTHASH-EQL</constant>,
+ <firstterm><varname>CUSTOM:*EQL-HASHFUNCTION*</varname>
+  <indexterm id="eql-hashfunction" significance="preferred">
+   <primary>*EQL-HASHFUNCTION*</primary></indexterm></firstterm> is used
+ instead; this value must be one of <constant>EXT:FASTHASH-EQL</constant>,
  <constant>EXT:STABLEHASH-EQL</constant>.
  Similarly, when the symbol &equal; or the function <literal>#'equal</literal>
  is used as a &test-k; argument, the value of the variable
- <varname>CUSTOM:*EQUAL-HASHFUNCTION*</varname> is used instead;
- this value must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
+ <firstterm><varname>CUSTOM:*EQUAL-HASHFUNCTION*</varname>
+  <indexterm id="equal-hashfunction" significance="preferred">
+   <primary>*EQUAL-HASHFUNCTION*</primary></indexterm></firstterm> is used
+ instead; this value must be one of <constant>EXT:FASTHASH-EQUAL</constant>,
  <constant>EXT:STABLEHASH-EQUAL</constant>.</para>
 
 <para>The <constant>:WARN-IF-NEEDS-REHASH-AFTER-GC</constant> argument,
@@ -3064,8 +3070,8 @@ checks whether the &hash-table-t; is weak.</para>
  checking the efficiency of a particular &hash-table-t;, the variable
 <firstterm>&warn-on-hashtable-needing-rehash-after-gc;
  <indexterm id="hashtable-gc-rehash-warn" significance="preferred">
-  <primary>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*
-</primary></indexterm></firstterm>
+  <primary>*WARN-ON-HASHTABLE-NEEDING-REHASH-AFTER-GC*</primary>
+</indexterm></firstterm>
  achieves the same effect for all &hash-table-t;s in the system at once:
  when &warn-on-hashtable-needing-rehash-after-gc; is true and a
  &hash-table-t; needs to be rehashed after a &gc;ion, a warning is
