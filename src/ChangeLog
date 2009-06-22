@@ -1,3 +1,14 @@
+2009-06-22  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (gnulib-imported): request getpagesize & sys_time
+	* configure.in: do not invoke macros which come from explicitly
+	requested packages because they are already called by gl_INIT
+	<http://article.gmane.org/gmane.comp.lib.gnulib.bugs/17941>
+	(gl_GNU_MAKE, gl_LIBSIGSEGV, gl_FUNC_GETTIMEOFDAY)
+	(gl_HEADER_SYS_TIME_H, gl_FUNC_GETPAGESIZE): explicitly requested
+	(gt_LC_MESSAGES): called by AM_INTL_SUBDIR which is called by
+	AM_GNU_GETTEXT which we call explicitly
+
 2009-06-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* type.lisp (thread, mutex, exemption) [MULTITHREAD]: use THREADS
