@@ -4807,14 +4807,16 @@ Now you can sum doubles:
      used when &clisp; was started.
      If 0, the value will be the same as that of the calling thread.
   </simpara></listitem></varlistentry></variablelist>
+  <simpara>Cf. <function role="unix">pthread_create</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="threadp"><term><code>(&threadp; &object-r;)</code></term>
  <listitem><simpara>Check whether the object is of type &thread;.
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-yield"><term><code>(&thread-yield; &thr;)</code></term>
  <listitem><simpara>Relinquish the CPU.  The &thr; is placed at the end
-   of the run queue and another thread is scheduled to run.
-</simpara></listitem></varlistentry>
+   of the run queue and another thread is scheduled to run.</simpara>
+  <simpara>Cf. <function role="unix">sched_yield</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
  <listitem><simpara>Call &thread-interrupt; telling the &thr; to terminate.
 </simpara></listitem></varlistentry>
@@ -4861,7 +4863,9 @@ Now you can sum doubles:
    debugging deadlocks).  When <constant>:RECURSIVE-P</constant> is
    non-&nil;, a recursive mutex is created i.e. threads can acquire the
    mutex many times (and should release it for each successful
-   acquisition of course).</simpara></listitem></varlistentry>
+   acquisition of course).</simpara>
+  <simpara>Cf. <function role="unix">pthread_mutex_init</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
  <listitem><simpara>Acquire the &mutex-r;.  If &mutex-r; is locked by
@@ -4873,11 +4877,14 @@ Now you can sum doubles:
    FIXME: this does not make sense. if such a call deadlocks, what use
           are recursive mutexes?!
    Return &t; on a successful locking of &mutex-r;, and &nil; on timeout.
+</simpara><simpara>Cf. <function role="unix">pthread_mutex_lock</function>.
 </simpara></listitem></varlistentry>
 <varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
    &mutex-r;)</code></term>
  <listitem><simpara>Release (unlock) &mutex-r;. If the calling thread is
-   not locking &mutex-r;, an &err-sig;.</simpara></listitem></varlistentry>
+   not locking &mutex-r;, an &err-sig;.</simpara>
+  <simpara>Cf. <function role="unix">pthread_mutex_unlock</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="mutex-owner"><term><code>(&mutex-owner;
    &mutex-r;)</code></term>
  <listitem><simpara>Return the &thread; that owns (locks) &mutex-r;,
@@ -4908,12 +4915,15 @@ Now you can sum doubles:
    &key-amp; &name-k;)</code></term>
  <listitem><simpara>Create a new &exemption; object.
    &name-k; should be a &string-t; describing the exemption (this really
-   helps debugging deadlocks).
-</simpara></listitem></varlistentry>
+   helps debugging deadlocks).</simpara>
+  <simpara>Cf. <function role="unix">pthread_cond_init</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
  <listitem><simpara>Signal &exemp-r; object, i.e. wake up the thread blocked
-   on waiting for &exemp-r;.</simpara></listitem></varlistentry>
+   on waiting for &exemp-r;.</simpara>
+  <simpara>Cf. <function role="unix">pthread_cond_signal</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
  <listitem><simpara>Wait for &exemp-r; to become signaled.
@@ -4924,13 +4934,14 @@ Now you can sum doubles:
    If timeout is not specified, waits forever.
    Returns &t; if &exemp-r; was signaled, and &nil; - on timeout.</simpara>
   <note><simpara>On &posix; it is possible to have spurious wake-ups.
-    See <function role="unix">pthread_cond_wait</function>
-    and <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">Spurious
+    See <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">Spurious
      wakeup</ulink></simpara></note>
+  <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
    &exemp-r;)</code></term>
- <listitem><simpara>Signal &exemp-r; to all threads waiting for it.
+ <listitem><simpara>Signal &exemp-r; to all threads waiting for it.</simpara>
+  <simpara>Cf. <function role="unix">pthread_cond_broadcast</function>.
 </simpara></listitem></varlistentry>
 <varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
    seconds default &rest-amp; &args-r;)</code></term>
