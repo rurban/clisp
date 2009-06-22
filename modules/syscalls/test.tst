@@ -82,13 +82,13 @@ FLOAT~
 (float= (os:erf -6)     -1.0d0)  T
 (float= (os:erf -5)     -0.9999999999984626d0)  T
 (float= (os:erf -4)     -0.9999999845827421d0)  T
-(float= (os:erf -3)     -0.9999779095030014d0)  T
+(float~ (os:erf -3)     -0.9999779095030014d0)  T ; MacOSX 10.4.11
 (float= (os:erf -2)     -0.9953222650189527d0)  T
-(float= (os:erf -1)     -0.8427007929497149d0)  T
+(float~ (os:erf -1)     -0.8427007929497149d0)  T ; MacOSX 10.4.11
 (float= (os:erf 0)      0.0d0)  T
-(float= (os:erf 1)      0.8427007929497149d0)  T
+(float~ (os:erf 1)      0.8427007929497149d0)  T ; MacOSX 10.4.11
 (float= (os:erf 2)      0.9953222650189527d0)  T
-(float= (os:erf 3)      0.9999779095030014d0)  T
+(float~ (os:erf 3)      0.9999779095030014d0)  T ; MacOSX 10.4.11
 (float= (os:erf 4)      0.9999999845827421d0)  T
 (float= (os:erf 5)      0.9999999999984626d0)  T
 (float= (os:erf 6)      1.0d0)  T
@@ -100,13 +100,13 @@ FLOAT~
 (float= (os:erfc -2)    1.9953222650189528d0)  T
 (float= (os:erfc -1)    1.842700792949715d0)  T
 (float= (os:erfc 0)     1.0d0)  T
-(float= (os:erfc 1)     0.15729920705028513d0)  T
+(float~ (os:erfc 1)     0.15729920705028513d0)  T ; MacOSX 10.4.11
 (float= (os:erfc 2)     0.004677734981047265d0)  T
 (float= (os:erfc 3)     2.209049699858544d-5)  T
 (float= (os:erfc 4)     1.541725790028002d-8)  T
 (float= (os:erfc 5)     1.5374597944280351d-12)  T
-(float= (os:erfc 6)     2.1519736712498916d-17)  T
-(float= (os:erfc 7)     4.183825607779414d-23)  T
+(float~ (os:erfc 6)     2.1519736712498916d-17)  T ; MacOSX 10.4.11
+(float~ (os:erfc 7)     4.183825607779414d-23)  T  ; MacOSX 10.4.11
 (float= (os:erfc 8)     1.1224297172982928d-29)  T
 (float= (os:erfc 9)     4.13703174651381d-37)  T
 (float= (os:erfc 10)    2.088487583762545d-45)  T
@@ -114,10 +114,10 @@ FLOAT~
 (float= (os:erfc 12)    1.3562611692059042d-64)  T
 (float= (os:erfc 13)    1.7395573154667246d-75)  T
 (float= (os:erfc 14)    3.037229847750312d-87)  T
-(float= (os:erfc 15)    7.212994172451206d-100)  T
+(float~ (os:erfc 15)    7.212994172451206d-100)  T ; MacOSX 10.4.11
 (float= (os:erfc 16)    2.3284857515715308d-113)  T
 (float= (os:erfc 17)    1.0212280150942608d-127)  T
-(float= (os:erfc 18)    6.082369231816399d-143)  T
+(float~ (os:erfc 18)    6.082369231816399d-143)  T ; MacOSX 10.4.11
 (float= (os:erfc 19)    4.917722839256475d-159)  T
 (float= (os:erfc 20)    5.3958656116079005d-176)  T
 (float= (os:erfc 21)    8.032453871022456d-194)  T
@@ -283,12 +283,16 @@ NIL
 ;; (FILE-OWNER *TMP1*) ==> "BUILTIN\\Administrators"
 ;; - local group name, which actually owns the file and includes
 ;; "OFFICE_DOMAIN\\Kavenchuk_Yaroslav" - a member of a windows NT domain.
-;; so, if the user is not local - the test will broken always,
+;; so, if the user is not local - the test will be always broken,
 ;; but all functions are working correctly (in terms of MS).
 #+unix
 (string= (show #+win32 (ext:string-concat (ext:getenv "USERDOMAIN") "\\"
                                           (ext:getenv "USERNAME"))
-               #+unix (ext:getenv "USER")
+               ;; $USER is void when running as root on MacOSX 10.4.11
+               ;; <http://article.gmane.org/gmane.lisp.clisp.devel/20248>
+               #+unix (or (ext:getenv "USER")
+                          (posix:user-info-login-id
+                           (show (posix:user-info :default))))
                #-(or unix win32) ERROR)
          (show (os:file-owner *tmp1*)))
 #+unix T
