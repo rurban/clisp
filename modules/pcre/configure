@@ -4225,6 +4225,7 @@ fi
   LTLIBPCRE=
   INCPCRE=
   LIBPCRE_PREFIX=
+      HAVE_LIBPCRE=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=

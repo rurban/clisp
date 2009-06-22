@@ -4225,6 +4225,7 @@ fi
   LTLIBDB=
   INCDB=
   LIBDB_PREFIX=
+      HAVE_LIBDB=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=

@@ -4230,6 +4230,7 @@ fi
   LTLIBZ=
   INCZ=
   LIBZ_PREFIX=
+      HAVE_LIBZ=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=
