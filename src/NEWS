@@ -48,6 +48,7 @@ Important notes
   + Module NEW-CLX now has the XLIB:QUEUE-EVENT function,
     implemented by Philippe Brochard <hocwp@free.fr>.
   + Extend the domain of LOG to larger BIGNUMs and RATIOs. [ 1007358 ]
+  + Avoid a segfault on (EXPT <HUGE> <HUGE>). [ 2807311 ]
 
 * ANSI compliance:
   + Implement the ANSI (IGNORE #'FUNCTION) declaration.
@@ -101,7 +102,7 @@ Important notes
   + Comparison of floats and rationals never underflows. [ 2014262 ]
   + When failing to convert a huge LONG-FLOAT to a RATIONAL, signal an
     ARITHMETIC-ERROR instead of blowing the stack. [ 2015118 ]
-  + Restored TYPECODES g++ compilation [ 2015118 ], which allowed fixing
+  + Restored TYPECODES g++ compilation [ 1385641 ], which allowed fixing
     a few GC-safety bugs.
   + Fixed a segfault when signaling some UNBOUND-VARIABLE errors in some
     interpreted code on MacOS X (introduced in 2.46). [ 2020784 ]

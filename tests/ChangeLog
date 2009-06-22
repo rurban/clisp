@@ -1,3 +1,7 @@
+2009-06-22  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst: add a test for [ 2807311 ]: (expt 10 10000000) segfaults
+
 2009-06-19  Sam Steingold  <sds@gnu.org>
 
 	* mt.tst: check that THREAD, MUTEX & EXEMPTION are valid types
