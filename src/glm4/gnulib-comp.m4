@@ -238,6 +238,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/mbsrtowcs-state.c
   lib/mbsrtowcs.c
   lib/memchr.c
+  lib/memchr.valgrind
   lib/ref-add.sin
   lib/ref-del.sin
   lib/regcomp.c
