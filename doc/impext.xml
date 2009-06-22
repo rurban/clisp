@@ -4686,8 +4686,7 @@ Now you can sum doubles:
 
 <section id="mt-intro"><title>Introduction</title>
 <para>&clisp; uses the OS threads.
- Two flavors are supported: <emphasis>POSIX</emphasis>
- and <emphasis>WIN32</emphasis>. Both are preemptive.</para>
+ Two flavors are supported: &posix; and &win32;. Both are preemptive.</para>
 <para>All functions and macros are exported from the package &mt-pac;.
  When this functionality if present, &features-my;
  contains the symbol <constant>:MT</constant>
@@ -4717,12 +4716,12 @@ Now you can sum doubles:
 
 <section id="mt-symvalue"><title>Special Variable Values</title>
 <para>Special variables work in very similar/same way as in other
-  implementations.</para>
+ implementations.</para>
 <para>Every special variable has global value that can be shared across all
-threads.</para>
+ threads.</para>
 <para>Bindings of special variables (via &let;/&let-star;/&multiple-value-bind;)
-  are local to thread i.e. every symbol has different value cell in each thread.
-  &symbol-value-thread; can be used to inspect/set these local thread bindings.
+ are local to thread i.e. every symbol has different value cell in each thread.
+ &symbol-value-thread; can be used to inspect/set these local thread bindings.
 </para>
 <para>Threads do not inherit dynamic bindings from the parent thread</para>
 
@@ -4737,21 +4736,22 @@ threads.</para>
     )
   (setq *global* 30))<lineannotation>&glob-var; value is modified again</lineannotation>
 (let ((*global* 2))<lineannotation>&thr-var; value is initialized</lineannotation>
-  (make-thread #'thread-1))
+  (&make-thread; #'thread-1))
 </programlisting></para>
 
 </section>
 
-<section id="mt-package"><title>Packages</title><para>
-    PACKAGE objects have internal mutex and are locked by INTERN before adding a
-    symbol (if FIND-SYMBOL fails). All modifications of internal package data
-    are guarded by this mutex.</para>
-  <warning><para>Currently there is one exception: &use-package; is not protected and
-    thus not thread safe.</para></warning>
-  <warning><para>Symbol look-up within package currently is not guarded! This means
-      that in certain cases &find-symbol; may return &nil; even though the symbol
-      is accessible (this may happen when internal package hash tables are
-      re-hashed at the time &find-symbol; performs look-up).</para></warning>
+<section id="mt-package"><title>Packages</title>
+<para>&package-t; objects have an internal mutex and are locked by
+ &intern; before adding a symbol (if &find-symbol; fails).  All
+ modifications of internal package data are guarded by this mutex.</para>
+<warning><para>Currently there is one exception: &use-package; is not
+  protected and thus not thread safe.</para></warning>
+<warning><para>Symbol look-up within package currently is not guarded!
+  This means that in certain cases &find-symbol; may return &nil; even
+  though the symbol is accessible (this may happen when internal package
+  hash tables are re-hashed at the time &find-symbol; performs look-up).
+</para></warning>
 </section>
 
 <section id="mt-mutable"><title>Hash Tables, Sequences, and other
@@ -4821,14 +4821,14 @@ threads.</para>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
    &thr; &func-r; &rest-amp; &args-r;)</code></term>
  <listitem><simpara>Interrupt normal execution flow in &thr; and ask it to
-     funcall &func-r; (with parameters). Thread cannot be interrupted at any
-     point - only at ones where GC can run - see <xref linkend="gc-mt"/>.
-   </simpara><simpara>Currently on WIN32 blocking I/O cannot be interrupted. The
-     interrupt will be handled after the call returns.
-   </simpara><warning><para> Thread may be interrupted inside
-       &unwind-protect;'s cleanup forms and on non-local exit from &func-r; -
-       they may not execute entirely. In order to prevent this
-       WITH-DEFERRED-INTERRUPTS is provided.</para></warning>
+   funcall &func-r; (with parameters). Thread cannot be interrupted at any
+   point - only at ones where GC can run, see <xref linkend="gc-mt"/>.
+  </simpara><simpara>Currently on &win32; blocking I/O cannot be interrupted.
+   The interrupt will be handled after the call returns.</simpara>
+  <warning><para>Thread may be interrupted inside &unwind-protect;'s
+    cleanup forms and on non-local exit from &func-r; -
+    they may not execute entirely.  In order to prevent this
+    &with-deferred-interrupts; is provided.</para></warning>
 </listitem></varlistentry>
 <varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
  <listitem><simpara>Return the &name-r; of the &thr;.
@@ -4837,8 +4837,8 @@ threads.</para>
    &thr;)</code></term>
  <listitem><simpara>Return &nil; if the thread has already terminated
    and &t; otherwise.</simpara>
-  <warning><para>By the time this function returns, &thr; may have
-    already terminated.</para></warning></listitem></varlistentry>
+  <warning><para>By the time this function returns &t;, &thr; may have
+    already terminated anyway.</para></warning></listitem></varlistentry>
 <varlistentry id="current-thread"><term><code>(&current-thread;)</code></term>
  <listitem><simpara>Return the &thread; object encapsulating the caller.
 </simpara></listitem></varlistentry>
@@ -4856,43 +4856,49 @@ threads.</para>
 </simpara></listitem></varlistentry>
 <varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
    &name-k; :RECURSIVE-P)</code></term>
- <listitem><simpara>Create new &mutex; object - not owned by any thread.
-     &name-k; should be string describing the mutex (this really helps debugging
-     deadlocks). When :RECURSIVE-P is non-&nil; - recursive mutex is created i.e.
-     thread can acquire many times the mutex (and should release it for each
-     successful acquire of course).
-</simpara></listitem></varlistentry>
+ <listitem><simpara>Create new &mutex; object - not locked by any thread.
+   &name-k; should be a &string-t; describing the mutex (this really helps
+   debugging deadlocks).  When <constant>:RECURSIVE-P</constant> is
+   non-&nil;, a recursive mutex is created i.e. threads can acquire the
+   mutex many times (and should release it for each successful
+   acquisition of course).</simpara></listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>Acquire mutex.  If mutex is owned by another thread - the
-     call blocks and waits up to &timeout-k; &seconds;. If timeout is not
-     specified - waits forever. If mutex is non-recursive and calling thread
-     owns it - error will be signaled (otherwise will deadlock).
-     Return &t; if the thread got ownership of &mutex-r;, &nil; - on timeout.
+ <listitem><simpara>Acquire the &mutex-r;.  If &mutex-r; is locked by
+   another thread, the call blocks and waits up to &timeout-k; &seconds;.
+   If &timeout-k; is not specified, waits forever.  If &mutex-r; is
+   non-recursive and the calling thread has already locked it, an &err-sig;.
+   If &mutex-r; is recursive, the call deadlocks.
+   FIXME: how to get out of the deadlock??? &thread-interrupt;?!
+   FIXME: this does not make sense. if such a call deadlocks, what use
+          are recursive mutexes?!
+   Return &t; on a successful locking of &mutex-r;, and &nil; on timeout.
 </simpara></listitem></varlistentry>
 <varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
    &mutex-r;)</code></term>
- <listitem><simpara>Release &mutex-r; ownership. If the calling thread is not
-     owner of &mutex-r; - error is signaled.
-</simpara></listitem></varlistentry>
+ <listitem><simpara>Release (unlock) &mutex-r;. If the calling thread is
+   not locking &mutex-r;, an &err-sig;.</simpara></listitem></varlistentry>
 <varlistentry id="mutex-owner"><term><code>(&mutex-owner;
    &mutex-r;)</code></term>
-  <listitem><simpara>Return &thread; that owns &mutex-r;, &nil; if none.</simpara>
-   <warning><para>By the time this function returns the &mutex-r; ownership may
-       have changed (unless the owner is not the &current-thread;). The function
-       is mostly useful for debugging deadlocks.
-</para></warning></listitem></varlistentry>
+ <listitem><simpara>Return the &thread; that owns (locks) &mutex-r;,
+   or &nil; if &mutex-r; is not locked.</simpara>
+  <warning><para>By the time this function returns the &mutex-r;
+    ownership may have changed (unless the owner is not the
+    &current-thread;). The function is mostly useful for debugging
+    deadlocks.</para></warning></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
    &mutex-r;)</code></term>
- <listitem><simpara>Return whether mutex is recursive</simpara></listitem></varlistentry>
+ <listitem><simpara>Return whether mutex is recursive.
+</simpara></listitem></varlistentry>
 <varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
- <listitem><simpara>Execute &body-r; with &mutex-r; owned. Upon exit &mutex-r;
-     ownership is released. Return the values of &body-r; evaluation</simpara>
-</listitem></varlistentry>
+ <listitem><simpara>Execute &body-r; with &mutex-r; locked.
+   Upon exit &mutex-r; is released. Return whatever &body-r; returns.
+</simpara></listitem></varlistentry>
 <varlistentry id="exemption"><term>&exemption;</term>
- <listitem><simpara>The type of the object returned by &make-exemption;. These
-     are POSIX condition variables.
+ <listitem><simpara>The type of the object returned by &make-exemption;.
+   These correspond to the &posix; condition variables,
+   see <filename role="unix">pthread.h</filename>.
 </simpara></listitem></varlistentry>
 <varlistentry id="exemptionp"><term><code>(&exemptionp;
    &object-r;)</code></term>
@@ -4900,31 +4906,32 @@ threads.</para>
 </simpara></listitem></varlistentry>
 <varlistentry id="make-exemption"><term><code>(&make-exemption;
    &key-amp; &name-k;)</code></term>
- <listitem><simpara>Create new &exemption; object. &name-k; should be string
-     describing the exemption (this really helps debugging deadlocks)</simpara>
-</listitem></varlistentry>
+ <listitem><simpara>Create a new &exemption; object.
+   &name-k; should be a &string-t; describing the exemption (this really
+   helps debugging deadlocks).
+</simpara></listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
- <listitem><simpara>Signal &exemp-r; object i.e. wake-up single thread blocked
-     on waiting for &exemp-r;</simpara></listitem></varlistentry>
+ <listitem><simpara>Signal &exemp-r; object, i.e. wake up the thread blocked
+   on waiting for &exemp-r;.</simpara></listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>Wait on &exemp-r; to become signaled. &mutex-r; should be
-     owned by the caller - if not - error is signaled. The function releases
-     &mutex-r; ownership and waits on &exemp-r;. On return &mutex-r; is acquired
-     again. The function  waits up to &timeout-k; &seconds;. If timeout is not
-     specified - waits forever. Returns &t; if &exemp-r; was signaled, &nil; -
-     on timeout.</simpara>
-   <note><simpara>With POSIX_THREADS it's possible to have spurious wake-ups.
-       See: <ulink url="http://opengroup.org/onlinepubs/007908799/xsh/pthread_cond_wait.html">
-         pthread_cond_wait</ulink>
-       and <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">
-         Spurious wakeup</ulink></simpara></note>
+ <listitem><simpara>Wait for &exemp-r; to become signaled.
+   &mutex-r; should be locked by the caller; otherwise an &err-sig;.
+   The function releases the &mutex-r; and waits for &exemp-r;.
+   On return &mutex-r; is acquired again.
+   The function waits up to &timeout-k; &seconds;.
+   If timeout is not specified, waits forever.
+   Returns &t; if &exemp-r; was signaled, and &nil; - on timeout.</simpara>
+  <note><simpara>On &posix; it is possible to have spurious wake-ups.
+    See <function role="unix">pthread_cond_wait</function>
+    and <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">Spurious
+     wakeup</ulink></simpara></note>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
    &exemp-r;)</code></term>
- <listitem><simpara>Signal &exemp-r; in all thread waiting on it</simpara>
-</listitem></varlistentry>
+ <listitem><simpara>Signal &exemp-r; to all threads waiting for it.
+</simpara></listitem></varlistentry>
 <varlistentry id="y-or-n-p-timeout"><term><code>(&y-or-n-p-timeout;
    seconds default &rest-amp; &args-r;)</code></term>
  <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
@@ -4932,14 +4939,13 @@ threads.</para>
  <listitem><simpara>FIXME</simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
- <listitem><simpara>Execute &body-r;. In case it does not finish for up to
-     &seconds; (which can be a non-negative &real-t; or a  list
-     <literal role="data">(sec usec)</literal> or a pair <literal role="data">
-       (sec . usec)</literal>) it is interrupted and timeout-forms are executed.
-     Return value(s) of last evaluated form.</simpara><warning><para> Since on
-       timeout current thread is interrupted special care may be needed for
-       ensuring proper cleanup in &body-r;. See &thread-interrupt; and
-       WITH-DEFERRED-INTERRUPTS</para></warning>
+ <listitem><simpara>Execute &body-r;. If it does not finish for up to
+   &seconds;, it is interrupted and <replaceable>timeout-forms</replaceable>
+   are executed.
+   Return the values of the last evaluated form.</simpara>
+  <warning><para>Since on timeout the current thread is interrupted,
+    special care may be needed for ensuring proper cleanup in &body-r;.
+    See &thread-interrupt; and &with-deferred-interrupts;.</para></warning>
 </listitem></varlistentry>
 <varlistentry id="symbol-value-thread"><term><code>(&setf;
    (&symbol-value-thread; &symbol-r; &thr;) &value-r;)</code></term>
@@ -4949,7 +4955,7 @@ threads.</para>
    &glob-var; binding.
    Returns two values: the &symbol-r; binding and an indicator: &nil; if
    not bound in the &thr;, &t; if bound, and &symbol-t; &makunbound; if
-   the <emphasis>Per-Thread</emphasis> binding was removed with &makunbound;.
+   the &thr-var; binding was removed with &makunbound;.
 </simpara></listitem></varlistentry>
 <varlistentry id="default-special-bindings">
  <term>&default-special-bindings;</term>
@@ -4957,14 +4963,14 @@ threads.</para>
    argument of &make-thread;.</simpara></listitem></varlistentry>
 <varlistentry id="with-deferred-interrupts"><term>
   <code>(&with-deferred-interrupts; &body-amp; &body-r;)</code></term>
- <listitem><simpara>Defer thread interrupts (NB: not thread preemption) while
-     &body-r; is executed. If there is interrupt while &body-r; is run - it is
-     queued and will be executed after &body-r; finishes.</simpara>
-   <warning><para>
-       Attention is required if waiting/blocking in &body-r; since there
-       is no way to interrupt it (in case of deadlock). The macro was added
-       to avoid partial &unwind-protect;'s cleanup forms evaluation in
-       case they are interrupted with non-local exit.
+ <listitem><simpara>Defer thread interrupts (but &not-e; thread
+   preemption) while &body-r; is executed.  If there is an interrupt
+   while &body-r; is run, it is queued and will be executed after
+   &body-r; finishes.</simpara>
+  <warning><para>Attention is required if waiting/blocking in &body-r;
+    since there is no way to interrupt it (in case of deadlock).
+    The macro was added to avoid partial &unwind-protect;'s cleanup
+    forms evaluation in case they are interrupted with a non-local exit.
 </para></warning></listitem></varlistentry>
 </variablelist></section>
 </section>
