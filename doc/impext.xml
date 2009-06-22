@@ -4864,20 +4864,25 @@ Now you can sum doubles:
    &name-k; should be a &string-t; describing the mutex (this really helps
    debugging deadlocks).  When <constant>:RECURSIVE-P</constant> is
    non-&nil;, a recursive mutex is created i.e. threads can acquire the
-   mutex many times (and should release it for each successful
-   acquisition of course).</simpara>
+   mutex many times (and should, of course, release it for each
+   successful acquisition).</simpara>
   <simpara>Cf. <function role="unix">pthread_mutex_init</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
  <listitem><simpara>Acquire the &mutex-r;.  If &mutex-r; is locked by
    another thread, the call blocks and waits up to &timeout-k; &seconds;.
-   If &timeout-k; is not specified, waits forever.  If &mutex-r; is
-   non-recursive and the calling thread has already locked it, an &err-sig;.
-   (otherwise deadlock will occur).
-   Return &t; on a successful locking of &mutex-r;, and &nil; on timeout.
-</simpara><simpara>Cf. <function role="unix">pthread_mutex_lock</function>.
-</simpara></listitem></varlistentry>
+   If &timeout-k; is not specified, waits forever.</simpara>
+  <simpara>Return &t; on a successful locking of &mutex-r;, and &nil; on
+   timeout.</simpara>
+  <para>If the calling thread has already acquired &mutex-r;, then
+   <itemizedlist><listitem><simpara>if &mutex-r; is recursive, &t; is
+      returned (for each recursive &mutex-lock; there should be a
+      separate &mutex-unlock;);</simpara></listitem>
+    <listitem><simpara>If &mutex-r; is non-recursive an &err-sig; to
+      avoid a deadlock.</simpara></listitem></itemizedlist></para>
+  <simpara>Cf. <function role="unix">pthread_mutex_lock</function>.</simpara>
+</listitem></varlistentry>
 <varlistentry id="mutex-unlock"><term><code>(&mutex-unlock;
    &mutex-r;)</code></term>
  <listitem><simpara>Release (unlock) &mutex-r;. If the calling thread is
@@ -4894,7 +4899,7 @@ Now you can sum doubles:
     deadlocks.</para></warning></listitem></varlistentry>
 <varlistentry id="mutex-recursive-p"><term><code>(&mutex-recursive-p;
    &mutex-r;)</code></term>
- <listitem><simpara>Return a indicator whether mutex is recursive.
+ <listitem><simpara>Return a indicator whether &mutex-r; is recursive.
 </simpara></listitem></varlistentry>
 <varlistentry id="with-lock"><term><code>(&with-lock; (&mutex-r;)
    &body-amp; &body-r;)</code></term>
