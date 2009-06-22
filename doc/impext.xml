@@ -4685,9 +4685,11 @@ Now you can sum doubles:
   compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
 
 <section id="mt-intro"><title>Introduction</title>
-<para>&clisp; uses the OS threads.
+<para>&clisp; uses the OS threads to implement multiple threads of execution.
  Two flavors are supported: &posix; and &win32;. Both are preemptive.</para>
-<para>All functions and macros are exported from the package &mt-pac;.
+<para>All functions and macros are exported from the package &mt-pac;,
+ which has nicknames <quote role="package">MT</quote> (for MultiThreading)
+ and <quote role="package">MP</quote> (for MultiProcessing).
  When this functionality if present, &features-my;
  contains the symbol <constant>:MT</constant>
  (for <emphasis>multithreading</emphasis>).</para>
@@ -4707,9 +4709,9 @@ Now you can sum doubles:
  program A, then in a multithreaded world, it is possible to run A and B
  simultaneously in different threads, and the result will be the same as
  in the two single-threaded cases (A before B, or B before A).
- <itemizedlist><listitem><simpara>If A and B have no common objects,
-    then the implementation ensures that the principle is fulfilled.
-  </simpara></listitem>
+ <itemizedlist><title>Summary</title>
+  <listitem><simpara>If A and B have no common objects, then the
+    implementation ensures that the principle is fulfilled.</simpara></listitem>
   <listitem><simpara>If A and B share some objects, the implementation
     allows the programs to satisfy the principle with little effort.
 </simpara></listitem></itemizedlist></para></section>
