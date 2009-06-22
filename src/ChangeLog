@@ -1,5 +1,11 @@
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
+	* gllib/Makefile.am, gllib/memchr.valgrind, gllib/string.in.h:
+	* glm4/gnulib-cache.m4, glm4/gnulib-comp.m4, glm4/lib-link.m4:
+	* glm4/libsigsegv.m4, glm4/memchr.m4: updated from gnulib
+
+2009-06-22  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-imported): request getpagesize & sys_time
 	* configure.in: do not invoke macros which come from explicitly
 	requested packages because they are already called by gl_INIT
@@ -43,8 +49,8 @@
 2009-06-18  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: use CL:MAKUNBOUND instead of :UNBOUND (removed)
-	* zthread.d (SYMBOL-VALUE-THREAD): use CL:MAKUNBOUND instead of :UNBOUND
-	as second return value
+	* zthread.d (SYMBOL-VALUE-THREAD): use CL:MAKUNBOUND instead of
+	:UNBOUND as second return value
 	* constsym.d (:UNBOUND): remove
 
 2009-06-18  Vladimir Tzankov  <vtzankov@gmail.com>

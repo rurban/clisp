@@ -15,12 +15,13 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu gettext gettimeofday gnu-make havelib libsigsegv link-follow localcharset nocrash regex stdbool stdint streq uniname/uniname unitypes uniwidth/width
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu getpagesize gettext gettimeofday gnu-make havelib libsigsegv link-follow localcharset nocrash regex stdbool stdint streq sys_time uniname/uniname unitypes uniwidth/width
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
   fnmatch-gnu
+  getpagesize
   gettext
   gettimeofday
   gnu-make
@@ -33,6 +34,7 @@ gl_MODULES([
   stdbool
   stdint
   streq
+  sys_time
   uniname/uniname
   unitypes
   uniwidth/width
