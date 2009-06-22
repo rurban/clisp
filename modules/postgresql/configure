@@ -4230,6 +4230,7 @@ fi
   LTLIBPQ=
   INCPQ=
   LIBPQ_PREFIX=
+      HAVE_LIBPQ=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=
