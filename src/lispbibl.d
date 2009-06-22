@@ -2,7 +2,7 @@
  * Main include-file for CLISP
  * Bruno Haible 1990-2008
  * Marcus Daniels 11.11.1994
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2001-09-24
 
  Flags intended to be set through CFLAGS:
@@ -4874,6 +4874,11 @@ enum {
 %% printf("#define Rectype_WeakHashedAlist_Either %d\n",Rectype_WeakHashedAlist_Either);
   Rectype_WeakHashedAlist_Both,
 %% printf("#define Rectype_WeakHashedAlist_Both %d\n",Rectype_WeakHashedAlist_Both);
+  /* when adding a new built-in type, do not forget to ...
+     add a def-atomic-type to type.lisp;
+     and a case in describe.lisp:describe-object;
+     add an enum_hg_<newtype> in predtype.d and update heap_statistics_mapper,
+       TYPE-OF and CLASS-OF */
   rectype_for_broken_compilers_that_dont_like_trailing_commas
 };
 
