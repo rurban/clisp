@@ -4874,10 +4874,7 @@ Now you can sum doubles:
    another thread, the call blocks and waits up to &timeout-k; &seconds;.
    If &timeout-k; is not specified, waits forever.  If &mutex-r; is
    non-recursive and the calling thread has already locked it, an &err-sig;.
-   If &mutex-r; is recursive, the call deadlocks.
-   FIXME: how to get out of the deadlock??? &thread-interrupt;?!
-   FIXME: this does not make sense. if such a call deadlocks, what use
-          are recursive mutexes?!
+   (otherwise deadlock will occur).
    Return &t; on a successful locking of &mutex-r;, and &nil; on timeout.
 </simpara><simpara>Cf. <function role="unix">pthread_mutex_lock</function>.
 </simpara></listitem></varlistentry>
