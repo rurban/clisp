@@ -1,5 +1,11 @@
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
+	* configure.in: restore gt_LC_MESSAGES: removing it removes
+	#undef HAVE_LC_MESSAGES from src/config.h.in
+
+
+2009-06-22  Sam Steingold  <sds@gnu.org>
+
 	* gllib/Makefile.am, gllib/memchr.valgrind, gllib/string.in.h:
 	* glm4/gnulib-cache.m4, glm4/gnulib-comp.m4, glm4/lib-link.m4:
 	* glm4/libsigsegv.m4, glm4/memchr.m4: updated from gnulib
