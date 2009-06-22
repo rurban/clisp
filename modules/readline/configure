@@ -4172,6 +4172,7 @@ fi
   LTLIBREADLINE=
   INCREADLINE=
   LIBREADLINE_PREFIX=
+      HAVE_LIBREADLINE=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=

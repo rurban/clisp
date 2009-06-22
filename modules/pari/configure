@@ -4230,6 +4230,7 @@ fi
   LTLIBPARI=
   INCPARI=
   LIBPARI_PREFIX=
+      HAVE_LIBPARI=
   rpathdirs=
   ltrpathdirs=
   names_already_handled=
