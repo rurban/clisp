@@ -163,6 +163,7 @@
 <!ENTITY unicode32 '<ulink url="http://www.unicode.org">Unicode</ulink> <ulink url="http://www.unicode.org/unicode/reports/tr28/">3.2</ulink>'>
 <!ENTITY win32 '<ulink url="http://winehq.org/"><emphasis role="platform">Win32</emphasis></ulink>'>
 <!ENTITY lfs '<ulink url="http://www.unix.org/version2/whatsnew/lfs.html"><emphasis role="platform">LFS</emphasis></ulink>'>
+<!ENTITY posix '<ulink url="http://www.opengroup.org/austin/papers/posix_faq.html"><emphasis role="platform">POSIX</emphasis></ulink>'>
 
 <!-- *** etc *** -->
 <!ENTITY http '<ulink url="http://www.w3.org/Protocols/"><command>HTTP</command></ulink>'>
