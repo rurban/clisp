@@ -1297,11 +1297,13 @@ undefined-function
 (proclaim '(integer . foo))
 type-error
 
-(ash 1 66610000) arithmetic-error
+(ash 1 66610000) arithmetic-error ; [ 2015118 ]
 (rational most-positive-long-float) arithmetic-error
 (rational least-positive-long-float) arithmetic-error
 (rational most-negative-long-float) arithmetic-error
 (rational least-negative-long-float) arithmetic-error
+
+(expt 10 10000000) arithmetic-error ; [ 2807311 ]
 
 #+clisp (ext:convert-string-from-bytes #(1) charset:ucs-4)
 #+clisp simple-charset-type-error
