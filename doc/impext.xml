@@ -4935,7 +4935,7 @@ Now you can sum doubles:
    Returns &t; if &exemp-r; was signaled, and &nil; - on timeout.</simpara>
   <note><simpara>On &posix; it is possible to have spurious wake-ups.
     See <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">Spurious
-     wakeup</ulink></simpara></note>
+     wakeup</ulink>.</simpara></note>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
