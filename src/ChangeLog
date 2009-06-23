@@ -1,5 +1,9 @@
 2009-06-23  Sam Steingold  <sds@gnu.org>
 
+	* .gdbinit [MULTITHREAD]: suggest "handle SIGUSR1 noprint nostop"
+
+2009-06-23  Sam Steingold  <sds@gnu.org>
+
 	* spvw_mmap.d (mprotect) [HAVE_WIN32_VM]: guard the definition
 	with #ifdef HAVE_MPROTECT because mingw may already have it in
 	/lib/gcc/i686-pc-mingw32/3.4.4/libgcc.a(_trampoline.o):(.text+0x10)
