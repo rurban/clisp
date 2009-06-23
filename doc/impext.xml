@@ -4684,15 +4684,19 @@ Now you can sum doubles:
 <subtitle><emphasis role="plat-dep">Only in &clisp; built &with;
   compile-time flag <option>--with-threads</option>.</emphasis></subtitle>
 
+<warning><simpara>This functionality is
+  <emphasis role="strong">experimental</emphasis>.</simpara>
+ <simpara>Use it at your own risk.</simpara>
+ <simpara>Discuss it on <ulink url="ml">clisp-devel</ulink>.</simpara></warning>
+
 <section id="mt-intro"><title>Introduction</title>
 <para>&clisp; uses the OS threads to implement multiple threads of execution.
  Two flavors are supported: &posix; and &win32;. Both are preemptive.</para>
-<para>All functions and macros are exported from the package &mt-pac;,
- which has nicknames <quote role="package">MT</quote> (for MultiThreading)
- and <quote role="package">MP</quote> (for MultiProcessing).
+<para>All symbols are exported from the package &mt-pac;, which has nicknames
+ <quote role="package">MT</quote> (for <emphasis>MultiThreading</emphasis>) and
+ <quote role="package">MP</quote> (for <emphasis>MultiProcessing</emphasis>).
  When this functionality if present, &features-my;
- contains the symbol <constant>:MT</constant>
- (for <emphasis>multithreading</emphasis>).</para>
+ contains the symbol <constant>:MT</constant>.</para>
 <para>See also <xref linkend="gc-mt"/>.</para></section>
 
 <section id="mt-general"><title>General principles</title>
