@@ -187,6 +187,12 @@ break sigsegv_handler_failed
 #handle SIGBUS noprint nostop
 #endif
 
+#ifdef MULTITHREAD
+# you need this when debugging multithreaded CLISP
+# because SIGUSR1 is used by WITH-TIMEOUT
+#handle SIGUSR1 noprint nostop
+#end
+
 # cut and paste when you stop in interpret_bytecode_()
 watch byteptr
 commands
