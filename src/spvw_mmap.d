@@ -244,6 +244,7 @@ global int munmap (void* addr, size_t len)
   return 0;
 }
 
+#ifndef HAVE_MPROTECT
 /* We need to implement mprotect() ourselves. */
 global int mprotect (void* addr, size_t len, int prot)
 {
@@ -256,6 +257,7 @@ global int mprotect (void* addr, size_t len, int prot)
   }
   return 0;
 }
+#endif
 
 #endif
 
