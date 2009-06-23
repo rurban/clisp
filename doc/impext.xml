@@ -4924,7 +4924,7 @@ Now you can sum doubles:
 </listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
- <listitem><simpara>Signal &exemp-r; object, i.e. wake up the thread blocked
+ <listitem><simpara>Signal &exemp-r; object, i.e. wake up a thread blocked
    on waiting for &exemp-r;.</simpara>
   <simpara>Cf. <function role="unix">pthread_cond_signal</function>.</simpara>
 </listitem></varlistentry>
@@ -4935,11 +4935,12 @@ Now you can sum doubles:
    The function releases the &mutex-r; and waits for &exemp-r;.
    On return &mutex-r; is acquired again.
    The function waits up to &timeout-k; &seconds;.
-   If timeout is not specified, waits forever.
-   Returns &t; if &exemp-r; was signaled, and &nil; - on timeout.</simpara>
-  <note><simpara>On &posix; it is possible to have spurious wake-ups.
-    See <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">Spurious
-     wakeup</ulink>.</simpara></note>
+   If timeout is not specified, waits forever.</simpara><simpara>
+   Returns &t; if &exemp-r; was signaled, and &nil; on timeout.</simpara>
+  <note><simpara>On &posix; it is possible to have
+    <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious
+     wakeup</ulink>s, i.e., this function may return &t; even though no
+    thread called &exemption-broadcast; or &exemption-signal;.</simpara></note>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
@@ -4958,9 +4959,9 @@ Now you can sum doubles:
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
  <listitem><simpara>Execute &body-r;. If it does not finish for up to
    &seconds;, it is interrupted and <replaceable>timeout-forms</replaceable>
-   are executed.
-   Return the values of the last evaluated form in either &body-r;
-   or <replaceable>timeout-forms</replaceable>.</simpara>
+   are executed.</simpara>
+  <simpara>Return the values of the last evaluated form in either
+   &body-r; or <replaceable>timeout-forms</replaceable>.</simpara>
   <warning><para>Since on timeout the current thread is interrupted,
     special care may be needed for ensuring proper cleanup in &body-r;.
     See &thread-interrupt; and &with-deferred-interrupts;.</para></warning>
@@ -5179,7 +5180,7 @@ Another problem is that no user input will be available.</para></formalpara>
 EOF
 &sh-prompt; clisp -c hello.lisp
 ;; Compiling file hello.lisp ...
-;; Wrote file hello.lisp
+;; Wrote file hello.fas
 0 errors, 0 warnings
 &sh-prompt; chmod +x hello.fas
 &sh-prompt; hello.fas
