@@ -62,7 +62,9 @@ T
 (mutex-lock m1 :timeout 0.5) NIL
 (mutex-lock m1 :timeout 0) NIL
 ;; check thread-interrupt
-(thread-active-p (thread-interrupt th #'mutex-unlock m1)) T
+(thread-active-p (thread-interrupt th :function #'mutex-unlock
+                                   :arguments (list m1)))
+T
 ;; thread is interrupted - wait for the mutex m1 to be unlocked and grab it
 (mutex-lock m1) T
 (progn (mutex-unlock m1) (mutex-owner m1)) NIL
@@ -76,8 +78,8 @@ T
 T
 
 (progn
-  (thread-interrupt th #'mutex-unlock m2)
-  (thread-interrupt th #'mutex-unlock m2)
+  (thread-interrupt th :function #'mutex-unlock :arguments (list m2))
+  (thread-interrupt th :function #'mutex-unlock :arguments (list m2))
   (sleep 1)
   (eq (mutex-owner m2) th2))
 T
@@ -89,6 +91,19 @@ T
 ;; multiple times kill on already dead thread
 (eq (thread-kill (thread-kill (thread-kill th))) th) T
 (progn (sleep 1) (thread-active-p th)) NIL
+
+;; test deferred interrupts
+(thread-active-p
+ (setf th (make-thread
+           (lambda () (with-deferred-interrupts (loop (sleep 1)))))))
+T
+
+(eq (thread-interrupt th :function t) th) T
+(sleep 0.5) NIL
+(thread-active-p th) T ;; kill is deferred
+(eq (thread-interrupt th :function t :override t) th) T
+(sleep 0.5) NIL
+(thread-active-p th) NIL ;; should be dead
 
 (symbol-cleanup '*thread-special*) T
 (symbol-cleanup 'm1) T
