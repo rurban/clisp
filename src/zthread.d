@@ -423,12 +423,10 @@ local void push_interrupt_arguments(clisp_thread_t *thr, object function,
     NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
   } else { /* real function */
     var uintC argcnt=0;
-    if (!missingp(args)) {
-      while (!endp(args)) {
-        NC_pushSTACK(thr->_STACK,Car(args));
-        args = Cdr(args);
-        argcnt++;
-      }
+    while (!endp(args)) {
+      NC_pushSTACK(thr->_STACK,Car(args));
+      args = Cdr(args);
+      argcnt++;
     }
     NC_pushSTACK(thr->_STACK,function);
     NC_pushSTACK(thr->_STACK,posfixnum(argcnt));
@@ -441,6 +439,8 @@ LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
   var bool interrupted = false;
   var bool override = eq(STACK_1, T);
   STACK_3 = check_thread(STACK_3);
+  /* if no arguments - set to empty list */
+  STACK_0 = boundp(STACK_0) ? check_list(STACK_0) : NIL;
   if (TheThread(STACK_3)->xth_globals == current_thread()) {
     /* we want to interrupt ourselves ? strange but let's do it */
     push_interrupt_arguments(current_thread(),STACK_2,STACK_0);
