@@ -4695,7 +4695,7 @@ Now you can sum doubles:
 <para>All symbols are exported from the package &mt-pac;, which has nicknames
  <quote role="package">MT</quote> (for <emphasis>MultiThreading</emphasis>) and
  <quote role="package">MP</quote> (for <emphasis>MultiProcessing</emphasis>).
- When this functionality if present, &features-my;
+ When this functionality is present, &features-my;
  contains the symbol <constant>:MT</constant>.</para>
 <para>See also <xref linkend="gc-mt"/>.</para></section>
 
@@ -4729,7 +4729,7 @@ Now you can sum doubles:
  are local to thread i.e. every symbol has different value cell in each thread.
  &symbol-value-thread; can be used to inspect/set these local thread bindings.
 </para>
-<para>Threads do not inherit dynamic bindings from the parent thread</para>
+<para>Threads do not inherit dynamic bindings from the parent thread.</para>
 
 <para>Example:<programlisting language="lisp">
 (defvar *global* 1)<lineannotation>create a &glob-var;</lineannotation>
@@ -4762,6 +4762,8 @@ Now you can sum doubles:
 
 <section id="mt-mutable"><title>Hash Tables, Sequences, and other
   mutable objects</title>
+<subtitle>If you want to shoot yourself, it is <emphasis>your</emphasis>
+ responsibility to wear armor.</subtitle>
 
 <para>Nothing is ever locked automatically (automatic locking will
  impose an unjustifiable penalty on &hash-table-t;s and &sequence-t;s
@@ -4779,11 +4781,11 @@ Now you can sum doubles:
    visibly modified with regard to the equivalence test of H, then the
    consequences are unspecified if O1 is used as a key in further
    operations on H...</para></blockquote></para>
-<warning><para>If two threads evaluate
-  <code>(&incf; (&gethash; x global-ht 0))</code>
-  the results are undefined.</para>
- <para>If you want to shoot yourself, it is YOUR responsibility
-  to wear armor.</para></warning>
+<para>Examples of forms whose results are undefined if two threads
+ evaluate they without locking:<programlisting language="lisp">
+(&incf; (&gethash; x global-ht 0))
+(&setf; (&aref; global-array ...) ...)
+</programlisting></para>
 </section>
 
 </section>
@@ -4791,8 +4793,9 @@ Now you can sum doubles:
 <section id="mt-api"><title>Thread API reference</title>
 <variablelist>
 <varlistentry id="thread"><term>&thread;</term>
- <listitem><simpara>The type of the object returned by &make-thread;.
-</simpara></listitem></varlistentry>
+ <listitem><simpara>The type of the object returned by &make-thread;.</simpara>
+  <simpara>Each &thread; represent a separate computation, executed in
+   parallel to each other.</simpara></listitem></varlistentry>
 <varlistentry id="make-thread"><term><code>(&make-thread; &func-r;
    &key-amp; &name-k; :INITIAL-BINDINGS :CSTACK-SIZE :VSTACK-SIZE)</code></term>
  <listitem><simpara>Start a new named &thread; running &func-r;.</simpara>
@@ -4857,8 +4860,10 @@ Now you can sum doubles:
     return value - the &current-thread;.
 </para></warning></listitem></varlistentry>
 <varlistentry id="mutex"><term>&mutex;</term>
- <listitem><simpara>The type of the object return by &make-mutex;.
-</simpara></listitem></varlistentry>
+ <listitem><simpara>The type of the object return by &make-mutex;.</simpara>
+  <simpara>This represents a <emphasis>lock</emphasis>, i.e., a way to
+   prevent different threads from doing something at the same time,
+   e.g., modifying the same object.</simpara></listitem></varlistentry>
 <varlistentry id="mutexp"><term><code>(&mutexp; &object-r;)</code></term>
  <listitem><simpara>Check whether the object is of type &mutex;.
 </simpara></listitem></varlistentry>
@@ -4913,8 +4918,9 @@ Now you can sum doubles:
 <varlistentry id="exemption"><term>&exemption;</term>
  <listitem><simpara>The type of the object returned by &make-exemption;.
    These correspond to the &posix; condition variables,
-   see <filename role="unix">pthread.h</filename>.
-</simpara></listitem></varlistentry>
+   see <filename role="unix">pthread.h</filename>.</simpara>
+  <simpara>These objects allow broadcasting state from one &thread; to
+   the others.</simpara></listitem></varlistentry>
 <varlistentry id="exemptionp"><term><code>(&exemptionp;
    &object-r;)</code></term>
   <listitem><simpara>Check whether the object is of type &exemption;.
