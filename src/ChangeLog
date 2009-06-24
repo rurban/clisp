@@ -1,5 +1,9 @@
 2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* threads.lisp (THREAD-KILL): remove
+
+2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* threads.lisp (THREAD-KILL): add :OVERRIDE keyword argument. Allows
 	killing a thread even interrupts are deferred in it
 
