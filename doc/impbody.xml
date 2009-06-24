@@ -556,8 +556,8 @@ ignored by the interpreter.</para>
 
 <formalpara id="spe-var-p"><title>Function &spe-var-p;</title>
 <para>You can use the function <code>(&spe-var-p; &symbol-r;
-  &optional-amp; &env-r;)</code> to check whether the symbol is a
- special variable.  &env-r; of &nil; or omitted means use the &glo-env;.
+  &optional-amp; &env-r;)</code> to check whether the &symbol-r; is a
+ &dyn-var;.  &env-r; of &nil; or omitted means use the &glo-env;.
  You can also obtain the current &lex-env; using the macro
  &the-env; (interpreted code only).
  This function will always return &t; for global special
