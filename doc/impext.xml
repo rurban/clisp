@@ -5006,8 +5006,8 @@ Now you can sum doubles:
    preemption) while &body-r; is executed.  If there is an interrupt
    while &body-r; is run, it is queued and will be executed after
    &body-r; finishes.</simpara>
-  <warning><para>Attention is required if waiting/blocking in &body-r;
-    since there is no way to interrupt it (in case of deadlock).
+  <warning><para>Care is needed if waiting or blocking in &body-r;,
+    since there is no way to interrupt it (in case of a deadlock).
     The macro was added to avoid partial &unwind-protect;'s cleanup
     forms evaluation in case they are interrupted with a non-local exit.
 </para></warning></listitem></varlistentry>
