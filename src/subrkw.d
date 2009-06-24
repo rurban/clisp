@@ -218,6 +218,8 @@ s(foreign_free)
 #ifdef MULTITHREAD
 v(4, (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
 s(make_thread)
+v(3, (kw(function),kw(override),kw(arguments)))
+s(thread_interrupt)
 v(2, (kw(name),kw(recursive_p)))
 s(make_mutex)
 v(1, (kw(timeout)))

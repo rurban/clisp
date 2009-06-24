@@ -4541,6 +4541,7 @@ global maygc void handle_pending_interrupts()
      deferred_interrupts */
   if (eq(Symbol_thread_value(S(defer_interrupts)), NIL)) {
     while (pend--) {
+      skipSTACK(1); /* do not care whether we should defer it */
       var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
       var object intrfun=popSTACK(); /* interrupt function */
       /* on non-local exit from the interrupt function and nested
@@ -4552,12 +4553,18 @@ global maygc void handle_pending_interrupts()
     }
   } else { /* we should defer interrupts */
     while (pend--) {
+      var bool force = eq(T,popSTACK());
       var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
-      pushSTACK(nreverse(listof(argc+1)));
-      var object kons = allocate_cons();
-      Car(kons) = popSTACK();
-      Cdr(kons) = Symbol_thread_value(S(deferred_interrupts));
-      Symbol_thread_value(S(deferred_interrupts)) = kons;
+      if (force) { /* if asked to ignore *defer-interrupts* */
+        var object intrfun=popSTACK(); /* interrupt function */
+        funcall(intrfun,argc);
+      } else {
+        pushSTACK(nreverse(listof(argc+1)));
+        var object kons = allocate_cons();
+        Car(kons) = popSTACK();
+        Cdr(kons) = Symbol_thread_value(S(deferred_interrupts));
+        Symbol_thread_value(S(deferred_interrupts)) = kons;
+      }
     }
   }
 }
@@ -4652,6 +4659,7 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(chain->thread->_STACK,*chain->throw_tag);
           NC_pushSTACK(chain->thread->_STACK,S(thread_throw_tag));
           NC_pushSTACK(chain->thread->_STACK,posfixnum(1));
+          NC_pushSTACK(chain->thread->_STACK,NIL); /* defer if needed */
           if (!interrupt_thread(chain->thread)) {
             /* hmm - signal send failed. restore the stack and mark the timeout
                as failed. The next time when we come here we will retry it - if
@@ -4698,6 +4706,7 @@ local void *signal_handler_thread(void *arg)
           NC_pushSTACK(thread->_STACK,S(interrupt_condition)); /* arg */
           NC_pushSTACK(thread->_STACK,S(cerror)); /* function */
           NC_pushSTACK(thread->_STACK,posfixnum(2)); /* two arguments */
+          NC_pushSTACK(thread->_STACK,T); /* do not defer the interrupt */
           if (!(signal_sent = interrupt_thread(thread))) {
             thread->_STACK=saved_stack;
           } else
@@ -4734,9 +4743,10 @@ local void *signal_handler_thread(void *arg)
         for_all_threads({
           /* be sure the signal handler can be reentered */
           spinlock_acquire(&thread->_signal_reenter_ok);
-          NC_pushSTACK(thread->_STACK,thread->_lthread); /* thread object */
-          NC_pushSTACK(thread->_STACK,S(thread_kill)); /* THREAD-KILL */
+          NC_pushSTACK(thread->_STACK,O(thread_exit_tag)); /* thread exit tag */
+          NC_pushSTACK(thread->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
           NC_pushSTACK(thread->_STACK,posfixnum(1)); /* 1 argument */
+          NC_pushSTACK(thread->_STACK,T); /* do not defer the interrupt */
           some_failed &= interrupt_thread(thread);
         });
         if (some_failed) {

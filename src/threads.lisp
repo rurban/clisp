@@ -88,6 +88,9 @@ terminate and evaluate TIMEOUT-FORMS."
   (with-timeout (seconds (timeout-message default (localized 'sys::yes-or-no)))
     (apply #'yes-or-no-p args)))
 
+(defun thread-kill (thread)
+  (thread-interrupt thread :function t))
+
 ;;; locks
 
 (defmacro with-lock ((mutex) &body body)
