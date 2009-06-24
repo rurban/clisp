@@ -4841,14 +4841,17 @@ Now you can sum doubles:
 </simpara></listitem></varlistentry>
 <varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
    &thr; &func-r; &rest-amp; &args-r;)</code></term>
- <listitem><simpara>Interrupt normal execution flow in &thr; and ask it to
-   funcall &func-r; (with parameters). Thread cannot be interrupted at any
-   point - only at ones where GC can run, see <xref linkend="gc-mt"/>.
-  </simpara><simpara>Currently on &win32; blocking I/O cannot be interrupted.
+ <listitem><simpara>Interrupt the normal execution flow in &thr; and ask
+   it to &apply; &func-r; to &args-r;.</simpara>
+  <simpara>Use <code>(&thread-interrupt; &thr; #'&break;)</code> to
+   debug &thr;.</simpara>
+  <simpara>Threads can only be interrupted at a point where the &gc;ion
+   can run, see <xref linkend="gc-mt"/>.</simpara>
+  <simpara>Currently on &win32; blocking I/O cannot be interrupted.
    The interrupt will be handled after the call returns.</simpara>
   <warning><para>Thread may be interrupted inside &unwind-protect;'s
     cleanup forms and on non-local exit from &func-r; -
-    they may not execute entirely.  In order to prevent this
+    they may not execute entirely.  In order to prevent this,
     &with-deferred-interrupts; is provided.</para></warning>
 </listitem></varlistentry>
 <varlistentry id="thread-name"><term><code>(&thread-name; &thr;)</code></term>
