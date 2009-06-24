@@ -1,3 +1,9 @@
+2009-06-24  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (GLLIB_O): when REPLACE_GETPAGESIZE is 1, add
+	gllib/getpagesize${TOBJ} (just like with gettimeofday)
+	Reported by Yaroslav Kavenchuk <kavenchuk@jenty.by>
+
 2009-06-23  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit [MULTITHREAD]: suggest "handle SIGUSR1 noprint nostop"
