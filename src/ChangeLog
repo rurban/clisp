@@ -1,5 +1,10 @@
 2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* threads.lisp (WITH-DEFERRED-INTERRUPTS): reverse arguments. was broken
+	but seemed to be fine since all tests are with single argument
+
+2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* zthread.d (THREAD-INTERRUPT): check that :ARGUMENTS is list
 	(push_interrupt_arguments): no need to check for missing args
 

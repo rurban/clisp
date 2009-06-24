@@ -61,7 +61,7 @@
          (*deferred-interrupts* '()))
      (unwind-protect (progn ,@body)
        (dolist (i *deferred-interrupts*)
-         (apply (car i) (cdr i))))))
+         (apply (car i) (nreverse (cdr i)))))))
 
 (defsetf SYMBOL-VALUE-THREAD MT::SET-SYMBOL-VALUE-THREAD)
 
