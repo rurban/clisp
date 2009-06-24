@@ -3,7 +3,7 @@
 (defpackage "THREADS"
   (:nicknames "MT" "MP")
   (:use "COMMON-LISP" "EXT")
-  (:export "THREAD" "MAKE-THREAD" "THREADP" "THREAD-YIELD" "THREAD-KILL"
+  (:export "THREAD" "MAKE-THREAD" "THREADP" "THREAD-YIELD"
            "THREAD-INTERRUPT" "THREAD-NAME" "THREAD-ACTIVE-P"
            "CURRENT-THREAD" "LIST-THREADS"
            "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK"
@@ -87,9 +87,6 @@ terminate and evaluate TIMEOUT-FORMS."
   (declare (ignorable seconds default))
   (with-timeout (seconds (timeout-message default (localized 'sys::yes-or-no)))
     (apply #'yes-or-no-p args)))
-
-(defun thread-kill (thread &key override)
-  (thread-interrupt thread :function t :override override))
 
 ;;; locks
 
