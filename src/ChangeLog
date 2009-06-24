@@ -1,5 +1,10 @@
 2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* threads.lisp (THREAD-KILL): add :OVERRIDE keyword argument. Allows
+	killing a thread even interrupts are deferred in it
+
+2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[MULTITHREAD]: allow THREAD-INTERRUPT to ignore WITH-DEFERRED-INTERRUPTS
 	* zthread.d (THREAD-INTERRUPT): accept :FUNCTION, :OVERRIDE and
 	:ARGUMENTS keyword arguments

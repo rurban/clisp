@@ -88,8 +88,8 @@ terminate and evaluate TIMEOUT-FORMS."
   (with-timeout (seconds (timeout-message default (localized 'sys::yes-or-no)))
     (apply #'yes-or-no-p args)))
 
-(defun thread-kill (thread)
-  (thread-interrupt thread :function t))
+(defun thread-kill (thread &key override)
+  (thread-interrupt thread :function t :override override))
 
 ;;; locks
 
