@@ -13,10 +13,6 @@ global xmutex_t all_mutexes_lock;
 /* mutex for guarding access to O(all_exemptions) */
 global xmutex_t all_exemptions_lock;
 
-
-/* TODO: move check_xxxx() to error.d and use MAKE_CHECK_REPLACEMENT ?
- sds: probably not because these 3 functions are only used in this file */
-
 /* signals an error of obj is not thread. returns the thread*/
 local maygc object check_thread(object obj)
 {
@@ -409,46 +405,67 @@ LISPFUNN(thread_yield,0)
   VALUES1(current_thread()->_lthread);
 }
 
-LISPFUNN(thread_kill,1)
-{ /* (THREAD-KILL thread) */
-  STACK_0=check_thread(STACK_0);
-  pushSTACK(S(thread_throw_tag));
-  pushSTACK(O(thread_exit_tag));
-  funcall(L(thread_interrupt),3);
+/* UP: push THREAD-INTERRUPT data on the thread stack - args + fun + argcount
+   > thr: the thread to be interrupted
+   > function: function to be executed in thr's context
+   > args: list of arguments to pass to function
+   Modifies the stack of the thr */
+local void push_interrupt_arguments(clisp_thread_t *thr, object function,
+                                    object args)
+{
+  if (missingp(function)) { /* i.e. INVOKE-DEBUGGER */
+    NC_pushSTACK(thr->_STACK,S(interrupt_condition));
+    NC_pushSTACK(thr->_STACK,S(invoke_debugger));
+    NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
+  } else if (eq(function, T)) { /* i.e. THREAD-KILL */
+    NC_pushSTACK(thr->_STACK,O(thread_exit_tag)); /* thread exit tag */
+    NC_pushSTACK(thr->_STACK,S(thread_throw_tag)); /* %THROW-TAG */
+    NC_pushSTACK(thr->_STACK,posfixnum(1)); /* 1 argument */
+  } else { /* real function */
+    var uintC argcnt=0;
+    if (!missingp(args)) {
+      while (!endp(args)) {
+        NC_pushSTACK(thr->_STACK,Car(args));
+        args = Cdr(args);
+        argcnt++;
+      }
+    }
+    NC_pushSTACK(thr->_STACK,function);
+    NC_pushSTACK(thr->_STACK,posfixnum(argcnt));
+  }
 }
 
-LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
-{ /* (THREAD-INTERRUPT thread function &rest arguments) */
-  var bool signal_sent=false;
-  STACK_(argcount+1) = check_thread(STACK_(argcount+1));
-  if (TheThread(STACK_(argcount+1))->xth_globals == current_thread()) {
+LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
+        (kw(function),kw(override),kw(arguments)))
+{ /* (THREAD-INTERRUPT thread &key function override arguments) */
+  var bool interrupted = false;
+  var bool override = eq(STACK_1, T);
+  STACK_3 = check_thread(STACK_3);
+  if (TheThread(STACK_3)->xth_globals == current_thread()) {
     /* we want to interrupt ourselves ? strange but let's do it */
-    funcall(Before(rest_args_pointer),argcount);
-    signal_sent=true;
-  } else {
-    /* we want to interrupt different thread. */
-    if (suspend_thread(STACK_(argcount+1),false)) { /* still alive ? */
-      var clisp_thread_t *clt = TheThread(STACK_(argcount+1))->xth_globals;
+    push_interrupt_arguments(current_thread(),STACK_2,STACK_0);
+    var uintC argcnt=posfixnum_to_V(popSTACK());
+    funcall(popSTACK(),argcnt);
+    interrupted=true;
+  } else { /* really interrupt another thread */
+    if (suspend_thread(STACK_3,false)) { /* stil alive? */
+      var clisp_thread_t *clt = TheThread(STACK_3)->xth_globals;
       var gcv_object_t *saved_stack=clt->_STACK;
       /* be sure that the signal we send will be received */
       spinlock_acquire(&clt->_signal_reenter_ok);
-      while (rest_args_pointer != args_end_pointer) {
-        var object arg = NEXT(rest_args_pointer);
-        NC_pushSTACK(clt->_STACK,arg);
-      }
-      NC_pushSTACK(clt->_STACK,STACK_(argcount)); /* function */
-      NC_pushSTACK(clt->_STACK,posfixnum(argcount));
-      if (!(signal_sent = interrupt_thread(clt))) {
+      /* push arguments */
+      push_interrupt_arguments(clt,STACK_2,STACK_0);
+      /* push override flag */
+      NC_pushSTACK(clt->_STACK, override ? T : NIL);
+      if (!(interrupted = interrupt_thread(clt))) {
         /* for some reason we were unable to send the signal */
         clt->_STACK=saved_stack;
       }
     }
-    resume_thread(STACK_(argcount+1), true);
-    skipSTACK((uintL)argcount); /* skip &rest arguments */
+    resume_thread(STACK_3, true);
   }
-  /* return the thread and whether it was really interrupted */
-  VALUES2(STACK_1,signal_sent ? T : NIL);
-  skipSTACK(2); /* thread + function */
+  VALUES2(STACK_3, interrupted ? T : NIL);
+  skipSTACK(4);
 }
 
 LISPFUNN(threadp,1)

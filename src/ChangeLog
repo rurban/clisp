@@ -1,3 +1,21 @@
+2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: allow THREAD-INTERRUPT to ignore WITH-DEFERRED-INTERRUPTS
+	* zthread.d (THREAD-INTERRUPT): accept :FUNCTION, :OVERRIDE and
+	:ARGUMENTS keyword arguments
+	(push_interrupt_arguments): helper function to push on foreign thread
+	stack required data for THREAD-INTERRUPT implementation
+	(THREAD-KILL): remove
+	* subr.d, subrkw.d: add :FUNCTION, :OVERRIDE and :ARGUMENTS to
+	THREAD-INTERRUPT arguments
+	(THREAD-KILL): remove
+	* constsym.d: add :OVERRIDE and :FUNCTION symbols
+	(THREAD-KILL): remove
+	* spvw.d (handle_pending_interrupts): ignore WITH-DEFERRED-INTERRUPTS
+	if asked to do so
+	(signal_handler_thread): on SIGINT and fatal signals - force interrupt
+	* threads.lisp (THREAD-KILL): implement via THREAD-INTERRUPT
+
 2009-06-24  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (GLLIB_O): when REPLACE_GETPAGESIZE is 1, add

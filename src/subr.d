@@ -1424,8 +1424,8 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
         (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
 LISPFUNN(call_with_timeout,3)
 LISPFUNN(thread_yield,0)
-LISPFUNN(thread_kill,1)
-LISPFUN(thread_interrupt,seclass_default,2,0,rest,nokey,0,NIL)
+LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
+        (kw(function),kw(override),kw(arguments)))
 LISPFUNN(threadp,1)
 LISPFUNN(thread_name,1)
 LISPFUNN(thread_active_p,1)
