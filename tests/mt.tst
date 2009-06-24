@@ -86,10 +86,15 @@ T
 
 ;; kill th2 - warning for locked mutex m2 will be issued and
 ;; the mutex will be released
-(progn (thread-kill th2) (sleep 1)) NIL
+(progn (thread-interrupt th2 :function t) (sleep 1)) NIL
 (mutex-owner m2) NIL
 ;; multiple times kill on already dead thread
-(eq (thread-kill (thread-kill (thread-kill th))) th) T
+(eq (thread-interrupt
+     (thread-interrupt
+      (thread-interrupt th :function t)
+      :function t)
+     :function t) th)
+T
 (progn (sleep 1) (thread-active-p th)) NIL
 
 ;; test deferred interrupts
