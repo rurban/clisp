@@ -4791,12 +4791,17 @@ Now you can sum doubles:
    visibly modified with regard to the equivalence test of H, then the
    consequences are unspecified if O1 is used as a key in further
    operations on H...</para></blockquote></para>
-<para>Examples of forms whose results are undefined if two threads
- evaluate they without locking:<programlisting language="lisp">
-(&incf; (&gethash; x global-ht 0))
-(&setf; (&aref; global-array ...) ...)
-</programlisting></para>
 </section>
+
+<section id="mt-unsafe"><title>Examples of thread-unsafe code</title>
+<para>Here are some forms whose results are undefined if two threads
+ evaluate them without locking:<programlisting language="lisp">
+(&incf; (&gethash; x global-ht 0))<lineannotation>see <xref linkend="mt-mutable"/></lineannotation>
+(&setf; (&aref; global-array ...) ...)<lineannotation>ditto</lineannotation>
+(&defmethod; &gf-r; (...) ...)<lineannotation>see <xref linkend="mt-clos"/></lineannotation>
+(&load; &filename-r;)<lineannotation>see <xref linkend="mt-package"/></lineannotation>
+(&read-from-string; &string-r;)<lineannotation>ditto</lineannotation>
+</programlisting></para></section>
 
 </section>
 
