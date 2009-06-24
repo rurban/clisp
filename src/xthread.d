@@ -264,8 +264,7 @@ int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
    acquired while a spin-lock is held without special care.
  - Therefore spin-locks can be assumed to be unlocked "soon", without any
    particular action to be performed. When trying to acquire a spin-lock which
-   is currently locked, all you can do is sit down and spin ("Däumchen drehen"
-   in German).
+   is currently locked, all you can do is sit down and spin.
  - Acquiring a lock which is previously unlocked, and releasing a lock are
    fast operations.
 
