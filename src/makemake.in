@@ -557,6 +557,7 @@ MAKE='@MAKE@'                       # gmake or make
 GNU_MAKE='@GNU_MAKE@'               # yes or no
 HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
 REPLACE_GETTIMEOFDAY='@REPLACE_GETTIMEOFDAY@' # 1 or 0
+REPLACE_GETPAGESIZE='@REPLACE_GETPAGESIZE@' # 1 or 0
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
 # 2. New operating systems are emerging at every corner.
@@ -1522,9 +1523,10 @@ if [ ${HAVE_MALLOC_POSIX} = 0 -o ${CROSS} = true ]; then
   EXTRAOBJ=" ${GLLIB_O}"
 else GLLIB_O=""; EXTRAOBJ="";
 fi
-if [ "${REPLACE_GETTIMEOFDAY}" = 1 ]; then
-  GLLIB_O=${GLLIB_O}" gllib/gettimeofday${TOBJ}"
-fi
+test "${REPLACE_GETTIMEOFDAY}" = 1 \
+  && GLLIB_O=${GLLIB_O}" gllib/gettimeofday${TOBJ}"
+test "${REPLACE_GETPAGESIZE}" = 1 \
+  && GLLIB_O=${GLLIB_O}" gllib/getpagesize${TOBJ}"
 for f in localcharset uniname/uniname uniwidth/width; do
   GLLIB_O=gllib/${f}${TOBJ}' '${GLLIB_O};
 done
