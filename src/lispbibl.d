@@ -3026,7 +3026,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
   #if defined(MULTITHREAD)
     /* VTZ: this is slow but there will be need of many forward declarations
      in order to compile. Also in GCSAFETY we do not care about peformance. */
-    extern uintL* current_thread_alloccount();
+    extern uintL* current_thread_alloccount (void);
     #define alloccount (*current_thread_alloccount())
   #else
     extern uintL alloccount;
@@ -3045,7 +3045,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 %% #ifdef DEBUG_GCSAFETY
 %%   #if defined(MULTITHREAD)
-%%     puts("extern uintL* current_thread_alloccount();");
+%%     puts("extern uintL* current_thread_alloccount (void);");
 %%     export_def(alloccount);
 %%   #else
 %%     puts("extern uintL alloccount;");
@@ -3075,7 +3075,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
     /* Conversion from gcv_object_t. */
     gcunsafe_object_t (gcv_object_t obj);
     /* Verification that no GC has been triggered. */
-    ~gcunsafe_object_t ();
+    ~gcunsafe_object_t (void);
   };
 #else
   typedef gcv_object_t gcunsafe_object_t;
@@ -17147,7 +17147,7 @@ struct object_tab_tl_ {
      /* removes the TLS - should be called on thread exit.
         NB: It seems not a big deal if not called - but should
         be tested.*/
-     global void tsd_remove_specific();
+     global void tsd_remove_specific (void);
      /* initializes the current thread storage with supplied value.
        entry should be pre-allocated. May reside on the stack as
        well - but we have to be sure that it will be valid during
@@ -17328,9 +17328,9 @@ global void delete_thread(clisp_thread_t *thread);
    When called the global thread lock should be held. */
 global int register_thread(clisp_thread_t *thread);
 /* locks the global thread array */
-global void lock_threads();
+global void lock_threads (void);
 /* unlocks global thread array */
-global void unlock_threads();
+global void unlock_threads (void);
 /* UP: Suspends all running threads /besides the current/ at GC safe
    points/regions.
  > lock_heap: if false - the caller already owns the heap lock
@@ -17366,11 +17366,11 @@ global void resume_thread(object thread, bool release_threads_lock);
 global bool interrupt_thread(clisp_thread_t *thr);
 /* UP: signals that there is new timeout call (CALL-WITH-TIMEOUT)
    handles both POSIX and WIN32 threads */
-global int signal_timeout_call();
+global int signal_timeout_call (void);
 /* UP: handles any pending interrupt (currently just one).
    arguments are on the STACK */
-global maygc void handle_pending_interrupts();
-%% puts("extern void handle_pending_interrupts();");
+global maygc void handle_pending_interrupts (void);
+%% puts("extern void handle_pending_interrupts (void);");
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
 /* releases the OS mutexes for mutex objects in the list */
@@ -17457,7 +17457,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
         SET_SP_BEFORE_SUSPEND(current_thread()); \
         if (lock_heap) WITH_STOPPED_WORLD(true,statement); else statement; \
       }while(0)
-    extern uintL* current_thread_alloccount();
+    extern uintL* current_thread_alloccount (void);
   #endif
 
   #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
