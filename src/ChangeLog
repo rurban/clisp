@@ -1,5 +1,14 @@
 2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: handle interrupts when the thread is still not
+	entirely initialized
+	* spvw.d (handle_pending_interrupts): check *DEFER-INTERRUPTS* for
+	SYMVALUE_EMPTY. it's possible to have interrupts while not yet
+	initialized with NIL
+	* zthread.d (THREAD-INTERRUPT): :OVERRIDE is generalized boolean
+
+2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* threads.lisp (WITH-DEFERRED-INTERRUPTS): reverse arguments. was broken
 	but seemed to be fine since all tests are with single argument
 

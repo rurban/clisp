@@ -4536,10 +4536,11 @@ global maygc void handle_pending_interrupts()
   var clisp_thread_t *thr = current_thread();
   var uintC pend = thr->_pending_interrupts;
   thr->_pending_interrupts = 0; /* we got all of them */
-  /* It is fine to use Symbol_value() instead of Symbol_thread_value() since
-     we always have per-thread value for defer_interrupts and
-     deferred_interrupts */
-  if (eq(Symbol_thread_value(S(defer_interrupts)), NIL)) {
+  /* it's possible interrupt to come before per-thread
+   *DEFER-INTERRUPTS* is initialized (while evaluating initial bindings) -
+   check this case as well */
+  if (eq(Symbol_thread_value(S(defer_interrupts)), NIL) ||
+      eq(Symbol_thread_value(S(defer_interrupts)), SYMVALUE_EMPTY)) {
     while (pend--) {
       skipSTACK(1); /* do not care whether we should defer it */
       var uintC argc=posfixnum_to_V(popSTACK()); /* arguments count */
