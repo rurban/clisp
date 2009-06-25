@@ -1,3 +1,7 @@
+2009-06-25  Sam Steingold  <sds@gnu.org>
+
+	* mt.tst: test interaction of threads with hash-tables and packages
+
 2009-06-22  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst: add a test for [ 2807311 ]: (expt 10 10000000) segfaults

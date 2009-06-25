@@ -110,6 +110,46 @@ T
 (sleep 0.5) NIL
 (thread-active-p th) NIL ;; should be dead
 
+(let* ((mu (make-mutex :name "hash-table lock"))
+       (ht (make-hash-table))
+       (tl (loop :repeat 1000 :collect
+             (make-thread (lambda ()
+                            (mutex-lock mu)
+                            (incf (gethash 1 ht 0))
+                            (mutex-unlock mu))))))
+  ;; wait for all threads to finish
+  (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
+  (gethash 1 ht))
+1000
+
+(let* ((mu (make-mutex :name "package lock"))
+       (count 1000)
+       (pa (make-package (symbol-name (gensym "MT-TEST-")) :use ()))
+       (tl (loop :for i :from 1 :to count :collect
+             (let ((i i))
+               (make-thread (lambda ()
+                              (mutex-lock mu)
+                              (intern (prin1-to-string i) pa)
+                              (mutex-unlock mu)))))))
+  ;; wait for all threads to finish
+  (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
+  (let ((i 0))
+    (do-symbols (s pa) (declare (ignore s)) (incf i))
+    (assert (= i count)))
+  (setq tl (loop :for i :from 1 :to count :collect
+             (let ((i i))
+               (make-thread (lambda ()
+                              (mutex-lock mu)
+                              (unintern (find-symbol (prin1-to-string i) pa) pa)
+                              (mutex-unlock mu))))))
+  ;; wait for all threads to finish
+  (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
+  (let ((i 0))
+    (do-symbols (s pa) (declare (ignore s)) (incf i))
+    (assert (zerop i)))
+  (delete-package pa))
+T
+
 (symbol-cleanup '*thread-special*) T
 (symbol-cleanup 'm1) T
 (symbol-cleanup 'm2) T
