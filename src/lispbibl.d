@@ -17377,6 +17377,8 @@ global void release_threads (object list);
 global void release_mutexes(object list);
 /* releases the OS condition variables for exemption objects in the list */
 global void release_exemptions(object list);
+/* called at thread exiting. performs cleanup/checks. */
+global maygc void thread_cleanup(void);
 /* add per thread special symbol value - initialized to SYMVALUE_EMPTY.
  symbol: the symbol
  returns: the new index in the _symvalues thread array */
