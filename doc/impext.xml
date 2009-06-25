@@ -4886,12 +4886,12 @@ Now you can sum doubles:
  <listitem><simpara>Check whether the object is of type &mutex;.
 </simpara></listitem></varlistentry>
 <varlistentry id="make-mutex"><term><code>(&make-mutex; &key-amp;
-   &name-k; :RECURSIVE-P)</code></term>
+   &name-k; <constant>:RECURSIVE-P</constant>)</code></term>
  <listitem><simpara>Create new &mutex; object - not locked by any thread.
    &name-k; should be a &string-t; describing the mutex (this really helps
-   debugging deadlocks).  When <constant>:RECURSIVE-P</constant> is
-   non-&nil;, a recursive mutex is created i.e. threads can acquire the
-   mutex many times (and should, of course, release it for each
+   debugging deadlocks).  When <replaceable>RECURSIVE-P</replaceable> is
+   non-&nil;, a recursive &mutex; is created i.e., a thread can acquire
+   the mutex repeatedly (and should, of course, release it for each
    successful acquisition).</simpara>
   <simpara>Cf. <function role="unix">pthread_mutex_init</function>.</simpara>
 </listitem></varlistentry>
@@ -4958,17 +4958,21 @@ Now you can sum doubles:
 </listitem></varlistentry>
 <varlistentry id="exemption-wait"><term><code>(&exemption-wait;
    &exemp-r; &mutex-r; &key-amp; &timeout-k;)</code></term>
- <listitem><simpara>Wait for &exemp-r; to become signaled.
+ <listitem><simpara>Wait for another &thread; to call &exemption-signal;
+   or &exemption-broadcast; on &exemp-r;.
    &mutex-r; should be locked by the caller; otherwise an &err-sig;.
    The function releases the &mutex-r; and waits for &exemp-r;.
-   On return &mutex-r; is acquired again.
-   The function waits up to &timeout-k; &seconds;.
+   On return &mutex-r; is acquired again.</simpara>
+  <simpara>The function waits up to &timeout-k; &seconds;.
    If timeout is not specified, waits forever.</simpara><simpara>
-   Returns &t; if &exemp-r; was signaled, and &nil; on timeout.</simpara>
-  <note><simpara>On &posix; it is possible to have
-    <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious
-     wakeup</ulink>s, i.e., this function may return &t; even though no
-    thread called &exemption-broadcast; or &exemption-signal;.</simpara></note>
+   Returns &t; if &exemp-r; was signaled and &nil; on timeout.</simpara>
+  <para>On &posix; it is possible to have
+   <ulink url="http://en.wikipedia.org/wiki/Spurious_wakeup">spurious
+    wakeup</ulink>s, i.e., this function may return &t; even though no
+   thread called &exemption-broadcast; or &exemption-signal;.
+   Therefore, a common idiom for using this function is <code>(&loop;
+    :while (some-condition-is-satisfied) :do (&exemption-wait; &exemp-r;
+    &mutex-r;))</code>.</para>
   <simpara>Cf. <function role="unix">pthread_cond_wait</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="exemption-broadcast"><term><code>(&exemption-broadcast;
@@ -4981,7 +4985,7 @@ Now you can sum doubles:
  <term><code>(&yes-or-no-p-timeout; seconds default &rest-amp;
    &args-r;)</code></term>
  <listitem><simpara>Similar to &y-or-n-p; and &yes-or-no-p;, but use
-   &with-timeout; to return <replaceable>default</replaceable> when no
+   &with-timeout; to return <replaceable>DEFAULT</replaceable> when no
    reply is given within timeout &seconds;.</simpara></listitem></varlistentry>
 <varlistentry id="with-timeout"><term><code>(&with-timeout;
    (seconds &body-amp; timeout-forms) &body-amp; &body-r;)</code></term>
