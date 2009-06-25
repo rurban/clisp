@@ -1,5 +1,10 @@
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (directory_search_scandir) [MULTITHREAD]: avoid
+	warning: empty body in an if-statement
+
+2009-06-25  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (current_thread_alloccount, gcunsafe_object_t)
 	(tsd_remove_specific, lock_threads, unlock_threads)
 	(signal_timeout_call, handle_pending_interrupts):
