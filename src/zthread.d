@@ -437,7 +437,7 @@ LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
         (kw(function),kw(override),kw(arguments)))
 { /* (THREAD-INTERRUPT thread &key function override arguments) */
   var bool interrupted = false;
-  var bool override = eq(STACK_1, T);
+  var bool override = !missingp(STACK_1);
   STACK_3 = check_thread(STACK_3);
   /* if no arguments - set to empty list */
   STACK_0 = boundp(STACK_0) ? check_list(STACK_0) : NIL;
