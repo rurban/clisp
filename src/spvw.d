@@ -3706,7 +3706,6 @@ local inline void main_actions (struct argv_actions *p) {
 }
 
 #if defined(MULTITHREAD)
-extern maygc void thread_cleanup(); /* in zthread.d */
 /* UP: main_actions() replacement in MT.
  > param: clisp_thread_t structure of the first lisp thread */
 local void* mt_main_actions (void *param) {
