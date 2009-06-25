@@ -1,7 +1,8 @@
 /*
  * Cross-platform thread support
  * Bruno Haible 1997-1999
- * Sam Steingold 2001-2008
+ * Sam Steingold 2001-2009
+ * Vladimir Tzankov 2008-2009
 
  =============================================================================
  This part is heavily influenced by the file <X11/Xthreads.h> from X11R6,
