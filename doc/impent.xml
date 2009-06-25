@@ -119,6 +119,7 @@
 <!ENTITY out-k '<constant>:OUT</constant>'>
 <!ENTITY outfile-k '<constant>:OUTPUT-FILE</constant>'>
 <!ENTITY output-k '<constant>:OUTPUT</constant>'>
+<!ENTITY override-k '<constant>:OVERRIDE</constant>'>
 <!ENTITY overwrite-k '<constant>:OVERWRITE</constant>'>
 <!ENTITY parent-k '<constant>:PARENT</constant>'>
 <!ENTITY previous-k '<constant>:PRECIOUS</constant>'>
@@ -506,7 +507,6 @@
 <!ENTITY make-thread '<link linkend="make-thread"><function>MT:MAKE-THREAD</function></link>'>
 <!ENTITY threadp '<link linkend="threadp"><function>MT:THREADP</function></link>'>
 <!ENTITY thread-yield '<link linkend="thread-yield"><function>MT:THREAD-YIELD</function></link>'>
-<!ENTITY thread-kill '<link linkend="thread-kill"><function>MT:THREAD-KILL</function></link>'>
 <!ENTITY thread-interrupt '<link linkend="thread-interrupt"><function>MT:THREAD-INTERRUPT</function></link>'>
 <!ENTITY thread-name '<link linkend="thread-name"><function>MT:THREAD-NAME</function></link>'>
 <!ENTITY thread-active-p '<link linkend="thread-active-p"><function>MT:THREAD-ACTIVE-P</function></link>'>

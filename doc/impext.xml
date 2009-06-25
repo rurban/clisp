@@ -4841,15 +4841,15 @@ Now you can sum doubles:
    of the run queue and another thread is scheduled to run.</simpara>
   <simpara>Cf. <function role="unix">sched_yield</function>.</simpara>
 </listitem></varlistentry>
-<varlistentry id="thread-kill"><term><code>(&thread-kill; &thr;)</code></term>
- <listitem><simpara>Call &thread-interrupt; telling the &thr; to terminate.
-</simpara></listitem></varlistentry>
-<varlistentry id="thread-interrupt"><term><code>(&thread-interrupt;
-   &thr; &func-r; &rest-amp; &args-r;)</code></term>
+<varlistentry id="thread-interrupt"><term><code>(&thread-interrupt; &thr;
+   &key-amp; &function-k; &override-k; &arguments-k;)</code></term>
  <listitem><simpara>Interrupt the normal execution flow in &thr; and ask
    it to &apply; &func-r; to &args-r;.</simpara>
-  <simpara>Use <code>(&thread-interrupt; &thr; #'&break;)</code> to
-   debug &thr;.</simpara>
+  <simpara>Use <code>(&thread-interrupt; &thr; &function-k; &nil;)</code>
+   to debug &thr; and <code>(&thread-interrupt; &thr; &function-k;
+    &t;)</code> to terminate &thr;.</simpara>
+  <simpara>The &override-k; argument overrides &with-deferred-interrupts;
+   and should be used with extreme care.</simpara>
   <simpara>Threads can only be interrupted at a point where the &gc;ion
    can run, see <xref linkend="gc-mt"/>.</simpara>
   <simpara>Currently on &win32; blocking I/O cannot be interrupted.
