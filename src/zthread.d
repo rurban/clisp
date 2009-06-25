@@ -97,9 +97,7 @@ global void release_exemptions(object list)
 /* UP: called at thread exiting. performs cleanup/checks.
    currently checks whether the exiting thread does not hold any mutex and
    releases them (if any) */
-global maygc void thread_cleanup();
-global maygc void thread_cleanup()
-{
+global maygc void thread_cleanup (void) {
   /* We are going to die - final cleanup will be performed. We do not want
    to be interrupted during it (actually no problem to be interrupted but
    if the interrupt performs non-local exit (incl. THREAD-KILL) we will end

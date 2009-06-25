@@ -1,3 +1,8 @@
+2009-06-25  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (thread_cleanup): move the prototype here ...
+	* spvw.d, zthread.d: ... from here
+
 2009-06-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: handle interrupts when the thread is still not
