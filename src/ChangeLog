@@ -1,5 +1,12 @@
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (current_thread_alloccount, gcunsafe_object_t)
+	(tsd_remove_specific, lock_threads, unlock_threads)
+	(signal_timeout_call, handle_pending_interrupts):
+	use (void) for prototypes of functions which take no arguments
+
+2009-06-25  Sam Steingold  <sds@gnu.org>
+
 	* lispbibl.d (thread_cleanup): move the prototype here ...
 	* spvw.d, zthread.d: ... from here
 
