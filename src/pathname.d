@@ -7312,7 +7312,7 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
       var int rdr; /* readdir_r() return*/
       /* fetch next directory-entry */
       GC_SAFE_SYSTEM_CALL(rdr=, readdir_r(dirp,(struct dirent *)dp_buf,&dp));
-      if (dp == (struct dirent *)NULL) FREE_DYNAMIC_ARRAY(dp_buf);
+      if (dp == (struct dirent *)NULL) { FREE_DYNAMIC_ARRAY(dp_buf); }
       errno = rdr;
      #else
       var struct dirent * dp;
