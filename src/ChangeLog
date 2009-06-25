@@ -1,5 +1,13 @@
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
+	* xthread.d (xlock_t): add _owned filed because there are no
+	guaranteed invalid xthread_t values
+	* zthread.d (xlock_init): set _owned to false; do not init _owner
+	(xlock_lock_helper): check _owned instead of _owner; init both
+	(xlock_unlock_helper): set _owned to false; do not touch _owner
+
+2009-06-25  Sam Steingold  <sds@gnu.org>
+
 	* pathname.d (directory_search_scandir) [MULTITHREAD]: avoid
 	warning: empty body in an if-statement
 

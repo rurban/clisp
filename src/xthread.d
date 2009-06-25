@@ -224,6 +224,7 @@ typedef struct xlock_t {
   xcondition_t _c; /* condition to wait on */
   xmutex_raw_t _mr; /* real mutex */
   xthread_t _owner; /* who owns the lock */
+  bool _owned; /* _owner initialized? no known invalid xthread_t values! */
   int _count; /* how many times we own the object */
 } xlock_t;
 
