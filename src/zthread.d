@@ -861,7 +861,7 @@ int xlock_init(xlock_t *l)
     xmutex_raw_destroy(&l->_mr);
     return r;
   }
-  l->_owner = NULL; /* hmmm */
+  l->_owned = false;
   l->_count = 0;
   return 0;
 }
@@ -926,14 +926,16 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
         if (r != 0) break;
       }
       if (r == 0) {
-        ASSERT(l->_owner == NULL);
+        ASSERT(!l->_owned);
         l->_owner = xthread_self();
+        l->_owned = true;
         l->_count=1;
       }
     } else {
       /* if is not real lock - we own the the real mutex + guarding one */
-      ASSERT(!l->_owner);
+      ASSERT(!l->_owned);
       l->_owner = xthread_self();
+      l->_owned = true;
       l->_count=1;
     }
     xmutex_raw_unlock(&l->_m);
@@ -957,7 +959,7 @@ int xlock_unlock_helper(xlock_t *l, bool unlock_real)
       xmutex_raw_lock(&l->_m);
       if (unlock_real)
         xmutex_raw_unlock(&l->_mr);
-      l->_owner = NULL; /* hmm */
+      l->_owned = false;
       xmutex_raw_unlock(&l->_m); /* before signal */
       xcondition_signal(&l->_c);
     }
