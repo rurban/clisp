@@ -11,104 +11,106 @@
 (NIL NIL NIL)
 
 ;; non-recursive mutex
-(mutex-owner (setf m1 (make-mutex :name "m1"))) NIL
-(typep m1 'exemption) NIL
-(typep m1 'mutex) T
-(typep m1 'thread) NIL
-(typep m1 'T) T
-(mutex-lock m1) T
-(mutex-lock m1) ERROR
-(eq (mutex-owner m1) (current-thread)) T
-(progn (mutex-unlock m1) (mutex-owner m1)) NIL
-(mutex-unlock m1) ERROR
+(defparameter *mu1* (make-mutex :name "mu1")) *MU1*
+(mutex-owner *mu1*) NIL
+(typep *mu1* 'exemption) NIL
+(typep *mu1* 'mutex) T
+(typep *mu1* 'thread) NIL
+(typep *mu1* 'T) T
+(mutex-lock *mu1*) T
+(mutex-lock *mu1*) ERROR
+(eq (mutex-owner *mu1*) (current-thread)) T
+(progn (mutex-unlock *mu1*) (mutex-owner *mu1*)) NIL
+(mutex-unlock *mu1*) ERROR
 ;; recursive mutex
-(mutex-owner (setf m2 (make-mutex :name "m2" :recursive-p t))) NIL
-(mutex-lock m2) T
-(mutex-lock m2) T
-(eq (mutex-owner m2) (current-thread)) T
-(progn (mutex-unlock m2) (mutex-unlock m2) (mutex-owner m2)) NIL
-(mutex-unlock m2) ERROR
+(defparameter *mu2* (make-mutex :name "mu2" :recursive-p t)) *MU2*
+(mutex-owner *mu2*) NIL
+(mutex-lock *mu2*) T
+(mutex-lock *mu2*) T
+(eq (mutex-owner *mu2*) (current-thread)) T
+(progn (mutex-unlock *mu2*) (mutex-unlock *mu2*) (mutex-owner *mu2*)) NIL
+(mutex-unlock *mu2*) ERROR
 
-(defvar *thread-special* 1) *thread-special*
+(defparameter *thread-special* 1) *thread-special*
 
 ;; thread-interrupt & mutexes
-(thread-active-p
- (setf th (make-thread
-           #'(lambda ()
-               (incf *thread-special*)
-               (let ((*thread-special* 5))
-                 (mutex-lock m1)
-                 (mutex-lock m2) (mutex-lock m2)
-                 (loop (sleep 1)))))))
-T
-
-(typep th 'exemption) NIL
-(typep th 'mutex) NIL
-(typep th 'thread) T
-(typep th 'T) T
+(defparameter *th1*
+  (make-thread #'(lambda ()
+                   (incf *thread-special*)
+                   (let ((*thread-special* 5))
+                     (mutex-lock *mu1*)
+                     (mutex-lock *mu2*) (mutex-lock *mu2*)
+                     (loop (sleep 1))))))
+*TH1*
+(thread-active-p *th1*) T
+(typep *th1* 'exemption) NIL
+(typep *th1* 'mutex) NIL
+(typep *th1* 'thread) T
+(typep *th1* 'T) T
 
 ;; wait for the global symbol value to change
 (loop until (eql *thread-special* 2) do (sleep 0.1)) NIL
 ;; just sleep little bit
 (sleep 0.5) NIL
-(symbol-value-thread '*thread-special* th) 5
-(setf (symbol-value-thread '*thread-special* th) 10) 10
-(symbol-value-thread '*thread-special* th) 10
+(symbol-value-thread '*thread-special* *th1*) 5
+(setf (symbol-value-thread '*thread-special* *th1*) 10) 10
+(symbol-value-thread '*thread-special* *th1*) 10
 *thread-special* 2
 ;; get global symbol value
 (symbol-value-thread '*thread-special* nil) 2
-(eq (mutex-owner m1) th) T
+(eq (mutex-owner *mu1*) *th1*) T
 ;; check timed wait on mutex
-(mutex-lock m1 :timeout 0.5) NIL
-(mutex-lock m1 :timeout 0) NIL
+(mutex-lock *mu1* :timeout 0.5) NIL
+(mutex-lock *mu1* :timeout 0) NIL
 ;; check thread-interrupt
-(thread-active-p (thread-interrupt th :function #'mutex-unlock
-                                   :arguments (list m1)))
+(thread-active-p (thread-interrupt *th1* :function #'mutex-unlock
+                                   :arguments (list *mu1*)))
 T
-;; thread is interrupted - wait for the mutex m1 to be unlocked and grab it
-(mutex-lock m1) T
-(progn (mutex-unlock m1) (mutex-owner m1)) NIL
-(eq (mutex-owner m2) th) T
+;; thread is interrupted - wait for the mutex *mu1* to be unlocked and grab it
+(mutex-lock *mu1*) T
+(progn (mutex-unlock *mu1*) (mutex-owner *mu1*)) NIL
+(eq (mutex-owner *mu2*) *th1*) T
 
-(thread-active-p
- (setf th2 (make-thread
-            #'(lambda ()
-                (mutex-lock m2)
-                (loop (sleep 1))))))
+(defparameter *th2*
+  (make-thread #'(lambda ()
+                   (mutex-lock *mu2*)
+                   (loop (sleep 1)))))
+*TH2*
+(thread-active-p *th2*)
 T
 
 (progn
-  (thread-interrupt th :function #'mutex-unlock :arguments (list m2))
-  (thread-interrupt th :function #'mutex-unlock :arguments (list m2))
+  (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
+  (thread-interrupt *th1* :function #'mutex-unlock :arguments (list *mu2*))
   (sleep 1)
-  (eq (mutex-owner m2) th2))
+  (eq (mutex-owner *mu2*) *th2*))
 T
 
-;; kill th2 - warning for locked mutex m2 will be issued and
+;; kill *th2* - warning for locked mutex *mu2* will be issued and
 ;; the mutex will be released
-(progn (thread-interrupt th2 :function t) (sleep 1)) NIL
-(mutex-owner m2) NIL
+(progn (thread-interrupt *th2* :function t) (sleep 1)) NIL
+(mutex-owner *mu2*) NIL
 ;; multiple times kill on already dead thread
 (eq (thread-interrupt
      (thread-interrupt
-      (thread-interrupt th :function t)
+      (thread-interrupt *th1* :function t)
       :function t)
-     :function t) th)
+     :function t) *th1*)
 T
-(progn (sleep 1) (thread-active-p th)) NIL
+(progn (sleep 1) (thread-active-p *th1*)) NIL
 
 ;; test deferred interrupts
-(thread-active-p
- (setf th (make-thread
-           (lambda () (with-deferred-interrupts (loop (sleep 1)))))))
-T
+(defparameter *th1*
+  (make-thread (lambda () (with-deferred-interrupts (loop (sleep 1))))))
+*TH1*
+(thread-active-p *th1*) T
 
-(eq (thread-interrupt th :function t) th) T
+(eq (thread-interrupt *th1* :function t) *th1*) T
 (sleep 0.5) NIL
-(thread-active-p th) T ;; kill is deferred
-(eq (thread-interrupt th :function t :override t) th) T
+(thread-active-p *th1*) T ;; kill is deferred
+(eq (thread-interrupt *th1* :function t :override t) *th1*) T
 (sleep 0.5) NIL
-(thread-active-p th) NIL ;; should be dead
+(thread-active-p *th1*) NIL ;; should be dead
 
 (let* ((mu (make-mutex :name "hash-table lock"))
        (ht (make-hash-table))
@@ -150,8 +152,9 @@ T
   (delete-package pa))
 T
 
-(symbol-cleanup '*thread-special*) T
-(symbol-cleanup 'm1) T
-(symbol-cleanup 'm2) T
-(symbol-cleanup 'th) T
-(symbol-cleanup 'th2) T
+(progn (symbol-cleanup '*thread-special*)
+       (symbol-cleanup '*mu1*)
+       (symbol-cleanup '*mu2*)
+       (symbol-cleanup '*th1*)
+       (symbol-cleanup '*th2*))
+T
