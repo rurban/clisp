@@ -1,7 +1,8 @@
 /*
  * CLISP thread functions - multiprocessing
  * Distributed under the GNU GPL as a part of GNU CLISP
- * Sam Steingold 2003-2008
+ * Sam Steingold 2003-2009
+ * Vladimir Tzankov 2008-2009
  */
 
 #include "lispbibl.c"
@@ -225,12 +226,12 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
     vstack_size=STACK_item_count(STACK_bound,STACK_start);
   }
   if (cstack_size > 0 && cstack_size < 0x10000) { /* cstack too small ? */
-    /* TODO: or may be signal an error */
+    /* TODO: or maybe signal an error */
     /* let's allocate at least 64K */
     cstack_size = 0x10000;
   }
   if (vstack_size < ca_limit_1) {
-    /* TODO: may be signal an error */
+    /* TODO: maybe signal an error */
     vstack_size = ca_limit_1;
   }
   /* check initial bindings */
@@ -358,7 +359,7 @@ LISPFUNN(call_with_timeout,3)
     finish_entry_frame(CATCH,returner,,{skipSTACK(3);goto timeout_function;});
     GC_SAFE_SPINLOCK_ACQUIRE(&timeout_call_chain_lock);
     /* start calculating the timeout after we get the spinlock ???
-       may be before is better and not to try anything if we are delayed */
+       maybe before is better and not to try anything if we are delayed */
     var struct timeval now;
     var struct timeval timeout;
     gettimeofday(&now,NULL);
