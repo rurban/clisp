@@ -1,3 +1,11 @@
+2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix xlock_t (MUTEX) unlocking
+	* zthread.d (xlock_unlock_helper): set xlock_t _owner to NULL
+	(xlock_lock_helper): add more asserts
+	(MUTEX-LOCK): ditto
+	(thread_cleanup): clear mutex owner before really unlocking it
+
 2009-06-26  Sam Steingold  <sds@gnu.org>
 
 	* foreign1.lisp (finalize-coutput-file): avoid
