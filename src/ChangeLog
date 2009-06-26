@@ -1,3 +1,9 @@
+2009-06-26  Sam Steingold  <sds@gnu.org>
+
+	* foreign1.lisp (finalize-coutput-file): avoid
+	warning: deprecated conversion from string constant to 'char*'
+	in the MODULE__name__CONSTANT_MAP_C_STRING function
+
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
 	* xthread.d (xlock_t): add _owned filed because there are no
