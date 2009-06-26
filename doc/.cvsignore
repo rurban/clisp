@@ -4,6 +4,7 @@ impnotes.pdf
 impnotes.tex
 impnotes.texi
 impnotes.xml
+impnotes-src.zip
 *.err
 clisp.1
 clisp.html
