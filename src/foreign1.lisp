@@ -722,6 +722,10 @@
     (maphash (lambda (type fun-vec)
                (let* ((fun (first fun-vec)) (vec (second fun-vec))
                       (c-decl (to-c-typedecl type fun)))
+                 (when (eq type 'c-string)
+                   ;; avoid warning:
+                   ;; deprecated conversion from string constant to 'char*'
+                   (setq c-decl (string-concat "const " c-decl)))
                  (format *coutput-stream* "~A (int number, int *definedp);~%~
                                            ~A (int number, int *definedp) {
   *definedp=1;~%  switch (number) {~%"
