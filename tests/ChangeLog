@@ -1,5 +1,10 @@
 2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* mt.tst: INTERN/UNINTERN use internally the package lock. No need for
+	another synchronization
+
+2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* mt.tst: fix tests that spawn more than 128 threads (MAXNTHREADS from
 	spvw.d)
 

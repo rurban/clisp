@@ -133,15 +133,12 @@ make-thread-always
   (gethash 1 ht))
 1000
 
-(let* ((mu (make-mutex :name "package lock"))
-       (count 1000)
+(let* ((count 1000)
        (pa (make-package (symbol-name (gensym "MT-TEST-")) :use ()))
        (tl (loop :for i :from 1 :to count :collect
              (let ((i i))
                (make-thread-always (lambda ()
-                                     (mutex-lock mu)
-                                     (intern (prin1-to-string i) pa)
-                                     (mutex-unlock mu)))))))
+                                     (intern (prin1-to-string i) pa)))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (let ((i 0))
@@ -151,9 +148,7 @@ make-thread-always
              (let ((i i))
                (make-thread-always
                 (lambda ()
-                  (mutex-lock mu)
-                  (unintern (find-symbol (prin1-to-string i) pa) pa)
-                  (mutex-unlock mu))))))
+                  (unintern (find-symbol (prin1-to-string i) pa) pa))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (let ((i 0))
@@ -161,6 +156,7 @@ make-thread-always
     (assert (zerop i)))
   (delete-package pa))
 T
+
 
 (progn (symbol-cleanup '*thread-special*)
        (symbol-cleanup '*mu1*)
