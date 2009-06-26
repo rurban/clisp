@@ -1,3 +1,8 @@
+2009-06-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (check-exec-image): use ${TRCR} for cygwin
+	Reported by Reini Urban <rurban@x-ray.at>
+
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
 	* glm4/mbrtowc.m4 (gl_MBRTOWC_SANITYCHECK): Include <stdlib.h>,
