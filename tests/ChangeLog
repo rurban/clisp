@@ -1,3 +1,7 @@
+2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* mt.tst: add EXEMPTION-SIGNAL, EXEMPTION-WAIT and WITH-LOCK test
+
 2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: INTERN/UNINTERN use internally the package lock. No need for
