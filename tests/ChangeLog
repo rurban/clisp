@@ -1,3 +1,8 @@
+2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* mt.tst: fix tests that spawn more than 128 threads (MAXNTHREADS from
+	spvw.d)
+
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
 	* mt.tst: test interaction of threads with hash-tables and packages
