@@ -129,8 +129,8 @@ global maygc void thread_cleanup (void) {
     }
     /* release the mutex */
     TheMutex(STACK_0)->xmu_recurse_count = 0;
-    GC_SAFE_MUTEX_UNLOCK(TheMutex(STACK_0)->xmu_system);
     TheMutex(STACK_0)->xmu_owner = NIL;
+    GC_SAFE_MUTEX_UNLOCK(TheMutex(STACK_0)->xmu_system);
     skipSTACK(1); /* mutex */
   });
 }
@@ -656,8 +656,9 @@ LISPFUN(mutex_lock,seclass_default,1,0,norest,key,1,
     GC_SAFE_REGION_END_WITHOUT_INTERRUPTS(); end_system_call();
 
     if (!res) { /* if we got the mutex */
-      TheMutex(*mxrec)->xmu_owner = current_thread()->_lthread;
       ASSERT(TheMutex(*mxrec)->xmu_recurse_count == 0);
+      ASSERT(eq(TheMutex(*mxrec)->xmu_owner,NIL));
+      TheMutex(*mxrec)->xmu_owner = thr->_lthread;
       TheMutex(*mxrec)->xmu_recurse_count++;
     }
     /* now the mutex record is in consistent state - handle pending
@@ -926,7 +927,7 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
         if (r != 0) break;
       }
       if (r == 0) {
-        ASSERT(!l->_owned);
+        ASSERT(!l->_owned); ASSERT(l->_count == 0);
         l->_owner = xthread_self();
         l->_owned = true;
         l->_count=1;
@@ -957,9 +958,10 @@ int xlock_unlock_helper(xlock_t *l, bool unlock_real)
     if (!--l->_count) {
       /* we will never wait here (at least not for a long time) */
       xmutex_raw_lock(&l->_m);
+      l->_owned = false;
+      l->_owner = NULL;
       if (unlock_real)
         xmutex_raw_unlock(&l->_mr);
-      l->_owned = false;
       xmutex_raw_unlock(&l->_m); /* before signal */
       xcondition_signal(&l->_c);
     }
