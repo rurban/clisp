@@ -99,12 +99,30 @@ T
 T
 (progn (sleep 1) (thread-active-p *th1*)) NIL
 
-;; test deferred interrupts
-(defparameter *th1*
-  (make-thread (lambda () (with-deferred-interrupts (loop (sleep 1))))))
-*TH1*
-(thread-active-p *th1*) T
+(defparameter *exemption*
+  (make-exemption :name "test exemption"))
+*EXEMPTION*
+(defparameter *exemption-state* nil)
+*EXEMPTION-STATE*
 
+;; test deferred interrupts, exemption-signal and with-lock
+(defparameter *th1*
+  (make-thread (lambda ()
+                 (with-deferred-interrupts
+                   (with-lock (*mu1*)
+                     (sleep 1)
+                     (setf *exemption-state* :signaled)
+                     (exemption-signal *exemption*))
+                   (loop (sleep 1))))))
+*TH1*
+
+(with-lock (*mu1*)
+  (loop until (eq *exemption-state* :signaled)
+     do (exemption-wait *exemption* *mu1*)
+     finally (return *exemption-state*)))
+:SIGNALED
+
+(thread-active-p *th1*) T
 (eq (thread-interrupt *th1* :function t) *th1*) T
 (sleep 0.5) NIL
 (thread-active-p *th1*) T ;; kill is deferred
