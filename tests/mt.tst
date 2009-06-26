@@ -112,13 +112,22 @@ T
 (sleep 0.5) NIL
 (thread-active-p *th1*) NIL ;; should be dead
 
+;; There are max 128 concurrent threads possible (MAXNTHREADS in spvw.d).
+;; If the limit is reached MAKE-THREAD will return NIL. So for the tests
+;; below spawn more threads and we need following function.
+(defun make-thread-always (function)
+  (do ((thr (mt:make-thread function) (mt:make-thread function)))
+      ((threadp thr) thr)
+    (thread-yield)))
+make-thread-always
+
 (let* ((mu (make-mutex :name "hash-table lock"))
        (ht (make-hash-table))
        (tl (loop :repeat 1000 :collect
-             (make-thread (lambda ()
-                            (mutex-lock mu)
-                            (incf (gethash 1 ht 0))
-                            (mutex-unlock mu))))))
+             (make-thread-always (lambda ()
+                                   (mutex-lock mu)
+                                   (incf (gethash 1 ht 0))
+                                   (mutex-unlock mu))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (gethash 1 ht))
@@ -129,10 +138,10 @@ T
        (pa (make-package (symbol-name (gensym "MT-TEST-")) :use ()))
        (tl (loop :for i :from 1 :to count :collect
              (let ((i i))
-               (make-thread (lambda ()
-                              (mutex-lock mu)
-                              (intern (prin1-to-string i) pa)
-                              (mutex-unlock mu)))))))
+               (make-thread-always (lambda ()
+                                     (mutex-lock mu)
+                                     (intern (prin1-to-string i) pa)
+                                     (mutex-unlock mu)))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (let ((i 0))
@@ -140,10 +149,11 @@ T
     (assert (= i count)))
   (setq tl (loop :for i :from 1 :to count :collect
              (let ((i i))
-               (make-thread (lambda ()
-                              (mutex-lock mu)
-                              (unintern (find-symbol (prin1-to-string i) pa) pa)
-                              (mutex-unlock mu))))))
+               (make-thread-always
+                (lambda ()
+                  (mutex-lock mu)
+                  (unintern (find-symbol (prin1-to-string i) pa) pa)
+                  (mutex-unlock mu))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (let ((i 0))
