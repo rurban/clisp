@@ -3838,10 +3838,11 @@ under the current directory (similar to the <command role="unix">ls
 
 <formalpara id="readline-config"><title>Linking against &readline;</title>
  <para>For &clisp; to use &readline; it has to be detected by
-  the <filename>configure</filename> process.<itemizedlist>
-   <listitem><simpara>If you run it as <command>./configure
-      --with-readline</command>, it will fail if it cannot find a
-     modern working &readline; installation.</simpara></listitem>
+  the <command>configure</command> process.<itemizedlist>
+   <listitem><simpara>If you run it as
+     <screen>&sh-prompt; ./configure --with-readline</command>
+     it will fail if it cannot find a valid modern &readline;
+     installation.</simpara></listitem>
    <listitem><simpara>If you use the option
      <option>--without-readline</option>, it will not even try to
      find &readline;.</simpara></listitem>
@@ -3850,7 +3851,7 @@ under the current directory (similar to the <command role="unix">ls
      it is found and link &clisp; without it otherwise.
   </simpara></listitem></itemizedlist>
   You can find out whether &readline; has been detected by running
-  <screen>&sh-prompt; grep HAVE_READLINE config.h</screen>
+  <screen>&sh-prompt; <command role="unix">grep</command> HAVE_READLINE config.h</screen>
   in your build directory.</para></formalpara>
 </section>
 <!-- #endif -->
