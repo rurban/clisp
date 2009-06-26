@@ -4590,11 +4590,9 @@ global bool interrupt_thread(clisp_thread_t *thr)
   } else if (thr->_wait_mutex) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
-    /* waiting on mutex - here the things are more complicated */
-    xmutex_raw_lock(&(thr->_wait_mutex->_m)); /* lock the internal mutex */
+    /* waiting on mutex i.e. xlock_t */
     /* wake up all threads on this condition */
-    xcondition_broadcast(&(thr->_wait_mutex->_c));
-    xmutex_raw_unlock(&(thr->_wait_mutex->_m));
+    xcondition_broadcast(&(thr->_wait_mutex->xl_wait_cv));
   } else {
    #ifdef POSIX_THREADS
     /* the thread may wait on it's gc_suspend_lock or in system

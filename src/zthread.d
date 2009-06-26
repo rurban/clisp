@@ -852,18 +852,18 @@ local inline int win32_xcondition_wait(xcondition_t *c,xmutex_raw_t *m,
 int xlock_init(xlock_t *l)
 {
   var int r;
-  if (r=xmutex_raw_init(&l->_m)) return r;
-  if (r=xmutex_raw_init(&l->_mr)) {
-    xmutex_raw_destroy(&l->_m);
+  if (r=xmutex_raw_init(&l->xl_internal_mutex)) return r;
+  if (r=xmutex_raw_init(&l->xl_mutex)) {
+    xmutex_raw_destroy(&l->xl_internal_mutex);
     return r;
   }
-  if (r=xcondition_init(&l->_c)) {
-    xmutex_raw_destroy(&l->_m);
-    xmutex_raw_destroy(&l->_mr);
+  if (r=xcondition_init(&l->xl_wait_cv)) {
+    xmutex_raw_destroy(&l->xl_internal_mutex);
+    xmutex_raw_destroy(&l->xl_mutex);
     return r;
   }
-  l->_owned = false;
-  l->_count = 0;
+  l->xl_owned = false;
+  l->xl_recurse_count = 0;
   return 0;
 }
 
@@ -872,10 +872,10 @@ int xlock_init(xlock_t *l)
    < returns always 0 (TODO: error checking - but what can it help?) */
 int xlock_destroy(xlock_t *l)
 {
-  xmutex_raw_destroy(&l->_m);
-  xmutex_raw_destroy(&l->_mr);
-  xcondition_destroy(&l->_c);
-  return 0; /* no error checking :( */
+  xmutex_raw_destroy(&l->xl_internal_mutex);
+  xmutex_raw_destroy(&l->xl_mutex);
+  xcondition_destroy(&l->xl_wait_cv);
+  return 0;
 }
 
 /* UP: Implements waiting on xlock_t in "polling" mode - so async POSIX signals
@@ -889,11 +889,11 @@ int xlock_destroy(xlock_t *l)
 int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
 {
   var int r = 0;
-  if (xthread_equal(l->_owner,xthread_self())) {
-    l->_count++;
+  if (l->xl_owned && xthread_equal(l->xl_owner,xthread_self())) {
+    l->xl_recurse_count++;
   } else {
     /* we will never wait here (at least not for a long time) */
-    xmutex_raw_lock(&l->_m);
+    xmutex_raw_lock(&l->xl_internal_mutex);
     if (lock_real) {
       var clisp_thread_t *thr = current_thread();
      #ifdef POSIX_THREADS
@@ -903,43 +903,43 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
       }
      #endif
       /* while we cannot get the real lock */
-      while (r = xmutex_raw_trylock(&l->_mr)) {
+      while (r = xmutex_raw_trylock(&l->xl_mutex)) {
         /* check for interrupts before waiting */
         if (thr->_pending_interrupts) {
           /* handle them */
-          xmutex_raw_unlock(&l->_m);
+          xmutex_raw_unlock(&l->xl_internal_mutex);
           thr->_wait_mutex=NULL;
           GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
           handle_pending_interrupts();
           thr->_wait_mutex=l;
           GC_SAFE_REGION_BEGIN();
-          xmutex_raw_lock(&l->_m);
+          xmutex_raw_lock(&l->xl_internal_mutex);
         }
        #ifdef POSIX_THREADS
         if (timeout != THREAD_WAIT_INFINITE) {
-          r = pthread_cond_timedwait(&l->_c,&l->_m,&ww);
+          r = pthread_cond_timedwait(&l->xl_wait_cv,&l->xl_internal_mutex,&ww);
         } else {
-          r = pthread_cond_wait(&l->_c,&l->_m);
+          r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
         }
        #else /* WIN32 */
-        r = win32_xcondition_wait(&l->_c,&l->_m,timeout);
+        r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_wait_cv,timeout);
        #endif
         if (r != 0) break;
       }
       if (r == 0) {
-        ASSERT(!l->_owned); ASSERT(l->_count == 0);
-        l->_owner = xthread_self();
-        l->_owned = true;
-        l->_count=1;
+        ASSERT(!l->xl_owned); ASSERT(l->xl_recurse_count == 0);
+        l->xl_owner = xthread_self();
+        l->xl_owned = true;
+        l->xl_recurse_count = 1;
       }
     } else {
       /* if is not real lock - we own the the real mutex + guarding one */
-      ASSERT(!l->_owned);
-      l->_owner = xthread_self();
-      l->_owned = true;
-      l->_count=1;
+      ASSERT(!l->xl_owned);
+      l->xl_owner = xthread_self();
+      l->xl_owned = true;
+      l->xl_recurse_count = 1;
     }
-    xmutex_raw_unlock(&l->_m);
+    xmutex_raw_unlock(&l->xl_internal_mutex);
   }
   return r;
 }
@@ -954,16 +954,15 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
  process. */
 int xlock_unlock_helper(xlock_t *l, bool unlock_real)
 {
-  if (xthread_equal(l->_owner,xthread_self())) {
-    if (!--l->_count) {
+  if (l->xl_owned && xthread_equal(l->xl_owner,xthread_self())) {
+    if (!--l->xl_recurse_count) {
       /* we will never wait here (at least not for a long time) */
-      xmutex_raw_lock(&l->_m);
-      l->_owned = false;
-      l->_owner = NULL;
+      xmutex_raw_lock(&l->xl_internal_mutex);
+      l->xl_owned = false;
       if (unlock_real)
-        xmutex_raw_unlock(&l->_mr);
-      xmutex_raw_unlock(&l->_m); /* before signal */
-      xcondition_signal(&l->_c);
+        xmutex_raw_unlock(&l->xl_mutex);
+      xmutex_raw_unlock(&l->xl_internal_mutex); /* before signal */
+      xcondition_signal(&l->xl_wait_cv);
     }
     return 0;
   }
@@ -987,12 +986,12 @@ int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout)
   if (timeout != THREAD_WAIT_INFINITE) {
     var struct timespec ww;
     get_abs_timeout(&ww,timeout);
-    r = pthread_cond_timedwait(c,&m->_mr,&ww);
+    r = pthread_cond_timedwait(c,&m->xl_mutex,&ww);
   } else {
-    r = pthread_cond_wait(c,&m->_mr);
+    r = pthread_cond_wait(c,&m->xl_mutex);
   }
 #else /* WIN32 */
-  r = win32_xcondition_wait(c,&m->_m,timeout);
+  r = win32_xcondition_wait(c,&m->xl_mutex,timeout);
 #endif
   /* mark again the mutex as ours */
   xlock_lock_helper(m,0,false);

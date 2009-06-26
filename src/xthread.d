@@ -219,13 +219,13 @@ typedef struct _xcondition {
 
 /* this is the mutex that we are going to use */
 typedef struct xlock_t {
-  /* all lock() op-s will use these two */
-  xmutex_raw_t _m; /* guarding the internals - never wait really on it */
-  xcondition_t _c; /* condition to wait on */
-  xmutex_raw_t _mr; /* real mutex */
-  xthread_t _owner; /* who owns the lock */
-  bool _owned; /* _owner initialized? no known invalid xthread_t values! */
-  int _count; /* how many times we own the object */
+  xmutex_raw_t xl_internal_mutex; /* guarding the internals */
+  xcondition_t xl_wait_cv; /* condition variable to wait on */
+  xmutex_raw_t xl_mutex; /* real mutex. should be mutex and not boolean since
+                            it should be passed to pthread_cond_wait() */
+  xthread_t xl_owner; /* who owns the lock */
+  bool xl_owned; /* _owner initialized? no known invalid xthread_t values! */
+  int xl_recurse_count; /* how many times xl_owned has acquired the lock */
 } xlock_t;
 
 /* infinite wait */
