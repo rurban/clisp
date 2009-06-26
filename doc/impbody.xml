@@ -3839,10 +3839,10 @@ under the current directory (similar to the <command role="unix">ls
 <formalpara id="readline-config"><title>Linking against &readline;</title>
  <para>For &clisp; to use &readline; it has to be detected by
   the <command>configure</command> process.<itemizedlist>
-   <listitem><simpara>If you run it as
-     <screen>&sh-prompt; ./configure --with-readline</command>
+   <listitem><para>If you run it as
+     <screen>&sh-prompt; ./configure --with-readline</screen>
      it will fail if it cannot find a valid modern &readline;
-     installation.</simpara></listitem>
+     installation.</para></listitem>
    <listitem><simpara>If you use the option
      <option>--without-readline</option>, it will not even try to
      find &readline;.</simpara></listitem>
