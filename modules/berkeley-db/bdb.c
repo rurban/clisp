@@ -1359,6 +1359,7 @@ static dbt_o_t fill_dbt (object obj, DBT* key, int re_len)
     key->ulen = key->size = vector_length(obj);
     obj = array_displace_check(obj,key->size,&idx);
     data_start = TheSbvector(obj)->data + idx;
+    /* no need to pin obj because memcpy does not block */
     handle_fault_range(PROT_READ,(aint)data_start,(aint)data_start + key->size);
     key->data = clisp_malloc(key->size);
     begin_system_call();
@@ -1400,6 +1401,7 @@ static object dbt_to_object (DBT *p_dbt, dbt_o_t type, int key_type) {
     case DBT_RAW: {
       object vec = allocate_bit_vector(Atype_8Bit,p_dbt->size);
       void* data = TheSbvector(vec)->data;
+      /* no need to pin vec because memcpy does not block */
       handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)data + p_dbt->size);
       begin_system_call();
       memcpy(data,p_dbt->data,p_dbt->size);

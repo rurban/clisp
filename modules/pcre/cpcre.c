@@ -198,12 +198,13 @@ static object fullinfo_firsttable (pcre *c_pat, pcre_extra *study) {
   object ret = allocate_bit_vector(Atype_Bit,256);
   int status;
   void *data = TheSbvector(ret)->data;
+  /* no need to pin ret because pcre_fullinfo does not block */
   handle_fault_range(PROT_READ_WRITE,(aint)data,(aint)data + sizeof(table));
   begin_system_call();
   status = pcre_fullinfo(c_pat,study,PCRE_INFO_FIRSTTABLE,&table);
-  if (status < 0) { end_system_call(); error_pcre(status); }
-  memcpy(data,table,sizeof(table));
+  if (status >= 0) memcpy(data,table,sizeof(table));
   end_system_call();
+  if (status < 0) error_pcre(status);
   return ret;
 }
 static object fullinfo_lastliteral (pcre *c_pat, pcre_extra *study) {
