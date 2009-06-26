@@ -1,3 +1,11 @@
+2009-06-26  Sam Steingold  <sds@gnu.org>
+
+	decouple pin_varobject from unprotect_heap_range for the sake of modules
+	* lispbibl.d (unprotect_heap_range): accept a flag instead of a bool
+	(pin_varobject): do not call unprotect_heap_range()
+	(pin_unprotect_varobject): add
+	* stream.d: use pin_unprotect_varobject instead of pin_varobject
+
 2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: do not use/rely on "invalid" pthread_t value

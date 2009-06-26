@@ -17461,12 +17461,11 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
   #endif
 
   #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
-   #define unprotect_heap_range(vo,write_access) \
-     handle_fault_range(write_access == true ? PROT_READ_WRITE : PROT_READ, \
-                        (aint)TheVarobject(vo),  (aint)TheVarobject(vo) +   \
-                        varobject_bytelength(vo))
+   #define unprotect_heap_range(vo,access)                              \
+     handle_fault_range(access, (aint)TheVarobject(vo),                 \
+                        (aint)TheVarobject(vo) + varobject_bytelength(vo))
   #else
-   #define unprotect_heap_range(vo,write_access)
+   #define unprotect_heap_range(vo,access)
   #endif
 
   #ifdef DEBUG_SPVW
@@ -17504,7 +17503,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
      unpin_varobject() - we cannot "indent" it in a block {}.
      vo: the varobject to be pinned
      write_access: true if the memory will be written - false otherwise  */
-  #define pin_varobject(vo,write_access)                                \
+  #define pin_varobject(vo)                                             \
     ASSERT_SAFE_TO_PIN();                                               \
     pushSTACK(vo);                                                      \
     var gcv_object_t* top_of_frame = STACK;                             \
@@ -17521,8 +17520,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     var pinned_chain_t pc;                                              \
     pc._o=vo;                                                           \
     pc._next=current_thread()->_pinned;                                 \
-    current_thread()->_pinned=&pc;                                      \
-    unprotect_heap_range(vo,write_access)
+    current_thread()->_pinned=&pc
 
 /* UP: helper macro for executing body in unwind_protect frame with
    mutex lock held. body should not call return or goto outside of
@@ -17583,7 +17581,8 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 
 #else /* ! MULTITHREAD */
 %% #else
-  #define pin_varobject(vo,write_access)
+  #define pin_varobject(vo)
+  #define unprotect_heap_range(vo,access)
   #define unpin_varobject(vo)
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
@@ -17599,8 +17598,11 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 #endif
 %% #endif
 
-%% export_def(unprotect_heap_range(vo,write_access));
-%% export_def(pin_varobject(vo,write_access));
+#define pin_unprotect_varobject(vo,access)              \
+  pin_varobject(vo); unprotect_heap_range(vo,access)
+
+%% export_def(unprotect_heap_range(vo,access));
+%% export_def(pin_varobject(vo));
 %% export_def(unpin_varobject(vo));
 %% export_def(WITH_OS_MUTEX_LOCK(stack_count,mutex,body));
 %% export_def(WITH_LISP_MUTEX_LOCK(stack_count,keep_mv_space,pmutex,body));

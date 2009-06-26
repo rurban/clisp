@@ -5071,7 +5071,7 @@ local maygc object rd_by_aux_iax_unbuffered (object stream, rd_by_ix_I* finisher
   /* transfer sufficiently many bytes into the bitbuffer */
   var uintB* bitbufferptr =
     &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-  pin_varobject(TheStream(stream)->strm_bitbuffer,true);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ_WRITE);
   pushSTACK(stream);
   if (UnbufferedStreamLow_read_array(stream)(stream,bitbufferptr,bytesize,
                                              persev_full)
@@ -5117,7 +5117,7 @@ local maygc uintL rd_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                                uintL start, uintL len,
                                                perseverance_t persev) {
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
-  pin_varobject(*bytearray_,true);
+  pin_unprotect_varobject(*bytearray_,PROT_READ_WRITE);
   var uintB* endptr =
     UnbufferedStreamLow_read_array(*stream_)(*stream_,startptr,len,persev);
   unpin_varobject(*bytearray_);
@@ -5498,7 +5498,7 @@ local void low_clear_output_unbuffered_handle (object stream) {
 local maygc void wr_by_aux_ia_unbuffered (object stream, uintL bitsize,
                                     uintL bytesize) {
   uintB* bitbufferptr = TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
-  pin_varobject(TheStream(stream)->strm_bitbuffer,false);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   UnbufferedStreamLow_write_array(stream)(stream,bitbufferptr,bytesize,
                                           persev_full);
   unpin_varobject(TheStream(stream)->strm_bitbuffer);
@@ -5529,7 +5529,7 @@ local maygc uintL wr_by_array_iau8_unbuffered (const gcv_object_t* stream_,
                                                perseverance_t persev) {
   object stream = *stream_;
   uintB* startp = &TheSbvector(*bytearray_)->data[start];
-  pin_varobject(*bytearray_,false);
+  pin_unprotect_varobject(*bytearray_,PROT_READ);
   const uintB* endp =
     UnbufferedStreamLow_write_array(stream)(stream,startp,len,persev);
   unpin_varobject(*bytearray_);
@@ -5570,7 +5570,7 @@ local maygc void wr_ch_array_unbuffered_unix (const gcv_object_t* stream_,
   var object stream = *stream_;
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
-  pin_varobject(*chararray_,false); /* charptr may point to heap */
+  pin_unprotect_varobject(*chararray_,PROT_READ); /*charptr may point to heap*/
   #ifdef UNICODE
   #define tmpbufsize 4096
   var const chart* endptr = charptr + len;
@@ -5625,7 +5625,7 @@ local maygc void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
   var object stream = *stream_;
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
-  pin_varobject(*chararray_,false);
+  pin_unprotect_varobject(*chararray_,PROT_READ);
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[tmpbufsize];
@@ -5715,7 +5715,7 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
   var object stream = *stream_;
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
-  pin_varobject(*chararray_,false);
+  pin_unprotect_varobject(*chararray_,PROT_READ);
   /* Need a temporary buffer for NL->CR/LF translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[2*tmpbufsize];
@@ -6186,7 +6186,7 @@ local maygc uintL low_fill_buffered_handle (object stream, perseverance_t persev
   if ((TheStream(stream)->strmflags & strmflags_rd_B) == 0
       && !ChannelStream_regular(stream))
     return 0; /* wronly stream to a special device, handle is O_WRONLY */
-  pin_varobject(BufferedStream_buffer(stream),true);
+  pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ_WRITE);
   pushSTACK(stream);
   var ssize_t result;
   GC_SAFE_SYSTEM_CALL(result=, fd_read(handle,buff,strm_buffered_bufflen,persev));
@@ -6215,7 +6215,7 @@ local maygc uintL low_fill_buffered_handle (object stream, perseverance_t persev
 local maygc void low_flush_buffered_handle (object stream, uintL bufflen) {
   var Handle handle = TheHandle(BufferedStream_channel(stream));
   var uintB* buff = BufferedStream_buffer_address(stream,0);
-  pin_varobject(BufferedStream_buffer(stream),false);
+  pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ);
   pushSTACK(stream);
   var ssize_t result;
   GC_SAFE_SYSTEM_CALL(result=, full_write(handle,buff,bufflen));
@@ -6949,7 +6949,7 @@ local maygc void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
   var const chart* endptr = charptr + len;
-  pin_varobject(*chararray_,false);
+  pin_unprotect_varobject(*chararray_,PROT_READ);
  #ifdef UNICODE
   #define tmpbufsize 4096
   var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
@@ -7009,7 +7009,7 @@ local maygc void wr_ch_array_buffered_mac (const gcv_object_t* stream_,
   var object stream = *stream_;
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
-  pin_varobject(*chararray_,false);
+  pin_unprotect_varobject(*chararray_,PROT_READ);
  #ifdef UNICODE
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
@@ -7103,7 +7103,7 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
   var object stream = *stream_;
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
-  pin_varobject(*chararray_,false);
+  pin_unprotect_varobject(*chararray_,PROT_READ);
  #ifdef UNICODE
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
@@ -7261,7 +7261,7 @@ local object rd_by_aux_iax_buffered (object stream, rd_by_ix_I* finisher) {
   /* transfer sufficiently many bytes into the bitbuffer */
   var uintB* bitbufferptr =
     &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-  pin_varobject(TheStream(stream)->strm_bitbuffer,true);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ_WRITE);
   pushSTACK(stream);
   #if 0 /* equivalent, but slower */
   var uintL count;
@@ -7359,7 +7359,7 @@ local maygc object rd_by_aux_icx_buffered (object stream,
   /* transfer sufficiently many bits into the bitbuffer */
   var uintB* bitbufferptr =
     &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
-  pin_varobject(TheStream(stream)->strm_bitbuffer,true);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ_WRITE);
   pushSTACK(stream);
   var uintL count = bitsize;
   var uintL bitshift = BufferedStream_bitindex(stream);
@@ -7489,7 +7489,7 @@ local maygc uintL rd_by_array_iau8_buffered (const gcv_object_t* stream_,
                                              const gcv_object_t* bytearray_,
                                              uintL start, uintL len,
                                              perseverance_t persev) {
-  pin_varobject(*bytearray_,true);
+  pin_unprotect_varobject(*bytearray_,PROT_READ_WRITE);
   var uintB* startptr = &TheSbvector(*bytearray_)->data[start];
   var uintB* endptr = read_byte_array_buffered(*stream_,startptr,len,persev);
   var uintL result = endptr-startptr;
@@ -7527,7 +7527,7 @@ local maygc listen_t listen_byte_ia8_buffered (object stream) {
 local maygc void wr_by_aux_ia_buffered (object stream, uintL bitsize,
                                         uintL bytesize)
 {
-  pin_varobject(TheStream(stream)->strm_bitbuffer,false);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
   pushSTACK(stream);
   var uintB* bitbufferptr = &TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0];
   #if 0 /* equivalent, but slow */
@@ -7570,7 +7570,8 @@ local maygc void wr_by_aux_ia_buffered (object stream, uintL bitsize,
 local maygc void wr_by_aux_ib_buffered (object stream, uintL bitsize,
                                         uintL bytesize)
 {
-  pin_varobject(TheStream(stream)->strm_bitbuffer,false); pushSTACK(stream);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
+  pushSTACK(stream);
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uint16 bit_akku = (uint16)(TheSbvector(TheStream(stream)->strm_bitbuffer)->data[0])<<bitshift;
   var uintL count = bitsize;
@@ -7600,7 +7601,8 @@ local maygc void wr_by_aux_ib_buffered (object stream, uintL bitsize,
  Writes the Bitbuffer-Content to the File. */
 local maygc void wr_by_aux_ic_buffered (object stream, uintL bitsize,
                                         uintL bytesize) {
-  pin_varobject(TheStream(stream)->strm_bitbuffer,false); pushSTACK(stream);
+  pin_unprotect_varobject(TheStream(stream)->strm_bitbuffer,PROT_READ);
+  pushSTACK(stream);
   var uintB* bitbufferptr=TheSbvector(TheStream(stream)->strm_bitbuffer)->data;
   var uintL bitshift = BufferedStream_bitindex(stream);
   var uintL count = bitsize;
@@ -12806,7 +12808,7 @@ local maygc void low_flush_buffered_pipe (object stream, uintL bufflen) {
   begin_system_call();
   var Handle fd = TheHandle(BufferedStream_channel(stream));
   var uintB* buff = BufferedStream_buffer_address(stream,0);
-  pin_varobject(BufferedStream_buffer(stream),false);
+  pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ);
   pushSTACK(stream);
   START_WRITING_TO_SUBPROCESS;
   var ssize_t result;
@@ -13796,7 +13798,7 @@ local maygc uintL low_fill_buffered_socket (object stream,
                                             perseverance_t persev) {
   var SOCKET handle=TheSocket(BufferedStream_channel(stream));
   var uintB *buff=BufferedStream_buffer_address(stream,0);
-  pin_varobject(BufferedStream_buffer(stream),true);
+  pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ_WRITE);
   pushSTACK(stream);
   var ssize_t result;
   SYSCALL(result,sock_read(handle,buff,strm_buffered_bufflen,persev));
@@ -13818,7 +13820,7 @@ local maygc void low_flush_buffered_socket (object stream, uintL bufflen) {
   START_WRITING_TO_SUBPROCESS;
   var SOCKET handle=TheSocket(BufferedStream_channel(stream));
   var uintB *buff=BufferedStream_buffer_address(stream,0);
-  pin_varobject(BufferedStream_buffer(stream),false);
+  pin_unprotect_varobject(BufferedStream_buffer(stream),PROT_READ);
   pushSTACK(stream);
   var ssize_t result;        /* flush Buffer */
   GC_SAFE_CALL(result=, sock_write(handle,buff,bufflen,persev_full));
