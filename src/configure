@@ -29986,6 +29986,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #include <locale.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 int main ()
@@ -30553,6 +30554,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #include <locale.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 int main ()
@@ -30806,6 +30808,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #include <locale.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 int main ()
@@ -34065,6 +34068,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #include <locale.h>
+#include <stdlib.h>
 #include <string.h>
 #include <wchar.h>
 int main ()
