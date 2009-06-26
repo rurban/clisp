@@ -1,3 +1,14 @@
+2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: do not use/rely on "invalid" pthread_t value
+	* xthread.d (xlock_t): better members names
+	* zthread.d (xlock_init, xlock_destroy, xlock_lock_helper)
+	(xlock_unlock_helper, xcondition_wait_helper): use the new names
+	(xlock_lock_helper, xlock_unlock_helper): check both _owned and _owner
+	(xlock_unlock_helper): set _owned to false; do not touch _owner
+	* spvw.d (interrupt_thread): do not lock/unlock the internal mutex of
+	the lock waited on. use new xlock_t members names
+
 2009-06-26  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-exec-image): use ${TRCR} for cygwin
@@ -24,7 +35,7 @@
 
 2009-06-25  Sam Steingold  <sds@gnu.org>
 
-	* xthread.d (xlock_t): add _owned filed because there are no
+	* xthread.d (xlock_t): add _owned field because there are no
 	guaranteed invalid xthread_t values
 	* zthread.d (xlock_init): set _owned to false; do not init _owner
 	(xlock_lock_helper): check _owned instead of _owner; init both
