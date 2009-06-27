@@ -904,26 +904,33 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
      #endif
       /* while we cannot get the real lock */
       while (r = xmutex_raw_trylock(&l->xl_mutex)) {
-        /* check for interrupts before waiting */
-        if (thr->_pending_interrupts) {
-          /* handle them */
-          xmutex_raw_unlock(&l->xl_internal_mutex);
-          thr->_wait_mutex=NULL;
-          GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
-          handle_pending_interrupts();
-          thr->_wait_mutex=l;
-          GC_SAFE_REGION_BEGIN();
-          xmutex_raw_lock(&l->xl_internal_mutex);
-        }
-       #ifdef POSIX_THREADS
-        if (timeout != THREAD_WAIT_INFINITE) {
-          r = pthread_cond_timedwait(&l->xl_wait_cv,&l->xl_internal_mutex,&ww);
+        if (!l->xl_owned) {
+          /* not owned but still locked - i.e. xcodition_wait() caused it.
+             wait forever - really soon pthread_cond_wait() will release it */
+          r = xmutex_raw_lock(&l->xl_mutex);
+          break;
         } else {
-          r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
-        }
+          /* check for interrupts before waiting */
+          if (thr->_pending_interrupts) {
+            /* handle them */
+            xmutex_raw_unlock(&l->xl_internal_mutex);
+            thr->_wait_mutex=NULL;
+            GC_SAFE_REGION_END_WITHOUT_INTERRUPTS();
+            handle_pending_interrupts();
+            thr->_wait_mutex=l;
+            GC_SAFE_REGION_BEGIN();
+            xmutex_raw_lock(&l->xl_internal_mutex);
+          }
+       #ifdef POSIX_THREADS
+          if (timeout != THREAD_WAIT_INFINITE) {
+            r = pthread_cond_timedwait(&l->xl_wait_cv,&l->xl_internal_mutex,&ww);
+          } else {
+            r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
+          }
        #else /* WIN32 */
-        r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_wait_cv,timeout);
+          r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_wait_cv,timeout);
        #endif
+        }
         if (r != 0) break;
       }
       if (r == 0) {
