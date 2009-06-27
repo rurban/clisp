@@ -126,6 +126,20 @@ T
 (eq (thread-interrupt *th1* :function t) *th1*) T
 (sleep 0.5) NIL
 (thread-active-p *th1*) T ;; kill is deferred
+
+;; test exemtpion-broadcast and thread-interrupt :override
+(with-lock (*mu1*)
+  (thread-interrupt *th1* :function (lambda ()
+                                      (with-lock (*mu1*)
+                                        (setf *exemption-state* :broadcasted)
+                                        (exemption-broadcast *exemption*)))
+                    :override t)
+  (loop until (eq *exemption-state* :broadcasted)
+     do (exemption-wait *exemption* *mu1*)
+     finally (return *exemption-state*)))
+:BROADCASTED
+
+(thread-active-p *th1*) T ;; thread should be still running
 (eq (thread-interrupt *th1* :function t :override t) *th1*) T
 (sleep 0.5) NIL
 (thread-active-p *th1*) NIL ;; should be dead
