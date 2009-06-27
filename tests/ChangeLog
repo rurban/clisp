@@ -1,5 +1,10 @@
 2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* mt.tst: add EXEMPTION-BROADCAST and another WITH-DEFERRED-INTERRUPTS,
+	WITH-LOCK tests
+
+2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* mt.tst: add EXEMPTION-SIGNAL, EXEMPTION-WAIT and WITH-LOCK test
 
 2009-06-26  Vladimir Tzankov  <vtzankov@gmail.com>
