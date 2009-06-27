@@ -1,3 +1,8 @@
+2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (xlock_lock_helper): fix race condition causing deadlock
+	between xlock_lock_helper and xcondition_wait_helper
+
 2009-06-26  Sam Steingold  <sds@gnu.org>
 
 	decouple pin_varobject from unprotect_heap_range for the sake of modules
