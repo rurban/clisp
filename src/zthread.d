@@ -928,10 +928,10 @@ int xlock_lock_helper(xlock_t *l, uintL timeout,bool lock_real)
             r = pthread_cond_wait(&l->xl_wait_cv,&l->xl_internal_mutex);
           }
        #else /* WIN32 */
-          r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_wait_cv,timeout);
+          r = win32_xcondition_wait(&l->xl_wait_cv,&l->xl_internal_mutex,timeout);
        #endif
+          if (r != 0) break;
         }
-        if (r != 0) break;
       }
       if (r == 0) {
         ASSERT(!l->xl_owned); ASSERT(l->xl_recurse_count == 0);

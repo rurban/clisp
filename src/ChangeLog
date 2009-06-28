@@ -1,3 +1,8 @@
+2009-06-28  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (xlock_lock_helper) [WIN32_THREADS]: fix mutex locking. was
+	typo when renaming xlock_t members
+
 2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (xlock_lock_helper): fix race condition causing deadlock
