@@ -452,9 +452,15 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 /* #define HAVE_MMAP */
 #define HAVE_MUNMAP
 #define HAVE_WORKING_MPROTECT
-#define PROT_NONE  PAGE_NOACCESS
-#define PROT_READ  PAGE_READONLY
-#define PROT_READ_WRITE PAGE_READWRITE
+#if defined(HAVE_MPROTECT) /* mprotect from libgcc uses Unix constants */
+  #define PROT_NONE  0
+  #define PROT_READ  1
+  #define PROT_READ_WRITE 3
+#else
+  #define PROT_NONE  PAGE_NOACCESS
+  #define PROT_READ  PAGE_READONLY
+  #define PROT_READ_WRITE PAGE_READWRITE
+#endif
 /* PROT_WRITE, PROT_EXEC not used
  used by spvw.d */
 
