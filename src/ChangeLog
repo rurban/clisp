@@ -1,3 +1,8 @@
+2009-06-29  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (DOC): remove editors
+	* doc/editors.txt, doc/extend.txt: remove obsolete files
+
 2009-06-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (xlock_lock_helper) [WIN32_THREADS]: fix mutex locking. was
