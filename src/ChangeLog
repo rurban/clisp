@@ -1,5 +1,11 @@
 2009-06-29  Sam Steingold  <sds@gnu.org>
 
+	* win32.d (PROT_NONE, PROT_READ, PROT_READ_WRITE) [HAVE_MPROTECT]:
+	use Unix constants because that's what libgcc uses
+	Reported by Vladimir Tzankov <vtzankov@gmail.com>
+
+2009-06-29  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (CONFSTR): fix STACK handling when res=0
 	Reported by Reini Urban <rurban@x-ray.at>
 
