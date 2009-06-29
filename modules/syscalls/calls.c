@@ -1230,7 +1230,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
 { /* Lisp interface to confstr(3c) */
 #define CS_S(cmd) \
   begin_system_call(); res = confstr(cmd,buf,BUFSIZ); end_system_call(); \
-  if (res == 0) pushSTACK(T);                                           \
+  if (res == 0) value1 = T;                                             \
   else if (res <= BUFSIZ) value1 = asciz_to_string(buf,GLO(misc_encoding)); \
   else {                                                                \
     /* Here we cannot use alloca(), because alloca() is generally unsafe \
