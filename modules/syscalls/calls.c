@@ -1239,6 +1239,7 @@ DEFUN(POSIX::CONFSTR, &optional what)
     begin_system_call();                                                \
     confstr(cmd,tmp,res);                                               \
     end_system_call();                                                  \
+    /* FIXME: asciz_to_string may signal an error in which case tmp leaks */ \
     value1 = asciz_to_string(tmp,GLO(misc_encoding));                   \
     begin_system_call();                                                \
     free(tmp);                                                          \
