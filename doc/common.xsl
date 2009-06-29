@@ -305,6 +305,12 @@
 </xsl:template>
 <!-- ========================== /CLHS ========================== -->
 
+<!-- http://article.gmane.org/gmane.text.docbook.apps/21851
+     avoid line breaks in lineannotation from xref titles -->
+<xsl:template match="title/text()" mode="no.anchor.mode">
+ <xsl:value-of select="translate(., '&#10;', '&#32;')"/>
+</xsl:template>
+
 <xsl:template match="revision/revnumber" mode="titlepage.mode">
  <span class="revnumber"><xsl:apply-imports/></span>
 </xsl:template>
