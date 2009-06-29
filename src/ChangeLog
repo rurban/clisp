@@ -1,5 +1,14 @@
 2009-06-29  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (parse_buffer_arg): set arg_ to the
+	object to be pinned
+	(with_buffer_arg): add; ping and unpit arg
+	(RECV, RECVFROM, SOCK-READ, SEND, SENDTO, SOCK-WRITE)
+	(IPCSUM, ICMPCSUM, TCPCSUM, UDPCSUM): use it instead of calling
+	parse_buffer_arg directly
+
+2009-06-29  Sam Steingold  <sds@gnu.org>
+
 	* win32.d (PROT_NONE, PROT_READ, PROT_READ_WRITE) [HAVE_MPROTECT]:
 	use Unix constants because that's what libgcc uses
 	Reported by Vladimir Tzankov <vtzankov@gmail.com>
