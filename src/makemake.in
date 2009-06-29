@@ -1756,7 +1756,7 @@ test "${with_unicode}" = no -o "${with_gettext}" = no || \
   LPARTS=$LPARTS' german french spanish russian danish dutch'
 LPARTS=$LPARTS' deprecated'
 
-DOC='LISP-tutorial CLOS-guide editors'
+DOC='LISP-tutorial CLOS-guide'
 
 TXT_FILES='README README.de README.es clisp.1 clisp.html clisp-1.html clisp.c'
 if [ $CROSS = false -a $HOS = unix ] ; then
