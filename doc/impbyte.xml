@@ -1418,20 +1418,20 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
  &clisp; sources for inspiration and enlightenment, choose a file where
  your brand-new built-in function should go to, and then ...
  <itemizedlist><listitem><simpara>add the <function>LISPFUN</function>
-    form and the implementation there;</simpara></listitem>
+    form and the implementation there</simpara></listitem>
   <listitem><simpara>add the <function>LISPFUN</function> header to
-    file &subr-d;;</simpara></listitem>
-  <listitem><simpara>declare the function name in file
-    &constsym-d; in the appropriate package
-    (probably &ext-pac;, if there is no specific package);
+    file &subr-d;</simpara></listitem>
+  <listitem><simpara>declare the function name in file &constsym-d; in
+    the appropriate package (probably &ext-pac;, if there is no specific
+    package)</simpara></listitem>
+  <listitem><simpara>if your function accepts keyword arguments, then an
+    appropriate pair of forms must be added to &subrkw-d; and you must
+    make sure that the keyword symbols are declared in &constsym-d;;
   </simpara></listitem>
-  <listitem><simpara>if your function accepts keyword arguments,
-    then an appropriate pair of forms must be added
-    to &subrkw-d; and you must make sure that the
-    keyword symbols are declared in &constsym-d;;
-  </simpara></listitem>
+  <listitem><simpara>see the example in <xref linkend="modprep"/> for
+    argument passing and returning values</simpara></listitem>
   <listitem><simpara>export your function name from the appropriate
-    package in file &init-lisp;;</simpara></listitem>
+    package in file &init-lisp;</simpara></listitem>
   <listitem><simpara>when you are done, you should run
     <command role="unix">make check-sources</command> in your build directory:
     this will check that the definitions (source files) and the declarations
@@ -1456,9 +1456,9 @@ to box it, e.g. in a &simple-bit-vector-t; or in an
   </simpara></listitem>
   <listitem><simpara>add a <function>define_variable()</function> call
     in function <function>init_symbol_values()</function>
-    in file &spvw-d;;</simpara></listitem>
+    in file &spvw-d;</simpara></listitem>
   <listitem><simpara>export your variable name from the appropriate
-    package in file &init-lisp;;</simpara></listitem></itemizedlist></para>
+    package in file &init-lisp;</simpara></listitem></itemizedlist></para>
 </section>
 
 <section id="recompile"><title>Recompilation</title>
