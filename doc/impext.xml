@@ -2390,6 +2390,9 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
 (assuming you &export;ed <literal>MY-FUNCTION-NAME</literal> from
  <quote role="package">MY-PACKAGE</quote>).</para>
 
+<para>Note that the arguments are passed on the &STACK; (last argument
+ being the top) which has to be cleaned up before exit.</para>
+
 <para>Another useful macros are:
  <variablelist><varlistentry><term><function>DEFVAR</function></term>
    <listitem><simpara>create a GC-visible private object
