@@ -2467,7 +2467,7 @@ local bool delegating_p (void) {
 #if defined(UNIX)
  #define DROP_PRIVILEGES drop_privileges()
 #else
- #define DROP_PRIVILEGES /*noop*/
+ #define DROP_PRIVILEGES do { /*noop*/ } while(0)
 #endif
 
 /* Parse the command-line options.

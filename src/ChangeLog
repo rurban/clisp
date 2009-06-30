@@ -1,5 +1,10 @@
 2009-06-30  Sam Steingold  <sds@gnu.org>
 
+	* spvw.d (DROP_PRIVILEGES) [!UNIX]: avoid
+	warning: empty body in an if-statement
+
+2009-06-30  Sam Steingold  <sds@gnu.org>
+
 	* zthread.d (MAKE-THREAD): CONTROL-ERROR is not a CELL-ERROR
 
 2009-06-30  Vladimir Tzankov  <vtzankov@gmail.com>
