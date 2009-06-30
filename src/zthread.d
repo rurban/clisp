@@ -250,7 +250,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   new_thread=create_thread(vstack_size);
   if (!new_thread) {
     unlock_threads();
-    pushSTACK(NIL); /* CELL-ERROR Slot NAME */
     pushSTACK(S(make_thread));
     error(control_error,GETTEXT("~S: thread resource allocation failed"));
   }
