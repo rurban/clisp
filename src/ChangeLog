@@ -1,8 +1,12 @@
+2009-06-30 Reini Urban <rurban@x-ray.at>
+
+	* makemake.in (cflags.h.stamp): fix a typo in CPPFLAGS
+
 2009-06-29  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c (parse_buffer_arg): set arg_ to the
 	object to be pinned
-	(with_buffer_arg): add; ping and unpit arg
+	(with_buffer_arg): add; pin and unpin arg
 	(RECV, RECVFROM, SOCK-READ, SEND, SENDTO, SOCK-WRITE)
 	(IPCSUM, ICMPCSUM, TCPCSUM, UDPCSUM): use it instead of calling
 	parse_buffer_arg directly
