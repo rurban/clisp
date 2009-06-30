@@ -1405,7 +1405,7 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 #endif
 
 /* ================== CHECKSUM from Fred Cohen ================== */
-unsigned short ipcsum (unsigned char* buffer, size_t length) {
+static unsigned short ipcsum (unsigned char* buffer, size_t length) {
   register long sum=0;          /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr=&(buffer[14]);
@@ -1427,7 +1427,7 @@ DEFUN(RAWSOCK:IPCSUM, buffer &key :START :END) { /* IP checksum */
   VALUES1(fixnum(length)); skipSTACK(1);
 }
 
-unsigned short icmpcsum (unsigned char* buffer, size_t length) {
+static unsigned short icmpcsum (unsigned char* buffer, size_t length) {
   register long sum=0;          /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
@@ -1452,7 +1452,7 @@ DEFUN(RAWSOCK:ICMPCSUM, buffer &key :START :END) { /* ICMP checksum */
   VALUES1(fixnum(length)); skipSTACK(1);
 }
 
-unsigned short tcpcsum (unsigned char* buffer, size_t length) {
+static unsigned short tcpcsum (unsigned char* buffer, size_t length) {
   register unsigned long sum;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;
@@ -1483,7 +1483,7 @@ DEFUN(RAWSOCK:TCPCSUM, buffer &key :START :END) { /* TCP checksum */
   VALUES1(fixnum(length)); skipSTACK(1);
 }
 
-unsigned short udpcsum (unsigned char* buffer, size_t length) {
+static unsigned short udpcsum (unsigned char* buffer, size_t length) {
   register unsigned long sum = 0;  /* assumes long == 32 bits */
   unsigned short result;
   unsigned char *ptr;

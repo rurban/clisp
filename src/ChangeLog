@@ -1,5 +1,10 @@
 2009-06-30  Sam Steingold  <sds@gnu.org>
 
+	* modules/rawsock/rawsock.c (ipcsum, icmpcsum, tcpcsum, udpcsum):
+	declare static to avoid "warning: no previous declaration"
+
+2009-06-30  Sam Steingold  <sds@gnu.org>
+
 	* spvw.d (DROP_PRIVILEGES) [!UNIX]: avoid
 	warning: empty body in an if-statement
 
