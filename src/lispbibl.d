@@ -9093,6 +9093,11 @@ All other long words on the LISP-Stack are LISP-objects.
 #else
   typedef aint  SPint;
 #endif
+%% #if (oint_addr_len <= intLsize)
+%%   emit_typedef("uintL","SPint");
+%% #else
+%%   emit_typedef("aint","SPint");
+%% #endif
 #ifdef SP_DOWN
   #define skipSPop  +=
   #define SPop      +
@@ -9157,6 +9162,8 @@ All other long words on the LISP-Stack are LISP-objects.
 #define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
 #define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
 typedef SPint sp_jmp_buf[jmpbufsize];
+%% printf("#define jmpbufsize %d\n",jmpbufsize);
+%% puts("typedef SPint sp_jmp_buf[jmpbufsize];");
 /* The initial value of SP() during main(). */
 extern void* SP_anchor;
 %% #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
@@ -10777,7 +10784,7 @@ extern struct subr_tab_ {
  FUNCALL) or constant C data.
  For SAVEMEM/LOADMEM we have a table of all such pseudofunctions. */
 typedef const void *  Pseudofun; /* assume function pointers fit in a void* */
-%% puts("typedef const void *  Pseudofun;");
+%% emit_typedef("const void *","Pseudofun");
 
 /* Declaration of the tables of relocatable pointers: */
 #define PSEUDO  PSEUDO_A
@@ -13961,7 +13968,7 @@ typedef struct stringarg {
   uintL index;                  /* :start index */
   uintL len;                    /* :end - :start */
 } stringarg;
-%% puts("typedef struct stringarg { object string; uintL offset; uintL index; uintL len; } stringarg;");
+%% emit_typedef("struct stringarg { object string; uintL offset; uintL index; uintL len; }","stringarg");
 extern maygc object test_string_limits_ro (stringarg* arg);
 /* used by STREAM, PATHNAME, IO, ENCODING */
 
@@ -17249,17 +17256,8 @@ struct object_tab_tl_ {
 %%   export_def(TSD_CACHE_HASH(qtid));
 %%   export_def(roughly_SP());
 %%   export_def(TLS_SP_SHIFT);
-%%   puts("typedef struct thread_specific_entry {");
-%%   puts("  volatile long qtid;");
-%%   puts("  void *value; ");
-%%   puts("  struct thread_specific_entry *next;");
-%%   puts("  xthread_t thread;");
-%%   puts("} tse;");
-%%   puts("typedef struct thread_specific_data {");
-%%   puts("  tse * volatile cache[TS_CACHE_SIZE];");
-%%   puts("  tse *hash[TS_HASH_SIZE];");
-%%   puts("  xmutex_t lock;");
-%%   puts("} tsd;");
+%%   emit_typedef("struct thread_specific_entry { volatile long qtid; void *value; struct thread_specific_entry *next; xthread_t thread; }","tse");
+%%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; xmutex_t lock;","tsd");
 %%   puts("extern tsd threads_tls;");
 %%   puts("extern void tsd_setspecific(tse *entry, void *value);");
 %%   puts("extern void* tsd_slow_getspecific(unsigned long qtid,tse * volatile *cache_ptr);");

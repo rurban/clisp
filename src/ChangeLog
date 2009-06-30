@@ -1,5 +1,11 @@
 2009-06-30  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (SPint, jmpbufsize, sp_jmp_buf): export to clisp.h
+	(Pseudofun, stringarg, thread_specific_entry, thread_specific_data):
+	use emit_typedef instead of puts
+
+2009-06-30  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (ipcsum, icmpcsum, tcpcsum, udpcsum):
 	declare static to avoid "warning: no previous declaration"
 
