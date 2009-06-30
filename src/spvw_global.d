@@ -560,46 +560,33 @@ global void gc_suspend_all_threads(bool lock_heap)
   ASSERT(!spinlock_tryacquire(&mem.alloc_lock));
   if (gc_suspend_count == 0) { /* first time here */
     lock_threads();
-    var bool all_suspended;
-    /* flags for indicating whether a thread acknowedge the suspension */
-    var DYNAMIC_ARRAY(acklocked,uint8,nthreads);
-    begin_system_call();
-    memset(acklocked,0,nthreads);
-    end_system_call();
+    var uintC suspended_threads = 0; /* count of suspended threads */
     for_all_threads({
-      if (thread == me) continue; /* skip ourself */
+      if (thread == me) { suspended_threads++; continue; } /* skip ourself */
       if (!thread->_suspend_count) {  /* if not already suspended */
         xmutex_raw_lock(&thread->_gc_suspend_lock); /* enable thread waiting */
         spinlock_release(&thread->_gc_suspend_request); /* request */
       } else {
-        acklocked[thread->_index]=1;
-        /* increase the suspend count */
-        thread->_suspend_count++;
+        suspended_threads++; /* count the thread */
+        thread->_suspend_count++; /* increase the suspend count */
       }
     });
     /* TODO: this way of waiting for threads to acknowledge the suspend
        request is ugly and cause form of starvation sometimes.
        We need semaphore here */
-    do {
-      all_suspended=true;
+    while (suspended_threads != allthreads.count) {
       for_all_threads({
         /* skip ourself and all already suspended (ACK acquired) threads */
-        if ((acklocked[thread->_index]) || (thread == me)) continue;
+        if (thread->_suspend_count || (thread == me)) continue;
         if (spinlock_tryacquire(&thread->_gc_suspend_ack)) {
-          acklocked[thread->_index]=1;
-          /* increase the suspend count */
-          thread->_suspend_count++;
+          thread->_suspend_count++; /* increase the suspend count */
+          suspended_threads++; /* count the thread */
           /* try to get the suspend request lock. In case the thread is in
              blocking system call - this is important. */
           spinlock_tryacquire(&thread->_gc_suspend_request);
-        } else {
-          all_suspended=false;
-          break; /* yield - give chance the threads to reach safe point*/
-        }
+        } else { xthread_yield(); }
       });
-      if (!all_suspended) xthread_yield(); else break;
-    } while (1);
-    FREE_DYNAMIC_ARRAY(acklocked);
+    }
   }
   gc_suspend_count++; /* increase the suspend count */
   /* keep the lock on threads, but release the heap lock.

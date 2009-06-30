@@ -250,7 +250,9 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   new_thread=create_thread(vstack_size);
   if (!new_thread) {
     unlock_threads();
-    skipSTACK(5); VALUES1(NIL); return;
+    pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+    pushSTACK(S(make_thread));
+    error(control_error,GETTEXT("~S: thread resource allocation failed"));
   }
   /* push 2 null objects in the thread stack to mark it's end (bottom) */
   NC_pushSTACK(new_thread->_STACK,nullobj);
@@ -260,14 +262,6 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* push the initial bindings alist */
   NC_pushSTACK(new_thread->_STACK,STACK_2);
 
-  if (register_thread(new_thread)<0) {
-    /* total failure */
-    unlock_threads();
-    delete_thread(new_thread);
-    VALUES1(NIL);
-    skipSTACK(5);
-    return;
-  }
   var object new_cons=popSTACK();
   var object lthr=popSTACK();
   skipSTACK(3);
@@ -284,7 +278,10 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (xthread_create(&TheThread(lthr)->xth_system,
                      &thread_stub,new_thread,cstack_size)) {
     delete_thread(new_thread);
-    lthr = NIL;;
+    pushSTACK(NIL); /* CELL-ERROR Slot NAME */
+    pushSTACK(S(make_thread));
+    error(control_error,GETTEXT("~S: spawning OS thread failed"));
+    lthr = NIL;
   }
   VALUES1(lthr);
 }
