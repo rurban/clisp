@@ -144,33 +144,40 @@ T
 (sleep 0.5) NIL
 (thread-active-p *th1*) NIL ;; should be dead
 
-;; There are max 128 concurrent threads possible (MAXNTHREADS in spvw.d).
-;; If the limit is reached MAKE-THREAD will return NIL. So for the tests
-;; below spawn more threads and we need following function.
-(defun make-thread-always (function)
-  (do ((thr (mt:make-thread function) (mt:make-thread function)))
-      ((threadp thr) thr)
-    (thread-yield)))
-make-thread-always
+;; create thread with very tiny lisp stack (thus preserving memory)
+;; on mac osx lisp heap overlaps lisp stack regions (malloc-ed) when
+;; the number of thread with big stacks is very high (will be inspected
+;; in details)
+;; on all tested platforms (i386 linux, i386 osx, win32 mingw) having
+;; more than 500 active threads causes lisp heap to overlap with malloc-ed
+;; area (on osx it is less it seems)
+;; probably some limit should be set for this
+
+(defun make-test-thread (function)
+  #+macos
+  (make-thread function :vstack-size 10000)
+  #-macos
+  (make-thread function))
+make-test-thread
 
 (let* ((mu (make-mutex :name "hash-table lock"))
        (ht (make-hash-table))
-       (tl (loop :repeat 1000 :collect
-             (make-thread-always (lambda ()
-                                   (mutex-lock mu)
-                                   (incf (gethash 1 ht 0))
-                                   (mutex-unlock mu))))))
+       (tl (loop :repeat 300 :collect
+              (make-test-thread (lambda ()
+                                  (mutex-lock mu)
+                                  (incf (gethash 1 ht 0))
+                                  (mutex-unlock mu))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (gethash 1 ht))
-1000
+300
 
-(let* ((count 1000)
+(let* ((count 300)
        (pa (make-package (symbol-name (gensym "MT-TEST-")) :use ()))
        (tl (loop :for i :from 1 :to count :collect
              (let ((i i))
-               (make-thread-always (lambda ()
-                                     (intern (prin1-to-string i) pa)))))))
+               (make-test-thread (lambda ()
+                                   (intern (prin1-to-string i) pa)))))))
   ;; wait for all threads to finish
   (loop :while (some #'thread-active-p tl) :do (sleep 0.1))
   (let ((i 0))
@@ -178,7 +185,7 @@ make-thread-always
     (assert (= i count)))
   (setq tl (loop :for i :from 1 :to count :collect
              (let ((i i))
-               (make-thread-always
+               (make-test-thread
                 (lambda ()
                   (unintern (find-symbol (prin1-to-string i) pa) pa))))))
   ;; wait for all threads to finish
