@@ -309,6 +309,15 @@ local void *signal_handler_thread(void *arg);
 
 /* Mutex protecting the set of threads. */
 local xmutex_t allthreads_lock;
+/* double linked list with all threads */
+local struct {
+  /* new threads are appended to the tail (when CTRL-C usually the first
+     thread is interrupted - probably "main thread").*/
+  clisp_thread_t *head, *tail;
+  /* how many active threads we have. can be used to limit the number of
+     threads without scanning the list */
+  uintC count;
+} allthreads = { NULL, NULL, 0 };
 
 /* per thread symvalues of special variables are allocated on "pages" of
    1024 gcv_object_t each. Freshly new build clisp image contains less
@@ -316,9 +325,6 @@ local xmutex_t allthreads_lock;
 #define THREAD_SYMVALUES_ALLOCATION_SIZE (1024*sizeof(gcv_object_t))
 #define SYMVALUES_PER_PAGE (THREAD_SYMVALUES_ALLOCATION_SIZE/sizeof(gcv_object_t))
 /* Set of threads. */
-#define MAXNTHREADS  128
-local uintC nthreads = 0;
-local clisp_thread_t* allthreads[MAXNTHREADS];
 local xthread_t thr_signal_handler; /* the id of the signal handling thread */
 
 /* the first index in _ptr_symvalues used for per thread symbol bindings */
@@ -341,7 +347,7 @@ local xmutex_t thread_symvalues_lock;
 global bool single_running_threadp();
 global bool single_running_threadp()
 {
-  return nthreads==1;
+  return allthreads.head->thr_next == NULL;
 }
 
 #ifdef DEBUG_GCSAFETY
@@ -505,7 +511,7 @@ global uintL* current_thread_alloccount()
 
   local aint current_stack_base()
   {
-    if (!nthreads) { /* main thread ? */
+    if (!allthreads.head) { /* main thread ? */
       /* for practical reasons - not to have too much code that anyway will
          not make big difference - just use the current SP. This is basically
          good guess. It may fail if the threads globals are accessed by
@@ -536,9 +542,9 @@ global uintL* current_thread_alloccount()
   local size_t current_stack_size()
   {
     var size_t stack_size=0;
-    if (!nthreads) {
+    if (!allthreads.head) {
       /* This is the main thread - the only one that is initialized
-         before being registered (and thus nthreads=0). Use getrlimit().
+         before being registered (thus threads list is empty). Use getrlimit().
          What to do if we do not have getrlimit()? Currently we will crash.*/
       var struct rlimit rl;
       if (getrlimit(RLIMIT_STACK, &rl) == 0)
@@ -726,22 +732,6 @@ global void unlock_threads()
   end_system_call();
 }
 
-/* UP: register a clisp-thread_t in global thread array
- > thread: a newly allocated thread
- < allthreads: modified (thread appended)
- < new thread's index or -1 on failure
-     (if more than MAXNTHREADS are already present)
- The caller should hold the global thread lock */
-global int register_thread(clisp_thread_t *thread)
-{
-  /* register lisp_thread to global thread list. */
-  if (nthreads >= MAXNTHREADS) return -1;
-  thread->_index=nthreads;
-  allthreads[nthreads] = thread;
-  nthreads++;
-  return thread->_index;
-}
-
 /* UP: creates new cisp_thread_t structure and allocates LISP stack.
  > lisp_stack_size: the size of Lisp STACK to allocate (in gcv_object_t)
       when 0 - this is the very first thread, so we may(should not)
@@ -750,6 +740,7 @@ global int register_thread(clisp_thread_t *thread)
  It is always called with the main thread mutex locked. */
 global clisp_thread_t* create_thread(uintM lisp_stack_size)
 {
+  /* TBD: may be limit the number of active threads? */
   var clisp_thread_t* thread;
   begin_system_call();
   thread=(clisp_thread_t *)malloc(sizeof(clisp_thread_t));
@@ -757,7 +748,6 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
   if (!thread) return NULL;
   begin_system_call();
   memset(thread,0,sizeof(clisp_thread_t)); /* zero-up everything */
-  thread->_index = MAXNTHREADS + 1; /* set to invalid value */
   /* init _symvalues "proxy" */
   thread->_ptr_symvalues = (gcv_object_t *)malloc(sizeof(gcv_object_t)*
                                                   maxnum_symvalues);
@@ -804,6 +794,15 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size)
 #ifndef NO_SP_CHECK
   thread->_SP_bound=0;
 #endif
+  /* add to allthreads list (at the end) */
+  if (allthreads.tail) {
+    allthreads.tail->thr_next = thread;
+    thread->thr_prev = allthreads.tail;
+    allthreads.tail = thread;
+  } else {
+    allthreads.head = allthreads.tail = thread;
+  }
+  allthreads.count++;
   return thread;
 }
 
@@ -818,22 +817,29 @@ global void delete_thread (clisp_thread_t *thread) {
   xmutex_raw_destroy(&thread->_gc_suspend_lock);
   end_system_call();
 
-  if (nthreads==1) {
-    /* this was the last LISP thread in the process - we are quiting */
+  /* remove from threads list */
+  if (thread->thr_prev) { /* ! first threads */
+    thread->thr_prev->thr_next = thread->thr_next;
+  } else {
+    allthreads.head = thread->thr_next;
+  }
+  if (thread->thr_next) { /* ! last_thread */
+    thread->thr_next->thr_prev = thread->thr_prev;
+  } else {
+    allthreads.tail = thread->thr_prev;
+  }
+  allthreads.count--;
+
+  if (!allthreads.head) { /* this was the last thread ?*/
     unlock_threads();
     quit();
     return; /* quit will unwind the stack and call hooks */
   }
-  if (thread->_index < nthreads) { /* only if registered */
-    ASSERT(allthreads[thread->_index] == thread);
-    allthreads[nthreads-1]->_index = thread->_index;;
-    allthreads[thread->_index] = allthreads[nthreads-1];
-    nthreads--;
-    /* no globals for this thread record anymore */
-    TheThread(thread->_lthread)->xth_globals = NULL;
-    /* DO NOT remove from global list of all threads.  */
-    /* O(all_threads) = deleteq(O(all_threads), thread->_lthread); */
-  }
+  /* no globals for this thread record anymore */
+  TheThread(thread->_lthread)->xth_globals = NULL;
+  /* DO NOT remove from global list of all threads - i.e.
+     O(all_threads) = deleteq(O(all_threads), thread->_lthread); */
+
   /* The LISP stack should be unwound so no
      interesting stuff on it. Let's deallocate it.*/
   begin_system_call();
@@ -844,11 +850,12 @@ global void delete_thread (clisp_thread_t *thread) {
   end_system_call();
   unlock_threads();
 }
+
   #define for_all_threads(statement)                                    \
-    do { var clisp_thread_t** _pthread = &allthreads[0];                \
-      var clisp_thread_t **endt=&allthreads[nthreads];                  \
-      while (_pthread != endt)                                          \
-        { var clisp_thread_t* thread = *_pthread++; statement; }        \
+    do { var clisp_thread_t *_cthread = allthreads.head;                \
+      while (_cthread) {                                                \
+        var clisp_thread_t *thread = _cthread;                          \
+        _cthread=_cthread->thr_next; statement; }                       \
     } while(0)
 
 /* UP: reallocates _ptr_symvalues in a thread - so there is a place for
@@ -3763,7 +3770,6 @@ global int main (argc_t argc, char* argv[]) {
     init_multithread();
     init_heap_locks();
     set_current_thread(create_thread(0));
-    register_thread(current_thread());
     #ifdef DEBUG_GCSAFETY
       use_dummy_alloccount=false; /* now we have threads */
       current_thread()->_alloccount=1;
@@ -4477,9 +4483,9 @@ local BOOL WINAPI console_handler(DWORD CtrlType)
 local void install_async_signal_handlers()
 {
   wait_timeout=INFINITE;
-  sigint_semaphore=CreateSemaphore(NULL,0,MAXNTHREADS,NULL);
+  sigint_semaphore=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL);
   sigbreak_event=CreateEvent(NULL,TRUE,FALSE,NULL);
-  timeout_call_semaphore=CreateSemaphore(NULL,0,MAXNTHREADS,NULL);
+  timeout_call_semaphore=CreateSemaphore(NULL,0,MAX_SEMAPHORE_COUNT,NULL);
   SetConsoleCtrlHandler((PHANDLER_ROUTINE)console_handler,true);
 }
 

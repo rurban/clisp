@@ -16975,7 +16975,6 @@ struct object_tab_tl_ {
     gcv_object_t* _STACK_bound;
     gcv_object_t* _STACK_start;
     pinned_chain_t * _pinned; /* chain of pinned objects for this thread */
-    uintC _index; /* this thread's index in allthreads[] */
     /* moved here from pathname.d */
     bool _running_handle_directory_encoding_error;
     /* do not rely on SA_NODEFER for signal nesting */
@@ -16990,6 +16989,10 @@ struct object_tab_tl_ {
     bool _thread_is_dying;
     /* the current thread. NOT GC VISIBLE. */
     gcv_object_t _lthread;
+    /* previous and next thread. all active threads are kept in double
+       linked list*/
+    struct clisp_thread_t *thr_prev;
+    struct clisp_thread_t *thr_next;
   } clisp_thread_t;
 
   /* following macro is "called" before thread can be suspended in debug
@@ -17323,10 +17326,6 @@ global clisp_thread_t* create_thread(uintM lisp_stack_size);
    Also frees any allocated resource.
  > thread: thread to be removed */
 global void delete_thread(clisp_thread_t *thread);
-/* register a clisp-thread_t in global thread array
-   thread - the new allocated thread.
-   When called the global thread lock should be held. */
-global int register_thread(clisp_thread_t *thread);
 /* locks the global thread array */
 global void lock_threads (void);
 /* unlocks global thread array */

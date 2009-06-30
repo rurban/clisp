@@ -445,7 +445,7 @@ global maygc off_t savemem (object stream, uintL executable)
       WRITE(thread->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
     });
     we will use: */
-    WRITE(allthreads[0]->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
+    WRITE(allthreads.head->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
   #endif
   { /* write module name: */
     var DYNAMIC_ARRAY(module_names_buffer,char,module_names_size);
@@ -1121,7 +1121,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
         maxnum_symvalues = max_symvalues;
     }
     /* read the thread symvalues for the only thread */
-    READ(allthreads[0]->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
+    READ(allthreads.head->_ptr_symvalues,num_symvalues*sizeof(gcv_object_t));
    #endif
 
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
@@ -1583,7 +1583,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
     for_all_constobjs( update(objptr); );  /* update object_tab */
     #ifdef MULTITHREAD
       /* and now the per thread symbol bindings of the thread */
-      var gcv_object_t* objptr = allthreads[0]->_ptr_symvalues;
+      var gcv_object_t* objptr = allthreads.head->_ptr_symvalues;
       var uintC count;
       dotimespC(count,num_symvalues,{ update(objptr); objptr++; });
     #endif
