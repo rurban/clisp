@@ -2310,6 +2310,8 @@ else
   QQUOT="\""
 fi
 
+# cf. ac_precious_vars in configure
+PRECIOUS_VARS='CC CFLAGS LDFLAGS LIBS CPPFLAGS CPP CXX CXXFLAGS X_LIBS'
 # Do not touch cflags.h when the changes to Makefile do not modify it.
 # Cost: maybe a few extra "echo"s on each make
 # Benefit: lispinit.mem is not re-dumped when we add something to MODULES
@@ -2318,7 +2320,7 @@ echodummyrule "cflags.h"
 echol
 echol "cflags.h.stamp : Makefile"
 echotab "echo $ARGQ/* generated from Makefile */$ARGQ > cflags.h.new"
-for x in CC CFLAGS CPP CPPFLAGS CLFLAGS LIBS X_LIBS; do
+for x in ${PRECIOUS_VARS}; do
   echotab "echo $ARGQ#define $x \"\$($x)\"$ARGQ >> cflags.h.new"
 done
 if [ $TSYS = win32msvc ] ; then
@@ -3277,7 +3279,7 @@ echotab "m=\`cd ${MODULESDIR_}\$@; pwd\`; \\"
 echotab "if ${NEED_RECONFIGURE} ; then cd \$@ ; \\"
 echotab "  ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
 echotab "    if test -f \$\${cache} ; then . \$\${cache}; \\"
-for var in CC CFLAGS CPPFLAGS CXXFLAGS LDFLAGS; do
+for var in ${PRECIOUS_VARS}; do
   echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
 done
 # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
