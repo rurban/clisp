@@ -1,3 +1,24 @@
+2009-06-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: remove the 128 active threads limit
+	* lispbibl.d (struct clisp_thread_t): add thr_next and thr_prev fields.
+	all threads are kept in double-linked list
+	(register_thread): remove
+	* spvw.d (allthreads): redefine it as structure containing the head and
+	tail of threads linked list
+	(register_thread): remove. the thread is "registered" after its creation
+	(single_running_threadp, current_stack_size, current_stack_base): use
+	new allthreads structure for checking
+	(create_thread): add the newly created thread structure to allthreads
+	(delete_thread): remove thread from allthreads
+	(for_all_threads): redefine to use allthreads structure
+	(install_async_signal_handlers) [WIN32_THREADS]: use maximum possible
+	semaphore count
+	* spvw_memfile.d: use allthreads.head to access single running thread
+	* spvw_global.d (gc_suspend_all_threads): re-implement. it used the
+	index in threads array before
+	* zthread.d (MAKE-THREAD): signal an error if thread creation fails
+
 2009-06-30  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (PRECIOUS_VARS): list all vars for cflags.h and
