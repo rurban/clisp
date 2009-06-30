@@ -4834,6 +4834,8 @@ Now you can sum doubles:
      used when &clisp; was started.
      If 0, the value will be the same as that of the calling thread.
   </simpara></listitem></varlistentry></variablelist>
+  <simpara>If &thread; creation fails (e.g., due to a lack of system
+   memory), a &control-error-t; is &signal;ed.</simpara>
   <simpara>Cf. <function role="unix">pthread_create</function>.</simpara>
 </listitem></varlistentry>
 <varlistentry id="threadp"><term><code>(&threadp; &object-r;)</code></term>
