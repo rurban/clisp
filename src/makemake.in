@@ -666,9 +666,6 @@ fi
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
 
-# for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
-XCPPFLAGS=${XCPPFLAGS}' -Igllib'
-
 # now set appropriate MSVC cflags
 if [ $TSYS = win32msvc ] ; then
   # -G5 means to optimize for i586.
@@ -1050,6 +1047,10 @@ else
   HEREP=`pwd`
 fi
 HERE_="${HEREP}${NEXT_}"
+
+# for systems that lack stdint (or have a broken stdint) (e.g., solaris[89])
+# gllib path must be absolute because CPPFLAGS is passed on to module subdirs
+XCPPFLAGS="${XCPPFLAGS} -I${HERE_}gllib"
 
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
