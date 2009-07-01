@@ -1,5 +1,15 @@
 2009-07-01  Sam Steingold  <sds@gnu.org>
 
+	* _clisp.c (-b): print lisplibdir with printf instead of puts to
+	avoid the woe32 CR confusing cygwin build tools
+
+2009-07-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (pin_varobject, unpin_varobject):
+	redefine to NOOP because they are not properly exported yet
+
+2009-07-01  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (HERE_) [host_os=cygwin]: use `cygpath -m` instead
 	of `pwd` to help win32
 
