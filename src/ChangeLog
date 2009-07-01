@@ -1,3 +1,7 @@
+2009-07-01  Sam Steingold  <sds@gnu.org>
+
+	* _clisp.c (usage): include bad option name in error reporting
+
 2009-06-30  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (SPint, jmpbufsize, sp_jmp_buf): export to clisp.h
