@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for wildcard
 dnl Bruno Haible 12.4.1997
-dnl Sam Steingold 2003-07-28, 2006-2008
+dnl Sam Steingold 2003-07-28, 2006-2009
 
 AC_PREREQ(2.57)
 AC_INIT(wildcard, 1.0, clisp-list)
@@ -15,11 +15,8 @@ fi
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
 dnl called from top-level configure.in:gl_INIT [gl_FUNC_FNMATCH_POSIX]
 dnl $ac_cv_func_fnmatch_gnu comes from ../config.cache
-if test $ac_cv_func_fnmatch_gnu != yes; then
+if test $gl_cv_func_fnmatch_gnu != yes; then
   FNMATCH_O=fnmatch.o
-  # must link gnulib fnmatch.h into the build directory
-  # note: fnmatch.h is generated in the build directory from fnmatch.in.h
-  $as_ln_s ../gllib/fnmatch.h .
 else
   FNMATCH_O=
 fi
