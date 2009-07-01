@@ -65,6 +65,13 @@ char room_for_localedir[10240] = "%MAGIC%LOCALEDIR=" LOCALEDIR;
 # endif
 #endif
 
+static int usage (char *program_name, char *option) {
+  fprintf(stderr,"%s: invalid command-line option (%s), try `%s --help'\n",
+          program_name,option,program_name);
+  return 1;
+}
+#define USAGE(o) usage(program_name,o)
+
 int main (int argc, char* argv[])
 {
   char* lisplibdir;
@@ -204,10 +211,11 @@ int main (int argc, char* argv[])
       char* arg = *argptr++;
       if ((arg[0] == '-') && !(arg[1] == '\0')) {
         switch (arg[1]) {
-#        define OPTION_ARG  \
-          if (arg[2] == '\0') \
-            { if (argptr < argptr_limit) arg = *argptr++; else goto usage; } \
-          else { arg = &arg[2]; }
+#        define OPTION_ARG                               \
+          if (arg[2] == '\0') {                          \
+            if (argptr < argptr_limit) arg = *argptr++;  \
+            else return USAGE(arg);                      \
+          } else { arg = &arg[2]; }
           /* Options to which we have to pay attention. */
           case 'b':             /* this is NOT a lisp.run option!!! */
             /* we could also use
@@ -259,7 +267,7 @@ int main (int argc, char* argv[])
             OPTION_ARG;
             break;
           case 'E':
-            if (argptr < argptr_limit) argptr++; else goto usage;
+            if (argptr < argptr_limit) argptr++; else return USAGE("-E");
             break;
           case 'i':
             if (arg[2] == '\0') argv_for = for_init;
@@ -268,7 +276,7 @@ int main (int argc, char* argv[])
             argv_for = for_compile;
             break;
           default:
-            goto usage;
+            return USAGE(arg);
         }
       } else {
         switch (argv_for) {
@@ -399,11 +407,6 @@ int main (int argc, char* argv[])
       errno = saved_errno; perror(executable);
     }
 #endif
-    return 1;
-  }
-  usage: {
-    fprintf(stderr,"%s: invalid command-line option, try `%s --help'\n",
-            program_name,program_name);
     return 1;
   }
   oom: {
