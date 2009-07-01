@@ -3912,11 +3912,8 @@ fi
 
 done
 
-if test $ac_cv_func_fnmatch_gnu != yes; then
+if test $gl_cv_func_fnmatch_gnu != yes; then
   FNMATCH_O=fnmatch.o
-  # must link gnulib fnmatch.h into the build directory
-  # note: fnmatch.h is generated in the build directory from fnmatch.in.h
-  $as_ln_s ../gllib/fnmatch.h .
 else
   FNMATCH_O=
 fi
