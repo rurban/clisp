@@ -223,7 +223,10 @@ int main (int argc, char* argv[])
                instead of "clisp -b", but this shortcut saves an exec
                and really ensures that no debugging output
                (e.g., "STACK size" in spvw.d) gets in the way. */
-            puts(lisplibdir);
+            /* not puts() so that the woe32 CR will not get in the way;
+               this makes screen output ugly, but this option is for
+               Makefiles $(clisp -b) anyway, and that usage is now saved */
+            printf("%s",lisplibdir);
             return 0;
           case 'B':
             OPTION_ARG;
