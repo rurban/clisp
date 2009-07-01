@@ -1,5 +1,10 @@
 2009-07-01  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (HERE_) [host_os=cygwin]: use `cygpath -m` instead
+	of `pwd` to help win32
+
+2009-07-01  Sam Steingold  <sds@gnu.org>
+
 	* _clisp.c (usage): include bad option name in error reporting
 
 2009-06-30  Sam Steingold  <sds@gnu.org>
