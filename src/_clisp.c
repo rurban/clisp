@@ -9,7 +9,7 @@
  * All other options are passed to the main program.
  *
  * Bruno Haible 31.3.1997
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  */
 
 /*
