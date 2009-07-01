@@ -778,12 +778,6 @@ else
   PARENT_M="$PARENT_"
   NEXT_M="$NEXT_"
 fi
-# maybe convert the cygwin cygdrive pathnames
-if [ ${TSYSOS} = cygwin ]; then
-  # http://article.gmane.org/gmane.os.cygwin:67868
-  DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
-fi
-HERE_='`pwd`'"${NEXT_}"
 
 # Various other installation directories.
 if [ $HOS = unix ] ; then
@@ -1041,15 +1035,21 @@ fi
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
 # SHREXT = extension for shared object files (a.k.a. shared libraries) on target
-if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
+if [ ${host_os} = cygwin ] ; then # win32 or cygwin
   TEXE='.exe'
   LEXE='.exe'
   SHREXT='.dll'
+  # maybe convert the cygwin cygdrive pathnames
+  # http://article.gmane.org/gmane.os.cygwin:67868
+  DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
+  HEREP=`cygpath -m \`pwd\``
 else
   TEXE=''
   LEXE='.run'
   SHREXT='.so'
+  HEREP=`pwd`
 fi
+HERE_="${HEREP}${NEXT_}"
 
 # TOBJ = extension for compiled modules on target
 if [ $TSYS = win32msvc ] ; then
@@ -2932,9 +2932,9 @@ fi
 echol
 
 if [ -n "$USE_GETTEXT" ] ; then
-  localeflags='-B `pwd` -N '"${HERE_}locale"
+  localeflags="-B ${HEREP} -N ${HERE_}locale"
 else
-  localeflags='-B `pwd`'
+  localeflags="-B ${HEREP}"
 fi
 CLISP_="${HERE_}lisp${LEXE} -M ${HERE_}lispinit.mem ${localeflags}${someflags}"
 
@@ -3288,7 +3288,7 @@ echotab "      \$(SHELL) ./configure --cache-file=\$\${cache} --srcdir=\$\$m \$(
 echotab "    else \$(SHELL) ./configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi"
-echotab "CLISP=\"`pwd`/clisp -K boot ${localeflags}${someflags}\" ; cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+echotab "CLISP=\"${HEREP}/clisp -K boot ${localeflags}${someflags}\" ; cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
 echol
 
 cygwin_finish() {
