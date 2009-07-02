@@ -116,6 +116,7 @@
 <!ENTITY gdbm '&gnu; <ulink url="http://www.gnu.org/software/gdbm/">DataBase Manager</ulink>'>
 <!ENTITY gnulib '&gnu; <ulink url="http://www.gnu.org/software/gnulib/">Portability Library</ulink>'>
 <!ENTITY autoconf '&gnu; <ulink url="http://www.gnu.org/software/autoconf/">autoconf</ulink>'>
+<!ENTITY bash '&gnu; <ulink url="http://www.gnu.org/software/bash/">bash</ulink>'>
 <!ENTITY cvs '<ulink url="http://www.cvshome.org">CVS</ulink>'>
 <!ENTITY asdf '<ulink url="http://www.cliki.net/asdf"><function>asdf</function></ulink>'>
 <!ENTITY defsystem '<ulink url="http://www.cliki.net/defsystem"><function>defsystem</function></ulink>'>
