@@ -1674,7 +1674,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
   for_all_threads({
     chain = thread->_pinned;
     while (chain) {
-      vs=(aint)TheVarobject(chain->_o);
+      vs=(aint)TheVarobject(*chain->pc_varobj_stack_ptr);
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
@@ -1682,7 +1682,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
 	mit++; (*count)++;
       }
       MARK_GEN1;
-      chain = chain->_next;
+      chain = chain->pc_next;
     }});
   #undef SET_HEAPNR
   #undef MARK_GEN1
@@ -1995,7 +1995,7 @@ local void gar_col_normal (void)
   for_all_threads({
     var pinned_chain_t *chain=thread->_pinned;
     while (chain) {
-      chain = chain->_next;
+      chain = chain->pc_next;
       pinned_count++;
     }
   });
@@ -2518,11 +2518,11 @@ local bool page_contains_pinned_object(Page *page)
   for_all_threads({
     var pinned_chain_t *chain = thread->_pinned;
     while (chain) {
-      var aint vs=(aint)TheVarobject(chain->_o);
+      var aint vs=(aint)TheVarobject(*chain->pc_varobj_stack_ptr);
       /* are we inside range? */
       if (page->page_start<=vs && page->page_end>vs)
 	return true;
-      chain = chain->_next;
+      chain = chain->pc_next;
     }});
   return false;
 }
