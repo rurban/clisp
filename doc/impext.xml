@@ -815,12 +815,18 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 *** - PARSE-NAMESTRING: syntax error in filename "&#x57C;" at position 0
 </programlisting>when &path-enc; is &utf-16; because then
    <literal role="data">#\ARMENIAN_SMALL_LETTER_RA</literal> corresponds
-   to the 4 byte sequence <literal role="data">#(255 254 124 5)</literal>
+   to the 4 bytes <literal role="data">#(255 254 124 5)</literal>
    and the byte <literal role="data">124</literal> is &not-e; a valid
    byte for a &win32; file name because it
    means <literal role="data">|</literal> in &ascii;.</para>
-  <simpara>The &line-term; mode of &path-enc; is ignored.
-</simpara></listitem></varlistentry>
+  <simpara>The set of valid pathname <emphasis>bytes</emphasis> is
+   determined by the &autoconf; test
+   <filename role="clisp-cvs">src/m4/filecharset.m4</filename>
+   at configure time. While rather stable for the first 127 bytes,
+   on &win32; it varies wildly for the bytes 128-256, depending on the
+   OS version and the file system.</simpara>
+  <simpara>The &line-term; mode of &path-enc; is ignored.</simpara>
+</listitem></varlistentry>
 <varlistentry><term><firstterm>&term-enc;
    <indexterm id="term-enc" significance="preferred">
     <primary><varname>*TERMINAL-ENCODING*</varname>
