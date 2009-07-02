@@ -1,3 +1,17 @@
+2009-07-02  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: simplify object pinning and export it properly
+	* lispbibl.d (struct pinned_chain_t): redefine. pinned object is always
+	on the stack and pointer to it is kept. export it for modules
+	(pin_varobject, unpin_varobject): do not use UNWIND_PROTECT frame. in
+	case on non-local exit the object will be unpinned from
+	enter_frame_at_STACK (like back_trace is unwound)
+	(unwind_pinned_objects): unpins all objects beyond some position in the
+	stack
+	(enter_frame_at_STACK): use it
+	* spvw_garcol.d (gar_col_normal, fill_relocation_memory_regions)
+	(page_contains_pinned_object): update usage of pinned_chain_t
+
 2009-07-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/wildcard/configure.in: use $gl_cv_func_fnmatch_gnu
