@@ -1,3 +1,9 @@
+2009-07-06  Sam Steingold  <sds@gnu.org>
+
+	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS): check the return
+	value of gethostbyaddr and only call hostent_to_lisp on non-NULL
+	Reported by Reini Urban <rurban@x-ray.at>
+
 2009-07-02  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: simplify object pinning and export it properly
