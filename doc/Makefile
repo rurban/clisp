@@ -97,7 +97,9 @@ XMLCATALOG=xmlcatalog
 #TEXI2HTML=texi2html -monolithic -verbose $< -out_file $@
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
-DIST=podval:~/public_html/clisp
+# NB: keep in sync with src/makemake.in:MYIMPROOT
+#DIST=podval:~/public_html/clisp
+DIST=sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
 
 ##### nothing user-serviceable below #####
 
@@ -261,7 +263,7 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
 	cd ..; ln -s . clisp; \
 	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
 	$(RM) clisp
-	(test -n "$(DIST)" && rsync -av $@ $(DIST)) || true
+	(test -n "$(DIST)" && rsync -av $@ ../src/NEWS $(DIST)) || true
 
 SEARCH=
 search: force
