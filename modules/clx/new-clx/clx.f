@@ -7549,7 +7549,8 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
           handle_ipv4: {
               struct hostent *he;
               X_CALL(he = gethostbyaddr((char*)ho->address,ho->length,family));
-              hostent_to_lisp(he);
+              if (he == NULL) goto bad_family;
+              else hostent_to_lisp(he);
             }
             pushSTACK(value1);
             break;
@@ -7565,7 +7566,7 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
             value1 = listof(3); pushSTACK(value1);
           } break;
 #        endif
-          default:
+          default: bad_family:
             pushSTACK(fixnum(ho->family));
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
             SYS_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
