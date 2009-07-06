@@ -1,5 +1,19 @@
 2009-07-06  Sam Steingold  <sds@gnu.org>
 
+	* constsym.d (:OPERATION, :OPERANDS): add
+	* error.d (end_error): complete :OPERATION, :OPERANDS
+	for ARITHMETIC-ERROR and its subtypes
+	* aridecl.d (divide_0, error_overflow, error_underflow):
+	push :OPERATION and :OPERANDS
+	* flo_konv.d (error_nan): ditto
+	* intelem.d (BN_ueberlauf): ditto
+	* intlog.d (I_I_ash_I): ditto
+	* intmal.d (mal_ueberlauf): ditto
+	* lfloat.d (error_LF_toolong): ditto
+	Reported by Gabriel Dos Reis <gdr@integrable-solutions.net>
+
+2009-07-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (MYIMPROOT): use http://clisp.cons.org/beta instead
 	of http://clisp.podval.org/impnotes/ because the latter has been
 	flaky lately; keep this in sync with doc/Makefile!

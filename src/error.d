@@ -2,7 +2,7 @@
  * Error-Handling for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -272,9 +272,16 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
       pushSTACK(S(error)); pushSTACK(type);
       var uintC argcount = 4;
       /* arithmetic-error, division-by-zero, floating-point-overflow,
-         floating-point-underflow
-         --> complete :operation :operands ??
-         cell-error, uncound-variable, undefined-function, unbound-slot
+         floating-point-underflow --> complete :operation, :operands */
+      if (eq(type,S(simple_arithmetic_error))
+          || eq(type,S(simple_division_by_zero))
+          || eq(type,S(simple_floating_point_overflow))
+          || eq(type,S(simple_floating_point_underflow))) {
+        pushSTACK(S(Koperands)); pushSTACK(BEFORE(stackptr)); /* :operands */
+        pushSTACK(S(Koperation)); pushSTACK(BEFORE(stackptr)); /* :operation */
+        argcount += 4;
+      }
+      /* cell-error, uncound-variable, undefined-function, unbound-slot
          --> complete :name */
       if (eq(type,S(simple_cell_error))
           || eq(type,S(simple_unbound_variable))

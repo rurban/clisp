@@ -1,7 +1,7 @@
 /*
  * List of all symbols known to the C-program ("program constants")
  * Bruno Haible 1990-2006
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  */
 
 /* The macro LISPSYM declares a LISP symbol.
@@ -1496,6 +1496,8 @@ LISPSYM(Kpackage,"PACKAGE",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kobject,"OBJECT",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kpathname,"PATHNAME",keyword) /* make-condition-argument for ERROR */
 LISPSYM(Kdetail,"DETAIL",keyword) /* make-condition-argument for ERROR */
+LISPSYM(Koperation,"OPERATION",keyword) /* make-condition-argument for ERROR */
+LISPSYM(Koperands,"OPERANDS",keyword) /* make-condition-argument for ERROR */
 LISPSYM(format,"FORMAT",lisp) /* function in ERROR */
 LISPSYM(debugger_hook,"*DEBUGGER-HOOK*",lisp) /* variable in ERROR */
 LISPSYM(coerce_to_condition,"COERCE-TO-CONDITION",system) /* function for ERROR */

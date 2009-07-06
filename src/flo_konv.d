@@ -423,6 +423,8 @@ local maygc object LF_to_DF (object x)
 /* NaN error message
  error_nan(); */
 nonreturning_function(local, error_nan, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
   error(arithmetic_error,GETTEXT("~S: floating point NaN occurred"));
 }

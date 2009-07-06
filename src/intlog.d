@@ -656,7 +656,10 @@ global maygc object I_I_ash_I (object x, object y)
       return x;
    badamount:
     RESTORE_NUM_STACK /* restore num_stack */
-      pushSTACK(y); pushSTACK(S(ash));
+    pushSTACK(S(ash));          /* slot :OPERATION */
+    pushSTACK(x); pushSTACK(y);
+    { object tmp = listof(2); pushSTACK(tmp); } /* slot :OPERANDS */
+    pushSTACK(y); pushSTACK(S(ash));
     error(arithmetic_error,GETTEXT("~S: shift ~S is too large"));
   }
 }

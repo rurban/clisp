@@ -371,19 +371,17 @@
     }
   }
 
-# Fehler, wenn Quotient keine ganze Zahl ist
-# > STACK_1: Zähler x
-# > STACK_0: Nenner y
-  nonreturning_function(local, error_exquo, (void)) {
-    pushSTACK(S(exquo)); # Wert für Slot OPERATION von ARITHMETIC-ERROR
-    pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
-    { var object tmp = listof(2); pushSTACK(tmp); } # Wert für Slot OPERANDS von ARITHMETIC-ERROR
-    pushSTACK(STACK_(1+2)); # x
-    pushSTACK(STACK_(0+3)); # y
-    error(arithmetic_error,
-           GETTEXT("quotient ~S / ~S is not an integer")
-          );
-  }
+/* Error, when the quotient is not an integer
+ > STACK_1: numerator x
+ > STACK_0: denominator y */
+nonreturning_function(local, error_exquo, (void)) {
+  pushSTACK(S(exquo)); /* ARITHMETIC-ERROR slot OPERATION */
+  pushSTACK(STACK_(1+1)); pushSTACK(STACK_(0+2));
+  { var object tmp = listof(2); pushSTACK(tmp); } /* ARITHMETIC-ERROR slot OPERANDS */
+  pushSTACK(STACK_(1+2));                         /* x */
+  pushSTACK(STACK_(0+3));                         /* y */
+  error(arithmetic_error,GETTEXT("quotient ~S / ~S is not an integer"));
+}
 
 # Dividiert zwei Integers x,y >=0 und liefert den Quotienten x/y >=0.
 # Bei y=0 Error. Die Division muss aufgehen, sonst Error.

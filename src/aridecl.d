@@ -347,6 +347,8 @@
 
 /* Error message for division by zero */
 nonreturning_function(local, divide_0, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
   error(division_by_zero,GETTEXT("~S: division by zero"));
 }
@@ -354,6 +356,8 @@ nonreturning_function(local, divide_0, (void)) {
 /* Error message for floating point overflow
  error_overflow(); */
 nonreturning_function(local, error_overflow, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
   error(floating_point_overflow,GETTEXT("~S: floating point overflow"));
 }
@@ -361,6 +365,8 @@ nonreturning_function(local, error_overflow, (void)) {
 /* Error message for floating point underflow
  error_underflow(); */
 nonreturning_function(local, error_underflow, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
   pushSTACK(TheSubr(subr_self)->name);
   error(floating_point_underflow,GETTEXT("~S: floating point underflow"));
 }
