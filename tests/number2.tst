@@ -614,9 +614,26 @@ float-rational-cmp
 (log (ash 1 100000)) 69314.72f0
 (log (expt 234 108) 10) 255.8753f0
 
+(defmacro check-error (form)
+  `(block check-error
+     (handler-bind ((arithmetic-error
+                     (lambda (c)
+                       (princ-error c)
+                       (return-from check-error
+                         (cons (arithmetic-error-operation c)
+                               (arithmetic-error-operands c))))))
+       ,form)))
+CHECK-ERROR
+
+(check-error (exquo 13 4)) (EXQUO 4 13)
+(check-error (/ 0)) (/)         ; OPERANDS not available
+(check-error (ash 1 10000000)) (ASH 1 10000000)
+(check-error (float (ash 1 100000) 0d0)) (FLOAT) ; overflow
+
 (progn (symbol-cleanup 'check-xgcd)
        (symbol-cleanup 'check-sqrt)
        (symbol-cleanup 'check-mult)
        (symbol-cleanup 'float-rational-cmp)
-       (symbol-cleanup 'test-function))
+       (symbol-cleanup 'test-function)
+       (symbol-cleanup 'check-error))
 T

@@ -1365,6 +1365,8 @@ local maygc object NDS_to_I (const uintD* MSDptr, uintC len)
 
 /* report Bignum-overflow: */
 nonreturning_function(local, BN_ueberlauf, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
   error(arithmetic_error,GETTEXT("bignum overflow"));
 }
 

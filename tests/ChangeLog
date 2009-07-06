@@ -1,3 +1,7 @@
+2009-07-06  Sam Steingold  <sds@gnu.org>
+
+	* number2.tst: check ARITHMETIC-ERROR slots
+
 2009-06-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* mt.tst: add EXEMPTION-BROADCAST and another WITH-DEFERRED-INTERRUPTS,
