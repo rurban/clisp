@@ -1,11 +1,12 @@
 # Multiplikation ganzer Zahlen
 
 # meldet Überlauf bei der Multiplikation:
-  nonreturning_function(local, mal_ueberlauf, (void)) {
-    error(arithmetic_error,
-           GETTEXT("overflow during multiplication of large numbers")
-          );
-  }
+nonreturning_function(local, mal_ueberlauf, (void)) {
+  pushSTACK(TheSubr(subr_self)->name); /* slot :OPERATION */
+  pushSTACK(NIL);               /* slot :OPERANDS not available */
+  error(arithmetic_error,
+        GETTEXT("overflow during multiplication of large numbers"));
+}
 
 # karatsuba_threshold = Länge, ab der die Karatsuba-Multiplikation bevorzugt
 # wird. Der Break-Even-Point bestimmt sich aus Zeitmessungen.
