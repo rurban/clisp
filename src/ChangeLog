@@ -1,5 +1,10 @@
 2009-07-06  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d: guard the recently introduced jmp-related exports
+	with "ifdef export_unwind_protect_macros", effectively disabling them
+
+2009-07-06  Sam Steingold  <sds@gnu.org>
+
 	* constsym.d (:OPERATION, :OPERANDS): add
 	* error.d (end_error): complete :OPERATION, :OPERANDS
 	for ARITHMETIC-ERROR and its subtypes

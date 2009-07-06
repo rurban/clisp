@@ -1345,6 +1345,9 @@ typedef signed int  signean;
 
 /* non-local exits */
 #include <setjmp.h>
+%% #ifdef export_unwind_protect_macros
+%%   puts("#include <setjmp.h>");
+%% #endif
 #if defined(UNIX) && defined(HAVE__JMP)
   /* The "_" routines are more efficient (do not save/restore signal masks,
    see http://article.gmane.org/gmane.lisp.clisp.devel/18227 or
@@ -1381,6 +1384,13 @@ typedef signed int  signean;
   #define setjmpl(x)  (setjmp(x) ? jmpl_value : 0)
   #define longjmpl(x,y)  (jmpl_value = (y), longjmp(x,1))
 #endif
+%% #ifdef export_unwind_protect_macros
+%%   #if (int_bitsize < long_bitsize)
+%%     puts("extern long jmpl_value;");
+%%   #endif
+%%   export_def(setjmpl(x))
+%%   export_def(longjmpl(x))
+%% #endif
 
 /* An alloca() replacement, used for DYNAMIC_ARRAY and SAVE_NUM_STACK.
  See spvw_alloca.d. */
@@ -3065,6 +3075,13 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #else
   #define fake_gcv_object(value)  as_object((oint)(value))
 #endif
+%% #ifdef export_unwind_protect_macros
+%%  #ifdef DEBUG_GCSAFETY
+%%   puts("struct fake_gcv_object { oint fake_value; fake_gcv_object (oint value) : fake_value (value) {} };");
+%%  #else
+%%   export_def(fake_gcv_object(value));
+%%  #endif
+%% #endif
 
 /* Hack for use only in areas where no GC can be triggered. */
 #ifdef DEBUG_GCSAFETY
@@ -9093,10 +9110,12 @@ All other long words on the LISP-Stack are LISP-objects.
 #else
   typedef aint  SPint;
 #endif
-%% #if (oint_addr_len <= intLsize)
+%% #ifdef export_unwind_protect_macros
+%%  #if (oint_addr_len <= intLsize)
 %%   emit_typedef("uintL","SPint");
-%% #else
+%%  #else
 %%   emit_typedef("aint","SPint");
+%%  #endif
 %% #endif
 #ifdef SP_DOWN
   #define skipSPop  +=
@@ -9162,8 +9181,10 @@ All other long words on the LISP-Stack are LISP-objects.
 #define longjmpspl(x,y)  longjmpl(sp_jmp_buf_to_jmp_buf(x),y)
 #define jmpbufsize  ceiling(sizeof(jmp_buf)+sp_jmp_buf_incr,sizeof(SPint))
 typedef SPint sp_jmp_buf[jmpbufsize];
-%% printf("#define jmpbufsize %d\n",jmpbufsize);
-%% puts("typedef SPint sp_jmp_buf[jmpbufsize];");
+%% #ifdef export_unwind_protect_macros
+%%   printf("#define jmpbufsize %d\n",jmpbufsize);
+%%   puts("typedef SPint sp_jmp_buf[jmpbufsize];");
+%% #endif
 /* The initial value of SP() during main(). */
 extern void* SP_anchor;
 %% #if (defined(GNU) || defined(INTEL)) && defined(I80386) && !defined(NO_ASM)
