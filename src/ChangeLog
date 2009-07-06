@@ -1,5 +1,11 @@
 2009-07-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (MYIMPROOT): use http://clisp.cons.org/beta instead
+	of http://clisp.podval.org/impnotes/ because the latter has been
+	flaky lately; keep this in sync with doc/Makefile!
+
+2009-07-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/clx.f (XLIB:ACCESS-HOSTS): check the return
 	value of gethostbyaddr and only call hostent_to_lisp on non-NULL
 	Reported by Reini Urban <rurban@x-ray.at>
