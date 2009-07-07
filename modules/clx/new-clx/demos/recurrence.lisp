@@ -20,6 +20,7 @@
 
 (defun draw-ppict (win gc count x y hw hh)
   "Recursively draw pretty picture"
+  (declare (compile))           ; to avoid stack overflow
   (unless (zerop count)
     (let ((xf (floor (* (+ 1.0 x) hw ))) ;These lines center the picture
           (yf (floor (* (+ 0.7 y) hh ))))
