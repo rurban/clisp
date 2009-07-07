@@ -116,7 +116,7 @@ typedef struct {
   uintC _pseudofun_count;
  #if defined(MULTITHREAD)
   /* number of per thread symvalues */
-  uintL _per_thread_symvalues;
+  uintC _per_thread_symvalues_count;
  #endif
   uintC _symbol_count;
   uintL _page_alignment;
@@ -353,6 +353,7 @@ static void savemem_with_runtime (Handle handle, bool delegating) {
  return the total size of all module names */
 local uintL fill_memdump_header (memdump_header_t *header) {
   var uintL module_names_size;
+  memset(header,0,sizeof(*header));
   header->_magic = memdump_magic;
   header->_memflags = memflags;
   header->_oint_type_mask = oint_type_mask;
@@ -380,7 +381,7 @@ local uintL fill_memdump_header (memdump_header_t *header) {
   header->_fsubr_count     = fsubr_count;
   header->_pseudofun_count = pseudofun_count;
  #if defined(MULTITHREAD)
-  header->_per_thread_symvalues = num_symvalues;
+  header->_per_thread_symvalues_count = num_symvalues;
  #endif
   header->_symbol_count    = symbol_count;
   header->_page_alignment = page_alignment;
@@ -1112,7 +1113,7 @@ local void loadmem_from_handle (Handle handle, const char* filename)
    #if defined(MULTITHREAD)
     /* allocate per thread symvalues for the thread */
     {
-      num_symvalues=header._per_thread_symvalues;
+      num_symvalues=header._per_thread_symvalues_count;
       var uintL max_symvalues=(uintL)((num_symvalues/SYMVALUES_PER_PAGE)+1) *
         SYMVALUES_PER_PAGE;
       if (!realloc_thread_symvalues(current_thread(),max_symvalues))
@@ -1874,7 +1875,7 @@ local void find_memdump (Handle fd) {
    #if defined(MULTITHREAD)
     /* restore the count of symvalues. this field should not be used for
        validation by compare */
-    header._per_thread_symvalues = header1._per_thread_symvalues;
+    header._per_thread_symvalues_count = header1._per_thread_symvalues_count;
    #endif
     if (memcmp((void*)&header,(void*)&header1,header_size) != 0) {
       mem_start = (size_t)-1;   /* bad header => no image */
