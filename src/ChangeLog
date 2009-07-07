@@ -1,5 +1,9 @@
 2009-07-07  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (locale): use $(RMRF)
+
+2009-07-07  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/demos/recurrence.lisp (draw-ppict):
 	add (declare (compile)) to avoid stack overflow
 	Reported by Reini Urban <rurban@x-ray.at>

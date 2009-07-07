@@ -2723,9 +2723,9 @@ if [ -n "$USE_GETTEXT" ] ; then
   echol "LN_HARD=${LN_HARD}"
   echol "locale :"
   if [ $HOS = unix ] ; then
-    echotab "if test -d locale; then rm -rf locale; fi"
+    echotab "if test -d locale; then \$(RMRF) locale; fi"
     echotab "mkdir locale"
-    echotab "(cd po && \$(MAKE) && \$(MAKE) install datarootdir=.. localedir='\$\$(datarootdir)/locale' INSTALL_DATA='\$(LN_HARD)') || (rm -rf locale ; exit 1)"
+    echotab "(cd po && \$(MAKE) && \$(MAKE) install datarootdir=.. localedir='\$\$(datarootdir)/locale' INSTALL_DATA='\$(LN_HARD)') || (\$(RMRF) locale ; exit 1)"
   else
     echotab "mkdir locale"
     for d in src ${srcdir}; do
