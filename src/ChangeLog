@@ -1,3 +1,11 @@
+2009-07-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_memfile.d (fill_memdump_header): zero-out header before filling.
+	on x86_64 with MT there was 4 byte padding before _subr_tab_addr and
+	this causes header validation failure (memcmp-ed) in find_memdump()
+	(struct memdump_header_t): rename _per_thread_symvalues to
+	_per_thread_symvalues_count (and use)
+
 2009-07-06  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d: guard the recently introduced jmp-related exports
