@@ -7550,10 +7550,9 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
               struct hostent *he;
               X_CALL(he = gethostbyaddr((char*)ho->address,ho->length,family));
               if (he == NULL) goto bad_family;
-              else hostent_to_lisp(he);
-            }
-            pushSTACK(value1);
-            break;
+              hostent_to_lisp(he);
+              pushSTACK(value1);
+            } break;
 #        if defined(FamilyServerInterpreted)
           case FamilyServerInterpreted: {
             XServerInterpretedAddress *sia =
@@ -7563,14 +7562,14 @@ DEFUN(XLIB:ACCESS-HOSTS, display &key RESULT-TYPE)
                                        GLO(misc_encoding)));
             pushSTACK(n_char_to_string(sia->value,sia->valuelength,
                                        GLO(misc_encoding)));
-            value1 = listof(3); pushSTACK(value1);
+            { object tmp = listof(3); pushSTACK(tmp); }
           } break;
 #        endif
           default: bad_family:
             pushSTACK(fixnum(ho->family));
             pushSTACK(allocate_bit_vector(Atype_8Bit,ho->length));
             SYS_CALL(memcpy(TheSbvector(STACK_0)->data,ho->address,ho->length));
-            value1 = listof(2); pushSTACK(value1);
+            { object tmp = listof(2); pushSTACK(tmp); }
         }
       } else pushSTACK(NIL);
       ho++;
