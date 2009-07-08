@@ -1,5 +1,14 @@
 2009-07-08  Sam Steingold  <sds@gnu.org>
 
+	add POSIX:WAIT (calls waitpid or wait4)
+	* modules/syscalls/calls.c (rusage_to_lisp): do not call getrusage
+	(USAGE): call getrusage here
+	(WAIT): implement
+	* modules/syscalls/posix.lisp (wait) [unix]: export
+	* modules/syscalls/configure.in (wait4): test
+
+2009-07-08  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (update-ansi-tests): use the common-lisp.net SVN
 	repo instead of the GCL CVS
 

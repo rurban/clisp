@@ -30,6 +30,9 @@ Important notes
 * POSIX:COPY-FILE now accepts :METHOD :HARDLINK-OR-COPY.
   See <http://clisp.cons.org/impnotes/syscalls.html#copy-file> for details.
 
+* New function POSIX:WAIT calls waitpid or wait4.
+  See <http://clisp.cons.org/impnotes/syscalls.html#wait> for details.
+
 * New function EXT:TRIM-IF removes leading and trailing matches.
   See <http://clisp.cons.org/impnotes/seq-func-ext.html#trim-if> for details.
 
