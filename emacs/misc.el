@@ -1,14 +1,15 @@
 ;; miscellaneous settings for clisp development in emacs
 
+(defun clisp-repo-p (dir)
+  (let ((host (vc-cvs-repository-hostname dir)))
+    (and host (string-match "^clisp\\." host))))
+
 (eval-after-load "grep"         ; for rgrep
   '(progn
     (add-to-list 'grep-files-aliases
      '("clisp" . "*.[cdfh] *.lisp *.tst *.m4 *.in Makefile* *.xml"))
-    (add-to-list 'grep-find-ignored-directories "build*")))
-
-(defun clisp-repo-p (dir)
-  (let ((host (vc-cvs-repository-hostname dir)))
-    (and host (string-match "^clisp\\." host))))
+    (add-to-list 'grep-find-ignored-directories
+     '(clisp-repo-p . "build*"))))
 
 (defun clisp-set-change-log-default-name ()
   "Set `change-log-default-name' appropriately."
