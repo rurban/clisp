@@ -41,7 +41,7 @@ getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
 mkfifo mkdir creat mkstemp tempnam mkdtemp dnl
 getegid geteuid getgid getuid setegid seteuid setgid setuid dnl
-setreuid setregid getgroups setgroups dnl
+setreuid setregid getgroups setgroups wait4 dnl
 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync dnl
 ftruncate truncate getusershell endusershell dnl
 erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
