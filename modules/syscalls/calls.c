@@ -42,6 +42,7 @@
 #if defined(HAVE_SYS_RESOURCE_H)
 # include <sys/resource.h>
 #endif
+#include <sys/wait.h>
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
 #endif
@@ -1307,36 +1308,82 @@ DEFUN(POSIX::PATHCONF, pathspec &optional what)
 }
 #endif  /* HAVE_PATHCONF && HAVE_FPATHCONF */
 
-
-#if defined(HAVE_GETRUSAGE)
-static /*maygc*/ Values rusage_to_lisp (int who) {
-  struct rusage ru;
+#if defined(HAVE_SYS_RESOURCE_H)
+static /*maygc*/ Values rusage_to_lisp (struct rusage *ru) {
   int count = 2;
-  begin_system_call(); getrusage(who,&ru); end_system_call();
-  pushSTACK(sec_usec_number(ru.ru_utime.tv_sec,ru.ru_utime.tv_usec,0));
-  pushSTACK(sec_usec_number(ru.ru_stime.tv_sec,ru.ru_stime.tv_usec,0));
-  pushSTACK(L_to_I(ru.ru_maxrss)); count++;
-  pushSTACK(L_to_I(ru.ru_ixrss)); count++;
-  pushSTACK(L_to_I(ru.ru_idrss)); count++;
-  pushSTACK(L_to_I(ru.ru_isrss)); count++;
-  pushSTACK(L_to_I(ru.ru_minflt)); count++;
-  pushSTACK(L_to_I(ru.ru_majflt)); count++;
-  pushSTACK(L_to_I(ru.ru_nswap)); count++;
-  pushSTACK(L_to_I(ru.ru_inblock)); count++;
-  pushSTACK(L_to_I(ru.ru_oublock)); count++;
-  pushSTACK(L_to_I(ru.ru_msgsnd)); count++;
-  pushSTACK(L_to_I(ru.ru_msgrcv)); count++;
-  pushSTACK(L_to_I(ru.ru_nsignals)); count++;
-  pushSTACK(L_to_I(ru.ru_nvcsw)); count++;
-  pushSTACK(L_to_I(ru.ru_nivcsw)); count++;
+  pushSTACK(sec_usec_number(ru->ru_utime.tv_sec,ru->ru_utime.tv_usec,0));
+  pushSTACK(sec_usec_number(ru->ru_stime.tv_sec,ru->ru_stime.tv_usec,0));
+  pushSTACK(L_to_I(ru->ru_maxrss)); count++;
+  pushSTACK(L_to_I(ru->ru_ixrss)); count++;
+  pushSTACK(L_to_I(ru->ru_idrss)); count++;
+  pushSTACK(L_to_I(ru->ru_isrss)); count++;
+  pushSTACK(L_to_I(ru->ru_minflt)); count++;
+  pushSTACK(L_to_I(ru->ru_majflt)); count++;
+  pushSTACK(L_to_I(ru->ru_nswap)); count++;
+  pushSTACK(L_to_I(ru->ru_inblock)); count++;
+  pushSTACK(L_to_I(ru->ru_oublock)); count++;
+  pushSTACK(L_to_I(ru->ru_msgsnd)); count++;
+  pushSTACK(L_to_I(ru->ru_msgrcv)); count++;
+  pushSTACK(L_to_I(ru->ru_nsignals)); count++;
+  pushSTACK(L_to_I(ru->ru_nvcsw)); count++;
+  pushSTACK(L_to_I(ru->ru_nivcsw)); count++;
   funcall(`POSIX::MAKE-USAGE`,count);
 }
+
+#if !defined(HAVE_WAIT4)
+#  define wait4(p,s,o,r)  (errno=ENOSYS,OS_error(),(pid_t)-1)
+#endif
+DEFFLAGSET(wait_flags, WNOHANG WUNTRACED WSTOPPED WEXITED WCONTINUED WNOWAIT)
+DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
+      :CONTINUED :NOWAIT) {
+  int status, options = wait_flags();
+  bool usage = !missingp(STACK_0);
+  pid_t ret, pid = missingp(STACK_1) ? (pid_t)-1 : I_to_pid(STACK_1);
+  struct rusage ru;
+  begin_blocking_system_call();
+  ret = usage ? wait4(pid,&status,options,&ru) : waitpid(pid,&status,options);
+  end_blocking_system_call();
+  if (ret == (pid_t)-1) OS_error();
+  if (ret == (pid_t)0 && (options & WNOHANG))
+    VALUES1(Fixnum_0);          /* no process changes status */
+  else {                        /* some process changed status */
+    if (usage) {
+      rusage_to_lisp(&ru);
+      STACK_0 = value1;
+      mv_count = 4;
+    } else mv_count = 3;
+    value1 = pid_to_I(ret);
+    if (usage) value4 = STACK_0;
+    if (WIFEXITED(status)) {
+      value2 = `:EXITED`;
+      value3 = fixnum(WEXITSTATUS(status));
+    } else if (WIFSIGNALED(status)) {
+      value2 = `:SIGNALED`;
+      value3 = fixnum(WTERMSIG(status));
+    } else if (WIFSTOPPED(status)) {
+      value2 = `:STOPPED`;
+      value3 = fixnum(WSTOPSIG(status));
+    } else if (WIFCONTINUED(status)) {
+      value2 = `:CONTINUED`;
+      value3 = NIL;
+    } else {
+      value2 = NIL;
+      value3 = fixnum(status);
+    }
+  }
+  skipSTACK(2);
+}
+
+#if defined(HAVE_GETRUSAGE)
 DEFUN(POSIX::USAGE,) { /* getrusage(3) */
-  rusage_to_lisp(RUSAGE_CHILDREN); pushSTACK(value1);
-  rusage_to_lisp(RUSAGE_SELF);
-  value2 = popSTACK(); mv_count = 2;
+  struct rusage ru;
+#define GETRU(who) begin_system_call(); getrusage(who,&ru); end_system_call(); rusage_to_lisp(&ru); pushSTACK(value1)
+  GETRU(RUSAGE_CHILDREN); GETRU(RUSAGE_SELF);
+#undef GETRU
+  VALUES2(STACK_0,STACK_1); skipSTACK(2);
 }
 #endif /* HAVE_GETRUSAGE */
+#endif /* HAVE_SYS_RESOURCE_H */
 
 #if defined(HAVE_GETRLIMIT) || defined(HAVE_SETRLIMIT)
 DEFCHECKER(getrlimit_arg,prefix=RLIMIT, CPU FSIZE DATA STACK CORE RSS NOFILE \

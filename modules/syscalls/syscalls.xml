@@ -680,6 +680,45 @@ which compute the error functions, Bessel functions and Gamma.</para>
   <listitem><simpara>Call <function role="unix">getgroups</function> and
    <function role="bsd">setgroups</function>.
  </simpara></listitem></varlistentry>
+ <varlistentry id="wait"><term><code>(POSIX:WAIT &key-amp; :PID :USAGE
+    :NOHANG :UNTRACED :STOPPED :EXITED :CONTINUED :NOWAIT)</code></term>
+  <listitem><simpara>Wait for termination of the child process
+    <constant>:PID</constant> (or any child process is nor specified).</simpara>
+   <simpara>The first return value is the &pid-r; of the terminated
+    child process.</simpara>
+   <para>The second and third return values depend on the way the
+    process terminated:<variablelist>
+     <varlistentry><term>2nd value = <constant>:EXITED</constant></term>
+      <term>3rd value = <replaceable>exit status</replaceable></term>
+      <listitem><simpara>if the child terminated normally, e.g., by
+        calling <function role="unix">exit</function>.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>2nd value = <constant>:SIGNALED</constant></term>
+      <term>3rd value = <replaceable>signal number</replaceable></term>
+      <listitem><simpara>if the child process was terminated by a signal.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term>2nd value = <constant>:STOPPED</constant></term>
+      <term>3rd value = <replaceable>signal number</replaceable></term>
+      <listitem><simpara>if the child process was stopped by delivery of
+        a signal.</simpara></listitem></varlistentry>
+     <varlistentry><term>2nd value = <constant>:CONTINUED</constant></term>
+      <term>3rd value = &nil;</term>
+      <listitem><simpara>if the child process has continued from a job
+        control stop.</simpara></listitem></varlistentry>
+     <varlistentry><term>2nd value = &nil;</term>
+      <term>3rd value = &number-r;</term>
+      <listitem><simpara>if &clisp; could not figure out what has happened.
+        Please read your local <function role="unix">waitpid</function>
+        manual and send us a patch.</simpara></listitem></varlistentry>
+     </variablelist></para>
+   <simpara>The fourth value is only returned if <constant>:USAGE</constant>
+    is non-&nil; and in that case it is a structure describing resource
+    usage by the terminated process, similar to what
+    <link linkend="usage"><function>USAGE</function></link> returns.</simpara>
+   <simpara>Calls <function role="unix">waitpid</function> and
+    (when <constant>:USAGE</constant> is non-&nil;)
+    <function role="bsd">wait4</function>.</simpara></listitem>
+ </varlistentry>
 </variablelist></section>
 
 <section id="accounting"><title>Accounting</title>
