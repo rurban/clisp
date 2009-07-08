@@ -94,7 +94,7 @@ update-ansi-tests:
 	  cd ansi-tests && \
 	  svn update; \
 	else \
-	  svn co $(ANSITESTS_SVN) \
+	  svn co $(ANSITESTS_SVN); \
 	fi
 
 # this must not be in "all" because this downloads 23MB XSL + 500kB DTD
