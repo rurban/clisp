@@ -348,12 +348,12 @@ build-aux-update : update-gnulib force
 gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB_CHECKOUT)/gnulib-tool --import --source-base=src/gllib \
-		--m4-base=src/glm4 --aux-dir=src/build-aux --no-changelog \
+		--m4-base=src/glm4 --aux-dir=src/build-aux \
+		--no-vc-files --no-libtool --no-changelog \
 		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
 		uniwidth/width streq uniname/uniname unitypes link-follow \
 		nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time
 	$(RM) configure.ac
-	rm -fv src/gllib/.cvsignore src/glm4/.cvsignore
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \
