@@ -1368,9 +1368,11 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
     } else if (WIFSTOPPED(status)) {
       value2 = `:STOPPED`;
       value3 = check_signal_reverse(WSTOPSIG(status));
+#if defined(WIFCONTINUED)       /* cygwin does not have this */
     } else if (WIFCONTINUED(status)) {
       value2 = `:CONTINUED`;
       value3 = NIL;
+#endif
     } else {
       value2 = NIL;
       value3 = fixnum(status);
