@@ -540,18 +540,47 @@ IPADDR-CLOSURE
 (hash-table-p (show (ipaddr-closure "localhost") :pretty t)) T
 (hash-table-p (show (ipaddr-closure :default) :pretty t)) T
 
-#+(or) (                        ; does not work
-(multiple-value-bind (pid kind status)
-    (posix:wait :pid (ext::launch "sleep" :arguments '("1")
-                                  :wait nil :output nil))
+;; wait
+(defun run-sleep (sec)
+  (ext::launch "sleep" :arguments (list (princ-to-string sec))
+               :wait nil :output nil))
+RUN-SLEEP
+
+#+unix
+(multiple-value-bind (pid kind status) (posix:wait :pid (run-sleep 1))
   (list (integerp (show pid)) kind status))
 (T :EXITED 0)
-)
 
-(posix:wait :pid (ext::launch "sleep" :arguments '("1")
-                              :wait nil :output nil)
-            :nohang t)
-0
+#+unix
+(progn
+  (run-sleep 1)
+  (multiple-value-bind (pid kind status) (posix:wait)
+    (list (integerp (show pid)) kind status)))
+(T :EXITED 0)
+
+#+unix (posix:wait :pid (run-sleep 1) :nohang t) #+unix 0
+
+#+unix
+(let ((pid (run-sleep 1)))
+  (posix:kill pid :SIGTERM)
+  (multiple-value-bind (pid1 kind status rusage) (posix:wait :pid pid :usage t)
+    (assert (= pid pid1))
+    (list kind status (posix:usage-p (show rusage)))))
+#+unix (:SIGNALED :SIGTERM T)
+
+#+unix
+(let ((pid (run-sleep 1)))
+  (posix:kill pid :SIGSTOP)
+  (multiple-value-bind (pid1 kind status) (posix:wait :pid pid :untraced t)
+    (assert (= pid pid1))
+    (assert (eq kind :STOPPED))
+    (assert (eq status :SIGSTOP)))
+  (posix:kill pid :SIGCONT)
+  (multiple-value-bind (pid1 kind status) (posix:wait :pid pid :continued t)
+    (assert (= pid pid1))
+    (assert (eq kind :CONTINUED))
+    (assert (null status))))
+#+unix NIL
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
