@@ -3933,7 +3933,8 @@ $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
 
 
 
-for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h sys/statvfs.h sys/statfs.h sys/utsname.h sys/param.h
+
+for ac_header in errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h pwd.h sys/time.h sys/unistd.h time.h unistd.h syslog.h signal.h grp.h crypt.h utmpx.h stdlib.h shlobj.h netinet/in.h arpa/inet.h sys/statvfs.h sys/statfs.h sys/utsname.h sys/param.h sys/wait.h
 do
 as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
 if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
