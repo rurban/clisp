@@ -854,7 +854,7 @@ DEFUN(POSIX:KILL, pid sig) {
   if (ret==-1) OS_error();
   VALUES0; skipSTACK(2);
 }
-#endif
+#endif  /* HAVE_KILL */
 
 /* ============================= file sync ============================= */
 #if defined(WIN32_NATIVE) || defined(HAVE_SYNC) || defined(HAVE_FSYNC)
@@ -1344,7 +1344,9 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
   pid_t ret, pid = missingp(STACK_1) ? (pid_t)-1 : I_to_pid(STACK_1);
   struct rusage ru;
   begin_blocking_system_call();
+  begin_want_sigcld();
   ret = usage ? wait4(pid,&status,options,&ru) : waitpid(pid,&status,options);
+  end_want_sigcld();
   end_blocking_system_call();
   if (ret == (pid_t)-1) OS_error();
   if (ret == (pid_t)0 && (options & WNOHANG))
@@ -1362,10 +1364,10 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
       value3 = fixnum(WEXITSTATUS(status));
     } else if (WIFSIGNALED(status)) {
       value2 = `:SIGNALED`;
-      value3 = fixnum(WTERMSIG(status));
+      value3 = check_signal_reverse(WTERMSIG(status));
     } else if (WIFSTOPPED(status)) {
       value2 = `:STOPPED`;
-      value3 = fixnum(WSTOPSIG(status));
+      value3 = check_signal_reverse(WSTOPSIG(status));
     } else if (WIFCONTINUED(status)) {
       value2 = `:CONTINUED`;
       value3 = NIL;
