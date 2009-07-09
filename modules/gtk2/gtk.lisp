@@ -503,7 +503,8 @@ signal specific parameters, but not a data parameter."
   (gtk_main))
 
 ;;;
-;;; clisp gui
+;;; sample clisp gui
+;;; clisp -K full -x '(gtk:gui "ui.glade")'
 ;;;
 
 (defstruct gui main repl apropos status about-window about-text)
