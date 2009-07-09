@@ -683,9 +683,11 @@ which compute the error functions, Bessel functions and Gamma.</para>
  <varlistentry id="wait"><term><code>(POSIX:WAIT &key-amp; :PID :USAGE
     :NOHANG :UNTRACED :STOPPED :EXITED :CONTINUED :NOWAIT)</code></term>
   <listitem><simpara>Wait for termination of the child process
-    <constant>:PID</constant> (or any child process is nor specified).</simpara>
-   <simpara>The first return value is the &pid-r; of the terminated
-    child process.</simpara>
+    <constant>:PID</constant> (or any child process if not specified).</simpara>
+   <simpara>If <constant>:NOHANG</constant> is specifed, return &zero;
+    as the only value immediately if no child process has terminated.</simpara>
+   <simpara>Otherwise, the first return value is the &pid-r; of the
+    terminated child process.</simpara>
    <para>The second and third return values depend on the way the
     process terminated:<variablelist>
      <varlistentry><term>2nd value = <constant>:EXITED</constant></term>
