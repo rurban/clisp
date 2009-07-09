@@ -1,8 +1,14 @@
+2009-07-09  Reini Urban  <rurban@x-ray.at>
+
+	* modules/gtk2/gtk.lisp: "#undef interface" because
+	w32api/basetyps.h defines it to "struct" which breaks glade
+	declarations like "(GladeInterface *interface)"
+
 2009-07-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (WAIT): use
 	begin_want_sigcld/end_want_sigcld around waitpid/wait4;
-	return symbols for sygnals using check_signal_reverse
+	return symbols for signals using check_signal_reverse
 	* lispbibl.d (begin_want_sigcld, end_want_sigcld) [HAVE_SIGNALS]:
 	export to clisp.h
 
