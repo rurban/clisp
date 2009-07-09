@@ -42,7 +42,9 @@
 #if defined(HAVE_SYS_RESOURCE_H)
 # include <sys/resource.h>
 #endif
-#include <sys/wait.h>
+#if defined(HAVE_SYS_WAIT_H)
+# include <sys/wait.h>   /* always present on unix, but not elsewhere */
+#endif
 #if defined(HAVE_SYS_STATVFS_H)
 # include <sys/statvfs.h>
 #endif
@@ -1330,6 +1332,7 @@ static /*maygc*/ Values rusage_to_lisp (struct rusage *ru) {
   funcall(`POSIX::MAKE-USAGE`,count);
 }
 
+#if defined(HAVE_SYS_WAIT_H)
 #if !defined(HAVE_WAIT4)
 #  define wait4(p,s,o,r)  (errno=ENOSYS,OS_error(),(pid_t)-1)
 #endif
@@ -1373,6 +1376,7 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
   }
   skipSTACK(2);
 }
+#endif  /* HAVE_SYS_WAIT_H */
 
 #if defined(HAVE_GETRUSAGE)
 DEFUN(POSIX::USAGE,) { /* getrusage(3) */
