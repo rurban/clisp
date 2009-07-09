@@ -1,3 +1,11 @@
+2009-07-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (WAIT): use
+	begin_want_sigcld/end_want_sigcld around waitpid/wait4;
+	return symbols for sygnals using check_signal_reverse
+	* lispbibl.d (begin_want_sigcld, end_want_sigcld) [HAVE_SIGNALS]:
+	export to clisp.h
+
 2009-07-08  Sam Steingold  <sds@gnu.org>
 
 	add POSIX:WAIT (calls waitpid or wait4)

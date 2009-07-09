@@ -696,13 +696,13 @@ which compute the error functions, Bessel functions and Gamma.</para>
         calling <function role="unix">exit</function>.
      </simpara></listitem></varlistentry>
      <varlistentry><term>2nd value = <constant>:SIGNALED</constant></term>
-      <term>3rd value = <replaceable>signal number</replaceable></term>
-      <listitem><simpara>if the child process was terminated by a signal.
+      <term>3rd value = &sig-r;</term>
+      <listitem><simpara>if the child process was terminated by a &sig-r;.
      </simpara></listitem></varlistentry>
      <varlistentry><term>2nd value = <constant>:STOPPED</constant></term>
-      <term>3rd value = <replaceable>signal number</replaceable></term>
+      <term>3rd value = &sig-r;</term>
       <listitem><simpara>if the child process was stopped by delivery of
-        a signal.</simpara></listitem></varlistentry>
+        a &sig-r;.</simpara></listitem></varlistentry>
      <varlistentry><term>2nd value = <constant>:CONTINUED</constant></term>
       <term>3rd value = &nil;</term>
       <listitem><simpara>if the child process has continued from a job

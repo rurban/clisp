@@ -10699,17 +10699,22 @@ extern maygc off_t savemem (object stream, uintL executable);
 
 #ifdef HAVE_SIGNALS
 /* Temporarily do not ignore the status of subprocesses. */
-  extern void begin_want_sigcld (void);
-  extern void end_want_sigcld (void);
-/* is used by PATHNAME */
+extern void begin_want_sigcld (void);
+extern void end_want_sigcld (void);
+/* is used by PATHNAME and module syscalls */
 #endif
+%% #ifdef HAVE_SIGNALS
+%%  puts("extern void begin_want_sigcld (void);");
+%%  puts("extern void end_want_sigcld (void);");
+%% #endif
+
 
 #if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
 /* Set ONLY during write() calls to pipes directed to subprocesses. */
 extern bool writing_to_subprocess;
 #endif
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
-%% puts("extern bool writing_to_subprocess;");
+%%  puts("extern bool writing_to_subprocess;");
 %% #endif
 
 
