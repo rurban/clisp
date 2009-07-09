@@ -540,6 +540,19 @@ IPADDR-CLOSURE
 (hash-table-p (show (ipaddr-closure "localhost") :pretty t)) T
 (hash-table-p (show (ipaddr-closure :default) :pretty t)) T
 
+#+(or) (                        ; does not work
+(multiple-value-bind (pid kind status)
+    (posix:wait :pid (ext::launch "sleep" :arguments '("1")
+                                  :wait nil :output nil))
+  (list (integerp (show pid)) kind status))
+(T :EXITED 0)
+)
+
+(posix:wait :pid (ext::launch "sleep" :arguments '("1")
+                              :wait nil :output nil)
+            :nohang t)
+0
+
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
        (symbol-cleanup 'flush-clisp)
