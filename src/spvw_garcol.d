@@ -1949,26 +1949,35 @@ local void gar_col_normal (void)
     }
     *L1 = Fixnum_0; *L2 = Fixnum_0;
   }
-  gc_mark(O(all_finalizers)); gc_mark(O(pending_finalizers)); /* mark both lists now */
+  gc_mark(O(all_finalizers));
  #ifdef GC_CLOSES_FILES
   /* Split (still unmarked) list files_to_close into two lists: */
   SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close),TheStream,false);
-  gc_mark(O(open_files)); gc_mark(O(files_to_close)); /* mark both lists now */
+  gc_mark(O(open_files));
  #endif
- #if defined(MULTITHREAD)
+ #ifdef MULTITHREAD
   /* prepare for release terminated, non-referenced threads */
   SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),TheThread,
                   (TheThread(Car(Lu))->xth_globals != NULL));
-  gc_mark(O(all_threads)); gc_mark(O(threads_to_release));
+  gc_mark(O(all_threads));
   /* prepare for release non-referenced mutexes */
   SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),TheMutex,false);
-  gc_mark(O(all_mutexes)); gc_mark(O(mutexes_to_release));
+  gc_mark(O(all_mutexes));
   /* prepare for release non-referenced exemptions */
   SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release),TheExemption,false);
-  gc_mark(O(all_exemptions)); gc_mark(O(exemptions_to_release));
+  gc_mark(O(all_exemptions));
+ #endif
+  clean_weakpointers(all_weakpointers);
+  gc_mark(O(pending_finalizers));
+  /* mark objects to be released after weak pointer have been cleaned. */
+  gc_mark(O(files_to_close));
+ #ifdef MULTITHREAD
+  gc_mark(O(threads_to_release));
+  gc_mark(O(mutexes_to_release));
+  gc_mark(O(exemptions_to_release));
  #endif
   /* No more gc_mark operations from here on. */
-  clean_weakpointers(all_weakpointers);
+
  #if defined(USE_JITC)
   gc_scan_jitc_objects();
  #endif
