@@ -105,18 +105,18 @@ T
 (defparameter *exemption-state* nil)
 *EXEMPTION-STATE*
 
-;; test deferred interrupts, exemption-signal and with-lock
+;; test deferred interrupts, exemption-signal and with-mutex-lock
 (defparameter *th1*
   (make-thread (lambda ()
                  (with-deferred-interrupts
-                   (with-lock (*mu1*)
+                   (with-mutex-lock (*mu1*)
                      (sleep 1)
                      (setf *exemption-state* :signaled)
                      (exemption-signal *exemption*))
                    (loop (sleep 1))))))
 *TH1*
 
-(with-lock (*mu1*)
+(with-mutex-lock (*mu1*)
   (loop until (eq *exemption-state* :signaled)
      do (exemption-wait *exemption* *mu1*)
      finally (return *exemption-state*)))
@@ -128,9 +128,9 @@ T
 (thread-active-p *th1*) T ;; kill is deferred
 
 ;; test exemtpion-broadcast and thread-interrupt :override
-(with-lock (*mu1*)
+(with-mutex-lock (*mu1*)
   (thread-interrupt *th1* :function (lambda ()
-                                      (with-lock (*mu1*)
+                                      (with-mutex-lock (*mu1*)
                                         (setf *exemption-state* :broadcasted)
                                         (exemption-broadcast *exemption*)))
                     :override t)
