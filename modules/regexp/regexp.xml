@@ -18,7 +18,7 @@ and &emacs; info pages.</para>
    &re-eflags-opts;)</code></term>
  <listitem><para>This macro returns as first value a &match-t; structure
   containing the indices of the start and end of the first match for the
-  &reg-exp; &pattern-r; in &string-r;; or &nil; if there is no match.
+  &reg-exp; &pattern-r; in &string-r;; or no values if there is no match.
   Additionally, a &match-t; structure is returned for every matched
   <literal>"\(...\)"</literal> group in &pattern-r;, in the
   order that the open parentheses appear in &pattern-r;.
