@@ -236,8 +236,12 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (!boundp(STACK_0)) /* if not bound set to mt:*default-special-bidnings* */
     STACK_0 = Symbol_value(S(default_special_bindings));
   STACK_0 = check_list(STACK_0);
-  if (boundp(STACK_1))
-    STACK_1 = check_string(STACK_1); /* check thread name */
+  /* check the function object has been passed*/
+  if (!functionp(STACK_2))
+    STACK_2 = check_function_replacement(STACK_2);
+  /* set thread name */
+  STACK_1 = !missingp(STACK_1) ? test_stringsymchar_arg(STACK_1,false) :
+    (eq(STACK_1,NIL) ? STACK_1 : Closure_name(STACK_2));
 
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
@@ -592,7 +596,7 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
 { /* (MAKE-MUTEX &key name (recursive-p nil) ) */
   var bool recursive = ! missingp(STACK_0);
   skipSTACK(1); /* ditch the recursive_p */
-  STACK_0 = check_string(STACK_0);
+  STACK_0 = !missingp(STACK_0) ? test_stringsymchar_arg(STACK_0,false) : NIL;
   /* overwrite the name on the STACK with the newly allocated object */
   var object mx = allocate_mutex(&STACK_0);
   STACK_0 = mx;
@@ -710,7 +714,7 @@ LISPFUNN(exemptionp,1)
 
 LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
 { /* (MAKE-EXEMPTION &key name) */
-  STACK_0 = check_string(STACK_0);
+  STACK_0 = !missingp(STACK_0) ? test_stringsymchar_arg(STACK_0,false) : NIL;
   /* overwrite the name on the STACK with the newly allocated object */
   var object ex = allocate_exemption(&STACK_0);
   STACK_0 = ex;

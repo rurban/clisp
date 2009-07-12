@@ -1,3 +1,8 @@
+2009-07-12  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* zthread.d (MAKE-THREAD, MAKE-MUTEX, MAKE-EXEMPTION): allow symbols and
+	characters for :name argument
+
 2009-07-09  Reini Urban  <rurban@x-ray.at>
 
 	* modules/gtk2/gtk.lisp: "#undef interface" because
