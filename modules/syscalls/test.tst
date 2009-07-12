@@ -560,15 +560,15 @@ RUN-SLEEP
 
 #+unix (posix:wait :pid (run-sleep 1) :nohang t) #+unix 0
 
-#+unix
+#+(and :unix (not :cygwin))
 (let ((pid (run-sleep 1)))
   (posix:kill pid :SIGTERM)
   (multiple-value-bind (pid1 kind status rusage) (posix:wait :pid pid :usage t)
     (assert (= pid pid1))
     (list kind status (posix:usage-p (show rusage)))))
-#+unix (:SIGNALED :SIGTERM T)
+#+(and :unix (not :cygwin)) (:SIGNALED :SIGTERM T)
 
-#+unix
+#+(and :unix (not :cygwin))
 (let ((pid (run-sleep 1)))
   (posix:kill pid :SIGSTOP)
   (multiple-value-bind (pid1 kind status) (posix:wait :pid pid :untraced t)
@@ -580,7 +580,7 @@ RUN-SLEEP
     (assert (= pid pid1))
     (assert (eq kind :CONTINUED))
     (assert (null status))))
-#+unix NIL
+#+(and :unix (not :cygwin)) NIL
 
 (progn (delete-file *tmp1*) (symbol-cleanup '*tmp1*)
        (delete-file *tmp2*) (symbol-cleanup '*tmp2*)
