@@ -7,7 +7,7 @@
            "THREAD-INTERRUPT" "THREAD-NAME" "THREAD-ACTIVE-P"
            "CURRENT-THREAD" "LIST-THREADS"
            "MUTEX" "MUTEXP" "MAKE-MUTEX" "MUTEX-LOCK" "MUTEX-UNLOCK"
-           "MUTEX-OWNER" "MUTEX-RECURSIVE-P" "WITH-LOCK"
+           "MUTEX-OWNER" "MUTEX-RECURSIVE-P" "WITH-MUTEX-LOCK"
            "EXEMPTION" "EXEMPTIONP" "MAKE-EXEMPTION" "EXEMPTION-SIGNAL"
            "EXEMPTION-WAIT" "EXEMPTION-BROADCAST"
            "Y-OR-N-P-TIMEOUT" "YES-OR-NO-P-TIMEOUT" "WITH-TIMEOUT"
@@ -90,7 +90,7 @@ terminate and evaluate TIMEOUT-FORMS."
 
 ;;; locks
 
-(defmacro with-lock ((mutex) &body body)
+(defmacro with-mutex-lock ((mutex) &body body)
   "Execute BODY with MUTEX locked."
   (let ((lk (gensym "WL-")))
     `(let ((,lk ,mutex))
