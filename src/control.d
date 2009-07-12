@@ -823,7 +823,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
       var object varspec = Car(varspecs);
       if (consp(varspec))
           varspec = Car(varspec);
-      pushSTACK(Symbol_value(varspec)); /* old value of the variables */
+      pushSTACK(Symbol_thread_value(varspec)); /* old value of the variables */
       pushSTACK(varspec); /* variable */
       varspecs = Cdr(varspecs);
     }
@@ -837,7 +837,7 @@ LISPSPECFORM(compiler_let, 1,0,body)
       var object varspec = Car(varspecs);
       if (consp(varspec))
         varspec = Car(varspec);
-      Symbol_value(varspec) = NEXT(valptr); /* assign new value to the variables */
+      Symbol_thread_value(varspec) = NEXT(valptr); /* assign new value to the variables */
         varspecs = Cdr(varspecs);
     }
   }
