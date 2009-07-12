@@ -623,7 +623,7 @@ global maygc void progv (object symlist, object vallist) {
   var object symlistr = symlist;
   while (consp(symlistr)) { /* loop over symbol list */
     var object sym = Car(symlistr);
-    pushSTACK(Symbol_value(sym)); /* old value of the variables */
+    pushSTACK(Symbol_thread_value(sym)); /* old value of the variables */
     pushSTACK(sym); /* variable */
     symlistr = Cdr(symlistr);
   }
@@ -634,13 +634,13 @@ global maygc void progv (object symlist, object vallist) {
       /* value list shorter than symbol list
          -> all further "values" are #<UNBOUND> */
       do {
-        Symbol_value(Car(symlist)) = unbound;
+        Symbol_thread_value(Car(symlist)) = unbound;
         symlist = Cdr(symlist);
       } while (consp(symlist));
       break;
     }
     /* symbol obtains new value: */
-    Symbol_value(Car(symlist)) = Car(vallist);
+    Symbol_thread_value(Car(symlist)) = Car(vallist);
     symlist = Cdr(symlist); vallist = Cdr(vallist);
   }
 }
@@ -1598,15 +1598,15 @@ global maygc object parse_dd (object formlist)
 global void bindhooks (object evalhook_value, object applyhook_value) {
   { /* build frame: */
     var gcv_object_t* top_of_frame = STACK; /* Pointer to Frame */
-    pushSTACK(Symbol_value(S(evalhookstar))); /* old value of *EVALHOOK* */
+    pushSTACK(Symbol_thread_value(S(evalhookstar))); /* old value of *EVALHOOK* */
     pushSTACK(S(evalhookstar));               /* *EVALHOOK* */
-    pushSTACK(Symbol_value(S(applyhookstar))); /* old value of *APPLYHOOK* */
+    pushSTACK(Symbol_thread_value(S(applyhookstar))); /* old value of *APPLYHOOK* */
     pushSTACK(S(applyhookstar));               /* *APPLYHOOK* */
     finish_frame(DYNBIND);
   }
   /* Frame got ready, now change the values of the variables: */
-  Symbol_value(S(evalhookstar)) = evalhook_value; /* (SETQ *EVALHOOK* evalhook_value) */
-  Symbol_value(S(applyhookstar)) = applyhook_value; /* (SETQ *APPLYHOOK* applyhook_value) */
+  Symbol_thread_value(S(evalhookstar)) = evalhook_value; /* (SETQ *EVALHOOK* evalhook_value) */
+  Symbol_thread_value(S(applyhookstar)) = applyhook_value; /* (SETQ *APPLYHOOK* applyhook_value) */
 }
 
 /* UP: binds *EVALHOOK* and *APPLYHOOK* dynamically to NIL.
