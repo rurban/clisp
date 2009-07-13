@@ -241,7 +241,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
     STACK_2 = check_function_replacement(STACK_2);
   /* set thread name */
   STACK_1 = !missingp(STACK_1) ? test_stringsymchar_arg(STACK_1,false) :
-    (eq(STACK_1,NIL) ? STACK_1 : Closure_name(STACK_2));
+    (object)(eq(STACK_1,NIL) ? STACK_1 : Closure_name(STACK_2));
 
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
