@@ -27,6 +27,11 @@
 (eval-when (compile) (setq *foreign-guard* t))
 
 (c-lines "#include \"config.h\"~%") ; local dbus config
+
+;; w32api/basetyps.h defines interface to struct
+;; which breaks dbus declarations like dbus_message_set_interface below
+(c-lines "#undef interface~%")
+
 (c-lines "#include <dbus/dbus.h>~%")
 
 ;; === dbus-types.h
