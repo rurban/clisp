@@ -56,6 +56,19 @@ local maygc object check_exemption(object obj)
   return obj;
 }
 
+/* check the :NAME argument: accept anything:
+ a string should, obviously, be allowed.
+ a symbol is useful for
+    (eq (symbol-value (foo-name foo)) foo)
+    (eq (foo-name (symbol-value sym)) sym)
+ an integer is useful for array pools (name = index into the pool)
+ > name_arg: the :NAME argument
+ > dflt: the default for unbound */
+local object check_name_arg (object name_arg, object dflt) {
+  if (!boundp(name_arg)) return dflt;
+  return name_arg;
+}
+
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list) {
   /* Nothing to do here actually. In the past the memory of some
@@ -240,8 +253,7 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   if (!functionp(STACK_2))
     STACK_2 = check_function_replacement(STACK_2);
   /* set thread name */
-  STACK_1 = !missingp(STACK_1) ? test_stringsymchar_arg(STACK_1,false) :
-    (object)(eq(STACK_1,NIL) ? STACK_1 : Closure_name(STACK_2));
+  STACK_1 = check_name_arg(STACK_1,Closure_name(STACK_2));
 
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
@@ -473,7 +485,7 @@ LISPFUNN(threadp,1)
   VALUES_IF(threadp(obj));
 }
 
-LISPFUNN(thread_name,1)
+LISPFUNNR(thread_name,1)
 { /* (THREAD-NAME thread) */
   var object obj=check_thread(popSTACK());
   VALUES1(TheThread(obj)->xth_name);
@@ -596,7 +608,7 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
 { /* (MAKE-MUTEX &key name (recursive-p nil) ) */
   var bool recursive = ! missingp(STACK_0);
   skipSTACK(1); /* ditch the recursive_p */
-  STACK_0 = !missingp(STACK_0) ? test_stringsymchar_arg(STACK_0,false) : NIL;
+  STACK_0 = check_name_arg(STACK_0,NIL);
   /* overwrite the name on the STACK with the newly allocated object */
   var object mx = allocate_mutex(&STACK_0);
   STACK_0 = mx;
@@ -613,6 +625,12 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
     GC_SAFE_MUTEX_UNLOCK(&all_mutexes_lock);
   }
   VALUES1(popSTACK());
+}
+
+LISPFUNNR(mutex_name,1)
+{ /* (MUTEX-NAME thread) */
+  var object obj=check_mutex(popSTACK());
+  VALUES1(TheMutex(obj)->xmu_name);
 }
 
 LISPFUN(mutex_lock,seclass_default,1,0,norest,key,1,
@@ -714,7 +732,7 @@ LISPFUNN(exemptionp,1)
 
 LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
 { /* (MAKE-EXEMPTION &key name) */
-  STACK_0 = !missingp(STACK_0) ? test_stringsymchar_arg(STACK_0,false) : NIL;
+  STACK_0 = check_name_arg(STACK_0,NIL);
   /* overwrite the name on the STACK with the newly allocated object */
   var object ex = allocate_exemption(&STACK_0);
   STACK_0 = ex;
@@ -731,6 +749,11 @@ LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
   VALUES1(popSTACK());
 }
 
+LISPFUNNR(exemption_name,1)
+{ /* (EXEMPTION-NAME thread) */
+  var object obj=check_exemption(popSTACK());
+  VALUES1(TheExemption(obj)->xco_name);
+}
 
 LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
         (kw(timeout)))

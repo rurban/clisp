@@ -1,5 +1,13 @@
 2009-07-13  Sam Steingold  <sds@gnu.org>
 
+	* zthread.d (MUTEX-NAME, EXEMPTION-NAME): add
+	(check_name_arg): add; use instead of test_stringsymchar_arg to
+	allow any names (strings, symbols, integers &c)
+	* constsym.d, subr.d (mutex_name, exemption_name): add
+	* threads.lisp (MUTEX-NAME, EXEMPTION-NAME): export
+
+2009-07-13  Sam Steingold  <sds@gnu.org>
+
 	* constobj.d (printstring_inactive, printstring_recursive): add
 	* io.d (pr_unreadably_with_prefix): rename from pr_unreadably and
 	accept an optional prefix to print before string

@@ -13,6 +13,7 @@
 ;; non-recursive mutex
 (defparameter *mu1* (make-mutex :name "mu1")) *MU1*
 (prin1-to-string *mu1*) "#<MUTEX \"mu1\">"
+(mutex-name *mu1*) "mu1"
 (mutex-owner *mu1*) NIL
 (typep *mu1* 'exemption) NIL
 (typep *mu1* 'mutex) T
@@ -24,8 +25,9 @@
 (progn (mutex-unlock *mu1*) (mutex-owner *mu1*)) NIL
 (mutex-unlock *mu1*) ERROR
 ;; recursive mutex
-(defparameter *mu2* (make-mutex :name "mu2" :recursive-p t)) *MU2*
-(prin1-to-string *mu2*) "#<RECURSIVE MUTEX \"mu2\">"
+(defparameter *mu2* (make-mutex :name '*mu2* :recursive-p t)) *MU2*
+(prin1-to-string *mu2*) "#<RECURSIVE MUTEX *MU2*>"
+(mutex-name *mu2*)  *MU2*
 (mutex-owner *mu2*) NIL
 (mutex-lock *mu2*) T
 (mutex-lock *mu2*) T
@@ -46,6 +48,7 @@
 *TH1*
 (thread-active-p *th1*) T
 (prin1-to-string *th1*) "#<THREAD :LAMBDA>"
+(thread-name *th1*)  :LAMBDA
 (typep *th1* 'exemption) NIL
 (typep *th1* 'mutex) NIL
 (typep *th1* 'thread) T
@@ -77,8 +80,10 @@ T
 (defparameter *th2*
   (make-thread #'(lambda ()
                    (mutex-lock *mu2*)
-                   (loop (sleep 1)))))
+                   (loop (sleep 1)))
+               :name '*th2*))
 *TH2*
+(thread-name *th2*)  *TH2*
 (thread-active-p *th2*)
 T
 
@@ -107,6 +112,7 @@ T
   (make-exemption :name "test exemption"))
 *EXEMPTION*
 (prin1-to-string *exemption*) "#<EXEMPTION \"test exemption\">"
+(exemption-name *exemption*) "test exemption"
 (defparameter *exemption-state* nil)
 *EXEMPTION-STATE*
 

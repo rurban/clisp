@@ -1427,7 +1427,7 @@ LISPFUNN(thread_yield,0)
 LISPFUN(thread_interrupt,seclass_default,1,0,norest,key,3,
         (kw(function),kw(override),kw(arguments)))
 LISPFUNN(threadp,1)
-LISPFUNN(thread_name,1)
+LISPFUNNR(thread_name,1)
 LISPFUNN(thread_active_p,1)
 LISPFUNN(current_thread,0)
 LISPFUNN(list_threads,0)
@@ -1439,10 +1439,12 @@ LISPFUN(make_mutex,seclass_default,0,0,norest,key,2,
 LISPFUN(mutex_lock,seclass_default,1,0,norest,key,1,
         (kw(timeout)))
 LISPFUNN(mutex_recursive_p,1)
+LISPFUNNR(mutex_name,1)
 LISPFUNN(mutex_owner,1)
 LISPFUNN(mutex_unlock,1)
 LISPFUNN(exemptionp,1)
 LISPFUN(make_exemption,seclass_default,0,0,norest,key,1,(kw(name)))
+LISPFUNNR(exemption_name,1)
 LISPFUNN(exemption_signal,1)
 LISPFUN(exemption_wait,seclass_default,2,0,norest,key,1,
         (kw(timeout)))
