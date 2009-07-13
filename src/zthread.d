@@ -56,7 +56,7 @@ local maygc object check_exemption(object obj)
   return obj;
 }
 
-/* check the :NAME argument: accept anything:
+/* check the :NAME argument; accept:
  a string should, obviously, be allowed.
  a symbol is useful for
     (eq (symbol-value (foo-name foo)) foo)
@@ -66,6 +66,14 @@ local maygc object check_exemption(object obj)
  > dflt: the default for unbound */
 local object check_name_arg (object name_arg, object dflt) {
   if (!boundp(name_arg)) return dflt;
+  while (!stringp(name_arg) && !symbolp(name_arg) && !integerp(name_arg)) {
+    pushSTACK(NIL);              /* no PLACE */
+    pushSTACK(name_arg);         /* TYPE-ERROR slot DATUM */
+    pushSTACK(O(type_name_arg)); /* TYPE-ERROR slot EXPECTED-TYPE */
+    pushSTACK(name_arg); pushSTACK(subr_self);
+    check_value(type_error,GETTEXT("~S: name ~S should be a string, a symbol, or an integer"));
+    name_arg = value1;
+  }
   return name_arg;
 }
 

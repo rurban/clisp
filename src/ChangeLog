@@ -5,6 +5,7 @@
 	allow any names (strings, symbols, integers &c)
 	* constsym.d, subr.d (mutex_name, exemption_name): add
 	* threads.lisp (MUTEX-NAME, EXEMPTION-NAME): export
+	* constobj.d (type_name_arg): add
 
 2009-07-13  Sam Steingold  <sds@gnu.org>
 
