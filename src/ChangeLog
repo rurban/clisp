@@ -11,9 +11,10 @@
 
 2009-07-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	fix bug #[ 1472478 ] (and weak references to GC-ed threads objects)
+	fix bug #[ 1472478 ]: Crashing CLISP with finalizers + weak hashtables
+	and fix weak references to GC-ed threads objects
 	* spvw_garcol.d (gar_col_normal): mark objects to be released after
-	weak pointers have been cleaned. fixes
+	weak pointers have been cleaned
 
 2009-07-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
