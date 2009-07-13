@@ -52,6 +52,7 @@ Important notes
     implemented by Philippe Brochard <hocwp@free.fr>.
   + Extend the domain of LOG to larger BIGNUMs and RATIOs. [ 1007358 ]
   + Avoid a segfault on (EXPT <HUGE> <HUGE>). [ 2807311 ]
+  + Fix interaction of finalizers and weak objects. [ 1472478 ]
 
 * ANSI compliance:
   + Implement the ANSI (IGNORE #'FUNCTION) declaration.
