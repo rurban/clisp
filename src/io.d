@@ -7665,17 +7665,21 @@ local maygc void pr_number (const gcv_object_t* stream_, object number) {
  > obj: object
  > string: simple-string "BLABLA"
  > printer: function to print the object to the stream
+ > prefix: the optional prefix to print before string like "INVALID " &c
  < stream: stream
  can trigger GC */
 local maygc void pr_record_ab_00 (const gcv_object_t* stream_, object obj);
-local maygc void pr_unreadably (const gcv_object_t* stream_, object obj,
-                                gcv_object_t *string_, pr_routine_t printer) {
+local maygc void pr_unreadably_with_prefix
+(const gcv_object_t* stream_, object obj,
+ gcv_object_t *string_, pr_routine_t printer, gcv_object_t *prefix_) {
   LEVEL_CHECK;
   pushSTACK(obj);                    /* save object */
   var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
   UNREADABLE_START;
   var uintL length_limit = get_print_length(); /* *PRINT-LENGTH* */
   JUSTIFY_LAST(length_limit==0);
+  if (prefix_ != NULL)
+    write_sstring_case(stream_,*prefix_);
   write_sstring_case(stream_,*string_); /* print string */
   if (printer != pr_record_ab_00) {
     JUSTIFY_SPACE;
@@ -7687,6 +7691,7 @@ local maygc void pr_unreadably (const gcv_object_t* stream_, object obj,
   skipSTACK(1);
   LEVEL_END;
 }
+#define pr_unreadably(c,o,s,p)   pr_unreadably_with_prefix(c,o,s,p,NULL)
 
  /* UP: prints object #<BLABLA (FOO . BAR)> to stream.
  pr_unreadably_2(&stream,obj1,obj2,&string);
@@ -9440,13 +9445,17 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
 #ifdef MULTITHREAD
     case Rectype_Thread:
       CHECK_PRINT_READABLY(obj);
-      pr_unreadably(stream_,TheThread(obj)->xth_name,
-                    &O(printstring_thread),prin_object);
+      pr_unreadably_with_prefix(stream_,TheThread(obj)->xth_name,
+                                &O(printstring_thread),prin_object,
+                                TheThread(obj)->xth_globals == NULL
+                                ? &O(printstring_inactive) : NULL);
       break;
     case Rectype_Mutex:
       CHECK_PRINT_READABLY(obj);
-      pr_unreadably(stream_,TheMutex(obj)->xmu_name,
-                    &O(printstring_mutex),prin_object);
+      pr_unreadably_with_prefix(stream_,TheMutex(obj)->xmu_name,
+                                &O(printstring_mutex),prin_object,
+                                mutex_recursivep(obj)
+                                ? &O(printstring_recursive) : NULL);
       break;
     case Rectype_Exemption:
       CHECK_PRINT_READABLY(obj);
