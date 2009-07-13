@@ -649,6 +649,7 @@
   /* tag at the bottom of each thread stack. used for killing thread via
    (THROW thread_exit_tag) */
   LISPOBJ(thread_exit_tag,"(GENSYM)")
+  LISPOBJ(type_name_arg,"(OR STRING SYMBOL INTEGER)")
 #endif
 /* for LISPARIT.D:
    various constant numbers: */
