@@ -4906,6 +4906,9 @@ Now you can sum doubles:
    successful acquisition).</simpara>
   <simpara>Cf. <function role="unix">pthread_mutex_init</function>.</simpara>
 </listitem></varlistentry>
+<varlistentry id="mutex-name"><term><code>(&mutex-name; &thr;)</code></term>
+ <listitem><simpara>Return the &name-r; of the &mutex;.
+</simpara></listitem></varlistentry>
 <varlistentry id="mutex-lock"><term><code>(&mutex-lock; &mutex-r;
    &key-amp; &timeout-k;)</code></term>
  <listitem><simpara>Acquire the &mutex-r;.  If &mutex-r; is locked by
@@ -4961,6 +4964,10 @@ Now you can sum doubles:
    helps debugging deadlocks).</simpara>
   <simpara>Cf. <function role="unix">pthread_cond_init</function>.</simpara>
 </listitem></varlistentry>
+<varlistentry id="exemption-name"><term><code>(&exemption-name;
+   &thr;)</code></term>
+ <listitem><simpara>Return the &name-r; of the &exemp-r;.
+</simpara></listitem></varlistentry>
 <varlistentry id="exemption-signal"><term><code>(&exemption-signal;
    &exemp-r;)</code></term>
  <listitem><simpara>Signal &exemp-r; object, i.e. wake up a thread blocked
