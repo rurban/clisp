@@ -1,3 +1,12 @@
+2009-07-13  Sam Steingold  <sds@gnu.org>
+
+	* constobj.d (printstring_inactive, printstring_recursive): add
+	* io.d (pr_unreadably_with_prefix): rename from pr_unreadably and
+	accept an optional prefix to print before string
+	(pr_unreadably): define using pr_unreadably_with_prefix
+	(pr_orecord): print INACTIVE for dead threads
+	and RECURSIVE recursive mutexes
+
 2009-07-12  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: use per thread value cells in all DYNBIND frames

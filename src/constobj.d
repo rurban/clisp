@@ -635,6 +635,8 @@
   LISPOBJ_S(printstring_thread,"THREAD")
   LISPOBJ_S(printstring_mutex,"MUTEX")
   LISPOBJ_S(printstring_exemption,"EXEMPTION")
+  LISPOBJ_S(printstring_inactive,"INACTIVE ")
+  LISPOBJ_S(printstring_recursive,"RECURSIVE ")
   LISPOBJ_S(thread_break_description,"Ctrl-C: User break")
   LISPOBJ(all_threads,"NIL")
   LISPOBJ(threads_to_release,"NIL")
