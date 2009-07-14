@@ -1,5 +1,10 @@
 2009-07-14  Sam Steingold  <sds@gnu.org>
 
+	* utils/clispload.lsp (*expected-failures*): drop PRINT-LEVEL.8,
+	PRINT-LEVEL.9 because I fixed them in the sources
+
+2009-07-14  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (modcheck): add shell function to unify
 	base-mod-check & full-mod-check target generation
 
