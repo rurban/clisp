@@ -423,7 +423,7 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
                  `(mt:make-thread
                    (lambda ()
                      (let ((ans ,body))
-                       (mt:with-lock (lock)
+                       (mt:with-mutex-lock (lock)
                          (push ans res))))
                    :cstack-size 16777216)))
       (dolist (args *all-tests*)
