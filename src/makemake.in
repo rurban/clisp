@@ -3300,7 +3300,7 @@ else
 fi
 echotab "if grep lispbibl.d clisp.h; then false; else true; fi"
 echotab "\$(RM) genclisph${HEXE} clisp-test-clisp${HEXE} clisp-test-lispbibl${HEXE} clisp-test-clisp.out clisp-test-lispbibl.out"
-OBSOLETE="$OBSOLETE clisp-test.c"
+OBSOLETE="$OBSOLETE clisp-test.c genclisph${HEXE}"
 echol
 LINKKIT="modules.c clisp.h modprep.lisp"
 echol "linkkit : ${LINKKIT}"
@@ -3375,15 +3375,15 @@ cygwin_finish full
 
 echol "mod-check : base-mod-check full-mod-check"
 echol
+modcheck(){                     # $1=clisp command; $2=MODULES variable
+  echotab 'for m in "" $('$2'); do test -n "$$m" && $(RM) $$m/*.erg; done'
+  echotab 'z=""; for m in "" $('$2'); do test -n "$$m" && z=$$z" \""$$m/\"; done; '"$1${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
+  echol
+}
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
-echotab 'for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
-echol
+modcheck "./clisp" BASE_MODULES
 echol "full-mod-check : # full"
-echotab 'for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
-echotab 'z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
-echol
-OBSOLETE=$OBSOLETE" genclisph${HEXE}"
+modcheck "./clisp -K full" MODULES
 
 if test -n "$GROFF"; then
   manual_dvi='clisp.dvi clisp.ps'
