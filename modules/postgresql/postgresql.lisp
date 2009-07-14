@@ -279,19 +279,19 @@
   (:arguments (conn PGconn) (query c-string)))
 (def-call-out PQexecParams (:return-type PGresult)
   (:arguments (conn PGconn) (command c-string) (nParams int)
-              (paramTypes (c-array-max Oid #.MAX-PARAM))
-              (paramValues (c-array-max c-string #.MAX-PARAM))
-              (paramLengths (c-array-max int #.MAX-PARAM))
-              (paramFormats (c-array-max int #.MAX-PARAM))
+              (paramTypes (c-array-ptr Oid)) ; at least nParams
+              (paramValues (c-array-ptr c-string)) ; ditto
+              (paramLengths (c-array-ptr int))     ; ditto
+              (paramFormats (c-array-ptr int))     ; ditto
               (resultFormat int)))
 (def-call-out PQprepare (:return-type PGresult)
   (:arguments (conn PGconn) (stmtName c-string) (query c-string) (nParams int)
-              (paramTypes (c-array-max Oid #.MAX-PARAM))))
+              (paramTypes (c-array-ptr Oid)))) ; at least nParams
 (def-call-out PQexecPrepared (:return-type PGresult)
   (:arguments (conn PGconn) (stmtName c-string) (nParams int)
-              (paramValues (c-array-max c-string #.MAX-PARAM))
-              (paramLengths (c-array-max int #.MAX-PARAM))
-              (paramFormats (c-array-max int #.MAX-PARAM))
+              (paramValues (c-array-ptr c-string)) ; at least nParams
+              (paramLengths (c-array-ptr int))     ; ditto
+              (paramFormats (c-array-ptr int))     ; ditto
               (resultFormat int)))
 
 ;; Interface for multiple-result or asynchronous queries
@@ -299,19 +299,19 @@
   (:arguments (conn PGconn) (query c-string)))
 (def-call-out PQsendQueryParams (:return-type int)
   (:arguments (conn PGconn) (command c-string) (nParams int)
-              (paramTypes (c-array-max Oid #.MAX-PARAM))
-              (paramValues (c-array-max c-string #.MAX-PARAM))
-              (paramLengths (c-array-max int #.MAX-PARAM))
-              (paramFormats (c-array-max int #.MAX-PARAM))
+              (paramTypes (c-array-ptr Oid)) ; at least nParams
+              (paramValues (c-array-ptr c-string)) ; ditto
+              (paramLengths (c-array-ptr int))     ; ditto
+              (paramFormats (c-array-ptr int))     ; ditto
               (resultFormat int)))
 (def-call-out PQsendPrepare (:return-type int)
   (:arguments (conn PGconn) (stmtName c-string) (query c-string) (nParams int)
-              (paramTypes (c-array-max Oid #.MAX-PARAM))))
+              (paramTypes (c-array-ptr Oid)))) ; at least nParams
 (def-call-out PQsendQueryPrepared (:return-type int)
   (:arguments (conn PGconn) (stmtName c-string) (nParams int)
-              (paramValues (c-array-max c-string #.MAX-PARAM))
-              (paramLengths (c-array-max int #.MAX-PARAM))
-              (paramFormats (c-array-max int #.MAX-PARAM))
+              (paramValues (c-array-ptr c-string)) ; at least nParams
+              (paramLengths (c-array-ptr int))     ; ditto
+              (paramFormats (c-array-ptr int))     ; ditto
               (resultFormat int)))
 (def-call-out PQgetResult (:return-type PGresult) (:arguments (conn PGconn)))
 
@@ -355,7 +355,7 @@
 (def-call-out PQfn (:return-type PGresult)
   (:arguments (conn PGconn) (fnid int) (result_buf (c-ptr int) :out)
               (result_len (c-ptr int) :out) (result_is_int int)
-              (args (c-array-max PQArgBlock #.MAX-PARAM))
+              (args (c-array-ptr PQArgBlock)) ; at least nargs
               (nargs int)))
 
 ;; Accessor functions for PGresult objects
@@ -430,7 +430,8 @@
               (from c-string) (length size_t) (error (c-ptr int) :out)))
 (def-call-out PQescapeByteaConn (:return-type (c-array-max uchar #.BUFSIZ))
   (:arguments (conn PGconn)
-              (from (c-array-max uchar #.BUFSIZ)) (from_length size_t)
+              (from (c-array-ptr uchar)) ; at least from_length
+              (from_length size_t)
               (to_length (c-ptr size_t) :out)))
 (def-call-out PQunescapeBytea (:return-type (c-array-max uchar #.BUFSIZ))
   (:arguments (strtext (c-ptr (c-array-max uchar #.BUFSIZ)) :in-out)
