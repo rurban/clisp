@@ -1,9 +1,15 @@
+2009-07-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (TEXT, LEXE, SHREXT): ${host_os} is "mingw32" on
+	msys/mingw, so fix the 2009-07-01 breakage
+	(DEVPREFIX): only define on cygwin
+
 2009-07-14  Sam Steingold  <sds@gnu.org>
 
 	* modules/postgresql/postgresql.lisp (PQexecParams, PQprepare)
 	(PQexecPrepared, PQsendQueryParams, PQsendPrepare)
-	(PQsendQueryPrepared, PQfn, PQescapeByteaConn): use C-ARRAY-PTR
-	instead of C-ARRAY-MAX for :IN parameters
+	(PQsendQueryPrepared, PQfn, PQescapeByteaConn):
+	use C-ARRAY-PTR instead of C-ARRAY-MAX for :IN parameters
 	Suggested by "Hoehle, Joerg-Cyril" <Joerg-Cyril.Hoehle@t-systems.com>
 	Reported by SOS Sukaeto <sukaeto@gmail.com>
 
