@@ -3373,11 +3373,13 @@ echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_finish full
 
+echol "mod-check : base-mod-check full-mod-check"
+echol
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 echotab 'for m in "" $(BASE_MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
 echotab 'z=""; for m in "" $(BASE_MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
-echol "mod-check : base-mod-check # full"
+echol "full-mod-check : # full"
 echotab 'for m in "" $(MODULES); do test -n "$$m" && $(RM) $$m/*.erg; done'
 echotab 'z=""; for m in "" $(MODULES); do test -n "$$m" && z=$$z" \""$$m/\"; done; ./clisp -K full '"${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
 echol
