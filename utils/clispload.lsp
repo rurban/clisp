@@ -109,11 +109,6 @@
   PRINT.2 PRINT.3 PPRINT.2 PPRINT.3 PRIN1.2 PRIN1.3
   WRITE-TO-STRING.2 WRITE-TO-STRING.3 WRITE-TO-STRING.4 PRIN1-TO-STRING.2
 
-  ;; Paul Dietz assumes that structure objects without slots are printed like
-  ;; atoms.
-  ;; CLISP prints them as objects with components, like vectors.
-  PRINT-LEVEL.8 PRINT-LEVEL.9
-
   ;; Paul Dietz assumes that FORMAT ~F works like WRITE.
   ;; CLISP prints 23346.8s0 (exact value is 23346.75) with ~F to "23346.7"
   ;; and with WRITE to "23346.8s0" (round-to-even). ANSI CL 22.3.3.1 permits
