@@ -1032,14 +1032,16 @@ fi
 # TEXE = extension for executable files on target
 # LEXE = extension for executable file LISP on target
 # SHREXT = extension for shared object files (a.k.a. shared libraries) on target
-if [ ${host_os} = cygwin ] ; then # win32 or cygwin
+if [ ${TOS} = win32 -o ${HSYSOS} = cygwin ] ; then
   TEXE='.exe'
   LEXE='.exe'
   SHREXT='.dll'
-  # maybe convert the cygwin cygdrive pathnames
-  # http://article.gmane.org/gmane.os.cygwin:67868
-  DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
-  HEREP=`cygpath -m \`pwd\``
+  # no path conversion on msys
+  # http://thread.gmane.org/gmane.comp.gnu.mingw.msys/1707/
+  if cygpath -v > /dev/null 2>&1; then
+    HEREP=`cygpath -m \`pwd\``
+  else HEREP=`pwd`
+  fi
 else
   TEXE=''
   LEXE='.run'
@@ -1123,6 +1125,63 @@ if [ "${verbose}" = true -o "${verbose}" = yes ]; then
       TOS = "${TOS}"
 EOF
 fi
+# e.g.:
+### msys/mingw
+# # host system:
+#   hostname = "stnt067"
+#       HSYS = "win32gcc"
+#     HSYSOS = "win32gcc"
+#        HOS = "win32"
+#   host_cpu = "i686"
+#        cpu = "i386"
+#    host_os = "mingw32"
+#       host = "i686-pc-mingw32"
+# # target system:
+#       TSYS = "win32gcc"
+#     TSYSOS = "win32gcc"
+#        TOS = "win32"
+### cygwin/--with-mingw
+# # host system:
+#  hostname = "nyc-qsv-term01"
+#      HSYS = "win32gcc"
+#    HSYSOS = "win32gcc"
+#       HOS = "win32"
+#  host_cpu = "i686"
+#       cpu = "i386"
+#   host_os = "cygwin"
+#      host = "i686-pc-cygwin"
+# # target system:
+#      TSYS = "win32gcc"
+#    TSYSOS = "win32gcc"
+#       TOS = "win32"
+### cygwin
+# # host system:
+#  hostname = "nyc-qsv-term01"
+#      HSYS = "i686"
+#    HSYSOS = "cygwin"
+#       HOS = "unix"
+#  host_cpu = "i686"
+#       cpu = "i386"
+#   host_os = "cygwin"
+#      host = "i686-pc-cygwin"
+# # target system:
+#      TSYS = "i686"
+#    TSYSOS = "cygwin"
+#       TOS = "unix"
+### linux
+# # host system:
+#  hostname = "nyc-qws-005"
+#      HSYS = "x86_64"
+#    HSYSOS = "linux"
+#       HOS = "unix"
+#  host_cpu = "x86_64"
+#       cpu = "x86_64"
+#   host_os = "linux-gnu"
+#      host = "x86_64-unknown-linux-gnu"
+# # target system:
+#      TSYS = "x86_64"
+#    TSYSOS = "linux"
+#       TOS = "unix"
 
 # Main compiler dependencies:
 
@@ -2822,6 +2881,9 @@ if [ $TOS = unix ] ; then
   echotab "chmod +w config.lisp"
   echotab "echo '(setq *clhs-root-default* \"${hyperspec}/\")' >> config.lisp"
   if [ ${TSYSOS} = cygwin ]; then
+    # maybe convert the cygwin cygdrive pathnames
+    # http://article.gmane.org/gmane.os.cygwin:67868
+    DEVPREFIX=`mount -p | sed -nr '2s,/([^ ]+) +\S+ +\S+$,\1,p'`
     echotab "echo '(setq *device-prefix* \"${DEVPREFIX}\")' >> config.lisp"
   fi
 fi
