@@ -69,6 +69,10 @@ DEFUN(REGEXP::REGEXP-FREE, compiled)
   } else VALUES1(NIL);
 }
 
+typedef enum { ret_values, ret_list, ret_vector } rettype_t;
+#define CHECK_RETTYPE(x)                                                \
+  (eq(x,S(list)) ? ret_list : eq(x,S(vector)) ? ret_vector : ret_values)
+
 DEFFLAGSET(regexp_exec_flags, REG_NOTBOL REG_NOTEOL)
 DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
       RETURN-TYPE BOOLEAN :START :END NOTBOL NOTEOL)
@@ -80,7 +84,7 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
   unsigned int end = check_uint_defaulted(STACK_0,length);
   int status;
   bool bool_p = !missingp(STACK_2);
-  int rettype = (eq(STACK_3,S(list)) ? 1 : eq(STACK_3,S(vector)) ? 2 : 0);
+  rettype_t rettype = CHECK_RETTYPE(STACK_3);
   regex_t *re;
   regmatch_t *ret;
   skipSTACK(4);                 /* drop all options */
@@ -115,10 +119,9 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     VALUES_IF(!status);         /* success indicator */
   } else if (status) {
     switch (rettype) {
-      case 0: VALUES0; break;        /* VALUES => no values */
-      case 1: VALUES1(NIL); break;   /* LIST => () */
-      case 2: VALUES1(`#()`); break; /* VECTOR => #() */
-      default: NOTREACHED;
+      case ret_values: VALUES0; break;        /* VALUES => no values */
+      case ret_list:   VALUES1(NIL); break;   /* LIST => () */
+      case ret_vector: VALUES1(`#()`); break; /* VECTOR => #() */
     }
   } else {
     uintL re_count;
@@ -129,18 +132,17 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
         funcall(`REGEXP::MAKE-MATCH-BOA`,2); pushSTACK(value1);
       } else pushSTACK(NIL);
     switch (rettype) {
-      case 0:                   /* VALUES */
+      case ret_values:
         if (re_count < fixnum_to_V(Symbol_value(S(multiple_values_limit)))) {
           STACK_to_mv(re_count);
           break;
         } /* else FALLTHROUGH */
-      case 1:                   /* LIST */
+      case ret_list:
         VALUES1(listof(re_count));
         break;
-      case 2:                   /* VECTOR */
+      case ret_vector:
         VALUES1(vectorof(re_count));
         break;
-      default: NOTREACHED;
     }
   }
   skipSTACK(2);                 /* drop pattern & string */
