@@ -115,9 +115,9 @@ DEFUN(REGEXP::REGEXP-EXEC,pattern string &key           \
     VALUES_IF(!status);         /* success indicator */
   } else if (status) {
     switch (rettype) {
-      case 0: VALUES0; break;                     /* VALUES => no values */
-      case 1: VALUES1(NIL); break;                /* LIST => () */
-      case 2: VALUES1(allocate_vector(0)); break; /* VECTOR => #() */
+      case 0: VALUES0; break;        /* VALUES => no values */
+      case 1: VALUES1(NIL); break;   /* LIST => () */
+      case 2: VALUES1(`#()`); break; /* VECTOR => #() */
       default: NOTREACHED;
     }
   } else {
