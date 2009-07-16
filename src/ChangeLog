@@ -1,6 +1,8 @@
 2009-07-16  Sam Steingold  <sds@gnu.org>
 
-	* modules/regexp/regexi.c (REGEXP-EXEC): pre-alocate #()
+	* modules/regexp/regexi.c (REGEXP-EXEC): pre-allocate #()
+	(rettype_t, CHECK_RETTYPE): add
+	(REGEXP-EXEC): remove "default: NOTREACHED;" from switch(rettype)
 
 2009-07-14  Sam Steingold  <sds@gnu.org>
 
