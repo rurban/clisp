@@ -86,7 +86,7 @@
 
 	* modules/syscalls/calls.c (WAIT): use
 	begin_want_sigcld/end_want_sigcld around waitpid/wait4;
-	return symbols for signals using check_signal_rverse
+	return symbols for signals using check_signal_reverse
 	* lispbibl.d (begin_want_sigcld, end_want_sigcld) [HAVE_SIGNALS]:
 	export to clisp.h
 
