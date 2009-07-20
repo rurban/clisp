@@ -309,7 +309,7 @@
 <!ENTITY make-stream '<link linkend="make-stream"><function>EXT:MAKE-STREAM</function></link>'>
 <!ENTITY mapcap '<link linkend="mapcap"><function>EXT:MAPCAP</function></link>'>
 <!ENTITY maplap '<link linkend="mapcap"><function>EXT:MAPLAP</function></link>'>
-<!ENTITY match-t '<classname>REGEXP:MATCH</classname>'>
+<!ENTITY match-t '<link linkend="regexp-api"><classname>REGEXP:MATCH</classname></link>'>
 <!ENTITY mem-image '<olink targetdoc="impnotes" targetptr="image">memory image</olink>'>
 <!ENTITY savemem '<olink targetdoc="impnotes" targetptr="image"><function>EXT:SAVEINITMEM</function></olink>'>
 <!ENTITY savemem-verbose '<olink targetdoc="impnotes" targetptr="image"><varname>CUSTOM:*SAVEINITMEM-VERBOSE*</varname></olink>'>
