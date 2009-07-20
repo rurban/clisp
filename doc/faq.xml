@@ -695,7 +695,7 @@ following command:
     faster.</simpara></listitem>
   <listitem><simpara>If you really do need more Lisp stack, you can
     increase it by telling &clisp; to pre-allocate more memory using
-    &opt-m; or &make-thread;.</olink>.</simpara></listitem>
+    &opt-m; or &make-thread;.</simpara></listitem>
   <listitem><simpara>If you get a segmentation fault after (or instead
     of) a <quote>program stack overflow</quote> message, please make
     sure that you had &libsigsegv; installed when you configured and
