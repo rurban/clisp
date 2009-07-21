@@ -58,7 +58,7 @@
    &number-t; (on a &unix; system, meaning &file-des;).
    The first slot of the structure returned is the string or the
    number on which <function role="unix">stat</function>,
-   <function role="unix">fstat</function>,
+   &fstat;,
    or <function role="unix">lstat</function> was called.
    The other slots are numbers, members of the <type>struct stat</type>:
     <variablelist>
@@ -116,12 +116,10 @@
     <para>Normally, one would expect <code>(POSIX:FILE-STAT
       "foo")</code> and <code>(POSIX:FILE-STAT (&open; "foo"))</code> to
      return <quote>similar</quote> objects (&open;ing a file changes its
-     access time though).  This is &not-e; the case on &win32;,
-     where <function role="unix">stat</function>
-     works but <function role="unix">fstat</function> does &not-e;.
-     Specifically, <function role="unix">fstat</function> requires
-     an <type>int</type> argument of an unknown nature,
-     and it is not clear how do deduce it from the &win32; file handle.
+     access time though).  This is &not-e; the case on &win32;, where
+     <function role="unix">stat</function> works but &fstat; does &not-e;.
+     Specifically, &fstat; requires an <type>int</type> argument of an unknown
+     nature, and it is not clear how do deduce it from the &win32; file handle.
      Therefore, instead of always failing on open &file-stream-t; arguments,
      this function calls
      <function role="win32">GetFileInformationByHandle</function> and
@@ -277,8 +275,7 @@
  <varlistentry id="dup-handle"><term><code>(&dup-handle;
     <replaceable>fd1</replaceable> &optional-amp;
     <replaceable>fd2</replaceable>)</code></term>
-  <listitem><simpara>This is an interface to the
-    <function role="unix">dup</function> system calls on
+  <listitem><simpara>This is an interface to the &dup; system calls on
     &unix; systems and to <function role="win32">DuplicateHandle</function>
     system call on &win32;.</simpara></listitem></varlistentry>
  <varlistentry><term><code>(OS:SHORTCUT-INFO &path-r;)</code></term>
@@ -393,17 +390,16 @@
    <simpara>&unix-w32-only;</simpara></listitem></varlistentry>
  <varlistentry id="mkstemp"><term><code>(POSIX:MKSTEMP &filename-r;
     &key-amp; &direction-k; &eltype; &extfmt; &buffered;)</code></term>
-  <listitem><simpara>Calls <function role="unix">mkstemp</function>,
-    returns a &file-stream-t;.</simpara>
+  <listitem><simpara>Calls &mkstemp;, returns a &file-stream-t;.</simpara>
    <simpara>&direction-k; should allow output.</simpara>
-   <simpara>When <function role="unix">mkstemp</function> is missing,
+   <simpara>When &mkstemp; is missing,
     use <function role="unix">tempnam</function>.
     On &win32; use <function role="win32">GetTempFileName</function>.
  </simpara></listitem></varlistentry>
  <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
     &filename-r;)</code></term>
   <listitem><simpara>Calls <function role="bsd">mkdtemp</function>
-    (similar to <function role="unix">mkstemp</function> but not in POSIX),
+    (similar to &mkstemp; but not in POSIX),
     returns the namestring of a new empty temporary directory.
  </simpara></listitem></varlistentry>
  <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
