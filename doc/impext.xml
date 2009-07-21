@@ -2428,8 +2428,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
  <link linkend="included-modules">included modules</link>, but here are
  some important hints that you will need to keep in mind:
 <itemizedlist>
- <listitem><simpara>Lisp objects have type <type>object</type>.
- </simpara></listitem>
+ <listitem><simpara>Lisp objects have type &object-t;.</simpara></listitem>
  <listitem><simpara>Variables of this type are invalidated by
    <link linkend="gc-safety">lisp memory allocation</link>
    (<function>allocate_*()</function> functions) - but &not-e; &c-lang;
@@ -2452,7 +2451,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    <literal>end_blocking_system_call()</literal> instead. This will
    allow other threads to run while yours is inside the system call.
    This means that &gc;ion could happen while you are inside this system
-   call and, thus, that all objects of type <type>object</type> are
+   call and, thus, that all objects of type &object-t; are
    invalidated by the call. See also <xref linkend="gc-safety"/> and
    <xref linkend="gc-mt"/>.</simpara></listitem></itemizedlist>
 </para>
@@ -4835,7 +4834,7 @@ Now you can sum doubles:
     <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
       If 0, the value is decided by the OS.</simpara></listitem></varlistentry>
   <varlistentry><term><constant>:VSTACK-SIZE</constant></term>
-   <listitem><simpara>the size of the &clisp; &STACK; in <type>object</type>.
+   <listitem><simpara>the size of the &clisp; &STACK; in &object-t;s.
      The default value is calculated based on the &opt-m; option
      used when &clisp; was started.
      If 0, the value will be the same as that of the calling thread.
