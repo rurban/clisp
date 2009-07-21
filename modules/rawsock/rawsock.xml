@@ -25,8 +25,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   See the <ulink url="ml">clisp-devel</ulink>
   <ulink url="http://sourceforge.net/mailarchive/message.php?msg_id=7203955"
          >mailing list archives</ulink> for more details.
-  Note that &make-stream; will duplicate the &file-des;
-  (using <function role="unix">dup</function>),
+  Note that &make-stream; will duplicate the &file-des; (using &dup;),
   so you <emphasis>still</emphasis> have to &close; the original raw socket.
 </simpara></warning>
 
@@ -72,10 +71,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     &sock-r; &buf-r; &addr-r; &key-amp; start end oob eor)</code></member>
   <member><code>(<function role="unix">sockatmark</function>
     &sock-r;)</code></member>
-  <member><code>(<function role="unix">socket</function>
-    &dom-r; &type-r; &proto-r;)</code></member>
-  <member><code>(<function role="unix">socketpair</function>
-    &dom-r; &type-r; &proto-r;)</code></member>
+  <member><code>(&socket; &dom-r; &type-r; &proto-r;)</code></member>
+  <member><code>(&socketpair; &dom-r; &type-r; &proto-r;)</code></member>
  </simplelist>using same-named lisp functions in package
  <quote role="package">RAWSOCK</quote>.
  Additionally,<simplelist columns="1">
@@ -85,10 +82,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
     &optional-amp; (<replaceable>backlog</replaceable> SOMAXCONN))</code>
    calls <function role="unix">listen</function>.</member>
 </simplelist></para>
-<note><para>When the OS does not provide
-  <function role="unix">socketpair</function>, it is emulated
-  using <function role="unix">socket</function> +
-  <function role="unix">connect</function> +
+<note><para>When the OS does not provide &socketpair;, it is emulated
+  using &socket; + <function role="unix">connect</function> +
   <function role="unix">accept</function>.</para></note>
 </section>
 
@@ -103,9 +98,8 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    to, you can use &end-k; argument for that.
 </simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &sock-r;</term>
- <listitem><simpara>An &integer-t; (returned by
-   <function role="unix">socketpair</function> or
-   <function role="unix">socket</function>).</simpara></listitem></varlistentry>
+ <listitem><simpara>An &integer-t; (returned by &socketpair; or
+   &socket;).</simpara></listitem></varlistentry>
 <varlistentry><term><type>int</type> &family-r;</term>
  <term><type>int</type> &dom-r;</term>
  <listitem><simpara>A &nil; (stands for <constant>AF_UNSPEC</constant>),
@@ -209,23 +203,18 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    &sock-r; &buf-r; &key-amp; start end)</code></term>
  <term><code>(<function>RAWSOCK:SOCK-WRITE</function>
    &sock-r; &buf-r; &key-amp; start end)</code></term>
-<listitem><simpara>Call one of
- <function role="unix">read</function>/<function role="unix">readv</function> or
- <function role="unix">write</function>/<function role="unix">writev</function>
-   (depending on whether &buf-r; is a &ubyte-vec; or
-   a <literal role="type">(&vector-t; &ubyte-vec;)</literal>).
- Return the number of bytes read or written.</simpara>
+<listitem><simpara>Call one of &read-U;/<function role="unix">readv</function>
+  or &write-U;/<function role="unix">writev</function>
+  (depending on whether &buf-r; is a &ubyte-vec; or
+  a <literal role="type">(&vector-t; &ubyte-vec;)</literal>).
+  Return the number of bytes read or written.</simpara>
  <simpara>When <function role="unix">readv</function> and
   <function role="unix">writev</function> and not available, they are
-  emulated by repeated calls to <function role="unix">read</function>
-  and <function role="unix">write</function>.</simpara>
+  emulated by repeated calls to &read-U; and &write-U;.</simpara>
  <simpara>On &win32; we have to use <function role="unix">recv</function>
-  instead of <function role="unix">read</function>
-  and <function role="unix">send</function> instead of
-  <function role="unix">write</function> because &win32;
-  <function role="unix">read</function> and
-  <function role="unix">write</function> do not work on sockets, only
-  on regular files.</simpara></listitem></varlistentry>
+  instead of &read-U; and <function role="unix">send</function> instead of
+  &write-U; because &win32; &read-U; and &write-U; do not work on sockets,
+  only on regular files.</simpara></listitem></varlistentry>
 <varlistentry id="rawsock-protocol"><term><code>(RAWSOCK:PROTOCOL
    &optional-amp; &proto-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getprotobyname</function>
@@ -274,10 +263,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
  <term><code>(&setf; (RAWSOCK:SOCKET-OPTION &sock-r; &name-r;
    &key-amp; :LEVEL) &value-r;)</code></term>
  <listitem><simpara>Call <function role="unix">getsockopt</function>
-   and <function role="unix">setsockopt</function>, returns and sets
-   individual (for specific option &name-r; and
-   <replaceable>level</replaceable>) and multiple (when &name-r; is
-   &nil; and/or <replaceable>level</replaceable> is &all-k;) options.
+   and &setsockopt;, returns and sets individual (for specific option
+   &name-r; and <replaceable>level</replaceable>) and multiple (when &name-r;
+   is &nil; and/or <replaceable>level</replaceable> is &all-k;) options.
    (See also &so-opt;.)</simpara></listitem></varlistentry>
 <varlistentry id="rawsock-convert-address"><term><code>(&convert-address;
    &family-r; &addr-r;)</code></term>

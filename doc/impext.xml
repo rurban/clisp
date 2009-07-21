@@ -2445,8 +2445,7 @@ Then <code>(MY-PACKAGE:MY-FUNCTION-NAME 'A 12 :FOO T)</code> will
    <literal>begin_system_call()</literal>/<literal>end_system_call()</literal>
    pairs.  These macros, defined in &clisp-h;, save and restore
    registers used by &clisp; which could be clobbered by a system call.
-  </simpara><simpara>If the system call could block
-   (e.g., <function role="unix">read</function>)
+  </simpara><simpara>If the system call could block (e.g., &read-U;)
    you need to use <literal>begin_blocking_system_call()</literal> and
    <literal>end_blocking_system_call()</literal> instead. This will
    allow other threads to run while yours is inside the system call.
@@ -3278,8 +3277,7 @@ or just evaluates the appropriate form in the &repl;.</para>
    is used instead.
    When &ro-k; is supplied, the Lisp side is prevented from modifying the
    memory contents.  This can be used as an indication that some foreign
-   side is going to fill this memory
-   (e.g. via <function role="unix">read</function>).</simpara>
+   side is going to fill this memory (e.g. via &read-U;).</simpara>
   <simpara>Returns a &foreign-variable-t; object of the actual &ctype-r;,
    whose address part points to the newly allocated memory.</simpara>
   <simpara>&allocate-deep; will call &c-lang; &malloc; as many times
@@ -4668,11 +4666,9 @@ Now you can sum doubles:
  <varlistentry id="so-opt"><term><code>(&so-opt; &sose-r; &rest-amp;
     {&option-r;}*)</code></term>
   <listitem><simpara>Query and, optionally, set socket options using
-   <function role="unix">getsockopt</function>
-   and <function role="unix">setsockopt</function>.
+   <function role="unix">getsockopt</function> and &setsockopt;.
    An &option-r; is a keyword, optionally followed by the new value.
-   When the new value is not supplied,
-   <function role="unix">setsockopt</function> is not called.
+   When the new value is not supplied, &setsockopt; is not called.
    For each option the old (or current, if new value was not supplied)
    value is returned.  E.g., <code>(&so-opt; &sose-r;
    :SO-LINGER 1 :SO-RCVLOWAT)</code> returns 2 values: &nil;, the old
