@@ -3,7 +3,7 @@
 <section id="syscalls"><title>System Calls</title>
 
 <para>The &posix-pac; module makes some system calls available from lisp.
- Not all of these system calls are actually POSIX, so this package has a
+ Not all of these system calls are actually &posix;, so this package has a
  nickname <quote role="package">OS</quote>.  If the package prefix is
  not specified below, the symbol resides in this package.</para>
 &base-module;
@@ -399,7 +399,7 @@
  <varlistentry id="mkdtemp"><term><code>(POSIX:MKDTEMP
     &filename-r;)</code></term>
   <listitem><simpara>Calls <function role="bsd">mkdtemp</function>
-    (similar to &mkstemp; but not in POSIX),
+    (similar to &mkstemp; but not in &posix;),
     returns the namestring of a new empty temporary directory.
  </simpara></listitem></varlistentry>
  <varlistentry id="sync"><term><code>(POSIX:SYNC &optional-amp;
@@ -548,9 +548,9 @@ course, means that <quote>universally unique</quote> it is &not-e;.
   <member><code>(<function role="unix">lgamma</function>
     &real-r;)</code></member></simplelist>
 which compute the error functions, Bessel functions and Gamma.</para>
-<simpara>These functions are required by the POSIX standard and should
+<simpara>These functions are required by the &posix; standard and should
  be declared in <filename role="unix">math.h</filename>.</simpara>
-<warning><simpara>Please note that these functions do not provide
+<warning><simpara>Please note that these functions do &not-e; provide
   lisp-style error handling and precision, and do all the computations
   at the &double-float-t; level.</simpara></warning>
 <para>Function <code>(<function role="unix">ffs</function> &n-r;)</code>
@@ -633,7 +633,7 @@ which compute the error functions, Bessel functions and Gamma.</para>
  </simpara></listitem></varlistentry>
  <varlistentry id="setpgrp"><term><code>(POSIX:SETPGRP)</code></term>
   <listitem><simpara>Calls <function role="unix">setpgrp</function>;
-    on non-POSIX systems where it requires 2 arguments (legacy
+    on non-&posix; systems where it requires 2 arguments (legacy
     BSD-style), it is called as <code>setpgrp(0,0)</code>.
  </simpara></listitem></varlistentry>
  <varlistentry id="getsid"><term><code>(POSIX:GETSID &pid-r;)</code></term>

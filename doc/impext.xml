@@ -2575,7 +2575,7 @@ to the 3 (or 4) &base; modules.</para>
   <listitem><simpara>Internationalization of User Programs.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&regexp-mod;</term>
-  <listitem><simpara>The <ulink url="regexp.html">POSIX Regular
+  <listitem><simpara>The &posix; <ulink url="regexp.html">Regular
      Expressions</ulink> matching, compiling, executing.
  </simpara></listitem></varlistentry>
  <varlistentry><term>&syscalls-mod;</term>
