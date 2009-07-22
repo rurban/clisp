@@ -1,3 +1,8 @@
+2009-07-22  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (SPLI_REF_LISTS): remove type_accessor argument
+	(gar_col_normal): use new definition
+
 2009-07-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/regexi.c (REGEXP-EXEC): pre-allocate #()
