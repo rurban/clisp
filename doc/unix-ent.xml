@@ -37,3 +37,4 @@
 <!ENTITY read-U '<function role="unix">read</function>'>
 <!ENTITY write-U '<function role="unix">write</function>'>
 <!ENTITY mkstemp '<function role="unix">mkstemp</function>'>
+<!ENTITY regex '<filename role="unix">regex.h</filename>'>
