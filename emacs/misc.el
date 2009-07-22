@@ -1,5 +1,9 @@
 ;; miscellaneous settings for clisp development in emacs
 
+(eval-when-compile
+  (defvar vc-dir-backend)
+  (defvar change-log-default-name))
+
 (defun clisp-repo-p (dir)
   (let ((host (vc-cvs-repository-hostname dir)))
     (and host (string-match "^clisp\\." host))))
