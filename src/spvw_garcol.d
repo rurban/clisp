@@ -1835,10 +1835,9 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
 #endif
 }
 
-
-/* FIXME: This use of marked() and gc_mark() doesn't integrate well with
-   the weak-pointer handling.*/
-#define SPLIT_REF_LISTS(items,ref_items,noref_items,type_accessor,condition) \
+/* splits list of object to referenced and non-referenced based on the gc mark
+   bit and additional condition */
+#define SPLIT_REF_LISTS(items,ref_items,noref_items,condition)          \
   do {                                                                  \
     var object Lu = items;                                              \
     var gcv_object_t* L1 = &ref_items;                                  \
@@ -1921,9 +1920,7 @@ local void gar_col_normal (void)
   gc_markphase();
   gc_mark_weakpointers(all_weakpointers);
   /* Now only, after gc_mark_weakpointers, can alive() be called.
-   FIXME: This use of alive() and gc_mark() doesn't integrate well with
-   the weak-pointer handling.
-   Split (still unmarked) list all_finalizers into two lists: */
+     Split (still unmarked) list all_finalizers into two lists: */
   {
     var object Lu = all_finalizers;
     var gcv_object_t* L1 = &O(all_finalizers);
@@ -1952,19 +1949,19 @@ local void gar_col_normal (void)
   gc_mark(O(all_finalizers));
  #ifdef GC_CLOSES_FILES
   /* Split (still unmarked) list files_to_close into two lists: */
-  SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close),TheStream,false);
+  SPLIT_REF_LISTS(files_to_close,O(open_files),O(files_to_close),false);
   gc_mark(O(open_files));
  #endif
  #ifdef MULTITHREAD
   /* prepare for release terminated, non-referenced threads */
-  SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),TheThread,
+  SPLIT_REF_LISTS(threads_to_go,O(all_threads),O(threads_to_release),
                   (TheThread(Car(Lu))->xth_globals != NULL));
   gc_mark(O(all_threads));
   /* prepare for release non-referenced mutexes */
-  SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),TheMutex,false);
+  SPLIT_REF_LISTS(mutexes_to_go,O(all_mutexes),O(mutexes_to_release),false);
   gc_mark(O(all_mutexes));
   /* prepare for release non-referenced exemptions */
-  SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release),TheExemption,false);
+  SPLIT_REF_LISTS(exemptions_to_go,O(all_exemptions),O(exemptions_to_release),false);
   gc_mark(O(all_exemptions));
  #endif
   clean_weakpointers(all_weakpointers);
