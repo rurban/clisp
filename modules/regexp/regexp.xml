@@ -2,8 +2,8 @@
 
 <section id="regexp-mod"><title>POSIX Regular Expressions</title>
 
-<para>The &regexp-pac; module implements the
- <ulink url="regexp.html">POSIX regular expressions</ulink>
+<para>The &regexp-pac; module implements the &posix;
+ <ulink url="regexp.html">regular expressions</ulink>
 matching by calling the standard &c-lang; system facilities.
 The syntax of these &reg-exp;s is described in many places,
 such as your local <filename role="unix">regex.h</filename> manual
@@ -119,7 +119,7 @@ and &emacs; info pages.</para>
 <varlistentry id="re-matcher"><term>&re-matcher;</term>
  <listitem><simpara>A valid value for &apropos-matcher;.
    This will work only when your &locale; is &utf-8;
-   because &clisp; uses &utf-8; internally and POSIX constrains
+   because &clisp; uses &utf-8; internally and &posix; constrains
    <filename role="unix">regex.h</filename> to use the current &locale;.
 </simpara></listitem></varlistentry>
 
