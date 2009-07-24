@@ -1,3 +1,9 @@
+2009-07-24  Sam Steingold  <sds@gnu.org>
+
+	fix bug [ 2826572 ]: regexp-quote doesn't quote correctly extended
+	* modules/regexp/regexp.lisp (regexp-quote): quote "()" in
+	extended expressions
+
 2009-07-22  Sam Steingold  <sds@gnu.org>
 
 	* intlog.d (I_I_ash_I): fix a GC-safety bug
