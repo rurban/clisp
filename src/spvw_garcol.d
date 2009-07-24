@@ -1674,7 +1674,7 @@ local void fill_relocation_memory_regions(aint start,aint end,
   for_all_threads({
     chain = thread->_pinned;
     while (chain) {
-      vs=(aint)TheVarobject(*chain->pc_varobj_stack_ptr);
+      vs=(aint)TheVarobject(chain->pc_varobject);
       /* are we inside range? */
       if (start<=vs && end>vs) {
 	mit->start=vs; mit->size=objsize((Varobject)vs);
@@ -1917,6 +1917,18 @@ local void gar_col_normal (void)
   mutexes_to_go = O(all_mutexes); O(all_mutexes) = NIL;
   exemptions_to_go = O(all_exemptions); O(all_exemptions) = NIL;
   #endif
+  /* count the pinned objects and mark them */
+  var uintC pinned_count=0; /* in single thread this is constant */
+  #if defined(MULTITHREAD)
+  for_all_threads({
+    var pinned_chain_t *chain=thread->_pinned;
+    while (chain) {
+      gc_mark(chain->pc_varobject);
+      chain = chain->pc_next;
+      pinned_count++;
+    }
+  });
+  #endif
   gc_markphase();
   gc_mark_weakpointers(all_weakpointers);
   /* Now only, after gc_mark_weakpointers, can alive() be called.
@@ -1995,19 +2007,7 @@ local void gar_col_normal (void)
   for_each_cons_page(page, { gc_compact_cons_page(page); } );
  #endif
   /* prepare objects of variable length for compacting below: */
-#if defined(MULTITHREAD)
-  var uintC pinned_count=0;
-  /* count the pinned objects */
-  for_all_threads({
-    var pinned_chain_t *chain=thread->_pinned;
-    while (chain) {
-      chain = chain->pc_next;
-      pinned_count++;
-    }
-  });
-#else
-  #define pinned_count 0
-#endif
+
   /* every pinned object may introduce a hole in the heap. */
   /* regions contain all heap excluding the pinned objects */
   var DYNAMIC_ARRAY(regions,varobj_mem_region,pinned_count+1);
