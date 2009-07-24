@@ -1,3 +1,18 @@
+2009-07-24  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: do not modify STACK when varobject is pinned
+	* lispbibl.d (struct pinned_chain_t): make pinned object GC invariant.
+	save pointer above STACK at time of pinning - used for unpinning when
+	the STACK is unwound.
+	(pin_varobject_with_pc): pins varobject using already allocated (on C
+	stack) pinned_chain_t struct
+	(pin_varobject): use pin_varobject_with_pc()
+	(unpin_varobjects): removes specified number of objects from the pinned
+	object chain of current thread
+	(unwind_pinned_objects): accept clisp_thread_t struct instead of current
+	thread STACK. use modified pinned_chain_t struct
+	* spvw_garcol.d (gar_col_normal): mark pinned objects
+
 2009-07-24  Sam Steingold  <sds@gnu.org>
 
 	fix bug [ 2826572 ]: regexp-quote doesn't quote correctly extended

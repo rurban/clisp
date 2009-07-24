@@ -12400,15 +12400,18 @@ extern  gcv_environment_t aktenv;
 /* is used by EVAL, CONTROL, DEBUG */
 
 #ifdef MULTITHREAD
-/* unwind pinned objects to the stack location */
-  #define unwind_pinned_objects(stack)                                    \
-    do {                                                                  \
-      var pinned_chain_t **p=&(current_thread()->_pinned);                \
-      while (*p && !((aint)(stack) cmpSTACKop (aint)(*p)->pc_varobj_stack_ptr)) \
-        *p = (*p)->pc_next;                                               \
+  /* unwind pinned objects up to the current stack location in thread.
+     executes statement for each object that has been unpinned */
+  #define unwind_pinned_objects(thread)                                 \
+    do {                                                                \
+      var clisp_thread_t *thr = thread;                                 \
+      var pinned_chain_t **p = &(thr->_pinned);                         \
+      while (*p && !((aint)(thr->_STACK) cmpSTACKop (aint)(*p)->pc_unwind_stack_ptr)) { \
+        *p = (*p)->pc_next;                                             \
+      }                                                                 \
     } while(0)
 #else /* !MULTITHREAD */
-  #define unwind_pinned_objects(stack)
+  #define unwind_pinned_objects(thread)
 #endif
 
 /* Jumps to a Frame with entry point that starts at STACK.
@@ -12421,7 +12424,7 @@ extern  gcv_environment_t aktenv;
   /* the returner of finish_entry_frame: */                             \
   var sp_jmp_buf* returner = (sp_jmp_buf*)(aint)as_oint(STACK_(frame_SP)); \
   unwind_back_trace(back_trace,STACK);                                  \
-  unwind_pinned_objects(STACK);                                         \
+  unwind_pinned_objects(current_thread());                              \
   LONGJMP_SAVE_value1(); LONGJMP_SAVE_mv_count();                       \
   begin_longjmp_call();                                                 \
   longjmpspl(*returner,(aint)returner);/* jump there, pass own addess (/=0) */\
@@ -16971,7 +16974,9 @@ struct object_tab_tl_ {
    usually there will be just a single one (if any), but it is
    possible with signal handlers to have real chain.*/
   typedef struct pinned_chain_t {
-    gcv_object_t *pc_varobj_stack_ptr; /* pointer to pinned object on STACK */
+    gcv_object_t pc_varobject; /* GC invariant - GC will mark it */
+    gcv_object_t *pc_unwind_stack_ptr; /* pointer above the STACK when object
+                                          was pinned */
     struct pinned_chain_t *pc_next;
   } pinned_chain_t;
 
@@ -17255,7 +17260,8 @@ struct object_tab_tl_ {
 %% #undef LISPOBJ_TL
 %% puts("};");
 %% puts("typedef struct pinned_chain_t {");
-%% puts("  gcv_object_t *pc_varobj_stack_ptr;");
+%% puts("  gcv_object_t pc_varobject;");
+%% puts("  gcv_object_t *pc_unwind_stack_ptr;");
 %% puts("  struct pinned_chain_t *pc_next;");
 %% puts("} pinned_chain_t;");
 %% puts("typedef struct {");
@@ -17522,26 +17528,35 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
        never happen.*/
     #define ASSERT_VALID_UNPIN(pc,vo)                        \
       do {                                                   \
-        if (!eq(*((*pc)->pc_varobj_stack_ptr), vo)) abort(); \
+        if (!eq((*pc)->pc_varobject, vo)) abort(); \
       } while(0)
   #else
     #define ASSERT_SAFE_TO_PIN()
     #define ASSERT_VALID_UNPIN(pc,vo)
   #endif
 
+  /* UP: pins varobject by using pinned_chain_t pointed by pc.
+     > pc: pointer to C stack allocated pinned_chain_t struct
+     > varobj: varobject to be pinned
+    NB: pc should be C stack allocated (auto scope or alloca()).
+    usage should be matched with unpin_varobject(). In case of non-local
+    exit before the control reaches unpin_varobject() - cleanup is performed
+    in enter_frame_at_STACK() (same like the backtrace).
+    does not modify the STACK */
+  #define pin_varobject_with_pc(pc, varobj) do {                        \
+    ASSERT_SAFE_TO_PIN();                                               \
+    (pc)->pc_varobject = varobj;                                        \
+    (pc)->pc_unwind_stack_ptr = &STACK_(-1);/* above current stack */   \
+    (pc)->pc_next = current_thread()->_pinned;                          \
+    current_thread()->_pinned = (pc);                                   \
+  } while(0)
+
   /* UP: add object to the pinned chain.
      > varobj: the varobject to be pinned
-     usage should be matched with unpin_varobject(). In case of non-local
-     exit before the control reaches unpin_varobject() - cleanup is performed
-     in enter_frame_at_STACK() (same like the backtrace).
-     pushes single object on the STACK. */
-  #define pin_varobject(varobj)                                         \
-    ASSERT_SAFE_TO_PIN();                                               \
-    pushSTACK(varobj);                                                  \
-    var pinned_chain_t pc;                                              \
-    pc.pc_varobj_stack_ptr=&STACK_0;                                    \
-    pc.pc_next=current_thread()->_pinned;                               \
-    current_thread()->_pinned=&pc
+     allocates pinned_chain_t struct on C stack and uses it */
+  #define pin_varobject(varobj)                      \
+    var pinned_chain_t GENTAG(pc);                   \
+    pin_varobject_with_pc(&GENTAG(pc), varobj)
 
   /* UP: unpin varobject in lisp heap. */
   #define unpin_varobject(varobj)                          \
@@ -17549,9 +17564,16 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
       var pinned_chain_t **p=&(current_thread()->_pinned); \
       ASSERT_VALID_UNPIN(p,varobj);                        \
       *p = (*p)->pc_next;                                  \
-      skipSTACK(1);                                        \
-     } while(0)
+    } while(0)
 
+  /* UP: unpins specified number of pinned objects. will abort if there are
+     less pinned objects than asked (SEGFAULT).
+     > count: how many object to remove from the pinned chain */
+  #define unpin_varobjects(count)  do {                  \
+    var uintC cnt;                                       \
+    var pinned_chain_t **p=&(current_thread()->_pinned); \
+    dotimespC(cnt, count, { *p = (*p)->pc_next; });      \
+  } while(0)
 
 /* UP: helper macro for executing body in unwind_protect frame with
    mutex lock held. body should not call return or goto outside of
@@ -17612,9 +17634,11 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 
 #else /* ! MULTITHREAD */
 %% #else
+  #define pin_varobject_with_pc(pc,vo)
   #define pin_varobject(vo)
   #define unprotect_heap_range(vo,access)
   #define unpin_varobject(vo)
+  #define unpin_varobjects(count)
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
   #define PERFORM_GC(statement,lock_heap) statement
@@ -17633,8 +17657,10 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
   pin_varobject(vo); unprotect_heap_range(vo,access)
 
 %% export_def(unprotect_heap_range(vo,access));
+%% export_def(pin_varobject_with_pc(pc,vo));
 %% export_def(pin_varobject(vo));
 %% export_def(unpin_varobject(vo));
+%% export_def(unpin_varobjects(count));
 %% export_def(WITH_OS_MUTEX_LOCK(stack_count,mutex,body));
 %% export_def(WITH_LISP_MUTEX_LOCK(stack_count,keep_mv_space,pmutex,body));
 
