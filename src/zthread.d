@@ -543,9 +543,8 @@ local gcv_object_t* thread_symbol_place (gcv_object_t *symbol,
       return NULL;
     *thread=thr->_lthread; /* for error reporting if needed */
     var uintL idx=TheSymbol(*symbol)->tls_index;
-    if (idx == SYMBOL_TLS_INDEX_NONE ||
-        eq(thr->_ptr_symvalues[idx], SYMVALUE_EMPTY))
-      return NULL; /* not per thread special, or no bidning in thread */
+    if (idx == SYMBOL_TLS_INDEX_NONE)
+      return NULL; /* not per thread special */
     return &thr->_ptr_symvalues[idx];
   }
 }
@@ -564,8 +563,8 @@ LISPFUNNR(symbol_value_thread,2)
   /* lock threads - so thread cannot exit meanwhile (if running at all) */
   begin_blocking_call(); lock_threads(); end_blocking_call();
   var gcv_object_t *symval=thread_symbol_place(&STACK_1, &STACK_0);
-  if (!symval) {
-    VALUES2(NIL,NIL); /* not bound */
+  if (!symval || eq(SYMVALUE_EMPTY, *symval)) {
+    VALUES2(NIL,NIL); /* not bound, dead thread or not special var */
   } else if (eq(unbound,*symval)) {
     VALUES2(NIL,S(makunbound)); /* was bound but later makunbound-ed */
   } else {
@@ -596,7 +595,7 @@ LISPFUNN(set_symbol_value_thread,3)
     pushSTACK(symbol); /* CELL-ERROR Slot NAME */
     pushSTACK(thread);
     pushSTACK(symbol); pushSTACK(S(set_symbol_value_thread));
-    error(unbound_variable,GETTEXT("~S: variable ~S has no binding in thread ~S"));
+    error(unbound_variable,GETTEXT("~S: ~S is not special variable or thread ~S is dead"));
   } else {
     *symval=STACK_0;
     VALUES1(*symval);
