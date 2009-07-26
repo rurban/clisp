@@ -1865,6 +1865,7 @@ local void gar_col_normal (void)
   var object files_to_close;    /* list of files to be closed */
   #endif
   #if defined(MULTITHREAD)
+
   var object threads_to_go; /* list of threads to be released */
   var object mutexes_to_go; /* list of mutexes to be released */
   var object exemptions_to_go; /* list of exemptions to be released */
@@ -2524,7 +2525,7 @@ local bool page_contains_pinned_object(Page *page)
   for_all_threads({
     var pinned_chain_t *chain = thread->_pinned;
     while (chain) {
-      var aint vs=(aint)TheVarobject(*chain->pc_varobj_stack_ptr);
+      var aint vs=(aint)TheVarobject(chain->pc_varobject);
       /* are we inside range? */
       if (page->page_start<=vs && page->page_end>vs)
 	return true;
