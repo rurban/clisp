@@ -1,3 +1,11 @@
+2009-07-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: allow (SETF (MT:SYMBOL-VALUE-THREAD sym thread)) if sym
+	is not bound in thread
+	* zthread.d (thread_symbol_place): return NULL only if the thread is
+	dead or the symbol is not special variable
+	(SYMBOL-VALUE-THREAD): check for per thread binding of symbol
+
 2009-07-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: fix SPVW_PAGES build
