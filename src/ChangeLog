@@ -1,6 +1,6 @@
 2009-07-27  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in (distrib) [win32]: include config.lisp
+	* makemake.in (distrib) [win32]: include config.lisp & install.bat
 	Reported by Elena Garrulo <egarrulo@gmail.com>
 
 2009-07-27  Vladimir Tzankov  <vtzankov@gmail.com>
