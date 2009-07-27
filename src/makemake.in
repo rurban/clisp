@@ -3896,7 +3896,7 @@ echol
 echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : install.lisp install.bat clisp.man clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
+  echol "distrib : install.lisp install.bat config.lisp clisp.man clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
   echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "rm -rf \$\$distdir; \\"
@@ -3949,7 +3949,7 @@ elif [ $HOS = win32 ] ; then
     echotab "cp -p ${SRCDIR}m4/${f} \$\$distdir/misc/${f} ; \\"
   done
   echotab "mkdir \$\$distdir/src ; \\"
-  echotab "cp -p \$(LISPFILES) install.lisp \$\$distdir/src/ ; \\"
+  echotab "cp -p \$(LISPFILES) config.lisp install.lisp \$\$distdir/src/ ; \\"
   echotab "chmod 755 \$\$distdir/. \$\$distdir/*/. ; \\"
   echotab "find \$\$distdir -type f -exec chmod 664 {} ';' ; \\"
   echotab "rm -f \$\$distfile \$\$installfile ; \\"

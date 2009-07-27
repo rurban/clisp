@@ -1,3 +1,8 @@
+2009-07-27  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib) [win32]: include config.lisp
+	Reported by Elena Garrulo <egarrulo@gmail.com>
+
 2009-07-27  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: allow (SETF (MT:SYMBOL-VALUE-THREAD sym thread)) if sym
