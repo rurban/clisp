@@ -369,13 +369,16 @@ DEFUN(POSIX::STREAM-OPTIONS, stream cmd &optional value)
  < returns whatever f returns
  NB: on success, unix functions return 0, while woe32 functions return 1 !
  can trigger GC */
-static void* on_pnamestring (object path, void* (*f) (const char*,void*),
-                             void* data) {
+static /*maygc*/ void* on_pnamestring
+(object path, void* (*f) (const char*,void*), void* data) {
   void* ret;
-  with_string_0(value1=physical_namestring(path),GLO(pathname_encoding),pathz,
-      { begin_blocking_system_call();
-        ret = (*f)(pathz,data);
-        end_blocking_system_call(); });
+  pushSTACK(physical_namestring(path)); /* save for blocking */
+  with_string_0(STACK_0,GLO(pathname_encoding),pathz, {
+      begin_blocking_system_call();
+      ret = (*f)(pathz,data);
+      end_blocking_system_call();
+    });
+  value1 = popSTACK();
   return ret;
 }
 #define ON_PNAMESTRING(p,f,d)  on_pnamestring(p,(void*(*)(const char*,void*))&(f),(void*)(d))
