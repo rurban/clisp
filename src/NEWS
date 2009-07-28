@@ -1,7 +1,11 @@
+2.48 (2009-07-28)
+=================
+
 Important notes
 ---------------
 
-* Multiple threads of execution are now supported.
+* Multiple threads of execution are now experimentally supported
+  (not ready for prime time yet).
   Thanks to  Vladimir Tzankov <vtzankov@gmail.com>.
   See <http://clisp.cons.org/impnotes/mt.html> for details.
 

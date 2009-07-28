@@ -468,4 +468,15 @@
    <listitem><simpara>&file-size;</simpara></listitem>
 </itemizedlist></revdescription></revision>
 
+<revision><revnumber>2.48</revnumber><date>2009-07-28</date>&sds-a;
+ <revdescription><itemizedlist>
+   <listitem><simpara>Experimental thread support,
+     see <xref linkend="mt"/></simpara></listitem><listitem><simpara>
+     <link linkend="wait"><function>POSIX:WAIT</function></link>
+   </simpara></listitem><listitem><simpara>
+     <link linkend="trim-if"><function>EXT:TRIM-IF</function></link>
+   </simpara></listitem><listitem><simpara>
+     <filename role="clisp-cvs">src/m4/clisp.m4</filename>
+</simpara></listitem></itemizedlist></revdescription></revision>
+
 </revhistory>
