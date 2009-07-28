@@ -378,7 +378,7 @@ pre-release : gnulib-imported build-aux-update tp-mail
 # === Note that for clisp to report its version correctly, src/version.h and
 # === src/configure must be regenerated after version.sh is updated
 # web pages to be updated:
-# * www/index.php, www/impnotes.html, www/clisp.html, www/impnotes/
+# * www/index.html, www/impnotes.html, www/clisp.html, www/impnotes/
 # dates to be updated (1st release each calendar year):
 # * banner in src/spvw.d
 # * COPYRIGHT
