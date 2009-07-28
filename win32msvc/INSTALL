@@ -1,21 +1,21 @@
-Installation on Win32 (WinNT, Win95) using the MSVC6.0 or MSVC7.0
-=================================================================
+Installation on Win32 (WinNT, Win95 et al) using the MSVC
+=========================================================
 development environment, using native system calls
 ==================================================
 
-** Note! Binaries created with MSVC 7.0 with MFLAGS=-MD should not be
-   distributed: They depend on a closed-source library 'msvcr70.dll' which is
-   not normally part of a Woe32 installation. You cannot distribute
-   'msvcr70.dll' with the binaries - this would be a violation of the GPL and
-   of the Microsoft EULA. You can distribute the binaries without including
-   'msvcr70.dll', but this will cause problems for users that don't have this
-   library on their system. Therefore it is not recommended. This problem does
-   not occur with MSVC 6.0 and earlier.
+** Note! Binaries created with MSVC 7.0 (and later) with MFLAGS=-MD depend
+   on a closed-source library 'Msvcr70.dll' (or similar) which is not
+   normally part of a Woe32 installation.
+   While Microsoft (see article Q326922 "Redistribution of the shared C
+   runtime component in Visual C++" http://support.microsoft.com/kb/326922)
+   seems to permit redistribution of these files, they _cannot_ be
+   _bundled_ with CLISP in a _single_ distribution - this would be a
+   violation of the GPL.  You must distribute it in a separate file.
 
 ** Note! The easiest way to get a native win32 version of CLISP is to use
    -- cygwin <http://cywgin.com> or
    -- mingw/msys <http://www.mingw.org/>.
-   Either way, read ../unix/INSTALL, get libsigsegv, and do
+   Either way, read ../unix/INSTALL, get libsigsegv, libffcall &c, and do
    $ ./configure --with-mingw --cbc build-mingw --with-module=...
    $ cd build-mingw
    $ make distrib
