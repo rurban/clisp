@@ -117,7 +117,7 @@ T
 *EXEMPTION-STATE*
 
 ;; test deferred interrupts, exemption-signal and with-mutex-lock
-(defparameter *th1*
+(defparameter *th3*
   (make-thread (lambda ()
                  (with-deferred-interrupts
                    (with-mutex-lock (*mu1*)
@@ -125,7 +125,7 @@ T
                      (setf *exemption-state* :signaled)
                      (exemption-signal *exemption*))
                    (loop (sleep 1))))))
-*TH1*
+*TH3*
 
 (with-mutex-lock (*mu1*)
   (loop until (eq *exemption-state* :signaled)
@@ -133,14 +133,14 @@ T
      finally (return *exemption-state*)))
 :SIGNALED
 
-(thread-active-p *th1*) T
-(eq (thread-interrupt *th1* :function t) *th1*) T
+(thread-active-p *th3*) T
+(eq (thread-interrupt *th3* :function t) *th3*) T
 (sleep 0.5) NIL
-(thread-active-p *th1*) T ;; kill is deferred
+(thread-active-p *th3*) T ;; kill is deferred
 
 ;; test exemtpion-broadcast and thread-interrupt :override
 (with-mutex-lock (*mu1*)
-  (thread-interrupt *th1* :function (lambda ()
+  (thread-interrupt *th3* :function (lambda ()
                                       (with-mutex-lock (*mu1*)
                                         (setf *exemption-state* :broadcasted)
                                         (exemption-broadcast *exemption*)))
@@ -150,10 +150,10 @@ T
      finally (return *exemption-state*)))
 :BROADCASTED
 
-(thread-active-p *th1*) T ;; thread should be still running
-(eq (thread-interrupt *th1* :function t :override t) *th1*) T
+(thread-active-p *th3*) T ;; thread should be still running
+(eq (thread-interrupt *th3* :function t :override t) *th3*) T
 (sleep 0.5) NIL
-(thread-active-p *th1*) NIL ;; should be dead
+(thread-active-p *th3*) NIL ;; should be dead
 
 ;; create thread with very tiny lisp stack (thus preserving memory)
 ;; on mac osx lisp heap overlaps lisp stack regions (malloc-ed) when
