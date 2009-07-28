@@ -559,9 +559,10 @@ global void uni32le_wcstombs (object encoding, object stream,
  error_uni32_invalid(encoding,code); */
 nonreturning_function(local, error_uni32_invalid,
                       (object encoding, uint32 code)) {
-  pushSTACK(uint32_to_I(code)); /* CHARSET-TYPE-ERROR slot datum */
+  pushSTACK(NIL); /* CHARSET-TYPE-ERROR slot datum - filled below */
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
+  STACK_2 = uint32_to_I(code); /* fill it here since it maygc */
   var uintC count;
   dotimespC(count,8, {
     pushSTACK(ascii_char(hex_table[code&0x0F]));
