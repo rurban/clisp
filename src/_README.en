@@ -143,6 +143,8 @@ The rest is done by
 #endif
 #ifdef WIN32_NATIVE
         install.bat
+
+(not necessary if you use an installation executable).
 #endif
 
 
