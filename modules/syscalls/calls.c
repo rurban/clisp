@@ -1928,11 +1928,13 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
   bool link_p = missingp(STACK_0);
   struct stat buf;
   object file = STACK_1;
+  bool error_p;
 
   if (integerp(file)) {
     begin_blocking_system_call();
-    if (fstat(I_to_UL(file),&buf) < 0) OS_error();
+    error_p = (fstat(I_to_UL(file),&buf) < 0);
     end_blocking_system_call();
+    if (error_p) OS_error();
   } else {
     Handle fd;
     file = open_file_stream_handle(STACK_1,&fd,true);
@@ -1946,9 +1948,9 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
          only an integer of an unknown nature */
       BY_HANDLE_FILE_INFORMATION fi;
       begin_blocking_system_call();
-      if (!GetFileInformationByHandle(fd,&fi))
-        error_OS_stream(STACK_1);
+      error_p = !GetFileInformationByHandle(fd,&fi);
       end_blocking_system_call();
+      if (error_p) error_OS_stream(STACK_1);
       pushSTACK(STACK_1);       /* file */
       pushSTACK(uint32_to_I(fi.dwVolumeSerialNumber)); /* device */
       pushSTACK(UL2_to_I(fi.nFileIndexHigh,fi.nFileIndexLow)); /* "inode" */
@@ -1963,9 +1965,10 @@ DEFUN(POSIX::FILE-STAT, file &optional linkp)
       pushSTACK(convert_time_to_universal(&(fi.ftCreationTime)));
       goto call_make_file_stat;
 #    else
-      if (fstat(fd,&buf) < 0)
-        error_OS_stream(STACK_1);
+      begin_blocking_system_call();
+      error_p = (fstat(fd,&buf) < 0);
       end_blocking_system_call();
+      if (error_p) error_OS_stream(STACK_1);
       file = eq(nullobj,STACK_1) ? fixnum(fd) : (object)STACK_1; /* restore */
 #    endif
     }
