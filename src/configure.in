@@ -20,7 +20,7 @@ AC_INIT(GNU CLISP, m4_normalize(esyscmd([if test -f version.sh; then . ./version
 AC_CONFIG_SRCDIR(lispbibl.d)
 AC_CONFIG_AUX_DIR(build-aux)
 AM_INIT_AUTOMAKE
-AC_COPYRIGHT([GNU CLISP Copyright 1989-2008 by Bruno Haible and others
+AC_COPYRIGHT([GNU CLISP Copyright 1989-2009 by Bruno Haible and others
 GNU CLISP is distributed under the GNU GPL, see file COPYRIGHT])dnl
 AC_REVISION([$Id$])dnl
 AC_CONFIG_HEADERS(config.h)
