@@ -1,5 +1,10 @@
 2009-07-28  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel ($(MAKEMAKE_TMP), src/version.h): when sourcing
+	version.sh, do not expect "." to be in $PATH
+
+2009-07-28  Sam Steingold  <sds@gnu.org>
+
 	* version.sh: 2.48 (2009-07-28)
 
 2009-07-27  Sam Steingold  <sds@gnu.org>
