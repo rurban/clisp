@@ -1,7 +1,11 @@
                               Multithreading
                               ==============
 
-is currently being developed but is usable.
+Is currently being developed but is usable and testable.
+HOWEVER: Various tests on various platforms may fail.
+         CLISP may segfault.
+         Your work may be lost.
+         You have been warned!
 
 Installation
 ------------
@@ -12,13 +16,14 @@ the symbols POSIX_THREADS, WIN32_THREADS.
 Alternatively, you can pass "--with-threads=flavor" to the top-level
 configure ("flavor" is one of POSIX_THREADS, WIN32_THREADS).
 
-When building with gcc that does not support __thread qualifier for per thread
-variables it's better to add to CFLAGS: -DUSE_CUSTOM_TLS=3 (or 2). Built
-executable will be significantly faster than the one with default settings (if
-we rely on OS API for thread local storage i.e. pthread_getspecific().
+When building with gcc that does not support __thread qualifier for per
+thread variables it's better to add to CFLAGS: -DUSE_CUSTOM_TLS=3 (or 2).
+
+Built executable will be significantly faster than the one with default settings
+(if we rely on OS API for thread local storage i.e. pthread_getspecific()).
 See comments in: http://clisp.cvs.sourceforge.net/viewvc/*checkout*/clisp/clisp/src/lispbibl.d
 Platforms on which gcc does not support __thread qualifier are (encountered
-till now): MacOSX, Win32+mingw
+up to now): MacOSX, Win32+mingw
 
 DOCS: impbyte.xml:"gc-mt"; impext.xml:"mt"
 preview: http://clisp.podval.org/impnotes/mt.html
