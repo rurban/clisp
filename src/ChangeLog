@@ -1,3 +1,8 @@
+2009-07-28  Sam Steingold  <sds@gnu.org>
+
+	* modules/syscalls/calls.c (POSIX::FILE-STAT): move error
+	reporting outside begin_blocking_system_call/end_blocking_system_call
+
 2009-07-28  Reini Urban  <rurban@x-ray.at>
 
 	* utils/modprep.lisp (write-string-c-style): do not downcase chars
