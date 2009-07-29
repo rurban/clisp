@@ -11,6 +11,8 @@
 	* utils/modprep.lisp (write-string-c-style): do not downcase chars
 	when package is case-sensitive
 	(new-fundef): do not fix case when package is case-sensitive
+	(case-inverted-package-p): add
+	(print-tables-2): use it to invercase fundef-name
 
 2009-07-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
