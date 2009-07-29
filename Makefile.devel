@@ -403,7 +403,7 @@ TOPDIR=clisp-$(VER)$(SUFFIX)
 SRC_DIST=$(ARCHIVE)/$(TOPDIR).tar.bz2
 SRC_DIST1=$(ARCHIVE)/$(TOPDIR).tar.gz
 DOC_DIST=$(ARCHIVE)/$(TOPDIR)-impnotes.zip
-UPLOAD=$(SRC_DIST) $(SRC_DIST1) $(DOC_DIST)
+UPLOAD=$(SRC_DIST) $(SRC_DIST1) $(DOC_DIST) src/NEWS
 SSHUP=podval:~/public_html/clisp/
 GNU_TOP=$(ARCHIVE)/NEWS $(ARCHIVE)/SUMMARY
 GNU_SRC=$(SRC_DIST1) $(SRC_DIST)
@@ -436,10 +436,10 @@ $(SRC_DIST1) : $(SRC_DIST)
 	bzcat -v $(SRC_DIST) | gzip -9 -v > $(SRC_DIST1)
 
 upload-ssh : $(SRC_DIST1) force
-	for h in $(SSHUP) ; do scp $(UPLOAD) src/NEWS $${h}; done
+	for h in $(SSHUP) ; do scp $(UPLOAD) $${h}; done
 
 upload-sf : $(SRC_DIST1) force
-	rsync -avP -e ssh $(UPLOAD) frs.sf.net:uploads
+	rsync -avP -e ssh $(UPLOAD) frs.sf.net:/home/frs/project/c/cl/clisp/clisp/$(VER)/
 
 upload-gnu : force		# gnu-distrib -- do not re-sign everything
 	UP=""; for f in $(GNU_DIST); do \
