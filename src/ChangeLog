@@ -1,3 +1,10 @@
+2009-07-29  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* modules/syscalls/calls.c (POSIX::STAT-VFS): move error
+	reporting outside begin_blocking_system_call/end_blocking_system_call.
+	save open file stream on STACK around begin/end_blocking_system_call
+	(POSIX::WAIT): fix GC-safety bugs
+
 2009-07-29  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (UPLOAD): add src/NEWS so that SF FRS also gets it

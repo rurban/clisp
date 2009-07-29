@@ -1360,17 +1360,16 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
       STACK_0 = value1;
       mv_count = 4;
     } else mv_count = 3;
-    value1 = pid_to_I(ret);
-    if (usage) value4 = STACK_0;
+    STACK_1 = pid_to_I(ret);
     if (WIFEXITED(status)) {
       value2 = `:EXITED`;
       value3 = fixnum(WEXITSTATUS(status));
     } else if (WIFSIGNALED(status)) {
-      value2 = `:SIGNALED`;
       value3 = check_signal_reverse(WTERMSIG(status));
+      value2 = `:SIGNALED`;
     } else if (WIFSTOPPED(status)) {
-      value2 = `:STOPPED`;
       value3 = check_signal_reverse(WSTOPSIG(status));
+      value2 = `:STOPPED`;
 #if defined(WIFCONTINUED)       /* cygwin does not have this */
     } else if (WIFCONTINUED(status)) {
       value2 = `:CONTINUED`;
@@ -1380,6 +1379,8 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
       value2 = NIL;
       value3 = fixnum(status);
     }
+    value1 = STACK_1;
+    if (usage) value4 = STACK_0;
   }
   skipSTACK(2);
 }
@@ -2438,20 +2439,24 @@ DEFUN(POSIX::STAT-VFS, file)
  the return value is the STAT-VFS structure */
   object file = STACK_0;
   struct statvfs buf;
+  bool error_p;
 
 #if defined(HAVE_FSTATVFS)
   if (integerp(file)) {
     begin_blocking_system_call();
-    if (fstatvfs(I_to_L(file),&buf) < 0) OS_error();
+    error_p = (fstatvfs(I_to_L(file),&buf) < 0);
     end_blocking_system_call();
+    if (error_p) OS_error();
   } else {
     Handle fd;
     file = open_file_stream_handle(file,&fd,true);
     if (!eq(nullobj,file)) { /* an open stream */
+      pushSTACK(file);
       begin_blocking_system_call();
-      if (fstatvfs(fd,&buf) < 0)
-        error_OS_stream(STACK_0);
+      error_p = (fstatvfs(fd,&buf) < 0);
       end_blocking_system_call();
+      file = popSTACK();
+      if (error_p) error_OS_stream(STACK_0);
       STACK_0 = file;
     } else
 #endif
