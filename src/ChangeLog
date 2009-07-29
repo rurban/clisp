@@ -1,3 +1,7 @@
+2009-07-29  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (UPLOAD): add src/NEWS so that SF FRS also gets it
+
 2009-07-28  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (POSIX::FILE-STAT): move error
@@ -12,7 +16,7 @@
 	when package is case-sensitive
 	(new-fundef): do not fix case when package is case-sensitive
 	(case-inverted-package-p): add
-	(print-tables-2): use it to invercase fundef-name
+	(print-tables-2): use it to invertcase fundef-name
 
 2009-07-28  Vladimir Tzankov  <vtzankov@gmail.com>
 
