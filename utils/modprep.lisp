@@ -376,6 +376,9 @@ See bug #[ 1491252 ]: i18n does not build on cf:alpha")
 (defun case-sensitive-package-p ()
   (let ((properties (gethash *module-package* *package-properties*)))
     (or (getf properties :modern) (getf properties :case-sensitive))))
+(defun case-inverted-package-p ()
+  (let ((properties (gethash *module-package* *package-properties*)))
+    (or (getf properties :modern) (getf properties :case-inverted))))
 
 (defun string-upcase-verbose (string)
   (when (and (some #'lower-case-p string)    ; upcasing will modify
@@ -1177,7 +1180,11 @@ commas and parentheses."
     (formatln out "} ~A = {" subr-tab-initdata)
     (loop :for fd :across *fundefs*
       :do (with-conditional (out (fundef-cond-stack fd))
-            (format out "  { ~S, ~S }," (fundef-pack fd) (fundef-name fd))))
+            (format out "  { ~S, ~S }," (fundef-pack fd)
+                    (if (case-inverted-package-p)
+                        ;; will be inverted again lisp-side
+                        (string-invertcase (fundef-name fd))
+                        (fundef-name fd)))))
     (formatln out "  0")
     (formatln out "};") (newline out)
     ;; Emit the decl first, to avoid "gcc -missing-declarations" warnings.
