@@ -4582,23 +4582,25 @@ global maygc void handle_pending_interrupts()
  (or when the thread will not be signalled) it will be released here*/
 global bool interrupt_thread(clisp_thread_t *thr)
 {
+  var xcondition_t *condition;
+  var xmutex_t *mutex;
   /* first check whether the thread is dying. no need to interrupt it.*/
   if (thr->_thread_is_dying) {
     spinlock_release(&thr->_signal_reenter_ok);
     return false;
   }
   thr->_pending_interrupts++;
-  if (thr->_wait_condition) {
+  if (condition = thr->_wait_condition) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
     /* wake up all threads */
-    xcondition_broadcast(thr->_wait_condition);
-  } else if (thr->_wait_mutex) {
+    xcondition_broadcast(condition);
+  } else if (mutex = thr->_wait_mutex) {
     /* release the lock - we are not going to send signal really */
     spinlock_release(&thr->_signal_reenter_ok);
     /* waiting on mutex i.e. xlock_t */
     /* wake up all threads on this condition */
-    xcondition_broadcast(&(thr->_wait_mutex->xl_wait_cv));
+    xcondition_broadcast(&(mutex->xl_wait_cv));
   } else {
    #ifdef POSIX_THREADS
     /* the thread may wait on it's gc_suspend_lock or in system
