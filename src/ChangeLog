@@ -1,3 +1,23 @@
+2009-07-30  Sam Steingold  <sds@gnu.org>
+
+	RAWSOCK: pin everything properly
+	* modules/rawsock/rawsock.c (with_sockaddr_arg): replaces CHECK_SOCKADDR
+	(PIN_ARG_USE, PIN_ARG_DECL, PIN_DECL, PIN_INIT): define based on
+	MULTITHREAD to pass pinned_chain_t objects around
+	(fill_iovec): accept a vector of pinned_chain_t on MULTITHREAD
+	and pin subvectors
+	(optional_sockaddr_argument): accept a pinned_chain_t on
+	MULTITHREAD and ping the socket arg
+	(with_opt_sa_arg): a wrapper for optional_sockaddr_argument()
+	(SOCKADDR-FAMILY, BIND, CONNECT, GETNAMEINFO): use
+	with_sockaddr_arg instead of CHECK_SOCKADDR
+	(ACCEPT, GETPEERNAME, GETSOCKNAME, RECVFROM, SENDTO): use
+	with_opt_sa_arg instead of optional_sockaddr_argument
+	(fill_msghdr): accept a vector of pinned_chain_t on MULTITHREAD
+	and pass it on to fill_iovec
+	(RECVMSG, SENDMSG) [MULTITHREAD]: pass pinned_chain_t to fill_msghdr
+	(SOCK-READ, SOCK-WRITE) [MULTITHREAD]: pass pinned_chain_t to fill_iovec
+
 2009-07-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (interrupt_thread) [MULTITHREAD]: prevent races when
@@ -79,7 +99,7 @@
 
 2009-07-24  Sam Steingold  <sds@gnu.org>
 
-	fix bug [ 2826572 ]: regexp-quote doesn't quote correctly extended
+	fix bug #[ 2826572 ]: regexp-quote doesn't quote correctly extended
 	* modules/regexp/regexp.lisp (regexp-quote): quote "()" in
 	extended expressions
 
