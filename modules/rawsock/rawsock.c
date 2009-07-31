@@ -116,9 +116,7 @@ static void* parse_buffer_arg (gcv_object_t *arg_, size_t *size, int prot) {
 }
 #define with_buffer_arg(_buffer,_arg_,_size,_prot,_code)  do {  \
     void *_buffer = parse_buffer_arg(_arg_,_size,_prot);        \
-    pin_varobject(*_arg_);                                      \
-    _code;                                                      \
-    unpin_varobject(*_arg_);                                    \
+    with_pinned_varobject(*_arg_,_code);                        \
   } while(0)
 
 /* DANGER: the return value is invalidated by GC! only used by with_sockaddr_arg
@@ -141,10 +139,7 @@ static void* check_struct_data (object type, gcv_object_t *arg,
     struct sockaddr* _ptr =                                             \
       (struct sockaddr*)check_struct_data(`RAWSOCK::SOCKADDR`,          \
                                           _arg_,_size,_prot);           \
-    pinned_chain_t pc;                                                  \
-    pin_varobject_with_pc(&pc,*_arg_);                                  \
-    _code;                                                              \
-    unpin_varobject(pc.pc_varobject);                                   \
+    with_pinned_varobject(*_arg_,_code);                                \
   } while(0)
 
 /* check that the arg is a vector of byte vectors
@@ -1063,7 +1058,7 @@ DEFUN(RAWSOCK:SOCK-READ,socket buffer &key :START :END)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* READV */
     ssize_t pinned_count = retval;
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
-    PIN_DECL; PIN_INIT(retval);
+    PIN_DECL; PIN_INIT(pinned_count);
     fill_iovec(STACK_0,offset,retval,buffer,PROT_READ_WRITE PIN_ARG_USE);
     SYSCALL(retval,sock,readv(sock,buffer,retval));
     unpin_varobjects(pinned_count);
@@ -1137,7 +1132,7 @@ DEFUN(RAWSOCK:SOCK-WRITE,socket buffer &key :START :END)
   if ((retval = check_iovec_arg(&STACK_2,&offset)) >= 0) { /* WRITEV */
     ssize_t pinned_count = retval;
     struct iovec *buffer = (struct iovec*)alloca(sizeof(struct iovec)*retval);
-    PIN_DECL; PIN_INIT(retval);
+    PIN_DECL; PIN_INIT(pinned_count);
     fill_iovec(STACK_0,offset,retval,buffer,PROT_READ PIN_ARG_USE);
     SYSCALL(retval,sock,writev(sock,buffer,retval));
     unpin_varobjects(pinned_count);

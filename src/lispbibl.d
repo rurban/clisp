@@ -17559,11 +17559,18 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
     pin_varobject_with_pc(&GENTAG(pc), varobj)
 
   /* UP: unpin varobject in lisp heap. */
-  #define unpin_varobject(varobj)                          \
-    do {                                                   \
+  #define unpin_varobject(varobj)    do {                  \
       var pinned_chain_t **p=&(current_thread()->_pinned); \
       ASSERT_VALID_UNPIN(p,varobj);                        \
       *p = (*p)->pc_next;                                  \
+    } while(0)
+
+  /* Macro: pin varobj, execute code, unpin it */
+  #define with_pinned_varobject(varobj,code)    do {   \
+      var pinned_chain_t GENTAG(pc);                   \
+      pin_varobject_with_pc(&GENTAG(pc), varobj);      \
+      code;                                            \
+      unpin_varobject(GENTAG(pc).pc_varobject);        \
     } while(0)
 
   /* UP: unpins specified number of pinned objects. will abort if there are
@@ -17638,6 +17645,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
   #define pin_varobject(vo)
   #define unprotect_heap_range(vo,access)
   #define unpin_varobject(vo)
+  #define with_pinned_varobject(vo,code)  code
   #define unpin_varobjects(count)
   #define GC_STOP_WORLD(lock_heap)
   #define GC_RESUME_WORLD(unlock_heap)
@@ -17660,6 +17668,7 @@ global bool timeval_less(struct timeval *p1, struct timeval *p2);
 %% export_def(pin_varobject_with_pc(pc,vo));
 %% export_def(pin_varobject(vo));
 %% export_def(unpin_varobject(vo));
+%% export_def(with_pinned_varobject(vo,code));
 %% export_def(unpin_varobjects(count));
 %% export_def(WITH_OS_MUTEX_LOCK(stack_count,mutex,body));
 %% export_def(WITH_LISP_MUTEX_LOCK(stack_count,keep_mv_space,pmutex,body));
