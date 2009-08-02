@@ -274,8 +274,8 @@ static void message_callback (const DB_ENV* dbe, const char *msg) {
     int db_error_code;                                          \
     begin_blocking_system_call();                               \
     db_error_code = caller args; cleanup                        \
-    if (db_error_code) error_bdb(db_error_code,#caller);        \
     end_blocking_system_call();                                 \
+    if (db_error_code) error_bdb(db_error_code,#caller);        \
   } while(0)
 #define SYSCALL(caller,args)     SYSCALL1(caller,args,)
 
@@ -425,7 +425,7 @@ static FILE* my_fopen (object path) {
   with_string_0(path=physical_namestring(path),GLO(pathname_encoding),pathz,{
       begin_blocking_system_call();
       ret = fopen(pathz,"w");
-      if (ret == NULL) OS_file_error(path);
+      if (ret == NULL) { end_blocking_system_call(); OS_file_error(path); }
       time_stamp(ret,"opened");
       end_blocking_system_call();
     });
@@ -754,10 +754,16 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       goto restart_LK_CONFLICTS;
     }
     { /* set the conflict matrix */
+      int db_error_code;
       uintL offset = 0;
       object data = array_displace_check(STACK_0,dims[0]*dims[1],&offset);
-      SYSCALL(dbe->set_lk_conflicts,
-              (dbe,TheSbvector(data)->data + offset,dims[0]));
+      /* the matrix is just copied and the call is not really "blocking" one.
+         if we use SYSCALL we shoulf also pin the object */
+      begin_system_call();
+      db_error_code =
+        dbe->set_lk_conflicts(dbe,TheSbvector(data)->data + offset,dims[0]);
+      end_system_call();
+      if (db_error_code) error_bdb(db_error_code,"dbe->set_lk_conflicts");
     }
   }
   skipSTACK(1);
@@ -2369,6 +2375,7 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key NOWAIT)
   free(obj.data);
   if (status) {
     free(dblock);
+    end_blocking_system_call();
     error_bdb(status,"dbe->lock_get");
   }
   end_blocking_system_call();
