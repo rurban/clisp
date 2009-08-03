@@ -3316,7 +3316,14 @@ echol
 # while the top-level makevars can contain arbitrary paths in LIBS and FILES,
 # makevars in each linking set (boot/base/full) must point to local files only
 echol "makevars : Makefile"
-echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ; echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ; echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ; echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ; echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ; echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ; echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ; echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
+echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ;\\"
+echotab " echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ;\\"
+echotab " echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ;\\"
+echotab " echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ;\\"
+echotab " echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ;\\"
+echotab " echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
 echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
