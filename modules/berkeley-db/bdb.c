@@ -186,7 +186,6 @@ DEFCHECKER(bdb_errno,default=,prefix=DB,BUFFER-SMALL DONOTINDEX KEYEMPTY \
            REP-LOGREADY REP-PAGEDONE SURPRISE-KID SWAPBYTES :TIMEOUT TXN-CKP \
            VERIFY-FATAL)
 nonreturning_function(static, error_bdb, (int status, const char *caller)) {
-  end_system_call();
   pushSTACK(`BDB::BDB-ERROR`);  /* error type */
   pushSTACK(S(Kcode)); pushSTACK(bdb_errno_reverse(status));
   if (error_message)
@@ -758,7 +757,7 @@ DEFUN(BDB:DBE-SET-OPTIONS, dbe &key                                     \
       uintL offset = 0;
       object data = array_displace_check(STACK_0,dims[0]*dims[1],&offset);
       /* the matrix is just copied and the call is not really "blocking" one.
-         if we use SYSCALL we shoulf also pin the object */
+         if we use SYSCALL we should also pin the object */
       begin_system_call();
       db_error_code =
         dbe->set_lk_conflicts(dbe,TheSbvector(data)->data + offset,dims[0]);
@@ -2373,12 +2372,9 @@ DEFUN(BDB:LOCK-GET, dbe object locker mode &key NOWAIT)
   begin_blocking_system_call();
   status = dbe->lock_get(dbe,locker,flags,&obj,mode,dblock);
   free(obj.data);
-  if (status) {
-    free(dblock);
-    end_blocking_system_call();
-    error_bdb(status,"dbe->lock_get");
-  }
+  if (status) free(dblock);
   end_blocking_system_call();
+  if (status) error_bdb(status,"dbe->lock_get");
   pushSTACK(allocate_fpointer(dblock)); pushSTACK(STACK_2);
   funcall(`BDB::MKDBLOCK`,2); STACK_0 = STACK_1 = value1;
   pushSTACK(``BDB:LOCK-CLOSE``); funcall(L(finalize),2);
@@ -2754,11 +2750,9 @@ DEFUN(BDB:TXN-RECOVER, dbe &key FIRST :NEXT)
   preplist = (DB_PREPLIST*)clisp_malloc(tx_max * sizeof(DB_PREPLIST));
   begin_blocking_system_call();
   status = dbe->txn_recover(dbe,preplist,tx_max,&retnum,flags);
-  if (status) {
-    free(preplist); end_blocking_system_call();
-    error_bdb(status,"dbe->txn_recover");
-  }
+  if (status) free(preplist);
   end_blocking_system_call();
+  if (status) error_bdb(status,"dbe->txn_recover");
   for (ii=0; ii<retnum; ii++) {
     pushSTACK(allocate_fpointer(preplist[ii].txn));
     funcall(`BDB::MKTXN`,1); pushSTACK(value1);
