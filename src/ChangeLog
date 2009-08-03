@@ -1,3 +1,9 @@
+2009-08-03  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/bdb.c (bdb_errno): do not call end_system_call()
+	(LOCK-GET, TXN-RECOVER): move bdb_errno out of
+	begin_blocking_system_call/end_blocking_system_call
+
 2009-08-02  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	BERKELEY-DB: fix problems with MT
