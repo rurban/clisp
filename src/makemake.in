@@ -555,9 +555,6 @@ host_vendor='@host_vendor@'         # something like 'sun'
 host_os='@host_os@'                 # something like 'sunos4'
 MAKE='@MAKE@'                       # gmake or make
 GNU_MAKE='@GNU_MAKE@'               # yes or no
-HAVE_MALLOC_POSIX='@HAVE_MALLOC_POSIX@'     # 1 or 0
-REPLACE_GETTIMEOFDAY='@REPLACE_GETTIMEOFDAY@' # 1 or 0
-REPLACE_GETPAGESIZE='@REPLACE_GETPAGESIZE@' # 1 or 0
 # Important: Don't rely on this host classification.
 # 1. GNU's database config.guess is not always up to date.
 # 2. New operating systems are emerging at every corner.
@@ -1577,20 +1574,9 @@ if [ "${with_dynamic_modules}" != no ]; then
   XCFLAGS="$XCFLAGS -DDYNAMIC_MODULES"
 fi
 
-if [ ${HAVE_MALLOC_POSIX} = 0 -o ${CROSS} = true ]; then
-  # gnulib/stdlib.h will define malloc to rpl_malloc, so we need this
-  GLLIB_O=gllib/malloc${TOBJ}
-  EXTRAOBJ=" ${GLLIB_O}"
-else GLLIB_O=""; EXTRAOBJ="";
-fi
-test "${REPLACE_GETTIMEOFDAY}" = 1 \
-  && GLLIB_O=${GLLIB_O}" gllib/gettimeofday${TOBJ}"
-test "${REPLACE_GETPAGESIZE}" = 1 \
-  && GLLIB_O=${GLLIB_O}" gllib/getpagesize${TOBJ}"
-for f in localcharset uniname/uniname uniwidth/width; do
-  GLLIB_O=gllib/${f}${TOBJ}' '${GLLIB_O};
-done
-FILES=${GLLIB_O}' '${FILES}
+GLLIB_A=libgnu_cl.a
+LIBS="${LIBS} ${GLLIB_A}"
+FILES="${GLLIB_A} "${FILES}
 
 if [ "${with_readline}" = no ]; then
   # --without-readline was supplied
@@ -2278,7 +2264,7 @@ echol
 echolist "CFILES =" "$DFILES $ARI_ASMD $ARI_ASMC $SP_ASMD gen.lispbibl" ".c"
 echol
 
-echolist "OBJECTS = ${GLLIB_O}" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
+echolist "OBJECTS =" "$CPARTS $ARI_ASMS $SP_ASMS $GMALLOC" "${TOBJ}"
 echol
 
 echolist "LISPFILES =" "$LPARTS" ".lisp" "${SRCDIR}"
@@ -2323,8 +2309,9 @@ else
   echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 fi
 echol
-echol "${GLLIB_O}: gllib"
+echol "${GLLIB_A}: gllib"
 echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
+echotab 'test -r $@ || $(LN_S) gllib/libgnu.a $@'
 echol
 
 # in the toplevel Makefile.devel, makemake depends also on version.sh.
@@ -2845,7 +2832,7 @@ finish_runtime () {
 }
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) modules${TOBJ} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) ${GLLIB_A} modules${TOBJ} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.

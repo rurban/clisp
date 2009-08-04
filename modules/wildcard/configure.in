@@ -13,16 +13,20 @@ if test $cl_cv_have_ffcall = no; then
   AC_MSG_ERROR([module Wildcard requires FFI])
 fi
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+AM_INIT_AUTOMAKE
+wc_gl_EARLY
+wc_gl_INIT
+
 dnl called from top-level configure.in:gl_INIT [gl_FUNC_FNMATCH_POSIX]
 dnl $ac_cv_func_fnmatch_gnu comes from ../config.cache
-if test $gl_cv_func_fnmatch_gnu != yes; then
-  FNMATCH_O=fnmatch.o
-else
-  FNMATCH_O=
-fi
-AC_SUBST(FNMATCH_O)
+dnl if test $gl_cv_func_fnmatch_gnu != yes; then
+dnl   FNMATCH_O=fnmatch.o
+dnl else
+dnl   FNMATCH_O=
+dnl fi
+dnl AC_SUBST(FNMATCH_O)
 BOLD_MSG([Wildcard (Output)])
-AC_CONFIG_FILES(Makefile link.sh)
+AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
 AC_OUTPUT
 
 BOLD_MSG([Wildcard (Done)])

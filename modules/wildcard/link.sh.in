@@ -1,11 +1,5 @@
-NEW_FILES='wildcard.o'
-NEW_LIBS=${NEW_FILES}
-for extra in '' @FNMATCH_O@; do
-  if test -n "${extra}"; then
-    NEW_FILES="${NEW_FILES} ../gllib/${extra}"
-    NEW_LIBS="${NEW_LIBS} ${extra}"
-  fi
-done
+NEW_FILES='wildcard.o libgnu_wc.a'
+NEW_LIBS="${NEW_FILES}"
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   INCLUDES="$absolute_linkkitdir"

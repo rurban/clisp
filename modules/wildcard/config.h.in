@@ -1,10 +1,32 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* Define to 1 if you have the `btowc' function. */
+#undef HAVE_BTOWC
+
+/* Define to 1 if you have the declaration of `isblank', and to 0 if you
+   don't. */
+#undef HAVE_DECL_ISBLANK
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
+/* Define to 1 if you have the `isblank' function. */
+#undef HAVE_ISBLANK
+
+/* Define to 1 if you have the `iswctype' function. */
+#undef HAVE_ISWCTYPE
+
+/* Define to 1 if you have the `mbsrtowcs' function. */
+#undef HAVE_MBSRTOWCS
+
+/* Define to 1 if <wchar.h> declares mbstate_t. */
+#undef HAVE_MBSTATE_T
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `mempcpy' function. */
+#undef HAVE_MEMPCPY
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -33,6 +55,21 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* Define to 1 if you have the <wctype.h> header file. */
+#undef HAVE_WCTYPE_H
+
+/* Define to 1 if you have the `wmemchr' function. */
+#undef HAVE_WMEMCHR
+
+/* Define to 1 if you have the `wmemcpy' function. */
+#undef HAVE_WMEMCPY
+
+/* Define to 1 if you have the `wmempcpy' function. */
+#undef HAVE_WMEMPCPY
+
+/* Name of package */
+#undef PACKAGE
+
 /* Define to the address where bug reports for this package should be sent. */
 #undef PACKAGE_BUGREPORT
 
@@ -50,6 +87,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
+
+/* Version number of package */
+#undef VERSION
 
 /* Define to 1 if on MINIX. */
 #undef _MINIX
@@ -83,5 +123,31 @@
 /* Enable general extensions on Solaris.  */
 #ifndef __EXTENSIONS__
 # undef __EXTENSIONS__
+#endif
+
+
+/* Define to a replacement function name for fnmatch(). */
+#undef fnmatch
+
+/* Work around a bug in Apple GCC 4.0.1 build 5465: In C99 mode, it supports
+   the ISO C 99 semantics of 'extern inline' (unlike the GNU C semantics of
+   earlier versions), but does not display it by setting __GNUC_STDC_INLINE__.
+   __APPLE__ && __MACH__ test for MacOS X.
+   __APPLE_CC__ tests for the Apple compiler and its version.
+   __STDC_VERSION__ tests for the C99 mode.  */
+#if defined __APPLE__ && defined __MACH__ && __APPLE_CC__ >= 5465 && !defined __cplusplus && __STDC_VERSION__ >= 199901L && !defined __GNUC_STDC_INLINE__
+# define __GNUC_STDC_INLINE__ 1
+#endif
+
+/* Define to a type if <wchar.h> does not define. */
+#undef mbstate_t
+
+/* Define as a marker that can be attached to function parameter declarations
+   for parameters that are not used.  This helps to reduce warnings, such as
+   from GCC -Wunused-parameter.  */
+#if __GNUC__ >= 3 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+# define _UNUSED_PARAMETER_ __attribute__ ((__unused__))
+#else
+# define _UNUSED_PARAMETER_
 #endif
 

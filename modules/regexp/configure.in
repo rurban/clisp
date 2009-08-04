@@ -1,6 +1,6 @@
 dnl AUTOCONF configuration for regex
 dnl Bruno Haible 18.4.1995
-dnl Sam Steingold 2003-2008
+dnl Sam Steingold 2003-2009
 
 AC_PREREQ(2.58)
 AC_INIT(regexp, 1.0, clisp-list)
@@ -10,32 +10,33 @@ AC_CONFIG_HEADERS(config.h)
 RSE_BOLD
 BOLD_MSG([Regexp (Common)])
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+AM_INIT_AUTOMAKE
 AC_CHECK_HEADERS(string.h sys/types.h)
 AC_C_RESTRICT
+rx_gl_EARLY
+rx_gl_INIT
 
-dnl called from top-level configure.in:gl_INIT [gl_FUNC_ALLOCA gl_REGEX]
-
-# ac_use_included_regex is NOT cached, so we have to duplicate the
-# logic of src/glm4/regex.m4!
-case $with_included_regex in
-  yes|no) ac_use_included_regex=$with_included_regex ;;
-  '') case $gl_cv_func_re_compile_pattern_working in
-    yes) ac_use_included_regex=no ;;
-    no) ac_use_included_regex=yes ;;
-  esac ;;
-esac
-# can we use the system-wide regex implementation?
-if test $ac_use_included_regex = yes; then
-  REGEX_O="regex.$ac_cv_objext"
-  # must link gnulib regex.h into the build directory
-  # from clisp/src/gllib/regex.h
-  $as_ln_s $srcdir/../../src/gllib/regex.h .
-else
-  REGEX_O=""
-fi
-AC_SUBST(REGEX_O)
+dnl # ac_use_included_regex is NOT cached, so we have to duplicate the
+dnl # logic of src/glm4/regex.m4!
+dnl case $with_included_regex in
+dnl   yes|no) ac_use_included_regex=$with_included_regex ;;
+dnl   '') case $gl_cv_func_re_compile_pattern_working in
+dnl     yes) ac_use_included_regex=no ;;
+dnl     no) ac_use_included_regex=yes ;;
+dnl   esac ;;
+dnl esac
+dnl # can we use the system-wide regex implementation?
+dnl if test $ac_use_included_regex = yes; then
+dnl   REGEX_O="regex.$ac_cv_objext"
+dnl   # must link gnulib regex.h into the build directory
+dnl   # from clisp/src/gllib/regex.h
+dnl   $as_ln_s $srcdir/../../src/gllib/regex.h .
+dnl else
+dnl   REGEX_O=""
+dnl fi
+dnl AC_SUBST(REGEX_O)
 BOLD_MSG([Regexp (Output)])
-AC_CONFIG_FILES(Makefile link.sh)
+AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
 AC_OUTPUT
 
 BOLD_MSG([Regexp (Done)])
