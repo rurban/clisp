@@ -1,7 +1,7 @@
 /*
  * Export CLISP internals for modules
  * Bruno Haible 1994-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  */
 
 #include "lispbibl.c"
@@ -169,7 +169,7 @@ static FILE *header_f = NULL, *test_f = NULL;
 static unsigned int test_count = 0, typedef_count = 0, define_count = 0;
 
 static void emit_typedef_test (const char *new_type) {
-  fprintf(test_f,"  printf(\"sizeof(%s)=%%ld\\n\",sizeof(%s));\n",
+  fprintf(test_f,"  printf(\"sizeof(%s)=%%ld\\n\",(long)sizeof(%s));\n",
           new_type,new_type);
   test_count++;
 }
