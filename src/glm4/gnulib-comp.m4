@@ -33,8 +33,10 @@ AC_DEFUN([gl_EARLY],
 # "Check for header files, types and library functions".
 AC_DEFUN([gl_INIT],
 [
-  AM_CONDITIONAL([GL_COND_LIBTOOL], [true])
-  gl_cond_libtool=true
+  AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
+  gl_cond_libtool=false
+  gl_libdeps=
+  gl_ltlibdeps=
   m4_pushdef([AC_LIBOBJ], m4_defn([gl_LIBOBJ]))
   m4_pushdef([AC_REPLACE_FUNCS], m4_defn([gl_REPLACE_FUNCS]))
   m4_pushdef([AC_LIBSOURCES], m4_defn([gl_LIBSOURCES]))
@@ -42,15 +44,7 @@ AC_DEFUN([gl_INIT],
   m4_pushdef([gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='src/gllib'
-changequote(,)dnl
-LTALLOCA=`echo "$ALLOCA" | sed 's/\.[^.]* /.lo /g;s/\.[^.]*$/.lo/'`
-changequote([, ])dnl
-AC_SUBST([LTALLOCA])
   gl_FUNC_ALLOCA
-  gl_FUNC_BTOWC
-  gl_WCHAR_MODULE_INDICATOR([btowc])
-  gl_FUNC_FNMATCH_POSIX
-  gl_FUNC_FNMATCH_GNU
   gl_FUNC_GETPAGESIZE
   gl_UNISTD_MODULE_INDICATOR([getpagesize])
   dnl you must add AM_GNU_GETTEXT([external]) or similar to configure.ac.
@@ -64,10 +58,6 @@ AC_SUBST([LTALLOCA])
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
-  AC_FUNC_MALLOC
-  AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
-  gl_FUNC_MALLOC_POSIX
-  gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_FUNC_MBRTOWC
   gl_WCHAR_MODULE_INDICATOR([mbrtowc])
   gl_FUNC_MBSINIT
@@ -76,19 +66,16 @@ AC_SUBST([LTALLOCA])
   gl_WCHAR_MODULE_INDICATOR([mbsrtowcs])
   gl_FUNC_MEMCHR
   gl_STRING_MODULE_INDICATOR([memchr])
+  gl_FUNC_MEMCMP
+  gl_FUNC_MEMMOVE
   gl_MULTIARCH
-  gl_REGEX
-  gt_TYPE_SSIZE_T
   AM_STDBOOL_H
   gl_STDINT_H
-  gl_STDLIB_H
   gl_HEADER_STRING_H
   gl_HEADER_SYS_TIME_H
   AC_PROG_MKDIR_P
   gl_UNISTD_H
   gl_WCHAR_H
-  gl_FUNC_WCRTOMB
-  gl_WCHAR_MODULE_INDICATOR([wcrtomb])
   gl_WCTYPE_H
   m4_ifval(gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([gl_LIBSOURCES_DIR])[ ||
@@ -159,6 +146,10 @@ AC_SUBST([LTALLOCA])
     AC_SUBST([gltests_LIBOBJS], [$gltests_libobjs])
     AC_SUBST([gltests_LTLIBOBJS], [$gltests_ltlibobjs])
   ])
+  LIBGNU_LIBDEPS="$gl_libdeps"
+  AC_SUBST([LIBGNU_LIBDEPS])
+  LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
+  AC_SUBST([LIBGNU_LTLIBDEPS])
 ])
 
 # Like AC_LIBOBJ, except that the module name goes
@@ -222,34 +213,24 @@ AC_DEFUN([gl_FILE_LIST], [
   build-aux/link-warning.h
   lib/alloca.c
   lib/alloca.in.h
-  lib/btowc.c
   lib/config.charset
-  lib/fnmatch.c
-  lib/fnmatch.in.h
-  lib/fnmatch_loop.c
   lib/getpagesize.c
   lib/gettext.h
   lib/gettimeofday.c
   lib/localcharset.c
   lib/localcharset.h
-  lib/malloc.c
   lib/mbrtowc.c
   lib/mbsinit.c
   lib/mbsrtowcs-state.c
   lib/mbsrtowcs.c
   lib/memchr.c
   lib/memchr.valgrind
+  lib/memcmp.c
+  lib/memmove.c
   lib/ref-add.sin
   lib/ref-del.sin
-  lib/regcomp.c
-  lib/regex.c
-  lib/regex.h
-  lib/regex_internal.c
-  lib/regex_internal.h
-  lib/regexec.c
   lib/stdbool.in.h
   lib/stdint.in.h
-  lib/stdlib.in.h
   lib/streq.h
   lib/string.in.h
   lib/strnlen1.c
@@ -266,14 +247,11 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/uniwidth/width.c
   lib/verify.h
   lib/wchar.in.h
-  lib/wcrtomb.c
   lib/wctype.in.h
   m4/00gnulib.m4
   m4/alloca.m4
-  m4/btowc.m4
   m4/codeset.m4
   m4/extensions.m4
-  m4/fnmatch.m4
   m4/getpagesize.m4
   m4/gettext.m4
   m4/gettimeofday.m4
@@ -302,12 +280,13 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/locale-zh.m4
   m4/lock.m4
   m4/longlong.m4
-  m4/malloc.m4
   m4/mbrtowc.m4
   m4/mbsinit.m4
   m4/mbsrtowcs.m4
   m4/mbstate_t.m4
   m4/memchr.m4
+  m4/memcmp.m4
+  m4/memmove.m4
   m4/mmap-anon.m4
   m4/multiarch.m4
   m4/nls.m4
@@ -315,13 +294,10 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/po.m4
   m4/printf-posix.m4
   m4/progtest.m4
-  m4/regex.m4
   m4/size_max.m4
-  m4/ssize_t.m4
   m4/stdbool.m4
   m4/stdint.m4
   m4/stdint_h.m4
-  m4/stdlib_h.m4
   m4/string_h.m4
   m4/sys_time_h.m4
   m4/threadlib.m4
@@ -330,7 +306,6 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/visibility.m4
   m4/wchar.m4
   m4/wchar_t.m4
-  m4/wcrtomb.m4
   m4/wctype.m4
   m4/wint_t.m4
   m4/xsize.m4

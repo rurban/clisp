@@ -56,10 +56,15 @@ CONFIG_H_IN = src/config.h.in $(patsubst %,modules/%/config.h.in,$(MODULES))
 MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
-src/gllib/Makefile.in : src/gllib/Makefile.am
-	cd src; automake gllib/Makefile # --add-missing ??
+MAKEFILE_IN = src/gllib/Makefile.in modules/regexp/gllib/Makefile.in \
+	modules/wildcard/gllib/Makefile.in
+$(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in
+	cd $* && cd .. && \
+	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
+	automake gllib/Makefile && \
+	(test -L aclocal.m4 && $(RM) aclocal.m4 || true)
 
-configures : $(CONFIGURES) $(CONFIG_H_IN) src/gllib/Makefile.in
+configures : $(CONFIGURES) $(CONFIG_H_IN) $(MAKEFILE_IN)
 
 src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 			$(addsuffix .in,$(CONFIGURES))
@@ -68,7 +73,9 @@ src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 	cat $(addsuffix .in,$(MOD_CONFIGURES)) | \
 	egrep -v -e 'AC_(INIT|PREREQ|CANONICAL_|GNU_SOURCE|CONFIG_HEADER|OUTPUT)' \
 		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
-	aclocal -I `pwd`/src/m4 -I `pwd`/src/glm4 --output=src/aclocal.m4
+	aclocal -I $(CURDIR)/src/m4 -I $(CURDIR)/src/glm4 \
+		-I $(CURDIR)/modules/regexp/glm4 \
+		-I $(CURDIR)/modules/wildcard/glm4 --output=src/aclocal.m4
 	$(RM) configure.ac
 
 AUTOCONF_FILES = src/aclocal.m4
@@ -282,7 +289,7 @@ check-sbcl:
 	test -f $(SBCL_SOURCE_FILE) || wget $(SBCL_SOURCE_URL)
 	rm -rf sbcl-$(SBCL_VERSION)
 	bunzip2 -c < $(SBCL_SOURCE_FILE) | tar xvf -
-	clisp=`pwd`/build-for-sbcl/clisp; \
+	clisp=$(CURDIR)/build-for-sbcl/clisp; \
 	cd sbcl-$(SBCL_VERSION) && sh make.sh $$clisp
 
 
@@ -342,15 +349,28 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
+GNULIB = $(GNULIB_CHECKOUT)/gnulib-tool --import --no-vc-files --no-libtool \
+	--no-changelog --aux-dir=src/build-aux
+GNULIB_CORE = stdint stdbool unistd havelib gettext localcharset \
+	uniwidth/width streq uniname/uniname unitypes link-follow \
+	nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time
+# these modules are included as dependencies by regexp and fnmatch
+# so we include them here so that they appear once in src/gl*
+# instead of twice in regexp/gl* and wildcard/gl*
+GNULIB_MODULES = alloca-opt alloca extensions include_next verify string \
+	mbsinit wchar wctype mbrtowc mbsrtowcs memmove memcmp memchr
+GNULIB_COMMON = $(GNULIB_CORE) $(GNULIB_MODULES)
+GNULIB_AVOID = $(addprefix --avoid=, $(GNULIB_COMMON))
 gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
-	$(GNULIB_CHECKOUT)/gnulib-tool --import --source-base=src/gllib \
-		--m4-base=src/glm4 --aux-dir=src/build-aux \
-		--no-vc-files --no-libtool --no-changelog \
-		stdint stdbool regex fnmatch-gnu havelib gettext localcharset \
-		uniwidth/width streq uniname/uniname unitypes link-follow \
-		nocrash libsigsegv gnu-make gettimeofday getpagesize sys_time
+	$(GNULIB) --source-base=src/gllib --m4-base=src/glm4 $(GNULIB_COMMON)
+	$(GNULIB) --source-base=modules/regexp/gllib --macro-prefix=rx_gl \
+		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) regex
+	$(GNULIB) --source-base=modules/wildcard/gllib --macro-prefix=wc_gl \
+		--m4-base=modules/wildcard/glm4 $(GNULIB_AVOID) fnmatch-gnu
 	$(RM) configure.ac
+	for d in src/gllib modules/regexp/gllib modules/wildcard/gllib; do \
+	  $(RM) `find $d -name \*~`; done
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \

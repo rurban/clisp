@@ -15,29 +15,42 @@
 
 
 # Specification in the form of a command-line invocation:
-#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --libtool --macro-prefix=gl fnmatch-gnu getpagesize gettext gettimeofday gnu-make havelib libsigsegv link-follow localcharset nocrash regex stdbool stdint streq sys_time uniname/uniname unitypes uniwidth/width
+#   gnulib-tool --import --dir=. --lib=libgnu --source-base=src/gllib --m4-base=src/glm4 --doc-base=doc --tests-base=tests --aux-dir=src/build-aux --no-libtool --macro-prefix=gl --no-vc-files alloca alloca-opt extensions getpagesize gettext gettimeofday gnu-make havelib include_next libsigsegv link-follow localcharset mbrtowc mbsinit mbsrtowcs memchr memcmp memmove nocrash stdbool stdint streq string sys_time uniname/uniname unistd unitypes uniwidth/width verify wchar wctype
 
 # Specification in the form of a few gnulib-tool.m4 macro invocations:
 gl_LOCAL_DIR([])
 gl_MODULES([
-  fnmatch-gnu
+  alloca
+  alloca-opt
+  extensions
   getpagesize
   gettext
   gettimeofday
   gnu-make
   havelib
+  include_next
   libsigsegv
   link-follow
   localcharset
+  mbrtowc
+  mbsinit
+  mbsrtowcs
+  memchr
+  memcmp
+  memmove
   nocrash
-  regex
   stdbool
   stdint
   streq
+  string
   sys_time
   uniname/uniname
+  unistd
   unitypes
   uniwidth/width
+  verify
+  wchar
+  wctype
 ])
 gl_AVOID([])
 gl_SOURCE_BASE([src/gllib])
@@ -47,6 +60,6 @@ gl_DOC_BASE([doc])
 gl_TESTS_BASE([tests])
 gl_LIB([libgnu])
 gl_MAKEFILE_NAME([])
-gl_LIBTOOL
 gl_MACRO_PREFIX([gl])
 gl_PO_DOMAIN([])
+gl_VC_FILES([false])

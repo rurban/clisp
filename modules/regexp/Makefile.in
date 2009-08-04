@@ -12,10 +12,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexi.o link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi preload.lisp
+DISTRIBFILES = regexi.o link.sh Makefile README regexp.lisp regexp.texinfo regexp.dvi preload.lisp libgnu_rx.a
 distribdir =
 
-all : regexp.fas regexi.o
+all : regexp.fas regexi.o libgnu_rx.a
+
+.PHONY : all am--refresh clisp-module clisp-module-distrib clean distclean force
 
 regexp.fas : regexp.lisp
 	$(CLISP) -c regexp.lisp
@@ -25,6 +27,14 @@ regexi.o : regexi.m.c config.h
 
 regexi.m.c : regexi.c
 	$(CLISP) -C $(INCLUDES)/modprep regexi.c
+
+am--refresh :
+
+libgnu_rx.a : force
+	rm -f libgnu_rx.a
+	mkdir -p gllib
+	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
+	cd gllib; $(MAKE) ACLOCAL_M4="Makefile.am" CFLAGS="$(CFLAGS)"; $(LN) libgnu.a ../libgnu_rx.a
 
 # Make a module
 clisp-module : all
