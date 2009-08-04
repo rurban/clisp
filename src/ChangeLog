@@ -1,3 +1,7 @@
+2009-08-01  Sam Steingold  <sds@gnu.org>
+
+	* genclisph.d (emit_typedef_test): avoid a compilation warning
+
 2009-08-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/bdb.c (bdb_errno): do not call end_system_call()
