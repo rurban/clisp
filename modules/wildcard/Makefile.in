@@ -12,16 +12,26 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml
+DISTRIBFILES = wildcard.o link.sh Makefile README wildcard.lisp wildcard.xml libgnu_wc.a
 distribdir =
 
-all : wildcard.o wildcard.fas
+all : wildcard.o wildcard.fas libgnu_wc.a
+
+.PHONY : all am--refresh clisp-module clisp-module-distrib clean distclean force
 
 wildcard.c wildcard.fas : wildcard.lisp
 	$(CLISP) -c wildcard.lisp
 
 wildcard.o : wildcard.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
+
+am--refresh :
+
+libgnu_wc.a : force
+	rm -f libgnu_wc.a
+	mkdir -p gllib
+	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
+	cd gllib; $(MAKE) ACLOCAL_M4="Makefile.am" CFLAGS="$(CFLAGS)"; $(LN) libgnu.a ../libgnu_wc.a
 
 # Make a module
 clisp-module : all

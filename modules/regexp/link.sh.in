@@ -1,11 +1,5 @@
-NEW_FILES='regexi.o'
-NEW_LIBS=${NEW_FILES}
-for extra in '' @REGEX_O@; do
-  if test -n "${extra}"; then
-    NEW_FILES="${NEW_FILES} ../gllib/${extra}"
-    NEW_LIBS="${NEW_LIBS} ${extra}"
-  fi
-done
+NEW_FILES='regexi.o libgnu_rx.a'
+NEW_LIBS="${NEW_FILES}"
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   INCLUDES="$absolute_linkkitdir"
