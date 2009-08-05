@@ -1,5 +1,7 @@
 # Makefile for the sample CLISP module QUEENS
 
+srcdir = .
+
 # Programs used by "make":
 CC = gcc -O
 CPPFLAGS =
@@ -10,24 +12,28 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = *
+DISTRIBFILES = queens.o callqueens.o link.sh Makefile
 distribdir =
 
-all : queens.o callqueens.o
+all : queens.o callqueens.o link.sh
 
-queens.o : queens.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c queens.c
+queens.o : $(srcdir)/queens.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
 
-callqueens.m.c : callqueens.c
-	$(CLISP) -C $(INCLUDES)/modprep callqueens.c
+callqueens.m.c : $(srcdir)/callqueens.c
+	$(CLISP) -C $(INCLUDES)/modprep $< -o ./
 
 callqueens.o : callqueens.m.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
+
+link.sh : $(srcdir)/link.sh
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

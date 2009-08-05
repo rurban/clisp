@@ -1,5 +1,6 @@
 # Makefile for CLISP module set dirkey
 
+srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -7,24 +8,29 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = dirkey.o link.sh Makefile dirkey1.lisp preload.lisp
+DISTRIBFILES = dirkey.o link.sh Makefile \
+	$(srcdir)/dirkey1.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : dirkey.o dirkey1.fas
+all : dirkey.o dirkey1.fas preload.lisp
 
-dirkey1.fas : dirkey1.lisp
-	$(CLISP) -c dirkey1.lisp
+%.fas: $(srcdir)/%.lisp
+	$(CLISP) -c $< -o ./
 
-dirkey.m.c: dirkey.c
-	$(CLISP) -C $(INCLUDES)/modprep dirkey.c
+dirkey.m.c: $(srcdir)/dirkey.c
+	$(CLISP) -C $(INCLUDES)/modprep $< ./
 
 dirkey.o : dirkey.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

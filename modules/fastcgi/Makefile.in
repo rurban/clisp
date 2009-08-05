@@ -3,6 +3,7 @@
 #
 # $Id$
 
+srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -15,19 +16,23 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = fastcgi.o fastcgi_wrappers.o link.sh Makefile fastcgi.lisp
+DISTRIBFILES = fastcgi.o fastcgi_wrappers.o link.sh Makefile \
+	$(srcdir)/fastcgi.lisp
 distribdir =
 
-all : fastcgi.o fastcgi.fas fastcgi_wrappers.o
+all : fastcgi.o fastcgi.fas fastcgi_wrappers.o link.sh
 
-fastcgi.c fastcgi.fas:       fastcgi.lisp
-	$(CLISP) -c fastcgi.lisp
+fastcgi.c fastcgi.fas:       $(srcdir)/fastcgi.lisp
+	$(CLISP) -c $< -o ./
 
 fastcgi.o:       fastcgi.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $<
 
-fastcgi_wrappers.o:       fastcgi_wrappers.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi_wrappers.c
+fastcgi_wrappers.o:       $(srcdir)/fastcgi_wrappers.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $<
+
+link.sh : $(srcdir)/link.sh
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

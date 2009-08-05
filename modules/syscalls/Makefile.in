@@ -1,5 +1,6 @@
 # Makefile for CLISP module syscalls
 
+srcdir = @srcdir@
 CC = @CC@
 # __EXTENSIONS__ is necessary so that the Solaris headers declare confstr().
 # _REENTRANT is necessary so that the Solaris headers declare lgamma_r().
@@ -9,24 +10,29 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = calls.o link.sh Makefile posix.lisp preload.lisp
+DISTRIBFILES = calls.o link.sh Makefile \
+	$(srcdir)/posix.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : calls.o posix.fas
+all : calls.o posix.fas preload.lisp
 
-posix.fas : posix.lisp
-	$(CLISP) -c posix.lisp
+%.fas: $(srcdir)/%.lisp
+	$(CLISP) -c $< -o ./
 
-calls.m.c: calls.c
-	$(CLISP) -C $(INCLUDES)/modprep calls.c
+calls.m.c: $(srcdir)/calls.c
+	$(CLISP) -C $(INCLUDES)/modprep $< ./
 
 calls.o : calls.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

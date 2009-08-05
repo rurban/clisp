@@ -1,5 +1,6 @@
 # Makefile for CLISP module set i18n
 
+srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -7,24 +8,29 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = gettext.o link.sh Makefile i18n.lisp i18n.xml preload.lisp
+DISTRIBFILES = gettext.o link.sh Makefile \
+	$(srcdir)/i18n.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : i18n.fas gettext.o
+all : i18n.fas gettext.o preload.lisp
 
-i18n.fas : i18n.lisp
-	$(CLISP) -c i18n.lisp
+%.fas: $(srcdir)/%.lisp
+	$(CLISP) -c $< -o ./
 
 gettext.o : gettext.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
 
-gettext.m.c : gettext.c
-	$(CLISP) -C $(INCLUDES)/modprep gettext.c
+gettext.m.c : $(srcdir)/gettext.c
+	$(CLISP) -C $(INCLUDES)/modprep $< ./
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

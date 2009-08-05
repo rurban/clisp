@@ -1,5 +1,6 @@
 # Makefile for CLISP module set zlib
 
+srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -12,13 +13,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = zlib.o link.sh Makefile zlib.lisp
+DISTRIBFILES = zlib.o link.sh Makefile $(srcdir)/zlib.lisp
 distribdir =
 
 all : zlib.o zlib.fas
 
-zlib.c zlib.fas : zlib.lisp
-	$(CLISP) -c zlib.lisp
+zlib.c zlib.fas : $(srcdir)/zlib.lisp
+	$(CLISP) -c $< -o ./
 
 zlib.o : zlib.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c zlib.c
