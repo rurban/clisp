@@ -1,5 +1,11 @@
 2009-08-04  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/Makefile.in, modules/wildcard/Makefile.in: pass
+	"-I$(INCLUDES)/.." in CFLAGS to gllib make because these modules
+	rely on src/gllib, so we must also include files in the build dir
+
+2009-08-04  Sam Steingold  <sds@gnu.org>
+
 	* init.lisp (*internal-compiled-file-type*): add
 	(*compiled-file-types*): init from *internal-compiled-file-type*
 	* compiler.lisp (compile-file-pathname-helper): use
