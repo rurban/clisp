@@ -69,6 +69,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_MEMCMP
   gl_FUNC_MEMMOVE
   gl_MULTIARCH
+  gt_NO_CXX
   AM_STDBOOL_H
   gl_STDINT_H
   gl_HEADER_STRING_H
@@ -290,6 +291,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mmap-anon.m4
   m4/multiarch.m4
   m4/nls.m4
+  m4/no-c++.m4
   m4/nocrash.m4
   m4/po.m4
   m4/printf-posix.m4
