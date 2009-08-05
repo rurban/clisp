@@ -1,5 +1,14 @@
 2009-08-04  Sam Steingold  <sds@gnu.org>
 
+	* init.lisp (*internal-compiled-file-type*): add
+	(*compiled-file-types*): init from *internal-compiled-file-type*
+	* compiler.lisp (compile-file-pathname-helper): use
+	*internal-compiled-file-type* instead of a string literal
+	* utils/modprep.lisp (mod-file): use *internal-compiled-file-type*
+	and compile-file-pathname to enable (modprep "bar/foo.c" "./")
+
+2009-08-03  Sam Steingold  <sds@gnu.org>
+
 	keep gnulib files with the module which needs them
 	* modules/regexp/gllib, modules/wildcard/gllib:
 	* modules/regexp/glm4, modules/wildcard/glm4: add

@@ -72,7 +72,7 @@
           sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
           sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
           sys::*toplevel-environment* sys::*toplevel-denv*
-          sys::*current-source-file*
+          sys::*current-source-file* sys::*internal-compiled-file-type*
           COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
           COMPILER::EVAL-WHEN-COMPILE
           COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
@@ -11202,7 +11202,7 @@ The function make-closure is required.
                    (open-stream-p output-file)
                    (output-stream-p output-file)))
         output-file
-        (let ((tmp (merge-extension "fas" input-file)))
+        (let ((tmp (merge-extension *internal-compiled-file-type* input-file)))
           (if (eq output-file 'T)
             tmp
             ;; Not (merge-pathnames output-file tmp) because that doesn't

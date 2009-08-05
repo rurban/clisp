@@ -1229,11 +1229,39 @@ commas and parentheses."
       (print-tables-1 out)))
   (print-tables-2 out))
 
-(defun mod-file (input)
+(defun mod-file-1 (input &optional (defaults input))
   (make-pathname :name (ext:string-concat (pathname-name input) ".m")
-                 :defaults input))
+                 :defaults defaults))
 
-(defun modprep (*input-file* &optional (output (mod-file *input-file*)))
+(defun mod-file (input &optional (output t)
+                 &aux (sys::*internal-compiled-file-type*
+                       (pathname-type input)))
+  (let ((output1 (compile-file-pathname input :output-file output)))
+    (unless (and (or (pathnamep output) (stringp output))
+                 (pathname-name output))
+      (setq output1 (mod-file-1 output1)))
+    (when (string= (physical-namestring output1)
+                   (physical-namestring input))
+      (error "~S(~S, ~S): output ~S the same as input"
+             'mod-file input output output1))
+    output1))
+#|
+ (dolist (a '(("/foo/bar/zot.m.c" "/foo/bar/zot.c")
+              ("/quux/froq.a" "/foo/bar/zot.c" "/quux/froq.a")
+              ("zot.m.c" "/foo/bar/zot.c" "./")
+              ("here/zot.m.c" "/foo/bar/zot.c" "./here/")
+              ("quux.c" "/foo/bar/zot.c" "./quux.c")
+              ("foo/bar/zot.m.c" "foo/bar/zot.c")
+              ("/quux/froq.a" "foo/bar/zot.c" "/quux/froq.a")
+              ("zot.m.c" "foo/bar/zot.c" "./")
+              ("here/zot.m.c" "foo/bar/zot.c" "./here/")
+              ("quux.c" "foo/bar/zot.c" "./quux.c")))
+   (let* ((expected (pop a)) (actual (apply #'mod-file a)))
+     (format t "~&~S --> ~S [~S ~A]~%"
+             a actual expected (equal expected (namestring actual)))))
+|#
+
+(defun modprep (*input-file* &optional (output (mod-file-1 *input-file*)))
   (format t "~&;; ~S: ~S --> ~S~%" 'modprep *input-file* output)
   (with-open-file (in *input-file* :direction :input
                       #+UNICODE :external-format #+UNICODE charset:utf-8)
@@ -1254,6 +1282,6 @@ commas and parentheses."
     (format t "~&~S: wrote ~A (~:D byte~:P)~&"
             'modprep output (file-length out))))
 
-(modprep (first *args*) (or (second *args*) (mod-file (first *args*))))
+(modprep (first *args*) (apply #'mod-file *args*))
 
 ;;; file modprep.lisp ends here
