@@ -1152,7 +1152,6 @@ AC_DEFUN([rx_gl_INIT],
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
-  gt_NO_CXX
   gl_REGEX
   gt_TYPE_SSIZE_T
   gl_STDLIB_H
@@ -1313,34 +1312,10 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbrtowc.m4
   m4/mbstate_t.m4
-  m4/no-c++.m4
   m4/regex.m4
   m4/ssize_t.m4
   m4/stdlib_h.m4
   m4/wcrtomb.m4
-])
-
-# no-c++.m4 serial 1
-dnl Copyright (C) 2006 Free Software Foundation, Inc.
-dnl This file is free software; the Free Software Foundation
-dnl gives unlimited permission to copy and/or distribute it,
-dnl with or without modifications, as long as this notice is preserved.
-
-# Support for C source files that cannot be compiled by a C++ compiler.
-# Set NO_CXX to the C++ compiler flags needed to request C mode instead of
-# C++ mode.
-# So far only g++ is supported.
-
-AC_DEFUN([gt_NO_CXX],
-[
-  NO_CXX=
-  AC_EGREP_CPP([Is g++], [
-#if defined __GNUC__ && defined __cplusplus
-  Is g++
-#endif
-    ],
-    [NO_CXX="-x c"])
-  AC_SUBST([NO_CXX])
 ])
 
 # 00gnulib.m4 serial 2
@@ -2500,6 +2475,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_MEMCMP
   gl_FUNC_MEMMOVE
   gl_MULTIARCH
+  gt_NO_CXX
   AM_STDBOOL_H
   gl_STDINT_H
   gl_HEADER_STRING_H
@@ -2721,6 +2697,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/mmap-anon.m4
   m4/multiarch.m4
   m4/nls.m4
+  m4/no-c++.m4
   m4/nocrash.m4
   m4/po.m4
   m4/printf-posix.m4
@@ -5795,6 +5772,29 @@ AC_DEFUN([AM_NLS],
     USE_NLS=$enableval, USE_NLS=yes)
   AC_MSG_RESULT([$USE_NLS])
   AC_SUBST([USE_NLS])
+])
+
+# no-c++.m4 serial 1
+dnl Copyright (C) 2006 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Support for C source files that cannot be compiled by a C++ compiler.
+# Set NO_CXX to the C++ compiler flags needed to request C mode instead of
+# C++ mode.
+# So far only g++ is supported.
+
+AC_DEFUN([gt_NO_CXX],
+[
+  NO_CXX=
+  AC_EGREP_CPP([Is g++], [
+#if defined __GNUC__ && defined __cplusplus
+  Is g++
+#endif
+    ],
+    [NO_CXX="-x c"])
+  AC_SUBST([NO_CXX])
 ])
 
 # nocrash.m4 serial 2
