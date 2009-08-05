@@ -1,8 +1,8 @@
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
-	* Makefile.devel (gnulib-imported): import no-c++ to regexp
-	* makemake.in (SUBDIRS): no need to disable c++ anymore
-	* modules/regexp/configure.in: call gt_NO_CXX
+	* Makefile.devel (gnulib-imported): import no-c++
+	* makemake.in (SUBDIRS): disable c++ using NO_CXX for gettimeofday.c
+	* configure.in, modules/regexp/configure.in: call gt_NO_CXX
 	* modules/regexp/Makefile.in (libgnu_rx.a): pass NO_CXX in CFLAGS
 	to gllib because regex cannot be compiled with c++
 
