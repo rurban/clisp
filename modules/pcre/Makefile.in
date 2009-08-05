@@ -1,5 +1,6 @@
 # Makefile for CLISP module set pcre
 
+srcdir = @srcdir@
 CC = @CC@
 PCRECPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -7,24 +8,29 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = cpcre.o link.sh Makefile pcre.lisp test.tst pcre.xml preload.lisp
+DISTRIBFILES = cpcre.o link.sh Makefile \
+	$(srcdir)/pcre.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : pcre.fas cpcre.o
+all : pcre.fas cpcre.o preload.lisp
 
-pcre.fas : pcre.lisp
-	$(CLISP) -c pcre.lisp
+%.fas: $(srcdir)/%.lisp
+	$(CLISP) -c $< -o ./
 
 cpcre.o : cpcre.m.c config.h
 	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
 
-cpcre.m.c : cpcre.c
-	$(CLISP) -C $(INCLUDES)/modprep cpcre.c
+cpcre.m.c : $(srcdir)/cpcre.c
+	$(CLISP) -C $(INCLUDES)/modprep $< ./
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

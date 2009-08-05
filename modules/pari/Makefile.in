@@ -1,5 +1,6 @@
 # Makefile for CLISP module set pari
 
+srcdir = @srcdir@
 CC = @CC@
 PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -7,24 +8,29 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = cpari.o pari.o link.sh Makefile pari.lisp pari.fas preload.lisp
+DISTRIBFILES = cpari.o pari.o link.sh Makefile \
+	$(srcdir)/pari.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : pari.o cpari.o pari.fas
+all : pari.o cpari.o pari.fas preload.lisp
 
-pari.fas pari.c : pari.lisp
-	$(CLISP) -c pari.lisp
+pari.fas pari.c : $(srcdir)/pari.lisp
+	$(CLISP) -c $< -o ./
 
 pari.o : pari.c config.h
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
 
-cpari.o : cpari.c
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpari.c
+cpari.o : $(srcdir)/cpari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

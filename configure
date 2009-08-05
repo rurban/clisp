@@ -628,22 +628,7 @@ if test -n "$do_config"; then
       maybe_link src/$f "$ABS_DIRNAME/$f";
     done
   fi
-  # Create subdirectories for the modules parts, and fill them.
-  # The modules outright assume that $(srcdir)='.',
-  # hence all files need to be linked over.
-  #for subdir in `cd modules > /dev/null ; find . -type d -print`; do
-  #  mkdir -p "${ABS_DIRNAME}/${f}";
-  #done
-  #for f in `cd modules > /dev/null ; find . '!' -type d -print`; do
-  #  link $f $ABS_DIRNAME/$f
-  #done
-  cd modules;
-  for d in *; do
-    if [ "$d" != CVS ] ; then
-      test -d "$d" && ../src/lndir "$d" "$ABS_DIRNAME/$d"
-    fi
-  done
-  cd ..;
+  # no need to create subdirectories for the modules - makemake handles that
   # Prepare the configure files.
   chmod a+x "$ABS_DIRNAME/configure"
   # Start the configurations.

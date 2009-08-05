@@ -6,8 +6,9 @@
 # This will come from the environment
 # ORACLE_HOME = /usr/local/oracle
 
+srcdir = @srcdir@
 CC = @CC@
-CPPFLAGS = @CPPFLAGS@
+CPPFLAGS = @CPPFLAGS@ -I$(srcdir)
 CFLAGS = @CFLAGS@
 CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
@@ -30,27 +31,29 @@ INCLUDES = $$($(CLISP) -b)/linkkit
 ORA_INCLUDES = -I.. -I ${ORACLE_HOME}/rdbms/demo -I ${ORACLE_HOME}/rdbms/public -I ${ORACLE_HOME}/plsql/demo -I ${ORACLE_HOME}/network/public
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = oracle.o orafns.o oiface.o link.sh Makefile oracle.lisp
+DISTRIBFILES = oracle.o orafns.o oiface.o link.sh Makefile \
+	$(srcdir)/oracle.lisp
 distribdir =
 
-all : orafns.o oracle.o oracle.fas oiface.o
+all : orafns.o oracle.o oracle.fas oiface.o link.sh
 
-oracle.c oracle.fas:       oracle.lisp
-	$(CLISP) -c oracle.lisp
+oracle.c oracle.fas:       $(srcdir)/oracle.lisp
+	$(CLISP) -c $< -o ./
 
 oracle.o:       oracle.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c oracle.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $<
 
-orafns.o:       orafns.c oiface.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c orafns.c
+%.o:       $(srcdir)/%.c $(srcdir)/oiface.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $<
 
-oiface.o:       oiface.c oiface.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c oiface.c
+link.sh : $(srcdir)/link.sh
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

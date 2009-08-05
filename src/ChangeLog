@@ -1,5 +1,27 @@
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
+	build modules without linking them over
+	* configure: do not link module directories into the build directory
+	* makemake.in (anymodule): do not link the module directory,
+	run configure in place or link Makefile
+	* lndir: remove
+	* modules/berkeley-db/Makefile.in, modules/bindings/glibc/Makefile:
+	* modules/bindings/win32/Makefile, modules/clx/mit-clx/Makefile:
+	* modules/clx/new-clx/Makefile.in, modules/dbus/Makefile.in:
+	* modules/dirkey/Makefile.in, modules/fastcgi/Makefile.in:
+	* modules/gdbm/Makefile.in, modules/gtk2/Makefile.in:
+	* modules/i18n/Makefile.in, modules/libsvm/Makefile:
+	* modules/matlab/Makefile, modules/netica/Makefile:
+	* modules/oracle/Makefile.in, modules/pari/Makefile.in:
+	* modules/pcre/Makefile.in, modules/postgresql/Makefile.in:
+	* modules/queens/Makefile, modules/rawsock/Makefile.in:
+	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
+	* modules/zlib/Makefile.in:
+	use srcdir to enable building in a separate directory
+
+2009-08-05  Sam Steingold  <sds@gnu.org>
+
 	* modules/gtk2/gtk.lisp (read-gtk-server-cfg): better logging,
 	output the generated forms in the same order in which they are read;
 	eval filename argument to permit compiling away from the source tree
