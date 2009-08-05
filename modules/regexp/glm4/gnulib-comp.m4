@@ -50,6 +50,7 @@ AC_DEFUN([rx_gl_INIT],
   AC_DEFINE([GNULIB_MALLOC_GNU], 1, [Define to indicate the 'malloc' module.])
   gl_FUNC_MALLOC_POSIX
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
+  gt_NO_CXX
   gl_REGEX
   gt_TYPE_SSIZE_T
   gl_STDLIB_H
@@ -210,6 +211,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/malloc.m4
   m4/mbrtowc.m4
   m4/mbstate_t.m4
+  m4/no-c++.m4
   m4/regex.m4
   m4/ssize_t.m4
   m4/stdlib_h.m4
