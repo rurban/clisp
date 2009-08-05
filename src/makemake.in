@@ -534,6 +534,7 @@ CC_GCC='@CC_GCC@'                   # either true or false
 CC_SUNPRO='@CC_SUNPRO@'             # either true or false
 CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
+NO_CXX='@NO_CXX@'
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
@@ -2301,7 +2302,8 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS):'
 echotab 'mkdir -p $@'
 echotab 'if test ! -f $@/Makefile; then sh config.status $@/Makefile depfiles; fi'
-echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
+# gettimeofday.c cannot be compiled with c++
+echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS) $(NO_CXX)"'
 echol
 echol "${GLLIB_A}: gllib"
 echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
