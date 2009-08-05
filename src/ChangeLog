@@ -1,7 +1,8 @@
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/gtk2/gtk.lisp (read-gtk-server-cfg): better logging,
-	output the generated forms in the same order in which they are read
+	output the generated forms in the same order in which they are read;
+	eval filename argument to permit compiling away from the source tree
 
 2009-08-04  Sam Steingold  <sds@gnu.org>
 
