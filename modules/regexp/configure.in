@@ -15,26 +15,6 @@ AC_CHECK_HEADERS(string.h sys/types.h)
 AC_C_RESTRICT
 rx_gl_EARLY
 rx_gl_INIT
-
-dnl # ac_use_included_regex is NOT cached, so we have to duplicate the
-dnl # logic of src/glm4/regex.m4!
-dnl case $with_included_regex in
-dnl   yes|no) ac_use_included_regex=$with_included_regex ;;
-dnl   '') case $gl_cv_func_re_compile_pattern_working in
-dnl     yes) ac_use_included_regex=no ;;
-dnl     no) ac_use_included_regex=yes ;;
-dnl   esac ;;
-dnl esac
-dnl # can we use the system-wide regex implementation?
-dnl if test $ac_use_included_regex = yes; then
-dnl   REGEX_O="regex.$ac_cv_objext"
-dnl   # must link gnulib regex.h into the build directory
-dnl   # from clisp/src/gllib/regex.h
-dnl   $as_ln_s $srcdir/../../src/gllib/regex.h .
-dnl else
-dnl   REGEX_O=""
-dnl fi
-dnl AC_SUBST(REGEX_O)
 BOLD_MSG([Regexp (Output)])
 AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
 AC_OUTPUT
