@@ -534,7 +534,6 @@ CC_GCC='@CC_GCC@'                   # either true or false
 CC_SUNPRO='@CC_SUNPRO@'             # either true or false
 CC_CPLUSPLUS='@CC_CPLUSPLUS@'       # either true or false
 CC_NEED_DEEMA='@CC_NEED_DEEMA@'     # either true or false
-NO_CXX='@NO_CXX@'
 AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
@@ -2065,6 +2064,7 @@ echol "CAT = ${CAT}"
 echol "GREP = ${GREP}"
 echol "AR = ar"
 echol "RANLIB = ${RANLIB}"
+echol "NO_CXX = @NO_CXX@"
 echol
 echol '# Programs used by "make install":'
 echol "INSTALL = ${INSTALL}"
