@@ -237,7 +237,7 @@ signal specific parameters, but not a data parameter."
                   (:arguments ,@(loop :for arg :in parts
                                   :collect `(arg ,(convert-type arg))))))))
     `(progn
-       ,@(with-open-file (cfg filename)
+       ,@(with-open-file (cfg (eval filename))
             (format t "~&;; Reading ~:D byte~:P from ~A~%"
                     (file-length cfg) (truename cfg))
             (loop :with forms = nil
@@ -253,7 +253,7 @@ signal specific parameters, but not a data parameter."
                          (string= line #2# :end1 #1#))
                 (push (proc-line line #1#) forms)))))))
 
-(read-gtk-server-cfg "gtk-server.cfg")
+(read-gtk-server-cfg (merge-pathnames "gtk-server.cfg" *compile-file-pathname*))
 
 (def-c-struct GtkTreeIter
   (stamp int)
