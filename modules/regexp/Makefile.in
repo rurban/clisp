@@ -6,6 +6,9 @@ CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
 CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
+# cannot compile gnulib/regex with c++
+# http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
+NO_CXX = @NO_CXX@
 
 LN = ln
 LN_S = ln -s
@@ -47,7 +50,7 @@ libgnu_rx.a : force
 	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" ACLOCAL_M4="$(srcdir)/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
+		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.. $(NO_CXX)"; \
 	  $(LN) libgnu.a ../libgnu_rx.a
 
 # Make a module
