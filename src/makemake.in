@@ -2301,13 +2301,7 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS):'
 echotab 'mkdir -p $@'
 echotab 'if test ! -f $@/Makefile; then sh config.status $@/Makefile depfiles; fi'
-if [ $CC_CPLUSPLUS = true ]; then
-  # cannot compile gnulib/regex with c++
-  # http://sources.redhat.com/bugzilla/show_bug.cgi?id=5200
-  echotab 'cd $@ && $(MAKE) CC=gcc CFLAGS="$(SUBDIR_CFLAGS)"'
-else
-  echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
-fi
+echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 echol "${GLLIB_A}: gllib"
 echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
