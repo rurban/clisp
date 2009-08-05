@@ -1514,8 +1514,10 @@
 (proclaim '(special *load-paths*)) ; defined in spvw.d
 (proclaim '(special *source-file-types*))
 (setq *source-file-types* '("lisp" "lsp" "cl"))
+(proclaim '(special *internal-compiled-file-type*))
+(setq *internal-compiled-file-type* "fas")
 (proclaim '(special *compiled-file-types*))
-(setq *compiled-file-types* '("fas"))
+(setq *compiled-file-types* (list *internal-compiled-file-type*))
 
 ;; for the time being the files don't have to be searched:
 (sys::%putd 'search-file
