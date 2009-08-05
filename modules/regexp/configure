@@ -656,6 +656,7 @@ NEXT_STDLIB_H
 PRAGMA_SYSTEM_HEADER
 INCLUDE_NEXT_AS_FIRST_DIRECTIVE
 INCLUDE_NEXT
+NO_CXX
 VOID_UNSETENV
 REPLACE_STRTOD
 REPLACE_PUTENV
@@ -6532,6 +6533,28 @@ _ACEOF
   GNULIB_MALLOC_POSIX=1
 
 
+  NO_CXX=
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#if defined __GNUC__ && defined __cplusplus
+  Is g++
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "Is g++" >/dev/null 2>&1; then
+  NO_CXX="-x c"
+fi
+rm -f conftest*
+
+
+
+
 
 
 
@@ -7775,6 +7798,27 @@ $as_echo "$gl_cv_func_wcrtomb_retval" >&6; }
   LIBGNU_LIBDEPS="$gl_libdeps"
 
   LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
+
+
+
+  NO_CXX=
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+#if defined __GNUC__ && defined __cplusplus
+  Is g++
+#endif
+
+_ACEOF
+if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |
+  $EGREP "Is g++" >/dev/null 2>&1; then
+  NO_CXX="-x c"
+fi
+rm -f conftest*
 
 
 
