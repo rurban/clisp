@@ -15,6 +15,7 @@ AC_CHECK_HEADERS(string.h sys/types.h)
 AC_C_RESTRICT
 rx_gl_EARLY
 rx_gl_INIT
+gt_NO_CXX
 BOLD_MSG([Regexp (Output)])
 AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
 AC_OUTPUT

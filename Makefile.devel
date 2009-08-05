@@ -365,7 +365,7 @@ gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB) --source-base=src/gllib --m4-base=src/glm4 $(GNULIB_COMMON)
 	$(GNULIB) --source-base=modules/regexp/gllib --macro-prefix=rx_gl \
-		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) regex
+		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) no-c++ regex
 	$(GNULIB) --source-base=modules/wildcard/gllib --macro-prefix=wc_gl \
 		--m4-base=modules/wildcard/glm4 $(GNULIB_AVOID) fnmatch-gnu
 	$(RM) configure.ac
