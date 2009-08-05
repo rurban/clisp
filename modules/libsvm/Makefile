@@ -1,5 +1,6 @@
 # Makefile for CLISP module set libsvm
 
+srcdir = .
 AR = ar
 RANLIB = ranlib
 CC = gcc
@@ -10,32 +11,40 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = svm$(SHREXT) link.sh Makefile libsvm.lisp libsvm.o
+DISTRIBFILES = svm$(SHREXT) libsvm.o link.sh Makefile \
+	$(srcdir)/libsvm.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : libsvm.fas svm$(SHREXT) libsvm.o
+all : libsvm.fas svm$(SHREXT) libsvm.o link.sh preload.lisp
 
-svm$(SHREXT) : svm.cpp svm.h
+svm$(SHREXT) : $(srcdir)/svm.cpp $(srcdir)/svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
-		-fPIC -shared -o svm$(SHREXT) svm.cpp -lm
+		-fPIC -shared -o svm$(SHREXT) $< -lm
 
-svm.o : svm.cpp svm.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) -c svm.cpp
+svm.o : $(srcdir)/svm.cpp $(srcdir)/svm.h
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(srcdir) -c $<
 
 svm.a : svm.o
 	$(AR) rcv svm.a svm.o
 	$(RANLIB) svm.a
 
-libsvm.c libsvm.fas : libsvm.lisp
-	$(CLISP) -c libsvm.lisp
+libsvm.c libsvm.fas : $(srcdir)/libsvm.lisp
+	$(CLISP) -c $< -o ./
 
-libsvm.o : libsvm.c svm.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c libsvm.c
+libsvm.o : libsvm.c $(srcdir)/svm.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(srcdir) -c libsvm.c
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
+
+link.sh : $(srcdir)/link.sh
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all

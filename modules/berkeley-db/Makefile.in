@@ -1,5 +1,6 @@
 # Makefile for CLISP module set Berkeley-DB
 
+srcdir = @srcdir@
 CC = @CC@
 DBCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
@@ -7,24 +8,28 @@ CLISP = clisp -q -norc
 INCLUDES = $$($(CLISP) -b)/linkkit
 
 LN = ln
+LN_S = ln -s
 
 MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = bdb.o link.sh Makefile dbi.lisp preload.lisp
+DISTRIBFILES = bdb.o link.sh Makefile $(srcdir)/dbi.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : bdb.o dbi.fas
+all : bdb.o dbi.fas preload.lisp
 
-dbi.fas : dbi.lisp
-	$(CLISP) -c dbi.lisp
+%.fas: $(srcdir)/%.lisp
+	$(CLISP) -c $< -o ./
 
-bdb.m.c: bdb.c
-	$(CLISP) -C $(INCLUDES)/modprep bdb.c
+bdb.m.c: $(srcdir)/bdb.c
+	$(CLISP) -C $(INCLUDES)/modprep $< ./
 
 bdb.o : bdb.m.c config.h
 	$(CC) $(CPPFLAGS) $(DBCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c bdb.m.c -o bdb.o
+
+preload.lisp : $(srcdir)/preload.lisp
+	$(LN_S) $< .
 
 # Make a module
 clisp-module : all
