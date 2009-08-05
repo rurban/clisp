@@ -238,11 +238,12 @@ signal specific parameters, but not a data parameter."
                                   :collect `(arg ,(convert-type arg))))))))
     `(progn
        ,@(with-open-file (cfg filename)
-            (format t "~&;; Reading ~A~%" (truename cfg))
+            (format t "~&;; Reading ~:D byte~:P from ~A~%"
+                    (file-length cfg) (truename cfg))
             (loop :with forms = nil
               :finally (format t "~&;; Defined ~:D function~:P~%"
                                (length forms))
-              :finally (return forms)
+              :finally (return (nreverse forms))
               :for line = (read-line cfg nil)
               :while line
               :do
