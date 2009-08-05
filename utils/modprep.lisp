@@ -1240,8 +1240,8 @@ commas and parentheses."
     (unless (and (or (pathnamep output) (stringp output))
                  (pathname-name output))
       (setq output1 (mod-file-1 output1)))
-    (when (string= (physical-namestring output1)
-                   (physical-namestring input))
+    (when (string= (absolute-pathname output1)
+                   (absolute-pathname input))
       (error "~S(~S, ~S): output ~S the same as input"
              'mod-file input output output1))
     output1))
