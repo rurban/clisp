@@ -27,11 +27,12 @@ wildcard.o : wildcard.c config.h
 
 am--refresh :
 
+# wildcard relies on src/gllib, so we must also include files in the build dir
 libgnu_wc.a : force
 	rm -f libgnu_wc.a
 	mkdir -p gllib
 	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
-	cd gllib; $(MAKE) ACLOCAL_M4="Makefile.am" CFLAGS="$(CFLAGS)"; $(LN) libgnu.a ../libgnu_wc.a
+	cd gllib; $(MAKE) ACLOCAL_M4="Makefile.am" CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; $(LN) libgnu.a ../libgnu_wc.a
 
 # Make a module
 clisp-module : all
