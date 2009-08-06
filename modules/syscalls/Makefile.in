@@ -17,7 +17,8 @@ MAKE = make
 SHELL = /bin/sh
 
 GENERATED = calls.o posix.fas libgnu_sc.a preload.lisp
-DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/posix.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/posix.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module

@@ -15,7 +15,8 @@ MAKE = make
 SHELL = /bin/sh
 
 GENERATED = pari.o cpari.o pari.fas preload.lisp
-DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/pari.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/pari.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module

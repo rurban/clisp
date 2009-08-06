@@ -11,7 +11,7 @@ LN_S = ln -s
 SHELL = /bin/sh
 
 GENERATED = clx.fas image.fas resource.fas clx.o clx-preload.lisp
-DISTRIBFILES = link.sh Makefile $(GENERATED) \
+DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/README \
 	$(srcdir)/clx.lisp $(srcdir)/image.lisp $(srcdir)/resource.lisp
 distribdir =
 
