@@ -263,7 +263,7 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
 	cd ..; ln -s . clisp; \
 	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
 	$(RM) clisp
-	(test -n "$(DIST)" && rsync -av $@ ../src/NEWS $(DIST)) || true
+	(test -n "$(DIST)" && rsync -av $@ ../src/NEWS $(DIST)/) || true
 
 SEARCH=
 search: force
