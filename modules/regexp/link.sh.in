@@ -3,7 +3,6 @@ NEW_LIBS="${NEW_FILES}"
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
   INCLUDES="$absolute_linkkitdir"
-NEW_FILES="${NEW_FILES} regexp.dvi"
 NEW_MODULES="regexp"
 TO_LOAD='regexp'
 TO_PRELOAD='preload.lisp'

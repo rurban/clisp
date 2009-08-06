@@ -19,10 +19,10 @@ SHELL = /bin/sh
 
 DISTRIBFILES = regexi.o libgnu_rx.a link.sh Makefile \
 	$(srcdir)/README $(srcdir)/regexp.lisp $(srcdir)/regexp.texinfo \
-	$(srcdir)/regexp.dvi $(srcdir)/preload.lisp
+	$(srcdir)/preload.lisp
 distribdir =
 
-all : regexp.fas regexi.o libgnu_rx.a preload.lisp regexp.dvi
+all : regexp.fas regexi.o libgnu_rx.a preload.lisp
 
 .PHONY : all am--refresh clisp-module clisp-module-distrib clean distclean force
 
@@ -36,9 +36,6 @@ regexi.m.c : $(srcdir)/regexi.c
 	$(CLISP) -C $(INCLUDES)/modprep $< ./
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
-
-regexp.dvi : $(srcdir)/regexp.dvi
 	$(LN_S) $< .
 
 am--refresh :
