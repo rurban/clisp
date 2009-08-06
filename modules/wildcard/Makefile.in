@@ -13,13 +13,15 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = wildcard.o libgnu_wc.a link.sh Makefile \
-	$(srcdir)/README $(srcdir)/wildcard.lisp $(srcdir)/wildcard.xml
+GENERATED = wildcard.o wildcard.fas libgnu_wc.a
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/README $(srcdir)/wildcard.lisp
 distribdir =
 
-all : wildcard.o wildcard.fas libgnu_wc.a
+# default target: make the module
+clisp-module : $(GENERATED)
 
-.PHONY : all am--refresh clisp-module clisp-module-distrib clean distclean force
+.PHONY : am--refresh clisp-module clisp-module-distrib clean distclean force
 
 wildcard.c wildcard.fas : $(srcdir)/wildcard.lisp
 	$(CLISP) -c $< -o ./
@@ -39,9 +41,6 @@ libgnu_wc.a : force
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
 		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
 	  $(LN) libgnu.a ../libgnu_wc.a
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

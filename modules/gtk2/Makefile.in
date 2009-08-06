@@ -22,12 +22,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = gtk.o link.sh Makefile \
-	$(srcdir)/gtk-server.cfg $(srcdir)/gtk.lisp $(srcdir)/ui.glade \
-	$(srcdir)/preload.lisp
+GENERATED = gtk.fas gtk.o preload.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/gtk-server.cfg $(srcdir)/gtk.lisp $(srcdir)/ui.glade
 distribdir =
 
-all : gtk.fas gtk.o preload.lisp
+# default target: make the module
+clisp-module : $(GENERATED)
 
 gtk.fas gtk.c : $(srcdir)/gtk.lisp $(srcdir)/gtk-server.cfg
 	$(CLISP) -c $< -o ./
@@ -38,9 +39,6 @@ gtk.o : gtk.c config.h
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

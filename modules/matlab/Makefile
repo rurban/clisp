@@ -17,11 +17,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = matlab.o link.sh Makefile \
+GENERATED = matlab.fas matlab.o wrap.fas link.sh
+DISTRIBFILES = Makefile $(GENERATED) \
 	$(srcdir)/matlab.lisp $(srcdir)/wrap.lisp
 distribdir =
 
-all : matlab.fas matlab.o wrap.fas link.sh
+# default target: make the module
+clisp-module : $(GENERATED)
 
 matlab.c matlab.fas : $(srcdir)/matlab.lisp
 	$(CLISP) -c $< -o ./
@@ -34,9 +36,6 @@ matlab.o : matlab.c
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

@@ -15,10 +15,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = linux.o link.sh Makefile $(srcdir)/linux.lisp $(srcdir)/wrap.lisp
+GENERATED = linux.o linux.fas wrap.fas link.sh
+DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/linux.lisp $(srcdir)/wrap.lisp
 distribdir =
 
-all : linux.o linux.fas wrap.fas link.sh
+# default target: make the module
+clisp-module : $(GENERATED)
 
 linux.c linux.fas : $(srcdir)/linux.lisp
 	$(CLISP) -c $< -o ./
@@ -31,9 +33,6 @@ linux.o : linux.c $(INCLUDES)/clisp.h
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

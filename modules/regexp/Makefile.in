@@ -17,12 +17,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = regexi.o libgnu_rx.a link.sh Makefile \
-	$(srcdir)/README $(srcdir)/regexp.lisp $(srcdir)/regexp.texinfo \
-	$(srcdir)/preload.lisp
+GENERATED = regexp.fas regexi.o libgnu_rx.a preload.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/README $(srcdir)/regexp.lisp $(srcdir)/regexp.texinfo
 distribdir =
 
-all : regexp.fas regexi.o libgnu_rx.a preload.lisp
+# default target: make the module
+clisp-module : $(GENERATED)
 
 .PHONY : all am--refresh clisp-module clisp-module-distrib clean distclean force
 
@@ -50,9 +51,6 @@ libgnu_rx.a : force
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
 		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.. $(NO_CXX)"; \
 	  $(LN) libgnu.a ../libgnu_rx.a
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
