@@ -1,5 +1,12 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	fix bug #[ 1237776 ]: binary distribution does not include local libs
+	* makemake.in (distrib): link local libs mentioned in
+	base/makevars:LIBS into TOPDIR/base (same for full)
+	and modify distmakefile accordingly
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/Makefile.in, modules/bindings/glibc/Makefile:
 	* modules/bindings/win32/Makefile, modules/clx/new-clx/Makefile.in:
 	* modules/dbus/Makefile.in, modules/dirkey/Makefile.in:
