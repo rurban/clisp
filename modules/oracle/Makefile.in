@@ -38,7 +38,7 @@ MAKE = make
 SHELL = /bin/sh
 
 GENERATED = orafns.o oracle.o oracle.fas oiface.o link.sh
-DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/oracle.lisp
+DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/oracle.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module

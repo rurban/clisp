@@ -1,5 +1,13 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/Makefile.in, modules/fastcgi/Makefile.in:
+	* modules/libsvm/Makefile, modules/netica/Makefile:
+	* modules/oracle/Makefile.in, modules/pari/Makefile.in:
+	* modules/pari/README, modules/postgresql/Makefile.in:
+	* modules/syscalls/Makefile.in (DISTRIBFILES): distribute README
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 1237776 ]: binary distribution does not include local libs
 	* makemake.in (distrib): link local libs mentioned in
 	base/makevars:LIBS into TOPDIR/base (same for full)

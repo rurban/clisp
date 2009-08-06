@@ -18,7 +18,7 @@ MAKE = make
 SHELL = /bin/sh
 
 GENERATED = libsvm.fas svm$(SHREXT) libsvm.o link.sh preload.lisp
-DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/libsvm.lisp
+DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/libsvm.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module
