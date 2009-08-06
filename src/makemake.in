@@ -962,7 +962,7 @@ LN_HARD=${LN-ln}
 
 # HLN = command for making hard links ($HOS = unix only)
 if [ "$HLN" = hln ] ; then
-  HLN="${HERE}hln"
+  HLN="`pwd`/hln"
 fi
 
 # MV = command for renaming files
@@ -3729,7 +3729,7 @@ fi
 
 echo_dist_modules () {
   echotab "for module in '' \$(BASE_MODULES) \$(MODULES); do if test -n \"\$\$module\"; then \\"
-  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; dots="'`'"echo \$\$module/ | sed -e 's,[^/][^/]*//*,../,g'"'`'" ; \$(MAKE) SHREXT=${SHREXT} clisp-module-distrib distribdir=\$\${dots}$1/\$\$module/ LN="`if test "$2" = ln; then echo 'ln'; else echo '$${dots}hln'; fi`") \\"
+  echotab "  (dir=$1/ ; for subdir in "'`'"echo \$\$module/ | sed -e 's,/, ,g'"'`'" ; do dir=\$\${dir}\$\${subdir} ; test -d \$\${dir} || mkdir \$\${dir} ; dir=\$\${dir}/ ; done ; cd \$\$module ; \$(MAKE) SHREXT=${SHREXT} clisp-module-distrib distribdir=$1/\$\$module/ LN="$2") \\"
   echotab "fi; done$3"
 }
 if [ ${HSYSOS} = cygwin ]; then
@@ -3834,12 +3834,25 @@ for dir in base full; do
 done
 # The Makefile, generated from distmakefile.
 if test -z "$BINARY_DISTRIB"; then
-  line="cat distmakefile"
+  echotab "cat distmakefile \\"
   for dir in base full; do
     DIR=`echo "${dir}" | tr '[a-z]' '[A-Z]'`
-    line="$line | { . ${dir}/makevars ; ${dir}_files='' ; for f in modules.o \$\$FILES ; do ${dir}_files=\"\$\$${dir}_files\"' ${dir}/'\"\$\$f\" ; done ; ${dir}_libs='' ; for f in modules.o \$\$LIBS ; do case \$\$f in -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\$\$f\";; esac ; done ; sed_escape_commas='s/,/\\\\,/g' ; ${dir}_libs=\`echo \"\$\$${dir}_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; sed -e \"s,@@${DIR}_FILES@@,\$\$${dir}_files,\" -e \"s,@@${DIR}_LIBS@@,\$\$${dir}_libs,\"; }"
+    echotab "| { . ${dir}/makevars ; ${dir}_files='' ; \\"
+    echotab " for f in modules.o \$\$FILES ; do \\"
+    echotab "   ${dir}_files=\"\$\$${dir}_files\"' ${dir}/'\"\$\$f\" ; \\"
+    echotab " done ; \\"
+    echotab " ${dir}_libs='' ; \\"
+    echotab " for f in modules.o \$\$LIBS ; do \\"
+    echotab "   case \$\$f in \\"
+    echotab "     -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; \\"
+    echotab "     *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\$\$f\";; \\"
+    echotab "   esac ; \\"
+    echotab " done ; \\"
+    echotab " sed_escape_commas='s/,/\\\\,/g' ; \\"
+    echotab " ${dir}_libs=\`echo \"\$\$${dir}_libs\" | sed -e \"\$\$sed_escape_commas\"\` ; \\"
+    echotab " sed -e \"s,@@${DIR}_FILES@@,\$\$${dir}_files,\" -e \"s,@@${DIR}_LIBS@@,\$\$${dir}_libs,\"; } \\"
   done
-  echotab "$line > \$(TOPDIR)/Makefile"
+  echotab "   > \$(TOPDIR)/Makefile"
 else
   echotab "${HLN} distmakefile \$(TOPDIR)/Makefile"
 fi
@@ -3869,7 +3882,7 @@ echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src/"
 echotab "${HLN} clisp-link \$(TOPDIR)/"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit/"
-echo_dist_modules "\$(TOPDIR)" ${HLN} ""
+echo_dist_modules "`pwd`/\$(TOPDIR)" ${HLN} ""
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
   echotab "${HLN} clisp.c \$(TOPDIR)/src/"
@@ -3919,7 +3932,7 @@ elif [ $HOS = win32 ] ; then
     echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
     echotab "done ; \\"
     echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
-    echo_dist_modules "\$\$distdir" ln "; \\"
+    echo_dist_modules `pwd`"\$\$distdir" ln "; \\"
   fi
   if [ -n "${USE_GETTEXT}" ]; then
     echotab "cp -r locale/ \$\$distdir/; \\"
