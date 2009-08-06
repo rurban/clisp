@@ -1,7 +1,14 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	base modules are always linked statically
+	* clisp-link.in (with_dynamic_modules): get from the environment
+	with the default being @with_dynamic_modules@
+	* makemake.in (base): pass with_dynamic_modules=no to clisp-link
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in (lncp): rename from link to separate from link.sh
-	(lncp_some): rename from link_some to simplify seach
+	(lncp_some): rename from link_some to simplify search
 
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
