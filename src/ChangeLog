@@ -1,5 +1,18 @@
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
+	use gnulib in syscalls (just string-time for now)
+	* Makefile.devel (MAKEFILE_IN): add modules/syscalls/gllib/Makefile
+	* modules/syscalls/Makefile.in (libgnu_sc.a): add target
+	* modules/syscalls/calls.c (STRING-TIME): implement unconditionally
+	* modules/syscalls/posix.lisp (STRING-TIME): export unconditionally
+	* modules/syscalls/configure.in: call sc_gl_EARLY, sc_gl_INIT,
+	gl_FUNC_MKTIME, gl_FUNC_GNU_STRFTIME, gl_FUNC_STRPTIME;
+	do not check for strftime strptime mktime
+	* modules/syscalls/link.sh.in (NEW_FILES): add libgnu_sc.a
+	* modules/syscalls/gllib/, modules/syscalls/glm4/: add
+
+2009-08-05  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-imported): import no-c++
 	* makemake.in (SUBDIRS): disable c++ using NO_CXX for gettimeofday.c
 	* configure.in, modules/regexp/configure.in: call gt_NO_CXX

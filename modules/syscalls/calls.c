@@ -553,7 +553,6 @@ DEFUN(POSIX:CLOSELOG,) {
 #endif  /* HAVE_SYSLOG */
 
 /* ========================== time conversion ========================== */
-#if defined(HAVE_STRFTIME) && defined(HAVE_STRPTIME) && defined(HAVE_MKTIME)
 DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
 { /* http://www.opengroup.org/onlinepubs/009695399/functions/strptime.html
      http://www.opengroup.org/onlinepubs/009695399/functions/strftime.html */
@@ -622,7 +621,6 @@ DEFUN(POSIX:STRING-TIME, format &optional datum timezone)
     skipSTACK(1);
   } else error_string_integer(STACK_1);
 }
-#endif  /* strftime strptime mktime */
 
 /* ========================== temporary files ========================== */
 #if defined(HAVE_MKSTEMP) || defined(HAVE_TEMPNAM) || defined(WIN32_NATIVE)
