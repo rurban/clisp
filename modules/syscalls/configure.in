@@ -10,6 +10,7 @@ AC_CONFIG_HEADERS(config.h)
 RSE_BOLD
 BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+AC_PROG_RANLIB
 AM_INIT_AUTOMAKE
 sc_gl_EARLY
 sc_gl_INIT
