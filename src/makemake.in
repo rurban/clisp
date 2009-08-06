@@ -3815,6 +3815,8 @@ if test "$HLN" != ln; then
   echotab "chmod +x hln"
   echol
 fi
+# hln merges relative pathnames
+echol "FULLTOPDIR = `pwd`/\$(TOPDIR)"
 echol "distrib : force $needs modular manualx clisp.c distmakefile"
 echotab "\$(RMRF) \$(TOPDIR) \$(DISTFILE) clisp\$(PACKEXT)"
 echotab "mkdir \$(TOPDIR)"
@@ -3824,6 +3826,18 @@ echotab "${HLN} ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.
 for dir in base full; do
   echotab "mkdir \$(TOPDIR)/${dir}"
   echotab "${HLN} "'`'". ${dir}/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo ${dir}/\$\$f ; done"'`'" \$(TOPDIR)/${dir}/"
+  # make sure base & full do not link to anything outside
+  echotab ". ./makevars; for f in \$\$LIBS ; do case \$\$f in -*) ;; \\"
+  echotab "   *) b=\`echo \$\$f | sed s,.*/,,\`; \\"
+  echotab "      if test ! -f ${dir}/\$\$b; then \\"
+  if [ "${dir}" = base ]; then
+    echotab "        ${HLN} \$\$f \$(FULLTOPDIR)/${dir}/; fi; \\"
+  else
+    echotab "        if test -f base/\$\$b; then \\"
+    echotab "          ${HLN} base/\$\$b \$(TOPDIR)/${dir}/; \\"
+    echotab "        else ${HLN} \$\$f \$(FULLTOPDIR)/${dir}/; fi; fi ;; \\"
+  fi
+  echotab "esac ; done"
   if test -n "$BINARY_DISTRIB"; then
     echotab "cp ${dir}/lisp${LEXE} \$(TOPDIR)/${dir}/lisp${LEXE}"
     # Don't strip the executable, otherwise (disassemble #'cons)
@@ -3845,7 +3859,7 @@ if test -z "$BINARY_DISTRIB"; then
     echotab " for f in modules.o \$\$LIBS ; do \\"
     echotab "   case \$\$f in \\"
     echotab "     -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; \\"
-    echotab "     *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\$\$f\";; \\"
+    echotab "     *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\`echo \$\$f | sed s,.*/,,\`\";; \\"
     echotab "   esac ; \\"
     echotab " done ; \\"
     echotab " sed_escape_commas='s/,/\\\\,/g' ; \\"
@@ -3870,23 +3884,24 @@ echotab "${HLN} data/* \$(TOPDIR)/data/"
 echotab "mkdir \$(TOPDIR)/doc"
 echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
 echotab "mkdir \$(TOPDIR)/emacs"
+line="${HLN}";
 for f in ${EMACS_FILES} ${VIM_FILES}; do
-  echotab "${HLN} ${SRCTOPDIR}emacs/${f} \$(TOPDIR)/emacs/${f}"
+  line="${line} ${SRCTOPDIR}emacs/${f}"
 done
+echotab "${line} \$(TOPDIR)/emacs/"
 echotab "mkdir \$(TOPDIR)/misc"
-for f in ${ACLOCAL_FILES}; do
-  echotab "${HLN} ${SRCDIR}m4/${f} \$(TOPDIR)/misc/${f}"
-done
+line="${HLN}";
+for f in ${ACLOCAL_FILES}; do line="${line} ${SRCDIR}m4/$f"; done
+echotab "${line} \$(TOPDIR)/misc/"
 echotab "mkdir \$(TOPDIR)/src"
 echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src/"
 echotab "${HLN} clisp-link \$(TOPDIR)/"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit/"
-echo_dist_modules "`pwd`/\$(TOPDIR)" ${HLN} ""
+echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
-  echotab "${HLN} clisp.c \$(TOPDIR)/src/"
-  echotab "${HLN} execname.c \$(TOPDIR)/src/"
+  echotab "${HLN} clisp.c execname.c \$(TOPDIR)/src/"
 else
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"'" clisp.c "\$(TOPDIR)/clisp"
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)" "${UTILDIR_CC}hardcode.c" "\$(TOPDIR)/hardcode"
