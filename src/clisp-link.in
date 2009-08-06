@@ -274,22 +274,29 @@ case "$1" in
       # With Makefile
       (echo "# Makefile for CLISP module set $modulename"
        echo
+       echo "srcdir = ."
        echo "CC ="
        echo "CPPFLAGS ="
        echo "CFLAGS ="
-       echo "INCLUDES="
-       echo
-       echo "CLISP ="
-       echo
+       echo "CLISP = clisp -q -norc"
+       echo 'INCLUDES = $$($(CLISP) -b)/linkkit'
+       echo "LN = ln"
+       echo "MAKE = make"
        echo "SHELL = /bin/sh"
+       echo
+       echo "DISTRIBFILES ="
+       echo "distribdir ="
        echo
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
-         echo "$fo : $fc"
-         echotab '$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c '"$fc"
+         echo "$fo : \$(srcdir)/$fc"
+         echotab '$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<'
          echo
        done
        echo "clisp-module :$files_o"
+       echo
+       echo 'clisp-module-distrib : clisp-module force'
+       echotab '$(LN) $(DISTRIBFILES) $(distribdir)'
        echo
       ) > "$moduledir"/Makefile
       (echo "file_list=''"
@@ -308,6 +315,7 @@ case "$1" in
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
        echo "TO_LOAD=''"
+       echo "TO_PRELOAD=''"
       ) > "$moduledir"/link.sh
     fi
     ;;
