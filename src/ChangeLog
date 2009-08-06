@@ -1,5 +1,11 @@
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/link.sh.in (NEW_FILES): remove regexp.dvi
+	* modules/regexp/Makefile.in (DISTRIBFILES, all): ditto
+	* modules/regexp/regexp.dvi: remove
+
+2009-08-05  Sam Steingold  <sds@gnu.org>
+
 	use gnulib in syscalls (just string-time for now)
 	* Makefile.devel (MAKEFILE_IN): add modules/syscalls/gllib/Makefile
 	* modules/syscalls/Makefile.in (libgnu_sc.a): add target
