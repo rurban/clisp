@@ -3828,7 +3828,7 @@ for dir in base full; do
   echotab "${HLN} "'`'". ${dir}/makevars ; for f in \$\$FILES modules.h modules.o makevars lispinit.mem ; do echo ${dir}/\$\$f ; done"'`'" \$(TOPDIR)/${dir}/"
   # make sure base & full do not link to anything outside
   echotab ". ./makevars; for f in \$\$LIBS ; do case \$\$f in -*) ;; \\"
-  echotab "   *) b=\`echo \$\$f | sed s,.*/,,\`; \\"
+  echotab "   *) b=\`basename \$\$f\`; \\"
   echotab "      if test ! -f ${dir}/\$\$b; then \\"
   if [ "${dir}" = base ]; then
     echotab "        ${HLN} \$\$f \$(FULLTOPDIR)/${dir}/; fi; \\"
@@ -3859,7 +3859,7 @@ if test -z "$BINARY_DISTRIB"; then
     echotab " for f in modules.o \$\$LIBS ; do \\"
     echotab "   case \$\$f in \\"
     echotab "     -*) ${dir}_libs=\"\$\$${dir}_libs \$\$f\";; \\"
-    echotab "     *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\`echo \$\$f | sed s,.*/,,\`\";; \\"
+    echotab "     *) ${dir}_libs=\"\$\$${dir}_libs\"' ${dir}/'\"\`basename \$\$f\`\";; \\"
     echotab "   esac ; \\"
     echotab " done ; \\"
     echotab " sed_escape_commas='s/,/\\\\,/g' ; \\"
