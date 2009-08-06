@@ -57,7 +57,7 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 MAKEFILE_IN = src/gllib/Makefile.in modules/regexp/gllib/Makefile.in \
-	modules/wildcard/gllib/Makefile.in modules/syscalls/gllib/Makefile
+	modules/wildcard/gllib/Makefile.in modules/syscalls/gllib/Makefile.in
 $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in
 	cd $* && cd .. && \
 	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
