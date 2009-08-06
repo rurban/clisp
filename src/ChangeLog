@@ -1,3 +1,7 @@
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (MAKEFILE_IN): depend on aclocal.m4
+
 2009-08-05  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/link.sh.in (NEW_FILES): remove regexp.dvi
