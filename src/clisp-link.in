@@ -23,7 +23,7 @@ normalize(){                    # dir rel -> abs path for rel
   echo `cd $1; cd ${dirname}; pwd`/`basename "$2"`
 }
 
-link () {
+lncp () {
   # Make a link from $1 to $2. Try symbolic link, hard link, file copying.
   rm -f "$2"
   ln -s "`normalize . $1`" "$2" 2>/dev/null || \
@@ -31,13 +31,13 @@ link () {
     cp -p "$1" "$2"
 }
 
-link_some () {
+lncp_some () {
   src_dir=$1; shift
   destdir=$1; shift
   ret=''
   for f in $*; do
     b=`basename $f`
-    link "`normalize "${src_dir}" "$f"`" "${destdir}"/$b
+    lncp "`normalize "${src_dir}" "$f"`" "${destdir}"/$b
     ret=${ret}" "$b
   done
   echo ${ret}
@@ -92,7 +92,7 @@ verbose () {
 
 make_lisprun () {
   # Generate new modules.o, compiled from modules.c, includes modules.h
-  link "$absolute_linkkitdir"/modules.c modules.c
+  lncp "$absolute_linkkitdir"/modules.c modules.c
   verbose ${CC} ${CPPFLAGS} ${CFLAGS} -I"$absolute_linkkitdir" -c modules.c
   rm -f modules.c
   # Generate new ${LISPRUN}
@@ -159,7 +159,7 @@ prepare_dynamic_module() {
     done
     echo ${DM}" )))" >> ${reqfile}
     for f in ${TO_LOAD}; do
-      echo "(cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
+      echo " (cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
     done
     # create links to the REQUIRE file
     for m in ${othermods}; do
@@ -333,10 +333,10 @@ case "$1" in
     . "$sourcedir"/makevars
     if [ -z "$moduledirs" ] ; then
       # Just make links from $destinationdir to $sourcedir
-      link_some "$sourcedir" "$destinationdir" ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES};
+      lncp_some "$sourcedir" "$destinationdir" ${LISPRUN} lispinit.mem modules.h modules.o makevars ${FILES};
     else
       cp "$sourcedir"/modules.h "$destinationdir"/modules.h
-      FILES=`link_some "$sourcedir" "$destinationdir" ${FILES}`
+      FILES=`lncp_some "$sourcedir" "$destinationdir" ${FILES}`
       # Prepare the module directories and read their variables
       PRELOAD=''
       LOAD=''
@@ -355,7 +355,7 @@ case "$1" in
         for mod in $NEW_MODULES ; do # update modules.h
           echo 'MODULE('"$mod"')' >> "$destinationdir"/modules.h
         done
-        FILES=${FILES}' '`link_some "$moduledir" "$destinationdir" ${NEW_FILES}`
+        FILES=${FILES}' '`lncp_some "$moduledir" "$destinationdir" ${NEW_FILES}`
         LIBS=${NEW_LIBS}' '${LIBS}
         for f in $TO_PRELOAD; do
           PRELOAD=${PRELOAD}' -i '"$moduledir/$f"
@@ -416,7 +416,7 @@ case "$1" in
         "$sourcedir"/${LISPRUN} -B "$installbasedir" -M "$sourcedir"/lispinit.mem
       else
         func_tmpdir
-        FILES=`link_some "$sourcedir" "$tmp" ${FILES}`
+        FILES=`lncp_some "$sourcedir" "$tmp" ${FILES}`
         # Prepare the module directories and read their variables
         PRELOAD=''
         LIBS=''
@@ -437,7 +437,7 @@ case "$1" in
           for f in $TO_PRELOAD; do
             PRELOAD=${PRELOAD}' '"$moduledir/$f"
           done
-          FILES=${FILES}' '`link_some "$moduledir" "$tmp" ${NEW_FILES}`
+          FILES=${FILES}' '`lncp_some "$moduledir" "$tmp" ${NEW_FILES}`
           LIBS=${NEW_LIBS}' '${LIBS}
           for mod in $NEW_MODULES; do
             MODULES=${MODULES}' '"$mod"
