@@ -20,7 +20,7 @@ DISTRIBFILES = calls.o link.sh Makefile \
 	$(srcdir)/posix.lisp $(srcdir)/preload.lisp
 distribdir =
 
-all : calls.o posix.fas preload.lisp
+all : calls.o posix.fas libgnu_sc.a preload.lisp
 
 %.fas: $(srcdir)/%.lisp
 	$(CLISP) -c $< -o ./
