@@ -161,9 +161,14 @@ prepare_dynamic_module() {
       DM=${DM}" \"$m\""
     done
     echo ${DM}" )))" >> ${reqfile}
-    for f in ${TO_LOAD}; do
-      echo " (cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
-    done
+    if test -n "${TO_LOAD}"; then
+      echo ";; for def-call-out to non-existent functions" >> ${reqfile}
+      echo "(ext:appease-cerrors" >> ${reqfile}
+      for f in ${TO_LOAD}; do
+        echo " (cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
+      done
+      echo ")" >> ${reqfile}
+    fi
     # create links to the REQUIRE file
     for m in ${othermods}; do
       ln ${dyndir}/$m.lisp ${reqfile}

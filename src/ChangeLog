@@ -1,5 +1,11 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (prepare_dynamic_modules): in the REQUIRE file,
+	wrap LOADs in APPEASE-CERRORS because FFI modules might try to
+	interface to functions absent on this platform
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	base modules are always linked statically
 	* clisp-link.in (with_dynamic_modules): get from the environment
 	with the default being @with_dynamic_modules@
