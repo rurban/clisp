@@ -16,11 +16,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = netica.o link.sh Makefile \
+GENERATED = netica.o netica.fas wrap.fas link.sh
+DISTRIBFILES = Makefile $(GENERATED) \
 	$(srcdir)/netica.lisp $(srcdir)/wrap.lisp
 distribdir =
 
-all : netica.o wrap.fas link.sh
+# default target: make the module
+clisp-module : $(GENERATED)
 
 netica.c netica.fas : $(srcdir)/netica.lisp
 	$(CLISP) -c $< -o ./
@@ -33,9 +35,6 @@ netica.o : netica.c
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

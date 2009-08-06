@@ -17,11 +17,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = svm$(SHREXT) libsvm.o link.sh Makefile \
-	$(srcdir)/libsvm.lisp $(srcdir)/preload.lisp
+GENERATED = libsvm.fas svm$(SHREXT) libsvm.o link.sh preload.lisp
+DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/libsvm.lisp
 distribdir =
 
-all : libsvm.fas svm$(SHREXT) libsvm.o link.sh preload.lisp
+# default target: make the module
+clisp-module : $(GENERATED)
 
 svm$(SHREXT) : $(srcdir)/svm.cpp $(srcdir)/svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
@@ -45,9 +46,6 @@ preload.lisp : $(srcdir)/preload.lisp
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
