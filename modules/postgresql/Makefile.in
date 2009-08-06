@@ -13,23 +13,22 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = postgresql.o link.sh Makefile \
+GENERATED = postgresql.o postgresql.fas sql.fas
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
 	$(srcdir)/postgresql.lisp $(srcdir)/sql.lisp
 distribdir =
 
-all : postgresql.o postgresql.fas sql.fas
+# default target: make the module
+clisp-module : $(GENERATED)
 
 postgresql.c postgresql.fas : $(srcdir)/postgresql.lisp
 	$(CLISP) -c $< -o ./
 
 postgresql.o : postgresql.c config.h
-	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
+	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
 
 %.fas: $(srcdir)/%.lisp
 	$(CLISP) -c $< -o ./
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

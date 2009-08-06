@@ -17,19 +17,18 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = dbus.o link.sh Makefile $(srcdir)/dbus.lisp
+GENERATED = dbus.o dbus.fas
+DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/dbus.lisp
 distribdir =
 
-all : dbus.o dbus.fas
+# default target: make the module
+clisp-module : $(GENERATED)
 
 dbus.c dbus.fas : $(srcdir)/dbus.lisp
 	$(CLISP) -c $< -o ./
 
 dbus.o : dbus.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(DBUS_CFLAGS) -c dbus.c
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

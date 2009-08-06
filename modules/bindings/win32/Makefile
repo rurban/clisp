@@ -15,11 +15,13 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = link.sh Makefile $(srcdir)/win32.lisp # win32.o
+# add win32.o if a C file is generated
+GENERATED = link.sh win32.fas
+DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/win32.lisp
 distribdir =
 
-# add win32.o if a C file is generated
-all : link.sh win32.fas # win32.o
+# default target: make the module
+clisp-module : $(GENERATED)
 
 win32.c win32.fas : $(srcdir)/win32.lisp
 	$(CLISP) -c $< -o ./
@@ -29,9 +31,6 @@ win32.o : win32.c $(INCLUDES)/clisp.h
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

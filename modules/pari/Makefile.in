@@ -14,11 +14,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = cpari.o pari.o link.sh Makefile \
-	$(srcdir)/pari.lisp $(srcdir)/preload.lisp
+GENERATED = pari.o cpari.o pari.fas preload.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/pari.lisp
 distribdir =
 
-all : pari.o cpari.o pari.fas preload.lisp
+# default target: make the module
+clisp-module : $(GENERATED)
 
 pari.fas pari.c : $(srcdir)/pari.lisp
 	$(CLISP) -c $< -o ./
@@ -31,9 +32,6 @@ cpari.o : $(srcdir)/cpari.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

@@ -14,11 +14,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = dirkey.o link.sh Makefile \
-	$(srcdir)/dirkey1.lisp $(srcdir)/preload.lisp
+GENERATED = dirkey.o dirkey1.fas preload.lisp
+DISTRIBFILES = link.sh Makefile $(GENERATED) $(srcdir)/dirkey1.lisp
 distribdir =
 
-all : dirkey.o dirkey1.fas preload.lisp
+# default target: make the module
+clisp-module : $(GENERATED)
 
 %.fas: $(srcdir)/%.lisp
 	$(CLISP) -c $< -o ./
@@ -31,9 +32,6 @@ dirkey.o : dirkey.m.c config.h
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

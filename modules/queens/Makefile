@@ -18,10 +18,12 @@ MAKE = make
 
 SHELL = /bin/sh
 
-DISTRIBFILES = queens.o callqueens.o link.sh Makefile
+GENERATED = queens.o callqueens.o link.sh
+DISTRIBFILES = Makefile $(GENERATED)
 distribdir =
 
-all : queens.o callqueens.o link.sh
+# default target: make the module
+clisp-module : $(GENERATED)
 
 queens.o : $(srcdir)/queens.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
@@ -34,9 +36,6 @@ callqueens.o : callqueens.m.c
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $< .
-
-# Make a module
-clisp-module : all
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
