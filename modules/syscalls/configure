@@ -3906,6 +3906,8 @@ fi
 
 done
 
+sc_gl_EARLY
+sc_gl_INIT
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** System Calls (Headers)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (Headers)${term_norm}" >&6;}
@@ -6780,10 +6782,7 @@ fi
 
 
 
-
-
-
-for ac_func in clock getloadavg confstr fcntl gethostent sysconf uname getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog strftime strptime mktime getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat mkstemp tempnam mkdtemp getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid sethostid getdomainname setdomainname
+for ac_func in clock getloadavg confstr fcntl gethostent sysconf uname getlogin getpwent getpwnam getpwuid endpwent setpwent getservbyport getservbyname getservent setservent endservent openlog setlogmask syslog closelog getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent endutxent getutxent getutxid getutxline pututxline setutxent mkfifo mkdir creat mkstemp tempnam mkdtemp getegid geteuid getgid getuid setegid seteuid setgid setuid setreuid setregid getgroups setgroups wait4 fchmod fchown fstat link stat symlink utime mknod chmod umask fsync sync ftruncate truncate getusershell endusershell erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority crypt encrypt setkey GlobalMemoryStatusEx strerror gethostid sethostid getdomainname setdomainname
 do
 as_ac_var=`$as_echo "ac_cv_func_$ac_func" | $as_tr_sh`
 { $as_echo "$as_me:$LINENO: checking for $ac_func" >&5
@@ -7158,6 +7157,9 @@ _ACEOF
 
 fi
 
+gl_FUNC_MKTIME
+gl_FUNC_GNU_STRFTIME
+gl_FUNC_STRPTIME
 { $as_echo "$as_me:$LINENO: checking whether signgam is declared" >&5
 $as_echo_n "checking whether signgam is declared... " >&6; }
 if test "${ac_cv_have_decl_signgam+set}" = set; then
@@ -9833,7 +9835,7 @@ fi
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** System Calls (output)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** System Calls (output)${term_norm}" >&6;}
-ac_config_files="$ac_config_files Makefile link.sh"
+ac_config_files="$ac_config_files Makefile link.sh gllib/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -10431,6 +10433,7 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "link.sh") CONFIG_FILES="$CONFIG_FILES link.sh" ;;
+    "gllib/Makefile") CONFIG_FILES="$CONFIG_FILES gllib/Makefile" ;;
 
   *) { { $as_echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 $as_echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
