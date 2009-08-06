@@ -34,6 +34,18 @@ calls.o : calls.m.c config.h
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $< .
 
+am--refresh :
+
+# syscalls relies on src/gllib, so we must also include files in the build dir
+libgnu_sc.a : force
+	rm -f libgnu_sc.a
+	mkdir -p gllib
+	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
+	cd gllib; \
+	  $(MAKE) srcdir="$(srcdir)/gllib" ACLOCAL_M4="$(srcdir)/Makefile.am" \
+		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
+	  $(LN) libgnu.a ../libgnu_sc.a
+
 # Make a module
 clisp-module : all
 

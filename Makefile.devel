@@ -57,7 +57,7 @@ MOD_CONFIGURES=$(patsubst %,modules/%/configure,$(MODULES))
 CONFIGURES=src/configure $(MOD_CONFIGURES)
 
 MAKEFILE_IN = src/gllib/Makefile.in modules/regexp/gllib/Makefile.in \
-	modules/wildcard/gllib/Makefile.in
+	modules/wildcard/gllib/Makefile.in modules/syscalls/gllib/Makefile
 $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in
 	cd $* && cd .. && \
 	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
@@ -364,6 +364,9 @@ GNULIB_AVOID = $(addprefix --avoid=, $(GNULIB_COMMON))
 gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(GNULIB) --source-base=src/gllib --m4-base=src/glm4 $(GNULIB_COMMON)
+	$(GNULIB) --source-base=modules/syscalls/gllib --macro-prefix=sc_gl \
+		--m4-base=modules/syscalls/glm4 $(GNULIB_AVOID) mktime \
+		strftime strptime
 	$(GNULIB) --source-base=modules/regexp/gllib --macro-prefix=rx_gl \
 		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) regex
 	$(GNULIB) --source-base=modules/wildcard/gllib --macro-prefix=wc_gl \

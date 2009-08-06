@@ -10,6 +10,8 @@ AC_CONFIG_HEADERS(config.h)
 RSE_BOLD
 BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+sc_gl_EARLY
+sc_gl_INIT
 
 BOLD_MSG([System Calls (Headers)])
 AC_CHECK_HEADERS(errno.h fcntl.h netdb.h sys/resource.h utime.h wchar.h dnl
@@ -35,7 +37,7 @@ AC_SEARCH_LIBS(erf, m)
 AC_CHECK_FUNCS(clock getloadavg confstr fcntl gethostent sysconf uname dnl
 getlogin getpwent getpwnam getpwuid endpwent setpwent dnl
 getservbyport getservbyname getservent setservent endservent dnl
-openlog setlogmask syslog closelog strftime strptime mktime dnl
+openlog setlogmask syslog closelog dnl
 getppid getpgid getsid setpgid setsid kill pathconf fpathconf realpath dnl
 getpgrp setpgrp getgrgid getgrnam getgrent endgrent setgrent dnl
 endutxent getutxent getutxid getutxline pututxline setutxent dnl
@@ -48,6 +50,9 @@ erf erfc lgamma tgamma fstatvfs statvfs getpriority setpriority dnl
 crypt encrypt setkey GlobalMemoryStatusEx strerror dnl
 gethostid sethostid getdomainname setdomainname)
 AC_FUNC_CHOWN
+gl_FUNC_MKTIME
+gl_FUNC_GNU_STRFTIME
+gl_FUNC_STRPTIME
 AC_CHECK_DECLS([signgam],,,[#include <math.h>])
 CL_STAT
 if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
@@ -83,7 +88,7 @@ fi
 fi
 
 BOLD_MSG([System Calls (output)])
-AC_CONFIG_FILES(Makefile link.sh)
+AC_CONFIG_FILES([Makefile link.sh gllib/Makefile])
 AC_OUTPUT
 
 BOLD_MSG([System Calls (done)])
