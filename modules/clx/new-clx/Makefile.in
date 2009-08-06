@@ -49,7 +49,11 @@ clx-preload.lisp : $(srcdir)/clx-preload.lisp
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
-
+	mkdir $(distribdir)/demos
+	$(LN) $(srcdir)/demos/*.lisp $(srcdir)/demos/REAME $(distribdir)/demos/
+	mkdir $(distribdir)/demos/screens $(distribdir)/demos/xpms
+	$(LN) $(srcdir)/demos/screens/screen.* $(distribdir)/demos/screens/
+	$(LN) $(srcdir)/demos/xpms/*.xpm $(distribdir)/demos/xpms/
 
 clean : force
 	$(RM) genclx.c genclx *.lib *.fas clx.e clx.d clx.c clx.o

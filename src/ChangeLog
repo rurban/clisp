@@ -1,5 +1,10 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/Makefile.in (clisp-module-distrib):
+	distribute demos
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/Makefile.in, modules/fastcgi/Makefile.in:
 	* modules/libsvm/Makefile, modules/netica/Makefile:
 	* modules/oracle/Makefile.in, modules/pari/Makefile.in:
