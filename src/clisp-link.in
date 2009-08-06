@@ -126,13 +126,16 @@ func_tmpdir ()
   } || fail "cannot create a temporary directory in $TMPDIR"
 }
 
+# setting $with_dynamic_modules overrides the default
+with_dynamic_modules=${with_dynamic_modules-@with_dynamic_modules@}
+
 # prepare the loading infrastructure for the current dynamic module.
 # this can be invoked only after "./link.sh" and relies on its variables.
 # also uses:
 #   ${absolute_currentdir} : the top level directory
 #   ${DYNMOD} : the name of the directory where to put the generated files
 prepare_dynamic_module() {
-  if test "@with_dynamic_modules@" != no; then
+  if test "$with_dynamic_modules" != no; then
     dynmod=${DYNMOD-dynmod}
     dyndir=${absolute_currentdir}/${dynmod}
     mkdir -p ${dyndir}
@@ -403,7 +406,7 @@ case "$1" in
     installbasedir=`dirname "$sourcedir"`
     shift
     shift
-    if test "@with_dynamic_modules@" != no; then
+    if test "$with_dynamic_modules" != no; then
       moduledirs="$@"
       check_dir "$sourcedir"
       for moduledir in $moduledirs; do check_dir "$moduledir"; done
