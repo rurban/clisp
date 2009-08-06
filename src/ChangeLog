@@ -1,5 +1,10 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (lncp): rename from link to separate from link.sh
+	(lncp_some): rename from link_some to simplify seach
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (MAKEFILE_IN): depend on aclocal.m4
 
 2009-08-05  Sam Steingold  <sds@gnu.org>
