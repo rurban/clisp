@@ -1,3 +1,6 @@
+This directory contains a CLISP add-on module to interface with PostgreSQL
+databases, see <http://www.PostgreSQL.org/>.
+
 To install the PostgreSQL bindings, do the following:
 
 $ ./configure --with-module=postgresql --with-libpq-prefix=/usr/local/ --cbc build-pq

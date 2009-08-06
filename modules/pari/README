@@ -1,3 +1,6 @@
+This directory contains a CLISP add-on module for calling PARI functions.
+See <http://pari.math.u-bordeaux.fr/>.
+
 To install the pari-bindings, do the following:
 
 $ ./configure --with-module=pari --with-libpari-prefix=/usr/local/ --cbc build-pari

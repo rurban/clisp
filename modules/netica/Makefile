@@ -18,7 +18,7 @@ SHELL = /bin/sh
 
 GENERATED = netica.o netica.fas wrap.fas link.sh
 DISTRIBFILES = Makefile $(GENERATED) \
-	$(srcdir)/netica.lisp $(srcdir)/wrap.lisp
+	$(srcdir)/netica.lisp $(srcdir)/wrap.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module

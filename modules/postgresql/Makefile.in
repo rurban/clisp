@@ -15,7 +15,7 @@ SHELL = /bin/sh
 
 GENERATED = postgresql.o postgresql.fas sql.fas
 DISTRIBFILES = link.sh Makefile $(GENERATED) \
-	$(srcdir)/postgresql.lisp $(srcdir)/sql.lisp
+	$(srcdir)/postgresql.lisp $(srcdir)/sql.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module
