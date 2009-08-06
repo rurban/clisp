@@ -100,6 +100,7 @@ TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 # NB: keep in sync with src/makemake.in:MYIMPROOT
 #DIST=podval:~/public_html/clisp
 DIST=sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
+RSYNC = rsync -avC --copy-unsafe-links
 
 ##### nothing user-serviceable below #####
 
@@ -194,12 +195,12 @@ impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	$(CHECK_IDS)
-	(test -n "$(DIST)" && rsync -av impnotes.html \
+	(test -n "$(DIST)" && $(RSYNC) impnotes.html \
 	  impnotes.css $(DIST)/) || true
 
 man: _clisp.html _clisp.1
 	(cd ../build && make clisp.html clisp.1 && \
-	 test -n "$(DIST)" && rsync -av clisp.1 clisp.html $(DIST)/) || true
+	 test -n "$(DIST)" && $(RSYNC) clisp.1 clisp.html $(DIST)/) || true
 
 impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl $(XSL_TARGET)
 	$(XMLOUT) "olink-pile.xml" $(DOC_IMP) -o $@ fo.xsl $<
@@ -223,7 +224,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	rm -f _clisp-1.html
 	$(CHECK_IDS)
 	cd html; cd ..; $(CURDIR)/../utils/fix-perms.sh
-	(test -n "$(DIST)" && rsync -av $@/*.html $@/id-href.map \
+	(test -n "$(DIST)" && $(RSYNC) $@/*.html $@/id-href.map \
 	 impnotes.css $(DIST)/impnotes/;) || true
 
 # try to use http://www.graphviz.org/ instead of openoffice for MOP
@@ -233,8 +234,8 @@ mop-classes.png : mop-classes.dot
 
 UP=sf:/home/groups/c/cl/clisp/htdocs/
 up: impnotes.html html
-	rsync -av impnotes.html $(UP)/impnotes-new.html
-	rsync -av html/* $(UP)/impnotes-new/
+	$(RSYNC) impnotes.html $(UP)/impnotes-new.html
+	$(RSYNC) html/* $(UP)/impnotes-new/
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
@@ -254,7 +255,7 @@ docbook-dtd :
 	  unzip docbook-xml.zip && $(RM) docbook-xml.zip
 
 docbook-xsl : force
-	rsync -av --port=5873 docbook.xml-doc.org::xsl docbook-xsl
+	$(RSYNC) --port=5873 docbook.xml-doc.org::xsl docbook-xsl
 	grep '<fm:Version>' docbook-xsl/VERSION
 
 impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
@@ -263,7 +264,7 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
 	cd ..; ln -s . clisp; \
 	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
 	$(RM) clisp
-	(test -n "$(DIST)" && rsync -av $@ ../src/NEWS $(DIST)/) || true
+	(test -n "$(DIST)" && $(RSYNC) $@ ../src/NEWS $(DIST)/) || true
 
 SEARCH=
 search: force
