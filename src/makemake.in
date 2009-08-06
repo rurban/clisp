@@ -3357,11 +3357,13 @@ cygwin_finish() {
   finish_runtime $1/lisp${LEXE}
 }
 
+# base is always linked statically
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
-echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
+echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) with_dynamic_modules=no ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
 cygwin_finish base
 
+# full is built dynamically when explicitly requested
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
 echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
