@@ -774,7 +774,7 @@ if test -n "$do_install"; then
   if touch ${prefix}/abazonk 2>/dev/null ; then
     rm -f ${prefix}/abazonk
     if touch ${exec_prefix}/abazonk 2>/dev/null ; then
-      rm -f ${prefix}/abazonk
+      rm -f ${exec_prefix}/abazonk
     else su="su -c"
     fi
   else su="su -c"
