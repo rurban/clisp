@@ -1131,12 +1131,7 @@ DEFUN(POSIX::SETKEY, key) {
 #endif
 
 /* ========= SYSTEM INFORMATION ========== */
-
-#if defined(HAVE_SYS_UTSNAME_H)
-# include <sys/utsname.h>
-#endif
-
-#if defined(HAVE_UNAME)
+#include <sys/utsname.h>
 DEFUN(POSIX::UNAME,)
 { /* Lisp interface to uname(2) */
   struct utsname utsname;
@@ -1148,7 +1143,6 @@ DEFUN(POSIX::UNAME,)
   pushSTACK(safe_to_string(utsname.machine));
   funcall(`POSIX::MAKE-UNAME`,5);
 }
-#endif /* HAVE_UNAME */
 
 #if defined(HAVE_SYSCONF)
 DEFCHECKER(sysconf_arg,prefix=_SC,default=,                             \

@@ -367,7 +367,7 @@ gnulib-imported : update-gnulib force
 	$(GNULIB) --source-base=src/gllib --m4-base=src/glm4 $(GNULIB_COMMON)
 	$(GNULIB) --source-base=modules/syscalls/gllib --macro-prefix=sc_gl \
 		--m4-base=modules/syscalls/glm4 $(GNULIB_AVOID) mktime \
-		strftime strptime
+		strftime strptime uname
 	$(GNULIB) --source-base=modules/regexp/gllib --macro-prefix=rx_gl \
 		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) regex
 	$(GNULIB) --source-base=modules/wildcard/gllib --macro-prefix=wc_gl \
