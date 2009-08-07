@@ -1,5 +1,14 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (DVIPDF): remove
+	(PS2PDF): add
+	(manual_print): rename from manual_dvi; remove clisp.dvi from it
+	(clisp.dvi): remove target
+	(clisp.pdf): generate from clisp.ps
+	* configure.in: check for PS2PDF instead of DVIPDF
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* modules/clx/new-clx/Makefile.in (clisp-module-distrib):
 	distribute demos
 

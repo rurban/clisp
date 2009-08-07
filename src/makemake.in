@@ -540,7 +540,7 @@ INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
 INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
 INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
 GROFF='@GROFF@'                     # either 'groff' or ''
-DVIPDF='@DVIPDF@'                   # either 'dvipdf' or ''
+PS2PDF='@PS2PDF@'                   # either 'ps2pdf' or ''
 LIBS='@LIBS@'                       # list of system libraries
 LIBTERMCAP='@LIBTERMCAP@'           # '-L/usr/??/lib' or 'broken' or ''
 INCTERMCAP='@INCTERMCAP@'           # '-I/usr/??/include' or ''
@@ -1912,7 +1912,6 @@ echol "datarootdir = ${DATAROOTDIR}"
 echol "mandir  = ${MANDIR}"
 echol "docdir  = ${DOCDIR}"
 echol "htmldir = ${HTMLDIR}"
-echol "dvidir  = ${DVIDIR}"
 echol "psdir   = ${PSDIR}"
 echol "pdfdir  = ${PDFDIR}"
 echol "libdir  = ${LIBDIR}"
@@ -2091,7 +2090,6 @@ if test -n "$LIBGCC"; then
 fi
 if test -n "$GROFF"; then
   ROFF_MAN="$GROFF -Tascii -mandoc"
-  ROFF_DVI="$GROFF -Tdvi -mandoc"
   ROFF_PS="$GROFF -Tps -mandoc"
 else
   ROFF_MAN="nroff -man"
@@ -2107,10 +2105,9 @@ fi
 echol '# formatter for manual page'
 echol "ROFF_MAN = ${ROFF_MAN}"' # try "groff -Tascii -mandoc" or "nroff -man"'
 if test -n "$GROFF"; then
-  echol "ROFF_DVI = ${ROFF_DVI}"' # try "groff -Tdvi -mandoc"'
   echol "ROFF_PS  = ${ROFF_PS}"' # try "groff -Tps -mandoc"'
-  if test -n "$DVIPDF"; then
-    echol "DVIPDF = ${DVIPDF}"
+  if test -n "$PS2PDF"; then
+    echol "PS2PDF = ${PS2PDF}"
   fi
 fi
 echol
@@ -3382,12 +3379,12 @@ echol "full-mod-check : # full"
 modcheck "./clisp -K full" MODULES
 
 if test -n "$GROFF"; then
-  manual_dvi='clisp.dvi clisp.ps'
-  if test -n "$DVIPDF"; then
-    manual_dvi="$manual_dvi clisp.pdf"
+  manual_print='clisp.ps'
+  if test -n "$PS2PDF"; then
+    manual_print="$manual_print clisp.pdf"
   fi
 else
-  manual_dvi=''
+  manual_print=''
 fi
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi``if [ ${HSYSOS} = cygwin ]; then echol ' cygwin.README'; fi`
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png"
@@ -3406,13 +3403,13 @@ EMACS_FILES="clhs.el clisp-coding.el clisp-indent.el clisp-indent.lisp clisp-ffi
 VIM_FILES="lisp.vim"
 ACLOCAL_FILES="clisp.m4"
 
-# On Unix, clisp.dvi, clisp.ps, clisp.pdf must be built by "make all",
+# On Unix, clisp.ps & clisp.pdf must be built by "make all",
 # because "make install" needs it and "make install" must not create files in
 # the current directory, for compliance with the GNU standards.
-# On other OSes, clisp.dvi & clisp.ps must be built manually on another
+# On other OSes, clisp.ps & clisp.pdf must be built manually on another
 # machine, so don't make it part of "make all".
 if [ $HOS = unix ] ; then
-  echol "manual : \$(READMES) \$(MANUALS) ${manual_dvi}"
+  echol "manual : \$(READMES) \$(MANUALS) ${manual_print}"
   echodummyrule manual
   echol
   echol "manualx : manual clisp.man"
@@ -3422,7 +3419,7 @@ else
   echol "manual : \$(READMES) \$(MANUALS)"
   echodummyrule manual
   echol
-  echol "manualx : manual clisp.man ${manual_dvi}"
+  echol "manualx : manual clisp.man ${manual_print}"
   echodummyrule manualx
   echol
 fi
@@ -3490,18 +3487,12 @@ done
 OBSOLETE=$OBSOLETE" txt.c txt${HEXE}"
 
 if test -n "$GROFF"; then
-  echol "clisp.dvi : clisp.1"
-  echotab "-\$(ROFF_DVI) clisp.1 > clisp.dvi"
-  echol
   echol "clisp.ps : clisp.1"
   echotab "-\$(ROFF_PS) clisp.1 > clisp.ps"
   echol
-  # Use dvipdf, not ps2pdf, to generate clisp.pdf, because ps2pdf generates
-  # bad quality output: It puts an undesired space after "fi", such as in
-  # "file".
-  if test -n "$DVIPDF"; then
-    echol "clisp.pdf : clisp.dvi"
-    echotab "-\$(DVIPDF) clisp.dvi clisp.pdf"
+  if test -n "$PS2PDF"; then
+    echol "clisp.pdf : clisp.ps"
+    echotab "-\$(PS2PDF) clisp.ps clisp.pdf"
     echol
   fi
 fi
@@ -3574,7 +3565,6 @@ if [ $CROSS = false ] ; then
     case "$fsstnd" in
       gnu_ext)
         echotab "mkdir -p \$(DESTDIR)\$(htmldir)"
-        echotab "mkdir -p \$(DESTDIR)\$(dvidir)"
         echotab "mkdir -p \$(DESTDIR)\$(psdir)"
         echotab "mkdir -p \$(DESTDIR)\$(pdfdir)"
         ;;
@@ -3635,7 +3625,7 @@ if [ $CROSS = false ] ; then
       echotab "\$(INSTALL_DATA) ${SRCDIR}m4/$f \$(DESTDIR)\$(aclocaldir)/$f"
     done
     echol
-    echol "install-man : clisp.1 ${manual_dvi} clisp.html force"
+    echol "install-man : clisp.1 ${manual_print} clisp.html force"
     echotab "mkdir -p \$(DESTDIR)\$(prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(exec_prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(datarootdir)"
@@ -3646,13 +3636,11 @@ if [ $CROSS = false ] ; then
       gnu_ext)
         echotab "mkdir -p \$(DESTDIR)\$(htmldir)"
         echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
-        echotab "mkdir -p \$(DESTDIR)\$(dvidir)"
         echotab "mkdir -p \$(DESTDIR)\$(psdir)"
         echotab "mkdir -p \$(DESTDIR)\$(pdfdir)"
         if test -n "$GROFF"; then
-          echotab "\$(INSTALL_DATA) clisp.dvi \$(DESTDIR)\$(dvidir)/clisp.dvi"
           echotab "\$(INSTALL_DATA) clisp.ps  \$(DESTDIR)\$(psdir)/clisp.ps"
-          if test -n "$DVIPDF"; then
+          if test -n "$PS2PDF"; then
             echotab "\$(INSTALL_DATA) clisp.pdf \$(DESTDIR)\$(pdfdir)/clisp.pdf"
           fi
         fi
@@ -3663,18 +3651,18 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echol
-    echol "install-doc : \$(READMES) \$(MANUALS) ${manual_dvi} force"
+    echol "install-doc : \$(READMES) \$(MANUALS) ${manual_print} force"
     echotab "mkdir -p \$(DESTDIR)\$(prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(exec_prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(docdir)"
     echotab "\$(INSTALL_DATA) \$(READMES) \$(DESTDIR)\$(docdir)/"
     case "$fsstnd" in
       *bsd)
-        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(docdir)/"
+        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_print} \$(DESTDIR)\$(docdir)/"
         ;;
       *)
         echotab "mkdir -p \$(DESTDIR)\$(docdir)/doc"
-        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_dvi} \$(DESTDIR)\$(docdir)/doc/"
+        echotab "\$(INSTALL_DATA) \$(MANUALS) ${manual_print} \$(DESTDIR)\$(docdir)/doc/"
         ;;
     esac
     if [ ${HSYSOS} = cygwin ]; then
@@ -3707,7 +3695,6 @@ if [ $CROSS = false ] ; then
     case "$fsstnd" in
       gnu_ext)
         echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clisp.html"
-        echotab "\$(RM) \$(DESTDIR)\$(dvidir)/clisp.dvi"
         echotab "\$(RM) \$(DESTDIR)\$(psdir)/clisp.ps"
         echotab "\$(RM) \$(DESTDIR)\$(pdfdir)/clisp.pdf"
         ;;
@@ -3882,7 +3869,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data/"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${HLN} clisp.1 clisp.man ${manual_dvi} clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
+echotab "${HLN} clisp.1 clisp.man ${manual_print} clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
 echotab "mkdir \$(TOPDIR)/emacs"
 line="${HLN}";
 for f in ${EMACS_FILES} ${VIM_FILES}; do
@@ -3998,7 +3985,7 @@ clean1 : clean0
 	-\$(RMRF) ${ANSITESTSDIR}
 	-\$(RMRF) ${SACLATESTSDIR}
 	-\$(RMRF) boot base full linkkit
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.dvi clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
+	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.
