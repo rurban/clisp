@@ -1,5 +1,10 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (install-bin) [with_dynamic_modules]: do not
+	install full, install individual module directories instead
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (DVIPDF): remove
 	(PS2PDF): add
 	(manual_print): rename from manual_dvi; remove clisp.dvi from it

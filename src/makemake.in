@@ -3593,17 +3593,26 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
     echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
-    echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
-    echotab "for f in clisp-link linkkit/* base/* full/*; do \\"
+    if [ "${with_dynamic_modules}" != no ]; then
+      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/dynmod"
+      echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
+      echotab "absdest=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` ; \\"
+      echotab "here=\`pwd\`; \\"
+      echotab "for m in \$(MODULES); do \\"
+      echotab "  mkdir -p \"\$\$absdest/\$\$m\"; \\"
+      echotab "  cd \$\$m; \$(MAKE) clisp-module-distrib LN=\"\$(INSTALL_DATA)\" distribdir=\"\$\$absdest/\$\$m\" ; cd \"\$\$here\"; \\"
+      echotab "done"
+      line='clisp-link linkkit/* base/*'
+    else
+      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
+      line='clisp-link linkkit/* base/* full/*'
+    fi
+    echotab "for f in ${line}; do \\"
     echotab "  case \$\$f in \\"
     echotab "    */lisp${LEXE}|clisp-link) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "  esac; \\"
     echotab "done"
-    if [ "${with_dynamic_modules}" != no ]; then
-      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/dynmod"
-      echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
-    fi
     # Don't strip the executables, otherwise (disassemble #'cons)
     # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
