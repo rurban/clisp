@@ -46,7 +46,8 @@ gllib libgnu_sc.a : force
 	mkdir -p gllib
 	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
 	cd gllib; \
-	  $(MAKE) srcdir="$(srcdir)/gllib" ACLOCAL_M4="$(srcdir)/Makefile.am" \
+	  $(MAKE) srcdir="$(srcdir)/gllib" \
+		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
 		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
 	  $(LN) libgnu.a ../libgnu_sc.a
 
