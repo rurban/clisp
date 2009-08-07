@@ -75,6 +75,7 @@ src/aclocal.m4 : $(wildcard src/m4/*.m4) $(wildcard src/glm4/*.m4) \
 		-e 'AC_CONFIG_FILE.*(Makefile|link\.sh)' >> configure.ac
 	aclocal -I $(CURDIR)/src/m4 -I $(CURDIR)/src/glm4 \
 		-I $(CURDIR)/modules/regexp/glm4 \
+		-I $(CURDIR)/modules/syscalls/glm4 \
 		-I $(CURDIR)/modules/wildcard/glm4 --output=src/aclocal.m4
 	$(RM) configure.ac
 
