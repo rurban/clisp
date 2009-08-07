@@ -42,16 +42,26 @@ AC_DEFUN([sc_gl_INIT],
   m4_pushdef([sc_gl_LIBSOURCES_DIR], [])
   gl_COMMON
   gl_source_base='modules/syscalls/gllib'
+  gl_HEADER_ERRNO_H
+  gl_FUNC_GETHOSTNAME
+  gl_UNISTD_MODULE_INDICATOR([gethostname])
   gl_FUNC_MBRLEN
   gl_WCHAR_MODULE_INDICATOR([mbrlen])
   gl_FUNC_MKTIME
   gl_MULTIARCH
+  gl_SOCKETS
   gl_STRCASE
   gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRINGS_H
   gl_FUNC_STRPTIME
+  gl_HEADER_SYS_SOCKET
+  AC_PROG_MKDIR_P
+  gl_SYS_UTSNAME_H
+  AC_PROG_MKDIR_P
   gl_HEADER_TIME_H
   gl_TIME_R
+  gl_FUNC_UNAME
+  gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gl_LIBSOURCES_LIST[ ; do
@@ -185,28 +195,45 @@ AC_DEFUN([sc_gltests_LIBSOURCES], [
 # gnulib-tool and may be removed by future gnulib-tool invocations.
 AC_DEFUN([sc_gl_FILE_LIST], [
   build-aux/link-warning.h
-  lib/dummy.c
+  lib/alignof.h
+  lib/close-hook.c
+  lib/close-hook.h
+  lib/errno.in.h
+  lib/gethostname.c
   lib/mbrlen.c
   lib/mktime.c
+  lib/sockets.c
+  lib/sockets.h
   lib/strcasecmp.c
   lib/strftime.c
   lib/strftime.h
   lib/strings.in.h
   lib/strncasecmp.c
   lib/strptime.c
+  lib/sys_socket.in.h
+  lib/sys_utsname.in.h
   lib/time.in.h
   lib/time_r.c
+  lib/uname.c
+  lib/w32sock.h
   m4/00gnulib.m4
+  m4/errno_h.m4
+  m4/gethostname.m4
   m4/gnulib-common.m4
   m4/mbrlen.m4
   m4/mbstate_t.m4
   m4/mktime.m4
   m4/multiarch.m4
+  m4/sockets.m4
+  m4/sockpfaf.m4
   m4/strcase.m4
   m4/strftime.m4
   m4/strings_h.m4
   m4/strptime.m4
+  m4/sys_socket_h.m4
+  m4/sys_utsname_h.m4
   m4/time_h.m4
   m4/time_r.m4
   m4/tm_gmtoff.m4
+  m4/uname.m4
 ])

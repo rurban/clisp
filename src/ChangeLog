@@ -1,5 +1,33 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-imported): import uname into syscalls
+	* modules/syscalls/calls.c (uname): implement unconditionally
+	* modules/syscalls/posix.lisp (uname): export unconditionally
+	* modules/syscalls/configure.in: call gl_FUNC_UNAME and
+	gl_SYS_UTSNAME_MODULE_INDICATOR([uname]) and do not check for
+	uname and <sys/utsname.h>
+	* modules/syscalls/gllib/alignof.h:
+	* modules/syscalls/gllib/close-hook.c:
+	* modules/syscalls/gllib/close-hook.h:
+	* modules/syscalls/gllib/errno.in.h:
+	* modules/syscalls/gllib/gethostname.c:
+	* modules/syscalls/gllib/sockets.c:
+	* modules/syscalls/gllib/sockets.h:
+	* modules/syscalls/gllib/sys_socket.in.h:
+	* modules/syscalls/gllib/sys_utsname.in.h:
+	* modules/syscalls/gllib/uname.c:
+	* modules/syscalls/gllib/w32sock.h:
+	* modules/syscalls/glm4/errno_h.m4:
+	* modules/syscalls/glm4/gethostname.m4:
+	* modules/syscalls/glm4/sockets.m4:
+	* modules/syscalls/glm4/sockpfaf.m4:
+	* modules/syscalls/glm4/sys_socket_h.m4:
+	* modules/syscalls/glm4/sys_utsname_h.m4:
+	* modules/syscalls/glm4/uname.m4: added
+	* modules/syscalls/gllib/dummy.c: removed
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (install-bin) [with_dynamic_modules]: do not
 	install full, install individual module directories instead
 
