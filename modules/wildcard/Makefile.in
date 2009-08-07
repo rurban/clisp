@@ -26,13 +26,13 @@ clisp-module : $(GENERATED)
 wildcard.c wildcard.fas : $(srcdir)/wildcard.lisp
 	$(CLISP) -c $< -o ./
 
-wildcard.o : wildcard.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c wildcard.c
+wildcard.o : wildcard.c config.h gllib
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
 
 am--refresh :
 
 # wildcard relies on src/gllib, so we must also include files in the build dir
-libgnu_wc.a : force
+gllib libgnu_wc.a : force
 	rm -f libgnu_wc.a
 	mkdir -p gllib
 	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
