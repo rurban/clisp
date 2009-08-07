@@ -1100,6 +1100,1415 @@ AC_DEFUN([wc_gl_FILE_LIST], [
   m4/mbstate_t.m4
 ])
 
+# errno_h.m4 serial 6
+dnl Copyright (C) 2004, 2006, 2008, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN_ONCE([gl_HEADER_ERRNO_H],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_CACHE_CHECK([for complete errno.h], [gl_cv_header_errno_h_complete], [
+    AC_EGREP_CPP([booboo],[
+#include <errno.h>
+#if !defined ENOMSG
+booboo
+#endif
+#if !defined EIDRM
+booboo
+#endif
+#if !defined ENOLINK
+booboo
+#endif
+#if !defined EPROTO
+booboo
+#endif
+#if !defined EMULTIHOP
+booboo
+#endif
+#if !defined EBADMSG
+booboo
+#endif
+#if !defined EOVERFLOW
+booboo
+#endif
+#if !defined ENOTSUP
+booboo
+#endif
+#if !defined ESTALE
+booboo
+#endif
+#if !defined ECANCELED
+booboo
+#endif
+      ],
+      [gl_cv_header_errno_h_complete=no],
+      [gl_cv_header_errno_h_complete=yes])
+  ])
+  if test $gl_cv_header_errno_h_complete = yes; then
+    ERRNO_H=''
+  else
+    gl_CHECK_NEXT_HEADERS([errno.h])
+    ERRNO_H='errno.h'
+  fi
+  AC_SUBST([ERRNO_H])
+  gl_REPLACE_ERRNO_VALUE([EMULTIHOP])
+  gl_REPLACE_ERRNO_VALUE([ENOLINK])
+  gl_REPLACE_ERRNO_VALUE([EOVERFLOW])
+])
+
+# Assuming $1 = EOVERFLOW.
+# The EOVERFLOW errno value ought to be defined in <errno.h>, according to
+# POSIX.  But some systems (like OpenBSD 4.0 or AIX 3) don't define it, and
+# some systems (like OSF/1) define it when _XOPEN_SOURCE_EXTENDED is defined.
+# Check for the value of EOVERFLOW.
+# Set the variables EOVERFLOW_HIDDEN and EOVERFLOW_VALUE.
+AC_DEFUN([gl_REPLACE_ERRNO_VALUE],
+[
+  if test -n "$ERRNO_H"; then
+    AC_CACHE_CHECK([for ]$1[ value], [gl_cv_header_errno_h_]$1, [
+      AC_EGREP_CPP([yes],[
+#include <errno.h>
+#ifdef ]$1[
+yes
+#endif
+      ],
+      [gl_cv_header_errno_h_]$1[=yes],
+      [gl_cv_header_errno_h_]$1[=no])
+      if test $gl_cv_header_errno_h_]$1[ = no; then
+        AC_EGREP_CPP([yes],[
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <errno.h>
+#ifdef ]$1[
+yes
+#endif
+          ], [gl_cv_header_errno_h_]$1[=hidden])
+        if test $gl_cv_header_errno_h_]$1[ = hidden; then
+          dnl The macro exists but is hidden.
+          dnl Define it to the same value.
+          AC_COMPUTE_INT([gl_cv_header_errno_h_]$1, $1, [
+#define _XOPEN_SOURCE_EXTENDED 1
+#include <errno.h>
+/* The following two lines are a workaround against an autoconf-2.52 bug.  */
+#include <stdio.h>
+#include <stdlib.h>
+])
+        fi
+      fi
+    ])
+    case $gl_cv_header_errno_h_]$1[ in
+      yes | no)
+        ]$1[_HIDDEN=0; ]$1[_VALUE=
+        ;;
+      *)
+        ]$1[_HIDDEN=1; ]$1[_VALUE="$gl_cv_header_errno_h_]$1["
+        ;;
+    esac
+    AC_SUBST($1[_HIDDEN])
+    AC_SUBST($1[_VALUE])
+  fi
+])
+
+dnl Autoconf >= 2.61 has AC_COMPUTE_INT built-in.
+dnl Remove this when we can assume autoconf >= 2.61.
+m4_ifdef([AC_COMPUTE_INT], [], [
+  AC_DEFUN([AC_COMPUTE_INT], [_AC_COMPUTE_INT([$2],[$1],[$3],[$4])])
+])
+
+# gethostname.m4 serial 7
+dnl Copyright (C) 2002, 2008, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+# Ensure
+# - the gethostname() function,
+# - the HOST_NAME_MAX macro in <limits.h>.
+AC_DEFUN([gl_FUNC_GETHOSTNAME],
+[
+  AC_REQUIRE([gl_UNISTD_H_DEFAULTS])
+  gl_PREREQ_SYS_H_WINSOCK2
+
+  dnl Where is gethostname() defined?
+  dnl - On native Windows, it is in ws2_32.dll.
+  dnl - Otherwise is is in libc.
+  GETHOSTNAME_LIB=
+  AC_CHECK_FUNCS([gethostname], , [
+    AC_CACHE_CHECK([for gethostname in winsock2.h and -lws2_32],
+      [gl_cv_w32_gethostname],
+      [gl_cv_w32_gethostname=no
+       gl_save_LIBS="$LIBS"
+       LIBS="$LIBS -lws2_32"
+       AC_TRY_LINK([
+#ifdef HAVE_WINSOCK2_H
+#include <winsock2.h>
+#endif
+#include <stddef.h>
+], [gethostname(NULL, 0);], [gl_cv_w32_gethostname=yes])
+       LIBS="$gl_save_LIBS"
+      ])
+    if test "$gl_cv_w32_gethostname" = "yes"; then
+      GETHOSTNAME_LIB="-lws2_32"
+    fi
+  ])
+  AC_SUBST([GETHOSTNAME_LIB])
+
+  if test "$ac_cv_func_gethostname" = no; then
+    AC_LIBOBJ([gethostname])
+    HAVE_GETHOSTNAME=0
+    gl_PREREQ_GETHOSTNAME
+  fi
+
+  dnl Also provide HOST_NAME_MAX when <limits.h> lacks it.
+  if test "$gl_cv_w32_gethostname" = "yes"; then
+    # <http://msdn.microsoft.com/en-us/library/ms738527.aspx> says:
+    # "if a buffer of 256 bytes is passed in the name parameter and
+    # the namelen parameter is set to 256, the buffer size will always
+    # be adequate."
+    AC_DEFINE([HOST_NAME_MAX], [256],
+      [Define HOST_NAME_MAX when <limits.h> does not define it.])
+  fi
+])
+
+# Prerequisites of lib/gethostname.c.
+AC_DEFUN([gl_PREREQ_GETHOSTNAME], [
+  if test "$gl_cv_w32_gethostname" != "yes"; then
+    AC_CHECK_FUNCS([uname])
+  fi
+])
+
+# DO NOT EDIT! GENERATED AUTOMATICALLY!
+# Copyright (C) 2002-2009 Free Software Foundation, Inc.
+#
+# This file is free software, distributed under the terms of the GNU
+# General Public License.  As a special exception to the GNU General
+# Public License, this file may be distributed as part of a program
+# that contains a configuration script generated by Autoconf, under
+# the same distribution terms as the rest of that program.
+#
+# Generated by gnulib-tool.
+#
+# This file represents the compiled summary of the specification in
+# gnulib-cache.m4. It lists the computed macro invocations that need
+# to be invoked from configure.ac.
+# In projects using CVS, this file can be treated like other built files.
+
+
+# This macro should be invoked from ./configure.ac, in the section
+# "Checks for programs", right after AC_PROG_CC, and certainly before
+# any checks for libraries, header files, types and library functions.
+AC_DEFUN([sc_gl_EARLY],
+[
+  m4_pattern_forbid([^gl_[A-Z]])dnl the gnulib macro namespace
+  m4_pattern_allow([^gl_ES$])dnl a valid locale name
+  m4_pattern_allow([^gl_LIBOBJS$])dnl a variable
+  m4_pattern_allow([^gl_LTLIBOBJS$])dnl a variable
+  AC_REQUIRE([AC_PROG_RANLIB])
+])
+
+# This macro should be invoked from ./configure.ac, in the section
+# "Check for header files, types and library functions".
+AC_DEFUN([sc_gl_INIT],
+[
+  AM_CONDITIONAL([GL_COND_LIBTOOL], [false])
+  gl_cond_libtool=false
+  gl_libdeps=
+  gl_ltlibdeps=
+  m4_pushdef([AC_LIBOBJ], m4_defn([sc_gl_LIBOBJ]))
+  m4_pushdef([AC_REPLACE_FUNCS], m4_defn([sc_gl_REPLACE_FUNCS]))
+  m4_pushdef([AC_LIBSOURCES], m4_defn([sc_gl_LIBSOURCES]))
+  m4_pushdef([sc_gl_LIBSOURCES_LIST], [])
+  m4_pushdef([sc_gl_LIBSOURCES_DIR], [])
+  gl_COMMON
+  gl_source_base='modules/syscalls/gllib'
+  gl_HEADER_ERRNO_H
+  gl_FUNC_GETHOSTNAME
+  gl_UNISTD_MODULE_INDICATOR([gethostname])
+  gl_FUNC_MBRLEN
+  gl_WCHAR_MODULE_INDICATOR([mbrlen])
+  gl_FUNC_MKTIME
+  gl_MULTIARCH
+  gl_SOCKETS
+  gl_STRCASE
+  gl_FUNC_GNU_STRFTIME
+  gl_HEADER_STRINGS_H
+  gl_FUNC_STRPTIME
+  gl_HEADER_SYS_SOCKET
+  AC_PROG_MKDIR_P
+  gl_SYS_UTSNAME_H
+  AC_PROG_MKDIR_P
+  gl_HEADER_TIME_H
+  gl_TIME_R
+  gl_FUNC_UNAME
+  gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
+  m4_ifval(sc_gl_LIBSOURCES_LIST, [
+    m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
+      for gl_file in ]sc_gl_LIBSOURCES_LIST[ ; do
+        if test ! -r ]m4_defn([sc_gl_LIBSOURCES_DIR])[/$gl_file ; then
+          echo "missing file ]m4_defn([sc_gl_LIBSOURCES_DIR])[/$gl_file" >&2
+          exit 1
+        fi
+      done])dnl
+      m4_if(m4_sysval, [0], [],
+        [AC_FATAL([expected source file, required through AC_LIBSOURCES, not found])])
+  ])
+  m4_popdef([sc_gl_LIBSOURCES_DIR])
+  m4_popdef([sc_gl_LIBSOURCES_LIST])
+  m4_popdef([AC_LIBSOURCES])
+  m4_popdef([AC_REPLACE_FUNCS])
+  m4_popdef([AC_LIBOBJ])
+  AC_CONFIG_COMMANDS_PRE([
+    sc_gl_libobjs=
+    sc_gl_ltlibobjs=
+    if test -n "$sc_gl_LIBOBJS"; then
+      # Remove the extension.
+      sed_drop_objext='s/\.o$//;s/\.obj$//'
+      for i in `for i in $sc_gl_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+        sc_gl_libobjs="$sc_gl_libobjs $i.$ac_objext"
+        sc_gl_ltlibobjs="$sc_gl_ltlibobjs $i.lo"
+      done
+    fi
+    AC_SUBST([sc_gl_LIBOBJS], [$sc_gl_libobjs])
+    AC_SUBST([sc_gl_LTLIBOBJS], [$sc_gl_ltlibobjs])
+  ])
+  gltests_libdeps=
+  gltests_ltlibdeps=
+  m4_pushdef([AC_LIBOBJ], m4_defn([sc_gltests_LIBOBJ]))
+  m4_pushdef([AC_REPLACE_FUNCS], m4_defn([sc_gltests_REPLACE_FUNCS]))
+  m4_pushdef([AC_LIBSOURCES], m4_defn([sc_gltests_LIBSOURCES]))
+  m4_pushdef([sc_gltests_LIBSOURCES_LIST], [])
+  m4_pushdef([sc_gltests_LIBSOURCES_DIR], [])
+  gl_COMMON
+  gl_source_base='tests'
+  m4_ifval(sc_gltests_LIBSOURCES_LIST, [
+    m4_syscmd([test ! -d ]m4_defn([sc_gltests_LIBSOURCES_DIR])[ ||
+      for gl_file in ]sc_gltests_LIBSOURCES_LIST[ ; do
+        if test ! -r ]m4_defn([sc_gltests_LIBSOURCES_DIR])[/$gl_file ; then
+          echo "missing file ]m4_defn([sc_gltests_LIBSOURCES_DIR])[/$gl_file" >&2
+          exit 1
+        fi
+      done])dnl
+      m4_if(m4_sysval, [0], [],
+        [AC_FATAL([expected source file, required through AC_LIBSOURCES, not found])])
+  ])
+  m4_popdef([sc_gltests_LIBSOURCES_DIR])
+  m4_popdef([sc_gltests_LIBSOURCES_LIST])
+  m4_popdef([AC_LIBSOURCES])
+  m4_popdef([AC_REPLACE_FUNCS])
+  m4_popdef([AC_LIBOBJ])
+  AC_CONFIG_COMMANDS_PRE([
+    sc_gltests_libobjs=
+    sc_gltests_ltlibobjs=
+    if test -n "$sc_gltests_LIBOBJS"; then
+      # Remove the extension.
+      sed_drop_objext='s/\.o$//;s/\.obj$//'
+      for i in `for i in $sc_gltests_LIBOBJS; do echo "$i"; done | sed "$sed_drop_objext" | sort | uniq`; do
+        sc_gltests_libobjs="$sc_gltests_libobjs $i.$ac_objext"
+        sc_gltests_ltlibobjs="$sc_gltests_ltlibobjs $i.lo"
+      done
+    fi
+    AC_SUBST([sc_gltests_LIBOBJS], [$sc_gltests_libobjs])
+    AC_SUBST([sc_gltests_LTLIBOBJS], [$sc_gltests_ltlibobjs])
+  ])
+  LIBGNU_LIBDEPS="$gl_libdeps"
+  AC_SUBST([LIBGNU_LIBDEPS])
+  LIBGNU_LTLIBDEPS="$gl_ltlibdeps"
+  AC_SUBST([LIBGNU_LTLIBDEPS])
+])
+
+# Like AC_LIBOBJ, except that the module name goes
+# into sc_gl_LIBOBJS instead of into LIBOBJS.
+AC_DEFUN([sc_gl_LIBOBJ], [
+  AS_LITERAL_IF([$1], [sc_gl_LIBSOURCES([$1.c])])dnl
+  sc_gl_LIBOBJS="$sc_gl_LIBOBJS $1.$ac_objext"
+])
+
+# Like AC_REPLACE_FUNCS, except that the module name goes
+# into sc_gl_LIBOBJS instead of into LIBOBJS.
+AC_DEFUN([sc_gl_REPLACE_FUNCS], [
+  m4_foreach_w([gl_NAME], [$1], [AC_LIBSOURCES(gl_NAME[.c])])dnl
+  AC_CHECK_FUNCS([$1], , [sc_gl_LIBOBJ($ac_func)])
+])
+
+# Like AC_LIBSOURCES, except the directory where the source file is
+# expected is derived from the gnulib-tool parameterization,
+# and alloca is special cased (for the alloca-opt module).
+# We could also entirely rely on EXTRA_lib..._SOURCES.
+AC_DEFUN([sc_gl_LIBSOURCES], [
+  m4_foreach([_gl_NAME], [$1], [
+    m4_if(_gl_NAME, [alloca.c], [], [
+      m4_define([sc_gl_LIBSOURCES_DIR], [modules/syscalls/gllib])
+      m4_append([sc_gl_LIBSOURCES_LIST], _gl_NAME, [ ])
+    ])
+  ])
+])
+
+# Like AC_LIBOBJ, except that the module name goes
+# into sc_gltests_LIBOBJS instead of into LIBOBJS.
+AC_DEFUN([sc_gltests_LIBOBJ], [
+  AS_LITERAL_IF([$1], [sc_gltests_LIBSOURCES([$1.c])])dnl
+  sc_gltests_LIBOBJS="$sc_gltests_LIBOBJS $1.$ac_objext"
+])
+
+# Like AC_REPLACE_FUNCS, except that the module name goes
+# into sc_gltests_LIBOBJS instead of into LIBOBJS.
+AC_DEFUN([sc_gltests_REPLACE_FUNCS], [
+  m4_foreach_w([gl_NAME], [$1], [AC_LIBSOURCES(gl_NAME[.c])])dnl
+  AC_CHECK_FUNCS([$1], , [sc_gltests_LIBOBJ($ac_func)])
+])
+
+# Like AC_LIBSOURCES, except the directory where the source file is
+# expected is derived from the gnulib-tool parameterization,
+# and alloca is special cased (for the alloca-opt module).
+# We could also entirely rely on EXTRA_lib..._SOURCES.
+AC_DEFUN([sc_gltests_LIBSOURCES], [
+  m4_foreach([_gl_NAME], [$1], [
+    m4_if(_gl_NAME, [alloca.c], [], [
+      m4_define([sc_gltests_LIBSOURCES_DIR], [tests])
+      m4_append([sc_gltests_LIBSOURCES_LIST], _gl_NAME, [ ])
+    ])
+  ])
+])
+
+# This macro records the list of files which have been installed by
+# gnulib-tool and may be removed by future gnulib-tool invocations.
+AC_DEFUN([sc_gl_FILE_LIST], [
+  build-aux/link-warning.h
+  lib/alignof.h
+  lib/close-hook.c
+  lib/close-hook.h
+  lib/errno.in.h
+  lib/gethostname.c
+  lib/mbrlen.c
+  lib/mktime.c
+  lib/sockets.c
+  lib/sockets.h
+  lib/strcasecmp.c
+  lib/strftime.c
+  lib/strftime.h
+  lib/strings.in.h
+  lib/strncasecmp.c
+  lib/strptime.c
+  lib/sys_socket.in.h
+  lib/sys_utsname.in.h
+  lib/time.in.h
+  lib/time_r.c
+  lib/uname.c
+  lib/w32sock.h
+  m4/00gnulib.m4
+  m4/errno_h.m4
+  m4/gethostname.m4
+  m4/gnulib-common.m4
+  m4/mbrlen.m4
+  m4/mbstate_t.m4
+  m4/mktime.m4
+  m4/multiarch.m4
+  m4/sockets.m4
+  m4/sockpfaf.m4
+  m4/strcase.m4
+  m4/strftime.m4
+  m4/strings_h.m4
+  m4/strptime.m4
+  m4/sys_socket_h.m4
+  m4/sys_utsname_h.m4
+  m4/time_h.m4
+  m4/time_r.m4
+  m4/tm_gmtoff.m4
+  m4/uname.m4
+])
+
+# mbrlen.m4 serial 2
+dnl Copyright (C) 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_MBRLEN],
+[
+  AC_REQUIRE([gl_WCHAR_H_DEFAULTS])
+
+  AC_REQUIRE([AC_TYPE_MBSTATE_T])
+  AC_REQUIRE([gl_FUNC_MBRTOWC])
+  AC_CHECK_FUNCS_ONCE([mbrlen])
+  if test $ac_cv_func_mbrlen = no; then
+    HAVE_MBRLEN=0
+  else
+    dnl Most bugs affecting the system's mbrtowc function also affect the
+    dnl mbrlen function. So override mbrlen whenever mbrtowc is overridden.
+    dnl We could also run the individual tests below; the results would be
+    dnl the same.
+    if test $REPLACE_MBRTOWC = 1; then
+      REPLACE_MBRLEN=1
+    fi
+  fi
+  if test $HAVE_MBRLEN = 0 || test $REPLACE_MBRLEN = 1; then
+    gl_REPLACE_WCHAR_H
+    AC_LIBOBJ([mbrlen])
+    gl_PREREQ_MBRLEN
+  fi
+])
+
+dnl Test whether mbrlen puts the state into non-initial state when parsing an
+dnl incomplete multibyte character.
+dnl Result is gl_cv_func_mbrlen_incomplete_state.
+
+AC_DEFUN([gl_MBRLEN_INCOMPLETE_STATE],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_JA])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrlen handles incomplete characters],
+    [gl_cv_func_mbrlen_incomplete_state],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+              # Guess no on AIX and OSF/1.
+        osf*) gl_cv_func_mbrlen_incomplete_state="guessing no" ;;
+              # Guess yes otherwise.
+        *)    gl_cv_func_mbrlen_incomplete_state="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_JA != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      const char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrlen (input + 1, 1, &state) == (size_t)(-2))
+        if (mbsinit (&state))
+          return 1;
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrlen_incomplete_state=yes],
+          [gl_cv_func_mbrlen_incomplete_state=no],
+          [])
+      fi
+    ])
+])
+
+dnl Test whether mbrlen, when parsing the end of a multibyte character,
+dnl correctly returns the number of bytes that were needed to complete the
+dnl character (not the total number of bytes of the multibyte character).
+dnl Result is gl_cv_func_mbrlen_retval.
+
+AC_DEFUN([gl_MBRLEN_RETVAL],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_FR_UTF8])
+  AC_REQUIRE([gt_LOCALE_JA])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrlen has a correct return value],
+    [gl_cv_func_mbrlen_retval],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+                          # Guess no on HP-UX and Solaris.
+        hpux* | solaris*) gl_cv_func_mbrlen_retval="guessing no" ;;
+                          # Guess yes otherwise.
+        *)                gl_cv_func_mbrlen_retval="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_FR_UTF8 != none || test $LOCALE_JA != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This fails on Solaris.  */
+  if (setlocale (LC_ALL, "$LOCALE_FR_UTF8") != NULL)
+    {
+      char input[] = "B\303\274\303\237er"; /* "Büßer" */
+      mbstate_t state;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrlen (input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrlen (input + 2, 5, &state) != 1)
+            return 1;
+        }
+    }
+  /* This fails on HP-UX 11.11.  */
+  if (setlocale (LC_ALL, "$LOCALE_JA") != NULL)
+    {
+      char input[] = "B\217\253\344\217\251\316er"; /* "Büßer" */
+      mbstate_t state;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrlen (input + 1, 1, &state) == (size_t)(-2))
+        {
+          input[1] = '\0';
+          if (mbrlen (input + 2, 5, &state) != 2)
+            return 1;
+        }
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrlen_retval=yes],
+          [gl_cv_func_mbrlen_retval=no],
+          [])
+      fi
+    ])
+])
+
+dnl Test whether mbrlen, when parsing a NUL character, correctly returns 0.
+dnl Result is gl_cv_func_mbrlen_nul_retval.
+
+AC_DEFUN([gl_MBRLEN_NUL_RETVAL],
+[
+  AC_REQUIRE([AC_PROG_CC])
+  AC_REQUIRE([gt_LOCALE_ZH_CN])
+  AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
+  AC_CACHE_CHECK([whether mbrlen returns 0 when parsing a NUL character],
+    [gl_cv_func_mbrlen_nul_retval],
+    [
+      dnl Initial guess, used when cross-compiling or when no suitable locale
+      dnl is present.
+changequote(,)dnl
+      case "$host_os" in
+                    # Guess no on Solaris 9.
+        solaris2.9) gl_cv_func_mbrlen_nul_retval="guessing no" ;;
+                    # Guess yes otherwise.
+        *)          gl_cv_func_mbrlen_nul_retval="guessing yes" ;;
+      esac
+changequote([,])dnl
+      if test $LOCALE_ZH_CN != none; then
+        AC_TRY_RUN([
+#include <locale.h>
+#include <string.h>
+#include <wchar.h>
+int main ()
+{
+  /* This crashes on Solaris 9 inside __mbrtowc_dense_gb18030.  */
+  if (setlocale (LC_ALL, "$LOCALE_ZH_CN") != NULL)
+    {
+      mbstate_t state;
+
+      memset (&state, '\0', sizeof (mbstate_t));
+      if (mbrlen ("", 1, &state) != 0)
+        return 1;
+    }
+  return 0;
+}],
+          [gl_cv_func_mbrlen_nul_retval=yes],
+          [gl_cv_func_mbrlen_nul_retval=no],
+          [])
+      fi
+    ])
+])
+
+# Prerequisites of lib/mbrlen.c.
+AC_DEFUN([gl_PREREQ_MBRLEN], [
+  :
+])
+
+# serial 15
+dnl Copyright (C) 2002-2003, 2005-2007, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Jim Meyering.
+
+# Redefine AC_FUNC_MKTIME, to fix a bug in Autoconf 2.61a and earlier.
+# This redefinition can be removed once a new version of Autoconf is assumed.
+# The redefinition is taken from
+# <http://cvs.sv.gnu.org/viewcvs/*checkout*/autoconf/autoconf/lib/autoconf/functions.m4?rev=1.119>.
+# AC_FUNC_MKTIME
+# --------------
+AC_DEFUN([AC_FUNC_MKTIME],
+[AC_CHECK_HEADERS_ONCE([unistd.h])
+AC_CHECK_FUNCS_ONCE([alarm])
+AC_REQUIRE([gl_MULTIARCH])
+if test $APPLE_UNIVERSAL_BUILD = 1; then
+  # A universal build on Apple MacOS X platforms.
+  # The test result would be 'yes' in 32-bit mode and 'no' in 64-bit mode.
+  # But we need a configuration result that is valid in both modes.
+  ac_cv_func_working_mktime=no
+fi
+AC_CACHE_CHECK([for working mktime], [ac_cv_func_working_mktime],
+[AC_RUN_IFELSE([AC_LANG_SOURCE(
+[[/* Test program from Paul Eggert and Tony Leneis.  */
+#include <limits.h>
+#include <stdlib.h>
+#include <time.h>
+
+#ifdef HAVE_UNISTD_H
+# include <unistd.h>
+#endif
+
+#ifndef HAVE_ALARM
+# define alarm(X) /* empty */
+#endif
+
+/* Work around redefinition to rpl_putenv by other config tests.  */
+#undef putenv
+
+static time_t time_t_max;
+static time_t time_t_min;
+
+/* Values we'll use to set the TZ environment variable.  */
+static char *tz_strings[] = {
+  (char *) 0, "TZ=GMT0", "TZ=JST-9",
+  "TZ=EST+3EDT+2,M10.1.0/00:00:00,M2.3.0/00:00:00"
+};
+#define N_STRINGS (sizeof (tz_strings) / sizeof (tz_strings[0]))
+
+/* Return 0 if mktime fails to convert a date in the spring-forward gap.
+   Based on a problem report from Andreas Jaeger.  */
+static int
+spring_forward_gap ()
+{
+  /* glibc (up to about 1998-10-07) failed this test. */
+  struct tm tm;
+
+  /* Use the portable POSIX.1 specification "TZ=PST8PDT,M4.1.0,M10.5.0"
+     instead of "TZ=America/Vancouver" in order to detect the bug even
+     on systems that don't support the Olson extension, or don't have the
+     full zoneinfo tables installed.  */
+  putenv ("TZ=PST8PDT,M4.1.0,M10.5.0");
+
+  tm.tm_year = 98;
+  tm.tm_mon = 3;
+  tm.tm_mday = 5;
+  tm.tm_hour = 2;
+  tm.tm_min = 0;
+  tm.tm_sec = 0;
+  tm.tm_isdst = -1;
+  return mktime (&tm) != (time_t) -1;
+}
+
+static int
+mktime_test1 (time_t now)
+{
+  struct tm *lt;
+  return ! (lt = localtime (&now)) || mktime (lt) == now;
+}
+
+static int
+mktime_test (time_t now)
+{
+  return (mktime_test1 (now)
+	  && mktime_test1 ((time_t) (time_t_max - now))
+	  && mktime_test1 ((time_t) (time_t_min + now)));
+}
+
+static int
+irix_6_4_bug ()
+{
+  /* Based on code from Ariel Faigon.  */
+  struct tm tm;
+  tm.tm_year = 96;
+  tm.tm_mon = 3;
+  tm.tm_mday = 0;
+  tm.tm_hour = 0;
+  tm.tm_min = 0;
+  tm.tm_sec = 0;
+  tm.tm_isdst = -1;
+  mktime (&tm);
+  return tm.tm_mon == 2 && tm.tm_mday == 31;
+}
+
+static int
+bigtime_test (int j)
+{
+  struct tm tm;
+  time_t now;
+  tm.tm_year = tm.tm_mon = tm.tm_mday = tm.tm_hour = tm.tm_min = tm.tm_sec = j;
+  now = mktime (&tm);
+  if (now != (time_t) -1)
+    {
+      struct tm *lt = localtime (&now);
+      if (! (lt
+	     && lt->tm_year == tm.tm_year
+	     && lt->tm_mon == tm.tm_mon
+	     && lt->tm_mday == tm.tm_mday
+	     && lt->tm_hour == tm.tm_hour
+	     && lt->tm_min == tm.tm_min
+	     && lt->tm_sec == tm.tm_sec
+	     && lt->tm_yday == tm.tm_yday
+	     && lt->tm_wday == tm.tm_wday
+	     && ((lt->tm_isdst < 0 ? -1 : 0 < lt->tm_isdst)
+		  == (tm.tm_isdst < 0 ? -1 : 0 < tm.tm_isdst))))
+	return 0;
+    }
+  return 1;
+}
+
+static int
+year_2050_test ()
+{
+  /* The correct answer for 2050-02-01 00:00:00 in Pacific time,
+     ignoring leap seconds.  */
+  unsigned long int answer = 2527315200UL;
+
+  struct tm tm;
+  time_t t;
+  tm.tm_year = 2050 - 1900;
+  tm.tm_mon = 2 - 1;
+  tm.tm_mday = 1;
+  tm.tm_hour = tm.tm_min = tm.tm_sec = 0;
+  tm.tm_isdst = -1;
+
+  /* Use the portable POSIX.1 specification "TZ=PST8PDT,M4.1.0,M10.5.0"
+     instead of "TZ=America/Vancouver" in order to detect the bug even
+     on systems that don't support the Olson extension, or don't have the
+     full zoneinfo tables installed.  */
+  putenv ("TZ=PST8PDT,M4.1.0,M10.5.0");
+
+  t = mktime (&tm);
+
+  /* Check that the result is either a failure, or close enough
+     to the correct answer that we can assume the discrepancy is
+     due to leap seconds.  */
+  return (t == (time_t) -1
+	  || (0 < t && answer - 120 <= t && t <= answer + 120));
+}
+
+int
+main ()
+{
+  time_t t, delta;
+  int i, j;
+
+  /* This test makes some buggy mktime implementations loop.
+     Give up after 60 seconds; a mktime slower than that
+     isn't worth using anyway.  */
+  alarm (60);
+
+  for (;;)
+    {
+      t = (time_t_max << 1) + 1;
+      if (t <= time_t_max)
+	break;
+      time_t_max = t;
+    }
+  time_t_min = - ((time_t) ~ (time_t) 0 == (time_t) -1) - time_t_max;
+
+  delta = time_t_max / 997; /* a suitable prime number */
+  for (i = 0; i < N_STRINGS; i++)
+    {
+      if (tz_strings[i])
+	putenv (tz_strings[i]);
+
+      for (t = 0; t <= time_t_max - delta; t += delta)
+	if (! mktime_test (t))
+	  return 1;
+      if (! (mktime_test ((time_t) 1)
+	     && mktime_test ((time_t) (60 * 60))
+	     && mktime_test ((time_t) (60 * 60 * 24))))
+	return 1;
+
+      for (j = 1; ; j <<= 1)
+	if (! bigtime_test (j))
+	  return 1;
+	else if (INT_MAX / 2 < j)
+	  break;
+      if (! bigtime_test (INT_MAX))
+	return 1;
+    }
+  return ! (irix_6_4_bug () && spring_forward_gap () && year_2050_test ());
+}]])],
+	       [ac_cv_func_working_mktime=yes],
+	       [ac_cv_func_working_mktime=no],
+	       [ac_cv_func_working_mktime=no])])
+if test $ac_cv_func_working_mktime = no; then
+  AC_LIBOBJ([mktime])
+fi
+])# AC_FUNC_MKTIME
+
+AC_DEFUN([gl_FUNC_MKTIME],
+[
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_FUNC_MKTIME
+  dnl Note: AC_FUNC_MKTIME does AC_LIBOBJ([mktime]).
+  if test $ac_cv_func_working_mktime = no; then
+    REPLACE_MKTIME=1
+    gl_PREREQ_MKTIME
+  else
+    REPLACE_MKTIME=0
+  fi
+])
+
+# Prerequisites of lib/mktime.c.
+AC_DEFUN([gl_PREREQ_MKTIME],
+[
+  AC_REQUIRE([AC_C_INLINE])
+])
+
+# sockets.m4 serial 5
+dnl Copyright (C) 2008, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_SOCKETS],
+[
+  AC_REQUIRE([AC_C_INLINE])
+
+  gl_PREREQ_SYS_H_WINSOCK2 dnl for HAVE_WINSOCK2_H
+  LIBSOCKET=
+  if test $HAVE_WINSOCK2_H = 1; then
+    dnl Native Windows API (not Cygwin).
+    AC_CACHE_CHECK([if we need to call WSAStartup in winsock2.h and -lws2_32],
+                   [gl_cv_func_wsastartup], [
+      gl_save_LIBS="$LIBS"
+      LIBS="$LIBS -lws2_32"
+      AC_TRY_LINK([
+#ifdef HAVE_WINSOCK2_H
+# include <winsock2.h>
+#endif], [
+        WORD wVersionRequested = MAKEWORD(1, 1);
+        WSADATA wsaData;
+        int err = WSAStartup(wVersionRequested, &wsaData);
+        WSACleanup ();],
+        gl_cv_func_wsastartup=yes, gl_cv_func_wsastartup=no)
+      LIBS="$gl_save_LIBS"
+    ])
+    if test "$gl_cv_func_wsastartup" = "yes"; then
+      AC_DEFINE([WINDOWS_SOCKETS], [1], [Define if WSAStartup is needed.])
+      LIBSOCKET='-lws2_32'
+    fi
+  else
+    dnl Unix API.
+    dnl Solaris has most socket functions in libsocket.
+    dnl Haiku has most socket functions in libnetwork.
+    dnl BeOS has most socket functions in libnet.
+    AC_CACHE_CHECK([for library containing setsockopt], [gl_cv_lib_socket], [
+      gl_cv_lib_socket=
+      AC_TRY_LINK([extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();], [setsockopt();],
+        [],
+        [gl_save_LIBS="$LIBS"
+         LIBS="$gl_save_LIBS -lsocket"
+         AC_TRY_LINK([extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();], [setsockopt();],
+           [gl_cv_lib_socket="-lsocket"])
+         if test -z "$gl_cv_lib_socket"; then
+           LIBS="$gl_save_LIBS -lnetwork"
+           AC_TRY_LINK([extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();], [setsockopt();],
+             [gl_cv_lib_socket="-lnetwork"])
+           if test -z "$gl_cv_lib_socket"; then
+             LIBS="$gl_save_LIBS -lnet"
+             AC_TRY_LINK([extern
+#ifdef __cplusplus
+"C"
+#endif
+char setsockopt();], [setsockopt();],
+               [gl_cv_lib_socket="-lnet"])
+           fi
+         fi
+         LIBS="$gl_save_LIBS"
+        ])
+      if test -z "$gl_cv_lib_socket"; then
+        gl_cv_lib_socket="none needed"
+      fi
+    ])
+    if test "$gl_cv_lib_socket" != "none needed"; then
+      LIBSOCKET="$gl_cv_lib_socket"
+    fi
+  fi
+  AC_SUBST([LIBSOCKET])
+  gl_PREREQ_SOCKETS
+])
+
+# Prerequisites of lib/sockets.c.
+AC_DEFUN([gl_PREREQ_SOCKETS], [
+  :
+])
+
+# strcase.m4 serial 10
+dnl Copyright (C) 2002, 2005-2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_STRCASE],
+[
+  gl_FUNC_STRCASECMP
+  gl_FUNC_STRNCASECMP
+])
+
+AC_DEFUN([gl_FUNC_STRCASECMP],
+[
+  AC_REQUIRE([gl_HEADER_STRINGS_H_DEFAULTS])
+  AC_REPLACE_FUNCS([strcasecmp])
+  if test $ac_cv_func_strcasecmp = no; then
+    HAVE_STRCASECMP=0
+    gl_PREREQ_STRCASECMP
+  fi
+])
+
+AC_DEFUN([gl_FUNC_STRNCASECMP],
+[
+  AC_REQUIRE([gl_HEADER_STRINGS_H_DEFAULTS])
+  AC_REPLACE_FUNCS([strncasecmp])
+  if test $ac_cv_func_strncasecmp = no; then
+    gl_PREREQ_STRNCASECMP
+  fi
+  AC_CHECK_DECLS([strncasecmp])
+  if test $ac_cv_have_decl_strncasecmp = no; then
+    HAVE_DECL_STRNCASECMP=0
+  fi
+])
+
+# Prerequisites of lib/strcasecmp.c.
+AC_DEFUN([gl_PREREQ_STRCASECMP], [
+  :
+])
+
+# Prerequisites of lib/strncasecmp.c.
+AC_DEFUN([gl_PREREQ_STRNCASECMP], [
+  :
+])
+
+# serial 32
+
+# Copyright (C) 1996, 1997, 1999, 2000, 2001, 2002, 2003, 2004, 2005,
+# 2006, 2007, 2009 Free Software Foundation, Inc.
+#
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Jim Meyering and Paul Eggert.
+
+AC_DEFUN([gl_FUNC_GNU_STRFTIME],
+[
+  gl_FUNC_STRFTIME
+])
+
+# These are the prerequisite macros for GNU's strftime.c replacement.
+AC_DEFUN([gl_FUNC_STRFTIME],
+[
+ AC_LIBOBJ([strftime])
+
+ # This defines (or not) HAVE_TZNAME and HAVE_TM_ZONE.
+ AC_REQUIRE([AC_STRUCT_TIMEZONE])
+
+ AC_REQUIRE([AC_TYPE_MBSTATE_T])
+ AC_REQUIRE([gl_TM_GMTOFF])
+
+ AC_CHECK_FUNCS_ONCE([tzset])
+ AC_CHECK_HEADERS_ONCE([wchar.h])
+
+ AC_DEFINE([my_strftime], [nstrftime],
+   [Define to the name of the strftime replacement function.])
+])
+
+# Configure a replacement for <string.h>.
+
+# Copyright (C) 2007 Free Software Foundation, Inc.
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_HEADER_STRINGS_H],
+[
+  dnl Use AC_REQUIRE here, so that the default behavior below is expanded
+  dnl once only, before all statements that occur in other macros.
+  AC_REQUIRE([gl_HEADER_STRINGS_H_BODY])
+])
+
+AC_DEFUN([gl_HEADER_STRINGS_H_BODY],
+[
+  AC_REQUIRE([gl_HEADER_STRINGS_H_DEFAULTS])
+  gl_CHECK_NEXT_HEADERS([strings.h])
+])
+
+AC_DEFUN([gl_STRINGS_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_HEADER_STRINGS_H_DEFAULTS])
+  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+])
+
+AC_DEFUN([gl_HEADER_STRINGS_H_DEFAULTS],
+[
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_STRCASECMP=1;       AC_SUBST([HAVE_STRCASECMP])
+  HAVE_DECL_STRNCASECMP=1; AC_SUBST([HAVE_DECL_STRNCASECMP])
+])
+
+# strptime.m4 serial 5
+dnl Copyright (C) 2007, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_STRPTIME],
+[
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_REPLACE_FUNCS([strptime])
+  AC_REQUIRE([gl_TM_GMTOFF])
+  if test $ac_cv_func_strptime = yes; then
+    REPLACE_STRPTIME=0
+  else
+    REPLACE_STRPTIME=1
+  fi
+])
+
+# sys_socket_h.m4 serial 12
+dnl Copyright (C) 2005-2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl From Simon Josefsson.
+
+AC_DEFUN([gl_HEADER_SYS_SOCKET],
+[
+  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
+  AC_REQUIRE([AC_C_INLINE])
+
+  AC_CACHE_CHECK([whether <sys/socket.h> is self-contained],
+    [gl_cv_header_sys_socket_h_selfcontained],
+    [
+      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/socket.h>]], [[]])],
+        [gl_cv_header_sys_socket_h_selfcontained=yes],
+        [gl_cv_header_sys_socket_h_selfcontained=no])
+    ])
+  if test $gl_cv_header_sys_socket_h_selfcontained = yes; then
+    SYS_SOCKET_H=''
+    dnl If the shutdown function exists, <sys/socket.h> should define
+    dnl SHUT_RD, SHUT_WR, SHUT_RDWR.
+    AC_CHECK_FUNCS([shutdown])
+    if test $ac_cv_func_shutdown = yes; then
+      AC_CACHE_CHECK([whether <sys/socket.h> defines the SHUT_* macros],
+        [gl_cv_header_sys_socket_h_shut],
+        [
+          AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([[#include <sys/socket.h>]],
+               [[int a[] = { SHUT_RD, SHUT_WR, SHUT_RDWR };]])],
+            [gl_cv_header_sys_socket_h_shut=yes],
+            [gl_cv_header_sys_socket_h_shut=no])
+        ])
+      if test $gl_cv_header_sys_socket_h_shut = no; then
+        SYS_SOCKET_H='sys/socket.h'
+      fi
+    fi
+  else
+    SYS_SOCKET_H='sys/socket.h'
+  fi
+  # We need to check for ws2tcpip.h now.
+  gl_PREREQ_SYS_H_SOCKET
+  AC_CHECK_TYPES([struct sockaddr_storage, sa_family_t],,,[
+  /* sys/types.h is not needed according to POSIX, but the
+     sys/socket.h in i386-unknown-freebsd4.10 and
+     powerpc-apple-darwin5.5 required it. */
+#include <sys/types.h>
+#ifdef HAVE_SYS_SOCKET_H
+#include <sys/socket.h>
+#endif
+#ifdef HAVE_WS2TCPIP_H
+#include <ws2tcpip.h>
+#endif
+])
+  if test $ac_cv_type_struct_sockaddr_storage = no; then
+    HAVE_STRUCT_SOCKADDR_STORAGE=0
+    SYS_SOCKET_H='sys/socket.h'
+  fi
+  if test $ac_cv_type_sa_family_t = no; then
+    HAVE_SA_FAMILY_T=0
+    SYS_SOCKET_H='sys/socket.h'
+  fi
+  if test -n "$SYS_SOCKET_H"; then
+    gl_PREREQ_SYS_H_WINSOCK2
+  fi
+  AC_SUBST([SYS_SOCKET_H])
+])
+
+AC_DEFUN([gl_PREREQ_SYS_H_SOCKET],
+[
+  dnl Check prerequisites of the <sys/socket.h> replacement.
+  gl_CHECK_NEXT_HEADERS([sys/socket.h])
+  if test $ac_cv_header_sys_socket_h = yes; then
+    HAVE_SYS_SOCKET_H=1
+    HAVE_WS2TCPIP_H=0
+  else
+    HAVE_SYS_SOCKET_H=0
+    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
+    dnl the check for those headers unconditional; yet cygwin reports
+    dnl that the headers are present but cannot be compiled (since on
+    dnl cygwin, all socket information should come from sys/socket.h).
+    AC_CHECK_HEADERS([ws2tcpip.h])
+    if test $ac_cv_header_ws2tcpip_h = yes; then
+      HAVE_WS2TCPIP_H=1
+    else
+      HAVE_WS2TCPIP_H=0
+    fi
+  fi
+  AC_SUBST([HAVE_SYS_SOCKET_H])
+  AC_SUBST([HAVE_WS2TCPIP_H])
+])
+
+# Common prerequisites of of the <sys/socket.h> replacement and of the
+# <sys/select.h> replacement.
+# Sets and substitutes HAVE_WINSOCK2_H.
+AC_DEFUN([gl_PREREQ_SYS_H_WINSOCK2],
+[
+  m4_ifdef([gl_UNISTD_H_DEFAULTS], [AC_REQUIRE([gl_UNISTD_H_DEFAULTS])])
+  m4_ifdef([gl_SYS_IOCTL_H_DEFAULTS], [AC_REQUIRE([gl_SYS_IOCTL_H_DEFAULTS])])
+  AC_CHECK_HEADERS_ONCE([sys/socket.h])
+  if test $ac_cv_header_sys_socket_h != yes; then
+    dnl We cannot use AC_CHECK_HEADERS_ONCE here, because that would make
+    dnl the check for those headers unconditional; yet cygwin reports
+    dnl that the headers are present but cannot be compiled (since on
+    dnl cygwin, all socket information should come from sys/socket.h).
+    AC_CHECK_HEADERS([winsock2.h])
+  fi
+  if test "$ac_cv_header_winsock2_h" = yes; then
+    HAVE_WINSOCK2_H=1
+    UNISTD_H_HAVE_WINSOCK2_H=1
+    SYS_IOCTL_H_HAVE_WINSOCK2_H=1
+  else
+    HAVE_WINSOCK2_H=0
+  fi
+  AC_SUBST([HAVE_WINSOCK2_H])
+])
+
+AC_DEFUN([gl_SYS_SOCKET_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_SOCKET_H_DEFAULTS])
+  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+])
+
+AC_DEFUN([gl_SYS_SOCKET_H_DEFAULTS],
+[
+  GNULIB_SOCKET=0;      AC_SUBST([GNULIB_SOCKET])
+  GNULIB_CONNECT=0;     AC_SUBST([GNULIB_CONNECT])
+  GNULIB_ACCEPT=0;      AC_SUBST([GNULIB_ACCEPT])
+  GNULIB_BIND=0;        AC_SUBST([GNULIB_BIND])
+  GNULIB_GETPEERNAME=0; AC_SUBST([GNULIB_GETPEERNAME])
+  GNULIB_GETSOCKNAME=0; AC_SUBST([GNULIB_GETSOCKNAME])
+  GNULIB_GETSOCKOPT=0;  AC_SUBST([GNULIB_GETSOCKOPT])
+  GNULIB_LISTEN=0;      AC_SUBST([GNULIB_LISTEN])
+  GNULIB_RECV=0;        AC_SUBST([GNULIB_RECV])
+  GNULIB_SEND=0;        AC_SUBST([GNULIB_SEND])
+  GNULIB_RECVFROM=0;    AC_SUBST([GNULIB_RECVFROM])
+  GNULIB_SENDTO=0;      AC_SUBST([GNULIB_SENDTO])
+  GNULIB_SETSOCKOPT=0;  AC_SUBST([GNULIB_SETSOCKOPT])
+  GNULIB_SHUTDOWN=0;    AC_SUBST([GNULIB_SHUTDOWN])
+  HAVE_STRUCT_SOCKADDR_STORAGE=1; AC_SUBST([HAVE_STRUCT_SOCKADDR_STORAGE])
+  HAVE_SA_FAMILY_T=1;   AC_SUBST([HAVE_SA_FAMILY_T])
+])
+
+# sys_utsname_h.m4 serial 1
+dnl Copyright (C) 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl Written by Bruno Haible.
+
+AC_DEFUN([gl_SYS_UTSNAME_H],
+[
+  dnl Use AC_REQUIRE here, so that the default behavior below is expanded
+  dnl once only, before all statements that occur in other macros.
+  AC_REQUIRE([gl_SYS_UTSNAME_H_DEFAULTS])
+
+  AC_CHECK_HEADERS_ONCE([sys/utsname.h])
+  if test $ac_cv_header_sys_utsname_h != yes; then
+    SYS_UTSNAME_H='sys/utsname.h'
+  fi
+])
+
+AC_DEFUN([gl_SYS_UTSNAME_MODULE_INDICATOR],
+[
+  dnl Use AC_REQUIRE here, so that the default settings are expanded once only.
+  AC_REQUIRE([gl_SYS_UTSNAME_H_DEFAULTS])
+  GNULIB_[]m4_translit([$1],[abcdefghijklmnopqrstuvwxyz./-],[ABCDEFGHIJKLMNOPQRSTUVWXYZ___])=1
+])
+
+AC_DEFUN([gl_SYS_UTSNAME_H_DEFAULTS],
+[
+  GNULIB_UNAME=0;   AC_SUBST([GNULIB_UNAME])
+  dnl Assume proper GNU behavior unless another module says otherwise.
+  HAVE_UNAME=1;     AC_SUBST([HAVE_UNAME])
+  SYS_UTSNAME_H=''; AC_SUBST([SYS_UTSNAME_H])
+])
+
+# Configure a more-standard replacement for <time.h>.
+
+# Copyright (C) 2000-2001, 2003-2007, 2009 Free Software Foundation, Inc.
+
+# This file is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# Written by Paul Eggert and Jim Meyering.
+
+AC_DEFUN([gl_HEADER_TIME_H],
+[
+  dnl Use AC_REQUIRE here, so that the default behavior below is expanded
+  dnl once only, before all statements that occur in other macros.
+  AC_REQUIRE([gl_HEADER_TIME_H_BODY])
+])
+
+AC_DEFUN([gl_HEADER_TIME_H_BODY],
+[
+  AC_REQUIRE([AC_C_RESTRICT])
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  gl_CHECK_NEXT_HEADERS([time.h])
+  AC_REQUIRE([gl_CHECK_TYPE_STRUCT_TIMESPEC])
+])
+
+AC_DEFUN([gl_HEADER_TIME_H_DEFAULTS],
+[
+  dnl If another module says to replace or to not replace, do that.
+  dnl Otherwise, replace only if someone compiles with -DGNULIB_PORTCHECK;
+  dnl this lets maintainers check for portability.
+  REPLACE_LOCALTIME_R=GNULIB_PORTCHECK;  AC_SUBST([REPLACE_LOCALTIME_R])
+  REPLACE_MKTIME=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_MKTIME])
+  REPLACE_NANOSLEEP=GNULIB_PORTCHECK;    AC_SUBST([REPLACE_NANOSLEEP])
+  REPLACE_STRPTIME=GNULIB_PORTCHECK;     AC_SUBST([REPLACE_STRPTIME])
+  REPLACE_TIMEGM=GNULIB_PORTCHECK;       AC_SUBST([REPLACE_TIMEGM])
+])
+
+dnl Define HAVE_STRUCT_TIMESPEC if `struct timespec' is declared
+dnl in time.h or sys/time.h.
+
+AC_DEFUN([gl_CHECK_TYPE_STRUCT_TIMESPEC],
+[
+  AC_CHECK_HEADERS_ONCE([sys/time.h])
+  AC_CACHE_CHECK([for struct timespec in <time.h>],
+    [gl_cv_sys_struct_timespec_in_time_h],
+    [AC_COMPILE_IFELSE(
+       [AC_LANG_PROGRAM(
+	  [[#include <time.h>
+	  ]],
+	  [[static struct timespec x; x.tv_sec = x.tv_nsec;]])],
+       [gl_cv_sys_struct_timespec_in_time_h=yes],
+       [gl_cv_sys_struct_timespec_in_time_h=no])])
+
+  TIME_H_DEFINES_STRUCT_TIMESPEC=0
+  SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=0
+  if test $gl_cv_sys_struct_timespec_in_time_h = yes; then
+    TIME_H_DEFINES_STRUCT_TIMESPEC=1
+  else
+    AC_CACHE_CHECK([for struct timespec in <sys/time.h>],
+      [gl_cv_sys_struct_timespec_in_sys_time_h],
+      [AC_COMPILE_IFELSE(
+	 [AC_LANG_PROGRAM(
+	    [[#include <sys/time.h>
+	    ]],
+	    [[static struct timespec x; x.tv_sec = x.tv_nsec;]])],
+	 [gl_cv_sys_struct_timespec_in_sys_time_h=yes],
+	 [gl_cv_sys_struct_timespec_in_sys_time_h=no])])
+    if test $gl_cv_sys_struct_timespec_in_sys_time_h = yes; then
+      SYS_TIME_H_DEFINES_STRUCT_TIMESPEC=1
+    fi
+  fi
+  AC_SUBST([TIME_H_DEFINES_STRUCT_TIMESPEC])
+  AC_SUBST([SYS_TIME_H_DEFINES_STRUCT_TIMESPEC])
+])
+
+dnl Reentrant time functions like localtime_r.
+
+dnl Copyright (C) 2003, 2006, 2007, 2008 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+dnl Written by Paul Eggert.
+
+AC_DEFUN([gl_TIME_R],
+[
+ dnl Persuade glibc and Solaris <time.h> to declare localtime_r.
+  AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
+
+  AC_REQUIRE([gl_HEADER_TIME_H_DEFAULTS])
+  AC_REQUIRE([AC_C_RESTRICT])
+
+  AC_CACHE_CHECK([whether localtime_r is compatible with its POSIX signature],
+    [gl_cv_time_r_posix],
+    [AC_TRY_COMPILE(
+       [#include <time.h>],
+       [/* We don't need to append 'restrict's to the argument types,
+	   even though the POSIX signature has the 'restrict's,
+	   since C99 says they can't affect type compatibility.  */
+	struct tm * (*ptr) (time_t const *, struct tm *) = localtime_r;
+        if (ptr) return 0;
+        /* Check the return type is a pointer.  On HP-UX 10 it is 'int'.  */
+        *localtime_r (0, 0);],
+       [gl_cv_time_r_posix=yes],
+       [gl_cv_time_r_posix=no])])
+  if test $gl_cv_time_r_posix = yes; then
+    REPLACE_LOCALTIME_R=0
+  else
+    REPLACE_LOCALTIME_R=1
+    AC_LIBOBJ([time_r])
+    gl_PREREQ_TIME_R
+  fi
+])
+
+# Prerequisites of lib/time_r.c.
+AC_DEFUN([gl_PREREQ_TIME_R], [
+  :
+])
+
+# tm_gmtoff.m4 serial 3
+dnl Copyright (C) 2002, 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_TM_GMTOFF],
+[
+ AC_CHECK_MEMBER([struct tm.tm_gmtoff],
+                 [AC_DEFINE([HAVE_TM_GMTOFF], [1],
+                            [Define if struct tm has the tm_gmtoff member.])],
+                 ,
+                 [#include <time.h>])
+])
+
+# uname.m4 serial 10
+dnl Copyright (C) 2009 Free Software Foundation, Inc.
+dnl This file is free software; the Free Software Foundation
+dnl gives unlimited permission to copy and/or distribute it,
+dnl with or without modifications, as long as this notice is preserved.
+
+AC_DEFUN([gl_FUNC_UNAME],
+[
+  AC_REQUIRE([gl_SYS_UTSNAME_H_DEFAULTS])
+  AC_REPLACE_FUNCS([uname])
+  if test $ac_cv_func_uname = no; then
+    HAVE_UNAME=0
+    gl_PREREQ_UNAME
+  fi
+])
+
+# Prerequisites of lib/uname.c.
+AC_DEFUN([gl_PREREQ_UNAME], [
+  :
+])
+
 # DO NOT EDIT! GENERATED AUTOMATICALLY!
 # Copyright (C) 2002-2009 Free Software Foundation, Inc.
 #
