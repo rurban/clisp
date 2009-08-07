@@ -1,5 +1,9 @@
 2009-08-06  Sam Steingold  <sds@gnu.org>
 
+	* configure, makemake.in (with_dynamic_modules): "yes" is now the default
+
+2009-08-06  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-imported): import uname into syscalls
 	* modules/syscalls/calls.c (uname): implement unconditionally
 	* modules/syscalls/posix.lisp (uname): export unconditionally

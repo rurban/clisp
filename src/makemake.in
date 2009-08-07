@@ -54,7 +54,7 @@ options:
        --with-nogettext        static internationalization (en only)
        --without-unicode       no Unicode character set, only 8-bit characters
        --with-dynamic-ffi      a foreign language interface
-       --with-dynamic-modules  dynamic loading of foreign language modules
+       --without-dynamic-modules  no dynamic loading of foreign modules
        --with-threads=FLAVOR   MT [_experimental_!]
                       FLAVOR: POSIX_THREADS SOLARIS_THREADS WIN32_THREADS
        --with-jitc=FLAVOR      use a given Just-In-Time Compiler.
@@ -213,7 +213,7 @@ with_readline=ifpossible # no effect if no libreadline found
 with_gettext=yes         # no effect if no glibc/libintl found
 with_unicode=yes
 with_dynamic_ffi=no      # often set to yes by the toplevel configure
-with_dynamic_modules=no
+with_dynamic_modules=yes
 with_threads=no
 with_gmalloc=no
 # i18n: essential for internationalized programs
