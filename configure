@@ -68,7 +68,7 @@ options: The following options are recognized:
     PACKAGEs available (the default is the opposite of the following):
    --without-ffcall     do not support Foreign Function Interface
                         the default is to support it when available
-   --with-dynamic-modules  support Dynamic Modules
+   --without-dynamic-modules  no Dynamic Modules support
    --without-unicode       no UNICODE support: character=8bit
    --without-readline      do not link with GNU readline
    --with-threads=FLAVOR   support multiple threads in one CLISP image
@@ -457,8 +457,8 @@ do
         subdir_configure_args="$subdir_configure_args $arg"
         do_ffi="yes" ;;
 
-      --with-dynamic-modules | --with-dynamic-modules=yes)
-        makemake_args="--with-dynamic-modules ${makemake_args}" ;;
+      --without-dynamic-modules | --with-dynamic-modules=no)
+        makemake_args="--with-dynamic-modules=no ${makemake_args}" ;;
 
       --with-mingw | --with-no-cygwin | --without-cygwin | --with-cygwin=no)
         CC="${CC:-gcc} -mno-cygwin"; export CC;
