@@ -32,8 +32,8 @@ clisp-module : $(GENERATED)
 calls.m.c: $(srcdir)/calls.c
 	$(CLISP) -C $(INCLUDES)/modprep $< ./
 
-calls.o : calls.m.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c calls.m.c -o calls.o
+calls.o : calls.m.c config.h gllib
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -c $< -o $@
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $< .
@@ -41,7 +41,7 @@ preload.lisp : $(srcdir)/preload.lisp
 am--refresh :
 
 # syscalls relies on src/gllib, so we must also include files in the build dir
-libgnu_sc.a : force
+gllib libgnu_sc.a : force
 	rm -f libgnu_sc.a
 	mkdir -p gllib
 	test -f gllib/Makefile || sh config.status gllib/Makefile depfiles
