@@ -116,8 +116,8 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    For platform specific adjustment of the makefile, take a look at the
    PLATFORMS file.
 
-5. If you wish to build CLISP with add-on modules (see the main INSTALL file
-   for a list), edit Makefile and change the line defining the MODULES variable.
+5. If you wish to build CLISP with add-on modules, edit Makefile and
+   change the line defining the MODULES variable.
    The list of modules included with the distribution is available via
 
          ./configure --help-modules
@@ -204,7 +204,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    /usr/local/lib/clisp) and the manual page into /usr/local/man/man1.
    You may need superuser privileges for this step when installing into
    public directories.
-   If you built with modules (e.g., ./configure --with-module=rawsock)
+   If you built with static modules (./configure --without-dynamic-modules)
    there will be two "linking sets" in /usr/local/lib/clisp/ - "base"
    and "full" (see <http://clisp.cons.org/impnotes.html#modules>).
    You can chose which linking set to run by using "-K" option of clisp
@@ -212,6 +212,7 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
    Note that some modules (i18n, regexp, syscalls and readline at this time)
    are included in the "base" linking set by default,
    see BASE_MODULES in build-dir/Makefile.
+   Other modules can be REQUIREd at run time.
 
 10. If you want other people to benefit from your work, you can make a binary
    distribution of CLISP for your platform which we will distribute.
@@ -237,12 +238,6 @@ Despite this file's location, it is applicable to cygwin and mingw as well.
          ./configure --with-module=rawsock --cbc build-dir
 
     this covers the build process through step 8 (except mod-check).
-    If you want to instal too, do
-
-         ./configure --with-module=rawsock --install build-dir
-
-    su(1) will prompt you for the root password if the installation
-    destination is not writable by you.
 
 
 Additional Information for Maintainers of Binary Packages:

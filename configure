@@ -35,7 +35,6 @@ options: The following options are recognized:
   --version             print the CLISP version and exit
   --config              unix/INSTALL step 3: configuration only
   --cbc                 unix/INSTALL steps 3-8: Configure, Build, Check
-  --install             unix/INSTALL step 9: install
  The following options set installation parameters:
   --srcdir=SRCDIR       sets the source directory to SRCDIR
  The following options are passed to subordinate `configure' scripts:
@@ -87,7 +86,7 @@ options: The following options are recognized:
   --with-gmalloc        use the GNU malloc instead of of the libc one
                         (needed on HP-UX and OpenBSD)
   --edit-config         edit config.lisp with ${EDITOR:-vi} before make
-                        (useful with --cbc and --install)
+                        (useful with --cbc)
 System types:
   --build=BUILD     configure for building on BUILD [guessed]
   --host=HOST       cross-compile to build programs to run on HOST [BUILD]
@@ -103,7 +102,8 @@ cat << \EOP
 Example:
   configure --cbc built-with-gcc
   su bin
-  configure --install built-with-gcc
+  cd built-with-gcc
+  make install
   exit
 Specifying the C compiler:
   If you wish to specify the C compiler that will get used to build
@@ -139,7 +139,6 @@ subdir_configure_args='--disable-option-checking'
 makemake_args=''
 do_config=''
 do_cbc=''
-do_install=''
 argcount=0
 edit_config=''
 
@@ -187,11 +186,6 @@ do
 
       --config | --confi | --conf | --con | --co)
         do_config=1 ;;
-
-      --install | --instal | --insta | --inst | --ins)
-        do_config=1
-        do_cbc=1
-        do_install=1 ;;
 
       --edit-config | --edit-confi | --edit-conf | --edit-con | --edit-co | \
       --edit-c | --edit- | --edit | --edi | --ed)
@@ -505,7 +499,7 @@ $0: Try \`$0 --help'"
 DIRNAME=$POSARG1
 COMPILER=$POSARG2 # deprecated
 
-if test -z "$do_config" -a -z "$do_cbc" -a -z "$do_install"; then
+if test -z "$do_config" -a -z "$do_cbc"; then
   # Default is --config
   do_config=1
 fi
@@ -766,19 +760,4 @@ else
   fi
   make
   make check
-fi
-
-if test -n "$do_install"; then
-  # check whether the destination is writable
-  su=""
-  if touch ${prefix}/abazonk 2>/dev/null ; then
-    rm -f ${prefix}/abazonk
-    if touch ${exec_prefix}/abazonk 2>/dev/null ; then
-      rm -f ${exec_prefix}/abazonk
-    else su="su -c"
-    fi
-  else su="su -c"
-  fi
-  cd "$ABS_DIRNAME"
-  ${su} make install
 fi
