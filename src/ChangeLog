@@ -1,5 +1,15 @@
 2009-08-09  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (GNULIB_CORE): remove unistd, so that it is
+	present in both src/gllib and modules/syscalls/gllib because
+	unistd.h is generated differently depending on whether
+	gethostname (required by uname) is present
+	(GNULIB_USERS): new variable
+	(src/aclocal.m4, MAKEFILE_IN): use it
+	(gnulib-imported): keep the log in gnulib-imported.log
+
+2009-08-09  Sam Steingold  <sds@gnu.org>
+
 	* configure.in: do not call gt_NO_CXX
 	* makemake.in: do not pass $(NO_CXX) to gnulib make
 	* gllib/gettimeofday.c: update from gnulib, now compiles with C++

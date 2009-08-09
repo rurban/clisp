@@ -651,6 +651,57 @@ LIBGNU_LIBDEPS
 LOCALE_FR_UTF8
 LOCALE_ZH_CN
 LOCALE_JA
+HAVE_UNISTD_H
+NEXT_AS_FIRST_DIRECTIVE_UNISTD_H
+NEXT_UNISTD_H
+UNISTD_H_HAVE_WINSOCK2_H
+REPLACE_WRITE
+REPLACE_LSEEK
+REPLACE_LCHOWN
+REPLACE_GETPAGESIZE
+REPLACE_GETCWD
+REPLACE_FCHDIR
+REPLACE_DUP2
+REPLACE_CLOSE
+REPLACE_CHOWN
+HAVE_SYS_PARAM_H
+HAVE_OS_H
+HAVE_DECL_GETLOGIN_R
+HAVE_DECL_ENVIRON
+HAVE_SLEEP
+HAVE_READLINK
+HAVE_LINK
+HAVE_GETUSERSHELL
+HAVE_GETPAGESIZE
+HAVE_GETHOSTNAME
+HAVE_GETDTABLESIZE
+HAVE_GETDOMAINNAME
+HAVE_FTRUNCATE
+HAVE_FSYNC
+HAVE_EUIDACCESS
+HAVE_DUP2
+GNULIB_WRITE
+GNULIB_UNISTD_H_SIGPIPE
+GNULIB_SLEEP
+GNULIB_READLINK
+GNULIB_LSEEK
+GNULIB_LINK
+GNULIB_LCHOWN
+GNULIB_GETUSERSHELL
+GNULIB_GETPAGESIZE
+GNULIB_GETLOGIN_R
+GNULIB_GETHOSTNAME
+GNULIB_GETDTABLESIZE
+GNULIB_GETDOMAINNAME
+GNULIB_GETCWD
+GNULIB_FTRUNCATE
+GNULIB_FSYNC
+GNULIB_FCHDIR
+GNULIB_EUIDACCESS
+GNULIB_ENVIRON
+GNULIB_DUP2
+GNULIB_CLOSE
+GNULIB_CHOWN
 HAVE_RANDOM_H
 NEXT_AS_FIRST_DIRECTIVE_STDLIB_H
 NEXT_STDLIB_H
@@ -1850,6 +1901,7 @@ ac_func_list="$ac_func_list isblank"
 ac_func_list="$ac_func_list iswctype"
 ac_func_list="$ac_func_list wcscoll"
 ac_header_list="$ac_header_list stdlib.h"
+ac_header_list="$ac_header_list unistd.h"
 ac_func_list="$ac_func_list mbsinit"
 ac_func_list="$ac_func_list mbrtowc"
 ac_func_list="$ac_func_list wcrtomb"
@@ -5777,6 +5829,58 @@ $as_echo "$gl_cv_have_include_next" >&6; }
 
 
 
+  GNULIB_CHOWN=0;
+  GNULIB_CLOSE=0;
+  GNULIB_DUP2=0;
+  GNULIB_ENVIRON=0;
+  GNULIB_EUIDACCESS=0;
+  GNULIB_FCHDIR=0;
+  GNULIB_FSYNC=0;
+  GNULIB_FTRUNCATE=0;
+  GNULIB_GETCWD=0;
+  GNULIB_GETDOMAINNAME=0;
+  GNULIB_GETDTABLESIZE=0;
+  GNULIB_GETHOSTNAME=0;
+  GNULIB_GETLOGIN_R=0;
+  GNULIB_GETPAGESIZE=0;
+  GNULIB_GETUSERSHELL=0;
+  GNULIB_LCHOWN=0;
+  GNULIB_LINK=0;
+  GNULIB_LSEEK=0;
+  GNULIB_READLINK=0;
+  GNULIB_SLEEP=0;
+  GNULIB_UNISTD_H_SIGPIPE=0;
+  GNULIB_WRITE=0;
+    HAVE_DUP2=1;
+  HAVE_EUIDACCESS=1;
+  HAVE_FSYNC=1;
+  HAVE_FTRUNCATE=1;
+  HAVE_GETDOMAINNAME=1;
+  HAVE_GETDTABLESIZE=1;
+  HAVE_GETHOSTNAME=1;
+  HAVE_GETPAGESIZE=1;
+  HAVE_GETUSERSHELL=1;
+  HAVE_LINK=1;
+  HAVE_READLINK=1;
+  HAVE_SLEEP=1;
+  HAVE_DECL_ENVIRON=1;
+  HAVE_DECL_GETLOGIN_R=1;
+  HAVE_OS_H=0;
+  HAVE_SYS_PARAM_H=0;
+  REPLACE_CHOWN=0;
+  REPLACE_CLOSE=0;
+  REPLACE_DUP2=0;
+  REPLACE_FCHDIR=0;
+  REPLACE_GETCWD=0;
+  REPLACE_GETPAGESIZE=0;
+  REPLACE_LCHOWN=0;
+  REPLACE_LSEEK=0;
+  REPLACE_WRITE=0;
+  UNISTD_H_HAVE_WINSOCK2_H=0;
+
+
+
+
 
 
 
@@ -7376,6 +7480,85 @@ _ACEOF
 else
   HAVE_STRUCT_RANDOM_DATA=0
 fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     if test $gl_cv_have_include_next = yes; then
+       gl_cv_next_unistd_h='<'unistd.h'>'
+     else
+       { $as_echo "$as_me:$LINENO: checking absolute name of <unistd.h>" >&5
+$as_echo_n "checking absolute name of <unistd.h>... " >&6; }
+if test "${gl_cv_next_unistd_h+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+
+	  if test $ac_cv_header_unistd_h = yes; then
+	    cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <unistd.h>
+
+_ACEOF
+	    	    	    	    	    	    	    	    case "$host_os" in
+	      aix*) gl_absname_cpp="$ac_cpp -C" ;;
+	      *)    gl_absname_cpp="$ac_cpp" ;;
+	    esac
+	    	    	    	    gl_cv_next_unistd_h='"'`(eval "$gl_absname_cpp conftest.$ac_ext") 2>&5 |
+	       sed -n '\#/unistd.h#{
+		 s#.*"\(.*/unistd.h\)".*#\1#
+		 s#^/[^/]#//&#
+		 p
+		 q
+	       }'`'"'
+	  else
+	    gl_cv_next_unistd_h='<'unistd.h'>'
+	  fi
+
+fi
+{ $as_echo "$as_me:$LINENO: result: $gl_cv_next_unistd_h" >&5
+$as_echo "$gl_cv_next_unistd_h" >&6; }
+     fi
+     NEXT_UNISTD_H=$gl_cv_next_unistd_h
+
+     if test $gl_cv_have_include_next = yes || test $gl_cv_have_include_next = buggy; then
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include_next'
+       gl_next_as_first_directive='<'unistd.h'>'
+     else
+       # INCLUDE_NEXT_AS_FIRST_DIRECTIVE='include'
+       gl_next_as_first_directive=$gl_cv_next_unistd_h
+     fi
+     NEXT_AS_FIRST_DIRECTIVE_UNISTD_H=$gl_next_as_first_directive
+
+
+
+
+
+
+
+
+
+
+  if test $ac_cv_header_unistd_h = yes; then
+    HAVE_UNISTD_H=1
+  else
+    HAVE_UNISTD_H=0
+  fi
 
 
 

@@ -53,6 +53,7 @@ AC_DEFUN([rx_gl_INIT],
   gl_REGEX
   gt_TYPE_SSIZE_T
   gl_STDLIB_H
+  gl_UNISTD_H
   gl_FUNC_WCRTOMB
   gl_WCHAR_MODULE_INDICATOR([wcrtomb])
   m4_ifval(rx_gl_LIBSOURCES_LIST, [
@@ -199,6 +200,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   lib/regex_internal.h
   lib/regexec.c
   lib/stdlib.in.h
+  lib/unistd.in.h
   lib/wcrtomb.c
   m4/00gnulib.m4
   m4/btowc.m4
@@ -213,5 +215,6 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/regex.m4
   m4/ssize_t.m4
   m4/stdlib_h.m4
+  m4/unistd_h.m4
   m4/wcrtomb.m4
 ])

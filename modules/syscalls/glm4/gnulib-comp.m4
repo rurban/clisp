@@ -62,6 +62,7 @@ AC_DEFUN([sc_gl_INIT],
   gl_TIME_R
   gl_FUNC_UNAME
   gl_SYS_UTSNAME_MODULE_INDICATOR([uname])
+  gl_UNISTD_H
   m4_ifval(sc_gl_LIBSOURCES_LIST, [
     m4_syscmd([test ! -d ]m4_defn([sc_gl_LIBSOURCES_DIR])[ ||
       for gl_file in ]sc_gl_LIBSOURCES_LIST[ ; do
@@ -215,6 +216,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/time.in.h
   lib/time_r.c
   lib/uname.c
+  lib/unistd.in.h
   lib/w32sock.h
   m4/00gnulib.m4
   m4/errno_h.m4
@@ -236,4 +238,5 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/time_r.m4
   m4/tm_gmtoff.m4
   m4/uname.m4
+  m4/unistd_h.m4
 ])
