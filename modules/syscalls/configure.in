@@ -6,11 +6,11 @@ AC_PREREQ(2.57)
 AC_INIT(syscalls, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(posix.lisp)
 AC_CONFIG_HEADERS(config.h)
-AM_INIT_AUTOMAKE([no-define])
 
 RSE_BOLD
 BOLD_MSG([System Calls (Common)])
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+AM_INIT_AUTOMAKE([no-define])
 AC_PROG_RANLIB
 sc_gl_EARLY
 sc_gl_INIT
