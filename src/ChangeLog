@@ -1,3 +1,9 @@
+2009-08-09  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: do not call gt_NO_CXX
+	* makemake.in: do not pass $(NO_CXX) to gnulib make
+	* gllib/gettimeofday.c: update from gnulib, now compiles with C++
+
 2009-08-07  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigsegv.d (stackoverflow_handler_continuation) [I80386]: Make it
