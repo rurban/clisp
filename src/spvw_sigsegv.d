@@ -102,10 +102,14 @@ local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg
     setSTACK(STACK = saved_STACK);
   } else {                      /* This depends on STACK_register. */
   #ifdef UNIX_LINUX
-    /* stackoverflow_context_t is actually `struct sigcontext *'.
-     What about MC680X0 and SPARC ?? */
+    /* stackoverflow_context_t is actually 'ucontext_t in libsigsegv >= 2.7
+       or 'struct sigcontext *' in older versions. */
    #ifdef I80386
+    #if LIBSIGSEGV_VERSION >= 0x0207
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[REG_EBX])); }
+    #else
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->ebx)); }
+    #endif
    #endif
    #ifdef ARM
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[R8])); }
