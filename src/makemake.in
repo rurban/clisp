@@ -2063,7 +2063,6 @@ echol "CAT = ${CAT}"
 echol "GREP = ${GREP}"
 echol "AR = ar"
 echol "RANLIB = ${RANLIB}"
-echol "NO_CXX = @NO_CXX@"
 echol
 echol '# Programs used by "make install":'
 echol "INSTALL = ${INSTALL}"
@@ -2299,8 +2298,7 @@ echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS):'
 echotab 'mkdir -p $@'
 echotab 'if test ! -f $@/Makefile; then sh config.status $@/Makefile depfiles; fi'
-# gettimeofday.c cannot be compiled with c++
-echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS) $(NO_CXX)"'
+echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 echol "${GLLIB_A}: gllib"
 echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
