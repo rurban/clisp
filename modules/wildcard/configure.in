@@ -6,7 +6,6 @@ AC_PREREQ(2.57)
 AC_INIT(wildcard, 1.0, clisp-list)
 AC_CONFIG_SRCDIR(wildcard.lisp)
 AC_CONFIG_HEADERS(config.h)
-AM_INIT_AUTOMAKE([no-define])
 
 RSE_BOLD
 BOLD_MSG([Wildcard (Common)])
@@ -14,6 +13,7 @@ if test $cl_cv_have_ffcall = no; then
   AC_MSG_ERROR([module Wildcard requires FFI])
 fi
 CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+AM_INIT_AUTOMAKE([no-define])
 wc_gl_EARLY
 wc_gl_INIT
 BOLD_MSG([Wildcard (Output)])

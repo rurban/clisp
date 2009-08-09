@@ -1,3 +1,9 @@
+2009-08-09  Sam Steingold  <sds@gnu.org>
+
+	* modules/regexp/configure.in, modules/syscalls/configure.in:
+        * modules/wildcard/configure.in:
+	AM_INIT_AUTOMAKE must come after AC_CONFIG_AUX_DIR
+
 2009-08-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/configure.in, modules/syscalls/configure.in:
