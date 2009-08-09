@@ -55,7 +55,6 @@ CL_CC_NEED_DEEMA    dnl sets variable CC_NEED_DEEMA
 CL_AS_UNDERSCORE    dnl sets variable AS_UNDERSCORE, DEFS ASM_UNDERSCORE
 CL_SOCKET           dnl LIBS -lsocket
 CL_CC_WORKS         dnl final CC check
-gt_NO_CXX           dnl sets variable NO_CXX
 dnl
 BOLD_MSG([check for add-ons])
 gl_INIT
