@@ -2,6 +2,7 @@
 
 	* modules/regexp/Makefile.in (regexi.o): -I$(srcdir)/gllib
 	* modules/syscalls/Makefile.in (calls.o): -I$(srcdir)/gllib
+	* modules/wildcard/Makefile.in (wildcard.o): -Igllib -I$(srcdir)/gllib
 
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
