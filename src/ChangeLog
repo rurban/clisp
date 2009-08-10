@@ -1,5 +1,9 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/Makefile.in (regexi.o): -I$(srcdir)/gllib
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/regexi.c: #include "config.h"
 
 2009-08-10  Sam Steingold  <sds@gnu.org>
