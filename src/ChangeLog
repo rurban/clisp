@@ -1,3 +1,11 @@
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
+	* gllib/btowc.c, gllib/fnmatch.c, gllib/fnmatch.in.h:
+	* gllib/fnmatch_loop.c, gllib/malloc.c, gllib/regcomp.c, gllib/regex.c:
+	* gllib/regex.h, gllib/regex_internal.c, gllib/regex_internal.h:
+	* gllib/regexec.c, gllib/stdlib.in.h, gllib/wcrtomb.c:
+	remove files which moved to individual modules
+
 2009-08-09  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (GNULIB_CORE): remove unistd, so that it is
