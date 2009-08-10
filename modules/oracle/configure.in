@@ -30,6 +30,6 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([strdup])
 
 BOLD_MSG([Oracle (Output)])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile link.sh])
 AC_OUTPUT
 BOLD_MSG([Oracle (Done)])
