@@ -1,5 +1,11 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/fastcgi/configure.in: use AC_LIB_LINKFLAGS to accept
+	--with-libfcgi-prefix
+	* modules/fastcgi/link.sh.in (NEW_LIBS): use @LIBS@
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/oracle/configure.in: generate link.sh
 	* modules/oracle/link.sh.in: renamed from link.sh
 	* modules/oracle/Makefile.in (link.sh): remove target

@@ -15,6 +15,9 @@ BOLD_MSG([FastCGI (Programs)])
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
+dnl Search for libfcgi and define LIBFCGI, LTLIBFCGI and INCFCGI.
+AC_LIB_LINKFLAGS([fcgi])
+
 BOLD_MSG([FastCGI (Headers)])
 AC_CHECK_HEADERS([fcgi_stdio.h string.h unistd.h])
 if test "$ac_cv_header_fcgi_stdio_h" = "no"; then
@@ -25,6 +28,7 @@ BOLD_MSG([FastCGI (Types)])
 AC_TYPE_SIZE_T
 
 BOLD_MSG([FastCGI (Functions)])
+AC_LIB_APPENDTOVAR([LIBS], [$LIBFCGI])
 AC_CHECK_FUNCS([strchr])
 
 BOLD_MSG([FastCGI (Output)])
