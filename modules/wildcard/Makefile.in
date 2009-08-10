@@ -27,7 +27,7 @@ wildcard.c wildcard.fas : $(srcdir)/wildcard.lisp
 	$(CLISP) -c $< -o ./
 
 wildcard.o : wildcard.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c $<
 
 am--refresh :
 
