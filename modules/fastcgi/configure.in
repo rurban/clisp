@@ -16,7 +16,10 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 
 BOLD_MSG([FastCGI (Headers)])
-AC_CHECK_HEADERS([string.h unistd.h])
+AC_CHECK_HEADERS([fcgi_stdio.h string.h unistd.h])
+if test "$ac_cv_header_fcgi_stdio_h" = "no"; then
+  AC_MSG_ERROR([cannot find FastCGI headers])
+fi
 
 BOLD_MSG([FastCGI (Types)])
 AC_TYPE_SIZE_T
@@ -25,6 +28,6 @@ BOLD_MSG([FastCGI (Functions)])
 AC_CHECK_FUNCS([strchr])
 
 BOLD_MSG([FastCGI (Output)])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile link.sh])
 AC_OUTPUT
 BOLD_MSG([FastCGI (Done)])
