@@ -1,5 +1,11 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/fastcgi/configure.in: check for fcgi_stdio.h; generate link.sh
+	* modules/fastcgi/link.sh.in: renamed from link.sh
+	* modules/fastcgi/Makefile.in (link.sh): remove target
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/dirkey/configure.in: generate link.sh
 	* modules/dirkey/link.sh.in: renamed from link.sh
 
