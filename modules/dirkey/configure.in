@@ -20,7 +20,7 @@ dnl Solaris/cc requires <lber.h> to be included before <ldap.h>
 ])
 
 BOLD_MSG([Dirkey (Output)])
-AC_CONFIG_FILES(Makefile)
+AC_CONFIG_FILES([Makefile link.sh])
 AC_OUTPUT
 
 BOLD_MSG([Dirkey (Done)])
