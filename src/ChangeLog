@@ -1,5 +1,10 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/dirkey/configure.in: generate link.sh
+	* modules/dirkey/link.sh.in: renamed from link.sh
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/syscalls/calls.c (MKNOD): use S(member) instead of
 	`CL:MEMBER` to avoid wasting memory
 
@@ -15,7 +20,7 @@
 
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
-	* Makefile.devel (gnulib-imported): to log is in GNULIB_IMPORTED_LOG
+	* Makefile.devel (gnulib-imported): the log is in GNULIB_IMPORTED_LOG
 
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
