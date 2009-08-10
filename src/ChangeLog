@@ -1,5 +1,9 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-imported): to log is in GNULIB_IMPORTED_LOG
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* gllib/btowc.c, gllib/fnmatch.c, gllib/fnmatch.in.h:
 	* gllib/fnmatch_loop.c, gllib/malloc.c, gllib/regcomp.c, gllib/regex.c:
 	* gllib/regex.h, gllib/regex_internal.c, gllib/regex_internal.h:
