@@ -31,7 +31,7 @@ clisp-module : $(GENERATED)
 	$(CLISP) -c $< -o ./
 
 regexi.o : regexi.m.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c $< -o $@
 
 regexi.m.c : $(srcdir)/regexi.c
 	$(CLISP) -C $(INCLUDES)/modprep $< ./
