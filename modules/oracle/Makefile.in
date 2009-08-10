@@ -37,8 +37,9 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = orafns.o oracle.o oracle.fas oiface.o link.sh
-DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/oracle.lisp $(srcdir)/README
+GENERATED = orafns.o oracle.o oracle.fas oiface.o
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/oracle.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module
@@ -52,9 +53,6 @@ oracle.o:       oracle.c
 
 %.o:       $(srcdir)/%.c $(srcdir)/oiface.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $<
-
-link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
