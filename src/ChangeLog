@@ -1,5 +1,9 @@
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/regexi.c: #include "config.h"
+
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
 	* Makefile.devel (gnulib-imported): to log is in GNULIB_IMPORTED_LOG
 
 2009-08-10  Sam Steingold  <sds@gnu.org>
