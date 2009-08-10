@@ -2256,7 +2256,7 @@ DEFUN(POSIX::MKNOD, path type mode)
   pushSTACK(NIL);               /* no PLACE */
   pushSTACK(STACK_1);           /* TYPE-ERROR slot DATUM */
   { int count = 1;
-    pushSTACK(`CL:MEMBER`);
+    pushSTACK(S(member));
 #  if defined(HAVE_MKFIFO)
     pushSTACK(`:FIFO`); count++;
 #  endif
