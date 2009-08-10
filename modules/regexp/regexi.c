@@ -5,10 +5,11 @@
  */
 
 #include "clisp.h"
+#include "config.h"
 #include <sys/types.h>          /* regex.h needs this */
 #include <stdlib.h>             /* declare malloc(), free() */
 #include <stdio.h>              /* BUFSIZ */
-#include "regex.h"
+#include <regex.h>
 
 #ifndef FOREIGN
 #error FOREIGN is not defined.
