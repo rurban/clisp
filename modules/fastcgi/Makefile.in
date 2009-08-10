@@ -16,8 +16,9 @@ MAKE = make
 
 SHELL = /bin/sh
 
-GENERATED = fastcgi.o fastcgi.fas fastcgi_wrappers.o link.sh
-DISTRIBFILES = Makefile $(GENERATED) $(srcdir)/fastcgi.lisp $(srcdir)/README
+GENERATED = fastcgi.o fastcgi.fas fastcgi_wrappers.o
+DISTRIBFILES = link.sh Makefile $(GENERATED) \
+	$(srcdir)/fastcgi.lisp $(srcdir)/README
 distribdir =
 
 # default target: make the module
@@ -31,9 +32,6 @@ fastcgi.o:       fastcgi.c
 
 fastcgi_wrappers.o:       $(srcdir)/fastcgi_wrappers.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $<
-
-link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
