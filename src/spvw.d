@@ -4178,7 +4178,7 @@ nonreturning_function(local, error_dlerror,
  returns: non-NULL pointer to the symbol in the library */
 local void* get_module_symbol (const char* format, const char* modname,
                                void* libhandle) {
-  var char * symbolbuf = alloca(strlen(format)+strlen(modname));
+  var char * symbolbuf = (char *)alloca(strlen(format)+strlen(modname));
   sprintf(symbolbuf,format,modname);
   var void * ret = find_name(libhandle,symbolbuf);
   if (ret == NULL) error_dlerror("dlsym",symbolbuf,dlerror());

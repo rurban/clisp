@@ -380,6 +380,8 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
          will be valid: */
 
       #ifdef MULTITHREAD
+        var aint start, end; /* g++ complain becasue of goto statement */
+        var int protection;
         /* cons heap - all read only.*/
         if (!is_varobject_heap(heapnr)) goto all_ro;
         /* no read write area - all read only */
@@ -393,9 +395,9 @@ local void build_old_generation_cache (uintL heapnr, varobj_mem_region *rwarea)
        #endif
         /* if we reach here - we have at least one read-write region
            which VM protection should be preserved*/
-        var aint start = gen0_start_pa;
-        var aint end = rwarea->start;
-        var int protection = PROT_READ;
+        start = gen0_start_pa;
+        end = rwarea->start;
+        protection = PROT_READ;
         do {
           if (start!=end) {
             xmprotect(start, end - start, protection);
@@ -1023,9 +1025,9 @@ local void rebuild_old_generation_cache (uintL heapnr)
             physpage->protection = PROT_READ;
           } else {
             xfree(physpage->cache); physpage->cache = NULL;
-           no_cache: ;
           }
         }
+      no_cache: ;
         gen0_start += physpagesize;
         physpage++;
       } while (gen0_start < gen0_end);
