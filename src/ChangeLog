@@ -1,3 +1,7 @@
+2009-08-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (anymodule): do not do "cd $@" twice in the same shell
+
 2009-08-11  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_genera1.d (build_old_generation_cache)

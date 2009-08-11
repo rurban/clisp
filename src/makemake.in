@@ -3325,8 +3325,8 @@ fi
 # srcdir has to be passed to ./configure because it must be able to find
 # src/build-aux/install-sh _AND_ also its own sources, thus we must
 # point it to modules/... in the original source tree
-echotab "if `newer configure config.status` ; then cd \$@ ; \\"
-echotab "  ( cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
+echotab "if `newer configure config.status` ; then ( cd \$@ ; \\"
+echotab "    cache="'`'"echo \$@/ | sed -e 's,[^/][^/]*//*,../,g'"'`'"config.cache; \\"
 echotab "    if test -f \$\${cache} ; then . \$\${cache}; \\"
 for var in ${PRECIOUS_VARS}; do
   echotab "      if test \"\$\${ac_cv_env_${var}_set}\" = set; then ${var}=\"\$\${ac_cv_env_${var}_value}\"; export ${var}; fi; \\"
