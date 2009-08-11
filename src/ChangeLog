@@ -1,3 +1,9 @@
+2009-08-11  Sam Steingold  <sds@gnu.org>
+
+	* gllib/unistd.in.h, modules/regexp/gllib/unistd.in.h:
+	* modules/syscalls/gllib/unistd.in.h:
+	import the gnulib fix of the 'close' socket dependency
+
 2009-08-10  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (anymodule): do not do "cd $@" twice in the same shell
