@@ -1,3 +1,7 @@
+2009-08-12  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (modcheck): pass :SRCDIR and :OUTDIR to RUN-SOME-TESTS
+
 2009-08-11  Sam Steingold  <sds@gnu.org>
 
 	* gllib/unistd.in.h, modules/regexp/gllib/unistd.in.h:

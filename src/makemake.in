@@ -3368,7 +3368,7 @@ echol "mod-check : base-mod-check full-mod-check"
 echol
 modcheck(){                     # $1=clisp command; $2=MODULES variable
   echotab 'for m in "" $('$2'); do test -n "$$m" && $(RM) $$m/*.erg; done'
-  echotab 'z=""; for m in "" $('$2'); do test -n "$$m" && z=$$z" \""$$m/\"; done; '"$1${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z)) 0)))"'
+  echotab 'z=""; for m in "" $('$2'); do test -n "$$m" && z=$$z" \""$$m/\"; done; '"$1${someflags} -C -i ${TESTSDIR}/tests"' -x "(ext:exit (plusp (or (run-some-tests :dirlist '"'"'($$z) :srcdir \"'${MODULESDIR_}'\" :outdir \"./\") 0)))"'
   echol
 }
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
