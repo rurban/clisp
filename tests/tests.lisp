@@ -310,26 +310,38 @@ NIL: sacla-style: forms should evaluate to non-NIL.")
       (format t "~s: see ~a~%" 'run-test logfile))
   (list logname total-count error-count))
 
-(defun report-results (res)
+(defun report-results (res &key (here (truename "./")))
   "res = list of RUN-TEST return values (testname total-count error-count)"
   (let ((error-count (reduce #'+ res :key #'third)))
     (format
      t "~&finished ~3d file~:p:~31T ~3:d error~:p out of~50T ~6:d test~:p~%"
      (length res) error-count (reduce #'+ res :key #'second))
-    (loop :with here = (truename "./") :for rec :in res :for count :upfrom 1 :do
+    (loop :for rec :in res :for count :upfrom 1 :do
       (format t "~&~3d ~25@a:~31T ~3:d error~:p out of~50T ~6:d test~:p~%"
               count (enough-namestring (first rec) here)
               (third rec) (second rec)))
     error-count))
 
-(defun run-some-tests (&key (dirlist '("./"))
-                       ((:eval-method *eval-method*) *eval-method*))
+;; see makemake.in:
+;; (run-some-tests :dirlist '("zlib" "pcre") :srcdir "../modules/")
+(defun run-some-tests (&key (dirlist '("./")) (srcdir "./") (outdir "./")
+                       ((:eval-method *eval-method*) *eval-method*)
+                       &aux #+clisp (custom:*merge-pathnames-ansi* t))
+  "Run tst files in DIRLIST under SRCDIR, writing erg under OUTDIR."
   (let ((files (mapcan (lambda (dir)
-                         (directory (make-pathname :name :wild
-                                                   :type *run-test-type*
-                                                   :defaults dir)))
-                       dirlist)))
-    (if files (report-results (mapcar #'run-test files))
+                         (directory (make-pathname
+                                     :name :wild :type *run-test-type*
+                                     :defaults (merge-pathnames dir srcdir))))
+                       dirlist))
+        (src-true (truename srcdir)))
+    (if files
+        (report-results
+         (mapcar (lambda (file)
+                   (run-test file :logname
+                             (merge-pathnames (enough-namestring file src-true)
+                                              outdir)))
+                 files)
+         :here outdir)
         (warn "no ~S files in directories ~S" *run-test-type* dirlist))))
 
 (defparameter *all-tests*
