@@ -148,7 +148,7 @@ T
 (libsvm:destroy-parameter f-parameter) NIL
 (ffi:validp f-parameter) NIL
 
-(length (get-output-stream-string libsvm:*libsvm-output*)) 10713
+(length (get-output-stream-string libsvm:*libsvm-output*)) 10585
 
 (progn (makunbound 'f-parameter)
        (makunbound 'v-parameter)
