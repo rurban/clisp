@@ -614,8 +614,8 @@ following command:
    Why is the <option>--with-libsigsegv-prefix</option> option ignored
    by the <command>configure</command> script on my 64-bit machine?
  </para></question>
-<answer><para>See a note on <quote>bi-arch systems</quote> in section 2
-  of <filename>unix/INSTALL</filename> in your source distribution
+<answer><para>See a note on <quote>bi-arch systems</quote> in section 2 of
+ <filename role="clisp-cvs">unix/INSTALL</filename> in your source distribution
   (for the impatient: pass <option>--libdir=='${exec_prefix}/lib64'</option>
     to the &libsigsegv; <command>configure</command>).</para>
  <para>See these threads which discuss the situation in depth:<simplelist>
