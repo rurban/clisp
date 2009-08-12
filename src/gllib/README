@@ -1,2 +1,2 @@
 This code comes from gnulib and is updated by
-$ make -f Makefile.devel gnulib-update
+$ make -f Makefile.devel gnulib-imported
