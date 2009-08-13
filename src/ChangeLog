@@ -1,5 +1,9 @@
 2009-08-13  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (lisp${SHREXT}) [dynamic_modules]: new target
+
+2009-08-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in: use $0 in all error messages
 
 2009-08-13  Sam Steingold  <sds@gnu.org>

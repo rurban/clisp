@@ -1399,7 +1399,7 @@ if [ "${with_dynamic_modules}" != no ]; then
       XCC_CREATESHARED='ld -Bshareable -o $lib $libs'
       ;;
     freebsd3* | gnu* | linux* | cygwin* | mingw* | k*bsd* | dragonfly*)
-      XCC_CREATESHARED='$CC $CFLAGS $CLFLAGS -shared -o $lib $libs'
+      XCC_CREATESHARED='${CC} ${CFLAGS} ${CLFLAGS} -shared -o $lib $libs'
       ;;
     hpux9* | hpux10*)
       XCC_CREATESHARED='ld -b +s -o $lib $libs'
@@ -1425,7 +1425,7 @@ if [ "${with_dynamic_modules}" != no ]; then
       XCC_CREATESHARED='ld -assert pure-text -Bstatic -o $lib $libs'
       ;;
     darwin*)
-      XCC_CREATESHARED='$CC -bundle -flat_namespace -undefined suppress -o $lib $libs'
+      XCC_CREATESHARED='${CC} -bundle -flat_namespace -undefined suppress -o $lib $libs'
       ;;
     *)
       echo "$0: how do you create a shared library on ${host_os}?" >&2;
@@ -2753,6 +2753,14 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   echotab "\$(AR) rcv libnoreadline.a noreadline.o"
   echotab "\$(RANLIB) libnoreadline.a"
   echol
+  if [ "${with_dynamic_modules}" != no ]; then # DLL requires -fPIC
+    echol "lisp${SHREXT} : \$(OBJECTS) modules.o"
+    XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
+    line="`eval \"lib=\$\@; libs=\$^; echo ${XCC_CREATESHARED_}\"`"
+    test $HSYS = win32gcc && line=$line' $(LIBS)'
+    echotab "$line"
+    echol
+  fi
 fi
 
 if [ -n "$USE_GETTEXT" ] ; then
