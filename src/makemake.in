@@ -256,7 +256,7 @@ EOF
       package=`echol "$1" | sed -e 's/^-*without-//' -e 's/^-*with-no-*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "makemake: $package: invalid package name" >&2; exit 1
+        echol "$0: $package: invalid package name" >&2; exit 1
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=no"
       test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
@@ -272,7 +272,7 @@ EOF
       package=`echol "${package}" | sed -e 's/=.*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "makemake: $package: invalid package name" >&2; exit 1
+        echol "$0: $package: invalid package name" >&2; exit 1
       fi
       if test "${packopt}" = "on"; then
         packopt=yes
@@ -680,7 +680,7 @@ if [ $TSYS = win32msvc ] ; then
         CFLAGS=${CFLAGS}" -Zi -Od -GZ"
       fi
       ;;
-    *) echol "makemake: unsupported compiler [${COMPILER}]" >&2; exit 1
+    *) echol "$0: unsupported compiler [${COMPILER}]" >&2; exit 1
       ;;
   esac
 fi
@@ -1302,7 +1302,7 @@ else
         ;;
       msvc7) XCPP="$XCPP -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I\$(MSVCDIR)/PlatformSDK/include"
         ;;
-      *) echol "makemake: unsupported compiler [${COMPILER}]" >&2; exit 1
+      *) echol "$0: unsupported compiler [${COMPILER}]" >&2; exit 1
         ;;
     esac
     XCFLAGS="$CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
@@ -1586,7 +1586,7 @@ else
   if grep "#undef HAVE_READLINE" config.h >/dev/null 2>&1; then
     if [ "${with_readline}" != ifpossible ]; then
       # --with-readline was supplied ==> barf when readline is missing
-      echol "makemake: configure failed to detect readline" >&2
+      echol "$0: configure failed to detect readline" >&2
       exit 1
     fi
   else                          # readline is present
@@ -2772,15 +2772,13 @@ if [ -n "$USE_GETTEXT" ] ; then
       fi
     done
     if test -z "${LINGUAS}"; then
-      echol "makemake: missing ${srcdir}/po/LINGUAS" >&2; exit 1
+      echol "$0: missing ${srcdir}/po/LINGUAS" >&2; exit 1
     fi
     for lang in ${LINGUAS}; do
       echotab "mkdir -p locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
       echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
     done
   fi
-  echol
-
   echol
 
 fi
