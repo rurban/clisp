@@ -23,26 +23,25 @@ distribdir =
 clisp-module : $(GENERATED)
 
 pari.fas pari.c : $(srcdir)/pari.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/pari.lisp -o ./
 
 pari.o : pari.c config.h
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
 
 cpari.o : $(srcdir)/cpari.c
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $(srcdir)/cpari.c
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.fas *.lib
 
 distclean : clean
-	rm -f *.dvi
 
 force :
 

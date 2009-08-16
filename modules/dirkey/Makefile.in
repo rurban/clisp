@@ -21,17 +21,17 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+dirkey1.fas: $(srcdir)/dirkey1.lisp
+	$(CLISP) -c $(srcdir)/dirkey1.lisp -o ./
 
 dirkey.m.c: $(srcdir)/dirkey.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/dirkey.c ./
 
 dirkey.o : dirkey.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c dirkey.m.c -o dirkey.o
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

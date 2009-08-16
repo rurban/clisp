@@ -21,24 +21,26 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+gdbm.fas: $(srcdir)/gdbm.lisp
+	$(CLISP) -c $(srcdir)/gdbm.lisp -o ./
 
 gdbm.o : gdbm.m.c config.h
 	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gdbm.m.c -o gdbm.o
 
 gdbm.m.c : $(srcdir)/gdbm.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/gdbm.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.m.c *.fas *.lib
+
+distclean : clean
 
 force :
 

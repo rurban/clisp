@@ -21,24 +21,26 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+pcre.fas: $(srcdir)/pcre.lisp
+	$(CLISP) -c $(srcdir)/pcre.lisp -o ./
 
 cpcre.o : cpcre.m.c config.h
 	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
 
 cpcre.m.c : $(srcdir)/cpcre.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/cpcre.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.m.c *.fas *.lib
+
+distclean : clean
 
 force :
 
