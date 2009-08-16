@@ -21,24 +21,26 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+sock.fas: $(srcdir)/sock.lisp
+	$(CLISP) -c $(srcdir)/sock.lisp -o ./
 
 rawsock.o : rawsock.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c rawsock.m.c -o rawsock.o
 
 rawsock.m.c : $(srcdir)/rawsock.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/rawsock.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.m.c *.fas *.lib
+
+distclean : clean
 
 force :
 

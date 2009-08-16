@@ -21,24 +21,26 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+i18n.fas: $(srcdir)/i18n.lisp
+	$(CLISP) -c $(srcdir)/i18n.lisp -o ./
 
 gettext.o : gettext.m.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
 
 gettext.m.c : $(srcdir)/gettext.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/gettext.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.m.c *.fas *.lib
+
+distclean : clean
 
 force :
 

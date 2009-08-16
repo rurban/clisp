@@ -45,22 +45,24 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-oracle.c oracle.fas:       $(srcdir)/oracle.lisp
-	$(CLISP) -c $< -o ./
+oracle.c oracle.fas: $(srcdir)/oracle.lisp
+	$(CLISP) -c $(srcdir)/oracle.lisp -o ./
 
-oracle.o:       oracle.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $<
+oracle.o: oracle.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c oracle.c
 
-%.o:       $(srcdir)/%.c $(srcdir)/oiface.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $<
+oiface.o: $(srcdir)/oiface.c $(srcdir)/oiface.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $(srcdir)/oiface.c
+
+orafns.o: $(srcdir)/orafns.c $(srcdir)/oiface.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $(srcdir)/orafns.c
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
-	rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
+	rm -f core *.o *.a *.fas *.lib
 
 distclean : clean
 

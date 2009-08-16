@@ -26,33 +26,33 @@ clisp-module : $(GENERATED)
 
 svm$(SHREXT) : $(srcdir)/svm.cpp $(srcdir)/svm.h
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
-		-fPIC -shared -o svm$(SHREXT) $< -lm
+		-fPIC -shared -o svm$(SHREXT) $(srcdir)/svm.cpp -lm
 
 svm.o : $(srcdir)/svm.cpp $(srcdir)/svm.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(srcdir) -c $<
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(srcdir) -c $(srcdir)/svm.cpp
 
 svm.a : svm.o
 	$(AR) rcv svm.a svm.o
 	$(RANLIB) svm.a
 
 libsvm.c libsvm.fas : $(srcdir)/libsvm.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/libsvm.lisp -o ./
 
 libsvm.o : libsvm.c $(srcdir)/svm.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(srcdir) -c libsvm.c
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a svm$(SHREXT)
+	rm -f core *.o *.a svm$(SHREXT) *.fas *.lib
 
 distclean : clean
 

@@ -21,7 +21,7 @@ distribdir =
 clisp-module : $(GENERATED)
 
 zlib.c zlib.fas : $(srcdir)/zlib.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/zlib.lisp -o ./
 
 zlib.o : zlib.c config.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c zlib.c
@@ -31,7 +31,7 @@ clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.fas *.lib
 
 distclean : clean
 

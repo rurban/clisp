@@ -24,10 +24,10 @@ clisp-module : $(GENERATED)
 .PHONY : am--refresh clisp-module clisp-module-distrib clean distclean force
 
 wildcard.c wildcard.fas : $(srcdir)/wildcard.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/wildcard.lisp -o ./
 
 wildcard.o : wildcard.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c wildcard.c
 
 am--refresh :
 
@@ -47,7 +47,7 @@ clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
+	rm -f core *.o *.a *.fas *.lib
 
 distclean : clean
 

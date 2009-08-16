@@ -26,20 +26,25 @@ distribdir =
 clisp-module : $(GENERATED)
 
 matlab.c matlab.fas : $(srcdir)/matlab.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/matlab.lisp -o ./
 
 matlab.o : matlab.c
 	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(MATLAB) -c matlab.c
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+wrap.fas: $(srcdir)/wrap.lisp
+	$(CLISP) -c $(srcdir)/wrap.lisp -o ./
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
+
+clean : force
+	rm -f core *.o *.a *.fas *.lib
+
+distclean : clean
 
 force :
 
