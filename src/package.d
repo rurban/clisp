@@ -17,26 +17,20 @@ global xmutex_t all_packages_lock;
 There is global mutex for O(all_packages) and per package recursive lisp
 mutex. If both of them should be obtained (for any package) - the order
 O(all_packages_lock) --> package lock should be preserved. Otherwise deadlocks
-are possible.
+are possible. Also if multiple package locks should be obtained at the same
+time - first all_package_lock should be obtained - such cases are use-package,
+unuse-package.
 
-Partially implemented.
-Some high level locking of changes in the package structures.
-(USE-PACKAGE is not safe)
+Symbol lookup and deletion are not guarded but are safe due to the way
+symtab_insert and rehash_symtab work. On MT rehash_symtab always returns
+newly allocated symtab that does not share nor modifies the old one - thus
+any thread that may perform lookups on the old one will not be "surpised" by
+modified internals (and intern (e.g. symtab_insert) is guarded by package mutex)
+This copy semantic on rehashing is slower than previous cons cell reuse but is
+better than obtaining lock on symbol lookup.
 
-Still not implemented (TODO):
-In order to avoid locking on simple lookups (most common case - but other
-as well) - we will try to implement the Symtabs via lock free hashtables.
-We will need atomic CAS op for gcv_object_t objects (not clear whether always
-possible).
-Probably the same will be useful for hashtables (hashtabl.d).
-
-Currently the Symtab delete & lookup are not safe (and because of this
-the insert as well - regardless that intern() is guarded with mutex. The
-latter lock in intern() helps avoid deadlocks however)
-all this will not lead to crashes (hopefully) but to some weird behavior.
-
-TODO: USE-PACKAGE is not protected in any way.
-*/
+The use of WITH_xxx macros for locking makes debugging harder but is clean way
+to handle stack unwind and release acquired locks.*/
 
 /* data structure of the symbols: see LISPBIBL.D
  data structure of the symbol table:
@@ -152,7 +146,7 @@ local maygc void newinsert (object sym, uintL size) {
   TheSvector(STACK_1)->data[index] = sym; /* enter new entry in newtable */
 }
 
-local object rehash_symtab (object symtab) {
+local maygc object rehash_symtab (object symtab) {
   pushSTACK(symtab); /* save symbol-table */
   var uintL oldsize = posfixnum_to_V(Symtab_size(symtab)); /* old size */
   var uintL newsize; /* new size */
@@ -203,8 +197,10 @@ local object rehash_symtab (object symtab) {
       if (consp(oldentry)) /* this time process only non-empty symbol-lists */
         do {
           pushSTACK(Cdr(oldentry)); /* save rest-list */
+         #ifndef MULTITHREAD /* no cons cell reuse with MT */
           /* cons oldentry in front of free-conses */
           Cdr(oldentry) = STACK_2; STACK_2 = oldentry;
+         #endif
           /* enter symbol in the new table */
           newinsert(Car(oldentry),newsize);
           oldentry = popSTACK(); /* rest-list */
@@ -229,6 +225,13 @@ local object rehash_symtab (object symtab) {
   }
   /* stack layout: tab, oldtable, free-conses, newtable. */
   { /* update tab: */
+  #ifdef MULTITHREAD
+    /* allocate new symtab. other threads may have obtained pointer to
+       the old one for lookup - do not modify it */
+    var object new_symtab = allocate_vector(3); /* vector of length 3 */
+    Symtab_count(new_symtab) = Symtab_count(STACK_3); /* set the count */
+    STACK_3 = new_symtab; /* replace symtab on the stack */
+  #endif
     var object newtable = popSTACK(); /* newtable */
     skipSTACK(2);
     symtab = popSTACK(); /* tab */
@@ -508,10 +511,13 @@ local maygc object make_package (object name, object nicknames,
   ThePackage(STACK_0)->pack_mutex = value1;
  #endif
   /* and insert in ALL_PACKAGES: */
-  var object new_cons = allocate_cons();
-  pack = popSTACK();
-  Car(new_cons) = pack; Cdr(new_cons) = O(all_packages);
-  O(all_packages) = new_cons;
+  pushSTACK(allocate_cons()); /* new_cons */
+  WITH_OS_MUTEX_LOCK(2,&all_packages_lock, {
+    var object new_cons = popSTACK();
+    Car(new_cons) = STACK_0; Cdr(new_cons) = O(all_packages);
+    O(all_packages) = new_cons;
+  });
+  pack=popSTACK();
   /* finished: */
   clr_break_sem_2();
   return pack;
@@ -769,11 +775,14 @@ local maygc void cerror_package_locked (object func, object pack, object obj) {
  only call, if BREAK_SEM_2 is set
  can trigger GC */
 local maygc void make_present (object sym, object pack) {
+  pushSTACK(pack);
   if (!eq(pack,O(keyword_package))) {
     if (nullp(Symbol_package(sym)))
       Symbol_package(sym) = pack;
     /* Insert symbol into the internal symbols: */
-    symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
+    var object symtab =
+      symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
+    ThePackage(STACK_0)->pack_internal_symbols = symtab;
   } else {
     if (nullp(Symbol_package(sym))) {
       pushSTACK(pack);          /* save */
@@ -783,8 +792,11 @@ local maygc void make_present (object sym, object pack) {
       set_const_flag(TheSymbol(sym)); /* mark as constant */
     }
     /* Insert symbol into the external symbols: */
-    symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
+    var object symtab =
+      symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
+    ThePackage(STACK_0)->pack_external_symbols = symtab;
   }
+  skipSTACK(1);
 }
 
 /* UP: Interns a symbol with a given printname in a package.
@@ -1194,7 +1206,8 @@ local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) 
     set_break_sem_2();
     symtab_delete(sym,symtab); /* remove sym from the external symbols */
     /* therefor, insert it into the internal symbols */
-    symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
+    symtab = symtab_insert(sym,ThePackage(pack)->pack_internal_symbols);
+    ThePackage(*pack_)->pack_internal_symbols = symtab;
     clr_break_sem_2();
   } else {
     /* Search, if the symbol is accessible at all. */
@@ -1224,7 +1237,11 @@ local maygc void make_external (object sym, object pack) {
   /* remove sym from the internal symbols */
   symtab_delete(sym,ThePackage(pack)->pack_internal_symbols);
   /* therefor, insert it into the external symbols */
-  symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
+  pushSTACK(pack);
+  var object symtab =
+    symtab_insert(sym,ThePackage(pack)->pack_external_symbols);
+  pack = popSTACK();
+  ThePackage(pack)->pack_external_symbols = symtab;
   clr_break_sem_2();
 }
 
@@ -1435,6 +1452,37 @@ local maygc void map_symtab_c (one_sym_function_t* fun, void* data, object symta
   skipSTACK(1);
 }
 
+/* define macro for locking mutexes of list of packages */
+#ifdef MULTITHREAD
+  #define PACKAGE_LIST_MUTEX_LOCK_HELP_(packlist_) do {       \
+    pushSTACK(*packlist_);                                    \
+    while (mconsp(STACK_0)) {                                 \
+      pushSTACK(ThePackage(Car(STACK_0))->pack_mutex);        \
+      funcall(L(mutex_lock),1);                               \
+      STACK_0 = Cdr(STACK_0);                                 \
+    }                                                         \
+    skipSTACK(1);                                             \
+  } while(0)
+  #define PACKAGE_LIST_MUTEX_UNLOCK_HELP_(packlist_,keep_mv_space)   \
+    do {                                                       \
+      var uintC cnt=mv_count;                                  \
+      if (keep_mv_space) mv_to_STACK();                        \
+      pushSTACK(*packlist_);                                   \
+      while (mconsp(STACK_0)) {                                \
+        pushSTACK(ThePackage(Car(STACK_0))->pack_mutex);       \
+        funcall(L(mutex_unlock),1);                            \
+        STACK_0 = Cdr(STACK_0);                                \
+      }                                                        \
+      skipSTACK(1);                                            \
+      if (keep_mv_space) STACK_to_mv(cnt);                     \
+    } while(0)
+  /* packlist_ should be pointer to GC safe location. */
+  #define WITH_PACKAGE_LIST_MUTEX_LOCK(stack_count,keep_mv_space,packlist_,body)     \
+    WITH_MUTEX_LOCK_HELP_(stack_count,keep_mv_space,packlist_,PACKAGE_LIST_MUTEX_LOCK_HELP_,PACKAGE_LIST_MUTEX_UNLOCK_HELP_,body)
+#else /* no MT */
+  #define WITH_PACKAGE_LIST_MUTEX_LOCK(stack_count,keep_mv_space,packlist_,body) body
+#endif
+
 /* UP: Effectuates, that all external symbols of a given list of packages
  become implicitly accessible in a given package.
  use_package(packlist,pack);
@@ -1481,118 +1529,124 @@ local maygc void use_package (object packlist, object pack) {
       if (true) { /* do not discard, advance: */
         packlistr_ = &Cdr(packlistr); packlistr = *packlistr_;
       } else {    /* discard (car packlistr) : */
-       delete_pack_to_test:
+      delete_pack_to_test:
         packlistr = *packlistr_ = Cdr(packlistr);
       }
     }
   }
-  /* build conflict list.
-     A conflict is an at least two-element list
-     of symbols of the same printname, together with the package,
-     from which this symbol is taken:
-     ((pack1 . sym1) ...) means, that on execution of the USE-PACKAGE
-     the symbole sym1,... (from pack1 etc.) would compete for
-     the visibility in package pack.
-     The conflict list is the list of all occurring conflicts. */
-  {
-    var gcv_object_t *pack_ = &STACK_1;
-    var gcv_object_t *packlist_ = &STACK_0;
-    var gcv_object_t *conflicts_, *conflict_resolver_;
-    pushSTACK(NIL); /* (so far empty) conflict list */
-    conflicts_ = &STACK_0;
-    /* stack-layout: pack, packlist, conflicts. */
-    { /* peruse package list: */
-      pushSTACK(*packlist_);
-      while (mconsp(STACK_0)) {
-        var object pack_to_use = Car(STACK_0);
-        STACK_0 = Cdr(STACK_0);
-        /* apply use_package_aux to all external symbols of pack_to_use: */
-        map_symtab_c(&use_package_aux,conflicts_,
-                     ThePackage(pack_to_use)->pack_external_symbols);
-      }
-      skipSTACK(1);
-    }
-    { /* reconstruct conflict list: Each conflict ((pack1 . sym1) ...) is
-       transformed into ((packname1 pack1 . sym1) ...). */
-      pushSTACK(*conflicts_); /* traverse conflict list */
-      while (mconsp(STACK_0)) {
-        var object conflict = Car(STACK_0);
-        STACK_0 = Cdr(STACK_0);
-        pushSTACK(conflict); /* process conflict */
+  var gcv_object_t *packlist_lock_ = &STACK_0;
+  var gcv_object_t *pack_lock_ = &STACK_1;
+  WITH_PACKAGE_LIST_MUTEX_LOCK(2,false,packlist_lock_, {
+    /* build conflict list.
+       A conflict is an at least two-element list
+       of symbols of the same printname, together with the package,
+       from which this symbol is taken:
+       ((pack1 . sym1) ...) means, that on execution of the USE-PACKAGE
+       the symbole sym1,... (from pack1 etc.) would compete for
+       the visibility in package pack.
+       The conflict list is the list of all occurring conflicts. */
+    {
+      var gcv_object_t *pack_ = &STACK_1;
+      var gcv_object_t *packlist_ = &STACK_0;
+      var gcv_object_t *conflicts_;
+      var gcv_object_t *conflict_resolver_;
+      pushSTACK(NIL); /* (so far empty) conflict list */
+      conflicts_ = &STACK_0;
+      /* stack-layout: pack, packlist, conflicts. */
+      { /* peruse package list: */
+        pushSTACK(*packlist_);
         while (mconsp(STACK_0)) {
-          var object new_cons = allocate_cons(); /* new cons */
-          var object old_cons = Car(STACK_0); /* (pack . sym) */
-          /* replace pack by its name */
-          Car(new_cons) = ThePackage(Car(old_cons))->pack_name;
-          /* insert new-cons */
-          Cdr(new_cons) = old_cons; Car(STACK_0) = new_cons;
+          var object pack_to_use = Car(STACK_0);
+          STACK_0 = Cdr(STACK_0);
+          /* apply use_package_aux to all external symbols of pack_to_use: */
+          map_symtab_c(&use_package_aux,conflicts_,
+                       ThePackage(pack_to_use)->pack_external_symbols);
+        }
+        skipSTACK(1);
+      }
+      { /* reconstruct conflict list: Each conflict ((pack1 . sym1) ...) is
+           transformed into ((packname1 pack1 . sym1) ...). */
+        pushSTACK(*conflicts_); /* traverse conflict list */
+        while (mconsp(STACK_0)) {
+          var object conflict = Car(STACK_0);
+          STACK_0 = Cdr(STACK_0);
+          pushSTACK(conflict); /* process conflict */
+          while (mconsp(STACK_0)) {
+            var object new_cons = allocate_cons(); /* new cons */
+            var object old_cons = Car(STACK_0); /* (pack . sym) */
+            /* replace pack by its name */
+            Car(new_cons) = ThePackage(Car(old_cons))->pack_name;
+            /* insert new-cons */
+            Cdr(new_cons) = old_cons; Car(STACK_0) = new_cons;
+            STACK_0 = Cdr(STACK_0);
+          }
+          skipSTACK(1);
+        }
+        skipSTACK(1);
+      }
+      /* conflict-list finished. */
+      pushSTACK(NIL); /* conflict-resolver := NIL */
+      conflict_resolver_ = &STACK_0;
+      /* stack-layout: pack, packlist, conflicts, conflict-resolver. */
+      /* treat conflicts with user-queries: */
+      while (!nullp(*conflicts_)) { /* only necessary for conflicts/=NIL */
+        /* raise correctable error: */
+        pushSTACK(Car(*conflicts_));           /* OPTIONS */
+        pushSTACK(*pack_);        /* PACKAGE-ERROR slot PACKAGE */
+        pushSTACK(*pack_);
+        pushSTACK(Symbol_name(Cdr(Cdr(Car(Car(*conflicts_)))))); /* name */
+        pushSTACK(fixnum(llength(*conflicts_))); /* (length conflicts) */
+        pushSTACK(*pack_); pushSTACK(*packlist_); pushSTACK(S(use_package));
+        correctable_error(package_error,GETTEXT("(~S ~S ~S): ~S name conflicts remain\nWhich symbol with name ~S should be accessible in ~S?"));
+        pushSTACK(value1); /* sym */
+        {
+          var object new_cons = allocate_cons();
+          Car(new_cons) = popSTACK(); /* sym */
+          Cdr(new_cons) = *conflict_resolver_;
+          /* conflict-resolver := (cons sym conflict-resolver) */
+          *conflict_resolver_ = new_cons;
+        }
+        *conflicts_ = Cdr(*conflicts_);
+      }
+      /* stack-layout: pack, packlist, conflicts, conflict-resolver. */
+      { /* resolve conflicts: */
+        set_break_sem_3();
+        /* traverse conflict-resolver: */
+        while (mconsp(STACK_0)) {
+          pushSTACK(Car(STACK_0)); /* symbol from conflict-resolver */
+          /* make it into a shadowing-symbol in pack */
+          shadowing_import(&STACK_0,&STACK_4);
+          skipSTACK(1);
           STACK_0 = Cdr(STACK_0);
         }
-        skipSTACK(1);
-      }
-      skipSTACK(1);
-    }
-    /* conflict-list finished. */
-    pushSTACK(NIL); /* conflict-resolver := NIL */
-    conflict_resolver_ = &STACK_0;
-    /* stack-layout: pack, packlist, conflicts, conflict-resolver. */
-    /* treat conflicts with user-queries: */
-    while (!nullp(*conflicts_)) { /* only necessary for conflicts/=NIL */
-      /* raise correctable error: */
-      pushSTACK(Car(*conflicts_));           /* OPTIONS */
-      pushSTACK(*pack_);        /* PACKAGE-ERROR slot PACKAGE */
-      pushSTACK(*pack_);
-      pushSTACK(Symbol_name(Cdr(Cdr(Car(Car(*conflicts_)))))); /* name */
-      pushSTACK(fixnum(llength(*conflicts_))); /* (length conflicts) */
-      pushSTACK(*pack_); pushSTACK(*packlist_); pushSTACK(S(use_package));
-      correctable_error(package_error,GETTEXT("(~S ~S ~S): ~S name conflicts remain\nWhich symbol with name ~S should be accessible in ~S?"));
-      pushSTACK(value1); /* sym */
-      {
-        var object new_cons = allocate_cons();
-        Car(new_cons) = popSTACK(); /* sym */
-        Cdr(new_cons) = *conflict_resolver_;
-        /* conflict-resolver := (cons sym conflict-resolver) */
-        *conflict_resolver_ = new_cons;
-      }
-      *conflicts_ = Cdr(*conflicts_);
-    }
-    /* stack-layout: pack, packlist, conflicts, conflict-resolver. */
-    { /* resolve conflicts: */
-      set_break_sem_3();
-      /* traverse conflict-resolver: */
-      while (mconsp(STACK_0)) {
-        pushSTACK(Car(STACK_0)); /* symbol from conflict-resolver */
-        /* make it into a shadowing-symbol in pack */
-        shadowing_import(&STACK_0,&STACK_4);
-        skipSTACK(1);
-        STACK_0 = Cdr(STACK_0);
-      }
-      skipSTACK(2); /* forget conflicts and conflict-resolver */
-      /* stack-layout: pack, packlist. */
-      /* traverse packlist: */
-      while (mconsp(STACK_0)) {
-        pushSTACK(Car(STACK_0)); /* pack_to_use */
-        { /* (push pack_to_use (package-use-list pack)) */
-          var object new_cons = allocate_cons();
-          var object pack = STACK_2;
-          Car(new_cons) = STACK_0; /* pack_to_use */
-          Cdr(new_cons) = ThePackage(pack)->pack_use_list;
-          ThePackage(pack)->pack_use_list = new_cons;
+        skipSTACK(2); /* forget conflicts and conflict-resolver */
+        /* stack-layout: pack, packlist. */
+        /* traverse packlist: */
+        while (mconsp(STACK_0)) {
+          pushSTACK(Car(STACK_0)); /* pack_to_use */
+          { /* (push pack_to_use (package-use-list pack)) */
+            var object new_cons = allocate_cons();
+            var object pack = STACK_2;
+            Car(new_cons) = STACK_0; /* pack_to_use */
+            Cdr(new_cons) = ThePackage(pack)->pack_use_list;
+            ThePackage(pack)->pack_use_list = new_cons;
+          }
+          { /* (push pack (package-used-by-list pack_to_use)) */
+            var object new_cons = allocate_cons();
+            var object pack_to_use = popSTACK();
+            Car(new_cons) = STACK_1; /* pack */
+            Cdr(new_cons) = ThePackage(pack_to_use)->pack_used_by_list;
+            ThePackage(pack_to_use)->pack_used_by_list = new_cons;
+          }
+          STACK_0 = Cdr(STACK_0);
         }
-        { /* (push pack (package-used-by-list pack_to_use)) */
-          var object new_cons = allocate_cons();
-          var object pack_to_use = popSTACK();
-          Car(new_cons) = STACK_1; /* pack */
-          Cdr(new_cons) = ThePackage(pack_to_use)->pack_used_by_list;
-          ThePackage(pack_to_use)->pack_used_by_list = new_cons;
-        }
-        STACK_0 = Cdr(STACK_0);
+        skipSTACK(2); /* forget pack and packlist */
+        clr_break_sem_3();
       }
-      skipSTACK(2); /* forget pack and packlist */
-      clr_break_sem_3();
     }
-  }
+  });
 }
+
 
 /* UP: Auxiliary function for use_package:
  Test the argument (an external symbol from one of the packages of
@@ -1721,31 +1775,17 @@ local maygc void use_package_aux (void* data, object sym) {
  > qpack: package
  Removes qpack from the use-list of pack
  and pack from the used-by-list of qpack.
- can trigger GC
- MT: we lock here both of the packages - one after the other.
- this is needed since if we try to obtain 2 different mutexes at the
- same time - we have to establish some order of acquiring them. Otherwise
- deadlocks are possible.
- Clearly this is not the most efficient (especially about pack) but
- is safe. */
+ can trigger GC */
 local maygc void unuse_1package (object pack, object qpack) {
   safe_check_pack_lock(S(use_package),pack,qpack);
-  pushSTACK(pack); pushSTACK(qpack);
-  var gcv_object_t *pack_ = &STACK_1;
-  var gcv_object_t *qpack_ = &STACK_0;
   set_break_sem_2();
   /* remove qpack from the use-list of pack: */
-  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
-    ThePackage(*pack_)->pack_use_list =
-      deleteq(ThePackage(*pack_)->pack_use_list,*qpack_);
-  });
+  ThePackage(pack)->pack_use_list =
+    deleteq(ThePackage(pack)->pack_use_list,qpack);
   /* remove pack from the used-by-list of qpack: */
-  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
-    ThePackage(*qpack_)->pack_used_by_list =
-      deleteq(ThePackage(*qpack_)->pack_used_by_list,*pack_);
-  });
+  ThePackage(qpack)->pack_used_by_list =
+    deleteq(ThePackage(qpack)->pack_used_by_list,pack);
   clr_break_sem_2();
-  skipSTACK(2);
 }
 
 /* UP: Effectuates, that a list of given packages is not USE-ed anymore
@@ -1762,10 +1802,19 @@ local maygc void unuse_package (object packlist, object pack) {
   pushSTACK(packlist);
   set_break_sem_3();
   /* traverse packlist: */
-  while (mconsp(STACK_0)) {
-    unuse_1package(STACK_1,Car(STACK_0));
-    STACK_0 = Cdr(STACK_0);
-  }
+  var gcv_object_t *pack_ = &STACK_1;
+  WITH_LISP_MUTEX_LOCK(1,false,&ThePackage(*pack_)->pack_mutex,{
+    pushSTACK(NIL);
+    var gcv_object_t *qpack_ = &STACK_0;
+    while (mconsp(STACK_1)) {
+      STACK_0 = Car(STACK_1);
+      WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
+        unuse_1package(*pack_,*qpack_);
+      });
+      STACK_1 = Cdr(STACK_1);
+    }
+    skipSTACK(1);
+  });
   clr_break_sem_3();
   skipSTACK(2);
 }
@@ -2386,18 +2435,22 @@ local maygc void prepare_use_package (void) {
 /* (USE-PACKAGE packs-to-use [package]), CLTL p. 187 */
 LISPFUN(use_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
-  var object pack = popSTACK();
-  var object packlist = popSTACK();
-  use_package(packlist,pack);
+  WITH_OS_MUTEX_LOCK(2, &all_packages_lock, {
+    var object pack = popSTACK();
+    var object packlist = popSTACK();
+    use_package(packlist,pack);
+  });
   VALUES1(T);
 }
 
 /* (UNUSE-PACKAGE packs-to-use [package]), CLTL p. 187 */
 LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
-  var object pack = popSTACK();
-  var object packlist = popSTACK();
-  unuse_package(packlist,pack);
+  WITH_OS_MUTEX_LOCK(2, &all_packages_lock, {
+    var object pack = popSTACK();
+    var object packlist = popSTACK();
+    unuse_package(packlist,pack);
+  });
   VALUES1(T);
 }
 
@@ -2561,26 +2614,36 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
       STACK_1 = STACK_2; /* use-list as 1. argument for USE-PACKAGE */
       STACK_0 = STACK_4; /* pack as 2. argument for USE-PACKAGE */
       prepare_use_package(); /* check arguments STACK_1, STACK_0 */
-      /* stack-layout: pack, nicknames, -, new use-list, pack. */
-      { /* execute USE-PACKAGE (with copied use-list): */
-        var object temp = reverse(STACK_1);
-        use_package(temp,STACK_4);
-      }
-      /* All packages, that are still listed in the use-list of pack,
-         but which do not occur in the uselist located in STACK_1,
-         are removed with unuse_1package: */
-      pack = STACK_4;
-      { /* traverse use-list of pack */
-        STACK_0 = ThePackage(pack)->pack_use_list;
-        while (mconsp(STACK_0)) {
-          var object qpack = Car(STACK_0);
-          /* search in uselist: */
-          if (nullp(memq(qpack,STACK_1)))
-            /* not found in uselist */
-            unuse_1package(STACK_4,qpack);
-          STACK_0 = Cdr(STACK_0);
+      WITH_OS_MUTEX_LOCK(5, &all_packages_lock, {
+        /* stack-layout: pack, nicknames, -, new use-list, pack. */
+        { /* execute USE-PACKAGE (with copied use-list): */
+          var object temp = reverse(STACK_1);
+          use_package(temp,STACK_4);
         }
-      }
+        /* All packages, that are still listed in the use-list of pack,
+           but which do not occur in the uselist located in STACK_1,
+           are removed with unuse_1package: */
+        { /* traverse use-list of pack */
+          var gcv_object_t *pack_ = &STACK_4;
+          WITH_LISP_MUTEX_LOCK(2,false,&ThePackage(*pack_)->pack_mutex, {
+            pushSTACK(NIL);
+            var gcv_object_t *qpack_ = &STACK_0;
+            STACK_1 = ThePackage(*pack_)->pack_use_list;
+            while (mconsp(STACK_1)) {
+              *qpack_ = Car(STACK_1);
+              /* search in uselist: */
+              if (nullp(memq(*qpack_,STACK_2))) {
+                /* not found in uselist */
+                WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex, {
+                  unuse_1package(*pack_,*qpack_);
+                });
+              }
+              STACK_1 = Cdr(STACK_1);
+            }
+            skipSTACK(1);
+          });
+        }
+      });
     }
     /* the use-list is adjusted correctly. */
     skipSTACK(4); /* forget uselist, nicknames etc. */
@@ -2645,38 +2708,41 @@ LISPFUNN(delete_package,1) {
                             'DELETE-PACKAGE pack used-by-list) */
     funcall(L(cerror_of_type),8);
   }
-  WITH_OS_MUTEX_LOCK(1, &all_packages_lock, {
-    /* in thread builds it's possible another thread to have deleted
-       the package already - so check again with lock held */
-    if (!pack_deletedp(STACK_0)) {
-      /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
-      set_break_sem_3();
-      while ((pack = STACK_0, mconsp(ThePackage(pack)->pack_used_by_list))) {
-        unuse_1package(Car(ThePackage(pack)->pack_used_by_list),pack);
-      }
-      clr_break_sem_3();
-      /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
-      unuse_package(ThePackage(STACK_0)->pack_use_list,STACK_0);
-      /* apply delete_package_aux to the symbols present in pack:
-         in MT we should get the package lock - since delete_package_aux()
-         calls unintern(). */
-      var gcv_object_t *pack_ = &STACK_0;
-      WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+  var gcv_object_t *pack_ = &STACK_0;
+  WITH_OS_MUTEX_LOCK(0, &all_packages_lock, {
+    WITH_LISP_MUTEX_LOCK(0,true,&ThePackage(*pack_)->pack_mutex,{
+      /* in MT build package may have been deleted while we were wating */
+      if (!pack_deletedp(*pack_)) {
+        /* execute (DOLIST (p used-py-list) (UNUSE-PACKAGE pack p)) : */
+        set_break_sem_3();
+        pushSTACK(NIL);
+        var gcv_object_t *qpack_ = &STACK_0;
+        while (mconsp(ThePackage(*pack_)->pack_used_by_list)) {
+          STACK_0 = Car(ThePackage(*pack_)->pack_used_by_list);
+          WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
+            unuse_1package(*qpack_,*pack_);
+          });
+        }
+        skipSTACK(1);
+        clr_break_sem_3();
+        /* execute (UNUSE-PACKAGE (package-use-list pack) pack) : */
+        unuse_package(ThePackage(*pack_)->pack_use_list,*pack_);
+        /* apply delete_package_aux to the symbols present in pack:  */
         map_symtab_c(&delete_package_aux,pack_,
                      ThePackage(*pack_)->pack_external_symbols);
         map_symtab_c(&delete_package_aux,pack_,
                      ThePackage(*pack_)->pack_internal_symbols);
-      });
-      /* remove pack from the list of all packages and mark as deleted: */
-      set_break_sem_2();
-      O(all_packages) = deleteq(O(all_packages),*pack_);
-      mark_pack_deleted(*pack_);
-      clr_break_sem_2();
-      VALUES1(T);
-    } else
-      VALUES1(NIL);
-    skipSTACK(1);
+        /* remove pack from the list of all packages and mark as deleted: */
+        set_break_sem_2();
+        O(all_packages) = deleteq(O(all_packages),*pack_);
+        mark_pack_deleted(*pack_);
+        clr_break_sem_2();
+        VALUES1(T);
+      } else
+        VALUES1(NIL);
+    });
   });
+  skipSTACK(1);
 }
 
 /* UP: Auxiliary function for DELETE-PACKAGE:
