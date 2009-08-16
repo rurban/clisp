@@ -25,20 +25,25 @@ distribdir =
 clisp-module : $(GENERATED)
 
 netica.c netica.fas : $(srcdir)/netica.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/netica.lisp -o ./
 
 netica.o : netica.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(NETICA) -c netica.c
 
-%.fas: $(srcdir)/%.lisp
+wrap.fas: $(srcdir)/wrap.lisp
 	$(CLISP) -c $< -o ./
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
+
+clean : force
+	rm -f core *.o *.a *.fas *.lib
+
+distclean : clean
 
 force :
 

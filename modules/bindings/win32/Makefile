@@ -24,17 +24,22 @@ distribdir =
 clisp-module : $(GENERATED)
 
 win32.c win32.fas : $(srcdir)/win32.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/win32.lisp -o ./
 
 win32.o : win32.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c win32.c
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
+
+clean : force
+	rm -f core *.o *.a *.fas *.lib
+
+distclean : clean
 
 force :
 

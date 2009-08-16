@@ -90,13 +90,13 @@ clisp-distrib : force clx.mem
 clisp-module : defsystem.fas stamp.fas $(ALLFAS)
 
 # Make a module distribution into $(distribdir)
-
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
-
 clean: force
 	-rm -f *.lib *.fas *.mem
+
+distclean : clean
 
 force:
 

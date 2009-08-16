@@ -1,8 +1,25 @@
+2009-08-16  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/Makefile.in, modules/bindings/glibc/Makefile:
+	* modules/bindings/win32/Makefile, modules/clx/mit-clx/Makefile:
+	* modules/clx/new-clx/Makefile.in, modules/dbus/Makefile.in:
+	* modules/dirkey/Makefile.in, modules/fastcgi/Makefile.in:
+	* modules/gdbm/Makefile.in, modules/gtk2/Makefile.in:
+	* modules/i18n/Makefile.in, modules/libsvm/Makefile:
+	* modules/matlab/Makefile, modules/netica/Makefile:
+	* modules/oracle/Makefile.in, modules/pari/Makefile.in:
+	* modules/pcre/Makefile.in, modules/postgresql/Makefile.in:
+	* modules/queens/Makefile, modules/rawsock/Makefile.in:
+	* modules/readline/Makefile.in, modules/regexp/Makefile.in:
+	* modules/syscalls/Makefile.in, modules/wildcard/Makefile.in:
+	* modules/zlib/Makefile.in: avoid GNU extensions
+	Reported by Aleksej Saushev <asau@inbox.ru>
+
 2009-08-16  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: make packages threads safe
-	* package.d (rehash_symtab): do not reuse old cons cell. allocate new
-	symtab
+	* package.d (rehash_symtab): do not reuse old cons cell.
+	allocate new symtab
 	(make_present, unexport, make_external): assign returned symtab -
 	possibly newly allocated
 	(unuse_1package): do not lock anything. caller should have obtained

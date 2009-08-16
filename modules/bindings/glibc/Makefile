@@ -23,20 +23,25 @@ distribdir =
 clisp-module : $(GENERATED)
 
 linux.c linux.fas : $(srcdir)/linux.lisp
-	$(CLISP) -c $< -o ./
+	$(CLISP) -c $(srcdir)/linux.lisp -o ./
 
 linux.o : linux.c $(INCLUDES)/clisp.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c linux.c
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+wrap.fas: $(srcdir)/wrap.lisp
+	$(CLISP) -c $(srcdir)/wrap.lisp -o ./
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
+
+clean : force
+	rm -f core *.o *.a *.fas *.lib
+
+distclean : clean
 
 force :
 

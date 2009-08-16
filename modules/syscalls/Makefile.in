@@ -26,17 +26,17 @@ clisp-module : $(GENERATED)
 
 .PHONY : am--refresh clisp-module clisp-module-distrib clean distclean force
 
-%.fas: $(srcdir)/%.lisp
-	$(CLISP) -c $< -o ./
+posix.fas: $(srcdir)/posix.lisp
+	$(CLISP) -c $(srcdir)/posix.lisp -o ./
 
 calls.m.c: $(srcdir)/calls.c
-	$(CLISP) -C $(INCLUDES)/modprep $< ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/calls.c ./
 
 calls.o : calls.m.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c $< -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c calls.m.c -o calls.o
 
 preload.lisp : $(srcdir)/preload.lisp
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/preload.lisp .
 
 am--refresh :
 

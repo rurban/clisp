@@ -26,20 +26,25 @@ distribdir =
 clisp-module : $(GENERATED)
 
 queens.o : $(srcdir)/queens.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/queens.c
 
 callqueens.m.c : $(srcdir)/callqueens.c
-	$(CLISP) -C $(INCLUDES)/modprep $< -o ./
+	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/callqueens.c -o ./
 
 callqueens.o : callqueens.m.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
 
 link.sh : $(srcdir)/link.sh
-	$(LN_S) $< .
+	$(LN_S) $(srcdir)/link.sh .
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
+
+clean : force
+	rm -f core *.o *.a *.m.c *.fas *.lib
+
+distclean : clean
 
 force :
 

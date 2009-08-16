@@ -24,22 +24,21 @@ distribdir =
 # default target: make the module
 clisp-module : $(GENERATED)
 
-fastcgi.c fastcgi.fas:       $(srcdir)/fastcgi.lisp
-	$(CLISP) -c $< -o ./
+fastcgi.c fastcgi.fas: $(srcdir)/fastcgi.lisp
+	$(CLISP) -c $(srcdir)/fastcgi.lisp -o ./
 
-fastcgi.o:       fastcgi.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $<
+fastcgi.o: fastcgi.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi.c
 
-fastcgi_wrappers.o:       $(srcdir)/fastcgi_wrappers.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $<
+fastcgi_wrappers.o: $(srcdir)/fastcgi_wrappers.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $(srcdir)/fastcgi_wrappers.c
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 
 clean : force
-	rm -f core *.o *.a
-	rm -f *.aux *.cp *.fn *.ky *.log *.pg *.toc *.tp *.vr
+	rm -f core *.o *.a *.fas *.lib
 
 distclean : clean
 
