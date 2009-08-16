@@ -1,3 +1,22 @@
+2009-08-16  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: make packages threads safe
+	* package.d (rehash_symtab): do not reuse old cons cell. allocate new
+	symtab
+	(make_present, unexport, make_external): assign returned symtab -
+	possibly newly allocated
+	(unuse_1package): do not lock anything. caller should have obtained
+	both package mutexes
+	(unuse_package): obtain package locks before calling unuse_1package
+	(USE-PACKAGE, UNUSE-PACKAGE): obtain global packages lock since more
+	than one package mutex will be locked at a time
+	(%IN-PACKAGE): lock while modifying existing packages
+	(DELETE-PACKAGE): lock existing package during unuse_1package
+	(WITH_PACKAGE_LIST_MUTEX_LOCK): macro for obtaining all mutexes
+	of a list of packages. on unwinding releases them
+	(use_package): use it
+	(make_package): guard insertion into all_packages
+
 2009-08-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (lisp${SHREXT}) [dynamic_modules]: new target
