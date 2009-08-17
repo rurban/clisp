@@ -1,3 +1,8 @@
+2009-08-17  Bruno Haible  <bruno@clisp.org>
+
+	* spvw_sigsegv.d (stackoverflow_handler_continuation): Update
+	reference to Linux/arm register to match current API.
+
 2009-08-16  Sam Steingold  <sds@gnu.org>
 
 	* modules/berkeley-db/Makefile.in, modules/bindings/glibc/Makefile:
