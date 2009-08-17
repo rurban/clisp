@@ -28,10 +28,9 @@ T
 
 #+unix (crypt "foo" "bar") #+unix "ba4TuD1iozTxw"
 
-#+unix
 (let* ((fmt "%Y-%m-%d %T") (string (show (os:string-time fmt))))
   (string= string (os:string-time fmt (show (os:string-time fmt string)))))
-#+unix T
+T
 
 #+unix
 (when (fboundp 'os:getutxent)
@@ -236,7 +235,7 @@ T
                  (multiple-value-list (os:rlimit)) '(no os:rlimit)) :pretty t))
 T
 
-#+unix (os:uname-p (show (os:uname) :pretty t)) #+unix T
+(os:uname-p (show (os:uname) :pretty t)) T
 
 #+unix (listp (show (os:user-info) :pretty t)) T
 ;; (os:user-info :default) calls getlogin which may fail in cron
@@ -347,7 +346,6 @@ T
 ;; test file locking
 (let ((buf (make-array 100 :fill-pointer t :adjustable t
                        :element-type 'character))
-      #-:win32
       (timeout
        (let* ((uname (os:uname)))
          (cond ((and (string= (os:uname-sysname uname) "Linux")
