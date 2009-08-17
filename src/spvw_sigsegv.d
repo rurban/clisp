@@ -112,7 +112,7 @@ local void stackoverflow_handler_continuation (void* arg1, void* arg2, void* arg
     #endif
    #endif
    #ifdef ARM
-    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.gregs[R8])); }
+    if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->uc_mcontext.arm_r8)); }
    #endif
    #ifdef DECALPHA
     if (scp) { setSTACK(STACK = (gcv_object_t*)(scp->sc_regs[9])); }
