@@ -1,3 +1,8 @@
+2009-08-19  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* package.d (symbol_list_lookup): search for symbol name in a list
+	(symtab_find, shadowing_lookup): use it
+
 2009-08-18  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (XCC_PICFLAG) [cygwin]: empty:
