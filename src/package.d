@@ -242,6 +242,27 @@ local maygc object rehash_symtab (object symtab) {
   return symtab;
 }
 
+/* UP: Searches a symbol of given printname in the list.
+ > string: string
+ > invert: whether to implicitly case-invert the string
+ > list: list of symbols
+ < result: true, if found.
+ < sym: the symbol from the list, that has the given printname (if found) */
+local inline bool symbol_list_lookup(object string, bool invert, object list,
+                                     object* sym_) {
+  /* traverse list: */
+  while (consp(list)) {
+    if ((invert ? string_eq_inverted : string_eq)
+        (string,Symbol_name(Car(list))))
+      goto found;
+    list = Cdr(list);
+  }
+  return false; /* not found */
+ found: /* found */
+  if (sym_) { *sym_ = Car(list); }
+  return true;
+}
+
 /* UP: Searches a symbol with given print-name in the symbol-table.
  symtab_lookup(string,invert,symtab,&sym)
  > string: string
@@ -265,17 +286,7 @@ local bool symtab_lookup (object string, bool invert, object symtab, object* sym
       return false;
     }
   } else { /* entry is a symbol-list */
-    while (consp(entry)) {
-      /* first string and printname of the symbol are equal ? */
-      if ((invert ? string_eq_inverted : string_eq)
-          (string,Symbol_name(Car(entry))))
-        goto found;
-      entry = Cdr(entry);
-    }
-    return false; /* not found */
-  found: /* found as CAR of entry */
-    if (sym_) { *sym_ = Car(entry); }
-    return true;
+    return symbol_list_lookup(string,invert,entry,sym_);
   }
 }
 
@@ -532,20 +543,8 @@ local maygc object make_package (object name, object nicknames,
  < result: true, if found.
  < sym: the symbol from the shadowing-list, that has the given printname
         (if found) */
-local bool shadowing_lookup (object string, bool invert, object pack, object* sym_) {
-  var object list = ThePackage(pack)->pack_shadowing_symbols;
-  /* traverse shadowing-list: */
-  while (consp(list)) {
-    if ((invert ? string_eq_inverted : string_eq)
-        (string,Symbol_name(Car(list))))
-      goto found;
-    list = Cdr(list);
-  }
-  return false; /* not found */
- found: /* found */
-  if (sym_) { *sym_ = Car(list); }
-  return true;
-}
+#define shadowing_lookup(string,invert,pack,sym_)   \
+  symbol_list_lookup(string,invert,ThePackage(pack)->pack_shadowing_symbols,sym_)
 
 /* UP: Searches a given symbol in the shadowing-list of a package.
  shadowing_find(sym,pack)
