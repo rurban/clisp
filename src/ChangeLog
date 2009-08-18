@@ -1,3 +1,8 @@
+2009-08-18  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (XCC_PICFLAG) [cygwin]: empty:
+	"warning: -fPIC ignored for target (all code is position independent)"
+
 2009-08-17  Bruno Haible  <bruno@clisp.org>
 
 	* spvw_sigsegv.d (stackoverflow_handler_continuation): Update

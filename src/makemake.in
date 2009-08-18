@@ -1344,7 +1344,7 @@ if [ "${with_dynamic_modules}" != no ]; then
   if [ $XCC_GCC = true ] ; then
     XCC_LINKER_FLAG_PREFIX='-Wl,'
     case "$host_os" in
-      irix5* | irix6*)
+      irix5* | irix6* | cygwin*)
         # PIC is the default for these OSes.
         XCC_PICFLAG=''
         ;;
