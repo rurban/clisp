@@ -1,3 +1,13 @@
+2009-08-20  Sam Steingold  <sds@gnu.org>
+
+	accept -disable-readline run-time option
+	* lispbibl.d (disable_readline): declare
+	* spvw.d (disable_readline): define
+	(usage): document -disable-readline
+	(parse_options): set disable_readline when -disable-readline is given
+	* stream.d (make_terminal_stream_): do not use readline when
+	disable_readline is true
+
 2009-08-19  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (symbol_list_lookup): search for symbol name in a list
