@@ -1136,8 +1136,11 @@ nonreturning_function(global, error_notreached,
 /* name of the program (for error reporting) */
 local const char* program_name;
 
-/* flag, if SYS::READ-FORM should behave ILISP-compatible: */
+/* Flag, if SYS::READ-FORM should behave ILISP-compatible: */
 global bool ilisp_mode = false;
+
+/* Flag, whether libreadline should be avoided */
+extern bool disable_readline = false;
 
 local fsubr_argtype_t fsubr_argtype (uintW req_count, uintW opt_count,
                                      fsubr_body_t body_flag)
@@ -2105,6 +2108,7 @@ local void usage (bool delegating) {
                 "     and *LOAD-PRINT*/*COMPILE-PRINT*"));;
   puts(GETTEXTL(" -w            - wait for a keypress after program termination"));
   puts(GETTEXTL(" -I            - be ILISP-friendly"));
+  puts(GETTEXTL(" -disable-readline - do not use the gnu readline library"));
   puts(GETTEXTL("Startup actions:"));
   puts(GETTEXTL(" -ansi         - more ANSI CL compliance"));
   puts(GETTEXTL(" -traditional  - traditional (undoes -ansi)"));
@@ -2617,9 +2621,12 @@ local inline int parse_options (int argc, const char* const* argv,
               return 1;
             }
             break;
-          case 'd': /* developer mode */
-            p2->argv_developer = true;
-            if (arg[2] != '\0') {
+          case 'd': /* -d (developer mode) or -disable-readline */
+            if (asciz_equal(arg,"-disable-readline"))
+              disable_readline = true;
+            else if (arg[2] == '\0')
+              p2->argv_developer = true;
+            else {
               INVALID_ARG(arg);
               return 1;
             }

@@ -10673,8 +10673,11 @@ typedef union {uintB einzeln[8]; uintL gesamt[2]; } break_sems_;
 #define clr_break_sem_5()  SEMA_(break_sem_5 = 0)
 /* is used by SPVW */
 
-/* Flag, whether SYS::READ-FORM should behave compatible to ILISP */
+/* Flag, whether SYS::READ-FORM should behave compatibly to ILISP */
 extern bool ilisp_mode;
+
+/* Flag, whether libreadline should be avoided */
+extern bool disable_readline;
 
 /* returns the amount of space occupied by static LISP-objects */
 extern uintM static_space (void);
