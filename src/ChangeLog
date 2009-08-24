@@ -1,5 +1,9 @@
 2009-08-24  Sam Steingold  <sds@gnu.org>
 
+	* version.sh: 2.48+ (2009-08-24)
+
+2009-08-24  Sam Steingold  <sds@gnu.org>
+
 	FFI:OPEN-FOREIGN-LIBRARY now accepts the :REQUIRE argument.
 	* foreign.d (update_library): update the dependencies before
 	handling the library itself
