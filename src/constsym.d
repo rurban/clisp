@@ -1189,6 +1189,7 @@ LISPSYM(find_foreign_function,"FIND-FOREIGN-FUNCTION",ffi) /* ABI */
 LISPSYM(foreign_call_out,"FOREIGN-CALL-OUT",ffi)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
 LISPSYM(open_foreign_library,"OPEN-FOREIGN-LIBRARY",ffi)
+LISPSYM(Krequire,"REQUIRE",keyword)
 LISPSYM(close_foreign_library,"CLOSE-FOREIGN-LIBRARY",ffi)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #if defined(HAVE_DLADDR)

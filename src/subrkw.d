@@ -214,6 +214,8 @@ v(3, (kw(initial_contents),kw(count),kw(read_only)))
 s(foreign_allocate)
 v(1, (kw(full)))
 s(foreign_free)
+v(1, (kw(require)))
+s(open_foreign_library)
 #endif
 #ifdef MULTITHREAD
 v(4, (kw(name),kw(initial_bindings),kw(cstack_size),kw(vstack_size)))
