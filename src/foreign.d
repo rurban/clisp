@@ -4301,21 +4301,58 @@ local maygc void* object_handle (object library, object name, object version) {
   return address;
 }
 
+/* find the library in O(foreign_libraries):
+   (ASSOC name O(foreign_libraries) :TEST (FUNCTION EQUAL))
+ > name: the name of the library
+ < library specifier (library fpointer deps object1 object2 ...) or NIL */
+local object find_library_by_name (object name) {
+  var object alist = O(foreign_libraries);
+  while (consp(alist)) {
+    if (equal(name,Car(Car(alist))))
+      return Car(alist);
+    alist = Cdr(alist);
+  }
+  return NIL;
+}
+/* find the library in O(foreign_libraries):
+   (FIND address O(foreign_libraries) :KEY (FUNCTION SECOND))
+ > addr: the address of the library
+ < library specifier (library fpointer object1 object2 ...) or NIL */
+local object find_library_by_address (object addr) {
+  var object alist = O(foreign_libraries);
+  while (consp(alist)) {
+    if (eq(addr,Car(Cdr(Car(alist)))))
+      return Car(alist);
+    alist = Cdr(alist);
+  }
+  return NIL;
+}
+
 /* update the DLL pointer and all related objects: re-open the library,
  and update the base fp_pointer of fpointer-library-handle and all objects in
- lib_spec = (library-name fpointer-library-handle object1 object2 ...)
+ lib_spec = (library-name fpointer-library-handle deps object1 object2 ...)
  can trigger GC -- only on error in open_library() or object_handle() */
 local maygc void update_library (object lib_spec) {
   pushSTACK(lib_spec);
   var gcv_object_t *lib_spec_ = &STACK_0;
-  var void *lib_handle = open_library(&Car(*lib_spec_));
+  /* update dependencies */
+  for (pushSTACK(Car(Cdr(Cdr(*lib_spec_)))); consp(STACK_0);
+       STACK_0 = Cdr(STACK_0))
+    /* dependencies are strings */
+    update_library(find_library_by_name(Car(STACK_0)));
+  skipSTACK(1);
+  /* open the library */
+  pushSTACK(Car(*lib_spec_));
+  var void *lib_handle = open_library(&STACK_0);
+  Car(*lib_spec_) = popSTACK();
   pushSTACK(Car(Cdr(*lib_spec_))); /* library address - Fpointer */
   var gcv_object_t *lib_addr_ = &STACK_0; /* presumably invalid */
   TheFpointer(*lib_addr_)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(*lib_addr_));
+  /* update objects */
   pushSTACK(NIL);
   var gcv_object_t *fa_ = &STACK_0; /* place to keep foreign address */
-  pushSTACK(Cdr(*lib_spec_));       /* library list */
+  pushSTACK(Cdr(Cdr(*lib_spec_)));  /* library list */
   while (consp(Cdr(STACK_0))) {
     var object fo = Car(Cdr(STACK_0)); /* foreign object */
     *fa_ = foreign_address(fo,false);  /* its foreign address */
@@ -4347,33 +4384,6 @@ local maygc void update_library (object lib_spec) {
   skipSTACK(4);                /* drop lib_spec, library list & lib_addr */
 }
 
-/* find the library in O(foreign_libraries):
-   (ASSOC name O(foreign_libraries) :TEST (FUNCTION EQUAL))
- > name: the name of the library
- < library specifier (library fpointer object1 object2 ...) or NIL */
-local object find_library_by_name (object name) {
-  var object alist = O(foreign_libraries);
-  while (consp(alist)) {
-    if (equal(name,Car(Car(alist))))
-      return Car(alist);
-    alist = Cdr(alist);
-  }
-  return NIL;
-}
-/* find the library in O(foreign_libraries):
-   (FIND address O(foreign_libraries) :KEY (FUNCTION SECOND))
- > addr: the address of the library
- < library specifier (library fpointer object1 object2 ...) or NIL */
-local object find_library_by_address (object addr) {
-  var object alist = O(foreign_libraries);
-  while (consp(alist)) {
-    if (eq(addr,Car(Cdr(Car(alist)))))
-      return Car(alist);
-    alist = Cdr(alist);
-  }
-  return NIL;
-}
-
 /* Check a foreign library argument: an address or a string
  > obj ----- library name (will be opened) or address (will be updated)
  < Return the library specifier (name fpointer object...)
@@ -4383,36 +4393,39 @@ local maygc object check_library (gcv_object_t *obj) {
   var object lib_spec = (fpointerp(*obj) ? find_library_by_address(*obj)
                          : stringp(*obj) ? find_library_by_name(*obj) : NIL);
   if (nullp(lib_spec)) {        /* open new */
-    /* Pre-allocate room: */
-    pushSTACK(allocate_cons()); pushSTACK(allocate_cons());
-    pushSTACK(allocate_cons()); pushSTACK(allocate_fpointer((void*)0));
-    /* Open the library: */
-    var void * libaddr = open_library(obj);
-    var object lib = popSTACK();
-    var object lib_spec = popSTACK();
-    var object new_cons = popSTACK();
-    var object tail_cons = popSTACK();
-    TheFpointer(lib)->fp_pointer = libaddr;
-    value1 = lib;
-    Car(lib_spec) = *obj; Cdr(lib_spec) = tail_cons;
-    Car(new_cons) = lib_spec; Cdr(new_cons) = O(foreign_libraries);
-    Car(tail_cons) = lib; /* Cdr(tail_cons) = NIL; */
-    O(foreign_libraries) = new_cons;
+    pushSTACK(*obj);
+    pushSTACK(allocate_fpointer(open_library(obj)));
+    pushSTACK(NIL);             /* dependencies */
+    lib_spec = allocate_cons();
+    Cdr(lib_spec) = O(foreign_libraries);
+    O(foreign_libraries) = lib_spec;
+    Car(O(foreign_libraries)) = lib_spec = listof(3);
     return lib_spec;
-  } else { /* lib_spec = (library-name library-addr obj1 obj2 ...) */
-    if (!fp_validp(TheFpointer(Car(Cdr(lib_spec)))))
+  } else { /* lib_spec = (library-name library-addr deps obj1 obj2 ...) */
+    if (!fp_validp(TheFpointer(Car(Cdr(lib_spec))))) {
       /* Library already existed in a previous Lisp session.
          Update the address, and make it valid. */
+      pushSTACK(lib_spec);      /* save */
       update_library(lib_spec);
+      lib_spec = popSTACK();    /* restore */
+    }
     return lib_spec;
   }
 }
 
-/* (FFI:OPEN-FOREIGN-LIBRARY name)
+/* (FFI:OPEN-FOREIGN-LIBRARY name &require dependencies)
  returns a foreign library specifier (fpointer). */
-LISPFUNN(open_foreign_library,1) {
-  VALUES1(Car(Cdr(check_library(&STACK_0))));
-  skipSTACK(1);
+LISPFUN(open_foreign_library,seclass_read,1,0,norest,key,1,(kw(require))) {
+  /* open the dependencies */
+  for (pushSTACK(STACK_0); consp(STACK_0); STACK_0 = Cdr(STACK_0)) {
+    pushSTACK(Car(STACK_0));
+    check_library(&STACK_0);
+    var object tmp = popSTACK(); Car(STACK_1) = tmp;
+  }
+  var object lib_spec = check_library(&STACK_2);
+  Car(Cdr(Cdr(lib_spec))) = STACK_1; /* save dependencies */
+  VALUES1(Car(Cdr(lib_spec)));
+  skipSTACK(3);                 /* name, dependencies, tail */
 }
 
 /* (FFI:CLOSE-FOREIGN-LIBRARY name) */
@@ -4475,8 +4488,8 @@ local maygc void push_foreign_object (object obj, object lib_spec) {
   pushSTACK(obj); pushSTACK(lib_spec);
   var object new_cons = allocate_cons();
   lib_spec = popSTACK();
-  Car(new_cons) = popSTACK()/*obj*/; Cdr(new_cons) = Cdr(Cdr(lib_spec));
-  Cdr(Cdr(lib_spec)) = new_cons;
+  Car(new_cons) = popSTACK()/*obj*/; Cdr(new_cons) = Cdr(Cdr(Cdr(lib_spec)));
+  Cdr(Cdr(Cdr(lib_spec))) = new_cons;
 }
 
 /* UP: check foreign_library_* arguments and create the foreign object

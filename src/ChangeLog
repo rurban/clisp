@@ -1,3 +1,14 @@
+2009-08-24  Sam Steingold  <sds@gnu.org>
+
+	FFI:OPEN-FOREIGN-LIBRARY now accepts the :REQUIRE argument.
+	* foreign.d (update_library): update the dependencies before
+	handling the library itself
+	(check_library): allocate space for dependencies in lib_spec
+	(FFI:OPEN-FOREIGN-LIBRARY): accept :require
+	(push_foreign_object): lib_spec now contains dependencies before objects
+	* subr.d, subrkw.d (open_foreign_library): update
+	* constsym.d (Krequire) [WIN32 || HAVE_DLOPEN]: add
+
 2009-08-20  Sam Steingold  <sds@gnu.org>
 
 	accept -disable-readline run-time option
