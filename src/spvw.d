@@ -1140,7 +1140,7 @@ local const char* program_name;
 global bool ilisp_mode = false;
 
 /* Flag, whether libreadline should be avoided */
-extern bool disable_readline = false;
+global bool disable_readline = false;
 
 local fsubr_argtype_t fsubr_argtype (uintW req_count, uintW opt_count,
                                      fsubr_body_t body_flag)
