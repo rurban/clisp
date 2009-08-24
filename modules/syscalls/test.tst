@@ -547,14 +547,14 @@ RUN-SLEEP
 #+unix
 (multiple-value-bind (pid kind status) (posix:wait :pid (run-sleep 1))
   (list (integerp (show pid)) kind status))
-(T :EXITED 0)
+#+unix (T :EXITED 0)
 
 #+unix
 (progn
   (run-sleep 1)
   (multiple-value-bind (pid kind status) (posix:wait)
     (list (integerp (show pid)) kind status)))
-(T :EXITED 0)
+#+unix (T :EXITED 0)
 
 #+unix (posix:wait :pid (run-sleep 1) :nohang t) #+unix 0
 
