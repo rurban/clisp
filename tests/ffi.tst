@@ -1270,3 +1270,13 @@ NIL
     (:return-type size_t) (:library :default) (:language :stdc))
   (strlen "foo"))
 3
+
+#+(or) (progn
+;; dll dependencies (requries gsl)
+(ffi:open-foreign-library "libgsl.so" :require '("libgslcblas.so"))
+(ffi:def-call-out gsl_cheb_alloc (:library "libgsl.so") (:language :stdc)
+  (:arguments (n ffi:int)) (:return-type ffi:c-pointer))
+(saveinitmem "foo" :executable t)
+;; in ./foo:
+(gsl_cheb_alloc 10)
+)

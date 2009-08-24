@@ -5,6 +5,9 @@ Important notes
   incompatibilities between readline CLISP was built against and the
   library actually installed.
 
+* FFI:OPEN-FOREIGN-LIBRARY now accepts the :REQUIRE argument.
+  See  <http://clisp.cons.org/impnotes/dffi.html#dffi-open-lib> for details.
+
 
 2.48 (2009-07-28)
 =================

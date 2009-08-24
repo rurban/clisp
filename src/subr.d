@@ -1411,7 +1411,7 @@ LISPFUN(foreign_free,seclass_default,1,0,norest,key,1,(kw(full)))
 LISPFUNN(find_foreign_function,6)
 LISPFUN(foreign_call_out,seclass_default,1,0,rest,nokey,0,NIL)
 #if defined(WIN32_NATIVE) || defined(HAVE_DLOPEN)
-LISPFUNN(open_foreign_library,1)
+LISPFUN(open_foreign_library,seclass_read,1,0,norest,key,1,(kw(require)))
 LISPFUNN(close_foreign_library,1)
 #endif  /* WIN32_NATIVE || HAVE_DLOPEN */
 #if defined(HAVE_DLADDR)

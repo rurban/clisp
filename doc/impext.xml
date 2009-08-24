@@ -2906,14 +2906,45 @@ or just evaluates the appropriate form in the &repl;.</para>
 </listitem></varlistentry>
 
 <varlistentry id="dffi-open-lib"><term><code>(&open-foreign-library;
-   &name-r;)</code></term>
+   &name-r; &key-amp; :REQUIRE)</code></term>
  <listitem><simpara>Open (load) a shared foreign library.</simpara>
-  <simpara>This is only needed if you want to test
-   for <emphasis>presence</emphasis> of a library without creating a
-   foreign object. When you create a &foreign-variable-t; or a
-   &foreign-function-t; using &def-c-var; or &def-call-out; with a
-   &library-k; argument, the library &name-r; is opened automatically.
-</simpara></listitem></varlistentry>
+  <simpara>Some shared libraries depend on other shared libraries
+   and this dependency can be specified using
+   the <constant>:REQUIRE</constant> argument.</simpara>
+  <simpara>Unless the library has dependencies, this is only needed if
+   you want to test for <emphasis>presence</emphasis> of a library
+   without creating a foreign object.
+   When you create a &foreign-variable-t; or a &foreign-function-t;
+   using &def-c-var; or &def-call-out; with a &library-k; argument,
+   the library &name-r; is opened automatically.</simpara>
+  <para>E.g., <filename>libgsl.so</filename>
+  requires <filename>libgslcblas.so</filename>:<programlisting language="lisp">
+(&open-foreign-library; "libgsl.so")
+*** - FFI:OPEN-FOREIGN-LIBRARY: Cannot open library "libgsl.so":
+      "/usr/lib64/libgsl.so: undefined symbol: cblas_ctrmv"
+</programlisting> so a common way is to pre-open the dependency:
+<programlisting language="lisp">
+(&open-foreign-library; "libgslcblas.so")
+(&def-call-out; gsl_cheb_alloc (&library-k; "libgsl.so") (:language :stdc)
+  (:arguments (n ffi:int)) (:return-type ffi:c-pointer))
+<computeroutput>GSL_CHEB_ALLOC</computeroutput>
+</programlisting> Alas, this would work <emphasis>in the current
+ image</emphasis> only: if you save the
+ image, <function>GSL_CHEB_ALLOC</function> will &not-e; work there
+ because &clisp; will try to re-open <filename>libgsl.so</filename> and
+ fail as above.  However, using the <constant>:REQUIRE</constant>
+ argument will tell &clisp; to re-open <emphasis>both</emphasis>
+ libraries in the right order: <screen>
+&sh-prompt; clisp
+&gt; (&open-foreign-library; "libgsl.so" :require '("libgslcblas.so"))
+&gt; (&def-call-out; gsl_cheb_alloc (:library "libgsl.so") (:language :stdc)
+  (:arguments (n ffi:int)) (:return-type ffi:c-pointer))
+&gt; (&savemem; "foo" :executable t)
+&gt; (&exit;)
+&sh-prompt; ./foo
+&gt; (gsl_cheb_alloc 10)
+<computeroutput>#&lt;&foreign-address-t; #x0000000017AC38A0&gt;</computeroutput>
+</screen></para></listitem></varlistentry>
 
 <varlistentry id="dffi-close-lib"><term><code>(&close-foreign-library;
    &name-r;)</code></term>
