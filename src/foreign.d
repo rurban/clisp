@@ -4303,19 +4303,19 @@ local maygc void* object_handle (object library, object name, object version) {
 
 /* update the DLL pointer and all related objects: re-open the library,
  and update the base fp_pointer of fpointer-library-handle and all objects in
- acons = (library-name fpointer-library-handle object1 object2 ...)
+ lib_spec = (library-name fpointer-library-handle object1 object2 ...)
  can trigger GC -- only on error in open_library() or object_handle() */
-local maygc void update_library (object acons) {
-  pushSTACK(acons);
-  var gcv_object_t *acons_ = &STACK_0;
-  var void *lib_handle = open_library(&Car(*acons_));
-  pushSTACK(Car(Cdr(*acons_))); /* library address - Fpointer */
+local maygc void update_library (object lib_spec) {
+  pushSTACK(lib_spec);
+  var gcv_object_t *lib_spec_ = &STACK_0;
+  var void *lib_handle = open_library(&Car(*lib_spec_));
+  pushSTACK(Car(Cdr(*lib_spec_))); /* library address - Fpointer */
   var gcv_object_t *lib_addr_ = &STACK_0; /* presumably invalid */
   TheFpointer(*lib_addr_)->fp_pointer = lib_handle;
   mark_fp_valid(TheFpointer(*lib_addr_));
   pushSTACK(NIL);
   var gcv_object_t *fa_ = &STACK_0; /* place to keep foreign address */
-  pushSTACK(Cdr(*acons_));          /* library list */
+  pushSTACK(Cdr(*lib_spec_));       /* library list */
   while (consp(Cdr(STACK_0))) {
     var object fo = Car(Cdr(STACK_0)); /* foreign object */
     *fa_ = foreign_address(fo,false);  /* its foreign address */
@@ -4333,7 +4333,7 @@ local maygc void update_library (object acons) {
       default: NOTREACHED;
     }
     ASSERT(eq(TheFaddress(*fa_)->fa_base,*lib_addr_));
-    var void* handle = object_handle(*acons_,fn,ve);
+    var void* handle = object_handle(*lib_spec_,fn,ve);
     if (handle) {               /* found -- fix Faddress */
       TheFaddress(*fa_)->fa_offset = (sintP)handle - (sintP)lib_handle;
       STACK_0 = Cdr(STACK_0);
@@ -4344,7 +4344,7 @@ local maygc void update_library (object acons) {
       mark_fp_invalid(TheFpointer(TheFaddress(*fa_)->fa_base));
     }
   }
-  skipSTACK(4);                /* drop acons, library list & lib_addr */
+  skipSTACK(4);                /* drop lib_spec, library list & lib_addr */
 }
 
 /* find the library in O(foreign_libraries):
@@ -4389,16 +4389,16 @@ local maygc object check_library (gcv_object_t *obj) {
     /* Open the library: */
     var void * libaddr = open_library(obj);
     var object lib = popSTACK();
-    var object acons = popSTACK();
+    var object lib_spec = popSTACK();
     var object new_cons = popSTACK();
     var object tail_cons = popSTACK();
     TheFpointer(lib)->fp_pointer = libaddr;
     value1 = lib;
-    Car(acons) = *obj; Cdr(acons) = tail_cons;
-    Car(new_cons) = acons; Cdr(new_cons) = O(foreign_libraries);
+    Car(lib_spec) = *obj; Cdr(lib_spec) = tail_cons;
+    Car(new_cons) = lib_spec; Cdr(new_cons) = O(foreign_libraries);
     Car(tail_cons) = lib; /* Cdr(tail_cons) = NIL; */
     O(foreign_libraries) = new_cons;
-    return acons;
+    return lib_spec;
   } else { /* lib_spec = (library-name library-addr obj1 obj2 ...) */
     if (!fp_validp(TheFpointer(Car(Cdr(lib_spec)))))
       /* Library already existed in a previous Lisp session.
@@ -4437,9 +4437,9 @@ local maygc object validate_fpointer (object obj)
   pushSTACK(obj);
   pushSTACK(O(foreign_libraries));
   while (consp(STACK_0)) {
-    var object acons = Car(STACK_0); STACK_0 = Cdr(STACK_0);
-    if (eq(Car(Cdr(acons)),STACK_1)) {
-      update_library(acons);
+    var object lib_spec = Car(STACK_0); STACK_0 = Cdr(STACK_0);
+    if (eq(Car(Cdr(lib_spec)),STACK_1)) {
+      update_library(lib_spec);
       skipSTACK(1); return popSTACK();
     }
   }
@@ -4469,14 +4469,14 @@ local maygc object object_address (object library, object name,
   return make_faddress(lib_addr,result_offset);
 }
 
-/* add foreign object obj to the acons (name addr obj1 ...)
+/* add foreign object obj to the lib_spec (name addr obj1 ...)
  can trigger GC */
-local maygc void push_foreign_object (object obj, object acons) {
-  pushSTACK(obj); pushSTACK(acons);
+local maygc void push_foreign_object (object obj, object lib_spec) {
+  pushSTACK(obj); pushSTACK(lib_spec);
   var object new_cons = allocate_cons();
-  acons = popSTACK();
-  Car(new_cons) = popSTACK()/*obj*/; Cdr(new_cons) = Cdr(Cdr(acons));
-  Cdr(Cdr(acons)) = new_cons;
+  lib_spec = popSTACK();
+  Car(new_cons) = popSTACK()/*obj*/; Cdr(new_cons) = Cdr(Cdr(lib_spec));
+  Cdr(Cdr(lib_spec)) = new_cons;
 }
 
 /* UP: check foreign_library_* arguments and create the foreign object
@@ -4606,9 +4606,9 @@ global void exit_ffi (void) {
   /* Close all foreign libraries. */
   var object alist = O(foreign_libraries);
   while (consp(alist)) {
-    var object acons = Car(alist);
-    var object obj = Car(Cdr(acons));
-    if (stringp(Car(acons)) && fp_validp(TheFpointer(obj)))
+    var object lib_spec = Car(alist);
+    var object obj = Car(Cdr(lib_spec));
+    if (stringp(Car(lib_spec)) && fp_validp(TheFpointer(obj)))
       close_library(obj);
     alist = Cdr(alist);
   }
