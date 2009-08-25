@@ -1,3 +1,10 @@
+2009-08-25  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (PATH) [mingw]: do not set; there appears to be no good
+	reason to set it, and the present setting reverses the normal order
+	Reported by Cesar Romani <cesar.romani@gmail.com>
+	in <http://article.gmane.org/gmane.lisp.clisp.general/13055>
+
 2009-08-24  Sam Steingold  <sds@gnu.org>
 
 	* version.sh: 2.48+ (2009-08-24)
