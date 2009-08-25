@@ -1885,10 +1885,6 @@ if [ $TSYS = win32msvc ] ; then
   echol '!endif'
   echol
 fi
-if [ ${TSYS} = win32gcc ]; then
-  echol "PATH=/bin:.:/mingw/bin"
-  echol
-fi
 
 PACKAGE_VERSION="@PACKAGE_VERSION@"
 echol "# The official version number"
