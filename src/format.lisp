@@ -5,7 +5,7 @@
 ;; Further revised and wrote FORMATTER 9.4.1995-11.4.1995
 ;; German comments translated into English: Stefan Kain 2001-09-09
 ;; formatter pprint-logical-block ~:> support: John Boyland 2003
-;; Sam Steingold 1999-2008
+;; Sam Steingold 1999-2009
 
 ;; FORMAT is a mechanism for producing string output conveniently by,
 ;; basically, taking a pre-determined string with placeholders and
