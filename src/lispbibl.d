@@ -9469,9 +9469,10 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
       var clisp_thread_t *thr=current_thread();         \
       SET_SP_BEFORE_SUSPEND(thr); /* debug only */      \
       spinlock_release(&thr->_gc_suspend_ack);          \
-      thr->_raw_wait_mutex = &thr->_gc_suspend_lock;   \
+      thr->_raw_wait_mutex = &thr->_gc_suspend_lock;    \
       xmutex_raw_lock(&thr->_gc_suspend_lock);          \
       spinlock_acquire(&thr->_gc_suspend_ack);          \
+      spinlock_tryacquire(&thr->_gc_suspend_request);   \
       xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
       thr->_raw_wait_mutex = NULL;                      \
       HANDLE_PENDING_INTERRUPTS(thr);                   \
@@ -9514,6 +9515,7 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
         thr->_raw_wait_mutex = &thr->_gc_suspend_lock;    \
         xmutex_raw_lock(&thr->_gc_suspend_lock);          \
         spinlock_acquire(&thr->_gc_suspend_ack);          \
+        spinlock_tryacquire(&thr->_gc_suspend_request);   \
         xmutex_raw_unlock(&thr->_gc_suspend_lock);        \
         thr->_raw_wait_mutex = NULL;                      \
         _thr_ptb_(statement);                             \
