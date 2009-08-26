@@ -581,9 +581,6 @@ global void gc_suspend_all_threads(bool lock_heap)
         if (spinlock_tryacquire(&thread->_gc_suspend_ack)) {
           thread->_suspend_count++; /* increase the suspend count */
           suspended_threads++; /* count the thread */
-          /* try to get the suspend request lock. In case the thread is in
-             blocking system call - this is important. */
-          spinlock_tryacquire(&thread->_gc_suspend_request);
         } else { xthread_yield(); }
       });
     }

@@ -1,3 +1,11 @@
+2009-08-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: threads suspend/resume cleanup
+	* spvw_global.d (gc_suspend_all_threads): do not try to acquire suspend
+	request spinlock
+	* lispbibl.d (GC_SAFE_REGION_END_i, GC_SAFE_ACK_SUSPEND_REQUEST_): try
+	to get suspend request spinlock when resuming thread execution
+
 2009-08-26  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (full-mod-check): same dependencies as base-mod-check
