@@ -385,6 +385,12 @@ ITER-WINDOWS
                                (setf (xlib:wm-hints window) hints)))
 4
 
+;; <http://thread.gmane.org/gmane.lisp.clisp.devel/20745>
+(iter-windows 'xlib:wm-normal-hints
+              (lambda (window hints)
+                (setf (xlib:wm-normal-hints window) hints)))
+4
+
 (iter-windows (lambda (window)
                 (multiple-value-bind (name class) (xlib:get-wm-class window)
                   (when name (list name class))))
