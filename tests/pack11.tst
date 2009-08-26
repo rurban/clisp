@@ -730,6 +730,15 @@ T
 (with-package-iterator-inherited (list (find-package "COMMON-LISP"))) t
 (with-package-iterator-all (list (find-package "COMMON-LISP"))) t
 
+(with-package-iterator-internal
+ (list (find-package "COMMON-LISP-USER") (find-package "COMMON-LISP"))) t
+(with-package-iterator-external
+ (list (find-package "COMMON-LISP-USER") (find-package "COMMON-LISP"))) t
+(with-package-iterator-inherited
+ (list (find-package "COMMON-LISP-USER") (find-package "COMMON-LISP"))) t
+(with-package-iterator-all
+ (list (find-package "COMMON-LISP-USER") (find-package "COMMON-LISP"))) t
+
 (map nil #'print (list-all-packages))
 nil
 
