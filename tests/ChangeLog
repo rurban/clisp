@@ -1,3 +1,8 @@
+2009-08-26  Sam Steingold  <sds@gnu.org>
+
+	* pack11.tst: also test combinations of packages using
+	with-package-iterator-*
+
 2009-08-12  Sam Steingold  <sds@gnu.org>
 
 	* tests.lisp (report-results): accept :HERE
