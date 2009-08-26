@@ -1,3 +1,7 @@
+2009-08-26  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (full-mod-check): same dependencies as base-mod-check
+
 2009-08-25  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (PATH) [mingw]: do not set; there appears to be no good
