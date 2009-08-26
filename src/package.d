@@ -388,13 +388,12 @@ local void symtab_delete (object sym, object symtab) {
     *entryptr = Cdr(entry); /* replace entry with Cdr(entry) */
   }
   /* finally decrement the symbol-counter by 1: (decf count) */
-  { Symtab_count(symtab) = fixnum_inc(Symtab_count(symtab),-1); }
+  Symtab_count(symtab) = fixnum_inc(Symtab_count(symtab),-1);
   return;
  notfound:
   pushSTACK(unbound); /* PACKAGE-ERROR slot PACKAGE */
   pushSTACK(sym);
-  error(package_error,
-         GETTEXT("symbol ~S cannot be deleted from symbol table"));
+  error(package_error,GETTEXT("symbol ~S cannot be deleted from symbol table"));
 }
 
 /* lookup the STRING among the EXTernal (resp. INTernal) symbols of PACK */
@@ -1219,8 +1218,7 @@ local maygc void unexport (const gcv_object_t* sym_, const gcv_object_t* pack_) 
     /* not found among the accessible symbols */
     pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
     pushSTACK(pack); pushSTACK(sym);
-    error(package_error,
-           GETTEXT("UNEXPORT works only on accessible symbols, not on ~S in ~S"));
+    error(package_error,GETTEXT("UNEXPORT works only on accessible symbols, not on ~S in ~S"));
   }
 }
 
@@ -2013,7 +2011,8 @@ LISPFUN(rename_package,seclass_default,2,1,norest,nokey,0,NIL) {
         /* found, but another one than the given package: */
           pushSTACK(pack); /* PACKAGE-ERROR slot PACKAGE */
           pushSTACK(name); pushSTACK(TheSubr(subr_self)->name);
-          error(package_error,GETTEXT("~S: there is already a package named ~S"));
+          error(package_error,
+                GETTEXT("~S: there is already a package named ~S"));
         }
         /* none or only the given package has the Name name ->
            no conflict with this (nick)name, continue: */
@@ -2942,16 +2941,14 @@ LISPFUNN(package_iterate,1) {
     var object symtab = TheSvector(state)->data[2];
     if (simple_vector_p(symtab)) {
       if (false) {
-      search1:
+       search1:
         TheSvector(state)->data[2] = symtab;
         TheSvector(state)->data[1] = Symtab_size(symtab);
         TheSvector(state)->data[0] = NIL;
       }
-    search2:
-      {
+     search2: {
         var object entry = TheSvector(state)->data[0];
-      search3:
-        /* continue search within entry: */
+       search3: /* continue search within entry: */
         if (consp(entry)) {
           TheSvector(state)->data[0] = Cdr(entry);
           value2 = Car(entry); goto found;
@@ -2960,7 +2957,7 @@ LISPFUNN(package_iterate,1) {
           value2 = entry; goto found;
         }
         if (false) {
-        found:
+         found:
           /* Found a symbol value.
              Verify that is it accessible in pack and, if :INHERITED
              is requested,
@@ -2968,27 +2965,24 @@ LISPFUNN(package_iterate,1) {
                 shadowing-list of pack),
              2. itself not already present in pack (because in this case
                 the accessibility would be :INTERNAL or :EXTERNAL). */
-          {
-            var object shadowingsym;
-            if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
-                  && (shadowing_lookup(Symbol_name(value2),false,
-                                       TheSvector(state)->data[4],
-                                       &shadowingsym)
-                      || symtab_find(value2,
-                                     ThePackage(TheSvector(state)->data[4])->
-                                     pack_internal_symbols)
-                      || symtab_find(value2,
-                                     ThePackage(TheSvector(state)->data[4])->
-                                     pack_external_symbols)))) {
-              /* Symbol value2 is really accessible. */
-              value1 = T; value3 = Car(TheSvector(state)->data[5]);
-              mv_count=3; return;
-            }
-            goto search2;
+          var object shadowingsym;
+          if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
+                && (shadowing_lookup(Symbol_name(value2),false,
+                                     TheSvector(state)->data[4],
+                                     &shadowingsym)
+                    || symtab_find(value2,
+                                   ThePackage(TheSvector(state)->data[4])->
+                                   pack_internal_symbols)
+                    || symtab_find(value2,
+                                   ThePackage(TheSvector(state)->data[4])->
+                                   pack_external_symbols)))) {
+            /* Symbol value2 is really accessible. */
+            value1 = T; value3 = Car(TheSvector(state)->data[5]);
+            mv_count=3; return;
           }
+          goto search2;
         }
-        /* entry became =NIL -> go to next Index */
-        {
+        { /* entry became =NIL -> go to next Index */
           var uintL index = posfixnum_to_V(TheSvector(state)->data[1]);
           if (index > 0) {
             TheSvector(state)->data[1] = fixnum_inc(TheSvector(state)->
@@ -3004,7 +2998,7 @@ LISPFUNN(package_iterate,1) {
       }
       /* index became =0 -> go to next table */
       if (eq(Car(TheSvector(state)->data[5]),S(Kinherited))) {
-      search4:
+       search4:
         if (mconsp(TheSvector(state)->data[3])) {
           /* go to next element of the list inh-packages */
           symtab = ThePackage(Car(TheSvector(state)->data[3]))->
@@ -3013,8 +3007,7 @@ LISPFUNN(package_iterate,1) {
           goto search1;
         }
       }
-    search5:
-      /* go to next element of flags */
+     search5: /* go to next element of flags */
       TheSvector(state)->data[5] = Cdr(TheSvector(state)->data[5]);
     }
     var object flags = TheSvector(state)->data[5];
@@ -3029,9 +3022,8 @@ LISPFUNN(package_iterate,1) {
           pack_external_symbols;
         goto search1;
       }
-      else if (eq(flag,S(Kinherited))) { /* :INHERITED */
+      else if (eq(flag,S(Kinherited))) /* :INHERITED */
         goto search4;
-      }
       goto search5; /* skip invalid flag */
     }
   }
