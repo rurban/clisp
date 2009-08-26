@@ -3375,7 +3375,7 @@ modcheck(){                     # $1=clisp command; $2=MODULES variable
 }
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 modcheck "./clisp" BASE_MODULES
-echol "full-mod-check : # full"
+echol "full-mod-check : clisp${TEXE} ${TESTSDIR} # full"
 modcheck "./clisp -K full" MODULES
 
 if test -n "$GROFF"; then
