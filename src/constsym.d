@@ -630,6 +630,7 @@ LISPSYM(map_external_symbols,"MAP-EXTERNAL-SYMBOLS",system) /* ABI */
 LISPSYM(map_all_symbols,"MAP-ALL-SYMBOLS",system) /* ABI */
 LISPSYM(package_iterator,"PACKAGE-ITERATOR",system) /* ABI */
 LISPSYM(package_iterate,"PACKAGE-ITERATE",system) /* ABI */
+LISPSYM(package_iterate_cleanup,"PACKAGE-ITERATE-CLEANUP",system) /* ABI */
 /* ---------- PATHNAME ---------- */
 LISPSYM(parse_namestring,"PARSE-NAMESTRING",lisp)
 LISPSYM(pathname,"PATHNAME",lisp)
