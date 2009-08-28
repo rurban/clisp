@@ -4780,30 +4780,13 @@ Now you can sum doubles:
 
 </section>
 
-<section id="mt-package"><title>Packages</title>
- <subtitle>This information is likely to change in the near future</subtitle>
-<para>&package-t; objects have an internal mutex and are locked by
- &intern; before adding a symbol (if &find-symbol; fails).  All
- modifications of internal package data are guarded by this mutex.</para>
-<warning><para>Currently there is one exception: &use-package; is not
-  protected and thus not thread safe.</para></warning>
-<warning><para>Symbol look-up within package currently is not guarded!
-  This means that in certain cases &find-symbol; may return &nil; even
-  though the symbol is accessible (this may happen when internal package
-  hash tables are re-hashed at the time &find-symbol; performs look-up).
-</para></warning>
-<para>One crucial implication is that one <emphasis>cannot</emphasis>
- call &load; from different threads at the same time.</para>
-<para>See also <xref linkend="mt-clos"/>.</para></section>
-
 <section id="mt-clos"><title>&clos;</title>
  <subtitle>This information is likely to change in the near future</subtitle>
 <para>&clos; is &not-e; thread-safe. &defclass;, &defgeneric;,
  &defmethod;, &defstruct; modify &clos; without any locking and may
  interfere with each other.</para>
 <para>It is recommended that all code is &load;ed &before-e;
- any &thread;s are spawned.</para>
-<para>See also <xref linkend="mt-package"/>.</para></section>
+ any &thread;s are spawned.</para></section>
 
 <section id="mt-mutable"><title>Hash Tables, Sequences, and other
   mutable objects</title>
@@ -4834,7 +4817,6 @@ Now you can sum doubles:
 (&incf; (&gethash; x global-ht 0))<lineannotation>see <xref linkend="mt-mutable"/></lineannotation>
 (&setf; (&aref; global-array ...) ...)<lineannotation>ditto</lineannotation>
 (&defmethod; &gf-r; (...) ...)<lineannotation>see <xref linkend="mt-clos"/></lineannotation>
-(&load; &filename-r;)<lineannotation>see <xref linkend="mt-package"/></lineannotation>
 (&read-from-string; &string-r;)<lineannotation>ditto</lineannotation>
 </programlisting></para></section>
 
