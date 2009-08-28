@@ -2913,47 +2913,55 @@ LISPFUNN(re_export,2) {
  for iterating through the package.
  (SYSTEM::PACKAGE-ITERATE internal-state) iterates through a package by
  one, thereby changes the internal-state and returns: three values
- T, symbol, accessibility of the next symbols resp. 1 value NIL at the end. */
-
+   T, symbol, accessibility of the next symbols resp. 1 value NIL at the end.
+ PIS = Package Iterator State */
+#define PIS_SIZE 6
+#define PIS_ENTRY  0
+#define PIS_INDEX  1
+#define PIS_SYMTAB 2
+#define PIS_INHPKG 3
+#define PIS_PACK   4
+#define PIS_FLAGS  5
+#define PIS(state,field)  TheSvector(state)->data[PIS_##field]
 LISPFUNN(package_iterator,2) {
   STACK_1 = test_package_arg(STACK_1); /* check package-argument */
   /* An internal state consists of a vector
      #(entry index symtab inh-packages package flags)
-     whereby flags is a sub-list of (:INTERNAL :EXTERNAL :INHERITED) ,
+     flags is a sub-list of (:INTERNAL :EXTERNAL :INHERITED) ,
          package is the original package,
          inh-packages is a sub-list of (package-use-list package) ,
          symtab is a symbol-table or NIL,
          index is an Index in symtab,
          entry is the rest of an entry in symtab. */
-  var object state = allocate_vector(6);
-  /* TheSvector(state)->data[2] = NIL; */ /* invalid */
-  TheSvector(state)->data[3] = ThePackage(STACK_1)->pack_use_list;
-  TheSvector(state)->data[4] = STACK_1;
-  TheSvector(state)->data[5] = STACK_0;
+  var object state = allocate_vector(PIS_SIZE);
+  /* PIS(state,SYMTAB) = NIL; */ /* invalid */
+  PIS(state,INHPKG) = ThePackage(STACK_1)->pack_use_list;
+  PIS(state,PACK) = STACK_1;
+  PIS(state,FLAGS) = STACK_0;
   VALUES1(state); skipSTACK(2); /* state as value */
 }
 
 LISPFUNN(package_iterate,1) {
-  var object state = popSTACK(); /* internal state */
-  /* hopefully a 6er-vector */
-  if (simple_vector_p(state) && (Svector_length(state) == 6)) {
+  var object state = STACK_0; /* internal state */
+  /* hopefully a PIS-vector */
+  if (simple_vector_p(state) && (Svector_length(state) == PIS_SIZE)) {
     /* state = #(entry index symtab inh-packages package flags) */
-    var object symtab = TheSvector(state)->data[2];
+    var object symtab = PIS(state,SYMTAB);
     if (simple_vector_p(symtab)) {
       if (false) {
        search1:
-        TheSvector(state)->data[2] = symtab;
-        TheSvector(state)->data[1] = Symtab_size(symtab);
-        TheSvector(state)->data[0] = NIL;
+        PIS(state,SYMTAB) = symtab;
+        PIS(state,INDEX) = Symtab_size(symtab);
+        PIS(state,ENTRY) = NIL;
       }
      search2: {
-        var object entry = TheSvector(state)->data[0];
+        var object entry = PIS(state,ENTRY);
        search3: /* continue search within entry: */
         if (consp(entry)) {
-          TheSvector(state)->data[0] = Cdr(entry);
+          PIS(state,ENTRY) = Cdr(entry);
           value2 = Car(entry); goto found;
         } else if (!nullp(entry)) {
-          TheSvector(state)->data[0] = NIL;
+          PIS(state,ENTRY) = NIL;
           value2 = entry; goto found;
         }
         if (false) {
@@ -2966,27 +2974,25 @@ LISPFUNN(package_iterate,1) {
              2. itself not already present in pack (because in this case
                 the accessibility would be :INTERNAL or :EXTERNAL). */
           var object shadowingsym;
-          if (!(eq(Car(TheSvector(state)->data[5]),S(Kinherited))
+          if (!(eq(Car(PIS(state,FLAGS)),S(Kinherited))
                 && (shadowing_lookup(Symbol_name(value2),false,
-                                     TheSvector(state)->data[4],
-                                     &shadowingsym)
+                                     PIS(state,PACK),&shadowingsym)
                     || symtab_find(value2,
-                                   ThePackage(TheSvector(state)->data[4])->
+                                   ThePackage(PIS(state,PACK))->
                                    pack_internal_symbols)
                     || symtab_find(value2,
-                                   ThePackage(TheSvector(state)->data[4])->
+                                   ThePackage(PIS(state,PACK))->
                                    pack_external_symbols)))) {
             /* Symbol value2 is really accessible. */
-            value1 = T; value3 = Car(TheSvector(state)->data[5]);
-            mv_count=3; return;
+            value1 = T; value3 = Car(PIS(state,FLAGS));
+            mv_count=3; skipSTACK(1); return;
           }
           goto search2;
         }
         { /* entry became =NIL -> go to next Index */
-          var uintL index = posfixnum_to_V(TheSvector(state)->data[1]);
+          var uintL index = posfixnum_to_V(PIS(state,INDEX));
           if (index > 0) {
-            TheSvector(state)->data[1] = fixnum_inc(TheSvector(state)->
-                                                    data[1],-1);
+            PIS(state,INDEX) = fixnum_inc(PIS(state,INDEX),-1);
             index--;
             /* check index as a precaution */
             entry = (index < (uintL)posfixnum_to_V(Symtab_size(symtab))
@@ -2997,29 +3003,27 @@ LISPFUNN(package_iterate,1) {
         }
       }
       /* index became =0 -> go to next table */
-      if (eq(Car(TheSvector(state)->data[5]),S(Kinherited))) {
+      if (eq(Car(PIS(state,FLAGS)),S(Kinherited))) {
        search4:
-        if (mconsp(TheSvector(state)->data[3])) {
+        if (mconsp(PIS(state,INHPKG))) {
           /* go to next element of the list inh-packages */
-          symtab = ThePackage(Car(TheSvector(state)->data[3]))->
+          symtab = ThePackage(Car(PIS(state,INHPKG)))->
             pack_external_symbols;
-          TheSvector(state)->data[3] = Cdr(TheSvector(state)->data[3]);
+          PIS(state,INHPKG) = Cdr(PIS(state,INHPKG));
           goto search1;
         }
       }
      search5: /* go to next element of flags */
-      TheSvector(state)->data[5] = Cdr(TheSvector(state)->data[5]);
+      PIS(state,FLAGS) = Cdr(PIS(state,FLAGS));
     }
-    var object flags = TheSvector(state)->data[5];
+    var object flags = PIS(state,FLAGS);
     if (consp(flags)) {
       var object flag = Car(flags);
       if (eq(flag,S(Kinternal))) { /* :INTERNAL */
-        symtab = ThePackage(TheSvector(state)->data[4])->
-          pack_internal_symbols;
+        symtab = ThePackage(PIS(state,PACK))->pack_internal_symbols;
         goto search1;
       } else if (eq(flag,S(Kexternal))) { /* :EXTERNAL */
-        symtab = ThePackage(TheSvector(state)->data[4])->
-          pack_external_symbols;
+        symtab = ThePackage(PIS(state,PACK))->pack_external_symbols;
         goto search1;
       }
       else if (eq(flag,S(Kinherited))) /* :INHERITED */
@@ -3027,7 +3031,7 @@ LISPFUNN(package_iterate,1) {
       goto search5; /* skip invalid flag */
     }
   }
-  VALUES1(NIL); return;
+  VALUES1(NIL); skipSTACK(1);
 }
 
 /* UP: initialize the package list
