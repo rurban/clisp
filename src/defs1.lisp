@@ -105,25 +105,28 @@
            (TEXT "~S: flag must be one of the symbols ~S, ~S, ~S, not ~S")
            'with-package-iterator ':internal ':external ':inherited
            symboltype))))
-  (let ((iterfun (gensym "WPI-")))
-    `(LET ((,iterfun (SYS::PACKAGE-ITERATOR-FUNCTION
-                       ,pack-list ',(remove-duplicates types))))
-       (MACROLET ((,name () '(FUNCALL ,iterfun)))
-         ,@body))))
+  (let ((iterfun (gensym "WPI-ITER-")) (cleanupfun (gensym "WPI-CLEAN-")))
+    `(multiple-value-bind (,iterfun ,cleanupfun)
+         (SYS::PACKAGE-ITERATOR-FUNCTION
+          ,pack-list ',(remove-duplicates types))
+       (UNWIND-PROTECT (MACROLET ((,name () '(FUNCALL ,iterfun))) ,@body)
+         (funcall ,cleanupfun)))))
 (defun package-iterator-function (pack-list symbol-types) ; ABI
   (let ((iterstates
           (mapcar #'(lambda (pack) (sys::package-iterator pack symbol-types))
                   (if (listp pack-list) pack-list (list pack-list)))))
     ;; The iterstates list is cdr'ed down during the iteration.
-    #'(lambda ()
-        (loop
-          (if iterstates
-            (multiple-value-bind (more symb acc)
-                (sys::package-iterate (car iterstates))
-              (if more
-                (return (values more symb acc (svref (car iterstates) 4)))
-                (pop iterstates)))
-            (return nil))))))
+    (values
+     #'(lambda ()
+         (loop
+           (if iterstates
+               (multiple-value-bind (more symb acc)
+                   (sys::package-iterate (car iterstates))
+                 (if more
+                     (return (values more symb acc (svref (car iterstates) 4)))
+                     (pop iterstates)))
+               (return nil))))
+     #'(lambda () (sys::package-iterate-cleanup (car iterstates))))))
 
 (defvar *system-package-list*
   '("SYSTEM" "COMMON-LISP" "EXT" "I18N" "GRAY" "CHARSET" "CLOS"
