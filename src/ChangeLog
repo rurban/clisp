@@ -1,5 +1,21 @@
 2009-08-28  Sam Steingold  <sds@gnu.org>
 
+	make WITH-PACKAGE-ITERATOR thread-safe
+	* constsym.d, subr.d (package_iterate_cleanup): add
+	* defs1.lisp (with-package-iterator): wrap MACROLET in
+	UNWIND-PROTECT and call CLEANUPFUN, returned by ...
+	(package-iterator-function): return two values: iterfun and cleanupfun
+	* package.d: add an extra (7th) field to Package Iterator State
+	(package-iterate): fill the extra LOCKED field when taking symtab
+	and lock the appropriate package's internal mutex
+	(package-iterate-cleanup): unlock the currently locked internal mutex
+	* constobj.d (version): bump because the ABI function
+	PACKAGE-ITERATOR-FUNCTION now returns two values and the
+	previously compiled files will not call the cleanup function,
+	resulting in a locked internal mutex and blocking READ
+
+2009-08-28  Sam Steingold  <sds@gnu.org>
+
 	* package.d (PACKAGE-ITERATOR, PACKAGE-ITERATE): use symbolic
 	macros PIS_* (for Package Iterator State) instead of literals
 

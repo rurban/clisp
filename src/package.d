@@ -2915,24 +2915,27 @@ LISPFUNN(re_export,2) {
  one, thereby changes the internal-state and returns: three values
    T, symbol, accessibility of the next symbols resp. 1 value NIL at the end.
  PIS = Package Iterator State */
-#define PIS_SIZE 6
+#define PIS_SIZE   7
 #define PIS_ENTRY  0
 #define PIS_INDEX  1
 #define PIS_SYMTAB 2
 #define PIS_INHPKG 3
 #define PIS_PACK   4
 #define PIS_FLAGS  5
+#define PIS_LOCKED 6
 #define PIS(state,field)  TheSvector(state)->data[PIS_##field]
+
 LISPFUNN(package_iterator,2) {
   STACK_1 = test_package_arg(STACK_1); /* check package-argument */
   /* An internal state consists of a vector
-     #(entry index symtab inh-packages package flags)
+       #(entry index symtab inh-packages package flags locked)
+     locked is the currently MT-locked package
      flags is a sub-list of (:INTERNAL :EXTERNAL :INHERITED) ,
-         package is the original package,
-         inh-packages is a sub-list of (package-use-list package) ,
-         symtab is a symbol-table or NIL,
-         index is an Index in symtab,
-         entry is the rest of an entry in symtab. */
+     package is the original package,
+     inh-packages is a sub-list of (package-use-list package) ,
+     symtab is a symbol-table or NIL,
+     index is an Index in symtab,
+     entry is the rest of an entry in symtab. */
   var object state = allocate_vector(PIS_SIZE);
   /* PIS(state,SYMTAB) = NIL; */ /* invalid */
   PIS(state,INHPKG) = ThePackage(STACK_1)->pack_use_list;
@@ -2941,11 +2944,32 @@ LISPFUNN(package_iterator,2) {
   VALUES1(state); skipSTACK(2); /* state as value */
 }
 
+#if defined(MULTITHREAD)
+/* unlock the mutex of the locked package, if any */
+ #define PIS_UNLOCK(state)    do {                                      \
+  var object locked = PIS(state,LOCKED);                                \
+  if (packagep(locked)) {                                               \
+    GC_SAFE_MUTEX_UNLOCK(TheMutex(ThePackage(locked)->pack_mutex)->xmu_system);\
+    PIS(state,LOCKED) = NIL;                                            \
+  }} while(0)
+/* lock the mutex of the given package and record this in state.
+   package can be an expression which involves state.
+   state will be restored. */
+#define PIS_LOCK(state,package)          do {                           \
+  GC_SAFE_MUTEX_LOCK(TheMutex(ThePackage(package)->pack_mutex)->xmu_system); \
+  state = STACK_0;      /* restore after a possible GC */               \
+  PIS(state,LOCKED) = package;                                          \
+ } while(0)
+#else
+#define PIS_UNLOCK(state)        PIS(state,LOCKED) = NIL
+#define PIS_LOCK(state,package)  PIS(state,LOCKED) = package
+#endif
+
 LISPFUNN(package_iterate,1) {
   var object state = STACK_0; /* internal state */
   /* hopefully a PIS-vector */
   if (simple_vector_p(state) && (Svector_length(state) == PIS_SIZE)) {
-    /* state = #(entry index symtab inh-packages package flags) */
+    /* state = #(entry index symtab inh-packages package flags locked) */
     var object symtab = PIS(state,SYMTAB);
     if (simple_vector_p(symtab)) {
       if (false) {
@@ -3007,8 +3031,9 @@ LISPFUNN(package_iterate,1) {
        search4:
         if (mconsp(PIS(state,INHPKG))) {
           /* go to next element of the list inh-packages */
-          symtab = ThePackage(Car(PIS(state,INHPKG)))->
-            pack_external_symbols;
+          PIS_UNLOCK(state);
+          PIS_LOCK(state,Car(PIS(state,INHPKG)));
+          symtab = ThePackage(PIS(state,LOCKED))->pack_external_symbols;
           PIS(state,INHPKG) = Cdr(PIS(state,INHPKG));
           goto search1;
         }
@@ -3020,10 +3045,14 @@ LISPFUNN(package_iterate,1) {
     if (consp(flags)) {
       var object flag = Car(flags);
       if (eq(flag,S(Kinternal))) { /* :INTERNAL */
-        symtab = ThePackage(PIS(state,PACK))->pack_internal_symbols;
+        PIS_UNLOCK(state);
+        PIS_LOCK(state,PIS(state,PACK));
+        symtab = ThePackage(PIS(state,LOCKED))->pack_internal_symbols;
         goto search1;
       } else if (eq(flag,S(Kexternal))) { /* :EXTERNAL */
-        symtab = ThePackage(PIS(state,PACK))->pack_external_symbols;
+        PIS_UNLOCK(state);
+        PIS_LOCK(state,PIS(state,PACK));
+        symtab = ThePackage(PIS(state,LOCKED))->pack_external_symbols;
         goto search1;
       }
       else if (eq(flag,S(Kinherited))) /* :INHERITED */
@@ -3032,6 +3061,13 @@ LISPFUNN(package_iterate,1) {
     }
   }
   VALUES1(NIL); skipSTACK(1);
+}
+
+LISPFUNN(package_iterate_cleanup,1) {
+  var object state = popSTACK();
+  if (simple_vector_p(state) && (Svector_length(state) == PIS_SIZE))
+    PIS_UNLOCK(state);
+  VALUES0;
 }
 
 /* UP: initialize the package list
