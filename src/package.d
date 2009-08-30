@@ -2936,7 +2936,8 @@ LISPFUNN(package_iterator,2) {
      symtab is a symbol-table or NIL,
      index is an Index in symtab,
      entry is the rest of an entry in symtab. */
-  var object state = allocate_vector(PIS_SIZE);
+  pushSTACK(allocate_vector(PIS_SIZE));
+  var object state = popSTACK();
   /* PIS(state,SYMTAB) = NIL; */ /* invalid */
   PIS(state,INHPKG) = ThePackage(STACK_1)->pack_use_list;
   PIS(state,PACK) = STACK_1;
@@ -2945,20 +2946,33 @@ LISPFUNN(package_iterator,2) {
 }
 
 #if defined(MULTITHREAD)
-/* unlock the mutex of the locked package, if any */
+/* We should obtain all_packages_lock and release it on cleanup since as
+   stated in the beginning of the file - when we obtain all_packages_lock and
+   any other package lock - the order should be: all_packages_lock, pack lock.
+   This prevents deadlocks (forms within with-package-iterator may call
+   functions that acquire all_packages_lock). */
+
+ /* unlock the mutex of the locked package, if any */
  #define PIS_UNLOCK(state)    do {                                      \
-  var object locked = PIS(state,LOCKED);                                \
-  if (packagep(locked)) {                                               \
-    GC_SAFE_MUTEX_UNLOCK(TheMutex(ThePackage(locked)->pack_mutex)->xmu_system);\
-    PIS(state,LOCKED) = NIL;                                            \
-  }} while(0)
-/* lock the mutex of the given package and record this in state.
+   var object locked = PIS(state,LOCKED);                               \
+   if (!nullp(locked)) {                                                \
+     pushSTACK(state); /* store - GC may happen below */                \
+     pushSTACK(ThePackage(locked)->pack_mutex);                         \
+     funcall(L(mutex_unlock),1); /* unlock package lock */              \
+     GC_SAFE_MUTEX_UNLOCK(&all_packages_lock); /* unlock all packs */   \
+     PIS(STACK_0,LOCKED) = NIL;                                         \
+     state = popSTACK(); /* restore after a possible GC */              \
+   }} while(0)
+ /* lock the mutex of the given package and record this in state.
    package can be an expression which involves state.
    state will be restored. */
-#define PIS_LOCK(state,package)          do {                           \
-  GC_SAFE_MUTEX_LOCK(TheMutex(ThePackage(package)->pack_mutex)->xmu_system); \
-  state = STACK_0;      /* restore after a possible GC */               \
-  PIS(state,LOCKED) = package;                                          \
+ #define PIS_LOCK(state,package)          do {                          \
+   pushSTACK(package); /* while getting locks GC may happen */          \
+   pushSTACK(ThePackage(package)->pack_mutex);                          \
+   GC_SAFE_MUTEX_LOCK(&all_packages_lock); /* get before pack lock */   \
+   funcall(L(mutex_lock),1); /* get the lock */                         \
+   state = STACK_1;      /* restore after a possible GC */              \
+   PIS(state,LOCKED) = popSTACK();                                      \
  } while(0)
 #else
 #define PIS_UNLOCK(state)        PIS(state,LOCKED) = NIL
@@ -3058,7 +3072,8 @@ LISPFUNN(package_iterate,1) {
       else if (eq(flag,S(Kinherited))) /* :INHERITED */
         goto search4;
       goto search5; /* skip invalid flag */
-    }
+    } else
+      PIS_UNLOCK(state); /* that's the end */
   }
   VALUES1(NIL); skipSTACK(1);
 }
