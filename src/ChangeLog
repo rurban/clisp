@@ -1,3 +1,8 @@
+2009-08-30  Sam Steingold  <sds@gnu.org>
+
+	* loop.lisp (wrap-unwind-protect): add
+	(expand-loop): use it when iterating over packages for thread safety
+
 2009-08-28  Sam Steingold  <sds@gnu.org>
 
 	make WITH-PACKAGE-ITERATOR thread-safe

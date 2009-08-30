@@ -3,7 +3,7 @@
 ;; <http://www.lisp.org/HyperSpec/Body/sec_6-1.html>
 ;; <http://www.lisp.org/HyperSpec/Body/mac_loop.html>
 ;; Bruno Haible 1991-2004
-;; Sam Steingold 1999-2005
+;; Sam Steingold 1999-2009
 
 (in-package "COMMON-LISP")
 (export '(loop loop-finish))
@@ -210,6 +210,11 @@
               ,form))))
   form)
 
+(defun wrap-unwind-protect (protect-forms form)
+  (if protect-forms
+      `(unwind-protect ,form ,@protect-forms)
+      form))
+
 ;; Variable containing the last test result, called "it".
 (defvar *last-it*)
 ;; Flag whether this variable is used.
@@ -254,6 +259,7 @@
              ((NCONC NCONCING APPEND APPENDING)
               (unless (eq (loop-keywordp (caddr rest)) 'INTO)
                 (return nil))))))
+        (protect-forms '())
         (results nil)) ; alist (value-form . (clause list))
     (labels
       ((next-kw () ; Schaut, ob als nächstes ein Keyword kommt.
@@ -855,6 +861,8 @@
                                                  (t '*package*))))
                                           (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
                                                 bindings)
+                                          (push `(SYS::PACKAGE-ITERATE-CLEANUP ,state-var)
+                                                protect-forms)
                                           (note-initialization
                                            (make-loop-init
                                             :specform 'MULTIPLE-VALUE-BIND
@@ -1134,6 +1142,7 @@
         `(MACROLET ((LOOP-FINISH () (LOOP-FINISH-ERROR)))
            (BLOCK ,block-name
              ,(wrap-initializations initializations1
+               (wrap-unwind-protect protect-forms
                 `(MACROLET ((LOOP-FINISH () '(GO END-LOOP)))
                    (TAGBODY
                      ,@(if preamble (nreverse (mapcar #'cdr preamble)))
@@ -1148,7 +1157,7 @@
                                accu-vars-nreverse)
                      (MACROLET ((LOOP-FINISH () (LOOP-FINISH-WARN)
                                   '(GO END-LOOP)))
-                       ,@(nreverse finally-code)))))))))))
+                       ,@(nreverse finally-code))))))))))))
 
 ;; Der eigentliche Macro:
 (defmacro loop (&whole whole &body body)
