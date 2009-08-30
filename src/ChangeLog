@@ -1,3 +1,11 @@
+2009-08-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	fix WITH-PACKAGE-ITERATOR thread-safety
+	* package.d (PIS_LOCK, PIS_UNLOCK): lock/unlock all_packages_lock
+	prior/after package lock is locked/unlocked. use MUTEX-LOCK and
+	MUTEX-UNLOCK for handling package locks
+	(PACKAGE-ITERATE): release locks at the end of iteration
+
 2009-08-30  Sam Steingold  <sds@gnu.org>
 
 	* loop.lisp (wrap-unwind-protect): add
