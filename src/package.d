@@ -2936,8 +2936,7 @@ LISPFUNN(package_iterator,2) {
      symtab is a symbol-table or NIL,
      index is an Index in symtab,
      entry is the rest of an entry in symtab. */
-  pushSTACK(allocate_vector(PIS_SIZE));
-  var object state = popSTACK();
+  var object state = allocate_vector(PIS_SIZE);
   /* PIS(state,SYMTAB) = NIL; */ /* invalid */
   PIS(state,INHPKG) = ThePackage(STACK_1)->pack_use_list;
   PIS(state,PACK) = STACK_1;
