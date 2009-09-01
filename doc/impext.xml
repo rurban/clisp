@@ -4519,7 +4519,7 @@ Now you can sum doubles:
     <function role="unix">listen</function>) and defaults to 1.</simpara>
    <simpara>The <constant>:INTERFACE</constant> parameter specifies the
     interface(s) on which the socket server will listen, and is either a
-    &string-t;, interpreted as the interface IP address that will be
+    &string-t;, interpreted as the interface &ip; address that will be
     bound, or a socket, from whose peer the connections will be made.</simpara>
    <simpara>Default is (for backward compatibility) to bind to all local
     interfaces, but for security reasons it is advisable to bind to
@@ -4665,7 +4665,7 @@ Now you can sum doubles:
     name of the host on the opposite side of the connection and its port
     number; the server-side can use this to see who connected.</simpara>
    <simpara>When the optional second argument is non-&nil;, the hostname
-    resolution is disabled and just the IP address is returned, without
+    resolution is disabled and just the &ip; address is returned, without
     the <acronym>FQDN<alt>Fully Qualified Domain Name</alt></acronym>.
  </simpara>&sost-raw-too;</listitem></varlistentry>
  <varlistentry id="sost-local"><term><code>(&sost-local;
