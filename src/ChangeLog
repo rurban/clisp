@@ -1,7 +1,3 @@
-2009-08-31  Vladimir Tzankov  <vtzankov@gmail.com>
-
-	* package.d (PACKAGE-ITERATOR): revert commit mistake
-
 2009-08-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (GC_SAFE_ACK_SUSPEND_REQUEST_): do not try to acquire
