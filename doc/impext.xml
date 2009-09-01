@@ -4509,25 +4509,28 @@ Now you can sum doubles:
   <varlistentry id="sose"><term><code>(&sose; &optional-amp; &port-r;
      &key-amp; <constant>:INTERFACE</constant>
      <constant>:BACKLOG</constant>)</code></term>
-  <listitem><simpara>This function creates a socket an binds a port to
-    the socket.  The server exists to watch for client connect attempts.
-    The optional argument is the port to use (non-negative &fixnum-t;).
-    The <constant>:BACKLOG</constant> parameter defines maximum length
-    of queue of pending connections (see
-    <function role="unix">listen</function>) and defaults to 1.
-    The <constant>:INTERFACE</constant> is either a &string-t;,
-    interpreted as the IP address that will be bound, or a socket, from
-    whose peer the connections will be made.
-    Default is (for backward compatibility) to bind to all local
+  <listitem><simpara>This function creates a passive socket an binds a
+    port to it.  The server exists to watch for client connection
+    attempts.</simpara>
+   <simpara>The optional argument is the port to use (non-negative
+    &fixnum-t;, &zero; means assigned by the system).</simpara>
+   <simpara>The <constant>:BACKLOG</constant> parameter defines maximum
+    length of queue of pending connections (see
+    <function role="unix">listen</function>) and defaults to 1.</simpara>
+   <simpara>The <constant>:INTERFACE</constant> parameter specifies the
+    interface(s) on which the socket server will listen, and is either a
+    &string-t;, interpreted as the interface IP address that will be
+    bound, or a socket, from whose peer the connections will be made.</simpara>
+   <simpara>Default is (for backward compatibility) to bind to all local
     interfaces, but for security reasons it is advisable to bind to
-    loopback <literal role="data">"127.0.0.1"</literal> if you need only
-    local connections.</simpara></listitem></varlistentry>
+    the loopback interface <literal role="data">"127.0.0.1"</literal> if
+    you need only local connections.</simpara></listitem></varlistentry>
  <varlistentry id="sose-close"><term><code>(&sose-close; &sose-r;)</code></term>
-  <listitem><simpara>Closes down the server socket.
-    <link linkend="close">Just like streams</link>,
-    &socket-server;s are closed at &gc;ion.  You should not rely on
-    this however, because &gc;ion times are not deterministic.
- </simpara></listitem></varlistentry>
+  <listitem><simpara>Closes down the server socket. <link linkend="close">Just
+     like streams</link>, &socket-server;s are closed at &gc;ion.
+    You should not rely on this however, because &gc;ion times are not
+    deterministic and the port assigned to the server socket cannot be
+    reused until it is closed.</simpara></listitem></varlistentry>
  <varlistentry id="sose-hopo"><term><code>(&sose-host; &sose-r;)</code></term>
   <term><code>(&sose-port; &sose-r;)</code></term>
   <listitem><simpara>Returns the host mask indicating which hosts can
