@@ -20,8 +20,8 @@
     <varlistentry><term><structfield>aliases</structfield></term>
      <listitem><simpara>&list-t; of aliases</simpara></listitem></varlistentry>
     <varlistentry><term><structfield>addr-list</structfield></term>
-     <listitem><simpara>&list-t; of IP addresses as dotted quads (for IPv4) or
-       coloned octets (for IPv6)</simpara></listitem></varlistentry>
+     <listitem><simpara>&list-t; of &ip; addresses as dotted quads (for IPv4)
+       or coloned octets (for IPv6)</simpara></listitem></varlistentry>
     <varlistentry><term><structfield>addrtype</structfield></term>
      <listitem><simpara>&integer-t; address type (IPv4 or IPv6)
    </simpara></listitem></varlistentry></variablelist>
@@ -125,9 +125,8 @@
      <function role="win32">GetFileInformationByHandle</function> and
      fills the <type>FILE-STAT</type> return value based on that.
  </para></note></listitem></varlistentry>
- <varlistentry id="set-file-stat">
-  <term><code>(POSIX:SET-FILE-STAT &path-r; &key-amp; :ATIME :MTIME
-    :MODE :UID :GID)</code></term>
+ <varlistentry id="set-file-stat"><term><code>(POSIX:SET-FILE-STAT
+    &path-r; &key-amp; :ATIME :MTIME :MODE :UID :GID)</code></term>
   <listitem><simpara>Set some file attributes using
     <function role="unix">chmod</function>,
     <function role="unix">chown</function>,
