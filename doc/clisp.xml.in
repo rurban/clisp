@@ -441,7 +441,7 @@ compiles the specified lisp files to a platform-independent
 
 <varlistentry id="opt-exec-file"><term>&lf; [ &arg-r; ... ]</term>
  <listitem><simpara>Loads and executes a &lf;, as described in
-   <olink targetdoc="impnotes" targetptr="script-exec"/>.
+   <olink targetdoc="impnotes" targetptr="quickstart-unix"/>.
    There will be no &repl;.
    Before &lf; is loaded, the variable &args; will be bound to a list of
    strings, representing the &arg-r;s.
