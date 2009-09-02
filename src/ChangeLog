@@ -1,3 +1,27 @@
+2009-09-02  Sam Steingold  <sds@gnu.org>
+
+	modules should be buildable using pre-installed clisp
+	* makemake.in (build-aux): add link_dep target
+	(modular): depend on it
+	(BUILD_AUX): compute the files which module configures need
+	(anymodule): pass --with-clisp to module configures
+	(distrib, install): include BUILD_AUX in libdir/build-aux
+	* m4/clisp.m4 (CL_CLISP): major rewrite for better caching
+	(CL_CLISP_NEED_FFI): add
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): require CL_CLISP,
+	pass cl_cv_clisp_libdir/build-aux to AC_CONFIG_AUX_DIR
+	* modules/berkeley-db/configure.in, modules/clx/new-clx/configure.in:
+	* modules/dirkey/configure.in, modules/gdbm/configure.in:
+	* modules/i18n/configure.in, modules/pcre/configure.in:
+	* modules/rawsock/configure.in, modules/regexp/configure.in:
+	* modules/syscalls/configure.in: call CL_MODULE_COMMON_CHECKS
+	without arguments
+	* modules/dbus/configure.in, modules/fastcgi/configure.in:
+	* modules/gtk2/configure.in, modules/oracle/configure.in:
+	* modules/pari/configure.in, modules/postgresql/configure.in:
+	* modules/readline/configure.in, modules/wildcard/configure.in:
+	* modules/zlib/configure.in: ditto and call CL_CLISP_NEED_FFI
+
 2009-08-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (GC_SAFE_ACK_SUSPEND_REQUEST_): do not try to acquire
