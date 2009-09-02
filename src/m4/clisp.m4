@@ -11,71 +11,61 @@ dnl From Sam Steingold.
 AC_PREREQ(2.13)
 
 dnl set variable $1 to the result of evaluating in clisp of $2
-AC_DEFUN([CLISP_SET],[$1=`$ac_cv_path_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
+AC_DEFUN([CLISP_SET],[$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
 
-dnl check for a clisp of a correct version
-dnl e.g.: AC_CLISP(2.47) is you want at least version 2.47
+dnl check for a clisp installation
 dnl use --with-clisp=path if your clisp is not in the PATH
 dnl if you want to link with the full linking set,
 dnl use --with-clisp='clisp -K full'
-AC_DEFUN([AC_CLISP],[dnl
+AC_DEFUN([CL_CLISP],[dnl
 AC_ARG_WITH([clisp],
-AC_HELP_STRING([--with-clisp],[use this CLISP installation]),
-[ac_cv_use_clisp="$withval"], [ac_cv_use_clisp=default])
-ac_cv_have_clisp=no
-if test "$ac_cv_use_clisp" = "no";
-then AC_MSG_NOTICE([not checking for clisp])
-else
-  AC_SUBST(ac_cv_path_clisp)
-  if test "$ac_cv_use_clisp" = default -o "$ac_cv_use_clisp" = yes;
-  then AC_PATH_PROG(ac_cv_path_clisp, clisp)
-  else ac_cv_path_clisp="$ac_cv_use_clisp"
+AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
+[cl_cv_use_clisp="$withval"], [cl_cv_use_clisp=default])
+if test "$cl_cv_use_clisp" != "no"; then
+  if test "$cl_cv_use_clisp" = default -o "$cl_cv_use_clisp" = yes;
+  then AC_PATH_PROG(cl_cv_clisp, clisp)
+  else cl_cv_clisp="$cl_cv_use_clisp"
   fi
-  if test "X$ac_cv_path_clisp" = "X"; then
-    AC_MSG_RESULT([not found, disabling CLISP])
-  else
-    AC_MSG_CHECKING(CLISP version)
-    if `$ac_cv_path_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
-    then CLISP_SET(clisp_version,[(lisp-implementation-version)])
-    else clisp_version='not a CLISP'
-    fi
-    if test "$clisp_version" = 'not a CLISP'; then
-      AC_MSG_RESULT([$ac_cv_path_clisp is not a CLISP; disabling CLISP])
-    elif test $1 \> "$clisp_version"; then
-      AC_MSG_RESULT([found $clisp_version; need version >= $1; disabling CLISP])
-    else
-      AC_MSG_RESULT([ok: $clisp_version])
-      AC_MSG_CHECKING(for CLISP header)
-      CLISP_SET(clisp_libdir,[(namestring *lib-directory*)])
-      if test ! -r "${clisp_libdir}linkkit/clisp.h"; then
-        AC_MSG_RESULT([missing ${clisp_libdir}linkkit/clisp.h, disabling CLISP])
-      else
-        AC_MSG_RESULT([ok: ${clisp_libdir}linkkit/clisp.h])
-        CLISP_INCLUDE="-I${clisp_libdir}linkkit"
-        CLISP_SET(clisp_modset_dir,[(sys::program-name)])
-        clisp_modset_dir=`dirname ${clisp_modset_dir}`
-        AC_MSG_CHECKING(for CLISP module set in ${clisp_modset_dir})
-        missing=''
-        # cf. check_linkset in clisp-link
-        for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-          test -r "${clisp_modset_dir}/$f" || missing=${missing}' '$f
-        done
-        if test -n "${missing}"; then
-          AC_MSG_RESULT([missing${missing}, disabling CLISP])
-        else
-          AC_MSG_RESULT(yes)
-          AC_SUBST(CLISP_INCLUDE)
-          sed 's/^/CLISP_/' ${clisp_modset_dir}/makevars > conftestvars
-          source conftestvars
-          rm -f conftestvars
-          AC_SUBST(CLISP_FILES)
-          AC_SUBST(CLISP_LIBS)
-          AC_SUBST(CLISP_CFLAGS)
-          AC_SUBST(CLISP_CPPFLAGS)
-          ac_cv_have_clisp=yes
-        fi
-      fi
-    fi
+  if test "X$cl_cv_clisp" != "X"; then
+    AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [
+     if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
+     then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
+     else cl_cv_clisp_version='not a CLISP'
+     fi])
+    AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [
+     CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
+     if test ! -r "${cl_cv_clisp_libdir}linkkit/clisp.h"; then
+       cl_cv_clisp_libdir="missing ${cl_cv_clisp_libdir}linkkit/clisp.h"
+     fi])
+    AC_CACHE_CHECK([for CLISP modset], [cl_cv_clisp_modset], [
+     CLISP_SET(cl_cv_clisp_modset,[(sys::program-name)])
+     cl_cv_clisp_modset=`dirname ${cl_cv_clisp_modset}`
+     missing=''
+     # cf. check_linkset in clisp-link
+     for f in lisp.a lispinit.mem modules.h modules.o makevars; do
+       test -r "${cl_cv_clisp_modset}/$f" || missing=${missing}' '$f
+     done
+     if test -n "${missing}"; then
+       cl_cv_clisp_modset="missing${missing}"
+     fi])
+    AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi], [
+     CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
+    CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
+    CLISP_INCLUDE="-I${clisp_libdir}linkkit"; AC_SUBST(CLISP_INCLUDE)dnl
+    sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
+    source conftestvars
+    rm -f conftestvars
+    AC_SUBST(CLISP_FILES)dnl
+    AC_SUBST(CLISP_LIBS)dnl
+    AC_SUBST(CLISP_CFLAGS)dnl
+    AC_SUBST(CLISP_CPPFLAGS)dnl
+    AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp], [
+     if test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_modset; then
+       cl_cv_have_clisp=yes
+     else cl_cv_have_clisp=no
+     fi])
   fi
-fi
-])
+fi])
+
+AC_DEFUN([CL_CLISP_NEED_FFI],
+[test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([FFI is missing])])

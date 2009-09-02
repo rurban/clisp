@@ -3290,7 +3290,15 @@ for f in ${LINKKIT}; do
   echotab "cd linkkit && \$(LN_S) ${PARENT_}$f $f"
 done
 echol
-echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars"
+MODULE_CONFIGURES=`find ${SRCTOPDIR_}modules -name configure`
+BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
+BUILD_AUX=''
+link_dep "build-aux" "${SRCDIR}build-aux"
+for f in ${BUILD_AUX_ALL}; do
+  test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
+done
+
+echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux"
 echodummyrule modular
 echol
 # while the top-level makevars can contain arbitrary paths in LIBS and FILES,
@@ -3335,7 +3343,7 @@ for var in ${PRECIOUS_VARS}; do
 done
 # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
 # is bash, config.cache may be unparsable with sh on Solaris
-echotab "      \$(SHELL) \$\$m/configure --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
+echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K boot ${localeflags}${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
 echotab "    else \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi; \\"
@@ -3894,6 +3902,8 @@ echotab "${HLN} \$(LISPFILES) \$(FASFILES) \$(TOPDIR)/src/"
 echotab "${HLN} clisp-link \$(TOPDIR)/"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit/"
+echotab "mkdir \$(TOPDIR)/build-aux"
+echotab "cd build-aux && ${HLN} ${BUILD_AUX} \$(TOPDIR)/build-aux"
 echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
@@ -3942,6 +3952,10 @@ elif [ $HOS = win32 ] ; then
     echotab "for f in ${LINKKIT}; do \\"
     echotab "  cp -p linkkit/\$\$f \$\$distdir/linkkit/\$\$f; \\"
     echotab "done ; \\"
+    echotab "mkdir \$\$distdir/build-aux; \\"
+    echotab "for f in ${BUILD_AUX}; do \\"
+    echotab "  cp -p build-aux/\$\$f \$\$distdir/build-aux/\$\$f; \\"
+    echotab "done ; \\"
     echotab "cp clisp-link clisp.exe \$\$distdir/; \\"
     echo_dist_modules `pwd`/"\$\$distdir" ln "; \\"
   fi
@@ -3988,7 +4002,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log build-aux
 	-\$(RMRF) ${RECOMPILEDIR}
 	-\$(RMRF) ${TESTSDIR}
 	-\$(RMRF) ${ANSITESTSDIR}

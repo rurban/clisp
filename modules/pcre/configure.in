@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for PCRE
-dnl Copyright (C) 2003-2008  Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2003-2009 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -9,7 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([PCRE (Common)])
-CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+CL_MODULE_COMMON_CHECKS()
 
 dnl Search for libpcre and define LIBPCRE, LTLIBPCRE and INCPCRE.
 AC_LIB_LINKFLAGS([pcre])

@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for dbus
-dnl Copyright (C) 2008 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2008-2009 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2+
 
 AC_PREREQ(2.57)
@@ -9,10 +9,8 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Dbus (Common)])
-if test $cl_cv_have_ffcall = no; then
-  AC_MSG_ERROR([module Dbus requires FFI])
-fi
-CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+CL_MODULE_COMMON_CHECKS
+CL_CLISP_NEED_FFI
 
 BOLD_MSG([Dbus (Headers and Libraries)])
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0,,[AC_MSG_ERROR([cannot find D-Bus])])
