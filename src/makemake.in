@@ -3600,9 +3600,9 @@ if [ $CROSS = false ] ; then
     done
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
-    echotab "mkdir \$(DESTDIR)\$(lisplibdir)/base"
+    echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/base"
     if [ "${with_dynamic_modules}" != no ]; then
-      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/dynmod"
+      echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/dynmod"
       echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
       echotab "absdest=\`cd \"\$(DESTDIR)\$(lisplibdir)\"; pwd\` ; \\"
       echotab "here=\`pwd\`; \\"
@@ -3612,7 +3612,7 @@ if [ $CROSS = false ] ; then
       echotab "done"
       line='clisp-link linkkit/* base/*'
     else
-      echotab "mkdir \$(DESTDIR)\$(lisplibdir)/full"
+      echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
       line='clisp-link linkkit/* base/* full/*'
     fi
     echotab "for f in ${line}; do \\"
