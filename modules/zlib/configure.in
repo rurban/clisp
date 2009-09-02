@@ -1,5 +1,5 @@
 dnl AUTOCONF configuration for libz
-dnl Copyright (C) 2004-2008 Sam Steingold <sds@gnu.org>
+dnl Copyright (C) 2004-2009 Sam Steingold <sds@gnu.org>
 dnl GNU GPL2
 
 AC_PREREQ(2.57)
@@ -9,10 +9,8 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Zlib (Common)])
-if test $cl_cv_have_ffcall = no; then
-  AC_MSG_ERROR([module Zlib requires FFI])
-fi
-CL_MODULE_COMMON_CHECKS(../../src/build-aux)
+CL_MODULE_COMMON_CHECKS
+CL_CLISP_NEED_FFI
 
 dnl Search for libz and define LIBZ, LTLIBZ and INCZ.
 AC_LIB_LINKFLAGS([z])
