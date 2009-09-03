@@ -2,7 +2,8 @@
 
 	* modules/libsvm/Makefile (svm$(SHREXT)): no need to add -I$(INCLUDES)
 	* modules/postgresql/Makefile.in (postgresql.fas): remove an extra rule
-	* modules/clx/new-clx/Makefile.in (clisp-module-distrib): fix a typo
+	* modules/clx/new-clx/Makefile.in (clisp-module-distrib): fix a typo;
+	use "mkdir -p"
 
 2009-09-03  Sam Steingold  <sds@gnu.org>
 
