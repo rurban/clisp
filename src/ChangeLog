@@ -9,7 +9,7 @@
 	* modules/rawsock/Makefile.in, modules/readline/Makefile.in:
 	* modules/regexp/Makefile.in, modules/syscalls/Makefile.in:
 	* modules/wildcard/Makefile.in, modules/zlib/Makefile.in:
-	(CLISP): init to @CLISP@ -norc -q
+	* modules/clx/new-clx/Makefile.in (CLISP): init to @CLISP@ -norc -q
 	(CLISP_LINKKIT): init to @CLISP_LINKKIT@ and use instead of INCLUDES
 	* m4/clisp.m4 (CL_CLISP): define CLISP_LINKKIT instead of CLISP_INCLUDE
 
