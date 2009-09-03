@@ -27,7 +27,7 @@
 	(modular): depend on it
 	(BUILD_AUX): compute the files which module configures need
 	(anymodule): pass --with-clisp to module configures
-	(distrib, install): include BUILD_AUX in libdir/build-aux
+	(distrib, install, install-bin): install BUILD_AUX in libdir/build-aux
 	* m4/clisp.m4 (CL_CLISP): major rewrite for better caching
 	(CL_CLISP_NEED_FFI): add
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): require CL_CLISP,

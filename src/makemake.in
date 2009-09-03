@@ -3601,6 +3601,8 @@ if [ $CROSS = false ] ; then
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/linkkit"
     echotab "(cd \$(DESTDIR)\$(lisplibdir) && \$(RMRF) base full)"
     echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/base"
+    echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/build-aux"
+    echotab "for f in ${BUILD_AUX}; do \$(INSTALL_DATA) build-aux/\$\$f \$(DESTDIR)\$(lisplibdir)/build-aux/\$\$f; done"
     if [ "${with_dynamic_modules}" != no ]; then
       echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/dynmod"
       echotab "for f in dynmod/*; do \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f; done"
