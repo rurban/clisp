@@ -1,5 +1,9 @@
 2009-09-03  Sam Steingold  <sds@gnu.org>
 
+	* modules/libsvm/Makefile (svm$(SHREXT)): no need to add -I$(INCLUDES)
+
+2009-09-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/Makefile.in, modules/clx/new-clx/clx.lisp:
 	* modules/dbus/Makefile.in, modules/dirkey/Makefile.in:
 	* modules/fastcgi/Makefile.in, modules/gdbm/Makefile.in:
