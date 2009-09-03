@@ -1,7 +1,7 @@
-NEW_FILES='calls.o libgnu_sc.a'
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir"
+NEW_FILES='calls.o libgnu_sc.a'
 NEW_LIBS="${NEW_FILES} @LIBS@"
 NEW_MODULES='syscalls'
 TO_LOAD='posix'

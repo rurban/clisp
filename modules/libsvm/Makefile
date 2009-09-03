@@ -8,7 +8,7 @@ CXX = g++
 CPPFLAGS =
 CXXFLAGS = -O3 -ffast-math -Wall
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 
 LN = ln
 LN_S = ln -s
@@ -39,7 +39,7 @@ libsvm.c libsvm.fas : $(srcdir)/libsvm.lisp
 	$(CLISP) -c $(srcdir)/libsvm.lisp -o ./
 
 libsvm.o : libsvm.c $(srcdir)/svm.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I$(srcdir) -c libsvm.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -I$(srcdir) -c libsvm.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .

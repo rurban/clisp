@@ -1,10 +1,8 @@
-files='gtk.o'
-mods='gtk'
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir"
-NEW_FILES="$files"
-NEW_LIBS="$files @GTK_LIBS@ @LIBGLADE_LIBS@"
-NEW_MODULES="$mods"
+  CLISP_LINKKIT="$absolute_linkkitdir"
+NEW_FILES="gtk.o"
+NEW_LIBS="${NEW_FILES} @GTK_LIBS@ @LIBGLADE_LIBS@"
+NEW_MODULES="gtk"
 TO_LOAD='gtk'
 TO_PRELOAD='preload'

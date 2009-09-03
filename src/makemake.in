@@ -2142,15 +2142,16 @@ cat <<\!!
 #        CC        the C compiler used to compile the CLISP source
 #        CPPFLAGS  the C compiler flags when compiling some source
 #        CFLAGS    the C compiler flags
-#        INCLUDES  a directory containing CLISP header files
 #        CLFLAGS   the C compiler flags when linking an executable
 #        LIBS      the libraries used when linking an executable
 #        RANLIB    the name of the "ranlib" command
 #        CLISP     a command which calls the already built "boot" clisp.
+#        CLISP_LINKKIT  the directory containing the CLISP header file clisp.h
+#                       (defaults to $$($(CLISP) -b)/linkkit)
 #        SHREXT    the shared object extension (.so or .dll)
 #      Typically, you will have rules like this in your Makefile:
 #        foo.o : foo.c
-#                $(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c foo.c
+#                $(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c foo.c
 #        foo.fas : foo.lisp
 #                $(CLISP) -c foo.lisp
 #

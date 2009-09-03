@@ -4,9 +4,8 @@ srcdir = .
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES = ../..
-
 CLISP = clisp -q -norc
+CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 
 LN = ln
 LN_S = ln -s
@@ -25,8 +24,8 @@ clisp-module : $(GENERATED)
 linux.c linux.fas : $(srcdir)/linux.lisp
 	$(CLISP) -c $(srcdir)/linux.lisp -o ./
 
-linux.o : linux.c $(INCLUDES)/clisp.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c linux.c
+linux.o : linux.c $(CLISP_LINKKIT)/clisp.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c linux.c
 
 wrap.fas: $(srcdir)/wrap.lisp
 	$(CLISP) -c $(srcdir)/wrap.lisp -o ./

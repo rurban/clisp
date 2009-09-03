@@ -9,7 +9,7 @@ CFLAGS = -Wall -fomit-frame-pointer -O2
 CPP = gcc -O -E -w
 CLFLAGS =
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 
 LN = ln
 LN_S = ln -s
@@ -29,10 +29,11 @@ queens.o : $(srcdir)/queens.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/queens.c
 
 callqueens.m.c : $(srcdir)/callqueens.c
-	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/callqueens.c -o ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/callqueens.c -o ./
 
 callqueens.o : callqueens.m.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c callqueens.m.c -o callqueens.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-c callqueens.m.c -o callqueens.o
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $(srcdir)/link.sh .
