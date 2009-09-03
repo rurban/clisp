@@ -8,8 +8,8 @@ CFLAGS = @CFLAGS@
 DBUS_CFLAGS = @DBUS_CFLAGS@
 DBUS_LIBS = @DBUS_LIBS@
 
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 
@@ -28,7 +28,7 @@ dbus.c dbus.fas : $(srcdir)/dbus.lisp
 	$(CLISP) -c $(srcdir)/dbus.lisp -o ./
 
 dbus.o : dbus.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(DBUS_CFLAGS) -c dbus.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) $(DBUS_CFLAGS) -c dbus.c
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

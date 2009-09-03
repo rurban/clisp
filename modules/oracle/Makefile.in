@@ -10,8 +10,8 @@ srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@ -I$(srcdir)
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 # Get Oracle OCI library headers
 #
@@ -49,13 +49,13 @@ oracle.c oracle.fas: $(srcdir)/oracle.lisp
 	$(CLISP) -c $(srcdir)/oracle.lisp -o ./
 
 oracle.o: oracle.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c oracle.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) $(ORA_INCLUDES) -c oracle.c
 
 oiface.o: $(srcdir)/oiface.c $(srcdir)/oiface.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $(srcdir)/oiface.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) $(ORA_INCLUDES) -c $(srcdir)/oiface.c
 
 orafns.o: $(srcdir)/orafns.c $(srcdir)/oiface.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) $(ORA_INCLUDES) -c $(srcdir)/orafns.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) $(ORA_INCLUDES) -c $(srcdir)/orafns.c
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

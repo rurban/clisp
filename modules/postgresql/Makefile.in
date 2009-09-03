@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 PQCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES= $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 
@@ -25,7 +25,8 @@ postgresql.c postgresql.fas : $(srcdir)/postgresql.lisp
 	$(CLISP) -c $(srcdir)/postgresql.lisp -o ./
 
 postgresql.o : postgresql.c config.h
-	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c postgresql.c
+	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-c postgresql.c
 
 postgresql.fas: $(srcdir)/postgresql.lisp
 	$(CLISP) -c $(srcdir)/postgresql.lisp -o ./

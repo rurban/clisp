@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 PCRECPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 LN_S = ln -s
@@ -25,10 +25,11 @@ pcre.fas: $(srcdir)/pcre.lisp
 	$(CLISP) -c $(srcdir)/pcre.lisp -o ./
 
 cpcre.o : cpcre.m.c config.h
-	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c cpcre.m.c -o cpcre.o
+	$(CC) $(CPPFLAGS) $(PCRECPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-c cpcre.m.c -o cpcre.o
 
 cpcre.m.c : $(srcdir)/cpcre.c
-	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/cpcre.c ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/cpcre.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
