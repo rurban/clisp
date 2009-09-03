@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = -O
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 LN = ln
 LN_S = ln -s
 SHELL = /bin/sh
@@ -41,10 +41,10 @@ clx.d: $(srcdir)/clx.f
 	$(RM) genclx
 
 clx.c: clx.d
-	$(CLISP) -C $(INCLUDES)/modprep clx.d clx.c
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep clx.d clx.c
 
 clx.o: clx.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(INCLUDES) -c clx.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(X_CFLAGS) -I$(CLISP_LINKKIT) -c clx.c
 
 clx-preload.lisp : $(srcdir)/clx-preload.lisp
 	$(LN_S) $(srcdir)/clx-preload.lisp .
