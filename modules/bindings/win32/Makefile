@@ -4,9 +4,8 @@ srcdir = .
 CC = gcc
 CPPFLAGS =
 CFLAGS = -Wall -O2
-INCLUDES= ../..
-
 CLISP = clisp -q -norc
+CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 
 LN = ln
 LN_S = ln -s
@@ -26,8 +25,8 @@ clisp-module : $(GENERATED)
 win32.c win32.fas : $(srcdir)/win32.lisp
 	$(CLISP) -c $(srcdir)/win32.lisp -o ./
 
-win32.o : win32.c $(INCLUDES)/clisp.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c win32.c
+win32.o : win32.c $(CLISP_LINKKIT)/clisp.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c win32.c
 
 link.sh : $(srcdir)/link.sh
 	$(LN_S) $(srcdir)/link.sh .

@@ -8,7 +8,7 @@ CFLAGS = -Wall -O2
 # MATLAB = /usr/local/matlab/extern/include
 MATLAB = d:/MATLAB7/extern/include
 CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP_LINKKIT = $$($(CLISP) -b)/linkkit
 
 LN = ln
 LN_S = ln -s
@@ -29,7 +29,7 @@ matlab.c matlab.fas : $(srcdir)/matlab.lisp
 	$(CLISP) -c $(srcdir)/matlab.lisp -o ./
 
 matlab.o : matlab.c
-	$(CC) $(CFLAGS) -I$(INCLUDES) -I$(MATLAB) -c matlab.c
+	$(CC) $(CFLAGS) -I$(CLISP_LINKKIT) -I$(MATLAB) -c matlab.c
 
 wrap.fas: $(srcdir)/wrap.lisp
 	$(CLISP) -c $(srcdir)/wrap.lisp -o ./

@@ -1,8 +1,8 @@
-NEW_FILES='regexi.o libgnu_rx.a'
-NEW_LIBS="${NEW_FILES}"
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir"
+NEW_FILES='regexi.o libgnu_rx.a'
+NEW_LIBS="${NEW_FILES}"
 NEW_MODULES="regexp"
 TO_LOAD='regexp'
 TO_PRELOAD='preload.lisp'

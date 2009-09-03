@@ -2,7 +2,7 @@
 # $Id$
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir"
 NEW_FILES="fastcgi.o fastcgi_wrappers.o"
 NEW_LIBS="${NEW_FILES} @LIBS@"
 NEW_MODULES="fastcgi"

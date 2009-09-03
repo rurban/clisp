@@ -1,8 +1,7 @@
-files='dbus.o'
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir"
-NEW_FILES="${files}"
-NEW_LIBS="${files} @DBUS_LIBS@"
+  CLISP_LINKKIT="$absolute_linkkitdir"
+NEW_FILES="dbus.o"
+NEW_LIBS="${NEW_FILES} @DBUS_LIBS@"
 NEW_MODULES="dbus"
 TO_LOAD='dbus'
