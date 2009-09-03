@@ -7,8 +7,8 @@ srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 
@@ -28,10 +28,10 @@ fastcgi.c fastcgi.fas: $(srcdir)/fastcgi.lisp
 	$(CLISP) -c $(srcdir)/fastcgi.lisp -o ./
 
 fastcgi.o: fastcgi.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c fastcgi.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -I.. -c fastcgi.c
 
 fastcgi_wrappers.o: $(srcdir)/fastcgi_wrappers.c
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -I.. -c $(srcdir)/fastcgi_wrappers.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -I.. -c $(srcdir)/fastcgi_wrappers.c
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force

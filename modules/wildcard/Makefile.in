@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 
@@ -27,7 +27,8 @@ wildcard.c wildcard.fas : $(srcdir)/wildcard.lisp
 	$(CLISP) -c $(srcdir)/wildcard.lisp -o ./
 
 wildcard.o : wildcard.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c wildcard.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-Igllib -I$(srcdir)/gllib -c wildcard.c
 
 am--refresh :
 
@@ -39,7 +40,7 @@ gllib libgnu_wc.a : force
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" \
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
+		CFLAGS="$(CFLAGS) -I$(CLISP_LINKKIT)/.."; \
 	  $(LN) libgnu.a ../libgnu_wc.a
 
 # Make a module distribution into $(distribdir)

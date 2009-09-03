@@ -6,8 +6,8 @@ CC = @CC@
 # _REENTRANT is necessary so that the Solaris headers declare lgamma_r().
 CPPFLAGS = @CPPFLAGS@ -D__EXTENSIONS__ -D_REENTRANT
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 LN_S = ln -s
@@ -30,10 +30,11 @@ posix.fas: $(srcdir)/posix.lisp
 	$(CLISP) -c $(srcdir)/posix.lisp -o ./
 
 calls.m.c: $(srcdir)/calls.c
-	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/calls.c ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/calls.c ./
 
 calls.o : calls.m.c config.h gllib
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -Igllib -I$(srcdir)/gllib -c calls.m.c -o calls.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-Igllib -I$(srcdir)/gllib -c calls.m.c -o calls.o
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
@@ -48,7 +49,7 @@ gllib libgnu_sc.a : force
 	cd gllib; \
 	  $(MAKE) srcdir="$(srcdir)/gllib" \
 		ACLOCAL_M4="$(srcdir)/gllib/Makefile.am" \
-		CFLAGS="$(CFLAGS) -I$(INCLUDES)/.."; \
+		CFLAGS="$(CFLAGS) -I$(CLISP_LINKKIT)/.."; \
 	  $(LN) libgnu.a ../libgnu_sc.a
 
 # Make a module distribution into $(distribdir)

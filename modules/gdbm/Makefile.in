@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 GDBMCPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 LN_S = ln -s
@@ -25,10 +25,11 @@ gdbm.fas: $(srcdir)/gdbm.lisp
 	$(CLISP) -c $(srcdir)/gdbm.lisp -o ./
 
 gdbm.o : gdbm.m.c config.h
-	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gdbm.m.c -o gdbm.o
+	$(CC) $(CPPFLAGS) $(GDBMCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-c gdbm.m.c -o gdbm.o
 
 gdbm.m.c : $(srcdir)/gdbm.c
-	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/gdbm.c ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/gdbm.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
