@@ -28,9 +28,6 @@ postgresql.o : postgresql.c config.h
 	$(CC) $(CPPFLAGS) $(PQCPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
 		-c postgresql.c
 
-postgresql.fas: $(srcdir)/postgresql.lisp
-	$(CLISP) -c $(srcdir)/postgresql.lisp -o ./
-
 sql.fas: $(srcdir)/sql.lisp
 	$(CLISP) -c $(srcdir)/sql.lisp -o ./
 
