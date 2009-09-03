@@ -53,7 +53,7 @@ clx-preload.lisp : $(srcdir)/clx-preload.lisp
 clisp-module-distrib : clisp-module force
 	$(LN) $(DISTRIBFILES) $(distribdir)
 	mkdir $(distribdir)/demos
-	$(LN) $(srcdir)/demos/*.lisp $(srcdir)/demos/REAME $(distribdir)/demos/
+	$(LN) $(srcdir)/demos/*.lisp $(srcdir)/demos/README $(distribdir)/demos/
 	mkdir $(distribdir)/demos/screens $(distribdir)/demos/xpms
 	$(LN) $(srcdir)/demos/screens/screen.* $(distribdir)/demos/screens/
 	$(LN) $(srcdir)/demos/xpms/*.xpm $(distribdir)/demos/xpms/
