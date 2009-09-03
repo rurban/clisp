@@ -80,10 +80,27 @@ check_linkset () {
   fail "directory $1 does not contain a CLISP linking set"
 }
 
+if test -x "${CLISP}"; then
 # ensure that "$1" contains a CLISP module
+check_module () {
+  if test \! -r "$1/link.sh"; then
+    if test -r "$1/configure"; then
+      echo "$0: no $1/link.sh, running $1/configure"
+      olddir=`pwd`;
+      cd $1; ./configure --with-clisp=${CLISP}; cd ${olddir}
+      test -f "$1/link.sh" \
+        || fail "directory $1 still does not contain a CLISP module"
+    else fail "directory $1 does not contain a CLISP module"
+    fi
+  fi
+}
+CLISP_MAKE_ARG=' $(CLISP)=${CLISP}'
+else
 check_module () {
   test -r "$1/link.sh" || fail "directory $1 does not contain a CLISP module"
 }
+CLISP_MAKE_ARG=''
+fi
 
 verbose () {
   echo "$@"
@@ -310,7 +327,7 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir" SHREXT=${SHREXT}'
+       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir" SHREXT=${SHREXT}'${CLISP_MAKE_ARG}
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
