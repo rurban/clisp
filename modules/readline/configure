@@ -1967,7 +1967,7 @@ else
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_ffi" >&5
 $as_echo "$cl_cv_clisp_ffi" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
+    CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
     source conftestvars
     rm -f conftestvars
                     { $as_echo "$as_me:$LINENO: checking for CLISP" >&5
