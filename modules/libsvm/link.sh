@@ -6,7 +6,7 @@ if test -f libsvm.c; then # if we use :library in ffi, no C file is created
 fi
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  INCLUDES="$absolute_linkkitdir" SHREXT=${SHREXT}
+  CLISP_LINKKIT="$absolute_linkkitdir" SHREXT=${SHREXT}
 NEW_FILES="${file_list}"
 NEW_LIBS="${file_list} -lm"
 NEW_MODULES="${mod_list}"

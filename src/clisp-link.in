@@ -296,7 +296,7 @@ case "$1" in
        echo "CPPFLAGS ="
        echo "CFLAGS ="
        echo "CLISP = clisp -q -norc"
-       echo 'INCLUDES = $$($(CLISP) -b)/linkkit'
+       echo 'CLISP_LINKKIT = $$($(CLISP) -b)/linkkit'
        echo "LN = ln"
        echo "MAKE = make"
        echo "SHELL = /bin/sh"
@@ -307,7 +307,7 @@ case "$1" in
        for fc in $files_c; do
          fo=`echo "$fc" | sed -e 's,\.c$,,'`.o
          echo "$fo : \$(srcdir)/$fc"
-         echotab '$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $<'
+         echotab '$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c $<'
          echo
        done
        echo "clisp-module :$files_o"
@@ -327,7 +327,7 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" INCLUDES="$absolute_linkkitdir" SHREXT=${SHREXT}'${CLISP_MAKE_ARG}
+       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CLISP_LINKKIT="$absolute_linkkitdir" SHREXT=${SHREXT}'${CLISP_MAKE_ARG}
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
