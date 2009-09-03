@@ -25,7 +25,7 @@ distribdir =
 clisp-module : $(GENERATED)
 
 svm$(SHREXT) : $(srcdir)/svm.cpp $(srcdir)/svm.h
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -I$(INCLUDES) \
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) \
 		-fPIC -shared -o svm$(SHREXT) $(srcdir)/svm.cpp -lm
 
 svm.o : $(srcdir)/svm.cpp $(srcdir)/svm.h
