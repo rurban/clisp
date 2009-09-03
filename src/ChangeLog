@@ -21,6 +21,8 @@
 	* modules/pari/configure.in, modules/postgresql/configure.in:
 	* modules/readline/configure.in, modules/wildcard/configure.in:
 	* modules/zlib/configure.in: ditto and call CL_CLISP_NEED_FFI
+	* Makefile.devel ($(MAKEFILE_IN)): create symlink $cl_cv_clisp_libdir
+	before automake and remove it afterwards
 
 2009-08-30  Vladimir Tzankov  <vtzankov@gmail.com>
 

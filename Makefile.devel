@@ -61,7 +61,9 @@ MAKEFILE_IN = $(addsuffix /gllib/Makefile.in, $(GNULIB_USERS))
 $(MAKEFILE_IN) : %/Makefile.in : %/Makefile.am %/../configure.in src/aclocal.m4
 	cd $* && cd .. && \
 	(test -f aclocal.m4 || ln -s $(CURDIR)/src/aclocal.m4 .) && \
+	ln -s $(CURDIR)/src '$$cl_cv_clisp_libdir' && \
 	automake gllib/Makefile && \
+	$(RM) '$$cl_cv_clisp_libdir' && \
 	(test -L aclocal.m4 && $(RM) aclocal.m4 || true)
 
 configures : $(CONFIGURES) $(CONFIG_H_IN) $(MAKEFILE_IN)
