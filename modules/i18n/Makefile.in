@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 CPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 LN_S = ln -s
@@ -25,10 +25,11 @@ i18n.fas: $(srcdir)/i18n.lisp
 	$(CLISP) -c $(srcdir)/i18n.lisp -o ./
 
 gettext.o : gettext.m.c config.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c gettext.m.c -o gettext.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \
+		-c gettext.m.c -o gettext.o
 
 gettext.m.c : $(srcdir)/gettext.c
-	$(CLISP) -C $(INCLUDES)/modprep $(srcdir)/gettext.c ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/gettext.c ./
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .

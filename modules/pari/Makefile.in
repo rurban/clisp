@@ -4,8 +4,8 @@ srcdir = @srcdir@
 CC = @CC@
 PARICPPFLAGS = @CPPFLAGS@
 CFLAGS = @CFLAGS@
-CLISP = clisp -q -norc
-INCLUDES = $$($(CLISP) -b)/linkkit
+CLISP = @CLISP@ -norc -q
+CLISP_LINKKIT = @CLISP_LINKKIT@
 
 LN = ln
 LN_S = ln -s
@@ -26,10 +26,10 @@ pari.fas pari.c : $(srcdir)/pari.lisp
 	$(CLISP) -c $(srcdir)/pari.lisp -o ./
 
 pari.o : pari.c config.h
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c pari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c pari.c
 
 cpari.o : $(srcdir)/cpari.c
-	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(INCLUDES) -c $(srcdir)/cpari.c
+	$(CC) $(CPPFLAGS) $(PARICPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c $(srcdir)/cpari.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
