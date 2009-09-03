@@ -1,5 +1,10 @@
 2009-09-03  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (check_module): when ${CLISP} is set and
+	$1/link.sh is not found, run "$1/configure --with-clisp=${CLISP}"
+
+2009-09-03  Sam Steingold  <sds@gnu.org>
+
 	* modules/libsvm/Makefile (svm$(SHREXT)): no need to add -I$(INCLUDES)
 	* modules/postgresql/Makefile.in (postgresql.fas): remove an extra rule
 	* modules/clx/new-clx/Makefile.in (clisp-module-distrib): fix a typo;
