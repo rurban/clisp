@@ -23,6 +23,21 @@
  * Note: This file is preprocessed. Only the #if's and #include's with
  * no space after the # are resolved. The other ones are preserved by
  * the preprocessing.
+ * This double pre-processing (once by txt2c on the build system
+ * and once by cpp on the target system) is necessary because
+ * the _distmakefile has this command:
+ * $(CC) $(CFLAGS) -DLISPLIBDIR='"$(lisplibdir)"' -DLOCALEDIR='"$(localedir)"' src/clisp.c -o $(bindir)/clisp
+ * So, _clisp.c is preprocessed for a first time on the system that
+ * builds a binary distribution,
+ * then preprocessed a second time while being compiled on the target system,
+ * therefore we cannot not just include lispbibl.c and be done with it:
+ * lispbibl.c contains #ifs that you cannot transport from one system to
+ * another (e.g. from Solaris 9 to Solaris 10).
+ * This is preferred over the 'hardcode' command, because that command
+ * violates all abstraction, by assuming special things about object
+ * files and executables.
+ * (E.g. if some day encrypted or signed executables appear, the
+ * 'hardcode' program will not work any more.)
  */
 #endif
 
