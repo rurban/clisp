@@ -5099,6 +5099,23 @@ the first one!</para></warning>
  a &pathname-t; or a &list-t; of &pathname-t;s: files to be &load-my;ed
  if the required module is not already present.</para>
 
+<section id="require-search"><title>Additional &load-my; locations</title>
+
+<para>In addition to (and &before-e;) &load-paths;, &require; tries to
+ find the file to &load-my; in the following locations:<itemizedlist>
+  <listitem><simpara><emphasis role="plat-dep">Only when compiled &with;
+     configure flag &with-dynmod;.</emphasis></simpara>
+   <simpara>The system-wide external modules directory
+    <code>(&merge-pathnames; "dynmod/" &libdir;)</code>.</simpara></listitem>
+  <listitem><simpara>When &require; was called while &load;ing, the
+    directory with the file being loaded (i.e., <code>(&make-pathname;
+     :name &nil; :type &nil; :defaults &load-truename-var;)</code>).
+</simpara></listitem></itemizedlist></para>
+
+</section>
+
+<section id="lib-files"><title>Interaction with &compile-file-my;</title>
+
 <para>At compile time, <code>(&require; &foo-f;)</code>
 forms are treated specially: &load-paths; is searched for
 &foolisp-f; &and-e; <filename>#P"foo.lib"</filename>.
@@ -5134,6 +5151,8 @@ If memory is tight, and if &foolisp-f; contains only a few inline
 functions, macros, constants or variables, this is a space and time
 saver.  If &foolisp-f; does a lot of initializations or side effects
 when being loaded, this is important as well.</para></section>
+
+</section>
 
 <section id="loadfile"><title>Function &load;</title>
 
