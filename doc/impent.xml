@@ -975,7 +975,7 @@
 <!ENTITY lisp-file '<filename>#P".lisp"</filename>'>
 <!ENTITY mem-file '<filename>#P".mem"</filename>'>
 <!ENTITY c-file '<filename>#P".c"</filename>'>
-<!ENTITY lib-file '<link linkend="require"><filename>#P".lib"</filename></link>'>
+<!ENTITY lib-file '<link linkend="lib-files"><filename>#P".lib"</filename></link>'>
 <!ENTITY make-file '<filename>Makefile</filename>'>
 <!ENTITY lispinit '<link linkend="image"><filename>lispinit.mem</filename></link>'>
 <!ENTITY lisp-run '<filename>lisp.run</filename>'>
