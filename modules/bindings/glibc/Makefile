@@ -24,7 +24,7 @@ clisp-module : $(GENERATED)
 linux.c linux.fas : $(srcdir)/linux.lisp
 	$(CLISP) -c $(srcdir)/linux.lisp -o ./
 
-linux.o : linux.c $(CLISP_LINKKIT)/clisp.h
+linux.o : linux.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) -c linux.c
 
 wrap.fas: $(srcdir)/wrap.lisp
