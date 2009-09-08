@@ -1,3 +1,12 @@
+2009-09-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/bindings/win32/Makefile (win32.o): do not depend on
+	$(CLISP_LINKKIT)/clisp.h because, first, clisp is presumed to be
+	set in stone while a module is compiles, and, second,
+	$(CLISP_LINKKIT) may contain a colon (full path on win32 contains
+	the drive!) and thus confuse make ("multiple target patterns")
+	* modules/bindings/glibc/Makefile (linux.o): ditto
+
 2009-09-03  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/glibc/Makefile, modules/bindings/win32/Makefile:
