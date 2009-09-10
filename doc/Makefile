@@ -98,8 +98,8 @@ XMLCATALOG=xmlcatalog
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
 # NB: keep in sync with src/makemake.in:MYIMPROOT
-#DIST=podval:~/public_html/clisp
-DIST=sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
+DIST=podval:~/public_html/clisp
+#DIST=sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
 RSYNC = rsync -avC --copy-unsafe-links
 
 ##### nothing user-serviceable below #####
