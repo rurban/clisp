@@ -37,12 +37,12 @@
 <refmiscinfo class="manual">Platform: @PLATFORM@</refmiscinfo>
 </refmeta>
 
-<refnamediv>
+<refnamediv id="summary">
 <refname>clisp-link</refname>
 <refpurpose>link a new external &module; to &clisp;.</refpurpose>
 </refnamediv>
 
-<refsynopsisdiv>
+<refsynopsisdiv id="synopsis">
  <cmdsynopsis><command>clisp-link</command> <arg>&opt-create;</arg>
   <arg><option>&mod-r;</option></arg>
   <arg rep="repeat"><option>&file-r;</option></arg></cmdsynopsis>

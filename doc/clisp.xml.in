@@ -37,12 +37,12 @@
 <refmiscinfo class="manual">Platform: @PLATFORM@</refmiscinfo>
 </refmeta>
 
-<refnamediv>
+<refnamediv id="summary">
 <refname>clisp</refname>
 <refpurpose>&the-ansi; &cl; compiler, interpreter and debugger.</refpurpose>
 </refnamediv>
 
-<refsynopsisdiv><cmdsynopsis>&clisp-cmd;
+<refsynopsisdiv id="synopsis"><cmdsynopsis>&clisp-cmd;
 <group><arg><option><link linkend="opt-help">-h</link></option></arg>
  <arg><option><link linkend="opt-help">--help</link></option></arg></group>
 <arg><option><link linkend="opt-version">--version</link></option></arg>
