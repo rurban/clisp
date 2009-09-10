@@ -32,14 +32,17 @@
  </contrib></othercredit></authorgroup>'>
 <!ENTITY clisp-doc-copyright
   '<copyright><year>1992-2009</year><holder>Bruno Haible</holder></copyright>
-   <copyright><year>1998-2009</year><holder>Sam Steingold</holder></copyright>'>
+   <copyright><year>1998-2009</year><holder>Sam
+   Steingold</holder></copyright>'>
+<!ENTITY clisp-bugs-and-support
+  '<para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
+    on how to report bugs (both in the software and the documentaion).</para>
+   <para>See <olink targetdoc="impnotes" targetptr="faq-help"/> for
+    information on &clisp; support.</para>'>
 <!ENTITY clisp-abstract
   '<abstract id="clisp-abstract"><para>This document describes the
    &gnu; &clisp; - an implementation of the &ansi-cl;.</para>
-   <para>See <olink targetdoc="man" targetptr="bugs"/> for instructions
-    on how to report bugs (both in these notes and in &clisp; itself).</para>
-   <para>See <olink targetdoc="impnotes" targetptr="faq-help"/> for
-    information on &clisp; support.</para></abstract>'>
+   &clisp-bugs-and-support;</abstract>'>
 
 <!-- *** platforms *** -->
 <!ENTITY with '<emphasis role="strong">with</emphasis>'>
@@ -300,6 +303,7 @@
 <!ENTITY lfd-l '<code>(<link linkend="lfd"><function>EXT:LONG-FLOAT-DIGITS</function></link>)</code>'>
 <!ENTITY line-term '<link linkend="newline">line terminator</link>'>
 <!ENTITY libdir '<olink targetdoc="man" targetptr="opt-libdir"><varname>CUSTOM:*LIB-DIRECTORY*</varname></olink>'>
+<!ENTITY user-libdir '<olink targetdoc="clink" targetptr="cmd-install"><varname>CUSTOM:*USER-LIB-DIRECTORY*</varname></olink>'>
 <!ENTITY load-comp '<olink targetdoc="impnotes" targetptr="load-comp"><varname>CUSTOM:*LOAD-COMPILING*</varname></olink>'>
 <!ENTITY load-echo '<olink targetdoc="impnotes" targetptr="load-echo"><varname>CUSTOM:*LOAD-ECHO*</varname></olink>'>
 <!ENTITY load-lpt-db '<olink targetdoc="impnotes" targetptr="load-lpt"><varname>CUSTOM:*LOAD-LOGICAL-PATHNAME-TRANSLATIONS-DATABASE*</varname></olink>'>
@@ -339,7 +343,7 @@
 <!ENTITY opt-modern '<option><olink targetdoc="man" targetptr="opt-modern">-modern</olink></option>'>
 <!ENTITY opt-on-error '<option><olink targetdoc="man" targetptr="opt-on-error">-on-error</olink></option>'>
 <!ENTITY opt-traditional '<option><olink targetdoc="man" targetptr="opt-traditional">-traditional</olink></option>'>
-<!ENTITY with-dynmod '<option><link linkend="mod-dynload">--with-dynamic-modules</link></option>'>
+<!ENTITY with-dynmod '<option><olink targetdoc="impnotes" targetptr="mod-dynload">--with-dynamic-modules</olink></option>'>
 <!ENTITY pack-inverted '<link linkend="pack-inverted"><function>EXT:PACKAGE-CASE-INVERTED-P</function></link>'>
 <!ENTITY pack-sensitive '<link linkend="pack-sensitive"><function>EXT:PACKAGE-CASE-SENSITIVE-P</function></link>'>
 <!ENTITY package-lock '<link linkend="pack-lock"><function>EXT:PACKAGE-LOCK</function></link>'>
@@ -638,7 +642,7 @@
 <!ENTITY c-var-addr '<link linkend="c-var-addr"><function>FFI:C-VAR-ADDRESS</function></link>'>
 <!ENTITY c-var-object '<link linkend="c-var-object"><function>FFI:C-VAR-OBJECT</function></link>'>
 <!ENTITY cast '<link linkend="cast"><function>FFI:CAST</function></link>'>
-<!ENTITY clisp-link '<link linkend="clisp-link"><command>clisp-link</command></link>'>
+<!ENTITY clisp-link '<olink targetdoc="clink" targetptr="clisp-link"><command>clisp-link</command></olink>'>
 <!ENTITY def-c-const '<link linkend="def-c-const"><function>FFI:DEF-C-CONST</function></link>'>
 <!ENTITY def-c-enum '<link linkend="def-c-enum"><function>FFI:DEF-C-ENUM</function></link>'>
 <!ENTITY def-c-struct '<link linkend="def-c-struct"><function>FFI:DEF-C-STRUCT</function></link>'>
@@ -675,11 +679,11 @@
 <!ENTITY linkset '<olink targetdoc="impnotes" targetptr="linkset">linking set</olink>'>
 <!ENTITY link-sh '<olink targetdoc="impnotes" targetptr="modset"><command>link.sh</command></olink>'>
 <!ENTITY modset '<olink targetdoc="impnotes" targetptr="modset">module set</olink>'>
-<!ENTITY mod-dynload '<link linkend="mod-dynload"><function>SYS::DYNLOAD-MODULES</function></link>'>
+<!ENTITY mod-dynload '<olink targetdoc="impnotes" targetptr="mod-dynload"><function>SYS::DYNLOAD-MODULES</function></olink>'>
 <!ENTITY mod-load '<link linkend="mod-load"><envar>TO_LOAD</envar></link>'>
 <!ENTITY mod-preload '<link linkend="mod-preload"><envar>TO_PRELOAD</envar></link>'>
 <!ENTITY modinfo '<link linkend="modinfo"><function>EXT:MODULE-INFO</function></link>'>
-<!ENTITY module '<link linkend="modules">module</link>'>
+<!ENTITY module '<olink targetdoc="impnotes" targetptr="modules">module</olink>'>
 <!ENTITY base-module '<simpara>This module is present in the &base; &linkset; by default.</simpara>'>
 <!ENTITY base '<olink targetdoc="impnotes" targetptr="base-modules"><command>base</command></olink>'>
 <!ENTITY full '<olink targetdoc="impnotes" targetptr="base-modules"><command>full</command></olink>'>
@@ -979,7 +983,7 @@
 <!ENTITY make-file '<filename>Makefile</filename>'>
 <!ENTITY lispinit '<link linkend="image"><filename>lispinit.mem</filename></link>'>
 <!ENTITY lisp-run '<filename>lisp.run</filename>'>
-<!ENTITY clisp-h '<link linkend="clisp-h"><filename>"clisp.h"</filename></link>'>
+<!ENTITY clisp-h '<olink targetdoc="impnotes" targetptr="clisp-h"><filename>"clisp.h"</filename></olink>'>
 
 <!-- *** pathnames *** -->
 <!ENTITY file-star  '<filename>"*"</filename>'>
@@ -1084,6 +1088,7 @@
 <!ENTITY unicode-only '<emphasis role="plat-dep">Only in &clisp; built &with; compile-time flag &unicode;</emphasis>'>
 <!ENTITY non-unicode-only '<emphasis role="plat-dep">Only in &clisp; built &without; compile-time flag &unicode;</emphasis>'>
 <!ENTITY no-platform-only '<emphasis role="plat-dep">No platform supports this currently</emphasis>'>
+<!ENTITY dynmod-only '<emphasis role="plat-dep">Only in &clisp; built &with; configure flag &with-dynmod;.</emphasis>'>
 <!ENTITY varlist-table '<?dbhtml list-presentation="table"?><?dbfo list-presentation="list"?>'>
 <!ENTITY advantages '<title>Advantages and Disadvantages</title>&varlist-table;'>
 <!ENTITY sost-raw-too '<simpara>The &sost-r; argument can also be a

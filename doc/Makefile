@@ -39,7 +39,7 @@ IMPNOTES=cl-ent.xml clhs-ent.xml impbody.xml impent.xml mop.xml gray.xml     \
 CLISP_XSL = chunk.xsl common.xsl fo.xsl id-href-map.xsl man.xsl pile.xsl
 CLISP_CSS = impnotes.css
 # targets for <olink> resolution
-OLINK=man.tdb pile.tdb chunk.tdb olink-pile.xml olink-chunk.xml
+OLINK = man.tdb clink.tdb pile.tdb chunk.tdb olink-pile.xml olink-chunk.xml
 
 RM=/bin/rm -f
 CURDIR=$(shell pwd)
@@ -65,7 +65,7 @@ FOP=../../../fop/fop
 endif
 
 # common dependencies for all checkers
-CHECK_DEPS = impnotes.xml clisp.xml
+CHECK_DEPS = impnotes.xml clisp.xml clisp-link.xml
 ifeq (,$(wildcard $(DTD_PATH))) # DTD does not exist
 ifeq (yes,$(DOWNLOAD))		# download once
 CHECK_DEPS += docbook-dtd
@@ -149,6 +149,9 @@ MAKE_TDB=$(XSLTPROC) $(XMLS_COMMON) --stringparam collect.xref.targets "only" \
 man.tdb: clisp.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
+clink.tdb: clisp-link.xml pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
+	$(MAKE_TDB) "$@" pile.xsl $<
+
 pile.tdb: impnotes.xml $(IMPNOTES) pile.xsl $(GEN_DEPS) $(CATALOG_FILE)
 	$(MAKE_TDB) "$@" pile.xsl $<
 
@@ -159,6 +162,10 @@ clisp.xml: clisp.xml.in ../version.sh Makefile
 	$(RM) $@
 	$(FILLIN) $< > $@
 
+clisp-link.xml: clisp-link.xml.in ../version.sh Makefile
+	$(RM) $@
+	$(FILLIN) $< > $@
+
 XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --param google.ads $(GOOGLEADS) \
 	--stringparam target.database.document
 DOC_MAN=--stringparam current.docid "man"
@@ -166,17 +173,17 @@ DOC_IMP=--stringparam current.docid "impnotes"
 
 CHECK_IDS = if egrep -Hnr 'id="id[0-9]*"' $@; then exit 1; else true; fi
 
-clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
+%.html: %.xml $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ pile.xsl $<
 	$(CHECK_IDS)
 
-_clisp.html: clisp.html
+_%.html: %.html
 	sed $(SGML_UNCOMMENT) $< > $@
 
-clisp.1: clisp.xml $(GEN_DEPS) man.xsl $(OLINK)
+%.1: %.xml $(GEN_DEPS) man.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
 
-_clisp.1: clisp.1
+_%.1: %.1
 	sed $(ROFF_UNCOMMENT) $< > $@
 
 impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
@@ -185,6 +192,7 @@ impnotes.xml: impnotes.xml.in $(IMPNOTES) ../version.sh Makefile
 
 check: $(IMPNOTES) $(CHECK_DEPS)
 	xmllint $(XMLS_COMMON) --noout --postvalid --noent clisp.xml
+	xmllint $(XMLS_COMMON) --noout --postvalid --noent clisp-link.xml
 	xmllint $(XMLS_COMMON) --noout --postvalid --noent impnotes.xml
 
 impnotes.texi: impnotes.xml $(IMPNOTES)
@@ -198,7 +206,7 @@ impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 	(test -n "$(DIST)" && $(RSYNC) impnotes.html \
 	  impnotes.css $(DIST)/) || true
 
-man: _clisp.html _clisp.1
+man: _clisp.html _clisp.1 _clisp-link.html _clisp-link.1
 	(cd ../build && make clisp.html clisp.1 && \
 	 test -n "$(DIST)" && $(RSYNC) clisp.1 clisp.html $(DIST)/) || true
 
@@ -218,10 +226,13 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cp -pv impnotes.css id-href.map $@/
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
 	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
+	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp-link.html pile.xsl clisp-link.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
-	cd ../build; make clisp-1.html;
+	sed $(SGML_UNCOMMENT) $@/clisp-link.html > _clisp-link-1.html
+	cd ../build; make clisp-1.html clisp-link-1.html;
 	mv -f ../build/clisp-1.html $@/clisp.html
-	rm -f _clisp-1.html
+	mv -f ../build/clisp-link-1.html $@/clisp-link.html
+	rm -f _clisp-1.html _clisp-link-1.html
 	$(CHECK_IDS)
 	cd html; cd ..; $(CURDIR)/../utils/fix-perms.sh
 	(test -n "$(DIST)" && $(RSYNC) $@/*.html $@/id-href.map \

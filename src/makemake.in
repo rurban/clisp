@@ -1804,10 +1804,14 @@ LPARTS=$LPARTS' deprecated'
 
 DOC='LISP-tutorial CLOS-guide'
 
-TXT_FILES='README README.de README.es clisp.1 clisp.html clisp-1.html clisp.c'
+TXT_FILES='README README.de README.es clisp.c'
 if [ $CROSS = false -a $HOS = unix ] ; then
   TXT_FILES=$TXT_FILES' distmakefile'
 fi
+MANPAGES="clisp clisp-link"
+for f in ${MANPAGES}; do
+  TXT_FILES="$TXT_FILES $f.1 $f.html $f-1.html"
+done
 
 OBSOLETE=''
 
@@ -3366,13 +3370,13 @@ cygwin_finish() {
 # base is always linked statically
 echol "base : modular boot \$(BASE_MODULES)"
 echotab "\$(RMRF) base"
-echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) with_dynamic_modules=no ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
+echotab "MAKE=\$(MAKE) with_dynamic_modules=no ${HERE}clisp-link add boot base \$(BASE_MODULES) || (\$(RMRF) base ; exit 1)"
 cygwin_finish base
 
 # full is built dynamically when explicitly requested
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
-echotab "CLISP_LINKKIT=. MAKE=\$(MAKE) ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
+echotab "MAKE=\$(MAKE) ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_finish full
 
 echol "mod-check : base-mod-check full-mod-check"
@@ -3387,21 +3391,28 @@ modcheck "./clisp" BASE_MODULES
 echol "full-mod-check : clisp${TEXE} ${TESTSDIR} # full"
 modcheck "./clisp -K full" MODULES
 
-if test -n "$GROFF"; then
-  manual_print='clisp.ps'
-  if test -n "$PS2PDF"; then
-    manual_print="$manual_print clisp.pdf"
+manual_print=''
+for f in ${MANPAGES}; do
+  if test -n "$GROFF"; then
+    manual_print="${manual_print} $f.ps"
+    if test -n "$PS2PDF"; then
+      manual_print="$manual_print $f.pdf"
+    fi
   fi
-else
-  manual_print=''
-fi
+done
 echol "READMES = ANNOUNCE COPYRIGHT GNU-GPL SUMMARY NEWS README README.de README.es"`if [ $TOS = unix ] ; then echol ' MAGIC.add' ; fi``if [ ${HSYSOS} = cygwin ]; then echol ' cygwin.README'; fi`
 IMPNOTES_FILES="impnotes.html impnotes.css clisp.png"
 if [ ${HOS} = win32 ]; then
   IMPNOTES_FILES=${IMPNOTES_FILES}" clisp.ico"
 fi
 echol "IMPNOTES_FILES = ${IMPNOTES_FILES}"
-echol "MANUALS = clisp.1 clisp.html \$(TXTFILES) \$(IMPNOTES_FILES)"
+manpages1html=''
+manpages_less=''
+for f in ${MANPAGES}; do
+  manpages1html="${manpages1html} $f.1 $f.html";
+  manpages_less="${manpages_less} $f.man";
+done
+echol "MANUALS =${manpages1html} \$(TXTFILES) \$(IMPNOTES_FILES)"
 echol
 for f in ${IMPNOTES_FILES} ; do
   echol "${f} : ${SRCDOCDIR_M}${f}"
@@ -3421,14 +3432,14 @@ if [ $HOS = unix ] ; then
   echol "manual : \$(READMES) \$(MANUALS) ${manual_print}"
   echodummyrule manual
   echol
-  echol "manualx : manual clisp.man"
+  echol "manualx : manual${manpages_less}"
   echodummyrule manualx
   echol
 else
   echol "manual : \$(READMES) \$(MANUALS)"
   echodummyrule manual
   echol
-  echol "manualx : manual clisp.man ${manual_print}"
+  echol "manualx : manual${manpages_less} ${manual_print}"
   echodummyrule manualx
   echol
 fi
@@ -3465,7 +3476,8 @@ for f in $TXT_FILES ; do
   fi
   platform_line=""
   case $f in
-    clisp.html | clisp.1 | clisp-1.html)
+    clisp.html | clisp.1 | clisp-1.html | \
+    clisp-link.html | clisp-link.1 | clisp-link-1.html )
       if [ $HOS = win32 ];
       then platform_line=" | sed -e \"s,@PLATFORM@,${TSYS},g\""
       else platform_line=" | sed -e \"s,@PLATFORM@,${host},g\""
@@ -3477,11 +3489,12 @@ for f in $TXT_FILES ; do
   echotab "\$(TXT2C) < ${sourcedir}_${f} > txt.c"
   echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS)${flags} \$(CLFLAGS)${XCC_NOOPTFLAGS}" "txt.c" "txt"
   line="${HERE}txt"
-  if [ $f = clisp.1 ] ; then
+  if [ $f = clisp.1 -o $f = clisp-link.1 ] ; then
     line=$line" | \$(GREP) -v ${ARGQ1}^ *\$\$${ARGQ1}"
   fi
-  # clisp-1.html is for chunked impnotes and does not depend on user hyperspec
-  if [ $f = clisp.html -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
+  # *-1.html is for chunked impnotes and does not depend on user hyperspec
+  if [ \( $f = clisp.html -o $f = clisp-link.html \) \
+       -a "${HSDEFAULT}" != "${hyperspec}" ] ; then
     line=$line" | sed -e ${ARGQ}s,=${QQUOT}${HSDEFAULT}/,=${QQUOT}${hyperspec}/,${ARGQ}"
   fi
   if [ $f = distmakefile ] ; then
@@ -3495,20 +3508,21 @@ for f in $TXT_FILES ; do
 done
 OBSOLETE=$OBSOLETE" txt.c txt${HEXE}"
 
-if test -n "$GROFF"; then
-  echol "clisp.ps : clisp.1"
-  echotab "-\$(ROFF_PS) clisp.1 > clisp.ps"
-  echol
-  if test -n "$PS2PDF"; then
-    echol "clisp.pdf : clisp.ps"
-    echotab "-\$(PS2PDF) clisp.ps clisp.pdf"
+for f in ${MANPAGES}; do
+  if test -n "$GROFF"; then
+    echol "$f.ps : $f.1"
+    echotab "-\$(ROFF_PS) $f.1 > $f.ps"
     echol
+    if test -n "$PS2PDF"; then
+      echol "$f.pdf : $f.ps"
+      echotab "-\$(PS2PDF) $f.ps $f.pdf"
+      echol
+    fi
   fi
-fi
-
-echol "clisp.man : clisp.1"
-echotab "\$(ROFF_MAN) clisp.1 > clisp.man"
-echol
+  echol "$f.man : $f.1"
+  echotab "\$(ROFF_MAN) $f.1 > $f.man"
+  echol
+done
 
 for f in $DOC ; do
   echol "${f}.txt : ${SRCDOCDIR_M}${f}.txt"
@@ -3613,24 +3627,25 @@ if [ $CROSS = false ] ; then
       echotab "  mkdir -p \"\$\$absdest/\$\$m\"; \\"
       echotab "  cd \$\$m; \$(MAKE) clisp-module-distrib LN=\"\$(INSTALL_DATA)\" distribdir=\"\$\$absdest/\$\$m\" ; cd \"\$\$here\"; \\"
       echotab "done"
-      line='clisp-link linkkit/* base/*'
+      line='linkkit/* base/*'
     else
       echotab "mkdir -p \$(DESTDIR)\$(lisplibdir)/full"
-      line='clisp-link linkkit/* base/* full/*'
+      line='linkkit/* base/* full/*'
     fi
     echotab "for f in ${line}; do \\"
     echotab "  case \$\$f in \\"
-    echotab "    */lisp${LEXE}|clisp-link) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
+    echotab "    */lisp${LEXE}) \$(INSTALL_PROGRAM) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "    *) \$(INSTALL_DATA) \$\$f \$(DESTDIR)\$(lisplibdir)/\$\$f;; \\"
     echotab "  esac; \\"
     echotab "done"
+    echotab "mkdir -p \$(DESTDIR)\$(bindir)"
+    echotab "\$(INSTALL_PROGRAM) clisp-link \$(DESTDIR)\$(bindir)/clisp-link"
     # Don't strip the executables, otherwise (disassemble #'cons)
     # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) install DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
-    echotab "mkdir -p \$(DESTDIR)\$(bindir)"
     echotab "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS)${DRIVERFLAGS} -DLISPLIBDIR='\"\$(lisplibdir)\"' -DLOCALEDIR='\"\$(localedir)\"' clisp.c -o \$(DESTDIR)\$(bindir)/clisp"
     echotab "mkdir -p \$(DESTDIR)\$(elispdir)"
     for f in ${EMACS_FILES}; do
@@ -3645,29 +3660,35 @@ if [ $CROSS = false ] ; then
       echotab "\$(INSTALL_DATA) ${SRCDIR}m4/$f \$(DESTDIR)\$(aclocaldir)/$f"
     done
     echol
-    echol "install-man : clisp.1 ${manual_print} clisp.html force"
+    echol "install-man : ${manpages1html} ${manual_print} force"
     echotab "mkdir -p \$(DESTDIR)\$(prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(exec_prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(datarootdir)"
     echotab "mkdir -p \$(DESTDIR)\$(mandir)"
     echotab "mkdir -p \$(DESTDIR)\$(mandir)/man1"
-    echotab "\$(INSTALL_DATA) clisp.1 \$(DESTDIR)\$(mandir)/man1/clisp.1"
+    for f in ${MANPAGES}; do
+      echotab "\$(INSTALL_DATA) $f.1 \$(DESTDIR)\$(mandir)/man1/$f.1"
+    done
     case "$fsstnd" in
       gnu_ext)
         echotab "mkdir -p \$(DESTDIR)\$(htmldir)"
-        echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(htmldir)/clisp.html"
         echotab "mkdir -p \$(DESTDIR)\$(psdir)"
         echotab "mkdir -p \$(DESTDIR)\$(pdfdir)"
-        if test -n "$GROFF"; then
-          echotab "\$(INSTALL_DATA) clisp.ps  \$(DESTDIR)\$(psdir)/clisp.ps"
-          if test -n "$PS2PDF"; then
-            echotab "\$(INSTALL_DATA) clisp.pdf \$(DESTDIR)\$(pdfdir)/clisp.pdf"
+        for f in ${MANPAGES}; do
+          echotab "\$(INSTALL_DATA) $f.html \$(DESTDIR)\$(htmldir)/$f.html"
+          if test -n "$GROFF"; then
+            echotab "\$(INSTALL_DATA) $f.ps  \$(DESTDIR)\$(psdir)/$f.ps"
+            if test -n "$PS2PDF"; then
+              echotab "\$(INSTALL_DATA) $f.pdf \$(DESTDIR)\$(pdfdir)/$f.pdf"
+            fi
           fi
-        fi
+        done
         ;;
       *bsd)
         echotab "mkdir -p \$(DESTDIR)\$(docdir)"
-        echotab "\$(INSTALL_DATA) clisp.html \$(DESTDIR)\$(docdir)/clisp.html"
+        for f in ${MANPAGES}; do
+          echotab "\$(INSTALL_DATA) $f.html \$(DESTDIR)\$(docdir)/$f.html"
+        done
         ;;
     esac
     echol
@@ -3706,19 +3727,22 @@ if [ $CROSS = false ] ; then
     else
       echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp"
     fi
+    echotab "\$(RM) \$(DESTDIR)\$(bindir)/clisp-link"
     if [ -n "$USE_GETTEXT" ] ; then
       echotab "cd po && \$(MAKE) uninstall DESTDIR='\$(DESTDIR)' prefix='\$(prefix)' exec_prefix='\$(exec_prefix)'"
     fi
     echol
     echol "uninstall-man : force"
-    echotab "\$(RM) \$(DESTDIR)\$(mandir)/man1/clisp.1"
-    case "$fsstnd" in
-      gnu_ext)
-        echotab "\$(RM) \$(DESTDIR)\$(htmldir)/clisp.html"
-        echotab "\$(RM) \$(DESTDIR)\$(psdir)/clisp.ps"
-        echotab "\$(RM) \$(DESTDIR)\$(pdfdir)/clisp.pdf"
-        ;;
-    esac
+    for f in ${MANPAGES}; do
+      echotab "\$(RM) \$(DESTDIR)\$(mandir)/man1/$f.1"
+      case "$fsstnd" in
+        gnu_ext)
+          echotab "\$(RM) \$(DESTDIR)\$(htmldir)/$f.html"
+          echotab "\$(RM) \$(DESTDIR)\$(psdir)/$f.ps"
+          echotab "\$(RM) \$(DESTDIR)\$(pdfdir)/$f.pdf"
+          ;;
+      esac
+    done
     echotab "\$(RMRF) \$(DESTDIR)\$(docdir)"
     for f in ${EMACS_FILES}; do
       echotab "\$(RMRF) \$(DESTDIR)\$(elispdir)/$f*"
@@ -3889,7 +3913,7 @@ fi
 echotab "mkdir \$(TOPDIR)/data"
 echotab "${HLN} data/* \$(TOPDIR)/data/"
 echotab "mkdir \$(TOPDIR)/doc"
-echotab "${HLN} clisp.1 clisp.man ${manual_print} clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
+echotab "${HLN} ${manpages1html} ${manpages_less} ${manual_print} \$(TXTFILES) \$(IMPNOTES_FILES) \$(TOPDIR)/doc/"
 echotab "mkdir \$(TOPDIR)/emacs"
 line="${HLN}";
 for f in ${EMACS_FILES} ${VIM_FILES}; do
@@ -3929,7 +3953,7 @@ echol
 echol
 elif [ $HOS = win32 ] ; then
   echol "# Distribution, to be executed on a Unix host or using Cygwin."
-  echol "distrib : install.lisp install.bat config.lisp clisp.man clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
+  echol "distrib : install.lisp install.bat config.lisp ${manpages_less} clisp.html COPYRIGHT.rtf add_to_path.nsh install.nsi is_user_admin.nsh force"
   echotab "version=\$(VERSION) ; \\"
   echotab "distdir=clisp-\$\$version ; \\"
   echotab "rm -rf \$\$distdir; \\"
@@ -3974,7 +3998,7 @@ elif [ $HOS = win32 ] ; then
     echotab "cp -p data/${f} \$\$distdir/data/${f} ; \\"
   done
   echotab "mkdir \$\$distdir/doc ; \\"
-  echotab "for f in clisp.1 clisp.man clisp.html \$(TXTFILES) \$(IMPNOTES_FILES) ; do \\"
+  echotab "for f in ${manpages1html} ${manpages_less} \$(TXTFILES) \$(IMPNOTES_FILES) ; do \\"
   echotab "  if test -f \$\$f ; then cp -p \$\$f \$\$distdir/doc/\$\$f ; else cp -p \`echo \$\$f | tr '[A-Z]' '[a-z]'\` \$\$distdir/doc/\$\$f ; fi ; \\"
   echotab "done ; \\"
   echotab "mkdir \$\$distdir/emacs; \\"
@@ -4011,7 +4035,7 @@ clean1 : clean0
 	-\$(RMRF) ${ANSITESTSDIR}
 	-\$(RMRF) ${SACLATESTSDIR}
 	-\$(RMRF) boot base full linkkit
-	-\$(RM) README README.de README.es clisp.1 clisp.man clisp.ps clisp.pdf clisp.html clisp-1.html \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
+	-\$(RM) README README.de README.es ${manpages1html} ${manpages_less} ${manual_print} \$(IMPNOTES_FILES) clisp.c distmakefile \$(TXTFILES) COPYRIGHT.rtf install.nsi
 
 # clean2 removes everything that becomes obsolete once lisp${LEXE}
 # is recompiled without changing the bytecode format.

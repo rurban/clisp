@@ -5,6 +5,7 @@
 (export '(expand-form doseq dohash without-package-lock memoized))
 
 (export '(#-(or UNIX WIN32) custom::*default-time-zone*
+          custom::*user-lib-directory*
           custom::*system-package-list*)
         "CUSTOM")
 (ext:re-export "CUSTOM" "EXT")
@@ -167,14 +168,21 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 (defun provide (name)
   (setq *modules* (adjoin (module-name name) *modules* :test #'string=)))
 
+(defvar *user-lib-directory* nil
+  "The location of user-installed modules.")
+
 (defun require (module-name &optional (pathname nil p-given))
   (setq module-name (module-name module-name))
   (unless (member module-name *modules* :test #'string=)
     (unless p-given (setq pathname (pathname module-name)))
     (let (#+CLISP (*load-paths* *load-paths*)
           #-CLISP (*default-pathname-defaults* '#""))
+      ;; "dynmod/" should be in sync with clisp-link
       #+CLISP (pushnew (merge-pathnames "dynmod/" *lib-directory*) *load-paths*
                        :test #'equal)
+      #+CLISP (when *user-lib-directory*
+                (pushnew (merge-pathnames "dynmod/" *user-lib-directory*)
+                         *load-paths* :test #'equal))
       #+CLISP (when *load-truename*
                 (pushnew (make-pathname :name nil :type nil
                                         :defaults *load-truename*)

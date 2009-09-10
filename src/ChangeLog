@@ -1,5 +1,21 @@
 2009-09-10  Sam Steingold  <sds@gnu.org>
 
+	New user variable CUSTOM:*USER-LIB-DIRECTORY* is respected by
+	REQUIRE and used by "clisp-link install".
+	* clisp-link.in (link): remove the obsolete command
+	(install): add command
+	(set_dynamic_module_location, current_linking_set): add
+	(prepare_dynamic_module): call set_dynamic_module_location
+	* constsym.d (user_lib_directory): add
+	* defs1.lisp (*user-lib-directory*): defvar
+	(require): treat it the same as *lib-directory*
+	* spvw.d (init_symbol_values): define_variable user_lib_directory
+	(main_actions): init user_lib_directory
+	* makemake.in: install clisp-link in bindir;
+	generate and install its manpage
+
+2009-09-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/queens/Makefile (callqueens.m.c): fix modprep invocation
 	* modules/queens/queens.c (queens): add a prototype to pacify gcc
 

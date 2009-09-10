@@ -1,7 +1,7 @@
 #!/bin/sh
 # Usage: clisp-link command [more args]
 # where
-#   command = link, create, add, run
+#   command = create, add, run, install
 # For more usage information, see <doc/impnotes.html#mod-overview>.
 # Or <http://clisp.cons.org/modules.html#mod-overview>.
 # Bruno Haible 19.10.1994
@@ -14,7 +14,7 @@
 (unset CDPATH) >/dev/null 2>&1 && unset CDPATH
 
 usage () {
-echo "Usage: $0 [ link | create | add | run ] ..." 1>&2
+echo "Usage: $0 [ create | add | run | install ] ..." 1>&2
 exit 1
 }
 
@@ -80,7 +80,6 @@ check_linkset () {
   fail "directory $1 does not contain a CLISP linking set"
 }
 
-if test -x "${CLISP}"; then
 # ensure that "$1" contains a CLISP module
 check_module () {
   if test \! -r "$1/link.sh"; then
@@ -94,13 +93,6 @@ check_module () {
     fi
   fi
 }
-CLISP_MAKE_ARG=' $(CLISP)=${CLISP}'
-else
-check_module () {
-  test -r "$1/link.sh" || fail "directory $1 does not contain a CLISP module"
-}
-CLISP_MAKE_ARG=''
-fi
 
 verbose () {
   echo "$@"
@@ -143,6 +135,41 @@ func_tmpdir ()
   } || fail "cannot create a temporary directory in $TMPDIR"
 }
 
+# evaluate in clisp and strip quotes
+clisp_eval() {
+  ${CLISP} -q -x "$*" 2>/dev/null | tail -n 1 | sed -e 's/^"//' -e 's/"$//'
+}
+
+# Where do we install?
+DYNMOD="dynmod"              # should be in sync with defs1.lisp:require
+LIBDIR=""
+set_dynamic_module_location() {
+  if test -z "${LIBDIR}"; then
+    if touch ${CLISP_LIBDIR}/${DYNMOD}/.abazonk 2>/dev/null; then
+      rm -f ${CLISP_LIBDIR}/${DYNMOD}/.abazonk
+      LIBDIR=${CLISP_LIBDIR}
+    else # cf. src/m4/clisp.m4
+      CLISP_LIBDIR_USER=`clisp_eval '(namestring *user-lib-directory*)'`
+      test "${CLISP_LIBDIR_USER}" = "NIL" && \
+        fail "Cannot determine the dynamic module directory: *lib-directory* is not writable and *user-lib-directory* is not specified"
+      mkdir -p ${CLISP_LIBDIR_USER}/${DYNMOD} || \
+        fail "Cannot write in *user-lib-directory*"
+      if touch ${CLISP_LIBDIR_USER}/${DYNMOD}/.abazonk 2>/dev/null; then
+        rm -f ${CLISP_LIBDIR_USER}/${DYNMOD}/.abazonk
+        LIBDIR=${CLISP_LIBDIR_USER}
+      else fail "Cannot determine the dynamic module directory: neither *lib-directory* nor *user-lib-directory* are writable"
+      fi
+    fi
+  fi
+}
+
+current_linking_set() {
+  DIR=`clisp_eval '(aref (argv) 0)'`
+  DIR=`dirname ${DIR}`
+  check_linkset ${DIR};
+  echo ${DIR}
+}
+
 # setting $with_dynamic_modules overrides the default
 with_dynamic_modules=${with_dynamic_modules-@with_dynamic_modules@}
 
@@ -150,12 +177,10 @@ with_dynamic_modules=${with_dynamic_modules-@with_dynamic_modules@}
 # this can be invoked only after "./link.sh" and relies on its variables.
 # also uses:
 #   ${absolute_currentdir} : the top level directory
-#   ${DYNMOD} : the name of the directory where to put the generated files
 prepare_dynamic_module() {
   if test "$with_dynamic_modules" != no; then
-    dynmod=${DYNMOD-dynmod}
-    dyndir=${absolute_currentdir}/${dynmod}
-    mkdir -p ${dyndir}
+    set_dynamic_module_location
+    dyndir=${LIBDIR}/${DYNMOD}
     dll="lib"; for m in ${NEW_MODULES}; do dll=${dll}-$m; done; dll=${dll}@SHREXT@
     lib=${dyndir}/${dll}; libs=${NEW_LIBS}; verbose @createsharedlib@
     # for each module there will be a hard link to a REQUIRE file
@@ -171,9 +196,9 @@ prepare_dynamic_module() {
     reqfile=${dyndir}/${firstmod}.lisp
     rm -f ${reqfile}
     for f in ${TO_PRELOAD}; do
-      echo "(cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
+      echo "(cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> ${reqfile}
     done
-    DM="(sys::dynload-modules (cl:merge-pathnames \"${dynmod}/${dll}\" ext:*lib-directory*) (quote ("
+    DM="(sys::dynload-modules (cl:merge-pathnames \"${dll}\" cl:*load-truename*) (quote ("
     for m in ${NEW_MODULES}; do
       DM=${DM}" \"$m\""
     done
@@ -182,7 +207,7 @@ prepare_dynamic_module() {
       echo ";; for def-call-out to non-existent functions" >> ${reqfile}
       echo "(ext:appease-cerrors" >> ${reqfile}
       for f in ${TO_LOAD}; do
-        echo " (cl:load (cl:merge-pathnames \"${moduledir}/${f}\" ext:*lib-directory*))" >> ${reqfile}
+        echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> ${reqfile}
       done
       echo ")" >> ${reqfile}
     fi
@@ -204,13 +229,21 @@ if [ $# = 0 ] ; then
   usage
 fi
 
+# Where is clisp?
+if test -z "${CLISP}"; then
+  CLISP=`dirname $0`
+  CLISP=`cd ${CLISP}; pwd`/clisp
+fi
+# cd src/m4/clisp.m4
+${CLISP} --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1 || \
+  fail "${CLISP} is not GNU CLISP"
+CLISP_LIBDIR=`${CLISP} -b`
+
 # Where is the link kit?
 if [ -n "$CLISP_LINKKIT" ] ; then
   linkkitdir="$CLISP_LINKKIT"
-elif [ -d ./linkkit ]; then
-  linkkitdir=./linkkit
 else
-  linkkitdir=`dirname $0`/linkkit
+  linkkitdir=${CLISP_LIBDIR}/linkkit
 fi
 
 test -r "$linkkitdir"/modules.c -a -r "$linkkitdir"/clisp.h ||
@@ -219,29 +252,6 @@ absolute_linkkitdir=`cd "$linkkitdir" ; /bin/pwd`
 
 # Dispatch according to the first argument.
 case "$1" in
-
-  link)
-    # This is actually obsolete because it is easier done by a simple
-    # "make" w.r.t. to the distmakefile.
-    # Usage: clisp-link link dir
-    if [ $# != 2 ] ; then
-      echo "Usage: $0 link dir" 1>&2
-      exit 1
-    fi
-    dir="$2"
-    # What to do if we abort.
-    trap 'rm -f "$dir"/${LISPRUN} "$dir"/w${LISPRUN}' 1 2 15
-    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
-    . "$dir"/makevars
-    vecho "$0: Entering directory \`$dir'"
-    start_dir=`pwd`
-    cd "$dir"
-    make_lisprun
-    cd "${start_dir}"
-    vecho "$0: Leaving directory \`$dir'"
-    # Done.
-    trap '' 1 2 15
-    ;;
 
   create)
     # Usage: clisp-link create moduledir {file}*
@@ -327,7 +337,7 @@ case "$1" in
          echo '  mod_list="$mod_list"'"' $mod'"
          echo 'fi'
        done
-       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CLISP_LINKKIT="$absolute_linkkitdir" SHREXT=${SHREXT}'${CLISP_MAKE_ARG}
+       echo 'make clisp-module CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" CLISP_LINKKIT="$absolute_linkkitdir" SHREXT=${SHREXT} $(CLISP)=${CLISP}'
        echo 'NEW_FILES="$file_list"'
        echo 'NEW_LIBS="$file_list"'
        echo 'NEW_MODULES="$mod_list"'
@@ -508,6 +518,44 @@ case "$1" in
       rm -rf "$tmp"
       trap '' 0 1 2 15
     fi
+    ;;
+
+  install)
+    # Usage: clisp-link install moduledir...
+    if [ $# -lt 1 ] ; then
+      echo "Usage: $0 install moduledir..." 1>&2
+      exit 1
+    fi
+    sourcedir=`current_linking_set`
+    shift
+    moduledirs="$@"
+    absolute_currentdir=`/bin/pwd`
+    absolute_sourcedir=`cd "$sourcedir" ; /bin/pwd`
+    for moduledir in $moduledirs; do
+      check_dir "$moduledir"
+      check_module "$moduledir"
+      test -r "${moduledir}"/Makefile || \
+        fail "No Makefile in ${moduledir}, cannot install"
+    done
+    # Read the variables CC, CPPFLAGS, CFLAGS, CLFLAGS, LIBS, X_LIBS, RANLIB, FILES
+    . "$sourcedir"/makevars
+    # Prepare the module directories and read their variables
+    for moduledir in $moduledirs; do
+      modulename=`basename "$moduledir"`
+      # Prepare the module directory
+      NEW_FILES=''
+      NEW_LIBS=''
+      NEW_MODULES=''
+      TO_PRELOAD=''
+      TO_LOAD=''
+      SHREXT=@SHREXT@
+      cd "$moduledir"
+      . ./link.sh
+      prepare_dynamic_module  # sets LIBDIR
+      mkdir -p "${LIBDIR}/$moduledir"
+      make clisp-module-distrib LN=cp distribdir="${LIBDIR}/$moduledir"
+      cd "$absolute_currentdir"
+    done
     ;;
 
   *) usage;;
