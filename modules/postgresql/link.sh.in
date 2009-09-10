@@ -1,6 +1,6 @@
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  CLISP_LINKKIT="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir" CLISP="${CLISP}"
 NEW_MODULES='postgresql'
 NEW_FILES=''
 for f in ${NEW_MODULES}; do NEW_FILES=${NEW_FILES}" ${f}.o"; done

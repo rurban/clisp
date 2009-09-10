@@ -3,7 +3,7 @@ matlab=d:/MATLAB7/extern/lib/win32/microsoft/msvc60
 
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  CLISP_LINKKIT="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir" CLISP="${CLISP}"
 NEW_FILES="matlab.o"
 NEW_LIBS="${NEW_FILES}";
 for lib in eng mat mex mx; do

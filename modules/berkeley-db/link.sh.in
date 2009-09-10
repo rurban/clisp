@@ -1,6 +1,6 @@
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  CLISP_LINKKIT="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir" CLISP="${CLISP}"
 NEW_MODULES='bdb'
 NEW_FILES="${NEW_MODULES}.o"
 NEW_LIBS="${NEW_FILES} @LIBS@"

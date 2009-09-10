@@ -6,7 +6,7 @@ if test -f win32.c; then
 fi
 ${MAKE-make} clisp-module \
   CC="${CC}" CPPFLAGS="${CPPFLAGS}" CFLAGS="${CFLAGS}" \
-  CLISP_LINKKIT="$absolute_linkkitdir"
+  CLISP_LINKKIT="$absolute_linkkitdir" CLISP="${CLISP}"
 NEW_FILES="$file_list"
 NEW_LIBS="$file_list -lm"
 NEW_MODULES="$mod_list"
