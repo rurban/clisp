@@ -29,7 +29,7 @@ queens.o : $(srcdir)/queens.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $(srcdir)/queens.c
 
 callqueens.m.c : $(srcdir)/callqueens.c
-	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/callqueens.c -o ./
+	$(CLISP) -C $(CLISP_LINKKIT)/modprep $(srcdir)/callqueens.c ./
 
 callqueens.o : callqueens.m.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -I$(CLISP_LINKKIT) \

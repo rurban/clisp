@@ -1,5 +1,9 @@
 2009-09-10  Sam Steingold  <sds@gnu.org>
 
+	* modules/queens/Makefile (callqueens.m.c): fix modprep invocation
+
+2009-09-10  Sam Steingold  <sds@gnu.org>
+
 	* modules/berkeley-db/link.sh.in, modules/bindings/glibc/link.sh:
 	* modules/bindings/win32/link.sh, modules/clx/mit-clx/link.sh:
 	* modules/clx/new-clx/link.sh.in, modules/dbus/link.sh.in:
