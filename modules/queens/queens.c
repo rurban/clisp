@@ -20,7 +20,6 @@ int queens (int n)
   { int i; for (i=1; i<=n; i++) { freetab1[i] = 0; } }
   { int i; for (i=2; i<=2*n; i++) { freetab2[i] = 0; } }
   { int i; for (i=-(n-1); i<n; i++) { freetab3[i] = 0; } }
-  printf("n=%d\n",n);
  {int counter = 0;
   int i = 0; /* recursion depth */
   int* Dptr = &dtab[0]; /* points to next free D(i) */
