@@ -710,7 +710,8 @@ compiles the specified lisp files to a platform-independent
 <refsection id="see-also"><title>See also</title>
 
 <para><simplelist>
-  <member><olink targetdoc="impnotes" targetptr="impnotes-top"/></member>
+  <member><olink targetdoc="impnotes"/></member>
+  <member><olink targetdoc="clink"/></member>
   <member>&cmucl; - <command>cmucl</command>(1)</member>
   <member>&emacs; - <command>emacs</command>(1)</member>
   <member>&xemacs; - <command>xemacs</command>(1)</member></simplelist></para>
