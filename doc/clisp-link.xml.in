@@ -60,8 +60,8 @@
 
 <refsection id="description"><title>Description</title>
 
-<para>Operates on &clisp; &modset;s and &linkset;s:
- <itemizedlist><listitem><simpara>&opt-create; new &modset;s out of
+<para>This shell script operates on &clisp; &modset;s and &linkset;s:
+ <itemizedlist><listitem><simpara>&opt-create;s new &modset;s out of
     source files</simpara></listitem>
   <listitem><simpara>&opt-add;s &modset;s to a &linkset; to produce a
     new &linkset;</simpara></listitem>
@@ -109,17 +109,18 @@
    installs the &module;s in directories &mod-r;... into &libdir; or, if
    it is not writable to the user (e.g., if a system-wide &clisp;
    installation is used and the user does not have administrative privileges),
-   info <firstterm>&user-libdir;</firstterm>.</para>
+   into <firstterm>&user-libdir;</firstterm>.</para>
   <para>Variable &user-libdir; is initially set to
    <code>(&merge-pathnames; ".clisp/" (&user-homedir-pathname;))</code>
    if that directory exists, and can be reset in the &RC-file;.</para>
   <note><para>Do &not-e; add &user-libdir; to &load-paths; or under any
     element thereof.  Use &require-my; instead of &load-my; to load
     dynamic modules.</para></note>
-  <simpara>In addition to &link-sh;, each &mod-r; directory must
+  <simpara>For this command to work, each &mod-r; directory must
    contain a &make-file; with a <command>clisp-module-distrib</command>
    target which uses <envar>LN</envar> to distribute the files necessary
-   to run the module into <envar>destdir</envar>.</simpara>
+   to run the module into <envar>destdir</envar>. This is in addition to
+   the general requirement that &link-sh; is present.</simpara>
 </listitem></varlistentry>
 <!-- #endif -->
 
@@ -140,7 +141,7 @@
   <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
   <listitem><simpara>&clisp-h;</simpara></listitem>
  </itemizedlist> &clisp-link; expects to find these files in a
- subdirectory <filename>linkkit/</filename> of installation directory
+ subdirectory <filename>linkkit/</filename> of the installation directory
  (i.e., &libdir;) which it acquires by running
  <screen>&sh-prompt; `dirname $0`/clisp &opt-b;</screen>
  This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.
