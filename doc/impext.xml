@@ -1896,6 +1896,7 @@ additionally binds &cont-r; to the content length.</para>
   <member>&term-enc;</member>
   <member>&trace-indent;</member>
   <member>&user-commands;</member>
+  <member>&user-libdir;</member>
   <member><varname>CUSTOM:*USER-MAIL-ADDRESS*</varname></member>
   <member>&warn-fpc;</member>
   <member>&warn-on-hashtable-needing-rehash-after-gc;</member>
@@ -2144,47 +2145,7 @@ additionally binds &cont-r; to the content length.</para>
 
 <simplesect id="clisp-link"><title>Operating on &modset;s and &linkset;s</title>
 
-<para>Adding one or several &modset;s to a &linkset;s produces a new
- &linkset; which contains the functionality of those modules in addition
- to all the functionality present in the original &linkset;.
- This is done by the &clisp-link; shell script, installed in &libdir;,
- so that you can invoke it with
- <screen>&sh-prompt; `&clisp-cmd; &opt-b;`/&clisp-link;</screen></para>
-
-<variablelist><title>&clisp-link; commands</title>
-<varlistentry><term>create</term>
- <listitem><para>The command
-   <screen>&sh-prompt; &clisp-link; create &mod-r; &file-r; ...</screen>
-   creates a &modset; in &mod-r; directory which refers
-   (via symbolic links) to files &file-r;...
-   The files are expected to be modules of their own.
-</para></listitem></varlistentry>
-<varlistentry><term>add</term>
- <listitem><para>The command
-   <screen>&sh-prompt; &clisp-link; add &source-r; &dest-r; &mod-r; ...</screen>
-   combines the &linkset; in directory &source-r; and the &module;s in
-   directories &mod-r;... to a new &linkset;, in the directory &dest-r;
-   which is newly created.</para></listitem></varlistentry>
-<varlistentry><term>run</term>
- <listitem><para>The command
-   <screen>&sh-prompt; &clisp-link; run &source-r; &mod-r; ...</screen>
-   runs the &linkset; in directory &source-r;, with the &module;s
-   in directories &mod-r;...
-   If &clisp; has been built with the configuration option &with-dynmod;,
-   the loading will be performed <link linkend="mod-dynload">dynamically</link>.
-   Otherwise - this is much slower - a temporary &linkset; will be created
-   and deleted afterwards.</para></listitem></varlistentry></variablelist>
-
-<formalpara id="clisp-link-kit"><title>Requirements</title>
-<para>&clisp-link; needs a <quote>link kit</quote> directory containing:
- <itemizedlist>
-  <listitem><simpara><filename>"modules.c"</filename></simpara></listitem>
-  <listitem><simpara>&clisp-h;</simpara></listitem>
- </itemizedlist> &clisp-link; expects to find these files in a
- subdirectory <filename>linkkit/</filename> of the current directory.
- or in its own installation directory (i.e., &libdir;).
- This can be overridden by the &env-var; <envar>CLISP_LINKKIT</envar>.
-</para></formalpara>
+<para>Use &clisp-link; to create, add and install &modset;s.</para>
 
 <para>See also <xref linkend="mod-set-example"/>.</para>
 </simplesect>
@@ -2310,8 +2271,7 @@ additionally binds &cont-r; to the content length.</para>
 </section>
 
 <section id="mod-dynload"><title>Function &mod-dynload;</title>
-<subtitle><emphasis role="plat-dep">Only when compiled &with; configure
-  flag &with-dynmod;.</emphasis></subtitle>
+<subtitle>&dynmod-only;</subtitle>
 
 <note><para>Dynamic loading does not work on all operating systems
   (&dlopen; or equivalent is required).</para></note>

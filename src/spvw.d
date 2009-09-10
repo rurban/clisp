@@ -1859,6 +1859,7 @@ local void init_symbol_values (void) {
  #endif
   /* initialize *DEFAULT-PATHNAME-DEFAULTS* preliminarily: */
   define_variable(S(default_pathname_defaults),allocate_pathname());
+  define_variable(S(user_lib_directory),NIL);
  #undef define_constant_UL1
 }
 /* create other objects and fill object table: */
@@ -3518,6 +3519,16 @@ local inline void main_actions (struct argv_actions *p) {
     skipSTACK(1);
     return;
   }
+  /* set *user-lib-directory* */
+  pushSTACK(ascii_to_string(".clisp/")); pushSTACK(O(user_homedir));
+  funcall(L(merge_pathnames),2); pushSTACK(value1); /* ~/.clisp/ */
+  funcall(L(probe_pathname),1);
+  if (pathnamep(value1)
+      && nullp(ThePathname(value1)->pathname_name)
+      && nullp(ThePathname(value1)->pathname_type))
+    /* ~/.clisp/ exists and is a directory */
+    Symbol_value(S(user_lib_directory)) = value1;
+  else Symbol_value(S(user_lib_directory)) = NIL;
   /* load RC file ~/.clisprc */
   if (nullpSv(norc) && !p->argv_norc && p->argv_memfile) {
     var gcv_object_t* top_of_frame = STACK; /* pointer over frame */
@@ -3530,8 +3541,7 @@ local inline void main_actions (struct argv_actions *p) {
       pushSTACK(S(Kname));
       pushSTACK(ascii_to_string(".clisprc"));
       pushSTACK(S(Kdefaults));
-      funcall(L(user_homedir_pathname),0);
-      pushSTACK(value1);
+      pushSTACK(O(user_homedir)); /* (user-homedir-pathname) */
       funcall(L(make_pathname),4);
       pushSTACK(value1);
       pushSTACK(S(Kif_does_not_exist));
