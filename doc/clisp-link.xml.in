@@ -150,7 +150,10 @@
 
 <refsection id="see-also"><title>See also</title>
 
-<para><olink targetdoc="impnotes" targetptr="impnotes-top"/></para>
+<para><simplelist>
+  <member><olink targetdoc="impnotes"/></member>
+  <member><olink targetdoc="man"/></member>
+</simplelist></para>
 
 </refsection>
 
