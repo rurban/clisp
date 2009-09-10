@@ -1,6 +1,7 @@
 2009-09-10  Sam Steingold  <sds@gnu.org>
 
 	* modules/queens/Makefile (callqueens.m.c): fix modprep invocation
+	* modules/queens/queens.c (queens): add a prototype to pacify gcc
 
 2009-09-10  Sam Steingold  <sds@gnu.org>
 
