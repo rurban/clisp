@@ -11,8 +11,8 @@ and the USENET newsgroup
        >comp.lang.lisp</ulink>.
 <emphasis>All</emphasis> the legitimate technical question are addressed
 in the &clisp; documentation (<olink targetdoc="impnotes"/>,
-<olink targetdoc="man"/>), and for such questions this
-list provides a link into the docs.
+<olink targetdoc="man"/>, <olink targetdoc="clink"/>), and for such
+questions this list provides a link into the docs.
 The frequently asked <link linkend="faq-meta">political</link> questions
 are answered here in <emphasis>full</emphasis> detail (meaning that no
 further explanations of the issues could be provided).</para>
