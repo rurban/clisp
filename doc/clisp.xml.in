@@ -39,7 +39,7 @@
 
 <refnamediv>
 <refname>clisp</refname>
-<refpurpose>ANSI Common Lisp compiler, interpreter and debugger.</refpurpose>
+<refpurpose>&the-ansi; &cl; compiler, interpreter and debugger.</refpurpose>
 </refnamediv>
 
 <refsynopsisdiv><cmdsynopsis>&clisp-cmd;
