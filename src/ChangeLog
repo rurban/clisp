@@ -1,3 +1,19 @@
+2009-09-10  Sam Steingold  <sds@gnu.org>
+
+	* modules/berkeley-db/link.sh.in, modules/bindings/glibc/link.sh:
+	* modules/bindings/win32/link.sh, modules/clx/mit-clx/link.sh:
+	* modules/clx/new-clx/link.sh.in, modules/dbus/link.sh.in:
+	* modules/dirkey/link.sh.in, modules/fastcgi/link.sh.in:
+	* modules/gdbm/link.sh.in, modules/gtk2/link.sh.in:
+	* modules/i18n/link.sh.in, modules/libsvm/link.sh:
+	* modules/matlab/link.sh, modules/netica/link.sh:
+	* modules/oracle/link.sh.in, modules/pari/link.sh.in:
+	* modules/pcre/link.sh.in, modules/postgresql/link.sh.in:
+	* modules/queens/link.sh, modules/rawsock/link.sh.in:
+	* modules/readline/link.sh.in, modules/regexp/link.sh.in:
+	* modules/syscalls/link.sh.in, modules/wildcard/link.sh.in:
+	* modules/zlib/link.sh.in: pass CLISP="${CLISP}" to make
+
 2009-09-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/bindings/win32/Makefile (win32.o): do not depend on
