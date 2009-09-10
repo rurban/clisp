@@ -15,7 +15,13 @@ User visible changes
   library actually installed.
 
 * FFI:OPEN-FOREIGN-LIBRARY now accepts the :REQUIRE argument.
-  See  <http://clisp.cons.org/impnotes/dffi.html#dffi-open-lib> for details.
+  See <http://clisp.cons.org/impnotes/dffi.html#dffi-open-lib> for details.
+
+* New user variable CUSTOM:*USER-LIB-DIRECTORY* is respected by REQUIRE
+  and used by "clisp-link install".
+  See <http://clisp.cons.org/impnotes/require.html> and
+  <http://clisp.cons.org/impnotes/clisp-link.html> for details.
+
 
 
 2.48 (2009-07-28)

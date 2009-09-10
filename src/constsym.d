@@ -702,6 +702,7 @@ LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
 LISPSYM(program_name,"PROGRAM-NAME",system)
 LISPSYM(lib_directory,"LIB-DIRECTORY",system) /* ABI */
 LISPSYM(set_lib_directory,"SET-LIB-DIRECTORY",system) /* ABI */
+LISPSYM(user_lib_directory,"*USER-LIB-DIRECTORY*",custom)
 /* ---------- PREDTYPE ---------- */
 LISPSYM(eq,"EQ",lisp)
 LISPSYM(eql,"EQL",lisp)
