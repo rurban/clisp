@@ -113,7 +113,7 @@
   <para>Variable &user-libdir; is initially set to
    <code>(&merge-pathnames; ".clisp/" (&user-homedir-pathname;))</code>
    if that directory exists, and can be reset in the &RC-file;.</para>
-  <note><para>Do &not; add &user-libdir; to &load-paths; or under any
+  <note><para>Do &not-e; add &user-libdir; to &load-paths; or under any
     element thereof.  Use &require-my; instead of &load-my; to load
     dynamic modules.</para></note>
   <simpara>In addition to &link-sh;, each &mod-r; directory must
