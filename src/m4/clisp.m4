@@ -21,6 +21,7 @@ AC_DEFUN([CL_CLISP],[dnl
 AC_ARG_WITH([clisp],
 AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
 [cl_cv_use_clisp="$withval"], [cl_cv_use_clisp=default])
+cl_cv_have_clisp=no
 if test "$cl_cv_use_clisp" != "no"; then
   if test "$cl_cv_use_clisp" = default -o "$cl_cv_use_clisp" = yes;
   then AC_PATH_PROG(cl_cv_clisp, clisp)
@@ -59,11 +60,8 @@ if test "$cl_cv_use_clisp" != "no"; then
     AC_SUBST(CLISP_LIBS)dnl
     AC_SUBST(CLISP_CFLAGS)dnl
     AC_SUBST(CLISP_CPPFLAGS)dnl
-    AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp], [
-     if test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_modset; then
-       cl_cv_have_clisp=yes
-     else cl_cv_have_clisp=no
-     fi])
+    AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
+     [test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_modset && cl_cv_have_clisp=yes])
   fi
 fi])
 
