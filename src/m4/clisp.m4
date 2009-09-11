@@ -51,8 +51,6 @@ if test "$cl_cv_use_clisp" != "no"; then
        test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
      done
      test -n "${missing}" && cl_cv_clisp_linkset="missing${missing}"])
-    AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi],
-     [CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
@@ -69,4 +67,6 @@ if test "$cl_cv_use_clisp" != "no"; then
 fi])
 
 AC_DEFUN([CL_CLISP_NEED_FFI],[AC_REQUIRE([CL_CLISP])dnl
-test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([CLISP FFI is missing])])
+AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi],
+ [CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
+test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([FFI is missing in CLISP])])
