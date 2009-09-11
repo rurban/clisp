@@ -3350,14 +3350,14 @@ for var in ${PRECIOUS_VARS}; do
 done
 # we must use $(SHELL) for sub-configures because when the top CONFIG_SHELL
 # is bash, config.cache may be unparsable with sh on Solaris
-echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K boot ${localeflags}${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
+echotab "      \$(SHELL) \$\$m/configure --with-clisp=\"${HEREP}/clisp -K boot ${someflags}\" --cache-file=\$\${cache} --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS);\\"
 echotab "    else \$(SHELL) \$\$m/configure --srcdir=\$\$m \$(MODULE_CONFIGURE_FLAGS); \\"
 echotab "    fi ) ;\\"
 echotab "fi; \\"
 # srcdir must be correct in Makefile because clisp-link calls link.sh
 # which cannot pass srcdir to make on the command line
 echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
-echotab "CLISP=\"${HEREP}/clisp -K boot ${localeflags}${someflags}\" ; \\"
+echotab "CLISP=\"${HEREP}/clisp -K boot ${someflags}\" ; \\"
 echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
 echol
 
