@@ -1,5 +1,10 @@
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (current_linking_set): use (sys::program-name)
+	instead of (aref (argv) 0)
+
+2009-09-11  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (CL_CLISP): add an early cl_cv_have_clisp=no
 	rename cl_cv_clisp_modset to cl_cv_clisp_linkset
 	also check for ${cl_cv_clisp_libdir}linkkit/modules.c, as in clisp-link

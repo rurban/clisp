@@ -164,7 +164,7 @@ set_dynamic_module_location() {
 }
 
 current_linking_set() {
-  DIR=`clisp_eval '(aref (argv) 0)'`
+  DIR=`clisp_eval '(sys::program-name)'`
   DIR=`dirname ${DIR}`
   check_linkset ${DIR};
   echo ${DIR}
