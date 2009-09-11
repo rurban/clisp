@@ -254,7 +254,7 @@ regexp.html: ../modules/regexp/regexp.texinfo
 clean: force
 	$(RM) impnotes.xml impnotes.texi impnotes.html impnotes.pdf html \
 	  clisp.xml clisp.html clisp.1 *.tdb $(CATALOG_FILE) impnotes.fo \
-	  id-href.map
+	  id-href.map clisp-link.xml clisp-link.html clisp-link.1
 
 count: $(IMPNOTES)
 	wc $^
@@ -269,8 +269,8 @@ docbook-xsl : force
 	$(RSYNC) --port=5873 docbook.xml-doc.org::xsl docbook-xsl
 	grep '<fm:Version>' docbook-xsl/VERSION
 
-impnotes-src.zip : Makefile impnotes.xml clisp.xml $(IMPNOTES) $(CLISP_XSL) \
-		$(CLISP_CSS)
+impnotes-src.zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
+		$(IMPNOTES) $(CLISP_XSL) $(CLISP_CSS)
 	$(RM) $@
 	cd ..; ln -s . clisp; \
 	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
