@@ -98,8 +98,9 @@ XMLCATALOG=xmlcatalog
 TEXI2HTML=makeinfo --verbose --no-split --no-headers --html $< -o $@
 
 # NB: keep in sync with src/makemake.in:MYIMPROOT
-DIST=podval:~/public_html/clisp
-#DIST=sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
+DIST_PODVAL = podval:~/public_html/clisp
+DIST_SFBETA = sds,clisp@web.sf.net:/home/groups/c/cl/clisp/htdocs/beta
+DIST = ${DIST_PODVAL}
 RSYNC = rsync -avC --copy-unsafe-links
 
 ##### nothing user-serviceable below #####
@@ -211,11 +212,12 @@ impnotes.html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) pile.xsl $(OLINK)
 #	cp impnotes.html impnotes-saved.html
 #	tidy -config tidy.conf -f tidy.err impnotes.html || true
 	$(CHECK_IDS)
-	(test -n "$(DIST)" && $(RSYNC) impnotes.html \
-	  impnotes.css $(DIST)/) || true
+	(test -n "$(DIST)" && chmod a+r impnotes.html impnotes.css && \
+	 $(RSYNC) impnotes.html impnotes.css $(DIST)/) || true
 
 man: _clisp.html _clisp.1 _clisp-link.html _clisp-link.1
 	(cd ../build && make clisp.html clisp.1 && \
+	 chmod a+r clisp.1 clisp.html && \
 	 test -n "$(DIST)" && $(RSYNC) clisp.1 clisp.html $(DIST)/) || true
 
 impnotes.fo: impnotes.xml $(IMPNOTES) fo.xsl $(XSL_TARGET)
@@ -243,18 +245,19 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	rm -f _clisp-1.html _clisp-link-1.html
 	$(CHECK_IDS)
 	cd html; cd ..; $(CURDIR)/../utils/fix-perms.sh
-	(test -n "$(DIST)" && $(RSYNC) $@/*.html $@/id-href.map \
-	 impnotes.css $(DIST)/impnotes/;) || true
+	(test -n "$(DIST)" && chmod -R +rX $@ impnotes.css
+	 $(RSYNC) $@/*.html $@/id-href.map impnotes.css $(DIST)/impnotes/) \
+	|| true
 
 # try to use http://www.graphviz.org/ instead of openoffice for MOP
 # class inheritance diagrams
 mop-classes.png : mop-classes.dot
 	dot -Tpng mop-classes.dot -o mop-classes.png
 
-UP=sf:/home/groups/c/cl/clisp/htdocs/
-up: impnotes.html html
-	$(RSYNC) impnotes.html $(UP)/impnotes-new.html
-	$(RSYNC) html/* $(UP)/impnotes-new/
+UPLOAD = impnotes.css clisp.png
+up: impnotes.html html impnotes.css
+	chmod -R +rX $^ $(UPLOAD)
+	$(RSYNC) $^ $(UPLOAD) $(DIST_SFBETA)
 
 regexp.html: ../modules/regexp/regexp.texinfo
 	$(TEXI2HTML)
@@ -283,7 +286,8 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
 	cd ..; ln -s . clisp; \
 	zip -9 doc/$@ $(subst doc/../,, $(addprefix clisp/doc/, $^)); \
 	$(RM) clisp
-	(test -n "$(DIST)" && $(RSYNC) $@ ../src/NEWS $(DIST)/) || true
+	(test -n "$(DIST)" && chmod +r $@ ../src/NEWS && \
+	 $(RSYNC) $@ ../src/NEWS $(DIST)/) || true
 
 SEARCH=
 search: force
