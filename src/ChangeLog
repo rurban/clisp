@@ -1,6 +1,7 @@
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): add an early cl_cv_have_clisp=no
+	rename cl_cv_clisp_modset to cl_cv_clisp_linkset
 
 2009-09-10  Sam Steingold  <sds@gnu.org>
 

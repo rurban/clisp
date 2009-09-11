@@ -38,22 +38,22 @@ if test "$cl_cv_use_clisp" != "no"; then
      if test ! -r "${cl_cv_clisp_libdir}linkkit/clisp.h"; then
        cl_cv_clisp_libdir="missing ${cl_cv_clisp_libdir}linkkit/clisp.h"
      fi])
-    AC_CACHE_CHECK([for CLISP modset], [cl_cv_clisp_modset], [dnl
-     CLISP_SET(cl_cv_clisp_modset,[(sys::program-name)])
-     cl_cv_clisp_modset=`dirname ${cl_cv_clisp_modset}`
+    AC_CACHE_CHECK([for CLISP linking set], [cl_cv_clisp_linkset], [dnl
+     CLISP_SET(cl_cv_clisp_linkset,[(sys::program-name)])
+     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
      missing=''
-     # cf. check_linkset in clisp-link
+     # cf. check_linkset in src/clisp-link.in
      for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_modset}/$f" || missing=${missing}' '$f
+       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
      done
      if test -n "${missing}"; then
-       cl_cv_clisp_modset="missing${missing}"
+       cl_cv_clisp_linkset="missing${missing}"
      fi])
     AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi],
      [CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
-    sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
+    sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     source conftestvars
     rm -f conftestvars
     AC_SUBST(CLISP_FILES)dnl
@@ -61,7 +61,7 @@ if test "$cl_cv_use_clisp" != "no"; then
     AC_SUBST(CLISP_CFLAGS)dnl
     AC_SUBST(CLISP_CPPFLAGS)dnl
     AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
-     [test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_modset && cl_cv_have_clisp=yes])
+     [test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_cv_have_clisp=yes])
   fi
 fi])
 
