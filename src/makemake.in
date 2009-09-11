@@ -3237,12 +3237,13 @@ if [ $CROSS = false ] ; then
   # MYIMPROOT=http://clisp.cons.org/beta/impnotes/
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}CVS" \
-     && { { wget --version >/dev/null 2>/dev/null \
-            && wget --tries=1 --timeout=10 -q ${MYTESTURL}; } \
-          || { lynx --version >/dev/null 2>/dev/null \
-               && lynx -connect_timeout=10 -source ${MYTESTURL} > id-href.map; } \
-          || { curl --version >/dev/null 2>/dev/null \
-               && curl --max-time 10 --silent ${MYTESTURL} > id-href.map; }; }; then
+     && { if wget --version >/dev/null 2>/dev/null ; then \
+            wget --tries=1 --timeout=10 -q ${MYTESTURL}; \
+          elif lynx --version >/dev/null 2>/dev/null ; then \
+            lynx -connect_timeout=10 -source ${MYTESTURL} > id-href.map; \
+          elif curl --version >/dev/null 2>/dev/null ; then \
+            curl --max-time 10 --silent ${MYTESTURL} > id-href.map; \
+          else false; fi }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: clisp${TEXE} base"

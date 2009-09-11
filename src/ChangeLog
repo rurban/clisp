@@ -1,8 +1,9 @@
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
-	* makemake.in (check-doc): pass "--tries=1" to wget;
+	* makemake.in (check-doc): pass "--tries=1" to wget,
 	"-connect_timeout=10" to lynx and
-	"--max-time 10" to curl to limit wait time
+	"--max-time 10" to curl to limit wait time;
+	try only one of wget/lynx/curl, not every one of them in order
 
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
