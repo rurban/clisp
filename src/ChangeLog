@@ -1,5 +1,10 @@
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4: move FFI check from CL_CLISP to CL_CLISP_NEED_FFI
+	and AC_REQUIRE CL_CLISP in CL_CLISP_NEED_FFI
+
+2009-09-11  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in (current_linking_set): use (sys::program-name)
 	instead of (aref (argv) 0)
 
