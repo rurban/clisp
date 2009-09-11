@@ -68,5 +68,5 @@ if test "$cl_cv_use_clisp" != "no"; then
   fi
 fi])
 
-AC_DEFUN([CL_CLISP_NEED_FFI],
-[test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([FFI is missing])])
+AC_DEFUN([CL_CLISP_NEED_FFI],[AC_REQUIRE([CL_CLISP])dnl
+test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([CLISP FFI is missing])])
