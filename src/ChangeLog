@@ -1,5 +1,10 @@
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (CL_CLISP): use cl_use_clisp instead of
+	cl_cv_use_clisp to avoid unnecessary caching
+
+2009-09-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (check-doc): pass "--tries=1" to wget,
 	"-connect_timeout=10" to lynx and
 	"--max-time 10" to curl to limit wait time;

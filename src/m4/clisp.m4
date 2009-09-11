@@ -20,12 +20,12 @@ dnl use --with-clisp='clisp -K full'
 AC_DEFUN([CL_CLISP],[dnl
 AC_ARG_WITH([clisp],
 AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
-[cl_cv_use_clisp="$withval"], [cl_cv_use_clisp=default])
+[cl_use_clisp="$withval"], [cl_use_clisp=default])
 cl_cv_have_clisp=no
-if test "$cl_cv_use_clisp" != "no"; then
-  if test "$cl_cv_use_clisp" = default -o "$cl_cv_use_clisp" = yes;
+if test "$cl_use_clisp" != "no"; then
+  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
   then AC_PATH_PROG(cl_cv_clisp, clisp)
-  else cl_cv_clisp="$cl_cv_use_clisp"
+  else cl_cv_clisp="$cl_use_clisp"
   fi
   if test "X$cl_cv_clisp" != "X"; then
     AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
