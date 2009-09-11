@@ -6,6 +6,7 @@
 	try only one of wget/lynx/curl, not every one of them in order
 	(base): set CLISP='./clisp -K boot' for clisp-link because base is
 	not present yet thus the default will not work
+	(anymodule): no need to pass localeflags to clisp
 
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
