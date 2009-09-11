@@ -168,20 +168,28 @@ clisp-link.xml: clisp-link.xml.in ../version.sh Makefile
 
 XMLOUT=$(XSLTPROC) $(XMLS_COMMON) --param google.ads $(GOOGLEADS) \
 	--stringparam target.database.document
-DOC_MAN=--stringparam current.docid "man"
-DOC_IMP=--stringparam current.docid "impnotes"
+DOC_MAN = --stringparam current.docid "man"
+DOC_CLK = --stringparam current.docid "clink"
+DOC_IMP = --stringparam current.docid "impnotes"
 
 CHECK_IDS = if egrep -Hnr 'id="id[0-9]*"' $@; then exit 1; else true; fi
 
-%.html: %.xml $(GEN_DEPS) pile.xsl $(OLINK)
+clisp.html: clisp.xml $(GEN_DEPS) pile.xsl $(OLINK)
 	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ pile.xsl $<
 	$(CHECK_IDS)
 
+clisp.1: clisp.xml $(GEN_DEPS) man.xsl $(OLINK)
+	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
+
+clisp-link.html: clisp-link.xml $(GEN_DEPS) pile.xsl $(OLINK)
+	$(XMLOUT) "olink-pile.xml" $(DOC_CLK) -o $@ pile.xsl $<
+	$(CHECK_IDS)
+
+clisp-link.1: clisp-link.xml $(GEN_DEPS) man.xsl $(OLINK)
+	$(XMLOUT) "olink-pile.xml" $(DOC_CLK) -o $@ man.xsl $<
+
 _%.html: %.html
 	sed $(SGML_UNCOMMENT) $< > $@
-
-%.1: %.xml $(GEN_DEPS) man.xsl $(OLINK)
-	$(XMLOUT) "olink-pile.xml" $(DOC_MAN) -o $@ man.xsl $<
 
 _%.1: %.1
 	sed $(ROFF_UNCOMMENT) $< > $@
@@ -226,7 +234,7 @@ html: impnotes.xml $(IMPNOTES) $(GEN_DEPS) chunk.xsl pile.xsl clisp.xml $(OLINK)
 	cp -pv impnotes.css id-href.map $@/
 	$(XMLOUT) "olink-chunk.xml" $(DOC_IMP) -o $@/ chunk.xsl $<
 	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp.html pile.xsl clisp.xml
-	$(XMLOUT) "olink-chunk.xml" $(DOC_MAN) -o $@/clisp-link.html pile.xsl clisp-link.xml
+	$(XMLOUT) "olink-chunk.xml" $(DOC_CLK) -o $@/clisp-link.html pile.xsl clisp-link.xml
 	sed $(SGML_UNCOMMENT) $@/clisp.html > _clisp-1.html
 	sed $(SGML_UNCOMMENT) $@/clisp-link.html > _clisp-link-1.html
 	cd ../build; make clisp-1.html clisp-link-1.html;
