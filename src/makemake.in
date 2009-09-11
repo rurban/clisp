@@ -3238,11 +3238,11 @@ if [ $CROSS = false ] ; then
   MYTESTURL=${MYIMPROOT}id-href.map
   if test -d "${SRCTOPDIR_}CVS" \
      && { { wget --version >/dev/null 2>/dev/null \
-            && wget --timeout=60 -q ${MYTESTURL}; } \
+            && wget --tries=1 --timeout=10 -q ${MYTESTURL}; } \
           || { lynx --version >/dev/null 2>/dev/null \
-               && lynx -source ${MYTESTURL} > id-href.map; } \
+               && lynx -connect_timeout=10 -source ${MYTESTURL} > id-href.map; } \
           || { curl --version >/dev/null 2>/dev/null \
-               && curl --silent ${MYTESTURL} > id-href.map; }; }; then
+               && curl --max-time 10 --silent ${MYTESTURL} > id-href.map; }; }; then
     rm -f id-href.map
     CHECK_DEPS=${CHECK_DEPS}" check-doc"
     echol "check-doc: clisp${TEXE} base"
