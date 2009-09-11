@@ -27,17 +27,17 @@ if test "$cl_cv_use_clisp" != "no"; then
   else cl_cv_clisp="$cl_cv_use_clisp"
   fi
   if test "X$cl_cv_clisp" != "X"; then
-    AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [
+    AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
      if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
      then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
      else cl_cv_clisp_version='not a CLISP'
      fi])
-    AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [
+    AC_CACHE_CHECK([for CLISP libdir], [cl_cv_clisp_libdir], [dnl
      CLISP_SET(cl_cv_clisp_libdir,[(namestring *lib-directory*)])
      if test ! -r "${cl_cv_clisp_libdir}linkkit/clisp.h"; then
        cl_cv_clisp_libdir="missing ${cl_cv_clisp_libdir}linkkit/clisp.h"
      fi])
-    AC_CACHE_CHECK([for CLISP modset], [cl_cv_clisp_modset], [
+    AC_CACHE_CHECK([for CLISP modset], [cl_cv_clisp_modset], [dnl
      CLISP_SET(cl_cv_clisp_modset,[(sys::program-name)])
      cl_cv_clisp_modset=`dirname ${cl_cv_clisp_modset}`
      missing=''
@@ -48,8 +48,8 @@ if test "$cl_cv_use_clisp" != "no"; then
      if test -n "${missing}"; then
        cl_cv_clisp_modset="missing${missing}"
      fi])
-    AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi], [
-     CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
+    AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi],
+     [CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
     sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
