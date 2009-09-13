@@ -1,6 +1,8 @@
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (BUILD_AUX): when verbose, report it
+	(full): pass CLISP=... to clisp-link to possibly override the user
+	setting pointing somewhere else
 
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
