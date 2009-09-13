@@ -9,8 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Dbus (Common)])
-CL_MODULE_COMMON_CHECKS
-CL_CLISP_NEED_FFI
+CL_MODULE_COMMON_CHECKS([ffi])
 
 BOLD_MSG([Dbus (Headers and Libraries)])
 PKG_CHECK_MODULES(DBUS, dbus-1 >= 1.0,,[AC_MSG_ERROR([cannot find D-Bus])])

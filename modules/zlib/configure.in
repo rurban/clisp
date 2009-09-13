@@ -9,8 +9,7 @@ AC_CONFIG_HEADERS(config.h)
 
 RSE_BOLD
 BOLD_MSG([Zlib (Common)])
-CL_MODULE_COMMON_CHECKS
-CL_CLISP_NEED_FFI
+CL_MODULE_COMMON_CHECKS([ffi])
 
 dnl Search for libz and define LIBZ, LTLIBZ and INCZ.
 AC_LIB_LINKFLAGS([z])

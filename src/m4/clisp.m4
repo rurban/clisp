@@ -64,9 +64,8 @@ if test "$cl_use_clisp" != "no"; then
      [test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && \
        cl_cv_have_clisp=yes])
   fi
-fi])
-
-AC_DEFUN([CL_CLISP_NEED_FFI],[AC_REQUIRE([CL_CLISP])dnl
-AC_CACHE_CHECK([for FFI in CLISP], [cl_cv_clisp_ffi],
- [CLISP_SET(cl_cv_clisp_ffi,[[#+ffi "yes" #-ffi "no"]])])
-test $cl_cv_clisp_ffi = no && AC_MSG_ERROR([FFI is missing in CLISP])])
+fi
+m4_foreach_w([cl_feat], [$1],
+[AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
+ [CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
+test $cl_cv_clisp_]cl_feat[ = no && AC_MSG_ERROR([no ]cl_feat[ in CLISP])])])
