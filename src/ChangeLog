@@ -1,3 +1,7 @@
+2009-09-13  Sam Steingold  <sds@gnu.org>
+
+	* modules/i18n/configure.in: remove the spurious FFI dependency
+
 2009-09-12   Aleksej Saushev  <asau@inbox.ru>
 
 	* makemake.in (INSTALL_SCRIPT): use instead of INSTALL_PROGRAM for
