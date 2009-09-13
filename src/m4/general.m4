@@ -24,7 +24,7 @@ dnl the required macros are evaluated BEFORE the macro itself
 dnl and some of them require AC_CONFIG_AUX_DIR.
 dnl <http://article.gmane.org/gmane.comp.lib.gnulib.bugs/16312>
 AC_DEFUN([CL_MODULE_COMMON_CHECKS],[dnl
-AC_REQUIRE([CL_CLISP])dnl
+AC_REQUIRE([CL_CLISP],[CL_CLISP($1)])dnl
 AC_REQUIRE([AC_CONFIG_AUX_DIR],
 [AC_CONFIG_AUX_DIR([$cl_cv_clisp_libdir/build-aux])])dnl
 AC_REQUIRE([AC_PROG_CC])dnl

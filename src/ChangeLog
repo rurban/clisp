@@ -1,5 +1,17 @@
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (CL_CLISP): check for a specified list of features
+	(CL_CLISP_NEED_FFI): remove
+	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): fix AC_REQUIRE(CL_CLISP)
+	* modules/dbus/configure.in, modules/fastcgi/configure.in:
+	* modules/gtk2/configure.in, modules/oracle/configure.in:
+	* modules/pari/configure.in, modules/postgresql/configure.in:
+	* modules/readline/configure.in, modules/wildcard/configure.in:
+	* modules/zlib/configure.in: replace CL_CLISP_NEED_FFI with an
+	argument to CL_MODULE_COMMON_CHECKS
+
+2009-09-13  Sam Steingold  <sds@gnu.org>
+
 	* modules/i18n/configure.in: remove the spurious FFI dependency
 
 2009-09-12   Aleksej Saushev  <asau@inbox.ru>
