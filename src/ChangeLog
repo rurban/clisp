@@ -1,5 +1,9 @@
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (BUILD_AUX): when verbose, report it
+
+2009-09-13  Sam Steingold  <sds@gnu.org>
+
 	* m4/clisp.m4 (CL_CLISP): check for a specified list of features
 	(CL_CLISP_NEED_FFI): remove
 	* m4/general.m4 (CL_MODULE_COMMON_CHECKS): fix AC_REQUIRE(CL_CLISP)

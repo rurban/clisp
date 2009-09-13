@@ -3306,6 +3306,8 @@ link_dep "build-aux" "${SRCDIR}build-aux"
 for f in ${BUILD_AUX_ALL}; do
   test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
 done
+test "${verbose}" = true -o "${verbose}" = yes && \
+  echo "BUILD_AUX=${BUILD_AUX}" >&2
 
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux"
 echodummyrule modular
