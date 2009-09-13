@@ -1,3 +1,8 @@
+2009-09-12   Aleksej Saushev  <asau@inbox.ru>
+
+	* makemake.in (INSTALL_SCRIPT): use instead of INSTALL_PROGRAM for
+	clisp-link (avoids stripping the script, which is a problem on NetBSD)
+
 2009-09-11  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): use cl_use_clisp instead of

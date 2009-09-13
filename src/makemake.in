@@ -538,6 +538,7 @@ AS_UNDERSCORE='@AS_UNDERSCORE@'     # either true or false
 RANLIB='@RANLIB@'                   # either 'ranlib' or ':'
 INSTALL='@INSTALL@'                 # either 'install -c' or 'cp'
 INSTALL_PROGRAM='@INSTALL_PROGRAM@' # either 'install -c' or 'cp'
+INSTALL_SCRIPT='@INSTALL_SCRIPT@'   # either 'install -c' or 'cp', avoid 'strip'
 INSTALL_DATA='@INSTALL_DATA@'       # either 'install -c -m 644' or 'cp'
 GROFF='@GROFF@'                     # either 'groff' or ''
 PS2PDF='@PS2PDF@'                   # either 'ps2pdf' or ''
@@ -2067,6 +2068,7 @@ echol
 echol '# Programs used by "make install":'
 echol "INSTALL = ${INSTALL}"
 echol "INSTALL_PROGRAM = ${INSTALL_PROGRAM}"
+echol "INSTALL_SCRIPT = ${INSTALL_SCRIPT}"
 echol "INSTALL_DATA = ${INSTALL_DATA}"
 echol
 echol '# Programs used by "make distrib":'
@@ -3641,7 +3643,7 @@ if [ $CROSS = false ] ; then
     echotab "  esac; \\"
     echotab "done"
     echotab "mkdir -p \$(DESTDIR)\$(bindir)"
-    echotab "\$(INSTALL_PROGRAM) clisp-link \$(DESTDIR)\$(bindir)/clisp-link"
+    echotab "\$(INSTALL_SCRIPT) clisp-link \$(DESTDIR)\$(bindir)/clisp-link"
     # Don't strip the executables, otherwise (disassemble #'cons)
     # and saveinitmem/:executable won't work.
     # echotab "strip \$(DESTDIR)\$(lisplibdir)/base/lisp${LEXE}"
