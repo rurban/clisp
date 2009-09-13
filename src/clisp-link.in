@@ -149,7 +149,7 @@ set_dynamic_module_location() {
       rm -f ${CLISP_LIBDIR}/${DYNMOD}/.abazonk
       LIBDIR=${CLISP_LIBDIR}
     else # cf. src/m4/clisp.m4
-      CLISP_LIBDIR_USER=`clisp_eval '(namestring *user-lib-directory*)'`
+      CLISP_LIBDIR_USER=`clisp_eval '(and *user-lib-directory* (namestring *user-lib-directory*))'`
       test "${CLISP_LIBDIR_USER}" = "NIL" && \
         fail "Cannot determine the dynamic module directory: *lib-directory* is not writable and *user-lib-directory* is not specified"
       mkdir -p ${CLISP_LIBDIR_USER}/${DYNMOD} || \
