@@ -3382,6 +3382,7 @@ cygwin_finish base
 # full is built dynamically when explicitly requested
 echol "full : modular base \$(MODULES)"
 echotab "\$(RMRF) full"
+test "${with_dynamic_modules}" = no || echotab "mkdir -p dynmod"
 echotab "MAKE=\$(MAKE) CLISP=\"${HEREP}/clisp ${someflags}\" ${HERE}clisp-link add base full \$(MODULES) || (\$(RMRF) full ; exit 1)"
 cygwin_finish full
 
