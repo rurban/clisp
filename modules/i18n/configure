@@ -1853,13 +1853,14 @@ $as_echo "$as_me: ${term_bold}** I18N (Common)${term_norm}" >&6;}
 
 # Check whether --with-clisp was given.
 if test "${with_clisp+set}" = set; then
-  withval=$with_clisp; cl_cv_use_clisp="$withval"
+  withval=$with_clisp; cl_use_clisp="$withval"
 else
-  cl_cv_use_clisp=default
+  cl_use_clisp=default
 fi
 
-if test "$cl_cv_use_clisp" != "no"; then
-  if test "$cl_cv_use_clisp" = default -o "$cl_cv_use_clisp" = yes;
+cl_cv_have_clisp=no
+if test "$cl_use_clisp" != "no"; then
+  if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
   then # Extract the first word of "clisp", so it can be a program name with args.
 set dummy clisp; ac_word=$2
 { $as_echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -1900,7 +1901,7 @@ $as_echo "no" >&6; }
 fi
 
 
-  else cl_cv_clisp="$cl_cv_use_clisp"
+  else cl_cv_clisp="$cl_use_clisp"
   fi
   if test "X$cl_cv_clisp" != "X"; then
     { $as_echo "$as_me:$LINENO: checking for CLISP version" >&5
@@ -1908,8 +1909,7 @@ $as_echo_n "checking for CLISP version... " >&6; }
 if test "${cl_cv_clisp_version+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-     if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
+       if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
      then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
      else cl_cv_clisp_version='not a CLISP'
      fi
@@ -1921,44 +1921,34 @@ $as_echo_n "checking for CLISP libdir... " >&6; }
 if test "${cl_cv_clisp_libdir+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-     cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     if test ! -r "${cl_cv_clisp_libdir}linkkit/clisp.h"; then
-       cl_cv_clisp_libdir="missing ${cl_cv_clisp_libdir}linkkit/clisp.h"
-     fi
+       cl_cv_clisp_libdir=`$cl_cv_clisp -q -norc -x '(namestring *lib-directory*)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+     # cf src/clisp-link.in:linkkitdir
+     missing=''
+     for f in modules.c clisp.h; do
+       test -r "${cl_cv_clisp_libdir}linkkit/$f" || missing=${missing}' '$f
+     done
+     test -n "${missing}" && cl_cv_clisp_libdir="missing${missing}"
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_libdir" >&5
 $as_echo "$cl_cv_clisp_libdir" >&6; }
-    { $as_echo "$as_me:$LINENO: checking for CLISP modset" >&5
-$as_echo_n "checking for CLISP modset... " >&6; }
-if test "${cl_cv_clisp_modset+set}" = set; then
+    { $as_echo "$as_me:$LINENO: checking for CLISP linking set" >&5
+$as_echo_n "checking for CLISP linking set... " >&6; }
+if test "${cl_cv_clisp_linkset+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-     cl_cv_clisp_modset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-     cl_cv_clisp_modset=`dirname ${cl_cv_clisp_modset}`
+       cl_cv_clisp_linkset=`$cl_cv_clisp -q -norc -x '(sys::program-name)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+     cl_cv_clisp_linkset=`dirname ${cl_cv_clisp_linkset}`
      missing=''
-     # cf. check_linkset in clisp-link
+     # cf. src/clisp-link.in:check_linkset (we do not need to check for
+     # lisp.run because cl_cv_clisp_linkset comes from SYS::PROGRAM-NAME)
      for f in lisp.a lispinit.mem modules.h modules.o makevars; do
-       test -r "${cl_cv_clisp_modset}/$f" || missing=${missing}' '$f
+       test -r "${cl_cv_clisp_linkset}/$f" || missing=${missing}' '$f
      done
-     if test -n "${missing}"; then
-       cl_cv_clisp_modset="missing${missing}"
-     fi
+     test -n "${missing}" && cl_cv_clisp_linkset="missing${missing}"
 fi
-{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_modset" >&5
-$as_echo "$cl_cv_clisp_modset" >&6; }
-    { $as_echo "$as_me:$LINENO: checking for FFI in CLISP" >&5
-$as_echo_n "checking for FFI in CLISP... " >&6; }
-if test "${cl_cv_clisp_ffi+set}" = set; then
-  $as_echo_n "(cached) " >&6
-else
-
-     cl_cv_clisp_ffi=`$cl_cv_clisp -q -norc -x '#+ffi "yes" #-ffi "no"' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
-fi
-{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_ffi" >&5
-$as_echo "$cl_cv_clisp_ffi" >&6; }
-    CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_modset}/makevars > conftestvars
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_linkset" >&5
+$as_echo "$cl_cv_clisp_linkset" >&6; }
+    CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     source conftestvars
     rm -f conftestvars
                     { $as_echo "$as_me:$LINENO: checking for CLISP" >&5
@@ -1966,16 +1956,25 @@ $as_echo_n "checking for CLISP... " >&6; }
 if test "${cl_cv_have_clisp+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-
-     if test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_modset; then
+  test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && \
        cl_cv_have_clisp=yes
-     else cl_cv_have_clisp=no
-     fi
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_have_clisp" >&5
 $as_echo "$cl_cv_have_clisp" >&6; }
   fi
 fi
+{ $as_echo "$as_me:$LINENO: checking for ffi in CLISP" >&5
+$as_echo_n "checking for ffi in CLISP... " >&6; }
+if test "${cl_cv_clisp_ffi+set}" = set; then
+  $as_echo_n "(cached) " >&6
+else
+  cl_cv_clisp_ffi=`$cl_cv_clisp -q -norc -x '#+ffi "yes" #-ffi "no"' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+fi
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_ffi" >&5
+$as_echo "$cl_cv_clisp_ffi" >&6; }
+test $cl_cv_clisp_cl_feat = no && { { $as_echo "$as_me:$LINENO: error: no ffi in CLISP" >&5
+$as_echo "$as_me: error: no ffi in CLISP" >&2;}
+   { (exit 1); exit 1; }; }
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
   if test -f "$ac_dir/install-sh"; then
@@ -4045,9 +4044,6 @@ fi
 
 done
 
-test $cl_cv_clisp_ffi = no && { { $as_echo "$as_me:$LINENO: error: FFI is missing" >&5
-$as_echo "$as_me: error: FFI is missing" >&2;}
-   { (exit 1); exit 1; }; }
 
 { $as_echo "$as_me:$LINENO: ${term_bold}** I18N (locale)${term_norm}" >&5
 $as_echo "$as_me: ${term_bold}** I18N (locale)${term_norm}" >&6;}
