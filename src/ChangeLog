@@ -1,5 +1,10 @@
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
+	* clisp-link.in (set_dynamic_module_location): *user-lib-directory*
+	may be NIL which is not a valid pathname designator
+
+2009-09-13  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (BUILD_AUX): when verbose, report it
 	(full): pass CLISP=... to clisp-link to possibly override the user
 	setting pointing somewhere else;
