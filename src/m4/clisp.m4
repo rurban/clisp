@@ -77,9 +77,7 @@ if test "$cl_use_clisp" != "no"; then
        cl_cv_have_clisp=yes])
   fi
 fi
-m4_foreach_w([cl_feat], [$1],
-[m4_pushdef([CL_FEAT], m4_toupper(cl_feat))dnl
-AC_CACHE_CHECK([for CL_FEAT in CLISP], [cl_cv_clisp_]cl_feat,
+m4_foreach_w([cl_feat], m4_toupper([$1]),
+[AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
 [CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
-test $cl_cv_clisp_[]cl_feat = no && AC_MSG_ERROR([no ]CL_FEAT[ in CLISP])
-m4_popdef([CL_FEAT])])])
+test $cl_cv_clisp_[]cl_feat = no && AC_MSG_ERROR([no ]cl_feat[ in CLISP])])])
