@@ -1,3 +1,8 @@
+2009-09-14  Sam Steingold  <sds@gnu.org>
+
+	* m4/clisp.m4 (CL_CLISP): upcase the features for messages
+	Thanks to Eric Blake <ebb9@byu.net> for much enlightening!
+
 2009-09-13  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in (set_dynamic_module_location): *user-lib-directory*
