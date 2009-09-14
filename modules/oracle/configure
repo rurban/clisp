@@ -1967,14 +1967,14 @@ $as_echo "$cl_cv_have_clisp" >&6; }
 fi
 { $as_echo "$as_me:$LINENO: checking for FFI in CLISP" >&5
 $as_echo_n "checking for FFI in CLISP... " >&6; }
-if test "${cl_cv_clisp_ffi+set}" = set; then
+if test "${cl_cv_clisp_FFI+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  cl_cv_clisp_ffi=`$cl_cv_clisp -q -norc -x '#+ffi "yes" #-ffi "no"' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
+  cl_cv_clisp_FFI=`$cl_cv_clisp -q -norc -x '#+FFI "yes" #-FFI "no"' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
 fi
-{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_ffi" >&5
-$as_echo "$cl_cv_clisp_ffi" >&6; }
-test $cl_cv_clisp_ffi = no && { { $as_echo "$as_me:$LINENO: error: no FFI in CLISP" >&5
+{ $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_FFI" >&5
+$as_echo "$cl_cv_clisp_FFI" >&6; }
+test $cl_cv_clisp_FFI = no && { { $as_echo "$as_me:$LINENO: error: no FFI in CLISP" >&5
 $as_echo "$as_me: error: no FFI in CLISP" >&2;}
    { (exit 1); exit 1; }; }
 ac_aux_dir=
