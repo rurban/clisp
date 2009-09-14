@@ -900,13 +900,11 @@
     <term><filename role="clisp-cvs">src/m4/clisp.m4</filename></term>
     <listitem><simpara>usually installed in
       <filename>/usr/share/aclocal</filename>, it defines a macro
-      <function>CL_CLISP</function> which allows a
-      user <command>configure</command> script to check for a specific
-      &clisp; version being installed at the specified location.</simpara>
-     <simpara>After you use it in your <filename>configure.in</filename>,
-      you can specify the &clisp; installation by passing
-      <option>--with-clisp=/path/to/the/clisp/executable</option>
-      to <command>configure</command>.</simpara>
+      <function>CL_CLISP</function> which allows the
+      user <command>configure</command> script to check for
+      &clisp; being installed at the location specified by the
+      <option>--with-clisp="clisp command line"</option> option or as
+      &clisp-cmd; in <envar>PATH</envar>.</simpara>
      <simpara><function>CL_CLISP([foo bar])</function> will
       cause <command>configure</command> to fail if &features-my; does
       &not-e; contain <constant>foo</constant> &and-e; <constant>bar</constant>
