@@ -3838,7 +3838,7 @@ under the current directory (similar to the <command role="unix">ls
 
 <formalpara id="readline-config"><title>Linking against &readline;</title>
  <para>For &clisp; to use &readline; it has to be detected by
-  the <command>configure</command> process.<itemizedlist>
+  the &configure; process.<itemizedlist>
    <listitem><para>If you run it as
      <screen>&sh-prompt; ./configure --with-readline</screen>
      it will fail if it cannot find a valid modern &readline;
@@ -5655,9 +5655,8 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
  e.g., <ulink url="&clhs;/"/> or <filename>/usr/doc/HyperSpec/</filename>.
  If the return value is &nil;, the feature is completely disabled.
  &clhs-root-default; is initialized in &config-lisp; based on
- the <option>--hyperspec</option> passed to the
- top-level <command>configure</command> script when &clisp; was built.
-</para></formalpara>
+ the <option>--hyperspec</option> passed to the top-level &configure;
+ script when &clisp; was built.</para></formalpara>
 
 <formalpara id="impnotes-root"><title>Function &impnotes-root;</title>
 <para>Function &impnotes-root; is defined in &config-lisp;.  By default it
