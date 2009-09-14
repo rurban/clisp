@@ -2031,8 +2031,8 @@ fi
 $as_echo "$cl_cv_have_clisp" >&6; }
   fi
 fi
-{ $as_echo "$as_me:$LINENO: checking for ffi in CLISP" >&5
-$as_echo_n "checking for ffi in CLISP... " >&6; }
+{ $as_echo "$as_me:$LINENO: checking for FFI in CLISP" >&5
+$as_echo_n "checking for FFI in CLISP... " >&6; }
 if test "${cl_cv_clisp_ffi+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
@@ -2040,8 +2040,8 @@ else
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_clisp_ffi" >&5
 $as_echo "$cl_cv_clisp_ffi" >&6; }
-test $cl_cv_clisp_cl_feat = no && { { $as_echo "$as_me:$LINENO: error: no ffi in CLISP" >&5
-$as_echo "$as_me: error: no ffi in CLISP" >&2;}
+test $cl_cv_clisp_ffi = no && { { $as_echo "$as_me:$LINENO: error: no FFI in CLISP" >&5
+$as_echo "$as_me: error: no FFI in CLISP" >&2;}
    { (exit 1); exit 1; }; }
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
