@@ -8,10 +8,22 @@ dnl the same distribution terms as the rest of that program.
 
 dnl From Sam Steingold.
 
-AC_PREREQ(2.13)
+AC_PREREQ(2.59)
 
 dnl set variable $1 to the result of evaluating in clisp of $2
 AC_DEFUN([CLISP_SET],[$1=`$cl_cv_clisp -q -norc -x '$2' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`])
+
+dnl for use with autoconf 2.64 which supports m4_map_args_w
+dnl <http://article.gmane.org/gmane.comp.sysutils.autoconf.general/12077>
+m4_define([_CL_CLISP_REQUIRE_FEATURE_1],
+[_CL_CLISP_REQUIRE_FEATURE_2([$1], m4_toupper([$1]))])
+m4_define([_CL_CLISP_REQUIRE_FEATURE_2],
+[AC_CACHE_CHECK([for $2 in CLISP], [cl_cv_clisp_$1],
+ [CLISP_SET([cl_cv_clisp_$1], [[#+$1 "yes" #-$1 "no"]])])
+test $cl_cv_clisp_$1 = no && AC_MSG_ERROR([no $2 in CLISP])])
+dnl replace m4_foreach_w below with this:
+dnl m4_map_args_w([$1], [_CL_CLISP_REQUIRE_FEATURE_1(], [)], [
+dnl ])
 
 dnl check for a clisp installation
 dnl use --with-clisp=path if your clisp is not in the PATH
@@ -66,6 +78,8 @@ if test "$cl_use_clisp" != "no"; then
   fi
 fi
 m4_foreach_w([cl_feat], [$1],
-[AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
- [CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
-test $cl_cv_clisp_]cl_feat[ = no && AC_MSG_ERROR([no ]cl_feat[ in CLISP])])])
+[m4_pushdef([CL_FEAT], m4_toupper(cl_feat))dnl
+AC_CACHE_CHECK([for CL_FEAT in CLISP], [cl_cv_clisp_]cl_feat,
+[CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
+test $cl_cv_clisp_[]cl_feat = no && AC_MSG_ERROR([no ]CL_FEAT[ in CLISP])
+m4_popdef([CL_FEAT])])])
