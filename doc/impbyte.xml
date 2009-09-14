@@ -900,14 +900,13 @@
     <term><filename role="clisp-cvs">src/m4/clisp.m4</filename></term>
     <listitem><simpara>usually installed in
       <filename>/usr/share/aclocal</filename>, it defines a macro
-      <function>CL_CLISP</function> which allows the
-      user <command>configure</command> script to check for
-      &clisp; being installed at the location specified by the
-      <option>--with-clisp="clisp command line"</option> option or as
-      &clisp-cmd; in <envar>PATH</envar>.</simpara>
-     <simpara><function>CL_CLISP([foo bar])</function> will
-      cause <command>configure</command> to fail if &features-my; does
-      &not-e; contain <constant>foo</constant> &and-e; <constant>bar</constant>
+      <function>CL_CLISP</function> which allows the user &configure;
+      script to check for &clisp; being installed at the location
+      specified by the <option>--with-clisp="clisp command line"</option>
+      option or as &clisp-cmd; in <envar>PATH</envar>.</simpara>
+     <simpara><function>CL_CLISP([foo bar])</function> will cause
+      &configure; to fail if &features-my; does &not-e; contain
+      <constant>foo</constant> &and-e; <constant>bar</constant>
       and will define <varname>cl_cv_clisp_version</varname> to the
       return value of &lisp-implementation-version; which you can then
       use to check for a specific &clisp; version.</simpara>
