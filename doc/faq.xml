@@ -227,16 +227,16 @@ further explanations of the issues could be provided).</para>
 <qandaentry id="faq-debug"><question id="faq-debug-q"><simpara>How do I
    debug &clisp;?</simpara></question>
 <answer><formalpara id="with-debug"><title>Configuring for debugging</title>
-<para>Passing &with-debug; to the top-level <command>configure</command>
- script does not just replace <option>-O</option> with <option>-g</option>
+<para>Passing &with-debug; to the top-level &configure; script does not
+ just replace <option>-O</option> with <option>-g</option>
  in the &gcc; invocation, it also disables some optimizations
  (registers, assembly, generational &gc;or) and enables
  some <function role="unix">printf</function> calls (mostly before error
  messages caused by system calls).
  This means that some bugs might be exhibited by the normal build but
  &not-e; by the &with-debug; one (and vice versa).
- If that is the case, please <command>configure</command> normally but
- edit the <filename>Makefile</filename> and replace the &gcc; optimization
+ If that is the case, please &configure; normally but edit the
+ <filename>Makefile</filename> and replace the &gcc; optimization
  options (<option>-O</option> et al) with <option>-g</option> before
  running <command role="unix">make</command>.</para></formalpara>
 
@@ -441,7 +441,7 @@ following command:
    extensions are available?</simpara></question>
 <answer><label>bundled</label><simpara>Quite a few modules are
   <link linkend="included-modules">included</link> with &clisp;,
-  pass <option>--with-module=...</option> to <command>configure</command>
+  pass <option>--with-module=...</option> to &configure;
   to build them and see <xref linkend="faq-modules"/>.</simpara></answer>
 <answer><label>3rd party</label>
  <simpara>See the <emphasis>incomplete</emphasis> list of
@@ -612,12 +612,11 @@ following command:
 
 <qandaentry id="faq-with-prefix"><question id="faq-with-prefix-q"><para>
    Why is the <option>--with-libsigsegv-prefix</option> option ignored
-   by the <command>configure</command> script on my 64-bit machine?
- </para></question>
+   by the &configure; script on my 64-bit machine?</para></question>
 <answer><para>See a note on <quote>bi-arch systems</quote> in section 2 of
  <filename role="clisp-cvs">unix/INSTALL</filename> in your source distribution
   (for the impatient: pass <option>--libdir=='${exec_prefix}/lib64'</option>
-    to the &libsigsegv; <command>configure</command>).</para>
+    to the &libsigsegv; &configure;).</para>
  <para>See these threads which discuss the situation in depth:<simplelist>
    <member><ulink url="http://thread.gmane.org/gmane.comp.lib.gnulib.bugs/14565"/></member>
    <member><ulink url="http://thread.gmane.org/gmane.comp.sysutils.autoconf.general/10827"/></member>
