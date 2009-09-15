@@ -549,7 +549,7 @@ ignored by the interpreter.</para>
  and &defconstant; are undone by the <code>(&proclaim; '(&notspec;
   &var-r;))</code> declaration.  This declaration can be used only in
  global &proclaim; and &declaim; forms, &not-e; in local &declare; forms.
-<warning><simpara> You cannot expect miracles: functions compiled &before-e;
+<warning><simpara>You cannot expect miracles: functions compiled &before-e;
  the &notspec; proclamation was issued will still be treating &var-r; as
  special even after the &notspec; proclamation. See also
  <xref linkend="semantic-constraints"/>.</simpara></warning></para></formalpara>
@@ -2018,11 +2018,11 @@ can give problems:
  <listitem><simpara>See it pragmatically: save what you can and let
   others worry about the rest.</simpara></listitem></varlistentry>
 <varlistentry><term>Brief:</term>
- <listitem><simpara>&cl; knows the number's precision, not accuracy, so
-  preserving the precision can be accomplished reliably, while anything
-  relating to the accuracy is just a speculation - only the user
-  (programmer) knows what it is in each case.
- </simpara></listitem></varlistentry>
+ <listitem><simpara>&cl; knows the number's <emphasis>precision</emphasis>,
+   not <emphasis>accuracy</emphasis>, so preserving the precision can be
+   accomplished reliably, while anything relating to the accuracy is
+   just a speculation - only the user (programmer) knows what it is in
+   each case.</simpara></listitem></varlistentry>
 <varlistentry><term>Detailed:</term>
  <listitem><simpara>A computer float is an approximation of a real number.
   One can think of it as a random variable with the mean equal to
@@ -2030,23 +2030,24 @@ can give problems:
   E.g., <literal>1.5</literal> is actually <literal>1.5&plusmn;0.05</literal>.
   Consider adding <literal>1.5</literal> and <literal>1.75</literal>.
   &ansi-cl; requires that <code>(&plus; 1.5 1.75)</code>
-  return <literal>3.25</literal>, while traditional &clisp; would return
-  <literal>3.3</literal>.  The implied random variables are:
-  <literal>3.25&plusmn;0.005</literal> and <literal>3.3&plusmn;0.05</literal>.
+  return <returnvalue>3.25</returnvalue>, while traditional &clisp;
+  would return <returnvalue>3.3</returnvalue>.
+  The implied random variables are: <literal>3.25&plusmn;0.005</literal>
+  and <literal>3.3&plusmn;0.05</literal>.
   Note that the traditional &clisp; way <emphasis role="strong">does</emphasis>
   lie about the mean: the mean &is-e; <literal>3.25</literal> and
   nothing else, while the standard way
   <emphasis role="strong">could</emphasis> be lying about the deviation
-  (accuracy): if the implied accuracy of <literal>1.5 (0.05)</literal>
+  (accuracy): if the implied accuracy of <literal>1.5</literal> (i.e., 0.05)
   is its actual accuracy, then the accuracy of the result cannot be
   smaller that that.  Therefore, since &cl; has no way of knowing the
   actual accuracy, &ansi-cl; (and all the other standard engineering
   programming languages, like &c-lang;, <command role="dict">Fortran</command>
-  etc) decides that keeping the accuracy correct is the business of the
+  etc) decided that keeping the accuracy correct is the business of the
   programmer, while the language should preserve what it can - the precision.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Experience:</term>
-  <listitem><simpara> Rounding errors accumulate, and if a computation
+  <listitem><simpara>Rounding errors accumulate, and if a computation
   is conducted with insufficient precision, an outright incorrect
   result can be returned.
   (E.g., <code>E(x<superscript>2</superscript>) -
@@ -2066,21 +2067,21 @@ can give problems:
 
 <variablelist>
 <varlistentry><term>Rationale:</term>
- <listitem><simpara> See it mathematically.  Add intervals:
+ <listitem><simpara>See it mathematically.  Add intervals:
   <code>{1.0 &plusmn; 1e-8} + {1.0 &plusmn; 1e-16} = {2.0 &plusmn;
   1e-8}</code>.  So, if we add <literal>1.0s0</literal> and
   <literal>1.0d0</literal>, we should get <literal>2.0s0</literal>.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Brief:</term>
- <listitem><simpara>Do not suggest accuracy of a result by giving it a
-  precision that is greater than its accuracy.
+ <listitem><simpara>Do not suggest high accuracy of a result by giving
+  it a precision that is greater than its accuracy.
   </simpara></listitem></varlistentry>
 <varlistentry><term>Example:</term>
  <listitem><simpara><code>(&subt; (&plus; 1.7 &pi-v;) &pi-v;)</code>
-  should not return <literal>1.700000726342836417234L0</literal>, it
-  should return <literal>1.7f0</literal> (or
-  <literal>1.700001f0</literal> if there were rounding errors).
-  </simpara></listitem></varlistentry>
+  should not return <returnvalue>1.700000726342836417234L0</returnvalue>,
+   it should return <returnvalue>1.7f0</returnvalue> (or
+   <returnvalue>1.700001f0</returnvalue> if there were rounding errors).
+</simpara></listitem></varlistentry>
 <varlistentry><term>Experience:</term>
  <listitem><simpara>If in a computation using thousands of &short-float-t;s,
   a &long-float-t; (like &pi-v;) happens to be used, the long precision
@@ -2088,8 +2089,7 @@ can give problems:
   Otherwise, the long result would look precise, but its accuracy is
   only that of a &short-float-t;; furthermore much computation time
   would be lost by calculating with &long-float-t;s when only
-  &short-float-t;s would be needed.
-  </simpara></listitem></varlistentry>
+  &short-float-t;s would be needed.</simpara></listitem></varlistentry>
 </variablelist>
 
 <simplesect id="warn-fpc"><title>Variable &warn-fpc;</title>
@@ -3135,7 +3135,7 @@ checks whether the &hash-table-t; is weak.</para>
   <member>&equalp;</member></simplelist>
  (but &not-e; &eq;, &eql; nor &equal; anymore), or, for &hash-table-t;s
  created with a user-defined &hash-table-test; (see macro &defhash;),
- a &cons-t; cell <literal role="data">(&test-f; . &hash-f;)</literal>.
+ a &cons-t; cell <returnvalue>(&test-f; . &hash-f;)</returnvalue>.
 </para></section>
 
 <section id="dohash"><title>Macro &dohash;</title>
