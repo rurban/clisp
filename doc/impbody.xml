@@ -1460,6 +1460,9 @@ the iteration variable and assign it on each iteration.</para></section>
   for Conforming Programs - package locking
  <ulink role="clhs" url="sec_11-1-2-1-2"/></title>
 
+<note><para>Locking discussed in this section has nothing to do with
+  &mutex-lock;.</para></note>
+
 <formalpara><title>Function <firstterm>&package-lock;
    <indexterm id="pack-lock-f" significance="preferred">
     <primary>PACKAGE-LOCK</primary></indexterm></firstterm></title>
