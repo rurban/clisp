@@ -343,7 +343,13 @@ int xcondition_wait_helper(xcondition_t *c,xlock_t *m, uintL timeout);
                              : "0" (1), "m" (*(spinlock))       \
                              : "memory");                       \
         ret;})
-    #define spinlock_release(spinlock)  do { *(spinlock) = 0; } while(0)
+    #define spinlock_release(spinlock)                          \
+      do {                                                      \
+        __asm__ __volatile__("movl $0, %0"                      \
+                             : "=m"(*(spinlock))                \
+                             : "m" (*(spinlock))                \
+                             : "memory");                       \
+      } while (0)
   #endif
   #ifdef POWERPC
     #define testandset(spinlock)                        \
