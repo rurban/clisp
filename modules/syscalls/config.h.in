@@ -266,6 +266,9 @@
 /* Define to 1 if you have the <pwd.h> header file. */
 #undef HAVE_PWD_H
 
+/* Define to 1 if you have the `readlink' function. */
+#undef HAVE_READLINK
+
 /* Define to 1 if you have the `realpath' function. */
 #undef HAVE_REALPATH
 
@@ -353,6 +356,9 @@
 
 /* Define to 1 if you have the `statvfs' function. */
 #undef HAVE_STATVFS
+
+/* Define to 1 if you have the <stddef.h> header file. */
+#undef HAVE_STDDEF_H
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -497,6 +503,9 @@
 /* Define to 1 if you have the <wchar.h> header file. */
 #undef HAVE_WCHAR_H
 
+/* Define if you have the 'wchar_t' type. */
+#undef HAVE_WCHAR_T
+
 /* Define to 1 if you have the <winsock2.h> header file. */
 #undef HAVE_WINSOCK2_H
 
@@ -506,7 +515,8 @@
 /* Define HOST_NAME_MAX when <limits.h> does not define it. */
 #undef HOST_NAME_MAX
 
-/* Define if `link(2)' dereferences symbolic links. */
+/* Define to 1 if `link(2)' dereferences symbolic links, 0 if it creates hard
+   links to symlinks, and -1 if unknown. */
 #undef LINK_FOLLOWS_SYMLINKS
 
 /* Define if the mbrtowc function has the NULL string argument bug. */
