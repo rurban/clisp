@@ -383,7 +383,7 @@ gnulib-imported : update-gnulib force
 		--m4-base=modules/wildcard/glm4 $(GNULIB_AVOID) fnmatch-gnu \
 		| tee -a $(GNULIB_IMPORTED_LOG)
 	$(RM) configure.ac
-	for d in $(GNULIB_USERS); do $(RM) `find $d/gllib -name \*~`; done
+	for d in $(GNULIB_USERS); do $(RM) `find $$d/gllib -name \*~`; done
 	cd src/glm4; \
 	for f in *.m4; do \
 	  if test -f ../m4/$$f; then \
