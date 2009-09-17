@@ -74,7 +74,7 @@ if test "$ac_cv_header_sys_statvfs_h" = "yes"; then
 #include <sys/statvfs.h>])
 fi
 CL_RUSAGE
-gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
+gl_FUNC_LINK_FOLLOWS_SYMLINK
 if test "$ac_cv_func_setpgrp" = "yes"; then
 dnl BSD versions of setpgrp() are identical to setpgid()
 AC_CACHE_CHECK([whether setpgrp() is POSIX],ac_cv_func_setpgrp_posix,[

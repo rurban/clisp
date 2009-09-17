@@ -24,6 +24,9 @@
 	* glm4/string_h.m4, glm4/threadlib.m4, glm4/unistd_h.m4:
 	* glm4/wchar.m4, glm4/wctype.m4: update
 
+	* modules/syscalls/configure.in: gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
+	has been renamed to gl_FUNC_LINK_FOLLOWS_SYMLINK
+
 2009-09-17  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (update-gnulib): add a missing semicolon
