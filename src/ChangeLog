@@ -1,6 +1,7 @@
 2009-09-15  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (update-gnulib): add a missing semicolon
+	(gnulib-imported): add a missing dollar sign
 
 2009-09-16  Sam Steingold  <sds@gnu.org>
 
