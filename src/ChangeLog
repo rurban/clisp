@@ -1,4 +1,30 @@
-2009-09-15  Sam Steingold  <sds@gnu.org>
+2009-09-17  Sam Steingold  <sds@gnu.org>
+
+	Update gnulib imports (mostly for mktime fixes for NetBSD/i386)
+	* modules/regexp/gllib/stddef.in.h, modules/regexp/glm4/stddef_h.m4:
+	* modules/regexp/glm4/wchar_t.m4, modules/syscalls/gllib/stddef.in.h:
+	* modules/syscalls/glm4/stddef_h.m4, modules/syscalls/glm4/wchar_t.m4:
+	* src/gllib/stddef.in.h, src/glm4/stddef_h.m4: add
+	* modules/regexp/gllib/Makefile.am, modules/regexp/gllib/stdlib.in.h:
+	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/gnulib-comp.m4:
+	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
+	* modules/syscalls/gllib/Makefile.am, modules/syscalls/gllib/mktime.c:
+	* modules/syscalls/gllib/sys_socket.in.h:
+	* modules/syscalls/gllib/time.in.h:
+	* modules/syscalls/gllib/unistd.in.h:
+	* modules/syscalls/glm4/gethostname.m4:
+	* modules/syscalls/glm4/gnulib-comp.m4:
+	* modules/syscalls/glm4/sockets.m4:
+	* modules/syscalls/glm4/sockpfaf.m4:
+	* modules/syscalls/glm4/sys_socket_h.m4:
+	* modules/syscalls/glm4/time_r.m4, modules/syscalls/glm4/unistd_h.m4:
+	* modules/wildcard/gllib/Makefile.am
+	* gllib/Makefile.am, gllib/string.in.h, gllib/unistd.in.h:
+	* gllib/wctype.in.h, glm4/gnulib-comp.m4, glm4/link-follow.m4:
+	* glm4/string_h.m4, glm4/threadlib.m4, glm4/unistd_h.m4:
+	* glm4/wchar.m4, glm4/wctype.m4: update
+
+2009-09-17  Sam Steingold  <sds@gnu.org>
 
 	* Makefile.devel (update-gnulib): add a missing semicolon
 	(gnulib-imported): add a missing dollar sign

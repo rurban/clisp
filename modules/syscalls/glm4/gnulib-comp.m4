@@ -50,6 +50,7 @@ AC_DEFUN([sc_gl_INIT],
   gl_FUNC_MKTIME
   gl_MULTIARCH
   gl_SOCKETS
+  gl_STDDEF_H
   gl_STRCASE
   gl_FUNC_GNU_STRFTIME
   gl_HEADER_STRINGS_H
@@ -205,6 +206,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   lib/mktime.c
   lib/sockets.c
   lib/sockets.h
+  lib/stddef.in.h
   lib/strcasecmp.c
   lib/strftime.c
   lib/strftime.h
@@ -228,6 +230,7 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/multiarch.m4
   m4/sockets.m4
   m4/sockpfaf.m4
+  m4/stddef_h.m4
   m4/strcase.m4
   m4/strftime.m4
   m4/strings_h.m4
@@ -239,4 +242,5 @@ AC_DEFUN([sc_gl_FILE_LIST], [
   m4/tm_gmtoff.m4
   m4/uname.m4
   m4/unistd_h.m4
+  m4/wchar_t.m4
 ])

@@ -54,7 +54,7 @@ AC_DEFUN([gl_INIT],
   gl_FUNC_GETTIMEOFDAY
   gl_GNU_MAKE
   gl_LIBSIGSEGV
-  gl_AC_FUNC_LINK_FOLLOWS_SYMLINK
+  gl_FUNC_LINK_FOLLOWS_SYMLINK
   gl_LOCALCHARSET
   LOCALCHARSET_TESTS_ENVIRONMENT="CHARSETALIASDIR=\"\$(top_builddir)/$gl_source_base\""
   AC_SUBST([LOCALCHARSET_TESTS_ENVIRONMENT])
@@ -71,6 +71,7 @@ AC_DEFUN([gl_INIT],
   gl_MULTIARCH
   gt_NO_CXX
   AM_STDBOOL_H
+  gl_STDDEF_H
   gl_STDINT_H
   gl_HEADER_STRING_H
   gl_HEADER_SYS_TIME_H
@@ -231,6 +232,7 @@ AC_DEFUN([gl_FILE_LIST], [
   lib/ref-add.sin
   lib/ref-del.sin
   lib/stdbool.in.h
+  lib/stddef.in.h
   lib/stdint.in.h
   lib/streq.h
   lib/string.in.h
@@ -298,6 +300,7 @@ AC_DEFUN([gl_FILE_LIST], [
   m4/progtest.m4
   m4/size_max.m4
   m4/stdbool.m4
+  m4/stddef_h.m4
   m4/stdint.m4
   m4/stdint_h.m4
   m4/string_h.m4

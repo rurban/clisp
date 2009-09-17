@@ -52,6 +52,7 @@ AC_DEFUN([rx_gl_INIT],
   gl_STDLIB_MODULE_INDICATOR([malloc-posix])
   gl_REGEX
   gt_TYPE_SSIZE_T
+  gl_STDDEF_H
   gl_STDLIB_H
   gl_UNISTD_H
   gl_FUNC_WCRTOMB
@@ -199,6 +200,7 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   lib/regex_internal.c
   lib/regex_internal.h
   lib/regexec.c
+  lib/stddef.in.h
   lib/stdlib.in.h
   lib/unistd.in.h
   lib/wcrtomb.c
@@ -214,7 +216,9 @@ AC_DEFUN([rx_gl_FILE_LIST], [
   m4/mbstate_t.m4
   m4/regex.m4
   m4/ssize_t.m4
+  m4/stddef_h.m4
   m4/stdlib_h.m4
   m4/unistd_h.m4
+  m4/wchar_t.m4
   m4/wcrtomb.m4
 ])
