@@ -2811,19 +2811,28 @@ local one_sym_function_t map_symbols_aux;
 LISPFUNN(map_symbols,2) {
   /* check second argument: */
   STACK_0 = test_package_arg(STACK_0);
-  /* apply fun to all internal symbols: */
-  map_symtab(STACK_1,ThePackage(STACK_0)->pack_internal_symbols);
-  /* apply fun to all external symbols: */
-  map_symtab(STACK_1,ThePackage(STACK_0)->pack_external_symbols);
+  var gcv_object_t *pack_ = &STACK_0;
+  var gcv_object_t *fun_ = &STACK_1;
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex, {
+    /* apply fun to all internal symbols: */
+    map_symtab(*fun_,ThePackage(*pack_)->pack_internal_symbols);
+    /* apply fun to all external symbols: */
+    map_symtab(*fun_,ThePackage(*pack_)->pack_external_symbols);
+  });
   /* apply fun to all inherited symbols: */
-  pushSTACK(ThePackage(STACK_0)->pack_use_list); /* traverse use-list */
-  while (mconsp(STACK_0)) {
-    var object usedpack = Car(STACK_0); /* next package from the use-list */
-    STACK_0 = Cdr(STACK_0);
-    map_symtab_c(&map_symbols_aux,&STACK_1,
-                 ThePackage(usedpack)->pack_external_symbols);
+  pushSTACK(ThePackage(*pack_)->pack_use_list); /* traverse use-list */
+  var gcv_object_t *use_list_ = &STACK_0;
+  pushSTACK(NIL);               /* current package */
+  var gcv_object_t *used_pack_ = &STACK_0;
+  while (mconsp(*use_list_)) {
+    *used_pack_ = Car(*use_list_); /* next package from the use-list */
+    *use_list_ = Cdr(*use_list_);
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*used_pack_)->pack_mutex, {
+      map_symtab_c(&map_symbols_aux,pack_,
+                   ThePackage(*used_pack_)->pack_external_symbols);
+    });
   }
-  skipSTACK(3);
+  skipSTACK(4);
   VALUES1(NIL);
 }
 
@@ -2852,31 +2861,36 @@ local maygc void map_symbols_aux (void* data, object sym) {
    applies the function fun to all external symbols in pack. Value NIL. */
 LISPFUNN(map_external_symbols,2) {
   /* check second argument: */
-  var object pack = test_package_arg(popSTACK());
-  /* apply fun to all external symbols: */
-  map_symtab(popSTACK(),ThePackage(pack)->pack_external_symbols);
-  VALUES1(NIL);
+  STACK_0 = test_package_arg(STACK_0);
+  var gcv_object_t *pack_ = &STACK_0;
+  var gcv_object_t *fun_ = &STACK_1;
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex, {
+    /* apply fun to all external symbols: */
+    map_symtab(*fun_,ThePackage(*pack_)->pack_external_symbols);
+  });
+  VALUES1(NIL); skipSTACK(2);
 }
 
 /* (SYSTEM::MAP-ALL-SYMBOLS fun)
  applies the function fun to all symbols present in any package. */
 LISPFUNN(map_all_symbols,1)
 {
-  WITH_OS_MUTEX_LOCK(1,&all_packages_lock, {
-    pushSTACK(O(all_packages)); /* traverse package-list */
-    while (mconsp(STACK_0)) {
-      var object pack = Car(STACK_0); /* next package */
-      STACK_0 = Cdr(STACK_0);
-      pushSTACK(pack); /* save */
+  var gcv_object_t *fun_ = &STACK_0;
+  pushSTACK(O(all_packages));   /* traverse package-list */
+  var gcv_object_t *all_packages_ = &STACK_0;
+  pushSTACK(NIL);               /* current package */
+  var gcv_object_t *pack_ = &STACK_0;
+  while (mconsp(*all_packages_)) {
+    *pack_ = Car(*all_packages_); /* next package */
+    *all_packages_ = Cdr(*all_packages_);
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex, {
       /* apply fun to all internal symbols: */
-      map_symtab(STACK_2,ThePackage(pack)->pack_internal_symbols);
-      pack = popSTACK();
+      map_symtab(*fun_,ThePackage(*pack_)->pack_internal_symbols);
       /* apply fun to all external symbols: */
-      map_symtab(STACK_1,ThePackage(pack)->pack_external_symbols);
-    }
-    skipSTACK(2);
-    VALUES1(NIL);
-  });
+      map_symtab(*fun_,ThePackage(*pack_)->pack_external_symbols);
+    });
+  }
+  VALUES1(NIL); skipSTACK(3);
 }
 
 /* UP: Subroutine for EXT:RE-EXPORT.
@@ -2902,8 +2916,12 @@ LISPFUNN(re_export,2) {
     pushSTACK(S(re_export));
     error(package_error,GETTEXT("~S: ~S is not using ~S"));
   }
-  map_symtab_c(&export_symbol_from,&STACK_0,
-               ThePackage(STACK_1)->pack_external_symbols);
+  var gcv_object_t *from_pack_ = &STACK_1;
+  var gcv_object_t *to_pack_ = &STACK_0;
+  WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*to_pack_)->pack_mutex, {
+    map_symtab_c(&export_symbol_from,to_pack_,
+                 ThePackage(*from_pack_)->pack_external_symbols);
+  });
   VALUES1(NIL);
   skipSTACK(2);
 }
