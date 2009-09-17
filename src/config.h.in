@@ -433,6 +433,9 @@
 /* Define to 1 if stdbool.h conforms to C99. */
 #undef HAVE_STDBOOL_H
 
+/* Define to 1 if you have the <stddef.h> header file. */
+#undef HAVE_STDDEF_H
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -563,6 +566,9 @@
 /* Define to 1 if you have the <wchar.h> header file. */
 #undef HAVE_WCHAR_H
 
+/* Define if you have the 'wchar_t' type. */
+#undef HAVE_WCHAR_T
+
 /* Define to 1 if you have the <wctype.h> header file. */
 #undef HAVE_WCTYPE_H
 
@@ -609,7 +615,8 @@
 /* need <linux/in6.h> for the in6_addr and sockaddr_in6 types */
 #undef IPV6_NEED_LINUX_IN6_H
 
-/* Define if `link(2)' dereferences symbolic links. */
+/* Define to 1 if `link(2)' dereferences symbolic links, 0 if it creates hard
+   links to symlinks, and -1 if unknown. */
 #undef LINK_FOLLOWS_SYMLINKS
 
 /* longjmp() may return */

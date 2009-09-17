@@ -121,15 +121,19 @@ ERRNO_H = @ERRNO_H@
 EXEEXT = @EXEEXT@
 GETHOSTNAME_LIB = @GETHOSTNAME_LIB@
 GNULIB_ACCEPT = @GNULIB_ACCEPT@
+GNULIB_ACCEPT4 = @GNULIB_ACCEPT4@
 GNULIB_BIND = @GNULIB_BIND@
 GNULIB_BTOWC = @GNULIB_BTOWC@
 GNULIB_CHOWN = @GNULIB_CHOWN@
 GNULIB_CLOSE = @GNULIB_CLOSE@
 GNULIB_CONNECT = @GNULIB_CONNECT@
 GNULIB_DUP2 = @GNULIB_DUP2@
+GNULIB_DUP3 = @GNULIB_DUP3@
 GNULIB_ENVIRON = @GNULIB_ENVIRON@
 GNULIB_EUIDACCESS = @GNULIB_EUIDACCESS@
+GNULIB_FACCESSAT = @GNULIB_FACCESSAT@
 GNULIB_FCHDIR = @GNULIB_FCHDIR@
+GNULIB_FCHOWNAT = @GNULIB_FCHOWNAT@
 GNULIB_FSYNC = @GNULIB_FSYNC@
 GNULIB_FTRUNCATE = @GNULIB_FTRUNCATE@
 GNULIB_GETCWD = @GNULIB_GETCWD@
@@ -151,17 +155,23 @@ GNULIB_MBRTOWC = @GNULIB_MBRTOWC@
 GNULIB_MBSINIT = @GNULIB_MBSINIT@
 GNULIB_MBSNRTOWCS = @GNULIB_MBSNRTOWCS@
 GNULIB_MBSRTOWCS = @GNULIB_MBSRTOWCS@
+GNULIB_PIPE2 = @GNULIB_PIPE2@
 GNULIB_READLINK = @GNULIB_READLINK@
+GNULIB_READLINKAT = @GNULIB_READLINKAT@
 GNULIB_RECV = @GNULIB_RECV@
 GNULIB_RECVFROM = @GNULIB_RECVFROM@
+GNULIB_RMDIR = @GNULIB_RMDIR@
 GNULIB_SEND = @GNULIB_SEND@
 GNULIB_SENDTO = @GNULIB_SENDTO@
 GNULIB_SETSOCKOPT = @GNULIB_SETSOCKOPT@
 GNULIB_SHUTDOWN = @GNULIB_SHUTDOWN@
 GNULIB_SLEEP = @GNULIB_SLEEP@
 GNULIB_SOCKET = @GNULIB_SOCKET@
+GNULIB_SYMLINKAT = @GNULIB_SYMLINKAT@
 GNULIB_UNAME = @GNULIB_UNAME@
+GNULIB_UNISTD_H_GETOPT = @GNULIB_UNISTD_H_GETOPT@
 GNULIB_UNISTD_H_SIGPIPE = @GNULIB_UNISTD_H_SIGPIPE@
+GNULIB_UNLINKAT = @GNULIB_UNLINKAT@
 GNULIB_WCRTOMB = @GNULIB_WCRTOMB@
 GNULIB_WCSNRTOMBS = @GNULIB_WCSNRTOMBS@
 GNULIB_WCSRTOMBS = @GNULIB_WCSRTOMBS@
@@ -169,6 +179,7 @@ GNULIB_WCTOB = @GNULIB_WCTOB@
 GNULIB_WCWIDTH = @GNULIB_WCWIDTH@
 GNULIB_WRITE = @GNULIB_WRITE@
 GREP = @GREP@
+HAVE_ACCEPT4 = @HAVE_ACCEPT4@
 HAVE_BTOWC = @HAVE_BTOWC@
 HAVE_DECL_ENVIRON = @HAVE_DECL_ENVIRON@
 HAVE_DECL_GETLOGIN_R = @HAVE_DECL_GETLOGIN_R@
@@ -176,7 +187,10 @@ HAVE_DECL_STRNCASECMP = @HAVE_DECL_STRNCASECMP@
 HAVE_DECL_WCTOB = @HAVE_DECL_WCTOB@
 HAVE_DECL_WCWIDTH = @HAVE_DECL_WCWIDTH@
 HAVE_DUP2 = @HAVE_DUP2@
+HAVE_DUP3 = @HAVE_DUP3@
 HAVE_EUIDACCESS = @HAVE_EUIDACCESS@
+HAVE_FACCESSAT = @HAVE_FACCESSAT@
+HAVE_FCHOWNAT = @HAVE_FCHOWNAT@
 HAVE_FSYNC = @HAVE_FSYNC@
 HAVE_FTRUNCATE = @HAVE_FTRUNCATE@
 HAVE_GETDOMAINNAME = @HAVE_GETDOMAINNAME@
@@ -191,15 +205,20 @@ HAVE_MBSINIT = @HAVE_MBSINIT@
 HAVE_MBSNRTOWCS = @HAVE_MBSNRTOWCS@
 HAVE_MBSRTOWCS = @HAVE_MBSRTOWCS@
 HAVE_OS_H = @HAVE_OS_H@
+HAVE_PIPE2 = @HAVE_PIPE2@
 HAVE_READLINK = @HAVE_READLINK@
+HAVE_READLINKAT = @HAVE_READLINKAT@
 HAVE_SA_FAMILY_T = @HAVE_SA_FAMILY_T@
 HAVE_SLEEP = @HAVE_SLEEP@
 HAVE_STRCASECMP = @HAVE_STRCASECMP@
 HAVE_STRUCT_SOCKADDR_STORAGE = @HAVE_STRUCT_SOCKADDR_STORAGE@
+HAVE_SYMLINKAT = @HAVE_SYMLINKAT@
 HAVE_SYS_PARAM_H = @HAVE_SYS_PARAM_H@
 HAVE_SYS_SOCKET_H = @HAVE_SYS_SOCKET_H@
 HAVE_UNAME = @HAVE_UNAME@
 HAVE_UNISTD_H = @HAVE_UNISTD_H@
+HAVE_UNLINKAT = @HAVE_UNLINKAT@
+HAVE_WCHAR_T = @HAVE_WCHAR_T@
 HAVE_WCRTOMB = @HAVE_WCRTOMB@
 HAVE_WCSNRTOMBS = @HAVE_WCSNRTOMBS@
 HAVE_WCSRTOMBS = @HAVE_WCSRTOMBS@
@@ -225,11 +244,13 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
 NEXT_AS_FIRST_DIRECTIVE_ERRNO_H = @NEXT_AS_FIRST_DIRECTIVE_ERRNO_H@
+NEXT_AS_FIRST_DIRECTIVE_STDDEF_H = @NEXT_AS_FIRST_DIRECTIVE_STDDEF_H@
 NEXT_AS_FIRST_DIRECTIVE_STRINGS_H = @NEXT_AS_FIRST_DIRECTIVE_STRINGS_H@
 NEXT_AS_FIRST_DIRECTIVE_SYS_SOCKET_H = @NEXT_AS_FIRST_DIRECTIVE_SYS_SOCKET_H@
 NEXT_AS_FIRST_DIRECTIVE_TIME_H = @NEXT_AS_FIRST_DIRECTIVE_TIME_H@
 NEXT_AS_FIRST_DIRECTIVE_UNISTD_H = @NEXT_AS_FIRST_DIRECTIVE_UNISTD_H@
 NEXT_ERRNO_H = @NEXT_ERRNO_H@
+NEXT_STDDEF_H = @NEXT_STDDEF_H@
 NEXT_STRINGS_H = @NEXT_STRINGS_H@
 NEXT_SYS_SOCKET_H = @NEXT_SYS_SOCKET_H@
 NEXT_TIME_H = @NEXT_TIME_H@
@@ -247,11 +268,14 @@ RANLIB = @RANLIB@
 REPLACE_BTOWC = @REPLACE_BTOWC@
 REPLACE_CHOWN = @REPLACE_CHOWN@
 REPLACE_CLOSE = @REPLACE_CLOSE@
+REPLACE_DUP = @REPLACE_DUP@
 REPLACE_DUP2 = @REPLACE_DUP2@
 REPLACE_FCHDIR = @REPLACE_FCHDIR@
+REPLACE_FCHOWNAT = @REPLACE_FCHOWNAT@
 REPLACE_GETCWD = @REPLACE_GETCWD@
 REPLACE_GETPAGESIZE = @REPLACE_GETPAGESIZE@
 REPLACE_LCHOWN = @REPLACE_LCHOWN@
+REPLACE_LINK = @REPLACE_LINK@
 REPLACE_LOCALTIME_R = @REPLACE_LOCALTIME_R@
 REPLACE_LSEEK = @REPLACE_LSEEK@
 REPLACE_MBRLEN = @REPLACE_MBRLEN@
@@ -262,6 +286,8 @@ REPLACE_MBSRTOWCS = @REPLACE_MBSRTOWCS@
 REPLACE_MBSTATE_T = @REPLACE_MBSTATE_T@
 REPLACE_MKTIME = @REPLACE_MKTIME@
 REPLACE_NANOSLEEP = @REPLACE_NANOSLEEP@
+REPLACE_NULL = @REPLACE_NULL@
+REPLACE_RMDIR = @REPLACE_RMDIR@
 REPLACE_STRPTIME = @REPLACE_STRPTIME@
 REPLACE_TIMEGM = @REPLACE_TIMEGM@
 REPLACE_WCRTOMB = @REPLACE_WCRTOMB@
@@ -272,6 +298,7 @@ REPLACE_WCWIDTH = @REPLACE_WCWIDTH@
 REPLACE_WRITE = @REPLACE_WRITE@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+STDDEF_H = @STDDEF_H@
 STRIP = @STRIP@
 SYS_SOCKET_H = @SYS_SOCKET_H@
 SYS_TIME_H_DEFINES_STRUCT_TIMESPEC = @SYS_TIME_H_DEFINES_STRUCT_TIMESPEC@
@@ -343,15 +370,16 @@ noinst_LIBRARIES = libgnu.a
 noinst_LTLIBRARIES = 
 EXTRA_DIST = alignof.h close-hook.h errno.in.h gethostname.c w32sock.h \
 	$(top_srcdir)/src/build-aux/link-warning.h mbrlen.c mktime.c \
-	w32sock.h strcasecmp.c strncasecmp.c strftime.c strftime.h \
-	strings.in.h strptime.c sys_socket.in.h sys_utsname.in.h \
-	time.in.h time_r.c uname.c unistd.in.h
-BUILT_SOURCES = $(ERRNO_H) strings.h $(SYS_SOCKET_H) $(SYS_UTSNAME_H) \
-	time.h unistd.h
+	w32sock.h stddef.in.h strcasecmp.c strncasecmp.c strftime.c \
+	strftime.h strings.in.h strptime.c sys_socket.in.h \
+	sys_utsname.in.h time.in.h time_r.c uname.c unistd.in.h
+BUILT_SOURCES = $(ERRNO_H) $(STDDEF_H) strings.h $(SYS_SOCKET_H) \
+	$(SYS_UTSNAME_H) time.h unistd.h
 SUFFIXES = 
-MOSTLYCLEANFILES = core *.stackdump errno.h errno.h-t strings.h \
-	strings.h-t sys/socket.h sys/socket.h-t sys/utsname.h \
-	sys/utsname.h-t time.h time.h-t unistd.h unistd.h-t
+MOSTLYCLEANFILES = core *.stackdump errno.h errno.h-t stddef.h \
+	stddef.h-t strings.h strings.h-t sys/socket.h sys/socket.h-t \
+	sys/utsname.h sys/utsname.h-t time.h time.h-t unistd.h \
+	unistd.h-t
 MOSTLYCLEANDIRS = sys sys
 CLEANFILES = 
 DISTCLEANFILES = 
@@ -737,7 +765,7 @@ uninstall-am:
 # We need the following in order to create <errno.h> when the system
 # doesn't have one that is POSIX compliant.
 errno.h: errno.in.h
-	rm -f $@-t $@
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
@@ -749,13 +777,27 @@ errno.h: errno.in.h
 	      -e 's|@''EOVERFLOW_HIDDEN''@|$(EOVERFLOW_HIDDEN)|g' \
 	      -e 's|@''EOVERFLOW_VALUE''@|$(EOVERFLOW_VALUE)|g' \
 	      < $(srcdir)/errno.in.h; \
-	} > $@-t
+	} > $@-t && \
+	mv $@-t $@
+
+# We need the following in order to create <stddef.h> when the system
+# doesn't have one that works with the given compiler.
+stddef.h: stddef.in.h
+	$(AM_V_GEN)rm -f $@-t $@ && \
+	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
+	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
+	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
+	      -e 's|@''NEXT_STDDEF_H''@|$(NEXT_STDDEF_H)|g' \
+	      -e 's|@''HAVE_WCHAR_T''@|$(HAVE_WCHAR_T)|g' \
+	      -e 's|@''REPLACE_NULL''@|$(REPLACE_NULL)|g' \
+	      < $(srcdir)/stddef.in.h; \
+	} > $@-t && \
 	mv $@-t $@
 
 # We need the following in order to create <strings.h> when the system
 # doesn't have one that works with the given compiler.
 strings.h: strings.in.h
-	rm -f $@-t $@
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
@@ -764,13 +806,14 @@ strings.h: strings.in.h
 	      -e 's|@''HAVE_DECL_STRNCASECMP''@|$(HAVE_DECL_STRNCASECMP)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	      < $(srcdir)/strings.in.h; \
-	} > $@-t
+	} > $@-t && \
 	mv $@-t $@
 
 # We need the following in order to create <sys/socket.h> when the system
 # doesn't have one that works with the given compiler.
 sys/socket.h: sys_socket.in.h
-	@MKDIR_P@ sys
+	$(AM_V_at)$(MKDIR_P) sys
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
@@ -791,32 +834,34 @@ sys/socket.h: sys_socket.in.h
 	      -e 's|@''GNULIB_SENDTO''@|$(GNULIB_SENDTO)|g' \
 	      -e 's|@''GNULIB_SETSOCKOPT''@|$(GNULIB_SETSOCKOPT)|g' \
 	      -e 's|@''GNULIB_SHUTDOWN''@|$(GNULIB_SHUTDOWN)|g' \
+	      -e 's|@''GNULIB_ACCEPT4''@|$(GNULIB_ACCEPT4)|g' \
 	      -e 's|@''HAVE_WINSOCK2_H''@|$(HAVE_WINSOCK2_H)|g' \
 	      -e 's|@''HAVE_WS2TCPIP_H''@|$(HAVE_WS2TCPIP_H)|g' \
 	      -e 's|@''HAVE_STRUCT_SOCKADDR_STORAGE''@|$(HAVE_STRUCT_SOCKADDR_STORAGE)|g' \
 	      -e 's|@''HAVE_SA_FAMILY_T''@|$(HAVE_SA_FAMILY_T)|g' \
+	      -e 's|@''HAVE_ACCEPT4''@|$(HAVE_ACCEPT4)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	      < $(srcdir)/sys_socket.in.h; \
-	} > $@-t
+	} > $@-t && \
 	mv -f $@-t $@
 
 # We need the following in order to create <sys/utsname.h> when the system
 # does not have one.
 sys/utsname.h: sys_utsname.in.h
-	@MKDIR_P@ sys
-	rm -f $@-t $@
+	$(AM_V_at)$(MKDIR_P) sys
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
 	  sed -e 's|@''GNULIB_UNAME''@|$(GNULIB_UNAME)|g' \
 	      -e 's|@''HAVE_UNAME''@|$(HAVE_UNAME)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	      < $(srcdir)/sys_utsname.in.h; \
-	} > $@-t
+	} > $@-t && \
 	mv $@-t $@
 
 # We need the following in order to create <time.h> when the system
 # doesn't have one that works with the given compiler.
 time.h: time.in.h
-	rm -f $@-t $@
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */' && \
 	  sed -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
 	      -e 's|@''PRAGMA_SYSTEM_HEADER''@|@PRAGMA_SYSTEM_HEADER@|g' \
@@ -829,13 +874,13 @@ time.h: time.in.h
 	      -e 's|@SYS_TIME_H_DEFINES_STRUCT_TIMESPEC''@|$(SYS_TIME_H_DEFINES_STRUCT_TIMESPEC)|g' \
 	      -e 's|@TIME_H_DEFINES_STRUCT_TIMESPEC''@|$(TIME_H_DEFINES_STRUCT_TIMESPEC)|g' \
 	      < $(srcdir)/time.in.h; \
-	} > $@-t
+	} > $@-t && \
 	mv $@-t $@
 
 # We need the following in order to create an empty placeholder for
 # <unistd.h> when the system doesn't have one.
 unistd.h: unistd.in.h
-	rm -f $@-t $@
+	$(AM_V_GEN)rm -f $@-t $@ && \
 	{ echo '/* DO NOT EDIT! GENERATED AUTOMATICALLY! */'; \
 	  sed -e 's|@''HAVE_UNISTD_H''@|$(HAVE_UNISTD_H)|g' \
 	      -e 's|@''INCLUDE_NEXT''@|$(INCLUDE_NEXT)|g' \
@@ -844,9 +889,12 @@ unistd.h: unistd.in.h
 	      -e 's|@''GNULIB_CHOWN''@|$(GNULIB_CHOWN)|g' \
 	      -e 's|@''GNULIB_CLOSE''@|$(GNULIB_CLOSE)|g' \
 	      -e 's|@''GNULIB_DUP2''@|$(GNULIB_DUP2)|g' \
+	      -e 's|@''GNULIB_DUP3''@|$(GNULIB_DUP3)|g' \
 	      -e 's|@''GNULIB_ENVIRON''@|$(GNULIB_ENVIRON)|g' \
 	      -e 's|@''GNULIB_EUIDACCESS''@|$(GNULIB_EUIDACCESS)|g' \
+	      -e 's|@''GNULIB_FACCESSAT''@|$(GNULIB_FACCESSAT)|g' \
 	      -e 's|@''GNULIB_FCHDIR''@|$(GNULIB_FCHDIR)|g' \
+	      -e 's|@''GNULIB_FCHOWNAT''@|$(GNULIB_FCHOWNAT)|g' \
 	      -e 's|@''GNULIB_FSYNC''@|$(GNULIB_FSYNC)|g' \
 	      -e 's|@''GNULIB_FTRUNCATE''@|$(GNULIB_FTRUNCATE)|g' \
 	      -e 's|@''GNULIB_GETCWD''@|$(GNULIB_GETCWD)|g' \
@@ -859,12 +907,21 @@ unistd.h: unistd.in.h
 	      -e 's|@''GNULIB_LCHOWN''@|$(GNULIB_LCHOWN)|g' \
 	      -e 's|@''GNULIB_LINK''@|$(GNULIB_LINK)|g' \
 	      -e 's|@''GNULIB_LSEEK''@|$(GNULIB_LSEEK)|g' \
+	      -e 's|@''GNULIB_PIPE2''@|$(GNULIB_PIPE2)|g' \
 	      -e 's|@''GNULIB_READLINK''@|$(GNULIB_READLINK)|g' \
+	      -e 's|@''GNULIB_READLINKAT''@|$(GNULIB_READLINKAT)|g' \
+	      -e 's|@''GNULIB_RMDIR''@|$(GNULIB_RMDIR)|g' \
 	      -e 's|@''GNULIB_SLEEP''@|$(GNULIB_SLEEP)|g' \
+	      -e 's|@''GNULIB_SYMLINKAT''@|$(GNULIB_SYMLINKAT)|g' \
+	      -e 's|@''GNULIB_UNISTD_H_GETOPT''@|$(GNULIB_UNISTD_H_GETOPT)|g' \
 	      -e 's|@''GNULIB_UNISTD_H_SIGPIPE''@|$(GNULIB_UNISTD_H_SIGPIPE)|g' \
+	      -e 's|@''GNULIB_UNLINKAT''@|$(GNULIB_UNLINKAT)|g' \
 	      -e 's|@''GNULIB_WRITE''@|$(GNULIB_WRITE)|g' \
 	      -e 's|@''HAVE_DUP2''@|$(HAVE_DUP2)|g' \
+	      -e 's|@''HAVE_DUP3''@|$(HAVE_DUP3)|g' \
 	      -e 's|@''HAVE_EUIDACCESS''@|$(HAVE_EUIDACCESS)|g' \
+	      -e 's|@''HAVE_FACCESSAT''@|$(HAVE_FACCESSAT)|g' \
+	      -e 's|@''HAVE_FCHOWNAT''@|$(HAVE_FCHOWNAT)|g' \
 	      -e 's|@''HAVE_FSYNC''@|$(HAVE_FSYNC)|g' \
 	      -e 's|@''HAVE_FTRUNCATE''@|$(HAVE_FTRUNCATE)|g' \
 	      -e 's|@''HAVE_GETDOMAINNAME''@|$(HAVE_GETDOMAINNAME)|g' \
@@ -873,26 +930,34 @@ unistd.h: unistd.in.h
 	      -e 's|@''HAVE_GETPAGESIZE''@|$(HAVE_GETPAGESIZE)|g' \
 	      -e 's|@''HAVE_GETUSERSHELL''@|$(HAVE_GETUSERSHELL)|g' \
 	      -e 's|@''HAVE_LINK''@|$(HAVE_LINK)|g' \
+	      -e 's|@''HAVE_PIPE2''@|$(HAVE_PIPE2)|g' \
 	      -e 's|@''HAVE_READLINK''@|$(HAVE_READLINK)|g' \
+	      -e 's|@''HAVE_READLINKAT''@|$(HAVE_READLINKAT)|g' \
 	      -e 's|@''HAVE_SLEEP''@|$(HAVE_SLEEP)|g' \
+	      -e 's|@''HAVE_SYMLINKAT''@|$(HAVE_SYMLINKAT)|g' \
+	      -e 's|@''HAVE_UNLINKAT''@|$(HAVE_UNLINKAT)|g' \
 	      -e 's|@''HAVE_DECL_ENVIRON''@|$(HAVE_DECL_ENVIRON)|g' \
 	      -e 's|@''HAVE_DECL_GETLOGIN_R''@|$(HAVE_DECL_GETLOGIN_R)|g' \
 	      -e 's|@''HAVE_OS_H''@|$(HAVE_OS_H)|g' \
 	      -e 's|@''HAVE_SYS_PARAM_H''@|$(HAVE_SYS_PARAM_H)|g' \
 	      -e 's|@''REPLACE_CHOWN''@|$(REPLACE_CHOWN)|g' \
 	      -e 's|@''REPLACE_CLOSE''@|$(REPLACE_CLOSE)|g' \
+	      -e 's|@''REPLACE_DUP''@|$(REPLACE_DUP)|g' \
 	      -e 's|@''REPLACE_DUP2''@|$(REPLACE_DUP2)|g' \
 	      -e 's|@''REPLACE_FCHDIR''@|$(REPLACE_FCHDIR)|g' \
+	      -e 's|@''REPLACE_FCHOWNAT''@|$(REPLACE_FCHOWNAT)|g' \
 	      -e 's|@''REPLACE_GETCWD''@|$(REPLACE_GETCWD)|g' \
 	      -e 's|@''REPLACE_GETPAGESIZE''@|$(REPLACE_GETPAGESIZE)|g' \
 	      -e 's|@''REPLACE_LCHOWN''@|$(REPLACE_LCHOWN)|g' \
+	      -e 's|@''REPLACE_LINK''@|$(REPLACE_LINK)|g' \
 	      -e 's|@''REPLACE_LSEEK''@|$(REPLACE_LSEEK)|g' \
+	      -e 's|@''REPLACE_RMDIR''@|$(REPLACE_RMDIR)|g' \
 	      -e 's|@''REPLACE_WRITE''@|$(REPLACE_WRITE)|g' \
 	      -e 's|@''UNISTD_H_HAVE_WINSOCK2_H''@|$(UNISTD_H_HAVE_WINSOCK2_H)|g' \
 	      -e 's|@''UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS''@|$(UNISTD_H_HAVE_WINSOCK2_H_AND_USE_SOCKETS)|g' \
 	      -e '/definition of GL_LINK_WARNING/r $(LINK_WARNING_H)' \
 	      < $(srcdir)/unistd.in.h; \
-	} > $@-t
+	} > $@-t && \
 	mv $@-t $@
 
 mostlyclean-local: mostlyclean-generic
