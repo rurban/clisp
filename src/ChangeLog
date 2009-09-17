@@ -460,13 +460,13 @@
 2009-08-09  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/configure.in, modules/syscalls/configure.in:
-        * modules/wildcard/configure.in:
+	* modules/wildcard/configure.in:
 	AM_INIT_AUTOMAKE must come after AC_CONFIG_AUX_DIR
 
 2009-08-07  Sam Steingold  <sds@gnu.org>
 
 	* modules/regexp/configure.in, modules/syscalls/configure.in:
-        * modules/wildcard/configure.in, configure.in: pass ([no-define])
+	* modules/wildcard/configure.in, configure.in: pass ([no-define])
 	to AM_INIT_AUTOMAKE to avoid defining PACKAGE & VERSION (we
 	already have PACKAGE_NAME and PACKAGE_VERSION defined by AC_INIT)
 
@@ -832,7 +832,7 @@
 
 2009-07-12  Reini Urban  <rurban@x-ray.at>
 
-        * makemake.in (full-mod-check): add
+	* makemake.in (full-mod-check): add
 	(mod-check): depend on it
 
 2009-07-10  Sam Steingold  <sds@gnu.org>
@@ -3825,8 +3825,8 @@
 	* spvw.d, lispbibl.d (clisp_malloc): rename from my_malloc
 	(clisp_realloc): rename from my_realloc
 	* modules/berkeley-db/bdb.c, modules/clx/new-clx/clx.f:
-        * modules/i18n/gettext.c, modules/regexp/regexi.c:
-        * modules/syscalls/calls.c, foreign.d, spvw_weak.d: update callers
+	* modules/i18n/gettext.c, modules/regexp/regexi.c:
+	* modules/syscalls/calls.c, foreign.d, spvw_weak.d: update callers
 
 2008-10-03  Sam Steingold  <sds@gnu.org>
 
@@ -5881,7 +5881,7 @@
 2008-07-02  Sam Steingold  <sds@gnu.org>
 
 	* m4/ffcall-codeexec.m4, m4/ffcall-ireg.m4, m4/ffcall-pccstruct.m4:
-        * m4/ffcall-smallstruct.m4: remove libffcall-specific files
+	* m4/ffcall-smallstruct.m4: remove libffcall-specific files
 	* m4/general.m4 (CL_FFCALL_COMMON_LIBTOOL, CL_FFCALL_COMMON_TRAMPOLINE)
 	(CL_CANONICAL_HOST_CPU_FOR_FFCALL): remove
 
