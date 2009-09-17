@@ -1,3 +1,7 @@
+2009-09-15  Sam Steingold  <sds@gnu.org>
+
+	* Makefile.devel (update-gnulib): add a missing semicolon
+
 2009-09-16  Sam Steingold  <sds@gnu.org>
 
 	* package.d (MAP-SYMBOLS, MAP-EXTERNAL-SYMBOLS): lock the

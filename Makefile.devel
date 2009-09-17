@@ -324,7 +324,7 @@ update-gnulib:
 	  if test -d .git; then git pull; else cvs update -d -P; fi \
 	else \
 	  if git --version >/dev/null 2>&1; then \
-	    git clone "$(GNULIB_GIT)" $(GNULIB_CHECKOUT) \
+	    git clone "$(GNULIB_GIT)" $(GNULIB_CHECKOUT) ; \
 	  else cvs -d "$(GNULIB_CVS_ROOT)" checkout -d $(GNULIB_CHECKOUT) $(GNULIB_CVS_REPOSITORY); fi \
 	fi
 
