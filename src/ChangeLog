@@ -1,6 +1,8 @@
 2009-09-18  Sam Steingold  <sds@gnu.org>
 
-	* m4/clisp.m4 (CL_CLISP): fix cl_cv_have_clisp caching
+	* m4/clisp.m4 (CL_CLISP): fix cl_cv_have_clisp caching;
+	accept an optional second argument to specify whether the features
+	and clisp itself are required or not (default=true)
 
 2009-09-17  Sam Steingold  <sds@gnu.org>
 
