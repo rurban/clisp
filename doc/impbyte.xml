@@ -896,21 +896,52 @@
 </simpara></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/m4/</filename></term>
  <listitem><simpara>a repertoire of features.
-   Use with &autoconf; 2.62</simpara><variablelist><varlistentry>
-    <term><filename role="clisp-cvs">src/m4/clisp.m4</filename></term>
-    <listitem><simpara>usually installed in
-      <filename>/usr/share/aclocal</filename>, it defines a macro
-      <function>CL_CLISP</function> which allows the user &configure;
-      script to check for &clisp; being installed at the location
-      specified by the <option>--with-clisp="clisp command line"</option>
-      option or as &clisp-cmd; in <envar>PATH</envar>.</simpara>
-     <simpara><function>CL_CLISP([foo bar])</function> will cause
-      &configure; to fail if &features-my; does &not-e; contain
-      <constant>foo</constant> &and-e; <constant>bar</constant>
-      and will define <varname>cl_cv_clisp_version</varname> to the
-      return value of &lisp-implementation-version; which you can then
-      use to check for a specific &clisp; version.</simpara>
-   </listitem></varlistentry>
+  Use with &autoconf; 2.62</simpara><variablelist><varlistentry>
+  <term><filename role="clisp-cvs">src/m4/clisp.m4</filename></term>
+  <listitem><para>This file defines the macro <function>CL_CLISP</function>
+   which takes two optional parameters:<variablelist>
+    <varlistentry><term>features-list</term>
+     <listitem><simpara>The list of &clisp; features to check.
+      E.g., passing <code>[foo bar]</code> results
+       in <varname>cl_cv_clisp_FOO</varname>
+       and <varname>cl_cv_clisp_BAR</varname> being defined
+       to <returnvalue>yes</returnvalue>
+       or <returnvalue>no</returnvalue>, depending on the value of
+       &features-my;, i.e., on the return value
+       of <code>(&read-from-string; "#+FOO \"yes\" #-FOO \"no\"")</code>.
+    </simpara></listitem></varlistentry>
+    <varlistentry><term>required</term>
+     <listitem><simpara>Determines whether &configure; should fail
+      if &clisp; or one of the requested features is missing.</simpara>
+     <simpara>Should be <command role="unix">true</command> (the
+      default) or <command role="unix">false</command>.</simpara></listitem>
+   </varlistentry></variablelist></para>
+   <simpara>Calling this macro causes the generated &configure; to
+    accept the option <option>--with-clisp="clisp command line"</option>
+    which allows one to use a specific &clisp; installation instead of
+    &clisp-cmd; in <envar>PATH</envar>.</simpara>
+   <para>In addition to the aforementioned per-feature variables,
+    this macro defines the follwing variables:<variablelist>
+     <varlistentry><term><varname>cl_cv_clisp_version</varname></term>
+     <listitem><simpara>The return value of &lisp-implementation-version;.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><varname>cl_cv_clisp_libdir</varname></term>
+     <listitem><simpara>The &namestring; of &libdir;.
+     </simpara></listitem></varlistentry>
+     <varlistentry><term><varname>cl_cv_clisp_linkset</varname></term>
+     <listitem><simpara>The directory of the current &linkset;.
+     </simpara></listitem></varlistentry></variablelist>
+    It also substitues the following variables:<simplelist>
+     <member><envar>CLISP_LINKKIT</envar></member>
+     <member><envar>CLISP_FILES</envar></member>
+     <member><envar>CLISP_LIBS</envar></member>
+     <member><envar>CLISP_CFLAGS</envar></member>
+     <member><envar>CLISP_CPPFLAGS</envar></member></simplelist>
+    (taken from <filename>$cl_cv_clisp_linkset/<link linkend="makevars">makevars</link></filename>)
+    and <envar>CLISP</envar> (the &clisp; command line).</para>
+   <simpara>This file is installed in <filename>/usr/share/aclocal</filename>
+    by <command role="unix">make install</command>.</simpara></listitem>
+   </varlistentry>
 </variablelist></listitem></varlistentry>
 <varlistentry><term><filename role="clisp-cvs">src/configure</filename></term>
  <listitem><simpara>configuration script, generated from
