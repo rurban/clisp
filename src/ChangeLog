@@ -1,3 +1,7 @@
+2009-09-18  Sam Steingold  <sds@gnu.org>
+
+	* m4/clisp.m4 (CL_CLISP): fix cl_cv_have_clisp caching
+
 2009-09-17  Sam Steingold  <sds@gnu.org>
 
 	Update gnulib imports (mostly for mktime fixes for NetBSD/i386)

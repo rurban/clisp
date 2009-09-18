@@ -33,7 +33,7 @@ AC_DEFUN([CL_CLISP],[dnl
 AC_ARG_WITH([clisp],
 AC_HELP_STRING([--with-clisp],[use a specific CLISP installation]),
 [cl_use_clisp="$withval"], [cl_use_clisp=default])
-cl_cv_have_clisp=no
+cl_have_clisp=no
 if test "$cl_use_clisp" != "no"; then
   if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
   then AC_PATH_PROG(cl_cv_clisp, clisp)
@@ -72,11 +72,11 @@ if test "$cl_use_clisp" != "no"; then
     AC_SUBST(CLISP_LIBS)dnl
     AC_SUBST(CLISP_CFLAGS)dnl
     AC_SUBST(CLISP_CPPFLAGS)dnl
-    AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
-     [test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && \
-       cl_cv_have_clisp=yes])
+    test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
   fi
 fi
+AC_CACHE_CHECK([for CLISP], [cl_cv_have_clisp],
+[cl_cv_have_clisp=$cl_have_clisp])
 m4_foreach_w([cl_feat], m4_toupper([$1]),
 [AC_CACHE_CHECK([for cl_feat in CLISP], [cl_cv_clisp_]cl_feat,
 [CLISP_SET([cl_cv_clisp_]cl_feat,[[#+]]cl_feat[[ "yes" #-]]cl_feat[[ "no"]])])
