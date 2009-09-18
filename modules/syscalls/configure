@@ -2101,7 +2101,7 @@ else
   cl_use_clisp=default
 fi
 
-cl_cv_have_clisp=no
+cl_have_clisp=no
 if test "$cl_use_clisp" != "no"; then
   if test "$cl_use_clisp" = default -o "$cl_use_clisp" = yes;
   then # Extract the first word of "clisp", so it can be a program name with args.
@@ -2194,18 +2194,22 @@ $as_echo "$cl_cv_clisp_linkset" >&6; }
     CLISP=$cl_cv_clisp;     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit";     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
     source conftestvars
     rm -f conftestvars
-                    { $as_echo "$as_me:$LINENO: checking for CLISP" >&5
+                    test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && cl_have_clisp=yes
+  fi
+fi
+{ $as_echo "$as_me:$LINENO: checking for CLISP" >&5
 $as_echo_n "checking for CLISP... " >&6; }
 if test "${cl_cv_have_clisp+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-  test -d $cl_cv_clisp_libdir -a -d $cl_cv_clisp_linkset && \
-       cl_cv_have_clisp=yes
+  cl_cv_have_clisp=$cl_have_clisp
 fi
 { $as_echo "$as_me:$LINENO: result: $cl_cv_have_clisp" >&5
 $as_echo "$cl_cv_have_clisp" >&6; }
-  fi
-fi
+required=true
+${required} && test $cl_cv_have_clisp = no && { { $as_echo "$as_me:$LINENO: error: CLISP not found" >&5
+$as_echo "$as_me: error: CLISP not found" >&2;}
+   { (exit 1); exit 1; }; }
 
 ac_aux_dir=
 for ac_dir in $cl_cv_clisp_libdir/build-aux "$srcdir"/$cl_cv_clisp_libdir/build-aux; do
