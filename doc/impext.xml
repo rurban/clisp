@@ -2109,7 +2109,7 @@ additionally binds &cont-r; to the content length.</para>
 <varlistentry><term><filename>modules.o</filename></term>
  <listitem><simpara>the compiled list of modules contained in this &linkset;
 </simpara></listitem></varlistentry>
-<varlistentry><term><filename>makevars</filename></term>
+<varlistentry id="makevars"><term><filename>makevars</filename></term>
  <listitem><para>some &sh; commands, setting the variables
    <variablelist>&varlist-table;<varlistentry><term><envar>CC</envar></term>
      <listitem><simpara>the &c-lang; compiler
