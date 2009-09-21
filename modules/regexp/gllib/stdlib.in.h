@@ -115,6 +115,21 @@ extern void * calloc (size_t nmemb, size_t size);
      calloc (n, s))
 #endif
 
+#if @GNULIB_CANONICALIZE_FILE_NAME@
+# if @REPLACE_CANONICALIZE_FILE_NAME@
+#  define canonicalize_file_name rpl_canonicalize_file_name
+# endif
+# if !@HAVE_CANONICALIZE_FILE_NAME@ || @REPLACE_CANONICALIZE_FILE_NAME@
+extern char *canonicalize_file_name (const char *name);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef canonicalize_file_name
+# define canonicalize_file_name(n)                        \
+    (GL_LINK_WARNING ("canonicalize_file_name is unportable - " \
+                      "use gnulib module canonicalize-lgpl for portability"), \
+     canonicalize_file_name (n))
+#endif
+
 #if @GNULIB_GETLOADAVG@
 # if !@HAVE_DECL_GETLOADAVG@
 /* Store max(NELEM,3) load average numbers in LOADAVG[].
@@ -290,6 +305,21 @@ extern void * realloc (void *ptr, size_t size);
     (GL_LINK_WARNING ("realloc is not POSIX compliant everywhere - " \
                       "use gnulib module realloc-posix for portability"), \
      realloc (p, s))
+#endif
+
+#if @GNULIB_REALPATH@
+# if @REPLACE_REALPATH@
+#  define realpath rpl_realpath
+# endif
+# if !@HAVE_REALPATH@ || @REPLACE_REALPATH@
+extern char *realpath (const char *name, char *resolved);
+# endif
+#elif defined GNULIB_POSIXCHECK
+# undef realpath
+# define realpath(n,r)                        \
+    (GL_LINK_WARNING ("realpath is unportable - use gnulib module " \
+                      "canonicalize or canonicalize-lgpl for portability"), \
+     realpath (n, r))
 #endif
 
 #if @GNULIB_RPMATCH@

@@ -1,5 +1,14 @@
 2009-09-20  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/gllib/stdlib.in.h, modules/regexp/gllib/unistd.in.h:
+	* modules/regexp/glm4/stdlib_h.m4, modules/regexp/glm4/unistd_h.m4:
+	* modules/syscalls/gllib/unistd.in.h, modules/syscalls/glm4/unistd_h.m4:
+	* gllib/unistd.in.h, glm4/unistd_h.m4: update from gnulib
+	* modules/regexp/gllib/Makefile.am, modules/syscalls/gllib/Makefile.am:
+	* gllib/Makefile.am: regenerate
+
+2009-09-20  Sam Steingold  <sds@gnu.org>
+
 	* glm4/absolute-header.m4, glm4/btowc.m4, glm4/malloc.m4:
 	* glm4/regex.m4, glm4/ssize_t.m4, glm4/stdlib_h.m4,
 	* glm4/wcrtomb.m4: remove obsolete files (now in modules/regexp/glm4)
