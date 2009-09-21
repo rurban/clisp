@@ -9114,7 +9114,7 @@ LISPFUNN(dynload_modules,2) {
     while (!endp(STACK_0)) {
       Car(STACK_0) = check_string(Car(STACK_0));
       pushSTACK(Cdr(STACK_0));  /* for the next iteration */
-      STACK_1 = string_to_asciz(Car(*arg_),Symbol_value(S(ascii)));
+      STACK_1 = string_to_asciz(Car(STACK_1),Symbol_value(S(ascii)));
     }
     skipSTACK(1);               /* drop tail */
   }
