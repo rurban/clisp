@@ -9100,20 +9100,27 @@ LISPFUNN(dynload_modules,2) {
   STACK_1 = coerce_pathname(STACK_1);
   check_no_wildcards(STACK_1);
   STACK_1 = whole_namestring(use_default_dir(STACK_1));
-  /* check strings and store in the stack: */
   var uintL stringcount = llength(STACK_0);
   var gcv_object_t* arg_ = &STACK_0;
-  {
-    var uintL count;
-    dotimesL(count,stringcount, {
-      Car(*arg_) = check_string(Car(*arg_));
-      pushSTACK(string_to_asciz(Car(*arg_),Symbol_value(S(ascii))));
-      *arg_ = Cdr(*arg_);
-    });
-    endp(*arg_); /* test for proper list */
+  var gcv_object_t* libpath_ = &STACK_1;
+  { /* print loading message */
+    dynamic_bind(S(load_level),fixnum_inc(Symbol_value(S(load_level)),1));
+    pushSTACK(CLSTEXT("Loading module~P ~{~A~^, ~} from ~A"));
+    pushSTACK(fixnum(stringcount)); pushSTACK(*arg_); pushSTACK(*libpath_);
+    funcall(S(loading_message),4); /* defined in init.lisp */
+  }
+  { /* check strings and store in the stack: */
+    pushSTACK(*arg_);           /* tail */
+    while (!endp(STACK_0)) {
+      Car(STACK_0) = check_string(Car(STACK_0));
+      pushSTACK(Cdr(STACK_0));  /* for the next iteration */
+      STACK_1 = string_to_asciz(Car(*arg_),Symbol_value(S(ascii)));
+    }
+    skipSTACK(1);               /* drop tail */
   }
   {
-    var const char * libpath = TheAsciz(string_to_asciz(*(arg_ STACKop 1),O(pathname_encoding)));
+    var const char * libpath =
+      TheAsciz(string_to_asciz(*libpath_,O(pathname_encoding)));
     var DYNAMIC_ARRAY(modnames,const char *,stringcount);
     if (stringcount > 0) {
       var uintL count;
@@ -9124,8 +9131,15 @@ LISPFUNN(dynload_modules,2) {
     dynload_modules(libpath,stringcount,modnames);
     FREE_DYNAMIC_ARRAY(modnames);
   }
-  skipSTACK(stringcount+1);
-  VALUES1(popSTACK()); /* Library-Name as value */
+  skipSTACK(stringcount);
+  { /* print loading message */
+    pushSTACK(CLSTEXT("Loaded module~P ~{~A~^, ~} from ~A"));
+    pushSTACK(fixnum(stringcount)); pushSTACK(*arg_); pushSTACK(*libpath_);
+    funcall(S(loading_message),4); /* defined in init.lisp */
+    dynamic_unbind(S(load_level));
+  }
+  VALUES1(*libpath_); /* Library-Name as value */
+  skipSTACK(2);
 }
 
 #endif
