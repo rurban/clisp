@@ -2277,6 +2277,11 @@ additionally binds &cont-r; to the content length.</para>
   (&dlopen; or equivalent is required).</para></note>
 <note><para>&with-dynmod; precludes some optimizations which
   are enabled by default.</para></note>
+<note><para>You will probably never need to call this function
+  explicitly (this is why it is in &sys-pac; and not in &ext-pac;).
+  You should install your module with
+  <screen>&sh-prompt; &clisp-link; -install &name-r;</screen>
+  and load it with <code>(&require-my; &name-r;).</code></para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
@@ -2293,7 +2298,8 @@ additionally binds &cont-r; to the content length.</para>
  structures with &clisp;.</para>
 
 <para>To use &dlopen; with modules, you should add
- <option>-fPIC</option> to the module's compilation options. Something like
+ <ulink url="http://tldp.org/HOWTO/Program-Library-HOWTO/shared-libraries.html"><option>-fPIC</option></ulink> to the module's compilation options.
+ Something like
  <screen>&sh-prompt; cc -shared -o &name-r;.so &name-r;.o</screen>
  may be needed to produce the shared object file.</para>
 
