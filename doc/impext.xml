@@ -2281,7 +2281,7 @@ additionally binds &cont-r; to the content length.</para>
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
  loads a shared object file or library containing a number of named
  external &clisp; modules.
- <note><simpara>This facility <emphasis>cannot</emphasis> be used to
+ <note><simpara>This facility &cannot-e; be used to
    access arbitrary shared libraries.  To do that, use the &library-k;
    argument to &def-call-out; and &def-c-var; instead.</simpara></note>
 </para>

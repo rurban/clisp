@@ -1070,6 +1070,7 @@
 <!ENTITY after-e '<emphasis role="strong">after</emphasis>'>
 <!ENTITY before-e '<emphasis role="strong">before</emphasis>'>
 <!ENTITY must-e '<emphasis role="strong">must</emphasis>'>
+<!ENTITY cannot-e '<emphasis role="strong">cannot</emphasis>'>
 <!ENTITY charset-glibc-libiconv 'This character set is only available on
                                  platforms with &glibc; or &libiconv;.'>
 <!ENTITY charset-libiconv 'This character set is only available on
