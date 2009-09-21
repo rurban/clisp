@@ -196,8 +196,10 @@ prepare_dynamic_module() {
     reqfile=${dyndir}/${firstmod}.lisp
     rm -f ${reqfile}
     for f in ${TO_PRELOAD}; do
+      # preload files are not compiled
       echo "(cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> ${reqfile}
     done
+    # dll has SHREXT extension
     DM="(sys::dynload-modules (cl:merge-pathnames \"${dll}\" cl:*load-truename*) (quote ("
     for m in ${NEW_MODULES}; do
       DM=${DM}" \"$m\""
@@ -207,7 +209,8 @@ prepare_dynamic_module() {
       echo ";; for def-call-out to non-existent functions" >> ${reqfile}
       echo "(ext:appease-cerrors" >> ${reqfile}
       for f in ${TO_LOAD}; do
-        echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}\" cl:*load-truename*))" >> ${reqfile}
+        # module files must be compiled
+        echo " (cl:load (cl:merge-pathnames \"../${moduledir}/${f}.fas\" cl:*load-truename*))" >> ${reqfile}
       done
       echo ")" >> ${reqfile}
     fi
