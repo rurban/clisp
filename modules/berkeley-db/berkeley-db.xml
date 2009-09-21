@@ -595,8 +595,7 @@
     the handle can only be used for that type.
     The methods <function role="bdb">DB-&gt;get_re_delim</function>
     and <function role="bdb">DB-&gt;get_re_source</function> are for
-    a <constant>:RECNO</constant> database so
-    you <emphasis>cannot</emphasis> call them
+    a <constant>:RECNO</constant> database so you &cannot-e; call them
     (by passing <constant>:RE-DELIM</constant>
     or <constant>:RE-SOURCE</constant> to this function)
     and then use the database handle to open a database of different type
