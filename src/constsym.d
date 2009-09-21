@@ -698,6 +698,8 @@ LISPSYM(device_prefix,"*DEVICE-PREFIX*",custom)
 #endif
 #ifdef DYNAMIC_MODULES
 LISPSYM(dynload_modules,"DYNLOAD-MODULES",system)
+LISPSYM(loading_message,"LOADING-MESSAGE",system)
+LISPSYM(load_level,"*LOAD-LEVEL*",system)
 #endif
 LISPSYM(program_name,"PROGRAM-NAME",system)
 LISPSYM(lib_directory,"LIB-DIRECTORY",system) /* ABI */
