@@ -1,5 +1,10 @@
 2009-09-21  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (DYNLOAD-MODULES): report what is being done
+	* constsym.d (loading_message, load_level): export for DYNLOAD-MODULES
+
+2009-09-21  Sam Steingold  <sds@gnu.org>
+
 	* clisp-link.in (with_dynamic_modules): load the modules files
 	with an explicit .fas extension, both to override .lisp inherited
 	from *load-truename* and to ensure that the module is compiled
