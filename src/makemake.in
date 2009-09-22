@@ -2328,10 +2328,11 @@ echotab "\$(MV) Makefile.tmp Makefile"
 OBSOLETE="$OBSOLETE Makefile~"
 echol
 echol "config.status : configure"
-echotab "\$(RM) config.cache"
+echotab "\$(RMRF) config.cache \$(SUBDIRS)"
 echotab "sh config.status --recheck"
 echol
 echol "am--refresh : config.status Makefile config.h"
+echol
 if [ -n "${SRCDIR}" ] ; then
   for f in makemake.in config.h.in configure ${SPVW_VERSION}; do
     link_dep "${f}" "${SRCDIR}${f}"
