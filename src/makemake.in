@@ -2304,7 +2304,6 @@ echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
 echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 echol "${GLLIB_A}: gllib"
-echotab 'cd gllib && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echotab 'test -r $@ || $(LN_S) gllib/libgnu.a $@'
 echol
 
