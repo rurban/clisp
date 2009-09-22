@@ -2,6 +2,7 @@
 
 	* makemake.in (.PHONY): add am--refresh
 	(SUBDIRS): teeny code simplification
+	(config.status): also rm $(SUBDIRS)
 
 2009-09-21  Sam Steingold  <sds@gnu.org>
 
