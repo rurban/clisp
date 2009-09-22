@@ -1,3 +1,7 @@
+2009-09-22  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (.PHONY): add am--refresh
+
 2009-09-21  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (DYNLOAD-MODULES): report what is being done

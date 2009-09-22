@@ -2293,7 +2293,7 @@ echol "all : $needs"
 echodummyrule all
 echol
 echol "SUBDIRS = ${SUBDIRS}"
-echol '.PHONY: subdirs $(SUBDIRS) clean0 clean1 clean2 clean3 clean4 clean5 clean6 clean7 clean8 mostlyclean distclean clean maintainer-clean clean-modules'
+echol '.PHONY: subdirs $(SUBDIRS) clean0 clean1 clean2 clean3 clean4 clean5 clean6 clean7 clean8 mostlyclean distclean clean maintainer-clean clean-modules am--refresh'
 echol
 echol 'subdirs: $(SUBDIRS)'
 echol
@@ -3307,7 +3307,7 @@ for f in ${BUILD_AUX_ALL}; do
   test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
 done
 test "${verbose}" = true -o "${verbose}" = yes && \
-  echo "BUILD_AUX=${BUILD_AUX}" >&2
+  echo "BUILD_AUX =${BUILD_AUX}" >&2
 
 echol "modular : ${FILES} clisp-link linkkit modules.h modules.o makevars build-aux"
 echodummyrule modular
