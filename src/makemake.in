@@ -2300,7 +2300,7 @@ echol
 echol 'SUBDIR_CFLAGS = $(CFLAGS) '"${XCC_PICFLAG}"
 echol '$(SUBDIRS):'
 echotab 'mkdir -p $@'
-echotab 'if test ! -f $@/Makefile; then sh config.status $@/Makefile depfiles; fi'
+echotab 'test -f $@/Makefile || sh config.status $@/Makefile depfiles'
 echotab 'cd $@ && $(MAKE) CFLAGS="$(SUBDIR_CFLAGS)"'
 echol
 echol "${GLLIB_A}: gllib"
