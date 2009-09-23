@@ -12,7 +12,6 @@
   <!ENTITY opt-create '<option><link linkend="opt-create">create</link></option>'>
   <!ENTITY opt-add '<option><link linkend="opt-add">add</link></option>'>
   <!ENTITY opt-run '<option><link linkend="opt-run">run</link></option>'>
-  <!ENTITY opt-install '<option><link linkend="opt-install">install</link></option>'>
 ]>
 
 <refentry id="clisp-link">
