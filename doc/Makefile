@@ -293,6 +293,6 @@ impnotes-src.zip : Makefile impnotes.xml clisp.xml clisp-link.xml \
 SEARCH=
 search: force
 	@if test -z "$(SEARCH)"; then echo "usage: make search SEARCH=string"; \
-	else grep -n '$(SEARCH)' $(IMPNOTES) $(CHECK_DEPS); fi
+	else grep -n -- '$(SEARCH)' $(IMPNOTES) $(CHECK_DEPS); fi
 
 force:
