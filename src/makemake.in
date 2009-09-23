@@ -3611,7 +3611,7 @@ if [ $CROSS = false ] ; then
         ;;
     esac
     echol
-    echol "install-bin : lisp${LEXE} lispinit.mem clisp.c force"
+    echol "install-bin : full force"
     echotab "mkdir -p \$(DESTDIR)\$(prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(exec_prefix)"
     echotab "mkdir -p \$(DESTDIR)\$(libdir)"
