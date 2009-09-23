@@ -2756,14 +2756,17 @@ if [ $HOS = unix -o $HSYS = win32gcc ] ; then
   echotab "\$(AR) rcv libnoreadline.a noreadline.o"
   echotab "\$(RANLIB) libnoreadline.a"
   echol
-  if [ "${with_dynamic_modules}" != no ]; then # DLL requires -fPIC
-    echol "lisp${SHREXT} : \$(OBJECTS) modules.o"
-    XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
-    line="`eval \"lib=\$\@; libs=\$^; echo ${XCC_CREATESHARED_}\"`"
-    test $HSYS = win32gcc && line=$line' $(LIBS)'
-    echotab "$line"
-    echol
-  fi
+fi
+if [ ${SHREXT} = .dll -a "${with_dynamic_modules}" != no ]; then
+  # win32 (SHREXT=.dll) requires all accessed libraries when linking a DLL.
+  # i.e. when creating a dynamic module dll, we must give lisp.dll to the
+  # linker, and when creating lisp.dll, we must give $(LIBS) to it.
+  # Some unixes (SHREXT=.so) need -fPIC when compiling clisp core for a DLL,
+  # which loses performance; besides, we do not need lisp.so on unix anyway.
+  echol "lisp${SHREXT} : \$(OBJECTS) modules.o"
+  XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
+  echotab "`eval \"lib=\$\@; libs=\$^\ \$\(LIBS\); echo ${XCC_CREATESHARED_}\"`"
+  echol
 fi
 
 if [ -n "$USE_GETTEXT" ] ; then
