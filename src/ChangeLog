@@ -4,6 +4,7 @@
 	(SUBDIRS): teeny code simplification
 	(config.status): also rm $(SUBDIRS)
 	(GLLIB_A): do not re-execute the code already done in gllib
+	(install-bin): depend on full instead of lispinit et al
 
 2009-09-21  Sam Steingold  <sds@gnu.org>
 
