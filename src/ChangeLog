@@ -1,7 +1,7 @@
 2009-09-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (lisp${SHREXT}): only define on with_dynamic_modules
-	& woe32 (and cygwin) and add $(LIBS) to libs
+	& woe32 (and cygwin) and add $(LIBS) to libs; depend on ${GLLIB_A}
 
 2009-09-22  Sam Steingold  <sds@gnu.org>
 
