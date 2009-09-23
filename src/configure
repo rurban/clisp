@@ -28881,16 +28881,16 @@ cat >>conftest.$ac_ext <<_ACEOF
 
 	  /* Create a symlink to the regular file. */
 	  if (symlink (file, sym))
-	    abort ();
+	    return 2;
 
 	  /* Create a hard link to that symlink.  */
 	  if (link (sym, hard))
-	    abort ();
+	    return 3;
 
 	  if (lstat (hard, &sb_hard))
-	    abort ();
+	    return 4;
 	  if (lstat (file, &sb_file))
-	    abort ();
+	    return 5;
 
 	  /* If the dev/inode of hard and file are the same, then
 	     the link call followed the symlink.  */
@@ -28934,6 +28934,7 @@ rm -f core *.core core.conftest.* gmon.out bb.out conftest$ac_exeext conftest.$a
 fi
 
 
+      rm -f conftest.file conftest.sym conftest.hard
 
 fi
 { $as_echo "$as_me:$LINENO: result: $gl_cv_func_link_follows_symlink" >&5

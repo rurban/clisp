@@ -6218,7 +6218,7 @@ AC_DEFUN([gl_LIBSIGSEGV],
   gl_cv_lib_sigsegv="$ac_cv_libsigsegv"
 ])
 
-# serial 14
+# serial 15
 dnl Run a program to determine whether link(2) follows symlinks.
 dnl Set LINK_FOLLOWS_SYMLINKS accordingly.
 
@@ -6267,16 +6267,16 @@ AC_DEFUN([gl_FUNC_LINK_FOLLOWS_SYMLINK],
 
 	  /* Create a symlink to the regular file. */
 	  if (symlink (file, sym))
-	    abort ();
+	    return 2;
 
 	  /* Create a hard link to that symlink.  */
 	  if (link (sym, hard))
-	    abort ();
+	    return 3;
 
 	  if (lstat (hard, &sb_hard))
-	    abort ();
+	    return 4;
 	  if (lstat (file, &sb_file))
-	    abort ();
+	    return 5;
 
 	  /* If the dev/inode of hard and file are the same, then
 	     the link call followed the symlink.  */
@@ -6287,6 +6287,7 @@ AC_DEFUN([gl_FUNC_LINK_FOLLOWS_SYMLINK],
 	[gl_cv_func_link_follows_symlink=yes], dnl Followed link/compile failed
 	[gl_cv_func_link_follows_symlink=unknown] dnl We're cross compiling.
       )
+      rm -f conftest.file conftest.sym conftest.hard
     ])
     case $gl_cv_func_link_follows_symlink in
       yes) gl_link_follows_symlinks=1 ;;
