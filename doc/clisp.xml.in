@@ -154,7 +154,8 @@ compiles the specified lisp files to a platform-independent
        installation was built, see
        <olink targetdoc="impnotes" targetptr="modules"/>.
    </simpara></listitem></varlistentry></variablelist>
-   The default is &base;.</para></listitem></varlistentry>
+   The <olink targetdoc="impnotes" targetptr="faq-modules">default</olink>
+   is &base;.</para></listitem></varlistentry>
 
 <varlistentry id="opt-memfile"><term><option>-M</option>
   <replaceable>mem-file</replaceable></term>
