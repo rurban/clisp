@@ -2763,7 +2763,7 @@ if [ ${SHREXT} = .dll -a "${with_dynamic_modules}" != no ]; then
   # linker, and when creating lisp.dll, we must give $(LIBS) to it.
   # Some unixes (SHREXT=.so) need -fPIC when compiling clisp core for a DLL,
   # which loses performance; besides, we do not need lisp.so on unix anyway.
-  echol "lisp${SHREXT} : \$(OBJECTS) modules.o"
+  echol "lisp${SHREXT} : \$(OBJECTS) modules.o ${GLLIB_A}"
   XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
   echotab "`eval \"lib=\$\@; libs=\$^\ \$\(LIBS\); echo ${XCC_CREATESHARED_}\"`"
   echol
