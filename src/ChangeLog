@@ -8,6 +8,7 @@
 	* makemake.in (.PHONY): add am--refresh
 	(SUBDIRS): teeny code simplification
 	(config.status): also rm $(SUBDIRS)
+	(anymodule): ditto: reconfiguring obsoletes gllib
 	(GLLIB_A): do not re-execute the code already done in gllib
 	(install-bin): depend on full instead of lispinit et al
 
