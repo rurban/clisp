@@ -2280,7 +2280,7 @@ additionally binds &cont-r; to the content length.</para>
 <note><para>You will probably never need to call this function
   explicitly (this is why it is in &sys-pac; and not in &ext-pac;).
   You should install your module with
-  <screen>&sh-prompt; &clisp-link; -install &name-r;</screen>
+  <screen>&sh-prompt; &clisp-link; &opt-install; &name-r;</screen>
   and load it with <code>(&require-my; &name-r;).</code></para></note>
 
 <para>Function <code>(&mod-dynload; &filename-r; ({&name-r;}+))</code>
