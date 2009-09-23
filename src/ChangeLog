@@ -1,5 +1,10 @@
 2009-09-22  Sam Steingold  <sds@gnu.org>
 
+	* modules/regexp/gllib/unistd.in.h, modules/syscalls/gllib/unistd.in.h:
+	* gllib/unistd.in.h, src/glm4/link-follow.m4: update from gnulib
+
+2009-09-22  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (.PHONY): add am--refresh
 	(SUBDIRS): teeny code simplification
 	(config.status): also rm $(SUBDIRS)
