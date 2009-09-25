@@ -1,3 +1,21 @@
+2009-09-25  Sam Steingold  <sds@gnu.org>
+
+	Do not eliminate function calls which are advertised to have
+	exceptional situation in unsafe code.
+	* lispbibl.d (seclass_t): add seclass_rd_sig: same as read,
+	but is also advertised to have "Exceptional situations" in unsafe code
+	(seclass_object): handle it
+	* constobj.d (seclass_rd_sig): add
+	* control.d (FDEFINITION): seclass_rd_sig
+	* io.d (GET-DISPATCH-MACRO-CHARACTER, PARSE-INTEGER): seclass_rd_sig
+	* pathname.d (PARSE-NAMESTRING, LOGICAL-PATHNAME, WILD-PATHNAME-P)
+	(PATHNAME-MATCH-P, TRUENAME, PROBE-FILE, PROBE-DIRECTORY, DIRECTORY):
+	(FILE-WRITE-DATE, FILE-AUTHOR): seclass_rd_sig
+	* predtype.d (COERCE): seclass_rd_sig
+	* sequence.d (CONCATENATE): seclass_rd_sig
+	* subr.d: updated all of the above
+	Reported by "Tobias C. Rittweiler" <tcr@freebits.de>
+
 2009-09-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (intern): fix possible races in MT builds. guard both -

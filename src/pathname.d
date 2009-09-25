@@ -1452,7 +1452,7 @@ local maygc void split_name_type (uintL skip) {
 
 /* (PARSE-NAMESTRING thing [host [defaults [:start] [:end] [:junk-allowed]]]),
  CLTL p. 414 */
-LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
+LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         (kw(start),kw(end),kw(junk_allowed)) ) {
   /* stack layout: thing, host, defaults, start, end, junk-allowed. */
   var bool junk_allowed;
@@ -2134,7 +2134,7 @@ local void signal_type_error (void* sp, gcv_object_t* frame, object label,
   funcall(L(error_of_type),7);
 }
 
-LISPFUNNR(logical_pathname,1)
+LISPFUNNS(logical_pathname,1)
 { /* (LOGICAL-PATHNAME thing), CLtL2 p. 631 */
   var object thing = STACK_0;
   if (logpathnamep(thing)) {
@@ -3831,7 +3831,7 @@ local void check_no_wildcards (object pathname) {
   error(file_error,GETTEXT("~S: wildcards are not allowed here: ~S"));
 }
 
-LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
+LISPFUN(wild_pathname_p,seclass_rd_sig,1,1,norest,nokey,0,NIL)
 { /* (WILD-PATHNAME-P pathname [field-key]), CLtL2 p. 623 */
   var object pathname = coerce_xpathname(STACK_1);
   var object key = STACK_0;
@@ -4069,7 +4069,7 @@ local bool version_match (object pattern, object sample, bool logical)
   return eql(pattern,sample);
 }
 
-LISPFUNNR(pathname_match_p,2)
+LISPFUNNS(pathname_match_p,2)
 { /* (PATHNAME-MATCH-P pathname wildname), CLtL2 p. 623 */
   /* stack layout: pathname, wildname. */
   var bool logical = false;
@@ -5839,7 +5839,7 @@ local maygc void true_namestring (struct file_status *fs, bool noname_p,
   assure_dir_exists(fs,false,tolerantp);
 }
 
-LISPFUNNR(truename,1)
+LISPFUNNS(truename,1)
 { /* (TRUENAME pathname), CLTL p. 413 */
   var object pathname = STACK_0; /* pathname-argument */
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */
@@ -5885,7 +5885,7 @@ local bool probe_path_from_stream (gcv_object_t *stream) {
   return flags & strmflags_open_B;
 }
 
-LISPFUNNR(probe_file,1)
+LISPFUNNS(probe_file,1)
 { /* (PROBE-FILE filename), CLTL p. 424 */
   if (builtin_stream_p(STACK_0)) { /* stream -> treat extra: */
     if (probe_path_from_stream(&STACK_0))
@@ -5991,6 +5991,7 @@ local maygc namestring_kind_t classify_namestring
 #endif
 }
 
+/* NB: this is seclass_read, while other PROBE- functions are seclass_rd_sig */
 LISPFUNNR(probe_pathname,1)     /* (PROBE-PATHNAME pathname) */
 { /* a safe way to distinguish between files and dirs:
      "dir", "dir/" ==> #p"dir/"
@@ -6132,7 +6133,7 @@ local maygc bool directory_exists (object pathname) {
   return exists;
 }
 
-LISPFUNNR(probe_directory,1)
+LISPFUNNS(probe_directory,1)
 { /* (PROBE-DIRECTORY filename) tests, if a directory exists. */
   var object pathname = popSTACK(); /* pathname-argument */
   pathname = merge_defaults(coerce_pathname(pathname)); /* --> pathname */
@@ -7826,7 +7827,7 @@ local maygc object directory_search (object pathname, dir_search_param_t *dsp) {
 
 /* (DIRECTORY pathname [:circle] [:full] [:if-does-not-exist]),
    CLTL p. 427 */
-LISPFUN(directory,seclass_read,1,0,norest,key,3,
+LISPFUN(directory,seclass_rd_sig,1,0,norest,key,3,
         ( kw(if_does_not_exist),kw(circle),kw(full) ))
 { /* stack layout: pathname, if-does-not-exist, circle, full. */
   var dir_search_param_t dsp;
@@ -8205,7 +8206,7 @@ global maygc void init_pathnames (void) {
  #endif
 }
 
-LISPFUNNR(file_write_date,1)
+LISPFUNNS(file_write_date,1)
 { /* (FILE-WRITE-DATE file), CLTL p. 424 */
  #if defined(UNIX)
   var time_t file_datetime; /* buffer for date/time of a file */
@@ -8285,7 +8286,7 @@ LISPFUNNR(file_write_date,1)
  #endif
 }
 
-LISPFUNNR(file_author,1)
+LISPFUNNS(file_author,1)
 { /* (FILE-AUTHOR file), CLTL p. 424 */
   var object pathname = popSTACK(); /* pathname-argument */
   if (builtin_stream_p(pathname)) { /* stream -> treat extra: */

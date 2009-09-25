@@ -27,6 +27,8 @@
   LISPFUN(name,seclass_foldable,req_count,0,norest,nokey,0,NIL)
 #define LISPFUNNR(name,req_count)                                 \
   LISPFUN(name,seclass_read,req_count,0,norest,nokey,0,NIL)
+#define LISPFUNNS(name,req_count)                                 \
+  LISPFUN(name,seclass_rd_sig,req_count,0,norest,nokey,0,NIL)
 
 /* Additionally, the same declaration plus C-Body must occur in a C-file. */
 
@@ -378,7 +380,7 @@ LISPFUN(string_concat,seclass_read,0,0,rest,nokey,0,NIL)
 LISPFUN(exit,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNNR(symbol_value,1)
 LISPFUNNR(symbol_function,1)
-LISPFUNNR(fdefinition,1)
+LISPFUNNS(fdefinition,1)
 LISPFUNNR(boundp,1)
 LISPFUNNR(fboundp,1)
 LISPFUNNF(special_operator_p,1)
@@ -505,7 +507,7 @@ LISPFUN(set_macro_character,seclass_default,2,2,norest,nokey,0,NIL)
 LISPFUN(get_macro_character,seclass_read,1,1,norest,nokey,0,NIL)
 LISPFUN(make_dispatch_macro_character,seclass_default,1,2,norest,nokey,0,NIL)
 LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
-LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
+LISPFUN(get_dispatch_macro_character,seclass_rd_sig,2,1,norest,nokey,0,NIL)
 LISPFUNN(readtable_case,1)
 LISPFUNN(set_readtable_case,2)
 LISPFUNN(lpar_reader,2)
@@ -554,7 +556,7 @@ LISPFUN(read_char_no_hang,seclass_default,0,4,norest,nokey,0,NIL)
 LISPFUN(clear_input,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUN(read_from_string,seclass_default,1,2,norest,key,3,
         (kw(preserve_whitespace),kw(start),kw(end)) )
-LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
+LISPFUN(parse_integer,seclass_rd_sig,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) )
 LISPFUNN(print_structure,2)
 LISPFUN(write,seclass_default,1,0,norest,key,17,
@@ -797,7 +799,7 @@ LISPFUNN(package_iterator,2)
 LISPFUNN(package_iterate,1)
 LISPFUNN(package_iterate_cleanup,1)
 /* ---------- PATHNAME ---------- */
-LISPFUN(parse_namestring,seclass_read,1,2,norest,key,3,
+LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         (kw(start),kw(end),kw(junk_allowed)) )
 LISPFUNNR(pathname,1)
 LISPFUN(pathnamehost,seclass_read,1,0,norest,key,1, (kw(case)))
@@ -807,7 +809,7 @@ LISPFUN(pathnamename,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUN(pathnametype,seclass_read,1,0,norest,key,1, (kw(case)))
 LISPFUNNR(pathnameversion,1)
 #ifdef LOGICAL_PATHNAMES
-LISPFUNNR(logical_pathname,1)
+LISPFUNNS(logical_pathname,1)
 LISPFUN(translate_logical_pathname,seclass_default,1,0,norest,key,1,
         (kw(absolute)))
 #endif
@@ -825,22 +827,22 @@ LISPFUN(make_logical_pathname,seclass_read,0,0,norest,key,8,
          kw(name),kw(type),kw(version)) )
 #endif
 LISPFUN(user_homedir_pathname,seclass_default,0,1,norest,nokey,0,NIL)
-LISPFUN(wild_pathname_p,seclass_read,1,1,norest,nokey,0,NIL)
-LISPFUNNR(pathname_match_p,2)
+LISPFUN(wild_pathname_p,seclass_rd_sig,1,1,norest,nokey,0,NIL)
+LISPFUNNS(pathname_match_p,2)
 LISPFUN(translate_pathname,seclass_default,3,0,norest,key,3,
         (kw(all),kw(merge),kw(absolute)))
 LISPFUNN(absolute_pathname,1)
 LISPFUNNR(namestring,1)
-LISPFUNNR(truename,1)
-LISPFUNNR(probe_file,1)
+LISPFUNNS(truename,1)
+LISPFUNNS(probe_file,1)
 LISPFUNNR(probe_pathname,1)
-LISPFUNNR(probe_directory,1)
+LISPFUNNS(probe_directory,1)
 LISPFUNN(delete_file,1)
 LISPFUNN(rename_file,2)
 LISPFUN(open,seclass_default,1,0,norest,key,6,
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),
          kw(external_format),kw(buffered)) )
-LISPFUN(directory,seclass_read,1,0,norest,key,3,
+LISPFUN(directory,seclass_rd_sig,1,0,norest,key,3,
         (kw(if_does_not_exist),kw(circle),kw(full)))
 LISPFUN(cd,seclass_default,0,1,norest,nokey,0,NIL)
 LISPFUNN(make_directory,1)
@@ -848,8 +850,8 @@ LISPFUNN(delete_directory,1)
 LISPFUNN(rename_directory,2)
 LISPFUN(ensure_directories_exist,seclass_default,1,0,norest,key,1,
         (kw(verbose)))
-LISPFUNNR(file_write_date,1)
-LISPFUNNR(file_author,1)
+LISPFUNNS(file_write_date,1)
+LISPFUNNS(file_author,1)
 #ifdef UNIX
 LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
 #endif
@@ -925,7 +927,7 @@ LISPFUNNR(class_of,1)
 LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
 LISPFUNN(typep_class,2)
 LISPFUN(expand_deftype,seclass_default,1,1,norest,nokey,0,NIL)
-LISPFUNNR(coerce,2)
+LISPFUNNS(coerce,2)
 LISPFUNN(note_new_structure_class,0)
 LISPFUNN(note_new_standard_class,0)
 LISPFUNN(heap_statistics,0)
@@ -1055,7 +1057,7 @@ LISPFUNN(nreverse,1)
 LISPFUN(make_sequence,seclass_default,2,0,norest,key,2,
         (kw(initial_element),kw(update)) )
 LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
-LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
+LISPFUN(concatenate,seclass_rd_sig,1,0,rest,nokey,0,NIL)
 LISPFUN(map,seclass_default,3,0,rest,nokey,0,NIL)
 LISPFUN(map_into,seclass_default,2,0,rest,nokey,0,NIL)
 LISPFUN(some,seclass_default,2,0,rest,nokey,0,NIL)

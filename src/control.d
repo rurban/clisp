@@ -117,7 +117,7 @@ local maygc object funname_to_symbol (object symbol) {
   return symbol;
 }
 
-LISPFUNNR(fdefinition,1)
+LISPFUNNS(fdefinition,1)
 { /* (FDEFINITION funname), CLTL2 p. 120 */
   var object symbol = funname_to_symbol(STACK_0);
   if (!symbolp(symbol))

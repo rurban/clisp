@@ -2244,7 +2244,7 @@ local maygc Values coerce_sequence_check (object type, object result_type) {
   }
 }
 
-LISPFUNNR(coerce,2)
+LISPFUNNS(coerce,2)
 /* (COERCE object result-type), CLTL p. 51
  Method:
  (TYPEP object result-type) -> return object
