@@ -723,11 +723,7 @@ else
 fi
 
 # HERE = prefix to ensure that executables are looked up in current directory
-if [ $HOS = unix ] ; then
-  HERE='./'
-else
-  HERE=''
-fi
+HERE='./'
 
 # PREFIX = prefix for installation directories
 # (This should not end in a backslash. Add a space to avoid this.)
