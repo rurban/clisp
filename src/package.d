@@ -21,11 +21,11 @@ are possible. Also if multiple package locks should be obtained at the same
 time - first all_package_lock should be obtained - such cases are use-package,
 unuse-package.
 
-Symbol lookup and deletion are not guarded but are safe due to the way
-symtab_insert and rehash_symtab work. On MT rehash_symtab always returns
-newly allocated symtab that does not share nor modifies the old one - thus
-any thread that may perform lookups on the old one will not be "surpised" by
-modified internals (and intern (e.g. symtab_insert) is guarded by package mutex)
+Symbol lookups are not guarded but are safe due to the way symtab_insert and
+rehash_symtab work. On MT rehash_symtab always returns newly allocated symtab
+that does not share nor modifies the old one - thus any thread that may perform
+lookups on the old one will not be "surprised" by modified internals (and
+intern (e.g. symtab_insert) is guarded by package mutex).
 This copy semantic on rehashing is slower than previous cons cell reuse but is
 better than obtaining lock on symbol lookup.
 
@@ -809,36 +809,41 @@ local maygc void make_present (object sym, object pack) {
            3, if available as internal symbol
  can trigger GC */
 global maygc uintBWL intern (object string, bool invert, object pack, object* sym_) {
-  {
-    var sintBWL result = find_symbol(string,invert,pack,sym_); /* search */
-    if (!(result==0))
-      return result & 3; /* found -> finished */
-  }
-  pushSTACK(pack); /* save package */
-  if (pack_locked_p(pack)) {
-    /* when STRING comes from READ, it points to a re-usable buffer
-       that will be overwritten during the CERROR i/o
-       therefore we must copy and save it */
-    pushSTACK(coerce_ss(string));
-    cerror_package_locked(S(intern),STACK_1/*pack*/,STACK_0/*string*/);
-    string = popSTACK();
-  }
-  if (invert)
-    string = string_invertcase(string);
-  string = coerce_imm_ss(string); /* string --> immutable simple-string */
-  pushSTACK(make_symbol(string)); /* (make-symbol string) */
-  var gcv_object_t *newsym_ = &STACK_0;
+  pushSTACK(string);
+  pushSTACK(pack);
+  pushSTACK(NIL); /* place for new symbol */
   var gcv_object_t *pack_ = &STACK_1;
-  /* enter this new symbol into the package: */
-  /* TODO: if we have lock free Symbtabs - this lock will not be needed.*/
+  var gcv_object_t *string_ = &STACK_2;
+  var gcv_object_t *newsym_ = &STACK_0;
+  var uintBWL result = 0;
+  /* with locked package */
   WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
-    set_break_sem_2(); /* protect against breaks */
-    make_present(*newsym_,*pack_); /* intern into this package */
-    clr_break_sem_2(); /* allow breaks */
+    result = find_symbol(*string_,invert,*pack_,sym_); /* search */
+    if (!(result==0)) {
+      *newsym_ = *sym_; /* store at gc safe location */
+      result &= 3; /* found -> finished */
+    } else {
+      if (pack_locked_p(*pack_)) {
+        /* when STRING comes from READ, it points to a re-usable buffer
+           that will be overwritten during the CERROR i/o
+           therefore we must copy and save it */
+        pushSTACK(coerce_ss(*string_));
+        cerror_package_locked(S(intern),*pack_,STACK_0);
+        *string_ = popSTACK();
+      }
+      if (invert)
+        *string_ = string_invertcase(*string_);
+      *string_ = coerce_imm_ss(*string_); /* string --> immutable simple-string */
+      *newsym_ = make_symbol(*string_); /* (make-symbol string) */
+      /* enter this new symbol into the package: */
+      set_break_sem_2(); /* protect against breaks */
+      make_present(*newsym_,*pack_); /* intern into this package */
+      clr_break_sem_2(); /* allow breaks */
+    }
   });
   *sym_ = *newsym_;
-  skipSTACK(2); /* pack & sym */
-  return 0;
+  skipSTACK(3); /* string, pack & newsym */
+  return result;
 }
 
 /* UP: Interns a symbol of given printname into the keyword-package.
