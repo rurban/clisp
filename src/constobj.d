@@ -698,6 +698,7 @@
 /* for control & io, function seclass_object(): */
   LISPOBJ(seclass_no_se,"(NIL NIL NIL)")
   LISPOBJ(seclass_read,"(T NIL NIL)")
+  LISPOBJ(seclass_rd_sig,"(T T NIL)")
   LISPOBJ(seclass_write,"(NIL T T)")
   LISPOBJ(seclass_default,"(T T T)")
 /* for FOREIGN.D: */

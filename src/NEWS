@@ -22,6 +22,9 @@ User visible changes
   See <http://clisp.cons.org/impnotes/require.html> and
   <http://clisp.cons.org/impnotes/clisp-link.html> for details.
 
+* Bug fixes:
+  + Do not eliminate function calls which are advertised to have
+    exceptional situation in unsafe code.
 
 
 2.48 (2009-07-28)
