@@ -1,3 +1,8 @@
+2009-09-25  Aleksej Saushev  <asau@inbox.ru>
+
+	* makemake.in (BUILD_AUX): do not link_dep if building in src to
+	avoid cyclic dependency
+
 2009-09-25  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (HERE): set to "./" on all platforms: it seems to be
@@ -168,7 +173,7 @@
 
 	* modules/i18n/configure.in: remove the spurious FFI dependency
 
-2009-09-12   Aleksej Saushev  <asau@inbox.ru>
+2009-09-12  Aleksej Saushev  <asau@inbox.ru>
 
 	* makemake.in (INSTALL_SCRIPT): use instead of INSTALL_PROGRAM for
 	clisp-link (avoids stripping the script, which is a problem on NetBSD)
@@ -2049,7 +2054,7 @@
 	* zthread.d (EXEMPTION-WAIT): allow recursive mutex - but enforce to be
 	locked just once by the calling thread (otherwise error is signaled)
 
-2009-02-22  Vladimir Tzankov   <vtzankov@gmail.com>
+2009-02-22  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (EXEMPTION-WAIT): do not allow recursive mutexes. this
 	may cause really weird hard to debug errors. see APPLICATION USAGE at:
@@ -26704,7 +26709,7 @@
 
 	* clos-methcomb2.lisp: Reorder.
 
-2004-05-15  Bruno Haible   <bruno@clisp.org>
+2004-05-15  Bruno Haible  <bruno@clisp.org>
 
 	* init.lisp (*documentation*): Change the hash table test to
 	STABLEHASH-EQUAL, since some of the keys are lists, not symbols.
