@@ -1,5 +1,10 @@
 2009-09-25  Sam Steingold  <sds@gnu.org>
 
+	* makemake.in (HERE): set to "./" on all platforms: it seems to be
+	needed on mingw and should not be able to hurt anyway
+
+2009-09-25  Sam Steingold  <sds@gnu.org>
+
 	Do not eliminate function calls which are advertised to have
 	exceptional situation in unsafe code.
 	* lispbibl.d (seclass_t): add seclass_rd_sig: same as read,
