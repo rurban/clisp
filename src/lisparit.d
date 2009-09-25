@@ -1622,7 +1622,7 @@ LISPFUNNF(ldb_test,2)
 }
 
 LISPFUNNF(mask_field,2)
-{ /* (MASK_FIELD bytespec integer), CLTL p. 226 */
+{ /* (MASK-FIELD bytespec integer), CLTL p. 226 */
   var object x = check_integer(STACK_0);
   var object b = STACK_1; /* Type check will take place later */
   skipSTACK(2);
