@@ -1,3 +1,9 @@
+2009-09-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* package.d (intern): fix possible races in MT builds. guard both -
+	symtab lookup and insert with package mutex. it was possible to have
+	different interned symbols with same print name
+
 2009-09-23  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (lisp${SHREXT}): only define on with_dynamic_modules
