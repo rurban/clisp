@@ -6816,11 +6816,13 @@ typedef enum {
      do not even look "inside" their arguments, but not "foldable". */
   seclass_read, /* no side effects, but depend on global variables
      or look "inside" their arguments. */
+  seclass_rd_sig, /* same as read,
+     but is also advertised to have "Exceptional situations" in unsafe code */
   seclass_write, /* only side effects: does not read anything,
      just sets some global variables. */
   seclass_default /* may do side effects */
 } seclass_t;
-%% puts("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_write, seclass_default};");
+%% puts("enum { seclass_foldable, seclass_no_se, seclass_read, seclass_rd_sig, seclass_write, seclass_default};");
 
 /* fast comparison method is really fastcmp_t:
  when you want to make another comparison function bypass FUNCALL in
@@ -12858,6 +12860,7 @@ extern maygc object coerce_function (object obj);
  > req_count: the (fixed) number of arguments (a number)
  LISPFUNNF - ditto, but seclass_foldable instead of seclass_default
  LISPFUNNR - ditto, but seclass_read instead of seclass_default
+ LISPFUNNS - ditto, but seclass_rd_sig instead of seclass_default
  See SUBR.D
  used by all modules */
 
@@ -12917,6 +12920,7 @@ static inline object seclass_object (seclass_t sec) {
     case seclass_foldable: { return NIL; }
     case seclass_no_se:    { return O(seclass_no_se); }
     case seclass_read:     { return O(seclass_read); }
+    case seclass_rd_sig:   { return O(seclass_rd_sig); }
     case seclass_write:    { return O(seclass_write); }
     case seclass_default:  { return O(seclass_default); }
     default: NOTREACHED;

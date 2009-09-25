@@ -785,7 +785,7 @@ LISPFUN(set_dispatch_macro_character,seclass_default,3,1,norest,nokey,0,NIL)
   }
 }
 
-LISPFUN(get_dispatch_macro_character,seclass_read,2,1,norest,nokey,0,NIL)
+LISPFUN(get_dispatch_macro_character,seclass_rd_sig,2,1,norest,nokey,0,NIL)
 { /* (GET-DISPATCH-MACRO-CHARACTER disp-char sub-char [readtable]),
      CLTL p. 364 */
   STACK_0 = test_readtable_null_arg(STACK_0); /* readtable */
@@ -4670,7 +4670,7 @@ LISPFUN(read_from_string,seclass_default,1,2,norest,key,3,
 
 /* (PARSE-INTEGER string [:start] [:end] [:radix] [:junk-allowed]),
  CLTL p. 381 */
-LISPFUN(parse_integer,seclass_read,1,0,norest,key,4,
+LISPFUN(parse_integer,seclass_rd_sig,1,0,norest,key,4,
         (kw(start),kw(end),kw(radix),kw(junk_allowed)) ) {
   /* process :junk-allowed-Argument: */
   var bool junk_allowed;

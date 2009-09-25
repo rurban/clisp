@@ -1150,7 +1150,7 @@ LISPFUN(coerced_subseq,seclass_default,2,0,norest,key,2, (kw(start),kw(end)) )
   skipSTACK(2); VALUES1(popSTACK()); /* return result */
 }
 
-LISPFUN(concatenate,seclass_read,1,0,rest,nokey,0,NIL)
+LISPFUN(concatenate,seclass_rd_sig,1,0,rest,nokey,0,NIL)
 { /* (CONCATENATE result-type {sequence}), CLTL p. 249 */
   var gcv_object_t* args_pointer = rest_args_pointer;
   { /* convert result-type to type descriptor: */
