@@ -1345,7 +1345,7 @@ DEFUN(POSIX::WAIT, &key :PID :USAGE :NOHANG :UNTRACED :STOPPED :EXITED \
   end_blocking_system_call();
   if (ret == (pid_t)-1) OS_error();
   if (ret == (pid_t)0 && (options & WNOHANG))
-    VALUES1(Fixnum_0);          /* no process changes status */
+    VALUES1(Fixnum_0);          /* no process changed status */
   else {                        /* some process changed status */
     if (usage) {
       rusage_to_lisp(&ru);
