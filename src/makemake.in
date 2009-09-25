@@ -3301,7 +3301,7 @@ echol
 MODULE_CONFIGURES=`find ${SRCTOPDIR_}modules -name configure`
 BUILD_AUX_ALL=`grep '$ac_aux_dir/' ${MODULE_CONFIGURES} | sed 's,.*$ac_aux_dir/\([a-z.-]*\).*,\1,' | sort -u`
 BUILD_AUX=''
-link_dep "build-aux" "${SRCDIR}build-aux"
+test -n "${SRCDIR}" && link_dep "build-aux" "${SRCDIR}build-aux"
 for f in ${BUILD_AUX_ALL}; do
   test -r ${SRCDIR}build-aux/$f && BUILD_AUX="${BUILD_AUX} $f"
 done
