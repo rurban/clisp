@@ -1,5 +1,12 @@
 2009-09-26  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: fix thread safety issue in printer
+	* lispbibl.d (Symbol_thread_binding): returns symbol binding in current
+	thread (if any)
+	* io.d (pr_external_1, BIND_UNLESS): use it
+
+2009-09-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* package.d (intern) [MULTITHREAD]: search for symbol before locking
 	package (it's faster)
 
