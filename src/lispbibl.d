@@ -7370,16 +7370,22 @@ typedef struct {
   static inline gcv_object_t *symbol_value_h(Symbol s, gcv_object_t *thrsyms) {
     return (s->tls_index ? thrsyms+s->tls_index : &s->symvalue);
   }
-  #define Symbol_value(obj) \
-    *(symbol_value_i(TheSymbol(obj),current_thread()->_ptr_symvalues))
-  #define Symbol_thread_value(obj) \
-    *(symbol_value_h(TheSymbol(obj),current_thread()->_ptr_symvalues))
-  #define Symbolflagged_value(obj) \
-    *(symbol_value_h(TheSymbolflagged(obj),current_thread()->_ptr_symvalues))
+  static inline object symbol_value_b(Symbol s, gcv_object_t *thrsyms) {
+    return (s->tls_index ? thrsyms[s->tls_index] : SYMVALUE_EMPTY);
+  }
+  #define Symbol_value(sym) \
+    *(symbol_value_i(TheSymbol(sym),current_thread()->_ptr_symvalues))
+  #define Symbol_thread_value(sym) \
+    *(symbol_value_h(TheSymbol(sym),current_thread()->_ptr_symvalues))
+  #define Symbol_thread_binding(sym) \
+    symbol_value_b(TheSymbol(sym),current_thread()->_ptr_symvalues)
+  #define Symbolflagged_value(sym) \
+    *(symbol_value_h(TheSymbolflagged(sym),current_thread()->_ptr_symvalues))
 #else
-  #define Symbol_value(obj)  (TheSymbol(obj)->symvalue)
-  #define Symbol_thread_value(obj) Symbol_value(obj)
-  #define Symbolflagged_value(obj) (TheSymbolflagged(obj)->symvalue)
+  #define Symbol_value(sym)  (TheSymbol(sym)->symvalue)
+  #define Symbol_thread_value(sym) Symbol_value(sym)
+  #define Symbol_thread_binding(sym) Symbol_value(sym)
+  #define Symbolflagged_value(sym) (TheSymbolflagged(sym)->symvalue)
 #endif
 %% #if defined(MULTITHREAD)
 %%   export_def(SYMVALUE_EMPTY);

@@ -6653,7 +6653,8 @@ local uintC pr_external_1 (object stream) {
   var uintC count = 1;
   /* bind SYM to VAL unless already bound to it */
 #define BIND_UNLESS(sym,val)                       \
-    if (!eq(Symbol_value(S(sym)),val)) { dynamic_bind(S(sym),val); count++; }
+    if (!eq(Symbol_thread_binding(S(sym)),val)) {  \
+      dynamic_bind(S(sym),val); count++; }
   /* obey *PRINT-CIRCLE*: */
   if (nullpSv(print_circle)) { /* *PRINT-CIRCLE* = NIL -> */
     /* in case, that *PRINT-CIRCLE* will be bound to T,
