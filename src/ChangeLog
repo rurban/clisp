@@ -1,3 +1,8 @@
+2009-09-26  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* package.d (intern) [MULTITHREAD]: search for symbol before locking
+	package (it's faster)
+
 2009-09-25  Aleksej Saushev  <asau@inbox.ru>
 
 	* makemake.in (BUILD_AUX): do not link_dep if building in src to

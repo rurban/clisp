@@ -809,20 +809,34 @@ local maygc void make_present (object sym, object pack) {
            3, if available as internal symbol
  can trigger GC */
 global maygc uintBWL intern (object string, bool invert, object pack, object* sym_) {
+  /* first check without locking */
+  var uintBWL result = find_symbol(string,invert,pack,sym_);
+  if (!(result==0)) {
+    return result & 3; /* found -> finished */
+  }
   pushSTACK(string);
   pushSTACK(pack);
   pushSTACK(NIL); /* place for new symbol */
   var gcv_object_t *pack_ = &STACK_1;
   var gcv_object_t *string_ = &STACK_2;
   var gcv_object_t *newsym_ = &STACK_0;
-  var uintBWL result = 0;
+  /* in single thread - there is no need to check again */
+  #ifndef MULTITHREAD
+    #define UNLESS_FIND_SYMBOL
+  #else
+    #define UNLESS_FIND_SYMBOL                               \
+      result = find_symbol(*string_,invert,*pack_,sym_); \
+      if (!(result==0)) {                                \
+        *newsym_ = *sym_; /* store at gc safe location */\
+        result &= 3; /* found -> finished */             \
+      } else
+  #endif
   /* with locked package */
   WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
-    result = find_symbol(*string_,invert,*pack_,sym_); /* search */
-    if (!(result==0)) {
-      *newsym_ = *sym_; /* store at gc safe location */
-      result &= 3; /* found -> finished */
-    } else {
+    /* MT: search again, while we were waiting the same symbol may have
+       been interned */
+    UNLESS_FIND_SYMBOL
+    {
       if (pack_locked_p(*pack_)) {
         /* when STRING comes from READ, it points to a re-usable buffer
            that will be overwritten during the CERROR i/o
@@ -844,6 +858,7 @@ global maygc uintBWL intern (object string, bool invert, object pack, object* sy
   *sym_ = *newsym_;
   skipSTACK(3); /* string, pack & newsym */
   return result;
+  #undef UNLESS_FIND_SYMBOL
 }
 
 /* UP: Interns a symbol of given printname into the keyword-package.
