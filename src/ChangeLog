@@ -1,3 +1,9 @@
+2009-09-27  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2868147 ]: declaim signals an error on an invalid declaration
+	* compiler.lisp (parse-optimize-quality): can be called by DECLAIM,
+	so call c-WARN or WARN depending on *COMPILING*
+
 2009-09-27  Bruno Haible  <bruno@clisp.org>
 
 	* m4/connect.m4 (CL_CONNECT): Terminate the expansion with a newline.
@@ -26,8 +32,8 @@
 
 2009-09-25  Sam Steingold  <sds@gnu.org>
 
-	Do not eliminate function calls which are advertised to have
-	exceptional situation in unsafe code.
+	fix bug #[ 2868166 ]: Do not eliminate function calls which are
+	advertised to have exceptional situation in unsafe code.
 	* lispbibl.d (seclass_t): add seclass_rd_sig: same as read,
 	but is also advertised to have "Exceptional situations" in unsafe code
 	(seclass_object): handle it

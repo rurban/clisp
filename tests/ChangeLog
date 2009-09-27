@@ -1,3 +1,8 @@
+2009-09-27  Sam Steingold  <sds@gnu.org>
+
+	* eval20.tst: test bug #[ 2868147 ]: declaim signals an error on
+	an invalid declaration
+
 2009-08-26  Sam Steingold  <sds@gnu.org>
 
 	* pack11.tst: also test combinations of packages using

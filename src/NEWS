@@ -24,7 +24,8 @@ User visible changes
 
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
-    exceptional situation in unsafe code.
+    exceptional situation in unsafe code. [ 2868166 ]
+  + Fix an nternal error in DECLAIM on bad OPTIMIZE quality. [ 2868147 ]
 
 
 2.48 (2009-07-28)
