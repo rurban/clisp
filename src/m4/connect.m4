@@ -1,5 +1,5 @@
 dnl -*- Autoconf -*-
-dnl Copyright (C) 1993-2004, 2007-2008 Free Software Foundation, Inc.
+dnl Copyright (C) 1993-2004, 2007-2009 Free Software Foundation, Inc.
 dnl This file is free software, distributed under the terms of the GNU
 dnl General Public License.  As a special exception to the GNU General
 dnl Public License, this file may be distributed as part of a program
@@ -40,4 +40,5 @@ fi
 AC_DEFINE_UNQUOTED(CONNECT_CONST,$cl_cv_proto_connect_arg2a,[does declaration of connect() need const?])
 AC_DEFINE_UNQUOTED(CONNECT_NAME_T,$cl_cv_proto_connect_arg2b,[type of `name' in connect() declaration])
 AC_DEFINE_UNQUOTED(CONNECT_ADDRLEN_T,$cl_cv_proto_connect_arg3,[type of `addrlen' in connect() declaration])
-fi])
+fi
+])
