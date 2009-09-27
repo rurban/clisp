@@ -1,5 +1,10 @@
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
+	* macro8.tst: test bug #[ 2868166 ]: Do not eliminate function calls
+	which are advertised to have exceptional situation in unsafe code.
+
+2009-09-27  Sam Steingold  <sds@gnu.org>
+
 	* eval20.tst: test bug #[ 2868147 ]: declaim signals an error on
 	an invalid declaration
 
