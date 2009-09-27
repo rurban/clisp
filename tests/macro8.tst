@@ -1213,11 +1213,10 @@ check-const-fold
   (error (c) (princ-error c) :bad))
 :GOOD
 
-(handler-case
-    ;; unsafe code, AREF eliminated
-    (funcall (locally (declare (optimize (safety 2)))
-               (compile nil (lambda (a) (aref a 0) 1)))
-             2))
+;; unsafe code, AREF eliminated
+(funcall (locally (declare (optimize (safety 2)))
+           (compile nil (lambda (a) (aref a 0) 1)))
+         2)
 1
 
 ;; PARSE-INTEGER (advertised to signal errors in unsafe code) never eliminated
