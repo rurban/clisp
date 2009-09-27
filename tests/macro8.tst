@@ -1202,6 +1202,32 @@ check-const-fold
 (multiple-value-list (compile 'x (lambda (y) (declare (ignore y)) (flet ((f (z) (1+ z))) (f y)))))
 (X 1 NIL)
 
+;; funcall elimination
+;; AREF: no advertised "exceptional situations", so eliminated in unsafe code
+(handler-case
+    ;; safe code, AREF not eliminated
+    (funcall (locally (declare (optimize (safety 3)))
+               (compile nil (lambda (a) (aref a 0) 1)))
+             2)
+  (type-error (c) (princ-error c) :good)
+  (error (c) (princ-error c) :bad))
+:GOOD
+
+(handler-case
+    ;; unsafe code, AREF eliminated
+    (funcall (locally (declare (optimize (safety 2)))
+               (compile nil (lambda (a) (aref a 0) 1)))
+             2))
+1
+
+;; PARSE-INTEGER (advertised to signal errors in unsafe code) never eliminated
+(handler-case
+    (funcall (locally (declare (optimize (safety 0)))
+               (compile nil (lambda (s) (parse-integer s) 1)))
+             "a")
+  (error (c) (princ-error c) :good))
+:GOOD
+
 (progn ; Clean up.
   (symbol-cleanup '*c*)
   (symbol-cleanup '*donc*)
