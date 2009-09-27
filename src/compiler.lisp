@@ -1421,10 +1421,7 @@ for-value   NIL or T
 ;; return 2 values: the quality and the value
 ;; or issue a warning and return NIL
 (defun parse-optimize-quality (spec)
-  (macrolet ((broken (&rest args)
-               `(progn
-                  (c-warn ,@args)
-                  (values))))
+  (let ((broken (if *compiling* #'c-warn 'warn))) ; WARN is not defined yet
     (let ((quality spec) (value 3))
       (if (or (symbolp spec)
               (and (consp spec) (symbolp (setq quality (car spec)))
@@ -1433,10 +1430,10 @@ for-value   NIL or T
         (if (memq quality '(COMPILATION-SPEED DEBUG SAFETY SPACE SPEED))
           (if (typep value '(INTEGER 0 3))
             (values quality value)
-            (broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
-                    quality value))
-          (broken (TEXT "~S is not a valid ~S quality.") quality 'optimize))
-        (broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec)))))
+            (funcall broken (TEXT "Not a valid optimization level for ~S, should be one of 0, 1, 2, 3: ~S")
+                     quality value))
+          (funcall broken (TEXT "~S is not a valid ~S quality.") quality 'optimize))
+        (funcall broken (TEXT "Not a valid ~S specifier: ~S") 'optimize spec)))))
 
 ;; check that X is either a SYMBOL or a (FUNCTION FUNCTION-NAME)
 (defun symbol-or-function-p (x)
