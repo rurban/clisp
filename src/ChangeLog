@@ -1,5 +1,22 @@
 2009-09-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: do not lock packages while iterating over them
+	* constsym.d, subr.d (package_iterate_cleanup): remove
+	* defs1.lisp (with-package-iterator): roll back changes from 2009-08-28
+	(package-iterator-function): ditto
+	* package.d: remove extra (LOCKED) field from Package Iterator State
+	(PACKAGE-ITERATE): do not lock current package
+	(PACKAGE-ITERATE-CLEANUP): remove
+	(MAP-SYMBOLS, MAP-EXTERNAL-SYMBOLS): do not lock packages. symtabs have
+	"copy-on-rehash" semantics and insertion/deletion is segfaul safe
+	(MAP-ALL-SYMBOLS): do not lock individual packages. make a copy of all
+	packages list and iterate over it
+	* constobj.d (version): revert to old ABI
+	* loop.lisp (expand-loop): do not use WRAP-UNWIND-PROTECT when iterating
+	over packages
+
+2009-09-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* lispbibl.d (symbol_value_b): fix MT g++ build
 
 2009-09-29  Sam Steingold  <sds@gnu.org>
