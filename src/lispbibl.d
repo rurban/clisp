@@ -7371,7 +7371,7 @@ typedef struct {
     return (s->tls_index ? thrsyms+s->tls_index : &s->symvalue);
   }
   static inline object symbol_value_b(Symbol s, gcv_object_t *thrsyms) {
-    return (s->tls_index ? thrsyms[s->tls_index] : SYMVALUE_EMPTY);
+    return (s->tls_index ? (object)thrsyms[s->tls_index] : SYMVALUE_EMPTY);
   }
   #define Symbol_value(sym) \
     *(symbol_value_i(TheSymbol(sym),current_thread()->_ptr_symvalues))
