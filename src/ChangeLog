@@ -1,3 +1,7 @@
+2009-09-29  Sam Steingold  <sds@gnu.org>
+
+	* spvw_debug.d (nobject_out_level): extract from nobject_out
+
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
 	fix bug #[ 2868147 ]: declaim signals an error on an invalid declaration
