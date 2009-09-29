@@ -331,11 +331,11 @@ local void nobject_out1 (FILE* out, object obj, int level) {
 }
 
 /* non-consing, STACK non-modifying */
+local int nobject_out_level = 5; /* for debugging */
 global object nobject_out (FILE* out, object obj) {
-  local int level = 5; /* for debugging */
   begin_system_call();
   if (out == NULL) out = stdout;
-  nobject_out1(out,obj,level);
+  nobject_out1(out,obj,nobject_out_level);
   fflush(out);
   end_system_call();
   return obj;
