@@ -447,49 +447,43 @@ global int fd_read_wont_hang_p (HANDLE fd)
      (tagbody 1 (prin1 (listen *terminal-io*)) (sys::%sleep 0 500) (go 1))
    and execute "lisp.exe -q -i listen.lisp" with redirected standard input. */
   switch (GetFileType(fd)) {
-    case FILE_TYPE_CHAR:
-      {
-        var DWORD nevents;
-        if (GetNumberOfConsoleInputEvents(fd,&nevents)) { /* It's a console. */
-          if (nevents==0)
-            return 0;
-          var INPUT_RECORD* events =
-            (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
-          var DWORD nevents_read;
-          var DWORD mode;
-          if (!PeekConsoleInput(fd,events,nevents,&nevents_read)) {
-            OS_error();
-          }
-          if (nevents_read==0)
-            return 0;
-          if (!GetConsoleMode(fd,&mode)) {
-            OS_error();
-          }
-          if (mode & ENABLE_LINE_INPUT) {
-            /* Look out for a Key-Down event corresponding to CR/LF. */
-            var DWORD i;
-            for (i = 0; i < nevents_read; i++) {
-              if (events[i].EventType == KEY_EVENT
-                  && events[i].Event.KeyEvent.bKeyDown
-                  && events[i].Event.KeyEvent.uAsciiChar == CR)
-                /* probably a byte available (except if it is Ctrl-Z) */
-                return -1;
-            }
-          } else {              /* Look out for any Key-Down event. */
-            var DWORD i;
-            for (i = 0; i < nevents_read; i++) {
-              if (events[i].EventType == KEY_EVENT
-                  && events[i].Event.KeyEvent.bKeyDown
-                  && events[i].Event.KeyEvent.uAsciiChar != 0)
-                /* probably a byte available (except if it is Ctrl-Z) */
-                return -1;
-            }
-          }
+    case FILE_TYPE_CHAR: {
+      var DWORD nevents;
+      if (GetNumberOfConsoleInputEvents(fd,&nevents)) { /* It's a console. */
+        if (nevents==0)
           return 0;
-        } else if (!(GetLastError()==ERROR_INVALID_HANDLE)) {
+        var INPUT_RECORD* events =
+          (INPUT_RECORD*)alloca(nevents*sizeof(INPUT_RECORD));
+        var DWORD nevents_read;
+        var DWORD mode;
+        if (!PeekConsoleInput(fd,events,nevents,&nevents_read))
           OS_error();
+        if (nevents_read==0)
+          return 0;
+        if (!GetConsoleMode(fd,&mode))
+          OS_error();
+        if (mode & ENABLE_LINE_INPUT) {
+          /* Look out for a Key-Down event corresponding to CR/LF. */
+          var DWORD i;
+          for (i = 0; i < nevents_read; i++) {
+            if (events[i].EventType == KEY_EVENT
+                && events[i].Event.KeyEvent.bKeyDown
+                && events[i].Event.KeyEvent.uAsciiChar == CR)
+              /* probably a byte available (except if it is Ctrl-Z) */
+              return -1;
+          }
+        } else {              /* Look out for any Key-Down event. */
+          var DWORD i;
+          for (i = 0; i < nevents_read; i++)
+            if (events[i].EventType == KEY_EVENT
+                && events[i].Event.KeyEvent.bKeyDown
+                && events[i].Event.KeyEvent.uAsciiChar != 0)
+              /* probably a byte available (except if it is Ctrl-Z) */
+              return -1;
         }
-      }
+        return 0;
+      } else if (!(GetLastError()==ERROR_INVALID_HANDLE))
+        OS_error();
       /* Not a console. */
       switch (WaitForSingleObject(fd,0)) {
         case WAIT_OBJECT_0:     /* a byte is available, or EOF */
@@ -499,25 +493,24 @@ global int fd_read_wont_hang_p (HANDLE fd)
         default:
           OS_error();
       }
+    } NOTREACHED;
     case FILE_TYPE_DISK:
       return 1;
-    case FILE_TYPE_PIPE:
-      {
-        var DWORD nbytes;
-        if (PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL)) { /* input pipe */
-          if (nbytes > 0)
-            return 3;
-          else
-            return 0;
-        } else if (GetLastError()==ERROR_BROKEN_PIPE) { /* EOF reached */
-          return 2;
-        } else if (GetLastError()==ERROR_ACCESS_DENIED) { /* output pipe */
-          /* => fake EOF. */
-          return 2;
-        } else {
-          OS_error();
-        }
-      }
+    case FILE_TYPE_PIPE: {
+      var DWORD nbytes;
+      if (PeekNamedPipe(fd,NULL,0,NULL,&nbytes,NULL)) { /* input pipe */
+        if (nbytes > 0)
+          return 3;
+        else
+          return 0;
+      } else if (GetLastError()==ERROR_BROKEN_PIPE) { /* EOF reached */
+        return 2;
+      } else if (GetLastError()==ERROR_ACCESS_DENIED) { /* output pipe */
+        /* => fake EOF. */
+        return 2;
+      } else
+        OS_error();
+    }
     default:                   /* It's a file (or something unknown). */
       return -1;
   }
