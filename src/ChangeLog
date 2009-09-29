@@ -1,3 +1,7 @@
+2009-09-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (symbol_value_b): fix MT g++ build
+
 2009-09-29  Sam Steingold  <sds@gnu.org>
 
 	* spvw_debug.d (nobject_out_level): extract from nobject_out
