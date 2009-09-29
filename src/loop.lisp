@@ -861,8 +861,6 @@
                                                  (t '*package*))))
                                           (push `(,state-var (SYS::PACKAGE-ITERATOR ,form ',flags))
                                                 bindings)
-                                          (push `(SYS::PACKAGE-ITERATE-CLEANUP ,state-var)
-                                                protect-forms)
                                           (note-initialization
                                            (make-loop-init
                                             :specform 'MULTIPLE-VALUE-BIND

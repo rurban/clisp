@@ -797,7 +797,6 @@ LISPFUNN(map_external_symbols,2)
 LISPFUNN(map_all_symbols,1)
 LISPFUNN(package_iterator,2)
 LISPFUNN(package_iterate,1)
-LISPFUNN(package_iterate_cleanup,1)
 /* ---------- PATHNAME ---------- */
 LISPFUN(parse_namestring,seclass_rd_sig,1,2,norest,key,3,
         (kw(start),kw(end),kw(junk_allowed)) )
