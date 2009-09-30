@@ -1,3 +1,9 @@
+2009-09-30  Sam Steingold  <sds@gnu.org>
+
+	* win32aux.d (fd_read_wont_hang_p): support serial communication
+	devices using ClearCommError
+	Reported by Angel Popov <angelpopov@yahoo.com>
+
 2009-09-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: do not lock packages while iterating over them
