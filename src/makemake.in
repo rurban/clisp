@@ -2326,6 +2326,9 @@ echol "config.status : configure"
 echotab "\$(RMRF) config.cache \$(SUBDIRS)"
 echotab "sh config.status --recheck"
 echol
+echol "libtool : @LIBTOOL_DEPS@"
+echotab "sh config.status --recheck"
+echol
 echol "am--refresh : config.status Makefile config.h"
 echol
 if [ -n "${SRCDIR}" ] ; then
