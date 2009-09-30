@@ -484,7 +484,16 @@ global int fd_read_wont_hang_p (HANDLE fd)
         return 0;
       } else if (!(GetLastError()==ERROR_INVALID_HANDLE))
         OS_error();
-      /* Not a console. */
+      var DWORD errors;
+      var COMSTAT stat;
+      if (ClearCommError(fd,&errors,&stat)) { /* it's a serial comm dev */
+        if (errors) return -1;                /* errors */
+        if (stat.fEof) return 2;
+        if (stat.cbInQue) return 3;
+        return 0;
+      } else if (!(GetLastError()==ERROR_INVALID_HANDLE))
+        OS_error();
+      /* neither a console nor a serial comm dev. */
       switch (WaitForSingleObject(fd,0)) {
         case WAIT_OBJECT_0:     /* a byte is available, or EOF */
           return 1;
