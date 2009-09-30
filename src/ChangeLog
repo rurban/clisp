@@ -1,3 +1,8 @@
+2009-09-29  Sam Steingold  <sds@gnu.org>
+
+	* configure.in: call AC_SUBST(LIBTOOL_DEPS)
+	* makemake.in (libtool): regenerate from LIBTOOL_DEPS
+
 2009-09-30  Sam Steingold  <sds@gnu.org>
 
 	* win32aux.d (fd_read_wont_hang_p): support serial communication
