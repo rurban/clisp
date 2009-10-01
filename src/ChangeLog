@@ -1,5 +1,9 @@
 2009-10-01  Sam Steingold  <sds@gnu.org>
 
+	* m4/clisp.m4 (CL_CLISP): remove an unnecessary subshell
+
+2009-10-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/regexp/gllib/unistd.in.h, modules/regexp/glm4/unistd_h.m4:
 	* modules/syscalls/gllib/unistd.in.h, modules/syscalls/glm4/unistd_h.m4:
 	* gllib/unistd.in.h, glm4/unistd_h.m4: update from gnulib

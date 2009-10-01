@@ -41,7 +41,7 @@ if test "$cl_use_clisp" != "no"; then
   fi
   if test "X$cl_cv_clisp" != "X"; then
     AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
-     if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
+     if $cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
      then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
      else cl_cv_clisp_version='not a CLISP'
      fi])
