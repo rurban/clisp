@@ -1007,7 +1007,6 @@ if [ $TSYS = master -o $TOS = unix ] ; then
   OS_INCLUDES=$OS_INCLUDES' unix'
   LIBS=$LIBS' '$LIBICONV' '$LIBSIGSEGV
 fi
-SYSLIBS=''
 if [ $TSYS = master -o $TOS = win32 ] ; then
   OS_INCLUDES=$OS_INCLUDES' win32'
   if [ $TSYS = win32gcc ] ; then
@@ -2800,14 +2799,6 @@ for f in localcharset.h ${UNICODE_EXTRA}; do
   link_dep "${f}" `find ${SRCDIR}gllib/ -name ${f}`
 done
 
-if [ $TOS = win32 ] ; then
-  for f in $SYSLIBS ; do
-    echol "$f :"
-    echotab "implib $f \$(WIN32DIR)\\"`basename $f .lib`".dll"
-    echol
-  done
-fi
-
 DATA_FILES="UnicodeDataFull.txt Symbol-Table.text"
 DATA_FILES_TOP_PATH="utils${NEXT_}unicode${NEXT_}UnicodeDataFull.txt doc${NEXT_}Symbol-Table.text"
 data_target="data :"
@@ -2834,7 +2825,7 @@ finish_runtime () {
 }
 fi
 
-echol "lisp${LEXE} : \$(OBJECTS) ${GLLIB_A} modules${TOBJ} ${XCL_GETTEXTLIB} ${SYSLIBS} data"
+echol "lisp${LEXE} : \$(OBJECTS) ${GLLIB_A} modules${TOBJ} ${XCL_GETTEXTLIB} data"
 if [ $HOS != win32 ] ; then
   if [ $XCC_GCC = true -a -n "$SOLARIS_LINKING" ] ; then
     # Dynamically linking on Solaris 2.[23] is a pain.
