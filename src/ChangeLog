@@ -1,6 +1,9 @@
 2009-10-01  Sam Steingold  <sds@gnu.org>
 
-	* m4/clisp.m4 (CL_CLISP): remove an unnecessary subshell
+	* m4/clisp.m4 (CL_CLISP): remove an unnecessary subshell;
+	redirect 'clisp --version' stderr to /dev/null because 'head -n 1'
+	closes its input and clisp errors out with "[stream.d:5473] *** -
+	Win32 error 232 (ERROR_NO_DATA): The pipe is being closed."
 
 2009-10-01  Sam Steingold  <sds@gnu.org>
 
