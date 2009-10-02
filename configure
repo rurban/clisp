@@ -68,7 +68,7 @@ options: The following options are recognized:
    --without-ffcall     do not support Foreign Function Interface
                         the default is to support it when available
    --without-dynamic-modules  no Dynamic Modules support
-   --without-unicode       no UNICODE support: character=8bit
+   --without-unicode       no Unicode support: character=8bit
    --without-readline      do not link with GNU readline
    --with-threads=FLAVOR   support multiple threads in one CLISP image
                   via OS threads [highly experimental - use at your own risk]
