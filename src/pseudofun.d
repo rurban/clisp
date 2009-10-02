@@ -114,7 +114,7 @@ LPSEUDOCODE(wr_ch_printer)
 #endif
 
 /* External definitions from ENCODING.D: */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 XPSEUDOCODE(object, base64_range, (object encoding, uintL start, uintL end, uintL maxintervals))
 XPSEUDOCODE(uintL, base64_mblen, (object encoding, const uintB* src, const uintB* srcend))
 XPSEUDOCODE(void, base64_mbstowcs, (object encoding, object stream, const uintB* *srcp, const uintB* srcend, chart* *destp, chart* destend))

@@ -11,7 +11,7 @@
    Termcap/ncurses library:
      NO_TERMCAP_NCURSES
    Internationalization:
-     NO_GETTEXT, UNICODE
+     NO_GETTEXT, ENABLE_UNICODE
    Foreign function interface:
      DYNAMIC_FFI
    Dynamic loading of modules:
@@ -371,7 +371,7 @@
   /* The default encoding on BeOS is UTF-8, not ISO 8859-1.
    If compiling with Unicode support, we use it. Else fall back to ASCII. */
   #undef ISOLATIN_CHS
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
     #define UTF8_CHS  /* UTF-8 */
   #endif
 #endif
@@ -5073,7 +5073,7 @@ typedef symbol_ *  Symbol;
 /* Characters */
 
 /* Integer type holding the data of a character: */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define char_int_len 24  /* anything between 21 and 32 will do */
   #define char_int_limit 0x110000UL
 #else
@@ -5169,7 +5169,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 #define standard_cint_p(x)  ((('~' >= (x)) && ((x) >= ' ')) || ((x) == NL))
 
 /* Whether to use three different kinds of string representations. */
-#if defined(UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
+#if defined(ENABLE_UNICODE) && (defined(GNU) || (defined(UNIX) && !defined(NO_ALLOCA) && !defined(SPARC)) || defined(BORLAND) || defined(MICROSOFT)) && !defined(NO_SMALL_SSTRING)
 #define HAVE_SMALL_SSTRING
 #endif
 
@@ -5206,7 +5206,7 @@ typedef unsigned_int_with_n_bits(char_int_len)  cint;
 /* The BASE-CHAR type is defined as
      (upgraded-array-element-type 'standard-char),
  i.e. the element-type of arrays created with (make-array 'standard-char ...).
- Since it defeats the purpose of UNICODE to have different 8-bit, 16-bit
+ Since it defeats the purpose of ENABLE_UNICODE to have different 8-bit, 16-bit
  and 24-bit character types, we define BASE-CHAR=CHARACTER. */
 
 /* Fixnums */
@@ -5495,7 +5495,7 @@ typedef sstring_ *  Sstring;
   typedef s32string_ *  S32string;
 #else
   /* Only one kind of simple strings. */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
     typedef STRUCT_SSTRING(cint32)  s32string_;
     typedef s32string_ *  S32string;
     /* Aliases. */
@@ -6008,7 +6008,7 @@ typedef struct {
   gcv_object_t enc_eol         _attribute_aligned_object_; /* line termination, a keyword (:UNIX, :MAC, :DOS) */
   gcv_object_t enc_towcs_error _attribute_aligned_object_; /* input error action, :ERROR or :IGNORE or a character */
   gcv_object_t enc_tombs_error _attribute_aligned_object_; /* output error action, :ERROR or :IGNORE or a character or an uint8 */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   gcv_object_t enc_charset     _attribute_aligned_object_; /* character set, a symbol in the CHARSET package or a simple-string */
   /* Functions to convert bytes to characters. */
     gcv_object_t enc_mblen     _attribute_aligned_object_; /* uintL (*) (object encoding, const uintB* src, const uintB* srcend); */
@@ -6029,20 +6029,20 @@ typedef struct {
   uintL max_bytes_per_char;
   #endif
 } *  Encoding;
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define encoding_length  10
 #else
   #define encoding_length  3
 #endif
 #define encoding_xlength  (sizeof(*(Encoding)0)-offsetofa(record_,recdata)-encoding_length*sizeof(gcv_object_t))
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define Encoding_mblen(encoding)  ((uintL (*) (object, const uintB*, const uintB*)) ThePseudofun(TheEncoding(encoding)->enc_mblen))
   #define Encoding_mbstowcs(encoding)  ((void (*) (object, object, const uintB**, const uintB*, chart**, chart*)) ThePseudofun(TheEncoding(encoding)->enc_mbstowcs))
   #define Encoding_wcslen(encoding)  ((uintL (*) (object, const chart*, const chart*)) ThePseudofun(TheEncoding(encoding)->enc_wcslen))
   #define Encoding_wcstombs(encoding)  ((void (*) (object, object, const chart**, const chart*, uintB**, uintB*)) ThePseudofun(TheEncoding(encoding)->enc_wcstombs))
   #define Encoding_range(encoding)  ((object (*) (object, uintL, uintL, uintL)) ThePseudofun(TheEncoding(encoding)->enc_range))
 #endif
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define cslen(encoding,src,srclen)  \
     Encoding_wcslen(encoding)(encoding,src,(src)+(srclen))
   #define cstombs_help_(encoding,src,srclen,dest,destlen,A)         \
@@ -6062,12 +6062,12 @@ typedef struct {
 #endif
 #define cstombs(encoding,src,srclen,dest,destlen)  cstombs_help_(encoding,src,srclen,dest,destlen,ASSERT)
 %% sprintf(buf,"struct { XRECORD_HEADER gcv_object_t enc_eol%s; gcv_object_t enc_towcs_error%s; gcv_object_t enc_tombs_error%s;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%   sprintf(buf+strlen(buf)," gcv_object_t enc_charset%s; gcv_object_t enc_mblen%s; gcv_object_t enc_mbstowcs%s; gcv_object_t enc_wcslen%s; gcv_object_t enc_wcstombs%s; gcv_object_t enc_range%s; gcv_object_t enc_table%s; uintL min_bytes_per_char; uintL max_bytes_per_char;",attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object,attribute_aligned_object);
 %% #endif
 %% strcat(buf," } *");
 %% emit_typedef(buf,"Encoding");
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%  export_def(Encoding_wcslen(encoding));
 %%  export_def(Encoding_wcstombs(encoding));
 %% #endif
@@ -9684,7 +9684,7 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
     extern const char * clgettext (const char * msgid);
     extern const char * clgettextl (const char * msgid);
     /* GETTEXT(english_message) fetches the translation of english_message
-     and returns it in UTF-8 (if UNICODE is defined).
+     and returns it in UTF-8 (if ENABLE_UNICODE is defined).
      GETTEXTL(english_message) fetches the translation of english_message
      and returns it in the locale encoding.
      GETTEXT and GETTEXTL are special tags recognized by clisp-xgettext. We
@@ -9869,7 +9869,7 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
     fake_gcv_object((aint)((const char*)(ptr) - offsetofa(sbvector_,data)) + varobject_bias)
 #endif
 
-#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+#if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
 /* UP, provides 8-bit character string
  allocate_s8string(len)
  > len: length of the string (in characters), must be <= stringsize_limit_1
@@ -9878,14 +9878,14 @@ extern maygc object allocate_bit_vector (uintB atype, uintL len);
 extern maygc object allocate_s8string (uintL len);
 /* used by */
 #endif
-#if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
+#if defined(ENABLE_UNICODE) && !defined(HAVE_SMALL_SSTRING)
 #define allocate_s8string(len)  allocate_s32string(len)
 #endif
-%% #if !defined(UNICODE)
+%% #if !defined(ENABLE_UNICODE)
 %%   puts("extern object allocate_s8string (uintL len);");
 %% #endif
 
-#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+#if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
 /* UP, provides immutable 8-bit character string
  allocate_imm_s8string(len)
  > len: length of the string (in characters), must be <= stringsize_limit_1
@@ -9904,7 +9904,7 @@ extern maygc object allocate_imm_s8string (uintL len);
 extern maygc object allocate_s16string (uintL len);
 /* used by */
 #endif
-#if defined(UNICODE) && !defined(HAVE_SMALL_SSTRING)
+#if defined(ENABLE_UNICODE) && !defined(HAVE_SMALL_SSTRING)
 #define allocate_s16string(len)  allocate_s32string(len)
 #endif
 
@@ -9918,7 +9918,7 @@ extern maygc object allocate_imm_s16string (uintL len);
 /* used by */
 #endif
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* UP, provides 32-bit character string
  allocate_s32string(len)
  > len: length of the string (in characters), must be <= stringsize_limit_1
@@ -9926,11 +9926,11 @@ extern maygc object allocate_imm_s16string (uintL len);
  can trigger GC */
 extern maygc object allocate_s32string (uintL len);
 #endif
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%   puts("extern object allocate_s32string (uintL len);");
 %% #endif
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* UP, provides immutable 32-bit character string
  allocate_imm_s32string(len)
  > len: length of the string (in characters), must be <= stringsize_limit_1
@@ -9944,7 +9944,7 @@ extern maygc object allocate_imm_s32string (uintL len);
  > len: length of the Strings (in Characters), must be <= stringsize_limit_1
  < result: new Normal-Simple-String (LISP-object)
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define allocate_string(len)  allocate_s32string(len)
 #else
   #define allocate_string(len)  allocate_s8string(len)
@@ -9978,7 +9978,7 @@ extern maygc object allocate_imm_s32string (uintL len);
 #else
   /* Careful: Fill GCself with pointers to itself, so that GC will leave
    pointers to this object untouched. */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
     #define DYNAMIC_STRING(objvar,len)  \
       DYNAMIC_ARRAY(objvar##_storage,object,ceiling((uintL)(len)*sizeof(chart)+offsetofa(s32string_,data)+varobjects_misaligned,sizeof(gcv_object_t))); \
       var object* objvar##_address = (object*)((uintP)objvar##_storage | varobjects_misaligned); \
@@ -10003,7 +10003,7 @@ extern maygc object allocate_imm_s32string (uintL len);
  > len: length of the String (in Characters)
  < result: new immutable Normal-Simple-String (LISP-object)
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define allocate_imm_string(len)  allocate_imm_s32string(len)
 #else
   #define allocate_imm_string(len)  allocate_imm_s8string(len)
@@ -10833,7 +10833,7 @@ extern struct pseudocode_tab_ {
 #define PSEUDO  PSEUDO_B
 extern struct pseudodata_tab_ {
   #include "pseudofun.c"
-  #if defined(MICROSOFT) && !defined(UNICODE)
+  #if defined(MICROSOFT) && !defined(ENABLE_UNICODE)
   Pseudofun dummy_pseudofun;
   #endif
 } pseudodata_tab;
@@ -12950,7 +12950,7 @@ extern void init_dependent_encodings (void);
 
 /* Maximum number of bytes needed to form a character, over all encodings.
  max_bytes_per_chart */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define max_bytes_per_chart  8  /* 6 for JAVA, 7 for ISO-2022-KR, 8 for ISO-2022-CN[-EXT] */
 #else
   #define max_bytes_per_chart  1
@@ -12964,14 +12964,14 @@ extern void init_dependent_encodings (void);
  > object encoding: Encoding
  < result: Normal-Simple-String with len characters starting from charptr as contents
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   extern maygc object n_char_to_string (const char* charptr, uintL len, object encoding);
 #else
   #define n_char_to_string(charptr,len,encoding)  n_char_to_string_(charptr,len)
   extern maygc object n_char_to_string_ (const char* charptr, uintL len);
 #endif
 /* is used by PATHNAME */
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%   puts("extern object n_char_to_string (const char* charptr, uintL len, object encoding);");
 %% #else
 %%   emit_define("n_char_to_string(charptr,len,encoding)","n_char_to_string_(charptr,len)");
@@ -12986,7 +12986,7 @@ extern void init_dependent_encodings (void);
  > object encoding: Encoding
  < result: Normal-Simple-String with the character sequence (without null-byte) as contents.
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   extern maygc object asciz_to_string (const char * asciz, object encoding);
 #else
   #define asciz_to_string(asciz,encoding)  asciz_to_string_(asciz)
@@ -12994,7 +12994,7 @@ extern void init_dependent_encodings (void);
 #endif
 extern maygc object ascii_to_string (const char * asciz);
 /* is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH */
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%   puts("extern object asciz_to_string (const char * asciz, object encoding);");
 %% #else
 %%   emit_define("asciz_to_string(asciz,encoding)","asciz_to_string_(asciz)");
@@ -13010,7 +13010,7 @@ extern maygc object ascii_to_string (const char * asciz);
              additional null-byte at the end
  < TheAsciz(result): address of the byte-sequence contained in there
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   extern maygc object string_to_asciz (object obj, object encoding);
 #else
   #define string_to_asciz(obj,encoding)  string_to_asciz_(obj)
@@ -13018,7 +13018,7 @@ extern maygc object ascii_to_string (const char * asciz);
 #endif
 #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 /* is used by STREAM, PATHNAME */
-%% #ifdef UNICODE
+%% #ifdef ENABLE_UNICODE
 %%   puts("extern object string_to_asciz (object obj, object encoding);");
 %% #else
 %%   export_def(string_to_asciz(obj,encoding));
@@ -13586,7 +13586,7 @@ extern bool graphic_char_p (chart ch);
 extern uintL char_width (chart ch);
 /* is used by IO, STREAM */
 
-#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+#if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
 /* Copies an array of uint8 to an array of uint8.
  copy_8bit_8bit(src,dest,len);
  > uint8* src: source
@@ -13682,7 +13682,7 @@ extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);
 %%   puts("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);");
 %% #endif
 
-#if defined(UNICODE)
+#if defined(ENABLE_UNICODE)
 /* Copies an array of uint32 to an array of uint32.
  copy_32bit_32bit(src,dest,len);
  > uint32* src: source
@@ -13732,7 +13732,7 @@ static inline uintBWL smallest_string_flavour (const chart* src, uintL len) {
  SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement);
  > string: a not-reallocated simple-string or simple-nilvector (i.e. NIL)
  Executes one of the three statement, depending on the element size of string. */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #ifdef HAVE_SMALL_SSTRING
     #define SstringCase(string,s8string_statement,s16string_statement,s32string_statement,nilvector_statement)  \
       if (Array_type(string) == Array_type_snilvector) { nilvector_statement } else \
@@ -13889,7 +13889,7 @@ extern bool string_equal (object string1, object string2);
                                            const chart *charptr, uintL len);
 /* is used by FFI */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* UP: Creates a Simple-String with given elements.
  stringof(len)
  > uintL len: desired length of vector
@@ -15797,7 +15797,7 @@ extern maygc void write_char (const gcv_object_t* stream_, object ch);
 #define write_ascii_char(stream_,ch)  write_char(stream_,code_char(as_chart(ch)))
 /* is used by LISPARIT, IO, DEBUG, Macro TERPRI */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* Changes a terminal stream's external format.
  > stream: a stream
  > encoding: an encoding

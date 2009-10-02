@@ -81,7 +81,7 @@ global uintM varobject_bytelength (object obj);
 #define size_s32string(length)               /* simple-32bit-string */ \
  Varobject_aligned_size(offsetofa(s32string_,data),     \
                         sizeof(cint32),(uintL)(length))
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 #define size_sstring(length)                /* normal-simple-string */ \
   size_s32string(length)
 #else
@@ -182,7 +182,7 @@ inline local uintM objsize_sstring (void* addr) { /* simple-string */
   #endif
  #else
   switch (record_type((Record)addr)) {
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     case Rectype_S32string: case Rectype_Imm_S32string:
       goto case_s32string;
     #ifdef HAVE_SMALL_SSTRING
@@ -204,7 +204,7 @@ inline local uintM objsize_sstring (void* addr) { /* simple-string */
     default: /*NOTREACHED*/ abort();
   }
  #endif
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   case_s32string:
     return size_s32string(sstring_length((S32string)addr));
   #ifdef HAVE_SMALL_SSTRING
@@ -250,7 +250,7 @@ local uintM objsize (void* addr) {
     case_Rectype_ovector_above;
     case_Rectype_Bignum_above;
     case_Rectype_Lfloat_above;
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     case Rectype_S32string: case Rectype_Imm_S32string:
       goto case_s32string;
     #ifdef HAVE_SMALL_SSTRING
@@ -306,7 +306,7 @@ local uintM objsize (void* addr) {
       #endif
    #endif
     /*FALLTHROUGH*/
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     case_s32string:
       return size_s32string(sstring_length((S32string)addr));
     #ifdef HAVE_SMALL_SSTRING

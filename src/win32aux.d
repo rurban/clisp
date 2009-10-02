@@ -11,8 +11,8 @@ global Handle stdin_handle = INVALID_HANDLE_VALUE;
 global Handle stdout_handle = INVALID_HANDLE_VALUE;
 global Handle stderr_handle = INVALID_HANDLE_VALUE;
 
-#ifndef UNICODE
-/* when UNICODE is defined, console i/o is translated through
+#ifndef ENABLE_UNICODE
+/* when ENABLE_UNICODE is defined, console i/o is translated through
  the encoding mechanism.
  The encodings for *TERMINAL-IO* and *KEYBOARD-INPUT* should be
  set to the OEM codepage (see GetConsole[Output]CP() in Windows API) */
@@ -329,7 +329,7 @@ global void init_win32 (void)
   sigint_event = CreateEvent(NULL, true, false, NULL);
   sigbreak_event = CreateEvent(NULL, true, false, NULL);
 #endif
- #ifndef UNICODE
+ #ifndef ENABLE_UNICODE
   { /* Translation table for console input. */
     var int i;
     for (i = 0; i < 256; i++)
@@ -610,7 +610,7 @@ local int lowlevel_fd_read (HANDLE fd, void* bufarea, size_t nbyte, perseverance
     if (persev == persev_partial)
       persev = persev_bonus;
   } while (nbyte != 0);
- #ifndef UNICODE
+ #ifndef ENABLE_UNICODE
   /* Possibly translate characters. */
   if (done > 0) {
     var int i;
@@ -692,7 +692,7 @@ global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
   handle_fault_range(PROT_READ,(aint)b,(aint)b+nbyte);
 #endif
   var const char* buf = (const char*) b;
-#ifndef UNICODE
+#ifndef ENABLE_UNICODE
   /* Possibly translate characters. */
   if (nbyte > 0) {
     var int i;

@@ -1,3 +1,17 @@
+2009-10-02  Bruno Haible  <bruno@clisp.org>
+
+	Use -DENABLE_UNICODE instead of -DUNICODE.
+	* makemake.in (XCFLAGS): Use -DENABLE_UNICODE instead of -DUNICODE.
+	* *.d: Test ENABLE_UNICODE instead of UNICODE.
+	* modules/clx/new-clx/clx.f: Likewise.
+	* win32.d (UNICODE_SAVED): Remove macro.
+	* _clisp.c (UNICODE): Remove undef.
+	* modules/berkeley-db/bdb.c (UNICODE): Likewise.
+	* modules/dirkey/dirkey.c (UNICODE): Likewise.
+	* modules/i18n/gettext.c (UNICODE): Likewise.
+	* modules/rawsock/rawsock.c (UNICODE): Likewise.
+	* modules/syscalls/calls.c (UNICODE): Likewise.
+
 2009-10-01  Bruno Haible  <bruno@clisp.org>
 
 	* spvw.d (init_subr_tab_1): Correct error message.

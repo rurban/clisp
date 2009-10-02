@@ -1023,7 +1023,7 @@ local object convert_from_foreign_array_fill (object eltype, uintL size,
   if (eq(eltype,S(character))) {
     if (size > 0) {
       var const uintB* ptr1 = (const uintB*)data;
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       pushSTACK(array);
       var object encoding = O(foreign_8bit_encoding);
       ASSERT(Encoding_mblen(encoding)(encoding,ptr1,ptr1+size) == size);
@@ -1118,7 +1118,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
     } else if (eq(fvd,S(character))) {
       var const uintB* pdata = (const unsigned char *)data;
       var chart ch;
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       var object encoding = O(foreign_8bit_encoding);
       var chart chbuf[1];
       var const uintB* ptr1 = pdata;
@@ -1227,7 +1227,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         if (fvdlen == 3 && eq(TheSvector(fvd)->data[1],S(character))) {
           /* 1-dimensional array of CHARACTER. */
           var uintL dim1 = I_to_UL(TheSvector(fvd)->data[2]);
-         #ifdef UNICODE
+         #ifdef ENABLE_UNICODE
           var object encoding = O(foreign_encoding);
           var uintL clen =
             Encoding_mblen(encoding)(encoding,
@@ -1240,7 +1240,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           if (clen > 0) {
             var chart* cptr = &TheSnstring(string)->data[0];
             var const uintB* bptr = (const uintB*)data;
-           #ifdef UNICODE
+           #ifdef ENABLE_UNICODE
             var const uintB* bendptr = bptr+dim1;
             encoding = O(foreign_encoding);
             var chart* cendptr = cptr+clen;
@@ -1311,7 +1311,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
         }
         if (eq(eltype,S(character))) {
           /* 1-dimensional array of CHARACTER. */
-         #ifdef UNICODE
+         #ifdef ENABLE_UNICODE
           var object encoding = O(foreign_encoding);
           var uintL clen =
             Encoding_mblen(encoding)(encoding,
@@ -1324,7 +1324,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           if (clen > 0) {
             var chart* cptr = &TheSnstring(string)->data[0];
             var const uintB* bptr = (const uintB*)data;
-           #ifdef UNICODE
+           #ifdef ENABLE_UNICODE
             var const uintB* bendptr = bptr+len;
             encoding = O(foreign_encoding);
             var chart* cendptr = cptr+clen;
@@ -1408,7 +1408,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
           }
           if (eq(eltype,S(character))) {
             /* 1-dimensional array of CHARACTER. */
-           #ifdef UNICODE
+           #ifdef ENABLE_UNICODE
             var object encoding = O(foreign_encoding);
             var uintL clen =
               Encoding_mblen(encoding)(encoding,
@@ -1421,7 +1421,7 @@ global maygc object convert_from_foreign (object fvd, const void* data)
             if (clen > 0) {
               var chart* cptr = &TheSnstring(string)->data[0];
               var const uintB* bptr = *(const uintB**)data;
-             #ifdef UNICODE
+             #ifdef ENABLE_UNICODE
               var const uintB* bendptr = bptr+len;
               encoding = O(foreign_encoding);
               var chart* cendptr = cptr+clen;
@@ -2057,7 +2057,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
       var uintB* pdata = (unsigned char *)data;
       if (!charp(obj)) goto bad_obj;
       var chart ch = char_code(obj);
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       ASSERT(cslen(O(foreign_8bit_encoding),&ch,1) == 1);
       cstombs(O(foreign_8bit_encoding),&ch,1,pdata,1);
      #else
@@ -2223,7 +2223,7 @@ global maygc void convert_to_foreign (object fvd, object obj, void* data,
           if (blen > maxdim)
             blen = maxdim;
           var uintB* ptr2 = (uintB*)data;
-         #ifdef UNICODE
+         #ifdef ENABLE_UNICODE
           var object encoding = O(foreign_encoding);
           Encoding_wcstombs(encoding)(encoding,nullobj,&ptr1,ptr1+clen,&ptr2,ptr2+blen);
          #else
@@ -3026,7 +3026,7 @@ LISPFUNN(call_with_foreign_string,6)
 {
   var uintV zeroes = posfixnum_to_V(check_posfixnum(popSTACK()));
   STACK_4 = check_function(STACK_4);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   STACK_3 = check_encoding(STACK_3,&O(foreign_encoding),false);
  #else
   STACK_3 = check_encoding(STACK_3,&O(default_file_encoding),false);

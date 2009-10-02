@@ -9,12 +9,9 @@
 #if defined(_WIN32)
 /* need this for CreateHardLink to work */
 # define WINVER 0x0500
-/* get ASCII functions */
-# undef UNICODE
 #endif
 #if defined(__CYGWIN__)
 # define UNIX_CYGWIN32
-# undef UNICODE
 #endif
 
 #include "clisp.h"

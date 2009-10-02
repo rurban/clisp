@@ -74,7 +74,7 @@ MODULE_CONFIGURE_FLAGS = --disable-option-checking --build=win32msvc
 # Programs used by "make":
 CC = cl
 CPPFLAGS = @CPPFLAGS@ -I/home/sds/src/clisp/current/src\gllib
-CFLAGS = $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DUNICODE @INCTERMCAP@ -DDYNAMIC_FFI -DNO_GETTEXT -I.
+CFLAGS = $(MFLAGS) -G5 -Os -Oy -Ob1 -Gs -Gf -Gy -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I$(MSVCDIR)/include -DENABLE_UNICODE @INCTERMCAP@ -DDYNAMIC_FFI -DNO_GETTEXT -I.
 CPP = cl -E -D_MSC_VER=1200 -D_INTEGRAL_MAX_BITS=64
 CLFLAGS = 
 LIBS = @LIBS@ user32.lib ws2_32.lib advapi32.lib @LTLIBSIGSEGV@ ole32.lib shell32.lib

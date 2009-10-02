@@ -526,7 +526,7 @@ global maygc object read_byte (object stream) {
     if (TheStream(stream)->strmflags & strmflags_unread_B) {
       /* UNREAD-CHAR was followed by a (SETF STREAM-ELEMENT-TYPE)
        thus we _know_ that the stream element type is ([UN]SIGNED-BYTE 8) */
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       var object enc = TheStream(stream)->strm_encoding;
       var chart ch = char_code(TheStream(stream)->strm_rd_ch_last);
       var uintB buf[4]; /* are there characters longer than 4 bytes?! */
@@ -548,7 +548,7 @@ global maygc object read_byte (object stream) {
         Encoding_mbstowcs(enc)(enc,stream,&cbuf,buf+char_len,&cptr,cptr+1);
         TheStream(stream)->strm_rd_ch_last = code_char(*cptr);
       }
-     #else /* no UNICODE */
+     #else /* no ENABLE_UNICODE */
       var uint8 code = as_cint(char_code(TheStream(stream)->strm_rd_ch_last));
       TheStream(stream)->strmflags &= ~strmflags_unread_B;
       TheStream(stream)->strm_rd_ch_last = NIL;
@@ -3865,7 +3865,7 @@ typedef struct strm_channel_extrafields_t {
     See also http://www.unicode.org/reports/tr13/tr13-9.html */
   /*bool*/int  ignore_next_LF : 8;     /* true after reading a CR */
   struct file_id fid;                  /* unique file ID */
-  #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+  #if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
   iconv_t iconvdesc;        /* input conversion descriptor and state */
   iconv_t oconvdesc;        /* output conversion descriptor and state */
   #endif
@@ -3883,7 +3883,7 @@ typedef struct strm_channel_extrafields_t {
 #define ChannelStream_lineno(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->lineno
 #define ChannelStream_ignore_next_LF(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->ignore_next_LF
 #define ChannelStream_file_id(stream)  ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->fid
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
 #define ChannelStream_iconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->iconvdesc
 #define ChannelStream_oconvdesc(stream)   ((strm_channel_extrafields_t*)&TheStream(stream)->strm_channel_extrafields)->oconvdesc
 #endif
@@ -3956,7 +3956,7 @@ nonreturning_function(local, error_interrupt, (void)) {
  Here enc_charset is a simple-string, not a symbol. The system decides
  which encodings are available, and there is no API for getting them all. */
 
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
 
 /* Our internal encoding is UCS-4 with platform dependent endianness. */
 #ifdef GNU_LIBICONV
@@ -4461,12 +4461,12 @@ global object iconv_range (object encoding, uintL start, uintL end,
   return stringof(2*count);
 }
 
-#endif /* UNICODE && HAVE_GOOD_ICONV */
+#endif /* ENABLE_UNICODE && HAVE_GOOD_ICONV */
 
 /* Initializes some ChannelStream fields.
  ChannelStream_init(stream);
  > stream: channel-stream with encoding */
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
 local void ChannelStream_init (object stream) {
   var object encoding = TheStream(stream)->strm_encoding;
   if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
@@ -4503,7 +4503,7 @@ local void ChannelStream_init (object stream) {
 
 /* Cleans up some ChannelStream fields.
  ChannelStream_fini(stream); */
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
 local void ChannelStream_fini (object stream) {
   if (ChannelStream_iconvdesc(stream) != (iconv_t)0) {
     begin_system_call();
@@ -4659,7 +4659,7 @@ local maygc void wr_by_ixs_sub (object stream, object obj,
  Push a byte into bytebuf.
  UnbufferedStreamLow_push_byte(stream,b);
  Assumes 0 <= UnbufferedStream_status(stream) < max_bytes_per_chart. */
-#if (max_bytes_per_chart > 1) /* i.e. defined(UNICODE) */
+#if (max_bytes_per_chart > 1) /* i.e. defined(ENABLE_UNICODE) */
   #define UnbufferedStreamLow_push_byte(stream,b)  \
      ASSERT((uintL)UnbufferedStream_status(stream) < max_bytes_per_chart);    \
      UnbufferedStream_bytebuf(stream)[UnbufferedStream_status(stream)++] = b;
@@ -4672,7 +4672,7 @@ local maygc void wr_by_ixs_sub (object stream, object obj,
 /* Push a byte to the front of bytebuf.
  UnbufferedStreamLow_pushfront_byte(stream,b);
  Assumes 0 <= UnbufferedStream_status(stream) < max_bytes_per_chart. */
-#if (max_bytes_per_chart > 1) /* i.e. defined(UNICODE) */
+#if (max_bytes_per_chart > 1) /* i.e. defined(ENABLE_UNICODE) */
   #define UnbufferedStreamLow_pushfront_byte(stream,b)  \
       ASSERT((uintL)UnbufferedStream_status(stream) < max_bytes_per_chart); \
       { var uintL _count = UnbufferedStream_status(stream)++;               \
@@ -4687,7 +4687,7 @@ local maygc void wr_by_ixs_sub (object stream, object obj,
       UnbufferedStream_status(stream) = 1;
 #endif
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* Push a number of bytes to the front of bytebuf.
  UnbufferedStreamLow_pushfront_bytes(stream,byteptr,bytecount); */
 #define UnbufferedStreamLow_pushfront_bytes(stream,byteptr,bytecount)        \
@@ -4709,7 +4709,7 @@ local maygc void wr_by_ixs_sub (object stream, object obj,
  UnbufferedStreamLow_pop_byte(stream,b);
  declares and assigns a value to b.
  Assumes UnbufferedStream_status(stream) > 0. */
-#if (max_bytes_per_chart > 1) /* i.e. defined(UNICODE) */
+#if (max_bytes_per_chart > 1) /* i.e. defined(ENABLE_UNICODE) */
   #define UnbufferedStreamLow_pop_byte(stream,b)  \
       var uintB b = UnbufferedStream_bytebuf(stream)[0];            \
       { var uintL _count = --UnbufferedStream_status(stream);       \
@@ -5155,7 +5155,7 @@ local maygc object rd_ch_unbuffered (const gcv_object_t* stream_) {
     return eof_value;
  retry: {
     var chart c;
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     var uintB buf[max_bytes_per_chart];
     var uintL buflen = 0;
     while (1) {
@@ -5221,7 +5221,7 @@ local maygc listen_t listen_char_unbuffered (object stream) {
     return LISTEN_EOF;
   var listen_t result;
   pushSTACK(stream); /* save it */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var chart c;
   var uintB buf[max_bytes_per_chart];
   var uintL buflen = 0;
@@ -5333,7 +5333,7 @@ local maygc uintL rd_ch_array_unbuffered (const gcv_object_t* stream_,
     if (remaining > tmpbufsize)
       remaining = tmpbufsize;
     var uintL count;
-    #ifdef UNICODE
+    #ifdef ENABLE_UNICODE
     /* In order to read n characters, we read n bytes. (Fewer than n bytes
      will not suffice.) If these aren't enough bytes, the next round
      will provide them.
@@ -5547,7 +5547,7 @@ local maygc void wr_ch_unbuffered_unix (const gcv_object_t* stream_, object ch)
   var object stream = *stream_;
   check_wr_char(stream,ch);
   var chart c = char_code(ch); /* Code of the character */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
   var const chart* cptr = &c;
@@ -5571,7 +5571,7 @@ local maygc void wr_ch_array_unbuffered_unix (const gcv_object_t* stream_,
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
   pin_unprotect_varobject(*chararray_,PROT_READ); /*charptr may point to heap*/
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   #define tmpbufsize 4096
   var const chart* endptr = charptr + len;
   var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
@@ -5602,7 +5602,7 @@ local maygc void wr_ch_unbuffered_mac (const gcv_object_t* stream_, object ch) {
   var chart c = char_code(ch); /* Code of the character */
   if (chareq(c,ascii(NL)))
     c = ascii(CR);
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
   var const chart* cptr = &c;
@@ -5629,7 +5629,7 @@ local maygc void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[tmpbufsize];
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
   var object encoding;
   pushSTACK(TheStream(stream)->strm_encoding);
@@ -5648,7 +5648,7 @@ local maygc void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
           c = ascii(CR);
         *tmpptr++ = c;
       });
-      #ifdef UNICODE
+      #ifdef ENABLE_UNICODE
       var const chart* cptr = tmpbuf;
       var uintB* bptr = &tmptmpbuf[0];
       encoding = STACK_0;
@@ -5668,7 +5668,7 @@ local maygc void wr_ch_array_unbuffered_mac (const gcv_object_t* stream_,
     remaining -= n;
   } while (remaining > 0);
   #undef tmpbufsize
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   skipSTACK(1); /* the encoding */
   #endif
   unpin_varobject(*chararray_);
@@ -5681,7 +5681,7 @@ local maygc void wr_ch_unbuffered_dos (const gcv_object_t* stream_, object ch) {
   check_wr_char(stream,ch);
   var chart c = char_code(ch); /* Code of the character */
   static chart const crlf[2] = { ascii(CR), ascii(LF) };
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var uintB buf[2*max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
   var const chart* cp;
@@ -5719,7 +5719,7 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
   /* Need a temporary buffer for NL->CR/LF translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[2*tmpbufsize];
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var uintB tmptmpbuf[2*tmpbufsize*max_bytes_per_chart];
   var object encoding;
   pushSTACK(TheStream(stream)->strm_encoding);
@@ -5740,7 +5740,7 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
           *tmpptr++ = c;
         }
       });
-      #ifdef UNICODE
+      #ifdef ENABLE_UNICODE
       var const chart* cptr = tmpbuf;
       var uintB* bptr = &tmptmpbuf[0];
       encoding=STACK_0;
@@ -5759,7 +5759,7 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
     remaining -= n;
   } while (remaining > 0);
   #undef tmpbufsize
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   skipSTACK(1); /* encoding */
   #endif
   unpin_varobject(*chararray_);
@@ -5770,7 +5770,7 @@ local maygc void wr_ch_array_unbuffered_dos (const gcv_object_t* stream_,
  Unbuffered-Channel-Stream return to the initial state.
  oconv_unshift_output_unbuffered(stream);
  > stream: Unbuffered-Channel-Stream */
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
  #define oconv_unshift_output_unbuffered(stream)               \
      if (ChannelStream_oconvdesc(stream) != (iconv_t)0) {      \
        oconv_unshift_output_unbuffered_(stream);               \
@@ -6644,7 +6644,7 @@ local maygc object rd_ch_buffered (const gcv_object_t* stream_) {
     return eof_value;
   /* fetch next character: */
   var chart c;
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   var object encoding = TheStream(stream)->strm_encoding;
   { /* Does the buffer contain a complete character? */
     var uintL endvalid = BufferedStream_endvalid(stream);
@@ -6740,7 +6740,7 @@ local maygc listen_t listen_char_buffered (object stream) {
     /* we might extract rd_ch_buffered_low from above instead,
        but it seems too much work for little gain */
   }
-  /* In case of UNICODE, the presence of a byte does not guarantee the
+  /* In case of ENABLE_UNICODE, the presence of a byte does not guarantee the
    presence of a multi-byte character. Returning LISTEN_AVAIL here is
    therefore not correct. But this doesn't matter since programs seeing
    LISTEN_AVAIL will call read-char, and this will do the right thing anyway. */
@@ -6752,7 +6752,7 @@ local maygc uintL rd_ch_array_buffered (const gcv_object_t* stream_,
                                         const gcv_object_t* chararray_,
                                         uintL start, uintL len) {
   var object stream = *stream_;
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   #define tmpbufsize 4096
   var uintL end = start+len;
   var uintL currindex = start;
@@ -6921,7 +6921,7 @@ local maygc void wr_ch_buffered_unix (const gcv_object_t* stream_, object obj) {
   var object stream = *stream_;
   check_wr_char(stream,obj);
   var chart c = char_code(obj);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
   var const chart* cptr = &c;
@@ -6950,7 +6950,7 @@ local maygc void wr_ch_array_buffered_unix (const gcv_object_t* stream_,
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
   var const chart* endptr = charptr + len;
   pin_unprotect_varobject(*chararray_,PROT_READ);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   #define tmpbufsize 4096
   var uintB tmptmpbuf[tmpbufsize*max_bytes_per_chart];
   do {
@@ -6984,7 +6984,7 @@ local maygc void wr_ch_buffered_mac (const gcv_object_t* stream_, object obj) {
   var chart c = char_code(obj);
   if (chareq(c,ascii(NL)))
     c = ascii(CR);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
   var const chart* cptr = &c;
@@ -7010,7 +7010,7 @@ local maygc void wr_ch_array_buffered_mac (const gcv_object_t* stream_,
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
   pin_unprotect_varobject(*chararray_,PROT_READ);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[tmpbufsize];
@@ -7065,7 +7065,7 @@ local maygc void wr_ch_buffered_dos (const gcv_object_t* stream_, object obj) {
   var object stream = *stream_;
   check_wr_char(stream,obj);
   var chart c = char_code(obj);
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   static chart const crlf[2] = { ascii(CR), ascii(LF) };
   var uintB buf[2*max_bytes_per_chart];
   var object encoding = TheStream(stream)->strm_encoding;
@@ -7104,7 +7104,7 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
   var const chart* charptr;
   unpack_sstring_alloca(*chararray_,len,start, charptr=);
   pin_unprotect_varobject(*chararray_,PROT_READ);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   /* Need a temporary buffer for NL->CR translation. */
   #define tmpbufsize 4096
   var chart tmpbuf[2*tmpbufsize];
@@ -7162,7 +7162,7 @@ local maygc void wr_ch_array_buffered_dos (const gcv_object_t* stream_,
  Buffered-Channel-Stream return to the initial state.
  oconv_unshift_output_buffered(stream);
  > stream: Buffered-Channel-Stream */
-#if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+#if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
  #define oconv_unshift_output_buffered(stream)  \
       if (ChannelStream_oconvdesc(stream) != (iconv_t)0) { \
         oconv_unshift_output_buffered_(stream);            \
@@ -8326,7 +8326,7 @@ local void closed_buffered (object stream) {
     ChannelStream_bitsize(stream) = 0; /* delete bitsize */
     TheStream(stream)->strm_bitbuffer = NIL; /* free Bitbuffer */
   }
-  #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+  #if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
   ChannelStream_iconvdesc(stream) = (iconv_t)0; /* delete iconvdesc */
   ChannelStream_oconvdesc(stream) = (iconv_t)0; /* delete oconvdesc */
   #endif
@@ -8692,7 +8692,7 @@ local object rd_ch_keyboard (const gcv_object_t* stream_) {
             & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED))
           ev.bits |= char_meta_c;
       } else {
-       #ifdef UNICODE
+       #ifdef ENABLE_UNICODE
         var object encoding = TheStream(*stream_)->strm_encoding;
         var chart c = as_chart(0);
         var uintB buf[max_bytes_per_chart];
@@ -9270,7 +9270,7 @@ local maygc char** lisp_completion (char* text, int start, int end) {
   /* text[start..end-1] = thing to complete within line of text
    This is a Callback-Function, we must set the Stack correctly again: */
   begin_callback();
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   { var object encoding = O(terminal_encoding);
     start = Encoding_mblen(encoding)(encoding,(const uintB*)text,
                                      (const uintB*)text+start);
@@ -9733,7 +9733,7 @@ local object rd_ch_terminal3 (const gcv_object_t* stream_) {
         /* detect EOF (at the start of line) */
         return eof_value;
       /* add read line to the input line: */
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       {
         var object inbuff = TheStream(*stream_)->strm_terminal_inbuff;
         var object encoding = TheStream(*stream_)->strm_encoding;
@@ -10632,7 +10632,7 @@ local maygc void wr_ch_array_window (const gcv_object_t* stream_,
     } while (index < end);
     chart_str[strindex] = as_chart(0);
   });
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var uintB *mb_str = (uintB*)malloc((len + 1)*sizeof(char)*max_bytes_per_chart);
   if (mb_str) {
     var object encoding = TheStream(*stream_)->strm_encoding;
@@ -10668,7 +10668,7 @@ local maygc void wr_ch_window (const gcv_object_t* stream_, object ch) {
   var uintW  attr   = attr_table[ConsoleData(*stream_)->attribute];
   check_wr_char(*stream_,ch);
   var chart c = char_code(ch);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var uintB buf[max_bytes_per_chart];
   var object encoding = TheStream(*stream_)->strm_encoding;
   var const chart* cptr = &c;
@@ -15755,7 +15755,7 @@ LISPFUNNR(stream_external_format,1)
      #ifdef SOCKET_STREAMS
       case strmtype_socket:
      #endif
-     #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(UNICODE)
+     #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(ENABLE_UNICODE)
       case strmtype_terminal:
      #endif
         VALUES1(TheStream(stream)->strm_encoding); break;
@@ -15916,7 +15916,7 @@ LISPFUN(set_stream_external_format,seclass_default,2,1,norest,nokey,0,NIL) {
   skipSTACK(3);
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
 /* Changes a terminal stream's external format.
  > stream: a stream
@@ -17631,7 +17631,7 @@ LISPFUNN(file_string_length,2)
   if (!(TheStream(stream)->strmflags & strmflags_wr_ch_B))
     error_illegal_streamop(S(file_string_length),stream);
   var object encoding = TheStream(stream)->strm_encoding;
- #if defined(UNICODE) && defined(HAVE_GOOD_ICONV)
+ #if defined(ENABLE_UNICODE) && defined(HAVE_GOOD_ICONV)
   if (simple_string_p(TheEncoding(encoding)->enc_charset)) {
     /* iconv-based encodings have state. Since we cannot duplicate an iconv_t
      we have no way to know for sure how many bytes the string will span. */
@@ -17644,7 +17644,7 @@ LISPFUNN(file_string_length,2)
     return;
   }
  #endif
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   if (TheEncoding(encoding)->min_bytes_per_char !=
       TheEncoding(encoding)->max_bytes_per_char) {
     /* Have to look at each character individually. */
@@ -17895,7 +17895,7 @@ global struct pseudodata_tab_ pseudodata_tab = {
   #define PSEUDO  PSEUDO_E
   #include "pseudofun.c"
   #undef PSEUDO
-  #if defined(MICROSOFT) && !defined(UNICODE)
+  #if defined(MICROSOFT) && !defined(ENABLE_UNICODE)
    (Pseudofun) NULL
   #endif
 };

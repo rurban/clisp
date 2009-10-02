@@ -45,7 +45,7 @@
   /* The encoding of the terminal stream. */
   LISPOBJ(terminal_encoding,".")
   /* Encodings for which only the charset matters: */
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
     /* The encoding of the C strings compiled into the executable. */
     LISPOBJ(internal_encoding,".")
     /* The encoding of pathnames on the file system. */

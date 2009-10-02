@@ -7,10 +7,6 @@
  * <http://www.opengroup.org/onlinepubs/9699919799/basedefs/sys_socket.h.html>
  */
 
-#if defined(_WIN32)
-# undef UNICODE
-#endif
-
 #include "clisp.h"
 
 #include "config.h"
@@ -64,7 +60,6 @@
 # include <poll.h>
 #endif
 #if defined(HAVE_WINSOCK2_H) /* woe32 suckety sucks */
-# undef UNICODE
 # include <winsock2.h>
 # include <ws2tcpip.h>
 # define SETSOCKOPT_ARG_T char*
