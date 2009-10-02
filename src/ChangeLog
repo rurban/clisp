@@ -1,3 +1,8 @@
+2009-10-01  Bruno Haible  <bruno@clisp.org>
+
+	* spvw.d (init_subr_tab_1): Correct error message.
+	Reported by Sam Steingold.
+
 2009-10-01  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (SYSLIBS): remove obsolete unused win32-specific code
