@@ -330,7 +330,7 @@ compiles the specified lisp files to a platform-independent
    with the user.  The legal values are identical to those of the <code class="option"><a href="clisp.html#opt-lang" class="olink">-L</a></code>
    option which can be used to override this <a class="unix" href="http://www.opengroup.org/susv3/basedefs/xbd_chap08.html">environment variable</a>.
 </dd>
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 <dt><span class="term"><code class="envar">LC_CTYPE</code></span></dt><dd>specifies the locale which determines the character
    set in use.  The value can be of the form
    <span class="command"><strong><em class="replaceable"><code>language</code></em></strong></span> or
@@ -350,7 +350,7 @@ compiles the specified lisp files to a platform-independent
    through the <a class="unix" href="http://www.opengroup.org/susv3/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">CLISP_LANGUAGE</code> or the
    <code class="option"><a href="clisp.html#opt-lang" class="olink">-L</a></code> option.
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
    It also specifies the locale determining the character set in use, unless
    already specified through the <a class="unix" href="http://www.opengroup.org/susv3/basedefs/xbd_chap08.html">environment variable</a> <code class="envar">LC_CTYPE</code>.

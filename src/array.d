@@ -4065,7 +4065,7 @@ local maygc object ssstring_extend_low (object ssstring, uintL size) {
   var object new_data = allocate_string(size);
   ssstring = popSTACK();
   if (TheIarray(ssstring)->dims[1] > 0) {
-    #ifdef UNICODE
+    #ifdef ENABLE_UNICODE
     copy_32bit_32bit
     #else
     copy_8bit_8bit
@@ -4149,7 +4149,7 @@ global maygc object ssstring_append_extend (object ssstring, object srcstring,
   }
   { /* push the characters in: */
     var cint32* ptr = &TheS32string(TheIarray(ssstring)->data)->data[old_len];
-    #ifdef UNICODE
+    #ifdef ENABLE_UNICODE
     SstringCase(srcstring,
       { copy_8bit_32bit(&TheS8string(srcstring)->data[start],ptr,len); },
       { copy_16bit_32bit(&TheS16string(srcstring)->data[start],ptr,len); },

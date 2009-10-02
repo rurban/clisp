@@ -815,7 +815,7 @@ local inline bool legal_namebyte (uintB ch) {
  > chart ch: character-code
  < return: true if valid, else false */
 local bool legal_namechar (chart ch) {
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
     var uintB buf[4];   /* are there characters longer than 4 bytes?! */
     var uintL char_len = cslen(O(pathname_encoding),&ch,1);
     cstombs(O(pathname_encoding),&ch,1,buf,char_len);
@@ -955,7 +955,7 @@ nonreturning_function(local, error_file_stream_unnamed, (object stream)) {
 
 /* UP: add a character to an ASCII string and return as a Lisp string
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 local /*maygc*/ object asciz_add_char (const char* chars, uintL len, char ch,
                                        object encoding)
 #else
@@ -963,7 +963,7 @@ local /*maygc*/ object asciz_add_char (const char* chars, uintL len, char ch,
 local /*maygc*/ object asciz_add_char_ (const char* chars, uintL len, char ch)
 #endif
 {
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   GCTRIGGER1(encoding);
   #else
   GCTRIGGER();
@@ -982,14 +982,14 @@ local /*maygc*/ object asciz_add_char_ (const char* chars, uintL len, char ch)
  > encoding: Encoding
  < result: as a pathname without name and type
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 local /*maygc*/ object asciz_dir_to_pathname(const char* path, object encoding)
 #else
 #define asciz_dir_to_pathname(path,encoding)  asciz_dir_to_pathname_(path)
 local /*maygc*/ object asciz_dir_to_pathname_(const char* path)
 #endif
 {
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
   GCTRIGGER1(encoding);
   #else
   GCTRIGGER();
@@ -7193,7 +7193,7 @@ local void handle_directory_encoding_error /* cf. enter_frame_at_STACK */
 }
 local maygc object direntry_to_string (char* string, int len) {
   if (asciz_equal(string,".") || asciz_equal(string,"..")) return NIL;
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   var gcv_object_t *stack_save = STACK;
   len = (len == -1 ? asciz_length(string) : len);
   var object encoding = O(pathname_encoding);
@@ -8536,7 +8536,7 @@ LISPFUN(shell,seclass_default,0,1,norest,nokey,0,NIL) {
    and listlength (if the pointer is not NULL)
  adds one element to STACK
  can trigger GC */
-#if !defined(UNICODE)
+#if !defined(ENABLE_UNICODE)
 #define stringlist_to_ascizlist(s,e,l) stringlist_to_ascizlist_(s,l)
 local maygc int stringlist_to_ascizlist_ (object stringlist,uintL *listlength)
 #else

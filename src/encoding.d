@@ -8,14 +8,14 @@
 
 #include <string.h>             /* declares memcpy() */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 #include "localcharset.h"       /* from gnulib */
 #endif
 
 /* =========================================================================
  * Individual encodings */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
 /* NOTE 1! The mblen function has to be consistent with the mbstowcs function
  (when called with stream = nullobj).
@@ -291,24 +291,24 @@ nonreturning_function(global, error_unencodable,
   }
 }
 
-#endif  /* UNICODE */
+#endif  /* ENABLE_UNICODE */
 
-/* used in CONVERT-STRING-FROM-BYTES, so must not depend on UNICODE */
+/* used in CONVERT-STRING-FROM-BYTES, so must not depend on ENABLE_UNICODE */
 /* missing bytes at the end */
 nonreturning_function(local, error_incomplete, (object encoding)) {
   pushSTACK(NIL);     /* <end-of-file?> CHARSET-TYPE-ERROR slot DATUM */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(TheEncoding(encoding)->enc_charset);
 #else
   pushSTACK(encoding);       /* CHARSET-TYPE-ERROR slot EXPECTED-TYPE */
-  pushSTACK(encoding);       /* no enc_charset slot without UNICODE */
+  pushSTACK(encoding);       /* no enc_charset slot without ENABLE_UNICODE */
 #endif
   pushSTACK(TheSubr(subr_self)->name);
   error(charset_type_error,GETTEXT("~S: Incomplete byte sequence at end of buffer for ~S"));
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 local void handle_incomplete (object encoding, chart* *destp, chart* destend) {
   var object action = TheEncoding(encoding)->enc_towcs_error;
   if (eq(action,S(Kignore))) {
@@ -2000,7 +2000,7 @@ extern object iconv_range (object encoding, uintL start, uintL end,
 
 /* ----------------------------------------------------------------------- */
 
-#endif /* UNICODE */
+#endif /* ENABLE_UNICODE */
 
 /* =========================================================================
  * General functions */
@@ -2019,13 +2019,13 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
   /* string -> symbol in CHARSET */
   if (!boundp(arg) || eq(arg,S(Kdefault))) {
     arg = O(default_file_encoding);
-   #ifndef UNICODE
+   #ifndef ENABLE_UNICODE
     if (nullp(arg)) /* initialization */
       goto create_new_encoding;
    #endif
   } else if (encodingp(arg)) {
   }
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   else if (symbolp(arg) && constant_var_p(TheSymbol(arg))
            && encodingp(Symbol_value(arg))) {
     arg = Symbol_value(arg);
@@ -2122,7 +2122,7 @@ LISPFUNNF(encodingp,1) {
   VALUES_IF(encodingp(arg));
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 #define DEFAULT_ENC &O(misc_encoding)
 #else
 #define DEFAULT_ENC &O(default_file_encoding)
@@ -2134,7 +2134,7 @@ LISPFUNNR(charset_typep,2) {
   var object encoding = check_encoding(STACK_0,DEFAULT_ENC,false);
   var object obj = STACK_1;
   if (charp(obj)) {
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     var uintL i = as_cint(char_code(obj));
     obj = Encoding_range(encoding)(encoding,i,i,1);
     VALUES_IF(Sstring_length(obj));
@@ -2153,7 +2153,7 @@ LISPFUNNF(encoding_line_terminator,1) {
   VALUES1(TheEncoding(encoding)->enc_eol);
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
 /* (EXT:ENCODING-CHARSET encoding) --> charset */
 LISPFUNNF(encoding_charset,1) {
@@ -2194,7 +2194,7 @@ LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL) {
  > object encoding: Encoding
  < return: normal-simple-string with len characters as content
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 global maygc object n_char_to_string (const char* srcptr, uintL blen,
                                       object encoding) {
   var const uintB* bptr = (const uintB*)srcptr;
@@ -2233,7 +2233,7 @@ global maygc object n_char_to_string_ (const char* srcptr, uintL len) {
  > object encoding: Encoding
  < return: normal-simple-string the same string (without NULL)
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 global maygc object asciz_to_string (const char * asciz, object encoding) {
   return n_char_to_string(asciz,asciz_length(asciz),encoding);
 }
@@ -2267,7 +2267,7 @@ global maygc object ascii_to_string (const char * asciz) {
  < return: simple-bit-vector with the bytes<==characters and a NULL at the end
  < TheAsciz(result): address of the byte sequence contain therein
  can trigger GC */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 global maygc object string_to_asciz (object obj, object encoding) {
   var uintL len;
   var uintL offset;
@@ -2317,7 +2317,7 @@ global maygc object string_to_asciz_ (object obj) {
 global void init_encodings_1 (void) {
   /* Compile-time checks: */
   ASSERT(sizeof(chart) == sizeof(cint));
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   {
     var object symbol = S(base64);
     var object encoding = allocate_encoding();
@@ -2433,7 +2433,7 @@ global void init_encodings_1 (void) {
  #endif
 }
 global void init_encodings_2 (void) {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   {
     var object symbol = nls_first_sym;
     var const nls_table_t * const * ptr = &nls_tables[0];
@@ -2513,7 +2513,7 @@ global void init_encodings_2 (void) {
   init_dependent_encodings();
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* convert the encoding name to its canonical form
  at this time, just upper-case the encoding name
  in the future, might insert/delete `-' &c
@@ -2546,7 +2546,7 @@ local char *canonicalize_encoding (char *encoding) {
              - the default locale encoding
  can trigger GC */
 local maygc object encoding_from_name (const char* name, const char* context) {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   /* Attempt to use the character set implicitly specified by the locale. */
   name = canonicalize_encoding((char*)name); /* FIXME: dangerous cast */
   if (asciz_equal(name,"US-ASCII") || asciz_equal(name,"ANSI_X3.4-1968"))
@@ -2580,7 +2580,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
  #else
   unused name; unused context;
   pushSTACK(unbound);           /* :charset */
- #endif /* UNICODE */
+ #endif /* ENABLE_UNICODE */
  #if defined(WIN32) || (defined(UNIX) && (O_BINARY != 0))
   pushSTACK(S(Kdos));           /* :line-terminator */
  #else
@@ -2596,7 +2596,7 @@ local maygc object encoding_from_name (const char* name, const char* context) {
 /* Initialize the encodings which depend on environment variables.
  init_dependent_encodings(); */
 global void init_dependent_encodings(void) {
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   extern const char* locale_encoding; /* GNU locale encoding canonical name */
   extern const char* argv_encoding_file; /* override *DEFAULT-FILE-ENCODING* */
   extern const char* argv_encoding_pathname; /* override *PATHNAME-ENCODING* */
@@ -2646,7 +2646,7 @@ global void init_dependent_encodings(void) {
     (argv_encoding_misc == NULL ? (object)STACK_0
      : encoding_from_name(argv_encoding_misc,"*MISC-ENCODING*"));
   skipSTACK(1);
-#else /* no UNICODE */
+#else /* no ENABLE_UNICODE */
   O(default_file_encoding) = encoding_from_name(NULL,NULL);
   O(terminal_encoding) = encoding_from_name(NULL,NULL);
 #endif
@@ -2667,7 +2667,7 @@ LISPFUNN(set_default_file_encoding,1) {
   VALUES1(O(default_file_encoding) = encoding);
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
 /* (SYSTEM::PATHNAME-ENCODING) */
 LISPFUNNR(pathname_encoding,0) {
@@ -2726,7 +2726,7 @@ LISPFUNN(set_misc_encoding,1) {
   VALUES1(O(misc_encoding) = encoding);
 }
 
-#endif /* UNICODE */
+#endif /* ENABLE_UNICODE */
 
 /* =========================================================================
  * More functions */
@@ -2768,7 +2768,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
   /* stack layout: encoding, array */
   var uintL start = sa.offset + sa.index;
   var uintL end = start + sa.len;
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var uintL clen =
     Encoding_mblen(STACK_1)(STACK_1,&TheSbvector(array)->data[start],
                             &TheSbvector(array)->data[end]);
@@ -2782,7 +2782,7 @@ LISPFUN(convert_string_from_bytes,seclass_read,2,0,norest,key,2,
     array = STACK_0;
     var chart* cptr = &TheSnstring(string)->data[0];
     var const uintB* bptr = &TheSbvector(array)->data[start];
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     var const uintB* bendptr = &TheSbvector(array)->data[end];
     var chart* cendptr = cptr+clen;
     Encoding_mbstowcs(STACK_1)(STACK_1,nullobj,&bptr,bendptr,&cptr,cendptr);

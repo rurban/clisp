@@ -235,7 +235,7 @@ global void init_language (const char* argv_language,
     bindtextdomain("clisp",argv_localedir);
     bindtextdomain("clisplow",argv_localedir);
     if (must_free_argv_localedir) free((void*)argv_localedir);
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     bind_textdomain_codeset("clisp","UTF-8");
    #endif
   }

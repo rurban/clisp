@@ -215,7 +215,7 @@ local const uintB orig_syntax_table [small_char_code_limit] = {
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst, /* 'hijklmno' */
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst, /* 'pqrstuvw' */
   cnst,cnst,cnst,cnst,mesc,cnst,cnst,cnst, /* 'xyz{|}~',chr(127) */
- #if defined(UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
+ #if defined(ENABLE_UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
   illg,illg,illg,illg,illg,illg,illg,illg,
   illg,illg,illg,illg,illg,illg,illg,illg,
   illg,illg,illg,illg,illg,illg,illg,illg,
@@ -232,7 +232,7 @@ local const uintB orig_syntax_table [small_char_code_limit] = {
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
   cnst,cnst,cnst,cnst,cnst,cnst,cnst,cnst,
- #else  /* defined(ASCII_CHS) && !defined(UNICODE) */
+ #else  /* defined(ASCII_CHS) && !defined(ENABLE_UNICODE) */
   illg,illg,illg,illg,illg,illg,illg,illg,
   illg,illg,illg,illg,illg,illg,illg,illg,
   illg,illg,illg,illg,illg,illg,illg,illg,
@@ -1056,7 +1056,7 @@ local const uintB attribute_table[small_char_code_limit] = {
   a_letter,a_letter,a_letter,a_letter,a_expo_m,a_letter,a_letter,a_letter, /* 'hijklmno' */
   a_letter,a_letter,a_letter,a_expo_m,a_letter,a_letter,a_letter,a_letter, /* 'pqrstuvw' */
   a_letter,a_letter,a_letter,a_alpha, a_alpha, a_alpha, a_alpha, /* 'xyz{|}~' */
-#if defined(UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
+#if defined(ENABLE_UNICODE) || defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
   a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
@@ -1074,7 +1074,7 @@ local const uintB attribute_table[small_char_code_limit] = {
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
   a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha, a_alpha,
- #else  /* defined(ASCII_CHS) && !defined(UNICODE) */
+ #else  /* defined(ASCII_CHS) && !defined(ENABLE_UNICODE) */
                                                                  a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
   a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,  a_illg,
@@ -1099,7 +1099,7 @@ local const uintB attribute_table[small_char_code_limit] = {
  attribute_of(c)
  > chart c: character code
  < uintB result: attribute code */
-#if (small_char_code_limit < char_code_limit) /* i.e. defined(UNICODE) */
+#if (small_char_code_limit < char_code_limit) /* i.e. defined(ENABLE_UNICODE) */
   #define attribute_of(c)                               \
     (uintB)(as_cint(c) < small_char_code_limit          \
             ? attribute_table[as_cint(c)]               \
@@ -8994,7 +8994,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         var gcv_object_t* obj_ = &STACK_0; /* and memorize, where it is */
         UNREADABLE_START;
         var uintL length_limit = get_print_length(); /* *PRINT-LENGTH* */
-       #ifdef UNICODE
+       #ifdef ENABLE_UNICODE
         JUSTIFY_LAST(length_limit==0);
        #else
         JUSTIFY_LAST(true);
@@ -9002,7 +9002,7 @@ local maygc void pr_orecord (const gcv_object_t* stream_, object obj) {
         write_sstring_case(stream_,O(printstring_encoding)); /* "ENCODING" */
         {
           var uintL length = 0; /* previous length := 0 */
-         #ifdef UNICODE
+         #ifdef ENABLE_UNICODE
           /* check for attaining of *PRINT-LENGTH* : */
           if (length >= length_limit) goto encoding_end;
           JUSTIFY_SPACE;        /* print Space */

@@ -3,8 +3,6 @@
  * Copyright (C) 2000-2007 by Sam Steingold
  */
 
-/* have to undefing UNICODE _here_ because clisp.h will #include <windows.h> */
-#undef UNICODE
 #include "clisp.h"
 
 #include "config.h"

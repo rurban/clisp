@@ -47,7 +47,6 @@
 # include <stdio.h>
 
 #if defined(WIN32_NATIVE)
-# undef UNICODE
 # include <windows.h>
 int shell_quote (char * dest, const char * source);
 BOOL real_path (LPCSTR namein, LPSTR nameout);

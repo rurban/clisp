@@ -129,7 +129,7 @@ global maygc object allocate_bit_vector (uintB atype, uintL len) {
   #undef SETTFL
 }
 
-#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+#if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
 
 /* UP, provides 8-bit character string
  allocate_s8string(len)
@@ -163,7 +163,7 @@ global maygc object allocate_imm_s8string (uintL len) {
   #undef SETTFL
 }
 
-#endif /* !UNICODE || HAVE_SMALL_SSTRING */
+#endif /* !ENABLE_UNICODE || HAVE_SMALL_SSTRING */
 
 #ifdef HAVE_SMALL_SSTRING
 
@@ -199,7 +199,7 @@ global maygc object allocate_imm_s16string (uintL len) {
 
 #endif /* HAVE_SMALL_SSTRING */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 
 /* UP, provides 32-bit character string
  allocate_s32string(len)
@@ -227,7 +227,7 @@ global maygc object allocate_imm_s32string (uintL len) {
   #undef SETTFL
 }
 
-#endif /* UNICODE */
+#endif /* ENABLE_UNICODE */
 
 #ifdef HAVE_SMALL_SSTRING
 

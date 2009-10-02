@@ -1537,7 +1537,7 @@ fi
 FILES=''
 
 if [ "${with_unicode}" != no ]; then
-  XCFLAGS="$XCFLAGS -DUNICODE"
+  XCFLAGS="$XCFLAGS -DENABLE_UNICODE"
 fi
 if [ "${with_threads}" != no ]; then
   XCFLAGS="$XCFLAGS -DMULTITHREAD -D${with_threads}"

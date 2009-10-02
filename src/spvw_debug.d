@@ -37,7 +37,7 @@ global maygc object object_out (object obj) {
   return popSTACK();            /* return the same object */
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* see string_to_asciz() */
 local void string_out_ (FILE* out, object str, object encoding) {
   var uintL len;
@@ -53,7 +53,7 @@ local void string_out_ (FILE* out, object str, object encoding) {
   FREE_DYNAMIC_ARRAY(buffer);
 }
 #define string_out(o,s) string_out_(o,s,O(terminal_encoding))
-#else /* no UNICODE */
+#else /* no ENABLE_UNICODE */
 local void string_out (FILE* out, object str) {
   var uintL len;
   var uintL offset;
@@ -316,7 +316,7 @@ local void nobject_out1 (FILE* out, object obj, int level) {
     fputs("#<encoding eol=",out); XOUT(TheEncoding(obj)->enc_eol);
     fputs(" wce=",out); XOUT(TheEncoding(obj)->enc_towcs_error);
     fputs(" mbe=",out); XOUT(TheEncoding(obj)->enc_tombs_error);
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     fputs(" cs=",out); XOUT(TheEncoding(obj)->enc_charset);
    #endif
     fprintf(out," 0x%lx>",as_oint(obj));

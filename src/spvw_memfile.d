@@ -84,7 +84,7 @@ local const uint32 memflags =
  #ifdef SOCKET_STREAMS
   bit(19) |
  #endif
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   bit(20) |
  #endif
  #ifdef MULTITHREAD

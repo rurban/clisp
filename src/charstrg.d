@@ -8,7 +8,7 @@
 #include "lispbibl.c"
 
 /* character conversion tables: */
-#if defined(UNICODE)
+#if defined(ENABLE_UNICODE)
 /* here are the registered bijective case (small<-->CAP) transformations
  for Unicode. */
 #elif defined(ISOLATIN_CHS)
@@ -31,7 +31,7 @@
   both  aA ... zZ */
 #endif
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* No-conversion table, used by up_case_table and down_case_table. */
 static const uint16 nop_page[256] = {
   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -55,7 +55,7 @@ static const uint16 nop_page[256] = {
 
 /* Converts byte ch into an uppercase letter */
 global chart up_case (chart ch) {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   #include "uni_upcase.c"
   var cint c = as_cint(ch);
   if (c < sizeof(up_case_table)/sizeof(up_case_table[0]) << 8)
@@ -126,7 +126,7 @@ global chart up_case (chart ch) {
 
 /* Converts byte ch into a lowercase letter */
 global chart down_case (chart ch) {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   #include "uni_downcase.c"
   var cint c = as_cint(ch);
   if (c < sizeof(down_case_table)/sizeof(down_case_table[0]) << 8)
@@ -195,7 +195,7 @@ global chart down_case (chart ch) {
  #endif
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* Table of Unicode character attributes.
  unicode_attribute(c)
  > cint c: a character code
@@ -215,7 +215,7 @@ global chart down_case (chart ch) {
  > ch: character-code
  < result: true if alphabetic, otherwise false.
  Alphabetic characters have a code c, with */
-#if defined(UNICODE)
+#if defined(ENABLE_UNICODE)
 /* java.lang.Character.isLetter(c) */
 #else
 /* $41 <= c <= $5A or $61 <= c <= $7A */
@@ -231,7 +231,7 @@ global chart down_case (chart ch) {
 local bool alphap (chart ch)
 {
   var cint c = as_cint(ch);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   return (unicode_attribute(c) == 3);
  #else
   if (c < 0x41) goto no; if (c <= 0x5A) goto yes;
@@ -259,7 +259,7 @@ local bool alphap (chart ch)
  > ch: character-code
  < result: true if numeric, otherwise false. */
 local bool numericp (chart ch);
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
   #define numericp(ch)  (unicode_attribute(as_cint(ch)) == 2)
 #else
   #define numericp(ch)  (('0' <= as_cint(ch)) && (as_cint(ch) <= '9'))
@@ -272,7 +272,7 @@ local bool numericp (chart ch);
  Alphanumeric characters comprise the alphabetic characters and the digits. */
 global bool alphanumericp (chart ch)
 {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var cint c = as_cint(ch);
   return (unicode_attribute(c) >= 2);
  #else
@@ -285,7 +285,7 @@ global bool alphanumericp (chart ch)
  > ch: character-code
  < result: true if printing, otherwise false.
  Graphic-Characters are those with a Code c, with */
-#if defined(UNICODE)
+#if defined(ENABLE_UNICODE)
 /*       (java.lang.Character.isDefined(c) || c == 0x20AC)
          && !(c < 0x0020 || (0x007F <= c <= 0x009F)) */
 #elif defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
@@ -297,7 +297,7 @@ global bool graphic_char_p (chart ch) {
   /* This would be the same as iswprint(ch), assuming wide characters were
      Unicode. */
   var cint c = as_cint(ch);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   return (unicode_attribute(c) == 0 ? false : true);
  #else
  #if defined(ISOLATIN_CHS) || defined(HPROMAN8_CHS)
@@ -315,7 +315,7 @@ global bool graphic_char_p (chart ch) {
  > ch: character code
  < result: number of output columns occupied by ch */
 global uintL char_width (chart ch);
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 #include "uniwidth.h"           /* from gnulib */
 global uintL char_width (chart ch) {
   /* This would be the same as wcwidth(ch), assuming wide characters were
@@ -330,7 +330,7 @@ global uintL char_width (chart ch) {
 }
 #endif
 
-#if !defined(UNICODE) || defined(HAVE_SMALL_SSTRING)
+#if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
 /* Copies an array of uint8 to an array of uint8.
  copy_8bit_8bit(src,dest,len);
  > uint8* src: source
@@ -421,7 +421,7 @@ global void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
 }
 #endif
 
-#if defined(UNICODE)
+#if defined(ENABLE_UNICODE)
 /* Copies an array of uint32 to an array of uint32.
  copy_32bit_32bit(src,dest,len);
  > uint32* src: source
@@ -575,7 +575,7 @@ global maygc object sstring_store (object string, uintL index, chart element) {
   var object inner_string = string;
   sstring_un_realloc(inner_string);
   switch (sstring_eltype(TheSstring(inner_string))) {
-  #ifdef UNICODE
+  #ifdef ENABLE_UNICODE
    #ifdef HAVE_SMALL_SSTRING
     case Sstringtype_8Bit: /* mutable Simple-String */
       if (as_cint(element) < cint8_limit) {
@@ -630,7 +630,7 @@ global maygc object sstring_store_array (object string, uintL offset,
     var object inner_string = string;
     sstring_un_realloc(inner_string);
     switch (sstring_eltype(TheSstring(inner_string))) {
-    #ifdef UNICODE
+    #ifdef ENABLE_UNICODE
      #ifdef HAVE_SMALL_SSTRING
       case Sstringtype_8Bit: { /* mutable Simple-String */
         var bool fits_in_8bit = true;
@@ -740,7 +740,7 @@ global maygc object sstring_store_array (object string, uintL offset,
   return string;
 }
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 /* UP: Creates a Simple-String with given elements.
  stringof(len)
  > uintL len: desired vector length
@@ -797,7 +797,7 @@ global maygc object copy_string_normal (object string) {
   /* new_string = new Normal-Simple-String with given length len */
   string = popSTACK(); /* return string */
   if (len > 0) {
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     SstringCase(string,
                 { copy_8bit_32bit(&TheS8string(string)->data[offset],
                                   &TheS32string(new_string)->data[0],len); },
@@ -945,7 +945,7 @@ global maygc object coerce_imm_ss (object obj)
             if (len > 0) error_nilarray_retrieve();
             return allocate_imm_string(0);
           }
-          #ifdef UNICODE
+          #ifdef ENABLE_UNICODE
           #ifdef HAVE_SMALL_SSTRING
           if (sstring_eltype(TheSstring(string)) == Sstringtype_8Bit) {
             pushSTACK(string);
@@ -1235,7 +1235,7 @@ local const uintB charname_table_codes [charname_table_length]
 /* the code charname_table_codes[i] belongs to the name charname_table[i]
    (for 0 <= i < charname_table_length). */
 
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 #include "uniname.h"            /* from gnulib */
 #endif
 
@@ -1259,7 +1259,7 @@ global maygc object char_name (chart code) {
     }
   }
   /* not found */
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   /* Try to find the long name, from UnicodeDataFull.txt. It is the second
      semicolon separated field from (sys::unicode-attributes-line c). */
   #ifdef AWFULLY_SLOW
@@ -1340,7 +1340,7 @@ global maygc object char_name (chart code) {
       return name;
     }
   }
- #else /* no UNICODE */
+ #else /* no ENABLE_UNICODE */
   {
     var object name = allocate_string(1);
     TheSnstring(name)->data[0] = ascii(c);
@@ -1366,7 +1366,7 @@ global object name_char (object string) {
     }
   }
   /* no character with the name name found */
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   {
     var uintL len;
     var uintL offset;
@@ -1428,7 +1428,7 @@ global object name_char (object string) {
       }
     }
   }
- #else /* no UNICODE */
+ #else /* no ENABLE_UNICODE */
   return coerce_char(string);
  #endif
   return NIL;
@@ -1541,7 +1541,7 @@ LISPFUN(digit_char_p,seclass_foldable,1,1,norest,nokey,0,NIL)
   var object arg = check_char(popSTACK());
   var chart ch = char_code(arg);
   var cint c = as_cint(ch);
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   switch (c >> 8) {
     case 0x00: /* ASCII */
       if ((c >= 0x0030) && (c <= 0x0039)) { c -= 0x0030; break; }
@@ -3605,7 +3605,7 @@ global maygc object subsstring (object string, uintL start, uintL end) {
   var object new_string = allocate_string(count);
   string = popSTACK();
   if (count > 0) {
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     SstringCase(string,
       { copy_8bit_32bit(&TheS8string(string)->data[start],
                         &TheS32string(new_string)->data[0],count); },
@@ -3661,7 +3661,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
     var uintL len; /* again the length of the old string */
     var uintL offset;
     string = unpack_string_ro(string,&len,&offset);
-   #ifdef UNICODE
+   #ifdef ENABLE_UNICODE
     SstringCase(string,
       { copy_8bit_32bit(&TheS8string(string)->data[offset+start],
                         &TheS32string(new_string)->data[0],count); },
@@ -3714,7 +3714,7 @@ global maygc object string_concat (uintC argcount) {
       var uintL offset;
       var object string = unpack_string_ro(arg,&len,&offset);
       if (len > 0) { /* copy len characters from string to charptr2: */
-       #ifdef UNICODE
+       #ifdef ENABLE_UNICODE
         SstringCase(string,
           { copy_8bit_32bit(&TheS8string(string)->data[offset],
                             charptr2,len); },

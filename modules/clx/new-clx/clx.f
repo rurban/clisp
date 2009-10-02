@@ -1092,7 +1092,7 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
     TheFpointer(STACK_0)->fp_pointer = info;
     skipSTACK(1);
 
-#  ifdef UNICODE
+#  ifdef ENABLE_UNICODE
     { /* Determine the font's encoding, so we can correctly convert
          characters to indices.
          Call (XLIB:FONT-PROPERTY font "CHARSET_REGISTRY")

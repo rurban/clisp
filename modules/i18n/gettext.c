@@ -5,11 +5,6 @@
  * GPL2
  */
 
-#if defined(_WIN32)
-/* get ASCII functions */
-# undef UNICODE
-#endif
-
 #include "clisp.h"
 #include "config.h"
 
