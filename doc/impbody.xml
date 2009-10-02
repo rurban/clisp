@@ -2256,14 +2256,14 @@ can give problems:
 <para>The characters are ordered according to a superset of the
  &charset-ascii;.</para>
 
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
 <variablelist><varlistentry><term>&unicode-only;</term>
 <listitem><simpara>More precisely, &clisp; uses the 21-bit &unicode32;
  character set (ISO 10646, also known as UCS-4).
 </simpara></listitem></varlistentry></variablelist>
 <!-- #endif -->
 
-<!-- #if defined(ISOLATIN_CHS) && !defined(UNICODE) -->
+<!-- #if defined(ISOLATIN_CHS) && !defined(ENABLE_UNICODE) -->
 <variablelist><varlistentry><term>&non-unicode-only;</term>
 <listitem><para>More precisely, &clisp; uses the ISO Latin-1 (ISO
  8859-1) character set:
@@ -5312,7 +5312,7 @@ are recursive, just like the arguments &warnings-k;, &verbose-k;, and
    (<emphasis role="plat-dep">most &unix; platforms
     only</emphasis>)</simpara></listitem></varlistentry>
 <!-- #endif -->
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
 <varlistentry><term><constant>:UNICODE</constant></term>
  <listitem><simpara>if &unicode; (ISO 10646) characters are supported
    (see <xref linkend="encoding"/>)</simpara></listitem></varlistentry>

@@ -299,13 +299,13 @@ LISPSYM(make_encoding,"MAKE-ENCODING",ext)
 LISPSYM(encodingp,"ENCODINGP",system) /* ABI */
 LISPSYM(charset_typep,"CHARSET-TYPEP",system)
 LISPSYM(encoding_line_terminator,"ENCODING-LINE-TERMINATOR",ext)
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 LISPSYM(encoding_charset,"ENCODING-CHARSET",ext)
 LISPSYM(charset_range,"CHARSET-RANGE",system)
 #endif
 LISPSYM(default_file_encoding,"DEFAULT-FILE-ENCODING",system) /* ABI */
 LISPSYM(set_default_file_encoding,"SET-DEFAULT-FILE-ENCODING",system) /* ABI */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 LISPSYM(pathname_encoding,"PATHNAME-ENCODING",system) /* ABI */
 LISPSYM(set_pathname_encoding,"SET-PATHNAME-ENCODING",system) /* ABI */
 LISPSYM(terminal_encoding,"TERMINAL-ENCODING",system) /* ABI */
@@ -1405,7 +1405,7 @@ LISPSYM(array_total_size_limit,"ARRAY-TOTAL-SIZE-LIMIT",lisp) /* constant in ARR
 LISPSYM(subtype_integer,"SUBTYPE-INTEGER",system) /* function for ARRAY */
 LISPSYM(char_cod_limit,"CHAR-CODE-LIMIT",lisp) /* constant in CHARSTRG */
 LISPSYM(base_char_cod_limit,"BASE-CHAR-CODE-LIMIT",ext) /* constant in CHARSTRG */
-#if defined(UNICODE) && defined(AWFULLY_SLOW)
+#if defined(ENABLE_UNICODE) && defined(AWFULLY_SLOW)
 LISPSYM(unicode_attributes_line,"UNICODE-ATTRIBUTES-LINE",system) /* function in CHARSTRG */
 #endif
 LISPSYM(designator,"DESIGNATOR",ext) /* type for CHARSTRG */
@@ -1870,7 +1870,7 @@ LISPSYM(default_float_format,"*DEFAULT-FLOAT-FORMAT*",custom) /* variable in LIS
 LISPSYM(read_default_float_format,"*READ-DEFAULT-FLOAT-FORMAT*",lisp) /* variable in LISPARIT */
 LISPSYM(write_float_decimal,"WRITE-FLOAT-DECIMAL",system) /* function for LISPARIT */
 LISPSYM(random_state_star,"*RANDOM-STATE*",lisp) /* variable in LISPARIT */
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 LISPSYM(base64,"BASE64",charset)
 LISPSYM(unicode_16,"UNICODE-16",charset)
 LISPSYM(unicode_16_big_endian,"UNICODE-16-BIG-ENDIAN",charset)

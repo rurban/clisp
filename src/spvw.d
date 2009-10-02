@@ -45,7 +45,7 @@
 /* tables of all relocatable pointers: moved to STREAM
  size of these tables: */
 #define pseudocode_count  (sizeof(pseudocode_tab)/sizeof(Pseudofun))
-#if defined(MICROSOFT) && !defined(UNICODE)
+#if defined(MICROSOFT) && !defined(ENABLE_UNICODE)
   #define pseudodata_count 0
 #else
   #define pseudodata_count  (sizeof(pseudodata_tab)/sizeof(Pseudofun))
@@ -1897,7 +1897,7 @@ local void init_object_tab (void) {
      #ifdef GNU_GETTEXT
       " :GETTEXT"
      #endif
-     #ifdef UNICODE
+     #ifdef ENABLE_UNICODE
       " :UNICODE"
      #endif
      #if (base_char_code_limit == char_code_limit)

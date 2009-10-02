@@ -633,7 +633,7 @@ compiles the specified lisp files to a platform-independent
    option which can be used to override this &env-var;.
 </simpara></listitem></varlistentry>
 
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
 <varlistentry><term><envar>LC_CTYPE</envar></term>
  <listitem><simpara>specifies the locale which determines the character
    set in use.  The value can be of the form
@@ -655,7 +655,7 @@ compiles the specified lisp files to a platform-independent
    uses to communicate with the user, unless it is already specified
    through the &env-var; <envar>CLISP_LANGUAGE</envar> or the
    &opt-L; option.
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
    It also specifies the locale determining the character set in use, unless
    already specified through the &env-var; <envar>LC_CTYPE</envar>.
 <!-- #endif -->

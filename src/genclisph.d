@@ -224,7 +224,7 @@ int main(int argc, char* argv[])
   }
 
   printf("#define SAFETY %d\n",SAFETY);
- #if defined(UNICODE)
+ #if defined(ENABLE_UNICODE)
   printf("#define CLISP_UNICODE 1\n");
  #else
   printf("#define CLISP_UNICODE 0\n");

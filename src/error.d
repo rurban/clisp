@@ -110,7 +110,7 @@ local void write_errorchar (object obj) {
  > start, end: delimit an unmovable string in UTF-8 encoding */
 local void write_errorasciz_substring (const uintB* start, const uintB* end)
 {
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   var object encoding = O(internal_encoding);
   var const uintB* bptr = start;
   var const uintB* bendptr = end;
@@ -1259,7 +1259,7 @@ global maygc object check_encoding (object arg, const gcv_object_t *e_default,
     return *e_default;
   if (encodingp(arg))
     return arg;
- #ifdef UNICODE
+ #ifdef ENABLE_UNICODE
   if (symbolp(arg) && constant_var_p(TheSymbol(arg))
       && encodingp(Symbol_value(arg)))
     return Symbol_value(arg);

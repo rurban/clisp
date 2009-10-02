@@ -444,13 +444,13 @@ LISPFUN(make_encoding,seclass_read,0,0,norest,key,5,
 LISPFUNNF(encodingp,1)
 LISPFUNNR(charset_typep,2)
 LISPFUNNF(encoding_line_terminator,1)
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 LISPFUNNF(encoding_charset,1)
 LISPFUN(charset_range,seclass_read,3,1,norest,nokey,0,NIL)
 #endif
 LISPFUNNR(default_file_encoding,0)
 LISPFUNN(set_default_file_encoding,1)
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 LISPFUNNR(pathname_encoding,0)
 LISPFUNN(set_pathname_encoding,1)
 LISPFUNNR(terminal_encoding,0)

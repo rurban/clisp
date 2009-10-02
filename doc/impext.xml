@@ -337,7 +337,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <section id="charset"><title>Character Sets</title>
 
 <variablelist>
-<!-- #ifndef UNICODE -->
+<!-- #ifndef ENABLE_UNICODE -->
 <varlistentry><term>&non-unicode-only;</term>
 <listitem><simpara>Only one character set is understood: the platform's
  native (8-bit) character set.  See <xref linkend="characters"/>.
@@ -714,7 +714,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
 <!-- #endif /* HAVE_ICONV */ -->
 </para></listitem></varlistentry>
 
-<!-- #endif /* UNICODE */ -->
+<!-- #endif /* ENABLE_UNICODE */ -->
 </variablelist>
 
 </section>
@@ -794,7 +794,7 @@ English, German, French, Spanish, Dutch, Russian, and Danish.
  new &file-pipe-socket-s;, when no &extfmt; argument was specified.
 </para></formalpara>
 
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
 <variablelist>
 <varlistentry><term>&unicode-only;</term>
 <listitem><simpara>The following are &symbol-macro; places.</simpara>
@@ -3551,7 +3551,7 @@ They are &not-e; regular &cl; types or &clos; classes.</para>
    items of the given &ctype-r;.</simpara></listitem></varlistentry>
 </variablelist>
 
-<!-- #ifdef UNICODE -->
+<!-- #ifdef ENABLE_UNICODE -->
 <para>The conversion of &c-string;,
  <literal role="type">(&c-array; &character-t; &dim1-r;)</literal>,
  <literal role="type">(&c-array-max; &character-t; &maxdim-r;)</literal>,

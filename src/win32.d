@@ -11,14 +11,6 @@
 #define RUBOUT 127              /* Rubout = Delete */
 #define CRLFstring  "\r\n"      /* C-String - CR/LF */
 
-/* Many Win32 API functions are declared differently when UNICODE is defined,
- in a way which does not work on Win95.
- We do not want this, so undefine it now. */
-#ifdef UNICODE
-  #define UNICODE_SAVED
-  #undef UNICODE
-#endif
-
 /* Declaration of operating system functions */
 #define WIN32_LEAN_AND_MEAN  /* avoid including junk */
 #undef unused /* `unused' is used in function declarations. */
@@ -463,11 +455,6 @@ extern void DumpProcessMemoryMap (void); /* see win32aux.d */
 #endif
 /* PROT_WRITE, PROT_EXEC not used
  used by spvw.d */
-
-/* Now it's time to enable our UNICODE macro again. */
-#ifdef UNICODE_SAVED
-  #define UNICODE
-#endif
 
 /* from gnulib for getpagesize */
 #include <unistd.h>

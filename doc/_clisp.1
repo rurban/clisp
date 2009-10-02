@@ -946,7 +946,7 @@ uses to communicate with the user\&. The legal values are identical to those of 
 option which can be used to override this
 \m[blue]\fBenvironment variable\fR\m[]\&\s-2\u[12]\d\s+2\&.
 .RE
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 .PP
 \fBLC_CTYPE\fR
 .RS 4
@@ -979,7 +979,7 @@ uses to communicate with the user, unless it is already specified through the
 or the
 \fB\-L\fR
 option\&.
-#ifdef UNICODE
+#ifdef ENABLE_UNICODE
 It also specifies the locale determining the character set in use, unless already specified through the
 \m[blue]\fBenvironment variable\fR\m[]\&\s-2\u[12]\d\s+2
 \fBLC_CTYPE\fR\&.
