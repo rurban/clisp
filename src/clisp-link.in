@@ -238,8 +238,8 @@ if test -z "${CLISP}"; then
   CLISP=`cd ${CLISP}; pwd`/clisp
 fi
 # cd src/m4/clisp.m4
-${CLISP} --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1 || \
-  fail "${CLISP} is not GNU CLISP"
+${CLISP} --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1 \
+  || fail "${CLISP} is not GNU CLISP"
 CLISP_LIBDIR=`${CLISP} -b`
 
 # Where is the link kit?
