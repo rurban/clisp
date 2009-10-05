@@ -1,3 +1,8 @@
+2009-10-05  Sam Steingold  <sds@gnu.org>
+
+	* clisp-link.in: similar to the 2009-10-01 m4/clisp.m4 patch,
+	redirect stderr of 'clisp --version' to /dev/null
+
 2009-10-02  Bruno Haible  <bruno@clisp.org>
 
 	Use -DENABLE_UNICODE instead of -DUNICODE.
