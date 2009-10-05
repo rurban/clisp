@@ -298,6 +298,33 @@ following command:
   examine the definitions in the generated <filename>lispbibl.h</filename>.
   See also bottom of <filename role="clisp-cvs">src/spvw_debug.d</filename>.
 </para></formalpara>
+
+<formalpara id="faq-debug-binary-search"><title>Binary Search in Time</title>
+<para>When you encounter an <emphasis>regression error</emphasis> (i.e.,
+something worked in a previous version of &clisp;, but does not work in
+the current version) which we cannot reproduce, we will often ask you to
+figure out which specific &cvs; commit introduced it.
+The way to figure that out is to use the <emphasis>binary search in
+time</emphasis>, specifically:<orderedlist>
+<listitem><simpara>Write a script <command>test-clisp</command>, which tests
+for the bug given a path to the &clisp; executable.</simpara></listitem>
+<listitem><simpara>Select dates <replaceable>good-date</replaceable> and
+<replaceable>bad-date</replaceable> such that the bug is present at
+<replaceable>bad-date</replaceable> (e.g., set it to the current date) and
+&not-e; present at <replaceable>good-date</replaceable>.</simpara></listitem>
+<listitem><para>Let date &m-r; be the midpoint between
+<replaceable>good-date</replaceable> and <replaceable>bad-date</replaceable>.
+ Do:<screen>&sh-prompt; cvs co -D &m-r; clisp
+&sh-prompt; cd clisp; ./configure --cbc build; cd ..;
+&sh-prompt; if test-clisp ./clisp/build/clisp; then rm -rf good; mv clisp good; else rm -rf bad; mv clisp bad; fi</screen>
+Is the <command>test-clisp</command> command succeeded, then set
+<replaceable>good-date</replaceable> to &m-r;, otherwise set
+<replaceable>bad-date</replaceable> to &m-r;.</para></listitem>
+<listitem><para>Repeat the previous listitem until there is only one &cvs;
+commit between <replaceable>bad-date</replaceable> and
+<replaceable>good-date</replaceable>.</para></listitem></orderedlist>
+See output of <command>&cvs; log</command> for the acceptable date
+format for <command>&cvs; co -D</command>.</para></formalpara>
 </answer></qandaentry>
 </qandadiv>
 
