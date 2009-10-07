@@ -701,6 +701,10 @@
   LISPOBJ(seclass_rd_sig,"(T T NIL)")
   LISPOBJ(seclass_write,"(NIL T T)")
   LISPOBJ(seclass_default,"(T T T)")
+ #ifdef DYNAMIC_MODULES
+   LISPOBJ_S(unknown_error,"Unknown error")
+   LISPOBJ_S(oomst_error,"Out of memory for subr_tab")
+ #endif
 /* for FOREIGN.D: */
  #ifdef DYNAMIC_FFI
   LISPOBJ(fp_zero,"NIL")
