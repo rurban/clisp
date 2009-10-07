@@ -9922,7 +9922,10 @@ if test "$cl_use_clisp" != "no"; then
   fi
   if test "X$cl_cv_clisp" != "X"; then
     AC_CACHE_CHECK([for CLISP version], [cl_cv_clisp_version], [dnl
-     if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
+     dnl head closes its input after the 1st line and clisp (at least on woe32)
+     dnl prints [stream.d:5473] *** - Win32 error 232 (ERROR_NO_DATA): The pipe is being closed.
+     dnl we avoid this message by redirecting clisp stderr to /dev/null
+     if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
      then CLISP_SET(cl_cv_clisp_version,[(lisp-implementation-version)])
      else cl_cv_clisp_version='not a CLISP'
      fi])
