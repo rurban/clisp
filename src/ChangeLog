@@ -1,8 +1,7 @@
 2009-10-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
-	avoid preprocessor instructions inside macro invocations
-	* package.d (rehash_symtab): define REUSE_FREE_CONSES for use in
-	dotimespC
+	* package.d (rehash_symtab): do not use dotimespC but do/while.
+	simplifies the code and enables stepping in gdb
 
 2009-10-05  Sam Steingold  <sds@gnu.org>
 
