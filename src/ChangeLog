@@ -1,3 +1,14 @@
+2009-10-07  Sam Steingold  <sds@gnu.org>
+
+	try to produce meaningful error messages on platforms without dlerror
+	* spvw.d (error_dlerror) [DYNAMIC_MODULES]: accept an object
+	instead of an ASCII string as the last argument
+	(dlerror_message): produce object error message using dlerror() or
+	FormatMessage
+	(get_module_symbol, dynload_modules): use dlerror_message instead
+	of dlerror in the error_dlerror call
+	* constobj.d (unknown_error, oomst_error) [DYNAMIC_MODULES]: add
+
 2009-10-07  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (rehash_symtab): do not use dotimespC but do/while.
