@@ -1,3 +1,9 @@
+2009-10-07  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	avoid preprocessor instructions inside macro invocations
+	* package.d (rehash_symtab): define REUSE_FREE_CONSES for use in
+	dotimespC
+
 2009-10-05  Sam Steingold  <sds@gnu.org>
 
 	* clisp-link.in: similar to the 2009-10-01 m4/clisp.m4 patch,
