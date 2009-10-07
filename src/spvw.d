@@ -4172,11 +4172,10 @@ global void* find_name (void *handle, const char *name)
 /* Attaches a shared library to this process' memory, and attempts to load
  a number of clisp modules from it. */
 nonreturning_function(local, error_dlerror,
-                      (const char* func, const char* symbol,
-                       const char* errstring)) {
+                      (const char* func, const char* symbol, object errstring))
+{
   end_system_call();
-  pushSTACK(asciz_to_string(errstring==NULL ? "Unknown error" : errstring,
-                            O(misc_encoding)));
+  pushSTACK(errstring);
   if (symbol != NULL)
     pushSTACK(asciz_to_string(symbol,O(internal_encoding)));
   pushSTACK(asciz_to_string(func,O(internal_encoding)));
@@ -4184,9 +4183,23 @@ nonreturning_function(local, error_dlerror,
   error(error_condition, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
 
-#if !defined(HAVE_DLERROR)
-#define dlerror()  NULL
+local object dlerror_message (void) {
+  end_system_call();
+ #if defined(HAVE_DLERROR)
+  var char * e = dlerror();
+  return e == NULL ? O(unknown_error) : asciz_to_string(e,O(misc_encoding));
+ #elif defined(WIN32_NATIVE)
+  var char* buf;
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
+                | FORMAT_MESSAGE_IGNORE_INSERTS,
+                NULL, GetLastError(), 0, (char*)&buf, 0, NULL);
+  var object ret = asciz_to_string(buf,O(misc_encoding));
+  LocalFree(buf);
+  return ret;
+ #else
+  return O(unknown_error);
 #endif
+}
 
 /* find the symbol, signal an error if not found
  format: a format string with a single %s, substituted with ...
@@ -4198,7 +4211,7 @@ local void* get_module_symbol (const char* format, const char* modname,
   var char * symbolbuf = (char *)alloca(strlen(format)+strlen(modname));
   sprintf(symbolbuf,format,modname);
   var void * ret = find_name(libhandle,symbolbuf);
-  if (ret == NULL) error_dlerror("dlsym",symbolbuf,dlerror());
+  if (ret == NULL) error_dlerror("dlsym",symbolbuf,dlerror_message());
   return ret;
 }
 
@@ -4208,7 +4221,7 @@ global void dynload_modules (const char * library, uintC modcount,
   begin_system_call();
   /* Open the library. */
   libhandle = libopen(library);
-  if (libhandle == NULL) error_dlerror("dlopen",NULL,dlerror());
+  if (libhandle == NULL) error_dlerror("dlopen",NULL,dlerror_message());
   end_system_call();
   if (modcount > 0) {
     /* What's the longest module name? What's their total size? */
@@ -4275,7 +4288,7 @@ global void dynload_modules (const char * library, uintC modcount,
                 var uintM new_map_len = round_up(varobjects_misaligned+(total_subr_count+count)*sizeof(subr_t),map_pagesize);
                 if (old_map_len < new_map_len) {
                   if (zeromap((void*)((aint)&subr_tab+old_map_len),new_map_len-old_map_len) <0)
-                    error_dlerror("zeromap",NULL,"out of memory for subr_tab");
+                    error_dlerror("zeromap",NULL,O(oomst_error));
                 }
               }
               {
