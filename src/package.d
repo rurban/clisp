@@ -187,29 +187,26 @@ local maygc object rehash_symtab (object symtab) {
      transfer symbols from oldtable to newtable:
      first process the symbols, that sit in lists
      (maybe Conses become free): */
-  #ifdef MULTITHREAD
-    #define REUSE_FREE_CONSES
-  #else
-    #define REUSE_FREE_CONSES Cdr(oldentry) = STACK_2; STACK_2 = oldentry
-  #endif
   {
     var gcv_object_t* offset = 0; /* offset = sizeof(gcv_object_t)*index */
-    var uintC count;
-    dotimespC(count,oldsize, {
+    var uintC count = oldsize;
+    do {
       var object oldentry = /* entry with number index in oldtable */
         *(gcv_object_t*)(pointerplus(&TheSvector(STACK_2)->data[0],
                                      (aint)offset));
       if (consp(oldentry)) /* this time process only non-empty symbol-lists */
         do {
           pushSTACK(Cdr(oldentry)); /* save rest-list */
+        #ifndef MULTITHREAD
           /* cons oldentry in front of free-conses */
-          REUSE_FREE_CONSES;
+          Cdr(oldentry) = STACK_2; STACK_2 = oldentry;
+        #endif
           /* enter symbol in the new table */
           newinsert(Car(oldentry),newsize);
           oldentry = popSTACK(); /* rest-list */
         } while (consp(oldentry));
       offset++;
-    });
+    } while (--count);
   }
   #undef REUSE_FREE_CONSES
   { /* then process symbols, that sit there collision-free: */
