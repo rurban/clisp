@@ -1929,7 +1929,7 @@ $as_echo_n "checking for CLISP version... " >&6; }
 if test "${cl_cv_clisp_version+set}" = set; then
   $as_echo_n "(cached) " >&6
 else
-       if `$cl_cv_clisp --version | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1`;
+                      if $cl_cv_clisp --version 2>/dev/null | head -n 1 | grep "GNU CLISP" >/dev/null 2>&1;
      then cl_cv_clisp_version=`$cl_cv_clisp -q -norc -x '(lisp-implementation-version)' 2>/dev/null | sed -e 's/^"//' -e 's/"$//'`
      else cl_cv_clisp_version='not a CLISP'
      fi
