@@ -23,7 +23,7 @@
    It is intended to provide definitions and prototypes needed by an
    application.  */
 
-#ifndef _GL_SYS_SOCKET_H
+#ifndef _sc_gl_GL_SYS_SOCKET_H
 
 #if @HAVE_SYS_SOCKET_H@
 
@@ -40,8 +40,8 @@
 
 #endif
 
-#ifndef _GL_SYS_SOCKET_H
-#define _GL_SYS_SOCKET_H
+#ifndef _sc_gl_GL_SYS_SOCKET_H
+#define _sc_gl_GL_SYS_SOCKET_H
 
 #if !@HAVE_SA_FAMILY_T@
 typedef unsigned short  sa_family_t;
@@ -164,12 +164,12 @@ rpl_fd_isset (SOCKET fd, fd_set * set)
 
 /* Wrap everything else to use libc file descriptors for sockets.  */
 
-# if @HAVE_WINSOCK2_H@ && !defined _GL_UNISTD_H
+# if @HAVE_WINSOCK2_H@ && !defined _sc_gl_GL_UNISTD_H
 #  undef close
 #  define close close_used_without_including_unistd_h
 # endif
 
-# if @HAVE_WINSOCK2_H@ && !defined _GL_UNISTD_H
+# if @HAVE_WINSOCK2_H@ && !defined _sc_gl_GL_UNISTD_H
 #  undef gethostname
 #  define gethostname gethostname_used_without_including_unistd_h
 # endif
@@ -450,5 +450,5 @@ extern int accept4 (int sockfd, struct sockaddr *addr, socklen_t *addrlen,
 }
 #endif
 
-#endif /* _GL_SYS_SOCKET_H */
-#endif /* _GL_SYS_SOCKET_H */
+#endif /* _sc_gl_GL_SYS_SOCKET_H */
+#endif /* _sc_gl_GL_SYS_SOCKET_H */

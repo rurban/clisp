@@ -26,7 +26,7 @@
  * wctrans_t, and wctype_t are not yet implemented.
  */
 
-#ifndef _GL_WCTYPE_H
+#ifndef _gl_GL_WCTYPE_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -51,8 +51,8 @@
 # @INCLUDE_NEXT@ @NEXT_WCTYPE_H@
 #endif
 
-#ifndef _GL_WCTYPE_H
-#define _GL_WCTYPE_H
+#ifndef _gl_GL_WCTYPE_H
+#define _gl_GL_WCTYPE_H
 
 /* Define wint_t.  (Also done in wchar.in.h.)  */
 #if !@HAVE_WINT_T@ && !defined wint_t
@@ -227,5 +227,5 @@ rpl_towupper (wint_t wc)
 
 # endif
 
-#endif /* _GL_WCTYPE_H */
-#endif /* _GL_WCTYPE_H */
+#endif /* _gl_GL_WCTYPE_H */
+#endif /* _gl_GL_WCTYPE_H */

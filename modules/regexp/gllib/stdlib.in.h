@@ -27,13 +27,13 @@
 #else
 /* Normal invocation convention.  */
 
-#ifndef _GL_STDLIB_H
+#ifndef _rx_gl_GL_STDLIB_H
 
 /* The include_next requires a split double-inclusion guard.  */
 #@INCLUDE_NEXT@ @NEXT_STDLIB_H@
 
-#ifndef _GL_STDLIB_H
-#define _GL_STDLIB_H
+#ifndef _rx_gl_GL_STDLIB_H
+#define _rx_gl_GL_STDLIB_H
 
 /* NetBSD 5.0 mis-defines NULL.  */
 #include <stddef.h>
@@ -417,6 +417,6 @@ extern int unsetenv (const char *name);
 }
 #endif
 
-#endif /* _GL_STDLIB_H */
-#endif /* _GL_STDLIB_H */
+#endif /* _rx_gl_GL_STDLIB_H */
+#endif /* _rx_gl_GL_STDLIB_H */
 #endif

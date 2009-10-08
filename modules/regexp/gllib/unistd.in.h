@@ -15,7 +15,7 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
-#ifndef _GL_UNISTD_H
+#ifndef _rx_gl_GL_UNISTD_H
 
 #if __GNUC__ >= 3
 @PRAGMA_SYSTEM_HEADER@
@@ -26,8 +26,8 @@
 # @INCLUDE_NEXT@ @NEXT_UNISTD_H@
 #endif
 
-#ifndef _GL_UNISTD_H
-#define _GL_UNISTD_H
+#ifndef _rx_gl_GL_UNISTD_H
+#define _rx_gl_GL_UNISTD_H
 
 /* NetBSD 5.0 mis-defines NULL.  Also get size_t.  */
 #include <stddef.h>
@@ -49,7 +49,7 @@
 #endif
 
 /* Get getopt(), optarg, optind, opterr, optopt.  */
-#if @GNULIB_UNISTD_H_GETOPT@
+#if @GNULIB_UNISTD_H_GETOPT@ && !defined _rx_gl_GL_SYSTEM_GETOPT
 # include <getopt.h>
 #endif
 
@@ -57,7 +57,7 @@
 /* Get all possible declarations of gethostname().  */
 # if @UNISTD_H_HAVE_WINSOCK2_H@
 #  include <winsock2.h>
-#  if !defined _GL_SYS_SOCKET_H
+#  if !defined _rx_gl_GL_SYS_SOCKET_H
 #   undef socket
 #   define socket		socket_used_without_including_sys_socket_h
 #   undef connect
@@ -87,7 +87,7 @@
 #   undef shutdown
 #   define shutdown		shutdown_used_without_including_sys_socket_h
 #  endif
-#  if !defined _GL_SYS_SELECT_H
+#  if !defined _rx_gl_GL_SYS_SELECT_H
 #   undef select
 #   define select		select_used_without_including_sys_select_h
 #  endif
@@ -582,10 +582,14 @@ extern int link (const char *path1, const char *path2);
 #endif
 
 #if @GNULIB_LINKAT@
+# if @REPLACE_LINKAT@
+#  undef linkat
+#  define linkat rpl_linkat
+# endif
 /* Create a new hard link for an existing file, relative to two
    directories.  FLAG controls whether symlinks are followed.
    Return 0 if successful, otherwise -1 and errno set.  */
-# if !@HAVE_LINKAT@
+# if !@HAVE_LINKAT@ || @REPLACE_LINKAT@
 extern int linkat (int fd1, const char *path1, int fd2, const char *path2,
 		   int flag);
 # endif
@@ -780,5 +784,5 @@ extern ssize_t write (int fd, const void *buf, size_t count);
 #endif
 
 
-#endif /* _GL_UNISTD_H */
-#endif /* _GL_UNISTD_H */
+#endif /* _rx_gl_GL_UNISTD_H */
+#endif /* _rx_gl_GL_UNISTD_H */
