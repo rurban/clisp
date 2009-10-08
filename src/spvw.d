@@ -417,27 +417,24 @@ global uintL* current_thread_alloccount()
      thread exit */
   global void tsd_remove_specific()
   {
-    xthread_t self = xthread_self();
-    unsigned hash_val = TSD_HASH(self);
-    tse *entry;
-    tse **link = threads_tls.hash + hash_val;
+    var xthread_t self = xthread_self();
+    var unsigned hash_val = TSD_HASH(self);
+    var tse *entry;
+    var tse **link = threads_tls.hash + hash_val;
     xmutex_raw_lock(&(threads_tls.lock));
     entry = *link;
     while (entry != NULL && entry->thread != self) {
       link = &(entry->next);
       entry = *link;
     }
-    /* Invalidate qtid field, since qtids may be reused, and a later    */
-    /* cache lookup could otherwise find this entry.                    */
-    entry -> qtid = INVALID_QTID;
-    if (entry != NULL) {
-      *link = entry->next;
-      /* Atomic! concurrent accesses still work.        */
-      /* They must, since readers don't lock.           */
-      /* We shouldn't need a volatile access here,      */
-      /* since both this and the preceding write        */
-      /* should become visible no later than            */
-      /* the pthread_mutex_unlock() call.               */
+    *link = entry->next; /* remove the entry from the list */
+    /* now remove it from the cache as well. it is important since the entry
+       in on the C stack of dying thread and soon the memory will be reclaimed.
+       NB: this may cause cache misses in worst time (from other threads)*/
+    var int i;
+    for (i = 0; i < TS_CACHE_SIZE; ++i) {
+      if (threads_tls.cache[i] == entry)
+        threads_tls.cache[i] = &invalid_tse;
     }
     xmutex_raw_unlock(&(threads_tls.lock));
   }
@@ -446,14 +443,13 @@ global uintL* current_thread_alloccount()
   global void* tsd_slow_getspecific(unsigned long qtid,
                                   tse * volatile *cache_ptr)
   {
-    xthread_t self = xthread_self();
-    unsigned hash_val = TSD_HASH(self);
-    tse *entry = threads_tls.hash[hash_val];
+    var xthread_t self = xthread_self();
+    var unsigned hash_val = TSD_HASH(self);
+    var tse *entry = threads_tls.hash[hash_val];
     ASSERT(qtid != INVALID_QTID);
     while (entry != NULL && entry->thread != self) {
       entry = entry->next;
     }
-    if (entry == NULL) return NULL;
     /* Set cache_entry.         */
     entry->qtid = qtid;
     /* It's safe to do this asynchronously.  Either value       */
@@ -848,6 +844,12 @@ global void delete_thread (clisp_thread_t *thread) {
   free(thread->_ptr_symvalues); /* free per trread special var bindings */
   free(thread);
   end_system_call();
+ #if USE_CUSTOM_TLS == 2
+  /* cleanup the cache - the memory on the C stack will become invalid */
+  if (thread == current_thread())
+    tsd_remove_specific();
+ #endif
+
   unlock_threads();
 }
 
