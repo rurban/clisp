@@ -2,6 +2,9 @@
 ;; some tests for READLINE
 ;; clisp -q -norc -i ../tests/tests -x '(run-test "readline/test")'
 
+(require "readline") NIL
+(listp (show (multiple-value-list (ext:module-info "readline" t)) :pretty t)) T
+
 (let ((ver-num (and (boundp 'readline:readline-version)
                     readline:readline-version)))
   (format t "~&readline version ~S (~D=0~O=x~X)~%"

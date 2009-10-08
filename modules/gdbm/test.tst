@@ -1,7 +1,8 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for GDBM
-;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "gdbm/test")'
 
+(require "gdbm") t
 (listp (show (multiple-value-list (ext:module-info "gdbm" t)) :pretty t)) T
 
 (defvar *db* nil) *DB*
