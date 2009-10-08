@@ -1,3 +1,8 @@
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (anymodule): add -I${HEREP} to CPPFLAGS for
+	localcharset.h et al
+
 2009-10-08  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: fix USE_CUSTOM_TLS=2 build
