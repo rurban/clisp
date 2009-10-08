@@ -1,0 +1,14 @@
+diff --git a/gnulib-tool b/gnulib-tool
+index ea451ec..6ed5e8e 100755
+--- a/gnulib-tool
++++ b/gnulib-tool
+@@ -2846,6 +2846,9 @@ s,^\(.................................................[^ ]*\) *,
+       break
+     fi
+   done
++  test -n ${macro_prefix} && sed_transform_lib_file=$sed_transform_lib_file"
++    s/_GL_/_${macro_prefix}_GL_/g
++  "
+   sed_transform_main_lib_file="$sed_transform_lib_file"
+   if test -n "$do_copyrights"; then
+     if test -n "$lgpl"; then

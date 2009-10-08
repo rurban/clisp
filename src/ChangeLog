@@ -1,5 +1,16 @@
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
+	* Makefile.devel (gnulib-imported): since Bruno refuses to apply
+	my gnulib-tool patch, we have to patch gnulib-tool before importing
+	* gnulib-tool.patch: add gnulib-tool hack to support multiple
+	gllib directories: headers are generated for each gllib
+	differently, depending on which features are actually used, so we
+	need to be able to include all these generated headers without
+	fear that one will shadow another, so we prepend the macro-prefix
+	before the guard macros
+
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
 	support DYNAMIC_MODULES on woe32 (native & cygwin) using dll def file
 	* array.d, charstrg.d, control.d, encoding.d, error.d, errunix.d:
 	* errwin32.d, eval.d, flo_konv.d, foreign.d, hashtabl.d, intelem.d:
