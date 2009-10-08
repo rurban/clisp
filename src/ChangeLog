@@ -1,3 +1,11 @@
+2009-10-08  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix USE_CUSTOM_TLS=2 build
+	* lispbibl.d (struct thread_specific_data): export properly
+	* spvw.d (tsd_remove_specific): clear cache for removed entry
+	(tsd_slow_getspecific): simplify
+	(delete_thread): cleanup thread thread specific entry
+
 2009-10-07  Sam Steingold  <sds@gnu.org>
 
 	try to produce meaningful error messages on platforms without dlerror

@@ -17322,7 +17322,7 @@ struct object_tab_tl_ {
 %%   export_def(roughly_SP());
 %%   export_def(TLS_SP_SHIFT);
 %%   emit_typedef("struct thread_specific_entry { volatile long qtid; void *value; struct thread_specific_entry *next; xthread_t thread; }","tse");
-%%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; xmutex_t lock;","tsd");
+%%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; xmutex_raw_t lock; }","tsd");
 %%   puts("extern tsd threads_tls;");
 %%   puts("extern void tsd_setspecific(tse *entry, void *value);");
 %%   puts("extern void* tsd_slow_getspecific(unsigned long qtid,tse * volatile *cache_ptr);");
