@@ -1,5 +1,10 @@
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
+	* lispbibl.d (STACK, back_trace): do not write the declaration
+	into clisp.h if the symbol is defined as a CPP macro
+
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
 	* win32aux.d (CHECK_ERROR_IGNORE_INVALID): add
 	(fd_read_wont_hang_p): use it to ignore both
 	ERROR_INVALID_FUNCTION and ERROR_INVALID_HANDLE in
