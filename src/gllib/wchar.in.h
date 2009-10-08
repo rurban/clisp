@@ -30,7 +30,7 @@
 @PRAGMA_SYSTEM_HEADER@
 #endif
 
-#if defined __need_mbstate_t || (defined __hpux && ((defined _INTTYPES_INCLUDED && !defined strtoimax) || defined _GL_JUST_INCLUDE_SYSTEM_WCHAR_H)) || defined _GL_ALREADY_INCLUDING_WCHAR_H
+#if defined __need_mbstate_t || (defined __hpux && ((defined _INTTYPES_INCLUDED && !defined strtoimax) || defined _gl_GL_JUST_INCLUDE_SYSTEM_WCHAR_H)) || defined _gl_GL_ALREADY_INCLUDING_WCHAR_H
 /* Special invocation convention:
    - Inside uClibc header files.
    - On HP-UX 11.00 we have a sequence of nested includes
@@ -48,9 +48,9 @@
 #else
 /* Normal invocation convention.  */
 
-#ifndef _GL_WCHAR_H
+#ifndef _gl_GL_WCHAR_H
 
-#define _GL_ALREADY_INCLUDING_WCHAR_H
+#define _gl_GL_ALREADY_INCLUDING_WCHAR_H
 
 /* Tru64 with Desktop Toolkit C has a bug: <stdio.h> must be included before
    <wchar.h>.
@@ -67,10 +67,10 @@
 # @INCLUDE_NEXT@ @NEXT_WCHAR_H@
 #endif
 
-#undef _GL_ALREADY_INCLUDING_WCHAR_H
+#undef _gl_GL_ALREADY_INCLUDING_WCHAR_H
 
-#ifndef _GL_WCHAR_H
-#define _GL_WCHAR_H
+#ifndef _gl_GL_WCHAR_H
+#define _gl_GL_WCHAR_H
 
 /* The definition of GL_LINK_WARNING is copied here.  */
 
@@ -305,6 +305,6 @@ extern int wcwidth (int /* actually wchar_t */);
 }
 #endif
 
-#endif /* _GL_WCHAR_H */
-#endif /* _GL_WCHAR_H */
+#endif /* _gl_GL_WCHAR_H */
+#endif /* _gl_GL_WCHAR_H */
 #endif
