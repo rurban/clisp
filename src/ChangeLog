@@ -1,5 +1,12 @@
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
+	* win32aux.d (CHECK_ERROR_IGNORE_INVALID): add
+	(fd_read_wont_hang_p): use it to ignore both
+	ERROR_INVALID_FUNCTION and ERROR_INVALID_HANDLE in
+	GetNumberOfConsoleInputEvents and ClearCommError
+
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (full-mod-check): use base, not full, and require
 	the module from the test files
 
