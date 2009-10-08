@@ -328,7 +328,7 @@ update-gnulib:
 	  else cvs -d "$(GNULIB_CVS_ROOT)" checkout -d $(GNULIB_CHECKOUT) $(GNULIB_CVS_REPOSITORY); fi \
 	fi
 
-# It is important to get ltmain.sh and libtool.m4 from the same version of
+# it is important to get ltmain.sh and libtool.m4 from the same version of
 # libtool. Don't rely on what's installed in /usr/share or similar.
 LIBTOOL_VERSION = 2.2
 LIBTOOL_SOURCE_FILE = libtool-$(LIBTOOL_VERSION).tar.gz
@@ -350,8 +350,15 @@ build-aux-update : update-gnulib force
 	rm -rf libtool-$(LIBTOOL_VERSION) $(LIBTOOL_SOURCE_FILE)
 	cd src/m4; rm -fv gtk-2.0.m4; wget $(GTK2_SVN_ROOT)/gtk-2.0.m4
 
-GNULIB = $(GNULIB_CHECKOUT)/gnulib-tool --import --no-vc-files --no-libtool \
-	--no-changelog --aux-dir=src/build-aux
+# gnulib-tool hack to support multiple gllib directories:
+# headers are generated for each gllib differently, depending on which
+# features are actually used, so we need to be able to include all these
+# generated headers without fear that one will shadow another, so we
+# prepend the macro-prefix before the guard macros
+GNULIB_TOOL_PATCH = gnulib-tool.patch
+
+GNULIB_TOOL = $(GNULIB_CHECKOUT)/gnulib-tool-patched --import \
+	--no-vc-files --no-libtool --no-changelog --aux-dir=src/build-aux
 # unistd is needed in both syscalls and core separately because unistd.h
 # is generated differently depending on whether gethostname (required by
 # uname) is present
@@ -370,18 +377,20 @@ gnulib-imported : update-gnulib force
 	$(RM) configure.ac; ln -sv src/configure.in configure.ac
 	$(RM) $(addsuffix /glm4/gnulib-cache.m4, $(GNULIB_USERS)) \
 		$(GNULIB_IMPORTED_LOG)
-	$(GNULIB) --source-base=src/gllib --m4-base=src/glm4 $(GNULIB_COMMON) \
+	cp $(GNULIB_CHECKOUT)/gnulib-tool $(GNULIB_CHECKOUT)/gnulib-tool-patched
+	patch $(GNULIB_CHECKOUT)/gnulib-tool-patched $(GNULIB_TOOL_PATCH)
+	$(GNULIB_TOOL) --source-base=src/gllib --m4-base=src/glm4 \
+		$(GNULIB_COMMON) | tee -a $(GNULIB_IMPORTED_LOG)
+	$(GNULIB_TOOL) --source-base=modules/syscalls/gllib \
+		--macro-prefix=sc_gl --m4-base=modules/syscalls/glm4 \
+		$(GNULIB_AVOID) mktime strftime strptime uname \
 		| tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB) --source-base=modules/syscalls/gllib --macro-prefix=sc_gl \
-		--m4-base=modules/syscalls/glm4 $(GNULIB_AVOID) mktime \
-		strftime strptime uname \
-		| tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB) --source-base=modules/regexp/gllib --macro-prefix=rx_gl \
-		--m4-base=modules/regexp/glm4 $(GNULIB_AVOID) regex \
-		| tee -a $(GNULIB_IMPORTED_LOG)
-	$(GNULIB) --source-base=modules/wildcard/gllib --macro-prefix=wc_gl \
-		--m4-base=modules/wildcard/glm4 $(GNULIB_AVOID) fnmatch-gnu \
-		| tee -a $(GNULIB_IMPORTED_LOG)
+	$(GNULIB_TOOL) --source-base=modules/regexp/gllib \
+		--macro-prefix=rx_gl --m4-base=modules/regexp/glm4 \
+		$(GNULIB_AVOID) regex | tee -a $(GNULIB_IMPORTED_LOG)
+	$(GNULIB_TOOL) --source-base=modules/wildcard/gllib \
+		--macro-prefix=wc_gl --m4-base=modules/wildcard/glm4 \
+		$(GNULIB_AVOID) fnmatch-gnu | tee -a $(GNULIB_IMPORTED_LOG)
 	$(RM) configure.ac
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/gllib -name \*~`; done
 	for d in $(GNULIB_USERS); do $(RM) `find $$d/glm4 -name \*~`; done
@@ -394,6 +403,7 @@ gnulib-imported : update-gnulib force
 	    fi; \
 	  fi; \
 	done
+	$(RM) $(GNULIB_CHECKOUT)/gnulib-tool-patched
 	@echo the import log is in $(GNULIB_IMPORTED_LOG)
 
 distrib : fixperms src-distrib doc-distrib gnu-distrib
