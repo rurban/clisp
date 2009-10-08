@@ -1,6 +1,9 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; tests for PostGreSQL
-;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "postgresql/test")'
+
+(require "postgresql") t
+(listp (show (multiple-value-list (ext:module-info "postgresql" t)) :pretty t)) T
 
 ;;; Based on the examples distributed with PostgreSQL (man libpq)
 

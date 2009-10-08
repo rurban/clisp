@@ -1,6 +1,9 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; some tests for glibc
-;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/glibc/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "bindings/glibc/test")'
+
+(require "linux") T
+(listp (show (multiple-value-list (ext:module-info "linux" t)) :pretty t)) T
 
 (defparameter *d* (show (linux:opendir "."))) *D*
 (linux:dirent64-d_name (show (linux:readdir64 *d*))) "."

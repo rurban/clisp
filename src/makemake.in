@@ -3401,7 +3401,10 @@ modcheck(){                     # $1=clisp command; $2=MODULES variable
 echol "base-mod-check : clisp${TEXE} ${TESTSDIR} # base"
 modcheck "./clisp" BASE_MODULES
 echol "full-mod-check : clisp${TEXE} ${TESTSDIR} # full"
-modcheck "./clisp -K full" MODULES
+if [ "${with_dynamic_modules}" = no ]
+then modcheck "./clisp -K full" MODULES
+else modcheck "./clisp" MODULES
+fi
 
 manual_print=''
 for f in ${MANPAGES}; do
