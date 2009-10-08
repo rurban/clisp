@@ -1,3 +1,10 @@
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: fix bug #[ 2874184 ]: conditionalize 64-bit int use on
+	WORD-SIZE=64 (== WIDE_HARD): actually this is a _stronger_
+	condition than HAVE_LONG_LONG_INT which is required for 64-bit
+	integers to work, but this should be good enough for testing
+
 2009-09-27  Sam Steingold  <sds@gnu.org>
 
 	* macro8.tst: test bug #[ 2868166 ]: Do not eliminate function calls
