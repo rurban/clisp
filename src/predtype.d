@@ -1,7 +1,7 @@
 /*
  * Predicates for equality and type tests, types, classes in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-15
  */
 
@@ -12,7 +12,7 @@
  eql(obj1,obj2)
  > obj1,obj2: Lisp objects
  < result: true, if objects are eql */
-global bool eql (object obj1, object obj2)
+modexp bool eql (object obj1, object obj2)
 {
  start:
   if (eq(obj1,obj2))
@@ -116,7 +116,7 @@ global bool eql (object obj1, object obj2)
  equal(obj1,obj2)
  > obj1,obj2: Lisp objects
  < result: true, if objects are EQUAL */
-global bool equal (object obj1, object obj2)
+modexp bool equal (object obj1, object obj2)
 {
  start:
   if (eql(obj1,obj2))
@@ -951,7 +951,7 @@ local bool hash_table_equalp (object ht1, object ht2)
   return true;
 }
 /* Now EQUALP itself. */
-global bool equalp (object obj1, object obj2)
+modexp bool equalp (object obj1, object obj2)
 {
  start:
   if (eq(obj1,obj2))
@@ -2083,7 +2083,7 @@ LISPFUN(find_class,seclass_default,1,2,norest,nokey,0,NIL)
  > clas: a class object
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
-global bool typep_class (object obj, object clas) {
+modexp bool typep_class (object obj, object clas) {
   pushSTACK(obj); C_class_of();
   var object objclass = value1;
   /* Look whether clas is a superclass of objclass.
@@ -2130,7 +2130,7 @@ LISPFUNN(typep_class,2)
  > classname: a symbol expected to name a class with "proper name" classname
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
-global bool typep_classname (object obj, object classname) {
+modexp bool typep_classname (object obj, object classname) {
   pushSTACK(obj); C_class_of();
   var object objclass = value1;
   /* Look whether classname names a superclass of objclass.

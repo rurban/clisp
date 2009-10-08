@@ -6,7 +6,7 @@
  > bufferptr: address of bytesize bytes in GC-invariant memory
  < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
  can trigger GC */
-global maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr) {
+modexp maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr) {
   var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_UI(bytesize,&fake);
 }
@@ -83,7 +83,7 @@ global maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
  > bufferptr: address of bytesize bytes in GC-invariant memory
  < result: an integer with I_integer_length(result) < 8*bytesize
  can trigger GC */
-global maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr) {
+modexp maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr) {
   var gcv_object_t fake; fake = FAKE_8BIT_VECTOR(bufferptr);
   return LESbvector_to_I(bytesize,&fake);
 }
@@ -184,7 +184,7 @@ global maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
  < false and bufferptr[0..bytesize-1] filled, if obj >= 0 and
                                               I_integer_length(obj) <= bitsize;
    true, if obj is out of range */
-global bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
+modexp bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
   if (!positivep(obj))
     return true;
   /* obj is an integer >=0. */
@@ -259,7 +259,7 @@ global bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
  > bufferptr: pointer to bytesize = ceiling(bitsize,8) bytes of memory
  < false and bufferptr[0..bytesize-1] filled, if I_integer_length(obj) < bitsize;
    true, if obj is out of range */
-global bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
+modexp bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr) {
   /* obj is an integer. */
   var uintL bytesize = ceiling(bitsize,8);
   /* Transfer obj into the buffer: */

@@ -226,7 +226,7 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
  errno=EFAULT and unpredictable side effects.
  handle_fault_range(PROT_READ,start,end) makes an address range readable.
  handle_fault_range(PROT_READ_WRITE,start,end) makes an address range writable. */
-global bool handle_fault_range (int prot, aint start_address, aint end_address)
+modexp bool handle_fault_range (int prot, aint start_address, aint end_address)
 {
   if (!(start_address < end_address))
     return true;

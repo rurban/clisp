@@ -1,7 +1,7 @@
 /*
  * Package Management for CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1999-2008
+ * Sam Steingold 1999-2009
  * German comments translated into English: Stefan Kain 2002-02-20
  */
 
@@ -663,7 +663,7 @@ global bool find_external_symbol (object string, bool invert, object pack, objec
  find_package(string)
  > string: string
  < result: package of this name or NIL */
-global maygc object find_package (object string) {
+modexp maygc object find_package (object string) {
  #ifdef MULTITHREAD
   pushSTACK(string);
   GC_SAFE_MUTEX_LOCK(&all_packages_lock);
@@ -809,7 +809,8 @@ local maygc void make_present (object sym, object pack) {
            2, if inherited via use-list
            3, if available as internal symbol
  can trigger GC */
-global maygc uintBWL intern (object string, bool invert, object pack, object* sym_) {
+modexp maygc uintBWL intern
+(object string, bool invert, object pack, object* sym_) {
   /* first check without locking */
   var uintBWL result = find_symbol(string,invert,pack,sym_);
   if (!(result==0)) {
@@ -867,7 +868,7 @@ global maygc uintBWL intern (object string, bool invert, object pack, object* sy
  > string: string
  < result: symbol, a keyword
  can trigger GC */
-global maygc object intern_keyword (object string) {
+modexp maygc object intern_keyword (object string) {
   var object sym;
   intern(string,false,O(keyword_package),&sym);
   return sym;

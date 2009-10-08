@@ -1727,7 +1727,7 @@ LISPSPECFORM(go, 1,0,nobody)
 /* error-message, when there are too many values
  error_mv_toomany(caller);
  > caller: Caller, a symbol */
-nonreturning_function(global, error_mv_toomany, (object caller)) {
+nonreturning_function(modexp, error_mv_toomany, (object caller)) {
   pushSTACK(caller);
   error(error_condition,GETTEXT("~S: too many values"));
 }

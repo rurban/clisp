@@ -30,13 +30,13 @@ local void install_sigcld_handler (void) {
  #endif
 }
 
-global void begin_want_sigcld () {
+modexp void begin_want_sigcld () {
  #if defined(SIGCLD)
   SIGNAL(SIGCLD,SIG_DFL);
  #endif
 }
 
-global void end_want_sigcld () {
+modexp void end_want_sigcld () {
  #if defined(SIGCLD)
   SIGNAL(SIGCLD,SIG_IGN);
   /* Try to remove zombies which may have been created since the last

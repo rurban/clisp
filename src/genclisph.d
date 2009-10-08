@@ -207,12 +207,29 @@ static void emit_to_I (const char* name, int signedp, int size)
 { printf("#define %s_to_I %cint%d_to_I\n",name,(signedp ? 's' : 'u'),size*8); }
 #define EMIT_TO_I(name,type)  emit_to_I(name,(type)-1<(type)0,sizeof(type))
 
+#if DYNAMIC_TABLES
+static FILE *def_f = NULL;
+static void emit_dll_def(char *varname) {
+  fprintf(def_f,"\t" EXECUTABLE_NAME ".%s\n",varname);
+}
+#else
+#define emit_dll_def(v)
+#endif
+#define exportV(t,v)  emit_export_declaration(STRINGIFY(import_from_core) " " STRING(t),STRING(v),"")
+#define exportF(p,o,s)  emit_export_declaration(STRINGIFY(import_from_core) " " STRING(p),STRING(o),STRING(s))
+#define exportE(o,a)  emit_export_declaration("nonreturning_function(" STRINGIFY(import_from_core) ",",STRING(o),", " STRING(a) ")")
+
+static void emit_export_declaration (char *prefix, char *o, char *suffix) {
+  emit_dll_def(o);
+  printf("%s %s%s;\n",prefix,o,suffix);
+}
+
 int main(int argc, char* argv[])
 {
   char buf[BUFSIZ];
 
   header_f = stdout;
-  if (argc == 2) {              /* open the test file and start it */
+  if (argc >= 2) {              /* open the test file and start it */
     test_f = fopen(argv[1],"w");
     if (test_f == NULL) { perror(argv[1]); exit(1); }
     fprintf(stderr,"writing test file %s\n",argv[1]);
@@ -222,6 +239,14 @@ int main(int argc, char* argv[])
             "int main () {\n",
             __FILE__,__DATE__,__TIME__);
   }
+ #if DYNAMIC_TABLES
+  if (argc >= 3) {           /* open the DLL export file and start it */
+    def_f = fopen(argv[2],"w");
+    if (def_f == NULL) { perror(argv[2]); exit(1); }
+    fprintf(stderr,"writing DLL export file %s\n",argv[2]);
+    fprintf(def_f,"EXPORTS\nIMPORTS\n");
+  }
+ #endif
 
   printf("#define SAFETY %d\n",SAFETY);
  #if defined(ENABLE_UNICODE)

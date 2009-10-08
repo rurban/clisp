@@ -1,7 +1,7 @@
 /*
  * EVAL, APPLY and bytecode interpreter for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2001-08-13
  */
 #include "lispbibl.c"
@@ -2934,7 +2934,7 @@ local Values eval_ffunction (object fun);
  > form: form
  < mv_count/mv_space: values
  can trigger GC */
-global maygc Values eval (object form)
+modexp maygc Values eval (object form)
 {
  start:
   /* Test for Keyboard-Interrupt: */
@@ -4005,8 +4005,7 @@ local Values apply_closure(object fun, uintC args_on_stack, object other_args);
  < STACK: cleaned up (i.e. STACK is increased by args_on_stack)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
-global maygc Values apply (object fun, uintC args_on_stack, object other_args)
-{
+modexp maygc Values apply (object fun, uintC args_on_stack, object other_args) {
  apply_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */
   if (subrp(fun)) { /* SUBR ? */
@@ -4851,7 +4850,7 @@ local Values funcall_closure (object fun, uintC args_on_stack);
  < STACK: cleaned up (i.e. STACK is increased by argcount)
  < mv_count/mv_space: values
  changes STACK, can trigger GC */
-global maygc Values funcall (object fun, uintC args_on_stack)
+modexp maygc Values funcall (object fun, uintC args_on_stack)
 {
  funcall_restart:
   /* fun must be a SUBR or a Closure or a Cons (LAMBDA ...) : */

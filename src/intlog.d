@@ -1005,7 +1005,7 @@ local maygc object I_logcount_I (object x)
 
 /* (INTEGER-LENGTH x), with x being an integer. Result uintL.
  I_integer_length(x) */
-global uintL I_integer_length (object x) {
+modexp uintL I_integer_length (object x) {
   if (I_fixnump(x)) {
     var uintL bitcount = 0;
     var uintV x_ = FN_to_V(x); /* x as intVsize-bit-number */

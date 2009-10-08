@@ -2,7 +2,7 @@
  * Setting up a connection to an X server, and other socket functions
  * Bruno Haible 19.6.1994, 27.6.1997, 9.3.1999 ... 2003
  * Marcus Daniels 28.9.1995, 9.9.1997
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-11
  */
 
@@ -180,7 +180,7 @@
  < lisp string representing the address in a human-readable format
  for syscalls & rawsock modules
  can trigger GC */
-global maygc object addr_to_string (short type, char *addr) {
+modexp maygc object addr_to_string (short type, char *addr) {
   var char buffer[MAXHOSTNAMELEN];
  #ifdef HAVE_IPV6
   if (type == AF_INET6)
@@ -361,7 +361,7 @@ local int string_to_addr1 (const void* addr, int addrlen, int family, void* ret)
  < lisp string for FQDN or integer for IPv[46] numerics
  for syscalls & rawsock modules
  can trigger GC */
-global maygc object string_to_addr (const char* name) {
+modexp maygc object string_to_addr (const char* name) {
   object ret;
   begin_system_call();
   with_host(name,&string_to_addr1,&ret);
@@ -386,7 +386,7 @@ local int resolve_host1 (const void* addr, int addrlen, int family, void* ret) {
         bit vector: raw IPv4[46] address (gethostbyaddr)
  < static hostent descriptor from LIBC
  for syscalls & rawsock modules */
-global struct hostent* resolve_host (object arg) {
+modexp struct hostent* resolve_host (object arg) {
   var struct hostent* he;
   if (eq(arg,S(Kdefault))) {
     var char* host;

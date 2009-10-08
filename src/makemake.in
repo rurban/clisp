@@ -2762,10 +2762,13 @@ if [ ${SHREXT} = .dll -a "${with_dynamic_modules}" != no ]; then
   # Some unixes (SHREXT=.so) need -fPIC when compiling clisp core for a DLL,
   # which loses performance; besides, we do not need lisp.so on unix anyway.
   echol "lisp${SHREXT} : \$(OBJECTS) modules.o ${GLLIB_A}"
+  CLISP_DEF=" lisp.def"
   XCC_CREATESHARED_=`echo ${XCC_CREATESHARED} | sed -e 's/\\${/\\\\$\\\\(/g' -e 's/}/\\\\)/g'`
   echotab "`eval \"lib=\$\@; libs=\$^\ \$\(LIBS\); echo ${XCC_CREATESHARED_}\"`"
   echol
+else CLISP_DEF=""
 fi
+FILES="${FILES}${CLISP_DEF}"
 
 if [ -n "$USE_GETTEXT" ] ; then
 
@@ -3264,13 +3267,13 @@ if [ $XCC_GCC = true ] ; then
 fi
 
 
-echol "clisp.h clisp-test.c : genclisph.o config.h ${PARAMS_H}"
+echol "clisp.h clisp-test.c${CLISP_DEF} : genclisph.o config.h ${PARAMS_H}"
 echotab_to_HEXE "\$(CC) \$(CFLAGS) \$(CLFLAGS)" "genclisph.o" "genclisph"
 echotab "(echo '#ifndef _CLISP_H' ; echo '#define _CLISP_H' ; echo; echo '/* config.h */' ; grep '^#' config.h ) > clisp.h"
 for parf in ${PARAMS_H}; do
   echotab "(echo; echo '/* '${parf}' */' ; grep '^#' ${parf} ) >> clisp.h"
 done
-echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
+echotab "(echo; echo '/* genclisph */' ; ${HERE}genclisph clisp-test.c ${CLISP_DEF}; echo ; echo '#endif /* _CLISP_H */') >> clisp.h"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=1 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-clisp"
 echotab_to_HEXE "\$(CC) \$(CPPFLAGS) \$(CFLAGS) \$(CLFLAGS) -DUSE_CLISP_H=0 -DCOMPILE_STANDALONE" "clisp-test.c" "clisp-test-lispbibl"
 echotab "${HERE}clisp-test-clisp > clisp-test-clisp.out"
@@ -3312,7 +3315,7 @@ echotab "(echo 'CC='\"'\"'\$(CC)'\"'\" ;\\"
 echotab " echo 'CPPFLAGS='\"'\"'\$(${MODULE_CPPFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'CFLAGS='\"'\"'\$(${MODULE_CFLAGS_VAR})'\"'\" ;\\"
 echotab " echo 'CLFLAGS='\"'\"'\$(${MODULE_CLFLAGS_VAR})'\"'\" ;\\"
-echotab " echo 'LIBS='\"'\"'lisp.a \$(LIBS)'\"'\" ;\\"
+echotab " echo 'LIBS='\"'\"'lisp.a${CLISP_DEF} \$(LIBS)'\"'\" ;\\"
 echotab " echo 'X_LIBS='\"'\"'\$(X_LIBS)'\"'\" ;\\"
 echotab " echo 'RANLIB='\"'\"'\$(RANLIB)'\"'\" ;\\"
 echotab " echo 'FILES='\"'\"'${FILES}'\"'\") > makevars"
@@ -3320,7 +3323,15 @@ echol
 for f in clisp-link ; do
   echol "${f} : ${SRCDIR}${f}.in"
   XCC_CREATESHARED_=`echo "$XCC_CREATESHARED" | sed -e 's,\\$,$$,g'`
-  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' -e 's%@createsharedlib@%$XCC_CREATESHARED_%' -e 's%@LEXE@%${LEXE}%' -e 's%@SHREXT@%${SHREXT}%'< ${SRCDIR}${f}.in > ${f}"
+  echotab "sed -e 's%@with_dynamic_modules@%${with_dynamic_modules}%' \\"
+  echotab "    -e 's%@createsharedlib@%$XCC_CREATESHARED_%' \\"
+  echotab "    -e 's%@LEXE@%${LEXE}%' -e 's%@SHREXT@%${SHREXT}%' \\"
+  if test -z "${CLISP_DEF}"; then
+    echotab "    -e 's%@CLISP_DEF@%%' \\"
+  else
+    echotab "    -e 's%@CLISP_DEF@%-L\$\$sourcedir${CLISP_DEF}%' \\"
+  fi
+  echotab "  < ${SRCDIR}${f}.in > ${f}"
   echotab "chmod a+x ${f}"
   echol
 done
@@ -4030,7 +4041,7 @@ clean0 : force
 # without changing the bytecode format and the tables in
 # constobj.d, constpack.d, constsym.d, subr.d, fsubr.d, pseudofun.d.
 clean1 : clean0
-	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log build-aux
+	-\$(RM) lispbibl.h clisp.h *.i *.s *${TOBJ} *.a lisp${LEXE} clisp-link makevars ansi-tests-log build-aux${CLISP_DEF}
 	-\$(RMRF) ${RECOMPILEDIR}
 	-\$(RMRF) ${TESTSDIR}
 	-\$(RMRF) ${ANSITESTSDIR}

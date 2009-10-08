@@ -604,10 +604,9 @@ local maygc uintL check_value_range (object value, object caller,
  > perseverance_t persev: how to react on incomplete I/O
  < uintL result: number of bytes that have been filled
  can trigger GC */
-global maygc uintL read_byte_array (const gcv_object_t* stream_,
-                                    const gcv_object_t* bytearray_,
-                                    uintL start, uintL len,
-                                    perseverance_t persev) {
+modexp maygc uintL read_byte_array
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
@@ -649,10 +648,9 @@ global maygc void write_byte (object stream, object byte) {
  > perseverance_t persev: how to react on incomplete I/O
  < uintL result: number of bytes that have been written
  can trigger GC */
-global maygc uintL write_byte_array (const gcv_object_t* stream_,
-                                     const gcv_object_t* bytearray_,
-                                     uintL start, uintL len,
-                                     perseverance_t persev) {
+modexp maygc uintL write_byte_array
+(const gcv_object_t* stream_, const gcv_object_t* bytearray_,
+ uintL start, uintL len, perseverance_t persev) {
   if (len==0)
     return 0;
   var object stream = *stream_;
@@ -6131,7 +6129,7 @@ typedef struct strm_i_buffered_extrafields_t {
  > s: file stream (open or closed) - no type check is done!
  < truename of the file associated with the stream
  for syscall module */
-global object file_stream_truename (object s)
+modexp object file_stream_truename (object s)
 { return FileStream_truename(s); }
 
 #ifdef UNIX
@@ -8052,8 +8050,8 @@ global maygc void* find_open_file (struct file_id *fid, uintB flags) {
  < result: File-Stream (or poss. File-Handle-Stream)
  < STACK: cleaned up
  can trigger GC */
-global maygc object make_file_stream (direction_t direction, bool append_flag,
-                                      bool handle_fresh) {
+modexp maygc object make_file_stream
+(direction_t direction, bool append_flag, bool handle_fresh) {
   var decoded_el_t eltype;
   var buffered_t buffered;
   /* Check and canonicalize the :ELEMENT-TYPE argument: */
@@ -14077,8 +14075,8 @@ LISPFUNN(socket_server_host,1) {
  sec = posfixnum or (SEC . USEC) or (SEC USEC) or float or ratio or nil/unbound
  usec = posfixnum or nil/unbound
  can trigger GC */
-global maygc struct timeval * sec_usec (object sec, object usec,
-                                        struct timeval *tv) {
+modexp maygc struct timeval * sec_usec
+(object sec, object usec, struct timeval *tv) {
   if (missingp(sec)) {
     return NULL;
   } else if (consp(sec)) {
@@ -14110,10 +14108,10 @@ global maygc struct timeval * sec_usec (object sec, object usec,
  can trigger GC */
 #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
 #define TO_INT(x)  uint64_to_I(x)
-global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p)
+modexp maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p)
 #else
 #define TO_INT(x)  uint32_to_I(x)
-global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p)
+modexp maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p)
 #endif
 {
   pushSTACK(TO_INT((abs_p ? UNIX_LISP_TIME_DIFF : 0) + sec));
@@ -14252,7 +14250,7 @@ LISPFUN(socket_connect,seclass_default,1,1,norest,key,4,
 
 /* check whether the object is a handle stream or a socket-server
  and return its socket-like handle(s) */
-global void stream_handles (object obj, bool check_open, bool* char_p,
+modexp void stream_handles (object obj, bool check_open, bool* char_p,
                             SOCKET* in_sock, SOCKET* out_sock) {
   if (uint_p(obj)) {
     if (in_sock)   *in_sock = (SOCKET)I_to_uint(obj);
@@ -16039,8 +16037,8 @@ LISPFUNN(interactive_stream_p,1) {
  > abort: flag: non-0 => ignore errors: may be called from GC & quit()
  < stream: Builtin-Stream
  can trigger GC */
-global maygc void builtin_stream_close (const gcv_object_t* stream_,
-                                        uintB abort) {
+modexp maygc void builtin_stream_close
+(const gcv_object_t* stream_, uintB abort) {
   if ((TheStream(*stream_)->strmflags & strmflags_open_B) == 0) /* Stream already closed? */
     return;
   harden_elastic_newline(stream_);
@@ -16963,9 +16961,8 @@ local bool maygc check_endianness_arg (object arg) {
  < int * handletype 0:reserved, 1:file, 2:socket
  < Handle result - extracted handle
  can trigger GC */
-global maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp,
-                                        int * handletype)
-{
+modexp maygc Handle stream_lend_handle
+(gcv_object_t *stream_, bool inputp, int * handletype) {
   var int errkind;
   var object stream = *stream_;
  restart_stream_lend_handle:
@@ -17363,8 +17360,8 @@ local object check_open_file_stream (object obj, bool permissive_p) {
            or nullobj if permissive_p was true and the stream was invalid
  for syscall module
  can trigger GC */
-global maygc object open_file_stream_handle (object stream, Handle *fd,
-                                             bool permissive_p) {
+modexp maygc object open_file_stream_handle
+(object stream, Handle *fd, bool permissive_p) {
   stream = check_open_file_stream(stream,permissive_p);
   if (!eq(stream,nullobj))
     *fd = ChannelStream_ihandle(stream);
@@ -17377,7 +17374,7 @@ global maygc object open_file_stream_handle (object stream, Handle *fd,
  < result: the length of the stream
  should be wrapped in begin_blocking_system_call()/end_blocking_system_call()
  for gdbm module */
-global maygc off_t handle_length (gcv_object_t *stream_, Handle fd) {
+modexp maygc off_t handle_length (gcv_object_t *stream_, Handle fd) {
   off_t len, pos;
   fd_lseek(stream_,fd,0,SEEK_CUR,pos=); /* save current location */
   fd_lseek(stream_,fd,0,SEEK_END,len=); /* get EOF location */

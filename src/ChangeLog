@@ -1,5 +1,38 @@
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
+	support DYNAMIC_MODULES on woe32 (native & cygwin) using dll def file
+	* array.d, charstrg.d, control.d, encoding.d, error.d, errunix.d:
+	* errwin32.d, eval.d, flo_konv.d, foreign.d, hashtabl.d, intelem.d:
+	* intlog.d, intplus.d, intserial.d, lisparit.d, list.d, misc.d:
+	* package.d, pathname.d, predtype.d, sequence.d, socket.d, spvw.d:
+	* spvw_allocate.d, spvw_debug.d, spvw_fault.d, spvw_global.d:
+	* spvw_language.d, spvw_module.d, spvw_sigcld.d, spvw_sigpipe.d:
+	* spvw_typealloc.d, spvwtabf.d, spvwtabo.d, spvwtabs.d, stream.d:
+	* symbol.d, time.d, unixaux.d, win32aux.d:
+	mark objects exported to modules with modexp instead of global
+	* clisp-link.in (prepare_dynamic_module): add @CLISP_DEF@ to libs
+	* genclisph.d (emit_dll_def, exportV, exportF, exportE): add;
+	accept the second command line argument: the dll def file name
+	* lispbibl.d (DYNAMIC_TABLES, modexp, modimp): define;
+	use modimp to declare objects exported to modules instead of
+	extern (use exportV, exportF and exportE for that) and output then
+	into the dll def file using emit_dll_def
+	* makemake.in (CLISP_DEF) [with_dynamic_modules]: define to
+	"lisp.def" on woe32 (both native and cygwin) and add it to FILES;
+	generated it together with clisp.h
+	(makevars): add it to LIBS
+	(clisp-link): substitute it
+	(clean1): remove it
+	* modules.c: when DYNAMIC_TABLES is defined, i.e., on
+	woe32+dynamic modules, we cannot use, e.g., &subr_tab_data to init
+	the modules list, so init to NULL and leave the actual
+	initialization to...
+	* spvw_module.d (init_modules_0) [DYNAMIC_TABLES]: init
+	main_module.stab and main_module.otab
+	Thanks to Daniel Leidert <daniel.leidert@gmx.net> for much enlightening!
+
+2009-10-08  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (anymodule): add -I${HEREP} to CPPFLAGS for
 	localcharset.h et al
 

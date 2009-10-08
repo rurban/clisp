@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on UNIX
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  */
 
 #include "lispbibl.c"
@@ -244,8 +244,8 @@ local inline int fd_read_will_hang_p (int fd)
    Return value like read().
    When the return value is 0, it sets errno to indicate whether EOF has been
    seen (ENOENT) or whether it is not yet known (EAGAIN). */
-global ssize_t fd_read (int fd, void* bufarea, size_t nbyte, perseverance_t persev)
-{
+modexp ssize_t fd_read
+(int fd, void* bufarea, size_t nbyte, perseverance_t persev) {
   var char* buf = (char*) bufarea;
   if (nbyte == 0) {
     errno = EAGAIN;
@@ -398,8 +398,8 @@ local inline int fd_write_will_hang_p (int fd)
    Return value like write().
    When the return value is 0, it sets errno to indicate whether EOWF has been
    seen (ENOENT) or whether it is not yet known (EAGAIN). */
-global ssize_t fd_write (int fd, const void* bufarea, size_t nbyte, perseverance_t persev)
-{
+modexp ssize_t fd_write
+(int fd, const void* bufarea, size_t nbyte, perseverance_t persev) {
   var const char* buf = (const char*) bufarea;
   if (nbyte == 0) {
     errno = EAGAIN;
@@ -773,7 +773,7 @@ global void abort() {
 #include <windows.h>
 #define FACTOR LL(0x19db1ded53ea710)
 #define NSPERSEC LL(10000000)
-global long time_t_from_filetime (const FILETIME * ptr) {
+modexp long time_t_from_filetime (const FILETIME * ptr) {
   /* A file time is the number of 100ns since jan 1 1601
      stuffed into two long words.
      A time_t is the number of seconds since jan 1 1970.  */
@@ -789,8 +789,7 @@ global long time_t_from_filetime (const FILETIME * ptr) {
   x += (long long) (rem/NSPERSEC);
   return x;
 }
-global void time_t_to_filetime (time_t time_in, FILETIME *out)
-{
+modexp void time_t_to_filetime (time_t time_in, FILETIME *out) {
   long long x = time_in * NSPERSEC + FACTOR;
   out->dwHighDateTime = x >> 32;
   out->dwLowDateTime = x;

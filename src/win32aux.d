@@ -1,7 +1,7 @@
 /*
  * Auxiliary functions for CLISP on Win32
  * Bruno Haible 1997-2003
- * Sam Steingold 1999-2005
+ * Sam Steingold 1999-2009
  */
 
 #include "lispbibl.c"
@@ -647,8 +647,8 @@ local DWORD WINAPI do_fd_read (LPVOID arg) {
     params->errcode = GetLastError();
   return 0;
 }
-global ssize_t fd_read (HANDLE fd, void* buf, size_t nbyte,
-                        perseverance_t persev) {
+modexp ssize_t fd_read
+(HANDLE fd, void* buf, size_t nbyte, perseverance_t persev) {
   var struct fd_read_params params;
   params.fd      = fd;
   params.buf     = buf;
@@ -681,8 +681,8 @@ local inline int fd_write_will_hang_p (HANDLE fd)
    Return value like write().
    When the return value is 0, it sets errno to indicate whether EOWF has been
    seen (ERROR_HANDLE_EOF) or whether it is not yet known (ERROR_IO_PENDING). */
-global ssize_t fd_write (HANDLE fd, const void* b, size_t nbyte,
-                         perseverance_t persev) {
+modexp ssize_t fd_write
+(HANDLE fd, const void* b, size_t nbyte, perseverance_t persev) {
   if (nbyte == 0) {
     SetLastError(ERROR_IO_PENDING);
     return 0;
