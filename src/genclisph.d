@@ -215,9 +215,9 @@ static void emit_dll_def(char *varname) {
 #else
 #define emit_dll_def(v)
 #endif
-#define exportV(t,v)  emit_export_declaration(STRINGIFY(import_from_core) " " STRING(t),STRING(v),"")
-#define exportF(p,o,s)  emit_export_declaration(STRINGIFY(import_from_core) " " STRING(p),STRING(o),STRING(s))
-#define exportE(o,a)  emit_export_declaration("nonreturning_function(" STRINGIFY(import_from_core) ",",STRING(o),", " STRING(a) ")")
+#define exportV(t,v)  emit_export_declaration(STRINGIFY(modimp) " " STRING(t),STRING(v),"")
+#define exportF(p,o,s)  emit_export_declaration(STRINGIFY(modimp) " " STRING(p),STRING(o),STRING(s))
+#define exportE(o,a)  emit_export_declaration("nonreturning_function(" STRINGIFY(modimp) ",",STRING(o),", " STRING(a) ")")
 
 static void emit_export_declaration (char *prefix, char *o, char *suffix) {
   emit_dll_def(o);
