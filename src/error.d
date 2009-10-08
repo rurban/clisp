@@ -369,8 +369,8 @@ local void prepare_error (condition_t errortype, const char* errorstring,
    the tilde-S.
  > on the STACK: initialization values for the condition,
                  according to errortype */
-nonreturning_function(global, error, (condition_t errortype,
-                                      const char* errorstring)) {
+nonreturning_function(modexp, error,
+                      (condition_t errortype, const char* errorstring)) {
   prepare_error(errortype,errorstring,true); /* finish error message */
   /* there is no point in using the condition system here:
      we will get into an infinite loop reporting the error */
@@ -395,7 +395,7 @@ nonreturning_function(global, error, (condition_t errortype,
    value2 = indicates whether PLACE should be filled
  < STACK: cleaned up
  can trigger GC */
-global maygc void check_value (condition_t errortype, const char* errorstring)
+modexp maygc void check_value (condition_t errortype, const char* errorstring)
 {
   prepare_error(errortype,errorstring,nullpSv(use_clcs));
   /* if SYS::*USE-CLCS* /= NIL, use CHECK-VALUE */
@@ -449,7 +449,7 @@ global maygc void correctable_error (condition_t errortype, const char* errorstr
  OS_filestream_error(stream);
  > stream: a channel stream
  > end_system_call() already called */
-nonreturning_function(global, OS_filestream_error, (object stream)) {
+nonreturning_function(modexp, OS_filestream_error, (object stream)) {
   if (streamp(stream)) {
     if (TheStream(stream)->strmtype == strmtype_file
         && !nullp(TheStream(stream)->strm_file_truename))
@@ -826,7 +826,7 @@ LISPFUN(clcs_signal,seclass_default,1,0,rest,nokey,0,NIL)
  > classname: a symbol expected to name a class with "proper name" classname
  < result: an object of the given type, either the same as obj or a replacement
  can trigger GC */
-global maygc object check_classname (object obj, object type) {
+modexp maygc object check_classname (object obj, object type) {
   while (!typep_classname(obj,type)) {
     pushSTACK(type);            /* save type */
     pushSTACK(NIL);             /* no PLACE */
@@ -846,7 +846,7 @@ global maygc object check_classname (object obj, object type) {
  > restart_p: flag whether to allow entering a replacement
  < result: a valid foreign pointer, either the same as obj or a replacement
  can trigger GC */
-global maygc object check_fpointer_replacement (object obj, bool restart_p) {
+modexp maygc object check_fpointer_replacement (object obj, bool restart_p) {
   for (;;) {
     if (!fpointerp(obj)) {
       pushSTACK(NIL);                /* no PLACE */
@@ -880,7 +880,7 @@ global maygc object check_fpointer_replacement (object obj, bool restart_p) {
 /* error-message, if an object is not a list.
  error_list(obj);
  > obj: non-list */
-nonreturning_function(global, error_list, (object obj)) {
+nonreturning_function(modexp, error_list, (object obj)) {
   pushSTACK(obj);     /* TYPE-ERROR slot DATUM */
   pushSTACK(S(list)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -893,7 +893,7 @@ nonreturning_function(global, error_list, (object obj)) {
  > test: test for the acceptability of the replacement value
  > error_message: C string GETTEXT(...) */
 #define MAKE_CHECK_REPLACEMENT(typename,expected_type,test,error_message) \
-  global maygc object check_##typename##_replacement (object obj) {     \
+  modexp maygc object check_##typename##_replacement (object obj) {     \
     do {                                                                \
       pushSTACK(NIL); /* no PLACE */                                    \
       pushSTACK(obj); /* TYPE-ERROR slot DATUM */                       \
@@ -915,7 +915,7 @@ MAKE_CHECK_REPLACEMENT(list,S(list),listp,GETTEXT("~S: ~S is not a list"))
  error_proper_list_dotted(caller,obj);
  > caller: the caller (a symbol)
  > obj: end of the list, non-list */
-nonreturning_function(global, error_proper_list_dotted,
+nonreturning_function(modexp, error_proper_list_dotted,
                       (object caller, object obj)) {
   pushSTACK(obj);                 /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_proper_list)); /* TYPE-ERROR slot EXPECTED-TYPE */
@@ -1063,7 +1063,7 @@ global maygc object check_symbol_not_global_special (object symbol) {
  error_no_svector(caller,obj);
  > caller: caller (a symbol)
  > obj: non-Svector */
-nonreturning_function(global, error_no_svector, (object caller, object obj)) {
+nonreturning_function(modexp, error_no_svector, (object caller, object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_vector)); pushSTACK(obj); pushSTACK(caller);
@@ -1073,7 +1073,7 @@ nonreturning_function(global, error_no_svector, (object caller, object obj)) {
 /* error-message, if an object is not a vector.
  error_vector(obj);
  > obj: non-vector */
-nonreturning_function(global, error_vector, (object obj)) {
+nonreturning_function(modexp, error_vector, (object obj)) {
   pushSTACK(obj);       /* TYPE-ERROR slot DATUM */
   pushSTACK(S(vector)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1098,7 +1098,7 @@ MAKE_CHECK_REPLACEMENT(vector,S(vector),vectorp,
  > obj: not an (ARRAY (UNSIGNED-BYTE 8) (*))
  < result: an (ARRAY (UNSIGNED-BYTE 8) (*)), a replacement
  can trigger GC */
-global maygc object check_byte_vector_replacement (object obj) {
+modexp maygc object check_byte_vector_replacement (object obj) {
   do {
     pushSTACK(NIL);             /* no PLACE */
     pushSTACK(obj);             /* TYPE-ERROR slot DATUM */
@@ -1150,7 +1150,7 @@ MAKE_CHECK_REPLACEMENT(integer,S(integer),integerp,
  > obj: not an integer >= 0
  < result: an integer >= 0, a replacement
  can trigger GC */
-global maygc object check_pos_integer_replacement (object obj) {
+modexp maygc object check_pos_integer_replacement (object obj) {
   do {
     pushSTACK(NIL);                /* no PLACE */
     pushSTACK(obj);                /* TYPE-ERROR slot DATUM */
@@ -1190,7 +1190,7 @@ MAKE_CHECK_REPLACEMENT(string,S(string),stringp,
 
 /* error-message, if an argument is not a Simple-String:
  > obj: the erroneous argument */
-nonreturning_function(global, error_sstring, (object obj)) {
+nonreturning_function(modexp, error_sstring, (object obj)) {
   pushSTACK(obj);              /* TYPE-ERROR slot DATUM */
   pushSTACK(S(simple_string)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(S(simple_string)); pushSTACK(obj);
@@ -1208,7 +1208,7 @@ nonreturning_function(global, error_sstring_immutable, (object obj)) {
 
 /* Error message, if an argument is not of type (OR STRING INTEGER).
  error_string_integer(obj)  */
-nonreturning_function(global, error_string_integer, (object obj)) {
+nonreturning_function(modexp, error_string_integer, (object obj)) {
   pushSTACK(obj);                    /* TYPE-ERROR slot DATUM */
   pushSTACK(O(type_string_integer)); /* TYPE-ERROR slot EXPECTED-TYPE */
   pushSTACK(obj); pushSTACK(TheSubr(subr_self)->name);
@@ -1322,7 +1322,7 @@ nonreturning_function(global, error_illegal_arg,
 /* Error when the property list has odd length
  error_plist_odd(caller,plist);
  > plist: bad plist */
-nonreturning_function(global, error_plist_odd, (object plist)) {
+nonreturning_function(modexp, error_plist_odd, (object plist)) {
   pushSTACK(plist);             /* TYPE-ERROR slot DATUM */
   pushSTACK(S(plist));          /* TYPE-ERROR slot EXPECTED-TYPE*/
   pushSTACK(plist); pushSTACK(TheSubr(subr_self)->name);
@@ -1333,8 +1333,7 @@ nonreturning_function(global, error_plist_odd, (object plist)) {
  error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
-nonreturning_function(global, error_key_odd, (uintC argcount, object caller))
-{
+nonreturning_function(modexp, error_key_odd, (uintC argcount, object caller)) {
   var uintC count;
   pushSTACK(NIL); pushSTACK(NIL);
   for (count=0; count<argcount; count++) STACK_(count) = STACK_(count+2);
@@ -1363,7 +1362,7 @@ nonreturning_function(global, error_key_notkw, (object kw, object caller)) {
  > key: illegal keyword
  > val: its value
  > kwlist: list of legal keywords */
-nonreturning_function(global, error_key_badkw,
+nonreturning_function(modexp, error_key_badkw,
                       (object fun, object key, object val, object kwlist)) {
   pushSTACK(key); /* KEYWORD-ERROR slot DATUM */
   pushSTACK(kwlist);
@@ -1577,7 +1576,7 @@ local const char* prepare_c_integer_signal (object obj, int tcode, bool signedp)
     ? GETTEXT("~S: argument ~S is not an integer with at most ~S bits (including the sign bit)")
     : GETTEXT("~S: argument ~S is not a nonnegative integer with at most ~S bits");
 }
-nonreturning_function(global, error_c_integer,
+nonreturning_function(modexp, error_c_integer,
                       (object obj, int tcode, bool signedp)) {
   error(type_error,prepare_c_integer_signal(obj,tcode,signedp));
 }
@@ -1587,7 +1586,7 @@ nonreturning_function(global, error_c_integer,
  > obj: not an integer in the range specified by tcode and signedp (see above)
  < obj: an integer in the range specified by tcode and signedp
  can trigger GC */
-global maygc object check_c_integer_replacement (object obj, int tcode,
+modexp maygc object check_c_integer_replacement (object obj, int tcode,
                                                  bool signedp) {
   while (1) {
     pushSTACK(NIL); /* no PLACE */

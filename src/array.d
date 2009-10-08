@@ -1,7 +1,7 @@
 /*
  * Array functions
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-23
  */
 
@@ -66,7 +66,7 @@ LISPFUNNR(copy_simple_vector,1)
  vector_length(vector)
  > vector: a vector
  < result: its length */
-global uintL vector_length (object vector) {
+modexp uintL vector_length (object vector) {
   if (array_simplep(vector)) {
     if (simple_string_p(vector)) {
       sstring_un_realloc(vector);
@@ -166,7 +166,7 @@ global maygc uintB eltype_code (object obj)
  < result: simple-vector containing these objects
  Pops n objects off STACK.
  can trigger GC */
-global maygc object vectorof (uintC len) {
+modexp maygc object vectorof (uintC len) {
   var object new_vector = allocate_vector(len);
   if (len > 0) {
     var gcv_object_t* topargptr = STACK STACKop len;
@@ -290,8 +290,8 @@ global object iarray_displace_check (object array, uintL size, uintL* index) {
  > uintV size: size
  < result: storage vector
  < index: is incremented by the offset into the storage vector */
-global object array_displace_check (object array, uintV size, uintL* index) {
-  if (array_simplep(array)) /* array indirect? */
+modexp object array_displace_check (object array, uintV size, uintL* index) {
+  if (array_simplep(array)) /* indirect array? */
     goto simple;
   while (1) {
     if (*index+size > TheIarray(array)->totalsize)
@@ -498,7 +498,7 @@ local object subscripts_to_index (object array, gcv_object_t* argptr,
 }
 
 /* error message: attempt to retrieve a value from (ARRAY NIL) */
-nonreturning_function(global, error_nilarray_retrieve, (void)) {
+nonreturning_function(modexp, error_nilarray_retrieve, (void)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: cannot retrieve values from an array of element type NIL"));
 }
@@ -824,7 +824,7 @@ LISPFUNN(row_major_store,3)
 
 /* return Atype for the given array
  exported for the sake of modules */
-global uintBWL array_atype (object array)
+modexp uintBWL array_atype (object array)
 {
   switch (Array_type(array)) {
     case Array_type_mdarray: /* general array -> look at Arrayflags */
@@ -942,7 +942,7 @@ LISPFUNNR(array_dimension,2)
  > array: an array
  < uintL result: its rank = number of dimensions
  exists for the sake of modules */
-global uintL array_rank (object array) {
+modexp uintL array_rank (object array) {
   if (mdarrayp(array))
     /* multi-dimensional array */
     return Iarray_rank(array);
@@ -958,7 +958,7 @@ global uintL array_rank (object array) {
  > uintL dimensions[0..rank-1]: room for rank dimensions
  < uintL dimensions[0..rank-1]: the array's dimensions
  exists for the sake of modules */
-global void get_array_dimensions (object array, uintL rank, uintL* dimensions) {
+modexp void get_array_dimensions (object array, uintL rank, uintL* dimensions) {
   if (array_simplep(array)) {
     /* simple vector */
     ASSERT(rank == 1);
@@ -3976,7 +3976,7 @@ LISPFUN(vector_push_extend,seclass_default,2,1,norest,nokey,0,NIL)
  > uintL len: length of the desired bit-vector (number of bits)
  < result: fresh simple-bit-vector, filled with zeroes
  can trigger GC */
-global maygc object allocate_bit_vector_0 (uintL len) {
+modexp maygc object allocate_bit_vector_0 (uintL len) {
   var object newvec = allocate_bit_vector(Atype_Bit,len); /* new bit-vector */
   var uintL count = ceiling(len,bitpack); /* fill ceiling(len/bitpack) words with zeroes */
   if (count!=0) {

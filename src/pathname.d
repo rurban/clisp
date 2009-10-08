@@ -4943,7 +4943,7 @@ LISPFUNN(absolute_pathname,1)
  > thing: an object
  < result: the namestring of the pathname denoted by thing
  can trigger GC */
-global maygc object physical_namestring (object thing)
+modexp maygc object physical_namestring (object thing)
 { return whole_namestring(use_default_dir(coerce_pathname(thing))); }
 
 /* UP: tests, if the name of a pathname is =NIL.
@@ -6148,7 +6148,7 @@ LISPFUNNS(probe_directory,1)
  > use_default: whether to use the current default directory
  < result: a simple-bit-vector containing an ASCIZ string in OS format
  can trigger GC */
-global maygc object pathname_to_OSdir (object pathname, bool use_default) {
+modexp maygc object pathname_to_OSdir (object pathname, bool use_default) {
   pathname = coerce_pathname(pathname); /* convert to pathname */
   check_no_wildcards(pathname); /* if it has wildcards -> error */
   if (use_default)
@@ -6174,7 +6174,7 @@ global maygc object pathname_to_OSdir (object pathname, bool use_default) {
  > path: a pathname referring to a directory
  < result: a pathname without name and type
  can trigger GC */
-global maygc object OSdir_to_pathname (const char* path) {
+modexp maygc object OSdir_to_pathname (const char* path) {
   return asciz_dir_to_pathname(path,O(pathname_encoding));
 }
 
@@ -6545,7 +6545,7 @@ local inline maygc void create_backup_file_obj
 }
 
 /* check the :DIRECTION argument */
-global direction_t check_direction (object dir) {
+modexp direction_t check_direction (object dir) {
   if (!boundp(dir) || eq(dir,S(Kinput)))
     return DIRECTION_INPUT;
   else if (eq(dir,S(Kinput_immutable)))
@@ -6572,7 +6572,7 @@ local object direction_symbol (direction_t direction) {
 
 /* check the :IF-DOES-NOT-EXIST argument
    check_if_does_not_exist(argument) */
-global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
+modexp if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
   if (!boundp(if_not_exist))
     return IF_DOES_NOT_EXIST_UNBOUND;
   else if (eq(if_not_exist,S(Kerror)))
@@ -6587,7 +6587,7 @@ global if_does_not_exist_t check_if_does_not_exist (object if_not_exist) {
 
 /* Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
    if_does_not_exist_symbol(item)*/
-global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
+modexp object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
   switch (if_not_exist) {
     case IF_DOES_NOT_EXIST_UNBOUND: { return unbound; }
     case IF_DOES_NOT_EXIST_ERROR:   { return S(Kerror); }
@@ -6599,7 +6599,7 @@ global object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist) {
 
 /* check the :IF-EXISTS argument
    check_if_exists(argument) */
-global if_exists_t check_if_exists (object if_exists) {
+modexp if_exists_t check_if_exists (object if_exists) {
   if (!boundp(if_exists))
     return IF_EXISTS_UNBOUND;
   else if (eq(if_exists,S(Kerror)))
@@ -6621,7 +6621,7 @@ global if_exists_t check_if_exists (object if_exists) {
 
 /* Converts a :IF-EXISTS enum item to a symbol.
    if_exists_symbol(item) */
-global object if_exists_symbol (if_exists_t if_exists) {
+modexp object if_exists_symbol (if_exists_t if_exists) {
   switch (if_exists) {          /* :IF-EXISTS */
     case IF_EXISTS_UNBOUND:     { return unbound; }
     case IF_EXISTS_ERROR:       { return S(Kerror); }
@@ -8416,7 +8416,7 @@ LISPFUN(execute,seclass_default,1,0,rest,nokey,0,NIL)
  handle_dup(oldfd)
  Similar to dup(oldfd), with error checking.
  To be called only inside begin/end_system_call(). */
-global Handle handle_dup (Handle old_handle) {
+modexp Handle handle_dup (Handle old_handle) {
   Handle new_handle;
  #if defined(UNIX)
   new_handle = dup(old_handle);
@@ -8438,7 +8438,7 @@ global Handle handle_dup (Handle old_handle) {
  Similar to dup2(oldfd,newfd), with error checking. The result may or may not
  be equal to newfd.
  To be called only inside begin/end_system_call(). */
-global Handle handle_dup2 (Handle old_handle, Handle new_handle) {
+modexp Handle handle_dup2 (Handle old_handle, Handle new_handle) {
  #if defined(UNIX)
   new_handle = dup2(old_handle,new_handle);
   if (new_handle < 0) { OS_error(); }

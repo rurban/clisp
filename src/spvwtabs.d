@@ -2,6 +2,7 @@
  * Moved out of memory management:
  * table of all fixed symbols
  * Bruno Haible 1990-2006
+ * Sam Steingold 2002-2009
  */
 
 #include "lispbibl.c"
@@ -22,7 +23,7 @@
 #undef ftruncate
 
 /* Table of all fixed symbols: */
-global struct symbol_tab_ symbol_tab_data
+modexp struct symbol_tab_ symbol_tab_data
   #if defined(HEAPCODES) && (alignment_long < varobject_alignment)
 /* Force all symbols to be allocated with a 4/8-byte alignment. GC needs this. */
     #if defined(GNU)

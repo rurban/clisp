@@ -441,7 +441,7 @@ nonreturning_function(local, error_nan, (void)) {
 
  c_float_to_FF(&val) converts a IEEE-Single-Float val into a Single-Float.
  can trigger GC */
-global maygc object c_float_to_FF (const ffloatjanus* val_)
+modexp maygc object c_float_to_FF (const ffloatjanus* val_)
 {
   var ffloat val = val_->eksplicit;
   var uintBWL exp = (val >> FF_mant_len) & (bit(FF_exp_len)-1); /* e */
@@ -467,7 +467,7 @@ global maygc object c_float_to_FF (const ffloatjanus* val_)
 
 /* FF_to_c_float(obj,&val);
  converts a Single-Float obj into a IEEE-Single-Float val. */
-global void FF_to_c_float (object obj, ffloatjanus* val_)
+modexp void FF_to_c_float (object obj, ffloatjanus* val_)
 {
   var ffloat val = ffloat_value(obj);
   /* The exponent must be decreased by FF_exp_mid-126 */
@@ -500,7 +500,7 @@ global void FF_to_c_float (object obj, ffloatjanus* val_)
 
  c_double_to_DF(&val) converts a IEEE-Double-Float val into a Double-Float.
  can trigger GC */
-global maygc object c_double_to_DF (const dfloatjanus* val_)
+modexp maygc object c_double_to_DF (const dfloatjanus* val_)
 {
   var dfloat val; val = val_->eksplicit;
   #ifdef intQsize
@@ -548,7 +548,7 @@ global maygc object c_double_to_DF (const dfloatjanus* val_)
 
 /* DF_to_c_double(obj,&val);
  Converts a Double-Float obj into a IEEE-Double-Float val. */
-global void DF_to_c_double (object obj, dfloatjanus* val_)
+modexp void DF_to_c_double (object obj, dfloatjanus* val_)
 {
   var dfloat val; val = TheDfloat(obj)->float_value;
   /* The exponent must be decreased by DF_exp_mid-1022. */

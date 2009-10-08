@@ -220,36 +220,36 @@ nonreturning_function(local, quit_instantly, (int));
 
 /* the STACK: */
 #if !defined(STACK_register)
-global gcv_object_t* STACK;
+modexp gcv_object_t* STACK;
 #endif
 #ifdef HAVE_SAVED_STACK
-global gcv_object_t* saved_STACK;
+modexp gcv_object_t* saved_STACK;
 #endif
 
 /* MULTIPLE-VALUE-SPACE: */
 #if !defined(mv_count_register)
-global uintC mv_count;
+modexp uintC mv_count;
 #endif
 #ifdef NEED_temp_mv_count
 global uintC temp_mv_count;
 #endif
 #ifdef HAVE_SAVED_mv_count
-global uintC saved_mv_count;
+modexp uintC saved_mv_count;
 #endif
-global object mv_space [mv_limit-1];
+modexp object mv_space [mv_limit-1];
 #ifdef NEED_temp_value1
 global object temp_value1;
 #endif
 #ifdef HAVE_SAVED_value1
-global object saved_value1;
+modexp object saved_value1;
 #endif
 
 /* During the execution of a SUBR, FSUBR: the current SUBR resp. FSUBR */
 #if !defined(back_trace_register)
-global p_backtrace_t back_trace = NULL;
+modexp p_backtrace_t back_trace = NULL;
 #endif
 #ifdef HAVE_SAVED_back_trace
-global p_backtrace_t saved_back_trace;
+modexp p_backtrace_t saved_back_trace;
 #endif
 
 /* during callbacks, the saved registers: */
@@ -261,7 +261,7 @@ global struct registers * callback_saved_registers = NULL;
 #ifndef NO_SP_CHECK
 global void* SP_bound;          /* SP-growth-limit */
 #endif
-global void* STACK_bound;       /* STACK-growth-limit */
+modexp void* STACK_bound;       /* STACK-growth-limit */
 global void* STACK_start;       /* STACK initial value */
 
 /* the lexical environment: */
@@ -356,7 +356,7 @@ global bool single_running_threadp()
    there is no current thread. */
 local uintL dummy_alloccount=0;
 local bool use_dummy_alloccount=true;
-global uintL* current_thread_alloccount()
+modexp uintL* current_thread_alloccount()
 {
   /* if MT is initialized - return the real alloccount.
      otherwise (during subr_tab static initialization and signal handling) -
@@ -366,13 +366,13 @@ global uintL* current_thread_alloccount()
 #endif
 
 #ifdef per_thread
- global per_thread clisp_thread_t *_current_thread;
+ modexp per_thread clisp_thread_t *_current_thread;
 #else
  #if USE_CUSTOM_TLS == 1
-  global xthread_key_t current_thread_tls_key;
+  modexp xthread_key_t current_thread_tls_key;
  #elif USE_CUSTOM_TLS == 2
 
-  global tsd threads_tls;
+  modexp tsd threads_tls;
 
   /* A thread-specific data entry which will never    */
   /* appear valid to a reader.  Used to fill in empty */
@@ -392,7 +392,7 @@ global uintL* current_thread_alloccount()
   /* entry should be allocated by the caller (or reside on
      the stack at a location that will survive the thread
      lifespan) */
-  global void tsd_setspecific(tse *entry, void *value)
+  modexp void tsd_setspecific(tse *entry, void *value)
   {
     var xthread_t self = xthread_self();
     var int hash_val = TSD_HASH(self);
@@ -440,8 +440,8 @@ global uintL* current_thread_alloccount()
   }
 
   /* Note that even the slow path doesn't lock. */
-  global void* tsd_slow_getspecific(unsigned long qtid,
-                                  tse * volatile *cache_ptr)
+  modexp void* tsd_slow_getspecific(unsigned long qtid,
+                                    tse * volatile *cache_ptr)
   {
     var xthread_t self = xthread_self();
     var unsigned hash_val = TSD_HASH(self);
@@ -596,7 +596,7 @@ global uintL* current_thread_alloccount()
   }
   #endif /* WIN32_THREADS */
 
-  global clisp_thread_t *threads_map[1UL << (32 - TLS_SP_SHIFT)]={0};
+  modexp clisp_thread_t *threads_map[1UL << (32 - TLS_SP_SHIFT)]={0};
   global void set_current_thread(clisp_thread_t *thr)
   {
     /* we should initialize the threads_map items in the
@@ -948,7 +948,7 @@ nonreturning_function(global, SP_ueber, (void)) {
     final_exitcode = 1; quit();
   }
 }
-nonreturning_function(global, STACK_ueber, (void)) {
+nonreturning_function(modexp, STACK_ueber, (void)) {
   var bool interactive_p = interactive_stream_p(Symbol_value(S(debug_io)));
   begin_system_call();
   fputc('\n',stderr);
@@ -1042,7 +1042,7 @@ nonreturning_function(global, STACK_ueber, (void)) {
  > char* asciz: ASCIZ-string
        (address of a character sequence terminated by a nullbyte)
  < result: length of the character sequence (without nullbyte) */
-global uintL asciz_length (const char * asciz) {
+modexp uintL asciz_length (const char * asciz) {
   var const char* ptr = asciz;
   var uintL len = 0;
   /* search nullbyte and increment length: */
@@ -1056,7 +1056,7 @@ global uintL asciz_length (const char * asciz) {
  > char* asciz1: first ASCIZ-string
  > char* asciz2: second ASCIZ-string
  < result: true if both sequences are equal */
-global bool asciz_equal (const char * asciz1, const char * asciz2) {
+modexp bool asciz_equal (const char * asciz1, const char * asciz2) {
   /* compare bytes until the first nullbyte: */
   while (1) {
     var char ch1 = *asciz1++;
@@ -1071,7 +1071,7 @@ global bool asciz_equal (const char * asciz1, const char * asciz2) {
                   Other Global Helper Functions */
 
 /* malloc() with error check. */
-global void* clisp_malloc (size_t size)
+modexp void* clisp_malloc (size_t size)
 {
   begin_system_call();
   var void* ptr = malloc(size);
@@ -1082,7 +1082,7 @@ global void* clisp_malloc (size_t size)
   error(storage_condition,GETTEXT("~S: malloc() failed"));
 }
 /* realloc() with error check. */
-global void* clisp_realloc (void* ptr, size_t size)
+modexp void* clisp_realloc (void* ptr, size_t size)
 {
   begin_system_call();
   ptr = realloc(ptr,size);
@@ -1095,7 +1095,10 @@ global void* clisp_realloc (void* ptr, size_t size)
 
 #if (int_bitsize < long_bitsize)
 /* passing value from longjmpl() to setjmpl()  : */
-global long jmpl_value;
+#if DYNAMIC_TABLES && defined(export_unwind_protect_macros)
+modexp
+#endif
+long jmpl_value;
 #endif
 
 #ifdef NEED_OWN_GETSP
@@ -1118,7 +1121,7 @@ global void* SP_anchor;
  error_notreached(file,line);
  > file: filename (with quotation marks) as constant ASCIZ-string
  > line: line number */
-nonreturning_function(global, error_notreached,
+nonreturning_function(modexp, error_notreached,
                       (const char* file, uintL line)) {
   end_system_call();            /* just in case */
   pushSTACK(fixnum(line));
@@ -4182,7 +4185,7 @@ nonreturning_function(local, error_dlerror,
     pushSTACK(asciz_to_string(symbol,O(internal_encoding)));
   pushSTACK(asciz_to_string(func,O(internal_encoding)));
   pushSTACK(TheSubr(subr_self)->name);
-  error(error_condition, (symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
+  error(error_condition,(symbol == NULL ? "~S: ~S -> ~S" : "~S: ~S(~S) -> ~S"));
 }
 
 local object dlerror_message (void) {
@@ -4568,7 +4571,7 @@ local useconds_t schedule_alarm(uintL useconds)
    arguments are on the STACK
    It is always called in the context of the thread that has to handle the
    interrupt and it is safe to do whatever we want here */
-global maygc void handle_pending_interrupts()
+modexp maygc void handle_pending_interrupts(void)
 {
   var clisp_thread_t *thr = current_thread();
   var uintC pend = thr->_pending_interrupts;

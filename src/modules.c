@@ -1,7 +1,7 @@
 /*
  * modules for CLISP
  * Bruno Haible 1994-2004
- * Sam Steingold 2002-2005
+ * Sam Steingold 2002-2009
  */
 
 /* All dependencies on modules.h are collected here! */
@@ -13,7 +13,7 @@
 #endif
 
 /* the number of modules linked in */
-uintC module_count =
+modexp uintC module_count =
  #define MODULE(module_name)  1+
   #include "modules.h"
  #undef MODULE
@@ -41,10 +41,20 @@ extern uintC object_tab_size;
 #else
  #define _NEXT_NULL
 #endif
-module_t modules[] = {
+modexp module_t modules[] = {
   { "clisp",
-    (subr_t*)((char*)&subr_tab_data+varobjects_misaligned), &subr_tab_data_size,
-    (gcv_object_t*)&object_tab, &object_tab_size,
+   #if DYNAMIC_TABLES
+    NULL,
+   #else
+    (subr_t*)((char*)&subr_tab_data+varobjects_misaligned),
+   #endif
+    &subr_tab_data_size,
+   #if DYNAMIC_TABLES
+    NULL,
+   #else
+    (gcv_object_t*)&object_tab,
+   #endif
+    &object_tab_size,
     true, NULL, NULL, NULL, NULL, NULL
     _NEXT_NULL },
  #define MODULE(module_name)                                            \

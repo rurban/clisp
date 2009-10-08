@@ -182,7 +182,7 @@ local sint64 FN_to_Q (object obj);
  I_to_UL(obj)
  > obj: an object, should be an integer >=0, <2^32
  < result: the value of the integer as 32-bit-number. */
-global uint32 I_to_UL (object obj)
+modexp uint32 I_to_UL (object obj)
 {
  #ifdef TYPECODES
   switch (typecode(obj))
@@ -237,7 +237,7 @@ global uint32 I_to_UL (object obj)
  I_to_L(obj)
  > obj: an object, should be an integer >=-2^31, <2^31
  < result: the value of the integer as 32-bit-number. */
-global sint32 I_to_L (object obj)
+modexp sint32 I_to_L (object obj)
 {
  #ifdef TYPECODES
   switch (typecode(obj))
@@ -335,7 +335,7 @@ global sint32 I_to_L (object obj)
  I_to_UQ(obj)
  > obj: an object, should be an integer >=0, <2^64
  < result: the value of the integer as 64-bit-number. */
-global uint64 I_to_UQ (object obj)
+modexp uint64 I_to_UQ (object obj)
 {
  #ifdef TYPECODES
   switch (typecode(obj))
@@ -421,7 +421,7 @@ global uint64 I_to_UQ (object obj)
  I_to_Q(obj)
  > obj: an object, should be an integer >=-2^63, <2^63
  < result: the value of the integer as 64-bit-number. */
-global sint64 I_to_Q (object obj)
+modexp sint64 I_to_Q (object obj)
 {
  #ifdef TYPECODES
   switch (typecode(obj))
@@ -578,13 +578,13 @@ global sint64 I_to_Q (object obj)
  > value: value of the integer, a signed 32-bit-integer.
  < result: integer with this value.
  can trigger GC */
-global maygc object L_to_I (sint32 value);
+modexp maygc object L_to_I (sint32 value);
 #if (oint_data_len+1 >= intLsize)
-global maygc object L_to_I (sint32 value)
+modexp maygc object L_to_I (sint32 value)
 { return L_to_FN(value); }
 #define L_to_I(value)  L_to_FN(value)
 #else
-global maygc object L_to_I (sint32 value)
+modexp maygc object L_to_I (sint32 value)
 {
   {
     var uint32 test = value & (uint32)(~(FN_value_mask >> oint_data_shift));
@@ -696,7 +696,7 @@ global maygc object L_to_I (sint32 value)
  < result: integer with this value.
  can trigger GC */
 #if !(intLsize<=oint_data_len) /* if not already defined in lispbibl.d */
-global maygc object UL_to_I (uint32 value)
+modexp maygc object UL_to_I (uint32 value)
 {
   if ((value & ~ (FN_value_mask >> oint_data_shift)) == 0)
     /* all bits, that do not fit into the fixnum-value, =0 ? */
@@ -786,7 +786,7 @@ global maygc object UL_to_I (uint32 value)
  < result: integer with this value.
  can trigger GC */
 #if !(intVsize>32) /* if not already defined in lispbibl.d */
-global maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
+modexp maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
 {
   if (value_hi == 0) {
     if ((value_lo & (uint32)(~(FN_value_mask >> oint_data_shift))) /* bits of value_lo, that do not fit into the fixnum-value */
@@ -928,7 +928,7 @@ global maygc object L2_to_I (sint32 value_hi, uint32 value_lo)
  < result: integer with this value.
  can trigger GC */
 #if !(intVsize>32) /* if not already defined in lispbibl.d */
-global maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
+modexp maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
 {
   if ((value_hi == 0)
       && ((value_lo & (uint32)(~(FN_value_mask >> oint_data_shift))) /* bits of value_lo, that do not fit into the fixnum-value */
@@ -1037,7 +1037,7 @@ global maygc object UL2_to_I (uint32 value_hi, uint32 value_lo)
  > value: value of the integer, a signed 64-bit-integer.
  < result: integer with this value.
  can trigger GC */
-global maygc object Q_to_I (sint64 value)
+modexp maygc object Q_to_I (sint64 value)
 {
   {
     var uint64 test = value & ~(uint64)(FN_value_mask >> oint_data_shift);
@@ -1103,7 +1103,7 @@ global maygc object Q_to_I (sint64 value)
  > value: value of the integer, an unsigned 64-bit-integer.
  < result: integer with this value.
  can trigger GC */
-global maygc object UQ_to_I (uint64 value)
+modexp maygc object UQ_to_I (uint64 value)
 {
   if ((value & ~(uint64)(FN_value_mask >> oint_data_shift)) == 0)
     /* all bits, that do not fit into the fixnum-value, =0 ? */
@@ -1393,7 +1393,7 @@ local maygc object NUDS_to_I (uintD* MSDptr, uintC len)
  convert UDS MSDptr/len/.. into Integer >=0 .
  there must be room for 1 digit below of MSDptr.
  can trigger GC */
-global maygc object UDS_to_I (uintD* MSDptr, uintC len)
+modexp maygc object UDS_to_I (uintD* MSDptr, uintC len)
 {
   while ( (len!=0) && (MSDptr[0]==0) ) { /* so long as len>0 and MSD = 0, */
     MSDptr++; len--; /* discard null-digit */
@@ -1414,7 +1414,7 @@ global maygc object UDS_to_I (uintD* MSDptr, uintC len)
  DS_to_I(MSDptr,len)
  convert DS MSDptr/len/.. into Integer.
  can trigger GC */
-global maygc object DS_to_I (const uintD* MSDptr, uintC len)
+modexp maygc object DS_to_I (const uintD* MSDptr, uintC len)
 {
   /* first normalize. poss. increase MSDptr and decrease len: */
   if (len!=0) { /* empty DS is normalized */

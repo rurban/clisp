@@ -1,4 +1,4 @@
-;;; Copyright (C) 2001-2008 by Sam Steingold
+;;; Copyright (C) 2001-2009 by Sam Steingold
 ;;; released under the GNU GPL <http://www.gnu.org/copyleft/gpl.html>
 ;;; as a part of CLISP <http://clisp.cons.org>
 ;;;
@@ -59,7 +59,7 @@ A valid value for `imenu-extract-index-name-function'."
           ((looking-at "DEFUN")
            (re-search-forward "([-A-Za-Z]*::?\\([^ ,]+\\)")
            (match-string 1))
-          ((looking-at "\\(local\\|global\\)")
+          ((looking-at "\\(local\\|global\\|modexp\\)")
            (search-forward "(") (forward-char -1)
            (let ((beg (scan-sexps (point) -1)))
              (buffer-substring-no-properties beg (scan-sexps beg 1))))
@@ -82,7 +82,8 @@ A valid value for `imenu-extract-index-name-function'."
   "A valid value for `beginning-of-defun-function' for `d-mode'."
   (re-search-backward
    (eval-when-compile
-    (concat "^" (regexp-opt '("LISPFUN" "LISPSPECFORM" "local " "global "
+    (concat "^" (regexp-opt '("LISPFUN" "LISPSPECFORM"
+                              "local " "global " "modexp "
                               "#define " "nonreturning_function"
                               "typedef " "struct " "DEFUN")
                             t)))
@@ -177,8 +178,8 @@ The point should be on the prototype and the definition should follow."
 
 (defvar d-extra-keywords
   (eval-when-compile
-   (regexp-opt '("var" "local" "global" "true" "false" "NIL" "T" "loop"
-                 "inline" "NULL" "nullobj" "maygc" "per_thread"
+   (regexp-opt '("var" "local" "global" "modexp" "true" "false" "NIL" "T"
+                 "loop" "inline" "NULL" "nullobj" "maygc" "per_thread"
                  "popSTACK" "pushSTACK" "skipSTACK" "skipSTACKop" "STACKop"
                  "dotimespC" "dotimesC" "dotimespL" "dotimesL" "dotimespW"
                  "dotimesW" "nonreturning_function" "return_Values"
@@ -271,7 +272,7 @@ Beware - this will modify the original C-mode too!"
   (c-set-offset 'block-close 'd-indent-to-boi)
   (c-set-offset 'statement-block-intro 'd-indent-to-boi+offset)
   ;; (setq defun-prompt-regexp
-  ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|nonreturning_function\\) .*\\)")
+  ;; "^\\(LISPFUNN?(.*) \\|\\(local\\|global\\|modexp\\|nonreturning_function\\) .*\\)")
   (set (make-local-variable 'beginning-of-defun-function)
        'd-mode-beg-of-defun)
   (when (<= 21 emacs-major-version)

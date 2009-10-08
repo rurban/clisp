@@ -565,6 +565,28 @@
 #endif
 /* Now: defined(WIDE) == defined(WIDE_HARD) || defined(WIDE_SOFT) || defined(WIDE_AUXI) */
 
+/* this is necessary to avoid messages like
+   Info: resolving _mv_space by linking to __imp__mv_space (auto-import)
+   on woe32. */
+#if defined(DYNAMIC_MODULES)
+  #if defined(WIN32_NATIVE) || defined(UNIX_CYGWIN32)
+    #define DYNAMIC_TABLES 1
+    #define modexp  __declspec(dllexport)
+    #define modimp  __declspec(dllimport)
+    #define EXECUTABLE_NAME "lisp.exe"
+  #else
+    #define DYNAMIC_TABLES 0
+    #define modexp
+    #define modimp  extern
+  #endif
+#else
+  #define DYNAMIC_TABLES 0
+  #define modexp
+  #define modimp  extern
+#endif
+%% export_def(DYNAMIC_TABLES);
+%% export_def(modexp);
+%% export_def(modimp);
 
 /* Global register declarations.
    Speed benefit: Just putting the STACK into a register, brought 5% of speed
@@ -1386,7 +1408,7 @@ typedef signed int  signean;
 #endif
 %% #ifdef export_unwind_protect_macros
 %%   #if (int_bitsize < long_bitsize)
-%%     puts("extern long jmpl_value;");
+%%     exportV(long,jmpl_value);
 %%   #endif
 %%   export_def(setjmpl(x))
 %%   export_def(longjmpl(x))
@@ -1967,8 +1989,8 @@ typedef enum {
 %%   #ifdef UNIX_CYGWIN32
 %%     puts("#include <windows.h>");
 %%     puts("#undef WIN32");
-%%     puts("extern long time_t_from_filetime (const FILETIME * ptr);");
-%%     puts("extern void time_t_to_filetime (time_t time_in, FILETIME * out);");
+%%     exportF(long,time_t_from_filetime,(const FILETIME * ptr));
+%%     exportF(void,time_t_to_filetime,(time_t time_in, FILETIME * out));
 %%   #endif
 %% #elif defined(WIN32_NATIVE)
 %%   puts("#include <windows.h>");
@@ -1978,11 +2000,11 @@ typedef enum {
 %%   puts("#error what is Handle on your platform?!");
 %% #endif
 %% #if defined(UNIX)
-%%   puts("extern ssize_t fd_read (int fd, void* buf, size_t nbyte, perseverance_t persev);");
-%%   puts("extern ssize_t fd_write (int fd, const void* buf, size_t nbyte, perseverance_t persev);");
+%%   exportF(ssize_t,fd_read,(int fd, void* buf, size_t nbyte, perseverance_t persev));
+%%   exportF(ssize_t,fd_write,(int fd, const void* buf, size_t nbyte, perseverance_t persev));
 %% #elif defined(WIN32_NATIVE)
-%%   puts("extern ssize_t fd_read (Handle fd, void* buf, size_t nbyte, perseverance_t persev);");
-%%   puts("extern ssize_t fd_write (Handle fd, const void* buf, size_t nbyte, perseverance_t persev);");
+%%   exportF(ssize_t,fd_read,(Handle fd, void* buf, size_t nbyte, perseverance_t persev));
+%%   exportF(ssize_t,fd_write,(Handle fd, const void* buf, size_t nbyte, perseverance_t persev));
 %% #endif
 
 /* execute statement on interrupt:
@@ -2059,7 +2081,7 @@ typedef enum {
   #define OS_error()  \
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error)())
 #endif
-%% puts("nonreturning_function(extern, OS_error, (void));");
+%% exportE(OS_error,(void));
 
 /* Handling of ANSI C errors
  ANSIC_error();
@@ -3055,10 +3077,10 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
 #endif
 %% #ifdef DEBUG_GCSAFETY
 %%   #if defined(MULTITHREAD)
-%%     puts("extern uintL* current_thread_alloccount (void);");
+%%     exportF(uintL*,current_thread_alloccount,(void));
 %%     export_def(alloccount);
 %%   #else
-%%     puts("extern uintL alloccount;");
+%%     exportV(uintL,alloccount);
 %%   #endif
 %% #else
 %%   emit_typedef("gcv_object_t","object");
@@ -4088,7 +4110,7 @@ typedef signed_int_with_n_bits(intVsize)  sintV;
  garcol_bit(!) into the heap, where they are guaranteed to lead to a crash
  later. So, uncontrolled memory accesses are forbidden while inside_gc. */
 extern bool inside_gc;
-%% puts("extern bool inside_gc;");
+%% exportV(bool,inside_gc);
 
 
 #ifdef DEBUG_GCSAFETY
@@ -8893,10 +8915,10 @@ typedef struct {
 /* is used by PATHNAME */
 #endif
 %% #ifdef UNIX
-%%   puts("extern object convert_time_to_universal (const time_t* time);");
+%%   exportF(object,convert_time_to_universal,(const time_t* time));
 %% #endif
 %% #ifdef WIN32_NATIVE
-%%   puts("extern object convert_time_to_universal (const FILETIME* time);");
+%%   exportF(object,convert_time_to_universal,(const FILETIME* time));
 %% #endif
 
 #ifdef UNIX
@@ -8908,10 +8930,10 @@ extern void convert_time_from_universal (object universal, time_t* time);
 extern void convert_time_from_universal (object universal, FILETIME* time);
 #endif
 %% #ifdef UNIX
-%%   puts("extern void convert_time_from_universal (object universal, time_t* time);");
+%%   exportF(void,convert_time_from_universal,(object universal, time_t* time));
 %% #endif
 %% #ifdef WIN32_NATIVE
-%%   puts("extern void convert_time_from_universal (object universal, FILETIME* time);");
+%%   exportF(void,convert_time_from_universal,(object universal, FILETIME* time));
 %% #endif
 
 /* UP: Initializes the time variables upon the LISP-System-Start.
@@ -9224,7 +9246,7 @@ extern void* SP_anchor;
   #error Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!
 #endif
 %% #if !defined(STACK_register)
-%%   puts("extern gcv_object_t* STACK;");
+%%   exportV(gcv_object_t*,STACK);
 %% #else
 %%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register gcv_object_t* STACK __asm__(\"%s\");\n",STACK_register);
@@ -9394,16 +9416,16 @@ extern gcv_object_t* top_of_back_trace_frame (const struct backtrace_t *bt);
   #define end_callback()  SAVE_GLOBALS(); RESTORE_REGISTERS(;)
 #endif
 %% #ifdef HAVE_SAVED_mv_count
-%%   puts("extern uintC saved_mv_count;");
+%%   exportV(uintC,saved_mv_count);
 %% #endif
 %% #ifdef HAVE_SAVED_value1
-%%   puts("extern object saved_value1;");
+%%   exportV(object,saved_value1);
 %% #endif
 %% #ifdef HAVE_SAVED_back_trace
-%%   puts("extern p_backtrace_t saved_back_trace;");
+%%   exportV(p_backtrace_t,saved_back_trace);
 %% #endif
 %% #if defined(HAVE_SAVED_STACK)
-%%   puts("extern gcv_object_t* saved_STACK;");
+%%   exportV(gcv_object_t*,saved_STACK);
 %% #endif
 %% export_def(begin_call());
 %% export_def(end_call());
@@ -9629,8 +9651,8 @@ nonreturning_function(extern, STACK_ueber, (void));
 %% export_def(check_STACK());
 %% export_def(STACK_overflow());
 %% export_def(get_space_on_STACK(n));
-%% puts("extern void* STACK_bound;");
-%% puts("nonreturning_function(extern, STACK_ueber, (void));");
+%% exportV(void*,STACK_bound);
+%% exportE(STACK_ueber,(void));
 %% #endif
 
 /* Tests, if there are still n Bytes free on the STACK.
@@ -9657,7 +9679,7 @@ extern int final_exitcode;
  > line: line number */
 nonreturning_function(extern, error_notreached, (const char * file, uintL line));
 /* used by all modules */
-%% puts("nonreturning_function(extern, error_notreached, (const char * file, uintL line));");
+%% exportE(error_notreached,(const char * file, uintL line));
 
 /* Language that's used to communicate with the user: */
 #ifdef LANGUAGE_STATIC
@@ -9702,7 +9724,7 @@ nonreturning_function(extern, error_notreached, (const char * file, uintL line))
 %%   puts("#ifndef COMPILE_STANDALONE");
 %%   puts("#include <libintl.h>");
 %%   puts("#endif");
-%%   puts("extern const char * clgettext (const char * msgid);");
+%%   exportF(const char *,clgettext,(const char * msgid));
 %%   export_def(GETTEXT);
 %% #else
 %%   export_def(GETTEXT(english));
@@ -9718,7 +9740,7 @@ extern maygc object CLSTEXT (const char*);
 %%   #ifndef GNU_GETTEXT
 %%     emit_define("CLSTEXT","ascii_to_string");
 %%   #else
-%%     puts("extern object CLSTEXT (const char* asciz);");
+%%     exportF(object,CLSTEXT,(const char* asciz));
 %%   #endif
 %% #endif
 
@@ -9746,7 +9768,7 @@ extern maygc object nobject_out (FILE* out, object obj);
   (printf("[%s:%d] %s: %s: ",__FILE__,__LINE__,STRING(obj),label),     \
    nobject_out(stdout,obj), printf("\n"), fflush(stdout))
 /* used for debugging purposes */
-%% puts("extern object object_out (object obj);");
+%% exportF(object,object_out,(object obj));
 %% puts("#define OBJECT_OUT(obj,label)  (printf(\"[%s:%d] %s: %s:\\n\",__FILE__,__LINE__,STRING(obj),label),obj=object_out(obj))");
 
 /* After allocating memory for an object, add the type infos. */
@@ -9781,7 +9803,7 @@ extern internal_time_t gc_time;
 extern maygc object allocate_cons (void);
 /* is used by LIST, SEQUENCE, PACKAGE, EVAL, CONTROL, RECORD,
             PREDTYPE, IO, STREAM, PATHNAME, SYMBOL, ARRAY, LISPARIT */
-%% puts("extern object allocate_cons (void);");
+%% exportF(object,allocate_cons,(void));
 
 /* UP: Returns a newly created uninterned symbol with a given Printname.
  make_symbol(string)
@@ -9791,7 +9813,7 @@ extern maygc object allocate_cons (void);
 extern maygc object make_symbol (object string);
 /* is used by PACKAGE, IO, SYMBOL */
 %% #if notused
-%% puts("extern object make_symbol (object string);");
+%% exportF(object,make_symbol,(object string));
 %% #endif
 
 /* UP: allocates a general vector
@@ -9801,7 +9823,7 @@ extern maygc object make_symbol (object string);
  can trigger GC */
 extern maygc object allocate_vector (uintL len);
 /* is used by ARRAY, IO, EVAL, PACKAGE, CONTROL, HASHTABL */
-%% puts("extern object allocate_vector (uintL len);");
+%% exportF(object,allocate_vector,(uintL len));
 
 /* Function: Allocates a bit/byte vector.
  allocate_bit_vector(atype,len)
@@ -9811,7 +9833,7 @@ extern maygc object allocate_vector (uintL len);
  can trigger GC */
 extern maygc object allocate_bit_vector (uintB atype, uintL len);
 /* is used by ARRAY, IO, RECORD, LISPARIT, STREAM, CLX */
-%% puts("extern object allocate_bit_vector (uintB atype, uintL len);");
+%% exportF(object,allocate_bit_vector,(uintB atype, uintL len));
 
 /* Macro: Allocates a 8bit-vector on the stack, with dynamic extent.
    { var DYNAMIC_8BIT_VECTOR(obj,len);
@@ -9882,7 +9904,7 @@ extern maygc object allocate_s8string (uintL len);
 #define allocate_s8string(len)  allocate_s32string(len)
 #endif
 %% #if !defined(ENABLE_UNICODE)
-%%   puts("extern object allocate_s8string (uintL len);");
+%%   exportF(object,allocate_s8string,(uintL len));
 %% #endif
 
 #if !defined(ENABLE_UNICODE) || defined(HAVE_SMALL_SSTRING)
@@ -9927,7 +9949,7 @@ extern maygc object allocate_imm_s16string (uintL len);
 extern maygc object allocate_s32string (uintL len);
 #endif
 %% #ifdef ENABLE_UNICODE
-%%   puts("extern object allocate_s32string (uintL len);");
+%%   exportF(object,allocate_s32string,(uintL len));
 %% #endif
 
 #ifdef ENABLE_UNICODE
@@ -10316,7 +10338,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
 /* used by FFI & modules */
 #endif
 %% #ifdef FOREIGN
-%%   puts("extern object allocate_fpointer (FOREIGN foreign);");
+%%   exportF(object,allocate_fpointer,(FOREIGN foreign));
 %% #endif
 
 /* UP: allocates foreign address
@@ -10380,7 +10402,7 @@ extern maygc object allocate_iarray (uintB flags, uintC rank, tint type);
   #define allocate_handle(handle)  fixnum((uintL)(handle))
 #endif
 %% #if defined(FOREIGN_HANDLE)
-%%   puts("extern object allocate_handle (Handle handle);");
+%%   exportF(object,allocate_handle,(Handle handle));
 %% #else
 %%   export_def(allocate_handle(handle));
 %% #endif
@@ -10504,7 +10526,7 @@ extern uintL asciz_length (const char * asciz);
 %% #ifdef asciz_length
 %%   export_def(asciz_length(a));
 %% #else
-%%   puts("extern uintL asciz_length (const char * asciz);");
+%%   exportF(uintL,asciz_length,(const char * asciz));
 %% #endif
 
 /* UP: Compares two ASCIZ-Strings.
@@ -10518,19 +10540,19 @@ extern bool asciz_equal (const char * asciz1, const char * asciz2);
 %% #ifdef asciz_length
 %%   export_def(asciz_equal(a1,a2));
 %% #else
-%%   puts("extern bool asciz_equal (const char * asciz1, const char * asciz2);");
+%%   exportF(bool,asciz_equal,(const char * asciz1, const char * asciz2));
 %% #endif
 %% #endif
 
 /* allocate memory and check for success */
 extern void* clisp_malloc (size_t size);
 /* used by FOREIGN and modules */
-%% puts("extern void* clisp_malloc (size_t size);");
+%% exportF(void*,clisp_malloc,(size_t size));
 
 /* reallocate memory and check for success */
 extern void* clisp_realloc (void* ptr, size_t size);
 /* used by modules */
-%% puts("extern void* clisp_realloc (void *ptr, size_t size);");
+%% exportF(void*,clisp_realloc,(void *ptr, size_t size));
 
 /* UP: Returns a Table of all circularities within an Object.
  (A circularity is a Sub-Object contained within this Object,
@@ -10716,8 +10738,8 @@ extern void end_want_sigcld (void);
 /* is used by PATHNAME and module syscalls */
 #endif
 %% #ifdef HAVE_SIGNALS
-%%  puts("extern void begin_want_sigcld (void);");
-%%  puts("extern void end_want_sigcld (void);");
+%%  exportF(void,begin_want_sigcld,(void));
+%%  exportF(void,end_want_sigcld,(void));
 %% #endif
 
 
@@ -10726,7 +10748,7 @@ extern void end_want_sigcld (void);
 extern bool writing_to_subprocess;
 #endif
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE) && !defined(MULTITHREAD)
-%%  puts("extern bool writing_to_subprocess;");
+%%  exportV(bool,writing_to_subprocess);
 %% #endif
 
 
@@ -10776,7 +10798,7 @@ extern struct subr_tab_ {
 } subr_tab_data;
 #undef LISPFUN
 /* is used by Macro L */
-%% puts("extern struct subr_tab_ {");
+%% puts(STRINGIFY(modimp) " struct subr_tab_ {");
 %% puts("  VAROBJECTS_ALIGNMENT_DUMMY_DECL");
 %% #undef LISPFUN
 %% #define LISPFUN(name,sec,req_count,opt_count,rest_flag,key_flag,key_count,keywords) \
@@ -10784,6 +10806,7 @@ extern struct subr_tab_ {
 %% #include "subr.c"
 %% #undef LISPFUN
 %% puts("} subr_tab_data;");
+%% emit_dll_def("subr_tab_data");
 
 /* Abbreviation for LISP-Subr with a given name: L(name) */
 #if !defined(MAP_MEMORY_TABLES)
@@ -10863,13 +10886,14 @@ extern struct symbol_tab_ {
 } symbol_tab_data;
 #undef LISPSYM
 /* is used by Macro S, gcinvariant_symbol_p */
-%% puts("extern struct symbol_tab_ {");
+%% puts(STRINGIFY(modimp) " struct symbol_tab_ {");
 %% puts("  VAROBJECTS_ALIGNMENT_DUMMY_DECL");
 %% #define LISPSYM(name,printname,package)  \
 %%   printf("  symbol_ %s;\n",STRING(S_##name));
 %% #include "constsym.c"
 %% #undef LISPSYM
 %% puts("} symbol_tab_data;");
+%% emit_dll_def("symbol_tab_data");
 
 /* Abbreviation for LISP-Symbol with a given name: S(name) */
 #define S(name)  S_help_(S_##name)
@@ -10977,11 +11001,12 @@ extern struct object_tab_ {
 } object_tab;
 #undef LISPOBJ
 /* is used by Macro O */
-%% puts("extern struct object_tab_ {");
+%% puts(STRINGIFY(modimp) " struct object_tab_ {");
 %% #define LISPOBJ(name,init)  printf("  gcv_object_t %s;\n",STRING(name));
 %% #include "constobj.c"
 %% #undef LISPOBJ
 %% puts("} object_tab;");
+%% emit_dll_def("object_tab");
 
 /* Abbreviation for other LISP-object with a given Name: */
 #define O(name)  (object_tab.name)
@@ -10999,7 +11024,7 @@ extern struct object_tab_ {
 %% export_def(PROT_READ);
 %% export_def(PROT_READ_WRITE);
 %% #if defined(GENERATIONAL_GC) && defined(SPVW_MIXED)
-%% puts("extern bool handle_fault_range (int prot, aint start_address, aint end_address);");
+%% exportF(bool,handle_fault_range,(int prot, aint start_address, aint end_address));
 %% #else
 %% puts("#define handle_fault_range(p,s,e)");
 %% #endif
@@ -11016,7 +11041,7 @@ extern struct object_tab_ {
 
 /* Number of external modules: */
 extern uintC module_count;
-%% puts("extern uintC module_count;");
+%% exportV(uintC,module_count);
 
 /* Data for initialization of a module's subr_tab: */
 typedef struct {
@@ -11063,10 +11088,10 @@ typedef struct module_t {
 %% strcat(buf," }"); emit_typedef(buf,"module_t");
 %% #ifdef DYNAMIC_MODULES
 %%   puts("BEGIN_DECLS");
-%%   puts("extern void add_module (module_t * new_module);");
+%%   exportF(void,add_module,(module_t * new_module));
 %%   puts("END_DECLS");
 %% #else
-%%   puts("extern module_t modules[];");
+%%   exportF(module_t,modules,[]);
 %% #endif
 
 #if defined(HAVE_DYNLOAD) || defined(WIN32_NATIVE)
@@ -11735,13 +11760,14 @@ re-enters the corresponding top-level loop.
 %% export_def(mv_limit);
 %% #endif
 %% #if !defined(mv_count_register)
-%%   puts("extern uintC mv_count;");
+%%   exportV(uintC,mv_count);
 %% #else
 %%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register uintC mv_count __asm__(\"%s\");\n",mv_count_register);
 %%   puts("#endif");
 %% #endif
-%% printf("extern object mv_space [%d];\n",mv_limit-1);
+%% printf("%s object mv_space [%d];\n",STRINGIFY(modimp),mv_limit-1);
+%% emit_dll_def("mv_space");
 %% #if !defined(value1_register)
 %%   emit_define("value1","mv_space[0]");
 %% #else
@@ -11878,7 +11904,7 @@ re-enters the corresponding top-level loop.
 nonreturning_function(extern, error_mv_toomany, (object caller));
 /* is used by EVAL, CONTROL, LISPARIT */
 %% #if notused
-%% puts("nonreturning_function(extern, error_mv_toomany, (object caller));");
+%% exportE(error_mv_toomany,(object caller));
 %% #endif
 
 #if !defined(back_trace_register)
@@ -11888,7 +11914,7 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
 #endif
 #define subr_self  back_trace->bt_function
 %% #if !defined(back_trace_register)
-%%   puts("extern p_backtrace_t back_trace;");
+%%   exportV(p_backtrace_t,back_trace);
 %% #else
 %%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
@@ -12478,7 +12504,7 @@ extern  gcv_environment_t aktenv;
 extern maygc Values apply (object fun, uintC args_on_stack, object other_args);
 /* is used by EVAL, CONTROL, IO, PATHNAME, ERROR */
 %% #if notused
-%% puts("extern Values apply (object fun, uintC args_on_stack, object other_args);");
+%% exportF(Values,apply,(object fun, uintC args_on_stack, object other_args));
 %% #endif
 
 /* UP: Applies a function to its arguments.
@@ -12490,7 +12516,7 @@ extern maygc Values apply (object fun, uintC args_on_stack, object other_args);
  modifies STACK, can trigger GC */
 extern maygc Values funcall (object fun, uintC argcount);
 /* is used by all Modules */
-%% puts("extern Values funcall (object fun, uintC argcount);");
+%% exportF(Values,funcall,(object fun, uintC argcount));
 
 /* UP: Evaluates a Form in the current Environment.
  eval(form);
@@ -12500,7 +12526,7 @@ extern maygc Values funcall (object fun, uintC argcount);
 extern maygc Values eval (object form);
 /* is used by CONTROL, DEBUG */
 %% #if notused
-%% puts("extern Values eval (object form);");
+%% exportF(Values,eval,(object form));
 %% #endif
 
 /* UP: Evaluates a Form in a given Environment.
@@ -12972,10 +12998,10 @@ extern void init_dependent_encodings (void);
 #endif
 /* is used by PATHNAME */
 %% #ifdef ENABLE_UNICODE
-%%   puts("extern object n_char_to_string (const char* charptr, uintL len, object encoding);");
+%%   exportF(object,n_char_to_string,(const char* charptr, uintL len, object encoding));
 %% #else
 %%   emit_define("n_char_to_string(charptr,len,encoding)","n_char_to_string_(charptr,len)");
-%%   puts("extern object n_char_to_string_ (const char* charptr, uintL len);");
+%%   exportF(object,n_char_to_string_,(const char* charptr, uintL len));
 %% #endif
 
 /* UP: Converts an ASCIZ-String to a LISP-String.
@@ -12995,12 +13021,12 @@ extern void init_dependent_encodings (void);
 extern maygc object ascii_to_string (const char * asciz);
 /* is used by SPVW/CONSTSYM, STREAM, PATHNAME, PACKAGE, GRAPH */
 %% #ifdef ENABLE_UNICODE
-%%   puts("extern object asciz_to_string (const char * asciz, object encoding);");
+%%   exportF(object,asciz_to_string,(const char * asciz, object encoding));
 %% #else
 %%   emit_define("asciz_to_string(asciz,encoding)","asciz_to_string_(asciz)");
-%%   puts("extern object asciz_to_string_ (const char * asciz);");
+%%   exportF(object,asciz_to_string_,(const char * asciz));
 %% #endif
-%% puts("extern object ascii_to_string (const char * asciz);");
+%% exportF(object,ascii_to_string,(const char * asciz));
 
 /* UP: Converts a String to an ASCIZ-String.
  string_to_asciz(obj,encoding)
@@ -13019,10 +13045,10 @@ extern maygc object ascii_to_string (const char * asciz);
 #define TheAsciz(obj)  ((char*)(&TheSbvector(obj)->data[0]))
 /* is used by STREAM, PATHNAME */
 %% #ifdef ENABLE_UNICODE
-%%   puts("extern object string_to_asciz (object obj, object encoding);");
+%%   exportF(object,string_to_asciz,(object obj, object encoding));
 %% #else
 %%   export_def(string_to_asciz(obj,encoding));
-%%   puts("extern object string_to_asciz_ (object obj);");
+%%   exportF(object,string_to_asciz_,(object obj));
 %% #endif
 %% export_def(TheAsciz(obj));
 
@@ -13196,7 +13222,7 @@ extern maygc object copy_sbvector (object vector);
  < result: its length */
 extern uintL vector_length (object vector);
 /* used by many modules */
-%% puts("extern uintL vector_length (object vector);");
+%% exportF(uintL,vector_length,(object vector));
 
 /* Function: Canonicalizes an array element-type and returns its
  element type code.
@@ -13219,7 +13245,7 @@ extern maygc uintB eltype_code (object element_type);
  can trigger GC */
 extern maygc object vectorof (uintC len);
 /* used by PREDTYPE */
-%% puts("extern object vectorof (uintC len);");
+%% exportF(object,vectorof,(uintC len));
 
 /* Function: For an indirect array, returns the storage vector and the offset.
  Also verifies that all elements of the array are physically present.
@@ -13240,7 +13266,7 @@ extern object iarray_displace_check (object array, uintL size, uintL* index);
  < index: is incremented by the offset into the storage vector */
 extern object array_displace_check (object array, uintV size, uintL* index);
 /* used by HASHTABL, PREDTYPE, IO, FOREIGN */
-%% puts("extern object array_displace_check (object array, uintV size, uintL* index);");
+%% exportF(object,array_displace_check,(object array, uintV size, uintL* index));
 
 /* Tests for the storage vector of an array of element type NIL.
  simple_nilarray_p(obj) */
@@ -13256,7 +13282,7 @@ nonreturning_function(extern, error_index_range, (object array, uintL bound));
 /* error message: attempt to retrieve a value from (ARRAY NIL) */
 nonreturning_function(extern, error_nilarray_retrieve, (void));
 /* used by PREDTYPE */
-%% puts("nonreturning_function(extern, error_nilarray_retrieve, (void));");
+%% exportE(error_nilarray_retrieve,(void));
 
 /* error message: attempt to store a value in (ARRAY NIL) */
 nonreturning_function(extern, error_nilarray_store, (void));
@@ -13314,7 +13340,7 @@ nonreturning_function(extern, error_store, (object array, object value));
 /* return Atype for the given array */
 global uintBWL array_atype (object array);
 /* used by socket.d and modules */
-%% puts("extern uintBWL array_atype (object array);");
+%% exportF(uintBWL,array_atype,(object array));
 
 /* Function: Returns the element-type of an array.
  array_element_type(array)
@@ -13330,7 +13356,7 @@ extern maygc object array_element_type (object array);
  < uintL result: its rank = number of dimensions */
 extern uintL array_rank (object array);
 /* used by modules */
-%% puts("extern uintL array_rank (object array);");
+%% exportF(uintL,array_rank,(object array));
 
 /* Returns the dimensions of an array.
  get_array_dimensions(array,rank,&dimensions[]);
@@ -13340,7 +13366,7 @@ extern uintL array_rank (object array);
  < uintL dimensions[0..rank-1]: the array's dimensions */
 extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);
 /* used by modules */
-%% puts("extern void get_array_dimensions (object array, uintL rank, uintL* dimensions);");
+%% exportF(void,get_array_dimensions,(object array, uintL rank, uintL* dimensions));
 
 /* Function: Returns the list of dimensions of an array.
  array_dimensions(array)
@@ -13459,7 +13485,7 @@ extern bool array_has_fill_pointer_p (object array);
 extern maygc object allocate_bit_vector_0 (uintL len);
 /* used by SEQUENCE */
 %% #if notused
-%% puts("extern object allocate_bit_vector_0 (uintL len);");
+%% exportF(object,allocate_bit_vector_0,(uintL len));
 %% #endif
 
 /* The following functions work on "semi-simple string"s.
@@ -13554,7 +13580,7 @@ extern maygc object ssbvector_push_extend (object ssbvector, uintB b);
 extern chart up_case (chart ch);
 /* is used by IO, PREDTYPE, PATHNAME */
 %% #if notused
-%% puts("extern chart up_case (chart ch);");
+%% exportF(chart,up_case,(chart ch));
 %% #endif
 
 /* Converts Byte ch to downcase
@@ -13562,7 +13588,7 @@ extern chart up_case (chart ch);
 extern chart down_case (chart ch);
 /* is used by IO, PATHNAME */
 %% #if notused
-%% puts("extern chart down_case (chart ch);");
+%% exportF(chart,down_case,(chart ch));
 %% #endif
 
 /* Checks whether a Character is alphanumeric.
@@ -13604,7 +13630,7 @@ extern void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len);
 extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);");
+%%   exportF(void,copy_8bit_16bit,(const uint8* src, uint16* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13616,7 +13642,7 @@ extern void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len);
 extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);");
+%%   exportF(void,copy_8bit_32bit,(const uint8* src, uint32* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13629,7 +13655,7 @@ extern void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len);
 extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);");
+%%   exportF(void,copy_16bit_8bit,(const uint16* src, uint8* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13641,7 +13667,7 @@ extern void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len);
 extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);");
+%%   exportF(void,copy_16bit_16bit,(const uint16* src, uint16* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13653,7 +13679,7 @@ extern void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len);
 extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);");
+%%   exportF(void,copy_16bit_32bit,(const uint16* src, uint32* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13666,7 +13692,7 @@ extern void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len);
 extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);");
+%%   exportF(void,copy_32bit_8bit,(const uint32* src, uint8* dest, uintL len));
 %% #endif
 
 #if defined(HAVE_SMALL_SSTRING)
@@ -13679,7 +13705,7 @@ extern void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len);
 extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);
 #endif
 %% #ifdef HAVE_SMALL_SSTRING
-%%   puts("extern void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len);");
+%%   exportF(void,copy_32bit_16bit,(const uint32* src, uint16* dest, uintL len));
 %% #endif
 
 #if defined(ENABLE_UNICODE)
@@ -13851,7 +13877,7 @@ static inline chart schar (object string, uintL index) {
  < object result: datastorage vector, a simple-string or NIL */
 extern object unpack_string_ro (object string, uintL* len, uintL* offset);
 /* is used by STREAM, HASHTABL, PACKAGE, SEQUENCE, ENCODING */
-%% puts("extern object unpack_string_ro (object string, uintL* len, uintL* offset);");
+%% exportF(object,unpack_string_ro,(object string, uintL* len, uintL* offset));
 
 /* UP: tests two Strings for equality
  string_eq(string1,string2)
@@ -13868,7 +13894,7 @@ extern bool string_eq (object string1, object string2);
  < result: /=0, if equal */
 extern bool string_equal (object string1, object string2);
 /* is used by IO, PATHNAME */
-%% puts("extern bool string_equal (object string1, object string2);");
+%% exportF(bool,string_equal,(object string1, object string2));
 
 /* UP: Stores a character in a string.
  > string: a mutable string that is or was simple
@@ -14041,7 +14067,7 @@ extern maygc object test_string_limits_ro (stringarg* arg);
  removes 2 elements from STACK */
 extern void test_vector_limits (stringarg* arg);
 /* used by ENCODING */
-%% puts("extern void test_vector_limits (stringarg* arg);");
+%% exportF(void,test_vector_limits,(stringarg* arg));
 /* used by RAWSOCK, NEW-CLX */
 
 /* UP: checks a string/symbol/character-argument
@@ -14134,7 +14160,7 @@ extern maygc object subsstring (object string, uintL start, uintL end);
  can trigger GC */
 extern maygc object string_concat (uintC argcount);
 /* is used by PACKAGE, PATHNAME, DEBUG, SYMBOL */
-%% puts("extern object string_concat (uintC argcount);");
+%% exportF(object,string_concat,(uintC argcount));
 
 /* ###################### DEBUGBIB for DEBUG.D ########################### */
 
@@ -14162,7 +14188,7 @@ extern maygc void break_driver (bool continuable_p);
  can trigger GC - if allowgc is true */
 extern /*maygc*/ object gethash (object obj, object ht, bool allowgc);
 /* is used by EVAL, RECORD, PATHNAME, FOREIGN */
-%% puts("extern object gethash (object obj, object ht, bool allowgc);");
+%% exportF(object,gethash,(object obj, object ht, bool allowgc));
 
 /* UP: Locates a key in a hash-table and gives the older value.
  shifthash(ht,obj,value) == (SHIFTF (GETHASH obj ht) value)
@@ -14374,7 +14400,7 @@ extern funarg_t* check_test_args (gcv_object_t* stackptr);
  can trigger GC */
 extern maygc object copy_list (object list);
 /* is used by PACKAGE */
-%% puts("extern object copy_list (object old_list);");
+%% exportF(object,copy_list,(object old_list));
 
 /* UP: Reverses a list constructively.
  reverse(list)
@@ -14394,7 +14420,7 @@ extern uintL llength1 (object obj, object* last);
 /* used in SEQUENCE */
 #define llength(obj)  llength1(obj,NULL)
 /* used by CONTROL, EVAL, RECORD, IO, PACKAGE, HASHTABL, STREAM */
-%% puts("extern uintL llength1 (object obj, object* last);");
+%% exportF(uintL,llength1,(object obj, object* last));
 
 /* UP: Makes a list with exactly len elements
  make_list(len)
@@ -14405,7 +14431,7 @@ extern uintL llength1 (object obj, object* last);
 extern maygc object make_list (uintL len);
 /* is used by */
 %% #if notused
-%% puts("extern object make_list (uintL len);");
+%% exportF(object,make_list,(uintL len));
 %% #endif
 
 /* UP: reverses a list destructively.
@@ -14414,7 +14440,7 @@ extern maygc object make_list (uintL len);
  < result: list (xm ... x1), EQ to the old one */
 extern object nreverse (object list);
 /* is used by SEQUENCE, EVAL, CONTROL, IO, PATHNAME, ERROR, DEBUG, PACKAGE */
-%% puts("extern object nreverse (object list);");
+%% exportF(object,nreverse,(object list));
 
 /* UP: A0 := (nreconc A0 A1)
  nreconc(list,obj)
@@ -14432,7 +14458,7 @@ extern object nreconc (object list, object obj);
  < result: modified list */
 extern object deleteq (object list, object obj);
 /* is used by PACKAGE, STREAM */
-%% puts("extern object deleteq (object list, object obj);");
+%% exportF(object,deleteq,(object list, object obj));
 
 /* UP: check whether OBJ ends a proper list
  endp(obj)
@@ -14442,7 +14468,7 @@ extern object deleteq (object list, object obj);
            error otherwise */
 extern bool endp (object obj);
 /* used by CONTROL */
-%% puts("extern bool endp (object obj);");
+%% exportF(bool,endp,(object obj));
 
 /* Finds the length of a possibly circular or dotted list.
  list_length(list,&dotted)
@@ -14469,12 +14495,12 @@ extern bool proper_list_p (object obj);
  modifies STACK, can trigger GC */
 extern maygc object listof (uintC len);
 /* used by STREAM, PATHNAME, PACKAGE, ARRAY, EVAL, PREDTYPE, ERROR, SPVW */
-%% puts("extern object listof (uintC len);");
+%% exportF(object,listof,(uintC len));
 
 /* UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ) */
 extern object memq (const object obj, const object lis);
 /* used by RECORD */
-%% puts("extern object memq (const object obj, const object lis);");
+%% exportF(object,memq,(const object obj, const object lis));
 
 /* ####################### MISCBIBL for MISC.D ############################# */
 
@@ -14502,14 +14528,14 @@ extern maygc object map_c_to_list (long val, const c_lisp_map_t *map);
 global maygc long map_list_to_c (object obj, const c_lisp_map_t *map);
 %% emit_typedef("struct { long c_const; gcv_object_t *l_const; }","c_lisp_pair_t");
 %% emit_typedef("struct { const c_lisp_pair_t *table; const unsigned int size; const long default_value; const bool have_default_value_p;  const bool use_default_function_p; const char *name; }","c_lisp_map_t");
-%% puts("extern long map_lisp_to_c (object obj, const c_lisp_map_t *map);");
-%% puts("extern object map_c_to_lisp (long val, const c_lisp_map_t *map);");
-%% puts("extern object map_c_to_list (long val, const c_lisp_map_t *map);");
-%% puts("extern long map_list_to_c (object obj, const c_lisp_map_t *map);");
+%% exportF(long,map_lisp_to_c,(object obj, const c_lisp_map_t *map));
+%% exportF(object,map_c_to_lisp,(long val, const c_lisp_map_t *map));
+%% exportF(object,map_c_to_list,(long val, const c_lisp_map_t *map));
+%% exportF(long,map_list_to_c,(object obj, const c_lisp_map_t *map));
 global maygc void push_string_array (char **arr);
-%% puts("extern void push_string_array (char **arr);");
+%% exportF(void,push_string_array,(char **arr));
 global maygc object safe_to_string (const char *asciz);
-%% puts("extern object safe_to_string (const char *asciz);");
+%% exportF(object,safe_to_string,(const char *asciz));
 
 /* ####################### ERRBIBL for ERROR.D ############################# */
 
@@ -14561,7 +14587,7 @@ typedef enum {
  > on the STACK: initial values for the Condition, depending on error-type */
 nonreturning_function(extern, error, (condition_t errortype, const char * errorstring));
 /* used by all modules */
-%% puts("nonreturning_function(extern, error, (condition_t errortype, const char * errorstring));");
+%% exportE(error,(condition_t errortype, const char * errorstring));
 
 /* Report an error and try to recover by asking the user to supply a value.
  check_value(errortype,errorstring);
@@ -14578,7 +14604,7 @@ nonreturning_function(extern, error, (condition_t errortype, const char * errors
  can trigger GC */
 extern maygc void check_value (condition_t errortype, const char * errorstring);
 /* used by all modules */
-%% puts("extern void check_value (condition_t errortype, const char * errorstring);");
+%% exportF(void,check_value,(condition_t errortype, const char * errorstring));
 
 /* Report an error and try to recover by asking the user to choose among some
  alternatives.
@@ -14610,7 +14636,7 @@ nonreturning_function(extern, OS_error_arg, (object etype, object arg));
   (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_error_arg)(etype,arg))
 #endif
 #define OS_file_error(path)   OS_error_arg(S(simple_file_error),path)
-%% puts("nonreturning_function(extern, OS_error_arg, (object etype, object arg));");
+%% exportE(OS_error_arg,(object etype, object arg));
 %% puts("#define OS_file_error(path) OS_error_arg(S(simple_file_error),path)");
 
 /* Just like OS_error, but takes a channel stream and signals a FILE-ERROR.
@@ -14623,7 +14649,7 @@ nonreturning_function(extern, OS_filestream_error, (object stream));
   #define OS_filestream_error(stream)  \
     (fprintf(stderr,"\n[%s:%d] ",__FILE__,__LINE__), (OS_filestream_error)(stream))
 #endif
-%% puts("nonreturning_function(extern, OS_filestream_error, (object stream));");
+%% exportE(OS_filestream_error,(object stream));
 
 /* Prints error directly via the OS:  errno_out_low(errorcode,FILE,LINE);
  > errorcode: error code
@@ -14650,7 +14676,7 @@ extern maygc void tast_break (void);
  < result: an object of the given type, either the same as obj or a replacement
  can trigger GC */
 extern maygc object check_classname (object obj, object type);
-%% puts("extern object check_classname (object obj, object classname);");
+%% exportF(object,check_classname,(object obj, object classname));
 
 #ifdef FOREIGN
 /* check_fpointer(obj,restart_p)
@@ -14669,7 +14695,7 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 /* used by FOREIGN and REGEXP (amd maybe other non-FFI modules) */
 #endif
 %% #ifdef FOREIGN
-%%   puts("extern object check_fpointer_replacement (object obj, bool restart_p);");
+%%   exportF(object,check_fpointer_replacement,(object obj, bool restart_p));
 %%   puts("#ifndef COMPILE_STANDALONE");
 %%   puts("static inline object check_fpointer (object obj, bool restart_p) {"
 %%          " if (!(fpointerp(obj) && fp_validp(TheFpointer(obj))))"
@@ -14685,7 +14711,7 @@ static inline maygc object check_fpointer (object obj, bool restart_p) {
 nonreturning_function(extern, error_list, (object obj));
 /* used by LIST, EVAL, STREAM */
 %% #if notused
-%% puts("nonreturning_function(extern, error_list, (object obj));");
+%% exportE(error_list,(object obj));
 %% #endif
 
 /* check_list(obj)
@@ -14708,7 +14734,7 @@ extern maygc object check_list_replacement (object obj);
 MAKE_CHECK(list)
 #endif
 /* used by PATHNAME */
-%% puts("extern object check_list_replacement (object obj);");
+%% exportF(object,check_list_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(list));
 %% puts("#endif");
@@ -14719,7 +14745,7 @@ MAKE_CHECK(list)
  > obj: End of list, non-list */
 nonreturning_function(extern, error_proper_list_dotted, (object caller, object obj));
 /* is used by LIST */
-%% puts("nonreturning_function(extern, error_proper_list_dotted, (object caller, object obj));");
+%% exportE(error_proper_list_dotted,(object caller, object obj));
 
 /* Error message, if an object isn't a proper list because it is circular.
  error_proper_list_circular(caller,obj);
@@ -14782,7 +14808,7 @@ global maygc object check_symbol_not_global_special (object symbol);
 nonreturning_function(extern, error_no_svector, (object caller, object obj));
 /* is used by ARRAY, EVAL */
 %% #if notused
-%% puts("nonreturning_function(extern, error_no_svector, (object caller, object obj));");
+%% exportE(error_no_svector,(object caller, object obj));
 %% #endif
 
 /* Error message, if an object isn't a vector.
@@ -14791,7 +14817,7 @@ nonreturning_function(extern, error_no_svector, (object caller, object obj));
 nonreturning_function(extern, error_vector, (object obj));
 /* is used by ARRAY */
 %% #if notused
-%% puts("nonreturning_function(extern, error_vector, (object obj));");
+%% exportE(error_vector,(object obj));
 %% #endif
 
 /* check_array(obj)
@@ -14803,7 +14829,7 @@ extern maygc object check_array_replacement (object obj);
 MAKE_CHECK(array)
 #endif
 /* used by ARRAY, modules */
-%% puts("extern object check_array_replacement (object obj);");
+%% exportF(object,check_array_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(array));
 %% puts("#endif");
@@ -14817,7 +14843,7 @@ extern maygc object check_vector_replacement (object obj);
 MAKE_CHECK(vector)
 #endif
 /* used by ARRAY, ENCODING, modules */
-%% puts("extern object check_vector_replacement (object obj);");
+%% exportF(object,check_vector_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(vector));
 %% puts("#endif");
@@ -14831,7 +14857,7 @@ extern maygc object check_byte_vector_replacement (object obj);
 MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj))
 #endif
 /* used by STREAM, modules */
-%% puts("extern object check_byte_vector_replacement (object obj);");
+%% exportF(object,check_byte_vector_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_LOW(byte_vector,bit_vector_p(Atype_8Bit,obj)));
 %% puts("#endif");
@@ -14857,7 +14883,7 @@ extern maygc object check_posfixnum_replacement (object obj);
 MAKE_CHECK(posfixnum)
 #endif
 /* used by STREAM, LISPARIT */
-%% puts("extern object check_posfixnum_replacement (object obj);");
+%% exportF(object,check_posfixnum_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(posfixnum));
 %% puts("#endif");
@@ -14881,7 +14907,7 @@ extern maygc object check_pos_integer_replacement (object obj);
 MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj)))
 #endif
 /* used by LISPARIT, LIST */
-%% puts("extern object check_pos_integer_replacement (object obj);");
+%% exportF(object,check_pos_integer_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_LOW(pos_integer,(integerp(obj)&&!R_minusp(obj))));
 %% puts("#endif");
@@ -14902,7 +14928,7 @@ MAKE_CHECK(char)
 #endif
 /* used by CHARSTRG, ENCODING, IO */
 %% #if notused
-%% puts("extern object check_char_replacement (object obj);");
+%% exportF(object,check_char_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(char));
 %% puts("#endif");
@@ -14917,7 +14943,7 @@ extern maygc object check_string_replacement (object obj);
 MAKE_CHECK(string)
 #endif
 /* used by CHARSTRG, FOREIGN, MISC, PACKAGE, PATHNAME, STREAM, SOCKET, I18N */
-%% puts("extern object check_string_replacement (object obj);");
+%% exportF(object,check_string_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK(string));
 %% puts("#endif");
@@ -14928,7 +14954,7 @@ MAKE_CHECK(string)
 nonreturning_function(extern, error_sstring, (object obj));
 /* is used by CHARSTRG */
 %% #if notused
-%% puts("nonreturning_function(extern, error_sstring, (object obj));");
+%% exportE(error_sstring,(object obj));
 %% #endif
 
 /* Checks a simple-string for being mutable.
@@ -14945,7 +14971,7 @@ nonreturning_function(extern, error_sstring, (object obj));
 /* Error message, if an argument is not of type (OR STRING INTEGER).
  error_string_integer(obj); */
 nonreturning_function(extern, error_string_integer, (object obj));
-%% puts("nonreturning_function(extern, error_string_integer, (object obj));");
+%% exportE(error_string_integer,(object obj));
 
 /* Error message, if a string size is too big.
  error_stringsize(size);
@@ -14986,14 +15012,14 @@ nonreturning_function(global, error_illegal_arg,
  error_plist_odd(caller,plist);
  > plist: bad plist */
 nonreturning_function(extern, error_plist_odd, (object plist));
-%% puts("nonreturning_function(extern, error_plist_odd, (object plist));");
+%% exportE(error_plist_odd,(object plist));
 
 /* error-message for non-paired keyword-arguments
  error_key_odd(argcount,caller);
  > argcount: the number of arguments on the STACK
  > caller: function */
 nonreturning_function(extern, error_key_odd, (uintC argcount, object caller));
-%% puts("nonreturning_function(extern, error_key_odd, (uintC argcount, object caller));");
+%% exportE(error_key_odd,(uintC argcount, object caller));
 
 /* error-message for flawed keyword
  error_key_notkw(kw);
@@ -15009,7 +15035,7 @@ nonreturning_function(extern, error_key_notkw, (object key, object caller));
  > kwlist: list of legal keywords */
 nonreturning_function(extern, error_key_badkw,
                       (object fun, object key, object val, object kwlist));
-%% puts("nonreturning_function(extern, error_key_badkw, (object fun, object key, object val, object kwlist));");
+%% exportE(error_key_badkw,(object fun, object key, object val, object kwlist));
 
 /* check_function(obj)
  > obj: an object
@@ -15082,7 +15108,7 @@ extern maygc void check_variable_value_replacement (gcv_object_t *symbol_,
  > obj: the faulty argument */
 nonreturning_function(global, error_c_integer,
                       (object obj, int tcode, bool signedp));
-%% puts("nonreturning_function(extern, error_c_integer, (object obj, int tcode, bool signedp));");
+%% exportE(error_c_integer,(object obj, int tcode, bool signedp));
 #define error_uint8(obj)   error_c_integer(obj,0,true)
 #define error_sint8(obj)   error_c_integer(obj,0,true)
 #define error_uint16(obj)  error_c_integer(obj,1,false)
@@ -15197,7 +15223,7 @@ extern maygc object check_dfloat_replacement (object obj);
 MAKE_CHECK_LOW(dfloat,double_float_p(obj))
 #endif
 /* is used by STREAM, FFI */
-%% puts("extern object check_c_integer_replacement (object obj, int tcode, bool signedp);");
+%% exportF(object,check_c_integer_replacement,(object obj, int tcode, bool signedp));
 %% export_def(check_uint8_replacement(obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint8));
@@ -15230,27 +15256,27 @@ MAKE_CHECK_LOW(dfloat,double_float_p(obj))
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint64));
 %% puts("#endif");
-%% puts("extern object check_uint_replacement (object obj);");
+%% exportF(object,check_uint_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(uint));
 %% puts("#endif");
-%% puts("extern object check_sint_replacement (object obj);");
+%% exportF(object,check_sint_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(sint));
 %% puts("#endif");
-%% puts("extern object check_ulong_replacement (object obj);");
+%% exportF(object,check_ulong_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(ulong));
 %% puts("#endif");
-%% puts("extern object check_slong_replacement (object obj);");
+%% exportF(object,check_slong_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_(slong));
 %% puts("#endif");
-%% puts("extern object check_ffloat_replacement (object obj);");
+%% exportF(object,check_ffloat_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_LOW(ffloat,single_float_p(obj)));
 %% puts("#endif");
-%% puts("extern object check_dfloat_replacement (object obj);");
+%% exportF(object,check_dfloat_replacement,(object obj));
 %% puts("#ifndef COMPILE_STANDALONE");
 %% export_literal(MAKE_CHECK_LOW(dfloat,double_float_p(obj)));
 %% puts("#endif");
@@ -15293,7 +15319,7 @@ extern bool find_external_symbol (object string, bool invert, object pack, objec
  can trigger GC in threads builds */
 extern maygc object find_package (object string);
 /* is used by IO, EVAL */
-%% puts("extern object find_package (object string);");
+%% exportF(object,find_package,(object string));
 
 /* UP: Interns a symbol with a given printname in a package.
  intern(string,invert,pack,&sym)
@@ -15308,7 +15334,7 @@ extern maygc object find_package (object string);
  can trigger GC */
 extern maygc uintBWL intern (object string, bool invert, object pack, object* sym_);
 /* is used by IO, SPVW */
-%% puts("extern uintBWL intern (object string, object pack, object* sym_);");
+%% exportF(uintBWL,intern,(object string, object pack, object* sym_));
 
 /* UP: Interns a symbol with a given printname in the Keyword-Package.
  intern_keyword(string)
@@ -15317,7 +15343,7 @@ extern maygc uintBWL intern (object string, bool invert, object pack, object* sy
  can trigger GC */
 extern maygc object intern_keyword (object string);
 /* is used by IO, EVAL, GRAPH */
-%% puts("extern object intern_keyword (object string);");
+%% exportF(object,intern_keyword,(object string));
 
 /* UP: Imports a symbol into a package
  import(&sym,&pack);
@@ -15371,7 +15397,7 @@ extern maygc bool namestring_correctly_parseable_p (gcv_object_t *path_);
  < result: the namestring of the pathname denoted by thing
  can trigger GC */
 extern maygc object physical_namestring (object thing);
-%% puts("extern object physical_namestring (object obj);");
+%% exportF(object,physical_namestring,(object obj));
 
 /* Converts a directory pathname to an OS directory specification.
  > pathname: an object
@@ -15380,7 +15406,7 @@ extern maygc object physical_namestring (object thing);
  can trigger GC */
 extern maygc object pathname_to_OSdir (object pathname, bool use_default);
 /* used by modules (I18N) */
-%% puts("extern object pathname_to_OSdir (object pathname, bool use_default);");
+%% exportF(object,pathname_to_OSdir,(object pathname, bool use_default));
 
 /* Converts an OS directory specification to a directory pathname.
  > path: a pathname referring to a directory
@@ -15388,7 +15414,7 @@ extern maygc object pathname_to_OSdir (object pathname, bool use_default);
  can trigger GC */
 extern maygc object OSdir_to_pathname (const char* path);
 /* used by modules (I18N) */
-%% puts("extern object OSdir_to_pathname (const char* path);");
+%% exportF(object,OSdir_to_pathname,(const char* path));
 
 /* UP: Initializes the pathname-system.
  init_pathnames();
@@ -15401,7 +15427,7 @@ extern maygc void init_pathnames (void);
  Similar to dup(oldfd), with error checking.
  To be called only inside begin/end_system_call(). */
 extern Handle handle_dup (Handle old_handle);
-%% puts("extern Handle handle_dup (Handle old_handle);");
+%% exportF(Handle,handle_dup,(Handle old_handle));
 
 /* Duplicate an open file handle.
  handle_dup2(oldfd,newfd)
@@ -15409,7 +15435,7 @@ extern Handle handle_dup (Handle old_handle);
  be equal to newfd.
  To be called only inside begin/end_system_call(). */
 extern Handle handle_dup2 (Handle old_handle, Handle new_handle);
-%% puts("extern Handle handle_dup2 (Handle old_handle, Handle new_handle);");
+%% exportF(Handle,handle_dup2,(Handle old_handle, Handle new_handle));
 
 /* Locates the executable program immediately after the program start.
  find_executable(argv[0]) */
@@ -15433,7 +15459,7 @@ extern direction_t check_direction (object dir);
 %% printf("typedef enum { DIRECTION_PROBE=%d, DIRECTION_INPUT=%d, DIRECTION_INPUT_IMMUTABLE=%d, DIRECTION_OUTPUT=%d, DIRECTION_IO=%d} direction_t;\n",
 %%        DIRECTION_PROBE, DIRECTION_INPUT, DIRECTION_INPUT_IMMUTABLE,
 %%        DIRECTION_OUTPUT, DIRECTION_IO);
-%% puts("extern direction_t check_direction (object dir);");
+%% exportF(direction_t,check_direction,(object dir));
 
 /* check the :IF-DOES-NOT-EXIST argument
  check_if_does_not_exist(argument)
@@ -15446,12 +15472,12 @@ typedef enum {
 } if_does_not_exist_t;
 extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);
 %% emit_typedef("enum { IF_DOES_NOT_EXIST_UNBOUND, IF_DOES_NOT_EXIST_ERROR, IF_DOES_NOT_EXIST_NIL, IF_DOES_NOT_EXIST_CREATE }","if_does_not_exist_t");
-%% puts("extern if_does_not_exist_t check_if_does_not_exist (object if_not_exist);");
+%% exportF(if_does_not_exist_t,check_if_does_not_exist,(object if_not_exist));
 
 /* Converts a :IF-DOES-NOT-EXIST enum item to a symbol.
  if_does_not_exist_symbol(item) */
 extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);
-%% puts("extern object if_does_not_exist_symbol (if_does_not_exist_t if_not_exist);");
+%% exportF(object,if_does_not_exist_symbol,(if_does_not_exist_t if_not_exist));
 
 /* check the :IF-EXISTS argument
  check_if_exists(argument)
@@ -15468,12 +15494,12 @@ typedef enum {
 } if_exists_t;
 extern if_exists_t check_if_exists (object if_exists);
 %% emit_typedef("enum { IF_EXISTS_UNBOUND, IF_EXISTS_ERROR, IF_EXISTS_NIL, IF_EXISTS_RENAME, IF_EXISTS_RENAME_AND_DELETE, IF_EXISTS_SUPERSEDE, IF_EXISTS_APPEND, IF_EXISTS_OVERWRITE }","if_exists_t");
-%% puts("extern if_exists_t check_if_exists (object if_exists);");
+%% exportF(if_exists_t,check_if_exists,(object if_exists));
 
 /* Converts a :IF-EXISTS enum item to a symbol.
  if_exists_symbol(item) */
 extern object if_exists_symbol (if_exists_t if_exists);
-%% puts("extern object if_exists_symbol (if_exists_t if_exists);");
+%% exportF(object,if_exists_symbol,(if_exists_t if_exists));
 
 #if defined(WIN32_NATIVE)
 /* ------------------- Functions defined in w32shell.c ------------------- */
@@ -15506,7 +15532,7 @@ extern BOOL real_path (LPCSTR namein, LPSTR nameout);
 extern bool eql (object obj1, object obj2);
 /* is used by CONTROL, EVAL, HASHTABL, LISPARIT */
 %% #if notused
-%% puts("extern bool eql (object obj1, object obj2);");
+%% exportF(bool,eql,(object obj1, object obj2));
 %% #endif
 
 /* UP: tests for equality EQUAL
@@ -15516,7 +15542,7 @@ extern bool eql (object obj1, object obj2);
 extern bool equal (object obj1, object obj2);
 /* is used by EVAL, PATHNAME, HASHTABL, MISC */
 %% #if notused
-%% puts("extern bool equal (object obj1, object obj2);");
+%% exportF(bool,equal,(object obj1, object obj2));
 %% #endif
 
 /* UP: tests for a more lax equality EQUALP
@@ -15526,7 +15552,7 @@ extern bool equal (object obj1, object obj2);
 extern bool equalp (object obj1, object obj2);
 /* is used by PATHNAME, HASHTABL */
 %% #if notused
-%% puts("extern bool equalp (object obj1, object obj2);");
+%% exportF(bool,equalp,(object obj1, object obj2));
 %% #endif
 
 /* typep_class(obj,clas)
@@ -15535,7 +15561,7 @@ extern bool equalp (object obj1, object obj2);
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
 extern bool typep_class (object obj, object clas);
-%% puts("extern bool typep_class (object obj, object clazz);");
+%% exportF(bool,typep_class,(object obj, object clazz));
 
 /* typep_classname(obj,classname)
  > obj: an object
@@ -15543,7 +15569,7 @@ extern bool typep_class (object obj, object clas);
  < true if the object is an instance of the class, false otherwise
  clobbers value1, mv_count */
 extern bool typep_classname (object obj, object classname);
-%% puts("extern bool typep_classname (object obj, object classname);");
+%% exportF(bool,typep_classname,(object obj, object classname));
 
 /* UP: expand all DEFTYPE definitions in the type spec
  (recursively, unless once_p is true)
@@ -15658,7 +15684,7 @@ extern maygc void map_sequence (object obj, map_sequence_function_t* fun, void* 
 /* do not use emit_typedef_f because g++ complains:
  error: invalid application of `sizeof' to a function type */
 %% puts("typedef void map_sequence_function_t (void* arg, object element);");
-%% puts("extern void map_sequence (object obj, map_sequence_function_t* fun, void* arg);");
+%% exportF(void,map_sequence,(object obj, map_sequence_function_t* fun, void* arg));
 
 /* ###################### STRMBIBL for STREAM.D ############################ */
 
@@ -15682,7 +15708,7 @@ static inline maygc object check_stream (object obj) {
  usec = posfixnum or nil/unbound
  can trigger GC */
 extern maygc struct timeval * sec_usec (object sec, object usec, struct timeval *tv);
-%% puts("extern struct timeval * sec_usec (object sec, object usec, struct timeval *tv);");
+%% exportF(struct timeval *,sec_usec,(object sec, object usec, struct timeval *tv));
 
 /* Convert C sec/usec (struct timeval et al) pair into Lisp number (of seconds)
  if abs_p is true, add UNIX_LISP_TIME_DIFF
@@ -15693,9 +15719,9 @@ global maygc object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);
 global maygc object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);
 #endif
 %% #if defined(SIZEOF_STRUCT_TIMEVAL) && SIZEOF_STRUCT_TIMEVAL == 16
-%% puts("extern object sec_usec_number (uint64 sec, uint64 usec, bool abs_p);");
+%% exportF(object,sec_usec_number,(uint64 sec, uint64 usec, bool abs_p));
 %% #else
-%% puts("extern object sec_usec_number (uint32 sec, uint32 usec, bool abs_p);");
+%% exportF(object,sec_usec_number,(uint32 sec, uint32 usec, bool abs_p));
 %% #endif
 
 /* UP: Initializes the stream variables.
@@ -15822,7 +15848,7 @@ extern bool interactive_stream_p (object stream);
  can trigger GC */
 extern maygc void builtin_stream_close (const gcv_object_t* stream_, uintB abort);
 /* is used by PATHNAME, SPVW, DEBUG, MISC */
-%% puts("extern void builtin_stream_close (const gcv_object_t* stream_, uintB abort);");
+%% exportF(void,builtin_stream_close,(const gcv_object_t* stream_, uintB abort));
 
 /* UP: Closes a list of open files.
  close_some_files(list);
@@ -15933,7 +15959,7 @@ extern maygc void elastic_newline (const gcv_object_t* stream_);
  can trigger GC */
 extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);
 /* used by STREAM */
-%% puts("extern Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int * handletype);");
+%% exportF(Handle,stream_lend_handle,(gcv_object_t *stream_, bool inputp, int * handletype));
 
 /* extract the OS file handle from the file stream
  > stream: open Lisp file stream
@@ -15944,7 +15970,7 @@ extern maygc Handle stream_lend_handle (gcv_object_t *stream_, bool inputp, int 
  for syscall module
  can trigger GC */
 extern maygc object open_file_stream_handle (object stream, Handle *fd, bool permissive_p);
-%% puts("extern object open_file_stream_handle (object stream, Handle *fd, bool permissive_p);");
+%% exportF(object,open_file_stream_handle,(object stream, Handle *fd, bool permissive_p));
 
 /* return the OS's idea of the stream length for the file stream
  > stream: for error reporting
@@ -15953,7 +15979,7 @@ extern maygc object open_file_stream_handle (object stream, Handle *fd, bool per
  should be wrapped in begin_system_call()/end_system_call()
  for gdbm module */
 extern maygc off_t handle_length (gcv_object_t *stream_, Handle fd);
-%% puts("extern off_t handle_length (gcv_object_t *stream_, Handle fd);");
+%% exportF(off_t,handle_length,(gcv_object_t *stream_, Handle fd));
 
 /* Function: Reads several bytes from a stream.
  read_byte_array(&stream,&bytearray,start,len,persev)
@@ -15966,7 +15992,7 @@ extern maygc off_t handle_length (gcv_object_t *stream_, Handle fd);
  can trigger GC */
 extern maygc uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 /* used by SEQUENCE, PATHNAME */
-%% puts("extern uintL read_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);");
+%% exportF(uintL,read_byte_array,(const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev));
 
 /* Function: Writes several bytes to a stream.
  write_byte_array(&stream,&bytearray,start,len,no_hang)
@@ -15979,7 +16005,7 @@ extern maygc uintL read_byte_array (const gcv_object_t* stream_, const gcv_objec
  can trigger GC */
 extern maygc uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);
 /* is used by SEQUENCE */
-%% puts("extern uintL write_byte_array (const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev);");
+%% exportF(uintL,write_byte_array,(const gcv_object_t* stream_, const gcv_object_t* bytearray_, uintL start, uintL len, perseverance_t persev));
 
 /* Function: Reads several characters from a stream.
  read_char_array(&stream,&chararray,start,len)
@@ -16015,7 +16041,7 @@ extern object var_stream (object sym, uintB strmflags);
  < truename of the file associated with the stream
  for syscall module */
 extern object file_stream_truename (object s);
-%% puts("extern object file_stream_truename (object s);");
+%% exportF(object,file_stream_truename,(object s));
 
 /* UP: makes a file-stream
  make_file_stream(direction,append_flag,handle_fresh)
@@ -16042,12 +16068,12 @@ extern object file_stream_truename (object s);
  can trigger GC */
 extern maygc object make_file_stream (direction_t direction, bool append_flag, bool handle_at_pos_0);
 /* is used by PATHNAME */
-%% puts("extern object make_file_stream (direction_t direction, bool append_flag,bool handle_fresh);/*+6 arguments on the STACK!*/");
+%% exportF(object,make_file_stream,(direction_t direction, bool append_flag,bool handle_fresh)/*+6 arguments on the STACK!*/);
 
 /* check whether the object is a handle stream or a socket-server
  and return its socket-like handle(s) */
 extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);
-%% puts("extern void stream_handles (object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock);");
+%% exportF(void,stream_handles,(object obj, bool check_open, bool* char_p, SOCKET* in_sock, SOCKET* out_sock));
 
 #ifdef PIPES
 /* mk_pipe_from_handle(pipe,process_id,dir)
@@ -16167,7 +16193,7 @@ extern bool check_charset (const char * code, object charset);
 extern maygc object addr_to_string (short type, char *addr);
 #endif
 %% #if defined(UNIX) || defined(WIN32_NATIVE)
-%%   puts("extern object addr_to_string (short type, char *addr);");
+%%   exportF(object,addr_to_string,(short type, char *addr));
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -16185,7 +16211,7 @@ extern int nonintr_connect (SOCKET fd, struct sockaddr * name, int namelen);
 extern maygc object string_to_addr (const char* name);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   puts("extern object string_to_addr (const char *name);");
+%%   exportF(object,string_to_addr,(const char *name));
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
@@ -16201,7 +16227,7 @@ extern maygc object string_to_addr (const char* name);
 extern struct hostent* resolve_host (object arg);
 #endif
 %% #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME) && defined(TCPCONN)
-%%   puts("extern struct hostent* resolve_host (object arg);");
+%%   exportF(struct hostent*,resolve_host,(object arg));
 %% #endif
 
 #if (defined(UNIX) || defined(WIN32_NATIVE)) && defined(HAVE_GETHOSTBYNAME)
@@ -16271,7 +16297,7 @@ extern object Symbol_function_checked (object symbol);
 extern object get (object symbol, object key);
 /* is used by IO, CONTROL, EVAL, PREDTYPE, SEQUENCE */
 %% #if notused
-%% puts("extern object get (object symbol, object key);");
+%% exportF(object,get,(object symbol, object key));
 %% #endif
 
 /* ##################### ARITBIBL for LISTARIT.D ########################### */
@@ -16302,7 +16328,7 @@ extern maygc void init_arith (void);
  can trigger GC */
 extern maygc object L_to_I (sint32 val);
 /* used by TIME */
-%% puts("extern object L_to_I (sint32 val);");
+%% exportF(object,L_to_I,(sint32 val));
 
 /* Converts an unsigned longword into an Integer >=0.
  UL_to_I(val)
@@ -16326,7 +16352,7 @@ extern maygc object L_to_I (sint32 val);
 %%     export_def(UL_to_I(val));
 %%   #endif
 %% #else
-%%   puts("extern object UL_to_I (uintL val);");
+%%   exportF(object,UL_to_I,(uintL val));
 %% #endif
 
 /* converts a double-longword into an Integer.
@@ -16344,7 +16370,7 @@ extern maygc object L_to_I (sint32 val);
 %% #if (intVsize>32)
 %%   export_def(L2_to_I(val_hi,val_lo));
 %% #else
-%%   puts("extern object L2_to_I (sint32 val_hi, uint32 val_lo);");
+%%   exportF(object,L2_to_I,(sint32 val_hi, uint32 val_lo));
 %% #endif
 
 /* Converts an unsigned double-longword into an Integer.
@@ -16362,7 +16388,7 @@ extern maygc object L_to_I (sint32 val);
 %% #if (intVsize>32)
 %%   export_def(UL2_to_I(val_hi,val_lo));
 %% #else
-%%   puts("extern object UL2_to_I (uint32 val_hi, uint32 val_lo);");
+%%   exportF(object,UL2_to_I,(uint32 val_hi, uint32 val_lo));
 %% #endif
 
 #if defined(intQsize) || (intVsize>32)
@@ -16375,7 +16401,7 @@ extern maygc object L_to_I (sint32 val);
   /* is used by the FFI */
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   puts("extern object Q_to_I (sint64 val);");
+%%   exportF(object,Q_to_I,(sint64 val));
 %% #endif
 
 #if defined(intQsize) || (intVsize>32) || defined(WIDE_HARD) || (SIZEOF_OFF_T > 4) || (SIZEOF_INO_T > 4)
@@ -16388,7 +16414,7 @@ extern maygc object L_to_I (sint32 val);
   /* is used by MISC, TIME, FFI */
 #endif
 %% #if defined(intQsize) || (intVsize>32)
-%%   puts("extern object UQ_to_I (uint64 val);");
+%%   exportF(object,UQ_to_I,(uint64 val));
 %% #endif
 
 /* Converts a sintV into an Integer.
@@ -16503,7 +16529,7 @@ extern maygc object L_to_I (sint32 val);
  < result: the Integer's value as unsigned longword */
 extern uintL I_to_UL (object obj);
 /* is used by TIME, ARRAY */
-%% puts("extern uintL I_to_UL (object obj);");
+%% exportF(uintL,I_to_UL,(object obj));
 
 /* Converts an Integer into a signed longword
  I_to_L(obj)
@@ -16511,7 +16537,7 @@ extern uintL I_to_UL (object obj);
  < result: the Integer's value as signed longword */
 extern sintL I_to_L (object obj);
 /* is used by */
-%% puts("extern sintL I_to_L (object obj);");
+%% exportF(sintL,I_to_L,(object obj));
 
 #if defined(HAVE_LONG_LONG_INT)
   /* Converts an Integer >=0 into an unsigned quadword.
@@ -16522,7 +16548,7 @@ extern sintL I_to_L (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
 %% #ifdef HAVE_LONG_LONG_INT
-%%   puts("extern uint64 I_to_UQ (object obj);");
+%%   exportF(uint64,I_to_UQ,(object obj));
 %% #endif
 
 #if defined(HAVE_LONG_LONG_INT)
@@ -16534,7 +16560,7 @@ extern sintL I_to_L (object obj);
   /* used by FOREIGN, for FFI, and by modules */
 #endif
 %% #ifdef HAVE_LONG_LONG_INT
-%%   puts("extern sint64 I_to_Q (object obj);");
+%%   exportF(sint64,I_to_Q,(object obj));
 %% #endif
 
 /* Converts an Integer into a C-Integer of a given type.
@@ -16594,7 +16620,7 @@ extern sintL I_to_L (object obj);
  can trigger GC */
 extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
 /* is used by modules */
-%% puts("extern object UDS_to_I (uintD* MSDptr, uintC len);");
+%% exportF(object,UDS_to_I,(uintD* MSDptr, uintC len));
 
 /* Digit Sequence to Integer
  DS_to_I(MSDptr,len)
@@ -16603,7 +16629,7 @@ extern maygc object UDS_to_I (uintD* MSDptr, uintC len);
  can trigger GC */
 extern maygc object DS_to_I (const uintD* MSDptr, uintC len);
 /* is used by modules */
-%% puts("extern object DS_to_I (const uintD* MSDptr, uintC len);");
+%% exportF(object,DS_to_I,(const uintD* MSDptr, uintC len));
 
 /* I_I_comp(x,y) compares two Integers x and y.
  Result: 0 if x=y, +1 if x>y, -1 if x<y. */
@@ -16616,7 +16642,7 @@ extern signean I_I_comp (object x, object y);
 extern maygc object I_1_plus_I (object x);
 /* is used by SEQUENCE, SPVW, SYMBOL */
 %% #if notused
-%% puts("extern object I_1_plus_I (object x);");
+%% exportF(object,I_1_plus_I,(object x));
 %% #endif
 
 /* (1- x), where x is an Integer. Result Integer.
@@ -16625,7 +16651,7 @@ extern maygc object I_1_plus_I (object x);
 extern maygc object I_minus1_plus_I (object x);
 /* is used by SEQUENCE */
 %% #if notused
-%% puts("extern object I_minus1_plus_I (object x);");
+%% exportF(object,I_minus1_plus_I,(object x));
 %% #endif
 
 /* (+ x y), where x and y are Integers. Result Integer.
@@ -16634,7 +16660,7 @@ extern maygc object I_minus1_plus_I (object x);
 extern maygc object I_I_plus_I (object x, object y);
 /* is used by SEQUENCE */
 %% #if notused
-%% puts("extern object I_I_plus_I (object x, object y);");
+%% exportF(object,I_I_plus_I,(object x, object y));
 %% #endif
 
 /* (- x y), where x and y are Integers. Result Integer.
@@ -16643,7 +16669,7 @@ extern maygc object I_I_plus_I (object x, object y);
 extern maygc object I_I_minus_I (object x, object y);
 /* is used by SEQUENCE */
 %% #if notused
-%% puts("extern object I_I_minus_I (object x, object y);");
+%% exportF(object,I_I_minus_I,(object x, object y));
 %% #endif
 
 /* (ASH x y), where x and y are Integers. Result Integer.
@@ -16656,7 +16682,7 @@ extern maygc object I_I_ash_I (object x, object y);
  I_integer_length(x) */
 extern uintL I_integer_length (object x);
 /* is used by ARRAY */
-%% puts("extern uintL I_integer_length (object x);");
+%% exportF(uintL,I_integer_length,(object x));
 
 /* Converts a little-endian byte sequence to an unsigned integer.
  > bytesize: number of given 8-bit bytes of the integer,
@@ -16665,7 +16691,7 @@ extern uintL I_integer_length (object x);
  < result: an integer >= 0 with I_integer_length(result) <= 8*bytesize
  can trigger GC */
 extern maygc object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);
-%% puts("extern object LEbytes_to_UI (uintL bytesize, const uintB* bufferptr);");
+%% exportF(object,LEbytes_to_UI,(uintL bytesize, const uintB* bufferptr));
 
 /* Converts a little-endian byte sequence to an unsigned integer.
  > bytesize: number of given 8-bit bytes of the integer,
@@ -16684,7 +16710,7 @@ extern maygc object LESbvector_to_UI (uintL bytesize, const gcv_object_t* buffer
  < result: an integer with I_integer_length(result) < 8*bytesize
  can trigger GC */
 extern maygc object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);
-%% puts("extern object LEbytes_to_I (uintL bytesize, const uintB* bufferptr);");
+%% exportF(object,LEbytes_to_I,(uintL bytesize, const uintB* bufferptr));
 
 /* Converts a little-endian byte sequence to an integer.
  > bytesize: number of given 8-bit bytes of the integer, > 0,
@@ -16705,7 +16731,7 @@ extern maygc object LESbvector_to_I (uintL bytesize, const gcv_object_t* buffer_
    true, if obj is out of range */
 extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
 /* is used by STREAM */
-%% puts("extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);");
+%% exportF(bool,UI_to_LEbytes,(object obj, uintL bitsize, uintB* bufferptr));
 
 /* Converts an integer to a little-endian byte sequence.
  > obj: an integer
@@ -16715,27 +16741,27 @@ extern bool UI_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
    true, if obj is out of range */
 extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);
 /* is used by STREAM */
-%% puts("extern bool I_to_LEbytes (object obj, uintL bitsize, uintB* bufferptr);");
+%% exportF(bool,I_to_LEbytes,(object obj, uintL bitsize, uintB* bufferptr));
 
 /* c_float_to_FF(&val) converts an IEEE-single-float val into an single-float.
  can trigger GC */
 extern maygc object c_float_to_FF (const ffloatjanus* val_);
-%% puts("extern object c_float_to_FF (const ffloatjanus* val_);");
+%% exportF(object,c_float_to_FF,(const ffloatjanus* val_));
 
 /* FF_to_c_float(obj,&val);
  converts single-float obj into an IEEE-single-float val. */
 extern void FF_to_c_float (object obj, ffloatjanus* val_);
-%% puts("extern void FF_to_c_float (object obj, ffloatjanus* val_);");
+%% exportF(void,FF_to_c_float,(object obj, ffloatjanus* val_));
 
 /* c_double_to_DF(&val) converts an IEEE-double-float val into a double-float.
  can trigger GC */
 extern maygc object c_double_to_DF (const dfloatjanus* val_);
-%% puts("extern object c_double_to_DF (const dfloatjanus* val_);");
+%% exportF(object,c_double_to_DF,(const dfloatjanus* val_));
 
 /* DF_to_c_double(obj,&val);
  converts a double-float obj into an IEEE-double-float val. */
 extern void DF_to_c_double (object obj, dfloatjanus* val_);
-%% puts("extern void DF_to_c_double (object obj, dfloatjanus* val_);");
+%% exportF(void,DF_to_c_double,(object obj, dfloatjanus* val_));
 
 /* hash-code of a Long-Float: mixture of exponent, length, first 32 bits */
 extern uint32 hashcode_lfloat (object obj);
@@ -16845,7 +16871,7 @@ extern maygc object coerce_float (object obj, object type);
  < result: its value as a C 'double'
  can trigger GC */
 extern maygc double to_double (object x);
-%% puts("extern double to_double (object obj);");
+%% exportF(double,to_double,(object obj));
 
 /* Converts a function's argument to a C 'int'.
  to_int(obj)
@@ -16853,7 +16879,7 @@ extern maygc double to_double (object x);
  < result: its value as a C 'int'
  can trigger GC */
 extern maygc int to_int (object x);
-%% puts("extern int to_int (object obj);");
+%% exportF(int,to_int,(object obj));
 
 /* UP: Returns the decimal string representation of an integer >= 0.
  decimal_string(x)
@@ -16884,7 +16910,7 @@ extern maygc object decimal_string (object x);
  can trigger GC */
 extern maygc object make_faddress (object base, uintP offset);
 /* used by FOREIGN & modules (see foreign1.lisp:convert-from-foreign) */
-%%   puts("extern object make_faddress (object base, uintP offset);");
+%%   exportF(object,make_faddress,(object base, uintP offset));
 
 /* ensure that the Faddress is valid
  < fa: foreign address (not checked!)
@@ -16905,7 +16931,7 @@ extern maygc object check_faddress_valid (object fa);
 /* Specifies that when the value is replaced and the variable contains pointers,
  the old storage will be free()d and new storage will be allocated via malloc(). */
 #define fv_malloc    bit(1)
-%%   puts("extern void register_foreign_variable (void* address, const char * name, uintBWL flags, uintL size);");
+%%   exportF(void,register_foreign_variable,(void* address, const char * name, uintBWL flags, uintL size));
 
 /* Registers a foreign function.
  register_foreign_function(address,name,flags);
@@ -16933,7 +16959,7 @@ extern maygc object check_faddress_valid (object fa);
 #define ff_out            bit(4)
 /* Set this if the arg is also treated as a return value. */
 #define ff_inout          bit(5)
-%%   puts("extern void register_foreign_function (void* address, const char * name, uintWL flags);");
+%%   exportF(void,register_foreign_function,(void* address, const char * name, uintWL flags));
 
 /* Registers a foreign int type.
  register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p)
@@ -16942,24 +16968,25 @@ extern maygc object check_faddress_valid (object fa);
  > signed_p : signed?
  can trigger GC */
 extern maygc void register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p);
-%%   puts("extern void register_foreign_inttype (const char * name_asciz, uintL size, bool signed_p);");
+%%   exportF(void,register_foreign_inttype,(const char * name_asciz, uintL size, bool signed_p));
 
 /* Convert foreign data to Lisp data.
  can trigger GC */
 extern maygc object convert_from_foreign (object fvd, const void* data);
-%% puts("extern object convert_from_foreign (object fvd, const void* data);");
+%% exportF(object,convert_from_foreign,(object fvd, const void* data));
 
 /* Convert Lisp data to foreign data. */
 typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);
 global converter_malloc_t mallocing, nomalloc;
 %% puts("typedef void* converter_malloc_t (void* old_data, uintL size, uintL alignment);");
-%% puts("extern converter_malloc_t mallocing, nomalloc;");
+%% exportV(converter_malloc_t,nomalloc);
+%% exportV(converter_malloc_t,mallocing);
 /* Convert Lisp data to foreign data.
    Storage is allocated through converter_malloc().
  Only the toplevel storage must already exist; its address is given.
  can trigger GC  */
 extern void convert_to_foreign (object fvd, object obj, void* data, converter_malloc_t *converter_malloc);
-%% puts("extern void convert_to_foreign (object fvd, object obj, void* data, converter_malloc_t *converter_malloc);");
+%% exportF(void,convert_to_foreign,(object fvd, object obj, void* data, converter_malloc_t *converter_malloc));
 
 /* Initialize the FFI. */
   extern maygc void init_ffi (void);
@@ -17305,15 +17332,15 @@ struct object_tab_tl_ {
 
 %% #ifdef per_thread
 %%  export_def(per_thread);
-%%  puts("extern per_thread clisp_thread_t* _current_thread;");
+%%  exportV(per_thread clisp_thread_t*,_current_thread);
 %% #else
 %%  #if USE_CUSTOM_TLS == 1
-%%   puts("extern xthread_key_t current_thread_tls_key;");
+%%   exportV(xthread_key_t,current_thread_tls_key);
 %%   #ifdef WIN32_NATIVE
 %%    puts("static inline clisp_thread_t *current_thread_impl() {");
-%%    puts("DWORD err=GetLastError();");
-%%    puts("clisp_thread_t *thr=((clisp_thread_t *)TlsGetValue(current_thread_tls_key));");
-%%    puts("SetLastError(err); return thr;}");
+%%    puts("  DWORD err=GetLastError();");
+%%    puts("  clisp_thread_t *thr=((clisp_thread_t *)TlsGetValue(current_thread_tls_key));");
+%%    puts("  SetLastError(err); return thr;\n}");
 %%   #endif
 %%  #elif USE_CUSTOM_TLS == 2
 %%   export_def(TS_CACHE_SIZE);
@@ -17323,9 +17350,9 @@ struct object_tab_tl_ {
 %%   export_def(TLS_SP_SHIFT);
 %%   emit_typedef("struct thread_specific_entry { volatile long qtid; void *value; struct thread_specific_entry *next; xthread_t thread; }","tse");
 %%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; xmutex_raw_t lock; }","tsd");
-%%   puts("extern tsd threads_tls;");
-%%   puts("extern void tsd_setspecific(tse *entry, void *value);");
-%%   puts("extern void* tsd_slow_getspecific(unsigned long qtid,tse * volatile *cache_ptr);");
+%%   exportV(tsd,threads_tls);
+%%   exportF(void,tsd_setspecific,(tse *entry, void *value));
+%%   exportF(void*,tsd_slow_getspecific,(unsigned long qtid,tse * volatile *cache_ptr));
 %%   puts("static inline void *tsd_getspecific() {");
 %%   puts("  long qtid = roughly_SP() >> 12;");
 %%   puts("  unsigned hash_val = TSD_CACHE_HASH(qtid);");
@@ -17338,7 +17365,7 @@ struct object_tab_tl_ {
 %%   puts("}");
 %%  #elif USE_CUSTOM_TLS == 3
 %%   export_def(TLS_SP_SHIFT);
-%%   puts("extern clisp_thread_t *threads_map[];");
+%%   exportF(clisp_thread_t*,threads_map,[]);
 %%  #endif
 %% #endif
 
@@ -17432,7 +17459,7 @@ global int signal_timeout_call (void);
 /* UP: handles any pending interrupt (currently just one).
    arguments are on the STACK */
 global maygc void handle_pending_interrupts (void);
-%% puts("extern void handle_pending_interrupts (void);");
+%% exportF(void,handle_pending_interrupts,(void));
 /* releases the clisp_thread_t memory of the list of Thread records */
 global void release_threads (object list);
 /* releases the OS mutexes for mutex objects in the list */

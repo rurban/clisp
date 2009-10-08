@@ -1098,7 +1098,7 @@ global maygc object coerce_float (object obj, object type) {
  > obj: an object, usually a real number
  < result: its value as a C 'double'
  can trigger GC */
-global maygc double to_double (object x) {
+modexp maygc double to_double (object x) {
   double ret;
   x = check_real(x);
   DF_to_c_double(R_to_DF(x), (dfloatjanus*)&ret);
@@ -1110,7 +1110,7 @@ global maygc double to_double (object x) {
  > obj: an object, usually an integer
  < result: its value as a C 'int'
  can trigger GC */
-global maygc int to_int (object x) {
+modexp maygc int to_int (object x) {
   x = check_integer(x);
   return I_to_L(x);
 }

@@ -260,7 +260,7 @@ local const char * clisp_gettext (const char * domain, const char * msgid) {
 
 /* High-level messages, which are converted to Lisp strings, are
    stored in a separate catalog and returned in the UTF-8 encoding. */
-global const char * clgettext (const char * msgid)
+modexp const char * clgettext (const char * msgid)
 { return clisp_gettext("clisp", msgid); }
 
 /* Low-level messages, which are output through fprintf(3), are
@@ -275,8 +275,7 @@ global const char * clgettextl (const char * msgid)
 /* FIXME: Don't hardwire ISO-8859-1. The catalog's character set is
  given by the "Content-Type:" line in the meta information.
  in anticipation of this fix, CLSTEXT is a function, not a macro */
-
-global maygc object CLSTEXT (const char* asciz) {
+modexp maygc object CLSTEXT (const char* asciz) {
  #ifdef GNU_GETTEXT
   return asciz_to_string(clgettext(asciz),Symbol_value(S(utf_8)));
  #else
