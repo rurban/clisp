@@ -1,6 +1,9 @@
 ;; -*- Lisp -*- vim:filetype=lisp
 ;; tests for D-Bus
-;; clisp -K full -E 1:1 -q -norc -i ../tests/tests -x '(run-test "dbus/test")'
+;; clisp -E 1:1 -q -norc -i ../tests/tests -x '(run-test "dbus/test")'
+
+(require "dbus") t
+(listp (show (multiple-value-list (ext:module-info "dbus" t)) :pretty t)) T
 
 dbus:DBUS_MAJOR_PROTOCOL_VERSION 1
 
