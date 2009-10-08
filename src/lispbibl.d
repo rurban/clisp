@@ -9245,12 +9245,12 @@ extern void* SP_anchor;
 #if (defined(STACK_DOWN) && defined(STACK_UP)) || (!defined(STACK_DOWN) && !defined(STACK_UP))
   #error Unknown STACK direction -- readjust STACK_DOWN/STACK_UP!
 #endif
-%% #if !defined(STACK_register)
-%%   exportV(gcv_object_t*,STACK);
-%% #else
+%% #if defined(STACK_register)
 %%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register gcv_object_t* STACK __asm__(\"%s\");\n",STACK_register);
 %%   puts("#endif");
+%% #elif !defined(STACK)
+%%   exportV(gcv_object_t*,STACK);
 %% #endif
 
 /* A singly-linked list of all currently active function calls.
@@ -11913,12 +11913,12 @@ nonreturning_function(extern, error_mv_toomany, (object caller));
   register p_backtrace_t back_trace __asm__(back_trace_register);
 #endif
 #define subr_self  back_trace->bt_function
-%% #if !defined(back_trace_register)
-%%   exportV(p_backtrace_t,back_trace);
-%% #else
+%% #if defined(back_trace_register)
 %%   puts("#ifndef IN_MODULE_CC");
 %%   printf("register p_backtrace_t back_trace __asm__(\"%s\");\n",back_trace_register);
 %%   puts("#endif");
+%% #elif !defined(back_trace)
+%%   exportV(p_backtrace_t,back_trace);
 %% #endif
 %% export_def(subr_self);
 
