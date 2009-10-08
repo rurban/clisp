@@ -440,6 +440,10 @@ global BOOL ReadConsoleInput1 (HANDLE ConsoleInput, PINPUT_RECORD Buffer,
 /* Determines whether ReadFile() on a file/pipe/console handle will hang.
    Returns 0 for yes, 1 for no (or 2 for known EOF or 3 for available byte),
    -1 for unknown. */
+#define CHECK_ERROR_IGNORE_INVALID   switch (GetLastError()) {          \
+    case ERROR_INVALID_FUNCTION: case ERROR_INVALID_HANDLE: break;      \
+    default: OS_error();                                                \
+ }
 global int fd_read_wont_hang_p (HANDLE fd)
 {
   /* This is pretty complex. To test this, create a file "listen.lisp"
@@ -482,8 +486,7 @@ global int fd_read_wont_hang_p (HANDLE fd)
               return -1;
         }
         return 0;
-      } else if (!(GetLastError()==ERROR_INVALID_HANDLE))
-        OS_error();
+      } else CHECK_ERROR_IGNORE_INVALID;
       var DWORD errors;
       var COMSTAT stat;
       if (ClearCommError(fd,&errors,&stat)) { /* it's a serial comm dev */
@@ -491,8 +494,7 @@ global int fd_read_wont_hang_p (HANDLE fd)
         if (stat.fEof) return 2;
         if (stat.cbInQue) return 3;
         return 0;
-      } else if (!(GetLastError()==ERROR_INVALID_HANDLE))
-        OS_error();
+      } else CHECK_ERROR_IGNORE_INVALID;
       /* neither a console nor a serial comm dev. */
       switch (WaitForSingleObject(fd,0)) {
         case WAIT_OBJECT_0:     /* a byte is available, or EOF */
