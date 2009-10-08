@@ -15,8 +15,8 @@
    along with this program; if not, write to the Free Software Foundation,
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.  */
 
-#ifndef _GL_SYS_UTSNAME_H
-#define _GL_SYS_UTSNAME_H
+#ifndef _sc_gl_GL_SYS_UTSNAME_H
+#define _sc_gl_GL_SYS_UTSNAME_H
 
 /* The definition of GL_LINK_WARNING is copied here.  */
 
@@ -81,4 +81,4 @@ extern int uname (struct utsname *buf);
 #endif
 
 
-#endif /* _GL_SYS_UTSNAME_H */
+#endif /* _sc_gl_GL_SYS_UTSNAME_H */

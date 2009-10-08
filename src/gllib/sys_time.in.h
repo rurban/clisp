@@ -22,7 +22,7 @@
 @PRAGMA_SYSTEM_HEADER@
 #endif
 
-#if defined _GL_SYS_TIME_H
+#if defined _gl_GL_SYS_TIME_H
 
 /* Simply delegate to the system's header, without adding anything.  */
 # if @HAVE_SYS_TIME_H@
@@ -31,7 +31,7 @@
 
 #else
 
-# define _GL_SYS_TIME_H
+# define _gl_GL_SYS_TIME_H
 
 # if @HAVE_SYS_TIME_H@
 #  @INCLUDE_NEXT@ @NEXT_SYS_TIME_H@
@@ -61,4 +61,4 @@ int gettimeofday (struct timeval *restrict, void *restrict);
 }
 #endif
 
-#endif /* _GL_SYS_TIME_H */
+#endif /* _gl_GL_SYS_TIME_H */

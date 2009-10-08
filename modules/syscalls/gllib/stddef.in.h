@@ -37,10 +37,10 @@
    remember if special invocation has ever been used to obtain wint_t,
    in which case we need to clean up NULL yet again.  */
 
-# if !(defined _GL_STDDEF_H && defined _GL_STDDEF_WINT_T)
+# if !(defined _sc_gl_GL_STDDEF_H && defined _sc_gl_GL_STDDEF_WINT_T)
 #  ifdef __need_wint_t
-#   undef _GL_STDDEF_H
-#   define _GL_STDDEF_WINT_T
+#   undef _sc_gl_GL_STDDEF_H
+#   define _sc_gl_GL_STDDEF_WINT_T
 #  endif
 #  @INCLUDE_NEXT@ @NEXT_STDDEF_H@
 # endif
@@ -48,14 +48,14 @@
 #else
 /* Normal invocation convention.  */
 
-# ifndef _GL_STDDEF_H
+# ifndef _sc_gl_GL_STDDEF_H
 
 /* The include_next requires a split double-inclusion guard.  */
 
 #  @INCLUDE_NEXT@ @NEXT_STDDEF_H@
 
-#  ifndef _GL_STDDEF_H
-#   define _GL_STDDEF_H
+#  ifndef _sc_gl_GL_STDDEF_H
+#   define _sc_gl_GL_STDDEF_H
 
 /* On NetBSD 5.0, the definition of NULL lacks proper parentheses.  */
 #if @REPLACE_NULL@
@@ -81,6 +81,6 @@
 # define wchar_t int
 #endif
 
-#  endif /* _GL_STDDEF_H */
-# endif /* _GL_STDDEF_H */
+#  endif /* _sc_gl_GL_STDDEF_H */
+# endif /* _sc_gl_GL_STDDEF_H */
 #endif /* __need_XXX */
