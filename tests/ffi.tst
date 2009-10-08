@@ -336,14 +336,14 @@ C-SELF
 #+UNICODE T
 
 (typep (ffi::find-foreign-variable "ffi_user_pointer"
-                                   (ffi::parse-c-type 'ffi:c-pointer)
+                                   (parse-c-type 'ffi:c-pointer)
                                    nil nil nil)
        'foreign-variable)
 T
 
-(ffi::find-foreign-variable "ffi_user_pointer" (parse-c-type 'uint64)
+(ffi::find-foreign-variable "ffi_user_pointer" (parse-c-type 'uint)
                             nil nil nil)
-ERROR
+ERROR        ; type specification conflicts with the previous definition
 
 (typep (ffi::find-foreign-variable "ffi_user_pointer"
                                    (parse-c-type '(c-array-ptr sint8))
@@ -748,48 +748,57 @@ FOREIGN-FUNCTION
 (funcall fpcallback -7.5d0)
 ERROR
 
-(with-c-var (x 'sint64) x)
-0
+;; actually, word-size=64 (== WIDE_HARD) is a _stronger_ condition than
+;; HAVE_LONG_LONG_INT which is required for 64-bit integers to work, but
+;; this should be good enough for testing, see
+;; https://sourceforge.net/tracker/index.php?func=detail&aid=2874184&group_id=1355&atid=101355
+#+word-size=64 (with-c-var (x 'sint64) x)
+#+word-size=64 0
 
-(with-c-var (x 'sint64 #x1111111111111111) t)
-t
+#+word-size=64 (with-c-var (x 'sint64 #x1111111111111111) t)
+#+word-size=64 t
 
-(with-c-var (x 'uint64 #x1111111111111111) (offset x 0 'uint32))
-#x11111111
-(with-c-var (x 'uint64 #x2222222222222222) (offset x 4 'uint32))
-#x22222222
+#+word-size=64 (with-c-var (x 'uint64 #x1111111111111111) (offset x 0 'uint32))
+#+word-size=64 #x11111111
+#+word-size=64 (with-c-var (x 'uint64 #x2222222222222222) (offset x 4 'uint32))
+#+word-size=64 #x22222222
 
+#+word-size=64
 (with-c-var (f '(c-function (:return-type uint64) (:language :stdc))
                #'(lambda () #xAAAABBBB77773333))
   ;; TODO? foreign-free such callbacks
   (funcall f))
-#xAAAABBBB77773333
+#+word-size=64 #xAAAABBBB77773333
 
+#+word-size=64
 (progn
  (def-call-out c-self (:name "ffi_identity")
    (:arguments (p (c-ptr-null sint64)))
    (:return-type (c-ptr sint64)) (:language :stdc))
  (c-self -1311768467284833366))
--1311768467284833366
+#+word-size=64 -1311768467284833366
 
+#+word-size=64
 (with-c-var (f '(c-function (:arguments (n sint64))
                             (:return-type uint64) (:language :stdc))
                #'(lambda (x) (- x)))
   ;; TODO? foreign-free such callbacks
   (funcall f #x-43219876fedcba98))
-#x43219876fedcba98
+#+word-size=64 #x43219876fedcba98
 
+#+word-size=64
 (with-c-var (s '(c-struct list (c character) (d sint64))
                '(#\a -7378753924192827255))
             s)
-(#\a -7378753924192827255)
+#+word-size=64 (#\a -7378753924192827255)
 
+#+word-size=64
 (progn
  (def-call-out c-self (:name "ffi_identity")
    (:arguments (p sint64))
    (:return-type nil) (:language :stdc))
  (multiple-value-list (c-self -1311768467284833366)))
-nil
+#+word-size=64 nil
 
 (def-call-out foreign-as-string (:name "ffi_identity")
   (:arguments (obj c-pointer))
@@ -864,7 +873,7 @@ FOREIGN-VARIABLE
 (with-c-place (x fm) (setf x "xyz"))
 ERROR
 
-(foreign-value (ffi::%cast fm (ffi::parse-c-type
+(foreign-value (ffi::%cast fm (parse-c-type
                                '(c-ptr (c-array-max character 20)))))
 "abc"
 
