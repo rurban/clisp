@@ -49,7 +49,7 @@ global maygc object allocate_exemption (gcv_object_t *name_);
  allocate_cons()
  < result: pointer to a new CONS, with CAR and CDR =NIL
  can trigger GC */
-global maygc object allocate_cons (void) {
+modexp maygc object allocate_cons (void) {
   allocate(cons_type,false,sizeof(cons_),Cons,ptr,
     { ptr->cdr = NIL; ptr->car = NIL; });
 }
@@ -59,7 +59,7 @@ global maygc object allocate_cons (void) {
  > string: immutable Simple-String
  < result: new symbol with this name, with home-package=NIL.
  can trigger GC */
-global maygc object make_symbol (object string) {
+modexp maygc object make_symbol (object string) {
   pushSTACK(string);            /* save string */
 #if defined(MULTITHREAD)
   #define INIT_TLS_INDEX ptr->tls_index = SYMBOL_TLS_INDEX_NONE
@@ -97,7 +97,7 @@ global maygc object make_symbol (object string) {
  > len: length of the vector
  < result: new vector (elements are initialized with NIL)
  can trigger GC */
-global maygc object allocate_vector (uintL len) {
+modexp maygc object allocate_vector (uintL len) {
   var uintM need = size_svector(len); /* needed memory */
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
@@ -117,7 +117,7 @@ global maygc object allocate_vector (uintL len) {
  > uintL len: length (number of n-bit blocks)
  < result: fresh simple bit/byte-vector of the given length
  can trigger GC */
-global maygc object allocate_bit_vector (uintB atype, uintL len) {
+modexp maygc object allocate_bit_vector (uintB atype, uintL len) {
   var uintL need = size_sbvector(len<<atype); /* needed memory in bytes */
  #ifdef TYPECODES
   #define SETTFL  ptr->length = len
@@ -136,7 +136,7 @@ global maygc object allocate_bit_vector (uintB atype, uintL len) {
  > len: length of the string (in characters), must be <= stringsize_limit_1
  < result: new 8-bit character simple-string (LISP-object)
  can trigger GC */
-global maygc object allocate_s8string (uintL len) {
+modexp maygc object allocate_s8string (uintL len) {
   var uintL need = size_s8string(len); /* needed memory in bytes */
   #ifdef HAVE_SMALL_SSTRING
   /* Some uprounding, for reallocate_small_string to work. */
@@ -206,7 +206,7 @@ global maygc object allocate_imm_s16string (uintL len) {
  > len: length of the string (in characters), must be <= stringsize_limit_1
  < result: new 32-bit character simple-string (LISP-object)
  can trigger GC */
-global maygc object allocate_s32string (uintL len) {
+modexp maygc object allocate_s32string (uintL len) {
   var uintL need = size_s32string(len); /* needed memory in bytes */
   #define SETTFL  ptr->tfl = sstring_tfl(Sstringtype_32Bit,0,0,len)
   allocate(sstring_type,true,need,S32string,ptr,
@@ -459,7 +459,7 @@ global maygc object allocate_stream (uintB strmflags, uintB strmtype,
  > foreign: of type FOREIGN
  < result: LISP-object, that contains the foreign pointer
  can trigger GC */
-global maygc object allocate_fpointer (FOREIGN foreign) {
+modexp maygc object allocate_fpointer (FOREIGN foreign) {
   var object result = allocate_xrecord(0,Rectype_Fpointer,fpointer_length,
                                        fpointer_xlength,orecord_type);
   TheFpointer(result)->fp_pointer = foreign;
@@ -474,7 +474,7 @@ global maygc object allocate_fpointer (FOREIGN foreign) {
  allocate_handle(handle)
  < result: LISP-object, that contains the handle
  can trigger GC */
-global maygc object allocate_handle (Handle handle) {
+modexp maygc object allocate_handle (Handle handle) {
   var object result = allocate_bit_vector(Atype_Bit,sizeof(Handle)*8);
   TheHandle(result) = handle;
   return result;

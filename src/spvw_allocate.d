@@ -133,7 +133,7 @@ local void* mymalloc (uintM need)
   /* A counter that is incremented each time an allocation occurs that could
    trigger GC. */
   #ifndef MULTITHREAD
-    global uintL alloccount = 1;
+    modexp uintL alloccount = 1;
     #define inc_alloccount()  (void)(alloccount++)
   #else
      /* the following is really slow. more appropriate implementation

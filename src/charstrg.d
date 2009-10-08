@@ -1,7 +1,7 @@
 /*
  * Functions for characters and strings for CLISP
  * Bruno Haible 1990-2008
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-09-20
  */
 
@@ -54,7 +54,7 @@ static const uint16 nop_page[256] = {
 #endif
 
 /* Converts byte ch into an uppercase letter */
-global chart up_case (chart ch) {
+modexp chart up_case (chart ch) {
  #ifdef ENABLE_UNICODE
   #include "uni_upcase.c"
   var cint c = as_cint(ch);
@@ -125,7 +125,7 @@ global chart up_case (chart ch) {
 }
 
 /* Converts byte ch into a lowercase letter */
-global chart down_case (chart ch) {
+modexp chart down_case (chart ch) {
  #ifdef ENABLE_UNICODE
   #include "uni_downcase.c"
   var cint c = as_cint(ch);
@@ -347,7 +347,7 @@ global void copy_8bit_8bit (const uint8* src, uint8* dest, uintL len) {
  > uint8* src: source
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
+modexp void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -358,7 +358,7 @@ global void copy_8bit_16bit (const uint8* src, uint16* dest, uintL len) {
  > uint8* src: source
  > uint32* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
+modexp void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -370,7 +370,7 @@ global void copy_8bit_32bit (const uint8* src, uint32* dest, uintL len) {
  > uint16* src: source
  > uint8* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
+modexp void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -381,7 +381,7 @@ global void copy_16bit_8bit (const uint16* src, uint8* dest, uintL len) {
  > uint16* src: source
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
+modexp void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -392,7 +392,7 @@ global void copy_16bit_16bit (const uint16* src, uint16* dest, uintL len) {
  > uint16* src: source
  > uint32* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
+modexp void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -404,7 +404,7 @@ global void copy_16bit_32bit (const uint16* src, uint32* dest, uintL len) {
  > uint32* src: source
  > uint8* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
+modexp void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -416,7 +416,7 @@ global void copy_32bit_8bit (const uint32* src, uint8* dest, uintL len) {
  > uint32* src: source
  > uint16* dest: destination
  > uintL len: number of elements to be copied, > 0 */
-global void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
+modexp void copy_32bit_16bit (const uint32* src, uint16* dest, uintL len) {
   do { *dest++ = *src++; } while (--len);
 }
 #endif
@@ -486,7 +486,7 @@ global uintBWL smallest_string_flavour32 (const uint32* src, uintL len) {
  < uintL len: the fill-pointer length of the string
  < uintL offset: offset into the datastorage vector
  < object result: datastorage vector, a simple-string or NIL */
-global object unpack_string_ro (object string, uintL* len, uintL* offset) {
+modexp object unpack_string_ro (object string, uintL* len, uintL* offset) {
   if (simple_string_p(string)) {
     sstring_un_realloc(string);
     *len = Sstring_length(string);
@@ -552,7 +552,7 @@ global bool string_eq (object string1, object string2) {
  > string1: string
  > string2: simple-string
  < result: /=0, if equal */
-global bool string_equal (object string1, object string2) {
+modexp bool string_equal (object string1, object string2) {
   var uintL len1;
   var uintL offset1;
   string1 = unpack_string_ro(string1,&len1,&offset1);
@@ -2320,7 +2320,7 @@ LISPFUNN(store_schar,3)
                   range within the data vector corresponding to the selected
                   vector slice
  removes 2 elements from STACK */
-global void test_vector_limits (stringarg* arg) {
+modexp void test_vector_limits (stringarg* arg) {
   if (arg->len > 0 && simple_nilarray_p(arg->string))
     error_nilarray_retrieve();
   var uintV start;
@@ -3688,7 +3688,7 @@ LISPFUN(substring,seclass_read,2,1,norest,nokey,0,NIL)
  < result: total string, freshly created
  < STACK: cleaned up
  can trigger GC */
-global maygc object string_concat (uintC argcount) {
+modexp maygc object string_concat (uintC argcount) {
   var gcv_object_t* args_pointer = (args_end_pointer STACKop argcount);
   /* args_pointer = pointer to the arguments
      check, if they are all strings, and add the lengths: */

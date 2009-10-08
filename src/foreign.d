@@ -37,7 +37,7 @@ nonreturning_function(local, error_foreign_object, (object arg)) {
  > offset: offset relative to the base address
  < result: Lisp object
  can trigger GC */
-global maygc object make_faddress (object base, uintP offset)
+modexp maygc object make_faddress (object base, uintP offset)
 {
   pushSTACK(base);
   var object result = allocate_faddress();
@@ -189,10 +189,8 @@ LISPFUNNR(foreign_address,1)
  > flags: fv_readonly for read-only variables
  > size: its size in bytes
  can trigger GC */
-global maygc void register_foreign_variable (void* address,
-                                             const char * name_asciz,
-                                             uintBWL flags, uintL size)
-{
+modexp maygc void register_foreign_variable
+(void* address, const char * name_asciz, uintBWL flags, uintL size) {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
   var object obj = gethash(name,O(foreign_variable_table),false);
   if (!eq(obj,nullobj)) {
@@ -225,10 +223,8 @@ global maygc void register_foreign_variable (void* address,
  > name: its name
  > flags: its language and parameter passing convention
  can trigger GC */
-global maygc void register_foreign_function (void* address,
-                                             const char * name_asciz,
-                                             uintWL flags)
-{
+modexp maygc void register_foreign_function
+(void* address, const char * name_asciz, uintWL flags) {
   var object name = asciz_to_string(name_asciz,O(internal_encoding));
   var object obj = gethash(name,O(foreign_function_table),false);
   if (!eq(obj,nullobj)) {
@@ -272,8 +268,8 @@ local object parse_foreign_inttype (uintL size, bool signed_p) {
  > size : sizeof(name_asciz)
  > alignment : alignof(name_asciz)
  can trigger GC */
-global maygc void register_foreign_inttype (const char * name_asciz,
-                                            uintL size, bool signed_p) {
+modexp maygc void register_foreign_inttype
+(const char * name_asciz, uintL size, bool signed_p) {
   object name = asciz_to_string(name_asciz,O(internal_encoding));
   object obj = gethash(name,O(foreign_inttype_table),false);
   object inttype = parse_foreign_inttype(size, signed_p);
@@ -1099,7 +1095,7 @@ nonreturning_function (local, error_eltype_zero_size, (object fvd)) {
   pushSTACK(TheSubr(subr_self)->name);
   error(error_condition,GETTEXT("~S: element type has size 0: ~S"));
 }
-global maygc object convert_from_foreign (object fvd, const void* data)
+modexp maygc object convert_from_foreign (object fvd, const void* data)
 { /* keep in sync with foreign1.lisp:convert-from-foreign */
   check_SP();
   check_STACK();
@@ -1918,8 +1914,8 @@ local maygc void convert_to_foreign_needs (object fvd, object obj,
    Storage is allocated through converter_malloc().
  Only the toplevel storage must already exist; its address is given.
  can trigger GC */
-global maygc void convert_to_foreign (object fvd, object obj, void* data,
-                                      converter_malloc_t *converter_malloc)
+modexp maygc void convert_to_foreign
+(object fvd, object obj, void* data, converter_malloc_t *converter_malloc)
 { /* keep in sync with foreign1.lisp:convert-to-foreign */
   check_SP();
   check_STACK();
@@ -2411,7 +2407,7 @@ local void* allocaing (void* old_data, uintL size, uintL alignment)
  extent. (Not exactly indefinite extent: It is deallocated the next time
  free_foreign() is called on it.)
  can trigger GC */
-global void* mallocing (void* old_data, uintL size, uintL alignment)
+modexp void* mallocing (void* old_data, uintL size, uintL alignment)
 { return clisp_malloc(size); }
 
 /* Convert Lisp data to foreign data.
@@ -2419,7 +2415,7 @@ global void* mallocing (void* old_data, uintL size, uintL alignment)
  DANGEROUS, especially for type C-STRING !!
  Also beware against NULL pointers! They are not treated specially.
  can trigger GC */
-global void* nomalloc (void* old_data, uintL size, uintL alignment)
+modexp void* nomalloc (void* old_data, uintL size, uintL alignment)
 { return old_data; }
 
 /* Error messages. */

@@ -1,7 +1,7 @@
 /*
  * Sequences for CLISP
  * Bruno Haible 1987-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
@@ -1252,8 +1252,8 @@ LISPFUN(concatenate,seclass_rd_sig,1,0,rest,nokey,0,NIL)
  > fun: Function, fun(arg,element) can trigger GC
  > arg: any specified argument
  can trigger GC */
-global maygc void map_sequence (object obj, map_sequence_function_t* fun, void* arg)
-{
+modexp maygc void map_sequence
+(object obj, map_sequence_function_t* fun, void* arg) {
   var object typdescr = get_valid_seq_type(obj);
   pushSTACK(typdescr);
   pushSTACK(obj);

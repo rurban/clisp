@@ -1,7 +1,7 @@
 /*
  * CLISP Symbol functions
  * Bruno Haible 1990-2005
- * Sam Steingold 2001-2007
+ * Sam Steingold 2001-2009
  * German comments and names translated into English: Reini Urban 2007-11
  */
 
@@ -41,7 +41,7 @@ local inline gcv_object_t* plist_find (gcv_object_t *plist_, object key) {
  > symbol: a Symbol
  > key: indicator
  < value: the value of key in the property list or unbound. */
-global object get (object symbol, object key) {
+modexp object get (object symbol, object key) {
   var gcv_object_t* plistr_ = plist_find(&(Symbol_plist(symbol)),key);
   if (plistr_ == NULL) /* property list has odd length */
     error_sym_plist_odd(symbol);

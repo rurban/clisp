@@ -2,7 +2,7 @@
  * List functions for CLISP
  * Bruno Haible 1990-2005
  * Marcus Daniels 8.4.1994
- * Sam Steingold 1999-2008
+ * Sam Steingold 1999-2009
  * German comments and names translated into English: Reini Urban 2008-01
  */
 #include "lispbibl.c"
@@ -23,7 +23,7 @@ local inline maygc object cons_from_stack (void)
  > list: List
  < result: Copy of the list
  can trigger GC */
-global maygc object copy_list (object old_list) {
+modexp maygc object copy_list (object old_list) {
   /* Method: (copy-list l) = (mapcar #'identity l), mapcar forwards */
   if (atomp(old_list))
     return old_list;
@@ -97,7 +97,7 @@ global object reverse (object list) {
  > obj: object
  < len: list length
  < last: the last atom */
-global uintL llength1 (object list, object* last) {
+modexp uintL llength1 (object list, object* last) {
   var uintL count = 0;
   while (consp(list)) {
     count++; list=Cdr(list);
@@ -112,7 +112,7 @@ global uintL llength1 (object list, object* last) {
  > uintL len: wanted list length
  < result: List with len elements
  can trigger GC */
-global maygc object make_list (uintL len) {
+modexp maygc object make_list (uintL len) {
   pushSTACK(NIL);
   while (len--) {
     /* STACK_0 = old list, STACK_1 = initial value */
@@ -127,7 +127,7 @@ global maygc object make_list (uintL len) {
  nreverse(list)
  > list: List (x1 ... xm)
  < result: List (xm ... x1), EQ to the old */
-global object nreverse (object list) {
+modexp object nreverse (object list) {
   /* Algorithm:
      (lambda (L)
        (cond ((atom L) L)
@@ -209,7 +209,7 @@ global object nreconc (object list, object obj) {
  > obj: to be removed element
  > list: List
  < result: modified List */
-global object deleteq (object list, object obj) {
+modexp object deleteq (object list, object obj) {
   var object list1 = list;
   var object list2 = list;
   while (!atomp(list2)) {
@@ -455,7 +455,7 @@ LISPFUN(tree_equal,seclass_default,2,0,norest,key,2, (kw(test),kw(test_not)) )
  < result: true if obj is the list end NIL,
            false if obj is a Cons.
            error otherwise */
-global bool endp (object obj) {
+modexp bool endp (object obj) {
   if (consp(obj))
     return false;
   else if (nullp(obj))
@@ -826,7 +826,7 @@ LISPFUN(last,seclass_read,1,1,norest,nokey,0,NIL)
  < result: list of these objects
  removes len elements from the STACK
  changes STACK, can trigger GC */
-global maygc object listof (uintC len) {
+modexp maygc object listof (uintC len) {
   pushSTACK(NIL); /* starting with empty list */
   /* Cons len times the arguments to the front of this list: */
   while (len--) {
@@ -1489,7 +1489,7 @@ LISPFUN(nsublis,seclass_default,2,0,norest,key,3,
 }
 
 /*  UP: find OBJ in LIS: (MEMBER OBJ LIS :TEST #'EQ) */
-global object memq (const object obj, const object lis) {
+modexp object memq (const object obj, const object lis) {
   var object l = lis;
   while (consp(l)) {
     if (eq(Car(l),obj)) return l;

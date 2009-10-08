@@ -1,7 +1,7 @@
 /*
  * Miscellaneous CLISP functions
  * Bruno Haible 1990-2008
- * Sam Steingold 1999-2008
+ * Sam Steingold 1999-2009
  */
 
 #include "lispbibl.c"
@@ -668,7 +668,7 @@ local maygc object map_to_alist (const c_lisp_map_t *map) {
 
 /* Lisp symbol ---> C number
  may trigger GC -- on error only */
-global maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
+modexp maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
   unsigned int index;
  restart_map_lisp_to_c:
   if (map->use_default_function_p && integerp(obj)) return I_to_L(obj);
@@ -707,7 +707,7 @@ global maygc long map_lisp_to_c (object obj, const c_lisp_map_t *map) {
 
 /* C number ---> Lisp symbol
  may trigger GC -- on error only */
-global maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
+modexp maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
   unsigned int index;
  restart_map_c_to_lisp:
   for (index=0; index < map->size; index++)
@@ -733,7 +733,7 @@ global maygc object map_c_to_lisp (long val, const c_lisp_map_t *map) {
 
 /* C number ---> list of Lisp symbols, each denoting a bit
  may trigger GC */
-global maygc object map_c_to_list (long val, const c_lisp_map_t *map) {
+modexp maygc object map_c_to_list (long val, const c_lisp_map_t *map) {
   unsigned int count = 0;
   unsigned int index = 0;
   for (; index < map->size; index++) {
@@ -751,7 +751,7 @@ global maygc object map_c_to_list (long val, const c_lisp_map_t *map) {
 
 /* list of Lisp symbols, each denoting a bit ---> C number
  may trigger GC -- on error only */
-global maygc long map_list_to_c (object obj, const c_lisp_map_t *map) {
+modexp maygc long map_list_to_c (object obj, const c_lisp_map_t *map) {
   if (listp(obj)) {
     long ret = 0;
     pushSTACK(obj);
@@ -768,7 +768,7 @@ global maygc long map_list_to_c (object obj, const c_lisp_map_t *map) {
  > arr: C array of C strings, terminated by a NULL
  < STACK_0: list of corresponding Lisp strings, encoded with *MISC-ENCODING*
  can trigger GC, adds 1 element to STACK */
-global maygc void push_string_array (char **arr) {
+modexp maygc void push_string_array (char **arr) {
   int count = 0;
   for (; *arr; count++, arr++)
     pushSTACK(asciz_to_string(*arr,O(misc_encoding)));
@@ -777,5 +777,5 @@ global maygc void push_string_array (char **arr) {
 
 /* for modules: convert a C string to a Lisp string, NULL->NIL
  can trigger GC */
-global maygc object safe_to_string (const char *asciz)
+modexp maygc object safe_to_string (const char *asciz)
 { return asciz ? asciz_to_string(asciz,O(misc_encoding)) : NIL; }

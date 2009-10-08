@@ -1,7 +1,7 @@
 /*
  * Hash-Tables in CLISP
  * Bruno Haible 1990-2005
- * Sam Steingold 1998-2008
+ * Sam Steingold 1998-2009
  * German comments translated into English: Stefan Kain 2002-01-29
  */
 
@@ -2212,7 +2212,7 @@ LISPFUN(make_hash_table,seclass_read,0,0,norest,key,9,
             (should be true if the hash-table has a user-defined test)
  < result: if found, belonging value, else nullobj
  can trigger GC - if allowgc is true */
-global /*maygc*/ object gethash (object obj, object ht, bool allowgc) {
+modexp /*maygc*/ object gethash (object obj, object ht, bool allowgc) {
   GCTRIGGER_IF(allowgc, GCTRIGGER2(obj,ht));
   var gcv_object_t* KVptr;
   var gcv_object_t* Iptr;

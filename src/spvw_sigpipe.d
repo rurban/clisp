@@ -6,7 +6,7 @@
 
 #if !defined(MULTITHREAD)
 /* Variable to be set ONLY during IO calls to pipes directed to subprocesses. */
-global bool writing_to_subprocess = false;
+modexp bool writing_to_subprocess = false;
 #endif
 
 /* Install the signal handler for SIGPIPE. */

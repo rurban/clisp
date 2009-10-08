@@ -288,15 +288,14 @@ global void convert_time (const FILETIME* time, decoded_time_t* timepoint)
  > time_t time: in system time format
  < result: integer denoting the seconds since 1900-01-01 00:00 GMT
  can trigger GC */
-global maygc object convert_time_to_universal (const time_t* time)
+modexp maygc object convert_time_to_universal (const time_t* time)
 {
   /* Since we get the timezone from the OS (sys::default-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   return UL_to_I(UNIX_LISP_TIME_DIFF + (uintL)(*time));
 }
 /* the inverse of convert_time_to_universal() */
-global void convert_time_from_universal (object universal, time_t* time)
-{
+modexp void convert_time_from_universal (object universal, time_t* time) {
   *time = I_to_UL(universal) - UNIX_LISP_TIME_DIFF;
 }
 #endif
@@ -307,7 +306,7 @@ global void convert_time_from_universal (object universal, time_t* time)
  > FILETIME time: in system time format
  < result: integer denoting the seconds since 1900-01-01 00:00 GMT
  can trigger GC */
-global maygc object convert_time_to_universal (const FILETIME* time) {
+modexp maygc object convert_time_to_universal (const FILETIME* time) {
   /* Since we get the timezone from the OS (sys::defaul-time-zone),
      we can assume that the OS's timezone and CLISP's timezone agree. */
   var internal_time_t offset = /* difference between 1.1.1601 and 1.1.1900 */
@@ -329,7 +328,7 @@ global maygc object convert_time_to_universal (const FILETIME* time) {
   return UL_to_I(real_time);
 }
 /* the inverse of convert_time_to_universal() */
-global void convert_time_from_universal (object universal, FILETIME* time) {
+modexp void convert_time_from_universal (object universal, FILETIME* time) {
   var uint64 ut = (I_to_UQ(universal) + (uint64)109207 * (uint64)86400)
                   * (uint64)ticks_per_second;
   time->dwHighDateTime = (uint32)(ut>>32 & 0xFFFFFFFFul);

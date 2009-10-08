@@ -1,9 +1,9 @@
 /* Handling of UNIX errors
  OS_error();
  > int errno: error code */
-nonreturning_function(global, OS_error, (void));
+nonreturning_function(modexp, OS_error, (void));
 #ifdef UNIX
-nonreturning_function(global, OS_error_arg, (object etype, object arg));
+nonreturning_function(modexp, OS_error_arg, (object etype, object arg));
 #endif
 
 /* Problem: many different UNIX variants, each with its own set of error
