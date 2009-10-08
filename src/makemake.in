@@ -3355,7 +3355,8 @@ echotab "fi; \\"
 # which cannot pass srcdir to make on the command line
 echotab "`newer Makefile Makefile` && sed \"s,srcdir = .,srcdir = \$\$m,\" \"\$\$m/Makefile\" > \$@/Makefile ; \\"
 echotab "CLISP=\"${HEREP}/clisp -K boot ${someflags}\" ; \\"
-echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR})\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
+# need -I${HEREP} in CPPFLAGS for localcharset.h et al
+echotab "cd \$@ ; \$(MAKE) clisp-module CC=\"\$(CC)\" CPPFLAGS=\"\$(${MODULE_CPPFLAGS_VAR}) -I${HEREP}\" CFLAGS=\"\$(${MODULE_CFLAGS_VAR})\" CLFLAGS=\"\$(${MODULE_CLFLAGS_VAR})\" LIBS=\"\$(LIBS)\" RANLIB=\"\$(RANLIB)\" CLISP=\"\$\$CLISP -q\" SHREXT=${SHREXT}"
 echol
 
 cygwin_finish() {
