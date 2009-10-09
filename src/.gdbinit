@@ -79,18 +79,24 @@ document run_all_tests_parallel
          run the whole test suite, each file in its own thread
 end
 
+define run_mod_test
+  run -B . -N locale -E 1:1 -q -norc -M base/lispinit.mem -i tests/tests -x "(run-test \"../modules/$arg0/test.tst\" :logname \"$arg0/test.erg\")"
+end
+document run_mod_test
+         run the tests for the specified module
+end
 
-define ansi_tests
+define run_ansi_tests
   run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (time (regression-test:do-tests))"
 end
-document ansi_tests
-         run the gcl/ansi-test suite
+document run_ansi_tests
+         run the ANSI test suite
 end
 
-define ansi_tests_compiled
+define run_ansi_tests_compiled
   run -B . -N locale -E utf-8 -q -norc -M lispinit.mem -ansi -x "(cd \"ansi-tests/\") (load \"clispload.lsp\") (in-package \"CL-TEST\") (setq regression-test::*compile-tests* t) (time (regression-test:do-tests))"
 end
-document ansi_tests_compiled
+document run_ansi_tests_compiled
          run the gcl/ansi-test suite - compiled
 end
 
