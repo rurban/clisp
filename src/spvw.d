@@ -4195,6 +4195,9 @@ local object dlerror_message (void) {
   return e == NULL ? O(unknown_error) : asciz_to_string(e,O(misc_encoding));
  #elif defined(WIN32_NATIVE)
   var char* buf;
+  /* note that this message is likely to be less informative
+     than the pop-up error window enabled by SetErrorMode(0);
+     http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/e720d92269df1398/b2381f02f3bfc8a3 */
   FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM
                 | FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL, GetLastError(), 0, (char*)&buf, 0, NULL);
