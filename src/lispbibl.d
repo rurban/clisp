@@ -17232,7 +17232,7 @@ struct object_tab_tl_ {
        /* A faster index to the hash table */
        tse * volatile cache[TS_CACHE_SIZE];
        tse *hash[TS_HASH_SIZE];
-       xmutex_raw_t lock;
+       spinlock_t lock;
      } tsd;
      /* global variable the keeps all active threads TLS values */
      extern tsd threads_tls;
@@ -17240,9 +17240,8 @@ struct object_tab_tl_ {
         misses (when the thread stack crosses the VM page boundary). */
      global void* tsd_slow_getspecific(unsigned long qtid,
                                        tse * volatile *cache_ptr);
-     /* removes the TLS - should be called on thread exit.
-        NB: It seems not a big deal if not called - but should
-        be tested.*/
+     /* UP: removes the TLS for current thread - should be called on
+        thread exit. */
      global void tsd_remove_specific (void);
      /* initializes the current thread storage with supplied value.
        entry should be pre-allocated. May reside on the stack as
@@ -17349,7 +17348,7 @@ struct object_tab_tl_ {
 %%   export_def(roughly_SP());
 %%   export_def(TLS_SP_SHIFT);
 %%   emit_typedef("struct thread_specific_entry { volatile long qtid; void *value; struct thread_specific_entry *next; xthread_t thread; }","tse");
-%%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; xmutex_raw_t lock; }","tsd");
+%%   emit_typedef("struct thread_specific_data { tse * volatile cache[TS_CACHE_SIZE]; tse *hash[TS_HASH_SIZE]; spinlock_t lock; }","tsd");
 %%   exportV(tsd,threads_tls);
 %%   exportF(void,tsd_setspecific,(tse *entry, void *value));
 %%   exportF(void*,tsd_slow_getspecific,(unsigned long qtid,tse * volatile *cache_ptr));
