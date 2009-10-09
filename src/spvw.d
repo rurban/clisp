@@ -382,7 +382,7 @@ modexp uintL* current_thread_alloccount()
   local void tsd_initialize()
   {
     var int i;
-    xmutex_raw_init(&(threads_tls.lock));
+    spinlock_init(&(threads_tls.lock));
     for (i = 0; i < TS_CACHE_SIZE; ++i) {
       threads_tls.cache[i] = &invalid_tse;
     }
@@ -396,38 +396,32 @@ modexp uintL* current_thread_alloccount()
   {
     var xthread_t self = xthread_self();
     var int hash_val = TSD_HASH(self);
-    xmutex_raw_lock(&(threads_tls.lock));
-    /* Could easily check for an existing entry here.   */
-    entry -> next = threads_tls.hash[hash_val];
     entry -> thread = self;
     entry -> value = value;
     entry -> qtid = INVALID_QTID;
-    /* There can only be one writer at a time, but this needs to be     */
-    /* atomic with respect to concurrent readers.                       */
-    /****** TODO TODO TODO TODO: WAS ATOMIC *******/
-    /* since we call it only during thread creation - we even may go without
-      atomic operation - but I am not sure - should check it carefully */
-    /*AO_store_release((volatile AO_t *)(threads_tls.hash + hash_val),
-      (AO_t)entry);*/
+    spinlock_acquire(&(threads_tls.lock));
+    entry -> next = threads_tls.hash[hash_val];
     *(threads_tls.hash + hash_val)=entry;
-    xmutex_raw_unlock(&(threads_tls.lock));
+    spinlock_release(&(threads_tls.lock));
   }
 
-  /* UP: Remove thread-specific data for this thread.  Should be called on
+  /* UP: Remove thread-specific data for current thread. Should be called on
      thread exit */
   global void tsd_remove_specific()
   {
     var xthread_t self = xthread_self();
     var unsigned hash_val = TSD_HASH(self);
     var tse *entry;
+    spinlock_acquire(&(threads_tls.lock));
     var tse **link = threads_tls.hash + hash_val;
-    xmutex_raw_lock(&(threads_tls.lock));
     entry = *link;
     while (entry != NULL && entry->thread != self) {
       link = &(entry->next);
       entry = *link;
     }
     *link = entry->next; /* remove the entry from the list */
+    entry->qtid = INVALID_QTID;
+    spinlock_release(&(threads_tls.lock));
     /* now remove it from the cache as well. it is important since the entry
        in on the C stack of dying thread and soon the memory will be reclaimed.
        NB: this may cause cache misses in worst time (from other threads)*/
@@ -436,17 +430,19 @@ modexp uintL* current_thread_alloccount()
       if (threads_tls.cache[i] == entry)
         threads_tls.cache[i] = &invalid_tse;
     }
-    xmutex_raw_unlock(&(threads_tls.lock));
   }
 
-  /* Note that even the slow path doesn't lock. */
+  /* slow path locks - but uses spinlock for very short time and it is
+     not likely to cause contention */
   modexp void* tsd_slow_getspecific(unsigned long qtid,
                                     tse * volatile *cache_ptr)
   {
+    ASSERT(qtid != INVALID_QTID);
     var xthread_t self = xthread_self();
     var unsigned hash_val = TSD_HASH(self);
+    /* lock the hash table */
+    spinlock_acquire(&(threads_tls.lock));
     var tse *entry = threads_tls.hash[hash_val];
-    ASSERT(qtid != INVALID_QTID);
     while (entry != NULL && entry->thread != self) {
       entry = entry->next;
     }
@@ -459,32 +455,14 @@ modexp uintL* current_thread_alloccount()
     *cache_ptr = entry;
     /* Again this is safe since pointer assignments are         */
     /* presumed atomic, and either pointer is valid.    */
+    spinlock_release(&(threads_tls.lock));
     return entry->value;
   }
  #elif USE_CUSTOM_TLS == 3
-  /* Currently only POSIX_THREADS and Win32 are supported.
-     For other platforms we have to find a way to locate the
-     current thread's stack base and size. These two functions
-     are useful not only for threading but for general stack
-     checking (but currently defined only in this case).
-  */
-  /* libsigsegv can be used to obtain the stack region (stack-vma).
-   I do not use it since:
-     1. No exported interface to use stackvma-xxx functions.
-     2. It may not be available - for some reason no generational GC is needed.
-     3. There is a problem on linux. /proc may not exist if we are running
-        as a chroot program, so reading /proc/self/maps could fail.
-  */
-
   #if defined(POSIX_THREADS)
-  /* there is difference between the main thread stack base/size and
-   the ones created via pthread_create(). For the latter we will use
-   pthread_getattr_np(), however it returns bogus values for the main thread
-   (seems only with LinuxThreads).
-   So we have to find out whether the current thread is the main one and
-   get values in other way.*/
-
-  /* helper function for threads created by pthread_create() */
+  /* UP: return the base address and size of current thread stack
+   > base: base address (top of the stack if SP_DOWN)
+   > size: stack size */
   local bool get_stack_region(aint *base, size_t *size)
   {
     #ifdef UNIX_DARWIN
@@ -492,82 +470,21 @@ modexp uintL* current_thread_alloccount()
      self_id = pthread_self();
      *base = (aint)pthread_get_stackaddr_np(self_id);
      *size = pthread_get_stacksize_np(self_id);
+     *base -= *size; /* always SP_DOWN but *base is bottom of the stack */
      return true;
     #else /* assume fairly recent pthreads implementation */
      var pthread_attr_t attr;
-     var void *start;
-     pthread_getattr_np(pthread_self(), &attr);
-     pthread_attr_getstack(&attr, &start, size);
-     /* the start is the top of the stack (at least on x86) */
-     *base=(aint)start + *size;
-     return true;
+     if (0 == pthread_getattr_np(pthread_self(), &attr)) {
+       var bool ret = (0 == pthread_attr_getstack(&attr, (void **)base, size));
+       pthread_attr_destroy(&attr);
+       return ret;
+     }
     #endif
     return false;
   }
-
-  local aint current_stack_base()
-  {
-    if (!allthreads.head) { /* main thread ? */
-      /* for practical reasons - not to have too much code that anyway will
-         not make big difference - just use the current SP. This is basically
-         good guess. It may fail if the threads globals are accessed by
-         the caller of this function and the SP is exactly/near page border.
-         The caller here may be only main() - so it should be safe.
-         In any case there is STACK_PAGE_THRESHOLD (1 page is just a guess -
-         works fine. even if later on another thread stack should intefere
-         with this page - during the creation of the thread it will
-         fix the mapping - this threshold is used only for the main thread) */
-     #define STACK_PAGE_THRESHOLD 4096
-     #ifdef SP_UP
-      return roughly_SP() - STACK_PAGE_THRESHOLD;
-     #else /* SP_DOWN */
-      return roughly_SP() + STACK_PAGE_THRESHOLD;
-     #endif
-     #undef STACK_PAGE_THRESHOLD
-    } else {
-      /* created by pthread_create. */
-      var aint base;
-      var size_t size;
-      if (get_stack_region(&base,&size))
-        return base;
-    }
-    fputs("FATAL: current_stack_base(): cannot find stack base address.",stderr);
-    return 0; /* certinaly will cause problems */
-  }
-  /* should return maximum possible thread stack size */
-  local size_t current_stack_size()
-  {
-    var size_t stack_size=0;
-    if (!allthreads.head) {
-      /* This is the main thread - the only one that is initialized
-         before being registered (thus threads list is empty). Use getrlimit().
-         What to do if we do not have getrlimit()? Currently we will crash.*/
-      var struct rlimit rl;
-      if (getrlimit(RLIMIT_STACK, &rl) == 0)
-        stack_size = (rl.rlim_max == RLIM_INFINITY) ? rl.rlim_cur : rl.rlim_max;
-      /*NB: there is a chance this value to be larger that needed and to fill
-        more items in threads_map. However since we are the first thread there
-        is no problem - other threads will overwrite these mapping later.*/
-    } else {
-      /* we are in a thread created by pthread_create() */
-      var aint base;
-      var size_t size;
-      if (get_stack_region(&base,&size))
-        return stack_size=size;
-    }
-
-    /* after all "computation"/guessing about the stack size let's check*/
-    if (stack_size <= TLS_PAGE_SIZE) {
-      fprintf(stderr,"FATAL: current_stack_size(): cannot find stack size.");
-      abort();
-    }
-
-    return stack_size - TLS_PAGE_SIZE;
-  }
   #endif /* POSIX_THREADS */
   #ifdef WIN32_THREADS
-  /* taken from Sun's Hotspot JVM */
-  local aint current_stack_base()
+  local bool get_stack_region(aint *base, size_t *size)
   {
     MEMORY_BASIC_INFORMATION minfo;
     aint stack_bottom;
@@ -584,15 +501,9 @@ modexp uintL* current_thread_alloccount()
       else
         break;
     }
-    return stack_bottom + stack_size;
-  }
-  local size_t current_stack_size()
-  {
-    size_t sz;
-    MEMORY_BASIC_INFORMATION minfo;
-    VirtualQuery(&minfo, &minfo, sizeof(minfo));
-    sz = (size_t)current_stack_base() - (size_t)minfo.AllocationBase;
-    return sz;
+    *base = stack_bottom;
+    *size = stack_size;
+    return true;
   }
   #endif /* WIN32_THREADS */
 
@@ -601,16 +512,17 @@ modexp uintL* current_thread_alloccount()
   {
     /* we should initialize the threads_map items in the
      stack range of the current thread to point to thr. */
-    var aint stack_top = current_stack_base(),p;
-    var size_t stack_size = current_stack_size(), mapped=0;
-    var int page_size=TLS_PAGE_SIZE ,signed_ps;
-    signed_ps=page_size;
-    #ifdef SP_DOWN
-     signed_ps*=-1;
-    #endif
-    for (p=stack_top, mapped=0;
+    var aint stack_base, p;
+    var size_t stack_size, mapped=0;
+    if (!get_stack_region(&stack_base,&stack_size)) {
+      /* this either works or not. so on first (main) thread created
+       it will barf if not supported. */
+      fputs("FATAL: get_stack_region() failed.",stderr);
+      abort();
+    }
+    for (p=stack_base, mapped=0;
          mapped < stack_size;
-         p+=signed_ps, mapped+=page_size) {
+         p+=TLS_PAGE_SIZE, mapped+=TLS_PAGE_SIZE) {
       threads_map[(unsigned long)p >> TLS_SP_SHIFT] = thr;
     }
   }
@@ -3956,10 +3868,21 @@ global int main (argc_t argc, char* argv[]) {
   SP_anchor=(void *)&argv2;
   {
     var xthread_t thr;
-    xthread_create(&thr,mt_main_actions,current_thread(), MAIN_THREAD_C_STACK);
+    var clisp_thread_t *param = current_thread();
+    /* Remove the current thread from threads map */
+  #if USE_CUSTOM_TLS == 3
+    /* Since initial thread stack is growable (at least on linux), the
+       stack range mapped when thread was registered is maximum possible one.
+       Now pthread_attr_getstack will return (most probably) different range
+       (smaller) and if we try to unmap it - there will be some mappings left.
+       This is not a problem in general but it helps for debugging to clear
+       the whole map.*/
+    memset(threads_map, 0, sizeof(threads_map));
+  #else
+    set_current_thread(NULL); /* no associated lisp thread */
+  #endif
+    xthread_create(&thr, mt_main_actions, param, MAIN_THREAD_C_STACK);
   }
-  /* IMPORTANT: set the current tls thread to NULL */
-  set_current_thread(NULL);
   thr_signal_handler = xthread_self();
   /* let's handle signals now :)*/
   signal_handler_thread(0);

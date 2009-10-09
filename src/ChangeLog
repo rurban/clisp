@@ -1,3 +1,18 @@
+2009-10-09  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: simplify alternative TLS on 32 bit builds
+	* lispbibl.d (struct thread_specific_data): use spinlock instead of
+	mutex and export it
+	* spvw.d (tsd_initialize, tsd_setspecific, tsd_remove_specific): ditto
+	(tsd_slow_getspecific): lock (with spinlock) hash table modifications.
+	prevents races with tsd_remove_specific. contention is unlikely
+	(get_stack_region): implement for WIN32_THREADS. stack range returned
+	is [*base ... (*base + *size)] regardless SP_DOWN/UP
+	(current_stack_base, current_stack_size): remove
+	(set_current_thread): use get_stack_region()
+	(main) [USE_CUSTOM_TLS=3]: clear all thread mappings before spawning
+	"main thread"
+
 2009-10-09  Sam Steingold  <sds@gnu.org>
 
 	* .gdbinit (run_mod_test): add
