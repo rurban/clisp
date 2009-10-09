@@ -91,6 +91,7 @@
 2009-10-07  Sam Steingold  <sds@gnu.org>
 
 	try to produce meaningful error messages on platforms without dlerror
+	http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/e720d92269df1398/b2381f02f3bfc8a3
 	* spvw.d (error_dlerror) [DYNAMIC_MODULES]: accept an object
 	instead of an ASCII string as the last argument
 	(dlerror_message): produce object error message using dlerror() or
