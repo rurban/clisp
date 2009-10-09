@@ -214,18 +214,18 @@ local maygc void end_error (gcv_object_t* stackptr, bool start_driver_p) {
   /* NB: just for debugging - but for now in the release as well.
      this code is for checking whether there is no part of the runtime
      that will signal an error while it is considered to be in safe for GC
-     region. Seems there are such possibilities in the xxxuax.d and socket.d.
+     region. Seems there are such possibilities in the xxxaux.d and socket.d.
      Hope to catch all of them here (it is possible to miss some cases
      however). */
   if (spinlock_tryacquire(&current_thread()->_gc_suspend_ack)) {
     /* this should never happen - we always hold this lock unless we are in
-       blocking system call (or waiting for the GC)*/
+       blocking system call (or waiting for the GC) */
     fprintf(stderr,"*** thread is going into lisp land without calling end_blocking_call();");
     abort();
   }
   if (current_thread()->_suspend_count) {
     /* hmm aren't we supposed to be suspended? if we are here - there
-     is GC running NOW */
+       is GC running NOW */
     fprintf(stderr,"*** thread is going into lisp land while GC in progress.");
     abort();
   }
