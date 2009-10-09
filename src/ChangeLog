@@ -1,3 +1,9 @@
+2009-10-09  Sam Steingold  <sds@gnu.org>
+
+	* .gdbinit (run_mod_test): add
+	(run_ansi_tests): rename from ansi_tests
+	(run_ansi_tests_compiled): renamed from ansi_tests_compiled
+
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (STACK, back_trace): do not write the declaration
