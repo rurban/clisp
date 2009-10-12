@@ -1,5 +1,11 @@
 2009-10-12  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (handle_pathname): extract from handle_to_stream and
+	implement for WIN32_NATIVE
+	(handle_to_stream): use it
+
+2009-10-12  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (handle_direction_compatible): implement for
 	WIN32_NATIVE using NtQueryInformationFile (fixes check-script)
 
