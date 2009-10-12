@@ -14945,21 +14945,28 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
              fd,dir,fcntl_flags,ret));
   return ret;
  #elif defined(WIN32_NATIVE)
-  #include <ddk/ntifs.h>
   var bool ret = true;          /* assume compatibility */
+  /* http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/a446be4fb332aeba */
   begin_blocking_system_call();
-  /* http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/a446be4fb332aeba# */
-  var QueryInformationFile_t qif = get_qif();
-  if (qif != NULL) {
-    var IO_STATUS_BLOCK iosb;
-    var FILE_ACCESS_INFORMATION fai;
-    var NTSTATUS s = qif(fd,&iosb,(void*)&fai,sizeof(fai),
-                         FileAccessInformation);
-    ret = (s != STATUS_SUCCESS
-           || (   (!READ_P(dir) || fai.AccessFlags & FILE_READ_DATA)
-               && (!WRITE_P(dir) || fai.AccessFlags & FILE_WRITE_DATA)));
-    DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x 0x%x => %d\n",
-               fd,dir,s,fai.AccessFlags,ret));
+  switch (GetFileType(fd)) {
+    case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
+    case FILE_TYPE_DISK: {
+      var QueryInformationFile_t qif = get_qif();
+      if (qif != NULL) {
+        var IO_STATUS_BLOCK iosb;
+        var FILE_ACCESS_INFORMATION fai;
+        var NTSTATUS s = qif(fd,&iosb,(void*)&fai,sizeof(fai),
+                             FileAccessInformation);
+        ret = (s == STATUS_SUCCESS
+               && (!READ_P(dir) || fai.AccessFlags & FILE_READ_DATA)
+               && (!WRITE_P(dir) || fai.AccessFlags & FILE_WRITE_DATA));
+        DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x 0x%x => %d\n",
+                   fd,dir,s,fai.AccessFlags,ret));
+      }
+    } break;
+    case FILE_TYPE_UNKNOWN:
+      /* GetFileType failed => handle was invalid */
+      if (GetLastError() != NO_ERROR) ret = false;
   }
   end_blocking_system_call();
   return ret;
