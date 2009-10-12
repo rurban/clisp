@@ -14968,6 +14968,50 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
  #endif
 }
 
+/* UP: find the pathname corresponding to the given handle
+ > fd: file handle
+ < pathname or NIL
+ can trigger GC */
+local maygc object handle_pathname (Handle fd) {
+ #if defined(UNIX)
+  var char buf[20];
+  begin_system_call();
+  sprintf(buf,"/dev/fd/%d",fd);
+  end_system_call();
+  pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
+  return value1;
+ #elif defined(WIN32_NATIVE)
+  var NTSTATUS s = ~STATUS_SUCCESS;
+  var WCHAR wbuf[MAXPATHLEN + sizeof(ULONG)];
+  begin_blocking_system_call();
+  switch (GetFileType(fd)) {
+    case FILE_TYPE_DISK: {
+      var QueryInformationFile_t qif = get_qif();
+      if (qif != NULL) {
+        var IO_STATUS_BLOCK iosb;
+        s = qif(fd,&iosb,(void*)wbuf,MAXPATHLEN + sizeof(ULONG),
+                FileNameInformation);
+      }
+    } break;
+    case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
+    case FILE_TYPE_UNKNOWN: break;
+  }
+  end_blocking_system_call();
+  if (s == STATUS_SUCCESS) {
+    var FILE_NAME_INFORMATION *fni = (FILE_NAME_INFORMATION*)&wbuf;
+    var char abuf[2 * MAXPATHLEN];
+    var int n = WideCharToMultiByte(CP_ACP,0,fni->FileName,
+                                    fni->FileNameLength/sizeof(WCHAR),
+                                    abuf,2 * MAXPATHLEN,NULL,NULL);
+    pushSTACK(n_char_to_string(abuf,n,O(pathname_encoding)));
+    funcall(L(pathname),1);
+    return value1;
+  } else return NIL;
+ #else
+  return NIL;
+ #endif
+}
+
 /* Create a stream based on a handle
  can trigger GC */
 local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
@@ -14980,21 +15024,15 @@ local maygc object handle_to_stream (Handle fd, object direction, object buff_p,
   pushSTACK(eltype);
   pushSTACK(allocate_handle(handle_dup(fd)));
   dir = check_direction(direction);
- #ifdef UNIX
-  { /* set Filename to /dev/fd/<fd> */
-    var char buf[20];
-    begin_system_call();
-    sprintf(buf,"/dev/fd/%d",fd);
-    end_system_call();
-    pushSTACK(ascii_to_string(buf)); funcall(L(pathname),1);
-    STACK_5 = value1;
-  }
+  STACK_5 = handle_pathname(fd);
   if (!handle_direction_compatible(fd,dir)) {
-    pushSTACK(STACK_5); /* FILE-ERROR slot PATHNAME */
-    pushSTACK(STACK_0); pushSTACK(direction);
-    error(file_error,GETTEXT("Invalid direction ~S for accessing ~S"));
+    var condition_t errortype = nullp(STACK_5)
+      ? (pushSTACK(STACK_0), error_condition)
+      : (pushSTACK(STACK_5), /* FILE-ERROR slot PATHNAME */
+         pushSTACK(STACK_0), file_error);
+    pushSTACK(direction);
+    error(errortype,GETTEXT("Invalid direction ~S for accessing ~S"));
   }
- #endif
   return make_file_stream(dir,false,dir == DIRECTION_IO);
 }
 
