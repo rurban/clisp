@@ -14910,12 +14910,29 @@ LISPFUNN(socket_stream_shutdown,2) {
 /* Streams in general
    ================== */
 
+#if defined(WIN32_NATIVE)
+/* http://msdn.microsoft.com/en-us/library/ms804359.aspx */
+#include <ddk/ntifs.h>
+typedef NTSTATUS (*QueryInformationFile_t)
+(IN HANDLE FileHandle, OUT PIO_STATUS_BLOCK IoStatusBlock,
+ OUT PVOID FileInformation, IN ULONG Length,
+ IN FILE_INFORMATION_CLASS FileInformationClass);
+static QueryInformationFile_t qif = (QueryInformationFile_t) -1;
+static QueryInformationFile_t get_qif (void) {
+  if (qif == NULL) return qif;
+  var HMODULE ntdll = LoadLibrary("ntdll.dll");
+  if (ntdll == NULL) return (qif = NULL);
+  return (qif = (QueryInformationFile_t)
+          GetProcAddress(ntdll, "NtQueryInformationFile"));
+}
+#endif
+
 /* UP: find out whether the direction is compatible with the handle
  > fd: file handle
  > dir: direction
  > true is the direction is compatible with the handle */
 local bool handle_direction_compatible (Handle fd, direction_t dir) {
- #ifdef UNIX
+ #if defined(UNIX)
   begin_blocking_system_call();
   var int fcntl_flags = fcntl(fd,F_GETFL,0);
   end_blocking_system_call();
@@ -14926,6 +14943,25 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
       || (WRITE_P(dir) && ((fcntl_flags & O_ACCMODE) == O_RDONLY)));
   DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x => %d\n",
              fd,dir,fcntl_flags,ret));
+  return ret;
+ #elif defined(WIN32_NATIVE)
+  #include <ddk/ntifs.h>
+  var bool ret = true;          /* assume compatibility */
+  begin_blocking_system_call();
+  /* http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/a446be4fb332aeba# */
+  var QueryInformationFile_t qif = get_qif();
+  if (qif != NULL) {
+    var IO_STATUS_BLOCK iosb;
+    var FILE_ACCESS_INFORMATION fai;
+    var NTSTATUS s = qif(fd,&iosb,(void*)&fai,sizeof(fai),
+                         FileAccessInformation);
+    ret = (s != STATUS_SUCCESS
+           || (   (!READ_P(dir) || fai.AccessFlags & FILE_READ_DATA)
+               && (!WRITE_P(dir) || fai.AccessFlags & FILE_WRITE_DATA)));
+    DEBUG_OUT(("\nhandle_direction_compatible(%d,%d): 0x%x 0x%x => %d\n",
+               fd,dir,s,fai.AccessFlags,ret));
+  }
+  end_blocking_system_call();
   return ret;
  #else
   return true;                  /* assume compatibility */
