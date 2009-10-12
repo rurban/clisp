@@ -1,3 +1,8 @@
+2009-10-12  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_direction_compatible): implement for
+	WIN32_NATIVE using NtQueryInformationFile (fixes check-script)
+
 2009-10-09  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: simplify alternative TLS on 32 bit builds
