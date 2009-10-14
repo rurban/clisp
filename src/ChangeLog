@@ -1,3 +1,9 @@
+2009-10-14  Sam Steingold  <sds@gnu.org>
+
+	* stream.d (handle_direction_compatible): NtQueryInformationFile
+	is for FILE_TYPE_DISK only, for FILE_TYPE_CHAR, FILE_TYPE_PIPE,
+	FILE_TYPE_REMOTE assume compatibility
+
 2009-10-12  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_pathname): extract from handle_to_stream and

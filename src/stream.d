@@ -14949,7 +14949,6 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
   /* http://groups.google.com/group/microsoft.public.win32.programmer.kernel/browse_thread/thread/a446be4fb332aeba */
   begin_blocking_system_call();
   switch (GetFileType(fd)) {
-    case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
     case FILE_TYPE_DISK: {
       var QueryInformationFile_t qif = get_qif();
       if (qif != NULL) {
@@ -14964,6 +14963,8 @@ local bool handle_direction_compatible (Handle fd, direction_t dir) {
                    fd,dir,s,fai.AccessFlags,ret));
       }
     } break;
+    case FILE_TYPE_CHAR: case FILE_TYPE_PIPE: case FILE_TYPE_REMOTE:
+      break;                    /* assume compatibility */
     case FILE_TYPE_UNKNOWN:
       /* GetFileType failed => handle was invalid */
       if (GetLastError() != NO_ERROR) ret = false;
