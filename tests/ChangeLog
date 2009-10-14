@@ -1,3 +1,9 @@
+2009-10-14  Sam Steingold  <sds@gnu.org>
+
+	* ffi.tst: revert last patch: do not conditionalize int64 tests:
+	most (all?) 32-bit platforms, including win32 and cygwin,
+	define HAVE_LONG_LONG_INT and thus support these tests
+
 2009-10-08  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: fix bug #[ 2874184 ]: conditionalize 64-bit int use on
