@@ -1,3 +1,8 @@
+2009-10-15  Sam Steingold  <sds@gnu.org>
+
+	* built.d (built_flags) [DYNAMIC_FFI]: add libffcall version based
+	on LIBFFCALL_VERSION
+
 2009-10-15  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d [MULTITHREAD]: allow USE_CUSTOM_TLS=2 on 64bit builds.
