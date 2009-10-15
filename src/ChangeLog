@@ -1,3 +1,8 @@
+2009-10-15  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d [MULTITHREAD]: allow USE_CUSTOM_TLS=2 on 64bit builds.
+	gcc on osx 10.6+ still does not support __thread qualifier
+
 2009-10-14  Sam Steingold  <sds@gnu.org>
 
 	* stream.d (handle_direction_compatible): NtQueryInformationFile

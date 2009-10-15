@@ -17165,15 +17165,14 @@ struct object_tab_tl_ {
     #define USE_CUSTOM_TLS 1
    #endif
 
-   /* custom TLS > 1 is available only on 32 bit platforms */
-   #if USE_CUSTOM_TLS > 1 && defined(WIDE_HARD)
-    #error "USE_CUSTOM_TLS > 1  asked on 64 bit machine."
+   /* custom TLS == 3 is available only on 32 bit platforms */
+   #if USE_CUSTOM_TLS == 3 && defined(WIDE_HARD)
+    #error "USE_CUSTOM_TLS == 3 asked on 64 bit machine."
    #endif
 
    /* for {2} and {3} we will need access to the stack pointer */
    #if USE_CUSTOM_TLS >=2
     #define TLS_SP_SHIFT  12
-    #define TLS_PAGE_SIZE 4096
 
     #if defined(ASM_get_SP_register)
      /* means we have also GNU - so can use the extension */
@@ -17274,6 +17273,7 @@ struct object_tab_tl_ {
     /* fastest TLS - almost matches compiler provided TLS support.
       maps the SP >> 12 to clisp_thread_t. */
    #elif USE_CUSTOM_TLS == 3
+     #define TLS_PAGE_SIZE 4096
      /* the array below is indexed by SP >> 12 (TLS_SP_SHIFT)*/
      extern clisp_thread_t *threads_map[];
      #define current_thread() threads_map[roughly_SP() >> TLS_SP_SHIFT]
