@@ -1380,13 +1380,13 @@ global maygc object augment_decl_env (object new_declspec, object env)
       var object declspec = Car(declspecs);
       if (eq(Car(declspec),S(declaration)) /* (DECLARATION ...) ? */
           && !nullp(memq(decltype,Cdr(declspec))))
-        goto beachten;
+        goto note_declspec;
       declspecs = Cdr(declspecs);
     }
   }
   /* not to be respected Declaration. */
   return env;                   /* leave env unchanged */
- beachten:
+ note_declspec:
   /* a to be respected Declaration -> env := (cons new_declspec env) */
   pushSTACK(env); pushSTACK(new_declspec);
   env = allocate_cons();
