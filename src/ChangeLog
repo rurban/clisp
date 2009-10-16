@@ -1,3 +1,7 @@
+2009-10-16  Sam Steingold  <sds@gnu.org>
+
+	* configure.in (AC_INIT): use m4_esyscmd instead of esyscmd
+
 2009-10-15  Sam Steingold  <sds@gnu.org>
 
 	* built.d (built_flags) [DYNAMIC_FFI]: add libffcall version based
