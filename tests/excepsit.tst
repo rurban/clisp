@@ -1305,5 +1305,5 @@ type-error
 
 (expt 10 10000000) arithmetic-error ; [ 2807311 ]
 
-#+clisp (ext:convert-string-from-bytes #(1) charset:ucs-4)
-#+clisp simple-charset-type-error
+#+(and clisp unicode) (ext:convert-string-from-bytes #(1) charset:ucs-4)
+#+(and clisp unicode) simple-charset-type-error

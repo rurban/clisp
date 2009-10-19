@@ -1194,7 +1194,7 @@ NIL
     (ext:delete-directory tn)))
 #+clisp (T T T T T T)
 
-#+clisp
+#+(and clisp unicode)
 (block test-weird-pathnames
   (handler-bind ((parse-error
                   (lambda (c)
@@ -1220,7 +1220,7 @@ NIL
                       (equal (directory "weird*") dir))
                     (eq *pathname-encoding* charset:iso-8859-1))))
         (delete-file weird)))))
-#+clisp (T NIL T T)
+#+(and clisp unicode) (T NIL T T)
 
 (progn
   (symbol-cleanup '*dir*)
