@@ -3102,7 +3102,11 @@ if [ $CROSS = false ] ; then
     # http://article.gmane.org/gmane.lisp.clisp.devel/18967
     echotab "(echo '(progn (setf (stream-element-type *standard-input*) (quote (unsigned-byte 8))) (exit 42))' | \$(RUN) -q -M lispinit.mem -; test \$\$? = 42) || exit 1"
   fi
-  echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 42 || exit 1"
+  if [ "${with_unicode}" = no ];
+  then seq42="(map (quote (vector (unsigned-byte 8))) (function char-code) \"42\")"
+  else seq42='(convert-string-to-bytes "42" charset:ascii)'
+  fi
+  echotab "test \`echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' | \$(RUN) -q -M lispinit.mem - ${TRCR}\` = 42 || exit 1"
   echotab "\$(RM) script.lisp; echo '(+ 11 99)' > script.lisp"
   echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 110 || exit 1"
   echotab "\$(RM) script.lisp; echo '(princ (+ 11 99))' > script.lisp"
@@ -3118,10 +3122,10 @@ if [ $CROSS = false ] ; then
     echotab "(\$(RUN) -q -M lispinit.mem < script.lisp; test \$\$? = 42) || exit 1"
     echotab "(\$(RUN) -q -M lispinit.mem script.lisp; test \$\$? = 42) || exit 1"
   fi
-  echotab "\$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp"
+  echotab "\$(RM) script.lisp; echo '(setf (stream-element-type *standard-output*) (quote (unsigned-byte 8))) (write-sequence ${seq42} *standard-output*) (setf (stream-element-type *standard-output*) (quote character)) (terpri)' > script.lisp"
   # ??? echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
   echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
-  echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence (convert-string-to-bytes \"42\" charset:ascii) s) (values))' > script.lisp"
+  echotab "\$(RM) script.lisp; echo '(with-open-stream (s (make-stream :output :element-type (quote (unsigned-byte 8)))) (write-sequence ${seq42} s) (values))' > script.lisp"
   echotab "test \`\$(RUN) -q -M lispinit.mem < script.lisp ${TRCR}\` = 42 || exit 1"
   echotab "test \`\$(RUN) -q -M lispinit.mem script.lisp ${TRCR}\` = 42 || exit 1"
   echotab "\$(RM) script.lisp"
