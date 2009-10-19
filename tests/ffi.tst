@@ -92,7 +92,8 @@ MYHOSTNAME4
 T
 
 (string= (myhostname1)
-         (ext:convert-string-from-bytes (myhostname2) charset:utf-8))
+         #+UNICODE (ext:convert-string-from-bytes (myhostname2) charset:utf-8)
+         #-UNICODE (map 'string #'code-char (myhostname2)))
 T
 
 (def-call-out c-self

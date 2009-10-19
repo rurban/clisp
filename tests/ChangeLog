@@ -1,3 +1,7 @@
+2009-10-19  Sam Steingold  <sds@gnu.org>
+
+	* excepsit.tst, ffi.tst, path.tst: fix #-UNICODE
+
 2009-10-14  Sam Steingold  <sds@gnu.org>
 
 	* ffi.tst: revert last patch: do not conditionalize int64 tests:
