@@ -1,3 +1,9 @@
+2009-10-20  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* lispbibl.d (jmpl_value) [MULTITHREAD]: make it per thread and export
+	to modules
+	* spvw.d: do not define jmpl_value in MT builds
+
 2009-10-19  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (check-script): fix the non-UNICODE build
