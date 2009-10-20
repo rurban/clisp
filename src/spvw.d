@@ -1005,7 +1005,7 @@ modexp void* clisp_realloc (void* ptr, size_t size)
   error(storage_condition,GETTEXT("~S: realloc() failed"));
 }
 
-#if (int_bitsize < long_bitsize)
+#if (int_bitsize < long_bitsize) && !defined(MULTITHREAD)
 /* passing value from longjmpl() to setjmpl()  : */
 #if DYNAMIC_TABLES && defined(export_unwind_protect_macros)
 modexp

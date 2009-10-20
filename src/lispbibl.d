@@ -1402,12 +1402,15 @@ typedef signed int  signean;
   #define setjmpl(x)  setjmp(x)
   #define longjmpl(x,y)  longjmp(x,y)
 #else /* (int_bitsize < long_bitsize) */
-  extern long jmpl_value;
+  #ifndef MULTITHREAD
+   /* MT: following is per thread in MT builds */
+    extern long jmpl_value;
+  #endif
   #define setjmpl(x)  (setjmp(x) ? jmpl_value : 0)
   #define longjmpl(x,y)  (jmpl_value = (y), longjmp(x,1))
 #endif
 %% #ifdef export_unwind_protect_macros
-%%   #if (int_bitsize < long_bitsize)
+%%   #if (int_bitsize < long_bitsize) && !defined(MULTITHREAD)
 %%     exportV(long,jmpl_value);
 %%   #endif
 %%   export_def(setjmpl(x))
@@ -17044,6 +17047,9 @@ struct object_tab_tl_ {
     uintC _suspend_count; /* how many times this thread has been suspended ? */
     /* The values of per-thread symbols: */
     gcv_object_t *_ptr_symvalues; /* allocated separately */
+   #if (int_bitsize < long_bitsize)
+    long _jmpl_value;
+   #endif
    #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
     /* Set ONLY during IO calls to pipes directed to subprocesses. */
     bool _writing_to_subprocess;
@@ -17320,6 +17326,9 @@ struct object_tab_tl_ {
 %% puts("  xmutex_raw_t _gc_suspend_lock;");
 %% puts("  uintC _suspend_count;");
 %% puts("  gcv_object_t *_ptr_symvalues;");
+%% #if (int_bitsize < long_bitsize)
+%%  puts(" long _jmpl_value;");
+%% #endif
 %% #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
 %%  puts(" bool _writing_to_subprocess;");
 %% #endif
@@ -17383,10 +17392,13 @@ struct object_tab_tl_ {
   #define SP_anchor current_thread()->_SP_anchor
   #define break_sems current_thread()->_break_sems
   #if defined(HAVE_SIGNALS) && defined(SIGPIPE)
-   #define writing_to_subprocess current_thread()->_writing_to_subprocess
+    #define writing_to_subprocess current_thread()->_writing_to_subprocess
   #endif
   #define running_handle_directory_encoding_error \
-     current_thread()->_running_handle_directory_encoding_error
+    current_thread()->_running_handle_directory_encoding_error
+  #if (int_bitsize < long_bitsize)
+    #define jmpl_value current_thread()->_jmpl_value
+  #endif
 
 /* needed for building modules */
 %% export_def(current_thread());
@@ -17406,6 +17418,11 @@ struct object_tab_tl_ {
 %%  export_def(writing_to_subprocess);
 %% #endif
 %% export_def(SET_SP_BEFORE_SUSPEND(thr));
+%% #ifdef export_unwind_protect_macros
+%%   #if (int_bitsize < long_bitsize)
+%%     export_def(jmpl_value);
+%%   #endif
+%% #endif
 
 /* allocates,initializes and returns clisp_thread_t structure.
    Does not register it in the global thread array.
