@@ -3784,15 +3784,15 @@ global int main (argc_t argc, char* argv[]) {
     }
   }
  #endif
+  /* query the size of the terminal-window also now on program start: */
+ #if defined(HAVE_SIGNALS)
+  update_linelength();
+ #endif
   /* handling of async interrupts with single thread */
 #if !defined(MULTITHREAD)
   /* establish interrupt-handler: */
  #if defined(HAVE_SIGNALS) && defined(SIGWINCH) && !defined(NO_ASYNC_INTERRUPTS)
   install_sigwinch_handler();
- #endif
-  /* query the size of the terminal-window also now on program start: */
- #if defined(HAVE_SIGNALS)
-  update_linelength();
  #endif
  #if (defined(HAVE_SIGNALS) && defined(UNIX)) || defined(WIN32_NATIVE)
   /* install Ctrl-C-Handler: */
@@ -4342,7 +4342,7 @@ local sigset_t async_signal_mask()
    sigaddset(&sigblock_mask,SIGTERM);
   #endif
   #if defined(SIGWINCH)
-    sigaddset(&sigblock_mask,SIGWINCH);
+   sigaddset(&sigblock_mask,SIGWINCH);
   #endif
   return sigblock_mask;
 }
@@ -4687,7 +4687,7 @@ local void *signal_handler_thread(void *arg)
       break;
    #if defined(SIGWINCH)
     case SIGWINCH:
-      /* TODO: imlpement. */
+      sigwinch_handler(SIGWINCH);
       break;
    #endif
    #ifdef SIGTTOU

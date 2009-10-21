@@ -62,8 +62,11 @@ local void update_linelength (void) {
       goto OK;
     if (false) {
      OK:
-      /* change value of SYS::*PRIN-LINELENGTH* : */
-      Symbol_value(S(prin_linelength)) = fixnum(columns-1);
+      /* change value of SYS::*PRIN-LINELENGTH* :
+         NB: we always change the global value and do not use Symbol_value()
+         since in MT builds this function is called from signal handling thread
+         and there is no current_thread() */
+      TheSymbol(S(prin_linelength))->symvalue = fixnum(columns-1);
     }
   }
 }

@@ -1,5 +1,13 @@
 2009-10-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[MULTITHREAD]: handle SIGWINCH signal
+	* spvw_sigwinch.d (update_linelength): update SYS::*PRIN-LINELENGTH*
+	global value
+	* spvw.d (main): set SYS::*PRIN-LINELENGTH* in MT builds
+	(signal_handler_thread): handle SIGWINCH
+
+2009-10-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* spvw_fault.d (LOCK_PAGE_CACHE, UNLOCK_PAGE_CACHE): acquire/release
 	spinlock guarding physical page cache
 	(handle_fault, handle_fault_range): use them
