@@ -1,3 +1,9 @@
+2009-10-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_fault.d (LOCK_PAGE_CACHE, UNLOCK_PAGE_CACHE): acquire/release
+	spinlock guarding physical page cache
+	(handle_fault, handle_fault_range): use them
+
 2009-10-20  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* lispbibl.d (jmpl_value) [MULTITHREAD]: make it per thread and export

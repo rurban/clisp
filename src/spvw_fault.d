@@ -99,6 +99,14 @@ local int handle_readwrite_fault (aint address, physpage_state_t* physpage)
   return 0;
 }
 
+#ifdef MULTITHREAD
+  #define LOCK_PAGE_CACHE(page) spinlock_acquire(&page->cache_lock)
+  #define UNLOCK_PAGE_CACHE(page) spinlock_release(&page->cache_lock)
+#else
+  #define LOCK_PAGE_CACHE(page)
+  #define UNLOCK_PAGE_CACHE(page)
+#endif
+
 /* mapped generation: the old one */
 #define heap_mgen_start  heap_gen0_start
 #define heap_mgen_end    heap_gen0_end
@@ -136,24 +144,18 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
       {
         var int ret;
         var physpage_state_t* physpage = &heap->physpages[pageno];
-        #if defined(MULTITHREAD)
-          spinlock_acquire(&physpage->cache_lock);
-        #endif
+        LOCK_PAGE_CACHE(physpage);
         switch (physpage->protection) {
           case PROT_NONE:
             /* protection: PROT_NONE -> PROT_READ */
             ret=handle_read_fault(pa_address,physpage);
-            #if defined(MULTITHREAD)
-              spinlock_release(&physpage->cache_lock);
-            #endif
+            UNLOCK_PAGE_CACHE(physpage);
             if (ret < 0) goto error6;
             return handler_done;
           case PROT_READ:
             /* protection: PROT_READ -> PROT_READ_WRITE */
             ret=handle_readwrite_fault(pa_address,physpage);
-            #if defined(MULTITHREAD)
-              spinlock_release(&physpage->cache_lock);
-            #endif
+            UNLOCK_PAGE_CACHE(physpage);
             if (ret < 0) goto error7;
             return handler_done;
           case PROT_READ_WRITE:
@@ -162,22 +164,14 @@ local handle_fault_result_t handle_fault (aint address, int verbose)
                PROT_READ or PROT_NONE, has changed to PROT_READ_WRITE while
                we were waiting to be executed.
                So we just return sucess here - other threads have done
-               what is required.
-            */
-            #if defined(MULTITHREAD)
-              spinlock_release(&physpage->cache_lock);
-            #endif
+               what is required.*/
+            UNLOCK_PAGE_CACHE(physpage);
             return handler_done;
             /* goto error8; */
           default:
-            #if defined(MULTITHREAD)
-              spinlock_release(&physpage->cache_lock);
-            #endif
+            UNLOCK_PAGE_CACHE(physpage);
             goto error9;
         }
-        #if defined(MULTITHREAD)
-          spinlock_release(&physpage->cache_lock);
-        #endif
        error6:                  /* handle_read_fault() failed */
         if (verbose) {
           var int saved_errno = OS_errno;
@@ -250,9 +244,7 @@ modexp bool handle_fault_range (int prot, aint start_address, aint end_address)
         var uintL pageno = (pa_address>>physpageshift)
           -(heap->heap_gen0_start>>physpageshift);
         var physpage_state_t* physpage = &heap->physpages[pageno];
-        #if defined(MULTITHREAD)
-        spinlock_acquire(&physpage->cache_lock);
-        #endif
+        LOCK_PAGE_CACHE(physpage);
         if ((physpage->protection == PROT_NONE)
             && (prot == PROT_READ || prot == PROT_READ_WRITE)) {
           /* protection: PROT_NONE -> PROT_READ */
@@ -263,9 +255,7 @@ modexp bool handle_fault_range (int prot, aint start_address, aint end_address)
           /* protection: PROT_READ -> PROT_READ_WRITE */
           ret=handle_readwrite_fault(pa_address,physpage);
         }
-        #if defined(MULTITHREAD)
-        spinlock_release(&physpage->cache_lock);
-        #endif
+        UNLOCK_PAGE_CACHE(physpage);
         if (ret < 0) return false;
       }
   }
@@ -285,5 +275,8 @@ local void xmprotect (aint addr, uintM len, int prot) {
     abort();
   }
 }
+
+#undef LOCK_PAGE_CACHE
+#undef UNLOCK_PAGE_CACHE
 
 #endif  /* GENERATIONAL_GC */
