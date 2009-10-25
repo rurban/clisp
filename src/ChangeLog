@@ -1,5 +1,10 @@
 2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	* time.d (seconds_west) [MULTITHREAD]: use reentrant functions for
+	getting time (localtime_r, gmtime_r)
+
+2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	[WIN32_THREADS]: use thread safe C run-time (CRT)
 	* xthread.d (xthread_create): use _beginthreadex() for thread creation.
 	close returned handle immediately in order to prevent leaks
