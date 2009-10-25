@@ -1,3 +1,10 @@
+2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* control.d (make_variable_frame) [MULTITHREAD]: do not allocate per
+	thread value cells for locally declared special variables
+	* eval.d (interpret_bytecode_) [MULTITHREAD]: ditto for cod_bind -
+	the code here was plain wrong
+
 2009-10-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: handle SIGWINCH signal
