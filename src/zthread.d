@@ -157,7 +157,7 @@ global maygc void thread_cleanup (void) {
 }
 
 /* All newly created threads start here.*/
-local /*maygc*/ void *thread_stub(void *arg)
+local THREADPROC_SIGNATURE thread_stub(void *arg)
 {
   #if USE_CUSTOM_TLS == 2
   tse __tse_entry;
