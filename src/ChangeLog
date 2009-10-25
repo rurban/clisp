@@ -1,5 +1,17 @@
 2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
+	[WIN32_THREADS]: use thread safe C run-time (CRT)
+	* xthread.d (xthread_create): use _beginthreadex() for thread creation.
+	close returned handle immediately in order to prevent leaks
+	(xthread_exit): use _endthreadex() - releases per thread allocated
+	resources
+	(THREADPROC_SIGNATURE): add. specify correct calling convention and
+	return type of start thread procedure
+	* spvw.d (mt_main_actions): use THREADPROC_SIGNATURE
+	* zthread.d (thread_stub): ditto
+
+2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
+
 	* control.d (make_variable_frame) [MULTITHREAD]: do not allocate per
 	thread value cells for locally declared special variables
 	* eval.d (interpret_bytecode_) [MULTITHREAD]: ditto for cod_bind -

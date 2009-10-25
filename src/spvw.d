@@ -3649,7 +3649,8 @@ local inline void main_actions (struct argv_actions *p) {
 #if defined(MULTITHREAD)
 /* UP: main_actions() replacement in MT.
  > param: clisp_thread_t structure of the first lisp thread */
-local void* mt_main_actions (void *param) {
+local THREADPROC_SIGNATURE mt_main_actions (void *param)
+{
   #if USE_CUSTOM_TLS == 2
   tse __tse_entry;
   tse *__thread_tse_entry=&__tse_entry;
