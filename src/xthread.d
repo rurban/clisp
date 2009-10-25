@@ -101,6 +101,8 @@
 #include <pthread.h>
 #include <sched.h>
 
+#define THREADPROC_SIGNATURE void *
+
 #define xthread_t  pthread_t
 #define xcondition_t  pthread_cond_t
 #define xthread_key_t  pthread_key_t
@@ -151,8 +153,10 @@ static inline int xthread_create(xthread_t *thread,void *(*startroutine)(void *)
 
 /* include <windows.h>  -- already included by win32.d */
 #define MAX_SEMAPHORE_COUNT  0x7fff
+/* thread procedure return type and calling convention */
+#define THREADPROC_SIGNATURE unsigned WINAPI
 
-#define xthread_t DWORD
+#define xthread_t unsigned
 /* this is inefficient implementation of condition variables on win32.
    TODO: make it better */
 typedef struct _xcondition {
@@ -168,8 +172,8 @@ typedef struct _xcondition {
 #define xthread_self()  GetCurrentThreadId()
 /* xthread_create() should return 0 on success */
 #define xthread_create(thread,startroutine,arg,stacksize)                       \
-  (!CreateThread(NULL,stacksize,(LPTHREAD_START_ROUTINE)startroutine,(LPVOID)arg,0,thread))
-#define xthread_exit(v)  ExitThread((DWORD)(v))
+  (!CloseHandle((HANDLE)_beginthreadex(NULL,stacksize,startroutine,(LPVOID)arg,0,thread)))
+#define xthread_exit(v)  _endthreadex((DWORD)(v))
 #define xthread_yield()  Sleep(0)
 #define xthread_equal(t1,t2)  ((t1)==(t2))
 /* xthread_sigmask() and xthread_signal() are not needed here */
