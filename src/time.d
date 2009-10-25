@@ -401,15 +401,32 @@ global void init_time (void)
 #if defined(UNIX) || defined(WIN32)
 local sintL seconds_west (time_t *now, int *isdst) {
   /* localtime() and gmtime() may return the same location,
-     so we have to copy the rerned structure contents: */
+     so we have to copy the returned structure contents: */
+#if !defined(MULTITHREAD) || defined(WIN32)
+  /* on win32 localtime() and gmtime() are thread safe
+     (and mingw uses them) */
+  #define LOCALTIME_R(timer,result) do {  \
+    struct tm *now_ = localtime(timer);   \
+    if (now_ == NULL) OS_error(); else *result = *now_; } while (0)
+  #define GMTIME_R(timer,result) do {  \
+    struct tm *now_ = gmtime(timer);   \
+    if (now_ == NULL) OS_error(); else *result = *now_; } while (0)
+#else
+  #define LOCALTIME_R(timer,result) do {               \
+    if (NULL == localtime_r(timer,result)) OS_error(); \
+  } while(0)
+  #define GMTIME_R(timer,result) do {             \
+    if (NULL == gmtime_r(timer,result)) OS_error(); \
+  } while(0);
+#endif
   var struct tm now_local;
   var struct tm now_gm;
   begin_system_call();
-  { struct tm *now_ = localtime(now);
-    if (now_ == NULL) OS_error(); else now_local = *now_; }
-  { struct tm *now_ = gmtime(now);
-    if (now_ == NULL) OS_error(); else now_gm = *now_; }
+  LOCALTIME_R(now,&now_local);
+  GMTIME_R(now,&now_gm);
   end_system_call();
+#undef LOCATIME_R
+#undef GMTIME_R
   /* note that secondswest is NOT the same as
           mktime(&now_gm) - mktime(&now_local);
      during DST */
