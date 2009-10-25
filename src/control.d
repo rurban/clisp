@@ -480,22 +480,6 @@ local /*maygc*/ void make_variable_frame
             /* store special-declared symbol in stack: */
             pushSTACK(specdecl); /* SPECDECL as "value" */
             pushSTACK_symbolwithflags(declsym,0); /* Symbol inactive */
-            #if defined(MULTITHREAD)
-             /* this is locally declared special variable. make it per thread
-                if not already.*/
-             if (TheSymbol(declsym)->tls_index == SYMBOL_TLS_INDEX_NONE) {
-               /* this call is may gc now */
-               pushSTACK(value1); pushSTACK(value2);          /* save */
-               pushSTACK(caller); pushSTACK(varspecs);        /* save */
-               pushSTACK(declarations); pushSTACK(declspecs); /* save */
-               pushSTACK(declspec);                           /* save */
-               add_per_thread_special_var(declsym);
-               declspec = popSTACK();
-               declspecs = popSTACK(); declarations = popSTACK(); /* restore */
-               varspecs = popSTACK(); caller = popSTACK();        /* restore */
-               value2 = popSTACK(); value1 = popSTACK();          /* restore */
-             }
-            #endif
             check_STACK();
             spec_count++;
           }
