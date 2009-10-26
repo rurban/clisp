@@ -1169,6 +1169,7 @@ LISPSYM(log10,"LOG10",system)
 LISPSYM(validp,"VALIDP",ffi)
 LISPSYM(set_validp,"SET-VALIDP",ffi) /* ABI */
 LISPSYM(set_foreign_pointer,"SET-FOREIGN-POINTER",ffi)
+LISPSYM(parse_foreign_inttype,"PARSE-FOREIGN-INTTYPE",ffi)
 LISPSYM(sizeof,"%SIZEOF",ffi) /* ABI */
 LISPSYM(bitsizeof,"%BITSIZEOF",ffi) /* ABI */
 LISPSYM(find_foreign_variable,"FIND-FOREIGN-VARIABLE",ffi) /* ABI */

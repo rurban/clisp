@@ -26,6 +26,9 @@
 (listp (show (loop :for i :from 0 :to 140
                :collect (cons i (linux:strerror i))) :pretty t)) T
 
+;; check that we can DESCRIBE the foreign int types
+(describe 'linux:wait) NIL
+
 ;;; signal handling examples:
 (listp (show (loop :for i :from 0 :to linux:_NSIG
                :collect (cons i (linux:strsignal i))) :pretty t)) T
