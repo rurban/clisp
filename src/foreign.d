@@ -281,6 +281,14 @@ modexp maygc void register_foreign_inttype
   } else shifthash(O(foreign_inttype_table),name,inttype,true);
 }
 
+LISPFUNNF(parse_foreign_inttype,1) { /* "size_t" --> FFI:UINT64 */
+  object inttype = gethash(STACK_0,O(foreign_inttype_table),false);
+  if (eq(inttype,nullobj))
+    error(error_condition,GETTEXT("No foreign int type named ~S"));
+  VALUES1(inttype);
+  skipSTACK(1);
+}
+
 /* A foreign value descriptor describes an item of foreign data.
  <c-type> ::=
    <simple-c-type>   as described in impnotes.html#dffi

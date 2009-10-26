@@ -1,3 +1,11 @@
+2009-10-26  Sam Steingold  <sds@gnu.org>
+
+	fix (describe 'linux:wait)
+	* foreign.d (PARSE-FOREIGN-INTTYPE): implement
+	* constsym.d, subr.d (parse_foreign_inttype): declare
+	* foreign1.lisp (parse-c-type): use it for internal int types
+	(deparse-c-type): handle internal int types
+
 2009-10-25  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* time.d (seconds_west) [MULTITHREAD]: use reentrant functions for
