@@ -447,7 +447,8 @@
 (defun date-format ()
   (localized 'date-format))
 (defun date-string ()
-  (funcall (date-format) nil (multiple-value-list (get-decoded-time))))
+  (with-output-to-string (s)
+    (funcall (date-format) s (multiple-value-list (get-decoded-time)))))
 
 ;; list a directory
 (defun dir (&optional (pathnames #+(or UNIX WIN32) '("*/" "*")))
