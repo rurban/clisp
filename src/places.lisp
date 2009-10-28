@@ -237,11 +237,11 @@
                   (and (not (special-operator-p funname))
                        (null (macro-function funname env)))
                   t)
-                (not (compiler::fenv-search funname (and env (svref env 1))))
+                (not (sys::fenv-search funname (and env (svref env 1))))
                 (every #'(lambda (argform) (commuting-forms-p var argform env))
                        argforms))))))
 ;;; For bootstrapping.
-(predefun compiler::fenv-search (funname fenv)
+(predefun sys::fenv-search (funname fenv)
   (declare (ignore funname fenv))
   nil)
 

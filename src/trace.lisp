@@ -1,7 +1,7 @@
 ;; Tracer
 ;; Bruno Haible 13.2.1990, 15.3.1991, 4.4.1991
 ;; German comments translated into English: Stefan Kain 2001-12-26
-;; Sam Steingold 2001-2008
+;; Sam Steingold 2001-2009
 
 (in-package "COMMON-LISP")
 (export '(trace untrace))
@@ -33,8 +33,8 @@
 
 (labels ((subclosure-pos (closure name)
            (do ((length (sys::%record-length closure))
-                ;; compiler::symbol-suffix is defined in compiler.lisp
-                (nm (compiler::symbol-suffix (closure-name closure) name))
+                ;; sys::symbol-suffix is defined in compiler.lisp
+                (nm (sys::symbol-suffix (closure-name closure) name))
                 (pos 0 (1+ pos)) obj)
                ((= pos length)
                 (error (TEXT "~S: no local name ~S in ~S")

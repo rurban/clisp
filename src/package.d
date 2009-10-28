@@ -3094,9 +3094,8 @@ global maygc void init_packages (void) {
   O(keyword_package) = make_package(popSTACK(),NIL,false,false); /* "KEYWORD" */
   { /* #<PACKAGE SYSTEM>: */
     pushSTACK(coerce_imm_ss(ascii_to_string("SYSTEM")));
-    pushSTACK(coerce_imm_ss(ascii_to_string("COMPILER")));
     pushSTACK(coerce_imm_ss(ascii_to_string("SYS")));
-    var object nicks = listof(2); /* ("COMPILER" "SYS") */
+    var object nicks = listof(1); /* ("SYS") */
     make_package(popSTACK(),nicks,false,false); /* "SYSTEM" */
   }
   { /* #<PACKAGE COMMON-LISP-USER>: */

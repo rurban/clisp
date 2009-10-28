@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP: Generic Functions
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2004, 2007
+;;;; Sam Steingold 1998 - 2004, 2007, 2009
 ;;;; German comments translated into English: Stefan Kain 2002-04-08
 
 (in-package "CLOS")
@@ -216,8 +216,8 @@
   (multiple-value-bind (fast-function-factory-lambda method-initargs-forms signature)
       (analyze-method-description 'defmethod whole-form funname method-description)
     `(LET ()
-       (COMPILER::EVAL-WHEN-COMPILE
-         (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))
+       (SYS::EVAL-WHEN-COMPILE
+         (SYS::C-DEFUN ',funname ,signature nil 'DEFMETHOD))
        (WHEN (GET ',(SYS::GET-FUNNAME-SYMBOL funname) 'SYS::TRACED-DEFINITION)
          (SYS::UNTRACE1 ',funname))
        (DO-DEFMETHOD ',funname (FUNCTION ,fast-function-factory-lambda)
@@ -272,8 +272,8 @@
   (multiple-value-bind (fast-function-factory-lambda method-initargs-forms signature)
       (analyze-method-description 'defmethod whole-form funname method-description)
     (declare (ignore fast-function-factory-lambda method-initargs-forms))
-    `(COMPILER::EVAL-WHEN-COMPILE
-       (COMPILER::C-DEFUN ',funname ,signature nil 'DEFMETHOD))))
+    `(SYS::EVAL-WHEN-COMPILE
+       (SYS::C-DEFUN ',funname ,signature nil 'DEFMETHOD))))
 
 
 ;; ====================== DEFGENERIC and similar Macros ======================
@@ -533,8 +533,8 @@
            (method-combination-form `(,method-combination-lambda ,generic-function-class-var)))
       `(LET ()
          (DECLARE (SYS::IN-DEFUN ,funname))
-         (COMPILER::EVAL-WHEN-COMPILE
-           (COMPILER::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
+         (SYS::EVAL-WHEN-COMPILE
+           (SYS::C-DEFUN ',funname ',signature nil 'DEFGENERIC))
          (WHEN (GET ',funname-symbol 'SYS::TRACED-DEFINITION)
            (SYS::UNTRACE1 ',funname))
          ;; NB: no (SYSTEM::REMOVE-OLD-DEFINITIONS ',funname)
