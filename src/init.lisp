@@ -211,9 +211,9 @@
 (common-lisp:eval-when (common-lisp:compile common-lisp:load common-lisp:eval)
   (common-lisp:setq common-lisp:*package* (sys::%find-package "SYSTEM")))
 
-(proclaim '(special compiler::*compiling* compiler::*compiling-from-file*
-            compiler::*c-error-output*)) ; for load/compiling
-(setq compiler::*compiling* nil)
+(proclaim '(special sys::*compiling* sys::*compiling-from-file*
+            sys::*c-error-output*)) ; for load/compiling
+(setq sys::*compiling* nil)
 
 #-COMPILER ; only for bootstrapping
 (progn
@@ -836,7 +836,7 @@
           ((= i l) (venv-assoc s (svref venv i) from-inside-macrolet))
         (if (eq s (svref venv i))
           (if (and from-inside-macrolet
-                   (not (eq (svref venv (1+ i)) compiler::specdecl))
+                   (not (eq (svref venv (1+ i)) sys::specdecl))
                    (not (symbol-macro-p (svref venv (1+ i)))))
             (error-of-type 'source-program-error
               :form s
@@ -1734,10 +1734,10 @@
            #+ffi (ffi::*foreign-library* ffi::*foreign-library*)
            (*package* *package*) ; bind *PACKAGE*
            (*readtable* *readtable*) ; bind *READTABLE*
-           (compiler::*c-error-output* *error-output*) ; for compiling
+           (*c-error-output* *error-output*) ; for compiling
            (eof-indicator input-stream))
       (loading-message (TEXT "Loading file ~A ...") filename)
-      (when *load-compiling* (compiler::c-reset-globals))
+      (when *load-compiling* (sys::c-reset-globals))
       ;; see `with-compilation-unit' -- `:compiling' sets a compilation unit
       ;; the user might set `*load-compiling*' to T either directly
       ;; or using the -C option, so we have to check that
@@ -1768,7 +1768,7 @@
           (or (eq stream filename)
               (sys::built-in-stream-close stream))
           (when (and *load-compiling* *load-verbose* *compile-verbose*)
-            (compiler::c-report-problems))))
+            (c-report-problems))))
       (loading-message (TEXT "Loaded file ~A") filename)
       t)))
 (let ((sys::*current-source-file* "init"))
@@ -1926,7 +1926,7 @@
 
 (sys::%putd 'sys::maybe-arglist ; arglist if permitted by compiler optimizations
   (function sys::maybe-arglist (lambda (arglist)
-    (if (and compiler::*compiling* (< 2 (compiler::declared-optimize 'space)))
+    (if (and sys::*compiling* (< 2 (sys::declared-optimize 'space)))
         0 arglist))))
 
 (sys::%putd 'defmacro
@@ -1958,7 +1958,7 @@
   (sys::check-redefinition 'defmacro 'defmacro nil))
 
 #-compiler
-(predefmacro COMPILER::EVAL-WHEN-COMPILE (&body body) ; preliminary
+(predefmacro SYS::EVAL-WHEN-COMPILE (&body body) ; preliminary
   `(eval-when (compile) ,@body))
 
 ;; return 2 values: ordinary lambda list and reversed list of type declarations
@@ -2027,27 +2027,27 @@
                (SYSTEM::REMOVE-OLD-DEFINITIONS ,symbolform
                  ,@(if preliminaryp '('T)))
                ,@(if ; Is name declared inline?
-                  (if (and compiler::*compiling*
-                           compiler::*compiling-from-file*)
-                    (member name compiler::*inline-functions* :test #'equal)
+                  (if (and sys::*compiling*
+                           sys::*compiling-from-file*)
+                    (member name sys::*inline-functions* :test #'equal)
                     (eq (get (get-funname-symbol name) 'inlinable) 'inline))
                   ;; Is the lexical environment the top-level environment?
                   ;; If yes, save the lambdabody for inline compilation.
-                  (if compiler::*compiling*
-                    (if (and (null compiler::*venv*)
-                             (null compiler::*fenv*)
-                             (null compiler::*benv*)
-                             (null compiler::*genv*)
-                             (eql compiler::*denv* *toplevel-denv*))
-                      `((COMPILER::EVAL-WHEN-COMPILE
-                         (COMPILER::C-DEFUN
+                  (if sys::*compiling*
+                    (if (and (null sys::*venv*)
+                             (null sys::*fenv*)
+                             (null sys::*benv*)
+                             (null sys::*genv*)
+                             (eql sys::*denv* *toplevel-denv*))
+                      `((SYS::EVAL-WHEN-COMPILE
+                         (SYS::C-DEFUN
                           ',name (lambda-list-to-signature ',lambdalist)
                           ',lambdabody))
                         (EVAL-WHEN (LOAD)
                           (SYSTEM::%PUT ,symbolform 'SYSTEM::INLINE-EXPANSION
                                         ',lambdabody)))
-                      `((COMPILER::EVAL-WHEN-COMPILE
-                         (COMPILER::C-DEFUN
+                      `((SYS::EVAL-WHEN-COMPILE
+                         (SYS::C-DEFUN
                           ',name (lambda-list-to-signature ',lambdalist)))))
                     (if (and (null (svref env 0))  ; venv
                              (null (svref env 1))) ; fenv
@@ -2062,8 +2062,8 @@
                                              'SYSTEM::INLINE-EXPANSION
                                              ',lambdabody)))))
                        '()))
-                  `((COMPILER::EVAL-WHEN-COMPILE
-                     (COMPILER::C-DEFUN
+                  `((SYS::EVAL-WHEN-COMPILE
+                     (SYS::C-DEFUN
                       ',name (lambda-list-to-signature ',lambdalist)))))
                (SYSTEM::%PUTD ,symbolform
                  ,(if preliminaryp

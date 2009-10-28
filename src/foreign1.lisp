@@ -32,10 +32,10 @@
           foreign-variable foreign-function))
 
 (eval-when (load compile eval)
-  (import (intern "*COUTPUT-FILE*" "COMPILER"))
-  (import (intern "*COUTPUT-STREAM*" "COMPILER"))
-  (import (intern "*FFI-MODULE*" "COMPILER"))
-  (import (intern "FINALIZE-COUTPUT-FILE" "COMPILER"))
+  (import (intern "*COUTPUT-FILE*" "SYSTEM"))
+  (import (intern "*COUTPUT-STREAM*" "SYSTEM"))
+  (import (intern "*FFI-MODULE*" "SYSTEM"))
+  (import (intern "FINALIZE-COUTPUT-FILE" "SYSTEM"))
   (import (intern "TEXT" "SYSTEM")) ; messages
   (import (intern "SYMBOL-TO-KEYWORD" "SYSTEM"))
   (import (intern "CHECK-SYMBOL" "SYSTEM")) ; error checking
@@ -503,7 +503,7 @@
                                                 ((null args) (nreverse argspecs))
                                               (let ((argtype (first args))
                                                     (argflags (second args)))
-                                                (push `(,(intern (format nil "arg~D" i) compiler::*keyword-package*)
+                                                (push `(,(intern (format nil "arg~D" i) system::*keyword-package*)
                                                         ,(deparse argtype)
                                                         ,(cond ((flag-set-p argflags ff-flag-out) ':OUT)
                                                                ((flag-set-p argflags ff-flag-in-out) ':IN-OUT)
@@ -838,7 +838,7 @@
 ; Pass an object from the compilation environment to the module.
 (defun pass-object (object)
   (new-object t
-              (let ((*package* compiler::*keyword-package*))
+              (let ((*package* system::*keyword-package*))
                 (write-to-string object :readably t :pretty nil))))
 
 ; Convert an object's index to a C lvalue.
@@ -850,7 +850,7 @@
   `(EVAL-WHEN (COMPILE)
      (DO-C-LINES ,format-string ,@args)))
 (defun do-c-lines (format-string &rest args) ; ABI
-  (when (compiler::prepare-coutput-file)
+  (when (system::prepare-coutput-file)
     (prepare-module)
     (etypecase format-string
       ((or string function)
@@ -912,7 +912,7 @@
            ,@doc)))))
 
 (defun note-c-const (c-name c-type cftype guard)
-  (when (compiler::prepare-coutput-file)
+  (when (system::prepare-coutput-file)
     (prepare-module)
     (let ((f-name (intern
                    (format nil "module__~A__constant_map_~A" *name*
@@ -988,7 +988,7 @@
        ',name)))
 
 (defun note-c-var (c-name type flags) ; ABI
-  (when (compiler::prepare-coutput-file)
+  (when (system::prepare-coutput-file)
     (prepare-module)
     (push (list c-name (parse-c-type type) flags) *variable-list*)))
 
@@ -1082,7 +1082,7 @@
                                    :built-in :library :version :documentation)
                          whole-form))
          (def (gensym "DEF-CALL-OUT-"))
-         (properties (and (>= 1 (compiler::declared-optimize
+         (properties (and (>= 1 (system::declared-optimize
                                  'space (and (boundp 'system::*denv*)
                                              system::*denv*)))
                           (assoc ':documentation alist)))
@@ -1098,15 +1098,15 @@
        (EXT:COMPILER-LET ((,def ,ctype))
          (EVAL-WHEN (COMPILE)
            (UNLESS ,LIBRARY (NOTE-C-FUN ',c-name ,def ',built-in)))
-         (COMPILER::EVAL-WHEN-COMPILE
-           (COMPILER::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
+         (SYSTEM::EVAL-WHEN-COMPILE
+           (SYSTEM::C-DEFUN ',name (C-TYPE-TO-SIGNATURE ,ctype))))
        (WHEN ,def                       ; found library function
          (SYSTEM::REMOVE-OLD-DEFINITIONS ',name)
          (SYSTEM::%PUTD ',name ,def))
        ',name)))
 
 (defun note-c-fun (c-name ctype built-in) ; not ABI, compile-time only
-  (when (compiler::prepare-coutput-file)
+  (when (system::prepare-coutput-file)
     (prepare-module)
     (push (list c-name ctype built-in)
           *function-list*)))
@@ -1195,7 +1195,7 @@
                    "mallocing" "nomalloc")))))
 
 (defun note-c-call-in (name c-name alist whole) ; ABI
-  (when (compiler::prepare-coutput-file)
+  (when (system::prepare-coutput-file)
     (prepare-module)
     (let* ((fvd (parse-c-function alist whole))
            (rettype (svref fvd 1))
