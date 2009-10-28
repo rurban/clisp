@@ -1,5 +1,10 @@
 2009-10-28  Sam Steingold  <sds@gnu.org>
 
+	* defs2.lisp (date-string): fix the original bug: the date was
+	printed to the stdout instead of being returned as a string
+
+2009-10-28  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (ignore-check, value-form-index): make style-warning
 	"used despite IGNORE declaration" a regular warning as per
 	COMPILER-DIAGNOSTICS:USE-HANDLER
