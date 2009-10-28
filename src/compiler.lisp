@@ -1915,22 +1915,29 @@ for-value   NIL or T
 (defun in-defun-p (fun)
   (and (equal fun (current-function)) (defining-p fun)))
 
+(defun c-current-location ()
+  (format nil (TEXT "~@[in ~S ~]~A") (current-function) (c-source-location)))
+
+(predefun c-warning (type cstring &rest args)
+  (declare (ignore type))
+  (apply #'c-comment
+         (string-concat (TEXT "WARNING ~A:") "~%" cstring)
+         (c-current-location) args))
+
 (defvar *warning-count*)
 ;;; (C-WARN format-control-string . args)
 ;;; issue a compilation warning using FORMAT.
 (defun c-warn (cstring &rest args)
   (incf *warning-count*)
-  (apply #'c-comment
-         (string-concat (TEXT "WARNING~@[ in ~S~]~A :") "~%" cstring)
-         (current-function) (c-source-location)
-         args))
+  (apply 'c-warning 'sys::simple-warning cstring args))
 
 (defvar *style-warning-count*)
 ; (C-STYLE-WARN controlstring . args)
 ; issue a style-warning (via FORMAT).
 (defun c-style-warn (cstring &rest args)
   (incf *style-warning-count*)
-  (apply #'c-warn cstring args))
+  (incf *warning-count*)
+  (apply #'c-warning 'sys::simple-style-warning cstring args))
 
 (defvar *error-count*)
 ;; (C-ERROR controlstring . args)

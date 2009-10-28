@@ -1,5 +1,16 @@
 2009-10-28  Sam Steingold  <sds@gnu.org>
 
+	Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER:
+	use the CL Condition system for compiler diagnostics.
+	* compiler.lisp (c-current-location): add
+	(c-warning): add predefun, uses c-comment
+	(c-warn): use it
+	(c-style-warn): use it instead of c-warn
+	* condition.lisp (simple-style-warning): add
+	(c-warning): define
+
+2009-10-28  Sam Steingold  <sds@gnu.org>
+
 	remove the "COMPILER" nickname from #<PACKAGE SYSTEM>
 	* package.d (init_packages): do not add "COMPILER" nickname to SYS
 	* clos-class5.lisp, clos-genfun3.lisp, clos-package.lisp:
