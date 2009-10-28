@@ -18,6 +18,10 @@ User visible changes
     exceptional situation in unsafe code. [ 2868166 ]
   + Fix an nternal error in DECLAIM on bad OPTIMIZE quality. [ 2868147 ]
 
+* ANSI compliance:
+  + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
+    CL Condition system for compiler diagnostics.
+
 
 2.48 (2009-07-28)
 =================

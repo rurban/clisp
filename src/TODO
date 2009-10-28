@@ -318,7 +318,6 @@ More CLtL2 compliance:
 ;
 ; Number Title                               Status          Files affected
 ;
-;  <24>  compiler diagnostics                no              compiler.lisp
 ;  <85>  FORMAT & pretty print               yes             format.lisp
 ;                                            no: ~E, ~F, ~G, ~$ also bind *PRINT-BASE* to 10 and *PRINT-RADIX* to NIL
 ; <110>  LOAD & objects                      no              loadform.lisp

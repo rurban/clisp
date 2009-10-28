@@ -1,7 +1,7 @@
 ;;; Condition System for CLISP
 ;;; David Gadbois <gadbois@cs.utexas.edu> 30.11.1993
 ;;; Bruno Haible 24.11.1993, 2.12.1993 -- 2005
-;;; Sam Steingold 1998-2005, 2007
+;;; Sam Steingold 1998-2005, 2007, 2009
 
 (in-package "COMMON-LISP")
 ;;; exports:
@@ -306,6 +306,8 @@
 ;       |-- simple-warning
 ;       |
 ;       |-- style-warning
+;       |   |
+;       |   |-- simple-style-warning
 ;       |
 ;       |-- clos-warning
 ;           |
@@ -484,6 +486,8 @@
 
 ;; conditions usually created by WARN
 (define-condition simple-warning (simple-condition warning) ())
+
+(define-condition simple-style-warning (simple-condition style-warning) ())
 
 ;; CLOS warnings
 (define-condition clos::simple-clos-warning (simple-condition clos:clos-warning) ())
@@ -1661,6 +1665,14 @@
               ;; Actually, it is only a warning!
               (funcall *break-driver* nil condition nil)))))))
   nil)
+
+;; for X3J13 Issue COMPILER-DIAGNOSTICS:USE-HANDLER
+(defun c-warning (type format-string &rest args)
+  (let ((*error-output*
+         (if *compile-verbose* *c-error-output* *c-listing-output*)))
+    (apply #'warn-of-type type
+           (string-concat (c-current-location) ": " format-string)
+           args)))
 
 ;; WARN, CLtL2 p. 912
 ;; (WARN format-string {arg}*)
