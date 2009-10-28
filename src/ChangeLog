@@ -1,3 +1,11 @@
+2009-10-29  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: fix GC safety issue in SOCKET-STATUS
+	* stream.d (parse_sock_list): do not return pointer in heap, rather
+	return the cons which cdr should be filled with socket status
+	(handle_set, handle_isset): use new return from parse_sock_list and
+	preserve it across maygc calls
+
 2009-10-28  Sam Steingold  <sds@gnu.org>
 
 	* defs2.lisp (date-string): fix the original bug: the date was
