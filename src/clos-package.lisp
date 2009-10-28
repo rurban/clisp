@@ -1,6 +1,6 @@
 ;;;; Common Lisp Object System for CLISP
 ;;;; Bruno Haible 21.8.1993 - 2004
-;;;; Sam Steingold 1998 - 2007
+;;;; Sam Steingold 1998 - 2007, 2009
 
 ;; to use it: (USE-PACKAGE "CLOS").
 
@@ -21,8 +21,8 @@
 (import 'check-function-name)
 
 ;; Defined later, in compiler.lisp.
-(import 'compiler::%generic-function-lambda)
-(import 'compiler::%optimize-function-lambda)
+(import '%generic-function-lambda)
+(import '%optimize-function-lambda)
 
 (defpackage "CLOS"
   (:nicknames "MOP")
@@ -53,8 +53,8 @@
     ;; clos:slot-boundp clos:slot-makunbound ; defined in record.d
     ;; clos:slot-exists-p ; defined in record.d
     ;; clos::class-gethash clos::class-tuple-gethash ; defined in hashtabl.d
-    compiler::%generic-function-lambda ; defined in compiler.lisp
-    compiler::%optimize-function-lambda ; defined in compiler.lisp
+    sys::%generic-function-lambda ; defined in compiler.lisp
+    sys::%optimize-function-lambda ; defined in compiler.lisp
     ;; clos:generic-flet clos:generic-labels ; treated in compiler.lisp
     ;; Export:
     ;; clos::closclass ; property in predtype.d, type.lisp, compiler.lisp

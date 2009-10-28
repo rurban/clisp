@@ -1,7 +1,7 @@
 ;; CLISP disassembler
 ;; Sam Steingold: converted to CLOS 2001-06-16
 
-(in-package "COMPILER")
+(in-package "SYS")
 
 (defun orig-fundef (object)
   (unless (fboundp object)

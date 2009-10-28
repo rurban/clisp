@@ -1540,9 +1540,8 @@ performance considerations.
     <link linkend="clos-diff">additional symbols</link>.
  </simpara></listitem></varlistentry>
  <varlistentry id="sys-pac"><term>&sys-pac;</term><listitem>
-   <simpara>has the nicknames <quote role="package">SYS</quote>
-    and <quote role="package">COMPILER</quote>, and has no
-    &export;ed symbols.  It defines many system internals.
+   <simpara>has the nickname <quote role="package">SYS</quote>,
+    and has no &export;ed symbols.  It defines many system internals.
  </simpara></listitem></varlistentry>
  <varlistentry id="ext-pac"><term>&ext-pac;</term><listitem><simpara>
     is the umbrella package for all extensions: it imports and &re-export;s

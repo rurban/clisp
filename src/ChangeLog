@@ -1,3 +1,12 @@
+2009-10-28  Sam Steingold  <sds@gnu.org>
+
+	remove the "COMPILER" nickname from #<PACKAGE SYSTEM>
+	* package.d (init_packages): do not add "COMPILER" nickname to SYS
+	* clos-class5.lisp, clos-genfun3.lisp, clos-package.lisp:
+	* clos-slots2.lisp, compiler.lisp, defs2.lisp, deprecated.lisp:
+	* disassem.lisp, foreign1.lisp, init.lisp, loadform.lisp:
+	* macros1.lisp, places.lisp, trace.lisp: use SYS instead of COMPILER
+
 2009-10-26  Sam Steingold  <sds@gnu.org>
 
 	fix (describe 'linux:wait)

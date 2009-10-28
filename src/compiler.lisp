@@ -52,30 +52,7 @@
 (export '(compile compile-file disassemble))
 (pushnew ':compiler *features*)
 
-(in-package "COMPILER")
-;; Convention: Write SYSTEM::PNAME for a Symbol, that is "accidentally" in
-;; #<PACKAGE SYSTEM>, but which we don't use any further.
-;; Write SYS::PNAME, if we assume any properties for the Symbol.
-;; Write COMPILER::PNAME, if the Compiler declares the Symbol
-;; and it is used by other program parts.
-(import '(sys::function-name-p sys::parse-body sys::add-implicit-block
-          sys::make-load-time-eval sys::make-macro-expander
-          sys::make-funmacro-expander
-          sys::analyze-lambdalist sys::specialized-lambda-list-to-ordinary
-          sys::closure-name sys::closure-codevec
-          sys::closure-consts sys::closure-const
-          sys::fixnump sys::short-float-p sys::single-float-p
-          sys::double-float-p sys::long-float-p
-          sys::search-file sys::date-string sys::line-number
-          sys::%funtabref sys::inlinable sys::constant-inlinable
-          sys::module-name
-          sys::*compiling* sys::*compiling-from-file* sys::*inline-functions*
-          sys::*venv* sys::*fenv* sys::*benv* sys::*genv* sys::*denv*
-          sys::*toplevel-environment* sys::*toplevel-denv*
-          sys::*current-source-file* sys::*internal-compiled-file-type*
-          COMPILER::C-PROCLAIM COMPILER::C-PROCLAIM-CONSTANT
-          COMPILER::EVAL-WHEN-COMPILE
-          COMPILER::C-DEFUN COMPILER::C-PROVIDE COMPILER::C-REQUIRE))
+(in-package "SYS")
 
 ;; some auxilliary functions
 (proclaim '(inline env mac-exp))
@@ -1917,10 +1894,10 @@ for-value   NIL or T
       (format nil (if (and *compile-file-pathname*
                            (equalp file *compile-file-truename*))
                     #1=""
-                    (format nil (TEXT " in file ~S") file)))
+                    (format nil (TEXT "in file ~S ") file)))
       (format nil (if (= lineno1 lineno2)
-                    (TEXT " in line ~D")
-                    (TEXT " in lines ~D..~D"))
+                    (TEXT "in line ~D ")
+                    (TEXT "in lines ~D..~D "))
               lineno1 lineno2))
     #1#))
 
