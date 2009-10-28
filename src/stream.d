@@ -14335,31 +14335,31 @@ modexp void stream_handles (object obj, bool check_open, bool* char_p,
   }
 }
 
-/* extract socket, direction and status place
-   from the SOCKET-STATUS argument */
-local gcv_object_t* parse_sock_list (object obj,object *sock,direction_t *dir)
+/* extract socket, direction and status place from the SOCKET-STATUS
+   argument. returns the cons which cdr should be changed with the status */
+local object parse_sock_list (object obj,object *sock,direction_t *dir)
 {
   if (consp(obj)) { /* (sock ...) */
     *sock = (object)Car(obj);
     if (nullp(Cdr(obj))) { /* (sock) */
       *dir = DIRECTION_IO;
-      return &Cdr(obj);
+      return obj;
     } else if (consp(Cdr(obj))) { /* (sock dir . place) */
       *dir = check_direction(Car(Cdr(obj)));
-      return &Cdr(Cdr(obj));
+      return Cdr(obj);
     } else { /* (sock . dir) or (server . place) */
       if (socket_server_p(*sock)) { /* (server . place) */
         *dir = DIRECTION_INPUT;
-        return &Cdr(obj);
+        return obj;
       } else {                  /* (sock . dir) */
         *dir = check_direction(Cdr(obj));
-        return NULL;
+        return NIL;
       }
     }
   } else { /* sock */
     *sock = obj;
     *dir = DIRECTION_IO;
-    return NULL;
+    return NIL;
   }
 }
 
@@ -14378,7 +14378,7 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
   var SOCKET in_sock = INVALID_SOCKET;
   var SOCKET out_sock = INVALID_SOCKET;
   var uintL ret = 0, avail = 0;
-  if (NULL==parse_sock_list(socket,&sock,&dir) && need_new_list)
+  if (eq(NIL,parse_sock_list(socket,&sock,&dir)) && need_new_list)
     *need_new_list = true;
   stream_handles(sock,true,NULL,
                  READ_P(dir)  ? &in_sock  : NULL,
@@ -14407,7 +14407,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
                                  fd_set *writefds, fd_set *errorfds) {
   var object sock, ret;
   var direction_t dir;
-  var gcv_object_t *place = parse_sock_list(socket,&sock,&dir);
+  var object status_cons = parse_sock_list(socket,&sock,&dir);
   var SOCKET in_sock = INVALID_SOCKET;
   var SOCKET out_sock = INVALID_SOCKET;
   var bool char_p = true, wr = false;
@@ -14419,13 +14419,16 @@ local maygc object handle_isset (object socket, fd_set *readfds,
     if (FD_ISSET(in_sock,errorfds)) return S(Kerror);
     if (socket_server_p(sock)) {
       ret = FD_ISSET(in_sock,readfds) ? T : NIL;
-      if (place) *place = ret;
+      if (!eq(NIL,status_cons)) Cdr(status_cons) = ret;
       return ret;
     } else if (uint_p(sock)) {
       if (FD_ISSET(in_sock,readfds)) rd = LISTEN_AVAIL;
     } else {                    /* stream */
-      if (FD_ISSET(in_sock,readfds) || (stream_isbuffered(sock) & bit(1)))
+      if (FD_ISSET(in_sock,readfds) || (stream_isbuffered(sock) & bit(1))) {
+        pushSTACK(status_cons);
         rd = (char_p ? listen_char(sock) : listen_byte(sock));
+        status_cons = popSTACK();
+      }
     }
   }
   if (out_sock != INVALID_SOCKET) {
@@ -14438,7 +14441,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
     case LISTEN_WAIT:  ret = wr ? S(Koutput) : NIL; break;
     case LISTEN_ERROR: ret = S(Kerror); break;
   }
-  if (place) *place = ret;
+  if (!eq(NIL,status_cons)) Cdr(status_cons) = ret;
   return ret;
 }
 
