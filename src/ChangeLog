@@ -1,5 +1,11 @@
 2009-10-28  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (ignore-check, value-form-index): make style-warning
+	"used despite IGNORE declaration" a regular warning as per
+	COMPILER-DIAGNOSTICS:USE-HANDLER
+
+2009-10-28  Sam Steingold  <sds@gnu.org>
+
 	Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER:
 	use the CL Condition system for compiler diagnostics.
 	* compiler.lisp (c-current-location): add
