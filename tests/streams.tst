@@ -1216,6 +1216,31 @@ T
         '(t nil))
 ("1212345" "1212345")
 
+;; fresh-line on broadcast streams
+(let* ((s1 (make-string-output-stream))
+       (s2 (make-string-output-stream))
+       (b (make-broadcast-stream s1 s2)))
+  (write-char #\a s1)
+  (list (fresh-line b)
+        (get-output-stream-string s1)
+        (get-output-stream-string s2)))
+(NIL
+ "a
+"
+ "")
+
+(let* ((s1 (make-string-output-stream))
+       (s2 (make-string-output-stream))
+       (b (make-broadcast-stream s2 s1)))
+  (write-char #\a s1)
+  (list (fresh-line b)
+        (get-output-stream-string s1)
+        (get-output-stream-string s2)))
+(T
+ "a
+"
+ "")
+
 (progn
   (symbol-cleanup 's)
   (symbol-cleanup 's1)

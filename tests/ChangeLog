@@ -1,3 +1,7 @@
+2009-10-29  Sam Steingold  <sds@gnu.org>
+
+	* streams.tst: test FRESH-LINE on broadcast streams
+
 2009-10-19  Sam Steingold  <sds@gnu.org>
 
 	* excepsit.tst, ffi.tst, path.tst: fix #-UNICODE

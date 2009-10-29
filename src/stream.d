@@ -16825,12 +16825,17 @@ global maygc object get_line_position (object stream) {
   }
 }
 
-/* Tests whether the stream has an elastic newline pending.
- elastic_newline_pending_p(stream)
+/* do the actual legwork of fresh_line
+ fresh_line_low(stream)
  > stream: Stream
- < result: true if a newline should be output first
+ < result: true if a newline has been output
  can trigger GC */
-local maygc bool elastic_newline_pending_p (object stream) {
+local maygc bool fresh_line_low (const gcv_object_t* stream_) {
+  /* Test whether an elastic newline is pending, so that
+   (ELASTIC-NEWLINE stream) followed by (FRESH-LINE stream) always leads
+   to exactly one newline being output. */
+ #define TERPRI_IF(cond) return cond ? (terpri(stream_), true) : false
+  var object stream = *stream_;
   check_SP();
  start:
   if (builtin_stream_p(stream))
@@ -16838,20 +16843,20 @@ local maygc bool elastic_newline_pending_p (object stream) {
       case strmtype_synonym: /* Synonym-Stream: follow further */
         resolve_as_synonym(stream);
         goto start;
-      case strmtype_broad: /* Broadcast-Stream: */
-        /* The OR of the individual streams. */
-        {
-          pushSTACK(TheStream(stream)->strm_broad_list);
-          while (consp(STACK_0)) {
-            if (elastic_newline_pending_p(Car(STACK_0))) {
-              skipSTACK(1);
-              return true;
-            }
-            STACK_0 = Cdr(STACK_0);
-          }
+      case strmtype_broad: { /* Broadcast-Stream: */
+        /* FRESH-LINE is a "control", not an "output" operation,
+           so do it one by one on the individual constituent streams. */
+        var bool ret = false;
+        pushSTACK(TheStream(stream)->strm_broad_list);
+        while (consp(STACK_0)) {
+          pushSTACK(Car(STACK_0));
+          ret = fresh_line_low(&STACK_0);
           skipSTACK(1);
-          return false;
+          STACK_0 = Cdr(STACK_0);
         }
+        skipSTACK(1);
+        return ret;
+      }
       case strmtype_twoway:
       case strmtype_echo:
       #ifdef SOCKET_STREAMS
@@ -16861,18 +16866,20 @@ local maygc bool elastic_newline_pending_p (object stream) {
         stream = TheStream(stream)->strm_twoway_output;
         goto start;
       default: /* normal stream */
-        return eq(TheStream(stream)->strm_wr_ch,P(wr_ch_pending_newline));
+        TERPRI_IF(eq(TheStream(stream)->strm_wr_ch,P(wr_ch_pending_newline))
+                  || !eq(get_line_position(*stream_),Fixnum_0));
     }
-  else {
-    /* Test (SLOT-VALUE stream '$penl): */
+  else { /* Test (SLOT-VALUE stream '$penl): */
     var object stream_forwarded = stream;
     instance_un_realloc(stream_forwarded);
     instance_update(stream,stream_forwarded);
     var object cv = TheInstance(stream_forwarded)->inst_class_version;
     var object clas = TheClassVersion(cv)->cv_class;
     var object slotinfo = gethash(S(penl),TheClass(clas)->slot_location_table,false);
-    return !nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)]);
+    TERPRI_IF(!nullp(TheSrecord(stream_forwarded)->recdata[posfixnum_to_V(slotinfo)])
+              || !eq(get_line_position(stream_forwarded),Fixnum_0));
   }
+ #undef TERPRI_IF
 }
 
 /* Writes a newline on a stream, if it is not already positioned at column 0.
@@ -16908,16 +16915,7 @@ global maygc bool fresh_line (const gcv_object_t* stream_) {
       }
     }
   }
-  /* Test whether an elastic newline is pending, so that
-   (ELASTIC-NEWLINE stream) followed by (FRESH-LINE stream) always leads
-   to exactly one newline being output. */
-  if (elastic_newline_pending_p(*stream_)
-      || !eq(get_line_position(*stream_),Fixnum_0)) {
-    terpri(stream_);
-    return true;
-  } else {
-    return false;
-  }
+  return fresh_line_low(stream_);
 }
 
 /* Writes a newline on a stream, delayed and nullified if the next character
