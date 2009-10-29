@@ -14378,7 +14378,7 @@ local uintL handle_set (object socket, fd_set *readfds, fd_set *writefds,
   var SOCKET in_sock = INVALID_SOCKET;
   var SOCKET out_sock = INVALID_SOCKET;
   var uintL ret = 0, avail = 0;
-  if (eq(NIL,parse_sock_list(socket,&sock,&dir)) && need_new_list)
+  if (nullp(parse_sock_list(socket,&sock,&dir)) && need_new_list)
     *need_new_list = true;
   stream_handles(sock,true,NULL,
                  READ_P(dir)  ? &in_sock  : NULL,
@@ -14419,7 +14419,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
     if (FD_ISSET(in_sock,errorfds)) return S(Kerror);
     if (socket_server_p(sock)) {
       ret = FD_ISSET(in_sock,readfds) ? T : NIL;
-      if (!eq(NIL,status_cons)) Cdr(status_cons) = ret;
+      if (!nullp(status_cons)) Cdr(status_cons) = ret;
       return ret;
     } else if (uint_p(sock)) {
       if (FD_ISSET(in_sock,readfds)) rd = LISTEN_AVAIL;
@@ -14441,7 +14441,7 @@ local maygc object handle_isset (object socket, fd_set *readfds,
     case LISTEN_WAIT:  ret = wr ? S(Koutput) : NIL; break;
     case LISTEN_ERROR: ret = S(Kerror); break;
   }
-  if (!eq(NIL,status_cons)) Cdr(status_cons) = ret;
+  if (!nullp(status_cons)) Cdr(status_cons) = ret;
   return ret;
 }
 
