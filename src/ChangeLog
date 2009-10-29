@@ -1,5 +1,12 @@
 2009-10-29  Sam Steingold  <sds@gnu.org>
 
+	* stream.d (fresh_line_low): replaces elastic_newline_pending_p
+	(fresh_line): use it for all legwork so that fresh-line is called
+	individually on each constituent stream of a BROADCAST-STREAM instead
+	of broadcasting a newline to all streams when only one needs it
+
+2009-10-29  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (handle_set, handle_isset): use nullp(.) instead of eq(NIL,.)
 
 2009-10-29  Vladimir Tzankov  <vtzankov@gmail.com>
