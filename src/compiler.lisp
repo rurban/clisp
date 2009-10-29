@@ -3578,7 +3578,9 @@ for-value   NIL or T
         (c-warn (TEXT "Binding variable ~S can cause side effects despite IGNORE declaration since it is declared SPECIAL.")
                 sym)
         (when (var-for-value-usedp var)
-          (c-warn (TEXT "variable ~S is used despite IGNORE declaration.")
+          ;; style-warning as per 3.2.5, although
+          ;; COMPILER-DIAGNOSTICS:USE-HANDLER calls it a warning
+          (c-style-warn (TEXT "variable ~S is used despite IGNORE declaration.")
                         sym)))
       ;; var not ignore-declared
       (unless (memq sym *ignorables*)
@@ -8035,7 +8037,9 @@ New Operations:
   (when (fnode-p value)
     (setf (fnode-used value) t)
     (when (fnode-ignore value)
-      (c-warn (TEXT "function ~S used despite IGNORE declaration.")
+      ;; style-warning as per 3.2.5, although
+      ;; COMPILER-DIAGNOSTICS:USE-HANDLER calls it a warning
+      (c-style-warn (TEXT "function ~S is used despite IGNORE declaration.")
                     (fnode-name value))))
   (let ((const-list (fnode-consts func))
         (forms-list (fnode-consts-forms func))
