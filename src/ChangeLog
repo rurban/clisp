@@ -1,5 +1,10 @@
 2009-10-29  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (ignore-check, value-form-index): revert last patch:
+	3.2.5 prescribes style-warning here, the writeup is not normative
+
+2009-10-29  Sam Steingold  <sds@gnu.org>
+
 	* stream.d (fresh_line_low): replaces elastic_newline_pending_p
 	(fresh_line): use it for all legwork so that fresh-line is called
 	individually on each constituent stream of a BROADCAST-STREAM instead
