@@ -1,3 +1,8 @@
+2009-10-30  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw_garcol.d (gc_sweep1_varobject_page): fix the build when
+	HAVE_SMALL_SSTRING is not defined
+
 2009-10-29  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (ignore-check, value-form-index): revert last patch:
