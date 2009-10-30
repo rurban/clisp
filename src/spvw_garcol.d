@@ -1153,6 +1153,7 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
     #endif
     /* object marked
      Elimination of forward pointers: */
+  #ifdef HAVE_SMALL_SSTRING
      /* smart compiler should eliminate this branch when
       HAVE_SMALL_SSTRINGS is not defined. */
     #ifdef SPVW_PURE
@@ -1174,6 +1175,7 @@ local aint gc_sweep1_varobject_page(aint start, aint end,
        }
      }
      else
+  #endif /* HAVE_SMALL_SSTRING */
     #ifdef SPVW_PURE
      if (instance_p(heapnr,p2))
     #else
