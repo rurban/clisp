@@ -1815,27 +1815,24 @@ local maygc void unuse_1package (object pack, object qpack) {
  Removes all packages from packlist from the use-list of pack
  and pack from the used-by-lists of all packages from packlist.
  can trigger GC
-*/
+ MT: pack mutex is locked by caller */
 local maygc void unuse_package (object packlist, object pack) {
   pushSTACK(pack);
   pushSTACK(packlist);
+  pushSTACK(NIL);
+  var gcv_object_t *pack_ = &STACK_2;
+  var gcv_object_t *qpack_ = &STACK_0;
   set_break_sem_3();
   /* traverse packlist: */
-  var gcv_object_t *pack_ = &STACK_1;
-  WITH_LISP_MUTEX_LOCK(1,false,&ThePackage(*pack_)->pack_mutex,{
-    pushSTACK(NIL);
-    var gcv_object_t *qpack_ = &STACK_0;
-    while (mconsp(STACK_1)) {
-      STACK_0 = Car(STACK_1);
-      WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
-        unuse_1package(*pack_,*qpack_);
-      });
-      STACK_1 = Cdr(STACK_1);
-    }
-    skipSTACK(1);
-  });
+  while (mconsp(STACK_1)) {
+    STACK_0 = Car(STACK_1);
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*qpack_)->pack_mutex,{
+      unuse_1package(*pack_,*qpack_);
+    });
+    STACK_1 = Cdr(STACK_1);
+  }
   clr_break_sem_3();
-  skipSTACK(2);
+  skipSTACK(3);
 }
 
 /* UP: returns the current package
@@ -2455,23 +2452,27 @@ local maygc void prepare_use_package (void) {
 /* (USE-PACKAGE packs-to-use [package]), CLTL p. 187 */
 LISPFUN(use_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
+  var gcv_object_t *pack_ = &STACK_0;
+  var gcv_object_t *packlist_ = &STACK_1;
   WITH_OS_MUTEX_LOCK(2, &all_packages_lock, {
-    var object pack = popSTACK();
-    var object packlist = popSTACK();
-    use_package(packlist,pack);
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+      use_package(*packlist_,*pack_);
+    });
   });
-  VALUES1(T);
+  skipSTACK(2); VALUES1(T);
 }
 
 /* (UNUSE-PACKAGE packs-to-use [package]), CLTL p. 187 */
 LISPFUN(unuse_package,seclass_default,1,1,norest,nokey,0,NIL) {
   prepare_use_package();
+  var gcv_object_t *pack_ = &STACK_0;
+  var gcv_object_t *packlist_ = &STACK_1;
   WITH_OS_MUTEX_LOCK(2, &all_packages_lock, {
-    var object pack = popSTACK();
-    var object packlist = popSTACK();
-    unuse_package(packlist,pack);
+    WITH_LISP_MUTEX_LOCK(0,false,&ThePackage(*pack_)->pack_mutex,{
+      unuse_package(*packlist_,*pack_);
+    });
   });
-  VALUES1(T);
+  skipSTACK(2); VALUES1(T);
 }
 
 /* UP: Corrects a package(nick)name.
@@ -2587,65 +2588,61 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
         (kw(nicknames),kw(use),kw(case_sensitive),kw(case_inverted)) ) {
   /* check name and turn into string: */
   STACK_4 = test_stringsymchar_arg(STACK_4,false);
-  /* find package with this name: */
-  var object pack = find_package(STACK_4);
-  if (nullp(pack)) { /* package not found, must create a new one */
-    WITH_OS_MUTEX_LOCK(5,&all_packages_lock, {
+  WITH_OS_MUTEX_LOCK(5,&all_packages_lock, {
+    /* find package with this name: */
+    var object temppack = find_package(STACK_4);
+    if (nullp(temppack)) { /* package not found, must create a new one */
       in_make_package(false);
-    });
-  } else { /* package found */
-    STACK_4 = pack; /* save pack */
-    /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
-    if (boundp(STACK_1)) { /* check the case-sensitivity: */
-      var bool value = !nullp(STACK_1);
-      if (!!pack_casesensitivep(pack) != value) {
-        pushSTACK(pack); pushSTACK(pack);
-        STACK_1 = CLSTEXT("One should not change the case sensitiveness of ~S.");
-        funcall(S(warn),2);
-        pack = STACK_4;         /* restore for GC-safety */
-      }
-      if (value) mark_pack_casesensitive(pack);
-      else mark_pack_caseinsensitive(pack);
-    }
-    if (boundp(STACK_0)) { /* check the case-invertedness: */
-      var bool value = !nullp(STACK_0);
-      if (!!pack_caseinvertedp(pack) != value) {
-        pushSTACK(pack); pushSTACK(pack);
-        STACK_1 = CLSTEXT("One should not change the case inversion of ~S.");
-        funcall(S(warn),2);
-        pack = STACK_4;         /* restore for GC-safety */
-      }
-      if (value) mark_pack_caseinverted(pack);
-      else mark_pack_casepreserved(pack);
-    }
-    /* adjust the nicknames: */
-    if (boundp(STACK_3)) {
-      /* install nicknames with RENAME-PACKAGE: */
-      pushSTACK(pack); /* pack */
-      pushSTACK(ThePackage(pack)->pack_name); /* (package-name pack) */
-      pushSTACK(STACK_(3+2)); /* nicknames */
-      /* (RENAME-PACKAGE pack (package-name pack) nicknames) */
-      funcall(L(rename_package),3);
-    }
-    /* adjust the use-list: */
-    if (boundp(STACK_2)) {
-      /* extend use-list with USE-PACKAGE
-         and shorten with UNUSE-PACKAGE: */
-      STACK_1 = STACK_2; /* use-list as 1. argument for USE-PACKAGE */
-      STACK_0 = STACK_4; /* pack as 2. argument for USE-PACKAGE */
-      prepare_use_package(); /* check arguments STACK_1, STACK_0 */
-      WITH_OS_MUTEX_LOCK(5, &all_packages_lock, {
-        /* stack-layout: pack, nicknames, -, new use-list, pack. */
-        { /* execute USE-PACKAGE (with copied use-list): */
-          var object temp = reverse(STACK_1);
-          use_package(temp,STACK_4);
+    } else { /* package found */
+      STACK_4 = temppack; /* save pack */
+      var gcv_object_t *pack_ = &STACK_4;
+      WITH_LISP_MUTEX_LOCK(5,true,&ThePackage(*pack_)->pack_mutex, {
+        /* stack-layout: pack, nicknames, uselist, case-sensitive, case-inverted. */
+        if (boundp(STACK_1)) { /* check the case-sensitivity: */
+          var bool value = !nullp(STACK_1);
+          if (!!pack_casesensitivep(*pack_) != value) {
+            pushSTACK(*pack_); pushSTACK(*pack_);
+            STACK_1 = CLSTEXT("One should not change the case sensitiveness of ~S.");
+            funcall(S(warn),2);
+          }
+          if (value) mark_pack_casesensitive(*pack_);
+          else mark_pack_caseinsensitive(*pack_);
         }
-        /* All packages, that are still listed in the use-list of pack,
-           but which do not occur in the uselist located in STACK_1,
-           are removed with unuse_1package: */
-        { /* traverse use-list of pack */
-          var gcv_object_t *pack_ = &STACK_4;
-          WITH_LISP_MUTEX_LOCK(2,false,&ThePackage(*pack_)->pack_mutex, {
+        if (boundp(STACK_0)) { /* check the case-invertedness: */
+          var bool value = !nullp(STACK_0);
+          if (!!pack_caseinvertedp(*pack_) != value) {
+            pushSTACK(*pack_); pushSTACK(*pack_);
+            STACK_1 = CLSTEXT("One should not change the case inversion of ~S.");
+            funcall(S(warn),2);
+          }
+          if (value) mark_pack_caseinverted(*pack_);
+          else mark_pack_casepreserved(*pack_);
+        }
+        /* adjust the nicknames: */
+        if (boundp(STACK_3)) {
+          /* install nicknames with RENAME-PACKAGE: */
+          pushSTACK(*pack_); /* pack */
+          pushSTACK(ThePackage(*pack_)->pack_name); /* (package-name pack) */
+          pushSTACK(STACK_(3+2)); /* nicknames */
+          /* (RENAME-PACKAGE pack (package-name pack) nicknames) */
+          funcall(L(rename_package),3);
+        }
+        /* adjust the use-list: */
+        if (boundp(STACK_2)) {
+          /* extend use-list with USE-PACKAGE
+             and shorten with UNUSE-PACKAGE: */
+          STACK_1 = STACK_2; /* use-list as 1. argument for USE-PACKAGE */
+          STACK_0 = STACK_4; /* pack as 2. argument for USE-PACKAGE */
+          prepare_use_package(); /* check arguments STACK_1, STACK_0 */
+          /* stack-layout: pack, nicknames, -, new use-list, pack. */
+          { /* execute USE-PACKAGE (with copied use-list): */
+            var object temp = reverse(STACK_1);
+            use_package(temp,STACK_4);
+          }
+          /* All packages, that are still listed in the use-list of pack,
+             but which do not occur in the uselist located in STACK_1,
+             are removed with unuse_1package: */
+          { /* traverse use-list of pack */
             pushSTACK(NIL);
             var gcv_object_t *qpack_ = &STACK_0;
             STACK_1 = ThePackage(*pack_)->pack_use_list;
@@ -2661,14 +2658,14 @@ LISPFUN(pin_package,seclass_default,1,0,norest,key,4,
               STACK_1 = Cdr(STACK_1);
             }
             skipSTACK(1);
-          });
+          }
         }
+        /* the use-list is adjusted correctly. */
+        skipSTACK(4); /* forget uselist, nicknames etc. */
+        VALUES1(popSTACK());
       });
     }
-    /* the use-list is adjusted correctly. */
-    skipSTACK(4); /* forget uselist, nicknames etc. */
-    VALUES1(popSTACK());
-  }
+  });
 }
 
 local one_sym_function_t delete_package_aux;
