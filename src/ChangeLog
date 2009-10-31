@@ -1,3 +1,9 @@
+2009-10-31  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: acquire package mutex lock before calling use_package
+	* package.d (unuse_package): package mutex should be locked by caller
+	(UNUSE-PACKAGE, USE-PACKAGE, %IN-PACKAGE): lock the package
+
 2009-10-30  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw_garcol.d (gc_sweep1_varobject_page): fix the build when
