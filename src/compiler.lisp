@@ -1915,13 +1915,17 @@ for-value   NIL or T
 (defun in-defun-p (fun)
   (and (equal fun (current-function)) (defining-p fun)))
 
-(defun c-current-location ()
-  (format nil (TEXT "~@[in ~S ~]~A") (current-function) (c-source-location)))
+(defun c-current-location (&optional (in-function (current-function)))
+  (let ((f (if in-function (format nil (TEXT "in ~S ") in-function) #1=""))
+        (l (c-source-location)))
+    (if (and (string= f #1#) (string= l #1#))
+      #1#
+      (string-concat f l ": "))))
 
 (predefun c-warning (type cstring &rest args)
   (declare (ignore type))
   (apply #'c-comment
-         (string-concat (TEXT "WARNING ~A:") "~%" cstring)
+         (string-concat (TEXT "WARNING: ~A") "~%" cstring)
          (c-current-location) args))
 
 (defvar *warning-count*)
@@ -1949,8 +1953,8 @@ for-value   NIL or T
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
     (fresh-line *c-error-output*)
-    (format *c-error-output* (TEXT "ERROR~@[ in ~S~]~A :")
-            in-function (c-source-location))
+    (format *c-error-output* (TEXT "ERROR: ~A")
+            (c-current-location in-function))
     (terpri *c-error-output*)
     (apply #'format *c-error-output* cstring args)
     (elastic-newline *c-error-output*))

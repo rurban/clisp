@@ -1668,10 +1668,9 @@
 
 ;; for X3J13 Issue COMPILER-DIAGNOSTICS:USE-HANDLER
 (defun c-warning (type format-string &rest args)
-  (let ((*error-output*
-         (if *compile-verbose* *c-error-output* *c-listing-output*)))
+  (let ((*error-output* *c-error-output*))
     (apply #'warn-of-type type
-           (string-concat (c-current-location) ": " format-string)
+           (string-concat (c-current-location) format-string)
            args)))
 
 ;; WARN, CLtL2 p. 912
