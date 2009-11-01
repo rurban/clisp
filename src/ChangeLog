@@ -1,5 +1,15 @@
 2009-11-01  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-current-location): when returning a non-empty
+	value, terminate it with ": "
+	(c-warning, c-error): C-CURRENT-LOCATION is either empty or is
+	terminated by ": ", so adjust its use
+	* condition.lisp (c-warning): ditto; also bind *ERROR-OUTPUT* to
+	*C-ERROR-OUTPUT*, never to *C-LISTING-OUTPUT* which may be NIL,
+	beause *COMPILE-VERBOSE* does not affect condition handling
+
+2009-11-01  Sam Steingold  <sds@gnu.org>
+
 	* error.d (begin_error): ensure *ERROR-OUTPUT* is valid first thing
 
 2009-10-31  Sam Steingold  <sds@gnu.org>
