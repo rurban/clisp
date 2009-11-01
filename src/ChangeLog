@@ -1,3 +1,7 @@
+2009-11-01  Sam Steingold  <sds@gnu.org>
+
+	* error.d (begin_error): ensure *ERROR-OUTPUT* is valid first thing
+
 2009-10-31  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (fsstnd): infer based on TSYSOS instead of HSYSOS

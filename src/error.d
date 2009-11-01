@@ -38,6 +38,8 @@ local void begin_error (void)
   end_system_call(); /* there is no system call running anymore */
   cancel_interrupts();
   STOP_WRITING_TO_SUBPROCESS;
+  /* make sure *ERROR-OUTPUT* is valid */
+  var_stream(S(error_output),strmflags_wr_ch_B);
   if (!posfixnump(Symbol_value(S(recursive_error_count)))) /* should be a fixnum >=0 */
     Symbol_value(S(recursive_error_count)) = Fixnum_0; /* otherwise emergency correction */
   /* increase error-count, if >3 abort output: */
