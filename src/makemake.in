@@ -807,11 +807,28 @@ else
   LOCALEDIR="$localedir"
 fi
 if [ -z "$fsstnd" ]; then       # default fsstnd depends on the OS
-  case ${HSYSOS} in
+  case ${TSYSOS} in
     cygwin | win32gcc )  fsstnd=redhat; ;; # cygwin == redhat!
+    *bsd ) fsstnd=bsd; ;;
+    linux )
+      if test -r /etc/lsb-release; then
+        . /etc/lsb-release;
+        case "${DISTRIB_ID}" in
+          *buntu | Debian | Slackware ) fsstnd=debian; ;;
+          Fedora | Redhat ) fsstnd=redhat; ;;
+          SuSE ) fsstnd=suse; ;;
+          * )  fsstnd=gnu_ext; ;;
+        esac
+      elif test -r /etc/redhat-release; then
+        fsstnd=redhat
+      else fsstnd=gnu_ext
+      fi ;;
     * )  fsstnd=gnu_ext; ;;
   esac
+  test "${verbose}" = true -o "${verbose}" = yes && \
+    echo "inferred: fsstnd = $fsstnd" >&2
 fi
+
 # An explicitly given --docdir overrides the implied value from fsstnd,
 # and the implied value from fsstnd overrides the default.
 if [ -z "$docdir" ] ; then
