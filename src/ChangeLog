@@ -1,3 +1,8 @@
+2009-10-31  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (fsstnd): infer based on TSYSOS instead of HSYSOS
+	and actively discriminate between linuxes and bsds
+
 2009-10-31  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	[MULTITHREAD]: acquire package mutex lock before calling use_package
