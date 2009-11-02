@@ -533,6 +533,23 @@ ignored by the interpreter.</para>
 <para>Hash tables are &ext-obj;s.</para>
 
 </section>
+
+<section id="compile-errors"><title>Exceptional Situations in the Compiler
+  <ulink role="clhs" url="sec_3-2-5"/></title>
+
+<para>Both &compile; and &eval; may &signal; the &source-program-error;
+ &condition-t; which derives from &program-error-t; and which contains
+ additional slots with accessors <variablelist>
+<varlistentry><term>&source-program-error-form;</term>
+ <listitem><simpara>Returns the whole form in which the &error-t; was
+   &signal;ed</simpara></listitem></varlistentry>
+<varlistentry><term>&source-program-error-detail;</term>
+ <listitem><simpara>Returns the specific (usually small) part of the
+   above which triggered the &error-t;</simpara></listitem></varlistentry>
+</variablelist></para>
+
+</section>
+
 </section>
 
 <section id="declarations"><title>Declarations

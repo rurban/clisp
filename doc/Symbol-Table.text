@@ -4,6 +4,12 @@ EXT:EVAL-ENV
 eval-env
 CL:DEFINE-COMPILER-MACRO
 compiler-macros
+EXT:SOURCE-PROGRAM-ERROR
+compile-errors
+EXT:SOURCE-PROGRAM-ERROR-DETAIL
+compile-errors
+EXT:SOURCE-PROGRAM-ERROR-FORM
+compile-errors
 EXT:NOTSPECIAL
 notspec-decl
 CL:SPECIAL
@@ -461,6 +467,8 @@ compilefile
 CL:COMPILE-FILE-PATHNAME
 compile-file-path
 CL:REQUIRE
+require
+CUSTOM:*USER-LIB-DIRECTORY*
 require
 CL:LOAD
 loadfile

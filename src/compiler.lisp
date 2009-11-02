@@ -1941,23 +1941,27 @@ for-value   NIL or T
 (defun c-style-warn (cstring &rest args)
   (incf *style-warning-count*)
   (incf *warning-count*)
-  (apply #'c-warning 'sys::simple-style-warning cstring args))
+  (apply 'c-warning 'sys::simple-style-warning cstring args))
+
+;; continuable compiler error
+(predefun c-cerror (location detail cstring &rest args)
+  (declare (ignore detail))
+  (fresh-line *c-error-output*)
+  (format *c-error-output* (TEXT "ERROR: ~A") location)
+  (terpri *c-error-output*)
+  (apply #'format *c-error-output* cstring args)
+  (elastic-newline *c-error-output*))
 
 (defvar *error-count*)
 ;; (C-ERROR controlstring . args)
 ;; issue a compiler error (via FORMAT) and terminate the current C-FORM.
-(defun c-error (cstring &rest args)
+(defun c-error (detail cstring &rest args)
   (incf *error-count*)
   (let ((in-function (current-function)))
     (when in-function
       (when *compiling-from-file*
         (pushnew in-function *functions-with-errors*)))
-    (fresh-line *c-error-output*)
-    (format *c-error-output* (TEXT "ERROR: ~A")
-            (c-current-location in-function))
-    (terpri *c-error-output*)
-    (apply #'format *c-error-output* cstring args)
-    (elastic-newline *c-error-output*))
+    (apply 'c-cerror (c-current-location in-function) detail cstring args))
   (throw 'c-error
     (make-anode :source NIL
                 :type 'ERROR
@@ -2097,12 +2101,12 @@ for-value   NIL or T
 ;; and has at least l1, but at most l2 elements. Else: Error.
 (defun test-list (L &optional (l1 0) (l2 nil))
   (unless (and (listp L) (null (cdr (last L))))
-    (c-error (TEXT "Code contains dotted list ~S") L))
+    (c-error L (TEXT "Code contains dotted list ~S") L))
   (unless (>= (length L) l1)
-    (c-error (TEXT "Form too short, too few arguments: ~S") L))
+    (c-error L (TEXT "Form too short, too few arguments: ~S") L))
   (when l2
     (unless (<= (length L) l2)
-      (c-error (TEXT "Form too long, too many arguments: ~S") L))))
+      (c-error L (TEXT "Form too long, too many arguments: ~S") L))))
 
 ;; c-form-table contains the handler function (to be called without arguments)
 ;; for all functions/specialforms/macros, that have to be treated specially.
@@ -2358,7 +2362,7 @@ for-value   NIL or T
             (if (lambda-form-p fun)
               (c-form `(FUNCALL (FUNCTION ,fun) ,@(cdr *form*)))
               #| not: (c-LAMBDA-FUNCTION-CALL fun (cdr *form*)) |#
-              (c-error (TEXT "Not the name of a function: ~S") fun))))))))
+              (c-error fun (TEXT "Not the name of a function: ~S") fun))))))))
   #+CLISP-DEBUG (setf (anode-source anode) *form*)
   ;; If no values are needed and no side effects are produced,
   ;; the appendant code can be discarded completely:
@@ -2756,7 +2760,7 @@ for-value   NIL or T
 (defun test-argument-syntax (args applyargs fun req opt rest-p key-p keylist
                              allow-p)
   (unless (and (listp args) (null (cdr (last args))))
-    (c-error (TEXT "argument list to function ~S is dotted: ~S")
+    (c-error args (TEXT "argument list to function ~S is dotted: ~S")
              fun args))
   (let ((n (length args))
         (reqopt (+ req opt)))
@@ -3448,7 +3452,7 @@ for-value   NIL or T
 ;; Syntax-Analysis:
 
 (defun c-illegal-syntax (form caller)
-  (c-error-c (TEXT "Illegal syntax in ~A: ~S") caller form))
+  (c-error-c form (TEXT "Illegal syntax in ~A: ~S") caller form))
 
 ;; analyzes a parameter-list of LET/LET*, returns:
 ;; the List of Symbols,
@@ -3485,7 +3489,7 @@ for-value   NIL or T
     #'(lambda (form errorstring &rest arguments)
         (declare (ignore form))
         (catch 'c-error
-          (apply #'c-error errorstring arguments)))))
+          (apply #'c-error lambdalist errorstring arguments)))))
 
 (defun lambda-list-to-signature (lambda-list)
   (multiple-value-bind (req opt opt-i opt-p rest
@@ -3640,7 +3644,7 @@ for-value   NIL or T
     ;; must bind symbol dynamically:
     (progn
       (when (l-constantp symbol)
-        (c-error-c (TEXT "Constant ~S cannot be bound.")
+        (c-error-c symbol (TEXT "Constant ~S cannot be bound.")
                    symbol))
       (make-special-var symbol))
     ;; must bind symbol lexically :
@@ -3755,7 +3759,7 @@ for-value   NIL or T
     (progn
       (if (l-constantp symbol)
         (progn
-          (c-error-c (TEXT "Constant ~S cannot be bound.") symbol)
+          (c-error-c symbol (TEXT "Constant ~S cannot be bound.") symbol)
           (push 0 *stackz*))
         (push '(BIND 1) *stackz*))
       (make-special-var symbol))
@@ -4459,7 +4463,7 @@ for-value   NIL or T
 ;; compile (DECLARE {declspec}*)
 (defun c-DECLARE ()
   (test-list *form* 1)
-  (c-error (TEXT "Misplaced declaration: ~S") *form*))
+  (c-error *form* (TEXT "Misplaced declaration: ~S") *form*))
 
 ;; compile (LOAD-TIME-VALUE form [read-only-p])
 (defun c-LOAD-TIME-VALUE ()
@@ -4677,7 +4681,7 @@ for-value   NIL or T
 (defun c-SETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (TEXT "Odd number of arguments to SETQ: ~S") *form*))
+    (c-error *form* (TEXT "Odd number of arguments to SETQ: ~S") *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (SETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -4707,7 +4711,7 @@ for-value   NIL or T
                 (push setteri codelist)
                 (seclass-or-f seclass setteri)))
             (progn
-              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
+              (c-error-c symboli (TEXT "Cannot assign to non-symbol ~S.")
                          symboli)
               (push '(VALUES1) codelist))))))))
 
@@ -4716,7 +4720,7 @@ for-value   NIL or T
 (defun c-PSETQ ()
   (test-list *form* 1)
   (when (evenp (length *form*))
-    (c-error (TEXT "Odd number of arguments to PSETQ: ~S") *form*))
+    (c-error *form* (TEXT "Odd number of arguments to PSETQ: ~S") *form*))
   (if (null (cdr *form*))
     (c-NIL) ; (PSETQ) == (PROGN) == NIL
     (if (setqlist-macrop (cdr *form*))
@@ -4736,7 +4740,7 @@ for-value   NIL or T
                 (push anodei anodelist)
                 (push (c-VARSET symboli anodei nil) setterlist)
                 (push 0 *stackz*))
-              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
+              (c-error-c symboli (TEXT "Cannot assign to non-symbol ~S.")
                          symboli))))
         ;; try to reorganize them in a fashion, that as few  (PUSH)'s and
         ;; (POP)'s as possible are necessary:
@@ -4828,7 +4832,7 @@ for-value   NIL or T
                   (set-check-lock 'multiple-value-setq symbol)
                   (push setter codelist)
                   (seclass-or-f seclass setter)))
-              (c-error-c (TEXT "Cannot assign to non-symbol ~S.")
+              (c-error-c symbol (TEXT "Cannot assign to non-symbol ~S.")
                          symbol)))
           (push '(POP) codelist)
           (push 1 *stackz*))))))
@@ -4953,7 +4957,7 @@ for-value   NIL or T
   (let ((symbols (second *form*)))
     (dolist (sym symbols)
       (unless (symbolp sym)
-        (c-error (TEXT "Only symbols may be used as variables, not ~S")
+        (c-error sym (TEXT "Only symbols may be used as variables, not ~S")
                  sym)))
     (if (= (length symbols) 1)
       (c-form `(LET ((,(first symbols) ,(third *form*))) ,@(cdddr *form*)))
@@ -5047,7 +5051,7 @@ for-value   NIL or T
 
 (macrolet ((check-blockname (name)
              `(unless (symbolp ,name)
-                (c-error-c (TEXT "Block name must be a symbol, not ~S")
+                (c-error-c ,name (TEXT "Block name must be a symbol, not ~S")
                            ,name)
                 (setq ,name NIL)))) ; Default-Blockname
 
@@ -5089,7 +5093,8 @@ for-value   NIL or T
     (check-blockname name)
     (let ((a (benv-search name)))
       (cond ((null a) ; this Blockname is invisible
-             (c-error (TEXT "RETURN-FROM block ~S is impossible from here.")
+             (c-error name
+                      (TEXT "RETURN-FROM block ~S is impossible from here.")
                       name))
             ((block-p a) ; visible in *benv* without %benv%
              (let ((anode (c-form (third *form*) (block-for-value a))))
@@ -5147,7 +5152,7 @@ for-value   NIL or T
               (push item taglist)
               (push (make-label 'NIL) labellist))
             (c-error-c
-             (TEXT "Only numbers and symbols are valid tags, not ~S")
+             item (TEXT "Only numbers and symbols are valid tags, not ~S")
              item)))))
     (let* ((*stackz* (cons 0 *stackz*)) ; poss. TAGBODY-Frame
            (tagbody (make-tagbody :fnode *func* :labellist labellist
@@ -5219,10 +5224,10 @@ for-value   NIL or T
   (test-list *form* 2 2)
   (let ((tag (second *form*)))
     (unless (or (symbolp tag) (numberp tag))
-      (c-error (TEXT "Tag must be a symbol or a number, not ~S") tag))
+      (c-error tag (TEXT "Tag must be a symbol or a number, not ~S") tag))
     (multiple-value-bind (a b) (genv-search tag)
       (cond ((null a) ; this Tag is invisible
-             (c-error (TEXT "GO to tag ~S is impossible from here.") tag))
+             (c-error tag (TEXT "GO to tag ~S is impossible from here.") tag))
             ((tagbody-p a) ; visible in *genv* without %genv%
              (if (and (eq (tagbody-fnode a) *func*)
                       (may-UNWIND *stackz* (tagbody-stackz a)))
@@ -5295,8 +5300,10 @@ for-value   NIL or T
                  :code `((FCONST ,(const-value-safe f2))))
                (c-VAR (var-name f2))))
             (t (if (and (null f1) m)
-                 (c-error (TEXT "~S is not a function. It is a locally defined macro.")
-                          name)
+                 (c-error
+                  name
+                  (TEXT "~S is not a function. It is a locally defined macro.")
+                  name)
                  (compiler-error 'c-FUNCTION name))))))
       (let ((funname (car (last *form*))))
         (if (lambda-form-p funname)
@@ -5309,7 +5316,7 @@ for-value   NIL or T
                      (cdr funname))))
             (unless *no-code* (propagate-far-used fnode))
             (c-fnode-function fnode))
-          (c-error (TEXT "Only symbols and lambda expressions are function names, not ~S")
+          (c-error funname (TEXT "Only symbols and lambda expressions are function names, not ~S")
                    funname))))))
 
 ;; compile (%GENERIC-FUNCTION-LAMBDA . lambdabody)
@@ -5359,7 +5366,7 @@ for-value   NIL or T
 
 (macrolet ((err-syntax (specform fdef)
              `(c-error-c
-               (TEXT "Illegal function definition syntax in ~S: ~S")
+               ,fdef (TEXT "Illegal function definition syntax in ~S: ~S")
                ,specform ,fdef))
            (add-fenv (namelist fenvconslist)
              `(do ((namelistr ,namelist (cdr namelistr))
@@ -5778,7 +5785,7 @@ for-value   NIL or T
             (progn
               (push (first symdef) symbols)
               (push (second symdef) expansions))
-            (c-error-c (TEXT "~S: Illegal syntax: ~S")
+            (c-error-c symdef (TEXT "~S: Illegal syntax: ~S")
                        'symbol-macrolet symdef))))
     (let ((*denv* *denv*)
           (*venv*
@@ -5794,10 +5801,10 @@ for-value   NIL or T
           (push-*denv* other-decls)
           (dolist (symbol symbols)
             (if (or (constantp symbol) (proclaimed-special-p symbol))
-              (c-error-c (TEXT "~S: symbol ~S is declared SPECIAL and must not be declared a macro")
+              (c-error-c symbol (TEXT "~S: symbol ~S is declared SPECIAL and must not be declared a macro")
                          'symbol-macrolet symbol)
               (when (memq symbol *specials*)
-                (c-error-c (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
+                (c-error-c symbol (TEXT "~S: symbol ~S must not be declared SPECIAL and a macro at the same time")
                            'symbol-macrolet symbol))))
           (funcall c `(PROGN ,@body-rest)))))))
 
@@ -5818,7 +5825,8 @@ for-value   NIL or T
         (((NOT EVAL) (NOT :EXECUTE)) (setq load-p t compile-p t))
         (((NOT COMPILE)) (setq load-p t eval-p t))
         (((NOT :COMPILE-TOPLEVEL)) (setq load-p t execute-p t))
-        (t (c-error (TEXT "~S situation must be ~S, ~S or ~S, but not ~S")
+        (t (c-error 'situation
+                    (TEXT "~S situation must be ~S, ~S or ~S, but not ~S")
                     'eval-when :load-toplevel :compile-toplevel :execute
                     situation))))
     (let ((form `(PROGN ,@(cddr *form*))))
@@ -5835,7 +5843,7 @@ for-value   NIL or T
         'NIL
         (let ((clause (car clauses)))
           (if (atom clause)
-            (c-error (TEXT "COND clause without test: ~S")
+            (c-error clause (TEXT "COND clause without test: ~S")
                      clause)
             (let ((test (car clause)))
               (if (cdr clause)
@@ -5857,7 +5865,7 @@ for-value   NIL or T
           ((endp clauses))
         (let ((clause (pop clauses)))
           (if (atom clause)
-            (c-error (TEXT "CASE clause without objects: ~S")
+            (c-error clause (TEXT "CASE clause without objects: ~S")
                      clause)
             (let ((keys (car clause)))
               (if default-passed ; was the Default already there?
@@ -5866,7 +5874,7 @@ for-value   NIL or T
                   (progn
                     (when clauses
                       (c-error-c
-                       (TEXT "~S: the ~S clause must be the last one: ~S")
+                       keys (TEXT "~S: the ~S clause must be the last one: ~S")
                        'case keys *form*))
                     (setq keys 'T)
                     (setq default-passed t))
@@ -6143,7 +6151,7 @@ for-value   NIL or T
       (when (and (null restvar) (> |t| (+ r s)))
         ;; too many arguments specified. Is redressed by introduction
         ;; of several additional optional arguments:
-        (c-error-c (TEXT "Too many arguments to ~S") funform)
+        (c-error-c funform (TEXT "Too many arguments to ~S") funform)
         (dotimes (i (- |t| (+ r s)))
           (let ((var (gensym)))
             (setq optvar (append optvar (list var)))
@@ -6154,7 +6162,7 @@ for-value   NIL or T
       (when (and (null applyarglist) (< |t| r))
         ;; too few arguments specified. Is redressed by introduction
         ;; of additional arguments:
-        (c-error-c (TEXT "Too few arguments to ~S") funform)
+        (c-error-c funform (TEXT "Too few arguments to ~S") funform)
         (setq arglist (append arglist
                               (make-list (- r |t|) :initial-element nil)))
         (setq |t| r))
