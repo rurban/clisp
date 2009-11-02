@@ -1,12 +1,25 @@
 2009-11-01  Sam Steingold  <sds@gnu.org>
 
+	* compiler.lisp (c-cerror): extract predefun from ...
+	(c-error): use it; accept DETAIL as the 1st argument
+	(test-list, c-form, test-argument-syntax, c-illegal-syntax)
+	(c-analyze-lambdalist, bind-fixed-var-1, bind-movable-var)
+	(bind-movable-var, c-DECLARE, c-SETQ, c-PSETQ)
+	(c-MULTIPLE-VALUE-SETQ, c-MULTIPLE-VALUE-BIND, check-blockname)
+	(c-RETURN-FROM, c-TAGBODY, c-GO, c-FUNCTION, err-syntax)
+	(c-SYMBOL-MACROLET, c-EVAL-WHEN, c-COND, c-CASE, c-FUNCALL-INLINE):
+	pass DETAIL to C-ERROR
+	* condition.lisp (c-cerror): defun here: signal source-program-error
+
+2009-11-01  Sam Steingold  <sds@gnu.org>
+
 	* compiler.lisp (c-current-location): when returning a non-empty
 	value, terminate it with ": "
 	(c-warning, c-error): C-CURRENT-LOCATION is either empty or is
 	terminated by ": ", so adjust its use
 	* condition.lisp (c-warning): ditto; also bind *ERROR-OUTPUT* to
 	*C-ERROR-OUTPUT*, never to *C-LISTING-OUTPUT* which may be NIL,
-	beause *COMPILE-VERBOSE* does not affect condition handling
+	because *COMPILE-VERBOSE* does not affect condition handling
 
 2009-11-01  Sam Steingold  <sds@gnu.org>
 

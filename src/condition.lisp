@@ -1673,6 +1673,14 @@
            (string-concat (c-current-location) format-string)
            args)))
 
+(defun c-cerror (location detail format-string &rest args)
+  (let ((*error-output* *c-error-output*))
+    (apply #'cerror-of-type (TEXT "Ignore the error and proceed")
+           'simple-source-program-error
+           :form *form* :detail detail
+           (string-concat location format-string)
+           args)))
+
 ;; WARN, CLtL2 p. 912
 ;; (WARN format-string {arg}*)
 (defun warn (format-string &rest args)
