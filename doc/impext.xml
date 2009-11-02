@@ -4819,8 +4819,15 @@ Now you can sum doubles:
       The &form-r;s are &eval;uated in the context of the new thread
       and &symbol-r;s are bound to the result in the thread before &func-r; is
       called. The default value is &default-special-bindings;.</simpara>
+      <simpara>The main purpose of this argument is to initialize some
+      global data that should not be shared between threads, e.g.,
+      &random-state-var;, &readtable-var;.</simpara>
+      <simpara>When using <constant>:INITIAL-BINDINGS</constant> it is
+      best to &cons; the application-specific data in front of
+      &default-special-bindings; or copy and modify it to fit the
+      application needs.</simpara>
       <simpara>Note that &symbol-r;s should be global &special-dec; variables
-      (e.g., declared as such by &defvar;, &defparameter;, &amp;c).</simpara>
+      (e.g., declared as such by &defvar;, &defparameter;, etc).</simpara>
    </listitem></varlistentry>
    <varlistentry><term><constant>:CSTACK-SIZE</constant></term>
     <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
