@@ -4818,8 +4818,10 @@ Now you can sum doubles:
        . &form-r;)</literal>.
       The &form-r;s are &eval;uated in the context of the new thread
       and &symbol-r;s are bound to the result in the thread before &func-r; is
-      called. The default value is &default-special-bindings;.
-   </simpara></listitem></varlistentry>
+      called. The default value is &default-special-bindings;.</simpara>
+      <simpara>Note that &symbol-r;s should be global &special-dec; variables
+      (e.g., declared as such by &defvar;, &defparameter;, &amp;c).</simpara>
+   </listitem></varlistentry>
    <varlistentry><term><constant>:CSTACK-SIZE</constant></term>
     <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
       If 0, the value is decided by the OS.</simpara></listitem></varlistentry>
