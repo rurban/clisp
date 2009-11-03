@@ -3857,7 +3857,7 @@ local maygc Values eval_closure (object closure)
     {
       var uintC count = TheCodevec(codevec)->ccv_numkey; /* number of Keyword-parameters */
       dotimesC(count,count, { pushSTACK(unbound); } ); /* initialize with #<UNBOUND> */
-      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interprete bytecode starting at Byte 12 */
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interpret bytecode starting at Byte 12 */
     }
     goto done;
    apply_cclosure_key:          /* jump to Closure only with &KEY: */
@@ -3884,7 +3884,7 @@ local maygc Values eval_closure (object closure)
        and poss. discard remaining arguments: */
       closure = match_cclosure_key(*closure_,argcount,key_args_pointer,rest_args_pointer);
       codevec = TheCclosure(closure)->clos_codevec;
-      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interprete bytecode starting at Byte 12 */
+      interpret_bytecode(closure,codevec,CCV_START_KEY); /* interpret bytecode starting at Byte 12 */
     }
     goto done;
    apply_cclosure_rest_nokey: {
@@ -3912,7 +3912,7 @@ local maygc Values eval_closure (object closure)
    apply_cclosure_nokey:        /* jump to Closure without &KEY : */
     closure = *closure_; codevec = TheCclosure(closure)->clos_codevec;
    apply_cclosure_nokey_:
-    interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* interprete bytecode starting at Byte 8 */
+    interpret_bytecode(closure,codevec,CCV_START_NONKEY); /* interpret bytecode starting at Byte 8 */
    done:
     CHECK_STACK_C(STACKbefore,closure);
     skipSTACK(1);               /* discard Closure */
@@ -6802,7 +6802,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
     #define CALLC()  \
       { check_STACK(); check_SP();            /* check STACK and SP */ \
         with_saved_context(                                  \
-          /* interprete compiled closure starting at Byte 8 */ \
+          /* interpret compiled closure starting at Byte 8 */ \
           interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_NONKEY); \
         );                                                   \
       }
@@ -6810,7 +6810,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
     #define CALLCKEY()  \
       { check_STACK(); check_SP();            /* check STACK and SP */ \
         with_saved_context(                                  \
-          /* interprete compiled closure starting at Byte 12: */ \
+          /* interpret compiled closure starting at Byte 12: */ \
           interpret_bytecode(value1,TheCclosure(value1)->clos_codevec,CCV_START_KEY); \
         );                                                   \
       }
