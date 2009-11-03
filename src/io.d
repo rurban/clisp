@@ -1472,7 +1472,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
       { a_digit < base }+ { a_ratio { a_digit < base }+ | }
       is matching.
    4. set base:=10.
-   5. try to interprete the token as a  floating-point-number or decimal-integer:
+   5. try to interpret the token as a  floating-point-number or decimal-integer:
       Test, if the syntax
       { a_plus | a_minus | }                               - already read
       { a_digit }* { a_dot { a_digit }* | }
@@ -1915,7 +1915,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
  }
   /* reading of Token finished */
   if (!nullpSv(read_suppress)) /* *READ-SUPPRESS* /= NIL ? */
-    return NIL;        /* yes -> don't interprete Token, NIL as value */
+    return NIL;        /* yes -> don't interpret Token, NIL as value */
   /* Token must be interpreted
    the Token is in TLO(token_buff_1), TLO(token_buff_2), token_escape_flag. */
   if ((!token_escape_flag) && test_dots()) {
@@ -1964,7 +1964,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     }
   }
   { /* Token cannot be interpreted as number.
-   we interprete the Token as Symbol (even, if the Token matches
+   we interpret the Token as Symbol (even if the Token matches
    Potential-number-Syntax, thus being a 'reserved token' (in the spirit
    of CLTL S. 341 top) ).
    first determine the distribution of colons (Characters with
@@ -1975,8 +1975,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
    3. one colon, not at the beginning -> external Symbol
    4. two colons, not at the beginning -> internal Symbol
    In the last three cases no more colons may occur.
-   (It cannot be checked here , that at step 2. the name-part
-   respectively at 3. and 4. the package-part and the name-part
+   (It cannot be checked here that at step 2 the name-part
+   [respectively at 3 and 4 the package-part and the name-part]
    do not have the syntax of a number,
    because TOKEN_ESCAPE_FLAG is valid for the whole Token.
    Compare |USER|:: and |USER|::|| ) */
@@ -3034,7 +3034,7 @@ LISPFUNN(radix_reader,3) {                   /* reads #R */
   /* n must be a Fixnum between 2 and 36 (inclusive): */
   if (posfixnump(STACK_0)
       && (base = posfixnum_to_V(STACK_0), (base >= 2) && (base <= 36))) {
-    return_Values radix_2(base); /* interprete Token as rational number */
+    return_Values radix_2(base); /* interpret Token as rational number */
   } else {
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(0+1));     /* n */
