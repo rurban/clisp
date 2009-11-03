@@ -17436,6 +17436,9 @@ global void delete_thread(clisp_thread_t *thread);
 global void lock_threads (void);
 /* unlocks global thread array */
 global void unlock_threads (void);
+/* UP: creates initial bindings in thread context from alist
+ > initial_bindings: alist of (symbol . form) elements */
+global void initialize_thread_bindings(gcv_object_t *initial_bindings);
 /* UP: Suspends all running threads /besides the current/ at GC safe
    points/regions.
  > lock_heap: if false - the caller already owns the heap lock
