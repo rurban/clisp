@@ -1,3 +1,18 @@
+2009-11-03  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD]: create dynamic bindings for all special variables
+	* zthread.d (initialize_thread_bindings): initializes symbols per
+	thread value cells during thread creation
+	(thread_stub): use it
+	(MAKE-THREAD): check that :initial-bindings is proper list
+	* lispbibl.d (initialize_thread_bindings): declare as global
+	* spvw.d (mt_main_actions): use it
+	* control.d (make_variable_frame): allocate per thread value cells
+	for locally declared special variables (if needed)
+	* eval.d (progv, cod_bind): ditto
+	* threads.lisp (*DEFAULT-SPECIAL-BINDINGS*): initialize per thread
+	bindings with global symbol values
+
 2009-11-01  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (c-cerror): extract predefun from ...

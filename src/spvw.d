@@ -3662,9 +3662,10 @@ local THREADPROC_SIGNATURE mt_main_actions (void *param)
   me->_SP_anchor=(void*)SP();
   /* reinitialize the system thread id */
   TheThread(me->_lthread)->xth_system = xthread_self();
-  /* initialize deferred interrupts */
-  Symbol_thread_value(S(defer_interrupts)) = NIL;
-  Symbol_thread_value(S(deferred_interrupts)) = NIL;
+  /* initialize thread special varaible bindings */
+  pushSTACK(Symbol_value(S(default_special_bindings)));
+  initialize_thread_bindings(&STACK_0);
+  skipSTACK(1);
   /* now we are ready to start main_actions()*/
   main_actions(args);
   thread_cleanup();
@@ -4116,7 +4117,8 @@ local object dlerror_message (void) {
   end_system_call();
  #if defined(HAVE_DLERROR)
   var char * e = dlerror();
-  return e == NULL ? O(unknown_error) : asciz_to_string(e,O(misc_encoding));
+  /* g++ needs explicit cast here */
+  return e == NULL ? (object)O(unknown_error) : asciz_to_string(e,O(misc_encoding));
  #elif defined(WIN32_NATIVE)
   var char* buf;
   /* note that this message is likely to be less informative

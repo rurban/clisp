@@ -156,6 +156,38 @@ global maygc void thread_cleanup (void) {
   });
 }
 
+/* UP: creates initial bindings in thread context from alist
+ > initial_bindings: alist of (symbol . form) elements */
+global void initialize_thread_bindings(gcv_object_t *initial_bindings) {
+  /* do not defer interrupts by default and while evaluating initial forms */
+  Symbol_thread_value(S(defer_interrupts)) = NIL;
+  Symbol_thread_value(S(deferred_interrupts)) = NIL;
+  if (!missingp(*initial_bindings)) {
+    var uintC bind_count = 0;
+    var gcv_object_t *bottom = &STACK_0;
+    while (!endp(*initial_bindings)) { /* it is proper list */
+      var object pair=Car(*initial_bindings);
+      if (consp(pair) && symbolp(Car(pair))) {
+        var object sym = Car(pair);
+        /* only if the symbol already has per thread value cell.
+           we do not want to add new one here. */
+        if (TheSymbol(sym)->tls_index != SYMBOL_TLS_INDEX_NONE) {
+          /* look in the stack whether we have already bound this symbol */
+          var gcv_object_t *top = &STACK_0;
+          for (;bottom != top && !eq(*top,sym); top skipSTACKop 1) ;
+          if (bottom == top) { /* not found */
+            pushSTACK(sym); bind_count++; /* push the symbol */
+            eval(Cdr(pair)); /* maygc */
+            Symbol_thread_value(STACK_0) = value1;
+          }
+        }
+      }
+      *initial_bindings = Cdr(*initial_bindings);
+    }
+    skipSTACK(bind_count); /* restore the stack */
+  }
+}
+
 /* All newly created threads start here.*/
 local THREADPROC_SIGNATURE thread_stub(void *arg)
 {
@@ -190,27 +222,8 @@ local THREADPROC_SIGNATURE thread_stub(void *arg)
     finish_entry_frame(DRIVER,returner,,{skipSTACK(2+3);goto end_of_thread;});
     /* initialize the low level i/o stuff for this thread*/
     init_reader_low(me);
-    /* create special vars initial dynamic bindings.
-       do not create DYNBIND frame since anyway we are at the
-       "top level" of the thread. */
-    if (!missingp(*initial_bindings)) {
-      while (!endp(*initial_bindings)) {
-        var object pair=Car(*initial_bindings);
-        if (consp(pair) && symbolp(Car(pair))) {
-          /* only if the symbol is special per thread variable */
-          if (TheSymbol(Car(pair))->tls_index != SYMBOL_TLS_INDEX_NONE) {
-            eval(Cdr(pair)); /* maygc */
-            pair=Car(*initial_bindings);
-            Symbol_thread_value(Car(pair)) = value1;
-          }
-        }
-        *initial_bindings = Cdr(*initial_bindings);
-      }
-    }
-    /* to be on the safe side - always set *defer-interrupts* to nil and
-     *deferred-interrupts* to empty list - user may pass bad initial bindings*/
-    Symbol_thread_value(S(defer_interrupts)) = NIL;
-    Symbol_thread_value(S(deferred_interrupts)) = NIL;
+    /* initialize thread special varaible bindings */
+    initialize_thread_bindings(initial_bindings);
     funcall(*funptr,0); /* call fun */
     reset(0);  /* unwind what we have till now */
   }
@@ -256,13 +269,17 @@ LISPFUN(make_thread,seclass_default,1,0,norest,key,4,
   /* check initial bindings */
   if (!boundp(STACK_0)) /* if not bound set to mt:*default-special-bidnings* */
     STACK_0 = Symbol_value(S(default_special_bindings));
+  /* check that the list is proper one */
   STACK_0 = check_list(STACK_0);
+  var object tail = NIL;
+  var object len = list_length(STACK_0, &tail);
+  if (!nullp(tail)) error_proper_list_dotted(S(make_thread),tail);
+  if (nullp(len)) error_proper_list_circular(S(make_thread),STACK_0);
   /* check the function object has been passed*/
   if (!functionp(STACK_2))
     STACK_2 = check_function_replacement(STACK_2);
   /* set thread name */
   STACK_1 = check_name_arg(STACK_1,Closure_name(STACK_2));
-
   /* do allocations before thread locking */
   pushSTACK(allocate_thread(&STACK_1)); /* put it in GC visible place */
   pushSTACK(allocate_cons());
