@@ -35,26 +35,24 @@
 (defvar *defer-interrupts* nil)
 (defvar *deferred-interrupts* '()) ; list of pending interrupts
 
-;; TODO: add more variables (something should done about the
-;; standartd input/output streams.
+;; TODO: add more variables (something should be done about the
+;; standartd input/output streams).
 (defvar *DEFAULT-SPECIAL-BINDINGS*
-  '((*random-state* . (make-random-state t))
-    (*defer-interrupts* . nil)
-    (*deferred-interrupts* . nil)
-    (*gensym-counter* . 0)
-    (ext::*command-index* . 0)
-    (*print-base* . 10)
-    (*print-length* . nil)
-    (*print-level* . nil)
-    (*print-circle* . nil)
-    (*print-radix* . nil)
-    (*print-case* . :upcase)
-    (*print-gensym* . t)
-    (*print-pretty* . t)
-    (*print-readably* . nil)
-    (*read-suppress* . nil)
-    (*read-default-float-format* . 'single-float)
-    (*readtable* . (copy-readtable nil))))
+  '((*random-state* . *random-state*)
+    (*gensym-counter* . *gensym-counter*)
+    (ext::*command-index* . ext::*command-index*)
+    (*print-base* . *print-base*)
+    (*print-length* . *print-length*)
+    (*print-level* . *print-level*)
+    (*print-circle* . *print-circle*)
+    (*print-radix* . *print-radix*)
+    (*print-case* . *print-case*)
+    (*print-gensym* . *print-gensym*)
+    (*print-pretty* . *print-pretty*)
+    (*print-readably* . *print-readably*)
+    (*read-suppress* . *read-suppress*)
+    (*read-default-float-format* . *read-default-float-format*)
+    (*readtable* . (copy-readtable))))
 
 (defmacro with-deferred-interrupts (&body body)
   `(let ((*defer-interrupts* t)
