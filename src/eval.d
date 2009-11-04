@@ -6429,11 +6429,11 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       var uintL n;
       U_operand(n);
     #if defined(MULTITHREAD)
-      var Symbol sym=TheSymbol(TheCclosure(closure)->clos_consts[n]);
-      if (sym->tls_index == SYMBOL_TLS_INDEX_NONE) {
+      var object symbol = TheCclosure(closure)->clos_consts[n];
+      if (TheSymbol(symbol)->tls_index == SYMBOL_TLS_INDEX_NONE) {
         var uintC mvc = mv_count;
         mv_to_STACK(); /* save mv_space */
-        with_saved_context({add_per_thread_special_var(sym); /* maygc */});
+        with_saved_context({add_per_thread_special_var(symbol); /* maygc */});
         STACK_to_mv(mvc); /* restore mv_space */
       }
     #endif
