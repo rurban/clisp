@@ -169,17 +169,19 @@ global void initialize_thread_bindings(gcv_object_t *initial_bindings) {
       var object pair=Car(*initial_bindings);
       if (consp(pair) && symbolp(Car(pair))) {
         var object sym = Car(pair);
-        /* only if the symbol already has per thread value cell.
-           we do not want to add new one here. */
-        if (TheSymbol(sym)->tls_index != SYMBOL_TLS_INDEX_NONE) {
-          /* look in the stack whether we have already bound this symbol */
-          var gcv_object_t *top = &STACK_0;
-          for (;bottom != top && !eq(*top,sym); top skipSTACKop 1) ;
-          if (bottom == top) { /* not found */
-            pushSTACK(sym); bind_count++; /* push the symbol */
-            eval(Cdr(pair)); /* maygc */
-            Symbol_thread_value(STACK_0) = value1;
+        /* look in the stack whether we have already bound this symbol */
+        var gcv_object_t *top = &STACK_0;
+        for (;bottom != top && !eq(*top,sym); top skipSTACKop 1) ;
+        if (bottom == top) { /* not found */
+          pushSTACK(sym); bind_count++; /* push the symbol */
+          /* if the symbol does not have per thread value cell - add one */
+          if (TheSymbol(sym)->tls_index == SYMBOL_TLS_INDEX_NONE) {
+            pushSTACK(pair);
+            add_per_thread_special_var(sym); /* maygc */
+            pair = popSTACK();
           }
+          eval(Cdr(pair)); /* maygc */
+          Symbol_thread_value(STACK_0) = value1;
         }
       }
       *initial_bindings = Cdr(*initial_bindings);
