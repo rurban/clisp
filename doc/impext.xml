@@ -4790,6 +4790,14 @@ Now you can sum doubles:
    visibly modified with regard to the equivalence test of H, then the
    consequences are unspecified if O1 is used as a key in further
    operations on H...</para></blockquote></para>
+
+<section id="mt-random"><title>&random; and &random-state-t;</title>
+<para>&random; modifies a &random-state-t; &without; locking, which
+means that you &cannot-e; carelessly share such objects between threads.
+However, &random-state-var; is bound per-thread (see &make-thread; and
+&default-special-bindings;), i.e., each thread has its own value and
+thus &random; &is-e; thread-safe.</para></section>
+
 </section>
 
 <section id="mt-unsafe"><title>Examples of thread-unsafe code</title>
