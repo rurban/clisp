@@ -4833,10 +4833,7 @@ thus &random; &is-e; thread-safe.</para></section>
       <simpara>When using <constant>:INITIAL-BINDINGS</constant> it is
       best to &cons; the application-specific data in front of
       &default-special-bindings; or copy and modify it to fit the
-      application needs.</simpara>
-      <simpara>Note that &symbol-r;s should be global &special-dec; variables
-      (e.g., declared as such by &defvar;, &defparameter;, etc).</simpara>
-   </listitem></varlistentry>
+      application needs.</simpara></listitem></varlistentry>
    <varlistentry><term><constant>:CSTACK-SIZE</constant></term>
     <listitem><simpara>the size in bytes of the control (&c-lang;) stack.
       If 0, the value is decided by the OS.</simpara></listitem></varlistentry>
