@@ -3320,9 +3320,10 @@ for-value   NIL or T
     (when deprecation-info
       (if *compiling-from-file*
         (pushnew name *deprecated-functions* :test #'eq)
-        (apply #'c-warn (string-concat
-                         (TEXT "Function ~S is deprecated.") " ~@?")
-                        deprecation-info)))))
+        ;; WARNING implies non-NIL 3rd return value (failure-p) from COMPILE
+        (apply #'c-style-warn (string-concat
+                               (TEXT "Function ~S is deprecated.") " ~@?")
+               deprecation-info)))))
 
 ;; note global OPTIMIZE proclamations
 ;; used by c-PROCLAIM and PROCLAIM in control.d

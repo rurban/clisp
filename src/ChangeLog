@@ -1,3 +1,10 @@
+2009-11-05  Sam Steingold  <sds@gnu.org>
+
+	* compiler.lisp (note-function-used): use STYLE-WARNING for
+	deprecated functions because WARNING implies non-NIL 3rd return
+	value (failure-p) from COMPILE which is an overkill
+	* deprecated.lisp (type-expand-1): ditto
+
 2009-11-05  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* zthread.d (initialize_thread_bindings): allocate per thread value
