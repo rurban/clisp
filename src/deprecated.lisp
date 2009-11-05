@@ -22,9 +22,9 @@
 #+compiler
 (define-compiler-macro type-expand-1 (typespec)
   (let ((ret `(type-expand ,typespec t)))
-    (c-warn "~s is deprecated and will be removed in a future release.
-Use ~s instead"
-            'type-expand-1 ret)
+    (c-style-warn "~S is deprecated and will be removed in a future release.
+Use ~S instead."
+                  'type-expand-1 ret)
     ret))
 
 ;; ------------------------------------------------
