@@ -3966,7 +3966,7 @@ echotab "${HLN} clisp-link \$(TOPDIR)/"
 echotab "mkdir \$(TOPDIR)/linkkit"
 echotab "${HLN} ${LINKKIT} \$(TOPDIR)/linkkit/"
 echotab "mkdir \$(TOPDIR)/build-aux"
-echotab "cd build-aux && ${HLN} ${BUILD_AUX} \$(TOPDIR)/build-aux"
+echotab "cd build-aux && ${HLN} ${BUILD_AUX} \$(FULLTOPDIR)/build-aux"
 echo_dist_modules "\$(FULLTOPDIR)" ${HLN} ""
 # For building the `clisp' executable.
 if test -z "$BINARY_DISTRIB"; then
