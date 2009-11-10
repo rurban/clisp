@@ -1,3 +1,7 @@
+2009-11-10  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (distrib): use FULLTOPDIR for build-aux
+
 2009-11-05  Sam Steingold  <sds@gnu.org>
 
 	* compiler.lisp (note-function-used): use STYLE-WARNING for
