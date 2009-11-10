@@ -658,7 +658,7 @@ for module in ${all_modules}; do
   mdir=${ABS_SRCDIR}/modules/${module}
   test -d ${mdir} || fail "$0: ${mdir} is not an exisiting directory"
   if test -r ${mdir}/configure.in; then
-    grep cl_cv_have_ffcall ${mdir}/configure.in > /dev/null 2>&1 && \
+    grep 'CL_MODULE_COMMON_CHECKS.*ffi' ${mdir}/configure.in > /dev/null 2>&1 && \
       ffi_modules=${ffi_modules}" ${module}"
   elif grep '.*\.c.*\.fas.*:\|.*\.fas.*\.c.*:' ${mdir}/Makefile > /dev/null 2>&1 ; then
     ffi_modules=${ffi_modules}" ${module}"

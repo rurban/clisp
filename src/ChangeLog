@@ -1,5 +1,10 @@
 2009-11-10  Sam Steingold  <sds@gnu.org>
 
+	* configure (ffi_modules): fix the configure.in test for module
+	requiring FFI
+
+2009-11-10  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (distrib): use FULLTOPDIR for build-aux
 
 2009-11-05  Sam Steingold  <sds@gnu.org>
