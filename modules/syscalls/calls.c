@@ -17,6 +17,12 @@
 #include "clisp.h"
 #include "config.h"
 
+/* bug #[ 1507628 ]: #define unused (void) breaks clisp 2.38 on arm
+ the reason is that <sys/user.h> uses `unused' as a struct field.
+ it is included by <sys/procfs.h> which is included by <sys/ucontext.h>
+ which is included by <signal.h> which is included by <sys/wait.h> */
+#undef unused
+
 #if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
 #endif
@@ -56,7 +62,7 @@
 #endif
 #include <limits.h>
 #if !defined(NZERO)             /* should be defined in <limits.h> */
-#  define NZERO 20
+# define NZERO 20
 #endif
 #if defined(HAVE_SYSLOG_H)
 # include <syslog.h>
@@ -65,14 +71,7 @@
 # include <utmpx.h>
 #endif
 #if defined(HAVE_SIGNAL_H)
-/* bug #[ 1507628 ]: #define unused (void) breaks clisp 2.38 on arm */
-# undef unused
-# include <signal.h>            /* used unused */
-# ifdef GNU     /* see lispbibl.d */
-#  define unused  (void)
-# else
-#  define unused
-# endif
+# include <signal.h>
 #endif
 #if defined(HAVE_FCNTL_H)
 # include <fcntl.h>
