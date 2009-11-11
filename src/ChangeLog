@@ -1,6 +1,7 @@
 2009-11-11  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in (cpu): fail when not set
+	(fail): add function, use everywhere
 
 2009-11-10  Sam Steingold  <sds@gnu.org>
 

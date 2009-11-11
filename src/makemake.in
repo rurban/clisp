@@ -9,6 +9,8 @@
 HSDEFAULT="http://www.ai.mit.edu/projects/iiip/doc/CommonLISP/HyperSpec"
 hyperspec=${CLHSROOT:-${HSDEFAULT}}
 
+fail () { echo "$0: $*" >&2; exit 1; }
+
 info_help () {
 cat << EOP
 Usage: ./makemake [options] [debug] > Makefile
@@ -256,7 +258,7 @@ EOF
       package=`echol "$1" | sed -e 's/^-*without-//' -e 's/^-*with-no-*//'`
       # Delete all the valid chars; see if any are left.
       if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "$0: $package: invalid package name" >&2; exit 1
+        fail "$package: invalid package name"
       fi
       my_eval "with_`echol $package|sed s/-/_/g`=no"
       test "$package" = dynamic-modules -o "$package" = dynamic-ffi || \
@@ -271,9 +273,8 @@ EOF
       esac
       package=`echol "${package}" | sed -e 's/=.*//'`
       # Delete all the valid chars; see if any are left.
-      if test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "$0: $package: invalid package name" >&2; exit 1
-      fi
+      test -n "`echol $package|sed 's/[-a-zA-Z0-9_]*//g'`" && \
+        fail "$package: invalid package name";
       if test "${packopt}" = "on"; then
         packopt=yes
       else
@@ -289,9 +290,8 @@ EOF
     -disable-* | --disable-*)
       feature=`echol "$1"|sed 's/-*disable-//'`
       # Delete all the valid chars; see if any are left.
-      if test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "$0: $feature: invalid feature name" >&2; exit 1
-      fi
+      test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`" && \
+        fail "$feature: invalid feature name"
       feature=`echol $feature | sed 's/-/_/g'`
       my_eval "enable_$feature=no"
       module_configure_flags="$module_configure_flags $1"
@@ -300,9 +300,8 @@ EOF
     -enable-* | --enable-*)
       feature=`echol "$1"|sed 's/-*enable-//'`
       # Delete all the valid chars; see if any are left.
-      if test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`"; then
-        echol "$0: $feature: invalid feature name" >&2; exit 1
-      fi
+      test -n "`echol $feature|sed 's/[-a-zA-Z0-9_]*//g'`" && \
+        fail "$feature: invalid feature name"
       feature=`echol $feature | sed 's/-/_/g'`
       my_eval "enable_$feature=yes"
       module_configure_flags="$module_configure_flags $1"
@@ -681,7 +680,7 @@ if [ $TSYS = win32msvc ] ; then
         CFLAGS=${CFLAGS}" -Zi -Od -GZ"
       fi
       ;;
-    *) echol "$0: unsupported compiler [${COMPILER}]" >&2; exit 1
+    *) fail "unsupported compiler [${COMPILER}]"
       ;;
   esac
 fi
@@ -1114,9 +1113,7 @@ esac
 #   cpu=hppa ;;
 # esac
 
-if test -z "$cpu"; then
-  echo "$0: failed to set cpu" >&2; exit 1;
-fi
+test -z "$cpu" && fail "failed to set cpu"
 
 if [ "${verbose}" = true -o "${verbose}" = yes ]; then
   cat <<EOF >&2
@@ -1315,7 +1312,7 @@ else
         ;;
       msvc7) XCPP="$XCPP -D_MSC_VER=1300 -D_INTEGRAL_MAX_BITS=64 -I\$(MSVCDIR)/PlatformSDK/include"
         ;;
-      *) echol "$0: unsupported compiler [${COMPILER}]" >&2; exit 1
+      *) fail "unsupported compiler [${COMPILER}]"
         ;;
     esac
     XCFLAGS="$CFLAGS -U__GNUC__ -DANSI -D_M_IX86=500 -D_WIN32 -I\$(MSVCDIR)/include"
@@ -1440,8 +1437,7 @@ if [ "${with_dynamic_modules}" != no ]; then
     darwin*)
       XCC_CREATESHARED='${CC} -bundle -flat_namespace -undefined suppress -o $lib $libs'
       ;;
-    *)
-      echo "$0: how do you create a shared library on ${host_os}?" >&2;
+    *) echo "$0: how do you create a shared library on ${host_os}?" >&2;
       ;;
   esac
 fi
@@ -1597,15 +1593,12 @@ if [ "${with_readline}" = no ]; then
 else
   FILES='libnoreadline.a '$FILES
   if grep "#undef HAVE_READLINE" config.h >/dev/null 2>&1; then
-    if [ "${with_readline}" != ifpossible ]; then
-      # --with-readline was supplied ==> barf when readline is missing
-      echol "$0: configure failed to detect readline" >&2
-      exit 1
-    fi
+    # --with-readline was supplied ==> barf when readline is missing
+    test "${with_readline}" != ifpossible && \
+      fail "configure failed to detect readline"
   else                          # readline is present
-    if [ "${with_dynamic_ffi}" != no ]; then
+    test "${with_dynamic_ffi}" != no && \
       BASE_MODULES=${BASE_MODULES}" readline"
-    fi
   fi
 fi
 
@@ -2803,9 +2796,7 @@ if [ -n "$USE_GETTEXT" ] ; then
         break
       fi
     done
-    if test -z "${LINGUAS}"; then
-      echol "$0: missing ${srcdir}/po/LINGUAS" >&2; exit 1
-    fi
+    test -z "${LINGUAS}" && fail "missing ${srcdir}/po/LINGUAS"
     for lang in ${LINGUAS}; do
       echotab "mkdir -p locale${NEXT_}${lang}${NEXT_}LC_MESSAGES"
       echotab "\$(LN_S) po${NEXT_}${lang}.gmo locale${NEXT_}${lang}${NEXT_}LC_MESSAGES${NEXT_}clisp.mo"
