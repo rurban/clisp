@@ -1,5 +1,10 @@
 2009-11-11  Sam Steingold  <sds@gnu.org>
 
+	* modules/syscalls/calls.c (unused): undef unused before all the
+	system includes and do not restore it because it is not used here
+
+2009-11-11  Sam Steingold  <sds@gnu.org>
+
 	* makemake.in (cpu): fail when not set
 	(fail): add function, use everywhere
 
