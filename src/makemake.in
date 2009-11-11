@@ -1097,12 +1097,6 @@ case $TSYS in mips | r4000)
 # was: case $TSYS in mips | ip* | sgi | risc | r4000)
   cpu=mips ;;
 esac
-if [ "$host_cpu" = mips ] ; then
-  cpu=mips
-fi
-if [ "$host_cpu" = mips64 ] ; then
-  cpu=mips64
-fi
 if [ "$host_cpu" = i386 -o "$host_cpu" = i486 -o "$host_cpu" = i586 -o "$host_cpu" = i686 -o "$host_cpu" = i786 -o $TSYS = i386 -o $TSYS = i486 -o $TSYS = i586 -o $TSYS = i686 -o $TSYS = i786 -o $TOS = win32 ] ; then
   cpu=i386
 fi
@@ -1111,12 +1105,18 @@ case "$host_cpu" in
   arm*)  cpu=arm  ;;
   x86_64) cpu=x86_64 ;;
   ia64)   cpu=ia64 ;;
+  mips)   cpu=mips ;;
+  mips64*) cpu=mips64 ;;
 esac
 # Probably obsolete.
 # case $TSYS in 9000/7* | 9000/8* | hp7*)
 #   # HP 9000 Series 700, 800
 #   cpu=hppa ;;
 # esac
+
+if test -z "$cpu"; then
+  echo "$0: failed to set cpu" >&2; exit 1;
+fi
 
 if [ "${verbose}" = true -o "${verbose}" = yes ]; then
   cat <<EOF >&2
