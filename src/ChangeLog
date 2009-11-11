@@ -1,3 +1,7 @@
+2009-11-11  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in (cpu): fail when not set
+
 2009-11-10  Sam Steingold  <sds@gnu.org>
 
 	* configure (ffi_modules): fix the configure.in test for module
