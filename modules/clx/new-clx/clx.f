@@ -442,6 +442,12 @@ For further for grepability I use the following tags in comments:
 #include <X11/extensions/shape.h>
 ##endif
 
+#ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
+# define unused  (void)
+#else
+# define unused
+#endif
+
 #define DEBUG_CLX 0
 
 #ifndef FOREIGN
@@ -1151,7 +1157,7 @@ static XFontStruct *get_font_info_and_display (object obj, object* fontf,
     }
 #  endif
   } else if (dpyf) /* caller wants the display, so get it! */
-    (void*) get_font_and_display (STACK_0, dpyf);
+    unused get_font_and_display (STACK_0, dpyf);
 
   if (fontf) *fontf = STACK_0;
 
@@ -3193,7 +3199,7 @@ DEF_GCONTEXT_SLOT2(TILE,         pixmap,        tile,              GCTile)
 DEFUN(XLIB:GCONTEXT-CACHE-P, context)
 {
   Display *dpy;
-  (void*) get_gcontext_and_display (STACK_0, &dpy);
+  unused get_gcontext_and_display (STACK_0, &dpy);
   /* libX seems to cache all GCs */
   VALUES1(T);
   skipSTACK(1);
@@ -3202,7 +3208,7 @@ DEFUN(XLIB:GCONTEXT-CACHE-P, context)
 DEFUN(XLIB:SET-GCONTEXT-CACHE-P, arg1 arg2)
 {
   Display *dpy;
-  (void*) get_gcontext_and_display (STACK_1, &dpy);
+  unused get_gcontext_and_display (STACK_1, &dpy);
   if (nullp(STACK_0)) {
     pushSTACK(TheSubr (subr_self)->name);
     error(error_condition,"~S: This CLX implemenation does not allow uncached graphics contexts.");
@@ -3214,7 +3220,7 @@ DEFUN(XLIB:SET-GCONTEXT-CACHE-P, arg1 arg2)
 /* xlib:gcontext-dashes gcontext */
 DEFUN(XLIB:GCONTEXT-DASHES, context)
 {
-  (void*) get_gcontext_and_display (STACK_0, 0); /* only type checking here */
+  unused get_gcontext_and_display (STACK_0, 0); /* only type checking here */
 
   /* Now see if there is a %dashes slot? */
   get_slot(STACK_0,`XLIB::%DASHES`);
@@ -3280,7 +3286,7 @@ DEFUN(XLIB::SET-GCONTEXT-DASHES, gcontext dashes)
 
 DEFUN(XLIB:GCONTEXT-CLIP-MASK, context)
 {
-  (void*) get_gcontext_and_display (STACK_0, 0); /* only type checking here */
+  unused get_gcontext_and_display (STACK_0, 0); /* only type checking here */
 
   get_slot(STACK_0,`XLIB::%CLIP-MASK`);
   if (eq(value1,nullobj)) value1 = `:NONE`;
