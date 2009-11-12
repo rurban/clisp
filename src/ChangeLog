@@ -6,7 +6,8 @@
 	* modules/gtk2/gtk.lisp, modules/syscalls/calls.c:
 	no need to "#under unused" anymore
 	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
-	use (void*) instead of unused
+	define unused which is actually used here a few times,
+	but only _after_ all #include's
 
 2009-11-11  Sam Steingold  <sds@gnu.org>
 
