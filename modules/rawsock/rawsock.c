@@ -1550,7 +1550,7 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
 
 void module__rawsock__init_function_2 (module_t* module);
 void module__rawsock__init_function_2 (module_t* module) {
-  unused module;
+  (void*)module;                /* unused */
 #if defined(WIN32_NATIVE)
   HMODULE ws2 = LoadLibrary("ws2_32.dll");
   if (ws2 != NULL) {
