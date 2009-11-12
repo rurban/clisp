@@ -5,6 +5,8 @@
 	* modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c:
 	* modules/gtk2/gtk.lisp, modules/syscalls/calls.c:
 	no need to "#under unused" anymore
+	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c:
+	use (void*) instead of unused
 
 2009-11-11  Sam Steingold  <sds@gnu.org>
 
