@@ -1113,7 +1113,7 @@ esac
 #   cpu=hppa ;;
 # esac
 
-test -z "$cpu" && fail "failed to set cpu"
+test -z "$cpu" && cpu=${host_cpu}
 
 if [ "${verbose}" = true -o "${verbose}" = yes ]; then
   cat <<EOF >&2
