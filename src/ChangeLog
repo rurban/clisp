@@ -1,3 +1,10 @@
+2009-11-12  Sam Steingold  <sds@gnu.org>
+
+	* lispbibl.d (unused): do not export to clisp.h, it is never used
+	in any module and causes trouble on some platforms
+	* modules/gtk2/gtk.lisp, modules/syscalls/calls.c:
+	no need to "#under unused" anymore
+
 2009-11-11  Sam Steingold  <sds@gnu.org>
 
 	* modules/syscalls/calls.c (unused): undef unused before all the
