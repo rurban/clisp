@@ -1,3 +1,9 @@
+2009-11-13  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* package.d (intern): perform additional symbol lookup after CERROR
+	when package is locked - the symbol may have been interned while
+	processing handlers (or by CERROR itself)
+
 2009-11-12  Sam Steingold  <sds@gnu.org>
 
 	* lispbibl.d (unused): do not export to clisp.h, it is never used
