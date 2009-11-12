@@ -822,11 +822,26 @@ modexp maygc uintBWL intern
   var gcv_object_t *pack_ = &STACK_1;
   var gcv_object_t *string_ = &STACK_2;
   var gcv_object_t *newsym_ = &STACK_0;
+  if (pack_locked_p(*pack_)) {
+    /* when STRING comes from READ, it points to a re-usable buffer
+       that will be overwritten during the CERROR i/o
+       therefore we must copy and save it */
+    pushSTACK(coerce_ss(*string_));
+    cerror_package_locked(S(intern),*pack_,STACK_0);
+    *string_ = popSTACK();
+    /* CERROR may do interesting things: it goes through CLCS, i.e., CLOS,
+       and can compute effective methods and thus create symbols, so... */
+    result = find_symbol(string,invert,pack,sym_);
+    if (!(result==0)) {
+      skipSTACK(3);
+      return result & 3; /* found -> finished */
+    }
+  }
   /* in single thread - there is no need to check again */
   #ifndef MULTITHREAD
     #define UNLESS_FIND_SYMBOL
   #else
-    #define UNLESS_FIND_SYMBOL                               \
+    #define UNLESS_FIND_SYMBOL                           \
       result = find_symbol(*string_,invert,*pack_,sym_); \
       if (!(result==0)) {                                \
         *newsym_ = *sym_; /* store at gc safe location */\
@@ -839,14 +854,6 @@ modexp maygc uintBWL intern
        been interned */
     UNLESS_FIND_SYMBOL
     {
-      if (pack_locked_p(*pack_)) {
-        /* when STRING comes from READ, it points to a re-usable buffer
-           that will be overwritten during the CERROR i/o
-           therefore we must copy and save it */
-        pushSTACK(coerce_ss(*string_));
-        cerror_package_locked(S(intern),*pack_,STACK_0);
-        *string_ = popSTACK();
-      }
       if (invert)
         *string_ = string_invertcase(*string_);
       *string_ = coerce_imm_ss(*string_); /* string --> immutable simple-string */
