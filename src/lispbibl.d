@@ -2050,7 +2050,6 @@ typedef enum {
   #define unused
  #endif
 #endif
-%% export_def(unused);
 
 /* Consensys and Solaris: "#define DS 3", "#define SP ESP", "#define EAX 11".
  Grr... */
