@@ -642,6 +642,12 @@ Add -DNO_SINGLEMAP -DNO_TRIVIALMAP to the CFLAGS, or, equivalently, pass
 "--disable-mmap" to ./configure.
 
 
+* On PA-RISC 2 (hppa2.0) running Linux:
+
+Add -DNO_SINGLEMAP -DNO_TRIVIALMAP to the CFLAGS, or, equivalently, pass
+"--disable-mmap" to ./configure.
+
+
 * On platforms using AFS:
 
 You may get an "Invalid cross-device link" error.
