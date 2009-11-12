@@ -129,8 +129,7 @@
   nil)
 
 ;; this must come AFTER all callbacks because they use value1
-;; undefine some clisp definitions used by gtk.h
-(c-lines "#undef unused~%")
+;; undefine some clisp.h definitions used by gtk.h
 (c-lines "~{#undef value~d~%~}" '(1 2 3 4 5))
 
 ;; w32api/basetyps.h defines interface to struct

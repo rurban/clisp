@@ -17,12 +17,6 @@
 #include "clisp.h"
 #include "config.h"
 
-/* bug #[ 1507628 ]: #define unused (void) breaks clisp 2.38 on arm
- the reason is that <sys/user.h> uses `unused' as a struct field.
- it is included by <sys/procfs.h> which is included by <sys/ucontext.h>
- which is included by <signal.h> which is included by <sys/wait.h> */
-#undef unused
-
 #if defined(HAVE_SYS_TIME_H)
 # include <sys/time.h>
 #endif
