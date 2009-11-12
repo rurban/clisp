@@ -2,6 +2,7 @@
 
 	* lispbibl.d (unused): do not export to clisp.h, it is never used
 	in any module and causes trouble on some platforms
+	* modules/berkeley-db/bdb.c, modules/dirkey/dirkey.c:
 	* modules/gtk2/gtk.lisp, modules/syscalls/calls.c:
 	no need to "#under unused" anymore
 
