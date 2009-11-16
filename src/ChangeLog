@@ -1,3 +1,9 @@
+2009-11-15  Sam Steingold  <sds@gnu.org>
+
+	* makemake.in: dynamic modules do not work with C++ because of
+	symbol mangling, so with_dynamic_modules defaults to !CC_CPLUSPLUS;
+	and fail if --with-dynamic-modules is specified with a C++ compiler
+
 2009-11-13  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* package.d (intern): perform additional symbol lookup after CERROR
