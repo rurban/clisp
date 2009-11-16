@@ -215,7 +215,7 @@ with_readline=ifpossible # no effect if no libreadline found
 with_gettext=yes         # no effect if no glibc/libintl found
 with_unicode=yes
 with_dynamic_ffi=no      # often set to yes by the toplevel configure
-with_dynamic_modules=yes
+with_dynamic_modules=default
 with_threads=no
 with_gmalloc=no
 # i18n: essential for internationalized programs
@@ -662,6 +662,21 @@ fi
 
 # DEBUGGING should be debug or nothing
 DEBUGGING=$1
+
+if [ "${with_dynamic_modules}" = default ]; then
+  # if --with-dynamic-modules is not supplied:
+  # C=yes, C++=no because of symbol mangling:
+  # ;; Loading module libsvm from lib-FOO.so
+  # SYSTEM::DYNLOAD-MODULES: "dlsym"("module__FOO__init_function_1") ->
+  # "lib-FOO.so: undefined symbol: module__FOO__init_function_1"
+  # $ nm lib-FOO.so | grep module__FOO__init_function_1
+  # 000008f8 T _Z31module__FOO__init_function_1P8module_t
+  if [ "${CC_CPLUSPLUS}" = true ]; then with_dynamic_modules=no
+  else with_dynamic_modules=yes;
+  fi
+elif [ "${with_dynamic_modules}" = yes -a "${CC_CPLUSPLUS}" = true ]; then
+  fail "dynamic modules do not work with C++ because of symbol mangling"
+fi
 
 # now set appropriate MSVC cflags
 if [ $TSYS = win32msvc ] ; then
