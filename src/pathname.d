@@ -7985,7 +7985,7 @@ LISPFUNN(delete_directory,1)
 }
 
 LISPFUNN(rename_directory,2)
-{ /* (RENAME-DIRECTORY dirname newname) removes the subdirectory pathname. */
+{ /* (RENAME-DIRECTORY dirname newname) renames an existing directory. */
   var object newdir = shorter_directory(STACK_0,true); STACK_0 = newdir;
   var object olddir = shorter_directory(STACK_2,true); STACK_2 = olddir;
   with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
