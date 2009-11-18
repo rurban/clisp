@@ -270,7 +270,10 @@
     and <function role="unix">link</function> fails (e.g., because the
     &source-r; and &dest-r; are on different devices), fall back to &copy-k;.
    </simpara><simpara>Both &source-r; and &dest-r; may be wild, in which
-    case &translate-pathname; is used.</simpara></listitem></varlistentry>
+    case &translate-pathname; is used.</simpara>
+   <simpara>The meaning and defaults of <constant>:IF-EXISTS</constant> and
+    &if-does-not-exist; are the same as in &open;.</simpara>
+ </listitem></varlistentry>
  <varlistentry id="dup-handle"><term><code>(&dup-handle;
     <replaceable>fd1</replaceable> &optional-amp;
     <replaceable>fd2</replaceable>)</code></term>
