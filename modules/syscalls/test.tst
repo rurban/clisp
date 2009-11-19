@@ -316,6 +316,29 @@ T
 (integerp (show (with-open-file (s *tmp2* :direction :input) (file-length s))))
 T
 
+(let ((src "src-file") (dst "dst-file"))
+  (open src :direction :probe :if-does-not-exist :create) ; touch
+  (open dst :direction :probe :if-does-not-exist :create) ; touch
+  (unwind-protect
+       (handler-case
+           (multiple-value-list (os:copy-file src dst :method :rename
+                                              :if-exists :error))
+         (error (e) (princ-error e) :good))
+    (delete-file src)
+    (delete-file dst)))
+:GOOD
+
+(let ((src "src-file") (dst "dst-file") inode)
+  (open src :direction :probe :if-does-not-exist :create) ; touch
+  (open dst :direction :probe :if-does-not-exist :create) ; touch
+  (setq inode (posix:file-stat-ino (posix:file-stat src)))
+  (unwind-protect
+       (progn (os:copy-file src dst :method :rename :if-exists :overwrite)
+              (= inode (posix:file-stat-ino (posix:file-stat dst))))
+    (delete-file src)
+    (delete-file dst)))
+T
+
 ;; win32 functions barf on cygwin pathnames
 #+win32 (os:file-info-p (show (os:file-info *tmp2*) :pretty t)) T
 #+win32 (listp (show (os:file-info (make-pathname :name "syscalls-tests-*"

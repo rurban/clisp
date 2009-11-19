@@ -837,7 +837,7 @@ LISPFUNNS(probe_file,1)
 LISPFUNNR(probe_pathname,1)
 LISPFUNNS(probe_directory,1)
 LISPFUNN(delete_file,1)
-LISPFUNN(rename_file,2)
+LISPFUN(rename_file,seclass_default,2,0,norest,key,1,(kw(if_exists)))
 LISPFUN(open,seclass_default,1,0,norest,key,6,
         (kw(direction),kw(element_type),kw(if_exists),kw(if_does_not_exist),
          kw(external_format),kw(buffered)) )

@@ -1,5 +1,18 @@
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
+	RENAME-FILE accepts :IF-EXISTS (unless *ANSI* is T)
+	* pathname.d (move_file) [WIN32_NATIVE]: atomic rename when
+	available using MoveFileEx (available since windows 2000)
+	(rename_existing_file): use it
+	(rename_existing_path): add, use it in rename_file & RENAME-DIRECTORY
+	(rename_file): accept if_exists
+	(RENAME-FILE): accept :IF-EXISTS unless *ANSI* is T
+	* subr.d, subrkw.d (rename_file): modify the declaration
+	* modules/syscalls/calls.c (copy_one_file):
+	pass :IF-EXISTS to RENAME-FILE
+
+2009-11-19  Sam Steingold  <sds@gnu.org>
+
 	* eval.d (funcall_iclosure): use error_too_few_args
 	(interpret_bytecode_): use error_too_many_args
 	* control.d (MULTIPLE-VALUE-CALL, APPLYHOOK): ditto
