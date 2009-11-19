@@ -1,6 +1,7 @@
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (interpret_bytecode_): use error_mv_toomany
+	* control.d (error_mv_toomany): use the message from eval.d
 
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
