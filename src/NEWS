@@ -13,6 +13,10 @@ User visible changes
   See <http://clisp.cons.org/impnotes/require.html> and
   <http://clisp.cons.org/impnotes/clisp-link.html> for details.
 
+* Function RENAME-FILE now accepts :IF-EXISTS argument which determines
+  the action when the destination exists, unless, of course, *ANSI* is T.
+  See <http://clisp.cons.org/impnotes/file-func.html#rename-file> for details.
+
 * Bug fixes:
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code. [ 2868166 ]

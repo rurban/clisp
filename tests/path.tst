@@ -817,6 +817,29 @@ T
     (delete-file new)))
 ((T NIL) 3 (NIL T))
 
+#+clisp
+(let ((src "src-file") (dst "dst-file"))
+  (open src :direction :probe :if-does-not-exist :create) ; touch
+  (open dst :direction :probe :if-does-not-exist :create) ; touch
+  (unwind-protect
+       (handler-case
+           (multiple-value-list (rename-file src dst :if-exists :error))
+         (error (e) (princ-error e) :good))
+    (delete-file src)
+    (delete-file dst)))
+#+clisp :GOOD
+
+#+clisp
+(let ((src "src-file") (dst "dst-file"))
+  (open src :direction :probe :if-does-not-exist :create) ; touch
+  (open dst :direction :probe :if-does-not-exist :create) ; touch
+  (unwind-protect
+       (equal (truename dst)
+              (nth-value 2 (rename-file src dst :if-exists :overwrite)))
+    (delete-file src)
+    (delete-file dst)))
+#+clisp T
+
 (wild-pathname-p (make-pathname :version :wild))   T
 
 (pathname-version (merge-pathnames (make-pathname)

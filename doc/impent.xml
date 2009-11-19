@@ -89,6 +89,7 @@
 <!ENTITY home-k '<constant>:HOME</constant>'>
 <!ENTITY hyper-k '<constant>:HYPER</constant>'>
 <!ENTITY if-does-not-exist '<constant>:IF-DOES-NOT-EXIST</constant>'>
+<!ENTITY if-exists '<constant>:IF-EXISTS</constant>'>
 <!ENTITY if-output-exists '<constant>:IF-OUTPUT-EXISTS</constant>'>
 <!ENTITY ignore-k '<constant>:IGNORE</constant>'>
 <!ENTITY in-k '<constant>:IN</constant>'>

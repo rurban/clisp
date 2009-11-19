@@ -3702,8 +3702,14 @@ from once, <ulink url="http://common-lisp.net/project/cmucl/doc/cmu-user/extensi
  To remove a directory, use &delete-dir; instead.</para></section>
 
 <section id="rename-file"><title>Function &rename-file;</title>
- <para>This function cannot operate on directories,
-  use &rename-dir; to rename a directory.</para></section>
+<para>This functions accepts and extra keyword argument &if-exists;.
+ When it is &error-k; (the default), an &err-sig; if the destination
+ pathname names an existing file, otherwise (e.g., if it is &overwrite-k;)
+ the destination file atomically overwritten.</para>
+<para>When &ansi; is non-&nil;, only the standard two arguments are accepted,
+ and and &err-sig; when the destination pathname names an existing file.</para>
+<para>This function cannot operate on directories,
+ use &rename-dir; to rename a directory.</para></section>
 
 </section>
 
