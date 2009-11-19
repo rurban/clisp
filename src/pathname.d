@@ -390,6 +390,27 @@ local maygc inline void delete_file_before_rename (char* pathstring) {
  #endif
 }
 
+#if defined(WIN32_NATIVE)
+/* The default woe32 behavior is to barf if the destination exists.
+   Use MoveFileEx/MOVEFILE_REPLACE_EXISTING to emulate
+   the Unix behavior of atomic overwrite. */
+ #if defined(MOVEFILE_REPLACE_EXISTING)
+static HMODULE k32 = (HMODULE)-1;
+typedef BOOL (WINAPI * fMoveFileEx_t) (LPCSTR src,LPCSTR dst,DWORD flags);
+static fMoveFileEx_t move_file_ex = (fMoveFileEx_t)-1;
+local BOOL move_file (char* src, char* dst) {
+  if (k32 == (HMODULE)-1) k32 = LoadLibrary("kernel32.dll");
+  if (k32 && move_file_ex == (fMoveFileEx_t)-1)
+    move_file_ex = (fMoveFileEx_t)GetProcAddress(k32,"MoveFileExA");
+  if (k32 && move_file_ex)
+    return move_file_ex(src,dst,MOVEFILE_REPLACE_EXISTING);
+  else return MoveFile(src,dst);
+}
+ #else
+  #define move_file MoveFile
+ #endif
+#endif
+
 /* Rename a file.
  rename_existing_file(old_pathstring,new_pathstring);
  It is known that the old_pathstring exists.
@@ -407,13 +428,22 @@ local maygc inline void rename_existing_file (char* old_pathstring,
   end_blocking_system_call();
  #elif defined(WIN32_NATIVE)
   begin_blocking_system_call();
-  if (! MoveFile(old_pathstring,new_pathstring) ) {
+  if (!move_file(old_pathstring,new_pathstring) ) {
     end_blocking_system_call(); OS_file_error(STACK_0);
   }
   end_blocking_system_call();
  #else
   #error rename_existing_file is not defined
  #endif
+}
+
+local maygc void rename_existing_path (object old_pathstring,
+                                       object new_pathstring) {
+  with_sstring_0(old_pathstring,O(pathname_encoding),oldnamestring_asciz, {
+    with_sstring_0(new_pathstring,O(pathname_encoding),newnamestring_asciz, {
+      rename_existing_file(oldnamestring_asciz,newnamestring_asciz);
+    });
+  });
 }
 
 /* ========================================================================
@@ -6274,7 +6304,7 @@ nonreturning_function(local, error_rename_open, (object pathname)) {
  > stack layout: filename, newname, oldpathname.
  < stack layout: filename, newname, oldpathname, newpathname,
                 oldtruename, oldnamestring, newtruename, newnamestring. */
-local void rename_file (void) {
+local void rename_file (if_exists_t if_exists) {
   { /* 1. newpathname := (MERGE-PATHNAMES newname oldpathname) */
     pushSTACK(STACK_1); /* newname as 1st argument */
     pushSTACK(STACK_(0+1)); /* oldpathname as 2nd argument */
@@ -6305,24 +6335,27 @@ local void rename_file (void) {
                   oldtruename, oldnamestring, newtruename.
      4. rename file: */
     pushSTACK(fs.fs_namestring); /* since soon may be invalid */
-    if (file_exists(&fs)) {
-      skipSTACK(1);
-      /* file already exists -> do not delete without forewarn */
-      error_file_exists();
+    switch (if_exists) {
+      case IF_EXISTS_UNBOUND: case IF_EXISTS_NIL: case IF_EXISTS_ERROR:
+        if (file_exists(&fs)) {
+          skipSTACK(1);
+          /* file already exists -> do not delete without forewarn */
+          error_file_exists();
+        } break;
+      default: break;           /* atomically replace */
     }
   }
   /* stack layout: filename, newname, oldpathname, newpathname,
                 oldtruename, oldnamestring, newtruename, newnamestring.
    now it can be renamed without risk: */
-  with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
-    with_sstring_0(STACK_0,O(pathname_encoding),newnamestring_asciz, {
-      rename_existing_file(oldnamestring_asciz,newnamestring_asciz);
-    });
-  });
+  rename_existing_path(STACK_2,STACK_0);
 }
 
 /* (RENAME-FILE filename newname), CLTL p. 423 */
-LISPFUNN(rename_file,2) {
+LISPFUN(rename_file,seclass_default,2,0,norest,key,1,(kw(if_exists))) {
+  var if_exists_t if_exists = check_if_exists(popSTACK());
+  if (!nullp(O(ansi)) && if_exists != IF_EXISTS_UNBOUND)
+    error_too_many_args(unbound,S(rename_file),3,2);
   var object filename = STACK_1; /* filename-argument */
   if (builtin_stream_p(filename)) { /* stream -> treat extra: */
     /* must be file-stream: */
@@ -6332,7 +6365,7 @@ LISPFUNN(rename_file,2) {
     filename = TheStream(filename)->strm_file_truename;
     pushSTACK(filename);
     /* rename: */
-    rename_file();
+    rename_file(if_exists);
     /* update stream: */
     filename = STACK_7;
     TheStream(filename)->strm_file_name = STACK_4; /* newpathname as new name */
@@ -6342,7 +6375,7 @@ LISPFUNN(rename_file,2) {
     filename = merge_defaults(coerce_pathname(filename));
     pushSTACK(filename);
     /* rename: */
-    rename_file();
+    rename_file(if_exists);
   }
   VALUES3(STACK_4, /* newpathname as 1st value */
           STACK_3, /* oldtruename as 2nd value */
@@ -7988,11 +8021,7 @@ LISPFUNN(rename_directory,2)
 { /* (RENAME-DIRECTORY dirname newname) renames an existing directory. */
   var object newdir = shorter_directory(STACK_0,true); STACK_0 = newdir;
   var object olddir = shorter_directory(STACK_2,true); STACK_2 = olddir;
-  with_sstring_0(STACK_2,O(pathname_encoding),oldnamestring_asciz, {
-    with_sstring_0(STACK_1,O(pathname_encoding),newnamestring_asciz, {
-      rename_existing_file(oldnamestring_asciz,newnamestring_asciz);
-    });
-  });
+  rename_existing_path(STACK_2,STACK_1);
   skipSTACK(4);
   VALUES1(T);
 }

@@ -3141,7 +3141,9 @@ static void copy_one_file (object source, object src_path,
   /* stack layout: 0=src_true; 1=dest_true ... */
   switch (method) {
     case COPY_METHOD_RENAME:
-      pushSTACK(STACK_0); pushSTACK(STACK_2); funcall(L(rename_file),2);
+      pushSTACK(STACK_0); pushSTACK(STACK_2);
+      pushSTACK(S(Kif_exists)); pushSTACK(if_exists_symbol(if_exists));
+      funcall(L(rename_file),4);
       source = STACK_4; dest = STACK_1;
       break;
     case COPY_METHOD_HARDLINK_OR_COPY: {

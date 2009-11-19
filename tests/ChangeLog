@@ -1,3 +1,7 @@
+2009-11-19  Sam Steingold  <sds@gnu.org>
+
+	* path.tst: test RENAME-FILE :IF-EXISTS
+
 2009-10-29  Sam Steingold  <sds@gnu.org>
 
 	* streams.tst: test FRESH-LINE on broadcast streams
