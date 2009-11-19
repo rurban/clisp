@@ -1,3 +1,8 @@
+2009-11-19  Sam Steingold  <sds@gnu.org>
+
+	* check-lispfun.lisp (check-lisp-defs): check for LISPFUNs with
+	keywords not mentioned in subrkw.d
+
 2009-11-15  Sam Steingold  <sds@gnu.org>
 
 	* makemake.in: dynamic modules do not work with C++ because of

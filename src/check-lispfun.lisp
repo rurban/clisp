@@ -1,4 +1,4 @@
-;;; Copyright (C) 2002-2008 by Sam Steingold
+;;; Copyright (C) 2002-2009 by Sam Steingold
 ;;; This is Free Software, covered by the GNU GPL (v2)
 ;;; See http://www.gnu.org/copyleft/gpl.html
 ;;;
@@ -46,7 +46,8 @@
 
 (defun check-lisp-defs (dir)
   (format t "~&~s: ~s~%" 'check-lisp-defs dir)
-  (let* ((exclude (append *const-decls* *form-decls*)) kwd (error-count 0)
+  (let* ((exclude (append *const-decls* *form-decls*))
+         (error-count 0) kwd kw-forms
          (dec-forms
           (delete-duplicates
            (sort (mapcan #'get-lisp-defs
@@ -71,18 +72,16 @@
            :test #'equal)))
     (cond ((= (length def-forms) (length dec-forms))
            (format t "~d forms~%" (length def-forms)))
-          (t (cerror "proceed with checks"
+          (t (cerror #1="proceed with checks"
                      "# of defined forms ~s != # of declared forms ~s"
                      (length def-forms) (length dec-forms))
              (incf error-count)))
     (when (set-difference dec-forms def-forms :test #'equal)
-      (cerror "proceed with checks"
-              "declaration (subr.d) differs from the definition:~%~s"
+      (cerror #1# "declaration (subr.d) differs from the definition:~%~s"
               (set-difference dec-forms def-forms :test #'equal))
       (incf error-count))
     (when (set-difference def-forms dec-forms :test #'equal)
-      (cerror "proceed with checks"
-              "definition differs from the declaration (subr.d):~%~s"
+      (cerror #1# "definition differs from the declaration (subr.d):~%~s"
               (set-difference def-forms dec-forms :test #'equal))
       (incf error-count))
     (with-open-file (st (merge-pathnames "subrkw.d" dir)
@@ -91,16 +90,21 @@
               (merge-pathnames "subrkw.d" dir))
       (loop (let* ((line (read-line st nil nil)) (len (length line)))
               (unless line (return))
-              (cond ((sys::string-beg-with "v" line len)
-                     (setq kwd (get-lisp-def line st)))
-                    ((sys::string-beg-with "s" line len)
-                     (let ((fn (car (get-lisp-def line st))))
-                       (unless (equal (cdr (member 'key (assoc fn dec-forms)))
-                                      kwd)
-                         (cerror "proceed with checks"
-                                 "subrkw.d vs subr.d (~s):~%~s~%~s" fn kwd
-                                 (cdr (member 'key (assoc fn dec-forms))))
-                         (incf error-count))))))))
+              (when (plusp len)
+                (cond ((char= #\v (char line 0))
+                       (setq kwd (get-lisp-def line st)))
+                      ((char= #\s (char line 0))
+                       (let* ((fn (car (get-lisp-def line st)))
+                              (fk (cdr (member 'key (assoc fn dec-forms)))))
+                         (push (cons fn fk) kw-forms)
+                         (unless (equal fk kwd)
+                           (cerror #1# "subrkw.d vs subr.d (~s):~%~s~%~s"
+                                   fn kwd fk)
+                           (incf error-count)))))))))
+    (dolist (fn dec-forms)
+      (when (and (member 'key fn)
+                 (not (member (car fn) kw-forms :key #'car)))
+        (cerror #1# "in subr.d but not in subrkw.d: ~s" fn)))
     (when (plusp error-count)
       (error "~d errors" error-count))))
 
