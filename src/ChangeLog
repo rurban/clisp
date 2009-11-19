@@ -1,5 +1,9 @@
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
+	* eval.d (interpret_bytecode_): use error_mv_toomany
+
+2009-11-19  Sam Steingold  <sds@gnu.org>
+
 	RENAME-FILE accepts :IF-EXISTS (unless *ANSI* is T)
 	* pathname.d (move_file) [WIN32_NATIVE]: atomic rename when
 	available using MoveFileEx (available since windows 2000)

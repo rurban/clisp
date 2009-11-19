@@ -8210,10 +8210,7 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
     error(error_condition,GETTEXT("~S: jump by ~S takes ~S outside [~S;~S]"));
   }
  #endif
- error_toomany_values: {
-    pushSTACK(closure);
-    error(error_condition,GETTEXT("~S: too many return values"));
-  }
+ error_toomany_values: error_mv_toomany(closure);
  #if STACKCHECKC
  error_STACK_putt: {
     pushSTACK(fixnum(byteptr - codeptr->data - byteptr_min)); /* PC */
