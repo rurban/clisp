@@ -875,7 +875,7 @@ local inline gcv_object_t* symbol_env_search (object sym, object venv)
   pushSTACK(sym); /* SOURCE-PROGRAM-ERROR slot DETAIL */
   pushSTACK(S(macrolet)); pushSTACK(sym);
   error(program_error,
-         GETTEXT("Invalid access to the value of the lexical variable ~S from within a ~S definition"));
+        GETTEXT("Invalid access to the value of the lexical variable ~S from within a ~S definition"));
 }
 
 /* (SYS::SPECIAL-VARIABLE-P symbol &optional environment)
@@ -1764,7 +1764,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
       pushSTACK(lambdalist);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
       pushSTACK(lambdalist); pushSTACK(name); pushSTACK(S(function));
       error(source_program_error,
-             GETTEXT("~S: lambda-list for ~S should be a list, not ~S"));
+            GETTEXT("~S: lambda-list for ~S should be a list, not ~S"));
     }
   }
   pushSTACK(name);
@@ -1891,8 +1891,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
       if (atomp(declspec)) {
         pushSTACK(declspec);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(declspec); pushSTACK(S(function));
-        error(source_program_error,
-               GETTEXT("~S: illegal declaration ~S"));
+        error(source_program_error,GETTEXT("~S: illegal declaration ~S"));
       }
       /* process SPECIAL-declaration: */
       if (eq(Car(declspec),S(special))) { /* SPECIAL-declaration ? */
@@ -1986,7 +1985,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
             pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
             pushSTACK(S(LLoptional)); pushSTACK(S(function));
             error(source_program_error,
-                   GETTEXT("~S: variable specification after ~S too long: ~S"));
+                  GETTEXT("~S: variable specification after ~S too long: ~S"));
           }
           /* third list-element: svar */
           pushSTACK(init_form); pushSTACK(item_rest);
@@ -2168,7 +2167,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
           pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
           pushSTACK(S(LLaux)); pushSTACK(S(function));
           error(source_program_error,
-                 GETTEXT("~S: variable specification after ~S too long: ~S"));
+                GETTEXT("~S: variable specification after ~S too long: ~S"));
         }
       } else
         init_form = NIL; /* Default-Init */
@@ -2199,7 +2198,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
     pushSTACK(STACK_0);  /* SOURCE-PROGRAM-ERROR slot DETAIL */
     pushSTACK(S(function));
     error(source_program_error,
-           GETTEXT("~S: too many parameters in the lambda-list ~S"));
+          GETTEXT("~S: too many parameters in the lambda-list ~S"));
   }
   /* var_count <= lp_limit_1, therefore all counts fit in an uintC. */
   if (!nullp(*lalist_)) { /* is Lambda-List a Dotted List? */
@@ -2207,7 +2206,7 @@ global maygc object get_closure (object lambdabody, object name, bool blockp,
     pushSTACK(*(closure_ STACKop -1)); /* entire Lambda-List */
     pushSTACK(S(function));
     error(source_program_error,
-           GETTEXT("~S: a dot in a lambda-list is allowed only for macros, not here: ~S"));
+          GETTEXT("~S: a dot in a lambda-list is allowed only for macros, not here: ~S"));
   }
   /* Collect variables into a vector and put it into the Closure,
      Collect variable-flags into a Byte-Vector and put it into the Closure: */
@@ -2278,7 +2277,7 @@ nonreturning_function(local, error_specialform, (object caller, object funname))
   pushSTACK(funname);
   pushSTACK(caller);
   error(undefined_function,
-         GETTEXT("~S: ~S is a special operator, not a function"));
+        GETTEXT("~S: ~S is a special operator, not a function"));
 }
 
 /* error, if symbol to be called is a macro.
@@ -2561,7 +2560,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
           pushSTACK(TheIclosure(closure)->clos_name);
           /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
           error(program_error,
-                 GETTEXT("EVAL/APPLY: too few arguments given to ~S"));
+                GETTEXT("EVAL/APPLY: too few arguments given to ~S"));
         }
         argcount -= count;
         dotimespC(count,count, {
@@ -2644,7 +2643,7 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
         pushSTACK(TheIclosure(closure)->clos_name);
         /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
         error(program_error,
-               GETTEXT("EVAL/APPLY: too many arguments given to ~S"));
+              GETTEXT("EVAL/APPLY: too many arguments given to ~S"));
       }
     } else { /* &KEY or &REST present. */
       /* process &REST-parameters: */
@@ -3233,7 +3232,7 @@ local maygc Values eval_fsubr (object fun, object args)
         pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(form); pushSTACK(Car(form));
         error(source_program_error,
-               GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
+              GETTEXT("EVAL: too few parameters for special operator ~S: ~S"));
       }
     error_toomany:       /* argument-list args is not NIL at the tail */
       if (atomp(args)) goto error_dotted;
@@ -3246,7 +3245,7 @@ local maygc Values eval_fsubr (object fun, object args)
         pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(form); pushSTACK(Car(form));
         error(source_program_error,
-               GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
+              GETTEXT("EVAL: too many parameters for special operator ~S: ~S"));
       }
     error_dotted:         /* argument-list args ends with Atom /= NIL */
       /* clean up STACK up to the calling EVAL-Frame: */
@@ -3258,7 +3257,7 @@ local maygc Values eval_fsubr (object fun, object args)
         pushSTACK(form); /* SOURCE-PROGRAM-ERROR slot DETAIL */
         pushSTACK(form); pushSTACK(Car(form));
         error(source_program_error,
-               GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
+              GETTEXT("EVAL: dotted parameter list for special operator ~S: ~S"));
       }
     #undef REQ_PAR
   }
@@ -6421,7 +6420,8 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       /* The Compiler has already checked, that it's a Symbol. */
       if (constant_var_p(TheSymbol(symbol))) {
         pushSTACK(symbol); pushSTACK(Closure_name(closure));
-        error(error_condition,GETTEXT("~S: assignment to constant symbol ~S is impossible"));
+        error(error_condition,
+              GETTEXT("~S: assignment to constant symbol ~S is impossible"));
       }
       Symbol_value(symbol) = value1; mv_count=1;
     } goto next_byte;
