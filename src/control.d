@@ -1729,7 +1729,7 @@ LISPSPECFORM(go, 1,0,nobody)
  > caller: Caller, a symbol */
 nonreturning_function(modexp, error_mv_toomany, (object caller)) {
   pushSTACK(caller);
-  error(error_condition,GETTEXT("~S: too many values"));
+  error(error_condition,GETTEXT("~S: too many return values"));
 }
 
 LISPFUN(values,seclass_no_se,0,0,rest,nokey,0,NIL)
