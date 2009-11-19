@@ -2556,12 +2556,9 @@ local maygc Values funcall_iclosure (object closure, gcv_object_t* args_pointer,
     { /* process required parameters: fetch next argument and bind in stack */
       var uintC count = posfixnum_to_V(TheIclosure(closure)->clos_req_count);
       if (count>0) {
-        if (argcount < count) {
-          pushSTACK(TheIclosure(closure)->clos_name);
-          /* ANSI CL 3.5.1.2. wants a PROGRAM-ERROR here. */
-          error(program_error,
-                GETTEXT("EVAL/APPLY: too few arguments given to ~S"));
-        }
+        if (argcount < count)
+          error_too_few_args(unbound,TheIclosure(closure)->clos_name,
+                             argcount,count);
         argcount -= count;
         dotimespC(count,count, {
           var object next_arg = NEXT(args_pointer); /* next argument */
@@ -6990,13 +6987,8 @@ local /*maygc*/ Values interpret_bytecode_ (object closure_in, Sbvector codeptr,
       with_saved_context({
         var uintL argcount =  /* number of arguments on stack */
           STACK_item_count(STACK,FRAME);
-        if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
-          pushSTACK(fun);
-          pushSTACK(S(multiple_value_call));
-          /* ANSI CL 3.5.1.3. wants a PROGRAM-ERROR here. */
-          error(program_error,
-                GETTEXT("~S: too many arguments given to ~S"));
-        }
+        if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
+          error_too_many_args(S(multiple_value_call),fun,argcount,ca_limit_1);
         /* apply Function, lift Stack until below the Function: */
         funcall(fun,argcount);
         skipSTACK(1);         /* discard Function from STACK */

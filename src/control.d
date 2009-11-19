@@ -1766,11 +1766,8 @@ LISPSPECFORM(multiple_value_call, 1,0,body)
     argcount += (uintL)mv_count;
     mv_to_STACK();
   }
-  if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1)) {
-    pushSTACK(*fun_);
-    pushSTACK(S(multiple_value_call));
-    error(program_error,GETTEXT("~S: too many arguments to ~S"));
-  }
+  if (((uintL)~(uintL)0 > ca_limit_1) && (argcount > ca_limit_1))
+    error_too_many_args(S(multiple_value_call),*fun_,argcount,ca_limit_1);
   funcall(*fun_,argcount); /* call function */
   skipSTACK(1);
 }
@@ -2260,9 +2257,10 @@ LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
   aktenv.block_env = env5.block_env;
   aktenv.go_env    = env5.go_env   ;
   aktenv.decl_env  = env5.decl_env ;
-  { /* save fun: */
-    pushSTACK(fun);
-    var gcv_object_t* fun_ = &STACK_0;
+  { /* save fun & args: */
+    pushSTACK(fun); pushSTACK(args);
+    var gcv_object_t* fun_ = &STACK_1;
+    var gcv_object_t* args_ = &STACK_0;
     /* evaluate each argument and store on the stack: */
     var uintC argcount = 0;
     while (consp(args)) {
@@ -2270,11 +2268,9 @@ LISPFUN(applyhook,seclass_default,4,1,norest,nokey,0,NIL)
       eval_no_hooks(Car(args)); /* evaluate next arg */
       args = STACK_0; STACK_0 = value1; /* store value in stack */
       argcount++;
-      if (argcount==0) { /* overflow? */
-        pushSTACK(*fun_);
-        pushSTACK(S(applyhook));
-        error(program_error,GETTEXT("~S: too many arguments given to ~S"));
-      }
+      if (argcount==0) /* overflow? */
+        error_too_many_args(S(applyhook),*fun_,llength(*args_),
+                            (uintC)~(uintC)0);
     }
     funcall(*fun_,argcount); /* apply function */
     skipSTACK(1);
