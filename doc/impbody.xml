@@ -1342,8 +1342,8 @@ the iteration variable and assign it on each iteration.</para></section>
  establishes a global handler for the &cond-r;.
  The <replaceable>handler</replaceable> should be &funcall;able (a
  &symbol-t; or a &function-t;).  If it returns, the next applicable
- handler is invoked, so if you do &not-e; want to land in the debugger,
- it should &not-e; return.
+ handler is invoked, so if you do &not-e; want to land in the
+ <link linkend="debugger">debugger</link>, it should &not-e; return.
  E.g., the option &opt-on-error; <option>abort</option> and the macro
  &abort-on-error; are implemented by installing the following handler:
  <programlisting language="lisp">(defun sys::abortonerror (condition)
@@ -1358,8 +1358,10 @@ the iteration variable and assign it on each iteration.</para></section>
 <formalpara id="without-global-handlers">
  <title>Macro &without-global-handlers;</title>
 <para>The macro <code>(&without-global-handlers; &body-amp;
-  &body-r;)</code> removes all global handlers, executes &body-r;, and
- then restores the handlers.</para></formalpara>
+  &body-r;)</code> removes all global handlers by <code>(&set-global-handler;
+ &nil; &nil;)</code>, executes &body-r; (where unhandled conditioned now
+ invoke the <link linkend="debugger">debugger</link>),
+ and then restores the handlers.</para></formalpara>
 
 </section>
 </chapter>
