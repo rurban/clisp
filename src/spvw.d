@@ -4149,14 +4149,14 @@ local void* get_module_symbol (const char* format, const char* modname,
   return ret;
 }
 
-global void dynload_modules (const char * library, uintC modcount,
-                             const char * const * modnames) {
+global maygc void dynload_modules (const char * library, uintC modcount,
+                                   const char * const * modnames) {
   var void* libhandle;
-  begin_system_call();
   /* Open the library. */
+  begin_blocking_system_call();
   libhandle = libopen(library);
+  end_blocking_system_call();
   if (libhandle == NULL) error_dlerror("dlopen",NULL,dlerror_message());
-  end_system_call();
   if (modcount > 0) {
     /* What's the longest module name? What's their total size? */
     var uintL total_modname_length = 0;

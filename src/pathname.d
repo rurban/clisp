@@ -9149,8 +9149,6 @@ LISPFUNN(dynload_modules,2) {
     skipSTACK(1);               /* drop tail */
   }
   {
-    var const char * libpath =
-      TheAsciz(string_to_asciz(*libpath_,O(pathname_encoding)));
     var DYNAMIC_ARRAY(modnames,const char *,stringcount);
     if (stringcount > 0) {
       var uintL count;
@@ -9158,7 +9156,9 @@ LISPFUNN(dynload_modules,2) {
       var const char * * ptr2 = modnames;
       dotimespL(count,stringcount, { *ptr2++ = TheAsciz(NEXT(ptr1)); });
     }
-    dynload_modules(libpath,stringcount,modnames);
+    with_string_0(*libpath_,O(pathname_encoding),libpath, {
+      dynload_modules(libpath,stringcount,modnames);
+    });
     FREE_DYNAMIC_ARRAY(modnames);
   }
   skipSTACK(stringcount);

@@ -1,3 +1,13 @@
+2009-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	* spvw.d (dynload_modules): guard libopen() with
+	begin_blocking_system_call()
+	* foreign.d (open_library): ditto
+	* pathname.d (DYNLOAD-MODULES): store libpath on the C stack before
+	calling dynload_modules
+	* lispbibl.d (dynload_modules): maygc
+
+
 2009-11-19  Sam Steingold  <sds@gnu.org>
 
 	* eval.d (interpret_bytecode_): use error_mv_toomany
