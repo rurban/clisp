@@ -4212,9 +4212,9 @@ local maygc void * open_library (gcv_object_t* name)
    #endif
   }
   with_string_0(*name = check_string(*name),O(misc_encoding),libname, {
-    begin_system_call();
+    begin_blocking_system_call();
     handle = libopen(libname);
-    end_system_call();
+    end_blocking_system_call();
   });
   if (handle == NULL) {
     pushSTACK(NIL); /* no PLACE */

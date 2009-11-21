@@ -11117,8 +11117,8 @@ extern void* find_name (void *handle, const char *name);
 #if defined(DYNAMIC_MODULES)
 /* Attaches a shared library to this process' memory, and attempts to load
    a number of clisp modules from it. */
-extern void dynload_modules (const char * library, uintC modcount,
-                             const char * const * modnames);
+extern maygc void dynload_modules (const char * library, uintC modcount,
+                                   const char * const * modnames);
 #endif
 
 /* find the module with the given name */
