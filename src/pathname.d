@@ -7634,8 +7634,8 @@ local maygc void directory_search_scandir (bool recursively, task_t next_task,
                       entry_size = READDIR_entry_size();
                     }
                     pack_full_info(&timepoint,&entry_size);
-                      PUSH_ON_STACK(0,4+4+6+2);
-                      skipSTACK(2); /* drop newname & full info list */
+                    PUSH_ON_STACK(0,4+4+6+2);
+                    skipSTACK(2); /* drop newname & full info list */
                   } else PUSH_ON_STACK(1,4+4+6);
                 }
               }
