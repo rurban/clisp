@@ -1508,7 +1508,7 @@ nonreturning_function(global, error_lambda_expression,
 }
 
 /* too many arguments in a function call
- > caller : the function that is reporting the error
+ > caller : the function that is reporting the error (unbound == EVAL/APPLY)
  > func   : the function being incorrectly called
  > ngiven : the number of arguments given
  < nmax   : the maximum number of arguments accepted */
