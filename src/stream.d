@@ -5299,9 +5299,10 @@ local maygc listen_t listen_char_unbuffered (object stream) {
  > stream: Unbuffered-Channel-Stream
  < result: true if Input was deleted, else false */
 local maygc bool clear_input_unbuffered (object stream) {
+  UnbufferedStream_status(stream) = 0; /* forget about past EOF & bytebuf */
+  TheStream(stream)->strm_rd_ch_last = NIL; /* forget last char */
   if (nullp(TheStream(stream)->strm_isatty))
     return false; /* it's a file -> nothing to do */
-  TheStream(stream)->strm_rd_ch_last = NIL; /* forget about past EOF */
   #ifdef WIN32_NATIVE
   /* Our low_listen_unbuffered_handle function, when applied to a WinNT
    console, cannot tell when there is an LF pending after the
@@ -6743,6 +6744,16 @@ local maygc listen_t listen_char_buffered (object stream) {
    therefore not correct. But this doesn't matter since programs seeing
    LISTEN_AVAIL will call read-char, and this will do the right thing anyway. */
   return LISTEN_AVAIL;
+}
+
+/* UP: discard already entered input from a Buffered Stream.
+ clear_input_buffered(stream);
+ > stream: Buffered Stream
+ < result: true if Input was deleted, else false */
+local maygc bool clear_input_buffered (object stream) {
+  bool ret = BufferedStream_have_eof_p(stream);
+  BufferedStream_have_eof_p(stream) = false;
+  return ret;
 }
 
 /* READ-CHAR-ARRAY - Pseudo-Function for File-Streams of Characters: */
@@ -16471,7 +16482,7 @@ global maygc bool clear_input (object stream) {
             && !ChannelStream_buffered(stream))
           result = clear_input_unbuffered(stream);
         else
-          result = false;
+          result = clear_input_buffered(stream);
         break;
       #ifdef KEYBOARD
       case strmtype_keyboard:

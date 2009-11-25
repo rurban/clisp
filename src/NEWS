@@ -21,6 +21,7 @@ User visible changes
   + Do not eliminate function calls which are advertised to have
     exceptional situation in unsafe code. [ 2868166 ]
   + Fix an nternal error in DECLAIM on bad OPTIMIZE quality. [ 2868147 ]
+  + CLEAR-INPUT now clears the EOF condition on file streams. [ 2902716 ]
 
 * ANSI compliance:
   + Implement the ANSI issue COMPILER-DIAGNOSTICS:USE-HANDLER: use the
