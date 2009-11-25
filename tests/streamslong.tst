@@ -234,3 +234,20 @@ nil
  ((:DOS :DOS) (:UNIX :UNIX)
   (CHARACTER CHARACTER) (UNSIGNED-BYTE 8)
   ((UNSIGNED-BYTE 8) (UNSIGNED-BYTE 8))))
+
+(let ((fname "test-eof"))
+  (open fname :direction :probe :if-exists :overwrite ; touch
+        :if-does-not-exist :create)
+  (flet ((f (buf new)
+           (with-open-file (in fname :direction :input)
+             (list (read-line in nil :eof)
+                   (progn
+                     (#+clisp ext:appease-cerrors #-clisp progn
+                      (with-open-file (out fname :direction :output
+                                           :if-exists :append)
+                        (write-line new out)))
+                     #+clisp (clear-input in)
+                     (read-line in nil :eof))))))
+    (unwind-protect (list (f t "foo") (f nil "bar"))
+      (delete-file fname))))
+((:EOF "foo") ("foo" "bar"))

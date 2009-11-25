@@ -1,3 +1,11 @@
+2009-11-25  Sam Steingold  <sds@gnu.org>
+
+	fix bug #[ 2902716 ]: CLEAR-INPUT should clear the EOF condition
+	* stream.d (clear_input_unbuffered): reset status and
+	strm_rd_ch_last slots on all streams, not just tty
+	(clear_input_buffered): add, clear the have_eof_p slot
+	(clear_input): call clear_input_buffered
+
 2009-11-21  Vladimir Tzankov  <vtzankov@gmail.com>
 
 	* spvw.d (dynload_modules): guard libopen() with

@@ -19,13 +19,10 @@
  </varlistentry></variablelist>
  This final delimiter is never actually seen by programs; no need to
  test for <keysym>#\^D</keysym> or <keysym>#\^Z</keysym> - use
- &read-char-no-hang; to check for &eos;.
- Calling &clear-input; on the stream removes the &eos; state,
- thus making it available for further input.</para>
-
+ &read-char-no-hang; to check for &eos;.</para>
 <para>A newline character can be entered by the user by pressing the
  &enter; key.</para>
-
+<para>See also <xref linkend="clear-input"/>.</para>
 </section>
 
 
@@ -4654,6 +4651,13 @@ Let us consider different criteria:<orderedlist numeration="arabic">
      a &cont-err;</simpara></listitem></varlistentry>
 </variablelist></para></simplesect>
 
+</section>
+
+<section id="clear-input"><title>Function &clear-input;</title>
+<para>Calling &clear-input; on a &stream-t; removes the &eos; state,
+ thus making it available for further input.</para>
+<para>This allows reading from a file as it is being appended to,
+as if with <command role="unix">tail -f</command>.</para>
 </section>
 
 <section id="close"><title>Function &close;</title>
