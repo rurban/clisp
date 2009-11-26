@@ -6351,11 +6351,11 @@ local void rename_file (if_exists_t if_exists) {
   rename_existing_path(STACK_2,STACK_0);
 }
 
-/* (RENAME-FILE filename newname), CLTL p. 423 */
+/* (RENAME-FILE filename newname &if-exists), CLTL p. 423 */
 LISPFUN(rename_file,seclass_default,2,0,norest,key,1,(kw(if_exists))) {
   var if_exists_t if_exists = check_if_exists(popSTACK());
   if (!nullp(O(ansi)) && if_exists != IF_EXISTS_UNBOUND)
-    error_too_many_args(unbound,S(rename_file),3,2);
+    error_too_many_args(unbound,S(rename_file),4,2);
   var object filename = STACK_1; /* filename-argument */
   if (builtin_stream_p(filename)) { /* stream -> treat extra: */
     /* must be file-stream: */
