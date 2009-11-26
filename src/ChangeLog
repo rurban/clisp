@@ -1,5 +1,10 @@
 2009-11-25  Sam Steingold  <sds@gnu.org>
 
+	* pathname.d (RENAME-FILE): fix the error_too_many_args invocation
+	for the ANSI case
+
+2009-11-25  Sam Steingold  <sds@gnu.org>
+
 	fix bug #[ 2902716 ]: CLEAR-INPUT should clear the EOF condition
 	* stream.d (clear_input_unbuffered): reset status and
 	strm_rd_ch_last slots on all streams, not just tty
