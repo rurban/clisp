@@ -1,3 +1,7 @@
+2009-11-29  Sam Steingold  <sds@gnu.org>
+
+	* m4/clisp.m4 (CL_CLISP): use "." instead of "source" (bash-specific)
+
 2009-11-25  Sam Steingold  <sds@gnu.org>
 
 	* pathname.d (RENAME-FILE): fix the error_too_many_args invocation

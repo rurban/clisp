@@ -69,7 +69,7 @@ if test "$cl_use_clisp" != "no"; then
     CLISP=$cl_cv_clisp; AC_SUBST(CLISP)dnl
     CLISP_LINKKIT="${cl_cv_clisp_libdir}linkkit"; AC_SUBST(CLISP_LINKKIT)dnl
     sed 's/^/CLISP_/' ${cl_cv_clisp_linkset}/makevars > conftestvars
-    source conftestvars
+    . ./conftestvars
     rm -f conftestvars
     AC_SUBST(CLISP_FILES)dnl
     AC_SUBST(CLISP_LIBS)dnl
