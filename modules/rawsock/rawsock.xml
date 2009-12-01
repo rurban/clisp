@@ -242,9 +242,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <varlistentry id="rawsock-if-name-index"><term><code>(RAWSOCK:IF-NAME-INDEX
    &optional-amp; &what-r;)</code></term>
  <listitem><simpara>Call <function role="unix">if_nametoindex</function>
-   when &net-r; is a &string-t; and return an &integer-t;;
+   when &when-r; is a &string-t; and return an &integer-t;;
    or call <function role="unix">if_indextoname</function> when
-   &net-r; is an &integer-t; and return a &string-t;.
+   &what-r; is an &integer-t; and return a &string-t;.
    When &what-r; is &nil;, return an &alist; of
    pairs <literal role="data">(&index-r; . &name-r;)</literal>
    using <function role="unix">if_nameindex</function>.
@@ -320,8 +320,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    The typical packet you send is both &ip; and &tcp; and thus has two
    checksums, so you would want to call <emphasis>two</emphasis> functions.
 </simpara></listitem></varlistentry>
-<varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r; &name-r; &addr-r;
-   &key-amp; <replaceable>promisc</replaceable>
+<varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r;
+   <replaceable>ifname</replaceable> &addr-r; &key-amp;
+   <replaceable>promisc</replaceable>
    <replaceable>noarp</replaceable>)</code></term>
  <listitem><simpara>Set some socket options and &ip; &addr-r;
    with <function role="unix">ioctl</function>.
