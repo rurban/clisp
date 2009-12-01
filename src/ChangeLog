@@ -1,5 +1,10 @@
 2009-12-01  Sam Steingold  <sds@gnu.org>
 
+	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c (unused):
+	define depending on __GNUC__, not GNU
+
+2009-12-01  Sam Steingold  <sds@gnu.org>
+
 	* modules/rawsock/rawsock.c (configdev): use strncpy/IFNAMSIZ
 	instead of strcpy for copying the interface name
 
