@@ -88,9 +88,9 @@
     ><xsl:apply-templates/></a></xsl:template>
 
 <!-- =============================== RFC =============================== -->
-<xsl:param name="rfc.top" select="'http://rfc.net/rfc'"/>
+<xsl:param name="rfc.top" select="'http://www.ietf.org/rfc/rfc'"/>
 <xsl:template match="ulink[@role='rfc']">
- <a class="{@role}" href="{$rfc.top}{@url}.html"><code>
+ <a class="{@role}" href="{$rfc.top}{@url}.txt"><code>
    <xsl:choose><xsl:when test=".=''"><xsl:text>RFC</xsl:text>
      <xsl:value-of select="@url"/></xsl:when>
     <xsl:otherwise><xsl:apply-templates/></xsl:otherwise></xsl:choose>
