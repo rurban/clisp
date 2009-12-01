@@ -442,7 +442,7 @@ For further for grepability I use the following tags in comments:
 #include <X11/extensions/shape.h>
 ##endif
 
-#ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
+#ifdef __GNUC__ /* to prevent a gcc-warning "statement with no effect" */
 # define unused  (void)
 #else
 # define unused

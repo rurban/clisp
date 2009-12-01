@@ -1548,7 +1548,7 @@ DEFUN(RAWSOCK:UDPCSUM, buffer &key :START :END) { /* UDP checksum */
   VALUES1(fixnum(length)); skipSTACK(1);
 }
 
-#ifdef GNU     /* to prevent a gcc-warning "statement with no effect" */
+#ifdef __GNUC__ /* to prevent a gcc-warning "statement with no effect" */
 # define unused  (void)
 #else
 # define unused
