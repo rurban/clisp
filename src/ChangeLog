@@ -1,3 +1,8 @@
+2009-12-01  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (configdev): use strncpy/IFNAMSIZ
+	instead of strcpy for copying the interface name
+
 2009-11-29  Sam Steingold  <sds@gnu.org>
 
 	* m4/clisp.m4 (CL_CLISP): use "." instead of "source" (bash-specific)
