@@ -1070,6 +1070,7 @@
 <!ENTITY yes-en '<entry>yes</entry>'>
 <!ENTITY no-en '<entry>no</entry>'>
 <!ENTITY and-e '<emphasis role="strong">and</emphasis>'>
+<!ENTITY or-e '<emphasis role="strong">or</emphasis>'>
 <!ENTITY not-e '<emphasis role="strong">not</emphasis>'>
 <!ENTITY is-e '<emphasis role="strong">is</emphasis>'>
 <!ENTITY after-e '<emphasis role="strong">after</emphasis>'>

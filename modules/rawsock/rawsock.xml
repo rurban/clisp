@@ -256,7 +256,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
    filtered using flags, e.g., <code>(ifaddrs :flags-or '(a b)
     :flags-and '(c d))</code> will return a list of objects which have
    flags <literal>c</literal> &and-e; <literal>d</literal> &and-e; at
-   least one of <literal>a</literal> or <literal>b</literal> set.
+   least one of <literal>a</literal> &or-e; <literal>b</literal> set.
 </simpara></listitem></varlistentry>
 <varlistentry id="rawsock-sockopt"><term><code>(RAWSOCK:SOCKET-OPTION
    &sock-r; &name-r; &key-amp; :LEVEL)</code></term>
