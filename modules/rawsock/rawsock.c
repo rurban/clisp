@@ -1145,12 +1145,12 @@ DEFUN(RAWSOCK:SOCK-CLOSE, socket) {
 }
 
 #if defined(HAVE_NET_IF_H)
-/* STACK_1 = name, for error reporting */
-static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {
+/* STACK_1 = ifname, for error reporting */
+static void configdev (rawsock_t sock, char* ifname, int ipaddress, int flags) {
   struct ifreq ifrequest;
 #if defined(SIOCGIFFLAGS) && defined(SIOCSIFFLAGS)
   memset(&ifrequest, 0, sizeof(struct ifreq));
-  strcpy(ifrequest.ifr_name, name);
+  strncpy(ifrequest.ifr_name, ifname, IFNAMSIZ);
   if (ioctl(sock, SIOCGIFFLAGS, &ifrequest) < 0)
     OS_file_error(STACK_1);
   ifrequest.ifr_flags |= flags;
@@ -1159,7 +1159,7 @@ static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {
 #endif
 #if defined(SIOCGIFADDR) && defined(SIOCSIFADDR)
   memset(&ifrequest, 0, sizeof(struct ifreq));
-  strcpy(ifrequest.ifr_name, name);
+  strncpy(ifrequest.ifr_name, ifname, IFNAMSIZ);
   if (ioctl(sock, SIOCGIFADDR, &ifrequest) < 0)
     OS_file_error(STACK_1);
   /* address was 0.0.0.0 -> error */
@@ -1177,13 +1177,13 @@ static void configdev (rawsock_t sock, char* name, int ipaddress, int flags) {
 }
 
 DEFFLAGSET(configdev_flags,IFF_PROMISC IFF_NOARP)
-DEFUN(RAWSOCK:CONFIGDEV, socket name ipaddress &key PROMISC NOARP) {
+DEFUN(RAWSOCK:CONFIGDEV, socket ifname ipaddress &key PROMISC NOARP) {
   int flags = configdev_flags();
   uint32 ipaddress = I_to_UL(check_uint32(STACK_0));
   rawsock_t sock = I_to_uint(check_uint(STACK_2));
-  with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),name, {
+  with_string_0(check_string(STACK_1),Symbol_value(S(utf_8)),ifname, {
       begin_blocking_system_call();
-      configdev(sock, name, ipaddress, flags);
+      configdev(sock, ifname, ipaddress, flags);
       end_blocking_system_call();
     });
   VALUES0; skipSTACK(3);
