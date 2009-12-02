@@ -29,8 +29,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   so you <emphasis>still</emphasis> have to &close; the original raw socket.
 </simpara></warning>
 
-<para>File <filename role="clisp-cvs">modules/rawsock/test.tst</filename>
- contains plenty of examples.</para>
+<para>Test file <filename role="clisp-cvs">modules/rawsock/test.tst</filename>
+ and the demos in <filename role="clisp-cvs">modules/rawsock/demos/</filename>
+ contain plenty of examples.</para>
 </section>
 
 <section id="rawsock-func"><title>Single System Call Functions</title>
