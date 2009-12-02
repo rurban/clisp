@@ -316,8 +316,9 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
   - &udp;</term>
  <listitem><simpara>Compute the appropriate protocol checksum and record
    it in the appropriate location.  &buf-r; is assumed to be a suitable
-   packet for the protocol, with the appropriate header etc.
-   The typical packet you send is both &ip; and &tcp; and thus has two
+   ethernet frame (starting with a 14 byte MAC address) for the protocol,
+   with the appropriate header etc.</simpara>
+  <simpara>A typical packet you send is both &ip; and &tcp; and thus has two
    checksums, so you would want to call <emphasis>two</emphasis> functions.
 </simpara></listitem></varlistentry>
 <varlistentry><term><code>(RAWSOCK:CONFIGDEV &sock-r;
