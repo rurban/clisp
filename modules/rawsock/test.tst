@@ -106,11 +106,15 @@
 
 (catch 'type-error-handler
   (handler-bind ((type-error #'type-error-handler))
-    (rawsock:socket :INET :FOO nil)))
+    (rawsock:socket :INET t nil)))
 NIL
 (catch 'type-error-handler
   (handler-bind ((type-error #'type-error-handler))
-    (rawsock:socket :FOO :STREAM nil)))
+    (rawsock:socket t :STREAM nil)))
+NIL
+(catch 'type-error-handler
+  (handler-bind ((type-error #'type-error-handler))
+    (rawsock:socket :INET :STREAM t)))
 NIL
 
 (integerp (show (setq *sock* (rawsock:socket :INET :STREAM nil)))) T
