@@ -1439,6 +1439,8 @@ DEFUN(RAWSOCK::SET-SOCKET-OPTION, value sock name &key :LEVEL)
 #endif
 
 /* ================== CHECKSUM from Fred Cohen ================== */
+/* these check sum functions operate on ethernet _frames_,
+   i.e., the 14 bytes MAC address followed by an IP datagram. */
 static unsigned short ipcsum (unsigned char* buffer, size_t length) {
   register long sum=0;          /* assumes long == 32 bits */
   unsigned short result;
