@@ -657,7 +657,7 @@ static int get_socket_protocol (object proto) {
       });
     if (pe) return pe->p_proto;
     pushSTACK(NIL);             /* no PLACE */
-    pushSTACK(TheSubr(subr_self)->name); pushSTACK(proto);
+    pushSTACK(proto); pushSTACK(TheSubr(subr_self)->name);
     check_value(error_condition,GETTEXT("~S: invalid protocol name ~S"));
     proto = value1;
     goto get_socket_protocol_restart;
