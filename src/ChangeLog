@@ -1,3 +1,8 @@
+2009-12-02  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c (get_socket_protocol)
+	[HAVE_GETPROTOBYNAME]: fix argument order in the error message
+
 2009-12-01  Sam Steingold  <sds@gnu.org>
 
 	* modules/clx/new-clx/clx.f, modules/rawsock/rawsock.c (unused):
