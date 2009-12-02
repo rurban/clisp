@@ -33,6 +33,8 @@ rawsock.m.c : $(srcdir)/rawsock.c
 
 preload.lisp : $(srcdir)/preload.lisp
 	$(LN_S) $(srcdir)/preload.lisp .
+	mkdir -p $(distribdir)/demos
+	$(LN) $(srcdir)/demos/*.lisp $(srcdir)/demos/README $(distribdir)/demos/
 
 # Make a module distribution into $(distribdir)
 clisp-module-distrib : clisp-module force
