@@ -12,33 +12,40 @@
     (setf (fill-pointer buffer) len)))
 
 (defun print-buffer (buffer)
-  (format t "len=~:D" (length buffer))
+  (format t " len=~:D" (length buffer))
   (loop :for byte :across buffer :do (format t " ~2,'0X"  byte))
   (terpri))
 
-(defun sniff (socket repeat)
-  (loop
-    :with buffer = (make-array *buffer-len* :element-type '(unsigned-byte 8)
-                               :fill-pointer 0)
-    :and device = (rawsock:make-sockaddr :UNSPEC)
-    :repeat repeat :do
-    (my-rcvfrom socket buffer device)
-    (format t "~%family ~a " (rawsock:sockaddr-family device))
-    (loop :for c :across (rawsock:sockaddr-data device)
-      :do (format t "~c" (if (= c 0) #\space (code-char c ))))
-    (print-buffer buffer)))
+(defun print-sockaddr (device)
+  (let ((family (rawsock:sockaddr-family device)))
+    (format t "family: ~A " family)
+    (case family
+      (:UNIX
+       (loop :for c :across (rawsock:sockaddr-data device)
+         :do (format t "~c" (if (= c 0) #\space (code-char c )))))
+      (t (prin1 (rawsock:sockaddr-data device))))))
+
+(defun my-open-socket (domain)
+  (cond ((string= domain "inet")
+         (rawsock:socket :inet :packet #x300))
+        ((string= domain "packet")
+         (rawsock:socket :packet :raw #x300))
+        (t (error "invalid socket domain ~S" domain))))
+
+(defun sniff (domain repeat)
+  (let ((socket (my-open-socket domain)))
+    (unwind-protect
+         (loop
+           :with buffer = (make-array *buffer-len* :fill-pointer 0
+                                      :element-type '(unsigned-byte 8))
+           :and device = (rawsock:make-sockaddr :UNSPEC)
+           :repeat repeat :do
+           (my-rcvfrom socket buffer device)
+           (print-sockaddr device)
+           (print-buffer buffer))
+      (rawsock:sock-close socket))))
 
 (unless (= 2 (length *args*))
   (error "Expected: ({inet|packet} repeat-count), got ~S" *args*))
 
-(defparameter *socket*
-  (let ((arg (pop *args*)))
-    (cond ((string= arg "inet")
-           (rawsock:socket :inet :packet #x300))
-          ((string= arg "packet")
-           (rawsock:socket :packet :raw #x300))
-          (t (error "invalid socket argument ~S" arg)))))
-(unless (plusp *socket*)
-  (error "Invalid socket created for ~S: ~S" *args* *socket*))
-
-(sniff *socket* (parse-integer (pop *args*)))
+(sniff (pop *args*) (parse-integer (pop *args*)))
