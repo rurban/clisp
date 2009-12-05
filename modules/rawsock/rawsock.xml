@@ -243,7 +243,7 @@ Sockets are represented by their &fixnum-t; &file-des;s.</para>
 <varlistentry id="rawsock-if-name-index"><term><code>(RAWSOCK:IF-NAME-INDEX
    &optional-amp; &what-r;)</code></term>
  <listitem><simpara>Call <function role="unix">if_nametoindex</function>
-   when &when-r; is a &string-t; and return an &integer-t;;
+   when &what-r; is a &string-t; and return an &integer-t;;
    or call <function role="unix">if_indextoname</function> when
    &what-r; is an &integer-t; and return a &string-t;.
    When &what-r; is &nil;, return an &alist; of
