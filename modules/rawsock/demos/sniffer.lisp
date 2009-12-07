@@ -9,11 +9,11 @@
 ;; --- more or less generic command line argument parsing
 (defparameter *arg-table*
   (make-hash-table :test 'equal :initial-contents
-                   '(("-domain" :INET "KEYWORD")
-                     ("-type" :PACKET "KEYWORD")
-                     ("-protocol" #x300 "KEYWORD")
-                     ("-repeat" 10)
-                     ("-bufsiz" 1518)))
+                   '(("-domain" :INET "domain argument for socket(2)")
+                     ("-type" :PACKET "type argument for socket(2)")
+                     ("-protocol" #x300 "protocol argument for socket(2)")
+                     ("-repeat" 10 "how many times to call rcvfrom(2)")
+                     ("-bufsiz" 1518 "the buffer size for rcvfrom(2)")))
   "Default argument values.")
 
 (defun parse-args (&optional (args *args*))
@@ -24,7 +24,8 @@ Use *ARG-TABLE* for help."
     (when (string= "-help" key)
       (format t "Packet sniffer~%Arguments:~%")
       (maphash (lambda (key val)
-                 (format t "  ~A  defaults to ~S~@[ (if not an integer, will be looked up in ~{~A~^, ~})~]~%" key (car val) (cdr val)))
+                 (format t "  ~A  ~A (default: ~S)~%"
+                         key (second val) (first val)))
                *arg-table*)
       (ext:quit 1))
     (unless val (error "Odd number of arguments: ~S" args))
@@ -40,12 +41,9 @@ and the parsed command line."
   (let ((arg (gethash opt ht))
         (dfl (gethash opt *arg-table*)))
     (if arg
-        (or (parse-integer arg :junk-allowed t)
-            (dolist (pack (cdr dfl))
-              (let ((s (find-symbol (string-upcase arg) pack)))
-                (when s (return s))))
-            (error "Invalid ~S: ~S" opt arg))
-        (car dfl))))
+        (handler-case (read-from-string arg)
+          (error (c) (error "Invalid ~S argument: ~S: ~A" opt arg c)))
+        (first dfl))))
 
 ;; --- the sniffer proper
 (defun my-rcvfrom (socket buffer device)
