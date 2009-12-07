@@ -1,43 +1,67 @@
 ;;; Packet sniffer
 ;; run as root like this:
-;; $ sudo clisp sniffer.lisp
-;; or
-;; $ sudo clisp sniffer.lisp -domain packet -type raw
+;; $ sudo clisp sniffer.lisp [options]
+;; for help:
+;; $ clisp sniffer.lisp -- -help
 
 (require "rawsock")
 
-;; parse command line
-(defun get-arg-ht ()
+;; --- more or less generic command line argument parsing
+(defparameter *arg-table*
+  (make-hash-table :test 'equal :initial-contents
+                   '(("-domain" :INET "KEYWORD")
+                     ("-type" :PACKET "KEYWORD")
+                     ("-protocol" #x300 "KEYWORD")
+                     ("-repeat" 10)
+                     ("-bufsiz" 1518)))
+  "Default argument values.")
+
+(defun parse-args (&optional (args *args*))
+  "Parse the list of command line arguments into a hash table.
+Use *ARG-TABLE* for help."
   (loop :with ht = (make-hash-table :test 'equal)
-    :for (key val) :on *args* :by #'cddr :do
-    (unless val (error "Odd number of arguments: ~S" *args*))
+    :for (key val) :on args :by #'cddr :do
+    (when (string= "-help" key)
+      (format t "Packet sniffer~%Arguments:~%")
+      (maphash (lambda (key val)
+                 (format t "  ~A  defaults to ~S~@[ (if not an integer, will be looked up in ~{~A~^, ~})~]~%" key (car val) (cdr val)))
+               *arg-table*)
+      (ext:quit 1))
+    (unless val (error "Odd number of arguments: ~S" args))
     (unless (char= #\- (char key 0)) (error "Non-option argument: ~S" key))
     (let ((v (gethash key ht)))
       (when v (error "Option ~S given more than once: ~S and ~S" key v val)))
     (setf (gethash key ht) val)
     :finally (return ht)))
 
-(defun get-opt (ht opt default pack)
-  (let ((val (gethash opt ht)))
-    (if val
-        (or (parse-integer val :junk-allowed t)
-            (and pack (find-symbol (string-upcase val) pack))
-            (error "Invalid ~S: ~S" opt val))
-        default)))
+(defun get-opt (ht opt)
+  "Get the specified option value based on the defauls in *ARG-TABLE*
+and the parsed command line."
+  (let ((arg (gethash opt ht))
+        (dfl (gethash opt *arg-table*)))
+    (if arg
+        (or (parse-integer arg :junk-allowed t)
+            (dolist (pack (cdr dfl))
+              (let ((s (find-symbol (string-upcase arg) pack)))
+                (when s (return s))))
+            (error "Invalid ~S: ~S" opt arg))
+        (car dfl))))
 
-(defvar *buffer-len* 1518)
-
+;; --- the sniffer proper
 (defun my-rcvfrom (socket buffer device)
-  (setf (fill-pointer buffer) 1518)
+  "Call RCVFROM on a buffer with a fill pointer."
+  (setf (fill-pointer buffer) (array-total-size buffer))
   (let ((len (rawsock:recvfrom socket buffer device)))
     (setf (fill-pointer buffer) len)))
 
 (defun print-buffer (buffer)
+  "Print the byte buffer nicely."
   (format t " len=~:D" (length buffer))
   (loop :for byte :across buffer :do (format t " ~2,'0X"  byte))
   (terpri))
 
 (defun print-sockaddr (device)
+  "Print a SOCKADDR object nicely."
   (let ((family (rawsock:sockaddr-family device)))
     (format t "family: ~A " family)
     (case family
@@ -47,19 +71,21 @@
       (t (prin1 (rawsock:sockaddr-data device))))))
 
 (defun sniff (args)
+  "Open a socket and print everything which come our way through it."
   (let ((socket (rawsock:socket
-                 (get-opt args "-domain" :INET "KEYWORD")
-                 (get-opt args "-type" :PACKET "KEYWORD")
-                 (get-opt args "-protocol" #x300 "KEYWORD"))))
+                 (get-opt args "-domain")
+                 (get-opt args "-type")
+                 (get-opt args "-protocol"))))
     (unwind-protect
          (loop
-           :with buffer = (make-array *buffer-len* :fill-pointer 0
+           :with buffer = (make-array (get-opt args "-bufsiz")
+                                      :fill-pointer 0
                                       :element-type '(unsigned-byte 8))
            :and device = (rawsock:make-sockaddr :UNSPEC)
-           :repeat (get-opt args "-repeat" 10 nil) :do
+           :repeat (get-opt args "-repeat") :do
            (my-rcvfrom socket buffer device)
            (print-sockaddr device)
            (print-buffer buffer))
       (rawsock:sock-close socket))))
 
-(sniff (get-arg-ht))
+(sniff (parse-args))
