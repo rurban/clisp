@@ -38,6 +38,9 @@
 #if defined(HAVE_LINUX_IF_PACKET_H)
 # include <linux/if_packet.h>
 #endif
+#if defined(HAVE_LINUX_NETLINK_H)
+# include <linux/netlink.h>
+#endif
 #if defined(HAVE_NET_IF_H)
 # include <net/if.h>
 #endif
@@ -635,6 +638,12 @@ DEFCHECKER(check_socket_protocol,default=0,                             \
            IPPROTO-ICMPV6 IPPROTO-DSTOPTS IPPROTO-NONE                  \
            IPPROTO-RSVP IPPROTO-GRE IPPROTO-PIM IPPROTO-COMP            \
            NSPROTO-IPX NSPROTO-SPX NSPROTO-SPXII                        \
+           NETLINK_ROUTE NETLINK_USERSOCK NETLINK_FIREWALL NETLINK_INET_DIAG \
+           NETLINK_NFLOG NETLINK_XFRM NETLINK_SELINUX NETLINK_ISCSI     \
+           NETLINK_AUDIT NETLINK_FIB_LOOKUP NETLINK_CONNECTOR           \
+           NETLINK_NETFILTER NETLINK_IP6_FW NETLINK_DNRTMSG             \
+           NETLINK_KOBJECT_UEVENT NETLINK_GENERIC NETLINK_SCSITRANSPORT \
+           NETLINK_ECRYPTFS                                             \
            ETH-P-LOOP ETH-P-PUP ETH-P-PUPAT ETH-P-IP ETH-P-X25 ETH-P-ARP \
            ETH-P-BPQ ETH-P-IEEEPUP ETH-P-IEEEPUPAT ETH-P-DEC ETH-P-DNA-DL \
            ETH-P-DNA-RC ETH-P-DNA-RT ETH-P-LAT ETH-P-DIAG ETH-P-CUST    \
