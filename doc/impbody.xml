@@ -4471,7 +4471,7 @@ Let us consider different criteria:<orderedlist numeration="arabic">
 <warning id="stream-eltype-stdio"><simpara>&clisp; expects to be able to
   do &character-t; i/o on standard streams like &terminal-io-var;,
   &standard-output-var;, &standard-input-var;, &error-output-var;,
-  &query-io-var; et al, thus is is a <emphasis>very</emphasis> bad idea
+  &query-io-var; et al, thus is is a &very-e; bad idea
   to change their &stream-element-type; even when you can. Use
   &make-stream; instead, see <xref linkend="bin-stdio"/>.</simpara></warning>
 
@@ -5154,7 +5154,14 @@ the first one!</para></warning>
 forms are treated specially: &load-paths; is searched for
 &foolisp-f; &and-e; <filename>#P"foo.lib"</filename>.
 If the latest such file is a &lisp-file;, it is compiled;
-otherwise the &lib-file; is loaded.</para>
+otherwise the &lib-file; is loaded.
+If neither is found, <code>(&require; &foo-f;)</code> is called.</para>
+<warning id="module-user-file-name-conflict"><para>It is a &very-e; bad
+idea to name your files the same way as &clisp; modules
+(whether <link linkend="included-modules">system-supplied</link>
+or <olink targetdoc="clink" targetptr="opt-install">user-installed</olink>)
+because then &require-my; will use different files at compile
+and execution times.</para></warning>
 
 <para>The &lib-file; is a <quote>header</quote> file which contains the
 constant, variable, inline and macro definitions necessary for
