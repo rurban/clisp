@@ -1,3 +1,13 @@
+2009-12-10  Sam Steingold  <sds@gnu.org>
+
+	when compiling REQUIRE, if the module is not found (e.g., it is a
+	dynamic module), call REQUIRE right away, at compile time.
+	* defs1.lisp (augment-load-path, load-path-augmentations)
+	(with-augmented-load-path): extracted from require
+	(require): use with-augmented-load-path
+	* compiler.lisp (load-or-compile): extracted from c-REQUIRE
+	(c-REQUIRE): use load-or-compile
+
 2009-12-08  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/rawsock.c: include <linux/netlink.h> when present

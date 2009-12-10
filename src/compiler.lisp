@@ -3414,38 +3414,48 @@ for-value   NIL or T
 (defun c-PROVIDE (module-name)
   (pushnew (module-name module-name) *compiled-modules* :test #'string=))
 
+;; load or compile
+(defun load-or-compile (module-name file may-require)
+  (with-augmented-load-path ((make-pathname :name nil :type nil
+                                            :defaults *compile-file-pathname*))
+    (let* ((present-files
+            (search-file file (append *source-file-types* '("lib")) nil))
+           (newest-file (first present-files)))
+      ;; if the libfile occurs among the found Files
+      ;; and if it is the newest:
+      (if (and (consp present-files)
+               (string= (pathname-type newest-file) "lib"))
+        (load newest-file ; load libfile
+              :verbose (and *load-verbose* *compile-verbose*)
+              :print (and *load-print* *compile-print*))
+        (if newest-file
+            ;; found file in *load-paths*+*compile-file-pathname*
+            (if *compile-file-directory*
+              ;; `compile-file' was given :output-file,
+              ;; so put the compiled file there
+              (compile-file newest-file :output-file
+                            (merge-pathnames *compile-file-directory*
+                                             newest-file))
+              ;; `compile-file' was called without an explicit
+              ;; :output-file arg, so compile `in place'
+              (compile-file newest-file))
+            ;; file not found - call require
+            (if may-require
+              (require module-name)
+              (c-error *form*
+                       (TEXT "Cannot find file ~S required by feature ~S")
+                       file module-name)))))))
+
 ;; auxiliary function: REQUIRE on file-compilation, cf. function REQUIRE
 (defun c-REQUIRE (module-name &optional (pathname nil p-given))
   (setq module-name (module-name module-name))
   (unless (or (member module-name *modules* :test #'string=)
               (member module-name *compiled-modules* :test #'string=))
     (unless p-given (setq pathname (pathname module-name)))
-    (flet ((load-lib (file)
-             (let* ((*load-paths*
-                      (cons (make-pathname :name nil :type nil
-                                           :defaults *compile-file-truename*)
-                            *load-paths*))
-                    (present-files
-                      (search-file file (append *source-file-types* '("lib"))))
-                    (newest-file (first present-files)))
-               ;; if the libfile occurs among the found Files
-               ;; and if it is the newest:
-               (if (and (consp present-files)
-                        (string= (pathname-type newest-file) "lib"))
-                 (load newest-file ; load libfile
-                       :verbose (and *load-verbose* *compile-verbose*)
-                       :print (and *load-print* *compile-print*))
-                 (let ((fi (or newest-file file)))
-                   (if (null *compile-file-directory*)
-                     ;; `compile-file' was called without an explicit
-                     ;; :output-file arg, so compile `in place'
-                     (compile-file fi)
-                     ;; `compile-file' was given :output-file,
-                     ;; so put the compiled file there
-                     (compile-file fi :output-file
-                                   (merge-pathnames *compile-file-directory*
-                                                    fi))))))))
-      (if (atom pathname) (load-lib pathname) (mapcar #'load-lib pathname)))))
+    (if (atom pathname)
+        (load-or-compile module-name pathname t)
+        (mapcar (lambda (path) (load-or-compile module-name path nil))
+                pathname))))
 
 ;;; auxiliary functions for
 ;;; LET/LET*/MULTIPLE-VALUE-BIND/Lambda-Expression/FLET/LABELS:

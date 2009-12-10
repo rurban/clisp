@@ -168,22 +168,32 @@ Also the default packages to unlock by WITHOUT-PACKAGE-LOCK.")
 (defvar *user-lib-directory* nil
   "The location of user-installed modules.")
 
+(defun augment-load-path (paths)
+  (dolist (path paths *load-paths*)
+    (when path (setq *load-paths* (adjoin path *load-paths* :test #'equal)))))
+
+(defun load-path-augmentations (dynmod)
+  (list (merge-pathnames dynmod *lib-directory*)
+        (and *user-lib-directory*
+             (merge-pathnames dynmod *user-lib-directory*))
+        (and *load-pathname* ; not truename to respect symlinks
+             (make-pathname :name nil :type nil :defaults *load-pathname*))
+        (and *compile-file-pathname* ; could be called by eval-when-compile
+             (make-pathname :name nil :type nil
+                            :defaults *compile-file-pathname*))))
+
+(defmacro with-augmented-load-path (dirs &body body)
+  `(let ((*load-paths*
+          ;; the name "dynmod/" used here should be in sync with clisp-link
+          (augment-load-path
+           ,(if dirs `(list ,@dirs) '(load-path-augmentations "dynmod/")))))
+     ,@body))
+
 (defun require (module-name &optional (pathname nil p-given))
   (setq module-name (module-name module-name))
   (unless (member module-name *modules* :test #'string=)
     (unless p-given (setq pathname (pathname module-name)))
-    (let (#+CLISP (*load-paths* *load-paths*)
-          #-CLISP (*default-pathname-defaults* '#""))
-      ;; "dynmod/" should be in sync with clisp-link
-      #+CLISP (pushnew (merge-pathnames "dynmod/" *lib-directory*) *load-paths*
-                       :test #'equal)
-      #+CLISP (when *user-lib-directory*
-                (pushnew (merge-pathnames "dynmod/" *user-lib-directory*)
-                         *load-paths* :test #'equal))
-      #+CLISP (when *load-truename*
-                (pushnew (make-pathname :name nil :type nil
-                                        :defaults *load-truename*)
-                         *load-paths* :test #'equal))
+    (with-augmented-load-path ()
       (if (atom pathname) (load pathname) (mapcar #'load pathname)))))
 
 
