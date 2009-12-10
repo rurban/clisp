@@ -1,3 +1,9 @@
+2009-12-08  Sam Steingold  <sds@gnu.org>
+
+	* modules/rawsock/rawsock.c: include <linux/netlink.h> when present
+	(check_socket_protocol): add NETLINK_*
+	* modules/rawsock/configure.in: check for <linux/netlink.h>
+
 2009-12-02  Sam Steingold  <sds@gnu.org>
 
 	* modules/rawsock/demos/sniffer.lisp: add a demo
