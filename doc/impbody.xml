@@ -6018,9 +6018,9 @@ exhaust the available line length.</para></simplesect>
 (&defvar; *loggable* &x-r;)
 (&setq; &x-r; (&make-synonym-stream; '*loggable*))
 (&defun; toggle-logging (&optional-amp; s)
-  (&multiple-value-bind; (so ta) (dribble-toggle *loggable* s)
-    (&when; (&streamp; so) (&setq; *loggable* so))
-    ta))
+  (&multiple-value-bind; (source target) (dribble-toggle *loggable* s)
+    (&when; (&streamp; source) (&setq; *loggable* source))
+    target))
 (toggle-logging &y-r;)<lineannotation>start logging</lineannotation>
 ...
 (toggle-logging)<lineannotation>finish logging</lineannotation>
