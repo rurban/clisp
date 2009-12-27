@@ -25,7 +25,7 @@ local void move_conses (sintM delta);
 /* defines memory region in the varobject heap page.
  used during sweep phase and holes filling. */
 typedef struct varobj_mem_region {
-#if defined(MULTITHREAD) && defined(SPVW_PURE)
+#if defined(SPVW_PURE)
   uintL heapnr; /* heap where region is located - for faster checking */
 #endif
   aint start; /* start address */
@@ -1756,7 +1756,7 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
     /* there is place in the hole for at least a varobject header*/
    #ifdef SPVW_MIXED
     /* single heap for varobjects - so just reserve simple-8bit-vectors.
-       if the holes happens to be large (more than array-total-size-limit
+       if the hole happens to be large (more than array-total-size-limit
        elements) - "allocate" few vectors. */
     while (holes->size != 0) {
       var Sbvector ptr=(Sbvector)holes->start;
@@ -1774,6 +1774,16 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       ptr->tfl = vrecord_tfl(Rectype_Sb8vector,len);
      #endif
       len  = objsize(ptr); /* handle alignments */
+     #ifndef SPVW_PAGES
+      if (len >= MIN_HOLE_SIZE_FOR_REUSE) { /* reuse only large holes */
+        var heap_hole *hh = (heap_hole *)&ptr->data;
+        /* store the size in order not to call objsize()/varobject_bytelength()
+           while reusing the hole (in spvw_allocate()) */
+        hh->hh_size = len;
+        hh->hh_next = mem.varobjects.holes_list; /* and ptr to next hole */
+        mem.varobjects.holes_list = (aint)ptr;
+      }
+     #endif
       holes->start += len; holes->size -= len; /* shrink the hole */
     }
    #else  /* SPVW_PURE ==> TYPECODES */
@@ -1782,7 +1792,6 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
        look at the type of the pinned object (the one after the end of
        the hole). We have to "allocate" the same type with length of the
        hole.*/
-    /*TODO: currently only simple vectors are implemented */
     while (holes->size != 0) {
       var bool vector=true;
       var Varobject ptr=(Varobject)holes->start;
@@ -1797,10 +1806,20 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
       case_sb16vector: ((Sbvector)ptr)->length = len>>=1; break;
       case_sb32vector: ((Sbvector)ptr)->length = len>>=2; break;
       default:
-        /* TODO: HANDLE STRIGS */
+        /* TODO: HANDLE STRINGS */
         fprintf(stderr,"unsupported type of pinned object !!!\n");
         abort();
       }
+     #ifndef SPVW_PAGES
+      if (holes->size >= MIN_HOLE_SIZE_FOR_REUSE) { /* reuse only large holes */
+        var heap_hole *hh = (heap_hole *)&((Sbvector)ptr)->data;
+        /* store the size in order not to call objsize()/varobject_bytelength()
+           while reusing the hole (in spvw_allocate()) */
+        hh->hh_size = holes->size;
+        hh->hh_next = mem.heaps[heapnr].holes_list; /* and ptr to next hole */
+        mem.heaps[heapnr].holes_list = (aint)ptr;
+      }
+     #endif
       holes->start += holes->size; /* points to the pinned object */
     }
    #endif
@@ -1837,6 +1856,108 @@ local inline void fill_varobject_heap_holes(varobj_mem_region *holes)
 #endif
 }
 
+#if defined(MULTITHREAD) && defined(GENERATIONAL_GC)
+/* UP: splits gen0 in case at it's end there are large heap holes (i.e. pinned
+   object(s) at the end of heap). Since we may fill holes only in gen1 - let's
+   split gen0 on the hole boundary.
+ > heapnr: index of varobject heap
+ > rwareas: areas in the heap that should be left with PROT_READ_WRITE
+ < returns true if the heap was split on gen0/gen1, false otherwise */
+local bool split_gen0_on_holes(uintL heapnr, varobj_mem_region *rwareas)
+{
+  var Heap *heap = &mem.heaps[heapnr];
+  var aint total_in_holes = heap_holes_space(heap); /* size of all holes */
+  /* traverse the heap holes (if any) in reverse order (from end) until
+     place occupied by them is more than 50% of heap being traversed */
+  var aint used = 0, in_holes = 0, last_hole = heap->heap_end;
+  var aint hl = heap->holes_list;
+  while (hl) {
+    var heap_hole *hh = (heap_hole *)&((Sbvector)hl)->data;
+    used += last_hole - (hl + hh->hh_size);
+    in_holes += hh->hh_size;
+    /* stop if more than half of the holes area will be recovered and
+       till now used space is at least 50% of the space in holes
+       (holes get "clustered" at the end of the heap) */
+    if ((in_holes > (total_in_holes << 1) ) && (used > (in_holes << 1)))
+      break;
+    /* check whether we can split at this hole - the hole should disappear or
+       after page alignment there should remain at least:
+       sizeof(heap_hole)+size_sbvector(0) bytes */
+    var aint gen1_start = (hl + (physpagesize-1)) & -physpagesize;
+    if ((gen1_start == hh->hh_size+hl)  ||
+        (gen1_start <= (hh->hh_size+hl - offsetofa(sbvector_,data) - sizeof(heap_hole)))) {
+      last_hole = hl; /* set new end */
+    }
+    hl = hh->hh_next; /* next hole */
+  }
+  /* if there are not holes or their size os "relatively" small to used area -
+     do not consider them for reuse */
+  if ((last_hole == heap->heap_end) || (used > (in_holes << 1))) {
+    heap->holes_list = 0; /* clear holes - all of them will remain in gen0*/
+    return false; /* no splitting - everything goes in gen0 */
+  }
+  /* last_hole is the place to split gen0 and gen1 */
+  heap->heap_gen0_end = last_hole; /* end of gen0 */
+  hl = (last_hole + (physpagesize-1)) & -physpagesize; /* start of gen1 */
+ #if varobjects_misaligned
+  hl += varobjects_misaligned;
+  if (heap->heap_limit < heap->heap_end)
+    heap->heap_limit = heap->heap_end;
+ #endif
+  heap->heap_gen1_start = hl;
+
+  /* now we should adjust the holes and rwareas */
+  var heap_hole *hh = (heap_hole *)&((Sbvector)last_hole)->data;
+  var aint new_hole_size = hh->hh_size - (hl - last_hole);
+  var aint last_rwarea = (last_hole + hh->hh_size) & -physpagesize;
+  var Sbvector ptr = (Sbvector)hl; /* new updated hole at gen1 start */
+  var heap_hole *new_hh = (heap_hole *)&ptr->data;
+  *ptr = *((Sbvector)last_hole);
+  new_hh->hh_next = 0; /* last hole to be filled */
+  new_hh->hh_size = new_hole_size;
+#ifdef SPVW_MIXED
+  /* it's Rectype_Sb8vector */
+ #ifdef TYPECODES
+  ptr->length = new_hh->hh_size - offsetofa(sbvector_,data);
+ #else
+  ptr->tfl = vrecord_tfl(Rectype_Sb8vector, new_hh->hh_size - offsetofa(sbvector_,data));
+ #endif
+#else /* SPVW_PURE */
+  /* we may have different element types here */
+  ptr->length = ((new_hh->hh_size - offsetofa(sbvector_,data))<<3) >> sbNvector_atype(ptr->GCself);
+#endif
+  if (new_hole_size < MIN_HOLE_SIZE_FOR_REUSE)
+    ptr = NULL; /* do not reuse this hole */
+  /* now cut the holes chain so all holes reside in gen1 */
+  var aint *hl_ = &heap->holes_list;
+  while (*hl_) {
+    if (*hl_ == last_hole) {
+      *hl_ = (aint)ptr; /* break the holes list - next ones will be in gen0 */
+      break;
+    }
+    var heap_hole *hole = (heap_hole *)&((Sbvector)*hl_)->data;
+    hl_ = &hole->hh_next; /* address of next hole in the chain */
+  }
+  /* and finally break rwareas list - leave only these in gen0 */
+ #ifdef SPVW_PURE
+  while (rwareas->heapnr == heapnr)
+ #else
+  while (rwareas->size)
+ #endif
+  {
+    if (rwareas->start == last_rwarea) {
+      rwareas->start = 0;
+     #ifdef SPVW_PURE
+      rwareas->heapnr = heapcount + 1;
+     #endif
+      break;
+    }
+    rwareas++;
+  }
+  return true; /* generations were split */
+}
+#endif
+
 /* splits list of object to referenced and non-referenced based on the gc mark
    bit and additional condition */
 #define SPLIT_REF_LISTS(items,ref_items,noref_items,condition)          \
@@ -1867,10 +1988,13 @@ local void gar_col_normal (void)
   var object files_to_close;    /* list of files to be closed */
   #endif
   #if defined(MULTITHREAD)
-
   var object threads_to_go; /* list of threads to be released */
   var object mutexes_to_go; /* list of mutexes to be released */
   var object exemptions_to_go; /* list of exemptions to be released */
+  #ifndef SPVW_PAGES
+  /* clear existing heap holes */
+  for_each_varobject_heap(heap, { heap->holes_list = 0; });
+  #endif
   #endif /* MULTITHREAD */
   set_break_sem_1();       /* disable BREAK during Garbage Collection */
   gc_signalblock_on();   /* disable Signals during Garbage Collection */
@@ -2116,7 +2240,7 @@ local void gar_col_normal (void)
 			       holes_to_fill,&holes_count);});
 #endif
   holes_to_fill[holes_count].start = 0; /* mark the end of holes array */
-#if defined(SPVW_PURE) && defined(MULTITHREAD)
+#if defined(SPVW_PURE)
   /* set invalid heapnr for the "last hole" */
   holes_to_fill[holes_count].heapnr = heapcount+1;
 #endif
@@ -2245,6 +2369,14 @@ local void gar_col_normal (void)
             heap->heap_start = heap->heap_gen1_end = start;
           } else
          #endif
+         #ifdef MULTITHREAD
+          /* try to split gen0 in case there are large holes at it's end */
+          #ifdef SPVW_PURE
+          if (is_cons_heap(heapnr) || !split_gen0_on_holes(heapnr, holes_to_fill+holes_idx[heapnr]))
+          #else
+          if (is_cons_heap(heapnr) || !split_gen0_on_holes(heapnr, holes_to_fill))
+          #endif
+         #endif
           {
             var aint end = heap->heap_end;
             heap->heap_gen0_end = end;
@@ -2360,11 +2492,11 @@ local void gar_col_normal (void)
       gen0_sum += heap->heap_gen0_end - heap->heap_gen0_start;
     });
    #ifdef SPVW_MIXED_BLOCKS_OPPOSITE
-    gen1_sum += mem.varobjects.heap_end - mem.varobjects.heap_gen1_start;
+    gen1_sum += mem.varobjects.heap_end - mem.varobjects.heap_gen1_start - heap_holes_space(&mem.varobjects);
     gen1_sum += mem.conses.heap_gen1_end - mem.conses.heap_start;
    #else
     for_each_heap(heap, {
-      gen1_sum += heap->heap_end - heap->heap_gen1_start;
+      gen1_sum += heap->heap_end - heap->heap_gen1_start - heap_holes_space(heap);
     });
    #endif
     /* NB: gcend_space == gen0_sum + gen1_sum. */

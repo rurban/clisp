@@ -31,9 +31,47 @@ local void* mymalloc (uintM need);
     #define LOCK_ALLOCATE()     ACQUIRE_HEAP_LOCK()
     #define RETURN_OBJ(obj)     RELEASE_HEAP_LOCK(); return obj
   #endif
-#else
-#define LOCK_ALLOCATE()
-#define RETURN_OBJ(obj) return obj
+  #ifdef SPVW_BLOCKS
+   /* with SPVW_BLOCKS we want to reuse heap holes appeared due to pinned
+      objects */
+   local inline aint allocate_in_heap_hole(uintM need, Heap* heapptr) {
+     var aint hl = heapptr->holes_list;
+     while (hl) {
+       var heap_hole *hh = (heap_hole *)&((Sbvector)hl)->data;
+       /* there should remain at least place for vector header + heap_hole */
+       if (need <= hh->hh_size - offsetofa(sbvector_,data) - sizeof(heap_hole)) {
+         hh->hh_size -= need; /* shrink the hole */
+         var aint ret = hl + hh->hh_size; /* return mem at the end */
+         var Sbvector ptr=(Sbvector)hl;
+        #ifdef SPVW_MIXED
+         /* it's Rectype_Sb8vector */
+          #ifdef TYPECODES
+            ptr->length = hh->hh_size - offsetofa(sbvector_,data);
+          #else
+            ptr->tfl = vrecord_tfl(Rectype_Sb8vector, hh->hh_size - offsetofa(sbvector_,data));
+          #endif
+        #else /* SPVW_PURE */
+            /* we may have different element types here */
+            ptr->length = ((hh->hh_size - offsetofa(sbvector_,data))<<3) >> sbNvector_atype(ptr->GCself);
+        #endif
+         /* if the hole shrank too much - skip it */
+         if (hh->hh_size < MIN_HOLE_SIZE_FOR_REUSE) {
+           heapptr->holes_list = hh->hh_next; /* advance to next hole */
+         }
+         return ret;
+       }
+       /* no place here - try next hole */
+       hl = hh->hh_next; /* next hole */
+     }
+     return 0;
+   }
+  #else
+   #define allocate_in_heap_hole(need, heapptr) (aint)0
+  #endif
+#else /* !MULTITHREAD */
+  #define allocate_in_heap_hole(need,heapptr) (aint)0
+  #define LOCK_ALLOCATE()
+  #define RETURN_OBJ(obj) return obj
 #endif
 
 /* -------------------------- Implementation --------------------------- */
@@ -592,13 +630,15 @@ local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
   /* object of variable length: */
   #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement) do { \
-    make_space_true(size_expr);                                         \
+    var ptrtype ptrvar = (ptrtype)allocate_in_heap_hole(size_expr, &mem.varobjects); \
+    if (!ptrvar) make_space_true(size_expr);                            \
     set_break_sem_1();                    /* lock Break */              \
-   {var ptrtype ptrvar;                                                 \
-    var object obj;                                                     \
-    ptrvar = (ptrtype) mem.varobjects.heap_end; /* pointer to memory piece */ \
-    mem.varobjects.heap_end += (size_expr); /* adjust memory partitioning */ \
-    decrement_total_room(size_expr);                                    \
+   {var object obj;                                                     \
+    if (!ptrvar) {                                                      \
+      ptrvar = (ptrtype) mem.varobjects.heap_end; /* pointer to memory piece */ \
+      mem.varobjects.heap_end += (size_expr); /* adjust memory partitioning */ \
+      decrement_total_room(size_expr);                                  \
+    }                                                                   \
     ptrvar->GCself = obj =                      /* self pointer */      \
       bias_type_pointer_object(varobject_bias,type_expr,ptrvar);        \
     statement;         /* initialize memory piece */                    \
@@ -626,13 +666,15 @@ local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_
       allocate_##flag (type_expr,size_expr,ptrtype,ptrvar,statement)
   /* Object of variable length: */
   #define allocate_true(type_expr,size_expr,ptrtype,ptrvar,statement) do { \
-    make_space(size_expr,&mem.varobjects);                              \
+    var ptrtype ptrvar = (ptrtype)allocate_in_heap_hole(size_expr, &mem.varobjects); \
+    if (!ptrvar) make_space(size_expr,&mem.varobjects);                 \
     set_break_sem_1();                    /* lock Break */              \
-   {var ptrtype ptrvar;                                                 \
-    var object obj;                                                     \
-    ptrvar = (ptrtype) mem.varobjects.heap_end; /* pointer to memory piece */ \
-    mem.varobjects.heap_end += (size_expr); /* adjust memory partitioning */ \
-    decrement_total_room(size_expr);                                    \
+   {var object obj;                                                     \
+     if (!ptrvar) {                                                     \
+       ptrvar = (ptrtype) mem.varobjects.heap_end; /* pointer to memory piece */ \
+       mem.varobjects.heap_end += (size_expr); /* adjust memory partitioning */ \
+       decrement_total_room(size_expr);                                 \
+     }                                                                  \
     ptrvar->GCself = obj =                      /* self pointer */      \
       bias_type_pointer_object(varobject_bias,type_expr,ptrvar);        \
     statement;         /* initialize memory piece */                    \
@@ -659,12 +701,15 @@ local Pages make_space_gc (uintM need, Heap* heap_ptr, AVL(AVLID,stack) * stack_
     LOCK_ALLOCATE();                                                    \
     var tint _type = (type_expr);                                       \
     var Heap* heapptr = &mem.heaps[_type];                              \
-    make_space(size_expr,heapptr);                                      \
+    var ptrtype ptrvar = (ptrtype)allocate_in_heap_hole(size_expr, heapptr); \
+    if (!ptrvar) make_space(size_expr,heapptr);                         \
     set_break_sem_1();                    /* lock Break */              \
     /* pointer to memory piece: */                                      \
-   {var ptrtype ptrvar = (ptrtype)(heapptr->heap_end);                  \
-    heapptr->heap_end += (size_expr); /* adjust memory partitioning */  \
-    decrement_total_room(size_expr);                                    \
+    {if (!ptrvar) {                                                     \
+      ptrvar = (ptrtype)(heapptr->heap_end);                            \
+      heapptr->heap_end += (size_expr); /* adjust memory partitioning */\
+      decrement_total_room(size_expr);                                  \
+    }                                                                   \
     allocate_##flag (ptrvar);                                           \
     statement;         /* initialize memory piece */                    \
     clr_break_sem_1(); /* allow Break */                                \

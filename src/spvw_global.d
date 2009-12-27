@@ -771,8 +771,11 @@ global maygc void clear_per_thread_symvalues(object symbol)
   }
 }
 
-local void init_heap_locks()
+local void init_heaps_mt()
 {
   spinlock_init(&mem.alloc_lock);
+  #ifndef SPVW_PAGES /* only in SPVW_BLOCKS we reuse the heap holes */
+  for_each_heap(heap, { heap->holes_list = 0; } );
+  #endif
 }
 #endif

@@ -3704,7 +3704,7 @@ global int main (argc_t argc, char* argv[]) {
   /* initialize main thread */
   {
     init_multithread();
-    init_heap_locks();
+    init_heaps_mt();
     set_current_thread(create_thread(0));
     #ifdef DEBUG_GCSAFETY
       use_dummy_alloccount=false; /* now we have threads */
