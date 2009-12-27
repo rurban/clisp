@@ -1,3 +1,26 @@
+2009-12-27  Vladimir Tzankov  <vtzankov@gmail.com>
+
+	[MULTITHREAD, SPVW_BLOCKS]: reuse heap holes for allocations
+	* spvw_heap.d (struct heap_hole): strut at the beginning of heap hole
+	describing it
+	(struct Heap): add heap holes list
+	(MIN_HOLE_SIZE_FOR_REUSE): minimum heap hole to consider for reuse
+	* spvw_global.d (init_heaps_mt): was init_heap_locks. initialize heap
+	holes list
+	* spvw.d (main): use it
+	* spvw_allocate.d (allocate_in_heap_hole): allocates varobject in heap
+	hole (if any of required size is available)
+	(allocate_true): try first to allocate in heap hole (if any)
+	* spvw_garcol.d (fill_varobject_heap_holes): initialize heap holes list
+	(split_gen0_on_holes) [GENERATIONAL_GC]: split generation 0 if there is
+	a large hole at it's end
+	(gar_col_normal): clear heap holes before performing GC. may be split
+	generation 0 if there is large hole at it's end. take into account
+	heap holes when computing used space
+	* spvw_space.d (heap_holes_space): calculates space occupied by holes
+	for reuse in given heap
+	(used_space): take into account heap holes when computing used space
+
 2009-12-10  Sam Steingold  <sds@gnu.org>
 
 	when compiling REQUIRE, if the module is not found (e.g., it is a
