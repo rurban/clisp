@@ -75,9 +75,8 @@ typedef struct {
  #define physpage_pinned_mask  ((uintL)(bit(intLsize-1)))
  #define physpage_pin_marked(p) ((p)->cache_size & physpage_pinned_mask)
  #define physpage_pin_mark(p) p->cache_size |= physpage_pinned_mask
-#endif
-
-#endif
+#endif /* MULTITHREAD & GENERATIONAL_GC */
+#endif /* GENERATIONAL_GC */
 
 typedef struct {
   Pages pages;
@@ -93,7 +92,26 @@ typedef struct {
   aint heap_gen1_start;
   physpage_state_t* physpages;
   #endif
+  #ifdef MULTITHREAD
+  /* list of heap holes (simple vectors) is kept here so we can reuse these
+     heap areas for regular allocations */
+  aint holes_list;
+  #endif
 } Heap;
+
+#ifdef MULTITHREAD
+/* Heap holes are "filled" with dummy simple bit vectors. We reuse larger holes
+ (> mmap_pagesize) and we place the structure below in sbvector->data - thus
+ making a list of such holes */
+typedef struct {
+  uintM hh_size; /* size in bytes of the hole */
+  aint hh_next; /* pointer to next hole */
+} heap_hole;
+/* define smallest hole size that we will consider to reuse. holes smaller
+   than this will be ignored */
+#define MIN_HOLE_SIZE_FOR_REUSE mmap_pagesize
+#endif
+
 #define heap_start  pages.page_start
 #define heap_end    pages.page_end
 #if defined(SPVW_PURE_BLOCKS) || (defined(SPVW_MIXED_BLOCKS) && defined(TRIVIALMAP_MEMORY))

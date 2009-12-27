@@ -21,6 +21,25 @@ local void recalc_space (bool check);
 
 /* -------------------------- Implementation --------------------------- */
 
+#if defined(MULTITHREAD) && defined(SPVW_BLOCKS)
+/* UP: returns sum of sizes of all holes in a heap
+   currently used from spvw_garcol.d and here */
+local inline uintM heap_holes_space(Heap *heap) {
+  var uintM ret = 0;
+  var aint hl = heap->holes_list;
+  while (hl) {
+    var heap_hole *hh = (heap_hole *)&((Sbvector)hl)->data;
+    ret += hh->hh_size;
+    hl = hh->hh_next;
+  }
+  return ret;
+}
+#else
+/* no holes in single thread builds & MT+SPVW_PAGES */
+#define heap_holes_space(heap) (uintM)0
+#endif
+
+
 global uintM static_space (void) {
   var uintM sum = 0;
   /* space of symbol_tab: cf. macro for_all_constsyms */
@@ -47,11 +66,13 @@ global uintM used_space() {
   #if !defined(GENERATIONAL_GC)
    #define Heap_used_space(h)  ((uintM)((h).pages.end - (h).pages.start))
   return Heap_used_space(mem.varobjects) /* space for objects of variable length */
+    - heap_holes_space(&mem.varobjects) /* subtract heap holes */
     + Heap_used_space(mem.conses);       /* space for conses */
   #else  /* defined(GENERATIONAL_GC) */
   return
     (uintM)(mem.varobjects.heap_gen0_end - mem.varobjects.heap_gen0_start)
     + (uintM)(mem.varobjects.heap_end - mem.varobjects.heap_gen1_start)
+    - heap_holes_space(&mem.varobjects)
     + (uintM)(mem.conses.heap_gen1_end - mem.conses.heap_start)
     + (uintM)(mem.conses.heap_gen0_end - mem.conses.heap_gen0_start);
   #endif
@@ -60,11 +81,14 @@ global uintM used_space() {
 global uintM used_space() {
   var uintM sum = 0;
   #if !defined(GENERATIONAL_GC)
-  for_each_page(page, { sum += page->page_end - page->page_start; });
+  for_each_heap(heap, {
+    sum += heap->heap_end - heap->heap_start - heap_holes_space(heap);
+  });
   #else  /* defined(GENERATIONAL_GC) */
   for_each_heap(heap, {
     sum += (heap->heap_gen0_end - heap->heap_gen0_start)
-      + (heap->heap_end - heap->heap_gen1_start);
+      + (heap->heap_end - heap->heap_gen1_start)
+      - heap_holes_space(heap);
   });
   #endif
   return sum;
