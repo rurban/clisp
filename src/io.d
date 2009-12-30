@@ -1108,10 +1108,6 @@ local const uintB attribute_table[small_char_code_limit] = {
   #define attribute_of(c)  attribute_table[as_cint(c)]
 #endif
 
-/* Flag. indicates, if a single-escape- or multiple-escape-character
- occurred in the last read token: */
-local bool token_escape_flag;
-
 /* UP: delivers two buffers.
  if two buffers are available in the reservoir TLO(token_buff_1),
  TLO(token_buff_2), they are extracted. Otherwise new ones are allocated.
@@ -1155,9 +1151,10 @@ local maygc void get_buffers (void) {
  < stream: Stream
  < TLO(token_buff_1): read Characters
  < TLO(token_buff_2): their Attributcodes
- < token_escape_flag: Escape-Character-Flag
- can trigger GC */
-local maygc void read_token (const gcv_object_t* stream_);
+ < token_escape_flag: indicates if a single-escape- or
+     multiple-escape-character occurred in the last read token */
+local maygc void read_token (const gcv_object_t* stream_,
+                             bool *token_escape_flag);
 
 /* UP: reads an extended token, first character has already been read.
  read_token_1(&stream,ch,scode);
@@ -1168,19 +1165,21 @@ local maygc void read_token (const gcv_object_t* stream_);
  < TLO(token_buff_2): their attributcodes
  < token_escape_flag: Escape-character-Flag
  can trigger GC */
-local maygc void read_token_1 (const gcv_object_t* stream_, object ch, uintWL scode);
+local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
+                               uintWL scode, bool *token_escape_flag);
 
-local maygc void read_token (const gcv_object_t* stream_) {
+local maygc void read_token (const gcv_object_t* stream_,
+                             bool *token_escape_flag) {
   /* read first character: */
   var object ch;
   var uintWL scode;
   read_char_syntax(ch = ,scode = ,stream_);
   /* build up token: */
-  read_token_1(stream_,ch,scode);
+  read_token_1(stream_,ch,scode,token_escape_flag);
 }
 
 local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
-                               uintWL scode) {
+                               uintWL scode, bool *token_escape_flag) {
   if (terminal_stream_p(*stream_))
     dynamic_bind(S(terminal_read_open_object),S(symbol));
   /* fetch empty Token-Buffers, upon STACK: */
@@ -1277,7 +1276,7 @@ local maygc void read_token_1 (const gcv_object_t* stream_, object ch,
   }
  ende:
   /* now token is finished, multiple_escape_flag = false. */
-  token_escape_flag = escape_flag; /* store Escape-Flag */
+  *token_escape_flag = escape_flag; /* store Escape-Flag */
   release_buffers();               /* free Buffers for reuse */
   if (terminal_stream_p(*stream_))
     dynamic_unbind(S(terminal_read_open_object));
@@ -1460,7 +1459,7 @@ typedef struct {
   uintL index4;
 } zahl_info_t;
 local uintWL test_number_syntax (uintWL* base_, object* string_,
-                                 zahl_info_t* info) {
+                                 zahl_info_t* info, bool *token_escape_flag) {
   /* Method:
    1. test for potential number.
       Then there exist only Attributcodes >= a_ratio,
@@ -1494,7 +1493,7 @@ local uintWL test_number_syntax (uintWL* base_, object* string_,
   var uintB* attrptr0;            /* Pointer to the attributes */
   var uintL len;                  /* length of the token */
   { /* 1. test for potential number: */
-    if (token_escape_flag)      /* token with escape-character -> */
+    if (*token_escape_flag)     /* token with escape-character -> */
       return 0;                 /* no potential number -> no number */
     /* escape-flag deleted. */
     var token_info_t info;
@@ -1882,6 +1881,7 @@ local maygc Values read_macro (object ch, const gcv_object_t* stream_) {
  < result: read object (eof_value at EOF, dot_value for single dot)
  can trigger GC */
 local maygc object read_internal (const gcv_object_t* stream_) {
+  bool token_escape_flag = false;
  wloop: { /* loop for skipping of leading whitespace/comment: */
   var object ch;
   var uintWL scode;
@@ -1908,7 +1908,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     case syntax_single_esc:
     case syntax_multi_esc:
     case syntax_constituent: /* read Token: A Token starts with character ch. */
-      read_token_1(stream_,ch,scode); /* finish reading of Token */
+      read_token_1(stream_,ch,scode,&token_escape_flag); /* finish reading of Token */
       break;
     default: NOTREACHED;
   }
@@ -1918,7 +1918,7 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     return NIL;        /* yes -> don't interpret Token, NIL as value */
   /* Token must be interpreted
    the Token is in TLO(token_buff_1), TLO(token_buff_2), token_escape_flag. */
-  if ((!token_escape_flag) && test_dots()) {
+  if (!token_escape_flag && test_dots()) {
     /* Token is a sequence of Dots, read without escape-characters
      thus Length is automatically >0. */
     var uintL len = TheIarray(TLO(token_buff_1))->dims[1]; /* length of Token */
@@ -1937,7 +1937,8 @@ local maygc object read_internal (const gcv_object_t* stream_) {
     /* Token can be interpreted as number? */
     var object string;
     var zahl_info_t info;
-    var uintWL numtype = test_number_syntax(&base,&string,&info);
+    var uintWL numtype = test_number_syntax(&base,&string,&info,
+                                            &token_escape_flag);
     if (!(numtype==0)) {        /* number? */
       upcase_token();           /* convert to upper case */
       var object result;
@@ -2828,8 +2829,9 @@ LISPFUNN(comment_reader,3) {                   /* reads #| */
 LISPFUNN(char_reader,3) {           /* reads #\ */ \
   /* stack layout: Stream, sub-char, n. */
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
+  var bool token_escape_flag = false;
   /* read Token, with Dummy-Character '\' as start of Token: */
-  read_token_1(stream_,ascii_char('\\'),syntax_single_esc);
+  read_token_1(stream_,ascii_char('\\'),syntax_single_esc,&token_escape_flag);
   /* finished at once, when *READ-SUPPRESS* /= NIL: */
   if (!nullpSv(read_suppress)) {
     VALUES1(NIL); skipSTACK(3); /* NIL as value */
@@ -2932,12 +2934,12 @@ LISPFUNN(char_reader,3) {           /* reads #\ */ \
    < STACK: cleaned up
    < mv_space/mv_count: values
    can trigger GC */
-local maygc Values radix_2 (uintWL base) {
+local maygc Values radix_2 (uintWL base, bool *token_escape_flag) {
   /* check, if the  Token is a rational number: */
   upcase_token();               /* convert to upper case */
   var object string;
   var zahl_info_t info;
-  switch (test_number_syntax(&base,&string,&info)) {
+  switch (test_number_syntax(&base,&string,&info,token_escape_flag)) {
     case 1:                     /* Integer */
       /* is last Character a dot? */
       if (chareq(TheSnstring(string)->data[info.index2-1],ascii('.')))
@@ -2978,7 +2980,8 @@ local maygc Values radix_2 (uintWL base) {
  can trigger GC */
 local maygc Values radix_1 (uintWL base) {
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
-  read_token(stream_);   /* read Token */
+  var bool token_escape_flag = false;
+  read_token(stream_,&token_escape_flag);   /* read Token */
   /* finished at once when *READ-SUPPRESS* /= NIL: */
   if (!nullpSv(read_suppress)) {
     VALUES1(NIL); skipSTACK(3); /* NIL as value */
@@ -2987,7 +2990,7 @@ local maygc Values radix_1 (uintWL base) {
   if (!nullp(popSTACK()))       /* n/=NIL -> Error */
     error_dispatch_number();
   pushSTACK(fixnum(base));      /* base as Fixnum */
-  return_Values radix_2(base);
+  return_Values radix_2(base,&token_escape_flag);
 }
 
 /* (set-dispatch-macro-character #\##\B
@@ -3017,7 +3020,8 @@ LISPFUNN(hexadecimal_reader,3) { /* reads #X */
          (progn (read-token stream) nil)))) */
 LISPFUNN(radix_reader,3) {                   /* reads #R */
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
-  read_token(stream_);   /* read Token */
+  var bool token_escape_flag = false;
+  read_token(stream_,&token_escape_flag); /* read Token */
   /* finished at once when *READ-SUPPRESS* /= NIL: */
   if (!nullpSv(read_suppress)) {
     VALUES1(NIL); skipSTACK(3);
@@ -3034,7 +3038,7 @@ LISPFUNN(radix_reader,3) {                   /* reads #R */
   /* n must be a Fixnum between 2 and 36 (inclusive): */
   if (posfixnump(STACK_0)
       && (base = posfixnum_to_V(STACK_0), (base >= 2) && (base <= 36))) {
-    return_Values radix_2(base); /* interpret Token as rational number */
+    return_Values radix_2(base,&token_escape_flag); /* interpret Token as rational number */
   } else {
     pushSTACK(*stream_);        /* STREAM-ERROR slot STREAM */
     pushSTACK(STACK_(0+1));     /* n */
@@ -3119,7 +3123,8 @@ LISPFUNN(uninterned_reader,3) {     /* reads #: */
       error(reader_error,GETTEXT("~S from ~S: token expected after #:"));
     }
     /* read Token until the end: */
-    read_token_1(stream_,ch,scode);
+    var bool token_escape_flag = false;
+    read_token_1(stream_,ch,scode,&token_escape_flag);
     case_convert_token_1();
   }
   if (!nullp(popSTACK()))       /* n/=NIL -> Error */
@@ -3223,7 +3228,8 @@ local uintV read_vector_length_check (uintV token_length,object type,
                bv)))))) */
 LISPFUNN(bit_vector_reader,3) { /* reads #* */
   var gcv_object_t* stream_ = check_stream_arg(&STACK_2);
-  read_token(stream_);    /* read Token */
+  var bool token_escape_flag = false;
+  read_token(stream_,&token_escape_flag); /* read Token */
   /* finished at once, if *READ-SUPPRESS* /= NIL: */
   if (!nullpSv(read_suppress)) {
     VALUES1(NIL); skipSTACK(3);
